@@ -87,11 +87,12 @@ or `window.sessionStorage`, if available, but...
   environments.
 - If neither of those is available, the storage is transient and
   will not survive a page reload.
-- It stores only the most recent last 7 checkin/file combinations
-  which have been modified. Note that changing the "executable bit"
-  is counted as a modification, but the checkin comment is not
-  stored separately for each file. If the limit is exceeded, it
-  silently discards the oldest edits.
+- It stores only the most recent checkin/file combinations which have
+  been modified (exactly how many may differ - the number will be
+  noted somewhere in the UI). Note that changing the "executable bit"
+  is counted as a modification, but the checkin comment is not stored
+  separately for each file. If the limit is exceeded, it silently
+  discards the oldest edits.
 
 Exactly how long `fileStorage` will survive, and how much it or
 `sessionStorage` can hold, is environment-dependent. `sessionStorage`

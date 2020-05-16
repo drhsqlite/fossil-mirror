@@ -862,40 +862,7 @@ label {
 //   max-width: 30em;
 //   overflow: auto;
 // }
-// .fileedit-XXX => /fileedit page
-.hidden {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-//.hidden {
-//  display: none;
-//}
-#fossil-status-bar {
-  display: block;
-  font-family: monospace;
-  border-width: 1px;
-  border-style: inset;
-  border-color: inherit;
-  min-height: 1.5em;
-  font-size: 1.2em;
-  padding: 0.2em;
-  margin: 0.25em 0;
-  flex: 0 0 auto;
-}
-.error {
-  color: darkred;
-  background: yellow;
-}
-body.fileedit .error {
-  padding: 0.25em;
-}
-body.fileedit .warning {
-  color: darkred;
-  background: yellow;
-  padding: 0.25em;
-  opacity: 0.6;
-}
+
 //////////////////////////////////
 // Styles for fossil.tabs.js:
 .tab-container {
@@ -950,98 +917,7 @@ body.fileedit .warning {
   border-left-style: outset;
   border-right-style: outset;
 }
-//////////////////////////////////
-// Styles for /fileedit:
-body.fileedit textarea {
-  font-family: monospace;
-  width: 100%;
-  flex: 10 1 auto;
-  height: initial;
-}
-body.fileedit fieldset {
-  margin: 0.5em 0 0.5em 0;
-  padding: 0.25em 0;
-  border-radius: 0.5em;
-  border-color: inherit;
-  border-width: 1px;
-  font-size: 90%;
-  overflow: auto;
-}
-body.fileedit fieldset > legend {
-  margin: 0 0 0 1em;
-  padding: 0 0.5em 0 0.5em;
-}
-body.fileedit fieldset > div {
-  margin: 0 0.25em 0 0.25em;
-  padding: 0;
-  overflow: auto;
-}
-body.fileedit fieldset > div > .input-with-label {
-  margin: 0.25em 0.5em;
-}
-body.fileedit fieldset > div > button {
-  margin: 0.25em 0.5em;
-}
-.fileedit-hint {
-  font-size: 80%;
-  opacity: 0.75;
-}
-.fileedit-error-report {
-  background: yellow;
-  color: darkred;
-  margin: 1em 0;
-  padding: 0.5em;
-  border-radius: 0.5em;
-}
-code.fileedit-manifest {
-  display: block;
-  height: 16em;
-  overflow: auto;
-  white-space: pre;
-}
-div.fileedit-preview {
-  margin: 0;
-  padding: 0;
-}
-#fileedit-tab-diff-wrapper {
-  margin: 0;
-  padding: 0;
-  overflow: auto;
-}
-#fileedit-tab-preview-wrapper {
-  overflow: auto;
-}
-.fileedit-options.commit-message > div {
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  font-family: monospace;
-}
-.fileedit-options.commit-message > div > * {
-  margin: 0.25em;
-}
-#fileedit-commit-button-wrapper {
-  margin: 0.25em;
-}
-.tab-container > .tabs > .tab-panel > .fileedit-options {
-  margin-top: 0;
-  border: none;
-  border-radius: 0;
-  border-bottom-width: 1px;
-  border-bottom-style: dotted;
-}
-.tab-container > .tabs > .tab-panel > .fileedit-options > button {
-  vertical-align: middle;
-  margin: 0.5em;
-}
-.tab-container > .tabs > .tab-panel > .fileedit-options > input {
-  vertical-align: middle;
-  margin: 0.5em;
-}
-.tab-container > .tabs > .tab-panel > .fileedit-options > .input-with-label {
-  vertical-align: middle;
-  margin: 0.5em;
-}
+
 ////////////////////////////////////////////////////////////////////
 // Styles developed for /fileedit but which have wider
 // applicability:
@@ -1054,9 +930,6 @@ div.fileedit-preview {
   justify-content: center;
   align-items: center;
 }
-.fileedit-options.flex-container.flex-row {
-  align-items: first baseline;
-}
 .flex-container .flex-grow {
   flex-grow: 10;
   flex-shrink: 0;
@@ -1065,35 +938,31 @@ div.fileedit-preview {
   flex-grow: 0;
   flex-shrink: 10;
 }
-.fileedit-options > div > * {
-  margin: 0.25em;
-}
-#fileedit-file-selector {
-  display: flex;
-  flex-direction: column;
-  align-content: flex-start;
-  border-color: inherit;
+#fossil-status-bar {
+  display: block;
+  font-family: monospace;
   border-width: 1px;
   border-style: inset;
-  border-radius: 0.5em;
-  padding: 0 0.25em;
-  margin: 0;
-  min-height: 12em;
+  border-color: inherit;
+  min-height: 1.5em;
+  font-size: 1.2em;
+  padding: 0.2em;
+  margin: 0.25em 0;
+  flex: 0 0 auto;
 }
-#fileedit-file-selector select {
-  margin: 0 0 0.5em 0;
-  height: initial;
-  font-family: monospace;
+.error {
+  color: darkred;
+  background: yellow;
 }
-#fileedit-file-selector select:focus {
-  border: none;
+.warning {
+  color: darkred;
+  background: yellow;
+  opacity: 0.7;
 }
-#fileedit-file-selector > div {
-  padding: 0;
-  margin: 0;
-}
-#fileedit-file-selector > div > * {
-  margin: 0.25em 0.5em 0.25em 0;
+.hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 .flex-container.flex-row.stretch {
   flex-wrap: wrap;
@@ -1129,6 +998,7 @@ div.fileedit-preview {
 .font-size-200 {
   font-size: 200%;
 }
+
 //////////////////////////////////////////////////////////////////
 // .input-with-label is intended to be a wrapper element which
 // contains a SPAN label and an INPUT control.
@@ -1144,6 +1014,9 @@ div.fileedit-preview {
   vertical-align: middle;
 }
 .input-with-label > input {
+  margin: 0;
+}
+.input-with-label > button {
   margin: 0;
 }
 .input-with-label > select {
@@ -1165,4 +1038,150 @@ div.fileedit-preview {
   font-weight: initial;
   margin: 0 0.25em 0 0.25em;
   vertical-align: middle;
+}
+
+////////////////////////////////////////////////////////////
+// Styles for /fileedit:
+// body.fileedit => /fileedit page
+body.fileedit .error {
+  padding: 0.25em;
+}
+body.fileedit .warning {
+  padding: 0.25em;
+}
+body.fileedit textarea {
+  font-family: monospace;
+  width: 100%;
+  flex: 10 1 auto;
+  height: initial;
+}
+body.fileedit fieldset {
+  margin: 0.5em 0 0.5em 0;
+  padding: 0.25em 0;
+  border-radius: 0.5em;
+  border-color: inherit;
+  border-width: 1px;
+  font-size: 90%;
+  overflow: auto;
+}
+body.fileedit fieldset > legend {
+  margin: 0 0 0 1em;
+  padding: 0 0.5em 0 0.5em;
+}
+body.fileedit fieldset > div {
+  margin: 0 0.25em 0 0.25em;
+  padding: 0;
+  overflow: auto;
+}
+body.fileedit fieldset > div > .input-with-label {
+  margin: 0.25em 0.5em;
+}
+body.fileedit fieldset > div > button {
+  margin: 0.25em 0.5em;
+}
+body.fileedit .fileedit-hint {
+  font-size: 80%;
+  opacity: 0.75;
+}
+body.fileedit .fileedit-error-report {
+  background: yellow;
+  color: darkred;
+  margin: 1em 0;
+  padding: 0.5em;
+  border-radius: 0.5em;
+}
+body.fileedit code.fileedit-manifest {
+  display: block;
+  height: 16em;
+  overflow: auto;
+  white-space: pre;
+}
+body.fileedit div.fileedit-preview {
+  margin: 0;
+  padding: 0;
+}
+body.fileedit #fileedit-tab-diff-wrapper {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+body.fileedit #fileedit-tab-preview-wrapper {
+  overflow: auto;
+}
+body.fileedit .fileedit-options.commit-message > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  font-family: monospace;
+}
+body.fileedit .fileedit-options.commit-message > div > * {
+  margin: 0.25em;
+}
+body.fileedit #fileedit-commit-button-wrapper {
+  margin: 0.25em;
+}
+body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
+}
+body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options > button {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options > input {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options > .input-with-label {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.fileedit .fileedit-options > div > * {
+  margin: 0.25em;
+}
+body.fileedit .fileedit-options.flex-container.flex-row {
+  align-items: first baseline;
+}
+body.fileedit #fileedit-file-selector {
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  border-color: inherit;
+  border-width: 1px;
+  border-style: inset;
+  border-radius: 0.5em;
+  padding: 0 0.25em;
+  margin: 0;
+  min-height: 12em;
+}
+body.fileedit #fileedit-file-selector select {
+  margin: 0 0 0.5em 0;
+  height: initial;
+  font-family: monospace;
+}
+body.fileedit select:focus {
+  border: none;
+}
+body.fileedit option:focus {
+  border: none;
+}
+body.fileedit #fileedit-file-selector > div {
+  padding: 0;
+  margin: 0;
+}
+body.fileedit #fileedit-file-selector > div > * {
+  margin: 0.25em 0.5em 0.25em 0;
+}
+body.fileedit #fileedit-stash-selector {
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
+  margin: 0.25em;
+}
+body.fileedit #fileedit-stash-selector select {
+  margin: 0;
+  height: initial;
+  font-family: monospace;
 }

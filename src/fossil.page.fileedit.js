@@ -2,7 +2,9 @@
   "use strict";
   /**
      Code for the /filepage app. Requires that the fossil JS
-     bootstrapping is complete and fossil.fetch() has been installed.
+     bootstrapping is complete and that several fossil JS APIs have
+     been installed: fossil.fetch, fossil.dom, fossil.tabs,
+     fossil.storage, fossil.confirmer.
 
      Custom events, handled via fossil.page.addEventListener():
 
@@ -60,17 +62,203 @@
         D = F.dom,
         P = F.page;
 
+  P.config = {
+    defaultMaxStashSize: 7
+  };
+
+  /**
+     $stash is an internal-use-only object for managing "stashed"
+     local edits, to help avoid that users accidentally lose content
+     by switching tabs or following links or some such. The basic
+     theory of operation is...
+
+     All "stashed" state is stored using fossil.storage.
+
+     - When the current file content is modified by the user, the
+       current stathe of the current P.finfo and its the content
+       is stashed. For the built-in editor widget, "changes" is
+       notified via a 'change' event.  For a client-side custom
+       widget, the client needs to call P.stashContentChange() when
+       their widget triggers the equivalent of a 'change' event.
+
+     - For certain non-content updates (as of this writing, only the
+       is-executable checkbox), only the P.finfo stash entry is
+       updated, not the content (unless the content has not yet been
+       stashed, in which case it is also stashed so that the stash
+       always has matching pairs of finfo/content).
+
+     - When saving, the stashed entry for the previous version is removed
+       from the stash.
+
+     - When "loading", we use any stashed state for the given
+       checkin/file combination. When forcing a re-load of content,
+       any stashed entry for that combination is removed from the
+       stash.
+
+     - Every time P.stashContentChange() updates the stash, it is
+       pruned to $stash.prune.defaultMaxCount most-recently-updated
+       entries.
+
+     - This API often refers to "finfo objects." Those are objects
+       with a minimum of {checkin,filename} properties (which must be
+       valid), and a combination of those two properties is used as
+       basis for the stash keys for any given checkin/filename
+       combination.
+
+     The structure of the stash is a bit convoluted for efficiency's
+     sake: we store a map of file info (finfo) objects separately from
+     those files' contents because otherwise we would be required to
+     JSONize/de-JSONize the file content when stashing/restoring it,
+     and that would be horribly inefficient (meaning "battery-consuming"
+     on mobile devices).
+  */
+  const $stash = {
+    keys: {
+      index: F.page.name+':index'
+    },
+    /**
+       index: {
+       "CHECKIN_HASH:FILENAME": {file info w/o content}
+       ...
+       }
+
+       In F.storage we...
+
+       - Store this.index under the key this.keys.index.
+
+       - Store each file's content under the key
+       (P.name+'/CHECKIN_HASH:FILENAME'). These are stored separately
+       from the index entries to avoid having to JSONize/de-JSONize
+       the content. The assumption/hope is that the browser can store
+       those records "directly," without any intermediary
+       encoding/decoding going on.
+    */
+    indexKey: function(finfo){return finfo.checkin+':'+finfo.filename},
+    /** Returns the key for storing content for the given key suffix,
+        by prepending P.name to suffix. */
+    contentKey: function(suffix){return P.name+'/'+suffix},
+    /** Returns the index object, fetching it from the stash or creating
+        it anew on the first call. */
+    getIndex: function(){
+      if(!this.index) this.index = F.storage.getJSON(this.keys.index,{});
+      return this.index;
+    },
+    _fireStashEvent: function(){
+      if(this._disableNextEvent) delete this._disableNextEvent;
+      else F.page.dispatchEvent('fileedit-stash-updated', this);
+    },
+    /**
+       Returns the stashed version, if any, for the given finfo object.
+    */
+    getFinfo: function(finfo){
+      const ndx = this.getIndex();
+      return ndx[this.indexKey(finfo)];
+    },
+    /** Serializes this object's index to F.storage. Returns this. */
+    storeIndex: function(){
+      if(this.index) F.storage.setJSON(this.keys.index,this.index);
+      return this;
+    },
+    /** Updates the stash record for the given finfo
+        and (optionally) content. If passed 1 arg, only
+        the finfo stash is updated, else both the finfo
+        and its contents are (re-)stashed. Returns this.
+    */
+    updateFile: function(finfo,content){
+      const ndx = this.getIndex(),
+            key = this.indexKey(finfo),
+            old = ndx[key];
+      const record = old || (ndx[key]={
+        checkin: finfo.checkin,
+        filename: finfo.filename,
+        mimetype: finfo.mimetype
+      });
+      record.isExe = !!finfo.isExe;
+      record.stashTime = new Date().getTime();
+      this.storeIndex();
+      if(arguments.length>1){
+        F.storage.set(this.contentKey(key), content);
+      }
+      this._fireStashEvent();
+      return this;
+    },
+    /**
+       Returns the stashed content, if any, for the given finfo
+       object.
+    */       
+    stashedContent: function(finfo){
+      return F.storage.get(this.contentKey(this.indexKey(finfo)));
+    },
+    /** Returns true if we have stashed content for the given finfo
+        record. */
+    hasStashedContent: function(finfo){
+      return F.storage.contains(this.contentKey(this.indexKey(finfo)));
+    },
+    /** Unstashes the given finfo record and its content.
+        Returns this. */
+    unstash: function(finfo){
+      const ndx = this.getIndex(),
+            key = this.indexKey(finfo);
+      delete finfo.stashTime;
+      delete ndx[key];
+      F.storage.remove(this.contentKey(key));
+      this.storeIndex();
+      this._fireStashEvent();
+      return this;
+    },
+    /**
+       Clears all $stash entries from F.storage. Returns this.
+     */
+    clear: function(){
+      const ndx = this.getIndex(),
+            self = this;
+      let count = 0;
+      Object.keys(ndx).forEach(function(k){
+        ++count;
+        const e = ndx[k];
+        delete ndx[k];
+        F.storage.remove(self.contentKey(k));
+      });
+      F.storage.remove(this.keys.index);
+      delete this.index;
+      if(count) this._fireStashEvent();
+      return this;
+    },
+    /**
+       Removes all but the maxCount most-recently-updated stash
+       entries, where maxCount defaults to this.prune.defaultMaxCount.
+    */
+    prune: function f(maxCount){
+      const ndx = this.getIndex();
+      const li = [];
+      if(!maxCount || maxCount<0) maxCount = f.defaultMaxCount;
+      Object.keys(ndx).forEach((k)=>li.push(ndx[k]));
+      li.sort((l,r)=>l.stashTime - r.stashTime);
+      let n = 0;
+      while(li.length>maxCount){
+        ++n;
+        const e = li.shift();
+        this._disableNextEvent = true;
+        this.unstash(e);
+        console.warn("Pruned oldest stash entry:",e);
+      }
+      if(n) this._fireStashEvent();
+    }
+  };
+  $stash.prune.defaultMaxCount = P.config.defaultMaxStashSize;
+
   /**
      Widget for the checkin/file selection list.
   */
-  P.fileSelector = {
+  P.fileSelectWidget = {
     e:{
       container: E('#fileedit-file-selector')
     },
     finfo: {},
     cache: {
       checkins: undefined,
-      files:{}
+      files:{},
+      branchNames: {}
     },
     /**
        Fetches the list of leaf checkins from the server and updates
@@ -95,6 +283,7 @@
           let loadThisOne;
           list.forEach(function(o,n){
             if(!n) loadThisOne = o;
+            self.cache.branchNames[F.hashDigits(o.checkin)] = o.branch;
             D.option(self.e.selectCi, o.checkin,
                      o.timestamp+' ['+o.branch+']: '
                      +F.hashDigits(o.checkin));
@@ -153,6 +342,16 @@
       });
       return this;
     },
+
+    /**
+       If this object has ever loaded the given checkin version via
+       loadLeaves(), this returns the branch name associated with that
+       version, else returns undefined;
+     */
+    checkinBranchName: function(uuid){
+      return this.cache.branchNames[F.hashDigits(uuid)];
+    },
+
     /**
        Initializes the checkin/file selector widget. Must only be
        called once.
@@ -208,8 +407,104 @@
       );
       delete this.init;
     }
-  }/*P.fileSelector*/;
+  }/*P.fileSelectWidget*/;
 
+  /**
+     Widget for listing and selecting $stash entries.
+  */
+  P.stashWidget = {
+    e:{/*DOM element(s)*/},
+    init: function(domInsertPoint/*insert widget BEFORE this element*/){
+      const flow = D.addClass(D.div(), 'flex-container','flex-column');
+      const wrapper = D.addClass(
+        D.attr(D.div(),'id','fileedit-stash-selector'),
+        'input-with-label'
+      );
+      const sel = this.e.select = D.select();
+      const btnClear = this.e.btnClear
+            = D.addClass(D.button("Clear"),'hidden');
+      D.append(flow, wrapper);
+      D.append(wrapper, "Local edits ("+(F.storage.storageImplName())+"):",
+               sel, btnClear);
+      D.attr(wrapper, "title", [
+        'Locally "stashed" edits. Timestamps are the last local edit time.',
+        'Only the',P.config.defaultMaxStashSize,'most recent checkin/file',
+        'combinations are retained.',
+        'Committing or reloading a file removes it from this stash.'
+      ].join(' '));
+      D.option(D.disable(sel), "(empty)");
+      F.page.addEventListener('fileedit-stash-updated',(e)=>this.updateList(e.detail));
+      F.page.addEventListener('fileedit-file-loaded',(e)=>this.updateList($stash, e.detail));
+      sel.addEventListener('change',function(e){
+        const opt = this.selectedOptions[0];
+        if(opt && opt._finfo) P.loadFile(opt._finfo);
+      });
+      F.confirmer(btnClear, {
+        confirmText: "REALLY delete ALL local edits?",
+        onconfirm: (e)=>P.clearStash().loadFile(/*in case P.finfo() was in the stash*/),
+        ticks: 3
+      });
+      if(F.storage.isTransient()){/*Warn if transient storage is in use...*/
+        D.append(flow, D.append(D.addClass(D.div(),'warning'),
+                                "Warning: persistent storage is not avaible, "+
+                                "so uncomitted edits will not survive a page reload.")
+        );
+      }
+      domInsertPoint.parentNode.insertBefore(flow, domInsertPoint);
+      $stash._fireStashEvent(/*update this object with the load-time stash*/);
+      delete this.init;
+    },
+    /**
+       Regenerates the edit selection list.
+     */
+    updateList: function f(stasher,theFinfo){
+      if(!f.compare){
+        const cmpBase = (l,r)=>l<r ? -1 : (l===r ? 0 : 1);
+        f.compare = function(l,r){
+          const cmp = cmpBase(l.filename, r.filename);
+          return cmp ? cmp : cmpBase(l.checkin, r.checkin);
+        };
+        f.rxZ = /\.\d+Z$/ /* ms and 'Z' part of date string */;
+        const pad=(x)=>(''+x).length>1 ? x : '0'+x;
+        f.timestring = function ff(d){
+          return [
+            d.getFullYear(),'-',pad(d.getMonth()+1/*sigh*/),'-',pad(d.getDate()),
+            '@',pad(d.getHours()),':',pad(d.getMinutes())
+          ].join('');
+        };
+      }
+      const index = stasher.getIndex(), ilist = [];
+      Object.keys(index).forEach((finfo)=>{
+        ilist.push(index[finfo]);
+      });
+      const self = this;
+      D.clearElement(this.e.select);
+      if(0===ilist.length){
+        D.addClass(this.e.btnClear, 'hidden');
+        D.option(D.disable(this.e.select),"No local edits");
+        return;
+      }
+      D.enable(this.e.select);
+      D.removeClass(this.e.btnClear, 'hidden');
+      D.disable(D.option(this.e.select,0,"Select a local edit..."));
+      const currentFinfo = theFinfo || P.finfo || {};
+      ilist.sort(f.compare).forEach(function(finfo,n){
+        const key = stasher.indexKey(finfo),
+              branch = P.fileSelectWidget.checkinBranchName(finfo.checkin);
+        const opt = D.option(
+          self.e.select, n+1/*value is (almost) irrelevant*/,
+          [F.hashDigits(finfo.checkin, 6), branch,
+           f.timestring(new Date(finfo.stashTime)),
+           false ? finfo.filename : F.shortenFilename(finfo.filename)
+          ].join(' ')
+        );
+        opt._finfo = finfo;
+        if(0===f.compare(currentFinfo, finfo)){
+          D.attr(opt, 'selected', true);
+        }
+      });
+    }
+  }/*P.stashWidget*/;
   
   /**
      Internal workaround to select the current preview mode
@@ -229,7 +524,7 @@
     }
   };
 
-  window.addEventListener("load", function() {
+  F.onPageLoad(function() {
     P.base = {tag: E('base')};
     P.base.originalHref = P.base.tag.href;
     P.tabs = new fossil.TabManager('#fileedit-tabs');
@@ -260,7 +555,6 @@
         commit: E('#fileedit-tab-commit')
       }
     };
-    P.fileSelector.init();
     /* Figure out which comment editor to show by default and
        hide the other one. By default we take the one which does
        not have the 'hidden' CSS class. If neither do, we default
@@ -386,25 +680,9 @@
       ()=>D.clearElement(P.e.diffTarget, P.e.previewTarget)
     );
 
-    /* Tell the user about which fossil.storage is being used... */
-    let storageMsg = D.addClass(D.div(),'flex-container','flex-row',
-                                'fileedit-hint');
-    if(F.storage.isTransient()){
-      D.append(
-        D.addClass(storageMsg,'warning'),
-        "Warning: persistent storage is not avaible, "+
-          "so unsaved edits "+
-          "will not survive a page reload."
-      );
-    }else{
-      D.append(
-        storageMsg,
-        "Current storage mechanism for local edits: "+
-          F.storage.storageImplName()
-      );
-    }
-    P.e.tabs.content.insertBefore(storageMsg, P.e.tabs.content.lastElementChild);
-  }, false)/*onload event handler*/;
+    P.fileSelectWidget.init();
+    P.stashWidget.init(P.e.tabs.content.lastElementChild);
+  }/*F.onPageLoad()*/);
 
   /**
      Getter (if called with no args) or setter (if passed an arg) for
@@ -610,9 +888,15 @@
   */
   P.loadFile = function(file,rev){
     if(0===arguments.length){
+      /* Reload from this.finfo */
       if(!affirmHasFile()) return this;
       file = this.finfo.filename;
       rev = this.finfo.checkin;
+    }else if(1===arguments.length){
+      /* Assume finfo-like object */
+      const arg = arguments[0];
+      file = arg.filename;
+      rev = arg.checkin;
     }
     const self = this;
     const onload = (r,headers)=>{
@@ -798,7 +1082,7 @@
           self.finfo = c;
           self.e.taComment.value = '';
           self.updateVersion();
-          self.fileSelector.loadLeaves();
+          self.fileSelectWidget.loadLeaves();
         }
         F.message.apply(F, msg);
         self.tabs.switchToTab(self.e.tabs.commit);
@@ -844,172 +1128,6 @@
     });
     return this;
   };
-
-  /**
-     $stash is an internal-use-only object for managing "stashed"
-     local edits, to help avoid that users accidentally lose content
-     by switching tabs or following links or some such. The basic
-     theory of operation is...
-
-     All "stashed" state is stored using fossil.storage.
-
-     - When the current file content is modified by the user, the
-       current stathe of the current P.finfo and its the content
-       is stashed. For the built-in editor widget, "changes" is
-       notified via a 'change' event.  For a client-side custom
-       widget, the client needs to call P.stashContentChange() when
-       their widget triggers the equivalent of a 'change' event.
-
-     - For certain non-content updates (as of this writing, only the
-       is-executable checkbox), only the P.finfo stash entry is
-       updated, not the content (unless the content has not yet been
-       stashed, in which case it is also stashed so that the stash
-       always has matching pairs of finfo/content).
-
-     - When saving, the stashed entry for the previous version is removed
-       from the stash.
-
-     - When "loading", we use any stashed state for the given
-       checkin/file combination. When forcing a re-load of content,
-       any stashed entry for that combination is removed from the
-       stash.
-
-     - Every time P.stashContentChange() updates the stash, it is
-       pruned to $stash.prune.defaultMaxCount most-recently-updated
-       entries.
-
-     - This API often refers to "finfo objects." Those are objects
-       with a minimum of {checkin,filename} properties (which must be
-       valid), and a combination of those two properties is used as
-       basis for the stash keys for any given checkin/filename
-       combination.
-
-     The structure of the stash is a bit convoluted for efficiency's
-     sake: we store a map of file info (finfo) objects separately from
-     those files' contents because otherwise we would be required to
-     JSONize/de-JSONize the file content when stashing/restoring it,
-     and that would be horribly inefficient (meaning "battery-consuming"
-     on mobile devices).
-  */
-  const $stash = {
-    keys: {
-      index: F.page.name+':index'
-    },
-    /**
-       index: {
-       "CHECKIN_HASH:FILENAME": {file info w/o content}
-       ...
-       }
-
-       In F.storage we...
-
-       - Store this.index under the key this.keys.index.
-
-       - Store each file's content under the key
-       (P.name+'/CHECKIN_HASH:FILENAME'). These are stored separately
-       from the index entries to avoid having to JSONize/de-JSONize
-       the content. The assumption/hope is that the browser can store
-       those records "directly," without any intermediary
-       encoding/decoding going on.
-    */
-    indexKey: function(finfo){return finfo.checkin+':'+finfo.filename},
-    /** Returns the key for storing content for the given key suffix,
-        by prepending P.name to suffix. */
-    contentKey: function(suffix){return P.name+'/'+suffix},
-    /** Returns the index object, fetching it from the stash or creating
-        it anew on the first call. */
-    getIndex: function(){
-      if(!this.index) this.index = F.storage.getJSON(this.keys.index,{});
-      return this.index;
-    },
-    /**
-       Returns the stashed version, if any, for the given finfo object.
-    */
-    getFinfo: function(finfo){
-      const ndx = this.getIndex();
-      return ndx[this.indexKey(finfo)];
-    },
-    /** Serializes this object's index to F.storage. Returns this. */
-    storeIndex: function(){
-      if(this.index) F.storage.setJSON(this.keys.index,this.index);
-      return this;
-    },
-    /** Updates the stash record for the given finfo
-        and (optionally) content. If passed 1 arg, only
-        the finfo stash is updated, else both the finfo
-        and its contents are (re-)stashed. Returns this.
-    */
-    updateFile: function(finfo,content){
-      const ndx = this.getIndex(),
-            key = this.indexKey(finfo);
-      const record = ndx[key] || (ndx[key]={
-        checkin: finfo.checkin,
-        filename: finfo.filename,
-        mimetype: finfo.mimetype
-      });
-      record.isExe = !!finfo.isExe;
-      record.stashTime = new Date().getTime();
-      this.storeIndex();
-      if(arguments.length>1){
-        F.storage.set(this.contentKey(key), content);
-      }
-      return this;
-    },
-    /**
-       Returns the stashed content, if any, for the given finfo
-       object.
-    */       
-    stashedContent: function(finfo){
-      return F.storage.get(this.contentKey(this.indexKey(finfo)));
-    },
-    /** Returns true if we have stashed content for the given finfo
-        record. */
-    hasStashedContent: function(finfo){
-      return F.storage.contains(this.contentKey(this.indexKey(finfo)));
-    },
-    /** Unstashes the given finfo record and its content.
-        Returns this. */
-    unstash: function(finfo){
-      const ndx = this.getIndex(),
-            key = this.indexKey(finfo);
-      delete finfo.stashTime;
-      delete ndx[key];
-      F.storage.remove(this.contentKey(key));
-      return this.storeIndex();
-    },
-    /**
-       Clears all $stash entries from F.storage. Returns this.
-     */
-    clear: function(){
-      const ndx = this.getIndex(),
-            self = this;
-      Object.keys(ndx).forEach(function(k){
-        const e = ndx[k];
-        delete ndx[k];
-        F.storage.remove(self.contentKey(k));
-      });
-      F.storage.remove(this.keys.index);
-      delete this.index;
-      return this;
-    },
-    /**
-       Removes all but the maxCount most-recently-updated stash
-       entries, where maxCount defaults to this.prune.defaultMaxCount.
-    */
-    prune: function f(maxCount){
-      const ndx = this.getIndex();
-      const li = [];
-      if(!maxCount || maxCount<0) maxCount = f.defaultMaxCount;
-      Object.keys(ndx).forEach((k)=>li.push(ndx[k]));
-      li.sort((l,r)=>l.stashTime - r.stashTime);
-      while(li.length>maxCount){
-        const e = li.shift();
-        this.unstash(e);
-        console.warn("Pruned oldest stash entry:",e);
-      }
-    }
-  };
-  $stash.prune.defaultMaxCount = 7;
 
   /**
      Updates P.finfo for certain state and stashes P.finfo, with the
@@ -1071,7 +1189,5 @@
   P.getStashedFinfo = function(finfo){
     return $stash.getFinfo(finfo);
   };
-
-  P.$stash = $stash /*only for testing/debugging */;
 
 })(window.fossil);

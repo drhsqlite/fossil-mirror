@@ -1820,19 +1820,12 @@ void fileedit_page(void){
        ">");
     CX("<div class='fileedit-options "
        "flex-container flex-row child-gap-small'>");
-    if(1){
-      /* Discard/reload button. Leave this out until we have a
-      ** nice way of offering confirmation, e.g. like the old
-      ** jQuery.confirmer plugin which required a 2nd click of the
-      ** button within X seconds to confirm. Right now it's simply
-      ** to easy to tap by accident. */
-      CX("<button class='fileedit-content-reload confirmer' "
-         "title='Reload the file from the server, discarding "
-         "any local edits. To help avoid accidental loss of "
-         "edits, it requires confirmation (a second click) within "
-         "a few seconds or it will not reload.'"
-         ">Discard &amp; Reload</button>");
-    }
+    CX("<button class='fileedit-content-reload confirmer' "
+       "title='Reload the file from the server, discarding "
+       "any local edits. To help avoid accidental loss of "
+       "edits, it requires confirmation (a second click) within "
+       "a few seconds or it will not reload.'"
+       ">Discard &amp; Reload</button>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
                           NULL/*tooltip*/,
@@ -2091,9 +2084,8 @@ void fileedit_page(void){
        "in leaf checkins to be selected, but files may be edited via "
        "non-leaf checkins by passing them as the <code>filename</code> "
        "and <code>checkin</code> URL arguments to this page.</li>");
-    CX("<li>The editor \"stashes\" local edits to the last 7 "
-       "checkin/file combinations in one of "
-       "<code>window.fileStorage</code> or "
+    CX("<li>The editor \"stashes\" some number of local edits in "
+       "one of <code>window.fileStorage</code> or "
        "<code>window.sessionStorage</code>, if able, but which storage "
        "is unspecified and may differ across environments. When saving "
        "or force-reloading a file, stashed edits to that version are "

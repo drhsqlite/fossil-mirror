@@ -155,16 +155,19 @@
      Expects to be passed as hash code as its first argument. It
      returns a "shortened" form of hash, with a length which depends
      on the 2nd argument: truthy = fossil.config.hashDigitsUrl, falsy
-     = fossil.config.hashDigits. Both of those values are derived from
-     the 'hash-digits' repo-level config setting or the
+     = fossil.config.hashDigits, number == that many digits. The
+     fossil.config values are derived from the 'hash-digits'
+     repo-level config setting or the
      FOSSIL_HASH_DIGITS_URL/FOSSIL_HASH_DIGITS compile-time options.
 
      If its first arugment is a non-string, that value is returned
      as-is.
   */
   F.hashDigits = function(hash,forUrl){
+    const n = ('number'===typeof forUrl)
+          ? forUrl : F.config[forUrl ? 'hashDigitsUrl' : 'hashDigits'];
     return ('string'==typeof hash ? hash.substr(
-      0, F.config[forUrl ? 'hashDigitsUrl' : 'hashDigits']
+      0, n
     ) : hash);
   };
 
@@ -275,6 +278,35 @@
       );
     });
     return this;
+  };
+
+  /**
+     Convenience wrapper which adds an onload event listener to the
+     window object. Returns this.
+  */
+  F.onPageLoad = function(callback){
+    window.addEventListener('load', callback, false);
+    return this;
+  };
+
+  /**
+     Assuming name is a repo-style filename, this function returns
+     a shortened form of that name:
+
+     .../LastDirectoryPart/FilenamePart
+
+     If the name has 0-1 directory parts, it is returned as-is.
+
+     Design note: in practice it is generally not helpful to elide the
+     *last* directory part because embedded docs (in particular) often
+     include x/y/index.md and x/z/index.md, both of which would be
+     shortened to something like x/.../index.md.
+  */
+  F.shortenFilename = function(name){
+    const a = name.split('/');
+    if(a.length<=2) return name;
+    while(a.length>2) a.shift();
+    return '.../'+a.join('/');
   };
 
   /**
