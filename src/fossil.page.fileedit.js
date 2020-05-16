@@ -114,7 +114,7 @@
   */
   const $stash = {
     keys: {
-      index: F.page.name+':index'
+      index: F.page.name+'/index'
     },
     /**
        index: {
@@ -140,7 +140,26 @@
     /** Returns the index object, fetching it from the stash or creating
         it anew on the first call. */
     getIndex: function(){
-      if(!this.index) this.index = F.storage.getJSON(this.keys.index,{});
+      if(!this.index){
+        this.index = F.storage.getJSON(
+          this.keys.index, undefined
+        );
+        if(!this.index){
+          /*check for and remove/replace older name. This whole block
+            can be removed once the test phase is done (don't want to
+            invalidate the testers' edits on the test server). When
+            doing so, be sure to replace undefined in the above
+            getJSON() call with {}. */
+          const oldName = F.page.name+':index';
+          this.index = F.storage.getJSON(oldName,undefined);
+          if(this.index){
+            F.storage.remove(oldName);
+            this.storeIndex();
+          }else{
+            this.index = {};
+          }
+        }
+      }
       return this.index;
     },
     _fireStashEvent: function(){
@@ -175,6 +194,7 @@
       });
       record.isExe = !!finfo.isExe;
       record.stashTime = new Date().getTime();
+      if(!record.branch) record.branch=finfo.branch;
       this.storeIndex();
       if(arguments.length>1){
         F.storage.set(this.contentKey(key), content);
@@ -258,6 +278,7 @@
     cache: {
       checkins: undefined,
       files:{},
+      branchKey: 'fileedit/uuid-branches',
       branchNames: {}
     },
     /**
@@ -283,11 +304,12 @@
           let loadThisOne;
           list.forEach(function(o,n){
             if(!n) loadThisOne = o;
-            self.cache.branchNames[F.hashDigits(o.checkin)] = o.branch;
+            self.cache.branchNames[F.hashDigits(o.checkin,true)] = o.branch;
             D.option(self.e.selectCi, o.checkin,
                      o.timestamp+' ['+o.branch+']: '
                      +F.hashDigits(o.checkin));
           });
+          F.storage.setJSON(self.cache.branchKey, self.cache.branchNames);
           self.loadFiles(loadThisOne ? loadThisOne.checkin : false);
         }
       });
@@ -349,7 +371,7 @@
        version, else returns undefined;
      */
     checkinBranchName: function(uuid){
-      return this.cache.branchNames[F.hashDigits(uuid)];
+      return this.cache.branchNames[F.hashDigits(uuid,true)];
     },
 
     /**
@@ -357,6 +379,7 @@
        called once.
     */
     init: function(){
+      this.cache.branchNames = F.storage.getJSON(this.cache.branchKey, {});
       const selCi = this.e.selectCi = D.select(),
             selFiles = this.e.selectFiles
             = D.addClass(D.select(), 'file-list'),
@@ -490,13 +513,16 @@
       const currentFinfo = theFinfo || P.finfo || {};
       ilist.sort(f.compare).forEach(function(finfo,n){
         const key = stasher.indexKey(finfo),
-              branch = P.fileSelectWidget.checkinBranchName(finfo.checkin);
+              branch = finfo.branch
+              || P.fileSelectWidget.checkinBranchName(finfo.checkin)||'';
+        /* Remember that we don't know the branch name for non-leaf versions
+           which P.fileSelectWidget() has never seen/cached. */
         const opt = D.option(
           self.e.select, n+1/*value is (almost) irrelevant*/,
-          [F.hashDigits(finfo.checkin, 6), branch,
-           f.timestring(new Date(finfo.stashTime)),
+          [F.hashDigits(finfo.checkin, 6), ' [',branch||'?branch?','] ',
+           f.timestring(new Date(finfo.stashTime)),' ',
            false ? finfo.filename : F.shortenFilename(finfo.filename)
-          ].join(' ')
+          ].join('')
         );
         opt._finfo = finfo;
         if(0===f.compare(currentFinfo, finfo)){
@@ -1141,6 +1167,7 @@
     if(affirmHasFile(true)){
       const fi = this.finfo;
       fi.isExe = this.e.cbIsExe.checked;
+      if(!fi.branch) fi.branch = this.fileSelectWidget.checkinBranchName(fi.checkin);
       if(onlyFinfo && $stash.hasStashedContent(fi)){
         $stash.updateFile(fi);
       }else{

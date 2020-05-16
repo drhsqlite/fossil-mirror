@@ -68,10 +68,16 @@
     /** Returns true if the storage contains the given key,
         else false. */
     contains: (k)=>$storageHolder.hasOwnProperty(k),
-    /** Removes the given key from the storage. */
-    remove: (k)=>$storage.removeItem(k),
-    /** Clears ALL keys from the storage. */
-    clear: ()=>$storage.clear(),
+    /** Removes the given key from the storage. Returns this. */
+    remove: function(k){
+      $storage.removeItem(k);
+      return this;
+    },
+    /** Clears ALL keys from the storage. Returns this. */
+    clear: function(){
+      $storage.clear();
+      return this;
+    },
     /** Returns an array of all keys currently in the storage. */
     keys: ()=>Object.keys($storageHolder),
     /** Returns true if this storage is transient (only available
