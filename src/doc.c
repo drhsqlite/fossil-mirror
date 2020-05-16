@@ -812,7 +812,7 @@ void document_render(
 ** URL: /doc/CHECKIN/FILE
 **
 ** CHECKIN can be either tag or hash prefix or timestamp identifying a
-** particular check, or the name of a branch (meaning the most recent
+** particular check-in, or the name of a branch (meaning the most recent
 ** check-in on that branch) or one of various magic words:
 **
 **     "tip"      means the most recent check-in

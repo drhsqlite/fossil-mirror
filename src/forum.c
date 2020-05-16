@@ -1015,8 +1015,8 @@ static void forum_entry_widget(
   }
   @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu(zMimetype);
-  @ <br><textarea name="content" class="wikiedit" cols="80" \
-  @ rows="25" wrap="virtual">%h(zContent)</textarea><br>
+  @ <br><textarea aria-label="Content:" name="content" class="wikiedit" \
+  @ cols="80" rows="25" wrap="virtual">%h(zContent)</textarea><br>
 }
 
 /*
@@ -1238,7 +1238,7 @@ void forumedit_page(void){
     @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
     @ <input type="hidden" name="content" value="%h(zContent)">
     if( zTitle ){
-      @ <input type="hidden" name="title" value="%h(zTitle)">
+      @ <input aria-label="Title" type="hidden" name="title" value="%h(zTitle)">
     }
   }else if( P("edit") ){
     /* Provide an edit to the fpid post */

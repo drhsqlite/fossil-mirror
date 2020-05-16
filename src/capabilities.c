@@ -241,7 +241,7 @@ static struct Caps {
   { 'a', CAPCLASS_SUPER, 0,
     "Admin", "Create and delete users" },
   { 'b', CAPCLASS_WIKI|CAPCLASS_TKT, 0,
-    "Attach", "Add attchments to wiki or tickets" },
+    "Attach", "Add attachments to wiki or tickets" },
   { 'c', CAPCLASS_TKT, 0,
     "Append-Tkt", "Append to existing tickets" },
   /*

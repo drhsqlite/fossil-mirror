@@ -1119,7 +1119,7 @@ void setup_skin(void){
     @ an administrator to get this "draft%d(iSkin)" skin published.</p>
   }else{
     @ <p>When the draft%d(iSkin) skin is ready for production use,
-    @ make it the default scan by clicking the acknowledgements and
+    @ make it the default skin by clicking the acknowledgements and
     @ pressing the button below:</p>
     @
     @ <form method='POST' action='%R/setup_skin#step7'>
