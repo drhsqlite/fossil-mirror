@@ -448,21 +448,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   int prevFRid = 0;                 /* RID of file's prev. version */
 #define ci_err(EXPR) if(pErr!=0){blob_appendf EXPR;} goto ci_error
 
-  if(!(pCI->flags & CIMINI_DRY_RUN)){
-    /* Until this feature is fully vetted, disallow it in the main
-    ** fossil repo unless dry-run mode is being used. */
-    char * zProjCode = db_get("project-code",0);
-    assert(zProjCode);
-    if(0==fossil_stricmp("CE59BB9F186226D80E49D1FA2DB29F935CCA0333",
-                         zProjCode)){
-      fossil_fatal("Never, ever run this in/on the core fossil repo "
-                   "in non-dry-run mode until it's been well-vetted. "
-                   "Use a temp/test repo.");
-    }
-    fossil_free(zProjCode);
-  }
   db_begin_transaction();
-
   if(pCI->pParent==0 && pCI->zParentUuid==0){
     ci_err((pErr, "Cannot determine parent version."));
   }
@@ -475,7 +461,6 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     pCI->zParentUuid = rid_to_uuid(pCI->pParent->rid);
     assert(pCI->zParentUuid);
   }
-
   assert(pCI->pParent->rid>0);
   if(leaf_is_closed(pCI->pParent->rid)){
     ci_err((pErr,"Cannot commit to a closed leaf."));

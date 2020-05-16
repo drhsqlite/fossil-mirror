@@ -260,7 +260,7 @@
         const e = li.shift();
         this._disableNextEvent = true;
         this.unstash(e);
-        console.warn("Pruned oldest stash entry:",e);
+        console.warn("Pruned oldest local file edit entry:",e);
       }
       if(n) this._fireStashEvent();
     }
@@ -1216,5 +1216,7 @@
   P.getStashedFinfo = function(finfo){
     return $stash.getFinfo(finfo);
   };
+
+  P.$stash = $stash /*only for testing/debugging - not part of the API.*/;
 
 })(window.fossil);
