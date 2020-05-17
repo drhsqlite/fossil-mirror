@@ -342,8 +342,8 @@ static int submenuCompare(const void *a, const void *b){
   return fossil_strcmp(A->zLabel, B->zLabel);
 }
 
-/* Use this for the $current_page variable if it is not NULL.  If it is
-** NULL then use g.zPath.
+/* Use this for the $current_page variable if it is not NULL.  If it
+** is NULL then use g.zPath.
 */
 static char *local_zCurrentPage = 0;
 
@@ -363,8 +363,9 @@ void style_set_current_page(const char *zFormat, ...){
 }
 
 /*
-** Create a TH1 variable containing the URL for the specified config resource.
-** The resulting variable name will be of the form $[zVarPrefix]_url.
+** Create a TH1 variable containing the URL for the specified config
+** resource. The resulting variable name will be of the form
+** $[zVarPrefix]_url.
 */
 static void url_var(
   const char *zVarPrefix,
@@ -372,8 +373,9 @@ static void url_var(
   const char *zPageName
 ){
   char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zExtra = 0;
-  char *zUrl = 0;
+  char *zUrl = 0;              /* stylesheet URL */
+  int hasBuiltin = 0;          /* true for built-in page-specific CSS */
+
   if(0==strcmp("css",zConfigName)){
     /* Account for page-specific CSS, appending a /{{g.zPath}} to the
     ** url only if we have a corresponding built-in page-specific CSS
@@ -381,16 +383,13 @@ static void url_var(
     ** effectively cache-bust all pages which do not have
     ** page-specific CSS. */
     char * zBuiltin = mprintf("style.%s.css", g.zPath);
-    if(builtin_file(zBuiltin,0)!=0){
-      zExtra = mprintf("/%s", g.zPath);
-    }
+    hasBuiltin = builtin_file(zBuiltin,0)!=0;
     fossil_free(zBuiltin);
   }
-  zUrl = mprintf("%R/%s%s?id=%x", zPageName,
-                 zExtra ? zExtra : "",
+  zUrl = mprintf("%R/%s%s%s?id=%x", zPageName,
+                 hasBuiltin ? "/" : "", hasBuiltin ? g.zPath : "",
                  skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
-  fossil_free(zExtra);
   fossil_free(zUrl);
   fossil_free(zVarName);
 }
