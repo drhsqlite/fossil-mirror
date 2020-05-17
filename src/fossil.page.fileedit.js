@@ -302,8 +302,8 @@
       ),"Loading leaves...");
       D.disable(this.e.btnLoadFile, this.e.selectFiles, this.e.selectCi); 
       const self = this;
-      F.fetch('fileedit',{
-        urlParams:'ajax=filelist&leaves',
+      F.fetch('fileedit/filelist',{
+        urlParams:'leaves',
         responseType: 'json',
         onload: function(list){
           D.append(D.clearElement(self.e.ciListLabel),
@@ -366,8 +366,8 @@
       D.clearElement(selFiles);
       D.append(D.clearElement(this.e.fileListLabel),
                "Loading files for "+F.hashDigits(ciUuid)+"...");
-      F.fetch('fileedit',{
-        urlParams:{ajax:'filelist', checkin: ciUuid},
+      F.fetch('fileedit/filelist',{
+        urlParams:{checkin: ciUuid},
         responseType: 'json',
         onload
       });
@@ -1000,9 +1000,8 @@
     }
     F.message(
       "Loading content..."
-    ).fetch('fileedit',{
+    ).fetch('fileedit/content',{
       urlParams: {
-        ajax: 'content',
         filename:file,
         checkin:rev
       },
@@ -1056,8 +1055,7 @@
     fd.append('content',content || '');
     F.message(
       "Fetching preview..."
-    ).fetch('fileedit',{
-      urlParams: {ajax: 'preview'},
+    ).fetch('fileedit/preview',{
       payload: fd,
       responseHeaders: 'x-fileedit-render-mode',
       onload: (r,header)=>{
@@ -1099,8 +1097,7 @@
     if(this.e.selectDiffWS) fd.append('ws',this.e.selectDiffWS.value);
     F.message(
       "Fetching diff..."
-    ).fetch('fileedit',{
-      urlParams: {ajax: 'diff'},
+    ).fetch('fileedit/diff',{
       payload: fd,
       onload: function(c){
         target.innerHTML = [
@@ -1195,8 +1192,7 @@
     });
     F.message(
       "Checking in..."
-    ).fetch('fileedit',{
-      urlParams: {ajax: 'commit'},
+    ).fetch('fileedit/commit',{
       payload: fd,
       responseType: 'json',
       onload: f.onload

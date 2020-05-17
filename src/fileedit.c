@@ -1730,11 +1730,17 @@ end_cleanup:
 **
 ** Internal-use parameters:
 **
-**    ajax=string         The name of a page-specific AJAX operation.
+**    name=string         The name of a page-specific AJAX operation.
+**
+** Noting that fossil internally stores all URL path components after
+** the first as the "name" value. Thus /fileedit?name=blah is
+** equivalent to /fileedit/blah. The latter is the preferred
+** form. This means, however, that no fileedit ajax routes may make
+** use of the name parameter.
 **
 ** Which additional parameters are used by each distinct ajax value is
 ** an internal implementation detail and may change with any given
-** build of this code. An unknown ajax value triggers an error, as
+** build of this code. An unknown "name" value triggers an error, as
 ** documented for fileedit_ajax_error().
 */
 void fileedit_page(void){
@@ -1753,7 +1759,7 @@ void fileedit_page(void){
                                            function call, thus each
                                            entry must end with a
                                            semicolon. */
-  const char *zAjax = P("ajax");
+  const char *zAjax = P("name");
 
   if(0!=zAjax){
     if(0==strcmp("content",zAjax)){
@@ -1767,7 +1773,7 @@ void fileedit_page(void){
     }else if(0==strcmp("commit",zAjax)){
       fileedit_ajax_commit();
     }else{
-      fileedit_ajax_error(500, "Unhandled 'ajax' value.");
+      fileedit_ajax_error(500, "Unhandled ajax route name.");
     }
     return;
   }
