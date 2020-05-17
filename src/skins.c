@@ -285,7 +285,7 @@ static unsigned int skin_hash(unsigned int h, const char *z){
 ** as long as they are unchanged.
 **
 ** The zResource argument is the name of a CONFIG setting that
-** defines the resource.  Examples:  "css", "logo", "background".
+** defines the resource.  Examples:  "css", "logo-image".
 */
 unsigned int skin_id(const char *zResource){
   unsigned int h = 0;
@@ -298,6 +298,8 @@ unsigned int skin_id(const char *zResource){
     h = skin_hash(0, zMTime);
     fossil_free(zMTime);
   }
+
+  /* Change the ID every time Fossil is recompiled */
   h = skin_hash(h, fossil_exe_id());
   return h;
 }
