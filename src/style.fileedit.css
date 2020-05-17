@@ -7,10 +7,8 @@ body.fileedit .warning {
 }
 body.fileedit textarea {
   font-family: monospace;
-  width: calc(100% - 0.5em)
-  /*width 100% can cause a scrollbar to appear on the parent*/;
   flex: 10 1 auto;
-  height: initial;
+  height: initial/*undo damage from some skins*/;
 }
 body.fileedit textarea:focus,
 body.fileedit input:focus{
@@ -68,6 +66,9 @@ body.fileedit #fileedit-tabs {
 }
 body.fileedit #fileedit-tab-preview-wrapper {
   overflow: auto;
+}
+body.fileedit #fileedit-tab-fileselect > h1 {
+  margin: 0;
 }
 body.fileedit .fileedit-options.commit-message > div {
   display: flex;

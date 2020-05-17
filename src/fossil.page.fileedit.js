@@ -993,7 +993,7 @@
         'content-type': stashFinfo.mimetype,
         'x-fileedit-checkin-branch': stashFinfo.branch
       });
-      F.message("Fetched from the local-edit stash:",
+      F.message("Fetched from the local-edit storage:",
                 F.hashDigits(stashFinfo.checkin),
                 stashFinfo.filename);
       return this;

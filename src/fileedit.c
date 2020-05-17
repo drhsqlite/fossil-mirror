@@ -1878,7 +1878,7 @@ void fileedit_page(void){
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
     CX("</div>");
-    CX("<div class='flex-container flex-column'>");
+    CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
        "class='fileedit' "
        "rows='20' cols='80'>");
@@ -2007,7 +2007,8 @@ void fileedit_page(void){
     /******* Commit flags/options *******/
     CX("<div class='fileedit-options flex-container flex-row'>");
     style_labeled_checkbox("cb-dry-run",
-                           "dry_run", "Dry-run?", "1", 1,
+                           "dry_run", "Dry-run?", "1",
+                           0,
                            "In dry-run mode, the Commit button performs"
                            "all work needed for committing changes but "
                            "then rolls back the transaction, and thus "
@@ -2042,6 +2043,13 @@ void fileedit_page(void){
                            "Will create a delta manifest, instead of "
                            "baseline, if conditions are favorable to "
                            "do so. This option is only a suggestion.");
+    style_labeled_checkbox("cb-include-manifest",
+                           "include_manifest",
+                           "Response manifest?", "1",
+                           0,
+                           "Include the manifest in the response? "
+                           "It's generally only useful for debug "
+                           "purposes.");
     style_select_list_int("select-eol-style",
                           "eol", "EOL Style",
                           "EOL conversion policy, noting that "
@@ -2054,13 +2062,6 @@ void fileedit_page(void){
                           "Unix", 1,
                           "Windows", 2,
                           NULL);
-    style_labeled_checkbox("cb-include-manifest",
-                           "include_manifest",
-                           "Response manifest?", "1",
-                           0,
-                           "Include the manifest in the response? "
-                           "It's generally only useful for debug "
-                           "purposes.");
 
     CX("</div>"/*checkboxes*/);
   }
@@ -2145,8 +2146,8 @@ void fileedit_page(void){
        "<code>window.fileStorage</code> or "
        "<code>window.sessionStorage</code>, if able, but which storage "
        "is unspecified and may differ across environments. When "
-       "committing or force-reloading a file, stashed edits to that "
-       "version are discarded.</li>");
+       "committing or force-reloading a file, local edits to that "
+       "file/checkin combination are discarded.</li>");
     CX("</ul>");
   }
   CX("</div>"/*#fileedit-tab-help*/);
