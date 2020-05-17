@@ -372,11 +372,27 @@ static void url_var(
   const char *zPageName
 ){
   char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zUrl = mprintf("%R/%s?id=%x", zPageName,
-                       skin_id(zConfigName));
+  char *zExtra = 0;
+  char *zUrl = 0;
+  if(0==strcmp("css",zConfigName)){
+    /* Account for page-specific CSS, appending a /{{g.zPath}} to the
+    ** url only if we have a corresponding built-in page-specific CSS
+    ** file. Do not append it to all pages because we would
+    ** effectively cache-bust all pages which do not have
+    ** page-specific CSS. */
+    char * zBuiltin = mprintf("style.%s.css", g.zPath);
+    if(builtin_file(zBuiltin,0)!=0){
+      zExtra = mprintf("/%s", g.zPath);
+    }
+    fossil_free(zBuiltin);
+  }
+  zUrl = mprintf("%R/%s%s?id=%x", zPageName,
+                 zExtra ? zExtra : "",
+                 skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
-  free(zUrl);
-  free(zVarName);
+  fossil_free(zExtra);
+  fossil_free(zUrl);
+  fossil_free(zVarName);
 }
 
 /*
@@ -1065,33 +1081,53 @@ void page_script_js(void){
 ** Return the style sheet.
 */
 void page_style_css(void){
-  Blob css;
+  Blob css = empty_blob;
   int i;
-  int isInit = 0;
+  const char *zPage = P("name");
 
   cgi_set_content_type("text/css");
-  blob_init(&css,skin_get("css"),-1);
-
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){
     char *z = blob_str(&css);
     if( !containsSelector(z, cssDefaultList[i].elementClass) ){
-      if( !isInit ){
-        isInit = 1;
-        blob_append(&css,
-          "\n/***********************************************************\n"
-          "** All CSS above is supplied by the repository \"skin\".\n"
-          "** That which follows is generated automatically by Fossil\n"
-          "** to fill in needed selectors that are missing from the\n"
-          "** \"skin\" CSS.\n"
-          "***********************************************************/\n",
-          -1);
-      }
       blob_appendf(&css, "%s {\n%s}\n",
           cssDefaultList[i].elementClass,
           cssDefaultList[i].value);
     }
   }
+  blob_append(&css,
+    "\n/***********************************************************\n"
+    "** All CSS above is generated automatically by Fossil to\n"
+    "** provide default rule implementations which the \"skin\"\n"
+    "** may cascade.\n"
+    "***********************************************************/\n",
+    -1);
+  blob_append(&css,skin_get("css"),-1);
+  if(zPage!=0 && zPage[0]!=0){
+    char * zFile = mprintf("style.%s.css", zPage);
+    int nFile = 0;
+    const char *zBuiltin = (const char *)builtin_file(zFile, &nFile);
+    if(nFile>0){
+      blob_appendf(&css,
+        "\n/***********************************************************\n"
+        "** Start of page-specific CSS for page %s...\n"
+        "***********************************************************/\n",
+        zPage);
+      blob_append(&css, zBuiltin, nFile);
+      blob_appendf(&css,
+        "\n/***********************************************************\n"
+        "** End of page-specific CSS for page %s.\n"
+        "***********************************************************/\n",
+        zPage);
+    }
+    fossil_free(zFile);
+  }
+  blob_append(&css,
+     "\n/***********************************************************\n"
+     "** All CSS which follows is supplied by the repository \"skin\".\n"
+     "***********************************************************/\n",
+     -1);
+  blob_append(&css,skin_get("css"),-1);
 
   /* Process through TH1 in order to give an opportunity to substitute
   ** variables such as $baseurl.

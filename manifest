@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\s3.32.0\sbeta,\sfor\stesting.
-D 2020-05-17T16:33:25.748
+C Proof\sof\sconcept\sfor\smy\sproposal\sof\sreworking\show\sstyle.css\semits\sCSS,\sas\sdiscussed\sin\s[https://fossil-scm.org/forum/forumpost/d63ff33063|forumpost/d63ff33063].
+D 2020-05-17T17:52:38.219
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -522,10 +522,10 @@ F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 190c267f9992b55d1a426de6f4826ddc5e41507502b2bebccec00da3eaea6922
-F src/main.mk b1274167fb5a1b4ce89b7514e51e3fd2086cca803335b70779258c61906008b4
+F src/main.mk 4dbdb49010072d293c4245cbb075aff6ab6141a2927ac6f6fcfe8a9930d96c30
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
-F src/makemake.tcl e849644c9c63c5db537fb18f193a75daf7d5fbe6b2a53bda5ddc07d2c3fcfea7 x
+F src/makemake.tcl e73a292af86ce1fded77210699f74235f9424871d20d06532e308b3a4bd15b4e x
 F src/manifest.c 2ac5005c93e3550585afb430b4f31276b651d73de1dd8ac07a26aa134d2186af
 F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
@@ -595,7 +595,8 @@ F src/sqlite3.h 431e0cf8551d4311f58fad9d8f0cd2c9b8c54e298ac0bc900545fe40ca6d4829
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
-F src/style.c 28394876ef6ecd2afb138a5afe527855b37fac38c69bc824b120b3f4dd78890d
+F src/style.admin_log.css 5f357588ca39e7916f25d42625245b7f165ccbe21295c230a5c4388cc6f93648
+F src/style.c c9f2324688972ec4e68a1d1aad9fbc9c675a3589f4773b7b809051430d874755
 F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
 F src/tag.c 97982d2bccf756a0fcdfa6716e4da09e6ba5a14c443f5270110640943cb3b7b3
 F src/tar.c 8329031f9ad583c687da5fc32661a3ed201cc91c24fb674a7c0de569f82a4724
@@ -766,9 +767,9 @@ F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba 
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake de2de3648360d1577458b83b4ddc3cedd325fa9cdf2a170a3af6dd006a68ddfe
 F win/Makefile.dmc f6fb47a1280e9c2681f05e36a315f6a7768f9be2a20dbbf86e0d380eab63792e
-F win/Makefile.mingw 74c5f8124f2fdcff88c9529e0741bebc36e6b56027feaf426129333efaf65047
+F win/Makefile.mingw 6ac8ab4b408fd7389e209704575191f345b11c550615969b9c4245a571862ca6
 F win/Makefile.mingw.mistachkin 9a9cf0419ec696ba0d2ccdd2fd4e83c0f13d56595253418856f2f2f37068b6d2
-F win/Makefile.msc 8b008c56d995fd3f1b36bf4ef14018757296fded314427bbd08f644003af54ea
+F win/Makefile.msc d7d44168e6fbe70e4f2e28dbeefeb5893c9609e3b7814d1aafc3fdeec5209fb6
 F win/buildmsvc.bat dbf59cba8aff8cc6babf6d516a6be4d693d9753ecba3d4b5b862c496c775ec3a
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -981,7 +982,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3cbf02acebcd8d142e33dda6003147a53c77708f9efac6b94dc23d7977d97fbf
-R 426d80fce7876c31cf3c9b7a9aef9ae1
-U drh
-Z f7b0fe28ad26461d89af537207c7725c
+P 5181332eb5bbe21c48be5dee1cdb9de574f227a8fc76e05ee2cd7fbb4bc0263f
+R ce68dad8517376dab3d60af262c08159
+T *branch * style-css-revamp
+T *sym-style-css-revamp *
+T -sym-trunk *
+U stephan
+Z e3897589ca6d18107b0e26e1037b9c47

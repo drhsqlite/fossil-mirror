@@ -1,0 +1,7 @@
+/* This file is just to demonstrate/test page-specific CSS. */
+a:hover::before {
+  content: "[";
+}
+a:hover::after {
+  content: "]";
+}
