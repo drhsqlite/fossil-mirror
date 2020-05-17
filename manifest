@@ -1,5 +1,5 @@
-C Replaced\s/fileedit?ajax=blah\swith\s/fileedit/blah.\sThis\ssimplifies\sthe\spassing\sof\sURL\sarguments,\seliminating\sit\sin\sseveral\scases,\sand\sjust\slooks\snicer.
-D 2020-05-17T04:08:21.544
+C Fixed\sinput-with-label\s>\slabel\sstyle\sfor\sskins\swhich\sset\slabel\sdisplay\sto\sblock.
+D 2020-05-17T04:45:50.280
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -604,7 +604,7 @@ F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c 791e6408b3aadbf9f0cc07cc226f077d2309ca0e447a5e303b1a92f22d7cf9a9
-F src/style.fileedit.css 05c022102bb46dccd9ad8d3654ec20e39a2241ea8c3307a2c70587ee706b0760
+F src/style.fileedit.css af925f144936dc5f54d67b39463021cd40b6c18210388dedec0c0a6e15b16631
 F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
 F src/tag.c 97982d2bccf756a0fcdfa6716e4da09e6ba5a14c443f5270110640943cb3b7b3
 F src/tar.c 8329031f9ad583c687da5fc32661a3ed201cc91c24fb674a7c0de569f82a4724
@@ -991,7 +991,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 25f5f592d17569411c5dca976885156029df487d31c08f54ca5ad5006f9fbdb2
-R 5aeb01424c3c352fce3fc9a599876333
+P 2c4e7c3785d1bfcda429161743721f6a693031569ab4d49a7616e869680569b8
+R fb8d22376dd57cd3d819e6465d37cd22
 U stephan
-Z 24ed6de8d23ab0cc94bad477f20efcd5
+Z 2ef341945e2241e185d42350058a0836

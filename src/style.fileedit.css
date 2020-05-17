@@ -307,6 +307,9 @@ body.fileedit .tab-container > .tabs > .tab-panel {
 .input-with-label > * {
   vertical-align: middle;
 }
+.input-with-label > label {
+  display: inline; /* some skins set label display to block! */
+}
 .input-with-label > input {
   margin: 0;
 }
