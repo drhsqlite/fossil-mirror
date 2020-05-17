@@ -1,5 +1,5 @@
-C Moved\sfileedit-specific\sCSS\sto\sstyle.fileedit.css,\sas\senabled\sby\sprevious\scommit\s[d661c12cbade].
-D 2020-05-17T03:32:56.464
+C Several\slayout\stweaks.\sThe\s'Prefer\sdelta?'\soption\sis\snow\schecked\sby\sdefault\sif\sthe\srepo\scontains\sany\sdeltas\sand\sthe\sforbid-delta-manifests\ssetting\sis\snot\strue\s(that\ssetting\strumps\sthis\scheckbox,\sin\sany\scase).
+D 2020-05-17T03:35:18.581
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 184c89d94640919f1a1a20065f83ac3dc2ca65233046ac3ffc749b76fbfe71d5
+F src/fileedit.c c9e54f73b9a9c1b4f7b5e3c8899ef9555ed8af31abd46cd5cf8a0d58cbf0758b
 F src/finfo.c b9d8b85704f25d2a14f6a4b59b39ea37a7b424423c871a1ff33628969f62e319
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -488,7 +488,7 @@ F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 63a2f11ce176208c562ea146ebaced4a700a9b5155e2fd1b3d310d4330866e35
 F src/fossil.fetch.js 3d7bdd01bfe3e2b9f1ba98ae3dc461f0f44a417657bf56ae9944d56fd64f58b7
-F src/fossil.page.fileedit.js cf2822ee35a3f5a5678ddebafee23c2d2a85434e37ce9437f6cb0ea113c2cf4c
+F src/fossil.page.fileedit.js a7b129dd556426f3f0b5089f993ef7cf309c4ac026e6b7e8eee46cd8685ac3cb
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
@@ -991,7 +991,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d661c12cbadef066fcd747c7526cd64d5f27fa340021f3a3fa4d98e0af3970e7
-R 892a6d3582ebb5d34353798e2efe9a41
+P 95f1753ffbbc087695bad1e653903fca8b009540c79fcb2b1bf48f1f5ce18157
+R 880ec6e79befdab9fc481b05fc5d5891
 U stephan
-Z 881c1b8a305df4bf276c6e48e0845ed6
+Z 1b13266eb9e628dec901643f2a147053

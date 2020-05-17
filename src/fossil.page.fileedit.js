@@ -447,7 +447,6 @@
   P.stashWidget = {
     e:{/*DOM element(s)*/},
     init: function(domInsertPoint/*insert widget BEFORE this element*/){
-      const flow = D.addClass(D.div(), 'flex-container','flex-column');
       const wrapper = D.addClass(
         D.attr(D.div(),'id','fileedit-stash-selector'),
         'input-with-label'
@@ -455,7 +454,6 @@
       const sel = this.e.select = D.select();
       const btnClear = this.e.btnClear
             = D.addClass(D.button("Clear"),'hidden');
-      D.append(flow, wrapper);
       D.append(wrapper, "Local edits (",
                D.append(D.code(),
                         F.storage.storageImplName()),
@@ -479,14 +477,15 @@
         onconfirm: (e)=>P.clearStash().loadFile(/*in case P.finfo() was in the stash*/),
         ticks: 3
       });
-      if(F.storage.isTransient()){/*Warn if transient storage is in use...*/
-        D.append(flow, D.append(D.addClass(D.div(),'warning'),
-                                "Warning: persistent storage is not avaible, "+
-                                "so uncomitted edits will not survive a page reload.")
-        );
+      if(F.storage.isTransient()){/*Warn if our storage is particularly transient...*/
+        D.append(wrapper, D.append(
+          D.addClass(D.span(),'warning'),
+          "Warning: persistent storage is not available, "+
+            "so uncomitted edits will not survive a page reload."
+        ));
       }
-      domInsertPoint.parentNode.insertBefore(flow, domInsertPoint);
-      $stash._fireStashEvent(/*update this object with the load-time stash*/);
+      domInsertPoint.parentNode.insertBefore(wrapper, domInsertPoint);
+      $stash._fireStashEvent(/*read the page-load-time stash*/);
       delete this.init;
     },
     /**
@@ -573,8 +572,7 @@
       taComment: undefined/*gets set to one of taComment{Big,Small}*/,
       ajaxContentTarget: E('#ajax-target'),
       btnCommit: E("#fileedit-btn-commit"),
-      btnReload: E("#fileedit-tab-content > .fileedit-options > "
-                   +"button.fileedit-content-reload"),
+      btnReload: E("#fileedit-tab-content button.fileedit-content-reload"),
       selectPreviewMode: E('#select-preview-mode select'),
       selectHtmlEmsWrap: E('#select-preview-html-ems'),
       selectEolWrap:  E('#select-eol-style'),
@@ -593,7 +591,8 @@
         content: E('#fileedit-tab-content'),
         preview: E('#fileedit-tab-preview'),
         diff: E('#fileedit-tab-diff'),
-        commit: E('#fileedit-tab-commit')
+        commit: E('#fileedit-tab-commit'),
+        fileSelect: E('#fileedit-tab-fileselect')
       }
     };
     /* Figure out which comment editor to show by default and
@@ -623,6 +622,16 @@
         if(ev.detail===P.e.tabs.preview){
           P.baseHrefForFile();
           if(P.e.cbAutoPreview.checked) P.preview();
+        }else if(ev.detail===P.e.tabs.diff){
+          /* Work around a weird bug where the page gets wider than
+             the window when the diff tab is NOT in view and the
+             current SBS diff widget is wider than the window. When
+             the diff IS in view then CSS overflow magically reduces
+             the page size again. Weird. Maybe FF-specific. Note that
+             this weirdness happens even though P.e.diffTarget's parent
+             is hidden (and therefore P.e.diffTarget is also hidden).
+          */
+          D.removeClass(P.e.diffTarget, 'hidden');
         }
       }
     );
@@ -631,6 +640,9 @@
       'before-switch-from', function(ev){
         if(ev.detail===P.e.tabs.preview){
           P.baseHrefRestore();
+        }else if(ev.detail===P.e.tabs.diff){
+          /* See notes in the before-switch-to handler. */
+          D.addClass(P.e.diffTarget, 'hidden');
         }
       }
     );
@@ -724,7 +736,10 @@
     );
 
     P.fileSelectWidget.init();
-    P.stashWidget.init(P.e.tabs.content.lastElementChild);
+    P.stashWidget.init(
+      P.e.tabs.content.lastElementChild
+      //P.e.tabs.fileSelect.querySelector("h1")
+    );
   }/*F.onPageLoad()*/);
 
   /**

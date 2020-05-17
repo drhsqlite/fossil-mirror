@@ -1838,7 +1838,7 @@ void fileedit_page(void){
 
   /***** File/version info tab *****/
   {
-    CX("<div id='fileedit-tab-version' "
+    CX("<div id='fileedit-tab-fileselect' "
        "data-tab-parent='fileedit-tabs' "
        "data-tab-label='File Info &amp; Selection'"
        ">");
@@ -1848,7 +1848,7 @@ void fileedit_page(void){
        "</fieldset>");
     CX("<h1>Select a file to edit:</h1>");
     CX("<div id='fileedit-file-selector'></div>");
-    CX("</div>"/*#fileedit-tab-version*/);
+    CX("</div>"/*#fileedit-tab-fileselect*/);
   }
   
   /******* Content tab *******/
@@ -1857,8 +1857,7 @@ void fileedit_page(void){
        "data-tab-parent='fileedit-tabs' "
        "data-tab-label='File Content'"
        ">");
-    CX("<div class='fileedit-options "
-       "flex-container flex-row child-gap-small'>");
+    CX("<div class='flex-container flex-row child-gap-small'>");
     CX("<button class='fileedit-content-reload confirmer' "
        "title='Reload the file from the server, discarding "
        "any local edits. To help avoid accidental loss of "
@@ -2030,7 +2029,10 @@ void fileedit_page(void){
     style_labeled_checkbox("cb-prefer-delta",
                            "prefer_delta",
                            "Prefer delta manifest?", "1",
-                           cimi.flags & CIMINI_PREFER_DELTA,
+                           db_get_boolean("forbid-delta-manifests",0)
+                           ? 0
+                           : (db_get_boolean("seen-delta-manifest",0)
+                              || cimi.flags & CIMINI_PREFER_DELTA),
                            "Will create a delta manifest, instead of "
                            "baseline, if conditions are favorable to "
                            "do so. This option is only a suggestion.");
