@@ -253,6 +253,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/d.wav \
   $(SRCDIR)/sounds/e.wav \
   $(SRCDIR)/sounds/f.wav \
+  $(SRCDIR)/style.fileedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki
