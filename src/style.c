@@ -1085,7 +1085,7 @@ void page_style_css(void){
   const char *zPage = P("name");
 
   cgi_set_content_type("text/css");
-  /* add special missing definitions */
+  /* Emit all default rules... */
   for(i=1; cssDefaultList[i].elementClass; i++){
     char *z = blob_str(&css);
     if( !containsSelector(z, cssDefaultList[i].elementClass) ){
@@ -1101,7 +1101,6 @@ void page_style_css(void){
     "** may cascade.\n"
     "***********************************************************/\n",
     -1);
-  blob_append(&css,skin_get("css"),-1);
   if(zPage!=0 && zPage[0]!=0){
     char * zFile = mprintf("style.%s.css", zPage);
     int nFile = 0;
