@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.32.0"
 #define SQLITE_VERSION_NUMBER 3032000
-#define SQLITE_SOURCE_ID      "2020-05-08 19:02:21 3a16c0ce4d8851f79f670d94786032c8007619154ece44647dc9cc5b1f9654ff"
+#define SQLITE_SOURCE_ID      "2020-05-17 13:47:28 69e149f76853d196c8855fedfc98848b60fb116ac36bc08824b1a122469f8ece"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5495,7 +5495,7 @@ SQLITE_API void sqlite3_value_free(sqlite3_value*);
 **
 ** ^(The amount of space allocated by sqlite3_aggregate_context(C,N) is
 ** determined by the N parameter on first successful call.  Changing the
-** value of N in any subsequents call to sqlite3_aggregate_context() within
+** value of N in any subsequent call to sqlite3_aggregate_context() within
 ** the same aggregate function instance will not resize the memory
 ** allocation.)^  Within the xFinal callback, it is customary to set
 ** N=0 in calls to sqlite3_aggregate_context(C,N) so that no 

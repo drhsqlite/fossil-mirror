@@ -668,6 +668,7 @@ void ci_page(void){
     Blob wiki_read_links = BLOB_INITIALIZER;
     Blob wiki_add_links = BLOB_INITIALIZER;
 
+    Th_Store("current_checkin", zName);
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
     zEUser = db_text(0,
@@ -2778,11 +2779,11 @@ int is_datetime(const char* zDate){
 ** This page really creates supplemental tags that affect the display
 ** of the check-in.)
 **
-** Query parmeters:
+** Query parameters:
 **
 **     rid=INTEGER        Record ID of the check-in to edit (REQUIRED)
 **
-** POST parameters after pressing "Perview", "Cancel", or "Apply":
+** POST parameters after pressing "Preview", "Cancel", or "Apply":
 **
 **     c=TEXT             New check-in comment
 **     u=TEXT             New user name

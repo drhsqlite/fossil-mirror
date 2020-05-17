@@ -1798,6 +1798,7 @@ void page_timeline(void){
     }else{
       /* For exact maching, inhibit links to the selected tag. */
       zThisTag = zTagName;
+      Th_Store("current_checkin", zTagName);
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */

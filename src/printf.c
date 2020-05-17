@@ -36,7 +36,7 @@
 ** be overridden using the hash-digits setting.  FOSSIL_HASH_DIGITS_URL
 ** is the minimum number of digits to be used in URLs.  The number used
 ** will always be at least 6 more than the number used for human output,
-** or 40 if the number of digits in human output is 34 or more.
+** or HNAME_MAX, whichever is least.
 */
 #ifndef FOSSIL_HASH_DIGITS
 # define FOSSIL_HASH_DIGITS 10       /* For %S (human display) */
@@ -56,10 +56,10 @@ int hash_digits(int bForUrl){
   if( nDigitHuman==0 ){
     nDigitHuman = db_get_int("hash-digits", FOSSIL_HASH_DIGITS);
     if( nDigitHuman < 6 ) nDigitHuman = 6;
-    if( nDigitHuman > 40 ) nDigitHuman = 40;
+    if( nDigitHuman > HNAME_MAX ) nDigitHuman = HNAME_MAX;
     nDigitUrl = nDigitHuman + 6;
     if( nDigitUrl < FOSSIL_HASH_DIGITS_URL ) nDigitUrl = FOSSIL_HASH_DIGITS_URL;
-    if( nDigitUrl > 40 ) nDigitUrl = 40;
+    if( nDigitUrl > HNAME_MAX ) nDigitUrl = HNAME_MAX;
   }
   return bForUrl ? nDigitUrl : nDigitHuman;
 }
