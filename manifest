@@ -1,5 +1,5 @@
-C Updated\sbootstrap\sskin\sheader\sto\suse\s$stylesheet_url\sinstead\sof\shard-coding\sthe\sname\sand\sparams.
-D 2020-05-17T04:50:33.890
+C More\sstyle\stweaks.
+D 2020-05-17T06:09:26.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,7 +488,7 @@ F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 63a2f11ce176208c562ea146ebaced4a700a9b5155e2fd1b3d310d4330866e35
 F src/fossil.fetch.js 3d7bdd01bfe3e2b9f1ba98ae3dc461f0f44a417657bf56ae9944d56fd64f58b7
-F src/fossil.page.fileedit.js 6881397520f7df23a90a2f7a17473ff4a794254f9eba7e7bf4f8c7f908fbba0a
+F src/fossil.page.fileedit.js d35b36132f7ae8292c8d56ee5a6ae6ba94c45a8ac529eb46f702ed8a3f61cdcc
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
@@ -604,7 +604,7 @@ F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c 791e6408b3aadbf9f0cc07cc226f077d2309ca0e447a5e303b1a92f22d7cf9a9
-F src/style.fileedit.css af925f144936dc5f54d67b39463021cd40b6c18210388dedec0c0a6e15b16631
+F src/style.fileedit.css 3d2949acad6b1028d550807775bd7346f47dc5281398e4e0bfa3d555b75d1658
 F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
 F src/tag.c 97982d2bccf756a0fcdfa6716e4da09e6ba5a14c443f5270110640943cb3b7b3
 F src/tar.c 8329031f9ad583c687da5fc32661a3ed201cc91c24fb674a7c0de569f82a4724
@@ -991,7 +991,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0002b7d714552bbfe7046d78010ee43a96ace08fb425d2eb17962128f1504487
-R 4ea0d4f0b6ccbc5c1590273db3cb3bca
+P 100c67fa507b44ad8757522823e950f4ba6ea3c56cfee116a15342db38d07a7c
+R b7b48933d9864e8969a87255a82227dd
 U stephan
-Z b26d19bab2d9818c0b24df19c64771cd
+Z adafbe22a467101d881212335badda1e

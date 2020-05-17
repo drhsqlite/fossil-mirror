@@ -1079,6 +1079,25 @@
   };
 
   /**
+     Undo some of the SBS diff-rendering bits which hurt us more than
+     they help...
+  */
+  P.tweakSbsDiffs2 = function(){
+    if(1){
+      const dt = this.e.diffTarget;
+      dt.querySelectorAll('.sbsdiffcols .difftxtcol').forEach(
+        (dtc)=>{
+          const pre = dtc.querySelector('pre');
+          pre.style.width = 'initial';
+          //pre.removeAttribute('style');
+          //console.debug("pre width =",pre.style.width);
+        }
+      );
+    }
+    this.tweakSbsDiffs();
+  };
+
+  /**
      Fetches the content diff based on the contents and settings of
      this page's input fields, and updates the UI with the diff view.
 
@@ -1106,7 +1125,7 @@
           "]</code> &rarr; Local Edits</div>",
           c||'No changes.'
         ].join('');
-        if(sbs) P.tweakSbsDiffs();
+        if(sbs) P.tweakSbsDiffs2();
         F.message('Updated diff.');
         self.tabs.switchToTab(self.e.tabs.diff);
       }
