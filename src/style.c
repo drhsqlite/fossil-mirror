@@ -372,11 +372,27 @@ static void url_var(
   const char *zPageName
 ){
   char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zUrl = mprintf("%R/%s?id=%x", zPageName,
-                       skin_id(zConfigName));
+  char *zExtra = 0;
+  char *zUrl = 0;
+  if(0==strcmp("css",zConfigName)){
+    /* Account for page-specific CSS, appending a page=NAME url flag
+    ** only if we have a corresponding built-in page-specific CSS
+    ** file. Do not append it to all pages because we would
+    ** effectively cache-bust all pages which do not have
+    ** page-specific CSS. */
+    char * zBuiltin = mprintf("style.%s.css", g.zPath);
+    if(builtin_file(zBuiltin,0)!=0){
+      zExtra = mprintf("&page=%s", g.zPath);
+    }
+    fossil_free(zBuiltin);
+  }
+  zUrl = mprintf("%R/%s?id=%x%s", zPageName,
+                 skin_id(zConfigName),
+                 zExtra ? zExtra : "");
   Th_Store(zVarName, zUrl);
-  free(zUrl);
-  free(zVarName);
+  fossil_free(zExtra);
+  fossil_free(zUrl);
+  fossil_free(zVarName);
 }
 
 /*
@@ -1065,12 +1081,48 @@ void page_script_js(void){
 ** Return the style sheet.
 */
 void page_style_css(void){
-  Blob css;
+  Blob css = empty_blob;
   int i;
   int isInit = 0;
+  const char * zPage = P("page");
 
   cgi_set_content_type("text/css");
-  blob_init(&css,skin_get("css"),-1);
+  if(zPage!=0 && zPage[0]!=0
+     && strlen(zPage)<30/*marginal safety measure vs malicious input*/){
+    /* Check for page-specific CSS. The placement of this CSS is kinda
+    ** tricky. It "very probably needs" to come before any
+    ** skin-supplied CSS, but if it does then a system-level skin
+    ** which does silly things like set *all* textareas to the same
+    ** 32px tall (Ardoise) can effectively ruin page-specific
+    ** layout. If the page-specific CSS is emitted after the skin,
+    ** then the page-specific CSS will potentially override any user
+    ** edits made to the skin, leaving the user with no way to
+    ** override them except to import a separate CSS file from their
+    ** custom skin, after this one. Thus the page CSS needs to come
+    ** first, but it also needs "unusually specific"
+    ** (i.e. strongly-binding) CSS classes for any style which "needs"
+    ** to override the *default* skin CSS, but which is nonetheless
+    ** overridable by client-side edits by using CSS selectors of
+    ** equal or higher specificity.
+    **
+    ** The alternative to this approach is that we pack all
+    ** page-specific CSS into default_css.txt, which can explode it
+    ** tremendously. e.g. /fileedit itself includes 330-ish lines of
+    ** CSS.
+    */
+    int nLen = 0;
+    char * zPageCss = mprintf("style.%s.css",zPage);
+    const char * zBuiltin = (const char *)builtin_file(zPageCss, &nLen);
+    fossil_free(zPageCss);
+    if(nLen>0){
+      blob_append(&css, zBuiltin, nLen);
+    }
+  }
+  if(blob_size(&css)>0){
+    blob_append(&css,skin_get("css"),-1);
+  }else{
+    blob_init(&css,skin_get("css"),-1);
+  }
 
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){
