@@ -283,6 +283,9 @@ static unsigned int skin_hash(unsigned int h, const char *z){
 ** identifier can be attached to resource URLs to force reloading when
 ** the resources change but allow the resources to be read from cache
 ** as long as they are unchanged.
+**
+** The zResource argument is the name of a CONFIG setting that
+** defines the resource.  Examples:  "css", "logo", "background".
 */
 unsigned int skin_id(const char *zResource){
   unsigned int h = 0;
@@ -295,7 +298,7 @@ unsigned int skin_id(const char *zResource){
     h = skin_hash(0, zMTime);
     fossil_free(zMTime);
   }
-  h = skin_hash(h, MANIFEST_UUID);
+  h = skin_hash(h, fossil_exe_id());
   return h;
 }
 
