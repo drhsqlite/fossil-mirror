@@ -330,6 +330,7 @@ int ssl_open(UrlData *pUrlData){
   }
 
   if( !sslNoCertVerify && SSL_get_verify_result(ssl)!=X509_V_OK ){
+    int x;
     char *desc, *prompt;
     Blob ans;
     char cReply;
@@ -340,7 +341,13 @@ int ssl_open(UrlData *pUrlData){
 
     memset(md, 0, sizeof(md));
     zHash[0] = 0;
-    if( X509_digest(cert, EVP_sha256(), md, &mdLength) ){
+                            /*  MMNNFFPPS */
+#if OPENSSL_VERSION_NUMBER >= 0x010000000
+    x = X509_digest(cert, EVP_sha256(), md, &mdLength);
+#else
+    x = X509_digest(cert, EVP_sha1(), md, &mdLength);
+#endif
+    if( x ){
       int j;
       for(j=0; j<mdLength && j*2+1<sizeof(zHash); ++j){
         zHash[j*2] = "0123456789abcdef"[md[j]>>4];
@@ -534,7 +541,8 @@ void test_tlsconfig_info(void){
     const char *zName, *zValue;
     size_t nName;
     Stmt q;
-    fossil_print("OpenSSL-version:   %s\n", SSLeay_version(SSLEAY_VERSION));
+    fossil_print("OpenSSL-version:   %s  (0x%09x)\n",
+         SSLeay_version(SSLEAY_VERSION), OPENSSL_VERSION_NUMBER);
     fossil_print("OpenSSL-cert-file: %s\n", X509_get_default_cert_file());
     fossil_print("OpenSSL-cert-dir:  %s\n", X509_get_default_cert_dir());
     zName = X509_get_default_cert_file_env();
