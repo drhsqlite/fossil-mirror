@@ -451,6 +451,42 @@ const char *cgi_referer(const char *zDefault){
 }
 
 /*
+** If cgi_referer(0) returns a non-0 AND the referrer is from the same
+** fossil app path (i.e. the referrer's path starts with g.zTop), this
+** function returns the first path element of the referring page, up
+** to, but not including, the first slash. Thus if he refer[r]er is
+** https://foo.com/fossil.cgi/foo/bar, this returns "foo". The
+** returned memory is malloc'd and needs to be freed by the caller.
+*/
+char * cgi_referer_fossil_page_name(){
+  UrlData url;
+  char * zPage = 0;
+  const char * zRef = cgi_referer(0);
+
+  if(zRef==0) return 0;
+  memset(&url, 0, sizeof(url));
+  url_parse_local(zRef, 0, &url);
+  if(url.path==strstr(url.path, g.zTop)){
+    /* g.zTop is, e.g., /cgi-bin/fossil.cgi,
+       url.path is, e.g., /cgi-bin/fossil.cgi/page/... */
+    char * zSlash = 0;
+    zPage = url.path + strlen(g.zTop);
+    if('/' == zPage[0]){
+      *zPage++ = 0;
+      if((zSlash = strstr(zPage,"/"))!=0){
+        *zSlash = 0;
+      }
+      zPage = mprintf("%s", zPage);
+    }else{ /*unexpected result*/
+      zPage = 0;
+    }
+  }
+  url_cleanup(&url);
+  return zPage;
+}
+
+
+/*
 ** Return true if the current request appears to be safe from a
 ** Cross-Site Request Forgery (CSRF) attack.  Conditions that must
 ** be met:

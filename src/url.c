@@ -51,7 +51,7 @@ struct UrlData {
   int isSsh;       /* True if an "ssh:" url */
   char *name;      /* Hostname for http: or filename for file: */
   char *hostname;  /* The HOST: parameter on http headers */
-  char *protocol;  /* "http" or "https" */
+  const char *protocol; /* "http" or "https" or "ssh" */
   int port;        /* TCP port number for http: or https: */
   int dfltPort;    /* The default port for the given protocol */
   char *path;      /* Pathname for http: */
@@ -67,6 +67,25 @@ struct UrlData {
 };
 #endif /* INTERFACE */
 
+/*
+** Frees (almost) all (char*) members of pUrlData and zeroes out
+** pUrlData. Results are undefined if pUrlData passed an uninitialized
+** object.
+*/
+void url_cleanup(UrlData *pUrlData){
+  fossil_free(pUrlData->user);
+  fossil_free(pUrlData->passwd);
+  if(pUrlData->hostname != pUrlData->name){
+    fossil_free(pUrlData->name);
+  }
+  fossil_free(pUrlData->hostname);
+  fossil_free(pUrlData->path);
+  fossil_free(pUrlData->canonical);
+  /* ??? fossil_free(pUrlData->proxyAuth); */
+  /* ??? fossil_free(pUrlData->fossil); */
+  /* ??? fossil_free(pUrlData->proxyUrlPath); */
+  memset(pUrlData, 0, sizeof(*pUrlData));
+}
 
 /*
 ** Parse the given URL.  Populate members of the provided UrlData structure

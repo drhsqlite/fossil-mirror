@@ -1073,7 +1073,6 @@ void page_script_js(void){
   Th_Render(zScript?zScript:"");
 }
 
-
 /*
 ** WEBPAGE: style.css
 **
@@ -1082,7 +1081,7 @@ void page_script_js(void){
 void page_style_css(void){
   Blob css = empty_blob;
   int i;
-  const char *zPage = P("name");
+  char *zPage = cgi_referer_fossil_page_name();
 
   cgi_set_content_type("text/css");
   /* Emit all default rules... */
@@ -1120,6 +1119,7 @@ void page_style_css(void){
     }
     fossil_free(zFile);
   }
+  fossil_free(zPage);
   blob_append(&css,
      "\n/***********************************************************\n"
      "** All CSS which follows is supplied by the repository \"skin\".\n"
