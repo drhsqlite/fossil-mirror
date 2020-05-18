@@ -710,9 +710,7 @@ extern const struct strctCssDefaults {
 static void skin_emit_css_defaults(){
   struct strctCssDefaults const * pCss;
   fossil_print("<h1>CSS Defaults</h1>");
-  fossil_print("If a skin defines any of the following CSS selectors, "
-               "that definition replaces the default, as opposed to "
-               "cascading from it. ");
+  fossil_print("Fossil's list of its own CSS classes follows. ");
   fossil_print("See <a href=\"https://fossil-scm.org/fossil/"
                "doc/trunk/www/css-tricks.md\">this "
                "document</a> for more details.");

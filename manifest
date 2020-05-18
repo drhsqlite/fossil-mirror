@@ -1,5 +1,5 @@
-C style.css\snow\schecks\sfor\sa\sbuiltin\sfile\snamed\safter\sthe\sfirst\spath\scomponent\sof\sthe\sreferer\s(sic),\srather\sthan\sPD("name"),\showever,\swe\sstill\shave\sto\semit\sstyle.css/NAME\sin\sorder\sto\spick\sup\sthe\sthe\sname-specific\sCSS,\sotherwise\s/style.css?id=...\sis\sthe\ssame\sfor\sall\spages\sand\sa\spage\swith\sits\sown\sstyle\smay\spick\sup\sa\scached\scopy\swithout\sits\sown\sstyles,\sor\swith\sthe\sstyles\sfrom\sanother\spage.
-D 2020-05-18T02:59:21.063
+C Removed\sdoc/help\sreferences\sto\s"overriding"\sCSS\srules,\sas\sthat\sno\slonger\sapplies\sin\sthis\sbranch.
+D 2020-05-18T03:38:16.674
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -568,7 +568,7 @@ F src/shell.c 628e56bec15bf61fb0c776acaa2f830b3c6c803cc9af2e965c4dfb539b644e40
 F src/shun.c ad762c0c170cae98d0f09a5999b0bbcdb8783e8f69e65846d102084f6dd588f3
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 679320cfe9e63cc82415786bc3574a250a783fd884fc2bf546823e6ab80962a7
+F src/skins.c 4106f93ef1819cb714c152b251104c5578f40525767d055e40bf01788f1a8edc
 F src/smtp.c 5e8b272d6a24f2bcb3e05e5a619bae29fa760d171dcee270e798aea25347bf80
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -829,7 +829,7 @@ F www/concepts.wiki dd3f4b1f737cba173f8987e27b1eea8c83485727bcf885ce5f2b17837bf0
 F www/contribute.wiki 992fee5fb4e3c586c9dfc6f7538b29d76407f1bfd3ed1306c107b42efda2f412
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
-F www/css-tricks.md d7c2d7cea0987972a3d781464629d6b4379a45c4bbe9f4ffda215eac50cac4b8
+F www/css-tricks.md 0c820100dfd65c763360336cb1fa2c8a610e102b240db0d6a2aafa01dae86077
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 95c71c047bed75bd92ee5358fd7e63c118c3ea0c540882a452bdd9ad14457b40
@@ -982,7 +982,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eddb5ac5528bf099bedd933d20d7ec51c42694ace9eddff99c622b3a263c584f
-R a9408d9a5147204ccaec2860869b121b
+P 5abc0f6e79dfbfc5bd9b57377002805227b02e2d4a01f24c294b2181a1f202c2
+R 93f4ac897cd4979e6326f98e1d9144ad
 U stephan
-Z 84334ce8ce4ccb0cc878f52c782d4b78
+Z 8cc68371a69656ccd1f9ddb6a62f02a8
