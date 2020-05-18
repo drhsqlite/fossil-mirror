@@ -1,5 +1,5 @@
-C Added\soptional\sfossil.fetch()\sbeforesend/aftersend\scallbacks\sto\sallow\sus\sto...\s/efilepage\snow\sdisables\sall\sinput\selements\swhile\sAJAX\srequests\sare\sin-flight\sand\supdates\sthe\spage\swith\sa\s'wait'\scursor.
-D 2020-05-18T05:19:19.238
+C Internal\scommentary\son\sthe\svalidity\sof\sthe\sglobal\sUI\senable/disable\sapproach\sto\sXHR\shandling.
+D 2020-05-18T06:05:58.720
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,7 +488,7 @@ F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 63a2f11ce176208c562ea146ebaced4a700a9b5155e2fd1b3d310d4330866e35
 F src/fossil.fetch.js 6f9b5302a7ec759c9deba86747dba82d91329ff8128f95c0a801c69bcbbd35ee
-F src/fossil.page.fileedit.js d1a0591d96ba91344be7a44384c963ddd7162cd76db93eabb29eb8fbec4e64e1
+F src/fossil.page.fileedit.js aa2edc7c361346c9e71a92e747445873695cf6bf46ccc12b3d398c18ef93629e
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
@@ -991,7 +991,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc40707425060bdad3bf2c4dea9a9ae5dcc9a562ab9f982e33845107c4a1a6d8
-R 0a125831e85ffcb04470d0c5ed676157
+P 7e197260fd1a797fee9ce4f5a863948f9871d91bc562fced4a2d744addb4550d
+R fb51ae4cee75c07f80a767a5f23c5e74
 U stephan
-Z 8d6eac5baeea6bc1a5bcf415df4cd810
+Z 6d08642a56e3a4ef978aad40371ff53e

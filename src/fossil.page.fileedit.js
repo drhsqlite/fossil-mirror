@@ -566,7 +566,29 @@
      can disable input elements while any are pending. For
      simplicity's sake we simply disable ALL OF IT while any AJAX is
      pending, rather than disabling operation-specific UI elements,
-     which would be a huge maintenance hassle..
+     which would be a huge maintenance hassle.
+
+     Noting, however, that this global on/off is not *quite*
+     pedantically correct. Pedantically speaking. If an element is
+     disabled before an XHR starts, this code "should" notice that and
+     not include it in the to-re-enable list. That would be annoying
+     to do, and becomes impossible to do properly once multiple XHRs
+     are in transit and an element is disabled seprately between two
+     of those in-transit requests (that would be an unlikely, but
+     possible, corner case). As of this writing, the only elements
+     which are ever normally programmatically toggled between
+     enabled/disabled...
+
+     1) Belong to the file selection list and remain disabled until
+     the list of leaves and files are loaded. i.e. they would be
+     disabled *anyway* during their own XHR requests.
+
+     2) The stashWidget's SELECT list when no local edits are
+     stashed. Curiously, the all-or-nothing re-enabling implemented
+     here does not re-enable that particular selection list. That's
+     because of timing, though: that widget is "manually" disabled
+     when the list is empty, and that list is normally emptied in
+     conjunction with an XHR request.
   */
   const ajaxState = {
     count: 0 /* in-flight F.fetch() requests */,
