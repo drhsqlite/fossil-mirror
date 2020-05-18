@@ -67,25 +67,6 @@ struct UrlData {
 };
 #endif /* INTERFACE */
 
-/*
-** Frees (almost) all (char*) members of pUrlData and zeroes out
-** pUrlData. Results are undefined if pUrlData passed an uninitialized
-** object.
-*/
-void url_cleanup(UrlData *pUrlData){
-  fossil_free(pUrlData->user);
-  fossil_free(pUrlData->passwd);
-  if(pUrlData->hostname != pUrlData->name){
-    fossil_free(pUrlData->name);
-  }
-  fossil_free(pUrlData->hostname);
-  fossil_free(pUrlData->path);
-  fossil_free(pUrlData->canonical);
-  /* ??? fossil_free(pUrlData->proxyAuth); */
-  /* ??? fossil_free(pUrlData->fossil); */
-  /* ??? fossil_free(pUrlData->proxyUrlPath); */
-  memset(pUrlData, 0, sizeof(*pUrlData));
-}
 
 /*
 ** Parse the given URL.  Populate members of the provided UrlData structure

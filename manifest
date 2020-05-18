@@ -1,5 +1,5 @@
-C Removed\sdoc/help\sreferences\sto\s"overriding"\sCSS\srules,\sas\sthat\sno\slonger\sapplies\sin\sthis\sbranch.
-D 2020-05-18T03:38:16.674
+C Reverted\s[5abc0f6e7]\sbecause\stesting\shas\sshown\sthe\sreferrer\sto\ssimply\sbe\stoo\sfragile\sand\ssubject\sto\sbrowser-side\swhims\s(which\salso\sincludes\sthe\soption\sto\ssend\sonly\sthe\sscheme\sand\shost,\swithout\sthe\spath,\sas\sthe\sreferrer,\swhich\sbreaks\swhat\sthat\scommit\sdid).\sNow\sstyle.css\ssupports\sboth\sstyle.css/pagename\sand\sstyle.css?page=name,\spreferring\sthe\sformer,\spending\sa\sdecision\son\swhich\sone\sof\sthose\ssyntaxes\sthe\sother\sdevs\sprefer.
+D 2020-05-18T12:32:47.256
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -446,7 +446,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c f2a22f48e00f2e791cbc7ddaf90fd2a000f3f4902de4fdecfc06998965fa3f1e
-F src/cgi.c 686e646d47bc518b43e7bdff02e33af750f268250fd9ea60a514c6eba13700cf
+F src/cgi.c 5a9c0f9dfce552c037e834f3a00b88e9d0ba4b7dec695d1fd922b272eb150d9d
 F src/checkin.c 5b19a3c4a5e1a7c5f9cef0540f0a86106d2df124e00322bb17c952f8b96bb0f8
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -596,7 +596,7 @@ F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css 5f357588ca39e7916f25d42625245b7f165ccbe21295c230a5c4388cc6f93648
-F src/style.c ccd5245a3b7dea45f2182852b5d30fd4f2800d269ceea27535b3154ecee68993
+F src/style.c 36bc6aff78ec66ff443099f0774ca091d0d7ece5b9f11ad2f964e07d78a36036
 F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
 F src/tag.c 97982d2bccf756a0fcdfa6716e4da09e6ba5a14c443f5270110640943cb3b7b3
 F src/tar.c 8329031f9ad583c687da5fc32661a3ed201cc91c24fb674a7c0de569f82a4724
@@ -615,7 +615,7 @@ F src/undo.c fbb75d065fa2a229a1f7cbb36f9589dc8fe500d16381d8aad31dadae3a9e5bd9
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c edc216812b688b12b8a83d778fea24f8be08fb8703299d22e423527f09c8053f
 F src/update.c 65025982df907734b207a6203373e5c123280985493ff0afea2405df14cf0f08
-F src/url.c 62e6a871809596c9e3e4931813eedab7363950166567fb88afd457388822d332
+F src/url.c 9d4991f72baa8ec4c80cebba86ef3fa4187a732733e21645c53d773b552c1a36
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
@@ -982,7 +982,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5abc0f6e79dfbfc5bd9b57377002805227b02e2d4a01f24c294b2181a1f202c2
-R 93f4ac897cd4979e6326f98e1d9144ad
+P a21e26684f76a3685ea03511ee596e4ba2264a2a2becca03e41f477093700488
+R b3bb52ef5463a23ad58b8199c5ccc119
 U stephan
-Z 8cc68371a69656ccd1f9ddb6a62f02a8
+Z 88c16f936f8eb844e76923f7ea4f2399

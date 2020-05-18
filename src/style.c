@@ -1081,7 +1081,7 @@ void page_script_js(void){
 void page_style_css(void){
   Blob css = empty_blob;
   int i;
-  char *zPage = cgi_referer_fossil_page_name();
+  const char *zPage = PD("name",P("page"));
 
   cgi_set_content_type("text/css");
   /* Emit all default rules... */
@@ -1119,7 +1119,6 @@ void page_style_css(void){
     }
     fossil_free(zFile);
   }
-  fossil_free(zPage);
   blob_append(&css,
      "\n/***********************************************************\n"
      "** All CSS which follows is supplied by the repository \"skin\".\n"
