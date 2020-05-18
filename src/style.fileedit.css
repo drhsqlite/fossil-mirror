@@ -1,4 +1,8 @@
 /** Styles specific to /fileedit... */
+body.fileedit.waiting * {
+  /* Triggered during AJAX requests. */
+  cursor: wait;
+}
 body.fileedit .error {
   padding: 0.25em;
 }

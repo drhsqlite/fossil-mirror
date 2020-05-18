@@ -463,7 +463,7 @@
         'Locally-edited files. Timestamps are the last local edit time.',
         'Only the',P.config.defaultMaxStashSize,'most recent checkin/file',
         'combinations are retained.',
-        'Committing or reloading a file removes it from this stash.'
+        'Committing or reloading a file removes it from this list.'
       ].join(' '));
       D.option(D.disable(sel), "(empty)");
       F.page.addEventListener('fileedit-stash-updated',(e)=>this.updateList(e.detail));
@@ -558,6 +558,35 @@
     if(forceEvent){
       // Force UI update
       s.dispatchEvent(new Event('change',{target:s}));
+    }
+  };
+
+  /**
+     Keep track of how many in-flight AJAX requests there are so we
+     can disable input elements while any are pending. For
+     simplicity's sake we simply disable ALL OF IT while any AJAX is
+     pending, rather than disabling operation-specific UI elements,
+     which would be a huge maintenance hassle..
+  */
+  const ajaxState = {
+    count: 0 /* in-flight F.fetch() requests */,
+    toDisable: undefined /* elements to disable during ajax activity */
+  };
+  F.fetch.beforesend = function f(){
+    if(!ajaxState.toDisable){
+      ajaxState.toDisable = document.querySelectorAll(
+        'button, input, select, textarea'
+      );
+    }
+    if(1===++ajaxState.count){
+      D.addClass(document.body, 'waiting');
+      D.disable(ajaxState.toDisable);
+    }
+  };
+  F.fetch.aftersend = function(){
+    if(0===--ajaxState.count){
+      D.removeClass(document.body, 'waiting');
+      D.enable(ajaxState.toDisable);
     }
   };
 

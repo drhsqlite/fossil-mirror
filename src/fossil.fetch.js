@@ -24,8 +24,10 @@
    "this", noting that this call may have amended the options object
    with state other than what the caller provided.
 
-   - onerror: callback(XHR onload event | exception)
-   (default = event or exception to the console).
+   - onerror: callback(XHR onload event | exception) (default = event
+   or exception to the console). Triggered if the request generates
+   any response other than HTTP 200. In the context of the callback,
+   the options object is "this".
 
    - method: 'POST' | 'GET' (default = 'GET'). CASE SENSITIVE!
 
@@ -66,13 +68,24 @@
    set multiple times, their values are (per the XHR docs)
    concatenated together with ", " between them.
 
-   When an options object does not provide onload() or onerror()
-   handlers of its own, this function falls back to
-   fossil.fetch.onload() and fossil.fetch.onerror() as defaults. The
-   default implementations route the data through the dev console and
-   (for onerror()) through fossil.error(). Individual pages may
-   overwrite those members to provide default implementations suitable
-   for the page's use.
+   - beforesend/aftersend: optional callbacks which are called without
+   arguments immediately before the request is submitted and
+   immediately after it is received, regardless of success or
+   error. In the context of the callback, the options object is the
+   "this". These can be used to, e.g., keep track of in-flight
+   requests and update the UI accordingly, e.g. disabling/enabling DOM
+   elements. Any exceptions triggered by beforesend/aftersend are
+   caught and silently ignored.
+
+   When an options object does not provide
+   onload/onerror/beforesend/aftersend handlers of its own, this
+   function falls to defaults which are member properties of this
+   function with the same name, e.g. fossil.fetch.onload(). The
+   default onload/onerror implementations route the data through the
+   dev console and (for onerror()) through fossil.error(). The default
+   beforesend/aftersend are no-ops. Individual pages may overwrite
+   those members to provide default implementations suitable for the
+   page's use, e.g. keeping track of how many in-flight
 
    Returns this object, noting that the XHR request is asynchronous,
    and still in transit (or has yet to be sent) when that happens.
@@ -123,6 +136,8 @@ window.fossil.fetch = function f(uri,opt){
   else if('function'===typeof opt) opt={onload:opt};
   if(!opt.onload) opt.onload = f.onload;
   if(!opt.onerror) opt.onerror = f.onerror;
+  if(!opt.beforesend) opt.beforesend = f.beforesend;
+  if(!opt.aftersend) opt.aftersend = f.aftersend;
   let payload = opt.payload, jsonResponse = false;
   if(undefined!==payload){
     opt.method = 'POST';
@@ -153,6 +168,7 @@ window.fossil.fetch = function f(uri,opt){
     x.responseType = opt.responseType||'text';
   }
   x.onload = function(e){
+    try{opt.aftersend()}catch(e){/*ignore*/}
     if(200!==this.status){
       opt.onerror(e);
       return;
@@ -178,7 +194,11 @@ window.fossil.fetch = function f(uri,opt){
       opt.onerror(e);
     }
   };
+  try{opt.beforesend()}catch(e){/*ignore*/}
   if(undefined!==payload) x.send(payload);
   else x.send();
   return this;
 };
+
+window.fossil.fetch.beforesend = function(){};
+window.fossil.fetch.aftersend = function(){};
