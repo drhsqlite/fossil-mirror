@@ -1073,14 +1073,19 @@ static void fileedit_ajax_error(int httpCode, const char * zFmt, ...){
 ** Returns 0 if bootstrapping fails (wrong permissions), in which
 ** case it has reported the error and the route should immediately
 ** return. Returns true on success.
+**
+** Must be passed true if the request being set up requires POST,
+** else false.
 */
-static int fileedit_ajax_boostrap(void){
+static int fileedit_ajax_boostrap(int requirePost){
   login_check_credentials();
   if( !g.perm.Write ){
     fileedit_ajax_error(403,"Write permissions required.");
     return 0;
+  }else if(0==cgi_csrf_safe(requirePost)){
+    fileedit_ajax_error(403, "CSRF violation?");
+    return 0;
   }
-
   return 1;
 }
 /*
@@ -1215,7 +1220,7 @@ static void fileedit_ajax_content(void){
   const char * zMime;
 
   fileedit_get_fnci_args( &zFilename, &zRev );
-  if(!fileedit_ajax_boostrap()
+  if(!fileedit_ajax_boostrap(0)
      || !fileedit_ajax_setup_filerev(zRev, 0, &vid,
                                      zFilename, &frid)){
     return;
@@ -1289,7 +1294,7 @@ static void fileedit_ajax_preview(void){
   Blob content = empty_blob;
   const char * zRenderMode = 0;
   fileedit_get_fnci_args( &zFilename, 0 );
-  if(!fileedit_ajax_boostrap()
+  if(!fileedit_ajax_boostrap(1)
      || !fileedit_ajax_check_filename(zFilename)){
     return;
   }
@@ -1372,7 +1377,7 @@ static void fileedit_ajax_diff(void){
   }
   diffFlags |= DIFF_STRIP_EOLCR;
   fileedit_get_fnci_args( &zFilename, &zRev );
-  if(!fileedit_ajax_boostrap()
+  if(!fileedit_ajax_boostrap(1)
      || !fileedit_ajax_setup_filerev(zRev, &zRevUuid, &vid,
                                      zFilename, &frid)){
     return;
@@ -1559,7 +1564,7 @@ static void fileedit_ajax_filelist(void){
   Stmt q = empty_Stmt;
   int i = 0;
 
-  if(!fileedit_ajax_boostrap()){
+  if(!fileedit_ajax_boostrap(0)){
     return;
   }
   cgi_set_content_type("application/json");
@@ -1663,7 +1668,7 @@ static void fileedit_ajax_commit(void){
   char const * zMimetype;
   char * zBranch = 0;
 
-  if(!fileedit_ajax_boostrap()){
+  if(!fileedit_ajax_boostrap(1)){
     return;
   }
   db_begin_transaction();

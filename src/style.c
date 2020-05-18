@@ -1592,6 +1592,14 @@ void style_emit_script_fossil_bootstrap(int asInline){
     CX("window.fossil.config = {"
        "hashDigits: %d, hashDigitsUrl: %d"
        "};\n", hash_digits(0), hash_digits(1));
+#if 0
+    /* Is it safe to emit the CSRF token here? Some pages add it
+    ** as a hidden form field. */
+    if(g.zCsrfToken[0]!=0){
+      CX("window.fossil.csrfToken = %!j;\n",
+         g.zCsrfToken);
+    }
+#endif
     /*
     ** fossil.page holds info about the current page. This is also
     ** where the current page "should" store any of its own
