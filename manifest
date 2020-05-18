@@ -1,5 +1,5 @@
-C Allow\sunversioned\sfiles\sto\sbe\sidentify\sby\shash\sin\saddition\sto\sname.\nFor\sthe\s/uv\swebpage,\swhen\sa\sfile\sis\sidentify\sby\shash\sit\shas\sa\slong\nexpiration\stime.
-D 2020-05-17T20:38:08.872
+C Fix\sharmless\scompiler\swarnings\sin\shttp_ssl.c\sthat\soccur\swhen\sbuilding\nwithout\sSSL\ssupport.
+D 2020-05-18T10:55:18.614
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -494,7 +494,7 @@ F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
+F src/http_ssl.c 00c793933b30d3738f9611bba1d062c6e1c75f1e9cd43c62df53826fdc0b760c
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
 F src/info.c 73092fd81ef46b0213f394e991ab8310c47e88e4aa16f758e244a2c2110cc41f
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5181332eb5bbe21c48be5dee1cdb9de574f227a8fc76e05ee2cd7fbb4bc0263f
-R 8ebaaa1288e71983dc43f7abc11618de
+P b5ab1ebe5e7c7da06965072b505a730d9efa02287133d2bb15848bdea0872d8a
+R 91c36657830e8e4f491aae85c3226471
 U drh
-Z 9bfe684e5e1869ccbd3a0b2c3f459364
+Z d44ba016d234fc4ea1a53d7e00264371

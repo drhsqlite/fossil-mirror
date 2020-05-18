@@ -26,6 +26,7 @@
 */
 
 #include "config.h"
+#include "http_ssl.h"
 
 #ifdef FOSSIL_ENABLE_SSL
 
@@ -34,7 +35,6 @@
 #include <openssl/err.h>
 #include <openssl/x509.h>
 
-#include "http_ssl.h"
 #include <assert.h>
 #include <sys/types.h>
 
@@ -520,12 +520,12 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 **                                    remove all TLS cert exceptions.
 */
 void test_tlsconfig_info(void){
-  const char *zCmd;
-  size_t nCmd;
-  int nHit = 0;
 #if !defined(FOSSIL_ENABLE_SSL)
   fossil_print("TLS disabled in this build\n");
 #else
+  const char *zCmd;
+  size_t nCmd;
+  int nHit = 0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   db_open_config(1,0);
   zCmd = g.argc>=3 ? g.argv[2] : "show";
