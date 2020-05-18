@@ -372,25 +372,23 @@ static void url_var(
   const char *zPageName
 ){
   char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zExtra = 0;
-  char *zUrl = 0;
+  char *zUrl = 0;              /* stylesheet URL */
+  int hasBuiltin = 0;          /* true for built-in page-specific CSS */
+
   if(0==strcmp("css",zConfigName)){
-    /* Account for page-specific CSS, appending a page=NAME url flag
-    ** only if we have a corresponding built-in page-specific CSS
+    /* Account for page-specific CSS, appending a /{{g.zPath}} to the
+    ** url only if we have a corresponding built-in page-specific CSS
     ** file. Do not append it to all pages because we would
     ** effectively cache-bust all pages which do not have
     ** page-specific CSS. */
     char * zBuiltin = mprintf("style.%s.css", g.zPath);
-    if(builtin_file(zBuiltin,0)!=0){
-      zExtra = mprintf("&page=%s", g.zPath);
-    }
+    hasBuiltin = builtin_file(zBuiltin,0)!=0;
     fossil_free(zBuiltin);
   }
-  zUrl = mprintf("%R/%s?id=%x%s", zPageName,
-                 skin_id(zConfigName),
-                 zExtra ? zExtra : "");
+  zUrl = mprintf("%R/%s%s%s?id=%x", zPageName,
+                 hasBuiltin ? "/" : "", hasBuiltin ? g.zPath : "",
+                 skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
-  fossil_free(zExtra);
   fossil_free(zUrl);
   fossil_free(zVarName);
 }
@@ -1084,7 +1082,15 @@ void page_style_css(void){
   Blob css = empty_blob;
   int i;
   int isInit = 0;
-  const char * zPage = P("page");
+  const char * zPage = P("name")
+    /* FIXME: our reliance on P("name") will merge-conflict with the
+       [style-css-revamp] branch, at which time we need to adopt its
+       version of this function. The problem with doing that *now* is
+       that it requires new functionality in cgi.c and url.c which was
+       added for that purposes, which we don't dare merge into here
+       until that branch is vetted and merged. That branch's whole
+       approach to the ordering of CSS is different than this one
+       (which is based on the current trunk). */;
 
   cgi_set_content_type("text/css");
   if(zPage!=0 && zPage[0]!=0

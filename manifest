@@ -1,5 +1,5 @@
-C All\s/fileedit/ajax\srequests\snow\sdo\sa\sCSRF\scheck\sand\sfail\swith\s403\sif\sCSRF\sseems\slikely.
-D 2020-05-18T03:24:51.702
+C Replaced\sstyle.css?page=xxx\swith\sstyle.css/page,\slike\sthe\s[style-css-revamp]\sbranch\sdoes.
+D 2020-05-18T03:41:00.016
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -603,7 +603,7 @@ F src/sqlite3.h 431e0cf8551d4311f58fad9d8f0cd2c9b8c54e298ac0bc900545fe40ca6d4829
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
-F src/style.c a7fb1126f6578672cef63a444604dc80dc3fc5bd3b26e91733ab749f41bc60e8
+F src/style.c 9a84588853deff5cd742523d0461d80d47b6bb858e785bbf092dccaa7f5d866b
 F src/style.fileedit.css daddf3b2b172594f95ea14a694d9fc2ee57ed30b97aadeed0cf2106bca3a8697
 F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
 F src/tag.c 97982d2bccf756a0fcdfa6716e4da09e6ba5a14c443f5270110640943cb3b7b3
@@ -991,7 +991,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b9b746e50f27b912b6444f2017549e40b288ff360fb7174b7f91f1ead6eea191
-R e2579d359ef88b965359ebc4a729f570
+P 88a69253cd7aa0d8000715fdfa2421eb9bb036c3cacd945ed9015adf089a1ee9
+R 64b0fc5a57a0cc62ff83a68ded534f36
 U stephan
-Z d5ef1dfa6b3c1bdd1beb8e22d198ddc9
+Z 5ed11ceee63548e726768b8dd0289339
