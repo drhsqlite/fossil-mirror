@@ -203,12 +203,13 @@ void onoff_attribute(
       iVal = iQ;
     }
   }
-  @ <label><input type="checkbox" name="%s(zQParm)"
+  @ <label><input type="checkbox" name="%s(zQParm)" \
+  @ aria-label="%s(zLabel[0]?zLabel:zQParm)" \
   if( iVal ){
-    @ checked="checked"
+    @ checked="checked" \
   }
   if( disabled ){
-    @ disabled="disabled"
+    @ disabled="disabled" \
   }
   @ /> <b>%s(zLabel)</b></label>
 }
@@ -234,8 +235,8 @@ void entry_attribute(
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
   }
-  @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" \
-  @ size="%d(width)" \
+  @ <input aria-label="%h(zLabel[0]?zLabel:zQParm)" type="text" \
+  @ id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)" \
   if( disabled ){
     @ disabled="disabled" \
   }
@@ -265,12 +266,13 @@ const char *textarea_attribute(
     z = zQ;
   }
   if( rows>0 && cols>0 ){
-    @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)"
+    @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)" \
+    @ aria-label="%h(zLabel[0]?zLabel:zQP)" \
     if( disabled ){
-      @ disabled="disabled"
+      @ disabled="disabled" \
     }
     @ cols="%d(cols)">%h(z)</textarea>
-    if( zLabel && *zLabel ){
+    if( *zLabel ){
       @ <span class="textareaLabel">%s(zLabel)</span>
     }
   }
@@ -299,7 +301,7 @@ void multiple_choice_attribute(
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
   }
-  @ <select size="1" name="%s(zQP)" id="id%s(zQP)">
+  @ <select aria-label="%h(zLabel)" size="1" name="%s(zQP)" id="id%s(zQP)">
   for(i=0; i<nChoice*2; i+=2){
     const char *zSel = fossil_strcmp(azChoice[i],z)==0 ? " selected" : "";
     @ <option value="%h(azChoice[i])"%s(zSel)>%h(azChoice[i+1])</option>
@@ -400,7 +402,7 @@ void setup_access(void){
      "http_authentication_ok", "http_authentication_ok", 0, 0);
   @ <p>When enabled, allow the use of the HTTP_AUTHENTICATION environment
   @ variable or the "Authentication:" HTTP header to find the username and
-  @ password. This is another way of supporting Basic Authenitication.
+  @ password. This is another way of supporting Basic Authentication.
   @ (Property: "http_authentication_ok")
   @ </p>
   @
@@ -608,21 +610,26 @@ void setup_login_group(void){
     login_insert_csrf_secret();
     @ <blockquote><table border="0">
     @
-    @ <tr><th align="right">Repository filename in group to join:</th>
+    @ <tr><th align="right" id="rfigtj">Repository filename \
+    @ in group to join:</th>
     @ <td width="5"></td><td>
-    @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
+    @ <input aria-labelledby="rfigtj" type="text" size="50" \
+    @ value="%h(zRepo)" name="repo"></td></tr>
     @
-    @ <tr><th align="right">Login on the above repo:</th>
+    @ <tr><th align="right" id="lotar">Login on the above repo:</th>
     @ <td width="5"></td><td>
-    @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
+    @ <input aria-labelledby="lotar" type="text" size="20" \
+    @ value="%h(zLogin)" name="login"></td></tr>
     @
-    @ <tr><th align="right">Password:</th>
+    @ <tr><th align="right" id="lgpw">Password:</th>
     @ <td width="5"></td><td>
-    @ <input type="password" size="20" name="pw"></td></tr>
+    @ <input aria-labelledby="lgpw" type="password" size="20" name="pw">\
+    @ </td></tr>
     @
-    @ <tr><th align="right">Name of login-group:</th>
+    @ <tr><th align="right" id="nolg">Name of login-group:</th>
     @ <td width="5"></td><td>
-    @ <input type="text" size="30" value="%h(zNewName)" name="newname">
+    @ <input aria-labelledby="nolg" type="text" size="30" \
+    @ value="%h(zNewName)" name="newname">
     @ (only used if creating a new login-group).</td></tr>
     @
     @ <tr><td colspan="3" align="center">

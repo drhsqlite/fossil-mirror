@@ -440,8 +440,9 @@ void finfo_page(void){
     }else{
       blob_appendf(&title, "Ancestors of file ");
     }
-    blob_appendf(&title,"<a href='%R/finfo?name=%T'>%h</a>",
-                 zFilename, zFilename);
+    blob_appendf(&title,"%z%h</a>",
+                 href("%R/file?name=%T&ci=%!S", zFilename, zUuid),
+                 zFilename);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
     blob_append(&title, origCheckin ? " between " : " from ", -1);
     blob_appendf(&title, "check-in %z%S</a>", zLink, zUuid);
@@ -455,7 +456,7 @@ void finfo_page(void){
     }
   }else{
     blob_appendf(&title, "History for ");
-    hyperlinked_path(zFilename, &title, 0, "tree", "");
+    hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
   if( uBg ){

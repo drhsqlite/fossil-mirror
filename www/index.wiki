@@ -11,7 +11,7 @@
 <li> [./hints.wiki | Tips &amp; Hints]
 <li> [./changes.wiki | Change Log]
 <li> [../COPYRIGHT-BSD2.txt | License]
-<li> [./userlinks.wiki | User inks]
+<li> [./userlinks.wiki | User Links]
 <li> [./hacker-howto.wiki | Hacker How-To]
 <li> [./fossil-v-git.wiki | Fossil vs. Git]
 <li> [./permutedindex.html | Documentation Index]
