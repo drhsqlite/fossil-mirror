@@ -1083,7 +1083,10 @@ static int fileedit_ajax_boostrap(int requirePost){
     fileedit_ajax_error(403,"Write permissions required.");
     return 0;
   }else if(0==cgi_csrf_safe(requirePost)){
-    fileedit_ajax_error(403, "CSRF violation?");
+    fileedit_ajax_error(403,
+                        "CSRF violation (make sure sending of HTTP "
+                        "Referer headers is enabled for XHR "
+                        "connections).");
     return 0;
   }
   return 1;

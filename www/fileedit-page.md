@@ -1,9 +1,9 @@
 # The fileedit Page
 
-This document describes some tips and tricks for the [](/fileedit)
-page, which provides, for users with [checkin
-privileges](./caps/index.md), basic editing features for files via the
-web interface.
+This document describes the limitations of, caveats for, and
+disclaimers for the [](/fileedit) page, which provides users with
+[checkin privileges](./caps/index.md) basic editing features for files
+via the web interface.
 
 # Important Caveats and Disclaimers
 
@@ -11,21 +11,56 @@ Predictably, the ability to edit files in a repository from a web
 browser halfway around the world comes with several obligatory caveats
 and disclaimers...
 
-### `/fileedit` Does *Nothing* by Default.
+## `/fileedit` Does *Nothing* by Default.
 
 In order to "activate" it, a user with [the "setup"
 permission](./caps/index.md) must set the
 [fileedit-glob](/help?cmd=fileedit-glob) repository setting to a
 comma- or newline-delimited list of globs representing a whitelist of
 files which may be edited online. Any user with commit access may then
-edit files matching one of those globs.
+edit files matching one of those globs. Certain pages within the UI
+get an "edit" link added to them when the current user's permissions
+and the whitelist both permit editing of that file.
 
-### `/fileedit` **Works by Creating Commits**
+## CSRF & HTTP Referrer Headers
+
+In order to protect against [Cross-site Request Forgery (CSRF)][csrf]
+attacks, Fossil UI features which write to the database require that
+the browser send the so-called [HTTP `Referer` header][referer]
+(noting that the misspelling of "referrer" is a historical accident
+which has long-since been standardized!). Modern browsers, by default,
+include such information automatically for *interactive* actions which
+lead to a request, e.g. clicking on a link back to the same
+server. However, `/fileedit` uses asynchronous ["XHR"][xhr]
+connections, which browsers *may* treat differently than strictly
+interactive elements.
+
+- **Firefox**: configuration option `network.http.sendRefererHeader`
+  specifies whether the `Referer` header is sent. It must have a value
+  of 2 (which is the default) for XHR requests to get the `Referer`
+  header. Purely interactive Fossil features, in which users directly
+  activate links or forms, work with a level of 1 or higher.
+- **Chrome**: apparently requires an add-on in order to change this
+  policy, so Chrome without such an add-on will not suppress this
+  header.
+- **Safari**: ???
+- **Other browsers**: ???
+
+If `/filepage` shows an error message saying "CSRF violation," the
+problem is that the browser is not sending a `Referer` header to XHR
+connections. Fossil does not offer a way to disable its CSRF
+protections.
+
+[referer]: https://en.wikipedia.org/wiki/HTTP_referer
+[csrf]: https://en.wikipedia.org/wiki/Cross-site_request_forgery
+[xhr]: https://en.wikipedia.org/wiki/XMLHttpRequest
+
+## `/fileedit` **Works by Creating Commits**
 
 Thus any edits made via that page become a normal part of the
 repository's blockchain.
 
-### `/fileedit` is **Intended for use with Embedded Docs**
+## `/fileedit` is *Intended* for use with Embedded Docs
 
 ... and similar text files, and is most certainly
 **not intended for editing code**.
@@ -40,9 +75,9 @@ offers three different options for how to treat newlines when saving
 changes. **Files with mixed EOL styles** *will be normalized to a single
 EOL style* when modified using `/fileedit`. When "inheriting" the EOL
 style from a previous version which has mixed styles, the first EOL
-style detected in the file is used.
+style detected in the previous version of the file is used.
 
-### `/fileedit` **is Not a Replacement for a Checkout**
+## `/fileedit` **is Not a Replacement for a Checkout**
 
 A full-featured checkout allows far more possibilities than this basic
 online editor permits, and the feature scope of `/fileedit` is
@@ -66,9 +101,7 @@ checkout. (If you have a checkout, use your local editor, not
 preferred graphics editor.
 - Support for syncing/pulling/pushing of a repository before and/or
 after edits. Those features cannot be *reliably* provided via a web
-interface for several reasons, not the least of which is that some
-backend servers simply do not permit outbound network connections to
-arbitrary hosts.
+interface for several reasons.
 
 Similarly, some *potential* features have significant downsides,
 abuses, and/or implementation hurdles which make the decision of
@@ -77,24 +110,31 @@ debate. e.g. the ability to add new files or remove/rename older
 files.
 
 
-### `/fileedit` **Stores Only Limited Local Edits While Working**
+## `/fileedit` **Stores Only Limited Local Edits While Working**
 
 When changes are made to a given checkin/file combination,
-`/fileedit` will, if possible, store them in `window.fileStorage`
-or `window.sessionStorage`, if available, but...
+`/fileedit` will, if possible, store them in [`window.localStorage`
+or `window.sessionStorage`][html5storage], if available, but...
 
 - Which storage is used is unspecified and may differ across
   environments.
 - If neither of those is available, the storage is transient and
-  will not survive a page reload.
+  will not survive a page reload. In this case, the UI issues a clear
+  warning in the editor tab.
 - It stores only the most recent checkin/file combinations which have
   been modified (exactly how many may differ - the number will be
   noted somewhere in the UI). Note that changing the "executable bit"
-  is counted as a modification, but the checkin comment is not stored
-  separately for each file. If the limit is exceeded, it silently
-  discards the oldest edits.
+  is counted as a modification, but the checkin *comment* is *not*
+  and is reset after a commit.
+- If its internal limit on the number of modified files is exceeded,
+  it silently discards the oldest edits to keep the list at its limit.
 
-Exactly how long `fileStorage` will survive, and how much it or
+Edits are saved whenever the editor component fires its "change"
+event, which essentially means as soon as it loses input focus. Thus
+to force the browser to save any pending changes, simply click
+somwhere on the page outside of the editor.
+
+Exactly how long `localStorage` will survive, and how much it or
 `sessionStorage` can hold, is environment-dependent. `sessionStorage`
 will survive until the current browser tab is closed, but it survives
 across reloads of the same tab.
@@ -102,7 +142,9 @@ across reloads of the same tab.
 If `/filepage` determines that no peristent storage is available a
 warning is displayed on the editor page.
 
-### The Power is Yours, but...
+[html5storage]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API
+
+## The Power is Yours, but...
 
 > "With great power comes great responsibility."
 
@@ -134,7 +176,7 @@ such events...
 Assuming a repository has integrated a 3rd-party syntax highlighting
 solution, it can probably (depending on its API) be told how to
 highlight `/fileedit`'s wiki/markdown-format previews. Here are
-instructions for doing so with highlightjs:
+instructions for doing so with [highlightjs](https://highlightjs.org/):
 
 At the very bottom of the [site skin's footer](customskin.md), add a
 script tag similar to the following:
