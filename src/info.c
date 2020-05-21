@@ -1931,8 +1931,7 @@ void hexdump_page(void){
   blob_zero(&downloadName);
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   object_description(rid, objdescFlags, 0, &downloadName);
-  style_submenu_element("Download", "%s/raw/%T?name=%s",
-        g.zTop, blob_str(&downloadName), zUuid);
+  style_submenu_element("Download", "%R/raw/%s", zUuid);
   @ <hr />
   content_get(rid, &content);
   @ <blockquote><pre>
@@ -2261,7 +2260,7 @@ void artifact_page(void){
                                 (isFile?zName:0), &downloadName);
   }
   if( !descOnly && P("download")!=0 ){
-    cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
+    cgi_redirectf("%R/raw/%s",
           db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid));
     /*NOTREACHED*/
   }
@@ -2307,8 +2306,7 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  style_submenu_element("Download", "%R/raw/%T?name=%s",
-                         blob_str(&downloadName), zUuid);
+  style_submenu_element("Download", "%R/raw/%s", zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
   }
@@ -2342,7 +2340,7 @@ void artifact_page(void){
     if( renderAsWiki ){
       wiki_render_by_mimetype(&content, zMime);
     }else if( renderAsHtml ){
-      @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
+      @ <iframe src="%R/raw/%s(zUuid)"
       @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"
       @ sandbox="allow-same-origin" id="ifm1">
       @ </iframe>
