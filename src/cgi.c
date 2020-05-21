@@ -447,7 +447,7 @@ void cgi_content_disposition_filename(const char *zFilename){
   int n = (int)strlen(z);
   for(i=43; i<n-4; i++){
     char c = z[i];
-    if( isalnum(c) ) continue;
+    if( fossil_isalnum(c) ) continue;
     if( c=='.' || c=='-' || c=='/' ) continue;
     z[i] = '_';
   }
