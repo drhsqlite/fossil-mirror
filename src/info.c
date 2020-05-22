@@ -1948,7 +1948,7 @@ void hexdump_page(void){
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   object_description(rid, objdescFlags, 0, &downloadName);
   style_submenu_element("Download", "%R/raw/%s?at=%T",
-                        zUuid, blob_str(&downloadName));
+                        zUuid, file_tail(blob_str(&downloadName)));
   @ <hr />
   content_get(rid, &content);
   @ <blockquote><pre>
@@ -2279,7 +2279,7 @@ void artifact_page(void){
   if( !descOnly && P("download")!=0 ){
     cgi_redirectf("%R/raw/%s?at=%T",
           db_text("x", "SELECT uuid FROM blob WHERE rid=%d", rid),
-          blob_str(&downloadName));
+          file_tail(blob_str(&downloadName)));
     /*NOTREACHED*/
   }
   if( g.perm.Admin ){
@@ -2324,7 +2324,7 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  style_submenu_element("Download", "%R/raw/%s?at=%T", zUuid, zName);
+  style_submenu_element("Download", "%R/raw/%s?at=%T", zUuid, file_tail(zName));
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
   }

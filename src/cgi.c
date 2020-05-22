@@ -440,11 +440,13 @@ NORETURN void cgi_redirectf(const char *zFormat, ...){
 ** Add a "Content-disposition: attachment; filename=%s" header to the reply.
 */
 void cgi_content_disposition_filename(const char *zFilename){
-                 /*  0123456789 123456789 123456789 123456789 123456*/
-  char *z = mprintf("Content-Disposition: attachment; filename=\"%s\";\r\n",
-                    zFilename);
-  int i;
-  int n = (int)strlen(z);
+  char *z;
+  int i, n;
+
+           /*  0123456789 123456789 123456789 123456789 123456*/
+  z = mprintf("Content-Disposition: attachment; filename=\"%s\";\r\n",
+                    file_tail(zFilename));
+  n = (int)strlen(z);
   for(i=43; i<n-4; i++){
     char c = z[i];
     if( fossil_isalnum(c) ) continue;
