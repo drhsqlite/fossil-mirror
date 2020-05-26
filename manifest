@@ -1,5 +1,5 @@
-C Update\sthe\schanges\slog\sto\sinclude\sa\sdate\sfor\s2.11\sand\sto\sadd\sa\splace-holder\nto\sbegin\srecording\s2.12\schanges.
-D 2020-05-25T23:40:20.207
+C Attempt\sto\sfix\smarkdown\srendering\sso\sthat\sit\scorrectly\signores\stable\ncolumn\sseparators\sthat\sare\scontained\swithout\s"code-span"\sback-ticks.
+D 2020-05-26T15:54:22.364
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -527,7 +527,7 @@ F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc700
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl e849644c9c63c5db537fb18f193a75daf7d5fbe6b2a53bda5ddc07d2c3fcfea7 x
 F src/manifest.c 2ac5005c93e3550585afb430b4f31276b651d73de1dd8ac07a26aa134d2186af
-F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
+F src/markdown.c e7cff55ab2eb984700a2905119aa1ffc53bfa678ef753b8241b6072583e8e6ad
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4df919803b6716ecd8bcbb01963c54c3647777e572d24c86cb816a86ec6af93c
-R 8831b71cfc4dc43dfb6fcab1890013c6
+P 87e3ad31322d068366868fb3139aa880e30184043aebd85890f29748e3c02e16
+R baacc95067a2cec5cfe30fc76a5225c7
 U drh
-Z dc9858b68298ce2b807b77316fd6b1cf
+Z 8c18ae0b7cae6e28a56da516cf74ef96
