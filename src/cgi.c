@@ -448,6 +448,27 @@ NORETURN void cgi_redirectf(const char *zFormat, ...){
 }
 
 /*
+** Add a "Content-disposition: attachment; filename=%s" header to the reply.
+*/
+void cgi_content_disposition_filename(const char *zFilename){
+  char *z;
+  int i, n;
+
+           /*  0123456789 123456789 123456789 123456789 123456*/
+  z = mprintf("Content-Disposition: attachment; filename=\"%s\";\r\n",
+                    file_tail(zFilename));
+  n = (int)strlen(z);
+  for(i=43; i<n-4; i++){
+    char c = z[i];
+    if( fossil_isalnum(c) ) continue;
+    if( c=='.' || c=='-' || c=='/' ) continue;
+    z[i] = '_';
+  }
+  cgi_append_header(z);
+  fossil_free(z);
+}
+
+/*
 ** Return the URL for the caller.  This is obtained from either the
 ** referer CGI parameter, if it exists, or the HTTP_REFERER HTTP parameter.
 ** If neither exist, return zDefault.

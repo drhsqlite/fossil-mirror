@@ -166,6 +166,7 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
+  int mTrace = SQLITE_TRACE_CLOSE;
   add_content_sql_commands(db);
   db_add_aux_functions(db);
   re_add_sql_func(db);
@@ -188,6 +189,10 @@ static int sqlcmd_autoinit(
     sqlite3_exec(db, zSql, 0, 0, 0);
     sqlite3_free(zSql);
   }
+  /* Arrange to trace close operations so that static prepared statements
+  ** will get cleaned up when the shell closes the database connection */
+  if( g.fSqlTrace ) mTrace |= SQLITE_TRACE_PROFILE;
+  sqlite3_trace_v2(db, mTrace, db_sql_trace, 0);
   return SQLITE_OK;
 }
 

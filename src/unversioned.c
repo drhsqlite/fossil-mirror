@@ -87,21 +87,36 @@ const char *unversioned_content_hash(int debugFlag){
 /*
 ** Initialize pContent to be the content of an unversioned file zName.
 **
-** Return 0 on success.  Return 1 if zName is not found.
+** Return 0 on failures.
+** Return 1 if the file is found by name.
+** Return 2 if the file is found by hash.
 */
 int unversioned_content(const char *zName, Blob *pContent){
   Stmt q;
-  int rc = 1;
+  int rc = 0;
   blob_init(pContent, 0, 0);
-  db_prepare(&q, "SELECT encoding, content FROM unversioned WHERE name=%Q", zName);
+  db_prepare(&q, "SELECT encoding, content FROM unversioned WHERE name=%Q",
+                 zName);
   if( db_step(&q)==SQLITE_ROW ){
     db_column_blob(&q, 1, pContent);
     if( db_column_int(&q, 0)==1 ){
       blob_uncompress(pContent, pContent);
     }
-    rc = 0;
+    rc = 1;
   }
   db_finalize(&q);
+  if( rc==0 && validate16(zName,-1) ){
+    db_prepare(&q, "SELECT encoding, content FROM unversioned WHERE hash=%Q",
+                   zName);
+    if( db_step(&q)==SQLITE_ROW ){
+      db_column_blob(&q, 1, pContent);
+      if( db_column_int(&q, 0)==1 ){
+        blob_uncompress(pContent, pContent);
+      }
+      rc = 2;
+    }
+    db_finalize(&q);
+  }
   return rc;
 }
 
@@ -330,7 +345,7 @@ void unversioned_cmd(void){
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       Blob content;
-      if( unversioned_content(g.argv[i], &content)==0 ){
+      if( unversioned_content(g.argv[i], &content)!=0 ){
         blob_write_to_file(&content, "-");
       }
       blob_reset(&content);
@@ -354,7 +369,7 @@ void unversioned_cmd(void){
     if( zTFile==0 ) fossil_fatal("cannot find a temporary filename");
     db_begin_transaction();
     content_rcvid_init("#!fossil unversioned edit");
-    if( unversioned_content(zUVFile, &content) ){
+    if( unversioned_content(zUVFile, &content)==0 ){
       fossil_fatal("no such uv-file: %Q", zUVFile);
     }
     if( looks_like_binary(&content) ){
@@ -383,7 +398,7 @@ void unversioned_cmd(void){
     Blob content;
     verify_all_options();
     if( g.argc!=5 ) usage("export UVFILE OUTPUT");
-    if( unversioned_content(g.argv[3], &content) ){
+    if( unversioned_content(g.argv[3], &content)==0 ){
       fossil_fatal("no such uv-file: %Q", g.argv[3]);
     }
     blob_write_to_file(&content, g.argv[4]);

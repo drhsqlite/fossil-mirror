@@ -2383,12 +2383,24 @@ void db_sql_print(
     }
   }
 }
-LOCAL int db_sql_trace(unsigned m, void *notUsed, void *pP, void *pX){
+
+/*
+** Callback for sqlite3_trace_v2();
+*/
+int db_sql_trace(unsigned m, void *notUsed, void *pP, void *pX){
   sqlite3_stmt *pStmt = (sqlite3_stmt*)pP;
   char *zSql;
   int n;
   const char *zArg = (const char*)pX;
   char zEnd[40];
+  if( m & SQLITE_TRACE_CLOSE ){
+    /* If we are tracking closes, that means we want to clean up static
+    ** prepared statements. */
+    while( db.pAllStmt ){
+      db_finalize(db.pAllStmt);
+    }
+    return 0;
+  }
   if( zArg[0]=='-' ) return 0;
   if( m & SQLITE_TRACE_PROFILE ){
     sqlite3_int64 nNano = *(sqlite3_int64*)pX;

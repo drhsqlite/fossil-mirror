@@ -877,3 +877,9 @@ label {
   pointer-events: none;
   display: none;
 }
+input {
+    max-width: 95%;
+}
+textarea {
+    max-width: 95%;
+}
