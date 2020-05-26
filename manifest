@@ -1,5 +1,5 @@
-C Attempt\sto\sfix\smarkdown\srendering\sso\sthat\sit\scorrectly\signores\stable\ncolumn\sseparators\sthat\sare\scontained\swithout\s"code-span"\sback-ticks.
-D 2020-05-26T15:54:22.364
+C Update\sthe\sversion\snumber\sto\s2.12\sas\swe\sbegin\sthe\snext\srelease\scycle.
+D 2020-05-26T15:54:58.570
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -17,7 +17,7 @@ F Makefile.classic 42738dd35437f4527e5979784931760641f7fffd6a0d7b964eb86b90dbdf0
 F Makefile.in 2f34d0fa84449834fe6f415be1c347de931a27e46be437e2611e155c813f9880
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION f45d5f3094f467be86f0d94e4d3ab915611942868fae57126a479b3a628f7722
+F VERSION b3358d1305299906a65c9adfb87c80da1fbd741b0120ff1235a390f85acf5671
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 87e3ad31322d068366868fb3139aa880e30184043aebd85890f29748e3c02e16
-R baacc95067a2cec5cfe30fc76a5225c7
+P d6058989edb359cd0b801fc242863175cd4a9fbd38bd1e0a9e6e37440eceadfb
+R 71cfeb17df5ce2646bad7c7f151340f2
 U drh
-Z 8c18ae0b7cae6e28a56da516cf74ef96
+Z b416a18ba41a75704d205e0322ad7d18
