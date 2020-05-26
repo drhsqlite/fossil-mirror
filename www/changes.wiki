@@ -1,7 +1,12 @@
 <title>Change Log</title>
 
+<a name='v2_12'></a>
+<h2>Changes for Version 2.12 (pending)</h2>
+
+  *  <i>(no changes yet...)</i>
+
 <a name='v2_11'></a>
-<h2>Changes for Version 2.11 (pending)</h2>
+<h2>Changes for Version 2.11 (2020-05-25)</h2>
 
   *  Support [/md_rules|Markdown] in the default ticket configuration.
   *  Timestamp strings in [./checkin_names.wiki|object names]

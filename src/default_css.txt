@@ -862,3 +862,9 @@ label {
 //   max-width: 30em;
 //   overflow: auto;
 // }
+input {
+    max-width: 95%;
+}
+textarea {
+    max-width: 95%;
+}

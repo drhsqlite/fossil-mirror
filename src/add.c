@@ -369,7 +369,6 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 **                            the comma separated list of glob patterns.
 **    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
-
 **    --reset                 Reset the ADDEd state of a checkout, such
 **                            that all newly-added (but not yet committed)
 **                            files are no longer added. No flags other
