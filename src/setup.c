@@ -1146,6 +1146,7 @@ void setup_adunit(void){
   if( P("clear")!=0 && cgi_csrf_safe(1) ){
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
     cgi_replace_parameter("adunit","");
+    cgi_replace_parameter("adright","");
   }
 
   style_header("Edit Ad Unit");

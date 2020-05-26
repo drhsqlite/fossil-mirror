@@ -1,5 +1,5 @@
-C Update\sthe\sversion\snumber\sto\s2.12\sas\swe\sbegin\sthe\snext\srelease\scycle.
-D 2020-05-26T15:54:58.570
+C Fix\sa\sbug\sin\sthe\s"Delete\sAd-Unit"\sbutton\sin\sthe\ssetup\spages.
+D 2020-05-26T18:30:17.631
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -559,7 +559,7 @@ F src/schema.c 9a894b8db01c2b16b9320a5e3fae2a6a0ae3cea1647d10da4af79ea0a5fa26cd
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 711d196bbb708e177e18b5473ad180c8141b14731b7e94292db0cdcba0e8ad85
 F src/security_audit.c 428dbb93fbf2008c96abd8049d82f11914724c6d4e8153b7708f21e90786bde1
-F src/setup.c 607050a24e71a550ba94f0c0b5941003c18cc0b814a8be7b841705c40b368341
+F src/setup.c d50cb25d03ab1353b46a2636d437cb30b51c99358df0e195a3b30a2e63ece876
 F src/setupuser.c e28eb5df04c743202faf711781a5cf1d0c084528ed37628e5087a83838a34e24
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6058989edb359cd0b801fc242863175cd4a9fbd38bd1e0a9e6e37440eceadfb
-R 71cfeb17df5ce2646bad7c7f151340f2
+P ad9295fd59c77c48010ebabbaa4edf7fe6afd5a3d0573d974d3d85761135cd72
+R 9344039fb46553731942a388124a9a8e
 U drh
-Z b416a18ba41a75704d205e0322ad7d18
+Z deb9d653e7bf1233cc9b70c3f0f64e86
