@@ -826,7 +826,8 @@ void document_render(
 ** FILE is the name of a file to delivered up as a webpage.  FILE is relative
 ** to the root of the source tree of the repository. The FILE must
 ** be a part of CHECKIN, except when CHECKIN=="ckout" when FILE is read
-** directly from disk and need not be a managed file.
+** directly from disk and need not be a managed file.  For /uv, FILE
+** can also be the hash of the unversioned file.
 **
 ** The "ckout" CHECKIN is intended for development - to provide a mechanism
 ** for looking at what a file will look like using the /doc webpage after
@@ -933,18 +934,22 @@ void doc_page(void){
     }
     if( isUV ){
       if( db_table_exists("repository","unversioned") ){
-        Stmt q;
-        db_prepare(&q, "SELECT hash, mtime FROM unversioned"
-                       " WHERE name=%Q", zName);
-        if( db_step(&q)==SQLITE_ROW ){
-          etag_check(ETAG_HASH, db_column_text(&q,0));
-          etag_last_modified(db_column_int64(&q,1));
+        rid = unversioned_content(zName, &filebody);
+        if( rid==1 ){
+          Stmt q;
+          db_prepare(&q, "SELECT hash, mtime FROM unversioned"
+                         " WHERE name=%Q", zName);
+          if( db_step(&q)==SQLITE_ROW ){
+            etag_check(ETAG_HASH, db_column_text(&q,0));
+            etag_last_modified(db_column_int64(&q,1));
+          }
+          db_finalize(&q);
+        }else if( rid==2 ){
+          zName = db_text(zName,
+             "SELECT name FROM unversioned WHERE hash=%Q", zName);
+          g.isConst = 1;
         }
-        db_finalize(&q);
-        if( unversioned_content(zName, &filebody)==0 ){
-          rid = 1;
-          zDfltTitle = zName;
-        }
+        zDfltTitle = zName;
       }
     }else if( fossil_strcmp(zCheckin,"ckout")==0 ){
       /* Read from the local checkout */

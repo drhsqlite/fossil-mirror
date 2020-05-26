@@ -6591,6 +6591,7 @@ int sqlite3_zipfile_init(
 /* #include "sqlite3ext.h" */
 SQLITE_EXTENSION_INIT1
 #include <zlib.h>
+#include <assert.h>
 
 /*
 ** Implementation of the "sqlar_compress(X)" SQL function.
@@ -8008,9 +8009,11 @@ int idxFindIndexes(
 
       for(i=0; i<nDetail; i++){
         const char *zIdx = 0;
-        if( memcmp(&zDetail[i], " USING INDEX ", 13)==0 ){
+        if( i+13<nDetail && memcmp(&zDetail[i], " USING INDEX ", 13)==0 ){
           zIdx = &zDetail[i+13];
-        }else if( memcmp(&zDetail[i], " USING COVERING INDEX ", 22)==0 ){
+        }else if( i+22<nDetail 
+            && memcmp(&zDetail[i], " USING COVERING INDEX ", 22)==0 
+        ){
           zIdx = &zDetail[i+22];
         }
         if( zIdx ){
