@@ -2139,8 +2139,6 @@ void fileedit_page(void){
        "repository setting</strong> can be edited online. That setting "
        "must be a comma- or newline-delimited list of glob patterns "
        "for files which may be edited online.</li>");
-    CX("<li><strong>Clicking any links</strong> on this page will "
-       "leave the page, <strong>losing any edits</strong>.</li>");
     CX("<li>Committing edits creates a new commit record with a single "
        "modified file.</li>");
     CX("<li>\"Delta manifests\" (see the checkbox on the Commit tab) "
