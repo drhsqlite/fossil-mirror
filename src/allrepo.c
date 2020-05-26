@@ -130,7 +130,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                --randomize options are not supported.
 **
 **    sync        Run a "sync" on all repositories.  Only the --verbose
-**                option is supported.
+**                and --unversioned options are supported.
 **
 **    setting     Run the "setting", "set", or "unset" commands on all
 **    set         repositories.  These command are particularly useful in
@@ -285,7 +285,9 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "unversioned","u");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
+    collect_argument(&extra, "db-only", "d");
     collect_argument(&extra, "parse", 0);
+    collect_argument(&extra, "quick", "q");
     zCmd = "test-integrity";
   }else if( strncmp(zCmd, "test-orphans", n)==0 ){
     zCmd = "test-orphans -R";

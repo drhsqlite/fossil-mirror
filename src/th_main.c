@@ -1502,7 +1502,7 @@ static int unversionedContentCmd(
   }
   if( Th_IsRepositoryOpen() ){
     Blob content;
-    if( unversioned_content(argv[2], &content)==0 ){
+    if( unversioned_content(argv[2], &content)!=0 ){
       Th_SetResult(interp, blob_str(&content), blob_size(&content));
       blob_reset(&content);
       return TH_OK;

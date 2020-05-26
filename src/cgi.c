@@ -176,8 +176,8 @@ char *cgi_extract_content(void){
 /*
 ** Additional information used to form the HTTP reply
 */
-static const char *zContentType = "text/html";     /* Content type of the reply */
-static const char *zReplyStatus = "OK";            /* Reply status description */
+static const char *zContentType = "text/html";   /* Content type of the reply */
+static const char *zReplyStatus = "OK";          /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
 static int rangeStart = 0;                   /* Start of Range: */
@@ -295,7 +295,7 @@ void cgi_reply(void){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
     fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
-  }else if( etag_tag()!=0 ){
+  }else if( etag_tag()[0]!=0 ){
     fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
     fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
   }else{
@@ -331,13 +331,13 @@ void cgi_reply(void){
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
   */
-  fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
-  if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
-    cgi_combine_header_and_body();
-    blob_compress(&cgiContent[0], &cgiContent[0]);
-  }
-
   if( iReplyStatus!=304 ) {
+    fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
+    if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
+      cgi_combine_header_and_body();
+      blob_compress(&cgiContent[0], &cgiContent[0]);
+    }
+
     if( is_gzippable() && iReplyStatus!=206 ){
       int i;
       gzip_begin(0);
@@ -361,7 +361,8 @@ void cgi_reply(void){
     total_size = 0;
   }
   fprintf(g.httpOut, "\r\n");
-  if( total_size>0 && iReplyStatus != 304
+  if( total_size>0
+   && iReplyStatus!=304
    && fossil_strcmp(P("REQUEST_METHOD"),"HEAD")!=0
   ){
     int i, size;
@@ -433,6 +434,27 @@ NORETURN void cgi_redirectf(const char *zFormat, ...){
   va_start(ap, zFormat);
   cgi_redirect(vmprintf(zFormat, ap));
   va_end(ap);
+}
+
+/*
+** Add a "Content-disposition: attachment; filename=%s" header to the reply.
+*/
+void cgi_content_disposition_filename(const char *zFilename){
+  char *z;
+  int i, n;
+
+           /*  0123456789 123456789 123456789 123456789 123456*/
+  z = mprintf("Content-Disposition: attachment; filename=\"%s\";\r\n",
+                    file_tail(zFilename));
+  n = (int)strlen(z);
+  for(i=43; i<n-4; i++){
+    char c = z[i];
+    if( fossil_isalnum(c) ) continue;
+    if( c=='.' || c=='-' || c=='/' ) continue;
+    z[i] = '_';
+  }
+  cgi_append_header(z);
+  fossil_free(z);
 }
 
 /*
