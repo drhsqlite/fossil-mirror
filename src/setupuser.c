@@ -536,20 +536,23 @@ void user_edit(void){
   @ <input type="hidden" name="referer" value="%h(cgi_referer("setup_ulist"))">
   @ <table width="100%%">
   @ <tr>
-  @   <td class="usetupEditLabel">User ID:</td>
+  @   <td class="usetupEditLabel" id="suuid">User ID:</td>
   if( uid ){
-    @   <td>%d(uid) <input type="hidden" name="id" value="%d(uid)" />\
+    @   <td>%d(uid) <input aria-labelledby="suuid" type="hidden" \
+    @   name="id" value="%d(uid)"/>\
     @ </td>
   }else{
-    @   <td>(new user)<input type="hidden" name="id" value="0" /></td>
+    @   <td>(new user)<input aria-labelledby="suuid" type="hidden" name="id" \
+    @ value="0" /></td>
   }
   @ </tr>
   @ <tr>
-  @   <td class="usetupEditLabel">Login:</td>
+  @   <td class="usetupEditLabel" id="sulgn">Login:</td>
   if( login_is_special(zLogin) ){
     @    <td><b>%h(zLogin)</b></td>
   }else{
-    @   <td><input type="text" name="login" value="%h(zLogin)" />\
+    @   <td><input aria-labelledby="sulgn" type="text" name="login" \
+    @ value="%h(zLogin)" />
     if( alert_tables_exist() ){
       int sid;
       sid = db_int(0, "SELECT subscriberId FROM subscriber"
@@ -561,8 +564,9 @@ void user_edit(void){
     }
     @ </td></tr>
     @ <tr>
-    @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
-    @   <td><textarea name="info" cols="40" rows="2">%h(zInfo)</textarea></td>
+    @   <td class="usetupEditLabel" id="sucnfo">Contact&nbsp;Info:</td>
+    @   <td><textarea aria-labelledby="sucnfo" name="info" cols="40" \
+    @ rows="2">%h(zInfo)</textarea></td>
   }
   @ </tr>
   @ <tr>
@@ -655,15 +659,15 @@ void user_edit(void){
   @ </tr>
   if( !login_is_special(zLogin) ){
     @ <tr>
-    @   <td align="right">Password:</td>
+    @   <td align="right" id="supw">Password:</td>
     if( zPw[0] ){
       /* Obscure the password for all users */
-      @   <td><input type="password" autocomplete="off" name="pw"\
-      @   value="**********" /></td>
+      @   <td><input aria-labelledby="supw" type="password" autocomplete="off" \
+      @   name="pw" value="**********" /></td>
     }else{
       /* Show an empty password as an empty input field */
-      @   <td><input type="password" autocomplete="off" name="pw"\
-      @   value="" /></td>
+      @   <td><input aria-labelledby="supw" type="password" name="pw" \
+      @        autocomplete="off" value="" /></td>
     }
     @ </tr>
   }

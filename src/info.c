@@ -668,6 +668,7 @@ void ci_page(void){
     Blob wiki_read_links = BLOB_INITIALIZER;
     Blob wiki_add_links = BLOB_INITIALIZER;
 
+    Th_Store("current_checkin", zName);
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
     zEUser = db_text(0,
@@ -1755,8 +1756,13 @@ void diff_page(void){
 
 /*
 ** WEBPAGE: raw
-** URL: /raw?name=ARTIFACTID&m=TYPE
+** URL: /raw/ARTIFACTID
 ** URL: /raw?ci=BRANCH&filename=NAME
+**
+** Additional query parameters:
+**
+**    m=MIMETYPE       The mimetype is MIMETYPE
+**    at=FILENAME      Content-disposition; attachment; filename=FILENAME;
 **
 ** Return the uninterpreted content of an artifact.  Used primarily
 ** to view artifacts that are images.
@@ -1817,22 +1823,33 @@ void secure_rawartifact_page(void){
 */
 void deliver_artifact(int rid, const char *zMime){
   Blob content;
+  const char *zAttachName = P("at");
   if( zMime==0 ){
-    char *zFName = db_text(0, "SELECT filename.name FROM mlink, filename"
-                              " WHERE mlink.fid=%d"
-                              "   AND filename.fnid=mlink.fnid", rid);
-    if( !zFName ){
-      /* Look also at the attachment table */
-      zFName = db_text(0, "SELECT attachment.filename FROM attachment, blob"
-                          " WHERE blob.rid=%d"
-                          "   AND attachment.src=blob.uuid", rid);
+    char *zFN = (char*)zAttachName;
+    if( zFN==0 ){
+      zFN = db_text(0, "SELECT filename.name FROM mlink, filename"
+                       " WHERE mlink.fid=%d"
+                       "   AND filename.fnid=mlink.fnid", rid);
     }
-    if( zFName ) zMime = mimetype_from_name(zFName);
-    if( zMime==0 ) zMime = "application/x-fossil-artifact";
+    if( zFN==0 ){
+      /* Look also at the attachment table */
+      zFN = db_text(0, "SELECT attachment.filename FROM attachment, blob"
+                       " WHERE blob.rid=%d"
+                       "   AND attachment.src=blob.uuid", rid);
+    }
+    if( zFN ){
+      zMime = mimetype_from_name(zFN);
+    }
+    if( zMime==0 ){
+      zMime = "application/x-fossil-artifact";
+    }
   }
   content_get(rid, &content);
   fossil_free(style_csp(1));
   cgi_set_content_type(zMime);
+  if( zAttachName ){
+    cgi_content_disposition_filename(zAttachName);
+  }
   cgi_set_content(&content);
 }
 
@@ -1930,8 +1947,8 @@ void hexdump_page(void){
   blob_zero(&downloadName);
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   object_description(rid, objdescFlags, 0, &downloadName);
-  style_submenu_element("Download", "%s/raw/%T?name=%s",
-        g.zTop, blob_str(&downloadName), zUuid);
+  style_submenu_element("Download", "%R/raw/%s?at=%T",
+                        zUuid, file_tail(blob_str(&downloadName)));
   @ <hr />
   content_get(rid, &content);
   @ <blockquote><pre>
@@ -2260,8 +2277,9 @@ void artifact_page(void){
                                 (isFile?zName:0), &downloadName);
   }
   if( !descOnly && P("download")!=0 ){
-    cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
-          db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid));
+    cgi_redirectf("%R/raw/%s?at=%T",
+          db_text("x", "SELECT uuid FROM blob WHERE rid=%d", rid),
+          file_tail(blob_str(&downloadName)));
     /*NOTREACHED*/
   }
   if( g.perm.Admin ){
@@ -2306,8 +2324,7 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  style_submenu_element("Download", "%R/raw/%T?name=%s",
-                         blob_str(&downloadName), zUuid);
+  style_submenu_element("Download", "%R/raw/%s?at=%T", zUuid, file_tail(zName));
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
   }
@@ -2341,7 +2358,7 @@ void artifact_page(void){
     if( renderAsWiki ){
       wiki_render_by_mimetype(&content, zMime);
     }else if( renderAsHtml ){
-      @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
+      @ <iframe src="%R/raw/%s(zUuid)"
       @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"
       @ sandbox="allow-same-origin" id="ifm1">
       @ </iframe>
@@ -2770,11 +2787,11 @@ int is_datetime(const char* zDate){
 ** This page really creates supplemental tags that affect the display
 ** of the check-in.)
 **
-** Query parmeters:
+** Query parameters:
 **
 **     rid=INTEGER        Record ID of the check-in to edit (REQUIRED)
 **
-** POST parameters after pressing "Perview", "Cancel", or "Apply":
+** POST parameters after pressing "Preview", "Cancel", or "Apply":
 **
 **     c=TEXT             New check-in comment
 **     u=TEXT             New user name

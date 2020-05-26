@@ -16,8 +16,8 @@ script].  CGI is the technique that the three
 
 Setting up a Fossil server using CGI is mostly about writing a short
 script (usually just 2 lines line) in the cgi-bin folder of an ordinary
-web-browser.  But there are a lot of extra options that can be added
-to this script, to customize the configuration.  This article descripts
+web-server.  But there are a lot of extra options that can be added
+to this script, to customize the configuration.  This article describes
 those options.
 
 <h1>CGI Script Options</h1>

@@ -947,8 +947,14 @@ static int looks_like_control_artifact(Blob *p){
 **
 ** Options:
 **
+**    -d|--db-only       Run "PRAGMA integrity_check" on the database only.
+**                       No other validation is performed.
+**
 **    --parse            Parse all manifests, wikis, tickets, events, and
 **                       so forth, reporting any errors found.
+**
+**    -q|--quick         Run "PRAGMA quick_check" on the database only.
+**                       No other validation is performed.
 */
 void test_integrity(void){
   Stmt q;
@@ -960,7 +966,21 @@ void test_integrity(void){
   int nCA = 0;
   int anCA[10];
   int bParse = find_option("parse",0,0)!=0;
+  int bDbOnly = find_option("db-only","d",0)!=0;
+  int bQuick = find_option("quick","q",0)!=0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
+  if( bDbOnly || bQuick ){
+    const char *zType = bQuick ? "quick" : "integrity";
+    char *zRes;
+    zRes = db_text(0,"PRAGMA repository.%s_check", zType/*safe-for-%s*/);
+    if( fossil_strcmp(zRes,"ok")!=0 ){
+      fossil_print("%s_check failed!\n", zType);
+      exit(1);
+    }else{
+      fossil_print("ok\n");
+    }
+    return;
+  }
   memset(anCA, 0, sizeof(anCA));
 
   /* Make sure no public artifact is a delta from a private artifact */
