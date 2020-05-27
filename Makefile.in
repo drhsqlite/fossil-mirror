@@ -63,9 +63,7 @@ reconfig:
 
 tags:
 	ctags -R @srcdir@/src
-ifeq (@HAVE_PROG_CSCOPE@, 1)
-	cscope -bR -s@srcdir@/src
-endif
+	@COLLECT_CSCOPE_DATA@
 
 # Automatically reconfigure whenever an autosetup file or one of the
 # make source files change.

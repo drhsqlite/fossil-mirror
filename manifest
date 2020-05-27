@@ -1,5 +1,5 @@
-C New\sdocument,\s"Hashes:\sFossil\sArtifact\sIdentification",\swhich\sattempts\nto\sbreak\sdown\sthe\sHASH\svs\sVERSION\svs\scommit\sID\svs\sNAME\svs\sUUID\smess.\s\sIt\nalso\sserves\sto\sdocument\smy\scurrent\sunderstanding\sof\sall\sthe\sways\s"UUID"\nis\scurrently\smisused,\sbut\sbecause\sit\sis\sonly\sdocumenting\sthe\scurrent\nstate\sof\sthings,\sit's\ssafe\sto\sput\sit\son\strunk.\s\s(Changes\sto\scope\swith\nthat\sparticular\sslice\sof\sthe\smess\swill\sappaar\slater,\son\sa\sbranch.)
-D 2020-05-27T22:05:15.912
+C The\s"tags"\sMakefile\starget\sadded\sin\s[ebb67be4]\srelied\son\sGNU\smake\nconditionals,\swhich\scauses\sBSD\smake\sto\schoke.\s\sReworked\sthe\sfeature\nto\sdo\sthe\sconditional\swork\sentirely\son\sthe\sAutosetup\sside\sinstead.
+D 2020-05-27T22:41:25.043
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -14,7 +14,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile f4d360e34758d3ca6b454a4258ffd5d1b7f81c97236ea796bd7a373f739258d5
 F Makefile.classic 42738dd35437f4527e5979784931760641f7fffd6a0d7b964eb86b90dbdf08a2
-F Makefile.in 4175f9923da536a8e3cc1140962a8f166d2a126f30aa0f281bda9554de0b031f x
+F Makefile.in 45eba548fec261c3800734ba8ca3802a2b23cd7654941422d45b7576d2ccbf17 x
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
 F VERSION b3358d1305299906a65c9adfb87c80da1fbd741b0120ff1235a390f85acf5671
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 560cffa37c2c70154e66021123f59c6c2f548f726eb69a2444a90ba030313ef6
+F auto.def 24ce31e52b0b5fb1d7d57f8824a6f0d8da1c773714b687a672823b63e6f79f1b
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -982,7 +982,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74a7309aad8d296997a0141bb67df1ca226f2e52c4093effd6c2c80346b66d5f
-R 65defbff9f65e02f132f6572d88062aa
+P 33bec291b02fed8752444510dd19115385ee491dec857498e93ad46cf35c73b0
+R 6bb6079f9c814c9cfde21fa5c8bb436c
 U wyoung
-Z 4ef631105c2152a79162a56f8a8c0c1b
+Z 38d7c3b0495a884f93bea42db7886761

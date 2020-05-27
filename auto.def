@@ -37,7 +37,11 @@ cc-with {-includes {stdint.h inttypes.h}} {
 define USE_PREAD [cc-check-functions pread]
 
 # If we have cscope here, we'll use it in the "tags" target
-define HAVE_PROG_CSCOPE [cc-check-progs cscope]
+if {[cc-check-progs cscope]} {
+    define COLLECT_CSCOPE_DATA "cscope -bR -s$::autosetup(srcdir)/src"
+} else {
+    define COLLECT_CSCOPE_DATA ""
+}
 
 # Find tclsh for the test suite.
 #
