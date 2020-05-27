@@ -560,7 +560,8 @@ void captcha_generate(int showButton){
 */
 void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
   if( zMsg==0 ) zMsg = "Speak the text";
-  @ <input type="button" value="%h(zMsg)" id="speakthetext">
+  @ <input aria-label="%h(zMsg)" type="button" value="%h(zMsg)" \
+  @ id="speakthetext">
   @ <script nonce="%h(style_nonce())">
   @ document.getElementById("speakthetext").onclick = function(){
   @   var audio = window.fossilAudioCaptcha \

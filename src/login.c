@@ -680,16 +680,14 @@ void login_page(void){
     }
     @ <table class="login_out">
     @ <tr>
-    @   <td class="form_label">User ID:</td>
-    if( anonFlag ){
-      @ <td><input type="text" id="u" name="u" value="anonymous" size="30"></td>
-    }else{
-      @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
-    }
+    @   <td class="form_label" id="userlabel1">User ID:</td>
+    @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
+    @ size="30" value="%s(anonFlag?"anonymous":"")"></td>
     @ </tr>
     @ <tr>
-    @  <td class="form_label">Password:</td>
-    @  <td><input type="password" id="p" name="p" value="" size="30" />\
+    @  <td class="form_label" id="pswdlabel">Password:</td>
+    @  <td><input aria-labelledby="pswdlabel" type="password" id="p" \
+    @ name="p" value="" size="30" />\
     if( zAnonPw && !noAnon ){
       captcha_speakit_button(uSeed, "Speak password for \"anonymous\"");
     }
@@ -752,12 +750,15 @@ void login_page(void){
       @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
       form_begin(0, "%R/login");
       @ <table>
-      @ <tr><td class="form_label">Old Password:</td>
-      @ <td><input type="password" name="p" size="30" /></td></tr>
-      @ <tr><td class="form_label">New Password:</td>
-      @ <td><input type="password" name="n1" size="30" /></td></tr>
-      @ <tr><td class="form_label">Repeat New Password:</td>
-      @ <td><input type="password" name="n2" size="30" /></td></tr>
+      @ <tr><td class="form_label" id="oldpw">Old Password:</td>
+      @ <td><input aria-labelledby="oldpw" type="password" name="p" \
+      @ size="30"/></td></tr>
+      @ <tr><td class="form_label" id="newpw">New Password:</td>
+      @ <td><input aria-labelledby="newpw" type="password" name="n1" \
+      @ size="30" /></td></tr>
+      @ <tr><td class="form_label" id="reppw">Repeat New Password:</td>
+      @ <td><input aria-labledby="reppw" type="password" name="n2" \
+      @ size="30" /></td></tr>
       @ <tr><td></td>
       @ <td><input type="submit" value="Change Password" /></td></tr>
       @ </table>
@@ -1692,23 +1693,26 @@ void register_page(void){
   @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)" />
   @ <table class="login_out">
   @ <tr>
-  @   <td class="form_label" align="right">User ID:</td>
-  @   <td><input type="text" name="u" value="%h(zUserID)" size="30"></td>
+  @   <td class="form_label" align="right" id="uid">User ID:</td>
+  @   <td><input aria-labelledby="uid" type="text" name="u" \
+  @ value="%h(zUserID)" size="30"></td>
   @
   if( iErrLine==1 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ <tr>
-  @   <td class="form_label" align="right">Display Name:</td>
-  @   <td><input type="text" name="dn" value="%h(zDName)" size="30"></td>
+  @   <td class="form_label" align="right" id="dpyname">Display Name:</td>
+  @   <td><input aria-labelledby="dpyname" type="text" name="dn" \
+  @ value="%h(zDName)" size="30"></td>
   @ </tr>
   if( iErrLine==2 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ </tr>
   @ <tr>
-  @   <td class="form_label" align="right">Email Address:</td>
-  @   <td><input type="text" name="ea" value="%h(zEAddr)" size="30"></td>
+  @   <td class="form_label" align="right" id="emaddr">Email Address:</td>
+  @   <td><input aria-labelledby="emaddr" type="text" name="ea" \
+  @ value="%h(zEAddr)" size="30"></td>
   @ </tr>
   if( iErrLine==3 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
@@ -1716,29 +1720,31 @@ void register_page(void){
   if( canDoAlerts ){
     int a = atoi(PD("alerts","1"));
     @ <tr>
-    @   <td class="form_label" align="right">Email&nbsp;Alerts?</td>
-    @   <td><select size='1' name='alerts'>
+    @   <td class="form_label" align="right" id="emalrt">Email&nbsp;Alerts?</td>
+    @   <td><select aria-labelledby="emalrt" size='1' name='alerts'>
     @       <option value="1" %s(a?"selected":"")>Yes</option>
     @       <option value="0" %s(!a?"selected":"")>No</option>
     @   </select></td></tr>
   }
   @ <tr>
-  @   <td class="form_label" align="right">Password:</td>
-  @   <td><input type="password" name="p" value="%h(zPasswd)" size="30"></td>
+  @   <td class="form_label" align="right" id="pswd">Password:</td>
+  @   <td><input aria-labelledby="pswd" type="password" name="p" \
+  @ value="%h(zPasswd)" size="30"></td>
   @ <tr>
   if( iErrLine==4 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ <tr>
-  @   <td class="form_label" align="right">Confirm:</td>
-  @   <td><input type="password" name="cp" value="%h(zConfirm)" size="30"></td>
+  @   <td class="form_label" align="right" id="pwcfrm">Confirm:</td>
+  @   <td><input aria-labelledby="pwcfrm" type="password" name="cp" \
+  @ value="%h(zConfirm)" size="30"></td>
   @ </tr>
   if( iErrLine==5 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ <tr>
-  @   <td class="form_label" align="right">Captcha:</td>
-  @   <td><input type="text" name="captcha" size="30"\
+  @   <td class="form_label" align="right" id="cptcha">Captcha:</td>
+  @   <td><input type="text" name="captcha" aria-labelledby="cptcha" \
   @ value="%h(captchaIsCorrect?zDecoded:"")" size="30">
   captcha_speakit_button(uSeed, "Speak the captcha text");
   @   </td>

@@ -616,7 +616,7 @@ void ambiguous_page(void){
     int rid = db_column_int(&q, 1);
     @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
-    object_description(rid, 0, 0);
+    object_description(rid, 0, 0, 0);
     @ </p></li>
   }
   db_finalize(&q);
@@ -638,7 +638,7 @@ void ambiguous_page(void){
     hyperlink_to_uuid(zUuid);
     @ - %h(zTitle).
     @ <ul><li>
-    object_description(rid, 0, 0);
+    object_description(rid, 0, 0, 0);
     @ </li></ul>
     @ </p></li>
   }
@@ -654,7 +654,7 @@ void ambiguous_page(void){
     @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     @ <ul><li>
-    object_description(rid, 0, 0);
+    object_description(rid, 0, 0, 0);
     @ </li></ul>
     @ </p></li>
   }

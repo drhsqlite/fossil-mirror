@@ -19,13 +19,14 @@ proc menulink {url name cls} {
     html "<a href='$home$url' class='$cls'>$name</a>\n"
   }
 }
-html "<a id='hbbtn' href='$home/sitemap'>&#9776;</a>"
+html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
 menulink $index_page Home {}
 if {[anycap jor]} {
   menulink /timeline Timeline {}
 }
 if {[hascap oh]} {
-  menulink /dir?ci=tip Files desktoponly
+  if {![info exists current_checkin]} {set current_checkin tip}
+  menulink /dir?ci=$current_checkin Files desktoponly
 }
 if {[hascap o]} {
   menulink  /brlist Branches desktoponly

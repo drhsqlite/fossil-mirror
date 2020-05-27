@@ -283,6 +283,9 @@ static unsigned int skin_hash(unsigned int h, const char *z){
 ** identifier can be attached to resource URLs to force reloading when
 ** the resources change but allow the resources to be read from cache
 ** as long as they are unchanged.
+**
+** The zResource argument is the name of a CONFIG setting that
+** defines the resource.  Examples:  "css", "logo-image".
 */
 unsigned int skin_id(const char *zResource){
   unsigned int h = 0;
@@ -295,7 +298,9 @@ unsigned int skin_id(const char *zResource){
     h = skin_hash(0, zMTime);
     fossil_free(zMTime);
   }
-  h = skin_hash(h, MANIFEST_UUID);
+
+  /* Change the ID every time Fossil is recompiled */
+  h = skin_hash(h, fossil_exe_id());
   return h;
 }
 
@@ -1119,7 +1124,7 @@ void setup_skin(void){
     @ an administrator to get this "draft%d(iSkin)" skin published.</p>
   }else{
     @ <p>When the draft%d(iSkin) skin is ready for production use,
-    @ make it the default scan by clicking the acknowledgements and
+    @ make it the default skin by clicking the acknowledgements and
     @ pressing the button below:</p>
     @
     @ <form method='POST' action='%R/setup_skin#step7'>

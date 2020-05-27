@@ -1,7 +1,12 @@
 <title>Change Log</title>
 
+<a name='v2_12'></a>
+<h2>Changes for Version 2.12 (pending)</h2>
+
+  *  <i>(no changes yet...)</i>
+
 <a name='v2_11'></a>
-<h2>Changes for Version 2.11 (pending)</h2>
+<h2>Changes for Version 2.11 (2020-05-25)</h2>
 
   *  Support [/md_rules|Markdown] in the default ticket configuration.
   *  Timestamp strings in [./checkin_names.wiki|object names]
@@ -57,6 +62,8 @@
      HTML &lt;head&gt; section, so that it is always available, even
      if a custom skin overrides the HTML &lt;head&gt; and omits
      the CSP in the process.
+  *  Output of the [/help?cmd=diff|fossil diff -y] command automatically
+     adjusts according to the terminal width.
   *  The Content-Security-Policy is now set using the
      [/help?cmd=default-csp|default-csp setting].
   *  Merge conflicts caused via the [/help?cmd=merge|merge] and

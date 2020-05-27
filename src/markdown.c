@@ -468,6 +468,47 @@ static void parse_inline(
   }
 }
 
+/*
+** data[*pI] should be a "`" character that introduces a code-span.
+** The code-span boundry mark can be any number of one or more "`"
+** characters.  We do not know the size of the boundry marker, only
+** that there is at least one "`" at data[*pI].
+**
+** This routine increases *pI to move it past the code-span, including
+** the closing boundary mark.  Or, if the code-span is unterminated,
+** this routine moves *pI past the opening boundary mark only.
+*/
+static void skip_codespan(const char *data, size_t size, size_t *pI){
+  size_t i = *pI;
+  size_t span_nb;   /* Number of "`" characters in the boundary mark */
+  size_t bt;
+
+  assert( i<size );
+  assert( data[i]=='`' );
+  data += i;
+  size -= i;
+
+  /* counting the number of opening backticks */
+  i = 0;
+  span_nb = 0;
+  while( i<size && data[i]=='`' ){
+    i++;
+    span_nb++;
+  }
+  if( i>=size ){
+    *pI += span_nb;
+    return;
+  }
+
+  /* finding the matching closing sequence */
+  bt = 0;
+  while( i<size && bt<span_nb ){
+    if( data[i]=='`' ) bt += 1; else bt = 0;
+    i++;
+  }
+  *pI += (bt == span_nb) ? i : span_nb;
+}
+
 
 /* find_emph_char -- looks for the next emph char, skipping other constructs */
 static size_t find_emph_char(char *data, size_t size, char c){
@@ -485,30 +526,9 @@ static size_t find_emph_char(char *data, size_t size, char c){
 
     if( data[i]==c ) return i;
 
-    /* skipping a code span */
-    if( data[i]=='`' ){
-      size_t span_nb = 0, bt;
-      size_t tmp_i = 0;
-
-      /* counting the number of opening backticks */
-      while( i<size && data[i]=='`' ){
-        i++;
-        span_nb++;
-      }
-      if( i>=size ) return 0;
-
-      /* finding the matching closing sequence */
-      bt = 0;
-      while( i<size && bt<span_nb ){
-        if( !tmp_i && data[i]==c ) tmp_i = i;
-        if( data[i]=='`' ) bt += 1; else bt = 0;
-        i++;
-      }
-      if( i>=size ) return tmp_i;
-      i++;
-
-    /* skipping a link */
-    }else if( data[i]=='[' ){
+    if( data[i]=='`' ){            /* skip a code span */
+      skip_codespan(data, size, &i);
+    }else if( data[i]=='[' ){      /* skip a link */
       size_t tmp_i = 0;
       char cc;
       i++;
@@ -1176,6 +1196,10 @@ static int is_tableline(char *data, size_t size){
   /* count the number of pipes in the line */
   for(n_sep=0; i<size && data[i]!='\n'; i++){
     if( is_table_sep(data, i) ) n_sep++;
+    if( data[i]=='`' ){
+      skip_codespan(data, size, &i);
+      i--;
+    }
   }
 
   /* march back to check for optional last '|' before blanks and EOL */
@@ -1836,7 +1860,13 @@ static size_t parse_table_row(
     beg = i;
 
     /* forward to the next separator or EOL */
-    while( i<size && !is_table_sep(data, i) && data[i]!='\n' ){ i++; }
+    while( i<size && !is_table_sep(data, i) && data[i]!='\n' ){
+      if( data[i]=='`' ){
+        skip_codespan(data, size, &i);
+      }else{
+        i++;
+      }
+    }
     end = i;
     if( i<size ){
       i++;
