@@ -85,7 +85,7 @@ management system with these advanced features:
   8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>Latest Release: 2.10 (2019-10-04)</h3>
+<h3>[/timeline?t=release|Latest Release]: 2.11 (2020-05-26)</h3>
 
   *  [/uv/download.html|Download]
   *  [./changes.wiki#v2_10|Change Summary]
