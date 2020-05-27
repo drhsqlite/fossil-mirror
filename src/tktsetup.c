@@ -450,7 +450,7 @@ void tktsetup_newpage_page(void){
 
 static const char zDefaultView[] =
 @ <table cellpadding="5">
-@ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td>
+@ <tr><td class="tktDspLabel">Ticket&nbsp;Hash:</td>
 @ <th1>
 @ if {[info exists tkt_uuid]} {
 @   html "<td class='tktDspValue' colspan='3'>"

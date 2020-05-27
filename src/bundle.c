@@ -532,7 +532,7 @@ static void bundle_extract_item(
   db_finalize(&q);
 }
 
-/* fossil bundle cat BUNDLE UUID...
+/* fossil bundle cat BUNDLE HASH...
 **
 ** Write elements of a bundle on standard output
 */
@@ -540,7 +540,7 @@ static void bundle_cat_cmd(void){
   int i;
   Blob x;
   verify_all_options();
-  if( g.argc<5 ) usage("cat BUNDLE UUID...");
+  if( g.argc<5 ) usage("cat BUNDLE HASH...");
   bundle_attach_file(g.argv[3], "b1", 1);
   blob_zero(&x);
   for(i=4; i<g.argc; i++){
@@ -727,7 +727,7 @@ static void bundle_purge_cmd(void){
 **      Add files named on the command line to BUNDLE.  This subcommand has
 **      little practical use and is mostly intended for testing.
 **
-**   fossil bundle cat BUNDLE UUID...
+**   fossil bundle cat BUNDLE HASH...
 **
 **      Extract one or more artifacts from the bundle and write them
 **      consecutively on standard output.  This subcommand was designed
@@ -772,7 +772,7 @@ static void bundle_purge_cmd(void){
 **
 ** SUMMARY:
 **   fossil bundle append BUNDLE FILE...              Add files to BUNDLE
-**   fossil bundle cat BUNDLE UUID...                 Extract file from BUNDLE
+**   fossil bundle cat BUNDLE HASH...                 Extract file from BUNDLE
 **   fossil bundle export BUNDLE ?OPTIONS?            Create a new BUNDLE
 **          --branch BRANCH --from TAG1 --to TAG2       Check-ins to include
 **          --checkin TAG                               Use only check-in TAG

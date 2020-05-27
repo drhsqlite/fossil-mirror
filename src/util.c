@@ -418,7 +418,7 @@ int is_valid_fd(int fd){
 ** Returns TRUE if zSym is exactly HNAME_LEN_SHA1 or HNAME_LEN_K256
 ** bytes long and contains only lower-case ASCII hexadecimal values.
 */
-int fossil_is_uuid(const char *zSym){
+int fossil_is_artifact_hash(const char *zSym){
   int sz = zSym ? (int)strlen(zSym) : 0;
   return (HNAME_LEN_SHA1==sz || HNAME_LEN_K256==sz) && validate16(zSym, sz);
 }

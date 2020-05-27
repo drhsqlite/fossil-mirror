@@ -161,7 +161,7 @@ struct Global {
   const char *zCmdName;   /* Name of the Fossil command currently running */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
-  int minPrefix;          /* Number of digits needed for a distinct UUID */
+  int minPrefix;          /* Number of digits needed for a distinct hash */
   int eHashPolicy;        /* Current hash policy.  One of HPOLICY_* */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */

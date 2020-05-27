@@ -1408,7 +1408,7 @@ int select_commit_files(void){
 */
 static void checkin_verify_younger(
   int rid,              /* The record ID of the ancestor */
-  const char *zUuid,    /* The artifact ID of the ancestor */
+  const char *zUuid,    /* The artifact hash of the ancestor */
   const char *zDate     /* Date & time of the current check-in */
 ){
 #ifndef FOSSIL_ALLOW_OUT_OF_ORDER_DATES
@@ -1489,14 +1489,14 @@ struct CheckinInfo {
 */
 static void create_manifest(
   Blob *pOut,                 /* Write the manifest here */
-  const char *zBaselineUuid,  /* UUID of baseline, or zero */
+  const char *zBaselineUuid,  /* Hash of baseline, or zero */
   Manifest *pBaseline,        /* Make it a delta manifest if not zero */
   int vid,                    /* BLOB.id for the parent check-in */
   CheckinInfo *p,             /* Information about the check-in */
   int *pnFBcard               /* OUT: Number of generated B- and F-cards */
 ){
   char *zDate;                /* Date of the check-in */
-  char *zParentUuid = 0;      /* UUID of parent check-in */
+  char *zParentUuid = 0;      /* Hash of parent check-in */
   Blob filename;              /* A single filename */
   int nBasename;              /* Size of base filename */
   Stmt q;                     /* Various queries */
@@ -2047,7 +2047,7 @@ void commit_cmd(void){
   Blob comment;          /* Check-in comment */
   const char *zComment;  /* Check-in comment */
   Stmt q;                /* Various queries */
-  char *zUuid;           /* UUID of the new check-in */
+  char *zUuid;           /* Hash of the new check-in */
   int useHash = 0;       /* True to verify file status using hashing */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int privateFlag = 0;   /* True if the --private option is present */

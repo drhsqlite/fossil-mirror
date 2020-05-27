@@ -46,7 +46,7 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 /*
 ** Print common information about a particular record.
 **
-**     *  The UUID
+**     *  The artifact hash
 **     *  The record ID
 **     *  mtime and ctime
 **     *  who signed it
@@ -54,7 +54,7 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 */
 void show_common_info(
   int rid,                   /* The rid for the check-in to display info for */
-  const char *zUuidName,     /* Name of the UUID */
+  const char *zRecDesc,      /* Brief record description; e.g. "checkout:" */
   int showComment,           /* True to show the check-in comment */
   int showFamily             /* True to show parents and children */
 ){
@@ -70,7 +70,7 @@ void show_common_info(
       rid
     );
          /* 01234567890123 */
-    fossil_print("%-13s %.40s %s\n", zUuidName, zUuid, zDate ? zDate : "");
+    fossil_print("%-13s %.40s %s\n", zRecDesc, zUuid, zDate ? zDate : "");
     free(zDate);
     if( showComment ){
       zComment = db_text(0,
@@ -266,7 +266,7 @@ void info_cmd(void){
     if( rid==0 ){
       fossil_fatal("no such object: %s", g.argv[2]);
     }
-    show_common_info(rid, "uuid:", 1, 1);
+    show_common_info(rid, "hash:", 1, 1);
   }
 }
 
@@ -538,7 +538,7 @@ void ci_tags_page(void){
     if( tagtype==2 ){
       if( zOrigUuid && zOrigUuid[0] ){
         @ inherited from
-        hyperlink_to_uuid(zOrigUuid);
+        hyperlink_to_version(zOrigUuid);
       }else{
         @ propagates to descendants
       }
@@ -549,7 +549,7 @@ void ci_tags_page(void){
       }else{
         @ added by
       }
-      hyperlink_to_uuid(zSrcUuid);
+      hyperlink_to_version(zSrcUuid);
       @ on
       hyperlink_to_date(zDate,0);
     }
@@ -615,8 +615,8 @@ void ci_page(void){
   int diffType;        /* 0: no diff,  1: unified,  2: side-by-side */
   u64 diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the check-in to be displayed */
-  const char *zUuid;   /* UUID of zName */
-  const char *zParent; /* UUID of the parent check-in (if any) */
+  const char *zUuid;   /* Hash of zName, found via blob.uuid */
+  const char *zParent; /* Hash of the parent check-in (if any) */
   const char *zRe;     /* regex parameter */
   ReCompiled *pRe = 0; /* regex */
   const char *zW;      /* URL param for ignoring whitespace */
@@ -941,7 +941,7 @@ void ci_page(void){
 
 /*
 ** WEBPAGE: winfo
-** URL:  /winfo?name=UUID
+** URL:  /winfo?name=HASH
 **
 ** Display information about a wiki page.
 */
@@ -1102,7 +1102,7 @@ static void checkin_description(int rid){
     if( db_get_boolean("timeline-block-markup", 0)==0 ){
       wikiFlags |= WIKI_NOBLOCK;
     }
-    hyperlink_to_uuid(zUuid);
+    hyperlink_to_version(zUuid);
     blob_zero(&comment);
     db_column_blob(&q, 2, &comment);
     wiki_convert(&comment, 0, wikiFlags);
@@ -1430,10 +1430,10 @@ int object_description(
       @ <li>
       hyperlink_to_date(zDate,"");
       @ &mdash; part of check-in
-      hyperlink_to_uuid(zVers);
+      hyperlink_to_version(zVers);
     }else{
       @ &mdash; part of check-in
-      hyperlink_to_uuid(zVers);
+      hyperlink_to_version(zVers);
       @ at
       hyperlink_to_date(zDate,"");
     }
@@ -1533,7 +1533,7 @@ int object_description(
         @ Tag referencing
       }
       if( zType[0]!='e' || eventTagId == 0){
-        hyperlink_to_uuid(zUuid);
+        hyperlink_to_version(zUuid);
       }
       @ - %!W(zCom) by
       hyperlink_to_user(zUser,zDate," on");
@@ -1565,7 +1565,7 @@ int object_description(
       @ Attachment "%h(zFilename)" to
     }
     objType |= OBJTYPE_ATTACHMENT;
-    if( fossil_is_uuid(zTarget) ){
+    if( fossil_is_artifact_hash(zTarget) ){
       if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             zTarget)
       ){
@@ -1624,7 +1624,7 @@ int object_description(
 
 /*
 ** WEBPAGE: fdiff
-** URL: fdiff?v1=UUID&v2=UUID
+** URL: fdiff?v1=HASH&v2=HASH
 **
 ** Two arguments, v1 and v2, identify the artifacts to be diffed.
 ** Show diff side by side unless sbs is 0.  Generate plain text if
@@ -1800,14 +1800,14 @@ void rawartifact_page(void){
 */
 void secure_rawartifact_page(void){
   int rid = 0;
-  const char *zUuid = PD("name", "");
+  const char *zName = PD("name", "");
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zUuid);
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
   if( rid==0 ){
     cgi_set_status(404, "Not Found");
-    @ Unknown artifact: "%h(zUuid)"
+    @ Unknown artifact: "%h(zName)"
     return;
   }
   g.isConst = 1;
@@ -2521,12 +2521,14 @@ void tinfo_page(void){
 
 /*
 ** WEBPAGE: info
-** URL: info/ARTIFACTID
+** URL: info/NAME
 **
-** The argument is a artifact ID which might be a check-in or a file or
-** a ticket changes or a wiki edit or something else.
+** The NAME argument is any valid artifact name: an artifact hash,
+** a timestamp, a tag name, etc.
 **
-** Figure out what the artifact ID is and display it appropriately.
+** Because NAME can match so many different things (commit artifacts,
+** wiki pages, ticket comments, forum posts...) the format of the output
+** page depends on the type of artifact that NAME matches.
 */
 void info_page(void){
   const char *zName;
@@ -3140,13 +3142,13 @@ static void prepare_amend_comment(
   blob_reset(&prompt);
 }
 
-#define AMEND_USAGE_STMT "UUID OPTION ?OPTION ...?"
+#define AMEND_USAGE_STMT "HASH OPTION ?OPTION ...?"
 /*
 ** COMMAND: amend
 **
-** Usage: %fossil amend UUID OPTION ?OPTION ...?
+** Usage: %fossil amend HASH OPTION ?OPTION ...?
 **
-** Amend the tags on check-in UUID to change how it displays in the timeline.
+** Amend the tags on check-in HASH to change how it displays in the timeline.
 **
 ** Options:
 **
@@ -3234,7 +3236,7 @@ void ci_amend_cmd(void){
   rid = name_to_typed_rid(g.argv[2], "ci");
   if( rid==0 && !is_a_version(rid) ) fossil_fatal("no such check-in");
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  if( zUuid==0 ) fossil_fatal("Unable to find UUID");
+  if( zUuid==0 ) fossil_fatal("Unable to find artifact hash");
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
                         "  FROM event WHERE objid=%d", rid);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
@@ -3324,7 +3326,7 @@ void ci_amend_cmd(void){
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
   apply_newtags(&ctrl, rid, zUuid, zUserOvrd, fDryRun);
   if( fDryRun==0 ){
-    show_common_info(rid, "uuid:", 1, 0);
+    show_common_info(rid, "hash:", 1, 0);
   }
   if( g.localOpen ){
     manifest_to_disk(rid);

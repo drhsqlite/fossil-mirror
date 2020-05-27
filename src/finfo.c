@@ -286,8 +286,8 @@ void cat_cmd(void){
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
-**    ci=UUID    Ancestors of a particular check-in
-**    orig=UUID  If both ci and orig are supplied, only show those
+**    ci=HASH    Ancestors of a particular check-in
+**    orig=HASH  If both ci and orig are supplied, only show those
 **                 changes on a direct path from orig to ci.
 **    showid     Show RID values for debugging
 **
@@ -373,9 +373,9 @@ void finfo_page(void){
     " coalesce(event.euser, event.user),"            /* User who made chng */
     " mlink.pid,"                                    /* Parent file rid */
     " mlink.fid,"                                    /* File rid */
-    " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
-    " blob.uuid,"                                    /* Current file uuid */
-    " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
+    " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file hash */
+    " blob.uuid,"                                    /* Current file hash */
+    " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in hash */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
                                 " AND tagxref.rid=mlink.mid)," /* Branchname */
@@ -543,9 +543,9 @@ void finfo_page(void){
     }else{
       @ <span class='timeline%s(zStyle)Comment'>
       if( (tmFlags & TIMELINE_VERBOSE)!=0 && zUuid ){
-        hyperlink_to_uuid(zUuid);
+        hyperlink_to_version(zUuid);
         @ part of check-in \
-        hyperlink_to_uuid(zCkin);
+        hyperlink_to_version(zCkin);
       }
     }
     @ %W(zCom)</span>
@@ -578,7 +578,7 @@ void finfo_page(void){
       }
     }
     @ check-in:&nbsp;\
-    hyperlink_to_uuid(zCkin);
+    hyperlink_to_version(zCkin);
     if( fShowId ){
       @ (%d(fmid))
     }
