@@ -55,6 +55,7 @@ set doclist {
   grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
   hacker-howto.wiki {Fossil Developers Guide}
+  hashes.md {Hashes: Fossil Artifact Identification}
   hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
