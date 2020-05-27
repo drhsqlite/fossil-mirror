@@ -1,5 +1,5 @@
-C A\sfew\ssmall\simprovements\sto\sembeddeddoc.wiki:\sadded\sa\snamed\sanchor\sso\swe\ncan\srefer\sdirectly\sto\sthe\ssection\stalking\sabout\s"ckout",\sreferred\sto\ncheckin_names.wiki\sonly\sonce\sfrom\sthe\srelevant\sparagraph\sinstead\sof\ntwice,\sand\sadded\sa\sparagraph\sexplaining\swhy\sthis\sfeature\sis\sparticularly\nuseful.\s\sThis\sis\sin\ssupport\sof\san\supcoming\scommit:\swe're\sgoing\sto\sremove\nsome\sredundant\scommentary\sabout\s"commit"\sin\scheckin_names.wiki.
-D 2020-05-27T19:45:51.981
+C In\swww/checkin_names.wiki,\sdocumented\sthe\sdate:\sprefix\sfor\stimetsamps,\nadded\sfragment\sIDs\sfor\ssubsections,\sadded\sa\sdifferentiating\sexample\sof\n"fossil\sinfo"\svs\s"/info/NAME"\sfor\sspecial\scheck-in\snames,\sand\sdocumented\nthe\sorder\sthat\sFossil\sresolves\ssuch\snames.
+D 2020-05-27T20:45:34.685
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -818,7 +818,7 @@ F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
 F www/changes.wiki 416be1d440dcdbf4937c8c44dc320d9179d5a09155eb5bfa6454bc9bebd82d8f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki e0707a3fd024990bc95294502d5ca6cd39688bf40c3c87a2a449e7e3af9e40f6
+F www/checkin_names.wiki 249241990399c2fdd0934c81f982662f5a5e8042a686b61814cc6b35f6834ca3
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md 98a9f4a11f6e1a4ed06e13b0adc1806472b03e825575c2f503f90d9dcdf878d9
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0a91653abc9a434023af445b865e5d7cced144302df279cf5c7c4edcba315dc
-R 765cebdc0ff7ae75c15835aa43facfd8
+P 51511b7205f6046a671531784f37665fc97ff99fd781a6047cf04ee1482bab58
+R 38d167238d5ce0acf3f4ca6f4555679d
 U wyoung
-Z d43f4e909aa2af1238262c9a93cfe970
+Z cec27ee5b242b6044e5d9b21f97a1bd2
