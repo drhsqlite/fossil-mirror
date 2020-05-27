@@ -1581,7 +1581,7 @@ const char *timeline_expand_datetime(const char *zIn){
 
 
 /*
-** WEBPAGE: timeline
+** WEBPAGE: timeline               read-transaction
 **
 ** Query parameters:
 **

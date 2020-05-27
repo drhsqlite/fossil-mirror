@@ -92,6 +92,7 @@
 #define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
 #define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
 #define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret webpage content */
+#define CMDFLAG_RDTRANS     0x0400      /* Run inside a read transaction */
 /**************************************************************************/
 
 /*
@@ -241,6 +242,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       aEntry[nUsed].eType |= CMDFLAG_TEST;
     }else if( j==11 && strncmp(&zLine[i], "raw-content", j)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_RAWCONTENT;
+    }else if( j==16 && strncmp(&zLine[i], "read-transaction", j)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_RDTRANS;
     }else if( j==7 && strncmp(&zLine[i], "boolean", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_BLOCKTEXT);
       aEntry[nUsed].iWidth = 0;

@@ -1922,7 +1922,9 @@ static void process_one_web_page(
       if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
         if( rc==TH_OK || rc==TH_RETURN ){
 #endif
+          if( pCmd->eCmdFlags & CMDFLAG_RDTRANS ) db_begin_transaction();
           pCmd->xFunc();
+          if( pCmd->eCmdFlags & CMDFLAG_RDTRANS ) db_commit_transaction();
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
         }
         if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
