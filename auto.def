@@ -36,6 +36,9 @@ cc-with {-includes {stdint.h inttypes.h}} {
 # Use pread/pwrite system calls in place of seek + read/write if possible
 define USE_PREAD [cc-check-functions pread]
 
+# If we have cscope here, we'll use it in the "tags" target
+define HAVE_PROG_CSCOPE [cc-check-progs cscope]
+
 # Find tclsh for the test suite.
 #
 # We can't use jimsh for this: the test suite uses features of Tcl that
