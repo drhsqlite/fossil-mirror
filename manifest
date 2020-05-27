@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sthe\s"Delete\sAd-Unit"\sbutton\sin\sthe\ssetup\spages.
-D 2020-05-26T18:30:17.631
+C The\serror\smessage\sFossil\sgives\son\sTLS\scertificate\scheck\sfailure\schanged\nin\sFossil\s2.11,\sso\supdated\swww/ssl.wiki\sto\sshow\sthe\snew\smessage.\s\sLeft\nthe\sold\smessage\sin\splace,\ssince\smany\speople\swill\sbe\srunning\sversions\sof\nFossil\sthat\sstill\suse\sthat\sformat,\sand\sa\sbig\spart\sof\sthe\sreason\swhy\swe\nhave\sthis\serror\smessage\sin\sthe\sdocument\sis\sto\smake\sit\scome\sup\sin\sweb\nsearches\sfor\sthe\serror,\ssince\swe\sgive\ssolutions\slater\sin\sthe\ssame\sdoc.
+D 2020-05-27T16:56:42.939
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -963,7 +963,7 @@ F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a
 F www/serverext.wiki 43b453c4dce18c46c9808c9e977ee0f17e4794b469f0c6297345ed95b98753fb
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
-F www/ssl.wiki 002cf8272d0fc4204622011ebe0b7ca31ccc3d888054016139daceea78d9d4b8
+F www/ssl.wiki 0dd97431ff90fce1f19a7d2e60bdae07fd1b079d90b7e76750eaa9be44b4f7ce
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad9295fd59c77c48010ebabbaa4edf7fe6afd5a3d0573d974d3d85761135cd72
-R 9344039fb46553731942a388124a9a8e
-U drh
-Z deb9d653e7bf1233cc9b70c3f0f64e86
+P 48dca1b4c9ca20eb250920f457b50e40fd9d81a74db5c1994194be721a1a6f48
+R 6816e11c02dacdf867cc753ad548616d
+U wyoung
+Z 1821953e522dd14be3db9e779f7a9687
