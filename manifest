@@ -1,5 +1,5 @@
-C Updated\srelease\sversion\snumber\sin\sindex.wiki.
-D 2020-05-27T19:22:15.578
+C A\sfew\ssmall\simprovements\sto\sembeddeddoc.wiki:\sadded\sa\snamed\sanchor\sso\swe\ncan\srefer\sdirectly\sto\sthe\ssection\stalking\sabout\s"ckout",\sreferred\sto\ncheckin_names.wiki\sonly\sonce\sfrom\sthe\srelevant\sparagraph\sinstead\sof\ntwice,\sand\sadded\sa\sparagraph\sexplaining\swhy\sthis\sfeature\sis\sparticularly\nuseful.\s\sThis\sis\sin\ssupport\sof\san\supcoming\scommit:\swe're\sgoing\sto\sremove\nsome\sredundant\scommentary\sabout\s"commit"\sin\scheckin_names.wiki.
+D 2020-05-27T19:45:51.981
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -841,7 +841,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki e70aabb6f50657b435f5ea9f31180ad43c1c239cfc3f56e1d370ae4095b90039
-F www/embeddeddoc.wiki 7827532ba87f8678890cba69ef891af2601c169dffa494b28c8fb862d0fcf45c
+F www/embeddeddoc.wiki 3d2290e52d8eb50fba08a91f3fc15574d012d5627b3c5ce80d7386ad05afb445
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebb67be487235a0f99feb3c0fec492063b5b4f6841de911c892069cde8861f28
-R 75f08ff3f513972f33d995a8bbbd79a4
-U stephan
-Z c48857ef7364278ed023c9eb4bb886b3
+P c0a91653abc9a434023af445b865e5d7cced144302df279cf5c7c4edcba315dc
+R 765cebdc0ff7ae75c15835aa43facfd8
+U wyoung
+Z d43f4e909aa2af1238262c9a93cfe970
