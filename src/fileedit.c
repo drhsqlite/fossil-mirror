@@ -2145,15 +2145,15 @@ void fileedit_page(void){
        "make for smaller commit records, especially in repositories "
        "with many files.</li>");
     CX("<li>The file selector allows, for usability's sake, only files "
-       "in leaf checkins to be selected, but files may be edited via "
-       "non-leaf checkins by passing them as the <code>filename</code> "
+       "in leaf check-ins to be selected, but files may be edited via "
+       "non-leaf check-ins by passing them as the <code>filename</code> "
        "and <code>checkin</code> URL arguments to this page.</li>");
     CX("<li>The editor stores some number of local edits in one of "
        "<code>window.fileStorage</code> or "
        "<code>window.sessionStorage</code>, if able, but which storage "
        "is unspecified and may differ across environments. When "
        "committing or force-reloading a file, local edits to that "
-       "file/checkin combination are discarded.</li>");
+       "file/check-in combination are discarded.</li>");
     CX("</ul>");
   }
   CX("</div>"/*#fileedit-tab-help*/);
