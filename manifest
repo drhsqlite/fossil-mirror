@@ -1,5 +1,5 @@
-C The\snew\sblob_reserve()\snow\striggers\sblob_panic()\sif\sasked\sto\sallocate\smore\sthan\sblob_append_full()\sinternally\sallows\sfor\s(not\squite\s2GB),\sto\savoid\sa\scorner\scase\sthat\sblob_reserve()\scould\sbe\sused\sto\saccidentally\sbypass\sthat\sinternal\slimit.
-D 2020-05-28T17:21:22.550
+C Updates\sto\sthe\sdoc/hashes.md\sdocument.
+D 2020-05-28T17:37:12.430
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -888,7 +888,7 @@ F www/gitusers.md 115254ca36063ef76297a91f393f3b1777d29a8033e4514ddf38c0a3e271a6
 F www/globs.md fb92287b95e7fc588a768f5961b3268a1b8d82c4b3e657ee0453f988825ebc72
 F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
-F www/hashes.md 79126e01f5c001f9425761e86263a2ab8071517505bc7f207f3f898abb6eff1a
+F www/hashes.md 94299d7020645c17906eadcda473475a34c0cb3001664f665894f3caa5aa699c
 F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/history.md 623088f2e3c27956411551d416e5e53f3e9c1249e0ab70399fbc79c16bb48a9b
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a52499fdc4c9f148120a2f8eca15b82251d320fa41d4764a8c45716f30072053
-R 76d41d45591de0f17cf068f7fa4b2e67
-U stephan
-Z ca649322e016c95262445d891256fd5f
+P e714b8427c8dd109754d7274d8a38240205da956fdfa7cfac2e5a7f9054f158d
+R 839c5c4677daca3fe6ac2079fc56942f
+U drh
+Z c4b960caa020317a39ff048dad7120f6
