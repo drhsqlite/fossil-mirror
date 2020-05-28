@@ -1,5 +1,5 @@
-C Added\s/fileedit\sto\schanges.wiki.
-D 2020-05-28T09:47:09.153
+C Disable\sall\saccess\sto\sthe\s/fileedit\spage\sand\sits\sassociated\sAJAX\sentry\npoints\sif\sthe\suser\slacks\swrite\sprivilege\sor\sif\sfile\sediting\sis\snot\nenabled.
+D 2020-05-28T11:49:28.026
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 5c4ec921aa3379749612833f179e298c8cdd3a11c9f1e1b1097e3b87112d619b
+F src/fileedit.c c7727840c4dcd5a5bcb289b2862b310a8030fde5842456ee68e13501b28f5d93
 F src/finfo.c b9d8b85704f25d2a14f6a4b59b39ea37a7b424423c871a1ff33628969f62e319
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 73e27c4703f1b3b0bc5248c1fc1cfc7765e3c9a15be8f2bf78855b5d7acdc704
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1243bf39996b8a654bb4ab3c90d89bbc82759db3ecf2fdb1a7b1c7a1edd12776
-R c2fa12800e2233f5bb80bc8465f596a0
-U stephan
-Z e5a2c245463196aba2ed8170dc9c354d
+P 2c9aa1b9391fa8c52cb910a237423294e822dc008a3eebf1ed5ea3e5bd2a3dce
+R 051f76635d6029589831f69425937060
+U drh
+Z be6ff563000d9365e04f049f24acbb1a

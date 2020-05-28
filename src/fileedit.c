@@ -1769,7 +1769,33 @@ void fileedit_page(void){
                                            semicolon. */
   const char *zAjax = P("name");
 
-  if(0!=zAjax){
+  /* Allow no access to this page without check-in privilege */
+  login_check_credentials();
+  if( !g.perm.Write ){
+    login_needed(g.anon.Write);
+    return;
+  }
+
+  /* No access to anything on this page if the fileedit_glob is empty */
+  if( fileedit_glob()==0 ){
+    style_header("File Editor (disabled)");
+    CX("<h1>Online File Editing Is Disabled</h1>\n");
+    if( g.perm.Admin ){
+      CX("<p>To enable online editing, the "
+         "<a href='%R/setup_settings'>"
+         "<code>fileedit-glob</code> repository setting</a>\n"
+         "must be set to a comma- and/or newine-delimited list of glob\n"
+         "values matching files which may be edited online."
+         "</p>\n");
+    }else{
+      CX("<p>Online editing is disabled for this repository.</p>\n");
+    }
+    style_footer();
+    return;
+  }
+
+  /* Dispatch AJAX methods based tail of the request URI */
+  if( 0!=zAjax ){
     if(0==strcmp("content",zAjax)){
       fileedit_ajax_content();
     }else if(0==strcmp("preview",zAjax)){
@@ -1783,11 +1809,6 @@ void fileedit_page(void){
     }else{
       fileedit_ajax_error(500, "Unhandled ajax route name.");
     }
-    return;
-  }
-  login_check_credentials();
-  if( !g.perm.Write ){
-    login_needed(g.anon.Write);
     return;
   }
   db_begin_transaction();
@@ -1831,14 +1852,6 @@ void fileedit_page(void){
     style_emit_script_tag(0,0);
     CX("document.body.classList.add('fileedit');\n");
     style_emit_script_tag(1,0);
-  }
-
-  if(fileedit_glob()==0){
-    CX("<div class='error'>To enable online editing, the "
-       "<code>fileedit-glob</code> repository setting must be set to a "
-       "comma- or newine-delimited list of glob values matching files "
-       "which may be edited online."
-       "</div>");
   }
   
   /* Status bar */
