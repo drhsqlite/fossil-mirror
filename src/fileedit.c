@@ -890,7 +890,7 @@ void test_ci_mini_cmd(void){
 ** If the fileedit-glob setting has a value, this returns its Glob
 ** object (in memory owned by this function), else it returns NULL.
 */
-static Glob * fileedit_glob(void){
+Glob *fileedit_glob(void){
   static Glob * pGlobs = 0;
   static int once = 0;
   if(0==pGlobs && once==0){
