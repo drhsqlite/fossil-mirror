@@ -1,5 +1,5 @@
-C fossil.fetch()\snow\suses\sonreadystatechange\sinstead\sof\sonload\sbecause\sthe\slatter\sdoes\snot\shandle\sconnection\serrors\sand\stimeouts.\sAdded\stimeout\soption\sto\sfossil.fetch()\swith\sa\sdefault\sof\s15s.\sCorrected\snon-closing\sof\sa\sfailed\stransaction\swhen\sfileedit/commit\sfails.
-D 2020-05-28T13:27:36.431
+C Per\sforum\sdiscussion,\smoved\sthe\s/fileedit\sajax\sdispatching\sback\sdown\sbelow\sthe\slogin\scheck,\sbut\shave\sit\semit\sa\sJSON\sresponse\sif\san\sajax\sroute\swas\srequested,\selse\san\sHTML\sresponse.
+D 2020-05-28T13:44:42.527
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c bf253d3d84dbd3080fa18856308717eb92b59cbf3f60107b642d726387bebb0d
+F src/fileedit.c 7d130c63162f7c6a0aebff6ddc3212f92affe7575e04bb3880aacb33ea84b57a
 F src/finfo.c b9d8b85704f25d2a14f6a4b59b39ea37a7b424423c871a1ff33628969f62e319
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 73e27c4703f1b3b0bc5248c1fc1cfc7765e3c9a15be8f2bf78855b5d7acdc704
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13e26db40393a52fae89c30ee6b4669e85d93a8b89b71746529a5b65f9d5fb0c
-R 972dbde8738c16585f28ee2e4799109f
+P 6849d9a5579ac4b49ef431dba4a6431f3944a57c7d79f25827a6cda0386f33e3
+R 46205a475203f0996b427cba022d395d
 U stephan
-Z ddd86486024736a5c91476b0a57572c7
+Z d6c48c85d076c448fe9422796311d6a9
