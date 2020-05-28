@@ -1,5 +1,5 @@
-C Enhance\scodecheck1.c\sto\scheck\srecently\sadded\svarargs\sfunctions.
-D 2020-05-28T14:20:09.637
+C Updates\sthe\semail-sender\sTCL\sscript\sso\sthat\sit\sappends\sa\s"-f"\sargument\nto\ssendmail\swhich\sis\sthe\s"From:"\semail\saddress.
+D 2020-05-28T15:46:29.568
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -765,7 +765,7 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03a313cb7
 F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073 x
-F tools/email-sender.tcl abab880f7aa8d6a2f83337f1dbe1dbd65dca3224ebaaaab184e5de091591306f x
+F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62263b9cb0597b543ef9f32fee8b6632438d69fdecc037ef166fcf6761a9857c
-R 3d20883c43205e5afbcbf59c707f88c5
+P b17aba9e20d823736ed93ab6ea0fb00d140de84070d000f7fe01c05f611ac9a1
+R d075c9bdadb28286c7cc802b2999a228
 U drh
-Z be363da8447b2c3a1eb7149a90cf5ef0
+Z 83bc6e89d6f478d48e3492df9d16f13a
