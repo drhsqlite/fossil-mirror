@@ -1,5 +1,5 @@
-C Add\sa\snotification\sthat\sonline\sfile\sediting\sis\senabled\sto\sthe\ssecurity\saudit.
-D 2020-05-28T12:05:37.450
+C Moved\s/fileedit\spermissions\scheck\sbelow\sthe\sajax\sdispatching\scheck,\sas\sajax\sbootstrapping\sperforms\sthat\scheck\sitself,\salong\swith\sa\sCSRF\scheck\sfor\swrite-mode\srequests,\sand\semits\sa\sJSON-format\sresponse\s(as\sopposed\sto\sHTML)\sif\sit\sfails.
+D 2020-05-28T12:16:19.116
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c f04df0cec54740ef17e092a2fa169999de433614332bda80f04cff04a7c9308c
+F src/fileedit.c 43fc5f0039287b04d11ff1edcd9b9a9aa78d0c1ae115abca0a4ca9f35dc06a03
 F src/finfo.c b9d8b85704f25d2a14f6a4b59b39ea37a7b424423c871a1ff33628969f62e319
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 73e27c4703f1b3b0bc5248c1fc1cfc7765e3c9a15be8f2bf78855b5d7acdc704
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6341b3a55301ac6ba4e2a5b199c4747261e12da3b14a61d3b9adc97c07e57b6
-R 46e3538047c84ff2d54a7294a1815a0a
-U drh
-Z c3d7354b7ae7095522999583fb42c6af
+P a80861de031923411c79b1e037207bacc8afa2e9b7ce63fce8db0cf5a53ad625
+R b1a0d122356c512e4be2b78b48c83b59
+U stephan
+Z 069fe27ef5ceaa3fa85e4dece0a1d9d6

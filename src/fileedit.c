@@ -1769,6 +1769,27 @@ void fileedit_page(void){
                                            semicolon. */
   const char *zAjax = P("name");
 
+  /* Dispatch AJAX methods based tail of the request URI.
+  ** The ajax parts do their own permissions/CSRF check and
+  ** fail with a JSON-format response if needed.
+  */
+  if( 0!=zAjax ){
+    if(0==strcmp("content",zAjax)){
+      fileedit_ajax_content();
+    }else if(0==strcmp("preview",zAjax)){
+      fileedit_ajax_preview();
+    }else if(0==strcmp("filelist",zAjax)){
+      fileedit_ajax_filelist();
+    }else if(0==strcmp("diff",zAjax)){
+      fileedit_ajax_diff();
+    }else if(0==strcmp("commit",zAjax)){
+      fileedit_ajax_commit();
+    }else{
+      fileedit_ajax_error(500, "Unhandled ajax route name.");
+    }
+    return;
+  }
+
   /* Allow no access to this page without check-in privilege */
   login_check_credentials();
   if( !g.perm.Write ){
@@ -1776,7 +1797,7 @@ void fileedit_page(void){
     return;
   }
 
-  /* No access to anything on this page if the fileedit_glob is empty */
+  /* No access to anything on this page if the fileedit-glob is empty */
   if( fileedit_glob()==0 ){
     style_header("File Editor (disabled)");
     CX("<h1>Online File Editing Is Disabled</h1>\n");
@@ -1794,29 +1815,13 @@ void fileedit_page(void){
     return;
   }
 
-  /* Dispatch AJAX methods based tail of the request URI */
-  if( 0!=zAjax ){
-    if(0==strcmp("content",zAjax)){
-      fileedit_ajax_content();
-    }else if(0==strcmp("preview",zAjax)){
-      fileedit_ajax_preview();
-    }else if(0==strcmp("filelist",zAjax)){
-      fileedit_ajax_filelist();
-    }else if(0==strcmp("diff",zAjax)){
-      fileedit_ajax_diff();
-    }else if(0==strcmp("commit",zAjax)){
-      fileedit_ajax_commit();
-    }else{
-      fileedit_ajax_error(500, "Unhandled ajax route name.");
-    }
-    return;
-  }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
   style_header("File Editor");
   /* As of this point, don't use return or fossil_fatal(). Write any
   ** error in (&err) and goto end_footer instead so that we can be
-  ** sure to do any cleanup and end the transaction cleanly.
+  ** sure to emit the error message, do any cleanup, and end the
+  ** transaction cleanly.
   */
   {
     int isMissingArg = 0;
@@ -1828,7 +1833,7 @@ void fileedit_page(void){
       zFileMime = mimetype_from_name(cimi.zFilename);
     }else if(isMissingArg!=0){
       /* Squelch these startup warnings - they're non-fatal now but
-      ** used to be. */
+      ** used to be fatal. */
       blob_reset(&err);
     }
   }
