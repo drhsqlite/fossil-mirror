@@ -6,6 +6,7 @@
   *  Added <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
      "[/help?cmd=rm|fossil rm]", and
      "[/help?cmd=addremove|fossil addremove]" commands.
+  *  Editing forum posts now applies delta compression to the edits.
 
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (2020-05-25)</h2>
