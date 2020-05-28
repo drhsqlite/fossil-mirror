@@ -989,7 +989,7 @@ static void fileedit_render_preview(Blob * pContent,
         CX("<pre><code class='language-%s'>%h</code></pre>",
            zExt+1, zContent);
       }else{
-        CX("<pre>%h</pre>", zExt+1, zContent);
+        CX("<pre>%h</pre>", zContent);
       }
       break;
     }

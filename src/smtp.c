@@ -1530,7 +1530,7 @@ void pop3d_command(void){
       int i;
       pop3_print(pLog, "+OK");
       for(i=0; i<sizeof(azCap)/sizeof(azCap[0]); i++){
-        pop3_print(pLog, azCap[i]);
+        pop3_print(pLog, "%s", azCap[i]);
       }
       pop3_print(pLog, ".");
       continue;
