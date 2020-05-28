@@ -1333,3 +1333,398 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 #if INTERFACE
 # define webpage_assert(T) if(!(T)){webpage_assert_page(__FILE__,__LINE__,#T);}
 #endif
+
+/*
+** Returns a pseudo-random input field ID, for use in associating an
+** ID-less input field with a label. The memory is owned by the
+** caller.
+*/
+static char * style_next_input_id(){
+  static int inputID = 0;
+  ++inputID;
+  return mprintf("input-id-%d", inputID);
+}
+
+/*
+** Outputs a labeled checkbox element. zWrapperId is an optional ID
+** value for the containing element (see below). zFieldName is the
+** form element name. zLabel is the label for the checkbox. zValue is
+** the optional value for the checkbox. zTip is an optional tooltip,
+** which gets set as the "title" attribute of the outermost
+** element. If isChecked is true, the checkbox gets the "checked"
+** attribute set, else it is not.
+**
+** Resulting structure:
+**
+** <span class='input-with-label' title={{zTip}} id={{zWrapperId}}>
+**   <input type='checkbox' name={{zFieldName}} value={{zValue}}
+**          id='A RANDOM VALUE'
+**          {{isChecked ? " checked : ""}}/>
+**   <label for='ID OF THE INPUT FIELD'>{{zLabel}}</label>
+** </span>
+**
+** zLabel, and zValue are required. zFieldName, zWrapperId, and zTip
+** are may be NULL or empty.
+**
+** Be sure that the input-with-label CSS class is defined sensibly, in
+** particular, having its display:inline-block is useful for alignment
+** purposes.
+*/
+void style_labeled_checkbox(const char * zWrapperId,
+                            const char *zFieldName, const char * zLabel,
+                            const char * zValue, int isChecked,
+                            const char * zTip){
+  char * zLabelID = style_next_input_id();
+  CX("<span class='input-with-label'");
+  if(zTip && *zTip){
+    CX(" title='%h'", zTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
+  }
+  CX("><input type='checkbox' id='%s' ", zLabelID);
+  if(zFieldName && *zFieldName){
+    CX("name='%s' ",zFieldName);
+  }
+  CX("value='%T'%s/>",
+     zValue ? zValue : "", isChecked ? " checked" : "");
+  CX("<label for='%s'>%h</label></span>", zLabelID, zLabel);
+  fossil_free(zLabelID);
+}
+
+/*
+** Outputs a SELECT list from a compile-time list of integers.
+** The vargs must be a list of (const char *, int) pairs, terminated
+** with a single NULL. Each pair is interpreted as...
+**
+** If the (const char *) is NULL, it is the end of the list, else
+** a new OPTION entry is created. If the string is empty, the
+** label and value of the OPTION is the integer part of the pair.
+** If the string is not empty, it becomes the label and the integer
+** the value. If that value == selectedValue then that OPTION
+** element gets the 'selected' attribute.
+**
+** Note that the pairs are not in (int, const char *) order because
+** there is no well-known integer value which we can definitively use
+** as a list terminator.
+**
+** zWrapperId is an optional ID value for the containing element (see
+** below).
+**
+** zFieldName is the value of the form element's name attribute. Note
+** that fossil prefers underscores over '-' for separators in form
+** element names.
+**
+** zLabel is an optional string to use as a "label" for the element
+** (see below).
+**
+** zTooltip is an optional value for the SELECT's title attribute.
+**
+** The structure of the emitted HTML is:
+**
+** <span class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
+**   <label for='SELECT ELEMENT ID'>{{zLabel}}</label>
+**   <select id='RANDOM ID' name={{zFieldName}}>...</select>
+** </span>
+**
+** Example:
+**
+** style_select_list_int("my-grapes", "my_grapes", "Grapes",
+**                      "Select the number of grapes",
+**                       atoi(PD("my_field","0")),
+**                       "", 1, "2", 2, "Three", 3,
+**                       NULL);
+** 
+*/
+void style_select_list_int(const char * zWrapperId,
+                           const char *zFieldName, const char * zLabel,
+                           const char * zToolTip, int selectedVal,
+                           ... ){
+  char * zLabelID = style_next_input_id();
+  va_list vargs;
+
+  va_start(vargs,selectedVal);
+  CX("<span class='input-with-label'");
+  if(zToolTip && *zToolTip){
+    CX(" title='%h'",zToolTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
+  }
+  CX(">");
+  if(zLabel && *zLabel){
+    CX("<label label='%s'>%h</label>", zLabelID, zLabel);
+  }
+  CX("<select name='%s' id='%s'>",zFieldName, zLabelID);
+  while(1){
+    const char * zOption = va_arg(vargs,char *);
+    int v;
+    if(NULL==zOption){
+      break;
+    }
+    v = va_arg(vargs,int);
+    CX("<option value='%d'%s>",
+         v, v==selectedVal ? " selected" : "");
+    if(*zOption){
+      CX("%s", zOption);
+    }else{
+      CX("%d",v);
+    }
+    CX("</option>\n");
+  }
+  CX("</select>\n");
+  CX("</span>\n");
+  va_end(vargs);
+  fossil_free(zLabelID);
+}
+
+/*
+** The C-string counterpart of style_select_list_int(), this variant
+** differs only in that its variadic arguments are C-strings in pairs
+** of (optionLabel, optionValue). If a given optionLabel is an empty
+** string, the corresponding optionValue is used as its label. If any
+** given value matches zSelectedVal, that option gets preselected. If
+** no options match zSelectedVal then the first entry is selected by
+** default.
+**
+** Any of (zWrapperId, zTooltip, zSelectedVal) may be NULL or empty.
+**
+** Example:
+**
+** style_select_list_str("my-grapes", "my_grapes", "Grapes",
+**                      "Select the number of grapes",
+**                       P("my_field"),
+**                       "1", "One", "2", "Two", "", "3",
+**                       NULL);
+*/
+void style_select_list_str(const char * zWrapperId,
+                           const char *zFieldName, const char * zLabel,
+                           const char * zToolTip, char const * zSelectedVal,
+                           ... ){
+  char * zLabelID = style_next_input_id();
+  va_list vargs;
+
+  va_start(vargs,zSelectedVal);
+  if(!zSelectedVal){
+    zSelectedVal = __FILE__/*some string we'll never match*/;
+  }
+  CX("<span class='input-with-label'");
+  if(zToolTip && *zToolTip){
+    CX(" title='%h'",zToolTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
+  }
+  CX(">");
+  if(zLabel && *zLabel){
+    CX("<label for='%s'>%h</label>", zLabelID, zLabel);
+  }
+  CX("<select name='%s' id='%s'>",zFieldName, zLabelID);
+  while(1){
+    const char * zLabel = va_arg(vargs,char *);
+    const char * zVal;
+    if(NULL==zLabel){
+      break;
+    }
+    zVal = va_arg(vargs,char *);
+    CX("<option value='%T'%s>",
+       zVal, 0==fossil_strcmp(zVal, zSelectedVal) ? " selected" : "");
+    if(*zLabel){
+      CX("%s", zLabel);
+    }else{
+      CX("%h",zVal);
+    }
+    CX("</option>\n");
+  }
+  CX("</select>\n");
+  CX("</span>\n");
+  va_end(vargs);
+  fossil_free(zLabelID);
+}
+
+
+/*
+** The first time this is called, it emits code to install and
+** bootstrap the window.fossil object, using the built-in file
+** fossil.bootstrap.js (not to be confused with bootstrap.js).
+**
+** Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly to the page
+** output, else it emits a script tag with a src=builtin/... to load
+** the script. It always outputs a small pre-bootstrap element in its
+** own script tag to initialize parts which need C-runtime-level
+** information, before loading the main fossil.bootstrap.js either
+** inline or via a <script src=...>, as specified by the first
+** argument.
+*/
+void style_emit_script_fossil_bootstrap(int asInline){
+  static int once = 0;
+  if(0==once++){
+    /* Set up the generic/app-agnostic parts of window.fossil
+    ** which require C-level state... */
+    style_emit_script_tag(0,0);
+    CX("(function(){\n"
+       "if(!window.fossil) window.fossil={};\n"
+       "window.fossil.version = %!j;\n"
+    /* fossil.rootPath is the top-most CGI/server path,
+    ** including a trailing slash. */
+       "window.fossil.rootPath = %!j+'/';\n",
+       get_version(), g.zTop);
+    /* fossil.config = {...various config-level options...} */
+    CX("window.fossil.config = {"
+       "hashDigits: %d, hashDigitsUrl: %d"
+       "};\n", hash_digits(0), hash_digits(1));
+#if 0
+    /* Is it safe to emit the CSRF token here? Some pages add it
+    ** as a hidden form field. */
+    if(g.zCsrfToken[0]!=0){
+      CX("window.fossil.csrfToken = %!j;\n",
+         g.zCsrfToken);
+    }
+#endif
+    /*
+    ** fossil.page holds info about the current page. This is also
+    ** where the current page "should" store any of its own
+    ** page-specific state, and it is reserved for that purpose.
+    */
+    CX("window.fossil.page = {"
+       "name:\"%T\""
+       "};\n", g.zPath);
+    CX("})();\n");
+    /* The remaining fossil object bootstrap code is not dependent on
+    ** C-runtime state... */
+    if(asInline){
+      CX("%s\n", builtin_text("fossil.bootstrap.js"));
+    }
+    style_emit_script_tag(1,0);
+    if(asInline==0){
+      style_emit_script_builtin(0, "fossil.bootstrap.js");
+    }
+  }
+}
+
+/*
+** If passed 0 as its first argument, it emits a script opener tag
+** with this request's nonce. If passed non-0 it emits a script
+** closing tag. Mnemonic for remembering the order in which to pass 0
+** or 1 as the first argument to this function: 0 comes before 1.
+**
+** If passed 0 as its first argument and a non-NULL/non-empty zSrc,
+** then it instead emits:
+**
+** <script src='%R/{{zSrc}}'></script>
+**
+** zSrc is always assumed to be a repository-relative path without
+** a leading slash, and has %R/ prepended to it.
+**
+** Meaning that no follow-up call to pass a non-0 first argument
+** to close the tag. zSrc is ignored if the first argument is not
+** 0.
+**
+*/
+void style_emit_script_tag(int isCloser, const char * zSrc){
+  if(0==isCloser){
+    if(zSrc!=0 && zSrc[0]!=0){
+      CX("<script src='%R/%T'></script>\n", zSrc);
+    }else{
+      CX("<script nonce='%s'>", style_nonce());
+    }
+  }else{
+    CX("</script>\n");
+  }
+}
+
+/*
+** Emits a script tag which uses content from a builtin script file.
+**
+** If asInline is true, it is emitted directly as an opening tag, the
+** content of the zName builtin file, and a closing tag.
+**
+** If it is false, a script tag loading it via
+** src=builtin/{{zName}}?cache=XYZ is emitted, where XYZ is a
+** build-time-dependent cache-buster value.
+*/
+void style_emit_script_builtin(int asInline, char const * zName){
+  if(asInline){
+    style_emit_script_tag(0,0);
+    CX("%s", builtin_text(zName));
+    style_emit_script_tag(1,0);
+  }else{
+    char * zFullName = mprintf("builtin/%s",zName);
+    const char * zHash = fossil_exe_id();
+    CX("<script src='%R/%T?cache=%.8s'></script>\n",
+       zFullName, zHash);
+    fossil_free(zFullName);
+  }
+}
+
+/*
+** The first time this is called it emits the JS code from the
+** built-in file fossil.fossil.js. Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly
+** to the page output, else it emits a script tag with a
+** src=builtin/... to load the script.
+**
+** Note that this code relies on that loaded via
+** style_emit_script_fossil_bootstrap() but it does not call that
+** routine.
+*/
+void style_emit_script_fetch(int asInline){
+  static int once = 0;
+  if(0==once++){
+    style_emit_script_builtin(asInline, "fossil.fetch.js");
+  }
+}
+
+/*
+** The first time this is called it emits the JS code from the
+** built-in file fossil.dom.js. Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly
+** to the page output, else it emits a script tag with a
+** src=builtin/... to load the script.
+**
+** Note that this code relies on that loaded via
+** style_emit_script_fossil_bootstrap(), but it does not call that
+** routine.
+*/
+void style_emit_script_dom(int asInline){
+  static int once = 0;
+  if(0==once++){
+    style_emit_script_builtin(asInline, "fossil.dom.js");
+  }
+}
+
+/*
+** The first time this is called, it calls style_emit_script_dom(),
+** passing it the given asInline value, and emits the JS code from the
+** built-in file fossil.tabs.js. Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly
+** to the page output, else it emits a script tag with a
+** src=builtin/... to load the script.
+*/
+void style_emit_script_tabs(int asInline){
+  static int once = 0;
+  if(0==once++){
+    style_emit_script_dom(asInline);
+    style_emit_script_builtin(asInline, "fossil.tabs.js");
+  }
+}
+
+/*
+** The first time this is called it emits the JS code from the
+** built-in file fossil.confirmer.js. Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly
+** to the page output, else it emits a script tag with a
+** src=builtin/... to load the script.
+*/
+void style_emit_script_confirmer(int asInline){
+  static int once = 0;
+  if(0==once++){
+    style_emit_script_builtin(asInline, "fossil.confirmer.js");
+  }
+}

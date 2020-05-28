@@ -1449,6 +1449,9 @@ int object_description(
       @ %z(href("%R/blame?filename=%T&checkin=%!S",zName,zVers))
       @ [blame]</a>
       @ %z(href("%R/timeline?n=all&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
+      if( fileedit_is_editable(zName) ){
+        @ %z(href("%R/fileedit?filename=%T&checkin=%!S",zName,zVers))[edit]</a>
+      }
     }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -2345,6 +2348,11 @@ void artifact_page(void){
         renderAsWiki = 1;
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
       }
+    }
+    if( fileedit_is_editable(zName) ){
+      style_submenu_element("Edit",
+                            "%R/fileedit?filename=%T&checkin=%!S",
+                            zName, zCI);
     }
   }
   if( (objType & (OBJTYPE_WIKI|OBJTYPE_TICKET))!=0 ){

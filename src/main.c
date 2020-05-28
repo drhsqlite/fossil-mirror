@@ -2814,13 +2814,13 @@ void cmd_webserver(void){
     zBrowser = db_get("web-browser", "open");
 #endif
     if( zIpAddr==0 ){
-      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
+      zBrowserCmd = mprintf("%s \"http://localhost:%%d/%s\" &",
                             zBrowser, zInitPage);
     }else if( strchr(zIpAddr,':') ){
-      zBrowserCmd = mprintf("%s http://[%s]:%%d/%s &",
+      zBrowserCmd = mprintf("%s \"http://[%s]:%%d/%s\" &",
                             zBrowser, zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+      zBrowserCmd = mprintf("%s \"http://%s:%%d/%s\" &",
                             zBrowser, zIpAddr, zInitPage);
     }
   }

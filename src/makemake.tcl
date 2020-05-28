@@ -67,6 +67,7 @@ set src {
   extcgi
   export
   file
+  fileedit
   finfo
   foci
   forum

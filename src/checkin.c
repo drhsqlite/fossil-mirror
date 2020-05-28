@@ -1403,6 +1403,24 @@ int select_commit_files(void){
 }
 
 /*
+** Returns true if the checkin identified by the first parameter is
+** older than the given (valid) date/time string, else returns false.
+** Also returns true if rid does not refer to a checkin, but it is not
+** intended to be used for that case.
+*/
+int checkin_is_younger(
+  int rid,              /* The record ID of the ancestor */
+  const char *zDate     /* Date & time of the current check-in */
+){
+  return db_exists(
+    "SELECT 1 FROM event"
+    " WHERE datetime(mtime)>=%Q"
+    "   AND type='ci' AND objid=%d",
+    zDate, rid
+  ) ? 0 : 1;
+}
+
+/*
 ** Make sure the current check-in with timestamp zDate is younger than its
 ** ancestor identified rid and zUuid.  Throw a fatal error if not.
 */
@@ -1412,19 +1430,14 @@ static void checkin_verify_younger(
   const char *zDate     /* Date & time of the current check-in */
 ){
 #ifndef FOSSIL_ALLOW_OUT_OF_ORDER_DATES
-  int b;
-  b = db_exists(
-    "SELECT 1 FROM event"
-    " WHERE datetime(mtime)>=%Q"
-    "   AND type='ci' AND objid=%d",
-    zDate, rid
-  );
-  if( b ){
+  if(checkin_is_younger(rid,zDate)==0){
     fossil_fatal("ancestor check-in [%S] (%s) is not older (clock skew?)"
                  " Use --allow-older to override.", zUuid, zDate);
   }
 #endif
 }
+
+
 
 /*
 ** zDate should be a valid date string.  Convert this string into the
@@ -2331,9 +2344,7 @@ void commit_cmd(void){
     */
     if(
         /* parent check-in has the "closed" tag... */
-        db_exists("SELECT 1 FROM tagxref"
-                  " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                  TAG_CLOSED, vid)
+       leaf_is_closed(vid)
         /* ... and the new check-in has no --branch option or the --branch
         ** option does not actually change the branch */
      && (sCiInfo.zBranch==0

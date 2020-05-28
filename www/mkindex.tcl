@@ -43,6 +43,7 @@ set doclist {
   env-opts.md {Environment Variables and Global Options}
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
+  fileedit-page.md {The fileedit Page}
   fileformat.wiki {Fossil File Format}
   fiveminutes.wiki {Up and Running in 5 Minutes as a Single User}
   forum.wiki {Fossil Forums}

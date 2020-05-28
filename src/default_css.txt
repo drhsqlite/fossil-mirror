@@ -862,6 +862,21 @@ label {
 //   max-width: 30em;
 //   overflow: auto;
 // }
+.error {
+  color: darkred;
+  background: yellow;
+}
+.warning {
+  color: darkred;
+  background: yellow;
+  opacity: 0.7;
+}
+.hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
 input {
     max-width: 95%;
 }

@@ -66,6 +66,17 @@
 #define PCK(x)      cgi_parameter_checked(x,1)
 #define PIF(x,y)    cgi_parameter_checked(x,y)
 
+/*
+** Shortcut for the cgi_printf() routine.  Instead of using the
+**
+**    @ ...
+**
+** notation provided by the translate.c utility, you can also
+** optionally use:
+**
+**    CX(...)
+*/
+#define CX cgi_printf
 
 /*
 ** Destinations for output text.
