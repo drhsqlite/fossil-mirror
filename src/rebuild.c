@@ -1151,7 +1151,7 @@ void private_export(char *zFileName)
 {
   Stmt q;
   Blob fctx = empty_blob;
-  blob_append(&fctx, "# The UUIDs of private artifacts\n", -1);
+  blob_append(&fctx, "# The hashes of private artifacts\n", -1);
   db_prepare(&q,
     "SELECT uuid FROM blob WHERE rid IN ( SELECT rid FROM private );");
   while( db_step(&q)==SQLITE_ROW ){

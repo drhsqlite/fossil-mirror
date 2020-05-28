@@ -672,7 +672,7 @@ static int generate_html(
 ){
   struct GenerateHTML *pState = (struct GenerateHTML*)pUser;
   int i;
-  const char *zTid;  /* Ticket UUID.  (value of column named '#') */
+  const char *zTid;  /* Ticket hash.  (value of column named '#') */
   const char *zBg = 0; /* Use this background color */
 
   /* Do initialization

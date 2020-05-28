@@ -89,7 +89,7 @@ void uncheckout(int vid){
 
 
 /*
-** Given the abbreviated UUID name of a version, load the content of that
+** Given the abbreviated hash of a version, load the content of that
 ** version in the VFILE table.  Return the VID for the version.
 **
 ** If anything goes wrong, panic.

@@ -468,7 +468,7 @@ void test_tarball_cmd(void){
 ** added to as part of the tarball. It may be 0 or an empty string, in
 ** which case it is ignored. The intention is to create a tarball which
 ** politely expands into a subdir instead of filling your current dir
-** with source files. For example, pass a UUID or "ProjectName".
+** with source files. For example, pass an artifact hash or "ProjectName".
 **
 */
 void tarball_of_checkin(

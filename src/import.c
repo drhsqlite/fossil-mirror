@@ -28,7 +28,7 @@
 */
 struct ImportFile {
   char *zName;           /* Name of a file */
-  char *zUuid;           /* UUID of the file */
+  char *zUuid;           /* Hash of the file */
   char *zPrior;          /* Prior name if the name was changed */
   char isFrom;           /* True if obtained from the parent */
   char isExe;            /* True if executable */
@@ -61,7 +61,7 @@ static struct {
   char *zDate;                /* Date/time stamp */
   char *zUser;                /* User name */
   char *zComment;             /* Comment of a commit */
-  char *zFrom;                /* from value as a UUID */
+  char *zFrom;                /* from value as a hash */
   char *zPrevCheckin;         /* Name of the previous check-in */
   char *zFromMark;            /* The mark of the "from" field */
   int nMerge;                 /* Number of merge values */
@@ -145,13 +145,13 @@ static void import_reset(int freeAll){
 ** If zMark is not zero, create a cross-reference from that mark back
 ** to the newly inserted artifact.
 **
-** If saveUuid is true, then pContent is a commit record.  Record its
-** UUID in gg.zPrevCheckin.
+** If saveHash is true, then pContent is a commit record.  Record its
+** artifact hash in gg.zPrevCheckin.
 */
 static int fast_insert_content(
   Blob *pContent,          /* Content to insert */
   const char *zMark,       /* Label using this mark, if not NULL */
-  int saveUuid,            /* Save artifact hash in gg.zPrevCheckin */
+  int saveHash,            /* Save artifact hash in gg.zPrevCheckin */
   int doParse              /* Invoke manifest_crosslink() */
 ){
   Blob hash;
@@ -189,7 +189,7 @@ static int fast_insert_content(
         &hash, rid, &hash
     );
   }
-  if( saveUuid ){
+  if( saveHash ){
     fossil_free(gg.zPrevCheckin);
     gg.zPrevCheckin = fossil_strdup(blob_str(&hash));
   }
@@ -413,7 +413,7 @@ static char *rest_of_line(char **pzIn){
 }
 
 /*
-** Convert a "mark" or "committish" into the UUID.
+** Convert a "mark" or "committish" into the artifact hash.
 */
 static char *resolve_committish(const char *zCommittish){
   char *zRes;
@@ -1830,9 +1830,10 @@ void import_cmd(void){
     ** the import.
     **
     ** The XMARK table provides a mapping from fast-import "marks" and symbols
-    ** into artifact ids (UUIDs - the 40-byte hex SHA1 hash of artifacts).
+    ** into artifact hashes.
+    **
     ** Given any valid fast-import symbol, the corresponding fossil rid and
-    ** uuid can found by searching against the xmark.tname field.
+    ** hash can found by searching against the xmark.tname field.
     **
     ** The XBRANCH table maps commit marks and symbols into the branch those
     ** commits belong to.  If xbranch.tname is a fast-import symbol for a

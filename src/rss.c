@@ -24,7 +24,7 @@
 
 /*
 ** WEBPAGE: timeline.rss
-** URL:  /timeline.rss?y=TYPE&n=LIMIT&tkt=UUID&tag=TAG&wiki=NAME&name=FILENAME
+** URL:  /timeline.rss?y=TYPE&n=LIMIT&tkt=HASH&tag=TAG&wiki=NAME&name=FILENAME
 **
 ** Produce an RSS feed of the timeline.
 **
@@ -34,7 +34,7 @@
 **
 ** LIMIT is the number of items to show.
 **
-** tkt=UUID filters for only those events for the specified ticket. tag=TAG
+** tkt=HASH filters for only those events for the specified ticket. tag=TAG
 ** filters for a tag, and wiki=NAME for a wiki page. Only one may be used.
 **
 ** In addition, name=FILENAME filters for a specific file. This may be
@@ -233,7 +233,7 @@ void page_timeline_rss(void){
 ** -limit|n LIMIT
 **   The maximum number of items to show.
 **
-** -tkt UUID
+** -tkt HASH
 **    Filters for only those events for the specified ticket.
 **
 ** -tag TAG
