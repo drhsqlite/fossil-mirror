@@ -51,7 +51,7 @@ struct UrlData {
   int isSsh;       /* True if an "ssh:" url */
   char *name;      /* Hostname for http: or filename for file: */
   char *hostname;  /* The HOST: parameter on http headers */
-  char *protocol;  /* "http" or "https" */
+  const char *protocol; /* "http" or "https" or "ssh" */
   int port;        /* TCP port number for http: or https: */
   int dfltPort;    /* The default port for the given protocol */
   char *path;      /* Pathname for http: */

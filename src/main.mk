@@ -245,6 +245,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/d.wav \
   $(SRCDIR)/sounds/e.wav \
   $(SRCDIR)/sounds/f.wav \
+  $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki

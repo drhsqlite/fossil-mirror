@@ -342,8 +342,8 @@ static int submenuCompare(const void *a, const void *b){
   return fossil_strcmp(A->zLabel, B->zLabel);
 }
 
-/* Use this for the $current_page variable if it is not NULL.  If it is
-** NULL then use g.zPath.
+/* Use this for the $current_page variable if it is not NULL.  If it
+** is NULL then use g.zPath.
 */
 static char *local_zCurrentPage = 0;
 
@@ -363,8 +363,9 @@ void style_set_current_page(const char *zFormat, ...){
 }
 
 /*
-** Create a TH1 variable containing the URL for the specified config resource.
-** The resulting variable name will be of the form $[zVarPrefix]_url.
+** Create a TH1 variable containing the URL for the specified config
+** resource. The resulting variable name will be of the form
+** $[zVarPrefix]_url.
 */
 static void url_var(
   const char *zVarPrefix,
@@ -372,11 +373,25 @@ static void url_var(
   const char *zPageName
 ){
   char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zUrl = mprintf("%R/%s?id=%x", zPageName,
-                       skin_id(zConfigName));
+  char *zUrl = 0;              /* stylesheet URL */
+  int hasBuiltin = 0;          /* true for built-in page-specific CSS */
+
+  if(0==strcmp("css",zConfigName)){
+    /* Account for page-specific CSS, appending a /{{g.zPath}} to the
+    ** url only if we have a corresponding built-in page-specific CSS
+    ** file. Do not append it to all pages because we would
+    ** effectively cache-bust all pages which do not have
+    ** page-specific CSS. */
+    char * zBuiltin = mprintf("style.%s.css", g.zPath);
+    hasBuiltin = builtin_file(zBuiltin,0)!=0;
+    fossil_free(zBuiltin);
+  }
+  zUrl = mprintf("%R/%s%s%s?id=%x", zPageName,
+                 hasBuiltin ? "/" : "", hasBuiltin ? g.zPath : "",
+                 skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
-  free(zUrl);
-  free(zVarName);
+  fossil_free(zUrl);
+  fossil_free(zVarName);
 }
 
 /*
@@ -1026,6 +1041,11 @@ static int containsSelector(const char *zCss, const char *zSelector){
 ** Usage: %fossil test-contains-selector FILENAME SELECTOR
 **
 ** Determine if the CSS stylesheet FILENAME contains SELECTOR.
+**
+** Note that as of 2020-05-28, the default rules are always emitted,
+** so the containsSelector() logic is no longer applied when emitting
+** style.css. It is unclear whether this test command is now obsolete
+** or whether it may still serve a purpose.
 */
 void contains_selector_cmd(void){
   int found;
@@ -1058,40 +1078,55 @@ void page_script_js(void){
   Th_Render(zScript?zScript:"");
 }
 
-
 /*
 ** WEBPAGE: style.css
 **
 ** Return the style sheet.
 */
 void page_style_css(void){
-  Blob css;
+  Blob css = empty_blob;
   int i;
-  int isInit = 0;
+  const char *zPage = PD("name",P("page"));
 
   cgi_set_content_type("text/css");
-  blob_init(&css,skin_get("css"),-1);
-
-  /* add special missing definitions */
+  /* Emit all default rules... */
   for(i=1; cssDefaultList[i].elementClass; i++){
-    char *z = blob_str(&css);
-    if( !containsSelector(z, cssDefaultList[i].elementClass) ){
-      if( !isInit ){
-        isInit = 1;
-        blob_append(&css,
-          "\n/***********************************************************\n"
-          "** All CSS above is supplied by the repository \"skin\".\n"
-          "** That which follows is generated automatically by Fossil\n"
-          "** to fill in needed selectors that are missing from the\n"
-          "** \"skin\" CSS.\n"
-          "***********************************************************/\n",
-          -1);
-      }
-      blob_appendf(&css, "%s {\n%s}\n",
-          cssDefaultList[i].elementClass,
-          cssDefaultList[i].value);
-    }
+    blob_appendf(&css, "%s {\n%s}\n",
+                 cssDefaultList[i].elementClass,
+                 cssDefaultList[i].value);
   }
+  blob_append(&css,
+    "\n/***********************************************************\n"
+    "** All CSS above is generated automatically by Fossil to\n"
+    "** provide default rule implementations which the \"skin\"\n"
+    "** may cascade.\n"
+    "***********************************************************/\n",
+    -1);
+  if(zPage!=0 && zPage[0]!=0){
+    char * zFile = mprintf("style.%s.css", zPage);
+    int nFile = 0;
+    const char *zBuiltin = (const char *)builtin_file(zFile, &nFile);
+    if(nFile>0){
+      blob_appendf(&css,
+        "\n/***********************************************************\n"
+        "** Start of page-specific CSS for page %s...\n"
+        "***********************************************************/\n",
+        zPage);
+      blob_append(&css, zBuiltin, nFile);
+      blob_appendf(&css,
+        "\n/***********************************************************\n"
+        "** End of page-specific CSS for page %s.\n"
+        "***********************************************************/\n",
+        zPage);
+    }
+    fossil_free(zFile);
+  }
+  blob_append(&css,
+     "\n/***********************************************************\n"
+     "** All CSS which follows is supplied by the repository \"skin\".\n"
+     "***********************************************************/\n",
+     -1);
+  blob_append(&css,skin_get("css"),-1);
 
   /* Process through TH1 in order to give an opportunity to substitute
   ** variables such as $baseurl.

@@ -177,6 +177,7 @@ set extra_files {
   markdown.md
   wiki.wiki
   *.js
+  style.*.css
   ../skins/*/*.txt
   sounds/*.wav
 }
