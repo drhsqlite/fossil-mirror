@@ -1,5 +1,5 @@
-C Enhance\scodecheck1.c\sto\scheck\srecently\sadded\svarargs\sfunctions.
-D 2020-05-28T14:20:09.637
+C Initial\sinfrastructure\sfor\sa\scommand-line\sversion\sof\sthe\ssecurity\saudit\npage.
+D 2020-05-28T14:58:29.412
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -566,7 +566,7 @@ F src/sbsdiff.js 2039eb0d68d9a330b94415419186a29baccbe900e03b540b6c8503e775feff3
 F src/schema.c 9a894b8db01c2b16b9320a5e3fae2a6a0ae3cea1647d10da4af79ea0a5fa26cd
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 711d196bbb708e177e18b5473ad180c8141b14731b7e94292db0cdcba0e8ad85
-F src/security_audit.c 6817ea33c2ab956e8c1f58d8673c6039a012d7771f1678d829fe057c8803c637
+F src/security_audit.c dc3c7cfa11f4ed5738dcf653b09e70c466c05f024e09ed43bc7436ee08d4aa85
 F src/setup.c d50cb25d03ab1353b46a2636d437cb30b51c99358df0e195a3b30a2e63ece876
 F src/setupuser.c e28eb5df04c743202faf711781a5cf1d0c084528ed37628e5087a83838a34e24
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
@@ -993,7 +993,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62263b9cb0597b543ef9f32fee8b6632438d69fdecc037ef166fcf6761a9857c
-R 3d20883c43205e5afbcbf59c707f88c5
+P b17aba9e20d823736ed93ab6ea0fb00d140de84070d000f7fe01c05f611ac9a1
+R 6acd2e1dc9d297b45a949805b771a40c
+T *branch * audit-command
+T *sym-audit-command *
+T -sym-trunk *
 U drh
-Z be363da8447b2c3a1eb7149a90cf5ef0
+Z d6d2a254a04f8970330acbab6b057fa5

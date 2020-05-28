@@ -708,3 +708,110 @@ void errorlog_page(void){
   @ </pre>
   style_footer();
 }
+
+#if INTERFACE
+/*
+** Options for the audit() function.  Also used to record the severity
+** of audit findings.
+*/
+#define AUDIT_RISK       0x0001   /* High-risk configurations */
+#define AUDIT_ALERT      0x0002   /* Possible security issues */
+#define AUDIT_WARN       0x0004   /* Less secure settings, but still ok */
+#define AUDIT_INFO       0x0008   /* Information about routine settings */
+#define AUDIT_CKONLY     0x0010   /* Return a boolean instead of a list */
+
+/*
+** Report the findings of an audit as a list of strings contained in
+** an instance of the following object.
+*/
+struct AuditReport {
+  int nItem;           /* Number of items in the report.  Size of a[] */
+  int nAlloc;          /* Space allocated for a[] */
+  struct {             /* For each item... */
+    int mSeverity;        /* One of the AUDIT_ flags */
+    char *zMsg;           /* Description of the item */
+  } *a;                /* Array of all items in the report */
+};
+#endif
+
+/*
+** Free a list of concerns previously returned by audid()
+*/
+void audit_free(AuditReport *p){
+  int i;
+  if( p==0 ) return;
+  for(i=0; p->nItem; i++){
+    fossil_free(p->a[i].zMsg);
+  }
+  fossil_free(p);
+}
+
+/*
+** Append a new entry to the AuditReport
+*/
+void audit_append(AuditReport *p, int severity, const char *zFormat, ...){
+  va_list ap;
+  int i;
+  if( p->nItem+1>=p->nAlloc ){
+    int nNew = p->nAlloc*2 + 10;
+    p->a = fossil_realloc(p->a, nNew*sizeof(p->a[0]));
+    p->nAlloc = nNew;
+  }
+  i = p->nItem++;
+  va_start(ap, zFormat);
+  p->a[i].mSeverity = severity;
+  p->a[i].zMsg = vmprintf(zFormat, ap);
+  va_end(ap);
+}
+
+/*
+** Generate and return an audit report.
+*/
+AuditReport *audit(int mFlags){
+  AuditReport *p = fossil_malloc( sizeof(*p) );
+  memset(p, 0, sizeof(*p));
+  
+  return p;
+}
+
+/*
+** COMMAND:  audit
+**
+** Usage: %fossil audit [options]
+**
+** Run an audit of a Fossil repository looking for questionable or
+** insecure settings.  Report findings on standard output.  If not
+** anomalies are detected, no output generated.
+**
+** By default, only high-risk settings are reported.  Use the -v or
+** -w options to show additional detail.
+**
+** Options:
+**
+**    -R|--repository REPO     Run the audit of REPO
+**
+**    -v|--verbose             Provide lots of extra information about the
+**                             configuration
+**
+**    -w|--warnings            Provide warnings of questionable settings
+**                             in addition to high-risk settings.
+*/
+void audit_cmd(void){
+  AuditReport *p;
+  int mSeverity = AUDIT_RISK|AUDIT_ALERT;
+  int i;
+  if( find_option("verbose","v",0) ){
+    mSeverity |= AUDIT_INFO|AUDIT_WARN;
+  }
+  if( find_option("warning","w",0) ){
+    mSeverity |= AUDIT_WARN;
+  }
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+
+  p = audit(mSeverity);
+  for(i=0; i<p->nItem; i++){
+    fossil_print(" * %s\n", p->a[i].zMsg);
+  }
+  audit_free(p);
+}
