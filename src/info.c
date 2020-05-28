@@ -1,3 +1,17 @@
+/*TODO
+** o  Should /file behave differently for non-existent local files?
+** o  Look at adding an "extras" option (non-added, non-ignored files).
+** o  Look at sifting out "one line" differences from those with "diff blocks".
+**    Perhaps reset the query and re-run, displaying only non-diff entries the
+**    first time? Or perhaps buffer the output (probably bad idea).
+** o  If I keep the extra <hr/> I've added after a diff-block, is there a way
+**    to avoid the double <hr/> if the last entry has a diff-block?
+** o  Find a place to add links to /local.
+** o  Remove //TODO TESTING HACK TODO
+** ?? In hexdump_page(), should content (and downloadName?) be reset/freed?
+** ?? In the test fossil (\x\$Test\Fossil) there are (at time of writing) two
+**    commits under the same artifact... is this normal?
+*/
 /*
 ** Copyright (c) 2007 D. Richard Hipp
 **
@@ -324,13 +338,32 @@ void render_checkin_context(int rid, int rid2, int parentsOnly){
   db_finalize(&q);
 }
 
+/*
+** Read the content of file zName (prepended with the checkout directory)
+** and put it into the uninitialized blob. The blob is zeroed if the file
+** does not exist (if the file cannot be read, blob_read_from_file() aborts
+** the program).
+*/
+static void content_from_file(
+  const char *zName,    /* Filename (relative to checkout) of file to be read */
+  Blob *pBlob           /* Pointer to blob to receive contents */
+){
+  const char *zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
+  blob_zero(pBlob);
+  if( file_size(zFullPath, ExtFILE)>=0 ){
+    blob_read_from_file(pBlob, zFullPath, ExtFILE);
+  }
+}
 
 /*
 ** Append the difference between artifacts to the output
+** If zLocal is not NULL, instead compare against the local
+** copy of the file it names in the repository.
 */
 static void append_diff(
   const char *zFrom,    /* Diff from this artifact */
   const char *zTo,      /*  ... to this artifact */
+  const char *zLocal,   /*  ... OR to this local file */
   u64 diffFlags,        /* Diff formatting flags */
   ReCompiled *pRe       /* Only show change matching this regex */
 ){
@@ -346,6 +379,8 @@ static void append_diff(
   if( zTo ){
     toid = uuid_to_rid(zTo, 0);
     content_get(toid, &to);
+  }else if( zLocal ){ /* Read the file on disk */
+    content_from_file(zLocal, &to);
   }else{
     blob_zero(&to);
   }
@@ -398,7 +433,7 @@ static void append_file_change_line(
       @ Changes to %h(zName).
     }
     if( diffFlags ){
-      append_diff(zOld, zNew, diffFlags, pRe);
+      append_diff(zOld, zNew, NULL, diffFlags, pRe);
     }
   }else{
     if( zOld && zNew ){
@@ -429,13 +464,167 @@ static void append_file_change_line(
       @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
     if( diffFlags ){
-      append_diff(zOld, zNew, diffFlags, pRe);
+      append_diff(zOld, zNew, NULL, diffFlags, pRe);
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
     }
   }
   @ </p>
+}
+
+/*
+** Append notice of executable or symlink being gained or lost.
+*/
+static void append_status(
+  const char *zAction,  /* Whether status was gained or lost */
+  const char *zStatus,  /* The status that was gained/lost */
+  const char *zName,    /* Name of file */
+  const char *zOld      /* Existing artifact */
+){
+  if( !g.perm.Hyperlink ){
+    @ %h(zName) %h(zAction) %h(zStatus) status.
+  }else{
+    @ %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
+    @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
+    @ %h(zAction) %h(zStatus) status.
+  }
+}
+
+/*
+** Append web-page output that shows changes between a file at last check-in
+** and its current state on disk (i.e. any uncommitted changes). The status
+** ("changed", "missing" etc.) is a blend of that from append_file_change_line()
+** and diff_against_disk() (in "diffcmd.c").
+**
+** The file-differences (if being shown) use append_diff() as before, but
+** there is an additional parameter (zLocal) which, if non-NULL, causes it
+** to compare the checked-in version against the named file on disk.
+*/
+static void append_local_file_change_line(
+  const char *zName,    /* Name of the file that has changed */
+  const char *zOld,     /* blob.uuid before change.  NULL for added files */
+  int isDeleted,        /* Has the file-on-disk been removed from Fossil? */
+  int isChnged,         /* Has the file changed in some way (see vfile.c) */
+  int isNew,            /* Has the file been ADDed (but not yet committed? */
+  int isLink,           /* Is the file a symbolic link? */
+  u64 diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
+  ReCompiled *pRe       /* Only show diffs that match this regex, if not NULL */
+){
+  char *zFullName = mprintf("%s%s", g.zLocalRoot, zName);
+  int isFilePresent = !file_access(zFullName, F_OK);
+  int showDiff = 0;
+//TODO TESTING HACK TODO
+if( strncmp(zName,"aa",2)==0 ){
+  isChnged = atoi(zName+2);
+}
+//TODO TESTING HACK TODO
+  @ <p>
+  if( !g.perm.Hyperlink ){
+    if( isDeleted ){
+      if( isFilePresent ){
+        @ Deleted %h(zName) (still present as a local file).
+        showDiff = 1;
+      }else{
+        @ Deleted %h(zName).
+      }
+    }else if( isNew ){
+      if( isFilePresent ){
+        @ Added %h(zName) but not committed.
+      }else{
+        @ Missing %h(zName) (was added to checkout).
+      }
+    }else switch( isChnged ){
+      /*TODO
+      ** These "special cases" have not been properly tested (by creating
+      ** entries in a in a repository to trigger them), but they do display
+      ** as expected when "forced" to appear.
+      */
+      case 3:
+        @ Added %h(zName) due to a merge.
+        break;
+      case 5:
+        @ Added %h(zName) due to an integration merge.
+        break;
+      case 6:   append_status( "gained", "executable", zName, zOld);    break;
+      case 7:   append_status( "gained", "symlink",    zName, zOld);    break;
+      case 8:   append_status(   "lost", "executable", zName, zOld);    break;
+      case 9:   append_status(   "lost", "symlink",    zName, zOld);    break;
+
+      default: /* Normal edit */
+        @ Local changes of %h(zName).
+        showDiff = 1;
+    }
+    if( showDiff && diffFlags ){
+      append_diff(zOld, NULL, zName, diffFlags, pRe);
+      @ <hr/>
+    }
+  }else{
+    if( isDeleted ){
+      if( isFilePresent ){                    /* DELETEd but still on disk */
+        @ Deleted %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
+        @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> (still present
+        @ as %z(href("%R/file/%T?ci=ckout&annot=removed from checkout",zName))
+        @ [local file]</a>).
+        showDiff = 1;
+      }else{                              /* DELETEd and deleted from disk */
+        @ Deleted %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
+        @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
+      }
+    }else if( isNew ){
+      if( isFilePresent ){                    /* ADDed and present on disk */
+        @ Added %z(href("%R/file/%T?ci=ckout",zName))%h(zName)</a>
+        @ but not committed.
+      }else{                              /* ADDed but not present on disk */
+        @ Missing %h(zName) (was added to checkout).
+      }
+    }else switch( isChnged ){
+      /*TODO Not fully tested... see see no-hyperlink version above */
+      case 3:                                          /* Added by a merge */
+        @ Added
+        @ %z(href("%R/file/%T?ci=ckout&annot=added by merge",zName))%h(zName)
+        @ </a> to %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> due to merge.
+        break;
+      case 5:                             /* Added by an integration merge */
+        @ Added
+        @ %z(href("%R/file/%T?ci=ckout&annot=added by integration merge",zName))
+        @ %h(zName)</a> to
+        @ %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> due to integrate merge.
+        break;
+      case 6:   append_status( "gained", "executable", zName, zOld);    break;
+      case 7:   append_status( "gained", "symlink",    zName, zOld);    break;
+      case 8:   append_status(   "lost", "executable", zName, zOld);    break;
+      case 9:   append_status(   "lost", "symlink",    zName, zOld);    break;
+
+      default: /* Normal edit */
+        @ Local changes of
+        @ %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
+        @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> to
+        @ %z(href("%R/file/%T?ci=ckout&annot=edited locally",zName))
+        @ [local file]</a>
+        showDiff = 1;
+    }
+    if( showDiff ){
+      if( diffFlags ){
+        append_diff(zOld, NULL, zName, diffFlags, pRe);
+        /*TODO
+        ** Not related to the local-mode, but if two or more files have been
+        ** changed in a commit/"local changes", it is sometimes easy to miss
+        ** the switch from one to the other. The following (IMHO) makes things
+        ** clearer, but can mean there's a double rule at the bottom of the
+        ** page. If kept, a similar <hr/> should probably be added to
+        ** append_file_change_line() (but would need to check how things look
+        ** when called from /vinfo).
+        */
+        @ <hr/>
+      }else if( isChnged ){
+        @ &nbsp;&nbsp;
+        @ %z(href("%R/localdiff?name=%T",zName))[diff]</a>
+      }
+    }
+  }
+  @ </p>
+  fossil_free(zFullName);
 }
 
 /*
@@ -598,6 +787,7 @@ void ci_tags_page(void){
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
+** WEBPAGE: local
 ** URL:  /ci/ARTIFACTID
 **  OR:  /ci?name=ARTIFACTID
 **
@@ -607,6 +797,10 @@ void ci_tags_page(void){
 **
 ** The ARTIFACTID can be a unique prefix for the HASH of the check-in,
 ** or a tag or branch name that identifies the check-in.
+**
+** Use of /local (or the use of "ckout" for ARTIFACTID) will show the
+** same header details as /ci/tip, but then displays any (uncommitted)
+** edits made to files in the checkout directory.
 */
 void ci_page(void){
   Stmt q1, q2, q3;
@@ -623,10 +817,33 @@ void ci_page(void){
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zPageHide = "ci"; /* Page that hides diffs */
   const char *zBrName; /* Branch name */
+  int bLocalMode;      /* TRUE for /local; FALSE otherwise */
+  int vid;             /* Virtual file system? */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   zName = P("name");
+  /* Local mode is selected by either "/local" or with a "name" of "ckout".
+  ** First, check we have access to the checkout (and report to the user if we
+  ** don't), then refresh the "vfile" table (recording which files in the
+  ** checkout have changed etc.). We then change the "name" parameter to "tip"
+  ** so that the "header" section displays info about the check-in that the
+  ** checkout came from.
+  */
+  bLocalMode = (g.zPath[0]=='l') || (fossil_strcmp(zName,"ckout")==0);
+  if( bLocalMode ){
+    vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
+    if( vid==0 ){
+      /*TODO Is this the right response? */
+      style_header("No Local Checkout");
+      @ No access to local checkout.
+      style_footer();
+      return;
+    }
+    vfile_check_signature(vid, CKSIG_ENOTFILE);
+    zName = "tip";
+    cgi_replace_parameter("name","tip"); /* Needed to get rid below */
+  }
   rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Check-in Information Error");
@@ -669,7 +886,11 @@ void ci_page(void){
     Blob wiki_add_links = BLOB_INITIALIZER;
 
     Th_Store("current_checkin", zName);
-    style_header("Check-in [%S]", zUuid);
+    if( bLocalMode ){
+      style_header("Local Changes from Check-in [%S]", zUuid);
+    }else{
+      style_header("Check-in [%S]", zUuid);
+    }
     login_anonymous_available();
     zEUser = db_text(0,
                    "SELECT value FROM tagxref"
@@ -875,10 +1096,21 @@ void ci_page(void){
   render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
   @ <div class="section">Context</div>
   render_checkin_context(rid, 0, 0);
-  @ <div class="section">Changes</div>
+  if( bLocalMode ){
+    @ <div class="section">Uncommitted Changes</div>
+  }else{
+    @ <div class="section">Changes</div>
+  }
   @ <div class="sectionmenu">
   diffFlags = construct_diff_flags(diffType);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  /* In local mode, having displayed the header info for "tip", switch zName
+  ** to be "ckout" so the style-altering links (unified or side-by-side etc.)
+  ** will correctly re-select local-mode.
+  */
+  if( bLocalMode ){
+    zName = "ckout";
+  }
   if( diffType!=0 ){
     @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
     @ Hide&nbsp;Diffs</a>
@@ -900,9 +1132,13 @@ void ci_page(void){
       @ Ignore&nbsp;Whitespace</a>
     }
   }
-  if( zParent ){
-    @ %z(chref("button","%R/vpatch?from=%!S&to=%!S",zParent,zUuid))
-    @ Patch</a>
+  if( bLocalMode ){
+      @ %z(chref("button","%R/localpatch")) Patch</a>
+  }else{
+    if( zParent ){
+      @ %z(chref("button","%R/vpatch?from=%!S&to=%!S",zParent,zUuid))
+      @ Patch</a>
+    }
   }
   if( g.perm.Admin ){
     @ %z(chref("button","%R/mlink?ci=%!S",zUuid))MLink Table</a>
@@ -912,31 +1148,142 @@ void ci_page(void){
     @ <p><b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b></p>
   }
-  db_prepare(&q3,
-    "SELECT name,"
-    "       mperm,"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-    "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
-    "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
-    " WHERE mlink.mid=%d AND NOT mlink.isaux"
-    "   AND (mlink.fid>0"
-           " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
-    " ORDER BY name /*sort*/",
-    rid, rid
-  );
-  while( db_step(&q3)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q3,0);
-    int mperm = db_column_int(&q3, 1);
-    const char *zOld = db_column_text(&q3,2);
-    const char *zNew = db_column_text(&q3,3);
-    const char *zOldName = db_column_text(&q3, 4);
-    append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
+  if( bLocalMode ){
+    /* Following SQL taken from diff_against_disk() in diffcmd.c */
+    db_begin_transaction();
+    db_prepare(&q3,
+      "SELECT pathname, deleted, chnged , rid==0, rid, islink"
+      "  FROM vfile"
+      " WHERE vid=%d"
+      "   AND (deleted OR chnged OR rid==0)"
+      " ORDER BY pathname /*scan*/",
+      vid
+    );
+    /* TODO Have the option of showing "extras" (non-ignored files in the
+    **      checkout directory that have not been ADDed). If done, they should
+    **      be ahead of any potential "diff-blocks" so they don't get lost
+    **      (which is the inspiration for...)
+    ** TODO Consider making this two-pass, where the first pass skips anything
+    **      that would show a diff-block (and the second pass only shows such
+    **      entries). This would group all "one-line" entries at the top so
+    **      they are less likely to be missed.
+    ** TODO Possibly (at some stage) have an option to commit?
+    */
+    while( db_step(&q3)==SQLITE_ROW ){
+      const char *zPathname = db_column_text(&q3,0);
+      int isDeleted = db_column_int(&q3, 1);
+      int isChnged = db_column_int(&q3,2);
+      int isNew = db_column_int(&q3,3);
+      int srcid = db_column_int(&q3, 4);
+      int isLink = db_column_int(&q3, 5);
+      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", srcid);
+      append_local_file_change_line(zPathname, zUuid,
+                        isDeleted, isChnged, isNew, isLink, diffFlags,pRe);
+      free(zUuid);
+    }
+    db_finalize(&q3);
+    db_end_transaction(1);  /* ROLLBACK */
+  }else{ /* Normal, non-local-mode: show diffs against parent */
+    db_prepare(&q3,
+      "SELECT name,"
+      "       mperm,"
+      "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+      "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+      "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
+      "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
+      " WHERE mlink.mid=%d AND NOT mlink.isaux"
+      "   AND (mlink.fid>0"
+             " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
+      " ORDER BY name /*sort*/",
+      rid, rid
+    );
+    while( db_step(&q3)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q3,0);
+      int mperm = db_column_int(&q3, 1);
+      const char *zOld = db_column_text(&q3,2);
+      const char *zNew = db_column_text(&q3,3);
+      const char *zOldName = db_column_text(&q3, 4);
+      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
+    }
+    db_finalize(&q3);
   }
-  db_finalize(&q3);
   append_diff_javascript(diffType==2);
   cookie_render();
   style_footer();
+}
+
+/*
+** WEBPAGE: localpatch
+** URL:  /localpatch
+**
+** Shows a patch from the current checkout, incorporating any
+** uncommitted local edits.
+*/
+void localpatch_page(void){
+  Stmt q3;
+  int vid;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+
+  vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
+  if( vid==0 ){
+    /*TODO Is this the right response? */
+    style_header("No Local Checkout");
+    @ No access to local checkout.
+    style_footer();
+    return;
+  }
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
+
+  cgi_set_content_type("text/plain");
+
+  db_begin_transaction();
+  /*TODO
+  ** This query is the same as in ci_page() for local-mode (as well as in
+  ** diff_against_disk() in diffcmd.c, where it was originally taken from).
+  ** Should they be "coalesced" in some way?
+  */
+  db_prepare(&q3,
+    "SELECT pathname, deleted, chnged , rid==0, rid, islink"
+    "  FROM vfile"
+    " WHERE vid=%d"
+    "   AND (deleted OR chnged OR rid==0)"
+    " ORDER BY pathname /*scan*/",
+    vid
+  );
+  while( db_step(&q3)==SQLITE_ROW ){
+    const char *zPathname = db_column_text(&q3,0);
+    int isDeleted = db_column_int(&q3, 1);
+    int isChnged = db_column_int(&q3,2);
+    int isNew = db_column_int(&q3,3);
+    int srcid = db_column_int(&q3, 4);
+    int isLink = db_column_int(&q3, 5);
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", srcid);
+
+    if( isChnged ){
+      Blob c1, c2;    /* Content to diff */
+      Blob out;       /* Diff output text */
+      int diffFlags = 4;
+
+      content_get(srcid, &c1);
+      content_from_file(zPathname, &c2);
+      blob_zero(&out);
+      text_diff(&c1, &c2, &out, 0, diffFlags);
+      blob_reset(&c1);
+      blob_reset(&c2);
+      if( blob_size(&out) ){
+        diff_print_index(zPathname, diffFlags);
+        diff_print_filenames(zPathname, zPathname, diffFlags);
+        fossil_print("%s\n", blob_str(&out));
+      }
+      /* Release memory resources */
+      blob_reset(&out);
+    }
+    free(zUuid);
+  }
+  db_finalize(&q3);
+  db_end_transaction(1);  /* ROLLBACK */
 }
 
 /*
@@ -1218,7 +1565,7 @@ void vdiff_page(void){
                           zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
-  if( diffType!=1 ) {
+  if( diffType!=1 ){
     style_submenu_element("Unified Diff",
                           "%R/vdiff?%s&diff=1%s%T%s",
                           zQuery,
@@ -1402,7 +1749,7 @@ int object_description(
       continue;
     }
     if( !sameFilename ){
-      if( prevName && showDetail ) {
+      if( prevName && showDetail ){
         @ </ul>
       }
       if( mPerm==PERM_LNK ){
@@ -1522,7 +1869,7 @@ int object_description(
         @ Manifest of check-in
         objType |= OBJTYPE_CHECKIN;
       }else if( zType[0]=='e' ){
-        if( eventTagId != 0) {
+        if( eventTagId != 0){
           @ Instance of technote
           objType |= OBJTYPE_EVENT;
           hyperlink_to_event_tagid(db_column_int(&q, 5));
@@ -1569,7 +1916,7 @@ int object_description(
     }
     objType |= OBJTYPE_ATTACHMENT;
     if( fossil_is_uuid(zTarget) ){
-      if ( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
+      if( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             zTarget)
       ){
         if( g.perm.Hyperlink && g.anon.RdTkt ){
@@ -1627,7 +1974,9 @@ int object_description(
 
 /*
 ** WEBPAGE: fdiff
+** WEBPAGE: localdiff
 ** URL: fdiff?v1=UUID&v2=UUID
+** URL: localdiff?name=filename
 **
 ** Two arguments, v1 and v2, identify the artifacts to be diffed.
 ** Show diff side by side unless sbs is 0.  Generate plain text if
@@ -1639,6 +1988,10 @@ int object_description(
 ** the names of two files within the check-in "ci" that are diffed.  If the
 ** "ci" parameter is omitted, then the most recent check-in ("tip") is
 ** used.
+**
+** The /localdiff version will diff the given filename from the most recent
+** check-in ("tip") against the current (edited) version in the checkout
+** directory.
 **
 ** Additional parameters:
 **
@@ -1660,13 +2013,19 @@ void diff_page(void){
   u64 diffFlags;
   u32 objdescFlags = 0;
   int verbose = PB("verbose");
+  int bLocalMode = g.zPath[0]=='l';  /* diff against checkout */
+  const char *zLocalName = NULL;      /* Holds local filename */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
   cookie_render();
-  if( P("from") && P("to") ){
+  if( bLocalMode ){
+    zLocalName = P("name");
+    v1 = artifact_from_ci_and_filename("name");
+    v2 = (zLocalName!=NULL)?-1:0; /* -1 prevents "not found" check below */
+  }else if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename("from");
     v2 = artifact_from_ci_and_filename("to");
   }else{
@@ -1709,10 +2068,15 @@ void diff_page(void){
   if( isPatch ){
     Blob c1, c2, *pOut;
     pOut = cgi_output_blob();
+
     cgi_set_content_type("text/plain");
     diffFlags = 4;
     content_get(v1, &c1);
-    content_get(v2, &c2);
+    if( bLocalMode ){
+      content_from_file(zLocalName, &c2);
+    }else{
+      content_get(v2, &c2);
+    }
     text_diff(&c1, &c2, pOut, pRe, diffFlags);
     blob_reset(&c1);
     blob_reset(&c2);
@@ -1725,34 +2089,58 @@ void diff_page(void){
 
   style_header("Diff");
   style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
-  if( diffType==2 ){
-    style_submenu_element("Unified Diff", "%R/fdiff?v1=%T&v2=%T&diff=1",
-                           P("v1"), P("v2"));
-  }else{
-    style_submenu_element("Side-by-side Diff", "%R/fdiff?v1=%T&v2=%T&diff=2",
-                           P("v1"), P("v2"));
+  if( bLocalMode ){
+    if( diffType==2 ){
+      style_submenu_element("Unified Diff", "%R/localdiff?name=%T&diff=1",
+                            zLocalName);
+    }else{
+      style_submenu_element("Side-by-side Diff", "%R/localdiff?name=%T&diff=2",
+                            zLocalName);
+    }
+  }else{ /* Normal */
+    if( diffType==2 ){
+      style_submenu_element("Unified Diff", "%R/fdiff?v1=%T&v2=%T&diff=1",
+                            P("v1"), P("v2"));
+    }else{
+      style_submenu_element("Side-by-side Diff", "%R/fdiff?v1=%T&v2=%T&diff=2",
+                            P("v1"), P("v2"));
+    }
   }
   style_submenu_checkbox("verbose", "Verbose", 0, 0);
-  style_submenu_element("Patch", "%R/fdiff?v1=%T&v2=%T&patch",
-                        P("v1"), P("v2"));
+  if( bLocalMode ){
+    style_submenu_element("Patch", "%R/localdiff?name=%T&patch", zLocalName);
+  }else{
+    style_submenu_element("Patch", "%R/fdiff?v1=%T&v2=%T&patch",
+                          P("v1"), P("v2"));
+  }
 
   if( P("smhdr")!=0 ){
     @ <h2>Differences From Artifact
     @ %z(href("%R/artifact/%!S",zV1))[%S(zV1)]</a> To
-    @ %z(href("%R/artifact/%!S",zV2))[%S(zV2)]</a>.</h2>
+    if( bLocalMode ){
+      @ %z(href("%R/local"))[Local Changes]</a> of
+      @ %z(href("%R/file/%T?ci=ckout",zLocalName))%h(zLocalName)</a>.
+    }else{
+      @ %z(href("%R/artifact/%!S",zV2))[%S(zV2)]</a>.</h2>
+    }
   }else{
     @ <h2>Differences From
     @ Artifact %z(href("%R/artifact/%!S",zV1))[%S(zV1)]</a>:</h2>
     object_description(v1, objdescFlags,0, 0);
-    @ <h2>To Artifact %z(href("%R/artifact/%!S",zV2))[%S(zV2)]</a>:</h2>
-    object_description(v2, objdescFlags,0, 0);
+    if( bLocalMode ){
+      @ <h2>To %z(href("%R/local"))[Local Changes]</a>
+      @ of %z(href("%R/file/%T?ci=ckout",zLocalName))%h(zLocalName)</a>.</h2>
+    }else{
+      @ <h2>To Artifact %z(href("%R/artifact/%!S",zV2))[%S(zV2)]</a>:</h2>
+      object_description(v2, objdescFlags,0, 0);
+    }
   }
   if( pRe ){
     @ <b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b>
   }
   @ <hr />
-  append_diff(zV1, zV2, diffFlags, pRe);
+  append_diff(zV1, zV2, zLocalName, diffFlags, pRe);
   append_diff_javascript(diffType);
   style_footer();
 }
@@ -1910,9 +2298,12 @@ static void hexdump(Blob *pBlob){
 /*
 ** WEBPAGE: hexdump
 ** URL: /hexdump?name=ARTIFACTID
+** URL: /hexdump?local=FILENAME
 **
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
+**
+** The second version does the same for FILENAME from the local checkout.
 **
 ** Other parameters:
 **
@@ -1924,38 +2315,57 @@ void hexdump_page(void){
   Blob downloadName;
   char *zUuid;
   u32 objdescFlags = 0;
+  const char *zLocalName = P("local");
+  int bLocalMode = zLocalName!=NULL;
 
   rid = name_to_rid_www("name");
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( rid==0 ) fossil_redirect_home();
-  if( g.perm.Admin ){
-    const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#delshun",
-            g.zTop, zUuid);
-    }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+  if( !bLocalMode ){
+    if( rid==0 ) fossil_redirect_home();
+    if( g.perm.Admin ){
+      const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",rid);
+      if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
+        style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#delshun",
+              g.zTop, zUuid);
+      }else{
+        style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+      }
     }
   }
   style_header("Hex Artifact Content");
-  zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
-  @ <h2>Artifact
-  style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
-  if( g.perm.Setup ){
-    @  (%d(rid)):</h2>
+  /* TODO
+  ** Could the call to style_header() be moved so these two exclusion
+  ** blocks could be merged? I don't think any of them make sense for
+  ** a local file.
+  */
+  if( !bLocalMode ){
+    zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
+    @ <h2>Artifact
+    style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
+    if( g.perm.Setup ){
+      @  (%d(rid)):</h2>
+    }else{
+      @ :</h2>
+    }
+    blob_zero(&downloadName);
+    if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
+    object_description(rid, objdescFlags, 0, &downloadName);
+    style_submenu_element("Download", "%R/raw/%s?at=%T",
+                          zUuid, file_tail(blob_str(&downloadName)));
   }else{
-    @ :</h2>
+    @ <h2>File %z(href("%R/finfo?name=%T&m=tip",zLocalName))%h(zLocalName)</a>
+    @ from %z(href("%R/local"))[Local Changes]</a></h2>
   }
-  blob_zero(&downloadName);
-  if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
-  object_description(rid, objdescFlags, 0, &downloadName);
-  style_submenu_element("Download", "%R/raw/%s?at=%T",
-                        zUuid, file_tail(blob_str(&downloadName)));
   @ <hr />
-  content_get(rid, &content);
+  if( bLocalMode ){
+      content_from_file(zLocalName, &content);
+  }else{
+    content_get(rid, &content);
+  }
   @ <blockquote><pre>
   hexdump(&content);
+  /* TODO: Should content (and downloadName?) be reset/freed? */
   @ </pre></blockquote>
   style_footer();
 }
@@ -2133,6 +2543,9 @@ void output_text_with_line_numbers(
 **
 ** For /file, name= can only be interpreted as a filename.  As before,
 ** a default value of "tip" is used for ci= if ci= is omitted.
+**
+** If ci=ckout then display the content of the file NAME in the local
+** checkout directory.
 */
 void artifact_page(void){
   int rid = 0;
@@ -2155,6 +2568,7 @@ void artifact_page(void){
   int isSymbolicCI = 0;  /* ci= exists and is a symbolic name, not a hash */
   int isBranchCI = 0;    /* ci= refers to a branch name */
   char *zHeader = 0;
+  int bLocalMode = 0;     /* TRUE if trying to show file in local checkout */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -2202,7 +2616,10 @@ void artifact_page(void){
     ** "tip" value for ci=. */
     rid = name_to_rid(zName);
   }
-  if( rid==0 ){
+  if( fossil_strcmp(zCI,"ckout")==0 ){
+    bLocalMode = 1;
+    rid = -1;     /* Dummy value to make it look found */
+  }else if( rid==0 ){
     rid = artifact_from_ci_and_filename(0);
   }
 
@@ -2239,7 +2656,21 @@ void artifact_page(void){
 
   asText = P("txt")!=0;
   if( isFile ){
-    if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
+    if( bLocalMode ){
+      /*TODO
+      ** Is this the best way of handling annotations to the description?
+      ** If "annot=message" is part of the URL, the message is appended
+      ** to the description of the file. Only used for "local" files to
+      ** distinguish such files from part of the repository.
+      */
+      const char *annot = P("annot");
+      @ <h2>File %z(href("%R/finfo?name=%T&m=tip",zName))%h(zName)</a>
+      @ from %z(href("%R/local"))[Local Changes]</a>
+      if( annot ){
+        @ (%h(annot))
+      }
+      @ </h2>
+    }else if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
       isSymbolicCI = 1; /* Mark default-to-"tip" as symbolic */
       @ <h2>File %z(href("%R/finfo?name=%T&m=tip",zName))%h(zName)</a>
@@ -2260,11 +2691,13 @@ void artifact_page(void){
       }
       blob_reset(&path);
     }
-    style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
-    style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
-                          zName, zCI);
-    style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
-                          zName, zCI);
+    if( !bLocalMode ){
+      style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
+      style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
+                            zName, zCI);
+      style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
+                            zName, zCI);
+    }
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
   }else{
@@ -2280,25 +2713,29 @@ void artifact_page(void){
     objType = object_description(rid, objdescFlags,
                                 (isFile?zName:0), &downloadName);
   }
-  if( !descOnly && P("download")!=0 ){
-    cgi_redirectf("%R/raw/%s?at=%T",
-          db_text("x", "SELECT uuid FROM blob WHERE rid=%d", rid),
-          file_tail(blob_str(&downloadName)));
-    /*NOTREACHED*/
-  }
-  if( g.perm.Admin ){
-    const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#accshun",
-            g.zTop, zUuid);
-    }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+  if( !bLocalMode ){
+    if( !descOnly && P("download")!=0 ){
+      cgi_redirectf("%R/raw/%s?at=%T",
+            db_text("x", "SELECT uuid FROM blob WHERE rid=%d", rid),
+            file_tail(blob_str(&downloadName)));
+      /*NOTREACHED*/
+    }
+    if( g.perm.Admin ){
+      const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",rid);
+      if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
+        style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#accshun",
+              g.zTop, zUuid);
+      }else{
+        style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+      }
     }
   }
 
   if( isFile ){
     if( isSymbolicCI ){
       zHeader = mprintf("%s at %s", file_tail(zName), zCI);
+    }else if( bLocalMode ){
+      zHeader = mprintf("%s (local changes)", file_tail(zName));
     }else if( zCI ){
       zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
     }else{
@@ -2328,9 +2765,13 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  style_submenu_element("Download", "%R/raw/%s?at=%T", zUuid, file_tail(zName));
-  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
+  if( !bLocalMode ){
+    style_submenu_element("Download", "%R/raw/%s?at=%T",
+                          zUuid, file_tail(zName));
+    if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
+      style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s",
+                          zUuid);
+    }
   }
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
@@ -2350,10 +2791,12 @@ void artifact_page(void){
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
       }
     }
-    if( fileedit_is_editable(zName) ){
-      style_submenu_element("Edit",
-                            "%R/fileedit?filename=%T&checkin=%!S",
-                            zName, zCI);
+    if( !bLocalMode ){ /* This way madness lies... */
+      if( fileedit_is_editable(zName) ){
+        style_submenu_element("Edit",
+                              "%R/fileedit?filename=%T&checkin=%!S",
+                              zName, zCI);
+      }
     }
   }
   if( (objType & (OBJTYPE_WIKI|OBJTYPE_TICKET))!=0 ){
@@ -2363,7 +2806,19 @@ void artifact_page(void){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
     @ <hr />
-    content_get(rid, &content);
+    if( bLocalMode ){
+      /*TODO
+      ** Should we handle non-existent local files differently? Currently,
+      ** they are shown the same as if the file was present but empty. This
+      ** should never happen through "normal" operation, but someone might
+      ** craft a link to one. Perhaps have content_from_file() perform an
+      ** existence-check (rather than relying on blob_read_from_file() which
+      ** it calls returning an empty blob)?
+      */
+      content_from_file(zName, &content);
+    }else{
+      content_get(rid, &content);
+    }
     if( renderAsWiki ){
       wiki_render_by_mimetype(&content, zMime);
     }else if( renderAsHtml ){
@@ -2379,7 +2834,11 @@ void artifact_page(void){
       @ );
       @ </script>
     }else{
-      style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      if( bLocalMode ){
+        style_submenu_element("Hex", "%R/hexdump?local=%s", zName);
+      }else{
+        style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      }
       if( zLn==0 || atoi(zLn)==0 ){
         style_submenu_checkbox("ln", "Line Numbers", 0, 0);
       }
