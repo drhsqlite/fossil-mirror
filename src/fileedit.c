@@ -1715,9 +1715,9 @@ static void fileedit_ajax_commit(void){
     CX(",\"manifest\": %!j", blob_str(&manifest));
   }
   CX("}");
+end_cleanup:
   db_end_transaction(0/*noting that dry-run mode will have already
                       ** set this to rollback mode. */);
-end_cleanup:
   fossil_free(zNewUuid);
   blob_reset(&err);
   blob_reset(&manifest);

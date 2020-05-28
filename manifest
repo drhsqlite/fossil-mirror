@@ -1,5 +1,5 @@
-C Moved\s/fileedit\spermissions\scheck\sbelow\sthe\sajax\sdispatching\scheck,\sas\sajax\sbootstrapping\sperforms\sthat\scheck\sitself,\salong\swith\sa\sCSRF\scheck\sfor\swrite-mode\srequests,\sand\semits\sa\sJSON-format\sresponse\s(as\sopposed\sto\sHTML)\sif\sit\sfails.
-D 2020-05-28T12:16:19.116
+C fossil.fetch()\snow\suses\sonreadystatechange\sinstead\sof\sonload\sbecause\sthe\slatter\sdoes\snot\shandle\sconnection\serrors\sand\stimeouts.\sAdded\stimeout\soption\sto\sfossil.fetch()\swith\sa\sdefault\sof\s15s.\sCorrected\snon-closing\sof\sa\sfailed\stransaction\swhen\sfileedit/commit\sfails.
+D 2020-05-28T13:27:36.431
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 43fc5f0039287b04d11ff1edcd9b9a9aa78d0c1ae115abca0a4ca9f35dc06a03
+F src/fileedit.c bf253d3d84dbd3080fa18856308717eb92b59cbf3f60107b642d726387bebb0d
 F src/finfo.c b9d8b85704f25d2a14f6a4b59b39ea37a7b424423c871a1ff33628969f62e319
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 73e27c4703f1b3b0bc5248c1fc1cfc7765e3c9a15be8f2bf78855b5d7acdc704
@@ -487,7 +487,7 @@ F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd65ab2a61f5
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 63a2f11ce176208c562ea146ebaced4a700a9b5155e2fd1b3d310d4330866e35
-F src/fossil.fetch.js 6f9b5302a7ec759c9deba86747dba82d91329ff8128f95c0a801c69bcbbd35ee
+F src/fossil.fetch.js 0994963bb4f55c10f1d885722262ffbd9669f1f754a510c80f435f41aa24251e
 F src/fossil.page.fileedit.js aa2edc7c361346c9e71a92e747445873695cf6bf46ccc12b3d398c18ef93629e
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a80861de031923411c79b1e037207bacc8afa2e9b7ce63fce8db0cf5a53ad625
-R b1a0d122356c512e4be2b78b48c83b59
+P 13e26db40393a52fae89c30ee6b4669e85d93a8b89b71746529a5b65f9d5fb0c
+R 972dbde8738c16585f28ee2e4799109f
 U stephan
-Z 069fe27ef5ceaa3fa85e4dece0a1d9d6
+Z ddd86486024736a5c91476b0a57572c7
