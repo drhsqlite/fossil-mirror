@@ -1,5 +1,5 @@
-C Updates\sthe\semail-sender\sTCL\sscript\sso\sthat\sit\sappends\sa\s"-f"\sargument\nto\ssendmail\swhich\sis\sthe\s"From:"\semail\saddress.
-D 2020-05-28T15:46:29.568
+C The\snew\sblob_reserve()\snow\striggers\sblob_panic()\sif\sasked\sto\sallocate\smore\sthan\sblob_append_full()\sinternally\sallows\sfor\s(not\squite\s2GB),\sto\savoid\sa\scorner\scase\sthat\sblob_reserve()\scould\sbe\sused\sto\saccidentally\sbypass\sthat\sinternal\slimit.
+D 2020-05-28T17:21:22.550
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c 95b501d35dd6b9d142c1912948ec8358959cc870745b886ba74eb5edfce4afb6
+F src/blob.c 55ac23beaeb0e2ebdbf7be7f4b8ceb0541f3206041aeeaaf6282ffd26c453270
 F src/branch.c 0c0bacb5175593bbbd8260d6d1955e2cf5f3ab3d80ab102477b1c26c87ccb23f
 F src/browse.c 18c5c808bfabedf2a0528ccb6f26ac7627cb20bc636f5fac6958e1d89c92c413
 F src/builtin.c 1ae9c90c567fb45f23f95aa7d00eca5cfc30cc86e2ba7476c97806d3fb24b072
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b17aba9e20d823736ed93ab6ea0fb00d140de84070d000f7fe01c05f611ac9a1
-R d075c9bdadb28286c7cc802b2999a228
-U drh
-Z 83bc6e89d6f478d48e3492df9d16f13a
+P a52499fdc4c9f148120a2f8eca15b82251d320fa41d4764a8c45716f30072053
+R 76d41d45591de0f17cf068f7fa4b2e67
+U stephan
+Z ca649322e016c95262445d891256fd5f

@@ -484,9 +484,16 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 ** Ensures that the given blob has at least the given amount of memory
 ** allocated to it. Does not modify pBlob->nUsed nor will it reduce
 ** the currently-allocated amount of memory.
+**
+** For semantic compatibility with blob_append_full(), if newSize is
+** >=0x7fff000 (~2GB) then this function will trigger blob_panic(). If
+** it didn't, it would be possible to bypass that hard-coded limit via
+** this function.
 */
 void blob_reserve(Blob *pBlob, unsigned int newSize){
-  if(newSize>pBlob->nUsed){
+  if(newSize>=0x7fff0000 ){
+    blob_panic();
+  }else if(newSize>pBlob->nUsed){
     pBlob->xRealloc(pBlob, newSize);
     pBlob->aData[newSize] = 0;
   }
