@@ -7,6 +7,9 @@
      "[/help?cmd=rm|fossil rm]", and
      "[/help?cmd=addremove|fossil addremove]" commands.
   *  Editing forum posts now applies delta compression to the edits.
+  *  Added the [/help?cmd=/fileedit|/fileedit page], which allows
+     editing of text files online. Requires explicit activation by
+     a setup user.
 
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (2020-05-25)</h2>
