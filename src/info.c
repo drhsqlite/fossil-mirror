@@ -2241,6 +2241,7 @@ void artifact_page(void){
   if( isFile ){
     if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
+      isSymbolicCI = 1; /* Mark default-to-"tip" as symbolic */
       @ <h2>File %z(href("%R/finfo?name=%T&m=tip",zName))%h(zName)</a>
       @ from the %z(href("%R/info/tip"))latest check-in</a></h2>
     }else{
