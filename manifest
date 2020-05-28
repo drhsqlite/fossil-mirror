@@ -1,5 +1,5 @@
-C Disable\sall\saccess\sto\sthe\s/fileedit\spage\sand\sits\sassociated\sAJAX\sentry\npoints\sif\sthe\suser\slacks\swrite\sprivilege\sor\sif\sfile\sediting\sis\snot\nenabled.
-D 2020-05-28T11:49:28.026
+C Removed\sfileedit-glob\sfrom\sthe\slist\sof\ssyncable\sconfig\soptions.\sIt\smust\sbe\sexplicitly\sset\son\seach\srepo\swhere\sit\sis\sdesired.
+D 2020-05-28T12:02:49.862
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -455,7 +455,7 @@ F src/clone.c 009c36a98c8904b9db991a4ad0814d42f0f3fed3fb232bc41e34d22616ff49a6
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c a2e181ecf35e38bc2a6b41b79837e28df85b385ea324b09677f33879dc2d9c43
 F src/config.h 5599c3074e2250f49e06c22716e516140a0b2d22c703c604e050b6178c0d536a
-F src/configure.c a37572d69d3125c6042bc6e2b993c2e83a48e3ba7f169f69bb20623f9a864d69
+F src/configure.c 16dba3c855e7947297a01545bdb5d39b9b361c7f83cbcd98961d3781a4d87366
 F src/content.c 6613945e8aaffb53102bd7d3b6c4a700d67e92c85a3b68a5e6230e43e7a1503b
 F src/cookies.c 3c7a533e11f5a562292ef3e9c67542ea124afa6872adfd5ed77b6c4c1bd1668f
 F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc3
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c9aa1b9391fa8c52cb910a237423294e822dc008a3eebf1ed5ea3e5bd2a3dce
-R 051f76635d6029589831f69425937060
-U drh
-Z be6ff563000d9365e04f049f24acbb1a
+P f2312397802722a2276f7944b6d6f933cb2a2064b89a6e500a6c7a7bc91d940f
+R aef5b574aa1ee3b88f3912f377f84505
+U stephan
+Z 7b848b60a04136fa184bd9ad3e46381b
