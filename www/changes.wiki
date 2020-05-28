@@ -3,7 +3,9 @@
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12 (pending)</h2>
 
-  *  <i>(no changes yet...)</i>
+  *  Added <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
+     "[/help?cmd=rm|fossil rm]", and
+     "[/help?cmd=addremove|fossil addremove]" commands.
 
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (2020-05-25)</h2>

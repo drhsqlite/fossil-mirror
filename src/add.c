@@ -244,6 +244,97 @@ static int add_files_in_sfile(int vid){
 }
 
 /*
+** Resets the ADDED/DELETED state of a checkout, such that all
+** newly-added (but not yet committed) files are no longer added and
+** newly-removed (but not yet committed) files are no longer
+** removed. If bIsAdd is true, it operates on the "add" state, else it
+** operates on the "rm" state.
+**
+** If bDryRun is true it outputs what it would have done, but does not
+** actually do it. In this case it rolls back the transaction it
+** starts (so don't start a transaction before calling this).
+**
+** If bVerbose is true it outputs the name of each reset entry.
+**
+** This is intended to be called only in the context of the
+** add/rm/addremove commands, after a call to verify_all_options().
+**
+** Un-added files are not modified but any un-rm'd files which are
+** missing from the checkout are restored from the repo. un-rm'd files
+** which exist in the checkout are left as-is, rather than restoring
+** them using vfile_to_disk(), to avoid overwriting any local changes
+** made to those files.
+*/
+static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
+  int nReset = 0; /* # of entries which get reset */
+  Stmt stmt;      /* vfile loop query */
+
+  db_begin_transaction();
+  db_prepare(&stmt, "SELECT id, pathname FROM vfile "
+                    "WHERE %s ORDER BY pathname",
+                    bIsAdd==0 ? "deleted<>0" : "rid=0"/*safe-for-%s*/);
+  while( db_step(&stmt)==SQLITE_ROW ){
+    /* This loop exists only so we can restore the contents of un-rm'd
+    ** files and support verbose mode. All manipulation of vfile's
+    ** contents happens after the loop. For the ADD case in non-verbose
+    ** mode we "could" skip this loop entirely.
+    */
+    int const id = db_column_int(&stmt, 0);
+    char const * zPathname = db_column_text(&stmt, 1);
+    Blob relName = empty_blob;
+    if(bIsAdd==0 || bVerbose!=0){
+      /* Make filename relative... */
+      char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+      file_relative_name(zFullName, &relName, 0);
+      fossil_free(zFullName);
+    }
+    if(bIsAdd==0){
+      /* Restore contents of missing un-rm'd files. We don't do this
+      ** unconditionally because we might cause data loss if a file
+      ** is modified, rm'd, then un-rm'd.
+      */
+      ++nReset;
+      if(!file_isfile_or_link(blob_str(&relName))){
+        if(bDryRun==0){
+          vfile_to_disk(0, id, 0, 0);
+          if(bVerbose){
+            fossil_print("Restored missing file: %b\n", &relName);
+          }
+        }else{
+          fossil_print("Dry-run: not restoring missing file: %b\n", &relName);
+        }
+      }
+      if(bVerbose){
+        fossil_print("Un-removed: %b\n", &relName);
+      }
+    }else{
+      /* un-add... */
+      ++nReset;
+      if(bVerbose){
+        fossil_print("Un-added: %b\n", &relName);
+      }
+    }
+    blob_reset(&relName);
+  }
+  db_finalize(&stmt);
+  if(nReset>0){
+    if(bIsAdd==0){
+      if(bDryRun==0){
+        db_exec_sql("UPDATE vfile SET deleted=0 WHERE deleted<>0");
+      }
+      fossil_print("Un-removed %d file(s).\n", nReset);
+    }else{
+      if(bDryRun==0){
+        db_exec_sql("DELETE FROM vfile WHERE rid=0");
+      }
+      fossil_print("Un-added %d file(s).\n", nReset);
+    }
+  }
+  db_end_transaction(bDryRun ? 1 : 0);
+}
+
+
+/*
 ** COMMAND: add
 **
 ** Usage: %fossil add ?OPTIONS? FILE1 ?FILE2 ...?
@@ -278,6 +369,15 @@ static int add_files_in_sfile(int vid){
 **                            the comma separated list of glob patterns.
 **    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
+**    --reset                 Reset the ADDED state of a checkout, such
+**                            that all newly-added (but not yet committed)
+**                            files are no longer added. No flags other
+**                            than --verbose and --dry-run may be used
+**                            with --reset.
+**
+** The following options are only valid with --reset:
+**    -v|--verbose            Outputs information about each --reset file.
+**    -n|--dry-run            Display instead of run actions.
 **
 ** See also: addremove, rm
 */
@@ -290,6 +390,15 @@ void add_cmd(void){
   Glob *pIgnore, *pClean;    /* Ignore everything matching the glob patterns */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
   int forceFlag;
+
+  if(0!=find_option("reset",0,0)){
+    int const verboseFlag = find_option("verbose","v",0)!=0;
+    int const dryRunFlag = find_option("dry-run","n",0)!=0;
+    db_must_be_within_tree();
+    verify_all_options();
+    addremove_reset(1, dryRunFlag, verboseFlag);
+    return;
+  }
 
   zCleanFlag = find_option("clean",0,1);
   zIgnoreFlag = find_option("ignore",0,1);
@@ -444,18 +553,32 @@ static void process_files_to_remove(
 **   --hard                  Remove files from the checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
+**   --reset                 Reset the DELETED state of a checkout, such
+**                           that all newly-rm'd (but not yet committed)
+**                           files are no longer removed. No flags other
+**                           than --verbose or --dry-run may be used with
+**                           --reset.
+**   --verbose|-v            Outputs information about each --reset file.
+**                           Only usable with --reset.
 **
 ** See also: addremove, add
 */
 void delete_cmd(void){
   int i;
   int removeFiles;
-  int dryRunFlag;
+  int dryRunFlag = find_option("dry-run","n",0)!=0;
   int softFlag;
   int hardFlag;
   Stmt loop;
 
-  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if(0!=find_option("reset",0,0)){
+    int const verboseFlag = find_option("verbose","v",0)!=0;
+    db_must_be_within_tree();
+    verify_all_options();
+    addremove_reset(0, dryRunFlag, verboseFlag);
+    return;
+  }
+
   softFlag = find_option("soft",0,0)!=0;
   hardFlag = find_option("hard",0,0)!=0;
 
@@ -625,14 +748,22 @@ const char *filename_collation(void){
 **   --clean <CSG>           Also ignore files matching patterns from
 **                           the comma separated list of glob patterns.
 **   -n|--dry-run            If given, display instead of run actions.
+**   --reset                 Reset the ADDED/DELETED state of a checkout,
+**                           such that all newly-added (but not yet committed)
+**                           files are no longer added and all newly-removed
+**                           (but not yet committed) files are no longer
+**                           removed. No flags other than --verbose and
+**                           --dry-run may be used with --reset.
+**   --verbose|-v            Outputs information about each --reset file.
+**                           Only usable with --reset.
 **
 ** See also: add, rm
 */
 void addremove_cmd(void){
   Blob path;
-  const char *zCleanFlag = find_option("clean",0,1);
-  const char *zIgnoreFlag = find_option("ignore",0,1);
-  unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
+  const char *zCleanFlag;
+  const char *zIgnoreFlag;
+  unsigned scanFlags;
   int dryRunFlag = find_option("dry-run","n",0)!=0;
   int n;
   Stmt q;
@@ -644,6 +775,19 @@ void addremove_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+
+  if(0!=find_option("reset",0,0)){
+    int const verboseFlag = find_option("verbose","v",0)!=0;
+    db_must_be_within_tree();
+    verify_all_options();
+    addremove_reset(0, dryRunFlag, verboseFlag);
+    addremove_reset(1, dryRunFlag, verboseFlag);
+    return;
+  }
+
+  zCleanFlag = find_option("clean",0,1);
+  zIgnoreFlag = find_option("ignore",0,1);
+  scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -712,7 +856,6 @@ void addremove_cmd(void){
 
   db_end_transaction(dryRunFlag);
 }
-
 
 /*
 ** Rename a single file.
