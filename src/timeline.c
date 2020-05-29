@@ -3026,7 +3026,7 @@ void thisdayinhistory_page(void){
   z = db_text(0, "SELECT date(%Q,'+1 day')", zToday);
   style_submenu_element("Tomorrow", "%R/thisdayinhistory?today=%t", z);
   zStartOfProject = db_text(0,
-      "SELECT datetime(min(mtime),toLocal()) FROM event;"
+      "SELECT datetime(min(mtime),toLocal(),'startofday') FROM event;"
   );
   timeline_temp_table();
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
