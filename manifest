@@ -1,5 +1,5 @@
-C Merged\suuid-to-hash\sbranch\sdown,\scausing\sall\spublic\sinterfaces\sexcept\nfor\sthose\sexceptions\snow\sdocumented\sin\swww/hashes.md\sto\suse\ssomething\nother\sthan\s"UUID"\sto\smean\s"artifact\shash"\sor\sone\sof\sits\smore\sspecific\nderivative\sterms.\s\s(e.g.\sCommit\sID)
-D 2020-05-28T19:52:15.220
+C Remove\san\sincorrect\sforeign\skey\sfrom\sthe\smlink\stable.\nMany\sof\sthe\sother\sforeign\skeys\sare\ssyntactically\scorrect,\sbut\sFossil\suses\nnumeric\s0\sinstead\sof\sNULL\sto\smean\s"no\sreference",\swhich\sis\ssemantically\swrong.\nWe\sshould\stry\sto\sfix\sthat\sat\ssome\spoint,\sperhaps.\s\sOr\senhance\sSQLite\sso\sthat\nit\sis\sable\sto\sinterpret\s0\svalues\son\sa\sFK\sreference\sto\san\sINTEGER\sPRIMARY\sKEY\nas\sif\sit\swere\sa\sNULL,\sas\san\soption.\s\sMaybe.
+D 2020-05-29T10:32:04.427
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -563,7 +563,7 @@ F src/repolist.c 42df2ab648579b2ea73e7dd3acac98f153028e3a147f4b0126971ca04736e3d
 F src/report.c 704b3e977254ecda6277efd9adea99a1c88ecdff82ca2b3fa24254800228bbf8
 F src/rss.c fbf9195ef17d9bb908cd8dd21b7303dfbea9b062ab30d836854432cc4c250031
 F src/sbsdiff.js 2039eb0d68d9a330b94415419186a29baccbe900e03b540b6c8503e775feff36
-F src/schema.c defb4b33333e8c23f5caf751b8e40373f19e08a211329de0e07a7bab85cbab89
+F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 711d196bbb708e177e18b5473ad180c8141b14731b7e94292db0cdcba0e8ad85
 F src/security_audit.c 6817ea33c2ab956e8c1f58d8673c6039a012d7771f1678d829fe057c8803c637
@@ -993,8 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d808c4d0c71b5e1b428aecb9c9f1f69cd67b0c6fb131cd9fcbcccd131e4fb8a df5201950e3db280394bb9a39f09ec287de8009723c9523bd445862ef4266073
-R dc15e186b56aec2e47a3cc303fd0b595
-T +closed df5201950e3db280394bb9a39f09ec287de8009723c9523bd445862ef4266073
-U wyoung
-Z b6407a647ba8b19df2e9a91b4269f280
+P 8ad5e4690854a81a4666fa67a6b2d4b0790d0a6b488e87926649a11a7adee4d1
+R b776325f48783c5ff243a0c571dea474
+U drh
+Z 9c382c06fb1725450b647940e29f52b7

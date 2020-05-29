@@ -268,7 +268,7 @@ const char zRepositorySchema2[] =
 @   pmid INTEGER,                      -- Check-in that contains pid
 @   pid INTEGER,                       -- Prev file content. 0 if new. -1 merge
 @   fnid INTEGER REFERENCES filename,  -- Name of the file
-@   pfnid INTEGER REFERENCES filename, -- Previous name. 0 if unchanged
+@   pfnid INTEGER,                     -- Previous name. 0 if unchanged
 @   mperm INTEGER,                     -- File permissions.  1==exec
 @   isaux BOOLEAN DEFAULT 0            -- TRUE if pmid is the primary
 @ );
