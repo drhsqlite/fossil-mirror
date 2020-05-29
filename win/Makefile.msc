@@ -548,6 +548,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\accordion.js \
         $(SRCDIR)\ci_edit.js \
         $(SRCDIR)\copybtn.js \
+        $(SRCDIR)\default.css \
         $(SRCDIR)\diff.tcl \
         $(SRCDIR)\forum.js \
         $(SRCDIR)\fossil.bootstrap.js \
@@ -965,9 +966,6 @@ mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
 mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) $**
 
-mkcss$E: $(SRCDIR)\mkcss.c
-	$(BCC) $**
-
 codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
@@ -1005,9 +1003,6 @@ VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 	$(TCC) /Fo$@ /c $**
 
-default_css.h: mkcss$E $(SRCDIR)\default_css.txt
-	$** $@
-
 page_index.h: mkindex$E $(SRC)
 	$** > $@
 
@@ -1037,8 +1032,6 @@ realclean: clean
 	-del makeheaders$P 2>NUL
 	-del mkversion$E 2>NUL
 	-del mkversion$P 2>NUL
-	-del mkcss$E 2>NUL
-	-del mkcss$P 2>NUL
 	-del codecheck1$E 2>NUL
 	-del codecheck1$P 2>NUL
 	-del mkbuiltin$E 2>NUL
@@ -1915,7 +1908,7 @@ zip_.c : $(SRCDIR)\zip.c
 fossil.res : $B\win\fossil.rc
 	$(RCC)  /fo $@ $**
 
-headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
+headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 	makeheaders$E add_.c:add.h \
 			alerts_.c:alerts.h \
 			allrepo_.c:allrepo.h \

@@ -990,29 +990,6 @@ void style_sidebox_end(void){
 }
 
 /*
-** Insert the cssDefaultList[] table, generated from default_css.txt
-** using the mkcss.c program.
-*/
-#include "default_css.h"
-
-/*
-** Append all of the default CSS to the CGI output.
-*/
-void cgi_append_default_css(void) {
-  int i;
-
-  cgi_printf("%s", builtin_text("skins/default/css.txt"));
-  for( i=0; cssDefaultList[i].elementClass; i++ ){
-    if( cssDefaultList[i].elementClass[0] ){
-      cgi_printf("%s {\n%s\n}\n\n",
-                 cssDefaultList[i].elementClass,
-                 cssDefaultList[i].value
-                );
-    }
-  }
-}
-
-/*
 ** Search string zCss for zSelector.
 **
 ** Return true if found.  Return false if not found
@@ -1079,6 +1056,44 @@ void page_script_js(void){
 }
 
 /*
+** If one of the "name" or "page" URL parameters (in that order)
+** is set then this function looks for page/page group-specific
+** CSS and (if found) appends it to pOut, else it is a no-op.
+*/
+static void page_style_css_append_page_style(Blob *pOut){
+  const char *zPage = PD("name",P("page"));
+  char * zFile;
+  int nFile = 0;
+  const char *zBuiltin;
+
+  if(zPage==0 || zPage[0]==0){
+    return;
+  }
+  zFile = mprintf("style.%s.css", zPage);
+  zBuiltin = (const char *)builtin_file(zFile, &nFile);
+  if(nFile>0){
+    blob_appendf(pOut,
+      "\n/***********************************************************\n"
+      "** Start of page-specific CSS for page %s...\n"
+      "***********************************************************/\n",
+      zPage);
+    blob_append(pOut, zBuiltin, nFile);
+    blob_appendf(pOut,
+      "\n/***********************************************************\n"
+      "** End of page-specific CSS for page %s.\n"
+      "***********************************************************/\n",
+      zPage);
+    fossil_free(zFile);
+    return;
+  }
+  /* Potential TODO: check for aliases/page groups. e.g. group all
+  ** /forumXYZ CSS into one file, all /setupXYZ into another, etc. As
+  ** of this writing, doing so would only shave a few kb from
+  ** default.css. */
+  fossil_free(zFile);
+}
+
+/*
 ** WEBPAGE: style.css
 **
 ** Return the style sheet.
@@ -1086,41 +1101,14 @@ void page_script_js(void){
 void page_style_css(void){
   Blob css = empty_blob;
   int i;
-  const char *zPage = PD("name",P("page"));
 
   cgi_set_content_type("text/css");
   /* Emit all default rules... */
-  for(i=1; cssDefaultList[i].elementClass; i++){
-    blob_appendf(&css, "%s {\n%s}\n",
-                 cssDefaultList[i].elementClass,
-                 cssDefaultList[i].value);
+  {
+    const char * zDefaults = (const char*)builtin_file("default.css", &i);
+    blob_append(&css, zDefaults, i);
   }
-  blob_append(&css,
-    "\n/***********************************************************\n"
-    "** All CSS above is generated automatically by Fossil to\n"
-    "** provide default rule implementations which the \"skin\"\n"
-    "** may cascade.\n"
-    "***********************************************************/\n",
-    -1);
-  if(zPage!=0 && zPage[0]!=0){
-    char * zFile = mprintf("style.%s.css", zPage);
-    int nFile = 0;
-    const char *zBuiltin = (const char *)builtin_file(zFile, &nFile);
-    if(nFile>0){
-      blob_appendf(&css,
-        "\n/***********************************************************\n"
-        "** Start of page-specific CSS for page %s...\n"
-        "***********************************************************/\n",
-        zPage);
-      blob_append(&css, zBuiltin, nFile);
-      blob_appendf(&css,
-        "\n/***********************************************************\n"
-        "** End of page-specific CSS for page %s.\n"
-        "***********************************************************/\n",
-        zPage);
-    }
-    fossil_free(zFile);
-  }
+  page_style_css_append_page_style(&css);
   blob_append(&css,
      "\n/***********************************************************\n"
      "** All CSS which follows is supplied by the repository \"skin\".\n"

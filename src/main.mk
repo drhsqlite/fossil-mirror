@@ -219,6 +219,7 @@ EXTRA_FILES = \
   $(SRCDIR)/accordion.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
+  $(SRCDIR)/default.css \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
@@ -573,9 +574,6 @@ $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
-$(OBJDIR)/mkcss:	$(SRCDIR)/mkcss.c
-	$(XBCC) -o $(OBJDIR)/mkcss $(SRCDIR)/mkcss.c
-
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
@@ -597,9 +595,6 @@ test:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
-
-$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
-	$(OBJDIR)/mkcss $(SRCDIR)/default_css.txt $(OBJDIR)/default_css.h
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
@@ -742,7 +737,7 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
 	$(OBJDIR)/mkbuiltin --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 	$(OBJDIR)/alerts_.c:$(OBJDIR)/alerts.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
@@ -1807,7 +1802,7 @@ $(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/style.c >$@
 
-$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(OBJDIR)/default_css.h $(SRCDIR)/config.h
+$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/style.o -c $(OBJDIR)/style_.c
 
 $(OBJDIR)/style.h:	$(OBJDIR)/headers
