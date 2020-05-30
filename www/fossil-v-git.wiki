@@ -42,18 +42,18 @@ with further description in the text that follows.
     <td><a href="#features">2.1&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Sprawling, incoherent, and inefficient</td>
+    <td>Sprawling and inefficient</td>
     <td>Self-contained and efficient</td>
     <td><a href="#efficient">2.2&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Ad-hoc pile-of-files key/value database</td>
+    <td>One-off custom pile-of-files data store</td>
     <td>[https://sqlite.org/famous.html|The most popular database in the world]</td>
     <td><a href="#durable">2.3&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Portable to POSIX systems only</td>
-    <td>Runs just about anywhere</td>
+    <td>Runs natively on POSIX systems only</td>
+    <td>Native on all common desktop platforms</td>
     <td><a href="#portable">2.4&nbsp;&darr;</a></td>
 </tr>
 <tr>
