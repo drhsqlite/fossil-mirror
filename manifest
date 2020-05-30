@@ -1,5 +1,5 @@
-C Merged\sin\sUUID-renaming\schanges\sfrom\strunk.
-D 2020-05-30T19:32:34.926
+C Distinguish\slocal-changes\sfrom\schanges\sfrom\sa\smerge.
+D 2020-05-30T22:22:12.624
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -505,7 +505,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 2b0bf07b9e6cc0e9f0766844ca5259c0fb16a51858ca826aee4df421adc5f67c
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 9869461c225c78f5fa51b57735032df7f74cbfceb3bea99a5541c1f4f9f12204
-F src/info.c b7b5c92b50263b901d6503297d47928a0887a86589e8027adab23e89cea33bbf
+F src/info.c 921bb9a86d8a91a24eee8df73d43c59ee6feee7c9debb8396ae0aa74327fd747
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc56945ea4fe42e4d903f4a6e8e38a55c49a5980c5a13ab9bae771d4cbbc9515 6c04e42f7614ee22ded26a31aa2798aa641e2bca71061578c62c6ad6aa9a95cd
-R 57bdd619ece7cbb861372c69485d28c4
+P 1fd9acb97c6dc73a56cda356b5bb5e5a89e18a5f7915b242a54252f3905ebe1d
+R 62f2056654e7646f44076aecd51bcd2c
 U graham
-Z 7b791c67c1b6d90508c68297a2a529e7
+Z 0ca9f03e9655236144704ce4c7d08dd9

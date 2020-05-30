@@ -1,4 +1,5 @@
 /*TODO
+** o  Have seen some "MERGE" entries and updated messages: still not 100% happy.
 ** o  Should /file behave differently for non-existent local files?
 ** o  Look at adding an "extras" option (non-added, non-ignored files).
 ** o  Find a place to add links to /local.
@@ -577,7 +578,7 @@ if( strncmp(zName,"aa",2)==0 ){
         @ Added %h(zName) due to a merge.
         break;
       case 5:
-        @ Added %h(zName) due to an integration merge.
+        @ Added %h(zName) due to an integrate-merge.
         break;
       case 6:   append_status( "gained", "executable", zName, zOld);    break;
       case 7:   append_status( "gained", "symlink",    zName, zOld);    break;
@@ -585,7 +586,18 @@ if( strncmp(zName,"aa",2)==0 ){
       case 9:   append_status(   "lost", "symlink",    zName, zOld);    break;
 
       default: /* Normal edit */
-        @ Local changes of %h(zName).
+        switch( isChnged ){
+          case 1:
+            @ Local changes
+            break;
+          case 2:
+            @ Merge
+            break;
+          case 4:
+            @ Integrate-merge
+            break;
+        }
+        @ of %h(zName).
         //TODO:Remove? showDiff = 1;
     }
     if( showDiff && diffFlags ){
@@ -619,7 +631,7 @@ if( strncmp(zName,"aa",2)==0 ){
         break;
       case 5:                             /* Added by an integration merge */
         @ Added
-        @ %z(href("%R/file/%T?ci=ckout&annot=added by integration merge",zName))
+        @ %z(href("%R/file/%T?ci=ckout&annot=added by integration-merge",zName))
         @ %h(zName)</a> to
         @ %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> due to integrate merge.
         break;
@@ -629,8 +641,18 @@ if( strncmp(zName,"aa",2)==0 ){
       case 9:   append_status(   "lost", "symlink",    zName, zOld);    break;
 
       default: /* Normal edit */
-        @ Local changes of
-        @ %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
+        switch( isChnged ){
+          case 1:
+            @ Local changes
+            break;
+          case 2:
+            @ Merge
+            break;
+          case 4:
+            @ Integrate-merge
+            break;
+        }
+        @ of %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> to
         @ %z(href("%R/file/%T?ci=ckout&annot=edited locally",zName))
         @ [local file]</a>
