@@ -1,16 +1,12 @@
 /*TODO
 ** o  Should /file behave differently for non-existent local files?
 ** o  Look at adding an "extras" option (non-added, non-ignored files).
-** o  Look at sifting out "one line" differences from those with "diff blocks".
-**    Perhaps reset the query and re-run, displaying only non-diff entries the
-**    first time? Or perhaps buffer the output (probably bad idea).
-** o  If I keep the extra <hr/> I've added after a diff-block, is there a way
-**    to avoid the double <hr/> if the last entry has a diff-block?
 ** o  Find a place to add links to /local.
 ** o  Remove //TODO TESTING HACK TODO
 ** ?? In hexdump_page(), should content (and downloadName?) be reset/freed?
 ** ?? In the test fossil (\x\$Test\Fossil) there are (at time of writing) two
 **    commits under the same artifact... is this normal?
+** ?? A settings entry to control one- or two-pass mode?
 */
 /*
 ** Copyright (c) 2007 D. Richard Hipp
@@ -506,25 +502,62 @@ static void append_local_file_change_line(
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   int isDeleted,        /* Has the file-on-disk been removed from Fossil? */
   int isChnged,         /* Has the file changed in some way (see vfile.c) */
-  int isNew,            /* Has the file been ADDed (but not yet committed? */
+  int isNew,            /* Has the file been ADDed but not yet committed? */
   int isLink,           /* Is the file a symbolic link? */
   u64 diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
-  ReCompiled *pRe       /* Only show diffs that match this regex, if not NULL */
+  ReCompiled *pRe,      /* Only show diffs that match this regex, if not NULL */
+  int pass              /* 0x01 - Display single-line entries only        */
+                        /* 0x02 - Display entries with "diff blocks" only */
+                        /* 0x03 - Display both                            */
 ){
+#ifndef GLH_NO_DIVIDER
+  /* This remembers whether a side-by-side "diff-block" was shown the last
+  ** time through. If it was, we will add "<hr/>" to better separate the
+  ** blocks and so single-line entries (when not in two-pass mode) are easier
+  ** to spot.
+  */
+  static int diffShownLastTime = 0;
+#endif
   char *zFullName = mprintf("%s%s", g.zLocalRoot, zName);
   int isFilePresent = !file_access(zFullName, F_OK);
-  int showDiff = 0;
-//TODO TESTING HACK TODO
+  /* Determing up-front whether we would be showing a "diff-block" so we can
+  ** filter them according to which pass we are on: the first pass will show
+  ** only the "single-line" entries; the second will show only those with
+  ** diff-blocks. In single-pass mode (the original way), 'pass' will be "3",
+  ** so all entries are shown in their original order.
+  */
+  int showDiff = (  isDeleted && isFilePresent )
+              || ( !isDeleted && !isNew && ( ( isChnged == 1 )
+                                          || ( isChnged == 2 )
+                                          || ( isChnged == 4 )
+                                           )
+                 );
+  /* We don't use 'diffFlags' in these tests so that whether "Hide diffs" is
+  ** in effect or not, the order won't change.
+  */
+  if(  showDiff && (pass == 1) ){ return; } /* Don't do diff on pass 1 of 2 */
+  if( !showDiff && (pass == 2) ){ return; } /* Don't do line on pass 2 of 2 */
+#ifndef GLH_NO_DIVIDER
+  /* If a SBS diff-block was shown by the previous entry, add a divider */
+  if( diffShownLastTime && (diffFlags & DIFF_SIDEBYSIDE) ){
+    @ <hr/>
+  }
+  /* Record whether we will be showing a diff-block this time. We DO factor in
+  ** 'diffFlags' here so that in "Hide diffs" mode, we don't get extra lines.
+  */
+  diffShownLastTime = showDiff && diffFlags;
+#endif /*GLH_NO_DIVIDER*/
+//--------------------------------------------------- TODO TESTING HACK TODO
 if( strncmp(zName,"aa",2)==0 ){
   isChnged = atoi(zName+2);
 }
-//TODO TESTING HACK TODO
+//--------------------------------------------------- TODO TESTING HACK TODO
   @ <p>
   if( !g.perm.Hyperlink ){
     if( isDeleted ){
       if( isFilePresent ){
         @ Deleted %h(zName) (still present as a local file).
-        showDiff = 1;
+        //TODO:Remove? showDiff = 1;
       }else{
         @ Deleted %h(zName).
       }
@@ -553,20 +586,19 @@ if( strncmp(zName,"aa",2)==0 ){
 
       default: /* Normal edit */
         @ Local changes of %h(zName).
-        showDiff = 1;
+        //TODO:Remove? showDiff = 1;
     }
     if( showDiff && diffFlags ){
       append_diff(zOld, NULL, zName, diffFlags, pRe);
-      @ <hr/>
     }
-  }else{
+  }else{ /* With hyperlinks */
     if( isDeleted ){
       if( isFilePresent ){                    /* DELETEd but still on disk */
         @ Deleted %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> (still present
         @ as %z(href("%R/file/%T?ci=ckout&annot=removed from checkout",zName))
         @ [local file]</a>).
-        showDiff = 1;
+        //TODO:Remove? showDiff = 1;
       }else{                              /* DELETEd and deleted from disk */
         @ Deleted %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
@@ -602,21 +634,11 @@ if( strncmp(zName,"aa",2)==0 ){
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> to
         @ %z(href("%R/file/%T?ci=ckout&annot=edited locally",zName))
         @ [local file]</a>
-        showDiff = 1;
+        //TODO:Remove? showDiff = 1;
     }
     if( showDiff ){
       if( diffFlags ){
         append_diff(zOld, NULL, zName, diffFlags, pRe);
-        /*TODO
-        ** Not related to the local-mode, but if two or more files have been
-        ** changed in a commit/"local changes", it is sometimes easy to miss
-        ** the switch from one to the other. The following (IMHO) makes things
-        ** clearer, but can mean there's a double rule at the bottom of the
-        ** page. If kept, a similar <hr/> should probably be added to
-        ** append_file_change_line() (but would need to check how things look
-        ** when called from /vinfo).
-        */
-        @ <hr/>
       }else if( isChnged ){
         @ &nbsp;&nbsp;
         @ %z(href("%R/localdiff?name=%T",zName))[diff]</a>
@@ -1149,6 +1171,9 @@ void ci_page(void){
     @ are shown.</b></p>
   }
   if( bLocalMode ){
+//--------------------------------------------------- TODO TESTING HACK TODO
+    int bTwoPass = P("op")==NULL;
+//--------------------------------------------------- TODO TESTING HACK TODO
     /* Following SQL taken from diff_against_disk() in diffcmd.c */
     db_begin_transaction();
     db_prepare(&q3,
@@ -1163,27 +1188,40 @@ void ci_page(void){
     **      checkout directory that have not been ADDed). If done, they should
     **      be ahead of any potential "diff-blocks" so they don't get lost
     **      (which is the inspiration for...)
-    ** TODO Consider making this two-pass, where the first pass skips anything
-    **      that would show a diff-block (and the second pass only shows such
-    **      entries). This would group all "one-line" entries at the top so
-    **      they are less likely to be missed.
     ** TODO Possibly (at some stage) have an option to commit?
     */
-    while( db_step(&q3)==SQLITE_ROW ){
-      const char *zPathname = db_column_text(&q3,0);
-      int isDeleted = db_column_int(&q3, 1);
-      int isChnged = db_column_int(&q3,2);
-      int isNew = db_column_int(&q3,3);
-      int srcid = db_column_int(&q3, 4);
-      int isLink = db_column_int(&q3, 5);
-      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", srcid);
-      append_local_file_change_line(zPathname, zUuid,
-                        isDeleted, isChnged, isNew, isLink, diffFlags,pRe);
-      free(zUuid);
-    }
-    db_finalize(&q3);
+    /* To prevent single-line diff-entries (those without "diff-blocks") from
+    ** getting "lost", there's an optional "two-pass" mode for processing
+    ** differences. If enabled, the first pass will only show one-line entries
+    ** and the second pass will only show those with diff-blocks. This has the
+    ** side-effect of altering the order entries are shown in (but within each
+    ** group the original order is maintained).
+    **
+    ** If disabled, (pass gets set to 3), only one pass is made on which all
+    ** entries are shown in their "normal" order.
+    **TODO
+    ** Add this to the original (non-local) loop?
+    */
+    int pass = bTwoPass?1:3;
+    do{
+      while( db_step(&q3)==SQLITE_ROW ){
+        const char *zPathname = db_column_text(&q3,0);
+        int isDeleted = db_column_int(&q3, 1);
+        int isChnged = db_column_int(&q3,2);
+        int isNew = db_column_int(&q3,3);
+        int srcid = db_column_int(&q3, 4);
+        int isLink = db_column_int(&q3, 5);
+        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", srcid);
+        append_local_file_change_line(zPathname, zUuid,
+                        isDeleted, isChnged, isNew, isLink, diffFlags,pRe,pass);
+        free(zUuid);
+      }
+      db_reset(&q3);
+    }while( ++pass < 3 ); /* Either "1, 2, stop" or "3, stop". */
+    db_finalize(&q3); /*TODO: Is this needed if we're reseting? */
     db_end_transaction(1);  /* ROLLBACK */
   }else{ /* Normal, non-local-mode: show diffs against parent */
+    /*TODO: Implement the optional two-pass code? */
     db_prepare(&q3,
       "SELECT name,"
       "       mperm,"

@@ -1,5 +1,5 @@
-C Initial\simplementation\sto\sshow\s"local\s(uncommitted)\schanges"\sin\sFossil's\sUI.\sNot\syet\stested\sto\sdestruction,\sbut\sfails\sno\smore\serrors\sin\sthe\stest-suite\sthan\strunk.\sCurrently\sthere\sare\sno\slinks\sto\sthe\snew\spage:\smanually\snavigate\sto\s"/local"\s(a\svariant\sof\sthe\s"/ci"\spage).
-D 2020-05-28T21:39:14.026
+C Make\stwo\spasses\sthrough\slist\sof\slocal\schanges\sso\sall\s"one-line"\sentries\sare\slisted\sfirst.
+D 2020-05-30T16:15:37.352
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -505,7 +505,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 2b0bf07b9e6cc0e9f0766844ca5259c0fb16a51858ca826aee4df421adc5f67c
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c 4b37c3f15efac75701a1b581f673f48be549470a861cb7aec88b8aba67e1e7b6
+F src/info.c b3ba169d4e3426d2e79a75054230a0e34fe240b013a1e03e25a3d7fe76fbad02
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6ab947e1e8f51a969aa5ff7bb8a7bbde6baf9927c1accda6622fef38311e65b
-R 553a170b2fc61b3db39d8d3b102e395e
+P ccebe22576d1b607d428a376067ce6e7c5db4023dfda6a0751e904a201761854
+R a8295b54a8ea0ea6253885609d55071e
 U graham
-Z a4f5d4283c109b6b86b01f560e3c85e1
+Z e8dc603d844f972a7197de2fcec68a3e
