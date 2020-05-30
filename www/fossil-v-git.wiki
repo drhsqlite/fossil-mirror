@@ -53,7 +53,7 @@ with further description in the text that follows.
 </tr>
 <tr>
     <td>Runs natively on POSIX systems only</td>
-    <td>Native on all common desktop platforms</td>
+    <td>Native on common desktop & server platforms</td>
     <td><a href="#portable">2.4&nbsp;&darr;</a></td>
 </tr>
 <tr>

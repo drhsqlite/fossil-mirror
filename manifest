@@ -1,5 +1,5 @@
-C Small\sadjustments\sto\sthe\sterminology\sin\sthe\ssummary\stable\sat\sthe\stop\sof\nfossil-v-git.wiki.
-D 2020-05-30T16:39:57.479
+C Added\s"&\sserver"\sto\sthe\s"native"\srow\sin\sthe\scharacterization\stable\sat\nthe\stop\sof\sfossil-v-git.wiki.
+D 2020-05-30T16:51:50.484
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -873,7 +873,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 98848f28f395488f87bc69a8a7afaa889a8f753c9d302915259cb67cf5f3d067
+F www/fossil-v-git.wiki 5e602fe785230eaa3a487359a28eb5f450fabdac301e34a7116b4a30932e5588
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 018db17c5442635a1b1e53e7498e9f1cdd5af7fedf9fd22acc732c8210181192
-R 5858777cf9c3542652ffa07a8d4002fe
+P 38850c03f42d34689c3a6d8f593cefa607259e25f16d7e9249889dad855e24e1
+R 6c99036de9ae616dca4ac516f15cf0bc
 U wyoung
-Z a683a7f73925c89e0c4a93ffdfafe5f4
+Z ba311caf3ab0f8753328c025d009a351
