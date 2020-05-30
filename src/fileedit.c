@@ -890,7 +890,7 @@ void test_ci_mini_cmd(void){
 ** If the fileedit-glob setting has a value, this returns its Glob
 ** object (in memory owned by this function), else it returns NULL.
 */
-static Glob * fileedit_glob(void){
+Glob *fileedit_glob(void){
   static Glob * pGlobs = 0;
   static int once = 0;
   if(0==pGlobs && once==0){
@@ -989,7 +989,7 @@ static void fileedit_render_preview(Blob * pContent,
         CX("<pre><code class='language-%s'>%h</code></pre>",
            zExt+1, zContent);
       }else{
-        CX("<pre>%h</pre>", zExt+1, zContent);
+        CX("<pre>%h</pre>", zContent);
       }
       break;
     }
@@ -1715,9 +1715,9 @@ static void fileedit_ajax_commit(void){
     CX(",\"manifest\": %!j", blob_str(&manifest));
   }
   CX("}");
+end_cleanup:
   db_end_transaction(0/*noting that dry-run mode will have already
                       ** set this to rollback mode. */);
-end_cleanup:
   fossil_free(zNewUuid);
   blob_reset(&err);
   blob_reset(&manifest);
@@ -1767,9 +1767,47 @@ void fileedit_page(void){
                                            function call, thus each
                                            entry must end with a
                                            semicolon. */
-  const char *zAjax = P("name");
+  const char *zAjax = P("name");        /* Name of AJAX route for
+                                           sub-dispatching. */
 
-  if(0!=zAjax){
+  /* Allow no access to this page without check-in privilege */
+  login_check_credentials();
+  if( !g.perm.Write ){
+    if(zAjax!=0){
+      fileedit_ajax_error(403, "Write permissions required.");
+    }else{
+      login_needed(g.anon.Write);
+    }
+    return;
+  }
+  /* No access to anything on this page if the fileedit-glob is empty */
+  if( fileedit_glob()==0 ){
+    if(zAjax!=0){
+      fileedit_ajax_error(403, "Online editing is disabled for this "
+                          "repository.");
+      return;
+    }
+    style_header("File Editor (disabled)");
+    CX("<h1>Online File Editing Is Disabled</h1>\n");
+    if( g.perm.Admin ){
+      CX("<p>To enable online editing, the "
+         "<a href='%R/setup_settings'>"
+         "<code>fileedit-glob</code> repository setting</a>\n"
+         "must be set to a comma- and/or newine-delimited list of glob\n"
+         "values matching files which may be edited online."
+         "</p>\n");
+    }else{
+      CX("<p>Online editing is disabled for this repository.</p>\n");
+    }
+    style_footer();
+    return;
+  }
+
+  /* Dispatch AJAX methods based tail of the request URI.
+  ** The AJAX parts do their own permissions/CSRF check and
+  ** fail with a JSON-format response if needed.
+  */
+  if( 0!=zAjax ){
     if(0==strcmp("content",zAjax)){
       fileedit_ajax_content();
     }else if(0==strcmp("preview",zAjax)){
@@ -1785,17 +1823,14 @@ void fileedit_page(void){
     }
     return;
   }
-  login_check_credentials();
-  if( !g.perm.Write ){
-    login_needed(g.anon.Write);
-    return;
-  }
+
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
   style_header("File Editor");
   /* As of this point, don't use return or fossil_fatal(). Write any
   ** error in (&err) and goto end_footer instead so that we can be
-  ** sure to do any cleanup and end the transaction cleanly.
+  ** sure to emit the error message, do any cleanup, and end the
+  ** transaction cleanly.
   */
   {
     int isMissingArg = 0;
@@ -1807,7 +1842,7 @@ void fileedit_page(void){
       zFileMime = mimetype_from_name(cimi.zFilename);
     }else if(isMissingArg!=0){
       /* Squelch these startup warnings - they're non-fatal now but
-      ** used to be. */
+      ** used to be fatal. */
       blob_reset(&err);
     }
   }
@@ -1831,14 +1866,6 @@ void fileedit_page(void){
     style_emit_script_tag(0,0);
     CX("document.body.classList.add('fileedit');\n");
     style_emit_script_tag(1,0);
-  }
-
-  if(fileedit_glob()==0){
-    CX("<div class='error'>To enable online editing, the "
-       "<code>fileedit-glob</code> repository setting must be set to a "
-       "comma- or newine-delimited list of glob values matching files "
-       "which may be edited online."
-       "</div>");
   }
   
   /* Status bar */

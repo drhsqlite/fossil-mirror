@@ -2,45 +2,45 @@
 
 All artifacts in Fossil are identified by a unique hash, currently using
 [the SHA3 algorithm by default][hpol], but historically using the SHA1
-algorithm. Therefore, there are two full-length hash formats used by
-Fossil:
+algorithm:
 
-| Algorithm | Raw Bits | Hex ASCII Bytes |
-|-----------|----------|-----------------|
-| SHA3-256  | 256      | 64              |
-| SHA1      | 160      | 40              |
+<table border="1" cellspacing="0" cellpadding="10">
+<tr><th>Algorithm<</th><th>Raw Bits</th> <th>Hexadecimal digits</th></tr>
+<tr><td>SHA3-256</td>  <td>256</td>      <td>64</td></tr>
+<tr><td>SHA1</td>      <td>160</td>      <td>40</td></tr>
+</table>
 
 There are many types of artifacts in Fossil: commits (a.k.a. check-ins),
 tickets, ticket comments, wiki articles, forum postings, file data
 belonging to check-ins, etc. ([More info...](./concepts.wiki#artifacts)).
 
 There is a loose hierarchy of terms used instead of “hash” in various
-parts of the Fossil UI, terms we try to use consistently, though we have
-not always succeeded. We cover each of those terms in the sections
-below.
+parts of the Fossil UI, which we cover in the sections below.
 
 
 ## Names
 
 Several Fossil interfaces accept [a wide variety of check-in
 names][cin]: commit artifact hashes, ISO8601 date strings, branch names,
-etc.
+etc. Fossil interfaces that accept any of these options usually
+document the parameter as “NAME”, so we will use that form to refer to
+this specialized use.
 
-Artifact hashes are names, but not all names are artifact hashes. We use
-the broader term to refer to the whole class of options, and we use the
-specific terms when we mean one particular type of name.
+Artifact hashes are only one of many different types of NAME.  We use
+the broad term “NAME” to refer to the whole class of options. We use
+more specific terms when we mean one particular type of NAME.
 
 
 ## Versions
 
 When an artifact hash refers to a specific commit, Fossil sometimes
-calls it a “VERSION,” a “commit ID,” or a “check-in ID.” This is a
-specific type of artifact hash, distinct from, let us say, a wiki
-article artifact hash.
-
+calls it a “VERSION,” a “commit ID,” or a “check-in ID.”
 We may eventually settle on one of these terms, but all three are
 currently in common use within Fossil’s docs, UI, and programming
 interfaces.
+
+A VERSION is a specific type of artifact hash, distinct
+from, let us say, a wiki article artifact hash.
 
 A unique prefix of a VERSION hash is itself a VERSION. That is, if your
 repository has exactly one commit artifact with a hash prefix of
@@ -49,81 +49,88 @@ unambiguous.
 
 
 
-## <a id="uvh"></a>UUIDs: An Unfortunate Historical Artifact
+## <a id="uvh"></a>UUIDs
 
-Historically, Fossil incorrectly used the term “[UUID][uuid]” where it
-should use the term “artifact hash” instead. There are two primary
-problems with miscalling Fossil artifact hashes UUIDs:
+Fossil uses the term “UUID” as a short alias for “artifact hash” in its
+internals. There are a few places where this leaks out into external
+interfaces, which we cover in the sections below. Going forward, we
+prefer one of the terms above in public interfaces instead.
 
-1. UUIDs are always 128 bits in length — 32 hex ASCII bytes — making
-   them shorter than any actual Fossil artifact hash.
+Whether this short alias is correct is debateable.
 
-2. Artifact hashes are necessarily highly pseudorandom blobs, but only
-   [version 4 UUIDs][v4] are pseudorandom in the same way. Other UUID
-   types have non-random meanings for certain subgroups of the bits,
-   restrictions that Fossil artifact hashes do not meet.
+One argument is that since "UUID" is an acronym for “Univerially Unique
+Identifier,” and both SHA1 and SHA3-256 are larger and stronger than the
+128-bit algorithms used by “proper” UUIDs, Fossil artifact hashes are
+*more universally unique*. It is therefore quibbling to say that Fossil
+UUIDs are not actually UUIDs. One wag suggested that Fossil artifact
+hashes be called MUIDs: multiversally unique IDs.
 
-Therefore, no Fossil hash can ever be a proper UUID.
+The common counterargument is that the acronym “UUID” was created for [a
+particular type of universally-unique ID][uuid], with particular ASCII
+and bitfield formats, and with particular meaning given to certain of
+its bits. In that sense, no Fossil “UUID” can be used as a proper UUID.
 
-Nevertheless, there are several places in Fossil where we still use the
-term UUID, primarily for backwards compatibility:
+Be warned: attempting to advance the second position on the Fossil
+discussion forum will get you nowhere at this late date. We’ve had the
+debates, we’ve done the engineering, and we’ve made our evaluation. It’s
+a settled matter: internally within Fossil, “UUID” is defined as in this
+section’s leading paragraph.
+
+To those who remain unconvinced, “fixing” this would require touching
+almost every source code file in Fossil in a total of about a thousand
+separate locations. (Not exaggeration, actual data.) This would be a
+massive undertaking simply to deal with a small matter of terminology,
+with a high risk of creating bugs and downstream incompatibilities.
+Therefore, we are highly unlikely to change this ourselves, and we are
+also unlikely to accept a patch that attempts to fix it.
 
 
 ### Repository DB Schema
 
-Almost all of these uses flow from the `blob.uuid` table column. This is
-a key lookup column in the most important persistent Fossil DB table, so
-it influences broad swaths of the Fossil internals.
+The primary place where you find "UUID" in Fossil is in the `blob.uuid`
+table column, in code dealing with that column, and in code manipulating
+*other* data that *refers* to that column. This is a key lookup column
+in the most important Fossil DB table, so it influences broad swaths of
+the Fossil internals.
 
-Someday we may rename this column and those it has influenced (e.g.
-`purgeitem.uuid`, `shun.uuid`, and `ticket.tkt_uuid`) by making Fossil
-detect the outdated schema and silently upgrade it, coincident with
-updating all of the SQL in Fossil that refers to these columns. Until
-then, Fossil will continue to have “UUID” all through its internals.
-
-In order to avoid needless terminology conflicts, Fossil code that
-refers to these misnamed columns also uses some variant of “UUID.” For
-example, C code that refers to SQL result data on `blob.uuid` usually
-calls the variable `zUuid`. Another example is the internal function
-`uuid_to_rid()`. Until and unless we decide to rename these DB columns,
-we will keep these associated internal identifiers unchanged.
+For example, C code that refers to SQL result data on `blob.uuid`
+usually calls the variable `zUuid`. That value may then be inserted into
+a table like `ticket.tkt_uuid`, creating a reference back to
+`blob.uuid`, and then be passed to a function like `uuid_to_rid()`.
+There is no point renaming a single one of these in isolation: it would
+create needless terminology conflicts, making the code hard to read and
+understand, risking the creation of new bugs.
 
 You may have local SQL code that digs into the repository DB using these
-column names. If so, be warned: we are not inclined to consider
-existence of such code sufficient reason to avoid renaming the columns.
-The Fossil repository DB schema is not considered an external user
-interface, and internal interfaces are subject to change at any time. We
-suggest switching to a more stable API: the JSON API, `/timeline.rss`,
-TH1, etc.
-
-There are also some temporary tables that misuse “UUID” in this way.
-(`description.uuid`, `timeline.uuid`, `xmark.uuid`, etc.) There’s a good
-chance we’ll fix these before we fix the on-disk DB schema since no
-other code can depend on them.
+column names. While you may rest easy, assured now that we are highly
+unlikely to ever rename these columns, the Fossil repository DB schema
+is not considered an external user interface, and internal interfaces
+are subject to change at any time. We suggest switching to a more stable
+API: [the JSON API][japi], [`timeline.rss`][trss], [TH1][th1], etc.
 
 
 ### TH1 Scripting Interfaces
 
-Some [TH1](./th1.md) interfaces use “UUID” where they actually mean some
-kind of hash. For example, the `$tkt_uuid` variable, available via TH1
-when [customizing Fossil’s ticket system][ctkt].
+Some [TH1][th1] interfaces expose Fossil internals flowing from
+`blob.uuid`, so “UUID” is a short alias for “artifact hash” in TH1.  For
+example, the `$tkt_uuid` variable &mdash; available when [customizing
+the ticket system][ctkt] &mdash; is a ticket artifact hash, exposing the
+`ticket.tkt_uuid` column, which has a SQL relation to `blob.uuid`.
 
-Because this is considered a public programming interface, we are
-unwilling to unilaterally rename such TH1 variables, even though they
-are “wrong.” For now, we are simply documenting the misuse. Later, we
-may provide a parallel interface — e.g. `$tkt_hash` in this case — and
-drop mention of the old interface from the documentation, but still
-support it.
+TH1 is a longstanding public programming interface. We cannot rename its
+interfaces without breaking existing TH1 Fossil customizations. We are
+also unlikely to provide a parallel set of variables with “better”
+names, since that would create a mismatch with respect to the internals
+they expose, creating a different sort of developer confusion in its
+place.
 
 
 ### JSON API Parameters and Outputs
 
-The JSON API frequently misuses the term “UUID” in the same sort of way,
-most commonly in [artifact][jart] and [timeline][jtim] APIs. As with the
-prior case, we can’t fix these without breaking code that uses the JSON
-API as originally designed, so our solutions are the same: document the
-misuse here for now, then possibly provide a backwards-compatible fix
-later.
+[The JSON API][japi] frequently uses the term “UUID” in the same sort of way,
+most commonly in [artifact][jart] and [timeline][jtim] APIs. As with
+TH1, we can’t change this without breaking code that uses the JSON
+API as originally designed, so we take the same stance.
 
 
 ### `manifest.uuid`
@@ -131,15 +138,18 @@ later.
 If you have [the `manifest` setting][mset] enabled, Fossil writes a file
 called `manifest.uuid` at the root of the check-out tree containing the
 commit hash for the current checked-out version. Because this is a
-public interface, we are unwilling to rename the file for correctness.
+public interface that existing code depends on, we are unwilling to
+rename the file.
 
 
 [cin]:  ./checkin_names.wiki
 [ctkt]: ./custom_ticket.wiki
 [hpol]: ./hashpolicy.wiki
+[japi]: ./json-api/
 [jart]: ./json-api/api-artifact.md
 [jtim]: ./json-api/api-timeline.md
 [mset]: /help?cmd=manifest
+[th1]:  ./th1.md
+[trss]: /help?cmd=/timeline.rss
 [tvb]:  ./branching.wiki
 [uuid]: https://en.wikipedia.org/wiki/Universally_unique_identifier
-[v4]:   https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)

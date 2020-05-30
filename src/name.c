@@ -448,13 +448,19 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 }
 
 /*
-** This routine takes a user-entered UUID which might be in mixed
-** case and might only be a prefix of the full UUID and converts it
-** into the full-length UUID in canonical form.
+** This routine takes a user-entered string and tries to convert it to
+** an artifact hash.
 **
-** If the input is not a UUID or a UUID prefix, then try to resolve
+** We first try to treat the string as an artifact hash, or at least a
+** unique prefix of an artifact hash. The input may be in mixed case.
+** If we are passed such a string, this routine has the effect of
+** converting the hash [prefix] to canonical form.
+**
+** If the input is not a hash or a hash prefix, then try to resolve
 ** the name as a tag.  If multiple tags match, pick the latest.
-** If the input name matches "tag:*" then always resolve as a tag.
+** A caller can force this routine to skip the hash case above by
+** prefixing the string with "tag:", a useful property when the tag
+** may be misinterpreted as a hex ASCII string. (e.g. "decade" or "facade")
 **
 ** If the input is not a tag, then try to match it as an ISO-8601 date
 ** string YYYY-MM-DD HH:MM:SS and pick the nearest check-in to that date.
@@ -483,12 +489,12 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
 /*
 ** This routine is similar to name_to_uuid() except in the form it
 ** takes its parameters and returns its value, and in that it does not
-** treat errors as fatal. zName must be a UUID, as described for
-** name_to_uuid(). zType is also as described for that function. If
+** treat errors as fatal. zName must be an artifact hash or prefix of
+** a hash. zType is also as described for name_to_uuid(). If
 ** zName does not resolve, 0 is returned. If it is ambiguous, a
 ** negative value is returned. On success the rid is returned and
 ** pUuid (if it is not NULL) is set to a newly-allocated string,
-** the full UUID, which must eventually be free()d by the caller.
+** the full hash, which must eventually be free()d by the caller.
 */
 int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
   int rid = symbolic_name_to_rid(zName, zType);
@@ -501,8 +507,9 @@ int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
 
 /*
 ** name_collisions searches through events, blobs, and tickets for
-** collisions of a given UUID based on its length on UUIDs no shorter
-** than 4 characters in length.
+** collisions of a given hash based on its length, counting only
+** hashes greater than or equal to 4 hex ASCII characters (16 bits)
+** in length.
 */
 int name_collisions(const char *zName){
   int c = 0;         /* count of collisions for zName */
@@ -635,7 +642,7 @@ void ambiguous_page(void){
     @ %s(zUuid)</a> -
     @ <ul></ul>
     @ Ticket
-    hyperlink_to_uuid(zUuid);
+    hyperlink_to_version(zUuid);
     @ - %h(zTitle).
     @ <ul><li>
     object_description(rid, 0, 0, 0);

@@ -2436,7 +2436,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     ** process the attachment artifact before the artifact to
     ** which it is attached!) */
     char attachToType = 'w';
-    if( fossil_is_uuid(p->zAttachTarget) ){
+    if( fossil_is_artifact_hash(p->zAttachTarget) ){
       if( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             p->zAttachTarget)
         ){

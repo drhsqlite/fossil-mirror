@@ -82,7 +82,7 @@ repositories are identified by URL.  You can also point a web browser
 at a repository and get human-readable status, history, and tracking
 information about the project.
 
-<h3>2.1 Identification Of Artifacts</h3>
+<h3><a id="artifacts"></a>2.1 Identification Of Artifacts</h3>
 
 A particular version of a particular file is called an "artifact".  Each
 artifact has a universally unique name which is the <a

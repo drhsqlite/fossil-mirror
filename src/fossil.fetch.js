@@ -24,10 +24,11 @@
    "this", noting that this call may have amended the options object
    with state other than what the caller provided.
 
-   - onerror: callback(XHR onload event | exception) (default = event
-   or exception to the console). Triggered if the request generates
-   any response other than HTTP 200. In the context of the callback,
-   the options object is "this".
+   - onerror: callback(Error object) (default = output error message
+   to console.error() and fossil.error()). Triggered if the request
+   generates any response other than HTTP 200 or suffers a connection
+   error or timeout while awaiting a response. In the context of the
+   callback, the options object is "this".
 
    - method: 'POST' | 'GET' (default = 'GET'). CASE SENSITIVE!
 
@@ -77,6 +78,9 @@
    elements. Any exceptions triggered by beforesend/aftersend are
    caught and silently ignored.
 
+   - timeout: integer in milliseconds specifying the XHR timeout
+   duration. Default = fossil.fetch.timeout.
+
    When an options object does not provide
    onload/onerror/beforesend/aftersend handlers of its own, this
    function falls to defaults which are member properties of this
@@ -87,34 +91,22 @@
    those members to provide default implementations suitable for the
    page's use, e.g. keeping track of how many in-flight
 
+   Note that this routine may add properties to the 2nd argument, so
+   that instance should not be kept around for later use.
+
    Returns this object, noting that the XHR request is asynchronous,
    and still in transit (or has yet to be sent) when that happens.
 */
 window.fossil.fetch = function f(uri,opt){
   const F = fossil;
   if(!f.onload){
-    f.onload = (r)=>console.debug('ajax response:',r);
+    f.onload = (r)=>console.debug('fossil.fetch() XHR response:',r);
   }
   if(!f.onerror){
-    f.onerror = function(e/*event or exception*/){
-      console.error("Ajax error:",e);
-      if(e instanceof Error){
-        F.error('Exception:',e);
-      }
-      else if(e.originalTarget && e.originalTarget.responseType==='text'){
-        const txt = e.originalTarget.responseText;
-        try{
-          /* The convention from the /filepage_xyz routes is to
-             return error responses in JSON form if possible:
-             {error: "..."}
-          */
-          const j = JSON.parse(txt);
-          console.error("Error JSON:",j);
-          if(j.error){ F.error(j.error) };
-        }catch(e){/* Try harder */
-          F.error(txt)
-        }
-      }
+    f.onerror = function(e/*exception*/){
+      console.error("fossil.fetch() XHR error:",e);
+      if(e instanceof Error) F.error('Exception:',e);
+      else F.error("Unknown error in handling of XHR request.");
     };
   }/*f.onerror()*/
   if(!f.parseResponseHeaders){
@@ -157,7 +149,6 @@ window.fossil.fetch = function f(uri,opt){
   if('POST'===opt.method && 'string'===typeof opt.contentType){
     x.setRequestHeader('Content-Type',opt.contentType);
   }
-  x.open(opt.method||'GET', url.join(''), true);
   if('json'===opt.responseType){
     /* 'json' is an extension to the supported XHR.responseType
        list. We use it as a flag to tell us to JSON.parse()
@@ -167,18 +158,28 @@ window.fossil.fetch = function f(uri,opt){
   }else{
     x.responseType = opt.responseType||'text';
   }
-  x.onload = function(e){
+  x.ontimeout = function(){
     try{opt.aftersend()}catch(e){/*ignore*/}
-    if(200!==this.status){
-      opt.onerror(e);
+    opt.onerror(new Error("XHR timeout of "+x.timeout+"ms expired."));
+  };
+  x.onreadystatechange = function(){
+    if(XMLHttpRequest.DONE !== x.readyState) return;
+    try{opt.aftersend()}catch(e){/*ignore*/}
+    if(200!==x.status){
+      let err;
+      try{
+        const j = JSON.parse(x.response);
+        if(j.error) err = new Error(j.error);
+      }catch(ex){/*ignore*/}
+      opt.onerror(err || new Error("HTTP response status "+x.status+"."));
       return;
     }
     const orh = opt.responseHeaders;
     let head;
     if(true===orh){
-      head = f.parseResponseHeaders(this.getAllResponseHeaders());
+      head = f.parseResponseHeaders(x.getAllResponseHeaders());
     }else if('string'===typeof orh){
-      head = this.getResponseHeader(orh);
+      head = x.getResponseHeader(orh);
     }else if(orh instanceof Array){
       head = {};
       orh.forEach((s)=>{
@@ -186,8 +187,8 @@ window.fossil.fetch = function f(uri,opt){
       });
     }
     try{
-      const args = [(jsonResponse && this.response)
-                    ? JSON.parse(this.response) : this.response];
+      const args = [(jsonResponse && x.response)
+                    ? JSON.parse(x.response) : x.response];
       if(head) args.push(head);
       opt.onload.apply(opt, args);
     }catch(e){
@@ -195,6 +196,8 @@ window.fossil.fetch = function f(uri,opt){
     }
   };
   try{opt.beforesend()}catch(e){/*ignore*/}
+  x.open(opt.method||'GET', url.join(''), true);
+  x.timeout = +opt.timeout || f.timeout;
   if(undefined!==payload) x.send(payload);
   else x.send();
   return this;
@@ -202,3 +205,4 @@ window.fossil.fetch = function f(uri,opt){
 
 window.fossil.fetch.beforesend = function(){};
 window.fossil.fetch.aftersend = function(){};
+window.fossil.fetch.timeout = 15000/* Default timeout, in ms. */;

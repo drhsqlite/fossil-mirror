@@ -65,7 +65,7 @@ void hyperlink_to_event_tagid(int tagid){
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
-  char *zUuid;             /* UUID corresponding to rid */
+  char *zUuid;             /* artifact hash corresponding to rid */
   const char *zId;         /* Event identifier */
   const char *zVerbose;    /* Value of verbose option */
   char *zETime;            /* Time of the tech-note */

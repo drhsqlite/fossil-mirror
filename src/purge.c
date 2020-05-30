@@ -458,12 +458,12 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 ** ==== FURTHER WARNING: This command is a work-in-progress and may yet   ====
 ** ==== contain bugs.                                                     ====
 **
-**   fossil purge artifacts UUID... ?OPTIONS?
+**   fossil purge artifacts HASH... ?OPTIONS?
 **
-**      Move arbitrary artifacts identified by the UUID list into the
+**      Move arbitrary artifacts identified by the HASH list into the
 **      graveyard.
 **
-**   fossil purge cat UUID...
+**   fossil purge cat HASH...
 **
 **      Write the content of one or more artifacts in the graveyard onto
 **      standard output.
@@ -511,8 +511,8 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **   --dry-run         An alias for --explain
 **
 ** SUMMARY:
-**   fossil purge artifacts UUID.. [OPTIONS]
-**   fossil purge cat UUID...
+**   fossil purge artifacts HASH.. [OPTIONS]
+**   fossil purge cat HASH...
 **   fossil purge checkins TAGS... [OPTIONS]
 **   fossil purge files FILENAME... [OPTIONS]
 **   fossil purge list
@@ -549,7 +549,7 @@ void purge_cmd(void){
   }else if( strncmp(zSubcmd, "cat", n)==0 ){
     int i, piid;
     Blob content;
-    if( g.argc<4 ) usage("cat UUID...");
+    if( g.argc<4 ) usage("cat HASH...");
     for(i=3; i<g.argc; i++){
       piid = db_int(0, "SELECT piid FROM purgeitem WHERE uuid LIKE '%q%%'",
                        g.argv[i]);

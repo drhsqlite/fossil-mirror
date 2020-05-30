@@ -50,11 +50,11 @@ void tag_private_status(int rid){
 /*
 ** Generate a hyperlink to a version.
 */
-void hyperlink_to_uuid(const char *zUuid){
+void hyperlink_to_version(const char *zVerHash){
   if( g.perm.Hyperlink ){
-    @ %z(chref("timelineHistLink","%R/info/%!S",zUuid))[%S(zUuid)]</a>
+    @ %z(chref("timelineHistLink","%R/info/%!S",zVerHash))[%S(zVerHash)]</a>
   }else{
-    @ <span class="timelineHistDsp">[%S(zUuid)]</span>
+    @ <span class="timelineHistDsp">[%S(zVerHash)]</span>
   }
 }
 
@@ -103,7 +103,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_UCOLOR   0x0000080 /* Background color by user */
 #define TIMELINE_FRENAMES 0x0000100 /* Detail only file name changes */
 #define TIMELINE_UNHIDE   0x0000200 /* Unhide check-ins with "hidden" tag */
-#define TIMELINE_SHOWRID  0x0000400 /* Show RID values in addition to UUIDs */
+#define TIMELINE_SHOWRID  0x0000400 /* Show RID values in addition to hashes */
 #define TIMELINE_BISECT   0x0000800 /* Show supplimental bisect information */
 #define TIMELINE_COMPACT  0x0001000 /* Use the "compact" view style */
 #define TIMELINE_VERBOSE  0x0002000 /* Use the "detailed" view style */
@@ -231,7 +231,7 @@ int timeline_tableid(void){
 ** should return these columns:
 **
 **    0.  rid
-**    1.  UUID
+**    1.  artifact hash
 **    2.  Date/Time
 **    3.  Comment string
 **    4.  User
@@ -535,7 +535,7 @@ void www_print_timeline(
     }
     if( (tmFlags & TIMELINE_CLASSIC)!=0 ){
       if( zType[0]=='c' ){
-        hyperlink_to_uuid(zUuid);
+        hyperlink_to_version(zUuid);
         if( isLeaf ){
           if( db_exists("SELECT 1 FROM tagxref"
                         " WHERE rid=%d AND tagid=%d AND tagtype>0",
@@ -548,7 +548,7 @@ void www_print_timeline(
       }else if( zType[0]=='e' && tagid ){
         hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
       }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
-        hyperlink_to_uuid(zUuid);
+        hyperlink_to_version(zUuid);
       }
       if( tmFlags & TIMELINE_SHOWRID ){
         int srcId = delta_source_rid(rid);
@@ -3026,7 +3026,7 @@ void thisdayinhistory_page(void){
   z = db_text(0, "SELECT date(%Q,'+1 day')", zToday);
   style_submenu_element("Tomorrow", "%R/thisdayinhistory?today=%t", z);
   zStartOfProject = db_text(0,
-      "SELECT datetime(min(mtime),toLocal()) FROM event;"
+      "SELECT datetime(min(mtime),toLocal(),'startofday') FROM event;"
   );
   timeline_temp_table();
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
