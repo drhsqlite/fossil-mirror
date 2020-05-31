@@ -663,7 +663,7 @@ if( strncmp(zName,"aa",2)==0 ){
         append_diff(zOld, NULL, zName, diffFlags, pRe);
       }else if( isChnged ){
         @ &nbsp;&nbsp;
-        @ %z(href("%R/localdiff?name=%T",zName))[diff]</a>
+        @ %z(href("%R/localdiff?name=%T&from=%!S",zName,zOld))[diff]</a>
       }
     }
   }
@@ -2036,7 +2036,7 @@ int object_description(
 ** WEBPAGE: fdiff
 ** WEBPAGE: localdiff
 ** URL: fdiff?v1=HASH&v2=HASH
-** URL: localdiff?name=filename
+** URL: localdiff?name=filename&from=HASH
 **
 ** Two arguments, v1 and v2, identify the artifacts to be diffed.
 ** Show diff side by side unless sbs is 0.  Generate plain text if
@@ -2049,9 +2049,9 @@ int object_description(
 ** "ci" parameter is omitted, then the most recent check-in ("tip") is
 ** used.
 **
-** The /localdiff version will diff the given filename from the most recent
-** check-in ("tip") against the current (edited) version in the checkout
-** directory.
+** The /localdiff from shows changes to the locally-checkedout copy of "name"
+** compared with the artifact identified by "from" (normally the version which
+** was originally checked-out).
 **
 ** Additional parameters:
 **
@@ -2083,7 +2083,7 @@ void diff_page(void){
   cookie_render();
   if( bLocalMode ){
     zLocalName = P("name");
-    v1 = artifact_from_ci_and_filename("name");
+    v1 = name_to_rid_www("from");
     v2 = (zLocalName!=NULL)?-1:0; /* -1 prevents "not found" check below */
   }else if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename("from");
