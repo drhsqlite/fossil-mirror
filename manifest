@@ -1,5 +1,5 @@
-C Quick\sfix\sto\smany\sof\sthe\sformatting\sproblems\sassociated\swith\sthe\srecent\nattempts\sat\smaking\sthe\sMarkdown\soutput\s"safer".\s\sMore\swork\sto\sbe\sdone,\sbut\nthis\scheck-in\swill\sat\sleast\sget\smost\sof\sthe\swebsite\sworking\sagain.\nI\shope.
-D 2020-06-01T22:24:21.837
+C Adjust\sthe\swebpage-ex.md\spage\sdue\sto\sthe\sfact\sthat\s&lt;style&gt;\sis\sno\slonger\nallowed\sin\sMarkdown,\sfor\ssecurity.
+D 2020-06-01T22:46:16.102
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -988,12 +988,12 @@ F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a70
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
-F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
+F www/webpage-ex.md 34e3ee8516eb9fb369e4bb711161c6ad3052e66d98834483236ab7330b25a368
 F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b941
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bd2796b10a41f7925180b4cce2ec152d57daea27715fe65bc31e41c8bfb9345c
-R 30cb252841cb50d0e9989934c0e06e80
+P c2875cb444676c9d5c40e6e7e723312ea8f86f655c08cdbdcb35426cfd7118bf
+R 68c1907cacca68ae708ba3362ca4adcd
 U drh
-Z 8047e476788ba976c20217cb83aad35c
+Z fb71014d061a34c11fd5ca669573a237
