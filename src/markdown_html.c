@@ -301,8 +301,7 @@ static void html_table_row(
 /* HTML span tags */
 
 static int html_raw_span(struct Blob *ob, struct Blob *text, void *opaque){
-  /* If the document begins with a <h1> markup, take that as the header. */
-  BLOB_APPEND_BLOB(ob, text);
+  blob_append(ob, blob_buffer(text), blob_size(text));
   return 1;
 }
 

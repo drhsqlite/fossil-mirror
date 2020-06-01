@@ -1,5 +1,5 @@
-C Optimization\sto\smarkdown\sformatting\s-\sfaster\sdetermination\sif\sa\sline\sis\npart\sof\sa\stable\sfor\sthe\scommon\scase\swhen\sit\sis\snot.
-D 2020-06-01T20:51:11.332
+C Quick\sfix\sto\smany\sof\sthe\sformatting\sproblems\sassociated\swith\sthe\srecent\nattempts\sat\smaking\sthe\sMarkdown\soutput\s"safer".\s\sMore\swork\sto\sbe\sdone,\sbut\nthis\scheck-in\swill\sat\sleast\sget\smost\sof\sthe\swebsite\sworking\sagain.\nI\shope.
+D 2020-06-01T22:24:21.837
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -537,7 +537,7 @@ F src/makemake.tcl 18d7774da9aab51c1c49732b7ae07bffecae879eb322509f6cd370472c6b6
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
 F src/markdown.c b11ff3c334d00d2c0890b79db135845518da49b4cc7bc88e662c63bf5870c77b
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
-F src/markdown_html.c e20261e865ed23eef13866a84cfd3f6c65821dad2509ee2ba32db45a2d25ebcf
+F src/markdown_html.c 1d90ab82ea1d26aa843a796f37b16054a3ecebbf38cec8b1d68a99714c2e3126
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 7d2b5d5d4e15f56f4dac9c9b6c2af3a7e4c1b459fa7b0de0f2517f62989706b6
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d45542ccd2cf735ed476c051128c25a42cfe9bc0dd19e257526052708673da9f
-R d994d47811332a3115e83b76678aa2dc
+P bd2796b10a41f7925180b4cce2ec152d57daea27715fe65bc31e41c8bfb9345c
+R 30cb252841cb50d0e9989934c0e06e80
 U drh
-Z 2abce33b68f21a881424a01efb7b9c2a
+Z 8047e476788ba976c20217cb83aad35c
