@@ -165,8 +165,11 @@ struct render {
 struct html_tag {
   const char *text;
   int size;
+  int flags;
 };
 
+/* Allowed bits in html_tag.flags */
+#define HTMLTAG_FORBIDDEN  0x001   /* escape */
 
 
 /********************
@@ -175,34 +178,28 @@ struct html_tag {
 
 /* block_tags -- recognised block tags, sorted by cmp_html_tag */
 static const struct html_tag block_tags[] = {
-  { "p",            1 },
-  { "dl",           2 },
-  { "h1",           2 },
-  { "h2",           2 },
-  { "h3",           2 },
-  { "h4",           2 },
-  { "h5",           2 },
-  { "h6",           2 },
-  { "ol",           2 },
-  { "ul",           2 },
-  { "del",          3 },
-  { "div",          3 },
-  { "ins",          3 },
-  { "pre",          3 },
-  { "form",         4 },
-  { "math",         4 },
-  { "table",        5 },
-  { "iframe",       6 },
-  { "script",       6 },
-  { "fieldset",     8 },
-  { "noscript",     8 },
-  { "blockquote",  10 }
+  { "p",            1,  0 },
+  { "dl",           2,  0 },
+  { "h1",           2,  0 },
+  { "h2",           2,  0 },
+  { "h3",           2,  0 },
+  { "h4",           2,  0 },
+  { "h5",           2,  0 },
+  { "h6",           2,  0 },
+  { "ol",           2,  0 },
+  { "ul",           2,  0 },
+  { "div",          3,  0 },
+  { "pre",          3,  0 },
+  { "form",         4,  HTMLTAG_FORBIDDEN },
+  { "math",         4,  0 },
+  { "style",        5,  HTMLTAG_FORBIDDEN },
+  { "table",        5,  0 },
+  { "iframe",       6,  HTMLTAG_FORBIDDEN },
+  { "script",       6,  HTMLTAG_FORBIDDEN },
+  { "fieldset",     8,  0 },
+  { "noscript",     8,  HTMLTAG_FORBIDDEN },
+  { "blockquote",  10,  0 }
 };
-
-#define INS_TAG (block_tags + 12)
-#define DEL_TAG (block_tags + 10)
-
-
 
 /***************************
  * STATIC HELPER FUNCTIONS *
@@ -1785,8 +1782,7 @@ static size_t parse_htmlblock(
 #endif
 
   /* if not found, trying a second pass looking for indented match */
-  /* but not if tag is "ins" or "del" (following original Markdown.pl) */
-  if( !found && curtag!=INS_TAG && curtag!=DEL_TAG ){
+  if( !found ){
     i = 1;
     while( i<size ){
       i++;
@@ -1799,6 +1795,14 @@ static size_t parse_htmlblock(
         break;
       }
     }
+  }
+
+  /* Do not display certain HTML tags */
+  if( curtag->flags & HTMLTAG_FORBIDDEN ){
+    if( !found ){
+      for(i=1; i<size && data[i]!='>'; i++){}
+    }
+    return i;
   }
 
   if( !found ) return 0;

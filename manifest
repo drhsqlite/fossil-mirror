@@ -1,5 +1,5 @@
-C Folded\sinfo\sfrom\sforum\sthread\shttps://www.fossil-scm.org/forum/forumpost/b770d8edc4\ninto\sthe\sDebian/nginx\sservice\sdocs.
-D 2020-06-01T01:14:06.035
+C Enhance\sthe\smarkdown\sformatter\sto\signore\scertain\sHTML\stags\ssuch\sas\n&lt;style&gt;.
+D 2020-06-01T07:01:41.115
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -535,7 +535,7 @@ F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc700
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 18d7774da9aab51c1c49732b7ae07bffecae879eb322509f6cd370472c6b675c x
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
-F src/markdown.c e7cff55ab2eb984700a2905119aa1ffc53bfa678ef753b8241b6072583e8e6ad
+F src/markdown.c 9c180f0379a712db0e8948edb7408d56d2e08ec93bae4cfdeac710609a8f11d7
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c04e42f7614ee22ded26a31aa2798aa641e2bca71061578c62c6ad6aa9a95cd
-R f0794799728d91f5a70266835353a49a
-U wyoung
-Z 7872389434d414619cad0d7a216eb325
+P 4b98322350c39ff62e62fc021956333bd2cfd677d0c5f5d5bcb03e2c7e56bc4a
+R 7235d0ef1a32f44d6d624a96e796d460
+U drh
+Z 1df378cda7b568c624a7caf3aa27ec46
