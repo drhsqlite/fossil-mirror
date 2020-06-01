@@ -111,15 +111,11 @@ your server, then say:
 
 For the following nginx configuration to work, it needs to contact a
 Fossil instance speaking the SCGI protocol. There are [many ways](../)
-to set that up. For Debian type systems, we primarily recommend
-following [our systemd user service guide](service.md).
+to set that up. For Debian type systems, we recommend
+following [our systemd system service guide](service.md).
 
-Another option would be to customize [the `fslsrv` shell
-script](/file/tools/fslsrv) that ships with Fossil as an example of
-launching multiple Fossil instances in the background to serve multiple
-URLs.
-
-However you do it, you need to match up the TCP port numbers between it
+There are other ways to arrange for Fossil to run as a service backing
+nginx, but however you do it, you need to match up the TCP port numbers between it
 and those in the nginx configuration below.
 
 

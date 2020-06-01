@@ -1,5 +1,5 @@
-C Added\s"&\sserver"\sto\sthe\s"native"\srow\sin\sthe\scharacterization\stable\sat\nthe\stop\sof\sfossil-v-git.wiki.
-D 2020-05-30T16:51:50.484
+C Folded\sinfo\sfrom\sforum\sthread\shttps://www.fossil-scm.org/forum/forumpost/b770d8edc4\ninto\sthe\sDebian/nginx\sservice\sdocs.
+D 2020-06-01T01:14:06.035
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -957,8 +957,8 @@ F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348
 F www/server/any/scgi.md 993544d440f771c1e77b45e692afa830362e94012564862827a8fda69cd7ce2f
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
-F www/server/debian/nginx.md f9e435dd8557b4094e889fa6f0378f8bc4fffde14ef9e9c84e27dde0f8e4c93e
-F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
+F www/server/debian/nginx.md 9ed22c1951fd5e9043e8750086f778177f39bfc4efb8062648c2c712faebdd09
+F www/server/debian/service.md 81497ddf0aedb0b42e934d93bffa416c831cd7f2ca1d0da92a8d422934475577
 F www/server/index.html 53527cad50f6a442a4b15c12f4ce133035893c1b71c4439e5f833280ffdf60e4
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki 7e29e0d31965faa3b0523b94949406b9d297da39f91da0ff96973bcdb0cf8be8
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 38850c03f42d34689c3a6d8f593cefa607259e25f16d7e9249889dad855e24e1
-R 6c99036de9ae616dca4ac516f15cf0bc
+P 6c04e42f7614ee22ded26a31aa2798aa641e2bca71061578c62c6ad6aa9a95cd
+R f0794799728d91f5a70266835353a49a
 U wyoung
-Z ba311caf3ab0f8753328c025d009a351
+Z 7872389434d414619cad0d7a216eb325
