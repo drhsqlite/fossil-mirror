@@ -382,7 +382,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     }else{
       db_prepare(&q,
         "SELECT blob.rid"
-        "  FROM blob, event"
+        "  FROM blob CROSS JOIN event"
         " WHERE blob.uuid GLOB '%q*'"
         "   AND event.objid=blob.rid"
         "   AND event.type GLOB '%q'",
