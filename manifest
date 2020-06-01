@@ -1,5 +1,5 @@
-C When\sHTML\smarkup\sis\ssanitized\sby\sthe\sblob_append_safe_html()\sfunction,\sinstead\nof\sremoving\soffending\smarkup,\sescape\sit\sand\sput\sit\swithin\san\serror\sspan.
-D 2020-06-01T16:10:46.187
+C Improvements\sto\sautomatic\send-tags.
+D 2020-06-01T19:16:34.977
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -634,7 +634,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 811a4c3a879c6a9228da847e359ad2b746f9a86cc213250e693ed4f298da6198
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c 8c5ad0311667102c27c0749239a3de49e9a5e451c989668c37efba6a314341c9
+F src/wikiformat.c 157fe990d2c52ff5a8b7ec237de0700c51220551465109bcaee36ae85662c188
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aadf91723adc8df4904364369d6b3b4bf005187e59fbf55443680a0e6bcd3bc3
-R 7e96ac2883cd03f7484c3fb0d1ba6de5
+P bc2e6fbeb5f3c3ca224f278dd43f4a01039edfb1ae34a96cb77e46bb5ab55dc8
+R 039542ae12b6ba4401a359b874cd0126
 U drh
-Z 056eb2e3682155b507c5e994fa732aa8
+Z 79aca4696cdba726dd0b3b638cc87359

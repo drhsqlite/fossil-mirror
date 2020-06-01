@@ -251,6 +251,9 @@ static int findAttr(const char *z){
 #define MUTYPE_SPECIAL     0x0200   /* <nowiki> or <verbatim> */
 #define MUTYPE_HYPERLINK   0x0400   /* <a> */
 
+/* MUTYPE values for elements that require strictly nested end-tags */
+#define MUTYPE_Nested      0x0656
+
 /*
 ** These markup types must have an end tag.
 */
@@ -2425,6 +2428,7 @@ void html_tagstack_init(HtmlTagStack *p){
 ** Push a new element onto the tag statk
 */
 void html_tagstack_push(HtmlTagStack *p, int e){
+  if( (aMarkup[e].iType & MUTYPE_Nested)==0 ) return;
   if( p->n>=ArraySize(p->aSpace) && p->n>=p->nAlloc ){
     if( p->nAlloc==0 ){
       int *aNew;
@@ -2464,6 +2468,7 @@ void html_tagstack_clear(HtmlTagStack *p){
 */
 void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
   int i;
+  if( (aMarkup[eEnd].iType & MUTYPE_Nested)==0 ) return;
   for(i=p->n-1; i>=0 && p->aStack[i]!=eEnd; i--){}
   if( i<0 ){
     blob_appendf(pBlob, "<span class='error'>&lt;/%s&gt;</span>",
@@ -2472,7 +2477,7 @@ void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
   }
   do{
     p->n--;
-    blob_appendf(pBlob, "</%s>", aMarkup[eEnd].zName);
+    blob_appendf(pBlob, "</%s>", aMarkup[p->aStack[p->n]].zName);
   }while( p->aStack[p->n]!=eEnd );
 }
 
@@ -2535,9 +2540,7 @@ void blob_append_safe_html(Blob *pBlob, char *zHtml, int nHtml){
         html_tagstack_pop(&s, pBlob, markup.iCode);
       }else{
         renderMarkup(pBlob, &markup);
-        if( markup.iType!=MUTYPE_SINGLE ){
-          html_tagstack_push(&s, markup.iCode);
-        }
+        html_tagstack_push(&s, markup.iCode);
       }
     }
     unparseMarkup(&markup);
