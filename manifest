@@ -1,5 +1,5 @@
-C Rename\sthe\shtmlTagLength()\sfunction\sto\shtml_tag_length().
-D 2020-06-01T13:11:54.470
+C Revert\sthe\schange\sat\s[a3ab0c6186b43236].\s\sIn\sits\splace,\sadd\sthe\nblob_append_safe_html()\sroutine\sthat\sstricts\sHTML\sgenerated\sby\sMarkdown\nto\sbe\sin\sthe\sset\sof\ssafe\selements\sas\sdefined\sby\sFossil-wiki.\s\sOmit\sany\nunsafe\selements\sand/or\sattributes.\s\sOmit\sunmatched\sclose-tags.\nInsert\smissing\sclose-tags.
+D 2020-06-01T14:59:41.575
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -454,7 +454,7 @@ F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab353
 F src/clone.c 009c36a98c8904b9db991a4ad0814d42f0f3fed3fb232bc41e34d22616ff49a6
 F src/codecheck1.c b626830f2ba479dc795435b73325d6a4e5e5243285f2a6e4892e37129d52a0ed
 F src/comformat.c a2e181ecf35e38bc2a6b41b79837e28df85b385ea324b09677f33879dc2d9c43
-F src/config.h 5599c3074e2250f49e06c22716e516140a0b2d22c703c604e050b6178c0d536a
+F src/config.h 722b2a0ac17571cdf9c0d285b945f0f29168924311203bca652e5d7fe3dfbf30
 F src/configure.c 16dba3c855e7947297a01545bdb5d39b9b361c7f83cbcd98961d3781a4d87366
 F src/content.c 7f5bf45c1d1b3f5aa3708a2a62236d734d23dc54c8bee150bce3d9d2a399e1ca
 F src/cookies.c 3c7a533e11f5a562292ef3e9c67542ea124afa6872adfd5ed77b6c4c1bd1668f
@@ -535,9 +535,9 @@ F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc700
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 18d7774da9aab51c1c49732b7ae07bffecae879eb322509f6cd370472c6b675c x
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
-F src/markdown.c 9c180f0379a712db0e8948edb7408d56d2e08ec93bae4cfdeac710609a8f11d7
+F src/markdown.c e7cff55ab2eb984700a2905119aa1ffc53bfa678ef753b8241b6072583e8e6ad
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
-F src/markdown_html.c 2e74b484cb251640010b2e4dfcfc91f1c844cd59728d0273dc87b3c544da3790
+F src/markdown_html.c e20261e865ed23eef13866a84cfd3f6c65821dad2509ee2ba32db45a2d25ebcf
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 7d2b5d5d4e15f56f4dac9c9b6c2af3a7e4c1b459fa7b0de0f2517f62989706b6
@@ -634,7 +634,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 811a4c3a879c6a9228da847e359ad2b746f9a86cc213250e693ed4f298da6198
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c 70b9305db6e30bcb3ec8410255bbd2c43588bb9309d4a2845aeb95bbcbd9e55d
+F src/wikiformat.c 893bfd28eb1b16050cfe5fd2991436432d2ff7772d50d6fd0a4f35777084f00e
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3ab0c6186b43236eb1143d3921d9e0f747fe3a7707163ba35dbfde83295e5d3
-R 615cebf342d32119f77f8c569725735e
+P 3f99bca912466f98149eb897a1c856469485c0970bd406b00eaef1e485343250
+R fddc6ad0cb9ffcbe9e6f53cde09bb985
 U drh
-Z 42740329a1882d0bebe4b551f39e283e
+Z 40401d8bfa73788e36a3073a430f1464

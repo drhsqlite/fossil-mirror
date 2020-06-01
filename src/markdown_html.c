@@ -47,7 +47,7 @@ void markdown_to_html(
 
 /* BLOB_APPEND_BLOB -- append blob contents to another */
 #define BLOB_APPEND_BLOB(dest, src) \
-  blob_append((dest), blob_buffer(src), blob_size(src))
+  blob_append_safe_html((dest), blob_buffer(src), blob_size(src))
 
 
 /* HTML escapes
@@ -149,7 +149,7 @@ static void html_raw_block(struct Blob *ob, struct Blob *text, void *opaque){
     return;
   }
   INTER_BLOCK(ob);
-  blob_append(ob, data, size);
+  blob_append_safe_html(ob, data, size);
   BLOB_APPEND_LITERAL(ob, "\n");
 }
 

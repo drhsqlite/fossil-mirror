@@ -2398,3 +2398,177 @@ void test_html_to_text(void){
     blob_reset(&out);
   }
 }
+
+/*
+** An instance of this object keeps track of the nesting of HTML
+** elements for blob_append_safe_html().
+*/
+#if LOCAL_INTERFACE
+struct HtmlTagStack {
+  int n;                /* Current tag stack depth */
+  int nAlloc;           /* Space allocated for aStack[] */
+  int *aStack;          /* The stack of tags */
+  int aSpace[10];       /* Initial static space, to avoid malloc() */
+};
+#endif /* LOCAL_INTERFACE */
+
+/*
+** Initialize bulk memory to a valid empty tagstack.
+*/
+void html_tagstack_init(HtmlTagStack *p){
+  p->n = 0;
+  p->nAlloc = 0;
+  p->aStack = p->aSpace;
+}
+
+/*
+** Push a new element onto the tag statk
+*/
+void html_tagstack_push(HtmlTagStack *p, int e){
+  if( p->n>=ArraySize(p->aSpace) && p->n>=p->nAlloc ){
+    if( p->nAlloc==0 ){
+      int *aNew;
+      p->nAlloc = 50;
+      aNew = fossil_malloc( sizeof(p->aStack[0])*p->nAlloc );
+      memcpy(aNew, p->aStack, sizeof(p->aStack[0])*p->n );
+      p->aStack = aNew;
+    }else{
+      p->nAlloc *= 2;
+      p->aStack = fossil_realloc(p->aStack, sizeof(p->aStack[0])*p->nAlloc );
+    }
+  }
+  p->aStack[p->n++] = e;
+}
+
+/*
+** Clear a tag stack, reclaiming any memory allocations.
+*/
+void html_tagstack_clear(HtmlTagStack *p){
+  if( p->nAlloc ){
+    fossil_free(p->aStack);
+    p->nAlloc = 0;
+    p->aStack = p->aSpace;
+  }
+  p->n = 0;
+}
+
+/*
+** The HTML end-tag eEnd wants to be added to pBlob.
+**
+** If an open-tag for eEnd exists anywhere on the stack, then
+** pop it and all prior elements from the task, issuing appropriate
+** end-tags as you go.
+**
+** If there is no open-tag for eEnd on the stack, then this
+** routine is a no-op.
+*/
+void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
+  int i;
+  for(i=p->n-1; i>=0 && p->aStack[i]!=eEnd; i--){}
+  if( i<0 ) return;
+  do{
+    p->n--;
+    blob_appendf(pBlob, "</%s>", aMarkup[eEnd].zName);
+  }while( p->aStack[p->n]!=eEnd );
+}
+
+/*
+** Append HTML text to a Blob object.  The appended text is modified
+** changed in the following ways:
+**
+**    1.  Omit any elements that are not on the AllowedMarkup list.
+**
+**    2.  Omit any attributes that are not on the AllowedMarkup list.
+**
+**    3.  Omit any surplus close-tags.
+**
+**    4.  Insert additional close-tags as necessary so that all
+**        non-empty tags in the input have a corresponding close tag.
+**        Non-empty tags are elements other than <br>, <hr>, <img>, etc.
+**
+** The input must be writable.  Temporary changes may be made to the
+** input, but the input is restored to its original state prior to
+** returning.  If zHtml[nHtml] is not a zero character, then a zero
+** might be written in that position temporarily, but that slot will
+** also be restored before this routine returns.
+*/
+void blob_append_safe_html(Blob *pBlob, char *zHtml, int nHtml){
+  char cLast;
+  int i, j, n;
+  HtmlTagStack s;
+  ParsedMarkup markup;
+  cLast = zHtml[nHtml];
+  zHtml[nHtml] = 0;
+  html_tagstack_init(&s);
+
+  i = 0;
+  while( i<nHtml ){
+    if( zHtml[i]=='<' ){
+      j = i;
+    }else{
+      char *z = strchr(zHtml+i, '<');
+      if( z==0 ){
+        blob_append(pBlob, zHtml+i, nHtml-i);
+        break;
+      }
+      j = (int)(z - zHtml);
+      blob_append(pBlob, zHtml+i, j-i);
+    }
+    n = html_tag_length(zHtml+j);
+    if( n==0 ){
+      blob_append(pBlob, "&lt;", 4);
+      i = j+1;
+      continue;
+    }else{
+      i = j + n;
+    }
+    parseMarkup(&markup, zHtml+j);
+    if( markup.iCode!=MARKUP_INVALID ){
+      if( markup.endTag ){
+        html_tagstack_pop(&s, pBlob, markup.iCode);
+      }else{
+        renderMarkup(pBlob, &markup);
+        if( markup.iType!=MUTYPE_SINGLE ){
+          html_tagstack_push(&s, markup.iCode);
+        }
+      }
+    }
+    unparseMarkup(&markup);
+  }
+  while( s.n>0 ){
+    s.n--;
+    blob_appendf(pBlob, "</%s>", aMarkup[s.aStack[s.n]]);
+  }
+  html_tagstack_clear(&s);
+  zHtml[nHtml] = cLast;
+}
+
+
+/*
+** COMMAND: test-safe-html
+**
+** Usage: %fossil test-safe-html FILE ...
+**
+** Read files named on the command-line.  Send the text of each file
+** through blob_append_safe_html() and then write the result on
+** standard output.
+*/
+void test_safe_html_cmd(void){
+  int i;
+  Blob x;
+  Blob y;
+  for(i=2; i<g.argc; i++){
+    char *z;
+    int n;
+    blob_read_from_file(&x, g.argv[i], ExtFILE);
+    blob_init(&y, 0, 0);
+    blob_terminate(&x);
+    blob_append_safe_html(&y, blob_buffer(&x), blob_size(&x));
+    blob_reset(&x);
+    z = blob_str(&y);
+    n = blob_size(&y);
+    while( n>0 && (z[n-1]=='\n' || z[n-1]=='\r') ) n--;
+    fossil_print("%.*s\n", n, z);
+    blob_reset(&y);
+  }
+}
