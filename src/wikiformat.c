@@ -2428,7 +2428,6 @@ void html_tagstack_init(HtmlTagStack *p){
 ** Push a new element onto the tag statk
 */
 void html_tagstack_push(HtmlTagStack *p, int e){
-  if( (aMarkup[e].iType & MUTYPE_Nested)==0 ) return;
   if( p->n>=ArraySize(p->aSpace) && p->n>=p->nAlloc ){
     if( p->nAlloc==0 ){
       int *aNew;
@@ -2467,18 +2466,23 @@ void html_tagstack_clear(HtmlTagStack *p){
 ** routine is a no-op.
 */
 void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
-  int i;
-  if( (aMarkup[eEnd].iType & MUTYPE_Nested)==0 ) return;
-  for(i=p->n-1; i>=0 && p->aStack[i]!=eEnd; i--){}
-  if( i<0 ){
-    blob_appendf(pBlob, "<span class='error'>&lt;/%s&gt;</span>",
-                 aMarkup[eEnd].zName);
+  int i, e;
+  if( eEnd!=0 ){
+    for(i=p->n-1; i>=0 && p->aStack[i]!=eEnd; i--){}
+    if( i<0 ){
+      blob_appendf(pBlob, "<span class='error'>&lt;/%s&gt;</span>",
+                   aMarkup[eEnd].zName);
+      return;
+    }
+  }else if( p->n==0 ){
     return;
   }
   do{
-    p->n--;
-    blob_appendf(pBlob, "</%s>", aMarkup[p->aStack[p->n]].zName);
-  }while( p->aStack[p->n]!=eEnd );
+    e = p->aStack[--p->n];
+    if( e==eEnd || (aMarkup[e].iType & MUTYPE_Nested)!=0 ){
+      blob_appendf(pBlob, "</%s>", aMarkup[e].zName);
+    }
+  }while( e!=eEnd && p->n>0 );
 }
 
 /*
@@ -2492,8 +2496,7 @@ void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
 **    3.  Omit any surplus close-tags.
 **
 **    4.  Insert additional close-tags as necessary so that all
-**        non-empty tags in the input have a corresponding close tag.
-**        Non-empty tags are elements other than <br>, <hr>, <img>, etc.
+**        tag in the input that needs a close-tag has one.
 **
 ** The input must be writable.  Temporary changes may be made to the
 ** input, but the input is restored to its original state prior to
@@ -2545,10 +2548,7 @@ void blob_append_safe_html(Blob *pBlob, char *zHtml, int nHtml){
     }
     unparseMarkup(&markup);
   }
-  while( s.n>0 ){
-    s.n--;
-    blob_appendf(pBlob, "</%s>", aMarkup[s.aStack[s.n]]);
-  }
+  html_tagstack_pop(&s, pBlob, 0);
   html_tagstack_clear(&s);
   zHtml[nHtml] = cLast;
 }
