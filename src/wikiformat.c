@@ -2465,7 +2465,11 @@ void html_tagstack_clear(HtmlTagStack *p){
 void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
   int i;
   for(i=p->n-1; i>=0 && p->aStack[i]!=eEnd; i--){}
-  if( i<0 ) return;
+  if( i<0 ){
+    blob_appendf(pBlob, "<span class='error'>&lt;/%s&gt;</span>",
+                 aMarkup[eEnd].zName);
+    return;
+  }
   do{
     p->n--;
     blob_appendf(pBlob, "</%s>", aMarkup[eEnd].zName);
@@ -2523,7 +2527,10 @@ void blob_append_safe_html(Blob *pBlob, char *zHtml, int nHtml){
       i = j + n;
     }
     parseMarkup(&markup, zHtml+j);
-    if( markup.iCode!=MARKUP_INVALID ){
+    if( markup.iCode==MARKUP_INVALID ){
+      blob_appendf(pBlob, "<span class='error'>&lt;%.*s&gt;</span>",
+                   n-2, zHtml+j+1);
+    }else{
       if( markup.endTag ){
         html_tagstack_pop(&s, pBlob, markup.iCode);
       }else{
