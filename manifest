@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\send-tag\sinsertion\salgorithm.
-D 2020-06-01T19:31:28.141
+C Remove\sa\sredundant\scall\sto\smanifest_get().
+D 2020-06-01T20:12:16.989
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -482,7 +482,7 @@ F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
 F src/fileedit.c d7b1c125e757cc03f349e631ab6c8cfa26e6b35d054230e74e90c8be3f726913
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 73e27c4703f1b3b0bc5248c1fc1cfc7765e3c9a15be8f2bf78855b5d7acdc704
+F src/forum.c a4e2da54162b9373187ccd1e4f81ac3c6020d686bd60d7fcad6705c098aee245
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd65ab2a61f5
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a7807a8b9c440d37a985e60a11de69abac9ac7029fe8553d3b2b658a827a9f2a
-R ec75c916cf37033cd815ebd711c9fa56
+P a7ebb8d77fc6f55a01fd82e3fa70cfb033a53cc1fd4e691d0fe082b1a51fe2aa
+R 8582ced548b95e4f182f4920022c81d4
 U drh
-Z 54ea92d3c0f627d349664e859199ee7b
+Z 26959d69ad9c0c3004febf9fece2fffe
