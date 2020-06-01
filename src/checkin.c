@@ -65,7 +65,7 @@ enum {
 ** are no files or directories named on the command-line, then add all
 ** unmanaged files anywhere in the checkout.
 */
-static void locate_unmanaged_files(
+void locate_unmanaged_files(
   int argc,           /* Number of command-line arguments to examine */
   char **argv,        /* values of command-line arguments */
   unsigned scanFlags, /* Zero or more SCAN_xxx flags */

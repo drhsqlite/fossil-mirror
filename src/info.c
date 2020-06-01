@@ -1,13 +1,18 @@
-/*TODO
-** o  Have seen some "MERGE" entries and updated messages: still not 100% happy.
+/*TODO Graham's Notes
 ** o  Should /file behave differently for non-existent local files?
-** o  Look at adding an "extras" option (non-added, non-ignored files).
 ** o  Find a place to add links to /local.
 ** o  Remove //TODO TESTING HACK TODO
 ** ?? In hexdump_page(), should content (and downloadName?) be reset/freed?
-** ?? In the test fossil (\x\$Test\Fossil) there are (at time of writing) two
-**    commits under the same artifact... is this normal?
-** ?? A settings entry to control one- or two-pass mode?
+** ?? In clean_cmd() in checkin.c, should "Blob repo" be blob_reset()?
+** ?? Do I need to worry about deleting/emptying TEMP SFILE?
+** ?? Is it normal for one artifact to have several check-ins associated with
+**    it? In the test fossil (\x\$Test\Fossil) there are several commits under
+**    the same artifact...
+** ?? A setting to control one- or two-pass mode?
+** ?? Add two-pass to the normal loop?
+** ?? A setting to control whether Extras are intially shown or not?
+** ?? A setting to control max. entries to show initially?
+**------------------------------------------------------------------------------
 */
 /*
 ** Copyright (c) 2007 D. Richard Hipp
@@ -570,7 +575,7 @@ if( strncmp(zName,"aa",2)==0 ){
       }
     }else switch( isChnged ){
       /*TODO
-      ** These "special cases" have not been properly tested (by creating
+      ** These "special cases" have not all been properly tested (by creating
       ** entries in a in a repository to trigger them), but they do display
       ** as expected when "forced" to appear.
       */
@@ -829,6 +834,301 @@ void ci_tags_page(void){
 }
 
 /*
+** Options for the "extras" report. The bit-mask versions are used for "&ef=.."
+** to select which category(ies) to show.
+*/
+enum {
+  EXB_PLAIN,  EXB_IGNORE, EXB_CLEAN,  EXB_KEEP,
+
+  EX_PLAIN    = 1 << EXB_PLAIN,     /* Matches none of the others */
+  EX_IGNORE   = 1 << EXB_IGNORE,    /* Matches "ignore-glob" */
+  EX_CLEAN    = 1 << EXB_CLEAN,     /* Matches "clean-glob" */
+  EX_KEEP     = 1 << EXB_KEEP,      /* Matches "keep-glob" */
+  EX_ALL      = EX_PLAIN            /* All entries */
+              | EX_IGNORE
+              | EX_CLEAN
+              | EX_KEEP
+};
+
+/*
+** Called while generating "/local": appends a report of any "extra" files that
+** might be present in the current checkout.
+**
+** The format is controlled by "zExtra" (the value from the "ex=" URL option).
+** This is converted to an int ("extrasFlags") and treated as a collection of
+** the EX_xxx flags defined above. Thus "1" will list all "plain" files:
+** unmanaged files that match none of the ignore/clean/keep blob-lists, and "2"
+** would list all files matching the ignore-blob setting. "3" would list both
+** those sets of files.
+**
+** An empty "zExtra" is a special case: it converts to zero which would normally
+** select none of the EX_xxx flags above. Instead, it is converted to EX_PLAIN
+** (=1) but with a (smallish) upper-limit on the number of files that will be
+** listed. This is the "default" mode as it offers a combination of usefulness
+** and non-intrusiveness:
+**  o  If the glob-lists are configured well, the only files that will show are
+**     likely to be new source files that have not been "fossil add"ed.
+**  o  If the glob-lists HAVEN'T been configured, only a relatively small number
+**     of temporary files (e.g. ".o" or ".obj") will be shown.
+** 
+*/
+static void append_extras_report(
+  const char *zExtra,                     /* Value of "ef=" from URL */
+  const int diffType,                     /* Used to preserve current */
+  const char *zW                          /*  settings in URLs */
+){
+  const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
+  Glob *pIgnore, *pKeep, *pClean;
+  int nRoot;
+  zIgnoreFlag = db_get("ignore-glob", 0); /* Patterns to ignore */
+  zCleanFlag = db_get("clean-glob", 0);   /* ...that "clean" clobbers */
+  zKeepFlag = db_get("keep-glob", 0);     /* ...that "clean" won't touch */
+  pIgnore = glob_create(zIgnoreFlag);     /* Object versions of above */
+  pKeep = glob_create(zKeepFlag);
+  pClean = glob_create(zCleanFlag);
+  nRoot = (int)strlen(g.zLocalRoot);      /* Length of root component */
+  Stmt q;
+  Blob repo;                              /* TODO May not be needed */
+  int maxExtrasToShow = 5;                /* TODO Take from a setting? */
+  int extrasFlags = atoi(zExtra);         /* Which entries to show */
+  int nExtras;
+  int nMatch;
+  int nShown;
+  int nPlain;
+  int nIgnore;
+  int nClean;
+  int nKeep;
+
+  /*TODO?
+  ** It feels sensible to limit the number of "extra" entries shown by default
+  ** for cases where "ignore-glob" or "clean-glob" haven't been fully setup.
+  ** A minor irritation is that this can lead to "... plus 1 more file", on a
+  ** line that COULD have been used to display the omitted file. If we knew in
+  ** advance how many entries were going to match, we could temporarily "bump"
+  ** the limit by one show all entries would be shown. However, to know the
+  ** number of matches in advance we'd have to:
+  ** a) Pre-scan SFILE, testing and counting matches against each glob-list,
+  **    possibly bump the limit, then re-scan the table repeating the tests
+  **    against each glob-list to decide which to show.
+  ** b) SFILE could have an extra FLAGS field: during the pre-scan, this could
+  **    be updated to indicate which groups each file belong to. This would
+  **    save re-testing every file against each glob-list (the main pass could
+  **    select "WHERE flags & selector" to get only the matching entries, but
+  **    the updates (selecting by "pathname" each time) could be a bit much.
+  ** c) vfile_scan() -- where SFILE is populated -- COULD have an option to
+  **    do the testing at the time entries are added. This would be the "best"
+  **    way, but feels too much disruption to other code for what is only a
+  **    minor benefit.
+  ** For now, I'll stick with the minor annoyance of "plus 1 more file" :-)
+  **
+  ** Being able to determine the counts up-front would also allow us to hide
+  ** the "extras report" if there were no unmanaged files.
+  **
+  **TODO?
+  ** Does it make sense (and/or is it practiable) to offer an "ADD" button
+  ** against files that are unmanaged?
+  **
+  **TODO?
+  ** Does it make sense (and/or ...) to offer ediing of the various blob-lists
+  ** from the Extras report? Showing the existing configuration screen would
+  ** probably not be a problem (permissions permitting), but what happens if
+  ** those settings have been overriden by .fossil-settings/ignore-glob? As we
+  ** have access to the local checkout, is it feasible to edit it in the browser
+  ** (perhaps piggy-backing /fileedit)?
+  */
+
+  locate_unmanaged_files(0, NULL, 0, NULL);   /* Get all unmanaged */
+  /*TODO
+  ** The first two of these exclusions come from clean_cmd() in checkin.c.
+  ** Not sure exactly what they are intended to do (seem to have no effect on
+  ** my test repos). Last exclusion is an alternative to the WHERE clause above
+  ** so that COUNT(*) returns the correct value. TODO Even though, as noted
+  ** above, getting the count ahead of time is of little use (it was used to
+  ** bump the display limit if only one entry would be omitted), I'll probably
+  ** retain omitting the WHERE, and using DELETE FROM to exclude reserved
+  ** names, just in case (c) above was implemented.
+  */
+  /*TODO deletions from clean_cmd() */
+  if( file_tree_name(g.zRepositoryName, &repo, 0, 0) ){
+    db_multi_exec("DELETE FROM sfile WHERE pathname=%B", &repo);
+  }
+  db_multi_exec("DELETE FROM sfile WHERE pathname IN"
+                " (SELECT pathname FROM vfile)");
+  /*TODO Delete reserved names, rather than WHERE them out. */
+  db_multi_exec("DELETE FROM sfile WHERE pathname IN (%s)",
+                fossil_all_reserved_names(0));
+
+  /*TODO
+  ** If we had a count of matching entries before scanning, this is where
+  ** we'd bump the maximum to show so as to avoid "plus 1 file".
+  ** ...
+  ** If there's only one more than the maximum, let it through...
+  ** a line used to say "plus 1 more" may as well display that item!
+  if( nExtras == maxExtrasToShow+1 ){ maxExtrasToShow++; }
+  ** ...
+  */
+
+  /* Handle the special case where zExtra was empty (and got converted to zero).
+  ** If so, show "plain" files (those not matching any glob-list) but with an
+  ** upper limit to the number shown (set above). If a value WAS given (i.e.
+  ** after following a link), display all of the selected entries.
+  */
+  if( extrasFlags==0 ){
+    extrasFlags = EX_PLAIN;
+  }else{
+    maxExtrasToShow = 0x7fffffff; /* Basically, all of them... */
+  }
+
+  /* Describe the files listed. Currently, the only "built-in" options are to
+  ** list "plain" files (those unmanaged files not matching any glob-list),
+  ** or to list those files matching ONE of the glob-lists. However, manual
+  ** editing would allow selecting combinations of matching files.
+  **
+  ** If only EX_PLAIN is present, then other types are explicitly excluded
+  ** by definition: PLAIN means "not matching any glob-list". For all other
+  ** cases, we cannot say things like "not ignored" because a file can match
+  ** more than one list.
+  */
+  @ <p><b>Extra Files
+  if( extrasFlags == EX_PLAIN ){
+    @ (unmanaged, not ignored, not for cleaning, not kept)
+  }else{
+    Blob desc;
+    blob_zero(&desc);
+    if( extrasFlags & EX_PLAIN  ){ blob_appendf(&desc, " + unmanaged"    ); }
+    if( extrasFlags & EX_IGNORE ){ blob_appendf(&desc, " + ignored"      ); }
+    if( extrasFlags & EX_CLEAN  ){ blob_appendf(&desc, " + to be cleaned"); }
+    if( extrasFlags & EX_KEEP   ){ blob_appendf(&desc, " + to be kept"   ); }
+    if( blob_size(&desc) > 3 ){   /* Should never fail... */
+      /* Add the string built above, skipping the leading " + " */
+      @ (%h(blob_str(&desc)+3))
+    }
+    blob_reset(&desc);
+  }
+  @ </b></p>
+
+  db_prepare(&q,
+      "SELECT %Q || pathname FROM sfile"
+      " ORDER BY 1",  //TODO Order by pathname?
+      g.zLocalRoot
+  );
+  /*
+  ** Put the file-list in one paragraph with line-breaks between.
+  **TODO
+  ** Might a table (with columns for name, ignore/clean/keep) work?
+  */
+  @ <p>
+  nExtras = nMatch = nShown = nPlain = nKeep = nClean = nIgnore = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    int entryFlags = 0
+                   | ( glob_match(pIgnore, zName+nRoot) ? EX_IGNORE : 0 )
+                   | ( glob_match(pClean,  zName+nRoot) ? EX_CLEAN  : 0 )
+                   | ( glob_match(pKeep,   zName+nRoot) ? EX_KEEP   : 0 ) ;
+    if( entryFlags == 0 ){
+      entryFlags = EX_PLAIN;
+    }
+    if( entryFlags & EX_PLAIN  ){ nPlain++;  }
+    if( entryFlags & EX_IGNORE ){ nIgnore++; }
+    if( entryFlags & EX_CLEAN  ){ nClean++;  }
+    if( entryFlags & EX_KEEP   ){ nKeep++;   }
+
+    nExtras++;
+    if( entryFlags & extrasFlags ){
+      nMatch++ ;
+      if( nShown < maxExtrasToShow ){
+        nShown++;
+        if( g.perm.Hyperlink ){
+          @ %z(href("%R/file/%T?ci=ckout&annot=not managed",zName+nRoot))
+          @ %h(zName+nRoot)</a>
+        }else{
+          @ %h(zName+nRoot)
+        }
+        if( entryFlags & EX_IGNORE ){
+          @ (marked ignore)
+        }
+        if( entryFlags & EX_CLEAN ){
+          @ (marked clean)
+        }
+        if( entryFlags & EX_KEEP ){
+          @ (marked keep)
+        }
+        @ <br/>
+      }
+    }
+  }
+
+  if( nShown < nMatch ){
+    const int nHidden = nMatch - nShown;
+    @ ... plus %d(nHidden) other matching file%h(nHidden==1?"":"s")
+    @ (%z(href("/local?diff=%d%s&ef=%d",diffType,zW,extrasFlags))
+    @ show all)</a>.
+  }
+  @ </p>
+
+  @ <p>
+  if( nExtras==0 ){
+    @ No unmanaged files in checkout\
+  }else if( (nPlain==0) && (P("ef")==NULL) ){
+    @ No extra files in checkout
+    @ (%z(href("%R/local?diff=%d%s&ef=1",diffType,zW))show exclusions</a>)\
+  }else{
+    /* Report types and counts of extra files, with links to see all of the
+    ** selected type. Note the extra space before "including": the output of
+    ** append_count() ends with "\" to get the formatting correct.
+    */ 
+    append_count( EX_ALL,    nExtras, "extra file",    1, 0, diffType,zW );
+    @  including
+    append_count( EX_PLAIN,  nPlain,  "unmanaged",     0, 1, diffType,zW );
+    append_count( EX_IGNORE, nIgnore, "marked ignore", 0, 1, diffType,zW );
+    append_count( EX_CLEAN,  nClean,  "to be cleaned", 0, 1, diffType,zW );
+    append_count( EX_KEEP,   nKeep,   "to be kept",    0, 1, diffType,zW );
+  }
+  @ .</p><hr/>
+  blob_reset(&repo);
+  db_finalize(&q);
+}
+
+/*
+** Append "26 extra files" type message as a link (assuming count is non-zero),
+** with pluralisation if requested and needed. If "commaBefore" is true, the
+** link is preceded by ", " if there have been earler entries with commaBefore
+** set. If false, it resets the count. This allows correct construction of
+** variants like:
+**      27 extra files including 27 ignored.
+**      30 extra files including 3 unmanaged, 27 ignored.
+** The dt (diffType) and zW parameters pass on formatting selections from the
+** rest of the /local page.
+*/
+void append_count(
+  int ef,                 /* Flags for link */
+  int count,              /* Number of files */
+  const char *linkText,   /* Link text after count */
+  int pluralise,          /* Add optional "s"? */
+  int commaBefore,        /* Precede with ", " if earlier non-zero counts */
+  int dt,                 /* DiffType */
+  const char *zW          /* Whitespace setting ("" or "&w") */
+){
+  static int earlierCounts = 0;
+  if( count == 0 ){
+    return;
+  }
+  if( !commaBefore ){
+    earlierCounts = 0 ;
+  }else if( earlierCounts ){
+    @ ,
+  }
+  @ %z(href("%R/local?diff=%d%s&ef=%d",dt,zW,ef))%d(count) %h(linkText)\
+  if( pluralise ){
+    @ %h(count==1?"":"s")\
+  }
+  @ </a>\
+  if( commaBefore ){
+    earlierCounts += count;
+  }
+}
+
+/*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
 ** WEBPAGE: local
@@ -844,7 +1144,8 @@ void ci_tags_page(void){
 **
 ** Use of /local (or the use of "ckout" for ARTIFACTID) will show the
 ** same header details as /ci/tip, but then displays any (uncommitted)
-** edits made to files in the checkout directory.
+** edits made to files in the checkout directory. It can also display
+** any "extra" files (roughly equivalent to "fossil extras").
 */
 void ci_page(void){
   Stmt q1, q2, q3;
@@ -863,16 +1164,44 @@ void ci_page(void){
   const char *zBrName; /* Branch name */
   int bLocalMode;      /* TRUE for /local; FALSE otherwise */
   int vid;             /* Virtual file system? */
+  int showExtras;      /* Whether to show the extras report */
+  const char *zExtra;  /* How to show the report */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   zName = P("name");
+  /*
+  ** "zExtra" controls if, and how, the "extras report" is displayed. It is a
+  ** string, because when passed around in the URL (as "ef=") a value of "" has
+  ** a different meaning to "0".  A value of "" means "show a limited number of
+  ** unmanaged files" (those that aren't ignored, marked to be cleaned, or
+  ** marked kept)... this is what you'd most want to see if you've created a new
+  ** source file and forgotten to "fossil add" it. A value of "0" will hide the
+  ** extras report. Other (numeric) values control what the report shows (e.g.
+  ** "1" would list ALL unmanaged files without limiting their number).
+  **
+  ** If the "ef=" isn't present (as when first navigating to "/local") then a
+  ** default setting is used. Set to "0" to initially hide the report.
+  */
+  zExtra = P("ef");
+  if( zExtra==NULL ) {
+    zExtra = ""; /*TODO Take the default form a config. option? */
+  }
+  showExtras = strcmp(zExtra,"0")!=0;
+
   /* Local mode is selected by either "/local" or with a "name" of "ckout".
   ** First, check we have access to the checkout (and report to the user if we
   ** don't), then refresh the "vfile" table (recording which files in the
   ** checkout have changed etc.). We then change the "name" parameter to "tip"
   ** so that the "header" section displays info about the check-in that the
   ** checkout came from.
+  **TODO
+  ** It would probably make sense to limit "/local" (and other links that come
+  ** from it) to only be permitted when Fossil is running locally in "ui" mode.
+  ** It's probably not critical when all you can do is view files in the
+  ** checkout (they can already see the checked-in versions), but if a COMMIT
+  ** option WERE ever to be implemented, you wouldn't essentially random people
+  ** on the internet firing off commits.
   */
   bLocalMode = (g.zPath[0]=='l') || (fossil_strcmp(zName,"ckout")==0);
   if( bLocalMode ){
@@ -913,7 +1242,7 @@ void ci_page(void){
      rid, rid
   );
   zBrName = branch_of_rid(rid);
-  
+
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
   if( db_step(&q1)==SQLITE_ROW ){
@@ -1148,6 +1477,7 @@ void ci_page(void){
   @ <div class="sectionmenu">
   diffFlags = construct_diff_flags(diffType);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+
   /* In local mode, having displayed the header info for "tip", switch zName
   ** to be "ckout" so the style-altering links (unified or side-by-side etc.)
   ** will correctly re-select local-mode.
@@ -1156,23 +1486,25 @@ void ci_page(void){
     zName = "ckout";
   }
   if( diffType!=0 ){
-    @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
+    @ %z(chref("button","%R/%s/%T?diff=0&ef=%s",zPageHide,zName,zExtra))\
     @ Hide&nbsp;Diffs</a>
   }
   if( diffType!=1 ){
-    @ %z(chref("button","%R/%s/%T?diff=1%s",zPage,zName,zW))\
+    @ %z(chref("button","%R/%s/%T?diff=1%s&ef=%s",zPage,zName,zW,zExtra))\
     @ Unified&nbsp;Diffs</a>
   }
   if( diffType!=2 ){
-    @ %z(chref("button","%R/%s/%T?diff=2%s",zPage,zName,zW))\
+    @ %z(chref("button","%R/%s/%T?diff=2%s&ef=%s",zPage,zName,zW,zExtra))\
     @ Side-by-Side&nbsp;Diffs</a>
   }
   if( diffType!=0 ){
     if( *zW ){
-      @ %z(chref("button","%R/%s/%T?diff=%d",zPage,zName,diffType))
+      @ %z(chref("button","%R/%s/%T?diff=%d&ef=%s",zPage,zName,diffType,zExtra))
       @ Show&nbsp;Whitespace&nbsp;Changes</a>
     }else{
-      @ %z(chref("button","%R/%s/%T?diff=%d&w",zPage,zName,diffType))
+      char *button = chref("button","%R/%s/%T?diff=%d&w&ef=%s",
+                           zPage,zName,diffType,zExtra);
+      @ %z(button)
       @ Ignore&nbsp;Whitespace</a>
     }
   }
@@ -1187,16 +1519,31 @@ void ci_page(void){
   if( g.perm.Admin ){
     @ %z(chref("button","%R/mlink?ci=%!S",zUuid))MLink Table</a>
   }
+  if( bLocalMode ){
+    if( showExtras ){
+      @ %z(chref("button","%R/local?diff=%d%s&ef=0",diffType,zW))Hide Extras</a>
+    }else{
+      @ %z(chref("button","%R/local?diff=%d%s&ef=",diffType,zW))Show Extras</a>
+    }
+    /*TODO
+    ** There would be a fair chunk of stuff to get right (not least appropriate
+    ** restrictions), but it MIGHT be nice to have a COMMIT button here...
+    */
+  }
   @</div>
   if( pRe ){
     @ <p><b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b></p>
   }
   if( bLocalMode ){
-//--------------------------------------------------- TODO TESTING HACK TODO
-    int bTwoPass = P("op")==NULL;
-//--------------------------------------------------- TODO TESTING HACK TODO
+    if( showExtras ){
+      append_extras_report(zExtra, diffType, zW);
+    }
     /* Following SQL taken from diff_against_disk() in diffcmd.c */
+    /*TODO
+    ** That code wrapped the query/processing in a transaction (but, from
+    ** memory, other similar uses did not). Is it neeeded?
+    */
     db_begin_transaction();
     db_prepare(&q3,
       "SELECT pathname, deleted, chnged , rid==0, rid, islink"
@@ -1206,12 +1553,7 @@ void ci_page(void){
       " ORDER BY pathname /*scan*/",
       vid
     );
-    /* TODO Have the option of showing "extras" (non-ignored files in the
-    **      checkout directory that have not been ADDed). If done, they should
-    **      be ahead of any potential "diff-blocks" so they don't get lost
-    **      (which is the inspiration for...)
-    ** TODO Possibly (at some stage) have an option to commit?
-    */
+
     /* To prevent single-line diff-entries (those without "diff-blocks") from
     ** getting "lost", there's an optional "two-pass" mode for processing
     ** differences. If enabled, the first pass will only show one-line entries
@@ -1224,6 +1566,9 @@ void ci_page(void){
     **TODO
     ** Add this to the original (non-local) loop?
     */
+//--------------------------------------------------- TODO TESTING HACK TODO
+    int bTwoPass = P("op")==NULL; //TODO Taken from a config option?
+//--------------------------------------------------- TODO TESTING HACK TODO
     int pass = bTwoPass?1:3;
     do{
       while( db_step(&q3)==SQLITE_ROW ){
@@ -1234,13 +1579,13 @@ void ci_page(void){
         int srcid = db_column_int(&q3, 4);
         int isLink = db_column_int(&q3, 5);
         char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", srcid);
-        append_local_file_change_line(zPathname, zUuid,
-                        isDeleted, isChnged, isNew, isLink, diffFlags,pRe,pass);
+        append_local_file_change_line( zPathname, zUuid,
+                      isDeleted, isChnged, isNew, isLink, diffFlags,pRe,pass );
         free(zUuid);
       }
       db_reset(&q3);
     }while( ++pass < 3 ); /* Either "1, 2, stop" or "3, stop". */
-    db_finalize(&q3); /*TODO: Is this needed if we're reseting? */
+    db_finalize(&q3);
     db_end_transaction(1);  /* ROLLBACK */
   }else{ /* Normal, non-local-mode: show diffs against parent */
     /*TODO: Implement the optional two-pass code? */
@@ -1632,11 +1977,13 @@ void vdiff_page(void){
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( zBranch==0 ){
+    //TODO Is there an extra "&" here?
     style_submenu_element("Invert",
                           "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( zGlob ){
+    //TODO Is there an extra "&" here?
     style_submenu_element("Clear glob",
                           "%R/vdiff?%s&%s", zQuery, zW);
   }else{
