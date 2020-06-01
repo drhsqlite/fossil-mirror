@@ -144,7 +144,7 @@ static void html_raw_block(struct Blob *ob, struct Blob *text, void *opaque){
    && sqlite3_strnicmp("<h1",data,3)==0
    && sqlite3_strnicmp("</h1>", &data[size-5],5)==0
   ){
-    int nTag = htmlTagLength(data);
+    int nTag = html_tag_length(data);
     blob_append(title, data+nTag, size - nTag - 5);
     return;
   }

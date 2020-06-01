@@ -471,7 +471,7 @@ static int wikiUsesHtml(void){
 ** the markup including the initial "<" and the terminating ">".  If
 ** it is not well-formed markup, return 0.
 */
-int htmlTagLength(const char *z){
+int html_tag_length(const char *z){
   int n = 1;
   int inparen = 0;
   int c;
@@ -658,7 +658,7 @@ static int linkLength(const char *z){
 static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
-    n = htmlTagLength(z);
+    n = html_tag_length(z);
     if( n>0 ){
       *pTokenType = TOKEN_MARKUP;
       return n;
@@ -2028,7 +2028,7 @@ int html_token_length(const char *z){
   int n;
   char c;
   if( (c=z[0])=='<' ){
-    n = htmlTagLength(z);
+    n = html_tag_length(z);
     if( n<=0 ) n = 1;
   }else if( fossil_isspace(c) ){
     for(n=1; z[n] && fossil_isspace(z[n]); n++){}
