@@ -563,7 +563,7 @@ void wiki_page(void){
     @ <i>This page has been deleted</i>
   }else{
     blob_init(&wiki, zBody, -1);
-    wiki_render_by_mimetype(&wiki, zMimetype, WIKI_SAFE);
+    wiki_render_by_mimetype(&wiki, zMimetype, 0);
     blob_reset(&wiki);
   }
   attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
@@ -750,7 +750,7 @@ void wikiedit_page(void){
     havePreview = 1;
     if( zBody[0] ){
       @ Preview:<hr />
-      wiki_render_by_mimetype(&wiki, zMimetype, WIKI_SAFE);
+      wiki_render_by_mimetype(&wiki, zMimetype, 0);
       @ <hr />
       blob_reset(&wiki);
     }
@@ -1012,7 +1012,7 @@ void wikiappend_page(void){
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
     @ Preview:<hr />
-    wiki_render_by_mimetype(&preview, zMimetype, WIKI_SAFE);
+    wiki_render_by_mimetype(&preview, zMimetype, 0);
     @ <hr />
     blob_reset(&preview);
   }

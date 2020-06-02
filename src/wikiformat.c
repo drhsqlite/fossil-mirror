@@ -2510,33 +2510,16 @@ static void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
 }
 
 /*
-** Append HTML text to a Blob object.
+** Append a safe translation of HTML text to a Blob object.
 **
-** If safe-html is enabled then the appended text is modified
-** changed in the following ways:
-**
-**    1.  Omit any elements that are not on the AllowedMarkup list.
-**
-**    2.  Omit any attributes that are not on the AllowedMarkup list.
-**
-**    3.  Omit any surplus close-tags.
-**
-**    4.  Insert additional close-tags as necessary so that any
-**        tag in the input that needs a close-tag has one.
-**
-** This modifications are intended to make the generated HTML safe
-** to be embedded in a larger HTML document, such that the embedded
-** HTML has no influence on the formatting and operation of the
-** larger document.
-**
-** When safe-html is eanbled, the input to this routine must be writable.
+** Restriction: The input to this routine must be writable.
 *  Temporary changes may be made to the input, but the input is restored
 ** to its original state prior to returning.  If zHtml[nHtml] is not a
 ** zero character, then a zero might be written in that position
 ** temporarily, but that slot will also be restored before this routine
 ** returns.
 */
-void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
+static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
   char cLast;
   int i, j, n;
   HtmlTagStack s;
@@ -2590,17 +2573,41 @@ void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
 }
 
 /*
-** The input blob consists of HTML.  Convert it into "safe HTML".  Safe
-** HTML has no potentially disruptive elements (ex: <script>, <style>)
-** and it is embeddable, meaning that it won't close any outer elements
-** from the script in which it is embedded, nor will it leave any open
-** elements to affect the tail of the outer script.
+** The input blob contains HTML.  If safe-html is enabled, then
+** convert the input into "safe HTML".  The following modifications
+** are made:
+**
+**    1.  Remove any elements that are not on the AllowedMarkup list.
+**        (ex: <script>, <form>, etc.)
+**
+**    2.  Remove any attributes that are not on the AllowedMarkup list.
+**        (ex: onload=, id=, etc.)
+**
+**    3.  Omit any surplus close-tags.  This prevents the script from
+**        terminating an <div> or similar in the outer context.
+**
+**    4.  Insert additional close-tags as necessary so that any
+**        tag in the input that needs a close-tag has one.  This
+**        prevents tags in the embedded script from affecting the
+**        display of content that follows this script in the enclosing
+**        context.
+**
+** This modifications are intended to make the generated HTML safe
+** to be embedded in a larger HTML document, such that the embedded
+** HTML has no influence on the formatting and operation of the
+** larger document.
+**
+** If safe-html is disabled, then this routine is a no-op.
 */
 void safe_html(Blob *in){
-  Blob out;
-  char *z = blob_str(in);
-  int n = blob_size(in);
+  Blob out;      /* Holding area for the revised text during construction */
+  char *z;       /* Original input text */
+  int n;         /* Number of bytes in the original input text */
   int k;
+
+  /* if( safeHtml==0 ) return; TBD:  Always used at this time */
+  z = blob_str(in);
+  n = blob_size(in);
   blob_init(&out, 0, 0);
   while( fossil_isspace(z[0]) ){ z++; n--; }
   for(k=n-1; k>5 && fossil_isspace(z[k]); k--){}

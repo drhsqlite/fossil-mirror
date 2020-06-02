@@ -1,5 +1,5 @@
-C Update\sthe\sHTML\ssafeing\smechanism\sso\sthat\sit\sdoes\sthe\sentire\sMarkdown\noutput\sall\sat\sonce.\s\sIn\sthis\sway\sit\sis\sbetter\sable\sto\scope\swith\sblock\nmarkup\sthat\sspans\smultiple\sparagraphs.
-D 2020-06-02T17:38:24.703
+C Documentation\simprovements\son\sthe\sHTML\ssafer.\s\sOnly\sapply\ssafe-html\sto\nForum\sposts\sfor\sthe\smoment.
+D 2020-06-02T18:55:30.528
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -472,7 +472,7 @@ F src/diff.c 5af2476da718d2ecf93fa24ceb5aa5d061eed5b8990d22cd7959c71f72cab31b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 2539d055706cdd69dba6a4fd4c674b859f7958b8edfba2bd1121db1c59a67685
-F src/doc.c 426c91fc87d3b89bba5277c770721393376ca29726cc29ea2d6aa951f7ab085b
+F src/doc.c 4b951855a6e0b98afbde12efab41ad17d520d86539a93bb73f0d9a7a82394140
 F src/encode.c 4903a6756f11f582c9645c7a9344730f5ef80574210bc90dc7220f291742e91f
 F src/etag.c 3f93a2d2ac78e018134f12849653572d2da3793c36c00c9bbb3cecf3364c027d
 F src/event.c 8a141b844a4166caeacb6b67e004396b51e6eedf43585dce5d3930f85612256c
@@ -632,9 +632,9 @@ F src/util.c b774c15249d934a5b6d89bd4ed1deafb991477d5755aaacaef7e7596459f34c8
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 461bdf7d8977111521605e5e7c8427bdee0568a64cb371e1b84b7d0704712b98
+F src/wiki.c 91b6cb67d104abe7f9f0b8788e0bdce4c52eb9a7a456a087802a5f1a42915241
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c 0cf6abf3c7b837fb53a03a89312587da00f0359e70da037e1fe5844641b1214e
+F src/wikiformat.c f0e50b530eca7f597f966cd70466e5a4d6ce074ac44553e5d7edecdf86b7317b
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f4e6efb2daea0ef36be00030a15afba03aa30dddd2c12d20775ce88f6d41058c
-R 06f3fb1e2e415d424bcf13800aacd892
+P 382f3731ee65dfd0ac5a9a39e725d6af11c2a3b242781cf7bcd869ad3a4866d8
+R 60dead3c977aa6fc8ab80b0094506feb
 U drh
-Z fcd69f6086ec3619dc00d02f54c8d584
+Z cf6b2fe74939c80e7bd83559a2b830f5
