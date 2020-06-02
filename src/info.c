@@ -1,19 +1,3 @@
-/*TODO Graham's Notes
-** o  Should /file behave differently for non-existent local files?
-** o  Find a place to add links to /local.
-** o  Remove //TODO TESTING HACK TODO
-** ?? In hexdump_page(), should content (and downloadName?) be reset/freed?
-** ?? In clean_cmd() in checkin.c, should "Blob repo" be blob_reset()?
-** ?? Do I need to worry about deleting/emptying TEMP SFILE?
-** ?? Is it normal for one artifact to have several check-ins associated with
-**    it? In the test fossil (\x\$Test\Fossil) there are several commits under
-**    the same artifact...
-** ?? A setting to control one- or two-pass mode?
-** ?? Add two-pass to the normal loop?
-** ?? A setting to control whether Extras are intially shown or not?
-** ?? A setting to control max. entries to show initially?
-**------------------------------------------------------------------------------
-*/
 /*
 ** Copyright (c) 2007 D. Richard Hipp
 **
@@ -38,6 +22,50 @@
 #include "config.h"
 #include "info.h"
 #include <assert.h>
+
+/*-----------------------------------------------------------------------------
+** LOCAL DIFF CHANGES
+**
+** The goal is to show "(working) changes in the current checkout" in much the
+** same way as the current "check-in" pages show the changes within a check-in.
+**
+** The page is on "/local" (no parameters needed; an alias of "/vinfo" and
+** "/ci"), but at present there are no links to it within Fossil. Other changes:
+** "/localpatch" produces a patch-set for all changes in the current checkout;
+** "/localdiff" is an alias for "/fdiff" to show changes for an individual file;
+** both "/file" and "/hexdump" have been extended to support local files.
+**
+** A number of points-of-query are labeld "TODO:LD". Most relate to these
+** changes, although some are about existing code.
+**
+** In "checkin.c", the function "locate_unmanaged_files()" has been made
+** non-static so that it can be called from here.
+**-----------------------------------------------------------------------------
+** Options to control the "local changes" changes. At present, these are
+** defines: if these changes are adopted, some may want to be made into
+** configuration options.
+**
+** INTEGER: Controls how many unmanaged files will be shown before the "plus xxx
+** other matching files." line is shown (with an option to view all of them).*/
+#define LOCAL_DIFF_MAX_EXTRAS       (5)
+/*
+** STRING: Controls whether the "extras" report is initially shown or hidden. A
+** value of "0" hides the report; a value of "" (an empty string) will show it.
+*/
+#define LOCAL_DIFF_EXTRAS_MODE      ("")
+/*
+** BOOLEAN: Controls whether one or two passes are made through the list of
+** changed files. In two-pass mode, all single-line differences are displayed
+** ahead of all differences involving "diff-blocks", making them less likely to
+** be overlooked. If disabled, only one pass is made, listing all changes in the
+** order found. Possible TODO: Do the same for "normal" diffs. */
+#define LOCAL_DIFF_USE_TWO_PASSES   (1)
+/*
+** BOOLEAN: Controls whether dividers ("<hr/>") added after any "diff-blocks"
+** (except the last one)... IMHO doing so makes it easier to see where one block
+** ends and the next starts. Possible TODO: Do the same for "normal" diffs. */
+#define LOCAL_DIFF_ADD_DIVIDER      (1)
+/*---------------------------------------------------------------------------*/
 
 /*
 ** Return a string (in memory obtained from malloc) holding a
@@ -341,20 +369,21 @@ void render_checkin_context(int rid, int rid2, int parentsOnly){
 }
 
 /*
-** Read the content of file zName (prepended with the checkout directory)
-** and put it into the uninitialized blob. The blob is zeroed if the file
-** does not exist (if the file cannot be read, blob_read_from_file() aborts
-** the program).
+** Read the content of file zName (prepended with the checkout directory) and
+** put it into the uninitialized blob, returning 1. The blob is zeroed if the
+** file does not exist or cannot be accessed, in which case it returns 0.
 */
-static void content_from_file(
+static int content_from_file(
   const char *zName,    /* Filename (relative to checkout) of file to be read */
   Blob *pBlob           /* Pointer to blob to receive contents */
 ){
   const char *zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
   blob_zero(pBlob);
-  if( file_size(zFullPath, ExtFILE)>=0 ){
-    blob_read_from_file(pBlob, zFullPath, ExtFILE);
+  if( file_size(zFullPath, ExtFILE)<0 ){
+    return 0;
   }
+  blob_read_from_file(pBlob, zFullPath, ExtFILE);
+  return 1;
 }
 
 /*
@@ -516,11 +545,10 @@ static void append_local_file_change_line(
                         /* 0x02 - Display entries with "diff blocks" only */
                         /* 0x03 - Display both                            */
 ){
-#ifndef GLH_NO_DIVIDER
+#if LOCAL_DIFF_ADD_DIVIDER
   /* This remembers whether a side-by-side "diff-block" was shown the last
   ** time through. If it was, we will add "<hr/>" to better separate the
-  ** blocks and so single-line entries (when not in two-pass mode) are easier
-  ** to spot.
+  ** blocks.
   */
   static int diffShownLastTime = 0;
 #endif
@@ -543,7 +571,7 @@ static void append_local_file_change_line(
   */
   if(  showDiff && (pass == 1) ){ return; } /* Don't do diff on pass 1 of 2 */
   if( !showDiff && (pass == 2) ){ return; } /* Don't do line on pass 2 of 2 */
-#ifndef GLH_NO_DIVIDER
+#if LOCAL_DIFF_ADD_DIVIDER
   /* If a SBS diff-block was shown by the previous entry, add a divider */
   if( diffShownLastTime && (diffFlags & DIFF_SIDEBYSIDE) ){
     @ <hr/>
@@ -552,18 +580,12 @@ static void append_local_file_change_line(
   ** 'diffFlags' here so that in "Hide diffs" mode, we don't get extra lines.
   */
   diffShownLastTime = showDiff && diffFlags;
-#endif /*GLH_NO_DIVIDER*/
-//--------------------------------------------------- TODO TESTING HACK TODO
-if( strncmp(zName,"aa",2)==0 ){
-  isChnged = atoi(zName+2);
-}
-//--------------------------------------------------- TODO TESTING HACK TODO
+#endif
   @ <p>
   if( !g.perm.Hyperlink ){
     if( isDeleted ){
       if( isFilePresent ){
         @ Deleted %h(zName) (still present as a local file).
-        //TODO:Remove? showDiff = 1;
       }else{
         @ Deleted %h(zName).
       }
@@ -574,11 +596,6 @@ if( strncmp(zName,"aa",2)==0 ){
         @ Missing %h(zName) (was added to checkout).
       }
     }else switch( isChnged ){
-      /*TODO
-      ** These "special cases" have not all been properly tested (by creating
-      ** entries in a in a repository to trigger them), but they do display
-      ** as expected when "forced" to appear.
-      */
       case 3:
         @ Added %h(zName) due to a merge.
         break;
@@ -603,7 +620,6 @@ if( strncmp(zName,"aa",2)==0 ){
             break;
         }
         @ of %h(zName).
-        //TODO:Remove? showDiff = 1;
     }
     if( showDiff && diffFlags ){
       append_diff(zOld, NULL, zName, diffFlags, pRe);
@@ -615,7 +631,6 @@ if( strncmp(zName,"aa",2)==0 ){
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> (still present
         @ as %z(href("%R/file/%T?ci=ckout&annot=removed from checkout",zName))
         @ [local file]</a>).
-        //TODO:Remove? showDiff = 1;
       }else{                              /* DELETEd and deleted from disk */
         @ Deleted %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
@@ -628,7 +643,6 @@ if( strncmp(zName,"aa",2)==0 ){
         @ Missing %h(zName) (was added to checkout).
       }
     }else switch( isChnged ){
-      /*TODO Not fully tested... see see no-hyperlink version above */
       case 3:                                          /* Added by a merge */
         @ Added
         @ %z(href("%R/file/%T?ci=ckout&annot=added by merge",zName))%h(zName)
@@ -661,7 +675,6 @@ if( strncmp(zName,"aa",2)==0 ){
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a> to
         @ %z(href("%R/file/%T?ci=ckout&annot=edited locally",zName))
         @ [local file]</a>
-        //TODO:Remove? showDiff = 1;
     }
     if( showDiff ){
       if( diffFlags ){
@@ -888,8 +901,8 @@ static void append_extras_report(
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);      /* Length of root component */
   Stmt q;
-  Blob repo;                              /* TODO May not be needed */
-  int maxExtrasToShow = 5;                /* TODO Take from a setting? */
+  Blob repo;                              /* TODO:LD May not be needed */
+  int maxExtrasToShow = LOCAL_DIFF_MAX_EXTRAS;
   int extrasFlags = atoi(zExtra);         /* Which entries to show */
   int nExtras;
   int nMatch;
@@ -899,7 +912,7 @@ static void append_extras_report(
   int nClean;
   int nKeep;
 
-  /*TODO?
+  /*TODO:LD?
   ** It feels sensible to limit the number of "extra" entries shown by default
   ** for cases where "ignore-glob" or "clean-glob" haven't been fully setup.
   ** A minor irritation is that this can lead to "... plus 1 more file", on a
@@ -913,7 +926,7 @@ static void append_extras_report(
   ** b) SFILE could have an extra FLAGS field: during the pre-scan, this could
   **    be updated to indicate which groups each file belong to. This would
   **    save re-testing every file against each glob-list (the main pass could
-  **    select "WHERE flags & selector" to get only the matching entries, but
+  **    select "WHERE flags & selector" to get only the matching entries), but
   **    the updates (selecting by "pathname" each time) could be a bit much.
   ** c) vfile_scan() -- where SFILE is populated -- COULD have an option to
   **    do the testing at the time entries are added. This would be the "best"
@@ -922,13 +935,13 @@ static void append_extras_report(
   ** For now, I'll stick with the minor annoyance of "plus 1 more file" :-)
   **
   ** Being able to determine the counts up-front would also allow us to hide
-  ** the "extras report" if there were no unmanaged files.
+  ** the whole "extras report" if there were no unmanaged files.
   **
-  **TODO?
+  **TODO:LD?
   ** Does it make sense (and/or is it practiable) to offer an "ADD" button
   ** against files that are unmanaged?
   **
-  **TODO?
+  **TODO:LD?
   ** Does it make sense (and/or ...) to offer ediing of the various blob-lists
   ** from the Extras report? Showing the existing configuration screen would
   ** probably not be a problem (permissions permitting), but what happens if
@@ -938,7 +951,7 @@ static void append_extras_report(
   */
 
   locate_unmanaged_files(0, NULL, 0, NULL);   /* Get all unmanaged */
-  /*TODO
+  /*TODO:LD
   ** The first two of these exclusions come from clean_cmd() in checkin.c.
   ** Not sure exactly what they are intended to do (seem to have no effect on
   ** my test repos). Last exclusion is an alternative to the WHERE clause above
@@ -946,19 +959,19 @@ static void append_extras_report(
   ** above, getting the count ahead of time is of little use (it was used to
   ** bump the display limit if only one entry would be omitted), I'll probably
   ** retain omitting the WHERE, and using DELETE FROM to exclude reserved
-  ** names, just in case (c) above was implemented.
+  ** names, just in case (c) above were to be implemented.
   */
-  /*TODO deletions from clean_cmd() */
+  /*TODO:LD deletions from clean_cmd() */
   if( file_tree_name(g.zRepositoryName, &repo, 0, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE pathname=%B", &repo);
   }
   db_multi_exec("DELETE FROM sfile WHERE pathname IN"
                 " (SELECT pathname FROM vfile)");
-  /*TODO Delete reserved names, rather than WHERE them out. */
+  /*TODO:LD Delete reserved names, rather than WHERE them out. */
   db_multi_exec("DELETE FROM sfile WHERE pathname IN (%s)",
                 fossil_all_reserved_names(0));
 
-  /*TODO
+  /*TODO:LD
   ** If we had a count of matching entries before scanning, this is where
   ** we'd bump the maximum to show so as to avoid "plus 1 file".
   ** ...
@@ -971,8 +984,7 @@ static void append_extras_report(
   /* Handle the special case where zExtra was empty (and got converted to zero).
   ** If so, show "plain" files (those not matching any glob-list) but with an
   ** upper limit to the number shown (set above). If a value WAS given (i.e.
-  ** after following a link), display all of the selected entries.
-  */
+  ** after following a link), display all of the selected entries. */
   if( extrasFlags==0 ){
     extrasFlags = EX_PLAIN;
   }else{
@@ -999,7 +1011,7 @@ static void append_extras_report(
     if( extrasFlags & EX_IGNORE ){ blob_appendf(&desc, " + ignored"      ); }
     if( extrasFlags & EX_CLEAN  ){ blob_appendf(&desc, " + to be cleaned"); }
     if( extrasFlags & EX_KEEP   ){ blob_appendf(&desc, " + to be kept"   ); }
-    if( blob_size(&desc) > 3 ){   /* Should never fail... */
+    if( blob_size(&desc) > 3 ){         /* Should never fail... */
       /* Add the string built above, skipping the leading " + " */
       @ (%h(blob_str(&desc)+3))
     }
@@ -1009,12 +1021,12 @@ static void append_extras_report(
 
   db_prepare(&q,
       "SELECT %Q || pathname FROM sfile"
-      " ORDER BY 1",  //TODO Order by pathname?
+      " ORDER BY 1",  /*TODO:LD Order by pathname, as for differences? */
       g.zLocalRoot
   );
   /*
   ** Put the file-list in one paragraph with line-breaks between.
-  **TODO
+  **TODO:LD
   ** Might a table (with columns for name, ignore/clean/keep) work?
   */
   @ <p>
@@ -1185,7 +1197,7 @@ void ci_page(void){
   */
   zExtra = P("ef");
   if( zExtra==NULL ) {
-    zExtra = ""; /*TODO Take the default form a config. option? */
+    zExtra = LOCAL_DIFF_EXTRAS_MODE;
   }
   showExtras = strcmp(zExtra,"0")!=0;
 
@@ -1195,19 +1207,19 @@ void ci_page(void){
   ** checkout have changed etc.). We then change the "name" parameter to "tip"
   ** so that the "header" section displays info about the check-in that the
   ** checkout came from.
-  **TODO
+  **TODO:LD
   ** It would probably make sense to limit "/local" (and other links that come
   ** from it) to only be permitted when Fossil is running locally in "ui" mode.
   ** It's probably not critical when all you can do is view files in the
   ** checkout (they can already see the checked-in versions), but if a COMMIT
   ** option WERE ever to be implemented, you wouldn't essentially random people
-  ** on the internet firing off commits.
+  ** on the internet firing off commits!
   */
   bLocalMode = (g.zPath[0]=='l') || (fossil_strcmp(zName,"ckout")==0);
   if( bLocalMode ){
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
     if( vid==0 ){
-      /*TODO Is this the right response? */
+      /*TODO:LD Is this the right response? */
       style_header("No Local Checkout");
       @ No access to local checkout.
       style_footer();
@@ -1525,7 +1537,7 @@ void ci_page(void){
     }else{
       @ %z(chref("button","%R/local?diff=%d%s&ef=",diffType,zW))Show Extras</a>
     }
-    /*TODO
+    /*TODO:LD
     ** There would be a fair chunk of stuff to get right (not least appropriate
     ** restrictions), but it MIGHT be nice to have a COMMIT button here...
     */
@@ -1540,7 +1552,7 @@ void ci_page(void){
       append_extras_report(zExtra, diffType, zW);
     }
     /* Following SQL taken from diff_against_disk() in diffcmd.c */
-    /*TODO
+    /*TODO:LD
     ** That code wrapped the query/processing in a transaction (but, from
     ** memory, other similar uses did not). Is it neeeded?
     */
@@ -1563,13 +1575,11 @@ void ci_page(void){
     **
     ** If disabled, (pass gets set to 3), only one pass is made on which all
     ** entries are shown in their "normal" order.
-    **TODO
+    **TODO:LD
     ** Add this to the original (non-local) loop?
     */
-//--------------------------------------------------- TODO TESTING HACK TODO
-    int bTwoPass = P("op")==NULL; //TODO Taken from a config option?
-//--------------------------------------------------- TODO TESTING HACK TODO
-    int pass = bTwoPass?1:3;
+    int pass = LOCAL_DIFF_USE_TWO_PASSES?1:3;
+    int anyDifferences = 0;
     do{
       while( db_step(&q3)==SQLITE_ROW ){
         const char *zPathname = db_column_text(&q3,0);
@@ -1582,13 +1592,17 @@ void ci_page(void){
         append_local_file_change_line( zPathname, zUuid,
                       isDeleted, isChnged, isNew, isLink, diffFlags,pRe,pass );
         free(zUuid);
+        anyDifferences = 1;
       }
       db_reset(&q3);
     }while( ++pass < 3 ); /* Either "1, 2, stop" or "3, stop". */
+    if( !anyDifferences ){
+      @ <p>No changes in the local checkout.</p>
+    }
     db_finalize(&q3);
     db_end_transaction(1);  /* ROLLBACK */
   }else{ /* Normal, non-local-mode: show diffs against parent */
-    /*TODO: Implement the optional two-pass code? */
+    /*TODO:LD: Implement the optional two-pass code? */
     db_prepare(&q3,
       "SELECT name,"
       "       mperm,"
@@ -1633,7 +1647,7 @@ void localpatch_page(void){
 
   vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
   if( vid==0 ){
-    /*TODO Is this the right response? */
+    /*TODO:LD Is this the right response? */
     style_header("No Local Checkout");
     @ No access to local checkout.
     style_footer();
@@ -1644,7 +1658,7 @@ void localpatch_page(void){
   cgi_set_content_type("text/plain");
 
   db_begin_transaction();
-  /*TODO
+  /*TODO:LD
   ** This query is the same as in ci_page() for local-mode (as well as in
   ** diff_against_disk() in diffcmd.c, where it was originally taken from).
   ** Should they be "coalesced" in some way?
@@ -1977,13 +1991,13 @@ void vdiff_page(void){
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( zBranch==0 ){
-    //TODO Is there an extra "&" here?
+    //TODO:LD Is there an extra "&" here?
     style_submenu_element("Invert",
                           "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( zGlob ){
-    //TODO Is there an extra "&" here?
+    //TODO:LD Is there an extra "&" here?
     style_submenu_element("Clear glob",
                           "%R/vdiff?%s&%s", zQuery, zW);
   }else{
@@ -2741,7 +2755,7 @@ void hexdump_page(void){
     }
   }
   style_header("Hex Artifact Content");
-  /* TODO
+  /*TODO:LD
   ** Could the call to style_header() be moved so these two exclusion
   ** blocks could be merged? I don't think any of them make sense for
   ** a local file.
@@ -2772,7 +2786,7 @@ void hexdump_page(void){
   }
   @ <blockquote><pre>
   hexdump(&content);
-  /* TODO: Should content (and downloadName?) be reset/freed? */
+  /* TODO:LD: Should content (and downloadName?) be reset/freed? */
   @ </pre></blockquote>
   style_footer();
 }
@@ -3024,6 +3038,7 @@ void artifact_page(void){
     rid = name_to_rid(zName);
   }
   if( fossil_strcmp(zCI,"ckout")==0 ){
+    /* "ci=ckout" is an extension for viewing files in the local checkout. */
     bLocalMode = 1;
     rid = -1;     /* Dummy value to make it look found */
   }else if( rid==0 ){
@@ -3064,7 +3079,7 @@ void artifact_page(void){
   asText = P("txt")!=0;
   if( isFile ){
     if( bLocalMode ){
-      /*TODO
+      /*TODO:LD
       ** Is this the best way of handling annotations to the description?
       ** If "annot=message" is part of the URL, the message is appended
       ** to the description of the file. Only used for "local" files to
@@ -3214,15 +3229,9 @@ void artifact_page(void){
   }else{
     @ <hr />
     if( bLocalMode ){
-      /*TODO
-      ** Should we handle non-existent local files differently? Currently,
-      ** they are shown the same as if the file was present but empty. This
-      ** should never happen through "normal" operation, but someone might
-      ** craft a link to one. Perhaps have content_from_file() perform an
-      ** existence-check (rather than relying on blob_read_from_file() which
-      ** it calls returning an empty blob)?
-      */
-      content_from_file(zName, &content);
+      if( !content_from_file(zName, &content) ){
+        fossil_warning("Cannot find/access %s.", zName);
+      }
     }else{
       content_get(rid, &content);
     }
