@@ -2509,6 +2509,8 @@ void blob_append_safe_html(Blob *pBlob, char *zHtml, int nHtml){
   int i, j, n;
   HtmlTagStack s;
   ParsedMarkup markup;
+
+  if( nHtml<=0 ) return;
   cLast = zHtml[nHtml];
   zHtml[nHtml] = 0;
   html_tagstack_init(&s);

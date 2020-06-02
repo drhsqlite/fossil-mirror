@@ -1,5 +1,5 @@
-C Adjust\sthe\swebpage-ex.md\spage\sdue\sto\sthe\sfact\sthat\s&lt;style&gt;\sis\sno\slonger\nallowed\sin\sMarkdown,\sfor\ssecurity.
-D 2020-06-01T22:46:16.102
+C Fix\sblob_append_safe_html()\sso\sthat\sit\scan\shandle\sthe\scase\sof\snHtml==0.
+D 2020-06-02T11:23:57.154
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -634,7 +634,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 811a4c3a879c6a9228da847e359ad2b746f9a86cc213250e693ed4f298da6198
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c e6a79d7447ae8a4e7af02520120ffd0f2a1230fdfb698fd6724239e4daef854a
+F src/wikiformat.c 81a5c10378893803b2067c673bc100a0127520911159fc2d14b0abfbe2a56f37
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2875cb444676c9d5c40e6e7e723312ea8f86f655c08cdbdcb35426cfd7118bf
-R 68c1907cacca68ae708ba3362ca4adcd
+P 9f9fbb4b56a370e4412d3b2d4f09d679bd5522e5ef2dbd449563a799a9cd192a
+R c7db7bb0e2a997d9dac3c5568253b70a
 U drh
-Z fb71014d061a34c11fd5ca669573a237
+Z dc488fc17919cfc1097c4dc6a9e1688e
