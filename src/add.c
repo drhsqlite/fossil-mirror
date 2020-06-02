@@ -1092,7 +1092,7 @@ void mv_cmd(void){
         const char *zTail;
         if( nPath==nOrig ){
           zTail = file_tail(zPath);
-        }else if( destType==1 ){
+        }else if( origType!=0 && destType==1 ){
           zTail = &zPath[nOrig-strlen(file_tail(zOrig))];
         }else{
           zTail = &zPath[nOrig+1];

@@ -1,5 +1,5 @@
-C Add\sthe\ssafe-html\ssetting\sthat\sdetermines\swhich\skinds\sof\sdocuments\sare\nallowed\sto\sgenerate\sunsafe\sHTML\sfrom\sMarkdown.
-D 2020-06-02T20:05:28.858
+C mv:\sHandle\sthe\scase\sof\ssoft-renaming\sof\sa\smanaged\ssub-directory\sthat\swas\salready\srenamed\sat\sthe\sfile-system\slevel;\ssee\s[https://fossil-scm.org/forum/forumpost/f5b13591e3|forumpost/f5b13591e3]
+D 2020-06-02T22:34:09.574
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -430,7 +430,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
-F src/add.c 408bf9fcae8ed69eb1b483d0292462266e0343476d145e338908287d654d6460
+F src/add.c 3947e37efe9ac09aa2f179d39aad6a369078d630efe425d200468bbb8b239082
 F src/alerts.c c2a1dbfc8066e5be6757367c92013b3a59750daba4fa12971fc6b3ab85bf66c1
 F src/allrepo.c 32cdad222cc467e7c4ec3904bd09df7b860b7bede1aad5d88a3ae20ff873fb8e
 F src/attach.c 035ecdc6198987d8305856b75fec397db0d34c20999e8fe225349aa8bc60a93a
@@ -672,7 +672,7 @@ F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
 F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
-F test/mv-rm.test 6a60863935f7a9e0223ccb9421729d7677fa1f9f
+F test/mv-rm.test 1ab746c2e54240d5f860b955e056539015f12b5e944a2d7ae8057f081247a44c
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 303d90ca6a8f221d671daa90b3f9a07a874e7ff0
 F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03ce4e70b62b93f42599d29c5ef995ef4902eb39c9753cbfd047a5daaf9a4faf
-R 87bd1c5d71cfced5d1294b4820fd337e
-U drh
-Z 4d1436f2cf71542eab483ba4a45753cd
+P 89b6dda99c45533358f1af425acc226fec851c8f325565d24980bb2f1fe1aa02
+R a8ad7cb81c54d5192d8816c1113abda4
+U ashepilko
+Z c7d50c8c437c048480c083e5e32430d4
