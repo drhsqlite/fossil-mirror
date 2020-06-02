@@ -392,7 +392,8 @@ void page_dir(void){
         Blob content;
         const char *zMime = mimetype_from_name(zName);
         content_get(rid, &content);
-        wiki_render_by_mimetype(&content, zMime, 0);
+        safe_html_context(DOCSRC_FILE);
+        wiki_render_by_mimetype(&content, zMime);
       }
     }
   }

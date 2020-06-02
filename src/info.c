@@ -1045,7 +1045,8 @@ void winfo_page(void){
 
   @ <div class="section">Content</div>
   blob_init(&wiki, pWiki->zWiki, -1);
-  wiki_render_by_mimetype(&wiki, pWiki->zMimetype, 0);
+  safe_html_context(DOCSRC_WIKI);
+  wiki_render_by_mimetype(&wiki, pWiki->zMimetype);
   blob_reset(&wiki);
   manifest_destroy(pWiki);
   style_footer();
@@ -2364,7 +2365,8 @@ void artifact_page(void){
     @ <hr />
     content_get(rid, &content);
     if( renderAsWiki ){
-      wiki_render_by_mimetype(&content, zMime, 0);
+      safe_html_context(DOCSRC_FILE);
+      wiki_render_by_mimetype(&content, zMime);
     }else if( renderAsHtml ){
       @ <iframe src="%R/raw/%s(zUuid)"
       @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"

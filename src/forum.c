@@ -342,7 +342,8 @@ void forum_render(
     }
     blob_init(&x, 0, 0);
     blob_append(&x, zContent, -1);
-    wiki_render_by_mimetype(&x, zMimetype, WIKI_SAFE);
+    safe_html_context(DOCSRC_FORUM);
+    wiki_render_by_mimetype(&x, zMimetype);
     blob_reset(&x);
     @ </div>
   }else{

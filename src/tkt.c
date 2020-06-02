@@ -514,6 +514,7 @@ void tktview_page(void){
   zScript = ticket_viewpage_code();
   if( P("showfields")!=0 ) showAllFields();
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
+  safe_html_context(DOCSRC_TICKET);
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
 

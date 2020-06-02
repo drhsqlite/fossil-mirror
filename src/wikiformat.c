@@ -1813,7 +1813,7 @@ void test_wiki_render(void){
 ** Render markdown in FILE as HTML on stdout.
 ** Options:
 **
-**    --safe           Do "safe-html" rendering.
+**    --safe           Restrict the output to use only "safe" HTML
 */
 void test_markdown_render(void){
   Blob in, out;
@@ -1829,7 +1829,8 @@ void test_markdown_render(void){
       fossil_print("<!------ %h ------->\n", g.argv[i]);
     }
     markdown_to_html(&in, 0, &out);
-    if( bSafe ) safe_html(&out);
+    safe_html_context( bSafe ? DOCSRC_UNTRUSTED : DOCSRC_TRUSTED );
+    safe_html(&out);
     blob_write_to_file(&out, "-");
     blob_reset(&in);
     blob_reset(&out);
@@ -2573,6 +2574,54 @@ static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
 }
 
 /*
+** This local variable is true if the safe_html() function is enabled.
+** In other words, this is true if the output of Markdown should be
+** restricted to use only "safe" HTML.
+*/
+static int safeHtmlEnable = 1;
+
+
+#if INTERFACE
+/*
+** Allowed values for the eTrust parameter to safe_html_context().
+*/
+#define DOCSRC_FILE       1     /* Document is a checked-in file */
+#define DOCSRC_FORUM      2     /* Document is a forum post */
+#define DOCSRC_TICKET     3     /* Document is a ticket comment */
+#define DOCSRC_WIKI       4     /* Document is a wiki page */
+#define DOCSRC_TRUSTED    5     /* safe_html() is always a no-op */
+#define DOCSRC_UNTRUSTED  6     /* safe_html() is always enabled */
+#endif /* INTERFACE */
+
+
+/*
+** Specify the context in which a markdown document with potentially
+** unsafe HTML will be rendered.
+*/
+void safe_html_context(int eTrust){
+  static const char *zSafeHtmlSetting = 0;
+  char cPerm = 0;
+  if( eTrust==DOCSRC_TRUSTED ){
+    safeHtmlEnable = 0;
+    return;
+  }
+  if( eTrust==DOCSRC_UNTRUSTED ){
+    safeHtmlEnable = 1;
+    return;
+  }
+  if( zSafeHtmlSetting==0 ){
+    zSafeHtmlSetting = db_get("safe-html", "");
+  }
+  switch( eTrust ){
+    case DOCSRC_FILE:   cPerm = 'b';  break;
+    case DOCSRC_FORUM:  cPerm = 'f';  break;
+    case DOCSRC_TICKET: cPerm = 't';  break;
+    case DOCSRC_WIKI:   cPerm = 'w';  break;
+  }
+  safeHtmlEnable = (strchr(zSafeHtmlSetting,cPerm)==0);
+}
+
+/*
 ** The input blob contains HTML.  If safe-html is enabled, then
 ** convert the input into "safe HTML".  The following modifications
 ** are made:
@@ -2605,7 +2654,7 @@ void safe_html(Blob *in){
   int n;         /* Number of bytes in the original input text */
   int k;
 
-  /* if( safeHtml==0 ) return; TBD:  Always used at this time */
+  if( safeHtmlEnable==0 ) return;
   z = blob_str(in);
   n = blob_size(in);
   blob_init(&out, 0, 0);
