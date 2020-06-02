@@ -669,7 +669,6 @@ static int forum_display_hierarchical(int froot, int target){
       @ <div id='forum%d(fpid)' class='forumHier%s(zSel)' \
       @ style='margin-left: %d((p->nIndent-1)*iIndentScale)ex;'>
     }
-    pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>

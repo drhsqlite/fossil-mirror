@@ -256,7 +256,8 @@ typedef signed char i8;
 /*
 ** Number of elements in an array
 */
-#define count(X) (sizeof(X)/sizeof(X[0]))
+#define count(X)      (int)(sizeof(X)/sizeof(X[0]))
+#define ArraySize(X)  (int)(sizeof(X)/sizeof(X[0]))
 
 /*
 ** The pledge() interface is currently only available on OpenBSD 5.9
