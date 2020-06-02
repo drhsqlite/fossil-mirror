@@ -2402,23 +2402,38 @@ void test_html_to_text(void){
   }
 }
 
+/****************************************************************************
+** safe-html:
+**
+** An interface for preventing HTML constructs (ex: <style>, <form>, etc)
+** from being inserted into Wiki and Forum posts using Markdown.   See the
+** comment on safe_html_append() for additional information on what is meant
+** by "safe".
+**
+** The safe-html restrictions only apply to Markdown, as Fossil-Wiki only
+** allows safe-html by design - unsafe-HTML is never and has never been
+** allowed in Fossil-Wiki.
+**
+** This code is in the wikiformat.c file so that it can have access to the
+** white-list of acceptable HTML in the aMarkup[] array.
+*/
+
 /*
 ** An instance of this object keeps track of the nesting of HTML
-** elements for blob_append_safe_html().
+** elements for safe_html_append().
 */
-#if LOCAL_INTERFACE
+typedef struct HtmlTagStack HtmlTagStack;
 struct HtmlTagStack {
   int n;                /* Current tag stack depth */
   int nAlloc;           /* Space allocated for aStack[] */
   int *aStack;          /* The stack of tags */
   int aSpace[10];       /* Initial static space, to avoid malloc() */
 };
-#endif /* LOCAL_INTERFACE */
 
 /*
 ** Initialize bulk memory to a valid empty tagstack.
 */
-void html_tagstack_init(HtmlTagStack *p){
+static void html_tagstack_init(HtmlTagStack *p){
   p->n = 0;
   p->nAlloc = 0;
   p->aStack = p->aSpace;
@@ -2427,7 +2442,7 @@ void html_tagstack_init(HtmlTagStack *p){
 /*
 ** Push a new element onto the tag statk
 */
-void html_tagstack_push(HtmlTagStack *p, int e){
+static void html_tagstack_push(HtmlTagStack *p, int e){
   if( p->n>=ArraySize(p->aSpace) && p->n>=p->nAlloc ){
     if( p->nAlloc==0 ){
       int *aNew;
@@ -2446,7 +2461,7 @@ void html_tagstack_push(HtmlTagStack *p, int e){
 /*
 ** Clear a tag stack, reclaiming any memory allocations.
 */
-void html_tagstack_clear(HtmlTagStack *p){
+static void html_tagstack_clear(HtmlTagStack *p){
   if( p->nAlloc ){
     fossil_free(p->aStack);
     p->nAlloc = 0;
@@ -2465,7 +2480,7 @@ void html_tagstack_clear(HtmlTagStack *p){
 ** If there is no open-tag for eEnd on the stack, then this
 ** routine is a no-op.
 */
-void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
+static void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
   int i, e;
   if( eEnd!=0 ){
     for(i=p->n-1; i>=0 && p->aStack[i]!=eEnd; i--){}
@@ -2493,10 +2508,14 @@ void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
 **
 **    2.  Omit any attributes that are not on the AllowedMarkup list.
 **
-**    3.  Omit any surplus close-tags.
+**    3.  Omit any surplus close-tags.  (This prevents a surplus </div>
+**        or </body> or similar element from interferring with formatting
+**        of the outer context in which the HTML is being inserted.)
 **
-**    4.  Insert additional close-tags as necessary so that all
-**        tag in the input that needs a close-tag has one.
+**    4.  Insert additional close-tags as necessary so that any
+**        tag in the input that needs a close-tag has one.  (This prevents
+**        the inserted HTML from messing up the formatting of subsequent
+**        sections of the document into which it is being inserted.)
 **
 ** The input must be writable.  Temporary changes may be made to the
 ** input, but the input is restored to its original state prior to
@@ -2504,7 +2523,7 @@ void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
 ** might be written in that position temporarily, but that slot will
 ** also be restored before this routine returns.
 */
-void blob_append_safe_html(Blob *pBlob, char *zHtml, int nHtml){
+void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
   char cLast;
   int i, j, n;
   HtmlTagStack s;
@@ -2562,7 +2581,7 @@ void blob_append_safe_html(Blob *pBlob, char *zHtml, int nHtml){
 ** Usage: %fossil test-safe-html FILE ...
 **
 ** Read files named on the command-line.  Send the text of each file
-** through blob_append_safe_html() and then write the result on
+** through safe_html_append() and then write the result on
 ** standard output.
 */
 void test_safe_html_cmd(void){
@@ -2575,7 +2594,7 @@ void test_safe_html_cmd(void){
     blob_read_from_file(&x, g.argv[i], ExtFILE);
     blob_init(&y, 0, 0);
     blob_terminate(&x);
-    blob_append_safe_html(&y, blob_buffer(&x), blob_size(&x));
+    safe_html_append(&y, blob_buffer(&x), blob_size(&x));
     blob_reset(&x);
     z = blob_str(&y);
     n = blob_size(&y);
