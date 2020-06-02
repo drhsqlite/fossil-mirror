@@ -510,7 +510,7 @@ void eventedit_page(void){
     @ <blockquote>
     blob_init(&event, 0, 0);
     blob_append(&event, zBody, -1);
-    wiki_render_by_mimetype(&event, zMimetype);
+    wiki_render_by_mimetype(&event, zMimetype, 0);
     @ </blockquote><hr />
     blob_reset(&event);
   }

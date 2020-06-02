@@ -47,7 +47,7 @@ void markdown_to_html(
 
 /* BLOB_APPEND_BLOB -- append blob contents to another */
 #define BLOB_APPEND_BLOB(dest, src) \
-  safe_html_append((dest), blob_buffer(src), blob_size(src))
+  blob_append((dest), blob_buffer(src), blob_size(src))
 
 
 /* HTML escapes
@@ -149,7 +149,7 @@ static void html_blockhtml(struct Blob *ob, struct Blob *text, void *opaque){
     return;
   }
   INTER_BLOCK(ob);
-  safe_html_append(ob, data, size);
+  blob_append(ob, data, size);
   BLOB_APPEND_LITERAL(ob, "\n");
 }
 
@@ -217,7 +217,7 @@ static void html_list_item(
   size_t text_size = blob_size(text);
   while( text_size>0 && text_data[text_size-1]=='\n' ) text_size--;
   BLOB_APPEND_LITERAL(ob, "<li>");
-  safe_html_append(ob, text_data, text_size);
+  blob_append(ob, text_data, text_size);
   BLOB_APPEND_LITERAL(ob, "</li>\n");
 }
 

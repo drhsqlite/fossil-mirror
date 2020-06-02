@@ -190,13 +190,16 @@ const char *wiki_filter_mimetypes(const char *zMimetype){
 **   text/x-fossil-wiki      Fossil wiki
 **   text/x-markdown         Markdown
 **   anything else...        Plain text
+**
+** If zMimetype is a null pointer, then use "text/x-fossil-wiki".
 */
-void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
+void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype, int flags){
   if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
-    wiki_convert(pWiki, 0, 0);
+    wiki_convert(pWiki, 0, flags);
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pWiki, 0, &tail);
+    if( flags & WIKI_SAFE ) safe_html(&tail);
     @ %s(blob_str(&tail))
     blob_reset(&tail);
   }else{
@@ -222,7 +225,7 @@ void markdown_rules_page(void){
   }
   blob_init(&x, builtin_text("markdown.md"), -1);
   blob_materialize(&x);
-  wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
+  wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown", 0);
   blob_reset(&x);
   style_footer();
 }
@@ -243,7 +246,7 @@ void wiki_rules_page(void){
   }
   blob_init(&x, builtin_text("wiki.wiki"), -1);
   blob_materialize(&x);
-  wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
+  wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki", 0);
   blob_reset(&x);
   style_footer();
 }
@@ -560,7 +563,7 @@ void wiki_page(void){
     @ <i>This page has been deleted</i>
   }else{
     blob_init(&wiki, zBody, -1);
-    wiki_render_by_mimetype(&wiki, zMimetype);
+    wiki_render_by_mimetype(&wiki, zMimetype, WIKI_SAFE);
     blob_reset(&wiki);
   }
   attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
@@ -747,7 +750,7 @@ void wikiedit_page(void){
     havePreview = 1;
     if( zBody[0] ){
       @ Preview:<hr />
-      wiki_render_by_mimetype(&wiki, zMimetype);
+      wiki_render_by_mimetype(&wiki, zMimetype, WIKI_SAFE);
       @ <hr />
       blob_reset(&wiki);
     }
@@ -1009,7 +1012,7 @@ void wikiappend_page(void){
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
     @ Preview:<hr />
-    wiki_render_by_mimetype(&preview, zMimetype);
+    wiki_render_by_mimetype(&preview, zMimetype, WIKI_SAFE);
     @ <hr />
     blob_reset(&preview);
   }

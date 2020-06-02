@@ -978,7 +978,7 @@ static void fileedit_render_preview(Blob * pContent,
       break;
     }
     case FE_RENDER_WIKI:
-      wiki_render_by_mimetype(pContent, zMime);
+      wiki_render_by_mimetype(pContent, zMime, 0);
       break;
     default:{
       const char *zExt = strrchr(zFilename,'.');
