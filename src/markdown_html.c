@@ -131,7 +131,7 @@ static void html_epilog(struct Blob *ob, void *opaque){
   BLOB_APPEND_LITERAL(ob, "</div>\n");
 }
 
-static void html_raw_block(struct Blob *ob, struct Blob *text, void *opaque){
+static void html_blockhtml(struct Blob *ob, struct Blob *text, void *opaque){
   char *data = blob_buffer(text);
   size_t size = blob_size(text);
   Blob *title = (Blob*)opaque;
@@ -300,7 +300,7 @@ static void html_table_row(
 
 /* HTML span tags */
 
-static int html_raw_span(struct Blob *ob, struct Blob *text, void *opaque){
+static int html_raw_html_tag(struct Blob *ob, struct Blob *text, void *opaque){
   blob_append(ob, blob_buffer(text), blob_size(text));
   return 1;
 }
@@ -335,7 +335,7 @@ static int html_autolink(
 ** If nSep is 1 or 2, then this is a code-span which is inline.
 ** If nSep is 3 or more, then this is a fenced code block
 */
-static int html_code_span(
+static int html_codespan(
   struct Blob *ob,    /* Write the output here */
   struct Blob *text,  /* The stuff in between the code span marks */
   int nSep,           /* Number of grave accents marks as delimiters */
@@ -415,7 +415,7 @@ static int html_image(
   return 1;
 }
 
-static int html_line_break(struct Blob *ob, void *opaque){
+static int html_linebreak(struct Blob *ob, void *opaque){
   BLOB_APPEND_LITERAL(ob, "<br />\n");
   return 1;
 }
@@ -485,7 +485,7 @@ void markdown_to_html(
     /* block level elements */
     html_blockcode,
     html_blockquote,
-    html_raw_block,
+    html_blockhtml,
     html_header,
     html_hrule,
     html_list,
@@ -497,22 +497,22 @@ void markdown_to_html(
 
     /* span level elements */
     html_autolink,
-    html_code_span,
+    html_codespan,
     html_double_emphasis,
     html_emphasis,
     html_image,
-    html_line_break,
+    html_linebreak,
     html_link,
-    html_raw_span,
+    html_raw_html_tag,
     html_triple_emphasis,
 
     /* low level elements */
-    0,  /* entities are copied verbatim */
+    0,    /* entity */
     html_normal_text,
 
     /* misc. parameters */
-    "*_", /* emphasis characters */
-    0 /* opaque data */
+    "*_", /* emph_chars */
+    0     /* opaque */
   };
   html_renderer.opaque = output_title;
   if( output_title ) blob_reset(output_title);
