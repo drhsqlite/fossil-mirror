@@ -1,5 +1,5 @@
-C Change\sthe\scallback\sfunction\snames\sin\smarkdown_html.c\sso\sthat\sthey\nmatch\sthe\spointer\snames\sin\smarkdown.c.\s\sNo\sfunctional\schanges.
-D 2020-06-02T12:35:46.497
+C Only\suse\ssafe-html\smarkdown\srendering\sfor\sthe\sForum.\s\sThis\sis\sa\stemporary\nmeasure\sto\sget\smost\sthings\sworking\sagain\swhile\swe\sdevise\simprovements\sto\sthe\nsafe-html\smechanism.
+D 2020-06-02T15:14:48.669
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -482,7 +482,7 @@ F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
 F src/fileedit.c d7b1c125e757cc03f349e631ab6c8cfa26e6b35d054230e74e90c8be3f726913
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c a4e2da54162b9373187ccd1e4f81ac3c6020d686bd60d7fcad6705c098aee245
+F src/forum.c 3b0b1ab8892aec9ee0817233908d7221a04fb7228569389ee1c6f8cc0140bca9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd65ab2a61f5
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
@@ -537,7 +537,7 @@ F src/makemake.tcl 18d7774da9aab51c1c49732b7ae07bffecae879eb322509f6cd370472c6b6
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
 F src/markdown.c b11ff3c334d00d2c0890b79db135845518da49b4cc7bc88e662c63bf5870c77b
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
-F src/markdown_html.c e821ff64066c1d10db6633dcbb2a04e684975bde7fcc405254516249b8ec1746
+F src/markdown_html.c 309f445fedee1f03e4097d0af9900fa3ac94d49e4298297c3662360f7d0c7758
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 7d2b5d5d4e15f56f4dac9c9b6c2af3a7e4c1b459fa7b0de0f2517f62989706b6
@@ -634,7 +634,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 811a4c3a879c6a9228da847e359ad2b746f9a86cc213250e693ed4f298da6198
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c c92a71f7101d1c3ea22ee931f4a9f3fa5b2d929d9430c17408beb9eb4dcbd54d
+F src/wikiformat.c d50aed7ed0c4565827242c88e7b7f6be731b8e961c26d996e7d0b22c25ebd523
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54c1fd6fbb5f8dd266344659829e222f7f83f94eadef6cc040400802b3a65832
-R c38217420abb14a4128a5c598ce2848c
+P 485fda60c3fcb7e5893fcaed78dd31abf8baa48f209b0866adf6301f4c813a18
+R 4703eaab330e70d56b0a3ce12c9a1947
 U drh
-Z feec6ac3f50cc2468cb04f911f4f15ec
+Z bfa9b4632e2d5fe34dd80f212d62dcdc

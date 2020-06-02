@@ -217,7 +217,7 @@ static void html_list_item(
   size_t text_size = blob_size(text);
   while( text_size>0 && text_data[text_size-1]=='\n' ) text_size--;
   BLOB_APPEND_LITERAL(ob, "<li>");
-  blob_append(ob, text_data, text_size);
+  safe_html_append(ob, text_data, text_size);
   BLOB_APPEND_LITERAL(ob, "</li>\n");
 }
 
