@@ -1160,7 +1160,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
                                        int * vid,
                                        const char * zFilename,
                                        int * frid){
-  char * zFileUuid;    /* file UUID */
+  char * zFileUuid = 0;             /* file content UUID */
   const int checkFile = zFilename!=0 || frid!=0;
   
   if(checkFile && !fileedit_ajax_check_filename(zFilename)){
