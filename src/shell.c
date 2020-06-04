@@ -10660,6 +10660,11 @@ static int shell_callback(
           utf8_width_print(p->out, w, azCol[i]);
           fputs(i==nArg-1 ? "\n" : "  ", p->out);
         }
+        for(i=0; i<nArg; i++){
+          int w = aExplainWidth[i];
+          print_dashes(p->out, w);
+          fputs(i==nArg-1 ? "\n" : "  ", p->out);
+        }
       }
       if( azArg==0 ) break;
       for(i=0; i<nArg; i++){
@@ -12458,16 +12463,19 @@ static const char *(azHelp[]) = {
   ".log FILE|off            Turn logging on or off.  FILE can be stderr/stdout",
   ".mode MODE ?TABLE?       Set output mode",
   "   MODE is one of:",
-  "     ascii    Columns/rows delimited by 0x1F and 0x1E",
-  "     csv      Comma-separated values",
-  "     column   Left-aligned columns.  (See .width)",
-  "     html     HTML <table> code",
-  "     insert   SQL insert statements for TABLE",
-  "     line     One value per line",
-  "     list     Values delimited by \"|\"",
-  "     quote    Escape answers as for SQL",
-  "     tabs     Tab-separated values",
-  "     tcl      TCL list elements",
+  "     ascii     Columns/rows delimited by 0x1F and 0x1E",
+  "     csv       Comma-separated values",
+  "     column    Output in columns.  (See .width)",
+  "     html      HTML <table> code",
+  "     insert    SQL insert statements for TABLE",
+  "     json      Results in a JSON array",
+  "     line      One value per line",
+  "     list      Values delimited by \"|\"",
+  "     markdown  Markdown table format",
+  "     quote     Escape answers as for SQL",
+  "     table     ASCII-art table",
+  "     tabs      Tab-separated values",
+  "     tcl       TCL list elements",
   ".nullvalue STRING        Use STRING in place of NULL values",
   ".once ?OPTIONS? ?FILE?   Output for the next SQL command only to FILE",
   "     If FILE begins with '|' then open as a pipe",
@@ -12592,7 +12600,7 @@ static const char *(azHelp[]) = {
   ".vfsinfo ?AUX?           Information about the top-level VFS",
   ".vfslist                 List all available VFSes",
   ".vfsname ?AUX?           Print the name of the VFS stack",
-  ".width NUM1 NUM2 ...     Set column widths for \"column\" mode",
+  ".width NUM1 NUM2 ...     Set minimum column widths for columnar output",
   "     Negative values right-justify",
 };
 
@@ -13429,6 +13437,7 @@ typedef struct ImportCtx ImportCtx;
 struct ImportCtx {
   const char *zFile;  /* Name of the input file */
   FILE *in;           /* Read the CSV text from this input stream */
+  int (SQLITE_CDECL *xCloser)(FILE*);      /* Func to close in */
   char *z;            /* Accumulated text for a field */
   int n;              /* Number of bytes in z */
   int nAlloc;         /* Space allocated for z[] */
@@ -13440,6 +13449,16 @@ struct ImportCtx {
   int cColSep;        /* The column separator character.  (Usually ",") */
   int cRowSep;        /* The row separator character.  (Usually "\n") */
 };
+
+/* Clean up resourced used by an ImportCtx */
+static void import_cleanup(ImportCtx *p){
+  if( p->in!=0 && p->xCloser!=0 ){
+    p->xCloser(p->in);
+    p->in = 0;
+  }
+  sqlite3_free(p->z);
+  p->z = 0;
+}
 
 /* Append a single byte to z[] */
 static void import_append_char(ImportCtx *p, int c){
@@ -16162,6 +16181,7 @@ static int do_meta_command(char *zLine, ShellState *p){
           raw_printf(stderr, "The --preserve-rowids option is not compatible"
                              " with SQLITE_OMIT_VIRTUALTABLE\n");
           rc = 1;
+          sqlite3_free(zLike);
           goto meta_command_exit;
 #else
           ShellSetFlag(p, SHFLG_PreserveRowid);
@@ -16173,6 +16193,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         {
           raw_printf(stderr, "Unknown option \"%s\" on \".dump\"\n", azArg[i]);
           rc = 1;
+          sqlite3_free(zLike);
           goto meta_command_exit;
         }
       }else if( zLike ){
@@ -16530,7 +16551,6 @@ static int do_meta_command(char *zLine, ShellState *p){
     char *zSql;                 /* An SQL statement */
     ImportCtx sCtx;             /* Reader context */
     char *(SQLITE_CDECL *xRead)(ImportCtx*); /* Func to read one value */
-    int (SQLITE_CDECL *xCloser)(FILE*);      /* Func to close file */
     int eVerbose = 0;           /* Larger for more console output */
     int nSkip = 0;              /* Initial lines to skip */
     int useOutputMode = 1;      /* Use output mode to determine separators */
@@ -16636,11 +16656,11 @@ static int do_meta_command(char *zLine, ShellState *p){
 #else
       sCtx.in = popen(sCtx.zFile+1, "r");
       sCtx.zFile = "<pipe>";
-      xCloser = pclose;
+      sCtx.xCloser = pclose;
 #endif
     }else{
       sCtx.in = fopen(sCtx.zFile, "rb");
-      xCloser = fclose;
+      sCtx.xCloser = fclose;
     }
     if( sCtx.in==0 ){
       utf8_printf(stderr, "Error: cannot open \"%s\"\n", zFile);
@@ -16664,7 +16684,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
     zSql = sqlite3_mprintf("SELECT * FROM %s", zTable);
     if( zSql==0 ){
-      xCloser(sCtx.in);
+      import_cleanup(&sCtx);
       shell_out_of_memory();
     }
     nByte = strlen30(zSql);
@@ -16680,8 +16700,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       }
       if( cSep=='(' ){
         sqlite3_free(zCreate);
-        sqlite3_free(sCtx.z);
-        xCloser(sCtx.in);
+        import_cleanup(&sCtx);
         utf8_printf(stderr,"%s: empty file\n", sCtx.zFile);
         rc = 1;
         goto meta_command_exit;
@@ -16695,8 +16714,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       if( rc ){
         utf8_printf(stderr, "CREATE TABLE %s(...) failed: %s\n", zTable,
                 sqlite3_errmsg(p->db));
-        sqlite3_free(sCtx.z);
-        xCloser(sCtx.in);
+        import_cleanup(&sCtx);
         rc = 1;
         goto meta_command_exit;
       }
@@ -16706,7 +16724,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( rc ){
       if (pStmt) sqlite3_finalize(pStmt);
       utf8_printf(stderr,"Error: %s\n", sqlite3_errmsg(p->db));
-      xCloser(sCtx.in);
+      import_cleanup(&sCtx);
       rc = 1;
       goto meta_command_exit;
     }
@@ -16716,7 +16734,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( nCol==0 ) return 0; /* no columns, no error */
     zSql = sqlite3_malloc64( nByte*2 + 20 + nCol*2 );
     if( zSql==0 ){
-      xCloser(sCtx.in);
+      import_cleanup(&sCtx);
       shell_out_of_memory();
     }
     sqlite3_snprintf(nByte+20, zSql, "INSERT INTO \"%w\" VALUES(?", zTable);
@@ -16735,7 +16753,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( rc ){
       utf8_printf(stderr, "Error: %s\n", sqlite3_errmsg(p->db));
       if (pStmt) sqlite3_finalize(pStmt);
-      xCloser(sCtx.in);
+      import_cleanup(&sCtx);
       rc = 1;
       goto meta_command_exit;
     }
@@ -16787,8 +16805,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       }
     }while( sCtx.cTerm!=EOF );
 
-    xCloser(sCtx.in);
-    sqlite3_free(sCtx.z);
+    import_cleanup(&sCtx);
     sqlite3_finalize(pStmt);
     if( needCommit ) sqlite3_exec(p->db, "COMMIT", 0, 0, 0);
     if( eVerbose>0 ){
