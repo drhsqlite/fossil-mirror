@@ -1,5 +1,5 @@
-C revert:\sAllow\sreverting\sof\scurrent\schanges\sfor\sthe\swhole\sdirectory\stree.
-D 2020-06-04T20:51:10.339
+C mv-rm.test:\sOn\stest\steardown,\sdelete\sthe\smanually\screated\sdir.
+D 2020-06-04T21:01:01.876
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -672,7 +672,7 @@ F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
 F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
-F test/mv-rm.test 1ab746c2e54240d5f860b955e056539015f12b5e944a2d7ae8057f081247a44c
+F test/mv-rm.test a1c75240b6907e3d5d197c47bc0d08d48bbc6e794e5f44dcac5948af6126529f
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
 F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 363efffe9e27da5c2c14819f22daf07bc7f752241d56b94b466c0ed27b21264d 0ad3e06bd2eff6b3cb6628e9e3cad5976e7ca8653c32baaeb2efb0addeec1d6b
-R fd18dff0de566595b043ec4ecee85919
+P a8bb08697a8717789d32e982e5f7ae307b75649499160e825ef82a53824168a8
+R 360ef9d075d2879be87a56ec7005333c
 U ashepilko
-Z f446631255640b9543a8a6c159066619
+Z c9213177aef6e1009869ff7edc6cb44d

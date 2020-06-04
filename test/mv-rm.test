@@ -461,6 +461,8 @@ test mv-soft-already-renamed-directory-4 {
 test mv-soft-already-renamed-directory-5 {[file size subdirE/a/f14] == 3}
 test mv-soft-already-renamed-directory-6 {[read_file subdirE/a/f14] eq "f14"}
 
+file delete -force [file join $rootDir subdirE/a_renamed]
+
 cd $rootDir
 
 ###############################################################################
