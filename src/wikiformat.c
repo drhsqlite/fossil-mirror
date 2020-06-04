@@ -2554,9 +2554,12 @@ static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
     }
     parseMarkup(&markup, zHtml+j);
     if( markup.iCode==MARKUP_INVALID ){
+      unparseMarkup(&markup);
       blob_appendf(pBlob, "<span class='error'>&lt;%.*s&gt;</span>",
                    n-2, zHtml+j+1);
-    }else if( (markup.iType & MUTYPE_Nested)==0 || markup.iCode==MARKUP_P ){
+      continue;
+    }
+    if( (markup.iType & MUTYPE_Nested)==0 || markup.iCode==MARKUP_P ){
       renderMarkup(pBlob, &markup);
     }else{
       if( markup.endTag ){

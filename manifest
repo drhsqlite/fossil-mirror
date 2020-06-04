@@ -1,5 +1,5 @@
-C On\sthe\s/timeline\spage\swith\sthe\sc=\squery\sparameter,\stry\sharder\sto\scapture\sthe\nfull\snumber\sof\sevents\srequested\sby\sthe\sn=\squery\sparameter.
-D 2020-06-04T14:12:42.772
+C The\ssafe-HTML\sfeature\sof\sMarkdown\srendering\snow\sshows\sthe\sfull\scontent\nof\somitted\sHTML\selements,\swithout\struncation.
+D 2020-06-04T14:23:44.178
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -634,7 +634,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 7106c1d949802bc8c3e65db7c42344b7c1fe6a8d32b2046de1072f8132eedeab
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c f455549a4895d3e3cbbe44c90e0cd3021bec36cdf0b9769a9b1a41498144194e
+F src/wikiformat.c 92ef36127d3c07a84017658a7fdf48ede504eb37c6a753cc7e0d0bcc288f78c5
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 991879177b644f4a4ecd07c1a33b8fbf48f5c42076227e7f1311756d6b843bb0 16a09da8c18a621b47b8e21fb3c81774334f35660bf4f39538f909ba55b0e4ea
-R f779cb1bf474d41dd9e3c3f37654dd6e
+P a1af80267781f40515456418a20e0a6b0b9905e13b55689f0ae52c9503fddc88
+R d3258632d3d25b6dbb6f6dd124cb6744
 U drh
-Z b52340506ff568dee42464749dfc199d
+Z adad15bd53e85e754ab12c0389ad130d
