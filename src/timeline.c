@@ -2359,18 +2359,20 @@ void page_timeline(void){
       Blob sql2;
       blob_init(&sql2, blob_sql_text(&sql), -1);
       blob_append_sql(&sql2,
-          " AND event.mtime<=%f ORDER BY event.mtime DESC", rCirca);
+          " AND event.mtime>=%f ORDER BY event.mtime ASC", rCirca);
       if( nEntry>0 ){
         blob_append_sql(&sql2," LIMIT %d", (nEntry+1)/2);
-        nEntry -= (nEntry+1)/2;
       }
       if( PB("showsql") ){
          @ <pre>%h(blob_sql_text(&sql2))</pre>
       }
       db_multi_exec("%s", blob_sql_text(&sql2));
+      if( nEntry>0 ){
+        nEntry -= db_int(0,"select count(*) from timeline");
+      }
       blob_reset(&sql2);
       blob_append_sql(&sql,
-          " AND event.mtime>=%f ORDER BY event.mtime ASC",
+          " AND event.mtime<=%f ORDER BY event.mtime DESC",
           rCirca
       );
       if( zMark==0 ) zMark = zCirca;
