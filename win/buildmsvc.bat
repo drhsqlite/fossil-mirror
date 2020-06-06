@@ -185,18 +185,13 @@ REM
 REM
 REM NOTE: Attempt to create the build output directory, if necessary.
 REM
-
-SET OBJDIR=msvcbld
-
-IF NOT DEFINED BUILDDIR ( 
+IF DEFINED BUILDDIR (
   IF DEFINED BUILDSUFFIX (
-    SET BUILDDIR=%ROOT%\%OBJDIR%%BUILDSUFFIX%
+    SET BUILDDIR=%BUILDDIR%%BUILDSUFFIX%
   )
+) ELSE (
+  SET BUILDDIR=%ROOT%\msvcbld%BUILDSUFFIX%
 )
-
-IF NOT DEFINED BUILDDIR GOTO skip_createBuildDir
-
-SET OBJDIR=.
 
 %_VECHO% BuildSuffix = '%BUILDSUFFIX%'
 %_VECHO% BuildDir = '%BUILDDIR%'
@@ -212,7 +207,7 @@ IF NOT EXIST "%BUILDDIR%" (
 
 REM
 REM NOTE: Attempt to change to the created build output directory so that
-REM       the generated files will be placed there.
+REM       the generated files will be placed there, if needed.
 REM
 %__ECHO2% PUSHD "%BUILDDIR%"
 
@@ -220,7 +215,8 @@ IF ERRORLEVEL 1 (
   ECHO Could not change to directory "%BUILDDIR%".
   GOTO errors
 )
-:skip_createBuildDir
+
+SET NEED_POPD=1
 
 REM
 REM NOTE: If requested, setup the build environment to refer to the Windows
@@ -235,6 +231,8 @@ IF DEFINED USE_V110SDK71A (
 %_VECHO% Path = '%PATH%'
 %_VECHO% Include = '%INCLUDE%'
 %_VECHO% Lib = '%LIB%'
+%_VECHO% Tools = '%TOOLS%'
+%_VECHO% Root = '%ROOT%'
 %_VECHO% NmakeArgs = '%NMAKE_ARGS%'
 
 REM
@@ -243,20 +241,24 @@ REM       anything extra from our command line along (e.g. extra options).
 REM       Also, pass the base directory of the Fossil source tree as this
 REM       allows an out-of-source-tree build.
 REM
-%__ECHO% nmake /f "%TOOLS%\Makefile.msc" B="%ROOT%" T="%OBJDIR%" %NMAKE_ARGS% %*
+%__ECHO% nmake /f "%TOOLS%\Makefile.msc" B="%ROOT%" %NMAKE_ARGS% %*
 
 IF ERRORLEVEL 1 (
   GOTO errors
 )
 
 REM
-REM NOTE: Attempt to restore the previously saved directory.
+REM NOTE: Attempt to restore the previously saved directory, if needed.
 REM
-%__ECHO2% POPD
+IF DEFINED NEED_POPD (
+  %__ECHO2% POPD
 
-IF ERRORLEVEL 1 (
-  ECHO Could not restore directory.
-  GOTO errors
+  IF ERRORLEVEL 1 (
+    ECHO Could not restore directory.
+    GOTO errors
+  )
+
+  CALL :fn_UnsetVariable NEED_POPD
 )
 
 GOTO no_errors

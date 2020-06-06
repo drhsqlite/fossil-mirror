@@ -1485,7 +1485,7 @@ writeln {#
 #
 B       = ..
 SRCDIR  = $(B)\src
-T       = msvcbld
+T       = .
 OBJDIR  = $(T)
 OX      = $(OBJDIR)
 O       = .obj

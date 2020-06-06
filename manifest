@@ -1,5 +1,5 @@
-C Describe\show\sto\sproduce\sa\sbuild\swith\sdebugging\soptions\senabled.
-D 2020-06-06T04:06:01.262
+C Simplify\sthe\sbatch\stool\schanges\sfrom\s[0519493f].\s\sThe\sBUILDDIR\senvironment\svariable\scan\sbe\sset\sbefore\sinvoking\s'buildmsvc.bat'\sin\sorder\sto\sbuild\sout-of-tree.
+D 2020-06-06T19:04:11.470
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -533,7 +533,7 @@ F src/main.c 97c4460a4f74fef65cce81b637cbb41ec2194cda86ca0dd19d5ab47c2abe2c3c
 F src/main.mk 1d87ee9d883543ee22e33ac64c2fc47b14a06883ffe263035bbe2d79b2e655cc
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
-F src/makemake.tcl 98f39ae862f60d0eb280e8d64ec0b27e5d66ecb213e60955bf38c8a566b2f40f x
+F src/makemake.tcl ef9529d9c9ab0ce66c0415c1984110ee7d203c39b2202c4c0cb2e32967817e83 x
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
 F src/markdown.c b11ff3c334d00d2c0890b79db135845518da49b4cc7bc88e662c63bf5870c77b
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
@@ -778,8 +778,8 @@ F win/Makefile.PellesCGMake b4d4ce180ffc205bdcfed59665e6dd4308547d3975616c9ed561
 F win/Makefile.dmc 0ee1bb2f954234ac8164cd5409141085516728d0c056b29e92ef2dad3ad57acf
 F win/Makefile.mingw ef35c2b56f4093985d4549a505e1835ea0dd5f78cf8f003a7a4cf17229d993a7
 F win/Makefile.mingw.mistachkin 9a9cf0419ec696ba0d2ccdd2fd4e83c0f13d56595253418856f2f2f37068b6d2
-F win/Makefile.msc 2f37aee1a3aee2d7cbd8dfd3266680f7df7b5043e685da13ebd1ede875bf841e
-F win/buildmsvc.bat 01456c0c3e13cbdad6ea9e253491d4010f0fba2416470291f44f38c851e53178
+F win/Makefile.msc 7b87913c02cce21a9899a902f5d09541c685e9f9f06c3bd72ff7d7d38b273a24
+F win/buildmsvc.bat 0539135b8f6116d0184f04eef0a209ead7d72ca00fa27c68963ea40fb1ff020d
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 685e884752132aa4ed9b705d6f77624dc687826729109f1675590d13aa0020d6
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0519493f461b134ff6321deae91226ebcc09e3934ed2bf3bce70df91ea2cbe40
-R 9def12b85ab98fbab4c3a3ea35b2d003
-U ashepilko
-Z f5fe37e3f14d267711e4fc39f3c946aa
+P c9690c73562245e2469e0c3448ee48fa8294d740050906ebfa58aa19a5981442
+R 8170220db39563f364288fa0b82455c9
+U mistachkin
+Z 2c5c986b86f21c1f5376001ad0070222
