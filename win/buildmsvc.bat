@@ -185,9 +185,18 @@ REM
 REM
 REM NOTE: Attempt to create the build output directory, if necessary.
 REM
-IF NOT DEFINED BUILDDIR (
-  SET BUILDDIR=%ROOT%\msvcbld%BUILDSUFFIX%
+
+SET OBJDIR=msvcbld
+
+IF NOT DEFINED BUILDDIR ( 
+  IF DEFINED BUILDSUFFIX (
+    SET BUILDDIR=%ROOT%\%OBJDIR%%BUILDSUFFIX%
+  )
 )
+
+IF NOT DEFINED BUILDDIR GOTO skip_createBuildDir
+
+SET OBJDIR=.
 
 %_VECHO% BuildSuffix = '%BUILDSUFFIX%'
 %_VECHO% BuildDir = '%BUILDDIR%'
@@ -211,6 +220,7 @@ IF ERRORLEVEL 1 (
   ECHO Could not change to directory "%BUILDDIR%".
   GOTO errors
 )
+:skip_createBuildDir
 
 REM
 REM NOTE: If requested, setup the build environment to refer to the Windows
@@ -230,8 +240,10 @@ IF DEFINED USE_V110SDK71A (
 REM
 REM NOTE: Attempt to execute NMAKE for the Fossil MSVC makefile, passing
 REM       anything extra from our command line along (e.g. extra options).
+REM       Also, pass the base directory of the Fossil source tree as this
+REM       allows an out-of-source-tree build.
 REM
-%__ECHO% nmake /f "%TOOLS%\Makefile.msc" %NMAKE_ARGS% %*
+%__ECHO% nmake /f "%TOOLS%\Makefile.msc" B="%ROOT%" T="%OBJDIR%" %NMAKE_ARGS% %*
 
 IF ERRORLEVEL 1 (
   GOTO errors
