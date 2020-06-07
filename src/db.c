@@ -1199,6 +1199,9 @@ void db_read_saved_encryption_key_from_process_via_th1(
   Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_NEED_CONFIG | TH_INIT_NO_REPO);
   rc = Th_Eval(g.interp, 0, zConfig, -1);
   zResult = (char*)Th_GetResult(g.interp, 0);
+  if( rc!=TH_OK ){
+    fossil_fatal("script for pid key failed: %s", zResult);
+  }
   if( zResult ){
     DWORD processId = 0;
     LPVOID pAddress = NULL;
