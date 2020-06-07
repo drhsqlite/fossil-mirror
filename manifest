@@ -1,5 +1,5 @@
-C Simplify\sthe\sbatch\stool\schanges\sfrom\s[0519493f].\s\sThe\sBUILDDIR\senvironment\svariable\scan\sbe\sset\sbefore\sinvoking\s'buildmsvc.bat'\sin\sorder\sto\sbuild\sout-of-tree.
-D 2020-06-06T19:04:11.470
+C Update\scustom\sMakefile\sfor\sMinGW.
+D 2020-06-07T18:20:48.716
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -777,7 +777,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake b4d4ce180ffc205bdcfed59665e6dd4308547d3975616c9ed5615e83caa7f728
 F win/Makefile.dmc 0ee1bb2f954234ac8164cd5409141085516728d0c056b29e92ef2dad3ad57acf
 F win/Makefile.mingw ef35c2b56f4093985d4549a505e1835ea0dd5f78cf8f003a7a4cf17229d993a7
-F win/Makefile.mingw.mistachkin 9a9cf0419ec696ba0d2ccdd2fd4e83c0f13d56595253418856f2f2f37068b6d2
+F win/Makefile.mingw.mistachkin bbb9374535134c076d9c613d17d2a0b4b9360153f361842fa3280218a616ec41
 F win/Makefile.msc 7b87913c02cce21a9899a902f5d09541c685e9f9f06c3bd72ff7d7d38b273a24
 F win/buildmsvc.bat 0539135b8f6116d0184f04eef0a209ead7d72ca00fa27c68963ea40fb1ff020d
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9690c73562245e2469e0c3448ee48fa8294d740050906ebfa58aa19a5981442
-R 8170220db39563f364288fa0b82455c9
+P 7c481db74ef6197fe13a3556ec2d2000f35788de6b8a214ddf6a7af5ba0e4773
+R ac61c58eb73278495efd77fa51c00a75
 U mistachkin
-Z 2c5c986b86f21c1f5376001ad0070222
+Z 58c24c4328de3b92f41fe9a0eb2cc804
