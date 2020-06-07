@@ -1,5 +1,5 @@
-C Update\scustom\sMakefile\sfor\sMinGW.
-D 2020-06-07T18:20:48.716
+C Add\sthe\s'test-pid'\sweb\spage.
+D 2020-06-07T18:23:45.347
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -529,7 +529,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 97c4460a4f74fef65cce81b637cbb41ec2194cda86ca0dd19d5ab47c2abe2c3c
+F src/main.c e7c1db0c45a04551bf6ce7770a567c0f3265766eb716fb19d77fd7999963d607
 F src/main.mk 1d87ee9d883543ee22e33ac64c2fc47b14a06883ffe263035bbe2d79b2e655cc
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -993,7 +993,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c481db74ef6197fe13a3556ec2d2000f35788de6b8a214ddf6a7af5ba0e4773
-R ac61c58eb73278495efd77fa51c00a75
+P 81960e1faab71bfabfa1e5230f9a995e52ac63a4db7defdad94a4dccfb9fd7c5
+R 45b152e42fe571bac95900ea3741332c
+T *branch * testPid
+T *sym-testPid *
+T -sym-trunk *
 U mistachkin
-Z 58c24c4328de3b92f41fe9a0eb2cc804
+Z 866e2c7b410afbebd9f8456139f90c5c

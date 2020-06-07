@@ -2349,6 +2349,34 @@ void parse_pid_key_value(
 #endif
 
 /*
+** WEBPAGE: test-pid
+**
+** Return the process identifier of the running Fossil server instance.
+**
+** Query parameters:
+**
+**   usepidkey           When present and available, also return the
+**                       address and size, within this server process,
+**                       of the saved database encryption key.  This
+**                       is only supported when using SEE on Windows.
+*/
+void test_pid_page(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){ login_needed(0); return; }
+#if defined(_WIN32) && USE_SEE
+  if( P("usepidkey")!=0 ){
+    const char *zSavedKey = db_get_saved_encryption_key();
+    size_t savedKeySize = db_get_saved_encryption_key_size();
+    if( zSavedKey!=0 && savedKeySize>0 ){
+      @ %lu(GetCurrentProcessId()):%p(zSavedKey):%u(savedKeySize)
+      return;
+    }
+  }
+#endif
+  @ %d(GETPID())
+}
+
+/*
 ** COMMAND: http*
 **
 ** Usage: %fossil http ?REPOSITORY? ?OPTIONS?
