@@ -1,5 +1,5 @@
-C Make\sthe\s"fossil\sgit\sexport"\scommand\smore\srestrictive\sabout\scharacters\sthat\nit\sallows\sin\stag\snames.
-D 2020-06-08T19:47:41.455
+C Version\s2.11.1
+D 2020-06-08T19:48:29.240
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -17,7 +17,7 @@ F Makefile.classic 42738dd35437f4527e5979784931760641f7fffd6a0d7b964eb86b90dbdf0
 F Makefile.in 2f34d0fa84449834fe6f415be1c347de931a27e46be437e2611e155c813f9880
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION f45d5f3094f467be86f0d94e4d3ab915611942868fae57126a479b3a628f7722
+F VERSION 1a3a4b9142f6808df835ca36ec606f88bc3c8cc82fc404bb10c6aade1ec7e359
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -981,11 +981,9 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4df919803b6716ecd8bcbb01963c54c3647777e572d24c86cb816a86ec6af93c
-Q +c9a592dde7fe493f16b110b4e87f57441a8b2825d597d2ec2a1c5e9abeff90e9
-R 6feda7a13f878f5ee0cf80a88a0e3445
-T *branch * branch-2.11
-T *sym-branch-2.11 *
-T -sym-trunk *
+P e8c6cd2ced4b7562336569b6f1976557073b592d78e8b996b7c9d14d2b4f4030
+R f72bf81f8d5798f950fea2c7f55e11be
+T +sym-release *
+T +sym-version-2.11.1 *
 U drh
-Z c9c7e28516403e3362829a88440933e2
+Z 3aee3a8ea07155463732adc13e11f2da
