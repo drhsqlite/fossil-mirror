@@ -1828,6 +1828,10 @@ APPTARGETS  =
 
 all: "$(OX)" "$(APPNAME)"
 
+$(BASEAPPNAME): "$(APPNAME)"
+
+$(BASEAPPNAME)$(E): "$(APPNAME)"
+
 install: "$(APPNAME)"
 	echo F | xcopy /Y  "$(APPNAME)" "$(INSTALLDIR)"\*
 !if $(DEBUG)!=0
