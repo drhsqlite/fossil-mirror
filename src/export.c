@@ -884,11 +884,11 @@ static void gitmirror_sanitize_name(char *z){
      /* x0 x1 x2 x3 x4 x5 x6 x7 x8  x9 xA xB xC xD xE xF */
          0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 0x */
          0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 1x */
-         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 2x */
-         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 0, 1, 1, 1, 1, 0,  /* 3x */
+         0, 1, 0, 1, 0, 1, 1, 0, 1,  1, 0, 1, 1, 1, 1, 1,  /* 2x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 0, 0, 1, 1, 1, 0,  /* 3x */
          0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 4x */
          1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 0, 1, 0, 1,  /* 5x */
-         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 6x */
+         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 6x */
          1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 0, 0,  /* 7x */
   };
   unsigned char *zu = (unsigned char*)z;
@@ -903,6 +903,32 @@ static void gitmirror_sanitize_name(char *z){
       zu[i] = '_';
     }
   }
+}
+
+/*
+** COMMAND: test-sanitize-name
+**
+** Usage: %fossil ARG...
+**
+** This sanitizes each argument and make it part of an "echo" command
+** run by the shell.
+*/
+void test_sanitize_name_cmd(void){
+  sqlite3_str *pStr;
+  int i;
+  char *zCmd;
+  pStr = sqlite3_str_new(0);
+  sqlite3_str_appendall(pStr, "echo");
+  for(i=2; i<g.argc; i++){
+    char *z = fossil_strdup(g.argv[i]);
+    gitmirror_sanitize_name(z);
+    sqlite3_str_appendf(pStr, " \"%s\"", z);
+    fossil_free(z);
+  }
+  zCmd = sqlite3_str_finish(pStr);
+  fossil_print("Command: %s\n", zCmd);
+  fossil_system(zCmd);
+  sqlite3_free(zCmd);
 }
 
 /*

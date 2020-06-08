@@ -1,5 +1,5 @@
-C Update\scustom\sMakefile\sfor\sMinGW.
-D 2020-06-07T18:20:48.716
+C Make\sthe\s"fossil\sgit\sexport"\scommand\smore\srestrictive\sabout\scharacters\sthat\nit\sallows\sin\stag\snames.
+D 2020-06-08T03:32:00.923
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -476,7 +476,7 @@ F src/doc.c 4b951855a6e0b98afbde12efab41ad17d520d86539a93bb73f0d9a7a82394140
 F src/encode.c 4903a6756f11f582c9645c7a9344730f5ef80574210bc90dc7220f291742e91f
 F src/etag.c 3f93a2d2ac78e018134f12849653572d2da3793c36c00c9bbb3cecf3364c027d
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
-F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
+F src/export.c a0cd1cb8c807f3cf195efd779f1497efed298cb495dbcdabab75e6a0b6030105
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
 F src/fileedit.c f2a148f1ebe644d3bd5c3c4825ee30b3ffc2be5262feb2d5ae46a58e0587b261
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c481db74ef6197fe13a3556ec2d2000f35788de6b8a214ddf6a7af5ba0e4773
-R ac61c58eb73278495efd77fa51c00a75
-U mistachkin
-Z 58c24c4328de3b92f41fe9a0eb2cc804
+P 81960e1faab71bfabfa1e5230f9a995e52ac63a4db7defdad94a4dccfb9fd7c5
+R 6bd2266420ad3b876fcdce7f9693612d
+U drh
+Z 2f66d6837d57b414600684a49f4574b8
