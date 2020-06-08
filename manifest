@@ -1,5 +1,5 @@
-C Add\stest\scases\sfor\sthe\smerge-riser\scoalescing\slogic.
-D 2020-06-08T18:27:36.951
+C Avoid\sdrawing\smultiple\scopies\sof\scherrypick\smerge\srisers.
+D 2020-06-08T19:05:52.377
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
-F src/graph.js 479bb71dc3d76aad98a6c4b61558c2799a84b153050839692ad0347ee5183c78
+F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
@@ -994,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7688673a8e0bd805bdb4e6a1ebcea7d7534d66415a6fae730d688f29e17f457f
-R 38ceab70a272f23991442688024906c4
+P e4e5b771d239d18ae249c5a98fe9cd8158dd18cd0ba4f6da5915b5e6391135e5
+R 5278f4df9bc4b7b16e4d2cbcdf104969
 U drh
-Z 4a2cdea0f27e684f4f34a95be88b3b64
+Z ce09cdb1ccfd8a010ab959569d40af54

@@ -435,7 +435,8 @@ function TimelineGraph(tx){
         var y0 = p.y+2;
         var isCP = p.hasOwnProperty('cu');
         if( p.mu==p.id ){
-          /* Merge out error to an existing riser from below */
+          /* Special case:  The merge riser already exists.  Only draw the
+          /* horizontal line or arrow going from the node out to the riser. */
           var dx = x1<x0 ? mArrow.w : -mArrow.w;
           if( isCP ){
             drawCherrypickLine(x0,y0,x1+dx,null);
@@ -453,7 +454,7 @@ function TimelineGraph(tx){
           drawMergeLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
           drawMergeLine(x1,y0+mLine.w,null,y1);
         }
-        if( isCP ){
+        if( isCP && p.cu!=p.id ){
           var u2 = tx.rowinfo[p.cu-tx.iTopRow];
           var y2 = miLineY(u2);
           drawCherrypickLine(x1,y1,null,y2);
