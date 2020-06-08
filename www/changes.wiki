@@ -3,6 +3,16 @@
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12 (pending)</h2>
 
+  *  Security fix in the "fossil git export" command.
+  *  Enhancements to the graph display for cases when there are
+     many merges into a single check-in.
+     [/info/2d75e87b760c0a9?diff=0|Example]
+  *  The markdown-to-html translator can prevent unsafe HTML
+     (for example: &lt;script&gt;) on user pages like forum and
+     tickets and wiki, and the administrators discretion.  On by
+     default.
+  *  Enhance the [/help?cmd=revert|fossil revert] command so that it
+     is able to revert all files beneath a directory.
   *  Added <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
      "[/help?cmd=rm|fossil rm]", and
      "[/help?cmd=addremove|fossil addremove]" commands.
