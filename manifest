@@ -1,5 +1,5 @@
-C Fixes\sand\senhancements\sto\sSEE\sintegration\son\sWindows.
-D 2020-06-08T23:11:36.149
+C Add\sa\ssafety\sscan\sof\sall\sstrings\spassed\sinto\sfossil_system().\s\sFatal\serror\nif\sthe\sinput\sstring\sseems\sunsafe.
+D 2020-06-08T23:37:14.646
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -628,7 +628,7 @@ F src/url.c 9d4991f72baa8ec4c80cebba86ef3fa4187a732733e21645c53d773b552c1a36
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c b774c15249d934a5b6d89bd4ed1deafb991477d5755aaacaef7e7596459f34c8
+F src/util.c ed308b4eaf18493d6dff860fad10535a93912ff5d3a5dd318cbd1a323b2f3d3a
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
@@ -994,8 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 094fb2ef0cd96dfc4f65ca7aaa95c394525a16eb7060003a0732df7825d753bc 39c88cff805de63611075c6688f4fd2080f9e4839fc515f4ac8ec4baf13d72e7
-R f410205c7c072c277a6df547fdf28fad
-T +closed 39c88cff805de63611075c6688f4fd2080f9e4839fc515f4ac8ec4baf13d72e7
-U mistachkin
-Z 343e1c07ea12db7efebad9edaf210075
+P 57d8a71f4257418a8ccd12dd723d64bceda8de60d07a34ccc8379ed4baea9514
+R 934894c93a664e183919eea7d66ce763
+U drh
+Z 27f0cd9b87266935d33a1b412f17e533

@@ -159,6 +159,64 @@ char *fossil_strtolwr(char *zIn){
 }
 
 /*
+** Check the input string to ensure that it is safe to pass into system().
+** A string is unsafe for system() if it contains any of the following:
+**
+**   *  Any occurrance of '$' or '`' except after \
+**   *  Any of the following characters, unquoted:  ;|& or \n
+**   *  Unbalanced single or double quotes
+**
+** This routine is intended as a second line of defense against attack.
+** It should never fail.  Dangerous shell strings should be detected and
+** fixed before calling fossil_system().  This routine serves only as a
+** safety net in case of bugs elsewhere in the system.
+**
+** If an unsafe string is seen, the process aborts.
+*/
+void fossil_assert_safe_command_string(const char *z){
+  int inQuote = 0;
+  int i, c;
+  int unsafe = 0;
+  for(i=0; (c = z[i])!=0; i++){
+    switch( c ){
+      case '$':
+      case '`': {
+        unsafe = i+1;
+        break;
+      }
+      case ';':
+      case '|':
+      case '&':
+      case '\n': {
+        if( inQuote==0 ) unsafe = i+1;
+        break;
+      }
+      case '"':
+      case '\'': {
+        if( inQuote==0 ){
+          inQuote = c;
+        }else if( inQuote==c ){
+          inQuote = 0;
+        }
+        break;
+      }
+      case '\\': {
+        if( z[i+1]==0 ){
+          unsafe = i+1;
+        }else{
+          i++;
+        }
+        break;
+      }
+    }
+  }
+  if( unsafe ){
+    fossil_fatal("Unsafe command string: %s\n%*shere ----^",
+                 z, unsafe+13, "");
+  }
+}
+
+/*
 ** This function implements a cross-platform "system()" interface.
 */
 int fossil_system(const char *zOrigCmd){
@@ -172,6 +230,7 @@ int fossil_system(const char *zOrigCmd){
   if( g.fSystemTrace ) {
     fossil_trace("SYSTEM: %s\n", zNewCmd);
   }
+  fossil_assert_safe_command_string(zOrigCmd);
   rc = _wsystem(zUnicode);
   fossil_unicode_free(zUnicode);
   free(zNewCmd);
@@ -179,6 +238,7 @@ int fossil_system(const char *zOrigCmd){
   /* On unix, evaluate the command directly.
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
+  fossil_assert_safe_command_string(zOrigCmd);
 
   /* Unix systems should never shell-out while processing an HTTP request,
   ** either via CGI, SCGI, or direct HTTP.  The following assert verifies
