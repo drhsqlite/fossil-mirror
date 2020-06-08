@@ -212,6 +212,10 @@ struct Global {
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
+#if defined(_WIN32) && USE_SEE
+  const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
+                           * applicable when using SEE on Windows. */
+#endif
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
@@ -760,6 +764,26 @@ int fossil_main(int argc, char **argv){
     if( zChdir && file_chdir(zChdir, 0) ){
       fossil_fatal("unable to change directories to %s", zChdir);
     }
+#if defined(_WIN32) && USE_SEE
+    {
+      g.zPidKey = find_option("usepidkey",0,1);
+      if( g.zPidKey ){
+        DWORD processId = 0;
+        LPVOID pAddress = NULL;
+        SIZE_T nSize = 0;
+        parse_pid_key_value(g.zPidKey, &processId, &pAddress, &nSize);
+        db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+      }else{
+        const char *zSeeDbConfig = find_option("seedbcfg",0,1);
+        if( !zSeeDbConfig ){
+          zSeeDbConfig = fossil_getenv("FOSSIL_SEE_DB_CONFIG");
+        }
+        if( zSeeDbConfig ){
+          db_read_saved_encryption_key_from_process_via_th1(zSeeDbConfig);
+        }
+      }
+    }
+#endif
     if( find_option("help",0,0)!=0 ){
       /* If --help is found anywhere on the command line, translate the command
        * to "fossil help cmdname" where "cmdname" is the first argument that
@@ -2349,6 +2373,39 @@ void parse_pid_key_value(
 #endif
 
 /*
+** WEBPAGE: test-pid
+**
+** Return the process identifier of the running Fossil server instance.
+**
+** Query parameters:
+**
+**   usepidkey           When present and available, also return the
+**                       address and size, within this server process,
+**                       of the saved database encryption key.  This
+**                       is only supported when using SEE on Windows.
+*/
+void test_pid_page(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){ login_needed(0); return; }
+#if defined(_WIN32) && USE_SEE
+  if( P("usepidkey")!=0 ){
+    if( g.zPidKey ){
+      @ %s(g.zPidKey)
+      return;
+    }else{
+      const char *zSavedKey = db_get_saved_encryption_key();
+      size_t savedKeySize = db_get_saved_encryption_key_size();
+      if( zSavedKey!=0 && savedKeySize>0 ){
+        @ %lu(GetCurrentProcessId()):%p(zSavedKey):%u(savedKeySize)
+        return;
+      }
+    }
+  }
+#endif
+  @ %d(GETPID())
+}
+
+/*
 ** COMMAND: http*
 **
 ** Usage: %fossil http ?REPOSITORY? ?OPTIONS?
@@ -2415,9 +2472,6 @@ void cmd_http(void){
   int useSCGI;
   int noJail;
   int allowRepoList;
-#if defined(_WIN32) && USE_SEE
-  const char *zPidKey;
-#endif
 
   Th_InitTraceLog();
 
@@ -2467,17 +2521,6 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
-
-#if defined(_WIN32) && USE_SEE
-  zPidKey = find_option("usepidkey", 0, 1);
-  if( zPidKey ){
-    DWORD processId = 0;
-    LPVOID pAddress = NULL;
-    SIZE_T nSize = 0;
-    parse_pid_key_value(zPidKey, &processId, &pAddress, &nSize);
-    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
-  }
-#endif
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2697,9 +2740,6 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
-#if defined(_WIN32) && USE_SEE
-  const char *zPidKey;
-#endif
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2746,17 +2786,6 @@ void cmd_webserver(void){
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
-
-#if defined(_WIN32) && USE_SEE
-  zPidKey = find_option("usepidkey", 0, 1);
-  if( zPidKey ){
-    DWORD processId = 0;
-    LPVOID pAddress = NULL;
-    SIZE_T nSize = 0;
-    parse_pid_key_value(zPidKey, &processId, &pAddress, &nSize);
-    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
-  }
-#endif
 
   /* We should be done with options.. */
   verify_all_options();

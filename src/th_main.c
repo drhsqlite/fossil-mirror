@@ -32,7 +32,8 @@
 #define TH_INIT_FORCE_TCL   ((u32)0x00000002) /* Force Tcl to be enabled? */
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
-#define TH_INIT_MASK        ((u32)0x0000000F) /* All possible init flags. */
+#define TH_INIT_NO_REPO     ((u32)0x00000010) /* Skip opening repository. */
+#define TH_INIT_MASK        ((u32)0x0000001F) /* All possible init flags. */
 
 /*
 ** Useful and/or "well-known" combinations of flag values.
@@ -46,9 +47,9 @@
 ** Flags set by functions in this file to keep track of integration state
 ** information.  These flags should not be used outside of this file.
 */
-#define TH_STATE_CONFIG     ((u32)0x00000010) /* We opened the config. */
-#define TH_STATE_REPOSITORY ((u32)0x00000020) /* We opened the repository. */
-#define TH_STATE_MASK       ((u32)0x00000030) /* All possible state flags. */
+#define TH_STATE_CONFIG     ((u32)0x00000020) /* We opened the config. */
+#define TH_STATE_REPOSITORY ((u32)0x00000040) /* We opened the repository. */
+#define TH_STATE_MASK       ((u32)0x00000060) /* All possible state flags. */
 
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
@@ -2087,6 +2088,7 @@ void Th_FossilInit(u32 flags){
   int forceReset = flags & TH_INIT_FORCE_RESET;
   int forceTcl = flags & TH_INIT_FORCE_TCL;
   int forceSetup = flags & TH_INIT_FORCE_SETUP;
+  int noRepo = flags & TH_INIT_NO_REPO;
   static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
   static int anonFlag = LOGIN_ANON;
   static int zeroInt = 0;
@@ -2154,7 +2156,7 @@ void Th_FossilInit(u32 flags){
     ** passed a non-zero value for the needConfig parameter, make sure
     ** the necessary database connections are open prior to continuing.
     */
-    Th_OpenConfig(1);
+    Th_OpenConfig(!noRepo);
   }
   if( forceReset || forceTcl || g.interp==0 ){
     int created = 0;
