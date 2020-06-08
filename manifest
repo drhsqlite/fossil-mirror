@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.31.1\splus\sthe\ss390x\sarchitecture\sfix.
-D 2020-02-12T09:25:20.626
+C Version\s2.10.1
+D 2020-06-08T20:08:57.230
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -17,7 +17,7 @@ F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2
 F Makefile.in 2f34d0fa84449834fe6f415be1c347de931a27e46be437e2611e155c813f9880
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION ad89bdb3767ae6964011c9728239aed8f8e03191e9ebef59a4f4d2c60e781ccb
+F VERSION 1ae61d37d551e143605b415dee8bce12bdde339dd1d16c205272a374c5ed8b06
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -474,7 +474,7 @@ F src/doc.c 85fedf504b8c401c170a09357304531c143e4ca27214480cf9a09cd713b31501
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
-F src/export.c 6cc3f255338df35df2cc5c4d8ba4d0f274fcfd4f50efe994119a365f5be752f6
+F src/export.c 6dd46353b2acdbae149ee49d6d3facacff6da6eaa6f9d3873c758742a290d36c
 F src/extcgi.c 16aecc87ca24bb584568f8fc3487134954cd78f836e941e826a9cc050ac7ca6f
 F src/file.c 38f22c1609bd18715e821a57aba3c99e7b2687a93be467cbcf23ce9ffe0f9b30
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
@@ -930,12 +930,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d9ef82234f63758ff19a121677cc81a6c43d70c9995207e9237ddb4a7dcc8bf
-Q +9826bd007a9a5af4fa6b5f5f00e4dfec3062ed8ecdd32a3a9aebb3f6256f66f6
-Q +e8f24f7ecdc1707d8b66cee982d00ddece8d6d6bf9582b567992da0e8c443200
-R 77a18408af1472f2b7e75895940c40df
-T *branch * branch-2.10
-T *sym-branch-2.10 *
-T -sym-trunk *
-U jan.nijtmans
-Z 12fd2ec292fb32e2f0083a9b01efadf2
+P 22a9cc7f8bba729630b5531aebd223dad7139e520ffa0bf87a8c9de1348f6e7c
+Q +c9a592dde7fe493f16b110b4e87f57441a8b2825d597d2ec2a1c5e9abeff90e9
+R c42576ea5c3cc4439690db4fed8484ef
+T +sym-release *
+T +sym-version-2.11.1 *
+U drh
+Z 59e8203f05ea60ab121ae2dab20caad9
