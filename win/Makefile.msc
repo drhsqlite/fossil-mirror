@@ -759,7 +759,6 @@ BASEAPPNAME = fossil
 
 APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
 PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
-APPMANIFEST = $(APPNAME).manifest
 APPTARGETS  =
 
 all: "$(OX)" "$(APPNAME)"
@@ -769,9 +768,9 @@ $(BASEAPPNAME): "$(APPNAME)"
 $(BASEAPPNAME)$(E): "$(APPNAME)"
 
 install: "$(APPNAME)"
-	echo F | xcopy /Y  "$(APPNAME)" "$(INSTALLDIR)"\*
+	echo F | xcopy /Y "$(APPNAME)" "$(INSTALLDIR)"\*
 !if $(DEBUG)!=0
-	echo F | xcopy /Y  "$(PDBNAME)" "$(INSTALLDIR)"\*
+	echo F | xcopy /Y "$(PDBNAME)" "$(INSTALLDIR)"\*
 !endif
 
 $(OX):
@@ -819,11 +818,11 @@ APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
 
-"$(APPNAME)" : "$(APPMANIFEST)" $(APPTARGETS) "$(OBJDIR)\translate$E" "$(OBJDIR)\mkindex$E" "$(OBJDIR)\codecheck1$E" "$(OX)\headers" $(OBJ) "$(OX)\linkopts"
+"$(APPNAME)" : $(APPTARGETS) "$(OBJDIR)\translate$E" "$(OBJDIR)\mkindex$E" "$(OBJDIR)\codecheck1$E" "$(OX)\headers" $(OBJ) "$(OX)\linkopts"
 	"$(OBJDIR)\codecheck1$E" $(SRC)
 	link $(LDFLAGS) /OUT:$@ /PDB:$(@D)\ $(LIBDIR) Wsetargv.obj "$(OX)\fossil.res" @"$(OX)\linkopts"
-	if exist "$(APPMANIFEST)" \
-		$(MTC) -nologo -manifest "$(APPMANIFEST)" -outputresource:$@;1
+	if exist "$(B)\win\fossil.exe.manifest" \
+		$(MTC) -nologo -manifest "$(B)\win\fossil.exe.manifest" -outputresource:$@;1
 
 "$(OX)\linkopts": "$(B)\win\Makefile.msc"
 	echo "$(OX)\add.obj" > $@
@@ -1059,7 +1058,6 @@ cleanx:
 clean: cleanx
 	-del "$(APPNAME)" 2>NUL
 	-del "$(PDBNAME)" 2>NUL
-	-del "$(APPMANIFEST)" 2>NUL
 	-del "$(OBJDIR)\translate$E" 2>NUL
 	-del "$(OBJDIR)\translate$P" 2>NUL
 	-del "$(OBJDIR)\mkindex$E" 2>NUL
@@ -2046,10 +2044,7 @@ realclean: clean
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\fossil.res" : "$(B)\win\fossil.rc"
-	$(RCC)  /fo $@ $**
-
-"$(OX)\fossil.exe.manifest" : "$(B)\win\fossil.exe.manifest"
-	copy /Y $** $@ 
+	$(RCC) /fo $@ $**
 
 "$(OX)\headers": "$(OBJDIR)\makeheaders$E" "$(OX)\page_index.h" "$(OX)\builtin_data.h" "$(OX)\default_css.h" "$(OX)\VERSION.h"
 	"$(OBJDIR)\makeheaders$E" "$(OX)\add_.c":"$(OX)\add.h" \

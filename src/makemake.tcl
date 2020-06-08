@@ -1823,7 +1823,6 @@ BASEAPPNAME = fossil
 
 APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
 PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
-APPMANIFEST = $(APPNAME).manifest
 APPTARGETS  =
 
 all: "$(OX)" "$(APPNAME)"
@@ -1833,9 +1832,9 @@ $(BASEAPPNAME): "$(APPNAME)"
 $(BASEAPPNAME)$(E): "$(APPNAME)"
 
 install: "$(APPNAME)"
-	echo F | xcopy /Y  "$(APPNAME)" "$(INSTALLDIR)"\*
+	echo F | xcopy /Y "$(APPNAME)" "$(INSTALLDIR)"\*
 !if $(DEBUG)!=0
-	echo F | xcopy /Y  "$(PDBNAME)" "$(INSTALLDIR)"\*
+	echo F | xcopy /Y "$(PDBNAME)" "$(INSTALLDIR)"\*
 !endif
 
 $(OX):
@@ -1883,11 +1882,11 @@ APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
 
-"$(APPNAME)" : "$(APPMANIFEST)" $(APPTARGETS) "$(OBJDIR)\translate$E" "$(OBJDIR)\mkindex$E" "$(OBJDIR)\codecheck1$E" "$(OX)\headers" $(OBJ) "$(OX)\linkopts"
+"$(APPNAME)" : $(APPTARGETS) "$(OBJDIR)\translate$E" "$(OBJDIR)\mkindex$E" "$(OBJDIR)\codecheck1$E" "$(OX)\headers" $(OBJ) "$(OX)\linkopts"
 	"$(OBJDIR)\codecheck1$E" $(SRC)
 	link $(LDFLAGS) /OUT:$@ /PDB:$(@D)\ $(LIBDIR) Wsetargv.obj "$(OX)\fossil.res" @"$(OX)\linkopts"
-	if exist "$(APPMANIFEST)" <<<NEXT_LINE>>>
-		$(MTC) -nologo -manifest "$(APPMANIFEST)" -outputresource:$@;1
+	if exist "$(B)\win\fossil.exe.manifest" <<<NEXT_LINE>>>
+		$(MTC) -nologo -manifest "$(B)\win\fossil.exe.manifest" -outputresource:$@;1
 
 "$(OX)\linkopts": "$(B)\win\Makefile.msc"}]
 set redir {>}
@@ -1981,7 +1980,6 @@ cleanx:
 clean: cleanx
 	-del "$(APPNAME)" 2>NUL
 	-del "$(PDBNAME)" 2>NUL
-	-del "$(APPMANIFEST)" 2>NUL
 	-del "$(OBJDIR)\translate$E" 2>NUL
 	-del "$(OBJDIR)\translate$P" 2>NUL
 	-del "$(OBJDIR)\mkindex$E" 2>NUL
@@ -2032,10 +2030,7 @@ foreach s [lsort $src] {
 }
 
 writeln "\"\$(OX)\\fossil.res\" : \"\$(B)\\win\\fossil.rc\""
-writeln "\t\$(RCC)  /fo \$@ \$**\n"
-
-writeln "\"\$(OX)\\fossil.exe.manifest\" : \"\$(B)\\win\\fossil.exe.manifest\""
-writeln "\tcopy /Y \$** \$@ \n"
+writeln "\t\$(RCC) /fo \$@ \$**\n"
 
 writeln "\"\$(OX)\\headers\": \"\$(OBJDIR)\\makeheaders\$E\" \"\$(OX)\\page_index.h\" \"\$(OX)\\builtin_data.h\" \"\$(OX)\\default_css.h\" \"\$(OX)\\VERSION.h\""
 writeln -nonewline "\t\"\$(OBJDIR)\\makeheaders\$E\" "
