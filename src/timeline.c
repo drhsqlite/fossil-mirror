@@ -1001,7 +1001,7 @@ void timeline_output_graph_javascript(
         cgi_printf("\"mo\":%d,",      aiMap[pRow->mergeOut]);
         if( pRow->mergeUpto==0 ) pRow->mergeUpto = pRow->idx;
         cgi_printf("\"mu\":%d,",      pRow->mergeUpto);
-        if( pRow->cherrypickUpto>0 && pRow->cherrypickUpto<pRow->mergeUpto ){
+        if( pRow->cherrypickUpto>0 && pRow->cherrypickUpto<=pRow->mergeUpto ){
           cgi_printf("\"cu\":%d,",    pRow->cherrypickUpto);
         }
       }
