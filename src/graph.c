@@ -730,8 +730,11 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     for(i=1; i<pRow->nParent; i++){
       int parentRid = pRow->aParent[i];
       if( i==pRow->nNonCherrypick ){
-        iReuseIdx = -1;
-        iReuseRail = -1;
+        /* Because full merges are laid out before cherrypicks,
+        ** it is ok to use a full-merge raise for a cherrypick.
+        ** See the graph on check-in 8ac66ef33b464d28 for example
+        **    iReuseIdx = -1;
+        **    iReuseRail = -1; */
         isCherrypick = 1;
       }
       pDesc = hashFind(p, parentRid);
@@ -782,7 +785,10 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
           /* Create a new merge for an on-screen node */
           createMergeRiser(p, pDesc, pRow, isCherrypick);
           if( p->mxRail>=GR_MAX_RAIL ) return;
-          if( iReuseIdx<0 && pDesc->nMergeChild==1 ){
+          if( iReuseIdx<0
+           && pDesc->nMergeChild==1
+           && (pDesc->iRail!=pDesc->mergeOut || pDesc->isLeaf)
+          ){
             iReuseIdx = pDesc->idx;
             iReuseRail = pDesc->mergeOut;
           }

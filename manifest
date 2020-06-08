@@ -1,5 +1,5 @@
-C Graph\simprovement:\s\sWhen\sthere\sare\smultiple\sinbound\smerge\sarrows,\stry\sto\ncombine\sas\smany\sas\spossible\sinto\sa\ssingle\sriser.
-D 2020-06-08T17:10:27.557
+C Minor\sbug\sfixes\sin\sthe\snew\smerge-riser\scoalescing\slogic\sof\sthe\sgraph\sgenerator.
+D 2020-06-08T18:13:03.325
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -495,8 +495,8 @@ F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 4dc2ce17401398dd5ba56129ba516329de08a4034bb3e011ab6146f2838755ea
-F src/graph.js 752db48fc7128417d6a69e60ac261eb5c13fa5645e9fe889d67a520e16ef9177
+F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
+F src/graph.js 479bb71dc3d76aad98a6c4b61558c2799a84b153050839692ad0347ee5183c78
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
@@ -993,7 +993,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ab64c5a4d3deb7860e4b82141f8f386d3d722b9dee063baf133e85f68e68c4f
-R 12d8e2ec38dac856ef8d39aeea723605
+P 1eb9f5a81a9af81172a33601cdc6912e866a863a57445403e1a89007dbef5157
+R 0e5dd266e7ddc6adf6b3a77042fd00e3
 U drh
-Z 83bdc567fa9ead328a0b62d581495885
+Z a24a3c651c2495a9d8111d687ac2c6ab

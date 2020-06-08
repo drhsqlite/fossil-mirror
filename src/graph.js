@@ -444,7 +444,7 @@ function TimelineGraph(tx){
             drawMergeLine(x0,y0,x1+dx,null);
             cls = "arrow merge " + (x1<x0 ? "l" : "r");
           }
-          if( p.mu==p.cu ){
+          if( !isCP || p.mu==p.cu ){
             dx = x1<x0 ? mLine.w : -(mArrow.w + mLine.w/2);
             drawBox(cls,null,x1+dx,y0+(mLine.w-mArrow.h)/2);
           }
