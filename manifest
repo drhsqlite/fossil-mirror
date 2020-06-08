@@ -1,5 +1,5 @@
-C Minor\sbug\sfixes\sin\sthe\snew\smerge-riser\scoalescing\slogic\sof\sthe\sgraph\sgenerator.
-D 2020-06-08T18:13:03.325
+C Add\stest\scases\sfor\sthe\smerge-riser\scoalescing\slogic.
+D 2020-06-08T18:27:36.951
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -659,6 +659,7 @@ F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki 50661a791a5037d949534b42cfb1c8245687803fa46894f84a1ad458264d8501
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
 F test/graph-test-1.wiki 005464d7086c690588eee46e29f551145178c0eed085f5063f647b0d1231197e
+F test/graph-test-2.md f452475034b8dfa24450877df0e4a8a4415d115903cdae81e67e46cea3b89e43
 F test/json.test 6f77d48c30c6f4f0b9f4d5a985814d5780641857e715374b301dd41ebcd0e75c
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
@@ -673,7 +674,7 @@ F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
 F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a1c75240b6907e3d5d197c47bc0d08d48bbc6e794e5f44dcac5948af6126529f
-F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
+F test/release-checklist.wiki 37fb844592c7d25042d6d152fdd9c61d4d8e87b2d0add42f2a62fb87fb6582d1
 F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
 F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
@@ -993,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1eb9f5a81a9af81172a33601cdc6912e866a863a57445403e1a89007dbef5157
-R 0e5dd266e7ddc6adf6b3a77042fd00e3
+P 7688673a8e0bd805bdb4e6a1ebcea7d7534d66415a6fae730d688f29e17f457f
+R 38ceab70a272f23991442688024906c4
 U drh
-Z a24a3c651c2495a9d8111d687ac2c6ab
+Z 4a2cdea0f27e684f4f34a95be88b3b64
