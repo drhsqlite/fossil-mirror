@@ -1,5 +1,5 @@
-C Fix\shandling\sof\sthe\s'fossil.exe.manifest'\sfile\sby\sthe\sMSVC\smakefile.
-D 2020-06-08T22:52:03.013
+C Fix\sharmless\scompiler\swarning\sseen\swith\sMSVC.
+D 2020-06-08T23:03:58.771
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -529,7 +529,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 97c4460a4f74fef65cce81b637cbb41ec2194cda86ca0dd19d5ab47c2abe2c3c
+F src/main.c e86e44107925d13607ccc00dc92f5c18b8595863d3b2013580fa89bf3a6eef3e
 F src/main.mk 1d87ee9d883543ee22e33ac64c2fc47b14a06883ffe263035bbe2d79b2e655cc
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -994,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c89a5a3ad2f009a5aaf9873ae34257f2c8b383e12fcbf5a1c4fa08b54253be47
-R ac375eeb5eeda9539bebe8d75f1c3297
+P 6acb039c8149a0710fa7e917af88237c4006f17a852a4936993e3c414fce5242
+R 742572dcbdb3c8450d634b6f66d21442
 U mistachkin
-Z 9fe6724029235ce288c2809d1006d574
+Z 91d4fd028bd9fae4004d857b1587c027

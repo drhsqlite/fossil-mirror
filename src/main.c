@@ -632,7 +632,7 @@ static int fossilExeHasAppendedRepo(void){
   ** libFuzzer will supply main(). */
 #elif defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
   int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
-  int wmain(int argc, wchar_t **argv){ return fossil_main(argc, argv); }
+  int wmain(int argc, wchar_t **argv){ return fossil_main(argc,(char**)argv); }
 #elif defined(_WIN32)
   int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
   int main(int argc, char **argv){ return fossil_main(argc, argv); }
