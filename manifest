@@ -1,5 +1,5 @@
-C Version\s2.11
-D 2020-05-25T23:23:49.935
+C Make\sthe\s"fossil\sgit\sexport"\scommand\smore\srestrictive\sabout\scharacters\sthat\nit\sallows\sin\stag\snames.
+D 2020-06-08T19:47:41.455
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -476,7 +476,7 @@ F src/doc.c 426c91fc87d3b89bba5277c770721393376ca29726cc29ea2d6aa951f7ab085b
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 3f93a2d2ac78e018134f12849653572d2da3793c36c00c9bbb3cecf3364c027d
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
-F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
+F src/export.c a0cd1cb8c807f3cf195efd779f1497efed298cb495dbcdabab75e6a0b6030105
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
 F src/finfo.c 621c908d264547a6e6531da4986adf552700204e19b1528fb61a04421cecfb76
@@ -981,10 +981,11 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb713f1337a3d82bdc51a7f881c54a9c292ce59ab4214bba19ffc0837e71f717
-R a29789ef3dbf0e39d203b10891d023d7
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.11 *
+P 4df919803b6716ecd8bcbb01963c54c3647777e572d24c86cb816a86ec6af93c
+Q +c9a592dde7fe493f16b110b4e87f57441a8b2825d597d2ec2a1c5e9abeff90e9
+R 6feda7a13f878f5ee0cf80a88a0e3445
+T *branch * branch-2.11
+T *sym-branch-2.11 *
+T -sym-trunk *
 U drh
-Z 597ddda9e1cdbf75b694f4dfb88a340e
+Z c9c7e28516403e3362829a88440933e2
