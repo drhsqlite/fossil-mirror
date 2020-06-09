@@ -163,7 +163,9 @@ char *fossil_strtolwr(char *zIn){
 ** A string is unsafe for system() if it contains any of the following:
 **
 **   *  Any occurrance of '$' or '`' except after \
-**   *  Any of the following characters, unquoted:  ;|& or \n
+**   *  Any of the following characters, unquoted:  ;|& or \n except
+**      these characters are allowed as the very last character in the
+**      string.
 **   *  Unbalanced single or double quotes
 **
 ** This routine is intended as a second line of defense against attack.
@@ -188,7 +190,7 @@ void fossil_assert_safe_command_string(const char *z){
       case '|':
       case '&':
       case '\n': {
-        if( inQuote==0 ) unsafe = i+1;
+        if( inQuote==0 && z[i+1]!=0 ) unsafe = i+1;
         break;
       }
       case '"':

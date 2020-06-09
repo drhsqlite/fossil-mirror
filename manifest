@@ -1,5 +1,5 @@
-C Add\sthe\snew\s"%$"\sconversion\sspecifier\sin\smprintf(),\sfor\sescaping\sfilenames\nfor\suse\sin\sshell\scommands.\s\sUse\sthis\sfeature\sfor\sadded\ssystem()\ssecurity\nwhereever\sappropriate.
-D 2020-06-09T00:27:20.402
+C All\s'&amp;'\sas\sthe\slast\scharacter\sin\sa\sfossil_system()\sstring.
+D 2020-06-09T00:38:09.853
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -628,7 +628,7 @@ F src/url.c 9d4991f72baa8ec4c80cebba86ef3fa4187a732733e21645c53d773b552c1a36
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c ed308b4eaf18493d6dff860fad10535a93912ff5d3a5dd318cbd1a323b2f3d3a
+F src/util.c 850cb989a33269f1a2e3f14b0a2459fa4d5e3dd6acdc13d758a4eff9c09d1108
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
@@ -994,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a046f916d3e3be3d5b6b17e851d484a20caebd563f8bed8b3ce5e3b171f95fce
-R 64dfa72a24e07b70685e06377387be05
+P 2209f553233fca8c9519c20d4bffb56b29221b94fe8d71e8316cb90ad4006775
+R 6a21d2e18093c8bd088370e9bed73b39
 U drh
-Z 581f88b8db2f580c6bfb4c7242c3a5bd
+Z 0553c70028dfd86ade1d3a49c8da71fc
