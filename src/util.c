@@ -160,7 +160,7 @@ char *fossil_strtolwr(char *zIn){
 
 /*
 ** Check the input string to ensure that it is safe to pass into system().
-** A string is unsafe for system() if it contains any of the following:
+** A string is unsafe for system() on unix if it contains any of the following:
 **
 **   *  Any occurrance of '$' or '`' except after \
 **   *  Any of the following characters, unquoted:  ;|& or \n except
@@ -176,9 +176,11 @@ char *fossil_strtolwr(char *zIn){
 ** If an unsafe string is seen, the process aborts.
 */
 void fossil_assert_safe_command_string(const char *z){
+  int unsafe = 0;
+#ifndef _WIN32
+  /* Unix */
   int inQuote = 0;
   int i, c;
-  int unsafe = 0;
   for(i=0; (c = z[i])!=0; i++){
     switch( c ){
       case '$':
@@ -212,6 +214,10 @@ void fossil_assert_safe_command_string(const char *z){
       }
     }
   }
+#else
+  /* Windows */
+  
+#endif
   if( unsafe ){
     fossil_fatal("Unsafe command string: %s\n%*shere ----^",
                  z, unsafe+13, "");
@@ -255,6 +261,27 @@ int fossil_system(const char *zOrigCmd){
   fossil_limit_memory(1);
 #endif
   return rc;
+}
+
+/*
+** COMMAND: test-fossil-system
+**
+** Read lines of input and send them to fossil_system() for evaluation.
+*/
+void test_fossil_system_cmd(void){
+  char zLine[10000];
+  while(1){
+    size_t n;
+    printf("system-test> ");
+    fflush(stdout);
+    if( !fgets(zLine, sizeof(zLine), stdin) ) break;
+    n = strlen(zLine);
+    while( n>0 && fossil_isspace(zLine[n-1]) ) n--;
+    zLine[n] = 0;
+    printf("cmd: [%s]\n", zLine);
+    fflush(stdout);
+    fossil_system(zLine);
+  }
 }
 
 /*
