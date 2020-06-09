@@ -1357,6 +1357,29 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
 }
 
 /*
+** COMMAND: test-escaped-arg
+**
+** Usage %fossil ARG ...
+**
+** Run each argment through blob_append_escaped_arg() and show the
+** result.  Append each argument to "fossil test-echo" and run that
+** using fossil_system() to verify that it really does get escaped
+** correctly.
+*/
+void test_escaped_arg__cmd(void){
+  int i;
+  Blob x;
+  blob_init(&x, 0, 0);
+  for(i=2; i<g.argc; i++){
+    fossil_print("%3d [%s]: ", i, g.argv[i]);
+    blob_appendf(&x, "fossil test-echo %$", g.argv[i]);
+    fossil_print("%s\n", blob_str(&x));
+    fossil_system(blob_str(&x));
+    blob_reset(&x);
+  }
+}
+
+/*
 ** A read(2)-like impl for the Blob class. Reads (copies) up to nLen
 ** bytes from pIn, starting at position pIn->iCursor, and copies them
 ** to pDest (which must be valid memory at least nLen bytes long).
