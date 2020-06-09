@@ -1,5 +1,5 @@
-C Another\sminor\ssimplification\sto\sthe\sMSVC\smakefile.
-D 2020-06-09T00:59:38.659
+C In\sthe\sMSVC\smakefile,\sdo\snot\swrap\s'$(MAKE)'\sin\sdouble\squotes\sbecause\sit\salready\shas\sthem.
+D 2020-06-09T01:41:51.941
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -533,7 +533,7 @@ F src/main.c 822de9fd9ec4f80fe4e8ab05b7ed5d643c71592796aa394426da83fb25204d0a
 F src/main.mk 1d87ee9d883543ee22e33ac64c2fc47b14a06883ffe263035bbe2d79b2e655cc
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
-F src/makemake.tcl b1f8982304638b7443cbcf8f723990ebc7b7c263ea304ab9e745caa458354dea x
+F src/makemake.tcl 9d38029b7ef7c64f4eb550f4e5f834ececc19ab203e75a2ab38ae305e7242a81 x
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
 F src/markdown.c b11ff3c334d00d2c0890b79db135845518da49b4cc7bc88e662c63bf5870c77b
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
@@ -779,7 +779,7 @@ F win/Makefile.PellesCGMake b4d4ce180ffc205bdcfed59665e6dd4308547d3975616c9ed561
 F win/Makefile.dmc 0ee1bb2f954234ac8164cd5409141085516728d0c056b29e92ef2dad3ad57acf
 F win/Makefile.mingw ef35c2b56f4093985d4549a505e1835ea0dd5f78cf8f003a7a4cf17229d993a7
 F win/Makefile.mingw.mistachkin bbb9374535134c076d9c613d17d2a0b4b9360153f361842fa3280218a616ec41
-F win/Makefile.msc c6e037dfc55330a421a75c4894d53cb8eac13b122f680b9f7429f0f96a44becd
+F win/Makefile.msc 9dad9ef486da1adb4376320839cb08ab4a7aed4c184e78c5af79f9bfa6fe899b
 F win/buildmsvc.bat 0539135b8f6116d0184f04eef0a209ead7d72ca00fa27c68963ea40fb1ff020d
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -994,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84346a317b77041d650515ca37cedfef60290bb6b10c026da1e8e17dc63a6e68
-R 140904cfc36ce11717988dc5de175fc9
+P 0387226c38e36305a814fe4bef2df5669dbbf96001265101d31931cd12fe9b5f
+R 4633029109be0471033a8e113e4a23fb
 U mistachkin
-Z 75a6801dff2f921f67ce20491515439d
+Z 8e487f0f0c620bb7e4961c35d3e7e76a

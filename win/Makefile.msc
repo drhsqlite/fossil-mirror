@@ -799,14 +799,13 @@ openssl:
 	@pushd "$(SSLDIR)" && "$(PERL)" Configure $(SSLCONFIG) && popd
 !endif
 !if $(FOSSIL_ENABLE_WINXP)!=0
-	@pushd "$(SSLDIR)" && "$(MAKE)" "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
+	@pushd "$(SSLDIR)" && $(MAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
 !else
-	@pushd "$(SSLDIR)" && "$(MAKE)" && popd
+	@pushd "$(SSLDIR)" && $(MAKE) && popd
 !endif
 
 clean-openssl:
-	@pushd "$(SSLDIR)" && "$(MAKE)" clean && popd
-
+	@pushd "$(SSLDIR)" && $(MAKE) clean && popd
 !endif
 
 !if $(FOSSIL_ENABLE_MINIZ)==0
