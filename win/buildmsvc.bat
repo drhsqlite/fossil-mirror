@@ -272,11 +272,12 @@ GOTO no_errors
   :set_v110Sdk71A_done
   SET PATH=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Bin;%PATH%
   SET INCLUDE=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%
-  IF "%PLATFORM%" == "x64" (
-    SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib\x64;%LIB%
-  ) ELSE (
-    SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%
-  )
+  IF "%PLATFORM%" == "x64" GOTO set_v110Sdk71A_lib_x64
+  SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%
+  GOTO set_v110Sdk71A_lib_done
+  :set_v110Sdk71A_lib_x64
+  SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib\x64;%LIB%
+  :set_v110Sdk71A_lib_done
   CALL :fn_UnsetVariable PFILES_SDK71A
   SET NMAKE_ARGS=%NMAKE_ARGS% FOSSIL_ENABLE_WINXP=1
   GOTO :EOF
