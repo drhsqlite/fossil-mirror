@@ -1,5 +1,5 @@
-C Improvements\sto\swww/selfcheck.wiki:\sfixed\sa\sfew\stypos,\sadded\sa\slink\sto\nthe\sdelta-compression\salgo\sdoc,\sand\scapitalized\s"fossil"\swhere\sused\sas\sa\nproduct\sname,\srather\sthan\sa\scommand.
-D 2020-06-09T21:12:37.889
+C Adjustments\sto\sthe\sshell\sargument\sescaping\sfor\sWin32.
+D 2020-06-09T22:54:19.879
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c 55ac23beaeb0e2ebdbf7be7f4b8ceb0541f3206041aeeaaf6282ffd26c453270
+F src/blob.c 657033beea278f1cc5bdfb6b56530b3af13072e0bd4b9b3538ec6494abe69137
 F src/branch.c 00e040e7ee788ec16a342f1e5d132eafae604bd107b4783f5fa38dbdc88a38eb
 F src/browse.c ef38b8132be2020218a3922f820baf6d1d0aaf81b58a106b3bb2ca48b2c40bc1
 F src/builtin.c 1ae9c90c567fb45f23f95aa7d00eca5cfc30cc86e2ba7476c97806d3fb24b072
@@ -994,7 +994,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ebe5bbec0b62412e02522b905d2586f267f086012d427c6862975c7b8918faf
-R 024d2535b43588d027e739e4f84879fa
-U wyoung
-Z e2dcba672543a3b965d69aa33a15658d
+P 0b9bfc4f7d5ab08a942e7c600d42cb045dcd5f46640b0ec58c46e593e0502dbe
+R 2b59f98dd503abb83a91d36cf88d3a39
+T *branch * win32shellArg
+T *sym-win32shellArg *
+T -sym-trunk *
+U mistachkin
+Z 85f2e45748a1edd1f71d77e8b47782ee
