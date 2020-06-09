@@ -491,7 +491,7 @@ static void db_stats(Stmt *pStmt){
 */
 int db_reset(Stmt *pStmt){
   int rc;
-  db_stats(pStmt);
+  if( g.fSqlStats ){ db_stats(pStmt); }
   rc = sqlite3_reset(pStmt->pStmt);
   db_check_result(rc, pStmt);
   return rc;
@@ -508,7 +508,7 @@ int db_finalize(Stmt *pStmt){
   }
   pStmt->pNext = 0;
   pStmt->pPrev = 0;
-  db_stats(pStmt);
+  if( g.fSqlStats ){ db_stats(pStmt); }
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
   db_check_result(rc, pStmt);
