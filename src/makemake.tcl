@@ -1511,7 +1511,10 @@ INSTALLDIR = $(DESTDIR)\$(INSTALLDIR)
 # Perl is only necessary if OpenSSL support is enabled and it must
 # be built from source code.  The PERLDIR variable should point to
 # the directory containing the main Perl binary (i.e. "perl.exe").
+!ifndef PERLDIR
 PERLDIR = C:\Perl\bin
+!endif
+
 PERL    = perl.exe
 
 # Enable debugging symbols?
@@ -1851,14 +1854,14 @@ zlib:
 clean-zlib:
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc clean && popd
 
-
 !if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
-!if "$(PERLDIR)" != ""
-	@set "PATH=$(PERLDIR);$(PATH)"
-!endif
+!ifdef PERLDIR
+	@pushd "$(SSLDIR)" && "$(PERLDIR)\$(PERL)" Configure $(SSLCONFIG) && popd
+!else
 	@pushd "$(SSLDIR)" && "$(PERL)" Configure $(SSLCONFIG) && popd
+!endif
 !if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(SSLDIR)" && "$(MAKE)" "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
 !else
