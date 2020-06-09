@@ -1314,7 +1314,7 @@ void gitmirror_export_command(void){
   /* Make sure GIT has been initialized */
   z = mprintf("%s/.git", zMirror);
   if( !file_isdir(z, ExtFILE) ){
-    zCmd = mprintf("git init \"%s\"",zMirror);
+    zCmd = mprintf("git init %$",zMirror);
     gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
     rc = fossil_system(zCmd);
     if( rc ){
@@ -1512,7 +1512,7 @@ void gitmirror_export_command(void){
     const char *zObj = db_column_text(&q,1);
     char *zTagCmd;
     gitmirror_sanitize_name(zTagname);
-    zTagCmd = mprintf("git tag -f \"%s\" %s", zTagname, zObj);
+    zTagCmd = mprintf("git tag -f %$ %$", zTagname, zObj);
     fossil_free(zTagname);
     gitmirror_message(VERB_NORMAL, "%s\n", zTagCmd);
     fossil_system(zTagCmd);
@@ -1547,7 +1547,7 @@ void gitmirror_export_command(void){
     }else{
       gitmirror_sanitize_name(zBrname);
     }
-    zRefCmd = mprintf("git update-ref \"refs/heads/%s\" %s", zBrname, zObj);
+    zRefCmd = mprintf("git update-ref \"refs/heads/%s\" %$", zBrname, zObj);
     fossil_free(zBrname);
     gitmirror_message(VERB_NORMAL, "%s\n", zRefCmd);
     fossil_system(zRefCmd);
@@ -1584,7 +1584,7 @@ void gitmirror_export_command(void){
     }
     gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
-    zPushCmd = mprintf("git push --mirror %s", zPushUrl);
+    zPushCmd = mprintf("git push --mirror %$", zPushUrl);
     fossil_system(zPushCmd);
     fossil_free(zPushCmd);
   }

@@ -103,6 +103,8 @@ int length_of_S_display(void){
 #define etROOT       24 /* String value of g.zTop: %R */
 #define etJSONSTR    25 /* String encoded as a JSON string literal: %j
                            Use %!j to include double-quotes around it. */
+#define etSHELLESC   26 /* Escape a filename for use in a shell command: %$
+                           See blob_append_escaped_arg() for details */
 
 
 /*
@@ -169,6 +171,7 @@ static const et_info fmtinfo[] = {
   {  '%',  0, 0, etPERCENT,    0,  0 },
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
+  {  '$',  0, 0, etSHELLESC,   0,  0 },
 };
 #define etNINFO count(fmtinfo)
 
@@ -813,6 +816,12 @@ int vxprintf(
         blob_init(&wiki, zWiki, limit);
         wiki_convert(&wiki, pBlob, wiki_convert_flags(flag_altform2));
         blob_reset(&wiki);
+        length = width = 0;
+        break;
+      }
+      case etSHELLESC: {
+        char *zArg = va_arg(ap, char*);
+        blob_append_escaped_arg(pBlob, zArg);
         length = width = 0;
         break;
       }

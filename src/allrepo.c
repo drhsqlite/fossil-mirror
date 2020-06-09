@@ -22,37 +22,11 @@
 #include <assert.h>
 
 /*
-** The input string is a filename.  Return a new copy of this
-** filename if the filename requires quoting due to special characters
-** such as spaces in the name.
-**
-** If the filename cannot be safely quoted, return a NULL pointer.
-**
-** Space to hold the returned string is obtained from malloc.  A new
-** string is returned even if no quoting is needed.
-*/
-static char *quoteFilename(const char *zFilename){
-  int i, c;
-  int needQuote = 0;
-  for(i=0; (c = zFilename[i])!=0; i++){
-    if( c=='"' ) return 0;
-    if( fossil_isspace(c) ) needQuote = 1;
-    if( c=='\\' && zFilename[i+1]==0 ) return 0;
-    if( c=='$' ) return 0;
-  }
-  if( needQuote ){
-    return mprintf("\"%s\"", zFilename);
-  }else{
-    return mprintf("%s", zFilename);
-  }
-}
-
-/*
 ** Build a string that contains all of the command-line options
 ** specified as arguments.  If the option name begins with "+" then
 ** it takes an argument.  Without the "+" it does not.
 */
-static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort){
+static void collect_argument(Blob *pExtra,const char *zArg,const char *zShort){
   const char *z = find_option(zArg, zShort, 0);
   if( z!=0 ){
     blob_appendf(pExtra, " %s", z);
@@ -62,7 +36,7 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
   const char *zValue = find_option(zArg, 0, 1);
   if( zValue ){
     if( zValue[0] ){
-      blob_appendf(pExtra, " --%s %s", zArg, zValue);
+      blob_appendf(pExtra, " --%s %$", zArg, zValue);
     }else{
       blob_appendf(pExtra, " --%s \"\"", zArg);
     }
@@ -171,8 +145,6 @@ void all_cmd(void){
   Stmt q;
   const char *zCmd;
   char *zSyscmd;
-  char *zFossil;
-  char *zQFilename;
   Blob extra;
   int useCheckouts = 0;
   int quiet = 0;
@@ -372,7 +344,6 @@ void all_cmd(void){
                  "info list ls pull push rebuild server setting sync ui unset");
   }
   verify_all_options();
-  zFossil = quoteFilename(g.nameOfExe);
   db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
   if( useCheckouts ){
     db_multi_exec(
@@ -414,9 +385,8 @@ void all_cmd(void){
       fossil_print("%s: %s\n", useCheckouts ? "checkout" : "repository",
                    zFilename);
     }
-    zQFilename = quoteFilename(zFilename);
-    zSyscmd = mprintf("%s %s %s%s",
-                      zFossil, zCmd, zQFilename, blob_str(&extra));
+    zSyscmd = mprintf("%$ %s %$%s",
+                      g.nameOfExe, zCmd, zFilename, blob_str(&extra));
     if( showLabel ){
       int len = (int)strlen(zFilename);
       int nStar = 80 - (len + 15);
@@ -430,7 +400,6 @@ void all_cmd(void){
     }
     rc = dryRunFlag ? 0 : fossil_system(zSyscmd);
     free(zSyscmd);
-    free(zQFilename);
     if( stopOnError && rc ){
       break;
     }
