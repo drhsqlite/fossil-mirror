@@ -1,5 +1,5 @@
-C Enhance\sbuild\ssuffix\shandling\sin\sthe\sMSVC\sbuild\stool.
-D 2020-06-09T23:05:45.593
+C Improvements\sto\sfossil_assert_safe_command_string(),\sespecially\sfor\swindows.
+D 2020-06-09T23:32:05.873
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -628,7 +628,7 @@ F src/url.c 9d4991f72baa8ec4c80cebba86ef3fa4187a732733e21645c53d773b552c1a36
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c 6ad3d4313cc4fc3da754c527073d4644d57b0664ced858f4a7488e90143076fd
+F src/util.c de0723ef68f92958017ee60c5dc0e6b2f4121c6deac0f8a32051a1e88f78d46c
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
@@ -994,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0b9bfc4f7d5ab08a942e7c600d42cb045dcd5f46640b0ec58c46e593e0502dbe
-R cc8c5f0748acad6eabcc7353906f5a9f
-U mistachkin
-Z 84a4d134fe53f19bcf3cd034bdd350b9
+P 4a8ca98f2a67888c2639b6abc84a0298c2928be90cd2e02512b212da63868bed
+R 8260790db5a032a563a18f597a1b8c2a
+U drh
+Z e1a193c3fce766ce70935f29da4b9be6

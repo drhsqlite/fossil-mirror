@@ -180,9 +180,10 @@ static int safeCmdStrTest = 0;
 ** fixed before calling fossil_system().  This routine serves only as a
 ** safety net in case of bugs elsewhere in the system.
 **
-** If an unsafe string is seen, either abort or return false.
+** If an unsafe string is seen, either abort (default) or print
+** a warning message (if safeCmdStrTest is true).
 */
-static int fossil_assert_safe_command_string(const char *z){
+static void fossil_assert_safe_command_string(const char *z){
   int unsafe = 0;
 #ifndef _WIN32
   /* Unix */
@@ -228,10 +229,16 @@ static int fossil_assert_safe_command_string(const char *z){
   int inQuote = 0;
   for(i=0; !unsafe && (c = z[i])!=0; i++){
     switch( c ){
+      case '>':
+      case '<':
       case '|':
       case '&':
       case '\n': {
         if( inQuote==0 && z[i+1]!=0 ) unsafe = i+1;
+        break;
+      }
+      case '\\': {
+        if( z[i+1]=='"' ){ i++; }
         break;
       }
       case '"': {
@@ -239,6 +246,14 @@ static int fossil_assert_safe_command_string(const char *z){
           inQuote = 0;
         }else{
           inQuote = c;
+        }
+        break;
+      }
+      case '^': {
+        if( z[i+1]=='"' ){
+          unsafe = i+2;
+        }else if( z[i+1]!=0 ){
+          i++;
         }
         break;
       }
@@ -255,7 +270,6 @@ static int fossil_assert_safe_command_string(const char *z){
       fossil_panic("%s", zMsg);
     }
   }
-  return !unsafe;
 }
 
 /*
@@ -272,16 +286,15 @@ int fossil_system(const char *zOrigCmd){
   if( g.fSystemTrace ) {
     fossil_trace("SYSTEM: %s\n", zNewCmd);
   }
-  if( fossil_assert_safe_command_string(zOrigCmd) ){
-    rc = _wsystem(zUnicode);
-  }
+  fossil_assert_safe_command_string(zOrigCmd);
+  rc = _wsystem(zUnicode);
   fossil_unicode_free(zUnicode);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
-  if( !fossil_assert_safe_command_string(zOrigCmd) ) return 1;
+  fossil_assert_safe_command_string(zOrigCmd);
 
   /* Unix systems should never shell-out while processing an HTTP request,
   ** either via CGI, SCGI, or direct HTTP.  The following assert verifies
