@@ -187,7 +187,20 @@ REM NOTE: Attempt to create the build output directory, if necessary.
 REM
 IF DEFINED BUILDDIR (
   IF DEFINED BUILDSUFFIX (
-    SET BUILDDIR=%BUILDDIR%%BUILDSUFFIX%
+    CALL :fn_FindVarInVar BUILDSUFFIX BUILDDIR
+
+    IF ERRORLEVEL 1 (
+      REM
+      REM NOTE: The build suffix is already present, do nothing.
+      REM
+    ) ELSE (
+      REM
+      REM NOTE: The build suffix is not present, add it now.
+      REM
+      SET BUILDDIR=%BUILDDIR%%BUILDSUFFIX%
+    )
+
+    CALL :fn_ResetErrorLevel
   )
 ) ELSE (
   SET BUILDDIR=%ROOT%\msvcbld%BUILDSUFFIX%
@@ -280,6 +293,23 @@ GOTO no_errors
   :set_v110Sdk71A_lib_done
   CALL :fn_UnsetVariable PFILES_SDK71A
   SET NMAKE_ARGS=%NMAKE_ARGS% FOSSIL_ENABLE_WINXP=1
+  GOTO :EOF
+
+:fn_FindVarInVar
+  IF NOT DEFINED %1 GOTO :EOF
+  IF NOT DEFINED %2 GOTO :EOF
+  SETLOCAL
+  CALL :fn_UnsetVariable VALUE
+  SET __ECHO_CMD=ECHO %%%2%% ^^^| FIND /I "%%%1%%"
+  FOR /F "delims=" %%V IN ('%__ECHO_CMD%') DO (
+    SET VALUE=%%V
+  )
+  IF DEFINED VALUE (
+    CALL :fn_SetErrorLevel
+  ) ELSE (
+    CALL :fn_ResetErrorLevel
+  )
+  ENDLOCAL
   GOTO :EOF
 
 :fn_UnsetVariable
