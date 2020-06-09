@@ -159,6 +159,13 @@ char *fossil_strtolwr(char *zIn){
 }
 
 /*
+** If this local variable is set, fossil_assert_safe_command_string()
+** returns false on an unsafe command-string rather than abort.  Set
+** this variable for testing.
+*/
+static int safeCmdStrTest = 0;
+
+/*
 ** Check the input string to ensure that it is safe to pass into system().
 ** A string is unsafe for system() on unix if it contains any of the following:
 **
@@ -173,26 +180,26 @@ char *fossil_strtolwr(char *zIn){
 ** fixed before calling fossil_system().  This routine serves only as a
 ** safety net in case of bugs elsewhere in the system.
 **
-** If an unsafe string is seen, the process aborts.
+** If an unsafe string is seen, either abort or return false.
 */
-void fossil_assert_safe_command_string(const char *z){
+static int fossil_assert_safe_command_string(const char *z){
   int unsafe = 0;
 #ifndef _WIN32
   /* Unix */
   int inQuote = 0;
   int i, c;
-  for(i=0; (c = z[i])!=0; i++){
+  for(i=0; !unsafe && (c = z[i])!=0; i++){
     switch( c ){
       case '$':
       case '`': {
-        unsafe = i+1;
+        if( inQuote!='\'' ) unsafe = i+1;
         break;
       }
       case ';':
       case '|':
       case '&':
       case '\n': {
-        if( inQuote==0 && z[i+1]!=0 ) unsafe = i+1;
+        if( inQuote!='\'' && z[i+1]!=0 ) unsafe = i+1;
         break;
       }
       case '"':
@@ -207,21 +214,48 @@ void fossil_assert_safe_command_string(const char *z){
       case '\\': {
         if( z[i+1]==0 ){
           unsafe = i+1;
-        }else{
+        }else if( inQuote!='\'' ){
           i++;
         }
         break;
       }
     }
   }
+  if( inQuote ) unsafe = i;
 #else
   /* Windows */
-  
+  int i, c;
+  int inQuote = 0;
+  for(i=0; !unsafe && (c = z[i])!=0; i++){
+    switch( c ){
+      case '|':
+      case '&':
+      case '\n': {
+        if( inQuote==0 && z[i+1]!=0 ) unsafe = i+1;
+        break;
+      }
+      case '"': {
+        if( inQuote==c ){
+          inQuote = 0;
+        }else{
+          inQuote = c;
+        }
+        break;
+      }
+    }
+  }
+  if( inQuote ) unsafe = i;
 #endif
   if( unsafe ){
-    fossil_fatal("Unsafe command string: %s\n%*shere ----^",
-                 z, unsafe+13, "");
+    char *zMsg = mprintf("Unsafe command string: %s\n%*shere ----^",
+                   z, unsafe+13, "");
+    if( safeCmdStrTest ){
+      fossil_print("%z\n", zMsg);
+    }else{
+      fossil_panic("%s", zMsg);
+    }
   }
+  return !unsafe;
 }
 
 /*
@@ -238,15 +272,16 @@ int fossil_system(const char *zOrigCmd){
   if( g.fSystemTrace ) {
     fossil_trace("SYSTEM: %s\n", zNewCmd);
   }
-  fossil_assert_safe_command_string(zOrigCmd);
-  rc = _wsystem(zUnicode);
+  if( fossil_assert_safe_command_string(zOrigCmd) ){
+    rc = _wsystem(zUnicode);
+  }
   fossil_unicode_free(zUnicode);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
-  fossil_assert_safe_command_string(zOrigCmd);
+  if( !fossil_assert_safe_command_string(zOrigCmd) ) return 1;
 
   /* Unix systems should never shell-out while processing an HTTP request,
   ** either via CGI, SCGI, or direct HTTP.  The following assert verifies
@@ -267,9 +302,12 @@ int fossil_system(const char *zOrigCmd){
 ** COMMAND: test-fossil-system
 **
 ** Read lines of input and send them to fossil_system() for evaluation.
+** Use this command to verify that fossil_system() will not run "unsafe"
+** commands.
 */
 void test_fossil_system_cmd(void){
   char zLine[10000];
+  safeCmdStrTest = 1;
   while(1){
     size_t n;
     printf("system-test> ");
