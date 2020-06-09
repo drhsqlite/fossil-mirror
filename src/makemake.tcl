@@ -1508,13 +1508,10 @@ INSTALLDIR = $(DESTDIR)\$(INSTALLDIR)
 !error Please specify path to project base directory: B="path/to/fossil"
 !endif
 
-# Perl is only necessary if OpenSSL support is enabled and it must
-# be built from source code.  The PERLDIR variable should point to
-# the directory containing the main Perl binary (i.e. "perl.exe").
-!ifndef PERLDIR
-PERLDIR = C:\Perl\bin
-!endif
-
+# Perl is only necessary if OpenSSL support is enabled and it is built from
+# source code.  The PERLDIR environment variable, if it exists, should point
+# to the directory containing the main Perl executable specified here (i.e.
+# "perl.exe").
 PERL    = perl.exe
 
 # Enable debugging symbols?
@@ -1657,8 +1654,11 @@ INCL      = $(INCL) /I"$(SSLINCDIR)"
 INCL      = $(INCL) /I"$(TCLINCDIR)"
 !endif
 
-CFLAGS    = /nologo /wd4996
+CFLAGS    = /nologo
 LDFLAGS   =
+
+CFLAGS    = $(CFLAGS) /D_CRT_SECURE_NO_DEPRECATE /D_CRT_SECURE_NO_WARNINGS
+CFLAGS    = $(CFLAGS) /D_CRT_NONSTDC_NO_DEPRECATE /D_CRT_NONSTDC_NO_WARNINGS
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 LDFLAGS   = $(LDFLAGS) /MANIFEST
