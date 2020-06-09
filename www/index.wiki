@@ -85,10 +85,10 @@ management system with these advanced features:
   8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>[/timeline?t=release|Latest Release]: 2.11 (2020-05-26)</h3>
+<h3>[/timeline?t=release|Latest Release]: 2.11.1 (2020-06-08)</h3>
 
   *  [/uv/download.html|Download]
-  *  [./changes.wiki#v2_10|Change Summary]
+  *  [./changes.wiki#v2_11|Change Summary]
 
 <hr>
 <h3>Quick Start</h3>
