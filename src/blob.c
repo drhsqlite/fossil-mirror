@@ -1303,21 +1303,25 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
   int n = blob_size(pBlob);
   char *z = blob_buffer(pBlob);
 #if defined(_WIN32)
+  const char cDirSep = '\\';  /* Use \ as directory separator */
   const char cQuote = '"';    /* Use "..." quoting on windows */
+  const char cEscape = '^';   /* Use ^X escaping on windows */
 #else
+  const char cDirSep = '/';   /* Use / as directory separator */
   const char cQuote = '\'';   /* Use '...' quoting on unix */
+  const char cEscape = '\\';  /* Use \X escaping on unix */
 #endif
 
   for(i=0; (c = zIn[i])!=0; i++){
     if( c==cQuote || (unsigned char)c<' ' ||
-        c=='\\' || c==';' || c=='*' || c=='?' || c=='[' ){
+        c==cEscape || c==';' || c=='*' || c=='?' || c=='[' ){
       Blob bad;
       blob_token(pBlob, &bad);
       fossil_fatal("the [%s] argument to the \"%s\" command contains "
                    "a character (ascii 0x%02x) that is a security risk",
                    zIn, blob_str(&bad), c);
     }
-    if( !needEscape && !fossil_isalnum(c) && c!='/' && c!='.' && c!='_' ){
+    if( !needEscape && !fossil_isalnum(c) && c!=cDirSep && c!='.' && c!='_' ){
       needEscape = 1;
     }
   }
@@ -1325,9 +1329,54 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
     blob_append_char(pBlob, ' ');
   }
   if( needEscape ) blob_append_char(pBlob, cQuote);
-  if( zIn[0]=='-' ) blob_append(pBlob, "./", 2);
+  if( zIn[0]=='-' ){
+    blob_append_char(pBlob, '.');
+    blob_append_char(pBlob, cDirSep);
+  }
+#if defined(_WIN32)
+  if( needEscape ){
+    for(i=0; (c = zIn[i])!=0; i++){
+      if( c==cQuote || c==cEscape ) blob_append_char(pBlob, cEscape);
+      blob_append_char(pBlob, c);
+    }
+  }else{
+    blob_append(pBlob, zIn, -1);
+  }
+#else
   blob_append(pBlob, zIn, -1);
-  if( needEscape ) blob_append_char(pBlob, cQuote);
+#endif
+  if( needEscape ){
+#if defined(_WIN32)
+    /* NOTE: Trailing backslash must be doubled before final double quote. */
+    if( pBlob->aData[pBlob->nUsed-1]==cEscape ){
+      blob_append_char(pBlob, cEscape);
+    }
+#endif
+    blob_append_char(pBlob, cQuote);
+  }
+}
+
+/*
+** COMMAND: test-escaped-arg
+**
+** Usage %fossil ARG ...
+**
+** Run each argment through blob_append_escaped_arg() and show the
+** result.  Append each argument to "fossil test-echo" and run that
+** using fossil_system() to verify that it really does get escaped
+** correctly.
+*/
+void test_escaped_arg__cmd(void){
+  int i;
+  Blob x;
+  blob_init(&x, 0, 0);
+  for(i=2; i<g.argc; i++){
+    fossil_print("%3d [%s]: ", i, g.argv[i]);
+    blob_appendf(&x, "fossil test-echo %$", g.argv[i]);
+    fossil_print("%s\n", blob_str(&x));
+    fossil_system(blob_str(&x));
+    blob_reset(&x);
+  }
 }
 
 /*
