@@ -1332,11 +1332,15 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
   if( zIn[0]=='-' ){
     blob_append_char(pBlob, '.');
     blob_append_char(pBlob, cDirSep);
+#if defined(_WIN32)
+  }else if( zIn[0]=='/' ){
+    blob_append_char(pBlob, '.');
+#endif
   }
 #if defined(_WIN32)
   if( needEscape ){
     for(i=0; (c = zIn[i])!=0; i++){
-      if( c==cQuote || c==cEscape ) blob_append_char(pBlob, cEscape);
+      if( c==cQuote ) blob_append_char(pBlob, cDirSep);
       blob_append_char(pBlob, c);
     }
   }else{
@@ -1348,8 +1352,8 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
   if( needEscape ){
 #if defined(_WIN32)
     /* NOTE: Trailing backslash must be doubled before final double quote. */
-    if( pBlob->aData[pBlob->nUsed-1]==cEscape ){
-      blob_append_char(pBlob, cEscape);
+    if( pBlob->aData[pBlob->nUsed-1]==cDirSep ){
+      blob_append_char(pBlob, cDirSep);
     }
 #endif
     blob_append_char(pBlob, cQuote);
