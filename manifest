@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\sfile\sname\sescaping\son\sWindows.
-D 2020-06-10T21:46:07.152
+C Fix\shandling\sof\sempty-string\scorner\scase\sfor\sthe\sfile_simplify_name()\sfunction.
+D 2020-06-10T23:00:43.146
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -478,7 +478,7 @@ F src/etag.c 3f93a2d2ac78e018134f12849653572d2da3793c36c00c9bbb3cecf3364c027d
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 6b40c38ca04604282e2feafa2961aa8f28c012e266858d61f2d43deeb9034dc8
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
+F src/file.c 280e206332e528509d9bafa30e5ffa953a0488d593f72cfa37bc87b97c5e2653
 F src/fileedit.c f2a148f1ebe644d3bd5c3c4825ee30b3ffc2be5262feb2d5ae46a58e0587b261
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -994,8 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 23fc63e45b5135af6577719124304da8e4b1693db7003c64f4a30ad0cb01077b 8c8a6d1217752362dce2d873929f29edc067047d156b0bb8bfd353ef1b6d6d68
-R 505985107bb810b96b033073f9e47373
-T +closed 8c8a6d1217752362dce2d873929f29edc067047d156b0bb8bfd353ef1b6d6d68
+P 9519c22556c627a79bed1b3873f7a07e32353f6a26188b78ec11d5835bfa772c
+R 22b9273c26d0f385454fd70f6b8e2173
 U mistachkin
-Z ad5c902dbcc6becb3eb76e1a5901b4e6
+Z 0aaed399479311b9dd882c11b1363553
