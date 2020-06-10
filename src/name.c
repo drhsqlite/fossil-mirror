@@ -975,7 +975,8 @@ static const char zDescTab[] =
 @   summary TEXT,                  -- Summary comment for the object
 @   ref TEXT                       -- hash of an object to link against
 @ );
-@ CREATE INDEX desctype ON description(summary) WHERE summary='unknown';
+@ CREATE INDEX IF NOT EXISTS desctype
+@   ON description(summary) WHERE summary='unknown';
 ;
 
 /*
