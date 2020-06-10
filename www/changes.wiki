@@ -3,14 +3,16 @@
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12 (pending)</h2>
 
-  *  Security fix in the "fossil git export" command.
+  *  Security fix in the "fossil git export" command. New "safety-nets"
+     added to prevent future problems.
   *  Enhancements to the graph display for cases when there are
      many merges into a single check-in.
      [/info/2d75e87b760c0a9?diff=0|Example]
   *  The markdown-to-html translator can prevent unsafe HTML
      (for example: &lt;script&gt;) on user pages like forum and
-     tickets and wiki, and the administrators discretion.  On by
+     tickets and wiki, at the administrators option.  On by
      default.
+     [https://www.fossil-scm.org/forum/forumpost/3714e6568f|Example].
   *  Enhance the [/help?cmd=revert|fossil revert] command so that it
      is able to revert all files beneath a directory.
   *  Added <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
@@ -20,6 +22,10 @@
   *  Added the [/help?cmd=/fileedit|/fileedit page], which allows
      editing of text files online. Requires explicit activation by
      a setup user.
+  *  Update the built-in SQLite so that the
+     "[/help?cmd=sql|fossil sql]" command supports new output
+     modes ".mode box" and ".mode json".
+  *  Delta compression now applied to forum edits.
 
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (2020-05-25)</h2>
