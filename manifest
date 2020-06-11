@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s'diff'\stests.
-D 2020-06-11T02:05:32.497
+C Updates\sto\sthe\s'amend'\stests.
+D 2020-06-11T02:06:11.633
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -643,7 +643,7 @@ F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4
 F src/zip.c 4108b1aeb6643568b322d12ad7953b321b287bf7a37c5d39c998865ec99d1d59
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
-F test/amend.test 2019ce651ae732281b0bd665e312b2f0f6f87bc9940ae34c661d9b7305c59cd9
+F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
@@ -994,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fee9ede22ab0273874e408aeec3e875308b62f15819c841b46d5a6f69ea6f430
-R f6a8ac5c80c468f56864db6a0dcde403
+P 547585be712f354ccc5ad1075b69af67002c178ddc45ff835fb5df44e07028d9
+R aa954fd5325544569deaf4403aef60fc
 U mistachkin
-Z e207d10dd09e5a827aa07e53fc7e8fd6
+Z 2a14b938914cd07525e0acc8f0fc9a08
