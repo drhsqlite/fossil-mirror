@@ -245,15 +245,7 @@ proc get_versionable_settings {} {
       encoding-glob \
       ignore-glob \
       keep-glob \
-      manifest \
-      th1-setup \
-      th1-uri-regexp]
-
-  fossil test-th-eval "hasfeature tcl"
-
-  if {[normalize_result] eq "1"} {
-    lappend result tcl-setup
-  }
+      manifest]
 
   return [lsort -dictionary $result]
 }
@@ -284,21 +276,27 @@ proc get_all_settings {} {
       comment-format \
       crlf-glob \
       crnl-glob \
+      default-csp \
       default-perms \
       diff-binary \
       diff-command \
       dont-push \
       dotfiles \
       editor \
+      email-admin \
       email-self \
       email-send-command \
       email-send-db \
       email-send-dir \
       email-send-method \
       email-send-relayhost \
+      email-subname \
+      email-url \
       empty-dirs \
       encoding-glob \
       exec-rel-paths \
+      fileedit-glob \
+      forbid-delta-manifests \
       gdiff-command \
       gmerge-command \
       hash-digits \
@@ -307,13 +305,16 @@ proc get_all_settings {} {
       ignore-glob \
       keep-glob \
       localauth \
+      lock-timeout \
       main-branch \
       manifest \
       max-loadavg \
       max-upload \
+      mimetypes \
       mtime-changes \
       pgp-command \
       proxy \
+      redirect-to-https \
       relative-paths \
       repo-cksum \
       repolist-skin \
@@ -954,7 +955,10 @@ proc test_fossil_http { repository dataFileName url } {
   set data [subst [read_file $dataFileName]]
 
   write_file $inFileName $data
-  fossil http $inFileName $outFileName 127.0.0.1 $repository --localauth
+
+  fossil http --in $inFileName --out $outFileName --ipaddr 127.0.0.1 \
+      $repository --localauth --th-trace
+
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
   if {1} {
