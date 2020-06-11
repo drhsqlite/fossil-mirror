@@ -1,5 +1,5 @@
-C Allow\susing\sthe\s"backlink"\stable\sin\sticket\sreports.
-D 2020-06-11T13:43:34.106
+C Add\ssupport\sfor\sthe\sFOSSIL_BUILD_EPOCH\scompile-time\soption.\nTicket\s[99038b83b489dddb]
+D 2020-06-11T14:13:52.559
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -547,7 +547,7 @@ F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c f2160a105dc70dfd757f073133f95b1ad088d02b98cecb8f6e8f06f466cdad49
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c 6070854fabaee6c04ec7a354cb1f17b3ed95197ed294b74ab811377390a0a95e
-F src/mkversion.c cf56862b5ce5499830935580c7e3c57f2cd7fecd554802cee905d06fcbf24294
+F src/mkversion.c 6eb99610d99489fadbe453d60b4d32ec3d535417abf33afb485277c817e37dc7
 F src/moderate.c 8b693389df63229f87c99057ac1a4133b6fc9e10fc6b6b4699d43d5d14a09968
 F src/name.c 79660ddd1da632c5c61292f30fea82fcdbc7dcf0aeee431a012b86fbc24b66f6
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c313cac828fd5e21e2ea63d91c7ca8449d333120ca1ea614c8058631c187831f
-R 82d23a4bb5d17cc09682c21031585f3a
+P 648396c9c1ddfd01e30068431c6c019fd5abbb29c9e56f903b5579ccb915f12c
+R 4b20793075a9f63d0af884af0b9e6d26
 U drh
-Z 9009bbf76888de56ebea845856ad7e70
+Z 205a98947098a61e657646c0855c4599
