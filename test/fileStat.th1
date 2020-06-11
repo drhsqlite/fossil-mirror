@@ -62,7 +62,7 @@
       # NOTE: Get the unique Id of the latest check-in on trunk.
       #
       return [lindex [regexp -line -inline -nocase -- \
-          {^uuid:\s+([0-9A-F]{40}) } [eval [getFossilCommand \
+          {^(?:uuid|hash):\s+([0-9A-F]{40}) } [eval [getFossilCommand \
           $repository "" info trunk]]] end]
     }
   }

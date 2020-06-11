@@ -1774,7 +1774,16 @@ static int queryCmd(
         int szVal = sqlite3_column_bytes(pStmt, i);
         Th_SetVar(interp, zCol, szCol, zVal, szVal);
       }
+      if( g.thTrace ){
+        Th_Trace("query_eval {<pre>%#h</pre>}<br />\n", argl[2], argv[2]);
+      }
       res = Th_Eval(interp, 0, argv[2], argl[2]);
+      if( g.thTrace ){
+        int nTrRes;
+        char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
+        Th_Trace("[query_eval] => %h {%#h}<br />\n",
+                 Th_ReturnCodeName(res, 0), nTrRes, zTrRes);
+      }
       if( res==TH_BREAK || res==TH_CONTINUE ) res = TH_OK;
     }
     rc = sqlite3_finalize(pStmt);
@@ -2626,9 +2635,15 @@ int Th_Render(const char *z){
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       if( g.thTrace ){
-        Th_Trace("eval {<pre>%#h</pre>}<br />", i, z);
+        Th_Trace("render_eval {<pre>%#h</pre>}<br />\n", i, z);
       }
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
+      if( g.thTrace ){
+        int nTrRes;
+        char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
+        Th_Trace("[render_eval] => %h {%#h}<br />\n",
+                 Th_ReturnCodeName(rc, 0), nTrRes, zTrRes);
+      }
       if( rc!=TH_OK ) break;
       z += i;
       if( z[0] ){ z += 6; }
