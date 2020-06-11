@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sthe\sFOSSIL_BUILD_EPOCH\scompile-time\soption.\nTicket\s[99038b83b489dddb]
-D 2020-06-11T14:13:52.559
+C Add\stest\scases\sfor\sCommonMark\srendering\sof\semphasis\smarkup.
+D 2020-06-11T18:45:27.960
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -664,6 +664,7 @@ F test/graph-test-2.md 4dc6143ec96d321846ee7814d762c71d01d76336069074307241bf02e
 F test/json.test 6f77d48c30c6f4f0b9f4d5a985814d5780641857e715374b301dd41ebcd0e75c
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
+F test/markdown-test2.md 2a1aa5b8c84d53b29ae53a9570133e1bc5c0c6befc937dd28030bfeda33bf744
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
@@ -995,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 648396c9c1ddfd01e30068431c6c019fd5abbb29c9e56f903b5579ccb915f12c
-R 4b20793075a9f63d0af884af0b9e6d26
+P 1a894c08206f4c71bcc37bc85a8525632ff45c2d677d1e0a0801ce56c578bfee
+R 7f767926fc184b85834a7658db934a51
 U drh
-Z 205a98947098a61e657646c0855c4599
+Z 4153f77bf0deaaa153802d3f5f52294e
