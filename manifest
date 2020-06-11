@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s'th1-docs'\stests.\s\sAlso,\senhance\soutput\sof\sthe\s--th-trace\soption.
-D 2020-06-11T01:52:15.374
+C Updates\sto\sthe\s'diff'\stests.
+D 2020-06-11T02:05:32.497
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -652,7 +652,7 @@ F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki 1ca941eded0cbf5aa81212d86551512d62717515e0553ddf8a11f15b4603973d
-F test/diff.test bf9b349dd6f33022ef2aef2894d3057e2daaf507
+F test/diff.test 1ed9a8119336471caba27bfd05fb551c0ddcc309c09a82c7bfeb8f4898eb04d8
 F test/fake-editor.tcl 11b5ddc9629fefb4dbc32806f80211440600c744
 F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 57ada6bea09e70908d9525c41db62b915abfee58e5f7a702adda91e0c5c06a36
@@ -994,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17e1217a5e47eec32451c6ee30dca3e2f15a3831ae578c7fe0c4c4eac45e97fb
-R 86bb9ac0483dcc147a66fa1959092d2f
+P fee9ede22ab0273874e408aeec3e875308b62f15819c841b46d5a6f69ea6f430
+R f6a8ac5c80c468f56864db6a0dcde403
 U mistachkin
-Z e343fbeb271feb3ca6ed7bb00b60a39e
+Z e207d10dd09e5a827aa07e53fc7e8fd6
