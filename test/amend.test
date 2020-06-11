@@ -105,7 +105,7 @@ foreach {color result} {
 } {
   incr tc
   fossil amend $HASH -bgcolor $color
-  test amend-bgcolor-1.$tc.a {[string match "*uuid:*$HASH*" $RESULT]}
+  test amend-bgcolor-1.$tc.a {[string match "*hash:*$HASH*" $RESULT]}
   fossil tag list --raw $HASH
   test amend-bgcolor-1.$tc.b {[string first "bgcolor=$result" $RESULT] != -1}
   fossil timeline -n 1
@@ -123,7 +123,7 @@ foreach {color result} {
   }
 }
 fossil amend $HASH -bgcolor {}
-test amend-bgcolor-2.1 {[string match "*uuid:*$HASH*" $RESULT]}
+test amend-bgcolor-2.1 {[string match "*hash:*$HASH*" $RESULT]}
 fossil tag list --raw $HASH
 test amend-bgcolor-2.2 {
   [string first "bgcolor=" $RESULT] == -1 &&
@@ -149,7 +149,7 @@ if {![uuid_from_branch $RESULT HASH2]} {
 }
 fossil update $HASH2
 fossil amend $HASH2 -branchcolor yellow
-test amend-branchcolor-1.1 {[string match "*uuid:*$HASH2*" $RESULT]}
+test amend-branchcolor-1.1 {[string match "*hash:*$HASH2*" $RESULT]}
 fossil tag ls --raw $HASH2
 test amend-branchcolor-1.2 {[string first "bgcolor=yellow" $RESULT] != -1}
 fossil timeline -n 1
@@ -177,7 +177,7 @@ fossil commit -m "mc1"
 write_file datafile "bc2"
 fossil commit -m "mc2"
 fossil amend $HASHN -branchcolor deadbe
-test amend-branchcolor-2.1 {[string match "*uuid:*$HASHN*" $RESULT]}
+test amend-branchcolor-2.1 {[string match "*hash:*$HASHN*" $RESULT]}
 fossil tag ls --raw current
 test amend-branchcolor-2.2 {[string first "bgcolor=#deadbe" $RESULT] != -1}
 fossil timeline -n 1
@@ -203,7 +203,7 @@ set date [clock format $timestamp -format "%Y-%m-%d" -gmt 1]
 set time [clock format $timestamp -format "%H:%M:%S" -gmt 1]
 set datetime "$date $time"
 fossil amend $HASHINIT -date $datetime
-test amend-date-1.1 {[string match "*uuid:*$HASHINIT*$datetime*" $RESULT]}
+test amend-date-1.1 {[string match "*hash:*$HASHINIT*$datetime*" $RESULT]}
 fossil tag ls --raw $HASHINIT
 test amend-date-1.2 {[string first "date=$datetime" $RESULT] != -1}
 fossil timeline -n 1
@@ -234,7 +234,7 @@ if {![uuid_from_branch $RESULT HASHH]} {
   test amend-hide-setup false
 }
 fossil amend $HASHH -hide
-test amend-hide-1.1 {[string match "*uuid:*$HASHH*" $RESULT]}
+test amend-hide-1.1 {[string match "*hash:*$HASHH*" $RESULT]}
 fossil tag ls --raw $HASHH
 test amend-hide-1.2 {[string first "hidden" $RESULT] != -1}
 fossil timeline -n 1
@@ -250,7 +250,7 @@ if {![uuid_from_branch $RESULT HASHC]} {
 }
 fossil update $HASHC
 fossil amend $HASHC -close
-test amend-close-1.1.a {[string match "*uuid:*$HASHC*" $RESULT]}
+test amend-close-1.1.a {[string match "*hash:*$HASHC*" $RESULT]}
 test amend-close-1.1.b {
   [string match "*comment:*Create*new*branch*named*\"cllf\"*" $RESULT]
 }
@@ -275,7 +275,7 @@ fossil commit -m "m1"
 write_file datafile "b2"
 fossil commit -m "m2"
 fossil amend $HASH3 --close
-test amend-close-3.1 {[string match "*uuid:*$HASH3*" $RESULT]}
+test amend-close-3.1 {[string match "*hash:*$HASH3*" $RESULT]}
 fossil tag ls --raw current
 test amend-close-3.2 {[string first "closed" $RESULT] != -1}
 fossil timeline -n 1
@@ -313,7 +313,7 @@ foreach {tagt result} $tagtests {
     append t5exp "Cancel*tag*\"$res\".*"
   }
   eval fossil amend $HASH $tags
-  test amend-tag-$tc.1 {[string match "*uuid:*$HASH*tags:*$t1exp*" $RESULT]}
+  test amend-tag-$tc.1 {[string match "*hash:*$HASH*tags:*$t1exp*" $RESULT]}
   fossil tag ls --raw $HASH
   test amend-tag-$tc.2 {[string match $t2exp $RESULT]}
   fossil timeline -n 1
@@ -343,7 +343,7 @@ proc test-comment {name HASH comment} {
   global VERBOSE RESULT
 
   test amend-comment-$name.1 {
-    [string match "*uuid:*$HASH*comment:*$comment*" $RESULT]
+    [string match "*hash:*$HASH*comment:*$comment*" $RESULT]
   }
   fossil timeline -n 1
   if {[artifact_from_timeline $RESULT artid]} {
@@ -361,7 +361,7 @@ proc test-comment {name HASH comment} {
   }
   fossil info $HASH
   test amend-comment-$name.4 {
-    [string match "*uuid:*$HASH*comment:*$comment*" $RESULT]
+    [string match "*hash:*$HASH*comment:*$comment*" $RESULT]
   }
 }
 
@@ -384,10 +384,7 @@ fossil amend $HASH -M commitmsg
 test-comment 4 $HASH "revision 4 revised with -M"
 
 prep-test "final comment" "final content"
-if {[catch {exec which ed} result]} {
-  if {$VERBOSE} { protOut "Install ed for interactive comment test: $result" }
-  test-comment 5 $HASH "ed required for interactive edit"
-} else {
+if {[catch {exec which ed} result] == 0} {
   fossil settings editor "ed -s"
   set comment "interactive edited comment"
   fossil_maybe_answer "a\n$comment\n.\nw\nq\n" amend $HASH --edit-comment

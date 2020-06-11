@@ -2010,7 +2010,8 @@ static void parse_block(
   char *txt_data;
   int has_table = (rndr->make.table
     && rndr->make.table_row
-    && rndr->make.table_cell);
+    && rndr->make.table_cell
+    && memchr(data, '|', size)!=0);
 
   beg = 0;
   while( beg<size ){

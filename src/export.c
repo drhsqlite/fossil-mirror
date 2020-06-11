@@ -884,11 +884,11 @@ static void gitmirror_sanitize_name(char *z){
      /* x0 x1 x2 x3 x4 x5 x6 x7 x8  x9 xA xB xC xD xE xF */
          0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 0x */
          0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 1x */
-         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 2x */
-         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 0, 1, 1, 1, 1, 0,  /* 3x */
+         0, 1, 0, 1, 0, 1, 1, 0, 1,  1, 0, 1, 1, 1, 1, 1,  /* 2x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 0, 0, 1, 1, 1, 0,  /* 3x */
          0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 4x */
          1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 0, 1, 0, 1,  /* 5x */
-         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 6x */
+         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 6x */
          1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 0, 0,  /* 7x */
   };
   unsigned char *zu = (unsigned char*)z;
@@ -903,6 +903,32 @@ static void gitmirror_sanitize_name(char *z){
       zu[i] = '_';
     }
   }
+}
+
+/*
+** COMMAND: test-sanitize-name
+**
+** Usage: %fossil ARG...
+**
+** This sanitizes each argument and make it part of an "echo" command
+** run by the shell.
+*/
+void test_sanitize_name_cmd(void){
+  sqlite3_str *pStr;
+  int i;
+  char *zCmd;
+  pStr = sqlite3_str_new(0);
+  sqlite3_str_appendall(pStr, "echo");
+  for(i=2; i<g.argc; i++){
+    char *z = fossil_strdup(g.argv[i]);
+    gitmirror_sanitize_name(z);
+    sqlite3_str_appendf(pStr, " \"%s\"", z);
+    fossil_free(z);
+  }
+  zCmd = sqlite3_str_finish(pStr);
+  fossil_print("Command: %s\n", zCmd);
+  fossil_system(zCmd);
+  sqlite3_free(zCmd);
 }
 
 /*
@@ -1288,7 +1314,7 @@ void gitmirror_export_command(void){
   /* Make sure GIT has been initialized */
   z = mprintf("%s/.git", zMirror);
   if( !file_isdir(z, ExtFILE) ){
-    zCmd = mprintf("git init \"%s\"",zMirror);
+    zCmd = mprintf("git init %$",zMirror);
     gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
     rc = fossil_system(zCmd);
     if( rc ){
@@ -1486,7 +1512,7 @@ void gitmirror_export_command(void){
     const char *zObj = db_column_text(&q,1);
     char *zTagCmd;
     gitmirror_sanitize_name(zTagname);
-    zTagCmd = mprintf("git tag -f \"%s\" %s", zTagname, zObj);
+    zTagCmd = mprintf("git tag -f %$ %$", zTagname, zObj);
     fossil_free(zTagname);
     gitmirror_message(VERB_NORMAL, "%s\n", zTagCmd);
     fossil_system(zTagCmd);
@@ -1521,7 +1547,7 @@ void gitmirror_export_command(void){
     }else{
       gitmirror_sanitize_name(zBrname);
     }
-    zRefCmd = mprintf("git update-ref \"refs/heads/%s\" %s", zBrname, zObj);
+    zRefCmd = mprintf("git update-ref \"refs/heads/%s\" %$", zBrname, zObj);
     fossil_free(zBrname);
     gitmirror_message(VERB_NORMAL, "%s\n", zRefCmd);
     fossil_system(zRefCmd);
@@ -1558,7 +1584,7 @@ void gitmirror_export_command(void){
     }
     gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
-    zPushCmd = mprintf("git push --mirror %s", zPushUrl);
+    zPushCmd = mprintf("git push --mirror %$", zPushUrl);
     fossil_system(zPushCmd);
     fossil_free(zPushCmd);
   }

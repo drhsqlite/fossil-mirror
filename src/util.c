@@ -159,6 +159,120 @@ char *fossil_strtolwr(char *zIn){
 }
 
 /*
+** If this local variable is set, fossil_assert_safe_command_string()
+** returns false on an unsafe command-string rather than abort.  Set
+** this variable for testing.
+*/
+static int safeCmdStrTest = 0;
+
+/*
+** Check the input string to ensure that it is safe to pass into system().
+** A string is unsafe for system() on unix if it contains any of the following:
+**
+**   *  Any occurrance of '$' or '`' except after \
+**   *  Any of the following characters, unquoted:  ;|& or \n except
+**      these characters are allowed as the very last character in the
+**      string.
+**   *  Unbalanced single or double quotes
+**
+** This routine is intended as a second line of defense against attack.
+** It should never fail.  Dangerous shell strings should be detected and
+** fixed before calling fossil_system().  This routine serves only as a
+** safety net in case of bugs elsewhere in the system.
+**
+** If an unsafe string is seen, either abort (default) or print
+** a warning message (if safeCmdStrTest is true).
+*/
+static void fossil_assert_safe_command_string(const char *z){
+  int unsafe = 0;
+#ifndef _WIN32
+  /* Unix */
+  int inQuote = 0;
+  int i, c;
+  for(i=0; !unsafe && (c = z[i])!=0; i++){
+    switch( c ){
+      case '$':
+      case '`': {
+        if( inQuote!='\'' ) unsafe = i+1;
+        break;
+      }
+      case ';':
+      case '|':
+      case '&':
+      case '\n': {
+        if( inQuote!='\'' && z[i+1]!=0 ) unsafe = i+1;
+        break;
+      }
+      case '"':
+      case '\'': {
+        if( inQuote==0 ){
+          inQuote = c;
+        }else if( inQuote==c ){
+          inQuote = 0;
+        }
+        break;
+      }
+      case '\\': {
+        if( z[i+1]==0 ){
+          unsafe = i+1;
+        }else if( inQuote!='\'' ){
+          i++;
+        }
+        break;
+      }
+    }
+  }
+  if( inQuote ) unsafe = i;
+#else
+  /* Windows */
+  int i, c;
+  int inQuote = 0;
+  for(i=0; !unsafe && (c = z[i])!=0; i++){
+    switch( c ){
+      case '>':
+      case '<':
+      case '|':
+      case '&':
+      case '\n': {
+        if( inQuote==0 && z[i+1]!=0 ) unsafe = i+1;
+        break;
+      }
+      case '\\': {
+        if( z[i+1]=='"' ){ i++; }
+        break;
+      }
+      case '"': {
+        if( inQuote==c ){
+          inQuote = 0;
+        }else{
+          inQuote = c;
+        }
+        break;
+      }
+      case '^': {
+        if( z[i+1]=='"' ){
+          unsafe = i+2;
+        }else if( z[i+1]!=0 ){
+          i++;
+        }
+        break;
+      }
+    }
+  }
+  if( inQuote ) unsafe = i;
+#endif
+  if( unsafe ){
+    char *zMsg = mprintf("Unsafe command string: %s\n%*shere ----^",
+                   z, unsafe+13, "");
+    if( safeCmdStrTest ){
+      fossil_print("%z\n", zMsg);
+    }else{
+      fossil_panic("%s", zMsg);
+    }
+  }
+}
+
+/*
 ** This function implements a cross-platform "system()" interface.
 */
 int fossil_system(const char *zOrigCmd){
@@ -172,6 +286,7 @@ int fossil_system(const char *zOrigCmd){
   if( g.fSystemTrace ) {
     fossil_trace("SYSTEM: %s\n", zNewCmd);
   }
+  fossil_assert_safe_command_string(zOrigCmd);
   rc = _wsystem(zUnicode);
   fossil_unicode_free(zUnicode);
   free(zNewCmd);
@@ -179,6 +294,7 @@ int fossil_system(const char *zOrigCmd){
   /* On unix, evaluate the command directly.
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
+  fossil_assert_safe_command_string(zOrigCmd);
 
   /* Unix systems should never shell-out while processing an HTTP request,
   ** either via CGI, SCGI, or direct HTTP.  The following assert verifies
@@ -193,6 +309,30 @@ int fossil_system(const char *zOrigCmd){
   fossil_limit_memory(1);
 #endif
   return rc;
+}
+
+/*
+** COMMAND: test-fossil-system
+**
+** Read lines of input and send them to fossil_system() for evaluation.
+** Use this command to verify that fossil_system() will not run "unsafe"
+** commands.
+*/
+void test_fossil_system_cmd(void){
+  char zLine[10000];
+  safeCmdStrTest = 1;
+  while(1){
+    size_t n;
+    printf("system-test> ");
+    fflush(stdout);
+    if( !fgets(zLine, sizeof(zLine), stdin) ) break;
+    n = strlen(zLine);
+    while( n>0 && fossil_isspace(zLine[n-1]) ) n--;
+    zLine[n] = 0;
+    printf("cmd: [%s]\n", zLine);
+    fflush(stdout);
+    fossil_system(zLine);
+  }
 }
 
 /*

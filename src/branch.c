@@ -386,9 +386,9 @@ int branch_is_open(const char *zBrName){
 **
 ** Summary:
 **    fossil branch current
-**    fossil branch info BRANCHNAME
+**    fossil branch info BRANCH-NAME
 **    fossil branch [list|ls]
-**    fossil branch new
+**    fossil branch new BRANCH-NAME BASIS
 */
 void branch_cmd(void){
   int n;

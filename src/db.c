@@ -491,7 +491,7 @@ static void db_stats(Stmt *pStmt){
 */
 int db_reset(Stmt *pStmt){
   int rc;
-  db_stats(pStmt);
+  if( g.fSqlStats ){ db_stats(pStmt); }
   rc = sqlite3_reset(pStmt->pStmt);
   db_check_result(rc, pStmt);
   return rc;
@@ -508,7 +508,7 @@ int db_finalize(Stmt *pStmt){
   }
   pStmt->pNext = 0;
   pStmt->pPrev = 0;
-  db_stats(pStmt);
+  if( g.fSqlStats ){ db_stats(pStmt); }
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
   db_check_result(rc, pStmt);
@@ -1184,6 +1184,32 @@ void db_read_saved_encryption_key_from_process(
     fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
   }
 }
+
+/*
+** This function evaluates the specified TH1 script and attempts to parse
+** its result as a colon-delimited triplet containing a process identifier,
+** address, and size (in bytes) of the database encryption key.  This is
+** only necessary (or functional) on Windows.
+*/
+void db_read_saved_encryption_key_from_process_via_th1(
+  const char *zConfig /* The TH1 script to evaluate. */
+){
+  int rc;
+  char *zResult;
+  Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_NEED_CONFIG | TH_INIT_NO_REPO);
+  rc = Th_Eval(g.interp, 0, zConfig, -1);
+  zResult = (char*)Th_GetResult(g.interp, 0);
+  if( rc!=TH_OK ){
+    fossil_fatal("script for pid key failed: %s", zResult);
+  }
+  if( zResult ){
+    DWORD processId = 0;
+    LPVOID pAddress = NULL;
+    SIZE_T nSize = 0;
+    parse_pid_key_value(zResult, &processId, &pAddress, &nSize);
+    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+  }
+}
 #endif /* defined(_WIN32) */
 #endif /* USE_SEE */
 
@@ -1388,6 +1414,7 @@ void db_close_config(){
     rc = sqlite3_close(g.db);
     if( g.fSqlTrace ) fossil_trace("-- db_close_config(%d)\n", rc);
     g.db = 0;
+    g.repositoryOpen = 0;
   }else{
     return;
   }
@@ -3934,6 +3961,7 @@ void test_timespan_cmd(void){
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);
   g.db = 0;
+  g.repositoryOpen = 0;
 }
 
 /*

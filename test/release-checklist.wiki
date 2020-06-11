@@ -17,6 +17,16 @@ rendered correctly.
 
 <li><p>
 Click on each of the links in in the
+[./graph-test-2.md] document and verify that all graphs are
+rendered correctly.
+<ol type="a">
+<li> Also view the same check-ins on a /timeline
+view by clicking on the date for each check-in in the /info
+view, as the graph rendering is slightly different.
+</ol>
+
+<li><p>
+Click on each of the links in in the
 [./diff-test-1.wiki] document and verify that all diffs are
 rendered correctly.
 

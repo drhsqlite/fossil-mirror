@@ -379,7 +379,7 @@ void unversioned_cmd(void){
     blob_add_cr(&content);
 #endif
     blob_write_to_file(&content, zTFile);
-    zCmd = mprintf("%s \"%s\"", zEditor, zTFile);
+    zCmd = mprintf("%s %$", zEditor, zTFile);
     if( fossil_system(zCmd) ){
       fossil_fatal("editor aborted: %Q", zCmd);
     }

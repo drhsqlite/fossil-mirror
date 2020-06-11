@@ -382,7 +382,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     }else{
       db_prepare(&q,
         "SELECT blob.rid"
-        "  FROM blob, event"
+        "  FROM blob CROSS JOIN event"
         " WHERE blob.uuid GLOB '%q*'"
         "   AND event.objid=blob.rid"
         "   AND event.type GLOB '%q'",
@@ -975,7 +975,8 @@ static const char zDescTab[] =
 @   summary TEXT,                  -- Summary comment for the object
 @   ref TEXT                       -- hash of an object to link against
 @ );
-@ CREATE INDEX desctype ON description(summary) WHERE summary='unknown';
+@ CREATE INDEX IF NOT EXISTS desctype
+@   ON description(summary) WHERE summary='unknown';
 ;
 
 /*

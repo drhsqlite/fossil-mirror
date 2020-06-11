@@ -969,6 +969,7 @@ int file_simplify_name(char *z, int n, int slash){
   int i = 1, j;
   assert( z!=0 );
   if( n<0 ) n = strlen(z);
+  if( n==0 ) return 0;
 
   /* On windows and cygwin convert all \ characters to /
    * and remove extended path prefix if present */

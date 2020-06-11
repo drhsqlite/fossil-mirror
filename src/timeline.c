@@ -1001,7 +1001,7 @@ void timeline_output_graph_javascript(
         cgi_printf("\"mo\":%d,",      aiMap[pRow->mergeOut]);
         if( pRow->mergeUpto==0 ) pRow->mergeUpto = pRow->idx;
         cgi_printf("\"mu\":%d,",      pRow->mergeUpto);
-        if( pRow->cherrypickUpto>0 && pRow->cherrypickUpto<pRow->mergeUpto ){
+        if( pRow->cherrypickUpto>0 && pRow->cherrypickUpto<=pRow->mergeUpto ){
           cgi_printf("\"cu\":%d,",    pRow->cherrypickUpto);
         }
       }
@@ -2359,18 +2359,20 @@ void page_timeline(void){
       Blob sql2;
       blob_init(&sql2, blob_sql_text(&sql), -1);
       blob_append_sql(&sql2,
-          " AND event.mtime<=%f ORDER BY event.mtime DESC", rCirca);
+          " AND event.mtime>=%f ORDER BY event.mtime ASC", rCirca);
       if( nEntry>0 ){
         blob_append_sql(&sql2," LIMIT %d", (nEntry+1)/2);
-        nEntry -= (nEntry+1)/2;
       }
       if( PB("showsql") ){
          @ <pre>%h(blob_sql_text(&sql2))</pre>
       }
       db_multi_exec("%s", blob_sql_text(&sql2));
+      if( nEntry>0 ){
+        nEntry -= db_int(0,"select count(*) from timeline");
+      }
       blob_reset(&sql2);
       blob_append_sql(&sql,
-          " AND event.mtime>=%f ORDER BY event.mtime ASC",
+          " AND event.mtime<=%f ORDER BY event.mtime DESC",
           rCirca
       );
       if( zMark==0 ) zMark = zCirca;
@@ -3026,7 +3028,7 @@ void thisdayinhistory_page(void){
   z = db_text(0, "SELECT date(%Q,'+1 day')", zToday);
   style_submenu_element("Tomorrow", "%R/thisdayinhistory?today=%t", z);
   zStartOfProject = db_text(0,
-      "SELECT datetime(min(mtime),toLocal()) FROM event;"
+      "SELECT datetime(min(mtime),toLocal(),'startofday') FROM event;"
   );
   timeline_temp_table();
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");

@@ -33,6 +33,7 @@
 #define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
 #define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
 #define WIKI_MARKDOWNLINKS  0x080  /* Resolve hyperlinks as in markdown */
+#define WIKI_SAFE           0x100  /* Make the result safe for embedding */
 #endif
 
 
@@ -250,6 +251,9 @@ static int findAttr(const char *z){
 #define MUTYPE_TD          0x0100   /* <td> or <th> */
 #define MUTYPE_SPECIAL     0x0200   /* <nowiki> or <verbatim> */
 #define MUTYPE_HYPERLINK   0x0400   /* <a> */
+
+/* MUTYPE values for elements that require strictly nested end-tags */
+#define MUTYPE_Nested      0x0656
 
 /*
 ** These markup types must have an end tag.
@@ -471,7 +475,7 @@ static int wikiUsesHtml(void){
 ** the markup including the initial "<" and the terminating ">".  If
 ** it is not well-formed markup, return 0.
 */
-int htmlTagLength(const char *z){
+int html_tag_length(const char *z){
   int n = 1;
   int inparen = 0;
   int c;
@@ -658,7 +662,7 @@ static int linkLength(const char *z){
 static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
-    n = htmlTagLength(z);
+    n = html_tag_length(z);
     if( n>0 ){
       *pTokenType = TOKEN_MARKUP;
       return n;
@@ -1743,9 +1747,6 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   memset(&renderer, 0, sizeof(renderer));
   renderer.renderFlags = flags;
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH|flags;
-  if( flags & WIKI_NOBLOCK ){
-    renderer.state |= INLINE_MARKUP_ONLY;
-  }
   if( flags & WIKI_INLINE ){
     renderer.wantAutoParagraph = 0;
   }else{
@@ -1807,21 +1808,33 @@ void test_wiki_render(void){
 /*
 ** COMMAND: test-markdown-render
 **
-** Usage: %fossil test-markdown-render FILE
+** Usage: %fossil test-markdown-render FILE ...
 **
 ** Render markdown in FILE as HTML on stdout.
+** Options:
+**
+**    --safe           Restrict the output to use only "safe" HTML
 */
 void test_markdown_render(void){
   Blob in, out;
+  int i;
+  int bSafe = 0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
+  bSafe = find_option("safe",0,0)!=0;
   verify_all_options();
-  if( g.argc!=3 ) usage("FILE");
-  blob_zero(&out);
-  blob_read_from_file(&in, g.argv[2], ExtFILE);
-  markdown_to_html(&in, 0, &out);
-  blob_write_to_file(&out, "-");
-  blob_reset(&in);
-  blob_reset(&out);
+  for(i=2; i<g.argc; i++){
+    blob_zero(&out);
+    blob_read_from_file(&in, g.argv[i], ExtFILE);
+    if( g.argc>3 ){
+      fossil_print("<!------ %h ------->\n", g.argv[i]);
+    }
+    markdown_to_html(&in, 0, &out);
+    safe_html_context( bSafe ? DOCSRC_UNTRUSTED : DOCSRC_TRUSTED );
+    safe_html(&out);
+    blob_write_to_file(&out, "-");
+    blob_reset(&in);
+    blob_reset(&out);
+  }
 }
 
 /*
@@ -2028,7 +2041,7 @@ int html_token_length(const char *z){
   int n;
   char c;
   if( (c=z[0])=='<' ){
-    n = htmlTagLength(z);
+    n = html_tag_length(z);
     if( n<=0 ) n = 1;
   }else if( fossil_isspace(c) ){
     for(n=1; z[n] && fossil_isspace(z[n]); n++){}
@@ -2396,5 +2409,300 @@ void test_html_to_text(void){
     blob_reset(&in);
     fossil_puts(blob_str(&out), 0);
     blob_reset(&out);
+  }
+}
+
+/****************************************************************************
+** safe-html:
+**
+** An interface for preventing HTML constructs (ex: <style>, <form>, etc)
+** from being inserted into Wiki and Forum posts using Markdown.   See the
+** comment on safe_html_append() for additional information on what is meant
+** by "safe".
+**
+** The safe-html restrictions only apply to Markdown, as Fossil-Wiki only
+** allows safe-html by design - unsafe-HTML is never and has never been
+** allowed in Fossil-Wiki.
+**
+** This code is in the wikiformat.c file so that it can have access to the
+** white-list of acceptable HTML in the aMarkup[] array.
+*/
+
+/*
+** An instance of this object keeps track of the nesting of HTML
+** elements for safe_html_append().
+*/
+typedef struct HtmlTagStack HtmlTagStack;
+struct HtmlTagStack {
+  int n;                /* Current tag stack depth */
+  int nAlloc;           /* Space allocated for aStack[] */
+  int *aStack;          /* The stack of tags */
+  int aSpace[10];       /* Initial static space, to avoid malloc() */
+};
+
+/*
+** Initialize bulk memory to a valid empty tagstack.
+*/
+static void html_tagstack_init(HtmlTagStack *p){
+  p->n = 0;
+  p->nAlloc = 0;
+  p->aStack = p->aSpace;
+}
+
+/*
+** Push a new element onto the tag statk
+*/
+static void html_tagstack_push(HtmlTagStack *p, int e){
+  if( p->n>=ArraySize(p->aSpace) && p->n>=p->nAlloc ){
+    if( p->nAlloc==0 ){
+      int *aNew;
+      p->nAlloc = 50;
+      aNew = fossil_malloc( sizeof(p->aStack[0])*p->nAlloc );
+      memcpy(aNew, p->aStack, sizeof(p->aStack[0])*p->n );
+      p->aStack = aNew;
+    }else{
+      p->nAlloc *= 2;
+      p->aStack = fossil_realloc(p->aStack, sizeof(p->aStack[0])*p->nAlloc );
+    }
+  }
+  p->aStack[p->n++] = e;
+}
+
+/*
+** Clear a tag stack, reclaiming any memory allocations.
+*/
+static void html_tagstack_clear(HtmlTagStack *p){
+  if( p->nAlloc ){
+    fossil_free(p->aStack);
+    p->nAlloc = 0;
+    p->aStack = p->aSpace;
+  }
+  p->n = 0;
+}
+
+/*
+** The HTML end-tag eEnd wants to be added to pBlob.
+**
+** If an open-tag for eEnd exists anywhere on the stack, then
+** pop it and all prior elements from the task, issuing appropriate
+** end-tags as you go.
+**
+** If there is no open-tag for eEnd on the stack, then this
+** routine is a no-op.
+*/
+static void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
+  int i, e;
+  if( eEnd!=0 ){
+    for(i=p->n-1; i>=0 && p->aStack[i]!=eEnd; i--){}
+    if( i<0 ){
+      blob_appendf(pBlob, "<span class='error'>&lt;/%s&gt;</span>",
+                   aMarkup[eEnd].zName);
+      return;
+    }
+  }else if( p->n==0 ){
+    return;
+  }
+  do{
+    e = p->aStack[--p->n];
+    if( e==eEnd || (aMarkup[e].iType & MUTYPE_Nested)!=0 ){
+      blob_appendf(pBlob, "</%s>", aMarkup[e].zName);
+    }
+  }while( e!=eEnd && p->n>0 );
+}
+
+/*
+** Append a safe translation of HTML text to a Blob object.
+**
+** Restriction: The input to this routine must be writable.
+*  Temporary changes may be made to the input, but the input is restored
+** to its original state prior to returning.  If zHtml[nHtml] is not a
+** zero character, then a zero might be written in that position
+** temporarily, but that slot will also be restored before this routine
+** returns.
+*/
+static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
+  char cLast;
+  int i, j, n;
+  HtmlTagStack s;
+  ParsedMarkup markup;
+
+  if( nHtml<=0 ) return;
+  cLast = zHtml[nHtml];
+  zHtml[nHtml] = 0;
+  html_tagstack_init(&s);
+
+  i = 0;
+  while( i<nHtml ){
+    if( zHtml[i]=='<' ){
+      j = i;
+    }else{
+      char *z = strchr(zHtml+i, '<');
+      if( z==0 ){
+        blob_append(pBlob, zHtml+i, nHtml-i);
+        break;
+      }
+      j = (int)(z - zHtml);
+      blob_append(pBlob, zHtml+i, j-i);
+    }
+    n = html_tag_length(zHtml+j);
+    if( n==0 ){
+      blob_append(pBlob, "&lt;", 4);
+      i = j+1;
+      continue;
+    }else{
+      i = j + n;
+    }
+    parseMarkup(&markup, zHtml+j);
+    if( markup.iCode==MARKUP_INVALID ){
+      unparseMarkup(&markup);
+      blob_appendf(pBlob, "<span class='error'>&lt;%.*s&gt;</span>",
+                   n-2, zHtml+j+1);
+      continue;
+    }
+    if( (markup.iType & MUTYPE_Nested)==0 || markup.iCode==MARKUP_P ){
+      renderMarkup(pBlob, &markup);
+    }else{
+      if( markup.endTag ){
+        html_tagstack_pop(&s, pBlob, markup.iCode);
+      }else{
+        renderMarkup(pBlob, &markup);
+        html_tagstack_push(&s, markup.iCode);
+      }
+    }
+    unparseMarkup(&markup);
+  }
+  html_tagstack_pop(&s, pBlob, 0);
+  html_tagstack_clear(&s);
+  zHtml[nHtml] = cLast;
+}
+
+/*
+** This local variable is true if the safe_html() function is enabled.
+** In other words, this is true if the output of Markdown should be
+** restricted to use only "safe" HTML.
+*/
+static int safeHtmlEnable = 1;
+
+
+#if INTERFACE
+/*
+** Allowed values for the eTrust parameter to safe_html_context().
+*/
+#define DOCSRC_FILE       1     /* Document is a checked-in file */
+#define DOCSRC_FORUM      2     /* Document is a forum post */
+#define DOCSRC_TICKET     3     /* Document is a ticket comment */
+#define DOCSRC_WIKI       4     /* Document is a wiki page */
+#define DOCSRC_TRUSTED    5     /* safe_html() is always a no-op */
+#define DOCSRC_UNTRUSTED  6     /* safe_html() is always enabled */
+#endif /* INTERFACE */
+
+
+/*
+** Specify the context in which a markdown document with potentially
+** unsafe HTML will be rendered.
+*/
+void safe_html_context(int eTrust){
+  static const char *zSafeHtmlSetting = 0;
+  char cPerm = 0;
+  if( eTrust==DOCSRC_TRUSTED ){
+    safeHtmlEnable = 0;
+    return;
+  }
+  if( eTrust==DOCSRC_UNTRUSTED ){
+    safeHtmlEnable = 1;
+    return;
+  }
+  if( zSafeHtmlSetting==0 ){
+    zSafeHtmlSetting = db_get("safe-html", "");
+  }
+  switch( eTrust ){
+    case DOCSRC_FILE:   cPerm = 'b';  break;
+    case DOCSRC_FORUM:  cPerm = 'f';  break;
+    case DOCSRC_TICKET: cPerm = 't';  break;
+    case DOCSRC_WIKI:   cPerm = 'w';  break;
+  }
+  safeHtmlEnable = (strchr(zSafeHtmlSetting,cPerm)==0);
+}
+
+/*
+** The input blob contains HTML.  If safe-html is enabled, then
+** convert the input into "safe HTML".  The following modifications
+** are made:
+**
+**    1.  Remove any elements that are not on the AllowedMarkup list.
+**        (ex: <script>, <form>, etc.)
+**
+**    2.  Remove any attributes that are not on the AllowedMarkup list.
+**        (ex: onload=, id=, etc.)
+**
+**    3.  Omit any surplus close-tags.  This prevents the script from
+**        terminating an <div> or similar in the outer context.
+**
+**    4.  Insert additional close-tags as necessary so that any
+**        tag in the input that needs a close-tag has one.  This
+**        prevents tags in the embedded script from affecting the
+**        display of content that follows this script in the enclosing
+**        context.
+**
+** This modifications are intended to make the generated HTML safe
+** to be embedded in a larger HTML document, such that the embedded
+** HTML has no influence on the formatting and operation of the
+** larger document.
+**
+** If safe-html is disabled, then this routine is a no-op.
+*/
+void safe_html(Blob *in){
+  Blob out;      /* Holding area for the revised text during construction */
+  char *z;       /* Original input text */
+  int n;         /* Number of bytes in the original input text */
+  int k;
+
+  if( safeHtmlEnable==0 ) return;
+  z = blob_str(in);
+  n = blob_size(in);
+  blob_init(&out, 0, 0);
+  while( fossil_isspace(z[0]) ){ z++; n--; }
+  for(k=n-1; k>5 && fossil_isspace(z[k]); k--){}
+
+  if( fossil_strnicmp(z, "<div",4)==0 && !fossil_isalpha(z[4])
+   && fossil_strnicmp(z+k-5, "</div>",6)==0
+  ){
+    /* The input contains an outer <div>...</div>.  Preserve the
+    ** full scope of that <div>. */
+    int m = html_tag_length(z);
+    k -= 5;
+    blob_append(&out, z, m);
+    safe_html_append(&out, z+m, k-m);
+    blob_append(&out, z+k, n-k);
+  }else{
+    safe_html_append(&out, z, n);
+  }
+  blob_reset(in);
+  *in = out;
+}
+
+/*
+** COMMAND: test-safe-html
+**
+** Usage: %fossil test-safe-html FILE ...
+**
+** Read files named on the command-line.  Send the text of each file
+** through safe_html_append() and then write the result on
+** standard output.
+*/
+void test_safe_html_cmd(void){
+  int i;
+  Blob x;
+  for(i=2; i<g.argc; i++){
+    char *z;
+    int n;
+    blob_read_from_file(&x, g.argv[i], ExtFILE);
+    blob_terminate(&x);
+    safe_html(&x);
+    z = blob_str(&x);
+    n = blob_size(&x);
+    while( n>0 && (z[n-1]=='\n' || z[n-1]=='\r') ) n--;
+    fossil_print("%.*s\n", n, z);
+    blob_reset(&x);
   }
 }

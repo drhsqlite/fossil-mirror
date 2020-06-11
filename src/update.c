@@ -767,14 +767,16 @@ int historical_blob(
 /*
 ** COMMAND: revert
 **
-** Usage: %fossil revert ?-r REVISION? ?FILE ...?
+** Usage: %fossil revert ?OPTIONS? ?FILE ...?
 **
 ** Revert to the current repository version of FILE, or to
-** the version associated with baseline REVISION if the -r flag
-** appears.
+** the baseline VERSION specified with -r flag.
 **
 ** If FILE was part of a rename operation, both the original file
 ** and the renamed file are reverted.
+**
+** Using a directory name for any of the FILE arguments is the same
+** as using every subdirectory and file beneath that directory.
 **
 ** Revert all files if no file name is provided.
 **
@@ -782,9 +784,10 @@ int historical_blob(
 ** the "fossil undo" command.
 **
 ** Options:
-**   -r REVISION    revert given FILE(s) back to given REVISION
+**   -r|--revision VERSION    Revert given FILE(s) back to given
+**                            VERSION
 **
-** See also: redo, undo, update
+** See also: redo, undo, checkout, update
 */
 void revert_cmd(void){
   Manifest *pCoManifest;          /* Manifest of current checkout */
@@ -796,6 +799,8 @@ void revert_cmd(void){
   Blob record = BLOB_INITIALIZER; /* Contents of each reverted file */
   int i;
   Stmt q;
+  int revertAll = 0;
+  int revisionOptNotSupported = 0;
 
   undo_capture_command_line();
   zRevision = find_option("revision", "r", 1);
@@ -805,7 +810,8 @@ void revert_cmd(void){
     usage("?OPTIONS? [FILE] ...");
   }
   if( zRevision && g.argc<3 ){
-    fossil_fatal("the --revision option does not work for the entire tree");
+    fossil_fatal("directories or the entire tree can only be reverted"
+                 " back to current version");
   }
   db_must_be_within_tree();
 
@@ -823,17 +829,60 @@ void revert_cmd(void){
       zFile = mprintf("%/", g.argv[i]);
       blob_zero(&fname);
       file_tree_name(zFile, &fname, 0, 1);
-      db_multi_exec(
-        "REPLACE INTO torevert VALUES(%B);"
-        "INSERT OR IGNORE INTO torevert"
-        " SELECT pathname"
-        "   FROM vfile"
-        "  WHERE origname=%B;",
-        &fname, &fname
-      );
+      if( blob_eq(&fname, ".") ){
+        if( zRevision ){
+          revisionOptNotSupported = 1;
+          break;
+        }
+        revertAll = 1;
+        break;
+      }else if( db_exists(
+        "SELECT pathname"
+        "  FROM vfile"
+        " WHERE (substr(pathname,1,length('%q/'))='%q/'"
+        "    OR  substr(origname,1,length('%q/'))='%q/');",
+        blob_str(&fname), blob_str(&fname),
+        blob_str(&fname), blob_str(&fname)) ){
+        int vid;
+        vid = db_lget_int("checkout", 0);
+        vfile_check_signature(vid, 0);
+
+        if( zRevision ){
+          revisionOptNotSupported = 1;
+          break;
+        }
+        db_multi_exec(
+          "INSERT OR IGNORE INTO torevert"
+          " SELECT pathname"
+          "   FROM vfile"
+          "  WHERE (substr(pathname,1,length('%q/'))='%q/'"
+          "     OR  substr(origname,1,length('%q/'))='%q/')"
+          "    AND (chnged OR deleted OR rid=0 OR pathname!=origname);",
+          blob_str(&fname), blob_str(&fname),
+          blob_str(&fname), blob_str(&fname)
+        );
+      }else{
+        db_multi_exec(
+          "REPLACE INTO torevert VALUES(%B);"
+          "INSERT OR IGNORE INTO torevert"
+          " SELECT pathname"
+          "   FROM vfile"
+          "  WHERE origname=%B;",
+          &fname, &fname
+        );
+      }
       blob_reset(&fname);
     }
   }else{
+    revertAll = 1;
+  }
+
+  if( revisionOptNotSupported ){
+    fossil_fatal("directories or the entire tree can only be reverted"
+                 " back to current version");
+  }
+
+  if ( revertAll ){
     int vid;
     vid = db_lget_int("checkout", 0);
     vfile_check_signature(vid, 0);
@@ -845,6 +894,7 @@ void revert_cmd(void){
       "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
+
   db_multi_exec(
     "INSERT OR IGNORE INTO torevert"
     " SELECT origname"

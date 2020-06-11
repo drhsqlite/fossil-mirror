@@ -1106,9 +1106,9 @@
     fd.append('content',content || '');
     F.message(
       "Fetching preview..."
-    ).fetch('fileedit/preview',{
+    ).fetch('ajax/preview-text',{
       payload: fd,
-      responseHeaders: 'x-fileedit-render-mode',
+      responseHeaders: 'x-ajax-render-mode',
       onload: (r,header)=>{
         P.selectPreviewMode(P.previewModes[header]);
         if('wiki'===header) P.baseHrefForFile();

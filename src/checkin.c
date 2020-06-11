@@ -1176,22 +1176,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   char *zComment;
   int i;
 
-  zEditor = db_get("editor", 0);
-  if( zEditor==0 ){
-    zEditor = fossil_getenv("VISUAL");
-  }
-  if( zEditor==0 ){
-    zEditor = fossil_getenv("EDITOR");
-  }
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if( zEditor==0 ){
-    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
-#if defined(__CYGWIN__)
-    zEditor = fossil_utf8_to_path(zEditor, 0);
-    blob_add_cr(pPrompt);
-#endif
-  }
-#endif
+  zEditor = fossil_text_editor();db_get("editor", 0);
   if( zEditor==0 ){
     if( blob_size(pPrompt)>0 ){
       blob_append(pPrompt,
@@ -1221,7 +1206,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
 #endif
   if( blob_size(pPrompt)>0 ) blob_write_to_file(pPrompt, zFile);
   if( zEditor ){
-    zCmd = mprintf("%s \"%s\"", zEditor, zFile);
+    zCmd = mprintf("%s %$", zEditor, zFile);
     fossil_print("%s\n", zCmd);
     if( fossil_system(zCmd) ){
       fossil_fatal("editor aborted: \"%s\"", zCmd);
