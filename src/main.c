@@ -2556,6 +2556,10 @@ void cmd_http(void){
 ** Process all requests in a single SSH connection if possible.
 */
 void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
+#ifdef FOSSIL_ENABLE_JSON
+  int noJson = P("no_json")!=0;
+  if( noJson==0 ){ json_main_bootstrap(); json_mode_bootstrap(); }
+#endif
   blob_zero(&g.cgiIn);
   do{
     cgi_handle_ssh_http_request(zIpAddr);

@@ -1067,7 +1067,7 @@ void cgi_init(void){
 
 #ifdef FOSSIL_ENABLE_JSON
   int noJson = P("no_json")!=0;
-  if( noJson==0 ){ json_main_bootstrap(); }
+  if( noJson==0 ){ json_main_bootstrap(); json_mode_bootstrap(); }
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);

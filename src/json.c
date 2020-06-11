@@ -944,7 +944,7 @@ cson_value * json_string_split2( char const * zStr,
 **
 ** This must only be called once, or an assertion may be triggered.
 */
-static void json_mode_bootstrap(){
+void json_mode_bootstrap(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
   assert(g.json.gc.a && "json_main_bootstrap() was not called!");
@@ -2276,7 +2276,7 @@ static int json_dispatch_root_command( char const * zCommand ){
 void json_page_top(void){
   char const * zCommand;
   assert(g.json.gc.a && "json_main_bootstrap() was not called!");
-  json_mode_bootstrap();
+  assert(g.json.cmd.a && "json_mode_bootstrap() was not called!");
   zCommand = json_command_arg(1);
   if(!zCommand || !*zCommand){
     json_dispatch_missing_args_err( JsonPageDefs,
