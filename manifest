@@ -1,5 +1,5 @@
-C Fix\sthe\smkversion.c\sprogram\sto\salso\srespond\sto\sthe\sSOURCE_DATE_EPOCH\nenvironment\svariable.
-D 2020-06-11T19:51:11.634
+C In\sthe\sMarkdown\sformatter,\sbring\semphasis\smarkup\sinto\scloser\salignment\nwith\sthe\sCommonMark\sspec.\s\sIn\sparticular,\sthis\sshould\sallow\sunderscores\nin\sthe\smiddle\sof\sidentifiers\sto\sbe\srendered\scorrectly\swithout\sescapes.
+D 2020-06-11T21:03:53.044
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -536,7 +536,7 @@ F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc700
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 24341e41a619a36cf15e977afe8c1e38765eded46a294835f3f324849aee8e02 x
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
-F src/markdown.c b11ff3c334d00d2c0890b79db135845518da49b4cc7bc88e662c63bf5870c77b
+F src/markdown.c 5a1fb3e55d2201601d966016090151ad2151f50715631de173d60e0c09bfc381
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ebd8d9a98ea3402403453c517aa822da1bd01923e38bf7a8632cb667db90da31
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -664,7 +664,7 @@ F test/graph-test-2.md 4dc6143ec96d321846ee7814d762c71d01d76336069074307241bf02e
 F test/json.test 6f77d48c30c6f4f0b9f4d5a985814d5780641857e715374b301dd41ebcd0e75c
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
-F test/markdown-test2.md 40ffba46cd0a001a36367724935332949bc73f904a36b15a5d2408df535a3303
+F test/markdown-test2.md 9a2440fd9b07fb8a8182c323cd38d8a2f0eb4068785aeb09da4f978fb741b87b
 F test/merge1.test 0f11a55b5d71fa668b53ffc4cdeb23997e9cb042
 F test/merge2.test 038091215ec2f2b53157599acae6f03dcf91dd12
 F test/merge3.test 70db9ae7c679efad5d5b371114a3cc609818e01a
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7bb8ecc92b202219014f2cf51826d46a033ae225cd5d72762d188f5d5bc66ee4
-R 27246fa9630ace8de8d609a2ac25b12d
+P 7d61b68208ba162fa9f679abf0eedbed8bb7fffd6c67b4d1a629fa642d97b307
+R 25bbcfa4887fe2fcd4fd43469af4a5b4
 U drh
-Z 838060cde786887619595ff4a6cc2173
+Z cff4aa19287721431b1b25dada675d6b
