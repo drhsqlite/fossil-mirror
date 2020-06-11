@@ -1,5 +1,5 @@
-C Refactored\sthe\sgeneric\sajax-related\sparts\sof\ssrc/fileedit.c\sinto\ssrc/ajax.c\sfor\seventual\sre-use\sin\sother\spages.\sAdded\s/ajax\s"page"\sto\sact\sas\sa\sdispatcher\sfor\spage-agnostic\sajax\sroutes.
-D 2020-06-11T07:22:51.648
+C Allow\susing\sthe\s"backlink"\stable\sin\sticket\sreports.
+D 2020-06-11T13:43:34.106
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/purge.c 57451f3a563e2502b9145b8d7b2cdac979a19bf6158caee9b4c7f350d0ffa24d
 F src/rebuild.c 2ac5287ae36c5f155092572f75c173caee354398c0c03ae5233fb1a8f6c84a48
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 1c17f5b972fa231ea6a26ca47eb92bc9d096ec64deb8fbf5abf711c449404e25
-F src/report.c 704b3e977254ecda6277efd9adea99a1c88ecdff82ca2b3fa24254800228bbf8
+F src/report.c 579be7bf0cb01c97a559e0c4d7b5d3dceeb27e2cf57a999ea91e39b58c0f2e34
 F src/rss.c fbf9195ef17d9bb908cd8dd21b7303dfbea9b062ab30d836854432cc4c250031
 F src/sbsdiff.js 2039eb0d68d9a330b94415419186a29baccbe900e03b540b6c8503e775feff36
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47f19d8eb0099cc1bc526e5e21e08bfe7bb9927d2f11379ed4c559eeb8d4f44e
-R 6bf2700ad8ea599083f3ce41eb18b079
-U stephan
-Z 4e24345fdee331bc3b82ce73495ede64
+P c313cac828fd5e21e2ea63d91c7ca8449d333120ca1ea614c8058631c187831f
+R 82d23a4bb5d17cc09682c21031585f3a
+U drh
+Z 9009bbf76888de56ebea845856ad7e70

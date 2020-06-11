@@ -195,6 +195,7 @@ static int report_query_authorizer(
          "tag",
          "tagxref",
          "unversioned",
+         "backlink",
       };
       int i;
       if( zArg1==0 ){
