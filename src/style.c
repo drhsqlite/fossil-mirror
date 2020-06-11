@@ -1621,7 +1621,6 @@ void style_emit_script_fossil_bootstrap(int asInline){
 ** Meaning that no follow-up call to pass a non-0 first argument
 ** to close the tag. zSrc is ignored if the first argument is not
 ** 0.
-**
 */
 void style_emit_script_tag(int isCloser, const char * zSrc){
   if(0==isCloser){

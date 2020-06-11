@@ -921,108 +921,6 @@ int fileedit_is_editable(const char *zFilename){
   }
 }
 
-enum fileedit_render_preview_flags {
-FE_PREVIEW_LINE_NUMBERS = 1
-};
-enum fileedit_render_modes {
-/* GUESS must be 0. All others have unspecified values. */
-FE_RENDER_GUESS = 0,
-FE_RENDER_PLAIN_TEXT,
-FE_RENDER_HTML_IFRAME,
-FE_RENDER_HTML_INLINE,
-FE_RENDER_WIKI
-};
-
-static int fileedit_render_mode_for_mimetype(const char * zMimetype){
-  int rc = FE_RENDER_PLAIN_TEXT;
-  if( zMimetype ){
-    if( fossil_strcmp(zMimetype, "text/html")==0 ){
-      rc = FE_RENDER_HTML_IFRAME;
-    }else if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0
-              || fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-      rc = FE_RENDER_WIKI;
-    }
-  }
-  return rc;
-}
-
-/*
-** Performs the PREVIEW mode for /filepage.
-**
-** If *renderMode==FE_RENDER_GUESS then *renderMode gets set to the
-** mode which is guessed at for the rendering.
-*/
-static void fileedit_render_preview(Blob * pContent,
-                                    const char *zFilename,
-                                    int flags, int * renderMode,
-                                    int nIframeHeightEm){
-  const char * zMime;
-  zMime = mimetype_from_name(zFilename);
-  if(FE_RENDER_GUESS==*renderMode){
-    *renderMode = fileedit_render_mode_for_mimetype(zMime);
-  }
-  switch(*renderMode){
-    case FE_RENDER_HTML_IFRAME:{
-      char * z64 = encode64(blob_str(pContent), blob_size(pContent));
-      CX("<iframe width='100%%' frameborder='0' "
-         "marginwidth='0' style='height:%dem' "
-         "marginheight='0' sandbox='allow-same-origin' "
-         "id='ifm1' src='data:text/html;base64,%z'"
-         "></iframe>",
-         nIframeHeightEm ? nIframeHeightEm : 40,
-         z64);
-      break;
-    }
-    case FE_RENDER_HTML_INLINE:{
-      CX("%b",pContent);
-      break;
-    }
-    case FE_RENDER_WIKI:
-      safe_html_context(DOCSRC_FILE);
-      wiki_render_by_mimetype(pContent, zMime);
-      break;
-    default:{
-      const char *zExt = strrchr(zFilename,'.');
-      const char *zContent = blob_str(pContent);
-      if(FE_PREVIEW_LINE_NUMBERS & flags){
-        output_text_with_line_numbers(zContent, "on");
-      }else if(zExt && zExt[1]){
-        CX("<pre><code class='language-%s'>%h</code></pre>",
-           zExt+1, zContent);
-      }else{
-        CX("<pre>%h</pre>", zContent);
-      }
-      break;
-    }
-  }
-}
-
-/*
-** Renders diffs for the /fileedit page. pContent is the
-** locally-edited content.  frid is the RID of the file's blob entry
-** from which pContent is based. zManifestUuid is the checkin version
-** to which RID belongs - it is purely informational, for labeling the
-** diff view. isSbs is true for side-by-side diffs, false for unified.
-*/
-static void fileedit_render_diff(Blob * pContent, int frid,
-                                 const char * zManifestUuid,
-                                 u64 diffFlags){
-  Blob orig = empty_blob;
-  Blob out = empty_blob;
-
-  content_get(frid, &orig);
-  text_diff(&orig, pContent, &out, 0, diffFlags);
-  if(blob_size(&out)==0){
-    /* nothing to do */
-  }else if(DIFF_SIDEBYSIDE & diffFlags){
-    CX("%b",&out);
-  }else{
-    CX("<pre class='udiff'>%b</pre>",&out);
-  }
-  blob_reset(&orig);
-  blob_reset(&out);
-}
-
 /*
 ** Given a repo-relative filename and a manifest RID, returns the UUID
 ** of the corresponding file entry.  Returns NULL if no match is
@@ -1047,52 +945,6 @@ static char *fileedit_file_uuid(char const *zFilename,
 }
 
 /*
-** Helper for /fileedit_xyz routes. Clears the CGI content buffer,
-** sets an error status code, and queues up a JSON response in the
-** form of an object:
-**
-** {error: formatted message}
-**
-** After calling this, the caller should immediately return.
- */
-static void fileedit_ajax_error(int httpCode, const char * zFmt, ...){
-  Blob msg = empty_blob;
-  Blob content = empty_blob;
-  va_list vargs;
-  va_start(vargs,zFmt);
-  blob_vappendf(&msg, zFmt, vargs);
-  va_end(vargs);
-  blob_appendf(&content,"{\"error\":%!j}", blob_str(&msg));
-  blob_reset(&msg);
-  cgi_set_content(&content);
-  cgi_set_status(httpCode, "Error");
-  cgi_set_content_type("application/json");
-}
-
-/*
-** Performs bootstrapping common to the /fileedit_xyz AJAX routes.
-** Returns 0 if bootstrapping fails (wrong permissions), in which
-** case it has reported the error and the route should immediately
-** return. Returns true on success.
-**
-** Must be passed true if the request being set up requires POST,
-** else false.
-*/
-static int fileedit_ajax_boostrap(int requirePost){
-  login_check_credentials();
-  if( !g.perm.Write ){
-    fileedit_ajax_error(403,"Write permissions required.");
-    return 0;
-  }else if(0==cgi_csrf_safe(requirePost)){
-    fileedit_ajax_error(403,
-                        "CSRF violation (make sure sending of HTTP "
-                        "Referer headers is enabled for XHR "
-                        "connections).");
-    return 0;
-  }
-  return 1;
-}
-/*
 ** Returns true if the current user is allowed to edit the given
 ** filename, as determined by fileedit_is_editable(), else false,
 ** in which case it queues up an error response and the caller
@@ -1100,39 +952,11 @@ static int fileedit_ajax_boostrap(int requirePost){
 */
 static int fileedit_ajax_check_filename(const char * zFilename){
   if(0==fileedit_is_editable(zFilename)){
-    fileedit_ajax_error(403, "File is disallowed by the "
-                        "fileedit-glob setting.");
+    ajax_route_error(403, "File is disallowed by the "
+                     "fileedit-glob setting.");
     return 0;
   }
   return 1;
-}
-
-
-/*
-** If zFn is not NULL, it is assigned the value of the first one of
-** the "filename" or "fn" CGI parameters which is set.
-**
-** If zCi is not NULL, it is assigned the value of the first one of
-** the "checkin" or "ci" CGI parameters which is set.
-**
-** If a parameter is not NULL, it will be assigned NULL if the
-** corresponding parameter is not set.
-**
-** Returns the number of non-NULL values it assigns to arguments. Thus
-** if passed (&x, NULL), it returns 1 if it assigns non-NULL to *x and
-** 0 if it assigns NULL to *x.
-*/
-static int fileedit_get_fnci_args( const char **zFn, const char **zCi ){
-  int rc = 0;
-  if(zCi!=0){
-    *zCi = PD("checkin",P("ci"));
-    if( *zCi ) ++rc;
-  }
-  if(zFn!=0){
-    *zFn = PD("filename",P("fn"));
-    if (*zFn) ++rc;
-  }
-  return rc;
 }
 
 /*
@@ -1168,18 +992,18 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
   }
   *vid = symbolic_name_to_rid(zRev, "ci");
   if(0==*vid){
-    fileedit_ajax_error(404,"Cannot resolve name as a checkin: %s",
-                        zRev);
+    ajax_route_error(404,"Cannot resolve name as a checkin: %s",
+                     zRev);
     return 0;
   }else if(*vid<0){
-    fileedit_ajax_error(400,"Checkin name is ambiguous: %s",
-                        zRev);
+    ajax_route_error(400,"Checkin name is ambiguous: %s",
+                     zRev);
     return 0;
   }
   if(checkFile){
     zFileUuid = fileedit_file_uuid(zFilename, *vid, 0);
     if(zFileUuid==0){
-      fileedit_ajax_error(404,"Checkin does not contain file.");
+      ajax_route_error(404, "Checkin does not contain file.");
       return 0;
     }
   }
@@ -1207,7 +1031,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 ** User must have Write access to use this page.
 **
 ** Responds with the raw content of the given page. On error it
-** produces a JSON response as documented for fileedit_ajax_error().
+** produces a JSON response as documented for ajax_route_error().
 **
 ** Extra response headers:
 **
@@ -1223,8 +1047,8 @@ static void fileedit_ajax_content(void){
   Blob content = empty_blob;
   const char * zMime;
 
-  fileedit_get_fnci_args( &zFilename, &zRev );
-  if(!fileedit_ajax_boostrap(0)
+  ajax_get_fnci_args( &zFilename, &zRev );
+  if(!ajax_route_bootstrap(1,0)
      || !fileedit_ajax_setup_filerev(zRev, 0, &vid,
                                      zFilename, &frid)){
     return;
@@ -1259,77 +1083,6 @@ static void fileedit_ajax_content(void){
 }
 
 /*
-** AJAX route /fileedit?ajax=preview
-**
-** Required query parameters:
-**
-** filename=FILENAME
-** content=text
-**
-** Optional query parameters:
-**
-** render_mode=integer (FE_RENDER_xxx) (default=FE_RENDER_GUESS)
-**
-** ln=0 or 1 to disable/enable line number mode in
-** FE_RENDER_PLAIN_TEXT mode.
-**
-** iframe_height=integer (default=40) Height, in EMs of HTML preview
-** iframe.
-**
-** User must have Write access to use this page.
-**
-** Responds with the HTML content of the preview. On error it produces
-** a JSON response as documented for fileedit_ajax_error().
-**
-** Extra response headers:
-**
-** x-fileedit-render-mode: string representing the rendering mode
-** which was really used (which will differ from the requested mode
-** only if mode 0 (guess) was requested). The names are documented
-** below in code and match those in the emitted JS object
-** fossil.page.previewModes.
-*/
-static void fileedit_ajax_preview(void){
-  const char * zFilename = 0;
-  const char * zContent = P("content");
-  int renderMode = atoi(PD("render_mode","0"));
-  int ln = atoi(PD("ln","0"));
-  int iframeHeight = atoi(PD("iframe_height","40"));
-  Blob content = empty_blob;
-  const char * zRenderMode = 0;
-  fileedit_get_fnci_args( &zFilename, 0 );
-  if(!fileedit_ajax_boostrap(1)
-     || !fileedit_ajax_check_filename(zFilename)){
-    return;
-  }
-  cgi_set_content_type("text/html");
-  blob_init(&content, zContent, -1);
-  fileedit_render_preview(&content, zFilename,
-                          ln ? FE_PREVIEW_LINE_NUMBERS : 0,
-                          &renderMode, iframeHeight);
-  /*
-  ** Now tell the caller if we did indeed use FE_RENDER_WIKI, so that
-  ** they can re-set the <base href> to an appropriate value (which
-  ** requires knowing the content's current checkin version, which we
-  ** don't have here).
-  */
-  switch(renderMode){
-    /* The strings used here MUST correspond to those used in the JS-side
-    ** fossil.page.previewModes map.
-    */
-    case FE_RENDER_WIKI: zRenderMode = "wiki"; break;
-    case FE_RENDER_HTML_INLINE: zRenderMode = "htmlInline"; break;
-    case FE_RENDER_HTML_IFRAME: zRenderMode = "htmlIframe"; break;
-    case FE_RENDER_PLAIN_TEXT: zRenderMode = "text"; break;
-    case FE_RENDER_GUESS:
-      assert(!"cannot happen");
-  }
-  if(zRenderMode!=0){
-    cgi_printf_header("x-fileedit-render-mode: %s\r\n", zRenderMode);
-  }
-}
-
-/*
 ** AJAX route /fileedit?ajax=diff
 **
 ** Required query parameters:
@@ -1350,7 +1103,7 @@ static void fileedit_ajax_preview(void){
 ** User must have Write access to use this page.
 **
 ** Responds with the HTML content of the diff. On error it produces a
-** JSON response as documented for fileedit_ajax_error().
+** JSON response as documented for ajax_route_error().
 */
 static void fileedit_ajax_diff(void){
   /*
@@ -1380,8 +1133,8 @@ static void fileedit_ajax_diff(void){
     diffFlags |= DIFF_IGNORE_EOLWS;
   }
   diffFlags |= DIFF_STRIP_EOLCR;
-  fileedit_get_fnci_args( &zFilename, &zRev );
-  if(!fileedit_ajax_boostrap(1)
+  ajax_get_fnci_args( &zFilename, &zRev );
+  if(!ajax_route_bootstrap(1,1)
      || !fileedit_ajax_setup_filerev(zRev, &zRevUuid, &vid,
                                      zFilename, &frid)){
     return;
@@ -1391,7 +1144,12 @@ static void fileedit_ajax_diff(void){
   }
   cgi_set_content_type("text/html");
   blob_init(&content, zContent, -1);
-  fileedit_render_diff(&content, frid, zRevUuid, diffFlags);
+  {
+    Blob orig = empty_blob;
+    content_get(frid, &orig);
+    ajax_render_diff(&orig, &content, diffFlags);
+    blob_reset(&orig);
+  }
   fossil_free(zRevUuid);
   blob_reset(&content);
 }
@@ -1560,7 +1318,7 @@ end_fail:
 ** }
 **
 ** On error it produces a JSON response as documented for
-** fileedit_ajax_error().
+** ajax_route_error().
 */
 static void fileedit_ajax_filelist(void){
   const char * zCi = PD("checkin",P("ci"));
@@ -1568,7 +1326,7 @@ static void fileedit_ajax_filelist(void){
   Stmt q = empty_Stmt;
   int i = 0;
 
-  if(!fileedit_ajax_boostrap(0)){
+  if(!ajax_route_bootstrap(1,0)){
     return;
   }
   cgi_set_content_type("application/json");
@@ -1619,7 +1377,7 @@ static void fileedit_ajax_filelist(void){
     CX("]");
     db_finalize(&q);
   }else{
-    fileedit_ajax_error(500, "Unhandled URL argument.");
+    ajax_route_error(500, "Unhandled URL argument.");
   }
 }
 
@@ -1660,7 +1418,7 @@ static void fileedit_ajax_filelist(void){
 ** }
 **
 ** On error it produces a JSON response as documented for
-** fileedit_ajax_error().
+** ajax_route_error().
 */
 static void fileedit_ajax_commit(void){
   Blob err = empty_blob;      /* Error messages */
@@ -1672,18 +1430,18 @@ static void fileedit_ajax_commit(void){
   char const * zMimetype;
   char * zBranch = 0;
 
-  if(!fileedit_ajax_boostrap(1)){
+  if(!ajax_route_bootstrap(1,1)){
     return;
   }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
   rc = fileedit_setup_cimi_from_p(&cimi, &err, 0);
   if(0!=rc){
-    fileedit_ajax_error(rc,"%b",&err);
+    ajax_route_error(rc,"%b",&err);
     goto end_cleanup;
   }
   if(blob_size(&cimi.comment)==0){
-    fileedit_ajax_error(400,"Empty checkin comment is not permitted.");
+    ajax_route_error(400,"Empty checkin comment is not permitted.");
     goto end_cleanup;
   }
   if(0!=atoi(PD("include_manifest","0"))){
@@ -1691,7 +1449,7 @@ static void fileedit_ajax_commit(void){
   }
   checkin_mini(&cimi, &newVid, &err);
   if(blob_size(&err)){
-    fileedit_ajax_error(500,"%b",&err);
+    ajax_route_error(500,"%b",&err);
     goto end_cleanup;
   }
   assert(newVid>0);
@@ -1750,7 +1508,7 @@ end_cleanup:
 ** Which additional parameters are used by each distinct ajax value is
 ** an internal implementation detail and may change with any given
 ** build of this code. An unknown "name" value triggers an error, as
-** documented for fileedit_ajax_error().
+** documented for ajax_route_error().
 */
 void fileedit_page(void){
   const char * zFilename = 0;          /* filename. We'll accept 'name'
@@ -1759,8 +1517,7 @@ void fileedit_page(void){
   const char * zRev = 0;                /* checkin version */
   const char * zFileMime = 0;           /* File mime type guess */
   CheckinMiniInfo cimi;                 /* Checkin state */
-  int previewHtmlHeight = 0;            /* iframe height (EMs) */
-  int previewRenderMode = FE_RENDER_GUESS; /* preview mode */
+  int previewRenderMode = AJAX_RENDER_GUESS; /* preview mode */
   Blob err = empty_blob;                /* Error report */
   Blob endScript = empty_blob;          /* Script code to run at the
                                            end. This content will be
@@ -1775,7 +1532,7 @@ void fileedit_page(void){
   login_check_credentials();
   if( !g.perm.Write ){
     if(zAjax!=0){
-      fileedit_ajax_error(403, "Write permissions required.");
+      ajax_route_error(403, "Write permissions required.");
     }else{
       login_needed(g.anon.Write);
     }
@@ -1784,8 +1541,8 @@ void fileedit_page(void){
   /* No access to anything on this page if the fileedit-glob is empty */
   if( fileedit_glob()==0 ){
     if(zAjax!=0){
-      fileedit_ajax_error(403, "Online editing is disabled for this "
-                          "repository.");
+      ajax_route_error(403, "Online editing is disabled for this "
+                       "repository.");
       return;
     }
     style_header("File Editor (disabled)");
@@ -1809,10 +1566,9 @@ void fileedit_page(void){
   ** fail with a JSON-format response if needed.
   */
   if( 0!=zAjax ){
+    /* preview mode is handled via /ajax/preview-text */
     if(0==strcmp("content",zAjax)){
       fileedit_ajax_content();
-    }else if(0==strcmp("preview",zAjax)){
-      fileedit_ajax_preview();
     }else if(0==strcmp("filelist",zAjax)){
       fileedit_ajax_filelist();
     }else if(0==strcmp("diff",zAjax)){
@@ -1820,7 +1576,7 @@ void fileedit_page(void){
     }else if(0==strcmp("commit",zAjax)){
       fileedit_ajax_commit();
     }else{
-      fileedit_ajax_error(500, "Unhandled ajax route name.");
+      ajax_route_error(500, "Unhandled ajax route name.");
     }
     return;
   }
@@ -1857,17 +1613,15 @@ void fileedit_page(void){
   ** rendering the page, then output the error message at the end.
   ********************************************************************/
 
-  {
-    /* The CSS for this page lives in a common file but much of it we
-    ** don't want inadvertently being used by other pages. We don't
-    ** have a common, page-specific container we can filter our CSS
-    ** selectors, but we do have the BODY, which we can decorate with
-    ** whatever CSS we wish...
-    */
-    style_emit_script_tag(0,0);
-    CX("document.body.classList.add('fileedit');\n");
-    style_emit_script_tag(1,0);
-  }
+  /* The CSS for this page lives in a common file but much of it we
+  ** don't want inadvertently being used by other pages. We don't
+  ** have a common, page-specific container we can filter our CSS
+  ** selectors, but we do have the BODY, which we can decorate with
+  ** whatever CSS we wish...
+  */
+  style_emit_script_tag(0,0);
+  CX("document.body.classList.add('fileedit');\n");
+  style_emit_script_tag(1,0);
   
   /* Status bar */
   CX("<div id='fossil-status-bar' "
@@ -1950,42 +1704,26 @@ void fileedit_page(void){
 
     /* Default preview rendering mode selection... */
     previewRenderMode = zFileMime
-      ? fileedit_render_mode_for_mimetype(zFileMime)
-      : FE_RENDER_GUESS;
+      ? ajax_render_mode_for_mimetype(zFileMime)
+      : AJAX_RENDER_GUESS;
     style_select_list_int("select-preview-mode",
                           "preview_render_mode",
                           "Preview Mode",
                           "Preview mode format.",
                           previewRenderMode,
-                          "Guess", FE_RENDER_GUESS,
-                          "Wiki/Markdown", FE_RENDER_WIKI,
-                          "HTML (iframe)", FE_RENDER_HTML_IFRAME,
-                          "HTML (inline)", FE_RENDER_HTML_INLINE,
-                          "Plain Text", FE_RENDER_PLAIN_TEXT,
+                          "Guess", AJAX_RENDER_GUESS,
+                          "Wiki/Markdown", AJAX_RENDER_WIKI,
+                          "HTML (iframe)", AJAX_RENDER_HTML_IFRAME,
+                          "HTML (inline)", AJAX_RENDER_HTML_INLINE,
+                          "Plain Text", AJAX_RENDER_PLAIN_TEXT,
                           NULL);
-    /*
-    ** Set up a JS-side mapping of the FE_RENDER_xyz values. This is
-    ** used for dynamically toggling certain UI components on and off.
-    */
-    blob_appendf(&endScript, "fossil.page.previewModes={"
-                 "guess: %d, %d: 'guess', wiki: %d, %d: 'wiki',"
-                 "htmlIframe: %d, %d: 'htmlIframe', "
-                 "htmlInline: %d, %d: 'htmlInline', "
-                 "text: %d, %d: 'text'"
-                 "};\n",
-                 FE_RENDER_GUESS, FE_RENDER_GUESS,
-                 FE_RENDER_WIKI, FE_RENDER_WIKI,
-                 FE_RENDER_HTML_IFRAME, FE_RENDER_HTML_IFRAME,
-                 FE_RENDER_HTML_INLINE, FE_RENDER_HTML_INLINE,
-                 FE_RENDER_PLAIN_TEXT, FE_RENDER_PLAIN_TEXT);
     /* Allow selection of HTML preview iframe height */
-    previewHtmlHeight = 40;
     style_select_list_int("select-preview-html-ems",
                           "preview_html_ems",
                           "HTML Preview IFrame Height (EMs)",
                           "Height (in EMs) of the iframe used for "
                           "HTML preview",
-                          previewHtmlHeight,
+                          40 /*default*/,
                           "", 20, "", 40,
                           "", 60, "", 80,
                           "", 100, NULL);
@@ -2191,14 +1929,14 @@ void fileedit_page(void){
     ** blob, and/or switch to tab #0, where the file selector
     ** lives... */
     blob_appendf(&endScript,
-                 "window.addEventListener('load',");
+                 "fossil.onPageLoad(");
     if(zRev && zFilename){
       assert(0==blob_size(&err));
       blob_appendf(&endScript,
                    "()=>fossil.page.loadFile(%!j,%!j)",
                    zFilename, cimi.zParentUuid);
     }else{
-      blob_appendf(&endScript,"function(){");
+      blob_appendf(&endScript,"function(){\n");
       if(blob_size(&err)>0){
         blob_appendf(&endScript,
                      "fossil.error(%!j);\n",
@@ -2208,7 +1946,7 @@ void fileedit_page(void){
                    "fossil.page.tabs.switchToTab(0);\n");
       blob_appendf(&endScript,"}");
     }
-    blob_appendf(&endScript,", false);\n");
+    blob_appendf(&endScript,");\n");
   }
 
   blob_reset(&err);
@@ -2219,14 +1957,21 @@ void fileedit_page(void){
   style_emit_script_tabs(0)/*also emits fossil.dom*/;
   style_emit_script_confirmer(0);
   style_emit_script_builtin(0, "fossil.storage.js");
+
+  /*
+  ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
+  ** used for dynamically toggling certain UI components on and off.
+  ** Must come before fossil.page.fileedit.js.
+  */
+  ajax_emit_js_preview_modes(1);
+
   style_emit_script_builtin(0, "fossil.page.fileedit.js");
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
-    CX("(function(){\n");
-    CX("try{\n%b\n}"
+    CX("\n(function(){\n");
+    CX("try{\n%b}\n"
        "catch(e){"
-       "fossil.error(e);\n"
-       "console.error('Exception:',e);\n"
+       "fossil.error(e); console.error('Exception:',e);"
        "}\n",
        &endScript);
     CX("})();");

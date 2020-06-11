@@ -17,6 +17,7 @@ TESTFLAGS := -quiet
 
 SRC = \
   $(SRCDIR)/add.c \
+  $(SRCDIR)/ajax.c \
   $(SRCDIR)/alerts.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
@@ -261,6 +262,7 @@ EXTRA_FILES = \
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
+  $(OBJDIR)/ajax_.c \
   $(OBJDIR)/alerts_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
@@ -405,6 +407,7 @@ TRANS_SRC = \
 
 OBJ = \
  $(OBJDIR)/add.o \
+ $(OBJDIR)/ajax.o \
  $(OBJDIR)/alerts.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
@@ -742,6 +745,7 @@ $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
 
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
+	$(OBJDIR)/ajax_.c:$(OBJDIR)/ajax.h \
 	$(OBJDIR)/alerts_.c:$(OBJDIR)/alerts.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -897,6 +901,14 @@ $(OBJDIR)/add.o:	$(OBJDIR)/add_.c $(OBJDIR)/add.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/add.o -c $(OBJDIR)/add_.c
 
 $(OBJDIR)/add.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/ajax_.c:	$(SRCDIR)/ajax.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/ajax.c >$@
+
+$(OBJDIR)/ajax.o:	$(OBJDIR)/ajax_.c $(OBJDIR)/ajax.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/ajax.o -c $(OBJDIR)/ajax_.c
+
+$(OBJDIR)/ajax.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/alerts_.c:	$(SRCDIR)/alerts.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/alerts.c >$@

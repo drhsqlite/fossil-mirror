@@ -361,6 +361,7 @@ MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
                 /DMINIZ_NO_ARCHIVE_APIS
 
 SRC   = "$(OX)\add_.c" \
+        "$(OX)\ajax_.c" \
         "$(OX)\alerts_.c" \
         "$(OX)\allrepo_.c" \
         "$(OX)\attach_.c" \
@@ -603,6 +604,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\wiki.wiki"
 
 OBJ   = "$(OX)\add$O" \
+        "$(OX)\ajax$O" \
         "$(OX)\alerts$O" \
         "$(OX)\allrepo$O" \
         "$(OX)\attach$O" \
@@ -828,6 +830,7 @@ APPTARGETS = $(APPTARGETS) openssl
 
 "$(OX)\linkopts": "$(B)\win\Makefile.msc"
 	echo "$(OX)\add.obj" > $@
+	echo "$(OX)\ajax.obj" >> $@
 	echo "$(OX)\alerts.obj" >> $@
 	echo "$(OX)\allrepo.obj" >> $@
 	echo "$(OX)\attach.obj" >> $@
@@ -1197,6 +1200,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\add_.c"
 
 "$(OX)\add_.c" : "$(SRCDIR)\add.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\ajax$O" : "$(OX)\ajax_.c" "$(OX)\ajax.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\ajax_.c"
+
+"$(OX)\ajax_.c" : "$(SRCDIR)\ajax.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\alerts$O" : "$(OX)\alerts_.c" "$(OX)\alerts.h"
@@ -2050,6 +2059,7 @@ realclean: clean
 
 "$(OX)\headers": "$(OBJDIR)\makeheaders$E" "$(OX)\page_index.h" "$(OX)\builtin_data.h" "$(OX)\default_css.h" "$(OX)\VERSION.h"
 	"$(OBJDIR)\makeheaders$E" "$(OX)\add_.c":"$(OX)\add.h" \
+			"$(OX)\ajax_.c":"$(OX)\ajax.h" \
 			"$(OX)\alerts_.c":"$(OX)\alerts.h" \
 			"$(OX)\allrepo_.c":"$(OX)\allrepo.h" \
 			"$(OX)\attach_.c":"$(OX)\attach.h" \
