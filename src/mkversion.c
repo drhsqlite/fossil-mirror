@@ -113,7 +113,12 @@ int main(int argc, char *argv[]){
 #define str(s) #s
       sprintf(b+n, "%d", (int)strtoll(str(FOSSIL_BUILD_EPOCH), 0, 10));
 #else
-      sprintf(b+n, "%d", (int)time(0));
+      const char *zEpoch = getenv("SOURCE_DATE_EPOCH");
+      if( zEpoch && isdigit(zEpoch[0]) ){
+        sprintf(b+n, "%d", (int)strtoll(zEpoch, 0, 10));
+      }else{
+        sprintf(b+n, "%d", (int)time(0));
+      }
 #endif
       hash(b,33,vx);
       printf("#define FOSSIL_BUILD_HASH \"%s\"\n", vx);
