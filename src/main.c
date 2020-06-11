@@ -276,6 +276,9 @@ struct Global {
                                   exit() with code 0 to avoid an HTTP
                                   500 error.
                                */
+    int preserveRc;            /* Do not convert error codes into 0.
+                                * This is primarily intended for use
+                                * by the test suite. */
     int resultCode;            /* used for passing back specific codes
                                ** from /json callbacks. */
     int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
@@ -748,6 +751,9 @@ int fossil_main(int argc, char **argv){
     g.fSshClient = 0;
     g.zSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.preserveRc = find_option("json-preserve-rc", 0, 0)!=0;
+#endif
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;

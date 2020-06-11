@@ -711,6 +711,17 @@ cson_value * json_req_payload_get(char const *pKey){
 }
 
 /*
+** Returns non-zero if the json_main_bootstrap() function has already
+** been called.  In general, this function should be used sparingly,
+** e.g. from low-level support functions like fossil_warning() where
+** there is genuine uncertainty about whether (or not) the JSON setup
+** has already been called.
+*/
+int json_is_main_boostrapped(){
+  return ((g.json.gc.v != NULL) && (g.json.gc.a != NULL));
+}
+
+/*
 ** Initializes some JSON bits which need to be initialized relatively
 ** early on. It should only be called from cgi_init() or
 ** json_cmd_top() (early on in those functions).
@@ -1567,6 +1578,7 @@ void json_err( int code, char const * msg, int alsoOutput ){
         cgi_append_content(")",1);
       }
     }
+    cgi_reply();
   }else{
     json_send_response(resp);
   }

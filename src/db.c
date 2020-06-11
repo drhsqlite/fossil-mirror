@@ -80,6 +80,7 @@ static void db_err(const char *zFormat, ...){
   va_end(ap);
 #ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
+    if( !json_is_main_boostrapped() ) json_main_bootstrap();
     json_err( 0, z, 1 );
   }
   else
