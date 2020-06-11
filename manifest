@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s'th1'\stests.
-D 2020-06-11T00:37:54.175
+C Updates\sto\sthe\s'commit-warning'\stests.
+D 2020-06-11T00:45:33.393
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -647,7 +647,7 @@ F test/amend.test 2019ce651ae732281b0bd665e312b2f0f6f87bc9940ae34c661d9b7305c59c
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test 8c35a04f4442228c1ec647c31267117d5731da5d171a93a723c8a03242b9b477
+F test/commit-warning.test 1f5e6e008a22b687892e0497d477d153d15f16ab56c26ec6e5d9ac164fef6797
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
@@ -994,7 +994,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5b1b25b4a95df3d257ac12fc587ad138df350edc61e58a8ca80ae4750ce2c039
-R 2718c53e0514b59b22e19f714e39c1eb
+P 93f42413a2ea2e5ffed94d8be22aedaed07858767bfbb451ada521caef859bd2
+R 85c9d9b08e08d36565dcbfb0660653fd
 U mistachkin
-Z 898881f005eff9242b8128072fa19653
+Z dd1ece93580f3ca8f6bb89d3ce9f6496
