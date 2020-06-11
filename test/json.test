@@ -77,7 +77,7 @@ proc fossil_http_json {url {cookie "Muppet=Monster"} args} {
   global RESULT JR
   set request "GET $url HTTP/1.1\r\nHost: localhost\r\nUser-Agent: Fossil-http-json\r\nCookie: $cookie"
   set RESULT [fossil_maybe_answer $request http {*}$args]
-  set head ""; set status "--NO_MATCH--"
+  set head ""; set body ""; set status "--NO_MATCH--"
   regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
   regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
   if {$status eq "200"} {
@@ -121,6 +121,7 @@ Cookie: $cookie\r
   set RESULT [fossil_maybe_answer $request http {*}$args]
 
   # separate HTTP headers from body
+  set head ""; set body ""; set status "--NO_MATCH--"
   regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
   regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
   if {$status eq "200"} {
@@ -313,24 +314,36 @@ set anon2 [read_file anon-2]
 fossil_post_json "/json/cap" $anon2
 test json-cap-POSTenv-env-0 {[string length $JR] > 0}
 test_json_envelope_ok json-cap-POSTenv-env
-test json-cap-POSTenv-name {[dict get $JR payload name] eq "anonymous"} knownBug
+if {[catch {test json-cap-POSTenv-name \
+    {[dict get $JR payload name] eq "anonymous"} knownBug} jerr]} then {
+  test json-cap-POSTenv-name-threw 0
+  protOut "CAUGHT: $jerr"
+}
 test json-cap-POSTenv-notsetup {![dict get $JR payload permissionFlags setup]}
 
 
 # json cap via GET with authToken in Cookie header
 fossil_post_json "/json/cap" {} $AnonCookie
 test json-cap-GETcookie-env-0 {[string length $JR] > 0}
-test_json_envelope_ok json-cap-GETcookie-env
-test json-cap-GETcookie-name {[dict get $JR payload name] eq "anonymous"}
-test json-cap-GETcookie-notsetup {![dict get $JR payload permissionFlags setup]}
+test_json_envelope_ok json-cap-GETcookie-env-0
+if {[catch {test json-cap-GETcookie-name-0 \
+    {[dict get $JR payload name] eq "anonymous"}} jerr]} then {
+  test json-cap-GETcookie-name-0-threw 0
+  protOut "CAUGHT: $jerr"
+}
+test json-cap-GETcookie-notsetup-0 {![dict get $JR payload permissionFlags setup]}
 
 
 # json cap via GET with authToken in a parameter
 fossil_post_json "/json/cap?authToken=[dict get $AuthAnon authToken]" {}
-test json-cap-GETcookie-env-0 {[string length $JR] > 0}
-test_json_envelope_ok json-cap-GETcookie-env
-test json-cap-GETcookie-name {[dict get $JR payload name] eq "anonymous"}
-test json-cap-GETcookie-notsetup {![dict get $JR payload permissionFlags setup]}
+test json-cap-GETcookie-env-1 {[string length $JR] > 0}
+test_json_envelope_ok json-cap-GETcookie-env-1
+if {[catch {test json-cap-GETcookie-name-1 \
+    {[dict get $JR payload name] eq "anonymous"}} jerr]} then {
+  test json-cap-GETcookie-name-1-threw 0
+  protOut "CAUGHT: $jerr"
+}
+test json-cap-GETcookie-notsetup-1 {![dict get $JR payload permissionFlags setup]}
 
 
 # whoami
