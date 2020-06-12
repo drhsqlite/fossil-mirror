@@ -35,7 +35,10 @@ if {[normalize_result] ne "1"} then {
 # On ActiveTcl, add it with teacup. On other platforms, YMMV.
 # teacup install json
 # teacup install json::write
-package require json
+if {[catch {package require json}] != 0} then {
+  puts "The \"json\" package is not available."
+  test_cleanup_then_return
+}
 
 proc json2dict {txt} {
   set rc [catch {::json::json2dict $txt} result options]
