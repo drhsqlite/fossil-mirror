@@ -121,7 +121,7 @@ Cookie: $cookie\r
   # handle the actual request
   flush stdout
   #exec $fossilexe
-  set RESULT [fossil_maybe_answer $request http {*}$args]
+  set RESULT [fossil_maybe_answer $request http {*}$args --ipaddr 127.0.0.1]
 
   # separate HTTP headers from body
   set head ""; set body ""; set status "--NO_MATCH--"
