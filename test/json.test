@@ -715,8 +715,12 @@ test json-ROrepo-2-3 {![regexp {SQLITE_[A-Z]+:} $RESULT]}
 #test_json_envelope_ok json-http-timeline2
 if {$is_windows} then {
   catch {exec attrib -r .rep.fossil}; # Windows
+  catch {exec attrib -r .rep.fossil-shm}
+  catch {exec attrib -r .rep.fossil-wal}
 } else {
   catch {exec chmod 666 .rep.fossil}; # Unix
+  catch {exec chmod 666 .rep.fossil-shm}
+  catch {exec chmod 666 .rep.fossil-wal}
 }
 protOut "chmod 666 repo"
 
