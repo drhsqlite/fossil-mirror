@@ -1,5 +1,5 @@
-C In\sthe\sMarkdown\sformatter,\sbring\semphasis\smarkup\sinto\scloser\salignment\nwith\sthe\sCommonMark\sspec.\s\sIn\sparticular,\sthis\sshould\sallow\sunderscores\nin\sthe\smiddle\sof\sidentifiers\sto\sbe\srendered\scorrectly\swithout\sescapes.
-D 2020-06-11T21:03:53.044
+C Updates\sto\sthe\s'cmdline',\s'set-manifest',\sand\s'unversioned.test'\stests.
+D 2020-06-12T00:29:33.013
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -646,7 +646,7 @@ F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
-F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
+F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
 F test/commit-warning.test 1f5e6e008a22b687892e0497d477d153d15f16ab56c26ec6e5d9ac164fef6797
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
@@ -678,7 +678,7 @@ F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test a1c75240b6907e3d5d197c47bc0d08d48bbc6e794e5f44dcac5948af6126529f
 F test/release-checklist.wiki 37fb844592c7d25042d6d152fdd9c61d4d8e87b2d0add42f2a62fb87fb6582d1
 F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
-F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
+F test/set-manifest.test f4cf7b56a5de3b2957b1ff9eaa99c37d693e7d07eae686cc5bc78d258bc31b4d
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
 F test/stash.test 4ac356770b8ad5a013f1927d678bec077cbb387616e67133a4050a177aae0373
@@ -706,7 +706,7 @@ F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test 6491c25bbda2d01d49140d82236fdd62e7e80c374744ce9e260fc4812e37cfb4
-F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
+F test/unversioned.test 3d8474cb49a399d54e7de6c74805981a00a1d7a9e25d736bb3e87c6608f5b577
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 785fc1ad4c79c42ad60a25abb82130a5578604b9955fa3599600ae6236d8af58
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7d61b68208ba162fa9f679abf0eedbed8bb7fffd6c67b4d1a629fa642d97b307
-R 25bbcfa4887fe2fcd4fd43469af4a5b4
-U drh
-Z cff4aa19287721431b1b25dada675d6b
+P 37806e85d2601bfbf3f4689a78de9a239873299c54034652742fdfdf67312b54
+R ae95a7cd596344ba2698ddb16c08eabb
+U mistachkin
+Z 7a26b1e1fb92109aa7241d99b59cfb46
