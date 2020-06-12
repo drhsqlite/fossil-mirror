@@ -1,5 +1,5 @@
-C Improve\sdocumentation\sreadability\son\smobile.
-D 2020-06-12T14:28:33.956
+C Updates\sto\sthe\s'mv-rm'\stests.
+D 2020-06-12T23:20:50.939
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -675,7 +675,7 @@ F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
 F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
-F test/mv-rm.test a1c75240b6907e3d5d197c47bc0d08d48bbc6e794e5f44dcac5948af6126529f
+F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
 F test/release-checklist.wiki 37fb844592c7d25042d6d152fdd9c61d4d8e87b2d0add42f2a62fb87fb6582d1
 F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
 F test/set-manifest.test f4cf7b56a5de3b2957b1ff9eaa99c37d693e7d07eae686cc5bc78d258bc31b4d
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a0132e52846e263039850d48b516cede1c2375d0cf5b453966b4c71cadc14bd
-R 6f0c7c0fafaa0a31d26fe4fbd059c5fc
-U drh
-Z cae667d37e1e6324f43ba8e22cef5bb7
+P 9e4ca8948a82ae5e3017c0e8ca0268483bb4114f917e3ba0c24a08669e95e930
+R 0c92602ff310ee1360162f7114aeb330
+U mistachkin
+Z 6c24cb74698ad1cfd6c850bc85f9d954
