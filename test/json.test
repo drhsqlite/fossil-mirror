@@ -79,7 +79,7 @@ proc fossil_json {args} {
 proc fossil_http_json {url {cookie "Muppet=Monster"} args} {
   global RESULT JR
   set request "GET $url HTTP/1.1\r\nHost: localhost\r\nUser-Agent: Fossil-http-json\r\nCookie: $cookie"
-  set RESULT [fossil_maybe_answer $request http {*}$args]
+  set RESULT [fossil_maybe_answer $request http {*}$args --ipaddr 127.0.0.1]
   set head ""; set body ""; set status "--NO_MATCH--"
   regexp {(?w)(.*)^\s*$(.*)} $RESULT dummy head body
   regexp {^HTTP\S+\s+(\d\d\d)\s+(.*)$} $head dummy status msg
