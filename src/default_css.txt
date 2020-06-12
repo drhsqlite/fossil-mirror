@@ -878,8 +878,12 @@ label {
   display: none;
 }
 input {
-    max-width: 95%;
+  max-width: 95%;
 }
 textarea {
-    max-width: 95%;
+  max-width: 95%;
+}
+img {
+  max-width: 100%;
+  height: auto;
 }

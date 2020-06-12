@@ -601,18 +601,21 @@ int name_to_rid(const char *zName){
 **
 ** The NAME given by the name parameter is ambiguous.  Display a page
 ** that shows all possible choices and let the user select between them.
+**
+** The src= query parameter is optional.  If omitted it defaults
+** to "info".
 */
 void ambiguous_page(void){
   Stmt q;
   const char *zName = P("name");
-  const char *zSrc = P("src");
+  const char *zSrc = PD("src","info");
   char *z;
 
   if( zName==0 || zName[0]==0 || zSrc==0 || zSrc[0]==0 ){
     fossil_redirect_home();
   }
   style_header("Ambiguous Artifact ID");
-  @ <p>The artifact id <b>%h(zName)</b> is ambiguous and might
+  @ <p>The artifact hash prefix <b>%h(zName)</b> is ambiguous and might
   @ mean any of the following:
   @ <ol>
   z = mprintf("%s", zName);
@@ -1615,7 +1618,7 @@ static void collision_report(const char *zSql){
     for(j=0; j<aCollide[i].cnt && j<MAX_COLLIDE; j++){
       char *zId = aCollide[i].azHit[j];
       if( zId==0 ) continue;
-      @ %z(href("%R/whatis/%s",zId))%h(zId)</a>
+      @ %z(href("%R/ambiguous/%s",zId))%h(zId)</a>
     }
   }
   for(i=4; i<count(aCollide); i++){
