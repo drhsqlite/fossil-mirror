@@ -1918,8 +1918,10 @@ static void process_one_web_page(
     }
   }else{
 #ifdef FOSSIL_ENABLE_JSON
-    if( g.json.isJsonMode ){
+    static int jsonOnce = 0;
+    if( !jsonOnce && g.json.isJsonMode ){
       json_mode_bootstrap();
+      jsonOnce = 1;
     }
 #endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
