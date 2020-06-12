@@ -1,5 +1,5 @@
-C Fix\sthe\s/ambiguous\spage\sso\sthat\sthe\ssrc=\squery\sparameter\sis\soptional.\nFix\sthe\s/hash-colisions\spage\sso\sthat\sit\slinks\sto\s/ambiguous\srather\sthan\nto\s/whatis.
-D 2020-06-12T13:25:48.247
+C Improve\sdocumentation\sreadability\son\smobile.
+D 2020-06-12T14:28:33.956
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 037ded79e270f8fc54d405a8a0890c7df0ed20a981baf95332c0156d8639b584
-F src/default_css.txt 3620b4c6cd0c3d94ba2b8f5bc493ad8e20f8d30a781886ce3128afdbc759a3bf
+F src/default_css.txt c43f32100f17bfe22ed730733c344c9207c9ca31597c5f43f26554ff993ccf46
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -837,7 +837,7 @@ F www/chroot.md 98a9f4a11f6e1a4ed06e13b0adc1806472b03e825575c2f503f90d9dcdf878d9
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki e2ed6d1bd797431bce4886289e608d0fba34bcb82afe3f8cd7a4c6157ce78300
+F www/concepts.wiki e23c7f6a0105786816e91e7d9643b388d1680b339cb31d092e14bba55102a3f8
 F www/contribute.wiki 992fee5fb4e3c586c9dfc6f7538b29d76407f1bfd3ed1306c107b42efda2f412
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3d57881915d804dbe3d62305dcf9744f250ac1f487253dfb9e3d1a38c7306a5
-R ea5c6db7f3dab289a21eb04d91433b03
+P 9a0132e52846e263039850d48b516cede1c2375d0cf5b453966b4c71cadc14bd
+R 6f0c7c0fafaa0a31d26fe4fbd059c5fc
 U drh
-Z 128fcbf2d180cbb21b45399088dd41df
+Z cae667d37e1e6324f43ba8e22cef5bb7
