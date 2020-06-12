@@ -1917,6 +1917,11 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
+#ifdef FOSSIL_ENABLE_JSON
+    if( g.json.isJsonMode ){
+      json_mode_bootstrap();
+    }
+#endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
       cgi_decode_post_parameters();
     }
