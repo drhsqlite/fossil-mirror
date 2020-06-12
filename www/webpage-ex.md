@@ -102,7 +102,7 @@ other examples.
 
   *  <a target='_blank' class='exbtn'
      href='$ROOT/blame?checkin=5260fbf63287&filename=src/rss.c&limit=-1'>
-       Example</a>
+       (Example)</a> &rarr;
      Most recent change to each line of a particular source file in a
      particular check-in.
 

@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s'cmdline',\s'set-manifest',\sand\s'unversioned.test'\stests.
-D 2020-06-12T00:29:33.013
+C Fix\stypo\son\sthe\swebpage-ex.md\spage.
+D 2020-06-12T13:16:58.956
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -991,12 +991,12 @@ F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a70
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
-F www/webpage-ex.md 34e3ee8516eb9fb369e4bb711161c6ad3052e66d98834483236ab7330b25a368
+F www/webpage-ex.md d747d853e9f3d357c2f7bd9f371c6b98519e5644890861b45fad610804a1920d
 F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b941
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37806e85d2601bfbf3f4689a78de9a239873299c54034652742fdfdf67312b54
-R ae95a7cd596344ba2698ddb16c08eabb
-U mistachkin
-Z 7a26b1e1fb92109aa7241d99b59cfb46
+P ecb52c1f78be487b9983f4cbfe3b3a96f1dfc083f605603330ad767ada6b56df
+R f966d82f3c24dad97871e9cc6b22866f
+U drh
+Z e2a3e10d0baa0b8e43cef32ac278a6b9
