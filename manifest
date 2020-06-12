@@ -1,5 +1,5 @@
-C Fix\stypo\son\sthe\swebpage-ex.md\spage.
-D 2020-06-12T13:16:58.956
+C Fix\sthe\s/ambiguous\spage\sso\sthat\sthe\ssrc=\squery\sparameter\sis\soptional.\nFix\sthe\s/hash-colisions\spage\sso\sthat\sit\slinks\sto\s/ambiguous\srather\sthan\nto\s/whatis.
+D 2020-06-12T13:25:48.247
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -549,7 +549,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c 6070854fabaee6c04ec7a354cb1f17b3ed95197ed294b74ab811377390a0a95e
 F src/mkversion.c 6ed1f6ce4ce8061c331b10820778ddd17686a0e98682539c6414ca7c4d0544da
 F src/moderate.c 8b693389df63229f87c99057ac1a4133b6fc9e10fc6b6b4699d43d5d14a09968
-F src/name.c 79660ddd1da632c5c61292f30fea82fcdbc7dcf0aeee431a012b86fbc24b66f6
+F src/name.c ebbbc13273531725eceefbf923f80a26128878f381fc9c5f89abf86ff6361b75
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ecb52c1f78be487b9983f4cbfe3b3a96f1dfc083f605603330ad767ada6b56df
-R f966d82f3c24dad97871e9cc6b22866f
+P b3d57881915d804dbe3d62305dcf9744f250ac1f487253dfb9e3d1a38c7306a5
+R ea5c6db7f3dab289a21eb04d91433b03
 U drh
-Z e2a3e10d0baa0b8e43cef32ac278a6b9
+Z 128fcbf2d180cbb21b45399088dd41df
