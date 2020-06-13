@@ -35,7 +35,7 @@ proc file_contains {fname match} {
 # fossil. It looks like the one from tcllib is exactly what we need.
 # On ActiveTcl, add it with teacup. On other platforms, YMMV.
 # teacup install sha1
-if {[catch {package require sha1}] != 0} then {
+if {[catch {package require sha1}] != 0} {
   puts "The \"sha1\" package is not available."
   test_cleanup_then_return
 }

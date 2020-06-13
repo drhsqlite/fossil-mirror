@@ -362,7 +362,15 @@ proc same_file {a b} {
   regsub -all { +\n} $x \n x
   set y [read_file $b]
   regsub -all { +\n} $y \n y
-  return [expr {$x==$y}]
+  if {$x == $y} {
+    return 1
+  } else {
+    if {$::VERBOSE} {
+      protOut "NOT_SAME_FILE($a): \{\n$x\n\}"
+      protOut "NOT_SAME_FILE($b): \{\n$y\n\}"
+    }
+    return 0
+  }
 }
 
 # Return true if two strings refer to the
@@ -375,7 +383,7 @@ proc same_uuid {a b} {
   if {$na == $nb} {
     return [expr {$a eq $b}]
   }
-  if {$na < $nb} then {
+  if {$na < $nb} {
     return [string match "$a*" $b]
   }
   return [string match "$b*" $a]

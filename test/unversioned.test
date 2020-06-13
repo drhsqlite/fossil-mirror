@@ -20,7 +20,7 @@
 
 set path [file dirname [info script]]
 
-if {[catch {package require sha1}] != 0} then {
+if {[catch {package require sha1}] != 0} {
   puts "The \"sha1\" package is not available."
   test_cleanup_then_return
 }
