@@ -1088,6 +1088,10 @@ static int fossil_print_error(int rc, const char *z){
     if( g.isHTTP && !g.json.preserveRc ){
       rc = 0 /* avoid HTTP 500 */;
     }
+    if( g.cgiOutput==1 ){
+      g.cgiOutput = 2;
+      cgi_reply();
+    }
   }
   else
 #endif

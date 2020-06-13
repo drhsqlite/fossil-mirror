@@ -1578,7 +1578,6 @@ void json_err( int code, char const * msg, int alsoOutput ){
         cgi_append_content(")",1);
       }
     }
-    cgi_reply();
   }else{
     json_send_response(resp);
   }
