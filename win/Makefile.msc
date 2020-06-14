@@ -563,6 +563,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\accordion.js" \
         "$(SRCDIR)\ci_edit.js" \
         "$(SRCDIR)\copybtn.js" \
+        "$(SRCDIR)\default.css" \
         "$(SRCDIR)\diff.tcl" \
         "$(SRCDIR)\forum.js" \
         "$(SRCDIR)\fossil.bootstrap.js" \
@@ -998,9 +999,6 @@ APPTARGETS = $(APPTARGETS) openssl
 "$(OBJDIR)\mkversion$E": "$(SRCDIR)\mkversion.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-"$(OBJDIR)\mkcss$E": "$(SRCDIR)\mkcss.c"
-	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
-
 "$(OBJDIR)\codecheck1$E": "$(SRCDIR)\codecheck1.c"
 	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
@@ -1037,9 +1035,6 @@ SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 
 "$(OX)\cson_amalgamation$O" : "$(SRCDIR)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
-
-"$(OX)\default_css.h": "$(OBJDIR)\mkcss$E" "$(SRCDIR)\default_css.txt"
-	$** $@
 
 "$(OX)\page_index.h": "$(OBJDIR)\mkindex$E" $(SRC)
 	$** > $@
@@ -1156,6 +1151,7 @@ realclean: clean
 	echo "$(SRCDIR)\accordion.js" >> $@
 	echo "$(SRCDIR)\ci_edit.js" >> $@
 	echo "$(SRCDIR)\copybtn.js" >> $@
+	echo "$(SRCDIR)\default.css" >> $@
 	echo "$(SRCDIR)\diff.tcl" >> $@
 	echo "$(SRCDIR)\forum.js" >> $@
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@
