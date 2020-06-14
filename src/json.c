@@ -711,6 +711,17 @@ cson_value * json_req_payload_get(char const *pKey){
 }
 
 /*
+** Returns non-zero if the json_main_bootstrap() function has already
+** been called.  In general, this function should be used sparingly,
+** e.g. from low-level support functions like fossil_warning() where
+** there is genuine uncertainty about whether (or not) the JSON setup
+** has already been called.
+*/
+int json_is_main_boostrapped(){
+  return ((g.json.gc.v != NULL) && (g.json.gc.a != NULL));
+}
+
+/*
 ** Initializes some JSON bits which need to be initialized relatively
 ** early on. It should only be called from cgi_init() or
 ** json_cmd_top() (early on in those functions).
@@ -933,7 +944,7 @@ cson_value * json_string_split2( char const * zStr,
 **
 ** This must only be called once, or an assertion may be triggered.
 */
-static void json_mode_bootstrap(){
+void json_mode_bootstrap(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
   assert(g.json.gc.a && "json_main_bootstrap() was not called!");
@@ -2264,7 +2275,7 @@ static int json_dispatch_root_command( char const * zCommand ){
 void json_page_top(void){
   char const * zCommand;
   assert(g.json.gc.a && "json_main_bootstrap() was not called!");
-  json_mode_bootstrap();
+  assert(g.json.cmd.a && "json_mode_bootstrap() was not called!");
   zCommand = json_command_arg(1);
   if(!zCommand || !*zCommand){
     json_dispatch_missing_args_err( JsonPageDefs,

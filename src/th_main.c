@@ -130,6 +130,7 @@ void Th_ForceCgi(int fullHttpReply){
 void Th_InitTraceLog(){
   g.thTrace = find_option("th-trace", 0, 0)!=0;
   if( g.thTrace ){
+    g.fAnyTrace = 1;
     blob_zero(&g.thLog);
   }
 }

@@ -172,35 +172,53 @@ proc fossil_maybe_answer {answer args} {
     set keepNewline 1
     set args [lreplace $args $index $index]
   }
+  set whatIf 0
+  set index [lsearch -exact $args -whatIf]
+  if {$index != -1} {
+    set whatIf 1
+    set args [lreplace $args $index $index]
+  }
   foreach a $args {
     lappend cmd $a
   }
   protOut $cmd
 
   flush stdout
-  if {[string length $answer] > 0} {
-    protOut $answer
-    set prompt_file [file join $::tempPath fossil_prompt_answer]
-    write_file $prompt_file $answer\n
-    if {$keepNewline} {
-      set rc [catch {eval exec -keepnewline $cmd <$prompt_file} result]
-    } else {
-      set rc [catch {eval exec $cmd <$prompt_file} result]
-    }
-    file delete $prompt_file
+  if {$whatIf} {
+    protOut [pwd]; protOut $answer
+    set result WHAT-IF-MODE; set rc 42
   } else {
-    if {$keepNewline} {
-      set rc [catch {eval exec -keepnewline $cmd} result]
+    if {[string length $answer] > 0} {
+      protOut $answer
+      set prompt_file [file join $::tempPath fossil_prompt_answer]
+      write_file $prompt_file $answer\n
+      set execCmd [list eval exec]
+      if {$keepNewline} {lappend execCmd -keepnewline}
+      lappend execCmd $cmd <$prompt_file
+      set rc [catch $execCmd result]
+      file delete $prompt_file
     } else {
-      set rc [catch {eval exec $cmd} result]
+      set execCmd [list eval exec]
+      if {$keepNewline} {lappend execCmd -keepnewline}
+      lappend execCmd $cmd
+      set rc [catch $execCmd result]
     }
+  }
+  set ab(str) {child process exited abnormally}
+  set ab(len) [string length $ab(str)]
+  set ab(off) [expr {$ab(len) - 1}]
+  if {$rc && $expectError && \
+      [string range $result end-$ab(off) end] eq $ab(str)} {
+    set result [string range $result 0 end-$ab(len)]
   }
   global RESULT CODE
   set CODE $rc
-  if {($rc && !$expectError) || (!$rc && $expectError)} {
-    protOut "ERROR: $result" 1
-  } elseif {$::VERBOSE} {
-    protOut "RESULT: $result"
+  if {!$whatIf} {
+    if {($rc && !$expectError) || (!$rc && $expectError)} {
+      protOut "ERROR ($rc): $result" 1
+    } elseif {$::VERBOSE} {
+      protOut "RESULT ($rc): $result"
+    }
   }
   set RESULT $result
 }

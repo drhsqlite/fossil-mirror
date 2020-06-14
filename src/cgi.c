@@ -1747,6 +1747,9 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   int i, content_length = 0;
   char zLine[2000];     /* A single line of input. */
 
+#ifdef FOSSIL_ENABLE_JSON
+  if( nCycles==0 ){ json_main_bootstrap(); }
+#endif
   if( zIpAddr ){
     if( nCycles==0 ){
       cgi_setenv("REMOTE_ADDR", zIpAddr);
