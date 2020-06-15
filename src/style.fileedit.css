@@ -13,6 +13,7 @@ body.fileedit textarea {
   font-family: monospace;
   flex: 10 1 auto;
   height: initial/*undo damage from some skins*/;
+  max-width: initial /* default.css pins it at 95% */;
 }
 body.fileedit textarea:focus,
 body.fileedit input:focus{
@@ -149,7 +150,7 @@ body.fileedit #fileedit-stash-selector {
   align-items: baseline;
 }
 body.fileedit #fileedit-stash-selector select {
-  margin: 0;
+  margin: 0 1em;
   height: initial;
   font-family: monospace;
   flex: 10 1 auto;

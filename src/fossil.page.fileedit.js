@@ -420,7 +420,9 @@
         selCi,
         filesLabel,
         selFiles,
-        btnLoad
+        /* Use a wrapper for btnLoad so that the button itself does not
+          stretch to fill the parent width: */
+        D.append(D.addClass(D.div(), 'flex-shrink'), btnLoad)
       );
       this.loadLeaves();
       selCi.addEventListener(
