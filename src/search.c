@@ -1033,7 +1033,11 @@ int search_run_and_output(
 ){
   Stmt q;
   int nRow = 0;
+  int nLimit = db_get_int("search-limit", 100);
 
+  if( P("searchlimit")!=0 ){
+    nLimit = atoi(P("searchlimit"));
+  }
   srchFlags = search_restrict(srchFlags);
   if( srchFlags==0 ) return 0;
   search_sql_setup(g.db);
@@ -1047,13 +1051,14 @@ int search_run_and_output(
     search_update_index(srchFlags);        /* Update the index, if necessary */
     search_indexed(zPattern, srchFlags);   /* Indexed search */
   }
-  db_prepare(&q, "SELECT url, snip, label, score, id"
+  db_prepare(&q, "SELECT url, snip, label, score, id, substr(date,1,10)"
                  "  FROM x"
                  " ORDER BY score DESC, date DESC;");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUrl = db_column_text(&q, 0);
     const char *zSnippet = db_column_text(&q, 1);
     const char *zLabel = db_column_text(&q, 2);
+    const char *zDate = db_column_text(&q, 5);
     if( nRow==0 ){
       @ <ol>
     }
@@ -1062,7 +1067,12 @@ int search_run_and_output(
     if( fDebug ){
       @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4))
     }
-    @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
+    @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet)) \
+    if( zDate && zDate[0] && strstr(zLabel,zDate)==0 ){
+      @ <small>(%h(zDate))</small>
+    }
+    @ </span></li>
+    if( nLimit && nRow>=nLimit ) break;
   }
   db_finalize(&q);
   if( nRow ){
