@@ -1,5 +1,5 @@
-C Minor\slayout\stweaks\sin\s/fileedit.
-D 2020-06-15T00:58:45.785
+C Add\sa\slink\sto\s/fileedit\sfrom\s/sitemap,\sso\sthat\sit\sappears\sin\sthe\nhamburger\smenu\swhen\sit\sis\senabled.
+D 2020-06-16T14:40:00.057
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -574,7 +574,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c 7262647e054661dfb8893f22a578f72a80acf44dec771ae544454f2e086c362b
 F src/shun.c ad762c0c170cae98d0f09a5999b0bbcdb8783e8f69e65846d102084f6dd588f3
-F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
+F src/sitemap.c eaa9d6d8f1372f1162c57070daf53b358284ec42c8e40098c475b869e9e9b0e3
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 7c1a9020002dddc46a3bace3d32849274e28944085866aee2c85b4eb8a983fc4
 F src/smtp.c 866dea904f2dae8c1ed05fb48991ae9a7549d85a80908322cf0d1bfac994f7db
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a588e55fe7feed2a8012edf362b9cb8b9dd475671b7c554d0fa0acb9a338eef2
-R f4737818e8f7eeeb66255ec2f4ad036f
-U stephan
-Z 33888b2277194326da717b3bcd621765
+P 5a7243c21ce6dcb03d2294af83e9c5dc8e23d5b240cc93e3ed1495180588db61
+R b969b3b78e220746b7a63533b71fb8a8
+U drh
+Z 941d74f13d98d274ccf97861ed7060b3
