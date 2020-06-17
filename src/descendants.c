@@ -170,6 +170,7 @@ void compute_ancestors(int rid, int N, int directOnly){
      N = -N;
   }
   if( directOnly ){
+    /* Direct mode means to show primary parents only */
     db_multi_exec(
       "WITH RECURSIVE "
       "  ancestor(rid, mtime) AS ("
@@ -187,6 +188,14 @@ void compute_ancestors(int rid, int N, int directOnly){
       rid, rid, N
     );
   }else{
+    /* If not in directMode, also include merge parents, including
+    ** cherrypick merges.  Except, terminate searches at the cherrypick
+    ** merge parent itself.  In other words, include:
+    **    (1)  Primary parents
+    **    (2)  Merge parents
+    **    (3)  Cherrypick merge parents.
+    **    (4)  All ancestores of 1 and 2 but not of 3.
+    */
     db_multi_exec(
       "WITH RECURSIVE "
       "  parent(pid,cid,isCP) AS ("
