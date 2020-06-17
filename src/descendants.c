@@ -169,21 +169,46 @@ void compute_ancestors(int rid, int N, int directOnly){
   }else if( N<0 ){
      N = -N;
   }
-  db_multi_exec(
-    "WITH RECURSIVE "
-    "  ancestor(rid, mtime) AS ("
-    "    SELECT %d, mtime FROM event WHERE objid=%d "
-    "    UNION "
-    "    SELECT plink.pid, event.mtime"
-    "      FROM ancestor, plink, event"
-    "     WHERE plink.cid=ancestor.rid"
-    "       AND event.objid=plink.pid %s"
-    "     ORDER BY mtime DESC LIMIT %d"
-    "  )"
-    "INSERT INTO ok"
-    "  SELECT rid FROM ancestor;",
-    rid, rid, directOnly ? "AND plink.isPrim" : "", N
-  );
+  if( directOnly ){
+    db_multi_exec(
+      "WITH RECURSIVE "
+      "  ancestor(rid, mtime) AS ("
+      "    SELECT %d, mtime FROM event WHERE objid=%d "
+      "    UNION "
+      "    SELECT plink.pid, event.mtime"
+      "      FROM ancestor, plink, event"
+      "     WHERE plink.cid=ancestor.rid"
+      "       AND event.objid=plink.pid"
+      "       AND plink.isPrim"
+      "     ORDER BY mtime DESC LIMIT %d"
+      "  )"
+      "INSERT INTO ok"
+      "  SELECT rid FROM ancestor;",
+      rid, rid, N
+    );
+  }else{
+    db_multi_exec(
+      "WITH RECURSIVE "
+      "  parent(pid,cid,isCP) AS ("
+      "    SELECT plink.pid, plink.cid, 0 AS xisCP FROM plink"
+      "    UNION ALL"
+      "    SELECT parentid, childid, 1 FROM cherrypick WHERE NOT isExclude"
+      "  ),"
+      "  ancestor(rid, mtime, isCP) AS ("
+      "    SELECT %d, mtime, 0 FROM event WHERE objid=%d "
+      "    UNION "
+      "    SELECT parent.pid, event.mtime, parent.isCP"
+      "      FROM ancestor, parent, event"
+      "     WHERE parent.cid=ancestor.rid"
+      "       AND event.objid=parent.pid"
+      "       AND NOT ancestor.isCP"
+      "     ORDER BY mtime DESC LIMIT %d"
+      "  )"
+      "INSERT INTO ok"
+      "  SELECT rid FROM ancestor;",
+      rid, rid, N
+    );
+  }
 }
 
 /*

@@ -1,5 +1,5 @@
-C Search\simprovements:\s\sLimit\sthe\snumber\sof\ssearch\sresults\sto\sthe\svalue\sin\nthe\s"search-limit"\ssetting,\sor\s100\sresults\sif\sthe\ssetting\sis\somitted.\nAnd,\sshow\sthe\sdate\sof\seach\sarticle\sif\sthe\sdate\sis\snot\sincluded\sas\spart\sof\nthe\stitle.
-D 2020-06-16T20:46:30.358
+C Include\sfirst-generation\ssimple\scherrypicks\samong\sin\sancestor\sgraphs\son\nthe\stimeline.
+D 2020-06-17T14:38:11.732
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -468,7 +468,7 @@ F src/default.css 11ed4baddf3ed74b6a36f5afb9fea779f8fac0954f8d53883a6e5e881e7b5c
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
-F src/descendants.c 5b51ac221ef6fc6a5290fbd83874844f6a255f8929aea475bafbf237f9ec4a90
+F src/descendants.c c889e67a149b6698ac190cd14d535c57946dcfe29e9d14f5695aba5de42e04c5
 F src/diff.c 5af2476da718d2ecf93fa24ceb5aa5d061eed5b8990d22cd7959c71f72cab31b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c ec3070c8ef11be9c7891f1a623c39117e896c991c275a39e8795d9fe61da734f
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc17add2653a1954e9a8952db198b3b368ee7c75df97b5de1f56883a4704f144
-R 081d80b7320229adcd33fa36a77bb83a
+P 13dfcdd9576baa4656797db889401ae4ab8457fcc67750f99678c4d577fcc1bc
+R 9b866acf58b44cc63954a89063c06434
 U drh
-Z a19641282cc9a84933f2c1b090768e30
+Z a84528bdc2f3b3231282d4bad2a34c3c
