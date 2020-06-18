@@ -1,5 +1,5 @@
-C Improvement\sto\s/timeline\sfor\sbetter\sdetails\swith\sthe\sfrom=\sand\sto=\squery\nparameters\stogether\swith\sthe\s"mionly"\soption.
-D 2020-06-18T13:55:11.390
+C Improved\stitle\son\sancestor\sdisplays\sin\s/timeline.
+D 2020-06-18T14:48:05.212
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -615,7 +615,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c eaf9d652b0dfe81827be5eb918cad19fa71f7145dea7457378756b4f0feb3bcb
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 0178cc75fb039838da6378e17681b43c547e50609f382d2785a88540365c40b2
+F src/timeline.c cf8c7326230c415fdcbb7016f16bbb85acc34d5155ab66de9d17db9a8bdfe949
 F src/tkt.c e898954709cf819563897f23f1a8f82ac0374f8a86196700accdcf34f6a39bb2
 F src/tktsetup.c 87857cd6f20c9b6d6031276571dfc54cbfdc692446bdc3ec1214018407319447
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c1abd612a9663e5550404acb86d8da925ad0c754d1dd7098bbb997515c08463d
-R 4a4bfaa494ef0a4223372001dadab088
+P badbcba970b84c1f6c71f6c70cb9cbd0facad7d6bd515a33fc7c4c0440a3964d
+R 966d151836ff3ccc54f852fabe241b17
 U drh
-Z 31fc935f86b3357c5dfcac6ff08b83ce
+Z 7d28f3ea0ed6c53c0b0af0aa6397954a

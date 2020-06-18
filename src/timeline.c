@@ -2019,7 +2019,7 @@ void page_timeline(void){
         glob_expr("filename.name", zChng)
       );
     }
-    tmFlags |= TIMELINE_DISJOINT;
+//    tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
@@ -2040,6 +2040,7 @@ void page_timeline(void){
   }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
+    const char *zCiName;
     int np, nd;
 
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
@@ -2052,6 +2053,8 @@ void page_timeline(void){
     );
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",
                          p_rid ? p_rid : d_rid);
+    zCiName = pd_rid ? P("pd") : p_rid ? P("p") : P("d");
+    if( zCiName==0 ) zCiName = zUuid;
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
@@ -2072,8 +2075,8 @@ void page_timeline(void){
       }
       if( useDividers ) selectedRid = p_rid;
     }
-    blob_appendf(&desc, " of %z[%S]</a>",
-                   href("%R/info/%!S", zUuid), zUuid);
+    blob_appendf(&desc, " of %z%h</a>",
+                   href("%R/info?name=%h", zCiName), zCiName);
     if( d_rid ){
       if( p_rid ){
         /* If both p= and d= are set, we don't have the uuid of d yet. */
