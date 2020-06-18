@@ -199,8 +199,11 @@ void compute_ancestors(int rid, int N, int directOnly, int ridBackTo){
     */
     double rLimitMtime = 0.0;
     if( ridBackTo ){
-      rLimitMtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d",
-                              ridBackTo);
+      rLimitMtime = db_double(0.0,
+         "SELECT mtime FROM event"
+         " WHERE objid=%d"
+         "   AND mtime<(SELECT mtime FROM event WHERE objid=%d)",
+         ridBackTo, rid);
     }
     db_multi_exec(
       "WITH RECURSIVE "
