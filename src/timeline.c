@@ -2021,15 +2021,16 @@ void page_timeline(void){
       );
     }
 //    tmFlags |= TIMELINE_DISJOINT;
+    tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
     }
     nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
     blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
-    blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
+    blob_appendf(&desc, "%z%h</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
-    blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
+    blob_appendf(&desc, "%z%h</a>", href("%R/info/%h",zTo), zTo);
     if( related ){
       int nRelated = db_int(0, "SELECT count(*) FROM timeline") - nNodeOnPath;
       if( nRelated>0 ){
@@ -2043,6 +2044,8 @@ void page_timeline(void){
     char *zUuid;
     const char *zCiName;
     int np, nd;
+    const char *zBackTo = 0;
+    int ridBackTo = 0;
 
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     if( p_rid && d_rid ){
@@ -2067,7 +2070,8 @@ void page_timeline(void){
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
-      int ridBackTo = name_to_typed_rid(P("bt"),"ci");
+      zBackTo = P("bt");
+      ridBackTo = zBackTo ? name_to_typed_rid(zBackTo,"ci") : 0;
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 ){
@@ -2079,6 +2083,10 @@ void page_timeline(void){
     }
     blob_appendf(&desc, " of %z%h</a>",
                    href("%R/info?name=%h", zCiName), zCiName);
+    if( ridBackTo ){
+      blob_appendf(&desc, " back to %z%h</a>",
+                   href("%R/info?name=%h",zBackTo), zBackTo);
+    }
     if( d_rid ){
       if( p_rid ){
         /* If both p= and d= are set, we don't have the uuid of d yet. */
