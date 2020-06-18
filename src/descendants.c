@@ -161,9 +161,10 @@ void compute_leaves(int iBase, int closeMode){
 
 /*
 ** Load the record ID rid and up to |N|-1 closest ancestors into
-** the "ok" table.  If N is zero, no limit.
+** the "ok" table.  If N is zero, no limit.  If ridBackTo is not zero
+** then stop the search upon reaching the ancestor with rid==ridBackTo.
 */
-void compute_ancestors(int rid, int N, int directOnly){
+void compute_ancestors(int rid, int N, int directOnly, int ridBackTo){
   if( !N ){
      N = -1;
   }else if( N<0 ){
@@ -196,6 +197,11 @@ void compute_ancestors(int rid, int N, int directOnly){
     **    (3)  Cherrypick merge parents.
     **    (4)  All ancestores of 1 and 2 but not of 3.
     */
+    double rLimitMtime = 0.0;
+    if( ridBackTo ){
+      rLimitMtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d",
+                              ridBackTo);
+    }
     db_multi_exec(
       "WITH RECURSIVE "
       "  parent(pid,cid,isCP) AS ("
@@ -211,11 +217,12 @@ void compute_ancestors(int rid, int N, int directOnly){
       "     WHERE parent.cid=ancestor.rid"
       "       AND event.objid=parent.pid"
       "       AND NOT ancestor.isCP"
+      "       AND event.mtime>=%.17g"
       "     ORDER BY mtime DESC LIMIT %d"
       "  )"
       "INSERT INTO ok"
       "  SELECT rid FROM ancestor;",
-      rid, rid, N
+      rid, rid, rLimitMtime, N
     );
   }
 }
@@ -284,7 +291,7 @@ int mtime_of_manifest_file(
     prevVid = vid;
     db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
                   "DELETE FROM ok;");
-    compute_ancestors(vid, 100000000, 1);
+    compute_ancestors(vid, 100000000, 1, 0);
   }
   db_static_prepare(&q,
     "SELECT (max(event.mtime)-2440587.5)*86400 FROM mlink, event"

@@ -1,5 +1,5 @@
-C Improved\stitle\son\sancestor\sdisplays\sin\s/timeline.
-D 2020-06-18T14:48:05.212
+C Add\sthe\sbt=\squery\sparameter\sto\s/timeline.\s\sUsed\sin\sconjunction\swith\sp=,\sthe\nbt=\sentry\s(mnemonic:\sBack\sTo)\sprovides\sa\slimit\sto\show\sfar\sbackwards\sin\stime\nthe\sancestor\ssearch\swill\sgo.
+D 2020-06-18T16:17:09.223
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -468,7 +468,7 @@ F src/default.css 11ed4baddf3ed74b6a36f5afb9fea779f8fac0954f8d53883a6e5e881e7b5c
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
-F src/descendants.c 92f62c0f36b792039df6905a921e7ec38a118d7712e93c6f26d0a64a378a7b5b
+F src/descendants.c 2dd613e1fbb4f8c9493c6bf9d723e99b6129b55e01084698358b333190c7be9e
 F src/diff.c 5af2476da718d2ecf93fa24ceb5aa5d061eed5b8990d22cd7959c71f72cab31b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c ec3070c8ef11be9c7891f1a623c39117e896c991c275a39e8795d9fe61da734f
@@ -615,7 +615,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c eaf9d652b0dfe81827be5eb918cad19fa71f7145dea7457378756b4f0feb3bcb
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c cf8c7326230c415fdcbb7016f16bbb85acc34d5155ab66de9d17db9a8bdfe949
+F src/timeline.c b9ab54617a430f6b5e8308ac666778eb5407b2e58afb56338d26e34dac60d0dd
 F src/tkt.c e898954709cf819563897f23f1a8f82ac0374f8a86196700accdcf34f6a39bb2
 F src/tktsetup.c 87857cd6f20c9b6d6031276571dfc54cbfdc692446bdc3ec1214018407319447
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P badbcba970b84c1f6c71f6c70cb9cbd0facad7d6bd515a33fc7c4c0440a3964d
-R 966d151836ff3ccc54f852fabe241b17
+P f505d8d518de33385f68e1d9ee01b6c52ef92c3fd9679020c52d84ba8e078d8b
+R eab4d87641e5a8af1bbb87f77bf94b93
 U drh
-Z 7d28f3ea0ed6c53c0b0af0aa6397954a
+Z 0c0b1026920efd55cc5f31dbe77c7b0e

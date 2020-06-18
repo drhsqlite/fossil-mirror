@@ -1592,6 +1592,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    m=TIMEORTAG     Mark this event
 **    n=COUNT         Maximum number of events.  "all" for no limit
 **    p=CHECKIN       Parents and ancestors of CHECKIN
+**      bt=PRIOR        ... going back to PRIOR
 **    d=CHECKIN       Children and descendants of CHECKIN
 **    dp=CHECKIN      The same as d=CHECKIN&p=CHECKIN
 **    t=TAG           Show only check-ins with the given TAG
@@ -2066,7 +2067,8 @@ void page_timeline(void){
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
-      compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0);
+      int ridBackTo = name_to_typed_rid(P("bt"),"ci");
+      compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 ){
         if( nd>0 ) blob_appendf(&desc, " and ");
@@ -2950,7 +2952,7 @@ void timeline_cmd(void){
     if( mode==TIMELINE_MODE_CHILDREN ){
       compute_descendants(objid, (zFilePattern ? 0 : n));
     }else{
-      compute_ancestors(objid, (zFilePattern ? 0 : n), 0);
+      compute_ancestors(objid, (zFilePattern ? 0 : n), 0, 0);
     }
     blob_append_sql(&sql, "\n  AND blob.rid IN ok");
   }
