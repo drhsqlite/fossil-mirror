@@ -923,9 +923,14 @@ static void search_indexed(
   unsigned int srchFlags      /* What to search over */
 ){
   Blob sql;
+  char *zPat = mprintf("%s",zPattern);
+  int i;
   if( srchFlags==0 ) return;
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
+  for(i=0; zPat[i]; i++){
+    if( zPat[i]=='-' || zPat[i]=='"' ) zPat[i] = ' ';
+  }
   blob_init(&sql, 0, 0);
   blob_appendf(&sql,
     "INSERT INTO x(label,url,score,id,date,snip) "
@@ -938,7 +943,7 @@ static void search_indexed(
     "   FROM ftsidx CROSS JOIN ftsdocs"
     "  WHERE ftsidx MATCH %Q"
     "    AND ftsdocs.rowid=ftsidx.docid",
-    zPattern
+    zPat
   );
   if( srchFlags!=SRCH_ALL ){
     const char *zSep = " AND (";

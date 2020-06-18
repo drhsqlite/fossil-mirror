@@ -1,5 +1,5 @@
-C Fix\sthe\sbt=\squery\sparameter\son\s/timeline\sso\sthat\sit\sis\signored\sif\sit\soccurs\nafter\scheck-in\sof\sthe\sp=\squery\sparameter.
-D 2020-06-18T16:35:42.732
+C Omit\sspecial\scharacters\sfrom\sthe\ssearch\spattern\sfor\sindexed\ssearch.
+D 2020-06-18T17:42:03.642
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -565,7 +565,7 @@ F src/rss.c fbf9195ef17d9bb908cd8dd21b7303dfbea9b062ab30d836854432cc4c250031
 F src/sbsdiff.js 2039eb0d68d9a330b94415419186a29baccbe900e03b540b6c8503e775feff36
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
-F src/search.c 1e0a85a4e0aa0c2fda22d1b32b039534c7965b6ef3c065c1d382b7d12229d761
+F src/search.c bd192fb15073afbbab241a58892815a74fe0c5a4584207479ef5a18ed4e5df4d
 F src/security_audit.c 6817ea33c2ab956e8c1f58d8673c6039a012d7771f1678d829fe057c8803c637
 F src/setup.c 0b05e0c398aeb3e8ae519b10b17f691d752552335c7005906b14839be7a94139
 F src/setupuser.c e28eb5df04c743202faf711781a5cf1d0c084528ed37628e5087a83838a34e24
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b7a979a74361efddd7d9f98f02e7bf5485716a3025e64eea7971182c18a4424
-R 8cfee7c03d59f97f3c8ebcc43f445c8f
+P 15785eec6b07ed0ea3a28c770e4a2913f7d47dad81be35b8febf2fbefb5c15b7
+R c62cfde498b14842d6f0b2ca5dc466b3
 U drh
-Z beb52ce7a8cf31a06a0df7b52a5f5431
+Z b108df086f121784d1343cf0e1d0f746
