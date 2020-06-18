@@ -200,10 +200,8 @@ void compute_ancestors(int rid, int N, int directOnly, int ridBackTo){
     double rLimitMtime = 0.0;
     if( ridBackTo ){
       rLimitMtime = db_double(0.0,
-         "SELECT mtime FROM event"
-         " WHERE objid=%d"
-         "   AND mtime<(SELECT mtime FROM event WHERE objid=%d)",
-         ridBackTo, rid);
+         "SELECT mtime FROM event WHERE objid=%d",
+         ridBackTo);
     }
     db_multi_exec(
       "WITH RECURSIVE "
@@ -220,13 +218,16 @@ void compute_ancestors(int rid, int N, int directOnly, int ridBackTo){
       "     WHERE parent.cid=ancestor.rid"
       "       AND event.objid=parent.pid"
       "       AND NOT ancestor.isCP"
-      "       AND event.mtime>=%.17g"
+      "       AND (event.mtime>=%.17g OR parent.pid=%d)"
       "     ORDER BY mtime DESC LIMIT %d"
       "  )"
-      "INSERT INTO ok"
+      "INSERT OR IGNORE INTO ok"
       "  SELECT rid FROM ancestor;",
-      rid, rid, rLimitMtime, N
+      rid, rid, rLimitMtime, ridBackTo, N
     );
+    if( ridBackTo && db_changes()>1 ){
+      db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridBackTo);
+    }
   }
 }
 

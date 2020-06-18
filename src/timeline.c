@@ -2065,7 +2065,9 @@ void page_timeline(void){
       compute_descendants(d_rid, nEntry==0 ? 0 : nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
-      if( nd>0 ) blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
+      if( nd>0 || p_rid==0 ){
+        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
+      }
       if( useDividers ) selectedRid = d_rid;
       db_multi_exec("DELETE FROM ok");
     }
@@ -2074,18 +2076,27 @@ void page_timeline(void){
       ridBackTo = zBackTo ? name_to_typed_rid(zBackTo,"ci") : 0;
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( np>0 ){
+      if( np>0 || nd==0 ){
         if( nd>0 ) blob_appendf(&desc, " and ");
-        blob_appendf(&desc, "%d ancestors", np);
+        blob_appendf(&desc, "%d ancestor%s", np, (1==np)?"":"s");
         db_multi_exec("%s", blob_sql_text(&sql));
       }
       if( useDividers ) selectedRid = p_rid;
     }
+
     blob_appendf(&desc, " of %z%h</a>",
                    href("%R/info?name=%h", zCiName), zCiName);
     if( ridBackTo ){
-      blob_appendf(&desc, " back to %z%h</a>",
-                   href("%R/info?name=%h",zBackTo), zBackTo);
+      if( np==0 ){
+        blob_reset(&desc);
+        blob_appendf(&desc, 
+                    "Check-in %z%h</a> only (%z%h</a> is not an ancestor)",
+                     href("%R/info?name=%h",zCiName), zCiName,
+                     href("%R/info?name=%h",zBackTo), zBackTo);
+      }else{
+        blob_appendf(&desc, " back to %z%h</a>",
+                     href("%R/info?name=%h",zBackTo), zBackTo);
+      }
     }
     if( d_rid ){
       if( p_rid ){
