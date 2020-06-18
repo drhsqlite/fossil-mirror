@@ -1983,7 +1983,7 @@ void page_timeline(void){
     path_reset();
     db_multi_exec("%s", blob_str(&ins)/*safe-for-%s*/);
     blob_reset(&ins);
-    if( related ){
+    if( related || P("mionly") ){
       db_multi_exec(
         "CREATE TABLE IF NOT EXISTS temp.related(x INTEGER PRIMARY KEY);"
         "INSERT OR IGNORE INTO related(x)"
@@ -2020,7 +2020,6 @@ void page_timeline(void){
       );
     }
     tmFlags |= TIMELINE_DISJOINT;
-    tmFlags &= ~TIMELINE_CHPICK;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
