@@ -953,7 +953,7 @@ static void shellModuleSchema(
 **    CREATE VIRTUAL TABLE
 **
 ** This UDF is used by the .schema command to insert the schema name of
-** attached databases into the middle of the sqlite_master.sql field.
+** attached databases into the middle of the sqlite_schema.sql field.
 */
 static void shellAddSchemaName(
   sqlite3_context *pCtx,
@@ -3330,7 +3330,7 @@ static int completionNext(sqlite3_vtab_cursor *cur){
             const char *zDb = (const char*)sqlite3_column_text(pS2, 1);
             zSql = sqlite3_mprintf(
                "%z%s"
-               "SELECT name FROM \"%w\".sqlite_master",
+               "SELECT name FROM \"%w\".sqlite_schema",
                zSql, zSep, zDb
             );
             if( zSql==0 ) return SQLITE_NOMEM;
@@ -3354,7 +3354,7 @@ static int completionNext(sqlite3_vtab_cursor *cur){
             const char *zDb = (const char*)sqlite3_column_text(pS2, 1);
             zSql = sqlite3_mprintf(
                "%z%s"
-               "SELECT pti.name FROM \"%w\".sqlite_master AS sm"
+               "SELECT pti.name FROM \"%w\".sqlite_schema AS sm"
                        " JOIN pragma_table_info(sm.name,%Q) AS pti"
                " WHERE sm.type='table'",
                zSql, zSep, zDb, zDb
@@ -8096,7 +8096,7 @@ static int idxProcessOneTrigger(
   IdxTable *pTab = pWrite->pTab;
   const char *zTab = pTab->zName;
   const char *zSql = 
-    "SELECT 'CREATE TEMP' || substr(sql, 7) FROM sqlite_master "
+    "SELECT 'CREATE TEMP' || substr(sql, 7) FROM sqlite_schema "
     "WHERE tbl_name = %Q AND type IN ('table', 'trigger') "
     "ORDER BY type;";
   sqlite3_stmt *pSelect = 0;
@@ -8196,12 +8196,12 @@ static int idxCreateVtabSchema(sqlite3expert *p, char **pzErrmsg){
   **   2) Create the equivalent virtual table in dbv.
   */
   rc = idxPrepareStmt(p->db, &pSchema, pzErrmsg,
-      "SELECT type, name, sql, 1 FROM sqlite_master "
+      "SELECT type, name, sql, 1 FROM sqlite_schema "
       "WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%%' "
       " UNION ALL "
-      "SELECT type, name, sql, 2 FROM sqlite_master "
+      "SELECT type, name, sql, 2 FROM sqlite_schema "
       "WHERE type = 'trigger'"
-      "  AND tbl_name IN(SELECT name FROM sqlite_master WHERE type = 'view') "
+      "  AND tbl_name IN(SELECT name FROM sqlite_schema WHERE type = 'view') "
       "ORDER BY 4, 1"
   );
   while( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSchema) ){
@@ -8371,7 +8371,7 @@ static int idxLargestIndex(sqlite3 *db, int *pnMax, char **pzErr){
   int rc = SQLITE_OK;
   const char *zMax = 
     "SELECT max(i.seqno) FROM "
-    "  sqlite_master AS s, "
+    "  sqlite_schema AS s, "
     "  pragma_index_list(s.name) AS l, "
     "  pragma_index_info(l.name) AS i "
     "WHERE s.type = 'table'";
@@ -8524,7 +8524,7 @@ static int idxPopulateStat1(sqlite3expert *p, char **pzErr){
 
   const char *zAllIndex =
     "SELECT s.rowid, s.name, l.name FROM "
-    "  sqlite_master AS s, "
+    "  sqlite_schema AS s, "
     "  pragma_index_list(s.name) AS l "
     "WHERE s.type = 'table'";
   const char *zIndexXInfo = 
@@ -8598,7 +8598,7 @@ static int idxPopulateStat1(sqlite3expert *p, char **pzErr){
   sqlite3_free(pCtx);
 
   if( rc==SQLITE_OK ){
-    rc = sqlite3_exec(p->dbm, "ANALYZE sqlite_master", 0, 0, 0);
+    rc = sqlite3_exec(p->dbm, "ANALYZE sqlite_schema", 0, 0, 0);
   }
 
   sqlite3_exec(p->db, "DROP TABLE IF EXISTS temp."UNIQUE_TABLE_NAME,0,0,0);
@@ -8637,7 +8637,7 @@ sqlite3expert *sqlite3_expert_new(sqlite3 *db, char **pzErrmsg){
   if( rc==SQLITE_OK ){
     sqlite3_stmt *pSql;
     rc = idxPrintfPrepareStmt(pNew->db, &pSql, pzErrmsg, 
-        "SELECT sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%%'"
+        "SELECT sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%%'"
         " AND sql NOT LIKE 'CREATE VIRTUAL %%'"
     );
     while( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pSql) ){
@@ -11038,16 +11038,16 @@ static void createSelftestTable(ShellState *p){
     "INSERT INTO [_shell$self]\n"
     "  SELECT 'run',\n"
     "    'SELECT hex(sha3_query(''SELECT type,name,tbl_name,sql "
-                                 "FROM sqlite_master ORDER BY 2'',224))',\n"
+                                 "FROM sqlite_schema ORDER BY 2'',224))',\n"
     "    hex(sha3_query('SELECT type,name,tbl_name,sql "
-                          "FROM sqlite_master ORDER BY 2',224));\n"
+                          "FROM sqlite_schema ORDER BY 2',224));\n"
     "INSERT INTO [_shell$self]\n"
     "  SELECT 'run',"
     "    'SELECT hex(sha3_query(''SELECT * FROM \"' ||"
     "        printf('%w',name) || '\" NOT INDEXED'',224))',\n"
     "    hex(sha3_query(printf('SELECT * FROM \"%w\" NOT INDEXED',name),224))\n"
     "  FROM (\n"
-    "    SELECT name FROM sqlite_master\n"
+    "    SELECT name FROM sqlite_schema\n"
     "     WHERE type='table'\n"
     "       AND name<>'selftest'\n"
     "       AND coalesce(rootpage,0)>0\n"
@@ -11719,10 +11719,7 @@ static void exec_prepared_stmt_columnar(
     sqlite3_free_table(azData);
     return;
   }
-  if( nRow==0 || nColumn==0 ){
-    sqlite3_free_table(azData);
-    return;
-  }
+  if( nRow==0 || nColumn==0 ) goto columnar_end;
   if( nColumn>p->nWidth ){
     p->colWidth = realloc(p->colWidth, nColumn*2*sizeof(int));
     if( p->colWidth==0 ) shell_out_of_memory();
@@ -11744,6 +11741,7 @@ static void exec_prepared_stmt_columnar(
     j = i%nColumn;
     if( n>p->actualWidth[j] ) p->actualWidth[j] = n;
   }
+  if( seenInterrupt ) goto columnar_end;
   switch( p->cMode ){
     case MODE_Column: {
       colSep = "  ";
@@ -11817,6 +11815,7 @@ static void exec_prepared_stmt_columnar(
     if( j==nColumn-1 ){
       utf8_printf(p->out, "%s", rowSep);
       j = -1;
+      if( seenInterrupt ) goto columnar_end;
     }else{
       utf8_printf(p->out, "%s", colSep);
     }
@@ -11825,6 +11824,10 @@ static void exec_prepared_stmt_columnar(
     print_row_separator(p, nColumn, "+");
   }else if( p->cMode==MODE_Box ){
     print_box_row_separator(p, nColumn, BOX_12, BOX_124, BOX_14);
+  }
+columnar_end:
+  if( seenInterrupt ){
+    utf8_printf(p->out, "Interrupt\n");
   }
   sqlite3_free_table(azData);
 }
@@ -12347,7 +12350,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azNotUsed){
   if( strcmp(zTable, "sqlite_sequence")==0 ){
     raw_printf(p->out, "DELETE FROM sqlite_sequence;\n");
   }else if( sqlite3_strglob("sqlite_stat?", zTable)==0 ){
-    raw_printf(p->out, "ANALYZE sqlite_master;\n");
+    raw_printf(p->out, "ANALYZE sqlite_schema;\n");
   }else if( strncmp(zTable, "sqlite_", 7)==0 ){
     return 0;
   }else if( strncmp(zSql, "CREATE VIRTUAL TABLE", 20)==0 ){
@@ -12357,7 +12360,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azNotUsed){
       p->writableSchema = 1;
     }
     zIns = sqlite3_mprintf(
-       "INSERT INTO sqlite_master(type,name,tbl_name,rootpage,sql)"
+       "INSERT INTO sqlite_schema(type,name,tbl_name,rootpage,sql)"
        "VALUES('table','%q','%q',0,'%q');",
        zTable, zTable, zSql);
     utf8_printf(p->out, "%s\n", zIns);
@@ -12672,7 +12675,7 @@ static const char *(azHelp[]) = {
 #endif
   ".sha3sum ...             Compute a SHA3 hash of database content",
   "    Options:",
-  "      --schema              Also hash the sqlite_master table",
+  "      --schema              Also hash the sqlite_schema table",
   "      --sha3-224            Use the sha3-224 algorithm",
   "      --sha3-256            Use the sha3-256 algorithm (default)",
   "      --sha3-384            Use the sha3-384 algorithm",
@@ -13823,7 +13826,7 @@ end_data_xfer:
 ** Try to transfer all rows of the schema that match zWhere.  For
 ** each row, invoke xForEach() on the object defined by that row.
 ** If an error is encountered while moving forward through the
-** sqlite_master table, try again moving backwards.
+** sqlite_schema table, try again moving backwards.
 */
 static void tryToCloneSchema(
   ShellState *p,
@@ -13838,7 +13841,7 @@ static void tryToCloneSchema(
   const unsigned char *zSql;
   char *zErrMsg = 0;
 
-  zQuery = sqlite3_mprintf("SELECT name, sql FROM sqlite_master"
+  zQuery = sqlite3_mprintf("SELECT name, sql FROM sqlite_schema"
                            " WHERE %s", zWhere);
   rc = sqlite3_prepare_v2(p->db, zQuery, -1, &pQuery, 0);
   if( rc ){
@@ -13865,7 +13868,7 @@ static void tryToCloneSchema(
   if( rc!=SQLITE_DONE ){
     sqlite3_finalize(pQuery);
     sqlite3_free(zQuery);
-    zQuery = sqlite3_mprintf("SELECT name, sql FROM sqlite_master"
+    zQuery = sqlite3_mprintf("SELECT name, sql FROM sqlite_schema"
                              " WHERE %s ORDER BY rowid DESC", zWhere);
     rc = sqlite3_prepare_v2(p->db, zQuery, -1, &pQuery, 0);
     if( rc ){
@@ -14069,11 +14072,11 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
     raw_printf(p->out, "\n");
   }
   if( zDb==0 ){
-    zSchemaTab = sqlite3_mprintf("main.sqlite_master");
+    zSchemaTab = sqlite3_mprintf("main.sqlite_schema");
   }else if( strcmp(zDb,"temp")==0 ){
-    zSchemaTab = sqlite3_mprintf("%s", "sqlite_temp_master");
+    zSchemaTab = sqlite3_mprintf("%s", "sqlite_temp_schema");
   }else{
-    zSchemaTab = sqlite3_mprintf("\"%w\".sqlite_master", zDb);
+    zSchemaTab = sqlite3_mprintf("\"%w\".sqlite_schema", zDb);
   }
   for(i=0; i<ArraySize(aQuery); i++){
     char *zSql = sqlite3_mprintf(aQuery[i].zSql, zSchemaTab);
@@ -14395,7 +14398,7 @@ static int lintFkeyIndexes(
     "  || ');'"
     ", "
     "     f.[table] "
-    "FROM sqlite_master AS s, pragma_foreign_key_list(s.name) AS f "
+    "FROM sqlite_schema AS s, pragma_foreign_key_list(s.name) AS f "
     "LEFT JOIN pragma_table_info AS p ON (pk-1=seq AND p.arg=f.[table]) "
     "GROUP BY s.name, f.id "
     "ORDER BY (CASE WHEN ? THEN f.[table] ELSE s.name END)"
@@ -15470,7 +15473,7 @@ static RecoverTable *recoverNewTable(
     shellPreparePrintf(dbtmp, &rc, &pStmt, 
       "SELECT ("
       "  SELECT substr(data,1,1)==X'0D' FROM sqlite_dbpage WHERE pgno=rootpage"
-      ") FROM sqlite_master WHERE name = %Q", zName
+      ") FROM sqlite_schema WHERE name = %Q", zName
     );
     if( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(pStmt) ){
       bSqlIntkey = sqlite3_column_int(pStmt, 0);
@@ -15542,7 +15545,7 @@ static RecoverTable *recoverNewTable(
 
 /*
 ** This function is called to search the schema recovered from the
-** sqlite_master table of the (possibly) corrupt database as part
+** sqlite_schema table of the (possibly) corrupt database as part
 ** of a ".recover" command. Specifically, for a table with root page
 ** iRoot and at least nCol columns. Additionally, if bIntkey is 0, the
 ** table must be a WITHOUT ROWID table, or if non-zero, not one of
@@ -15805,7 +15808,7 @@ static int recoverDatabaseCmd(ShellState *pState, int nArg, char **azArg){
     ");"
 
     /* Extract data from page 1 and any linked pages into table
-    ** recovery.schema. With the same schema as an sqlite_master table.  */
+    ** recovery.schema. With the same schema as an sqlite_schema table.  */
     "CREATE TABLE recovery.schema(type, name, tbl_name, rootpage, sql);"
     "INSERT INTO recovery.schema SELECT "
     "  max(CASE WHEN field=0 THEN value ELSE NULL END),"
@@ -15957,7 +15960,7 @@ static int recoverDatabaseCmd(ShellState *pState, int nArg, char **azArg){
       if( sqlite3_strnicmp(zSql, "create virt", 11)==0 ){
         const char *zName = (const char*)sqlite3_column_text(pStmt, 1);
         char *zPrint = shellMPrintf(&rc, 
-          "INSERT INTO sqlite_master VALUES('table', %Q, %Q, 0, %Q)",
+          "INSERT INTO sqlite_schema VALUES('table', %Q, %Q, 0, %Q)",
           zName, zName, zSql
         );
         raw_printf(pState->out, "%s;\n", zPrint);
@@ -16329,13 +16332,13 @@ static int do_meta_command(char *zLine, ShellState *p){
     p->writableSchema = 0;
     p->showHeader = 0;
     /* Set writable_schema=ON since doing so forces SQLite to initialize
-    ** as much of the schema as it can even if the sqlite_master table is
+    ** as much of the schema as it can even if the sqlite_schema table is
     ** corrupt. */
     sqlite3_exec(p->db, "SAVEPOINT dump; PRAGMA writable_schema=ON", 0, 0, 0);
     p->nErr = 0;
     if( zLike==0 ) zLike = sqlite3_mprintf("true");
     zSql = sqlite3_mprintf(
-      "SELECT name, type, sql FROM sqlite_master "
+      "SELECT name, type, sql FROM sqlite_schema "
       "WHERE (%s) AND type=='table'"
       "  AND sql NOT NULL"
       " ORDER BY tbl_name='sqlite_sequence', rowid",
@@ -16344,7 +16347,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     run_schema_dump_query(p,zSql);
     sqlite3_free(zSql);
     zSql = sqlite3_mprintf(
-      "SELECT sql FROM sqlite_master "
+      "SELECT sql FROM sqlite_schema "
       "WHERE (%s) AND sql NOT NULL"
       "  AND type IN ('index','trigger','view')",
       zLike
@@ -16391,7 +16394,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         p->autoEQP = AUTOEQP_full;
         p->autoEQPtrace = 1;
         open_db(p, 0);
-        sqlite3_exec(p->db, "SELECT name FROM sqlite_master LIMIT 1", 0, 0, 0);
+        sqlite3_exec(p->db, "SELECT name FROM sqlite_schema LIMIT 1", 0, 0, 0);
         sqlite3_exec(p->db, "PRAGMA vdbe_trace=ON;", 0, 0, 0);
 #endif
       }else{
@@ -16604,8 +16607,8 @@ static int do_meta_command(char *zLine, ShellState *p){
     rc = sqlite3_exec(p->db,
        "SELECT sql FROM"
        "  (SELECT sql sql, type type, tbl_name tbl_name, name name, rowid x"
-       "     FROM sqlite_master UNION ALL"
-       "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_master) "
+       "     FROM sqlite_schema UNION ALL"
+       "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_schema) "
        "WHERE type!='meta' AND sql NOTNULL AND name NOT LIKE 'sqlite_%' "
        "ORDER BY rowid",
        callback, &data, &zErrMsg
@@ -16613,7 +16616,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( rc==SQLITE_OK ){
       sqlite3_stmt *pStmt;
       rc = sqlite3_prepare_v2(p->db,
-               "SELECT rowid FROM sqlite_master"
+               "SELECT rowid FROM sqlite_schema"
                " WHERE name GLOB 'sqlite_stat[134]'",
                -1, &pStmt, 0);
       doStats = sqlite3_step(pStmt)==SQLITE_ROW;
@@ -16622,15 +16625,15 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( doStats==0 ){
       raw_printf(p->out, "/* No STAT tables available */\n");
     }else{
-      raw_printf(p->out, "ANALYZE sqlite_master;\n");
-      sqlite3_exec(p->db, "SELECT 'ANALYZE sqlite_master'",
+      raw_printf(p->out, "ANALYZE sqlite_schema;\n");
+      sqlite3_exec(p->db, "SELECT 'ANALYZE sqlite_schema'",
                    callback, &data, &zErrMsg);
       data.cMode = data.mode = MODE_Insert;
       data.zDestTable = "sqlite_stat1";
       shell_exec(&data, "SELECT * FROM sqlite_stat1", &zErrMsg);
       data.zDestTable = "sqlite_stat4";
       shell_exec(&data, "SELECT * FROM sqlite_stat4", &zErrMsg);
-      raw_printf(p->out, "ANALYZE sqlite_master;\n");
+      raw_printf(p->out, "ANALYZE sqlite_schema;\n");
     }
   }else
 
@@ -16959,10 +16962,10 @@ static int do_meta_command(char *zLine, ShellState *p){
       goto meta_command_exit;
     }
     zSql = sqlite3_mprintf(
-      "SELECT rootpage, 0 FROM sqlite_master"
+      "SELECT rootpage, 0 FROM sqlite_schema"
       " WHERE name='%q' AND type='index'"
       "UNION ALL "
-      "SELECT rootpage, 1 FROM sqlite_master"
+      "SELECT rootpage, 1 FROM sqlite_schema"
       " WHERE name='%q' AND type='table'"
       "   AND sql LIKE '%%without%%rowid%%'",
       azArg[1], azArg[1]
@@ -17697,8 +17700,11 @@ static int do_meta_command(char *zLine, ShellState *p){
       }
     }
     if( zName!=0 ){
-      int isMaster = sqlite3_strlike(zName, "sqlite_master", '\\')==0;
-      if( isMaster || sqlite3_strlike(zName,"sqlite_temp_master", '\\')==0 ){
+      int isSchema = sqlite3_strlike(zName, "sqlite_master", '\\')==0
+                  || sqlite3_strlike(zName, "sqlite_schema", '\\')==0
+                  || sqlite3_strlike(zName,"sqlite_temp_master", '\\')==0
+                  || sqlite3_strlike(zName,"sqlite_temp_schema", '\\')==0;
+      if( isSchema ){
         char *new_argv[2], *new_colv[2];
         new_argv[0] = sqlite3_mprintf(
                       "CREATE TABLE %s (\n"
@@ -17707,7 +17713,7 @@ static int do_meta_command(char *zLine, ShellState *p){
                       "  tbl_name text,\n"
                       "  rootpage integer,\n"
                       "  sql text\n"
-                      ")", isMaster ? "sqlite_master" : "sqlite_temp_master");
+                      ")", zName);
         new_argv[1] = 0;
         new_colv[0] = "sql";
         new_colv[1] = 0;
@@ -17745,7 +17751,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         appendText(&sSelect, zDb, '\'');
         appendText(&sSelect, " AS sname FROM ", 0);
         appendText(&sSelect, zDb, quoteChar(zDb));
-        appendText(&sSelect, ".sqlite_master", 0);
+        appendText(&sSelect, ".sqlite_schema", 0);
       }
       sqlite3_finalize(pStmt);
 #ifndef SQLITE_OMIT_INTROSPECTION_PRAGMAS
@@ -18189,12 +18195,12 @@ static int do_meta_command(char *zLine, ShellState *p){
       }
     }
     if( bSchema ){
-      zSql = "SELECT lower(name) FROM sqlite_master"
+      zSql = "SELECT lower(name) FROM sqlite_schema"
              " WHERE type='table' AND coalesce(rootpage,0)>1"
-             " UNION ALL SELECT 'sqlite_master'"
+             " UNION ALL SELECT 'sqlite_schema'"
              " ORDER BY 1 collate nocase";
     }else{
-      zSql = "SELECT lower(name) FROM sqlite_master"
+      zSql = "SELECT lower(name) FROM sqlite_schema"
              " WHERE type='table' AND coalesce(rootpage,0)>1"
              " AND name NOT LIKE 'sqlite_%'"
              " ORDER BY 1 collate nocase";
@@ -18211,8 +18217,8 @@ static int do_meta_command(char *zLine, ShellState *p){
         appendText(&sQuery,"SELECT * FROM ", 0);
         appendText(&sQuery,zTab,'"');
         appendText(&sQuery," NOT INDEXED;", 0);
-      }else if( strcmp(zTab, "sqlite_master")==0 ){
-        appendText(&sQuery,"SELECT type,name,tbl_name,sql FROM sqlite_master"
+      }else if( strcmp(zTab, "sqlite_schema")==0 ){
+        appendText(&sQuery,"SELECT type,name,tbl_name,sql FROM sqlite_schema"
                            " ORDER BY name;", 0);
       }else if( strcmp(zTab, "sqlite_sequence")==0 ){
         appendText(&sQuery,"SELECT name,seq FROM sqlite_sequence"
@@ -18363,7 +18369,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         appendText(&s, "||'.'||name FROM ", 0);
       }
       appendText(&s, zDbName, '"');
-      appendText(&s, ".sqlite_master ", 0);
+      appendText(&s, ".sqlite_schema ", 0);
       if( c=='t' ){
         appendText(&s," WHERE type IN ('table','view')"
                       "   AND name NOT LIKE 'sqlite_%'"
