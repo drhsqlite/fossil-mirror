@@ -27,7 +27,7 @@
 ** The bblob.delta field can be an integer, a text string, or NULL.
 ** If an integer, then the corresponding blobid is the delta basis.
 ** If a text string, then that string is a SHA1 hash for the delta
-** basis, which is presumably in the master repository.  If NULL, then
+** basis, which is presumably in the main repository.  If NULL, then
 ** data contains content without delta compression.
 */
 static const char zBundleInit[] =

@@ -513,9 +513,9 @@ void view_edit(void){
 */
 static void report_format_hints(void){
   char *zSchema;
-  zSchema = db_text(0,"SELECT sql FROM sqlite_master WHERE name='ticket'");
+  zSchema = db_text(0,"SELECT sql FROM sqlite_schema WHERE name='ticket'");
   if( zSchema==0 ){
-    zSchema = db_text(0,"SELECT sql FROM repository.sqlite_master"
+    zSchema = db_text(0,"SELECT sql FROM repository.sqlite_schema"
                         " WHERE name='ticket'");
   }
   @ <hr /><h3>TICKET Schema</h3>

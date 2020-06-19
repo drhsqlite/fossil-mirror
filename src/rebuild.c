@@ -146,7 +146,7 @@ static void rebuild_update_schema(void){
 **       is greater than or equal to 40, not exactly equal to 40.
 */
 void rebuild_schema_update_2_0(void){
-  char *z = db_text(0, "SELECT sql FROM repository.sqlite_master"
+  char *z = db_text(0, "SELECT sql FROM repository.sqlite_schema"
                        " WHERE name='blob'");
   if( z ){
     /* Search for:  length(uuid)==40
@@ -157,7 +157,7 @@ void rebuild_schema_update_2_0(void){
         z[i] = '>';
         db_multi_exec(
            "PRAGMA writable_schema=ON;"
-           "UPDATE repository.sqlite_master SET sql=%Q WHERE name LIKE 'blob';"
+           "UPDATE repository.sqlite_schema SET sql=%Q WHERE name LIKE 'blob';"
            "PRAGMA writable_schema=OFF;",
            z
         );
@@ -385,7 +385,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
   db_prepare(&q,
-     "SELECT name FROM sqlite_master /*scan*/"
+     "SELECT name FROM sqlite_schema /*scan*/"
      " WHERE type='table'"
      " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','alias',"
                        "'config','shun','private','reportfmt',"

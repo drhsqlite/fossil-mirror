@@ -1447,12 +1447,12 @@ void sql_page(void){
   @ </form>
   if( P("schema") ){
     zQ = sqlite3_mprintf(
-            "SELECT sql FROM repository.sqlite_master"
+            "SELECT sql FROM repository.sqlite_sqlite"
             " WHERE sql IS NOT NULL ORDER BY name");
     go = 1;
   }else if( P("tablelist") ){
     zQ = sqlite3_mprintf(
-            "SELECT name FROM repository.sqlite_master WHERE type='table'"
+            "SELECT name FROM repository.sqlite_schema WHERE type='table'"
             " ORDER BY name");
     go = 1;
   }

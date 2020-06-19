@@ -514,7 +514,7 @@ void repo_schema_page(void){
     style_submenu_element("Table Sizes", "repo-tabsize");
   }
   blob_init(&sql,
-    "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL", -1);
+    "SELECT sql FROM repository.sqlite_schema WHERE sql IS NOT NULL", -1);
   if( zArg ){
     style_submenu_element("All", "repo_schema");
     blob_appendf(&sql, " AND (tbl_name=%Q OR name=%Q)", zArg, zArg);
@@ -605,7 +605,7 @@ void repo_tabsize_page(void){
   db_multi_exec(
     "CREATE TEMP TABLE trans(name TEXT PRIMARY KEY,tabname TEXT)WITHOUT ROWID;"
     "INSERT INTO trans(name,tabname)"
-    "   SELECT name, tbl_name FROM repository.sqlite_master;"
+    "   SELECT name, tbl_name FROM repository.sqlite_schema;"
     "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"
     "INSERT INTO piechart(amt,label)"
     "  SELECT sum(pageno),"
@@ -631,7 +631,7 @@ void repo_tabsize_page(void){
     db_multi_exec(
       "DELETE FROM trans;"
       "INSERT INTO trans(name,tabname)"
-      "   SELECT name, tbl_name FROM localdb.sqlite_master;"
+      "   SELECT name, tbl_name FROM localdb.sqlite_schema;"
       "DELETE FROM piechart;"
       "INSERT INTO piechart(amt,label)"
       "  SELECT sum(pageno), "

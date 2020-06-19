@@ -1327,7 +1327,7 @@ void db_detach(const char *zLabel){
 */
 void db_attach(const char *zDbName, const char *zLabel){
   Blob key;
-  if( db_table_exists(zLabel,"sqlite_master") ) return;
+  if( db_table_exists(zLabel,"sqlite_schema") ) return;
   blob_init(&key, 0, 0);
   db_maybe_obtain_encryption_key(zDbName, &key);
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
@@ -3994,7 +3994,7 @@ void test_without_rowid(void){
     db_open_or_attach(g.argv[i], "main");
     blob_init(&allSql, "BEGIN;\n", -1);
     db_prepare(&q,
-      "SELECT name, sql FROM main.sqlite_master "
+      "SELECT name, sql FROM main.sqlite_schema "
       " WHERE type='table' AND sql NOT LIKE '%%WITHOUT ROWID%%'"
       "   AND name IN ('global_config','shun','concealed','config',"
                     "  'plink','tagxref','backlink','vcache');"
