@@ -945,6 +945,7 @@ static void search_indexed(
     "    AND ftsdocs.rowid=ftsidx.docid",
     zPat
   );
+  fossil_free(zPat);
   if( srchFlags!=SRCH_ALL ){
     const char *zSep = " AND (";
     static const struct { unsigned m; char c; } aMask[] = {
