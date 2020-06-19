@@ -1,5 +1,5 @@
-C The\s"fossil\stest"\scommand\soffers\ssuggestions\sif\sthe\shelp\srequested\sis\nnot\srecognized.
-D 2020-06-19T20:13:50.797
+C Remove\sa\sharmless\sunused\svariable.
+D 2020-06-19T20:20:26.840
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -472,7 +472,7 @@ F src/descendants.c 8227db7f41343e4e41e3ff7ec7169a55e486e4c427d1a19590248f450c33
 F src/diff.c 5af2476da718d2ecf93fa24ceb5aa5d061eed5b8990d22cd7959c71f72cab31b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c ec3070c8ef11be9c7891f1a623c39117e896c991c275a39e8795d9fe61da734f
-F src/dispatch.c 9540872877c3c3e3bc6d414ca3a55ef3fe93664c34b924d2f8a95b7e9219768e
+F src/dispatch.c 7aa3b3693a91615916d68532e8e2da712de1bdf0d210780bf65bb26f1ca2c159
 F src/doc.c 4b951855a6e0b98afbde12efab41ad17d520d86539a93bb73f0d9a7a82394140
 F src/encode.c 4903a6756f11f582c9645c7a9344730f5ef80574210bc90dc7220f291742e91f
 F src/etag.c 3f93a2d2ac78e018134f12849653572d2da3793c36c00c9bbb3cecf3364c027d
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7bb647f7ac04b2a162e1cb2eba3fc1a3062cc7c24c851f9d3eba8d4eb230147
-R 4088384c488abf2fb8137ba8bed787f4
+P a99d9173bf898d68028716cd3cc6149de1390695dbcd34aec7facfd81a78fdba
+R 84f28be69415e13aefe27e8f5b7e65f5
 U drh
-Z 2eda3a9f82b007ce2292fd5ec42c8375
+Z cb2fcc1393dd61666ce67d59dc298d48

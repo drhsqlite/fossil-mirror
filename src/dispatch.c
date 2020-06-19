@@ -711,7 +711,6 @@ void help_cmd(void){
   int isPage = 0;
   const char *z;
   const char *zCmdOrPage;
-  const char *zCmdOrPagePlural;
   const CmdOrPage *pCmd = 0;
   if( g.argc<3 ){
     z = g.argv[0];
@@ -750,10 +749,8 @@ void help_cmd(void){
   isPage = ('/' == *g.argv[2]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
-    zCmdOrPagePlural = "pages";
   }else{
     zCmdOrPage = "command or setting";
-    zCmdOrPagePlural = "commands and settings";
   }
   rc = dispatch_name_search(g.argv[2], CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
   if( rc ){
