@@ -314,6 +314,40 @@ void test_all_help_cmd(void){
 }
 
 /*
+** Count the number of entries in the aCommand[] table that match
+** the given flag.
+*/
+static int countCmds(unsigned int eFlg){
+  int n = 0;
+  int i;
+  for(i=0; i<MX_COMMAND; i++){
+    if( (aCommand[i].eCmdFlags & eFlg)!=0 ) n++;
+  }
+  return n;
+}
+
+/*
+** COMMAND: test-command-stats
+**
+** Print statistics about the built-in command dispatch table.
+*/
+void test_command_stats_cmd(void){
+  fossil_print("commands:       %4d\n",
+     countCmds( CMDFLAG_COMMAND ));
+  fossil_print("  1st tier         %4d\n",
+     countCmds( CMDFLAG_1ST_TIER ));
+  fossil_print("  2nd tier         %4d\n",
+     countCmds( CMDFLAG_2ND_TIER ));
+  fossil_print("  test             %4d\n",
+     countCmds( CMDFLAG_TEST ));
+  fossil_print("web-pages:      %4d\n",
+     countCmds( CMDFLAG_WEBPAGE ));
+  fossil_print("settings:       %4d\n",
+     countCmds( CMDFLAG_SETTING ));
+  fossil_print("total entries:  %4d\n", MX_COMMAND);
+}
+
+/*
 ** WEBPAGE: help
 ** URL: /help?name=CMD
 **
