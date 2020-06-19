@@ -2053,7 +2053,7 @@ realclean: clean
 "$(OX)\fossil.res" : "$(B)\win\fossil.rc"
 	$(RCC) /fo $@ $**
 
-"$(OX)\headers": "$(OBJDIR)\makeheaders$E" "$(OX)\page_index.h" "$(OX)\builtin_data.h" "$(OX)\default_css.h" "$(OX)\VERSION.h"
+"$(OX)\headers": "$(OBJDIR)\makeheaders$E" "$(OX)\page_index.h" "$(OX)\builtin_data.h" "$(OX)\VERSION.h"
 	"$(OBJDIR)\makeheaders$E" "$(OX)\add_.c":"$(OX)\add.h" \
 			"$(OX)\ajax_.c":"$(OX)\ajax.h" \
 			"$(OX)\alerts_.c":"$(OX)\alerts.h" \

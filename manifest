@@ -1,5 +1,5 @@
-C Remove\sa\sharmless\sunused\svariable.
-D 2020-06-19T20:20:26.840
+C Remove\sa\sstale\sdependency\sfrom\sthe\sMSC\smakefile.
+D 2020-06-19T20:41:14.093
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -534,7 +534,7 @@ F src/main.c 25280cd45412d64a61ac422fb8afe5b50505d35612d22f8e76e0449d143cb000
 F src/main.mk bffa5d480a556e0640ae7de370a97e418beea711e36c76cc69eb8f1afdab0252
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
-F src/makemake.tcl cdef41313670e20922b532d975ec3ac054091c603c0051de978c705c3bda9706 x
+F src/makemake.tcl ae1cd0976e79c20ce4a3b32a000ea2be131abf012f3bd71aef16c17bf715032a x
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
 F src/markdown.c 5a1fb3e55d2201601d966016090151ad2151f50715631de173d60e0c09bfc381
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
@@ -780,7 +780,7 @@ F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd577
 F win/Makefile.dmc a1c327ecbf82d20e2bea36d9712094c14bb6f34f4b106f164c2ae661f2f280b9
 F win/Makefile.mingw 9d99a51e0951a88e06ea7cf67bf412038b0667e5f8877b15e64233a3c811aec7
 F win/Makefile.mingw.mistachkin bbb9374535134c076d9c613d17d2a0b4b9360153f361842fa3280218a616ec41
-F win/Makefile.msc 48464eb034b7cf3518d738d447a12db28306dccfbffa621dd367970815749954
+F win/Makefile.msc 9c554e1cc9da1e7d660ef1a737cfb5ab308ada04c7e0e1bfc65cda4e9ac7f277
 F win/buildmsvc.bat 2b589b31eb6d426c951611dd760a8480de7ced212d3edfcc5528ce47cd1b4471
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a99d9173bf898d68028716cd3cc6149de1390695dbcd34aec7facfd81a78fdba
-R 84f28be69415e13aefe27e8f5b7e65f5
+P 45372c122e8b05bdcc29e95767fbfaef24a6ede71f3de88b8504a8d6416e0c2a
+R 4043dd0887078ff2dbe7cbf5a8b2f1c7
 U drh
-Z cb2fcc1393dd61666ce67d59dc298d48
+Z d57b5bdf10d8c1320b67394f4864269b

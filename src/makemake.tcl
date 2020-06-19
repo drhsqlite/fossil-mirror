@@ -2008,7 +2008,7 @@ foreach s [lsort $src] {
 writeln "\"\$(OX)\\fossil.res\" : \"\$(B)\\win\\fossil.rc\""
 writeln "\t\$(RCC) /fo \$@ \$**\n"
 
-writeln "\"\$(OX)\\headers\": \"\$(OBJDIR)\\makeheaders\$E\" \"\$(OX)\\page_index.h\" \"\$(OX)\\builtin_data.h\" \"\$(OX)\\default_css.h\" \"\$(OX)\\VERSION.h\""
+writeln "\"\$(OX)\\headers\": \"\$(OBJDIR)\\makeheaders\$E\" \"\$(OX)\\page_index.h\" \"\$(OX)\\builtin_data.h\" \"\$(OX)\\VERSION.h\""
 writeln -nonewline "\t\"\$(OBJDIR)\\makeheaders\$E\" "
 set i 0
 foreach s [lsort $src] {
