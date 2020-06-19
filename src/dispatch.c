@@ -348,6 +348,104 @@ void test_command_stats_cmd(void){
 }
 
 /*
+** Compute an estimate of the edit-distance between to input strings.
+**
+** The first string is the input.  The second is the pattern.  Only the
+** first 100 characters of the pattern are considered.
+*/
+static int edit_distance(const char *zA, const char *zB){
+  int nA = (int)strlen(zA);
+  int nB = (int)strlen(zB);
+  int i, j, m;
+  int p0, p1, c0;
+  int a[100];
+  static const int incr = 4;
+
+  for(j=0; j<nB; j++) a[j] = 1;
+  for(i=0; i<nA; i++){
+    p0 = i==0 ? 0 : i*incr-1;
+    c0 = i*incr;
+    for(j=0; j<nB; j++){
+      int m = 999;
+      p1 = a[j];
+      if( zA[i]==zB[j] ){
+        m = p0;
+      }else{
+        m = c0+2;
+        if( m>p1+2 ) m = p1+2;
+        if( m>p0+3 ) m = p0+3;
+      }
+      c0 = a[j];
+      a[j] = m;
+      p0 = p1;
+    }
+  }
+  m = a[nB-1];
+  for(j=0; j<nB-1; j++){
+    if( a[j]+1<m ) m = a[j]+1;
+  }
+  return m;
+}
+
+/*
+** Fill the pointer array with names of commands that approximately
+** match the input.  Return the number of approximate matches.
+**
+** Closest matches appear first.
+*/
+int dispatch_approx_match(const char *zIn, int nArray, const char **azArray){
+  int i;
+  int bestScore;
+  int m;
+  int n = 0;
+  int mnScore = 0;
+  int mxScore = 99999;
+  int iFirst, iLast;
+
+  if( zIn[0]=='/' ){
+    iFirst = 0;
+    iLast = FOSSIL_FIRST_CMD-1;
+  }else{
+    iFirst = FOSSIL_FIRST_CMD;
+    iLast = MX_COMMAND-1;
+  }
+
+  while( n<nArray ){
+    bestScore = mxScore;    
+    for(i=iFirst; i<=iLast; i++){
+      m = edit_distance(zIn, aCommand[i].zName);
+      if( m<mnScore ) continue;
+      if( m==mnScore ){
+        azArray[n++] = aCommand[i].zName;
+        if( n>=nArray ) return n;
+       }else if( m<bestScore ){
+        bestScore = m;
+      }
+    }
+    if( bestScore>=mxScore ) break;
+    mnScore = bestScore;
+  }
+  return n;
+}
+
+/*
+** COMMAND: test-approx-match
+**
+** Test the approximate match algorithm
+*/
+void test_approx_match_command(void){
+  int i, j, n;
+  const char *az[20];
+  for(i=2; i<g.argc; i++){
+    fossil_print("%s:\n", g.argv[i]);
+    n = dispatch_approx_match(g.argv[i], 20, az);
+    for(j=0; j<n; j++){
+      fossil_print("   %s\n", az[j]);
+    }
+  }
+}
+
+/*
 ** WEBPAGE: help
 ** URL: /help?name=CMD
 **
@@ -658,16 +756,24 @@ void help_cmd(void){
     zCmdOrPagePlural = "commands and settings";
   }
   rc = dispatch_name_search(g.argv[2], CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
-  if( rc==1 ){
-    fossil_print("unknown %s: %s\nConsider using:\n", zCmdOrPage, g.argv[2]);
+  if( rc ){
+    int i, n;
+    const char *az[5];
+    if( rc==1 ){
+      fossil_print("unknown %s: %s\n", zCmdOrPage, g.argv[2]);
+    }else{
+      fossil_print("ambiguous %s prefix: %s\n",
+                 zCmdOrPage, g.argv[2]);
+    }
+    fossil_print("Did you mean one of:\n");
+    n = dispatch_approx_match(g.argv[2], 5, az);
+    for(i=0; i<n; i++){
+      fossil_print("  *  %s\n", az[i]);
+    }
+    fossil_print("Also consider using:\n");
     fossil_print("   fossil help -a     ;# show all commands\n");
     fossil_print("   fossil help -w     ;# show all web-pages\n");
     fossil_print("   fossil help -s     ;# show all settings\n");
-    fossil_exit(1);
-  }else if( rc==2 ){
-    fossil_print("ambiguous %s prefix: %s\nMatching %s:\n",
-                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
-    command_list(g.argv[2], 0xff);
     fossil_exit(1);
   }
   z = pCmd->zHelp;

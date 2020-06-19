@@ -392,6 +392,8 @@ int e_compare(const void *a, const void *b){
 void build_table(void){
   int i;
   int nWeb = 0;
+  int mxLen = 0;
+  int len;
 
   qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare);
 
@@ -437,6 +439,7 @@ void build_table(void){
   for(i=0; i<nFixed; i++){
     const char *z = aEntry[i].zPath;
     int n = strlen(z);
+    if( n>mxLen ) mxLen = n;
     if( aEntry[i].zIf ){
       printf("%s", aEntry[i].zIf);
     }else if( (aEntry[i].eType & CMDFLAG_WEBPAGE)!=0 ){
@@ -454,6 +457,8 @@ void build_table(void){
   }
   printf("};\n");
   printf("#define FOSSIL_FIRST_CMD %d\n", nWeb);
+  printf("#define FOSSIL_MX_CMDNAME %d /* max length of any command name */\n",
+         mxLen);
 
   /* Generate the aSetting[] table */
   printf("const Setting aSetting[] = {\n");
