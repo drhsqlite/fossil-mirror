@@ -1,5 +1,5 @@
-C Add\sthe\s"helptext"\svirtual\stable.\s\sThis\sis\sa\sstepping-stone\sto\sadding\nhelp-text\ssearch.
-D 2020-06-20T00:15:01.701
+C Work\saround\san\serroneous\swarning\sin\sclang-8.\s\sNo\slogic\schanges.\s\sThe\sexact\nsame\smachine\scode\sis\sgenerated.
+D 2020-06-20T03:45:51.259
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -598,8 +598,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c acd8dcbdd34e9a01938d73763a7114c025b7af308d806678e17cc022903ee919
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
-F src/sqlite3.c 42c66b22873220b8a2c5e19d10fc54d9ce52924dc726c79c9d7d3631c55de9c3
-F src/sqlite3.h 5c43aff2f9a108b425aa59186993f6f0a5b730ffc7face272971dc95323d1318
+F src/sqlite3.c d704379956826f9465e23e76ec62d450b0005c82f8c1548d7a8d041dd69ca15f
+F src/sqlite3.h ea194d2d45ae17946aa66575b337f6b2161854f414054b9ae760c0cfc185e193
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 899bd4bec0ff428641d2093d935d4d80ac7f6d7c75509b7be361393094982f3a
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 162ac96d7baa38a1b0dc3e36d8f7933ba32c90801a50577852740139af098fcb
-R 232dcef6b0f9dc870ff309231885ef72
+P b2dacfcd735d4b1c4b4e1f1c1efe8b50ce3410b78c3c5cc72e6f93055c4f4814
+R fd185714acd3a1be557b8b6c667735df
 U drh
-Z 084d641ac7a9495901966c44b38fc530
+Z 46220ee826af66c646e83627c8c87c9a
