@@ -173,6 +173,7 @@ static int sqlcmd_autoinit(
   search_sql_setup(db);
   foci_register(db);
   deltafunc_init(db);
+  helptext_vtab_register(db);
   g.repositoryOpen = 1;
   g.db = db;
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");

@@ -806,3 +806,233 @@ const Setting *setting_info(int *pnCount){
   if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0])) - 1;
   return aSetting;
 }
+
+/*****************************************************************************
+** A virtual table for accessing the information in aCommand[], and
+** especially the help-text
+*/
+
+/* helptextVtab_vtab is a subclass of sqlite3_vtab which is
+** underlying representation of the virtual table
+*/
+typedef struct helptextVtab_vtab helptextVtab_vtab;
+struct helptextVtab_vtab {
+  sqlite3_vtab base;  /* Base class - must be first */
+  /* Add new fields here, as necessary */
+};
+
+/* helptextVtab_cursor is a subclass of sqlite3_vtab_cursor which will
+** serve as the underlying representation of a cursor that scans
+** over rows of the result
+*/
+typedef struct helptextVtab_cursor helptextVtab_cursor;
+struct helptextVtab_cursor {
+  sqlite3_vtab_cursor base;  /* Base class - must be first */
+  /* Insert new fields here.  For this helptextVtab we only keep track
+  ** of the rowid */
+  sqlite3_int64 iRowid;      /* The rowid */
+};
+
+/*
+** The helptextVtabConnect() method is invoked to create a new
+** helptext virtual table.
+**
+** Think of this routine as the constructor for helptextVtab_vtab objects.
+**
+** All this routine needs to do is:
+**
+**    (1) Allocate the helptextVtab_vtab object and initialize all fields.
+**
+**    (2) Tell SQLite (via the sqlite3_declare_vtab() interface) what the
+**        result set of queries against the virtual table will look like.
+*/
+static int helptextVtabConnect(
+  sqlite3 *db,
+  void *pAux,
+  int argc, const char *const*argv,
+  sqlite3_vtab **ppVtab,
+  char **pzErr
+){
+  helptextVtab_vtab *pNew;
+  int rc;
+
+  rc = sqlite3_declare_vtab(db,
+           "CREATE TABLE x(name,type,flags,helptext)"
+       );
+  if( rc==SQLITE_OK ){
+    pNew = sqlite3_malloc( sizeof(*pNew) );
+    *ppVtab = (sqlite3_vtab*)pNew;
+    if( pNew==0 ) return SQLITE_NOMEM;
+    memset(pNew, 0, sizeof(*pNew));
+  }
+  return rc;
+}
+
+/*
+** This method is the destructor for helptextVtab_vtab objects.
+*/
+static int helptextVtabDisconnect(sqlite3_vtab *pVtab){
+  helptextVtab_vtab *p = (helptextVtab_vtab*)pVtab;
+  sqlite3_free(p);
+  return SQLITE_OK;
+}
+
+/*
+** Constructor for a new helptextVtab_cursor object.
+*/
+static int helptextVtabOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
+  helptextVtab_cursor *pCur;
+  pCur = sqlite3_malloc( sizeof(*pCur) );
+  if( pCur==0 ) return SQLITE_NOMEM;
+  memset(pCur, 0, sizeof(*pCur));
+  *ppCursor = &pCur->base;
+  return SQLITE_OK;
+}
+
+/*
+** Destructor for a helptextVtab_cursor.
+*/
+static int helptextVtabClose(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  sqlite3_free(pCur);
+  return SQLITE_OK;
+}
+
+
+/*
+** Advance a helptextVtab_cursor to its next row of output.
+*/
+static int helptextVtabNext(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  pCur->iRowid++;
+  return SQLITE_OK;
+}
+
+/*
+** Return values of columns for the row at which the helptextVtab_cursor
+** is currently pointing.
+*/
+static int helptextVtabColumn(
+  sqlite3_vtab_cursor *cur,   /* The cursor */
+  sqlite3_context *ctx,       /* First argument to sqlite3_result_...() */
+  int i                       /* Which column to return */
+){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  const CmdOrPage *pPage = aCommand + pCur->iRowid;
+  switch( i ){
+    case 0:  /* name */
+      sqlite3_result_text(ctx, pPage->zName, -1, SQLITE_STATIC);
+      break;
+    case 1: { /* type */
+      const char *zType = 0;
+      if( pPage->eCmdFlags & CMDFLAG_COMMAND ){
+        zType = "command";
+      }else if( pPage->eCmdFlags & CMDFLAG_WEBPAGE ){
+        zType = "webpage";
+      }else if( pPage->eCmdFlags & CMDFLAG_SETTING ){
+        zType = "setting";
+      }
+      sqlite3_result_text(ctx, zType, -1, SQLITE_STATIC);
+      break;
+    }
+    case 2:  /* flags */
+      sqlite3_result_int(ctx, pPage->eCmdFlags);
+      break;
+    case 3:  /* helptext */
+      sqlite3_result_text(ctx, pPage->zHelp, -1, SQLITE_STATIC);
+      break;
+  }
+  return SQLITE_OK;
+}
+
+/*
+** Return the rowid for the current row.  In this implementation, the
+** rowid is the same as the output value.
+*/
+static int helptextVtabRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  *pRowid = pCur->iRowid;
+  return SQLITE_OK;
+}
+
+/*
+** Return TRUE if the cursor has been moved off of the last
+** row of output.
+*/
+static int helptextVtabEof(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  return pCur->iRowid>=MX_COMMAND;
+}
+
+/*
+** This method is called to "rewind" the helptextVtab_cursor object back
+** to the first row of output.  This method is always called at least
+** once prior to any call to helptextVtabColumn() or helptextVtabRowid() or 
+** helptextVtabEof().
+*/
+static int helptextVtabFilter(
+  sqlite3_vtab_cursor *pVtabCursor, 
+  int idxNum, const char *idxStr,
+  int argc, sqlite3_value **argv
+){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor *)pVtabCursor;
+  pCur->iRowid = 1;
+  return SQLITE_OK;
+}
+
+/*
+** SQLite will invoke this method one or more times while planning a query
+** that uses the virtual table.  This routine needs to create
+** a query plan for each invocation and compute an estimated cost for that
+** plan.
+*/
+static int helptextVtabBestIndex(
+  sqlite3_vtab *tab,
+  sqlite3_index_info *pIdxInfo
+){
+  pIdxInfo->estimatedCost = (double)MX_COMMAND;
+  pIdxInfo->estimatedRows = MX_COMMAND;
+  return SQLITE_OK;
+}
+
+/*
+** This following structure defines all the methods for the 
+** virtual table.
+*/
+static sqlite3_module helptextVtabModule = {
+  /* iVersion    */ 0,
+  /* xCreate     */ 0,  /* Helptext is eponymous and read-only */
+  /* xConnect    */ helptextVtabConnect,
+  /* xBestIndex  */ helptextVtabBestIndex,
+  /* xDisconnect */ helptextVtabDisconnect,
+  /* xDestroy    */ 0,
+  /* xOpen       */ helptextVtabOpen,
+  /* xClose      */ helptextVtabClose,
+  /* xFilter     */ helptextVtabFilter,
+  /* xNext       */ helptextVtabNext,
+  /* xEof        */ helptextVtabEof,
+  /* xColumn     */ helptextVtabColumn,
+  /* xRowid      */ helptextVtabRowid,
+  /* xUpdate     */ 0,
+  /* xBegin      */ 0,
+  /* xSync       */ 0,
+  /* xCommit     */ 0,
+  /* xRollback   */ 0,
+  /* xFindMethod */ 0,
+  /* xRename     */ 0,
+  /* xSavepoint  */ 0,
+  /* xRelease    */ 0,
+  /* xRollbackTo */ 0,
+  /* xShadowName */ 0
+};
+
+
+/*
+** Register the helptext virtual table
+*/
+int helptext_vtab_register(sqlite3 *db){
+  int rc = sqlite3_create_module(db, "helptext", &helptextVtabModule, 0);
+  return rc;
+}
+/* End of the helptext virtual table
+******************************************************************************/
