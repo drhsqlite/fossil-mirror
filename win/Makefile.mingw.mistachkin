@@ -439,6 +439,7 @@ XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
 
 SRC = \
   $(SRCDIR)/add.c \
+  $(SRCDIR)/ajax.c \
   $(SRCDIR)/alerts.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
@@ -641,6 +642,7 @@ EXTRA_FILES = \
   $(SRCDIR)/accordion.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
+  $(SRCDIR)/default.css \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
@@ -683,6 +685,7 @@ EXTRA_FILES = \
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
+  $(OBJDIR)/ajax_.c \
   $(OBJDIR)/alerts_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
@@ -827,6 +830,7 @@ TRANS_SRC = \
 
 OBJ = \
  $(OBJDIR)/add.o \
+ $(OBJDIR)/ajax.o \
  $(OBJDIR)/alerts.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
@@ -985,7 +989,6 @@ MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
 MKVERSION   = $(subst /,\,$(OBJDIR)/mkversion.exe)
-MKCSS       = $(subst /,\,$(OBJDIR)/mkcss.exe)
 CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
@@ -1000,7 +1003,6 @@ MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
 MKVERSION   = $(OBJDIR)/mkversion.exe
-MKCSS       = $(OBJDIR)/mkcss.exe
 CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
@@ -1013,7 +1015,7 @@ endif
 
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h $(OBJDIR)/default_css.h
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
 	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
@@ -1058,9 +1060,6 @@ $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
 $(MKVERSION): $(SRCDIR)/mkversion.c
 	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
-$(MKCSS): $(SRCDIR)/mkcss.c
-	$(XBCC) -o $@ $(SRCDIR)/mkcss.c
-
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
@@ -1072,9 +1071,6 @@ test:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
 	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
-
-$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(MKCSS)
-	$(MKCSS) $(SRCDIR)/default_css.txt $@
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -1189,8 +1185,9 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(MKINDEX)
 $(OBJDIR)/builtin_data.h:	$(MKBUILTIN) $(EXTRA_FILES)
 	$(MKBUILTIN) --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
 	$(MAKEHEADERS) $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
+		$(OBJDIR)/ajax_.c:$(OBJDIR)/ajax.h \
 		$(OBJDIR)/alerts_.c:$(OBJDIR)/alerts.h \
 		$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 		$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -1348,6 +1345,14 @@ $(OBJDIR)/add.o:	$(OBJDIR)/add_.c $(OBJDIR)/add.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/add.o -c $(OBJDIR)/add_.c
 
 $(OBJDIR)/add.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/ajax_.c:	$(SRCDIR)/ajax.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/ajax.c >$@
+
+$(OBJDIR)/ajax.o:	$(OBJDIR)/ajax_.c $(OBJDIR)/ajax.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/ajax.o -c $(OBJDIR)/ajax_.c
+
+$(OBJDIR)/ajax.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/alerts_.c:	$(SRCDIR)/alerts.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/alerts.c >$@
@@ -2256,7 +2261,7 @@ $(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/style.c >$@
 
-$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(OBJDIR)/default_css.h $(SRCDIR)/config.h
+$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/style.o -c $(OBJDIR)/style_.c
 
 $(OBJDIR)/style.h:	$(OBJDIR)/headers

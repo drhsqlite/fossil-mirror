@@ -1,5 +1,5 @@
-C Work\saround\san\serroneous\swarning\sin\sclang-8.\s\sNo\slogic\schanges.\s\sThe\sexact\nsame\smachine\scode\sis\sgenerated.
-D 2020-06-20T03:45:51.259
+C Update\sthe\scustom\sMinGW\smakefile.
+D 2020-06-20T16:56:57.485
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -779,7 +779,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc a1c327ecbf82d20e2bea36d9712094c14bb6f34f4b106f164c2ae661f2f280b9
 F win/Makefile.mingw 9d99a51e0951a88e06ea7cf67bf412038b0667e5f8877b15e64233a3c811aec7
-F win/Makefile.mingw.mistachkin bbb9374535134c076d9c613d17d2a0b4b9360153f361842fa3280218a616ec41
+F win/Makefile.mingw.mistachkin c213d2c18eb8053c57783524b514cb4a0087f63169377c4c5a1c7397a1003a76
 F win/Makefile.msc 9c554e1cc9da1e7d660ef1a737cfb5ab308ada04c7e0e1bfc65cda4e9ac7f277
 F win/buildmsvc.bat 2b589b31eb6d426c951611dd760a8480de7ced212d3edfcc5528ce47cd1b4471
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2dacfcd735d4b1c4b4e1f1c1efe8b50ce3410b78c3c5cc72e6f93055c4f4814
-R fd185714acd3a1be557b8b6c667735df
-U drh
-Z 46220ee826af66c646e83627c8c87c9a
+P 6daa19d96154868c3a2d0e9c39aa0def60ba3377c6e6c28c772edb92c0432aca
+R a1d1ea1469ba3c4522e09408a9e8d21e
+U mistachkin
+Z d53d08149691c3bbce9dac6ae0a434a3
