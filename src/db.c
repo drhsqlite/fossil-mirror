@@ -1421,6 +1421,7 @@ void db_close_config(){
     if( g.fSqlTrace ) fossil_trace("-- db_close_config(%d)\n", rc);
     g.db = 0;
     g.repositoryOpen = 0;
+    g.localOpen = 0;
   }else{
     return;
   }
@@ -3968,6 +3969,7 @@ void test_timespan_cmd(void){
   sqlite3_close(g.db);
   g.db = 0;
   g.repositoryOpen = 0;
+  g.localOpen = 0;
 }
 
 /*
