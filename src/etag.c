@@ -71,6 +71,7 @@
 static char zETag[33];      /* The generated ETag */
 static int iMaxAge = 0;     /* The max-age parameter in the reply */
 static sqlite3_int64 iEtagMtime = 0;  /* Last-Modified time */
+static int etagCancelled = 0;         /* Never send an etag */
 
 /*
 ** Return a hash that changes every time the Fossil source code is
@@ -97,6 +98,7 @@ void etag_check(unsigned eFlags, const char *zHash){
   char zBuf[50];
   assert( zETag[0]==0 );  /* Only call this routine once! */
 
+  if( etagCancelled ) return;
   iMaxAge = 86400;
   md5sum_init();
 
@@ -110,14 +112,16 @@ void etag_check(unsigned eFlags, const char *zHash){
     md5sum_step_text(zHash, -1);
     md5sum_step_text("\n", 1);
     iMaxAge = 0;
-  }else if( eFlags & ETAG_DATA ){
+  }
+  if( eFlags & ETAG_DATA ){
     int iKey = db_int(0, "SELECT max(rcvid) FROM rcvfrom");
     sqlite3_snprintf(sizeof(zBuf),zBuf,"%d",iKey);
     md5sum_step_text("data: ", -1);
     md5sum_step_text(zBuf, -1);
     md5sum_step_text("\n", 1);
     iMaxAge = 60;
-  }else if( eFlags & ETAG_CONFIG ){
+  }
+  if( eFlags & ETAG_CONFIG ){
     int iKey = db_int(0, "SELECT value FROM config WHERE name='cfgcnt'");
     sqlite3_snprintf(sizeof(zBuf),zBuf,"%d",iKey);
     md5sum_step_text("config: ", -1);
@@ -246,4 +250,12 @@ void test_etag_cmd(void){
   if( zKey ) iKey = atoi(zKey);
   etag_check(iKey, zHash);
   fossil_print("%s\n", etag_tag());
+}
+
+/*
+** Cancel the ETag.
+*/
+void etag_cancel(void){
+  etagCancelled = 1;
+  zETag[0] = 0;
 }

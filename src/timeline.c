@@ -1745,7 +1745,7 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
-  etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA, 0);
+  etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA|ETAG_CONFIG, 0);
   cookie_read_parameter("y","y");
   zType = P("y");
   if( zType==0 ){

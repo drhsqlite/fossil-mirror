@@ -1100,6 +1100,7 @@ static int fossil_print_error(int rc, const char *z){
     cgi_reset_content();
     cgi_set_content_type("text/html");
     style_header("Bad Request");
+    etag_cancel();
     @ <p class="generalError">%h(z)</p>
     cgi_set_status(400, "Bad Request");
     style_footer();
@@ -1214,6 +1215,7 @@ void fossil_warning(const char *zFormat, ...){
 #endif
   {
     if( g.cgiOutput==1 ){
+      etag_cancel();
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
     }else{
       fossil_force_newline();

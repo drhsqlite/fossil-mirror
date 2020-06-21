@@ -688,7 +688,7 @@ void errorlog_page(void){
   style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
   if( in==0 ){
-    @ <p class='generalError'>Unable top open that file for reading!</p>
+    @ <p class='generalError'>Unable to open that file for reading!</p>
     style_footer();
     return;
   }
