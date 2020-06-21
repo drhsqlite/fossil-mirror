@@ -1,5 +1,5 @@
-C Fix\setag\sprocessing\sso\sthat\sno\setag\sheader\sis\sissued\sfor\spages\swhich\nencounter\serrors\sor\swarnings.
-D 2020-06-21T12:59:03.991
+C Always\sincrement\sthe\s"cfgcnt"\svalue\son\sany\sconfiguration\schange,\sin\sorder\nto\sreset\sthe\sETag\sin\scase\sthe\sconfiguration\schanges\sdisplay\scharacteristics.
+D 2020-06-21T17:17:54.528
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -567,7 +567,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
 F src/security_audit.c 9971efdae334f67fdbeebb9d8c3dca6de11edcf277f3b4a6a5970231b2490eed
-F src/setup.c 181cfe90a8ad0df4a385da8d2b3fa27bfb400a73e62491fabe5e529cb061dee0
+F src/setup.c 3597ceaa6b6506786830e8bc121dc6af30474ef1318ae419ee8ff2dd76fcdc34
 F src/setupuser.c e28eb5df04c743202faf711781a5cf1d0c084528ed37628e5087a83838a34e24
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -995,7 +995,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aefbd20d6ed9920253467e1858c3e74320bd0c6cbbbdd6706936e3201ef6c0fc
-R d8ae3d070de858e43c2f20cf98837115
+P 517fb01b9ca8b29055213e91c795ca049780190a137a45437f811d1fae26118f
+R c45b5a7f81caa5f4e2717bed680f077c
 U drh
-Z 2c43e290ca624e10829b8ae7ea040116
+Z a4e6bee2ccc27d5c6e2021c120fc649f

@@ -198,6 +198,7 @@ void onoff_attribute(
     if( iQ!=iVal ){
       login_verify_csrf_secret();
       db_set(zVar, iQ ? "1" : "0", 0);
+      setup_incr_cfgcnt();
       admin_log("Set option [%q] to [%q].",
                 zVar, iQ ? "on" : "off");
       iVal = iQ;
@@ -230,6 +231,7 @@ void entry_attribute(
   if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
+    setup_incr_cfgcnt();
     db_set(zVar, zQ, 0);
     admin_log("Set entry_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
@@ -261,6 +263,7 @@ const char *textarea_attribute(
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
+    setup_incr_cfgcnt();
     admin_log("Set textarea_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
@@ -297,6 +300,7 @@ void multiple_choice_attribute(
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
+    setup_incr_cfgcnt();
     admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
@@ -1168,6 +1172,7 @@ void setup_adunit(void){
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
     cgi_replace_parameter("adunit","");
     cgi_replace_parameter("adright","");
+    setup_incr_cfgcnt();
   }
 
   style_header("Edit Ad Unit");
