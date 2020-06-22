@@ -12,9 +12,9 @@ new repositories remotely.
 
 **NOTE:** The following instructions assume an OpenBSD 6.7 installation.
 
-[httpd]: https://www.openbsd.org/papers/httpd-asiabsdcon2015.pdfBPSystemStartup/
+[httpd]: https://www.openbsd.org/papers/httpd-asiabsdcon2015.pdf
 
-## [Install Fossil](#fslinstall)
+## <a name="fslinstall"></a>Install Fossil
 
 Use the OpenBSD package manager ``pkg_add`` to install Fossil, making
 sure to select the statically linked binary.
@@ -61,7 +61,7 @@ repository directory and log file, and make the script executable.
     $ doas chmod 755 /var/www/cgi-bin/scm
 ```
 
-## [Setup chroot](#chroot)
+## <a name="chroot"></a>Setup chroot
 
 Fossil needs both ``/dev/random`` and ``/dev/null``, which aren't
 accessible from within the chroot, so need to be constructed; ``/var``,
@@ -102,7 +102,7 @@ the user who will push to, pull from, and create repositories.
    $ doas chown -R user:www /var/www/htdocs/fsl.domain.tld
 ```
 
-## [Configure httpd](#httpdconfig)
+## <a name="httpdconfig"></a>Configure httpd
 
 On OpenBSD, [httpd.conf(5)][httpd] is the configuration file for
 ``httpd``. To setup the server to serve all Fossil repositores within
@@ -156,12 +156,12 @@ following contents.
     }
 ```
 
-> If not already in possession of a HTTPS certificate, comment out the
-> ``https`` server block and proceed to securing a free
-> [Let's Encrypt Certificate](#letsencrypt); otherwise skip to
-> [Start httpd](#starthttpd).
+**NOTE:** If not already in possession of a HTTPS certificate, comment
+out the ``https`` server block and proceed to securing a free
+[Let's Encrypt Certificate](#letsencrypt); otherwise skip to
+[Start httpd](#starthttpd).
 
-## [Let's Encrypt Certificate](#letsencrypt)
+## <a name="letsencrypt"></a>Let's Encrypt Certificate
 
 In order for ``httpd`` to serve HTTPS, secure a free certificate from
 Let's Encrypt using ``acme-client``. Before issuing the
@@ -220,7 +220,7 @@ trust, and private key into the ``/etc/ssl`` directory as specified in
 Make sure to reopen ``/etc/httpd.conf`` to uncomment the second server
 block responsible for serving HTTPS requests before proceeding.
 
-## [Start httpd](#starthttpd)
+## <a name="starthttpd"></a>Start httpd
 
 With ``httpd`` configured to serve Fossil repositories out of
 ``/var/www/htdocs/fsl.domain.tld``, and the certificates and key in
@@ -239,7 +239,7 @@ server.
     httpd(ok)
 ```
 
-## [Configure Client](#clientconfig)
+## <a name="clientconfig"></a>Configure Client
 
 To facilitate creating new repositories and pushing them to the server,
 add the following function to your ``~/.cshrc`` or ``~/.zprofile`` or

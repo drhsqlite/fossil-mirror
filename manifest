@@ -1,5 +1,5 @@
-C Add\sOpenBSD\s(httpd\s+\sFastCGI)\sFossil\sserver\sdocumentation
-D 2020-06-22T09:51:26.867
+C Fix\stypo\sin\sOpenBSD\sdocumentation\shttpd\slink,\sremove\sblock\squote\sformatting,\nand\smake\ssection\stitles\sconsistent\swith\sexisting\sserver\sdocs.
+D 2020-06-22T13:43:49.661
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -963,7 +963,7 @@ F www/server/debian/nginx.md 9ed22c1951fd5e9043e8750086f778177f39bfc4efb8062648c
 F www/server/debian/service.md 81497ddf0aedb0b42e934d93bffa416c831cd7f2ca1d0da92a8d422934475577
 F www/server/index.html 772b968b43ee8113343f688d5a752bdfac4818a2332c2f28e74aba1fb4cbfbcb
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
-F www/server/openbsd/httpd.md d03a7e299aa78b9a3807708d7d7532922348190ebca1ad8fae0788f36af88b32
+F www/server/openbsd/httpd.md 7711da3df6ea3e3644fce99622db3f0d4e945f3c899ca41e920ad52e04566959
 F www/server/whyuseaserver.wiki 7e29e0d31965faa3b0523b94949406b9d297da39f91da0ff96973bcdb0cf8be8
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6ac4fa7c59b6032a5ca8a028376b00046a3d87b69a2721a7da46d506bc1c5b0
-R e2252b02150cbc2724a329c8b12cf64c
+P 311f16953c0d9e0e60b81a1358b4625efe035c4b1c33571e3ad205d978673e14
+R b879b51a590e41f58d35e30b3e4582c9
 U jamsek
-Z 4ddf04ef469fd1bcb9d38caf2bc5a1a5
+Z 03229e6f5a3c4140f6715c9d867f0ceb
