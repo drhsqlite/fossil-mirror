@@ -18,7 +18,7 @@ typically need in order to make things work properly:
 *   the repository file(s)
 
 *   `/dev/null` — create it with `mknod(8)` inside the jail directory
-    ([Linux example][mnl])
+    ([Linux example][mnl], [OpenBSD example][obsd])
 
 *   `/dev/urandom` — ditto
 
@@ -39,3 +39,4 @@ but you cannot make it skip the dropping of root privileges, on purpose.
 [fls]: ./loadmgmt.md
 [mnl]: https://fossil-scm.org/forum/forumpost/90caff30cb
 [srv]: ./server/
+[obsd]: ./server/openbsd/httpd.md#chroot

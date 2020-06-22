@@ -1,5 +1,5 @@
-C Do\snot\sshow\sthe\s"On-line\sFile\sEditor"\sin\sthe\ssitemap\sfor\susers\swho\slack\ncheck-in\sprivilege.
-D 2020-06-22T00:16:08.211
+C Add\sOpenBSD\s(httpd\s+\sFastCGI)\sFossil\sserver\sdocumentation
+D 2020-06-22T09:51:26.867
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -832,7 +832,7 @@ F www/changes.wiki cc1c89b2b6222bfd0a5157ab53f79ace173c30e8fcca47ee39f989c1226a7
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 249241990399c2fdd0934c81f982662f5a5e8042a686b61814cc6b35f6834ca3
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
-F www/chroot.md 98a9f4a11f6e1a4ed06e13b0adc1806472b03e825575c2f503f90d9dcdf878d9
+F www/chroot.md 7f9b8ecaab29511d8a0c9a576635ef7d9a433dada85467c01a50c2488f22b55a
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -956,13 +956,14 @@ F www/server/any/althttpd.md 450f52ad23c0ac8b3783302964e60b765dcf8a4fca9b6efc18b
 F www/server/any/cgi.md 936ee3d21bbc4a9b47e20e3051177aed3e80ca42b970480b98dd374cc27f99a3
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
-F www/server/any/scgi.md 993544d440f771c1e77b45e692afa830362e94012564862827a8fda69cd7ce2f
+F www/server/any/scgi.md 50c9e77ab325fee2746a3a2ac0e368ef5a61c3f5901effe8fcad4984b645d7ec
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md 9ed22c1951fd5e9043e8750086f778177f39bfc4efb8062648c2c712faebdd09
 F www/server/debian/service.md 81497ddf0aedb0b42e934d93bffa416c831cd7f2ca1d0da92a8d422934475577
-F www/server/index.html 53527cad50f6a442a4b15c12f4ce133035893c1b71c4439e5f833280ffdf60e4
+F www/server/index.html 772b968b43ee8113343f688d5a752bdfac4818a2332c2f28e74aba1fb4cbfbcb
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
+F www/server/openbsd/httpd.md d03a7e299aa78b9a3807708d7d7532922348190ebca1ad8fae0788f36af88b32
 F www/server/whyuseaserver.wiki 7e29e0d31965faa3b0523b94949406b9d297da39f91da0ff96973bcdb0cf8be8
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -995,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0ba0e5e446c3c9c8180245f6cda28d1ffa96d34087ba3ca29057c8e7c6300a4a
-R acbe72256827929334a5a1a652e0edeb
-U drh
-Z 02ff3600e556a4cb4cee363f71e7bbb5
+P f6ac4fa7c59b6032a5ca8a028376b00046a3d87b69a2721a7da46d506bc1c5b0
+R e2252b02150cbc2724a329c8b12cf64c
+U jamsek
+Z 4ddf04ef469fd1bcb9d38caf2bc5a1a5
