@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sOpenBSD\sdocumentation\shttpd\slink,\sremove\sblock\squote\sformatting,\nand\smake\ssection\stitles\sconsistent\swith\sexisting\sserver\sdocs.
-D 2020-06-22T13:43:49.661
+C Update\sthe\sbackoffice\spoller\sso\sthat\sit\sinvokes\seach\sbackoffice\sat\sleast\nonce\severy\shour\s-\sconfigurable\susing\sthe\s--min\scommand-line\soption.
+D 2020-06-23T12:52:06.785
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -436,7 +436,7 @@ F src/alerts.c c2a1dbfc8066e5be6757367c92013b3a59750daba4fa12971fc6b3ab85bf66c1
 F src/allrepo.c 5f3c8ad4eb7bdbb307c66724b3481b5581e2c0d396412e0fa54fe471914c5961
 F src/attach.c 035ecdc6198987d8305856b75fec397db0d34c20999e8fe225349aa8bc60a93a
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
-F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
+F src/backoffice.c dd84ce715d408fcfd923164b5c92d4462ece2d6beb97958c767a6dabd3a5b7e2
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 311f16953c0d9e0e60b81a1358b4625efe035c4b1c33571e3ad205d978673e14
-R b879b51a590e41f58d35e30b3e4582c9
-U jamsek
-Z 03229e6f5a3c4140f6715c9d867f0ceb
+P a9cc104eb33ed52a9e2327d79f0fbb31fe8ef88d93474e9b5b569f8faa7dd884
+R 308a3dd9cb5097a140b2e0b33cec3db9
+U drh
+Z 84a53a813a9f6244546d48a2af30ac90

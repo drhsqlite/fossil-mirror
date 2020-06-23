@@ -557,6 +557,11 @@ void backoffice_work(void){
 **
 **    --debug                 Show what this command is doing.
 **
+**    --min N                 When polling, invoke backoffice at least
+**                            once every N seconds even if the repository
+**                            never changes.  0 or negative means disable
+**                            this feature.  Default: 3600 (once per hour).
+**
 **    --nodelay               Do not queue up or wait for a backoffice job
 **                            to complete. If no work is available or if
 **                            backoffice has run recently, return immediately.
@@ -566,11 +571,13 @@ void backoffice_work(void){
 **    --poll N                Repeat backoffice calls for repositories that
 **                            change in appoximately N-second intervals.
 **                            N less than 1 turns polling off (the default).
+**                            Recommended polling interval: 60 seconds.
 **
 **    --trace                 Enable debugging output on stderr
 */
 void backoffice_command(void){
   int nPoll;
+  int nMin;
   const char *zPoll;
   int bDebug = 0;
   unsigned int nCmd = 0;
@@ -578,6 +585,8 @@ void backoffice_command(void){
   if( find_option("nodelay",0,0)!=0 ) backofficeNoDelay = 1;
   zPoll = find_option("poll",0,1);
   nPoll = zPoll ? atoi(zPoll) : 0;
+  zPoll = find_option("min",0,1);
+  nMin = zPoll ? atoi(zPoll) : 3600;
   bDebug = find_option("debug",0,0)!=0;
 
   /* Silently consume the -R or --repository flag, leaving behind its
@@ -594,12 +603,21 @@ void backoffice_command(void){
     int i;
     time_t iNow = 0;
     time_t ix;
+    i64 *aLastRun = fossil_malloc( sizeof(i64)*g.argc );
+    memset(aLastRun, 0, sizeof(i64)*g.argc );
     while( 1 /* exit via "break;" */){
       time_t iNext = time(0);
       for(i=2; i<g.argc; i++){
         Blob cmd;
-        if( !file_isfile(g.argv[i], ExtFILE) ) continue;
-        if( iNow && iNow>file_mtime(g.argv[i],ExtFILE) ) continue;
+        if( !file_isfile(g.argv[i], ExtFILE) ){
+          continue;  /* Repo no longer exists.  Ignore it. */
+        }
+        if( iNow
+         && iNow>file_mtime(g.argv[i], ExtFILE)
+         && (nMin<=0 || aLastRun[i]+nMin>iNow)
+        ){
+          continue;  /* Not yet time to run this one */
+        }
         blob_init(&cmd, 0, 0);
         blob_append_escaped_arg(&cmd, g.nameOfExe);
         blob_append(&cmd, " backoffice --nodelay", -1);
@@ -612,6 +630,7 @@ void backoffice_command(void){
           fossil_print("COMMAND[%u]: %s\n", nCmd, blob_str(&cmd));
         }
         fossil_system(blob_str(&cmd));
+        aLastRun[i] = iNext;
         blob_reset(&cmd);
       }
       if( nPoll<1 ) break;
@@ -624,6 +643,8 @@ void backoffice_command(void){
       }
     }
   }else{
+    /* Not polling and only one repository named.  Backoffice is run
+    ** once by this process, which then exits */
     if( g.argc==3 ){
       g.zRepositoryOption = g.argv[2];
       g.argc--;
