@@ -220,29 +220,204 @@ void dispatch_matching_names(const char *zPrefix, Blob *pList){
 }
 
 /*
+** Return the index of the first non-space character that follows
+** a span of two or more spaces.  Return 0 if there is not gap.
+*/
+static int hasGap(const char *z, int n){
+  int i;
+  for(i=3; i<n-1; i++){
+    if( z[i]==' ' && z[i+1]!=' ' && z[i-1]==' ' ) return i+1;
+  }
+  return 0 ;
+}
+
+/*
+** Append text to pOut, adding formatting markup.  Terms that
+** have all lower-case letters are within <tt>..</tt>.  Terms
+** that have all upper-case letters are within <i>..</i>.
+*/
+static void appendMixedFont(Blob *pOut, const char *z, int n){
+  const char *zEnd = "";
+  int i = 0;
+  int j;
+  while( i<n ){
+    if( z[i]==' ' ){
+      for(j=i+1; j<n && z[j]==' '; j++){}
+      blob_append(pOut, z+i, j-i);
+      i = j;
+    }else{
+      for(j=i; j<n && z[j]!=' ' && !fossil_isalpha(z[j]); j++){}
+      if( j>=n || z[j]==' ' ){
+        zEnd = "";
+      }else{
+        if( fossil_isupper(z[j]) ){
+          blob_append(pOut, "<i>",3);
+          zEnd = "</i>";
+        }else{
+          blob_append(pOut, "<tt>", 4);
+          zEnd = "</tt>";
+        }
+      }
+      while( j<n && z[j]!=' ' ){ j++; }
+      blob_appendf(pOut, "%#h", j-i, z+i);
+      if( zEnd[0] ) blob_append(pOut, zEnd, -1);
+      i = j;
+    }
+  }
+}
+
+/*
 ** Attempt to reformat plain-text help into HTML for display on a webpage.
 **
 ** The HTML output is appended to Blob pHtml, which should already be
 ** initialized.
+**
+** Formatting rules:
+**
+**   *  Bullet lists are indented from the surrounding text by
+**      at least one space.  Each bullet begins with " * ".
+**
+**   *  Display lists are indented from the surrounding text.
+**      Each tag begins with "-" or occur on a line that is
+**      followed by two spaces and a non-space.  <dd> elements can begin
+**      on the same line as long as they are separated by at least
+**      two spaces.
+**
+**   *  Indented text is show verbatim (<pre>...</pre>)
 */
 static void help_to_html(const char *zHelp, Blob *pHtml){
-  char *s;
-  char *d;
-  char *z;
+  int i;
+  char c;
+  int nIndent = 0;
+  int wantP = 0;
+  int wantBR = 0;
+  int aIndent[10];
+  const char *azEnd[10];
+  int iLevel = 0;
+  int isLI = 0;
+  static const char *zEndDL = "</dl></blockquote>";
+  static const char *zEndPRE = "</pre></blockquote>";
+  static const char *zEndUL = "</ul>";
+  static const char *zEndDD = "</dd>";
 
-  /* Transform "%fossil" into just "fossil" */
-  z = s = d = mprintf("%s", zHelp);
-  while( *s ){
-    if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
-      s++;
+  aIndent[0] = 0;
+  azEnd[0] = "";
+  while( zHelp[0] ){
+    i = 0;
+    while( (c = zHelp[i])!=0
+        && c!='\n'
+        && (c!='%' || strncmp(zHelp+i,"%fossil",7)!=0)
+    ){ i++; }
+    if( c=='%' ){
+      if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
+      zHelp += i + 1;
+      i = 0;
+      wantBR = 1;
+      continue;
+    }
+    for(nIndent=0; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    if( nIndent==i ){
+      if( c==0 ) break;
+      blob_append(pHtml, "\n", 1);
+      wantP = 1;
+      wantBR = 0;
+      zHelp += i+1;
+      continue;
+    }
+    if( nIndent+2<i && zHelp[nIndent]=='*' && zHelp[nIndent+1]==' ' ){
+      nIndent += 2;
+      while( nIndent<i && zHelp[nIndent]==' '){ nIndent++; }
+      isLI = 1;
     }else{
-      *d++ = *s++;
+      isLI = 0;
+    }
+    while( iLevel>0 && aIndent[iLevel]>nIndent ){
+      blob_append(pHtml, azEnd[iLevel--], -1);
+    }
+    if( nIndent>aIndent[iLevel] ){
+      assert( iLevel<ArraySize(aIndent)-2 );
+      if( isLI ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndUL;
+        blob_append(pHtml, "<ul>\n", 5);
+      }else if( zHelp[nIndent]=='-' || hasGap(zHelp+nIndent,i-nIndent) ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndDL;
+        blob_append(pHtml, "<blockquote><dl>\n", -1);
+      }else if( wantP && azEnd[iLevel]!=zEndDL ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndPRE;
+        blob_append(pHtml, "<blockquote><pre>", -1);
+        wantP = 0;
+      }
+    }
+    if( isLI ){
+      blob_append(pHtml, "<li> ", 5);
+    }
+    if( wantP ){
+      blob_append(pHtml, "<p> ", 4);
+      wantP = 0;
+    }
+    if( azEnd[iLevel]==zEndDL ){
+      int iDD;
+      blob_append(pHtml, "<dt> ", 5);
+      iDD = hasGap(zHelp+nIndent, i-nIndent);
+      if( iDD ){
+        int x;
+        assert( iLevel<ArraySize(aIndent)-1 );
+        iLevel++;
+        aIndent[iLevel] = x = nIndent+iDD;
+        azEnd[iLevel] = zEndDD;
+        appendMixedFont(pHtml, zHelp+nIndent, iDD-2);
+        blob_appendf(pHtml, "</dt><dd>%#h\n", x, zHelp+x);
+      }else{
+        appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
+        blob_append(pHtml, "</dt>\n", 6);
+      }
+    }else if( wantBR ){
+      appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
+      blob_append(pHtml, "<br>\n", 5);
+      wantBR = 0;
+    }else{
+      blob_appendf(pHtml, "%#h\n", i-nIndent, zHelp+nIndent);
+    }
+    zHelp += i+1;
+    i = 0;
+    if( c==0 ) break;
+  }
+  while( iLevel>0 ){
+    blob_appendf(pHtml, "%s\n", azEnd[iLevel--]);
+  }
+}
+
+/*
+** Format help text for TTY display.
+*/
+static void help_to_text(const char *zHelp, Blob *pText){
+  int i;
+  char c;
+  for(i=0; (c = zHelp[i])!=0; i++){
+    if( c=='%' && strncmp(zHelp+i,"%fossil",7)==0 ){
+      if( i>0 ) blob_append(pText, zHelp, i);
+      blob_append(pText, "fossil", 6);
+      zHelp += i+7;
+      i = -1;
+      continue;
+    }
+    if( c=='\n' && strncmp(zHelp+i+1,">  ",3)==0 ){
+      if( i>0 ) blob_append(pText, zHelp, i-1);
+      blob_append(pText, "  ", 6);
+      zHelp += i+3;
+      i = -1;
+      continue;
     }
   }
-  *d = 0;
-
-  blob_appendf(pHtml, "<pre>\n%h\n</pre>\n", z);
-  fossil_free(z);
+  if( i>0 ){
+    blob_append(pText, zHelp, i);
+  }      
 }
 
 /*
@@ -294,15 +469,20 @@ void test_all_help_cmd(void){
   }
   for(i=0; i<MX_COMMAND; i++){
     if( (aCommand[i].eCmdFlags & mask)==0 ) continue;
-    fossil_print("# %s\n", aCommand[i].zName);
     if( useHtml ){
       Blob html;
-      blob_zero(&html);
+      blob_init(&html, 0, 0);
       help_to_html(aCommand[i].zHelp, &html);
-      fossil_print("%s\n\n", blob_str(&html));
+      fossil_print("<h1>%h</h1>\n", aCommand[i].zName);
+      fossil_print("%s\n<hr>\n", blob_str(&html));
       blob_reset(&html);
     }else{
-      fossil_print("%s\n\n", aCommand[i].zHelp);
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_text(aCommand[i].zHelp, &txt);
+      fossil_print("# %s\n", aCommand[i].zName);
+      fossil_print("%s\n\n", blob_str(&txt));
+      blob_reset(&txt);
     }
   }
   if( useHtml ){
@@ -691,20 +871,24 @@ static const char zOptions[] =
 /*
 ** COMMAND: help
 **
-** Usage: %fossil help TOPIC
-**    or: %fossil TOPIC --help
+** Usage: %fossil help [OPTIONS] [TOPIC]
 **
 ** Display information on how to use TOPIC, which may be a command, webpage, or
-** setting.  Webpage names begin with "/".  To display a list of available
-** topics, use one of:
+** setting.  Webpage names begin with "/".  If TOPIC is omitted, a list of
+** topics is returned.
 **
-**    %fossil help                Show common commands
-**    %fossil help -a|--all       Show both common and auxiliary commands
-**    %fossil help -o|--options   Show command-line options common to all cmds
-**    %fossil help -s|--setting   Show setting names
-**    %fossil help -t|--test      Show test commands only
-**    %fossil help -x|--aux       Show auxiliary commands only
-**    %fossil help -w|--www       Show list of webpages
+** The following options can be used when TOPIC is omitted:
+**
+**    -a|--all          List both command and auxiliary commands
+**    -o|--options      List command-line options common to all commands
+**    -s|--setting      List setting names
+**    -t|--test         List unsupported "test" commands
+**    -x|--aux          List only auxiliary commands
+**    -w|--www          List all web pages
+**
+** These options can be used when TOPIC is present:
+**
+**    -h|--html         Format output as HTML rather than plain text
 */
 void help_cmd(void){
   int rc;
@@ -712,6 +896,8 @@ void help_cmd(void){
   const char *z;
   const char *zCmdOrPage;
   const CmdOrPage *pCmd = 0;
+  int useHtml = 0;
+  Blob txt;
   if( g.argc<3 ){
     z = g.argv[0];
     fossil_print(
@@ -746,6 +932,7 @@ void help_cmd(void){
     command_list(0, CMDFLAG_SETTING);
     return;
   }
+  useHtml = find_option("html","h",0)!=0;
   isPage = ('/' == *g.argv[2]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
@@ -784,16 +971,14 @@ void help_cmd(void){
          (pCmd->eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ? " (versionable)" : ""
     );
   }
-  while( *z ){
-    if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
-      fossil_print("%s", g.argv[0]);
-      z += 7;
-    }else{
-      putchar(*z);
-      z++;
-    }
+  blob_init(&txt, 0, 0);
+  if( useHtml ){
+    help_to_html(z, &txt);
+  }else{
+    help_to_text(z, &txt);
   }
-  putchar('\n');
+  fossil_print("%s\n", blob_str(&txt));
+  blob_reset(&txt);
 }
 
 /*
