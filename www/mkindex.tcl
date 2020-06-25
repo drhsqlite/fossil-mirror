@@ -141,6 +141,7 @@ puts $out {
 <h2>Primary Documents:</h2>
 <ul>
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
+<li> <a href='/help'>Built-in help for commands and webpages</a>
 <li> <a href='history.md'>Purpose and History of Fossil</a>
 <li> <a href='build.wiki'>Compiling and installing Fossil</a>
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>

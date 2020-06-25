@@ -1,5 +1,5 @@
-C On\swebpages,\srender\shelp\stext\sas\sHTML.
-D 2020-06-25T00:17:04.682
+C Add\sa\slink\sto\sthe\sbuilt-in\shelp\sto\sthe\spermuted\sdocumentation\sindex.
+D 2020-06-25T13:32:27.573
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -928,10 +928,10 @@ F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 7440d0a6924555b3699988e542e5f44862378af3e19505c2816bf1db9bf55751
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 63d45e91c8e8fca9e723087d103859ddb6e95742f0ec3f48e82b056e956c23ec x
+F www/mkindex.tcl 2fc69c4653a80eccc66cb15aa67f6d0baca1e47c6196931ac7d95848849be563 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 1309d074e2920cead5c22192b4f69ddde43e8a9d98af3be65a7cc387ba6e491b
+F www/permutedindex.html 2f3679c721775c9455745ccee67b725f291a5276f92fd1a730c1fdb1d9f19bd1
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e1d8cea28ae395235bc3267446c89fc5caefdd6fc431f3810159df57c4cbf892 a8a606996bbd62f231f1097fc24cd8ae2feef859a64b13ed83a7410f933d157f
-R ed5053eb89f8caba23b36cab9dc122a3
+P e58c76a1d0d6a3bc992fe1b77349d39030336efe2e03da59d757d23ebc0100af
+R 94c92ebc7549db0789b4d588f55807f6
 U drh
-Z 6894d244b9ebb8764f447f7ee5f5dbab
+Z 34ddd75d127543adb42d398b70a38990
