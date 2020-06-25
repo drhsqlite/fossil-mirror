@@ -333,27 +333,27 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 ** Run various subcommands on users of the open repository or of
 ** the repository identified by the -R or --repository option.
 **
-**    %fossil user capabilities USERNAME ?STRING?
+** > fossil user capabilities USERNAME ?STRING?
 **
 **        Query or set the capabilities for user USERNAME
 **
-**    %fossil user default ?USERNAME?
+** > fossil user default ?USERNAME?
 **
 **        Query or set the default user.  The default user is the
 **        user for command-line interaction.
 **
-**    %fossil user list
-**    %fossil user ls
+** > fossil user list
+** > fossil user ls
 **
 **        List all users known to the repository
 **
-**    %fossil user new ?USERNAME? ?CONTACT-INFO? ?PASSWORD?
+** > fossil user new ?USERNAME? ?CONTACT-INFO? ?PASSWORD?
 **
 **        Create a new user in the repository.  Users can never be
 **        deleted.  They can be denied all access but they must continue
 **        to exist in the database.
 **
-**    %fossil user password USERNAME ?PASSWORD?
+** > fossil user password USERNAME ?PASSWORD?
 **
 **        Change the web access password for a user.
 */

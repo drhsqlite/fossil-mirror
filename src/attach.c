@@ -687,18 +687,19 @@ void attachment_list(
 **
 ** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
 **
-**       Add an attachment to an existing wiki page or tech note.
+** Add an attachment to an existing wiki page or tech note.
+** Options:
 **
-**       Options:
-**         -t|--technote DATETIME      Specifies the timestamp of
-**                                     the technote to which the attachment
-**                                     is to be made. The attachment will be
-**                                     to the most recently modified tech note
-**                                     with the specified timestamp.
-**         -t|--technote TECHNOTE-ID   Specifies the technote to be
-**                                     updated by its technote id.
+**    -t|--technote DATETIME      Specifies the timestamp of
+**                                the technote to which the attachment
+**                                is to be made. The attachment will be
+**                                to the most recently modified tech note
+**                                with the specified timestamp.
 **
-**       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
+**    -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                updated by its technote id.
+**
+** One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by

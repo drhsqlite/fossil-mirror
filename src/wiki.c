@@ -1407,30 +1407,30 @@ int wiki_technote_to_rid(const char *zETime) {
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    %fossil wiki export ?OPTIONS? PAGENAME ?FILE?
-**    %fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
+** > fossil wiki export ?OPTIONS? PAGENAME ?FILE?
+** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
 **
 **       Sends the latest version of either a wiki page or of a tech
 **       note to the given file or standard output.  A filename of "-"
 **       writes the output to standard output.  The directory parts of
 **       the output filename are created if needed.
-**
-**    Options:
 **       If PAGENAME is provided, the named wiki page will be output.
-**       --technote|-t DATETIME|TECHNOTE-ID
-**                  Specifies that a technote, rather than a wiki page,
-**                  will be exported. If DATETIME is used, the most
-**                  recently modified tech note with that DATETIME will
-**                  output.
-**       -h|--html  The body (only) is rendered in HTML form, without
-**                  any page header/foot or HTML/BODY tag wrappers.
-**       -H|--HTML  Works like -h|-html but wraps the output in
-**                  <html><body>...</body></html>.
-**       -p|--pre   If -h|-H is used and the page or technote has
-**                  the text/plain mimetype, its HTML-escaped output
-**                  will be wrapped in <pre>...</pre>.
 **
-**    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
+**       Options:
+**         --technote|-t DATETIME|TECHNOTE-ID
+**                    Specifies that a technote, rather than a wiki page,
+**                    will be exported. If DATETIME is used, the most
+**                    recently modified tech note with that DATETIME will
+**                    output.
+**         -h|--html  The body (only) is rendered in HTML form, without
+**                    any page header/foot or HTML/BODY tag wrappers.
+**         -H|--HTML  Works like -h|-html but wraps the output in
+**                    <html><body>...</body></html>.
+**         -p|--pre   If -h|-H is used and the page or technote has
+**                    the text/plain mimetype, its HTML-escaped output
+**                    will be wrapped in <pre>...</pre>.
+**
+** > fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
 **
 **       Create a new or commit changes to an existing wiki page or
 **       technote from FILE or from standard input. PAGENAME is the
@@ -1458,8 +1458,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **         --technote-bgcolor COLOR    The color used for the technote
 **                                     on the timeline.
 **
-**    %fossil wiki list ?OPTIONS?
-**    %fossil wiki ls ?OPTIONS?
+** > fossil wiki list ?OPTIONS?
+** > fossil wiki ls ?OPTIONS?
 **
 **       Lists all wiki entries, one per line, ordered
 **       case-insensitively by name.

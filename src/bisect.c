@@ -306,63 +306,62 @@ void bisect_reset(void){
 **
 ** Run various subcommands useful for searching for bugs.
 **
-**   fossil bisect bad ?VERSION?
+** > fossil bisect bad ?VERSION?
 **
-**     Identify version VERSION as non-working.  If VERSION is omitted,
-**     the current checkout is marked as non-working.
+**       Identify version VERSION as non-working.  If VERSION is omitted,
+**       the current checkout is marked as non-working.
 **
-**   fossil bisect good ?VERSION?
+** > fossil bisect good ?VERSION?
 **
-**     Identify version VERSION as working.  If VERSION is omitted,
-**     the current checkout is marked as working.
+**       Identify version VERSION as working.  If VERSION is omitted,
+**       the current checkout is marked as working.
 **
-**   fossil bisect log
-**   fossil bisect chart
+** > fossil bisect log
+** > fossil bisect chart
 **
-**     Show a log of "good" and "bad" versions.  "bisect log" shows the
-**     events in the order that they were tested.  "bisect chart" shows
-**     them in order of check-in.
+**       Show a log of "good" and "bad" versions.  "bisect log" shows the
+**       events in the order that they were tested.  "bisect chart" shows
+**       them in order of check-in.
 **
-**   fossil bisect next
+** > fossil bisect next
 **
-**     Update to the next version that is halfway between the working and
-**     non-working versions.
+**       Update to the next version that is halfway between the working and
+**       non-working versions.
 **
-**   fossil bisect options ?NAME? ?VALUE?
+** > fossil bisect options ?NAME? ?VALUE?
 **
-**     List all bisect options, or the value of a single option, or set the
-**     value of a bisect option.
+**       List all bisect options, or the value of a single option, or set the
+**       value of a bisect option.
 **
-**   fossil bisect reset
+** > fossil bisect reset
 **
-**     Reinitialize a bisect session.  This cancels prior bisect history
-**     and allows a bisect session to start over from the beginning.
+**       Reinitialize a bisect session.  This cancels prior bisect history
+**       and allows a bisect session to start over from the beginning.
 **
-**   fossil bisect vlist|ls|status ?-a|--all?
+** > fossil bisect vlist|ls|status ?-a|--all?
 **
-**     List the versions in between "bad" and "good".
+**       List the versions in between "bad" and "good".
 **
-**   fossil bisect ui
+** > fossil bisect ui
 **
-**     Like "fossil ui" except start on a timeline that shows only the
-**     check-ins that are part of the current bisect.
+**       Like "fossil ui" except start on a timeline that shows only the
+**       check-ins that are part of the current bisect.
 **
-**   fossil bisect undo
+** > fossil bisect undo
 **
-**     Undo the most recent "good" or "bad" command.
+**       Undo the most recent "good" or "bad" command.
 **
 ** Summary:
-**
-**   fossil bisect bad ?VERSION?
-**   fossil bisect good ?VERSION?
-**   fossil bisect log
-**   fossil bisect chart
-**   fossil bisect next
-**   fossil bisect options
-**   fossil bisect reset
-**   fossil bisect status
-**   fossil bisect ui
-**   fossil bisect undo
+**  * fossil bisect bad ?VERSION?
+**  * fossil bisect good ?VERSION?
+**  * fossil bisect log
+**  * fossil bisect chart
+**  * fossil bisect next
+**  * fossil bisect options
+**  * fossil bisect reset
+**  * fossil bisect status
+**  * fossil bisect ui
+**  * fossil bisect undo
 */
 void bisect_cmd(void){
   int n;

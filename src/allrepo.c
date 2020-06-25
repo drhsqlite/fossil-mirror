@@ -106,9 +106,9 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    sync        Run a "sync" on all repositories.  Only the --verbose
 **                and --unversioned options are supported.
 **
-**    setting     Run the "setting", "set", or "unset" commands on all
-**    set         repositories.  These command are particularly useful in
-**    unset       conjunction with the "max-loadavg" setting which cannot
+**    set|unset   Run the "setting", "set", or "unset" commands on all
+**                repositories.  These command are particularly useful in
+**                conjunction with the "max-loadavg" setting which cannot
 **                otherwise be set globally.
 **
 **    server      Run the "ui" or "server" commands on all repositories.

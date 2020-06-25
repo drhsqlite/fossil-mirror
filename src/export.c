@@ -1651,7 +1651,7 @@ void gitmirror_status_command(void){
 ** Do incremental import or export operations between Fossil and Git.
 ** Subcommands:
 **
-**   fossil git export [MIRROR] [OPTIONS]
+** > fossil git export [MIRROR] [OPTIONS]
 **
 **       Write content from the Fossil repository into the Git repository
 **       in directory MIRROR.  The Git repository is created if it does not
@@ -1682,11 +1682,11 @@ void gitmirror_status_command(void){
 **         --quiet|-q          Reduce output. Repeat for even less output.
 **         --verbose|-v        More output.
 **
-**   fossil git import MIRROR
+** > fossil git import MIRROR
 **
 **       TBD...   
 **
-**   fossil git status
+** > fossil git status
 **
 **       Show the status of the current Git mirror, if there is one.
 */

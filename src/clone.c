@@ -87,23 +87,27 @@ void delete_private_content(void){
 ** Make a clone of a repository specified by URI in the local
 ** file named FILENAME.
 **
-** URI may be one of the following form: ([...] mean optional)
-**   HTTP/HTTPS protocol:
-**     http[s]://[userid[:password]@]host[:port][/path]
+** URI may be one of the following forms:
+** ([...] denotes optional elements):
 **
-**   SSH protocol:
-**     ssh://[userid@]host[:port]/path/to/repo.fossil\\
-**     [?fossil=path/to/fossil.exe]
+**  * HTTP/HTTPS protocol:
 **
-**   Filesystem:
-**     [file://]path/to/repo.fossil
+**      http[s]://[userid[:password]@]host[:port][/path]
+**
+**  * SSH protocol:
+**
+**      ssh://[userid@]host[:port]/path/to/repo.fossil[?fossil=path/fossil.exe]
+**
+**  * Filesystem:
+**
+**      [file://]path/to/repo.fossil
 **
 ** Note 1: For ssh and filesystem, path must have an extra leading
-**         '/' to use an absolute path.
+** '/' to use an absolute path.
 **
 ** Note 2: Use %HH escapes for special characters in the userid and
-**         password.  For example "%40" in place of "@", "%2f" in place
-**         of "/", and "%3a" in place of ":".
+** password.  For example "%40" in place of "@", "%2f" in place
+** of "/", and "%3a" in place of ":".
 **
 ** By default, your current login name is used to create the default
 ** admin user. This can be overridden using the -A|--admin-user
