@@ -824,13 +824,13 @@ void ls_cmd(void){
 ** unless overridden by the --abs-paths or --rel-paths options.
 **
 ** Options:
-**    --abs-paths      Display absolute pathnames.
-**    --case-sensitive <BOOL> override case-sensitive setting
-**    --dotfiles       include files beginning with a dot (".")
-**    --header         Identify the repository if there are extras
-**    --ignore <CSG>   ignore files matching patterns from the argument
-**    --rel-paths      Display pathnames relative to the current working
-**                     directory.
+**    --abs-paths             Display absolute pathnames.
+**    --case-sensitive BOOL   Override case-sensitive setting
+**    --dotfiles              Include files beginning with a dot (".")
+**    --header                Identify the repository if there are extras
+**    --ignore CSG            Ignore files matching patterns from the argument
+**    --rel-paths             Display pathnames relative to the current working
+**                            directory.
 **
 ** See also: changes, clean, status
 */
@@ -910,51 +910,51 @@ void extras_cmd(void){
 ** care should be exercised when using the --verily option.
 **
 ** Options:
-**    --allckouts      Check for empty directories within any checkouts
-**                     that may be nested within the current one.  This
-**                     option should be used with great care because the
-**                     empty-dirs setting (and other applicable settings)
-**                     belonging to the other repositories, if any, will
-**                     not be checked.
-**    --case-sensitive <BOOL> override case-sensitive setting
-**    --dirsonly       Only remove empty directories.  No files will
-**                     be removed.  Using this option will automatically
-**                     enable the --emptydirs option as well.
-**    --disable-undo   WARNING: This option disables use of the undo
-**                     mechanism for this clean operation and should be
-**                     used with extreme caution.
-**    --dotfiles       Include files beginning with a dot (".").
-**    --emptydirs      Remove any empty directories that are not
-**                     explicitly exempted via the empty-dirs setting
-**                     or another applicable setting or command line
-**                     argument.  Matching files, if any, are removed
-**                     prior to checking for any empty directories;
-**                     therefore, directories that contain only files
-**                     that were removed will be removed as well.
-**    -f|--force       Remove files without prompting.
-**    -i|--prompt      Prompt before removing each file.  This option
-**                     implies the --disable-undo option.
-**    -x|--verily      WARNING: Removes everything that is not a managed
-**                     file or the repository itself.  This option
-**                     implies the --force, --emptydirs, --dotfiles, and
-**                     --disable-undo options.
-**                     Furthermore, it completely disregards the keep-glob
-**                     and ignore-glob settings.  However, it does honor
-**                     the --ignore and --keep options.
-**    --clean <CSG>    WARNING: Never prompt to delete any files matching
-**                     this comma separated list of glob patterns.  Also,
-**                     deletions of any files matching this pattern list
-**                     cannot be undone.
-**    --ignore <CSG>   Ignore files matching patterns from the
-**                     comma separated list of glob patterns.
-**    --keep <CSG>     Keep files matching this comma separated
-**                     list of glob patterns.
-**    -n|--dry-run     Delete nothing, but display what would have been
-**                     deleted.
-**    --no-prompt      This option disables prompting the user for input
-**                     and assumes an answer of 'No' for every question.
-**    --temp           Remove only Fossil-generated temporary files.
-**    -v|--verbose     Show all files as they are removed.
+**    --allckouts            Check for empty directories within any checkouts
+**                           that may be nested within the current one.  This
+**                           option should be used with great care because the
+**                           empty-dirs setting (and other applicable settings)
+**                           belonging to the other repositories, if any, will
+**                           not be checked.
+**    --case-sensitive BOOL  Override case-sensitive setting
+**    --dirsonly             Only remove empty directories.  No files will
+**                           be removed.  Using this option will automatically
+**                           enable the --emptydirs option as well.
+**    --disable-undo         WARNING: This option disables use of the undo
+**                           mechanism for this clean operation and should be
+**                           used with extreme caution.
+**    --dotfiles             Include files beginning with a dot (".").
+**    --emptydirs            Remove any empty directories that are not
+**                           explicitly exempted via the empty-dirs setting
+**                           or another applicable setting or command line
+**                           argument.  Matching files, if any, are removed
+**                           prior to checking for any empty directories;
+**                           therefore, directories that contain only files
+**                           that were removed will be removed as well.
+**    -f|--force             Remove files without prompting.
+**    -i|--prompt            Prompt before removing each file.  This option
+**                           implies the --disable-undo option.
+**    -x|--verily            WARNING: Removes everything that is not a managed
+**                           file or the repository itself.  This option
+**                           implies the --force, --emptydirs, --dotfiles, and
+**                           --disable-undo options. Furthermore, it
+**                           completely disregards the keep-glob
+**                           and ignore-glob settings.  However, it does honor
+**                           the --ignore and --keep options.
+**    --clean CSG            WARNING: Never prompt to delete any files matching
+**                           this comma separated list of glob patterns.  Also,
+**                           deletions of any files matching this pattern list
+**                           cannot be undone.
+**    --ignore CSG           Ignore files matching patterns from the
+**                           comma separated list of glob patterns.
+**    --keep <CSG>           Keep files matching this comma separated
+**                           list of glob patterns.
+**    -n|--dry-run           Delete nothing, but display what would have been
+**                           deleted.
+**    --no-prompt            This option disables prompting the user for input
+**                           and assumes an answer of 'No' for every question.
+**    --temp                 Remove only Fossil-generated temporary files.
+**    -v|--verbose           Show all files as they are removed.
 **
 ** See also: addremove, extras, status
 */

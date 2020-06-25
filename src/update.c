@@ -93,21 +93,22 @@ int update_to(int vid){
 ** unchanged files in addition to those file that actually do change.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
-**   --debug          print debug information on stdout
-**   --latest         acceptable in place of VERSION, update to latest version
-**   --force-missing  force update if missing content after sync
-**   -n|--dry-run     If given, display instead of run actions
-**   -v|--verbose     print status information about all files
-**   -W|--width <num> Width of lines (default is to auto-detect). Must be >20
-**                    or 0 (= no limit, resulting in a single line per entry).
-**   --setmtime       Set timestamps of all files to match their SCM-side
-**                    times (the timestamp of the last checkin which modified
-**                    them).
-**
-**  -K|--keep-merge-files  On merge conflict, retain the temporary files
-**                         used for merging, named *-baseline, *-original,
-**                         and *-merge.
+**   --case-sensitive BOOL  Override case-sensitive setting
+**   --debug                Print debug information on stdout
+**   --latest               Acceptable in place of VERSION, update to
+**                          latest version
+**   --force-missing        Force update if missing content after sync
+**   -n|--dry-run           If given, display instead of run actions
+**   -v|--verbose           Print status information about all files
+**   -W|--width WIDTH       Width of lines (default is to auto-detect).
+**                          Must be more than 20 or 0 (= no limit,
+**                          resulting in a single line per entry).
+**   --setmtime             Set timestamps of all files to match their
+**                          SCM-side times (the timestamp of the last
+**                          checkin which modified them).
+**  -K|--keep-merge-files   On merge conflict, retain the temporary files
+**                          used for merging, named *-baseline, *-original,
+**                          and *-merge.
 **
 ** See also: revert
 */

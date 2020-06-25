@@ -349,15 +349,15 @@ int branch_is_open(const char *zBrName){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    fossil branch current
+** >  fossil branch current
 **
 **        Print the name of the branch for the current check-out
 **
-**    fossil branch info BRANCH-NAME
+** >  fossil branch info BRANCH-NAME
 **
 **        Print information about a branch
 **
-**    fossil branch list|ls ?OPTIONS?
+** >  fossil branch list|ls ?OPTIONS?
 **
 **        List all branches. Options:
 **          -a|--all      List all branches.  Default show only open branches
@@ -365,7 +365,7 @@ int branch_is_open(const char *zBrName){
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
 **
-**    fossil branch new BRANCH-NAME BASIS ?OPTIONS?
+** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
 **        Supported options for this subcommand include:
@@ -381,7 +381,8 @@ int branch_is_open(const char *zBrName){
 **        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
 **        Either no timezone suffix or "Z" means UTC.
 **
-** Options:
+** Options valid for all subcommands:
+**
 **    -R|--repository FILE       Run commands on repository FILE
 **
 ** Summary:

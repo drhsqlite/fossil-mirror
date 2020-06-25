@@ -362,13 +362,13 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 **
 ** Options:
 **
-**    --case-sensitive <BOOL> Override the case-sensitive setting.
+**    --case-sensitive BOOL   Override the case-sensitive setting.
 **    --dotfiles              include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
-**    --ignore <CSG>          Ignore unmanaged files matching patterns from
-**                            the comma separated list of glob patterns.
-**    --clean <CSG>           Also ignore files matching patterns from
-**                            the comma separated list of glob patterns.
+**    --ignore CSG            Ignore unmanaged files matching patterns from
+**                            the Comma Separated Glob (CSG) pattern list
+**    --clean CSG             Also ignore files matching patterns from
+**                            the Comma Separated Glob (CSG) list
 **    --reset                 Reset the ADDED state of a checkout, such
 **                            that all newly-added (but not yet committed)
 **                            files are no longer added. No flags other
@@ -741,12 +741,12 @@ const char *filename_collation(void){
 ** This command can be used to track third party software.
 **
 ** Options:
-**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   --case-sensitive BOOL   Override the case-sensitive setting.
 **   --dotfiles              Include files beginning with a dot (".")
-**   --ignore <CSG>          Ignore unmanaged files matching patterns from
-**                           the comma separated list of glob patterns.
-**   --clean <CSG>           Also ignore files matching patterns from
-**                           the comma separated list of glob patterns.
+**   --ignore CSG            Ignore unmanaged files matching patterns from
+**                           the Comma Separated Glob (CSG) list
+**   --clean CSG             Also ignore files matching patterns from
+**                           the Comma Separated Glob (CSG) list
 **   -n|--dry-run            If given, display instead of run actions.
 **   --reset                 Reset the ADDED/DELETED state of a checkout,
 **                           such that all newly-added (but not yet committed)

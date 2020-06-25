@@ -1585,16 +1585,17 @@ const char *timeline_expand_datetime(const char *zIn){
 **
 ** Query parameters:
 **
-**    a=TIMEORTAG     After this event
-**    b=TIMEORTAG     Before this event
-**    c=TIMEORTAG     "Circa" this event
-**    cf=FILEHASH     "Circa" the first use of the file with FILEHASH
-**    m=TIMEORTAG     Mark this event
-**    n=COUNT         Maximum number of events.  "all" for no limit
+**    a=TIMEORTAG     Show events after TIMEORTAG
+**    b=TIMEORTAG     Show events before TIMEORTAG
+**    c=TIMEORTAG     Show events that happen "circa" TIMEORTAG
+**    cf=FILEHASH     Show events around the time of the first use of
+**                    the file with FILEHASH
+**    m=TIMEORTAG     Highlight the event at TIMEORTAG
+**    n=COUNT         Maximum number of events. "all" for no limit
 **    p=CHECKIN       Parents and ancestors of CHECKIN
-**      bt=PRIOR        ... going back to PRIOR
+**                       bt=PRIOR   ... going back to PRIOR
 **    d=CHECKIN       Children and descendants of CHECKIN
-**    dp=CHECKIN      The same as d=CHECKIN&p=CHECKIN
+**    dp=CHECKIN      The same as 'd=CHECKIN&p=CHECKIN'
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    rel             Show related check-ins as well as those matching t=TAG
@@ -1613,12 +1614,12 @@ const char *timeline_expand_datetime(const char *zIn){
 **    vfx             Show complete text of forum messages
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path from...
-**      to=CHECKIN      ... to this
-**      shortest        ... show only the shortest path
-**      rel             ... also show related checkins
+**                       to=CHECKIN      ... to this
+**                       shortest        ... show only the shortest path
+**                       rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
-**                      name matches one of the comma-separate GLOBLIST
+**                    name matches one of the comma-separate GLOBLIST
 **    brbg            Background color from branch name
 **    ubg             Background color from user
 **    namechng        Show only check-ins that have filename changes

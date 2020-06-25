@@ -373,7 +373,7 @@ void tag_add_artifact(
 **
 ** Run various subcommands to control tags and properties.
 **
-**     %fossil tag add ?OPTIONS? TAGNAME CHECK-IN ?VALUE?
+** > fossil tag add ?OPTIONS? TAGNAME CHECK-IN ?VALUE?
 **
 **         Add a new tag or property to CHECK-IN. The tag will
 **         be usable instead of a CHECK-IN in commands such as
@@ -392,7 +392,7 @@ void tag_add_artifact(
 **         importing history from other SCM systems. DATETIME has
 **         the form 'YYYY-MMM-DD HH:MM:SS'.
 **
-**     %fossil tag cancel ?--raw? TAGNAME CHECK-IN
+** > fossil tag cancel ?--raw? TAGNAME CHECK-IN
 **
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.  Use the
@@ -405,7 +405,7 @@ void tag_add_artifact(
 **           --dryrun|-n                 Display the control artifact, but do
 **                                       not insert it into the database.
 **
-**     %fossil tag find ?OPTIONS? TAGNAME
+** > fossil tag find ?OPTIONS? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
 **         check-ins or "e" for events. The limit option limits the number
@@ -416,7 +416,7 @@ void tag_add_artifact(
 **           -t|--type TYPE  One of "ci", or "e".
 **           -n|--limit N    Limit to N results.
 **
-**     %fossil tag list|ls ?OPTIONS? ?CHECK-IN?
+** > fossil tag list|ls ?OPTIONS? ?CHECK-IN?
 **
 **         List all tags, or if CHECK-IN is supplied, list
 **         all tags and their values for CHECK-IN.  The tagtype option

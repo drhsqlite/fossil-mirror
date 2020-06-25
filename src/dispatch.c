@@ -226,7 +226,7 @@ void dispatch_matching_names(const char *zPrefix, Blob *pList){
 static int hasGap(const char *z, int n){
   int i;
   for(i=3; i<n-1; i++){
-    if( z[i]==' ' && z[i+1]!=' ' && z[i-1]==' ' ) return i+1;
+    if( z[i]==' ' && z[i+1]!=' ' && z[i-1]==' ' && z[i-2]!='.' ) return i+1;
   }
   return 0 ;
 }
@@ -241,13 +241,13 @@ static void appendMixedFont(Blob *pOut, const char *z, int n){
   int i = 0;
   int j;
   while( i<n ){
-    if( z[i]==' ' ){
-      for(j=i+1; j<n && z[j]==' '; j++){}
+    if( z[i]==' ' || z[j]=='=' ){
+      for(j=i+1; j<n && (z[j]==' ' || z[j]=='='); j++){}
       blob_append(pOut, z+i, j-i);
       i = j;
     }else{
-      for(j=i; j<n && z[j]!=' ' && !fossil_isalpha(z[j]); j++){}
-      if( j>=n || z[j]==' ' ){
+      for(j=i; j<n && z[j]!=' ' && z[j]!='=' && !fossil_isalpha(z[j]); j++){}
+      if( j>=n || z[j]==' ' || z[j]=='=' ){
         zEnd = "";
       }else{
         if( fossil_isupper(z[j]) ){
@@ -258,7 +258,7 @@ static void appendMixedFont(Blob *pOut, const char *z, int n){
           zEnd = "</tt>";
         }
       }
-      while( j<n && z[j]!=' ' ){ j++; }
+      while( j<n && z[j]!=' ' && z[j]!='=' ){ j++; }
       blob_appendf(pOut, "%#h", j-i, z+i);
       if( zEnd[0] ) blob_append(pOut, zEnd, -1);
       i = j;
@@ -295,6 +295,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
   const char *azEnd[10];
   int iLevel = 0;
   int isLI = 0;
+  int isDT = 0;
   static const char *zEndDL = "</dl></blockquote>";
   static const char *zEndPRE = "</pre></blockquote>";
   static const char *zEndUL = "</ul>";
@@ -315,7 +316,13 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
       wantBR = 1;
       continue;
     }
-    for(nIndent=0; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    if( i>2 && zHelp[0]=='>' && zHelp[1]==' ' ){
+      isDT = 1;
+      for(nIndent=1; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    }else{
+      isDT = 0;
+      for(nIndent=0; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    }
     if( nIndent==i ){
       if( c==0 ) break;
       blob_append(pHtml, "\n", 1);
@@ -341,12 +348,19 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
         aIndent[iLevel] = nIndent;
         azEnd[iLevel] = zEndUL;
         blob_append(pHtml, "<ul>\n", 5);
-      }else if( zHelp[nIndent]=='-' || hasGap(zHelp+nIndent,i-nIndent) ){
+      }else if( isDT 
+             || zHelp[nIndent]=='-'
+             || hasGap(zHelp+nIndent,i-nIndent) ){
         iLevel++;
         aIndent[iLevel] = nIndent;
         azEnd[iLevel] = zEndDL;
         blob_append(pHtml, "<blockquote><dl>\n", -1);
-      }else if( wantP && azEnd[iLevel]!=zEndDL ){
+      }else if( azEnd[iLevel]==zEndDL ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndDD;
+        blob_append(pHtml, "<dd>", 4);
+      }else if( wantP ){
         iLevel++;
         aIndent[iLevel] = nIndent;
         azEnd[iLevel] = zEndPRE;
@@ -372,7 +386,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
         aIndent[iLevel] = x = nIndent+iDD;
         azEnd[iLevel] = zEndDD;
         appendMixedFont(pHtml, zHelp+nIndent, iDD-2);
-        blob_appendf(pHtml, "</dt><dd>%#h\n", x, zHelp+x);
+        blob_appendf(pHtml, "</dt><dd>%#h\n", i-x, zHelp+x);
       }else{
         appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
         blob_append(pHtml, "</dt>\n", 6);
@@ -407,10 +421,10 @@ static void help_to_text(const char *zHelp, Blob *pText){
       i = -1;
       continue;
     }
-    if( c=='\n' && strncmp(zHelp+i+1,">  ",3)==0 ){
-      if( i>0 ) blob_append(pText, zHelp, i-1);
-      blob_append(pText, "  ", 6);
-      zHelp += i+3;
+    if( c=='\n' && strncmp(zHelp+i+1,"> ",2)==0 ){
+      blob_append(pText, zHelp, i+1);
+      blob_append(pText, " ", 1);
+      zHelp += i+2;
       i = -1;
       continue;
     }
@@ -661,9 +675,9 @@ void help_page(void){
       if( pCmd->zHelp[0]==0 ){
         @ No help available for "%h(pCmd->zName)"
       }else{
-        @ <blockquote>
+        @ <div class="helpPage">
         help_to_html(pCmd->zHelp, cgi_output_blob());
-        @ </blockquote>
+        @ </div>
       }
     }
   }else{
