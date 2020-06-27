@@ -3,25 +3,41 @@
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12 (pending)</h2>
 
-  *  Security fix in the "fossil git export" command. New "safety-nets"
-     added to prevent future problems.
+  *  Security fix in the "fossil git export" command.  The same fix is
+     also backported to version 2.10.1 and 2.11.1. New "safety-nets"
+     features were added to prevent similar problems in the future.
   *  Enhancements to the graph display for cases when there are
      many merges into a single check-in.
      [/info/2d75e87b760c0a9?diff=0|Example]
+  *  Enhance the markdown formatter to more closely follow the
+     [https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis|CommonMark specification]
+     with regard to text highlighting.
+     Underscores in the middle of identifiers (ex: `fossil_printf()`)
+     no longer need to be escaped.
   *  The markdown-to-html translator can prevent unsafe HTML
      (for example: &lt;script&gt;) on user pages like forum and
-     tickets and wiki, at the administrators option.  On by
-     default.
+     tickets and wiki.  The admin can adjust this behavior using
+     the [/help?cmd=safe-html|safe-html setting] on the Admin/Wiki page.
+     The default disallow unsafe HTML.
      [https://www.fossil-scm.org/forum/forumpost/3714e6568f|Example].
   *  Enhance the [/help?cmd=revert|fossil revert] command so that it
      is able to revert all files beneath a directory.
-  *  Added <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
+  *  Added the <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
      "[/help?cmd=rm|fossil rm]", and
      "[/help?cmd=addremove|fossil addremove]" commands.
-  *  Editing forum posts now applies delta compression to the edits.
+  *  Added the "<tt>--min</tt> <i>N</i>" flag to the
+     [/help?cmd=backoffice|backoffice] command.
   *  Added the [/help?cmd=/fileedit|/fileedit page], which allows
      editing of text files online. Requires explicit activation by
      a setup user.
+  *  Translate built-in help text into HTML for display on web pages.
+     [/help?cmd=help|Example].
+  *  On the [/help?cmd=/timeline|/timeline] webpage, the combination
+     of query parameters "p=CHECKIN" and "bt=DISTANTANCESTOR" draws all
+     ancestors of CHECKIN going back to DISTANTANCESTOR.  For example,
+     [/timeline?p=202006271506&bt=version-2.11] shows all ancestors
+     of the checkin that occured on 2020-06-27 15:06 going back to
+     the 2.11 release.
   *  Update the built-in SQLite so that the
      "[/help?cmd=sql|fossil sql]" command supports new output
      modes ".mode box" and ".mode json".
