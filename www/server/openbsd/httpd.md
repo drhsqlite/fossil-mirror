@@ -6,8 +6,8 @@ and provides a clean interface for setting up a Fossil server using
 FastCGI.
 
 This article will detail the steps required to setup a TLS-enabled
-``httpd`` configuration that serves multiple Fossil repositories out of
-a single directory within a chroot, and allow ``ssh`` access to create
+`httpd` configuration that serves multiple Fossil repositories out of
+a single directory within a chroot, and allow `ssh` access to create
 new repositories remotely.
 
 **NOTE:** The following instructions assume an OpenBSD 6.7 installation.
@@ -16,8 +16,8 @@ new repositories remotely.
 
 ## <a name="fslinstall"></a>Install Fossil
 
-Use the OpenBSD package manager ``pkg_add`` to install Fossil, making
-sure to select the statically linked binary.
+Use the OpenBSD package manager `pkg_add` to install Fossil, making sure
+to select the statically linked binary.
 
 ```console
     $ doas pkg_add fossil
@@ -31,16 +31,16 @@ sure to select the statically linked binary.
 ```
 
 This installs Fossil into the chroot. To facilitate local use, create a
-symbolic link of the fossil executable into ``/usr/local/bin``.
+symbolic link of the fossil executable into `/usr/local/bin`.
 
 ```console
     $ doas ln -s /var/www/bin/fossil /usr/local/bin/fossil
 ```
 
-As a privileged user, create the file ``/var/www/cgi-bin/scm`` with the
-following contents to make the CGI script that ``httpd`` will execute in
-response to ``fsl.domain.tld`` requests; all paths are relative to the
-``/var/www`` chroot.
+As a privileged user, create the file `/var/www/cgi-bin/scm` with the
+following contents to make the CGI script that `httpd` will execute in
+response to `fsl.domain.tld` requests; all paths are relative to the
+`/var/www` chroot.
 
 ```sh
     #!/bin/fossil
@@ -50,25 +50,27 @@ response to ``fsl.domain.tld`` requests; all paths are relative to the
     errorlog: /logs/fossil.log
 ```
 
-The ``directory`` directive instructs Fossil to serve all repositories
-found in ``/var/www/htdocs/fsl.domain.tld``, while ``errorlog`` sets
-logging to be saved to ``/var/www/logs/fossil.log``; create the
-repository directory and log file, and make the script executable.
+The `directory` directive instructs Fossil to serve all repositories
+found in `/var/www/htdocs/fsl.domain.tld`, while `errorlog` sets logging
+to be saved to `/var/www/logs/fossil.log`; create the repository
+directory and log file—making the latter owned by the `www` user, and
+the script executable.
 
 ```console
     $ doas mkdir /var/www/htdocs/fsl.domain.tld
     $ doas touch /var/www/logs/fossil.log
+    $ doas chown www /var/www/logs/fossil.log
     $ doas chmod 755 /var/www/cgi-bin/scm
 ```
 
 ## <a name="chroot"></a>Setup chroot
 
-Fossil needs both ``/dev/random`` and ``/dev/null``, which aren't
-accessible from within the chroot, so need to be constructed; ``/var``,
-however, is mounted with the ``nodev`` option. Rather than removing
-this default setting, create a small memory filesystem with
-[`mount_mfs(8)`][mfs] upon which ``/var/www/dev`` will be mounted so
-that the ``random`` and ``null`` device files can be created.
+Fossil needs both `/dev/random` and `/dev/null`, which aren't accessible
+from within the chroot, so need to be constructed; `/var`, however, is
+mounted with the `nodev` option. Rather than removing this default
+setting, create a small memory filesystem with [`mount_mfs(8)`][mfs]
+upon which `/var/www/dev` will be mounted so that the `random` and
+`null` device files can be created.
 
 ```console
     $ doas mkdir /var/www/dev
@@ -85,9 +87,9 @@ that the ``random`` and ``null`` device files can be created.
 
 [mfs]: https://man.openbsd.org/mount_mfs.8
 
-To make the mountable memory filesystem permanent, open ``/etc/fstab``
-as a privileged user and add the following line to automate creation of
-the filesystem at startup:
+To make the mountable memory filesystem permanent, open `/etc/fstab` as
+a privileged user and add the following line to automate creation of the
+filesystem at startup:
 
 ```console
     swap /var/www/dev mfs rw,-s=1048576 0 0
@@ -95,21 +97,22 @@ the filesystem at startup:
 
 The same user that executes the fossil binary must have writable access
 to the repository directory that resides within the chroot; on OpenBSD
-this is ``www``. In addition, grant repository directory ownership to
-the user who will push to, pull from, and create repositories.
+this is `www`. In addition, grant repository directory ownership to the
+user who will push to, pull from, and create repositories.
 
 ```console
    $ doas chown -R user:www /var/www/htdocs/fsl.domain.tld
+   $ doas chmod 775 /var/www/htdocs/fsl.domain.tld
 ```
 
 ## <a name="httpdconfig"></a>Configure httpd
 
 On OpenBSD, [httpd.conf(5)][httpd] is the configuration file for
-``httpd``. To setup the server to serve all Fossil repositores within
-the directory specified in the CGI script, and automatically redirect
+`httpd`. To setup the server to serve all Fossil repositores within the
+directory specified in the CGI script, and automatically redirect
 standard HTTP requests to HTTPS—apart from [Let's Encrypt][LE]
 challenges issued in response to [acme-client(1)][acme] certificate
-requests—create ``/etc/httpd.conf`` as a privileged user with the
+requests—create `/etc/httpd.conf` as a privileged user with the
 following contents.
 
 [LE]: https://letsencrypt.org
@@ -145,7 +148,6 @@ following contents.
                     subdomains
             }
             connection max request body 104857600
-            directory index "index.cgi"
             location  "/*" {
                     fastcgi { param SCRIPT_FILENAME "/cgi-bin/scm" }
             }
@@ -157,17 +159,17 @@ following contents.
 ```
 
 **NOTE:** If not already in possession of a HTTPS certificate, comment
-out the ``https`` server block and proceed to securing a free
+out the `https` server block and proceed to securing a free
 [Let's Encrypt Certificate](#letsencrypt); otherwise skip to
-[Start httpd](#starthttpd).
+[Start `httpd`](#starthttpd).
 
 ## <a name="letsencrypt"></a>Let's Encrypt Certificate
 
-In order for ``httpd`` to serve HTTPS, secure a free certificate from
-Let's Encrypt using ``acme-client``. Before issuing the
-request, however, ensure you have a zone record for the subdomain with
-your registrar or nameserver. Then open ``/etc/acme-client.conf`` as a
-privileged user to configure the request.
+In order for `httpd` to serve HTTPS, secure a free certificate from
+Let's Encrypt using `acme-client`. Before issuing the request, however,
+ensure you have a zone record for the subdomain with your registrar or
+nameserver. Then open `/etc/acme-client.conf` as a privileged user to
+configure the request.
 
 ```dosini
     authority letsencrypt {
@@ -189,9 +191,11 @@ privileged user to configure the request.
     }
 ```
 
-Issue the certificate request.
+Start `httpd` with the new configuration file, and issue the certificate
+request.
 
 ```console
+    $ doas rcctl start httpd
     $ doas acme-client -vv domain.tld
     acme-client: /etc/acme/letsencrypt-privkey.pem: account key exists (not creating)
     acme-client: /etc/acme/letsencrypt-privkey.pem: loaded RSA account key
@@ -205,8 +209,8 @@ Issue the certificate request.
 ```
 
 A successful result will output the public certificate, full chain of
-trust, and private key into the ``/etc/ssl`` directory as specified in
-``acme-client.conf``.
+trust, and private key into the `/etc/ssl` directory as specified in
+`acme-client.conf`.
 
 ```console
    $ doas ls -lR /etc/ssl
@@ -217,17 +221,17 @@ trust, and private key into the ``/etc/ssl`` directory as specified in
    -r--------  1 root  wheel   3.2K Mar  2 01:31:03 2018 domain.tld.key
 ```
 
-Make sure to reopen ``/etc/httpd.conf`` to uncomment the second server
+Make sure to reopen `/etc/httpd.conf` to uncomment the second server
 block responsible for serving HTTPS requests before proceeding.
 
-## <a name="starthttpd"></a>Start httpd
+## <a name="starthttpd"></a>Start `httpd`
 
-With ``httpd`` configured to serve Fossil repositories out of
-``/var/www/htdocs/fsl.domain.tld``, and the certificates and key in
-place, enable and start ``slowcgi``—OpenBSD's FastCGI wrapper server
-that will execute the above Fossil CGI script—before checking the syntax
-of the ``httpd.conf`` configuration file is correct, and starting the
-server.
+With `httpd` configured to serve Fossil repositories out of
+`/var/www/htdocs/fsl.domain.tld`, and the certificates and key in place,
+enable and start `slowcgi`—OpenBSD's FastCGI wrapper server that will
+execute the above Fossil CGI script—before checking that the syntax of
+the `httpd.conf` configuration file is correct, and (re)starting the
+server (if still running from requesting a Let's Encrypt certificate).
 
 ```console
     $ doas rcctl enable slowcgi
@@ -242,9 +246,8 @@ server.
 ## <a name="clientconfig"></a>Configure Client
 
 To facilitate creating new repositories and pushing them to the server,
-add the following function to your ``~/.cshrc`` or ``~/.zprofile`` or
-the config file for whichever shell you are using on your development
-box.
+add the following function to your `~/.cshrc` or `~/.zprofile` or the
+config file for whichever shell you are using on your development box.
 
 ```sh
     finit() {
@@ -259,23 +262,23 @@ box.
     }
 ```
 
-This enables a new repository to be made with ``finit repo``, which will
-create the fossil repository file ``repo.fossil`` in the current working
+This enables a new repository to be made with `finit repo`, which will
+create the fossil repository file `repo.fossil` in the current working
 directory; by default, the repository user is set to the environment
-variable ``$USER``. It then opens the repository and sets the user
-password to the ``$PASSWD`` environment variable (which you can either
-set with ``export PASSWD 'password'`` on the command line or add to a
-*secured* shell environment file), and the ``remote-url`` to
-https://fsl.domain.tld/repo with the credentials of ``$USER`` who is
-authenticated with ``$PASSWD``. Finally, it ``rsync``'s the file to the
-server before opening the local repository in your browser where you
-can adjust settings such as anonymous user access, and set pertinent
-repository details. Thereafter, you can add files with ``fossil add``,
-and commit with ``fossil ci -m 'commit message'`` where Fossil, by
-default, will push to the ``remote-url``. It's suggested you read
-the [Fossil documentation][documentation]; with a sane and consistent
+variable `$USER`. It then opens the repository and sets the user
+password to the `$PASSWD` environment variable (which you can either set
+with `export PASSWD 'password'` on the command line or add to a
+*secured* shell environment file), and the `remote-url` to
+`https://fsl.domain.tld/repo` with the credentials of `$USER` who is
+authenticated with `$PASSWD`. Finally, it `rsync`'s the file to the
+server before opening the local repository in your browser where you can
+adjust settings such as anonymous user access, and set pertinent
+repository details. Thereafter, you can add files with `fossil add`, and
+commit with `fossil ci -m 'commit message'` where Fossil, by default,
+will push to the `remote-url`. It's suggested you read the
+[Fossil documentation][documentation]; with a sane and consistent
 development model, the system is much more efficient and cohesive than
-``git``—so the learning curve is not steep at all.
+`git`—so the learning curve is not steep at all.
 
 [documentation]: https://fossil-scm.org/home/doc/trunk/www/permutedindex.html
 
