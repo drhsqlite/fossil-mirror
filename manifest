@@ -1,5 +1,5 @@
-C Follow-up\sto\sthe\sprevious\scheck-in:\sfor\sthe\s'eagle'\sskin,\smake\ssure\sthe\slogo\sdiv\shas\sa\svalid\sminimum\swidth.
-D 2020-06-27T00:12:54.224
+C Attempt\sto\sfix\sbroken\slink\son\sthe\sdocumentation\sindex.
+D 2020-06-27T10:48:30.046
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -928,10 +928,10 @@ F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 7440d0a6924555b3699988e542e5f44862378af3e19505c2816bf1db9bf55751
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 2fc69c4653a80eccc66cb15aa67f6d0baca1e47c6196931ac7d95848849be563 x
+F www/mkindex.tcl 083409a91ccf2512125e0c28973329219ff8da16376e89538a361be8f11381f2 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 2f3679c721775c9455745ccee67b725f291a5276f92fd1a730c1fdb1d9f19bd1
+F www/permutedindex.html 91f2ea4ee07845580f40faf5012b410a03ac0c473d1e24c415fbc7d2037d43e3
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9cb1556e11386d732c7218941f22e7a4b284370028c69b3349178ba70e77daad
-R f5a12e8c718488f202ecbe90a9fa66fd
-U mistachkin
-Z 53ff5df685f287de4ddade9125ee99a1
+P 4a9af9b059ad4af0dc930b141038e729fe9c052189e8a4c57077635ffa5e953b
+R 951ca1592785f3586e5973152c1efd10
+U drh
+Z ddf54097f614911d84f6854d85ed9a67
