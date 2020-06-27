@@ -1588,22 +1588,22 @@ static void alert_unsubscribe(int sid){
 **
 ** The subscriber is identified in several ways:
 **
-**    (1)  The name= query parameter contains the complete subscriberCode.
+**    *    The name= query parameter contains the complete subscriberCode.
 **         This only happens when the user receives a verification
 **         email and clicks on the link in the email.  When a
 **         compilete subscriberCode is seen on the name= query parameter,
 **         that constitutes verification of the email address.
 **
-**    (2)  The sid= query parameter contains an integer subscriberId.
+**    *    The sid= query parameter contains an integer subscriberId.
 **         This only works for the administrator.  It allows the
 **         administrator to edit any subscription.
 **         
-**    (3)  The user is logged into an account other than "nobody" or
+**    *    The user is logged into an account other than "nobody" or
 **         "anonymous".  In that case the notification settings
 **         associated with that account can be edited without needing
 **         to know the subscriber code.
 **
-**    (4)  The name= query parameter contains a 32-digit prefix of
+**    *    The name= query parameter contains a 32-digit prefix of
 **         subscriber code.  (Subscriber codes are normally 64 hex digits
 **         in length.) This uniquely identifies the subscriber without
 **         revealing the complete subscriber code, and hence without

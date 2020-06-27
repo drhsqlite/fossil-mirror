@@ -4,7 +4,7 @@
 <h2>Changes for Version 2.12 (pending)</h2>
 
   *  Security fix in the "fossil git export" command.  The same fix is
-     also backported to version 2.10.1 and 2.11.1. New "safety-nets"
+     also backported to version 2.10.1 and 2.11.1. New "safety-net"
      features were added to prevent similar problems in the future.
   *  Enhancements to the graph display for cases when there are
      many merges into a single check-in.

@@ -241,7 +241,7 @@ static void appendMixedFont(Blob *pOut, const char *z, int n){
   int i = 0;
   int j;
   while( i<n ){
-    if( z[i]==' ' || z[j]=='=' ){
+    if( z[i]==' ' || z[i]=='=' ){
       for(j=i+1; j<n && (z[j]==' ' || z[j]=='='); j++){}
       blob_append(pOut, z+i, j-i);
       i = j;
