@@ -645,6 +645,16 @@ void test_approx_match_command(void){
 **
 ** Show the built-in help text for CMD.  CMD can be a command-line interface
 ** command or a page name from the web interface or a setting.
+** Query parameters:
+**
+**    name=CMD        Show help for CMD where CMD is a command name or
+**                    webpage name or setting name.
+**
+**    plaintext       Show the help within <pre>...</pre>, as if it were
+**                    displayed using the "fossil help" command.
+**
+**    raw             Show the raw help text without any formatting.
+**                    (Used for debugging.)
 */
 void help_page(void){
   const char *zCmd = P("cmd");
@@ -674,6 +684,18 @@ void help_page(void){
     }else{
       if( pCmd->zHelp[0]==0 ){
         @ No help available for "%h(pCmd->zName)"
+      }else if( P("plaintext") ){
+        Blob txt;
+        blob_init(&txt, 0, 0);
+        help_to_text(pCmd->zHelp, &txt);
+        @ <pre class="helpPage">
+        @ %h(blob_str(&txt))
+        @ </pre>
+        blob_reset(&txt);
+      }else if( P("raw") ){
+        @ <pre class="helpPage">
+        @ %h(pCmd->zHelp)
+        @ </pre>
       }else{
         @ <div class="helpPage">
         help_to_html(pCmd->zHelp, cgi_output_blob());
