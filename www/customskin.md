@@ -401,6 +401,13 @@ repository settings and the specific page being generated.
    *   **background\_image\_url** - A URL for a background image for this
        project, as configured on the Admin/Logo page.
 
+   *   **favicon\_data** - The base64 encoded data for the image to return
+       from the "favicon.ico" page.
+
+   *   **favicon\_mimetype** - The MIME type associated with the image to
+       return from the "favicon.ico" page.  This will not be used unless
+       custom image data has been specified.
+
 All of the above are variables in the sense that either the header or the
 footer is free to change or erase them.  But they should probably be treated
 as constants.  New predefined values are likely to be added in future

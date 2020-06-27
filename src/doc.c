@@ -1134,8 +1134,12 @@ void background_page(void){
 /*
 ** WEBPAGE: favicon.ico
 **
-** Return the default favicon.ico image.  The returned image is for the
-** Fossil lizard icon.
+** Return the configured favicon.ico image.  If the TH1 style variables
+** "favicon_data" and "favicon_mimetype" exist, they must be the base64
+** encoded data for the image to use and its associated MIME type,
+** respectively; otherwise, the returned image is for the Fossil lizard
+** icon.  Since this page does not make use of the style header, these
+** TH1 variables should generally be set in the "th1-setup" script.
 **
 ** The intended use case here is to supply a favicon for the "fossil ui"
 ** command.  For a permanent website, the recommended process is for
@@ -1147,11 +1151,24 @@ void background_page(void){
 */
 void favicon_page(void){
   Blob favicon;
+  const char *zMime = 0;
+  const char *zData = Th_Fetch("favicon_data", 0);
 
+  if( zData ){
+    int nData = 0;
+    zData = decode64(zData, &nData);
+    blob_zero(&favicon);
+    blob_append(&favicon, zData, nData);
+    fossil_free((char*)zData);
+    zMime = Th_Fetch("favicon_mimetype", 0);
+    if( zMime==0 ) zMime = "image/x-icon";
+  }else{
+    blob_zero(&favicon);
+    blob_init(&favicon, (char*)aLogo, sizeof(aLogo));
+  }
   etag_check(ETAG_CONFIG, 0);
-  blob_zero(&favicon);
-  blob_init(&favicon, (char*)aLogo, sizeof(aLogo));
-  cgi_set_content_type("image/gif");
+  if( zMime==0 ) zMime = "image/gif";
+  cgi_set_content_type(zMime);
   cgi_set_content(&favicon);
 }
 

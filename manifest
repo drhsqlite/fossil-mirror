@@ -1,5 +1,5 @@
-C Typos\sin\sthe\shelp\stext\sand\sthe\schange\slog.
-D 2020-06-27T17:05:41.746
+C Permit\sthe\s'favicon.ico'\spage\sto\sbe\scustomized\svia\sTH1.
+D 2020-06-27T17:15:31.156
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -473,7 +473,7 @@ F src/diff.c a3e9c8fa2981071687b9443f3503127949a217cca70156e9bbbe7c94852d31eb
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c ec3070c8ef11be9c7891f1a623c39117e896c991c275a39e8795d9fe61da734f
 F src/dispatch.c 2472dfa3739e595b11dc8858b678239f6ce4da604c0770fd9a707c1640df3918
-F src/doc.c 4b951855a6e0b98afbde12efab41ad17d520d86539a93bb73f0d9a7a82394140
+F src/doc.c 28a9d03ffab33393bec42ec7c930faa00a1a24dbeaa91c3431720a2acf7a9c1c
 F src/encode.c 4903a6756f11f582c9645c7a9344730f5ef80574210bc90dc7220f291742e91f
 F src/etag.c 0dac88b40f732dc2bbbf2e9438a2481234c4f9c43c8acfdfd8407df59cdb112a
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
@@ -843,7 +843,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 0c820100dfd65c763360336cb1fa2c8a610e102b240db0d6a2aafa01dae86077
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 95c71c047bed75bd92ee5358fd7e63c118c3ea0c540882a452bdd9ad14457b40
+F www/customskin.md 55945ef45660078a0d2d00d7f965c357157d10e2152099b7c9f332539883b9ea
 F www/defcsp.md e2467d7aade0dbfdf562e01d5647eb7d55634d21319d59db81c874ef4e6cb69f
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
@@ -996,7 +996,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ef2e5e57b5db1f32141eff5d5aec0c96dee83d5dca83552baa50cbc70ba82eb
-R e187b9056ec9cd28626f22238ccac244
-U drh
-Z 38799f92294251f43c6409787e7607b0
+P cd061779d2c192c239e1eb6d0e9254d8193ffa7bf387feb1ae54dd69743448a4
+R be537c8a96b0f6b5e149e8ab01054ca3
+T *branch * th1Favicon
+T *sym-th1Favicon *
+T -sym-trunk *
+U mistachkin
+Z 8aee4a3e5b0e9faaffc06bbba449b12a
