@@ -1026,6 +1026,41 @@ void db_hextoblob(
 }
 
 /*
+** Return the XOR-obscured version of the input text.  Useful for
+** updating authentication strings in Fossil settings.  To change
+** the password locally stored for sync, for instance:
+**
+**    echo "UPDATE config
+**        SET value = obscure('monkey123')
+**        WHERE name = 'last-sync-pw'" |
+**      fossil sql
+**
+** Note that user.pw uses a different obscuration algorithm, but
+** you don't need to use 'fossil sql' for that anyway.  Just call
+**
+**    fossil user pass monkey123
+**
+** to change the local user entry's password in the same way.
+*/
+void db_obscure(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *zIn = sqlite3_value_text(argv[0]);
+  int nIn = sqlite3_value_bytes(argv[0]);
+  char *zOut, *zTemp;
+  if( 0==zIn ) return;
+  if( 0==(zOut = sqlite3_malloc64( nIn * 2 + 3 )) ){
+    sqlite3_result_error_nomem(context);
+    return;
+  }
+  strcpy(zOut, zTemp = obscure((char*)zIn));
+  fossil_free(zTemp);
+  sqlite3_result_text(context, zOut, strlen(zOut), sqlite3_free);
+}
+
+/*
 ** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
@@ -1052,6 +1087,8 @@ void db_add_aux_functions(sqlite3 *db){
                           alert_find_emailaddr_func, 0, 0);
   sqlite3_create_function(db, "display_name", 1, SQLITE_UTF8, 0,
                           alert_display_name_func, 0, 0);
+  sqlite3_create_function(db, "obscure", 1, SQLITE_UTF8, 0,
+                          db_obscure, 0, 0);
 }
 
 #if USE_SEE
