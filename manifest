@@ -1,5 +1,5 @@
-C Attempt\sto\simprove\sthe\slook\sof\sthe\sforum\swhen\susing\sthe\s'eagle'\sskin.
-D 2020-06-26T23:06:51.502
+C Follow-up\sto\sthe\sprevious\scheck-in:\sfor\sthe\s'eagle'\sskin,\smake\ssure\sthe\slogo\sdiv\shas\sa\svalid\sminimum\swidth.
+D 2020-06-27T00:12:54.224
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -399,7 +399,7 @@ F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d
 F skins/default/header.txt d3a0e23a6bd14bf25f7193841e8434bc2454281eb63a7373678ffed9ffbad76f
 F skins/default/js.txt 3e8272e6730688d9365cfb8920a157cb2893fb6267168608873ad41a0ff2041f
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt e71d38d8888947a9ce8f0f47b9a416839ed12b412bd5e1eeb954d0d8eeb61c8d
+F skins/eagle/css.txt 104528a5fd6dd53cee03ec97c8426ecaa9ba5fccd7ceaf629a124774b8f8d2c4
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 69e5d8e521eece71dfaaa5dba0be9b02f56e1389f27c3802b22380a10abecd0f
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f281b3dfb794f0b9695dfaa19a98f92030864992994e8393ce789d1842e8e46b
-R e35fa465236511559a4fcbbb312aa7e7
+P 9cb1556e11386d732c7218941f22e7a4b284370028c69b3349178ba70e77daad
+R f5a12e8c718488f202ecbe90a9fa66fd
 U mistachkin
-Z e4d3e543de629bbf9af45949c8fc015b
+Z 53ff5df685f287de4ddade9125ee99a1

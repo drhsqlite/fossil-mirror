@@ -18,6 +18,7 @@ div.logo {
   font-weight: bold;
   color: white;
   padding: 5 0 5 0em;
+  min-width: 200px;
   white-space: nowrap;
 }
 
