@@ -1865,7 +1865,7 @@ int client_sync(
     zPCode = db_get("parent-project-code", 0);
     if( zPCode==0 || db_get("parent-project-name",0)==0 ){
       fossil_fatal("there is no parent project: set the 'parent-project-code'"
-                   " and 'parent-project-name' config parameters set in order"
+                   " and 'parent-project-name' config parameters in order"
                    " to pull from a parent project");
     }
   }
