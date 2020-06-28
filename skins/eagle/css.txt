@@ -412,3 +412,18 @@ div.selectedText {
 .timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
   background-color: #455978;
 }
+
+div.difflncol {
+  padding-right: 1em;
+  text-align: right;
+  color: white;
+}
+.capsumOff {
+  background-color: #bbbbbb;
+}
+.capsumRead {
+  background-color: #006d00;
+}
+.capsumWrite {
+  background-color: #e5e500;
+}
