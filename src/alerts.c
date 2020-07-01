@@ -2762,11 +2762,11 @@ int alert_backoffice(u32 mFlags){
   int iJulianDay;
   int nSent = 0;
   if( !alert_tables_exist() ) return 0;
-  alert_send_alerts(mFlags);
+  nSent = alert_send_alerts(mFlags);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
     db_set_int("email-last-digest",iJulianDay,0);
-    nSent = alert_send_alerts(SENDALERT_DIGEST|mFlags);
+    nSent += alert_send_alerts(SENDALERT_DIGEST|mFlags);
   }
   return nSent;
 }

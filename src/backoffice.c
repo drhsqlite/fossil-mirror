@@ -615,10 +615,10 @@ void backoffice_work(void){
   }
 
   /* Here is where the actual work of the backoffice happens */
-  nTotal += nThis = alert_backoffice(0);
-  if( nThis ) backoffice_log("%d alerts", nThis);
-  nTotal += nThis = smtp_cleanup();
-  if( nThis ) backoffice_log("%d SMTPs", nThis);
+  nThis = alert_backoffice(0);
+  if( nThis ){ backoffice_log("%d alerts", nThis); nTotal += nThis; }
+  nThis = smtp_cleanup();
+  if( nThis ){ backoffice_log("%d SMTPs", nThis); nTotal += nThis; }
 
   /* Close the log */
   if( backofficeFILE ){
