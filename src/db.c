@@ -2382,7 +2382,7 @@ void db_initial_setup(
 **    --template      FILE         Copy settings from repository file
 **    --admin-user|-A USERNAME     Select given USERNAME as admin user
 **    --date-override DATETIME     Use DATETIME as time of the initial check-in
-**    --sha1                       Use a initial hash policy of "sha1"
+**    --sha1                       Use an initial hash policy of "sha1"
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
