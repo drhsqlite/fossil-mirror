@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sthat\scauses\sbackoffice\sto\signore\sthe\sbackoffice-logfile\ssetting.
-D 2020-07-01T20:21:09.156
+C Condense\seach\sbackoffice\slog\sentry\sinto\sa\ssingle\sline.
+D 2020-07-01T21:12:46.489
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -436,7 +436,7 @@ F src/alerts.c f353855d5df1d6b1d4318584d9e88bdf753540e681a582885019294be5b049b3
 F src/allrepo.c 2a13fb69e93db8c89b19bf3fd7ffb725f17aa96172edc6a3a02ac0e8dc5966be
 F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
-F src/backoffice.c ca319ec4cb986233822300c97e42d254c9696aee09d0371c0829bbbed942bc0f
+F src/backoffice.c f48f9103ac1dc0581910d7e52262d36d0e39a9251117837be3d999b31446efb6
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c ccfc0f258cb9441a063f5cbd83066ee4755d8b16b918aeaa19ab38d57e000660
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7dca0cd79f905590c583c458b595c2cb5748854e8899ec23018f463d8fc170d
-R b90a849430086ff600928e69965d3a94
+P 5911f4b0c63c2adf7c214ab05a6ead0a8d5390a0598db061e1b7f6d42199e121
+R 778e8edbd0878ed0223fc074f3d99285
 U drh
-Z 6fc1a1e97688af788eb4ecb13eaf8a0a
+Z d5f3600f069441c3fe800d8c2b6fcaab

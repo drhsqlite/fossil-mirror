@@ -138,14 +138,14 @@ static char *backofficeDb = 0;
 static const char *backofficeLogfile = 0;
 
 /*
-** Write backoffice log messages to this connection:
+** Write the log message into this open file.
 */
-static FILE *backofficeLog = 0;
+static FILE *backofficeFILE = 0;
 
 /*
-** Prefix for backoffice log messages
+** Write backoffice log messages on this BLOB. to this connection:
 */
-static char *backofficeLogPrefix = 0;
+static Blob *backofficeBlob = 0;
 
 /* End of state variables
 ****************************************************************************/
@@ -543,11 +543,10 @@ static void backoffice_thread(void){
 */
 void backoffice_log(const char *zFormat, ...){
   va_list ap;
-  if( backofficeLog==0 ) return;
-  fprintf(backofficeLog, "%s ", backofficeLogPrefix);
+  if( backofficeBlob==0 ) return;
+  blob_append_char(backofficeBlob, ' ');
   va_start(ap, zFormat);
-  vfprintf(backofficeLog, zFormat, ap);
-  fflush(backofficeLog);
+  blob_vappendf(backofficeBlob, zFormat, ap);
   va_end(ap);
 }
 
@@ -556,12 +555,18 @@ void backoffice_log(const char *zFormat, ...){
 ** Capture routine for signals while running backoffice.
 */
 static void backoffice_signal_handler(int sig){
-  const char *zSig = "(unk)";
+  const char *zSig = 0;
   if( sig==SIGSEGV ) zSig = "SIGSEGV";
   if( sig==SIGFPE )  zSig = "SIGFPE";
   if( sig==SIGABRT ) zSig = "SIGABRT";
   if( sig==SIGILL )  zSig = "SIGILL";
-  backoffice_log("caught signal %d %s\n", sig, zSig);
+  if( zSig==0 ){
+    backoffice_log("signal-%d", sig);
+  }else{
+    backoffice_log("%s", zSig);
+  }
+  fprintf(backofficeFILE, "%s\n", blob_str(backofficeBlob));
+  fflush(backofficeFILE);
   exit(1);
 }
 #endif
@@ -585,17 +590,16 @@ void backoffice_work(void){
   ** the "backoffice-logfile" property should be unset and the following code
   ** should be a no-op. */
   const char *zLog = backofficeLogfile;
-  int nAlert = 0;
-  int nSmtp = 0;
+  Blob log;
+  int nThis;
+  int nTotal = 0;
 #if !defined(_WIN32)
   struct timeval sStart, sEnd;
 #endif
   if( zLog==0 ) zLog = db_get("backoffice-logfile",0);
-  if( zLog && zLog[0] ){
-    backofficeLog = fossil_fopen(zLog, "a");
-    backofficeLogPrefix = mprintf("%d %s",
-                          GETPID(), db_get("project-name","???"));
-    backoffice_log("start %s\n", db_text(0, "SELECT datetime('now');"));
+  if( zLog && zLog[0] && (backofficeFILE = fossil_fopen(zLog,"a"))!=0 ){
+    int i;
+    char *zName = db_get("project-name","");
 #if !defined(_WIN32)
     gettimeofday(&sStart, 0);
     signal(SIGSEGV, backoffice_signal_handler);
@@ -603,21 +607,27 @@ void backoffice_work(void){
     signal(SIGFPE, backoffice_signal_handler);
     signal(SIGILL, backoffice_signal_handler);
 #endif
+    /* Convert all spaces in the "project-name" into dashes */
+    for(i=0; zName[i]; i++){ if( zName[i]==' ' ) zName[i] = '-'; }
+    blob_init(&log, 0, 0);
+    backofficeBlob = &log;
+    blob_appendf(&log, "%s %s", db_text(0, "SELECT datetime('now')"), zName);
   }
 
   /* Here is where the actual work of the backoffice happens */
-  nAlert = alert_backoffice(0);
-  if( nAlert ) backoffice_log("%d alerts sent\n", nAlert);
-  nSmtp = smtp_cleanup();
-  if( nSmtp ) backoffice_log("%d SMTP cleanup ops\n", nSmtp);
+  nTotal += nThis = alert_backoffice(0);
+  if( nThis ) backoffice_log("%d alerts", nThis);
+  nTotal += nThis = smtp_cleanup();
+  if( nThis ) backoffice_log("%d SMTPs", nThis);
 
   /* Close the log */
-  if( backofficeLog ){
+  if( backofficeFILE ){
+    if( nTotal==0 ) backoffice_log("no-op");
 #if !defined(_WIN32)
     gettimeofday(&sEnd,0);
-    backoffice_log("elapse time %d us\n", tvms(&sEnd) - tvms(&sStart));
+    backoffice_log("elapse-time %d us", tvms(&sEnd) - tvms(&sStart));
 #endif
-    fclose(backofficeLog);
+    fprintf(backofficeFILE, "%s\n", blob_str(backofficeBlob));
   }
 }
 
@@ -734,7 +744,11 @@ void backoffice_command(void){
       g.argc--;
     }
     db_find_and_open_repository(0,0);
-    backoffice_thread();
+    if( bDebug ){
+      backoffice_work();
+    }else{
+      backoffice_thread();
+    }
   }
 }
 
