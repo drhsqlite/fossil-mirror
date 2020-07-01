@@ -135,7 +135,7 @@ static char *backofficeDb = 0;
 ** overrides the "backoffice-logfile" setting of the database.  If NULL,
 ** the "backoffice-logfile" setting is used instead.
 */
-static char *backofficeLogfile = 0;
+static const char *backofficeLogfile = 0;
 
 /*
 ** Write backoffice log messages to this connection:
@@ -584,7 +584,7 @@ void backoffice_work(void){
   /* Log the backoffice run for testing purposes.  For production deployments
   ** the "backoffice-logfile" property should be unset and the following code
   ** should be a no-op. */
-  char *zLog = backofficeLogfile;
+  const char *zLog = backofficeLogfile;
   int nAlert = 0;
   int nSmtp = 0;
 #if !defined(_WIN32)
