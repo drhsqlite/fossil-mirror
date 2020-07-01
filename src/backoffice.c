@@ -590,7 +590,7 @@ void backoffice_work(void){
 #if !defined(_WIN32)
   struct timeval sStart, sEnd;
 #endif
-  if( zLog==0 ) db_get("backoffice-logfile",0);
+  if( zLog==0 ) zLog = db_get("backoffice-logfile",0);
   if( zLog && zLog[0] ){
     backofficeLog = fossil_fopen(zLog, "a");
     backofficeLogPrefix = mprintf("%d %s",
