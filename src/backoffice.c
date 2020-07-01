@@ -644,6 +644,11 @@ void backoffice_work(void){
 ** to run this command as a daemon that will periodically invoke backoffice
 ** on collection of repositories.
 **
+** If only a single repository is named and --poll is omitted, the the
+** backoffice work is done in-process.  But if there are multiple respositories
+** or if --poll is used, a separate sub-process is started for each poll of 
+** each repository.
+**
 ** OPTIONS:
 **
 **    --debug                 Show what this command is doing.
