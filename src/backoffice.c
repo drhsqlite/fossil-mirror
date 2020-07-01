@@ -79,6 +79,8 @@
 # include <sys/types.h>
 # include <signal.h>
 # include <errno.h>
+# include <sys/time.h>
+# include <sys/resource.h>
 # include <fcntl.h>
 # define GETPID getpid
 #endif
@@ -123,8 +125,27 @@ static int backofficeNoDelay = 0;
 ** file is open.  Later, after the database is closed, the
 ** backoffice_run_if_needed() will consult this variable to see if it
 ** should be a no-op.
+**
+** The magic string "x" in this variable means "do not run the backoffice".
 */
 static char *backofficeDb = 0;
+
+/*
+** Log backoffice activity to a file named here.  If not NULL, this
+** overrides the "backoffice-logfile" setting of the database.  If NULL,
+** the "backoffice-logfile" setting is used instead.
+*/
+static char *backofficeLogfile = 0;
+
+/*
+** Write backoffice log messages to this connection:
+*/
+static FILE *backofficeLog = 0;
+
+/*
+** Prefix for backoffice log messages
+*/
+static char *backofficeLogPrefix = 0;
 
 /* End of state variables
 ****************************************************************************/
@@ -518,6 +539,44 @@ static void backoffice_thread(void){
 }
 
 /*
+** Append to a message to the backoffice log, if the log is open.
+*/
+void backoffice_log(const char *zFormat, ...){
+  va_list ap;
+  if( backofficeLog==0 ) return;
+  fprintf(backofficeLog, "%s ", backofficeLogPrefix);
+  va_start(ap, zFormat);
+  vfprintf(backofficeLog, zFormat, ap);
+  fflush(backofficeLog);
+  va_end(ap);
+}
+
+#if !defined(_WIN32)
+/*
+** Capture routine for signals while running backoffice.
+*/
+static void backoffice_signal_handler(int sig){
+  const char *zSig = "(unk)";
+  if( sig==SIGSEGV ) zSig = "SIGSEGV";
+  if( sig==SIGFPE )  zSig = "SIGFPE";
+  if( sig==SIGABRT ) zSig = "SIGABRT";
+  if( sig==SIGILL )  zSig = "SIGILL";
+  backoffice_log("caught signal %d %s\n", sig, zSig);
+  exit(1);
+}
+#endif
+
+#if !defined(_WIN32)
+/*
+** Convert a struct timeval into an integer number of microseconds
+*/
+static long long int tvms(struct timeval *p){
+  return ((long long int)p->tv_sec)*1000000 + (long long int)p->tv_usec;
+}
+#endif
+
+
+/*
 ** This routine runs to do the backoffice processing.  When adding new
 ** backoffice processing tasks, add them here.
 */
@@ -525,19 +584,41 @@ void backoffice_work(void){
   /* Log the backoffice run for testing purposes.  For production deployments
   ** the "backoffice-logfile" property should be unset and the following code
   ** should be a no-op. */
-  char *zLog = db_get("backoffice-logfile",0);
+  char *zLog = backofficeLogfile;
+  int nAlert = 0;
+  int nSmtp = 0;
+#if !defined(_WIN32)
+  struct timeval sStart, sEnd;
+#endif
+  if( zLog==0 ) db_get("backoffice-logfile",0);
   if( zLog && zLog[0] ){
-    FILE *pLog = fossil_fopen(zLog, "a");
-    if( pLog ){
-      char *zDate = db_text(0, "SELECT datetime('now');");
-      fprintf(pLog, "%s (%d) backoffice running\n", zDate, GETPID());
-      fclose(pLog);
-    }
+    backofficeLog = fossil_fopen(zLog, "a");
+    backofficeLogPrefix = mprintf("%d %s",
+                          GETPID(), db_get("project-name","???"));
+    backoffice_log("start %s\n", db_text(0, "SELECT datetime('now');"));
+#if !defined(_WIN32)
+    gettimeofday(&sStart, 0);
+    signal(SIGSEGV, backoffice_signal_handler);
+    signal(SIGABRT, backoffice_signal_handler);
+    signal(SIGFPE, backoffice_signal_handler);
+    signal(SIGILL, backoffice_signal_handler);
+#endif
   }
 
   /* Here is where the actual work of the backoffice happens */
-  alert_backoffice(0);
-  smtp_cleanup();
+  nAlert = alert_backoffice(0);
+  if( nAlert ) backoffice_log("%d alerts sent\n", nAlert);
+  nSmtp = smtp_cleanup();
+  if( nSmtp ) backoffice_log("%d SMTP cleanup ops\n", nSmtp);
+
+  /* Close the log */
+  if( backofficeLog ){
+#if !defined(_WIN32)
+    gettimeofday(&sEnd,0);
+    backoffice_log("elapse time %d us\n", tvms(&sEnd) - tvms(&sStart));
+#endif
+    fclose(backofficeLog);
+  }
 }
 
 /*
@@ -556,6 +637,8 @@ void backoffice_work(void){
 ** OPTIONS:
 **
 **    --debug                 Show what this command is doing.
+**
+**    --logfile FILE          Append a log of backoffice actions onto FILE.
 **
 **    --min N                 When polling, invoke backoffice at least
 **                            once every N seconds even if the repository
@@ -583,6 +666,7 @@ void backoffice_command(void){
   unsigned int nCmd = 0;
   if( find_option("trace",0,0)!=0 ) g.fAnyTrace = 1;
   if( find_option("nodelay",0,0)!=0 ) backofficeNoDelay = 1;
+  backofficeLogfile = find_option("logfile",0,1);
   zPoll = find_option("poll",0,1);
   nPoll = zPoll ? atoi(zPoll) : 0;
   zPoll = find_option("min",0,1);
