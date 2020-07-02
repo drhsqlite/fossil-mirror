@@ -647,7 +647,7 @@ void backoffice_work(void){
 /*
 ** COMMAND: backoffice*
 **
-** Usage: backoffice [OPTIONS...] [REPOSITORIES...]
+** Usage: %fossil backoffice [OPTIONS...] [REPOSITORIES...]
 **
 ** Run backoffice processing on the repositories listed.  If no
 ** repository is specified, run it on the repository of the local checkout.
