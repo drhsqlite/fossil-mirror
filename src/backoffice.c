@@ -305,7 +305,7 @@ static int backofficeWin32ProcessExists(DWORD dwProcessId){
 
 /*
 ** Check to see if the process identified by pid is alive.  If
-** we cannot prove the the process is dead, return true.
+** we cannot prove that the process is dead, return true.
 */
 static int backofficeProcessExists(sqlite3_uint64 pid){
 #if defined(_WIN32)
@@ -317,7 +317,7 @@ static int backofficeProcessExists(sqlite3_uint64 pid){
 
 /*
 ** Check to see if the process identified by pid has finished.  If
-** we cannot prove the the process is still running, return true.
+** we cannot prove that the process is still running, return true.
 */
 static int backofficeProcessDone(sqlite3_uint64 pid){
 #if defined(_WIN32)
@@ -657,7 +657,7 @@ void backoffice_work(void){
 ** to run this command as a daemon that will periodically invoke backoffice
 ** on a collection of repositories.
 **
-** If only a single repository is named and --poll is omitted, the the
+** If only a single repository is named and --poll is omitted, then the
 ** backoffice work is done in-process.  But if there are multiple respositories
 ** or if --poll is used, a separate sub-process is started for each poll of 
 ** each repository.
