@@ -7,41 +7,46 @@
      also backported to version 2.10.1 and 2.11.1. New "safety-net"
      features were added to prevent similar problems in the future.
   *  Enhancements to the graph display for cases when there are
-     many merges into a single check-in.
-     [/info/2d75e87b760c0a9?diff=0|Example]
+     many cherry-pick merges into a single check-in.
+     [/timeline?f=2d75e87b760c0a9|Example]
   *  Enhance the markdown formatter to more closely follow the
      [https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis|CommonMark specification]
      with regard to text highlighting.
-     Underscores in the middle of identifiers (ex: `fossil_printf()`)
+     Underscores in the middle of identifiers (ex: fossil_printf())
      no longer need to be escaped.
   *  The markdown-to-html translator can prevent unsafe HTML
-     (for example: &lt;script&gt;) on user pages like forum and
+     (for example: &lt;script&gt;) on user-contributed pages like forum and
      tickets and wiki.  The admin can adjust this behavior using
      the [/help?cmd=safe-html|safe-html setting] on the Admin/Wiki page.
-     The default disallow unsafe HTML.
+     The default is to disallow unsafe HTML everywhere.
      [https://www.fossil-scm.org/forum/forumpost/3714e6568f|Example].
   *  Enhance the [/help?cmd=revert|fossil revert] command so that it
      is able to revert all files beneath a directory.
   *  Added the <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
      "[/help?cmd=rm|fossil rm]", and
      "[/help?cmd=addremove|fossil addremove]" commands.
-  *  Added the "<tt>--min</tt> <i>N</i>" flag to the
-     [/help?cmd=backoffice|backoffice] command.
+  *  Added the "<tt>--min</tt> <i>N</i>" and "<tt>--logfile</tt> <i>FILENAME</i>"
+     flags to the [/help?cmd=backoffice|backoffice] command, as well as other
+     enhancements to make the backoffice command a viable replacement for
+     automatic backoffice.  Other incremental backoffice improvements.
   *  Added the [/help?cmd=/fileedit|/fileedit page], which allows
      editing of text files online. Requires explicit activation by
      a setup user.
   *  Translate built-in help text into HTML for display on web pages.
      [/help?cmd=help|Example].
   *  On the [/help?cmd=/timeline|/timeline] webpage, the combination
-     of query parameters "p=CHECKIN" and "bt=DISTANTANCESTOR" draws all
-     ancestors of CHECKIN going back to DISTANTANCESTOR.  For example,
+     of query parameters "p=CHECKIN" and "bt=ANCESTOR" draws all
+     ancestors of CHECKIN going back to ANCESTOR.  For example,
      [/timeline?p=202006271506&bt=version-2.11] shows all ancestors
      of the checkin that occured on 2020-06-27 15:06 going back to
      the 2.11 release.
   *  Update the built-in SQLite so that the
      "[/help?cmd=sql|fossil sql]" command supports new output
      modes ".mode box" and ".mode json".
+  *  Add the "<tt>obscure()</tt>" SQL function to the 
+     "[/help?cmd=sql|fossil sql]" command.
   *  Delta compression now applied to forum edits.
+  *  Countless documentation enhancements.
 
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (2020-05-25)</h2>

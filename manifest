@@ -1,5 +1,5 @@
-C Squished\sa\sfew\smore\s"the\sthe"\sgrammar\serrors\sin\scomments
-D 2020-07-02T17:28:25.128
+C Updates\sto\sthe\schange\slog\sand\sto\sthe\s/timeline\sdocumentation.
+D 2020-07-02T20:54:39.425
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -615,7 +615,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c eaf9d652b0dfe81827be5eb918cad19fa71f7145dea7457378756b4f0feb3bcb
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 944709be2b655c2fe60fb7331d7bf82cee1d9ce8d8c7bd14eb26cf6c1cee0df5
+F src/timeline.c df3635a99a848682524d086a5c1d3afd74ab5ff46991e81e6e931f73c236b2bd
 F src/tkt.c 948d7dbca179604a6fd7326e660f437b314750c00098b21812d45500de35dca5
 F src/tktsetup.c 87857cd6f20c9b6d6031276571dfc54cbfdc692446bdc3ec1214018407319447
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -828,7 +828,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 56cdff9f114b037e4776870684fa48133f8d5bc7e3cd90a995dac9d492602da6
+F www/changes.wiki 5c88f7389bf4b1757081bc76705847d92001537565c3f7b96d018b780779e4b5
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 249241990399c2fdd0934c81f982662f5a5e8042a686b61814cc6b35f6834ca3
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5b4d2df00cf51fe1b90bb322a5cfdb6583ceac8909ad607c28e7e2f04ccfe36c
-R 2e3fdbd3162b5f13a20f30f8ecc18e33
-U wyoung
-Z 80fe3f8de926a44ed91d9eeb7884fef0
+P 40521155c3f62887f5154b1e018cb19954ab8cd85f7f36ede6bb13eeca072624
+R ff60bb2baa47c1b576f32feadda182e9
+U drh
+Z 10e043754d90f5bc64b0a05eb42cc7d0

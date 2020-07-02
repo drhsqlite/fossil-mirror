@@ -1604,7 +1604,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
-**    ss=VIEWSTYLE    c: "Compact"  v: "Verbose"   m: "Modern"  j: "Columnar"
+**    ss=VIEWSTYLE    c: "Compact", v: "Verbose", m: "Modern", j: "Columnar",
+**                    x: "Classic".
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
@@ -1628,9 +1629,11 @@ const char *timeline_expand_datetime(const char *zIn){
 **    ym=YYYY-MM      Show only events for the given year/month
 **    yw=YYYY-WW      Show only events for the given week of the given year
 **    yw=YYYY-MM-DD   Show events for the week that includes the given day
-**    ymd=YYYY-MM-DD  Show only events on the given day
+**    ymd=YYYY-MM-DD  Show only events on the given day. The use "ymd=now"
+**                    to see all changes for the current week.
 **    days=N          Show events over the previous N days
-**    datefmt=N       Override the date format
+**    datefmt=N       Override the date format:  0=HH:MM, 1=HH:MM:SS,
+**                    2=YYYY-MM-DD HH:MM:SS, 3=YYMMDD HH:MM, and 4 means "off".
 **    bisect          Show the check-ins that are in the current bisect
 **    showid          Show RIDs
 **    showsql         Show the SQL text
