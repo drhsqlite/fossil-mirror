@@ -655,7 +655,7 @@ void backoffice_work(void){
 ** This might be done by a cron job or similar to make sure backoffice
 ** processing happens periodically.  Or, the --poll option can be used
 ** to run this command as a daemon that will periodically invoke backoffice
-** on collection of repositories.
+** on a collection of repositories.
 **
 ** If only a single repository is named and --poll is omitted, the the
 ** backoffice work is done in-process.  But if there are multiple respositories
@@ -673,10 +673,6 @@ void backoffice_work(void){
 **                            never changes.  0 or negative means disable
 **                            this feature.  Default: 3600 (once per hour).
 **
-**    --nodelay               Do not queue up or wait for a backoffice job
-**                            to complete. If no work is available or if
-**                            backoffice has run recently, return immediately.
-**
 **    --poll N                Repeat backoffice calls for repositories that
 **                            change in appoximately N-second intervals.
 **                            N less than 1 turns polling off (the default).
@@ -685,10 +681,16 @@ void backoffice_work(void){
 **    --trace                 Enable debugging output on stderr
 **
 ** Options intended for internal use only which may change or be
-** discontinued in a future release:
+** discontinued in future releases:
+**
+**    --nodelay               Do not queue up or wait for a backoffice job
+**                            to complete. If no work is available or if
+**                            backoffice has run recently, return immediately.
 **
 **    --nolease               Always run backoffice, even if there is a lease
-**                            conflict.  This option implies --nodelay.
+**                            conflict.  This option implies --nodelay.  This
+**                            option is added to secondary backoffice commands
+**                            that are invoked by the --poll option.  
 */
 void backoffice_command(void){
   int nPoll;
