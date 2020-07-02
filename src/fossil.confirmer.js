@@ -37,7 +37,7 @@ Options:
   .ticktime.
 
   .onconfirm = function to call when clicked in confirm mode. Default
-  = undefined. The function's "this" is the the DOM element to which
+  = undefined. The function's "this" is the DOM element to which
   the countdown applies.
 
   .ontimeout = function to call when confirm is not issued. Default =

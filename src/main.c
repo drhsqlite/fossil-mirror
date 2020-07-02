@@ -1785,7 +1785,7 @@ static void process_one_web_page(
   /* At this point, the appropriate repository database file will have
   ** been opened.
   **
-  ** Check to see if the the PATH_INFO begins with "draft[1-9]" and if
+  ** Check to see if the PATH_INFO begins with "draft[1-9]" and if
   ** so activate the special handling for draft skins
   */
   if( zPathInfo && strncmp(zPathInfo,"/draft",6)==0
