@@ -1,5 +1,5 @@
-C Typo\sfix\sin\sfossil-v-git.wiki
-D 2020-07-02T00:15:26.280
+C Improvements\sto\sbackoffice\spolling\susing\sthe\s"fossil\sbackoffice"\scommand.
+D 2020-07-02T01:56:03.111
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -436,7 +436,7 @@ F src/alerts.c 9773defbf3d7134aaad841ad6698f7c899c311bca0ebf680c7dbf65168cd2dbf
 F src/allrepo.c 2a13fb69e93db8c89b19bf3fd7ffb725f17aa96172edc6a3a02ac0e8dc5966be
 F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
-F src/backoffice.c f2129bd4a9635cfc42ea5c7c83d9c44d1597fe3a787aa406972fec4a6790f5e7
+F src/backoffice.c 32236e8e8b475e8bfccb0ddabb6672807d0104af22ed30bf254b9f020505f1b7
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c ccfc0f258cb9441a063f5cbd83066ee4755d8b16b918aeaa19ab38d57e000660
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77377e6c021534c9b830ed4066e817e7be2f045c0df48aa451dc3068b3316dfa
-R 7739282bc4a8a96d610d4df58237072f
-U wyoung
-Z 5a94219b506644474481fc4289b0bfde
+P 2a4322d8fd554787a11e07295d3e737d1a597f09d91a2248a6e5c1a5e5df25f7
+R 8d73c093d0fdfe63ee801a62563e346c
+U drh
+Z e88ef8a9bd12753b947d0146280365cc

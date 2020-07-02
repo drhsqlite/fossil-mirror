@@ -147,6 +147,11 @@ static FILE *backofficeFILE = 0;
 */
 static Blob *backofficeBlob = 0;
 
+/*
+** Non-zero for extra logging detail.
+*/
+static int backofficeLogDetail = 0;
+
 /* End of state variables
 ****************************************************************************/
 
@@ -599,7 +604,7 @@ void backoffice_work(void){
   if( zLog==0 ) zLog = db_get("backoffice-logfile",0);
   if( zLog && zLog[0] && (backofficeFILE = fossil_fopen(zLog,"a"))!=0 ){
     int i;
-    char *zName = db_get("project-name","");
+    char *zName = db_get("project-name",0);
 #if !defined(_WIN32)
     gettimeofday(&sStart, 0);
     signal(SIGSEGV, backoffice_signal_handler);
@@ -607,8 +612,13 @@ void backoffice_work(void){
     signal(SIGFPE, backoffice_signal_handler);
     signal(SIGILL, backoffice_signal_handler);
 #endif
-    /* Convert all spaces in the "project-name" into dashes */
-    for(i=0; zName[i]; i++){ if( zName[i]==' ' ) zName[i] = '-'; }
+    if( zName==0 ){
+      zName = (char*)file_tail(g.zRepositoryName);
+      if( zName==0 ) zName = "(unnamed)";
+    }else{
+      /* Convert all spaces in the "project-name" into dashes */
+      for(i=0; zName[i]; i++){ if( zName[i]==' ' ) zName[i] = '-'; }
+    }
     blob_init(&log, 0, 0);
     backofficeBlob = &log;
     blob_appendf(&log, "%s %s", db_text(0, "SELECT datetime('now')"), zName);
@@ -622,12 +632,15 @@ void backoffice_work(void){
 
   /* Close the log */
   if( backofficeFILE ){
-    if( nTotal==0 ) backoffice_log("no-op");
+    if( nTotal || backofficeLogDetail ){
+      if( nTotal==0 ) backoffice_log("no-op");
 #if !defined(_WIN32)
-    gettimeofday(&sEnd,0);
-    backoffice_log("elapse-time %d us", tvms(&sEnd) - tvms(&sStart));
+      gettimeofday(&sEnd,0);
+      backoffice_log("elapse-time %d us", tvms(&sEnd) - tvms(&sStart));
 #endif
-    fprintf(backofficeFILE, "%s\n", blob_str(backofficeBlob));
+      fprintf(backofficeFILE, "%s\n", blob_str(backofficeBlob));
+    }
+    fclose(backofficeFILE);
   }
 }
 
@@ -649,7 +662,7 @@ void backoffice_work(void){
 ** or if --poll is used, a separate sub-process is started for each poll of 
 ** each repository.
 **
-** OPTIONS:
+** Standard options:
 **
 **    --debug                 Show what this command is doing.
 **
@@ -663,8 +676,6 @@ void backoffice_work(void){
 **    --nodelay               Do not queue up or wait for a backoffice job
 **                            to complete. If no work is available or if
 **                            backoffice has run recently, return immediately.
-**                            The --nodelay option is implied if more than
-**                            one repository is listed on the command-line.
 **
 **    --poll N                Repeat backoffice calls for repositories that
 **                            change in appoximately N-second intervals.
@@ -672,12 +683,19 @@ void backoffice_work(void){
 **                            Recommended polling interval: 60 seconds.
 **
 **    --trace                 Enable debugging output on stderr
+**
+** Options intended for internal use only which may change or be
+** discontinued in a future release:
+**
+**    --nolease               Always run backoffice, even if there is a lease
+**                            conflict.  This option implies --nodelay.
 */
 void backoffice_command(void){
   int nPoll;
   int nMin;
   const char *zPoll;
   int bDebug = 0;
+  int bNoLease = 0;
   unsigned int nCmd = 0;
   if( find_option("trace",0,0)!=0 ) g.fAnyTrace = 1;
   if( find_option("nodelay",0,0)!=0 ) backofficeNoDelay = 1;
@@ -687,6 +705,7 @@ void backoffice_command(void){
   zPoll = find_option("min",0,1);
   nMin = zPoll ? atoi(zPoll) : 3600;
   bDebug = find_option("debug",0,0)!=0;
+  bNoLease = find_option("nolease",0,0)!=0;
 
   /* Silently consume the -R or --repository flag, leaving behind its
   ** argument. This is for legacy compatibility. Older versions of the
@@ -723,6 +742,16 @@ void backoffice_command(void){
         if( g.fAnyTrace ){
           blob_append(&cmd, " --trace", -1);
         }
+        if( bDebug ){
+          blob_append(&cmd, " --debug", -1);
+        }
+        if( nPoll>0 ){
+          blob_append(&cmd, " --nolease", -1);
+        }
+        if( backofficeLogfile ){
+          blob_append(&cmd, " --logfile", -1);
+          blob_append_escaped_arg(&cmd, backofficeLogfile);
+        }
         blob_append_escaped_arg(&cmd, g.argv[i]);
         nCmd++;
         if( bDebug ){
@@ -750,6 +779,9 @@ void backoffice_command(void){
     }
     db_find_and_open_repository(0,0);
     if( bDebug ){
+      backofficeLogDetail = 1;
+    }
+    if( bNoLease ){
       backoffice_work();
     }else{
       backoffice_thread();
