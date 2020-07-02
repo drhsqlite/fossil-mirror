@@ -234,7 +234,7 @@ formatting details. Both systems manage a
 graph] (DAG) of [https://en.wikipedia.org/wiki/Merkle_tree | Merkle
 tree] / [./blockchain.md | block chain] structured check-in objects.
 Check-ins are identified by a cryptographic hash of the check-in
-comment, and each check-in refers to its parent via <i>its</i> hash.
+contents, and each check-in refers to its parent via <i>its</i> hash.
 
 The difference is that Git stores its objects as individual files in the
 <tt>.git</tt> folder or compressed into bespoke
