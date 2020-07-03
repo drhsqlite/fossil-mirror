@@ -1,5 +1,5 @@
-C isspace()\s->\sfossil_isspace()
-D 2020-07-03T14:06:48.196
+C In\sthe\ssync\sprotocol,\snever\ssend\sa\sgimme\scard\sfor\sa\sphantom\sthat\swe\sknow\nthe\sother\sside\slacks\sbecause\sit\shas\spreviously\ssent\sus\sthe\ssame\sgimme\scard.
+D 2020-07-03T20:54:08.483
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -638,7 +638,7 @@ F src/wikiformat.c 7eaa897946be94f75ee5ecd160e50cc6c6fa6141c600283975c996a9f1961
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c 9e0eb7ce73e006b73cd2dc6e0266e537cf02a1668c94f95bf0b8903955d52c30
+F src/xfer.c 1ea70cc9b20e3a070c4568967550b7ebced6edefc0194a07eef7ca22c8804ef0
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
 F src/zip.c 4108b1aeb6643568b322d12ad7953b321b287bf7a37c5d39c998865ec99d1d59
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea4010d58ac64eaa0d9d6b40ccdee77eacaa4b557894122a43ccaf6af13a4a44
-R 68d34e9d58c7b454d99995decc87cf8b
-U jan.nijtmans
-Z b3e67ec5afd7b09ed7f7ce481d9b4932
+P 1d9e0897e3c1f34658ebcae32717cf0318b9d19810ad65ac5e35d1ec904b5e88
+R 369f9f60c73f4159f73393dda3586716
+U drh
+Z 907b694ce5bd2fa8b1a974d855e3bad5

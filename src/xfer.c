@@ -100,6 +100,18 @@ static void remote_has(int rid){
 }
 
 /*
+** Remember that the other side of the connection lacks a copy of
+** the artifact with the given hash.
+*/
+static void remote_unk(Blob *pHash){
+  static Stmt q;
+  db_static_prepare(&q, "INSERT OR IGNORE INTO unk VALUES(:h)");
+  db_bind_text(&q, ":h", blob_str(pHash));
+  db_step(&q);
+  db_reset(&q);
+}
+
+/*
 ** The aToken[0..nToken-1] blob array is a parse of a "file" line
 ** message.  This routine finishes parsing that message and does
 ** a record insert of the file.
@@ -751,7 +763,8 @@ static void request_phantoms(Xfer *pXfer, int maxReq){
   Stmt q;
   db_prepare(&q,
     "SELECT uuid FROM phantom CROSS JOIN blob USING(rid) /*scan*/"
-    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid) %s",
+    " WHERE NOT EXISTS(SELECT 1 FROM unk WHERE unk.uuid=blob.uuid)"
+    "   AND NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid) %s",
     (pXfer->syncPrivate ? "" :
          "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)")
   );
@@ -1205,6 +1218,7 @@ void page_xfer(void){
   db_begin_transaction();
   db_multi_exec(
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
+     "CREATE TEMP TABLE unk(uuid TEXT PRIMARY KEY) WITHOUT ROWID;"
   );
   manifest_crosslink_begin();
   rc = xfer_run_common_script();
@@ -1288,6 +1302,7 @@ void page_xfer(void){
      && blob_is_hname(&xfer.aToken[1])
     ){
       nGimme++;
+      remote_unk(&xfer.aToken[1]);
       if( isPull ){
         int rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid ){
@@ -1726,7 +1741,7 @@ void page_xfer(void){
     send_unclustered(&xfer);
     if( xfer.syncPrivate ) send_private(&xfer);
   }
-  db_multi_exec("DROP TABLE onremote");
+  db_multi_exec("DROP TABLE onremote; DROP TABLE unk;");
   manifest_crosslink_end(MC_PERMIT_HOOKS);
 
   /* Send the server timestamp last, in case prior processing happened
@@ -1966,6 +1981,7 @@ int client_sync(
     db_record_repository_filename(0);
     db_multi_exec(
       "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
+      "CREATE TEMP TABLE unk(uuid TEXT PRIMARY KEY) WITHOUT ROWID;"
     );
     manifest_crosslink_begin();
 
@@ -2229,6 +2245,7 @@ int client_sync(
        && xfer.nToken==2
        && blob_is_hname(&xfer.aToken[1])
       ){
+        remote_unk(&xfer.aToken[1]);
         if( syncFlags & SYNC_PUSH ){
           int rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
           if( rid ) send_file(&xfer, rid, &xfer.aToken[1], 0);
@@ -2605,7 +2622,7 @@ int client_sync(
     ** and uvgimme cards are being sent. */
     if( nUvGimmeSent>0 && (nUvFileRcvd>0 || nCycle<3) ) go = 1;
 
-    db_multi_exec("DROP TABLE onremote");
+    db_multi_exec("DROP TABLE onremote; DROP TABLE unk;");
     if( go ){
       manifest_crosslink_end(MC_PERMIT_HOOKS);
     }else{
@@ -2632,7 +2649,7 @@ int client_sync(
   transport_close(&g.url);
   transport_global_shutdown(&g.url);
   if( nErr && go==2 ){
-    db_multi_exec("DROP TABLE onremote");
+    db_multi_exec("DROP TABLE onremote; DROP TABLE unk;");
     manifest_crosslink_end(MC_PERMIT_HOOKS);
     content_enable_dephantomize(1);
     db_end_transaction(0);
