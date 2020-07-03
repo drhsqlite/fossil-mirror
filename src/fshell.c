@@ -91,7 +91,7 @@ void shell_cmd(void){
         for(i++; i<n && zLine[i]!=cQuote; i++){}
       }else{
         azArg[nArg++] = &zLine[i];
-        while( i<n && !isspace(zLine[i]) ){ i++; }
+        while( i<n && !fossil_isspace(zLine[i]) ){ i++; }
       }
       zLine[i] = 0;
     }

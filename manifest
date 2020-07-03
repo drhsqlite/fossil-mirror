@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog\sand\sto\sthe\s/timeline\sdocumentation.
-D 2020-07-02T20:54:39.425
+C isspace()\s->\sfossil_isspace()
+D 2020-07-03T14:06:48.196
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -492,7 +492,7 @@ F src/fossil.fetch.js 0994963bb4f55c10f1d885722262ffbd9669f1f754a510c80f435f41aa
 F src/fossil.page.fileedit.js 758ca64a3a1b6b57e69e042e4db820125b34d3c428525016605be429fe7a45a0
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
-F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
+F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40521155c3f62887f5154b1e018cb19954ab8cd85f7f36ede6bb13eeca072624
-R ff60bb2baa47c1b576f32feadda182e9
-U drh
-Z 10e043754d90f5bc64b0a05eb42cc7d0
+P ea4010d58ac64eaa0d9d6b40ccdee77eacaa4b557894122a43ccaf6af13a4a44
+R 68d34e9d58c7b454d99995decc87cf8b
+U jan.nijtmans
+Z b3e67ec5afd7b09ed7f7ce481d9b4932
