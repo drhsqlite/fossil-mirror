@@ -1059,11 +1059,15 @@ void describe_artifacts(const char *zWhere){
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, blob.rcvid, event.mtime, 'checkin',\n"
-    "       'check-in on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
+          " 'check-in to '\n"
+          " ||  coalesce((SELECT value FROM tagxref WHERE tagid=%d"
+                     "   AND tagtype>0 AND tagxref.rid=blob.rid),'trunk')\n"
+          " || ' by ' || coalesce(event.euser,event.user)\n"
+          " || ' on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
     "  FROM event, blob\n"
     " WHERE (event.objid %s) AND event.type='ci'\n"
     "   AND event.objid=blob.rid;",
-    zWhere /*safe-for-%s*/
+    TAG_BRANCH, zWhere /*safe-for-%s*/
   );
 
   /* Describe files */

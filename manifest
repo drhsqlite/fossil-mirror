@@ -1,5 +1,5 @@
-C Fix\soutput\sformatting\sin\sthe\s"fossil\stls-config\sshow"\scommand.
-D 2020-07-05T13:14:27.513
+C In\sthe\sartifact\sdescription\sgenerator,\sinclude\sthe\sbranch\sname\sand\scommit\nuser\sin\sthe\sdescription\sof\scheck-in\sartifacts.
+D 2020-07-05T14:42:06.327
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/mkbuiltin.c f2160a105dc70dfd757f073133f95b1ad088d02b98cecb8f6e8f06f466cdad
 F src/mkindex.c dbc7ec0729df9ab683ff6a527f4ac22b2ddbd52bf8f56133d4c26d8629843cbc
 F src/mkversion.c 6ed1f6ce4ce8061c331b10820778ddd17686a0e98682539c6414ca7c4d0544da
 F src/moderate.c 8b693389df63229f87c99057ac1a4133b6fc9e10fc6b6b4699d43d5d14a09968
-F src/name.c ebbbc13273531725eceefbf923f80a26128878f381fc9c5f89abf86ff6361b75
+F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 405457c1613710562744ca77eb9e5ee84a05c4bd5a48e07404bb96365372fa1b
-R 19cc17e0ddaabca81d12dca1e0582ddf
+P 8c50f807b73e3d41d894c428c7120fa0fe67acf2d7e3d2618b839bee199c045e
+R 43a7c098bc1a42a23b0c7dfd53488727
 U drh
-Z 0d1958342ac01b6007cb0705c9382e0f
+Z 25168417d4b296d696d7f0c0adc02c25
