@@ -209,6 +209,12 @@ void hook_cmd(void){
        " WHERE name='hooks';",
        zCmd, zType, nSeq
     );
+    /* Make sure hook-list-rcvid is initialized */
+    db_multi_exec(
+       "INSERT OR IGNORE INTO config(name,value,mtime)"
+       " SELECT 'hook-last-rcvid', rcvid, now()"
+       "   FROM rcvfrom ORDER BY rcvid DESC limit 1"
+    );
     db_commit_transaction();
   }else
   if( strncmp(zCmd, "edit", nCmd)==0 ){

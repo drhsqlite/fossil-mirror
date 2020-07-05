@@ -1,5 +1,5 @@
-C Experimental\smechanism\sto\srun\sscripts\swhen\scertain\sevents\soccur.\s\sThis\ncheck-in\sonly\sprovides\sa\scommand-line\sinterface\sto\sset\sand\smanage\shooks.\nThe\shooks\sdo\snot\syet\sactually\srun.
-D 2020-07-05T22:24:32.373
+C Make\ssure\sthe\shook-last-rcvid\svalue\sis\sinitialized\swhenever\sa\snew\shook\nis\sadded.
+D 2020-07-05T22:37:49.137
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -500,7 +500,7 @@ F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
 F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c 836e4c38b293125614519e21c57e9470b2848c1a4e1e265465c8f6cfb366b23c
+F src/hook.c 65e1e31fa9ddec6f8277b06fe3bab5ffcb946855bf39af20ab569f42ef3220b7
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
@@ -997,10 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef06d8a5ff97683210e37246a4079cce38eda31f50fdfac3d282ea4bd67755bb
-R 85fa226142d73487619eb9923084b148
-T *branch * hooks
-T *sym-hooks *
-T -sym-trunk *
+P 5021c5bbe6fbdeae094f5ca9a372a1438fd89295ff5637aa9d531c62f31a9470
+R a557d30efac3988b8c730311b682fa16
 U drh
-Z cdb4817dfe0b164b610c737567b696fd
+Z c99d21af5a377ce91af1e18d4ee053bc
