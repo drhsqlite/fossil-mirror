@@ -549,12 +549,12 @@ void test_tlsconfig_info(void){
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
     nName = strlen(zName);
-    fossil_print("%s:%.*s%s\n", zName, 19-nName, "", zValue);
+    fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
     zName = X509_get_default_cert_dir_env();
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
     nName = strlen(zName);
-    fossil_print("%s:%.*s%s\n", zName, 19-nName, "", zValue);
+    fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
     nHit++;
     fossil_print("ssl-ca-location:   %s\n", db_get("ssl-ca-location",""));
     fossil_print("ssl-identity:      %s\n", db_get("ssl-identity",""));

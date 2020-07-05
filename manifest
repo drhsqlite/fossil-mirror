@@ -1,5 +1,5 @@
-C In\sthe\ssync\sprotocol,\snever\ssend\sa\sgimme\scard\sfor\sa\sphantom\sthat\swe\sknow\nthe\sother\sside\slacks\sbecause\sit\shas\spreviously\ssent\sus\sthe\ssame\sgimme\scard.
-D 2020-07-03T20:54:08.483
+C Fix\soutput\sformatting\sin\sthe\s"fossil\stls-config\sshow"\scommand.
+D 2020-07-05T13:14:27.513
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -503,7 +503,7 @@ F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c 1cc21c6f4d6a41bf428891d4fe9de75c08e036741de062e7ace34ffb305ed75e
+F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635d
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 9869461c225c78f5fa51b57735032df7f74cbfceb3bea99a5541c1f4f9f12204
 F src/info.c b5821b079a45826e92029212fdc140aac8c81106d2d1edc669765e56aa7aac1e
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d9e0897e3c1f34658ebcae32717cf0318b9d19810ad65ac5e35d1ec904b5e88
-R 369f9f60c73f4159f73393dda3586716
+P 405457c1613710562744ca77eb9e5ee84a05c4bd5a48e07404bb96365372fa1b
+R 19cc17e0ddaabca81d12dca1e0582ddf
 U drh
-Z 907b694ce5bd2fa8b1a974d855e3bad5
+Z 0d1958342ac01b6007cb0705c9382e0f
