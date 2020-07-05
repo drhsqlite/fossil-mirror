@@ -920,6 +920,8 @@ void scrub_cmd(void){
       "DELETE FROM config WHERE name GLOB 'login-group-*';"
       "DELETE FROM config WHERE name GLOB 'skin:*';"
       "DELETE FROM config WHERE name GLOB 'subrepo:*';"
+      "DELETE FROM config WHERE name GLOB 'http-auth:*';"
+      "DELETE FROM config WHERE name GLOB 'cert:*';"
     );
     if( bVerily ){
       db_multi_exec(

@@ -1,5 +1,5 @@
-C In\sthe\sartifact\sdescription\sgenerator,\sinclude\sthe\sbranch\sname\sand\scommit\nuser\sin\sthe\sdescription\sof\scheck-in\sartifacts.
-D 2020-07-05T14:42:06.327
+C Enhance\sthe\s"fossil\sscrub"\scommand\sto\sremove\sinformation\sabout\sSSL\scert\nexceptions\sand\shttp-auth\sdata\sfrom\spast\ssyncs.
+D 2020-07-05T19:22:14.947
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -557,7 +557,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 37f73ec5fb2a7d4f4449f28c3b119f54b5f6df6d3ed6d74296c434fe213c6ad0
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 51de6a1ce8e83a39c1d240555e929f9cf6af6d8bd5d78eb91688f72c109e61fd
-F src/rebuild.c e6240ecb53284d646530475732fb08275cd9f88217302700dba90e18587a4c27
+F src/rebuild.c 86a1c3631063956f54518513fedca7a733c7a921c64ef91ab5b02adf424bd5b8
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 1c17f5b972fa231ea6a26ca47eb92bc9d096ec64deb8fbf5abf711c449404e25
 F src/report.c 3dfe67e25bccb357cd4d20b095902108ad36f12f340eee82f9fe57b37973efda
@@ -606,7 +606,7 @@ F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 65a555d0d4fb846be9b943d0dc36142281bc5722d114f086274bba3726026466
 F src/style.fileedit.css dff0e81878e135106a69d92acd892e3540f2d228fc38b253ff6e36165e001896
-F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
+F src/sync.c 5f18c7a617334c8019538b9be46a54dc9b8bdff3cff2845cf5500b32576a4e21
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
 F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2f
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c50f807b73e3d41d894c428c7120fa0fe67acf2d7e3d2618b839bee199c045e
-R 43a7c098bc1a42a23b0c7dfd53488727
+P 2ae6b1cc014cdbb8f3b0a62cd1b9f64b525ef749a8dce1722b92c49ce7d7ffe3
+R ddc2e02777766215777dbff004a4f435
 U drh
-Z 25168417d4b296d696d7f0c0adc02c25
+Z fe9a4d95d130641c5a5f34fdad46c445
