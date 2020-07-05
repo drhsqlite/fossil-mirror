@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\sscrub"\scommand\sto\sremove\sinformation\sabout\sSSL\scert\nexceptions\sand\shttp-auth\sdata\sfrom\spast\ssyncs.
-D 2020-07-05T19:22:14.947
+C Experimental\smechanism\sto\srun\sscripts\swhen\scertain\sevents\soccur.\s\sThis\ncheck-in\sonly\sprovides\sa\scommand-line\sinterface\sto\sset\sand\smanage\shooks.\nThe\shooks\sdo\snot\syet\sactually\srun.
+D 2020-07-05T22:24:32.373
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -500,6 +500,7 @@ F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
 F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
+F src/hook.c 836e4c38b293125614519e21c57e9470b2848c1a4e1e265465c8f6cfb366b23c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
@@ -531,10 +532,10 @@ F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 1a3c89b65bbb2275262e5578afd28ad3669057a3fb9f38c58e67b854fadcd0bf
-F src/main.mk bffa5d480a556e0640ae7de370a97e418beea711e36c76cc69eb8f1afdab0252
+F src/main.mk e0651c1ec762a493a53c0c5028eab5eee3eb03f5b61b4afda11a4e61ab753919
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
-F src/makemake.tcl ae1cd0976e79c20ce4a3b32a000ea2be131abf012f3bd71aef16c17bf715032a x
+F src/makemake.tcl de0bcf83103762735e40d1cd79c200fe01b847de685b5dc86839d4102b323205 x
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
 F src/markdown.c 5a1fb3e55d2201601d966016090151ad2151f50715631de173d60e0c09bfc381
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
@@ -777,10 +778,10 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
-F win/Makefile.dmc a1c327ecbf82d20e2bea36d9712094c14bb6f34f4b106f164c2ae661f2f280b9
-F win/Makefile.mingw 9d99a51e0951a88e06ea7cf67bf412038b0667e5f8877b15e64233a3c811aec7
+F win/Makefile.dmc accb77ac645cf55b52a0e87863af40ccb9e391a0ac5145f7771c5e5d9cdc351f
+F win/Makefile.mingw 010ccc092763902ac8b2fc09ec78a620611bbbb3c8cd4ee11ce3229ed6b752a1
 F win/Makefile.mingw.mistachkin c213d2c18eb8053c57783524b514cb4a0087f63169377c4c5a1c7397a1003a76
-F win/Makefile.msc 9c554e1cc9da1e7d660ef1a737cfb5ab308ada04c7e0e1bfc65cda4e9ac7f277
+F win/Makefile.msc 121651761f33694aa42022af9fd8fe02bf7914feeda54044564ae2756530e251
 F win/buildmsvc.bat 2b589b31eb6d426c951611dd760a8480de7ced212d3edfcc5528ce47cd1b4471
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -996,7 +997,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ae6b1cc014cdbb8f3b0a62cd1b9f64b525ef749a8dce1722b92c49ce7d7ffe3
-R ddc2e02777766215777dbff004a4f435
+P ef06d8a5ff97683210e37246a4079cce38eda31f50fdfac3d282ea4bd67755bb
+R 85fa226142d73487619eb9923084b148
+T *branch * hooks
+T *sym-hooks *
+T -sym-trunk *
 U drh
-Z fe9a4d95d130641c5a5f34fdad46c445
+Z cdb4817dfe0b164b610c737567b696fd

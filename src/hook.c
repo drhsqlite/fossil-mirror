@@ -1,0 +1,350 @@
+/*
+** Copyright (c) 2020 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
+**
+** This program is distributed in the hope that it will be useful,
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** This file implements "hooks" - external programs that can be run
+** when various events occur on a Fossil repository.
+**
+** Hooks are stored in the following CONFIG variables:
+**
+**     hooks               A JSON-array of JSON objects.  Each object describes
+**                         a single hook.  Example:
+**                         {
+**                            "type": "after-receive",  // type of hook
+**                            "cmd": "command-to-run",  // command to run
+**                            "seq": 50                 // run in this order
+**                         }
+**
+**     hook-last-rcvid     Number of last rcvid for which hooks were run
+**
+**     hook-embargo        Do not run hooks again before this julianday.
+**
+** For "after-receive" hooks, a list of the received artifacts is sent
+** into the command via standard input.  Each line of input begins with
+** the hash of the artifact and continues with a description of the
+** interpretation of the artifact.
+*/
+#include "config.h"
+#include "hook.h"
+
+/*
+** List of valid hook types:
+*/
+static const char *azType[] = {
+   "after-receive",
+   "before-commit",
+   "disabled",
+};
+
+/*
+** Return true if zType is a valid hook type.
+*/
+static int is_valid_hook_type(const char *zType){
+  int i;
+  for(i=0; i<count(azType); i++){
+    if( strcmp(azType[i],zType)==0  ) return 1;
+  }
+  return 0;
+}
+
+/*
+** Throw an error if zType is not a valid hook type
+*/
+static void validate_type(const char *zType){
+  int i;
+  char *zMsg;
+  if( is_valid_hook_type(zType) ) return;
+  zMsg = mprintf("\"%s\" is not a valid hook type - should be one of:", zType);
+  for(i=0; i<count(azType); i++){
+    zMsg = mprintf("%z %s", zMsg, azType[i]);
+  }
+  fossil_fatal("%s", zMsg);
+}
+
+/*
+** Translate a hook command string into its executable format by
+** converting every %-substitutions as follows:
+**
+**     %F     ->    Name of the fossil executable
+**     %R     ->    Name of the repository
+**
+** The returned string is obtained from fossil_malloc() and should
+** be freed by the caller.
+*/
+char *hook_subst(const char *zCmd){
+  Blob r;
+  int i;
+  blob_init(&r, 0, 0);
+  while( zCmd[0] ){
+    for(i=0; zCmd[i] && zCmd[i]!='%'; i++){}
+    blob_append(&r, zCmd, i);
+    if( zCmd[i]==0 ) break;
+    if( zCmd[i+1]=='F' ){
+      blob_append(&r, g.nameOfExe, -1);
+      zCmd += i+2;
+    }else if( zCmd[i+1]=='R' ){
+      blob_append(&r, g.zRepositoryName, -1);
+      zCmd += i+2;
+    }else{
+      blob_append(&r, zCmd+i, 1);
+      zCmd += i+1;
+    }
+  }
+  blob_str(&r);
+  return r.aData;
+}
+
+/*
+** Fill the Blob pOut with text that describes all artifacts
+** received after zBaseRcvid up to and including zNewRcvid.
+** If zBaseRcvid is NULL, then use the "hook-last-rcvid" setting.
+** If zNewRcvid is NULL, use the last available rcvid.
+*/
+void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
+  char *zWhere;
+  Stmt q;
+  if( zBaseRcvid==0 ){
+    zBaseRcvid = db_get("hook-last-rcvid","0");
+  }
+  if( zNewRcvid==0 ){
+    zWhere = mprintf("IN (SELECT rid FROM blob WHERE rcvid>%d)",
+                     atoi(zBaseRcvid));
+  }else{
+    zWhere = mprintf("IN (SELECT rid FROM blob WHERE rcvid>%d AND rcvid<=%d",
+                     atoi(zBaseRcvid), atoi(zNewRcvid));
+  }
+  describe_artifacts(zWhere);
+  fossil_free(zWhere);
+  db_prepare(&q, "SELECT uuid, summary FROM description");
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(pOut, "%s %s\n", db_column_text(&q,0), db_column_text(&q,1));
+  }
+  db_finalize(&q);
+}
+
+/*
+** COMMAND: hook
+**
+** Usage: %fossil hook COMMAND ...
+**
+** Commands include:
+**
+** >  fossil hook list
+**
+**        Show all current hooks
+**
+** >  fossil hook delete ID ...
+**
+**        Delete one or more hooks by their IDs.  ID can be "all"
+**        to delete all hooks.  Caution:  There is no "undo" for
+**        this operation.  Deleted hooks are permanently lost.
+**
+** >  fossil hook add --command COMMAND --type TYPE --sequence NUMBER
+**
+**        Create a new hook.  The --command and --type arguments are
+**        required.  --sequence is optional.
+**
+** >  fossil hook edit --command COMMAND --type TYPE --sequence NUMBER ID ...
+**
+**        Make changes to one or more existing hooks.  The ID argument
+**        is either a hook-id, or a list of hook-ids, or the keyword
+**        "all".  For example, to disable hook number 2, use:
+**
+**            fossil hook edit --type disabled 2
+**
+** >  fossil hook test [OPTIONS] ID
+**
+**        Run the hook script given by ID for testing purposes.
+**        Options:
+**
+**            --dry-run         Print the script on stdout rather than run it
+**            --base-rcvid  N   Pretend that the hook-last-rcvid value is N
+**            --new-rcvid M     Pretend that the last rcvid valud is M
+**
+**        The --base-rcvid and --new-rcvid options are silently ignored if
+**        the hook type is not "after-receive".  The default values for
+**        --base-rcvid and --new-rcvid cause the last recieve to be processed.
+*/
+void hook_cmd(void){
+  const char *zCmd;
+  int nCmd;
+  db_find_and_open_repository(0, 0);
+  if( g.argc<3 ){
+    usage("SUBCOMMAND ...");
+  }
+  zCmd = g.argv[2];
+  nCmd = (int)strlen(zCmd);
+  if( strncmp(zCmd, "add", nCmd)==0 ){
+    const char *zCmd = find_option("command",0,1);
+    const char *zType = find_option("type",0,1);
+    const char *zSeq = find_option("sequence",0,1);
+    int nSeq;
+    verify_all_options();
+    if( zCmd==0 || zType==0 ){
+      fossil_fatal("the --command and --type options are required");
+    }
+    validate_type(zType);
+    nSeq = zSeq ? atoi(zSeq) : 10;
+    db_begin_write();
+    db_multi_exec(
+       "INSERT OR IGNORE INTO config(name,value) VALUES('hooks','[]');\n"
+       "UPDATE config"
+       "  SET value=json_insert("
+       "     CASE WHEN json_valid(value) THEN value ELSE '[]' END,'$[#]',"
+       "     json_object('cmd',%Q,'type',%Q,'seq',%d)),"
+       "      mtime=now()"
+       " WHERE name='hooks';",
+       zCmd, zType, nSeq
+    );
+    db_commit_transaction();
+  }else
+  if( strncmp(zCmd, "edit", nCmd)==0 ){
+    const char *zCmd = find_option("command",0,1);
+    const char *zType = find_option("type",0,1);
+    const char *zSeq = find_option("sequence",0,1);
+    int nSeq;
+    int i;
+    verify_all_options();
+    if( zCmd==0 && zType==0 && zSeq==0 ){
+      fossil_fatal("at least one of --command, --type, or --sequence"
+                   " is required");
+    }
+    if( zType ) validate_type(zType);
+    nSeq = zSeq ? atoi(zSeq) : 10;
+    if( g.argc<4 ) usage("delete ID ...");
+    db_begin_write();
+    for(i=3; i<g.argc; i++){
+      Blob sql;
+      if( sqlite3_strglob("*[^0-9]*", g.argv[i])==0 ){
+        fossil_fatal("not a valid ID: \"%s\"", g.argv[i]);
+      }
+      int id = atoi(g.argv[i]);
+      blob_init(&sql, 0, 0);
+      blob_append_sql(&sql, "UPDATE config SET mtime=now(), value="
+        "json_replace(CASE WHEN json_valid(value) THEN value ELSE '[]' END");
+      if( zCmd ){
+        blob_append_sql(&sql, ",'$[%d].cmd',%Q", id, zCmd);
+      }
+      if( zType ){
+        blob_append_sql(&sql, ",'$[%d].type',%Q", id, zType);
+      }
+      if( zSeq ){
+        blob_append_sql(&sql, ",'$[%d].seq',%d", id, nSeq);
+      }
+      blob_append_sql(&sql,") WHERE name='hooks';");
+      db_multi_exec("%s", blob_sql_text(&sql));
+      blob_reset(&sql);
+    }
+    db_commit_transaction();
+  }else
+  if( strncmp(zCmd, "delete", nCmd)==0 ){
+    int i;
+    verify_all_options();
+    if( g.argc<4 ) usage("delete ID ...");
+    db_begin_write();
+    db_multi_exec(
+       "INSERT OR IGNORE INTO config(name,value) VALUES('hooks','[]');\n"
+    );
+    for(i=3; i<g.argc; i++){
+      const char *zId = g.argv[i];
+      if( strcmp(zId,"all")==0 ){
+        db_set("hooks","[]", 0);
+        break;
+      }
+      if( sqlite3_strglob("*[^0-9]*", g.argv[i])==0 ){
+        fossil_fatal("not a valid ID: \"%s\"", g.argv[i]);
+      }
+      db_multi_exec(
+        "UPDATE config"
+        "  SET value=json_remove("
+        "     CASE WHEN json_valid(value) THEN value ELSE '[]' END,'$[%d]'),"
+        "      mtime=now()"
+        " WHERE name='hooks';",
+        atoi(zId)
+      );
+    }
+    db_commit_transaction();
+  }else
+  if( strncmp(zCmd, "list", nCmd)==0 ){
+    Stmt q;
+    verify_all_options();
+    int n = 0;
+    db_prepare(&q,
+      "SELECT jx.key,"
+      "       json_extract(jx.value,'$.seq'),"
+      "       json_extract(jx.value,'$.cmd'),"
+      "       json_extract(jx.value,'$.type')"
+      "  FROM config, json_each(config.value) AS jx"
+      " WHERE config.name='hooks' AND json_valid(config.value)"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      if( n++ ) fossil_print("\n");
+      fossil_print("%3d: type = %s\n",
+        db_column_int(&q,0), db_column_text(&q,3));
+      fossil_print("     command = %s\n", db_column_text(&q,2));
+      fossil_print("     sequence = %d\n", db_column_int(&q,1));
+    }
+    db_finalize(&q);
+  }else
+  if( strncmp(zCmd, "test", nCmd)==0 ){
+    Stmt q;
+    int bDryRun = find_option("dry-run", "n", 0)!=0;
+    const char *zOrigRcvid = find_option("base-rcvid",0,1);
+    const char *zNewRcvid = find_option("new-rcvid",0,1);
+    verify_all_options();
+    if( g.argc<4 ) usage("test ID");
+    int id = atoi(g.argv[3]);
+    if( zOrigRcvid==0 ){
+      zOrigRcvid = db_text(0, "SELECT max(rcvid)-1 FROM rcvfrom");
+    }
+    db_prepare(&q,
+      "SELECT json_extract(value,'$[%d].cmd'), "
+      "       json_extract(value,'$[%d].type')=='after-receive'"
+      "  FROM config"
+      " WHERE name='hooks' AND json_valid(value)",
+      id, id
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zCmd = db_column_text(&q,0);
+      char *zCmd2 = hook_subst(zCmd);
+      int needOut = db_column_int(&q,1);
+      Blob out;
+      blob_init(&out,0,0);
+      if( needOut ) hook_changes(&out, zOrigRcvid, zNewRcvid);
+      if( bDryRun ){
+        fossil_print("%s\n", zCmd2);
+        if( needOut ){
+          fossil_print("%s", blob_str(&out));
+        }
+      }else if( needOut ){
+        FILE *f = popen(zCmd2, "w");
+        if( f ){
+          fwrite(blob_buffer(&out),1,blob_size(&out),f);
+          pclose(f);
+        }
+      }else{
+        fossil_system(zCmd2);
+      }
+      fossil_free(zCmd2);
+      blob_reset(&out);
+    }
+    db_finalize(&q);
+  }else
+  {
+     fossil_fatal("unknown command \"%s\" - should be one of: "
+                  "add delete edit list test", zCmd);
+  }
+}
