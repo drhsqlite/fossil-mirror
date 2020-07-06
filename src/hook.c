@@ -110,6 +110,8 @@ char *hook_subst(const char *zCmd){
 /*
 ** Fill the Blob pOut with text that describes all artifacts
 ** received after zBaseRcvid up to and including zNewRcvid.
+** Except, never include more than one days worth of changes.
+**
 ** If zBaseRcvid is NULL, then use the "hook-last-rcvid" setting.
 ** If zNewRcvid is NULL, use the last available rcvid.
 */
@@ -120,12 +122,16 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
     zBaseRcvid = db_get("hook-last-rcvid","0");
   }
   if( zNewRcvid==0 ){
-    zWhere = mprintf("IN (SELECT rid FROM blob WHERE rcvid>%d)",
-                     atoi(zBaseRcvid));
-  }else{
-    zWhere = mprintf("IN (SELECT rid FROM blob WHERE rcvid>%d AND rcvid<=%d",
-                     atoi(zBaseRcvid), atoi(zNewRcvid));
+    zNewRcvid = db_text("0","SELECT max(rcvid) FROM rcvfrom");
   }
+  zBaseRcvid = db_text(0,
+     "SELECT min(rcvid) FROM rcvfrom"
+     " WHERE rcvid>=%d"
+     "   AND mtime>=(SELECT mtime FROM rcvfrom WHERE rcvid=%d)-1.0",
+     atoi(zBaseRcvid), atoi(zNewRcvid)
+  );
+  zWhere = mprintf("IN (SELECT rid FROM blob WHERE rcvid>%d AND rcvid<=%d)",
+                   atoi(zBaseRcvid), atoi(zNewRcvid));
   describe_artifacts(zWhere);
   fossil_free(zWhere);
   db_prepare(&q, "SELECT uuid, summary FROM description");
@@ -208,12 +214,6 @@ void hook_cmd(void){
        "      mtime=now()"
        " WHERE name='hooks';",
        zCmd, zType, nSeq
-    );
-    /* Make sure hook-list-rcvid is initialized */
-    db_multi_exec(
-       "INSERT OR IGNORE INTO config(name,value,mtime)"
-       " SELECT 'hook-last-rcvid', rcvid, now()"
-       "   FROM rcvfrom ORDER BY rcvid DESC limit 1"
     );
     db_commit_transaction();
   }else
