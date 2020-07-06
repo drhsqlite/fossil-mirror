@@ -388,10 +388,14 @@ void hook_cmd(void){
           fossil_print("%s", blob_str(&out));
         }
       }else if( needOut ){
-        FILE *f = popen(zCmd2, "w");
-        if( f ){
-          fwrite(blob_buffer(&out),1,blob_size(&out),f);
-          pclose(f);
+        int fdFromChild;
+        FILE *toChild;
+        int pidChild;
+        if( popen2(zCmd2, &fdFromChild, &toChild, &pidChild, 0)==0 ){
+          if( toChild ){
+            fwrite(blob_buffer(&out),1,blob_size(&out),toChild);
+          }
+          pclose2(fdFromChild, toChild, pidChild);
         }
       }else{
         fossil_system(zCmd2);
