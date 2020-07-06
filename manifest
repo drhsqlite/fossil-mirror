@@ -1,5 +1,5 @@
-C In\sthe\schange\slist\ssend\sinto\sthe\spost-receive\shook,\somit\sany\schanges\sthat\nare\smore\sthan\s24\shours\solder\sthan\sthe\smost\srecent\schange.
-D 2020-07-06T10:46:46.803
+C Add\sthe\s"fossil\shook\sstatus"\scommand.\s\sEmbargo\spost-receive\shooks\sfor\s60\nseconds\safter\san\sincomplete\ssync,\sto\sgive\san\sopportunity\sfor\sthe\ssync\sto\ncomplete.
+D 2020-07-06T11:08:08.992
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -500,7 +500,7 @@ F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
 F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c 28b816423e2004dfd33b391c43a52d7fe30019ecfa8ef973d475d8663504b8a2
+F src/hook.c be1a5bcaa88c51affcf06cad47455df366a4876e7636b0adf8c86e14ae09c4f1
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
@@ -639,7 +639,7 @@ F src/wikiformat.c 7eaa897946be94f75ee5ecd160e50cc6c6fa6141c600283975c996a9f1961
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c 1ea70cc9b20e3a070c4568967550b7ebced6edefc0194a07eef7ca22c8804ef0
+F src/xfer.c df5210700146a48956fd12484390330d9a03a8f3011774f4c0720e600cdd116b
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
 F src/zip.c 4108b1aeb6643568b322d12ad7953b321b287bf7a37c5d39c998865ec99d1d59
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -997,7 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4777999d32b65002b6f38ce09a97d8a19d0f2f8b59243c2dd75a55d58256c674
-R 4e933eaee0760bdc0ba09519f3967978
+P 8e424389e02fa065377f2310151d257dc4967ca12d20c9ffead402a9939d9215
+R f9243d3484eba8a841fa48ee4f9f451f
 U drh
-Z c32c7ed49fe33de209778d5a4e39cb47
+Z 0f1d6add4695341cf9cad19ad71f6356

@@ -28,7 +28,8 @@
 **                            "seq": 50                 // run in this order
 **                         }
 **
-**     hook-last-rcvid     Number of last rcvid for which hooks were run
+**     hook-last-rcvid     The last rcvid for which post-receive hooks were
+**                         run.
 **
 **     hook-embargo        Do not run hooks again before this julianday.
 **
@@ -108,6 +109,27 @@ char *hook_subst(const char *zCmd){
 }
 
 /*
+** Record the fact that new artifacts are expected within N seconds
+** (N is normally a small number) and so post-receive hooks should
+** probably be deferred until after the new artifacts arrive.
+**
+** If N==0, then there is no expectation of new artifacts arriving
+** soon and so post-receive hooks can be run without delay.
+*/
+void hook_expecting_more_artifacts(int N){
+  if( N>0 ){
+    db_multi_exec(
+      "REPLACE INTO config(name,value,mtime)"
+      "VALUES('hook-embargo',now()+%d,now())",
+      N
+    );
+  }else{
+    db_unset("hook-embargo",0);
+  }
+}
+
+
+/*
 ** Fill the Blob pOut with text that describes all artifacts
 ** received after zBaseRcvid up to and including zNewRcvid.
 ** Except, never include more than one days worth of changes.
@@ -124,12 +146,17 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
   if( zNewRcvid==0 ){
     zNewRcvid = db_text("0","SELECT max(rcvid) FROM rcvfrom");
   }
+
+  /* Adjust the baseline rcvid to omit change that are more than
+  ** 24 hours older than the most recent change.
+  */
   zBaseRcvid = db_text(0,
      "SELECT min(rcvid) FROM rcvfrom"
      " WHERE rcvid>=%d"
      "   AND mtime>=(SELECT mtime FROM rcvfrom WHERE rcvid=%d)-1.0",
      atoi(zBaseRcvid), atoi(zNewRcvid)
   );
+
   zWhere = mprintf("IN (SELECT rid FROM blob WHERE rcvid>%d AND rcvid<=%d)",
                    atoi(zBaseRcvid), atoi(zNewRcvid));
   describe_artifacts(zWhere);
@@ -148,20 +175,16 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 **
 ** Commands include:
 **
-** >  fossil hook list
+** >  fossil hook add --command COMMAND --type TYPE --sequence NUMBER
 **
-**        Show all current hooks
+**        Create a new hook.  The --command and --type arguments are
+**        required.  --sequence is optional.
 **
 ** >  fossil hook delete ID ...
 **
 **        Delete one or more hooks by their IDs.  ID can be "all"
 **        to delete all hooks.  Caution:  There is no "undo" for
 **        this operation.  Deleted hooks are permanently lost.
-**
-** >  fossil hook add --command COMMAND --type TYPE --sequence NUMBER
-**
-**        Create a new hook.  The --command and --type arguments are
-**        required.  --sequence is optional.
 **
 ** >  fossil hook edit --command COMMAND --type TYPE --sequence NUMBER ID ...
 **
@@ -170,6 +193,15 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 **        "all".  For example, to disable hook number 2, use:
 **
 **            fossil hook edit --type disabled 2
+**
+** >  fossil hook list
+**
+**        Show all current hooks
+**
+** >  fossil hook status
+**
+**        Print the values of CONFIG table entries that are relevant to
+**        hook processing.  Used for debugging.
 **
 ** >  fossil hook test [OPTIONS] ID
 **
@@ -305,6 +337,17 @@ void hook_cmd(void){
     }
     db_finalize(&q);
   }else
+  if( strncmp(zCmd, "status", nCmd)==0 ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT name, quote(value) FROM config WHERE name IN"
+      "('hooks','hook-embargo','hook-last-rcvid') ORDER BY name"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%s: %s\n", db_column_text(&q,0), db_column_text(&q,1));
+    }
+    db_finalize(&q);
+  }else
   if( strncmp(zCmd, "test", nCmd)==0 ){
     Stmt q;
     int bDryRun = find_option("dry-run", "n", 0)!=0;
@@ -367,6 +410,10 @@ int hook_backoffice(void){
   db_begin_write();
   if( !db_exists("SELECT 1 FROM config WHERE name='hooks'") ){
     goto hook_backoffice_done;  /* No hooks */
+  }
+  if( db_int(0, "SELECT now()<value+0 FROM config"
+                " WHERE name='hook-embargo'") ){
+    goto hook_backoffice_done;  /* Within the embargo window */
   }
   zLastRcvid = db_get("hook-last-rcvid","0");
   zNewRcvid = db_text("0","SELECT max(rcvid) FROM rcvfrom");

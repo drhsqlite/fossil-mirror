@@ -1741,6 +1741,7 @@ void page_xfer(void){
     send_unclustered(&xfer);
     if( xfer.syncPrivate ) send_private(&xfer);
   }
+  hook_expecting_more_artifacts(xfer.nGimmeSent?60:0);
   db_multi_exec("DROP TABLE onremote; DROP TABLE unk;");
   manifest_crosslink_end(MC_PERMIT_HOOKS);
 
