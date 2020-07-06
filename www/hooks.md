@@ -52,9 +52,15 @@ a continuous integration (CI) system.
      have already been committed and so there is nothing that the
      after-receive hook can do to block them.
 
+  *  The after-receive hooks are intended to be run on a server to start
+     up a background testing or CI process.  But they can also be run
+     on the client side.  The key point is that after-receive hooks are
+     invoked by backoffice, so backoffice must be running in order to
+     fire after-receive hooks.
+
   *  The exit code from the after-receive script is ignored.
 
-  *  The standard intput to the after-receive script is a list of
+  *  The standard intput to the after-receive hook is a list of
      new artifacts, one per line.  The first token on each line is the
      hash of the new artifact.  After the hash is a human-readable text
      description of what the artifact represents.
@@ -76,6 +82,19 @@ a continuous integration (CI) system.
      launch a background process that waits until the hook script finishes
      and the transaction commits before it tries to access the repository
      database.
+
+  *  A push might not deliver all of the artifacts for a checkin.  If
+     Fossil knows that a /xfer HTTP request is incomplete, it will defer
+     running the after-receive push for 60 seconds, or unti a complete
+     /xfer request is received.
+
+  *  The list of artifacts delivered to standard input of the
+     after-receive hook will not contain more than 24-hours worth
+     of artifacts.  If the backoffice has been shut down for a while
+     such that after-receive hooks have not been running, and more
+     than 24-hours of changes have accumulated since the last run
+     of an after-receive hook, then only the most recent 24-hours
+     is included in the input.
 
 ## Before-Commit Hooks
 
@@ -110,3 +129,23 @@ a continuous integration (CI) system.
      The information transmitted to the before-commit hook is contained
      in the "%A" auxiliary file.  The before-commit hook must open and
      read that file if it wants access to the commit information.
+
+## Commit-Msg Hooks
+
+  *  Commit-msg hooks are not yet implemented.
+
+  *  The commit-msg hooks run during "fossil commit" after the check-in
+     messages has been entered by the user.  The "%A" argument to the
+     commit-msg hook is the text of the commit message.  The intent
+     of the commit-msg hook is to validate the text of the commit
+     message to (for example) check for typos or ensure that it
+     conforms to standards.
+
+  *  If any commit-msg hook returns a non-zero exit code, then
+     the commit is abandoned.  All
+     commit-msg hooks must exit(0) in order for the commit to
+     proceed.
+
+  *  Commit-msg hooks are advisory only.  Each developer is in total
+     control of the local repository and can easily bypass the hooks
+     to cause a non-conforming checkin to be committed.

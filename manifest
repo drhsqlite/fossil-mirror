@@ -1,5 +1,5 @@
-C Change\sanother\spopen()\sto\spopen2()\sin\shook.c.
-D 2020-07-06T17:42:20.202
+C Hook\sdocumentation\stweaks.
+D 2020-07-06T17:53:55.607
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -895,7 +895,7 @@ F www/hashes.md 0387dfae77f1ff423f1b554055d9211317cfb58c42096c419aa3b049b0e1a342
 F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/history.md 623088f2e3c27956411551d416e5e53f3e9c1249e0ab70399fbc79c16bb48a9b
-F www/hooks.md e21f2089a347f4ac2d0a6e3f7c049b317e0a7993571986b15f2bd1170c944b8a
+F www/hooks.md 34102b852d1f4e0f474f37d8cda6b66b026c7867dd39967536ed7296e152c694
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d57e945e9addc805cc4bb
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
@@ -998,7 +998,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4729793ea19d56303d090577c6eec814ac01fe345cc12fad7d20367ce90215c5
-R d30d07f961a56c95c7f5263ac8a0c9b6
+P f9fa692af911b66c3e0214262f6da1711bbc3a85e5fbce406014315570f9bd82
+R 58e16e90ad794b5aabbfea051061dd23
 U drh
-Z fccf473276264f43390da2596fae6ab8
+Z 09a589fe2eba900cd84076e2156ecf37
