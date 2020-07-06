@@ -443,15 +443,18 @@ int hook_backoffice(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     char *zCmd;
-    FILE *f;
+    int fdFromChild;
+    FILE *toChild;
+    int childPid;
     if( cnt==0 ){
       hook_changes(&chng, zLastRcvid, 0);
     }
     zCmd = hook_subst(db_column_text(&q,0), 0);
-    f = popen(zCmd, "w");
-    if( f ){
-      fwrite(blob_buffer(&chng),1,blob_size(&chng),f);
-      pclose(f);
+    if( popen2(zCmd, &fdFromChild, &toChild, &childPid, 0) ){
+      if( toChild ){
+        fwrite(blob_buffer(&chng),1,blob_size(&chng),toChild);
+      }
+      pclose2(fdFromChild, toChild, childPid);
     }
     fossil_free(zCmd);
     cnt++;

@@ -1,5 +1,5 @@
-C Prelimiary\shook\sdocumentation.\s\sUse\spopen2()\sto\srun\safter-receive\shooks\nfor\scompatibility\son\swindows\ssystems.
-D 2020-07-06T17:38:36.967
+C Change\sanother\spopen()\sto\spopen2()\sin\shook.c.
+D 2020-07-06T17:42:20.202
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -500,7 +500,7 @@ F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
 F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c 82fdd1b950e04cabb35e8508a22ebf5da91729d193e39d3588470744285b2f06
+F src/hook.c d5245540db33a8efad5aa4f6c6f1ce3a8b0187b44f1ffa995dfa6b39b424fde5
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
@@ -998,7 +998,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a9c6c64ee77c6de7952de2be0e104166afb8be462da472e229b9083e682f9e4
-R 29a195d0ba2dc657341a68aab9440d66
+P 4729793ea19d56303d090577c6eec814ac01fe345cc12fad7d20367ce90215c5
+R d30d07f961a56c95c7f5263ac8a0c9b6
 U drh
-Z a44772ed28f1375e859a0994548bb8ed
+Z fccf473276264f43390da2596fae6ab8
