@@ -1,5 +1,5 @@
-C Make\ssure\sthe\shook-last-rcvid\svalue\sis\sinitialized\swhenever\sa\snew\shook\nis\sadded.
-D 2020-07-05T22:37:49.137
+C The\sbackoffice\snow\sinvokes\safter-receive\shooks.
+D 2020-07-06T10:21:21.323
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -436,7 +436,7 @@ F src/alerts.c 9773defbf3d7134aaad841ad6698f7c899c311bca0ebf680c7dbf65168cd2dbf
 F src/allrepo.c 2a13fb69e93db8c89b19bf3fd7ffb725f17aa96172edc6a3a02ac0e8dc5966be
 F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
-F src/backoffice.c dcde170153df58abe9cf663662a0a265d69ddead5a6c4042844d0316c948122d
+F src/backoffice.c a6050595f00797ed1a45ca49617607d60d223bb8fb088ff2eace2cd6a979cbd2
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c ccfc0f258cb9441a063f5cbd83066ee4755d8b16b918aeaa19ab38d57e000660
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
@@ -500,7 +500,7 @@ F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
 F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c 65e1e31fa9ddec6f8277b06fe3bab5ffcb946855bf39af20ab569f42ef3220b7
+F src/hook.c 8e218d7aeec8885b2c2c08686165fba6f9d72454906446669e564e0be9f13471
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
@@ -997,7 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5021c5bbe6fbdeae094f5ca9a372a1438fd89295ff5637aa9d531c62f31a9470
-R a557d30efac3988b8c730311b682fa16
+P af817f346bd0873d35d2b5e521194494df180be4081c010c7d6f63da685e0f5f
+R 326870c1eadde1e95f63dc9cb1bac7dd
 U drh
-Z c99d21af5a377ce91af1e18d4ee053bc
+Z 6743ab6b482b8a3f5410d0d87972229d

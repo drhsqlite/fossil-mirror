@@ -354,3 +354,52 @@ void hook_cmd(void){
                   "add delete edit list test", zCmd);
   }
 }
+
+/*
+** The backoffice calls this routine to run the after-receive hooks.
+*/
+int hook_backoffice(void){
+  Stmt q;
+  const char *zLastRcvid = 0;
+  char *zNewRcvid = 0;
+  Blob chng;
+  int cnt = 0;
+  db_begin_write();
+  if( !db_exists("SELECT 1 FROM config WHERE name='hooks'") ){
+    goto hook_backoffice_done;  /* No hooks */
+  }
+  zLastRcvid = db_get("hook-last-rcvid","0");
+  zNewRcvid = db_text("0","SELECT max(rcvid) FROM rcvfrom");
+  if( atoi(zLastRcvid)>=atoi(zNewRcvid) ){
+    goto hook_backoffice_done;  /* no new content */
+  }
+  blob_init(&chng, 0, 0);
+  db_prepare(&q,
+      "SELECT json_extract(jx.value,'$.cmd') "
+      "  FROM config, json_each(config.value) AS jx"
+      " WHERE config.name='hooks' AND json_valid(config.value)"
+      "   AND json_extract(jx.value,'$.type')='after-receive'"
+      " ORDER BY json_extract(jx.value,'$.seq');"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    char *zCmd;
+    FILE *f;
+    if( cnt==0 ){
+      hook_changes(&chng, zLastRcvid, 0);
+    }
+    zCmd = hook_subst(db_column_text(&q,0));
+    f = popen(zCmd, "w");
+    if( f ){
+      fwrite(blob_buffer(&chng),1,blob_size(&chng),f);
+      pclose(f);
+    }
+    fossil_free(zCmd);
+    cnt++;
+  }
+  db_finalize(&q);
+  db_set("hook-last-rcvid", zNewRcvid, 0);
+  blob_reset(&chng);
+hook_backoffice_done:
+  db_commit_transaction();
+  return cnt;
+}
