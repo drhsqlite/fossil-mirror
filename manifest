@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\shook\sstatus"\scommand.\s\sEmbargo\spost-receive\shooks\sfor\s60\nseconds\safter\san\sincomplete\ssync,\sto\sgive\san\sopportunity\sfor\sthe\ssync\sto\ncomplete.
-D 2020-07-06T11:08:08.992
+C Add\ssupport\sfor\sbefore-commit\shooks.
+D 2020-07-06T16:20:19.635
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c f2a22f48e00f2e791cbc7ddaf90fd2a000f3f4902de4fdecfc06998965fa3f1e
 F src/cgi.c 47369bb4b07f2680bae0fa72b9f2043b3cb0700cb287aa0ec2ea355ee697422c
-F src/checkin.c 6324ad4cfc060bd9b690fdc89b2d678f6cdb1ee02dd28c0fbc3df1e63b9d4c9a
+F src/checkin.c 80a4136a1698f90f6e21506eac22053133fb35395260faedd3a46f80743218d3
 F src/checkout.c d4d0e5d35b913caed9e91a6f1809a0cb202e08eebffa16e716d008a2970c73cf
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -500,7 +500,7 @@ F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
 F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c be1a5bcaa88c51affcf06cad47455df366a4876e7636b0adf8c86e14ae09c4f1
+F src/hook.c f016af2da99696e44f31d2e1cf4f952b91c361dad230caa18dc8248f952b055c
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
@@ -997,7 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e424389e02fa065377f2310151d257dc4967ca12d20c9ffead402a9939d9215
-R f9243d3484eba8a841fa48ee4f9f451f
+P 3d191798a62507e5c765d4f992bfe7084903b4720359a01b5896364be7f29e1f
+R 2583847d945ec3ed49daffb3e91c427e
 U drh
-Z 0f1d6add4695341cf9cad19ad71f6356
+Z c89fe4fc8e1c9c6d24720cb911ff0347

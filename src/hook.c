@@ -81,11 +81,15 @@ static void validate_type(const char *zType){
 **
 **     %F     ->    Name of the fossil executable
 **     %R     ->    Name of the repository
+**     %A     ->    Auxiliary information filename (might be empty string)
 **
 ** The returned string is obtained from fossil_malloc() and should
 ** be freed by the caller.
 */
-char *hook_subst(const char *zCmd){
+static char *hook_subst(
+  const char *zCmd,
+  const char *zAuxFilename   /* Name of auxiliary information file */
+){
   Blob r;
   int i;
   blob_init(&r, 0, 0);
@@ -98,6 +102,9 @@ char *hook_subst(const char *zCmd){
       zCmd += i+2;
     }else if( zCmd[i+1]=='R' ){
       blob_append(&r, g.zRepositoryName, -1);
+      zCmd += i+2;
+    }else if( zCmd[i+1]=='A' ){
+      if( zAuxFilename ) blob_append(&r, zAuxFilename, -1);
       zCmd += i+2;
     }else{
       blob_append(&r, zCmd+i, 1);
@@ -208,9 +215,10 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 **        Run the hook script given by ID for testing purposes.
 **        Options:
 **
-**            --dry-run         Print the script on stdout rather than run it
-**            --base-rcvid  N   Pretend that the hook-last-rcvid value is N
-**            --new-rcvid M     Pretend that the last rcvid valud is M
+**            --dry-run          Print the script on stdout rather than run it
+**            --base-rcvid  N    Pretend that the hook-last-rcvid value is N
+**            --new-rcvid M      Pretend that the last rcvid valud is M
+**            --aux-file NAME    NAME is substituted for %A in the script
 **
 **        The --base-rcvid and --new-rcvid options are silently ignored if
 **        the hook type is not "after-receive".  The default values for
@@ -353,6 +361,7 @@ void hook_cmd(void){
     int bDryRun = find_option("dry-run", "n", 0)!=0;
     const char *zOrigRcvid = find_option("base-rcvid",0,1);
     const char *zNewRcvid = find_option("new-rcvid",0,1);
+    const char *zAuxFilename = find_option("aux-file",0,1);
     verify_all_options();
     if( g.argc<4 ) usage("test ID");
     int id = atoi(g.argv[3]);
@@ -368,7 +377,7 @@ void hook_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zCmd = db_column_text(&q,0);
-      char *zCmd2 = hook_subst(zCmd);
+      char *zCmd2 = hook_subst(zCmd, zAuxFilename);
       int needOut = db_column_int(&q,1);
       Blob out;
       blob_init(&out,0,0);
@@ -434,7 +443,7 @@ int hook_backoffice(void){
     if( cnt==0 ){
       hook_changes(&chng, zLastRcvid, 0);
     }
-    zCmd = hook_subst(db_column_text(&q,0));
+    zCmd = hook_subst(db_column_text(&q,0), 0);
     f = popen(zCmd, "w");
     if( f ){
       fwrite(blob_buffer(&chng),1,blob_size(&chng),f);
@@ -449,4 +458,41 @@ int hook_backoffice(void){
 hook_backoffice_done:
   db_commit_transaction();
   return cnt;
+}
+
+/*
+** Run all hooks of type zType.  Use zAuxFile as the auxiliary information
+** file.
+**
+** If any hook returns non-zero, then stop running and return non-zero.
+** Return zero only if all hooks return zero.
+*/
+int hook_run(const char *zType, const char *zAuxFile, int traceFlag){
+  Stmt q;
+  int rc = 0;
+  if( !db_exists("SELECT 1 FROM config WHERE name='hooks'") ){
+    return 0;
+  }
+  db_prepare(&q,
+      "SELECT json_extract(jx.value,'$.cmd') "
+      "  FROM config, json_each(config.value) AS jx"
+      " WHERE config.name='hooks' AND json_valid(config.value)"
+      "   AND json_extract(jx.value,'$.type')=%Q"
+      " ORDER BY json_extract(jx.value,'$.seq');",
+      zType
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    char *zCmd;
+    zCmd = hook_subst(db_column_text(&q,0), zAuxFile);
+    if( traceFlag ){
+      fossil_print("%s hook: %s\n", zType, zCmd);
+    }
+    rc = fossil_system(zCmd);
+    fossil_free(zCmd);
+    if( rc ){
+      break;
+    }
+  }
+  db_finalize(&q);
+  return rc;
 }

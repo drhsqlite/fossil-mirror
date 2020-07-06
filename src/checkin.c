@@ -1327,6 +1327,62 @@ static void prepare_commit_comment(
 }
 
 /*
+** Prepare text that describes a pending commit and write it into
+** a file at the root of the check-in.  Return the name of that file.
+**
+** Space to hold the returned filename is obtained from fossil_malloc()
+** and should be freed by the caller.  The caller should also unlink
+** the file when it is done.
+*/
+static char *prepare_commit_description_file(
+  CheckinInfo *p,     /* Information about this commit */
+  int parent_rid      /* parent check-in */
+){
+  Blob *pDesc;
+  char *zTags;
+  char *zFilename;
+  Blob desc;
+  unsigned int r[2];
+  blob_init(&desc, 0, 0);
+  pDesc = &desc;
+  blob_appendf(pDesc, "checkout %s\n", g.zLocalRoot);
+  blob_appendf(pDesc, "repository %s\n", g.zRepositoryName);
+  blob_appendf(pDesc, "user %s\n",
+               p->zUserOvrd ? p->zUserOvrd : login_name());
+  blob_appendf(pDesc, "branch %s\n",
+    (p->zBranch && p->zBranch[0]) ? p->zBranch : "trunk");
+  zTags = info_tags_of_checkin(parent_rid, 1);
+  if( zTags || p->azTag ){
+    blob_append(pDesc, "tags ", -1);
+    if(zTags){
+      blob_appendf(pDesc, "%z%s", zTags, p->azTag ? ", " : "");
+    }
+    if(p->azTag){
+      int i = 0;
+      for( ; p->azTag[i]; ++i ){
+        blob_appendf(pDesc, "%s%s", p->azTag[i],
+                     p->azTag[i+1] ? ", " : "");
+      }
+    }
+    blob_appendf(pDesc, "\n");
+  }
+  status_report(pDesc, C_DEFAULT | C_FATAL);
+  if( g.markPrivate ){
+    blob_append(pDesc, "private-branch\n", -1);
+  }
+  if( p->integrateFlag ){
+    blob_append(pDesc, "integrate\n", -1);
+  }
+  sqlite3_randomness(sizeof(r), r);
+  zFilename = mprintf("%scommit-description-%08x%08x.txt",
+                      g.zLocalRoot, r[0], r[1]);
+  blob_write_to_file(pDesc, zFilename);
+  blob_reset(pDesc);
+  return zFilename;
+}
+
+
+/*
 ** Populate the Global.aCommitFile[] based on the command line arguments
 ** to a [commit] command. Global.aCommitFile is an array of integers
 ** sized at (N+1), where N is the number of arguments passed to [commit].
@@ -2010,7 +2066,10 @@ static int tagCmp(const void *a, const void *b){
 **    --branch NEW-BRANCH-NAME   check in to this new branch
 **    --branchcolor COLOR        apply given COLOR to the branch
 **    --close                    close the branch being committed
+**    --date-override DATETIME   DATE to use instead of 'now'
 **    --delta                    use a delta manifest in the commit process
+**    --hash                     verify file status using hashing rather
+**                               than relying on file mtimes
 **    --integrate                close all merged-in branches
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
@@ -2020,13 +2079,12 @@ static int tagCmp(const void *a, const void *b){
 **                               input and assumes an answer of 'No' for every
 **                               question.
 **    --no-warnings              omit all warnings about file contents
+**    --no-verify                do not run before-commit hooks
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --override-lock            allow a check-in even though parent is locked
 **    --private                  do not sync changes and their descendants
-**    --hash                     verify file status using hashing rather
-**                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
-**    --date-override DATETIME   DATE to use instead of 'now'
+**    --trace                    debug tracing.
 **    --user-override USER       USER to use instead of the current default
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
@@ -2052,6 +2110,8 @@ void commit_cmd(void){
   int privateParent = 0; /* True if the parent check-in is private */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
+  int noVerify = 0;      /* Do not run before-commit hooks */
+  int bTrace = 0;        /* Debug tracing */
   int noPrompt = 0;      /* True if skipping all prompts */
   int forceFlag = 0;     /* Undocumented: Disables all checks */
   int forceDelta = 0;    /* Force a delta-manifest */
@@ -2111,6 +2171,8 @@ void commit_cmd(void){
   allowOlder = find_option("allow-older",0,0)!=0;
   noPrompt = find_option("no-prompt", 0, 0)!=0;
   noWarningFlag = find_option("no-warnings", 0, 0)!=0;
+  noVerify = find_option("no-verify",0,0)!=0;
+  bTrace = find_option("trace",0,0)!=0;
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
@@ -2342,6 +2404,17 @@ void commit_cmd(void){
 
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
+
+    /* Run before-commit hooks */
+    if( !noVerify ){
+      char *zAuxFile = prepare_commit_description_file(&sCiInfo,vid);
+      int rc = hook_run("before-commit",zAuxFile,bTrace);
+      file_delete(zAuxFile);
+      fossil_free(zAuxFile);
+      if( rc ){
+        fossil_fatal("Before-commit hook failed\n");
+      }
+    }
   
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
