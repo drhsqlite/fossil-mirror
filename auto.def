@@ -10,7 +10,6 @@ options {
                          => {Look for zlib in the given path, automatically, or in the source tree}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
-    with-legacy-mv-rm=1  => {Enable legacy behavior for mv/rm (skip checkout files)}
     with-sanitizer:      => {Build with C compiler's -fsanitize=LIST; e.g. address,enum,null,undefined}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
@@ -185,7 +184,7 @@ if {![opt-bool internal-sqlite]} {
     file delete ./conftest__
   }
   test_system_sqlite
-    
+
 }
 
 proc is_mingw {} {
@@ -238,12 +237,6 @@ if {[opt-bool json]} {
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
     define FOSSIL_ENABLE_JSON
     msg-result "JSON support enabled"
-}
-
-if {[opt-bool with-legacy-mv-rm]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_LEGACY_MV_RM=1
-    define FOSSIL_ENABLE_LEGACY_MV_RM
-    msg-result "Legacy mv/rm support enabled"
 }
 
 if {[opt-bool with-exec-rel-paths]} {

@@ -1659,7 +1659,7 @@ static int isValidLocalDb(const char *zDbName){
   /* Check to see if the checkout database has the lastest schema changes.
   ** The most recent schema change (2019-01-19) is the addition of the
   ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
-  ** column, assume everything else is up-to-date. 
+  ** column, assume everything else is up-to-date.
   */
   if( db_table_has_column("localdb","vmerge","mhash") ){
     return 1;   /* This is a checkout database with the latest schema */
@@ -1890,7 +1890,7 @@ void db_open_repository(const char *zDbName){
       }
     }
 
-    /* Make sure the checkout database schema migration of 2019-01-20 
+    /* Make sure the checkout database schema migration of 2019-01-20
     ** has occurred.
     **
     ** The 2019-01-19 migration is the addition of the vmerge.mhash and
@@ -1907,7 +1907,7 @@ void db_open_repository(const char *zDbName){
       if( !db_table_has_column("localdb", "vmerge", "mhash") ){
         db_exec_sql("ALTER TABLE vmerge RENAME TO old_vmerge;");
         db_exec_sql(zLocalSchemaVmerge);
-        db_exec_sql(  
+        db_exec_sql(
            "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
            "  SELECT id, merge, blob.uuid FROM old_vmerge, blob"
            "   WHERE old_vmerge.merge=blob.rid;"
@@ -1930,7 +1930,7 @@ int db_repository_has_changed(void){
   unsigned int v;
   if( !g.repositoryOpen ) return 0;
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION, &v);
-  return g.iRepoDataVers != v;               
+  return g.iRepoDataVers != v;
 }
 
 /*
@@ -3573,7 +3573,7 @@ struct Setting {
 **
 ** For maximum security, set "localauth" to 1.  However, because
 ** of the other restrictions (2) through (4), it should be safe
-** to leave "localauth" set to 0 in most installations, and 
+** to leave "localauth" set to 0 in most installations, and
 ** especially on cloned repositories on workstations. Leaving
 ** "localauth" at 0 makes the "fossil ui" command more convenient
 ** to use.
@@ -3636,7 +3636,6 @@ struct Setting {
 ** are hashed to detect changes, which can be slow for large
 ** projects.
 */
-#if FOSSIL_ENABLE_LEGACY_MV_RM
 /*
 ** SETTING: mv-rm-files      boolean default=off
 ** If enabled, the "mv" and "rename" commands will also move
@@ -3644,7 +3643,6 @@ struct Setting {
 ** and "delete" commands will also remove the associated
 ** files from within the checkout.
 */
-#endif
 /*
 ** SETTING: pgp-command      width=40
 ** Command used to clear-sign manifests at check-in.
@@ -4156,7 +4154,7 @@ void test_database_name_cmd(void){
 ** are no security concerns - this is just a checksum, not a security
 ** token.
 */
-char *db_fingerprint(int rcvid, int iVersion){ 
+char *db_fingerprint(int rcvid, int iVersion){
   char *z = 0;
   Blob sql = BLOB_INITIALIZER;
   Stmt q;
@@ -4212,14 +4210,14 @@ void test_fingerprint(void){
     rcvid = atoi(g.argv[2]);
   }else if( g.argc!=2 ){
     fossil_fatal("wrong number of arguments");
-  } 
+  }
   fossil_print("legacy:              %z\n", db_fingerprint(rcvid, 0));
   fossil_print("version-1:           %z\n", db_fingerprint(rcvid, 1));
   if( g.localOpen ){
     fossil_print("localdb:             %z\n", db_lget("fingerprint","(none)"));
     fossil_print("db_fingerprint_ok(): %d\n", db_fingerprint_ok());
   }
-  fossil_print("Fossil version:      %s - %.10s %.19s\n", 
+  fossil_print("Fossil version:      %s - %.10s %.19s\n",
     RELEASE_VERSION, MANIFEST_DATE, MANIFEST_UUID);
 }
 
@@ -4271,7 +4269,7 @@ int db_fingerprint_ok(void){
     zRepo = db_fingerprint(atoi(zCkout), 0);
     rc = fossil_strcmp(zCkout,zRepo)==0;
     fossil_free(zRepo);
-  }  
+  }
   fossil_free(zCkout);
   return rc;
 }
