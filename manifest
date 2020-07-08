@@ -1,5 +1,5 @@
-C Follow-up\sto\sprevious\scheck-in:\savoid\sbreaking\sexternal\sfeature\sdetection\sfor\s'mv-rm-files'.
-D 2020-07-08T15:23:21.798
+C Fix\sfor\sproblem\sreported\sat\s[https://fossil-scm.org/forum/forumpost/e4953666d6]\swhich\striggered\sa\sJSON-mode\sassertion\swhen\strying\sto\saccess\sa\s/json\spath\svia\sa\sserver\srunning\sin\sdirectory-serving\smode\s(which\sprefixes\ssuch\spaths\swith\sthe\srepo\sname).\sSuch\spaths\sare\snow\srecognized\sas\sroutes\sinto\sthe\sJSON\sAPI.
+D 2020-07-08T20:26:09.075
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -530,7 +530,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 8fb429c3a00b1b7e2fbdc3c0f45356a73d3611622e95f6c4897203de7fd7d3c2
+F src/main.c 313d6278d71938b617058e0fde11ed24f84869b53162490b4d14cb0a61e6eedc
 F src/main.mk bffa5d480a556e0640ae7de370a97e418beea711e36c76cc69eb8f1afdab0252
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 918bcfcf77b419cc04ca609d0e74185ace996ccd170847f06b6f9fa4f6e91c51
-R 743a7ec2fdbf8e39ba36ee7e7a580c60
-U mistachkin
-Z bf850cc66b57109b84729fe50564e3b5
+P 4a880a166ae0bb7301b51b5b667a023267b6edc608ae478381b970c3890864f2
+R 3c2627148372fdcd2c88ac7d36e47f3f
+U stephan
+Z 3fc09be2a5b63f644f909e320d9bedc9

@@ -1581,10 +1581,26 @@ static void process_one_web_page(
   ** it looks like the ssh_request_loop() approach to dispatching
   ** might bypass that.
   */
-  if( g.json.isJsonMode==0 && zPathInfo!=0
-      && 0==strncmp("/json",zPathInfo,5)
-      && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
-    g.json.isJsonMode = 1;
+  if( g.json.isJsonMode==0 && zPathInfo!=0 ){
+    if(0==strncmp("/json",zPathInfo,5)
+       && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+      g.json.isJsonMode = 1;
+    }else if(g.zCmdName!=0 && 0==strcmp("server",g.zCmdName)){
+      /* When running in server "directory" mode, zPathInfo is
+      ** prefixed with the repository's name, so in order to determine
+      ** whether or not we're really running in json mode we have to
+      ** try a bit harder. Problem reported here:
+      ** https://fossil-scm.org/forum/forumpost/e4953666d6
+      */
+      ReCompiled * pReg = 0;
+      const char * zErr = re_compile(&pReg, "^/[^/]+/json(/.*)?", 0);
+      assert(zErr==0 && "Regex compilation failed?");
+      if(zErr==0 &&
+         re_match(pReg, (const unsigned char *)zPathInfo, -1)){
+        g.json.isJsonMode = 1;
+      }
+      re_free(pReg);
+    }
   }
 #endif
   /* If the repository has not been opened already, then find the
