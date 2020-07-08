@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\sscrub"\scommand\sto\sremove\sinformation\sabout\sSSL\scert\nexceptions\sand\shttp-auth\sdata\sfrom\spast\ssyncs.
-D 2020-07-05T19:22:14.947
+C since\sfossil\srequires\sSQLite\s3.33\snow,\sadapt\ssqlcompattest\saccordingly
+D 2020-07-08T11:58:35.714
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -597,7 +597,7 @@ F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616e
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c acd8dcbdd34e9a01938d73763a7114c025b7af308d806678e17cc022903ee919
-F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
+F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
 F src/sqlite3.c d704379956826f9465e23e76ec62d450b0005c82f8c1548d7a8d041dd69ca15f
 F src/sqlite3.h ea194d2d45ae17946aa66575b337f6b2161854f414054b9ae760c0cfc185e193
 F src/stash.c 465e0e9806f94b1f67f22949e92f95584e2ed0a91f1edbf5679858c2e425dfac
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ae6b1cc014cdbb8f3b0a62cd1b9f64b525ef749a8dce1722b92c49ce7d7ffe3
-R ddc2e02777766215777dbff004a4f435
-U drh
-Z fe9a4d95d130641c5a5f34fdad46c445
+P ef06d8a5ff97683210e37246a4079cce38eda31f50fdfac3d282ea4bd67755bb
+R ff666552d41815d39ddf05c096c8b422
+U jan.nijtmans
+Z 65ea937adffd4a8311f755f1d143115f
