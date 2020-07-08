@@ -1,5 +1,5 @@
-C Since\sFOSSIL_ENABLE_LEGACY_MV_RM\sis\senabled\sby\sdefault\s(it\sreally\sonly\sdoes\ssomething\swhen\sthe\s"mv-rm-files"\ssetting\sis\sset\sanyway),\sand\sthere\sis\sno\sreason\sto\sever\sdisable\sit,\sjust\sclean\sup\sthe\srelated\s#ifdef's.
-D 2020-07-08T13:53:52.882
+C Follow-up\sto\sprevious\scheck-in:\savoid\sbreaking\sexternal\sfeature\sdetection\sfor\s'mv-rm-files'.
+D 2020-07-08T15:23:21.798
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -530,7 +530,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c e6e7e265a48940af255faeb0bafc64112b1cfc245c7c8625ebd2816e89df9663
+F src/main.c 8fb429c3a00b1b7e2fbdc3c0f45356a73d3611622e95f6c4897203de7fd7d3c2
 F src/main.mk bffa5d480a556e0640ae7de370a97e418beea711e36c76cc69eb8f1afdab0252
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -613,7 +613,7 @@ F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2
 F src/th.c 225f4cc536e2e863038141e04e085540711abb706c85e4dde3d1e3b20792db30
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c 30ed6ea7bcbc46dacad1f78f6699c67fbce0f753f8f9fc156e8dde462010090b
+F src/th_main.c ef836b0721a6c6bdc221cbbbdd1567afc9b34d79b623e9e3ae952c0b9664b012
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c df3635a99a848682524d086a5c1d3afd74ab5ff46991e81e6e931f73c236b2bd
 F src/tkt.c 948d7dbca179604a6fd7326e660f437b314750c00098b21812d45500de35dca5
@@ -784,7 +784,7 @@ F win/Makefile.msc eea9355f6dc241dfeb39b72f7508621f95ea24adb349fac2b7d5fd8aeb621
 F win/buildmsvc.bat 2b589b31eb6d426c951611dd760a8480de7ced212d3edfcc5528ce47cd1b4471
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
-F win/fossil.rc 4cbdda8463e6faae525f4ac33d44efcf3255bd1635a5f75115d88b200a5adc8c
+F win/fossil.rc d86e2b5468fbfdcfa244432defe4029d39071fa92bf3f81f10d7ee7869ada19b
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c48ef7254dd5edc7ca3fd42000d2a576334379c076e74f4973f8297eb7b6b24c
-R 304d24d3693d095c52a17a9ced567253
-U jan.nijtmans
-Z a314d51f2c5aad16cf90fec02e27881f
+P 918bcfcf77b419cc04ca609d0e74185ace996ccd170847f06b6f9fa4f6e91c51
+R 743a7ec2fdbf8e39ba36ee7e7a580c60
+U mistachkin
+Z bf850cc66b57109b84729fe50564e3b5

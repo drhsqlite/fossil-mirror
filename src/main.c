@@ -1188,6 +1188,7 @@ void fossil_version_blob(
 #if defined(FOSSIL_ENABLE_DELTA_CKSUM_TEST)
   blob_append(pOut, "FOSSIL_ENABLE_DELTA_CKSUM_TEST\n", -1);
 #endif
+  blob_append(pOut, "FOSSIL_ENABLE_LEGACY_MV_RM\n", -1);
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
   blob_append(pOut, "FOSSIL_ENABLE_EXEC_REL_PATHS\n", -1);
 #endif
