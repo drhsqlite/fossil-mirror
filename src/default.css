@@ -800,9 +800,10 @@ label.forum-post-collapser {
   padding: 0.1em 0.5em;
   border: 1px outset;
   border-radius: 0.25em;
+  cursor: pointer;
 }
 input[type=checkbox].forum-post-collapser:checked ~ div.forumPostBody {
-  max-height: 10000em /* some "absurdly large" value */;
+  max-height: initial;
 }
 
 #capabilitySummary {
