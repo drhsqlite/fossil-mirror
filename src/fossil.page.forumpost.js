@@ -5,17 +5,21 @@
  
   F.onPageLoad(function(){
     const scrollbarIsVisible = (e)=>e.scrollHeight > e.clientHeight;
+    const getButtonHandler = function(contentElem){
+      return function(ev){
+        const btn = ev.target;
+        const isExpanded = D.hasClass(contentElem,'expanded');
+        btn.innerText = isExpanded ? 'Expand...' : 'Collapse';
+        contentElem.classList.toggle('expanded');
+      };
+    };
     const doCollapser = function(forumPostWrapper){
       const content = forumPostWrapper.querySelector('div.forumPostBody');
       if(!scrollbarIsVisible(content)) return;
-      const fid = forumPostWrapper.getAttribute('id');
-      const cb = D.input('checkbox'), lbl = D.label(),
-            cbId = fid+'-expand';
-      D.addClass([cb,lbl], 'forum-post-collapser');
-      cb.setAttribute('id',cbId);
-      lbl.setAttribute('for', cbId)
-      forumPostWrapper.insertBefore(cb, content);
-      forumPostWrapper.insertBefore(lbl, content);
+      const button = D.button('Expand...');
+      button.classList.add('forum-post-collapser');
+      button.addEventListener('click', getButtonHandler(content), false);
+      forumPostWrapper.insertBefore(button, content.nextSibling);
     };
     document.querySelectorAll(
       'div.forumHier, div.forumTime, div.forumHierRoot'

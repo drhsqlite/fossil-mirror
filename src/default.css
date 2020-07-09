@@ -770,40 +770,29 @@ div.forumHier, div.forumTime, div.forumHierRoot {
   display: flex;
   flex-direction: column;
 }
-div.forumPostBody {
+div.forumHier > div > form,
+div.forumTime > div > form,
+div.forumHierRoot > div > form {
+  margin: 0.5em 0;
+}
+button.forum-post-collapser {
+  align-self: flex-start;
+}
+div.forumPostBody{
   max-height: 20em /* Posts which overflow this value get an
                       Expand/Collapse toggle injected at page-load.
                       It's currently intentionally set low for
                       demonstration purposes. */;
   overflow: auto;
 }
+div.forumPostBody.expanded {
+  max-height: initial;
+}
 div.forumSel {
   background-color: #cef;
 }
 div.forumObs {
   color: #bbb;
-}
-
-input[type=checkbox].forum-post-collapser {
-  opacity: 0;
-  position: absolute;
-  z-index: -1;
-}
-input[type=checkbox].forum-post-collapser:checked ~ label.forum-post-collapser::before {
-  content: "Collapse";
-}
-input[type=checkbox].forum-post-collapser:not(:checked) ~ label.forum-post-collapser::before {
-  content: "Expand";
-}
-label.forum-post-collapser {
-  align-self: flex-start;
-  padding: 0.1em 0.5em;
-  border: 1px outset;
-  border-radius: 0.25em;
-  cursor: pointer;
-}
-input[type=checkbox].forum-post-collapser:checked ~ div.forumPostBody {
-  max-height: initial;
 }
 
 #capabilitySummary {

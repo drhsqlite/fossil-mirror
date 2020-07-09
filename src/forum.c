@@ -486,7 +486,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -507,7 +507,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>
@@ -594,7 +594,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -615,7 +615,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>
@@ -720,7 +720,7 @@ static int forum_display_hierarchical(int froot, int target){
       forum_render(0, pPost->zMimetype, pPost->zWiki, 0, 1);
     }
     if( g.perm.WrForum ){
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -741,7 +741,7 @@ static int forum_display_hierarchical(int froot, int target){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>

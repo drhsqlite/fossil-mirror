@@ -1,5 +1,5 @@
-C For\sexpanded\sview,\suse\smax-height:initial\sinstead\sof\ssome\sarbitrarily\slarge\svalue.\sThat\swill\seffectively\sdisable\smax-height.\sChange\sthe\spointer\sfor\sthe\sexpand\stoggle\sto\s'cursor'.
-D 2020-07-09T18:06:44.065
+C Moved\sexpand/collapse\stoggle\sto\sthe\sbottom\sof\sthe\spost,\sper\sforum\sfeedback.\sThat\srequired\schanging\sit\sto\sa\sbutton\sbecause\sof\sCSS\slimitations.\sFixed\sa\sfew\smis-used\sP\stags\sin\sthe\sFORM\spart\sof\seach\spost\s(P\scannot\shold\sa\sFORM).
+D 2020-07-09T18:31:24.727
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 87287ddb52c955f3e241368c1d627789ad2a7fbf49471bfa39a17d79ea835abf
-F src/default.css 93fcff1cc09d360f04983052f5de280f0c0c9fde7a7a13f416423599411e9bfd
+F src/default.css ed921e6e17a73402d865bac1e67f0396af7dadde947669357aabe9889592158b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -483,14 +483,14 @@ F src/file.c 280e206332e528509d9bafa30e5ffa953a0488d593f72cfa37bc87b97c5e2653
 F src/fileedit.c 8aff0a852929446b4852909deb44a2c56b0a40f42115b9fd337064b76d84bcea
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c d81c91668ddc3e583fb96e42c8b828d72106da25ee54f2656206b8234ebb5cf7
+F src/forum.c d2f20774ce843accbb8b8a846e6c4e56cf2716a8853a8f8b693fe5aeae8db7b9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd65ab2a61f5
 F src/fossil.confirmer.js 66352b4201476ff6d53aeb0515800bb6f2d6fe0ec6b8a18c67043ec20f093023
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 33eeef2dd66585a3841e1e5f04a4cb5ef2f5c388234f3412888fc9466dafde0a
 F src/fossil.page.fileedit.js 758ca64a3a1b6b57e69e042e4db820125b34d3c428525016605be429fe7a45a0
-F src/fossil.page.forumpost.js ec218647452b7499126cad8194c84f69fe72be8f86592c5686bf1b82fd318f13
+F src/fossil.page.forumpost.js 273d05ebd552370468c435e7c60a036d082c2eb36d2ba0729d04c622f6d25b8c
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -997,7 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d467dcb71edb7cefcf318b6a25031dacc7e965f57b15862ca0f34e5735a2931
-R f87d3e949d8634662069948e87429759
+P c824d1dc3e1c3fd5269767204445456002b63e7320840397d6bb0d6b2a3ccdec
+R 409b18cee1c40145aa37eb5f9d284062
 U stephan
-Z 21e210077d8eee4374367285841dbd2d
+Z 447163a0a883429d139adaf66570f61f
