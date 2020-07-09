@@ -1,5 +1,5 @@
-C Added\sa\stiny\smargin\sabove\sthe\sforum\sexpand/collapse\sbutton.\sDocs\sand\sminor\scleanups\sto\sthe\snew\sforum\sJS\scode.\sAdded\sa\sdisabled,\sbut\spotentially\sinteresting,\slong-press\shandler\sin\sthe\sforum\scode\sto\stoggle\sexpand/collapse.
-D 2020-07-09T20:39:31.095
+C Add\sthe\s"fossil\sbisect\sskip"\scommand.
+D 2020-07-09T20:44:17.294
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
 F src/backoffice.c dcde170153df58abe9cf663662a0a265d69ddead5a6c4042844d0316c948122d
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
-F src/bisect.c 1e44e7cbbee716dc7435289f20eceb7777b94180ae0d8446a7066bb8cb52ed0b
+F src/bisect.c e623f7b6952183e3969c9b7852ef1bd284c121a9c8b1362526fe944cd700f3d7
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
 F src/branch.c 157bff65105f6ebf6279c55a86caa32088c6bbcbcd441244e645be9db459f405
 F src/browse.c ef38b8132be2020218a3922f820baf6d1d0aaf81b58a106b3bb2ca48b2c40bc1
@@ -550,7 +550,7 @@ F src/mkindex.c dbc7ec0729df9ab683ff6a527f4ac22b2ddbd52bf8f56133d4c26d8629843cbc
 F src/mkversion.c 6ed1f6ce4ce8061c331b10820778ddd17686a0e98682539c6414ca7c4d0544da
 F src/moderate.c 8b693389df63229f87c99057ac1a4133b6fc9e10fc6b6b4699d43d5d14a09968
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
-F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
+F src/path.c 526b776f10f87f0fa3186848d68a000dffacab928b71a0d3ae515f03d317cc70
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -616,7 +616,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c ef836b0721a6c6bdc221cbbbdd1567afc9b34d79b623e9e3ae952c0b9664b012
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 0d2ab84a3e3b271aeb4aed8426018c47de23e83cb9874a5daf5d199d0bf977af
+F src/timeline.c f8268b3d1dd90d359bbfc1a387c383ee023b4c46828a223b684eb2340a8609f0
 F src/tkt.c 948d7dbca179604a6fd7326e660f437b314750c00098b21812d45500de35dca5
 F src/tktsetup.c 87857cd6f20c9b6d6031276571dfc54cbfdc692446bdc3ec1214018407319447
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -997,7 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd9cb4d24ad6cfc12a0198ac46ba50f4614afbc9ee59f8ea7a00e76cc381e9a6
-R b664d19069c1163d0074945e25821f0c
-U stephan
-Z 539962fab0910e771ae611789598977d
+P 8de6b9084a733e3539d13ea3ad8629fc65546ba91bc7136b2b223b54bba9523b
+R 1600ee015d1cd98d88dc9b4c1b72bbb3
+U drh
+Z 189ee17cdf5ea0f4f25befc1a8e76434

@@ -1915,7 +1915,7 @@ void page_timeline(void){
   ){
     int iCurrent = db_lget_int("checkout",0);
     char *zPerm = bisect_permalink();
-    bisect_create_bilog_table(iCurrent, 0);
+    bisect_create_bilog_table(iCurrent, 0, 1);
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
@@ -1923,7 +1923,7 @@ void page_timeline(void){
   }else{
     bisectLocal = 0;
   }
-  if( zBisect!=0 && bisect_create_bilog_table(0, zBisect) ){
+  if( zBisect!=0 && bisect_create_bilog_table(0, zBisect, 1) ){
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
@@ -1964,7 +1964,7 @@ void page_timeline(void){
     int nNodeOnPath = 0;
 
     if( from_rid && to_rid ){
-      p = path_shortest(from_rid, to_rid, noMerge, 0);
+      p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
       zFrom = P("from");
       zTo = P("to");
     }else{

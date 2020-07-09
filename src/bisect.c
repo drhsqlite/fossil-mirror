@@ -39,13 +39,26 @@ void bisect_path(void){
   bisect.bad = db_lget_int("bisect-bad", 0);
   bisect.good = db_lget_int("bisect-good", 0);
   if( bisect.good>0 && bisect.bad==0 ){
-    path_shortest(bisect.good, bisect.good, 0, 0);
+    path_shortest(bisect.good, bisect.good, 0, 0, 0);
   }else if( bisect.bad>0 && bisect.good==0 ){
-    path_shortest(bisect.bad, bisect.bad, 0, 0);
+    path_shortest(bisect.bad, bisect.bad, 0, 0, 0);
   }else if( bisect.bad==0 && bisect.good==0 ){
     fossil_fatal("neither \"good\" nor \"bad\" versions have been identified");
   }else{
-    p = path_shortest(bisect.good, bisect.bad, bisect_option("direct-only"), 0);
+    Bag skip;
+    int bDirect = bisect_option("direct-only");
+    char *zLog = db_lget("bisect-log","");
+    Blob log, id;
+    bag_init(&skip);
+    blob_init(&log, zLog, -1);
+    while( blob_token(&log, &id) ){
+      if( blob_str(&id)[0]=='s' ){
+        bag_insert(&skip, atoi(blob_str(&id)+1));
+      }
+    }
+    blob_reset(&log);
+    p = path_shortest(bisect.good, bisect.bad, bDirect, 0, &skip);
+    bag_clear(&skip);
     if( p==0 ){
       char *zBad = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",bisect.bad);
       char *zGood = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",bisect.good);
@@ -171,10 +184,29 @@ static void bisect_append_log(int rid){
 }
 
 /*
+** Append a new skip entry to the bisect log.
+*/
+static void bisect_append_skip(int rid){
+  db_multi_exec(
+     "UPDATE vvar SET value=value||' s%d' WHERE name='bisect-log'", rid
+  );
+}
+
+/*
 ** Create a TEMP table named "bilog" that contains the complete history
 ** of the current bisect.
+**
+** If iCurrent>0 then it is the RID of the current checkout and is included
+** in the history table.
+**
+** If zDesc is not NULL, then it is the bid= query parameter to /timeline
+** that describes a bisect.  Use the information in zDesc rather than in
+** the bisect-log variable.
+**
+** If bDetail is true, then also include information about every node
+** in between the inner-most GOOD and BAD nodes.
 */
-int bisect_create_bilog_table(int iCurrent, const char *zDesc){
+int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
   char *zLog;
   Blob log, id;
   Stmt q;
@@ -184,12 +216,13 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
 
   if( zDesc!=0 ){
     blob_init(&log, 0, 0);
-    while( zDesc[0]=='y' || zDesc[0]=='n' ){
+    while( zDesc[0]=='y' || zDesc[0]=='n' || zDesc[0]=='s' ){
       int i;
       char c;
       int rid;
       if( blob_size(&log) ) blob_append(&log, " ", 1);
       if( zDesc[0]=='n' ) blob_append(&log, "-", 1);
+      if( zDesc[0]=='s' ) blob_append(&log, "s", 1);
       for(i=1; ((c = zDesc[i])>='0' && c<='9') || (c>='a' && c<='f'); i++){}
       if( i==1 ) break;
       rid = db_int(0, 
@@ -216,16 +249,23 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
   db_prepare(&q, "INSERT OR IGNORE INTO bilog(seq,stat,rid)"
                  " VALUES(:seq,:stat,:rid)");
   while( blob_token(&log, &id) ){
-    int rid = atoi(blob_str(&id));
+    int rid;
     db_bind_int(&q, ":seq", ++cnt);
-    if( rid>0 ){
-      db_bind_text(&q, ":stat","GOOD");
+    if( blob_str(&id)[0]=='s' ){
+      rid = atoi(blob_str(&id)+1);
+      db_bind_text(&q, ":stat", "SKIP");
       db_bind_int(&q, ":rid", rid);
-      lastGood = rid;
     }else{
-      db_bind_text(&q, ":stat", "BAD");
-      db_bind_int(&q, ":rid", -rid);
-      lastBad = -rid;
+      rid = atoi(blob_str(&id));
+      if( rid>0 ){
+        db_bind_text(&q, ":stat","GOOD");
+        db_bind_int(&q, ":rid", rid);
+        lastGood = rid;
+      }else{
+        db_bind_text(&q, ":stat", "BAD");
+        db_bind_int(&q, ":rid", -rid);
+        lastBad = -rid;
+      }
     }
     db_step(&q);
     db_reset(&q);
@@ -237,9 +277,9 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
     db_step(&q);
     db_reset(&q);
   }
-  if( lastGood>0 && lastBad>0 ){
+  if( bDetail && lastGood>0 && lastBad>0 ){
     PathNode *p;
-    p = path_shortest(lastGood, lastBad, bisect_option("direct-only"),0);
+    p = path_shortest(lastGood, lastBad, bisect_option("direct-only"),0, 0);
     while( p ){
       db_bind_null(&q, ":seq");
       db_bind_null(&q, ":stat");
@@ -269,10 +309,21 @@ char *bisect_permalink(void){
   Blob id;
   blob_init(&log, zLog, -1);
   while( blob_token(&log, &id) ){
-    int rid = atoi(blob_str(&id));
-    char *zUuid = db_text(0,"SELECT lower(uuid) FROM blob WHERE rid=%d",
-                       rid<0 ? -rid : rid);
-    blob_appendf(&link, "%c%.10s", rid<0 ? 'n' : 'y', zUuid);
+    const char *zUuid;
+    int rid;
+    char cPrefix = 'y';
+    if( blob_str(&id)[0]=='s' ){
+      rid = atoi(blob_str(&id)+1);
+      cPrefix = 's';
+    }else{
+      rid = atoi(blob_str(&id));
+      if( rid<0 ){
+        cPrefix = 'n';
+        rid = -rid;
+      }
+    }
+    zUuid = db_text(0,"SELECT lower(uuid) FROM blob WHERE rid=%d", rid);
+    blob_appendf(&link, "%c%.10s", cPrefix, zUuid);
   }
   zResult = mprintf("%s", blob_str(&link));
   blob_reset(&link);
@@ -288,7 +339,7 @@ char *bisect_permalink(void){
 static void bisect_chart(int sortByCkinTime){
   Stmt q;
   int iCurrent = db_lget_int("checkout",0);
-  bisect_create_bilog_table(iCurrent, 0);
+  bisect_create_bilog_table(iCurrent, 0, 0);
   db_prepare(&q,
     "SELECT bilog.seq, bilog.stat,"
     "       substr(blob.uuid,1,16), datetime(event.mtime),"
@@ -361,6 +412,13 @@ void bisect_reset(void){
 **       Reinitialize a bisect session.  This cancels prior bisect history
 **       and allows a bisect session to start over from the beginning.
 **
+** > fossil bisect skip ?VERSION?
+**
+**       Cause VERSION (or the current checkout if VERSION is omitted) to
+**       be ignored for the purpose of the current bisect.  This might
+**       be done, for example, because VERSION does not compile correctly
+**       or is otherwise unsuitable to participate in this bisect.
+**
 ** > fossil bisect vlist|ls|status ?-a|--all?
 **
 **       List the versions in between "bad" and "good".
@@ -427,6 +485,24 @@ void bisect_cmd(void){
         n = 4;
       }
     }
+  }else if( strncmp(zCmd, "skip", n)==0 ){
+    int ridSkip;
+    foundCmd = 1;
+    if( g.argc==3 ){
+      ridSkip = db_lget_int("checkout",0);
+    }else{
+      ridSkip = name_to_typed_rid(g.argv[3], "ci");
+    }
+    if( ridSkip>0 ){
+      bisect_append_skip(ridSkip);
+      if( bisect_option("auto-next") 
+       && db_lget_int("bisect-bad",0)>0
+       && db_lget_int("bisect-good",0)>0
+      ){
+        zCmd = "next";
+        n = 4;
+      }
+    }
   }else if( strncmp(zCmd, "undo", n)==0 ){
     char *zLog;
     Blob log, id;
@@ -472,7 +548,7 @@ void bisect_cmd(void){
     if( pMid==0 ){
       fossil_print("bisect complete\n");
     }else{
-      int nSpan = path_length();
+      int nSpan = path_length_not_hidden();
       int nStep = path_search_depth();
       g.argv[1] = "update";
       g.argv[2] = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pMid->rid);
