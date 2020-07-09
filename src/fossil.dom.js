@@ -74,6 +74,7 @@
   dom.span = dom.createElemFactory('span');
   dom.strong = dom.createElemFactory('strong');
   dom.em = dom.createElemFactory('em');
+  dom.label = dom.createElemFactory('label');
   dom.img = function(src){
     const e = dom.create('img');
     if(src) e.setAttribute('src',src);

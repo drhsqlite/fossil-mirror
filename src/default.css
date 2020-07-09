@@ -771,7 +771,10 @@ div.forumHier, div.forumTime, div.forumHierRoot {
   flex-direction: column;
 }
 div.forumPostBody {
-  max-height: 100em;
+  max-height: 20em /* Posts which overflow this value get an
+                      Expand/Collapse toggle injected at page-load.
+                      It's currently intentionally set low for
+                      demonstration purposes. */;
   overflow: auto;
 }
 div.forumSel {
@@ -798,11 +801,8 @@ label.forum-post-collapser {
   border: 1px outset;
   border-radius: 0.25em;
 }
-input[type=checkbox].forum-post-collapser:not(:checked) ~ div.forumPostBody {
-  max-height: 10em;
-}
 input[type=checkbox].forum-post-collapser:checked ~ div.forumPostBody {
-  max-height: 200em;
+  max-height: 10000em /* some "absurdly large" value */;
 }
 
 #capabilitySummary {

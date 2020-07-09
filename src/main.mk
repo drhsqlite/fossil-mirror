@@ -228,6 +228,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
   $(SRCDIR)/fossil.page.fileedit.js \
+  $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.storage.js \
   $(SRCDIR)/fossil.tabs.js \
   $(SRCDIR)/graph.js \
