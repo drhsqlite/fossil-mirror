@@ -404,7 +404,6 @@ char *display_name_from_login(const char *zLogin){
   return zResult;
 }
 
-
 /*
 ** Display all posts in a forum thread in chronological order
 */
@@ -487,7 +486,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -508,7 +507,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>
@@ -595,7 +594,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -616,7 +615,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>
@@ -721,7 +720,7 @@ static int forum_display_hierarchical(int froot, int target){
       forum_render(0, pPost->zMimetype, pPost->zWiki, 0, 1);
     }
     if( g.perm.WrForum ){
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -742,13 +741,31 @@ static int forum_display_hierarchical(int froot, int target){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>
   }
   forumthread_delete(pThread);
   return target;
+}
+
+/*
+** The first time this is called, it emits SCRIPT tags to load various
+** forum-related JavaScript. Ideally it should be called near the end
+** of the page, immediately before the call to style_footer() (which
+** closes the document's <BODY> and <HTML> tags). Calls after the first
+** are a no-op.
+*/
+static void forum_emit_page_js(){
+  static int once = 0;
+  if(0==once){
+    once = 1;
+    style_load_js("forum.js");
+    style_emit_script_fossil_bootstrap(0);
+    style_emit_script_dom(0);
+    style_emit_script_builtin(0, "fossil.page.forumpost.js");
+  }
 }
 
 /*
@@ -879,7 +896,7 @@ void forumthread_page(void){
     style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
-  style_load_js("forum.js");
+  forum_emit_page_js();
   style_footer();
 }
 

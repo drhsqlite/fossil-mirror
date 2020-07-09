@@ -766,9 +766,24 @@ div.forumHier, div.forumTime {
   padding-right: 1ex;
   margin-top: 1ex;
 }
-div.forumPostBody {
-  max-height: 100em;
+div.forumHier, div.forumTime, div.forumHierRoot {
+  display: flex;
+  flex-direction: column;
+}
+div.forumHier > div > form,
+div.forumTime > div > form,
+div.forumHierRoot > div > form {
+  margin: 0.5em 0;
+}
+button.forum-post-collapser {
+  align-self: flex-start;
+}
+div.forumPostBody{
+  max-height: 50em;
   overflow: auto;
+}
+div.forumPostBody.expanded {
+  max-height: initial;
 }
 div.forumSel {
   background-color: #cef;
@@ -776,6 +791,7 @@ div.forumSel {
 div.forumObs {
   color: #bbb;
 }
+
 #capabilitySummary {
   text-align: center;
 }
