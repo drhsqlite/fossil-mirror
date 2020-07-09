@@ -179,6 +179,8 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
   Blob log, id;
   Stmt q;
   int cnt = 0;
+  int lastGood = -1;
+  int lastBad = -1;
 
   if( zDesc!=0 ){
     blob_init(&log, 0, 0);
@@ -206,9 +208,9 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
   }
   db_multi_exec(
      "CREATE TEMP TABLE bilog("
-     "  seq INTEGER PRIMARY KEY,"  /* Sequence of events */
+     "  rid INTEGER PRIMARY KEY,"  /* Sequence of events */
      "  stat TEXT,"                /* Type of occurrence */
-     "  rid INTEGER UNIQUE"        /* Check-in number */
+     "  seq INTEGER UNIQUE"        /* Check-in number */
      ");"
   );
   db_prepare(&q, "INSERT OR IGNORE INTO bilog(seq,stat,rid)"
@@ -216,8 +218,15 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
   while( blob_token(&log, &id) ){
     int rid = atoi(blob_str(&id));
     db_bind_int(&q, ":seq", ++cnt);
-    db_bind_text(&q, ":stat", rid>0 ? "GOOD" : "BAD");
-    db_bind_int(&q, ":rid", rid>=0 ? rid : -rid);
+    if( rid>0 ){
+      db_bind_text(&q, ":stat","GOOD");
+      db_bind_int(&q, ":rid", rid);
+      lastGood = rid;
+    }else{
+      db_bind_text(&q, ":stat", "BAD");
+      db_bind_int(&q, ":rid", -rid);
+      lastBad = -rid;
+    }
     db_step(&q);
     db_reset(&q);
   }
@@ -226,6 +235,20 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
     db_bind_text(&q, ":stat", "CURRENT");
     db_bind_int(&q, ":rid", iCurrent);
     db_step(&q);
+    db_reset(&q);
+  }
+  if( lastGood>0 && lastBad>0 ){
+    PathNode *p;
+    p = path_shortest(lastGood, lastBad, bisect_option("direct-only"),0);
+    while( p ){
+      db_bind_null(&q, ":seq");
+      db_bind_null(&q, ":stat");
+      db_bind_int(&q, ":rid", p->rid);
+      db_step(&q);
+      db_reset(&q);
+      p = p->u.pTo;
+    }
+    path_reset();
   }
   db_finalize(&q);
   return 1;

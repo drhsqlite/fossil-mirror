@@ -1,5 +1,5 @@
-C Do\snot\sshort-circuit\sa\s/timeline\srequest\susing\sETAGS\sif\sthe\sbisect\sparameter\nis\sused.
-D 2020-07-09T17:12:35.450
+C Enhance\sthe\s/timeline\s"bisect"\sand\s"bid"\sviews\sso\sthat\sthey\sshows\sall\nunresolved\scheckins\sin\sbetween\sthe\sinnermost\sgood\sand\sbad\scheckins.
+D 2020-07-09T17:42:49.505
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
 F src/backoffice.c dcde170153df58abe9cf663662a0a265d69ddead5a6c4042844d0316c948122d
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
-F src/bisect.c ccfc0f258cb9441a063f5cbd83066ee4755d8b16b918aeaa19ab38d57e000660
+F src/bisect.c 1e44e7cbbee716dc7435289f20eceb7777b94180ae0d8446a7066bb8cb52ed0b
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
 F src/branch.c 157bff65105f6ebf6279c55a86caa32088c6bbcbcd441244e645be9db459f405
 F src/browse.c ef38b8132be2020218a3922f820baf6d1d0aaf81b58a106b3bb2ca48b2c40bc1
@@ -615,7 +615,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c ef836b0721a6c6bdc221cbbbdd1567afc9b34d79b623e9e3ae952c0b9664b012
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 45c65aa085bb49a485b565754c0df9d819fbaf91894e60dcec067499603a7e35
+F src/timeline.c 0d2ab84a3e3b271aeb4aed8426018c47de23e83cb9874a5daf5d199d0bf977af
 F src/tkt.c 948d7dbca179604a6fd7326e660f437b314750c00098b21812d45500de35dca5
 F src/tktsetup.c 87857cd6f20c9b6d6031276571dfc54cbfdc692446bdc3ec1214018407319447
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29f7da931863784a257c727d73d0e22aa5b196b14c93c93b96ff3880a7c993a3
-R 3c4a22b1360fda1ea9da41acb46ee208
+P 4acb9cd27659870d0dd4036b01130763db54ecaec710c6a64046686a12e0c290
+R 31cd24a1befdd0bcf04b2c3fe3e3c26d
 U drh
-Z 2d96dfbb26acdf70fed0b457ddeeafd4
+Z 595a344ef5c0a1a4edfdfaa94dbeabb3
