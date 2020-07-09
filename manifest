@@ -1,5 +1,5 @@
-C Provide\san\s"Expand"\sor\s"Collapse"\sbutton\son\slong\sforum\sposts.\s\sThe\ndefault\sthreshold\sis\s50em.
-D 2020-07-09T19:09:16.566
+C Added\sa\stiny\smargin\sabove\sthe\sforum\sexpand/collapse\sbutton.\sDocs\sand\sminor\scleanups\sto\sthe\snew\sforum\sJS\scode.\sAdded\sa\sdisabled,\sbut\spotentially\sinteresting,\slong-press\shandler\sin\sthe\sforum\scode\sto\stoggle\sexpand/collapse.
+D 2020-07-09T20:39:31.095
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 87287ddb52c955f3e241368c1d627789ad2a7fbf49471bfa39a17d79ea835abf
-F src/default.css 221dd297cae1d175ea3563e6a82045928f98c8cd6742f592805a6e7c2731e87c
+F src/default.css 1b10c83a8814c38b99108f641d3cb5e25cfc388d21c55179efec049457f420bf
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -490,7 +490,7 @@ F src/fossil.confirmer.js 66352b4201476ff6d53aeb0515800bb6f2d6fe0ec6b8a18c67043e
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 33eeef2dd66585a3841e1e5f04a4cb5ef2f5c388234f3412888fc9466dafde0a
 F src/fossil.page.fileedit.js 758ca64a3a1b6b57e69e042e4db820125b34d3c428525016605be429fe7a45a0
-F src/fossil.page.forumpost.js 273d05ebd552370468c435e7c60a036d082c2eb36d2ba0729d04c622f6d25b8c
+F src/fossil.page.forumpost.js f01359b8f2e03823e387b878cb52ec804867a349ba15179aaa941c4aeaa750e7
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -997,8 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a0fd6fb5c19a3def7965422ac38b0787211496207b2e4d5882e020ea94e8341 eb392f97191affe5b031c6e3895298644118460e22f14ffec45a90447b97fad9
-R b7482e58c111e9636f11d0f11124fdf8
-T +closed eb392f97191affe5b031c6e3895298644118460e22f14ffec45a90447b97fad9
-U drh
-Z 44da956f7a96f187dbfca3f4e223f4ce
+P cd9cb4d24ad6cfc12a0198ac46ba50f4614afbc9ee59f8ea7a00e76cc381e9a6
+R b664d19069c1163d0074945e25821f0c
+U stephan
+Z 539962fab0910e771ae611789598977d
