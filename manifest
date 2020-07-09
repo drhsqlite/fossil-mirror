@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sbisect\sskip"\scommand.
-D 2020-07-09T20:44:17.294
+C Improvements\sto\sbisect\sbuilt-in\sdocumentation.\s\sNo\schanges\sto\scode.
+D 2020-07-09T20:50:26.217
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
 F src/backoffice.c dcde170153df58abe9cf663662a0a265d69ddead5a6c4042844d0316c948122d
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
-F src/bisect.c e623f7b6952183e3969c9b7852ef1bd284c121a9c8b1362526fe944cd700f3d7
+F src/bisect.c 650df50842c53957a95723d19225d381c6ade20da82a838212f19f1ff1494c75
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
 F src/branch.c 157bff65105f6ebf6279c55a86caa32088c6bbcbcd441244e645be9db459f405
 F src/browse.c ef38b8132be2020218a3922f820baf6d1d0aaf81b58a106b3bb2ca48b2c40bc1
@@ -997,7 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8de6b9084a733e3539d13ea3ad8629fc65546ba91bc7136b2b223b54bba9523b
-R 1600ee015d1cd98d88dc9b4c1b72bbb3
+P 9e7262b4e0304740c35839f35a84a358484f217e63e597edb26891e4b1a8ce8f
+R d4f2a6ad7cfefe0da57c3438c978405b
 U drh
-Z 189ee17cdf5ea0f4f25befc1a8e76434
+Z a0e88cf081ced641a67bc2abe3d00264

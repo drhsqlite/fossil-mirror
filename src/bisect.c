@@ -393,9 +393,9 @@ void bisect_reset(void){
 ** > fossil bisect log
 ** > fossil bisect chart
 **
-**       Show a log of "good" and "bad" versions.  "bisect log" shows the
-**       events in the order that they were tested.  "bisect chart" shows
-**       them in order of check-in.
+**       Show a log of "good", "bad", and "skip" versions.  "bisect log"
+**       shows the  events in the order that they were tested.
+**       "bisect chart" shows them in order of check-in.
 **
 ** > fossil bisect next
 **
@@ -421,7 +421,7 @@ void bisect_reset(void){
 **
 ** > fossil bisect vlist|ls|status ?-a|--all?
 **
-**       List the versions in between "bad" and "good".
+**       List the versions in between the inner-most "bad" and "good".
 **
 ** > fossil bisect ui
 **
@@ -430,19 +430,7 @@ void bisect_reset(void){
 **
 ** > fossil bisect undo
 **
-**       Undo the most recent "good" or "bad" command.
-**
-** Summary:
-**  * fossil bisect bad ?VERSION?
-**  * fossil bisect good ?VERSION?
-**  * fossil bisect log
-**  * fossil bisect chart
-**  * fossil bisect next
-**  * fossil bisect options
-**  * fossil bisect reset
-**  * fossil bisect status
-**  * fossil bisect ui
-**  * fossil bisect undo
+**       Undo the most recent "good", "bad", or "skip" command.
 */
 void bisect_cmd(void){
   int n;
