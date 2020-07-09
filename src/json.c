@@ -55,6 +55,39 @@ const FossilJsonKeys_ FossilJsonKeys = {
 };
 
 /*
+** Given the current request path string, this function returns true
+** if it refers to a JSON API path. i.e. if (1) it starts with /json
+** or (2) g.zCmdName is "server" and the path starts with
+** /somereponame/json. Specifically, it returns 1 in the former case
+** and 2 for the latter.
+*/
+int json_request_is_json_api(const char * zPathInfo){
+  int rc = 0;
+  if(zPathInfo==0){
+    rc = 0;
+  }else if(0==strncmp("/json",zPathInfo,5)
+           && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+    rc = 1;
+  }else if(g.zCmdName!=0 && 0==strcmp("server",g.zCmdName)){
+    /* When running in server "directory" mode, zPathInfo is
+    ** prefixed with the repository's name, so in order to determine
+    ** whether or not we're really running in json mode we have to
+    ** try a bit harder. Problem reported here:
+    ** https://fossil-scm.org/forum/forumpost/e4953666d6
+    */
+    ReCompiled * pReg = 0;
+    const char * zErr = re_compile(&pReg, "^/[^/]+/json(/.*)?", 0);
+    assert(zErr==0 && "Regex compilation failed?");
+    if(zErr==0 &&
+         re_match(pReg, (const unsigned char *)zPathInfo, -1)){
+      rc = 2;
+    }
+    re_free(pReg);
+  }
+  return rc;
+}
+
+/*
 ** Returns true (non-0) if fossil appears to be running in JSON mode.
 ** and either has JSON POSTed input awaiting consumption or fossil is
 ** running in HTTP mode (in which case certain JSON data *might* be

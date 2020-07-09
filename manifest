@@ -1,5 +1,5 @@
-C JS\sfossil.fetch():\smoved\san\sXHR.setRequestHeader()\scall\sto\safter\sthe\sXHR.open()\scall\sbecause\sFF\snow\ssays\sit\smust\sbe\sdone\sin\sthat\sorder.
-D 2020-07-09T03:13:35.218
+C Refactored\s[23e138e808]\sa\sbit\sto\smove\ssome\snew\sjson-only\scode\sfrom\smain.c\sto\sjson.c.
+D 2020-07-09T12:53:37.774
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -507,7 +507,7 @@ F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 9869461c225c78f5fa51b57735032df7f74cbfceb3bea99a5541c1f4f9f12204
 F src/info.c b5821b079a45826e92029212fdc140aac8c81106d2d1edc669765e56aa7aac1e
-F src/json.c b0e5305671157d402aef5cdc0c0ab16c3776ebf5fab33a77ae5134abb26dee8a
+F src/json.c 4682e16c66a8093d529b1f0c132eef4b7efde0a0a111097241f928746c4fd6ee
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -530,7 +530,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 62faea21ddd37e8cd62e581850ed5249eda7e06e0c8ee615b246fbe7ba9e10ed
+F src/main.c 0958e53a133e87d64dbf1c8e234111a66db1be3799ee573bc410348530f8c1f7
 F src/main.mk bffa5d480a556e0640ae7de370a97e418beea711e36c76cc69eb8f1afdab0252
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 23e138e808ff34066a91ce1b454b928bb2de898795770a72b001e1a0f84c6a6b
-R 52b3efea9e9c64829846e70c3102ce84
+P 98f3c05c09ac07cf4ca54a062dd8f64addb132cf3fe52e51507ba70a3757e061
+R 2c84341a55bce3ccd7ed94cba99cbd8f
 U stephan
-Z 4ffcffdd4f2233eb7cb6bd92d92211f2
+Z 77390b0b28254fa61fbfb2b59dc250ed
