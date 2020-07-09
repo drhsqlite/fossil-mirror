@@ -1188,9 +1188,7 @@ void fossil_version_blob(
 #if defined(FOSSIL_ENABLE_DELTA_CKSUM_TEST)
   blob_append(pOut, "FOSSIL_ENABLE_DELTA_CKSUM_TEST\n", -1);
 #endif
-#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
   blob_append(pOut, "FOSSIL_ENABLE_LEGACY_MV_RM\n", -1);
-#endif
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
   blob_append(pOut, "FOSSIL_ENABLE_EXEC_REL_PATHS\n", -1);
 #endif
@@ -1583,9 +1581,7 @@ static void process_one_web_page(
   ** it looks like the ssh_request_loop() approach to dispatching
   ** might bypass that.
   */
-  if( g.json.isJsonMode==0 && zPathInfo!=0
-      && 0==strncmp("/json",zPathInfo,5)
-      && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+  if( g.json.isJsonMode==0 && json_request_is_json_api(zPathInfo) ){
     g.json.isJsonMode = 1;
   }
 #endif

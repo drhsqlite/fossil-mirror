@@ -518,7 +518,7 @@ void www_print_timeline(
     if( (tmFlags & TIMELINE_BISECT)!=0 && zType[0]=='c' ){
       static Stmt bisectQuery;
       db_static_prepare(&bisectQuery,
-          "SELECT seq, stat FROM bilog WHERE rid=:rid");
+          "SELECT seq, stat FROM bilog WHERE rid=:rid AND seq");
       db_bind_int(&bisectQuery, ":rid", rid);
       if( db_step(&bisectQuery)==SQLITE_ROW ){
         @ <b>%s(db_column_text(&bisectQuery,1))</b>
@@ -1749,7 +1749,9 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
-  etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA|ETAG_CONFIG, 0);
+  if( !bisectLocal ){
+    etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA|ETAG_CONFIG, 0);
+  }
   cookie_read_parameter("y","y");
   zType = P("y");
   if( zType==0 ){
@@ -1913,7 +1915,7 @@ void page_timeline(void){
   ){
     int iCurrent = db_lget_int("checkout",0);
     char *zPerm = bisect_permalink();
-    bisect_create_bilog_table(iCurrent, 0);
+    bisect_create_bilog_table(iCurrent, 0, 1);
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
@@ -1921,7 +1923,7 @@ void page_timeline(void){
   }else{
     bisectLocal = 0;
   }
-  if( zBisect!=0 && bisect_create_bilog_table(0, zBisect) ){
+  if( zBisect!=0 && bisect_create_bilog_table(0, zBisect, 1) ){
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
@@ -1962,7 +1964,7 @@ void page_timeline(void){
     int nNodeOnPath = 0;
 
     if( from_rid && to_rid ){
-      p = path_shortest(from_rid, to_rid, noMerge, 0);
+      p = path_shortest(from_rid, to_rid, noMerge, 0, 0);
       zFrom = P("from");
       zTo = P("to");
     }else{

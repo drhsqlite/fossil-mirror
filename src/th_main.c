@@ -827,11 +827,9 @@ static int hasfeatureCmd(
     rc = 1;
   }
 #endif
-#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
   else if( 0 == fossil_strnicmp( zArg, "legacyMvRm\0", 11 ) ){
     rc = 1;
   }
-#endif
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
   else if( 0 == fossil_strnicmp( zArg, "execRelPaths\0", 13 ) ){
     rc = 1;

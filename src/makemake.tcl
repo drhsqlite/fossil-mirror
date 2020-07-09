@@ -610,10 +610,6 @@ BCC = $(BCCEXE)
 #
 # FOSSIL_ENABLE_EXEC_REL_PATHS = 1
 
-#### Enable legacy treatment of mv/rm (skip checkout files)
-#
-FOSSIL_ENABLE_LEGACY_MV_RM = 1
-
 #### Enable TH1 scripts in embedded documentation files
 #
 # FOSSIL_ENABLE_TH1_DOCS = 1
@@ -835,12 +831,6 @@ endif
 ifdef FOSSIL_ENABLE_EXEC_REL_PATHS
 TCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 RCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
-endif
-
-# With legacy treatment of mv/rm
-ifdef FOSSIL_ENABLE_LEGACY_MV_RM
-TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
-RCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 endif
 
 # With TH1 embedded docs support
@@ -1528,11 +1518,6 @@ FOSSIL_ENABLE_EXEC_REL_PATHS = 0
 FOSSIL_ENABLE_JSON = 0
 !endif
 
-# Enable legacy treatment of the mv/rm commands?
-!ifndef FOSSIL_ENABLE_LEGACY_MV_RM
-FOSSIL_ENABLE_LEGACY_MV_RM = 1
-!endif
-
 # Enable use of miniz instead of zlib?
 !ifndef FOSSIL_ENABLE_MINIZ
 FOSSIL_ENABLE_MINIZ = 0
@@ -1716,11 +1701,6 @@ LIBDIR    = $(LIBDIR) /LIBPATH:"$(SSLLIBDIR)"
 !if $(FOSSIL_ENABLE_EXEC_REL_PATHS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
-!endif
-
-!if $(FOSSIL_ENABLE_LEGACY_MV_RM)!=0
-TCC       = $(TCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
-RCC       = $(RCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
 !endif
 
 !if $(FOSSIL_ENABLE_TH1_DOCS)!=0
