@@ -766,6 +766,10 @@ div.forumHier, div.forumTime {
   padding-right: 1ex;
   margin-top: 1ex;
 }
+div.forumHier, div.forumTime, div.forumHierRoot {
+  display: flex;
+  flex-direction: column;
+}
 div.forumPostBody {
   max-height: 100em;
   overflow: auto;
@@ -776,6 +780,30 @@ div.forumSel {
 div.forumObs {
   color: #bbb;
 }
+
+input[type=checkbox].forum-post-collapser {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}
+input[type=checkbox].forum-post-collapser:checked ~ label.forum-post-collapser::before {
+  content: "Collapse";
+}
+input[type=checkbox].forum-post-collapser:not(:checked) ~ label.forum-post-collapser::before {
+  content: "Expand";
+}
+label.forum-post-collapser {
+  display: block;
+  border: 1px outset;
+  border-radius: 0.25em;
+}
+input[type=checkbox].forum-post-collapser:not(:checked) ~ div.forumPostBody {
+  max-height: 10em;
+}
+input[type=checkbox].forum-post-collapser:checked ~ div.forumPostBody {
+  max-height: 200em;
+}
+
 #capabilitySummary {
   text-align: center;
 }

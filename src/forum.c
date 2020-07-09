@@ -404,6 +404,22 @@ char *display_name_from_login(const char *zLogin){
   return zResult;
 }
 
+/*
+** Emits a checkbox and label for implementing a CSS-only
+** collapse/expand button on posts. It should be passed the UUID of
+** the current post, but that value is only used for constructing a
+** unique ID for the (invisible) checkbox so that the label can be
+** bound to it via its 'for' attribute. Thus it doesn't really matter
+** whether the UUID refers to the current (edited) instance of the
+** post or an ancestor version, so long as the UUID is unique within
+** the current page.
+*/
+static void forum_emit_post_toggle(const char * zUuid){
+  @ <input type='checkbox' id='cb-post-%S(zUuid)' \
+  @ class='forum-post-collapser'>
+  @ <label for='cb-post-%S(zUuid)' \
+  @ class='forum-post-collapser'></label>
+}
 
 /*
 ** Display all posts in a forum thread in chronological order
@@ -471,6 +487,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     isPrivate = content_is_private(p->fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     @ </h3>
+    forum_emit_post_toggle(p->zUuid);
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
@@ -586,6 +603,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
     isPrivate = content_is_private(p->fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     @ </h3>
+    forum_emit_post_toggle(zUuid);
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
@@ -713,6 +731,7 @@ static int forum_display_hierarchical(int froot, int target){
       }
     }
     @ </h3>
+    forum_emit_post_toggle(zUuid);
     isPrivate = content_is_private(fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     if( isPrivate && !g.perm.ModForum && !sameUser ){

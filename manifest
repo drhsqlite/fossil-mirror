@@ -1,5 +1,5 @@
-C Change\sthe\sheight\sat\swhich\sscrolling\skicks\sin\sfor\sforum\sposts\sfrom\s40em\nto\s100em.\s\sThis\sis\san\sexperiment.
-D 2020-07-09T14:53:00.352
+C Very\srough\sproof-of-concept\sfor\sa\spure-CSS\sexpand/collapse\soption\sfor\sforum\sposts.\sDemonstrates\sthe\scapability\sbut\sis\sfar\sfrom\spolished\senough\sto\sbring\sonline.
+D 2020-07-09T15:35:16.995
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 87287ddb52c955f3e241368c1d627789ad2a7fbf49471bfa39a17d79ea835abf
-F src/default.css bd6528529373180eb210f48a4c07813b8c866c6e43d86a488c3e311391fd87c8
+F src/default.css b54d0c8a69acbfae89b80e294dc51846990985c2dcdd5b38b9b0801e73204ffc
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -483,7 +483,7 @@ F src/file.c 280e206332e528509d9bafa30e5ffa953a0488d593f72cfa37bc87b97c5e2653
 F src/fileedit.c 8aff0a852929446b4852909deb44a2c56b0a40f42115b9fd337064b76d84bcea
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 65341718d1ca6fc378e004e396d4b75e5e02c5955b3a32396e984eee1fa8729e
+F src/forum.c 7b940e78884dfa2a109cb2d41dd750427123f33d4de51b66b264f173bd2decee
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd65ab2a61f5
 F src/fossil.confirmer.js 66352b4201476ff6d53aeb0515800bb6f2d6fe0ec6b8a18c67043ec20f093023
@@ -996,7 +996,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2ac21832530a457833b97b9a4549082e1356a5a17350efabab05bd71f1b2d1b
-R 96847460598da712ea0e97757343ceb0
-U drh
-Z 418e8b06e314d847e6aa077f73648dd8
+P 29f7da931863784a257c727d73d0e22aa5b196b14c93c93b96ff3880a7c993a3
+R 8ac221069d74c0ffe73cbb3912b1bf30
+T *branch * forum-expand-poc
+T *sym-forum-expand-poc *
+T -sym-trunk *
+U stephan
+Z 934fea073f343b240e06ad87b17282bb
