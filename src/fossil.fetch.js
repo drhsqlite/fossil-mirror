@@ -146,9 +146,6 @@ window.fossil.fetch = function f(uri,opt){
   }
   const url=[F.repoUrl(uri,opt.urlParams)],
         x=new XMLHttpRequest();
-  if('POST'===opt.method && 'string'===typeof opt.contentType){
-    x.setRequestHeader('Content-Type',opt.contentType);
-  }
   if('json'===opt.responseType){
     /* 'json' is an extension to the supported XHR.responseType
        list. We use it as a flag to tell us to JSON.parse()
@@ -197,6 +194,9 @@ window.fossil.fetch = function f(uri,opt){
   };
   try{opt.beforesend()}catch(e){/*ignore*/}
   x.open(opt.method||'GET', url.join(''), true);
+  if('POST'===opt.method && 'string'===typeof opt.contentType){
+    x.setRequestHeader('Content-Type',opt.contentType);
+  }
   x.timeout = +opt.timeout || f.timeout;
   if(undefined!==payload) x.send(payload);
   else x.send();
