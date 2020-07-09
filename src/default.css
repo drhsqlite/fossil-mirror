@@ -767,7 +767,7 @@ div.forumHier, div.forumTime {
   margin-top: 1ex;
 }
 div.forumPostBody {
-  max-height: 40em;
+  max-height: 100em;
   overflow: auto;
 }
 div.forumSel {
