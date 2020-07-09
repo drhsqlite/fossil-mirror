@@ -793,7 +793,8 @@ input[type=checkbox].forum-post-collapser:not(:checked) ~ label.forum-post-colla
   content: "Expand";
 }
 label.forum-post-collapser {
-  display: block;
+  align-self: flex-start;
+  padding: 0.1em 0.5em;
   border: 1px outset;
   border-radius: 0.25em;
 }
