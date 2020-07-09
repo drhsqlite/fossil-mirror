@@ -1103,8 +1103,7 @@ void cgi_init(void){
     cgi_set_parameter("PATH_INFO", zPathInfo);
   }
 #ifdef FOSSIL_ENABLE_JSON
-  if(strncmp("/json",zPathInfo,5)==0
-     && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+  if(json_request_is_json_api(zPathInfo)){
     /* We need to change some following behaviour depending on whether
     ** we are operating in JSON mode or not. We cannot, however, be
     ** certain whether we should/need to be in JSON mode until the

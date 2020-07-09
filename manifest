@@ -1,5 +1,5 @@
-C Fix\sfor\sproblem\sreported\sat\s[https://fossil-scm.org/forum/forumpost/e4953666d6]\swhich\striggered\sa\sJSON-mode\sassertion\swhen\strying\sto\saccess\sa\s/json\spath\svia\sa\sserver\srunning\sin\sdirectory-serving\smode\s(which\sprefixes\ssuch\spaths\swith\sthe\srepo\sname).\sSuch\spaths\sare\snow\srecognized\sas\sroutes\sinto\sthe\sJSON\sAPI.
-D 2020-07-08T20:26:09.075
+C Refactored\s[dd490d17be]\sinto\sa\sseparate\sroutine\sand\sapplied\sit\sto\sthe\sPOST\sparsing\shandler\sto\sfix\sproblem\sreported\sat\s[https://fossil-scm.org/forum/forumpost/f3e11f5629].
+D 2020-07-09T02:15:47.513
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/bundle.c 179a6ec56bb375aa7dc72ac263a7ffa8f5bab8055293d405f75fb273ce6feddb
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c f2a22f48e00f2e791cbc7ddaf90fd2a000f3f4902de4fdecfc06998965fa3f1e
-F src/cgi.c 47369bb4b07f2680bae0fa72b9f2043b3cb0700cb287aa0ec2ea355ee697422c
+F src/cgi.c b59fc925f424e43214d31e77ba7e95fae6ba295f719fd09ad23e3125b49ee293
 F src/checkin.c 6324ad4cfc060bd9b690fdc89b2d678f6cdb1ee02dd28c0fbc3df1e63b9d4c9a
 F src/checkout.c d4d0e5d35b913caed9e91a6f1809a0cb202e08eebffa16e716d008a2970c73cf
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -530,7 +530,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 313d6278d71938b617058e0fde11ed24f84869b53162490b4d14cb0a61e6eedc
+F src/main.c 62faea21ddd37e8cd62e581850ed5249eda7e06e0c8ee615b246fbe7ba9e10ed
 F src/main.mk bffa5d480a556e0640ae7de370a97e418beea711e36c76cc69eb8f1afdab0252
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -996,7 +996,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a880a166ae0bb7301b51b5b667a023267b6edc608ae478381b970c3890864f2
-R 3c2627148372fdcd2c88ac7d36e47f3f
+P dd490d17bec777c4cc26aecfa672d8c29a69292e7c867558023549c11322c553
+R 5b42b36d27fd052497855434051a9e5e
 U stephan
-Z 3fc09be2a5b63f644f909e320d9bedc9
+Z b50d55cbee50150fe5dee87f00cf21b7
