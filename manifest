@@ -1,5 +1,5 @@
-C Forum\spost\scollapse/expand:\s1)\sIs\snow\sfull\swidth\sto\sbalance\svisibility\sand\smobile\saccessibility.\s2)\sUse\sarrows\s(instead\sof\swords)\sto\sconvey\sintent.\s3)\sWhen\scollapsing,\sscroll\sthe\scollapser\swidget\sto\sthe\stop\sof\sthe\sviewport\sso\sthat\sthe\snext\spost\sis\sin\sview\s(avoids\smanual\sscrolling\sback\sup).\s4)\sdouble-click\son\sa\slarge\spost\stoggles\sexpand/collapse\s(avoids\sscrolling\swhen\sexpanded).
-D 2020-07-10T10:02:20.266
+C Ardoise\sskin:\sremoved\s'appearance'\sCSS\sattributes\s(non-standard\sand\snot\ssupported\sby\smodern\sFF),\sreset\stextarea\sheight\sfrom\s32px\sto\sinitial\s(otherwise\sforum\sand\sskin\seditor\sare\snext\sto\suseless),\supdated\sa\scouple\slight-on-lighter\scolors\sto\smake\sthe\sforum\smore\slegible.
+D 2020-07-10T11:11:33.175
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -328,7 +328,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 14bd1403c4f17758758dfffc95e5928bccb7843ecc540e0652c67052b6a781b4
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt b3ccc142a85db548b753cebee93187fb618a5be0e8f4a1c83d1c8165ccb6d018
+F skins/ardoise/css.txt 312aba2f2888322c36cd56a68d7c2a0c8882aceab3341f547a1ba49e824e03df
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
 F skins/ardoise/header.txt 47309feeacc1a9d4d65affb0174b914dcb96dcef1666356248039145c2feeb9e
@@ -997,7 +997,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d4c45b50a9569806f61ea02542bd18c7caee8840231831283da4c63343a3dcd4
-R 3a8ad7a5eed99e990d97499b9e9ae3a7
+P a30a6db480ece85773abf8923db91a5b48e3c5fefe7b479b8ddb7d523c73d4d3
+R d977fb2b130b88e16ed17bc45fdfd26d
 U stephan
-Z c377bbf0847390c046812725cba93576
+Z fe191943187a6e4411033c4b483a0ff6
