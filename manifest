@@ -1,5 +1,5 @@
-C Ardoise\sskin:\sremoved\s'appearance'\sCSS\sattributes\s(non-standard\sand\snot\ssupported\sby\smodern\sFF),\sreset\stextarea\sheight\sfrom\s32px\sto\sinitial\s(otherwise\sforum\sand\sskin\seditor\sare\snext\sto\suseless),\supdated\sa\scouple\slight-on-lighter\scolors\sto\smake\sthe\sforum\smore\slegible.
-D 2020-07-10T11:11:33.175
+C Minor\sdocumentation\stweaks.
+D 2020-07-10T12:49:00.890
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -898,7 +898,7 @@ F www/history.md 623088f2e3c27956411551d416e5e53f3e9c1249e0ab70399fbc79c16bb48a9
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d57e945e9addc805cc4bb
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki b4172dba0355951fba870cba7161b979aa1f434c18e1711ac2e85f649819cd7f
+F www/index.wiki f553f80928bb77b1a94d99f96d8a236f9023f15a26136fc2e72eda8dc316e226
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -993,11 +993,11 @@ F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a70
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md d747d853e9f3d357c2f7bd9f371c6b98519e5644890861b45fad610804a1920d
-F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b941
+F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31a
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a30a6db480ece85773abf8923db91a5b48e3c5fefe7b479b8ddb7d523c73d4d3
-R d977fb2b130b88e16ed17bc45fdfd26d
-U stephan
-Z fe191943187a6e4411033c4b483a0ff6
+P 78487dfc58ebd4944dc020c9d9f2e0bd79bbddd355f70cf02054a7747df6591c
+R 3995b0c3598a58607abd3486c1acd3a1
+U drh
+Z 0cb4243332bc86a85be84780a799927a
