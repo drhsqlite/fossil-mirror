@@ -775,9 +775,33 @@ div.forumTime > div > form,
 div.forumHierRoot > div > form {
   margin: 0.5em 0;
 }
-button.forum-post-collapser {
-  align-self: flex-start;
-  margin-top: 0.1em;
+.forum-post-collapser {
+  font-size: 0.8em;
+  margin-top: 0.2em;
+  padding: 0;
+  height: 1.75em;
+  line-height: 1.75em;
+  /* ^^^ Those sizes are finely tuned for the current selection of
+     arrow characters. If those change, these should, too. Remember that
+     FF/Chrome simply do not agree on alignment with most values :/.  */
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.25em;
+  opacity: 0.8;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.forum-post-collapser > span {
+  margin: 0 1em 0 1em;
+  vertical-align: middle;
+}
+.forum-post-collapser.expanded > span::before {
+  content: "⇡⇡⇡" /*reminder: FF/Chrome cannot agree on alignment of ⮝*/;
+}
+.forum-post-collapser:not(.expanded) > span::before {
+  content: "⇣⇣⇣";
 }
 div.forumPostBody{
   max-height: 50em;

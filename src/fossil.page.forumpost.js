@@ -5,35 +5,17 @@
 
   F.onPageLoad(function(){
     const scrollbarIsVisible = (e)=>e.scrollHeight > e.clientHeight;
-    const getButtonHandler = function(btn, contentElem){
+    /* Returns an event handler which implements the post expand/collapse toggle
+       on contentElem when the given widget is activated. */
+    const getWidgetHandler = function(widget, contentElem){
       return function(ev){
         if(ev) ev.preventDefault();
-        const isExpanded = D.hasClass(contentElem,'expanded');
-        btn.innerText = isExpanded ? 'Expand...' : 'Collapse';
+        const wasExpanded = widget.classList.contains('expanded');
+        widget.classList.toggle('expanded');
         contentElem.classList.toggle('expanded');
+        if(wasExpanded) widget.scrollIntoView();
         return false;
       };
-    };
-    /** Install an event handler on element e which calls the given
-        callback if the user presses the element for a brief period
-        (time is defined a few lines down from here). */
-    const addLongpressHandler = function(e, callback){
-      const longPressTime = 650 /*ms*/;
-      var timer;
-      const clearTimer = function(){
-        if(timer){
-          clearTimeout(timer);
-          timer = undefined;
-        }
-      };
-      e.addEventListener('mousedown', function(ev){
-        timer = setTimeout(function(){
-          clearTimer();
-          callback();
-        }, longPressTime);
-      }, false);
-      e.addEventListener('mouseup', clearTimer, false);
-      e.addEventListener('mouseout', clearTimer, false);
     };
     /* Adds an Expand/Collapse toggle to all div.forumPostBody
        elements which are deemed "too large" (those for which
@@ -44,18 +26,25 @@
     ).forEach(function(forumPostWrapper){
       const content = forumPostWrapper.querySelector('div.forumPostBody');
       if(!content || !scrollbarIsVisible(content)) return;
-      const button = D.button('Expand...'),
-            btnEventHandler = getButtonHandler(button, content);
-      button.classList.add('forum-post-collapser');
-      button.addEventListener('click', btnEventHandler, false);
+      const widget = D.div(),
+            widgetEventHandler = getWidgetHandler(widget, content);
+      widget.classList.add('forum-post-collapser');
+      widget.addEventListener('click', widgetEventHandler, false);
+      /** Append 3 children, which CSS will evenly space across the
+          widget. This improves visibility over having the label
+          in only the left, right, or center. */
+      var i = 0;
+      for( ; i < 3; ++i ) D.append(widget, D.span());
       if(content.nextSibling){
-        forumPostWrapper.insertBefore(button, content.nextSibling);
+        forumPostWrapper.insertBefore(widget, content.nextSibling);
       }else{
-        forumPostWrapper.appendChild(button);
+        forumPostWrapper.appendChild(widget);
       }
-      // uncomment to enable long-press expand/collapse toggle:
-      // addLongpressHandler(content, btnEventHandler);
-      // It may interfere with default actions on mobile platforms, though.
+      /** A double-click toggle will select "the current word" on the
+          post, which is minorly annoying but otherwise harmless. Such
+          a toggle has proven convenient on "excessive" posts,
+          though. */
+      content.addEventListener('dblclick', widgetEventHandler);
     });
   })/*onload callback*/;
   
