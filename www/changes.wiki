@@ -20,8 +20,12 @@
      the [/help?cmd=safe-html|safe-html setting] on the Admin/Wiki page.
      The default is to disallow unsafe HTML everywhere.
      [https://www.fossil-scm.org/forum/forumpost/3714e6568f|Example].
+  *  Added the "collapse" and "expand" capability for long forum posts.
   *  Enhance the [/help?cmd=revert|fossil revert] command so that it
      is able to revert all files beneath a directory.
+  *  Add the [/help?cmd=bisect|fossil bisect skip] command.
+  *  Enhance [/help?cmd=bisect|fossil bisect ui] so that it shows all unchecked
+     check-ins in between the innermost "good" and "bad" check-ins.
   *  Added the <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
      "[/help?cmd=rm|fossil rm]", and
      "[/help?cmd=addremove|fossil addremove]" commands.
