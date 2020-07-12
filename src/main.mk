@@ -68,6 +68,7 @@ SRC = \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
   $(SRCDIR)/hname.c \
+  $(SRCDIR)/hook.c \
   $(SRCDIR)/http.c \
   $(SRCDIR)/http_socket.c \
   $(SRCDIR)/http_ssl.c \
@@ -315,6 +316,7 @@ TRANS_SRC = \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
   $(OBJDIR)/hname_.c \
+  $(OBJDIR)/hook_.c \
   $(OBJDIR)/http_.c \
   $(OBJDIR)/http_socket_.c \
   $(OBJDIR)/http_ssl_.c \
@@ -460,6 +462,7 @@ OBJ = \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
  $(OBJDIR)/hname.o \
+ $(OBJDIR)/hook.o \
  $(OBJDIR)/http.o \
  $(OBJDIR)/http_socket.o \
  $(OBJDIR)/http_ssl.o \
@@ -792,6 +795,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 	$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
 	$(OBJDIR)/hname_.c:$(OBJDIR)/hname.h \
+	$(OBJDIR)/hook_.c:$(OBJDIR)/hook.h \
 	$(OBJDIR)/http_.c:$(OBJDIR)/http.h \
 	$(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h \
 	$(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h \
@@ -1305,6 +1309,14 @@ $(OBJDIR)/hname.o:	$(OBJDIR)/hname_.c $(OBJDIR)/hname.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/hname.o -c $(OBJDIR)/hname_.c
 
 $(OBJDIR)/hname.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/hook_.c:	$(SRCDIR)/hook.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/hook.c >$@
+
+$(OBJDIR)/hook.o:	$(OBJDIR)/hook_.c $(OBJDIR)/hook.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/hook.o -c $(OBJDIR)/hook_.c
+
+$(OBJDIR)/hook.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/http.c >$@

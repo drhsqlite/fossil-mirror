@@ -79,6 +79,7 @@ set src {
   graph
   gzip
   hname
+  hook
   http
   http_socket
   http_transport

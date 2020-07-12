@@ -21,6 +21,7 @@
 **
 **    *  Sending alerts and notifications
 **    *  Processing the email queue
+**    *  Handling post-receive hooks
 **    *  Automatically syncing to peer repositories
 **
 ** Backoffice processing is automatically started whenever there are
@@ -629,6 +630,8 @@ void backoffice_work(void){
   if( nThis ){ backoffice_log("%d alerts", nThis); nTotal += nThis; }
   nThis = smtp_cleanup();
   if( nThis ){ backoffice_log("%d SMTPs", nThis); nTotal += nThis; }
+  nThis = hook_backoffice();
+  if( nThis ){ backoffice_log("%d hooks", nThis); nTotal += nThis; }
 
   /* Close the log */
   if( backofficeFILE ){
