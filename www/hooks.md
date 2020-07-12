@@ -16,10 +16,10 @@ a continuous integration (CI) system.
 
 ## General Notes.
 
-  *  Each hooks has a "type", as "sequence", and a "command".  The command
+  *  Each hooks has a "type", a "sequence", and a "command".  The command
      is a shell command that runs at the appropriate time.  The type
-     is currently one of "after-receive", "before-commit", or "disabled".
-     The sequence is an arbitrary integer.
+     is currently one of "after-receive", "before-commit", "commit-msg",
+     or "disabled". The sequence is an arbitrary integer.
 
   *  There can be multiple hooks of the same type.  When that is the
      case, the hooks are run in order of ascending sequence.
@@ -44,6 +44,14 @@ a continuous integration (CI) system.
      the meaning of which depends on the hook type.  The auxiliary filename
      might be an empty string.  Take care to use appropriate quoting!
 
+## Disabled Hooks
+
+  *  Hooks with type "disabled" never run.  They are a place-holder for
+     scripts that might be converted to some other hook-type later.
+     For example, the command "fossil hook edit --type disabled ID"
+     can be used to temporarily disable the hook named ID, and then
+     "fossil hook edit --type after-receive ID" can be used to reenable
+     it later.
 
 ## After-Receive Hooks
 
@@ -60,7 +68,7 @@ a continuous integration (CI) system.
 
   *  The exit code from the after-receive script is ignored.
 
-  *  The standard intput to the after-receive hook is a list of
+  *  The standard input to the after-receive hook is a list of
      new artifacts, one per line.  The first token on each line is the
      hash of the new artifact.  After the hash is a human-readable text
      description of what the artifact represents.
@@ -86,7 +94,10 @@ a continuous integration (CI) system.
   *  A push might not deliver all of the artifacts for a checkin.  If
      Fossil knows that a /xfer HTTP request is incomplete, it will defer
      running the after-receive push for 60 seconds, or unti a complete
-     /xfer request is received.
+     /xfer request is received.  This helps to prevent after-receive hooks
+     from running when incomplete checkins exist in the repository, but
+     it does not provide hard guarantees, as there is no way to do that
+     in a distributed system.
 
   *  The list of artifacts delivered to standard input of the
      after-receive hook will not contain more than 24-hours worth
