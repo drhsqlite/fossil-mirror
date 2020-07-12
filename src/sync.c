@@ -389,3 +389,47 @@ void remote_url_cmd(void){
     fossil_print("%s\n", g.url.canonical);
   }
 }
+
+/*
+** COMMAND: backup*
+**
+** Usage: %fossil backup ?OPTIONS? FILE|DIRECTORY
+**
+** Make a backup of the repository into the named file or into the named
+** directory.  This backup is guaranteed to be consistent even if there are
+** concurrent chnages taking place on the repository.  In other words, it
+** is safe to run "fossil backup" on a repository that is in active use.
+**
+** Only the main repository database is backed up by this command.  The
+** open checkout file (if any) is not saved.  Nor is the global configuration
+** database.
+**
+** Options:
+**
+**    --overwrite              Ok to overwrite an existing file.
+**    -R NAME                  Filename of the repository to backup
+*/
+void backup_cmd(void){
+  char *zDest;
+  int bOverwrite = 0;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  bOverwrite = find_option("overwrite",0,0)!=0;
+  verify_all_options();
+  if( g.argc!=3 ){
+    usage("FILE|DIRECTORY");
+  }
+  zDest = g.argv[2];
+  if( file_isdir(zDest, ExtFILE)==1 ){
+    zDest = mprintf("%s/%s", zDest, file_tail(g.zRepositoryName));
+  }
+  if( file_isfile(zDest, ExtFILE) ){
+    if( bOverwrite ){
+      if( file_delete(zDest) ){
+        fossil_fatal("unable to delete old copy of \"%s\"", zDest);
+      }
+    }else{
+      fossil_fatal("backup \"%s\" already exists", zDest);
+    }
+  }
+  db_multi_exec("VACUUM repository INTO %Q", zDest);
+}

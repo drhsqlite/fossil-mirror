@@ -64,6 +64,9 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
+**    backup      Backup all repositories.  The argument must the name of
+**                a directory into which all backup repositories are written.
+**
 **    cache       Manages the cache used for potentially expensive web
 **                pages.  Any additional arguments are passed on verbatim
 **                to the cache command.
@@ -176,6 +179,16 @@ void all_cmd(void){
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
+  }else if( strncmp(zCmd, "backup", n)==0 ){
+    char *zDest;
+    zCmd = "backup -R";
+    collect_argument(&extra, "overwrite",0);
+    if( g.argc!=4 ) usage("backup DIRECTORY");
+    zDest = g.argv[3];
+    if( file_isdir(zDest, ExtFILE)!=1 ){
+      fossil_fatal("argument to \"fossil all backup\" must be a directory");
+    }
+    blob_appendf(&extra, " %$", zDest);
   }else if( strncmp(zCmd, "clean", n)==0 ){
     zCmd = "clean --chdir";
     collect_argument(&extra, "allckouts",0);
