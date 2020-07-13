@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sbackup"\scommand\sto\ssafely\smake\sa\sbackup\scopy\sof\sa\srepository.
-D 2020-07-12T19:11:35.021
+C Small\stypo\sfix\sin\sthe\schange\slog.
+D 2020-07-13T12:49:41.603
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -830,7 +830,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 46ab0669385821f4075f5ef4fd1f4ec3af760e96d893ab9fec2942f9d8793ac3
+F www/changes.wiki b1a81a2926198e7ff195ed8903ca3da8be2b5fe3343f06b965cee354ccbeb6ad
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 249241990399c2fdd0934c81f982662f5a5e8042a686b61814cc6b35f6834ca3
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -999,7 +999,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d8db79c03ce14d6901b0f6bc6a2d0a110c8d1b7481044234ff9533887101048
-R 1ff77fa18ee3bfb46d9611dbad9a9cf3
-U drh
-Z daf7f806606953b077128563f5554ae7
+P aadbe015dfa56542f9338634623dbca1abb91c68c5570d2c9c871bb3bfd3a099
+R d35824c2ab79099050c607d65b6b4123
+U stephan
+Z f4fabe38216c58ec9ae8db47c246fbe2
