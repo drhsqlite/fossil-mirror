@@ -438,7 +438,7 @@ void bisect_cmd(void){
   int foundCmd = 0;
   db_must_be_within_tree();
   if( g.argc<3 ){
-    usage("bad|good|log|next|options|reset|status|undo");
+    usage("bad|good|log|next|options|reset|skip|status|undo");
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);

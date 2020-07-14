@@ -1,5 +1,5 @@
-C Small\stypo\sfix\sin\sthe\schange\slog.
-D 2020-07-13T12:49:41.603
+C Added\s'skip'\sto\sbisect's\sone-line\shelp\ssummary.
+D 2020-07-14T14:39:20.088
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
 F src/backoffice.c a6050595f00797ed1a45ca49617607d60d223bb8fb088ff2eace2cd6a979cbd2
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
-F src/bisect.c 650df50842c53957a95723d19225d381c6ade20da82a838212f19f1ff1494c75
+F src/bisect.c 09d5ade1ecf0389879c2bd578a1074a64f95d2003d4c00ea380f32af27eccd55
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
 F src/branch.c 157bff65105f6ebf6279c55a86caa32088c6bbcbcd441244e645be9db459f405
 F src/browse.c ef38b8132be2020218a3922f820baf6d1d0aaf81b58a106b3bb2ca48b2c40bc1
@@ -999,7 +999,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aadbe015dfa56542f9338634623dbca1abb91c68c5570d2c9c871bb3bfd3a099
-R d35824c2ab79099050c607d65b6b4123
+P cfbfdd1ec89fb566cbb6ab4ac18ab9968d47409840b79dc4a97e0a24fa5b3d02
+R eaa6656827283947724bab1e0ddd0155
 U stephan
-Z f4fabe38216c58ec9ae8db47c246fbe2
+Z 96667a25d9536979174f04b6612fe714
