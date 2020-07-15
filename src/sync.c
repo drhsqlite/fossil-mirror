@@ -174,7 +174,7 @@ static void process_sync_args(
     usage("URL");
   }
   user_select();
-  if( g.argc==2 ){
+  if( g.url.isAlias ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
       fossil_print("Sync with %s\n", g.url.canonical);
     }else if( (*pSyncFlags) & SYNC_PUSH ){
@@ -199,7 +199,7 @@ static void process_sync_args(
 ** "configuration pull" command to pull website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
-** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
 ** Options:
@@ -219,7 +219,7 @@ static void process_sync_args(
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, config pull, push, remote-url, sync
+** See also: clone, config pull, push, remote, sync
 */
 void pull_cmd(void){
   unsigned configFlags = 0;
@@ -250,7 +250,7 @@ void pull_cmd(void){
 ** push" command to push website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
-** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
 ** Options:
@@ -268,7 +268,7 @@ void pull_cmd(void){
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, config push, pull, remote-url, sync
+** See also: clone, config push, pull, remote, sync
 */
 void push_cmd(void){
   unsigned configFlags = 0;
@@ -295,7 +295,7 @@ void push_cmd(void){
 ** edits to wiki pages, tickets, and technical notes.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
-** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
 ** Options:
@@ -314,7 +314,7 @@ void push_cmd(void){
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, pull, push, remote-url
+** See also: clone, pull, push, remote
 */
 void sync_cmd(void){
   unsigned configFlags = 0;
@@ -349,45 +349,155 @@ void sync_unversioned(unsigned syncFlags){
 /*
 ** COMMAND: remote-url
 **
-** Usage: %fossil remote-url ?URL|off?
+** Usage: %fossil remote ?SUBCOMMAND ...?
 **
-** Query and/or change the default server URL used by the "pull", "push",
-** and "sync" commands.
+** Use this command to view or modify that set of remote repositories
+** used for sync, push, and pull.
 **
-** The remote-url is set automatically by a "clone" command or by any
-** "sync", "push", or "pull" command that specifies an explicit URL.
-** The default remote-url is used by auto-syncing and by "sync", "push",
-** "pull" that omit the server URL.
+** The default remote is set automatically by a "clone" command or by any
+** "sync", "push", or "pull" command that specifies an explicit URL
+** and omits the --once flag.  The default remote is used by
+** auto-syncing and by "sync", "push", and "pull" that omit the server URL.
+** Additional remotes can be added using the "add" command or deleted
+** using the "delete" command.  The name of additional remotes can be
+** used as an argument to the "sync", "push", and "pull" commands where
+** one would normally put a URL argument.
 **
-** See "fossil help clone" for further information about URL formats
+** See "fossil help clone" for further information about URL formats.
 **
-** See also: clone, push, pull, sync
+** The official name of this command is "remote-url" but most people
+** use the shortened name "remote".
+**
+** Subcommands:
+**
+** > %fossil remote
+**
+**     With no arguments, this command show the current default remote.
+**     Or if there is no default, it shows "off".  The default remote is
+**     used by autosync.  The default remote is whatever URL was specified
+**     for the most recent "sync", "push", or "pull" command that omitted
+**     the --once option.
+**
+** > %fossil remote add NAME URL
+**
+**     Add a new URL to the set of remotes.  The new URL is assigned the
+**     symbolic identifier "NAME".  Subsequently, NAME can be used in place
+**     of the full URL on commands like "push" and "pull".
+**
+** > %fossil remote delete NAME
+**
+**     Delete a URL previously added by the "add" subcommand.
+**
+** > %fossil remote list
+**
+**     Show all remote URLs
+**
+** > %fossil remote off
+**
+**     Disable the default URL.  Use this as a shorthand to prevent
+**     autosync while in airplane mode, for example.
+**
+** > %fossil remote URL
+**
+**     Make URL the new default URL.  The prior default URL is replaced.
 */
 void remote_url_cmd(void){
-  char *zUrl;
+  char *zUrl, *zArg;
+  int nArg;
   db_find_and_open_repository(0, 0);
 
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc!=2 && g.argc!=3 ){
-    usage("?URL|off?");
+  if( g.argc==2 ){
+    /* "fossil remote" with no arguments:  Show the last sync URL. */
+    zUrl = db_get("last-sync-url", 0);
+    if( zUrl==0 ){
+      fossil_print("off\n");
+    }else{
+      url_parse(zUrl, 0);
+      fossil_print("%s\n", g.url.canonical);
+    }
+    return;
   }
-  if( g.argc==3 ){
+  zArg = g.argv[2];
+  nArg = (int)strlen(zArg);
+  if( strcmp(zArg,"off")==0 ){
+    /* fossil remote off
+    ** Forget the last-sync-URL and its password
+    */
+    if( g.argc!=3 ) usage("off");
+remote_delete_default:
+    db_multi_exec(
+      "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+    );
+    return;
+  }
+  if( strncmp(zArg, "list", nArg)==0 || strcmp(zArg,"ls")==0 ){
+    Stmt q;
+    if( g.argc!=3 ) usage("list");
+    db_prepare(&q,
+      "SELECT 'default', value FROM config WHERE name='last-sync-url'"
+      " UNION ALL "
+      "SELECT substr(name,10), value FROM config"
+      " WHERE name GLOB 'sync-url:*'"
+      " ORDER BY 1"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%-18s %s\n", db_column_text(&q,0), db_column_text(&q,1));
+    }
+    db_finalize(&q);
+    return;
+  }
+  if( strcmp(zArg, "add")==0 ){
+    char *zName;
+    char *zUrl;
+    UrlData x;
+    if( g.argc!=5 ) usage("add NAME URL");
+    memset(&x, 0, sizeof(x));
+    zName = g.argv[3];
+    zUrl = g.argv[4];
+    if( strcmp(zName,"default")==0 ) goto remote_add_default;
+    url_parse_local(zUrl, URL_PROMPT_PW, &x);
+    db_begin_write();
+    db_multi_exec(
+       "REPLACE INTO config(name, value, mtime)"
+       " VALUES('sync-url:%q',%Q,now())",
+       zName, x.canonical
+    );
+    db_multi_exec(
+       "REPLACE INTO config(name, value, mtime)"
+       " VALUES('sync-pw:%q',obscure(%Q),now())",
+       zName, x.passwd
+    );
+    db_commit_transaction();
+    return;
+  }
+  if( strncmp(zArg, "delete", nArg)==0 ){
+    char *zName;
+    if( g.argc!=4 ) usage("delete NAME");
+    zName = g.argv[3];
+    db_begin_write();
+    db_multi_exec("DELETE FROM config WHERE name glob 'sync-url:%q'", zName);
+    db_multi_exec("DELETE FROM config WHERE name glob 'sync-pw:%q'", zName);
+    db_commit_transaction();
+    return;
+  }
+  if( sqlite3_strlike("http://%",zArg,0)==0
+   || sqlite3_strlike("https://%",zArg,0)==0
+   || sqlite3_strlike("ssh:%",zArg,0)==0
+   || sqlite3_strlike("file:%",zArg,0)==0
+   || db_exists("SELECT 1 FROM config WHERE name='sync-url:%q'",zArg)
+  ){
+remote_add_default:
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
-    if( is_false(g.argv[2]) ) return;
     url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
-  }
-  url_remember();
-  zUrl = db_get("last-sync-url", 0);
-  if( zUrl==0 ){
-    fossil_print("off\n");
+    url_remember();
     return;
-  }else{
-    url_parse(zUrl, 0);
-    fossil_print("%s\n", g.url.canonical);
   }
+  fossil_fatal("unknown command \"%s\" - should be a URL or one of: "
+               "add delete list off", zArg);
 }
 
 /*

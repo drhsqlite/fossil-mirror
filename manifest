@@ -1,5 +1,5 @@
-C Added\s'skip'\sto\sbisect's\sone-line\shelp\ssummary.
-D 2020-07-14T14:39:20.088
+C Add\sthe\sability\sto\sremember\smultiple\sremote\srepositories.\s\sEnhance\sthe\n"fossil\sremote"\scommand\sto\sconfigure\sand\scontrol\sthe\slist.
+D 2020-07-15T18:02:14.317
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -559,7 +559,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 37f73ec5fb2a7d4f4449f28c3b119f54b5f6df6d3ed6d74296c434fe213c6ad0
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 51de6a1ce8e83a39c1d240555e929f9cf6af6d8bd5d78eb91688f72c109e61fd
-F src/rebuild.c 86a1c3631063956f54518513fedca7a733c7a921c64ef91ab5b02adf424bd5b8
+F src/rebuild.c 9d84aed5fff6420b514f41814368c8bb042669b98d9b4cdf539ddcef63b2a4bb
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 1c17f5b972fa231ea6a26ca47eb92bc9d096ec64deb8fbf5abf711c449404e25
 F src/report.c 3dfe67e25bccb357cd4d20b095902108ad36f12f340eee82f9fe57b37973efda
@@ -608,7 +608,7 @@ F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 65a555d0d4fb846be9b943d0dc36142281bc5722d114f086274bba3726026466
 F src/style.fileedit.css dff0e81878e135106a69d92acd892e3540f2d228fc38b253ff6e36165e001896
-F src/sync.c 1a60ae5953c80924d3be04845415efa7f6e3b2df298aaee64d6013f378902816
+F src/sync.c f7e82097a2da8bc4d679e5d9ab6c9e49614a62109847b3ddb044fc81b317916b
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
 F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2f
@@ -626,7 +626,7 @@ F src/undo.c f30c2579415008992bbb370b88cf8c2dcbf05d229b0694113444367d5c91865f
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 4b1807aa4edacefdd05e7971a9397349441af656904cc9264aaf9bc8abc9fd6f
 F src/update.c f2b9d8fe91726a2dd424ca573126cefe9f00511ce2313f6d7af40dad1a96c257
-F src/url.c 9d4991f72baa8ec4c80cebba86ef3fa4187a732733e21645c53d773b552c1a36
+F src/url.c 434406da8f0c4d9e1cc17f16af9dc09fcb52a9ab3f548b63eae3db6cc313e0ab
 F src/user.c 2c4af18fb4cf27bb0fcfddbbab3975b37bc6300d0f4cfc8d655cdcd45e0d584f
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
@@ -999,7 +999,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cfbfdd1ec89fb566cbb6ab4ac18ab9968d47409840b79dc4a97e0a24fa5b3d02
-R eaa6656827283947724bab1e0ddd0155
-U stephan
-Z 96667a25d9536979174f04b6612fe714
+P 4689ec45f95f7204cce9a7a7967b52de4af4f137ec1df6424b581870c2409454
+R 4339accbbe024881f1a3a130a68cefcb
+U drh
+Z ba7cf093f876d06bfd10b30bbb42bf9d
