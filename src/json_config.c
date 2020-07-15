@@ -63,6 +63,8 @@ static const struct JsonConfigProperty {
 { "logo-image",             CONFIGSET_SKIN },
 { "background-mimetype",    CONFIGSET_SKIN },
 { "background-image",       CONFIGSET_SKIN },
+{ "favicon-mimetype",       CONFIGSET_SKIN },
+{ "favicon-image",          CONFIGSET_SKIN },
 { "timeline-block-markup",  CONFIGSET_SKIN },
 { "timeline-max-comment",   CONFIGSET_SKIN },
 { "timeline-plaintext",     CONFIGSET_SKIN },

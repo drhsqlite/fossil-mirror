@@ -1134,8 +1134,8 @@ void background_page(void){
 /*
 ** WEBPAGE: favicon.ico
 **
-** Return the default favicon.ico image.  The returned image is for the
-** Fossil lizard icon.
+** Return the configured favicon.ico image.  If no favicon.ico image is
+** defined, the returned image is for the Fossil lizard icon.
 **
 ** The intended use case here is to supply a favicon for the "fossil ui"
 ** command.  For a permanent website, the recommended process is for
@@ -1147,11 +1147,16 @@ void background_page(void){
 */
 void favicon_page(void){
   Blob favicon;
+  char *zMime;
 
   etag_check(ETAG_CONFIG, 0);
+  zMime = db_get("favicon-mimetype", "image/gif");
   blob_zero(&favicon);
-  blob_init(&favicon, (char*)aLogo, sizeof(aLogo));
-  cgi_set_content_type("image/gif");
+  db_blob(&favicon, "SELECT value FROM config WHERE name='favicon-image'");
+  if( blob_size(&favicon)==0 ){
+    blob_init(&favicon, (char*)aLogo, sizeof(aLogo));
+  }
+  cgi_set_content_type(zMime);
   cgi_set_content(&favicon);
 }
 

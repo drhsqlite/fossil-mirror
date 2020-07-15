@@ -1237,7 +1237,7 @@ void setup_adunit(void){
 /*
 ** WEBPAGE: setup_logo
 **
-** Administrative page for changing the logo image.
+** Administrative page for changing the logo, background, and icon images.
 */
 void setup_logo(void){
   const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
@@ -1248,11 +1248,18 @@ void setup_logo(void){
   const char *zBgMime = db_get("background-mimetype","image/gif");
   const char *aBgImg = P("bgim");
   int szBgImg = atoi(PD("bgim:bytes","0"));
+  const char *zIconMtime = db_get_mtime("favicon-image", 0, 0);
+  const char *zIconMime = db_get("favicon-mimetype","image/gif");
+  const char *aIconImg = P("iconim");
+  int szIconImg = atoi(PD("iconim:bytes","0"));
   if( szLogoImg>0 ){
     zLogoMime = PD("logoim:mimetype","image/gif");
   }
   if( szBgImg>0 ){
     zBgMime = PD("bgim:mimetype","image/gif");
+  }
+  if( szIconImg>0 ){
+    zIconMime = PD("iconim:mimetype","image/gif");
   }
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -1311,6 +1318,31 @@ void setup_logo(void){
     );
     db_end_transaction(0);
     cgi_redirect("setup_logo");
+  }else if( P("seticon")!=0 && zIconMime && zIconMime[0] && szIconImg>0 ){
+    Blob img;
+    Stmt ins;
+    blob_init(&img, aIconImg, szIconImg);
+    db_prepare(&ins,
+        "REPLACE INTO config(name,value,mtime)"
+        " VALUES('favicon-image',:bytes,now())"
+    );
+    db_bind_blob(&ins, ":bytes", &img);
+    db_step(&ins);
+    db_finalize(&ins);
+    db_multi_exec(
+       "REPLACE INTO config(name,value,mtime)"
+       " VALUES('favicon-mimetype',%Q,now())",
+       zIconMime
+    );
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
+  }else if( P("clricon")!=0 ){
+    db_multi_exec(
+       "DELETE FROM config WHERE name IN "
+           "('favicon-image','favicon-mimetype')"
+    );
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
   }
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
@@ -1359,6 +1391,30 @@ void setup_logo(void){
   @ <input type="submit" name="clrbg" value="Revert To Default" /></p>
   @ </div></form>
   @ <p>(Properties: "background-image" and "background-mimetype")
+  @ <hr />
+  @
+  @ <p>The current icon image has a MIME-Type of <b>%h(zIconMime)</b>
+  @ and looks like this:</p>
+  @ <blockquote><p><img src="%s(g.zTop)/favicon.ico/%z(zIconMtime)" \
+  @ alt="icon" border=1 />
+  @ </p></blockquote>
+  @
+  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @  enctype="multipart/form-data"><div>
+  @ <p>The icon image is accessible to all users at this URL:
+  @ <a href="%s(g.zBaseURL)/favicon.ico">%s(g.zBaseURL)/favicon.ico</a>.
+  @ The icon image may or may not appear on each
+  @ page depending on the web browser in use and the MIME-Types that it
+  @ supports for icon images.
+  @ To change the icon image, use the following form:</p>
+  login_insert_csrf_secret();
+  @ Icon image file:
+  @ <input type="file" name="iconim" size="60" accept="image/*" />
+  @ <p align="center">
+  @ <input type="submit" name="seticon" value="Change Icon" />
+  @ <input type="submit" name="clricon" value="Revert To Default" /></p>
+  @ </div></form>
+  @ <p>(Properties: "favicon-image" and "favicon-mimetype")
   @ <hr />
   @
   @ <p><span class="note">Note:</span>  Your browser has probably cached these

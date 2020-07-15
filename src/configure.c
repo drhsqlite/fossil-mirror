@@ -96,6 +96,8 @@ static struct {
   { "logo-image",             CONFIGSET_SKIN },
   { "background-mimetype",    CONFIGSET_SKIN },
   { "background-image",       CONFIGSET_SKIN },
+  { "favicon-mimetype",       CONFIGSET_SKIN },
+  { "favicon-image",          CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-date-format",   CONFIGSET_SKIN },
   { "timeline-default-style", CONFIGSET_SKIN },
