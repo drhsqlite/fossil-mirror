@@ -370,7 +370,7 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** > fossil remote
 **
-**     With no arguments, this command show the current default remote.
+**     With no arguments, this command shows the current default remote.
 **     Or if there is no default, it shows "off".  The default remote is
 **     used by autosync.  The default remote is whatever URL was specified
 **     for the most recent "sync", "push", or "pull" command that omitted
