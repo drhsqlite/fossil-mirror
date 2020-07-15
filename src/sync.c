@@ -351,15 +351,15 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** Usage: %fossil remote ?SUBCOMMAND ...?
 **
-** Use this command to view or modify that set of remote repositories
-** used for sync, push, and pull.
+** Use this command to view or modify the set of remote repositories
+** used as the default target for sync, push, and pull and for autosync.
 **
 ** The default remote is set automatically by a "clone" command or by any
 ** "sync", "push", or "pull" command that specifies an explicit URL
 ** and omits the --once flag.  The default remote is used by
 ** auto-syncing and by "sync", "push", and "pull" that omit the server URL.
 ** Additional remotes can be added using the "add" command or deleted
-** using the "delete" command.  The name of additional remotes can be
+** using the "delete" command.  The name of any additional remote can be
 ** used as an argument to the "sync", "push", and "pull" commands where
 ** one would normally put a URL argument.
 **
@@ -368,9 +368,7 @@ void sync_unversioned(unsigned syncFlags){
 ** The official name of this command is "remote-url" but most people
 ** use the shortened name "remote".
 **
-** Subcommands:
-**
-** > %fossil remote
+** > fossil remote
 **
 **     With no arguments, this command show the current default remote.
 **     Or if there is no default, it shows "off".  The default remote is
@@ -378,26 +376,26 @@ void sync_unversioned(unsigned syncFlags){
 **     for the most recent "sync", "push", or "pull" command that omitted
 **     the --once option.
 **
-** > %fossil remote add NAME URL
+** > fossil remote add NAME URL
 **
 **     Add a new URL to the set of remotes.  The new URL is assigned the
 **     symbolic identifier "NAME".  Subsequently, NAME can be used in place
 **     of the full URL on commands like "push" and "pull".
 **
-** > %fossil remote delete NAME
+** > fossil remote delete NAME
 **
 **     Delete a URL previously added by the "add" subcommand.
 **
-** > %fossil remote list
+** > fossil remote list
 **
 **     Show all remote URLs
 **
-** > %fossil remote off
+** > fossil remote off
 **
 **     Disable the default URL.  Use this as a shorthand to prevent
 **     autosync while in airplane mode, for example.
 **
-** > %fossil remote URL
+** > fossil remote URL
 **
 **     Make URL the new default URL.  The prior default URL is replaced.
 */
