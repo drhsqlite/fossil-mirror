@@ -477,6 +477,7 @@ remote_delete_default:
     char *zName;
     if( g.argc!=4 ) usage("delete NAME");
     zName = g.argv[3];
+    if( strcmp(zName,"default")==0 ) goto remote_delete_default;
     db_begin_write();
     db_multi_exec("DELETE FROM config WHERE name glob 'sync-url:%q'", zName);
     db_multi_exec("DELETE FROM config WHERE name glob 'sync-pw:%q'", zName);

@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\sremember\smultiple\sremote\srepositories.\s\sEnhance\sthe\n"fossil\sremote"\scommand\sto\sconfigure\sand\scontrol\sthe\slist.
-D 2020-07-15T18:02:14.317
+C Make\sthe\s"fossil\sremote\sdelete\sdefault"\scommand\sworks\slike\s"fossil\sremote\soff".
+D 2020-07-15T18:53:20.038
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -608,7 +608,7 @@ F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 65a555d0d4fb846be9b943d0dc36142281bc5722d114f086274bba3726026466
 F src/style.fileedit.css dff0e81878e135106a69d92acd892e3540f2d228fc38b253ff6e36165e001896
-F src/sync.c f7e82097a2da8bc4d679e5d9ab6c9e49614a62109847b3ddb044fc81b317916b
+F src/sync.c 646936b13e07c146b8a98917119b7bda00cf85ab89926648a913cec6904ec9de
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
 F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2f
@@ -999,7 +999,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4689ec45f95f7204cce9a7a7967b52de4af4f137ec1df6424b581870c2409454
-R 4339accbbe024881f1a3a130a68cefcb
+P f11c863d91c251d01461baed0804a7f32ef693900a07598eb8a1e74c6e4644e1
+R bfe27ec87657924eb54f67ac531c14b3
 U drh
-Z ba7cf093f876d06bfd10b30bbb42bf9d
+Z 11d645b61f47c54ad8c7393b461e4bb8
