@@ -1134,30 +1134,30 @@ void background_page(void){
 /*
 ** WEBPAGE: favicon.ico
 **
-** Return the configured favicon.ico image.  If no favicon.ico image is
-** defined, the returned image is for the Fossil lizard icon.
+** Return the configured "favicon.ico" image.  If no "favicon.ico" image
+** is defined, the returned image is for the Fossil lizard icon.
 **
-** The intended use case here is to supply a favicon for the "fossil ui"
+** The intended use case here is to supply an icon for the "fossil ui"
 ** command.  For a permanent website, the recommended process is for
-** the admin to set up a project-specific favicon and reference that
-** icon in the HTML header using a line like:
+** the admin to set up a project-specific icon and reference that icon
+** in the HTML header using a line like:
 **
 **   <link rel="icon" href="URL-FOR-YOUR-ICON" type="MIMETYPE"/>
 ** 
 */
 void favicon_page(void){
-  Blob favicon;
+  Blob icon;
   char *zMime;
 
   etag_check(ETAG_CONFIG, 0);
-  zMime = db_get("favicon-mimetype", "image/gif");
-  blob_zero(&favicon);
-  db_blob(&favicon, "SELECT value FROM config WHERE name='favicon-image'");
-  if( blob_size(&favicon)==0 ){
-    blob_init(&favicon, (char*)aLogo, sizeof(aLogo));
+  zMime = db_get("icon-mimetype", "image/gif");
+  blob_zero(&icon);
+  db_blob(&icon, "SELECT value FROM config WHERE name='icon-image'");
+  if( blob_size(&icon)==0 ){
+    blob_init(&icon, (char*)aLogo, sizeof(aLogo));
   }
   cgi_set_content_type(zMime);
-  cgi_set_content(&favicon);
+  cgi_set_content(&icon);
 }
 
 /*

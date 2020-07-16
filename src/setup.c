@@ -1248,8 +1248,8 @@ void setup_logo(void){
   const char *zBgMime = db_get("background-mimetype","image/gif");
   const char *aBgImg = P("bgim");
   int szBgImg = atoi(PD("bgim:bytes","0"));
-  const char *zIconMtime = db_get_mtime("favicon-image", 0, 0);
-  const char *zIconMime = db_get("favicon-mimetype","image/gif");
+  const char *zIconMtime = db_get_mtime("icon-image", 0, 0);
+  const char *zIconMime = db_get("icon-mimetype","image/gif");
   const char *aIconImg = P("iconim");
   int szIconImg = atoi(PD("iconim:bytes","0"));
   if( szLogoImg>0 ){
@@ -1324,14 +1324,14 @@ void setup_logo(void){
     blob_init(&img, aIconImg, szIconImg);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
-        " VALUES('favicon-image',:bytes,now())"
+        " VALUES('icon-image',:bytes,now())"
     );
     db_bind_blob(&ins, ":bytes", &img);
     db_step(&ins);
     db_finalize(&ins);
     db_multi_exec(
        "REPLACE INTO config(name,value,mtime)"
-       " VALUES('favicon-mimetype',%Q,now())",
+       " VALUES('icon-mimetype',%Q,now())",
        zIconMime
     );
     db_end_transaction(0);
@@ -1339,7 +1339,7 @@ void setup_logo(void){
   }else if( P("clricon")!=0 ){
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
-           "('favicon-image','favicon-mimetype')"
+           "('icon-image','icon-mimetype')"
     );
     db_end_transaction(0);
     cgi_redirect("setup_logo");
@@ -1414,7 +1414,7 @@ void setup_logo(void){
   @ <input type="submit" name="seticon" value="Change Icon" />
   @ <input type="submit" name="clricon" value="Revert To Default" /></p>
   @ </div></form>
-  @ <p>(Properties: "favicon-image" and "favicon-mimetype")
+  @ <p>(Properties: "icon-image" and "icon-mimetype")
   @ <hr />
   @
   @ <p><span class="note">Note:</span>  Your browser has probably cached these
