@@ -1,5 +1,5 @@
-C Editing\spass\son\sthe\sbranching.wiki\sdoc.\sMostly\sgrammar\sand\sclarity\nimprovements,\sbut\salso\sadded\ssome\slinks\sto\sother\sdocs\sand\smade\ssome\spure\nadditions.
-D 2020-07-16T17:30:37.964
+C Added\sindex.md\sinto\swww/server/*\ssubdirs\sand\smade\slinks\sto\sthose\ntop-level\sdocs\sfrom\sthe\s"Activation\sTutorials"\stable\son\sthe\smain\nwww/server/index.html\spage\sso\sa\sperson\scan\sget\sa\slist\sof\soptions\nspecific\sto\sthat\sOS.\s\sNot\sonly\sare\sindex\spages\sat\seach\sdirectory\slevel\sa\ngood\sidea,\syou\shad\sto\sget\srather\sgeeky\sto\sseparate\sout\sthe\sgeneric\ninstructions\sfrom\sthe\sOS-specific\soptions\sbefore,\ssince\sthat\stable\npurposely\sblurs\sthat\sline.
+D 2020-07-16T20:55:15.044
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -957,16 +957,20 @@ F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
 F www/server/any/althttpd.md 450f52ad23c0ac8b3783302964e60b765dcf8a4fca9b6efc18bedecbcccd08d2
 F www/server/any/cgi.md 936ee3d21bbc4a9b47e20e3051177aed3e80ca42b970480b98dd374cc27f99a3
+F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
 F www/server/any/scgi.md 50c9e77ab325fee2746a3a2ac0e368ef5a61c3f5901effe8fcad4984b645d7ec
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
+F www/server/debian/index.md 4260e776efd327e5e5873271d5599b753f464b78c41b8cbfc4b094b53e6fb896
 F www/server/debian/nginx.md 9ed22c1951fd5e9043e8750086f778177f39bfc4efb8062648c2c712faebdd09
 F www/server/debian/service.md 81497ddf0aedb0b42e934d93bffa416c831cd7f2ca1d0da92a8d422934475577
-F www/server/index.html 772b968b43ee8113343f688d5a752bdfac4818a2332c2f28e74aba1fb4cbfbcb
+F www/server/index.html 083938773325004dbe081022e6be277ad0e6353cda841c11937a1cc5fb70a6f1
+F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4707c9a16b000
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/openbsd/httpd.md 53879e262e19bbe5877129fb99f93deba6661f5bda340cd6f44590ea18fd8a7a
+F www/server/openbsd/index.md 48606216a39eca7c09940ec496ec7a8f1fc529015358b51b6148ce35f73689e6
 F www/server/whyuseaserver.wiki 7e29e0d31965faa3b0523b94949406b9d297da39f91da0ff96973bcdb0cf8be8
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -999,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d1db48f926e987614da338659ae0703348e1e1631a3b3afaffe33a8e3bd1e52
-R 24352029254b98398113a617f9a83218
+P f8d210aa1c150d13d6ca9d58abf9cec461e4b8c43534e8a6096d617d10c4a956
+R 3f0b592c911cb35df93a5c6d67255cc2
 U wyoung
-Z 3ffa03087217901752862973f6bdba69
+Z b50c5012a8c81fa15c2ffabae3abf774
