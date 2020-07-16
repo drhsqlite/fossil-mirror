@@ -1,5 +1,5 @@
-C Fix\sa\sminor\sspelling\serror.
-D 2020-07-15T19:52:42.105
+C Editing\spass\son\sthe\sbranching.wiki\sdoc.\sMostly\sgrammar\sand\sclarity\nimprovements,\sbut\salso\sadded\ssome\slinks\sto\sother\sdocs\sand\smade\ssome\spure\nadditions.
+D 2020-07-16T17:30:37.964
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -815,7 +815,7 @@ F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5
 F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
 F www/branch06.graphml 7a1a988adf9c0266df256eaa2d4b31d11dc3a3cb78c67ea7d7485a97b916c89d
 F www/branch06.svg 903aac73e9ff954950b50e9ed0f39ddc35331c5cd6dc5f1c4c2aa592d3523ca8
-F www/branching.wiki 20edc141fb1bec2876431b969a52a4a322d03eb939245f59715207b6857e46e8
+F www/branching.wiki d7b0d957c15acd8dca2a404447a97a7014a04a7d80bea3082b350ffefabb0beb
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -999,7 +999,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8212fd14b74ed6b79c8020109bfeb731f2aadc7eadb1a8aacbd1e4857efda52
-R a8d1e4f9d832a48b005e38c31d1025e6
-U andybradford
-Z 41beccfd5548172b224b1978e13cd28a
+P 0d1db48f926e987614da338659ae0703348e1e1631a3b3afaffe33a8e3bd1e52
+R 24352029254b98398113a617f9a83218
+U wyoung
+Z 3ffa03087217901752862973f6bdba69
