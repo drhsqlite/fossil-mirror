@@ -41,6 +41,10 @@
 #include <ctype.h>
 #include <time.h>
 
+#if defined(_MSC_VER) && (_MSC_VER < 1800) /* MSVS 2013 */
+#  define strtoll _strtoi64
+#endif
+
 static FILE *open_for_reading(const char *zFilename){
   FILE *f = fopen(zFilename, "r");
   if( f==0 ){
