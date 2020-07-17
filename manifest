@@ -1,5 +1,5 @@
-C Support\sout-of-source\sbuild\son\sWindows\swhen\sBUILDDIR\senvvar\sis\snot\sset.
-D 2020-07-17T22:02:26.597
+C Fix\svariable\sdeclaration\sorder\sto\sblock-top;\skeeps\sthe\sC89\sconformance.
+D 2020-07-17T22:05:59.123
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -497,11 +497,11 @@ F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c e29177434eb0a09e289edab766303577edf1914e964a427b454ad4f87e42d43f
+F src/graph.c a9e1f5aae6551892f96c84bd4cd1708da2843bdd372bc45367493e8cd16f5e17
 F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c d5245540db33a8efad5aa4f6c6f1ce3a8b0187b44f1ffa995dfa6b39b424fde5
+F src/hook.c e063f67e614c1986a6ae324e7ca0726f52d25125e58b343d519b99736d328433
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d80633a369b91d9d99aca161af56d0580f3c61901b2ec91ab2cf631a4537edcf
-R 9db7724226657fc123ef7da495491d57
+P 0f0b904337150bd54852966dac0ccfe509aa368b91bc1dc3e49ae4ec428b2d9b
+R 45c53bf18a5926e59907cb1e5aabe1d1
 U ashepilko
-Z 8feebb7da4f5d393f030fd809318c864
+Z 8c0936607f44a152f2b78821001793a0

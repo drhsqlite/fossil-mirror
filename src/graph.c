@@ -739,11 +739,11 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       }
       pDesc = hashFind(p, parentRid);
       if( pDesc==0 ){
+        int iMrail = -1;
         /* Merge from a node that is off-screen */
         if( iReuseIdx>=p->nRow+1 ){
           continue;  /* Suppress multiple off-screen merges */
         }
-        int iMrail = -1;
         for(j=0; j<GR_MAX_RAIL; j++){
           if( mergeRiserFrom[j]==parentRid ){
             iMrail = j;

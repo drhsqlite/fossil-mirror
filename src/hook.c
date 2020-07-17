@@ -274,10 +274,11 @@ void hook_cmd(void){
     db_begin_write();
     for(i=3; i<g.argc; i++){
       Blob sql;
+      int id;
       if( sqlite3_strglob("*[^0-9]*", g.argv[i])==0 ){
         fossil_fatal("not a valid ID: \"%s\"", g.argv[i]);
       }
-      int id = atoi(g.argv[i]);
+      id = atoi(g.argv[i]);
       blob_init(&sql, 0, 0);
       blob_append_sql(&sql, "UPDATE config SET mtime=now(), value="
         "json_replace(CASE WHEN json_valid(value) THEN value ELSE '[]' END");
@@ -326,8 +327,8 @@ void hook_cmd(void){
   }else
   if( strncmp(zCmd, "list", nCmd)==0 ){
     Stmt q;
-    verify_all_options();
     int n = 0;
+    verify_all_options();
     db_prepare(&q,
       "SELECT jx.key,"
       "       json_extract(jx.value,'$.seq'),"
@@ -358,13 +359,14 @@ void hook_cmd(void){
   }else
   if( strncmp(zCmd, "test", nCmd)==0 ){
     Stmt q;
+    int id;
     int bDryRun = find_option("dry-run", "n", 0)!=0;
     const char *zOrigRcvid = find_option("base-rcvid",0,1);
     const char *zNewRcvid = find_option("new-rcvid",0,1);
     const char *zAuxFilename = find_option("aux-file",0,1);
     verify_all_options();
     if( g.argc<4 ) usage("test ID");
-    int id = atoi(g.argv[3]);
+    id = atoi(g.argv[3]);
     if( zOrigRcvid==0 ){
       zOrigRcvid = db_text(0, "SELECT max(rcvid)-1 FROM rcvfrom");
     }
