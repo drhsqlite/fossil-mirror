@@ -197,13 +197,21 @@ IF DEFINED BUILDDIR (
       REM
       REM NOTE: The build suffix is not present, add it now.
       REM
-      SET BUILDDIR=%BUILDDIR%%BUILDSUFFIX%
+      SET "BUILDDIR=%BUILDDIR%%BUILDSUFFIX%"
     )
 
     CALL :fn_ResetErrorLevel
   )
 ) ELSE (
-  SET BUILDDIR=%ROOT%\msvcbld%BUILDSUFFIX%
+  REM
+  REM When BUILDDIR is not defined, build in the current directory.
+  REM For compatibility, create the build artifacts in 'msvcbld'
+  REM subdirectory (similar to how the Linux build is done).
+  REM
+  REM USECASE-1: in-source build (current dir is %ROOT%)
+  REM USECASE-2: out-of-source build (current dir is arbitrary)
+  REM
+  SET "BUILDDIR=%CD%\msvcbld%BUILDSUFFIX%"
 )
 
 %_VECHO% BuildSuffix = '%BUILDSUFFIX%'

@@ -1,5 +1,5 @@
-C URL\sfix\sto\sprevious
-D 2020-07-17T17:47:04.163
+C Support\sout-of-source\sbuild\son\sWindows\swhen\sBUILDDIR\senvvar\sis\snot\sset.
+D 2020-07-17T22:02:26.597
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -783,7 +783,7 @@ F win/Makefile.dmc accb77ac645cf55b52a0e87863af40ccb9e391a0ac5145f7771c5e5d9cdc3
 F win/Makefile.mingw cd45ad02e5d6ea41393bb58e546ee00d2de33514b596b60713ac308280812d9f
 F win/Makefile.mingw.mistachkin c8ca1ec09f8cfa135d61a51de9e2dc47be1cfcda6e84e91e60b98b6f073805f5
 F win/Makefile.msc 33d289023bbe6e61f88919d69628289246f94b697733fb734b1a4355db250513
-F win/buildmsvc.bat 2b589b31eb6d426c951611dd760a8480de7ced212d3edfcc5528ce47cd1b4471
+F win/buildmsvc.bat 4ad48ae3e3eee7a2242ab4f490fd970421b65f1340d832f5319d08d05218e1e7 x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc d86e2b5468fbfdcfa244432defe4029d39071fa92bf3f81f10d7ee7869ada19b
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62ec4100c616770d5c435cdc5bcac668ec3ef8a2507fa1fc96ca3c0fc4d849c3
-R 8cf15527540f13a864df85b5c523c9c9
-U wyoung
-Z 27cf55daddeae953a50608f96cdea60b
+P d80633a369b91d9d99aca161af56d0580f3c61901b2ec91ab2cf631a4537edcf
+R 9db7724226657fc123ef7da495491d57
+U ashepilko
+Z 8feebb7da4f5d393f030fd809318c864
