@@ -108,8 +108,9 @@ void url_parse_local(
     }
     pUrlData->isAlias = 1;
   }else{
-    char *zAlt;
-    zAlt = db_text(0, "SELECT value FROM config WHERE name='sync-url:%q'",zUrl);
+    char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
+    char *zAlt = db_get(zKey, 0);
+    sqlite3_free(zKey);
     if( zAlt ){
       pUrlData->passwd = unobscure(
         db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)

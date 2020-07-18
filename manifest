@@ -1,5 +1,5 @@
-C For\sstrtoll()\swith\sVisual\sStudio\sprior\sto\sMSVS\s2013,\sfallback\sto\s_strtoi64().
-D 2020-07-17T23:53:59.079
+C Fix\sthe\s"fossil\sclone"\scommand\sso\sthat\sit\sworks\sagain\safter\sthe\saddition\sof\nthe\sability\sto\ssupport\smultiple\sremotes.
+D 2020-07-18T02:52:19.073
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -626,7 +626,7 @@ F src/undo.c f30c2579415008992bbb370b88cf8c2dcbf05d229b0694113444367d5c91865f
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 4b1807aa4edacefdd05e7971a9397349441af656904cc9264aaf9bc8abc9fd6f
 F src/update.c f2b9d8fe91726a2dd424ca573126cefe9f00511ce2313f6d7af40dad1a96c257
-F src/url.c 434406da8f0c4d9e1cc17f16af9dc09fcb52a9ab3f548b63eae3db6cc313e0ab
+F src/url.c cb7f47aa963273e55a50a050e76d0d5b949830d166c30c11e41a687bbf879034
 F src/user.c 2c4af18fb4cf27bb0fcfddbbab3975b37bc6300d0f4cfc8d655cdcd45e0d584f
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0cb6e03443f96985fa834d9345468669f1c6de42263d059bc6a39e55732c61c3
-R 70ad5d0fe0a66385bda935aa40a56d35
-U ashepilko
-Z bff0653d9e219b85ab6742ebad78f4e2
+P d626ddb55490c5a560c7c55682b0892c22bcabe713c33075fb968ce2a2406432
+R bae036a3b09b4e602529eaa09fb9e68b
+U drh
+Z 05e3f7bd157ae0e6574c2087ad038835
