@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\sclone"\scommand\sso\sthat\sit\sworks\sagain\safter\sthe\saddition\sof\nthe\sability\sto\ssupport\smultiple\sremotes.
-D 2020-07-18T02:52:19.073
+C Close\sbranch
+D 2020-07-18T04:26:35.919
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -1003,7 +1003,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d626ddb55490c5a560c7c55682b0892c22bcabe713c33075fb968ce2a2406432
+P 857777f117eb0d5a5c5ce2317fe6a0b6bd56d24657901d3fcbead13a2fac7eb6 0a7526522085631f9133dc06ffa87a3a8f61b06ab0b7c31ab3bfdc4d5ced6aae
 R bae036a3b09b4e602529eaa09fb9e68b
-U drh
-Z 05e3f7bd157ae0e6574c2087ad038835
+T +closed 0a7526522085631f9133dc06ffa87a3a8f61b06ab0b7c31ab3bfdc4d5ced6aae
+U andygoth
+Z dac1121a8148b170dbfb3b37a6f35ecf
