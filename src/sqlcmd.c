@@ -268,27 +268,37 @@ static void fossil_close(int bDb, int noRepository){
 **
 ** Usage: %fossil sql ?OPTIONS?
 **
-** Run the standalone sqlite3 command-line shell on DATABASE with SHELL_OPTS.
-** If DATABASE is omitted, then the repository that serves the working
-** directory is opened.  See https://www.sqlite.org/cli.html for additional
-** information.
+** Run the sqlite3 command-line shell on the Fossil repository
+** identified by the -R option, or on the current repository.
+** See https://www.sqlite.org/cli.html for additional information about
+** the sqlite3 command-line shell.
+**
+** WARNING:  Careless use of this command can corrupt a Fossil repository
+** in ways that are unrecoverable.  Be sure you know what you are doing before
+** running any SQL commands that modify the repository database.  Use the
+** --readonly option to prevent accidental damage to the repository.
 **
 ** Options:
 **
 **    --no-repository           Skip opening the repository database.
 **
+**    --readonly                Open the repository read-only.  No changes
+**                              are allowed.  This is a recommended safety
+**                              precaution to prevent repository damage.
+**
 **    -R REPOSITORY             Use REPOSITORY as the repository database
 **
-** WARNING:  Careless use of this command can corrupt a Fossil repository
-** in ways that are unrecoverable.  Be sure you know what you are doing before
-** running any SQL commands that modify the repository database.
+** All of the standard sqlite3 command-line shell options should also
+** work.
 **
-** The following extensions to the usual SQLite commands are provided:
+** The following SQL extensions are provided with this Fossil-enhanced
+** version of the sqlite3 command-line shell:
 **
 **    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
 **                              found in check-in X (another BLOB.RID value).
 **
-**    compress(X)               Compress text X.
+**    compress(X)               Compress text X with the same algorithm used
+**                              to compress artifacts in the BLOB table.
 **
 **    content(X)                Return the content of artifact X. X can be an
 **                              artifact hash or hash prefix or a tag. Artifacts
@@ -313,11 +323,17 @@ static void fossil_close(int bDb, int noRepository){
 **
 **    files_of_checkin(X)       A table-valued function that returns info on
 **                              all files contained in check-in X.  Example:
-**                                SELECT * FROM files_of_checkin('trunk');
+**
+**                                  SELECT * FROM files_of_checkin('trunk');
 **
 **    now()                     Return the number of seconds since 1970.
 **
-**    REGEXP                    The REGEXP operator works, unlike in
+**    obscure(T)                Obfuscate the text password T so that its
+**                              original value is not readily visible.  Fossil
+**                              uses this same algorithm when storing passwords
+**                              of remote URLs.
+**
+**    regexp                    The REGEXP operator works, unlike in
 **                              standard SQLite.
 **
 **    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic

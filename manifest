@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.33.0\salpha\sfor\stesting.\nThe\sbuilt-in\sSQLite\snow\ssupports\sUPDATE\sFROM.
-D 2020-07-18T19:49:42.447
+C Enhancements\sto\sthe\shelp\spage\sfor\sthe\s"sql"\scommand.
+D 2020-07-18T21:31:37.604
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -598,7 +598,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c acd8dcbdd34e9a01938d73763a7114c025b7af308d806678e17cc022903ee919
+F src/sqlcmd.c c071c8c4d36492e5f92637aba21ad895b9a9f72cd277097e9a149d17763633eb
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
 F src/sqlite3.c 1c7f32dfb768d2c4de0110a9ce908e44cb78966ec5ab65d9922651ab8648f345
 F src/sqlite3.h fb16f060dba0f1a80a887b94ff8f31f2871a68970a04be56a19d6fb630a3397a
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 997267a1a4f988b4a3e033ae7ff0242085c838ffbe7a62032187abd60d57320c
-R 4e6e0d8a1ab4f3dae19031c404bd500a
+P 6169c8906f14851fb9a1b5cdedaa76cfa8c15a3816ee32de2d437529c91d1653
+R 89bc5cfcb04c32d78ebf17234eb1c332
 U drh
-Z 995ff2ff73efd2281449b5c60c84714e
+Z ac907313dc2a57b797a71cec358f5e99
