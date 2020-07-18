@@ -760,8 +760,7 @@ void test_detach_cmd(void){
   db_find_and_open_repository(0, 2);
   db_begin_transaction();
   db_multi_exec(
-    "DELETE FROM config WHERE name GLOB 'last-sync-*';"
-    "DELETE FROM config WHERE name GLOB 'sync-*:*';"
+    "DELETE FROM config WHERE name='last-sync-url';"
     "UPDATE config SET value=lower(hex(randomblob(20)))"
     " WHERE name='project-code';"
     "UPDATE config SET value='detached-' || value"
@@ -917,7 +916,6 @@ void scrub_cmd(void){
     db_multi_exec(
       "UPDATE user SET pw='';"
       "DELETE FROM config WHERE name GLOB 'last-sync-*';"
-      "DELETE FROM config WHERE name GLOB 'sync-*:*';"
       "DELETE FROM config WHERE name GLOB 'peer-*';"
       "DELETE FROM config WHERE name GLOB 'login-group-*';"
       "DELETE FROM config WHERE name GLOB 'skin:*';"
