@@ -3,9 +3,10 @@
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12 (pending)</h2>
 
-  *  Security fix in the "fossil git export" command.  The same fix is
-     also backported to version 2.10.1 and 2.11.1. New "safety-net"
-     features were added to prevent similar problems in the future.
+  *  Security fix in the "[/help?cmd=git|fossil git export]" command.
+     The same fix is also backported to version 2.10.1 and 2.11.1.
+     New "safety-net" features were added to prevent similar problems
+     in the future.
   *  Enhancements to the graph display for cases when there are
      many cherry-pick merges into a single check-in.
      [/timeline?f=2d75e87b760c0a9|Example]
@@ -21,6 +22,13 @@
      The default is to disallow unsafe HTML everywhere.
      [https://www.fossil-scm.org/forum/forumpost/3714e6568f|Example].
   *  Added the "collapse" and "expand" capability for long forum posts.
+     [https://fossil-scm.org/forum/forumpost/9297029862|Example]
+  *  The "[/help?cmd=remote-url|fossil remote]" command now has options for
+     specifying multiple persistent remotes with symbolic names.  Currently
+     only one remote can be used at a time, but that might change in the
+     future.
+  *  Added the experimental "[/help?cmd=hook|fossil hook]" command for
+     managing "hook scripts" that run before checkin or after a push.
   *  Enhance the [/help?cmd=revert|fossil revert] command so that it
      is able to revert all files beneath a directory.
   *  Add the [/help?cmd=bisect|fossil bisect skip] command.
@@ -49,7 +57,7 @@
      modes ".mode box" and ".mode json".
   *  Add the "<tt>obscure()</tt>" SQL function to the 
      "[/help?cmd=sql|fossil sql]" command.
-  *  Delta compression now applied to forum edits.
+  *  [./delta_format.wiki|Delta compression] is now applied to forum edits.
   *  Countless documentation enhancements.
 
 <a name='v2_11'></a>
