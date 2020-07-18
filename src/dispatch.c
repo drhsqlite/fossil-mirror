@@ -250,7 +250,7 @@ static void appendMixedFont(Blob *pOut, const char *z, int n){
       if( j>=n || z[j]==' ' || z[j]=='=' ){
         zEnd = "";
       }else{
-        if( fossil_isupper(z[j]) ){
+        if( fossil_isupper(z[j]) && z[i]!='-' ){
           blob_append(pOut, "<i>",3);
           zEnd = "</i>";
         }else{
