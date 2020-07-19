@@ -184,6 +184,11 @@ REM
 
 REM
 REM NOTE: Attempt to create the build output directory, if necessary.
+REM       In order to build using the current directory as the build
+REM       output directory, use the following command before executing
+REM       this tool:
+REM
+REM       SET BUILDDIR=%CD%
 REM
 IF DEFINED BUILDDIR (
   IF DEFINED BUILDSUFFIX (
@@ -197,21 +202,19 @@ IF DEFINED BUILDDIR (
       REM
       REM NOTE: The build suffix is not present, add it now.
       REM
-      SET "BUILDDIR=%BUILDDIR%%BUILDSUFFIX%"
+      SET BUILDDIR=%BUILDDIR%%BUILDSUFFIX%
     )
 
     CALL :fn_ResetErrorLevel
   )
 ) ELSE (
   REM
-  REM When BUILDDIR is not defined, build in the current directory.
-  REM For compatibility, create the build artifacts in 'msvcbld'
-  REM subdirectory (similar to how the Linux build is done).
+  REM NOTE: By default, when BUILDDIR is unset, build in the "msvcbld"
+  REM       sub-directory relative to the root of the source checkout.
+  REM       This retains backward compatibility with third-party build
+  REM       scripts, etc,
   REM
-  REM USECASE-1: in-source build (current dir is %ROOT%)
-  REM USECASE-2: out-of-source build (current dir is arbitrary)
-  REM
-  SET "BUILDDIR=%CD%\msvcbld%BUILDSUFFIX%"
+  SET BUILDDIR=%ROOT%\msvcbld%BUILDSUFFIX%
 )
 
 %_VECHO% BuildSuffix = '%BUILDSUFFIX%'

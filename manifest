@@ -1,5 +1,5 @@
-C Fixed\sa\sMarkdown\sformatting\sproblem\sdue\sto\sa\sline\sbreak\sin\san\nunfortunate\slocation.
-D 2020-07-19T19:02:28.456
+C Reverse\scheck-in\s[0f0b904337150bd5].\s\sFor\sMSVC,\sin\sorder\sto\sbuild\susing\sthe\scurrent\sdirectory\sas\sthe\sbuild\soutput\sdirectory,\sset\sthe\sBUILDDIR\senvironment\svariable\sto\sC:\\Users\\mistachkin\\Documents\\checkouts\\sqlite\\fossil\sbefore\sexecuting\sthe\sbuild\stool.
+D 2020-07-19T21:33:39.075
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -783,7 +783,7 @@ F win/Makefile.dmc accb77ac645cf55b52a0e87863af40ccb9e391a0ac5145f7771c5e5d9cdc3
 F win/Makefile.mingw cd45ad02e5d6ea41393bb58e546ee00d2de33514b596b60713ac308280812d9f
 F win/Makefile.mingw.mistachkin c8ca1ec09f8cfa135d61a51de9e2dc47be1cfcda6e84e91e60b98b6f073805f5
 F win/Makefile.msc 33d289023bbe6e61f88919d69628289246f94b697733fb734b1a4355db250513
-F win/buildmsvc.bat 4ad48ae3e3eee7a2242ab4f490fd970421b65f1340d832f5319d08d05218e1e7 x
+F win/buildmsvc.bat 401f6d57cd024c5484fccf3ed07bd2f1d8bfd20b7487fe7f0282b335ac9f9b5b x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc d86e2b5468fbfdcfa244432defe4029d39071fa92bf3f81f10d7ee7869ada19b
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fa4c48bf60e6de1aacfc9614108c588910002b348751dc6189ad842da548644b
-R 7475640bf283d5dae57c6d12173d714b
-U wyoung
-Z be043bc8667a69954796d6c6a17ad3d3
+P 8e3898ac039d54dc016e80ad8d3ca9d51d910b2fc0c64d1b1d0ace3de0210370
+R b9050dcba43a9f4b1b8da376939d16c5
+U mistachkin
+Z f4712d2281a1a507bff04bf69c1a2103
