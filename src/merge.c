@@ -139,13 +139,13 @@ static void add_renames(
   const char *zFnCol, /* The FV column for the filename in vid */
   int vid,            /* The desired version's RID */
   int nid,            /* Version N's RID */
-  int revOk,          /* Ok to move backwards (child->parent) if true */
+  int revOK,          /* OK to move backwards (child->parent) if true */
   const char *zDebug  /* Generate trace output if not NULL */
 ){
   int nChng;  /* Number of file name changes */
   int *aChng; /* An array of file name changes */
   int i;      /* Loop counter */
-  find_filename_changes(nid, vid, revOk, &nChng, &aChng, zDebug);
+  find_filename_changes(nid, vid, revOK, &nChng, &aChng, zDebug);
   if( nChng==0 ) return;
   for(i=0; i<nChng; i++){
     char *zN, *zV;

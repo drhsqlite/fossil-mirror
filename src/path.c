@@ -423,7 +423,7 @@ struct NameChange {
 void find_filename_changes(
   int iFrom,               /* Ancestor check-in */
   int iTo,                 /* Recent check-in */
-  int revOk,               /* Ok to move backwards (child->parent) if true */
+  int revOK,               /* OK to move backwards (child->parent) if true */
   int *pnChng,             /* Number of name changes along the path */
   int **aiChng,            /* Name changes */
   const char *zDebug       /* Generate trace output if no NULL */
@@ -445,7 +445,7 @@ void find_filename_changes(
   }
   if( iFrom==iTo ) return;
   path_reset();
-  p = path_shortest(iFrom, iTo, 1, revOk==0, 0);
+  p = path_shortest(iFrom, iTo, 1, revOK==0, 0);
   if( p==0 ) return;
   path_reverse_path();
   db_prepare(&q1,
@@ -543,16 +543,16 @@ void test_name_change(void){
   int nChng;
   int i;
   const char *zDebug = 0;
-  int revOk = 0;
+  int revOK = 0;
 
   db_find_and_open_repository(0,0);
   zDebug = find_option("debug",0,0)!=0 ? "debug" : 0;
-  revOk = find_option("bidirectional",0,0)!=0;
+  revOK = find_option("bidirectional",0,0)!=0;
   if( g.argc<4 ) usage("VERSION1 VERSION2");
   while( g.argc>=4 ){
     iFrom = name_to_rid(g.argv[2]);
     iTo = name_to_rid(g.argv[3]);
-    find_filename_changes(iFrom, iTo, revOk, &nChng, &aChng, zDebug);
+    find_filename_changes(iFrom, iTo, revOK, &nChng, &aChng, zDebug);
     fossil_print("------ Changes for (%d) %s -> (%d) %s\n",
                  iFrom, g.argv[2], iTo, g.argv[3]);
     for(i=0; i<nChng; i++){
