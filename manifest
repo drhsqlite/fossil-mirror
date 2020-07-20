@@ -1,5 +1,5 @@
-C Reverse\scheck-in\s[0f0b904337150bd5].\s\sFor\sMSVC,\sin\sorder\sto\sbuild\susing\sthe\scurrent\sdirectory\sas\sthe\sbuild\soutput\sdirectory,\sset\sthe\sBUILDDIR\senvironment\svariable\sto\sC:\\Users\\mistachkin\\Documents\\checkouts\\sqlite\\fossil\sbefore\sexecuting\sthe\sbuild\stool.
-D 2020-07-19T21:33:39.075
+C ETAG\scaching\sof\sartifact\sdownloads.
+D 2020-07-20T00:16:57.841
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -508,7 +508,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635d
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 9869461c225c78f5fa51b57735032df7f74cbfceb3bea99a5541c1f4f9f12204
-F src/info.c b5821b079a45826e92029212fdc140aac8c81106d2d1edc669765e56aa7aac1e
+F src/info.c 9778fa245321db71a16eb2d494b44d948546626c12c9381ead506232c8b7f5eb
 F src/json.c 4682e16c66a8093d529b1f0c132eef4b7efde0a0a111097241f928746c4fd6ee
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e3898ac039d54dc016e80ad8d3ca9d51d910b2fc0c64d1b1d0ace3de0210370
-R b9050dcba43a9f4b1b8da376939d16c5
-U mistachkin
-Z f4712d2281a1a507bff04bf69c1a2103
+P a6332ebfe98c5f66f1e7a17141d127424aabdb70fbbcbcc1261747e3ad6944cf
+R 42e6aa73fe9efa6367efc130fbaa99e2
+U drh
+Z 8848b95ebe00a88ac30dc0f2318878de
