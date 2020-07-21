@@ -1,5 +1,5 @@
-C Corrected\s[b2ac2183]\sto\swork\swith\sCGI\sdirectory-serving\smode.\sRenamed\sthe\stwo\sJSON\sbootstrap\sroutines\sto\sbe\smore\sdescriptive\sand\smade\sit\sa\sharmless\sno-op\sto\scall\sjson_bootstrap_early()\s(formerly\sjson_main_bootstrap())\smultiple\stimes\sin\sorder\sto\ssimplify\ssome\scode.\sSeveral\sminor\scode\sstyle\sfixes\sin\srelated\scode.
-D 2020-07-21T02:47:01.849
+C Trivial\smakeheaders\spatch\sfrom\s[https://fossil-scm.org/forum/forumpost/0fc3f6b8d8],\splus\sa\ssmall\stypo\sfix.
+D 2020-07-21T12:52:31.772
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -534,7 +534,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 703de15c9e5fb131ca0a50929f415ad2d84fbccb6ac2bf29e84fe598b99d1671
 F src/main.mk 2bc789030765b6b260b5e61c9e75052c8c6f0a777a20f1b45efca18429b9fc3a
-F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
+F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl f30c24b4027d61e2781556f947865c3deb1fc0b297b15080d2d2867c5b1b4f15 x
 F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b92e460fd756da5f7b91277c3628bde710916f8f916a48372b5350454fabc8f5
-R 31105ae11aee1311823eae14918bc2d2
+P e7f13b82b63a4f54171e253b12de17d0de776576db0c6d7c632073e025fb697c
+R 0a3075612cf906aa88e204f6cd386f67
 U stephan
-Z 80b033e4354b14f9f9fe9895d9fb6405
+Z 2d4eac65e511e53f066db52e15957c7e
