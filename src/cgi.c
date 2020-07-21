@@ -960,7 +960,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   CgiPostReadState state;
   cson_parse_opt popt = cson_parse_opt_empty;
   cson_parse_info pinfo = cson_parse_info_empty;
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
   popt.maxDepth = 15;
   state.fh = zIn;
   state.len = contentLen;
@@ -1066,8 +1066,7 @@ void cgi_init(void){
 #endif
 
 #ifdef FOSSIL_ENABLE_JSON
-  int noJson = P("no_json")!=0;
-  if( noJson==0 ){ json_main_bootstrap(); }
+  const int noJson = P("no_json")!=0;
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
@@ -1103,13 +1102,14 @@ void cgi_init(void){
     cgi_set_parameter("PATH_INFO", zPathInfo);
   }
 #ifdef FOSSIL_ENABLE_JSON
-  if(json_request_is_json_api(zPathInfo)){
+  if(noJson==0 && json_request_is_json_api(zPathInfo)){
     /* We need to change some following behaviour depending on whether
     ** we are operating in JSON mode or not. We cannot, however, be
     ** certain whether we should/need to be in JSON mode until the
     ** PATH_INFO is set up.
     */
     g.json.isJsonMode = 1;
+    json_bootstrap_early();
   }else{
     assert(!g.json.isJsonMode &&
            "Internal misconfiguration of g.json.isJsonMode");
@@ -1747,7 +1747,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   char zLine[2000];     /* A single line of input. */
 
 #ifdef FOSSIL_ENABLE_JSON
-  if( nCycles==0 ){ json_main_bootstrap(); }
+  if( nCycles==0 ){ json_bootstrap_early(); }
 #endif
   if( zIpAddr ){
     if( nCycles==0 ){

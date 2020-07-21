@@ -79,13 +79,13 @@ static void db_err(const char *zFormat, ...){
   z = vmprintf(zFormat, ap);
   va_end(ap);
 #ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
+  if( g.json.isJsonMode!=0 ){
     /*
     ** Avoid calling into the JSON support subsystem if it
     ** has not yet been initialized, e.g. early SQLite log
     ** messages, etc.
     */
-    if( !json_is_main_boostrapped() ) json_main_bootstrap();
+    json_bootstrap_early();
     json_err( 0, z, 1 );
   }
   else

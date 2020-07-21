@@ -1,5 +1,5 @@
-C Fixed\sseveral\s"Ok"\s->\s"OK".
-D 2020-07-20T15:18:37.530
+C Corrected\s[b2ac2183]\sto\swork\swith\sCGI\sdirectory-serving\smode.\sRenamed\sthe\stwo\sJSON\sbootstrap\sroutines\sto\sbe\smore\sdescriptive\sand\smade\sit\sa\sharmless\sno-op\sto\scall\sjson_bootstrap_early()\s(formerly\sjson_main_bootstrap())\smultiple\stimes\sin\sorder\sto\ssimplify\ssome\scode.\sSeveral\sminor\scode\sstyle\sfixes\sin\srelated\scode.
+D 2020-07-21T02:47:01.849
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/bundle.c 179a6ec56bb375aa7dc72ac263a7ffa8f5bab8055293d405f75fb273ce6feddb
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c f2a22f48e00f2e791cbc7ddaf90fd2a000f3f4902de4fdecfc06998965fa3f1e
-F src/cgi.c b59fc925f424e43214d31e77ba7e95fae6ba295f719fd09ad23e3125b49ee293
+F src/cgi.c 7fced43dc4ca1fd080ffbad55f280df9a7fac3946e869c8c72738e1d3f94c96b
 F src/checkin.c 80a4136a1698f90f6e21506eac22053133fb35395260faedd3a46f80743218d3
 F src/checkout.c d4d0e5d35b913caed9e91a6f1809a0cb202e08eebffa16e716d008a2970c73cf
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 87287ddb52c955f3e241368c1d627789ad2a7fbf49471bfa39a17d79ea835abf
+F src/db.c fa2105ff40acdfd76b182b6805c61171b7f56e0c3d61fe418197092bd850c8ab
 F src/default.css ea2c0b8ee6ddf1c4f199c544ce829762dc1a4f14bc54e05c8bff423dad9704ef
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -509,7 +509,7 @@ F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 9869461c225c78f5fa51b57735032df7f74cbfceb3bea99a5541c1f4f9f12204
 F src/info.c 9778fa245321db71a16eb2d494b44d948546626c12c9381ead506232c8b7f5eb
-F src/json.c 4682e16c66a8093d529b1f0c132eef4b7efde0a0a111097241f928746c4fd6ee
+F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -517,7 +517,7 @@ F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
 F src/json_dir.c 749c78497a1ca3d29659e760a8ecb482bf1a090e9ce6dd01f4e55d6abf062295
 F src/json_finfo.c 3ef77397c22e0fcc8ea324224f3475916d6acdb6f4de6b338d8bc5f606708eca
-F src/json_login.c 1c6b1f158a56a3918b88822163280384272b7ed0adf4f8f9c046e07c5fda44e9
+F src/json_login.c beed05302e4d59462f0dbe4b7a043e5c7848bd9d61cabc7509d64f66a5409dc7
 F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c abda9047e6031f55078e6254f9c1dd50dc54f2b2
 F src/json_status.c 9aa7c3f2c0a450b9a567316261197f85e61e743637844776ad61f8a952d9a08c
@@ -532,7 +532,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 0958e53a133e87d64dbf1c8e234111a66db1be3799ee573bc410348530f8c1f7
+F src/main.c 703de15c9e5fb131ca0a50929f415ad2d84fbccb6ac2bf29e84fe598b99d1671
 F src/main.mk 2bc789030765b6b260b5e61c9e75052c8c6f0a777a20f1b45efca18429b9fc3a
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -556,7 +556,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 37f73ec5fb2a7d4f4449f28c3b119f54b5f6df6d3ed6d74296c434fe213c6ad0
+F src/printf.c cc9baf9e2067c26f430cce2a845709b387204359b6e103122939fbc9707ef80d
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c 51de6a1ce8e83a39c1d240555e929f9cf6af6d8bd5d78eb91688f72c109e61fd
 F src/rebuild.c 9d84aed5fff6420b514f41814368c8bb042669b98d9b4cdf539ddcef63b2a4bb
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70bf9a6bf75880510ec7da706751ba6c4c33adfc27daadfa2e71ec1bdd461079
-R bb4368d2411fd384f2d194f1351156ab
-U wyoung
-Z 9d56c0df40ae4b64cfec562feaefb1ef
+P b92e460fd756da5f7b91277c3628bde710916f8f916a48372b5350454fabc8f5
+R 31105ae11aee1311823eae14918bc2d2
+U stephan
+Z 80b033e4354b14f9f9fe9895d9fb6405
