@@ -306,7 +306,18 @@ Thus our recommendation that you refer to in-repo resources exclusively.
 ## <a name="override"></a>Overriding the Default CSP
 
 If you wish to relax the default CSP’s restrictions or to tighten them
-further, there are two ways to accomplish that:
+further, there are multiple ways to accomplish that:
+
+### <a name="cspsetting"></a>The `default-csp` Setting
+
+If the [`default-csp` setting](/help?cmd=default-csp)
+is defined and is not an empty string,
+then the content of that setting is used as the default CSP.  This
+is the easiest way to use non-standard CSP on your site.
+
+You can edit the default-csp setting directly from the web interface
+by visiting the Admin/Settings page and changing the text in the 
+edit box for "default-csp".
 
 
 ### <a name="th1"></a>TH1 Setup Hook
