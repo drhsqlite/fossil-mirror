@@ -1,8 +1,8 @@
 B 00ad7ef3f2caf9342aa3b12cad2a1d36943d04bfe072de928cffb8b7c5ac8ed7
-C Update\sdocumentation\son\sCSP\sto\spoint\sthe\suser\sto\sthe\sdefault-csp\ssetting.
-D 2020-07-23T17:39:28.677
-F www/defcsp.md 8e0109bcf4c2b269590aa2ee8c3510ba0364f7a5d0dfe9f2bc4a86826ff7b602
-P 00ad7ef3f2caf9342aa3b12cad2a1d36943d04bfe072de928cffb8b7c5ac8ed7
-R 83e10e8a2ebc023ba513511800efaaf6
-U drh
-Z 6444134df1778a993cd6eed310cce24f
+C Rewrote\sthe\ssection\s"Overriding\sthe\sDefault\sCSP"\sin\sthe\sdefcsp.md\sdoc.\nAlthough\sit's\shard\sto\ssee\sfrom\sthe\sdiffs,\sit\slargly\sjust\sadds\smore\ndetail\sto\swhat\sit\salready\ssaid.
+D 2020-07-23T22:35:12.218
+F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
+P f5778d0d9116642de5d6c508d88207a820826ef0f44a438d9e615bc11f01026a
+R 7bb304aa4ecde3f06e4cd11817d2625c
+U wyoung
+Z 1b3304b6fd790cda59cbaae66afd5891
