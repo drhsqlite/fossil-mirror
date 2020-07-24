@@ -93,7 +93,12 @@ int bisect_option(const char *zName){
   for(i=0; i<count(aBisectOption); i++){
     if( fossil_strcmp(zName, aBisectOption[i].zName)==0 ){
       char *zLabel = mprintf("bisect-%s", zName);
-      char *z = db_lget(zLabel, (char*)aBisectOption[i].zDefault);
+      char *z;
+      if( g.localOpen ){
+        z = db_lget(zLabel, (char*)aBisectOption[i].zDefault);
+      }else{
+        z = (char*)aBisectOption[i].zDefault;
+      }
       if( is_truth(z) ) r = 1;
       if( is_false(z) ) r = 0;
       if( r<0 ) r = is_truth(aBisectOption[i].zDefault);

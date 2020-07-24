@@ -1,5 +1,5 @@
-C Add\sthe\sdeltabg\squery\sparameter\sto\s/timeline.
-D 2020-07-24T12:56:41.749
+C Fix\san\sissue\swith\sthe\s/timeline\sbid=\squery\sparameter\son\sservers.
+D 2020-07-24T16:15:53.428
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
 F src/backoffice.c a6050595f00797ed1a45ca49617607d60d223bb8fb088ff2eace2cd6a979cbd2
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
-F src/bisect.c 09d5ade1ecf0389879c2bd578a1074a64f95d2003d4c00ea380f32af27eccd55
+F src/bisect.c fd0e00331e5b843161aca5a1056f59f7e8596f22e109f5553101fe239b1445af
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
 F src/branch.c 157bff65105f6ebf6279c55a86caa32088c6bbcbcd441244e645be9db459f405
 F src/browse.c ef38b8132be2020218a3922f820baf6d1d0aaf81b58a106b3bb2ca48b2c40bc1
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6dc17a57600e8b4e290d496187fa9e411e157e2f116dd337ea5cf313adad11ee
-R 82057e6c11dbda7457e6ac9999c9db22
+P 6b9d57a04ce5939377e82c6dacad9d0a1fc04094f861dd05d2dc6aff6d8cce2f
+R 6e80d1da7897f2083c874218d63d8a9e
 U drh
-Z 65a8b7a84f4678726af465803bf08d96
+Z 7e8b028bbc29b51984f075adb74a14a8
