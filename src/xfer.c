@@ -1681,6 +1681,9 @@ void page_xfer(void){
             blob_str(&xfer.aToken[3])
           );
         }
+        if( db_get_boolean("forbid-delta-manifests",0) ){
+          @ pragma avoid-delta-manifests
+        }
       }
 
       /*   pragma ci-unlock CLIENT-ID
@@ -2517,6 +2520,15 @@ int client_sync(
             fossil_print("\nParent check-in locked by %s\n", zUser);
           }
           g.ckinLockFail = fossil_strdup(zUser);
+        }
+
+        /*    pragma avoid-delta-manifests
+        **
+        ** Discourage the use of delta manifests.  The remote side sends
+        ** this pragma when its forbid-delta-manifests setting is true.
+        */
+        else if( blob_eq(&xfer.aToken[1], "avoid-delta-manifests") ){
+          g.bAvoidDeltaManifests = 1;
         }
       }else
 

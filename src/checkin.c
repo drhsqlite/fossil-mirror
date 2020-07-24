@@ -2235,20 +2235,6 @@ void commit_cmd(void){
     qsort((void*)sCiInfo.azTag, nTag, sizeof(sCiInfo.azTag[0]), tagCmp);
   }
 
-  /* So that older versions of Fossil (that do not understand delta-
-  ** manifest) can continue to use this repository, do not create a new
-  ** delta-manifest unless this repository already contains one or more
-  ** delta-manifests, or unless the delta-manifest is explicitly requested
-  ** by the --delta option.
-  **
-  ** The forbid-delta-manifests setting prevents new delta manifests.
-  */
-  if( (!forceDelta && !db_get_boolean("seen-delta-manifest",0))
-   || db_get_boolean("forbid-delta-manifests",0)
-  ){
-    forceBaseline = 1;
-  }
-
   /*
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
@@ -2261,6 +2247,28 @@ void commit_cmd(void){
       fossil_exit(1);
     }
   }
+
+  /* So that older versions of Fossil (that do not understand delta-
+  ** manifest) can continue to use this repository, do not create a new
+  ** delta-manifest unless this repository already contains one or more
+  ** delta-manifests, or unless the delta-manifest is explicitly requested
+  ** by the --delta option.
+  **
+  ** The forbid-delta-manifests setting prevents new delta manifests.
+  **
+  ** If the remote repository sent an avoid-delta-manifests pragma on
+  ** the autosync above, then also try to avoid deltas, unless the
+  ** --delta option is specified.  The remote repo will send the
+  ** avoid-delta-manifests pragma if it has its "forbid-delta-manifests"
+  ** setting is enabled.
+  */
+  if( !db_get_boolean("seen-delta-manifest",0)
+   || db_get_boolean("forbid-delta-manifests",0)
+   || g.bAvoidDeltaManifests
+  ){
+    if( !forceDelta ) forceBaseline = 1;
+  }
+
 
   /* Require confirmation to continue with the check-in if there is
   ** clock skew
