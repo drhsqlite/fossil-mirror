@@ -3650,7 +3650,12 @@ struct Setting {
 */
 /*
 ** SETTING: forbid-delta-manifests    boolean default=off
-** If enabled, new delta manifests are prohibited.
+** If enabled on a client, new delta manifests are prohibited on
+** commits.  If enabled on a server, whenever a client attempts
+** to obtain a check-in lock during auto-sync, the server will 
+** send the "pragma avoid-delta-manifests" statement in its reply,
+** which will cause the client to avoid generating a delta
+** manifest.
 */
 /*
 ** SETTING: proxy            width=32 default=off
