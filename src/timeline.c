@@ -119,6 +119,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_NOTKT    0x2000000 /* Omit extra ticket classes */
 #define TIMELINE_FORUMTXT 0x4000000 /* Render all forum messages */
 #define TIMELINE_REFS     0x8000000 /* Output intended for References tab */
+#define TIMELINE_DELTA   0x10000000 /* Background color shows delta manifests */
 #endif
 
 /*
@@ -445,9 +446,26 @@ void www_print_timeline(
     }
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
-    if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
+    if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA) ){
+      if( tmFlags & TIMELINE_UCOLOR ){
+        zBgClr = zUser ? hash_color(zUser) : 0;
+      }else if( zType[0]=='c' ){
+        static Stmt qdelta;
+        db_static_prepare(&qdelta, "SELECT baseid IS NULL FROM plink"
+                                   " WHERE cid=:rid");
+        db_bind_int(&qdelta, ":rid", rid);
+        if( db_step(&qdelta)!=SQLITE_ROW ){
+          zBgClr = 0; /* Not a check-in */
+        }else if( db_column_int(&qdelta, 0) ){
+          zBgClr = hash_color("b");  /* baseline manifest */
+        }else{
+          zBgClr = hash_color("f");  /* delta manifest */
+        }
+        db_reset(&qdelta);
+      }
+    }
     if( zType[0]=='c'
-    && (pGraph || zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0)
+    && (pGraph || zBgClr==0 || (tmFlags & (TIMELINE_BRCOLOR|TIMELINE_DELTA))!=0)
     ){
       db_reset(&qbranch);
       db_bind_int(&qbranch, ":rid", rid);
@@ -457,7 +475,8 @@ void www_print_timeline(
         zBr = "trunk";
       }
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
-        if( zBr==0 || strcmp(zBr,"trunk")==0 ){
+        if( tmFlags & TIMELINE_DELTA ){
+        }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
         }else{
           zBgClr = hash_color(zBr);
@@ -1621,8 +1640,10 @@ const char *timeline_expand_datetime(const char *zIn){
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
 **                    name matches one of the comma-separate GLOBLIST
-**    brbg            Background color from branch name
-**    ubg             Background color from user
+**    brbg            Background color determined by branch name
+**    ubg             Background color determined by user
+**    deltabg         Background color red for delta manifests or green
+**                    for baseline manifests
 **    namechng        Show only check-ins that have filename changes
 **    forks           Show only forks and their children
 **    cherrypicks     Show all cherrypicks
@@ -1854,6 +1875,9 @@ void page_timeline(void){
   }
   if( PB("ubg") ){
     tmFlags |= TIMELINE_UCOLOR;
+  }
+  if( PB("deltabg") ){
+    tmFlags |= TIMELINE_DELTA;
   }
   if( zUses!=0 ){
     int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
