@@ -2240,10 +2240,11 @@ void commit_cmd(void){
   ** delta-manifest unless this repository already contains one or more
   ** delta-manifests, or unless the delta-manifest is explicitly requested
   ** by the --delta option.
+  **
+  ** The forbid-delta-manifests setting prevents new delta manifests.
   */
-  if( !forceDelta
-   && !db_get_boolean("seen-delta-manifest",0)
-   && !db_get_boolean("forbid-delta-manifests",0)
+  if( (!forceDelta && !db_get_boolean("seen-delta-manifest",0))
+   || db_get_boolean("forbid-delta-manifests",0)
   ){
     forceBaseline = 1;
   }

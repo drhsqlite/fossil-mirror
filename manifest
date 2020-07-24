@@ -1,8 +1,9 @@
 B 00ad7ef3f2caf9342aa3b12cad2a1d36943d04bfe072de928cffb8b7c5ac8ed7
-C Rewrote\sthe\ssection\s"Overriding\sthe\sDefault\sCSP"\sin\sthe\sdefcsp.md\sdoc.\nAlthough\sit's\shard\sto\ssee\sfrom\sthe\sdiffs,\sit\slargly\sjust\sadds\smore\ndetail\sto\swhat\sit\salready\ssaid.
-D 2020-07-23T22:35:12.218
+C Fix\sthe\sforbid-delta-manifest\ssetting\sso\sthat\sit\sactually\sworks.
+D 2020-07-24T10:57:46.275
+F src/checkin.c 0da4430e0e2e3237b6ed47f7ad0dc7bbd5480d737209afe7e823a146a80ff179
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
-P f5778d0d9116642de5d6c508d88207a820826ef0f44a438d9e615bc11f01026a
-R 7bb304aa4ecde3f06e4cd11817d2625c
-U wyoung
-Z 1b3304b6fd790cda59cbaae66afd5891
+P 896aa056498a86afe5417dbf8c3472f5fbae1324c479678b2f5b4f13ca9dea62
+R 2de1fdb7cc63ff771a02648a7a8968c9
+U drh
+Z b3a0f6cddf3c43088157e6e61db6a290
