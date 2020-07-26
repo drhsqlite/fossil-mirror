@@ -275,30 +275,31 @@ void login_set_user_cookie(
   int bSessionCookie      /* True for session-only cookie */
 ){
   const char *zCookieName = login_cookie_name();
-  const char *zExpire = bSessionCookie ? 0 : db_get("cookie-expire","8766");
-  int expires = bSessionCookie ? 0 : atoi(zExpire)*3600;
+  const char *zExpire = db_get("cookie-expire","8766");
+  const int expires = atoi(zExpire)*3600
+    /* the expiry time for session cookies is a bit of a hack. If we
+       don't update user.cexpire for session-only cookies then
+       session-only logins for non-anonymous users do not survive past
+       the login step. */;
   char *zHash = 0;
   char *zCookie;
   const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
 
   assert((zUsername && *zUsername) && (uid > 0) && "Invalid user data.");
-  if(bSessionCookie==0){
-    zHash = db_text(0,
+  zHash = db_text(0,
       "SELECT cookie FROM user"
       " WHERE uid=%d"
       "   AND cexpire>julianday('now')"
       "   AND length(cookie)>30",
       uid);
-  }
   if( zHash==0 ) zHash = db_text(0, "SELECT hex(randomblob(25))");
   zCookie = login_gen_user_cookie_value(zUsername, zHash);
-  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
+  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(),
+                 bSessionCookie ? 0 : expires);
   record_login_attempt(zUsername, zIpAddr, 1);
-  if(bSessionCookie==0){
-    db_multi_exec("UPDATE user SET cookie=%Q,"
-                  "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-                  zHash, expires, uid);
-  }
+  db_multi_exec("UPDATE user SET cookie=%Q,"
+                "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
+                zHash, expires, uid);
   fossil_free(zHash);
   if( zDest ){
     *zDest = zCookie;
@@ -728,9 +729,10 @@ void login_page(void){
     @   <td></td>
     @   <td><input type="submit" name="in" value="Login">
     @   <input type="checkbox" name="remember" value="1" \
-    @ %s(rememberMe ? "checked=\"checked\"" : "")>Remember me?
-    @ (If checked, login will use a persistent cookie, else it
-    @ will use a session cookie.)</td>
+    @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
+    @   <label for="remember-me">Remember me?</label>
+    @   (If checked, login will use a persistent cookie, else it
+    @   will use a session cookie.)</td>
     @ </tr>
     if( !noAnon && login_self_register_available(0) ){
       @ <tr>
