@@ -263,15 +263,18 @@ char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
 ** If zDest is not NULL then the generated cookie is copied to
 ** *zDdest and ownership is transfered to the caller (who should
 ** eventually pass it to free()).
+**
+** If bSessionCookie is true, the cookie will be a session cookie.
 */
 void login_set_user_cookie(
   const char *zUsername,  /* User's name */
   int uid,                /* User's ID */
-  char **zDest            /* Optional: store generated cookie value. */
+  char **zDest,           /* Optional: store generated cookie value. */
+  int bSessionCookie      /* True for session-only cookie */
 ){
   const char *zCookieName = login_cookie_name();
-  const char *zExpire = db_get("cookie-expire","8766");
-  int expires = atoi(zExpire)*3600;
+  const char *zExpire = bSessionCookie ? 0 : db_get("cookie-expire","8766");
+  int expires = bSessionCookie ? 0 : atoi(zExpire)*3600;
   char *zHash;
   char *zCookie;
   const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
@@ -308,12 +311,16 @@ void login_set_user_cookie(
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
+**
+** If bSessionCookie is true, the cookie will be a session cookie.
 */
-void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
+void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
+                           int bSessionCookie ){
   const char *zNow;            /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
+  int expires = bSessionCookie ? 0 : 6*3600;
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
@@ -322,13 +329,12 @@ void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
-  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), 6*3600);
+  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
   if( zCookieDest ){
     *zCookieDest = zCookie;
   }else{
     free(zCookie);
   }
-
 }
 
 /*
@@ -603,7 +609,7 @@ void login_page(void){
   zReferer = P("HTTP_REFERER");
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
   if( uid>0 ){
-    login_set_anon_cookie(zIpAddr, NULL);
+    login_set_anon_cookie(zIpAddr, NULL, 0);
     record_login_attempt("anonymous", zIpAddr, 1);
     redirect_to_g();
   }
@@ -627,7 +633,7 @@ void login_page(void){
       ** where HASH is a random hex number, PROJECT is either project
       ** code prefix, and LOGIN is the user name.
       */
-      login_set_user_cookie(zUsername, uid, NULL);
+      login_set_user_cookie(zUsername, uid, NULL, 0);
       redirect_to_g();
     }
   }
@@ -1600,7 +1606,7 @@ void register_page(void){
     fossil_free(zPass);
     db_multi_exec("%s", blob_sql_text(&sql));
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
-    login_set_user_cookie(zUserID, uid, NULL);
+    login_set_user_cookie(zUserID, uid, NULL, 0);
     if( doAlerts ){
       /* Also make the new user a subscriber. */
       Blob hdr, body;
