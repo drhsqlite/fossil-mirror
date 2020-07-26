@@ -264,9 +264,11 @@ char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
 ** *zDdest and ownership is transfered to the caller (who should
 ** eventually pass it to free()).
 **
-** If bSessionCookie is true, the cookie will be a session cookie
-** and the [user].[cexpire] and [user].[cookie] entries will not be
-** modified.
+** If bSessionCookie is true, the cookie will be a session cookie,
+** else a persistent cookie. If it's a session cookie, the
+** [user].[cexpire] and [user].[cookie] entries will be modified as if
+** it were a persistent cookie because doing so is necessary for
+** fossil's own "is this cookie still valid?" checks to work.
 */
 void login_set_user_cookie(
   const char *zUsername,  /* User's name */
@@ -276,11 +278,7 @@ void login_set_user_cookie(
 ){
   const char *zCookieName = login_cookie_name();
   const char *zExpire = db_get("cookie-expire","8766");
-  const int expires = atoi(zExpire)*3600
-    /* the expiry time for session cookies is a bit of a hack. If we
-       don't update user.cexpire for session-only cookies then
-       session-only logins for non-anonymous users do not survive past
-       the login step. */;
+  const int expires = atoi(zExpire)*3600;
   char *zHash = 0;
   char *zCookie;
   const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */

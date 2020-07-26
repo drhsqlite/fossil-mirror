@@ -1,5 +1,5 @@
-C Re-added\sSameSite=strict\scookie\sflag\sand\supdate\suser.cexpire\seven\sfor\ssession\scookies,\sotherwise\snon-anonymous\ssession-only\slogins\sdo\snot\s"stick"\spast\sthe\slogin\sprocess.
-D 2020-07-26T20:30:32.200
+C Corrected\ssome\sno-longer-true\sdocs\sabout\sthe\slogin\scookie.
+D 2020-07-26T22:29:59.717
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -529,7 +529,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0d
-F src/login.c a0ed387132aedc7e404e24ebf6ad4894d48aee6466dd4d7162694d02d30a802d
+F src/login.c f88f2446e0063daef512fa9bdb10f2362222ce3ff67959eff331ad9bfad92b02
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 8997a373c19976bfcbdb5904c549e645b6c423d13340c724db176e31c21144dc
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 80025e706d03ad696134be8fb040c138603b90c5b968a00cdc032b2c67e246c6
-R 8178db929fc349131b98e2caa7e372b9
+P 5c84a729077d9e01cd5bb548a775ad025657fd00bb5589d48b579cf3b248d66d
+R e56f08bc10f423254b8a4746bef7cb3f
 U stephan
-Z 2ca930cedd9712c415a570652dd1a3db
+Z 44ec1199d6a6bca5b4f82337eb251aed
