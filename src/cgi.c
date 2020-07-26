@@ -236,7 +236,8 @@ void cgi_printf_header(const char *zLine, ...){
 ** Set a cookie by queuing up the appropriate HTTP header output. If
 ** !g.isHTTP, this is a no-op.
 **
-** Zero lifetime implies a session cookie.
+** Zero lifetime implies a session cookie. A negative one expires
+** the cookie immediately.
 */
 void cgi_set_cookie(
   const char *zName,    /* Name of the cookie */
@@ -253,13 +254,15 @@ void cgi_set_cookie(
   if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
     zSecure = " secure;";
   }
-  if( lifetime>0 ){
+  if( lifetime!=0 ){
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly;%s Version=1\r\n",
-        zName, zValue, zPath, lifetime, zSecure);
+       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; "
+       "SameSite=strict; %s Version=1\r\n",
+       zName, lifetime>0 ? zValue : "null", zPath, lifetime, zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; HttpOnly;%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly; SameSite=strict; "
+       "%s Version=1\r\n",
        zName, zValue, zPath, zSecure);
   }
 }

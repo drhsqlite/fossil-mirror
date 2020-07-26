@@ -264,7 +264,9 @@ char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
 ** *zDdest and ownership is transfered to the caller (who should
 ** eventually pass it to free()).
 **
-** If bSessionCookie is true, the cookie will be a session cookie.
+** If bSessionCookie is true, the cookie will be a session cookie
+** and the [user].[cexpire] and [user].[cookie] entries will not be
+** modified.
 */
 void login_set_user_cookie(
   const char *zUsername,  /* User's name */
@@ -275,27 +277,29 @@ void login_set_user_cookie(
   const char *zCookieName = login_cookie_name();
   const char *zExpire = bSessionCookie ? 0 : db_get("cookie-expire","8766");
   int expires = bSessionCookie ? 0 : atoi(zExpire)*3600;
-  char *zHash;
+  char *zHash = 0;
   char *zCookie;
   const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
 
   assert((zUsername && *zUsername) && (uid > 0) && "Invalid user data.");
-  zHash = db_text(0,
+  if(bSessionCookie==0){
+    zHash = db_text(0,
       "SELECT cookie FROM user"
       " WHERE uid=%d"
       "   AND cexpire>julianday('now')"
       "   AND length(cookie)>30",
       uid);
+  }
   if( zHash==0 ) zHash = db_text(0, "SELECT hex(randomblob(25))");
   zCookie = login_gen_user_cookie_value(zUsername, zHash);
   cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
   record_login_attempt(zUsername, zIpAddr, 1);
-  db_multi_exec(
-                "UPDATE user SET cookie=%Q,"
-                "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-                zHash, expires, uid
-                );
-  free(zHash);
+  if(bSessionCookie==0){
+    db_multi_exec("UPDATE user SET cookie=%Q,"
+                  "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
+                  zHash, expires, uid);
+  }
+  fossil_free(zHash);
   if( zDest ){
     *zDest = zCookie;
   }else{
@@ -523,7 +527,9 @@ void login_page(void){
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
   const char *zReferer;
-  int noAnon = P("noanon")!=0;
+  const int noAnon = P("noanon")!=0;
+  int rememberMe;              /* If true, use persistent cookie,
+                                  else session cookie */
 
   login_check_credentials();
   fossil_redirect_to_https_if_needed(1);
@@ -532,7 +538,6 @@ void login_page(void){
   zUsername = P("u");
   zPasswd = P("p");
   anonFlag = g.zLogin==0 && PB("anon");
-
   /* Handle log-out requests */
   if( P("out") ){
     login_clear_login_data();
@@ -608,8 +613,14 @@ void login_page(void){
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
   zReferer = P("HTTP_REFERER");
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
+  if(zUsername==0){
+    /* Initial login page hit. */
+    rememberMe = 1 /* seems like a sensible default */;
+  }else{
+    rememberMe = P("remember")!=0;
+  }
   if( uid>0 ){
-    login_set_anon_cookie(zIpAddr, NULL, 0);
+    login_set_anon_cookie(zIpAddr, NULL, rememberMe?0:1);
     record_login_attempt("anonymous", zIpAddr, 1);
     redirect_to_g();
   }
@@ -633,7 +644,7 @@ void login_page(void){
       ** where HASH is a random hex number, PROJECT is either project
       ** code prefix, and LOGIN is the user name.
       */
-      login_set_user_cookie(zUsername, uid, NULL, 0);
+      login_set_user_cookie(zUsername, uid, NULL, rememberMe?0:1);
       redirect_to_g();
     }
   }
@@ -654,6 +665,7 @@ void login_page(void){
     }else{
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
+    fossil_free(zAbbrev);
   }
   if( g.sslNotAvailable==0
    && strncmp(g.zBaseURL,"https:",6)!=0
@@ -714,7 +726,11 @@ void login_page(void){
     }
     @ <tr>
     @   <td></td>
-    @   <td><input type="submit" name="in" value="Login"></td>
+    @   <td><input type="submit" name="in" value="Login">
+    @   <input type="checkbox" name="remember" value="1" \
+    @ %s(rememberMe ? "checked=\"checked\"" : "")>Remember me?
+    @ (If checked, login will use a persistent cookie, else it
+    @ will use a session cookie.)</td>
     @ </tr>
     if( !noAnon && login_self_register_available(0) ){
       @ <tr>

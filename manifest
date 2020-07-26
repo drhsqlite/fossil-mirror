@@ -1,5 +1,5 @@
-C Minor\sinternal\sAPI\schanges\sto\ssupport\susing\sa\ssession\scookie\sfor\slogins,\sbut\sthere\sare\sside\seffects\swhich\sstill\sneed\sto\sbe\sinvestigated\sbefore\sexposing\sthat\soption\sto\sthe\sUI,\se.g.\slogin\sgroups\sand\sany\sother\suse\sof\sthe\suser.cexpire\sfield.
-D 2020-07-26T14:04:19.433
+C Added\s"Remember\sme?"\scheckbox\sto\slogin\s(default=on).\sCorrected\scgi_set_cookie()\sto\simmediately\sexpire\sthe\scookie\sfor\sa\snegative\slifetime\s(it\swas\spreviously\sre-setting\sthe\scookie\sas\sa\ssession\scookie\sfor\sthat\scase).
+D 2020-07-26T19:57:46.710
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/bundle.c 179a6ec56bb375aa7dc72ac263a7ffa8f5bab8055293d405f75fb273ce6feddb
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c f2a22f48e00f2e791cbc7ddaf90fd2a000f3f4902de4fdecfc06998965fa3f1e
-F src/cgi.c 7fced43dc4ca1fd080ffbad55f280df9a7fac3946e869c8c72738e1d3f94c96b
+F src/cgi.c 6c77cc4c76600302265a576680eab28b5ea23837b3ea417bd6b769eea495a0ec
 F src/checkin.c bd1ba46f7262d697c92a2ad684867735f31141977f22df40710f8e985c3d7e70
 F src/checkout.c d4d0e5d35b913caed9e91a6f1809a0cb202e08eebffa16e716d008a2970c73cf
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -529,7 +529,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0d
-F src/login.c dce9afce725b49928accffae8b66ea60c5d6e038603a02de82d124af939ea6e7
+F src/login.c 7337ff3ce4c2a0440945a40178893e0e89c40ccd2667090b921810993852e391
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 8997a373c19976bfcbdb5904c549e645b6c423d13340c724db176e31c21144dc
@@ -1003,10 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0749d7886a6f477d3add7eebf9244f8848b1c70bcb2ee53a3d90e4fafdfed65
-R 19a635bb1545db7fdadb458f91b992b4
-T *branch * login-session-cookie
-T *sym-login-session-cookie *
-T -sym-trunk *
+P ba3cf9c4de03f3e72e76fd18a67d558ef057a217d2fe72cfb50fde9bd067e06e
+R c71147c4428e4ffde43a770c88ff84a3
 U stephan
-Z e6133c691838ab7a5b48cc76c91262ea
+Z 968ad6a5d0d51ed11a72362514080a25
