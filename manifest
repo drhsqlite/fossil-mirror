@@ -1,5 +1,5 @@
-C Added\s"Remember\sme?"\scheckbox\sto\slogin\s(default=on).\sCorrected\scgi_set_cookie()\sto\simmediately\sexpire\sthe\scookie\sfor\sa\snegative\slifetime\s(it\swas\spreviously\sre-setting\sthe\scookie\sas\sa\ssession\scookie\sfor\sthat\scase).
-D 2020-07-26T19:57:46.710
+C Removed\sthe\snewly-added\sSameSite=strict\scookie\ssetting\sto\stest\swhether\sit\sis\sthe\scause\sof\ssession-cookie\slogin\sgrief\son\smy\shoster.
+D 2020-07-26T20:10:34.283
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/bundle.c 179a6ec56bb375aa7dc72ac263a7ffa8f5bab8055293d405f75fb273ce6feddb
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c f2a22f48e00f2e791cbc7ddaf90fd2a000f3f4902de4fdecfc06998965fa3f1e
-F src/cgi.c 6c77cc4c76600302265a576680eab28b5ea23837b3ea417bd6b769eea495a0ec
+F src/cgi.c 18666e75b9f5af6c9a829ffcd6ec7e257f3de0025156af85fc14969e5d469faf
 F src/checkin.c bd1ba46f7262d697c92a2ad684867735f31141977f22df40710f8e985c3d7e70
 F src/checkout.c d4d0e5d35b913caed9e91a6f1809a0cb202e08eebffa16e716d008a2970c73cf
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba3cf9c4de03f3e72e76fd18a67d558ef057a217d2fe72cfb50fde9bd067e06e
-R c71147c4428e4ffde43a770c88ff84a3
+P 32975aabe7ea4c492410f302b48f8dcb5c6b27a84054d5d73ad86d352d134be7
+R 9c490f8c742776bd52813a688ffe6c3b
 U stephan
-Z 968ad6a5d0d51ed11a72362514080a25
+Z 78696512a8955bb524cd7344d78ed7bf
