@@ -1,5 +1,5 @@
-C Put\sthe\s"remember\sme"\scheckbox\son\sa\sline\sby\sitself.\s\sOmit\sextra\sexplanatory\ntext.\s\sMove\sthe\snon-SSL\slogin\swarning\sto\sthe\stop\sof\sthe\slogin\sdialog.
-D 2020-07-27T12:29:55.840
+C Remember-me\stoggle\sdefaults\sto\soff,\sper\sforum\sfeedback.
+D 2020-07-27T15:56:27.608
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -529,7 +529,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0d
-F src/login.c 1fc8b1d72094a92207ffb43625afe0cb99e1203a3491070673f16f28e3cccc1c
+F src/login.c 72719dd416a49936b299871c6c8b0bb56cff63f8e8412252327a89b7f75f8f7e
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 8997a373c19976bfcbdb5904c549e645b6c423d13340c724db176e31c21144dc
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3989c385ef8a99aac29c6defa29c52401f19f1fa71b67c242b4f1eee2abcbb08
-R 760bfca8ade8b00cc94dada6e25891d7
-U drh
-Z ed7e9a5e657f233594b4f1965c7453aa
+P 8efba52b975ddf343bc3e0f07e1a45627755679d921a60a4c42e2411814a8d5f
+R ec0ae5054d075093d7e891006f9585cf
+U stephan
+Z fdeac6f3b4cbe267153e78131c7e0b85

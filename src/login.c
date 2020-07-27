@@ -527,8 +527,9 @@ void login_page(void){
   const char *zIpAddr;         /* IP address of requestor */
   const char *zReferer;
   const int noAnon = P("noanon")!=0;
-  int rememberMe;              /* If true, use persistent cookie,
-                                  else session cookie */
+  int rememberMe;              /* If true, use persistent cookie, else
+                                  session cookie. Toggled per
+                                  checkbox. */
 
   login_check_credentials();
   fossil_redirect_to_https_if_needed(1);
@@ -614,7 +615,7 @@ void login_page(void){
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
   if(zUsername==0){
     /* Initial login page hit. */
-    rememberMe = 1 /* seems like a sensible default */;
+    rememberMe = 0;
   }else{
     rememberMe = P("remember")!=0;
   }
