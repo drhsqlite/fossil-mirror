@@ -696,6 +696,17 @@ void login_page(void){
       zAnonPw = 0;
     }
     @ <table class="login_out">
+    if( P("HTTPS")==0 ){
+      @ <tr><td class="form_label">Warning:</td>
+      @ <td><span class='securityWarning'>
+      @ Login information, including the password, 
+      @ will be sent in the clear over an unencrypted connection.
+      if( !g.sslNotAvailable ){
+        @ Consider logging in at
+        @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
+      }
+      @ </span></td></tr>
+    }
     @ <tr>
     @   <td class="form_label" id="userlabel1">User ID:</td>
     @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
@@ -710,27 +721,15 @@ void login_page(void){
     }
     @ </td>
     @ </tr>
-    if( P("HTTPS")==0 ){
-      @ <tr><td class="form_label">Warning:</td>
-      @ <td><span class='securityWarning'>
-      @ Your password will be sent in the clear over an
-      @ unencrypted connection.
-      if( g.sslNotAvailable ){
-        @ No encrypted connection is available on this server.
-      }else{
-        @ Consider logging in at
-        @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
-      }
-      @ </span></td></tr>
-    }
+    @ <tr>
+    @   <td></td>
+    @   <td><input type="checkbox" name="remember" value="1" \
+    @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
+    @   <label for="remember-me">Remember me?</label></td>
+    @ </tr>
     @ <tr>
     @   <td></td>
     @   <td><input type="submit" name="in" value="Login">
-    @   <input type="checkbox" name="remember" value="1" \
-    @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
-    @   <label for="remember-me">Remember me?</label>
-    @   (If checked, login will use a persistent cookie, else it
-    @   will use a session cookie.)</td>
     @ </tr>
     if( !noAnon && login_self_register_available(0) ){
       @ <tr>
