@@ -27,6 +27,8 @@
      specifying multiple persistent remotes with symbolic names.  Currently
      only one remote can be used at a time, but that might change in the
      future.
+  *  Add the "Remember me?" checkbox on the login page.  Use a session
+     cookie for the login if it is not checked.
   *  Added the experimental "[/help?cmd=hook|fossil hook]" command for
      managing "hook scripts" that run before checkin or after a push.
   *  Enhance the [/help?cmd=revert|fossil revert] command so that it

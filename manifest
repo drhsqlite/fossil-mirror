@@ -1,5 +1,5 @@
-C Add\sthe\s"Remember\sme?"\scheckbox\sto\sthe\slogin\spage.\s\sIf\snot\schecked,\syou\sget\na\ssession\scookie\sfor\sthe\slogin.
-D 2020-07-28T19:45:32.202
+C Update\sthe\schange\slog\sfor\sthe\s"Remember\sme"\ssession\slogin-cookie\senhancement.
+D 2020-07-28T19:47:55.703
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -830,7 +830,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki e2e551bb4644051b441e52d3d329c0e98eb122d0301b95240a36bc8ac8833557
+F www/changes.wiki 85ca8ff1565e985e90606b6f38c3e9a9decc768ce9f1db73f52e5669d5ea5198
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 249241990399c2fdd0934c81f982662f5a5e8042a686b61814cc6b35f6834ca3
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -1003,8 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0749d7886a6f477d3add7eebf9244f8848b1c70bcb2ee53a3d90e4fafdfed65 587cd77e0065239b31f38e6d59528bad21d9bf394c83b63382c579cf366872b6
-R ec0ae5054d075093d7e891006f9585cf
-T +closed 587cd77e0065239b31f38e6d59528bad21d9bf394c83b63382c579cf366872b6
+P 6b7b3232dfbb2f19a7458728e238e755d4a6a9400994d917256759ebfe1bea4f
+R 8a61e503ef3efdf57267c1a9313327ec
 U drh
-Z 9ceedcb7188cb1896a567eeec134352f
+Z e76ef37f98111edee636fc1935c30d3b
