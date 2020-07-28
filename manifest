@@ -1,5 +1,5 @@
-C Fix\san\sissue\swith\sthe\s/timeline\sbid=\squery\sparameter\son\sservers.
-D 2020-07-24T16:15:53.428
+C Add\sthe\s"Remember\sme?"\scheckbox\sto\sthe\slogin\spage.\s\sIf\snot\schecked,\syou\sget\na\ssession\scookie\sfor\sthe\slogin.
+D 2020-07-28T19:45:32.202
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/bundle.c 179a6ec56bb375aa7dc72ac263a7ffa8f5bab8055293d405f75fb273ce6feddb
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c f2a22f48e00f2e791cbc7ddaf90fd2a000f3f4902de4fdecfc06998965fa3f1e
-F src/cgi.c 7fced43dc4ca1fd080ffbad55f280df9a7fac3946e869c8c72738e1d3f94c96b
+F src/cgi.c 6c77cc4c76600302265a576680eab28b5ea23837b3ea417bd6b769eea495a0ec
 F src/checkin.c bd1ba46f7262d697c92a2ad684867735f31141977f22df40710f8e985c3d7e70
 F src/checkout.c d4d0e5d35b913caed9e91a6f1809a0cb202e08eebffa16e716d008a2970c73cf
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -517,7 +517,7 @@ F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
 F src/json_dir.c 749c78497a1ca3d29659e760a8ecb482bf1a090e9ce6dd01f4e55d6abf062295
 F src/json_finfo.c 3ef77397c22e0fcc8ea324224f3475916d6acdb6f4de6b338d8bc5f606708eca
-F src/json_login.c beed05302e4d59462f0dbe4b7a043e5c7848bd9d61cabc7509d64f66a5409dc7
+F src/json_login.c dc9dd643755a1c5676b7ef0a5fe4b2dd747b968baba48e110d9ad556d0f1f434
 F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c abda9047e6031f55078e6254f9c1dd50dc54f2b2
 F src/json_status.c 9aa7c3f2c0a450b9a567316261197f85e61e743637844776ad61f8a952d9a08c
@@ -529,7 +529,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0d
-F src/login.c f300a0e449f42520c340fde090db2390c979c94587f8784ebb90da16f73fa23c
+F src/login.c 72719dd416a49936b299871c6c8b0bb56cff63f8e8412252327a89b7f75f8f7e
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 8997a373c19976bfcbdb5904c549e645b6c423d13340c724db176e31c21144dc
@@ -1003,7 +1003,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6b9d57a04ce5939377e82c6dacad9d0a1fc04094f861dd05d2dc6aff6d8cce2f
-R 6e80d1da7897f2083c874218d63d8a9e
+P d0749d7886a6f477d3add7eebf9244f8848b1c70bcb2ee53a3d90e4fafdfed65 587cd77e0065239b31f38e6d59528bad21d9bf394c83b63382c579cf366872b6
+R ec0ae5054d075093d7e891006f9585cf
+T +closed 587cd77e0065239b31f38e6d59528bad21d9bf394c83b63382c579cf366872b6
 U drh
-Z 7e8b028bbc29b51984f075adb74a14a8
+Z 9ceedcb7188cb1896a567eeec134352f

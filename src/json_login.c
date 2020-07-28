@@ -147,9 +147,9 @@ cson_value * json_page_login(){
     cson_object * po;
     char * cap = NULL;
     if(anonSeed){
-      login_set_anon_cookie(NULL, &cookie);
+      login_set_anon_cookie(NULL, &cookie, 0);
     }else{
-      login_set_user_cookie(name, uid, &cookie);
+      login_set_user_cookie(name, uid, &cookie, 0);
     }
     payload = cson_value_new_object();
     po = cson_value_get_object(payload);
