@@ -1,5 +1,5 @@
-C Removed\sthe\sSameSite=strict\scookie\ssetting\sin\sorder\sto\srule\sout\swhether\sit\sis\sthe\scause\sfor\sthe\slogin\scookie\snot\sbeing\ssubmitted\swhen\sreaching\sthe\ssite\svia\sa\sGMail-induced\sredirect.
-D 2020-07-29T16:15:34.888
+C Corrected\sa\s'for'\sattribute\sin\sa\sgenerated\sLABEL\stag\sused\sby\sthe\sfileedit\spage.
+D 2020-07-29T18:10:07.216
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -606,7 +606,7 @@ F src/stash.c 465e0e9806f94b1f67f22949e92f95584e2ed0a91f1edbf5679858c2e425dfac
 F src/stat.c 899bd4bec0ff428641d2093d935d4d80ac7f6d7c75509b7be361393094982f3a
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 65a555d0d4fb846be9b943d0dc36142281bc5722d114f086274bba3726026466
+F src/style.c 838874e47ee49425ad173a225e9f966bb4f3826fc3746bb7d180878058051f30
 F src/style.fileedit.css dff0e81878e135106a69d92acd892e3540f2d228fc38b253ff6e36165e001896
 F src/sync.c 9f42cd6031c2e1d6fd1dd584aaa09e1e7280a3c07905a80524f819af1528d7ed
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
@@ -1003,7 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0cda82eb2fc2a304a0bc188c91b048635363d6040305055586500e4087b415f2
-R 19fd581309da465749454a013aa25aff
+P 1ac2e7326b689c0787fc9b5d5477dcf62b3c3ac2e049d5bc2a74def0cfb8d332
+R 4196a81a3b1c2ad6cf9070d9dc596467
 U stephan
-Z 3c76febdb4d8f967a480f06bc01f51e2
+Z b4f73101fda2955a7fdf916e86db4d46
