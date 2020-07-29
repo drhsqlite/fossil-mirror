@@ -151,23 +151,8 @@
     getIndex: function(){
       if(!this.index){
         this.index = F.storage.getJSON(
-          this.keys.index, undefined
+          this.keys.index, {}
         );
-        if(!this.index){
-          /*check for and remove/replace older name. This whole block
-            can be removed once the test phase is done (don't want to
-            invalidate the testers' edits on the test server). When
-            doing so, be sure to replace undefined in the above
-            getJSON() call with {}. */
-          const oldName = F.page.name+':index';
-          this.index = F.storage.getJSON(oldName,undefined);
-          if(this.index){
-            F.storage.remove(oldName);
-            this.storeIndex();
-          }else{
-            this.index = {};
-          }
-        }
       }
       return this.index;
     },

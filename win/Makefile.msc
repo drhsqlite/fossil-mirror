@@ -563,6 +563,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\fossil.fetch.js" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
+        "$(SRCDIR)\fossil.page.wikiedit.js" \
         "$(SRCDIR)\fossil.storage.js" \
         "$(SRCDIR)\fossil.tabs.js" \
         "$(SRCDIR)\graph.js" \
@@ -592,6 +593,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\sounds\f.wav" \
         "$(SRCDIR)\style.admin_log.css" \
         "$(SRCDIR)\style.fileedit.css" \
+        "$(SRCDIR)\style.wikiedit.css" \
         "$(SRCDIR)\tree.js" \
         "$(SRCDIR)\useredit.js" \
         "$(SRCDIR)\wiki.wiki"
@@ -1154,6 +1156,7 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.fetch.js" >> $@
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
+	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
 	echo "$(SRCDIR)\fossil.storage.js" >> $@
 	echo "$(SRCDIR)\fossil.tabs.js" >> $@
 	echo "$(SRCDIR)\graph.js" >> $@
@@ -1183,6 +1186,7 @@ realclean: clean
 	echo "$(SRCDIR)\sounds/f.wav" >> $@
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
+	echo "$(SRCDIR)\style.wikiedit.css" >> $@
 	echo "$(SRCDIR)\tree.js" >> $@
 	echo "$(SRCDIR)\useredit.js" >> $@
 	echo "$(SRCDIR)\wiki.wiki" >> $@

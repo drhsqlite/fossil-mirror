@@ -402,6 +402,20 @@ int wiki_page_type(const char *zPageName){
 }
 
 /*
+** Returns a JSON-friendly string form of the integer value returned
+** by wiki_page_type(zPageName).
+*/
+const char * wiki_page_type_name(const char *zPageName){
+  switch(wiki_page_type(zPageName)){
+    case WIKITYPE_CHECKIN: return "checkin";
+    case WIKITYPE_BRANCH: return "branch";
+    case WIKITYPE_TAG: return "tag";
+    case WIKITYPE_NORMAL:
+    default: return "normal";
+  }
+}
+
+/*
 ** Add an appropriate style_header() for either the /wiki or /wikiedit page
 ** for zPageName.  zExtra is an empty string for /wiki but has the text
 ** "Edit: " for /wikiedit.
@@ -624,6 +638,351 @@ static const char *mimetype_common_name(const char *zMimetype){
 }
 
 /*
+ ** Tries to fetch a wiki page for the given name. If found, it
+ ** returns true, else false. If pRid is not NULL then if found *pRid is
+ ** set to its RID. If ppWiki is not NULL then if found *ppWiki is set
+ ** to the loaded wiki object, which the caller is responsible for
+ ** passing to manifest_destroy().
+ */
+int wiki_fetch_by_name( const char *zPageName, int * pRid,
+                        Manifest **ppWiki ){
+  Manifest *pWiki = 0;
+  char *zTag = mprintf("wiki-%s", zPageName);
+  const int rid = db_int(0,
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+      " ORDER BY mtime DESC", zTag
+    );
+
+  fossil_free(zTag);
+  if( rid == 0 ){
+    return 0;
+  }
+  else if(pRid){
+    *pRid = rid;
+  }
+  if(ppWiki){
+    pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
+    if( pWiki==0 ){
+      /* "Cannot happen." */
+      return 0;
+    }
+    *ppWiki = pWiki;
+  }
+  return 1;
+}
+
+/*
+** Ajax route handler for /wikiajax/fetch.
+**
+** URL params:
+**
+**  page = the wiki page name
+**
+** Responds with JSON. On error, an object in the form documented by
+** ajax_route_error(). On success, an object in this form:
+**
+** { name: "page name",
+**   type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
+**   mimetype: "mime type",
+**   content: "page content"
+** }
+*/
+static void wiki_ajax_route_fetch(){
+  const char * zPageName = P("page");
+  int isSandbox;
+  
+  if( zPageName==0 || zPageName[0]==0 ){
+    ajax_route_error(400,"Missing page name.");
+    return;
+  }
+  cgi_set_content_type("application/json");
+  isSandbox = is_sandbox(zPageName);
+  if( isSandbox ){
+    char * zMimetype =
+      db_get("sandbox-mimetype","text/x-fossil-wiki");
+    CX("{\"name\": %!j, \"type\": \"sandbox\", "
+       "\"mimetype\": %!j, \"content\": ""}",
+       zPageName, zMimetype);
+    fossil_free(zMimetype);
+  }else{
+    Manifest * pWiki = 0;
+    if( !wiki_fetch_by_name(zPageName, 0, &pWiki) ){
+      ajax_route_error(404, "Wiki page not found.");
+      return;
+    }
+    CX("{\"name\": %!j, \"type\": %!j, "
+       "\"mimetype\": %!j, \"content\": %!j}",
+       pWiki->zWikiTitle,
+       wiki_page_type_name(pWiki->zWikiTitle), 
+       pWiki->zMimetype ? pWiki->zMimetype : "text/x-fossil-wiki",
+       pWiki->zWiki);
+    manifest_destroy(pWiki);
+  }
+}
+
+/*
+** Ajax route handler for /wikiajax/preview.
+**
+** URL params:
+**
+**  mimetype = the wiki page mimetype (determines rendering style)
+**  content = the wiki page content
+*/
+static void wiki_ajax_route_preview(){
+  Blob content = empty_blob;
+  const char * zMimetype = PD("mimetype","text/x-fossil-wiki");
+  const char * zContent = P("content");
+
+  if( zContent==0 ){
+    ajax_route_error(400,"Missing content to preview.");
+    return;
+  }
+  blob_init(&content, zContent, -1);
+  cgi_set_content_type("text/html");
+  wiki_render_by_mimetype(&content, zMimetype);
+  blob_reset(&content);
+}
+
+/*
+** WEBPAGE: wikiajax
+**
+** An internal dispatcher for wiki AJAX operations. Not for direct
+** client use.
+*/
+void wiki_ajax_page(void){
+  const char * zName = P("name");
+  AjaxRoute routeName = {0,0,0,0};
+  const AjaxRoute * pRoute = 0;
+  const AjaxRoute routes[] = {
+  /* Keep these sorted by zName (for bsearch()) */
+  {"fetch", wiki_ajax_route_fetch, 0, 0},
+  {"preview", wiki_ajax_route_preview, 1, 1}
+  /* /preview access mode: whether or not wiki-write mode is
+     needed really depends on multiple factors. e.g. the sandbox
+     page does not normally require more than anonymous access.
+     TODO: set its write-mode to false and do the check manually
+     in that route's handler.
+  */
+  };
+
+  if(zName==0 || zName[0]==0){
+    ajax_route_error(400,"Missing required [route] 'name' parameter.");
+    return;
+  }
+  routeName.zName = zName;
+  pRoute = (const AjaxRoute *)bsearch(&routeName, routes,
+                                      count(routes), sizeof routes[0],
+                                      cmp_ajax_route_name);
+  if(pRoute==0){
+    ajax_route_error(404,"Ajax route not found.");
+    return;
+  }
+  login_check_credentials();
+  if( pRoute->bWriteMode!=0 && g.perm.WrWiki==0 ){
+    ajax_route_error(403,"Write permissions required.");
+    return;
+  }else if(0==cgi_csrf_safe(pRoute->bPost)){
+    ajax_route_error(403,
+                     "CSRF violation (make sure sending of HTTP "
+                     "Referer headers is enabled for XHR "
+                     "connections).");
+    return;
+  }
+  pRoute->xCallback();
+}
+
+/*
+** Main front-end for the Ajax-based wiki editor app.
+*/
+static void wikiedit_page_v2(void){
+  const char *zPageName;
+  Blob endScript = empty_blob; /* end-of-page JS code */;
+  int isSandbox;
+
+  login_check_credentials();
+  zPageName = PD("name","");
+  /* TODO: not require a page name, and instead offer a list
+     of pages. */
+  /*TODO: check name only for case of new page:
+    if( check_name(zPageName) ) return;*/
+  isSandbox = is_sandbox(zPageName);
+  if( isSandbox ){
+    if( !g.perm.WrWiki ){
+      login_needed(g.anon.WrWiki);
+      return;
+    }
+  }else if( zPageName!=0 ){
+    int rid = 0;
+    int found = 0;
+    if( !wiki_special_permission(zPageName) ){
+      login_needed(0);
+      return;
+    }
+    found = wiki_fetch_by_name(zPageName, &rid, 0);
+    if( !found ){
+      /* TODO: set up for a new page */
+    }
+    if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
+      login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
+      return;
+    }
+  }
+  style_header("Wiki Editor");
+
+  /* Status bar */
+  CX("<div id='fossil-status-bar' "
+     "title='Status message area. Double-click to clear them.'>"
+     "Status messages will go here.</div>\n"
+     /* will be moved into the tab container via JS */);
+  
+  /* Main tab container... */
+  CX("<div id='wikiedit-tabs' class='tab-container'></div>");
+
+  /******* Page list *******/
+  {
+    CX("<div id='wikiedit-tab-pages' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Page List'"
+       ">");
+    CX("<div class='flex-container flex-row child-gap-small'>");
+    CX("TODO: page selection list.");
+    CX("</div>");
+    CX("</div>"/*#tab-file-content*/);
+  }
+  
+  /******* Content tab *******/
+  {
+    CX("<div id='wikiedit-tab-content' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Page Editor' "
+       "data-tab-select='1'"
+       ">");
+    CX("<div class='flex-container flex-row child-gap-small'>");
+    style_select_list_str("select-mimetype",
+                          "mimetype",
+                          "Mimetype", 0,
+                          "text/x-fossil-wiki",
+                          "Fossil wiki", "text/x-fossil-wiki",
+                          "Markdown", "text/x-markdown",
+                          "Plain text", "text/plain",
+                          NULL);
+    CX("<button class='wikiedit-content-reload confirmer' "
+       "title='Reload the file from the server, discarding "
+       "any local edits. To help avoid accidental loss of "
+       "edits, it requires confirmation (a second click) within "
+       "a few seconds or it will not reload.'"
+       ">Discard &amp; Reload</button>");
+    style_select_list_int("select-font-size",
+                          "editor_font_size", "Editor font size",
+                          NULL/*tooltip*/,
+                          100,
+                          "100%", 100, "125%", 125,
+                          "150%", 150, "175%", 175,
+                          "200%", 200, NULL);
+    CX("</div>");
+    CX("<div class='flex-container flex-column stretch'>");
+    CX("<textarea name='content' id='wikiedit-content-editor' "
+       "class='wikiedit' "
+       "rows='20' cols='80'>");
+    CX("</textarea>");
+    CX("</div>"/*textarea wrapper*/);
+    CX("</div>"/*#tab-file-content*/);
+  }
+  /****** Preview tab ******/
+  {
+    CX("<div id='wikiedit-tab-preview' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Preview'"
+       ">");
+    CX("<div class='wikiedit-options flex-container flex-row'>");
+    CX("<button id='btn-preview-refresh' "
+       "data-f-preview-from='wikiContent' "
+       /* ^^^ fossil.page[methodName]() OR text source elem ID,
+      ** but we need a method in order to support clients swapping out
+      ** the text editor with their own. */
+       "data-f-preview-via='_postPreview' "
+       /* ^^^ fossil.page[methodName](content, callback) */
+       "data-f-preview-to='#wikiedit-tab-preview-wrapper' "
+       /* ^^^ dest elem ID */
+       ">Refresh</button>");
+    /* Toggle auto-update of preview when the Preview tab is selected. */
+    style_labeled_checkbox("cb-preview-autoupdate",
+                           NULL,
+                           "Auto-refresh?",
+                           "1", 1,
+                           "If on, the preview will automatically "
+                           "refresh when this tab is selected.");
+    CX("</div>"/*.wikiedit-options*/);
+    CX("<div id='wikiedit-tab-preview-wrapper'></div>");
+    CX("</div>"/*#wikiedit-tab-preview*/);
+  }
+
+  /****** Diff tab ******/
+  {
+    CX("<div id='wikiedit-tab-diff' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Diff'"
+       ">");
+
+    CX("<div class='wikiedit-options flex-container flex-row' "
+       "id='wikiedit-tab-diff-buttons'>");
+    CX("<button class='sbs'>Side-by-side</button>"
+       "<button class='unified'>Unified</button>");
+    if(0){
+      /* For the time being let's just ignore all whitespace
+      ** changes, as files with Windows-style EOLs always show
+      ** more diffs than we want then they're submitted to
+      ** ?ajax=diff because JS normalizes them to Unix EOLs.
+      ** We can revisit this decision later. */
+      style_select_list_int("diff-ws-policy",
+                            "diff_ws", "Whitespace",
+                            "Whitespace handling policy.",
+                            2,
+                            "Diff all whitespace", 0,
+                            "Ignore EOL whitespace", 1,
+                            "Ignore all whitespace", 2,
+                            NULL);
+    }
+    CX("</div>");
+    CX("<div id='wikiedit-tab-diff-wrapper'>"
+       "Diffs will be shown here."
+       "</div>");
+    CX("</div>"/*#wikiedit-tab-diff*/);
+  }
+
+  if(zPageName && *zPageName){
+    /* Dynamically populate the editor... */
+    blob_appendf(&endScript, "fossil.onPageLoad(function(){");
+    blob_appendf(&endScript, "fossil.page.loadPage(%!j);",
+                 zPageName);
+    blob_appendf(&endScript, "});\n");
+  }
+  
+  style_emit_script_fossil_bootstrap(0);
+  append_diff_javascript(1);
+  style_emit_script_fetch(0);
+  style_emit_script_tabs(0)/*also emits fossil.dom*/;
+  style_emit_script_confirmer(0);
+  style_emit_script_builtin(0, "fossil.storage.js");
+  style_emit_script_builtin(0, "fossil.page.wikiedit.js");
+
+  if(blob_size(&endScript)>0){
+    style_emit_script_tag(0,0);
+    CX("\n(function(){\n");
+    CX("try{\n%b}\n"
+       "catch(e){"
+       "fossil.error(e); console.error('Exception:',e);"
+       "}\n",
+       &endScript);
+    CX("})();");
+    style_emit_script_tag(1,0);
+  }
+  blob_reset(&endScript);
+  style_footer();
+}
+
+/*
 ** WEBPAGE: wikiedit
 ** URL: /wikiedit?name=PAGENAME
 **
@@ -645,6 +1004,11 @@ void wikiedit_page(void){
   int eType = WIKITYPE_UNKNOWN;
   int havePreview = 0;
 
+  if(1){
+    wikiedit_page_v2();
+    return;
+  }
+  
   if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
   if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
   if( zBody ){

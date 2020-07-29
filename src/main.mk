@@ -230,6 +230,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.fetch.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
+  $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.storage.js \
   $(SRCDIR)/fossil.tabs.js \
   $(SRCDIR)/graph.js \
@@ -259,6 +260,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki

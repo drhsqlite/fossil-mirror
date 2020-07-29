@@ -1,0 +1,45 @@
+body.wikieedit.waiting * {
+  /* Triggered during AJAX requests. */
+  cursor: wait;
+}
+body.wikiedit textarea:focus,
+body.wikiedit input:focus{
+  /* The sudden appearance of a border (as in the Ardoise skin)
+     shifts the layout in unsightly ways */
+  border: initial;
+}
+body.wikiedit div.wikiedit-preview {
+  margin: 0;
+  padding: 0;
+}
+body.wikiedit #wikiedit-tabs {
+  margin: 1em 0 0 0;
+}
+body.wikiedit #wikiedit-tab-preview-wrapper {
+  overflow: auto;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > button {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > input {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > .input-with-label {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.wikiedit .wikiedit-options > div > * {
+  margin: 0.25em;
+}
+body.wikiedit .wikiedit-options.flex-container.flex-row {
+  align-items: first baseline;
+}

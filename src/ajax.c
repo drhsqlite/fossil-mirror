@@ -325,6 +325,7 @@ void ajax_route_preview_text(void){
   }
 }
 
+#if INTERFACE
 /*
 ** Internal mapping of ajax sub-route names to various metadata.
 */
@@ -336,12 +337,13 @@ struct AjaxRoute {
                        ** verification) */
 };
 typedef struct AjaxRoute AjaxRoute;
+#endif /*INTERFACE*/
 
 /*
 ** Comparison function for bsearch() for searching an AjaxRoute
 ** list for a matching name.
 */
-static int cmp_ajax_route_name(const void *a, const void *b){
+int cmp_ajax_route_name(const void *a, const void *b){
   const AjaxRoute * rA = (const AjaxRoute*)a;
   const AjaxRoute * rB = (const AjaxRoute*)b;
   return fossil_strcmp(rA->zName, rB->zName);

@@ -921,3 +921,176 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/**
+  .tab-xxx: styles for fossil.tabs.js.
+*/
+.tab-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.tab-container > #fossil-status-bar {
+  margin-top: 0;
+}
+.tab-container > .tabs {
+  padding: 0.25em;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border-width: 1px;
+  border-style: outset;
+  border-color: inherit;
+}
+.tab-container > .tabs > .tab-panel {
+  align-self: stretch;
+  flex: 10 1 auto;
+  display: block;
+}
+.tab-container > .tab-bar {
+  display: flex;
+  flex-direction: row;
+  flex: 1 10 auto;
+  align-self: stretch;
+  flex-wrap: wrap;
+}
+.tab-container > .tab-bar > .tab-button {
+  display: inline-block;
+  border-radius: 0.5em 0.5em 0 0;
+  margin: 0 0.1em;
+  padding: 0.25em 0.75em;
+  align-self: baseline;
+  border-color: inherit;
+  border-width: 1px;
+  border-bottom: none;
+  border-top-style: inset;
+  border-left-style: inset;
+  border-right-style: inset;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.tab-container > .tab-bar > .tab-button.selected {
+  text-decoration: underline;
+  opacity: 1.0;
+  border-top-style: outset;
+  border-left-style: outset;
+  border-right-style: outset;
+}
+
+/**
+   The flex-xxx classes can be used to create basic flexbox layouts
+   through the application of classes to the containing/contained
+   objects.
+*/
+.flex-container {
+    display: flex;
+}
+.flex-container.flex-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.flex-container .flex-grow {
+  flex-grow: 10;
+  flex-shrink: 0;
+}
+.flex-container .flex-shrink {
+  flex-grow: 0;
+  flex-shrink: 10;
+}
+.flex-container.flex-row.stretch {
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: stretch;
+  margin: 0;
+}
+.flex-container.flex-column {
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.flex-container.flex-column.stretch {
+  align-items: stretch;
+  margin: 0;
+}
+.flex-container.child-gap-small > * {
+  margin: 0.25em;
+}
+#fossil-status-bar {
+  display: block;
+  font-family: monospace;
+  border-width: 1px;
+  border-style: inset;
+  border-color: inherit;
+  min-height: 1.5em;
+  font-size: 1.2em;
+  padding: 0.2em;
+  margin: 0.25em 0;
+  flex: 0 0 auto;
+}
+.font-size-100 {
+  font-size: 100%;
+}
+.font-size-125 {
+  font-size: 125%;
+}
+.font-size-150 {
+  font-size: 150%;
+}
+.font-size-175 {
+  font-size: 175%;
+}
+.font-size-200 {
+  font-size: 200%;
+}
+
+/**
+   .input-with-label is intended to be a wrapper element which
+   contain both a LABEL tag and an INPUT or SELECT control.
+   The wrapper is "necessary", as opposed to placing the INPUT
+   in the LABEL, so that we can include multiple INPUT
+   elements (e.g. a set of radio buttons).
+*/
+.input-with-label {
+  border: 1px inset #808080;
+  border-radius: 0.5em;
+  padding: 0.25em 0.4em;
+  margin: 0 0.5em;
+  display: inline-block;
+  cursor: default;
+}
+.input-with-label > * {
+  vertical-align: middle;
+}
+.input-with-label > label {
+  display: inline; /* some skins set label display to block! */
+}
+.input-with-label > input {
+  margin: 0;
+}
+.input-with-label > button {
+  margin: 0;
+}
+.input-with-label > select {
+  margin: 0;
+}
+.input-with-label > input[type=text] {
+  margin: 0;
+}
+.input-with-label > textarea {
+  margin: 0;
+}
+.input-with-label > input[type=checkbox] {
+  vertical-align: sub;
+}
+.input-with-label > input[type=radio] {
+  vertical-align: sub;
+}
+.input-with-label > label {
+  font-weight: initial;
+  margin: 0 0.25em 0 0.25em;
+  vertical-align: middle;
+}
