@@ -425,6 +425,7 @@
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       previewTarget: E('#wikiedit-tab-preview-wrapper'),
       diffTarget: E('#wikiedit-tab-diff-wrapper'),
+      attachmentWrapper: E("#wikiedit-attachments"),
       tabs:{
         pageList: E('#wikiedit-tab-pages'),
         content: E('#wikiedit-tab-content'),
@@ -603,10 +604,11 @@
         if(!winfo.version && winfo.type!=='sandbox'){
           F.error('You are editing a new, unsaved page:',winfo.name);
         }
-        P.updatePageTitle();
+        P.updateAttachmentView().updatePageTitle();
       },
       false
     );
+    P.updateAttachmentView();
   }/*F.onPageLoad()*/);
 
   /**
@@ -641,6 +643,38 @@
     title = title.join(' ');
     f.titleElement.innerText = title;
     f.pageTitleHeader.innerText = title;
+    return this;
+  };
+
+  /** Updates attachment-related links and returns this. */
+  P.updateAttachmentView = function(){
+    const wrapper = P.e.attachmentWrapper;
+    D.clearElement(wrapper);
+    const ul = D.ul();
+    D.append(wrapper, ul);
+    if(!P.winfo){
+      D.append(D.li(ul), "No page loaded.");
+      return this;
+    }else if(!P.winfo.version){
+      D.append(D.li(ul), "A new/unsaved page cannot have attachments.");
+      return this;
+    }
+    const wi = P.winfo;
+    D.append(
+      D.li(ul),
+      D.a(F.repoUrl('attachadd',{
+        page:wi.name,
+        from: F.repoUrl('wikiedit',{
+          name: wi.name
+        })
+      }), "Add attachments.")
+    );
+    D.append(
+      D.li(ul),
+      D.a(F.repoUrl('attachlist',{page:wi.name}),
+          "List attachments"),
+      " (if any)."
+    );
     return this;
   };
   

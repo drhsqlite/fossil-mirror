@@ -805,6 +805,13 @@ static int wiki_ajax_emit_page_object(const char *zPageName){
 **
 ** The wikiajax API disallows saving of a sandbox pseudo-page, and
 ** will respond with an error if asked to save one.
+**
+** Reminder: the original implementation implements sandbox-page
+** saving using:
+**
+**  db_set("sandbox",zBody,0);
+**  db_set("sandbox-mimetype",zMimetype,0);
+**
 */
 static void wiki_ajax_route_save(void){
   const char *zPageName = P("page");
@@ -1027,17 +1034,20 @@ void wiki_ajax_page(void){
 }
 
 /*
-** Main front-end for the Ajax-based wiki editor app.
+** WEBPAGE: wikiedit
+** URL: /wikedit?name=PAGENAME
 **
-** Optional URL arguments:
+** The main front-end for the Ajax-based wiki editor app. Passing
+** in the name of an unknown page will trigger the creation
+** of a new page (which is not actually created in the database
+** until the user explicitly saves it). If passed no page name,
+** the user may select a page from the list on the first UI tab.
 **
-** name = wiki page name. Note that Ajax-based "v2" APIs use "page"
-** instead because "name" has a special meaning for fossil.
-**
-** mimetype=fossil-standard mimetype. This is typically only passed in
-** via the new-page process.
+** To create a new page, pass both name=PAGENAME and
+** mimetype=wiki-mime-type (one of text/x-fossil-wiki,
+** text/x-markdown, or text/plain, defauling to the former).
 */
-static void wikiedit_page_v2(void){
+void wikiedit_page_v2(void){
   const char *zPageName;
   const char * zMimetype = P("mimetype");
   int isSandbox;
@@ -1192,6 +1202,9 @@ static void wikiedit_page_v2(void){
     CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");
     CX("<li><a href='%R/md_rules'>Markdown format</a></li>");
     CX("</ul>");
+    CX("<hr>Attachments:");
+    CX("<div id='wikiedit-attachments'></div>"
+       /* Filled out by JS */);
     CX("</div>");
   }
   
@@ -1238,10 +1251,8 @@ static void wikiedit_page_v2(void){
 }
 
 /*
-** WEBPAGE: wikiedit
-** URL: /wikiedit?name=PAGENAME
-**
-** Edit a wiki page.
+** Legacy /wikiedit implementation, kept around solely for comparison
+** while implementing v2.
 */
 void wikiedit_page(void){
   char *zTag;
@@ -2062,7 +2073,7 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     the previous version of the
 **                                     page, or text/x-fossil-wiki.
 **                                     Valid values are: text/x-fossil-wiki,
-**                                     text/markdown and text/plain. fossil,
+**                                     text/x-markdown and text/plain. fossil,
 **                                     markdown or plain can be specified as
 **                                     synonyms of these values.
 **         -t|--technote DATETIME      Specifies the timestamp of
