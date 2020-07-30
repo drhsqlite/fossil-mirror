@@ -536,7 +536,7 @@
      custom widget. They will be triggered via
      P.wikiContent(). Returns this object.
   */
-  P.setFileContentMethods = function(getter, setter){
+  P.setContentMethods = function(getter, setter){
     this.wikiContent.get = getter;
     this.wikiContent.set = setter;
     return this;
@@ -680,6 +680,7 @@
     }
     const fd = new FormData();
     const mimetype = this.e.selectMimetype.value;
+    fd.append('page', this.winfo.name);
     fd.append('mimetype',mimetype);
     fd.append('content',content || '');
     F.message(
@@ -745,7 +746,7 @@
       onload: function(c){
         target.innerHTML = [
           "<div>Diff <code>[",
-          self.winfo.checkin,
+          self.winfo.name,
           "]</code> &rarr; Local Edits</div>",
           c||'No changes.'
         ].join('');

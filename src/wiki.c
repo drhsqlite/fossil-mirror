@@ -684,6 +684,45 @@ int wiki_fetch_by_name( const char *zPageName,
 }
 
 /*
+** Determines whether the wiki page with the given name can be edited
+** by the current user. If not, an AJAX error is queued and false is
+** returned, else true is returned. A NULL, empty, or malformed name
+** is considered non-writable.
+**
+** If pRid is not NULL then this function writes the page's rid to
+** *pRid (whether or not access is granted).
+**
+** Note that the sandbox is a special case: it is a pseudo-page with
+** no rid and this API does not allow anyone to actually save the
+** sandbox page, but it is reported as writable here (with rid 0).
+*/
+static int wiki_ajax_can_write(const char *zPageName, int * pRid){
+  int rid;
+  const char * zMsg = 0;
+ 
+  if(pRid) *pRid = 0;
+  if(!zPageName || !*zPageName
+     || !wiki_name_is_wellformed((unsigned const char *)zPageName)){
+    return 0;
+  }
+  if(is_sandbox(zPageName)) return 1;
+  wiki_fetch_by_name(zPageName, 0, &rid, 0);
+  if(pRid) *pRid = rid;
+  if(!wiki_special_permission(zPageName)) return 0;
+  if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
+    return 3;
+  }else if(rid && !g.perm.WrWiki){
+    zMsg = "Requires wiki-write permissions.";
+  }else if(!rid && !g.perm.NewWiki){
+    zMsg = "Requires new-wiki permissions.";
+  }else{
+    assert(!"Can't happen?");
+  }
+  ajax_route_error(403, "%s", zMsg);
+  return 0;  
+}
+
+/*
 ** Ajax route handler for /wikiajax/fetch.
 **
 ** URL params:
@@ -697,7 +736,7 @@ int wiki_fetch_by_name( const char *zPageName,
 **   type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
 **   mimetype: "mime type",
 **   version: UUID string or null for a sandbox page,
-**   parent: "parent uuid" or null,
+**   parent: "parent uuid" or null if no parent,
 **   content: "page content"
 ** }
 */
@@ -753,6 +792,9 @@ static void wiki_ajax_route_fetch(void){
 **
 **  page = the wiki page name
 **  content = the new/edited wiki page content
+**
+** Requires that the user have write access solely to avoid some
+** potential abuse cases. It does not actually write anything.
 */
 static void wiki_ajax_route_diff(void){
   const char * zPageName = P("page");
@@ -763,6 +805,8 @@ static void wiki_ajax_route_diff(void){
 
   if( zPageName==0 || zPageName[0]==0 ){
     ajax_route_error(400,"Missing page name.");
+    return;
+  }else if(!wiki_ajax_can_write(zPageName, 0)){
     return;
   }
   switch(atoi(PD("sbs","0"))){
@@ -794,22 +838,29 @@ static void wiki_ajax_route_diff(void){
 **
 ** URL params:
 **
+**  page = wiki page name. This is only needed for authorization
+**  checking.
 **  mimetype = the wiki page mimetype (determines rendering style)
 **  content = the wiki page content
 */
 static void wiki_ajax_route_preview(void){
-  Blob content = empty_blob;
-  const char * zMimetype = PD("mimetype","text/x-fossil-wiki");
+  const char * zPageName = P("page");
   const char * zContent = P("content");
 
-  if( zContent==0 ){
+  if(!wiki_ajax_can_write(zPageName, 0)){
+    return;
+  }else if( zContent==0 ){
     ajax_route_error(400,"Missing content to preview.");
     return;
+  }else{
+    Blob content = empty_blob;
+    const char * zMimetype = PD("mimetype","text/x-fossil-wiki");
+
+    blob_init(&content, zContent, -1);
+    cgi_set_content_type("text/html");
+    wiki_render_by_mimetype(&content, zMimetype);
+    blob_reset(&content);
   }
-  blob_init(&content, zContent, -1);
-  cgi_set_content_type("text/html");
-  wiki_render_by_mimetype(&content, zMimetype);
-  blob_reset(&content);
 }
 
 /*
@@ -857,12 +908,12 @@ void wiki_ajax_page(void){
   {"diff", wiki_ajax_route_diff, 1, 1},
   {"fetch", wiki_ajax_route_fetch, 0, 0},
   {"list", wiki_ajax_route_list, 0, 0},
-  {"preview", wiki_ajax_route_preview, 1, 1}
-  /* /preview access mode: whether or not wiki-write mode is
-     needed really depends on multiple factors. e.g. the sandbox
-     page does not normally require more than anonymous access.
-     TODO: set its write-mode to false and do the check manually
-     in that route's handler.
+  {"preview", wiki_ajax_route_preview, 0, 1}
+  /* /preview access mode: whether or not wiki-write mode is needed
+     really depends on multiple factors. e.g. the sandbox page does
+     not normally require more than anonymous access.  We set its
+     write-mode to false and do those checks manually in that route's
+     handler.
   */
   };
 
@@ -894,35 +945,40 @@ void wiki_ajax_page(void){
 
 /*
 ** Main front-end for the Ajax-based wiki editor app.
+**
+** Optional URL arguments:
+**
+** name = wiki page name. Note that Ajax-based "v2" APIs use "page"
+** instead because "name" has a special meaning for fossil.
+**
+** mimetype=fossil-standard mimetype. This is typically only passed in
+** via the new-page process.
 */
 static void wikiedit_page_v2(void){
   const char *zPageName;
-  Blob endScript = empty_blob; /* end-of-page JS code */;
+  const char * zMimetype = P("mimetype");
   int isSandbox;
+  int found = 0;
 
   login_check_credentials();
   zPageName = PD("name","");
-  /* TODO: not require a page name, and instead offer a list
-     of pages. */
-  /*TODO: check name only for case of new page:
-    if( check_name(zPageName) ) return;*/
+  if(zPageName && *zPageName){
+    if( check_name(zPageName) ) return;
+  }
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
     if( !g.perm.WrWiki ){
       login_needed(g.anon.WrWiki);
       return;
     }
+    found = 1;
   }else if( zPageName!=0 ){
     int rid = 0;
-    int found = 0;
     if( !wiki_special_permission(zPageName) ){
       login_needed(0);
       return;
     }
     found = wiki_fetch_by_name(zPageName, 0, &rid, 0);
-    if( !found ){
-      /* TODO: set up for a new page */
-    }
     if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
       login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
       return;
@@ -1041,12 +1097,19 @@ static void wikiedit_page_v2(void){
     CX("</div>"/*#wikiedit-tab-diff*/);
   }
 
-  if(zPageName && *zPageName){
-    /* Dynamically populate the editor... */
-    blob_appendf(&endScript, "fossil.onPageLoad(function(){");
-    blob_appendf(&endScript, "fossil.page.loadPage(%!j);",
-                 zPageName);
-    blob_appendf(&endScript, "});\n");
+  /****** TODOs (remove before merging to trunk) ******/
+  {
+    CX("<div id='wikiedit-tab-todos' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='TODOs'"
+       ">");
+    CX("TODOs, in no particular order:<ul>");
+    CX("<li>Saving, obviously.</li>");
+    CX("<li>Figure out how to integrate new/unusaved files into "
+       "the UI</li>");
+    /*CX("<li></li>");*/
+    CX("</ul>");
+    CX("</div>");
   }
   
   style_emit_script_fossil_bootstrap(0);
@@ -1057,18 +1120,35 @@ static void wikiedit_page_v2(void){
   style_emit_script_builtin(0, "fossil.storage.js");
   style_emit_script_builtin(0, "fossil.page.wikiedit.js");
 
-  if(blob_size(&endScript)>0){
-    style_emit_script_tag(0,0);
-    CX("\n(function(){\n");
-    CX("try{\n%b}\n"
-       "catch(e){"
-       "fossil.error(e); console.error('Exception:',e);"
-       "}\n",
-       &endScript);
-    CX("})();");
-    style_emit_script_tag(1,0);
+  /* Dynamically populate the editor... */
+  style_emit_script_tag(0,0);
+  CX("\nfossil.onPageLoad(function(){\n");
+  CX("try{\n");
+  if(zMimetype && *zMimetype){
+    CX("fossil.page.selectMimetype(%!j);\n",
+       zMimetype);
   }
-  blob_reset(&endScript);
+  if(found){
+    CX("fossil.page.loadPage(%!j);\n", zPageName);
+  }else if(zPageName && *zPageName){
+    /*
+      FIXME: we don't yet have a good way to integrate a
+      not-yet-existing/new/unsaved page into the UI.
+    */
+    CX("fossil.page.config.newPage = {"
+       "\"name\": %!j, \"mimetype\": %!j"
+       "};\n",
+       zPageName,
+       zMimetype ? zMimetype : "text/x-fossil-wiki");
+    CX("fossil.error('You are editing a new, "
+       "unsaved page:',%!j);\n",
+       zPageName);
+  }
+  CX("}catch(e){"
+     "fossil.error(e); console.error('Exception:',e);"
+     "}\n");
+  CX("});\n"/*fossil.onPageLoad()*/);
+  style_emit_script_tag(1,0);
   style_footer();
 }
 
