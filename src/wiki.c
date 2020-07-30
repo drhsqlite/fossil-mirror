@@ -104,7 +104,6 @@ int wiki_prev(int tagid, double mtime){
      tagid, mtime);
 }
 
-
 /*
 ** WEBPAGE: home
 ** WEBPAGE: index
@@ -639,22 +638,34 @@ static const char *mimetype_common_name(const char *zMimetype){
 
 /*
  ** Tries to fetch a wiki page for the given name. If found, it
- ** returns true, else false. If pRid is not NULL then if found *pRid is
- ** set to its RID. If ppWiki is not NULL then if found *ppWiki is set
- ** to the loaded wiki object, which the caller is responsible for
- ** passing to manifest_destroy().
+ ** returns true, else false.
+ **
+ ** versionsBack specifies how many versions back in the history to
+ ** fetch. Use 0 for the latest version, 1 for its parent, etc.
+ **
+ ** If pRid is not NULL then if a result is found *pRid is set to its
+ ** RID. If ppWiki is not NULL then if found *ppWiki is set to the
+ ** loaded wiki object, which the caller is responsible for passing to
+ ** manifest_destroy().
  */
-int wiki_fetch_by_name( const char *zPageName, int * pRid,
-                        Manifest **ppWiki ){
+int wiki_fetch_by_name( const char *zPageName,
+                        unsigned int versionsBack,
+                        int * pRid, Manifest **ppWiki ){
   Manifest *pWiki = 0;
   char *zTag = mprintf("wiki-%s", zPageName);
-  const int rid = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-      " ORDER BY mtime DESC", zTag
-    );
+  Stmt q = empty_Stmt;
+  int rid = 0;
 
+  db_prepare(&q, "SELECT rid FROM tagxref"
+             " WHERE tagid=(SELECT tagid FROM tag WHERE"
+             "   tagname=%Q) "
+             " ORDER BY mtime DESC LIMIT -1 OFFSET %u", zTag,
+             versionsBack);
   fossil_free(zTag);
+  if(SQLITE_ROW == db_step(&q)){
+    rid = db_column_int(&q, 0);
+  }
+  db_finalize(&q);
   if( rid == 0 ){
     return 0;
   }
@@ -685,10 +696,12 @@ int wiki_fetch_by_name( const char *zPageName, int * pRid,
 ** { name: "page name",
 **   type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
 **   mimetype: "mime type",
+**   version: UUID string or null for a sandbox page,
+**   parent: "parent uuid" or null,
 **   content: "page content"
 ** }
 */
-static void wiki_ajax_route_fetch(){
+static void wiki_ajax_route_fetch(void){
   const char * zPageName = P("page");
   int isSandbox;
   
@@ -702,24 +715,79 @@ static void wiki_ajax_route_fetch(){
     char * zMimetype =
       db_get("sandbox-mimetype","text/x-fossil-wiki");
     CX("{\"name\": %!j, \"type\": \"sandbox\", "
-       "\"mimetype\": %!j, \"content\": ""}",
+       "\"mimetype\": %!j, \"version\": null, \"parent\": null, "
+       "\"content\": \"\"}",
        zPageName, zMimetype);
     fossil_free(zMimetype);
   }else{
     Manifest * pWiki = 0;
-    if( !wiki_fetch_by_name(zPageName, 0, &pWiki) ){
+    char * zUuid;
+    if( !wiki_fetch_by_name(zPageName, 0, 0, &pWiki) ){
       ajax_route_error(404, "Wiki page not found.");
       return;
     }
+    zUuid = rid_to_uuid(pWiki->rid);
     CX("{\"name\": %!j, \"type\": %!j, "
-       "\"mimetype\": %!j, \"content\": %!j}",
+       "\"version\": %!j, "
+       "\"mimetype\": %!j, ",
        pWiki->zWikiTitle,
-       wiki_page_type_name(pWiki->zWikiTitle), 
-       pWiki->zMimetype ? pWiki->zMimetype : "text/x-fossil-wiki",
-       pWiki->zWiki);
+       wiki_page_type_name(pWiki->zWikiTitle),
+       zUuid,
+       pWiki->zMimetype ? pWiki->zMimetype : "text/x-fossil-wiki");
+    CX("\"parent\": ");
+    if(pWiki->nParent){
+      CX("%!j, ", pWiki->azParent[0]);
+    }else{
+      CX("null, ");
+    }
+    CX("\"content\": %!j}", pWiki->zWiki);
+    fossil_free(zUuid);
     manifest_destroy(pWiki);
   }
 }
+
+/*
+** Ajax route handler for /wikiajax/diff.
+**
+** URL params:
+**
+**  page = the wiki page name
+**  content = the new/edited wiki page content
+*/
+static void wiki_ajax_route_diff(void){
+  const char * zPageName = P("page");
+  Blob contentNew = empty_blob, contentOrig = empty_blob;
+  Manifest * pParent = 0;
+  const char * zContent = P("content");
+  u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR;
+
+  if( zPageName==0 || zPageName[0]==0 ){
+    ajax_route_error(400,"Missing page name.");
+    return;
+  }
+  switch(atoi(PD("sbs","0"))){
+    case 0: diffFlags |= DIFF_LINENO; break;
+    default: diffFlags |= DIFF_SIDEBYSIDE;
+  }
+  switch(atoi(PD("ws","2"))){
+    case 1: diffFlags |= DIFF_IGNORE_EOLWS; break;
+    case 2: diffFlags |= DIFF_IGNORE_ALLWS; break;
+    default: break;
+  }
+  wiki_fetch_by_name( zPageName, 0, 0, &pParent );
+  if( pParent && pParent->zWiki && *pParent->zWiki ){
+    blob_init(&contentOrig, pParent->zWiki, -1);
+  }else{
+    blob_init(&contentOrig, "", 0);
+  }
+  blob_init(&contentNew, zContent ? zContent : "", -1);
+  cgi_set_content_type("text/html");
+  ajax_render_diff(&contentNew, &contentOrig, diffFlags);
+  blob_reset(&contentNew);
+  blob_reset(&contentOrig);
+  manifest_destroy(pParent);
+}
+
 
 /*
 ** Ajax route handler for /wikiajax/preview.
@@ -729,7 +797,7 @@ static void wiki_ajax_route_fetch(){
 **  mimetype = the wiki page mimetype (determines rendering style)
 **  content = the wiki page content
 */
-static void wiki_ajax_route_preview(){
+static void wiki_ajax_route_preview(void){
   Blob content = empty_blob;
   const char * zMimetype = PD("mimetype","text/x-fossil-wiki");
   const char * zContent = P("content");
@@ -745,10 +813,40 @@ static void wiki_ajax_route_preview(){
 }
 
 /*
+** Ajax route handler for /wikiajax/list.
+**
+** Responds with JSON. On error, an object in the form documented by
+** ajax_route_error(). On success, an array of strings (page names)
+** sorted case-insensitively.
+*/
+static void wiki_ajax_route_list(void){
+  Stmt q = empty_Stmt;
+  int n = 0;
+
+  cgi_set_content_type("application/json");
+  db_prepare(&q, "SELECT"
+             " substr(tagname,6) AS name"
+             " FROM tag WHERE tagname GLOB 'wiki-*'"
+             " UNION SELECT 'sandbox' AS name"
+             " ORDER BY name COLLATE NOCASE");
+  CX("[");
+  while( SQLITE_ROW==db_step(&q) ){
+    if(n++){
+      CX(",");
+    }
+    CX("%!j", db_column_text(&q,0));
+  }
+  db_finalize(&q);
+  CX("]");
+}
+
+
+/*
 ** WEBPAGE: wikiajax
 **
 ** An internal dispatcher for wiki AJAX operations. Not for direct
-** client use.
+** client use. All routes defined by this interface are app-internal,
+** subject to change 
 */
 void wiki_ajax_page(void){
   const char * zName = P("name");
@@ -756,7 +854,9 @@ void wiki_ajax_page(void){
   const AjaxRoute * pRoute = 0;
   const AjaxRoute routes[] = {
   /* Keep these sorted by zName (for bsearch()) */
+  {"diff", wiki_ajax_route_diff, 1, 1},
   {"fetch", wiki_ajax_route_fetch, 0, 0},
+  {"list", wiki_ajax_route_list, 0, 0},
   {"preview", wiki_ajax_route_preview, 1, 1}
   /* /preview access mode: whether or not wiki-write mode is
      needed really depends on multiple factors. e.g. the sandbox
@@ -819,7 +919,7 @@ static void wikiedit_page_v2(void){
       login_needed(0);
       return;
     }
-    found = wiki_fetch_by_name(zPageName, &rid, 0);
+    found = wiki_fetch_by_name(zPageName, 0, &rid, 0);
     if( !found ){
       /* TODO: set up for a new page */
     }
@@ -845,28 +945,18 @@ static void wikiedit_page_v2(void){
        "data-tab-parent='wikiedit-tabs' "
        "data-tab-label='Page List'"
        ">");
-    CX("<div class='flex-container flex-row child-gap-small'>");
-    CX("TODO: page selection list.");
-    CX("</div>");
-    CX("</div>"/*#tab-file-content*/);
+    CX("<div>Loading wiki pages list...</div>");
+    CX("</div>"/*#wikiedit-tab-pages*/);
   }
   
   /******* Content tab *******/
   {
     CX("<div id='wikiedit-tab-content' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Page Editor' "
-       "data-tab-select='1'"
+       "data-tab-label='Page Editor'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
-    style_select_list_str("select-mimetype",
-                          "mimetype",
-                          "Mimetype", 0,
-                          "text/x-fossil-wiki",
-                          "Fossil wiki", "text/x-fossil-wiki",
-                          "Markdown", "text/x-markdown",
-                          "Plain text", "text/plain",
-                          NULL);
+    mimetype_option_menu(0);
     CX("<button class='wikiedit-content-reload confirmer' "
        "title='Reload the file from the server, discarding "
        "any local edits. To help avoid accidental loss of "

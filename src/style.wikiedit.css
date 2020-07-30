@@ -43,3 +43,23 @@ body.wikiedit .wikiedit-options > div > * {
 body.wikiedit .wikiedit-options.flex-container.flex-row {
   align-items: first baseline;
 }
+body.wikiedit .wikiedit-page-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: start;
+}
+body.wikiedit .wikiedit-page-list-wrapper select option {
+  margin: 0.5em 0;
+}
+body.wikiedit .wikiedit-page-list-wrapper select option.stashed::before {
+  content: "* ";
+}
+body.wikiedit textarea {
+  max-width: calc(100% - 1em);
+}
+
+body.wikiedit .tabs .tab-panel {
+  overflow: auto;
+}

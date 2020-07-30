@@ -9,15 +9,17 @@
      Custom events which can be listened for via
      fossil.page.addEventListener():
 
-     - Event 'wiki-loaded': passes on information when it
+     - Event 'wiki-page-loaded': passes on information when it
      loads a wiki (whether from the network or its internal local-edit
      cache), in the form of an "winfo" object:
 
      {
        name: string,
        mimetype: mimetype string,
+       type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
+       version: UUID string or null for a sandbox page,
+       parent: parent UUID string or null if no parent,
        content: string
-       version: UUID string // POTENTIAL TODO. Currently edit only the latest version.
      }
 
      The internal docs and code frequently use the term "winfo", and such
@@ -138,7 +140,7 @@
     },
     _fireStashEvent: function(){
       if(this._disableNextEvent) delete this._disableNextEvent;
-      else F.page.dispatchEvent('wikiedit-stash-updated', this);
+      else F.page.dispatchEvent('wiki-stash-updated', this);
     },
     /**
        Returns the stashed version, if any, for the given winfo object.
@@ -162,10 +164,12 @@
             key = this.indexKey(winfo),
             old = ndx[key];
       const record = old || (ndx[key]={
-        name: winfo.name,
-        mimetype: winfo.mimetype,
-        isSandbox: !!winfo.isSandbox
+        name: winfo.name
       });
+      record.mimetype = winfo.mimetype;
+      record.type = winfo.type;
+      record.parent = winfo.parent;
+      record.version = winfo.version;      
       record.stashTime = new Date().getTime();
       this.storeIndex();
       if(arguments.length>1){
@@ -182,8 +186,9 @@
       return F.storage.get(this.contentKey(this.indexKey(winfo)));
     },
     /** Returns true if we have stashed content for the given winfo
-        record. */
+        record or page name. */
     hasStashedContent: function(winfo){
+      if('string'===typeof winfo) winfo = {name: winfo};
       return F.storage.contains(this.contentKey(this.indexKey(winfo)));
     },
     /** Unstashes the given winfo record and its content.
@@ -258,6 +263,60 @@
     }
   };
 
+  const WikiList = {
+    e: {},
+    refreshStashMarks: function(){
+      this.e.select.querySelectorAll(
+        'option'
+      ).forEach(function(o){
+        if($stash.hasStashedContent(o.value)) D.addClass(o, 'stashed');
+        else D.removeClass(o, 'stashed');
+      });
+    },
+    init: function(parentElem){
+      const sel = D.select(), btn = D.button("Reload page list");
+      this.e.select = sel;
+      D.addClass(parentElem, 'wikiedit-page-list-wrapper');
+      D.clearElement(parentElem);
+      D.append(
+        parentElem, btn,
+        D.append(D.span(), "Select a page to edit:"),
+        sel,
+        D.append(D.span(), "* = local edits exist."),
+      );
+      D.attr(sel, 'size', 10);
+      D.option(D.disable(D.clearElement(sel)), "Loading...");
+      const self = this;
+      btn.addEventListener(
+        'click',
+        function(){
+          F.fetch('wikiajax/list',{
+            responseType: 'json',
+            onload: function(list){
+              D.clearElement(sel);
+              list.forEach((e)=>D.option(sel, e));
+              //D.option(sel, "sandbox");
+              D.enable(sel);
+              self.refreshStashMarks();
+            }
+          });
+        },
+        false
+      );
+      btn.click();
+      sel.addEventListener(
+        'change',
+        (e)=>P.loadPage(e.target.value),
+        false
+      );
+      F.page.addEventListener(
+        'wiki-stash-updated',
+        ()=>this.refreshStashMarks(),
+        false
+      );
+    }
+  };
+
   /**
      Keep track of how many in-flight AJAX requests there are so we
      can disable input elements while any are pending. For
@@ -305,13 +364,14 @@
       taEditor: E('#wikiedit-content-editor'),
 //      btnCommit: E("#wikiedit-btn-commit"),
       btnReload: E("#wikiedit-tab-content button.wikiedit-content-reload"),
-      selectMimetype: E('#select-mimetype select'),
+      selectMimetype: E('select[name=mimetype]'),
       selectFontSizeWrap: E('#select-font-size'),
 //      selectDiffWS:  E('select[name=diff_ws]'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       previewTarget: E('#wikiedit-tab-preview-wrapper'),
       diffTarget: E('#wikiedit-tab-diff-wrapper'),
       tabs:{
+        pageList: E('#wikiedit-tab-pages'),
         content: E('#wikiedit-tab-content'),
         preview: E('#wikiedit-tab-preview'),
         diff: E('#wikiedit-tab-diff')
@@ -331,7 +391,7 @@
       'before-switch-to', function(ev){
         if(ev.detail===P.e.tabs.preview){
           P.baseHrefForWiki();
-          if(P.e.cbAutoPreview.checked) P.preview();
+          if(P.previewNeedsUpdate && P.e.cbAutoPreview.checked) P.preview();
         }else if(ev.detail===P.e.tabs.diff){
           /* Work around a weird bug where the page gets wider than
              the window when the diff tab is NOT in view and the
@@ -383,6 +443,18 @@
     );
     
     P.selectMimetype(false, true);
+    P.e.selectMimetype.addEventListener(
+      'change',
+      function(e){
+        if(P.winfo){
+          P.winfo.mimetype = e.target.value;
+          P.stashContentChange(true);
+        }
+      },
+      false
+    );
+
+    
     const selectFontSize = E('select[name=editor_font_size]');
     if(selectFontSize){
       selectFontSize.addEventListener(
@@ -401,18 +473,29 @@
 
     P.addEventListener(
       // Clear certain views when new content is loaded/set
-      'wikiedit-content-replaced',
+      'wiki-content-replaced',
       ()=>D.clearElement(P.e.diffTarget, P.e.previewTarget)
     );
     P.addEventListener(
-      // Clear certain views after a non-dry-run commit
-      'wikiedit-saved',
+      // Clear certain views after a save
+      'wiki-saved',
       (e)=>{
         if(!e.detail.dryRun){
           D.clearElement(P.e.diffTarget, P.e.previewTarget);
         }
       }
     );
+    P.addEventListener(
+      // Update title on wiki page load
+      'wiki-page-loaded',
+      function(ev){
+        const title = 'Wiki Editor: '+ev.detail.name;
+        document.head.querySelector('title').innerText = title;
+        document.querySelector('div.header .title').innerText = title;
+      },
+      false
+    );
+    WikiList.init( P.e.tabs.pageList.firstElementChild );
   }/*F.onPageLoad()*/);
 
   /**
@@ -432,14 +515,14 @@
      the current file content.
 
      The setter form sets the content, dispatches a
-     'wikiedit-content-replaced' event, and returns this object.
+     'wiki-content-replaced' event, and returns this object.
   */
   P.wikiContent = function f(){
     if(0===arguments.length){
       return f.get();
     }else{
       f.set(arguments[0] || '');
-      this.dispatchEvent('wikiedit-content-replaced', this);
+      this.dispatchEvent('wiki-content-replaced', this);
       return this;
     }
   };
@@ -496,8 +579,7 @@
      it (emitting an error message if no file is loaded).
 
      Returns this object, noting that the load is async. After loading
-     it triggers a 'wikiedit-file-loaded' event, passing it
-     this.winfo.
+     it triggers a 'wiki-page-loaded' event, passing it this.winfo.
 
      If a locally-edited copy of the given file/rev is found, that
      copy is used instead of one fetched from the server, but it is
@@ -527,12 +609,15 @@
       self.winfo = {
         name: r.name,
         mimetype: r.mimetype,
-        type: !!r.type
+        type: r.type,
+        version: r.version,
+        parent: r.parent
       };
+      self.previewNeedsUpdate = true;
       self.e.selectMimetype.value = r.mimetype;
       self.tabs.switchToTab(self.e.tabs.content);
       self.wikiContent(r.content);
-      self.dispatchEvent('wiki-loaded', r);
+      self.dispatchEvent('wiki-page-loaded', r);
     };
     const semiWinfo = {name: name};
     const stashWinfo = this.getStashedWinfo(semiWinfo);
@@ -542,6 +627,8 @@
         name: stashWinfo.name,
         mimetype: stashWinfo.mimetype,
         type: stashWinfo.type,
+        version: stashWinfo.version,
+        parent: stashWinfo.parent,
         content: this.contentFromStash()
       });
       F.message("Fetched from the local-edit storage:",
@@ -602,7 +689,8 @@
       onload: (r,header)=>{
         callback(r);
         F.message('Updated preview.');
-        P.dispatchEvent('wikiedit-preview-updated',{
+        P.previewNeedsUpdate = false;
+        P.dispatchEvent('wiki-preview-updated',{
           mimetype: mimetype,
           element: P.e.previewTarget
         });
@@ -646,14 +734,13 @@
           self = this,
           target = this.e.diffTarget;
     const fd = new FormData();
-    fd.append('filename',this.winfo.filename);
-    fd.append('checkin', this.winfo.checkin);
+    fd.append('page',this.winfo.name);
     fd.append('sbs', sbs ? 1 : 0);
     fd.append('content',content);
     if(this.e.selectDiffWS) fd.append('ws',this.e.selectDiffWS.value);
     F.message(
       "Fetching diff..."
-    ).fetch('ajax/wiki-diff',{
+    ).fetch('wikiajax/diff',{
       payload: fd,
       onload: function(c){
         target.innerHTML = [
@@ -681,13 +768,15 @@
   P.stashContentChange = function(onlyWinfo){
     if(affirmPageLoaded(true)){
       const wi = this.winfo;
+      wi.mimetype = P.e.selectMimetype.value;
       if(onlyWinfo && $stash.hasStashedContent(wi)){
         $stash.updateWinfo(wi);
       }else{
         $stash.updateWinfo(wi, P.wikiContent());
       }
-      F.message("Stashed page ["+wi.name+"].");
+      F.message("Stashed change(s) to page ["+wi.name+"].");
       $stash.prune();
+      this.previewNeedsUpdate = true;
     }
     return this;
   };
@@ -699,6 +788,7 @@
   P.unstashContent = function(){
     const winfo = arguments[0] || this.winfo;
     if(winfo){
+      this.previewNeedsUpdate = true;
       $stash.unstash(winfo);
       //console.debug("Unstashed",winfo);
       F.message("Unstashed page ["+winfo.name+"].");
