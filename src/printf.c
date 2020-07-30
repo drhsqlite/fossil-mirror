@@ -1077,13 +1077,13 @@ static int mainInFatalError = 0;
 */
 static int fossil_print_error(int rc, const char *z){
 #ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
+  if( g.json.isJsonMode!=0 ){
     /*
     ** Avoid calling into the JSON support subsystem if it
     ** has not yet been initialized, e.g. early SQLite log
     ** messages, etc.
     */
-    if( !json_is_main_boostrapped() ) json_main_bootstrap();
+    assert(json_is_bootstrapped_early());
     json_err( 0, z, 1 );
     if( g.isHTTP && !g.json.preserveRc ){
       rc = 0 /* avoid HTTP 500 */;
@@ -1203,13 +1203,13 @@ void fossil_warning(const char *zFormat, ...){
   va_end(ap);
   fossil_errorlog("warning: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
-  if(g.json.isJsonMode){
+  if( g.json.isJsonMode!=0 ){
     /*
     ** Avoid calling into the JSON support subsystem if it
     ** has not yet been initialized, e.g. early SQLite log
     ** messages, etc.
     */
-    if( !json_is_main_boostrapped() ) json_main_bootstrap();
+    assert(json_is_bootstrapped_early());
     json_warn( FSL_JSON_W_UNKNOWN, "%s", z );
   }else
 #endif

@@ -421,7 +421,7 @@ char *encode_json_string_literal(const char *zStr, int fAddQuotes,
     zOut[i++] = '"';
   }
   while( (c = fossil_utf8_read(&z))!=0 ){
-    if( c=='\\' ){
+    if( c=='\\' || c=='"' ){
       zOut[i++] = '\\';
       zOut[i++] = c;
     }else if( c<' ' || c>=0x7f ){

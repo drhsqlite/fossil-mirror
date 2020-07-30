@@ -1136,7 +1136,7 @@ typedef struct Find Find;
 **
 ** If the arrayok argument is false and the named variable is an array,
 ** an error is left in the interpreter result and NULL returned. If
-** arrayok is true an array name is Ok.
+** arrayok is true an array name is OK.
 */
 
 static Th_Variable *thFindValue(
@@ -1144,7 +1144,7 @@ static Th_Variable *thFindValue(
   const char *zVar,       /* Pointer to variable name */
   int nVar,               /* Number of bytes at nVar */
   int create,             /* If true, create the variable if not found */
-  int arrayok,            /* If true, an array is Ok. Otherwise array==error */
+  int arrayok,            /* If true, an array is OK. Otherwise array==error */
   int noerror,            /* If false, set interpreter result to error */
   Find *pFind             /* If non-zero, place output here */
 ){

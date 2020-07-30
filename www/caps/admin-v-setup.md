@@ -396,9 +396,9 @@ deliberately, hopefully after careful consideration.
 
 ### <a name="y"></a>Write Unversioned
 
-Fossil currently doesn’t distinguish the sub-operations of [`fossil
-uv`](/help?cmd=uv); they’re all covered by [**WrUnver**][capy] (“y”)
-capability. Since some of these operations are unconditionally
+Fossil currently doesn’t distinguish the sub-operations of
+[`fossil uv`](/help?cmd=uv); they’re all covered by [**WrUnver**][capy]
+(“y”) capability. Since some of these operations are unconditionally
 destructive due to the nature of unversioned content, and since this
 goes against Fossil’s philosophy of immutable history, nobody gets cap
 “y” on a Fossil repo by default, not even the Setup or Admin users.  A

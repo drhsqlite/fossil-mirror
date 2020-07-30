@@ -79,13 +79,13 @@ static void db_err(const char *zFormat, ...){
   z = vmprintf(zFormat, ap);
   va_end(ap);
 #ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
+  if( g.json.isJsonMode!=0 ){
     /*
     ** Avoid calling into the JSON support subsystem if it
     ** has not yet been initialized, e.g. early SQLite log
     ** messages, etc.
     */
-    if( !json_is_main_boostrapped() ) json_main_bootstrap();
+    json_bootstrap_early();
     json_err( 0, z, 1 );
   }
   else
@@ -3650,7 +3650,12 @@ struct Setting {
 */
 /*
 ** SETTING: forbid-delta-manifests    boolean default=off
-** If enabled, new delta manifests are prohibited.
+** If enabled on a client, new delta manifests are prohibited on
+** commits.  If enabled on a server, whenever a client attempts
+** to obtain a check-in lock during auto-sync, the server will 
+** send the "pragma avoid-delta-manifests" statement in its reply,
+** which will cause the client to avoid generating a delta
+** manifest.
 */
 /*
 ** SETTING: proxy            width=32 default=off

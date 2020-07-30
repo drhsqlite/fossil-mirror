@@ -1440,7 +1440,7 @@ void style_select_list_int(const char * zWrapperId,
   }
   CX(">");
   if(zLabel && *zLabel){
-    CX("<label label='%s'>%h</label>", zLabelID, zLabel);
+    CX("<label for='%s'>%h</label>", zLabelID, zLabel);
   }
   CX("<select name='%s' id='%s'>",zFieldName, zLabelID);
   while(1){

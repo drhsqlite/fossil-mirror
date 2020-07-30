@@ -1785,6 +1785,7 @@ void rawartifact_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  etag_check(ETAG_HASH, zUuid);
   if( fossil_strcmp(P("name"), zUuid)==0 && login_is_nobody() ){
     g.isConst = 1;
   }
@@ -1941,6 +1942,7 @@ void hexdump_page(void){
   }
   style_header("Hex Artifact Content");
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
+  etag_check(ETAG_HASH, zUuid);
   @ <h2>Artifact
   style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
   if( g.perm.Setup ){
@@ -2237,6 +2239,7 @@ void artifact_page(void){
     objdescFlags |= OBJDESC_DETAIL;
   }
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
+  etag_check(ETAG_HASH, zUuid);
 
   asText = P("txt")!=0;
   if( isFile ){

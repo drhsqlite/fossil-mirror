@@ -266,6 +266,7 @@ struct Global {
   int mainTimerId;               /* Set to fossil_timer_start() */
   int nPendingRequest;           /* # of HTTP requests in "fossil server" */
   int nRequest;                  /* Total # of HTTP request */
+  int bAvoidDeltaManifests;      /* Avoid using delta manifests if true */
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -1581,8 +1582,9 @@ static void process_one_web_page(
   ** it looks like the ssh_request_loop() approach to dispatching
   ** might bypass that.
   */
-  if( g.json.isJsonMode==0 && json_request_is_json_api(zPathInfo) ){
+  if( g.json.isJsonMode==0 && json_request_is_json_api(zPathInfo)!=0 ){
     g.json.isJsonMode = 1;
+    json_bootstrap_early();
   }
 #endif
   /* If the repository has not been opened already, then find the
@@ -1859,7 +1861,7 @@ static void process_one_web_page(
     ** lots of special-case handling in several JSON handlers.
     */
 #ifdef FOSSIL_ENABLE_JSON
-    if(!g.json.isJsonMode){
+    if(g.json.isJsonMode==0){
 #endif
       dehttpize(g.zExtra);
       cgi_set_parameter_nocopy("name", g.zExtra, 1);
@@ -1875,7 +1877,7 @@ static void process_one_web_page(
    && dispatch_alias(g.zPath-1, &pCmd)
   ){
 #ifdef FOSSIL_ENABLE_JSON
-    if(g.json.isJsonMode){
+    if(g.json.isJsonMode!=0){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
     }else
 #endif
@@ -1903,7 +1905,7 @@ static void process_one_web_page(
     }
   }else if( pCmd->xFunc!=page_xfer && db_schema_is_outofdate() ){
 #ifdef FOSSIL_ENABLE_JSON
-    if(g.json.isJsonMode){
+    if(g.json.isJsonMode!=0){
       json_err(FSL_JSON_E_DB_NEEDS_REBUILD,NULL,0);
     }else
 #endif
@@ -1915,8 +1917,9 @@ static void process_one_web_page(
   }else{
 #ifdef FOSSIL_ENABLE_JSON
     static int jsonOnce = 0;
-    if( !jsonOnce && g.json.isJsonMode ){
-      json_mode_bootstrap();
+    if( jsonOnce==0 && g.json.isJsonMode!=0 ){
+      assert(json_is_bootstrapped_early());
+      json_bootstrap_late();
       jsonOnce = 1;
     }
 #endif

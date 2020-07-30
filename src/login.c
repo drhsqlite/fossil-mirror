@@ -263,16 +263,23 @@ char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
 ** If zDest is not NULL then the generated cookie is copied to
 ** *zDdest and ownership is transfered to the caller (who should
 ** eventually pass it to free()).
+**
+** If bSessionCookie is true, the cookie will be a session cookie,
+** else a persistent cookie. If it's a session cookie, the
+** [user].[cexpire] and [user].[cookie] entries will be modified as if
+** it were a persistent cookie because doing so is necessary for
+** fossil's own "is this cookie still valid?" checks to work.
 */
 void login_set_user_cookie(
   const char *zUsername,  /* User's name */
   int uid,                /* User's ID */
-  char **zDest            /* Optional: store generated cookie value. */
+  char **zDest,           /* Optional: store generated cookie value. */
+  int bSessionCookie      /* True for session-only cookie */
 ){
   const char *zCookieName = login_cookie_name();
   const char *zExpire = db_get("cookie-expire","8766");
-  int expires = atoi(zExpire)*3600;
-  char *zHash;
+  const int expires = atoi(zExpire)*3600;
+  char *zHash = 0;
   char *zCookie;
   const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
 
@@ -285,14 +292,13 @@ void login_set_user_cookie(
       uid);
   if( zHash==0 ) zHash = db_text(0, "SELECT hex(randomblob(25))");
   zCookie = login_gen_user_cookie_value(zUsername, zHash);
-  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
+  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(),
+                 bSessionCookie ? 0 : expires);
   record_login_attempt(zUsername, zIpAddr, 1);
-  db_multi_exec(
-                "UPDATE user SET cookie=%Q,"
+  db_multi_exec("UPDATE user SET cookie=%Q,"
                 "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-                zHash, expires, uid
-                );
-  free(zHash);
+                zHash, expires, uid);
+  fossil_free(zHash);
   if( zDest ){
     *zDest = zCookie;
   }else{
@@ -308,12 +314,16 @@ void login_set_user_cookie(
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
+**
+** If bSessionCookie is true, the cookie will be a session cookie.
 */
-void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
+void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
+                           int bSessionCookie ){
   const char *zNow;            /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
+  int expires = bSessionCookie ? 0 : 6*3600;
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
@@ -322,13 +332,12 @@ void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
-  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), 6*3600);
+  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
   if( zCookieDest ){
     *zCookieDest = zCookie;
   }else{
     free(zCookie);
   }
-
 }
 
 /*
@@ -517,7 +526,10 @@ void login_page(void){
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
   const char *zReferer;
-  int noAnon = P("noanon")!=0;
+  const int noAnon = P("noanon")!=0;
+  int rememberMe;              /* If true, use persistent cookie, else
+                                  session cookie. Toggled per
+                                  checkbox. */
 
   login_check_credentials();
   fossil_redirect_to_https_if_needed(1);
@@ -526,7 +538,6 @@ void login_page(void){
   zUsername = P("u");
   zPasswd = P("p");
   anonFlag = g.zLogin==0 && PB("anon");
-
   /* Handle log-out requests */
   if( P("out") ){
     login_clear_login_data();
@@ -602,8 +613,14 @@ void login_page(void){
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
   zReferer = P("HTTP_REFERER");
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
+  if(zUsername==0){
+    /* Initial login page hit. */
+    rememberMe = 0;
+  }else{
+    rememberMe = P("remember")!=0;
+  }
   if( uid>0 ){
-    login_set_anon_cookie(zIpAddr, NULL);
+    login_set_anon_cookie(zIpAddr, NULL, rememberMe?0:1);
     record_login_attempt("anonymous", zIpAddr, 1);
     redirect_to_g();
   }
@@ -627,7 +644,7 @@ void login_page(void){
       ** where HASH is a random hex number, PROJECT is either project
       ** code prefix, and LOGIN is the user name.
       */
-      login_set_user_cookie(zUsername, uid, NULL);
+      login_set_user_cookie(zUsername, uid, NULL, rememberMe?0:1);
       redirect_to_g();
     }
   }
@@ -648,6 +665,7 @@ void login_page(void){
     }else{
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
+    fossil_free(zAbbrev);
   }
   if( g.sslNotAvailable==0
    && strncmp(g.zBaseURL,"https:",6)!=0
@@ -679,6 +697,17 @@ void login_page(void){
       zAnonPw = 0;
     }
     @ <table class="login_out">
+    if( P("HTTPS")==0 ){
+      @ <tr><td class="form_label">Warning:</td>
+      @ <td><span class='securityWarning'>
+      @ Login information, including the password, 
+      @ will be sent in the clear over an unencrypted connection.
+      if( !g.sslNotAvailable ){
+        @ Consider logging in at
+        @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
+      }
+      @ </span></td></tr>
+    }
     @ <tr>
     @   <td class="form_label" id="userlabel1">User ID:</td>
     @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
@@ -693,22 +722,15 @@ void login_page(void){
     }
     @ </td>
     @ </tr>
-    if( P("HTTPS")==0 ){
-      @ <tr><td class="form_label">Warning:</td>
-      @ <td><span class='securityWarning'>
-      @ Your password will be sent in the clear over an
-      @ unencrypted connection.
-      if( g.sslNotAvailable ){
-        @ No encrypted connection is available on this server.
-      }else{
-        @ Consider logging in at
-        @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
-      }
-      @ </span></td></tr>
-    }
     @ <tr>
     @   <td></td>
-    @   <td><input type="submit" name="in" value="Login"></td>
+    @   <td><input type="checkbox" name="remember" value="1" \
+    @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
+    @   <label for="remember-me">Remember me?</label></td>
+    @ </tr>
+    @ <tr>
+    @   <td></td>
+    @   <td><input type="submit" name="in" value="Login">
     @ </tr>
     if( !noAnon && login_self_register_available(0) ){
       @ <tr>
@@ -1600,7 +1622,7 @@ void register_page(void){
     fossil_free(zPass);
     db_multi_exec("%s", blob_sql_text(&sql));
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
-    login_set_user_cookie(zUserID, uid, NULL);
+    login_set_user_cookie(zUserID, uid, NULL, 0);
     if( doAlerts ){
       /* Also make the new user a subscriber. */
       Blob hdr, body;

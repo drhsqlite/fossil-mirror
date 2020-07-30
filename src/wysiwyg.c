@@ -285,7 +285,7 @@ void wysiwygEditor(
   @         // For IE9 or IE10, this should work.
   @         document.execCommand("useCSS", 0, true);
   @       } catch (e) {
-  @         // Ok, that apparently did not work, do nothing.
+  @         // OK, that apparently did not work, do nothing.
   @       }
   @     }
   @     document.execCommand(sCmd, false, sValue);

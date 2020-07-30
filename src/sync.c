@@ -406,7 +406,7 @@ void remote_url_cmd(void){
 **
 ** Options:
 **
-**    --overwrite              Ok to overwrite an existing file.
+**    --overwrite              OK to overwrite an existing file.
 **    -R NAME                  Filename of the repository to backup
 */
 void backup_cmd(void){
