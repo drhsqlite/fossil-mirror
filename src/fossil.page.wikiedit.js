@@ -265,32 +265,48 @@
 
   const WikiList = {
     e: {},
-    /** Update OPTION elements to reflect whether the page has
+    /** Updates OPTION elements to reflect whether the page has
         local changes or is new/unsaved. */
     refreshStashMarks: function(){
-      this.e.select.querySelectorAll(
-        'option'
-      ).forEach(function(o){
-        const stashed = $stash.getWinfo({name:o.value});
+      const sel = this.e.select;
+      Object.keys(sel.options).forEach(function(key){
+        const opt = sel.options[key];
+        const stashed = $stash.getWinfo({name:opt.value});
         if(stashed){
           const isNew = 'sandbox'===stashed.type ? false : !stashed.version;
-          D.addClass(o, isNew ? 'stashed-new' :'stashed');
+          D.addClass(opt, isNew ? 'stashed-new' :'stashed');
         }else{
-          D.removeClass(o, 'stashed', 'stashed-new');
+          D.removeClass(opt, 'stashed', 'stashed-new');
         }
       });
     },
+    /** Removes the given wiki page entry from the page selection
+        list, if it's in the list. */
+    removeEntry: function(name){
+      const sel = this.e.select;
+      const ndx = sel.selectedIndex;
+      sel.value = name;
+      if(sel.selectedIndex>-1){
+        sel.options.remove(sel.selectedIndex);
+      }
+      sel.selectedIndex = ndx;
+    },
+    /**
+       Installs a wiki page selection list into the given parent DOM
+       element and loads the page list from the server.
+    */
     init: function(parentElem){
       const sel = D.select(), btn = D.button("Reload page list");
       this.e.select = sel;
       D.addClass(parentElem, 'wikiedit-page-list-wrapper');
       D.clearElement(parentElem);
       D.append(
-        parentElem, btn,
+        parentElem,
         D.append(D.span(), "Select a page to edit:"),
         sel,
-        D.append(D.span(), "* = local edits exist"),
-        D.append(D.span(), "+ = new/unsaved page")
+        D.append(D.span(), "[*] = page has local edits"),
+        D.append(D.span(), "[+] = page is new/unsaved"),
+        btn
       );
       D.attr(sel, 'size', 10);
       D.option(D.disable(D.clearElement(sel)), "Loading...");
@@ -341,6 +357,7 @@
         ()=>this.refreshStashMarks(),
         false
       );
+      delete this.init;
     }
   };
 
@@ -471,11 +488,23 @@
         if(!w){
           F.error("No page loaded.");
           return;
-        }else if(!w.version){
-          F.error("Cannot reload a new/unsaved page.");
+        }
+        if(!w.version/* new/unsaved page */ && P.wikiContent()){
+          F.error("This new/unsaved page has content.",
+                  "To really discard this page,",
+                  "first clear its content",
+                  "then use the Discard button.");
           return;
         }
-        P.unstashContent().loadPage();
+        P.unstashContent()
+        if(w.version){
+          P.loadPage();
+        }else{
+          delete P.winfo;
+          WikiList.removeEntry(w.name);
+          P.updatePageTitle();
+          F.message("Discarded new page ["+w.name+"].");
+        }
       },
       ticks: 3
     });
@@ -562,22 +591,26 @@
   };
 
   /**
-     Update the page title and header based on the state
-     of this.winfo. A no-op if this.winfo is not set.
+     Update the page title and header based on the state of
+     this.winfo. A no-op if this.winfo is not set. Returns this.
   */
   P.updatePageTitle = function f(){
-    if(!affirmPageLoaded(true)) return;
     if(!f.titleElement){
       f.titleElement = document.head.querySelector('title');
       f.pageTitleHeader = document.querySelector('div.header .title');
     }
     var title = ['Wiki Editor:'];
-    if(!P.winfo.version) title.push('[+]');
-    else if($stash.getWinfo(P.winfo)) title.push('[*]')
-    title.push(P.winfo.name);
+    if(P.winfo){
+      if(!P.winfo.version) title.push('[+]');
+      else if($stash.getWinfo(P.winfo)) title.push('[*]')
+      title.push(P.winfo.name);
+    }else{
+      title.push('(no page loaded)');
+    }
     title = title.join(' ');
     f.titleElement.innerText = title;
     f.pageTitleHeader.innerText = title;
+    return this;
   };
   
   /**
@@ -676,6 +709,8 @@
     const onload = (r)=>this.dispatchEvent('wiki-page-loaded', r);
     const stashWinfo = this.getStashedWinfo({name: name});
     if(stashWinfo){ // fake a response from the stash...
+      F.message("Fetched from the local-edit storage:",
+                stashWinfo.name);
       onload({
         name: stashWinfo.name,
         mimetype: stashWinfo.mimetype,
@@ -684,8 +719,6 @@
         parent: stashWinfo.parent,
         content: $stash.stashedContent(stashWinfo)
       });
-      F.message("Fetched from the local-edit storage:",
-                stashWinfo.name);
       return this;
     }
     F.message(
@@ -696,8 +729,8 @@
       },
       responseType: 'json',
       onload:(r)=>{
-        onload(r);
         F.message('Loaded page ['+r.name+'].');
+        onload(r);
       }
     });
     return this;

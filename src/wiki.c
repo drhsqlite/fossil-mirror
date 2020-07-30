@@ -1105,8 +1105,6 @@ static void wikiedit_page_v2(void){
        ">");
     CX("TODOs, in no particular order:<ul>");
     CX("<li>Saving, obviously.</li>");
-    CX("<li>Figure out how to integrate new/unusaved files into "
-       "the UI</li>");
     /*CX("<li></li>");*/
     CX("</ul>");
     CX("</div>");

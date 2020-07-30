@@ -2,11 +2,13 @@ body.wikieedit.waiting * {
   /* Triggered during AJAX requests. */
   cursor: wait;
 }
+body.wikiedit textarea,
 body.wikiedit textarea:focus,
+body.wikiedit input,
 body.wikiedit input:focus{
   /* The sudden appearance of a border (as in the Ardoise skin)
      shifts the layout in unsightly ways */
-  border: initial;
+  border: reset;
 }
 body.wikiedit div.wikiedit-preview {
   margin: 0;
@@ -54,10 +56,10 @@ body.wikiedit .wikiedit-page-list-wrapper select option {
   margin: 0.5em 0;
 }
 body.wikiedit .wikiedit-page-list-wrapper select option.stashed::before {
-  content: "* ";
+  content: "[*] ";
 }
 body.wikiedit .wikiedit-page-list-wrapper select option.stashed-new::before {
-  content: "+ ";
+  content: "[+] ";
 }
 body.wikiedit textarea {
   max-width: calc(100% - 1em);
