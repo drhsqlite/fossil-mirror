@@ -242,8 +242,8 @@
       if(n) this._fireStashEvent();
     }
   };
-  $stash.prune.defaultMaxCount = P.config.defaultMaxStashSize;
-
+  $stash.prune.defaultMaxCount = P.config.defaultMaxStashSize || 10;
+  P.$stash = $stash /* we have to expose this for the new-page case :/ */;
   
   /**
      Internal workaround to select the current preview mode
@@ -265,12 +265,19 @@
 
   const WikiList = {
     e: {},
+    /** Update OPTION elements to reflect whether the page has
+        local changes or is new/unsaved. */
     refreshStashMarks: function(){
       this.e.select.querySelectorAll(
         'option'
       ).forEach(function(o){
-        if($stash.hasStashedContent(o.value)) D.addClass(o, 'stashed');
-        else D.removeClass(o, 'stashed');
+        const stashed = $stash.getWinfo({name:o.value});
+        if(stashed){
+          const isNew = 'sandbox'===stashed.type ? false : !stashed.version;
+          D.addClass(o, isNew ? 'stashed-new' :'stashed');
+        }else{
+          D.removeClass(o, 'stashed', 'stashed-new');
+        }
       });
     },
     init: function(parentElem){
@@ -282,21 +289,41 @@
         parentElem, btn,
         D.append(D.span(), "Select a page to edit:"),
         sel,
-        D.append(D.span(), "* = local edits exist."),
+        D.append(D.span(), "* = local edits exist"),
+        D.append(D.span(), "+ = new/unsaved page")
       );
       D.attr(sel, 'size', 10);
       D.option(D.disable(D.clearElement(sel)), "Loading...");
       const self = this;
       btn.addEventListener(
         'click',
-        function(){
+        function click(){
+          if(!click.sorticase){
+            click.sorticase = function(l,r){
+              l = l.toLowerCase();
+              r = r.toLowerCase();
+              return l<=r ? -1 : 1;
+            };
+          }
           F.fetch('wikiajax/list',{
             responseType: 'json',
             onload: function(list){
+              /* Jump through some hoops to integrate new/unsaved
+                 pages into the list of existing pages... We use a map
+                 as an intermediary in order to filter out any local-stash
+                 dupes from server-side copies. */
+              const map = {}, ndx = $stash.getIndex();
               D.clearElement(sel);
-              list.forEach((e)=>D.option(sel, e));
-              //D.option(sel, "sandbox");
+              list.forEach((name)=>map[name] = true);
+              Object.keys(ndx).forEach(function(key){
+                const winfo = ndx[key];
+                if(!winfo.version/*new page*/) map[winfo.name] = true;
+              });
+              Object.keys(map)
+                .sort(click.sorticase)
+                .forEach((name)=>D.option(sel, name));
               D.enable(sel);
+              if(P.winfo) sel.value = P.winfo.name;
               self.refreshStashMarks();
             }
           });
@@ -340,7 +367,11 @@
   F.fetch.beforesend = function f(){
     if(!ajaxState.toDisable){
       ajaxState.toDisable = document.querySelectorAll(
-        'button, input, select, textarea'
+        ['button:not([disabled])',
+         'input:not([disabled])',
+         'select:not([disabled])',
+         'textarea:not([disabled])'
+        ].join(',')
       );
     }
     if(1===++ajaxState.count){
@@ -435,7 +466,17 @@
     );
     F.confirmer(P.e.btnReload, {
       confirmText: "Really reload, losing edits?",
-      onconfirm: (e)=>P.unstashContent().loadPage(),
+      onconfirm: function(e){
+        const w = P.winfo;
+        if(!w){
+          F.error("No page loaded.");
+          return;
+        }else if(!w.version){
+          F.error("Cannot reload a new/unsaved page.");
+          return;
+        }
+        P.unstashContent().loadPage();
+      },
       ticks: 3
     });
     P.e.taEditor.addEventListener(
@@ -453,7 +494,6 @@
       },
       false
     );
-
     
     const selectFontSize = E('select[name=editor_font_size]');
     if(selectFontSize){
@@ -474,28 +514,39 @@
     P.addEventListener(
       // Clear certain views when new content is loaded/set
       'wiki-content-replaced',
-      ()=>D.clearElement(P.e.diffTarget, P.e.previewTarget)
+      ()=>{
+        P.previewNeedsUpdate = true;
+        D.clearElement(P.e.diffTarget, P.e.previewTarget);
+      }
     );
     P.addEventListener(
       // Clear certain views after a save
       'wiki-saved',
       (e)=>{
-        if(!e.detail.dryRun){
-          D.clearElement(P.e.diffTarget, P.e.previewTarget);
-        }
+        D.clearElement(P.e.diffTarget, P.e.previewTarget);
+        // TODO: replace preview with new content
       }
     );
+    WikiList.init( P.e.tabs.pageList.firstElementChild );
     P.addEventListener(
-      // Update title on wiki page load
+      // Update various state on wiki page load
       'wiki-page-loaded',
       function(ev){
-        const title = 'Wiki Editor: '+ev.detail.name;
-        document.head.querySelector('title').innerText = title;
-        document.querySelector('div.header .title').innerText = title;
+        delete P.winfo;
+        const winfo = ev.detail;
+        P.winfo = winfo;
+        P.previewNeedsUpdate = true;
+        P.e.selectMimetype.value = winfo.mimetype;
+        P.tabs.switchToTab(P.e.tabs.content);
+        P.wikiContent(winfo.content || '');
+        WikiList.e.select.value = winfo.name;
+        if(!winfo.version){
+          F.error('You are editing a new, unsaved page:',winfo.name);
+        }
+        P.updatePageTitle();
       },
       false
     );
-    WikiList.init( P.e.tabs.pageList.firstElementChild );
   }/*F.onPageLoad()*/);
 
   /**
@@ -508,6 +559,25 @@
   const affirmPageLoaded = function(quiet){
     if(!P.winfo && !quiet) F.error("No wiki page is loaded.");
     return !!P.winfo;
+  };
+
+  /**
+     Update the page title and header based on the state
+     of this.winfo. A no-op if this.winfo is not set.
+  */
+  P.updatePageTitle = function f(){
+    if(!affirmPageLoaded(true)) return;
+    if(!f.titleElement){
+      f.titleElement = document.head.querySelector('title');
+      f.pageTitleHeader = document.querySelector('div.header .title');
+    }
+    var title = ['Wiki Editor:'];
+    if(!P.winfo.version) title.push('[+]');
+    else if($stash.getWinfo(P.winfo)) title.push('[*]')
+    title.push(P.winfo.name);
+    title = title.join(' ');
+    f.titleElement.innerText = title;
+    f.pageTitleHeader.innerText = title;
   };
   
   /**
@@ -603,33 +673,16 @@
       const arg = arguments[0];
       name = arg.name;
     }
-    const self = this;
-    const onload = (r)=>{
-      delete self.winfo;
-      self.winfo = {
-        name: r.name,
-        mimetype: r.mimetype,
-        type: r.type,
-        version: r.version,
-        parent: r.parent
-      };
-      self.previewNeedsUpdate = true;
-      self.e.selectMimetype.value = r.mimetype;
-      self.tabs.switchToTab(self.e.tabs.content);
-      self.wikiContent(r.content);
-      self.dispatchEvent('wiki-page-loaded', r);
-    };
-    const semiWinfo = {name: name};
-    const stashWinfo = this.getStashedWinfo(semiWinfo);
+    const onload = (r)=>this.dispatchEvent('wiki-page-loaded', r);
+    const stashWinfo = this.getStashedWinfo({name: name});
     if(stashWinfo){ // fake a response from the stash...
-      this.winfo = stashWinfo;
       onload({
         name: stashWinfo.name,
         mimetype: stashWinfo.mimetype,
         type: stashWinfo.type,
         version: stashWinfo.version,
         parent: stashWinfo.parent,
-        content: this.contentFromStash()
+        content: $stash.stashedContent(stashWinfo)
       });
       F.message("Fetched from the local-edit storage:",
                 stashWinfo.name);
@@ -776,6 +829,7 @@
         $stash.updateWinfo(wi, P.wikiContent());
       }
       F.message("Stashed change(s) to page ["+wi.name+"].");
+      P.updatePageTitle();
       $stash.prune();
       this.previewNeedsUpdate = true;
     }
@@ -820,6 +874,5 @@
   P.getStashedWinfo = function(winfo){
     return $stash.getWinfo(winfo);
   };
-  P.$stash = $stash /* only for development/debugging */;
   
 })(window.fossil);

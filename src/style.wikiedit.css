@@ -56,6 +56,9 @@ body.wikiedit .wikiedit-page-list-wrapper select option {
 body.wikiedit .wikiedit-page-list-wrapper select option.stashed::before {
   content: "* ";
 }
+body.wikiedit .wikiedit-page-list-wrapper select option.stashed-new::before {
+  content: "+ ";
+}
 body.wikiedit textarea {
   max-width: calc(100% - 1em);
 }

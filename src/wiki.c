@@ -1124,25 +1124,22 @@ static void wikiedit_page_v2(void){
   style_emit_script_tag(0,0);
   CX("\nfossil.onPageLoad(function(){\n");
   CX("try{\n");
-  if(zMimetype && *zMimetype){
-    CX("fossil.page.selectMimetype(%!j);\n",
-       zMimetype);
-  }
   if(found){
     CX("fossil.page.loadPage(%!j);\n", zPageName);
   }else if(zPageName && *zPageName){
-    /*
-      FIXME: we don't yet have a good way to integrate a
-      not-yet-existing/new/unsaved page into the UI.
-    */
-    CX("fossil.page.config.newPage = {"
-       "\"name\": %!j, \"mimetype\": %!j"
+    /* For a new page, stick a dummy entry in the JS-side stash
+       and simulate an on-load reaction to update the editor
+       with that stashed state. */
+    CX("const winfo = {"
+       "\"name\": %!j, \"mimetype\": %!j, "
+       "\"type\": %!j, "
+       "\"parent\": null, \"version\": null"
        "};\n",
        zPageName,
-       zMimetype ? zMimetype : "text/x-fossil-wiki");
-    CX("fossil.error('You are editing a new, "
-       "unsaved page:',%!j);\n",
-       zPageName);
+       zMimetype ? zMimetype : "text/x-fossil-wiki",
+       wiki_page_type_name(zPageName));
+    CX("fossil.page.$stash.updateWinfo(winfo,'');\n");
+    CX("fossil.page.dispatchEvent('wiki-page-loaded',winfo);\n");
   }
   CX("}catch(e){"
      "fossil.error(e); console.error('Exception:',e);"
