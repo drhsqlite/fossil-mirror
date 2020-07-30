@@ -648,9 +648,9 @@ static const char *mimetype_common_name(const char *zMimetype){
  ** loaded wiki object, which the caller is responsible for passing to
  ** manifest_destroy().
  */
-int wiki_fetch_by_name( const char *zPageName,
-                        unsigned int versionsBack,
-                        int * pRid, Manifest **ppWiki ){
+static int wiki_fetch_by_name( const char *zPageName,
+                               unsigned int versionsBack,
+                               int * pRid, Manifest **ppWiki ){
   Manifest *pWiki = 0;
   char *zTag = mprintf("wiki-%s", zPageName);
   Stmt q = empty_Stmt;
@@ -685,52 +685,57 @@ int wiki_fetch_by_name( const char *zPageName,
 
 /*
 ** Determines whether the wiki page with the given name can be edited
-** by the current user. If not, an AJAX error is queued and false is
-** returned, else true is returned. A NULL, empty, or malformed name
-** is considered non-writable.
+** or created by the current user. If not, an AJAX error is queued and
+** false is returned, else true is returned. A NULL, empty, or
+** malformed name is considered non-writable, regardless of the user.
 **
 ** If pRid is not NULL then this function writes the page's rid to
-** *pRid (whether or not access is granted).
+** *pRid (whether or not access is granted). On error or if the page
+** does not yet exist, *pRid will be set to 0.
 **
 ** Note that the sandbox is a special case: it is a pseudo-page with
-** no rid and this API does not allow anyone to actually save the
-** sandbox page, but it is reported as writable here (with rid 0).
+** no rid and the /wikiajax API does not allow anyone to actually save
+** a sandbox page, but it is reported as writable here (with rid 0).
 */
 static int wiki_ajax_can_write(const char *zPageName, int * pRid){
-  int rid;
-  const char * zMsg = 0;
+  int rid = 0;
+  const char * zErr = 0;
  
   if(pRid) *pRid = 0;
   if(!zPageName || !*zPageName
      || !wiki_name_is_wellformed((unsigned const char *)zPageName)){
-    return 0;
-  }
-  if(is_sandbox(zPageName)) return 1;
-  wiki_fetch_by_name(zPageName, 0, &rid, 0);
-  if(pRid) *pRid = rid;
-  if(!wiki_special_permission(zPageName)) return 0;
-  if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
-    return 3;
-  }else if(rid && !g.perm.WrWiki){
-    zMsg = "Requires wiki-write permissions.";
-  }else if(!rid && !g.perm.NewWiki){
-    zMsg = "Requires new-wiki permissions.";
+    zErr = "Invalid page name.";
+  }else if(is_sandbox(zPageName)){
+    return 1;
   }else{
-    assert(!"Can't happen?");
+    wiki_fetch_by_name(zPageName, 0, &rid, 0);
+    if(pRid) *pRid = rid;
+    if(!wiki_special_permission(zPageName)){
+      zErr = "Editing this page requires non-wiki write permissions.";
+    }else if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
+      return 3;
+    }else if(rid && !g.perm.WrWiki){
+      zErr = "Requires wiki-write permissions.";
+    }else if(!rid && !g.perm.NewWiki){
+      zErr = "Requires new-wiki permissions.";
+    }else{
+      zErr = "Cannot happen! Please report this as a bug.";
+    }
   }
-  ajax_route_error(403, "%s", zMsg);
+  ajax_route_error(403, "%s", zErr);
   return 0;  
 }
 
 /*
-** Ajax route handler for /wikiajax/fetch.
+** Loads the given wiki page, sets the response type to
+** application/json, and emits it as a JSON object.  If zPageName is a
+** sandbox page then a "fake" object is emitted, as the wikiajax API
+** does not permit saving the sandbox.
 **
-** URL params:
+** Returns true on success, false on error, and on error it
+** queues up a JSON-format error response.
 **
-**  page = the wiki page name
-**
-** Responds with JSON. On error, an object in the form documented by
-** ajax_route_error(). On success, an object in this form:
+** Output JSON format:
 **
 ** { name: "page name",
 **   type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
@@ -740,31 +745,27 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 **   content: "page content"
 ** }
 */
-static void wiki_ajax_route_fetch(void){
-  const char * zPageName = P("page");
-  int isSandbox;
-  
-  if( zPageName==0 || zPageName[0]==0 ){
-    ajax_route_error(400,"Missing page name.");
-    return;
-  }
+static int wiki_ajax_emit_page_object(const char *zPageName){
+  Manifest * pWiki = 0;
+  char * zUuid;
+
   cgi_set_content_type("application/json");
-  isSandbox = is_sandbox(zPageName);
-  if( isSandbox ){
+  if( is_sandbox(zPageName) ){
     char * zMimetype =
       db_get("sandbox-mimetype","text/x-fossil-wiki");
+    char * zBody = db_get("sandbox","");
     CX("{\"name\": %!j, \"type\": \"sandbox\", "
        "\"mimetype\": %!j, \"version\": null, \"parent\": null, "
-       "\"content\": \"\"}",
-       zPageName, zMimetype);
+       "\"content\": %!j}",
+       zPageName, zMimetype, zBody);
     fossil_free(zMimetype);
+    fossil_free(zBody);
+    return 1;
+  }else if( !wiki_fetch_by_name(zPageName, 0, 0, &pWiki) ){
+    ajax_route_error(404, "Wiki page could not be loaded: %s",
+                     zPageName);
+    return 0;
   }else{
-    Manifest * pWiki = 0;
-    char * zUuid;
-    if( !wiki_fetch_by_name(zPageName, 0, 0, &pWiki) ){
-      ajax_route_error(404, "Wiki page not found.");
-      return;
-    }
     zUuid = rid_to_uuid(pWiki->rid);
     CX("{\"name\": %!j, \"type\": %!j, "
        "\"version\": %!j, "
@@ -782,7 +783,88 @@ static void wiki_ajax_route_fetch(void){
     CX("\"content\": %!j}", pWiki->zWiki);
     fossil_free(zUuid);
     manifest_destroy(pWiki);
+    return 1;
   }
+}
+
+/*
+** Ajax route handler for /wikiajax/save.
+**
+** URL params:
+**
+**  page = the wiki page name.
+**  mimetype = content mime type.
+**  content = page content. Fossil considers an empty page to
+**            be "deleted".
+**  isnew = 1 if the page is to be newly-created, else 0 or
+**          not send.
+**
+** Responds with JSON. On error, an object in the form documented by
+** ajax_route_error(). On success, an object in the form documented
+** for wiki_ajax_emit_page_object().
+**
+** The wikiajax API disallows saving of a sandbox pseudo-page, and
+** will respond with an error if asked to save one.
+*/
+static void wiki_ajax_route_save(void){
+  const char *zPageName = P("page");
+  const char *zMimetype = P("mimetype");
+  const char *zContent = P("content");
+  const int isNew = atoi(PD("isnew","0"))==1;
+  Blob content = empty_blob;
+  int parentRid = 0;
+  int rollback = 0;
+
+  if(!wiki_ajax_can_write(zPageName, &parentRid)){
+    return;
+  }else if(is_sandbox(zPageName)){
+    ajax_route_error(403,"Saving a sandbox page is prohibited.");
+    return;
+  }
+  
+  /* These isNew checks are just me being pedantic. The hope is
+     to avoid accidental addition of new pages which differ only
+     by the case of their name. We could just as easily derive
+     isNew based on whether or not the page already exists. */
+  if(isNew){
+    if(parentRid>0){
+      ajax_route_error(403,"Requested a new page, "
+                       "but it already exists with RID %d: %s",
+                       parentRid, zPageName);
+      return;
+    }
+  }else if(parentRid==0){
+    ajax_route_error(403,"Creating new page [%s] requires passing "
+                     "isnew=1.", zPageName);
+    return;
+  }
+
+  blob_init(&content, zContent ? zContent : "", -1);
+  db_begin_transaction();
+  wiki_cmd_commit(zPageName, parentRid, &content, zMimetype, 0);
+  rollback = wiki_ajax_emit_page_object(zPageName) ? 0 : 1;
+  db_end_transaction(rollback);
+}
+
+/*
+** Ajax route handler for /wikiajax/fetch.
+**
+** URL params:
+**
+**  page = the wiki page name
+**
+** Responds with JSON. On error, an object in the form documented by
+** ajax_route_error(). On success, an object in the form documented
+** for wiki_ajax_emit_page_object().
+*/
+static void wiki_ajax_route_fetch(void){
+  const char * zPageName = P("page");
+  
+  if( zPageName==0 || zPageName[0]==0 ){
+    ajax_route_error(400,"Missing page name.");
+    return;
+  }
+  wiki_ajax_emit_page_object(zPageName);
 }
 
 /*
@@ -826,12 +908,11 @@ static void wiki_ajax_route_diff(void){
   }
   blob_init(&contentNew, zContent ? zContent : "", -1);
   cgi_set_content_type("text/html");
-  ajax_render_diff(&contentNew, &contentOrig, diffFlags);
+  ajax_render_diff(&contentOrig, &contentNew, diffFlags);
   blob_reset(&contentNew);
   blob_reset(&contentOrig);
   manifest_destroy(pParent);
 }
-
 
 /*
 ** Ajax route handler for /wikiajax/preview.
@@ -868,7 +949,8 @@ static void wiki_ajax_route_preview(void){
 **
 ** Responds with JSON. On error, an object in the form documented by
 ** ajax_route_error(). On success, an array of strings (page names)
-** sorted case-insensitively.
+** sorted case-insensitively. The result list contains an entry
+** named "sandbox" which represents the sandbox pseudo-page.
 */
 static void wiki_ajax_route_list(void){
   Stmt q = empty_Stmt;
@@ -909,12 +991,13 @@ void wiki_ajax_page(void){
   {"fetch", wiki_ajax_route_fetch, 0, 0},
   {"list", wiki_ajax_route_list, 0, 0},
   {"preview", wiki_ajax_route_preview, 0, 1}
-  /* /preview access mode: whether or not wiki-write mode is needed
+  /* preview access mode: whether or not wiki-write mode is needed
      really depends on multiple factors. e.g. the sandbox page does
-     not normally require more than anonymous access.  We set its
+     not normally require more than anonymous access. We set its
      write-mode to false and do those checks manually in that route's
      handler.
-  */
+  */,
+  {"save", wiki_ajax_route_save, 1, 1}
   };
 
   if(zName==0 || zName[0]==0){
@@ -1013,7 +1096,7 @@ static void wikiedit_page_v2(void){
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
     mimetype_option_menu(0);
-    CX("<button class='wikiedit-content-reload confirmer' "
+    CX("<button class='wikiedit-content-reload' "
        "title='Reload the file from the server, discarding "
        "any local edits. To help avoid accidental loss of "
        "edits, it requires confirmation (a second click) within "
@@ -1097,15 +1180,17 @@ static void wikiedit_page_v2(void){
     CX("</div>"/*#wikiedit-tab-diff*/);
   }
 
-  /****** TODOs (remove before merging to trunk) ******/
   {
-    CX("<div id='wikiedit-tab-todos' "
+    CX("<div id='wikiedit-tab-save' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='TODOs'"
+       "data-tab-label='Save &amp; Help'"
        ">");
-    CX("TODOs, in no particular order:<ul>");
-    CX("<li>Saving, obviously.</li>");
-    /*CX("<li></li>");*/
+    CX("<button class='wikiedit-save'>Save</button>");
+    CX("<hr>");
+    CX("The wiki formatting rules can be found at:");
+    CX("<ul>");
+    CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");
+    CX("<li><a href='%R/md_rules'>Markdown format</a></li>");
     CX("</ul>");
     CX("</div>");
   }
@@ -1121,13 +1206,13 @@ static void wikiedit_page_v2(void){
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);
   CX("\nfossil.onPageLoad(function(){\n");
-  CX("try{\n");
+  CX("const P = fossil.page;\n"
+     "try{\n");
   if(found){
-    CX("fossil.page.loadPage(%!j);\n", zPageName);
+    CX("P.loadPage(%!j);\n", zPageName);
   }else if(zPageName && *zPageName){
     /* For a new page, stick a dummy entry in the JS-side stash
-       and simulate an on-load reaction to update the editor
-       with that stashed state. */
+       and "load" it from there. */
     CX("const winfo = {"
        "\"name\": %!j, \"mimetype\": %!j, "
        "\"type\": %!j, "
@@ -1136,8 +1221,13 @@ static void wikiedit_page_v2(void){
        zPageName,
        zMimetype ? zMimetype : "text/x-fossil-wiki",
        wiki_page_type_name(zPageName));
-    CX("fossil.page.$stash.updateWinfo(winfo,'');\n");
-    CX("fossil.page.dispatchEvent('wiki-page-loaded',winfo);\n");
+    /* If the JS-side stash already has this page, load that
+       copy from the stash, otherwise inject a new stash entry
+       for it and load *that* one... */
+    CX("if(!P.$stash.getWinfo(winfo)){"
+       "P.$stash.updateWinfo(winfo,'');"
+       "}\n");
+    CX("P.loadPage(%!j);\n", zPageName);
   }
   CX("}catch(e){"
      "fossil.error(e); console.error('Exception:',e);"

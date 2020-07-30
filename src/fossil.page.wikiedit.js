@@ -17,7 +17,7 @@
        name: string,
        mimetype: mimetype string,
        type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
-       version: UUID string or null for a sandbox page,
+       version: UUID string or null for a sandbox page or new page,
        parent: parent UUID string or null if no parent,
        content: string
      }
@@ -284,12 +284,50 @@
         list, if it's in the list. */
     removeEntry: function(name){
       const sel = this.e.select;
-      const ndx = sel.selectedIndex;
+      var ndx = sel.selectedIndex;
       sel.value = name;
       if(sel.selectedIndex>-1){
+        if(ndx === sel.selectedIndex) ndx = -1;
         sel.options.remove(sel.selectedIndex);
       }
       sel.selectedIndex = ndx;
+    },
+
+    /** Loads the page list and populates the selection list. */
+    loadList: function callee(){
+      if(!callee.sorticase){
+        callee.sorticase = function(l,r){
+          l = l.toLowerCase();
+          r = r.toLowerCase();
+          return l<=r ? -1 : 1;
+        };
+        const self = this;
+        callee.onload = function(list){
+          /* Jump through some hoops to integrate new/unsaved
+             pages into the list of existing pages... We use a map
+             as an intermediary in order to filter out any local-stash
+             dupes from server-side copies. */
+          const map = {}, ndx = $stash.getIndex(), sel = self.e.select;
+          D.clearElement(sel);
+          list.forEach((name)=>map[name] = true);
+          Object.keys(ndx).forEach(function(key){
+            const winfo = ndx[key];
+            if(!winfo.version/*new page*/) map[winfo.name] = true;
+          });
+          Object.keys(map)
+            .sort(callee.sorticase)
+            .forEach((name)=>D.option(sel, name));
+          D.enable(sel);
+          if(P.winfo) sel.value = P.winfo.name;
+          self.refreshStashMarks();
+          F.message("Loaded page list.");
+        };
+      }
+      F.fetch('wikiajax/list',{
+        responseType: 'json',
+        onload: callee.onload
+      });
+      return this;
     },
     /**
        Installs a wiki page selection list into the given parent DOM
@@ -312,41 +350,9 @@
       D.option(D.disable(D.clearElement(sel)), "Loading...");
       const self = this;
       btn.addEventListener(
-        'click',
-        function click(){
-          if(!click.sorticase){
-            click.sorticase = function(l,r){
-              l = l.toLowerCase();
-              r = r.toLowerCase();
-              return l<=r ? -1 : 1;
-            };
-          }
-          F.fetch('wikiajax/list',{
-            responseType: 'json',
-            onload: function(list){
-              /* Jump through some hoops to integrate new/unsaved
-                 pages into the list of existing pages... We use a map
-                 as an intermediary in order to filter out any local-stash
-                 dupes from server-side copies. */
-              const map = {}, ndx = $stash.getIndex();
-              D.clearElement(sel);
-              list.forEach((name)=>map[name] = true);
-              Object.keys(ndx).forEach(function(key){
-                const winfo = ndx[key];
-                if(!winfo.version/*new page*/) map[winfo.name] = true;
-              });
-              Object.keys(map)
-                .sort(click.sorticase)
-                .forEach((name)=>D.option(sel, name));
-              D.enable(sel);
-              if(P.winfo) sel.value = P.winfo.name;
-              self.refreshStashMarks();
-            }
-          });
-        },
-        false
+        'click', ()=>this.loadList(), false
       );
-      btn.click();
+      this.loadList();
       sel.addEventListener(
         'change',
         (e)=>P.loadPage(e.target.value),
@@ -412,6 +418,7 @@
       taEditor: E('#wikiedit-content-editor'),
 //      btnCommit: E("#wikiedit-btn-commit"),
       btnReload: E("#wikiedit-tab-content button.wikiedit-content-reload"),
+      btnSave: E("#wikiedit-tab-save button.wikiedit-save"),
       selectMimetype: E('select[name=mimetype]'),
       selectFontSizeWrap: E('#select-font-size'),
 //      selectDiffWS:  E('select[name=diff_ws]'),
@@ -422,7 +429,8 @@
         pageList: E('#wikiedit-tab-pages'),
         content: E('#wikiedit-tab-content'),
         preview: E('#wikiedit-tab-preview'),
-        diff: E('#wikiedit-tab-diff')
+        diff: E('#wikiedit-tab-diff'),
+        save: E('#wikiedit-tab-save')
         //commit: E('#wikiedit-tab-commit')
       }
     };
@@ -450,6 +458,14 @@
              is hidden (and therefore P.e.diffTarget is also hidden).
           */
           D.removeClass(P.e.diffTarget, 'hidden');
+        }else if(ev.detail===P.e.tabs.save){
+          const btn = P.e.btnSave;
+          if(!P.winfo || !P.getStashedWinfo(P.winfo)){
+            D.disable(btn).innerText =
+              "There are no changes to save";
+          }else{
+            D.enable(btn).innerText = "Save changes";
+          }
         }
       }
     );
@@ -489,7 +505,9 @@
           F.error("No page loaded.");
           return;
         }
-        if(!w.version/* new/unsaved page */ && P.wikiContent()){
+        if(!w.version/* new/unsaved page */
+           && w.type!=='sandbox'
+           && P.wikiContent()){
           F.error("This new/unsaved page has content.",
                   "To really discard this page,",
                   "first clear its content",
@@ -497,7 +515,7 @@
           return;
         }
         P.unstashContent()
-        if(w.version){
+        if(w.version || w.type==='sandbox'){
           P.loadPage();
         }else{
           delete P.winfo;
@@ -508,6 +526,19 @@
       },
       ticks: 3
     });
+    F.confirmer(P.e.btnSave, {
+      confirmText: "Really save changes?",
+      onconfirm: function(e){
+        const w = P.winfo;
+        if(!w){
+          F.error("No page loaded.");
+          return;
+        }
+        P.save();
+      },
+      ticks: 3
+    });
+
     P.e.taEditor.addEventListener(
       'change', ()=>P.stashContentChange(), false
     );
@@ -569,7 +600,7 @@
         P.tabs.switchToTab(P.e.tabs.content);
         P.wikiContent(winfo.content || '');
         WikiList.e.select.value = winfo.name;
-        if(!winfo.version){
+        if(!winfo.version && winfo.type!=='sandbox'){
           F.error('You are editing a new, unsaved page:',winfo.name);
         }
         P.updatePageTitle();
@@ -844,6 +875,39 @@
     return this;
   };
 
+  /**
+     Saves the current wiki page and re-populates the editor
+     with the saved state.
+  */
+  P.save = function callee(){
+    if(!affirmPageLoaded()) return this;
+    const self = this;
+    const content = this.wikiContent();
+    if(!callee.onload){
+      callee.onload = function(w){
+        const oldWinfo = self.winfo;
+        self.unstashContent(oldWinfo);
+        self.winfo = w;
+        self.updatePageTitle();
+        self.dispatchEvent('wiki-page-loaded', w);
+        F.message("Saved page: ["+w.name+"].");
+      }
+    }
+    const fd = new FormData(), w = P.winfo;
+    fd.append('page',w.name);
+    fd.append('mimetype', w.mimetype);
+    fd.append('isnew', w.version ? 0 : 1);
+    fd.append('content', P.wikiContent());
+    F.message(
+      "Saving page..."
+    ).fetch('wikiajax/save',{
+      payload: fd,
+      responseType: 'json',
+      onload: callee.onload
+    });
+    return this;
+  };
+  
   /**
      Updates P.winfo for certain state and stashes P.winfo, with the
      current content fetched via P.wikiContent().
