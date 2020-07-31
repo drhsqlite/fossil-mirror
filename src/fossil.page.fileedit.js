@@ -123,7 +123,7 @@
   */
   const $stash = {
     keys: {
-      index: F.page.name+'/index'
+      index: F.page.name+'.index'
     },
     /**
        index: {

@@ -1,5 +1,5 @@
-C Minor\slayout/style\simprovements.
-D 2020-07-31T01:44:19.081
+C Renamed\sthe\sfileedit/wikiedit\sstash\sindex\skeys\sto\savoid\sbreakage\sif\sthey\sedit\sa\sfile/page\snamed\s'index'\s(this\sunfortunately\sinvalidates\sany\slocal-storage\sedits\sin\s/filepage).\sMinor\swiki\spage\sselection\slist\sstyle\stweak.
+D 2020-07-31T02:02:09.183
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -489,9 +489,9 @@ F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd
 F src/fossil.confirmer.js 66352b4201476ff6d53aeb0515800bb6f2d6fe0ec6b8a18c67043ec20f093023
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 33eeef2dd66585a3841e1e5f04a4cb5ef2f5c388234f3412888fc9466dafde0a
-F src/fossil.page.fileedit.js 9737bc1f4c6f313603d52b2effc4fa20af50e6cf7f9f3eb1118193b76d07bb22
+F src/fossil.page.fileedit.js 918867ff9bb96a4cb28cdd70f1f8d74955b5016e5cfd3075994fcf97728b3858
 F src/fossil.page.forumpost.js e0923d94ca4a7284abcc452f8411e3b80d6f12636c38c4bd0741f570365c6b48
-F src/fossil.page.wikiedit.js 3c85c39e9d8b1d985c968c0f90ef41a70bbcd4f837e774acb79fa3cdf7686e72
+F src/fossil.page.wikiedit.js 88037cfbc32e7e2b2daa2ebe7953e08688aa3ca73d4c527859fad34907e5bc78
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -609,7 +609,7 @@ F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 838874e47ee49425ad173a225e9f966bb4f3826fc3746bb7d180878058051f30
 F src/style.fileedit.css 6d414f0f63095beaee630bebb648eefae05b3e685b089d52fe81b673d80e5536
-F src/style.wikiedit.css e4e46a989cd9ead6f6997ab611deb97bd725c783822c663f70aae9e6ad68ed28
+F src/style.wikiedit.css 4041acfc7c784c72605b0ae097af6ffb4bbae23a0e6fa57d4f89f957123a2d73
 F src/sync.c 9f42cd6031c2e1d6fd1dd584aaa09e1e7280a3c07905a80524f819af1528d7ed
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c1a2dd4e1f78c843b8b5c436e2da2a1ca1083be8ac09f03fcb0c02298999bfa
-R 96a4b7aede339b288ae1de3a5ad151da
+P 31c5e1fd86b4445eb3ca0cd751749f606fc715298cfd83e15bd685190b28a5b9
+R 8aa45637ce053dbbe95c6fcd22d4d143
 U stephan
-Z b60bbc7f73cd9d14ad7b22b504b88142
+Z fac3d21f6ec6b9dcdbdac67b44ace91f

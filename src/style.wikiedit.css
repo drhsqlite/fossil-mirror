@@ -74,6 +74,10 @@ body.wikiedit .tabs .tab-panel {
 body.wikiedit .wikiedit-page-list-wrapper fieldset {
   padding: 0.25em;
 }
+body.wikiedit .wikiedit-page-list-wrapper fieldset > :not(legend) {
+  /* Stretch page selection list when it's empty or only has short page names */
+  width: 100%;
+}
 body.wikiedit .wikiedit-page-list-wrapper .fieldset-wrapper {
   /* Container for the filter and edit status fieldsets */
   display: flex;
