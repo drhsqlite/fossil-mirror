@@ -1163,7 +1163,7 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-preview' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Preview'"
+       "data-tab-label='Preview &amp; Save'"
        ">");
     CX("<div class='wikiedit-options flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
@@ -1176,6 +1176,7 @@ void wikiedit_page_v2(void){
        "data-f-preview-to='#wikiedit-tab-preview-wrapper' "
        /* ^^^ dest elem ID */
        ">Refresh</button>");
+    CX("<button class='wikiedit-save'>Save</button>");
     /* Toggle auto-update of preview when the Preview tab is selected. */
     style_labeled_checkbox("cb-preview-autoupdate",
                            NULL,
@@ -1206,13 +1207,12 @@ void wikiedit_page_v2(void){
     CX("</div>"/*#wikiedit-tab-diff*/);
   }
 
+  /****** The obligatory "Misc" tab ******/
   {
-    CX("<div id='wikiedit-tab-save' "
+    CX("<div id='wikiedit-tab-misc' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Save, Help, etc.'"
+       "data-tab-label='Help, Attachments, etc.'"
        ">");
-    CX("<button class='wikiedit-save'>Save</button>");
-    CX("<hr>");
     CX("<h3>Wiki formatting rules</h3>");
     CX("<ul>");
     CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");

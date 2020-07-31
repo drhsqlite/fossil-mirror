@@ -572,6 +572,8 @@
     if(0===--ajaxState.count){
       D.removeClass(document.body, 'waiting');
       D.enable(ajaxState.toDisable);
+      delete ajaxState.toDisable /* required to avoid enable/disable
+                                    race condition with the save button */;
     }
   };
 
@@ -584,7 +586,7 @@
       taEditor: E('#wikiedit-content-editor'),
 //      btnCommit: E("#wikiedit-btn-commit"),
       btnReload: E("#wikiedit-tab-content button.wikiedit-content-reload"),
-      btnSave: E("#wikiedit-tab-save button.wikiedit-save"),
+      btnSave: E("button.wikiedit-save"),
       selectMimetype: E('select[name=mimetype]'),
       selectFontSizeWrap: E('#select-font-size'),
 //      selectDiffWS:  E('select[name=diff_ws]'),
@@ -597,7 +599,7 @@
         content: E('#wikiedit-tab-content'),
         preview: E('#wikiedit-tab-preview'),
         diff: E('#wikiedit-tab-diff'),
-        save: E('#wikiedit-tab-save')
+        misc: E('#wikiedit-tab-misc')
         //commit: E('#wikiedit-tab-commit')
       }
     };
@@ -614,6 +616,7 @@
       'before-switch-to', function(ev){
         if(ev.detail===P.e.tabs.preview){
           P.baseHrefForWiki();
+          P.updateSaveButton();
           if(P.previewNeedsUpdate && P.e.cbAutoPreview.checked) P.preview();
         }else if(ev.detail===P.e.tabs.diff){
           /* Work around a weird bug where the page gets wider than
@@ -625,15 +628,8 @@
              is hidden (and therefore P.e.diffTarget is also hidden).
           */
           D.removeClass(P.e.diffTarget, 'hidden');
-        }else if(ev.detail===P.e.tabs.save){
-          const btn = P.e.btnSave;
+        }else if(ev.detail===P.e.tabs.misc){
           P.updateAttachmentView();
-          if(!P.winfo || !P.getStashedWinfo(P.winfo)){
-            D.disable(btn).innerText =
-              "There are no changes to save";
-          }else{
-            D.enable(btn).innerText = "Save changes";
-          }
         }
       }
     );
@@ -810,6 +806,20 @@
     title = title.join(' ');
     f.titleElement.innerText = title;
     f.pageTitleHeader.innerText = title;
+    return this;
+  };
+
+  /**
+     Change the save button depending on whether we have stuff to save
+     or not.
+  */
+  P.updateSaveButton = function(){
+    if(!this.winfo || !this.getStashedWinfo(this.winfo)){
+      D.disable(this.e.btnSave).innerText =
+        "There are no changes to save";
+    }else{
+      D.enable(this.e.btnSave).innerText = "Save changes";
+    }
     return this;
   };
 
