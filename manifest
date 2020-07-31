@@ -1,5 +1,5 @@
-C Move\sthe\s/builtin\swebpage\sfrom\sstyle.c\sover\sto\sbuiltin.c.\s\sAdd\sthe\nnew\s"m="\squery\sparameter\senabling\sit\sto\sreturn\smultiple\sJS\sfiles\sin\sa\nsingle\srequest.
-D 2020-07-31T16:06:13.113
+C Add\sroutines\sfor\sstandardized\sloading\sof\sjavascript\sresources.
+D 2020-07-31T16:58:00.029
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/bisect.c fd0e00331e5b843161aca5a1056f59f7e8596f22e109f5553101fe239b1445af
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
 F src/branch.c 157bff65105f6ebf6279c55a86caa32088c6bbcbcd441244e645be9db459f405
 F src/browse.c ef38b8132be2020218a3922f820baf6d1d0aaf81b58a106b3bb2ca48b2c40bc1
-F src/builtin.c 11ace20cd48a19a34d7a63711d1b8dfe78fcab5849fbad1b1cf423a5b7e4b67a
+F src/builtin.c 5d0ce5ed239ee65d34c93b8c8b1e80eaab17eaf6ad92884043f1641155a33b15
 F src/bundle.c 179a6ec56bb375aa7dc72ac263a7ffa8f5bab8055293d405f75fb273ce6feddb
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
@@ -1003,7 +1003,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 01c03ca16a3b993e2d1a0ef6ea01a67e08908b0ccbc7e395538e3d6b826a532b
-R 4187692d7418c52cb98de8c85f98414c
+P 956d2f8db9534902a49eb3f29ea6e2e413f01d529f9ac5efbda1614adedb6e1f
+R 02f85bc443ace78b56b375a79485844a
+T *branch * refactor-js-handling
+T *sym-refactor-js-handling *
+T -sym-trunk *
 U drh
-Z 113674ebb773c9c97d1c49b17d202ea6
+Z 340d54824459978de735a1d21b889652

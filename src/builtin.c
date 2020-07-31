@@ -213,3 +213,65 @@ void builtin_webpage(void){
   blob_init(&out, zTxt, -1);
   cgi_set_content(&out);
 }
+
+/* Variables controlling the JS cache.
+*/
+static struct {
+  int aReq[30];        /* Indexes of all requested built-in JS files */
+  int nReq;            /* Number of slots in aReq[] currently used */
+  int nSent;           /* Number of slots in aReq[] fulfilled */
+} builtin;
+
+/*
+** The caller wants the Javascript file named by zFilename to be
+** included in the generated page.  Add the file to the queue of
+** requested javascript resources, if it is not there already.
+**
+** The current implementation queues the file to be included in the
+** output later.  However, the caller should not depend on that
+** behavior.  In the future, this routine might decide to insert
+** the requested javascript inline, immedaitely, or to insert
+** a <script src=..> element to reference the javascript as a
+** separate resource.  The exact behavior might change in the future
+** so pages that use this interface must not rely on any particular
+** behavior.
+**
+** All this routine guarantees is that the named javascript file
+** will be requested by the browser at some point.  This routine
+** does not guarantee when the javascript will be included, and it
+** does not guarantee whether the javascript will be added inline or
+** delivered as a separate resource.
+*/
+void builtin_request_js(const char *zFilename){
+  int i = builtin_file_index(zFilename);
+  int j;
+  if( i<0 ){
+    fossil_panic("unknown javascript file: \"%s\"", zFilename);
+  }
+  for(j=0; j<builtin.nReq; j++){
+    if( builtin.aReq[j]==i ) return;  /* Already queued or sent */
+  }
+  if( builtin.nReq>=count(builtin.aReq) ){
+    fossil_panic("too many javascript files requested");
+  }
+  builtin.aReq[builtin.nReq++] = i;
+}
+
+/*
+** Fulfill all pending requests for javascript files.
+**
+** The current implementation delivers all javascript in-line.  However,
+** the caller should not depend on this.  Future changes to this routine
+** might choose to deliver javascript as separate resources.
+*/
+void builtin_fulfill_js_requests(void){
+  if( builtin.nSent<builtin.nReq ){
+    CX("<script nonce='%h'>\n",style_nonce);
+    do{
+      int i = builtin.aReq[builtin.nSent++];
+      cgi_append_content((const char*)aBuiltinFiles[i].pData,
+                         aBuiltinFiles[i].nByte);
+    }while( builtin.nSent<builtin.nReq );
+    CX("</script>\n");
+  }
+}
