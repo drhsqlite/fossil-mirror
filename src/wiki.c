@@ -989,7 +989,7 @@ static void wiki_ajax_route_list(void){
   db_prepare(&q, "SELECT"
              " substr(tagname,6) AS name"
              " FROM tag WHERE tagname GLOB 'wiki-*'"
-             " UNION SELECT 'sandbox' AS name"
+             " UNION SELECT 'Sandbox' AS name"
              " ORDER BY name COLLATE NOCASE");
   CX("[");
   while( SQLITE_ROW==db_step(&q) ){
@@ -1223,7 +1223,7 @@ void wikiedit_page_v2(void){
     CX("<div id='wikiedit-attachments'></div>"
        /* Filled out by JS */);
     CX("<hr><h3>The \"Sandbox\" Page</h3>");
-    CX("<p>The page named \"sandbox\" is not a real wiki page. "
+    CX("<p>The page named \"Sandbox\" is not a real wiki page. "
        "It provides a place where users may test out wiki syntax "
        "without having to actually save anything, nor pollute "
        "the repo with endless test runs. Any attempt to save the "
