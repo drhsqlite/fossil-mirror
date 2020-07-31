@@ -957,7 +957,7 @@ img {
 }
 .tab-container > .tab-bar > .tab-button {
   display: inline-block;
-  border-radius: 0.5em 0.5em 0 0;
+  border-radius: 0.25em 0.25em 0 0;
   margin: 0 0.1em;
   padding: 0.25em 0.75em;
   align-self: baseline;
@@ -1056,7 +1056,7 @@ img {
 */
 .input-with-label {
   border: 1px inset #808080;
-  border-radius: 0.5em;
+  border-radius: 0.25em;
   padding: 0.25em 0.4em;
   margin: 0 0.5em;
   display: inline-block;

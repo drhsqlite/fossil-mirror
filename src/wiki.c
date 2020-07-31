@@ -1133,13 +1133,10 @@ void wikiedit_page_v2(void){
        "data-tab-label='Wiki Editor'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
+    CX("<span class='input-with-label'>"
+       "<label>Mime type</label>");
     mimetype_option_menu(0);
-    CX("<button class='wikiedit-content-reload' "
-       "title='Reload the file from the server, discarding "
-       "any local edits. To help avoid accidental loss of "
-       "edits, it requires confirmation (a second click) within "
-       "a few seconds or it will not reload.'"
-       ">Discard &amp; Reload</button>");
+    CX("</span>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
                           NULL/*tooltip*/,
@@ -1147,6 +1144,12 @@ void wikiedit_page_v2(void){
                           "100%", 100, "125%", 125,
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
+    CX("<button class='wikiedit-content-reload' "
+       "title='Reload the file from the server, discarding "
+       "any local edits. To help avoid accidental loss of "
+       "edits, it requires confirmation (a second click) within "
+       "a few seconds or it will not reload.'"
+       ">Discard &amp; Reload</button>");
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
@@ -1196,21 +1199,6 @@ void wikiedit_page_v2(void){
        "id='wikiedit-tab-diff-buttons'>");
     CX("<button class='sbs'>Side-by-side</button>"
        "<button class='unified'>Unified</button>");
-    if(0){
-      /* For the time being let's just ignore all whitespace
-      ** changes, as files with Windows-style EOLs always show
-      ** more diffs than we want then they're submitted to
-      ** ?ajax=diff because JS normalizes them to Unix EOLs.
-      ** We can revisit this decision later. */
-      style_select_list_int("diff-ws-policy",
-                            "diff_ws", "Whitespace",
-                            "Whitespace handling policy.",
-                            2,
-                            "Diff all whitespace", 0,
-                            "Ignore EOL whitespace", 1,
-                            "Ignore all whitespace", 2,
-                            NULL);
-    }
     CX("</div>");
     CX("<div id='wikiedit-tab-diff-wrapper'>"
        "Diffs will be shown here."
@@ -1221,19 +1209,28 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-save' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Save, etc.'"
+       "data-tab-label='Save, Help, etc.'"
        ">");
     CX("<button class='wikiedit-save'>Save</button>");
     CX("<hr>");
-    CX("Wiki formatting rules:");
+    CX("<h3>Wiki formatting rules</h3>");
     CX("<ul>");
     CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");
     CX("<li><a href='%R/md_rules'>Markdown format</a></li>");
+    CX("<li>Plain-text pages use no special formatting.</li>");
     CX("</ul>");
-    CX("<hr>Attachments:");
+    CX("<hr><h3>Attachments</h3>");
     CX("<div id='wikiedit-attachments'></div>"
        /* Filled out by JS */);
-    CX("</div>");
+    CX("<hr><h3>The \"Sandbox\" Page</h3>");
+    CX("<p>The page named \"sandbox\" is not a real wiki page. "
+       "It provides a place where users may test out wiki syntax "
+       "without having to actually save anything, nor pollute "
+       "the repo with endless test runs. Any attempt to save the "
+       "sandbox page will fail.</p>");
+    CX("<hr><h3>Wiki Name Rules</h3>");
+    well_formed_wiki_name_rules();
+    CX("</div>"/*#wikiedit-tab-save*/);
   }
   
   style_emit_script_fossil_bootstrap(0);

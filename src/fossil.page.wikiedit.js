@@ -271,19 +271,32 @@
     }
   };
 
+  /**
+     Sets up and maintains the widgets for the list of wiki pages.
+  */
   const WikiList = {
     e: {
       filterCheckboxes: {
         /*map of wiki page type to checkbox for list filtering purposes,
           except for "sandbox" type, which is assumed to be covered by
-          the "normal" type filter. */}
+          the "normal" type filter. */},
+    },
+    cache: {
+      names: {
+        /* Map of page names to "something." We don't map to their
+           winfo bits because those regularly get swapped out via
+           de/serialization. We need this map to support the add-new-page
+           feature, to give us a way to check for dupes without asking
+           the server or walking through the whole selection list.
+        */}
     },
     /** Updates OPTION elements to reflect whether the page has
         local changes or is new/unsaved. */
     refreshStashMarks: function(){
-      const sel = this.e.select;
-      Object.keys(sel.options).forEach(function(key){
-        const opt = sel.options[key];
+      this.cache.names = {/*must reset it to acount for local page removals*/};
+      const select = this.e.select, self = this;
+      Object.keys(select.options).forEach(function(key){
+        const opt = select.options[key];
         const stashed = $stash.getWinfo({name:opt.value});
         if(stashed){
           const isNew = 'sandbox'===stashed.type ? false : !stashed.version;
@@ -291,6 +304,7 @@
         }else{
           D.removeClass(opt, 'stashed', 'stashed-new');
         }
+        self.cache.names[opt.value] = true;
       });
     },
     /** Removes the given wiki page entry from the page selection
@@ -306,41 +320,55 @@
       sel.selectedIndex = ndx;
     },
 
-    /** Loads the page list and populates the selection list. */
-    loadList: function callee(){
-      delete this.pageMap;
+    /**
+       Rebuilds the selection list. Necessary when it's loaded from
+       the server or we locally create a new page. */
+    _rebuildList: function callee(){
+      /* Jump through some hoops to integrate new/unsaved
+         pages into the list of existing pages... We use a map
+         as an intermediary in order to filter out any local-stash
+         dupes from server-side copies. */
+      const list = this.cache.pageList;
+      if(!list) return;
       if(!callee.sorticase){
         callee.sorticase = function(l,r){
+          if(l===r) return 0;
           l = l.toLowerCase();
           r = r.toLowerCase();
           return l<=r ? -1 : 1;
         };
+      }
+      const map = {}, ndx = $stash.getIndex(), sel = this.e.select;
+      D.clearElement(sel);
+      list.forEach((winfo)=>map[winfo.name] = winfo);
+      Object.keys(ndx).forEach(function(key){
+        const winfo = ndx[key];
+        if(!winfo.version/*new page*/) map[winfo.name] = winfo;
+      });
+      const self = this;
+      Object.keys(map)
+        .sort(callee.sorticase)
+        .forEach(function(name){
+          const winfo = map[name];
+          const opt = D.option(sel, winfo.name);
+          const wtype = opt.dataset.wtype =
+                winfo.type==='sandbox' ? 'normal' : (winfo.type||'normal');
+          const cb = self.e.filterCheckboxes[wtype];
+          if(cb && !cb.checked) D.addClass(opt, 'hidden');
+        });
+      D.enable(sel);
+      if(P.winfo) sel.value = P.winfo.name;
+      this.refreshStashMarks();
+    },
+    
+    /** Loads the page list and populates the selection list. */
+    loadList: function callee(){
+      delete this.pageMap;
+      if(!callee.onload){
         const self = this;
         callee.onload = function(list){
-          /* Jump through some hoops to integrate new/unsaved
-             pages into the list of existing pages... We use a map
-             as an intermediary in order to filter out any local-stash
-             dupes from server-side copies. */
-          const map = {}, ndx = $stash.getIndex(), sel = self.e.select;
-          D.clearElement(sel);
-          list.forEach((winfo)=>map[winfo.name] = winfo);
-          Object.keys(ndx).forEach(function(key){
-            const winfo = ndx[key];
-            if(!winfo.version/*new page*/) map[winfo.name] = winfo;
-          });
-          Object.keys(map)
-            .sort(callee.sorticase)
-            .forEach(function(name){
-              const winfo = map[name];
-              const opt = D.option(sel, winfo.name);
-              const wtype = opt.dataset.wtype =
-                    winfo.type==='sandbox' ? 'normal' : winfo.type;
-              const cb = self.e.filterCheckboxes[wtype];
-              if(cb && !cb.checked) D.addClass(opt, 'hidden');
-            });
-          D.enable(sel);
-          if(P.winfo) sel.value = P.winfo.name;
-          self.refreshStashMarks();
+          self.cache.pageList = list;
+          self._rebuildList();
           F.message("Loaded page list.");
         };
       }
@@ -351,14 +379,71 @@
       });
       return this;
     },
+
+    /**
+       Returns true if the given name appears to be a valid
+       wiki page name, noting that the final arbitrator is the
+       server. On validation error it emits a message via fossil.error()
+       and returns false.
+    */
+    validatePageName: function(name){
+      var err;
+      if(!name){
+        err = "may not be empty";
+      }else if(this.cache.names.hasOwnProperty(name)){
+        err = "page already exists: "+name;
+      }else if(name.length>100){
+        err = "too long (limit is 100)";
+      }else if(/\s{2,}/.test(name)){
+        err = "multiple consecutive spaces";
+      }else if(/[\t\r\n]/.test(name)){
+        err = "contains control character(s)";
+      }else{
+        let i = 0, n = name.length, c;
+        for( ; i < n; ++i ){
+          if(name.charCodeAt(i)<0x20){
+            err = "contains control character(s)";
+            break;
+          }
+        }
+      }
+      if(err){
+        F.error("Invalid name:",err);
+      }
+      return !err;
+    },
+
+    /**
+       If the given name is valid, a new page with that (trimmed) name
+       is added to the local stash.
+    */
+    addNewPage: function(name){
+      name = name.trim();
+      if(!this.validatePageName(name)) return false;
+      var wtype = 'normal';
+      if(0===name.indexOf('checkin/')) wtype = 'checkin';
+      else if(0===name.indexOf('branch/')) wtype = 'branch';
+      else if(0===name.indexOf('tag/')) wtype = 'tag';
+      /* ^^^ note that we're not validating that, e.g., checkin/XYZ
+         has a full artifact ID after "checkin/". */
+      const winfo = {
+        name: name, type: wtype, mimetype: 'text/x-fossil-wiki',
+        version: null, parent: null
+      };
+      $stash.updateWinfo(winfo, '');
+      this._rebuildList();
+      P.loadPage(winfo.name);
+      return true;
+    },
+    
     /**
        Installs a wiki page selection list into the given parent DOM
        element and loads the page list from the server.
     */
     init: function(parentElem){
-      const sel = D.select(), btn = D.button("Reload page list");
+      const sel = D.select(), btn = D.addClass(D.button("Reload page list"), 'save');
       this.e.select = sel;
-      D.addClass(parentElem, 'wikiedit-page-list-wrapper');
+      D.addClass(parentElem, 'WikiList');
       D.clearElement(parentElem);
       D.append(
         parentElem,
@@ -413,11 +498,32 @@
         D.append(D.span(), P.config.editStateMarkers.isNew,
                  " = page is new/unsaved")
       );
+
+      const fsNewPage = D.fieldset("Create new page"),
+            fsNewPageBody = D.div(),
+            newPageName = D.input('text'),
+            newPageBtn = D.button("Add page locally")
+            ;
+      D.append(parentElem, fsNewPage);
+      D.append(fsNewPage, fsNewPageBody);
+      D.addClass(fsNewPageBody, 'flex-container', 'flex-column', 'new-page');
+      D.append(
+        fsNewPageBody, newPageName, newPageBtn,
+        D.append(D.addClass(D.span(), 'mini-tip'),
+                 "New pages exist only in this browser until they are saved.")
+      );
+      newPageBtn.addEventListener('click', function(){
+        if(self.addNewPage(newPageName.value)){
+          newPageName.value = '';
+        }
+      }, false);
+
       D.append(
         parentElem,
         D.append(D.addClass(D.div(), 'fieldset-wrapper'),
-                 fsFilter, fsLegend)
+                 fsFilter, fsNewPage, fsLegend)
       );
+      
       D.append(parentElem, btn);
       btn.addEventListener('click', ()=>this.loadList(), false);
       this.loadList();
@@ -504,7 +610,7 @@
     );
 
     P.tabs.addEventListener(
-      /* Set up auto-refresh of the preview tab... */
+      /* Set up some before-switch-to tab event tasks... */
       'before-switch-to', function(ev){
         if(ev.detail===P.e.tabs.preview){
           P.baseHrefForWiki();
@@ -521,6 +627,7 @@
           D.removeClass(P.e.diffTarget, 'hidden');
         }else if(ev.detail===P.e.tabs.save){
           const btn = P.e.btnSave;
+          P.updateAttachmentView();
           if(!P.winfo || !P.getStashedWinfo(P.winfo)){
             D.disable(btn).innerText =
               "There are no changes to save";
@@ -579,9 +686,9 @@
         if(w.version || w.type==='sandbox'){
           P.loadPage();
         }else{
-          delete P.winfo;
           WikiList.removeEntry(w.name);
           P.updatePageTitle();
+          delete P.winfo;
           F.message("Discarded new page ["+w.name+"].");
         }
       },
@@ -664,11 +771,11 @@
         if(!winfo.version && winfo.type!=='sandbox'){
           F.error('You are editing a new, unsaved page:',winfo.name);
         }
-        P.updateAttachmentView().updatePageTitle();
+        P.updatePageTitle();
       },
       false
     );
-    P.updateAttachmentView();
+    P.updatePageTitle().updateAttachmentView();
   }/*F.onPageLoad()*/);
 
   /**
@@ -713,10 +820,12 @@
     const ul = D.ul();
     D.append(wrapper, ul);
     if(!P.winfo){
-      D.append(D.li(ul), "No page loaded.");
+      D.append(D.li(ul),
+               "Load a page to get access to its attachment-related pages.");
       return this;
     }else if(!P.winfo.version){
-      D.append(D.li(ul), "A new/unsaved page cannot have attachments.");
+      D.append(D.li(ul),
+               "A new/unsaved page cannot have attachments. Save it first.");
       return this;
     }
     const wi = P.winfo;
