@@ -796,10 +796,11 @@
       f.pageTitleHeader = document.querySelector('div.header .title');
     }
     var title = ['Wiki Editor:'];
-    if(P.winfo){
-      if(!P.winfo.version) title.push(P.config.editStateMarkers.isNew);
-      else if($stash.getWinfo(P.winfo)) title.push(P.config.editStateMarkers.isModified)
-      title.push(P.winfo.name);
+    const wi = P.winfo;
+    if(wi){
+      if(!wi.version && 'sandbox'!==wi.type) title.push(P.config.editStateMarkers.isNew);
+      else if($stash.getWinfo(wi)) title.push(P.config.editStateMarkers.isModified)
+      title.push(wi.name);
     }else{
       title.push('(no page loaded)');
     }

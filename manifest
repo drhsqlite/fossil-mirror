@@ -1,5 +1,5 @@
-C Moved\sSave\sbutton\sto\sthe\sPreview\stab,\sas\sthat\sfollows\sthe\scommon\sapp-wide\spattern\sof\snot\senabling\sa\ssave\suntil\sa\spreview\shas\sfirst\sbeen\striggered.
-D 2020-07-31T04:33:30.100
+C Corrected\ssandbox\spage\salways\sgetting\stagged\sas\s'new'\sin\sthe\spage\sheader\sand\stitle.
+D 2020-07-31T04:46:01.380
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -491,7 +491,7 @@ F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c65
 F src/fossil.fetch.js 33eeef2dd66585a3841e1e5f04a4cb5ef2f5c388234f3412888fc9466dafde0a
 F src/fossil.page.fileedit.js 918867ff9bb96a4cb28cdd70f1f8d74955b5016e5cfd3075994fcf97728b3858
 F src/fossil.page.forumpost.js e0923d94ca4a7284abcc452f8411e3b80d6f12636c38c4bd0741f570365c6b48
-F src/fossil.page.wikiedit.js e83f8e9dc9a965b0997d0bfa3064f60b052a76b2b7afb8f0782a9b1b4ccebe77
+F src/fossil.page.wikiedit.js 8f79ee941d5f2b0fb314d52ce6a618634b7f911547485bab179e697d233d6cf0
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5e4d7a9a92ff0f482a42f35817caaec7fc088f73bbf5c64725dcea04dc25d39
-R 42e0d883d6ce14299812c9f94c141be7
+P 31296ec2040928b65e7b2f3a7f211a753f623e6daa074dc35617eb8e86df2096
+R 2b4bf17fd9a0f0457abd5949a7b6de47
 U stephan
-Z d676b2d1a7b09c3f1183087bf86252c6
+Z 532cdefaffe0d0ba1da6d382b58a6264
