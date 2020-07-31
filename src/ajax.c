@@ -167,6 +167,16 @@ void ajax_render_diff(Blob * pOrig, Blob *pContent, u64 diffFlags){
 }
 
 /*
+** Uses P(zKey) to fetch a CGI environment variable. If that var is
+** NULL or starts with '0' or 'f' then this function returns false,
+** else it returns true.
+*/
+int ajax_p_bool(char const *zKey){
+  const * zVal = P(zKey);
+  return (!zVal || '0'==*zVal || 'f'==*zVal) ? 0 : 1;
+}
+
+/*
 ** Helper for /ajax routes. Clears the CGI content buffer, sets an
 ** HTTP error status code, and queues up a JSON response in the form
 ** of an object:

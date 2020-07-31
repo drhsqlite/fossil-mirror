@@ -56,6 +56,10 @@ body.wikiedit .wikiedit-page-list-wrapper select option {
   margin: 0.5em 0;
 }
 body.wikiedit .wikiedit-page-list-wrapper select option.stashed::before {
+/* Maintenance reminder: the option.stashed/stashed-new "content" values
+   are duplicated in fossil.page.wikiedit.js and need to be changed there
+   if they are changed here. i.e. they're not "really" customizable
+   by client code. */
   content: "[*] ";
 }
 body.wikiedit .wikiedit-page-list-wrapper select option.stashed-new::before {
@@ -67,4 +71,12 @@ body.wikiedit textarea {
 
 body.wikiedit .tabs .tab-panel {
   overflow: auto;
+}
+body.wikiedit .wikiedit-page-list-wrapper .fieldset-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: stretch;
+  margin: 0;
 }

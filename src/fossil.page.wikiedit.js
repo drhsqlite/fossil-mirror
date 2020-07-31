@@ -264,7 +264,12 @@
   };
 
   const WikiList = {
-    e: {},
+    e: {
+      filterCheckboxes: {
+        /*map of wiki page type to checkbox for list filtering purposes,
+          except for "sandbox" type, which is assumed to be covered by
+          the "normal" type filter. */}
+    },
     /** Updates OPTION elements to reflect whether the page has
         local changes or is new/unsaved. */
     refreshStashMarks: function(){
@@ -295,6 +300,7 @@
 
     /** Loads the page list and populates the selection list. */
     loadList: function callee(){
+      delete this.pageMap;
       if(!callee.sorticase){
         callee.sorticase = function(l,r){
           l = l.toLowerCase();
@@ -309,14 +315,21 @@
              dupes from server-side copies. */
           const map = {}, ndx = $stash.getIndex(), sel = self.e.select;
           D.clearElement(sel);
-          list.forEach((name)=>map[name] = true);
+          list.forEach((winfo)=>map[winfo.name] = winfo);
           Object.keys(ndx).forEach(function(key){
             const winfo = ndx[key];
-            if(!winfo.version/*new page*/) map[winfo.name] = true;
+            if(!winfo.version/*new page*/) map[winfo.name] = winfo;
           });
           Object.keys(map)
             .sort(callee.sorticase)
-            .forEach((name)=>D.option(sel, name));
+            .forEach(function(name){
+              const winfo = map[name];
+              const opt = D.option(sel, winfo.name);
+              const wtype = opt.dataset.wtype =
+                    winfo.type==='sandbox' ? 'normal' : winfo.type;
+              const cb = self.e.filterCheckboxes[wtype];
+              if(cb && !cb.checked) D.addClass(opt, 'hidden');
+            });
           D.enable(sel);
           if(P.winfo) sel.value = P.winfo.name;
           self.refreshStashMarks();
@@ -324,6 +337,7 @@
         };
       }
       F.fetch('wikiajax/list',{
+        urlParams:{verbose:true},
         responseType: 'json',
         onload: callee.onload
       });
@@ -341,28 +355,68 @@
       D.append(
         parentElem,
         D.append(D.span(), "Select a page to edit:"),
-        sel,
-        D.append(D.span(), "[*] = page has local edits"),
-        D.append(D.span(), "[+] = page is new/unsaved"),
-        btn
+        sel
       );
-      D.attr(sel, 'size', 10);
+      D.attr(sel, 'size', 15);
       D.option(D.disable(D.clearElement(sel)), "Loading...");
+
+      /** Set up filter checkboxes for the various types
+          of wiki pages... */
+      const fsFilter = D.fieldset("Wiki page types"),
+            fsFilterBody = D.div(),
+            filters = ['normal', 'branch', 'checkin', 'tag']
+      ;
+      D.append(fsFilter, fsFilterBody);
+      D.addClass(fsFilterBody, 'flex-container', 'flex-column', 'stretch');
+      const filterSelection = function(wtype, show){
+        sel.querySelectorAll('option[data-wtype='+wtype+']').forEach(function(opt){
+          if(show) opt.classList.remove('hidden');
+          else opt.classList.add('hidden');
+        });
+      };
       const self = this;
-      btn.addEventListener(
-        'click', ()=>this.loadList(), false
+      filters.forEach(function(wtype){
+        const cbId = 'wtype-filter-'+wtype,
+              lbl = D.attr(D.append(D.label(),wtype),
+                           'for', cbId),
+              cb = D.attr(D.input('checkbox'), 'id', cbId),
+              span = D.append(D.span(), cb, lbl);
+        self.e.filterCheckboxes[wtype] = cb;
+        cb.checked = true;
+        filterSelection(wtype, cb.checked);
+        cb.addEventListener(
+          'change',
+          function(ev){filterSelection(wtype, ev.target.checked)},
+          false
+        );
+        D.append(fsFilterBody, span);
+      });
+
+      /* A legend of the meanings of the symbols we use in
+         the OPTION elements to denote certain state. Note that
+         the symbols themselves are *actually* defined in CSS, so if
+         they're changed there they also need to be changed here.*/
+      const fsLegend = D.fieldset("Edit status"),
+            fsLegendBody = D.div();
+      D.append(fsLegend, fsLegendBody);
+      D.addClass(fsLegendBody, 'flex-container', 'flex-column', 'stretch');
+      D.append(
+        fsLegendBody,
+        D.append(D.span(), "[*] = page has local edits"),
+        D.append(D.span(), "[+] = page is new/unsaved")
       );
+
+      D.append(
+        parentElem,
+        D.append(D.addClass(D.div(), 'fieldset-wrapper'),
+                 fsFilter, fsLegend)
+      );
+
+      D.append(parentElem, btn);
+      btn.addEventListener('click', ()=>this.loadList(), false);
       this.loadList();
-      sel.addEventListener(
-        'change',
-        (e)=>P.loadPage(e.target.value),
-        false
-      );
-      F.page.addEventListener(
-        'wiki-stash-updated',
-        ()=>this.refreshStashMarks(),
-        false
-      );
+      sel.addEventListener('change', (e)=>P.loadPage(e.target.value), false);
+      F.page.addEventListener('wiki-stash-updated', ()=>this.refreshStashMarks(), false);
       delete this.init;
     }
   };

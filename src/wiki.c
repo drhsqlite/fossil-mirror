@@ -744,8 +744,11 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 **   parent: "parent uuid" or null if no parent,
 **   content: "page content"
 ** }
+**
+** If includeContent is false then the content member is elided.
 */
-static int wiki_ajax_emit_page_object(const char *zPageName){
+static int wiki_ajax_emit_page_object(const char *zPageName,
+                                      int includeContent){
   Manifest * pWiki = 0;
   char * zUuid;
 
@@ -755,9 +758,13 @@ static int wiki_ajax_emit_page_object(const char *zPageName){
       db_get("sandbox-mimetype","text/x-fossil-wiki");
     char * zBody = db_get("sandbox","");
     CX("{\"name\": %!j, \"type\": \"sandbox\", "
-       "\"mimetype\": %!j, \"version\": null, \"parent\": null, "
-       "\"content\": %!j}",
-       zPageName, zMimetype, zBody);
+       "\"mimetype\": %!j, \"version\": null, \"parent\": null",
+       zPageName, zMimetype);
+    if(includeContent){
+      CX(", \"content\": %!j",
+       zBody);
+    }
+    CX("}");
     fossil_free(zMimetype);
     fossil_free(zBody);
     return 1;
@@ -776,14 +783,17 @@ static int wiki_ajax_emit_page_object(const char *zPageName){
        pWiki->zMimetype ? pWiki->zMimetype : "text/x-fossil-wiki");
     CX("\"parent\": ");
     if(pWiki->nParent){
-      CX("%!j, ", pWiki->azParent[0]);
+      CX("%!j", pWiki->azParent[0]);
     }else{
-      CX("null, ");
+      CX("null");
     }
-    CX("\"content\": %!j}", pWiki->zWiki);
+    if(includeContent){
+      CX(", \"content\": %!j", pWiki->zWiki);
+    }
+    CX("}");
     fossil_free(zUuid);
     manifest_destroy(pWiki);
-    return 1;
+    return 2;
   }
 }
 
@@ -849,7 +859,7 @@ static void wiki_ajax_route_save(void){
   blob_init(&content, zContent ? zContent : "", -1);
   db_begin_transaction();
   wiki_cmd_commit(zPageName, parentRid, &content, zMimetype, 0);
-  rollback = wiki_ajax_emit_page_object(zPageName) ? 0 : 1;
+  rollback = wiki_ajax_emit_page_object(zPageName, 1) ? 0 : 1;
   db_end_transaction(rollback);
 }
 
@@ -871,7 +881,7 @@ static void wiki_ajax_route_fetch(void){
     ajax_route_error(400,"Missing page name.");
     return;
   }
-  wiki_ajax_emit_page_object(zPageName);
+  wiki_ajax_emit_page_object(zPageName, 1);
 }
 
 /*
@@ -954,16 +964,28 @@ static void wiki_ajax_route_preview(void){
 /*
 ** Ajax route handler for /wikiajax/list.
 **
+** Optional parameters: verbose, includeContent (see below).
+**
 ** Responds with JSON. On error, an object in the form documented by
-** ajax_route_error(). On success, an array of strings (page names)
-** sorted case-insensitively. The result list contains an entry
+** ajax_route_error().
+**
+** On success, it emits an array of strings (page names) sorted
+** case-insensitively. If the "verbose" parameter is passed in then
+** the result list contains objects in the format documented for
+** wiki_ajax_emit_page_object(). The content of each object is elided
+** unless the "includeContent" parameter is passed on.
+**
+** The result list always contains an entry
 ** named "sandbox" which represents the sandbox pseudo-page.
 */
 static void wiki_ajax_route_list(void){
   Stmt q = empty_Stmt;
   int n = 0;
+  const int verbose = ajax_p_bool("verbose");
+  const int includeContent = ajax_p_bool("includeContent");
 
   cgi_set_content_type("application/json");
+  db_begin_transaction();
   db_prepare(&q, "SELECT"
              " substr(tagname,6) AS name"
              " FROM tag WHERE tagname GLOB 'wiki-*'"
@@ -971,12 +993,18 @@ static void wiki_ajax_route_list(void){
              " ORDER BY name COLLATE NOCASE");
   CX("[");
   while( SQLITE_ROW==db_step(&q) ){
+    char const * zName = db_column_text(&q,0);
     if(n++){
       CX(",");
     }
-    CX("%!j", db_column_text(&q,0));
+    if(verbose==0){
+      CX("%!j", zName);
+    }else{
+      wiki_ajax_emit_page_object(zName, includeContent);
+    }
   }
   db_finalize(&q);
+  db_end_transaction(0);
   CX("]");
 }
 
@@ -1092,7 +1120,7 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-pages' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Page List'"
+       "data-tab-label='Wiki Page List'"
        ">");
     CX("<div>Loading wiki pages list...</div>");
     CX("</div>"/*#wikiedit-tab-pages*/);
@@ -1102,7 +1130,7 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-content' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Page Editor'"
+       "data-tab-label='Wiki Editor'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
     mimetype_option_menu(0);
@@ -1123,7 +1151,7 @@ void wikiedit_page_v2(void){
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
        "class='wikiedit' "
-       "rows='20' cols='80'>");
+       "rows='25' cols='80'>");
     CX("</textarea>");
     CX("</div>"/*textarea wrapper*/);
     CX("</div>"/*#tab-file-content*/);
@@ -1193,11 +1221,11 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-save' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Save &amp; Help'"
+       "data-tab-label='Save, etc.'"
        ">");
     CX("<button class='wikiedit-save'>Save</button>");
     CX("<hr>");
-    CX("The wiki formatting rules can be found at:");
+    CX("Wiki formatting rules:");
     CX("<ul>");
     CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");
     CX("<li><a href='%R/md_rules'>Markdown format</a></li>");
