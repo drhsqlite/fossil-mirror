@@ -751,14 +751,17 @@ static int forum_display_hierarchical(int froot, int target){
 }
 
 /*
-** Callback for use with style.c:BundleEmitters. Emits all JS code
-** required by this page.
+** Emits all JS code required by /forumpost.
 */
-void forumpost_emit_js_bundle(void){
-  style_emit_script_builtin(1, 0, "forum.js");
-  style_emit_script_fossil_bootstrap(1);
-  style_emit_script_dom(1, 0);
-  style_emit_script_builtin(1, 0, "fossil.page.forumpost.js");
+static void forumpost_emit_page_js(){
+  static int once = 0;
+  if(0==once){
+    once = 1;
+    style_emit_script_fossil_bootstrap(1);
+    builtin_request_js("forum.js");
+    builtin_request_js("fossil.dom.js");
+    builtin_request_js("fossil.page.forumpost.js");
+  }
 }
 
 /*
@@ -889,7 +892,7 @@ void forumthread_page(void){
     style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
-  style_emit_script_bundle("forum.js");
+  forumpost_emit_page_js();
   style_footer();
 }
 

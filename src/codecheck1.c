@@ -409,7 +409,6 @@ struct FmtFunc {
   { "socket_set_errmsg",       1, FMT_SAFE },
   { "ssl_set_errmsg",          1, FMT_SAFE },
   { "style_header",            1, FMT_HTML },
-  { "style_js_onload",         1, FMT_HTML },
   { "style_set_current_page",  1, FMT_URL },
   { "style_submenu_element",   2, FMT_URL },
   { "style_submenu_sql",       3, FMT_SQL },

@@ -372,10 +372,13 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
 		$(SRCDIR)/../manifest \
 		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time we run "make"
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = <<<SQLITE_OPTIONS>>>
@@ -1083,8 +1086,11 @@ $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION) $(OBJDIR)/phony.h
 	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
+
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time "make" is run
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -1909,8 +1915,11 @@ SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 "$(OX)\miniz$O" : "$(SRCDIR)\miniz.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
 
-"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION"
-	$** > $@
+"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
+	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
+
+"$(B)\phony.h" :
+	rem Force rebuild of VERSION.h whenever nmake is run
 
 "$(OX)\cson_amalgamation$O" : "$(SRCDIR)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**

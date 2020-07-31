@@ -90,10 +90,6 @@ static int submenuEnable = 1;
 ** Flags for various javascript files needed prior to </body>
 */
 static int needHrefJs = 0;      /* href.js */
-static int needSortJs = 0;      /* sorttable.js */
-static int needGraphJs = 0;     /* graph.js */
-static int needCopyBtnJs = 0;   /* copybtn.js */
-static int needAccordionJs = 0; /* accordion.js */
 
 /*
 ** Extra JS added to the end of the file.
@@ -486,7 +482,7 @@ char *style_copy_button(
     }
   }
   free(zText);
-  style_copybutton_control();
+  builtin_request_js("copybtn.js");
   return zResult;
 }
 
@@ -696,62 +692,13 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
 ** Indicate that the table-sorting javascript is needed.
 */
 void style_table_sorter(void){
-  needSortJs = 1;
-}
-
-/*
-** Indicate that the accordion javascript is needed.
-*/
-void style_accordion(void){
-  needAccordionJs = 1;
-}
-
-/*
-** Indicate that the timeline graph javascript is needed.
-*/
-void style_graph_generator(void){
-  needGraphJs = 1;
-}
-
-/*
-** Indicate that the copy button javascript is needed.
-*/
-void style_copybutton_control(void){
-  needCopyBtnJs = 1;
-}
-
-/*
-** Generate code to load a single javascript file
-*/
-void style_load_one_js_file(const char *zFile){
-  @ <script src='%R/builtin/%s(zFile)?id=%S(fossil_exe_id())'></script>
-}
-
-/*
-** All extra JS files to load.
-*/
-static const char *azJsToLoad[4];
-static int nJsToLoad = 0;
-
-/*
-** Register a new JS file to load at the end of the document.
-*/
-void style_load_js(const char *zName){
-  int i;
-  for(i=0; i<nJsToLoad; i++){
-    if( fossil_strcmp(zName, azJsToLoad[i])==0 ) return;
-  }
-  if( nJsToLoad>=sizeof(azJsToLoad)/sizeof(azJsToLoad[0]) ){
-    fossil_panic("too many JS files");
-  }
-  azJsToLoad[nJsToLoad++] = zName;
+  builtin_request_js("sorttable.js");
 }
 
 /*
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
-  int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
@@ -764,22 +711,8 @@ static void style_load_all_js_files(void){
   @ if(n){n.textContent=msg;}
   @ }
   if( needHrefJs ){
+    @ /* href.js */
     cgi_append_content(builtin_text("href.js"),-1);
-  }
-  if( needSortJs ){
-    cgi_append_content(builtin_text("sorttable.js"),-1);
-  }
-  if( needGraphJs ){
-    cgi_append_content(builtin_text("graph.js"),-1);
-  }
-  if( needCopyBtnJs ){
-    cgi_append_content(builtin_text("copybtn.js"),-1);
-  }
-  if( needAccordionJs ){
-    cgi_append_content(builtin_text("accordion.js"),-1);
-  }
-  for(i=0; i<nJsToLoad; i++){
-    cgi_append_content(builtin_text(azJsToLoad[i]),-1);
   }
   if( blob_size(&blobOnLoad)>0 ){
     @ window.onload = function(){
@@ -787,16 +720,7 @@ static void style_load_all_js_files(void){
     cgi_append_content("\n}\n", -1);
   }
   @ </script>
-}
-
-/*
-** Extra JS to run after all content is loaded.
-*/
-void style_js_onload(const char *zFormat, ...){
-  va_list ap;
-  va_start(ap, zFormat);
-  blob_vappendf(&blobOnLoad, zFormat, ap);
-  va_end(ap);
+  builtin_fulfill_js_requests();
 }
 
 /*
@@ -918,7 +842,7 @@ void style_footer(void){
       cgi_query_parameters_to_hidden();
       cgi_tag_query_parameter(0);
       @ </form>
-      style_load_one_js_file("menu.js");
+      builtin_request_js("menu.js");
     }
   }
 
@@ -1127,105 +1051,6 @@ void page_style_css(void){
 
   /* Tell CGI that the content returned by this page is considered cacheable */
   g.isConst = 1;
-}
-
-/*
-** Maps a "bundle" name to a callback which emits the text of that
-** bundle. For use in consolidating scripts for certain pages into a
-** single cacheable request.
-*/
-typedef struct {
-  const char * zName; /* Name of the bundle (maps to /builtin/:NAME) */
-  void (*xEmit)(void); /* Emits amalgamated text output for this
-                          bundle */
-} BundleEmitter;
-/*
-** Map each required bundle here...
-*/
-static const BundleEmitter BundleEmitters[] = {
-/* Keep these sorted for bsearch() */
-{"fileedit.js", fileedit_emit_js_bundle},
-{"forum.js", forumpost_emit_js_bundle},
-{"wikiedit.js", wikiedit_emit_js_bundle}
-};
-
-/*
-** Comparison function for bsearch() for searching a BundleEmitter
-** list for a matching name.
-*/
-static int cmp_builtin_bundle_name(const void *a, const void *b){
-  const BundleEmitter * rA = (const BundleEmitter*)a;
-  const BundleEmitter * rB = (const BundleEmitter*)b;
-  return fossil_strcmp(rA->zName, rB->zName);
-}
-
-/*
-** Internal helper for /builtin/FILENAME for dispatching "bundles"
-** of amalgamated text (primarily JS) code.
-**
-** Returns true if it finds a bundle matcing the given name, else
-** false. On success it outputs the amalgamated bundle without any
-** sort of wrapper, e.g. SCRIPT tag
-*/
-static int page_builtin_text_bundle(const char * zFilename){
-  const BundleEmitter * pBH;
-  BundleEmitter needle = {zFilename, 0};
-
-  pBH = (const BundleEmitter *)bsearch(&needle, BundleEmitters,
-                                       count(BundleEmitters),
-                                       sizeof BundleEmitters[0],
-                                       cmp_builtin_bundle_name);
-  if(pBH!=0){
-    pBH->xEmit();
-  }
-  return pBH!=0;
-}
-
-/*
-** WEBPAGE: builtin
-** URL:  builtin/FILENAME
-**
-** Return the built-in text given by FILENAME.  This is used internally 
-** by many Fossil web pages to load built-in javascript files.
-**
-** If the id= parameter is present, then Fossil assumes that the
-** result is immutable and sets a very large cache retention time (1
-** year).
-*/
-void page_builtin_text(void){
-  Blob out;
-  const char *zName = P("name");
-  const char *zTxt = 0;
-  const char *zId = P("id");
-  int nId;
-  int isBundle = 0;
-
-  if( zId && (nId = (int)strlen(zId))>=8 && strncmp(zId,MANIFEST_UUID,nId)==0 ){
-    g.isConst = 1;
-  }else{
-    etag_check(0,0)/*might not return*/;
-  }
-  if( zName ){
-    if( sqlite3_strglob("*.js", zName)==0 ){
-      cgi_set_content_type("application/javascript");
-    }else{
-      cgi_set_content_type("text/plain");
-    }
-    if(':'==zName[0]){
-      isBundle = 1;
-      zTxt = page_builtin_text_bundle(zName+1) ? "" : NULL;
-    }else{
-      zTxt = builtin_text(zName);
-    }
-  }
-  if( zTxt==0 ){
-    cgi_set_content_type("text/html");
-    cgi_set_status(404, "Not Found");
-    @ File "%h(zName)" not found
-  }else if(isBundle==0){
-    blob_init(&out, zTxt, -1);
-    cgi_set_content(&out);
-  }
 }
 
 /*
@@ -1607,17 +1432,14 @@ void style_select_list_str(const char * zWrapperId,
 ** addScripTag is true then it is wrapped in its own SCRIPT tag, else
 ** it is assumed that the caller already opened a tag.
 **
-** 2) Emits the static fossil.bootstrap.js. If asInline is true then
-** it is emitted inline with the components from (1), else it is
-** emitted as a separate SCRIPT tag with
-** src=/builtin/fossil.bootstrap.js (so causes another HTTP request).
+** 2) Emits the static fossil.bootstrap.js using builtin_request_js().
 */
-void style_emit_script_fossil_bootstrap(int asInline){
+void style_emit_script_fossil_bootstrap(int addScriptTag){
   static int once = 0;
   if(0==once++){
     /* Set up the generic/app-agnostic parts of window.fossil
     ** which require C-level state... */
-    if(asInline==0){
+    if(addScriptTag!=0){
       style_emit_script_tag(0,0);
     }
     CX("(function(){\n"
@@ -1648,14 +1470,12 @@ void style_emit_script_fossil_bootstrap(int asInline){
        "name:\"%T\""
        "};\n", g.zPath);
     CX("})();\n");
-    /* The remaining fossil object bootstrap code is not dependent on
-    ** C-runtime state... */
-    if(asInline!=0){
-      CX("%s\n", builtin_text("fossil.bootstrap.js"));
-    }else{
+    if(addScriptTag!=0){
       style_emit_script_tag(1,0);
-      style_emit_script_builtin(0,1,"fossil.bootstrap.js");
     }
+    /* The remaining window.fossil bootstrap code is not dependent on
+    ** C-runtime state... */
+    builtin_request_js("fossil.bootstrap.js");
   }
 }
 
@@ -1690,114 +1510,31 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
 }
 
 /*
-** Emits a script tag which uses content from a builtin script file.
+** Convenience wrapper which calls builtin_request_js() for a series
+** of builtin scripts named fossil.NAME.js. The first time it is
+** called, it also calls style_emit_script_fossil_bootstrap() to
+** initialize the window.fossil JS API. The first argument is a
+** no-meaning dummy required by the va_start() interface. All
+** subsequent arguments must be strings of the NAME part of
+** fossil.NAME.js, followed by a NULL argument to terminate the list.
 **
-** If asInline is false, the script is emitted as a SCRIPT tag with a
-** src attribute of /builtin/zName and the 2nd parameter is
-** ignored. If asInline is true then the contents of the script are
-** emitted directly, with a wrapping SCRIPT tag if addScripTag is
-** true, else no wrapping script tag..
-**
-** If it is false, a script tag loading it via
-** src=builtin/{{zName}}?cache=XYZ is emitted, where XYZ is a
-** build-time-dependent cache-buster value.
+** e.g. pass it (0, "fetch", "dom", "tabs", 0) to load those 3
+** APIs. Do not forget the trailing 0!
 */
-void style_emit_script_builtin(int asInline, int addScripTag,
-                               char const * zName){
-  if(asInline){
-    if(addScripTag){
-      style_emit_script_tag(0,0);
-    }
-    CX("%s", builtin_text(zName));
-    if(addScripTag){
-      style_emit_script_tag(1,0);
-    }
-  }else{
-    char * zFullName = mprintf("builtin/%s",zName);
-    const char * zHash = fossil_exe_id();
-    CX("<script src='%R/%T?cache=%.8s'></script>\n",
-       zFullName, zHash);
-    fossil_free(zFullName);
-  }
-}
-
-/*
-** A convenience wrapper arond style_emit_script_builtin() which
-** prepends a ':' to zName and passes (0,0,newName) to that
-** function. i.e. it emits a SCRIPT tag with
-** src=.../builtin/:${zName}?cache=.... The given name is assumed to
-** have been added to the style.c:BundleEmitters map.
-*/
-void style_emit_script_bundle(char const * zName){
-  char *zBundle = mprintf(":%s", zName);
-  style_emit_script_builtin(0, 0, zBundle);
-  fossil_free(zBundle);
-}
-
-/*
-** The first time this is called it emits the JS code from the
-** built-in file fossil.fossil.js. Subsequent calls are no-ops.
-**
-** If passed a true first argument, it emits the contents directly
-** to the page output, else it emits a script tag with a
-** src=builtin/... to load the script.
-**
-** If asInline is true and addScripTag is true then the contents
-** are emitted directly but wrapped in a SCRIPT tag. If asInline
-** is false, addScriptTag is ignored.
-**
-** Note that this code relies on that loaded via
-** style_emit_script_fossil_bootstrap() but it does not call that
-** routine.
-*/
-void style_emit_script_fetch(int asInline, int addScripTag){
+void style_emit_fossil_js_apis( int dummy, ... ) {
   static int once = 0;
-  if(0==once++){
-    style_emit_script_builtin(asInline, addScripTag, "fossil.fetch.js");
-  }
-}
+  const char *zArg;
+  char * zName;
+  va_list vargs;
 
-/*
-** The first time this is called it emits the JS code from the
-** built-in file fossil.dom.js. Subsequent calls are no-ops.
-**
-** If passed a true first argument, it emits the contents directly
-** to the page output, else it emits a script tag with a
-** src=builtin/... to load the script.
-**
-** If asInline is true and addScripTag is true then the contents
-** are emitted directly but wrapped in a SCRIPT tag. If asInline
-** is false, addScriptTag is ignored.
-**
-** Note that this code relies on that loaded via
-** style_emit_script_fossil_bootstrap(), but it does not call that
-** routine.
-*/
-void style_emit_script_dom(int asInline, int addScripTag){
-  static int once = 0;
   if(0==once++){
-    style_emit_script_builtin(asInline, addScripTag, "fossil.dom.js");
+    style_emit_script_fossil_bootstrap(1);
   }
-}
-
-/*
-** The fossil.tabs.js counterpart of style_emit_script_fetch().
-** Also emits fossil.dom.js.
-*/
-void style_emit_script_tabs(int asInline, int addScripTag){
-  static int once = 0;
-  if(0==once++){
-    style_emit_script_dom(asInline, addScripTag);
-    style_emit_script_builtin(asInline, addScripTag, "fossil.tabs.js");
+  va_start(vargs,dummy);
+  while( (zArg = va_arg (vargs, const char *))!=0 ){
+    zName = mprintf("fossil.%s.js", zArg);
+    builtin_request_js(zName);
+    fossil_free(zName);
   }
-}
-
-/*
-** The fossil.confirmer.js counterpart of style_emit_script_fetch().
-*/
-void style_emit_script_confirmer(int asInline, int addScripTag){
-  static int once = 0;
-  if(0==once++){
-    style_emit_script_builtin(asInline, 0, "fossil.confirmer.js");
-  }
+  va_end(vargs);
 }

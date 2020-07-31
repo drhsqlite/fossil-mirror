@@ -704,7 +704,7 @@ void user_edit(void){
   @ </table>
   @ </div></form>
   @ </div>
-  style_load_one_js_file("useredit.js");
+  builtin_request_js("useredit.js");
   @ <hr>
   @ <h1>Notes On Privileges And Capabilities:</h1>
   @ <ul>

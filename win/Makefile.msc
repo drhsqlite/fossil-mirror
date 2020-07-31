@@ -1026,8 +1026,11 @@ SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 "$(OX)\miniz$O" : "$(SRCDIR)\miniz.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
 
-"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION"
-	$** > $@
+"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
+	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
+
+"$(B)\phony.h" :
+	rem Force rebuild of VERSION.h whenever nmake is run
 
 "$(OX)\cson_amalgamation$O" : "$(SRCDIR)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**

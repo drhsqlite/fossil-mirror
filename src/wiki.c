@@ -1062,20 +1062,6 @@ void wiki_ajax_page(void){
 }
 
 /*
-** Emits all of the "core" static JS needed by /wikiedit. Intended to
-** be mapped to style.c:BundleEmitters with the name "wikiedit.js".
-*/
-void wikiedit_emit_js_bundle(void){
-  style_emit_script_fossil_bootstrap(1);
-  style_emit_script_builtin(1,0,"sbsdiff.js");
-  style_emit_script_fetch(1, 0);
-  style_emit_script_tabs(1,0)/*also emits fossil.dom*/;
-  style_emit_script_confirmer(1,0);
-  style_emit_script_builtin(1, 0, "fossil.storage.js");
-  style_emit_script_builtin(1, 0, "fossil.page.wikiedit.js");
-}
-
-/*
 ** WEBPAGE: wikiedit
 ** URL: /wikedit?name=PAGENAME
 **
@@ -1260,16 +1246,16 @@ void wikiedit_page_v2(void){
     CX("</div>"/*#wikiedit-tab-save*/);
   }
 
-  style_emit_script_bundle("wikiedit.js");
-
+  builtin_request_js("sbsdiff.js");
+  style_emit_fossil_js_apis(0, "fetch", "dom", "tabs", "confirmer",
+                            "storage", "page.wikiedit", 0);
+  builtin_fulfill_js_requests();
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);
   CX("\nfossil.onPageLoad(function(){\n");
   CX("const P = fossil.page;\n"
      "try{\n");
-  if(found){
-    CX("P.loadPage(%!j);\n", zPageName);
-  }else if(zPageName && *zPageName){
+  if(!found && zPageName && *zPageName){
     /* For a new page, stick a dummy entry in the JS-side stash
        and "load" it from there. */
     CX("const winfo = {"
@@ -1286,6 +1272,8 @@ void wikiedit_page_v2(void){
     CX("if(!P.$stash.getWinfo(winfo)){"
        "P.$stash.updateWinfo(winfo,'');"
        "}\n");
+  }
+  if(zPageName && *zPageName){
     CX("P.loadPage(%!j);\n", zPageName);
   }
   CX("}catch(e){"
@@ -2522,6 +2510,6 @@ int wiki_render_associated(
     blob_reset(&wiki);
   }
   manifest_destroy(pWiki);
-  style_accordion();
+  builtin_request_js("accordion.js");
   return 1;
 }
