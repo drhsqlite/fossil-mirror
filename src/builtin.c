@@ -330,7 +330,7 @@ void builtin_fulfill_js_requests(void){
       /* Each JS file as a separate resource */
       while( builtin.nSent<builtin.nReq ){
         int i = builtin.aReq[builtin.nSent++];
-        CX("<script src='/builtin?name=%t&id=%.8s'></script>\n",
+        CX("<script src='%R/builtin?name=%t&id=%.8s'></script>\n",
               aBuiltinFiles[i].zName, fossil_exe_id());
       }
       break;
@@ -341,7 +341,7 @@ void builtin_fulfill_js_requests(void){
       while( builtin.nSent<builtin.nReq ){
         blob_appendf(&aList, ",%d", builtin.aReq[builtin.nSent++]+1);
       }
-      CX("<script src='/builtin?m=%s&id=%.8s'></script>\n",
+      CX("<script src='%R/builtin?m=%s&id=%.8s'></script>\n",
          blob_str(&aList)+1, fossil_exe_id());
       blob_reset(&aList);
     }
