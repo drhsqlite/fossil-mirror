@@ -600,8 +600,11 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time we run "make"
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \

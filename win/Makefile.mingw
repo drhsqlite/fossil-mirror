@@ -1063,8 +1063,11 @@ $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION) $(OBJDIR)/phony.h
 	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
+
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time "make" is run
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
