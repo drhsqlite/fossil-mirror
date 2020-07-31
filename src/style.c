@@ -724,16 +724,6 @@ static void style_load_all_js_files(void){
 }
 
 /*
-** Extra JS to run after all content is loaded.
-*/
-void style_js_onload(const char *zFormat, ...){
-  va_list ap;
-  va_start(ap, zFormat);
-  blob_vappendf(&blobOnLoad, zFormat, ap);
-  va_end(ap);
-}
-
-/*
 ** Draw the footer at the bottom of the page.
 */
 void style_footer(void){

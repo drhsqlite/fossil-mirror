@@ -226,11 +226,10 @@ static struct {
 #if INTERFACE
 /* Various delivery mechanisms.  The 0 option is the default.
 */
-#define JS_INLINE_BATCH  0    /* inline, batched together */
-#define JS_INLINE_IMM    1    /* inline, as soon as requested */
-#define JS_SEP_BATCH     2    /* Separate resources, batched */
-#define JS_SEP_IMM       3    /* Separate resources, as requested */
-#define JS_BUNDLED       4    /* Single separate resource */
+#define JS_INLINE   0    /* inline, batched together at end of file */
+#define JS_SEPARATE 1    /* Separate HTTP request for each JS file */
+#define JS_BUNDLED  2    /* One HTTP request to load all JS files */
+                         /* concatenated together into a bundle */
 #endif /* INTERFACE */
 
 /*
@@ -243,23 +242,16 @@ static struct {
 void builtin_set_js_delivery_mode(const char *zMode, int bSilent){
   if( zMode==0 ) return;
   if( strcmp(zMode, "inline")==0 ){
-    builtin.eDelivery = JS_INLINE_BATCH;
+    builtin.eDelivery = JS_INLINE;
   }else
-  if( strcmp(zMode, "inline-imm")==0 ){
-    builtin.eDelivery = JS_INLINE_IMM;
-  }else
-  if( strcmp(zMode, "sep")==0 ){
-    builtin.eDelivery = JS_SEP_BATCH;
-  }else
-  if( strcmp(zMode, "sep-imm")==0 ){
-    builtin.eDelivery = JS_SEP_IMM;
+  if( strcmp(zMode, "separate")==0 ){
+    builtin.eDelivery = JS_SEPARATE;
   }else
   if( strcmp(zMode, "bundled")==0 ){
     builtin.eDelivery = JS_BUNDLED;
   }else if( !bSilent ){
     fossil_fatal("unknown javascript delivery mode \"%s\" - should be"
-                 " one of: inline inline-immediate separate"
-                 " separate-immediate bundled", zMode);
+                 " one of: inline separate bundled", zMode);
   }
 }
 
@@ -296,11 +288,6 @@ void builtin_request_js(const char *zFilename){
     fossil_panic("too many javascript files requested");
   }
   builtin.aReq[builtin.nReq++] = i;
-  if( builtin.eDelivery==JS_INLINE_IMM
-   || builtin.eDelivery==JS_SEP_IMM
-  ){
-    builtin_fulfill_js_requests();
-  }
 }
 
 /*
@@ -313,8 +300,7 @@ void builtin_request_js(const char *zFilename){
 void builtin_fulfill_js_requests(void){
   if( builtin.nSent>=builtin.nReq ) return;  /* nothing to do */
   switch( builtin.eDelivery ){
-    case JS_INLINE_BATCH:
-    case JS_INLINE_IMM: {
+    case JS_INLINE: {
       CX("<script nonce='%h'>\n",style_nonce());
       do{
         int i = builtin.aReq[builtin.nSent++];
@@ -325,8 +311,23 @@ void builtin_fulfill_js_requests(void){
       CX("</script>\n");
       break;
     }
-    case JS_SEP_BATCH:
-    case JS_SEP_IMM: {
+    case JS_BUNDLED: {
+      if( builtin.nSent+1<builtin.nReq ){
+        Blob aList;
+        blob_init(&aList,0,0);
+        while( builtin.nSent<builtin.nReq ){
+          blob_appendf(&aList, ",%d", builtin.aReq[builtin.nSent++]+1);
+        }
+        CX("<script src='%R/builtin?m=%s&id=%.8s'></script>\n",
+           blob_str(&aList)+1, fossil_exe_id());
+        blob_reset(&aList);
+        break;
+      }
+      /* If there is only one JS file, fall through into the
+      ** JS_SEPARATE case below. */
+      /*FALLTHROUGH*/
+    }
+    case JS_SEPARATE: {
       /* Each JS file as a separate resource */
       while( builtin.nSent<builtin.nReq ){
         int i = builtin.aReq[builtin.nSent++];
@@ -334,16 +335,6 @@ void builtin_fulfill_js_requests(void){
               aBuiltinFiles[i].zName, fossil_exe_id());
       }
       break;
-    }
-    case JS_BUNDLED: {
-      Blob aList;
-      blob_init(&aList,0,0);
-      while( builtin.nSent<builtin.nReq ){
-        blob_appendf(&aList, ",%d", builtin.aReq[builtin.nSent++]+1);
-      }
-      CX("<script src='%R/builtin?m=%s&id=%.8s'></script>\n",
-         blob_str(&aList)+1, fossil_exe_id());
-      blob_reset(&aList);
     }
   }
 }
