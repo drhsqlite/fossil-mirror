@@ -77,7 +77,7 @@ write_file_indented t3 {
 write_file_indented t23 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   111 - This is line ONE of the demo program - 1111
-  ======= COMMON ANCESTOR content follows ============================
+  ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||
   111 - This is line one of the demo program - 1111
   ======= MERGED IN content follows ==================================
   111 - This is line one OF the demo program - 1111
@@ -90,7 +90,7 @@ write_file_indented t23 {
 write_file_indented t32 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   111 - This is line one OF the demo program - 1111
-  ======= COMMON ANCESTOR content follows ============================
+  ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||
   111 - This is line one of the demo program - 1111
   ======= MERGED IN content follows ==================================
   111 - This is line ONE of the demo program - 1111
@@ -161,7 +161,7 @@ write_file_indented t3 {
 }
 write_file_indented t32 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
-  ======= COMMON ANCESTOR content follows ============================
+  ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||
   111 - This is line one of the demo program - 1111
   ======= MERGED IN content follows ==================================
   000 - Zero lines added to the beginning of - 0000
@@ -176,7 +176,7 @@ write_file_indented t23 {
   <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   000 - Zero lines added to the beginning of - 0000
   111 - This is line one of the demo program - 1111
-  ======= COMMON ANCESTOR content follows ============================
+  ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||
   111 - This is line one of the demo program - 1111
   ======= MERGED IN content follows ==================================
   >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -308,7 +308,7 @@ write_file_indented t23 {
   yzAB 2
   CDEF 2
   GHIJ 2
-  ======= COMMON ANCESTOR content follows ============================
+  ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||
   efgh
   ijkl
   mnop
@@ -376,7 +376,7 @@ write_file_indented t23 {
   yzAB 2
   CDEF 2
   GHIJ 2
-  ======= COMMON ANCESTOR content follows ============================
+  ||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||
   efgh
   ijkl
   mnop
