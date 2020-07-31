@@ -1,5 +1,5 @@
-C Reordered\s/builtin\sa\sbit\sto\sallow\sit\sto\srespond\swith\sa\s304\s*without*\sgenerating\sextraneous\soutput\sif\setag_check()\ssays\sit\scan.
-D 2020-07-31T17:31:05.792
+C Made\sall\stab\selements\shidden\son\s/fileedit\sto\slessen\sthe\simpact\sof\sFOUC\sbefore\sJS\sassembles\sthe\stabbed\sinterface.
+D 2020-07-31T18:49:32.143
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -480,7 +480,7 @@ F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c c094a4f557a93550071c874e0dda63eb25999820f4ab8a1c89b27a2ef80c375f
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 280e206332e528509d9bafa30e5ffa953a0488d593f72cfa37bc87b97c5e2653
-F src/fileedit.c dea0167ce83d06752cbc3e779268e699145e5f633b0c3294fdfa2c6ada7767e4
+F src/fileedit.c ad04d89722590723a0e009a11a695b4b922360dfab8aab2571e48fedb38fcee2
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 0f80f1278b6985ec3c0775c3e6bf1d0dd436102887f821e294b4088b1ae1672d
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41ce65fc31eb6da64c63568c53a468ade30b2127dfc9c66453f2d184577a2c8e
-R 6d44d15a51dc73e3431f2cfe67eb82b7
+P 8c9ea224194389c541ecd6f985a4994a8dd62e29afc883d98a44c3f077be24be
+R a69a6b38eabbf1c868cecd37205dea85
 U stephan
-Z e560b999da460747643746784e06e30e
+Z 1d55d19e82358816089e0c92ae326f80

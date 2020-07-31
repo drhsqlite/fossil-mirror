@@ -1652,11 +1652,15 @@ void fileedit_page(void){
   /* Main tab container... */
   CX("<div id='fileedit-tabs' class='tab-container'></div>");
 
+  /* The .hidden class on the following tab elements is to help lessen
+     the FOUC effect of the tabs before JS re-assembles them. */
+  
   /***** File/version info tab *****/
   {
     CX("<div id='fileedit-tab-fileselect' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='File Info &amp; Selection'"
+       "data-tab-label='File Info &amp; Selection' "
+       "class='hidden'"
        ">");
     CX("<fieldset id='file-version-details'>"
        "<legend>File/Version</legend>"
@@ -1671,7 +1675,8 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-content' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='File Content'"
+       "data-tab-label='File Content' "
+       "class='hidden'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
     CX("<button class='fileedit-content-reload confirmer' "
@@ -1701,7 +1706,8 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-preview' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='Preview'"
+       "data-tab-label='Preview' "
+       "class='hidden'"
        ">");
     CX("<div class='fileedit-options flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
@@ -1763,7 +1769,8 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-diff' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='Diff'"
+       "data-tab-label='Diff' "
+       "class='hidden'"
        ">");
 
     CX("<div class='fileedit-options flex-container flex-row' "
@@ -1795,7 +1802,8 @@ void fileedit_page(void){
   /****** Commit ******/
   CX("<div id='fileedit-tab-commit' "
      "data-tab-parent='fileedit-tabs' "
-     "data-tab-label='Commit'"
+     "data-tab-label='Commit' "
+     "class='hidden'"
      ">");
   {
     /******* Commit flags/options *******/
@@ -1916,7 +1924,8 @@ void fileedit_page(void){
   /****** Help/Tips ******/
   CX("<div id='fileedit-tab-help' "
      "data-tab-parent='fileedit-tabs' "
-     "data-tab-label='Help'"
+     "data-tab-label='Help' "
+     "class='hidden'"
      ">");
   {
     CX("<h1>Help &amp; Tips</h1>");
