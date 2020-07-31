@@ -581,10 +581,8 @@
     document.body.classList.add('wikiedit');
     P.base = {tag: E('base'), wikiUrl: F.repoUrl('wiki')};
     P.base.originalHref = P.base.tag.href;
-    P.tabs = new fossil.TabManager('#wikiedit-tabs');
     P.e = { /* various DOM elements we work with... */
       taEditor: E('#wikiedit-content-editor'),
-//      btnCommit: E("#wikiedit-btn-commit"),
       btnReload: E("#wikiedit-tab-content button.wikiedit-content-reload"),
       btnSave: E("button.wikiedit-save"),
       selectMimetype: E('select[name=mimetype]'),
@@ -594,6 +592,7 @@
       previewTarget: E('#wikiedit-tab-preview-wrapper'),
       diffTarget: E('#wikiedit-tab-diff-wrapper'),
       attachmentWrapper: E("#wikiedit-attachments"),
+      tabContainer: E('#wikiedit-tabs'),
       tabs:{
         pageList: E('#wikiedit-tab-pages'),
         content: E('#wikiedit-tab-content'),
@@ -603,14 +602,13 @@
         //commit: E('#wikiedit-tab-commit')
       }
     };
-
+    P.tabs = new fossil.TabManager(D.clearElement(P.e.tabContainer));
     P.tabs.e.container.insertBefore(
       /* Move the status bar between the tab buttons and
          tab panels. Seems to be the best fit in terms of
          functionality and visibility. */
       E('#fossil-status-bar'), P.tabs.e.tabs
     );
-
     P.tabs.addEventListener(
       /* Set up some before-switch-to tab event tasks... */
       'before-switch-to', function(ev){

@@ -1114,13 +1114,16 @@ void wikiedit_page_v2(void){
      /* will be moved into the tab container via JS */);
   
   /* Main tab container... */
-  CX("<div id='wikiedit-tabs' class='tab-container'></div>");
+  CX("<div id='wikiedit-tabs' class='tab-container'>Loading...</div>");
+  /* The .hidden class on the following tab elements is to help lessen
+     the FOUC effect of the tabs before JS re-assembles them. */
 
   /******* Page list *******/
   {
     CX("<div id='wikiedit-tab-pages' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Wiki Page List'"
+       "data-tab-label='Wiki Page List' "
+       "class='hidden'"
        ">");
     CX("<div>Loading wiki pages list...</div>");
     CX("</div>"/*#wikiedit-tab-pages*/);
@@ -1130,7 +1133,8 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-content' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Wiki Editor'"
+       "data-tab-label='Wiki Editor' "
+       "class='hidden'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
     CX("<span class='input-with-label'>"
@@ -1163,7 +1167,8 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-preview' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Preview &amp; Save'"
+       "data-tab-label='Preview &amp; Save' "
+       "class='hidden'"
        ">");
     CX("<div class='wikiedit-options flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
@@ -1193,7 +1198,8 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-diff' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Diff'"
+       "data-tab-label='Diff' "
+       "class='hidden'"
        ">");
 
     CX("<div class='wikiedit-options flex-container flex-row' "
@@ -1211,7 +1217,8 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-misc' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Help, Attachments, etc.'"
+       "data-tab-label='Help, Attachments, etc.' "
+       "class='hidden'"
        ">");
     CX("<h3>Wiki formatting rules</h3>");
     CX("<ul>");

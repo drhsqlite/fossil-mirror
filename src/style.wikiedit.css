@@ -66,7 +66,7 @@ body.wikiedit .WikiList select option.stashed-new::before {
   content: "[+] ";
 }
 body.wikiedit textarea {
-  max-width: calc(100% - 1em);
+  max-width: initial;
 }
 body.wikiedit .tabs .tab-panel {
   /* Needed for wide diffs */
