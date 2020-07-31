@@ -1958,16 +1958,17 @@ void fileedit_page(void){
   builtin_request_js("fossil.tabs.js");
   builtin_request_js("fossil.confirmer.js");
   builtin_request_js("fossil.storage.js");
-  builtin_fulfill_js_requests();
 
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
   ** used for dynamically toggling certain UI components on and off.
-  ** Must come before fossil.page.fileedit.js.
+  ** Must come before fossil.page.fileedit.js and after the fetches
+  ** above.
   */
+  builtin_fulfill_js_requests();
   ajax_emit_js_preview_modes(1);
 
-  style_emit_script_builtin(0, "fossil.page.fileedit.js");
+  builtin_request_js("fossil.page.fileedit.js");
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
     CX("\n(function(){\n");

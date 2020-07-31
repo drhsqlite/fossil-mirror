@@ -1469,13 +1469,8 @@ void style_emit_script_fossil_bootstrap(int asInline){
     CX("})();\n");
     /* The remaining fossil object bootstrap code is not dependent on
     ** C-runtime state... */
-    if(asInline){
-      CX("%s\n", builtin_text("fossil.bootstrap.js"));
-    }
     style_emit_script_tag(1,0);
-    if(asInline==0){
-      style_emit_script_builtin(0, "fossil.bootstrap.js");
-    }
+    builtin_request_js("fossil.bootstrap.js");
   }
 }
 
@@ -1506,29 +1501,5 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
     }
   }else{
     CX("</script>\n");
-  }
-}
-
-/*
-** Emits a script tag which uses content from a builtin script file.
-**
-** If asInline is true, it is emitted directly as an opening tag, the
-** content of the zName builtin file, and a closing tag.
-**
-** If it is false, a script tag loading it via
-** src=builtin/{{zName}}?cache=XYZ is emitted, where XYZ is a
-** build-time-dependent cache-buster value.
-*/
-void style_emit_script_builtin(int asInline, char const * zName){
-  if(asInline){
-    style_emit_script_tag(0,0);
-    CX("%s", builtin_text(zName));
-    style_emit_script_tag(1,0);
-  }else{
-    char * zFullName = mprintf("builtin/%s",zName);
-    const char * zHash = fossil_exe_id();
-    CX("<script src='%R/%T?cache=%.8s'></script>\n",
-       zFullName, zHash);
-    fossil_free(zFullName);
   }
 }
