@@ -1,5 +1,5 @@
-C Added\sstyle_emit_script_bundle()\sto\ssimplify\spage-level\sbundle\susage\sa\ssmall\sbit.\s/forumpost,\s/wikiedit,\s/fileedit\snow\suse\sthat\sroutine.
-D 2020-07-31T16:40:04.432
+C Corrected\sdoc\sfalsehoods.
+D 2020-07-31T16:44:11.167
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -480,7 +480,7 @@ F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c c094a4f557a93550071c874e0dda63eb25999820f4ab8a1c89b27a2ef80c375f
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 280e206332e528509d9bafa30e5ffa953a0488d593f72cfa37bc87b97c5e2653
-F src/fileedit.c 1d16107f748faf60ec3e893294a5a3bf1eddf05a238282c6e04db8b42ad084e6
+F src/fileedit.c dea0167ce83d06752cbc3e779268e699145e5f633b0c3294fdfa2c6ada7767e4
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c da52971f6bd4b38275bef99cf8c84e75c41244fa8e032cad9e87d43fba2d0b5c
@@ -636,7 +636,7 @@ F src/util.c de0723ef68f92958017ee60c5dc0e6b2f4121c6deac0f8a32051a1e88f78d46c
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c eef6bc0205da01f834aada859f4680356f7f0848a3d37c806f44dece401509c1
+F src/wiki.c 08f545f6297bfb4ece4ee95eb9ba3a0c63f8bff16bbac27f08b7c27ca1e81aea
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 7eaa897946be94f75ee5ecd160e50cc6c6fa6141c600283975c996a9f1961988
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 18da05b9033c73254623cc51d9712dfda06a251a9e5da5ad5fe0dc9a521416c9
-R 54c43b7d0226c324211b0fb1b12d90b4
+P 0c233bc6974016c57e34545b9c68f8036e9e7af1f1d5bc03c708811f60d9c028
+R 249f339885751add6aaee92ec9360a58
 U stephan
-Z ca1acfb487b9f843798e4b132fec8455
+Z 159015fb9cea98eaba9da3da14abd2e1

@@ -1484,9 +1484,8 @@ end_cleanup:
 }
 
 /*
-** Emits all of the "core" static JS needed by /wikiedit into a single
-** SCRIPT tag. Intended to be mapped to style.c:BundleEmitters with
-** the name "fileedit.js".
+** Emits all of the "core" static JS needed by /fileedit. Intended to
+** be mapped to style.c:BundleEmitters with the name "fileedit.js".
 */
 void fileedit_emit_js_bundle(void){
   style_emit_script_fossil_bootstrap(1);

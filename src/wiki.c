@@ -1062,9 +1062,8 @@ void wiki_ajax_page(void){
 }
 
 /*
-** Emits all of the "core" static JS needed by /wikiedit into a single
-** SCRIPT tag. Intended to be mapped to style.c:BundleEmitters with
-** the name "wikiedit.js".
+** Emits all of the "core" static JS needed by /wikiedit. Intended to
+** be mapped to style.c:BundleEmitters with the name "wikiedit.js".
 */
 void wikiedit_emit_js_bundle(void){
   style_emit_script_fossil_bootstrap(1);
