@@ -2273,6 +2273,19 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "jsmode:") && blob_token(&line, &value) ){
+      /* jsmode: MODE
+      **
+      ** Change how javascript resources are delivered with each HTML
+      ** page.  MODE is "inline" to put all JS inline, or "separate" to
+      ** cause each JS file to be requested using a separate HTTP request,
+      ** or "bundled" to have all JS files to be fetched with a single
+      ** auxiliary HTTP request.
+      */
+      builtin_set_js_delivery_mode(blob_str(&value),0);
+      blob_reset(&value);
+      continue;
+    }
     if( blob_eq(&key, "cgi-debug:") && blob_token(&line, &value) ){
       /* cgi-debug: FILENAME
       **
@@ -2457,6 +2470,14 @@ void test_pid_page(void){
 **   --https          signal a request coming in via https
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --jsmode MODE       Determine how javascript is delivered with pages.
+**                       Mode can be one of:
+**                          inline       All javascript is inserted inline at
+**                                       the end of the HTML file.
+**                          separate     Separate HTTP requests are made for
+**                                       each javascript file.
+**                          bundled      One single separate HTTP fetches all
+**                                       javascript concatenated together.
 **   --localauth      enable automatic login for local connections
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
@@ -2486,6 +2507,7 @@ void cmd_http(void){
   int allowRepoList;
 
   Th_InitTraceLog();
+  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -2716,6 +2738,14 @@ void fossil_set_timeout(int N){
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
 **                       proxy that has already translated HTTPS into HTTP.
+**   --jsmode MODE       Determine how javascript is delivered with pages.
+**                       Mode can be one of:
+**                          inline       All javascript is inserted inline at
+**                                       the end of the HTML file.
+**                          separate     Separate HTTP requests are made for
+**                                       each javascript file.
+**                          bundled      One single separate HTTP fetches all
+**                                       javascript concatenated together.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies
@@ -2762,6 +2792,7 @@ void cmd_webserver(void){
     g.zErrlog = "-";
   }
   g.zExtRoot = find_option("extroot",0,1);
+  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);

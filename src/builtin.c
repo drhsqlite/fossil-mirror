@@ -213,3 +213,128 @@ void builtin_webpage(void){
   blob_init(&out, zTxt, -1);
   cgi_set_content(&out);
 }
+
+/* Variables controlling the JS cache.
+*/
+static struct {
+  int aReq[30];        /* Indexes of all requested built-in JS files */
+  int nReq;            /* Number of slots in aReq[] currently used */
+  int nSent;           /* Number of slots in aReq[] fulfilled */
+  int eDelivery;       /* Delivery mechanism */
+} builtin;
+
+#if INTERFACE
+/* Various delivery mechanisms.  The 0 option is the default.
+*/
+#define JS_INLINE   0    /* inline, batched together at end of file */
+#define JS_SEPARATE 1    /* Separate HTTP request for each JS file */
+#define JS_BUNDLED  2    /* One HTTP request to load all JS files */
+                         /* concatenated together into a bundle */
+#endif /* INTERFACE */
+
+/*
+** The argument is a request to change the javascript delivery mode.
+** The argument is a string which is a command-line option or CGI
+** parameter.  Try to match it against one of the delivery options
+** and set things up accordingly.  Throw an error if no match unless
+** bSilent is true.
+*/
+void builtin_set_js_delivery_mode(const char *zMode, int bSilent){
+  if( zMode==0 ) return;
+  if( strcmp(zMode, "inline")==0 ){
+    builtin.eDelivery = JS_INLINE;
+  }else
+  if( strcmp(zMode, "separate")==0 ){
+    builtin.eDelivery = JS_SEPARATE;
+  }else
+  if( strcmp(zMode, "bundled")==0 ){
+    builtin.eDelivery = JS_BUNDLED;
+  }else if( !bSilent ){
+    fossil_fatal("unknown javascript delivery mode \"%s\" - should be"
+                 " one of: inline separate bundled", zMode);
+  }
+}
+
+/*
+** The caller wants the Javascript file named by zFilename to be
+** included in the generated page.  Add the file to the queue of
+** requested javascript resources, if it is not there already.
+**
+** The current implementation queues the file to be included in the
+** output later.  However, the caller should not depend on that
+** behavior.  In the future, this routine might decide to insert
+** the requested javascript inline, immedaitely, or to insert
+** a <script src=..> element to reference the javascript as a
+** separate resource.  The exact behavior might change in the future
+** so pages that use this interface must not rely on any particular
+** behavior.
+**
+** All this routine guarantees is that the named javascript file
+** will be requested by the browser at some point.  This routine
+** does not guarantee when the javascript will be included, and it
+** does not guarantee whether the javascript will be added inline or
+** delivered as a separate resource.
+*/
+void builtin_request_js(const char *zFilename){
+  int i = builtin_file_index(zFilename);
+  int j;
+  if( i<0 ){
+    fossil_panic("unknown javascript file: \"%s\"", zFilename);
+  }
+  for(j=0; j<builtin.nReq; j++){
+    if( builtin.aReq[j]==i ) return;  /* Already queued or sent */
+  }
+  if( builtin.nReq>=count(builtin.aReq) ){
+    fossil_panic("too many javascript files requested");
+  }
+  builtin.aReq[builtin.nReq++] = i;
+}
+
+/*
+** Fulfill all pending requests for javascript files.
+**
+** The current implementation delivers all javascript in-line.  However,
+** the caller should not depend on this.  Future changes to this routine
+** might choose to deliver javascript as separate resources.
+*/
+void builtin_fulfill_js_requests(void){
+  if( builtin.nSent>=builtin.nReq ) return;  /* nothing to do */
+  switch( builtin.eDelivery ){
+    case JS_INLINE: {
+      CX("<script nonce='%h'>\n",style_nonce());
+      do{
+        int i = builtin.aReq[builtin.nSent++];
+        CX("/* %s */\n", aBuiltinFiles[i].zName);
+        cgi_append_content((const char*)aBuiltinFiles[i].pData,
+                           aBuiltinFiles[i].nByte);
+      }while( builtin.nSent<builtin.nReq );
+      CX("</script>\n");
+      break;
+    }
+    case JS_BUNDLED: {
+      if( builtin.nSent+1<builtin.nReq ){
+        Blob aList;
+        blob_init(&aList,0,0);
+        while( builtin.nSent<builtin.nReq ){
+          blob_appendf(&aList, ",%d", builtin.aReq[builtin.nSent++]+1);
+        }
+        CX("<script src='%R/builtin?m=%s&id=%.8s'></script>\n",
+           blob_str(&aList)+1, fossil_exe_id());
+        blob_reset(&aList);
+        break;
+      }
+      /* If there is only one JS file, fall through into the
+      ** JS_SEPARATE case below. */
+      /*FALLTHROUGH*/
+    }
+    case JS_SEPARATE: {
+      /* Each JS file as a separate resource */
+      while( builtin.nSent<builtin.nReq ){
+        int i = builtin.aReq[builtin.nSent++];
+        CX("<script src='%R/builtin?name=%t&id=%.8s'></script>\n",
+              aBuiltinFiles[i].zName, fossil_exe_id());
+      }
+      break;
+    }
+  }
+}

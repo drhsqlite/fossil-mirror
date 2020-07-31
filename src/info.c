@@ -443,7 +443,7 @@ static void append_file_change_line(
 */
 void append_diff_javascript(int sideBySide){
   if( !sideBySide ) return;
-  style_load_one_js_file("sbsdiff.js");
+  builtin_request_js("sbsdiff.js");
 }
 
 /*
@@ -2091,7 +2091,7 @@ void output_text_with_line_numbers(
   if( n<iEnd ) cgi_printf("</div>");
   @ </pre>
   if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
-    style_load_one_js_file("scroll.js");
+    builtin_request_js("scroll.js");
   }
 }
 
@@ -3115,7 +3115,7 @@ void ci_edit_page(void){
   @ </td></tr>
   @ </table>
   @ </div></form>
-  style_load_one_js_file("ci_edit.js");
+  builtin_request_js("ci_edit.js");
   style_footer();
 }
 
