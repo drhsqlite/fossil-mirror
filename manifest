@@ -1,5 +1,5 @@
-C Merge\senhancements\sfrom\strunk\sinto\sthe\sajax-wiki-editor\sbranch.
-D 2020-07-31T12:03:26.177
+C Minor\sstyle\stweaks\safter\strying\sthe\seditor\sin\sdifferent\sskins.
+D 2020-07-31T12:35:08.028
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -609,7 +609,7 @@ F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 838874e47ee49425ad173a225e9f966bb4f3826fc3746bb7d180878058051f30
 F src/style.fileedit.css 6d414f0f63095beaee630bebb648eefae05b3e685b089d52fe81b673d80e5536
-F src/style.wikiedit.css 301dccc401bb93591584d3a304cba1c6129175878042faacac163e62c5475e23
+F src/style.wikiedit.css d501c507d28f13ff2f33501fb0beaf9a2b2424b54179c9aba1c4e35218e0d5b5
 F src/sync.c 9f42cd6031c2e1d6fd1dd584aaa09e1e7280a3c07905a80524f819af1528d7ed
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P acdd76539ca6f9efc5607ecbf86bf625f6b0040a1d71ae9131f5aad69bfe431d 981049f79843e214a159a6be436f2ce25e591055e6c225e92e88e3d9b443213b
-R ab1c161ee25383b7e29d40b4f14bf5fc
-U drh
-Z 9b878c9b1eb1eb95b882a8ad38405621
+P a8cb9b1a7b934d382d22cf8d3cd52a6d11a54fdbc6fd6488b6988dd8e42963e0
+R ac11ee5885695ec4ce0119799357639b
+U stephan
+Z 8c1841421d42ae45f936c9c1f7727c90

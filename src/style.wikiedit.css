@@ -5,10 +5,12 @@ body.wikieedit.waiting * {
 body.wikiedit textarea,
 body.wikiedit textarea:focus,
 body.wikiedit input,
-body.wikiedit input:focus{
+body.wikiedit input:focus,
+body.wikiedit select,
+body.wikiedit select:focus{
   /* The sudden appearance of a border (as in the Ardoise skin)
      shifts the layout in unsightly ways */
-  border: revert;
+  border: initial;
 }
 body.wikiedit div.wikiedit-preview {
   margin: 0;
@@ -52,6 +54,8 @@ body.wikiedit .WikiList {
 }
 body.wikiedit .WikiList select {
   font-size: 110%;
+  margin: initial;
+  height: initial /* some skins set these to a fix height */;
 }
 body.wikiedit .WikiList select option {
   margin: 0.5em 0;
@@ -74,6 +78,7 @@ body.wikiedit .tabs .tab-panel {
 }
 body.wikiedit .WikiList fieldset {
   padding: 0.25em;
+  border-width: 1px /* Ardoise skin sets this to 0 */;
 }
 body.wikiedit .WikiList legend {
   font-size: 90%;
