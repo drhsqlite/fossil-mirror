@@ -362,8 +362,8 @@
       D.clearElement(parentElem);
       D.append(
         parentElem,
-        D.append(D.span(), "Select a page to edit:"),
-        sel
+        D.append(D.fieldset("Select a page to edit"),
+                 sel)
       );
       D.attr(sel, 'size', 15);
       D.option(D.disable(D.clearElement(sel)), "Loading...");
@@ -401,9 +401,7 @@
       });
 
       /* A legend of the meanings of the symbols we use in
-         the OPTION elements to denote certain state. Note that
-         the symbols themselves are *actually* defined in CSS, so if
-         they're changed there they also need to be changed here.*/
+         the OPTION elements to denote certain state. */
       const fsLegend = D.fieldset("Edit status"),
             fsLegendBody = D.div();
       D.append(fsLegend, fsLegendBody);
@@ -415,13 +413,11 @@
         D.append(D.span(), P.config.editStateMarkers.isNew,
                  " = page is new/unsaved")
       );
-
       D.append(
         parentElem,
         D.append(D.addClass(D.div(), 'fieldset-wrapper'),
                  fsFilter, fsLegend)
       );
-
       D.append(parentElem, btn);
       btn.addEventListener('click', ()=>this.loadList(), false);
       this.loadList();
