@@ -806,7 +806,7 @@
      custom widget. They will be triggered via
      P.fileContent(). Returns this object.
   */
-  P.setFileContentMethods = function(getter, setter){
+  P.setContentMethods = function(getter, setter){
     this.fileContent.get = getter;
     this.fileContent.set = setter;
     return this;
