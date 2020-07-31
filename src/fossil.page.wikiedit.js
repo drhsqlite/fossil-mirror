@@ -528,7 +528,7 @@
       btn.addEventListener('click', ()=>this.loadList(), false);
       this.loadList();
       sel.addEventListener('change', (e)=>P.loadPage(e.target.value), false);
-      F.page.addEventListener('wiki-stash-updated', ()=>this.refreshStashMarks(), false);
+      F.page.addEventListener('wiki-stash-updated', ()=>this.refreshStashMarks());
       delete this.init;
     }
   };
@@ -612,11 +612,17 @@
     P.tabs.addEventListener(
       /* Set up some before-switch-to tab event tasks... */
       'before-switch-to', function(ev){
-        if(ev.detail===P.e.tabs.preview){
-          P.baseHrefForWiki();
+        const theTab = ev.detail, btnSlot = theTab.querySelector('.save-button-slot');
+        if(btnSlot){
+          /* Several places make sense for a save button, so we'll
+             move that button around to those tabs where it makes sense. */
+          btnSlot.parentNode.insertBefore( P.e.btnSave, btnSlot );
           P.updateSaveButton();
+        }
+        if(theTab===P.e.tabs.preview){
+          P.baseHrefForWiki();
           if(P.previewNeedsUpdate && P.e.cbAutoPreview.checked) P.preview();
-        }else if(ev.detail===P.e.tabs.diff){
+        }else if(theTab===P.e.tabs.diff){
           /* Work around a weird bug where the page gets wider than
              the window when the diff tab is NOT in view and the
              current SBS diff widget is wider than the window. When
@@ -626,7 +632,7 @@
              is hidden (and therefore P.e.diffTarget is also hidden).
           */
           D.removeClass(P.e.diffTarget, 'hidden');
-        }else if(ev.detail===P.e.tabs.misc){
+        }else if(theTab===P.e.tabs.misc){
           P.updateAttachmentView();
         }
       }
@@ -634,9 +640,10 @@
     P.tabs.addEventListener(
       /* Set up auto-refresh of the preview tab... */
       'before-switch-from', function(ev){
-        if(ev.detail===P.e.tabs.preview){
+        const theTab = ev.detail;
+        if(theTab===P.e.tabs.preview){
           P.baseHrefRestore();
-        }else if(ev.detail===P.e.tabs.diff){
+        }else if(theTab===P.e.tabs.diff){
           /* See notes in the before-switch-to handler. */
           D.addClass(P.e.diffTarget, 'hidden');
         }
@@ -769,7 +776,8 @@
       },
       false
     );
-    P.updatePageTitle().updateAttachmentView();
+    P.addEventListener('wiki-stash-updated', ()=>P.updateSaveButton())
+      .updatePageTitle().updateAttachmentView().updateSaveButton();
   }/*F.onPageLoad()*/);
 
   /**

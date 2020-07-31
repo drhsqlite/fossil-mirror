@@ -106,3 +106,10 @@ body.wikiedit #wikiedit-tab-misc h3 {
 body.wikiedit span.mini-tip {
   font-size: 80%;
 }
+
+body.wikiedit span.save-button-slot {
+  /* These invisible placeholders mark spots in the UI
+     (max. 1 per tab) to where the save button gets
+     relocated as we switch between tabs. */
+  display: none;
+}

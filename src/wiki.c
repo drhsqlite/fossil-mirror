@@ -1133,7 +1133,7 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-content' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Wiki Editor' "
+       "data-tab-label='Editor' "
        "class='hidden'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
@@ -1154,6 +1154,9 @@ void wikiedit_page_v2(void){
        "edits, it requires confirmation (a second click) within "
        "a few seconds or it will not reload.'"
        ">Discard &amp; Reload</button>");
+    CX("<button class='wikiedit-save' disabled='disabled'>"
+       "Save</button>"/*will get moved around dynamically*/);
+    CX("<span class='save-button-slot'></span>");
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
@@ -1167,7 +1170,7 @@ void wikiedit_page_v2(void){
   {
     CX("<div id='wikiedit-tab-preview' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Preview &amp; Save' "
+       "data-tab-label='Preview' "
        "class='hidden'"
        ">");
     CX("<div class='wikiedit-options flex-container flex-row'>");
@@ -1181,7 +1184,6 @@ void wikiedit_page_v2(void){
        "data-f-preview-to='#wikiedit-tab-preview-wrapper' "
        /* ^^^ dest elem ID */
        ">Refresh</button>");
-    CX("<button class='wikiedit-save'>Save</button>");
     /* Toggle auto-update of preview when the Preview tab is selected. */
     style_labeled_checkbox("cb-preview-autoupdate",
                            NULL,
@@ -1189,6 +1191,7 @@ void wikiedit_page_v2(void){
                            "1", 1,
                            "If on, the preview will automatically "
                            "refresh when this tab is selected.");
+    CX("<span class='save-button-slot'></span>");
     CX("</div>"/*.wikiedit-options*/);
     CX("<div id='wikiedit-tab-preview-wrapper'></div>");
     CX("</div>"/*#wikiedit-tab-preview*/);
@@ -1206,6 +1209,7 @@ void wikiedit_page_v2(void){
        "id='wikiedit-tab-diff-buttons'>");
     CX("<button class='sbs'>Side-by-side</button>"
        "<button class='unified'>Unified</button>");
+    CX("<span class='save-button-slot'></span>");
     CX("</div>");
     CX("<div id='wikiedit-tab-diff-wrapper'>"
        "Diffs will be shown here."
