@@ -499,7 +499,7 @@ textarea {
   box-shadow: none;
   box-sizing: border-box
 }
-textarea {
+textarea, select {
   height: initial;
 }
 input[type=email]:hover,
