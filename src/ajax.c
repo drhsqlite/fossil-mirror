@@ -172,7 +172,7 @@ void ajax_render_diff(Blob * pOrig, Blob *pContent, u64 diffFlags){
 ** else it returns true.
 */
 int ajax_p_bool(char const *zKey){
-  const * zVal = P(zKey);
+  const char * zVal = P(zKey);
   return (!zVal || '0'==*zVal || 'f'==*zVal) ? 0 : 1;
 }
 

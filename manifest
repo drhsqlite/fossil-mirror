@@ -1,5 +1,5 @@
-C Added\sfilter\scheckboxes\sto\sshow/hide\sto\sfilter\sthe\swiki\spage\slist\sby\spage\stype(s).\sRelated\sinternal\sAPI\sadditions.
-D 2020-07-31T01:09:05.445
+C Mis-declared\sC\svar\sfix.
+D 2020-07-31T01:11:36.246
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -431,7 +431,7 @@ F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c 79e19481b8e681b7c4c7d7c4a1c94cf906ab4f228309af0a7ce36b36f5dc3703
-F src/ajax.c 90405fc14cb33809135f16e534b8c8de6e434f65e6deada7607443099c66f42e
+F src/ajax.c cb5ae0f3e56416698998efb63160d32290abfc65e2c15359b27e97981503e627
 F src/alerts.c 9773defbf3d7134aaad841ad6698f7c899c311bca0ebf680c7dbf65168cd2dbf
 F src/allrepo.c 4c91cbd973868e72521c14833b49a5796e832d96cd6e43d1a8fa6f78d1494d8e
 F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 01ab9241554e0700fff089644b2abf58852c924392c319037417ccb8c2c27004
-R db673e289be1d5e02f81fef3cbf57f76
+P 9edf5e7dd68f85c89d346cd36d145f6dcd04fa2276ffe59a43476029a8bf2d0c
+R fc5d66fdbdade5c3e2a0c040e0d6c971
 U stephan
-Z f6eacd19b051492478e5b1d30462ba2b
+Z 4bc6e2463b70d1a65d6f0d72081fe9cc
