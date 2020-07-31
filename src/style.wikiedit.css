@@ -58,8 +58,7 @@ body.wikiedit .wikiedit-page-list-wrapper select option {
 body.wikiedit .wikiedit-page-list-wrapper select option.stashed::before {
 /* Maintenance reminder: the option.stashed/stashed-new "content" values
    are duplicated in fossil.page.wikiedit.js and need to be changed there
-   if they are changed here. i.e. they're not "really" customizable
-   by client code. */
+   if they are changed here: see fossil.page.config.editStateMarkers */
   content: "[*] ";
 }
 body.wikiedit .wikiedit-page-list-wrapper select option.stashed-new::before {

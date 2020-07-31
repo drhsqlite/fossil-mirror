@@ -66,7 +66,15 @@
         D = F.dom,
         P = F.page;
 
-  P.config = {};
+  P.config = {
+    /* Symbolic markers to denote certain edit state. Note that
+       the symbols themselves are *actually* defined in CSS, so if
+       they're changed there they also need to be changed here.*/
+    editStateMarkers: {
+      isNew: '[+]',
+      isModified: '[*]'
+    }
+  };
 
   /**
      $stash is an internal-use-only object for managing "stashed"
@@ -402,8 +410,10 @@
       D.addClass(fsLegendBody, 'flex-container', 'flex-column', 'stretch');
       D.append(
         fsLegendBody,
-        D.append(D.span(), "[*] = page has local edits"),
-        D.append(D.span(), "[+] = page is new/unsaved")
+        D.append(D.span(), P.config.editStateMarkers.isModified,
+                 " = page has local edits"),
+        D.append(D.span(), P.config.editStateMarkers.isNew,
+                 " = page is new/unsaved")
       );
 
       D.append(
@@ -688,8 +698,8 @@
     }
     var title = ['Wiki Editor:'];
     if(P.winfo){
-      if(!P.winfo.version) title.push('[+]');
-      else if($stash.getWinfo(P.winfo)) title.push('[*]')
+      if(!P.winfo.version) title.push(P.config.editStateMarkers.isNew);
+      else if($stash.getWinfo(P.winfo)) title.push(P.config.editStateMarkers.isModified)
       title.push(P.winfo.name);
     }else{
       title.push('(no page loaded)');
