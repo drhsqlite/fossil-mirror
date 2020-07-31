@@ -1063,13 +1063,10 @@ void wiki_ajax_page(void){
 
 /*
 ** Emits all of the "core" static JS needed by /wikiedit into a single
-** SCRIPT tag.
-**
-** TODO: a common mechanism which will let us bundle this type of
-** blob into a single cacheable request.
+** SCRIPT tag. Intended to be mapped to style.c:BundleEmitters with
+** the name "wikiedit.js".
 */
-static void wikiedit_emit_js(void){
-  style_emit_script_tag(0,0);
+void wikiedit_emit_js_bundle(void){
   style_emit_script_fossil_bootstrap(1);
   style_emit_script_builtin(1,0,"sbsdiff.js");
   style_emit_script_fetch(1, 0);
@@ -1077,7 +1074,6 @@ static void wikiedit_emit_js(void){
   style_emit_script_confirmer(1,0);
   style_emit_script_builtin(1, 0, "fossil.storage.js");
   style_emit_script_builtin(1, 0, "fossil.page.wikiedit.js");
-  style_emit_script_tag(1,0);
 }
 
 /*
@@ -1265,7 +1261,7 @@ void wikiedit_page_v2(void){
     CX("</div>"/*#wikiedit-tab-save*/);
   }
 
-  wikiedit_emit_js();
+  style_emit_script_builtin(0, 0, ":wikiedit.js");
 
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);

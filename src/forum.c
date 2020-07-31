@@ -751,21 +751,14 @@ static int forum_display_hierarchical(int froot, int target){
 }
 
 /*
-** The first time this is called, it emits SCRIPT tags to load various
-** forum-related JavaScript. Ideally it should be called near the end
-** of the page, immediately before the call to style_footer() (which
-** closes the document's <BODY> and <HTML> tags). Calls after the first
-** are a no-op.
+** Callback for use with style.c:BundleEmitters. Emits all JS code
+** required by this page.
 */
-static void forum_emit_page_js(){
-  static int once = 0;
-  if(0==once){
-    once = 1;
-    style_load_js("forum.js");
-    style_emit_script_fossil_bootstrap(0);
-    style_emit_script_dom(0, 1);
-    style_emit_script_builtin(0, 1, "fossil.page.forumpost.js");
-  }
+void forum_emit_js_bundle(void){
+  style_emit_script_builtin(1, 0, "forum.js");
+  style_emit_script_fossil_bootstrap(1);
+  style_emit_script_dom(1, 0);
+  style_emit_script_builtin(1, 0, "fossil.page.forumpost.js");
 }
 
 /*
@@ -896,7 +889,7 @@ void forumthread_page(void){
     style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
-  forum_emit_page_js();
+  style_emit_script_builtin(0, 0, ":forum.js");
   style_footer();
 }
 

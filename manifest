@@ -1,5 +1,5 @@
-C /wikiedit\sand\s/fileedit\snow\sdump\sall\sof\stheir\scommon\sstatic\sJS\sinto\sa\ssingle\sSCRIPT\stag\sinstead\sof\smaking\snumerous\srequests,\sper\sforum\sfeedback.\sFixed/expanded\ssome\sof\sthe\snewer\sscript-emitting\slogic\sin\sstyle.c\sto\shandle\sthese.\swikiedit\sno\slonger\smangles\sthe\spage-level\sheader.
-D 2020-07-31T14:44:49.006
+C Extended\s/builtin/filename\sto\ssupport\s/builtin/:filename\sfor\spacking\sup\scacheable\sbundles\sof\spage-specific\scode.\s/wikiedit,\s/fileedit,\sand\s/forumpost\snow\sserve\stheir\sJS\sthat\sway.
+D 2020-07-31T16:14:43.254
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -480,11 +480,11 @@ F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c c094a4f557a93550071c874e0dda63eb25999820f4ab8a1c89b27a2ef80c375f
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 280e206332e528509d9bafa30e5ffa953a0488d593f72cfa37bc87b97c5e2653
-F src/fileedit.c 9f7e1bf1866a5099e6dea36b7598ebc787cf2815b0ace7eab92c8cd8bf65c820
+F src/fileedit.c 352d84abf4fde5b8377f5e680c4a5e445836e47ca59981da74bb765b329d0e4d
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 5a5c782fe5d87da8c51b24910e2f9967f57b8a24610be2d4286aa9103c32c2e3
-F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
+F src/forum.c d2c8997491f69a48e6cbfe574489817f91ecc872bce7eca0b85e366760cb4a85
+F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd65ab2a61f5
 F src/fossil.confirmer.js 66352b4201476ff6d53aeb0515800bb6f2d6fe0ec6b8a18c67043ec20f093023
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
@@ -607,7 +607,7 @@ F src/stash.c 465e0e9806f94b1f67f22949e92f95584e2ed0a91f1edbf5679858c2e425dfac
 F src/stat.c 899bd4bec0ff428641d2093d935d4d80ac7f6d7c75509b7be361393094982f3a
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 5f3ee02255c9feed7cda86110acc2ef4eb7161a6bd71299d7406a0a47a79aaf4
+F src/style.c af84f115c89d7c16d799a7f2175248bb5614d101e10327d9d20a67dab2390271
 F src/style.fileedit.css 6d414f0f63095beaee630bebb648eefae05b3e685b089d52fe81b673d80e5536
 F src/style.wikiedit.css 8999a395a9b41060a5c54aea3cad9137357ff4e3d657030907b84daf7ff1102a
 F src/sync.c 9f42cd6031c2e1d6fd1dd584aaa09e1e7280a3c07905a80524f819af1528d7ed
@@ -636,7 +636,7 @@ F src/util.c de0723ef68f92958017ee60c5dc0e6b2f4121c6deac0f8a32051a1e88f78d46c
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 9a0a43c5bf5f39ec4467460c68eed6dd263c9a4772bdf8fda4899c688fe61ce7
+F src/wiki.c 60905d016f6f5b95cc2612529e95a45c8454d7fe632aec08eb10c89af08e1dc1
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 7eaa897946be94f75ee5ecd160e50cc6c6fa6141c600283975c996a9f1961988
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7418144b3f5ef3933c60913fe5084112143d5c3867b6c06793dc68c546578b39
-R 5cc7ea2048a13a09c4f313c2f752ec14
+P a4b73fd081e9bb45d57da293693ca70d25d5a4962985879e63066b328877e00e
+R ee41dec0f864ee319e4bfb6f66b57301
 U stephan
-Z 5244826aa5e969ba910a27e0e2962fbe
+Z 191755a75fcfe0de9cdf2563083c6c1a

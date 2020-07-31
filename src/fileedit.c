@@ -1484,14 +1484,11 @@ end_cleanup:
 }
 
 /*
-** Emits all of the "core" static JS needed by /fileedit into a single
-** SCRIPT tag.
-**
-** TODO: a common mechanism which will let us bundle this type of
-** blob into a single cacheable request.
+** Emits all of the "core" static JS needed by /wikiedit into a single
+** SCRIPT tag. Intended to be mapped to style.c:BundleEmitters with
+** the name "fileedit.js".
 */
-static void fileedit_emit_js(void){
-  style_emit_script_tag(0,0);
+void fileedit_emit_js_bundle(void){
   style_emit_script_fossil_bootstrap(1);
   style_emit_script_builtin(1,0,"sbsdiff.js");
   style_emit_script_fetch(1,0);
@@ -1505,7 +1502,6 @@ static void fileedit_emit_js(void){
   */
   ajax_emit_js_preview_modes(0);
   style_emit_script_builtin(1, 0, "fossil.page.fileedit.js");
-  style_emit_script_tag(1,0);
 }
 
 /*
@@ -1976,7 +1972,7 @@ void fileedit_page(void){
 
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
-  fileedit_emit_js();
+  style_emit_script_builtin(0, 0, ":fileedit.js");
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
     CX("\n(function(){\n");

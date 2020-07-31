@@ -1130,22 +1130,84 @@ void page_style_css(void){
 }
 
 /*
+** Maps a "bundle" name to a callback which emits the text of that
+** bundle. For use in consolidating scripts for certain pages into a
+** single cacheable request.
+*/
+typedef struct {
+  const char * zName; /* Name of the bundle (maps to /builtin/:NAME) */
+  void (*xEmit)(void); /* Emits amalgamated text output for this
+                          bundle */
+} BundleEmitter;
+/*
+** Map each required bundle here...
+*/
+static const BundleEmitter BundleEmitters[] = {
+/* Keep these sorted for bsearch() */
+{"fileedit.js", fileedit_emit_js_bundle},
+{"forum.js", forum_emit_js_bundle},
+{"wikiedit.js", wikiedit_emit_js_bundle}
+};
+
+/*
+** Comparison function for bsearch() for searching a BundleEmitter
+** list for a matching name.
+*/
+static int cmp_builtin_bundle_name(const void *a, const void *b){
+  const BundleEmitter * rA = (const BundleEmitter*)a;
+  const BundleEmitter * rB = (const BundleEmitter*)b;
+  return fossil_strcmp(rA->zName, rB->zName);
+}
+
+/*
+** Internal helper for /builtin/FILENAME for dispatching "bundles"
+** of amalgamated text (primarily JS) code.
+**
+** Returns true if it finds a bundle matcing the given name, else
+** false. On success it outputs the amalgamated bundle without any
+** sort of wrapper, e.g. SCRIPT tag
+*/
+static int page_builtin_text_bundle(const char * zFilename){
+  const BundleEmitter * pBH;
+  BundleEmitter needle = {zFilename, 0};
+
+  pBH = (const BundleEmitter *)bsearch(&needle, BundleEmitters,
+                                       count(BundleEmitters),
+                                       sizeof BundleEmitters[0],
+                                       cmp_builtin_bundle_name);
+  if(pBH!=0){
+    pBH->xEmit();
+  }
+  return pBH!=0;
+}
+
+/*
 ** WEBPAGE: builtin
 ** URL:  builtin/FILENAME
 **
 ** Return the built-in text given by FILENAME.  This is used internally 
 ** by many Fossil web pages to load built-in javascript files.
 **
-** If the id= query parameter is present, then Fossil assumes that the
-** result is immutable and sets a very large cache retention time (1 year).
+** If the id= or cache= query parameter is present, then Fossil
+** assumes that the result is immutable and sets a very large cache
+** retention time (1 year).
 */
 void page_builtin_text(void){
   Blob out;
   const char *zName = P("name");
   const char *zTxt = 0;
-  const char *zId = P("id");
+  const char *zId = PD("id",P("cache"));
   int nId;
-  if( zName ) zTxt = builtin_text(zName);
+  int isBundle = 0;
+
+  if( zName ){
+    if(':'==zName[0]){
+      isBundle = 1;
+      zTxt = page_builtin_text_bundle(zName+1) ? "" : NULL;
+    }else{
+      zTxt = builtin_text(zName);
+    }
+  }
   if( zTxt==0 ){
     cgi_set_status(404, "Not Found");
     @ File "%h(zName)" not found
@@ -1161,8 +1223,10 @@ void page_builtin_text(void){
   }else{
     etag_check(0,0);
   }
-  blob_init(&out, zTxt, -1);
-  cgi_set_content(&out);
+  if(isBundle==0){
+    blob_init(&out, zTxt, -1);
+    cgi_set_content(&out);
+  }
 }
 
 /*
@@ -1642,7 +1706,13 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
 void style_emit_script_builtin(int asInline, int addScripTag,
                                char const * zName){
   if(asInline){
+    if(addScripTag){
+      style_emit_script_tag(0,0);
+    }
     CX("%s", builtin_text(zName));
+    if(addScripTag){
+      style_emit_script_tag(1,0);
+    }
   }else{
     char * zFullName = mprintf("builtin/%s",zName);
     const char * zHash = fossil_exe_id();
