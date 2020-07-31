@@ -754,7 +754,7 @@ static int forum_display_hierarchical(int froot, int target){
 ** Callback for use with style.c:BundleEmitters. Emits all JS code
 ** required by this page.
 */
-void forum_emit_js_bundle(void){
+void forumpost_emit_js_bundle(void){
   style_emit_script_builtin(1, 0, "forum.js");
   style_emit_script_fossil_bootstrap(1);
   style_emit_script_dom(1, 0);

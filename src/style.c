@@ -1145,7 +1145,7 @@ typedef struct {
 static const BundleEmitter BundleEmitters[] = {
 /* Keep these sorted for bsearch() */
 {"fileedit.js", fileedit_emit_js_bundle},
-{"forum.js", forum_emit_js_bundle},
+{"forum.js", forumpost_emit_js_bundle},
 {"wikiedit.js", wikiedit_emit_js_bundle}
 };
 
