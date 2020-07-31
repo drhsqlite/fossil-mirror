@@ -799,9 +799,9 @@
   P.updatePageTitle = function f(){
     if(!f.titleElement){
       f.titleElement = document.head.querySelector('title');
-      f.pageTitleHeader = document.querySelector('div.header .title');
+      f.pageTitleHeader = document.querySelector('#wikiedit-page-name > span');
     }
-    var title = ['Wiki Editor:'];
+    const title = ['Wiki Editor:'];
     const wi = P.winfo;
     if(wi){
       if(!wi.version && 'sandbox'!==wi.type) title.push(P.config.editStateMarkers.isNew);
@@ -810,9 +810,8 @@
     }else{
       title.push('(no page loaded)');
     }
-    title = title.join(' ');
-    f.titleElement.innerText = title;
-    f.pageTitleHeader.innerText = title;
+    f.pageTitleHeader.innerText = title[1];
+    f.titleElement.innerText = title.join(' ');
     return this;
   };
 

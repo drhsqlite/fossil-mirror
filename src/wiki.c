@@ -1062,6 +1062,25 @@ void wiki_ajax_page(void){
 }
 
 /*
+** Emits all of the "core" static JS needed by /wikiedit into a single
+** SCRIPT tag.
+**
+** TODO: a common mechanism which will let us bundle this type of
+** blob into a single cacheable request.
+*/
+static void wikiedit_emit_js(void){
+  style_emit_script_tag(0,0);
+  style_emit_script_fossil_bootstrap(1);
+  style_emit_script_builtin(1,0,"sbsdiff.js");
+  style_emit_script_fetch(1, 0);
+  style_emit_script_tabs(1,0)/*also emits fossil.dom*/;
+  style_emit_script_confirmer(1,0);
+  style_emit_script_builtin(1, 0, "fossil.storage.js");
+  style_emit_script_builtin(1, 0, "fossil.page.wikiedit.js");
+  style_emit_script_tag(1,0);
+}
+
+/*
 ** WEBPAGE: wikiedit
 ** URL: /wikedit?name=PAGENAME
 **
@@ -1112,6 +1131,8 @@ void wikiedit_page_v2(void){
      "title='Status message area. Double-click to clear them.'>"
      "Status messages will go here.</div>\n"
      /* will be moved into the tab container via JS */);
+
+  CX("<div id='wikiedit-page-name'>Editing: <span>(no file loaded)</span></div>");
   
   /* Main tab container... */
   CX("<div id='wikiedit-tabs' class='tab-container'>Loading...</div>");
@@ -1243,14 +1264,8 @@ void wikiedit_page_v2(void){
     well_formed_wiki_name_rules();
     CX("</div>"/*#wikiedit-tab-save*/);
   }
-  
-  style_emit_script_fossil_bootstrap(0);
-  append_diff_javascript(1);
-  style_emit_script_fetch(0);
-  style_emit_script_tabs(0)/*also emits fossil.dom*/;
-  style_emit_script_confirmer(0);
-  style_emit_script_builtin(0, "fossil.storage.js");
-  style_emit_script_builtin(0, "fossil.page.wikiedit.js");
+
+  wikiedit_emit_js();
 
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);

@@ -1484,6 +1484,31 @@ end_cleanup:
 }
 
 /*
+** Emits all of the "core" static JS needed by /fileedit into a single
+** SCRIPT tag.
+**
+** TODO: a common mechanism which will let us bundle this type of
+** blob into a single cacheable request.
+*/
+static void fileedit_emit_js(void){
+  style_emit_script_tag(0,0);
+  style_emit_script_fossil_bootstrap(1);
+  style_emit_script_builtin(1,0,"sbsdiff.js");
+  style_emit_script_fetch(1,0);
+  style_emit_script_tabs(1,0)/*also emits fossil.dom*/;
+  style_emit_script_confirmer(1,0);
+  style_emit_script_builtin(1, 0, "fossil.storage.js");
+  /*
+  ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
+  ** used for dynamically toggling certain UI components on and off.
+  ** Must come before fossil.page.fileedit.js.
+  */
+  ajax_emit_js_preview_modes(0);
+  style_emit_script_builtin(1, 0, "fossil.page.fileedit.js");
+  style_emit_script_tag(1,0);
+}
+
+/*
 ** WEBPAGE: fileedit
 **
 ** Enables the online editing and committing of individual text files.
@@ -1951,21 +1976,7 @@ void fileedit_page(void){
 
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
-  style_emit_script_fossil_bootstrap(0);
-  append_diff_javascript(1);
-  style_emit_script_fetch(0);
-  style_emit_script_tabs(0)/*also emits fossil.dom*/;
-  style_emit_script_confirmer(0);
-  style_emit_script_builtin(0, "fossil.storage.js");
-
-  /*
-  ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
-  ** used for dynamically toggling certain UI components on and off.
-  ** Must come before fossil.page.fileedit.js.
-  */
-  ajax_emit_js_preview_modes(1);
-
-  style_emit_script_builtin(0, "fossil.page.fileedit.js");
+  fileedit_emit_js();
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
     CX("\n(function(){\n");

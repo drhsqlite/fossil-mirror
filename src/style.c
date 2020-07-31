@@ -1537,20 +1537,26 @@ void style_select_list_str(const char * zWrapperId,
 **
 ** Subsequent calls are no-ops.
 **
-** If passed a true value, it emits the contents directly to the page
-** output, else it emits a script tag with a src=builtin/... to load
-** the script. It always outputs a small pre-bootstrap element in its
-** own script tag to initialize parts which need C-runtime-level
-** information, before loading the main fossil.bootstrap.js either
-** inline or via a <script src=...>, as specified by the first
-** argument.
+** It emits 2 parts:
+**
+** 1) window.fossil core object, some of which depends on C-lelel
+** runtime data. That part of the script is always emitted inline. If
+** addScripTag is true then it is wrapped in its own SCRIPT tag, else
+** it is assumed that the caller already opened a tag.
+**
+** 2) Emits the static fossil.bootstrap.js. If asInline is true then
+** it is emitted inline with the components from (1), else it is
+** emitted as a separate SCRIPT tag with
+** src=/builtin/fossil.bootstrap.js (so causes another HTTP request).
 */
 void style_emit_script_fossil_bootstrap(int asInline){
   static int once = 0;
   if(0==once++){
     /* Set up the generic/app-agnostic parts of window.fossil
     ** which require C-level state... */
-    style_emit_script_tag(0,0);
+    if(asInline==0){
+      style_emit_script_tag(0,0);
+    }
     CX("(function(){\n"
        "if(!window.fossil) window.fossil={};\n"
        "window.fossil.version = %!j;\n"
@@ -1581,12 +1587,11 @@ void style_emit_script_fossil_bootstrap(int asInline){
     CX("})();\n");
     /* The remaining fossil object bootstrap code is not dependent on
     ** C-runtime state... */
-    if(asInline){
+    if(asInline!=0){
       CX("%s\n", builtin_text("fossil.bootstrap.js"));
-    }
-    style_emit_script_tag(1,0);
-    if(asInline==0){
-      style_emit_script_builtin(0, "fossil.bootstrap.js");
+    }else{
+      style_emit_script_tag(1,0);
+      style_emit_script_builtin(0,1,"fossil.bootstrap.js");
     }
   }
 }
@@ -1624,18 +1629,20 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
 /*
 ** Emits a script tag which uses content from a builtin script file.
 **
-** If asInline is true, it is emitted directly as an opening tag, the
-** content of the zName builtin file, and a closing tag.
+** If asInline is false, the script is emitted as a SCRIPT tag with a
+** src attribute of /builtin/zName and the 2nd parameter is
+** ignored. If asInline is true then the contents of the script are
+** emitted directly, with a wrapping SCRIPT tag if addScripTag is
+** true, else no wrapping script tag..
 **
 ** If it is false, a script tag loading it via
 ** src=builtin/{{zName}}?cache=XYZ is emitted, where XYZ is a
 ** build-time-dependent cache-buster value.
 */
-void style_emit_script_builtin(int asInline, char const * zName){
+void style_emit_script_builtin(int asInline, int addScripTag,
+                               char const * zName){
   if(asInline){
-    style_emit_script_tag(0,0);
     CX("%s", builtin_text(zName));
-    style_emit_script_tag(1,0);
   }else{
     char * zFullName = mprintf("builtin/%s",zName);
     const char * zHash = fossil_exe_id();
@@ -1649,18 +1656,22 @@ void style_emit_script_builtin(int asInline, char const * zName){
 ** The first time this is called it emits the JS code from the
 ** built-in file fossil.fossil.js. Subsequent calls are no-ops.
 **
-** If passed a true value, it emits the contents directly
+** If passed a true first argument, it emits the contents directly
 ** to the page output, else it emits a script tag with a
 ** src=builtin/... to load the script.
+**
+** If asInline is true and addScripTag is true then the contents
+** are emitted directly but wrapped in a SCRIPT tag. If asInline
+** is false, addScriptTag is ignored.
 **
 ** Note that this code relies on that loaded via
 ** style_emit_script_fossil_bootstrap() but it does not call that
 ** routine.
 */
-void style_emit_script_fetch(int asInline){
+void style_emit_script_fetch(int asInline, int addScripTag){
   static int once = 0;
   if(0==once++){
-    style_emit_script_builtin(asInline, "fossil.fetch.js");
+    style_emit_script_builtin(asInline, addScripTag, "fossil.fetch.js");
   }
 }
 
@@ -1668,49 +1679,43 @@ void style_emit_script_fetch(int asInline){
 ** The first time this is called it emits the JS code from the
 ** built-in file fossil.dom.js. Subsequent calls are no-ops.
 **
-** If passed a true value, it emits the contents directly
+** If passed a true first argument, it emits the contents directly
 ** to the page output, else it emits a script tag with a
 ** src=builtin/... to load the script.
+**
+** If asInline is true and addScripTag is true then the contents
+** are emitted directly but wrapped in a SCRIPT tag. If asInline
+** is false, addScriptTag is ignored.
 **
 ** Note that this code relies on that loaded via
 ** style_emit_script_fossil_bootstrap(), but it does not call that
 ** routine.
 */
-void style_emit_script_dom(int asInline){
+void style_emit_script_dom(int asInline, int addScripTag){
   static int once = 0;
   if(0==once++){
-    style_emit_script_builtin(asInline, "fossil.dom.js");
+    style_emit_script_builtin(asInline, addScripTag, "fossil.dom.js");
   }
 }
 
 /*
-** The first time this is called, it calls style_emit_script_dom(),
-** passing it the given asInline value, and emits the JS code from the
-** built-in file fossil.tabs.js. Subsequent calls are no-ops.
-**
-** If passed a true value, it emits the contents directly
-** to the page output, else it emits a script tag with a
-** src=builtin/... to load the script.
+** The fossil.tabs.js counterpart of style_emit_script_fetch().
+** Also emits fossil.dom.js.
 */
-void style_emit_script_tabs(int asInline){
+void style_emit_script_tabs(int asInline, int addScripTag){
   static int once = 0;
   if(0==once++){
-    style_emit_script_dom(asInline);
-    style_emit_script_builtin(asInline, "fossil.tabs.js");
+    style_emit_script_dom(asInline, addScripTag);
+    style_emit_script_builtin(asInline, addScripTag, "fossil.tabs.js");
   }
 }
 
 /*
-** The first time this is called it emits the JS code from the
-** built-in file fossil.confirmer.js. Subsequent calls are no-ops.
-**
-** If passed a true value, it emits the contents directly
-** to the page output, else it emits a script tag with a
-** src=builtin/... to load the script.
+** The fossil.confirmer.js counterpart of style_emit_script_fetch().
 */
-void style_emit_script_confirmer(int asInline){
+void style_emit_script_confirmer(int asInline, int addScripTag){
   static int once = 0;
   if(0==once++){
-    style_emit_script_builtin(asInline, "fossil.confirmer.js");
+    style_emit_script_builtin(asInline, 0, "fossil.confirmer.js");
   }
 }

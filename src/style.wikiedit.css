@@ -118,3 +118,7 @@ body.wikiedit span.save-button-slot {
      relocated as we switch between tabs. */
   display: none;
 }
+
+body.wikiedit #wikiedit-page-name > span {
+  font-family: monospace;
+}

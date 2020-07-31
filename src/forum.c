@@ -763,8 +763,8 @@ static void forum_emit_page_js(){
     once = 1;
     style_load_js("forum.js");
     style_emit_script_fossil_bootstrap(0);
-    style_emit_script_dom(0);
-    style_emit_script_builtin(0, "fossil.page.forumpost.js");
+    style_emit_script_dom(0, 1);
+    style_emit_script_builtin(0, 1, "fossil.page.forumpost.js");
   }
 }
 
