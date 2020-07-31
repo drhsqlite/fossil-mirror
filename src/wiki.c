@@ -1846,6 +1846,6 @@ int wiki_render_associated(
     blob_reset(&wiki);
   }
   manifest_destroy(pWiki);
-  style_accordion();
+  builtin_request_js("accordion.js");
   return 1;
 }

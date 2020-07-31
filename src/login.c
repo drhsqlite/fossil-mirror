@@ -754,7 +754,7 @@ void login_page(void){
       if( bAutoCaptcha ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
          @ data-af='%s(zDecoded)' />
-         style_load_one_js_file("login.js");
+         builtin_request_js("login.js");
       }
       @ </div>
       free(zCaptcha);

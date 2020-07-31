@@ -1085,8 +1085,8 @@ void timeline_output_graph_javascript(
                  pRow->zUuid, pRow->pNext ? ",\n" : "]\n");
     }
     @ }</script>
-    style_graph_generator();
-    style_copybutton_control(); /* Dependency: graph.js requires copybtn.js. */
+    builtin_request_js("graph.js");
+    builtin_request_js("copybtn.js"); /* Required by graph.js */
     graph_free(pGraph);
   }
 }
@@ -1743,6 +1743,10 @@ void page_timeline(void){
     z = "50";
     nEntry = 50;
   }
+
+  /* Undocumented query parameter to set JS mode */
+  builtin_set_js_delivery_mode(P("jsmode"),1);
+
   secondaryRid = name_to_typed_rid(P("sel2"),"ci");
   selectedRid = name_to_typed_rid(P("sel1"),"ci");
   cgi_replace_query_parameter("n",z);

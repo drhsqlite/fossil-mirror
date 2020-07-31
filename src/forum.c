@@ -761,7 +761,7 @@ static void forum_emit_page_js(){
   static int once = 0;
   if(0==once){
     once = 1;
-    style_load_js("forum.js");
+    builtin_request_js("forum.js");
     style_emit_script_fossil_bootstrap(0);
     style_emit_script_dom(0);
     style_emit_script_builtin(0, "fossil.page.forumpost.js");

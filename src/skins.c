@@ -1103,6 +1103,6 @@ void setup_skin(void){
     @ <p>Visit the <a href='%R/setup_skin_admin'>Skin Admin</a> page
     @ for cleanup and recovery actions.
   }
-  style_load_one_js_file("skin.js");
+  builtin_request_js("skin.js");
   style_footer();
 }

@@ -90,10 +90,6 @@ static int submenuEnable = 1;
 ** Flags for various javascript files needed prior to </body>
 */
 static int needHrefJs = 0;      /* href.js */
-static int needSortJs = 0;      /* sorttable.js */
-static int needGraphJs = 0;     /* graph.js */
-static int needCopyBtnJs = 0;   /* copybtn.js */
-static int needAccordionJs = 0; /* accordion.js */
 
 /*
 ** Extra JS added to the end of the file.
@@ -486,7 +482,7 @@ char *style_copy_button(
     }
   }
   free(zText);
-  style_copybutton_control();
+  builtin_request_js("copybtn.js");
   return zResult;
 }
 
@@ -696,62 +692,13 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
 ** Indicate that the table-sorting javascript is needed.
 */
 void style_table_sorter(void){
-  needSortJs = 1;
-}
-
-/*
-** Indicate that the accordion javascript is needed.
-*/
-void style_accordion(void){
-  needAccordionJs = 1;
-}
-
-/*
-** Indicate that the timeline graph javascript is needed.
-*/
-void style_graph_generator(void){
-  needGraphJs = 1;
-}
-
-/*
-** Indicate that the copy button javascript is needed.
-*/
-void style_copybutton_control(void){
-  needCopyBtnJs = 1;
-}
-
-/*
-** Generate code to load a single javascript file
-*/
-void style_load_one_js_file(const char *zFile){
-  @ <script src='%R/builtin/%s(zFile)?id=%S(fossil_exe_id())'></script>
-}
-
-/*
-** All extra JS files to load.
-*/
-static const char *azJsToLoad[4];
-static int nJsToLoad = 0;
-
-/*
-** Register a new JS file to load at the end of the document.
-*/
-void style_load_js(const char *zName){
-  int i;
-  for(i=0; i<nJsToLoad; i++){
-    if( fossil_strcmp(zName, azJsToLoad[i])==0 ) return;
-  }
-  if( nJsToLoad>=sizeof(azJsToLoad)/sizeof(azJsToLoad[0]) ){
-    fossil_panic("too many JS files");
-  }
-  azJsToLoad[nJsToLoad++] = zName;
+  builtin_request_js("sorttable.js");
 }
 
 /*
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
-  int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
@@ -764,22 +711,8 @@ static void style_load_all_js_files(void){
   @ if(n){n.textContent=msg;}
   @ }
   if( needHrefJs ){
+    @ /* href.js */
     cgi_append_content(builtin_text("href.js"),-1);
-  }
-  if( needSortJs ){
-    cgi_append_content(builtin_text("sorttable.js"),-1);
-  }
-  if( needGraphJs ){
-    cgi_append_content(builtin_text("graph.js"),-1);
-  }
-  if( needCopyBtnJs ){
-    cgi_append_content(builtin_text("copybtn.js"),-1);
-  }
-  if( needAccordionJs ){
-    cgi_append_content(builtin_text("accordion.js"),-1);
-  }
-  for(i=0; i<nJsToLoad; i++){
-    cgi_append_content(builtin_text(azJsToLoad[i]),-1);
   }
   if( blob_size(&blobOnLoad)>0 ){
     @ window.onload = function(){
@@ -787,6 +720,7 @@ static void style_load_all_js_files(void){
     cgi_append_content("\n}\n", -1);
   }
   @ </script>
+  builtin_fulfill_js_requests();
 }
 
 /*
@@ -918,7 +852,7 @@ void style_footer(void){
       cgi_query_parameters_to_hidden();
       cgi_tag_query_parameter(0);
       @ </form>
-      style_load_one_js_file("menu.js");
+      builtin_request_js("menu.js");
     }
   }
 

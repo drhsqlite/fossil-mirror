@@ -2716,6 +2716,15 @@ void fossil_set_timeout(int N){
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
 **                       proxy that has already translated HTTPS into HTTP.
+**   --jsmode MODE       Determine how javascript is delivered with pages.
+**                       Mode can be one of:
+**                          inline       JS inline at the end of the file
+**                          inline-imm   JS inline at point of need
+**                          sep          Separate HTTP requests for JS
+**                          sep-imm      Separate HTTP requests each issued
+**                                       at the need
+**                          bundled      One single separate HTTP for all
+**                                       JS resources
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies
@@ -2762,6 +2771,7 @@ void cmd_webserver(void){
     g.zErrlog = "-";
   }
   g.zExtRoot = find_option("extroot",0,1);
+  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);

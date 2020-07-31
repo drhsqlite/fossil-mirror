@@ -220,7 +220,48 @@ static struct {
   int aReq[30];        /* Indexes of all requested built-in JS files */
   int nReq;            /* Number of slots in aReq[] currently used */
   int nSent;           /* Number of slots in aReq[] fulfilled */
+  int eDelivery;       /* Delivery mechanism */
 } builtin;
+
+#if INTERFACE
+/* Various delivery mechanisms.  The 0 option is the default.
+*/
+#define JS_INLINE_BATCH  0    /* inline, batched together */
+#define JS_INLINE_IMM    1    /* inline, as soon as requested */
+#define JS_SEP_BATCH     2    /* Separate resources, batched */
+#define JS_SEP_IMM       3    /* Separate resources, as requested */
+#define JS_BUNDLED       4    /* Single separate resource */
+#endif /* INTERFACE */
+
+/*
+** The argument is a request to change the javascript delivery mode.
+** The argument is a string which is a command-line option or CGI
+** parameter.  Try to match it against one of the delivery options
+** and set things up accordingly.  Throw an error if no match unless
+** bSilent is true.
+*/
+void builtin_set_js_delivery_mode(const char *zMode, int bSilent){
+  if( zMode==0 ) return;
+  if( strcmp(zMode, "inline")==0 ){
+    builtin.eDelivery = JS_INLINE_BATCH;
+  }else
+  if( strcmp(zMode, "inline-imm")==0 ){
+    builtin.eDelivery = JS_INLINE_IMM;
+  }else
+  if( strcmp(zMode, "sep")==0 ){
+    builtin.eDelivery = JS_SEP_BATCH;
+  }else
+  if( strcmp(zMode, "sep-imm")==0 ){
+    builtin.eDelivery = JS_SEP_IMM;
+  }else
+  if( strcmp(zMode, "bundled")==0 ){
+    builtin.eDelivery = JS_BUNDLED;
+  }else if( !bSilent ){
+    fossil_fatal("unknown javascript delivery mode \"%s\" - should be"
+                 " one of: inline inline-immediate separate"
+                 " separate-immediate bundled", zMode);
+  }
+}
 
 /*
 ** The caller wants the Javascript file named by zFilename to be
@@ -255,6 +296,11 @@ void builtin_request_js(const char *zFilename){
     fossil_panic("too many javascript files requested");
   }
   builtin.aReq[builtin.nReq++] = i;
+  if( builtin.eDelivery==JS_INLINE_IMM
+   || builtin.eDelivery==JS_SEP_IMM
+  ){
+    builtin_fulfill_js_requests();
+  }
 }
 
 /*
@@ -265,13 +311,39 @@ void builtin_request_js(const char *zFilename){
 ** might choose to deliver javascript as separate resources.
 */
 void builtin_fulfill_js_requests(void){
-  if( builtin.nSent<builtin.nReq ){
-    CX("<script nonce='%h'>\n",style_nonce);
-    do{
-      int i = builtin.aReq[builtin.nSent++];
-      cgi_append_content((const char*)aBuiltinFiles[i].pData,
-                         aBuiltinFiles[i].nByte);
-    }while( builtin.nSent<builtin.nReq );
-    CX("</script>\n");
+  if( builtin.nSent>=builtin.nReq ) return;  /* nothing to do */
+  switch( builtin.eDelivery ){
+    case JS_INLINE_BATCH:
+    case JS_INLINE_IMM: {
+      CX("<script nonce='%h'>\n",style_nonce());
+      do{
+        int i = builtin.aReq[builtin.nSent++];
+        CX("/* %s */\n", aBuiltinFiles[i].zName);
+        cgi_append_content((const char*)aBuiltinFiles[i].pData,
+                           aBuiltinFiles[i].nByte);
+      }while( builtin.nSent<builtin.nReq );
+      CX("</script>\n");
+      break;
+    }
+    case JS_SEP_BATCH:
+    case JS_SEP_IMM: {
+      /* Each JS file as a separate resource */
+      while( builtin.nSent<builtin.nReq ){
+        int i = builtin.aReq[builtin.nSent++];
+        CX("<script src='/builtin?name=%t&id=%.8s'></script>\n",
+              aBuiltinFiles[i].zName, fossil_exe_id());
+      }
+      break;
+    }
+    case JS_BUNDLED: {
+      Blob aList;
+      blob_init(&aList,0,0);
+      while( builtin.nSent<builtin.nReq ){
+        blob_appendf(&aList, ",%d", builtin.aReq[builtin.nSent++]+1);
+      }
+      CX("<script src='/builtin?m=%s&id=%.8s'></script>\n",
+         blob_str(&aList)+1, fossil_exe_id());
+      blob_reset(&aList);
+    }
   }
 }

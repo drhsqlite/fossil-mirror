@@ -913,7 +913,7 @@ void page_tree(void){
   }
   @ </ul>
   @ </ul></div>
-  style_load_one_js_file("tree.js");
+  builtin_request_js("tree.js");
   style_footer();
 
   /* We could free memory used by sTree here if we needed to.  But

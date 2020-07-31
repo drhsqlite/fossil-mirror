@@ -90,6 +90,7 @@ static void compressJavascript(unsigned char *z, int *pn){
       }
     }
     if( c=='\n' ){
+      if( j==0 ) continue;
       while( j>0 && isspace(z[j-1]) ) j--;
       z[j++] = '\n';
       while( i+1<n && isspace(z[i+1]) ) i++;
