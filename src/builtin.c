@@ -146,6 +146,7 @@ static void builtin_deliver_multiple_js_files(
   while( zList[0] ){
     int i = atoi(zList);
     if( i>0 && i<=count(aBuiltinFiles) ){
+      blob_appendf(pOut, "/* %s */\n", aBuiltinFiles[i-1].zName);
       blob_append(pOut, (const char*)aBuiltinFiles[i-1].pData,
                   aBuiltinFiles[i-1].nByte);
     }
@@ -187,6 +188,13 @@ void builtin_webpage(void){
   if( zTxt==0 ){
     const char *zM = P("m");
     if( zM ){
+      if( zId && (nId = (int)strlen(zId))>=8
+       && strncmp(zId,fossil_exe_id(),nId)==0
+      ){
+        g.isConst = 1;
+      }else{
+        etag_check(0,0);
+      }
       builtin_deliver_multiple_js_files(zM, zType);
       return;
     }

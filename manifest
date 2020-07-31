@@ -1,5 +1,5 @@
-C Simplify\sthe\sinternal\sinterfaces\sused\sfor\sinjecting\sbuilt-in\sJavascript\nfiles\sonto\sa\sweb\spage.
-D 2020-07-31T22:04:26.337
+C Fix\scaching\sfor\sbundled\saccess\sto\s/builtin.\s\sAdd\sa\smissing\ssemicolon\sto\nthe\send\sof\sgraph.js.
+D 2020-07-31T23:54:54.361
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/bisect.c fd0e00331e5b843161aca5a1056f59f7e8596f22e109f5553101fe239b1445af
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
 F src/branch.c 157bff65105f6ebf6279c55a86caa32088c6bbcbcd441244e645be9db459f405
 F src/browse.c 8058ebc25615e77091505543150dfbb01e61a2197fab3b4ba0ba1d0734c7319f
-F src/builtin.c f0686e306e0498e52a59e03c80459b80b56a130d354117f45834c5f1f511ffd1
+F src/builtin.c 7aaff45d0d526f1b80c369659a288e7c5538d829342edc5cc6f1198d7d5ea8f4
 F src/bundle.c 179a6ec56bb375aa7dc72ac263a7ffa8f5bab8055293d405f75fb273ce6feddb
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
@@ -498,7 +498,7 @@ F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c a9e1f5aae6551892f96c84bd4cd1708da2843bdd372bc45367493e8cd16f5e17
-F src/graph.js 1024af1c8a60a7edb6a8fee3cc9fc6239e742200c6b74f2da39c5b552d115404
+F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c e063f67e614c1986a6ae324e7ca0726f52d25125e58b343d519b99736d328433
@@ -1003,8 +1003,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37262b83877976eaae61f7955736fdab2a3a536ca7b0bffa7b764fa4a2f699ab b7f70ffc14489d7fd320f96b6f4905f13ea712f5dd05f90babc6fab188eb1666
-R f344806b9b061e59edd1173b2b6a1afd
-T +closed b7f70ffc14489d7fd320f96b6f4905f13ea712f5dd05f90babc6fab188eb1666
+P 036a9d5c586b58d76286f858efc7e9363a078a60c1769ae5f8c9e20dae0e960f
+R f157e20938b40fdb875bc13bebc2a834
 U drh
-Z 7059162540b61199ad0cd1975861ea8a
+Z a769566898df3d7afbd37498f6894c71
