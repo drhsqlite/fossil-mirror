@@ -889,7 +889,7 @@ void forumthread_page(void){
     style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
-  style_emit_script_builtin(0, 0, ":forum.js");
+  style_emit_script_bundle("forum.js");
   style_footer();
 }
 

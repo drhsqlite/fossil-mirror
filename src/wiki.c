@@ -1261,7 +1261,7 @@ void wikiedit_page_v2(void){
     CX("</div>"/*#wikiedit-tab-save*/);
   }
 
-  style_emit_script_builtin(0, 0, ":wikiedit.js");
+  style_emit_script_bundle("wikiedit.js");
 
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);

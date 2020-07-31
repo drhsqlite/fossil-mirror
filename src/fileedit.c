@@ -1972,7 +1972,7 @@ void fileedit_page(void){
 
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
-  style_emit_script_builtin(0, 0, ":fileedit.js");
+  style_emit_script_bundle("fileedit.js");
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
     CX("\n(function(){\n");

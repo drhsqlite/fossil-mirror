@@ -1723,6 +1723,19 @@ void style_emit_script_builtin(int asInline, int addScripTag,
 }
 
 /*
+** A convenience wrapper arond style_emit_script_builtin() which
+** prepends a ':' to zName and passes (0,0,newName) to that
+** function. i.e. it emits a SCRIPT tag with
+** src=.../builtin/:${zName}?cache=.... The given name is assumed to
+** have been added to the style.c:BundleEmitters map.
+*/
+void style_emit_script_bundle(char const * zName){
+  char *zBundle = mprintf(":%s", zName);
+  style_emit_script_builtin(0, 0, zBundle);
+  fossil_free(zBundle);
+}
+
+/*
 ** The first time this is called it emits the JS code from the
 ** built-in file fossil.fossil.js. Subsequent calls are no-ops.
 **
