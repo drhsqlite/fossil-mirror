@@ -149,7 +149,7 @@ static const struct {
   { "jpe",        3, "image/jpeg"                        },
   { "jpeg",       4, "image/jpeg"                        },
   { "jpg",        3, "image/jpeg"                        },
-  { "js",         2, "application/x-javascript"          },
+  { "js",         2, "application/javascript"            },
   { "kar",        3, "audio/midi"                        },
   { "latex",      5, "application/x-latex"               },
   { "lha",        3, "application/octet-stream"          },
