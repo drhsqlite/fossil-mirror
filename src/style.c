@@ -1188,19 +1188,29 @@ static int page_builtin_text_bundle(const char * zFilename){
 ** Return the built-in text given by FILENAME.  This is used internally 
 ** by many Fossil web pages to load built-in javascript files.
 **
-** If the id= or cache= query parameter is present, then Fossil
-** assumes that the result is immutable and sets a very large cache
-** retention time (1 year).
+** If the id= parameter is present, then Fossil assumes that the
+** result is immutable and sets a very large cache retention time (1
+** year).
 */
 void page_builtin_text(void){
   Blob out;
   const char *zName = P("name");
   const char *zTxt = 0;
-  const char *zId = PD("id",P("cache"));
+  const char *zId = P("id");
   int nId;
   int isBundle = 0;
 
+  if( zId && (nId = (int)strlen(zId))>=8 && strncmp(zId,MANIFEST_UUID,nId)==0 ){
+    g.isConst = 1;
+  }else{
+    etag_check(0,0)/*might not return*/;
+  }
   if( zName ){
+    if( sqlite3_strglob("*.js", zName)==0 ){
+      cgi_set_content_type("application/javascript");
+    }else{
+      cgi_set_content_type("text/plain");
+    }
     if(':'==zName[0]){
       isBundle = 1;
       zTxt = page_builtin_text_bundle(zName+1) ? "" : NULL;
@@ -1209,21 +1219,10 @@ void page_builtin_text(void){
     }
   }
   if( zTxt==0 ){
+    cgi_set_content_type("text/html");
     cgi_set_status(404, "Not Found");
     @ File "%h(zName)" not found
-    return;
-  }
-  if( sqlite3_strglob("*.js", zName)==0 ){
-    cgi_set_content_type("application/javascript");
-  }else{
-    cgi_set_content_type("text/plain");
-  }
-  if( zId && (nId = (int)strlen(zId))>=8 && strncmp(zId,MANIFEST_UUID,nId)==0 ){
-    g.isConst = 1;
-  }else{
-    etag_check(0,0);
-  }
-  if(isBundle==0){
+  }else if(isBundle==0){
     blob_init(&out, zTxt, -1);
     cgi_set_content(&out);
   }
