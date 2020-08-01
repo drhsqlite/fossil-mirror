@@ -1,5 +1,5 @@
-C Ported\sseveral\sfeatures\sbetween\swikiedit\sand\sfileedit,\simproving\sthem\sboth\sa\sbit.
-D 2020-08-01T21:31:18.229
+C Minor\sCSS\stweak\sfor\smobile\sbrowsers.
+D 2020-08-01T22:25:41.520
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -609,7 +609,7 @@ F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 4716c135a188ab077d458c6db10513cd056ba74428ca104f22bdc36a9e2f72f5
 F src/style.fileedit.css 2db7fdc17ec466c40d81f0e17f8624754b22b1451d6589feb8991aec56748ab1
-F src/style.wikiedit.css 5d14e2d10bbbb6fa4ccd2f6ecf09eaafa3c7589250755e8cb0b68f5e98441b19
+F src/style.wikiedit.css 058745ced660f5bea63f3a49c6329f3b13ac6855388cbc7bec06df577bda1a70
 F src/sync.c 9f42cd6031c2e1d6fd1dd584aaa09e1e7280a3c07905a80524f819af1528d7ed
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7bc942704d2c9356db444bb910dcd67b1c43121d86a22024d2a0d99588fb0fb4
-R f192e7cdf3f0080a2fce34304b49b68c
+P 0d5006bed5f8c8f22a93a70311c76826beadb12dfa14f0bbef4409746f7a23fa
+R 700c87f543d12675da65ceea2de758f1
 U stephan
-Z 78c600319e3adbca03ad84b3f21f056b
+Z 78f05b70f4bd6aa11bfa53afb88595e8

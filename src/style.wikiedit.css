@@ -42,6 +42,9 @@ body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > .input-w
   vertical-align: middle;
   margin: 0.5em;
 }
+body.wikiedit label {
+  display: inline; /* some skins set label display to block! */
+}
 body.wikiedit .wikiedit-options > div > * {
   margin: 0.25em;
 }
@@ -78,6 +81,9 @@ body.wikiedit .WikiList fieldset {
   border-width: 1px /* Ardoise skin sets this to 0 */;
   min-width: 6em;
   border-style: inset;
+}
+body.wikiedit .WikiList label {
+  margin: 0 0.5em;
 }
 body.wikiedit .WikiList legend {
   font-size: 90%;
