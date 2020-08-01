@@ -304,6 +304,7 @@
           the "normal" type filter. */},
     },
     cache: {
+      pageList: [],
       names: {
         /* Map of page names to "something." We don't map to their
            winfo bits because those regularly get swapped out via
@@ -357,6 +358,8 @@
         sel.options.remove(sel.selectedIndex);
       }
       sel.selectedIndex = ndx;
+      delete this.cache.names[name];
+      this.cache.pageList = this.cache.pageList.filter((wi)=>name !== wi.name);
     },
 
     /**
@@ -470,12 +473,15 @@
         name: name, type: wtype, mimetype: 'text/x-fossil-wiki',
         version: null, parent: null
       };
+      this.cache.pageList.push(
+        winfo/*keeps entry from getting lost from the list on save*/
+      );
       $stash.updateWinfo(winfo, '');
       this._rebuildList();
       P.loadPage(winfo.name);
       return true;
     },
-    
+
     /**
        Installs a wiki page selection list into the given parent DOM
        element and loads the page list from the server.
@@ -626,13 +632,12 @@
        Regenerates the edit selection list.
     */
     updateList: function f(stasher,theWinfo){
-      console.debug("updateList()",arguments);
       if(!f.compare){
         const cmpBase = (l,r)=>l<r ? -1 : (l===r ? 0 : 1);
-        f.compare = (l,r)=>cmpBase(l.name, r.name);
+        f.compare = (l,r)=>cmpBase(l.name.toLowerCase(), r.name.toLowerCase());
         f.rxZ = /\.\d+Z$/ /* ms and 'Z' part of date string */;
         const pad=(x)=>(''+x).length>1 ? x : '0'+x;
-        f.timestring = function ff(d){
+        f.timestring = function(d){
           return [
             d.getFullYear(),'-',pad(d.getMonth()+1/*sigh*/),'-',pad(d.getDate()),
             '@',pad(d.getHours()),':',pad(d.getMinutes())
@@ -659,20 +664,22 @@
         D.removeClass(this.e.btnClear, 'hidden');
       }
       D.disable(D.option(this.e.select,0,"Select a local edit..."));
-      const currentFinfo = theWinfo || P.winfo || {};
+      const currentWinfo = theWinfo || P.winfo || {name:''};
       ilist.sort(f.compare).forEach(function(winfo,n){
         const key = stasher.indexKey(winfo),
               rev = winfo.version || '';
         const opt = D.option(
           self.e.select, n+1/*value is (almost) irrelevant*/,
           [winfo.name,
-           rev ? ' ['+F.hashDigits(rev, 6)+']' : ' [new/local]',
-           ' @ ',
+           ' [',
+           rev ? F.hashDigits(rev) : (
+             winfo.type==='sandbox' ? 'sandbox' : 'new/local'
+           ),'] ',
            f.timestring(new Date(winfo.stashTime))
           ].join('')
         );
         opt._winfo = winfo;
-        if(0===f.compare(currentFinfo, winfo)){
+        if(0===f.compare(currentWinfo, winfo)){
           D.attr(opt, 'selected', true);
         }
       });
@@ -1246,8 +1253,6 @@
       callee.onload = function(w){
         const oldWinfo = self.winfo;
         self.unstashContent(oldWinfo);
-        self.winfo = w;
-        self.updatePageTitle();
         self.dispatchEvent('wiki-page-loaded', w);
         F.message("Saved page: ["+w.name+"].");
       }

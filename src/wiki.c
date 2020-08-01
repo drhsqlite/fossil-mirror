@@ -809,10 +809,9 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
 ** for wiki_ajax_emit_page_object().
 **
 ** The wikiajax API disallows saving of a sandbox pseudo-page, and
-** will respond with an error if asked to save one.
-**
-** Reminder: the original implementation implements sandbox-page
-** saving using:
+** will respond with an error if asked to save one. Should we want to
+** enable it, it's implemented like this for any saved page for which
+** is_sandbox(zPageName) is true:
 **
 **  db_set("sandbox",zBody,0);
 **  db_set("sandbox-mimetype",zMimetype,0);
@@ -822,7 +821,7 @@ static void wiki_ajax_route_save(void){
   const char *zPageName = P("page");
   const char *zMimetype = P("mimetype");
   const char *zContent = P("content");
-  const int isNew = atoi(PD("isnew","0"))==1;
+  const int isNew = ajax_p_bool("isnew");
   Blob content = empty_blob;
   int parentRid = 0;
   int rollback = 0;
@@ -833,11 +832,9 @@ static void wiki_ajax_route_save(void){
     ajax_route_error(403,"Saving a sandbox page is prohibited.");
     return;
   }
-  
-  /* These isNew checks are just me being pedantic. The hope is
-     to avoid accidental addition of new pages which differ only
-     by the case of their name. We could just as easily derive
-     isNew based on whether or not the page already exists. */
+  /* These isNew checks are just me being pedantic. We could just as
+     easily derive isNew based on whether or not the page already
+     exists. */
   if(isNew){
     if(parentRid>0){
       ajax_route_error(403,"Requested a new page, "
@@ -850,7 +847,6 @@ static void wiki_ajax_route_save(void){
                      "isnew=1.", zPageName);
     return;
   }
-
   blob_init(&content, zContent ? zContent : "", -1);
   db_begin_transaction();
   wiki_cmd_commit(zPageName, parentRid, &content, zMimetype, 0);
@@ -1002,7 +998,6 @@ static void wiki_ajax_route_list(void){
   db_end_transaction(0);
   CX("]");
 }
-
 
 /*
 ** WEBPAGE: wikiajax

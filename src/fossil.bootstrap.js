@@ -19,6 +19,21 @@
     return d.toISOString().replace(f.rx1,'').split('T').join(' ');
   };
 
+  /** Returns the local time string of Date object d, defaulting
+      to the current time. */
+  const localTimeString = function ff(d){
+    if(!ff.pad){
+      ff.pad = (x)=>(''+x).length>1 ? x : '0'+x;
+    }
+    d || (d = new Date());
+    return [
+      d.getFullYear(),'-',ff.pad(d.getMonth()+1/*sigh*/),
+      '-',ff.pad(d.getDate()),
+      ' ',ff.pad(d.getHours()),':',ff.pad(d.getMinutes()),
+      ':',ff.pad(d.getSeconds())
+    ].join('');
+  };
+
   /*
   ** By default fossil.message() sends its arguments console.debug(). If
   ** fossil.message.targetElement is set, it is assumed to be a DOM
@@ -32,7 +47,10 @@
   F.message = function f(msg){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = f.targetElement;
-    if(args.length) args.unshift(timestring(),'UTC:');
+    if(args.length) args.unshift(
+      localTimeString()+':'
+      //timestring(),'UTC:'
+    );
     if(tgt){
       tgt.classList.remove('error');
       tgt.innerText = args.join(' ');

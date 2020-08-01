@@ -1,5 +1,5 @@
-C Minor\sCSS\stweak\sfor\smobile\sbrowsers.
-D 2020-08-01T22:25:41.520
+C fossil.message()\sand\sfriends\snow\suse\slocal\stimestamps\sinstead\sof\sUTC.\sFixed\sa\sbug\sin\swikiedit\swhich\scaused\sa\snewly-created\spage\sto\sdisappear\sfrom\sthe\spage\sselection\slist\safter\sit\swas\ssaved.\sOther\sminor\scleanups\sin\sadjacent\scode.
+D 2020-08-01T23:38:36.398
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -485,13 +485,13 @@ F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 263e90df3d53b6037b4a1030b669f2b9b32d21dda1714afa6c0146b77e5c621a
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.bootstrap.js 8eded99d4d9c7b8e0bebe45c45780f880eda53ec09991734e95cbd65ab2a61f5
+F src/fossil.bootstrap.js 4377e822fd07a54b16944913b4fa754b92f653c376c6dfae3205c59079995699
 F src/fossil.confirmer.js 928e23bba65c28b02e0afad5ca2d510f9711dfb8e3204d0fe692e563cfad3b7e
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 33eeef2dd66585a3841e1e5f04a4cb5ef2f5c388234f3412888fc9466dafde0a
-F src/fossil.page.fileedit.js 5c8d9e969bbda1d575b23e7df5a33255fde48a14a4eac9a78a1461af1892458d
+F src/fossil.page.fileedit.js 25d503a8d02c4597c8d9496d515f03905c36a8bc3fbc90e58e3d21dfa8db291a
 F src/fossil.page.forumpost.js e0923d94ca4a7284abcc452f8411e3b80d6f12636c38c4bd0741f570365c6b48
-F src/fossil.page.wikiedit.js 95cd0f91588c4359956e53a690efe9a22889ad4c26d53212a7a953150f9ceb3d
+F src/fossil.page.wikiedit.js 07a099e6c59b1a6ff902d785fcb5a472f960adf3e7a41a626a336f0aa83a2583
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -636,7 +636,7 @@ F src/util.c de0723ef68f92958017ee60c5dc0e6b2f4121c6deac0f8a32051a1e88f78d46c
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 9362fa8a53bd351ef1413ef25d8a4aabe26f200e93974fd742dd5606848b5e28
+F src/wiki.c 289377651f90daf47b0d0f9196b8676380b0dc8a33b3ecda5dde716ca5401407
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 7eaa897946be94f75ee5ecd160e50cc6c6fa6141c600283975c996a9f1961988
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d5006bed5f8c8f22a93a70311c76826beadb12dfa14f0bbef4409746f7a23fa
-R 700c87f543d12675da65ceea2de758f1
+P bfd79af0582ed395b0f025601dadf3c287ffaea4e2c48e2ef9608b63eeec1e79
+R 92aa261f58e7c522a4c2025760f04ebe
 U stephan
-Z 78f05b70f4bd6aa11bfa53afb88595e8
+Z 8506772274136b1bd410f8021d8585d0

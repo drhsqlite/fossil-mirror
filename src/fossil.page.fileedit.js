@@ -520,7 +520,7 @@
       D.enable(this.e.select);
       D.removeClass(this.e.btnClear, 'hidden');
       D.disable(D.option(this.e.select,0,"Select a local edit..."));
-      const currentFinfo = theFinfo || P.finfo || {};
+      const currentFinfo = theFinfo || P.finfo || {filename:''};
       ilist.sort(f.compare).forEach(function(finfo,n){
         const key = stasher.indexKey(finfo),
               branch = finfo.branch
@@ -529,7 +529,7 @@
            which P.fileSelectWidget() has never seen/cached. */
         const opt = D.option(
           self.e.select, n+1/*value is (almost) irrelevant*/,
-          [F.hashDigits(finfo.checkin, 6), ' [',branch||'?branch?','] ',
+          [F.hashDigits(finfo.checkin), ' [',branch||'?branch?','] ',
            f.timestring(new Date(finfo.stashTime)),' ',
            false ? finfo.filename : F.shortenFilename(finfo.filename)
           ].join('')
