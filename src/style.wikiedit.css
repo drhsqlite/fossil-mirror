@@ -11,6 +11,7 @@ body.wikiedit select:focus{
   /* The sudden appearance of a border (as in the Ardoise skin)
      shifts the layout in unsightly ways */
   border: initial;
+  border-width: 1px;
 }
 body.wikiedit div.wikiedit-preview {
   margin: 0;
@@ -55,19 +56,15 @@ body.wikiedit .WikiList {
 body.wikiedit .WikiList select {
   font-size: 110%;
   margin: initial;
-  height: initial /* some skins set these to a fix height */;
+  height: initial /* some skins set these to a fixed height */;
+  font-family: monospace;
 }
 body.wikiedit .WikiList select option {
-  margin: 0.5em 0;
+  margin: 0 0 0.5em 0.55em;
 }
-body.wikiedit .WikiList select option.stashed::before {
-/* Maintenance reminder: the option.stashed/stashed-new "content" values
-   are duplicated in fossil.page.wikiedit.js and need to be changed there
-   if they are changed here: see fossil.page.config.editStateMarkers */
-  content: "[*] ";
-}
-body.wikiedit .WikiList select option.stashed-new::before {
-  content: "[+] ";
+body.wikiedit .WikiList select option.stashed,
+body.wikiedit .WikiList select option.stashed-new {
+  margin-left: -1em;  
 }
 body.wikiedit textarea {
   max-width: initial;
@@ -79,9 +76,12 @@ body.wikiedit .tabs .tab-panel {
 body.wikiedit .WikiList fieldset {
   padding: 0.25em;
   border-width: 1px /* Ardoise skin sets this to 0 */;
+  min-width: 6em;
+  border-style: inset;
 }
 body.wikiedit .WikiList legend {
   font-size: 90%;
+  margin: 0 0 0 0.5em;
 }
 body.wikiedit .WikiList fieldset > :not(legend) {
   /* Stretch page selection list when it's empty or only has short page names */
@@ -135,6 +135,10 @@ body.wikiedit #wikiedit-edit-status {
 
 body.wikiedit #wikiedit-edit-status > span {
   display: block;
+}
+body.wikiedit .WikiList span.is-new,
+body.wikiedit .WikiList span.is-modified {
+  font-family: monospace;
 }
 body.wikiedit #wikiedit-edit-status > span.links > a {
   margin: 0 0.25em;

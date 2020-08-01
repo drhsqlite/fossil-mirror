@@ -67,9 +67,7 @@
         P = F.page;
 
   P.config = {
-    /* Symbolic markers to denote certain edit state. Note that
-       the symbols themselves are *actually* defined in CSS, so if
-       they're changed there they also need to be changed here.*/
+    /* Symbolic markers to denote certain edit state. */
     editStateMarkers: {
       isNew: '[+]',
       isModified: '[*]'
@@ -271,6 +269,33 @@
     }
   };
 
+  /** Internal helper to get an edit status indicator for the given winfo object. */
+  const getEditMarker = function f(winfo, textOnly){
+    const esm = P.config.editStateMarkers;
+    if(1===winfo){ /* force is-new */
+        return textOnly ? esm.isNew :
+        D.addClass(D.append(D.span(),esm.isNew), 'is-new');
+    }else if(2===winfo){ /* force is-modified */
+        return textOnly ? esm.isModified :
+        D.addClass(D.append(D.span(),esm.isModified), 'is-modified');
+    }else if(winfo && winfo.version){ /* is existing page modified? */
+      if($stash.getWinfo(winfo)){
+        return textOnly ? esm.isModified :
+          D.addClass(D.append(D.span(),esm.isModified), 'is-modified');
+      }
+    }
+    else if(winfo){ /* is new non-sandbox or is modified sandbox? */
+      if('sandbox'!==winfo.type){
+        return textOnly ? esm.isNew :
+          D.addClass(D.append(D.span(),esm.isNew), 'is-new');
+      }else if($stash.getWinfo(winfo)){
+        return textOnly ? esm.isModified :
+          D.addClass(D.append(D.span(),esm.isModified), 'is-modified');
+      }
+    }
+    return textOnly ? '' : D.span();
+  };
+
   /**
      Sets up and maintains the widgets for the list of wiki pages.
   */
@@ -290,22 +315,39 @@
            the server or walking through the whole selection list.
         */}
     },
-    /** Updates OPTION elements to reflect whether the page has
-        local changes or is new/unsaved. */
-    refreshStashMarks: function(){
+    /**
+       Updates OPTION elements to reflect whether the page has local
+       changes or is new/unsaved. This implementation is horribly
+       inefficient, in that we have to walk and validate the whole
+       list for each stash-level change.
+ 
+       Reminder to self: in order to mark is-edited/is-new state we
+       have to update the OPTION element's inner text to reflect the
+       is-modified/is-new flags, rather than use CSS classes to tag
+       them, because mobile Chrome can neither restyle OPTION elements
+       no render ::before content on them. We *also* use CSS tags, but
+       they aren't sufficient for the mobile browsers.
+    */
+    _refreshStashMarks: function callee(){
+      if(!callee.eachOpt){
+        const self = this;
+        callee.eachOpt = function(key){
+          const opt = self.e.select.options[key];
+          const stashed = $stash.getWinfo({name:opt.value});
+          var prefix = '';
+          if(stashed){
+            const isNew = 'sandbox'===stashed.type ? false : !stashed.version;
+            prefix = getEditMarker(isNew ? 1 : 2, true);
+            D.addClass(opt, isNew ? 'stashed-new' : 'stashed');
+          }else{
+            D.removeClass(opt, 'stashed', 'stashed-new');
+          }
+          opt.innerText = prefix + opt.value;
+          self.cache.names[opt.value] = true;
+        };
+      }
       this.cache.names = {/*must reset it to acount for local page removals*/};
-      const select = this.e.select, self = this;
-      Object.keys(select.options).forEach(function(key){
-        const opt = select.options[key];
-        const stashed = $stash.getWinfo({name:opt.value});
-        if(stashed){
-          const isNew = 'sandbox'===stashed.type ? false : !stashed.version;
-          D.addClass(opt, isNew ? 'stashed-new' :'stashed');
-        }else{
-          D.removeClass(opt, 'stashed', 'stashed-new');
-        }
-        self.cache.names[opt.value] = true;
-      });
+      Object.keys(this.e.select.options).forEach(callee.eachOpt);
     },
     /** Removes the given wiki page entry from the page selection
         list, if it's in the list. */
@@ -322,7 +364,8 @@
 
     /**
        Rebuilds the selection list. Necessary when it's loaded from
-       the server or we locally create a new page. */
+       the server or we locally create a new page.
+    */
     _rebuildList: function callee(){
       /* Jump through some hoops to integrate new/unsaved
          pages into the list of existing pages... We use a map
@@ -358,7 +401,7 @@
         });
       D.enable(sel);
       if(P.winfo) sel.value = P.winfo.name;
-      this.refreshStashMarks();
+      this._refreshStashMarks();
     },
     
     /** Loads the page list and populates the selection list. */
@@ -455,7 +498,7 @@
 
       /** Set up filter checkboxes for the various types
           of wiki pages... */
-      const fsFilter = D.fieldset("Wiki page types"),
+      const fsFilter = D.fieldset("Page types"),
             fsFilterBody = D.div(),
             filters = ['normal', 'branch', 'checkin', 'tag']
       ;
@@ -493,10 +536,8 @@
       D.addClass(fsLegendBody, 'flex-container', 'flex-column', 'stretch');
       D.append(
         fsLegendBody,
-        D.append(D.span(), P.config.editStateMarkers.isModified,
-                 " = page has local edits"),
-        D.append(D.span(), P.config.editStateMarkers.isNew,
-                 " = page is new/unsaved")
+        D.append(D.span(), getEditMarker(1,false)," = page is new/unsaved"),
+        D.append(D.span(), getEditMarker(2,false)," = page has local edits")
       );
 
       const fsNewPage = D.fieldset("Create new page"),
@@ -530,7 +571,7 @@
       const onSelect = (e)=>P.loadPage(e.target.value);
       sel.addEventListener('change', onSelect, false);
       sel.addEventListener('dblclick', onSelect, false);
-      F.page.addEventListener('wiki-stash-updated', ()=>this.refreshStashMarks());
+      F.page.addEventListener('wiki-stash-updated', ()=>this._refreshStashMarks());
       delete this.init;
     }
   };
@@ -686,11 +727,11 @@
         }
         P.unstashContent()
         if(w.version || w.type==='sandbox'){
-          P.loadPage();
+          P.loadPage(w);
         }else{
           WikiList.removeEntry(w.name);
-          P.updatePageTitle();
           delete P.winfo;
+          P.updatePageTitle();
           F.message("Discarded new page ["+w.name+"].");
         }
       },
@@ -794,7 +835,7 @@
   };
 
   /** Updates the in-tab title/edit status information */
-  P.updateEditStatus = function f(editFlag/*for use by updatePageTitle() only*/){
+  P.updateEditStatus = function f(){
     if(!f.eLinks){
       f.eName = P.e.editStatus.querySelector('span.name');
       f.eLinks = P.e.editStatus.querySelector('span.links');
@@ -805,11 +846,7 @@
       D.append(f.eName, '(no page loaded)');
       return;
     }
-    var marker = editFlag || '';
-    if(0===arguments){
-      if(!wi.version && 'sandbox'!==wi.type) marker = P.config.editStateMarkers.isNew;
-      else if($stash.getWinfo(wi)) marker = P.config.editStateMarkers.isModified;
-    }
+    var marker = getEditMarker(wi, false);
     D.append(f.eName,marker,wi.name,);
     if(wi.version){
       D.append(
@@ -829,17 +866,10 @@
     if(!f.titleElement){
       f.titleElement = document.head.querySelector('title');
     }
-    var title, marker = '';
-    const wi = P.winfo;
-    if(wi){
-      if(!wi.version && 'sandbox'!==wi.type) marker = P.config.editStateMarkers.isNew;
-      else if($stash.getWinfo(wi)) marker = P.config.editStateMarkers.isModified;
-      title = wi.name;
-    }else{
-      title = 'no page loaded';
-    }
+    const wi = P.winfo, marker = getEditMarker(wi, true),
+          title = wi ? wi.name : 'no page loaded';
     f.titleElement.innerText = 'Wiki Editor: ' + marker + title;
-    this.updateEditStatus(marker);
+    this.updateEditStatus();
     return this;
   };
 
@@ -850,7 +880,7 @@
   P.updateSaveButton = function(){
     if(!this.winfo || !this.getStashedWinfo(this.winfo)){
       D.disable(this.e.btnSave).innerText =
-        "There are no changes to save";
+        "No changes to save";
     }else{
       D.enable(this.e.btnSave).innerText = "Save changes";
     }
@@ -953,8 +983,7 @@
     const onload = (r)=>this.dispatchEvent('wiki-page-loaded', r);
     const stashWinfo = this.getStashedWinfo({name: name});
     if(stashWinfo){ // fake a response from the stash...
-      F.message("Fetched from the local-edit storage:",
-                stashWinfo.name);
+      F.message("Fetched from the local-edit storage:", stashWinfo.name);
       onload({
         name: stashWinfo.name,
         mimetype: stashWinfo.mimetype,
