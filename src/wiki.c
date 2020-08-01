@@ -556,12 +556,7 @@ void wiki_page(void){
     if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
      && wiki_special_permission(zPageName)
     ){
-      if( db_get_boolean("wysiwyg-wiki", 0) ){
-        style_submenu_element("Edit", "%R/wikiedit?name=%T&wysiwyg=1",
-                              zPageName);
-      }else{
-        style_submenu_element("Edit", "%R/wikiedit?name=%T", zPageName);
-      }
+      style_submenu_element("Edit", "%R/wikiedit?name=%T", zPageName);
     }else if( rid && g.perm.ApndWiki ){
       style_submenu_element("Edit", "%R/wikiappend?name=%T", zPageName);
     }
@@ -1071,11 +1066,11 @@ void wiki_ajax_page(void){
 ** until the user explicitly saves it). If passed no page name,
 ** the user may select a page from the list on the first UI tab.
 **
-** To create a new page, pass both name=PAGENAME and
-** mimetype=wiki-mime-type (one of text/x-fossil-wiki,
-** text/x-markdown, or text/plain, defauling to the former).
+** When creating a new page, the mimetype URL parameter may optionally
+** be used to set its mimetype to one of text/x-fossil-wiki,
+** text/x-markdown, or text/plain, defauling to the former.
 */
-void wikiedit_page_v2(void){
+void wikiedit_page(void){
   const char *zPageName;
   const char * zMimetype = P("mimetype");
   int isSandbox;
@@ -1285,221 +1280,6 @@ void wikiedit_page_v2(void){
 }
 
 /*
-** Legacy /wikiedit implementation, kept around solely for comparison
-** while implementing v2.
-*/
-void wikiedit_page(void){
-  char *zTag;
-  int rid = 0;
-  int isSandbox;
-  Blob wiki;
-  Manifest *pWiki = 0;
-  const char *zPageName;
-  int n;
-  const char *z;
-  char *zBody = (char*)P("w");
-  const char *zMimetype = wiki_filter_mimetypes(P("mimetype"));
-  int isWysiwyg = P("wysiwyg")!=0;
-  int goodCaptcha = 1;
-  int eType = WIKITYPE_UNKNOWN;
-  int havePreview = 0;
-
-  if(1){
-    wikiedit_page_v2();
-    return;
-  }
-  
-  if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
-  if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
-  if( zBody ){
-    if( isWysiwyg ){
-      Blob body;
-      blob_zero(&body);
-      htmlTidy(zBody, &body);
-      zBody = blob_str(&body);
-    }else{
-      zBody = mprintf("%s", zBody);
-    }
-  }
-  login_check_credentials();
-  zPageName = PD("name","");
-  if( check_name(zPageName) ) return;
-  isSandbox = is_sandbox(zPageName);
-  if( isSandbox ){
-    if( !g.perm.WrWiki ){
-      login_needed(g.anon.WrWiki);
-      return;
-    }
-    if( zBody==0 ){
-      zBody = db_get("sandbox","");
-      zMimetype = db_get("sandbox-mimetype","text/x-fossil-wiki");
-    }
-  }else{
-    zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-      " ORDER BY mtime DESC", zTag
-    );
-    free(zTag);
-    if( !wiki_special_permission(zPageName) ){
-      login_needed(0);
-      return;
-    }
-    if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
-      login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
-      return;
-    }
-    if( zBody==0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
-      zBody = pWiki->zWiki;
-      zMimetype = pWiki->zMimetype;
-    }
-  }
-  if( P("submit")!=0 && zBody!=0
-   && (goodCaptcha = captcha_is_correct(0))
-  ){
-    char *zDate;
-    Blob cksum;
-    blob_zero(&wiki);
-    db_begin_transaction();
-    if( isSandbox ){
-      db_set("sandbox",zBody,0);
-      db_set("sandbox-mimetype",zMimetype,0);
-    }else{
-      login_verify_csrf_secret();
-      zDate = date_in_standard_format("now");
-      blob_appendf(&wiki, "D %s\n", zDate);
-      free(zDate);
-      blob_appendf(&wiki, "L %F\n", zPageName);
-      if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")!=0 ){
-        blob_appendf(&wiki, "N %s\n", zMimetype);
-      }
-      if( rid ){
-        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-        blob_appendf(&wiki, "P %s\n", zUuid);
-        free(zUuid);
-      }
-      if( !login_is_nobody() ){
-        blob_appendf(&wiki, "U %F\n", login_name());
-      }
-      blob_appendf(&wiki, "W %d\n%s\n", strlen(zBody), zBody);
-      md5sum_blob(&wiki, &cksum);
-      blob_appendf(&wiki, "Z %b\n", &cksum);
-      blob_reset(&cksum);
-      wiki_put(&wiki, 0, wiki_need_moderation(0));
-    }
-    db_end_transaction(0);
-    cgi_redirectf("wiki?name=%T", zPageName);
-  }
-  if( P("cancel")!=0 ){
-    cgi_redirectf("wiki?name=%T", zPageName);
-    return;
-  }
-  if( zBody==0 ){
-    zBody = mprintf("");
-  }
-  style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  eType = wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "Edit: ");
-  if( rid && !isSandbox && g.perm.ApndWiki ){
-    if( g.perm.Attach ){
-      style_submenu_element("Attach",
-           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
-           g.zTop, zPageName, g.zTop, zPageName);
-    }
-  }
-  if( !goodCaptcha ){
-    @ <p class="generalError">Error:  Incorrect security code.</p>
-  }
-  blob_zero(&wiki);
-  while( fossil_isspace(zBody[0]) ) zBody++;
-  blob_append(&wiki, zBody, -1);
-  if( P("preview")!=0 ){
-    havePreview = 1;
-    if( zBody[0] ){
-      @ Preview:<hr />
-      safe_html_context(DOCSRC_WIKI);
-      wiki_render_by_mimetype(&wiki, zMimetype);
-      @ <hr />
-      blob_reset(&wiki);
-    }
-  }
-  for(n=2, z=zBody; z[0]; z++){
-    if( z[0]=='\n' ) n++;
-  }
-  if( n<20 ) n = 20;
-  if( n>30 ) n = 30;
-  if( !isWysiwyg ){
-    /* Traditional markup-only editing */
-    char *zPlaceholder = 0;
-    switch( eType ){
-      case WIKITYPE_NORMAL: {
-        zPlaceholder = mprintf("Enter text for wiki page %s", zPageName);
-        break;
-      }
-      case WIKITYPE_BRANCH: {
-        zPlaceholder = mprintf("Enter notes about branch %s", zPageName+7);
-        break;
-      }
-      case WIKITYPE_CHECKIN: {
-        zPlaceholder = mprintf("Enter notes about check-in %.20s", zPageName+8);
-        break;
-      }
-      case WIKITYPE_TAG: {
-        zPlaceholder = mprintf("Enter notes about tag %s", zPageName+4);
-        break;
-      }
-    }
-    form_begin(0, "%R/wikiedit");
-    @ <div>%z(href("%R/markup_help"))Markup style</a>:
-    mimetype_option_menu(zMimetype);
-    @ <br /><textarea name="w" class="wikiedit" cols="80" \
-    @  rows="%d(n)" wrap="virtual" placeholder="%h(zPlaceholder)">\
-    @ %h(zBody)</textarea>
-    @ <br />
-    fossil_free(zPlaceholder);
-    if( db_get_boolean("wysiwyg-wiki", 0) ){
-      @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor"
-      @  onclick='return confirm("Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?")' />
-    }
-    @ <input type="submit" name="preview" value="Preview Your Changes" />
-  }else{
-    /* Wysiwyg editing */
-    Blob html, temp;
-    havePreview = 1;
-    form_begin("", "%R/wikiedit");
-    @ <div>
-    @ <input type="hidden" name="wysiwyg" value="1" />
-    blob_zero(&temp);
-    wiki_convert(&wiki, &temp, 0);
-    blob_zero(&html);
-    htmlTidy(blob_str(&temp), &html);
-    blob_reset(&temp);
-    wysiwygEditor("w", blob_str(&html), 60, n);
-    blob_reset(&html);
-    @ <br />
-    @ <input type="submit" name="edit-markup" value="Markup Editor"
-    @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
-  }
-  login_insert_csrf_secret();
-  if( havePreview ){
-    if( isWysiwyg || zBody[0] ){
-      @ <input type="submit" name="submit" value="Apply These Changes" />
-    }else{
-      @ <input type="submit" name="submit" value="Delete This Wiki Page" />
-    }
-  }
-  @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <input type="submit" name="cancel" value="Cancel"
-  @  onclick='confirm("Abandon your changes?")' />
-  @ </div>
-  captcha_generate(0);
-  @ </form>
-  manifest_destroy(pWiki);
-  blob_reset(&wiki);
-  style_footer();
-}
-
-/*
 ** WEBPAGE: wikinew
 ** URL /wikinew
 **
@@ -1517,13 +1297,7 @@ void wikinew_page(void){
   zName = PD("name","");
   zMimetype = wiki_filter_mimetypes(P("mimetype"));
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
-    if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")==0
-     && db_get_boolean("wysiwyg-wiki", 0)
-    ){
-      cgi_redirectf("wikiedit?name=%T&wysiwyg=1", zName);
-    }else{
-      cgi_redirectf("wikiedit?name=%T&mimetype=%s", zName, zMimetype);
-    }
+    cgi_redirectf("wikiedit?name=%T&mimetype=%s", zName, zMimetype);
   }
   style_header("Create A New Wiki Page");
   wiki_standard_submenu(W_ALL_BUT(W_NEW));

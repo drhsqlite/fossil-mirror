@@ -1080,13 +1080,6 @@ void setup_wiki(void){
   @ (Property: "safe-html")</p>
   @ <hr />
   @ <hr />
-  onoff_attribute("Enable WYSIWYG Wiki Editing",
-                  "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
-  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
-  @ The WYSIWYG editor generates HTML instead of markup, which makes
-  @ subsequent manual editing more difficult.
-  @ (Property: "wysiwyg-wiki")</p>
-  @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
   @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
