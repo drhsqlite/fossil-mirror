@@ -1919,9 +1919,14 @@ int wiki_technote_to_rid(const char *zETime) {
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 **
+** The "Sandbox" wiki pseudo-page is a special case. Its name is
+** checked case-insensitively and either "create" or "commit" may be
+** used to update its contents.
 */
 void wiki_cmd(void){
   int n;
+  int isSandbox = 0;     /* true if dealing with sandbox pseudo-page */
+
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
     goto wiki_cmd_usage;
@@ -1932,10 +1937,10 @@ void wiki_cmd(void){
   }
 
   if( strncmp(g.argv[2],"export",n)==0 ){
-    const char *zPageName;        /* Name of the wiki page to export */
+    const char *zPageName = 0;    /* Name of the wiki page to export */
     const char *zFile;            /* Name of the output file (0=stdout) */
     const char *zETime;           /* The name of the technote to export */
-    int rid;                      /* Artifact ID of the wiki page */
+    int rid = 0;                  /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
     Blob body = empty_blob;       /* Wiki page content */
@@ -1957,13 +1962,14 @@ void wiki_cmd(void){
         usage("export ?-html? PAGENAME ?FILE?");
       }
       zPageName = g.argv[3];
-      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-        " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-        " ORDER BY x.mtime DESC LIMIT 1",
-        zPageName
-      );
-      if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
-        zBody = pWiki->zWiki;
+      isSandbox = is_sandbox(zPageName);
+      if(isSandbox){
+        zBody = db_get("sandbox", 0);
+      }else{
+        wiki_fetch_by_name(zPageName, 0, &rid, &pWiki);
+        if(pWiki){
+          zBody = pWiki->zWiki;
+        }
       }
       if( zBody==0 ){
         fossil_fatal("wiki page [%s] not found",zPageName);
@@ -1993,26 +1999,20 @@ void wiki_cmd(void){
       blob_append(&body, "\n", 1);
     }else{
       Blob html = empty_blob;   /* HTML-ized content */
-      const char * zMimetype = wiki_filter_mimetypes(pWiki->zMimetype);
+      const char * zMimetype = isSandbox
+        ? db_get("sandbox-mimetype", "text/x-fossil-wiki")
+        : wiki_filter_mimetypes(pWiki->zMimetype);
       if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
         wiki_convert(&body,&html,0);
       }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-        markdown_to_html(&body,0,&html)
-          /* TODO: add -HTML|-H flag to work like -html|-h but also
-          ** add <html><body> tag wrappers around the output. The
-          ** hurdle here is that the markdown converter resets its
-          ** input blob before appending the output, which is
-          ** different from wiki_convert() and htmlize_to_blob(), and
-          ** precludes us simply appending the opening <html><body>
-          ** part to the body
-          */;
+        markdown_to_html(&body,0,&html);
         safe_html_context(DOCSRC_WIKI);
         safe_html(&html);
       }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
         htmlize_to_blob(&html,zBody,i);
       }else{
         fossil_fatal("Unsupported MIME type '%s' for wiki page '%s'.",
-                     zMimetype, pWiki->zWikiTitle );
+                     zMimetype, pWiki ? pWiki->zWikiTitle : zPageName );
       }
       blob_reset(&body);
       body = html /* transfer memory */;
@@ -2058,14 +2058,10 @@ void wiki_cmd(void){
     }else{
       blob_read_from_file(&content, g.argv[4], ExtFILE);
     }
+    isSandbox = is_sandbox(zPageName);
     if ( !zETime ){
-      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-                   " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-                   " ORDER BY x.mtime DESC LIMIT 1",
-                   zPageName
-                   );
-      if( rid>0 ){
-        pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
+      if( !isSandbox ){
+        wiki_fetch_by_name(zPageName, 0, &rid, &pWiki);
       }
     }else{
       rid = wiki_technote_to_rid(zETime);
@@ -2075,7 +2071,11 @@ void wiki_cmd(void){
     }
     if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */
-      if( pWiki!=0 && (pWiki->zMimetype && *pWiki->zMimetype) ){
+      if(isSandbox){
+        zMimeType =
+          wiki_filter_mimetypes(db_get("sandbox-mimetype",
+                                       "text/x-fossil-wiki"));
+      }else if( pWiki!=0 && (pWiki->zMimetype && *pWiki->zMimetype) ){
         zMimeType = pWiki->zMimetype;
       }
     }else{
@@ -2089,7 +2089,7 @@ void wiki_cmd(void){
            and should create a new tech note */
         rid = 0;
       }
-    }else if( !isCreate && rid == 0 ){
+    }else if( !isCreate && rid==0 && isSandbox==0 ){
       if ( !zETime ){
         fossil_fatal("no such wiki page: %s", zPageName);
       }else{
@@ -2098,11 +2098,17 @@ void wiki_cmd(void){
     }
 
     if( !zETime ){
-      wiki_cmd_commit(zPageName, rid, &content, zMimeType, 1);
-      if( g.argv[2][1]=='r' ){
-        fossil_print("Created new wiki page %s.\n", zPageName);
+      if(isSandbox){
+        db_set("sandbox",blob_str(&content),0);
+        db_set("sandbox-mimetype",zMimeType,0);
+        fossil_print("Updated sandbox pseudo-page.\n");
       }else{
-        fossil_print("Updated wiki page %s.\n", zPageName);
+        wiki_cmd_commit(zPageName, rid, &content, zMimeType, 1);
+        if( g.argv[2][1]=='r' ){
+          fossil_print("Created new wiki page %s.\n", zPageName);
+        }else{
+          fossil_print("Updated wiki page %s.\n", zPageName);
+        }
       }
     }else{
       if( rid != -1 ){

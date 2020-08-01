@@ -1,5 +1,5 @@
-C Style\stweaks\sand\sre-did\show\sthe\sOPTION\selements\sare\smarked\sis-new/is-modified\sso\sthat\sthe\smobile\sbrowsers\scan\sshow\sthat\sstate.
-D 2020-08-01T17:56:24.361
+C Updated\sthe\swiki\sCLI\scommand\sto\saccount\sfor\sthe\ssandbox\spseudo-page\sand\sremoved\san\sobsolete\sTODO.
+D 2020-08-01T18:47:13.842
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -636,7 +636,7 @@ F src/util.c de0723ef68f92958017ee60c5dc0e6b2f4121c6deac0f8a32051a1e88f78d46c
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 9fd4868954f6ae0dc0a55c1216123c1902158efcda58e00e7f6dc9d4c9806836
+F src/wiki.c 9362fa8a53bd351ef1413ef25d8a4aabe26f200e93974fd742dd5606848b5e28
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 7eaa897946be94f75ee5ecd160e50cc6c6fa6141c600283975c996a9f1961988
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -831,7 +831,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 17d3ed1c4ec09e079ac5612623c1fd72aa068abb1169443a86adf16479740975
+F www/changes.wiki ca28b44b30b7cc8e1d0de238cb115ad4bf70c7c0a6a1b5acf2080773e45a5559
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb77abd3b5b116b423870f3045aa464172d6900712e007094da54792f6009d0d
-R de579bb1b14dbcd079fa57d12097df3d
+P d9f4b6dbedbe051de94fad5f91ce6fa0e54571e966d4db68be20078f79d6cb00
+R bf26a5c5771d528a1ce6baf21393f12a
 U stephan
-Z f2990000c6d4fbd0156619ec5efa5aa5
+Z d062b742b86a875ff4ae8f53a21a928d

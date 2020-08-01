@@ -65,7 +65,8 @@
      pages was removed. (Please let us know, via the site's Support menu,
      if that removal unduly impacts you.) This also changes the semantics
      of the wiki "Sandbox": that pseudo-page may be freely edited but
-     no longer saved via the UI.
+     no longer saved via the UI (the [/help?cmd=wiki|wiki CLI command]
+     can, though).
   *  Countless documentation enhancements.
 
 <a name='v2_11'></a>
