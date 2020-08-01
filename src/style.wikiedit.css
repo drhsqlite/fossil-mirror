@@ -119,6 +119,23 @@ body.wikiedit span.save-button-slot {
   display: none;
 }
 
-body.wikiedit #wikiedit-page-name > span {
+body.wikiedit #wikiedit-edit-status {
+  border-radius: 0.25em 0.25em 0 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  cursor: initial;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
   font-family: monospace;
+  font-size: 1.2em;
+}
+
+body.wikiedit #wikiedit-edit-status > span {
+  display: block;
+}
+body.wikiedit #wikiedit-edit-status > span.links > a {
+  margin: 0 0.25em;
 }

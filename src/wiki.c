@@ -1108,7 +1108,10 @@ void wikiedit_page(void){
      "Status messages will go here.</div>\n"
      /* will be moved into the tab container via JS */);
 
-  CX("<div id='wikiedit-page-name'>Editing: <span>(no file loaded)</span></div>");
+  CX("<div id='wikiedit-edit-status''>"
+     "<span class='name'></span>"
+     "<span class='links'></span>"
+     "</div>");
   
   /* Main tab container... */
   CX("<div id='wikiedit-tabs' class='tab-container'>Loading...</div>");
@@ -1218,25 +1221,22 @@ void wikiedit_page(void){
   {
     CX("<div id='wikiedit-tab-misc' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Help, Attachments, etc.' "
+       "data-tab-label='Help' "
        "class='hidden'"
        ">");
-    CX("<h3>Wiki formatting rules</h3>");
+    CX("<h2>Wiki formatting rules</h2>");
     CX("<ul>");
     CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");
     CX("<li><a href='%R/md_rules'>Markdown format</a></li>");
     CX("<li>Plain-text pages use no special formatting.</li>");
     CX("</ul>");
-    CX("<hr><h3>Attachments</h3>");
-    CX("<div id='wikiedit-attachments'></div>"
-       /* Filled out by JS */);
-    CX("<hr><h3>The \"Sandbox\" Page</h3>");
+    CX("<h2>The \"Sandbox\" Page</h2>");
     CX("<p>The page named \"Sandbox\" is not a real wiki page. "
        "It provides a place where users may test out wiki syntax "
        "without having to actually save anything, nor pollute "
        "the repo with endless test runs. Any attempt to save the "
        "sandbox page will fail.</p>");
-    CX("<hr><h3>Wiki Name Rules</h3>");
+    CX("<h2>Wiki Name Rules</h2>");
     well_formed_wiki_name_rules();
     CX("</div>"/*#wikiedit-tab-save*/);
   }

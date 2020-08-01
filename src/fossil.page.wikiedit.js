@@ -593,7 +593,7 @@
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       previewTarget: E('#wikiedit-tab-preview-wrapper'),
       diffTarget: E('#wikiedit-tab-diff-wrapper'),
-      attachmentWrapper: E("#wikiedit-attachments"),
+      editStatus: E('#wikiedit-edit-status'),
       tabContainer: E('#wikiedit-tabs'),
       tabs:{
         pageList: E('#wikiedit-tab-pages'),
@@ -605,6 +605,7 @@
       }
     };
     P.tabs = new fossil.TabManager(D.clearElement(P.e.tabContainer));
+    P.tabs.e.container.insertBefore(P.e.editStatus, P.tabs.e.tabs);
     P.tabs.e.container.insertBefore(
       /* Move the status bar between the tab buttons and
          tab panels. Seems to be the best fit in terms of
@@ -634,8 +635,6 @@
              is hidden (and therefore P.e.diffTarget is also hidden).
           */
           D.removeClass(P.e.diffTarget, 'hidden');
-        }else if(theTab===P.e.tabs.misc){
-          P.updateAttachmentView();
         }
       }
     );
@@ -772,14 +771,14 @@
         P.wikiContent(winfo.content || '');
         WikiList.e.select.value = winfo.name;
         if(!winfo.version && winfo.type!=='sandbox'){
-          F.error('You are editing a new, unsaved page:',winfo.name);
+          F.message('You are editing a new, unsaved page:',winfo.name);
         }
         P.updatePageTitle();
       },
       false
     );
     P.addEventListener('wiki-stash-updated', ()=>P.updateSaveButton())
-      .updatePageTitle().updateAttachmentView().updateSaveButton();
+      .updatePageTitle().updateSaveButton();
   }/*F.onPageLoad()*/);
 
   /**
@@ -794,6 +793,34 @@
     return !!P.winfo;
   };
 
+  /** Updates the in-tab title/edit status information */
+  P.updateEditStatus = function f(editFlag/*for use by updatePageTitle() only*/){
+    if(!f.eLinks){
+      f.eName = P.e.editStatus.querySelector('span.name');
+      f.eLinks = P.e.editStatus.querySelector('span.links');
+    }
+    const wi = this.winfo;
+    D.clearElement(f.eName, f.eLinks);
+    if(!wi){
+      D.append(f.eName, '(no page loaded)');
+      return;
+    }
+    var marker = editFlag || '';
+    if(0===arguments){
+      if(!wi.version && 'sandbox'!==wi.type) marker = P.config.editStateMarkers.isNew;
+      else if($stash.getWinfo(wi)) marker = P.config.editStateMarkers.isModified;
+    }
+    D.append(f.eName,marker,wi.name,);
+    if(wi.version){
+      D.append(
+        f.eLinks,
+        D.a(F.repoUrl('whistory',{name:wi.name}),'[history]'),
+        D.a(F.repoUrl('attachlist',{page:wi.name}),"[attachments]"),
+        D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "[attach]")
+      );
+    }
+  };
+
   /**
      Update the page title and header based on the state of
      this.winfo. A no-op if this.winfo is not set. Returns this.
@@ -801,20 +828,18 @@
   P.updatePageTitle = function f(){
     if(!f.titleElement){
       f.titleElement = document.head.querySelector('title');
-      f.pageTitleHeader = document.querySelector('#wikiedit-page-name > span');
     }
-    var title = [];
+    var title, marker = '';
     const wi = P.winfo;
     if(wi){
-      if(!wi.version && 'sandbox'!==wi.type) title.push(P.config.editStateMarkers.isNew);
-      else if($stash.getWinfo(wi)) title.push(P.config.editStateMarkers.isModified)
-      title.push(wi.name);
+      if(!wi.version && 'sandbox'!==wi.type) marker = P.config.editStateMarkers.isNew;
+      else if($stash.getWinfo(wi)) marker = P.config.editStateMarkers.isModified;
+      title = wi.name;
     }else{
-      title.push('(no page loaded)');
+      title = 'no page loaded';
     }
-    title = title.join(' ');
-    f.pageTitleHeader.innerText = title;
-    f.titleElement.innerText = 'Wiki Editor:' + title;
+    f.titleElement.innerText = 'Wiki Editor: ' + marker + title;
+    this.updateEditStatus(marker);
     return this;
   };
 
@@ -832,40 +857,6 @@
     return this;
   };
 
-  /** Updates attachment-related links and returns this. */
-  P.updateAttachmentView = function(){
-    const wrapper = P.e.attachmentWrapper;
-    D.clearElement(wrapper);
-    const ul = D.ul();
-    D.append(wrapper, ul);
-    if(!P.winfo){
-      D.append(D.li(ul),
-               "Load a page to get access to its attachment-related pages.");
-      return this;
-    }else if(!P.winfo.version){
-      D.append(D.li(ul),
-               "A new/unsaved page cannot have attachments. Save it first.");
-      return this;
-    }
-    const wi = P.winfo;
-    D.append(
-      D.li(ul),
-      D.a(F.repoUrl('attachadd',{
-        page:wi.name,
-        from: F.repoUrl('wikiedit',{
-          name: wi.name
-        })
-      }), "Add attachments.")
-    );
-    D.append(
-      D.li(ul),
-      D.a(F.repoUrl('attachlist',{page:wi.name}),
-          "List attachments"),
-      " (if any)."
-    );
-    return this;
-  };
-  
   /**
      Getter (if called with no args) or setter (if passed an arg) for
      the current file content.
