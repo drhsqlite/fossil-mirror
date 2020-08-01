@@ -1,0 +1,124 @@
+body.wikieedit.waiting * {
+  /* Triggered during AJAX requests. */
+  cursor: wait;
+}
+body.wikiedit textarea,
+body.wikiedit textarea:focus,
+body.wikiedit input,
+body.wikiedit input:focus,
+body.wikiedit select,
+body.wikiedit select:focus{
+  /* The sudden appearance of a border (as in the Ardoise skin)
+     shifts the layout in unsightly ways */
+  border: initial;
+}
+body.wikiedit div.wikiedit-preview {
+  margin: 0;
+  padding: 0;
+}
+body.wikiedit #wikiedit-tabs {
+  margin: 1em 0 0 0;
+}
+body.wikiedit #wikiedit-tab-preview-wrapper {
+  overflow: auto;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > button {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > input {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > .input-with-label {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.wikiedit .wikiedit-options > div > * {
+  margin: 0.25em;
+}
+body.wikiedit .wikiedit-options.flex-container.flex-row {
+  align-items: first baseline;
+}
+body.wikiedit .WikiList {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+body.wikiedit .WikiList select {
+  font-size: 110%;
+  margin: initial;
+  height: initial /* some skins set these to a fix height */;
+}
+body.wikiedit .WikiList select option {
+  margin: 0.5em 0;
+}
+body.wikiedit .WikiList select option.stashed::before {
+/* Maintenance reminder: the option.stashed/stashed-new "content" values
+   are duplicated in fossil.page.wikiedit.js and need to be changed there
+   if they are changed here: see fossil.page.config.editStateMarkers */
+  content: "[*] ";
+}
+body.wikiedit .WikiList select option.stashed-new::before {
+  content: "[+] ";
+}
+body.wikiedit textarea {
+  max-width: initial;
+}
+body.wikiedit .tabs .tab-panel {
+  /* Needed for wide diffs */
+  overflow: auto;
+}
+body.wikiedit .WikiList fieldset {
+  padding: 0.25em;
+  border-width: 1px /* Ardoise skin sets this to 0 */;
+}
+body.wikiedit .WikiList legend {
+  font-size: 90%;
+}
+body.wikiedit .WikiList fieldset > :not(legend) {
+  /* Stretch page selection list when it's empty or only has short page names */
+  width: 100%;
+}
+body.wikiedit .WikiList .fieldset-wrapper {
+  /* Container for the filter and edit status fieldsets */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: stretch;
+  margin: 0;
+}
+body.wikiedit .WikiList button.save {
+  margin: 1em 0 0 0;
+}
+body.wikiedit .WikiList .new-page {
+  align-items: flex-start;
+  max-width: 15em;
+}
+body.wikiedit .WikiList .new-page input {
+}
+body.wikiedit #wikiedit-tab-misc h3 {
+  margin: 0;
+}
+body.wikiedit span.mini-tip {
+  font-size: 80%;
+}
+
+body.wikiedit span.save-button-slot {
+  /* These invisible placeholders mark spots in the UI
+     (max. 1 per tab) to where the save button gets
+     relocated as we switch between tabs. */
+  display: none;
+}
+
+body.wikiedit #wikiedit-page-name > span {
+  font-family: monospace;
+}

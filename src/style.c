@@ -1425,20 +1425,23 @@ void style_select_list_str(const char * zWrapperId,
 **
 ** Subsequent calls are no-ops.
 **
-** If passed a true value, it emits the contents directly to the page
-** output, else it emits a script tag with a src=builtin/... to load
-** the script. It always outputs a small pre-bootstrap element in its
-** own script tag to initialize parts which need C-runtime-level
-** information, before loading the main fossil.bootstrap.js either
-** inline or via a <script src=...>, as specified by the first
-** argument.
+** It emits 2 parts:
+**
+** 1) window.fossil core object, some of which depends on C-level
+** runtime data. That part of the script is always emitted inline. If
+** addScriptTag is true then it is wrapped in its own SCRIPT tag, else
+** it is assumed that the caller already opened a tag.
+**
+** 2) Emits the static fossil.bootstrap.js using builtin_request_js().
 */
-void style_emit_script_fossil_bootstrap(int asInline){
+void style_emit_script_fossil_bootstrap(int addScriptTag){
   static int once = 0;
   if(0==once++){
     /* Set up the generic/app-agnostic parts of window.fossil
     ** which require C-level state... */
-    style_emit_script_tag(0,0);
+    if(addScriptTag!=0){
+      style_emit_script_tag(0,0);
+    }
     CX("(function(){\n"
        "if(!window.fossil) window.fossil={};\n"
        "window.fossil.version = %!j;\n"
@@ -1467,9 +1470,11 @@ void style_emit_script_fossil_bootstrap(int asInline){
        "name:\"%T\""
        "};\n", g.zPath);
     CX("})();\n");
-    /* The remaining fossil object bootstrap code is not dependent on
+    if(addScriptTag!=0){
+      style_emit_script_tag(1,0);
+    }
+    /* The remaining window.fossil bootstrap code is not dependent on
     ** C-runtime state... */
-    style_emit_script_tag(1,0);
     builtin_request_js("fossil.bootstrap.js");
   }
 }
@@ -1502,4 +1507,34 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
   }else{
     CX("</script>\n");
   }
+}
+
+/*
+** Convenience wrapper which calls builtin_request_js() for a series
+** of builtin scripts named fossil.NAME.js. The first time it is
+** called, it also calls style_emit_script_fossil_bootstrap() to
+** initialize the window.fossil JS API. The first argument is a
+** no-meaning dummy required by the va_start() interface. All
+** subsequent arguments must be strings of the NAME part of
+** fossil.NAME.js, followed by a NULL argument to terminate the list.
+**
+** e.g. pass it (0, "fetch", "dom", "tabs", 0) to load those 3
+** APIs. Do not forget the trailing 0!
+*/
+void style_emit_fossil_js_apis( int dummy, ... ) {
+  static int once = 0;
+  const char *zArg;
+  char * zName;
+  va_list vargs;
+
+  if(0==once++){
+    style_emit_script_fossil_bootstrap(1);
+  }
+  va_start(vargs,dummy);
+  while( (zArg = va_arg (vargs, const char *))!=0 ){
+    zName = mprintf("fossil.%s.js", zArg);
+    builtin_request_js(zName);
+    fossil_free(zName);
+  }
+  va_end(vargs);
 }

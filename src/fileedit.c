@@ -1632,11 +1632,15 @@ void fileedit_page(void){
   /* Main tab container... */
   CX("<div id='fileedit-tabs' class='tab-container'></div>");
 
+  /* The .hidden class on the following tab elements is to help lessen
+     the FOUC effect of the tabs before JS re-assembles them. */
+
   /***** File/version info tab *****/
   {
     CX("<div id='fileedit-tab-fileselect' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='File Info &amp; Selection'"
+       "data-tab-label='File Info &amp; Selection' "
+       "class='hidden'"
        ">");
     CX("<fieldset id='file-version-details'>"
        "<legend>File/Version</legend>"
@@ -1651,7 +1655,8 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-content' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='File Content'"
+       "data-tab-label='File Content' "
+       "class='hidden'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
     CX("<button class='fileedit-content-reload confirmer' "
@@ -1681,7 +1686,8 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-preview' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='Preview'"
+       "data-tab-label='Preview' "
+       "class='hidden'"
        ">");
     CX("<div class='fileedit-options flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
@@ -1743,7 +1749,8 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-diff' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='Diff'"
+       "data-tab-label='Diff' "
+       "class='hidden'"
        ">");
 
     CX("<div class='fileedit-options flex-container flex-row' "
@@ -1775,7 +1782,8 @@ void fileedit_page(void){
   /****** Commit ******/
   CX("<div id='fileedit-tab-commit' "
      "data-tab-parent='fileedit-tabs' "
-     "data-tab-label='Commit'"
+     "data-tab-label='Commit' "
+     "class='hidden'"
      ">");
   {
     /******* Commit flags/options *******/
@@ -1896,7 +1904,8 @@ void fileedit_page(void){
   /****** Help/Tips ******/
   CX("<div id='fileedit-tab-help' "
      "data-tab-parent='fileedit-tabs' "
-     "data-tab-label='Help'"
+     "data-tab-label='Help' "
+     "class='hidden'"
      ">");
   {
     CX("<h1>Help &amp; Tips</h1>");
@@ -1951,24 +1960,22 @@ void fileedit_page(void){
 
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
-  style_emit_script_fossil_bootstrap(0);
-  append_diff_javascript(1);
-  builtin_request_js("fossil.fetch.js");
-  builtin_request_js("fossil.dom.js");
-  builtin_request_js("fossil.tabs.js");
-  builtin_request_js("fossil.confirmer.js");
-  builtin_request_js("fossil.storage.js");
 
+  builtin_request_js("sbsdiff.js");
+  style_emit_fossil_js_apis(0, "fetch", "dom", "tabs", "confirmer",
+                            "storage", 0);
+  builtin_fulfill_js_requests();
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
   ** used for dynamically toggling certain UI components on and off.
-  ** Must come before fossil.page.fileedit.js and after the fetches
-  ** above.
+  ** Must come after window.fossil has been intialized and before
+  ** fossil.page.fileedit.js. Potential TODO: move this into the
+  ** window.fossil bootstrapping so that we don't have to "fulfill"
+  ** the JS multiple times.
   */
-  builtin_fulfill_js_requests();
   ajax_emit_js_preview_modes(1);
-
   builtin_request_js("fossil.page.fileedit.js");
+  builtin_fulfill_js_requests();
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
     CX("\n(function(){\n");
