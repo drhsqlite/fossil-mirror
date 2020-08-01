@@ -2098,6 +2098,10 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             processed in order.  If the REPO is "*", then
 **                             an unconditional redirect to URL is taken.
 **
+**     jsmode: VALUE           Specifies the delivery mode for JavaScript
+**                             files. See the help text for the --jsmode
+**                             flag of the http command.
+**
 ** Most CGI files contain only a "repository:" line.  It is uncommon to
 ** use any other option.
 **
@@ -2276,11 +2280,13 @@ void cmd_cgi(void){
     if( blob_eq(&key, "jsmode:") && blob_token(&line, &value) ){
       /* jsmode: MODE
       **
-      ** Change how javascript resources are delivered with each HTML
+      ** Change how JavaScript resources are delivered with each HTML
       ** page.  MODE is "inline" to put all JS inline, or "separate" to
       ** cause each JS file to be requested using a separate HTTP request,
       ** or "bundled" to have all JS files to be fetched with a single
-      ** auxiliary HTTP request.
+      ** auxiliary HTTP request. Noting, however, that "single" might
+      ** actually mean more than one, depending on the script-timing
+      ** requirements of any given page.
       */
       builtin_set_js_delivery_mode(blob_str(&value),0);
       blob_reset(&value);
@@ -2470,14 +2476,19 @@ void test_pid_page(void){
 **   --https          signal a request coming in via https
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
-**   --jsmode MODE       Determine how javascript is delivered with pages.
+**   --jsmode MODE       Determine how JavaScript is delivered with pages.
 **                       Mode can be one of:
-**                          inline       All javascript is inserted inline at
-**                                       the end of the HTML file.
+**                          inline       All JavaScript is inserted inline at
+**                                       one or more points in the HTML file.
 **                          separate     Separate HTTP requests are made for
-**                                       each javascript file.
-**                          bundled      One single separate HTTP fetches all
-**                                       javascript concatenated together.
+**                                       each JavaScript file.
+**                          bundled      Groups JavaScript files into one or
+**                                       more bundled requests which
+**                                       concatenate scripts together.
+**                       Depending on the needs of any given page, inline
+**                       and bundled modes might result in a single
+**                       amalgamated script or several, but both approaches
+**                       result in fewer HTTP requests than the separate mode.
 **   --localauth      enable automatic login for local connections
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
@@ -2738,14 +2749,18 @@ void fossil_set_timeout(int N){
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
 **                       proxy that has already translated HTTPS into HTTP.
-**   --jsmode MODE       Determine how javascript is delivered with pages.
+**   --jsmode MODE       Determine how JavaScript is delivered with pages.
 **                       Mode can be one of:
-**                          inline       All javascript is inserted inline at
+**                          inline       All JavaScript is inserted inline at
 **                                       the end of the HTML file.
 **                          separate     Separate HTTP requests are made for
-**                                       each javascript file.
+**                                       each JavaScript file.
 **                          bundled      One single separate HTTP fetches all
-**                                       javascript concatenated together.
+**                                       JavaScript concatenated together.
+**                       Depending on the needs of any given page, inline
+**                       and bundled modes might result in a single
+**                       amalgamated script or several, but both approaches
+**                       result in fewer HTTP requests than the separate mode.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies

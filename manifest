@@ -1,5 +1,5 @@
-C Removed\sa\sstray\sHR\stag\sleft\sover\sby\sthe\sprevious\scommit's\sexcision\sof\sthe\swysiwyg\soption.\sRemoved\sa\sdangling\sdoc\sreference\sto\sTinyMCE.
-D 2020-08-01T01:40:15.688
+C Minor\shelp\stext\sadditions\sfor\s--jsmode.
+D 2020-08-01T13:23:32.747
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -533,7 +533,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c a06c7d7d45d0b5e7dc69840a81069cd78692751f49d174b287fa24dd3a93ab9c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 1ba88f790829a6757ed2050b6086c2734fb45b568d94d8768c7bea7e325bd1ab
+F src/main.c 2fbbfdde03e6742902d30d15ffa1d6ae44608cec6a30aa1a68bfa6473efa4334
 F src/main.mk 445ada8d497c3f75c513fdafa18ccdcffd337606b98b4c71ca158e0e2779304c
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 336afe8e912945176427d673487137b057760bd8151063d2681fcf476d92c703
-R 00ab1e4fd8eb8e54f6b91bb21ebf10ee
+P b3f3cf6930176cbd5081d76c74e3a0e484dad67a1bfc42366727c51eae51490f
+R 530a28464505d59ece8e0ae9de9e8faa
 U stephan
-Z 48ebfd2456c3a15e88bc03fafc29f8e4
+Z a1d9c5df2cd27a6d710335ca064b79bd
