@@ -1629,6 +1629,11 @@ void fileedit_page(void){
      "Status messages will go here.</div>\n"
      /* will be moved into the tab container via JS */);
 
+  CX("<div id='fileedit-edit-status'>"
+     "<span class='name'>(no file loaded)</span>"
+     "<span class='links'></span>"
+     "</div>");
+
   /* Main tab container... */
   CX("<div id='fileedit-tabs' class='tab-container'></div>");
 
@@ -1639,13 +1644,9 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-fileselect' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='File Info &amp; Selection' "
+       "data-tab-label='File Selection' "
        "class='hidden'"
        ">");
-    CX("<fieldset id='file-version-details'>"
-       "<legend>File/Version</legend>"
-       "<div>No file loaded.</div>"
-       "</fieldset>");
     CX("<h1>Select a file to edit:</h1>");
     CX("<div id='fileedit-file-selector'></div>");
     CX("</div>"/*#fileedit-tab-fileselect*/);
@@ -1937,8 +1938,10 @@ void fileedit_page(void){
     /* Dynamically populate the editor, display any error in the err
     ** blob, and/or switch to tab #0, where the file selector
     ** lives... */
-    blob_appendf(&endScript,
-                 "fossil.onPageLoad(");
+    blob_appendf(&endScript, "fossil.config['fileedit-glob'] = ");
+    glob_render_as_json(fileedit_glob(), &endScript);
+    blob_append(&endScript, ";\n", 2);
+    blob_append(&endScript, "fossil.onPageLoad(", -1);
     if(zRev && zFilename){
       assert(0==blob_size(&err));
       blob_appendf(&endScript,

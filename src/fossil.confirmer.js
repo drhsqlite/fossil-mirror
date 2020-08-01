@@ -270,7 +270,8 @@ Terse Change history:
      The default options for initConfirmer(). Tweak them to set the
      defaults. A couple of them (initialText and confirmText) are
      dynamically-generated, and can't reasonably be set in the
-     defaults.
+     defaults. Some, like ticks, cannot be set here because that would
+     end up indirectly replacing non-tick timeouts with ticks.
   */
   F.confirmer.defaultOpts = {
     timeout:3000,

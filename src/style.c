@@ -1450,9 +1450,16 @@ void style_emit_script_fossil_bootstrap(int addScriptTag){
        "window.fossil.rootPath = %!j+'/';\n",
        get_version(), g.zTop);
     /* fossil.config = {...various config-level options...} */
-    CX("window.fossil.config = {"
-       "hashDigits: %d, hashDigitsUrl: %d"
-       "};\n", hash_digits(0), hash_digits(1));
+    CX("window.fossil.config = {");
+    CX("/* Length of UUID hashes for display purposes. */");
+    CX("hashDigits: %d, hashDigitsUrl: %d,\n",
+       hash_digits(0), hash_digits(1));
+    CX("editStateMarkers: {"
+       "/*Symbolic markers to denote certain edit states.*/"
+       "isNew:'[+]', isModified:'[*]'},\n");
+    CX("confirmerButtonTicks: 3 "
+       "/*default fossil.confirmer tick count.*/\n");
+    CX("};\n"/* fossil.config */);
 #if 0
     /* Is it safe to emit the CSRF token here? Some pages add it
     ** as a hidden form field. */

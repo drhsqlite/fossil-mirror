@@ -29,7 +29,7 @@
      file content for the page.
 
      - Event 'wiki-saved': is fired when a commit completes,
-     passing on the same info as fileedit-file-loaded.
+     passing on the same info as wiki-page-loaded.
 
      - Event 'wiki-content-replaced': when the editor's content is
      replaced, as opposed to it being edited via user
@@ -65,13 +65,10 @@
   const E = (s)=>document.querySelector(s),
         D = F.dom,
         P = F.page;
-
   P.config = {
-    /* Symbolic markers to denote certain edit state. */
-    editStateMarkers: {
-      isNew: '[+]',
-      isModified: '[*]'
-    }
+    /* Max number of locally-edited pages to stash, after which we
+       drop the least-recently used. */
+    defaultMaxStashSize: 10
   };
 
   /**
@@ -271,7 +268,7 @@
 
   /** Internal helper to get an edit status indicator for the given winfo object. */
   const getEditMarker = function f(winfo, textOnly){
-    const esm = P.config.editStateMarkers;
+    const esm = F.config.editStateMarkers;
     if(1===winfo){ /* force is-new */
         return textOnly ? esm.isNew :
         D.addClass(D.append(D.span(),esm.isNew), 'is-new');
@@ -571,10 +568,116 @@
       const onSelect = (e)=>P.loadPage(e.target.value);
       sel.addEventListener('change', onSelect, false);
       sel.addEventListener('dblclick', onSelect, false);
-      F.page.addEventListener('wiki-stash-updated', ()=>this._refreshStashMarks());
+      F.page.addEventListener('wiki-stash-updated', ()=>{
+        if(P.winfo) this._refreshStashMarks();
+        else this._rebuildList();
+      });
       delete this.init;
     }
   };
+
+  /**
+     Widget for listing and selecting $stash entries.
+  */
+  P.stashWidget = {
+    e:{/*DOM element(s)*/},
+    init: function(domInsertPoint/*insert widget BEFORE this element*/){
+      const wrapper = D.addClass(
+        D.attr(D.div(),'id','wikiedit-stash-selector'),
+        'input-with-label'
+      );
+      const sel = this.e.select = D.select();
+      const btnClear = this.e.btnClear
+            = D.addClass(D.button("Clear"),'hidden');
+      D.append(wrapper, "Local edits (",
+               D.append(D.code(),
+                        F.storage.storageImplName()),
+               "):",
+               sel, btnClear);
+      D.attr(wrapper, "title", [
+        'Locally-edited wiki pages. Timestamps are the last local edit time.',
+        'Only the',P.config.defaultMaxStashSize,'most recent pages',
+        'are retained. Saving or reloading a file removes it from this list.'
+      ].join(' '));
+      D.option(D.disable(sel), "(empty)");
+      P.addEventListener('wiki-stash-updated',(e)=>this.updateList(e.detail));
+      P.addEventListener('wiki-page-loaded',(e)=>this.updateList($stash, e.detail));
+      sel.addEventListener('change',function(e){
+        const opt = this.selectedOptions[0];
+        if(opt && opt._winfo) P.loadPage(opt._winfo);
+      });
+      F.confirmer(btnClear, {
+        confirmText: "REALLY delete ALL local edits?",
+        onconfirm: (e)=>P.clearStash(),
+        ticks: F.config.confirmerButtonTicks
+      });
+      if(F.storage.isTransient()){/*Warn if our storage is particularly transient...*/
+        D.append(wrapper, D.append(
+          D.addClass(D.span(),'warning'),
+          "Warning: persistent storage is not available, "+
+            "so uncomitted edits will not survive a page reload."
+        ));
+      }
+      domInsertPoint.parentNode.insertBefore(wrapper, domInsertPoint);
+      $stash._fireStashEvent(/*read the page-load-time stash*/);
+      delete this.init;
+    },
+    /**
+       Regenerates the edit selection list.
+    */
+    updateList: function f(stasher,theWinfo){
+      console.debug("updateList()",arguments);
+      if(!f.compare){
+        const cmpBase = (l,r)=>l<r ? -1 : (l===r ? 0 : 1);
+        f.compare = (l,r)=>cmpBase(l.name, r.name);
+        f.rxZ = /\.\d+Z$/ /* ms and 'Z' part of date string */;
+        const pad=(x)=>(''+x).length>1 ? x : '0'+x;
+        f.timestring = function ff(d){
+          return [
+            d.getFullYear(),'-',pad(d.getMonth()+1/*sigh*/),'-',pad(d.getDate()),
+            '@',pad(d.getHours()),':',pad(d.getMinutes())
+          ].join('');
+        };
+      }
+      const index = stasher.getIndex(), ilist = [];
+      Object.keys(index).forEach((winfo)=>{
+        ilist.push(index[winfo]);
+      });
+      const self = this;
+      D.clearElement(this.e.select);
+      if(0===ilist.length){
+        D.addClass(this.e.btnClear, 'hidden');
+        D.option(D.disable(this.e.select),"No local edits");
+        return;
+      }
+      D.enable(this.e.select);
+      if(false){
+        /* The problem with this Clear button is that it allows the user
+           to nuke a non-empty newly-added page without the failsafe confirmation
+           we have if they use P.e.btnReload. Not yet sure how best to resolve that,
+           so we'll leave the button hidden for the time being. */           
+        D.removeClass(this.e.btnClear, 'hidden');
+      }
+      D.disable(D.option(this.e.select,0,"Select a local edit..."));
+      const currentFinfo = theWinfo || P.winfo || {};
+      ilist.sort(f.compare).forEach(function(winfo,n){
+        const key = stasher.indexKey(winfo),
+              rev = winfo.version || '';
+        const opt = D.option(
+          self.e.select, n+1/*value is (almost) irrelevant*/,
+          [winfo.name,
+           rev ? ' ['+F.hashDigits(rev, 6)+']' : ' [new/local]',
+           ' @ ',
+           f.timestring(new Date(winfo.stashTime))
+          ].join('')
+        );
+        opt._winfo = winfo;
+        if(0===f.compare(currentFinfo, winfo)){
+          D.attr(opt, 'selected', true);
+        }
+      });
+    }
+  }/*P.stashWidget*/;
 
   /**
      Keep track of how many in-flight AJAX requests there are so we
@@ -646,13 +749,13 @@
       }
     };
     P.tabs = new fossil.TabManager(D.clearElement(P.e.tabContainer));
-    P.tabs.e.container.insertBefore(P.e.editStatus, P.tabs.e.tabs);
     P.tabs.e.container.insertBefore(
       /* Move the status bar between the tab buttons and
          tab panels. Seems to be the best fit in terms of
          functionality and visibility. */
       E('#fossil-status-bar'), P.tabs.e.tabs
     );
+    P.tabs.e.container.insertBefore(P.e.editStatus, P.tabs.e.tabs);
     P.tabs.addEventListener(
       /* Set up some before-switch-to tab event tasks... */
       'before-switch-to', function(ev){
@@ -735,7 +838,7 @@
           F.message("Discarded new page ["+w.name+"].");
         }
       },
-      ticks: 3
+      ticks: F.config.confirmerButtonTicks
     });
     F.confirmer(P.e.btnSave, {
       confirmText: "Really save changes?",
@@ -747,7 +850,7 @@
         }
         P.save();
       },
-      ticks: 3
+      ticks: F.config.confirmerButtonTicks
     });
 
     P.e.taEditor.addEventListener(
@@ -798,12 +901,23 @@
         // TODO: replace preview with new content
       }
     );
-    WikiList.init( P.e.tabs.pageList.firstElementChild );
+    P.addEventListener('wiki-stash-updated',function(){
+      /* MUST come before WikiList.init() and P.stashWidget.init() so
+         that interwoven event handlers get called in the right
+         order. */
+      if(P.winfo && !P.winfo.version && !$stash.getWinfo(P.winfo)){
+        // New local page was removed.
+        delete P.winfo;
+        P.wikiContent('');
+        P.updatePageTitle();
+      }
+      P.updateSaveButton();
+    }).updatePageTitle().updateSaveButton();
+
     P.addEventListener(
       // Update various state on wiki page load
       'wiki-page-loaded',
       function(ev){
-        delete P.winfo;
         const winfo = ev.detail;
         P.winfo = winfo;
         P.previewNeedsUpdate = true;
@@ -818,8 +932,9 @@
       },
       false
     );
-    P.addEventListener('wiki-stash-updated', ()=>P.updateSaveButton())
-      .updatePageTitle().updateSaveButton();
+    /* These init()s need to come after P's event handlers are registered */
+    WikiList.init( P.e.tabs.pageList.firstElementChild );
+    P.stashWidget.init(P.e.tabs.content.lastElementChild);
   }/*F.onPageLoad()*/);
 
   /**
@@ -847,13 +962,13 @@
       return;
     }
     var marker = getEditMarker(wi, false);
-    D.append(f.eName,marker,wi.name,);
+    D.append(f.eName,marker,wi.name);
     if(wi.version){
       D.append(
         f.eLinks,
-        D.a(F.repoUrl('whistory',{name:wi.name}),'[history]'),
-        D.a(F.repoUrl('attachlist',{page:wi.name}),"[attachments]"),
-        D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "[attach]")
+        D.a(F.repoUrl('whistory',{name:wi.name}),'history'),
+        D.a(F.repoUrl('attachlist',{page:wi.name}),"attachments"),
+        D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "attach")
       );
     }
   };
@@ -980,7 +1095,9 @@
       const arg = arguments[0];
       name = arg.name;
     }
-    const onload = (r)=>this.dispatchEvent('wiki-page-loaded', r);
+    const onload = (r)=>{
+      this.dispatchEvent('wiki-page-loaded', r);
+    };
     const stashWinfo = this.getStashedWinfo({name: name});
     if(stashWinfo){ // fake a response from the stash...
       F.message("Fetched from the local-edit storage:", stashWinfo.name);

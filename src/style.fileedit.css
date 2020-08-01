@@ -129,6 +129,9 @@ body.fileedit #fileedit-file-selector select {
   height: initial;
   font-family: monospace;
 }
+body.fileedit #fileedit-file-selector select option {
+  margin: 0 0 0.5em 0.55em;
+}
 body.fileedit select:focus {
   border: none;
 }
@@ -184,4 +187,35 @@ body.fileedit .sbsdiffcols div.difftxtcol {
 }
 body.fileedit .sbsdiffcols div.difftxtcol pre {
   max-width: 44em;
+}
+
+body.fileedit #fileedit-edit-status {
+  border-radius: 0.25em 0.25em 0 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  cursor: initial;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: 1.2em;
+}
+body.fileedit #fileedit-edit-status > span {
+  display: block;
+}
+body.fileedit #fileedit-file-selector span.is-new,
+body.fileedit #fileedit-file-selector span.is-modified {
+  font-family: monospace;
+}
+body.fileedit #fileedit-edit-status span.links > * {
+  margin: 0 0.25em;
+  white-space: nowrap;
+}
+body.fileedit #fileedit-edit-status span.links > *::before {
+  content: "[";
+}
+body.fileedit #fileedit-edit-status span.links > *::after {
+  content: "]";
 }

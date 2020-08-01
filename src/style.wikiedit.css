@@ -140,6 +140,27 @@ body.wikiedit .WikiList span.is-new,
 body.wikiedit .WikiList span.is-modified {
   font-family: monospace;
 }
-body.wikiedit #wikiedit-edit-status > span.links > a {
+body.wikiedit #wikiedit-edit-status span.links > a {
   margin: 0 0.25em;
+  white-space: nowrap;
 }
+body.wikiedit #wikiedit-edit-status span.links > a::before {
+  content: "[";
+}
+body.wikiedit #wikiedit-edit-status span.links > a::after {
+  content: "]";
+}
+body.wikiedit #wikiedit-stash-selector {
+  margin: 0.25em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+body.wikiedit #wikiedit-stash-selector select {
+  margin: 0 1em;
+  height: initial;
+  font-family: monospace;
+  flex: 10 1 auto;
+}
+
