@@ -1,5 +1,5 @@
-C Removed\sthe\slegacy\s/wikiedit\simplementation\sand\sthe\swysiwyg\soption\sit\ssupported/sported.\sUpdated\sthe\schange\slog.
-D 2020-08-01T01:37:20.764
+C Removed\sa\sstray\sHR\stag\sleft\sover\sby\sthe\sprevious\scommit's\sexcision\sof\sthe\swysiwyg\soption.\sRemoved\sa\sdangling\sdoc\sreference\sto\sTinyMCE.
+D 2020-08-01T01:40:15.688
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -570,7 +570,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 34d82fc73a3538bbc4f4e321eef45c8a870b9c306fca51b2a0d7004d36dd555a
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
 F src/security_audit.c 9971efdae334f67fdbeebb9d8c3dca6de11edcf277f3b4a6a5970231b2490eed
-F src/setup.c 56e7b86e68affe26d8e43aac466c8c721d32b2142b9c5c4cae88dc12d51a11c3
+F src/setup.c 65e0561749d4176cdb5bb95527161ec5578ebd0e3788f8c3d667abc0986219fe
 F src/setupuser.c a87e8429e5a245b3461f848a0547922612b0458d991d7ff9bd8a98585f37b9fa
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ec332a0c2208e8a657fca5c76f8b927da7131dbb1c3cf6d23fcbd412ab6d592
-R 2f64a9558e78bc191dfa41dfc6d85c13
+P 336afe8e912945176427d673487137b057760bd8151063d2681fcf476d92c703
+R 00ab1e4fd8eb8e54f6b91bb21ebf10ee
 U stephan
-Z 65658c019d9428e095d7abce688ba98b
+Z 48ebfd2456c3a15e88bc03fafc29f8e4
