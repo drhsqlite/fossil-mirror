@@ -1,5 +1,5 @@
-C fossil.message()\sand\sfriends\snow\suse\slocal\stimestamps\sinstead\sof\sUTC.\sFixed\sa\sbug\sin\swikiedit\swhich\scaused\sa\snewly-created\spage\sto\sdisappear\sfrom\sthe\spage\sselection\slist\safter\sit\swas\ssaved.\sOther\sminor\scleanups\sin\sadjacent\scode.
-D 2020-08-01T23:38:36.398
+C Tiny\sstyle\stweak\sfor\sthe\swikiedit\slist\sfilter\stoggles.
+D 2020-08-02T13:23:11.898
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -609,7 +609,7 @@ F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 4716c135a188ab077d458c6db10513cd056ba74428ca104f22bdc36a9e2f72f5
 F src/style.fileedit.css 2db7fdc17ec466c40d81f0e17f8624754b22b1451d6589feb8991aec56748ab1
-F src/style.wikiedit.css 058745ced660f5bea63f3a49c6329f3b13ac6855388cbc7bec06df577bda1a70
+F src/style.wikiedit.css 1c07629591b2ffd75ef5f2a5927cc80b807c7f3746370ff19c0a46a4745a6655
 F src/sync.c 9f42cd6031c2e1d6fd1dd584aaa09e1e7280a3c07905a80524f819af1528d7ed
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bfd79af0582ed395b0f025601dadf3c287ffaea4e2c48e2ef9608b63eeec1e79
-R 92aa261f58e7c522a4c2025760f04ebe
+P 3dc4613d19edd0d94bc8b15b81c7987b7caf884dd3961ceabecb1c740d25f16a
+R 91c6090a3555ea36f3768505a5ae5146
 U stephan
-Z 8506772274136b1bd410f8021d8585d0
+Z fa82fa10184cea09e2c77e2467d414fc

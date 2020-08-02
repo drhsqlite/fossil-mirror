@@ -84,6 +84,7 @@ body.wikiedit .WikiList fieldset {
 }
 body.wikiedit .WikiList label {
   margin: 0 0.5em;
+  vertical-align: text-bottom;
 }
 body.wikiedit .WikiList legend {
   font-size: 90%;
