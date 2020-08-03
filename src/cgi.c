@@ -305,19 +305,19 @@ void cgi_reply(void){
     assert( rangeEnd==0 );
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
-  if( g.isConst ){
+  if( etag_tag()[0]!=0 ){
+    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
+    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
+    if( etag_mtime()>0 ){
+      fprintf(g.httpOut, "Last-Modified: %s\r\n",
+              cgi_rfc822_datestamp(etag_mtime()));
+    }
+  }else if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
     fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
-  }else if( etag_tag()[0]!=0 ){
-    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
-    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
   }else{
     fprintf(g.httpOut, "Cache-control: no-cache\r\n");
-  }
-  if( etag_mtime()>0 ){
-    fprintf(g.httpOut, "Last-Modified: %s\r\n",
-            cgi_rfc822_datestamp(etag_mtime()));
   }
 
   if( blob_size(&extraHeader)>0 ){
