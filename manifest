@@ -1,5 +1,5 @@
-C Tiny\sstyle\stweak\sfor\sthe\swikiedit\slist\sfilter\stoggles.
-D 2020-08-02T13:23:11.898
+C Added\sa\smissing\sdb_finalize()\sin\spiechart_render()\sfor\sthe\sempty\schart\scase.
+D 2020-08-03T01:16:58.042
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -553,7 +553,7 @@ F src/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d26
 F src/moderate.c 8b693389df63229f87c99057ac1a4133b6fc9e10fc6b6b4699d43d5d14a09968
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
-F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
+F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3dc4613d19edd0d94bc8b15b81c7987b7caf884dd3961ceabecb1c740d25f16a
-R 91c6090a3555ea36f3768505a5ae5146
+P b0a38d5fb3437d03242a1642fe07ae70896f31e766abc867f46db9af665f59c5
+R 77b7012c532d3be1a85732e7f45f786c
 U stephan
-Z fa82fa10184cea09e2c77e2467d414fc
+Z 8116d8fc82de8a59b939dbd50eb4f537
