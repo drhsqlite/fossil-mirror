@@ -415,11 +415,18 @@
           F.message("Loaded page list.");
         };
       }
-      F.fetch('wikiajax/list',{
-        urlParams:{verbose:true},
-        responseType: 'json',
-        onload: callee.onload
-      });
+      if(P.initialPageList){
+        /* ^^^ injected at page-creation time. */
+        const list = P.initialPageList;
+        delete P.initialPageList;
+        callee.onload(list);
+      }else{
+        F.fetch('wikiajax/list',{
+          urlParams:{verbose:true},
+          responseType: 'json',
+          onload: callee.onload
+        });
+      }
       return this;
     },
 

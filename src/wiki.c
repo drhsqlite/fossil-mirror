@@ -747,7 +747,6 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
   Manifest * pWiki = 0;
   char * zUuid;
 
-  cgi_set_content_type("application/json");
   if( is_sandbox(zPageName) ){
     char * zMimetype =
       db_get("sandbox-mimetype","text/x-fossil-wiki");
@@ -848,6 +847,7 @@ static void wiki_ajax_route_save(void){
     return;
   }
   blob_init(&content, zContent ? zContent : "", -1);
+  cgi_set_content_type("application/json");
   db_begin_transaction();
   wiki_cmd_commit(zPageName, parentRid, &content, zMimetype, 0);
   rollback = wiki_ajax_emit_page_object(zPageName, 1) ? 0 : 1;
@@ -872,6 +872,7 @@ static void wiki_ajax_route_fetch(void){
     ajax_route_error(400,"Missing page name.");
     return;
   }
+  cgi_set_content_type("application/json");
   wiki_ajax_emit_page_object(zPageName, 1);
 }
 
@@ -953,29 +954,24 @@ static void wiki_ajax_route_preview(void){
 }
 
 /*
-** Ajax route handler for /wikiajax/list.
+** Outputs the wiki page list in JSON form. If verbose is false then
+** it emits an array of strings (page names). If verbose is true it outputs
+** an array of objects in this form:
 **
-** Optional parameters: verbose, includeContent (see below).
+** { name: string, version: string or null of sandbox box,
+**   parent: uuid or null for first version or sandbox,
+**   mimetype: string,
+**   type: string (normal, branch, tag, checkin, or sandbox)
+** }
 **
-** Responds with JSON. On error, an object in the form documented by
-** ajax_route_error().
+** If includeContent is true, the object contains a "content" member
+** with the raw page content. includeContent is ignored if verbose is
+** false.
 **
-** On success, it emits an array of strings (page names) sorted
-** case-insensitively. If the "verbose" parameter is passed in then
-** the result list contains objects in the format documented for
-** wiki_ajax_emit_page_object(). The content of each object is elided
-** unless the "includeContent" parameter is passed on.
-**
-** The result list always contains an entry
-** named "sandbox" which represents the sandbox pseudo-page.
 */
-static void wiki_ajax_route_list(void){
+static void wiki_render_page_list_json(int verbose, int includeContent){
   Stmt q = empty_Stmt;
   int n = 0;
-  const int verbose = ajax_p_bool("verbose");
-  const int includeContent = ajax_p_bool("includeContent");
-
-  cgi_set_content_type("application/json");
   db_begin_transaction();
   db_prepare(&q, "SELECT"
              " substr(tagname,6) AS name"
@@ -994,9 +990,35 @@ static void wiki_ajax_route_list(void){
       wiki_ajax_emit_page_object(zName, includeContent);
     }
   }
+  CX("]");
   db_finalize(&q);
   db_end_transaction(0);
-  CX("]");
+}
+
+/*
+** Ajax route handler for /wikiajax/list.
+**
+** Optional parameters: verbose, includeContent (see below).
+**
+** Responds with JSON. On error, an object in the form documented by
+** ajax_route_error().
+**
+** On success, it emits an array of strings (page names) sorted
+** case-insensitively. If the "verbose" parameter is passed in then
+** the result list contains objects in the format documented for
+** wiki_ajax_emit_page_object(). The content of each object is elided
+** unless the "includeContent" parameter is passed on with a
+** "non-false" value..
+**
+** The result list always contains an entry named "Sandbox" which
+** represents the sandbox pseudo-page.
+*/
+static void wiki_ajax_route_list(void){
+  const int verbose = ajax_p_bool("verbose");
+  const int includeContent = ajax_p_bool("includeContent");
+
+  cgi_set_content_type("application/json");
+  wiki_render_page_list_json(verbose, includeContent);
 }
 
 /*
@@ -1242,7 +1264,17 @@ void wikiedit_page(void){
   builtin_fulfill_js_requests();
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);
-  CX("\nfossil.onPageLoad(function(){\n");
+  {
+    /* Render the current page list to save us an XHR request
+       during page initialization. This must be OUTSIDE of
+       an onPageLoad() handler or else it does not get applied
+       until after the wiki list widget is initialized. Similarly,
+       it must come *after* window.fossil is initialized. */
+    CX("\nfossil.page.initialPageList = ");
+    wiki_render_page_list_json(1, 0);
+    CX(";\n");
+  }
+  CX("fossil.onPageLoad(function(){\n");
   CX("const P = fossil.page;\n"
      "try{\n");
   if(!found && zPageName && *zPageName){
