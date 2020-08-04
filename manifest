@@ -1,10 +1,11 @@
 B 7913bba6109d8a109dd79dc2e7c3ff82052393db4697e32f166a0bbcf6bcef6e
-C Changed\sthe\sdefault\sETag\sexpire\sage\sfrom\s1\sday\sto\s10\syears.\s\sSee\nincluded\scomment\sfor\sdefense.
-D 2020-08-04T00:40:45.045
+C Added\san\sETag\sto\sthe\s/style.css\spage,\sso\sit\sbenefits\sfrom\sthe\sfar-future\nexpiry\sstuff\son\sthis\sbranch.
+D 2020-08-04T00:48:07.890
 F src/builtin.c 4b8318a2e65b01157ade3e5cccebf7f4299c9b148bfe96f9a06878364a90e6f0
 F src/cgi.c bbc6bf77990a32369c2acbd0d4d996b77fcda20fa521cfa1b44eb278bb7a7c12
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
-P bc0b20356a0b508eb3d97a9da3f6c899d415c384497244b0e4f5e00d1cc47a58
-R 30c0715a92555c1cf0ce82a88073e84b
+F src/style.c d04942075f48406f86002b0e703cddc2f6f20c7a6dff8251ee792278d287f87b
+P af848dce9571db681f7134cdc5dea41d44947ec908dad6d15bdbc1a07fbbad28
+R ae1b32f9f82435ce6aaede5bfc46336f
 U wyoung
-Z 9fee5ec9ce6299a53fe37e8eac495d69
+Z f321d9d0654b85ea1289391b74d0bc25
