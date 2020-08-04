@@ -1,12 +1,10 @@
 B 7913bba6109d8a109dd79dc2e7c3ff82052393db4697e32f166a0bbcf6bcef6e
-C Rearranged\sthe\sorder\sand\sconditional\sstatus\sof\spaths\sleading\sto\sETag\nHTTP\sheader\sgeneration\sto\scause\sthem\sto\sbe\sgenerated\sin\smore\scases.\nThis\simproves\scaching\sin\smy\stesting,\sbut\sit\sneeds\sto\sbe\svetted\sbefore\nit\scan\sbe\smerged\sdown\sto\strunk.\s\sThe\smain\srisk\sis\sthat\sit\scauses\nover-aggressive\scaching,\sresulting\sin\sstale\sdata\sdelivery.
-D 2020-08-03T22:54:10.109
+C Changed\sthe\sdefault\sETag\sexpire\sage\sfrom\s1\sday\sto\s10\syears.\s\sSee\nincluded\scomment\sfor\sdefense.
+D 2020-08-04T00:40:45.045
 F src/builtin.c 4b8318a2e65b01157ade3e5cccebf7f4299c9b148bfe96f9a06878364a90e6f0
 F src/cgi.c bbc6bf77990a32369c2acbd0d4d996b77fcda20fa521cfa1b44eb278bb7a7c12
-P 7913bba6109d8a109dd79dc2e7c3ff82052393db4697e32f166a0bbcf6bcef6e
-R 5f4b9c013967a71e599346928fd59f9d
-T *branch * etag-always
-T *sym-etag-always *
-T -sym-trunk *
+F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
+P bc0b20356a0b508eb3d97a9da3f6c899d415c384497244b0e4f5e00d1cc47a58
+R 30c0715a92555c1cf0ce82a88073e84b
 U wyoung
-Z 41f270823c80dffb50dda2c1d27f43be
+Z 9fee5ec9ce6299a53fe37e8eac495d69
