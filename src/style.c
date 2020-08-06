@@ -1028,6 +1028,7 @@ void page_style_css(void){
   const char * zDefaults;
 
   cgi_set_content_type("text/css");
+  etag_check(0, 0);
   /* Emit all default rules... */
   zDefaults = (const char*)builtin_file("default.css", &i);
   blob_append(&css, zDefaults, i);

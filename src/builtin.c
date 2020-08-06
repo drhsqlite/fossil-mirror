@@ -192,9 +192,8 @@ void builtin_webpage(void){
        && strncmp(zId,fossil_exe_id(),nId)==0
       ){
         g.isConst = 1;
-      }else{
-        etag_check(0,0);
       }
+      etag_check(0,0);
       builtin_deliver_multiple_js_files(zM, zType);
       return;
     }
@@ -215,9 +214,8 @@ void builtin_webpage(void){
    && strncmp(zId,fossil_exe_id(),nId)==0
   ){
     g.isConst = 1;
-  }else{
-    etag_check(0,0);
   }
+  etag_check(0,0);
   blob_init(&out, zTxt, -1);
   cgi_set_content(&out);
 }

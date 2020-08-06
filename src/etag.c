@@ -99,7 +99,10 @@ void etag_check(unsigned eFlags, const char *zHash){
   assert( zETag[0]==0 );  /* Only call this routine once! */
 
   if( etagCancelled ) return;
-  iMaxAge = 86400;
+
+  /* By default, ETagged URLs never expire since the ETag will change
+   * when the content changes.  Approximate this policy as 10 years. */
+  iMaxAge = 10 * 365 * 24 * 60 * 60;   
   md5sum_init();
 
   /* Always include the executable ID as part of the hash */
