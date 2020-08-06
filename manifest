@@ -1,5 +1,5 @@
-C /wikiedit\snow\sembeds\sa\scopy\sof\sthe\spage\slist\sJSON\sat\spage-render\stime\sto\ssave\san\sXHR\srequest\sat\sstartup.
-D 2020-08-04T14:00:52.423
+C Fix\sself-registration\sso\sthat\sit\scan\swork\seven\sif\semail\salerts\sare\snot\senabled.\nSee\sforum\spost\s[https://www.fossil-scm.org/forum/info/e012e702de4ed1e2].
+D 2020-08-06T20:26:05.159
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -530,7 +530,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0d
-F src/login.c a06c7d7d45d0b5e7dc69840a81069cd78692751f49d174b287fa24dd3a93ab9c
+F src/login.c 684a51e0a74565b61444ec8a56be456bc194d46bd0c9b26ffaa2bd1cd8405200
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 2fbbfdde03e6742902d30d15ffa1d6ae44608cec6a30aa1a68bfa6473efa4334
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7913bba6109d8a109dd79dc2e7c3ff82052393db4697e32f166a0bbcf6bcef6e
-R b14b7d3e3ab5c6bf103d639c9d10befe
-U stephan
-Z bb87a84cb230b42fabe565ac67ca3d4a
+P bc6651331a81baa7d1f9ec6d19a7dfb4fedca54ba4022224bb5cc31f4ae656c3
+R 53e8ccd1fbc64c8c69e4136096e63f2f
+U drh
+Z 9686a659398f2522312cbd028354c413
