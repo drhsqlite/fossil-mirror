@@ -3072,25 +3072,37 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME ?VERSION? ?OPTIONS?
+** Usage: %fossil open REPOSITORY ?VERSION? ?OPTIONS?
 **
-** Open a connection to the local repository in FILENAME.  A checkout
-** for the repository is created with its root at the working directory.
+** Open a new connection to the repository name REPOSITORY.  A checkout
+** for the repository is created with its root at the current working
+** directory, or at some other directory identified by "--workdir DIR".
 ** If VERSION is specified then that version is checked out.  Otherwise
-** the latest version is checked out.  No files other than "manifest"
-** and "manifest.uuid" are modified if the --keep option is present.
+** the most recent check-in on the main branch (usually "trunk") is used.
+**
+** REPOSITORY is usually a filename for a repository that already exists
+** on the local machine.  But REPOSITORY can also be a URI, in which case
+** the URI is first cloned and the clone is opened.  The clone will be stored
+** in the current directory, or in an alternative directory specified by
+** the --repodir option.
+**
+** No files other than "manifest" and "manifest.uuid" are modified if
+** the --keep option is present.
 **
 ** Options:
 **   --empty           Initialize checkout as being empty, but still connected
 **                     with the local repository. If you commit this checkout,
 **                     it will become a new "initial" commit in the repository.
+**   --force-missing   Force opening a repository with missing content
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
-**   --force-missing   Force opening a repository with missing content
+**   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
+**                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
-**   --workdir DIR     Use DIR as the working directory instead of ".".
+**   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
+**                     directory is created if it does not previously exist.
 **
 ** See also: close
 */
@@ -3104,6 +3116,7 @@ void cmd_open(void){
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
   const char *zWorkDir;          /* --workdir value */
   const char *zRepo = 0;         /* Name of the repository file */
+  const char *zRepoDir = 0;      /* --repodir value */
   Blob normalizedRepoName;       /* Normalized repository filename */
 
   url_proxy_options();
@@ -3113,6 +3126,7 @@ void cmd_open(void){
   allowNested = find_option("nested",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   zWorkDir = find_option("workdir",0,1);
+  zRepoDir = find_option("repodir",0,1);
   
 
   /* We should be done with options.. */
@@ -3123,19 +3137,60 @@ void cmd_open(void){
   }
   zRepo = g.argv[2];
   blob_init(&normalizedRepoName, 0, 0);
+
+  /* If REPOSITORY looks like a URI, then try to clone it first */
+  if( sqlite3_strglob("http://*", zRepo)==0
+   || sqlite3_strglob("https://*", zRepo)==0
+   || sqlite3_strglob("ssh:*", zRepo)==0
+   || sqlite3_strglob("file:*", zRepo)==0
+  ){
+    char *zNewBase;   /* Base name of the cloned repository file */
+    const char *zUri; /* URI to clone */
+    int i;            /* Loop counter */
+    int rc;           /* Result code from fossil_system() */
+    Blob cmd;         /* Clone command to be run */
+    char *zCmd;       /* String version of the clone command */
+
+    zUri = zRepo;
+    zNewBase = fossil_strdup(file_tail(zUri));
+    for(i=(int)strlen(zNewBase)-1; i>1 && zNewBase[i]!='.'; i--){}
+    if( zNewBase[i]=='.' ) zNewBase[i] = 0;
+    if( zRepoDir==0 ) zRepoDir = ".";
+    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    fossil_free(zNewBase);
+    blob_init(&cmd, 0, 0);
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append(&cmd, " clone", -1);
+    blob_append_escaped_arg(&cmd, zUri);
+    blob_append_escaped_arg(&cmd, zRepo);
+    zCmd = blob_str(&cmd);
+    fossil_print("%s\n", zCmd);
+    rc = fossil_system(zCmd);
+    if( rc ){
+      fossil_fatal("clone of %s failed", zUri);
+    }
+    blob_reset(&cmd);
+  }else if( zRepoDir ){
+    fossil_fatal("the --repodir option only makes sense if the REPOSITORY "
+                 "argument is a URI that begins with http:, https:, ssh:, "
+                 "or file:");
+  }
+
+  /* If --workdir is specified, change to the requested working directory */
   if( zWorkDir ){
     file_canonical_name(zRepo, &normalizedRepoName, 0);
     zRepo = blob_str(&normalizedRepoName);
     if( file_isdir(zWorkDir, ExtFILE)!=1 ){
       file_mkfolder(zWorkDir, ExtFILE, 0, 0);
       if( file_mkdir(zWorkDir, ExtFILE, 0) ){
-        fossil_fatal("cannot create directory %s\n", zWorkDir);
+        fossil_fatal("cannot create directory %s", zWorkDir);
       }
     }
     if( file_chdir(zWorkDir, 0) ){
-      fossil_fatal("unable to make %s the working directory\n", zWorkDir);
+      fossil_fatal("unable to make %s the working directory", zWorkDir);
     }
   }
+
   if( !allowNested && db_open_local(0) ){
     fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
@@ -3192,8 +3247,8 @@ void cmd_open(void){
     g.allowSymlinks = db_get_boolean("allow-symlinks",
                                      db_allow_symlinks_by_default());
   }
-  db_lset("repository", g.argv[2]);
-  db_record_repository_filename(g.argv[2]);
+  db_lset("repository", zRepo);
+  db_record_repository_filename(zRepo);
   db_set_checkout(0);
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
