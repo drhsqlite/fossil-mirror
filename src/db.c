@@ -3080,14 +3080,20 @@ void db_record_repository_filename(const char *zName){
 ** If VERSION is specified then that version is checked out.  Otherwise
 ** the most recent check-in on the main branch (usually "trunk") is used.
 **
-** REPOSITORY is usually a filename for a repository that already exists
-** on the local machine.  But REPOSITORY can also be a URI, in which case
-** the URI is first cloned and the clone is opened.  The clone will be stored
-** in the current directory, or in an alternative directory specified by
-** the --repodir option.
+** REPOSITORY can be the filename for a repository that already exists on the
+** local machine or it can be a URI for a remote repository.  If REPOSITORY
+** is a URI, the remote repo is first cloned, then the clone is opened.
+** The clone will be stored in the current directory, or in an alternative
+** directory specified by the --repodir option.  The name of the clone will
+** be taken from the last term of the URI.  For http: and https: URIs, you
+** can append an extra term on the end to get any repository name you like.
+** For example:
 **
-** No files other than "manifest" and "manifest.uuid" are modified if
-** the --keep option is present.
+**     fossil open https://fossil-scm.org/home/new-name
+**
+** The base URI for cloning is 'https://fossil-scm.org/home'.  The extra
+** 'new-name' term means that the cloned repository will be called
+** 'new-name.fossil'.
 **
 ** Options:
 **   --empty           Initialize checkout as being empty, but still connected
