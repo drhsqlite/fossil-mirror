@@ -3090,6 +3090,7 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
+**   --workdir DIR     Use DIR as the working directory instead of ".".
 **
 ** See also: close
 */
@@ -3101,6 +3102,9 @@ void cmd_open(void){
   int allowSymlinks;
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
+  const char *zWorkDir;          /* --workdir value */
+  const char *zRepo = 0;         /* Name of the repository file */
+  Blob normalizedRepoName;       /* Normalized repository filename */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3108,6 +3112,8 @@ void cmd_open(void){
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+  zWorkDir = find_option("workdir",0,1);
+  
 
   /* We should be done with options.. */
   verify_all_options();
@@ -3115,10 +3121,25 @@ void cmd_open(void){
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
+  zRepo = g.argv[2];
+  blob_init(&normalizedRepoName, 0, 0);
+  if( zWorkDir ){
+    file_canonical_name(zRepo, &normalizedRepoName, 0);
+    zRepo = blob_str(&normalizedRepoName);
+    if( file_isdir(zWorkDir, ExtFILE)!=1 ){
+      file_mkfolder(zWorkDir, ExtFILE, 0, 0);
+      if( file_mkdir(zWorkDir, ExtFILE, 0) ){
+        fossil_fatal("cannot create directory %s\n", zWorkDir);
+      }
+    }
+    if( file_chdir(zWorkDir, 0) ){
+      fossil_fatal("unable to make %s the working directory\n", zWorkDir);
+    }
+  }
   if( !allowNested && db_open_local(0) ){
     fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
-  db_open_repository(g.argv[2]);
+  db_open_repository(zRepo);
 
   /* Figure out which revision to open. */
   if( !emptyFlag ){
