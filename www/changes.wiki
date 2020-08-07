@@ -10,6 +10,9 @@
   *  Enhancements to the graph display for cases when there are
      many cherry-pick merges into a single check-in.
      [/timeline?f=2d75e87b760c0a9|Example]
+  *  Enhance the [/help?cmd=open|fossil open] command with the new
+     --workdir option and the ability to accept a URL as the repository
+     name, causing the remote repository to be cloned automatically.
   *  Enhance the markdown formatter to more closely follow the
      [https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis|CommonMark specification]
      with regard to text highlighting.
