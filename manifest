@@ -1,5 +1,5 @@
-C /wikiedit\snow\smarks\s"deleted"\s(empty)\spages\sand\soffers\sa\sfilter\sto\sshow/hide\sthem.
-D 2020-08-08T11:29:56.948
+C Reverted\sa\srecent\smodernization\sin\ssbsdiff.js\sbecause\sthe\sMSIE<=11\sfamily\sof\sbrowsers\sdo\snot\ssupport\sNodeList.forEach.
+D 2020-08-08T12:11:12.543
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -565,7 +565,7 @@ F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 1c17f5b972fa231ea6a26ca47eb92bc9d096ec64deb8fbf5abf711c449404e25
 F src/report.c 3dfe67e25bccb357cd4d20b095902108ad36f12f340eee82f9fe57b37973efda
 F src/rss.c a27ae6f0c83b99022fbf385337e3a13a4cde786a2d0a15de557386ec0c75e9cb
-F src/sbsdiff.js 2039eb0d68d9a330b94415419186a29baccbe900e03b540b6c8503e775feff36
+F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 34d82fc73a3538bbc4f4e321eef45c8a870b9c306fca51b2a0d7004d36dd555a
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19677d76295ee6c18229dc3be8136fc3932ba25505ceb68e83ed2c7b09a4cc2b
-R aa84f17772ed8af0ca169fd9fd24bbca
+P 424baf1e10b530c145c33ba06fef226529379977102d3ce1a4444d44822ab364
+R bb214de10138dd000175d61b69d1abd3
 U stephan
-Z 48183ae2fa20ba4c4a1eaa923b16c68c
+Z 99010da8000f953e16e10567d1afcfaf
