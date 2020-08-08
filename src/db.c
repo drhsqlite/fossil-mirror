@@ -3177,6 +3177,9 @@ void cmd_open(void){
     if( file_chdir(zWorkDir, 0) ){
       fossil_fatal("unable to make %s the working directory", zWorkDir);
     }
+  }else if( keepFlag==0 && isUri && file_directory_size(".", 0, 1)>0 ){
+    fossil_fatal("directory %s is not empty\nuse \"--workdir .\" "
+                 "to override this error", zPwd);
   }
 
   if( db_open_local_v2(0, allowNested) ){
