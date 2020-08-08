@@ -1,5 +1,5 @@
-C Imported\sa\s2-line\spolyfill\sfor\sMSIE's\smissing\sNodeList.forEach,\scourtesy\sof\sthe\sMozilla\sdocs.
-D 2020-08-08T17:09:07.313
+C Fix\sdocumentation\stypo.
+D 2020-08-08T17:18:46.860
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -889,7 +889,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md 115254ca36063ef76297a91f393f3b1777d29a8033e4514ddf38c0a3e271a6fe
+F www/gitusers.md ab5268c9a6bebee417593f88f12c51266eec7dd45e10eab67cf54c2a87eca5f5
 F www/globs.md fb92287b95e7fc588a768f5961b3268a1b8d82c4b3e657ee0453f988825ebc72
 F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15a7b1fd377dd67b4c302ad708fd918ad380e9e383599c699233b724155028d4
-R fb02d42e4c88c10ef26451c61be2700d
-U stephan
-Z bcfdca2eb0368ba770d72549c8d334bf
+P 4dd270761d996e34cdd85acf2c60d75787b917791fa1ace510e31709eae29c62
+R 663ef53220fa6ffe0815841acaefdf32
+U drh
+Z 78d57de74fac83a5f851f4b3c33a8ac9
