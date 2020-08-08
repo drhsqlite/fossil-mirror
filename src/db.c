@@ -3103,8 +3103,6 @@ void db_record_repository_filename(const char *zName){
 ** 'new-name' term means that the cloned repository will be called
 ** 'new-name.fossil'.
 **
-** Note that 
-**
 ** Options:
 **   --empty           Initialize checkout as being empty, but still connected
 **                     with the local repository. If you commit this checkout,
