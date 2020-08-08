@@ -125,7 +125,7 @@ void delete_private_content(void){
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
 **
-** See also: init
+** See also: [[init]], [[open]]
 */
 void clone_cmd(void){
   char *zPassword;

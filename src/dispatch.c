@@ -267,6 +267,44 @@ static void appendMixedFont(Blob *pOut, const char *z, int n){
 }
 
 /*
+** Input string zIn starts with '['.  If the content is a hyperlink of the
+** form [[...]] then return the index of the closing ']'.  Otherwise return 0.
+*/
+static int help_is_link(const char *z, int n){
+  int i;
+  char c;
+  if( n<5 ) return 0;
+  if( z[1]!='[' ) return 0;
+  for(i=3; i<n && (c = z[i])!=0; i++){
+    if( c==']' && z[i-1]==']' ) return i;
+  }
+  return 0;
+}
+
+/*
+** Append text to pOut, adding hyperlink markup for [...].
+*/
+static void appendLinked(Blob *pOut, const char *z, int n){
+  int i = 0;
+  int j;
+  while( i<n ){
+    if( z[i]=='[' && (j = help_is_link(z+i, n-i))>0 ){
+      if( i ) blob_append(pOut, z, i);
+      z += i+2;
+      n -= i+2;
+      blob_appendf(pOut, "<a href='%R/help?cmd=%.*s'>%.*s</a>",
+         j-3, z, j-3, z);
+      z += j-1;
+      n -= j-1;
+      i = 0;
+    }else{
+      i++;
+    }
+  }
+  blob_append(pOut, z, i);
+}
+
+/*
 ** Attempt to reformat plain-text help into HTML for display on a webpage.
 **
 ** The HTML output is appended to Blob pHtml, which should already be
@@ -396,7 +434,8 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
       blob_append(pHtml, "<br>\n", 5);
       wantBR = 0;
     }else{
-      blob_appendf(pHtml, "%#h\n", i-nIndent, zHelp+nIndent);
+      appendLinked(pHtml, zHelp+nIndent, i-nIndent);
+      blob_append_char(pHtml, '\n');
     }
     zHelp += i+1;
     i = 0;
@@ -411,7 +450,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
 ** Format help text for TTY display.
 */
 static void help_to_text(const char *zHelp, Blob *pText){
-  int i;
+  int i, x;
   char c;
   for(i=0; (c = zHelp[i])!=0; i++){
     if( c=='%' && strncmp(zHelp+i,"%fossil",7)==0 ){
@@ -428,6 +467,14 @@ static void help_to_text(const char *zHelp, Blob *pText){
       i = -1;
       continue;
     }
+    if( c=='[' && (x = help_is_link(zHelp+i, 100000))!=0 ){
+      if( i>0 ) blob_append(pText, zHelp, i);
+      zHelp += i+2;
+      blob_append(pText, zHelp, x-3);
+      zHelp += x-1;
+      i = -1;
+      continue;
+    }     
   }
   if( i>0 ){
     blob_append(pText, zHelp, i);
@@ -449,11 +496,13 @@ static void help_to_text(const char *zHelp, Blob *pText){
 **    -w|--www          Show WWW pages.
 **    -s|--settings     Show settings.
 **    -h|--html         Transform output to HTML.
+**    -r|--raw          No output formatting.
 */
 void test_all_help_cmd(void){
   int i;
   int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
   int useHtml = find_option("html","h",0)!=0;
+  int rawOut = find_option("raw","r",0)!=0;
 
   if( find_option("www","w",0) ){
     mask = CMDFLAG_WEBPAGE;
@@ -490,6 +539,9 @@ void test_all_help_cmd(void){
       fossil_print("<h1>%h</h1>\n", aCommand[i].zName);
       fossil_print("%s\n<hr>\n", blob_str(&html));
       blob_reset(&html);
+    }else if( rawOut ){
+      fossil_print("# %s\n", aCommand[i].zName);
+      fossil_print("%s\n\n", aCommand[i].zHelp);
     }else{
       Blob txt;
       blob_init(&txt, 0, 0);

@@ -2398,7 +2398,7 @@ void db_initial_setup(
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 **
-** See also: clone
+** See also: [[clone]]
 */
 void create_repository_cmd(void){
   char *zPassword;
@@ -3090,7 +3090,8 @@ void db_record_repository_filename(const char *zName){
 **
 ** REPOSITORY can be the filename for a repository that already exists on the
 ** local machine or it can be a URI for a remote repository.  If REPOSITORY
-** is a URI, the remote repo is first cloned, then the clone is opened.
+** is a URI in one of the formats recognized by the [[clone]] command, then
+** remote repo is first cloned, then the clone is opened.
 ** The clone will be stored in the current directory, or in an alternative
 ** directory specified by the --repodir option.  The name of the clone will
 ** be taken from the last term of the URI.  For http: and https: URIs, you
@@ -3120,7 +3121,7 @@ void db_record_repository_filename(const char *zName){
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not previously exist.
 **
-** See also: close
+** See also: [[close]], [[clone]]
 */
 void cmd_open(void){
   int emptyFlag;
@@ -3998,7 +3999,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **   --exact    only consider exact name matches.
 **
-** See also: configuration
+** See also: [[configuration]]
 */
 void setting_cmd(void){
   int i;
