@@ -1443,8 +1443,14 @@ void style_emit_script_fossil_bootstrap(int addScriptTag){
     if(addScriptTag!=0){
       style_emit_script_tag(0,0);
     }
-    CX("(function(){\n"
-       "if(!window.fossil) window.fossil={};\n"
+    CX("(function(){\n");
+    CX(/*MSIE NodeList.forEach polyfill, courtesy of Mozilla:
+    https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach#Polyfill
+       */
+       "if(window.NodeList && !NodeList.prototype.forEach){"
+       "NodeList.prototype.forEach = Array.prototype.forEach;"
+       "}\n");
+    CX("if(!window.fossil) window.fossil={};\n"
        "window.fossil.version = %!j;\n"
     /* fossil.rootPath is the top-most CGI/server path,
     ** including a trailing slash. */

@@ -1,5 +1,5 @@
-C More\simprovements\sto\s"fossil\sopen":\s\sMake\ssure\sthe\s--repodir\sis\sconverted\ninto\sa\sfull\spathname\sso\sthat\sit\sis\sunaffected\sby\s--workdir.\s\sReport\san\serror\nwith\s--nested\sif\sthe\snew\srepo\swould\sbe\srooted\sin\sthe\ssame\sdirectory\sas\sanother\nrepository.
-D 2020-08-08T15:01:30.436
+C Imported\sa\s2-line\spolyfill\sfor\sMSIE's\smissing\sNodeList.forEach,\scourtesy\sof\sthe\sMozilla\sdocs.
+D 2020-08-08T17:09:07.313
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -607,7 +607,7 @@ F src/stash.c 465e0e9806f94b1f67f22949e92f95584e2ed0a91f1edbf5679858c2e425dfac
 F src/stat.c 899bd4bec0ff428641d2093d935d4d80ac7f6d7c75509b7be361393094982f3a
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 087c6bd05fd17a196e99232c3de2f7c610159bf9be327fb888c5a5a4f638a955
+F src/style.c 20210c3c537dbc49abd862989194acd55e862318bb18e6f050638a8de728c747
 F src/style.fileedit.css 2db7fdc17ec466c40d81f0e17f8624754b22b1451d6589feb8991aec56748ab1
 F src/style.wikiedit.css b0ade989b95cad2b7cfa1d01bc72d2f26a0bc4dbcd7937f3ba812a1a86bf4dee
 F src/sync.c 9f42cd6031c2e1d6fd1dd584aaa09e1e7280a3c07905a80524f819af1528d7ed
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f3747d8a5542a06e666a33f92ef82836e603137fd2b3cef7ccbf7668999bc35
-R 3a8fa631a85b148899ef942d06c5bb5f
-U drh
-Z 827cc84250d1eddf2543e60b96f73563
+P 15a7b1fd377dd67b4c302ad708fd918ad380e9e383599c699233b724155028d4
+R fb02d42e4c88c10ef26451c61be2700d
+U stephan
+Z bcfdca2eb0368ba770d72549c8d334bf
