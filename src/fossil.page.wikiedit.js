@@ -19,7 +19,8 @@
        type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
        version: UUID string or null for a sandbox page or new page,
        parent: parent UUID string or null if no parent,
-       content: string
+       isEmpty: true if page has no content (is "deleted").
+       content: string, optional in most contexts
      }
 
      The internal docs and code frequently use the term "winfo", and such
@@ -174,8 +175,10 @@
       record.parent = winfo.parent;
       record.version = winfo.version;      
       record.stashTime = new Date().getTime();
+      record.isEmpty = !!winfo.isEmpty;
       this.storeIndex();
       if(arguments.length>1){
+        if(content) delete record.isEmpty;
         F.storage.set(this.contentKey(key), content);
       }
       this._fireStashEvent();
@@ -266,20 +269,27 @@
     }
   };
 
-  /** Internal helper to get an edit status indicator for the given winfo object. */
+  /**
+     Internal helper to get an edit status indicator for the given
+     winfo object.
+  */
   const getEditMarker = function f(winfo, textOnly){
     const esm = F.config.editStateMarkers;
-    if(1===winfo){ /* force is-new */
+    if(f.NEW===winfo){ /* force is-new */
         return textOnly ? esm.isNew :
         D.addClass(D.append(D.span(),esm.isNew), 'is-new');
-    }else if(2===winfo){ /* force is-modified */
+    }else if(f.MODIFIED===winfo){ /* force is-modified */
         return textOnly ? esm.isModified :
         D.addClass(D.append(D.span(),esm.isModified), 'is-modified');
+    }else if(f.DELETED===winfo){/* force is-deleted */
+        return textOnly ? esm.isDeleted :
+        D.addClass(D.append(D.span(),esm.isDeleted), 'is-deleted');
     }else if(winfo && winfo.version){ /* is existing page modified? */
       if($stash.getWinfo(winfo)){
         return textOnly ? esm.isModified :
           D.addClass(D.append(D.span(),esm.isModified), 'is-modified');
       }
+      /*fall through*/
     }
     else if(winfo){ /* is new non-sandbox or is modified sandbox? */
       if('sandbox'!==winfo.type){
@@ -291,6 +301,17 @@
       }
     }
     return textOnly ? '' : D.span();
+  };
+  getEditMarker.NEW = 1;
+  getEditMarker.MODIFIED = 2;
+  getEditMarker.DELETED = 3;
+
+  /**
+     Returns true if the given winfo object appears to be "new", else
+     returns false.
+  */
+  const winfoIsNew = function(winfo){
+    return 'sandbox'===winfo.type ? false : !winfo.version;
   };
 
   /**
@@ -305,6 +326,8 @@
     },
     cache: {
       pageList: [],
+      optByName:{/*map of page names to OPTION object, to speed up
+                   certain operations.*/},
       names: {
         /* Map of page names to "something." We don't map to their
            winfo bits because those regularly get swapped out via
@@ -318,6 +341,10 @@
        changes or is new/unsaved. This implementation is horribly
        inefficient, in that we have to walk and validate the whole
        list for each stash-level change.
+
+       If passed an argument, it is assumed to be an OPTION element
+       and only that element is updated, else all OPTION elements
+       in this.e.select are updated.
  
        Reminder to self: in order to mark is-edited/is-new state we
        have to update the OPTION element's inner text to reflect the
@@ -326,26 +353,33 @@
        no render ::before content on them. We *also* use CSS tags, but
        they aren't sufficient for the mobile browsers.
     */
-    _refreshStashMarks: function callee(){
+    _refreshStashMarks: function callee(option){
       if(!callee.eachOpt){
         const self = this;
-        callee.eachOpt = function(key){
-          const opt = self.e.select.options[key];
+        callee.eachOpt = function(keyOrOpt){
+          const opt = 'string'===typeof keyOrOpt ? self.e.select.options[keyOrOpt] : keyOrOpt;
           const stashed = $stash.getWinfo({name:opt.value});
           var prefix = '';
+          D.removeClass(opt, 'stashed', 'stashed-new', 'deleted');
           if(stashed){
-            const isNew = 'sandbox'===stashed.type ? false : !stashed.version;
-            prefix = getEditMarker(isNew ? 1 : 2, true);
+            const isNew = winfoIsNew(stashed);
+            prefix = getEditMarker(isNew ? getEditMarker.NEW : getEditMarker.MODIFIED, true);
             D.addClass(opt, isNew ? 'stashed-new' : 'stashed');
-          }else{
-            D.removeClass(opt, 'stashed', 'stashed-new');
+            D.removeClass(opt, 'deleted');
+          }else if(opt.dataset.isDeleted){
+            prefix = getEditMarker(getEditMarker.DELETED,true);
+            D.addClass(opt, 'deleted');
           }
           opt.innerText = prefix + opt.value;
           self.cache.names[opt.value] = true;
         };
       }
-      this.cache.names = {/*must reset it to acount for local page removals*/};
-      Object.keys(this.e.select.options).forEach(callee.eachOpt);
+      if(arguments.length){
+        callee.eachOpt(option);
+      }else{
+        this.cache.names = {/*must reset it to acount for local page removals*/};
+        Object.keys(this.e.select.options).forEach(callee.eachOpt);
+      }
     },
     /** Removes the given wiki page entry from the page selection
         list, if it's in the list. */
@@ -359,12 +393,14 @@
       }
       sel.selectedIndex = ndx;
       delete this.cache.names[name];
+      delete this.cache.optByName[name];
       this.cache.pageList = this.cache.pageList.filter((wi)=>name !== wi.name);
     },
 
     /**
        Rebuilds the selection list. Necessary when it's loaded from
-       the server or we locally create a new page.
+       the server, we locally create a new page, or we remove a
+       locally-created new page.
     */
     _rebuildList: function callee(){
       /* Jump through some hoops to integrate new/unsaved
@@ -397,16 +433,19 @@
           const wtype = opt.dataset.wtype =
                 winfo.type==='sandbox' ? 'normal' : (winfo.type||'normal');
           const cb = self.e.filterCheckboxes[wtype];
+          self.cache.optByName[winfo.name] = opt;
           if(cb && !cb.checked) D.addClass(opt, 'hidden');
+          if(winfo.isEmpty){
+            opt.dataset.isDeleted = true;
+          }
+          self._refreshStashMarks(opt);
         });
       D.enable(sel);
       if(P.winfo) sel.value = P.winfo.name;
-      this._refreshStashMarks();
     },
     
     /** Loads the page list and populates the selection list. */
     loadList: function callee(){
-      delete this.pageMap;
       if(!callee.onload){
         const self = this;
         callee.onload = function(list){
@@ -510,34 +549,54 @@
           of wiki pages... */
       const fsFilter = D.fieldset("Page types"),
             fsFilterBody = D.div(),
-            filters = ['normal', 'branch', 'checkin', 'tag']
+            filters = ['normal', 'branch/...', 'tag/...', 'checkin/...']
       ;
       D.append(fsFilter, fsFilterBody);
       D.addClass(fsFilterBody, 'flex-container', 'flex-column', 'stretch');
-      const filterSelection = function(wtype, show){
+
+      // Add filters by page type...
+      const self = this;
+      const filterByType = function(wtype, show){
         sel.querySelectorAll('option[data-wtype='+wtype+']').forEach(function(opt){
           if(show) opt.classList.remove('hidden');
           else opt.classList.add('hidden');
         });
       };
-      const self = this;
-      filters.forEach(function(wtype){
+      filters.forEach(function(label){
+        const wtype = label.split('/')[0];
         const cbId = 'wtype-filter-'+wtype,
-              lbl = D.attr(D.append(D.label(),wtype),
+              lbl = D.attr(D.append(D.label(),label),
                            'for', cbId),
-              cb = D.attr(D.input('checkbox'), 'id', cbId),
-              span = D.append(D.span(), cb, lbl);
+              cb = D.attr(D.input('checkbox'), 'id', cbId);
+        D.append(fsFilterBody, D.append(D.span(), cb, lbl));
         self.e.filterCheckboxes[wtype] = cb;
         cb.checked = true;
-        filterSelection(wtype, cb.checked);
+        filterByType(wtype, cb.checked);
         cb.addEventListener(
           'change',
-          function(ev){filterSelection(wtype, ev.target.checked)},
+          function(ev){filterByType(wtype, ev.target.checked)},
           false
         );
-        D.append(fsFilterBody, span);
       });
-
+      { /* add filter for "deleted" pages */
+        const cbId = 'wtype-filter-deleted',
+              lbl = D.attr(D.append(D.label(),
+                                    getEditMarker(getEditMarker.DELETED,false),
+                                    'deleted'),
+                           'for', cbId),
+              cb = D.attr(D.input('checkbox'), 'id', cbId);
+        cb.checked = true;
+        D.attr(lbl, 'title',
+               'Fossil considers empty pages to be "deleted" in some contexts.');
+        D.append(fsFilterBody, D.append(D.span(), cb, lbl));
+        cb.addEventListener(
+          'change',
+          function(ev){
+            if(ev.target.checked) D.removeClass(parentElem,'hide-deleted');
+            else D.addClass(parentElem,'hide-deleted');
+          },
+          false);
+      }
       /* A legend of the meanings of the symbols we use in
          the OPTION elements to denote certain state. */
       const fsLegend = D.fieldset("Edit status"),
@@ -546,8 +605,9 @@
       D.addClass(fsLegendBody, 'flex-container', 'flex-column', 'stretch');
       D.append(
         fsLegendBody,
-        D.append(D.span(), getEditMarker(1,false)," = page is new/unsaved"),
-        D.append(D.span(), getEditMarker(2,false)," = page has local edits")
+        D.append(D.span(), getEditMarker(getEditMarker.NEW,false)," = page is new/unsaved"),
+        D.append(D.span(), getEditMarker(getEditMarker.MODIFIED,false)," = page has local edits"),
+        D.append(D.span(), getEditMarker(getEditMarker.DELETED,false)," = page is empty (deleted)")
       );
 
       const fsNewPage = D.fieldset("Create new page"),
@@ -584,6 +644,18 @@
       F.page.addEventListener('wiki-stash-updated', ()=>{
         if(P.winfo) this._refreshStashMarks();
         else this._rebuildList();
+      });
+      F.page.addEventListener('wiki-page-loaded', function(ev){
+        /* Needed to handle the saved-an-empty-page case. */
+        const page = ev.detail,
+              opt = self.cache.optByName[page.name];
+        if(opt){
+          if(page.isEmpty) opt.dataset.isDeleted = true;
+          else delete opt.dataset.isDeleted;
+          self._refreshStashMarks(opt);
+        }else{
+          F.error("BUG: internal mis-handling of page object: missing OPTION for page "+page.name);
+        }
       });
       delete this.init;
     }
@@ -949,6 +1021,7 @@
     /* These init()s need to come after P's event handlers are registered */
     WikiList.init( P.e.tabs.pageList.firstElementChild );
     P.stashWidget.init(P.e.tabs.content.lastElementChild);
+    //P.$wikiList = WikiList/*only for testing/debugging*/;
   }/*F.onPageLoad()*/);
 
   /**
@@ -1121,6 +1194,7 @@
         type: stashWinfo.type,
         version: stashWinfo.version,
         parent: stashWinfo.parent,
+        isEmpty: !!stashWinfo.isEmpty,
         content: $stash.stashedContent(stashWinfo)
       });
       return this;

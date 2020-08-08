@@ -737,7 +737,9 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 **   mimetype: "mime type",
 **   version: UUID string or null for a sandbox page,
 **   parent: "parent uuid" or null if no parent,
-**   content: "page content"
+**   isDeleted: true if the page has no content (is "deleted")
+**              else not set (making it "falsy" in JS),
+**   content: "page content" (only if includeContent is true)
 ** }
 **
 ** If includeContent is false then the content member is elided.
@@ -780,6 +782,9 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
       CX("%!j", pWiki->azParent[0]);
     }else{
       CX("null");
+    }
+    if(!pWiki->zWiki || !pWiki->zWiki[0]){
+      CX(", \"isEmpty\": true");
     }
     if(includeContent){
       CX(", \"content\": %!j", pWiki->zWiki);

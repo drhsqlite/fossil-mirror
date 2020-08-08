@@ -66,8 +66,12 @@ body.wikiedit .WikiList select option {
   margin: 0 0 0.5em 0.55em;
 }
 body.wikiedit .WikiList select option.stashed,
-body.wikiedit .WikiList select option.stashed-new {
+body.wikiedit .WikiList select option.stashed-new,
+body.wikiedit .WikiList select option.deleted {
   margin-left: -1em;  
+}
+body.wikiedit .WikiList.hide-deleted select option.deleted {
+  display: none;
 }
 body.wikiedit textarea {
   max-width: initial;
@@ -144,7 +148,8 @@ body.wikiedit #wikiedit-edit-status > span {
   display: block;
 }
 body.wikiedit .WikiList span.is-new,
-body.wikiedit .WikiList span.is-modified {
+body.wikiedit .WikiList span.is-modified,
+body.wikiedit .WikiList span.is-deleted {
   font-family: monospace;
 }
 body.wikiedit #wikiedit-edit-status span.links > a {

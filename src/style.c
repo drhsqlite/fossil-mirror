@@ -1457,7 +1457,7 @@ void style_emit_script_fossil_bootstrap(int addScriptTag){
        hash_digits(0), hash_digits(1));
     CX("editStateMarkers: {"
        "/*Symbolic markers to denote certain edit states.*/"
-       "isNew:'[+]', isModified:'[*]'},\n");
+       "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
     CX("confirmerButtonTicks: 3 "
        "/*default fossil.confirmer tick count.*/\n");
     CX("};\n"/* fossil.config */);
