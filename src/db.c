@@ -3084,9 +3084,9 @@ void db_record_repository_filename(const char *zName){
 **
 ** Open a new connection to the repository name REPOSITORY.  A checkout
 ** for the repository is created with its root at the current working
-** directory, or at some other directory identified by "--workdir DIR".
-** If VERSION is specified then that version is checked out.  Otherwise
-** the most recent check-in on the main branch (usually "trunk") is used.
+** directory, or in DIR if the "--workdir DIR" is used.  If VERSION is
+** specified then that version is checked out.  Otherwise the most recent
+** check-in on the main branch (usually "trunk") is used.
 **
 ** REPOSITORY can be the filename for a repository that already exists on the
 ** local machine or it can be a URI for a remote repository.  If REPOSITORY
@@ -3103,10 +3103,14 @@ void db_record_repository_filename(const char *zName){
 ** 'new-name' term means that the cloned repository will be called
 ** 'new-name.fossil'.
 **
+** Note that 
+**
 ** Options:
 **   --empty           Initialize checkout as being empty, but still connected
 **                     with the local repository. If you commit this checkout,
 **                     it will become a new "initial" commit in the repository.
+**   --force           Continue with the open even if the working directory is
+**                     not empy.
 **   --force-missing   Force opening a repository with missing content
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
@@ -3127,6 +3131,7 @@ void cmd_open(void){
   int allowNested;
   int allowSymlinks;
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
+  int bForce = 0;                /* --force.  Open even if non-empty dir */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
   const char *zWorkDir;          /* --workdir value */
   const char *zRepo = 0;         /* Name of the repository file */
@@ -3142,6 +3147,7 @@ void cmd_open(void){
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
+  bForce = find_option("force",0,0)!=0;  
   zPwd = file_getcwd(0,0);
   
 
@@ -3177,9 +3183,10 @@ void cmd_open(void){
     if( file_chdir(zWorkDir, 0) ){
       fossil_fatal("unable to make %s the working directory", zWorkDir);
     }
-  }else if( keepFlag==0 && isUri && file_directory_size(".", 0, 1)>0 ){
-    fossil_fatal("directory %s is not empty\nuse \"--workdir .\" "
-                 "to override this error", zPwd);
+  }
+  if( keepFlag==0 && bForce==0 && file_directory_size(".", 0, 1)>0 ){
+    fossil_fatal("directory %s is not empty\n"
+                 "use the --force option to override", file_getcwd(0,0));
   }
 
   if( db_open_local_v2(0, allowNested) ){
