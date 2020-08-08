@@ -3124,6 +3124,8 @@ void cmd_open(void){
   const char *zRepo = 0;         /* Name of the repository file */
   const char *zRepoDir = 0;      /* --repodir value */
   Blob normalizedRepoName;       /* Normalized repository filename */
+  char *zPwd;                    /* Initial working directory */
+  int isUri = 0;                 /* True if REPOSITORY is a URI */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3133,6 +3135,7 @@ void cmd_open(void){
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
+  zPwd = file_getcwd(0,0);
   
 
   /* We should be done with options.. */
@@ -3143,49 +3146,20 @@ void cmd_open(void){
   }
   zRepo = g.argv[2];
   blob_init(&normalizedRepoName, 0, 0);
-
-  /* If REPOSITORY looks like a URI, then try to clone it first */
   if( sqlite3_strglob("http://*", zRepo)==0
    || sqlite3_strglob("https://*", zRepo)==0
    || sqlite3_strglob("ssh:*", zRepo)==0
    || sqlite3_strglob("file:*", zRepo)==0
   ){
-    char *zNewBase;   /* Base name of the cloned repository file */
-    const char *zUri; /* URI to clone */
-    int i;            /* Loop counter */
-    int rc;           /* Result code from fossil_system() */
-    Blob cmd;         /* Clone command to be run */
-    char *zCmd;       /* String version of the clone command */
-
-    zUri = zRepo;
-    zNewBase = fossil_strdup(file_tail(zUri));
-    for(i=(int)strlen(zNewBase)-1; i>1 && zNewBase[i]!='.'; i--){}
-    if( zNewBase[i]=='.' ) zNewBase[i] = 0;
-    if( zRepoDir==0 ) zRepoDir = ".";
-    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
-    fossil_free(zNewBase);
-    blob_init(&cmd, 0, 0);
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
-    blob_append(&cmd, " clone", -1);
-    blob_append_escaped_arg(&cmd, zUri);
-    blob_append_escaped_arg(&cmd, zRepo);
-    zCmd = blob_str(&cmd);
-    fossil_print("%s\n", zCmd);
-    rc = fossil_system(zCmd);
-    if( rc ){
-      fossil_fatal("clone of %s failed", zUri);
-    }
-    blob_reset(&cmd);
-  }else if( zRepoDir ){
-    fossil_fatal("the --repodir option only makes sense if the REPOSITORY "
-                 "argument is a URI that begins with http:, https:, ssh:, "
-                 "or file:");
+    isUri = 1;
   }
 
   /* If --workdir is specified, change to the requested working directory */
   if( zWorkDir ){
-    file_canonical_name(zRepo, &normalizedRepoName, 0);
-    zRepo = blob_str(&normalizedRepoName);
+    if( !isUri ){
+      file_canonical_name(zRepo, &normalizedRepoName, 0);
+      zRepo = blob_str(&normalizedRepoName);
+    }
     if( file_isdir(zWorkDir, ExtFILE)!=1 ){
       file_mkfolder(zWorkDir, ExtFILE, 0, 0);
       if( file_mkdir(zWorkDir, ExtFILE, 0) ){
@@ -3200,6 +3174,43 @@ void cmd_open(void){
   if( !allowNested && db_open_local(0) ){
     fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
+
+  /* If REPOSITORY looks like a URI, then try to clone it first */
+  if( isUri ){
+    char *zNewBase;   /* Base name of the cloned repository file */
+    const char *zUri; /* URI to clone */
+    int i;            /* Loop counter */
+    int rc;           /* Result code from fossil_system() */
+    Blob cmd;         /* Clone command to be run */
+    char *zCmd;       /* String version of the clone command */
+
+    zUri = zRepo;
+    zNewBase = fossil_strdup(file_tail(zUri));
+    for(i=(int)strlen(zNewBase)-1; i>1 && zNewBase[i]!='.'; i--){}
+    if( zNewBase[i]=='.' ) zNewBase[i] = 0;
+    if( zRepoDir==0 ) zRepoDir = zPwd;
+    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    fossil_free(zNewBase);
+    blob_init(&cmd, 0, 0);
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append(&cmd, " clone", -1);
+    blob_append_escaped_arg(&cmd, zUri);
+    blob_append_escaped_arg(&cmd, zRepo);
+    zCmd = blob_str(&cmd);
+    fossil_print("%s\n", zCmd);
+    if( zWorkDir ) file_chdir(zPwd, 0);
+    rc = fossil_system(zCmd);
+    if( rc ){
+      fossil_fatal("clone of %s failed", zUri);
+    }
+    blob_reset(&cmd);
+    if( zWorkDir ) file_chdir(zWorkDir, 0);
+  }else if( zRepoDir ){
+    fossil_fatal("the --repodir option only makes sense if the REPOSITORY "
+                 "argument is a URI that begins with http:, https:, ssh:, "
+                 "or file:");
+  }
+
   db_open_repository(zRepo);
 
   /* Figure out which revision to open. */
