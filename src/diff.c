@@ -2598,7 +2598,7 @@ void annotation_page(void){
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
-** See also: info, finfo, timeline
+** See also: [[info]], [[finfo]], [[timeline]]
 */
 void annotate_cmd(void){
   const char *zRevision; /* Revision name, or NULL for current check-in */

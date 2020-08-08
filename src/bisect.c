@@ -383,7 +383,8 @@ void bisect_reset(void){
 **
 ** Usage: %fossil bisect SUBCOMMAND ...
 **
-** Run various subcommands useful for searching for bugs.
+** Run various subcommands useful for searching back through the change
+** history for a particular checkin that causes or fixes a problem.
 **
 ** > fossil bisect bad ?VERSION?
 **

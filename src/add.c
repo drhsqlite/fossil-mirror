@@ -322,7 +322,7 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 ** Usage: %fossil add ?OPTIONS? FILE1 ?FILE2 ...?
 **
 ** Make arrangements to add one or more files or directories to the
-** current checkout at the next commit.
+** current checkout at the next [[commit]].
 **
 ** When adding files or directories recursively, filenames that begin
 ** with "." are excluded by default.  To include such files, add
@@ -361,7 +361,7 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 **    -v|--verbose            Outputs information about each --reset file.
 **    -n|--dry-run            Display instead of run actions.
 **
-** See also: addremove, rm
+** See also: [[addremove]], [[rm]]
 */
 void add_cmd(void){
   int i;                     /* Loop counter */
@@ -543,7 +543,7 @@ static void process_files_to_remove(
 **   --verbose|-v            Outputs information about each --reset file.
 **                           Only usable with --reset.
 **
-** See also: addremove, add
+** See also: [[addremove]], [[add]]
 */
 void delete_cmd(void){
   int i;
@@ -691,18 +691,18 @@ const char *filename_collation(void){
 **
 ** Usage: %fossil addremove ?OPTIONS?
 **
-** Do all necessary "add" and "rm" commands to synchronize the repository
-** with the content of the working checkout:
+** Do all necessary "[[add]]" and "[[rm]]" commands to synchronize the
+** repository with the content of the working checkout:
 **
 **  *  All files in the checkout but not in the repository (that is,
 **     all files displayed using the "extras" command) are added as
-**     if by the "add" command.
+**     if by the "[[add]]" command.
 **
 **  *  All files in the repository but missing from the checkout (that is,
 **     all files that show as MISSING with the "status" command) are
-**     removed as if by the "rm" command.
+**     removed as if by the "[[rm]]" command.
 **
-** The command does not "commit".  You must run the "commit" separately
+** The command does not "[[commit]]".  You must run the "[[commit]]" separately
 ** as a separate step.
 **
 ** Files and directories whose names begin with "." are ignored unless
@@ -735,7 +735,7 @@ const char *filename_collation(void){
 **   --verbose|-v            Outputs information about each --reset file.
 **                           Only usable with --reset.
 **
-** See also: add, rm
+** See also: [[add]], [[rm]]
 */
 void addremove_cmd(void){
   Blob path;
@@ -955,7 +955,7 @@ static void process_files_to_move(
 **
 ** The 'mv' command does NOT normally rename or move the files on disk.
 ** This command merely records the fact that file names have changed so
-** that appropriate notations can be made at the next commit/check-in.
+** that appropriate notations can be made at the next [[commit]].
 ** However, the default behavior of this command may be overridden via
 ** command line options listed below and/or the 'mv-rm-files' setting.
 **
@@ -968,13 +968,13 @@ static void process_files_to_move(
 **          as well.  This does NOT apply to the 'rename' command.
 **
 ** Options:
-**   --soft                  Skip moving files within the checkout.
-**                           This supersedes the --hard option.
-**   --hard                  Move files within the checkout.
-**   --case-sensitive <BOOL> Override the case-sensitive setting.
-**   -n|--dry-run            If given, display instead of run actions.
+**   --soft                    Skip moving files within the checkout.
+**                             This supersedes the --hard option.
+**   --hard                    Move files within the checkout.
+**   --case-sensitive <BOOL>   Override the case-sensitive setting.
+**   -n|--dry-run              If given, display instead of run actions.
 **
-** See also: changes, status
+** See also: [[changes]], [[status]]
 */
 void mv_cmd(void){
   int i;

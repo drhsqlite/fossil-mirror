@@ -110,7 +110,7 @@ int update_to(int vid){
 **                          used for merging, named *-baseline, *-original,
 **                          and *-merge.
 **
-** See also: revert
+** See also: [[revert]]
 */
 void update_cmd(void){
   int vid;              /* Current version */
@@ -788,7 +788,7 @@ int historical_blob(
 **   -r|--revision VERSION    Revert given FILE(s) back to given
 **                            VERSION
 **
-** See also: redo, undo, checkout, update
+** See also: [[redo]], [[undo]], [[checkout]], [[update]]
 */
 void revert_cmd(void){
   Manifest *pCoManifest;          /* Manifest of current checkout */

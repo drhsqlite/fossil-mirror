@@ -2105,7 +2105,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 ** Most CGI files contain only a "repository:" line.  It is uncommon to
 ** use any other option.
 **
-** See also: http, server, winsrv
+** See also: [[http]], [[server]], [[winsrv]]
 */
 void cmd_cgi(void){
   const char *zFile;
@@ -2503,7 +2503,7 @@ void test_pid_page(void){
 **   --usepidkey      Use saved encryption key from parent process.  This is
 **                    only necessary when using SEE on Windows.
 **
-** See also: cgi, server, winsrv
+** See also: [[cgi]], [[server]], [[winsrv]]
 */
 void cmd_http(void){
   const char *zIpAddr = 0;
@@ -2609,7 +2609,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** COMMAND: test-http
 **
-** Works like the http command but gives setup permission to all users.
+** Works like the [[http]] command but gives setup permission to all users.
 **
 ** Options:
 **   --th-trace          trace TH1 execution (for debugging purposes)
@@ -2777,7 +2777,7 @@ void fossil_set_timeout(int N){
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
-** See also: cgi, http, winsrv
+** See also: [[cgi]], [[http]], [[winsrv]]
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */

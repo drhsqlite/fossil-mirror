@@ -603,8 +603,6 @@ static void reconstruct_private_table(void){
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding
 **   --wal             Set Write-Ahead-Log journalling mode on the database
-**
-** See also: deconstruct, reconstruct
 */
 void rebuild_database(void){
   int forceFlag;
@@ -1207,8 +1205,6 @@ void private_import(char *zFileName)
 **                      file .rid in DIRECTORY.
 **   -P|--keep-private  Mark the artifacts listed in the file .private in
 **                      DIRECTORY as private in the new Fossil repository.
-**
-** See also: deconstruct, rebuild
 */
 void reconstruct_cmd(void) {
   char *zPassword;
@@ -1282,8 +1278,6 @@ void reconstruct_cmd(void) {
 **   -P|--keep-private           Save the list of private artifacts to the file
 **                               .private in the DESTINATION directory (implies
 **                               the --private option).
-**
-** See also: reconstruct, rebuild
 */
 void deconstruct_cmd(void){
   const char *zPrefixOpt;

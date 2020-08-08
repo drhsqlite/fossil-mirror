@@ -770,21 +770,7 @@ static void bundle_purge_cmd(void){
 **      by check-ins in BUNDLE.  This has the effect of undoing a
 **      "fossil bundle import".
 **
-** SUMMARY:
-**   fossil bundle append BUNDLE FILE...              Add files to BUNDLE
-**   fossil bundle cat BUNDLE HASH...                 Extract file from BUNDLE
-**   fossil bundle export BUNDLE ?OPTIONS?            Create a new BUNDLE
-**          --branch BRANCH --from TAG1 --to TAG2       Check-ins to include
-**          --checkin TAG                               Use only check-in TAG
-**          --standalone                                Omit dependencies
-**   fossil bundle extend BUNDLE                      Update with newer content
-**   fossil bundle import BUNDLE ?OPTIONS?            Import a bundle
-**          --publish                                   Publish the import
-**          --force                                     Cross-repo import
-**   fossil bundle ls BUNDLE                          List content of a bundle
-**   fossil bundle purge BUNDLE                       Undo an import
-**
-** See also: publish
+** See also: [[publish]]
 */
 void bundle_cmd(void){
   const char *zSubcmd;

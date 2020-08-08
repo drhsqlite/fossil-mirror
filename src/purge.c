@@ -509,17 +509,6 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **   --explain         Make no changes, but show what would happen.
 **   --dry-run         An alias for --explain
-**
-** SUMMARY:
-**  * fossil purge artifacts HASH.. [OPTIONS]
-**  * fossil purge cat HASH...
-**  * fossil purge checkins TAGS... [OPTIONS]
-**  * fossil purge files FILENAME... [OPTIONS]
-**  * fossil purge list
-**  * fossil purge obliterate ID...
-**  * fossil purge tickets NAME... [OPTIONS]
-**  * fossil purge undo ID
-**  * fossil purge wiki NAME... [OPTIONS]
 */
 void purge_cmd(void){
   int purgeFlags = PURGE_MOVETO_GRAVEYARD | PURGE_PRINT_SUMMARY;

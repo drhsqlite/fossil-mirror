@@ -193,7 +193,7 @@ static void showParentProject(void){
 **    -R|--repository FILE       Extract info from repository FILE
 **    -v|--verbose               Show extra information about repositories
 **
-** See also: annotate, artifact, finfo, timeline
+** See also: [[annotate]], [[artifact]], [[finfo]], [[timeline]]
 */
 void info_cmd(void){
   i64 fsize;

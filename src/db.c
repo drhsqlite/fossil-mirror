@@ -3091,25 +3091,24 @@ void db_record_repository_filename(const char *zName){
 ** REPOSITORY can be the filename for a repository that already exists on the
 ** local machine or it can be a URI for a remote repository.  If REPOSITORY
 ** is a URI in one of the formats recognized by the [[clone]] command, then
-** remote repo is first cloned, then the clone is opened.
-** The clone will be stored in the current directory, or in an alternative
-** directory specified by the --repodir option.  The name of the clone will
-** be taken from the last term of the URI.  For http: and https: URIs, you
-** can append an extra term on the end to get any repository name you like.
-** For example:
+** remote repo is first cloned, then the clone is opened. The clone will be
+** stored in the current directory, or in DIR if the "--workdir DIR" option
+** is used. The name of the clone will be taken from the last term of the URI.
+** For "http:" and "https:" URIs, you can append an extra term on the end to
+** get any repository name you like. For example:
 **
 **     fossil open https://fossil-scm.org/home/new-name
 **
-** The base URI for cloning is 'https://fossil-scm.org/home'.  The extra
-** 'new-name' term means that the cloned repository will be called
-** 'new-name.fossil'.
+** The base URI for cloning is "https://fossil-scm.org/home".  The extra
+** "new-name" term means that the cloned repository will be called
+** "new-name.fossil".
 **
 ** Options:
 **   --empty           Initialize checkout as being empty, but still connected
 **                     with the local repository. If you commit this checkout,
 **                     it will become a new "initial" commit in the repository.
 **   --force           Continue with the open even if the working directory is
-**                     not empy.
+**                     not empty.
 **   --force-missing   Force opening a repository with missing content
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
@@ -3119,7 +3118,7 @@ void db_record_repository_filename(const char *zName){
 **                     times (the timestamp of the last checkin which modified
 **                     them).
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
-**                     directory is created if it does not previously exist.
+**                     directory is created if it does not exist.
 **
 ** See also: [[close]], [[clone]]
 */
