@@ -1717,11 +1717,15 @@ static int isValidLocalDb(const char *zDbName){
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
 **
+** In db_open_local_v2(), if the bRootOnly flag is true, then only
+** look in the CWD for the checkout database.  Do not scan upwards in
+** the file hierarchy.
+**
 ** This routine always opens the user database regardless of whether or
 ** not the repository database is found.  If the _FOSSIL_ or .fslckout file
 ** is found, it is attached to the open database connection too.
 */
-int db_open_local(const char *zDbName){
+int db_open_local_v2(const char *zDbName, int bRootOnly){
   int i, n;
   char zPwd[2000];
   static const char *(aDbName[]) = { "_FOSSIL_", ".fslckout", ".fos" };
@@ -1749,6 +1753,7 @@ int db_open_local(const char *zDbName){
         return 1;
       }
     }
+    if( bRootOnly ) break;
     n--;
     while( n>1 && zPwd[n]!='/' ){ n--; }
     while( n>1 && zPwd[n-1]=='/' ){ n--; }
@@ -1757,6 +1762,9 @@ int db_open_local(const char *zDbName){
 
   /* A checkout database file could not be found */
   return 0;
+}
+int db_open_local(const char *zDbName){
+  return db_open_local_v2(zDbName, 0);
 }
 
 /*
@@ -3123,7 +3131,6 @@ void cmd_open(void){
   const char *zWorkDir;          /* --workdir value */
   const char *zRepo = 0;         /* Name of the repository file */
   const char *zRepoDir = 0;      /* --repodir value */
-  Blob normalizedRepoName;       /* Normalized repository filename */
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
 
@@ -3145,7 +3152,6 @@ void cmd_open(void){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
   zRepo = g.argv[2];
-  blob_init(&normalizedRepoName, 0, 0);
   if( sqlite3_strglob("http://*", zRepo)==0
    || sqlite3_strglob("https://*", zRepo)==0
    || sqlite3_strglob("ssh:*", zRepo)==0
@@ -3157,8 +3163,10 @@ void cmd_open(void){
   /* If --workdir is specified, change to the requested working directory */
   if( zWorkDir ){
     if( !isUri ){
-      file_canonical_name(zRepo, &normalizedRepoName, 0);
-      zRepo = blob_str(&normalizedRepoName);
+      zRepo = file_canonical_name_dup(zRepo);
+    }
+    if( zRepoDir ){
+      zRepoDir = file_canonical_name_dup(zRepoDir);
     }
     if( file_isdir(zWorkDir, ExtFILE)!=1 ){
       file_mkfolder(zWorkDir, ExtFILE, 0, 0);
@@ -3171,8 +3179,8 @@ void cmd_open(void){
     }
   }
 
-  if( !allowNested && db_open_local(0) ){
-    fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
+  if( db_open_local_v2(0, allowNested) ){
+    fossil_fatal("there is already an open tree at %s", g.zLocalRoot);
   }
 
   /* If REPOSITORY looks like a URI, then try to clone it first */

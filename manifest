@@ -1,5 +1,5 @@
-C wikiedit\snow\srelabels\sthe\sSave\sbutton\swhile\ssave\sis\sin\sprogress,\sper\sforum\sfeedback.
-D 2020-08-08T12:41:01.874
+C More\simprovements\sto\s"fossil\sopen":\s\sMake\ssure\sthe\s--repodir\sis\sconverted\ninto\sa\sfull\spathname\sso\sthat\sit\sis\sunaffected\sby\s--workdir.\s\sReport\san\serror\nwith\s--nested\sif\sthe\snew\srepo\swould\sbe\srooted\sin\sthe\ssame\sdirectory\sas\sanother\nrepository.
+D 2020-08-08T15:01:30.436
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3e1d2d97e20756cd7a1cf0adf724f8ad8cbf06d66aa616db612c21599a138fa7
+F src/db.c 831cf8914dba618c45e63a8e234aaf079b7e9b812ff82a34eb3d9807e30ed399
 F src/default.css 468b30a6ecd212f98a7643cfe87ef71e8fd54b443f54754e66db4db157202e9e
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c c094a4f557a93550071c874e0dda63eb25999820f4ab8a1c89b27a2ef80c375f
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 280e206332e528509d9bafa30e5ffa953a0488d593f72cfa37bc87b97c5e2653
+F src/file.c 9e74888606a2bfcc110e53e5da994dac97cadfcfb22daba23353b7dd13932a41
 F src/fileedit.c 678c0799e620b24a7306aac76e05b7c0900fa04542aa3aa0737c8f50f15b408e
 F src/finfo.c da15ea237c04e3ade060c3cf74fc08e70db49d1148c1f134300c566a0e3c2ca4
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7f416ef1754dc7158e39709fda75766719579f7d9b7ea2e6af4f6f6f99d2874f
-R ab5826fcfad05a0512ffe908b652b002
-U stephan
-Z d03e847da10990f5fba6645cde4aa677
+P 9f3747d8a5542a06e666a33f92ef82836e603137fd2b3cef7ccbf7668999bc35
+R 3a8fa631a85b148899ef942d06c5bb5f
+U drh
+Z 827cc84250d1eddf2543e60b96f73563
