@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sbuilt-in\sdocumentation\sfor\s"fossil\sopen".
-D 2020-08-08T18:19:35.112
+C wikiedit:\sdeleted\spages\sare\snow\shidden\sby\sdefault,\sper\sforum\sfeedback.\sA\sminor\sstyle\stweek\sto\sshift\sedit-marked\swiki\sentries\sto\sthe\sright\sa\sbit\s(edit\sstate\sindicator\swas\struncated\sin\ssome\sskins).
+D 2020-08-08T18:52:36.925
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -491,7 +491,7 @@ F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c65
 F src/fossil.fetch.js 6cc20e07b9f83529c0dcb53cb0594ee06092610e031c5fbeb2d40ef0b59d9218
 F src/fossil.page.fileedit.js 25d503a8d02c4597c8d9496d515f03905c36a8bc3fbc90e58e3d21dfa8db291a
 F src/fossil.page.forumpost.js e0923d94ca4a7284abcc452f8411e3b80d6f12636c38c4bd0741f570365c6b48
-F src/fossil.page.wikiedit.js 68261e5f2003c290d8a2cf78c8eef452e17ee642e48140d132e1dcad833ff756
+F src/fossil.page.wikiedit.js a60f247bac3a8469d6951322d0693c75dde2edc201d781777b438aad34384a44
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -609,7 +609,7 @@ F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 20210c3c537dbc49abd862989194acd55e862318bb18e6f050638a8de728c747
 F src/style.fileedit.css 2db7fdc17ec466c40d81f0e17f8624754b22b1451d6589feb8991aec56748ab1
-F src/style.wikiedit.css b0ade989b95cad2b7cfa1d01bc72d2f26a0bc4dbcd7937f3ba812a1a86bf4dee
+F src/style.wikiedit.css f1a80b20d709fdfe64e2ad4d52dcb51dfc2ec5c8d79a27bfb5c40fa0abb46eaf
 F src/sync.c 9f42cd6031c2e1d6fd1dd584aaa09e1e7280a3c07905a80524f819af1528d7ed
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99ab1118f57dcaf286b12dfba1beeaa9ea7f3f95764238037600f06051c835d3
-R c996f93a00a5537356b786ed08283b2a
-U drh
-Z 826759025dbc51278dfb1fccb7175dbc
+P 9ec3274f3580df0c52307411431bdf50d483422dbf9040c5ff0a12d2b4102f36
+R b28d46712558530e94c2a4960e6dc028
+U stephan
+Z 8bd885538e03cb2cb070eb36cb6677e6

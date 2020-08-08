@@ -593,7 +593,8 @@
                                     'deleted'),
                            'for', cbId),
               cb = D.attr(D.input('checkbox'), 'id', cbId);
-        cb.checked = true;
+        cb.checked = false;
+        D.addClass(parentElem,'hide-deleted');
         D.attr(lbl, 'title',
                'Fossil considers empty pages to be "deleted" in some contexts.');
         D.append(fsFilterBody, D.append(D.span(), cb, lbl));
