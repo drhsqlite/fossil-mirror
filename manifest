@@ -1,5 +1,5 @@
-C Reverted\sa\srecent\smodernization\sin\ssbsdiff.js\sbecause\sthe\sMSIE<=11\sfamily\sof\sbrowsers\sdo\snot\ssupport\sNodeList.forEach.
-D 2020-08-08T12:11:12.543
+C wikiedit\snow\srelabels\sthe\sSave\sbutton\swhile\ssave\sis\sin\sprogress,\sper\sforum\sfeedback.
+D 2020-08-08T12:41:01.874
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,10 +488,10 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 4377e822fd07a54b16944913b4fa754b92f653c376c6dfae3205c59079995699
 F src/fossil.confirmer.js 928e23bba65c28b02e0afad5ca2d510f9711dfb8e3204d0fe692e563cfad3b7e
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
-F src/fossil.fetch.js 33eeef2dd66585a3841e1e5f04a4cb5ef2f5c388234f3412888fc9466dafde0a
+F src/fossil.fetch.js 6cc20e07b9f83529c0dcb53cb0594ee06092610e031c5fbeb2d40ef0b59d9218
 F src/fossil.page.fileedit.js 25d503a8d02c4597c8d9496d515f03905c36a8bc3fbc90e58e3d21dfa8db291a
 F src/fossil.page.forumpost.js e0923d94ca4a7284abcc452f8411e3b80d6f12636c38c4bd0741f570365c6b48
-F src/fossil.page.wikiedit.js 2d92d47f0ecfba0d19d0c34502d7e21e7f4cdb60a999f0f5968712cfc95974e7
+F src/fossil.page.wikiedit.js 014314296b28047012e0c1abc7edce0afa4f2292436260df35fb351178fa7405
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 424baf1e10b530c145c33ba06fef226529379977102d3ce1a4444d44822ab364
-R bb214de10138dd000175d61b69d1abd3
+P 7f416ef1754dc7158e39709fda75766719579f7d9b7ea2e6af4f6f6f99d2874f
+R ab5826fcfad05a0512ffe908b652b002
 U stephan
-Z 99010da8000f953e16e10567d1afcfaf
+Z d03e847da10990f5fba6645cde4aa677

@@ -89,7 +89,9 @@
    dev console and (for onerror()) through fossil.error(). The default
    beforesend/aftersend are no-ops. Individual pages may overwrite
    those members to provide default implementations suitable for the
-   page's use, e.g. keeping track of how many in-flight
+   page's use, e.g. keeping track of how many in-flight ajax requests
+   are pending. Any exceptions thrown in an beforesend/aftersend
+   handler are current ignored (feature or bug?).
 
    Note that this routine may add properties to the 2nd argument, so
    that instance should not be kept around for later use.

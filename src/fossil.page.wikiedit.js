@@ -914,7 +914,7 @@
                   "then use the Discard button.");
           return;
         }
-        P.unstashContent()
+        P.unstashContent();
         if(w.version || w.type==='sandbox'){
           P.loadPage(w);
         }else{
@@ -934,7 +934,17 @@
           F.error("No page loaded.");
           return;
         }
-        P.save();
+        setTimeout(
+          ()=>P.save(), 0
+          /* timeout is a workaround to allow save() to update the
+             button's text (per forum feedback).  The idea is to force
+             the call of save() to happen *after* the confirmer
+             callback returns so that we can change the button label
+             without the confirmer setting it back to its
+             pre-confirmed state. This is, however, no guaranty that
+             save() will actually be called *after* the confirmer
+             re-sets the button label. */
+        );
       },
       ticks: F.config.confirmerButtonTicks
     });
@@ -1014,7 +1024,7 @@
         if(!winfo.version && winfo.type!=='sandbox'){
           F.message('You are editing a new, unsaved page:',winfo.name);
         }
-        P.updatePageTitle();
+        P.updatePageTitle().updateSaveButton(/* b/c save() routes through here */);
       },
       false
     );
@@ -1328,9 +1338,9 @@
   */
   P.save = function callee(){
     if(!affirmPageLoaded()) return this;
-    const self = this;
     const content = this.wikiContent();
     if(!callee.onload){
+      const self = this;
       callee.onload = function(w){
         const oldWinfo = self.winfo;
         self.unstashContent(oldWinfo);
@@ -1348,6 +1358,11 @@
     ).fetch('wikiajax/save',{
       payload: fd,
       responseType: 'json',
+      beforesend: function(){
+        D.disable(P.e.btnSave);
+        P.e.btnSave.innerText = "Saving...";
+        F.fetch.beforesend();
+      },
       onload: callee.onload
     });
     return this;
