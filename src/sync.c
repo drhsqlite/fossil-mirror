@@ -219,7 +219,7 @@ static void process_sync_args(
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: [[clone]], [[configure]], [[push]], [[remote-url]], [[sync]]
+** See also: [[clone]], [[config]], [[push]], [[remote]], [[sync]]
 */
 void pull_cmd(void){
   unsigned configFlags = 0;
@@ -268,7 +268,7 @@ void pull_cmd(void){
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: [[clone]], [[configure]], [[pull]], [[remote-url]], [[sync]]
+** See also: [[clone]], [[config]], [[pull]], [[remote]], [[sync]]
 */
 void push_cmd(void){
   unsigned configFlags = 0;

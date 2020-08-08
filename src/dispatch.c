@@ -719,7 +719,7 @@ void help_page(void){
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%s/help", g.zTop);
-    rc = dispatch_name_search(zCmd, CMDFLAG_ANY, &pCmd);
+    rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
       ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
