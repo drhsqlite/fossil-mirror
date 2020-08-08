@@ -69,7 +69,15 @@
   P.config = {
     /* Max number of locally-edited pages to stash, after which we
        drop the least-recently used. */
-    defaultMaxStashSize: 10
+    defaultMaxStashSize: 10,
+    useConfirmerButtons:{
+    /* If true during fossil.page setup, certain buttons will use a
+       "confirmer" step, else they will not. The confirmer topic has
+       been the source of much contention in the forum. */
+      save: false,
+      reload: true,
+      discardStash: true
+    }
   };
 
   /**
@@ -691,11 +699,15 @@
         const opt = this.selectedOptions[0];
         if(opt && opt._winfo) P.loadPage(opt._winfo);
       });
-      F.confirmer(btnClear, {
-        confirmText: "REALLY delete ALL local edits?",
-        onconfirm: (e)=>P.clearStash(),
-        ticks: F.config.confirmerButtonTicks
-      });
+      if(P.config.useConfirmerButtons.discardStash){
+        F.confirmer(btnClear, {
+          confirmText: "REALLY delete ALL local edits?",
+          onconfirm: ()=>P.clearStash(),
+          ticks: F.config.confirmerButtonTicks
+        });
+      }else{
+        btnClear.addEventListener('click', ()=>P.clearStash(), false);
+      }
       if(F.storage.isTransient()){/*Warn if our storage is particularly transient...*/
         D.append(wrapper, D.append(
           D.addClass(D.span(),'warning'),
@@ -897,57 +909,68 @@
     if(0) P.e.btnCommit.addEventListener(
       "click",(e)=>P.commit(), false
     );
-    F.confirmer(P.e.btnReload, {
-      confirmText: "Really reload, losing edits?",
-      onconfirm: function(e){
-        const w = P.winfo;
-        if(!w){
-          F.error("No page loaded.");
-          return;
-        }
-        if(!w.version/* new/unsaved page */
-           && w.type!=='sandbox'
-           && P.wikiContent()){
-          F.error("This new/unsaved page has content.",
-                  "To really discard this page,",
-                  "first clear its content",
-                  "then use the Discard button.");
-          return;
-        }
-        P.unstashContent();
-        if(w.version || w.type==='sandbox'){
-          P.loadPage(w);
-        }else{
-          WikiList.removeEntry(w.name);
-          delete P.winfo;
-          P.updatePageTitle();
-          F.message("Discarded new page ["+w.name+"].");
-        }
-      },
-      ticks: F.config.confirmerButtonTicks
-    });
-    F.confirmer(P.e.btnSave, {
-      confirmText: "Really save changes?",
-      onconfirm: function(e){
-        const w = P.winfo;
-        if(!w){
-          F.error("No page loaded.");
-          return;
-        }
-        setTimeout(
-          ()=>P.save(), 0
-          /* timeout is a workaround to allow save() to update the
-             button's text (per forum feedback).  The idea is to force
-             the call of save() to happen *after* the confirmer
-             callback returns so that we can change the button label
-             without the confirmer setting it back to its
-             pre-confirmed state. This is, however, no guaranty that
-             save() will actually be called *after* the confirmer
-             re-sets the button label. */
-        );
-      },
-      ticks: F.config.confirmerButtonTicks
-    });
+    const doSave = function(e){
+      const w = P.winfo;
+      if(!w){
+        F.error("No page loaded.");
+        return;
+      }
+      setTimeout(
+        ()=>P.save(), 0
+        /* timeout is a workaround to allow save() to update the
+           button's text (per forum feedback).  The idea is to force
+           the call of save() to happen *after* the confirmer
+           callback returns so that we can change the button label
+           without the confirmer setting it back to its
+           pre-confirmed state. This is, however, no guaranty that
+           save() will actually be called *after* the confirmer
+           re-sets the button label. */
+      );
+    };
+    const doReload = function(e){
+      const w = P.winfo;
+      if(!w){
+        F.error("No page loaded.");
+        return;
+      }
+      if(!w.version/* new/unsaved page */
+         && w.type!=='sandbox'
+         && P.wikiContent()){
+        F.error("This new/unsaved page has content.",
+                "To really discard this page,",
+                "first clear its content",
+                "then use the Discard button.");
+        return;
+      }
+      P.unstashContent();
+      if(w.version || w.type==='sandbox'){
+        P.loadPage(w);
+      }else{
+        WikiList.removeEntry(w.name);
+        delete P.winfo;
+        P.updatePageTitle();
+        F.message("Discarded new page ["+w.name+"].");
+      }
+    };
+    
+    if(P.config.useConfirmerButtons.reload){
+      F.confirmer(P.e.btnReload, {
+        confirmText: "Really reload, losing edits?",
+        onconfirm: doReload,
+        ticks: F.config.confirmerButtonTicks
+      });
+    }else{
+      P.e.btnReload.addEventListener('click', doReload, false);
+    }
+    if(P.config.useConfirmerButtons.save){
+      F.confirmer(P.e.btnSave, {
+        confirmText: "Really save changes?",
+        onconfirm: doSave,
+        ticks: F.config.confirmerButtonTicks
+      });
+    }else{
+      P.e.btnSave.addEventListener('click', doSave, false);
+    }
 
     P.e.taEditor.addEventListener(
       'change', ()=>P.stashContentChange(), false
@@ -1063,9 +1086,10 @@
     if(wi.version){
       D.append(
         f.eLinks,
+        D.a(F.repoUrl('wiki',{name:wi.name}),"viewer"),
         D.a(F.repoUrl('whistory',{name:wi.name}),'history'),
         D.a(F.repoUrl('attachlist',{page:wi.name}),"attachments"),
-        D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "attach")
+        D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "attach")        
       );
     }
   };
