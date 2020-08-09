@@ -347,7 +347,8 @@ void sync_unversioned(unsigned syncFlags){
 }
 
 /*
-** COMMAND: remote-url
+** COMMAND: remote
+** COMMAND: remote-url*
 **
 ** Usage: %fossil remote ?SUBCOMMAND ...?
 **

@@ -1596,7 +1596,7 @@ static void svn_dump_import(FILE *pIn){
 }
 
 /*
-** COMMAND: import
+** COMMAND: import*
 **
 ** Usage: %fossil import ?--git? ?OPTIONS? NEW-REPOSITORY ?INPUT-FILE?
 **    or: %fossil import --svn ?OPTIONS? NEW-REPOSITORY ?INPUT-FILE?

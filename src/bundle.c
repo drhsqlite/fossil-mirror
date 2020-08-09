@@ -718,7 +718,7 @@ static void bundle_purge_cmd(void){
 }
 
 /*
-** COMMAND: bundle
+** COMMAND: bundle*
 **
 ** Usage: %fossil bundle SUBCOMMAND ARGS...
 **

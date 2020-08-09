@@ -176,7 +176,7 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 }
 
 /*
-** COMMAND: hook
+** COMMAND: hook*
 **
 ** Usage: %fossil hook COMMAND ...
 **

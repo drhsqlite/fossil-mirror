@@ -967,7 +967,7 @@ static const char zOptions[] =
 **
 ** The following options can be used when TOPIC is omitted:
 **
-**    -a|--all          List both command and auxiliary commands
+**    -a|--all          List both common and auxiliary commands
 **    -o|--options      List command-line options common to all commands
 **    -s|--setting      List setting names
 **    -t|--test         List unsupported "test" commands
@@ -990,8 +990,9 @@ void help_cmd(void){
     z = g.argv[0];
     fossil_print(
       "Usage: %s help TOPIC\n"
-      "Common commands:  (use \"%s help help\" for more options)\n",
-      z, z);
+      "Try \"%s help help\" or \"%s help -a\" for more options\n"
+      "Frequently used commands:\n",
+      z, z, z);
     command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();
     return;

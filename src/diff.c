@@ -2564,7 +2564,7 @@ void annotation_page(void){
 /*
 ** COMMAND: annotate
 ** COMMAND: blame
-** COMMAND: praise
+** COMMAND: praise*
 **
 ** Usage: %fossil annotate|blame|praise ?OPTIONS? FILENAME
 **

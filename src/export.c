@@ -1644,7 +1644,7 @@ void gitmirror_status_command(void){
 }
 
 /*
-** COMMAND: git
+** COMMAND: git*
 **
 ** Usage: %fossil git SUBCOMMAND
 **

@@ -294,7 +294,7 @@ void stat_page(void){
 }
 
 /*
-** COMMAND: dbstat*
+** COMMAND: dbstat
 **
 ** Usage: %fossil dbstat OPTIONS
 **
@@ -386,9 +386,11 @@ void dbstat_cmd(void){
                 " + 0.99");
   fossil_print("%*s%,d days or approximately %.2f years.\n",
                colWidth, "project-age:", n, n/365.2425);
-  p = db_get("project-code", 0);
-  if( p ){
-    fossil_print("%*s%s\n", colWidth, "project-id:", p);
+  if( !brief ){
+    p = db_get("project-code", 0);
+    if( p ){
+      fossil_print("%*s%s\n", colWidth, "project-id:", p);
+    }
   }
 #if 0
   /* Server-id is not useful information any more */
