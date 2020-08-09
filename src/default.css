@@ -777,7 +777,7 @@ div.forumHierRoot > div > form {
 }
 .forum-post-collapser {
   font-size: 0.8em;
-  margin-top: 0.2em;
+  margin: 0.2em 0 0 0;
   padding: 0;
   height: 1.75em;
   line-height: 1.75em;
@@ -805,11 +805,40 @@ div.forumHierRoot > div > form {
 }
 div.forumPostBody{
   max-height: 50em;
+  /*overflow: auto;*/
+}
+div.forumPostBody.with-expander {
+  display: flex;
+  flex-direction: row;
   overflow: auto;
+}
+div.forumPostBody.with-expander div:nth-of-type(1){
+  /* Main content DIV */
+  overflow: auto;
+}
+div.forumPostBody.with-expander.expanded div:nth-of-type(1) {
+  margin-bottom: 0.5em /* try to suppress scroll bar */;
+}
+div.forumPostBody.with-expander div:nth-of-type(2){
+  /* "Tap zone" for expansion of the post, sits to the right of the
+     post's content. */
+  min-width: 1.25em;
+  max-width: 1.25em;
+  /*for testing only:*//*background: magenta;*/
+  margin: 0 0 0 0.5em /* leave a gap between this and the neighboring scrollbar */;
+  overflow: hidden;
+  background-color: #777;
+  opacity: 0.3;
 }
 div.forumPostBody.expanded {
   max-height: initial;
 }
+div.forumPostBody.shrunken {
+  /* When an expandable post is un-expanded, it is shrunkend down
+     to this size instead of its original size. */
+  max-height: 8em;
+}
+
 div.forumSel {
   background-color: #cef;
 }

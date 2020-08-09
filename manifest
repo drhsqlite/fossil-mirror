@@ -1,5 +1,5 @@
-C Revise\sand\ssimplify\sthe\slist\sof\s1st-tier\scommands\sthat\sare\sshown\sby\sthe\n"fossil\shelp"\scommand.
-D 2020-08-09T13:49:47.386
+C Improved(?)\sthe\sway\sforum\spost\sexpansion\sis\shandled,\sbased\son\sforum\sfeedback.\sAdded\sa\snarrow\s"tap\szone"\sto\sthe\sright\sof\sthe\spost\sscrollbars\sto\sexpand/collapse.\sWhen\sa\spost\sis\scollapsed\sthe\sfirst\stime,\sit\sis\sshrunken\smuch\ssmaller\sthan\sits\soriginal\ssize.\sWhen\scollapsing\sa\spost,\swe\snow\sscroll\sits\sparent\selement\s(post\sheader),\srather\sthan\sthe\snext\spost,\sinto\sview.
+D 2020-08-09T14:43:30.307
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 2540908d6b23a290e53cd691b99f9147f7374bca12c0dde6ac45343ad0486311
-F src/default.css 468b30a6ecd212f98a7643cfe87ef71e8fd54b443f54754e66db4db157202e9e
+F src/default.css 2f2da9611d56ffd457c4738d05e3b9500e1f42858575e22b814cd8f9883d7077
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -490,7 +490,7 @@ F src/fossil.confirmer.js 928e23bba65c28b02e0afad5ca2d510f9711dfb8e3204d0fe692e5
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 6cc20e07b9f83529c0dcb53cb0594ee06092610e031c5fbeb2d40ef0b59d9218
 F src/fossil.page.fileedit.js 25d503a8d02c4597c8d9496d515f03905c36a8bc3fbc90e58e3d21dfa8db291a
-F src/fossil.page.forumpost.js e0923d94ca4a7284abcc452f8411e3b80d6f12636c38c4bd0741f570365c6b48
+F src/fossil.page.forumpost.js 9d44ecf4ac821425a51b0748129a1096031390d5eead3e0eaffeff398b42e758
 F src/fossil.page.wikiedit.js 68261e5f2003c290d8a2cf78c8eef452e17ee642e48140d132e1dcad833ff756
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
@@ -1004,7 +1004,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d2ad5f2fe71e0e7362265d4500b2b5e5f76f02e3ec059ed86c98e45429e212db
-R 972afdd126e887fd829afd2e37bed7ac
-U drh
-Z bd72d7e87ba4df7a7fb4a121ebaa55e9
+P 84f697e570a80431b2af7047eb451b995942ff2e7b0ed93164590ad02fe7e84d
+R e4214d162fa679b55fbfe2cf680f1d98
+T *branch * forum-expand-post-revisited
+T *sym-forum-expand-post-revisited *
+T -sym-trunk *
+U stephan
+Z c4d242399301cc7eec8e96900f0f6b3f
