@@ -1,5 +1,5 @@
-C Add\smissed\sinstructions\sto\sedit\src.local\swith\scommands\sto\sautomate\ndevice\snode\screation\sat\sstartup\sas\sidentified\sby\sams\son\sthe\sforum.
-D 2020-08-09T08:11:17.809
+C Edit\swhitespace\sin\sprevious\scommit\sto\smake\sformat\sconsistent\swith\sexisting\scode\sblocks.
+D 2020-08-09T08:28:46.282
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -970,7 +970,7 @@ F www/server/debian/service.md 81497ddf0aedb0b42e934d93bffa416c831cd7f2ca1d0da92
 F www/server/index.html 4975ebc4dbb1aee77ea3a4c6d56e592c85f732e4abb75abeaa5c39f05d8d46dc
 F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4707c9a16b000
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
-F www/server/openbsd/fastcgi.md fb8285fba5ea3ebbfa4c502bdc0fadbf105e4ce6d271ae38905ae94293771171
+F www/server/openbsd/fastcgi.md cae1863eb12809be8ad8ef01b437823f8e1892ad5e19da211c45b700946fa060
 F www/server/openbsd/index.md 629c9dbd0c21f622c57a3f295eb83f078c994bd02c4743bf713f263606fc29db
 F www/server/whyuseaserver.wiki 7e29e0d31965faa3b0523b94949406b9d297da39f91da0ff96973bcdb0cf8be8
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a31a717e177e9f8cfe3b218023d9d122fb3c05c14b11930e12af65bd728c318c
-R 1902d6c3fa7343bb82add3bc60478cc2
+P a2585ea9add4fae704b8d384ffc4c94ec8e8194e1ad0aa76d29314557ce4a6f3
+R 01a4e518ce9644aa57e62a1c5912f143
 U jamsek
-Z db5c00209b1290bb46674b27a32705ff
+Z 29a8c407f631cc59a00795213d500a00
