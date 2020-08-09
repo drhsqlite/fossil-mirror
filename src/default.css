@@ -805,7 +805,7 @@ div.forumHierRoot > div > form {
 }
 div.forumPostBody{
   max-height: 50em;
-  /*overflow: auto;*/
+  overflow: auto;
 }
 div.forumPostBody.with-expander {
   display: flex;
