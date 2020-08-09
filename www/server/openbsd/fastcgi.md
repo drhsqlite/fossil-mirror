@@ -95,6 +95,21 @@ filesystem at startup:
     swap /var/www/dev mfs rw,-s=1048576 0 0
 ```
 
+Then add the following to [`/etc/rc.local(8)`][rc.local] to automate
+creation of the `random` and `null` device files.
+
+```
+echo -n "[!] create device nodes: /var/www/dev/{urandom,null}"
+cwd=$(pwd)
+cd /var/www/dev
+/dev/MAKEDEV urandom
+mknod -m 666 null c 2 2
+cd $cwd
+echo "."
+```
+
+[rc.local]: https://man.openbsd.org/rc.conf.local.8
+
 The same user that executes the fossil binary must have writable access
 to the repository directory that resides within the chroot; on OpenBSD
 this is `www`. In addition, grant repository directory ownership to the
