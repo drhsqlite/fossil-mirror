@@ -3092,10 +3092,10 @@ void db_record_repository_filename(const char *zName){
 ** local machine or it can be a URI for a remote repository.  If REPOSITORY
 ** is a URI in one of the formats recognized by the [[clone]] command, then
 ** remote repo is first cloned, then the clone is opened. The clone will be
-** stored in the current directory, or in DIR if the "--workdir DIR" option
+** stored in the current directory, or in DIR if the "--repodir DIR" option
 ** is used. The name of the clone will be taken from the last term of the URI.
-** For "http:" and "https:" URIs, you can append an extra term on the end to
-** get any repository name you like. For example:
+** For "http:" and "https:" URIs, you can append an extra term to the end of
+** the URI to get any repository name you like. For example:
 **
 **     fossil open https://fossil-scm.org/home/new-name
 **
