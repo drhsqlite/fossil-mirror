@@ -1,5 +1,5 @@
-C Re-added\san\simportant\sforumPostBody.overflow\sCSS\sattribute\swhich\swas\saccidentally\sremoved\sin\sthe\slast\sedit.
-D 2020-08-09T14:54:48.268
+C Corrected\sthe\snew\sCSS\sselectors\sto\saccount\sfor\splain-text\sposts,\swhich\suse\sa\sPRE\sinstead\sof\sDIV\swrapper.\sShrunk\sthe\sgap\sbetween\sthe\sexpansion\stap\szone\sand\sthe\sscrollbar\sto\sits\sleft.
+D 2020-08-09T15:18:41.813
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 2540908d6b23a290e53cd691b99f9147f7374bca12c0dde6ac45343ad0486311
-F src/default.css e3c09d48935baa5028ee782bef95e2b02f5dd758943824565024b4e8f77f0e17
+F src/default.css 90ed7c87b6e69a3e1e900862ba28d1472d8bbc03f96645023256143ca6bc8518
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebbd20c63841472ae4ef45f117be75cb30b7430a56deec6e27b918cf22930385
-R 56eb732949c16c0e9cc2644ea26aed3a
+P 939b64738dbfbc203fd07c3161f2a3019390f0a76a01de4a634a46fa9024056b
+R 15258b10ea090618c5a686adf129680c
 U stephan
-Z 3a3b71374875026a4ba6765dccbae4da
+Z bdc2a0a0795f09d44a2d45495acd6a1e

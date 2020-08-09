@@ -812,20 +812,20 @@ div.forumPostBody.with-expander {
   flex-direction: row;
   overflow: auto;
 }
-div.forumPostBody.with-expander div:nth-of-type(1){
+div.forumPostBody.with-expander > *:first-child {
   /* Main content DIV */
   overflow: auto;
 }
-div.forumPostBody.with-expander.expanded div:nth-of-type(1) {
+div.forumPostBody.with-expander.expanded > *:first-child {
   margin-bottom: 0.5em /* try to suppress scroll bar */;
 }
-div.forumPostBody.with-expander div:nth-of-type(2){
+div.forumPostBody.with-expander > *:nth-child(2) {
   /* "Tap zone" for expansion of the post, sits to the right of the
      post's content. */
   min-width: 1.25em;
   max-width: 1.25em;
   /*for testing only:*//*background: magenta;*/
-  margin: 0 0 0 0.5em /* leave a gap between this and the neighboring scrollbar */;
+  margin: 0 0 0 0.2em /* leave a gap between this and the neighboring scrollbar */;
   overflow: hidden;
   background-color: #777;
   opacity: 0.3;
