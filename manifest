@@ -1,5 +1,5 @@
-C Added\sa\s'Save\sand\sClose'\sbutton\sto\swikiedit.\sCleaned\sup\sthe\sstyling\sand\swrapping\sof\sthe\sstatus/links\smenu\sbars\sin\sfileedit\sand\swikiedit.\sMinor\sstyle\stweaks\sto\sget\sinput\sfield\sborders\sto\sappear\sin\sthe\sdefault\sskin\son\sChromium.
-D 2020-08-10T17:38:51.705
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\s3.33.0\sbeta,\sas\spart\sof\sbeta\stesting.
+D 2020-08-10T20:04:14.908
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -575,7 +575,7 @@ F src/setupuser.c a87e8429e5a245b3461f848a0547922612b0458d991d7ff9bd8a98585f37b9
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
-F src/shell.c 6ab1d8ecbe75d5e6b699f59a2ef6f8abe981eaebd5fe5c9d6ddde79da27792ff
+F src/shell.c 88c590e6a701076eb5dc82507fb303ed63db187410164a38712dfc49c18c8985
 F src/shun.c ad762c0c170cae98d0f09a5999b0bbcdb8783e8f69e65846d102084f6dd588f3
 F src/sitemap.c c8fba03e5862ee3969bfa4d7c89d64a4465d9b42e74da4902257b428d6d65067
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -601,8 +601,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c c071c8c4d36492e5f92637aba21ad895b9a9f72cd277097e9a149d17763633eb
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c c596a78c44c90226df50913cd5e0f19a44a92862a5ebcd85091e9a23856b78fb
-F src/sqlite3.h 9e3110f46dbaafa3fd93c37540f61108eec372f24a963cb72ac7d5fb1bef5d26
+F src/sqlite3.c 9b4369354a8d3bee19dcfa39919e55955fed8c8b6890c02c7cb2fc85a4b98c27
+F src/sqlite3.h 55c2419fd1b120d92833deac66db31aa5b96db97b355c6bddb97b1b4bcf4aa6a
 F src/stash.c 43c525c5c2933846405b0b9e3687218c852ff89088796d9e7e7b48f3ddab84a4
 F src/stat.c 8095b590195ad80cead18e3dfc9ff025debf40e14a9090c4b6d9499f6cfb1684
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1eb21747ace6e50ee27a648c7d49a7e4af8e34564b5438d869da97956610c916
-R c36f08b01e0c970eb7e8232caf749837
-U stephan
-Z b1136dacea428f5c0256b85fa7844ed1
+P 3814c9ff58e2f4ae69e4c3f4016cef1fadff17cec5d50ffb37b9642e30ed0358
+R 911e22476adba2ab44289efac6605408
+U drh
+Z 1a42737c06a8bfb7a1b7dc17d870ed14
