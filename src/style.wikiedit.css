@@ -8,10 +8,10 @@ body.wikiedit input,
 body.wikiedit input:focus,
 body.wikiedit select,
 body.wikiedit select:focus{
-  /* The sudden appearance of a border (as in the Ardoise skin)
-     shifts the layout in unsightly ways */
-  border: initial;
-  border-width: 1px;
+  /* Depending on the skin, it might be useful to add one or both of
+     the following... */
+  /*border-width: 1px;*/
+  /*border: initial; */
 }
 body.wikiedit div.wikiedit-preview {
   margin: 0;
@@ -141,11 +141,15 @@ body.wikiedit #wikiedit-edit-status {
   flex-wrap: wrap;
   justify-content: space-between;
   font-family: monospace;
-  font-size: 1.2em;
 }
-
-body.wikiedit #wikiedit-edit-status > span {
+body.wikiedit #wikiedit-edit-status > span.name {
   display: block;
+  word-break: break-word /* needed for long names, e.g. checkin/... */;
+}
+body.wikiedit #wikiedit-edit-status > span.links {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
 }
 body.wikiedit .WikiList span.is-new,
 body.wikiedit .WikiList span.is-modified,

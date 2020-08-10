@@ -830,6 +830,9 @@
       taEditor: E('#wikiedit-content-editor'),
       btnReload: E("#wikiedit-tab-content button.wikiedit-content-reload"),
       btnSave: E("button.wikiedit-save"),
+      btnSaveClose: D.attr(E("button.wikiedit-save-close"),
+                           'title',
+                           'Save changes and return to the wiki reader.'),
       selectMimetype: E('select[name=mimetype]'),
       selectFontSizeWrap: E('#select-font-size'),
 //      selectDiffWS:  E('select[name=diff_ws]'),
@@ -863,6 +866,7 @@
           /* Several places make sense for a save button, so we'll
              move that button around to those tabs where it makes sense. */
           btnSlot.parentNode.insertBefore( P.e.btnSave, btnSlot );
+          btnSlot.parentNode.insertBefore( P.e.btnSaveClose, btnSlot );
           P.updateSaveButton();
         }
         if(theTab===P.e.tabs.preview){
@@ -910,14 +914,20 @@
     if(0) P.e.btnCommit.addEventListener(
       "click",(e)=>P.commit(), false
     );
-    const doSave = function(e){
+    const doSave = function(alsoClose){
       const w = P.winfo;
       if(!w){
         F.error("No page loaded.");
         return;
       }
       setTimeout(
-        ()=>P.save(), 0
+        function(){
+          if(alsoClose){
+            P.save(()=>window.location.href=F.repoUrl('wiki',{name: w.name}));
+          }else{
+            P.save();
+          }
+        }, 0
         /* timeout is a workaround to allow save() to update the
            button's text (per forum feedback).  The idea is to force
            the call of save() to happen *after* the confirmer
@@ -966,11 +976,17 @@
     if(P.config.useConfirmerButtons.save){
       F.confirmer(P.e.btnSave, {
         confirmText: "Really save changes?",
-        onconfirm: doSave,
+        onconfirm: ()=>doSave(),
+        ticks: F.config.confirmerButtonTicks
+      });
+      F.confirmer(P.e.btnSaveClose, {
+        confirmText: "Really save changes?",
+        onconfirm: ()=>doSave(true),
         ticks: F.config.confirmerButtonTicks
       });
     }else{
-      P.e.btnSave.addEventListener('click', doSave, false);
+      P.e.btnSave.addEventListener('click', ()=>doSave(), false);
+      P.e.btnSaveClose.addEventListener('click', ()=>doSave(true), false);
     }
 
     P.e.taEditor.addEventListener(
@@ -1090,7 +1106,8 @@
         D.a(F.repoUrl('wiki',{name:wi.name}),"viewer"),
         D.a(F.repoUrl('whistory',{name:wi.name}),'history'),
         D.a(F.repoUrl('attachlist',{page:wi.name}),"attachments"),
-        D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "attach")        
+        D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "attach"),
+        D.a(F.repoUrl('wikiedit',{name:wi.name}),"editor permalink")
       );
     }
   };
@@ -1118,8 +1135,10 @@
     if(!this.winfo || !this.getStashedWinfo(this.winfo)){
       D.disable(this.e.btnSave).innerText =
         "No changes to save";
+      D.disable(this.e.btnSaveClose);
     }else{
-      D.enable(this.e.btnSave).innerText = "Save changes";
+      D.enable(this.e.btnSave).innerText = "Save";
+      D.enable(this.e.btnSaveClose);
     }
     return this;
   };
@@ -1359,20 +1378,23 @@
 
   /**
      Saves the current wiki page and re-populates the editor
-     with the saved state.
+     with the saved state. If passed an argument, it is
+     expected to be a function, which is called only if
+     saving succeeds, after all other post-save processing.
   */
-  P.save = function callee(){
+  P.save = function callee(onSuccessCallback){
     if(!affirmPageLoaded()) return this;
     const content = this.wikiContent();
-    if(!callee.onload){
-      const self = this;
-      callee.onload = function(w){
-        const oldWinfo = self.winfo;
-        self.unstashContent(oldWinfo);
-        self.dispatchEvent('wiki-page-loaded', w);
-        F.message("Saved page: ["+w.name+"].");
+    const self = this;
+    callee.onload = function(w){
+      const oldWinfo = self.winfo;
+      self.unstashContent(oldWinfo);
+      self.dispatchEvent('wiki-page-loaded', w)/* will reset save buttons */;
+      F.message("Saved page: ["+w.name+"].");
+      if('function'===typeof onSuccessCallback){
+        onSuccessCallback();
       }
-    }
+    };
     const fd = new FormData(), w = P.winfo;
     fd.append('page',w.name);
     fd.append('mimetype', w.mimetype);
@@ -1384,7 +1406,7 @@
       payload: fd,
       responseType: 'json',
       beforesend: function(){
-        D.disable(P.e.btnSave);
+        D.disable(P.e.btnSave, P.e.btnSaveClose);
         P.e.btnSave.innerText = "Saving...";
         F.fetch.beforesend();
       },

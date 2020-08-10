@@ -976,7 +976,7 @@
 
     D.append(
       f.eLinks,
-      D.append(D.span(), "mimetype "+(fi.mimetype||'???')),
+      D.append(D.span(), fi.mimetype||'?mimetype?'),
       D.a(F.repoUrl('info/'+rUrl), rHuman),
       D.a(F.repoUrl('timeline',{m:rUrl}), "timeline"),
       D.a(F.repoUrl('annotate',{filename:file, checkin:rUrl}),'annotate'),

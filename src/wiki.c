@@ -1178,12 +1178,13 @@ void wikiedit_page(void){
        ">Discard &amp; Reload</button>");
     CX("<button class='wikiedit-save' disabled='disabled'>"
        "Save</button>"/*will get moved around dynamically*/);
+    CX("<button class='wikiedit-save-close' disabled='disabled'>"
+       "Save &amp; Close</button>"/*will get moved around dynamically*/);
     CX("<span class='save-button-slot'></span>");
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
-       "class='wikiedit' "
-       "rows='25' cols='80'>");
+       "class='wikiedit' rows='25'>");
     CX("</textarea>");
     CX("</div>"/*textarea wrapper*/);
     CX("</div>"/*#tab-file-content*/);

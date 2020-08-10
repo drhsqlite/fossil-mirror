@@ -1710,8 +1710,7 @@ void fileedit_page(void){
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
-       "class='fileedit' "
-       "rows='20' cols='80'>");
+       "class='fileedit' rows='25'>");
     CX("</textarea>");
     CX("</div>"/*textarea wrapper*/);
     CX("</div>"/*#tab-file-content*/);

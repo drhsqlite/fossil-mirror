@@ -17,9 +17,10 @@ body.fileedit textarea {
 }
 body.fileedit textarea:focus,
 body.fileedit input:focus{
-  /* The sudden appearance of a border (as in the Ardoise skin)
-     shifts the layout in unsightly ways */
-  border: initial;
+  /* Depending on the skin, it might be useful to add one or both of
+     the following... */
+  /*border-width: 1px;*/
+  /*border: initial; */
 }
 body.fileedit fieldset {
   margin: 0.5em 0 0.5em 0;
@@ -200,10 +201,15 @@ body.fileedit #fileedit-edit-status {
   flex-wrap: wrap;
   justify-content: space-between;
   font-family: monospace;
-  font-size: 1.2em;
 }
-body.fileedit #fileedit-edit-status > span {
+body.fileedit #fileedit-edit-status > span.name > a {
   display: block;
+  word-break: break-word /* needed for long paths */;
+}
+body.fileedit #fileedit-edit-status > span.links {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
 }
 body.fileedit #fileedit-file-selector span.is-new,
 body.fileedit #fileedit-file-selector span.is-modified {
