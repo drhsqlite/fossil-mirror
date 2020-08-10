@@ -68,16 +68,20 @@ the script executable.
 Fossil needs both `/dev/random` and `/dev/null`, which aren't accessible
 from within the chroot, so need to be constructed; `/var`, however, is
 mounted with the `nodev` option. Rather than removing this default
-setting, create a small memory filesystem with [`mount_mfs(8)`][mfs]
-upon which `/var/www/dev` will be mounted so that the `random` and
-`null` device files can be created.
+setting, create a small memory filesystem and then mount it on to
+`/var/www/dev` with [`mount_mfs(8)`][mfs] so that the `random` and
+`null` device files can be created. In order to avoid neccessitating a
+startup script to recreate the device files at boot, create a template
+of the needed ``/dev`` tree to automatically populate the memory
+filesystem.
 
 ```console
     $ doas mkdir /var/www/dev
-    $ doas mount_mfs -s 1M /dev/sd0b /var/www/dev
-    $ doas cd /var/www/dev
+    $ doas install -d -g daemon /template/dev
+    $ cd /template/dev
     $ doas /dev/MAKEDEV urandom
     $ doas mknod -m 666 null c 2 2
+    $ doas mount_mfs -s 1M -P /template/dev /dev/sd0b /var/www/dev
     $ ls -l
     total 0
     crw-rw-rw-  1 root  daemon    2,   2 Jun 20 08:56 null
@@ -92,23 +96,8 @@ a privileged user and add the following line to automate creation of the
 filesystem at startup:
 
 ```console
-    swap /var/www/dev mfs rw,-s=1048576 0 0
+    swap /var/www/dev mfs rw,-s=1048576,-P=/template/dev 0 0
 ```
-
-Then add the following to [`/etc/rc.local(8)`][rc.local] to automate
-creation of the `random` and `null` device files.
-
-```
-    echo -n "[!] create device nodes: /var/www/dev/{urandom,null}"
-    cwd=$(pwd)
-    cd /var/www/dev
-    /dev/MAKEDEV urandom
-    mknod -m 666 null c 2 2
-    cd $cwd
-    echo "."
-```
-
-[rc.local]: https://man.openbsd.org/rc.conf.local.8
 
 The same user that executes the fossil binary must have writable access
 to the repository directory that resides within the chroot; on OpenBSD
