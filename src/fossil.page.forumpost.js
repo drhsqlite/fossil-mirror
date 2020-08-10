@@ -13,7 +13,12 @@
         const wasExpanded = widget.classList.contains('expanded');
         widget.classList.toggle('expanded');
         contentElem.classList.toggle('expanded');
-        if(wasExpanded) widget.scrollIntoView();
+        if(wasExpanded){
+          contentElem.classList.add('shrunken');
+          contentElem.parentElement.scrollIntoView();
+        }else{
+          contentElem.classList.remove('shrunken');
+        }
         return false;
       };
     };
@@ -26,8 +31,11 @@
     ).forEach(function(forumPostWrapper){
       const content = forumPostWrapper.querySelector('div.forumPostBody');
       if(!content || !scrollbarIsVisible(content)) return;
-      const widget = D.div(),
+      const parent = content.parentElement,
+            rightTapZone = D.div(),
+            widget = D.div(),
             widgetEventHandler = getWidgetHandler(widget, content);
+      content.classList.add('with-expander');
       widget.classList.add('forum-post-collapser');
       widget.addEventListener('click', widgetEventHandler, false);
       /** Append 3 children, which CSS will evenly space across the
@@ -44,7 +52,9 @@
           post, which is minorly annoying but otherwise harmless. Such
           a toggle has proven convenient on "excessive" posts,
           though. */
-      content.addEventListener('dblclick', widgetEventHandler);
+      //content.addEventListener('dblclick', widgetEventHandler);
+      content.appendChild(rightTapZone);
+      rightTapZone.addEventListener('click', widgetEventHandler, false);
     });
   })/*onload callback*/;
   
