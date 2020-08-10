@@ -68,7 +68,7 @@ body.wikiedit .WikiList select option {
 body.wikiedit .WikiList select option.stashed,
 body.wikiedit .WikiList select option.stashed-new,
 body.wikiedit .WikiList select option.deleted {
-  margin-left: -1em;  
+  margin-left: -0.4em;  
 }
 body.wikiedit .WikiList.hide-deleted select option.deleted {
   display: none;
