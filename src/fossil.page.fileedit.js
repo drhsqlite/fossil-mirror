@@ -287,26 +287,40 @@
       ),"Loading leaves...");
       D.disable(this.e.btnLoadFile, this.e.selectFiles, this.e.selectCi); 
       const self = this;
-      F.fetch('fileedit/filelist',{
-        urlParams:'leaves',
-        responseType: 'json',
-        onload: function(list){
-          D.append(D.clearElement(self.e.ciListLabel),
-                   "Open leaves (newest first):");
-          self.cache.checkins = list;
-          D.clearElement(D.enable(self.e.selectCi));
-          let loadThisOne;
-          list.forEach(function(o,n){
-            if(!n) loadThisOne = o;
-            self.cache.branchNames[F.hashDigits(o.checkin,true)] = o.branch;
-            D.option(self.e.selectCi, o.checkin,
-                     o.timestamp+' ['+o.branch+']: '
-                     +F.hashDigits(o.checkin));
-          });
-          F.storage.setJSON(self.cache.branchKey, self.cache.branchNames);
-          self.loadFiles(loadThisOne ? loadThisOne.checkin : false);
+      const onload = function(list){
+        D.append(D.clearElement(self.e.ciListLabel),
+                 "Open leaves (newest first):");
+        self.cache.checkins = list;
+        D.clearElement(D.enable(self.e.selectCi));
+        let loadThisOne = P.initialFiles/*possibly injected at page-load time*/;
+        if(loadThisOne){
+          self.cache.files[loadThisOne.checkin] = loadThisOne;
+          delete P.initialFiles;
         }
-      });
+        list.forEach(function(o,n){
+          if(!n && !loadThisOne) loadThisOne = o;
+          self.cache.branchNames[F.hashDigits(o.checkin,true)] = o.branch;
+          D.option(self.e.selectCi, o.checkin,
+                   o.timestamp+' ['+o.branch+']: '
+                   +F.hashDigits(o.checkin));
+        });
+        F.storage.setJSON(self.cache.branchKey, self.cache.branchNames);
+        if(loadThisOne){
+          self.e.selectCi.value = loadThisOne.checkin;
+        }
+        self.loadFiles(loadThisOne ? loadThisOne.checkin : false);
+      };
+      if(P.initialLeaves/*injected at page-load time.*/){
+        const lv = P.initialLeaves;
+        delete P.initialLeaves;
+        onload(lv);
+      }else{
+        F.fetch('fileedit/filelist',{
+          urlParams:'leaves',
+          responseType: 'json',
+          onload: onload
+        });
+      }
     },
     /**
        Loads the file list for the given checkin UUID. It uses a
@@ -413,7 +427,7 @@
         D.append(
           this.e.container,
           D.append(
-            D.div(),
+            D.span(),
             D.append(D.code(),"fileedit-glob"),
             " config setting = ",
             D.append(D.code(), JSON.stringify(F.config['fileedit-glob']))

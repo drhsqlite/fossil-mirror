@@ -1,5 +1,5 @@
-C Amend\sOpenBSD\shttpd\sFossil\sserver\sinstructions\sto\suse\sthe\smount_mfs\s-P\soption\sto\sautomatically\spopulate\sthe\schroot\s/dev\stree\sas\ssuggested\sby\sanon\son\sthe\sforum.
-D 2020-08-10T05:38:37.567
+C /fileedit\snow\sembeds\sthe\scurrent\sopen\sleaf\slist\sand\sthe\sfile\slist\sfor\sthe\scurrent\scheckin\s(defaulting\sto\sthe\smost\srecent\sleaf)\sin\sthe\spage\scontent,\ssaving\s2\sXHR\srequests\sat\sstartup.\sIf\spassed\sfilename=\swithout\scheckin=\sthen\sit\stries\sto\sload\sthe\sgiven\sfile\sfrom\sthe\smost\srecent\sleaf.
+D 2020-08-10T11:53:07.873
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -480,7 +480,7 @@ F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9e74888606a2bfcc110e53e5da994dac97cadfcfb22daba23353b7dd13932a41
-F src/fileedit.c 678c0799e620b24a7306aac76e05b7c0900fa04542aa3aa0737c8f50f15b408e
+F src/fileedit.c b26fa035e6aec94394228ee6fe19a319d777f84f5b3b920d1f9ec28590c00f92
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 263e90df3d53b6037b4a1030b669f2b9b32d21dda1714afa6c0146b77e5c621a
@@ -489,7 +489,7 @@ F src/fossil.bootstrap.js 4377e822fd07a54b16944913b4fa754b92f653c376c6dfae3205c5
 F src/fossil.confirmer.js 928e23bba65c28b02e0afad5ca2d510f9711dfb8e3204d0fe692e563cfad3b7e
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 6cc20e07b9f83529c0dcb53cb0594ee06092610e031c5fbeb2d40ef0b59d9218
-F src/fossil.page.fileedit.js 25d503a8d02c4597c8d9496d515f03905c36a8bc3fbc90e58e3d21dfa8db291a
+F src/fossil.page.fileedit.js ff1c4c051ae6876fe0362afb45de805f9c5aa0b954371f139e1fc962a02000e8
 F src/fossil.page.forumpost.js e0923d94ca4a7284abcc452f8411e3b80d6f12636c38c4bd0741f570365c6b48
 F src/fossil.page.wikiedit.js 68261e5f2003c290d8a2cf78c8eef452e17ee642e48140d132e1dcad833ff756
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
@@ -497,7 +497,7 @@ F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
-F src/glob.c c531f78dacb63bec5f0271c03da62ae003163119f21caa262e51f2eb314d0c3c
+F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c a9e1f5aae6551892f96c84bd4cd1708da2843bdd372bc45367493e8cd16f5e17
 F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84f697e570a80431b2af7047eb451b995942ff2e7b0ed93164590ad02fe7e84d
-R 8cd49834e3a9972b8b7583ae68637e14
-U jamsek
-Z 4a65a3fd3cca3764d090d8e57af052c8
+P 4b240ec31ebdeb1919de3feeeb622dd172d92483fdd1d6271fe7feb4bebde353
+R f74edebbd0de9d3e999d6d4693299d09
+U stephan
+Z 434fe91d7965b4e1c4a86763ea40d933

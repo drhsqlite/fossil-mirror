@@ -967,7 +967,8 @@ static int fileedit_ajax_check_filename(const char * zFilename){
 ** - *zRevUuid = the fully-expanded value of zRev (owned by the
 **    caller). zRevUuid may be NULL.
 **
-** - *vid = the RID of zRevUuid. May not be NULL.
+** - *pVid = the RID of zRevUuid. pVid May be NULL. If the vid
+**    cannot be resolved or is ambiguous, pVid is not assigned.
 **
 ** - *frid = the RID of zFilename's blob content. May not be NULL
 **   unless zFilename is also NULL. If BOTH of zFilename and frid are
@@ -981,34 +982,37 @@ static int fileedit_ajax_check_filename(const char * zFilename){
 */
 static int fileedit_ajax_setup_filerev(const char * zRev,
                                        char ** zRevUuid,
-                                       int * vid,
+                                       int * pVid,
                                        const char * zFilename,
                                        int * frid){
   char * zFileUuid = 0;             /* file content UUID */
   const int checkFile = zFilename!=0 || frid!=0;
+  int vid = 0;
   
   if(checkFile && !fileedit_ajax_check_filename(zFilename)){
     return 0;
   }
-  *vid = symbolic_name_to_rid(zRev, "ci");
-  if(0==*vid){
+  vid = symbolic_name_to_rid(zRev, "ci");
+  if(0==vid){
     ajax_route_error(404,"Cannot resolve name as a checkin: %s",
                      zRev);
     return 0;
-  }else if(*vid<0){
+  }else if(vid<0){
     ajax_route_error(400,"Checkin name is ambiguous: %s",
                      zRev);
     return 0;
+  }else if(pVid!=0){
+    *pVid = vid;
   }
   if(checkFile){
-    zFileUuid = fileedit_file_uuid(zFilename, *vid, 0);
+    zFileUuid = fileedit_file_uuid(zFilename, vid, 0);
     if(zFileUuid==0){
       ajax_route_error(404, "Checkin does not contain file.");
       return 0;
     }
   }
   if(zRevUuid!=0){
-    *zRevUuid = rid_to_uuid(*vid);
+    *zRevUuid = rid_to_uuid(vid);
   }
   if(checkFile){
     assert(zFileUuid!=0);
@@ -1294,6 +1298,88 @@ end_fail:
 }
 
 /*
+** Renders a list of all open leaves in JSON form:
+**
+** [
+**   {checkin: UUID, branch: branchName, timestamp: string}
+** ]
+**
+** The entries are ordered newest first.
+**
+** If zFirstUuid is not NULL then *zFirstUuid is set to a copy of the
+** full UUID of the first (most recent) leaf, which must be freed by
+** the caller. It is set to 0 if there are no leaves.
+*/
+static void fileedit_render_leaves_list(char ** zFirstUuid){
+  Blob sql = empty_blob;
+  Stmt q = empty_Stmt;
+  int i = 0;
+
+  if(zFirstUuid){
+    *zFirstUuid = 0;
+  }
+  blob_append(&sql, timeline_query_for_tty(), -1);
+  blob_append_sql(&sql, " AND blob.rid IN (SElECT rid FROM leaf "
+                  "WHERE NOT EXISTS("
+                  "SELECT 1 from tagxref WHERE tagid=%d AND "
+                  "tagtype>0 AND rid=leaf.rid"
+                  ")) "
+                  "ORDER BY mtime DESC", TAG_CLOSED);
+  db_prepare_blob(&q, &sql);
+  CX("[");
+  while( SQLITE_ROW==db_step(&q) ){
+    const char * zUuid = db_column_text(&q, 1);
+    if(i++){
+      CX(",");
+    }else if(zFirstUuid){
+      *zFirstUuid = fossil_strdup(zUuid);
+    }
+    CX("{");
+    CX("\"checkin\":%!j,", zUuid);
+    CX("\"branch\":%!j,", db_column_text(&q, 7));
+    CX("\"timestamp\":%!j", db_column_text(&q, 2));
+    CX("}");
+  }
+  CX("]");
+  db_finalize(&q);
+}
+
+/*
+** For the given fully resolved UUID, renders a JSON object containing
+** the fileeedit-editable files in that checkin:
+**
+** {
+**   checkin: UUID,
+**   editableFiles: [ filename1, ... filenameN ]
+** }
+**
+** They are sorted by name using filename_collation().
+*/
+static void fileedit_render_checkin_files(const char * zFullUuid){
+  Blob sql = empty_blob;
+  Stmt q = empty_Stmt;
+  int i = 0;
+
+  CX("{\"checkin\":%!j,"
+     "\"editableFiles\":[", zFullUuid);
+  blob_append_sql(&sql, "SELECT filename FROM files_of_checkin(%Q) "
+                  "ORDER BY filename %s",
+                  zFullUuid, filename_collation());
+  db_prepare_blob(&q, &sql);
+  while( SQLITE_ROW==db_step(&q) ){
+    const char * zFilename = db_column_text(&q, 0);
+    if(fileedit_is_editable(zFilename)){
+      if(i++){
+        CX(",");
+      }
+      CX("%!j", zFilename);
+    }
+  }
+  db_finalize(&q);
+  CX("]}");  
+}
+
+/*
 ** AJAX route /fileedit?ajax=filelist
 **
 ** Fetches a JSON-format list of leaves and/or filenames for use in
@@ -1320,11 +1406,8 @@ end_fail:
 ** On error it produces a JSON response as documented for
 ** ajax_route_error().
 */
-static void fileedit_ajax_filelist(void){
+static void fileedit_ajax_filelist(){
   const char * zCi = PD("checkin",P("ci"));
-  Blob sql = empty_blob;
-  Stmt q = empty_Stmt;
-  int i = 0;
 
   if(!ajax_route_bootstrap(1,0)){
     return;
@@ -1332,50 +1415,14 @@ static void fileedit_ajax_filelist(void){
   cgi_set_content_type("application/json");
   if(zCi!=0){
     char * zCiFull = 0;
-    int vid = 0;
-    if(0==fileedit_ajax_setup_filerev(zCi, &zCiFull, &vid, 0, 0)){
+    if(0==fileedit_ajax_setup_filerev(zCi, &zCiFull, 0, 0, 0)){
       /* Error already reported */
       return;
     }
-    CX("{\"checkin\":%!j,"
-       "\"editableFiles\":[", zCiFull);
-    blob_append_sql(&sql, "SELECT filename FROM files_of_checkin(%Q) "
-                    "ORDER BY filename %s",
-                    zCiFull, filename_collation());
-    db_prepare_blob(&q, &sql);
-    while( SQLITE_ROW==db_step(&q) ){
-      const char * zFilename = db_column_text(&q, 0);
-      if(fileedit_is_editable(zFilename)){
-        if(i++){
-          CX(",");
-        }
-        CX("%!j", zFilename);
-      }
-    }
-    db_finalize(&q);
-    CX("]}");
+    fileedit_render_checkin_files(zCiFull);
+    fossil_free(zCiFull);
   }else if(P("leaves")!=0){
-    blob_append(&sql, timeline_query_for_tty(), -1);
-    blob_append_sql(&sql, " AND blob.rid IN (SElECT rid FROM leaf "
-                    "WHERE NOT EXISTS("
-                    "SELECT 1 from tagxref WHERE tagid=%d AND "
-                    "tagtype>0 AND rid=leaf.rid"
-                    ")) "
-                    "ORDER BY mtime DESC", TAG_CLOSED);
-    db_prepare_blob(&q, &sql);
-    CX("[");
-    while( SQLITE_ROW==db_step(&q) ){
-      if(i++){
-        CX(",");
-      }
-      CX("{");
-      CX("\"checkin\":%!j,", db_column_text(&q, 1));
-      CX("\"branch\":%!j,", db_column_text(&q, 7));
-      CX("\"timestamp\":%!j", db_column_text(&q, 2));
-      CX("}");
-    }
-    CX("]");
-    db_finalize(&q);
+    fileedit_render_leaves_list(0);
   }else{
     ajax_route_error(500, "Unhandled URL argument.");
   }
@@ -1511,20 +1558,10 @@ end_cleanup:
 ** documented for ajax_route_error().
 */
 void fileedit_page(void){
-  const char * zFilename = 0;          /* filename. We'll accept 'name'
-                                           because that param is handled
-                                           specially by the core. */
-  const char * zRev = 0;                /* checkin version */
   const char * zFileMime = 0;           /* File mime type guess */
   CheckinMiniInfo cimi;                 /* Checkin state */
   int previewRenderMode = AJAX_RENDER_GUESS; /* preview mode */
   Blob err = empty_blob;                /* Error report */
-  Blob endScript = empty_blob;          /* Script code to run at the
-                                           end. This content will be
-                                           combined into a single JS
-                                           function call, thus each
-                                           entry must end with a
-                                           semicolon. */
   const char *zAjax = P("name");        /* Name of AJAX route for
                                            sub-dispatching. */
 
@@ -1592,10 +1629,7 @@ void fileedit_page(void){
   {
     int isMissingArg = 0;
     if(fileedit_setup_cimi_from_p(&cimi, &err, &isMissingArg)==0){
-      zFilename = cimi.zFilename;
-      zRev = cimi.zParentUuid;
-      assert(zRev);
-      assert(zFilename);
+      assert(cimi.zFilename);
       zFileMime = mimetype_from_name(cimi.zFilename);
     }else if(isMissingArg!=0){
       /* Squelch these startup warnings - they're non-fatal now but
@@ -1934,36 +1968,6 @@ void fileedit_page(void){
   }
   CX("</div>"/*#fileedit-tab-help*/);
 
-  {
-    /* Dynamically populate the editor, display any error in the err
-    ** blob, and/or switch to tab #0, where the file selector
-    ** lives... */
-    blob_appendf(&endScript, "fossil.config['fileedit-glob'] = ");
-    glob_render_as_json(fileedit_glob(), &endScript);
-    blob_append(&endScript, ";\n", 2);
-    blob_append(&endScript, "fossil.onPageLoad(", -1);
-    if(zRev && zFilename){
-      assert(0==blob_size(&err));
-      blob_appendf(&endScript,
-                   "()=>fossil.page.loadFile(%!j,%!j)",
-                   zFilename, cimi.zParentUuid);
-    }else{
-      blob_appendf(&endScript,"function(){\n");
-      if(blob_size(&err)>0){
-        blob_appendf(&endScript,
-                     "fossil.error(%!j);\n",
-                     blob_str(&err));
-      }
-      blob_appendf(&endScript,
-                   "fossil.page.tabs.switchToTab(0);\n");
-      blob_appendf(&endScript,"}");
-    }
-    blob_appendf(&endScript,");\n");
-  }
-
-  blob_reset(&err);
-  CheckinMiniInfo_cleanup(&cimi);
-
   builtin_request_js("sbsdiff.js");
   style_emit_fossil_js_apis(0, "fetch", "dom", "tabs", "confirmer",
                             "storage", 0);
@@ -1979,17 +1983,64 @@ void fileedit_page(void){
   ajax_emit_js_preview_modes(1);
   builtin_request_js("fossil.page.fileedit.js");
   builtin_fulfill_js_requests();
-  if(blob_size(&endScript)>0){
+  {
+    /* Dynamically populate the editor, display any error in the err
+    ** blob, and/or switch to tab #0, where the file selector
+    ** lives. The extra C scopes here correspond to JS-level scopes,
+    ** to improve grokability. */
     style_emit_script_tag(0,0);
     CX("\n(function(){\n");
-    CX("try{\n%b}\n"
-       "catch(e){"
+    CX("try{\n");
+    {
+      char * zFirstLeafUuid = 0;
+      CX("fossil.config['fileedit-glob'] = ");
+      glob_render_json_to_cgi(fileedit_glob());
+      CX(";\n");
+      if(blob_size(&err)>0){
+        CX("fossil.error(%!j);\n", blob_str(&err));
+      }
+      /* Populate the page with the current leaves and, if available,
+         the selected checkin's file list, to save 1 or 2 XHR requests
+         at startup. That makes this page uncacheable, but compressed
+         delivery of this page is currently less than 6k. */
+      CX("fossil.page.initialLeaves = ");
+      fileedit_render_leaves_list(cimi.zParentUuid ? 0 : &zFirstLeafUuid);
+      CX(";\n");
+      if(zFirstLeafUuid){
+        assert(!cimi.zParentUuid);
+        cimi.zParentUuid = zFirstLeafUuid;
+        zFirstLeafUuid = 0;
+      }
+      if(cimi.zParentUuid){
+        CX("fossil.page.initialFiles = ");
+        fileedit_render_checkin_files(cimi.zParentUuid);
+        CX(";\n");
+      }
+      CX("fossil.onPageLoad(function(){\n");
+      {
+        if(blob_size(&err)>0){
+          CX("fossil.error(%!j);\n",
+             blob_str(&err));
+          CX("fossil.page.tabs.switchToTab(0);\n");
+        }
+        if(cimi.zParentUuid && cimi.zFilename){
+          CX("fossil.page.loadFile(%!j,%!j);\n",
+             cimi.zFilename, cimi.zParentUuid)
+            /* Reminder we cannot embed the JSON-format
+               content of the file here because if it contains
+               a SCRIPT tag then it will break the whole page. */;
+        }
+      }
+      CX("});\n")/*fossil.onPageLoad()*/;
+    }
+    CX("}catch(e){"
        "fossil.error(e); console.error('Exception:',e);"
-       "}\n",
-       &endScript);
-    CX("})();");
+       "}\n");
+    CX("})();")/*anonymous function*/;
     style_emit_script_tag(1,0);
   }
+  blob_reset(&err);
+  CheckinMiniInfo_cleanup(&cimi);
   db_end_transaction(0);
   style_footer();
 }
