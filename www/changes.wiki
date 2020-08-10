@@ -13,6 +13,8 @@
   *  Enhance the [/help?cmd=open|fossil open] command with the new
      --workdir option and the ability to accept a URL as the repository
      name, causing the remote repository to be cloned automatically.
+     Do not allow "fossil open" to open in a non-empty working directory
+     unless the --keep option or the new --force option is used.
   *  Enhance the markdown formatter to more closely follow the
      [https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis|CommonMark specification]
      with regard to text highlighting.
