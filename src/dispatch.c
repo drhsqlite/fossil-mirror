@@ -415,10 +415,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
       blob_append(pHtml, "<li> ", 5);
     }
     if( wantP ){
-      /* We historically output a <P> tag here but that is
-         semantically illegal (P may only contain inline elements) and
-         browsers were automatically relocating its contents after the
-         P in the DOM. */
+      blob_append(pHtml, "<p> ", 4);
       wantP = 0;
     }
     if( azEnd[iLevel]==zEndDL ){
