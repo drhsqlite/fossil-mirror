@@ -1805,7 +1805,8 @@ void fileedit_page(void){
        "class='hidden'"
        ">");
 
-    CX("<div class='fileedit-options flex-container flex-row' "
+    CX("<div class='fileedit-options flex-container "
+       "flex-row child-gap-small' "
        "id='fileedit-tab-diff-buttons'>");
     CX("<button class='sbs'>Side-by-side</button>"
        "<button class='unified'>Unified</button>");

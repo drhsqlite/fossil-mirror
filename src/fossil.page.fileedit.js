@@ -466,7 +466,7 @@
       );
       const sel = this.e.select = D.select();
       const btnClear = this.e.btnClear
-            = D.addClass(D.button("Clear"),'hidden');
+            = D.button("Clear");
       D.append(wrapper, "Local edits (",
                D.append(D.code(),
                         F.storage.storageImplName()),
@@ -485,11 +485,6 @@
         const opt = this.selectedOptions[0];
         if(opt && opt._finfo) P.loadFile(opt._finfo);
       });
-      F.confirmer(btnClear, {
-        confirmText: "REALLY delete ALL local edits?",
-        onconfirm: (e)=>P.clearStash().loadFile(/*in case P.finfo was in the stash*/),
-        ticks: F.config.confirmerButtonTicks
-      });
       if(F.storage.isTransient()){/*Warn if our storage is particularly transient...*/
         D.append(wrapper, D.append(
           D.addClass(D.span(),'warning'),
@@ -498,6 +493,22 @@
         ));
       }
       domInsertPoint.parentNode.insertBefore(wrapper, domInsertPoint);
+      F.confirmer(btnClear, {
+        /* must come after insertion into the DOM for the pinSize option to work. */
+        pinSize: true,
+        confirmText: "DELETE all local edits?",
+        onconfirm: function(e){
+          if(P.finfo){
+            const stashed = P.getStashedFinfo(P.finfo);
+            P.clearStash();
+            if(stashed) P.loadFile(/*reload after discarding edits*/);
+          }else{
+            P.clearStash();
+          }
+        },
+        ticks: F.config.confirmerButtonTicks
+      });
+      D.addClass(this.e.btnClear,'hidden' /* must not be set until after confirmer is set up!*/);
       $stash._fireStashEvent(/*read the page-load-time stash*/);
       delete this.init;
     },
@@ -728,6 +739,7 @@
       "click",(e)=>P.commit(), false
     );
     F.confirmer(P.e.btnReload, {
+      pinSize: true,
       confirmText: "Really reload, losing edits?",
       onconfirm: (e)=>P.unstashContent().loadFile(),
       ticks: F.config.confirmerButtonTicks
