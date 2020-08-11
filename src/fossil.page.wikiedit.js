@@ -991,8 +991,9 @@
     P.e.selectMimetype.addEventListener(
       'change',
       function(e){
-        if(P.winfo){
+        if(P.winfo && P.winfo.mimetype !== e.target.value){
           P.winfo.mimetype = e.target.value;
+          P._isDirty = true;
           P.stashContentChange(true);
         }
       },

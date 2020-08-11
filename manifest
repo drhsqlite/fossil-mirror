@@ -1,5 +1,5 @@
-C wikiedit:\snow\suses\sfossil.confirmer\spinSize\soption\son\sconfirmer\sbuttons.\sSave\sbutton\sis\sno\slonger\sre-labeled\sduring\ssave\sto\savoid\slayout\sreflow.\sSave\sbutton\sis\snow\salways\senabled\sand\sattempting\sto\ssave\swhen\sthere\sare\sno\sedits\striggers\san\serror\smessage.
-D 2020-08-11T15:39:47.899
+C wikiedit:\schanging\sthe\spage's\smimetype\snow\salso\smarks\sthe\spage\sas\sis-dirty,\senabling\sa\ssave.
+D 2020-08-11T15:55:51.551
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -491,7 +491,7 @@ F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c65
 F src/fossil.fetch.js 6cc20e07b9f83529c0dcb53cb0594ee06092610e031c5fbeb2d40ef0b59d9218
 F src/fossil.page.fileedit.js 02da131c9e9c1de7ffc7420a245694c83d58131240392bd479f2885b82fdb97f
 F src/fossil.page.forumpost.js 9d44ecf4ac821425a51b0748129a1096031390d5eead3e0eaffeff398b42e758
-F src/fossil.page.wikiedit.js 64ae6638875a59d107bd7df7007c24d6777f24f6db9795bcc1f0106b460f6cd4
+F src/fossil.page.wikiedit.js 2ee35295621d71ca3537974a3570d661b5817746715074193aec2128e19a3e14
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js b7871039903f8aa252d1b48684b5a3286c60a2ddaa26757fc32cc0870df2c2dd
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83a95dbff1be67438d447b44b07e6a2fbaf5fa3d3d4e024fb909897e1cffc5e3
-R d707cd73b2962ea236b8f2f645ec27d6
+P f94a55385e097fa782fd4292b6bcf2a86f63ea9c4570e0fddb8ec06a3544f224
+R 9cc13e3f134c0fef61dba7683698e911
 U stephan
-Z 798e7b01914491b9f387da6606f3ff8e
+Z cb6e0e9c70096d3ebe05fefdfafafdc4
