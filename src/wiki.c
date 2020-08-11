@@ -1170,17 +1170,18 @@ void wikiedit_page(void){
                           "100%", 100, "125%", 125,
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
+    CX("<button class='wikiedit-save'>"
+       "Save</button>"
+       /*will get moved around dynamically*/);
+    CX("<button class='wikiedit-save-close'>"
+       "Save &amp; Close</button>"/*will get moved around dynamically*/);
+    CX("<span class='save-button-slot'></span>");
     CX("<button class='wikiedit-content-reload' "
        "title='Reload the file from the server, discarding "
        "any local edits. To help avoid accidental loss of "
        "edits, it requires confirmation (a second click) within "
        "a few seconds or it will not reload.'"
        ">Discard &amp; Reload</button>");
-    CX("<button class='wikiedit-save' disabled='disabled'>"
-       "Save</button>"/*will get moved around dynamically*/);
-    CX("<button class='wikiedit-save-close' disabled='disabled'>"
-       "Save &amp; Close</button>"/*will get moved around dynamically*/);
-    CX("<span class='save-button-slot'></span>");
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
@@ -1196,7 +1197,8 @@ void wikiedit_page(void){
        "data-tab-label='Preview' "
        "class='hidden'"
        ">");
-    CX("<div class='wikiedit-options flex-container flex-row'>");
+    CX("<div class='wikiedit-options flex-container "
+       "flex-row child-gap-small'>");
     CX("<button id='btn-preview-refresh' "
        "data-f-preview-from='wikiContent' "
        /* ^^^ fossil.page[methodName]() OR text source elem ID,
@@ -1228,7 +1230,8 @@ void wikiedit_page(void){
        "class='hidden'"
        ">");
 
-    CX("<div class='wikiedit-options flex-container flex-row' "
+    CX("<div class='wikiedit-options flex-container "
+       "flex-row child-gap-small' "
        "id='wikiedit-tab-diff-buttons'>");
     CX("<button class='sbs'>Side-by-side</button>"
        "<button class='unified'>Unified</button>");

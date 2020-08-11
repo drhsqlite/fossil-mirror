@@ -920,23 +920,11 @@
         F.error("No page loaded.");
         return;
       }
-      setTimeout(
-        function(){
-          if(alsoClose){
-            P.save(()=>window.location.href=F.repoUrl('wiki',{name: w.name}));
-          }else{
-            P.save();
-          }
-        }, 0
-        /* timeout is a workaround to allow save() to update the
-           button's text (per forum feedback).  The idea is to force
-           the call of save() to happen *after* the confirmer
-           callback returns so that we can change the button label
-           without the confirmer setting it back to its
-           pre-confirmed state. This is, however, no guaranty that
-           save() will actually be called *after* the confirmer
-           re-sets the button label. */
-      );
+      if(alsoClose){
+        P.save(()=>window.location.href=F.repoUrl('wiki',{name: w.name}));
+      }else{
+        P.save();
+      }
     };
     const doReload = function(e){
       const w = P.winfo;
@@ -963,9 +951,10 @@
         F.message("Discarded new page ["+w.name+"].");
       }
     };
-    
+
     if(P.config.useConfirmerButtons.reload){
       F.confirmer(P.e.btnReload, {
+        pinSize: true,
         confirmText: "Really reload, losing edits?",
         onconfirm: doReload,
         ticks: F.config.confirmerButtonTicks
@@ -975,11 +964,13 @@
     }
     if(P.config.useConfirmerButtons.save){
       F.confirmer(P.e.btnSave, {
+        pinSize: true,
         confirmText: "Really save changes?",
         onconfirm: ()=>doSave(),
         ticks: F.config.confirmerButtonTicks
       });
       F.confirmer(P.e.btnSaveClose, {
+        pinSize: true,
         confirmText: "Really save changes?",
         onconfirm: ()=>doSave(true),
         ticks: F.config.confirmerButtonTicks
@@ -990,7 +981,10 @@
     }
 
     P.e.taEditor.addEventListener(
-      'change', ()=>P.stashContentChange(), false
+      'change', function(){
+        P._isDirty = true;
+        P.stashContentChange();
+      }, false
     );
     
     P.selectMimetype(false, true);
@@ -1054,6 +1048,7 @@
       // Update various state on wiki page load
       'wiki-page-loaded',
       function(ev){
+        delete P._isDirty;
         const winfo = ev.detail;
         P.winfo = winfo;
         P.previewNeedsUpdate = true;
@@ -1132,6 +1127,9 @@
      or not.
   */
   P.updateSaveButton = function(){
+    /**
+    // Current disabled, per forum feedback and MSIE compatibility, but
+    // might be revisited...
     if(!this.winfo || !this.getStashedWinfo(this.winfo)){
       D.disable(this.e.btnSave).innerText =
         "No changes to save";
@@ -1139,7 +1137,7 @@
     }else{
       D.enable(this.e.btnSave).innerText = "Save";
       D.enable(this.e.btnSaveClose);
-    }
+    }*/
     return this;
   };
 
@@ -1251,6 +1249,7 @@
         isEmpty: !!stashWinfo.isEmpty,
         content: $stash.stashedContent(stashWinfo)
       });
+      this._isDirty = true/*b/c loading normally clears that flag*/;
       return this;
     }
     F.message(
@@ -1384,6 +1383,10 @@
   */
   P.save = function callee(onSuccessCallback){
     if(!affirmPageLoaded()) return this;
+    else if(!this._isDirty){
+      F.error("There are no changes to save.");
+      return this;
+    }
     const content = this.wikiContent();
     const self = this;
     callee.onload = function(w){
@@ -1405,11 +1408,6 @@
     ).fetch('wikiajax/save',{
       payload: fd,
       responseType: 'json',
-      beforesend: function(){
-        D.disable(P.e.btnSave, P.e.btnSaveClose);
-        P.e.btnSave.innerText = "Saving...";
-        F.fetch.beforesend();
-      },
       onload: callee.onload
     });
     return this;
