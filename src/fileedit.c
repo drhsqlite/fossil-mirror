@@ -1533,29 +1533,30 @@ end_cleanup:
 /*
 ** WEBPAGE: fileedit
 **
-** Enables the online editing and committing of individual text files.
-** Requires that the user have Write permissions.
+** Enables the online editing and committing of text files. Requires
+** that the user have Write permissions and that a user with setup
+** permissions has set the fileedit-glob setting to a list of glob
+** patterns matching files which may be edited (e.g. "*.wiki,*.md").
+** Note that fileedit-glob, by design, is a local-only setting.
+** It does not sync across repository clones, and must be explicitly
+** set on any repositories where this page should be activated.
 **
 ** Optional query parameters:
 **
 **    filename=FILENAME   Repo-relative path to the file.
 **    checkin=VERSION     Checkin version, using any unambiguous
-**                        supported symbolic version name.
+**                        symbolic version name.
 **
-** Internal-use parameters:
+** If passed a filename but no checkin then it will attempt to
+** load that file from the most recent leaf checkin.
 **
-**    name=string         The name of a page-specific AJAX operation.
-**
-** Noting that fossil internally stores all URL path components after
-** the first as the "name" value. Thus /fileedit?name=blah is
-** equivalent to /fileedit/blah. The latter is the preferred
-** form. This means, however, that no fileedit ajax routes may make
-** use of the name parameter.
-**
-** Which additional parameters are used by each distinct ajax value is
-** an internal implementation detail and may change with any given
-** build of this code. An unknown "name" value triggers an error, as
-** documented for ajax_route_error().
+** Once the page is loaded, files may be selected from any open leaf
+** version. The only way to edit files from non-leaf checkins is to
+** pass both the filename and checkin as URL parameters to the page.
+** Users with the proper permissions will be presented with "Edit"
+** links in various file-specific contexts for files which match the
+** fileedit-glob, regardless of whether they refer to leaf versions or
+** not.
 */
 void fileedit_page(void){
   const char * zFileMime = 0;           /* File mime type guess */
@@ -1565,6 +1566,23 @@ void fileedit_page(void){
   const char *zAjax = P("name");        /* Name of AJAX route for
                                            sub-dispatching. */
 
+  /*
+  ** Internal-use URL parameters:
+  **
+  **    name=string         The name of a page-specific AJAX operation.
+  **
+  ** Noting that fossil internally stores all URL path components
+  ** after the first as the "name" value. Thus /fileedit?name=blah is
+  ** equivalent to /fileedit/blah. The latter is the preferred
+  ** form. This means, however, that no fileedit ajax routes may make
+  ** use of the name parameter.
+  **
+  ** Which additional parameters are used by each distinct ajax route
+  ** is an internal implementation detail and may change with any
+  ** given build of this code. An unknown "name" value triggers an
+  ** error, as documented for ajax_route_error().
+  */
+  
   /* Allow no access to this page without check-in privilege */
   login_check_credentials();
   if( !g.perm.Write ){

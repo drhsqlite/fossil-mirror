@@ -18,8 +18,8 @@
   *  Enhance the markdown formatter to more closely follow the
      [https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis|CommonMark specification]
      with regard to text highlighting.
-     Underscores in the middle of identifiers (ex: fossil_printf()
-     no longer need to be escaped).
+     Underscores in the middle of identifiers (ex: fossil_printf())
+     no longer need to be escaped.
   *  The markdown-to-html translator can prevent unsafe HTML
      (for example: &lt;script&gt;) on user-contributed pages like forum and
      tickets and wiki.  The admin can adjust this behavior using
