@@ -14,19 +14,40 @@
   };
 
   /**
-     Internal helper to normalize a method argument
-     to a tab element.
+     Internal helper to normalize a method argument to a tab
+     element. arg may be a tab DOM element or an index into
+     tabMgr.e.tabs.childNodes. Returns the corresponding tab element.
   */
   const tabArg = function(arg,tabMgr){
     if('string'===typeof arg) arg = E(arg);
     else if(tabMgr && 'number'===typeof arg && arg>=0){
       arg = tabMgr.e.tabs.childNodes[arg];
     }
+    if(arg){
+      if('FIELDSET'===arg.tagName && arg.classList.contains('tab-wrapper')){
+        arg = arg.firstElementChild;
+      }
+    }
     return arg;
   };
 
+
+  /**
+    Sets sets the visibility of tab element e to on or off. e MUST be
+    a TabManager tab element which has been wrapped in a
+    FIELDSET.tab-wrapper parent element. We disable the hidden
+    FIELDSET.tab-wrapper elements so that any access keys assigned
+    to their children cannot be inadvertently triggered
+  */
   const setVisible = function(e,yes){
-    D[yes ? 'removeClass' : 'addClass'](e, 'hidden');
+    const fsWrapper = e.parentElement/*FIELDSET wrapper*/;
+    if(yes){
+      D.removeClass(e, 'hidden');
+      D.enable(fsWrapper);
+    }else{
+      D.addClass(e, 'hidden');
+      D.disable(fsWrapper);
+    }
   };
 
   TabManager.prototype = {
@@ -35,12 +56,14 @@
        (DOM element or selector for a single element). This must be
        called once before using any other member functions of a given
        instance, noting that the constructor will call this if it is
-       passed an argument.       
+       passed an argument. 
 
        The tab container must have an 'id' attribute. This function
        looks through the DOM for all elements which have
        data-tab-parent=thatId. For each one it creates a button to
-       switch to that tab and moves the element into this.e.tabs.
+       switch to that tab and moves the element into this.e.tabs,
+       *possibly* injecting an intermediary element between
+       this.e.tabs and the element.
 
        The label for each tab is set by the data-tab-label attribute
        of each element, defaulting to something not terribly useful.
@@ -119,7 +142,9 @@
       }
       tab = tabArg(tab);
       tab.remove();
-      D.append(this.e.tabs, D.addClass(tab,'tab-panel'));
+      const eFs = D.addClass(D.fieldset(), 'tab-wrapper');
+      D.append(eFs, D.addClass(tab,'tab-panel'));
+      D.append(this.e.tabs, eFs);
       const lbl = tab.dataset.tabLabel || 'Tab #'+(this.e.tabs.childNodes.length-1);
       const btn = D.addClass(D.append(D.span(), lbl), 'tab-button');
       D.append(this.e.tabBar,btn);
@@ -187,6 +212,7 @@
       delete this._currentTab;
       this.e.tabs.childNodes.forEach((e,ndx)=>{
         const btn = this.e.tabBar.childNodes[ndx];
+        e = e.firstElementChild /* b/c arguments[0] is a FIELDSET wrapper */;
         if(e===tab){
           if(D.hasClass(e,'selected')){
             return;
