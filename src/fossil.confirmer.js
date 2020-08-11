@@ -84,6 +84,17 @@ Options:
   then a default implementation is used which updates the element with
   the .confirmText, prepending a countdown to it.
 
+  .pinSize = if true AND confirmText is set, calculate the larger of
+  the element's original and confirmed size and pin it to the larger
+  of those sizes to avoid layout reflows when confirmation is
+  running. The pinning is implemented by setting its minWidth and
+  maxWidth style properties to the same value. This does not work if
+  the element text is updated dynamically via ontick(). This ONLY
+  works if the element is in the DOM and is not hidden (e.g. via
+  display:none) at the time this routine is called, otherwise we
+  cannot calculate its size. If the element needs to be hidden, hide
+  it after initializing the confirmer.
+
   .debug = boolean. If truthy, it sends some debug output to the dev
   console to track what it's doing.
 
@@ -101,12 +112,21 @@ Various notes:
   triggers the associated action at "just the right millisecond"
   before the timeout is triggered.
 
-TODO: add an invert option which activates if the timeout is reached
-and "times out" if the element is clicked again. e.g. a button which
-says "Saving..." and cancels the op if it's clicked again, else it
-saves after X time/ticks.
+TODO:
+
+- Add an invert option which activates if the timeout is reached and
+"times out" if the element is clicked again. e.g. a button which says
+"Saving..." and cancels the op if it's clicked again, else it saves
+after X time/ticks.
+
+- Internally we save/restore the initial text of non-INPUT elements
+using innerHTML. We should instead move their child nodes aside (into
+an internal out-of-DOM element) and restore them as needed.
 
 Terse Change history:
+
+- 20200811
+  - Added pinSize option.
 
 - 20200507:
   - Add a tick-based countdown in order to more easily support
@@ -139,6 +159,14 @@ Terse Change history:
         const updateText = function(msg){
           if(isInput) target.value = msg;
           else target.innerHTML = msg;
+        }
+        if(opt.pinSize && opt.confirmText){
+          const digits = (''+(opt.timeout/1000 || opt.ticks)).length;
+          const lblLong = "("+("00000000".substr(0,digits))+") "+opt.confirmText;
+          const w1 = parseFloat(window.getComputedStyle(target).width);
+          updateText(lblLong);
+          const w2 = parseFloat(window.getComputedStyle(target).width);
+          target.style.minWidth = target.style.maxWidth = (w1>w2 ? w1 : w2)+"px";
         }
         updateText(this.opt.initialText);
         if(this.opt.ticks && !this.opt.ontick){

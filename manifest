@@ -1,5 +1,5 @@
-C Added\sthe\ssafe-html\ssetting\sto\sthe\sCONFIGSET_SKIN,\sper\sdiscussion\sat\s[https://fossil-scm.org/forum/forumpost/23192a5642|/forumpost/23192a5642].
-D 2020-08-11T13:42:52.026
+C Added\sfossil.confirmer\spinSize\soption\swhich\stells\sit\sto\stry\sto\spin\sthe\sconfirmation\selement's\swidth\sto\sthe\smaximum\sof\sits\sinitial\sand\sawaiting-confirmation\swidths,\sto\savoid\slayout\sreflow\swhile\sawaiting\sconfirmation.
+D 2020-08-11T15:23:25.827
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -486,7 +486,7 @@ F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 263e90df3d53b6037b4a1030b669f2b9b32d21dda1714afa6c0146b77e5c621a
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 4377e822fd07a54b16944913b4fa754b92f653c376c6dfae3205c59079995699
-F src/fossil.confirmer.js 928e23bba65c28b02e0afad5ca2d510f9711dfb8e3204d0fe692e563cfad3b7e
+F src/fossil.confirmer.js 80f6cb56ce0dd8ea86d53ab0af76b700e064e4ea8d68773e46c84220f05350ed
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 6cc20e07b9f83529c0dcb53cb0594ee06092610e031c5fbeb2d40ef0b59d9218
 F src/fossil.page.fileedit.js 6937fb40e2d4090ddbd80dce09b115da0f0924a8ee65c7ed8f148980f8d434d5
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 689b7f6d5d6795c62772c576f06534fafeda3a915520e7d05fa5655925fb1d74
-R 2c65bff863c447c960b4212083429044
+P 333520ab541b24ce822ed12d60074cafcfd255ed59ffaf230e6b85ec093e44eb
+R d7e096bc90b8343e48b7223517ef44c2
 U stephan
-Z 7956b2803d604ef97d371d31285874af
+Z 7b08c6c9e116b39165ec5f9e33329c52
