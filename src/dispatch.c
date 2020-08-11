@@ -345,13 +345,18 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
     i = 0;
     while( (c = zHelp[i])!=0
         && c!='\n'
+        && c!='<'
         && (c!='%' || strncmp(zHelp+i,"%fossil",7)!=0)
     ){ i++; }
     if( c=='%' ){
       if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
       zHelp += i + 1;
-      i = 0;
       wantBR = 1;
+      continue;
+    }else if( c=='<' ){
+      if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
+      blob_append(pHtml, "&amp;", 5);
+      zHelp += i + 1;
       continue;
     }
     if( i>2 && zHelp[0]=='>' && zHelp[1]==' ' ){
@@ -410,7 +415,10 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
       blob_append(pHtml, "<li> ", 5);
     }
     if( wantP ){
-      blob_append(pHtml, "<p> ", 4);
+      /* We historically output a <P> tag here but that is
+         semantically illegal (P may only contain inline elements) and
+         browsers were automatically relocating its contents after the
+         P in the DOM. */
       wantP = 0;
     }
     if( azEnd[iLevel]==zEndDL ){
