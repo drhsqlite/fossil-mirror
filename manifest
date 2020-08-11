@@ -1,5 +1,5 @@
-C wikiedit:\schanging\sthe\spage's\smimetype\snow\salso\smarks\sthe\spage\sas\sis-dirty,\senabling\sa\ssave.
-D 2020-08-11T15:55:51.551
+C Add\sthe\s--db-verify\soption\sto\sthe\s"fossil\sdbstat"\scommand.\s\sThis\soption\nsimply\sruns\s"fossil\stest-integrity"\safter\sdoing\sthe\sother\sdbstat\sprocessing.\nIt\sis\sa\sway\sto\saccess\sthe\stest-integrity\sfunctionality\swithout\susing\sthe\n(unsupported)\s"test-integrity"\scommand.
+D 2020-08-11T20:00:42.602
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -433,7 +433,7 @@ F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a
 F src/add.c 2658c60f1da0479ff276d094d1b5c5b535cdfef621e8a3cf9e59c4602cbff634
 F src/ajax.c cb5ae0f3e56416698998efb63160d32290abfc65e2c15359b27e97981503e627
 F src/alerts.c 9773defbf3d7134aaad841ad6698f7c899c311bca0ebf680c7dbf65168cd2dbf
-F src/allrepo.c 4c91cbd973868e72521c14833b49a5796e832d96cd6e43d1a8fa6f78d1494d8e
+F src/allrepo.c 52b44fe6a430f2d4821500ac75c76617b3c1103983572e3e887cee363d27a9a9
 F src/attach.c a30653c2b93dbf3adeca2fa49b9f4a17021490fa0b76f6f263a8c437b412e1ad
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
 F src/backoffice.c a6050595f00797ed1a45ca49617607d60d223bb8fb088ff2eace2cd6a979cbd2
@@ -604,7 +604,7 @@ F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae7548
 F src/sqlite3.c 9b4369354a8d3bee19dcfa39919e55955fed8c8b6890c02c7cb2fc85a4b98c27
 F src/sqlite3.h 55c2419fd1b120d92833deac66db31aa5b96db97b355c6bddb97b1b4bcf4aa6a
 F src/stash.c 43c525c5c2933846405b0b9e3687218c852ff89088796d9e7e7b48f3ddab84a4
-F src/stat.c 8095b590195ad80cead18e3dfc9ff025debf40e14a9090c4b6d9499f6cfb1684
+F src/stat.c 377daff0a8456770b782d7ce7779ac2346c5d056a11606cc3e0f156366ce6ea4
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 20210c3c537dbc49abd862989194acd55e862318bb18e6f050638a8de728c747
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f94a55385e097fa782fd4292b6bcf2a86f63ea9c4570e0fddb8ec06a3544f224
-R 9cc13e3f134c0fef61dba7683698e911
-U stephan
-Z cb6e0e9c70096d3ebe05fefdfafafdc4
+P 98fa23f90b11394d52b18b833f35c530b9d63bf4df68629039236b92b2022988
+R d0e632068001299b18bfcaa5a66fd93e
+U drh
+Z 7201da1c9bd9f16bdb9f77f6276fc587

@@ -221,6 +221,7 @@ void all_cmd(void){
     quiet = 1;
     collect_argument(&extra, "brief", "b");
     collect_argument(&extra, "db-check", 0);
+    collect_argument(&extra, "db-verify", 0);
   }else if( strncmp(zCmd, "extras", n)==0 ){
     if( showFile ){
       zCmd = "extras --chdir";
