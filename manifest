@@ -1,5 +1,5 @@
-C Add\sthe\s"builtin"\svirtual\stable\sto\sthe\s"fossil\ssql"\scommand.\s\sThis\svtab\nprovides\saccess\sto\sall\sof\sthe\sbuilt-in\ssupport\sfiles.
-D 2020-08-12T18:06:06.578
+C Update\sthe\schange\slog\sto\smention\sthe\stwo\snew\svirtual\stables\sadded\sto\sthe\n"fossil\ssql"\scommand.
+D 2020-08-12T18:09:36.337
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -831,7 +831,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 27eb475ad81ef22944c25732b566e7ebe481232aa99de22c6f6fbd72e263dd39
+F www/changes.wiki 259fc205a3082aaaf1a587e44b8d0c585906a3e23aef9868589eac5104657974
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53adb7dc6c0306f2b536c93b55e4368f41411a489bca1a89b4a44b7f2aec705c
-R b5785c99bc3439bca57f6299c198457c
+P c6359b4ec1b3cc62162a735c274533f1ed45a7e74d4a8553d6cfb54b3bf11874
+R da5cdffb88a71bfc99b00fd69ba17be7
 U drh
-Z 71eac5dcada9d8aedccd17402ff577c4
+Z 95af90d5d2031b09de11ef08dbc8f48a

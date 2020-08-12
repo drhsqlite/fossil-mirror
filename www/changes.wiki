@@ -64,6 +64,10 @@
      modes ".mode box" and ".mode json".
   *  Add the "<tt>obscure()</tt>" SQL function to the 
      "[/help?cmd=sql|fossil sql]" command.
+  *  Added virtual tables "<tt>helptext</tt>" and "<tt>builtin</tt>" to
+     the "[/help?cmd=sql|fossil sql]" command, providing access to the
+     dispatch table including all help text, and the builtin data files,
+     respectively.
   *  [./delta_format.wiki|Delta compression] is now applied to forum edits.
   *  The [/help?cmd=/wikiedit|wiki editor] has been modernized and is
      now Ajax-based. The WYSIWYG editing option for Fossil-format wiki
