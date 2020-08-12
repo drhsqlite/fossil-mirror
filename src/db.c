@@ -118,6 +118,7 @@ static struct DbLocalData {
   int nBegin;               /* Nesting depth of BEGIN */
   int doRollback;           /* True to force a rollback */
   int nCommitHook;          /* Number of commit hooks */
+  int wrTxn;                /* Outer-most TNX is a write */
   Stmt *pAllStmt;           /* List of all unfinalized statements */
   int nPrepare;             /* Number of calls to sqlite3_prepare_v2() */
   int nDeleteOnFail;        /* Number of entries in azDeleteOnFail[] */
@@ -197,6 +198,7 @@ void db_begin_transaction_real(const char *zStartFile, int iStartLine){
     db.doRollback = 0;
     db.zStartFile = zStartFile;
     db.iStartLine = iStartLine;
+    db.wrTxn = 0;
   }
   db.nBegin++;
 }
@@ -211,7 +213,8 @@ void db_begin_write_real(const char *zStartFile, int iStartLine){
     db.doRollback = 0;
     db.zStartFile = zStartFile;
     db.iStartLine = iStartLine;
-  }else{
+    db.wrTxn = 1;
+  }else if( !db.wrTxn ){
     fossil_warning("read txn at %s:%d might cause SQLITE_BUSY "
        "for the write txn at %s:%d",
        db.zStartFile, db.iStartLine, zStartFile, iStartLine);
@@ -1330,7 +1333,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
   db_maybe_set_encryption_key(db, zDbName);
-  sqlite3_busy_timeout(db, 5000);
+  sqlite3_busy_timeout(db, 15000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
@@ -1346,7 +1349,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
-  sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
+  sqlite3_db_config(db, SQLITE_DBCONFIG_ENABLE_FKEY, 0, &rc);
   return db;
 }
 

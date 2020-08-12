@@ -1,5 +1,5 @@
-C Added\sclear:both\sto\sHR\selements,\sprimarily\sto\sfix\sright-floating\sREADME.txt\son\sthe\s/dir\spage\sin\ssome\sskins.
-D 2020-08-12T12:07:02.621
+C Improved\sdetection\sof\spotential\sread/write\stxn\sconflicts.\s\sHold\sa\swrite\ntransaction\son\sthe\sserver-side\sfor\sthe\sduration\sof\san\s/xfer\srequest,\sto\savoid\nunexpected\sSQLITE_BUSY\serrors.
+D 2020-08-12T12:56:32.738
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 2540908d6b23a290e53cd691b99f9147f7374bca12c0dde6ac45343ad0486311
+F src/db.c ef12318ae5f4c491d821cb96bae6cca1b824c8283853c2bb03e5d343986bb734
 F src/default.css 46442cd76bcf425e25eb2868ffd85db57e9a5269688da011f0281a4658ed9268
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -641,7 +641,7 @@ F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 7eaa897946be94f75ee5ecd160e50cc6c6fa6141c600283975c996a9f1961988
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
-F src/xfer.c 5a92ee72bdb69c935f56dd95149c406fd0a43ec88fd48b32f5b3d44db9362273
+F src/xfer.c 1774cede1435f5a3dfac847929fa347d02483b422d67b50f8993066792f32f93
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
 F src/zip.c 4108b1aeb6643568b322d12ad7953b321b287bf7a37c5d39c998865ec99d1d59
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e7c348f1d9d3731500f98a3ece44d891ecdba12d7c0d5eca20b3ecab1f902aef
-R a23179a1fc6f46d20585d94658e3fb88
-U stephan
-Z 52a03000412ce612979b925f7dc2f08b
+P a4c1b36ee6e0d875e05ae56c73f26cb98aafae965bb6f900b4fa578e8e3df8e0
+R e23dfb01a1f7aed2c754fcfcec5aeecd
+U drh
+Z 13aec4a484118b620c4e62f1a4334a46

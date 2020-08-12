@@ -1215,7 +1215,7 @@ void page_xfer(void){
   xfer.maxTime += time(NULL);
   g.xferPanic = 1;
 
-  db_begin_transaction();
+  db_begin_write();
   db_multi_exec(
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
      "CREATE TEMP TABLE unk(uuid TEXT PRIMARY KEY) WITHOUT ROWID;"
@@ -1755,7 +1755,7 @@ void page_xfer(void){
   @ # timestamp %s(zNow)
   free(zNow);
 
-  db_end_transaction(0);
+  db_commit_transaction();
   configure_rebuild();
 }
 
