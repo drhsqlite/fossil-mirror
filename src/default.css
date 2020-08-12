@@ -950,6 +950,10 @@ img {
   max-width: 100%;
   height: auto;
 }
+hr {
+  /* Needed to keep /dir README.txt from floating right in some skins */
+  clear: both;
+}
 
 /**
   .tab-xxx: styles for fossil.tabs.js.
