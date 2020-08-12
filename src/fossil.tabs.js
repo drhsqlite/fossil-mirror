@@ -5,12 +5,29 @@
         D = F.dom;
 
   /**
-     Creates a TabManager. If passed an argument, it is
-     passed to init().
+     Creates a TabManager. If passed a truthy first argument, it is
+     passed to init(). If passed a truthy second argument, it must be
+     an Object holding configuration options:
+
+     { 
+       tabAccessKeys: boolean (=true)
+          If true, tab buttons are assigned "accesskey" values
+          equal to their 1-based tab number.
+     }
   */
-  const TabManager = function(domElem){
+  const TabManager = function(domElem, options){
     this.e = {};
+    this.options = F.mergeLastWins(TabManager.defaultOptions , options);
     if(domElem) this.init(domElem);
+  };
+
+  /**
+     Default values for the options object passed to the TabManager
+     constructor. Changing these affects the defaults of all
+     TabManager instances instantiated after that point.
+  */
+  TabManager.defaultOptions = {
+    tabAccessKeys: true
   };
 
   /**
@@ -30,7 +47,6 @@
     }
     return arg;
   };
-
 
   /**
     Sets sets the visibility of tab element e to on or off. e MUST be
@@ -133,6 +149,14 @@
        Adds the given DOM element or unique selector as the next
        tab in the tab container, adding a button to switch to
        the tab. Returns this object.
+
+       If this object's options include a truthy tabAccessKeys then
+       each tab button gets assigned an accesskey attribute equal to
+       its 1-based index in the tab list. e.g. key 1 is the first tab
+       and key 5 is the 5th. Whether/how that accesskey is accessed is
+       dependent on the browser and its OS:
+
+       https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey
     */
     addTab: function f(tab){
       if(!f.click){
@@ -145,11 +169,15 @@
       const eFs = D.addClass(D.fieldset(), 'tab-wrapper');
       D.append(eFs, D.addClass(tab,'tab-panel'));
       D.append(this.e.tabs, eFs);
-      const lbl = tab.dataset.tabLabel || 'Tab #'+(this.e.tabs.childNodes.length-1);
+      const tabCount = this.e.tabBar.childNodes.length+1;
+      const lbl = tab.dataset.tabLabel || 'Tab #'+tabCount;
       const btn = D.addClass(D.append(D.span(), lbl), 'tab-button');
       D.append(this.e.tabBar,btn);
       btn.$manager = this;
       btn.$tab = tab;
+      if(this.options.tabAccessKeys){
+        D.attr(btn, 'accesskey', tabCount);
+      }
       btn.addEventListener('click', f.click, false);
       return this;
     },

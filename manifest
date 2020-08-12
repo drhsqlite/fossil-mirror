@@ -1,5 +1,5 @@
-C Improved\sdetection\sof\spotential\sread/write\stxn\sconflicts.\s\sHold\sa\swrite\ntransaction\son\sthe\sserver-side\sfor\sthe\sduration\sof\san\s/xfer\srequest,\sto\savoid\nunexpected\sSQLITE_BUSY\serrors.
-D 2020-08-12T12:56:32.738
+C fossil.tabs.TabManager\snow\sexperimentally\s(and\soptionally,\sdefaulting\sto\son)\sassigns\s'accesskey'\svalues\sto\seach\stab\sbutton\sequal\sto\stheir\s1-based\sindex\sin\sthe\stab\slist.
+D 2020-08-12T14:07:32.199
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.page.fileedit.js 3077623ace28e667d4ed91dc8ea7c61bbbf876144e9cf98a0d
 F src/fossil.page.forumpost.js 9d44ecf4ac821425a51b0748129a1096031390d5eead3e0eaffeff398b42e758
 F src/fossil.page.wikiedit.js f871475286afb17b0dbc444851a642399d9d0b9961389f811562ab0d76a17c19
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
-F src/fossil.tabs.js b7871039903f8aa252d1b48684b5a3286c60a2ddaa26757fc32cc0870df2c2dd
+F src/fossil.tabs.js 93ec1f21f0658d66474f04ed276e1c02b63f7818ba9c118f180f54d8532730d9
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4c1b36ee6e0d875e05ae56c73f26cb98aafae965bb6f900b4fa578e8e3df8e0
-R e23dfb01a1f7aed2c754fcfcec5aeecd
-U drh
-Z 13aec4a484118b620c4e62f1a4334a46
+P d9543f4c2ca2f6ad356de58e8287d2c643787e1f32d957d15d26dc2a41e8158e
+R 86e63d27c1674dd001539967ce9d8b8d
+U stephan
+Z d30687823767461825100bbb55421a9e
