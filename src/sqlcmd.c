@@ -174,6 +174,7 @@ static int sqlcmd_autoinit(
   foci_register(db);
   deltafunc_init(db);
   helptext_vtab_register(db);
+  builtin_vtab_register(db);
   g.repositoryOpen = 1;
   g.db = db;
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
@@ -294,6 +295,10 @@ static void fossil_close(int bDb, int noRepository){
 ** The following SQL extensions are provided with this Fossil-enhanced
 ** version of the sqlite3 command-line shell:
 **
+**    builtin                   A virtual table that contains one row for
+**                              each datafile that is built into the Fossil
+**                              binary.
+**
 **    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
 **                              found in check-in X (another BLOB.RID value).
 **
@@ -325,6 +330,10 @@ static void fossil_close(int bDb, int noRepository){
 **                              all files contained in check-in X.  Example:
 **
 **                                  SELECT * FROM files_of_checkin('trunk');
+**
+**    helptext                  A virtual table with one row for each command,
+**                              webpage, and setting together with the built-in
+**                              help text.  
 **
 **    now()                     Return the number of seconds since 1970.
 **

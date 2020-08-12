@@ -1,5 +1,5 @@
-C Add\snew\scolumns\s"formatted"\sand\s"html"\sto\sthe\s"helptext"\svirtual\stable.
-D 2020-08-12T17:20:16.500
+C Add\sthe\s"builtin"\svirtual\stable\sto\sthe\s"fossil\ssql"\scommand.\s\sThis\svtab\nprovides\saccess\sto\sall\sof\sthe\sbuilt-in\ssupport\sfiles.
+D 2020-08-12T18:06:06.578
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/bisect.c fa16fe02114d63561139babd2309c78d07466edb8872047c8e711b58c252c288
 F src/blob.c f372df31393eb6ce206c2b9e3c60277dbaa107a83f24b39578e5a23f4c635cc7
 F src/branch.c 00a400c285171a4c6147d1788b98f458916bfcf319275a0df82b68de84aefb2a
 F src/browse.c 8058ebc25615e77091505543150dfbb01e61a2197fab3b4ba0ba1d0734c7319f
-F src/builtin.c 4b8318a2e65b01157ade3e5cccebf7f4299c9b148bfe96f9a06878364a90e6f0
+F src/builtin.c 7257c1644e97d6e4d79d2142cdee649a4aa8fa169395c9a8ad978655bd1e8520
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
@@ -599,7 +599,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c c071c8c4d36492e5f92637aba21ad895b9a9f72cd277097e9a149d17763633eb
+F src/sqlcmd.c 4e45fe14bcf191200afd76960dc62f80682887c0ac22fae2ec504d80208b70f6
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
 F src/sqlite3.c 9b4369354a8d3bee19dcfa39919e55955fed8c8b6890c02c7cb2fc85a4b98c27
 F src/sqlite3.h 55c2419fd1b120d92833deac66db31aa5b96db97b355c6bddb97b1b4bcf4aa6a
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4cf3586431a9edccae06eede2d66419b89fc6db669375304bdeda3f9a7588268
-R 641ba0b1a392225826f25fb1c6e696dc
+P 53adb7dc6c0306f2b536c93b55e4368f41411a489bca1a89b4a44b7f2aec705c
+R b5785c99bc3439bca57f6299c198457c
 U drh
-Z af3350e30405b0da6633fb1c8c47ff29
+Z 71eac5dcada9d8aedccd17402ff577c4

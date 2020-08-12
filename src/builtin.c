@@ -344,3 +344,220 @@ void builtin_fulfill_js_requests(void){
     }
   }
 }
+
+/*****************************************************************************
+** A virtual table for accessing the information in aBuiltinFiles[].
+*/
+
+/* builtinVtab_vtab is a subclass of sqlite3_vtab which is
+** underlying representation of the virtual table
+*/
+typedef struct builtinVtab_vtab builtinVtab_vtab;
+struct builtinVtab_vtab {
+  sqlite3_vtab base;  /* Base class - must be first */
+  /* Add new fields here, as necessary */
+};
+
+/* builtinVtab_cursor is a subclass of sqlite3_vtab_cursor which will
+** serve as the underlying representation of a cursor that scans
+** over rows of the result
+*/
+typedef struct builtinVtab_cursor builtinVtab_cursor;
+struct builtinVtab_cursor {
+  sqlite3_vtab_cursor base;  /* Base class - must be first */
+  /* Insert new fields here.  For this builtinVtab we only keep track
+  ** of the rowid */
+  sqlite3_int64 iRowid;      /* The rowid */
+};
+
+/*
+** The builtinVtabConnect() method is invoked to create a new
+** builtin virtual table.
+**
+** Think of this routine as the constructor for builtinVtab_vtab objects.
+**
+** All this routine needs to do is:
+**
+**    (1) Allocate the builtinVtab_vtab object and initialize all fields.
+**
+**    (2) Tell SQLite (via the sqlite3_declare_vtab() interface) what the
+**        result set of queries against the virtual table will look like.
+*/
+static int builtinVtabConnect(
+  sqlite3 *db,
+  void *pAux,
+  int argc, const char *const*argv,
+  sqlite3_vtab **ppVtab,
+  char **pzErr
+){
+  builtinVtab_vtab *pNew;
+  int rc;
+
+  rc = sqlite3_declare_vtab(db,
+           "CREATE TABLE x(name,size,data)"
+       );
+  if( rc==SQLITE_OK ){
+    pNew = sqlite3_malloc( sizeof(*pNew) );
+    *ppVtab = (sqlite3_vtab*)pNew;
+    if( pNew==0 ) return SQLITE_NOMEM;
+    memset(pNew, 0, sizeof(*pNew));
+  }
+  return rc;
+}
+
+/*
+** This method is the destructor for builtinVtab_vtab objects.
+*/
+static int builtinVtabDisconnect(sqlite3_vtab *pVtab){
+  builtinVtab_vtab *p = (builtinVtab_vtab*)pVtab;
+  sqlite3_free(p);
+  return SQLITE_OK;
+}
+
+/*
+** Constructor for a new builtinVtab_cursor object.
+*/
+static int builtinVtabOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
+  builtinVtab_cursor *pCur;
+  pCur = sqlite3_malloc( sizeof(*pCur) );
+  if( pCur==0 ) return SQLITE_NOMEM;
+  memset(pCur, 0, sizeof(*pCur));
+  *ppCursor = &pCur->base;
+  return SQLITE_OK;
+}
+
+/*
+** Destructor for a builtinVtab_cursor.
+*/
+static int builtinVtabClose(sqlite3_vtab_cursor *cur){
+  builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
+  sqlite3_free(pCur);
+  return SQLITE_OK;
+}
+
+
+/*
+** Advance a builtinVtab_cursor to its next row of output.
+*/
+static int builtinVtabNext(sqlite3_vtab_cursor *cur){
+  builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
+  pCur->iRowid++;
+  return SQLITE_OK;
+}
+
+/*
+** Return values of columns for the row at which the builtinVtab_cursor
+** is currently pointing.
+*/
+static int builtinVtabColumn(
+  sqlite3_vtab_cursor *cur,   /* The cursor */
+  sqlite3_context *ctx,       /* First argument to sqlite3_result_...() */
+  int i                       /* Which column to return */
+){
+  builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
+  const struct BuiltinFileTable *pFile = aBuiltinFiles + pCur->iRowid;
+  switch( i ){
+    case 0:  /* name */
+      sqlite3_result_text(ctx, pFile->zName, -1, SQLITE_STATIC);
+      break;
+    case 1:  /* size */
+      sqlite3_result_int(ctx, pFile->nByte);
+      break;
+    case 2:  /* data */
+      sqlite3_result_blob(ctx, pFile->pData, pFile->nByte, SQLITE_STATIC);
+      break;
+  }
+  return SQLITE_OK;
+}
+
+/*
+** Return the rowid for the current row.  In this implementation, the
+** rowid is the same as the output value.
+*/
+static int builtinVtabRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
+  builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
+  *pRowid = pCur->iRowid;
+  return SQLITE_OK;
+}
+
+/*
+** Return TRUE if the cursor has been moved off of the last
+** row of output.
+*/
+static int builtinVtabEof(sqlite3_vtab_cursor *cur){
+  builtinVtab_cursor *pCur = (builtinVtab_cursor*)cur;
+  return pCur->iRowid>=count(aBuiltinFiles);
+}
+
+/*
+** This method is called to "rewind" the builtinVtab_cursor object back
+** to the first row of output.  This method is always called at least
+** once prior to any call to builtinVtabColumn() or builtinVtabRowid() or 
+** builtinVtabEof().
+*/
+static int builtinVtabFilter(
+  sqlite3_vtab_cursor *pVtabCursor, 
+  int idxNum, const char *idxStr,
+  int argc, sqlite3_value **argv
+){
+  builtinVtab_cursor *pCur = (builtinVtab_cursor *)pVtabCursor;
+  pCur->iRowid = 1;
+  return SQLITE_OK;
+}
+
+/*
+** SQLite will invoke this method one or more times while planning a query
+** that uses the virtual table.  This routine needs to create
+** a query plan for each invocation and compute an estimated cost for that
+** plan.
+*/
+static int builtinVtabBestIndex(
+  sqlite3_vtab *tab,
+  sqlite3_index_info *pIdxInfo
+){
+  pIdxInfo->estimatedCost = (double)count(aBuiltinFiles);
+  pIdxInfo->estimatedRows = count(aBuiltinFiles);
+  return SQLITE_OK;
+}
+
+/*
+** This following structure defines all the methods for the 
+** virtual table.
+*/
+static sqlite3_module builtinVtabModule = {
+  /* iVersion    */ 0,
+  /* xCreate     */ 0,  /* The builtin vtab is eponymous and read-only */
+  /* xConnect    */ builtinVtabConnect,
+  /* xBestIndex  */ builtinVtabBestIndex,
+  /* xDisconnect */ builtinVtabDisconnect,
+  /* xDestroy    */ 0,
+  /* xOpen       */ builtinVtabOpen,
+  /* xClose      */ builtinVtabClose,
+  /* xFilter     */ builtinVtabFilter,
+  /* xNext       */ builtinVtabNext,
+  /* xEof        */ builtinVtabEof,
+  /* xColumn     */ builtinVtabColumn,
+  /* xRowid      */ builtinVtabRowid,
+  /* xUpdate     */ 0,
+  /* xBegin      */ 0,
+  /* xSync       */ 0,
+  /* xCommit     */ 0,
+  /* xRollback   */ 0,
+  /* xFindMethod */ 0,
+  /* xRename     */ 0,
+  /* xSavepoint  */ 0,
+  /* xRelease    */ 0,
+  /* xRollbackTo */ 0,
+  /* xShadowName */ 0
+};
+
+
+/*
+** Register the builtin virtual table
+*/
+int builtin_vtab_register(sqlite3 *db){
+  int rc = sqlite3_create_module(db, "builtin", &builtinVtabModule, 0);
+  return rc;
+}
+/* End of the builtin virtual table
+******************************************************************************/
