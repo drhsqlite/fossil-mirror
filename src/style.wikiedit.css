@@ -18,7 +18,7 @@ body.wikiedit div.wikiedit-preview {
   padding: 0;
 }
 body.wikiedit #wikiedit-tabs {
-  margin: 1em 0 0 0;
+  margin: 0.5em 0 0 0;
 }
 body.wikiedit #wikiedit-tab-preview-wrapper {
   overflow: auto;
@@ -61,9 +61,17 @@ body.wikiedit .WikiList select {
   margin: initial;
   height: initial /* some skins set these to a fixed height */;
   font-family: monospace;
+  border: initial;
+}
+body.wikiedit select:focus {
+  border: initial;
 }
 body.wikiedit .WikiList select option {
   margin: 0 0 0.5em 0.55em;
+}
+body.wikiedit select option,
+body.wikiedit select option:focus {
+  border: none;
 }
 body.wikiedit .WikiList select option.stashed,
 body.wikiedit .WikiList select option.stashed-new,
@@ -91,11 +99,15 @@ body.wikiedit .WikiList label {
   vertical-align: text-bottom;
 }
 body.wikiedit .WikiList legend {
-  font-size: 90%;
   margin: 0 0 0 0.5em;
+}
+body.wikiedit .WikiList > fieldset {
+  margin: 0;
+  width: calc(100% - 1em);
 }
 body.wikiedit .WikiList fieldset > :not(legend) {
   /* Stretch page selection list when it's empty or only has short page names */
+  margin: 0;
   width: 100%;
 }
 body.wikiedit .WikiList .fieldset-wrapper {

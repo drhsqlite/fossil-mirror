@@ -1699,7 +1699,6 @@ void fileedit_page(void){
        "data-tab-label='File Selection' "
        "class='hidden'"
        ">");
-    CX("<h1>Select a file to edit:</h1>");
     CX("<div id='fileedit-file-selector'></div>");
     CX("</div>"/*#fileedit-tab-fileselect*/);
   }

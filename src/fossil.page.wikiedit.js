@@ -550,7 +550,7 @@
         D.append(D.fieldset("Select a page to edit"),
                  sel)
       );
-      D.attr(sel, 'size', 15);
+      D.attr(sel, 'size', 12);
       D.option(D.disable(D.clearElement(sel)), "Loading...");
 
       /** Set up filter checkboxes for the various types
@@ -614,9 +614,9 @@
       D.addClass(fsLegendBody, 'flex-container', 'flex-column', 'stretch');
       D.append(
         fsLegendBody,
-        D.append(D.span(), getEditMarker(getEditMarker.NEW,false)," = page is new/unsaved"),
-        D.append(D.span(), getEditMarker(getEditMarker.MODIFIED,false)," = page has local edits"),
-        D.append(D.span(), getEditMarker(getEditMarker.DELETED,false)," = page is empty (deleted)")
+        D.append(D.span(), getEditMarker(getEditMarker.NEW,false)," = new/unsaved"),
+        D.append(D.span(), getEditMarker(getEditMarker.MODIFIED,false)," = has local edits"),
+        D.append(D.span(), getEditMarker(getEditMarker.DELETED,false)," = is empty (deleted)")
       );
 
       const fsNewPage = D.fieldset("Create new page"),

@@ -388,7 +388,7 @@
     */
     init: function(){
       this.cache.branchNames = F.storage.getJSON(this.cache.branchKey, {});
-      const selCi = this.e.selectCi = D.select(),
+      const selCi = this.e.selectCi = D.addClass(D.select(), 'flex-grow'),
             selFiles = this.e.selectFiles
             = D.addClass(D.select(), 'file-list'),
             btnLoad = this.e.btnLoadFile =
@@ -397,7 +397,7 @@
             D.addClass(D.div(),'flex-shrink','file-list-label'),
             ciLabelWrapper = D.addClass(
               D.div(), 'flex-container','flex-row', 'flex-shrink',
-              'stretch'
+              'stretch', 'child-gap-small'
             ),
             btnReload = D.addClass(
               D.button('Reload'), 'flex-shrink'
@@ -411,12 +411,13 @@
       D.attr(btnLoad, 'title',
              "Load the selected file into the editor.");
       D.disable(selCi, selFiles, btnLoad);
-      D.attr(selFiles, 'size', 10);
+      D.attr(selFiles, 'size', 12);
       D.append(
         this.e.container,
+        ciLabel,
         D.append(ciLabelWrapper,
-                 btnReload, ciLabel),
-        selCi,
+                 selCi,
+                 btnReload),
         filesLabel,
         selFiles,
         /* Use a wrapper for btnLoad so that the button itself does not
