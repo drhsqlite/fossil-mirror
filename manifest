@@ -1,5 +1,5 @@
-C fossil.tabs.TabManager\snow\sexperimentally\s(and\soptionally,\sdefaulting\sto\son)\sassigns\s'accesskey'\svalues\sto\seach\stab\sbutton\sequal\sto\stheir\s1-based\sindex\sin\sthe\stab\slist.
-D 2020-08-12T14:07:32.199
+C Add\snew\scolumns\s"formatted"\sand\s"html"\sto\sthe\s"helptext"\svirtual\stable.
+D 2020-08-12T17:20:16.500
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -472,7 +472,7 @@ F src/descendants.c d10b4405162c0053dd7e0e3518c2849ef3eeaedce67ca82c6880a7ae0510
 F src/diff.c a85bb1eb1cd1e431f04c232fbc9a074a59c31e080f6cd128286883cfee6ec5c4
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c ec3070c8ef11be9c7891f1a623c39117e896c991c275a39e8795d9fe61da734f
-F src/dispatch.c 7b6bc99d17ad5c4cc36ff5e23fc1279e1fb011e6601fcc7aec8c75d7b2f0cbb5
+F src/dispatch.c e8b2a8e285ec30206f38edaa30c6b4fde53aad961bbc2ad24e1d0eb43899b2b9
 F src/doc.c cfb3ae907707a2c97e05a57a01781006a92915813398c1e1ed7c61dc3deab3d6
 F src/encode.c e330c36991335742bc42ec6e01ee2a14158f08b4b36ae84ec405294adf465f96
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d9543f4c2ca2f6ad356de58e8287d2c643787e1f32d957d15d26dc2a41e8158e
-R 86e63d27c1674dd001539967ce9d8b8d
-U stephan
-Z d30687823767461825100bbb55421a9e
+P 4cf3586431a9edccae06eede2d66419b89fc6db669375304bdeda3f9a7588268
+R 641ba0b1a392225826f25fb1c6e696dc
+U drh
+Z af3350e30405b0da6633fb1c8c47ff29

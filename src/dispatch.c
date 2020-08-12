@@ -1136,7 +1136,7 @@ static int helptextVtabConnect(
   int rc;
 
   rc = sqlite3_declare_vtab(db,
-           "CREATE TABLE x(name,type,flags,helptext)"
+           "CREATE TABLE x(name,type,flags,helptext,formatted,html)"
        );
   if( rc==SQLITE_OK ){
     pNew = sqlite3_malloc( sizeof(*pNew) );
@@ -1220,6 +1220,20 @@ static int helptextVtabColumn(
     case 3:  /* helptext */
       sqlite3_result_text(ctx, pPage->zHelp, -1, SQLITE_STATIC);
       break;
+    case 4: { /* formatted */
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_text(pPage->zHelp, &txt);
+      sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
+      break;
+    }
+    case 5: { /* formatted */
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_html(pPage->zHelp, &txt);
+      sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
+      break;
+    }
   }
   return SQLITE_OK;
 }
