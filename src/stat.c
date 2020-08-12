@@ -425,7 +425,7 @@ void dbstat_cmd(void){
       char *zRes = db_text(0, "PRAGMA repository.quick_check(1)");
       fossil_print("%*s%s\n", colWidth, "database-check:", zRes);
     }else{
-      char *newArgv[2];
+      char *newArgv[3];
       newArgv[0] = g.argv[0];
       newArgv[1] = "test-integrity";
       newArgv[2] = 0;

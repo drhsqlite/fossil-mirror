@@ -1,5 +1,5 @@
-C Add\sthe\s--db-verify\soption\sto\sthe\s"fossil\sdbstat"\scommand.\s\sThis\soption\nsimply\sruns\s"fossil\stest-integrity"\safter\sdoing\sthe\sother\sdbstat\sprocessing.\nIt\sis\sa\sway\sto\saccess\sthe\stest-integrity\sfunctionality\swithout\susing\sthe\n(unsupported)\s"test-integrity"\scommand.
-D 2020-08-11T20:00:42.602
+C Fixed\san\sout-of-bounds\sarray\saccess\sin\sstat.c\sreported\sin\sthe\sforum.
+D 2020-08-12T09:45:06.064
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -604,7 +604,7 @@ F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae7548
 F src/sqlite3.c 9b4369354a8d3bee19dcfa39919e55955fed8c8b6890c02c7cb2fc85a4b98c27
 F src/sqlite3.h 55c2419fd1b120d92833deac66db31aa5b96db97b355c6bddb97b1b4bcf4aa6a
 F src/stash.c 43c525c5c2933846405b0b9e3687218c852ff89088796d9e7e7b48f3ddab84a4
-F src/stat.c 377daff0a8456770b782d7ce7779ac2346c5d056a11606cc3e0f156366ce6ea4
+F src/stat.c b3be5fc07d23c59fc44a317eb2522000af1d489430fb537f80d66009585b4bd6
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 20210c3c537dbc49abd862989194acd55e862318bb18e6f050638a8de728c747
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98fa23f90b11394d52b18b833f35c530b9d63bf4df68629039236b92b2022988
-R d0e632068001299b18bfcaa5a66fd93e
-U drh
-Z 7201da1c9bd9f16bdb9f77f6276fc587
+P 95e91b13d28d62c04cf740a4ac844b85aa170aa2e35ce4be45453aeb9dc69fbc
+R 6f22a1d43bacfe3f42975b62ac53c924
+U stephan
+Z 442be67ae94194954cee9d9b0b3796da
