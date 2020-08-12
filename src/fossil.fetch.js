@@ -1,8 +1,11 @@
 "use strict";
 /**
    Requires that window.fossil has already been set up.
-
-   window.fossil.fetch() is an HTTP request/response mini-framework
+*/
+(function(namespace){
+const fossil = namespace;
+  /**
+   fetch() is an HTTP request/response mini-framework
    similar (but not identical) to the not-quite-ubiquitous
    window.fetch().
 
@@ -99,7 +102,7 @@
    Returns this object, noting that the XHR request is asynchronous,
    and still in transit (or has yet to be sent) when that happens.
 */
-window.fossil.fetch = function f(uri,opt){
+fossil.fetch = function f(uri,opt){
   const F = fossil;
   if(!f.onload){
     f.onload = (r)=>console.debug('fossil.fetch() XHR response:',r);
@@ -110,7 +113,7 @@ window.fossil.fetch = function f(uri,opt){
       if(e instanceof Error) F.error('Exception:',e);
       else F.error("Unknown error in handling of XHR request.");
     };
-  }/*f.onerror()*/
+  }
   if(!f.parseResponseHeaders){
     f.parseResponseHeaders = function(h){
       const rc = {};
@@ -146,7 +149,7 @@ window.fossil.fetch = function f(uri,opt){
       opt.contentType = 'application/json';
     }
   }
-  const url=[F.repoUrl(uri,opt.urlParams)],
+  const url=[f.urlTransform(uri,opt.urlParams)],
         x=new XMLHttpRequest();
   if('json'===opt.responseType){
     /* 'json' is an extension to the supported XHR.responseType
@@ -205,6 +208,15 @@ window.fossil.fetch = function f(uri,opt){
   return this;
 };
 
-window.fossil.fetch.beforesend = function(){};
-window.fossil.fetch.aftersend = function(){};
-window.fossil.fetch.timeout = 15000/* Default timeout, in ms. */;
+/**
+   urlTransform() must refer to a function which accepts a relative path
+   to the same site as fetch() is served from and an optional set of
+   URL parameters to pass with it (in the form a of a string
+   ("a=b&c=d...") or an object of key/value pairs (which it converts
+   to such a string), and returns the resulting URL or URI as a string.
+*/  
+fossil.fetch.urlTransform = (u,p)=>fossil.repoUrl(u,p);
+fossil.fetch.beforesend = function(){};
+fossil.fetch.aftersend = function(){};
+fossil.fetch.timeout = 15000/* Default timeout, in ms. */;
+})(window.fossil);

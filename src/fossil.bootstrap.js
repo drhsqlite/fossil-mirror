@@ -127,7 +127,7 @@
      Creates a URL by prepending this.rootPath to the given path
      (which must be relative from the top of the site, without a
      leading slash). If urlParams is a string, it must be
-     paramters encoded in the form "key=val&key2=val2...", WITHOUT
+     paramters encoded in the form "key=val&key2=val2..." WITHOUT
      a leading '?'. If it's an object, all of its properties get
      appended to the URL in that form.
   */
@@ -136,7 +136,7 @@
     const url=[this.rootPath,path];
     url.push('?');
     if('string'===typeof urlParams) url.push(urlParams);
-    else if('object'===typeof urlParams){
+    else if(urlParams && 'object'===typeof urlParams){
       this.encodeUrlArgs(urlParams, url);
     }
     return url.join('');
