@@ -160,9 +160,13 @@ Terse Change history:
           if(isInput) target.value = msg;
           else target.innerHTML = msg;
         }
+        const formatCountdown = (txt, number) => txt + " ["+number+"]";
         if(opt.pinSize && opt.confirmText){
+          /* Try to pin the element's width the the greater of its
+             current width or its waiting-on-confirmation width
+             to avoid layout reflow when it's activated. */
           const digits = (''+(opt.timeout/1000 || opt.ticks)).length;
-          const lblLong = "("+("00000000".substr(0,digits))+") "+opt.confirmText;
+          const lblLong = formatCountdown(opt.confirmText, "00000000".substr(0,digits));
           const w1 = parseFloat(window.getComputedStyle(target).width);
           updateText(lblLong);
           const w2 = parseFloat(window.getComputedStyle(target).width);
@@ -171,7 +175,7 @@ Terse Change history:
         updateText(this.opt.initialText);
         if(this.opt.ticks && !this.opt.ontick){
           this.opt.ontick = function(tick){
-            updateText("("+tick+") "+self.opt.confirmText);
+            updateText(formatCountdown(self.opt.confirmText,tick));
           };
         }
         this.setClasses(false);
@@ -302,8 +306,8 @@ Terse Change history:
      end up indirectly replacing non-tick timeouts with ticks.
   */
   F.confirmer.defaultOpts = {
-    timeout:3000,
-    ticks: undefined,
+    timeout:undefined,
+    ticks: 3,
     ticktime: 998/*not *quite* 1000*/,
     onconfirm: undefined,
     ontimeout: undefined,

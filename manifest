@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sto\smention\sthe\stwo\snew\svirtual\stables\sadded\sto\sthe\n"fossil\ssql"\scommand.
-D 2020-08-12T18:09:36.337
+C fossil.confirmer:\smoved\sthe\sconfirmation\scountdown\sto\sthe\sright\sside\sof\sthe\selement.\sThis\sseems\sto\sbe\sless\svisually\sjarring.
+D 2020-08-13T11:47:51.792
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -486,7 +486,7 @@ F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 263e90df3d53b6037b4a1030b669f2b9b32d21dda1714afa6c0146b77e5c621a
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 515ddd9afe030abcb85c56850d854317273bb84e27a711794ed83ae01391f02e
-F src/fossil.confirmer.js 80f6cb56ce0dd8ea86d53ab0af76b700e064e4ea8d68773e46c84220f05350ed
+F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.page.fileedit.js 3077623ace28e667d4ed91dc8ea7c61bbbf876144e9cf98a0dfa189bb0f59592
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6359b4ec1b3cc62162a735c274533f1ed45a7e74d4a8553d6cfb54b3bf11874
-R da5cdffb88a71bfc99b00fd69ba17be7
-U drh
-Z 95af90d5d2031b09de11ef08dbc8f48a
+P d79f08df7b9aa6f3d5747326ac4ecf90dfacef023edc15938220c8b5f0b363da
+R 606db034300ba7d8e82e3cdc7761fffd
+U stephan
+Z 72a463fb0616b0cafa101d012b475b52
