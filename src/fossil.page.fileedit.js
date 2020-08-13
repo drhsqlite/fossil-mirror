@@ -467,7 +467,7 @@
       );
       const sel = this.e.select = D.select();
       const btnClear = this.e.btnClear
-            = D.button("Clear");
+            = D.button("Discard Edits");
       D.append(wrapper, "Local edits (",
                D.append(D.code(),
                         F.storage.storageImplName()),
@@ -497,7 +497,7 @@
       F.confirmer(btnClear, {
         /* must come after insertion into the DOM for the pinSize option to work. */
         pinSize: true,
-        confirmText: "DELETE all local edits?",
+        confirmText: "DISCARD all local edits?",
         onconfirm: function(e){
           if(P.finfo){
             const stashed = P.getStashedFinfo(P.finfo);

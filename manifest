@@ -1,5 +1,5 @@
-C fossil.confirmer:\smoved\sthe\sconfirmation\scountdown\sto\sthe\sright\sside\sof\sthe\selement.\sThis\sseems\sto\sbe\sless\svisually\sjarring.
-D 2020-08-13T11:47:51.792
+C Re-enabled\sthe\sdiscard-all-edits\sbutton\sin\swikiedit\sand\smade\sit\slook\sthe\ssame\sin\sboth\swikiedit\sand\sfileedit.
+D 2020-08-13T11:49:39.010
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -489,9 +489,9 @@ F src/fossil.bootstrap.js 515ddd9afe030abcb85c56850d854317273bb84e27a711794ed83a
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
-F src/fossil.page.fileedit.js 3077623ace28e667d4ed91dc8ea7c61bbbf876144e9cf98a0dfa189bb0f59592
+F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 9d44ecf4ac821425a51b0748129a1096031390d5eead3e0eaffeff398b42e758
-F src/fossil.page.wikiedit.js f871475286afb17b0dbc444851a642399d9d0b9961389f811562ab0d76a17c19
+F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js 93ec1f21f0658d66474f04ed276e1c02b63f7818ba9c118f180f54d8532730d9
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d79f08df7b9aa6f3d5747326ac4ecf90dfacef023edc15938220c8b5f0b363da
-R 606db034300ba7d8e82e3cdc7761fffd
+P c09949e5e469f283b78cf1bc982012bef4ff16e111ce53c9859e73dd62b0d91b
+R 4acde509f2db37e1451c6f69cd1963cc
 U stephan
-Z 72a463fb0616b0cafa101d012b475b52
+Z 3b29bed28aca96a9f32f210535e1e3a2

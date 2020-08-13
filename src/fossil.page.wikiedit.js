@@ -279,7 +279,9 @@
 
   /**
      Internal helper to get an edit status indicator for the given
-     winfo object.
+     winfo object. Pass it a winfo object or one of the "constants"
+     which are assigned as member properties of this function (see
+     below its definition).
   */
   const getEditMarker = function f(winfo, textOnly){
     const esm = F.config.editStateMarkers;
@@ -315,11 +317,13 @@
   getEditMarker.DELETED = 3;
 
   /**
-     Returns true if the given winfo object appears to be "new", else
-     returns false.
+     Returns undefined if winfo is falsy, true if the given winfo
+     object appears to be "new", else returns false.
   */
   const winfoIsNew = function(winfo){
-    return 'sandbox'===winfo.type ? false : !winfo.version;
+    if(!winfo) return undefined;
+    else if('sandbox' === winfo.type) return false;
+    else return !winfo.version;
   };
 
   /**
@@ -681,8 +685,7 @@
         'input-with-label'
       );
       const sel = this.e.select = D.select();
-      const btnClear = this.e.btnClear
-            = D.addClass(D.button("Clear"),'hidden');
+      const btnClear = this.e.btnClear = D.button("Discard Edits");
       D.append(wrapper, "Local edits (",
                D.append(D.code(),
                         F.storage.storageImplName()),
@@ -700,15 +703,6 @@
         const opt = this.selectedOptions[0];
         if(opt && opt._winfo) P.loadPage(opt._winfo);
       });
-      if(P.config.useConfirmerButtons.discardStash){
-        F.confirmer(btnClear, {
-          confirmText: "REALLY delete ALL local edits?",
-          onconfirm: ()=>P.clearStash(),
-          ticks: F.config.confirmerButtonTicks
-        });
-      }else{
-        btnClear.addEventListener('click', ()=>P.clearStash(), false);
-      }
       if(F.storage.isTransient()){/*Warn if our storage is particularly transient...*/
         D.append(wrapper, D.append(
           D.addClass(D.span(),'warning'),
@@ -717,6 +711,19 @@
         ));
       }
       domInsertPoint.parentNode.insertBefore(wrapper, domInsertPoint);
+      if(P.config.useConfirmerButtons.discardStash){
+        /* Must come after btnClear is in the DOM AND the button must
+           not be hidden, else pinned sizing won't work. */
+        F.confirmer(btnClear, {
+          pinSize: true,
+          confirmText: "DISCARD all local edits?",
+          onconfirm: ()=>P.clearStash(),
+          ticks: F.config.confirmerButtonTicks
+        });
+      }else{
+        btnClear.addEventListener('click', ()=>P.clearStash(), false);
+      }
+      D.addClass(btnClear,'hidden');
       $stash._fireStashEvent(/*read the page-load-time stash*/);
       delete this.init;
     },
@@ -748,11 +755,11 @@
         return;
       }
       D.enable(this.e.select);
-      if(false){
-        /* The problem with this Clear button is that it allows the user
-           to nuke a non-empty newly-added page without the failsafe confirmation
-           we have if they use P.e.btnReload. Not yet sure how best to resolve that,
-           so we'll leave the button hidden for the time being. */           
+      if(true){
+        /* The problem with this Clear button is that it allows the
+           user to nuke a non-empty newly-added page without the
+           failsafe confirmation we have if they use
+           P.e.btnReload. Not yet sure how best to resolve that. */
         D.removeClass(this.e.btnClear, 'hidden');
       }
       D.disable(D.option(this.e.select,0,"Select a local edit..."));
@@ -1129,8 +1136,10 @@
   */
   P.updateSaveButton = function(){
     /**
-    // Current disabled, per forum feedback and MSIE compatibility, but
-    // might be revisited...
+    // Currently disabled, per forum feedback and platform-level
+    // event-handling compatibility, but might be revisited. We now
+    // use an is-dirty flag instead to prevent saving when no change
+    // event has fired for the current doc.
     if(!this.winfo || !this.getStashedWinfo(this.winfo)){
       D.disable(this.e.btnSave).innerText =
         "No changes to save";
