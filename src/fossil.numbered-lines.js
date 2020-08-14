@@ -3,12 +3,14 @@
      which ties an event handler to the line numbers to allow
      selection of individual lines or ranges. */
   var tbl = arg || document.querySelectorAll('table.numbered-lines');
-  if(!tbl) return;
-  else if(tbl.length>1){
-    tbl.forEach( (t)=>callee(t) );
-    return;
-  }else{
-    tbl = tbl[0];
+  if(!tbl) return /* no matching elements */;
+  else if(!arg){
+    if(tbl.length>1){ /* multiple query results: recurse */
+      tbl.forEach( (t)=>callee(t) );
+      return;
+    }else{/* single query result */
+      tbl = tbl[0];
+    }
   }
   const tdLn = tbl.querySelector('td'),
         urlArgs = (window.location.search||'').replace(/&?\bln=[^&]*/,'');

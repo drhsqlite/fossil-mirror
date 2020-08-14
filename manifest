@@ -1,5 +1,5 @@
-C Added\soptional\sfilename\sparameter\sto\soutput_text_with_line_numbers()\sso\sthat\sit\scan\sadd\sthe\slanguage-X\sclass\sto\sthe\sCODE\selement.
-D 2020-08-14T12:21:22.076
+C Corrected\sthe\sJS-side\srecursive\sargument\shandling\sfor\sthe\smultiple-numbered-tables\scase.
+D 2020-08-14T12:28:54.251
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -489,7 +489,7 @@ F src/fossil.bootstrap.js 515ddd9afe030abcb85c56850d854317273bb84e27a711794ed83a
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
 F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
-F src/fossil.numbered-lines.js 558b9ccf34a0e7379cbd4ea72bbded203f214843bc298c9c75d00f057bd5a057
+F src/fossil.numbered-lines.js 8457488bfdb6f09d05fc693bd5d73a0fcbcc632d0eced2b9cea1b911e8d1220d
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 9d44ecf4ac821425a51b0748129a1096031390d5eead3e0eaffeff398b42e758
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec73edd4d09dc7c9f2f3e766d2fa4274b32bf7dcb31739c2d77511b1ab0d93c4
-R 352df90cb649dd2f8f6d92a2d3b59aaf
+P 0b3919f3e13218b0bad75a2a04e9d3ccd02c91a50933870f89ae13c265ea8b98
+R c7464417b4d326ca7f98e577d4948902
 U stephan
-Z 6a2a73ff5f6eb9ca5d92a15d137c91d0
+Z a5984615d376dce4380bf78d654f157c
