@@ -777,16 +777,16 @@ div.forumHierRoot > div > form {
 }
 .forum-post-collapser {
   font-size: 0.8em;
-  margin: 0.2em 0 0 0;
+  margin: 0 0 0.4em 0;
   padding: 0;
   height: 1.75em;
   line-height: 1.75em;
   /* ^^^ Those sizes are finely tuned for the current selection of
      arrow characters. If those change, these should, too. Remember that
      FF/Chrome simply do not agree on alignment with most values :/.  */
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 0.25em;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 0.5em 0.5em;
+  border-color: rgba(0, 0, 0, 0.2);
   opacity: 0.8;
   cursor: pointer;
   display: flex;
@@ -797,10 +797,10 @@ div.forumHierRoot > div > form {
   margin: 0 1em 0 1em;
   vertical-align: middle;
 }
-.forum-post-collapser.expanded > span::before {
+.forum-post-collapser.expanded > span:before {
   content: "⇡⇡⇡" /*reminder: FF/Chrome cannot agree on alignment of ⮝*/;
 }
-.forum-post-collapser:not(.expanded) > span::before {
+.forum-post-collapser:not(.expanded) > span:before {
   content: "⇣⇣⇣";
 }
 div.forumPostBody{
@@ -811,6 +811,9 @@ div.forumPostBody.with-expander {
   display: flex;
   flex-direction: row;
   overflow: auto;
+}
+div.forumPostBody.with-expander:not(.expanded) > :first-child {
+  overflow-y: hidden;
 }
 div.forumPostBody.with-expander > *:first-child {
   /* Main content DIV */
@@ -827,8 +830,24 @@ div.forumPostBody.with-expander > *:nth-child(2) {
   /*for testing only:*//*background: magenta;*/
   margin: 0 0 0 0.2em /* leave a gap between this and the neighboring scrollbar */;
   overflow: hidden;
-  background-color: #777;
-  opacity: 0.3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 0.1em;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 0;
+  border-radius: 0 0.5em 0 0;
+  border-color: rgba(0, 0, 0, 0.2);
+  opacity: 0.8;
+}
+div.forumPostBody.with-expander > *:nth-child(2) > span:before {
+  content: "⇣";
+}
+div.forumPostBody.with-expander.expanded > *:nth-child(2) > span:before {
+  content: "⇡";
 }
 div.forumPostBody.expanded {
   max-height: initial;
