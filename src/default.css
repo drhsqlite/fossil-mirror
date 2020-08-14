@@ -447,6 +447,8 @@ div.selectedText {
   color: blue;
   background-color: #d5d5ff;
   border: 1px blue solid;
+  border-top: none;
+  border-bottom: none;
 }
 p.missingPriv {
  color: blue;
@@ -1140,3 +1142,53 @@ hr {
   margin: 0 0.25em 0 0.25em;
   vertical-align: middle;
 }
+
+table.numbered-lines td {
+  font-family: monospace;
+  line-height: 2.8ex;
+  white-space: pre;
+  margin: 0;
+  white-space: nowrap;
+  vertical-align: top;
+  padding: 1em 0 0 0 /*prevents slight overlap at top */;
+}
+table.numbered-lines td:nth-of-type(1) > span {
+  display: block;
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: pre;
+}
+table.numbered-lines td:nth-of-type(1) > span:hover {
+  background-color: #777;
+  opacity: 0.25;
+}
+table.numbered-lines td:nth-of-type(2) {
+  padding-left: 1em;
+}
+table.numbered-lines td:nth-of-type(2) > pre {
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden /* apparently not needed, but eases my mind */;
+  padding: 0 0 1em 0 /*prevents a slight underlap at bottom from triggering a scrollar */;
+}
+table.numbered-lines td:nth-of-type(2) > pre > code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+}
+table.numbered-lines td:nth-of-type(2) > pre > code > * {
+  box-sizing: border-box;
+}
+/* if div.selectedText has a top/bottom border, we need to subtract those
+   from the top margin here... */
+/*table.numbered-lines td:nth-of-type(2) > pre > code > div.selectedText {
+  margin-top: -2px;
+}*/

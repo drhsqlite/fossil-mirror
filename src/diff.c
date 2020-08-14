@@ -127,7 +127,7 @@ struct DContext {
 ** function, a string is considered empty if it contains no characters
 ** -OR- it contains only NUL characters.
 */
-static int count_lines(
+int count_lines(
   const char *z,
   int n,
   int *pnLine

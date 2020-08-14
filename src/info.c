@@ -2013,8 +2013,9 @@ int artifact_from_ci_and_filename(const char *zNameParam){
 }
 
 /*
-** The "z" argument is a string that contains the text of a source code
-** file.  This routine appends that text to the HTTP reply with line numbering.
+** The "z" argument is a string that contains the text of a source
+** code file and nZ is its length in bytes. This routine appends that
+** text to the HTTP reply with line numbering.
 **
 ** zLn is the ?ln= parameter for the HTTP query.  If there is an argument,
 ** then highlight that line number and scroll to it once the page loads.
@@ -2024,12 +2025,14 @@ int artifact_from_ci_and_filename(const char *zNameParam){
 */
 void output_text_with_line_numbers(
   const char *z,
+  int nZ,
   const char *zLn
 ){
   int iStart, iEnd;    /* Start and end of region to highlight */
   int n = 0;           /* Current line number */
   int i = 0;           /* Loop index */
   int iTop = 0;        /* Scroll so that this line is on top of screen. */
+  int nLine = 0;
   Stmt q;
 
   iStart = iEnd = atoi(zLn);
@@ -2060,7 +2063,13 @@ void output_text_with_line_numbers(
     if( iTop>iStart - 2 ) iTop = iStart-2;
   }
   db_finalize(&q);
-  @ <pre>
+  CX("<table class='numbered-lines'><tbody><tr><td>");
+  count_lines(z, nZ, &nLine);
+  for(i=0; i < nLine; ++i){
+    CX("<span>%6d</span>", i+1);
+  }
+  CX("</td><td><pre><code>");
+  assert(!n);
   while( z[0] ){
     n++;
     db_prepare(&q,
@@ -2076,7 +2085,6 @@ void output_text_with_line_numbers(
     if( n==iStart ){
       cgi_append_content("<div class=\"selectedText\">",-1);
     }
-    cgi_printf("%6d  ", n);
     if( i>0 ){
       char *zHtml = htmlize(z, i);
       cgi_append_content(zHtml, -1);
@@ -2089,12 +2097,38 @@ void output_text_with_line_numbers(
     if( z[0]=='\n' ) z++;
   }
   if( n<iEnd ) cgi_printf("</div>");
-  @ </pre>
+  CX("</code></pre></td></tr></tbody></table>\n");
   if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
     builtin_request_js("scroll.js");
   }
+  builtin_request_js("fossil.numbered-lines.js");
 }
 
+/*
+** COMMAND: test-line-numbers
+**
+** Usage: %fossil test-line-numbers FILE ?LN-SPEC?
+**
+*/
+void cmd_test_line_numbers(void){
+  Blob content = empty_blob;
+  const char * zLn = "";
+  const char * zFilename = 0;
+
+  if(g.argc < 3){
+    usage("FILE");
+  }else if(g.argc>3){
+    zLn = g.argv[3];
+  }
+  db_find_and_open_repository(0,0);
+  zFilename = g.argv[2];
+  fossil_print("%s %s\n", zFilename, zLn);
+
+  blob_read_from_file(&content, zFilename, ExtFILE);
+  output_text_with_line_numbers(blob_str(&content), blob_size(&content), zLn);
+  blob_reset(&content);
+  fossil_print("%b\n", cgi_output_blob());
+}
 
 /*
 ** WEBPAGE: artifact
@@ -2400,7 +2434,7 @@ void artifact_page(void){
          rid);
         zExt = zFileName ? strrchr(zFileName, '.') : 0;
         if( zLn ){
-          output_text_with_line_numbers(z, zLn);
+          output_text_with_line_numbers(z, blob_size(&content), zLn);
         }else if( zExt && zExt[1] ){
           @ <pre>
           @ <code class="language-%s(zExt+1)">%h(z)</code>

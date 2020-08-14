@@ -227,6 +227,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.confirmer.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
+  $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
