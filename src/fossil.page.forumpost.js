@@ -37,8 +37,14 @@
       const content = forumPostWrapper.querySelector('div.forumPostBody');
       if(!content || !scrollbarIsVisible(content)) return;
       const parent = content.parentElement,
-            rightTapZone = D.div(),
-            widget = D.div();
+            widget =  D.addClass(
+              D.div(),
+              'forum-post-collapser','bottom'
+            ),
+            rightTapZone = D.addClass(
+              D.div(),
+              'forum-post-collapser','right'
+            );
       /* Repopulates the rightTapZone with arrow indicators. Because
          of the wildly varying height of these elements, This has to
          be done dynamically at init time and upon collapse/expand. Will not
@@ -61,7 +67,6 @@
       const handlerStep1 = getWidgetHandler(widget, content);
       const widgetEventHandler = ()=>{ handlerStep1(); refillTapZone(); };
       content.classList.add('with-expander');
-      widget.classList.add('forum-post-collapser');
       widget.addEventListener('click', widgetEventHandler, false);
       /** Append 3 children, which CSS will evenly space across the
           widget. This improves visibility over having the label
