@@ -778,32 +778,36 @@ div.forumHierRoot > div > form {
   margin: 0.5em 0;
 }
 .forum-post-collapser {
+  /* Common style for the bottom-of-post and right-of-post
+     expand/collapse widgets. */
   font-size: 0.8em;
-  margin: 0.2em 0 0 0;
   padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 0.5em 0.5em;
+  background-color: rgba(0, 0, 0, 0.05);
+  opacity: 0.8;
+  cursor: pointer;
+}
+.forum-post-collapser.bottom {
+  margin: 0 0 0.4em 0;
   height: 1.75em;
   line-height: 1.75em;
   /* ^^^ Those sizes are finely tuned for the current selection of
      arrow characters. If those change, these should, too. Remember that
      FF/Chrome simply do not agree on alignment with most values :/.  */
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 0.25em;
-  opacity: 0.8;
-  cursor: pointer;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
-.forum-post-collapser > span {
+.forum-post-collapser.bottom > span {
   margin: 0 1em 0 1em;
   vertical-align: middle;
 }
-.forum-post-collapser.expanded > span::before {
-  content: "⇡⇡⇡" /*reminder: FF/Chrome cannot agree on alignment of ⮝*/;
-}
-.forum-post-collapser:not(.expanded) > span::before {
+.forum-post-collapser.bottom > span::before {
   content: "⇣⇣⇣";
+}
+.forum-post-collapser.bottom.expanded > span::before {
+  content: "⇡⇡⇡" /*reminder: FF/Chrome cannot agree on alignment of ⮝*/;
 }
 div.forumPostBody{
   max-height: 50em;
@@ -814,23 +818,39 @@ div.forumPostBody.with-expander {
   flex-direction: row;
   overflow: auto;
 }
+div.forumPostBody.with-expander:not(.expanded) > :first-child {
+  overflow-y: hidden;
+}
 div.forumPostBody.with-expander > *:first-child {
-  /* Main content DIV */
+  /* Main content DIV/PRE */
   overflow: auto;
+  flex: 10 1 auto;
 }
 div.forumPostBody.with-expander.expanded > *:first-child {
   margin-bottom: 0.5em /* try to suppress scroll bar */;
 }
-div.forumPostBody.with-expander > *:nth-child(2) {
+div.forumPostBody.with-expander .forum-post-collapser.right {
   /* "Tap zone" for expansion of the post, sits to the right of the
      post's content. */
+  flex: 1 10 auto;
   min-width: 1.25em;
   max-width: 1.25em;
-  /*for testing only:*//*background: magenta;*/
-  margin: 0 0 0 0.2em /* leave a gap between this and the neighboring scrollbar */;
+  margin: 0 0 0 0.2em;
   overflow: hidden;
-  background-color: #777;
-  opacity: 0.3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 0.1em;
+  cursor: pointer;
+  border-bottom: 0;
+  border-radius: 0 0.5em 0 0;
+}
+div.forumPostBody.with-expander .forum-post-collapser.right > span:before {
+  content: "⇣";
+}
+div.forumPostBody.with-expander.expanded .forum-post-collapser.right > span:before {
+  content: "⇡";
 }
 div.forumPostBody.expanded {
   max-height: initial;
@@ -1145,7 +1165,7 @@ hr {
 
 table.numbered-lines td {
   font-family: monospace;
-  line-height: 2.8ex;
+  line-height: 1.35;
   white-space: pre;
   margin: 0;
   white-space: nowrap;
