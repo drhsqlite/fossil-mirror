@@ -366,10 +366,6 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
                  ? pCI->pParent->zBaseline
                  : pCI->zParentUuid);
   }
-  blob_reserve(pOut, 1024 *
-               (asDelta ? 2 : pCI->pParent->nFile/11+1
-                /* In the fossil core repo, each 12-ish F-cards (on
-                ** average) take up roughly 1kb */));
   if(blob_size(&pCI->comment)!=0){
     blob_appendf(pOut, "C %F\n", blob_str(&pCI->comment));
   }else{
