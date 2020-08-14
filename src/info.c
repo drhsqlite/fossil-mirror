@@ -2017,6 +2017,10 @@ int artifact_from_ci_and_filename(const char *zNameParam){
 ** code file and nZ is its length in bytes. This routine appends that
 ** text to the HTTP reply with line numbering.
 **
+** zName is the content's file name, if any (it may be NULL). If that
+** name contains a '.' then the part after the final '.' is used as
+** the X part of a "language-X" CSS class on the generate CODE block.
+**
 ** zLn is the ?ln= parameter for the HTTP query.  If there is an argument,
 ** then highlight that line number and scroll to it once the page loads.
 ** If there are two line numbers, highlight the range of lines.
@@ -2026,6 +2030,7 @@ int artifact_from_ci_and_filename(const char *zNameParam){
 void output_text_with_line_numbers(
   const char *z,
   int nZ,
+  const char *zName,
   const char *zLn
 ){
   int iStart, iEnd;    /* Start and end of region to highlight */
@@ -2033,6 +2038,7 @@ void output_text_with_line_numbers(
   int i = 0;           /* Loop index */
   int iTop = 0;        /* Scroll so that this line is on top of screen. */
   int nLine = 0;
+  const char *zExt = file_extension(zName);
   Stmt q;
 
   iStart = iEnd = atoi(zLn);
@@ -2068,7 +2074,12 @@ void output_text_with_line_numbers(
   for(i=0; i < nLine; ++i){
     CX("<span>%6d</span>", i+1);
   }
-  CX("</td><td><pre><code>");
+  CX("</td><td><pre>");
+  if(zExt && *zExt){
+    CX("<code class='language-%h'>",zExt);
+  }else{
+    CX("<code>");
+  }
   assert(!n);
   while( z[0] ){
     n++;
@@ -2125,7 +2136,8 @@ void cmd_test_line_numbers(void){
   fossil_print("%s %s\n", zFilename, zLn);
 
   blob_read_from_file(&content, zFilename, ExtFILE);
-  output_text_with_line_numbers(blob_str(&content), blob_size(&content), zLn);
+  output_text_with_line_numbers(blob_str(&content), blob_size(&content),
+                                zFilename, zLn);
   blob_reset(&content);
   fossil_print("%b\n", cgi_output_blob());
 }
@@ -2432,9 +2444,10 @@ void artifact_page(void){
          " WHERE filename.fnid=mlink.fnid"
          "   AND mlink.fid=%d",
          rid);
-        zExt = zFileName ? strrchr(zFileName, '.') : 0;
+        zExt = file_extension(zFileName);
         if( zLn ){
-          output_text_with_line_numbers(z, blob_size(&content), zLn);
+          output_text_with_line_numbers(z, blob_size(&content),
+                                        zFileName, zLn);
         }else if( zExt && zExt[1] ){
           @ <pre>
           @ <code class="language-%s(zExt+1)">%h(z)</code>

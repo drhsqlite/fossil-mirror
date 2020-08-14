@@ -1,5 +1,5 @@
-C Changes\sline-numbered\soutput\sto\smake\sline\snumbers\sselectable,\sas\sdiscussed\sin\s[https://fossil-scm.org/forum/forumpost/dc3da10590].\sA\scouple\sdecisions\sare\sneeded\sbefore\sdeciding\swhether\sto\smerge.
-D 2020-08-14T11:53:44.797
+C Added\soptional\sfilename\sparameter\sto\soutput_text_with_line_numbers()\sso\sthat\sit\scan\sadd\sthe\slanguage-X\sclass\sto\sthe\sCODE\selement.
+D 2020-08-14T12:21:22.076
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -431,10 +431,10 @@ F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c 2658c60f1da0479ff276d094d1b5c5b535cdfef621e8a3cf9e59c4602cbff634
-F src/ajax.c fad34f8a991de42404beca8423c7eb7382ec30ad86a5dae5d8e96c138167472a
+F src/ajax.c cfb937838211d61ce4dfca117aa7268ce213f57335c9199ff942655fc0005835
 F src/alerts.c 9773defbf3d7134aaad841ad6698f7c899c311bca0ebf680c7dbf65168cd2dbf
 F src/allrepo.c 52b44fe6a430f2d4821500ac75c76617b3c1103983572e3e887cee363d27a9a9
-F src/attach.c 89dcd77cc7eceb77b102dabd62bb9002d0b91a7a09d09378c4d03f9e06636ac5
+F src/attach.c 90aded4f90c9ef2bbd770e0feefc76c705b67f40bf4b1263ae9832ac268e19ae
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
 F src/backoffice.c a6050595f00797ed1a45ca49617607d60d223bb8fb088ff2eace2cd6a979cbd2
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 9e74888606a2bfcc110e53e5da994dac97cadfcfb22daba23353b7dd13932a41
+F src/file.c 559407d97cc14a42599081b105e1eecbc3db3aab4e946ae17f9a0609c0875c68
 F src/fileedit.c 042eaf55a22528822e06eff6788032885528def981e42dae53387a7650918433
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -510,7 +510,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635d
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c b6e7722f771ee53570ff2533f137c2df3dd437dfdab9c07d5b9c7999c09744d2
-F src/info.c 468ea144201b4b4b7a852547e5479721777b7a2b5f8f89b02d5e43bc75bdf640
+F src/info.c 5a85cd0333ddaeabd240daef979cdbec54a855948e1d8b73787684af61dfa14c
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -1005,10 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39a5289b9b7c20affe5c37b476723ef64929a66610d82bccdc46acac14df3f34
-R d93ab278d6d06405941dc06e99bd105d
-T *branch * line-number-selection
-T *sym-line-number-selection *
-T -sym-trunk *
+P ec73edd4d09dc7c9f2f3e766d2fa4274b32bf7dcb31739c2d77511b1ab0d93c4
+R 352df90cb649dd2f8f6d92a2d3b59aaf
 U stephan
-Z e0364c5fe6ac384d0a6ee49127620385
+Z 6a2a73ff5f6eb9ca5d92a15d137c91d0
