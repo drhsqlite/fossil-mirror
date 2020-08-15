@@ -442,14 +442,6 @@ span.usertype:before {
 span.usertype:after {
   content:"'";
 }
-div.selectedText {
-  font-weight: bold;
-  color: blue;
-  background-color: #d5d5ff;
-  border: 1px blue solid;
-  border-top: none;
-  border-bottom: none;
-}
 p.missingPriv {
  color: blue;
 }
@@ -1172,7 +1164,7 @@ table.numbered-lines td {
   vertical-align: top;
   padding: 1em 0 0 0 /*prevents slight overlap at top */;
 }
-table.numbered-lines td:nth-of-type(1) > span {
+table.numbered-lines td.line-numbers > span {
   display: block;
   margin: 0;
   padding: 0;
@@ -1182,21 +1174,21 @@ table.numbered-lines td:nth-of-type(1) > span {
   cursor: pointer;
   white-space: pre;
 }
-table.numbered-lines td:nth-of-type(1) > span:hover {
+table.numbered-lines td.line-numbers > span:hover {
   background-color: #777;
   opacity: 0.25;
 }
-table.numbered-lines td:nth-of-type(2) {
+table.numbered-lines td.file-content {
   padding-left: 1em;
 }
-table.numbered-lines td:nth-of-type(2) > pre {
+table.numbered-lines td.file-content > pre {
   margin: 0;
   padding: 0;
   overflow-x: auto;
   overflow-y: hidden /* apparently not needed, but eases my mind */;
   padding: 0 0 1em 0 /*prevents a slight underlap at bottom from triggering a scrollar */;
 }
-table.numbered-lines td:nth-of-type(2) > pre > code {
+table.numbered-lines td.file-content > pre > code {
   margin: 0;
   padding: 0;
   white-space: pre;
@@ -1204,11 +1196,25 @@ table.numbered-lines td:nth-of-type(2) > pre > code {
   font-size: inherit;
   font-family: inherit;
 }
-table.numbered-lines td:nth-of-type(2) > pre > code > * {
+table.numbered-lines td.file-content > pre > code > * {
   box-sizing: border-box;
 }
-/* if div.selectedText has a top/bottom border, we need to subtract those
-   from the top margin here... */
-/*table.numbered-lines td:nth-of-type(2) > pre > code > div.selectedText {
-  margin-top: -2px;
-}*/
+div.selectedText/*legacy*/,
+table.numbered-lines td.line-numbers span.selected-line/*replacement*/ {
+  font-weight: bold;
+  color: blue;
+  background-color: #d5d5ff;
+  border: 1px blue solid;
+  border-top-width: 0;
+  border-bottom-width: 0;
+  padding: 0;
+  margin: 0;
+}
+table.numbered-lines td.line-numbers span.selected-line.start {
+  border-top-width: 1px;
+  margin-top: -1px/*restore alignment*/;
+}
+table.numbered-lines td.line-numbers span.selected-line.end {
+  border-bottom-width: 1px;
+  margin-top: -1px/*restore alignment*/;
+}

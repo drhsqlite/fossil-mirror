@@ -1002,11 +1002,11 @@ span.wikiTagCancelled {
  */
 
 /* selected lines of text within a linenumbered artifact display */
-div.selectedText {
+table.numbered-lines td.line-numbers span.selected-line {
   font-weight: bold;
   color: #00f;
   background-color: #d5d5ff;
-  border: 1px #00f solid;
+  border-color: #00f;
 }
 
 /* format for missing privileges note on user setup page */

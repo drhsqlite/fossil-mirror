@@ -2019,7 +2019,7 @@ int artifact_from_ci_and_filename(const char *zNameParam){
 **
 ** zName is the content's file name, if any (it may be NULL). If that
 ** name contains a '.' then the part after the final '.' is used as
-** the X part of a "language-X" CSS class on the generate CODE block.
+** the X part of a "language-X" CSS class on the generated CODE block.
 **
 ** zLn is the ?ln= parameter for the HTTP query.  If there is an argument,
 ** then highlight that line number and scroll to it once the page loads.
@@ -2037,7 +2037,8 @@ void output_text_with_line_numbers(
   int n = 0;           /* Current line number */
   int i = 0;           /* Loop index */
   int iTop = 0;        /* Scroll so that this line is on top of screen. */
-  int nLine = 0;
+  int nLine = 0;       /* content line count */
+  int nSpans = 0;      /* number of distinct zLn spans */
   const char *zExt = file_extension(zName);
   Stmt q;
 
@@ -2058,56 +2059,63 @@ void output_text_with_line_numbers(
       db_multi_exec(
         "INSERT OR REPLACE INTO lnos VALUES(%d,%d)", iStart, iEnd
       );
+      ++nSpans;
       iStart = iEnd = atoi(&zLn[i++]);
     }while( zLn[i] && iStart && iEnd );
   }
-  db_prepare(&q, "SELECT min(iStart), max(iEnd) FROM lnos");
-  if( db_step(&q)==SQLITE_ROW ){
-    iStart = db_column_int(&q, 0);
-    iEnd = db_column_int(&q, 1);
-    iTop = iStart - 15 + (iEnd-iStart)/4;
-    if( iTop>iStart - 2 ) iTop = iStart-2;
-  }
-  db_finalize(&q);
-  CX("<table class='numbered-lines'><tbody><tr><td>");
+  /*cgi_printf("<!-- ln span count=%d -->", nSpans);*/
+  cgi_append_content("<table class='numbered-lines'><tbody>"
+                     "<tr><td class='line-numbers'>", -1);
+  iStart = iEnd = 0;
   count_lines(z, nZ, &nLine);
-  for(i=0; i < nLine; ++i){
-    CX("<span>%6d</span>", i+1);
+  for( n=1 ; n<=nLine; ++n ){
+    const char * zAttr = "";
+    const char * zId = "";
+    if(nSpans>0 && iEnd==0){/*Grab the next range of zLn marking*/
+      db_prepare(&q, "SELECT iStart, iEnd FROM lnos "
+                 "WHERE iStart >= %d ORDER BY iStart", n);
+      if( db_step(&q)==SQLITE_ROW ){
+        iStart = db_column_int(&q, 0);
+        iEnd = db_column_int(&q, 1);
+        if(!iTop){
+          iTop = iStart - 15 + (iEnd-iStart)/4;
+          if( iTop>iStart - 2 ) iTop = iStart-2;
+        }
+      }else{
+        /* Note that overlapping multi-spans, e.g. 10-15+12-20,
+           can cause us to miss a row. */
+        iStart = iEnd = 0;
+      }
+      db_finalize(&q);
+      --nSpans;
+      /*cgi_printf("<!-- iStart=%d, iEnd=%d -->", iStart, iEnd);*/
+    }
+    if(n==iTop) {
+      zId = " id='scrollToMe'";
+    }
+    if(n==iStart){/*Figure out which CSS class(es) this line needs...*/
+      if(n==iEnd){
+        zAttr = " class='selected-line start end'";
+        iEnd = 0;
+      }else{
+        zAttr = " class='selected-line start'";
+      }
+      iStart = 0;
+    }else if(n==iEnd){
+      zAttr = " class='selected-line end'";
+      iEnd = 0;
+    }else if( n>iStart && n<iEnd ){
+      zAttr = " class='selected-line'";
+    }
+    cgi_printf("<span%s%s>%6d</span>", zId, zAttr, n);
   }
-  CX("</td><td><pre>");
+  cgi_append_content("</td><td class='file-content'><pre>",-1);
   if(zExt && *zExt){
-    CX("<code class='language-%h'>",zExt);
+    cgi_printf("<code class='language-%h'>",zExt);
   }else{
-    CX("<code>");
+    cgi_append_content("<code>", -1);
   }
-  assert(!n);
-  while( z[0] ){
-    n++;
-    db_prepare(&q,
-      "SELECT min(iStart), max(iEnd) FROM lnos"
-      " WHERE iStart <= %d AND iEnd >= %d", n, n);
-    if( db_step(&q)==SQLITE_ROW ){
-      iStart = db_column_int(&q, 0);
-      iEnd = db_column_int(&q, 1);
-    }
-    db_finalize(&q);
-    for(i=0; z[i] && z[i]!='\n'; i++){}
-    if( n==iTop ) cgi_append_content("<span id=\"scrollToMe\">", -1);
-    if( n==iStart ){
-      cgi_append_content("<div class=\"selectedText\">",-1);
-    }
-    if( i>0 ){
-      char *zHtml = htmlize(z, i);
-      cgi_append_content(zHtml, -1);
-      fossil_free(zHtml);
-    }
-    if( n==iTop ) cgi_append_content("</span>", -1);
-    if( n==iEnd ) cgi_append_content("</div>", -1);
-    else cgi_append_content("\n", 1);
-    z += i;
-    if( z[0]=='\n' ) z++;
-  }
-  if( n<iEnd ) cgi_printf("</div>");
+  cgi_printf("%.*h", nZ, z);
   CX("</code></pre></td></tr></tbody></table>\n");
   if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
     builtin_request_js("scroll.js");

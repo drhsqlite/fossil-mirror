@@ -1,5 +1,5 @@
-C Merged\strunk\sto\savoid\sstyle\scollisions\slater.\sChanged\stable.numbered-lines\sline-height\sfrom\sex\sunits\sto\sunitless,\sas\sMozilla\srecommends.
-D 2020-08-14T19:25:56.682
+C Reimplemented\sln=...\shighlighting\sto\smark\sthe\sline\snumbers\sinstead\sof\sthe\scode,\sso\sthat\sthere\sis\sno\sinterference\swith\ssyntax\shighlighters.\sAdjusted\stwo\sskins\sto\suse\sthe\snewer\sline-marking\sCSS.
+D 2020-08-15T03:51:17.037
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -399,7 +399,7 @@ F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d
 F skins/default/header.txt d3a0e23a6bd14bf25f7193841e8434bc2454281eb63a7373678ffed9ffbad76f
 F skins/default/js.txt 3e8272e6730688d9365cfb8920a157cb2893fb6267168608873ad41a0ff2041f
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt 465bb5ece331edbf8ea14ad9cc55ecc64d071642cf750fcb20ae4c002f4dc97d
+F skins/eagle/css.txt 93ff4ab1e85476aca43bf9a49a8121fd5b41d4c5028fdc97c3c4b2f71d148c69
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 69e5d8e521eece71dfaaa5dba0be9b02f56e1389f27c3802b22380a10abecd0f
@@ -424,7 +424,7 @@ F skins/rounded1/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b
 F skins/rounded1/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/rounded1/header.txt e7298779cd3482f749238b3636b0badd0b046915664ffa52f11330671fd18ef3
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt b4e1c5042b87b171f6d878dddac04c2176d4e3a9031e8e4e459c9f3c20da6dae
+F skins/xekri/css.txt 38d644ecd154b9704d0a5c6b6414a0f7ac137992b79ce0ef57b0b04146f71f0b
 F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f4d6889631e
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ef12318ae5f4c491d821cb96bae6cca1b824c8283853c2bb03e5d343986bb734
-F src/default.css 66b8953ddf327720c6524ef787acb9be8d06c3229af9520b36cfc51974b4bfe1
+F src/default.css 3b53f1748851d5bc4400db297c02bd407bec5bf541a7101fb1364ab1960d18ff
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -510,7 +510,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635d
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c b6e7722f771ee53570ff2533f137c2df3dd437dfdab9c07d5b9c7999c09744d2
-F src/info.c 5a85cd0333ddaeabd240daef979cdbec54a855948e1d8b73787684af61dfa14c
+F src/info.c 2ad43b299866d5afb0d53326bb5863b97ab06f29035a15949cee1cd56356b08c
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a54fa928e2b86b3dfc64cdee1cf00f817617426456b565b291b2c962ac03349f db1afa75be73a5343c34039892031df7f352cefc53a9f7f238a5b6117bb6c165
-R 1a84b9560ab8c6be7cd78247386d20b2
+P 41f270de75dbf3754951990de9ae1790e9c17845ff44d116e108fa0ab2d8236d
+R d7f17999ded48d111f016755ce3a522b
 U stephan
-Z 801a64a1930ec0a5ff89d50329bf05fd
+Z 6751bf974330a16c3ec17c8f040f3c70
