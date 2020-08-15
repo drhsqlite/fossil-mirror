@@ -1155,15 +1155,29 @@ hr {
   vertical-align: middle;
 }
 
-table.numbered-lines > tbody > tr > td {
+table.numbered-lines {
+  width: 100%;
+  table-layout: fixed /* required to keep ultra-wide code from exceeding
+                         window width, and instead force a scrollbar
+                         on them. */;
+}
+table.numbered-lines > tbody > tr {
   font-family: monospace;
-  font-size: inherit;
+  font-size: 1.2em;
   line-height: 1.35;
   white-space: pre;
+}
+table.numbered-lines > tbody > tr > td {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: inherit;
   margin: 0;
-  white-space: nowrap;
   vertical-align: top;
   padding: 1em 0 0 0 /*prevents slight overlap at top */;
+}
+table.numbered-lines td.line-numbers {
+  width: 6em;
 }
 table.numbered-lines td.line-numbers > span {
   display: block;
@@ -1175,6 +1189,7 @@ table.numbered-lines td.line-numbers > span {
   cursor: pointer;
   white-space: pre;
   margin-right: 2px/*keep selection from nudging the right column */;
+  text-align: right;
 }
 table.numbered-lines td.line-numbers > span:hover {
   background-color: rgba(112, 112, 112, 0.25);
@@ -1182,28 +1197,25 @@ table.numbered-lines td.line-numbers > span:hover {
 table.numbered-lines td.file-content {
   padding-left: 1em;
 }
-table.numbered-lines td.file-content > pre {
-  margin: 0;
-  padding: 0;
-  overflow-x: auto;
-  overflow-y: hidden /* apparently not needed, but eases my mind */;
-  padding: 0 0 1em 0 /*prevents a slight underlap at bottom from triggering a scrollar */;
-  line-height: inherit;
-  font-size: inherit;
-  font-family: inherit;
-}
+table.numbered-lines td.file-content > pre,
 table.numbered-lines td.file-content > pre > code {
-  margin: 0;
   padding: 0;
-  white-space: pre;
+  margin: 0;
   line-height: inherit;
   font-size: inherit;
   font-family: inherit;
+  white-space: pre;
+}
+table.numbered-lines td.file-content > pre {
+  overflow: auto;
+  padding: 0 0 1em 0 /*prevents a slight underlap at bottom from triggering a scrollar */;
 }
 table.numbered-lines td.file-content > pre > code > * {
-  box-sizing: border-box;
-  font-size: inherit;
+  /* Defense against syntax highlighters indirectly messing up these
+     properties... */
   line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
 }
 div.selectedText/*legacy*/,
 table.numbered-lines td.line-numbers span.selected-line/*replacement*/ {
