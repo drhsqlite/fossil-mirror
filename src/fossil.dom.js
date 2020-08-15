@@ -473,15 +473,20 @@
 
   /**
      "Blinks" the given element a single time for the given number of
-     milliseconds, defaulting to flashOnce.defaultTimeMs. This will
-     only activate once per element during that timeframe - further
-     calls will become no-ops until the blink is completed. This
-     routine adds a dataset member to the element for the duration of
-     the blink, to allow it to block multiple blinks.
+     milliseconds, defaulting (if the 2nd argument is falsy or not a
+     number) to flashOnce.defaultTimeMs. If a 3rd argument is passed
+     in, it must be a function, and it gets callback back at the end
+     of the asynchronous flashing processes.
 
-     Returns e.
+     This will only activate once per element during that timeframe -
+     further calls will become no-ops until the blink is
+     completed. This routine adds a dataset member to the element for
+     the duration of the blink, to allow it to block multiple blinks.
+
+     Returns e, noting that the flash itself is asynchronous and may
+     still be running, or not yet started, when this function returns.
   */
-  dom.flashOnce = function f(e,howLongMs){
+  dom.flashOnce = function f(e,howLongMs,afterFlashCallback){
     if(e.dataset.isBlinking){
       return;
     }
@@ -497,13 +502,14 @@
       e.style.transition = transition;
       e.style.opacity = opacity;
       delete e.dataset.isBlinking;
+      if(afterFlashCallback) afterFlashCallback();
     }, howLongMs);
     return e;
   };
   dom.flashOnce.defaultTimeMs = 400;
 
   /**
-     Attempts to copy the given text to the system clipboard.  Returns
+     Attempts to copy the given text to the system clipboard. Returns
      true if it succeeds, else false.
   */
   dom.copyTextToClipboard = function(text){
@@ -527,6 +533,28 @@
       }
       return rc;
     }
+  };
+
+  /**
+     Copies all properties from the 2nd argument (a plain object) into
+     the style member of the first argument (DOM element or a
+     forEach-capable list of elements). If the 2nd argument is falsy
+     or empty, this is a no-op.
+
+     Returns its first argument.
+  */
+  dom.copyStyle = function f(e, style){
+    if(e.forEach){
+      e.forEach((x)=>f(x, style));
+      return e;
+    }
+    if(style){
+      let k;
+      for(k in style){
+        if(style.hasOwnProperty(k)) e.style[k] = style[k];
+      }
+    }
+    return e;
   };
 
   return F.dom = dom;

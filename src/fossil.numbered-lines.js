@@ -4,7 +4,7 @@
     which ties an event handler to the line numbers to allow
     selection of individual lines or ranges.
 
-    Requires: fossil.bootstrap, fossil.dom, fossil.tooltip,
+    Requires: fossil.bootstrap, fossil.dom, fossil.popupwidget,
     fossil.copybutton
   */
   var tbl = arg || document.querySelectorAll('table.numbered-lines');
@@ -24,7 +24,7 @@
     start: 0, end: 0
   };
 
-  const lineTip = new fossil.TooltipWidget({
+  const lineTip = new fossil.PopupWidget({
     refresh: function(){
       const link = this.state.link;
       D.clearElement(link);

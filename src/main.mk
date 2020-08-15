@@ -232,9 +232,9 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
+  $(SRCDIR)/fossil.popupwidget.js \
   $(SRCDIR)/fossil.storage.js \
   $(SRCDIR)/fossil.tabs.js \
-  $(SRCDIR)/fossil.tooltip.js \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \

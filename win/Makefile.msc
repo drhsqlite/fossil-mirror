@@ -565,9 +565,9 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
         "$(SRCDIR)\fossil.page.wikiedit.js" \
+        "$(SRCDIR)\fossil.popupwidget.js" \
         "$(SRCDIR)\fossil.storage.js" \
         "$(SRCDIR)\fossil.tabs.js" \
-        "$(SRCDIR)\fossil.tooltip.js" \
         "$(SRCDIR)\graph.js" \
         "$(SRCDIR)\href.js" \
         "$(SRCDIR)\login.js" \
@@ -1162,9 +1162,9 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
 	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
+	echo "$(SRCDIR)\fossil.popupwidget.js" >> $@
 	echo "$(SRCDIR)\fossil.storage.js" >> $@
 	echo "$(SRCDIR)\fossil.tabs.js" >> $@
-	echo "$(SRCDIR)\fossil.tooltip.js" >> $@
 	echo "$(SRCDIR)\graph.js" >> $@
 	echo "$(SRCDIR)\href.js" >> $@
 	echo "$(SRCDIR)\login.js" >> $@

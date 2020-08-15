@@ -75,12 +75,7 @@
     const extract = opt.extractText || (
       undefined===srcElem.value ? ()=>srcElem.innerText : ()=>srcElem.value
     );
-    if(opt.style){
-      let k;
-      for(k in opt.style){
-        if(opt.style.hasOwnProperty(k)) e.style[k] = opt.style[k];
-      }
-    }
+    D.copyStyle(e, opt.style);
     e.addEventListener(
       'click',
       function(){
