@@ -10,21 +10,22 @@
      Creates a new tooltip widget using the given options object.
 
      The options are available to clients after this returns via
-     theTooltip.options.
+     theTooltip.options, and default values for any options not
+     provided are pulled from TooltipWidget.defaultOptions.
 
      Options:
 
      .refresh: required callback which is called whenever the tooltip
      is revealed or moved. It must refresh the contents of the
-     tooltip, if needed, by applying it to this.e, which is the base
-     DOM element for the tooltip.
+     tooltip, if needed, by applying the content to/within this.e,
+     which is the base DOM element for the tooltip.
 
      .adjustX: an optional callback which is called when the tooltip
      is to be displayed at a given position and passed the X
-     coordinate. This routine must either return its argument as-is
-     or return an adjusted value. This API assumes that clients give it
-     viewport-relative coordinates, and it will take care to translate
-     those to page-relative.
+     viewport-relative coordinate. This routine must either return its
+     argument as-is or return an adjusted value. This API assumes that
+     clients give it viewport-relative coordinates, and it will take
+     care to translate those to page-relative.
 
      .adjustY: the Y counterpart of adjustX.
 
@@ -77,8 +78,8 @@
     style: {/*properties copied as-is into element.style*/},
     adjustX: (x)=>x,
     adjustY: (y)=>y,
-    refresh: function(hw){
-      console.error("TooltipWidget refresh() option must be provided by the client.");
+    refresh: function(){
+      console.error("The TooltipWidget refresh() option must be provided by the client.");
     }
   };
 
@@ -86,10 +87,16 @@
 
     isShown: function(){return !this.e.classList.contains('hidden')},
 
-    /** Calls the refresh() method of the options object. */
-    refresh: function(){this.options.refresh.call(this)},
+    /** Calls the refresh() method of the options object and returns
+        this object. */
+    refresh: function(){
+      this.options.refresh.call(this);
+      return this;
+    },
 
     /**
+       Shows or hides the tooltip.
+
        Usages:
 
        (bool showIt) => hide it or reveal it at its last position.
@@ -98,7 +105,7 @@
        relative-to-the-viewport position, which will be adjusted to make
        it page-relative.
 
-       (DOM element) => reveal/move it ad/to a position based on the
+       (DOM element) => reveal/move it at/to a position based on the
        the given element (adjusted slightly).
 
        For the latter two, this.options.adjustX() and adjustY() will
@@ -134,10 +141,9 @@
       if(x || y){
         this.e.style.left = x+"px";
         this.e.style.top = y+"px";
-        //console.debug("TooltipWidget.show()", arguments, x, y);
       }
       return this;
     }
-  }/*/F.TooltipWidget.prototype*/;
+  }/*F.TooltipWidget.prototype*/;
   
 })(window.fossil);

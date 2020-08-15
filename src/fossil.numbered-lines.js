@@ -44,8 +44,6 @@
         D.append(link, "No lines selected.");
       }
     },
-    adjustX: (x)=>x,
-    adjustY: (y)=>y,
     init: function(){
       const e = this.e;
       const btnCopy = D.span(),
@@ -67,47 +65,50 @@
     if('SPAN'!==ev.target.tagName) return;
     else if('number' !== typeof f.mode){
       f.mode = 0 /*0=none selected, 1=1 selected, 2=2 selected*/;
+      f.spans = tdLn.querySelectorAll('span');
+      f.selected = tdLn.querySelectorAll('span.selected-line');
+      f.unselect = (e)=>D.removeClass(e, 'selected-line','start','end');
     }
     ev.stopPropagation();
     const ln = +ev.target.innerText;
-    if(2===f.mode){/*reset selection*/
+    if(2===f.mode){/*Reset selection*/
       f.mode = 0;
     }
-    if(0===f.mode){
+    if(0===f.mode){/*Select single line*/
       lineState.end = 0;
       lineState.start = ln;
       f.mode = 1;
     }else if(1===f.mode){
-      if(ln === lineState.start){/*unselect line*/
-        //console.debug("Unselected line #"+ln);
+      if(ln === lineState.start){/*Unselect line*/
         lineState.start = 0;
         f.mode = 0;
-      }else{
+      }else{/*Select range*/
         if(ln<lineState.start){
           lineState.end = lineState.start;
           lineState.start = ln;
         }else{
           lineState.end = ln;
         }
-        //console.debug("Selected range: ",rng);
         f.mode = 2;
       }
     }
-    tdLn.querySelectorAll('span.selected-line').forEach(
-      (e)=>D.removeClass(e, 'selected-line','start','end'));
-    if(f.mode>0){
+    if(f.selected){/*Unmark previously-selected lines.*/
+      f.selected.forEach(f.unselect);
+      f.selected = undefined;
+    }
+    if(f.mode>0){/*Mark selected lines*/
       const rect = ev.target.getBoundingClientRect();
-      lineTip.show(rect.right+3, rect.top-4);
-      const spans = tdLn.querySelectorAll('span');
-      if(spans.length>=lineState.start){
-        let i = lineState.start, end = lineState.end || lineState.start, span = spans[i-1];
-        for( ; i<=end && span; span = spans[i++] ){
+      f.selected = [];
+      if(f.spans.length>=lineState.start){
+        let i = lineState.start, end = lineState.end || lineState.start, span = f.spans[i-1];
+        for( ; i<=end && span; span = f.spans[i++] ){
           span.classList.add('selected-line');
+          f.selected.push(span);
           if(i===lineState.start) span.classList.add('start');
           if(i===end) span.classList.add('end');
         }
       }
-      lineTip.refresh();
+      lineTip.refresh().show(rect.right+3, rect.top-4);
     }else{
       lineTip.show(false);
     }
