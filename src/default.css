@@ -1173,10 +1173,10 @@ table.numbered-lines td.line-numbers > span {
   font-family: inherit;
   cursor: pointer;
   white-space: pre;
+  margin-right: 2px/*keep selection from nudging the right column */;
 }
 table.numbered-lines td.line-numbers > span:hover {
-  background-color: #777;
-  opacity: 0.25;
+  background-color: rgba(112, 112, 112, 0.25);
 }
 table.numbered-lines td.file-content {
   padding-left: 1em;
@@ -1217,4 +1217,20 @@ table.numbered-lines td.line-numbers span.selected-line.start {
 table.numbered-lines td.line-numbers span.selected-line.end {
   border-bottom-width: 1px;
   margin-top: -1px/*restore alignment*/;
+}
+table.numbered-lines td.line-numbers span.selected-line.start.end {
+  margin-top: -2px/*restore alignment*/;
+}
+
+.fossil-tooltip {
+  text-align: center;
+  padding: 0.2em 1em;
+  border: 1px solid black;
+  border-radius: 0.25em;
+  position: absolute;
+  display: inline-block;
+  z-index: 100;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.75);
+  background-color: inherit;
+  font-size: 80%;
 }

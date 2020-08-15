@@ -558,6 +558,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\forum.js" \
         "$(SRCDIR)\fossil.bootstrap.js" \
         "$(SRCDIR)\fossil.confirmer.js" \
+        "$(SRCDIR)\fossil.copybutton.js" \
         "$(SRCDIR)\fossil.dom.js" \
         "$(SRCDIR)\fossil.fetch.js" \
         "$(SRCDIR)\fossil.numbered-lines.js" \
@@ -566,6 +567,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\fossil.page.wikiedit.js" \
         "$(SRCDIR)\fossil.storage.js" \
         "$(SRCDIR)\fossil.tabs.js" \
+        "$(SRCDIR)\fossil.tooltip.js" \
         "$(SRCDIR)\graph.js" \
         "$(SRCDIR)\href.js" \
         "$(SRCDIR)\login.js" \
@@ -1153,6 +1155,7 @@ realclean: clean
 	echo "$(SRCDIR)\forum.js" >> $@
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@
 	echo "$(SRCDIR)\fossil.confirmer.js" >> $@
+	echo "$(SRCDIR)\fossil.copybutton.js" >> $@
 	echo "$(SRCDIR)\fossil.dom.js" >> $@
 	echo "$(SRCDIR)\fossil.fetch.js" >> $@
 	echo "$(SRCDIR)\fossil.numbered-lines.js" >> $@
@@ -1161,6 +1164,7 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
 	echo "$(SRCDIR)\fossil.storage.js" >> $@
 	echo "$(SRCDIR)\fossil.tabs.js" >> $@
+	echo "$(SRCDIR)\fossil.tooltip.js" >> $@
 	echo "$(SRCDIR)\graph.js" >> $@
 	echo "$(SRCDIR)\href.js" >> $@
 	echo "$(SRCDIR)\login.js" >> $@

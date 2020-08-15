@@ -2115,12 +2115,13 @@ void output_text_with_line_numbers(
   }else{
     cgi_append_content("<code>", -1);
   }
-  cgi_printf("%.*h", nZ, z);
+  cgi_printf("%z", htmlize(z, nZ));
   CX("</code></pre></td></tr></tbody></table>\n");
   if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
     builtin_request_js("scroll.js");
   }
-  builtin_request_js("fossil.numbered-lines.js");
+  style_emit_fossil_js_apis(0, "dom", "copybutton", "tooltip",
+                            "numbered-lines", 0);
 }
 
 /*
