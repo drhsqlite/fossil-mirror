@@ -1,5 +1,5 @@
-C Implemented\sdynamic\smouse\sselection\sof\ssource\slines\sand\sclipboard\stooltip\sto\scopy\sthe\sline\srange\sURL.
-D 2020-08-15T07:41:02.963
+C Doc\simprovements,\sminor\scleanups.\sMade\sthe\sURL-copy\selement's\spopup\sposition\sless\svariable.\sUplifted\sthe\sflash-once\sand\scopy-to-clipboard\scode\sinto\sthe\sfossil.dom\sAPI.
+D 2020-08-15T08:02:50.298
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -487,15 +487,15 @@ F src/forum.c 263e90df3d53b6037b4a1030b669f2b9b32d21dda1714afa6c0146b77e5c621a
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 515ddd9afe030abcb85c56850d854317273bb84e27a711794ed83ae01391f02e
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
-F src/fossil.dom.js ad862c51243152a504a77e3e6c3064698760a394b12840417c4e30282c653b16
+F src/fossil.dom.js cc32536f24aa84882a52a7b6e9f0c11666d65d9d14143a2deed102e0ececb628
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
-F src/fossil.numbered-lines.js b64ba13d2594c5053b9406b47df2491e0c4fbc9ceac80462d553d7cb2321a113
+F src/fossil.numbered-lines.js 501359429083548173ef134725d241c86de756e68e93c4d8e21b66d2e9ed44ef
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js 93ec1f21f0658d66474f04ed276e1c02b63f7818ba9c118f180f54d8532730d9
-F src/fossil.tooltip.js af7d700cb867967c61c1adc81a8e40bb7f7ee6df007fdc8bb358a1293ac79337
+F src/fossil.tooltip.js 40385eafa41b4878f2bac2d67bb5d65ddd6a024035be25a42636975b970ff660
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
@@ -1006,7 +1006,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14ac3e8469f392eb917e3fd79b0863ac21ee81688b965e455ff03b70a95e09e1
-R e426b6ae89eb5876cc93fdf0ad4e4688
+P 3942eb600aedd12aafb4de57710160c47dedc115123c031a4164375b18bba934
+R 80cd3b098072d44d461f37c677dd6624
 U stephan
-Z e3a255450fb593b90ea7dbe03b0da5b0
+Z 17063f6b2d9ad28120abfdf3334c396c

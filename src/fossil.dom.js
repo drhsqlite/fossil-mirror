@@ -471,5 +471,63 @@
     return e;
   };
 
+  /**
+     "Blinks" the given element a single time for the given number of
+     milliseconds, defaulting to flashOnce.defaultTimeMs. This will
+     only activate once per element during that timeframe - further
+     calls will become no-ops until the blink is completed. This
+     routine adds a dataset member to the element for the duration of
+     the blink, to allow it to block multiple blinks.
+
+     Returns e.
+  */
+  dom.flashOnce = function f(e,howLongMs){
+    if(e.dataset.isBlinking){
+      return;
+    }
+    if(!howLongMs || 'number'!==typeof howLongMs){
+      howLongMs = f.defaultTimeMs;
+    }
+    e.dataset.isBlinking = true;
+    const transition = e.style.transition;
+    e.style.transition = "opacity "+howLongMs+"ms ease-in-out";
+    const opacity = e.style.opacity;
+    e.style.opacity = 0;
+    setTimeout(function(){
+      e.style.transition = transition;
+      e.style.opacity = opacity;
+      delete e.dataset.isBlinking;
+    }, howLongMs);
+    return e;
+  };
+  dom.flashOnce.defaultTimeMs = 400;
+
+  /**
+     Attempts to copy the given text to the system clipboard.  Returns
+     true if it succeeds, else false.
+  */
+  dom.copyTextToClipboard = function(text){
+    if( window.clipboardData && window.clipboardData.setData ){
+      clipboardData.setData('Text',text);
+      return true;
+    }else{
+      const x = document.createElement("textarea");
+      x.style.position = 'fixed';
+      x.value = text;
+      document.body.appendChild(x);
+      x.select();
+      var rc;
+      try{
+        document.execCommand('copy');
+        rc = true;
+      }catch(err){
+        rc = false;
+      }finally{
+        document.body.removeChild(x);
+      }
+      return rc;
+    }
+  };
+
   return F.dom = dom;
 })(window.fossil);

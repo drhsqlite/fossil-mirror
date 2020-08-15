@@ -28,8 +28,14 @@
 
      .adjustY: the Y counterpart of adjustX.
 
+     .init: optional callback called one time to initialize the
+     state of the tooltip. This is called after the this.e has
+     been created and added (initially hidden) to the DOM.
+
+
      All callback options are called with the TooltipWidget object as
      their "this".
+
 
      .cssClass: optional CSS class, or list of classes, to apply to
      the new element.

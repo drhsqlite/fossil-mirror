@@ -4,7 +4,8 @@
     which ties an event handler to the line numbers to allow
     selection of individual lines or ranges.
 
-    Requires: fossil.bootstrap, fossil.dom, fossil.tooltip
+    Requires: fossil.bootstrap, fossil.dom, fossil.tooltip,
+    fossil.copybutton
   */
   var tbl = arg || document.querySelectorAll('table.numbered-lines');
   if(!tbl) return /* no matching elements */;
@@ -19,7 +20,7 @@
   const F = window.fossil, D = F.dom;
   const tdLn = tbl.querySelector('td.line-numbers');
   const lineState = {
-    urlArgs: (window.location.search||'').replace(/&?\bln=[^&]*/,''),
+    urlArgs: (window.location.search||'?').replace(/&?\bln=[^&]*/,''),
     start: 0, end: 0
   };
 
@@ -43,16 +44,12 @@
         D.append(link, "No lines selected.");
       }
     },
-    adjustX: function(x){
-      return x + 20;
-    },
-    adjustY: function(y){
-      return y - this.e.clientHeight/2;
-    },
+    adjustX: (x)=>x,
+    adjustY: (y)=>y,
     init: function(){
       const e = this.e;
-      const btnCopy = D.addClass(D.span(), 'copy-button');
-      const link = D.attr(D.span(), 'id', 'fossil-ln-link');
+      const btnCopy = D.span(),
+            link = D.span();
       this.state = {link};
       F.copyButton(btnCopy,{
         copyFromElement: link,
@@ -99,7 +96,8 @@
     tdLn.querySelectorAll('span.selected-line').forEach(
       (e)=>D.removeClass(e, 'selected-line','start','end'));
     if(f.mode>0){
-      lineTip.show(ev.clientX, ev.clientY);
+      const rect = ev.target.getBoundingClientRect();
+      lineTip.show(rect.right+3, rect.top-4);
       const spans = tdLn.querySelectorAll('span');
       if(spans.length>=lineState.start){
         let i = lineState.start, end = lineState.end || lineState.start, span = spans[i-1];
