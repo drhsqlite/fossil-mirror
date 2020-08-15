@@ -1155,8 +1155,9 @@ hr {
   vertical-align: middle;
 }
 
-table.numbered-lines td {
+table.numbered-lines > tbody > tr > td {
   font-family: monospace;
+  font-size: inherit;
   line-height: 1.35;
   white-space: pre;
   margin: 0;
@@ -1187,6 +1188,9 @@ table.numbered-lines td.file-content > pre {
   overflow-x: auto;
   overflow-y: hidden /* apparently not needed, but eases my mind */;
   padding: 0 0 1em 0 /*prevents a slight underlap at bottom from triggering a scrollar */;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
 }
 table.numbered-lines td.file-content > pre > code {
   margin: 0;
@@ -1198,6 +1202,8 @@ table.numbered-lines td.file-content > pre > code {
 }
 table.numbered-lines td.file-content > pre > code > * {
   box-sizing: border-box;
+  font-size: inherit;
+  line-height: inherit;
 }
 div.selectedText/*legacy*/,
 table.numbered-lines td.line-numbers span.selected-line/*replacement*/ {
