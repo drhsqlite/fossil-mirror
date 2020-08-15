@@ -1177,7 +1177,7 @@ table.numbered-lines > tbody > tr > td {
   padding: 1em 0 0 0 /*prevents slight overlap at top */;
 }
 table.numbered-lines td.line-numbers {
-  width: 6em;
+  width: 4.5em;
 }
 table.numbered-lines td.line-numbers > span {
   display: block;
