@@ -1,5 +1,5 @@
-C Enhance\sthe\sdb_repository_filename()\sroutine\sto\sreturn\sthe\scanonical\sfilename.
-D 2020-08-16T19:08:40.613
+C Pointed\s'latest\srelease'\sentry\sat\sthe\s2.12\schangelog,\sper\sforum\spost.
+D 2020-08-16T22:35:32.276
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -904,7 +904,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d57e945e9addc805cc4bb
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki be9becc298447eaca0cb7af1831483ee89529755f4d3f2b7cad3d42f76ba6096
+F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bdbbc8a0ef8427144643e66f75d1de6b045f98eb3a70fb0fd597718c8ff00c7
-R 19b13a2446a573faa1365b8952c57443
-U drh
-Z 738cff10f0ccecc4f0fd97418d29bb9d
+P f304c569745505c9eca8d02926c8db29da83adcfe6b58047bf84b5068ed0d624
+R 275ffc024a5afac73fd4143cd99c99fe
+U stephan
+Z 5bf74321bda6bf9c9d510dcdd5d03197

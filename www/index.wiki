@@ -89,7 +89,7 @@ management system with these advanced features:
 <h3>[/timeline?t=release|Latest Release]: 2.12 (2020-08-16)</h3>
 
   *  [/uv/download.html|Download]
-  *  [./changes.wiki#v2_11|Change Summary]
+  *  [./changes.wiki#v2_12|Change Summary]
 
 <hr>
 <h3>Quick Start</h3>
