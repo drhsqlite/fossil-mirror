@@ -169,6 +169,7 @@ void clone_cmd(void){
     file_copy(g.url.name, g.argv[3]);
     db_close(1);
     db_open_repository(g.argv[3]);
+    db_open_config(1,0);
     db_record_repository_filename(g.argv[3]);
     url_remember();
     if( !(syncFlags & SYNC_PRIVATE) ) delete_private_content();
