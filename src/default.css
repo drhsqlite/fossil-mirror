@@ -996,17 +996,7 @@ hr {
   border-style: outset;
   border-color: inherit;
 }
-.tab-container > .tabs > .tab-panel,
-.tab-container > .tabs > fieldset.tab-wrapper {
-  align-self: stretch;
-  flex: 10 1 auto;
-  display: flex;
-  flex-direction: row;
-  border: 0;
-  padding: 0;
-  margin: 0;
-}
-.tab-container > .tabs > fieldset.tab-wrapper > .tab-panel{
+.tab-container > .tabs > .tab-panel {
   align-self: stretch;
   flex: 10 1 auto;
   display: block;

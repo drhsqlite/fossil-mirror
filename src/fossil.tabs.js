@@ -32,38 +32,24 @@
 
   /**
      Internal helper to normalize a method argument to a tab
-     element. arg may be a tab DOM element or an index into
-     tabMgr.e.tabs.childNodes. Returns the corresponding tab element.
+     element. arg may be a tab DOM element, a selector string, or an
+     index into tabMgr.e.tabs.childNodes. Returns the corresponding
+     tab element.
   */
   const tabArg = function(arg,tabMgr){
     if('string'===typeof arg) arg = E(arg);
     else if(tabMgr && 'number'===typeof arg && arg>=0){
       arg = tabMgr.e.tabs.childNodes[arg];
     }
-    if(arg){
-      if('FIELDSET'===arg.tagName && arg.classList.contains('tab-wrapper')){
-        arg = arg.firstElementChild;
-      }
-    }
     return arg;
   };
 
   /**
     Sets sets the visibility of tab element e to on or off. e MUST be
-    a TabManager tab element which has been wrapped in a
-    FIELDSET.tab-wrapper parent element. We disable the hidden
-    FIELDSET.tab-wrapper elements so that any access keys assigned
-    to their children cannot be inadvertently triggered
+    a TabManager tab element.
   */
   const setVisible = function(e,yes){
-    const fsWrapper = e.parentElement/*FIELDSET wrapper*/;
-    if(yes){
-      D.removeClass(e, 'hidden');
-      D.enable(fsWrapper);
-    }else{
-      D.addClass(e, 'hidden');
-      D.disable(fsWrapper);
-    }
+    D[yes ? 'removeClass' : 'addClass'](e, 'hidden');
   };
 
   TabManager.prototype = {
@@ -166,9 +152,7 @@
       }
       tab = tabArg(tab);
       tab.remove();
-      const eFs = D.addClass(D.fieldset(), 'tab-wrapper');
-      D.append(eFs, D.addClass(tab,'tab-panel'));
-      D.append(this.e.tabs, eFs);
+      D.append(this.e.tabs, D.addClass(tab,'tab-panel'));
       const tabCount = this.e.tabBar.childNodes.length+1;
       const lbl = tab.dataset.tabLabel || 'Tab #'+tabCount;
       const btn = D.addClass(D.append(D.span(), lbl), 'tab-button');
@@ -240,7 +224,6 @@
       delete this._currentTab;
       this.e.tabs.childNodes.forEach((e,ndx)=>{
         const btn = this.e.tabBar.childNodes[ndx];
-        e = e.firstElementChild /* b/c arguments[0] is a FIELDSET wrapper */;
         if(e===tab){
           if(D.hasClass(e,'selected')){
             return;
