@@ -1,5 +1,5 @@
-C Fixed\sa\srecursion\sbug\sin\sfossil.dom.append(e,array)\s(currently\sunused,\sbut\swill\sbe\ssoon).
-D 2020-08-16T15:51:38.410
+C Reworked\sfossil.toast\sto\ssupport\snormal/warning/error-level\stoasts.\sAlas,\sanimating\sa\stoast's\sappearance\sand\sdisappearance\sproved\sto\sbe\sbeyond\smy\scurrent\sskills.
+D 2020-08-16T15:52:45.632
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ef12318ae5f4c491d821cb96bae6cca1b824c8283853c2bb03e5d343986bb734
-F src/default.css 6639f7f2ac2493f4c945bc0a108d21431a1ed1eb559fc53e73057571352e608e
+F src/default.css a3c4e00621315fed3a9fa731c0f7cdeafd557bcc5ff46e10ba501566cadeb0b4
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -490,11 +490,11 @@ F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2f
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
 F src/fossil.dom.js b5396af8ad50770b68a4b4fa9a2f3afd2c71ea1bd4549a3eeb46ce5ebe2ba7b1
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
-F src/fossil.numbered-lines.js 21fddec9fc217071b0c9dfcba6a604f42a784fb603672b9c1e2eccbf0e915558
+F src/fossil.numbered-lines.js b35eb6b3c884882b2db2182a5c661a59c99894d8c5ff08b428d616985a43089f
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
-F src/fossil.popupwidget.js 4bea433b283901caab942945608641cabb13c62297e62fb7322f31f1067bcc54
+F src/fossil.popupwidget.js 3d6ebc505d736477e85cded0c11477fb4858c3e800d7d4864880b19ea40f1de9
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js 56a57bda17eb3a3b8bfbbc43e2475f1fd66b4fb009d7f78ca44f5561c44e08bf
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -1007,8 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea6365a8df6ab5fe27d84ec93d67b298bfd30afa50ad07ce0ea6781fd76a2a95
-Q +154f6484b61b79c5e1a795b8a1bb03baa6fb5ed5f12cc2b292ea5d551f5ac680
-R 83b5c2a16ccc73af2e9e9974ec1993f9
-U drh
-Z 59ce15cfc40fb841ce49bb1060b048d6
+P 2018954b3f122599cd91f100fc4bd82aa9c1d1019f730c9c55cfc2e8e9443e43
+R 442efc80e91cc12ca1f9789182be293d
+U stephan
+Z d2abde0c95b3f6b2964cb5c7cae4dd85

@@ -944,9 +944,8 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   background: yellow;
 }
 .warning {
-  color: darkred;
+  color: black;
   background: yellow;
-  opacity: 0.7;
 }
 .hidden {
   /* The framework-wide way of hiding elements is to assign them this
@@ -1257,18 +1256,40 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   z-index: 100;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.75);
   background-color: inherit;
-  font-size: 80%;
 }
 
-.fossil-toast {/* "toast"-style popup message */
-  padding: 0.25em 0.5em;
+.fossil-toast-message {
+  /* "toast"-style popup message.
+     See fossil.popupwidget:toast() */
+  position: absolute;
+  display: block;
+  z-index: 101;
+  text-align: left;
+  padding: 0.15em 0.5em;
   margin: 0;
-  border-radius: 0.25em;
   font-size: 1em;
-  opacity: 0.8;
-  border-size: 1px;
-  border-style: dotted;
-  border-color: rgb( 127, 127, 127, 0.5 );
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba( 127, 127, 127, 0.75 );
+  border-radius: 0.25em;
+  background-color: rgba(20, 20, 20, 1)
+  /* problem: if we inherit the color it may either be
+     transparent or inherit translucency via the
+     skin, leaving it unreadable. Since we set the bg
+     color we must also set the fg color. */;
+  color: rgba(235, 235, 235, 0.9);
+}
+.fossil-toast-message.error,
+.fossil-toast-message.warning {
+  background: yellow;
+}
+.fossil-toast-message.error {
+  font-weight: bold;
+  color: darkred;
+  border-color: darkred;
+}
+.fossil-toast-message.warning {
+  color: black;
 }
 
 blockquote.file-content {

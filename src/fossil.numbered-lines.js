@@ -57,7 +57,7 @@
         extractText: ()=>link.dataset.url,
         oncopy: (ev)=>{
           D.flashOnce(ev.target, undefined, ()=>lineTip.hide());
-          F.toast("Copied link to clipboard.");
+          F.toast.message("Copied link to clipboard.");
         }
       });
       this.e.addEventListener('click', ()=>btnCopy.click(), false);

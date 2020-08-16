@@ -188,42 +188,82 @@
   }/*F.PopupWidget.prototype*/;
 
   /**
-     Convenience wrapper around a PopupWidget which pops up a shared
-     PopupWidget instance to show toast-style messages (commonly seen
-     on Android). Its arguments may be anything suitable for passing
-     to fossil.dom.append(), and each argument is first append()ed to
-     the toast widget, then the widget is shown for
-     F.toast.config.displayTimeMs milliseconds. This is called while
-     a toast is currently being displayed, the first will be overwritten
-     and the time until the message is hidden will be reset.
+     Internal impl for F.toast() and friends.
 
-     The toast is always shown at the viewport-relative coordinates
-     defined by the F.toast.config.position.
+     args:
 
-     The toaster's DOM element has the CSS classes fossil-tooltip
-     and fossil-toast, so can be style via those.
+     1) CSS class to assign to the outer element, along with
+     fossil-toast-message. Must be falsy for the non-warning/non-error
+     case.
+
+     2) Multiplier of F.toast.config.displayTimeMs. Should be
+     1 for default case and progressively higher for warning/error
+     cases.
+
+     3) The 'arguments' object from the function which is calling
+     this.
+
+     Returns F.toast.
   */
-  F.toast = function f(/*...*/){
-    if(!f.toast){
-      f.toast = function ff(argsObject){
-        if(!ff.toaster) ff.toaster = new F.PopupWidget({
-          cssClass: ['fossil-tooltip', 'fossil-toast']
-        });
-        if(f._timer) clearTimeout(f._timer);
-        D.clearElement(ff.toaster.e);
-        var i = 0;
-        for( ; i < argsObject.length; ++i ){
-          D.append(ff.toaster.e, argsObject[i]);
-        };
-        ff.toaster.show(f.config.position.x, f.config.position.y);
-        f._timer = setTimeout(()=>ff.toaster.hide(), f.config.displayTimeMs);
-      };
+  const toastImpl = function f(cssClass, durationMult, argsObject){
+    if(!f.toaster){
+      f.toaster = new F.PopupWidget({
+        cssClass: 'fossil-toast-message'
+      });
     }
-    f.toast(arguments);
+    const T = f.toaster;
+    if(f._timer) clearTimeout(f._timer);
+    D.clearElement(T.e);
+    if(f._prevCssClass) T.e.classList.remove(f._prevCssClass);
+    if(cssClass) T.e.classList.add(cssClass);
+    f._prevCssClass = cssClass;
+    D.append(T.e, Array.prototype.slice.call(argsObject,0));
+    T.show(F.toast.config.position.x, F.toast.config.position.y);
+    f._timer = setTimeout(
+      ()=>T.hide(),
+      F.toast.config.displayTimeMs * durationMult
+    );
+    return F.toast;
   };
-  F.toast.config = {
-    position: { x: 5, y: 5 /*viewport-relative, pixels*/ },
-    displayTimeMs: 2500
-  };
+
+  F.toast = {
+    config: {
+      position: { x: 5, y: 5 /*viewport-relative, pixels*/ },
+      displayTimeMs: 3000
+    },
+    /**
+       Convenience wrapper around a PopupWidget which pops up a shared
+       PopupWidget instance to show toast-style messages (commonly seen
+       on Android). Its arguments may be anything suitable for passing
+       to fossil.dom.append(), and each argument is first append()ed to
+       the toast widget, then the widget is shown for
+       F.toast.config.displayTimeMs milliseconds. This is called while
+       a toast is currently being displayed, the first will be overwritten
+       and the time until the message is hidden will be reset.
+
+       The toast is always shown at the viewport-relative coordinates
+       defined by the F.toast.config.position.
+
+       The toaster's DOM element has the CSS classes fossil-tooltip
+       and fossil-toast, so can be style via those.
+    */
+    message: function(/*...*/){
+      return toastImpl(false,1, arguments);
+    },
+    /**
+       Displays a toast with the 'warning' CSS class assigned to it. It
+       displays for 1.5 times as long as a normal toast.
+    */
+    warning: function(/*...*/){
+      return toastImpl('warning',1.5,arguments);
+    },
+    /**
+       Displays a toast with the 'warning' CSS class assigned to it. It
+       displays for twice as long as a normal toast.
+    */
+    error: function(/*...*/){
+      return toastImpl('error',2,arguments);
+    }
+  }/*F.toast*/;
 
 })(window.fossil);
