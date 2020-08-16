@@ -1,5 +1,5 @@
-C When\scompiling\swith\sFOSSIL_DEBUG\s(from\sthe\s--fossil-debug\sconfigure\soption)\ndo\snot\sattempt\sto\s"compress"\sbuilt-in\sjavascript\sby\sremoving\scomments\sand\nsurplus\swhitespace.\s\sThis\smakes\sthe\sjavascript\seasier\sto\sread\sin\sa\sdebugger.
-D 2020-08-16T14:08:27.189
+C Remove\s"(pending)"\sfrom\s2.12\schangelog\snow\sthat\s2.12\sis\sreleased
+D 2020-08-16T14:31:59.623
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -834,7 +834,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 259fc205a3082aaaf1a587e44b8d0c585906a3e23aef9868589eac5104657974
+F www/changes.wiki 34c87a519b6e71ea6b5a78e1914ed9280c50435bcd5b18af520377760577582c
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b699040d701464ced678af7a7c353871d23440dd505fb9c8ef68043eed388271
-R 722e6e0aec12d87c69d86b6c8849a07d
-U drh
-Z b45d24d83afd6d4d89a30016e189f722
+P 41b9873b4306723aea4c95083b7d7a9c7a9fd242b066dbb6b4c9dd8449ac3501
+R 10a7580bdf9ae510c7c5702c7b0cf1fd
+U andygoth
+Z a9aba9f40a43e367e8752273330f2056
