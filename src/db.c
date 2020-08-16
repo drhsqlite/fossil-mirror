@@ -1785,6 +1785,9 @@ const char *db_repository_filename(void){
       char * zFree = zRepo;
       zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
       fossil_free(zFree);
+      zFree = zRepo;
+      zRepo = file_canonical_name_dup(zFree);
+      fossil_free(zFree);
     }
   }
   return zRepo;
