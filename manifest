@@ -1,5 +1,5 @@
-C Mention\sthe\s"fossil\sbackup"\scommand\sin\sthe\s2.12\schange\slog.
-D 2020-08-16T17:18:46.616
+C Fix\sthe\smanifest_reparent_checkin()\sroutine\sso\sthat\sthe\s"parent"\stag\nwill\sactually\swork.
+D 2020-08-16T17:47:50.565
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -541,7 +541,7 @@ F src/main.mk cfd99b7375a7d6cb8728819d2a42674892f44cd862094f441ed2ec637eb6f1d0
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 932e445ddec224587f9631e7c7ee830ed8f502252c85c2e8d35e0083902ef8e0 x
-F src/manifest.c 32a8421092b996faf5c90bc813ee58ca59624150ae04ba291957352982b97ba2
+F src/manifest.c b982d37188a07537954990fe06a6751cb9033342a4cc655ebba0d9ceb0e654ac
 F src/markdown.c 5a1fb3e55d2201601d966016090151ad2151f50715631de173d60e0c09bfc381
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ebd8d9a98ea3402403453c517aa822da1bd01923e38bf7a8632cb667db90da31
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f95e47b611ee591b426b6cac903696a0754c1458f645fd3a3497d0fb746494ec
-R 3a1667c9f5c5fb50f6075fc9dc87fa3a
+P a02bcb033b0a159a47919a58b5e1e3ceccf15eee30b2428f02250816f6f01da8
+R 14e3e872e42e5cee28aa83caa049e19c
 U drh
-Z 0205cfac0684021a456c997b34eae4dd
+Z e03ee54b8b11a1cf607f598709902b03
