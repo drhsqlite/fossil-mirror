@@ -1,5 +1,5 @@
-C Consolidated\sthe\scommon\sstyles\sof\sthe\sbottom-\sand\sright-side\sforum\spost\sexpansion\stoggles\sand\sresolved\sa\slayout\squirk\swhich\scould\scause\sthe\sright-side\sexpander\sto\ssit\stoo\sfar\sto\sthe\sleft.
-D 2020-08-14T18:54:03.833
+C Version\s2.12
+D 2020-08-16T13:18:06.923
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -1004,7 +1004,9 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2121b1f7a765114b7a50092617e1a87937ddbaab75a3ff2ab64da2545013eaa1
+P db1afa75be73a5343c34039892031df7f352cefc53a9f7f238a5b6117bb6c165
 R f25f4e5935f73a600801086ff0fc8d33
-U stephan
-Z dfef186797998193e6386267bc9ea5f5
+T +sym-release *
+T +sym-version-2.12 *
+U drh
+Z b69bb8f07ea87523d28c7ca33a24e5c7
