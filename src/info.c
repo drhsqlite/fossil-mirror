@@ -2444,7 +2444,7 @@ void artifact_page(void){
       }
       blob_to_utf8_no_bom(&content, 0);
       zMime = mimetype_from_content(&content);
-      @ <blockquote>
+      @ <blockquote class="file-content">
       if( zMime==0 ){
         const char *z, *zFileName, *zExt;
         z = blob_str(&content);
@@ -2459,7 +2459,7 @@ void artifact_page(void){
                                         zFileName, zLn);
         }else if( zExt && zExt[1] ){
           @ <pre>
-          @ <code class="language-%s(zExt+1)">%h(z)</code>
+          @ <code class="language-%s(zExt)">%h(z)</code>
           @ </pre>
         }else{
           @ <pre>

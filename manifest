@@ -1,5 +1,5 @@
-C Added\s'important'\sto\s'hidden'\sCSS\srules\sto\sensure\sthat\sits\svisibility-hindering\sattributes\strump\sother\sclasses'\sattributes.\sThis\sfixes\sthe\s.hidden-yet-visible\stoast\smessage\spopup\sand\smakes\s.hidden\smore\sfuture-proof.
-D 2020-08-16T03:53:47.617
+C Gave\sthe\sBLOCKQUOTE\swhich\ssurrounds\sfile\scontent\sthe\sfile-content\sCSS\sclass\sand\strimmed\sits\smargins\sa\sbit.\sFixed\sthe\struncated-by-one\sfile\sextension\suses\sin\sthe\slanguage-XYZ\stag\sin\snon-line-numbered\sfile\scontent,\scaused\sby\srefactoring\sfrom\sthis\sbranch.
+D 2020-08-16T04:08:53.156
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ef12318ae5f4c491d821cb96bae6cca1b824c8283853c2bb03e5d343986bb734
-F src/default.css 0184073faf45ec3a15dc967999107c474ffeed28f2e4ff6c753f59f1a51acccc
+F src/default.css c52c2a6b3784b43ace511fdc1d19e5bbe19268fb6a3323c3811db4575c23d5f6
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -512,7 +512,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635d
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c b6e7722f771ee53570ff2533f137c2df3dd437dfdab9c07d5b9c7999c09744d2
-F src/info.c fb339777a3d43f76572e4b4f66f63ec8649b5a041ad58676029d5be0db40f266
+F src/info.c 691ca2345b054fab94cbf8d9024cc03b586c8d6bc7888b0ceb0967b8269a2b65
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 739e4ee339209b0f63e59fbaf5cc02c2dec736b4a13f43f3917490384e738bd6
-R 116bf12c470d2e8becb81b81ab717284
+P 22c592fc3251e11571700990d1a4356f5cd0e2322cd01c432d36eb8e8f25d259
+R ae0ffdf64c232c256b29902b5017520d
 U stephan
-Z 42b36c726a1083989e7c0c3852c958dd
+Z b79b371ac9e381fca0032347b0e11b18

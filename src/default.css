@@ -1268,3 +1268,8 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   border-style: dotted;
   border-color: rgb( 127, 127, 127, 0.5 );
 }
+
+blockquote.file-content {
+  /* file content block in the /file page */
+  margin: 1em 2em;
+}
