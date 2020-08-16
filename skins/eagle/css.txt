@@ -401,7 +401,7 @@ div.filetreeline:hover {
   background-color: #7EA2D9;
 }
 
-div.selectedText {
+table.numbered-lines td.line-numbers span.selected-line {
   background-color: #7EA2D9;
 }
 

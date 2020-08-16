@@ -225,11 +225,14 @@ EXTRA_FILES = \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
   $(SRCDIR)/fossil.confirmer.js \
+  $(SRCDIR)/fossil.copybutton.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
+  $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
+  $(SRCDIR)/fossil.popupwidget.js \
   $(SRCDIR)/fossil.storage.js \
   $(SRCDIR)/fossil.tabs.js \
   $(SRCDIR)/graph.js \

@@ -2399,3 +2399,12 @@ void touch_cmd(){
     fossil_print("Touched %d file(s)\n", changeCount);
   }
 }
+
+/*
+** If zFileName is not NULL and contains a '.', this returns a pointer
+** to the position after the final '.', else it returns NULL.
+*/
+const char * file_extension(const char *zFileName){
+  const char * zExt = strrchr(zFileName, '.');
+  return zExt ? &zExt[1] : 0;
+}
