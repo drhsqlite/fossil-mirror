@@ -1179,10 +1179,14 @@ table.numbered-lines > tbody > tr > td {
   white-space: inherit;
   margin: 0;
   vertical-align: top;
-  padding: 1em 0 0 0 /*prevents slight overlap at top */;
+  padding: 0.25em 0 0 0 /*prevents slight overlap at top */;
 }
 table.numbered-lines td.line-numbers {
   width: 4.5em;
+}
+table.numbered-lines td.line-numbers > span:first-of-type {
+  margin-top: 0.25em/*must match top PADDING of
+                      td.file-content > pre > code*/;
 }
 table.numbered-lines td.line-numbers > span {
   display: block;
@@ -1200,20 +1204,29 @@ table.numbered-lines td.line-numbers > span:hover {
   background-color: rgba(112, 112, 112, 0.25);
 }
 table.numbered-lines td.file-content {
-  padding-left: 1em;
+  padding-left: 0.25em;
 }
 table.numbered-lines td.file-content > pre,
 table.numbered-lines td.file-content > pre > code {
-  padding: 0;
   margin: 0;
+  padding: 0;
   line-height: inherit;
   font-size: inherit;
   font-family: inherit;
   white-space: pre;
+  display: block/*necessary for certain skins!*/;
 }
 table.numbered-lines td.file-content > pre {
+}
+table.numbered-lines td.file-content > pre > code {
   overflow: auto;
-  padding: 0 0 1em 0 /*prevents a slight underlap at bottom from triggering a scrollar */;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.25em/*any top padding here must match the top MARGIN of
+                       td.line-numbers's first span child or the
+                       lines/code will get misaligned. */;
+  padding-bottom: 0.25em/*prevents a slight overlap at bottom from
+                          triggering a scroller*/;
 }
 table.numbered-lines td.file-content > pre > code > * {
   /* Defense against syntax highlighters indirectly messing up these
@@ -1271,5 +1284,5 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
 
 blockquote.file-content {
   /* file content block in the /file page */
-  margin: 1em 2em;
+  margin: 0 1em;
 }

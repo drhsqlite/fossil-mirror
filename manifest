@@ -1,5 +1,5 @@
-C Gave\sthe\sBLOCKQUOTE\swhich\ssurrounds\sfile\scontent\sthe\sfile-content\sCSS\sclass\sand\strimmed\sits\smargins\sa\sbit.\sFixed\sthe\struncated-by-one\sfile\sextension\suses\sin\sthe\slanguage-XYZ\stag\sin\snon-line-numbered\sfile\scontent,\scaused\sby\srefactoring\sfrom\sthis\sbranch.
-D 2020-08-16T04:08:53.156
+C Several\spadding\stweaks\sto\sensure\sproper\sline/code\salignment\sin\sall\sof\sthe\sskins.
+D 2020-08-16T05:10:47.249
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -328,7 +328,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 14bd1403c4f17758758dfffc95e5928bccb7843ecc540e0652c67052b6a781b4
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 69ed3ff35ce3f5f230b5fb6011de7ae795f126938802f417ceed9088f1c07155
+F skins/ardoise/css.txt ed512cc4dc01a35e3c11c6fbdb579bcf69b9485c44b9fc092620ea8449d85837
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
 F skins/ardoise/header.txt 47309feeacc1a9d4d65affb0174b914dcb96dcef1666356248039145c2feeb9e
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ef12318ae5f4c491d821cb96bae6cca1b824c8283853c2bb03e5d343986bb734
-F src/default.css c52c2a6b3784b43ace511fdc1d19e5bbe19268fb6a3323c3811db4575c23d5f6
+F src/default.css 086cb91162f86395e25b0236e9ba8f48e8a50de8217950a9161607852db8cecf
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22c592fc3251e11571700990d1a4356f5cd0e2322cd01c432d36eb8e8f25d259
-R ae0ffdf64c232c256b29902b5017520d
+P 62b682bded84ebd86edae24693baab6a464911b4c69ac140af19685595dc9dec
+R bc8f8eb684a507f49640b3f0321088a1
 U stephan
-Z b79b371ac9e381fca0032347b0e11b18
+Z dadbf4b142c070becff1ceeda43a6e81

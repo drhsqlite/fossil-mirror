@@ -574,6 +574,9 @@ code {
   border: 2px solid #bbb;
   border-radius: 5px
 }
+table.numbered-lines td.file-content > pre {
+  margin-top: -2px/*offset CODE tag border*/;
+}
 pre > code {
   padding: 1rem 1.5rem;
   white-space: pre
