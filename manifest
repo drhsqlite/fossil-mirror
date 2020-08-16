@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\sclone"\scommand\sso\sthat\sit\sworks\swith\s"file:"\sURLs.
-D 2020-08-16T15:20:39.697
+C Close\s[multi-remote-fix]\sbranch\sbecause\sthe\sissue\sis\snow\sresolved.\s\sSee\sthe\s[forum](https://fossil-scm.org/forum/forumpost/158a67cc53)\sfor\ssome\sinformation\son\swhat\swas\sgoing\son.\s\sThe\ssolution\swas\sto\sreopen\sthe\sconfiguration\safter\sit\swas\sbeing\sprematurely\sclosed.
+D 2020-08-16T15:30:22.042
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -1007,7 +1007,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 522e7204c0aab74007d9d907312e027510471750a17349b5bc19a1608548ee17
+P 9d2b7cab7ac64cf81eeab25698c6ee9ce2afa0e338ef5ca151e6372c6d464814 719dcd29cd8a99d592793211fe60f6c0d39a450087ab5aa440ed193372802a01
 R 169cf7293b2b49d86eabd1e48e41c1c7
-U drh
-Z 434c9eddd6277e17aa54bf2579cc28ea
+T +closed 719dcd29cd8a99d592793211fe60f6c0d39a450087ab5aa440ed193372802a01
+U andygoth
+Z e8449b95e08e00755e8ba4338809d2dc
