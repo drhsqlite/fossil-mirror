@@ -1,5 +1,5 @@
-C Removed\ssome\sstray\sdebug\soutput.\sAdded\sa\swindow.CustomEvent\spolyfill\s"just\sin\scase."
-D 2020-08-16T01:32:57.277
+C Made\scopy-to-clipboard\stoast\smessage\sless\sverbose.\sTapping\sanywhere\son\sthe\sclipboard\sbuttons\spopup\swidget\snow\sactivates\sthe\sclipboard\scopy.
+D 2020-08-16T02:43:08.673
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -490,7 +490,7 @@ F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2f
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
 F src/fossil.dom.js 77f6e133cc93191e88e4bfc3a4904fc18a029d1ea7f7ae69f768332dc76e5f2c
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
-F src/fossil.numbered-lines.js e14211da29450e947ab951c81dd3aceff5890db14f943a78d78b35af0c7e456d
+F src/fossil.numbered-lines.js 21fddec9fc217071b0c9dfcba6a604f42a784fb603672b9c1e2eccbf0e915558
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a6ccf9ddd720f3cc5a5c4b2d0a0a954d6b3e49f5395ec91e2f63b79a2e3e051
-R 1a188a9c0c2c7128dd2b72431ed9618b
+P af47d1531d30c5937db29c995232cb03ec3975262e76bd0985bc203a6a849e8a
+R bf9f9bb5b1b56caa678d285462b393d0
 U stephan
-Z b99b7effcbf09b4a8c852cf34114d508
+Z e291b2d87c353bb522501de88db51296

@@ -25,6 +25,9 @@
   };
 
   const lineTip = new fossil.PopupWidget({
+    style: {
+      cursor: 'pointer'
+    },
     refresh: function(){
       const link = this.state.link;
       D.clearElement(link);
@@ -53,17 +56,16 @@
         copyFromElement: link,
         extractText: ()=>link.dataset.url,
         oncopy: (ev)=>{
-          F.toast("Copied: ",D.append(D.code(),ev.detail.text));
           D.flashOnce(ev.target, undefined, ()=>lineTip.hide());
+          F.toast("Copied link to clipboard.");
         }
-      });//.addEventListener('text-copied', (ev)=>D.flashOnce(ev.target));
+      });
+      this.e.addEventListener('click', ()=>btnCopy.click(), false);
       D.append(this.e, btnCopy, link)
     }
   });
 
-  tbl.addEventListener('click', function f(ev){
-    lineTip.show(false);
-  }, false);
+  tbl.addEventListener('click', ()=>lineTip.hide(), true);
   
   tdLn.addEventListener('click', function f(ev){
     if('SPAN'!==ev.target.tagName) return;
@@ -100,7 +102,9 @@
       f.selected.forEach(f.unselect);
       f.selected = undefined;
     }
-    if(f.mode>0){/*Mark selected lines*/
+    if(0===f.mode){
+      lineTip.hide();
+    }else{/*Mark selected lines*/
       const rect = ev.target.getBoundingClientRect();
       f.selected = [];
       if(f.spans.length>=lineState.start){
@@ -113,8 +117,6 @@
         }
       }
       lineTip.refresh().show(rect.right+3, rect.top-4);
-    }else{
-      lineTip.show(false);
     }
   }, false);
   
