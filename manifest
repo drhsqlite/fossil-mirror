@@ -1,5 +1,5 @@
-C Improvements\sto\sline-numbered\stext\soutput.
-D 2020-08-16T13:39:35.316
+C When\scompiling\swith\sFOSSIL_DEBUG\s(from\sthe\s--fossil-debug\sconfigure\soption)\ndo\snot\sattempt\sto\s"compress"\sbuilt-in\sjavascript\sby\sremoving\scomments\sand\nsurplus\swhitespace.\s\sThis\smakes\sthe\sjavascript\seasier\sto\sread\sin\sa\sdebugger.
+D 2020-08-16T14:08:27.189
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -550,7 +550,7 @@ F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
 F src/merge3.c f9759d721961f1c9a62485f2cda91ebbd5ad9dc37e2b6318859a1287da4dff50
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
-F src/mkbuiltin.c 28ce02d7ca0a07c54246fcb48c8479c1fd35cea6fee4b8e61ed248da3986674a
+F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F src/mkindex.c 95d3fe000e9a0fbd43f71791d10b32478f2c7ff5961645d7a3393583e974e0ae
 F src/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d2691
 F src/moderate.c 8b693389df63229f87c99057ac1a4133b6fc9e10fc6b6b4699d43d5d14a09968
@@ -1007,8 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22f2d083d6f374ce2a0bdbbca1eeae2845ac3b4312ffc586ce39aecda1e76938 1cb792fd1978a54036d574192b9ef71be408b1a6b9c7acf83988606d4df0b6fe
-R 3baf9d6ec3e561c249131a1b8f9e1dad
-T +closed 1cb792fd1978a54036d574192b9ef71be408b1a6b9c7acf83988606d4df0b6fe
+P b699040d701464ced678af7a7c353871d23440dd505fb9c8ef68043eed388271
+R 722e6e0aec12d87c69d86b6c8849a07d
 U drh
-Z 9b598167274b12e78434b199b059c885
+Z b45d24d83afd6d4d89a30016e189f722
