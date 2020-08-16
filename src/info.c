@@ -2453,7 +2453,7 @@ void artifact_page(void){
          " WHERE filename.fnid=mlink.fnid"
          "   AND mlink.fid=%d",
          rid);
-        zExt = file_extension(zFileName);
+        zExt = zFileName ? file_extension(zFileName) : 0;
         if( zLn ){
           output_text_with_line_numbers(z, blob_size(&content),
                                         zFileName, zLn);
