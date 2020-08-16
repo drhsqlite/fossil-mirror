@@ -949,10 +949,15 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   opacity: 0.7;
 }
 .hidden {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  display: none;
+  /* The framework-wide way of hiding elements is to assign them this
+     CSS class. To make them visible again, remove it. The !important
+     qualifiers are unfortunate but sometimes necessary when hidden
+     element has other classes which specify visibility-related
+     options. */
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
 }
 input {
   max-width: 95%;
