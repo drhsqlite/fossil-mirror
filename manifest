@@ -1,5 +1,5 @@
-C Fix\ssegfault\sin\s/artifact\sintroduced\sby\scheck-in\s[b699040d701464ce]\nand\sreported\s[https://fossil-scm.org/forum/forumpost/a073f05cc3|on\sthe\sforum].
-D 2020-08-16T16:06:04.949
+C Fix\sthe\srelease\sversion\son\sthe\shome\spage.
+D 2020-08-16T16:35:19.029
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -904,7 +904,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d57e945e9addc805cc4bb
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki f553f80928bb77b1a94d99f96d8a236f9023f15a26136fc2e72eda8dc316e226
+F www/index.wiki be9becc298447eaca0cb7af1831483ee89529755f4d3f2b7cad3d42f76ba6096
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4368f52961d0bc57ac5a5e57e9579a32cffdb472aa7d166eb537feb9e89abbc8
-R 40cd365bdf295786644749265a9fa4e8
+P 5a9ac6ca3e01cc09b52ac9e8d0e7ab06dbc6c0f0f9f9b64ac1c2da826d34d4b1
+R 78b0c220f62ef7111e0abb1301560e19
 U drh
-Z a93fd100c93d04dcee46f98dd4928697
+Z b4fa95b4746411be19f5c03f9fcc19fa
