@@ -1252,3 +1252,14 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   background-color: inherit;
   font-size: 80%;
 }
+
+.fossil-toast {/* "toast"-style popup message */
+  padding: 0.25em 0.5em;
+  margin: 0;
+  border-radius: 0.25em;
+  font-size: 1em;
+  opacity: 0.8;
+  border-size: 1px;
+  border-style: dotted;
+  border-color: rgb( 127, 127, 127, 0.5 );
+}

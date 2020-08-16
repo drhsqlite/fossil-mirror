@@ -51,8 +51,12 @@
       this.state = {link};
       F.copyButton(btnCopy,{
         copyFromElement: link,
-        extractText: ()=>link.dataset.url
-      });
+        extractText: ()=>link.dataset.url,
+        oncopy: (ev)=>{
+          F.toast("Copied: ",D.append(D.code(),ev.detail.text));
+          D.flashOnce(ev.target, undefined, ()=>lineTip.hide());
+        }
+      });//.addEventListener('text-copied', (ev)=>D.flashOnce(ev.target));
       D.append(this.e, btnCopy, link)
     }
   });

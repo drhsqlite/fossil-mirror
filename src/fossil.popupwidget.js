@@ -16,8 +16,9 @@
      .refresh: callback which is called just before the tooltip is
      revealed or moved. It must refresh the contents of the tooltip,
      if needed, by applying the content to/within this.e, which is the
-     base DOM element for the tooltip. If the contents are static and
-     set up via the .init option then this callback is not needed.
+     base DOM element for the tooltip (and is a child of
+     document.body). If the contents are static and set up via the
+     .init option then this callback is not needed.
 
      .adjustX: an optional callback which is called when the tooltip
      is to be displayed at a given position and passed the X
@@ -146,7 +147,7 @@
        to it, so that class must be defined appropriately.
     */
     show: function(){
-      var x = 0, y = 0, showIt;
+      var x = undefined, y = undefined, showIt;
       if(2===arguments.length){
         x = arguments[0];
         y = arguments[1];
@@ -169,13 +170,61 @@
         x += window.pageXOffset;
         y += window.pageYOffset;
       }
-      D[showIt ? 'removeClass' : 'addClass'](this.e, 'hidden');
-      if(x || y){
-        this.e.style.left = x+"px";
-        this.e.style.top = y+"px";
+      console.debug("showIt?",showIt,x,y);
+      if(showIt){
+        if('number'===typeof x && 'number'===typeof y){
+          this.e.style.left = x+"px";
+          this.e.style.top = y+"px";
+        }
+        D.removeClass(this.e, 'hidden');
+      }else{
+        D.addClass(this.e, 'hidden');
+        delete this.e.style.removeProperty('left');
+        delete this.e.style.removeProperty('top');
       }
       return this;
-    }
+    },
+
+    hide: function(){return this.show(false)}
   }/*F.PopupWidget.prototype*/;
-  
+
+  /**
+     Convenience wrapper around a PopupWidget which pops up a shared
+     PopupWidget instance to show toast-style messages (commonly seen
+     on Android). Its arguments may be anything suitable for passing
+     to fossil.dom.append(), and each argument is first append()ed to
+     the toast widget, then the widget is shown for
+     F.toast.config.displayTimeMs milliseconds. This is called while
+     a toast is currently being displayed, the first will be overwritten
+     and the time until the message is hidden will be reset.
+
+     The toast is always shown at the viewport-relative coordinates
+     defined by the F.toast.config.position.
+
+     The toaster's DOM element has the CSS classes fossil-tooltip
+     and fossil-toast, so can be style via those.
+  */
+  F.toast = function f(/*...*/){
+    if(!f.toast){
+      f.toast = function ff(argsObject){
+        if(!ff.toaster) ff.toaster = new F.PopupWidget({
+          cssClass: ['fossil-tooltip', 'fossil-toast']
+        });
+        if(f._timer) clearTimeout(f._timer);
+        D.clearElement(ff.toaster.e);
+        var i = 0;
+        for( ; i < argsObject.length; ++i ){
+          D.append(ff.toaster.e, argsObject[i]);
+        };
+        ff.toaster.show(f.config.position.x, f.config.position.y);
+        f._timer = setTimeout(()=>ff.toaster.hide(), f.config.displayTimeMs);
+      };
+    }
+    f.toast(arguments);
+  };
+  F.toast.config = {
+    position: { x: 5, y: 5 /*viewport-relative, pixels*/ },
+    displayTimeMs: 2500
+  };
+
 })(window.fossil);

@@ -483,12 +483,19 @@
      completed. This routine adds a dataset member to the element for
      the duration of the blink, to allow it to block multiple blinks.
 
+     If passed 2 arguments and the 2nd is a function, it behaves as if
+     it were called as (arg1, undefined, arg2).
+
      Returns e, noting that the flash itself is asynchronous and may
      still be running, or not yet started, when this function returns.
   */
   dom.flashOnce = function f(e,howLongMs,afterFlashCallback){
     if(e.dataset.isBlinking){
       return;
+    }
+    if(2===arguments.length && 'function' ===typeof howLongMs){
+      afterFlashCallback = howLongMs;
+      howLongMs = f.defaultTimeMs;
     }
     if(!howLongMs || 'number'!==typeof howLongMs){
       howLongMs = f.defaultTimeMs;

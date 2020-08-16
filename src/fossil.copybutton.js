@@ -6,10 +6,6 @@
   */
   const D = F.dom;
 
-  const config = {
-    blinkTimeMs: 400
-  };
-
   /**
      Initializes element e as a copy button using the given options
      object.
@@ -42,6 +38,11 @@
      .style: optional object of properties to copy directly into
      e.style.
 
+     .oncopy: an optional callback function which is added as an event
+     listener for the 'text-copied' event (see below). There is
+     functionally no difference from setting this option or adding a
+     'text-copied' event listener to the element, and this option is
+     considered to be a convenience form of that.
 
      Note that this function's own defaultOptions object holds default
      values for some options. Any changes made to that object affect
@@ -52,10 +53,23 @@
      have no effect, that may be because it is not enabled/available
      in the current platform.
 
+     The copy button emits custom event 'text-copied' after it has
+     successfully copied text to the clipboard. The event's "detail"
+     member is an object with a "text" property holding the copied
+     text. Other properties may be added in the future. The event is
+     not fired if copying to the clipboard fails (e.g. is not
+     available in the current environment).
+
+     Returns the copy-initialized element.
+
      Example:
 
-     fossil.copyButton('#my-copy-button', {
+     const button = fossil.copyButton('#my-copy-button', {
        copyFromId: 'some-other-element-id'
+     });
+     button.addEventListener('text-copied',function(ev){
+       fossil.dom.flashOnce(ev.target);
+       console.debug("Copied text:",ev.detail.text);
      });
   */
   F.copyButton = function f(e, opt){
@@ -80,13 +94,18 @@
       'click',
       function(){
         const txt = extract.call(opt);
-        //console.debug("extracted ",txt);
         if(txt && D.copyTextToClipboard(txt)){
-          D.flashOnce(e, config.blinkTimeMs);
+          e.dispatchEvent(new CustomEvent('text-copied',{
+            detail: {text: txt}
+          }));
         }
       },
       false
     );
+    if('function' === typeof opt.oncopy){
+      e.addEventListener('text-copied', opt.oncopy, false);
+    }
+    return e;
   };
 
   F.copyButton.defaultOptions = {
