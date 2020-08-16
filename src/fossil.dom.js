@@ -220,10 +220,12 @@
     for(let i in a) {
       var e = a[i];
       if(isArray(e) || e.forEach){
-        e.forEach((x)=>f.call(this, parent,e));
+        e.forEach((x)=>f.call(this, parent,x));
         continue;
       }
-      if('string'===typeof e || 'number'===typeof e) e = this.text(e);
+      if('string'===typeof e
+         || 'number'===typeof e
+         || 'boolean'===typeof e) e = this.text(e);
       parent.appendChild(e);
     }
     return parent;

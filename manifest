@@ -1,5 +1,5 @@
-C Disable\sHTTPS\sredirect\sfor\sthe\s"test-http"\scommand.\s\sThat\scommand\sis\sused\nby\sthe\s"ssh:"\stransport\smethod\sand\sredirects\sto\shttps\swill\sbreak\sssh:\ntransport.
-D 2020-08-16T15:51:15.766
+C Fixed\sa\srecursion\sbug\sin\sfossil.dom.append(e,array)\s(currently\sunused,\sbut\swill\sbe\ssoon).
+D 2020-08-16T15:51:38.410
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,7 +488,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
-F src/fossil.dom.js 77f6e133cc93191e88e4bfc3a4904fc18a029d1ea7f7ae69f768332dc76e5f2c
+F src/fossil.dom.js b5396af8ad50770b68a4b4fa9a2f3afd2c71ea1bd4549a3eeb46ce5ebe2ba7b1
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js 21fddec9fc217071b0c9dfcba6a604f42a784fb603672b9c1e2eccbf0e915558
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
@@ -1007,8 +1007,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d2b7cab7ac64cf81eeab25698c6ee9ce2afa0e338ef5ca151e6372c6d464814
-Q +edf63d73c52bf69f8bbeffb2031dbf4589c21aa8e9d55f21e1e7196c06080138
-R 7bcf8b2a1c134f7dcc55632f2ac29a88
+P ea6365a8df6ab5fe27d84ec93d67b298bfd30afa50ad07ce0ea6781fd76a2a95
+Q +154f6484b61b79c5e1a795b8a1bb03baa6fb5ed5f12cc2b292ea5d551f5ac680
+R 83b5c2a16ccc73af2e9e9974ec1993f9
 U drh
-Z 2d49e18d941636db50be15f0cf79cfcc
+Z 59ce15cfc40fb841ce49bb1060b048d6
