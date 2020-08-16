@@ -132,7 +132,8 @@ void ajax_render_preview(Blob * pContent, const char *zName,
     default:{
       const char *zContent = blob_str(pContent);
       if(AJAX_PREVIEW_LINE_NUMBERS & flags){
-        output_text_with_line_numbers(zContent, "on");
+        output_text_with_line_numbers(zContent, blob_size(pContent),
+                                      zName, "on");
       }else{
         const char *zExt = strrchr(zName,'.');
         if(zExt && zExt[1]){
@@ -164,6 +165,16 @@ void ajax_render_diff(Blob * pOrig, Blob *pContent, u64 diffFlags){
     CX("<pre class='udiff'>%b</pre>",&out);
   }
   blob_reset(&out);
+}
+
+/*
+** Uses P(zKey) to fetch a CGI environment variable. If that var is
+** NULL or starts with '0' or 'f' then this function returns false,
+** else it returns true.
+*/
+int ajax_p_bool(char const *zKey){
+  const char * zVal = P(zKey);
+  return (!zVal || '0'==*zVal || 'f'==*zVal) ? 0 : 1;
 }
 
 /*
@@ -325,6 +336,7 @@ void ajax_route_preview_text(void){
   }
 }
 
+#if INTERFACE
 /*
 ** Internal mapping of ajax sub-route names to various metadata.
 */
@@ -336,12 +348,13 @@ struct AjaxRoute {
                        ** verification) */
 };
 typedef struct AjaxRoute AjaxRoute;
+#endif /*INTERFACE*/
 
 /*
 ** Comparison function for bsearch() for searching an AjaxRoute
 ** list for a matching name.
 */
-static int cmp_ajax_route_name(const void *a, const void *b){
+int cmp_ajax_route_name(const void *a, const void *b){
   const AjaxRoute * rA = (const AjaxRoute*)a;
   const AjaxRoute * rB = (const AjaxRoute*)b;
   return fossil_strcmp(rA->zName, rB->zName);

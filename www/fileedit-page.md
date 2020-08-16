@@ -247,7 +247,7 @@ First, install proxy functions so that `fossil.page.fileContent()`
 can get and set your content:
 
 ```
-fossil.page.setFileContentMethods(
+fossil.page.setContentMethods(
   function(){ return text-form content of your widget },
   function(content){ set text-form content of your widget }
 };

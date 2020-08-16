@@ -193,7 +193,7 @@ static void showParentProject(void){
 **    -R|--repository FILE       Extract info from repository FILE
 **    -v|--verbose               Show extra information about repositories
 **
-** See also: annotate, artifact, finfo, timeline
+** See also: [[annotate]], [[artifact]], [[finfo]], [[timeline]]
 */
 void info_cmd(void){
   i64 fsize;
@@ -443,7 +443,7 @@ static void append_file_change_line(
 */
 void append_diff_javascript(int sideBySide){
   if( !sideBySide ) return;
-  style_load_one_js_file("sbsdiff.js");
+  builtin_request_js("sbsdiff.js");
 }
 
 /*
@@ -2013,8 +2013,13 @@ int artifact_from_ci_and_filename(const char *zNameParam){
 }
 
 /*
-** The "z" argument is a string that contains the text of a source code
-** file.  This routine appends that text to the HTTP reply with line numbering.
+** The "z" argument is a string that contains the text of a source
+** code file and nZ is its length in bytes. This routine appends that
+** text to the HTTP reply with line numbering.
+**
+** zName is the content's file name, if any (it may be NULL). If that
+** name contains a '.' then the part after the final '.' is used as
+** the X part of a "language-X" CSS class on the generated CODE block.
 **
 ** zLn is the ?ln= parameter for the HTTP query.  If there is an argument,
 ** then highlight that line number and scroll to it once the page loads.
@@ -2024,12 +2029,17 @@ int artifact_from_ci_and_filename(const char *zNameParam){
 */
 void output_text_with_line_numbers(
   const char *z,
+  int nZ,
+  const char *zName,
   const char *zLn
 ){
   int iStart, iEnd;    /* Start and end of region to highlight */
   int n = 0;           /* Current line number */
   int i = 0;           /* Loop index */
   int iTop = 0;        /* Scroll so that this line is on top of screen. */
+  int nLine = 0;       /* content line count */
+  int nSpans = 0;      /* number of distinct zLn spans */
+  const char *zExt = file_extension(zName);
   Stmt q;
 
   iStart = iEnd = atoi(zLn);
@@ -2049,52 +2059,97 @@ void output_text_with_line_numbers(
       db_multi_exec(
         "INSERT OR REPLACE INTO lnos VALUES(%d,%d)", iStart, iEnd
       );
+      ++nSpans;
       iStart = iEnd = atoi(&zLn[i++]);
     }while( zLn[i] && iStart && iEnd );
   }
-  db_prepare(&q, "SELECT min(iStart), max(iEnd) FROM lnos");
-  if( db_step(&q)==SQLITE_ROW ){
-    iStart = db_column_int(&q, 0);
-    iEnd = db_column_int(&q, 1);
-    iTop = iStart - 15 + (iEnd-iStart)/4;
-    if( iTop>iStart - 2 ) iTop = iStart-2;
+  /*cgi_printf("<!-- ln span count=%d -->", nSpans);*/
+  cgi_append_content("<table class='numbered-lines'><tbody>"
+                     "<tr><td class='line-numbers'>", -1);
+  iStart = iEnd = 0;
+  count_lines(z, nZ, &nLine);
+  for( n=1 ; n<=nLine; ++n ){
+    const char * zAttr = "";
+    const char * zId = "";
+    if(nSpans>0 && iEnd==0){/*Grab the next range of zLn marking*/
+      db_prepare(&q, "SELECT iStart, iEnd FROM lnos "
+                 "WHERE iStart >= %d ORDER BY iStart", n);
+      if( db_step(&q)==SQLITE_ROW ){
+        iStart = db_column_int(&q, 0);
+        iEnd = db_column_int(&q, 1);
+        if(!iTop){
+          iTop = iStart - 15 + (iEnd-iStart)/4;
+          if( iTop>iStart - 2 ) iTop = iStart-2;
+        }
+      }else{
+        /* Note that overlapping multi-spans, e.g. 10-15+12-20,
+           can cause us to miss a row. */
+        iStart = iEnd = 0;
+      }
+      db_finalize(&q);
+      --nSpans;
+      /*cgi_printf("<!-- iStart=%d, iEnd=%d -->", iStart, iEnd);*/
+    }
+    if(n==iTop) {
+      zId = " id='scrollToMe'";
+    }
+    if(n==iStart){/*Figure out which CSS class(es) this line needs...*/
+      if(n==iEnd){
+        zAttr = " class='selected-line start end'";
+        iEnd = 0;
+      }else{
+        zAttr = " class='selected-line start'";
+      }
+      iStart = 0;
+    }else if(n==iEnd){
+      zAttr = " class='selected-line end'";
+      iEnd = 0;
+    }else if( n>iStart && n<iEnd ){
+      zAttr = " class='selected-line'";
+    }
+    cgi_printf("<span%s%s>%6d</span>", zId, zAttr, n);
   }
-  db_finalize(&q);
-  @ <pre>
-  while( z[0] ){
-    n++;
-    db_prepare(&q,
-      "SELECT min(iStart), max(iEnd) FROM lnos"
-      " WHERE iStart <= %d AND iEnd >= %d", n, n);
-    if( db_step(&q)==SQLITE_ROW ){
-      iStart = db_column_int(&q, 0);
-      iEnd = db_column_int(&q, 1);
-    }
-    db_finalize(&q);
-    for(i=0; z[i] && z[i]!='\n'; i++){}
-    if( n==iTop ) cgi_append_content("<span id=\"scrollToMe\">", -1);
-    if( n==iStart ){
-      cgi_append_content("<div class=\"selectedText\">",-1);
-    }
-    cgi_printf("%6d  ", n);
-    if( i>0 ){
-      char *zHtml = htmlize(z, i);
-      cgi_append_content(zHtml, -1);
-      fossil_free(zHtml);
-    }
-    if( n==iTop ) cgi_append_content("</span>", -1);
-    if( n==iEnd ) cgi_append_content("</div>", -1);
-    else cgi_append_content("\n", 1);
-    z += i;
-    if( z[0]=='\n' ) z++;
+  cgi_append_content("</td><td class='file-content'><pre>",-1);
+  if(zExt && *zExt){
+    cgi_printf("<code class='language-%h'>",zExt);
+  }else{
+    cgi_append_content("<code>", -1);
   }
-  if( n<iEnd ) cgi_printf("</div>");
-  @ </pre>
+  cgi_printf("%z", htmlize(z, nZ));
+  CX("</code></pre></td></tr></tbody></table>\n");
   if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
-    style_load_one_js_file("scroll.js");
+    builtin_request_js("scroll.js");
   }
+  style_emit_fossil_js_apis(0, "dom", "copybutton", "popupwidget",
+                            "numbered-lines", 0);
 }
 
+/*
+** COMMAND: test-line-numbers
+**
+** Usage: %fossil test-line-numbers FILE ?LN-SPEC?
+**
+*/
+void cmd_test_line_numbers(void){
+  Blob content = empty_blob;
+  const char * zLn = "";
+  const char * zFilename = 0;
+
+  if(g.argc < 3){
+    usage("FILE");
+  }else if(g.argc>3){
+    zLn = g.argv[3];
+  }
+  db_find_and_open_repository(0,0);
+  zFilename = g.argv[2];
+  fossil_print("%s %s\n", zFilename, zLn);
+
+  blob_read_from_file(&content, zFilename, ExtFILE);
+  output_text_with_line_numbers(blob_str(&content), blob_size(&content),
+                                zFilename, zLn);
+  blob_reset(&content);
+  fossil_print("%b\n", cgi_output_blob());
+}
 
 /*
 ** WEBPAGE: artifact
@@ -2389,7 +2444,7 @@ void artifact_page(void){
       }
       blob_to_utf8_no_bom(&content, 0);
       zMime = mimetype_from_content(&content);
-      @ <blockquote>
+      @ <blockquote class="file-content">
       if( zMime==0 ){
         const char *z, *zFileName, *zExt;
         z = blob_str(&content);
@@ -2398,12 +2453,13 @@ void artifact_page(void){
          " WHERE filename.fnid=mlink.fnid"
          "   AND mlink.fid=%d",
          rid);
-        zExt = zFileName ? strrchr(zFileName, '.') : 0;
+        zExt = file_extension(zFileName);
         if( zLn ){
-          output_text_with_line_numbers(z, zLn);
+          output_text_with_line_numbers(z, blob_size(&content),
+                                        zFileName, zLn);
         }else if( zExt && zExt[1] ){
           @ <pre>
-          @ <code class="language-%s(zExt+1)">%h(z)</code>
+          @ <code class="language-%s(zExt)">%h(z)</code>
           @ </pre>
         }else{
           @ <pre>
@@ -3115,7 +3171,7 @@ void ci_edit_page(void){
   @ </td></tr>
   @ </table>
   @ </div></form>
-  style_load_one_js_file("ci_edit.js");
+  builtin_request_js("ci_edit.js");
   style_footer();
 }
 

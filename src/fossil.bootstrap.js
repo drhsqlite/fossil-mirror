@@ -1,4 +1,16 @@
 "use strict";
+(function () {
+  /* CustomEvent polyfill, courtesy of Mozilla:
+     https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
+  */
+  if(typeof window.CustomEvent === "function") return false;
+  window.CustomEvent = function(event, params) {
+    if(!params) params = {bubbles: false, cancelable: false, detail: null};
+    const evt = document.createEvent('CustomEvent');
+    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+    return evt;
+  };
+})();
 (function(global){
   /* Bootstrapping bits for the global.fossil object. Must be
      loaded after style.c:style_emit_script_tag() has initialized
@@ -19,6 +31,21 @@
     return d.toISOString().replace(f.rx1,'').split('T').join(' ');
   };
 
+  /** Returns the local time string of Date object d, defaulting
+      to the current time. */
+  const localTimeString = function ff(d){
+    if(!ff.pad){
+      ff.pad = (x)=>(''+x).length>1 ? x : '0'+x;
+    }
+    d || (d = new Date());
+    return [
+      d.getFullYear(),'-',ff.pad(d.getMonth()+1/*sigh*/),
+      '-',ff.pad(d.getDate()),
+      ' ',ff.pad(d.getHours()),':',ff.pad(d.getMinutes()),
+      ':',ff.pad(d.getSeconds())
+    ].join('');
+  };
+
   /*
   ** By default fossil.message() sends its arguments console.debug(). If
   ** fossil.message.targetElement is set, it is assumed to be a DOM
@@ -32,7 +59,10 @@
   F.message = function f(msg){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = f.targetElement;
-    if(args.length) args.unshift(timestring(),'UTC:');
+    if(args.length) args.unshift(
+      localTimeString()+':'
+      //timestring(),'UTC:'
+    );
     if(tgt){
       tgt.classList.remove('error');
       tgt.innerText = args.join(' ');
@@ -109,7 +139,7 @@
      Creates a URL by prepending this.rootPath to the given path
      (which must be relative from the top of the site, without a
      leading slash). If urlParams is a string, it must be
-     paramters encoded in the form "key=val&key2=val2...", WITHOUT
+     paramters encoded in the form "key=val&key2=val2..." WITHOUT
      a leading '?'. If it's an object, all of its properties get
      appended to the URL in that form.
   */
@@ -118,7 +148,7 @@
     const url=[this.rootPath,path];
     url.push('?');
     if('string'===typeof urlParams) url.push(urlParams);
-    else if('object'===typeof urlParams){
+    else if(urlParams && 'object'===typeof urlParams){
       this.encodeUrlArgs(urlParams, url);
     }
     return url.join('');

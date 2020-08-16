@@ -96,6 +96,8 @@ static struct {
   { "logo-image",             CONFIGSET_SKIN },
   { "background-mimetype",    CONFIGSET_SKIN },
   { "background-image",       CONFIGSET_SKIN },
+  { "icon-mimetype",          CONFIGSET_SKIN },
+  { "icon-image",             CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-date-format",   CONFIGSET_SKIN },
   { "timeline-default-style", CONFIGSET_SKIN },
@@ -114,6 +116,7 @@ static struct {
   { "sitemap-download",       CONFIGSET_SKIN },
   { "sitemap-license",        CONFIGSET_SKIN },
   { "sitemap-contact",        CONFIGSET_SKIN },
+  { "safe-html",              CONFIGSET_SKIN },
 
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   { "th1-docs",               CONFIGSET_TH1 },
@@ -746,7 +749,7 @@ static void export_config(
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
 **
-** See also: settings, unset
+** See also: [[settings]], [[unset]]
 */
 void configuration_cmd(void){
   int n;

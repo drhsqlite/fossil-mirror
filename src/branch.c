@@ -384,12 +384,6 @@ int branch_is_open(const char *zBrName){
 ** Options valid for all subcommands:
 **
 **    -R|--repository FILE       Run commands on repository FILE
-**
-** Summary:
-**    fossil branch current
-**    fossil branch info BRANCH-NAME
-**    fossil branch [list|ls]
-**    fossil branch new BRANCH-NAME BASIS
 */
 void branch_cmd(void){
   int n;

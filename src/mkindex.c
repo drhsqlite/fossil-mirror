@@ -393,7 +393,6 @@ void build_table(void){
   int i;
   int nWeb = 0;
   int mxLen = 0;
-  int len;
 
   qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare);
 

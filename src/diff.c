@@ -127,7 +127,7 @@ struct DContext {
 ** function, a string is considered empty if it contains no characters
 ** -OR- it contains only NUL characters.
 */
-static int count_lines(
+int count_lines(
   const char *z,
   int n,
   int *pnLine
@@ -2564,7 +2564,7 @@ void annotation_page(void){
 /*
 ** COMMAND: annotate
 ** COMMAND: blame
-** COMMAND: praise
+** COMMAND: praise*
 **
 ** Usage: %fossil annotate|blame|praise ?OPTIONS? FILENAME
 **
@@ -2598,7 +2598,7 @@ void annotation_page(void){
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
-** See also: info, finfo, timeline
+** See also: [[info]], [[finfo]], [[timeline]]
 */
 void annotate_cmd(void){
   const char *zRevision; /* Revision name, or NULL for current check-in */

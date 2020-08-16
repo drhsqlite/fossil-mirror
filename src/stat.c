@@ -294,17 +294,21 @@ void stat_page(void){
 }
 
 /*
-** COMMAND: dbstat*
+** COMMAND: dbstat
 **
 ** Usage: %fossil dbstat OPTIONS
 **
-** Shows statistics and global information about the repository.
+** Shows statistics and global information about the repository and/or
+** verify the integrity of a repository.
 **
 ** Options:
 **
-**   --brief|-b           Only show essential elements
-**   --db-check           Run a PRAGMA quick_check on the repository database
-**   --omit-version-info  Omit the SQLite and Fossil version information
+**   --brief|-b           Only show essential elements.
+**   --db-check           Run "PRAGMA quick_check" on the repository database.
+**   --db-verify          Run a full verification of the repository integrity.
+**                        This involves decoding and reparsing all artifacts
+**                        and can take significant time.
+**   --omit-version-info  Omit the SQLite and Fossil version information.
 */
 void dbstat_cmd(void){
   i64 t, fsize;
@@ -319,6 +323,7 @@ void dbstat_cmd(void){
   brief = find_option("brief", "b",0)!=0;
   omitVers = find_option("omit-version-info", 0, 0)!=0;
   dbCheck = find_option("db-check",0,0)!=0;
+  if( find_option("db-verify",0,0)!=0 ) dbCheck = 2;
   db_find_and_open_repository(0,0);
 
   /* We should be done with options.. */
@@ -386,9 +391,11 @@ void dbstat_cmd(void){
                 " + 0.99");
   fossil_print("%*s%,d days or approximately %.2f years.\n",
                colWidth, "project-age:", n, n/365.2425);
-  p = db_get("project-code", 0);
-  if( p ){
-    fossil_print("%*s%s\n", colWidth, "project-id:", p);
+  if( !brief ){
+    p = db_get("project-code", 0);
+    if( p ){
+      fossil_print("%*s%s\n", colWidth, "project-id:", p);
+    }
   }
 #if 0
   /* Server-id is not useful information any more */
@@ -414,8 +421,19 @@ void dbstat_cmd(void){
                db_text(0, "PRAGMA repository.encoding"),
                db_text(0, "PRAGMA repository.journal_mode"));
   if( dbCheck ){
-    fossil_print("%*s%s\n", colWidth, "database-check:",
-                 db_text(0, "PRAGMA quick_check(1)"));
+    if( dbCheck<2 ){
+      char *zRes = db_text(0, "PRAGMA repository.quick_check(1)");
+      fossil_print("%*s%s\n", colWidth, "database-check:", zRes);
+    }else{
+      char *newArgv[3];
+      newArgv[0] = g.argv[0];
+      newArgv[1] = "test-integrity";
+      newArgv[2] = 0;
+      g.argv = newArgv;
+      g.argc = 2;
+      fossil_print("Full repository verification follows:\n");
+      test_integrity();
+    }
   }
 }
 

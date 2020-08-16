@@ -781,4 +781,4 @@ function TimelineGraph(tx){
     var tx = JSON.parse(txJson);
     TimelineGraph(tx);
   }
-}())
+}());

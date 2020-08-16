@@ -167,6 +167,39 @@ void glob_free(Glob *pGlob){
 }
 
 /*
+** Appends the given glob to the given buffer in the form of a
+** JS/JSON-compatible array. It requires that pDest have been
+** initialized. If pGlob is NULL or empty it emits [] (an empty
+** array).
+*/
+void glob_render_json_to_blob(Glob *pGlob, Blob *pDest){
+  int i = 0;
+  blob_append(pDest, "[", 1);
+  for( ; pGlob && i < pGlob->nPattern; ++i ){
+    if(i){
+      blob_append(pDest, ",", 1);
+    }
+    blob_appendf(pDest, "%!j", pGlob->azPattern[i]);
+  }
+  blob_append(pDest, "]", 1);
+}
+/*
+** Functionally equivalent to glob_render_json_to_blob()
+** but outputs via cgi_print().
+*/
+void glob_render_json_to_cgi(Glob *pGlob){
+  int i = 0;
+  CX("[");
+  for( ; pGlob && i < pGlob->nPattern; ++i ){
+    if(i){
+      CX(",");
+    }
+    CX("%!j", pGlob->azPattern[i]);
+  }
+  CX("]");
+}
+
+/*
 ** COMMAND: test-glob
 **
 ** Usage:  %fossil test-glob PATTERN STRING...

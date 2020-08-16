@@ -156,7 +156,6 @@ SRC = \
   $(SRCDIR)/wikiformat.c \
   $(SRCDIR)/winfile.c \
   $(SRCDIR)/winhttp.c \
-  $(SRCDIR)/wysiwyg.c \
   $(SRCDIR)/xfer.c \
   $(SRCDIR)/xfersetup.c \
   $(SRCDIR)/zip.c
@@ -226,10 +225,14 @@ EXTRA_FILES = \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
   $(SRCDIR)/fossil.confirmer.js \
+  $(SRCDIR)/fossil.copybutton.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
+  $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
+  $(SRCDIR)/fossil.page.wikiedit.js \
+  $(SRCDIR)/fossil.popupwidget.js \
   $(SRCDIR)/fossil.storage.js \
   $(SRCDIR)/fossil.tabs.js \
   $(SRCDIR)/graph.js \
@@ -259,6 +262,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki
@@ -404,7 +408,6 @@ TRANS_SRC = \
   $(OBJDIR)/wikiformat_.c \
   $(OBJDIR)/winfile_.c \
   $(OBJDIR)/winhttp_.c \
-  $(OBJDIR)/wysiwyg_.c \
   $(OBJDIR)/xfer_.c \
   $(OBJDIR)/xfersetup_.c \
   $(OBJDIR)/zip_.c
@@ -550,7 +553,6 @@ OBJ = \
  $(OBJDIR)/wikiformat.o \
  $(OBJDIR)/winfile.o \
  $(OBJDIR)/winhttp.o \
- $(OBJDIR)/wysiwyg.o \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
  $(OBJDIR)/zip.o
@@ -600,8 +602,11 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time we run "make"
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
@@ -883,7 +888,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
 	$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
 	$(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h \
-	$(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h \
 	$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 	$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
@@ -2013,14 +2017,6 @@ $(OBJDIR)/winhttp.o:	$(OBJDIR)/winhttp_.c $(OBJDIR)/winhttp.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/winhttp.o -c $(OBJDIR)/winhttp_.c
 
 $(OBJDIR)/winhttp.h:	$(OBJDIR)/headers
-
-$(OBJDIR)/wysiwyg_.c:	$(SRCDIR)/wysiwyg.c $(OBJDIR)/translate
-	$(OBJDIR)/translate $(SRCDIR)/wysiwyg.c >$@
-
-$(OBJDIR)/wysiwyg.o:	$(OBJDIR)/wysiwyg_.c $(OBJDIR)/wysiwyg.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/wysiwyg.o -c $(OBJDIR)/wysiwyg_.c
-
-$(OBJDIR)/wysiwyg.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/xfer_.c:	$(SRCDIR)/xfer.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/xfer.c >$@

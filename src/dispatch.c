@@ -267,6 +267,44 @@ static void appendMixedFont(Blob *pOut, const char *z, int n){
 }
 
 /*
+** Input string zIn starts with '['.  If the content is a hyperlink of the
+** form [[...]] then return the index of the closing ']'.  Otherwise return 0.
+*/
+static int help_is_link(const char *z, int n){
+  int i;
+  char c;
+  if( n<5 ) return 0;
+  if( z[1]!='[' ) return 0;
+  for(i=3; i<n && (c = z[i])!=0; i++){
+    if( c==']' && z[i-1]==']' ) return i;
+  }
+  return 0;
+}
+
+/*
+** Append text to pOut, adding hyperlink markup for [...].
+*/
+static void appendLinked(Blob *pOut, const char *z, int n){
+  int i = 0;
+  int j;
+  while( i<n ){
+    if( z[i]=='[' && (j = help_is_link(z+i, n-i))>0 ){
+      if( i ) blob_append(pOut, z, i);
+      z += i+2;
+      n -= i+2;
+      blob_appendf(pOut, "<a href='%R/help?cmd=%.*s'>%.*s</a>",
+         j-3, z, j-3, z);
+      z += j-1;
+      n -= j-1;
+      i = 0;
+    }else{
+      i++;
+    }
+  }
+  blob_append(pOut, z, i);
+}
+
+/*
 ** Attempt to reformat plain-text help into HTML for display on a webpage.
 **
 ** The HTML output is appended to Blob pHtml, which should already be
@@ -307,13 +345,18 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
     i = 0;
     while( (c = zHelp[i])!=0
         && c!='\n'
+        && c!='<'
         && (c!='%' || strncmp(zHelp+i,"%fossil",7)!=0)
     ){ i++; }
     if( c=='%' ){
       if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
       zHelp += i + 1;
-      i = 0;
       wantBR = 1;
+      continue;
+    }else if( c=='<' ){
+      if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
+      blob_append(pHtml, "&amp;", 5);
+      zHelp += i + 1;
       continue;
     }
     if( i>2 && zHelp[0]=='>' && zHelp[1]==' ' ){
@@ -396,7 +439,8 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
       blob_append(pHtml, "<br>\n", 5);
       wantBR = 0;
     }else{
-      blob_appendf(pHtml, "%#h\n", i-nIndent, zHelp+nIndent);
+      appendLinked(pHtml, zHelp+nIndent, i-nIndent);
+      blob_append_char(pHtml, '\n');
     }
     zHelp += i+1;
     i = 0;
@@ -411,7 +455,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
 ** Format help text for TTY display.
 */
 static void help_to_text(const char *zHelp, Blob *pText){
-  int i;
+  int i, x;
   char c;
   for(i=0; (c = zHelp[i])!=0; i++){
     if( c=='%' && strncmp(zHelp+i,"%fossil",7)==0 ){
@@ -428,6 +472,14 @@ static void help_to_text(const char *zHelp, Blob *pText){
       i = -1;
       continue;
     }
+    if( c=='[' && (x = help_is_link(zHelp+i, 100000))!=0 ){
+      if( i>0 ) blob_append(pText, zHelp, i);
+      zHelp += i+2;
+      blob_append(pText, zHelp, x-3);
+      zHelp += x-1;
+      i = -1;
+      continue;
+    }     
   }
   if( i>0 ){
     blob_append(pText, zHelp, i);
@@ -449,11 +501,13 @@ static void help_to_text(const char *zHelp, Blob *pText){
 **    -w|--www          Show WWW pages.
 **    -s|--settings     Show settings.
 **    -h|--html         Transform output to HTML.
+**    -r|--raw          No output formatting.
 */
 void test_all_help_cmd(void){
   int i;
   int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
   int useHtml = find_option("html","h",0)!=0;
+  int rawOut = find_option("raw","r",0)!=0;
 
   if( find_option("www","w",0) ){
     mask = CMDFLAG_WEBPAGE;
@@ -490,6 +544,9 @@ void test_all_help_cmd(void){
       fossil_print("<h1>%h</h1>\n", aCommand[i].zName);
       fossil_print("%s\n<hr>\n", blob_str(&html));
       blob_reset(&html);
+    }else if( rawOut ){
+      fossil_print("# %s\n", aCommand[i].zName);
+      fossil_print("%s\n\n", aCommand[i].zHelp);
     }else{
       Blob txt;
       blob_init(&txt, 0, 0);
@@ -667,7 +724,7 @@ void help_page(void){
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%s/help", g.zTop);
-    rc = dispatch_name_search(zCmd, CMDFLAG_ANY, &pCmd);
+    rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
       ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
@@ -915,7 +972,7 @@ static const char zOptions[] =
 **
 ** The following options can be used when TOPIC is omitted:
 **
-**    -a|--all          List both command and auxiliary commands
+**    -a|--all          List both common and auxiliary commands
 **    -o|--options      List command-line options common to all commands
 **    -s|--setting      List setting names
 **    -t|--test         List unsupported "test" commands
@@ -938,8 +995,9 @@ void help_cmd(void){
     z = g.argv[0];
     fossil_print(
       "Usage: %s help TOPIC\n"
-      "Common commands:  (use \"%s help help\" for more options)\n",
-      z, z);
+      "Try \"%s help help\" or \"%s help -a\" for more options\n"
+      "Frequently used commands:\n",
+      z, z, z);
     command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();
     return;
@@ -1078,7 +1136,7 @@ static int helptextVtabConnect(
   int rc;
 
   rc = sqlite3_declare_vtab(db,
-           "CREATE TABLE x(name,type,flags,helptext)"
+           "CREATE TABLE x(name,type,flags,helptext,formatted,html)"
        );
   if( rc==SQLITE_OK ){
     pNew = sqlite3_malloc( sizeof(*pNew) );
@@ -1162,6 +1220,20 @@ static int helptextVtabColumn(
     case 3:  /* helptext */
       sqlite3_result_text(ctx, pPage->zHelp, -1, SQLITE_STATIC);
       break;
+    case 4: { /* formatted */
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_text(pPage->zHelp, &txt);
+      sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
+      break;
+    }
+    case 5: { /* formatted */
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_html(pPage->zHelp, &txt);
+      sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
+      break;
+    }
   }
   return SQLITE_OK;
 }

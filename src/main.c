@@ -2098,10 +2098,14 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             processed in order.  If the REPO is "*", then
 **                             an unconditional redirect to URL is taken.
 **
+**     jsmode: VALUE           Specifies the delivery mode for JavaScript
+**                             files. See the help text for the --jsmode
+**                             flag of the http command.
+**
 ** Most CGI files contain only a "repository:" line.  It is uncommon to
 ** use any other option.
 **
-** See also: http, server, winsrv
+** See also: [[http]], [[server]], [[winsrv]]
 */
 void cmd_cgi(void){
   const char *zFile;
@@ -2270,6 +2274,21 @@ void cmd_cgi(void){
       ** this directive is a silent no-op.
       */
       skin_use_alternative(blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "jsmode:") && blob_token(&line, &value) ){
+      /* jsmode: MODE
+      **
+      ** Change how JavaScript resources are delivered with each HTML
+      ** page.  MODE is "inline" to put all JS inline, or "separate" to
+      ** cause each JS file to be requested using a separate HTTP request,
+      ** or "bundled" to have all JS files to be fetched with a single
+      ** auxiliary HTTP request. Noting, however, that "single" might
+      ** actually mean more than one, depending on the script-timing
+      ** requirements of any given page.
+      */
+      builtin_set_js_delivery_mode(blob_str(&value),0);
       blob_reset(&value);
       continue;
     }
@@ -2457,6 +2476,19 @@ void test_pid_page(void){
 **   --https          signal a request coming in via https
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --jsmode MODE       Determine how JavaScript is delivered with pages.
+**                       Mode can be one of:
+**                          inline       All JavaScript is inserted inline at
+**                                       one or more points in the HTML file.
+**                          separate     Separate HTTP requests are made for
+**                                       each JavaScript file.
+**                          bundled      Groups JavaScript files into one or
+**                                       more bundled requests which
+**                                       concatenate scripts together.
+**                       Depending on the needs of any given page, inline
+**                       and bundled modes might result in a single
+**                       amalgamated script or several, but both approaches
+**                       result in fewer HTTP requests than the separate mode.
 **   --localauth      enable automatic login for local connections
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
@@ -2471,7 +2503,7 @@ void test_pid_page(void){
 **   --usepidkey      Use saved encryption key from parent process.  This is
 **                    only necessary when using SEE on Windows.
 **
-** See also: cgi, server, winsrv
+** See also: [[cgi]], [[server]], [[winsrv]]
 */
 void cmd_http(void){
   const char *zIpAddr = 0;
@@ -2486,6 +2518,7 @@ void cmd_http(void){
   int allowRepoList;
 
   Th_InitTraceLog();
+  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -2576,7 +2609,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** COMMAND: test-http
 **
-** Works like the http command but gives setup permission to all users.
+** Works like the [[http]] command but gives setup permission to all users.
 **
 ** Options:
 **   --th-trace          trace TH1 execution (for debugging purposes)
@@ -2716,6 +2749,18 @@ void fossil_set_timeout(int N){
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
 **                       proxy that has already translated HTTPS into HTTP.
+**   --jsmode MODE       Determine how JavaScript is delivered with pages.
+**                       Mode can be one of:
+**                          inline       All JavaScript is inserted inline at
+**                                       the end of the HTML file.
+**                          separate     Separate HTTP requests are made for
+**                                       each JavaScript file.
+**                          bundled      One single separate HTTP fetches all
+**                                       JavaScript concatenated together.
+**                       Depending on the needs of any given page, inline
+**                       and bundled modes might result in a single
+**                       amalgamated script or several, but both approaches
+**                       result in fewer HTTP requests than the separate mode.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies
@@ -2732,7 +2777,7 @@ void fossil_set_timeout(int N){
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
-** See also: cgi, http, winsrv
+** See also: [[cgi]], [[http]], [[winsrv]]
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
@@ -2762,6 +2807,7 @@ void cmd_webserver(void){
     g.zErrlog = "-";
   }
   g.zExtRoot = find_option("extroot",0,1);
+  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);

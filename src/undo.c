@@ -464,7 +464,7 @@ void undo_rollback(void){
 ** Options:
 **   -n|--dry-run   do not make changes but show what would be done
 **
-** See also: commit, status
+** See also: [[commit]], [[status]]
 */
 void undo_cmd(void){
   int isRedo = g.argv[1][0]=='r';

@@ -1,7 +1,7 @@
 <title>Change Log</title>
 
 <a name='v2_12'></a>
-<h2>Changes for Version 2.12 (pending)</h2>
+<h2>Changes for Version 2.12</h2>
 
   *  Security fix in the "[/help?cmd=git|fossil git export]" command.
      The same fix is also backported to version 2.10.1 and 2.11.1.
@@ -10,11 +10,16 @@
   *  Enhancements to the graph display for cases when there are
      many cherry-pick merges into a single check-in.
      [/timeline?f=2d75e87b760c0a9|Example]
+  *  Enhance the [/help?cmd=open|fossil open] command with the new
+     --workdir option and the ability to accept a URL as the repository
+     name, causing the remote repository to be cloned automatically.
+     Do not allow "fossil open" to open in a non-empty working directory
+     unless the --keep option or the new --force option is used.
   *  Enhance the markdown formatter to more closely follow the
      [https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis|CommonMark specification]
      with regard to text highlighting.
-     Underscores in the middle of identifiers (ex: fossil_printf()
-     no longer need to be escaped).
+     Underscores in the middle of identifiers (ex: fossil_printf())
+     no longer need to be escaped.
   *  The markdown-to-html translator can prevent unsafe HTML
      (for example: &lt;script&gt;) on user-contributed pages like forum and
      tickets and wiki.  The admin can adjust this behavior using
@@ -59,7 +64,18 @@
      modes ".mode box" and ".mode json".
   *  Add the "<tt>obscure()</tt>" SQL function to the 
      "[/help?cmd=sql|fossil sql]" command.
+  *  Added virtual tables "<tt>helptext</tt>" and "<tt>builtin</tt>" to
+     the "[/help?cmd=sql|fossil sql]" command, providing access to the
+     dispatch table including all help text, and the builtin data files,
+     respectively.
   *  [./delta_format.wiki|Delta compression] is now applied to forum edits.
+  *  The [/help?cmd=/wikiedit|wiki editor] has been modernized and is
+     now Ajax-based. The WYSIWYG editing option for Fossil-format wiki
+     pages was removed. (Please let us know, via the site's Support menu,
+     if that removal unduly impacts you.) This also changes the semantics
+     of the wiki "Sandbox": that pseudo-page may be freely edited but
+     no longer saved via the UI (the [/help?cmd=wiki|wiki CLI command]
+     can, though).
   *  Countless documentation enhancements.
 
 <a name='v2_11'></a>

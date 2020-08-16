@@ -442,12 +442,6 @@ span.usertype:before {
 span.usertype:after {
   content:"'";
 }
-div.selectedText {
-  font-weight: bold;
-  color: blue;
-  background-color: #d5d5ff;
-  border: 1px blue solid;
-}
 p.missingPriv {
  color: blue;
 }
@@ -776,40 +770,89 @@ div.forumHierRoot > div > form {
   margin: 0.5em 0;
 }
 .forum-post-collapser {
+  /* Common style for the bottom-of-post and right-of-post
+     expand/collapse widgets. */
   font-size: 0.8em;
-  margin-top: 0.2em;
   padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 0.5em 0.5em;
+  background-color: rgba(0, 0, 0, 0.05);
+  opacity: 0.8;
+  cursor: pointer;
+}
+.forum-post-collapser.bottom {
+  margin: 0 0 0.4em 0;
   height: 1.75em;
   line-height: 1.75em;
   /* ^^^ Those sizes are finely tuned for the current selection of
      arrow characters. If those change, these should, too. Remember that
      FF/Chrome simply do not agree on alignment with most values :/.  */
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 0.25em;
-  opacity: 0.8;
-  cursor: pointer;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
-.forum-post-collapser > span {
+.forum-post-collapser.bottom > span {
   margin: 0 1em 0 1em;
   vertical-align: middle;
 }
-.forum-post-collapser.expanded > span::before {
-  content: "⇡⇡⇡" /*reminder: FF/Chrome cannot agree on alignment of ⮝*/;
-}
-.forum-post-collapser:not(.expanded) > span::before {
+.forum-post-collapser.bottom > span::before {
   content: "⇣⇣⇣";
+}
+.forum-post-collapser.bottom.expanded > span::before {
+  content: "⇡⇡⇡" /*reminder: FF/Chrome cannot agree on alignment of ⮝*/;
 }
 div.forumPostBody{
   max-height: 50em;
   overflow: auto;
 }
+div.forumPostBody.with-expander {
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+}
+div.forumPostBody.with-expander:not(.expanded) > :first-child {
+  overflow-y: hidden;
+}
+div.forumPostBody.with-expander > *:first-child {
+  /* Main content DIV/PRE */
+  overflow: auto;
+  flex: 10 1 auto;
+}
+div.forumPostBody.with-expander.expanded > *:first-child {
+  margin-bottom: 0.5em /* try to suppress scroll bar */;
+}
+div.forumPostBody.with-expander .forum-post-collapser.right {
+  /* "Tap zone" for expansion of the post, sits to the right of the
+     post's content. */
+  flex: 1 10 auto;
+  min-width: 1.25em;
+  max-width: 1.25em;
+  margin: 0 0 0 0.2em;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 0.1em;
+  cursor: pointer;
+  border-bottom: 0;
+  border-radius: 0 0.5em 0 0;
+}
+div.forumPostBody.with-expander .forum-post-collapser.right > span:before {
+  content: "⇣";
+}
+div.forumPostBody.with-expander.expanded .forum-post-collapser.right > span:before {
+  content: "⇡";
+}
 div.forumPostBody.expanded {
   max-height: initial;
 }
+div.forumPostBody.shrunken {
+  /* When an expandable post is un-expanded, it is shrunkend down
+     to this size instead of its original size. */
+  max-height: 8em;
+}
+
 div.forumSel {
   background-color: #cef;
 }
@@ -906,10 +949,15 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   opacity: 0.7;
 }
 .hidden {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  display: none;
+  /* The framework-wide way of hiding elements is to assign them this
+     CSS class. To make them visible again, remove it. The !important
+     qualifiers are unfortunate but sometimes necessary when hidden
+     element has other classes which specify visibility-related
+     options. */
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
 }
 input {
   max-width: 95%;
@@ -920,4 +968,310 @@ textarea {
 img {
   max-width: 100%;
   height: auto;
+}
+hr {
+  /* Needed to keep /dir README.txt from floating right in some skins */
+  clear: both;
+}
+
+/**
+  .tab-xxx: styles for fossil.tabs.js.
+*/
+.tab-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.tab-container > #fossil-status-bar {
+  margin-top: 0;
+}
+.tab-container > .tabs {
+  padding: 0.25em;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border-width: 1px;
+  border-style: outset;
+  border-color: inherit;
+}
+.tab-container > .tabs > .tab-panel {
+  align-self: stretch;
+  flex: 10 1 auto;
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.tab-container > .tab-bar {
+  display: flex;
+  flex-direction: row;
+  flex: 1 10 auto;
+  align-self: stretch;
+  flex-wrap: wrap;
+}
+.tab-container > .tab-bar > .tab-button {
+  display: inline-block;
+  border-radius: 0.25em 0.25em 0 0;
+  margin: 0 0.1em;
+  padding: 0.25em 0.75em;
+  align-self: baseline;
+  border-color: inherit;
+  border-width: 1px;
+  border-bottom: none;
+  border-top-style: inset;
+  border-left-style: inset;
+  border-right-style: inset;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.tab-container > .tab-bar > .tab-button.selected {
+  text-decoration: underline;
+  opacity: 1.0;
+  border-top-style: outset;
+  border-left-style: outset;
+  border-right-style: outset;
+}
+
+/**
+   The flex-xxx classes can be used to create basic flexbox layouts
+   through the application of classes to the containing/contained
+   objects.
+*/
+.flex-container {
+    display: flex;
+}
+.flex-container.flex-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.flex-container .flex-grow {
+  flex-grow: 10;
+  flex-shrink: 0;
+}
+.flex-container .flex-shrink {
+  flex-grow: 0;
+  flex-shrink: 10;
+}
+.flex-container.flex-row.stretch {
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: stretch;
+  margin: 0;
+}
+.flex-container.flex-column {
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.flex-container.flex-column.stretch {
+  align-items: stretch;
+  margin: 0;
+}
+.flex-container.child-gap-small > * {
+  margin: 0.25em;
+}
+#fossil-status-bar {
+  display: block;
+  font-family: monospace;
+  border-width: 1px;
+  border-style: inset;
+  border-color: inherit;
+  min-height: 1.5em;
+  font-size: 1.2em;
+  padding: 0.2em;
+  margin: 0.25em 0;
+  flex: 0 0 auto;
+}
+.font-size-100 {
+  font-size: 100%;
+}
+.font-size-125 {
+  font-size: 125%;
+}
+.font-size-150 {
+  font-size: 150%;
+}
+.font-size-175 {
+  font-size: 175%;
+}
+.font-size-200 {
+  font-size: 200%;
+}
+
+/**
+   .input-with-label is intended to be a wrapper element which
+   contain both a LABEL tag and an INPUT or SELECT control.
+   The wrapper is "necessary", as opposed to placing the INPUT
+   in the LABEL, so that we can include multiple INPUT
+   elements (e.g. a set of radio buttons).
+*/
+.input-with-label {
+  border: 1px inset #808080;
+  border-radius: 0.25em;
+  padding: 0.25em 0.4em;
+  margin: 0 0.5em;
+  display: inline-block;
+  cursor: default;
+}
+.input-with-label > * {
+  vertical-align: middle;
+}
+.input-with-label > label {
+  display: inline; /* some skins set label display to block! */
+}
+.input-with-label > input {
+  margin: 0;
+}
+.input-with-label > button {
+  margin: 0;
+}
+.input-with-label > select {
+  margin: 0;
+}
+.input-with-label > input[type=text] {
+  margin: 0;
+}
+.input-with-label > textarea {
+  margin: 0;
+}
+.input-with-label > input[type=checkbox] {
+  vertical-align: sub;
+}
+.input-with-label > input[type=radio] {
+  vertical-align: sub;
+}
+.input-with-label > label {
+  font-weight: initial;
+  margin: 0 0.25em 0 0.25em;
+  vertical-align: middle;
+}
+
+table.numbered-lines {
+  width: 100%;
+  table-layout: fixed /* required to keep ultra-wide code from exceeding
+                         window width, and instead force a scrollbar
+                         on them. */;
+}
+table.numbered-lines > tbody > tr {
+  font-family: monospace;
+  font-size: 1.2em;
+  line-height: 1.35;
+  white-space: pre;
+}
+table.numbered-lines > tbody > tr > td {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: inherit;
+  margin: 0;
+  vertical-align: top;
+  padding: 0.25em 0 0 0 /*prevents slight overlap at top */;
+}
+table.numbered-lines td.line-numbers {
+  width: 4.5em;
+}
+table.numbered-lines td.line-numbers > span:first-of-type {
+  margin-top: 0.25em/*must match top PADDING of
+                      td.file-content > pre > code*/;
+}
+table.numbered-lines td.line-numbers > span {
+  display: block;
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: pre;
+  margin-right: 2px/*keep selection from nudging the right column */;
+  text-align: right;
+}
+table.numbered-lines td.line-numbers > span:hover {
+  background-color: rgba(112, 112, 112, 0.25);
+}
+table.numbered-lines td.file-content {
+  padding-left: 0.25em;
+}
+table.numbered-lines td.file-content > pre,
+table.numbered-lines td.file-content > pre > code {
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  white-space: pre;
+  display: block/*necessary for certain skins!*/;
+}
+table.numbered-lines td.file-content > pre {
+}
+table.numbered-lines td.file-content > pre > code {
+  overflow: auto;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.25em/*any top padding here must match the top MARGIN of
+                       td.line-numbers's first span child or the
+                       lines/code will get misaligned. */;
+  padding-bottom: 0.25em/*prevents a slight overlap at bottom from
+                          triggering a scroller*/;
+}
+table.numbered-lines td.file-content > pre > code > * {
+  /* Defense against syntax highlighters indirectly messing up these
+     properties... */
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+}
+table.numbered-lines td.line-numbers span.selected-line/*replacement*/ {
+  font-weight: bold;
+  color: blue;
+  background-color: #d5d5ff;
+  border: 1px blue solid;
+  border-top-width: 0;
+  border-bottom-width: 0;
+  padding: 0;
+  margin: 0;
+}
+table.numbered-lines td.line-numbers span.selected-line.start {
+  border-top-width: 1px;
+  margin-top: -1px/*restore alignment*/;
+}
+table.numbered-lines td.line-numbers span.selected-line.end {
+  border-bottom-width: 1px;
+  margin-top: -1px/*restore alignment*/;
+}
+table.numbered-lines td.line-numbers span.selected-line.start.end {
+  margin-top: -2px/*restore alignment*/;
+}
+
+.fossil-tooltip {
+  text-align: center;
+  padding: 0.2em 1em;
+  border: 1px solid black;
+  border-radius: 0.25em;
+  position: absolute;
+  display: inline-block;
+  z-index: 100;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.75);
+  background-color: inherit;
+  font-size: 80%;
+}
+
+.fossil-toast {/* "toast"-style popup message */
+  padding: 0.25em 0.5em;
+  margin: 0;
+  border-radius: 0.25em;
+  font-size: 1em;
+  opacity: 0.8;
+  border-size: 1px;
+  border-style: dotted;
+  border-color: rgb( 127, 127, 127, 0.5 );
+}
+
+blockquote.file-content {
+  /* file content block in the /file page */
+  margin: 0 1em;
 }

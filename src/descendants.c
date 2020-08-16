@@ -350,7 +350,7 @@ void compute_descendants(int rid, int N){
 **                               Must be >20 or 0 (= no limit, resulting in a
 **                               single line per entry).
 **
-** See also: finfo, info, leaves
+** See also: [[finfo]], [[info]], [[leaves]]
 */
 void descendants_cmd(void){
   Stmt q;
@@ -410,7 +410,7 @@ void descendants_cmd(void){
 **                    >39 or 0 (= no limit, resulting in a single line per
 **                    entry).
 **
-** See also: descendants, finfo, info, branch
+** See also: [[descendants]], [[finfo]], [[info]], [[branch]]
 */
 void leaves_cmd(void){
   Stmt q;

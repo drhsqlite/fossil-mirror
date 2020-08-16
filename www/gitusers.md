@@ -139,7 +139,7 @@ carefully before expressing your views.
 ## Branch and Tag Names
 
 Fossil has no special restrictions on the names of tags and branches,
-though you might want to to keep [Git's tag and branch name restrictions][4]
+though you might want to keep [Git's tag and branch name restrictions][4]
 in mind if you plan on mirroring your Fossil repository to GitHub.
 
 [4]: https://git-scm.com/docs/git-check-ref-format

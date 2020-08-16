@@ -489,6 +489,11 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 ** >=0x7fff000 (~2GB) then this function will trigger blob_panic(). If
 ** it didn't, it would be possible to bypass that hard-coded limit via
 ** this function.
+**
+** We've had at least one report:
+**   https://fossil-scm.org/forum/forumpost/b7bbd28db4
+** which implies that this is unconditionally failing on mingw 32-bit
+** builds.
 */
 void blob_reserve(Blob *pBlob, unsigned int newSize){
   if(newSize>=0x7fff0000 ){

@@ -219,7 +219,7 @@ static void process_sync_args(
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, config pull, push, remote-url, sync
+** See also: [[clone]], [[config]], [[push]], [[remote-url]], [[sync]]
 */
 void pull_cmd(void){
   unsigned configFlags = 0;
@@ -268,7 +268,7 @@ void pull_cmd(void){
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, config push, pull, remote-url, sync
+** See also: [[clone]], [[config]], [[pull]], [[remote-url]], [[sync]]
 */
 void push_cmd(void){
   unsigned configFlags = 0;
@@ -314,7 +314,7 @@ void push_cmd(void){
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, pull, push, remote-url
+** See also: [[clone]], [[pull]], [[push]], [[remote-url]]
 */
 void sync_cmd(void){
   unsigned configFlags = 0;
@@ -347,7 +347,8 @@ void sync_unversioned(unsigned syncFlags){
 }
 
 /*
-** COMMAND: remote-url
+** COMMAND: remote
+** COMMAND: remote-url*
 **
 ** Usage: %fossil remote-url ?URL|off?
 **

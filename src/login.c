@@ -754,7 +754,7 @@ void login_page(void){
       if( bAutoCaptcha ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
          @ data-af='%s(zDecoded)' />
-         style_load_one_js_file("login.js");
+         builtin_request_js("login.js");
       }
       @ </div>
       free(zCaptcha);
@@ -1593,9 +1593,10 @@ void register_page(void){
     ||
       /* Or if the email is a verify subscriber email with an associated
       ** user... */
-      db_exists(
-        "SELECT 1 FROM subscriber WHERE semail=%Q AND suname IS NOT NULL"
-        " AND sverified",zEAddr)
+      (alert_tables_exist() &&
+       db_exists(
+         "SELECT 1 FROM subscriber WHERE semail=%Q AND suname IS NOT NULL"
+         " AND sverified",zEAddr))
    ){
     iErrLine = 3;
     zErr = "This email address is already claimed by another user";

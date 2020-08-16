@@ -144,7 +144,10 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   zFg = skin_detail_boolean("white-foreground") ? "white" : "black";
 
   db_prepare(&q, "SELECT sum(amt), count(*) FROM piechart");
-  if( db_step(&q)!=SQLITE_ROW ) return;
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_finalize(&q);
+    return;
+  }
   rTotal = db_column_double(&q, 0);
   nTotal = db_column_int(&q, 1);
   db_finalize(&q);

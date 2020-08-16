@@ -490,7 +490,6 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\wikiformat_.c" \
         "$(OX)\winfile_.c" \
         "$(OX)\winhttp_.c" \
-        "$(OX)\wysiwyg_.c" \
         "$(OX)\xfer_.c" \
         "$(OX)\xfersetup_.c" \
         "$(OX)\zip_.c"
@@ -559,10 +558,14 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\forum.js" \
         "$(SRCDIR)\fossil.bootstrap.js" \
         "$(SRCDIR)\fossil.confirmer.js" \
+        "$(SRCDIR)\fossil.copybutton.js" \
         "$(SRCDIR)\fossil.dom.js" \
         "$(SRCDIR)\fossil.fetch.js" \
+        "$(SRCDIR)\fossil.numbered-lines.js" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
+        "$(SRCDIR)\fossil.page.wikiedit.js" \
+        "$(SRCDIR)\fossil.popupwidget.js" \
         "$(SRCDIR)\fossil.storage.js" \
         "$(SRCDIR)\fossil.tabs.js" \
         "$(SRCDIR)\graph.js" \
@@ -592,6 +595,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\sounds\f.wav" \
         "$(SRCDIR)\style.admin_log.css" \
         "$(SRCDIR)\style.fileedit.css" \
+        "$(SRCDIR)\style.wikiedit.css" \
         "$(SRCDIR)\tree.js" \
         "$(SRCDIR)\useredit.js" \
         "$(SRCDIR)\wiki.wiki"
@@ -742,7 +746,6 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\wikiformat$O" \
         "$(OX)\winfile$O" \
         "$(OX)\winhttp$O" \
-        "$(OX)\wysiwyg$O" \
         "$(OX)\xfer$O" \
         "$(OX)\xfersetup$O" \
         "$(OX)\zip$O" \
@@ -969,7 +972,6 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\wikiformat.obj" >> $@
 	echo "$(OX)\winfile.obj" >> $@
 	echo "$(OX)\winhttp.obj" >> $@
-	echo "$(OX)\wysiwyg.obj" >> $@
 	echo "$(OX)\xfer.obj" >> $@
 	echo "$(OX)\xfersetup.obj" >> $@
 	echo "$(OX)\zip.obj" >> $@
@@ -1024,8 +1026,11 @@ SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 "$(OX)\miniz$O" : "$(SRCDIR)\miniz.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
 
-"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION"
-	$** > $@
+"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
+	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
+
+"$(B)\phony.h" :
+	rem Force rebuild of VERSION.h whenever nmake is run
 
 "$(OX)\cson_amalgamation$O" : "$(SRCDIR)\cson_amalgamation.c"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
@@ -1150,10 +1155,14 @@ realclean: clean
 	echo "$(SRCDIR)\forum.js" >> $@
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@
 	echo "$(SRCDIR)\fossil.confirmer.js" >> $@
+	echo "$(SRCDIR)\fossil.copybutton.js" >> $@
 	echo "$(SRCDIR)\fossil.dom.js" >> $@
 	echo "$(SRCDIR)\fossil.fetch.js" >> $@
+	echo "$(SRCDIR)\fossil.numbered-lines.js" >> $@
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
+	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
+	echo "$(SRCDIR)\fossil.popupwidget.js" >> $@
 	echo "$(SRCDIR)\fossil.storage.js" >> $@
 	echo "$(SRCDIR)\fossil.tabs.js" >> $@
 	echo "$(SRCDIR)\graph.js" >> $@
@@ -1183,6 +1192,7 @@ realclean: clean
 	echo "$(SRCDIR)\sounds/f.wav" >> $@
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
+	echo "$(SRCDIR)\style.wikiedit.css" >> $@
 	echo "$(SRCDIR)\tree.js" >> $@
 	echo "$(SRCDIR)\useredit.js" >> $@
 	echo "$(SRCDIR)\wiki.wiki" >> $@
@@ -2027,12 +2037,6 @@ realclean: clean
 "$(OX)\winhttp_.c" : "$(SRCDIR)\winhttp.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
-"$(OX)\wysiwyg$O" : "$(OX)\wysiwyg_.c" "$(OX)\wysiwyg.h"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\wysiwyg_.c"
-
-"$(OX)\wysiwyg_.c" : "$(SRCDIR)\wysiwyg.c"
-	"$(OBJDIR)\translate$E" $** > $@
-
 "$(OX)\xfer$O" : "$(OX)\xfer_.c" "$(OX)\xfer.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\xfer_.c"
 
@@ -2195,7 +2199,6 @@ realclean: clean
 			"$(OX)\wikiformat_.c":"$(OX)\wikiformat.h" \
 			"$(OX)\winfile_.c":"$(OX)\winfile.h" \
 			"$(OX)\winhttp_.c":"$(OX)\winhttp.h" \
-			"$(OX)\wysiwyg_.c":"$(OX)\wysiwyg.h" \
 			"$(OX)\xfer_.c":"$(OX)\xfer.h" \
 			"$(OX)\xfersetup_.c":"$(OX)\xfersetup.h" \
 			"$(OX)\zip_.c":"$(OX)\zip.h" \

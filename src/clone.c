@@ -85,9 +85,7 @@ void delete_private_content(void){
 ** Usage: %fossil clone ?OPTIONS? URI FILENAME
 **
 ** Make a clone of a repository specified by URI in the local
-** file named FILENAME.
-**
-** URI may be one of the following forms:
+** file named FILENAME. URI may be one of the following forms:
 ** ([...] denotes optional elements):
 **
 **  * HTTP/HTTPS protocol:
@@ -102,14 +100,18 @@ void delete_private_content(void){
 **
 **      [file://]path/to/repo.fossil
 **
-** Note 1: For ssh and filesystem, path must have an extra leading
+** Note that in Fossil (in contrast to some other DVCSes) a repository
+** is distinct from a checkout.  This command create a clone of a repository.
+** Use the separate [[open]] command to open a checkout from that repository.
+**
+** For ssh and filesystem, path must have an extra leading
 ** '/' to use an absolute path.
 **
-** Note 2: Use %HH escapes for special characters in the userid and
+** Use %HH escapes for special characters in the userid and
 ** password.  For example "%40" in place of "@", "%2f" in place
 ** of "/", and "%3a" in place of ":".
 **
-** By default, your current login name is used to create the default
+** By default, the current login name is used to create the default
 ** admin user. This can be overridden using the -A|--admin-user
 ** parameter.
 **
@@ -125,7 +127,7 @@ void delete_private_content(void){
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
 **
-** See also: init
+** See also: [[init]], [[open]]
 */
 void clone_cmd(void){
   char *zPassword;

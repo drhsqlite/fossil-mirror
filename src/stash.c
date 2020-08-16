@@ -561,19 +561,6 @@ static int stash_get_id(const char *zStashId){
 **      Show diffs of the current working directory and what that
 **      directory would be if STASHID were applied. With gdiff,
 **      gdiff-command is used instead of internal diff logic.
-**
-** SUMMARY:
-**  * fossil stash
-**  * fossil stash save ?-m|--comment COMMENT? ?FILES...?
-**  * fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**  * fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
-**  * fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
-**  * fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
-**  * fossil stash pop
-**  * fossil stash apply|goto ?STASHID?
-**  * fossil stash drop|rm ?STASHID? ?-a|--all?
-**  * fossil stash diff ?STASHID? ?DIFF-OPTIONS?
-**  * fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){
   const char *zCmd;

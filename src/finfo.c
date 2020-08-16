@@ -56,7 +56,7 @@
 **                        >22 or 0 (= no limit, resulting in a single line per
 **                        entry).
 **
-** See also: artifact, cat, descendants, info, leaves
+** See also: [[artifact]], [[cat]], [[descendants]], [[info]], [[leaves]]
 */
 void finfo_cmd(void){
   db_must_be_within_tree();
@@ -247,7 +247,7 @@ void finfo_cmd(void){
 **    -R|--repository FILE       Extract artifacts from repository FILE
 **    -r VERSION                 The specific check-in containing the file
 **
-** See also: finfo
+** See also: [[finfo]]
 */
 void cat_cmd(void){
   int i;

@@ -442,7 +442,7 @@ static int determine_cwd_relative_option()
 **    --merge           Display merge contributors.
 **    --no-merge        Do not display merge contributors.
 **
-** See also: extras, ls
+** See also: [[extras]], [[ls]]
 */
 void status_cmd(void){
   /* Affirmative and negative flag option tables. */
@@ -678,7 +678,7 @@ static void ls_cmd_rev(
 **   -r VERSION            The specific check-in to list.
 **   -R|--repository FILE  Extract info from repository FILE.
 **
-** See also: changes, extras, status
+** See also: [[changes]], [[extras]], [[status]]
 */
 void ls_cmd(void){
   int vid;
@@ -832,7 +832,7 @@ void ls_cmd(void){
 **    --rel-paths             Display pathnames relative to the current working
 **                            directory.
 **
-** See also: changes, clean, status
+** See also: [[changes]], [[clean]], [[status]]
 */
 void extras_cmd(void){
   Blob report = BLOB_INITIALIZER;
@@ -956,7 +956,7 @@ void extras_cmd(void){
 **    --temp                 Remove only Fossil-generated temporary files.
 **    -v|--verbose           Show all files as they are removed.
 **
-** See also: addremove, extras, status
+** See also: [[addremove]], [[extras]], [[status]]
 */
 void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
@@ -2093,7 +2093,7 @@ static int tagCmp(const void *a, const void *b){
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 **
-** See also: branch, changes, checkout, extras, sync
+** See also: [[branch]], [[changes]], [[update]], [[extras]], [[sync]]
 */
 void commit_cmd(void){
   int hasChanges;        /* True if unsaved changes exist */

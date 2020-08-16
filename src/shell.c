@@ -642,6 +642,21 @@ static int strlenChar(const char *z){
 }
 
 /*
+** Return true if zFile does not exist or if it is not an ordinary file.
+*/
+#ifdef _WIN32
+# define notNormalFile(X) 0
+#else
+static int notNormalFile(const char *zFile){
+  struct stat x;
+  int rc;
+  memset(&x, 0, sizeof(x));
+  rc = stat(zFile, &x);
+  return rc || !S_ISREG(x.st_mode);
+}
+#endif
+
+/*
 ** This routine reads a line of text from FILE in, stores
 ** the text in memory obtained from malloc() and returns a pointer
 ** to the text.  NULL is returned at end of file, or if malloc()
@@ -4047,7 +4062,7 @@ static int apndOpen(
   p = (ApndFile*)pFile;
   memset(p, 0, sizeof(*p));
   pSubFile = ORIGFILE(pFile);
-  p->base.pMethods = &apnd_io_methods;
+  pFile->pMethods = &apnd_io_methods;
   rc = pSubVfs->xOpen(pSubVfs, zName, pSubFile, flags, pOutFlags);
   if( rc ) goto apnd_open_done;
   rc = pSubFile->pMethods->xFileSize(pSubFile, &sz);
@@ -4981,7 +4996,6 @@ int sqlite3_decimal_init(
   const sqlite3_api_routines *pApi
 ){
   int rc = SQLITE_OK;
-  SQLITE_EXTENSION_INIT2(pApi);
   static const struct {
     const char *zFuncName;
     int nArg;
@@ -4995,6 +5009,8 @@ int sqlite3_decimal_init(
   };
   unsigned int i;
   (void)pzErrMsg;  /* Unused parameter */
+
+  SQLITE_EXTENSION_INIT2(pApi);
 
   for(i=0; i<sizeof(aFunc)/sizeof(aFunc[0]) && rc==SQLITE_OK; i++){
     rc = sqlite3_create_function(db, aFunc[i].zFuncName, aFunc[i].nArg,
@@ -12451,7 +12467,7 @@ static void explain_data_delete(ShellState *p){
 ** Disable and restore .wheretrace and .selecttrace settings.
 */
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
-extern int sqlite3SelectTrace;
+extern unsigned int sqlite3_unsupported_selecttrace;
 static int savedSelectTrace;
 #endif
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
@@ -12460,8 +12476,8 @@ static int savedWhereTrace;
 #endif
 static void disable_debug_trace_modes(void){
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
-  savedSelectTrace = sqlite3SelectTrace;
-  sqlite3SelectTrace = 0;
+  savedSelectTrace = sqlite3_unsupported_selecttrace;
+  sqlite3_unsupported_selecttrace = 0;
 #endif
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
   savedWhereTrace = sqlite3WhereTrace;
@@ -12470,7 +12486,7 @@ static void disable_debug_trace_modes(void){
 }
 static void restore_debug_trace_modes(void){
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
-  sqlite3SelectTrace = savedSelectTrace;
+  sqlite3_unsupported_selecttrace = savedSelectTrace;
 #endif
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
   sqlite3WhereTrace = savedWhereTrace;
@@ -12621,25 +12637,38 @@ static void exec_prepared_stmt_columnar(
   ShellState *p,                        /* Pointer to ShellState */
   sqlite3_stmt *pStmt                   /* Statment to run */
 ){
-  int nRow = 0;
+  sqlite3_int64 nRow = 0;
   int nColumn = 0;
   char **azData = 0;
-  char *zMsg = 0;
+  sqlite3_int64 nAlloc = 0;
   const char *z;
   int rc;
-  int i, j, nTotal, w, n;
+  sqlite3_int64 i, nData;
+  int j, nTotal, w, n;
   const char *colSep = 0;
   const char *rowSep = 0;
 
-  rc = sqlite3_get_table(p->db, sqlite3_sql(pStmt),
-                         &azData, &nRow, &nColumn, &zMsg);
-  if( rc ){
-    utf8_printf(p->out, "ERROR: %s\n", zMsg);
-    sqlite3_free(zMsg);
-    sqlite3_free_table(azData);
-    return;
+  rc = sqlite3_step(pStmt);
+  if( rc!=SQLITE_ROW ) return;
+  nColumn = sqlite3_column_count(pStmt);
+  nAlloc = nColumn*4;
+  azData = sqlite3_malloc64( nAlloc*sizeof(char*) );
+  if( azData==0 ) shell_out_of_memory();
+  for(i=0; i<nColumn; i++){
+    azData[i] = strdup(sqlite3_column_name(pStmt,i));
   }
-  if( nRow==0 || nColumn==0 ) goto columnar_end;
+  do{
+    if( (nRow+2)*nColumn >= nAlloc ){
+      nAlloc *= 2;
+      azData = sqlite3_realloc64(azData, nAlloc*sizeof(char*));
+      if( azData==0 ) shell_out_of_memory();
+    }
+    nRow++;
+    for(i=0; i<nColumn; i++){
+      z = (const char*)sqlite3_column_text(pStmt,i);
+      azData[nRow*nColumn + i] = z ? strdup(z) : 0;
+    }
+  }while( (rc = sqlite3_step(pStmt))==SQLITE_ROW );
   if( nColumn>p->nWidth ){
     p->colWidth = realloc(p->colWidth, nColumn*2*sizeof(int));
     if( p->colWidth==0 ) shell_out_of_memory();
@@ -12749,7 +12778,9 @@ columnar_end:
   if( seenInterrupt ){
     utf8_printf(p->out, "Interrupt\n");
   }
-  sqlite3_free_table(azData);
+  nData = (nRow+1)*nColumn;
+  for(i=0; i<nData; i++) free(azData[i]);
+  sqlite3_free(azData);
 }
 
 /*
@@ -18517,8 +18548,9 @@ static int do_meta_command(char *zLine, ShellState *p){
       rc = 1;
       goto meta_command_exit;
     }
-    p->in = fopen(azArg[1], "rb");
-    if( p->in==0 ){
+    if( notNormalFile(azArg[1])
+     || (p->in = fopen(azArg[1], "rb"))==0
+    ){
       utf8_printf(stderr,"Error: cannot open \"%s\"\n", azArg[1]);
       rc = 1;
     }else{
@@ -18724,7 +18756,7 @@ static int do_meta_command(char *zLine, ShellState *p){
 
 #if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
   if( c=='s' && n==11 && strncmp(azArg[0], "selecttrace", n)==0 ){
-    sqlite3SelectTrace = nArg>=2 ? (int)integerValue(azArg[1]) : 0xffff;
+    sqlite3_unsupported_selecttrace = nArg>=2 ? (int)integerValue(azArg[1]) : 0xffff;
   }else
 #endif
 

@@ -118,6 +118,7 @@ static struct DbLocalData {
   int nBegin;               /* Nesting depth of BEGIN */
   int doRollback;           /* True to force a rollback */
   int nCommitHook;          /* Number of commit hooks */
+  int wrTxn;                /* Outer-most TNX is a write */
   Stmt *pAllStmt;           /* List of all unfinalized statements */
   int nPrepare;             /* Number of calls to sqlite3_prepare_v2() */
   int nDeleteOnFail;        /* Number of entries in azDeleteOnFail[] */
@@ -197,6 +198,7 @@ void db_begin_transaction_real(const char *zStartFile, int iStartLine){
     db.doRollback = 0;
     db.zStartFile = zStartFile;
     db.iStartLine = iStartLine;
+    db.wrTxn = 0;
   }
   db.nBegin++;
 }
@@ -211,7 +213,8 @@ void db_begin_write_real(const char *zStartFile, int iStartLine){
     db.doRollback = 0;
     db.zStartFile = zStartFile;
     db.iStartLine = iStartLine;
-  }else{
+    db.wrTxn = 1;
+  }else if( !db.wrTxn ){
     fossil_warning("read txn at %s:%d might cause SQLITE_BUSY "
        "for the write txn at %s:%d",
        db.zStartFile, db.iStartLine, zStartFile, iStartLine);
@@ -1330,7 +1333,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
   db_maybe_set_encryption_key(db, zDbName);
-  sqlite3_busy_timeout(db, 5000);
+  sqlite3_busy_timeout(db, 15000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
@@ -1346,7 +1349,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
-  sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
+  sqlite3_db_config(db, SQLITE_DBCONFIG_ENABLE_FKEY, 0, &rc);
   return db;
 }
 
@@ -1717,11 +1720,15 @@ static int isValidLocalDb(const char *zDbName){
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
 **
+** In db_open_local_v2(), if the bRootOnly flag is true, then only
+** look in the CWD for the checkout database.  Do not scan upwards in
+** the file hierarchy.
+**
 ** This routine always opens the user database regardless of whether or
 ** not the repository database is found.  If the _FOSSIL_ or .fslckout file
 ** is found, it is attached to the open database connection too.
 */
-int db_open_local(const char *zDbName){
+int db_open_local_v2(const char *zDbName, int bRootOnly){
   int i, n;
   char zPwd[2000];
   static const char *(aDbName[]) = { "_FOSSIL_", ".fslckout", ".fos" };
@@ -1749,6 +1756,7 @@ int db_open_local(const char *zDbName){
         return 1;
       }
     }
+    if( bRootOnly ) break;
     n--;
     while( n>1 && zPwd[n]!='/' ){ n--; }
     while( n>1 && zPwd[n-1]=='/' ){ n--; }
@@ -1757,6 +1765,9 @@ int db_open_local(const char *zDbName){
 
   /* A checkout database file could not be found */
   return 0;
+}
+int db_open_local(const char *zDbName){
+  return db_open_local_v2(zDbName, 0);
 }
 
 /*
@@ -2390,7 +2401,7 @@ void db_initial_setup(
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 **
-** See also: clone
+** See also: [[clone]]
 */
 void create_repository_cmd(void){
   char *zPassword;
@@ -3072,26 +3083,47 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME ?VERSION? ?OPTIONS?
+** Usage: %fossil open REPOSITORY ?VERSION? ?OPTIONS?
 **
-** Open a connection to the local repository in FILENAME.  A checkout
-** for the repository is created with its root at the working directory.
-** If VERSION is specified then that version is checked out.  Otherwise
-** the latest version is checked out.  No files other than "manifest"
-** and "manifest.uuid" are modified if the --keep option is present.
+** Open a new connection to the repository name REPOSITORY.  A checkout
+** for the repository is created with its root at the current working
+** directory, or in DIR if the "--workdir DIR" is used.  If VERSION is
+** specified then that version is checked out.  Otherwise the most recent
+** check-in on the main branch (usually "trunk") is used.
+**
+** REPOSITORY can be the filename for a repository that already exists on the
+** local machine or it can be a URI for a remote repository.  If REPOSITORY
+** is a URI in one of the formats recognized by the [[clone]] command, then
+** remote repo is first cloned, then the clone is opened. The clone will be
+** stored in the current directory, or in DIR if the "--repodir DIR" option
+** is used. The name of the clone will be taken from the last term of the URI.
+** For "http:" and "https:" URIs, you can append an extra term to the end of
+** the URI to get any repository name you like. For example:
+**
+**     fossil open https://fossil-scm.org/home/new-name
+**
+** The base URI for cloning is "https://fossil-scm.org/home".  The extra
+** "new-name" term means that the cloned repository will be called
+** "new-name.fossil".
 **
 ** Options:
 **   --empty           Initialize checkout as being empty, but still connected
 **                     with the local repository. If you commit this checkout,
 **                     it will become a new "initial" commit in the repository.
+**   --force           Continue with the open even if the working directory is
+**                     not empty.
+**   --force-missing   Force opening a repository with missing content
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
-**   --force-missing   Force opening a repository with missing content
+**   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
+**                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
+**   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
+**                     directory is created if it does not exist.
 **
-** See also: close
+** See also: [[close]], [[clone]]
 */
 void cmd_open(void){
   int emptyFlag;
@@ -3100,7 +3132,13 @@ void cmd_open(void){
   int allowNested;
   int allowSymlinks;
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
+  int bForce = 0;                /* --force.  Open even if non-empty dir */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
+  const char *zWorkDir;          /* --workdir value */
+  const char *zRepo = 0;         /* Name of the repository file */
+  const char *zRepoDir = 0;      /* --repodir value */
+  char *zPwd;                    /* Initial working directory */
+  int isUri = 0;                 /* True if REPOSITORY is a URI */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3108,6 +3146,11 @@ void cmd_open(void){
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+  zWorkDir = find_option("workdir",0,1);
+  zRepoDir = find_option("repodir",0,1);
+  bForce = find_option("force",0,0)!=0;  
+  zPwd = file_getcwd(0,0);
+  
 
   /* We should be done with options.. */
   verify_all_options();
@@ -3115,10 +3158,79 @@ void cmd_open(void){
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
-  if( !allowNested && db_open_local(0) ){
-    fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
+  zRepo = g.argv[2];
+  if( sqlite3_strglob("http://*", zRepo)==0
+   || sqlite3_strglob("https://*", zRepo)==0
+   || sqlite3_strglob("ssh:*", zRepo)==0
+   || sqlite3_strglob("file:*", zRepo)==0
+  ){
+    isUri = 1;
   }
-  db_open_repository(g.argv[2]);
+
+  /* If --workdir is specified, change to the requested working directory */
+  if( zWorkDir ){
+    if( !isUri ){
+      zRepo = file_canonical_name_dup(zRepo);
+    }
+    if( zRepoDir ){
+      zRepoDir = file_canonical_name_dup(zRepoDir);
+    }
+    if( file_isdir(zWorkDir, ExtFILE)!=1 ){
+      file_mkfolder(zWorkDir, ExtFILE, 0, 0);
+      if( file_mkdir(zWorkDir, ExtFILE, 0) ){
+        fossil_fatal("cannot create directory %s", zWorkDir);
+      }
+    }
+    if( file_chdir(zWorkDir, 0) ){
+      fossil_fatal("unable to make %s the working directory", zWorkDir);
+    }
+  }
+  if( keepFlag==0 && bForce==0 && file_directory_size(".", 0, 1)>0 ){
+    fossil_fatal("directory %s is not empty\n"
+                 "use the --force option to override", file_getcwd(0,0));
+  }
+
+  if( db_open_local_v2(0, allowNested) ){
+    fossil_fatal("there is already an open tree at %s", g.zLocalRoot);
+  }
+
+  /* If REPOSITORY looks like a URI, then try to clone it first */
+  if( isUri ){
+    char *zNewBase;   /* Base name of the cloned repository file */
+    const char *zUri; /* URI to clone */
+    int i;            /* Loop counter */
+    int rc;           /* Result code from fossil_system() */
+    Blob cmd;         /* Clone command to be run */
+    char *zCmd;       /* String version of the clone command */
+
+    zUri = zRepo;
+    zNewBase = fossil_strdup(file_tail(zUri));
+    for(i=(int)strlen(zNewBase)-1; i>1 && zNewBase[i]!='.'; i--){}
+    if( zNewBase[i]=='.' ) zNewBase[i] = 0;
+    if( zRepoDir==0 ) zRepoDir = zPwd;
+    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    fossil_free(zNewBase);
+    blob_init(&cmd, 0, 0);
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append(&cmd, " clone", -1);
+    blob_append_escaped_arg(&cmd, zUri);
+    blob_append_escaped_arg(&cmd, zRepo);
+    zCmd = blob_str(&cmd);
+    fossil_print("%s\n", zCmd);
+    if( zWorkDir ) file_chdir(zPwd, 0);
+    rc = fossil_system(zCmd);
+    if( rc ){
+      fossil_fatal("clone of %s failed", zUri);
+    }
+    blob_reset(&cmd);
+    if( zWorkDir ) file_chdir(zWorkDir, 0);
+  }else if( zRepoDir ){
+    fossil_fatal("the --repodir option only makes sense if the REPOSITORY "
+                 "argument is a URI that begins with http:, https:, ssh:, "
+                 "or file:");
+  }
+
+  db_open_repository(zRepo);
 
   /* Figure out which revision to open. */
   if( !emptyFlag ){
@@ -3171,8 +3283,8 @@ void cmd_open(void){
     g.allowSymlinks = db_get_boolean("allow-symlinks",
                                      db_allow_symlinks_by_default());
   }
-  db_lset("repository", g.argv[2]);
-  db_record_repository_filename(g.argv[2]);
+  db_lset("repository", zRepo);
+  db_record_repository_filename(zRepo);
   db_set_checkout(0);
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
@@ -3889,7 +4001,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **   --exact    only consider exact name matches.
 **
-** See also: configuration
+** See also: [[configuration]]
 */
 void setting_cmd(void){
   int i;

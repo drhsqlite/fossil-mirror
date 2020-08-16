@@ -24,8 +24,16 @@
       return false;
     };
   }
-  document.querySelectorAll('.sbsdiffcols').forEach(initSbsDiff);
+  var i, diffs = document.querySelectorAll('.sbsdiffcols')
+  /* Maintenance reminder: using forEach() here breaks
+     MSIE<=11, and we need to keep those browsers working on
+     the /info page. */;
+  for(i=0; i<diffs.length; i++){
+    initSbsDiff(diffs[i]);
+  }
   if(window.fossil && fossil.page){
+    /* Here we can use forEach() because the pages which use
+       fossil.pages only work in HTML5-compliant browsers. */
     fossil.page.tweakSbsDiffs = function(){
       document.querySelectorAll('.sbsdiffcols').forEach(initSbsDiff);
     };
