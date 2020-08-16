@@ -3401,3 +3401,38 @@ void ci_amend_cmd(void){
     manifest_to_disk(rid);
   }
 }
+
+
+/*
+** COMMAND: test-symlink-list
+**
+** Show all symlinks that have been checked into a Fossil repository.
+**
+** This command does a linear scan through all check-ins and so might take
+** several seconds on a large repository.
+*/
+void test_symlink_list_cmd(void){
+  Stmt q;
+  db_find_and_open_repository(0,0);
+  add_content_sql_commands(g.db);
+  db_prepare(&q,
+     "SELECT min(date(e.mtime)),"
+           " b.uuid,"
+           " f.filename,"
+           " content(f.uuid)"
+     " FROM event AS e, blob AS b, files_of_checkin(b.uuid) AS f"
+     " WHERE e.type='ci'"
+     "   AND b.rid=e.objid"
+     "   AND f.perm LIKE '%%l%%'"
+     " GROUP BY 3, 4"
+     " ORDER BY 1 DESC"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%s %.16s %s -> %s\n",
+      db_column_text(&q,0),
+      db_column_text(&q,1),
+      db_column_text(&q,2),
+      db_column_text(&q,3));
+  }
+  db_finalize(&q);
+}

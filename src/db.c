@@ -1801,7 +1801,7 @@ int db_allow_symlinks_by_default(void){
 #if defined(_WIN32)
   return 0;
 #else
-  return 1;
+  return 0;
 #endif
 }
 
@@ -1809,7 +1809,7 @@ int db_allow_symlinks_by_default(void){
 ** Returns non-zero if support for symlinks is currently enabled.
 */
 int db_allow_symlinks(void){
-  return g.allowSymlinks;
+  return 0; /* g.allowSymlinks; */
 }
 
 /*
