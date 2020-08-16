@@ -2402,9 +2402,11 @@ void touch_cmd(){
 
 /*
 ** If zFileName is not NULL and contains a '.', this returns a pointer
-** to the position after the final '.', else it returns NULL.
+** to the position after the final '.', else it returns NULL. As a
+** special case, if it ends with a period then a pointer to the
+** terminating NUL byte is returned.
 */
 const char * file_extension(const char *zFileName){
-  const char * zExt = strrchr(zFileName, '.');
+  const char * zExt = zFileName ? strrchr(zFileName, '.') : 0;
   return zExt ? &zExt[1] : 0;
 }

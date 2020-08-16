@@ -1,5 +1,5 @@
-C Fix\sthe\srelease\sversion\son\sthe\shome\spage.
-D 2020-08-16T16:35:19.029
+C Fixed\sfile_extension()\sto\sbehave\slike\sits\sdocs\ssay\sit\sdoes,\swhich\swould\shave\smade\s[5a9ac6ca3e]\sunnecessary.
+D 2020-08-16T16:49:54.334
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 559407d97cc14a42599081b105e1eecbc3db3aab4e946ae17f9a0609c0875c68
+F src/file.c 23409b3594cdf6141ca637c05d5615cc672bf2da6b2e4d60bc97a29e3eff631a
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5a9ac6ca3e01cc09b52ac9e8d0e7ab06dbc6c0f0f9f9b64ac1c2da826d34d4b1
-R 78b0c220f62ef7111e0abb1301560e19
-U drh
-Z b4fa95b4746411be19f5c03f9fcc19fa
+P 4c450330331876866189ceda5e3848d0b7aa2a093367b7dd7c8c0b2ea9479adc
+R c2732c4b7e6177b9648e85be7ea77c6f
+U stephan
+Z 74b50b630d02e3ceb58cb34c7f372adc
