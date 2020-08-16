@@ -1,4 +1,16 @@
 "use strict";
+(function () {
+  /* CustomEvent polyfill, courtesy of Mozilla:
+     https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
+  */
+  if(typeof window.CustomEvent === "function") return false;
+  window.CustomEvent = function(event, params) {
+    if(!params) params = {bubbles: false, cancelable: false, detail: null};
+    const evt = document.createEvent('CustomEvent');
+    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+    return evt;
+  };
+})();
 (function(global){
   /* Bootstrapping bits for the global.fossil object. Must be
      loaded after style.c:style_emit_script_tag() has initialized

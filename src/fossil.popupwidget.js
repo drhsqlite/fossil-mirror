@@ -170,7 +170,6 @@
         x += window.pageXOffset;
         y += window.pageYOffset;
       }
-      console.debug("showIt?",showIt,x,y);
       if(showIt){
         if('number'===typeof x && 'number'===typeof y){
           this.e.style.left = x+"px";

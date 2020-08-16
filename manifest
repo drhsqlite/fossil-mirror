@@ -1,5 +1,5 @@
-C Removed\sthe\scopy\sbutton's\shard-coded\spost-copy\sbehaviour\s(flashing)\sand\sinstead\sfire\sa\stext-copied\sevent.\sThe\sline\snumber\sselection\snow\scloses\sthe\spopup\swidget\safter\sthe\scopy\sbutton\sis\striggered.\sImplemented\sa\sbasic\stoast-message\sAPI\susing\sPopupWidget.
-D 2020-08-16T00:50:31.984
+C Removed\ssome\sstray\sdebug\soutput.\sAdded\sa\swindow.CustomEvent\spolyfill\s"just\sin\scase."
+D 2020-08-16T01:32:57.277
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -485,7 +485,7 @@ F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 263e90df3d53b6037b4a1030b669f2b9b32d21dda1714afa6c0146b77e5c621a
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
-F src/fossil.bootstrap.js 515ddd9afe030abcb85c56850d854317273bb84e27a711794ed83ae01391f02e
+F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
 F src/fossil.dom.js 77f6e133cc93191e88e4bfc3a4904fc18a029d1ea7f7ae69f768332dc76e5f2c
@@ -494,7 +494,7 @@ F src/fossil.numbered-lines.js e14211da29450e947ab951c81dd3aceff5890db14f943a78d
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
-F src/fossil.popupwidget.js 8274e963b3644e6e5f0a0739e111796f62f10e296ff00d14e806b52ef409dc50
+F src/fossil.popupwidget.js 4bea433b283901caab942945608641cabb13c62297e62fb7322f31f1067bcc54
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
 F src/fossil.tabs.js 93ec1f21f0658d66474f04ed276e1c02b63f7818ba9c118f180f54d8532730d9
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3998ccef446f3005431cd19b255e734206504d012c104471d0e241a3917fbffd
-R 8956358f44b752702423affa7e4d556d
+P 8a6ccf9ddd720f3cc5a5c4b2d0a0a954d6b3e49f5395ec91e2f63b79a2e3e051
+R 1a188a9c0c2c7128dd2b72431ed9618b
 U stephan
-Z 71175a03062f74c8f5dc1e322ff5b826
+Z b99b7effcbf09b4a8c852cf34114d508
