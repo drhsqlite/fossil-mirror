@@ -1,5 +1,5 @@
-C Fixed\sfile_extension()\sto\sbehave\slike\sits\sdocs\ssay\sit\sdoes,\swhich\swould\shave\smade\s[5a9ac6ca3e]\sunnecessary.
-D 2020-08-16T16:49:54.334
+C Mention\sthe\s"fossil\sbackup"\scommand\sin\sthe\s2.12\schange\slog.
+D 2020-08-16T17:18:46.616
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -834,7 +834,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 473b7213208e554becb0e5bd4113a9f6649d4f3326354058b18cdca29fea1e96
+F www/changes.wiki f14b505c3ba4b4dcc1bfac3e9bccc0a30c00c73885f9971feaaeba2c7111f027
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c450330331876866189ceda5e3848d0b7aa2a093367b7dd7c8c0b2ea9479adc
-R c2732c4b7e6177b9648e85be7ea77c6f
-U stephan
-Z 74b50b630d02e3ceb58cb34c7f372adc
+P f95e47b611ee591b426b6cac903696a0754c1458f645fd3a3497d0fb746494ec
+R 3a1667c9f5c5fb50f6075fc9dc87fa3a
+U drh
+Z 0205cfac0684021a456c997b34eae4dd

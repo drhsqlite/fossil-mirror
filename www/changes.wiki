@@ -44,6 +44,7 @@
   *  Enhance the [/help?cmd=revert|fossil revert] command so that it
      is able to revert all files beneath a directory.
   *  Add the [/help?cmd=bisect|fossil bisect skip] command.
+  *  Add the [/help?cmd=backup|fossil backup] command.
   *  Enhance [/help?cmd=bisect|fossil bisect ui] so that it shows all unchecked
      check-ins in between the innermost "good" and "bad" check-ins.
   *  Added the <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
