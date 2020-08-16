@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\sclone"\scommand\sso\sthat\sit\sworks\swith\s"file:"\sURLs.
-D 2020-08-16T15:20:39.697
+C Disable\sHTTPS\sredirect\sfor\sthe\s"test-http"\scommand.\s\sThat\scommand\sis\sused\nby\sthe\s"ssh:"\stransport\smethod\sand\sredirects\sto\shttps\swill\sbreak\sssh:\ntransport.
+D 2020-08-16T15:51:15.766
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -536,7 +536,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c 684a51e0a74565b61444ec8a56be456bc194d46bd0c9b26ffaa2bd1cd8405200
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 782f6114fe53ea2c957aa272e73b95528547808040db97b96b458db6fac4df48
+F src/main.c 983e335fee7f2bfc8d4b6281d683d6a89bbeaf70e5b9608080a61c285d62ca44
 F src/main.mk cfd99b7375a7d6cb8728819d2a42674892f44cd862094f441ed2ec637eb6f1d0
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -1007,7 +1007,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 522e7204c0aab74007d9d907312e027510471750a17349b5bc19a1608548ee17
-R 169cf7293b2b49d86eabd1e48e41c1c7
+P 9d2b7cab7ac64cf81eeab25698c6ee9ce2afa0e338ef5ca151e6372c6d464814
+Q +edf63d73c52bf69f8bbeffb2031dbf4589c21aa8e9d55f21e1e7196c06080138
+R 7bcf8b2a1c134f7dcc55632f2ac29a88
 U drh
-Z 434c9eddd6277e17aa54bf2579cc28ea
+Z 2d49e18d941636db50be15f0cf79cfcc
