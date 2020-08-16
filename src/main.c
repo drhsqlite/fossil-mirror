@@ -2636,6 +2636,7 @@ void cmd_test_http(void){
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
+  g.sslNotAvailable = 1;  /* Avoid attempts to redirect */
   zIpAddr = cgi_ssh_remote_addr(0);
   if( zIpAddr && zIpAddr[0] ){
     g.fSshClient |= CGI_SSH_CLIENT;
