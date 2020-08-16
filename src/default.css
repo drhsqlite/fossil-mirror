@@ -1235,7 +1235,6 @@ table.numbered-lines td.file-content > pre > code > * {
   font-size: inherit;
   font-family: inherit;
 }
-div.selectedText/*legacy*/,
 table.numbered-lines td.line-numbers span.selected-line/*replacement*/ {
   font-weight: bold;
   color: blue;
