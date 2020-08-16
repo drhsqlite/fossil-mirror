@@ -1,5 +1,5 @@
-C Consolidated\sthe\scommon\sstyles\sof\sthe\sbottom-\sand\sright-side\sforum\spost\sexpansion\stoggles\sand\sresolved\sa\slayout\squirk\swhich\scould\scause\sthe\sright-side\sexpander\sto\ssit\stoo\sfar\sto\sthe\sleft.
-D 2020-08-14T18:54:03.833
+C Reverted\s[33610b04de8fdf56]\sbecause\sa\ssubtle\sbug\sin\sChrome\sand\sFF\scauses\sboth\sbrowsers\sto\sbreak\sscrolling\sof\selements\sif\sthey\sare\sdescendants,\showever\sdeeply\snested,\sof\sa\sfieldset\selement.\sThe\sone\sknown\sworkaround\sfor\sthat\sis\stoo\sfragile.\sThis\sis\snot\srelease-critical.
+D 2020-08-16T10:05:42.740
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ef12318ae5f4c491d821cb96bae6cca1b824c8283853c2bb03e5d343986bb734
-F src/default.css ff65a798f4492f16f9915b05d86668c1d7c85e4eccacc3b978fdef0d0db39df1
+F src/default.css 1eeda0d502d5f51bf165ed2e2ac859f5c6f0a2dba00b1ccd2ddd11bce4500e07
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -493,7 +493,7 @@ F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889
 F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
 F src/fossil.storage.js 09c8cd62df5d4dd8bd6821e6824995f1ba6517ef27c6eed5ae0dfb4ee7076ac0
-F src/fossil.tabs.js 93ec1f21f0658d66474f04ed276e1c02b63f7818ba9c118f180f54d8532730d9
+F src/fossil.tabs.js 56a57bda17eb3a3b8bfbbc43e2475f1fd66b4fb009d7f78ca44f5561c44e08bf
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
@@ -1004,7 +1004,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2121b1f7a765114b7a50092617e1a87937ddbaab75a3ff2ab64da2545013eaa1
-R f25f4e5935f73a600801086ff0fc8d33
+P db1afa75be73a5343c34039892031df7f352cefc53a9f7f238a5b6117bb6c165
+R ac1335dab2fbcf14dff866707b6203b4
+T *branch * post-2.12-fixes
+T *sym-post-2.12-fixes *
+T -sym-trunk *
 U stephan
-Z dfef186797998193e6386267bc9ea5f5
+Z 7445105e92ec31789e24b3211f24b203
