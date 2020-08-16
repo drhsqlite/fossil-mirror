@@ -1,7 +1,12 @@
 <title>Change Log</title>
 
+<a name='v2_13'></a>
+<h2>Changes for Version 2.13 (pending)</h2>
+
+  *  <i>TBD...</i>
+
 <a name='v2_12'></a>
-<h2>Changes for Version 2.12</h2>
+<h2>Changes for Version 2.12 (2020-08-16)</h2>
 
   *  Security fix in the "[/help?cmd=git|fossil git export]" command.
      The same fix is also backported to version 2.10.1 and 2.11.1.
