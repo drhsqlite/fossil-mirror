@@ -1157,7 +1157,6 @@ table.numbered-lines {
 }
 table.numbered-lines > tbody > tr {
   font-family: monospace;
-  font-size: 1.2em;
   line-height: 1.35;
   white-space: pre;
 }
