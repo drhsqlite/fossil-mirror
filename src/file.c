@@ -2408,3 +2408,90 @@ const char * file_extension(const char *zFileName){
   const char * zExt = zFileName ? strrchr(zFileName, '.') : 0;
   return zExt ? &zExt[1] : 0;
 }
+
+/*
+** Returns true if the given filename ends with any of fossil's
+** checkout database filenames: _FOSSIL_ or .fslckout. Specifically,
+** it returns 1 if it's an exact match and 2 if it's the tail match
+** on a longer input.
+**
+** zFilename must, for efficiency's sake, be a
+** canonicalized/normalized name, e.g. using only '/' as directory
+** separators.
+**
+** nFilename must be the strlen of zFilename. If it is negative,
+** strlen() is used to calculate it.
+*/
+int filename_is_ckout_db(const char *zFilename, int nFilename){
+  const char *zEnd;  /* one-after-the-end of zFilename */
+  int gotSuffix = 0; /* length of suffix (-wal, -shm, -journal) */
+
+  assert(zFilename && "API misuse");
+  if(nFilename<0) nFilename = (int)strlen(zFilename);
+  if(nFilename<8/*strlen _FOSSIL_*/) return 0;
+  zEnd = zFilename + nFilename;
+  if(nFilename>=12/*strlen _FOSSIL_-(shm|wal)*/){
+    /* Check for (-wal, -shm, -journal) suffixes, with an eye towards
+    ** runtime speed. */
+    if('-'==zEnd[-4]){
+      if(fossil_stricmp("wal", &zEnd[-3])
+         && fossil_stricmp("shm", &zEnd[-3])){
+        return 0;
+      }
+      gotSuffix = 4;
+    }else if(nFilename>=16/*strlen _FOSSIL_-journal*/ && '-'==zEnd[-8]){
+      if(fossil_stricmp("journal",&zEnd[-7])){
+        return 0;
+      }
+      gotSuffix = 8;
+    }
+    if(gotSuffix){
+      assert(4==gotSuffix || 8==gotSuffix);
+      zEnd -= gotSuffix;
+      nFilename -= gotSuffix;
+      gotSuffix = 1;
+    }
+    assert(nFilename>=8 && "strlen _FOSSIL_");
+    assert(gotSuffix==0 || gotSuffix==1);
+  }
+  switch(zEnd[-1]){
+    case '_': {
+      return fossil_strnicmp("_FOSSIL_", &zEnd[-8], 8)
+        ? 0 : (8==nFilename
+               ? 1
+               : ('/'==zEnd[-9] ? 2 : gotSuffix));
+    }
+    case 't': {
+      return (nFilename<9
+              || '.'!=zEnd[-9]
+              || fossil_strnicmp(".fslckout", &zEnd[-9], 9))
+        ? 0 : (9==nFilename
+               ? 1
+               : ('/'==zEnd[-10] ? 2 : gotSuffix));
+    }
+    default: {
+      return 0;
+    }
+  }
+}
+
+/*
+** COMMAND: test-is-ckout-db
+**
+** Usage: %fossil test-is-ckout-db FILENAMES...
+**
+** Passes each given name to filename_is_ckout_db() and outputs one
+** line per file: the result value of that function followed by the
+** name.
+*/
+void test_is_ckout_name_cmd(void){
+  int i;
+
+  if(g.argc<3){
+    usage("FILENAME_1 [...FILENAME_N]");
+  }
+  for( i = 2; i < g.argc; ++i ){
+    const int check = filename_is_ckout_db(g.argv[i], -1);
+    fossil_print("%d %s\n", check, g.argv[i]);
+  }
+}
