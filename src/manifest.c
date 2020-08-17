@@ -635,7 +635,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( !file_is_simple_pathname_nonstrict(zName) ){
           SYNTAX("F-card filename is not a simple path");
         }else if( file_is_reserved_name(zName,-1) ){
-          SYNTAX("F-card contains reserved name of a checkout db.");
+          SYNTAX("F-card contains a reserved name");
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){
