@@ -1,5 +1,5 @@
-C Fix\stypo,\sremove\speriod\sfor\sconsistency\swith\sother\shelp
-D 2020-08-17T08:14:19.100
+C A\scouple\sminor\sskin\sdoc\stypos.
+D 2020-08-17T21:17:57.734
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -849,7 +849,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 0c820100dfd65c763360336cb1fa2c8a610e102b240db0d6a2aafa01dae86077
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 95c71c047bed75bd92ee5358fd7e63c118c3ea0c540882a452bdd9ad14457b40
+F www/customskin.md 750aaf7f1e4dce7c0e0d8b1423a7c1c5213c358587c40ad0e5c258649bdf4041
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c840617b8b765da951131336239a39d7c945f7e687ff13976ec94311646e96a4
-R 72c3ab32b039af2ce8b335d59a6b0ce6
-U andygoth
-Z 28d0bbc04bf5fb6319257296d1ce95af
+P 80ca317ac5f3165f13b0aa939e6e6e0d458303ee3687d37afd74071b9974707e
+R 2278a82fb9ab3ad09018107cb482d5f2
+U stephan
+Z 394167a9b65f3164846b12212b180610
