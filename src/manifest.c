@@ -612,6 +612,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->rEventDate = db_double(0.0,"SELECT julianday(%Q)", next_token(&x,0));
         if( p->rEventDate<=0.0 ) SYNTAX("malformed date on E-card");
         p->zEventId = next_token(&x, &sz);
+        if( p->zEventId==0 ) SYNTAX("missing hash on E-card");
         if( !hname_validate(p->zEventId, sz) ){
           SYNTAX("malformed hash on E-card");
         }
@@ -638,6 +639,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){
+          if( zUuid==0 ) SYNTAX("missing hash on F-card");
           if( !hname_validate(zUuid,sz) ){
             SYNTAX("F-card hash invalid");
           }

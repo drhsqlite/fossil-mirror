@@ -1,5 +1,5 @@
-C Added\schecks\sof\s(-wal,\s-shm,\s-journal)\sdb\ssuffixes.
-D 2020-08-17T17:34:03.411
+C Fixed\s[17d00c20dd9f]\sby\sadding\sNULL\scheck\son\sF-\sand\sE-card\sUUID\stokens.
+D 2020-08-17T17:50:05.395
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -541,7 +541,7 @@ F src/main.mk cfd99b7375a7d6cb8728819d2a42674892f44cd862094f441ed2ec637eb6f1d0
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 932e445ddec224587f9631e7c7ee830ed8f502252c85c2e8d35e0083902ef8e0 x
-F src/manifest.c 8d15475b9e60b37519da4a91ede0542ec72310c6ee1467ac0f427f2a612cba86
+F src/manifest.c 104a91fb92f4abeacb45045d0fb99dfc1689b5d16cfb5bbabb4bb1f3f1b8fda2
 F src/markdown.c 5a1fb3e55d2201601d966016090151ad2151f50715631de173d60e0c09bfc381
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ebd8d9a98ea3402403453c517aa822da1bd01923e38bf7a8632cb667db90da31
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c19baa09b6316cbe6d2b41ead20cfa4cb21eba798ce29227ef5d17fa1c19ab5
-R f038cff80d665f0ed060db5f93230c4c
+P 4ed1a294ff5b90e210b1d8eb98cb0f7919b9bc43241d18a0a8c8a2749afd5f57
+R d80caa4900b8cd587b9933874f3b76ff
 U stephan
-Z 0d2e85dc6b57bf0cc754f7a58d321666
+Z caf13abd3d9a05fe9faacc3000169370
