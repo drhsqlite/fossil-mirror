@@ -1,5 +1,5 @@
-C Part\s1\sof\sticket\s[980a72dedd]:\sefficient\scheck\sfor\sdetermining\swhether\sa\sfilename\sends\swith\sa\scheckout\sdb\sname.
-D 2020-08-17T15:17:29.675
+C switch/case\sstyle\stweak,\sper\srequest.
+D 2020-08-17T15:40:00.105
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 22c7d4a7828b08ebbc11680aab3840ce1458582c024de5228a7acd12770f1887
+F src/db.c 7a978a4f0d9880d8d4db7652afa8a57904bd111a541d4e11d39da12b9f930bf8
 F src/default.css a3c4e00621315fed3a9fa731c0f7cdeafd557bcc5ff46e10ba501566cadeb0b4
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -1007,10 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c840617b8b765da951131336239a39d7c945f7e687ff13976ec94311646e96a4
-R e0a30164ea154753febb6a9773e72266
-T *branch * reject-ckout-db
-T *sym-reject-ckout-db *
-T -sym-trunk *
+P ddd1273ea2358dd9882bb296346f63a2ad55ccccda798928ac9eb25e54a39f1a
+R 8ea2118bb8180f6a0d27bf70fe9819ac
 U stephan
-Z 7facf875eaf3f14b10685abda0415e25
+Z f6631108dd43e9c91c36fc203d4ee667

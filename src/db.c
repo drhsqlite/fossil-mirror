@@ -1728,14 +1728,16 @@ int is_fossil_ckout_db_name(const char *zFilename, int nFilename){
   if(nFilename<8) return 0;
   zEnd = zFilename + nFilename;
   switch(zEnd[-1]){
-    case '_':
+    case '_': {
       return fossil_strcmp("_FOSSIL_", &zEnd[-8])
         ? 0 : (8==nFilename ? 1 : ('/'==zEnd[-9] ? 2 : 0));
-    case 't':
+    }
+    case 't': {
       return (nFilename<9
               || '.'!=zEnd[-9]
               || fossil_strcmp(".fslckout", &zEnd[-9]))
         ? 0 : (9==nFilename ? 1 : ('/'==zEnd[-10] ? 2 : 0));
+    }
     default:
       return 0;
   }
