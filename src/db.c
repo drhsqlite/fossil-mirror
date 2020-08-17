@@ -71,6 +71,7 @@ const struct Stmt empty_Stmt = empty_Stmt_m;
 
 /*
 ** Call this routine when a database error occurs.
+** This routine throws a fatal error.  It does not return.
 */
 static void db_err(const char *zFormat, ...){
   va_list ap;
@@ -365,6 +366,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   int rc;
   int prepFlags = 0;
   char *zSql;
+  const char *zExtra = 0;
   blob_zero(&pStmt->sql);
   blob_vappendf(&pStmt->sql, zFormat, ap);
   va_end(ap);
@@ -373,9 +375,11 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   if( flags & DB_PREPARE_PERSISTENT ){
     prepFlags = SQLITE_PREPARE_PERSISTENT;
   }
-  rc = sqlite3_prepare_v3(g.db, zSql, -1, prepFlags, &pStmt->pStmt, 0);
+  rc = sqlite3_prepare_v3(g.db, zSql, -1, prepFlags, &pStmt->pStmt, &zExtra);
   if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)==0 ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
+  }else if( zExtra && !fossil_all_whitespace(zExtra) ){
+    db_err("surplus text follows SQL: \"%s\"", zExtra);
   }
   pStmt->pNext = db.pAllStmt;
   pStmt->pPrev = 0;
@@ -642,6 +646,7 @@ int db_exec(Stmt *pStmt){
 
 /*
 ** COMMAND: test-db-exec-error
+** Usage: %fossil test-db-exec-error
 **
 ** Invoke the db_exec() interface with an erroneous SQL statement
 ** in order to verify the error handling logic.
@@ -651,6 +656,23 @@ void db_test_db_exec_cmd(void){
   db_find_and_open_repository(0,0);
   db_prepare(&err, "INSERT INTO repository.config(name) VALUES(NULL);");
   db_exec(&err);
+}
+
+/*
+** COMMAND: test-db-prepare
+** Usage: %fossil test-db-prepare ?OPTIONS? SQL
+**
+** Invoke db_prepare() on the SQL input.  Report any errors encountered.
+** This command is used to verify error detection logic in the db_prepare()
+** utility routine.
+*/
+void db_test_db_prepare(void){
+  Stmt err;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  if( g.argc!=3 ) usage("?OPTIONS? SQL");
+  db_prepare(&err, "%s", g.argv[2]/*safe-for-%s*/);
+  db_finalize(&err);
 }
 
 /*
