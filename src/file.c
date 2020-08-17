@@ -1316,8 +1316,6 @@ void cmd_test_file_environment(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
-  fossil_print("db_allow_symlinks_by_default() = %d\n",
-               db_allow_symlinks_by_default());
   if( zAllow ){
     g.allowSymlinks = !is_false(zAllow);
   }

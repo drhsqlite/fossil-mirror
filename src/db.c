@@ -1826,18 +1826,6 @@ const char *db_repository_filename(void){
 }
 
 /*
-** Returns non-zero if the default value for the "allow-symlinks" setting
-** is "on".  When on Windows, this always returns false.
-*/
-int db_allow_symlinks_by_default(void){
-#if defined(_WIN32)
-  return 0;
-#else
-  return 1;
-#endif
-}
-
-/*
 ** Returns non-zero if support for symlinks is currently enabled.
 */
 int db_allow_symlinks(void){
@@ -1882,9 +1870,10 @@ void db_open_repository(const char *zDbName){
   g.repositoryOpen = 1;
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
                        &g.iRepoDataVers);
+
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
-  g.allowSymlinks = db_get_boolean("allow-symlinks",
-                                   db_allow_symlinks_by_default());
+  g.allowSymlinks = db_get_boolean("allow-symlinks",0);
+
   g.zAuxSchema = db_get("aux-schema","");
   g.eHashPolicy = db_get_int("hash-policy",-1);
   if( g.eHashPolicy<0 ){
@@ -3160,6 +3149,12 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
+**   --symlinks        Allow the use of symbolic links when expanding files
+**                     in this check-out, overriding the global allow-symlinks
+**                     setting (which default to "off").  CAUTION: This option
+**                     might allow a malicious repository to overwrite files
+**                     outside of the checkout directory.  This option is a
+**                     security risk and its use is discouraged.
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
 **
@@ -3170,7 +3165,7 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
-  int allowSymlinks;
+  int allowSymlinks = 0;
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   int bForce = 0;                /* --force.  Open even if non-empty dir */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
@@ -3189,6 +3184,7 @@ void cmd_open(void){
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
   bForce = find_option("force",0,0)!=0;  
+  if( find_option("symlinks",0,0)!=0 ) allowSymlinks = 1;
   zPwd = file_getcwd(0,0);
   
 
@@ -3281,19 +3277,6 @@ void cmd_open(void){
     }
   }
 
-  if( g.zOpenRevision ){
-    /* Since the repository is open and we know the revision now,
-    ** refresh the allow-symlinks flag.  Since neither the local
-    ** checkout nor the configuration database are open at this
-    ** point, this should always return the versioned setting,
-    ** if any, or the default value, which is negative one.  The
-    ** value negative one, in this context, means that the code
-    ** below should fallback to using the setting value from the
-    ** repository or global configuration databases only. */
-    allowSymlinks = db_get_versioned_boolean("allow-symlinks", -1);
-  }else{
-    allowSymlinks = -1; /* Use non-versioned settings only. */
-  }
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
@@ -3307,22 +3290,7 @@ void cmd_open(void){
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local(0);
-  if( allowSymlinks>=0 ){
-    /* Use the value from the versioned setting, which was read
-    ** prior to opening the local checkout (i.e. which is most
-    ** likely empty and does not actually contain any versioned
-    ** setting files yet).  Normally, this value would be given
-    ** first priority within db_get_boolean(); however, this is
-    ** a special case because we know the on-disk files may not
-    ** exist yet. */
-    g.allowSymlinks = allowSymlinks;
-  }else{
-    /* Since the local checkout may not have any files at this
-    ** point, this will probably be the setting value from the
-    ** repository or global configuration databases. */
-    g.allowSymlinks = db_get_boolean("allow-symlinks",
-                                     db_allow_symlinks_by_default());
-  }
+  if( allowSymlinks ) g.allowSymlinks = 1;
   db_lset("repository", zRepo);
   db_record_repository_filename(zRepo);
   db_set_checkout(0);
@@ -3434,28 +3402,22 @@ struct Setting {
 ** When the admin-log setting is enabled, configuration changes are recorded
 ** in the "admin_log" table of the repository.
 */
-#if defined(_WIN32)
 /*
-** SETTING: allow-symlinks  boolean default=off versionable
+** SETTING: allow-symlinks  boolean default=off
 **
-** When allow-symlinks is OFF, symbolic links in the repository are followed
-** and treated no differently from real files.  When allow-symlinks is ON,
-** the object to which the symbolic link points is ignored, and the content
-** of the symbolic link that is stored in the repository is the name of the
-** object to which the symbolic link points.
-*/
-#endif
-#if !defined(_WIN32)
-/*
-** SETTING: allow-symlinks  boolean default=on versionable
+** When allow-symlinks is OFF (which is the default and recommended setting)
+** symbolic links a treated like text files that contain a single line of
+** content which is the name of their target.  If allow-symlinks is ON,
+** the symbolic links are actually followed.
 **
-** When allow-symlinks is OFF, symbolic links in the repository are followed
-** and treated no differently from real files.  When allow-symlinks is ON,
-** the object to which the symbolic link points is ignored, and the content
-** of the symbolic link that is stored in the repository is the name of the
-** object to which the symbolic link points.
+** The use of symbolic links is dangerous.  If you checkout a maliciously
+** crafted checkin that contains symbolic links, it is possible that files
+** outside of the working directory might be overwritten.
+**
+** Keep this setting OFF unless you have a very good reason to turn it
+** on and you implicitly trust the integrity of the repositories you
+** open.
 */
-#endif
 /*
 ** SETTING: auto-captcha    boolean default=on variable=autocaptcha
 ** If enabled, the /login page provides a button that will automatically
