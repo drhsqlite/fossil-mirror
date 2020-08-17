@@ -2423,31 +2423,57 @@ const char * file_extension(const char *zFileName){
 **
 ** nFilename must be the strlen of zFilename. If it is negative,
 ** strlen() is used to calculate it.
-**
-** TODO: https://fossil-scm.org/sec2020/info/972cf9c302f5413f
-** TL;DR: check for the -wal, -shm, -journal suffix forms of the db
-** names.
 */
 int filename_is_ckout_db(const char *zFilename, int nFilename){
-  const char *zEnd;
+  const char *zEnd;  /* one-after-the-end of zFilename */
+  int gotSuffix = 0; /* length of suffix (-wal, -shm, -journal) */
 
-  if(nFilename>=0 && nFilename<8/*strlen _FOSSIL_*/) return 0;
-  else if(nFilename<0) nFilename = (int)strlen(zFilename);
-  if(nFilename<8) return 0;
+  assert(zFilename && "API misuse");
+  if(nFilename<0) nFilename = (int)strlen(zFilename);
+  if(nFilename<8/*strlen _FOSSIL_*/) return 0;
   zEnd = zFilename + nFilename;
+  if(nFilename>=12/*strlen _FOSSIL_-(shm|wal)*/){
+    /* Check for (-wal, -shm, -journal) suffixes, with an eye towards
+    ** runtime speed. */
+    if('-'==zEnd[-4]){
+      if(fossil_stricmp("wal", &zEnd[-3])
+         && fossil_stricmp("shm", &zEnd[-3])){
+        return 0;
+      }
+      gotSuffix = 4;
+    }else if(nFilename>=16/*strlen _FOSSIL_-journal*/ && '-'==zEnd[-8]){
+      if(fossil_stricmp("journal",&zEnd[-7])){
+        return 0;
+      }
+      gotSuffix = 8;
+    }
+    if(gotSuffix){
+      assert(4==gotSuffix || 8==gotSuffix);
+      zEnd -= gotSuffix;
+      nFilename -= gotSuffix;
+      gotSuffix = 1;
+    }
+    assert(nFilename>=8 && "strlen _FOSSIL_");
+    assert(gotSuffix==0 || gotSuffix==1);
+  }
   switch(zEnd[-1]){
     case '_': {
-      return fossil_strcmp("_FOSSIL_", &zEnd[-8])
-        ? 0 : (8==nFilename ? 1 : ('/'==zEnd[-9] ? 2 : 0));
+      return fossil_strnicmp("_FOSSIL_", &zEnd[-8], 8)
+        ? 0 : (8==nFilename
+               ? 1
+               : ('/'==zEnd[-9] ? 2 : gotSuffix));
     }
     case 't': {
       return (nFilename<9
               || '.'!=zEnd[-9]
-              || fossil_strcmp(".fslckout", &zEnd[-9]))
-        ? 0 : (9==nFilename ? 1 : ('/'==zEnd[-10] ? 2 : 0));
+              || fossil_strnicmp(".fslckout", &zEnd[-9], 9))
+        ? 0 : (9==nFilename
+               ? 1
+               : ('/'==zEnd[-10] ? 2 : gotSuffix));
     }
-    default:
+    default: {
       return 0;
+    }
   }
 }
 

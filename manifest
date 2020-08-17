@@ -1,5 +1,5 @@
-C Moved\sis_fossil_ckout_db_name()\sfrom\sdb.c\sto\sfile.c\sand\srenamed\sit\sfilename_is_ckout_db().\sIntegrated\sthe\scheck\sinto\smanifest_parse(),\sbut\stesting\sit\srequires\stemporarily\s#if'ing\sout\sthe\sZ-card\scheck,\swhich\sis\sone\sof\sthe\sfirst\svalidations.
-D 2020-08-17T16:10:33.298
+C Added\schecks\sof\s(-wal,\s-shm,\s-journal)\sdb\ssuffixes.
+D 2020-08-17T17:34:03.411
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c fa6f70f22fb6a1ed729bc563754331197986f88cc481e8e653db38b1ec9b1161
+F src/file.c 9d83268df46d20da80d75a44332850b1a9ab6afb81b777fc0a91ce48b900239f
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9784e5cdab49fde01c10e4f332f76b1a8705df5427cdedd603f2bf1809223308
-R 04b7caf36d3422c04bfcd40c42fc6312
+P 6c19baa09b6316cbe6d2b41ead20cfa4cb21eba798ce29227ef5d17fa1c19ab5
+R f038cff80d665f0ed060db5f93230c4c
 U stephan
-Z 064fb94f600aee217d33c7d94390e5d6
+Z 0d2e85dc6b57bf0cc754f7a58d321666
