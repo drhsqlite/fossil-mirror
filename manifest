@@ -1,8 +1,10 @@
 B 3bccd7fff28d8332a74a4e02dd2fa5746da2f3b34ba9b69282b85bc65bddb305
-C Add\stests\sfor\sthe\sreserved\snames.
-D 2020-08-17T20:51:52.530
-F test/reserved-names.test f2d2cfe827c6d62cf8ebadd95fc46b829c3c17c6a7bdca844f646a8bc58fccd9
-P 3bccd7fff28d8332a74a4e02dd2fa5746da2f3b34ba9b69282b85bc65bddb305
-R 2a19781da4fcaf4f8ab891f77ecdf654
+C Fixes\sfor\sreserved\snames\scase\ssensitivity,\scoding\sstyle\sadjustments,\smore\stests.
+D 2020-08-17T22:22:26.992
+F src/file.c 5d2de1ca57c49c7465792b46bf8026b687114cea43d1125816fb731055c8ccee
+F src/manifest.c 84582ad4638b3ee7f7f9e64a8232d54e36d70edf4d5a8d9eac01ba15d4f58141
+F test/reserved-names.test e29e9e42ff9460f91d41ce65fcde43e2bc7221e2171433ef19c5011792fabb47
+P df720b28fcec0e4c089e31c9bac6966bbe67291a5c89035f97be2f60c34a60e3
+R 5a98a9069d52194a72041c2f19a3690c
 U mistachkin
-Z 893a1cb107111643f45683ec0fd15d80
+Z de82fba1c7bb2a5055dd71c8bcfcbbb0

@@ -2410,88 +2410,84 @@ const char * file_extension(const char *zFileName){
 }
 
 /*
-** Returns true if the given filename ends with any of fossil's
-** checkout database filenames: _FOSSIL_ or .fslckout. Specifically,
-** it returns 1 if it's an exact match and 2 if it's the tail match
-** on a longer input.
+** Returns non-zero if the specified file name ends with any reserved name,
+** e.g.: _FOSSIL_ or .fslckout.  Specifically, it returns 1 for exact match
+** or 2 for a tail match on a longer file name.
 **
-** zFilename must, for efficiency's sake, be a
-** canonicalized/normalized name, e.g. using only '/' as directory
-** separators.
+** For the sake of efficiency, zFilename must be a canonical name, e.g. an
+** absolute path using only forward slash ('/') as a directory separator.
 **
-** nFilename must be the strlen of zFilename. If it is negative,
-** strlen() is used to calculate it.
+** nFilename must be the length of zFilename.  When negative, strlen() will
+** be used to calculate it.
 */
-int filename_is_ckout_db(const char *zFilename, int nFilename){
+int file_is_reserved_name(const char *zFilename, int nFilename){
   const char *zEnd;  /* one-after-the-end of zFilename */
   int gotSuffix = 0; /* length of suffix (-wal, -shm, -journal) */
 
-  assert(zFilename && "API misuse");
-  if(nFilename<0) nFilename = (int)strlen(zFilename);
-  if(nFilename<8/*strlen _FOSSIL_*/) return 0;
+  assert( zFilename && "API misuse" );
+  if( nFilename<0 ) nFilename = (int)strlen(zFilename);
+  if( nFilename<8 ) return 0; /* strlen("_FOSSIL_") */
   zEnd = zFilename + nFilename;
-  if(nFilename>=12/*strlen _FOSSIL_-(shm|wal)*/){
+  if( nFilename>=12 ){ /* strlen("_FOSSIL_-(shm|wal)") */
     /* Check for (-wal, -shm, -journal) suffixes, with an eye towards
     ** runtime speed. */
-    if('-'==zEnd[-4]){
-      if(fossil_stricmp("wal", &zEnd[-3])
-         && fossil_stricmp("shm", &zEnd[-3])){
+    if( zEnd[-4]=='-' ){
+      if( fossil_strnicmp("wal", &zEnd[-3], 3)
+       && fossil_strnicmp("shm", &zEnd[-3], 3) ){
         return 0;
       }
       gotSuffix = 4;
-    }else if(nFilename>=16/*strlen _FOSSIL_-journal*/ && '-'==zEnd[-8]){
-      if(fossil_stricmp("journal",&zEnd[-7])){
-        return 0;
-      }
+    }else if( nFilename>=16 && zEnd[-8]=='-' ){ /*strlen(_FOSSIL_-journal) */
+      if( fossil_strnicmp("journal", &zEnd[-7], 7) ) return 0;
       gotSuffix = 8;
     }
-    if(gotSuffix){
-      assert(4==gotSuffix || 8==gotSuffix);
+    if( gotSuffix ){
+      assert( 4==gotSuffix || 8==gotSuffix );
       zEnd -= gotSuffix;
       nFilename -= gotSuffix;
       gotSuffix = 1;
     }
-    assert(nFilename>=8 && "strlen _FOSSIL_");
-    assert(gotSuffix==0 || gotSuffix==1);
+    assert( nFilename>=8 && "strlen(_FOSSIL_)" );
+    assert( gotSuffix==0 || gotSuffix==1 );
   }
-  switch(zEnd[-1]){
-    case '_': {
-      return fossil_strnicmp("_FOSSIL_", &zEnd[-8], 8)
-        ? 0 : (8==nFilename
-               ? 1
-               : ('/'==zEnd[-9] ? 2 : gotSuffix));
+  switch( zEnd[-1] ){
+    case '_':{
+      if( fossil_strnicmp("_FOSSIL_", &zEnd[-8], 8) ) return 0;
+      if( 8==nFilename ) return 1;
+      return zEnd[-9]=='/' ? 2 : gotSuffix;
     }
-    case 't': {
-      return (nFilename<9
-              || '.'!=zEnd[-9]
-              || fossil_strnicmp(".fslckout", &zEnd[-9], 9))
-        ? 0 : (9==nFilename
-               ? 1
-               : ('/'==zEnd[-10] ? 2 : gotSuffix));
+    case 'T':
+    case 't':{
+      if( nFilename<9 || zEnd[-9]!='.'
+       || fossil_strnicmp(".fslckout", &zEnd[-9], 9) ){
+        return 0; 
+      }
+      if( 9==nFilename ) return 1;
+      return zEnd[-10]=='/' ? 2 : gotSuffix;
     }
-    default: {
+    default:{
       return 0;
     }
   }
 }
 
 /*
-** COMMAND: test-is-ckout-db
+** COMMAND: test-is-reserved-name
 **
 ** Usage: %fossil test-is-ckout-db FILENAMES...
 **
-** Passes each given name to filename_is_ckout_db() and outputs one
+** Passes each given name to file_is_reserved_name() and outputs one
 ** line per file: the result value of that function followed by the
 ** name.
 */
-void test_is_ckout_name_cmd(void){
+void test_is_reserved_name_cmd(void){
   int i;
 
   if(g.argc<3){
     usage("FILENAME_1 [...FILENAME_N]");
   }
   for( i = 2; i < g.argc; ++i ){
-    const int check = filename_is_ckout_db(g.argv[i], -1);
+    const int check = file_is_reserved_name(g.argv[i], -1);
     fossil_print("%d %s\n", check, g.argv[i]);
   }
 }
