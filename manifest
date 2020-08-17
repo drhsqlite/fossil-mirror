@@ -1,5 +1,5 @@
-C Reinstate\ssymlink\scapability.\s\s(Unintended\schange\swith\sprior\ssymlink\stest?)
-D 2020-08-17T07:02:01.666
+C Prohibit\sredirects\sfrom\sHTTP\sor\sHTTPS\sover\sto\sSSH\sor\sFILE.\nFix\sfor\sticket\s[61613b0a9cf843b6].
+D 2020-08-17T09:16:14.165
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -507,7 +507,7 @@ F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c a50daf098ecb3ae9380268a868b3ea870a93a924af897caacd34094364105e27
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
-F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
+F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635d
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
@@ -631,7 +631,7 @@ F src/undo.c 6ce7ad121b92a15fc834bf6e926ff6b490d6e3c1538e7791616b207655fbae9c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 4b1807aa4edacefdd05e7971a9397349441af656904cc9264aaf9bc8abc9fd6f
 F src/update.c cb7f7f330b8ace0a33e2c20cdc01e33b3c9277b5a0172f49513f1f4db47398db
-F src/url.c cb7f47aa963273e55a50a050e76d0d5b949830d166c30c11e41a687bbf879034
+F src/url.c c5909f7e89f65d7a26dcc3591bfadfc4e0c917816cbdca6bb688854a510d68dc
 F src/user.c 2c4af18fb4cf27bb0fcfddbbab3975b37bc6300d0f4cfc8d655cdcd45e0d584f
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
@@ -1007,7 +1007,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de38906fd55f0c44609c9b53855869922728bcb529a54081d13404f7060f57dd
-R f14c81f1612092203278bad221ad0149
-U andygoth
-Z 51c8c58b752c573f36987be6cd3b423c
+P c840617b8b765da951131336239a39d7c945f7e687ff13976ec94311646e96a4
+R cecd2b7d4ec8ec64b4f57d2f0368710f
+T *branch * sec2020
+T *sym-sec2020 *
+T -sym-trunk *
+U drh
+Z 5c078e472b6d6a4fb56e2ee17b8902a6
