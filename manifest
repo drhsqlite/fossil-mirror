@@ -1,5 +1,5 @@
-C Prohibit\sredirects\sfrom\sHTTP\sor\sHTTPS\sover\sto\sSSH\sor\sFILE.\nFix\sfor\sticket\s[61613b0a9cf843b6].
-D 2020-08-17T09:16:14.165
+C Set\san\sauthorizer\swhen\srunning\sthe\sticket-table\sSQL.\nTicket\s[56b82836ffba9952].
+D 2020-08-17T14:09:04.107
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 5dc31b366cf9f4fd6e1f70ae599e322348003f8a61d2135da6b4ac54f5d7f3da
+F src/db.c 89a3bb0f2a0963a7025a65261c04d55612524f57f4b8563dee804e4547111f2c
 F src/default.css a3c4e00621315fed3a9fa731c0f7cdeafd557bcc5ff46e10ba501566cadeb0b4
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -566,7 +566,7 @@ F src/purge.c 4f2870b9c683c1e55084a5dc1160376597bc8122e5a0808f36c42c423e992b29
 F src/rebuild.c aa2be0489e29bae30597cca8feef63e4aa4b0716f78709a5615dd983fcfc8108
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 1c17f5b972fa231ea6a26ca47eb92bc9d096ec64deb8fbf5abf711c449404e25
-F src/report.c 3dfe67e25bccb357cd4d20b095902108ad36f12f340eee82f9fe57b37973efda
+F src/report.c f292b096ae7bc390dbb840cc62b87e820ba7b76bb7061a0e7cc53d3f86f8cc19
 F src/rss.c a27ae6f0c83b99022fbf385337e3a13a4cde786a2d0a15de557386ec0c75e9cb
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -623,7 +623,7 @@ F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c ef836b0721a6c6bdc221cbbbdd1567afc9b34d79b623e9e3ae952c0b9664b012
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c dd8a02ed35dcddb77799607087e208109b9436a6b2d836338ef25a16c6c03d23
-F src/tkt.c 948d7dbca179604a6fd7326e660f437b314750c00098b21812d45500de35dca5
+F src/tkt.c f87bdf4dec786f3d89fbae6240c45e5806cc81da1a70dde47627c5f7c1a8df4f
 F src/tktsetup.c 87857cd6f20c9b6d6031276571dfc54cbfdc692446bdc3ec1214018407319447
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -1007,10 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c840617b8b765da951131336239a39d7c945f7e687ff13976ec94311646e96a4
-R cecd2b7d4ec8ec64b4f57d2f0368710f
-T *branch * sec2020
-T *sym-sec2020 *
-T -sym-trunk *
+P 253dbd15e268dd4ab2196aab67354fc6fdf2d67cd8f705e1975b181764f45ead
+R 54d921cfc775366f66df460365e71083
 U drh
-Z 5c078e472b6d6a4fb56e2ee17b8902a6
+Z da7d6922efb59f8c6be10ae20ab3e0aa

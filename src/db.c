@@ -132,6 +132,9 @@ static struct DbLocalData {
   int nPriorChanges;        /* sqlite3_total_changes() at transaction start */
   const char *zStartFile;   /* File in which transaction was started */
   int iStartLine;           /* Line of zStartFile where transaction started */
+  int (*xAuth)(void*,int,const char*,const char*,const char*,const char*);
+  void *pAuthArg;           /* Argument to the authorizer */
+  const char *zAuthName;    /* Name of the authorizer */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -317,6 +320,32 @@ void db_commit_hook(int (*x)(void), int sequence){
   db.aHook[db.nCommitHook].sequence = sequence;
   db.aHook[db.nCommitHook].xHook = x;
   db.nCommitHook++;
+}
+
+/*
+** Set or unset the query authorizer callback function
+*/
+void db_set_authorizer(
+  int(*xAuth)(void*,int,const char*,const char*,const char*,const char*),
+  void *pArg,
+  const char *zName /* for tracing */
+){
+  if( db.xAuth ){
+    fossil_panic("multiple active db_set_authorizer() calls");
+  }
+  if( g.db ) sqlite3_set_authorizer(g.db, xAuth, pArg);
+  db.xAuth = xAuth;
+  db.pAuthArg = pArg;
+  db.zAuthName = zName;
+  if( g.fSqlTrace ) fossil_trace("-- set authorizer %s\n", zName);
+}
+void db_clear_authorizer(void){
+  if( db.zAuthName && g.fSqlTrace ){
+    fossil_trace("-- discontinue authorizer %s\n", db.zAuthName);
+  }
+  if( g.db ) sqlite3_set_authorizer(g.db, 0, 0);
+  db.xAuth = 0;
+  db.pAuthArg = 0;
 }
 
 #if INTERFACE
@@ -846,30 +875,33 @@ void db_init_database(
   const char *zSchema,     /* First part of schema */
   ...                      /* Additional SQL to run.  Terminate with NULL. */
 ){
-  sqlite3 *db;
+  sqlite3 *xdb;
   int rc;
   const char *zSql;
   va_list ap;
 
-  db = db_open(zFileName ? zFileName : ":memory:");
-  sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
-  rc = sqlite3_exec(db, zSchema, 0, 0, 0);
+  xdb = db_open(zFileName ? zFileName : ":memory:");
+  sqlite3_exec(xdb, "BEGIN EXCLUSIVE", 0, 0, 0);
+  if( db.xAuth ){
+    sqlite3_set_authorizer(xdb, db.xAuth, db.pAuthArg);
+  }
+  rc = sqlite3_exec(xdb, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
-    db_err("%s", sqlite3_errmsg(db));
+    db_err("%s", sqlite3_errmsg(xdb));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
-    rc = sqlite3_exec(db, zSql, 0, 0, 0);
+    rc = sqlite3_exec(xdb, zSql, 0, 0, 0);
     if( rc!=SQLITE_OK ){
-      db_err("%s", sqlite3_errmsg(db));
+      db_err("%s", sqlite3_errmsg(xdb));
     }
   }
   va_end(ap);
-  sqlite3_exec(db, "COMMIT", 0, 0, 0);
+  sqlite3_exec(xdb, "COMMIT", 0, 0, 0);
   if( zFileName || g.db!=0 ){
-    sqlite3_close(db);
+    sqlite3_close(xdb);
   }else{
-    g.db = db;
+    g.db = xdb;
   }
 }
 
@@ -2091,6 +2123,7 @@ void db_must_be_within_tree(void){
 void db_close(int reportErrors){
   sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
+  sqlite3_set_authorizer(g.db, 0, 0);
   if( g.fSqlStats ){
     int cur, hiwtr;
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
@@ -2120,13 +2153,16 @@ void db_close(int reportErrors){
   while( db.pAllStmt ){
     db_finalize(db.pAllStmt);
   }
-  if( db.nBegin && reportErrors ){
-    fossil_warning("Transaction started at %s:%d never commits",
-                   db.zStartFile, db.iStartLine);
+  if( db.nBegin ){
+    if( reportErrors ){
+      fossil_warning("Transaction started at %s:%d never commits",
+                     db.zStartFile, db.iStartLine);
+    }
     db_end_transaction(1);
   }
   pStmt = 0;
-  g.dbIgnoreErrors++; /* Stop "database locked" warnings from PRAGMA optimize */
+  sqlite3_busy_timeout(g.db, 0);
+  g.dbIgnoreErrors++; /* Stop "database locked" warnings */
   sqlite3_exec(g.db, "PRAGMA optimize", 0, 0, 0);
   g.dbIgnoreErrors--;
   db_close_config();
@@ -2170,6 +2206,7 @@ void db_panic_close(void){
     sqlite3_wal_checkpoint(g.db, 0);
     rc = sqlite3_close(g.db);
     if( g.fSqlTrace ) fossil_trace("-- sqlite3_close(%d)\n", rc);
+    db_clear_authorizer();
   }
   g.db = 0;
   g.repositoryOpen = 0;
