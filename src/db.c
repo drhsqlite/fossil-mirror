@@ -136,6 +136,9 @@ static struct DbLocalData {
   int (*xAuth)(void*,int,const char*,const char*,const char*,const char*);
   void *pAuthArg;           /* Argument to the authorizer */
   const char *zAuthName;    /* Name of the authorizer */
+  char protectUser;         /* Prevent changes to the USER table */
+  char protectSensitive;    /* Prevent changes to sensitive CONFIG entries */
+  char protectConfig;       /* Prevent any changes to the CONFIG table */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -324,6 +327,47 @@ void db_commit_hook(int (*x)(void), int sequence){
 }
 
 /*
+** Every Fossil database connection automatically registers the following
+** overarching authenticator callback, and leaves it registered for the
+** duration of the connection.  This authenticator will call any
+** sub-authenticators that are registered using db_set_authorizer().
+*/
+static int db_top_authorizer(
+  void *pNotUsed,
+  int eCode,
+  const char *z0,
+  const char *z1,
+  const char *z2,
+  const char *z3
+){
+  int rc = SQLITE_OK;
+  switch( eCode ){
+    case SQLITE_INSERT:
+    case SQLITE_UPDATE:
+    case SQLITE_DELETE: {
+      if( db.protectUser && sqlite3_stricmp(z0,"user")==0 ){
+        rc = SQLITE_DENY;
+      }else if( db.protectConfig &&
+               (sqlite3_stricmp(z0,"config")==0 ||
+                sqlite3_stricmp(z0,"global_config")==0) ){
+        rc = SQLITE_DENY;
+      }
+      break;
+    }
+    case SQLITE_DROP_TEMP_TRIGGER: {
+      if( db.protectSensitive ){
+        rc = SQLITE_DENY;
+      }
+      break;
+    }
+  }
+  if( db.xAuth && rc==SQLITE_OK ){
+    rc = db.xAuth(db.pAuthArg, eCode, z0, z1, z2, z3);
+  }
+  return rc;
+}
+
+/*
 ** Set or unset the query authorizer callback function
 */
 void db_set_authorizer(
@@ -334,7 +378,6 @@ void db_set_authorizer(
   if( db.xAuth ){
     fossil_panic("multiple active db_set_authorizer() calls");
   }
-  if( g.db ) sqlite3_set_authorizer(g.db, xAuth, pArg);
   db.xAuth = xAuth;
   db.pAuthArg = pArg;
   db.zAuthName = zName;
@@ -344,9 +387,9 @@ void db_clear_authorizer(void){
   if( db.zAuthName && g.fSqlTrace ){
     fossil_trace("-- discontinue authorizer %s\n", db.zAuthName);
   }
-  if( g.db ) sqlite3_set_authorizer(g.db, 0, 0);
   db.xAuth = 0;
   db.pAuthArg = 0;
+  db.zAuthName = 0;
 }
 
 #if INTERFACE
@@ -904,9 +947,6 @@ void db_init_database(
 
   xdb = db_open(zFileName ? zFileName : ":memory:");
   sqlite3_exec(xdb, "BEGIN EXCLUSIVE", 0, 0, 0);
-  if( db.xAuth ){
-    sqlite3_set_authorizer(xdb, db.xAuth, db.pAuthArg);
-  }
   rc = sqlite3_exec(xdb, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
     db_err("%s", sqlite3_errmsg(xdb));
@@ -1404,6 +1444,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_db_config(db, SQLITE_DBCONFIG_ENABLE_FKEY, 0, &rc);
+  sqlite3_set_authorizer(db, db_top_authorizer, db);
   return db;
 }
 
