@@ -23,8 +23,10 @@ test_setup
 ###############################################################################
 
 set reserved_names_tests [list \
+    {0 {}} \
     {0 a.fslckout} \
     {1 .fslckout} \
+    {1 .FSlckOUT} \
     {2 a/.fslckout} \
     {0 .fslckout/b} \
     {0 fslckout} \
@@ -35,12 +37,21 @@ set reserved_names_tests [list \
     {0 FOSSIL_} \
     {0 a_FOSSIL_} \
     {0 _FOSSIL__} \
+    {0 __FOSSIL__} \
+    {0 __FOssIL__} \
     {0 _FOSSIL_/a} \
     {2 a/_FOSSIL_} \
     {2 _FOSSIL_/c/.fslckout} \
     {2 _FOSSIL_/c/.fslckout/_FOSSIL_} \
     {0 _FOSSIL_/c/.fslckout/._FOSSIL_t} \
+    {0 _FOSSIL_/c/.fslckout/t._FOSSIL_} \
     {0 a} \
+    {0 a/b} \
+    {0 a/b/c} \
+    {0 a/b/c/} \
+    {0 a/_FOSSIL/} \
+    {0 a/fslckout/} \
+    {0 a/_fslckout/} \
     {0 _FOSSIL-wal} \
     {0 _FOSSIL-shm} \
     {0 _FOSSIL-journal} \
