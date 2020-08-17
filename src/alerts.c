@@ -938,7 +938,7 @@ void alert_send(
 ** brackets. Examples: "[fossil-src]", "[sqlite-src]".
 */
 /*
-** SETTING: email-send-method         width=5 default=off
+** SETTING: email-send-method         width=5 default=off sensitive
 ** Determine the method used to send email.  Allowed values are
 ** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
 ** means no email is ever sent.  The "relay" value means emails are sent
@@ -951,19 +951,19 @@ void alert_send(
 ** The "stdout" value writes email text to standard output, for debugging.
 */
 /*
-** SETTING: email-send-command       width=40
+** SETTING: email-send-command       width=40 sensitive
 ** This is a command to which outbound email content is piped when the
 ** email-send-method is set to "pipe".  The command must extract
 ** recipient, sender, subject, and all other relevant information
 ** from the email header.
 */
 /*
-** SETTING: email-send-dir           width=40
+** SETTING: email-send-dir           width=40 sensitive
 ** This is a directory into which outbound emails are written as individual
 ** files if the email-send-method is set to "dir".
 */
 /*
-** SETTING: email-send-db            width=40
+** SETTING: email-send-db            width=40 sensitive
 ** This is an SQLite database file into which outbound emails are written
 ** if the email-send-method is set to "db".
 */
@@ -973,7 +973,7 @@ void alert_send(
 ** this email address as the "From:" field.
 */
 /*
-** SETTING: email-send-relayhost      width=40
+** SETTING: email-send-relayhost      width=40 sensitive
 ** This is the hostname and TCP port to which output email messages
 ** are sent when email-send-method is "relay".  There should be an
 ** SMTP server configured as a Mail Submission Agent listening on the

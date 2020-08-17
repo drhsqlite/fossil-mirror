@@ -3434,9 +3434,8 @@ struct Setting {
 ** When the admin-log setting is enabled, configuration changes are recorded
 ** in the "admin_log" table of the repository.
 */
-#if defined(_WIN32)
 /*
-** SETTING: allow-symlinks  boolean default=off versionable
+** SETTING: allow-symlinks  boolean default=off sensitive
 **
 ** When allow-symlinks is OFF, symbolic links in the repository are followed
 ** and treated no differently from real files.  When allow-symlinks is ON,
@@ -3444,18 +3443,6 @@ struct Setting {
 ** of the symbolic link that is stored in the repository is the name of the
 ** object to which the symbolic link points.
 */
-#endif
-#if !defined(_WIN32)
-/*
-** SETTING: allow-symlinks  boolean default=on versionable
-**
-** When allow-symlinks is OFF, symbolic links in the repository are followed
-** and treated no differently from real files.  When allow-symlinks is ON,
-** the object to which the symbolic link points is ignored, and the content
-** of the symbolic link that is stored in the repository is the name of the
-** object to which the symbolic link points.
-*/
-#endif
 /*
 ** SETTING: auto-captcha    boolean default=on variable=autocaptcha
 ** If enabled, the /login page provides a button that will automatically
@@ -3509,7 +3496,7 @@ struct Setting {
 ** backoffice will not occur.
 */
 /*
-** SETTING: backoffice-logfile width=40
+** SETTING: backoffice-logfile width=40 sensitive
 ** If backoffice-logfile is not an empty string and is a valid
 ** filename, then a one-line message is appended to that file
 ** every time the backoffice runs.  This can be used for debugging,
@@ -3586,7 +3573,7 @@ struct Setting {
 ** This is an alias for the crlf-glob setting.
 */
 /*
-** SETTING: default-perms   width=16 default=u
+** SETTING: default-perms   width=16 default=u sensitive
 ** Permissions given automatically to new users.  For more
 ** information on permissions see the Users page in Server
 ** Administration of the HTTP UI.
@@ -3598,7 +3585,7 @@ struct Setting {
 ** external diff programs.  If disabled, skip these files.
 */
 /*
-** SETTING: diff-command    width=40
+** SETTING: diff-command    width=40 sensitive
 ** The value is an external command to run when performing a diff.
 ** If undefined, the internal text diff will be used.
 */
@@ -3613,7 +3600,7 @@ struct Setting {
 ** If enabled, include --dotfiles option for all compatible commands.
 */
 /*
-** SETTING: editor          width=32
+** SETTING: editor          width=32 sensitive
 ** The value is an external command that will launch the
 ** text editor command used for check-in comments.
 */
@@ -3656,12 +3643,12 @@ struct Setting {
 ** contain any globs for, e.g., images or PDFs.
 */
 /*
-** SETTING: gdiff-command    width=40 default=gdiff
+** SETTING: gdiff-command    width=40 default=gdiff sensitive
 ** The value is an external command to run when performing a graphical
 ** diff. If undefined, text diff will be used.
 */
 /*
-** SETTING: gmerge-command   width=40
+** SETTING: gmerge-command   width=40 sensitive
 ** The value is a graphical merge conflict resolver command operating
 ** on four files.  Examples:
 **
@@ -3796,7 +3783,7 @@ struct Setting {
 ** files from within the checkout.
 */
 /*
-** SETTING: pgp-command      width=40
+** SETTING: pgp-command      width=40 sensitive
 ** Command used to clear-sign manifests at check-in.
 ** Default value is "gpg --clearsign -o"
 */
@@ -3856,18 +3843,18 @@ struct Setting {
 ** the list in use cases 1 through 4, but not for 5 and 6.
 */
 /*
-** SETTING: self-register    boolean default=off
+** SETTING: self-register    boolean default=off sensitive
 ** Allow users to register themselves through the HTTP UI.
 ** This is useful if you want to see other names than
 ** "Anonymous" in e.g. ticketing system. On the other hand
 ** users can not be deleted.
 */
 /*
-** SETTING: ssh-command      width=40
+** SETTING: ssh-command      width=40 sensitive
 ** The command used to talk to a remote machine with  the "ssh://" protocol.
 */
 /*
-** SETTING: ssl-ca-location  width=40
+** SETTING: ssl-ca-location  width=40 sensitive
 ** The full pathname to a file containing PEM encoded
 ** CA root certificates, or a directory of certificates
 ** with filenames formed from the certificate hashes as
@@ -3881,7 +3868,7 @@ struct Setting {
 ** application.
 */
 /*
-** SETTING: ssl-identity     width=40
+** SETTING: ssl-identity     width=40 sensitive
 ** The full pathname to a file containing a certificate
 ** and private key in PEM format. Create by concatenating
 ** the certificate and private key files.
@@ -3892,7 +3879,7 @@ struct Setting {
 */
 #ifdef FOSSIL_ENABLE_TCL
 /*
-** SETTING: tcl              boolean default=off
+** SETTING: tcl              boolean default=off sensitive
 ** If enabled Tcl integration commands will be added to the TH1
 ** interpreter, allowing arbitrary Tcl expressions and
 ** scripts to be evaluated from TH1.  Additionally, the Tcl
@@ -3900,21 +3887,21 @@ struct Setting {
 ** expressions and scripts.
 */
 /*
-** SETTING: tcl-setup        width=40 block-text
+** SETTING: tcl-setup        width=40 block-text sensitive
 ** This is the setup script to be evaluated after creating
 ** and initializing the Tcl interpreter.  By default, this
 ** is empty and no extra setup is performed.
 */
 #endif /* FOSSIL_ENABLE_TCL */
 /*
-** SETTING: tclsh            width=80 default=tclsh
+** SETTING: tclsh            width=80 default=tclsh sensitive
 ** Name of the external TCL interpreter used for such things
 ** as running the GUI diff viewer launched by the --tk option
 ** of the various "diff" commands.
 */
 #ifdef FOSSIL_ENABLE_TH1_DOCS
 /*
-** SETTING: th1-docs         boolean default=off
+** SETTING: th1-docs         boolean default=off sensitive
 ** If enabled, this allows embedded documentation files to contain
 ** arbitrary TH1 scripts that are evaluated on the server.  If native
 ** Tcl integration is also enabled, this setting has the
@@ -3971,7 +3958,7 @@ struct Setting {
 ** needed to clone or sync unversioned files.
 */
 /*
-** SETTING: web-browser      width=30
+** SETTING: web-browser      width=30 sensitive
 ** A shell command used to launch your preferred
 ** web browser when given a URL as an argument.
 ** Defaults to "start" on windows, "open" on Mac,

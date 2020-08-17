@@ -92,6 +92,7 @@
 #define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
 #define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
 #define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret webpage content */
+#define CMDFLAG_SENSITIVE   0x0400      /* Security-sensitive setting */
 /**************************************************************************/
 
 /*
@@ -250,6 +251,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       aEntry[nUsed].eType |= CMDFLAG_BLOCKTEXT;
     }else if( j==11 && strncmp(&zLine[i], "versionable", j)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_VERSIONABLE;
+    }else if( j==9 && strncmp(&zLine[i], "sensitive", j)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_SENSITIVE;
     }else if( j>6 && strncmp(&zLine[i], "width=", 6)==0 ){
       aEntry[nUsed].iWidth = atoi(&zLine[i+6]);
     }else if( j>8 && strncmp(&zLine[i], "default=", 8)==0 ){
