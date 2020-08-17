@@ -1708,6 +1708,61 @@ static int isValidLocalDb(const char *zDbName){
 }
 
 /*
+** Returns true if the given filename ends with any of fossil's
+** checkout database filenames: _FOSSIL_ or .fslckout. Specifically,
+** it returns 1 if it's an exact match and 2 if it's the tail match
+** on a longer input.
+**
+** zFilename must, for efficiency's sake, be a
+** canonicalized/normalized name, e.g. using only '/' as directory
+** separators.
+**
+** nFilename must be the strlen of zFilename. If it is negative,
+** strlen() is used to calculate it.
+*/
+int is_fossil_ckout_db_name(const char *zFilename, int nFilename){
+  const char *zEnd;
+
+  if(nFilename>=0 && nFilename<8/*strlen _FOSSIL_*/) return 0;
+  else if(nFilename<0) nFilename = (int)strlen(zFilename);
+  if(nFilename<8) return 0;
+  zEnd = zFilename + nFilename;
+  switch(zEnd[-1]){
+    case '_':
+      return fossil_strcmp("_FOSSIL_", &zEnd[-8])
+        ? 0 : (8==nFilename ? 1 : ('/'==zEnd[-9] ? 2 : 0));
+    case 't':
+      return (nFilename<9
+              || '.'!=zEnd[-9]
+              || fossil_strcmp(".fslckout", &zEnd[-9]))
+        ? 0 : (9==nFilename ? 1 : ('/'==zEnd[-10] ? 2 : 0));
+    default:
+      return 0;
+  }
+}
+
+/*
+** COMMAND: test-is-ckout-db
+**
+** Usage: %fossil test-is-ckout-db FILENAMES...
+**
+** Passes each given name to is_fossil_ckout_db_name() and outputs one
+** line per file: the result value of that function followed by the
+** name.
+*/
+void test_is_ckout_name_cmd(void){
+  int i;
+
+  if(g.argc<3){
+    usage("FILENAME_1 [...FILENAME_N]");
+  }
+  for( i = 2; i < g.argc; ++i ){
+    const int check = is_fossil_ckout_db_name(g.argv[i], -1);
+    fossil_print("%d %s\n", check, g.argv[i]);
+  }
+}
+
+/*
 ** Locate the root directory of the local repository tree.  The root
 ** directory is found by searching for a file named "_FOSSIL_" or ".fslckout"
 ** that contains a valid repository database.
