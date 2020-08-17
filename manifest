@@ -1,5 +1,5 @@
-C switch/case\sstyle\stweak,\sper\srequest.
-D 2020-08-17T15:40:00.105
+C Moved\sis_fossil_ckout_db_name()\sfrom\sdb.c\sto\sfile.c\sand\srenamed\sit\sfilename_is_ckout_db().\sIntegrated\sthe\scheck\sinto\smanifest_parse(),\sbut\stesting\sit\srequires\stemporarily\s#if'ing\sout\sthe\sZ-card\scheck,\swhich\sis\sone\sof\sthe\sfirst\svalidations.
+D 2020-08-17T16:10:33.298
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7a978a4f0d9880d8d4db7652afa8a57904bd111a541d4e11d39da12b9f930bf8
+F src/db.c 5dc31b366cf9f4fd6e1f70ae599e322348003f8a61d2135da6b4ac54f5d7f3da
 F src/default.css a3c4e00621315fed3a9fa731c0f7cdeafd557bcc5ff46e10ba501566cadeb0b4
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 23409b3594cdf6141ca637c05d5615cc672bf2da6b2e4d60bc97a29e3eff631a
+F src/file.c fa6f70f22fb6a1ed729bc563754331197986f88cc481e8e653db38b1ec9b1161
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -541,7 +541,7 @@ F src/main.mk cfd99b7375a7d6cb8728819d2a42674892f44cd862094f441ed2ec637eb6f1d0
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 932e445ddec224587f9631e7c7ee830ed8f502252c85c2e8d35e0083902ef8e0 x
-F src/manifest.c b982d37188a07537954990fe06a6751cb9033342a4cc655ebba0d9ceb0e654ac
+F src/manifest.c 8d15475b9e60b37519da4a91ede0542ec72310c6ee1467ac0f427f2a612cba86
 F src/markdown.c 5a1fb3e55d2201601d966016090151ad2151f50715631de173d60e0c09bfc381
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ebd8d9a98ea3402403453c517aa822da1bd01923e38bf7a8632cb667db90da31
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ddd1273ea2358dd9882bb296346f63a2ad55ccccda798928ac9eb25e54a39f1a
-R 8ea2118bb8180f6a0d27bf70fe9819ac
+P 9784e5cdab49fde01c10e4f332f76b1a8705df5427cdedd603f2bf1809223308
+R 04b7caf36d3422c04bfcd40c42fc6312
 U stephan
-Z f6631108dd43e9c91c36fc203d4ee667
+Z 064fb94f600aee217d33c7d94390e5d6

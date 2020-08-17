@@ -483,10 +483,19 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   /* Then verify the Z-card.
   */
+#if 1
+  /* Disable this ***ONLY*** (ONLY!) when testing hand-written inputs
+     for card-related syntax errors. */
   if( verify_z_card(z, n, pErr)==2 ){
     blob_reset(pContent);
     return 0;
   }
+#else
+#warning ACHTUNG - z-card check is disabled for testing purposes.
+  if(0 && verify_z_card(NULL, 0, NULL)){
+    /*avoid unused static func error*/
+  }
+#endif
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -624,6 +633,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         defossilize(zName);
         if( !file_is_simple_pathname_nonstrict(zName) ){
           SYNTAX("F-card filename is not a simple path");
+        }else if( filename_is_ckout_db(zName,-1) ){
+          SYNTAX("F-card contains reserved name of a checkout db.");
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){

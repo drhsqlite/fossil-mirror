@@ -2410,3 +2410,64 @@ const char * file_extension(const char *zFileName){
   const char * zExt = zFileName ? strrchr(zFileName, '.') : 0;
   return zExt ? &zExt[1] : 0;
 }
+
+/*
+** Returns true if the given filename ends with any of fossil's
+** checkout database filenames: _FOSSIL_ or .fslckout. Specifically,
+** it returns 1 if it's an exact match and 2 if it's the tail match
+** on a longer input.
+**
+** zFilename must, for efficiency's sake, be a
+** canonicalized/normalized name, e.g. using only '/' as directory
+** separators.
+**
+** nFilename must be the strlen of zFilename. If it is negative,
+** strlen() is used to calculate it.
+**
+** TODO: https://fossil-scm.org/sec2020/info/972cf9c302f5413f
+** TL;DR: check for the -wal, -shm, -journal suffix forms of the db
+** names.
+*/
+int filename_is_ckout_db(const char *zFilename, int nFilename){
+  const char *zEnd;
+
+  if(nFilename>=0 && nFilename<8/*strlen _FOSSIL_*/) return 0;
+  else if(nFilename<0) nFilename = (int)strlen(zFilename);
+  if(nFilename<8) return 0;
+  zEnd = zFilename + nFilename;
+  switch(zEnd[-1]){
+    case '_': {
+      return fossil_strcmp("_FOSSIL_", &zEnd[-8])
+        ? 0 : (8==nFilename ? 1 : ('/'==zEnd[-9] ? 2 : 0));
+    }
+    case 't': {
+      return (nFilename<9
+              || '.'!=zEnd[-9]
+              || fossil_strcmp(".fslckout", &zEnd[-9]))
+        ? 0 : (9==nFilename ? 1 : ('/'==zEnd[-10] ? 2 : 0));
+    }
+    default:
+      return 0;
+  }
+}
+
+/*
+** COMMAND: test-is-ckout-db
+**
+** Usage: %fossil test-is-ckout-db FILENAMES...
+**
+** Passes each given name to filename_is_ckout_db() and outputs one
+** line per file: the result value of that function followed by the
+** name.
+*/
+void test_is_ckout_name_cmd(void){
+  int i;
+
+  if(g.argc<3){
+    usage("FILENAME_1 [...FILENAME_N]");
+  }
+  for( i = 2; i < g.argc; ++i ){
+    const int check = filename_is_ckout_db(g.argv[i], -1);
+    fossil_print("%d %s\n", check, g.argv[i]);
+  }
+}
