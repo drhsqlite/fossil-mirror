@@ -1,5 +1,5 @@
-C Add\sa\ssecurity\saudit\swarning\sif\sthe\sstrict-manifest-syntax\sflag\sis\sswitched\soff.
-D 2020-08-18T19:56:33.250
+C Improved\serror\smessage\sand\sresponse\swhen\strying\sto\smanifest\sa\scheck-out\sthat\ncontains\sa\sfile\sbeneath\sa\ssymbolic\slink\sdirectory.
+D 2020-08-18T20:19:09.665
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c a35d27f09c8b3a98c85bcb0e861b46578b33ecad6a3289ee83733685781112fc
+F src/file.c eb5b0865089d7471560ae855b6c14d7c7ab6d71c3097343d16f837700cdfa455
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -637,7 +637,7 @@ F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c de0723ef68f92958017ee60c5dc0e6b2f4121c6deac0f8a32051a1e88f78d46c
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
-F src/vfile.c ae128a38dc07001fa61c99ed7a05c8d8bbad17ed9da758ee9c9a19d30b47f1c6
+F src/vfile.c 3b4714bf1497065903cca09652bff97c38ef0bc3c77471958134ce58c8b18d7f
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 8e9ca6e3d85a74efffa1a0c6facb1526a272a33e762c61812002edcfcc12de36
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4df8c856ee7201b988e05b6c4b86f936344bc9ef63cc3e87fa1dfb8b8450e6b5
-R 3e5881292c05099d321a0fe17b1c56e0
+P 3105bedff2deca050dd6f7767977d5b8cc1cd299f7e8e3c4822a654c1fd7056f
+R bcedd23b8a0286cf9ed3fe730e6cddb8
 U drh
-Z 1532ef296caf8ca1eced3cf672534250
+Z 1bd411d3024fbf99be7bebdf9f28e80e

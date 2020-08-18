@@ -329,8 +329,9 @@ int file_islink(const char *zFilename){
 /*
 ** Check every sub-directory of zRoot along the path to zFile.
 ** If any sub-directory is really an ordinary file or a symbolic link,
-** then delete that object.  The inputs are expected to be full
-** pathnames.
+** return an integer which is the length of the prefix of zFile which
+** is the name of that object.  Return 0 if all no non-directory
+** objects are found along the path.
 **
 ** Example:  Given inputs
 **
@@ -344,9 +345,10 @@ int file_islink(const char *zFilename){
 **      /home/alice/project/main/src/js
 **
 ** If any of those objects exist and are something other than a directory
-** then delete the object and return.
+** then return the length of the name of the first non-directory object
+** seen.
 */
-void file_delete_objects_on_path(const char *zRoot, const char *zFile){
+int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
   int i = (int)strlen(zRoot);
   char *z = fossil_strdup(zFile);
   assert( fossil_strnicmp(zRoot, z, i)==0 );
@@ -358,13 +360,17 @@ void file_delete_objects_on_path(const char *zRoot, const char *zFile){
     z[j] = 0;
     rc = file_isdir(z, SymFILE);
     if( rc!=1 ){
-      if( rc==2 ) file_delete(z);
+      if( rc==2 ){
+        fossil_free(z);
+        return j;
+      }
       break;
     }
     z[j] = '/';
     i = j;
   }
   fossil_free(z);
+  return 0;
 }
 
 /*
