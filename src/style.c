@@ -1438,6 +1438,7 @@ void style_select_list_str(const char * zWrapperId,
 void style_emit_script_fossil_bootstrap(int addScriptTag){
   static int once = 0;
   if(0==once++){
+    char * zName;
     /* Set up the generic/app-agnostic parts of window.fossil
     ** which require C-level state... */
     if(addScriptTag!=0){
@@ -1458,6 +1459,15 @@ void style_emit_script_fossil_bootstrap(int addScriptTag){
        get_version(), g.zTop);
     /* fossil.config = {...various config-level options...} */
     CX("window.fossil.config = {");
+    zName = db_get("project-name", "");
+    CX("projectName: %!j,\n", zName);
+    fossil_free(zName);
+    zName = db_get("short-project-name", "");
+    CX("shortProjectName: %!j,\n", zName);
+    fossil_free(zName);
+    zName = db_get("project-code", "");
+    CX("projectCode: %!j,\n", zName);
+    fossil_free(zName);
     CX("/* Length of UUID hashes for display purposes. */");
     CX("hashDigits: %d, hashDigitsUrl: %d,\n",
        hash_digits(0), hash_digits(1));
