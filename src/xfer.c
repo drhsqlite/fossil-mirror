@@ -1659,7 +1659,9 @@ void page_xfer(void){
           if( db_column_int64(&q,1)<=iNow-maxAge || !is_a_leaf(x) ){
             /* check-in locks expire after maxAge seconds, or when the
             ** check-in is no longer a leaf */
+            db_unprotect(PROTECT_CONFIG);
             db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+            db_protect_pop();
             continue;
           }
           if( fossil_strcmp(zName+8, blob_str(&xfer.aToken[2]))==0 ){
@@ -1674,12 +1676,14 @@ void page_xfer(void){
         }
         db_finalize(&q);
         if( !seenFault ){
+          db_unprotect(PROTECT_CONFIG);
           db_multi_exec(
             "REPLACE INTO config(name,value,mtime)"
             "VALUES('ci-lock-%q',json_object('login',%Q,'clientid',%Q),now())",
             blob_str(&xfer.aToken[2]), g.zLogin,
             blob_str(&xfer.aToken[3])
           );
+          db_protect_pop();
         }
         if( db_get_boolean("forbid-delta-manifests",0) ){
           @ pragma avoid-delta-manifests
@@ -1696,12 +1700,14 @@ void page_xfer(void){
        && xfer.nToken==3
        && blob_is_hname(&xfer.aToken[2])
       ){
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec(
           "DELETE FROM config"
           " WHERE name GLOB 'ci-lock-*'"
           "   AND json_extract(value,'$.clientid')=%Q",
           blob_str(&xfer.aToken[2])
         );
+        db_protect_pop();
       }
 
     }else

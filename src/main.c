@@ -1374,6 +1374,7 @@ void set_base_url(const char *zAltBase){
     }
   }
   if( db_is_writeable("repository") ){
+    db_unprotect(PROTECT_CONFIG);
     if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", g.zBaseURL)){
       db_multi_exec("INSERT INTO config(name,value,mtime)"
                     "VALUES('baseurl:%q',1,now())", g.zBaseURL);
@@ -1383,6 +1384,7 @@ void set_base_url(const char *zAltBase){
            "VALUES('baseurl:%q',1,now())", g.zBaseURL
       );
     }
+    db_protect_pop();
   }
 }
 

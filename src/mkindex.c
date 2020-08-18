@@ -482,10 +482,11 @@ void build_table(void){
     }else{
       printf(" 0,%*s", 16, "");
     }
-    printf(" %3d, %d, %d, \"%s\"%*s },\n",
+    printf(" %3d, %d, %d, %d, \"%s\"%*s },\n",
       aEntry[i].iWidth,
       (aEntry[i].eType & CMDFLAG_VERSIONABLE)!=0,
       (aEntry[i].eType & CMDFLAG_BLOCKTEXT)!=0,
+      (aEntry[i].eType & CMDFLAG_SENSITIVE)!=0,
       zDef, (int)(10-strlen(zDef)), ""
     );
     if( aEntry[i].zIf ){

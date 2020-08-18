@@ -125,11 +125,13 @@ static char *hook_subst(
 */
 void hook_expecting_more_artifacts(int N){
   if( N>0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
       "VALUES('hook-embargo',now()+%d,now())",
       N
     );
+    db_protect_pop();
   }else{
     db_unset("hook-embargo",0);
   }
@@ -245,6 +247,7 @@ void hook_cmd(void){
     validate_type(zType);
     nSeq = zSeq ? atoi(zSeq) : 10;
     db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "INSERT OR IGNORE INTO config(name,value) VALUES('hooks','[]');\n"
        "UPDATE config"
@@ -255,6 +258,7 @@ void hook_cmd(void){
        " WHERE name='hooks';",
        zCmd, zType, nSeq
     );
+    db_protect_pop();
     db_commit_transaction();
   }else
   if( strncmp(zCmd, "edit", nCmd)==0 ){
@@ -292,7 +296,9 @@ void hook_cmd(void){
         blob_append_sql(&sql, ",'$[%d].seq',%d", id, nSeq);
       }
       blob_append_sql(&sql,") WHERE name='hooks';");
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec("%s", blob_sql_text(&sql));
+      db_protect_pop();
       blob_reset(&sql);
     }
     db_commit_transaction();
@@ -302,6 +308,7 @@ void hook_cmd(void){
     verify_all_options();
     if( g.argc<4 ) usage("delete ID ...");
     db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "INSERT OR IGNORE INTO config(name,value) VALUES('hooks','[]');\n"
     );
@@ -323,6 +330,7 @@ void hook_cmd(void){
         atoi(zId)
       );
     }
+    db_protect_pop();
     db_commit_transaction();
   }else
   if( strncmp(zCmd, "list", nCmd)==0 ){

@@ -204,11 +204,13 @@ void clone_cmd(void){
       db_set("ssl-identity", blob_str(&fn), 0);
       blob_reset(&fn);
     }
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
       "DELETE FROM config WHERE name='project-code';"
     );
+    db_protect_pop();
     url_enable_proxy(0);
     clone_ssh_db_set_options();
     url_get_password_if_needed();

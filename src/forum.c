@@ -1197,9 +1197,11 @@ void forumedit_page(void){
        && PB("trust")
        && (zUserToTrust = P("trustuser"))!=0
       ){
+        db_unprotect(PROTECT_USER);
         db_multi_exec("UPDATE user SET cap=cap||'4' "
                       "WHERE login=%Q AND cap NOT GLOB '*4*'",
                       zUserToTrust);
+        db_protect_pop();
       }
       cgi_redirectf("%R/forumpost/%S",P("fpid"));
       return;

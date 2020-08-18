@@ -116,6 +116,7 @@ static void db_check_result(int rc, Stmt *pStmt){
 ** the following structure.
 */
 static struct DbLocalData {
+  unsigned protectMask;     /* Prevent changes to database */
   int nBegin;               /* Nesting depth of BEGIN */
   int doRollback;           /* True to force a rollback */
   int nCommitHook;          /* Number of commit hooks */
@@ -136,10 +137,11 @@ static struct DbLocalData {
   int (*xAuth)(void*,int,const char*,const char*,const char*,const char*);
   void *pAuthArg;           /* Argument to the authorizer */
   const char *zAuthName;    /* Name of the authorizer */
-  char protectUser;         /* Prevent changes to the USER table */
-  char protectSensitive;    /* Prevent changes to sensitive CONFIG entries */
-  char protectConfig;       /* Prevent any changes to the CONFIG table */
-} db = {0, 0, 0, 0, 0, 0, };
+  int nProtect;             /* Slots of aProtect used */
+  unsigned aProtect[10];    /* Saved values of protectMask */
+} db = {
+  PROTECT_USER|PROTECT_CONFIG,  /* protectMask */
+  0, 0, 0, 0, 0, 0, };
 
 /*
 ** Arrange for the given file to be deleted on a failure.
@@ -326,6 +328,49 @@ void db_commit_hook(int (*x)(void), int sequence){
   db.nCommitHook++;
 }
 
+#if INTERFACE
+/*
+** Flag bits for db_protect() and db_unprotect()
+*/
+#define PROTECT_USER       0x01
+#define PROTECT_CONFIG     0x02
+#define PROTECT_SENSITIVE  0x04
+#define PROTECT_READONLY   0x08
+#define PROTECT_ALL        0x0f  /* All of the above */
+#endif /* INTERFACE */
+
+/*
+** Enable or disable database write protections.
+** Use db_protect() to enable write permissions.  Use
+** db_unprotect() to disable them.
+**
+** Each call to db_protect() and/or db_unprotect() should be followed
+** by a corresponding call to db_protect_pop().  The db_protect_pop()
+** call restores the protection settings to what they were before.
+**
+** The stack of protection settings is finite, so do not nest calls
+** to db_protect()/db_unprotect() too deeply.  And make sure calls
+** to db_protect()/db_unprotect() are balanced.
+*/
+void db_protect(unsigned flags){
+  if( db.nProtect>=count(db.aProtect) ){
+    fossil_fatal("too many db_protect() calls");
+  }
+  db.aProtect[db.nProtect++] = db.protectMask;
+  db.protectMask |= flags;
+}
+void db_unprotect(unsigned flags){
+  if( db.nProtect>=count(db.aProtect) ){
+    fossil_fatal("too many db_unprotect() calls");
+  }
+  db.aProtect[db.nProtect++] = db.protectMask;
+  db.protectMask &= ~flags;
+}
+void db_protect_pop(void){
+  if( db.nProtect<1 ) fossil_fatal("too many db_protect_pop() calls");
+  db.protectMask = db.aProtect[--db.nProtect];
+}
+
 /*
 ** Every Fossil database connection automatically registers the following
 ** overarching authenticator callback, and leaves it registered for the
@@ -345,19 +390,21 @@ static int db_top_authorizer(
     case SQLITE_INSERT:
     case SQLITE_UPDATE:
     case SQLITE_DELETE: {
-      if( db.protectUser && sqlite3_stricmp(z0,"user")==0 ){
+      if( (db.protectMask & PROTECT_USER)!=0
+          && sqlite3_stricmp(z0,"user")==0 ){
         rc = SQLITE_DENY;
-      }else if( db.protectConfig &&
+      }else if( (db.protectMask & PROTECT_CONFIG)!=0 &&
                (sqlite3_stricmp(z0,"config")==0 ||
                 sqlite3_stricmp(z0,"global_config")==0) ){
+        rc = SQLITE_DENY;
+      }else if( (db.protectMask & PROTECT_READONLY)!=0
+                && sqlite3_stricmp(z2,"temp")!=0 ){
         rc = SQLITE_DENY;
       }
       break;
     }
     case SQLITE_DROP_TEMP_TRIGGER: {
-      if( db.protectSensitive ){
-        rc = SQLITE_DENY;
-      }
+      rc = SQLITE_DENY;
       break;
     }
   }
@@ -1158,6 +1205,31 @@ void db_obscure(
 }
 
 /*
+** Implement the protected_setting(X) SQL function.  This function returns
+** true if X is the name of a protected (security-sensitive) setting and
+** the db.protectSensitive flag is enabled.  It returns false otherwise.
+*/
+LOCAL void db_protected_setting(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zSetting;
+  const Setting *pSetting;
+  if( (db.protectMask & PROTECT_SENSITIVE)==0 ){
+    sqlite3_result_int(context, 0);
+    return;
+  }
+  zSetting = (const char*)sqlite3_value_text(argv[0]);
+  pSetting = zSetting ? db_find_setting(zSetting,0) : 0;
+  if( pSetting && pSetting->sensitive ){
+    sqlite3_result_int(context, 1);
+  }else{
+    sqlite3_result_int(context, 0);
+  }
+}
+
+/*
 ** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
@@ -1186,6 +1258,8 @@ void db_add_aux_functions(sqlite3 *db){
                           alert_display_name_func, 0, 0);
   sqlite3_create_function(db, "obscure", 1, SQLITE_UTF8, 0,
                           db_obscure, 0, 0);
+  sqlite3_create_function(db, "protected_setting", 1, SQLITE_UTF8, 0,
+                          db_protected_setting, 0, 0);
 }
 
 #if USE_SEE
@@ -2306,6 +2380,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   if( zUser==0 ){
     zUser = "root";
   }
+  db_unprotect(PROTECT_USER);
   db_multi_exec(
      "INSERT OR IGNORE INTO user(login, info) VALUES(%Q,'')", zUser
   );
@@ -2325,6 +2400,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
        "   VALUES('reader','','kptw','Reader');"
     );
   }
+  db_protect_pop();
 }
 
 /*
@@ -2376,6 +2452,7 @@ void db_initial_setup(
   Blob hash;
   Blob manifest;
 
+  db_unprotect(PROTECT_ALL);
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
@@ -2434,6 +2511,7 @@ void db_initial_setup(
       " WHERE user.login IN ('anonymous','nobody','developer','reader');"
     );
   }
+  db_protect_pop();
 
   if( zInitialDate ){
     int rid;
@@ -2931,6 +3009,7 @@ char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault)
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%Q)",
@@ -2943,10 +3022,12 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
+  db_protect_pop();
   db_end_transaction(0);
 }
 void db_unset(const char *zName, int globalFlag){
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
@@ -2957,6 +3038,7 @@ void db_unset(const char *zName, int globalFlag){
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
+  db_protect_pop();
   db_end_transaction(0);
 }
 int db_is_global(const char *zName){
@@ -2990,6 +3072,7 @@ int db_get_int(const char *zName, int dflt){
   return v;
 }
 void db_set_int(const char *zName, int value, int globalFlag){
+  db_unprotect(PROTECT_CONFIG);
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%d)",
@@ -3002,6 +3085,7 @@ void db_set_int(const char *zName, int value, int globalFlag){
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
+  db_protect_pop();
 }
 int db_get_boolean(const char *zName, int dflt){
   char *zVal = db_get(zName, dflt ? "on" : "off");
@@ -3131,6 +3215,8 @@ void db_record_repository_filename(const char *zName){
   (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
   zRepoSetting = mprintf("repo:%q", blob_str(&full));
+  
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
      "DELETE FROM global_config WHERE name %s = %Q;",
      filename_collation(), zRepoSetting
@@ -3140,11 +3226,13 @@ void db_record_repository_filename(const char *zName){
      "VALUES(%Q,1);",
      zRepoSetting
   );
+  db_protect_pop();
   fossil_free(zRepoSetting);
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
     Blob localRoot;
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
     zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
+    db_unprotect(PROTECT_CONFIG|PROTECT_SENSITIVE);
     db_multi_exec(
        "DELETE FROM global_config WHERE name %s = %Q;",
        filename_collation(), zCkoutSetting
@@ -3164,6 +3252,7 @@ void db_record_repository_filename(const char *zName){
         "VALUES(%Q,1,now());",
         zCkoutSetting
     );
+    db_protect_pop();
     fossil_free(zCkoutSetting);
     blob_reset(&localRoot);
   }else{
@@ -3446,8 +3535,9 @@ struct Setting {
   int width;            /* Width of display.  0 for boolean values and
                         ** negative for values which should not appear
                         ** on the /setup_settings page. */
-  int versionable;      /* Is this setting versionable? */
-  int forceTextArea;    /* Force using a text area for display? */
+  char versionable;     /* Is this setting versionable? */
+  char forceTextArea;   /* Force using a text area for display? */
+  char sensitive;       /* True if this a security-sensitive setting */
   const char *def;      /* Default value */
 };
 #endif /* INTERFACE */

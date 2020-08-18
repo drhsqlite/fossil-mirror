@@ -295,9 +295,11 @@ void login_set_user_cookie(
   cgi_set_cookie(zCookieName, zCookie, login_cookie_path(),
                  bSessionCookie ? 0 : expires);
   record_login_attempt(zUsername, zIpAddr, 1);
+  db_unprotect(PROTECT_USER);
   db_multi_exec("UPDATE user SET cookie=%Q,"
                 "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
                 zHash, expires, uid);
+  db_protect_pop();
   fossil_free(zHash);
   if( zDest ){
     *zDest = zCookie;
@@ -358,10 +360,12 @@ void login_clear_login_data(){
     /* To logout, change the cookie value to an empty string */
     cgi_set_cookie(cookie, "",
                    login_cookie_path(), -86400);
+    db_unprotect(PROTECT_USER);
     db_multi_exec("UPDATE user SET cookie=NULL, ipaddr=NULL, "
                   "  cexpire=0 WHERE uid=%d"
                   "  AND login NOT IN ('anonymous','nobody',"
                   "  'developer','reader')", g.userUid);
+    db_protect_pop();
     cgi_replace_parameter(cookie, NULL);
     cgi_replace_parameter("anon", NULL);
   }
@@ -582,10 +586,12 @@ void login_page(void){
         char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
         char *zChngPw;
         char *zErr;
+        int rc;
+
+        db_unprotect(PROTECT_USER);
         db_multi_exec(
            "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
         );
-        fossil_free(zNewPw);
         zChngPw = mprintf(
            "UPDATE user"
            "   SET pw=shared_secret(%Q,%Q,"
@@ -593,7 +599,10 @@ void login_page(void){
            " WHERE login=%Q",
            zNew1, g.zLogin, g.zLogin
         );
-        if( login_group_sql(zChngPw, "<p>", "</p>\n", &zErr) ){
+        fossil_free(zNewPw);
+        rc = login_group_sql(zChngPw, "<p>", "</p>\n", &zErr);
+        db_protect_pop();
+        if( rc ){
           zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
           fossil_free(zErr);
         }else{
@@ -837,12 +846,14 @@ static int login_transfer_credentials(
     pStmt = 0;
     rc = sqlite3_prepare_v2(pOther, zSQL, -1, &pStmt, 0);
     if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+      db_unprotect(PROTECT_USER);
       db_multi_exec(
         "UPDATE user SET cookie=%Q, cexpire=%.17g"
         " WHERE login=%Q",
         zHash, 
         sqlite3_column_double(pStmt, 0), zLogin
       );
+      db_protect_pop();
       nXfer++;
     }
     sqlite3_finalize(pStmt);
@@ -1621,7 +1632,9 @@ void register_page(void){
        "'%q <%q>\nself-register from ip %q on '||datetime('now'),now())",
        zUserID, zPass, zStartPerms, zDName, zEAddr, g.zIpAddr);
     fossil_free(zPass);
+    db_unprotect(PROTECT_USER);
     db_multi_exec("%s", blob_sql_text(&sql));
+    db_protect_pop();
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
     login_set_user_cookie(zUserID, uid, NULL, 0);
     if( doAlerts ){
@@ -1834,10 +1847,12 @@ int login_group_sql(
     if( file_size(zRepoName, ExtFILE)<0 ){
       /* Silently remove non-existent repositories from the login group. */
       const char *zLabel = db_column_text(&q, 0);
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec(
          "DELETE FROM config WHERE name GLOB 'peer-*-%q'",
          &zLabel[10]
       );
+      db_protect_pop();
       continue;
     }
     rc = sqlite3_open_v2(
@@ -2006,7 +2021,9 @@ void login_group_join(
     "COMMIT;",
     zSelfProjCode, zSelfLabel, zSelfProjCode, zSelfRepo
   );
+  db_unprotect(PROTECT_CONFIG);
   login_group_sql(zSql, "<li> ", "</li>", pzErrMsg);
+  db_protect_pop();
   fossil_free(zSql);
 }
 
@@ -2027,6 +2044,7 @@ void login_group_leave(char **pzErrMsg){
     zProjCode
   );
   fossil_free(zProjCode);
+  db_unprotect(PROTECT_CONFIG);
   login_group_sql(zSql, "<li> ", "</li>", pzErrMsg);
   fossil_free(zSql);
   db_multi_exec(
@@ -2034,6 +2052,7 @@ void login_group_leave(char **pzErrMsg){
     " WHERE name GLOB 'peer-*'"
     "    OR name GLOB 'login-group-*';"
   );
+  db_protect_pop();
 }
 
 /*

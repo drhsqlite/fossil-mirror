@@ -1771,6 +1771,7 @@ void alert_page(void){
         zName);
       if( db_get_boolean("selfreg-verify",0) ){
         char *zNewCap = db_get("default-perms","u");
+        db_unprotect(PROTECT_USER);
         db_multi_exec(
            "UPDATE user"
            "   SET cap=%Q"
@@ -1779,6 +1780,7 @@ void alert_page(void){
            "    WHERE subscriberCode=hextoblob(%Q))",
            zNewCap, zName
         );
+        db_protect_pop();
         login_set_capabilities(zNewCap, 0);
       }
       @ <h1>Your email alert subscription has been verified!</h1>
