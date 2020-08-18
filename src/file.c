@@ -2518,7 +2518,7 @@ int file_is_reserved_name(const char *zFilename, int nFilename){
 /*
 ** COMMAND: test-is-reserved-name
 **
-** Usage: %fossil test-is-ckout-db FILENAMES...
+** Usage: %fossil test-is-reserved-name FILENAMES...
 **
 ** Passes each given name to file_is_reserved_name() and outputs one
 ** line per file: the result value of that function followed by the
