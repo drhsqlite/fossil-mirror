@@ -1,5 +1,5 @@
-C Rework\sthe\s"permissive-manifest-parser"\sidea\sto\sbe\ssimpler\sand\sto\scall\sit\n"strict-manifest-syntax".
-D 2020-08-18T19:49:13.224
+C Add\sa\ssecurity\saudit\swarning\sif\sthe\sstrict-manifest-syntax\sflag\sis\sswitched\soff.
+D 2020-08-18T19:56:33.250
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -572,7 +572,7 @@ F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
-F src/security_audit.c 15942c8b7bf3bc512ab7796a9f9d65c58f1e087789c8c64378fd1604df0c58cb
+F src/security_audit.c 008fc9b163b7527a279f448da178c894795901442d0fa0e94e3a46f9c91fb466
 F src/setup.c 997c91eab32d9e8faf165e5f003e4eb96977b48fa02898cba4cab1c0dbdea283
 F src/setupuser.c e26e42573837861f64cdcefaeb52e18d8d41bb8359779fe513fec446556b8734
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 917917aa55331052b80bb6525e54cb1260e8edf92faf17a00f412e16c3fe6f85
-R a7770e7f2d05057a6886a5fd90ed2ba8
+P 4df8c856ee7201b988e05b6c4b86f936344bc9ef63cc3e87fa1dfb8b8450e6b5
+R 3e5881292c05099d321a0fe17b1c56e0
 U drh
-Z d2e2de4b58cf0672bacb871845bc7c60
+Z 1532ef296caf8ca1eced3cf672534250

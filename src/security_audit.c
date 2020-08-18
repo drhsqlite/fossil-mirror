@@ -284,6 +284,14 @@ void secaudit0_page(void){
     @ on the <a href="setup_ulist">User Configuration</a> page.
   }
 
+  /* The strict-manifest-syntax setting should be on. */
+  if( db_get_boolean("strict-manifest-syntax",1)==0 ){
+    @ <li><p><b>WARNING:</b>
+    @ The "strict-manifest-syntax"  flag is off.  This is a security
+    @ risk.  Turn this setting on (its default) to protect the users
+    @ of this repository.
+  }
+
   /* Obsolete:  */
   if( hasAnyCap(zAnonCap, "d") ||
       hasAnyCap(zDevCap,  "d") ||
