@@ -341,6 +341,7 @@ void vfile_to_disk(
       }
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
+    file_delete_objects_on_path(g.zLocalRoot, zName);
     if( file_isdir(zName, RepoFILE)==1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite", zName);

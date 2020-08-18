@@ -327,6 +327,47 @@ int file_islink(const char *zFilename){
 }
 
 /*
+** Check every sub-directory of zRoot along the path to zFile.
+** If any sub-directory is really an ordinary file or a symbolic link,
+** then delete that object.  The inputs are expected to be full
+** pathnames.
+**
+** Example:  Given inputs
+**
+**     zRoot = /home/alice/project1
+**     zFile = /home/alice/project1/main/src/js/fileA.js
+**
+** Look for objects in the following order:
+**
+**      /home/alice/project/main
+**      /home/alice/project/main/src
+**      /home/alice/project/main/src/js
+**
+** If any of those objects exist and are something other than a directory
+** then delete the object and return.
+*/
+void file_delete_objects_on_path(const char *zRoot, const char *zFile){
+  int i = (int)strlen(zRoot);
+  char *z = fossil_strdup(zFile);
+  assert( fossil_strnicmp(zRoot, z, i)==0 );
+  if( i && zRoot[i-1]=='/' ) i--;
+  while( z[i]=='/' ){
+    int j, rc;
+    for(j=i+1; z[j] && z[j]!='/'; j++){}
+    if( z[j]!='/' ) break;
+    z[j] = 0;
+    rc = file_isdir(z, SymFILE);
+    if( rc!=1 ){
+      if( rc==2 ) file_delete(z);
+      break;
+    }
+    z[j] = '/';
+    i = j;
+  }
+  fossil_free(z);
+}
+
+/*
 ** Return 1 if zFilename is a directory.  Return 0 if zFilename
 ** does not exist.  Return 2 if zFilename exists but is something
 ** other than a directory.
@@ -572,7 +613,10 @@ int file_setexe(const char *zFilename, int onoff){
   int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( fossil_stat(zFilename, &buf, RepoFILE)!=0 || S_ISLNK(buf.st_mode) ){
+  if( fossil_stat(zFilename, &buf, RepoFILE)!=0 
+   || S_ISLNK(buf.st_mode)
+   || S_ISDIR(buf.st_mode)
+  ){
     return 0;
   }
   if( onoff ){
