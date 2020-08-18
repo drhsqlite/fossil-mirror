@@ -3,10 +3,11 @@
 <a name='v2_12_1'></a>
 <h2>Changes for Version 2.12.1 (2020-08-19)</h2>
 
-  *  Security fix in the new [/help?cmd=/wikiedit|/wikiedit] and
+  *  Fix in the new [/help?cmd=/wikiedit|/wikiedit] and
      [/help?cmd=/fileedit|/fileedit] pages for a mistake which allowed
      both to leak edits across all repositories on the same "origin"
-     (in short, same server and port number). Full details are in
+     (in short, the same domain, port number, and browser profile
+     instance). Full details are in
      [https://fossil-scm.org/forum/forumpost/33dd754eaf|the support
      forum]. This does not affect any versions prior to 2.12.
 

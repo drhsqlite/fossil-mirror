@@ -1,5 +1,5 @@
-C Updated\schangelog\sand\sindex\sfor\s2.12.1,\swith\sa\stentative\srelease\sdate\sof\sAug.\s19th\s(that's\stomorrow\sin\s3\shours,\sCET).
-D 2020-08-18T19:10:00.509
+C Merged\sin\s[923affb930a27b],\swhich\sreinstates\slocalStorage\sbut\ssandboxes\saccess\sto\sfossil.storage\son\sa\sper-repo\sbasis.
+D 2020-08-18T20:51:02.770
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -492,7 +492,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
-F src/fossil.storage.js 005fa0d1085542558f7aaee8691e684fa293408d848ef38528ecf042daac731e
+F src/fossil.storage.js d14cdb551090b2947e1a4be9e421e5dceecfd7324f37bb928b96e6a45bcfa89a
 F src/fossil.tabs.js 93ec1f21f0658d66474f04ed276e1c02b63f7818ba9c118f180f54d8532730d9
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
@@ -607,7 +607,7 @@ F src/stash.c 43c525c5c2933846405b0b9e3687218c852ff89088796d9e7e7b48f3ddab84a4
 F src/stat.c b3be5fc07d23c59fc44a317eb2522000af1d489430fb537f80d66009585b4bd6
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 20210c3c537dbc49abd862989194acd55e862318bb18e6f050638a8de728c747
+F src/style.c f3a58b83c2dca8b80b2f5da4e4e0358569c0fae4f601d030895c1715d2adcff7
 F src/style.fileedit.css 4b5d5ceb375bea22407994fb378f3774c65f39d4d519d778035aa9e4b35718d2
 F src/style.wikiedit.css 4a78b02ab2510b3d07922c863dbabfbffbec2f9b2b006699f4ff244cb582582a
 F src/sync.c 31bb79a18dc3a8ea3d9784a766b132818086948b75037b783ee7179343960087
@@ -831,7 +831,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 61688bebf21ffd839795d4855847c87b9f056ed61dce147364ec9baa6ce4ce71
+F www/changes.wiki a36d09ab5d6b9bc095672f8a6b916c1fac20c7a3fef31e17a1fcb201e5657e2e
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -1004,7 +1004,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af383a7b3d237ed30d95712595e101327ced9809ccc5428b78e3fdb1fd9064cd
-R 8e6418786523a446946e28afff49a8be
+P c8e8ab9cccb67fdcf5b3527db6311c85491f951459b53889abf569b8b42185ce
+Q +923affb930a27bc7c20c54a0c2ac1904d95b9e13f39ee3652ae83540f413dea9
+R c2ff75b3c30630c2f91312733cd0c93a
 U stephan
-Z f957737c9bf74c521b245489a3bab1eb
+Z 872240e54c6d8b962df46b553f4e4f6f
