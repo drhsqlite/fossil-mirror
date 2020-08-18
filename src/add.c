@@ -214,10 +214,14 @@ static int add_files_in_sfile(int vid){
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
-    for(i=0; (zReserved = fossil_reserved_name(i, 0))!=0; i++){
-      if( xCmp(zToAdd, zReserved)==0 ) break;
+    if( strchr(zToAdd,'/') ){
+      if( file_is_reserved_name(zToAdd, -1) ) continue;
+    }else{
+      for(i=0; (zReserved = fossil_reserved_name(i, 0))!=0; i++){
+        if( xCmp(zToAdd, zReserved)==0 ) break;
+      }
+      if( zReserved ) continue;
     }
-    if( zReserved ) continue;
     nAdd += add_one_file(zToAdd, vid);
   }
   db_finalize(&loop);
