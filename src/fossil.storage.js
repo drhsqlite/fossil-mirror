@@ -19,8 +19,12 @@
 
   /** Internal storage impl for fossil.storage. */
   const $storage =
-        tryStorage(window.localStorage)
-        || tryStorage(window.sessionStorage)
+        /* We must not use localStorage on a multi-repo domain!
+          See: https://fossil-scm.org/forum/forumpost/0e794dbb91
+
+          tryStorage(window.localStorage)
+          ||*/
+        tryStorage(window.sessionStorage)
         || tryStorage({
           // A basic dummy xyzStorage stand-in
           $:{},
