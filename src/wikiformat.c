@@ -190,53 +190,55 @@ static int findAttr(const char *z){
 #define MARKUP_COL                12
 #define MARKUP_COLGROUP           13
 #define MARKUP_DD                 14
-#define MARKUP_DFN                15
-#define MARKUP_DIV                16
-#define MARKUP_DL                 17
-#define MARKUP_DT                 18
-#define MARKUP_EM                 19
-#define MARKUP_FONT               20
-#define MARKUP_HTML5_FOOTER       21
-#define MARKUP_H1                 22
-#define MARKUP_H2                 23
-#define MARKUP_H3                 24
-#define MARKUP_H4                 25
-#define MARKUP_H5                 26
-#define MARKUP_H6                 27
-#define MARKUP_HTML5_HEADER       28
-#define MARKUP_HR                 29
-#define MARKUP_I                  30
-#define MARKUP_IMG                31
-#define MARKUP_KBD                32
-#define MARKUP_LI                 33
-#define MARKUP_HTML5_NAV          34
-#define MARKUP_NOBR               35
-#define MARKUP_NOWIKI             36
-#define MARKUP_OL                 37
-#define MARKUP_P                  38
-#define MARKUP_PRE                39
-#define MARKUP_S                  40
-#define MARKUP_SAMP               41
-#define MARKUP_HTML5_SECTION      42
-#define MARKUP_SMALL              43
-#define MARKUP_SPAN               44
-#define MARKUP_STRIKE             45
-#define MARKUP_STRONG             46
-#define MARKUP_SUB                47
-#define MARKUP_SUP                48
-#define MARKUP_TABLE              49
-#define MARKUP_TBODY              50
-#define MARKUP_TD                 51
-#define MARKUP_TFOOT              52
-#define MARKUP_TH                 53
-#define MARKUP_THEAD              54
-#define MARKUP_TITLE              55
-#define MARKUP_TR                 56
-#define MARKUP_TT                 57
-#define MARKUP_U                  58
-#define MARKUP_UL                 59
-#define MARKUP_VAR                60
-#define MARKUP_VERBATIM           61
+#define MARKUP_DEL                15
+#define MARKUP_DFN                16
+#define MARKUP_DIV                17
+#define MARKUP_DL                 18
+#define MARKUP_DT                 19
+#define MARKUP_EM                 20
+#define MARKUP_FONT               21
+#define MARKUP_HTML5_FOOTER       22
+#define MARKUP_H1                 23
+#define MARKUP_H2                 24
+#define MARKUP_H3                 25
+#define MARKUP_H4                 26
+#define MARKUP_H5                 27
+#define MARKUP_H6                 28
+#define MARKUP_HTML5_HEADER       29
+#define MARKUP_HR                 30
+#define MARKUP_I                  31
+#define MARKUP_IMG                32
+#define MARKUP_INS                33
+#define MARKUP_KBD                34
+#define MARKUP_LI                 35
+#define MARKUP_HTML5_NAV          36
+#define MARKUP_NOBR               37
+#define MARKUP_NOWIKI             38
+#define MARKUP_OL                 39
+#define MARKUP_P                  40
+#define MARKUP_PRE                41
+#define MARKUP_S                  42
+#define MARKUP_SAMP               43
+#define MARKUP_HTML5_SECTION      44
+#define MARKUP_SMALL              45
+#define MARKUP_SPAN               46
+#define MARKUP_STRIKE             47
+#define MARKUP_STRONG             48
+#define MARKUP_SUB                49
+#define MARKUP_SUP                50
+#define MARKUP_TABLE              51
+#define MARKUP_TBODY              52
+#define MARKUP_TD                 53
+#define MARKUP_TFOOT              54
+#define MARKUP_TH                 55
+#define MARKUP_THEAD              56
+#define MARKUP_TITLE              57
+#define MARKUP_TR                 58
+#define MARKUP_TT                 59
+#define MARKUP_U                  60
+#define MARKUP_UL                 61
+#define MARKUP_VAR                62
+#define MARKUP_VERBATIM           63
 
 /*
 ** The various markup is divided into the following types:
@@ -292,6 +294,7 @@ static const struct AllowedMarkup {
  { "colgroup",      MARKUP_COLGROUP,     MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH|AMSK_STYLE},
  { "dd",            MARKUP_DD,           MUTYPE_LI,            AMSK_STYLE },
+ { "del",           MARKUP_DEL,          MUTYPE_FONT,          AMSK_STYLE },
  { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          AMSK_STYLE },
  { "div",           MARKUP_DIV,          MUTYPE_BLOCK,
                     AMSK_ID|AMSK_CLASS|AMSK_STYLE },
@@ -327,6 +330,7 @@ static const struct AllowedMarkup {
  { "img",           MARKUP_IMG,          MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
                     AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH|AMSK_STYLE  },
+ { "ins",           MARKUP_INS,          MUTYPE_FONT,          AMSK_STYLE },
  { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          AMSK_STYLE },
  { "li",            MARKUP_LI,           MUTYPE_LI,
                     AMSK_TYPE|AMSK_VALUE|AMSK_STYLE  },
