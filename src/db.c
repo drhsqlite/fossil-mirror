@@ -3295,7 +3295,7 @@ void db_record_repository_filename(const char *zName){
 **   --empty           Initialize checkout as being empty, but still connected
 **                     with the local repository. If you commit this checkout,
 **                     it will become a new "initial" commit in the repository.
-**   --force           Continue with the open even if the working directory is
+**   -f|--force        Continue with the open even if the working directory is
 **                     not empty.
 **   --force-missing   Force opening a repository with missing content
 **   --keep            Only modify the manifest and manifest.uuid files
@@ -3339,7 +3339,7 @@ void cmd_open(void){
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
-  bForce = find_option("force",0,0)!=0;  
+  bForce = find_option("force","f",0)!=0;  
   if( find_option("symlinks",0,0)!=0 ) allowSymlinks = 1;
   zPwd = file_getcwd(0,0);
   
@@ -3379,7 +3379,7 @@ void cmd_open(void){
   }
   if( keepFlag==0 && bForce==0 && file_directory_size(".", 0, 1)>0 ){
     fossil_fatal("directory %s is not empty\n"
-                 "use the --force option to override", file_getcwd(0,0));
+                 "use the -f or --force option to override", file_getcwd(0,0));
   }
 
   if( db_open_local_v2(0, allowNested) ){

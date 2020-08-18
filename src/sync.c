@@ -513,7 +513,7 @@ remote_add_default:
 **
 ** Make a backup of the repository into the named file or into the named
 ** directory.  This backup is guaranteed to be consistent even if there are
-** concurrent chnages taking place on the repository.  In other words, it
+** concurrent changes taking place on the repository.  In other words, it
 ** is safe to run "fossil backup" on a repository that is in active use.
 **
 ** Only the main repository database is backed up by this command.  The
@@ -522,7 +522,7 @@ remote_add_default:
 **
 ** Options:
 **
-**    --overwrite              OK to overwrite an existing file.
+**    --overwrite              OK to overwrite an existing file
 **    -R NAME                  Filename of the repository to backup
 */
 void backup_cmd(void){
