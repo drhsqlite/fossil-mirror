@@ -432,7 +432,9 @@ void all_cmd(void){
     if( dryRunFlag ){
       fossil_print("%s\n", zSql);
     }else{
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec("%s", zSql /*safe-for-%s*/ );
+      db_protect_pop();
     }
   }
 }

@@ -1,5 +1,5 @@
-C Disable\swrites\sthe\sCONFIG\sand\sUSER\stables\sby\sdefault.\s\sPermission\sto\swrite\nto\sthose\stables\sis\sturned\son\sas\sneeded.\s\sNote\s-\smight\shave\smissed\sa\sfew\nplaces\sso\sexpect\sbugs.
-D 2020-08-18T01:54:25.130
+C Fix\smissing\senable\sof\sglobal_config\sin\sthe\s"fossil\sall"\scommand.
+D 2020-08-18T02:26:36.741
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -433,7 +433,7 @@ F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a
 F src/add.c 2658c60f1da0479ff276d094d1b5c5b535cdfef621e8a3cf9e59c4602cbff634
 F src/ajax.c cfb937838211d61ce4dfca117aa7268ce213f57335c9199ff942655fc0005835
 F src/alerts.c 82160a85b500d45899ab72c86bd782eb62bc41771bf435ee7e1d82fea9aab26c
-F src/allrepo.c 57942091af8e97e2c1ccba355f0f37cbee48a3e7e8b71aa85dd3dff46cf28273
+F src/allrepo.c 857e9ca869e63f216d982f8865c27063a0f9e2dacdde727fd5d92122ce743387
 F src/attach.c 90aded4f90c9ef2bbd770e0feefc76c705b67f40bf4b1263ae9832ac268e19ae
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
 F src/backoffice.c a6050595f00797ed1a45ca49617607d60d223bb8fb088ff2eace2cd6a979cbd2
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92704d1c68eeaa4459631f1f5907dd5d6aef30ad4755d6a2c90edeee6c3da152
-R 02a4095fb617e501b44c2857362a3395
+P ca9156aa0adb36839383491c609de61e8d6889494826a48e69efa35a4a6f98c5
+R fb0f1783956d21fb7db8d7ca94fc65d0
 U drh
-Z 38af2f532236f1e86adb87917d6cdb05
+Z 5e1098fe68f82ceb3148ba2bc2cc1dba
