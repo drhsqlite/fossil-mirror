@@ -249,6 +249,7 @@ void db_end_transaction(int rollbackFlag){
     int i;
     if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
       i = 0;
+      db_unprotect(PROTECT_ALL);
       while( db.nBeforeCommit ){
         db.nBeforeCommit--;
         sqlite3_exec(g.db, db.azBeforeCommit[i], 0, 0, 0);
@@ -256,6 +257,7 @@ void db_end_transaction(int rollbackFlag){
         i++;
       }
       leaf_do_pending_checks();
+      db_protect_pop();
     }
     for(i=0; db.doRollback==0 && i<db.nCommitHook; i++){
       int rc = db.aHook[i].xHook();

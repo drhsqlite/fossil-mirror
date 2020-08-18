@@ -1,5 +1,5 @@
-C Fix\smissing\senable\sof\sglobal_config\sin\sthe\s"fossil\sall"\scommand.
-D 2020-08-18T02:26:36.741
+C Yet\sanother\smissed\sdb_unprotect()\scall.
+D 2020-08-18T02:33:25.666
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 287948e9a6de3f54e1ba5487c8bc0bb8b9d30e7e91d753f80c1d49d20f42215b
+F src/db.c b60d7af0a0267d23af138480954de428336f454c8f6946905e8d515569921fd9
 F src/default.css a3c4e00621315fed3a9fa731c0f7cdeafd557bcc5ff46e10ba501566cadeb0b4
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca9156aa0adb36839383491c609de61e8d6889494826a48e69efa35a4a6f98c5
-R fb0f1783956d21fb7db8d7ca94fc65d0
+P 16ec693daebe316ba519910ef3e863a143c965638cd98f1fa38d3f576a1b45b3
+R f6aca7418d271842ff1f1c8e3edb8828
 U drh
-Z 5e1098fe68f82ceb3148ba2bc2cc1dba
+Z 7717f2dfc4fb69caea29d5b8a904e4e5
