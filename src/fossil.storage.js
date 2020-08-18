@@ -123,7 +123,7 @@
     },
     /** Clears ALL keys from the storage. Returns this. */
     clear: function(){
-      $storage.clear();
+      this.keys().forEach((k)=>$storage.removeItem(/*w/o prefix*/k));
       return this;
     },
     /** Returns an array of all keys currently in the storage. */
