@@ -222,8 +222,6 @@ struct Global {
   int isHuman;            /* True if access by a human, not a spider or bot */
   int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
                           ** accessed through get_comment_format(). */
-  int manifestStrict;     /* Whether or not to do strict enforcement of 
-                          ** manifest syntax.  0 = unknown. 1 = no  2 = yes */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
