@@ -1,5 +1,5 @@
-C fossil.storage.clear()\sis\snow\salso\ssandboxed\s-\sno\slonger\snuking\sall\sstate\sfor\sall\srepos\son\sthe\ssame\sorigin.
-D 2020-08-18T21:01:14.667
+C Line\snumbering\sforum\sfeedback:\sremoved\stoast\smessage,\sreplaced\svague\s'lines\sX-Y'\slabel\swith\s'Copy\slink\sto\slines\sX-Y',\sremoved\sudc=xxx\sfrom\sthe\sgenerated\sURL.
+D 2020-08-18T22:53:21.867
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -490,7 +490,7 @@ F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2f
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
 F src/fossil.dom.js b5396af8ad50770b68a4b4fa9a2f3afd2c71ea1bd4549a3eeb46ce5ebe2ba7b1
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
-F src/fossil.numbered-lines.js b35eb6b3c884882b2db2182a5c661a59c99894d8c5ff08b428d616985a43089f
+F src/fossil.numbered-lines.js f97a8b52029259bbc4c5e82a42766abfa4d55287d6bf08c65d27a9ad9e49f0d4
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 923affb930a27bc7c20c54a0c2ac1904d95b9e13f39ee3652ae83540f413dea9
-R aa52d27f10a8099cf9bf2cddd83519b0
+P d2d8894bb2d6a0dcc9bcc21eb16fae914f45a26d9f366d6876d7ebcd65102f2e
+R c86465850085c343d9aa101763d3ebc8
 U stephan
-Z 47f3379899bcec59f80ce9b1cdd623a8
+Z 66ad1590074db0ad8e4e636a14af2ee0
