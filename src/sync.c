@@ -547,5 +547,6 @@ void backup_cmd(void){
       fossil_fatal("backup \"%s\" already exists", zDest);
     }
   }
+  db_unprotect(PROTECT_ALL);
   db_multi_exec("VACUUM repository INTO %Q", zDest);
 }

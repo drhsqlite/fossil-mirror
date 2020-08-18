@@ -240,7 +240,9 @@ void clone_cmd(void){
    && db_int(0, "PRAGMA page_size")<8192 ){
      db_multi_exec("PRAGMA page_size=8192;");
   }
+  db_unprotect(PROTECT_ALL);
   db_multi_exec("VACUUM");
+  db_protect_pop();
   fossil_print("\nproject-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);

@@ -2302,7 +2302,9 @@ void db_close(int reportErrors){
     int nFree = db_int(0, "PRAGMA localdb.freelist_count");
     int nTotal = db_int(0, "PRAGMA localdb.page_count");
     if( nFree>nTotal/4 ){
+      db_unprotect(PROTECT_ALL);
       db_multi_exec("VACUUM localdb;");
+      db_protect_pop();
     }
   }
 
