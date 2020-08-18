@@ -440,7 +440,9 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
     }
+    db_unprotect(PROTECT_ALL);
     db_multi_exec("%s)", blob_sql_text(&sql));
+    db_protect_pop();
     if( db_changes()==0 ){
       blob_reset(&sql);
       blob_append_sql(&sql, "UPDATE \"%w\" SET mtime=%s",
@@ -452,7 +454,9 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       blob_append_sql(&sql, " WHERE \"%w\"=%s AND mtime<%s",
                    aType[ii].zPrimKey, azToken[1]/*safe-for-%s*/,
                    azToken[0]/*safe-for-%s*/);
+      db_unprotect(PROTECT_ALL);
       db_multi_exec("%s", blob_sql_text(&sql));
+      db_protect_pop();
     }
     blob_reset(&sql);
     rebuildMask |= thisMask;
