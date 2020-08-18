@@ -1,5 +1,5 @@
-C Backported\sin\s[5b9a4c90594d8ea6],\sas\sexplained\sin\sdetail\sat\s[https://fossil-scm.org/forum/forumpost/0f56c9edd9].
-D 2020-08-18T18:44:30.995
+C Updated\schangelog\sand\sindex\sfor\s2.12.1,\swith\sa\stentative\srelease\sdate\sof\sAug.\s19th\s(that's\stomorrow\sin\s3\shours,\sCET).
+D 2020-08-18T19:10:00.509
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -831,7 +831,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 259fc205a3082aaaf1a587e44b8d0c585906a3e23aef9868589eac5104657974
+F www/changes.wiki 61688bebf21ffd839795d4855847c87b9f056ed61dce147364ec9baa6ce4ce71
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -901,7 +901,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d57e945e9addc805cc4bb
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki f553f80928bb77b1a94d99f96d8a236f9023f15a26136fc2e72eda8dc316e226
+F www/index.wiki 7ee21723a4a0e7c55417bcb673a754b94b44a962d6d98735db094a7904c70680
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -1004,11 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d075b6199c87449d538eaff736047341fbfe2da276d044a55b238c7c26eb0b87
-Q +5b9a4c90594d8ea64d3e4d2bed3c00e76b8fa029820a46cff5b5f5663e85b945
-R d42ffa0cccdafd2552027fd2f9506ec8
-T *branch * version-2.12.1
-T *sym-version-2.12.1 *
-T -sym-trunk *
+P af383a7b3d237ed30d95712595e101327ced9809ccc5428b78e3fdb1fd9064cd
+R 8e6418786523a446946e28afff49a8be
 U stephan
-Z 79878ec7fc90a369a0203cc3ddb78eef
+Z f957737c9bf74c521b245489a3bab1eb
