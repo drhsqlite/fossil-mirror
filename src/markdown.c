@@ -1921,7 +1921,7 @@ static size_t parse_table_row(
     if( align==0 && aligns && col<align_size ) align = aligns[col];
 
     /* render cells */
-    if( cells && end>beg ){
+    if( cells && end>=beg ){
       parse_table_cell(cells, rndr, data+beg, end-beg, align|flags);
     }
 

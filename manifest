@@ -1,5 +1,5 @@
-C Line\snumbering\sforum\sfeedback:\sremoved\stoast\smessage,\sreplaced\svague\s'lines\sX-Y'\slabel\swith\s'Copy\slink\sto\slines\sX-Y',\sremoved\sudc=xxx\sfrom\sthe\sgenerated\sURL.
-D 2020-08-18T22:53:21.867
+C Restore\sblank\scell\scapability,\sfixes\s[95ce0e53]
+D 2020-08-19T01:33:31.073
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -542,7 +542,7 @@ F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d4
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 932e445ddec224587f9631e7c7ee830ed8f502252c85c2e8d35e0083902ef8e0 x
 F src/manifest.c b982d37188a07537954990fe06a6751cb9033342a4cc655ebba0d9ceb0e654ac
-F src/markdown.c 5a1fb3e55d2201601d966016090151ad2151f50715631de173d60e0c09bfc381
+F src/markdown.c 1dc6457837632cda872d68d79ab69a2a305d58689a2fdc9ac09e7a6bef7a5561
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ebd8d9a98ea3402403453c517aa822da1bd01923e38bf7a8632cb667db90da31
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d2d8894bb2d6a0dcc9bcc21eb16fae914f45a26d9f366d6876d7ebcd65102f2e
-R c86465850085c343d9aa101763d3ebc8
-U stephan
-Z 66ad1590074db0ad8e4e636a14af2ee0
+P 7c98df415874259b0f6e5ecaffc5959dee756ba8eb7db27352fae6c7499631a8
+R fda18aed9b8a14e2f8eb8c6ccdfda18f
+U andygoth
+Z bb16367abed7755ed9ec6f0fd75c99af
