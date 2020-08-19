@@ -1,5 +1,5 @@
-C When\sdiffing\slong\ssequences,\sthe\sproduct\sof\stheir\slengths\scan\soverflow\sto\sa\snegative\snumber,\striggering\soptimalLCS()\swhich\sis\svery\sexpensive.\s\sPrevent\sthis\soverflow.\s\sSee\s[https://fossil-scm.org/forum/forumpost/5f9365f9fe]\sfor\sdiscussion.
-D 2020-08-19T13:51:34.697
+C Harmonize\sartifact\scount\sand\saverage\sbetween\s/stat\sand\s/artifact_stats.\s\sSee\s[https://fossil-scm.org/forum/forumpost/37514b1f67].
+D 2020-08-19T14:23:33.189
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -607,7 +607,7 @@ F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae7548
 F src/sqlite3.c d00b7fffa6d33af2303430eaf394321da2960604d25a4471c7af566344f2abf9
 F src/sqlite3.h 46dc3d18b5c506fd29aef0ec206bbbe1a80c6ddc6a6315345cd3b91865b466c2
 F src/stash.c 43c525c5c2933846405b0b9e3687218c852ff89088796d9e7e7b48f3ddab84a4
-F src/stat.c b3be5fc07d23c59fc44a317eb2522000af1d489430fb537f80d66009585b4bd6
+F src/stat.c f36d74389e5a386f795dc00787bfbe981b8590441eea027a86602cf539874391
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c f3a58b83c2dca8b80b2f5da4e4e0358569c0fae4f601d030895c1715d2adcff7
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc94ebc2cd9151cd6f714e19a982c9a2d9dfc10f8baa2801dbf98a33a44c493d
-R 6b386d1974d4d077c9219a626c58fd38
+P e2b7dca948da84b7718ab5ddc576b45f4b19f37b1aeb0da0371ebdb10f6c7c47
+R a0bc620f1df402d12364867b277cad1f
 U andygoth
-Z 77317484469ec9acc8520ddc02831ad1
+Z 6ca92a4bf93127b8208bd98a9db060ed

@@ -155,7 +155,7 @@ void stat_page(void){
   @ </td></tr>
   if( !brief ){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
-    n = db_int(0, "SELECT count(*) FROM blob");
+    n = db_int(0, "SELECT count(*) FROM blob WHERE content IS NOT NULL");
     m = db_int(0, "SELECT count(*) FROM delta");
     @ %.d(n) (%,d(n-m) fulltext and %,d(m) deltas)
     if( g.perm.Write ){
@@ -167,7 +167,7 @@ void stat_page(void){
       Stmt q;
       @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
       db_prepare(&q, "SELECT total(size), avg(size), max(size)"
-                     " FROM blob WHERE size>0 /*scan*/");
+                     " FROM blob WHERE content IS NOT NULL /*scan*/");
       db_step(&q);
       t = db_column_int64(&q, 0);
       szAvg = db_column_int(&q, 1);
