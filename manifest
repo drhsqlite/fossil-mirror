@@ -1,5 +1,5 @@
-C Restore\sblank\scell\scapability,\sfixes\s[95ce0e53]
-D 2020-08-19T01:33:31.073
+C When\sdiffing\slong\ssequences,\sthe\sproduct\sof\stheir\slengths\scan\soverflow\sto\sa\snegative\snumber,\striggering\soptimalLCS()\swhich\sis\svery\sexpensive.\s\sPrevent\sthis\soverflow.\s\sSee\s[https://fossil-scm.org/forum/forumpost/5f9365f9fe]\sfor\sdiscussion.
+D 2020-08-19T13:51:34.697
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -469,7 +469,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c d10b4405162c0053dd7e0e3518c2849ef3eeaedce67ca82c6880a7ae05103f3c
-F src/diff.c 681ca5379db0bf12b9f0092885ae1010ebe9340eb741a18ea9e1388e2467dae1
+F src/diff.c 149a5477a22cb731966f4d79aa15341844f19e0f0c7caa6d074d89505560eb65
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c ec3070c8ef11be9c7891f1a623c39117e896c991c275a39e8795d9fe61da734f
 F src/dispatch.c e8b2a8e285ec30206f38edaa30c6b4fde53aad961bbc2ad24e1d0eb43899b2b9
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c98df415874259b0f6e5ecaffc5959dee756ba8eb7db27352fae6c7499631a8
-R fda18aed9b8a14e2f8eb8c6ccdfda18f
+P dc94ebc2cd9151cd6f714e19a982c9a2d9dfc10f8baa2801dbf98a33a44c493d
+R 6b386d1974d4d077c9219a626c58fd38
 U andygoth
-Z bb16367abed7755ed9ec6f0fd75c99af
+Z 77317484469ec9acc8520ddc02831ad1
