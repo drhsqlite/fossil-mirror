@@ -374,6 +374,28 @@ int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
 }
 
 /*
+** COMMAND: test-nondir-path
+** Usage: %fossil test-nondir-path ROOT FILE
+**
+** If there are any objects on the path from ROOT to FILE (exluding
+** ROOT and FILE themselves) that are not directories, then print
+** the name of the first object found.
+*/
+void test_nondir_path_cmd(void){
+  int n;
+  if( g.argc!=4 ){
+    usage("ROOT FILE");
+  }
+  if( fossil_strnicmp(g.argv[2],g.argv[3],(int)strlen(g.argv[2]))!=0 ){
+    fossil_fatal("%s should be a prefix of %s", g.argv[2], g.argv[3]);
+  }
+  n = file_nondir_objects_on_path(g.argv[2],g.argv[3]);
+  if( n ){
+    fossil_print("%.*s\n", n, g.argv[3]);
+  }
+}
+
+/*
 ** The file named zFile is suppose to be an in-tree file.  Check to
 ** ensure that it will be safe to write to this file by verifying that
 ** there are no symlinks or other non-directory objects in between the
