@@ -935,7 +935,6 @@ void revert_cmd(void){
       sqlite3_int64 mtime;
       int rvChnged = 0;
       int rvPerm = manifest_file_mperm(pRvFile);
-      int n;
 
       /* Determine if reverted-to file is different than checked out file. */
       if( pCoManifest && (pCoFile = manifest_file_find(pCoManifest, zFile)) ){

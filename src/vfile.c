@@ -309,7 +309,6 @@ void vfile_to_disk(
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid, isExe, isLink;
     const char *zName;
-    int n;
 
     id = db_column_int(&q, 0);
     zName = db_column_text(&q, 1);
