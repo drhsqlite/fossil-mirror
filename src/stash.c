@@ -336,6 +336,8 @@ static void stash_apply(int stashid, int nConflict){
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
+    }else if( file_unsafe_in_tree_path(zNPath) ){
+      /* Ignore the unsafe path */
     }else{
       Blob a, b, out, disk;
       int isNewLink = file_islink(zOPath);

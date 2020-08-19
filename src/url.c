@@ -52,7 +52,7 @@ struct UrlData {
   int isAlias;     /* Input URL was an alias */
   char *name;      /* Hostname for http: or filename for file: */
   char *hostname;  /* The HOST: parameter on http headers */
-  const char *protocol; /* "http" or "https" or "ssh" or "file" */
+  const char *protocol; /* "http" or "https" or "ssh" */
   int port;        /* TCP port number for http: or https: */
   int dfltPort;    /* The default port for the given protocol */
   char *path;      /* Pathname for http: */
@@ -78,7 +78,7 @@ struct UrlData {
 **      isFile      True if FILE:
 **      isHttps     True if HTTPS:
 **      isSsh       True if SSH:
-**      protocol    "http" or "https" or "file" or "ssh"
+**      protocol    "http" or "https" or "file"
 **      name        Hostname for HTTP:, HTTPS:, SSH:.  Filename for FILE:
 **      port        TCP port number for HTTP or HTTPS.
 **      dfltPort    Default TCP port number (80 or 443).
@@ -307,7 +307,7 @@ void url_parse_local(
 **      g.url.isFile      True if FILE:
 **      g.url.isHttps     True if HTTPS:
 **      g.url.isSsh       True if SSH:
-**      g.url.protocol    "http" or "https" or "file" or "ssh"
+**      g.url.protocol    "http" or "https" or "file"
 **      g.url.name        Hostname for HTTP:, HTTPS:, SSH:.  Filename for FILE:
 **      g.url.port        TCP port number for HTTP or HTTPS.
 **      g.url.dfltPort    Default TCP port number (80 or 443).

@@ -374,6 +374,31 @@ int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
 }
 
 /*
+** The file named zFile is suppose to be an in-tree file.  Check to
+** ensure that it will be safe to write to this file by verifying that
+** there are no symlinks or other non-directory objects in between the
+** root of the checkout and zFile.
+**
+** If a problem is found, print a warning message (using fossil_warning())
+** and return non-zero.  If everything is ok, return zero.
+*/
+int file_unsafe_in_tree_path(const char *zFile){
+  int n;
+  if( !file_is_absolute_path(zFile) ){
+    fossil_panic("%s is not an absolute pathname",zFile);
+  }
+  if( fossil_strnicmp(g.zLocalRoot, zFile, (int)strlen(g.zLocalRoot)) ){
+    fossil_panic("%s is not a prefix of %s", g.zLocalRoot, zFile);
+  }
+  n = file_nondir_objects_on_path(g.zLocalRoot, zFile);
+  if( n ){
+    fossil_warning("cannot write to %s because non-directory object %.*s"
+                   " is in the way", zFile, n, zFile);
+  }
+  return n;
+}
+
+/*
 ** Return 1 if zFilename is a directory.  Return 0 if zFilename
 ** does not exist.  Return 2 if zFilename exists but is something
 ** other than a directory.
