@@ -50,8 +50,8 @@ particular order, along with rebuttals against each of them:
     transfer size may increase: 6-8kb (compressed) is typical, and it
     may even go up to a whopping 15kb (as of this writing, it's 8kb
     compressed on our most JS-intensive page (`/fileedit`), and only
-    25kb uncompressed and unobfuscated). With fossil's newer (summer
-    2020) JS delivery mechanism and etags-related caching
+    25kb uncompressed and unobfuscated). With fossil's newer (summer 2020)
+    JS delivery mechanism and etags-related caching
     improvements, such JS can be served with a single HTTP request and
     cached by browsers for up to a year. Additionally, most pages
     which use that much JS also use comparitively lightweight ajax
