@@ -1,5 +1,5 @@
-C Silently\srefuse\sto\s"fossil\sadd"\sfiles\sthat\suse\sreserved\snames.
-D 2020-08-18T20:58:37.503
+C Do\snot\sallow\sthe\s"fossil\sadd"\scommand\sto\sadd\sfiles\sbeneath\sa\ssymlink.
+D 2020-08-19T00:15:11.186
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -430,7 +430,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
-F src/add.c c9c6fd0fd4d5ed12411e63b6d1f31474038351113f2831da7c154b31c4a08c35
+F src/add.c 989c1a5d0699a6918cfd249ee2d25507c211f42522ffe64de709794916fafc0d
 F src/ajax.c cfb937838211d61ce4dfca117aa7268ce213f57335c9199ff942655fc0005835
 F src/alerts.c 82160a85b500d45899ab72c86bd782eb62bc41771bf435ee7e1d82fea9aab26c
 F src/allrepo.c 857e9ca869e63f216d982f8865c27063a0f9e2dacdde727fd5d92122ce743387
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20d90dd4825ce5f7eb1168bdb62f75bed3447707bbb77f5720bda517e8bd4b76
-R 0e2dbcab61c7b8c951f846478a77f1fc
+P 888da94e0a7983f3e52f6ffeaa542d480fdaf0fe747c8c2f990002a2fe2a1468
+R 4e60d45f4ffdc96adc2b82c56de718f4
 U drh
-Z 120b7cea305dee4dd86cff8b83152edf
+Z cb8d9927d504620cf1ade8d611e9b40e

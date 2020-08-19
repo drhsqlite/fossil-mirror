@@ -188,7 +188,9 @@ static int add_one_file(
 /*
 ** Add all files in the sfile temp table.
 **
-** Automatically exclude the repository file.
+** Automatically exclude the repository file and any other files
+** with reserved names. Also exclude files that are beneath an 
+** existing symlink.
 */
 static int add_files_in_sfile(int vid){
   const char *zRepo;        /* Name of the repository database file */
@@ -210,7 +212,15 @@ static int add_files_in_sfile(int vid){
   }else{
     xCmp = fossil_stricmp;
   }
-  db_prepare(&loop, "SELECT pathname FROM sfile ORDER BY pathname");
+  db_prepare(&loop, 
+     "SELECT pathname FROM sfile"
+     " WHERE pathname NOT IN ("
+       "SELECT sfile.pathname FROM vfile, sfile"
+       " WHERE vfile.islink"
+       "   AND NOT vfile.deleted"
+       "   AND sfile.pathname>(vfile.pathname||'/')"
+       "   AND sfile.pathname<(vfile.pathname||'0'))"
+     " ORDER BY pathname");
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
