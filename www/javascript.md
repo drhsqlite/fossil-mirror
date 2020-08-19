@@ -69,22 +69,6 @@ all of this; you can then override UBO’s stock rules as needed.
 [ub]: https://github.com/gorhill/uBlock/
 
 
-## <a id="snoop"></a>Fossil Does Not Snoop On You
-
-There is no tracking or other snooping technology in Fossil other than
-that necessary for basic security, such as IP address logging on
-check-ins. (This is in part why we have no [comprehensive user
-statistics](#stats)!)
-
-Fossil attempts to set two cookies on all web clients: a login session
-cookie and a display preferences cookie. These cookies are restricted to
-the Fossil instance, so even this limited data cannot leak between
-Fossil instances or into other web sites.
-
-There is some server-side event logging, but that is done entirely
-without JavaScript, so it’s off-topic here.
-
-
 ## <a id="compat"></a>Compatibility Concerns
 
 The Fossil project’s developers aim to remain relatively compatible with
@@ -170,7 +154,22 @@ ones we’ve heard before and give our stock answers to them here:
     directly, just as you can hack on its C, SQL, and Tcl code. Fossil
     is free and open source software, under [a single license][2cbsd].
 
-4.  “**JavaScript is fundamentally insecure.**”
+4.  <a id="snoop"></a>”**JavaScript and cookiers are used to snoop on web users.**”
+
+    There is no tracking or other snooping technology in Fossil other than
+    that necessary for basic security, such as IP address logging on
+    check-ins. (This is in part why we have no [comprehensive user
+    statistics](#stats)!)
+
+    Fossil attempts to set two cookies on all web clients: a login session
+    cookie and a display preferences cookie. These cookies are restricted to
+    the Fossil instance, so even this limited data cannot leak between
+    Fossil instances or into other web sites.
+
+    There is some server-side event logging, but that is done entirely
+    without JavaScript, so it’s off-topic here.
+
+5.  “**JavaScript is fundamentally insecure.**”
 
     JavaScript is historically associated with some nefarious uses, but
     if we wish to have more features in Fossil, the alternative is to
@@ -207,7 +206,7 @@ ones we’ve heard before and give our stock answers to them here:
     administrator can change this CSP, but again this comes down to a
     matter of trust with the administrator, not with Fossil itself.
 
-5.  “**Cross-browser compatibility is poor.**”
+6.  “**Cross-browser compatibility is poor.**”
 
     It most certainly was in the first decade or so of JavaScript’s
     lifetime, resulting in the creation of powerful libraries like
@@ -216,7 +215,7 @@ ones we’ve heard before and give our stock answers to them here:
     incompatibilities.  Cross-browser JavaScript compatibility issues
     which affect web developers are, by and large, a thing of the past.
 
-6.  “**Fossil UI works fine without JavaScript.**”
+7.  “**Fossil UI works fine without JavaScript.**”
 
     While this is true today, and we have no philosophical objection to
     it remaining true, we do not intend to limit ourselves to only those
@@ -229,7 +228,7 @@ ones we’ve heard before and give our stock answers to them here:
     to get involved with the development if they want this state of
     affairs to continue.
 
-7.  <a id="stats"></a>“**A large number of users run without JavaScript enabled.**”
+8.  <a id="stats"></a>“**A large number of users run without JavaScript enabled.**”
   
     That’s not what web audience measurements say:
 
@@ -252,7 +251,7 @@ ones we’ve heard before and give our stock answers to them here:
     between these two forces, the number of no-JS purists among Fossil’s
     user base is still a tiny minority.
 
-8.  “**My browser doesn’t even *have* a JavaScript interpreter.**”
+9.  “**My browser doesn’t even *have* a JavaScript interpreter.**”
 
     The Fossil open source project has no full-time developers, and only
     a few of these part-timers are responsible for the bulk of the code
