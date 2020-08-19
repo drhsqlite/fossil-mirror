@@ -195,8 +195,7 @@ legend {
   padding: 0
 }
 table {
-  border-spacing: 0;
-  width: 100%
+  border-spacing: 0
 }
 html {
   font-size: 62.5%
@@ -248,18 +247,18 @@ h2 {
   line-height: 1.25
 }
 h3 {
-  font-size: 2.4rem;
+  font-size: 1.8rem;
   line-height: 1.3
 }
 h4 {
-  font-size: 2rem;
+  font-size: 1.6rem;
   line-height: 1.35
 }
 h5 {
-  font-size: 1.6rem
+  font-size: 1.4rem
 }
 h6 {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   line-height: 1.6
 }
 h1 small,
@@ -566,12 +565,10 @@ ul ul {
   margin: 1rem 0 1rem 2rem
 }
 code {
-  padding: .2rem .5rem;
-  margin: 0 .2rem;
+  padding: .2rem 0;
   font-size: 90%;
   white-space: nowrap;
-  background: #000;
-  border: 2px solid #bbb;
+  background: #0e1010;
   border-radius: 5px
 }
 table.numbered-lines td.file-content > pre {
@@ -797,10 +794,10 @@ td.tktDescLabel {
   vertical-align: top
 }
 td.tktTlOpen {
-  color: #ffa0a0;
+  color: #ffa0a0
 }
 td.tktTlClosed {
-  color: #555;
+  color: #555
 }
 div.filetreeline {
   display: table;
@@ -926,7 +923,7 @@ span.timelineEllipsis {
   cursor: pointer
 }
 table.timelineTable {
-  border-spacing: 2px 3px
+  border-spacing: 0px 3px
 }
 .timelineModernCell, .timelineColumnarCell, .timelineDetailCell, .timelineCompactCell, .timelineVerboseCell {
   vertical-align: top;
@@ -954,8 +951,18 @@ span.timelineSelected {
   text-align: left;
   background: #442800
 }
-.timelineSelected {}
-.timelineSecondary {}
+.timelineSelected {
+  background: #663C00;
+  box-shadow: 0px 0px 6px rgb(255, 127, 0)
+}
+.timelineSecondary {
+  background: #003C66;
+  box-shadow: 0px 0px 6px rgb(0, 127, 255)
+}
+.timelineCurrent {
+  background: #66003C;
+  box-shadow: 0px 0px 6px rgb(255, 0, 127)
+}
 .timelineSecondary > .timelineColumnarCell,
 .timelineSecondary > .timelineCompactCell,
 .timelineSecondary > .timelineDetailCell,
@@ -1059,25 +1066,25 @@ span.timelineSecondary {
 }
 .tl-arrow.cherrypick {
   height: 1px;
-  border-width: 2px 0;
+  border-width: 2px 0
 }
 .tl-arrow.cherrypick.l {
-  border-right: 3px solid #bbb;
+  border-right: 3px solid #bbb
 }
 .tl-arrow.cherrypick.r {
-  border-left: 3px solid #bbb;
+  border-left: 3px solid #bbb
 }
 .tl-line.cherrypick.h {
   width: 0px;
   border-top: 1px dashed #bbb;
   border-left: 0px dashed #bbb;
-  background: rgba(255,255,255,0);
+  background: rgba(255, 255, 255, 0)
 }
 .tl-line.cherrypick.v {
   width: 0px;
   border-top: 0px dashed #bbb;
   border-left: 1px dashed #bbb;
-  background: rgba(255,255,255,0);
+  background: rgba(255, 255, 255, 0)
 }
 
 .intLink[title="Add indentation"],
@@ -1386,9 +1393,9 @@ table.captcha {
   clear: both
 }
 div.forumSel {
-  background-color: #3a3a3a;
+  background-color: #3a3a3a
 }
 .debug {
   background-color: #330;
-  border: 2px solid #aa0;
+  border: 2px solid #aa0
 }
