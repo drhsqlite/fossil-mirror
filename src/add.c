@@ -158,6 +158,7 @@ static int add_one_file(
   const char *zPath,   /* Tree-name of file to add. */
   int vid              /* Add to this VFILE */
 ){
+  int doSkip = 0;
   if( !file_is_simple_pathname(zPath, 1) ){
     fossil_warning("filename contains illegal characters: %s", zPath);
     return 0;
@@ -170,13 +171,18 @@ static int add_one_file(
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     int isExe = file_isexe(zFullname, RepoFILE);
-    db_multi_exec(
-      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
-      "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
-      vid, zPath, isExe, file_islink(0));
+    if( file_nondir_objects_on_path(g.zLocalRoot, zFullname) ){
+      /* Do not add unsafe files to the vfile */
+      doSkip = 1;
+    }else{
+      db_multi_exec(
+        "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
+        "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
+        vid, zPath, isExe, file_islink(0));
+    }
     fossil_free(zFullname);
   }
-  if( db_changes() ){
+  if( db_changes() && !doSkip ){
     fossil_print("ADDED  %s\n", zPath);
     return 1;
   }else{
