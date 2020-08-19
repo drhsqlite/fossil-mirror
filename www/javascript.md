@@ -35,6 +35,17 @@ We think it’s better to ask not whether Fossil requires JavaScript but
 whether Fossil uses JavaScript *well*, so that [you can decide](#block)
 to block or allow Fossil’s use of JavaScript.
 
+The Fossil developers want to see the project thrive, and we achieve
+that best by making it usable and friendly to a wider audience than the
+minority of static web app purists.  Modern users generally expect a
+smoother experience than was available with 1990s style HTTP
+POST-and-response `<form>` based interaction. We also increase the set
+of potential Fossil developers if we do not restrict them to such
+antiquated methods.
+
+JavaScript is not perfect, but it's what we have, so we will use it
+where we find it advantageous.
+
 [cg]: ./contribute.wiki
 
 
