@@ -150,33 +150,131 @@ diff them” feature.
 [wt]: https://fossil-scm.org/fossil/timeline
 
 
-### <a id="wedit"></a>WYSIWYG Wiki Editor
+### <a id="wedit"></a>The New Wiki Editor
 
-The Admin → Wiki → “Enable WYSIWYG Wiki Editing” toggle switches the
-default plaintext editor for [Fossil wiki][fw] documents to one that
-works like a basic word processor. This feature requires JavaScript in
-order to react to editor button clicks like the “**B**” button, meaning
-“make \[selected\] text boldface.” There is no standard WYSIWYG editor
-component in browsers, doubtless because it’s relatively straightforward
-to create one using JavaScript.
+As of Fossil 2.12, the [Fossil wiki][fwt] document editor requires
+JavaScript, for a few unavoidable reasons.
 
-_Graceful Fallback:_ Edit your wiki documents in the default plain text
-wiki editor. Fossil’s wiki and Markdown language processors were
-designed to be edited that way.
+First, it allows in-browser previews without losing client-side editor
+state, such as where your cursor is. With the old editor, you had to
+re-locate the place you were last editing on each preview, which would
+reduce the incentive to use the preview function. In the new wiki
+editor, you just click the Preview tab to see how Fossil interprets your
+markup, then click back to the Editor tab to resume work with the prior
+context undisturbed.
 
-[fw]: ./wikitheory.wiki
+Second, it continually saves your document state in client-side storage
+in the background while you’re editing it so that if the browser closes
+without saving the changes back to the Fossil repository, you can resume
+editing from the stored copy without losing work. This feature is not so
+much about saving you from crashes of various sorts, since computers are
+so much more reliable these days. It is far more likely to save you from
+the features of mobile OSes like Android and iOS which aggressively shut
+down and restart apps to save on RAM. That OS design philosophy assumes
+that there is a way for the app to restore its prior state from
+persistent media when it’s restarted, giving the illusion that it was
+never shut down in the first place. This feature of Fossil’s new wiki
+editor provides that.
+
+There are many other new features in the enhanced Fossil 2.12 wiki
+editor, but those are the ones that absolutely require JavaScript to
+work.
+
+With this change, we lost the old WYSIWYG wiki editor, available since
+Fossil version 1.24. It hadn’t been maintained for years, it was
+disabled by default, and no one stepped up to defend its existence when
+this new editor was created, replacing it. If someone rescues that
+feature, merging it in with the new editor, it will doubtless require
+JavaScript in order to react to editor button clicks like the “**B**”
+button, meaning “make \[selected\] text boldface.” There is no standard
+WYSIWYG editor component in browsers, doubtless because it’s relatively
+straightforward to create one using JavaScript.
+
+_Graceful Fallback:_ Unlike in the Fossil 2.11 and earlier days, there
+is no longer a script-free wiki editor mode. This is not from lack of
+desire, only because the person who wrote the new wiki editor didn’t
+want to maintain three different editors. (New Ajaxy editor, old
+script-free HTML form based editor, and old WYSIWYG JS-based editor.) If
+someone wants to implement a `<noscript>` alternative to the new wiki
+editor, we will likely accept that [contribution][cg] as long as it
+doensn’t interfere with the new editor. (The same goes for adding a
+WYSIWYG mode to the new Ajaxy wiki editor.)
+
+_Workaround:_ You don’t have to use the browser-based wiki editor to
+maintain your repository’s wiki at all. Fossil’s [`wiki` command][fwc]
+lets you manipulate wiki documents from the command line. For example,
+consider this `vi` based workflow:
+
+```shell
+    $ vi 'My Article.wiki'                   # write, write, write...
+    :!fossil create 'My Article' '%'         # current file (%) to new article
+      ...write, write, write some more...
+    :w                                       # save changes to disk copy
+    :!fossil commit 'My Article' '%'         # update article from disk
+    :q                                       # done writing for today
+
+      ....days later...
+    $ vi                                     # work sans named file today
+    :r !fossil wiki export 'My Article' -    # article text into vi buffer
+      ...write, write, write yet more...
+    :w !fossil wiki commit -                 # update article with buffer
+```
+
+Extending this concept to other text editors is an exercise left to the
+reader.
+
+[fwc]: /help?cmd=wiki
+[fwt]: ./wikitheory.wiki
+
+
+### <a id="fedit"></a>The File Editor
+
+Fossil 2.12 adds the [optional file editor feature][fedit], which works
+much like [the new wiki editor](#wedit), only on files committed to the
+repository.
+
+The original designed purpose for this feature is to allow [embedded
+documentation][edoc] to be interactively edited in the same way that
+wiki articles can be. (Indeed, the associated `fileedit-glob` feature
+allows you to restrict the editor to working *only* on files that can be
+treated as embedded documentation.) This feature operates in much the
+same way as the new wiki editor, so most of what we said above applies.
+
+_Workaround:_ This feature is an alternative to Fossil’s traditional
+mode of file management: clone the repository, open it somewhere, edit a
+file locally, and commit the changes.
+
+_Graceful Fallback:_ There is no technical reason why someone could not
+write a `<noscript>` wrapped alternative to the current JavaScript based
+`/fileedit` implementation. It would have all of the same downsides as
+the old wiki editor: the users would lose their place on each save, they
+would have no local backup if something crashes, etc. Still, we are
+likely to accept such a [contribution][cg] as long as it doesn’t
+interfere with the new editor.
+
+[edoc]:  /doc/trunk/www/embeddeddoc.wiki
+[fedit]: /help?cmd=/fileedit
 
 
 ### <a id="ln"></a>Line Numbering
 
 When viewing source files, Fossil offers to show line numbers in some
-cases. Toggling them on and off is currently handled in JavaScript.
-([Example][mainc].)
+cases. ([Example][mainc].) Toggling them on and off is currently handled
+in JavaScript, rather than forcing a page-reload via a button click.
 
 _Workaround:_ Edit the URL to give the “`ln`” query parameter per [the
-`/file` docs](/help?cmd=/file), or provide a patch to reload the page
-with this parameter included/excluded to implement the toggle via a
-server round-trip.
+`/file` docs](/help?cmd=/file). Alternately, someone sufficiently
+interested could [provide a patch][cg] to add a `<noscript>` wrapped
+HTML button that would reload the page with this parameter
+included/excluded to implement the toggle via a server round-trip.
+
+As of Fossil 2.12, there is also a JavaScript-based interactive method
+for selecting a range of lines by clicking the line numbers when they’re
+visible, then copying the resulting URL to share your selection with
+others.
+
+_Workaround:_ These interactive features absolutely require JavaScript.
+The alternative is to manually edit the URL, per above.
 
 [mainc]: https://fossil-scm.org/fossil/artifact?ln&name=87d67e745
 

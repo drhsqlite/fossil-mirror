@@ -1568,7 +1568,7 @@ static void longestCommonSequence(
       iEYp = iEY;
     }
   }
-  if( iSXb==iEXb && (iE1-iS1)*(iE2-iS2)<400 ){
+  if( iSXb==iEXb && (sqlite3_int64)(iE1-iS1)*(iE2-iS2)<400 ){
     /* If no common sequence is found using the hashing heuristic and
     ** the input is not too big, use the expensive exact solution */
     optimalLCS(p, iS1, iE1, iS2, iE2, piSX, piEX, piSY, piEY);
