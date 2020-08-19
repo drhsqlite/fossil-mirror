@@ -49,26 +49,6 @@ where we find it advantageous.
 [cg]: ./contribute.wiki
 
 
-## <a id="block"></a>Blocking JavaScript
-
-Rather than either block JavaScript wholesale or give up on blocking
-JavaScript entirely, we recommend that you use tools like [NoScript][ns]
-or [uBlock Origin][ub] to selectively block problematic uses of
-JavaScript so the rest of the web can use the technology productively,
-as it was intended. There are doubtless other useful tools of this sort;
-we recommend only these two due to our limited experience, not out of
-any wish to exclude other tools.
-
-The primary difference between these two for our purposes is that
-NoScript lets you select scripts to run on a page on a case-by-case
-basis, whereas uBlock Origin delegates those choices to a group of
-motivated volunteers who maintain whitelists and blacklists to control
-all of this; you can then override UBO’s stock rules as needed.
-
-[ns]: https://noscript.net/
-[ub]: https://github.com/gorhill/uBlock/
-
-
 ## <a id="debate"></a>Arguments Against JavaScript & Our Rebuttals
 
 There many common arguments against the use of JavaScript. Rather than
@@ -230,7 +210,30 @@ ones we’ve heard before and give our stock answers to them here:
     between these two forces, the number of no-JS purists among Fossil’s
     user base is still a tiny minority.
 
-9.  “**My browser doesn’t even *have* a JavaScript interpreter.**”
+9.  <a id="block"></a>“**I block JavaScript entirely in my browser. That breaks Fossil.**”
+
+    First, see our philosophy statement above. Briefly, we intend that
+    there always be some other way to get any given result without using
+    JavaScript, developer interest willing.
+
+    But second, it doesn’t have to be all-or-nothing. We recommend that
+    those interested in blocking problematic uses of JavaScript use
+    tools like [NoScript][ns] or [uBlock Origin][ubo] to *selectively*
+    block JavaScript so the rest of the web can use the technology
+    productively, as it was intended.
+
+    There are doubtless other useful tools of this sort. We recommend
+    these two only from our limited experience, not out of any wish to
+    exclude other tools.
+
+    The primary difference between these two for our purposes is that
+    NoScript lets you select scripts to run on a page on a case-by-case
+    basis, whereas uBlock Origin delegates those choices to a group of
+    motivated volunteers who maintain whitelists and blacklists to control
+    all of this; you can then override UBO’s stock rules as needed.
+
+
+10. “**My browser doesn’t even *have* a JavaScript interpreter.**”
 
     The Fossil open source project has no full-time developers, and only
     a few of these part-timers are responsible for the bulk of the code
@@ -238,7 +241,7 @@ ones we’ve heard before and give our stock answers to them here:
     you will have to [get involved with its development][cg]; it’s
     *your* uncommon itch.
 
-10. <a id="compat"></a>“**Fossil’s JavaScript code isn’t compatible with my browser.**”
+11. <a id="compat"></a>“**Fossil’s JavaScript code isn’t compatible with my browser.**”
 
     The Fossil project’s developers aim to remain relatively compatible with
     the largest portions of the client-side browser base. We use only
@@ -267,10 +270,12 @@ ones we’ve heard before and give our stock answers to them here:
 [fsrc]:   https://fossil-scm.org/home/file/src
 [fsrv]:   /help?cmd=server
 [hljs]:   https://fossil-scm.org/forum/forumpost/9150bc22ca
+[ns]:     https://noscript.net/
 [pjs]:    https://fossil-scm.org/forum/forumpost/1198651c6d
 [s1]:     https://blockmetry.com/blog/javascript-disabled
 [s2]:     https://gds.blog.gov.uk/2013/10/21/how-many-people-are-missing-out-on-javascript-enhancement/
 [s3]:     https://w3techs.com/technologies/overview/client_side_language/all
+[ubo]:    https://github.com/gorhill/uBlock/
 [v8]:     https://en.wikipedia.org/wiki/V8_(JavaScript_engine)
 
 

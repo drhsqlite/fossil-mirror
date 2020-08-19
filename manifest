@@ -1,5 +1,5 @@
-C Moved\smy\srewrite\sof\sStephan's\s"Compatibility\sConcerns"\ssection\sof\njavascript.md\sdown\sinto\sthe\sQ&A\ssection.
-D 2020-08-19T23:45:39.206
+C Moved\s"Blocking\sJavaScript"\ssection\sof\sjavascript.md\sdown\sinto\sthe\sQ&A\nsection.
+D 2020-08-19T23:52:32.858
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -906,7 +906,7 @@ F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d5
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/javascript.md dce4ff20fad61f4014f2940928a1fbf8de060456c0e02edf6f6540ffa6d3a3b0
+F www/javascript.md 1a40fed495d9ee13f8eb0194279fd5f04debbe9f7de2134330e188df20b3c35a
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b76427bb2082093fe8756db2ff68877c514a70dcc13b44465ac746214ea3160a
-R 0e0328f65f5e17286c97e98807dab833
+P 026279496a4dca9b375d91cda58e6d081f0438c2fd56a5677c3157fc6f55a91f
+R fda0dd697c880a6cd690cd60b03b98cb
 U wyoung
-Z 4ac87f372a70a15f234d6f2a562c4b0d
+Z 50d14b8765e01f95cc3abe3158ac38e5
