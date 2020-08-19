@@ -1,5 +1,5 @@
-C Updated\sthe\s"Line\sNumbering"\ssection\sof\sjavascript.md\sto\scover\sthe\snew\ninteractive\sline\sselection\sin\sFossil\s2.12.
-D 2020-08-19T21:05:32.155
+C Added\sa\ssection\sto\sjavascript.md\son\sthe\snew\s/fileedit\sfeature.
+D 2020-08-19T21:19:30.437
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -906,7 +906,7 @@ F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d5
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/javascript.md b7bf49e4906fe8f0bd34ee1e617584d525c6005fce0c5e0b87531cb2822caebb
+F www/javascript.md cab496563c2e026923159f4b410fa485ad0240d8964fe7ef28eb9138c4041a64
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31c40509d4a41a77d214701dabcfd3907cd3196fa48ea1a160e31ada232d35c4
-R 9784bf67846d438c4502c4bb241a28b3
+P f84d7a0e42fdec917548ef1fadc29019e9967c4493aab26195f45fc792c5d921
+R b7a45af75e0fc404b60931799b39aa89
 U wyoung
-Z 6a4cc39eb015c1834cf064227765c26e
+Z ea629af1addfb0afa4c1640662eeda22

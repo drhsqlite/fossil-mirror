@@ -227,6 +227,35 @@ reader.
 [fwt]: ./wikitheory.wiki
 
 
+### <a id="fedit"></a>The File Editor
+
+Fossil 2.12 adds the [optional file editor feature][fedit], which works
+much like [the new wiki editor](#wedit), only on files committed to the
+repository.
+
+The original designed purpose for this feature is to allow [embedded
+documentation][edoc] to be interactively edited in the same way that
+wiki articles can be. (Indeed, the associated `fileedit-glob` feature
+allows you to restrict the editor to working *only* on files that can be
+treated as embedded documentation.) This feature operates in much the
+same way as the new wiki editor, so most of what we said above applies.
+
+_Workaround:_ This feature is an alternative to Fossil’s traditional
+mode of file management: clone the repository, open it somewhere, edit a
+file locally, and commit the changes.
+
+_Graceful Fallback:_ There is no technical reason why someone could not
+write a `<noscript>` wrapped alternative to the current JavaScript based
+`/fileedit` implementation. It would have all of the same downsides as
+the old wiki editor: the users would lose their place on each save, they
+would have no local backup if something crashes, etc. Still, we are
+likely to accept such a [contribution][cg] as long as it doesn’t
+interfere with the new editor.
+
+[edoc]:  /doc/trunk/www/embeddeddoc.wiki
+[fedit]: /help?cmd=/fileedit
+
+
 ### <a id="ln"></a>Line Numbering
 
 When viewing source files, Fossil offers to show line numbers in some
