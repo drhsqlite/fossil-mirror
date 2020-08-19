@@ -69,27 +69,6 @@ all of this; you can then override UBO’s stock rules as needed.
 [ub]: https://github.com/gorhill/uBlock/
 
 
-## <a id="compat"></a>Compatibility Concerns
-
-The Fossil project’s developers aim to remain relatively compatible with
-the largest portions of the client-side browser base. We use only
-standards-defined JavaScript features which are known to work in the
-overwhelmingly vast majority of browsers going back approximately 5
-years, at minimum, as documented by [Can I Use...?][ciu] We avoid use of
-features added to the language more recently or those which are still in
-flux in standards committees
-
-We set this threshold based on the amount of time it typically takes for
-new standards to propagate through the installed base.
-
-As of this writing, this means we are only using features defined in
-[ECMAScript 2015][es2015], colloquially called “JavaScript 6.” That is a
-sufficiently rich standard that it more than suffices for our purposes.
-
-[ciu]:    https://caniuse.com/
-[es2015]: https://ecma-international.org/ecma-262/6.0/
-
-
 ## <a id="debate"></a>Arguments Against JavaScript & Our Rebuttals
 
 There many common arguments against the use of JavaScript. Rather than
@@ -141,7 +120,7 @@ ones we’ve heard before and give our stock answers to them here:
     Once the scripts are cached, Ajax based page updates are faster than
     the alternative.
 
-3.  <a id="3pjs"></a>”**Third-party JavaScript cannot be trusted.**”
+3.  <a id="3pjs"></a>“**Third-party JavaScript cannot be trusted.**”
 
     Fossil does not use any third-party JavaScript libraries, not even
     very common ones like jQuery. Every bit of JavaScript served by the
@@ -154,7 +133,7 @@ ones we’ve heard before and give our stock answers to them here:
     directly, just as you can hack on its C, SQL, and Tcl code. Fossil
     is free and open source software, under [a single license][2cbsd].
 
-4.  <a id="snoop"></a>”**JavaScript and cookiers are used to snoop on web users.**”
+4.  <a id="snoop"></a>“**JavaScript and cookiers are used to snoop on web users.**”
 
     There is no tracking or other snooping technology in Fossil other than
     that necessary for basic security, such as IP address logging on
@@ -215,7 +194,7 @@ ones we’ve heard before and give our stock answers to them here:
     incompatibilities.  Cross-browser JavaScript compatibility issues
     which affect web developers are, by and large, a thing of the past.
 
-7.  “**Fossil UI works fine without JavaScript.**”
+7.  “**Fossil UI works fine today without JavaScript. Why break it?**”
 
     While this is true today, and we have no philosophical objection to
     it remaining true, we do not intend to limit ourselves to only those
@@ -259,9 +238,28 @@ ones we’ve heard before and give our stock answers to them here:
     you will have to [get involved with its development][cg]; it’s
     *your* uncommon itch.
 
+10. <a id="compat"></a>“**Fossil’s JavaScript code isn’t compatible with my browser.**”
+
+    The Fossil project’s developers aim to remain relatively compatible with
+    the largest portions of the client-side browser base. We use only
+    standards-defined JavaScript features which are known to work in the
+    overwhelmingly vast majority of browsers going back approximately 5
+    years, at minimum, as documented by [Can I Use...?][ciu] We avoid use of
+    features added to the language more recently or those which are still in
+    flux in standards committees
+
+    We set this threshold based on the amount of time it typically takes for
+    new standards to propagate through the installed base.
+
+    As of this writing, this means we are only using features defined in
+    [ECMAScript 2015][es2015], colloquially called “JavaScript 6.” That is a
+    sufficiently rich standard that it more than suffices for our purposes.
+
 [2cbsd]:  https://fossil-scm.org/home/doc/trunk/COPYRIGHT-BSD2.txt
+[ciu]:    https://caniuse.com/
 [cskin]:  ./customskin.md
 [dcsp]:   ./defcsp.md
+[es2015]: https://ecma-international.org/ecma-262/6.0/
 [fcgi]:   /help?cmd=cgi
 [ffor]:   https://fossil-scm.org/forum/
 [flic]:   /doc/trunk/COPYRIGHT-BSD2.txt
