@@ -1,5 +1,5 @@
-C Harmonize\sartifact\scount\sand\saverage\sbetween\s/stat\sand\s/artifact_stats.\s\sSee\s[https://fossil-scm.org/forum/forumpost/37514b1f67].
-D 2020-08-19T14:23:33.189
+C Updated\sthe\s"Wiki\sEditor"\ssection\sof\sjavascript.md\sto\scover\sthe\snew\n`/wikiedit`\simplementation.
+D 2020-08-19T20:58:28.378
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -906,7 +906,7 @@ F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d5
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
+F www/javascript.md 0872afdb71dfc745b0fd3593d1b5e00a0770fc67c1cb844717775b6870c7d147
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2b7dca948da84b7718ab5ddc576b45f4b19f37b1aeb0da0371ebdb10f6c7c47
-R a0bc620f1df402d12364867b277cad1f
-U andygoth
-Z 6ca92a4bf93127b8208bd98a9db060ed
+P 38fa17e47972b17d141c6e5fbafde50109f29860100768cd0b803ee93800b9b5
+R 920d4895852358d3a5a361dd58d45115
+U wyoung
+Z 27a39409da24fa35ab7b2ca3115cc6f5
