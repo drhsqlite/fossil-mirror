@@ -374,28 +374,6 @@ int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
 }
 
 /*
-** COMMAND: test-nondir-path
-** Usage: %fossil test-nondir-path ROOT FILE
-**
-** If there are any objects on the path from ROOT to FILE (exluding
-** ROOT and FILE themselves) that are not directories, then print
-** the name of the first object found.
-*/
-void test_nondir_path_cmd(void){
-  int n;
-  if( g.argc!=4 ){
-    usage("ROOT FILE");
-  }
-  if( fossil_strnicmp(g.argv[2],g.argv[3],(int)strlen(g.argv[2]))!=0 ){
-    fossil_fatal("%s should be a prefix of %s", g.argv[2], g.argv[3]);
-  }
-  n = file_nondir_objects_on_path(g.argv[2],g.argv[3]);
-  if( n ){
-    fossil_print("%.*s\n", n, g.argv[3]);
-  }
-}
-
-/*
 ** The file named zFile is suppose to be an in-tree file.  Check to
 ** ensure that it will be safe to write to this file by verifying that
 ** there are no symlinks or other non-directory objects in between the
@@ -1335,8 +1313,8 @@ static void emitFileStat(
   memset(zBuf, 0, sizeof(zBuf));
   blob_zero(&x);
   file_canonical_name(zPath, &x, slash);
-  fossil_print("[%s] -> [%s]\n", zPath, blob_buffer(&x));
-  blob_reset(&x);
+  char *zFull = blob_str(&x);
+  fossil_print("[%s] -> [%s]\n", zPath, zFull);
   memset(&testFileStat, 0, sizeof(struct fossilStat));
   rc = fossil_stat(zPath, &testFileStat, 0);
   fossil_print("  stat_rc                = %d\n", rc);
@@ -1384,6 +1362,9 @@ static void emitFileStat(
   fossil_print("  file_isexe(RepoFILE)   = %d\n", file_isexe(zPath,RepoFILE));
   fossil_print("  file_isdir(RepoFILE)   = %d\n", file_isdir(zPath,RepoFILE));
   fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
+  fossil_print("  file_is_reserved_name  = %d\n",
+                                             file_is_reserved_name(zFull,-1));
+  blob_reset(&x);
   if( reset ) resetStat();
 }
 
@@ -1399,13 +1380,15 @@ static void emitFileStat(
 **
 **     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
 **     --open-config                Open the configuration database first.
-**     --slash                      Trailing slashes, if any, are retained.
 **     --reset                      Reset cached stat() info for each file.
+**     --root ROOT                  Use ROOT as the root of the checkout
+**     --slash                      Trailing slashes, if any, are retained.
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
+  const char *zRoot = find_option("root",0,1);
   const char *zAllow = find_option("allow-symlinks",0,1);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
@@ -1416,9 +1399,22 @@ void cmd_test_file_environment(void){
   if( zAllow ){
     g.allowSymlinks = !is_false(zAllow);
   }
+  if( zRoot==0 ) zRoot = g.zLocalRoot;
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
+  fossil_print("local-root = [%s]\n", zRoot);
   for(i=2; i<g.argc; i++){
+    char *z;
     emitFileStat(g.argv[i], slashFlag, resetFlag);
+    z = file_canonical_name_dup(g.argv[i]);
+    fossil_print("  file_canonical_name    = %s\n", z);
+    fossil_print("  file_nondir_path       = ");
+    if( fossil_strnicmp(zRoot,z,(int)strlen(zRoot))!=0 ){
+      fossil_print("(--root is not a prefix of this file)\n");
+    }else{
+      int n = file_nondir_objects_on_path(zRoot, z);
+      fossil_print("%.*s\n", n, z);
+    }
+    fossil_free(z);
   }
 }
 
@@ -2565,26 +2561,5 @@ int file_is_reserved_name(const char *zFilename, int nFilename){
     default:{
       return 0;
     }
-  }
-}
-
-/*
-** COMMAND: test-is-reserved-name
-**
-** Usage: %fossil test-is-reserved-name FILENAMES...
-**
-** Passes each given name to file_is_reserved_name() and outputs one
-** line per file: the result value of that function followed by the
-** name.
-*/
-void test_is_reserved_name_cmd(void){
-  int i;
-
-  if(g.argc<3){
-    usage("FILENAME_1 [...FILENAME_N]");
-  }
-  for( i = 2; i < g.argc; ++i ){
-    const int check = file_is_reserved_name(g.argv[i], -1);
-    fossil_print("%d %s\n", check, g.argv[i]);
   }
 }

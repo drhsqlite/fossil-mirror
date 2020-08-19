@@ -1,5 +1,5 @@
-C Remove\sthe\s--symlinks\soption\sfrom\sthe\s"fossil\sopen"\scommand.\s\sIt\sis\snot\nneeded.\s\sUsers\swho\swant\sto\senable\ssymlinks\scan\suse\sthe\s"fossil\ssettings"\ncommand\sfirst.
-D 2020-08-19T15:26:28.448
+C Remove\scommands\s"test-nondir-path"\sand\s"test-is-reserved-name"\sand\sadd\sthe\nequivalent\sfunctionality\sto\s"test-file-environment".
+D 2020-08-19T15:46:36.150
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 6013b0b20eff59d0406eac1f7d046bce93602c3857058273234853da5644544d
+F src/file.c 0ef4992a7de55b58e269b4d2bd4480810e57e21ea93ced83f1582699362b0e70
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13cfef3383968d3aff5ad94050472416f00c9e25eace59d826adb3d83e93206b
-R ce17a61509d2c991c0a419c10175735f
+P ff811934e078a75b2c533727764e837af13ab71b9491fd50c6b7cd209cd7dfd1
+R 5a9ac7aba6d478dd50ed92fb181f673f
 U drh
-Z d71bba5a4efc67c741446fbf368eebad
+Z f8ab24fd43356a2af68bb857f096c830
