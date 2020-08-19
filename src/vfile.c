@@ -316,6 +316,9 @@ void vfile_to_disk(
     rid = db_column_int(&q, 2);
     isExe = db_column_int(&q, 3);
     isLink = db_column_int(&q, 4);
+    if( file_unsafe_in_tree_path(zName) ){
+      continue;
+    }
     content_get(rid, &content);
     if( file_is_the_same(&content, zName) ){
       blob_reset(&content);
@@ -342,12 +345,6 @@ void vfile_to_disk(
       }
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
-    n = file_nondir_objects_on_path(g.zLocalRoot, zName);
-    if( n ){
-      fossil_fatal("cannot write %s because "
-                   "non-directory object %.*s is in the way",
-                   zName, n, zName);
-    }
     if( file_isdir(zName, RepoFILE)==1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite", zName);

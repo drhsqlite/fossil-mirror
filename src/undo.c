@@ -54,7 +54,7 @@ static void undo_one(const char *zPathname, int redoFlag){
     int old_link;
     Blob current;
     Blob new;
-    zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
+    zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
     old_link = db_column_int(&q, 3);
     new_exists = file_size(zFullname, RepoFILE)>=0;
     new_link = file_islink(0);
@@ -71,7 +71,9 @@ static void undo_one(const char *zPathname, int redoFlag){
     if( old_exists ){
       db_ephemeral_blob(&q, 0, &new);
     }
-    if( old_exists ){
+    if( file_unsafe_in_tree_path(zFullname) ){
+      /* do nothign with this unsafe file */
+    }else if( old_exists ){
       if( new_exists ){
         fossil_print("%s   %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
       }else{
