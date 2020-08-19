@@ -281,6 +281,8 @@ ones we’ve heard before and give our stock answers to them here:
 [v8]:     https://en.wikipedia.org/wiki/V8_(JavaScript_engine)
 
 
+----
+
 ## <a id="uses"></a>Places Where Fossil’s Web UI Uses JavaScript
 
 The remainder of this document will explain how Fossil currently uses
@@ -540,3 +542,47 @@ example, the wall clock displays could include the page load time in the
 dynamically generated HTML shipped from the remote Fossil server, so
 that in the absence of JavaScript, you at least get the page generation
 time, expressed in the server’s time zone.
+
+----
+
+## <a id="future"></a>Future Plans for JavaScript in Fossil
+
+As of mid-2020, the informal provisional plan is to increase the Fossil
+UI's use of JavaScript considerably compared to its historically minimal
+uses. To that end, a framework of Fossil-centric APIs is being developed
+in conjunction with new features to consolidate Fossil's historical
+hodge-podge of JavaScript snippets into a coherent code base.
+
+When deciding which features to port to JavaScript, the rules of thumb
+for this ongoing effort are:
+
+-  Pages which primarily display data (e.g. the timeline) will remain
+   largely static HTML with graceful fallbacks for all places they do
+   use JavaScript. Though JavaScript can be used effectively to power
+   all sorts of wonderful data presentation, Fossil currently doesn't
+   benefit greatly from doing so. We use JavaScript on these pages only
+   to improve their usability, not to define their primary operations.
+
+-  Pages which act as editors of some sort (e.g. the `/info` page) are
+   prime candidates for getting the same treatment as the old wiki
+   editor: reimplemented from the ground up in JavaScript using Ajax
+   type techniques. Similarly, a JS-driven overhaul is planned for the
+   forum’s post editor.
+
+These are guidelines, not immutable requirements. Our development
+direction is guided by our priorities:
+
+1) Features the developers themselves want to have and/or work on.
+
+2) Features end users request which catch the interest of one or more
+developers, provided the developer(s) in question are in a position to
+expend the effort.
+
+3) Features end users and co-contributors can convince a developer into
+coding even when they really don't want to. 😉
+
+In all of this, Fossil's project lead understandably has the final
+say-so in whether any given feature indeed gets merged into the mainline
+trunk. Development of any given feature, no matter how much effort was
+involved, does not guaranty its eventual inclusion into the public
+releases.
