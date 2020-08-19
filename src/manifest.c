@@ -400,45 +400,6 @@ void manifest_clear_cache(){
   bag_clear(&seenManifests);
 }
 
-
-/*
-** SETTING: strict-manifest-syntax  boolean default=on sensitive
-** LEAVE THIS SETTING TURNED ON!
-**
-** This flag indicates that manifest syntax should be strictly enforced.
-** It defaults to on.  Clearing this flag is a security risk.
-**
-** Some questionable constructs were allowed in manifests in historical
-** versions of Fossil.  In particular, it was formerly allowed to
-** include names like "_FOSSIL_" or ".fslckout" in subdirectories.  But
-** doing so can lead to problems, and so newer versions of Fossil disallow
-** that.
-**
-** This flag allows the older questionable constructs to appear in
-** manifests for backwards compatibility for the very rare repositories
-** that make use of the questionable behavior.
-*/
-
-/*
-** Return true if manifest parsing rules are strictly enforced.  Return
-** zero is certain questionable constructs should be allowed for legacy
-** compatibility.
-**
-** At the current time, the only questionable construct that this applies
-** to is the use of filenames like "_FOSSIL_" or ".fslckout" in subdirectories
-** of the repository.  These names have never been allowed in the top-level
-** directory, but historical versions of fossil allowed them in subdirectories.
-**
-** This routine is only called if a questionable construct is encountered,
-** which is to say it is rarely called.
-*/
-int manifest_strict_enforcement(void){
-  if( g.manifestStrict==0 ){
-    g.manifestStrict = db_get_boolean("strict-manifest-syntax",1) + 1;
-  }
-  return g.manifestStrict - 1;
-}
-
 /*
 ** Parse a blob into a Manifest object.  The Manifest object
 ** takes over the input blob and will free it when the
@@ -673,9 +634,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         defossilize(zName);
         if( !file_is_simple_pathname_nonstrict(zName) ){
           SYNTAX("F-card filename is not a simple path");
-        }else if( file_is_reserved_name(zName,-1) 
-               && manifest_strict_enforcement() ){
-          SYNTAX("F-card contains a reserved name");
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){
@@ -698,13 +656,20 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
                                     p->nFileAlloc*sizeof(p->aFile[0]) );
         }
         i = p->nFile++;
+        if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
+          SYNTAX("incorrect F-card sort order");
+        }
+        if( file_is_reserved_name(zName,-1) ){
+          /* If reserved names leaked into historical manifests due to
+          ** slack oversight by older versions of Fossil, simply ignore
+          ** those files */
+          p->nFile--;
+          break;
+        }
         p->aFile[i].zName = zName;
         p->aFile[i].zUuid = zUuid;
         p->aFile[i].zPerm = zPerm;
         p->aFile[i].zPrior = zPriorName;
-        if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
-          SYNTAX("incorrect F-card sort order");
-        }
         p->type = CFTYPE_MANIFEST;
         break;
       }

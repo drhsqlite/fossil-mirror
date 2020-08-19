@@ -1,5 +1,5 @@
-C Remove\scommands\s"test-nondir-path"\sand\s"test-is-reserved-name"\sand\sadd\sthe\nequivalent\sfunctionality\sto\s"test-file-environment".
-D 2020-08-19T15:46:36.150
+C Silently\signore\sreserved\sfilenames\sthat\soccur\sinside\sof\smanifests,\srather\nthan\sthrowing\san\serror.\s\sNo\sneed\sfor\sa\ssetting\sto\sallow\sreserved\sfilenames\nin\smanifests.
+D 2020-08-19T16:13:50.903
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -536,12 +536,12 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c 3bcdd658f29a4a6302b1dee8200ebd565b4ddaddd587e38c6be962cbb15b03f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 1fdf8a6e2ccde697dfcb792bc65dbd8076193b553bf7a43d7ac564607412bfd0
+F src/main.c 7858636d35f3706d124e53a5e237b7eada43417a5523d97bd4afac83de59b63c
 F src/main.mk cfd99b7375a7d6cb8728819d2a42674892f44cd862094f441ed2ec637eb6f1d0
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 932e445ddec224587f9631e7c7ee830ed8f502252c85c2e8d35e0083902ef8e0 x
-F src/manifest.c fed462ed4209ccc6030f270c4aff863e0fe4a1e2f379ec78379cb33c78b44691
+F src/manifest.c 3e173e99bc416d9cec7b5124853e87ab8b6faff953e5b62e07c0af7b697e8e0c
 F src/markdown.c 5a1fb3e55d2201601d966016090151ad2151f50715631de173d60e0c09bfc381
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ebd8d9a98ea3402403453c517aa822da1bd01923e38bf7a8632cb667db90da31
@@ -1008,7 +1008,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ff811934e078a75b2c533727764e837af13ab71b9491fd50c6b7cd209cd7dfd1
-R 5a9ac7aba6d478dd50ed92fb181f673f
+P 0cec61e451c6c818108a3f80b8701e5b998246c38a819cf464d92cb6f4db549a 8f24c079171cde065e1ec9598c8875ec271a855c4a92ddb37cb36dc162d756fd
+R ef799b429c9751c1a881044f3f248961
+T +closed 8f24c079171cde065e1ec9598c8875ec271a855c4a92ddb37cb36dc162d756fd
 U drh
-Z f8ab24fd43356a2af68bb857f096c830
+Z 123c90b893cb5e4831dfa1b841d6288a
