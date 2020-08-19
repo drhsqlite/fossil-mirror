@@ -230,13 +230,22 @@ reader.
 ### <a id="ln"></a>Line Numbering
 
 When viewing source files, Fossil offers to show line numbers in some
-cases. Toggling them on and off is currently handled in JavaScript.
-([Example][mainc].)
+cases. ([Example][mainc].) Toggling them on and off is currently handled
+in JavaScript, rather than forcing a page-reload via a button click.
 
 _Workaround:_ Edit the URL to give the “`ln`” query parameter per [the
-`/file` docs](/help?cmd=/file), or provide a patch to reload the page
-with this parameter included/excluded to implement the toggle via a
-server round-trip.
+`/file` docs](/help?cmd=/file). Alternately, someone sufficiently
+interested could [provide a patch][cg] to add a `<noscript>` wrapped
+HTML button that would reload the page with this parameter
+included/excluded to implement the toggle via a server round-trip.
+
+As of Fossil 2.12, there is also a JavaScript-based interactive method
+for selecting a range of lines by clicking the line numbers when they’re
+visible, then copying the resulting URL to share your selection with
+others.
+
+_Workaround:_ These interactive features absolutely require JavaScript.
+The alternative is to manually edit the URL, per above.
 
 [mainc]: https://fossil-scm.org/fossil/artifact?ln&name=87d67e745
 
