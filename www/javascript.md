@@ -69,34 +69,6 @@ all of this; you can then override UBO’s stock rules as needed.
 [ub]: https://github.com/gorhill/uBlock/
 
 
-## <a id="stats"></a>How Many Users Run with JavaScript Disabled Anyway?
-
-There are several studies that have directly measured the web audience
-to answer this question:
-
-* [What percentage of browsers with javascript disabled?][s1]
-* [How many people are missing out on JavaScript enhancement?][s2]
-* [Just how many web users really disable cookies or JavaScript?][s3]
-
-Our sense of this data is that only about 0.2% of web users had
-JavaScript disabled while participating in these studies.
-
-The Fossil user community is not typical of the wider web, but if we
-were able to comprehensively survey our users, we’d expect to find an
-interesting dichotomy. Because Fossil is targeted at software
-developers, who in turn are more likely to be power-users, we’d expect
-to find Fossil users to be more in favor of some amount of JavaScript
-blocking than the average web user. Yet, we’d also expect to find that
-our user base has a disproportionately high number who run [powerful
-conditional blocking plugins](#block) in their browsers, rather than
-block JavaScript entirely. We suspect that between these two forces, the number
-of no-JS purists among Fossil’s user base is still a tiny minority.
-
-[s1]: https://blockmetry.com/blog/javascript-disabled
-[s2]: https://gds.blog.gov.uk/2013/10/21/how-many-people-are-missing-out-on-javascript-enhancement/
-[s3]: https://w3techs.com/technologies/overview/client_side_language/all
-
-
 ## <a id="3pjs"></a>No Third-Party JavaScript in Fossil
 
 Fossil does not use any third-party JavaScript libraries, not even very
@@ -157,7 +129,7 @@ There many common arguments against the use of JavaScript. Rather than
 rehash these same arguments on the [forum][ffor], we distill the common
 ones we’ve heard before and give our stock answers to them here:
 
-1. "**It increases the size of the page download.**"
+1.  “**It increases the size of the page download.**”
 
     The heaviest such pages served by Fossil only have about 8 kB of
     compressed JavaScript. (You have to go out of your way to get Fossil
@@ -186,7 +158,7 @@ ones we’ve heard before and give our stock answers to them here:
     round-trips. If we were to double the amount of JavaScript code, the
     payoff time would increase to 2-4 round-trips.
 
-2. "**JavaScript is slow.**"
+2.  “**JavaScript is slow.**”
 
     It *was*, before September 2008. Google's introduction of [their V8
     JavaScript engine][v8] taught the world that JavaScript need not be
@@ -202,7 +174,7 @@ ones we’ve heard before and give our stock answers to them here:
     Once the scripts are cached, Ajax based page updates are faster than
     the alternative.
 
-3. "**JavaScript is insecure.**"
+3.  “**JavaScript is insecure.**”
 
     JavaScript is historically associated with some nefarious uses, but
     the question is not whether JavaScript is itself evil, it is whether
@@ -238,7 +210,7 @@ ones we’ve heard before and give our stock answers to them here:
     administrator can change this CSP, but again this comes down to a
     matter of trust with the administrator, not with Fossil itself.
 
-4. "**Cross-browser compatibility is poor.**"
+4.  “**Cross-browser compatibility is poor.**”
 
     It most certainly was in the first decade or so of JavaScript’s
     lifetime, resulting in the creation of powerful libraries like
@@ -247,7 +219,7 @@ ones we’ve heard before and give our stock answers to them here:
     incompatibilities.  Cross-browser JavaScript compatibility issues
     which affect web developers are, by and large, a thing of the past.
 
-5. "**Fossil UI works fine without JavaScript.**"
+5.  “**Fossil UI works fine without JavaScript.**”
 
     While this is true today, and we have no philosophical objection to
     it remaining true, we do not intend to limit ourselves to only those
@@ -260,7 +232,30 @@ ones we’ve heard before and give our stock answers to them here:
     to get involved with the development if they want this state of
     affairs to continue.
 
-6. "**My browser doesn’t have a JavaScript interpreter.**"
+6.  <a id="stats"></a>“**A large number of users run without JavaScript enabled.**”
+  
+    That’s not what web audience measurements say:
+
+    * [What percentage of browsers with javascript disabled?][s1]
+    * [How many people are missing out on JavaScript enhancement?][s2]
+    * [Just how many web users really disable cookies or JavaScript?][s3]
+
+    Our sense of this data is that only about 0.2% of web users had
+    JavaScript disabled while participating in these studies.
+
+    The Fossil user community is not typical of the wider web, but if we
+    were able to comprehensively survey our users, we’d expect to find
+    an interesting dichotomy. Because Fossil is targeted at software
+    developers, who in turn are more likely to be power-users, we’d
+    expect to find Fossil users to be more in favor of some amount of
+    JavaScript blocking than the average web user. Yet, we’d also expect
+    to find that our user base has a disproportionately high number who
+    run [powerful conditional blocking plugins](#block) in their
+    browsers, rather than block JavaScript entirely. We suspect that
+    between these two forces, the number of no-JS purists among Fossil’s
+    user base is still a tiny minority.
+
+7.  “**My browser doesn’t even *have* a JavaScript interpreter.**”
 
     The Fossil open source project has no full-time developers, and only
     a few of these part-timers are responsible for the bulk of the code
@@ -278,6 +273,9 @@ ones we’ve heard before and give our stock answers to them here:
 [fshome]: /doc/trunk/www/server/
 [hljs]:   https://fossil-scm.org/forum/forumpost/9150bc22ca
 [pjs]:    https://fossil-scm.org/forum/forumpost/1198651c6d
+[s1]:     https://blockmetry.com/blog/javascript-disabled
+[s2]:     https://gds.blog.gov.uk/2013/10/21/how-many-people-are-missing-out-on-javascript-enhancement/
+[s3]:     https://w3techs.com/technologies/overview/client_side_language/all
 [v8]:     https://en.wikipedia.org/wiki/V8_(JavaScript_engine)
 
 
