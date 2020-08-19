@@ -327,6 +327,53 @@ int file_islink(const char *zFilename){
 }
 
 /*
+** Check every sub-directory of zRoot along the path to zFile.
+** If any sub-directory is really an ordinary file or a symbolic link,
+** return an integer which is the length of the prefix of zFile which
+** is the name of that object.  Return 0 if all no non-directory
+** objects are found along the path.
+**
+** Example:  Given inputs
+**
+**     zRoot = /home/alice/project1
+**     zFile = /home/alice/project1/main/src/js/fileA.js
+**
+** Look for objects in the following order:
+**
+**      /home/alice/project/main
+**      /home/alice/project/main/src
+**      /home/alice/project/main/src/js
+**
+** If any of those objects exist and are something other than a directory
+** then return the length of the name of the first non-directory object
+** seen.
+*/
+int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
+  int i = (int)strlen(zRoot);
+  char *z = fossil_strdup(zFile);
+  assert( fossil_strnicmp(zRoot, z, i)==0 );
+  if( i && zRoot[i-1]=='/' ) i--;
+  while( z[i]=='/' ){
+    int j, rc;
+    for(j=i+1; z[j] && z[j]!='/'; j++){}
+    if( z[j]!='/' ) break;
+    z[j] = 0;
+    rc = file_isdir(z, SymFILE);
+    if( rc!=1 ){
+      if( rc==2 ){
+        fossil_free(z);
+        return j;
+      }
+      break;
+    }
+    z[j] = '/';
+    i = j;
+  }
+  fossil_free(z);
+  return 0;
+}
+
+/*
 ** Return 1 if zFilename is a directory.  Return 0 if zFilename
 ** does not exist.  Return 2 if zFilename exists but is something
 ** other than a directory.
@@ -572,7 +619,10 @@ int file_setexe(const char *zFilename, int onoff){
   int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( fossil_stat(zFilename, &buf, RepoFILE)!=0 || S_ISLNK(buf.st_mode) ){
+  if( fossil_stat(zFilename, &buf, RepoFILE)!=0 
+   || S_ISLNK(buf.st_mode)
+   || S_ISDIR(buf.st_mode)
+  ){
     return 0;
   }
   if( onoff ){
@@ -2397,5 +2447,88 @@ void touch_cmd(){
                  changeCount);
   }else{
     fossil_print("Touched %d file(s)\n", changeCount);
+  }
+}
+
+/*
+** Returns non-zero if the specified file name ends with any reserved name,
+** e.g.: _FOSSIL_ or .fslckout.  Specifically, it returns 1 for exact match
+** or 2 for a tail match on a longer file name.
+**
+** For the sake of efficiency, zFilename must be a canonical name, e.g. an
+** absolute path using only forward slash ('/') as a directory separator.
+**
+** nFilename must be the length of zFilename.  When negative, strlen() will
+** be used to calculate it.
+*/
+int file_is_reserved_name(const char *zFilename, int nFilename){
+  const char *zEnd;  /* one-after-the-end of zFilename */
+  int gotSuffix = 0; /* length of suffix (-wal, -shm, -journal) */
+
+  assert( zFilename && "API misuse" );
+  if( nFilename<0 ) nFilename = (int)strlen(zFilename);
+  if( nFilename<8 ) return 0; /* strlen("_FOSSIL_") */
+  zEnd = zFilename + nFilename;
+  if( nFilename>=12 ){ /* strlen("_FOSSIL_-(shm|wal)") */
+    /* Check for (-wal, -shm, -journal) suffixes, with an eye towards
+    ** runtime speed. */
+    if( zEnd[-4]=='-' ){
+      if( fossil_strnicmp("wal", &zEnd[-3], 3)
+       && fossil_strnicmp("shm", &zEnd[-3], 3) ){
+        return 0;
+      }
+      gotSuffix = 4;
+    }else if( nFilename>=16 && zEnd[-8]=='-' ){ /*strlen(_FOSSIL_-journal) */
+      if( fossil_strnicmp("journal", &zEnd[-7], 7) ) return 0;
+      gotSuffix = 8;
+    }
+    if( gotSuffix ){
+      assert( 4==gotSuffix || 8==gotSuffix );
+      zEnd -= gotSuffix;
+      nFilename -= gotSuffix;
+      gotSuffix = 1;
+    }
+    assert( nFilename>=8 && "strlen(_FOSSIL_)" );
+    assert( gotSuffix==0 || gotSuffix==1 );
+  }
+  switch( zEnd[-1] ){
+    case '_':{
+      if( fossil_strnicmp("_FOSSIL_", &zEnd[-8], 8) ) return 0;
+      if( 8==nFilename ) return 1;
+      return zEnd[-9]=='/' ? 2 : gotSuffix;
+    }
+    case 'T':
+    case 't':{
+      if( nFilename<9 || zEnd[-9]!='.'
+       || fossil_strnicmp(".fslckout", &zEnd[-9], 9) ){
+        return 0; 
+      }
+      if( 9==nFilename ) return 1;
+      return zEnd[-10]=='/' ? 2 : gotSuffix;
+    }
+    default:{
+      return 0;
+    }
+  }
+}
+
+/*
+** COMMAND: test-is-reserved-name
+**
+** Usage: %fossil test-is-ckout-db FILENAMES...
+**
+** Passes each given name to file_is_reserved_name() and outputs one
+** line per file: the result value of that function followed by the
+** name.
+*/
+void test_is_reserved_name_cmd(void){
+  int i;
+
+  if(g.argc<3){
+    usage("FILENAME_1 [...FILENAME_N]");
+  }
+  for( i = 2; i < g.argc; ++i ){
+    const int check = file_is_reserved_name(g.argv[i], -1);
+    fossil_print("%d %s\n", check, g.argv[i]);
   }
 }

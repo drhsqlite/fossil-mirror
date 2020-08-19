@@ -309,6 +309,7 @@ void vfile_to_disk(
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid, isExe, isLink;
     const char *zName;
+    int n;
 
     id = db_column_int(&q, 0);
     zName = db_column_text(&q, 1);
@@ -341,6 +342,12 @@ void vfile_to_disk(
       }
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
+    n = file_nondir_objects_on_path(g.zLocalRoot, zName);
+    if( n ){
+      fossil_fatal("cannot write %s because "
+                   "non-directory object %.*s is in the way",
+                   zName, n, zName);
+    }
     if( file_isdir(zName, RepoFILE)==1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite", zName);

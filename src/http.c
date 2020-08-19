@@ -378,12 +378,21 @@ int http_exchange(
       if( (mHttpFlags & HTTP_QUIET)==0 ){
         fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       }
+      if( g.url.isFile || g.url.isSsh ){
+        fossil_warning("cannot redirect from %s to %s", g.url.canonical,
+                       &zLine[i]);
+        goto write_err;
+      }
       wasHttps = g.url.isHttps;
       url_parse(&zLine[i], 0);
       if( wasHttps && !g.url.isHttps ){
         fossil_warning("cannot redirect from HTTPS to HTTP");
         goto write_err;
-       }
+      }
+      if( g.url.isSsh || g.url.isFile ){
+        fossil_warning("cannot redirect to %s", &zLine[i]);
+        goto write_err;
+      }
       transport_close(&g.url);
       transport_global_shutdown(&g.url);
       fSeenHttpAuth = 0;
