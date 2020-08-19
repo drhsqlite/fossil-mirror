@@ -11,7 +11,7 @@ to accomplish a given end without using JavaScript.
 
 This is not to say that Fossil’s fall-backs for such cases are always as
 elegant and functional as a no-JS purist might wish. That is simply
-because [the vast majority of web users run with JS enabled](#stats),
+because [the vast majority of web users run with JavaScript enabled](#stats),
 and a minority of those run with some kind of conditional JavaScript
 blocking in place. Fossil’s active developers do not deviate from that
 norm enough that we have many no-JS purists among us, so the no-JS case
@@ -89,7 +89,7 @@ to find Fossil users to be more in favor of some amount of JavaScript
 blocking than the average web user. Yet, we’d also expect to find that
 our user base has a disproportionately high number who run [powerful
 conditional blocking plugins](#block) in their browsers, rather than
-block JS entirely. We suspect that between these two forces, the number
+block JavaScript entirely. We suspect that between these two forces, the number
 of no-JS purists among Fossil’s user base is still a tiny minority.
 
 [s1]: https://blockmetry.com/blog/javascript-disabled
@@ -128,6 +128,27 @@ Fossil instances or into other web sites.
 
 There is some server-side event logging, but that is done entirely
 without JavaScript, so it’s off-topic here.
+
+
+## <a id="compat"></a>Compatibility Concerns
+
+The Fossil project’s developers aim to remain relatively compatible with
+the largest portions of the client-side browser base. We use only
+standards-defined JavaScript features which are known to work in the
+overwhelmingly vast majority of browsers going back approximately 5
+years, at minimum, as documented by [Can I Use...?][ciu] We avoid use of
+features added to the language more recently or those which are still in
+flux in standards committees
+
+We set this threshold based on the amount of time it typically takes for
+new standards to propagate through the installed base.
+
+As of this writing, this means we are only using features defined in
+[ECMAScript 2015][es2015], colloquially called “JavaScript 6.” That is a
+sufficiently rich standard that it more than suffices for our purposes.
+
+[ciu]:    https://caniuse.com/
+[es2015]: https://ecma-international.org/ecma-262/6.0/
 
 
 ## <a id="debate"></a>Arguments Against JavaScript & Our Rebuttals
@@ -195,8 +216,8 @@ ones we’ve heard before and give our stock answers to them here:
 
     *   ...compiled directly into the `fossil` binary in a
         non-obfuscated form during the build process, so there are no
-        third-party servers delivering mysterious, obfuscated JS code to
-        the user.
+        third-party servers delivering mysterious, obfuscated JavaScript
+        code to the user.
 
     C, Fossil's main implementation language, has been associated with
     far more security problems than JavaScript, yet the apparent
@@ -286,7 +307,7 @@ command, by clicking around within the web UI, etc.
 _Potential Workaround:_ The timeline could be enhanced with `<noscript>`
 tags that replace the graph with a column of checkboxes that control
 what a series of form submit buttons do when clicked, replicating the
-current JS-based features of the graph using client-server round-trips.
+current JavaScript-based features of the graph using client-server round-trips.
 For example, you could click two of those checkboxes and then a button
 labeled “Diff Selected” to replicate the current “click two nodes to
 diff them” feature.
@@ -338,7 +359,7 @@ _Graceful Fallback:_ Unlike in the Fossil 2.11 and earlier days, there
 is no longer a script-free wiki editor mode. This is not from lack of
 desire, only because the person who wrote the new wiki editor didn’t
 want to maintain three different editors. (New Ajaxy editor, old
-script-free HTML form based editor, and old WYSIWYG JS-based editor.) If
+script-free HTML form based editor, and old WYSIWYG JavaScript-based editor.) If
 someone wants to implement a `<noscript>` alternative to the new wiki
 editor, we will likely accept that [contribution][cg] as long as it
 doensn’t interfere with the new editor. (The same goes for adding a

@@ -1,5 +1,5 @@
-C Merged\sStephan's\s"in\sclosing"\sstatement\safter\sthe\sargumentation\ssection\nof\sjs-policy.md\sinto\sthe\s"Philosophy\s&\sPolicy"\ssection\sof\sjavascript.md.\nAnother\snear-rewrite,\swhile\smaintaining\sthe\soverall\spoints.
-D 2020-08-19T22:57:47.111
+C Hoist\sthe\s"Compatiblity\sConcerns"\ssection\sof\sjs-policy.md\sinto\njavascript.md.\sAnother\snear-total\srewrite,\smaintaining\sthe\soriginal's\npoints.
+D 2020-08-19T23:07:37.154
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -906,7 +906,7 @@ F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d5
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/javascript.md 2c75f293a81823b46d84c9c6dfd899e2e661f0a5db8b1d5fe6d7463a81520e89
+F www/javascript.md 1a8ead52c7c1f56fd9f9c39e65bbcd0410a920b8a95b71849dc87ec4a5ab3805
 F www/js-policy.md 4d106a96d5eb570fe5ccd6772336047bf60cb1e4ee4a40c6ee304afb2d8ace6c
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e3ee576b7a41a189505b4f98f600d35b92ac9b83d60e26a40b7281059893b7f
-R 0ee7b6ff0023ee47e61c093965f6acdb
+P 12acdcf3a5109929519e7a4396d28a5d9c42b0fdf2a9514cd87a7b156ae7c4aa
+R a4327bbd935d42b3ac0c7363b169b7fa
 U wyoung
-Z 2f31f95e2e787a7e9295b44cca0ee5a3
+Z 16ac6a7902b90cd8d5e254a2b7b1c9cf
