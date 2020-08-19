@@ -1,5 +1,5 @@
-C Moved\sthe\sold\s"How\sMany\sUsers\sRun\swith\sJavaScript\sDisabled\sAnyway?"\nsection\sof\sjavascript.md\sdown\sinto\sthe\s"debate"\ssection\sas\sone\sof\sthe\nQ&A\spoints.
-D 2020-08-19T23:30:50.031
+C Moved\sthe\s"No\sThird-Party\sJavaScript\sin\sFossil"\ssection\sof\sjavascript.md\ndown\sinto\sthe\sQ&A\s"debate"\ssection.\s\sAlso\sreworked\ssome\sof\sthe\sfollowing\nquestion's\sanswer\sto\sthe\sC\svs\sJavaScript\smatter.
+D 2020-08-19T23:38:22.115
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -906,7 +906,7 @@ F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d5
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/javascript.md 8401110221101a3ebbfbfcf03ee1f1bbe1d23b61b3df24e201590ebd565ae521
+F www/javascript.md 1f1f77626ed24560ab830b2cc283a0636a27b20fe53d3f19785a88cd205c1f27
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ad0d9798e775e3378f5bbddc15bd20e719c8bd784075f74d98c67aa39c1c47a
-R fd1f766f1ce906e5bc507250917931f8
+P bc5cf56965625abfe8b8acd6a2fed34d46fbca6d45f65a0a17844bbe1758b753
+R 933dbea8ae342e0494927cc332ffd147
 U wyoung
-Z 6ed6914f1235439d29ab480aceccb6f6
+Z b64ad880fcdc86486cfe1e44323914b3

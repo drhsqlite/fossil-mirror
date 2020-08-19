@@ -69,23 +69,6 @@ all of this; you can then override UBO’s stock rules as needed.
 [ub]: https://github.com/gorhill/uBlock/
 
 
-## <a id="3pjs"></a>No Third-Party JavaScript in Fossil
-
-Fossil does not use any third-party JavaScript libraries, not even very
-common ones like jQuery. Every bit of JavaScript served by the stock
-version of Fossil was written specifically for the Fossil project and is
-stored [in its code repository](https://fossil-scm.org/fossil/file).
-
-Therefore, if you want to hack on the JavaScript code served by Fossil
-and mechanisms like [skin editing][cs] don’t suffice for your purposes,
-you can hack on the JavaScript in your local instance directly, just as
-you can hack on its C, SQL, and Tcl code. Fossil is free and open source
-software, under [a single license][2cbsd].
-
-[2cbsd]: https://fossil-scm.org/home/doc/trunk/COPYRIGHT-BSD2.txt
-[cs]:    ./customskin.md
-
-
 ## <a id="snoop"></a>Fossil Does Not Snoop On You
 
 There is no tracking or other snooping technology in Fossil other than
@@ -174,10 +157,30 @@ ones we’ve heard before and give our stock answers to them here:
     Once the scripts are cached, Ajax based page updates are faster than
     the alternative.
 
-3.  “**JavaScript is insecure.**”
+3.  <a id="3pjs"></a>”**Third-party JavaScript cannot be trusted.**”
+
+    Fossil does not use any third-party JavaScript libraries, not even
+    very common ones like jQuery. Every bit of JavaScript served by the
+    stock version of Fossil was written specifically for the Fossil
+    project and is stored [in its code repository][fsrc].
+
+    Therefore, if you want to hack on the JavaScript code served by
+    Fossil and mechanisms like [skin editing][cskin] don’t suffice for your
+    purposes, you can hack on the JavaScript in your local instance
+    directly, just as you can hack on its C, SQL, and Tcl code. Fossil
+    is free and open source software, under [a single license][2cbsd].
+
+4.  “**JavaScript is fundamentally insecure.**”
 
     JavaScript is historically associated with some nefarious uses, but
-    the question is not whether JavaScript is itself evil, it is whether
+    if we wish to have more features in Fossil, the alternative is to
+    add more C code to the Fossil binary, a language with *far more*
+    historical security problems associated with it.
+
+    Does it not make sense to place as much trust in Fossil’s JavaScript
+    code as in its C code?
+
+    The question is not whether JavaScript is itself evil, it is whether
     its *authors* are evil. *Every byte* of JavaScript code used within
     the Fossil UI is:
 
@@ -190,12 +193,6 @@ ones we’ve heard before and give our stock answers to them here:
         non-obfuscated form during the build process, so there are no
         third-party servers delivering mysterious, obfuscated JavaScript
         code to the user.
-
-    C, Fossil's main implementation language, has been associated with
-    far more security problems than JavaScript, yet the apparent
-    alternative to reducing the amount of JavaScript in Fossil is to
-    increase the amount of C code. Does it not make sense to place as
-    much trust in Fossil’s JavaScript code as in its C code?
 
     Local administrators can [modify the repository’s skin][cskin] to
     inject additional JavaScript code into pages served by their Fossil
@@ -210,7 +207,7 @@ ones we’ve heard before and give our stock answers to them here:
     administrator can change this CSP, but again this comes down to a
     matter of trust with the administrator, not with Fossil itself.
 
-4.  “**Cross-browser compatibility is poor.**”
+5.  “**Cross-browser compatibility is poor.**”
 
     It most certainly was in the first decade or so of JavaScript’s
     lifetime, resulting in the creation of powerful libraries like
@@ -219,7 +216,7 @@ ones we’ve heard before and give our stock answers to them here:
     incompatibilities.  Cross-browser JavaScript compatibility issues
     which affect web developers are, by and large, a thing of the past.
 
-5.  “**Fossil UI works fine without JavaScript.**”
+6.  “**Fossil UI works fine without JavaScript.**”
 
     While this is true today, and we have no philosophical objection to
     it remaining true, we do not intend to limit ourselves to only those
@@ -232,7 +229,7 @@ ones we’ve heard before and give our stock answers to them here:
     to get involved with the development if they want this state of
     affairs to continue.
 
-6.  <a id="stats"></a>“**A large number of users run without JavaScript enabled.**”
+7.  <a id="stats"></a>“**A large number of users run without JavaScript enabled.**”
   
     That’s not what web audience measurements say:
 
@@ -255,7 +252,7 @@ ones we’ve heard before and give our stock answers to them here:
     between these two forces, the number of no-JS purists among Fossil’s
     user base is still a tiny minority.
 
-7.  “**My browser doesn’t even *have* a JavaScript interpreter.**”
+8.  “**My browser doesn’t even *have* a JavaScript interpreter.**”
 
     The Fossil open source project has no full-time developers, and only
     a few of these part-timers are responsible for the bulk of the code
@@ -263,14 +260,15 @@ ones we’ve heard before and give our stock answers to them here:
     you will have to [get involved with its development][cg]; it’s
     *your* uncommon itch.
 
+[2cbsd]:  https://fossil-scm.org/home/doc/trunk/COPYRIGHT-BSD2.txt
 [cskin]:  ./customskin.md
 [dcsp]:   ./defcsp.md
 [fcgi]:   /help?cmd=cgi
 [ffor]:   https://fossil-scm.org/forum/
 [flic]:   /doc/trunk/COPYRIGHT-BSD2.txt
+[fshome]: /doc/trunk/www/server/
 [fsrc]:   https://fossil-scm.org/home/file/src
 [fsrv]:   /help?cmd=server
-[fshome]: /doc/trunk/www/server/
 [hljs]:   https://fossil-scm.org/forum/forumpost/9150bc22ca
 [pjs]:    https://fossil-scm.org/forum/forumpost/1198651c6d
 [s1]:     https://blockmetry.com/blog/javascript-disabled
@@ -519,7 +517,7 @@ _Graceful Fallback:_ Clicking the hamburger menu button with JavaScript
 disabled will take you to the `/sitemap` page instead of showing a
 simplified version of that page’s content in a drop-down.
 
-_Workaround:_ You can remove this button by [editing the skin][cs]
+_Workaround:_ You can remove this button by [editing the skin][cskin]
 header.
 
 
