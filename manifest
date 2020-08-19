@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\stest-nondir-path"\scommand\sfor\stesting\sparts\sof\sthe\snew\nsymlink\slogic.
-D 2020-08-19T15:21:38.460
+C Remove\sthe\s--symlinks\soption\sfrom\sthe\s"fossil\sopen"\scommand.\s\sIt\sis\snot\nneeded.\s\sUsers\swho\swant\sto\senable\ssymlinks\scan\suse\sthe\s"fossil\ssettings"\ncommand\sfirst.
+D 2020-08-19T15:26:28.448
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c a93ac80ff76b879839b4532a02036dd1a3385749deb878ab14a080b9f87be8c9
+F src/db.c c7216625e927d81c6ad31d7a182417220b57f1f92fe71db62a25cbe4c220932a
 F src/default.css b79c1ed36f86257cb6db4fb8e9a1e71c02871e535637e2614d32808c0cef8a7b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P feef827504c77422610a8cf7bd32b6921c1b19f668e5df7fdbf76a85dd7a0689
-R 7f06b0ef800a8f15a21cd5200b9f4b62
+P 13cfef3383968d3aff5ad94050472416f00c9e25eace59d826adb3d83e93206b
+R ce17a61509d2c991c0a419c10175735f
 U drh
-Z 7717bad3c958a193322a9acb2b417467
+Z d71bba5a4efc67c741446fbf368eebad

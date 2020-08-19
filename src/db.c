@@ -3305,12 +3305,6 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
-**   --symlinks        Allow the use of symbolic links when expanding files
-**                     in this check-out, overriding the global allow-symlinks
-**                     setting (which default to "off").  CAUTION: This option
-**                     might allow a malicious repository to overwrite files
-**                     outside of the checkout directory.  This option is a
-**                     security risk and its use is discouraged.
 **   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
 **                     directory is created if it does not exist.
 **
@@ -3321,7 +3315,6 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
-  int allowSymlinks = 0;
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   int bForce = 0;                /* --force.  Open even if non-empty dir */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
@@ -3340,7 +3333,6 @@ void cmd_open(void){
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
   bForce = find_option("force","f",0)!=0;  
-  if( find_option("symlinks",0,0)!=0 ) allowSymlinks = 1;
   zPwd = file_getcwd(0,0);
   
 
@@ -3446,7 +3438,6 @@ void cmd_open(void){
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local(0);
-  if( allowSymlinks ) g.allowSymlinks = 1;
   db_lset("repository", zRepo);
   db_record_repository_filename(zRepo);
   db_set_checkout(0);
