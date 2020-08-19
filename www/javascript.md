@@ -1,11 +1,11 @@
 # Use of JavaScript in Fossil
 
-## Philosophy
+## Philosophy & Policy
 
 The Fossil development project’s policy is to use JavaScript where it
 helps make its web UI better, but to offer graceful fallbacks wherever
 practical. The intent is that the UI be usable with JavaScript entirely
-disabled.  In every place where Fossil uses JavaScript, it is an
+disabled. In every place where Fossil uses JavaScript, it is an
 enhancement to provided functionality, and there is always another way
 to accomplish a given end without using JavaScript.
 
@@ -20,7 +20,10 @@ contributions][cg], and we are philosophically in favor of graceful
 fall-backs, so you are welcome to appoint yourself the position of no-JS
 czar for the Fossil project!
 
-Evil is in actions, not in nouns, so we do not believe JavaScript *can*
+We cover some of the common arguments against JavaScript
+[below](#debate), with our rebuttals to them.
+
+Evil is in actions, not in nouns: we do not believe JavaScript *can*
 be evil. It is an active technology, but the actions that matter here
 are those of writing the code and checking it into the Fossil project
 repository. None of the JavaScript code in Fossil is evil, a fact we
@@ -114,6 +117,136 @@ Fossil instances or into other web sites.
 
 There is some server-side event logging, but that is done entirely
 without JavaScript, so it’s off-topic here.
+
+
+## <a id="debate"></a>Arguments Against JavaScript & Our Rebuttals
+
+There many common arguments against the use of JavaScript. Rather than
+rehash these same arguments on the [forum][ffor], we distill the common
+ones we’ve heard before and give our stock answers to them here:
+
+1. "**It increases the size of the page download.**"
+
+    The heaviest such pages served by Fossil only have about 8 kB of
+    compressed JavaScript. (You have to go out of your way to get Fossil
+    to serve uncompressed pages.) This is negligible, even over very
+    slow data connnections. If you are still somehow on a 56 kbit/sec
+    analog telephone modem, this extra script code would download in
+    about a second.
+
+    Most JavaScript-based Fossil pages use less JavaScript than that.
+
+    Atop that, Fossil 2.12 adds new script delivery methods with
+    aggressive caching enabled so that typical page loads will skip
+    re-loading this content on subsequent loads. These features are
+    currently optional: you must either set the new [`fossil server
+    --jsmode` option][fsrv] or the corresponding `jsmode` control line
+    in your [`fossil cgi`][fcgi] script when setting up your
+    [Fossil server][fshome]. That done, Fossil’s JavaScript files will
+    load almost instantly from the browser’s cache after the initial
+    page load, rather than be re-transferred over the network.
+
+    Between the improved caching and the fact that it’s quicker to
+    transfer a partial Ajax page load than reload the entire page, the
+    aggregate cost of such pages is typically *lower* than the older
+    methods based on HTTP POST with a full server round-trip. You can
+    expect to recover the cost of the initial page load in 1-2
+    round-trips. If we were to double the amount of JavaScript code, the
+    payoff time would increase to 2-4 round-trips.
+
+2. "**JavaScript is slow.**"
+
+    It *was*, before September 2008. Google's introduction of [their V8
+    JavaScript engine][v8] taught the world that JavaScript need not be
+    slow. This competitive pressure caused the other common JavaScript
+    interpreters to either improve or be replaced by one of the engines
+    that did improve to approach V8’s speed.
+
+    Nowadays JavaScript is, as a rule, astoundingly fast. As the world
+    continues to move more and more to web-based applications and
+    services, JavaScript engine developers have ample motivation to keep
+    their engines fast and competitive.
+
+    Once the scripts are cached, Ajax based page updates are faster than
+    the alternative.
+
+3. "**JavaScript is insecure.**"
+
+    JavaScript is historically associated with some nefarious uses, but
+    the question is not whether JavaScript is itself evil, it is whether
+    its *authors* are evil. *Every byte* of JavaScript code used within
+    the Fossil UI is:
+
+    *   ...written by the Fossil developers, vetted by their peers.
+
+    *   ...[open source][flic] and [available][fsrc] to be inspected,
+        audited, and changed by its users.
+
+    *   ...compiled directly into the `fossil` binary in a
+        non-obfuscated form during the build process, so there are no
+        third-party servers delivering mysterious, obfuscated JS code to
+        the user.
+
+    C, Fossil's main implementation language, has been associated with
+    far more security problems than JavaScript, yet the apparent
+    alternative to reducing the amount of JavaScript in Fossil is to
+    increase the amount of C code. Does it not make sense to place as
+    much trust in Fossil’s JavaScript code as in its C code?
+
+    Local administrators can [modify the repository’s skin][cskin] to
+    inject additional JavaScript code into pages served by their Fossil
+    server. A typical case is to add a syntax highlighter like
+    [Prism.js][pjs] or [highlightjs][hljs] to the local repository. At
+    that point, your trust concern is not with Fossil’s use of
+    JavaScript, but with your trust in that repository’s administrator.
+
+    Fossil's [default content security policy][dcsp] (CSP)
+    prohibits execution of JavaScript code which is delivered from
+    anywhere but the Fossil server which delivers the page. A local
+    administrator can change this CSP, but again this comes down to a
+    matter of trust with the administrator, not with Fossil itself.
+
+4. "**Cross-browser compatibility is poor.**"
+
+    It most certainly was in the first decade or so of JavaScript’s
+    lifetime, resulting in the creation of powerful libraries like
+    jQuery to patch over the incompatibilities. Over time, the need for
+    such libraries has dropped as browser vendors have fixed the
+    incompatibilities.  Cross-browser JavaScript compatibility issues
+    which affect web developers are, by and large, a thing of the past.
+
+5. "**Fossil UI works fine without JavaScript.**"
+
+    While this is true today, and we have no philosophical objection to
+    it remaining true, we do not intend to limit ourselves to only those
+    features that can be created without JavaScript. The mere
+    availability of alternatives is not a good justification for holding
+    back on notable improvements when they're within easy reach.
+
+    The no-JS case is a [minority position](#stats), so those that want
+    Fossil to have no-JS alternatives and graceful fallbacks will need
+    to get involved with the development if they want this state of
+    affairs to continue.
+
+6. "**My browser doesn’t have a JavaScript interpreter.**"
+
+    The Fossil open source project has no full-time developers, and only
+    a few of these part-timers are responsible for the bulk of the code
+    in Fossil. If you want Fossil to support such niche use cases, then
+    you will have to [get involved with its development][cg]; it’s
+    *your* uncommon itch.
+
+[cskin]:  ./customskin.md
+[dcsp]:   ./defcsp.md
+[fcgi]:   /help?cmd=cgi
+[ffor]:   https://fossil-scm.org/forum/
+[flic]:   /doc/trunk/COPYRIGHT-BSD2.txt
+[fsrc]:   https://fossil-scm.org/home/file/src
+[fsrv]:   /help?cmd=server
+[fshome]: /doc/trunk/www/server/
+[hljs]:   https://fossil-scm.org/forum/forumpost/9150bc22ca
+[pjs]:    https://fossil-scm.org/forum/forumpost/1198651c6d
+[v8]:     https://en.wikipedia.org/wiki/V8_(JavaScript_engine)
 
 
 ## <a id="uses"></a>Places Where Fossil’s Web UI Uses JavaScript
