@@ -27,7 +27,7 @@ A brief summary of its current uses in this project:
   server, commonly known as "ajax" or "XHR" communication. This allows
   certain pages to operate more quickly and fluidly by avoiding
   complete round-trips to and from the server. Perhaps
-  counter-intuitively, the increase JS load such pages typically
+  counter-intuitively, the increased JS load such pages typically
   require costs less bandwidth than is saved via using ajax traffic
   instead of conventional HTML forms.
 
@@ -50,13 +50,13 @@ particular order, along with rebuttals against each of them:
     transfer size may increase: 6-8kb (compressed) is typical, and it
     may even go up to a whopping 15kb (as of this writing, it's 8kb
     compressed on our most JS-intensive page (`/fileedit`), and only
-    25kb uncompressed and unobfuscated). With fossil's newer (summer 2020)
+    25kb uncompressed). With fossil's newer (summer 2020)
     JS delivery mechanism and etags-related caching
     improvements, such JS can be served with a single HTTP request and
     cached by browsers for up to a year. Additionally, most pages
     which use that much JS also use comparitively lightweight ajax
     communication to eliminate page reloads and enable data-loss-free
-    recovery in certain error cases which would lose client-side edits
+    recovery in certain error cases which could lose client-side edits
     in a non-JS-powered page. The end result is that the aggregate
     cost of such pages is actually *lower* than their static
     counterparts, and the total bytes of JS "overhead" is equal to
@@ -80,7 +80,7 @@ particular order, along with rebuttals against each of them:
     page.
 
 3. "It's slow."
-  - It *was*, before September 2008. Google's introduction [of their
+  - It *was*, before September 2008. Google's introduction of [their
     V8 JS engine][v8] taught the world that JS need not be slow, and
     the JS engines used by every modern browser have been improved
     upon by leaps and bounds to keep them competitive with Google's
@@ -92,12 +92,12 @@ particular order, along with rebuttals against each of them:
 [v8]: https://en.wikipedia.org/wiki/V8_(JavaScript_engine)
 
 4. "Cross-browser compatibility is poor."
-  - It *most certainly was*. Starting around 2006/2007, when jQuery
-    literally revolutionized how people worked with and thought about
-    JS, there has been a massive industry-level push behind it and
-    compatibility has become the norm rather than the exception.
-    Cross-browser JS compatibility issues which affect web developers
-    are, by and large, a thing of the past.
+  - It *most certainly was*. Since 2006/2007, when jQuery literally
+    revolutionized how people worked with and thought about JS, there
+    has been a massive industry-level push behind it and compatibility
+    has become the norm rather than the exception. Cross-browser JS
+    compatibility issues which affect web developers are, by and
+    large, a thing of the past.
 
 5. "The UI works fine without it."
   - True, for *some* definition of "works." Modern times and modern

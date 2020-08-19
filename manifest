@@ -1,5 +1,5 @@
-C Fixed\sa\spoorly-placed\swordwrap\swhich\slooked\slike\sa\snew\slist\sentry\sto\smarkup.
-D 2020-08-19T08:11:43.302
+C It\sturns\sout\swe\salready\shave\sjavascript.md,\swith\ssimilar\saims,\sso\snow\sit's\sa\smatter\sof\sintegrating\sthis\sdoc\sinto\sthat\sone.
+D 2020-08-19T08:40:01.053
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -907,7 +907,7 @@ F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c21
 F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
-F www/js-policy.md 8b630857d6198b9c838b9883db1494a92e0745a98083de2f07384c23ebdaf780
+F www/js-policy.md 4d106a96d5eb570fe5ccd6772336047bf60cb1e4ee4a40c6ee304afb2d8ace6c
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93e4561b0d56fe62e2c29552005823c43e5ab648a09f49c6bd57944a0317e258
-R 9ec3e552231c6e4a2540231c1ed2446b
+P 571bf459be99b10516d4582bd5ebeba0cb09a213af5790d4178afbf8e2689bf3
+R 3f90221dd35c68367c0f00409eb97824
 U stephan
-Z d3ed1b7e0c88bad481dda64d3a1ad08f
+Z 924a74ff631cb5ecff93fe31341e939a
