@@ -1,5 +1,5 @@
-C Cherrypick\s[d2d8894bb2]:\sfossil.storage.clear()\sis\snow\salso\ssandboxed\s-\sno\slonger\snuking\sall\sstate\sfor\sall\srepos\son\sthe\ssame\sorigin.
-D 2020-08-18T21:03:00.986
+C Increase\sthe\sversion\snumber\sto\s2.12.1.
+D 2020-08-19T09:57:19.759
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -17,7 +17,7 @@ F Makefile.classic f7ab827cf2c75b8580e6d5f09fe7a3a09a5b580131870924c0c72259328a4
 F Makefile.in 45eba548fec261c3800734ba8ca3802a2b23cd7654941422d45b7576d2ccbf17 x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION b3358d1305299906a65c9adfb87c80da1fbd741b0120ff1235a390f85acf5671
+F VERSION d133cdc486d914cb616ff52e5c852ad7ed62ec25e3256521c245f54a03ceec76
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -1004,8 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 21fbd4738c1d120870893b22b37e59596d2a0cbde79c8946d124ccb96229d13d
-Q +d2d8894bb2d6a0dcc9bcc21eb16fae914f45a26d9f366d6876d7ebcd65102f2e
-R 83da0d7cb1a980e247d6d7857f50a40c
-U stephan
-Z 4b9269f936fc9412e3f134115f2564ba
+P d0988e677c15bc1b3fc9937e3d75d558642c99b9ecb18f0b488308867f65c208
+R ac95114c533f9e75461b424c45c83136
+U drh
+Z dcba25eea4e6bfd7aa0716487cb29833
