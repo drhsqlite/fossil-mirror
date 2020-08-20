@@ -1,5 +1,5 @@
-C Allow\s/wikiedit's\spage-list-fetch\soperation\sto\ssilently\sskip\sover\smysteriously\smissing\s(shunned\sbut\snot\syet\srebuilt?)\swiki\spages,\sto\sresolve\san\sissue\son\sthe\score\sfossil\ssite\swhere\ssuch\sa\smissing/invisible\spage\snamed\s'Security\sDesk\sTechnician'\sis\scausing\s/wikiedit\sto\sfail\sto\sload.
-D 2020-08-20T20:05:25.200
+C Added\sa\s"window."\sreference\sto\sa\sglobal\svariable\sin\sfossil.dom.js\sto\nmake\sexplicit\swhere\sthe\svariable\sis\scoming\sfrom.\s\sAll\sthe\ssurrounding\ncode\sdoes\sthis,\sand\sthe\sfix\squiets\sa\scomplaint\sfrom\sGCC.
+D 2020-08-20T20:25:29.440
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,7 +488,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
-F src/fossil.dom.js b5396af8ad50770b68a4b4fa9a2f3afd2c71ea1bd4549a3eeb46ce5ebe2ba7b1
+F src/fossil.dom.js dd4f9c08237019f52b409061c46fa8c383a8e5a1d079983bf5bd041eee69ee74
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js f97a8b52029259bbc4c5e82a42766abfa4d55287d6bf08c65d27a9ad9e49f0d4
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d7d54e870160b16215b4aa5cc9cebf6e09428c0589c38b34ee367495a65c305
-R 8b9683ce8b81e10995238caca722db82
-U stephan
-Z 381b8976d3763f9d91ba5c94d63cf96b
+P 37409e7dbeddf00cca9ba8c1640b635c4d01d549df95ddae7ccf66237aee71a7
+R 0fff0d92db21fbf7240c85b64fc6e006
+U wyoung
+Z e446ab75a83633860c7f1a54d7cf928c

@@ -523,7 +523,7 @@
   */
   dom.copyTextToClipboard = function(text){
     if( window.clipboardData && window.clipboardData.setData ){
-      clipboardData.setData('Text',text);
+      window.clipboardData.setData('Text',text);
       return true;
     }else{
       const x = document.createElement("textarea");
