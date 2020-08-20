@@ -48,7 +48,7 @@ where we find it advantageous.
 
 ## <a id="debate"></a>Arguments Against JavaScript & Our Rebuttals
 
-There many common arguments against the use of JavaScript. Rather than
+There are many common arguments against the use of JavaScript. Rather than
 rehash these same arguments on the [forum][ffor], we distill the common
 ones we’ve heard before and give our stock answers to them here:
 
@@ -57,7 +57,7 @@ ones we’ve heard before and give our stock answers to them here:
     The heaviest such pages served by Fossil only have about 8 kB of
     compressed JavaScript. (You have to go out of your way to get Fossil
     to serve uncompressed pages.) This is negligible, even over very
-    slow data connnections. If you are still somehow on a 56 kbit/sec
+    slow data connections. If you are still somehow on a 56 kbit/sec
     analog telephone modem, this extra script code would download in
     about a second.
 
@@ -225,7 +225,6 @@ ones we’ve heard before and give our stock answers to them here:
     basis, whereas uBlock Origin delegates those choices to a group of
     motivated volunteers who maintain allow/block lists to control all
     of this; you can then override UBO’s stock rules as needed.
-
 
 10. “**My browser doesn’t even *have* a JavaScript interpreter.**”
 
@@ -557,7 +556,7 @@ As of mid-2020, the informal provisional plan is to increase Fossil
 UI's use of JavaScript considerably compared to its historically minimal
 uses. To that end, a framework of Fossil-centric APIs is being developed
 in conjunction with new features to consolidate Fossil's historical
-hodge-podge of JavaScript snippets into a coherent code base.
+hodgepodge of JavaScript snippets into a coherent code base.
 
 When deciding which features to port to JavaScript, the rules of thumb
 for this ongoing effort are:
