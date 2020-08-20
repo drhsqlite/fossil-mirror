@@ -1,5 +1,5 @@
-C Added\sa\ssection\sto\sjavascript.md\son\sthe\snew\s/fileedit\sfeature.
-D 2020-08-19T21:19:30.437
+C Many\simprovements\sto\sthe\s"Use\sof\sJavaScript\sin\sFossil"\sdocument,\nwww/javascript.md,\sinspired\sby\sthe\srecent\sAjaxifications\sand\sforum\ncommentary\son\sthe\stopic.
+D 2020-08-20T04:18:05.335
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -906,7 +906,7 @@ F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d5
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/javascript.md cab496563c2e026923159f4b410fa485ad0240d8964fe7ef28eb9138c4041a64
+F www/javascript.md dc1c447010733990d6d0120edfc4f2035b6f6186d052c6502db8cfd1fc1e7b8a
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -1007,7 +1007,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f84d7a0e42fdec917548ef1fadc29019e9967c4493aab26195f45fc792c5d921
-R b7a45af75e0fc404b60931799b39aa89
+P 100b4868ddf070040caa90c7f9d7a6b477da9ca417b2d0ac7dd2bc8a7a089b08 dc1bc21388dbe2d8bcb45b2aecdf300a20166d91a2faa13b5ec73379738e04f0
+R f021f2adaaf4603a3289dfe9dafb6170
+T +closed dc1bc21388dbe2d8bcb45b2aecdf300a20166d91a2faa13b5ec73379738e04f0
 U wyoung
-Z ea629af1addfb0afa4c1640662eeda22
+Z ad03017cd55692429a3de79ed1511299
