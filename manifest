@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sand\sthe\slatest-release\slink\son\sthe\shomepage.
-D 2020-08-20T15:22:18.992
+C Show\sthe\sartifact\shash\swith\sa\scopy\sbutton\son\sthe\sheader\sof\s/file\spages.
+D 2020-08-20T18:08:38.754
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -512,7 +512,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635d
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c b6e7722f771ee53570ff2533f137c2df3dd437dfdab9c07d5b9c7999c09744d2
-F src/info.c 5e41e5a03cf10f00de3864d444b9965c06da058ca03804501a789f5556fb6b92
+F src/info.c 7c8e2872c86e666586596246318265f1227610bc28b0f5bbc816e83aba044f9c
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 209f73cbc251f0d25e98b98c5e6934a3990b2dcd78594611b606123701850990
-R 22422ddcb2a3b48491cc5cb9d338e3c0
+P 5983f5b9137fbcccbc1f4118e7af64f6e5945d80dcf8c3fe86aaad6bd4cd00df
+R fe3d320f997002a9d63d41975f809fb7
 U drh
-Z a1fdcb88cf5715f7c7268ae2307afdaf
+Z 9f5c3f2281dc72c05cd847e532c4280a
