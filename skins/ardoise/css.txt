@@ -945,23 +945,14 @@ table.timelineTable {
   background: #442800
 }
 span.timelineSelected {
-  border-radius: 5px;
   border: solid #ff8000;
-  vertical-align: top;
-  text-align: left;
   background: #442800
 }
 tr.timelineSelected {
-  background: #663C00;
+  background: #663C00
+}
+span.timelineSelected, tr.timelineSelected {
   box-shadow: 0px 0px 6px rgb(255, 127, 0)
-}
-tr.timelineSecondary {
-  background: #003C66;
-  box-shadow: 0px 0px 6px rgb(0, 127, 255)
-}
-tr.timelineCurrent {
-  background: #66003C;
-  box-shadow: 0px 0px 6px rgb(255, 0, 127)
 }
 .timelineSecondary > .timelineColumnarCell,
 .timelineSecondary > .timelineCompactCell,
@@ -976,11 +967,14 @@ tr.timelineCurrent {
   background: #002844
 }
 span.timelineSecondary {
-  border-radius: 5px;
   border: solid #0080ff;
-  vertical-align: top;
-  text-align: left;
   background: #002844
+}
+tr.timelineSecondary {
+  background: #003C66
+}
+span.timelineSecondary, tr.timelineSecondary {
+  box-shadow: 0px 0px 6px rgb(0, 127, 255)
 }
 .timelineCurrent > .timelineColumnarCell,
 .timelineCurrent > .timelineCompactCell,
@@ -992,6 +986,10 @@ span.timelineSecondary {
   padding: .75em;
   border-radius: 5px;
   border: dashed #ff8000
+}
+span.timelineCurrent, tr.timelineCurrent {
+  background: #66003C;
+  box-shadow: 0px 0px 6px rgb(255, 0, 127)
 }
 .timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
   background-color: #000
