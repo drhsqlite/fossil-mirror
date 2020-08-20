@@ -1,5 +1,5 @@
-C Show\sthe\sartifact\shash\swith\sa\scopy\sbutton\son\sthe\sheader\sof\s/file\spages.
-D 2020-08-20T18:08:38.754
+C Minor\schange\sto\sauto.def\srequested\sby\s[https://bugs.debian.org/961772]
+D 2020-08-20T19:51:20.384
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 2fa8fa1aa418e216c4d36910827677e564c9a3eed74405aabbcb15464792e8e6
+F auto.def 18aa2dd77c9209db49f9519cf89c039273fadeae91e50e5219d9b1d3dbb44fee
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5983f5b9137fbcccbc1f4118e7af64f6e5945d80dcf8c3fe86aaad6bd4cd00df
-R fe3d320f997002a9d63d41975f809fb7
+P 00eb7a05b511d1218186dd278e27e0d63762fd8b8f9e8e2bca980d0b6f9bdcb1
+R 9f1cc04589cd25f7d218b8889b95bf7a
 U drh
-Z 9f5c3f2281dc72c05cd847e532c4280a
+Z e8233a5026e757f32cf43fd3df0181ff
