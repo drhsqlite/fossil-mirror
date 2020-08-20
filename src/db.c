@@ -2966,7 +2966,7 @@ int db_get_versioned_boolean(const char *zName, int dflt){
   if( is_false(zVal) ) return 0;
   return dflt;
 }
-#endif /* FOSSIL_LEGACY_ALLOW_SYMLINK */
+#endif /* FOSSIL_LEGACY_ALLOW_SYMLINKS */
 char *db_lget(const char *zName, const char *zDefault){
   return db_text(zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);

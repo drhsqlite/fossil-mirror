@@ -1,5 +1,5 @@
-C The\sallow-symlinks\ssetting\sis\sdisabled\sby\sdefault\sand\sis\snot\sversionable,\nunless\sFossil\sis\scompiled\swith\sthe\sFOSSIL_LEGACY_ALLOW_SYMLINKS\sflag,\sin\nwhich\scase\sit\sfollows\sthe\shistoric\sbehavior.
-D 2020-08-19T21:08:22.566
+C Report\sthe\suse\sof\sFOSSIL_LEGACY_ALLOW_SYMLINKS\sin\sthe\soutput\n"fossil\sversion\s-v".
+D 2020-08-20T00:04:33.327
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 28d47c4c61e4e62f44eb81984fc9f1e886582f852cd1cefd01fb48122088d9f1
+F src/db.c 8d952467b606d736bda89e3af7693105a2b2670f0522f2a512f2c26b7d8bafc8
 F src/default.css ff65a798f4492f16f9915b05d86668c1d7c85e4eccacc3b978fdef0d0db39df1
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -533,7 +533,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c 684a51e0a74565b61444ec8a56be456bc194d46bd0c9b26ffaa2bd1cd8405200
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 782f6114fe53ea2c957aa272e73b95528547808040db97b96b458db6fac4df48
+F src/main.c bdcc34ed98a353c0581b1dd3387fbca82e3424a15addd3705dc004bb5e7e2ac9
 F src/main.mk 445ada8d497c3f75c513fdafa18ccdcffd337606b98b4c71ca158e0e2779304c
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -1004,7 +1004,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0ea17c2b11b5bc63f69aabc3a183419d9413b0a603760958137a986443212760
-R a552f8f08f0340aa05b80bd18fa3ef18
+P cdc90f0c3b0f6eafc0a73ecb0d2cc92a54b9ffc1c69daf8ecde47a7c8cae52b8
+R 42b5e1ed94b15f6c17e2e4f7a2167761
 U drh
-Z c18aa1ffda6ea7c5f1ca264224bff02d
+Z 6d6f20101412b588b669277d09ce4786
