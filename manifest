@@ -1,5 +1,5 @@
-C Rearrange\scode
-D 2020-08-20T13:08:00.390
+C Change\sper\sstephan's\srequest
+D 2020-08-20T23:45:38.930
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -328,7 +328,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 14bd1403c4f17758758dfffc95e5928bccb7843ecc540e0652c67052b6a781b4
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 67d009d23962c9bd03293274b1eb475c9dc46d72513a7a0890d6b697101d19e5
+F skins/ardoise/css.txt f0405a960544b049dc24dd02ca2b0d03767afa3593beff20cec2dcef3e507c19
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
 F skins/ardoise/header.txt 47309feeacc1a9d4d65affb0174b914dcb96dcef1666356248039145c2feeb9e
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed04edd82b9093cdcecba73a95aa66de7b2a43ccaf840c7f383629d8e3c65807
-R 9108ec74ea0f275a1856627d0fa7f708
+P 1ffe4cde88a1e2c2dad6deedbe3469fdd97f79e250ce8aaeb4a06743c019c25b
+R ec8aaa3402bdbb9ca3b3c460ef3f3fc1
 U andygoth
-Z 9c0b5379fb5809fd3c4d9e8440bbf75b
+Z 34a7a4abf5d06f13311fd94d19ae5858
