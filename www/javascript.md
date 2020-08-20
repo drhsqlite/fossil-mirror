@@ -366,16 +366,16 @@ a WYSIWYG mode to the new Ajaxy wiki editor.)
 _Workaround:_ You don’t have to use the browser-based wiki editor to
 maintain your repository’s wiki at all. Fossil’s [`wiki` command][fwc]
 lets you manipulate wiki documents from the command line. For example,
-consider this `vi` based workflow:
+consider this Vi based workflow:
 
 ```shell
     $ vi 'My Article.wiki'                   # begin work on new article
       ...write, write, write...
     :w                                       # save changes to disk copy
-    :!fossil create 'My Article' '%'         # current file (%) to new article
+    :!fossil wiki create 'My Article' '%'    # current file (%) to new article
       ...write, write, write some more...
     :w                                       # save again
-    :!fossil commit 'My Article' '%'         # update article from disk
+    :!fossil wiki commit 'My Article' '%'    # update article from disk
     :q                                       # done writing for today
 
       ....days later...
