@@ -1,5 +1,5 @@
-C 2.12.1\srelease\scandidate\swith\ssecurity\sfixes.
-D 2020-08-20T13:01:51.307
+C Version\s2.12.1
+D 2020-08-20T13:27:04.793
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -1004,7 +1004,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32646b27384cb2b4d2215fd0e65d994fec33cbb34128e2bac22c16fa934cbec2 89d950efd083047699b1fc6c2c1a86d72413713e9aaedafffbee1056f321075f
+P 40feec329163103293d98dfcc2d119d1a16b227ac9adc52450a7546738648f1b
 R 65c4f5302b430d23e58b3b846b41caa7
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-2.12.1 *
 U drh
-Z b7152af3c4367623636886ec9437fd8f
+Z 4c8296fc0bf5d6e3cdba322a5d33bcb0
