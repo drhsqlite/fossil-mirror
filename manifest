@@ -1,5 +1,5 @@
-C Gave\sthe\sline-number\spopup\s(and\srelated\spopups)\sa\sz-level\sbelow\sthat\sof\sthe\sdefault\sskin's\shamburger\smenu.
-D 2020-08-20T20:40:30.288
+C Same\sas\s[31af8053]\sbut\sin\ssrc/copybtn.js,\supon\swhich\scode\nfossil.copybutton.js\swas\sapparently\sbased.\s\sThis\sother\sfile\smay\sbe\sgoing\naway\ssoon,\sbut\suntil\sthen,\sit\savoids\sa\swarning.
+D 2020-08-20T21:15:21.005
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -459,7 +459,7 @@ F src/config.h 722b2a0ac17571cdf9c0d285b945f0f29168924311203bca652e5d7fe3dfbf30
 F src/configure.c c70876481e9303a4d428e7721bdf1e3b5ec994edc720f58ac2762b51c2e7edb2
 F src/content.c e5728cc81452be14a4fecb80fe52d0673009a61f2166821a6eeab5f8793171ce
 F src/cookies.c 3c7a533e11f5a562292ef3e9c67542ea124afa6872adfd5ed77b6c4c1bd1668f
-F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc3
+F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31af8053486909582b1b8fd821ff2f2da6320c0d0b6d93a8de9e65c06ce3cdf7
-R 4b89d4787647258671d39681512763fc
-U stephan
-Z cd4c0c27766785d122fc6ceadcee9a8d
+P bbef8ce398703cb06e79c0659fd1c2cc18a0ba02ecb26a36facbfb7d56e59ec2
+R 16ec748a38338af96c2ea64fa97ca253
+U wyoung
+Z 6b56ed5ec3d96424310d58862894780e
