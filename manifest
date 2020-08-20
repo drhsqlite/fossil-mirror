@@ -1,5 +1,5 @@
-C Same\sas\s[31af8053]\sbut\sin\ssrc/copybtn.js,\supon\swhich\scode\nfossil.copybutton.js\swas\sapparently\sbased.\s\sThis\sother\sfile\smay\sbe\sgoing\naway\ssoon,\sbut\suntil\sthen,\sit\savoids\sa\swarning.
-D 2020-08-20T21:15:21.005
+C Using\sparameters\sto\snamespace\sfunctions\sin\sfossil*.js\sinstead\sof\sthe\nglobal\s"fossil"\sobject.\s\sSquishes\sa\scomplaint\sby\sGCC\sand\smakes\sthe\scode\na\ssmidge\ssmaller\sbesides.
+D 2020-08-20T22:40:18.116
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -490,12 +490,12 @@ F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2f
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
 F src/fossil.dom.js dd4f9c08237019f52b409061c46fa8c383a8e5a1d079983bf5bd041eee69ee74
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
-F src/fossil.numbered-lines.js f97a8b52029259bbc4c5e82a42766abfa4d55287d6bf08c65d27a9ad9e49f0d4
-F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
-F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
-F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
+F src/fossil.numbered-lines.js 4cb73674997cd0b2b3865149cd22b8c2929f197916e827729eb07730ece6e049
+F src/fossil.page.fileedit.js ab8cdd1c4888932707ce2dfd6eb4fa8ee8b0ee8eaca402ea4d8d8884a865ec72
+F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
+F src/fossil.page.wikiedit.js d20ca8993b5c56f2505f4e7af8a1428dfbe3fb5f42218b351fb5c1da6cf86a69
 F src/fossil.popupwidget.js 6a5c12927c122c63f4f0c958c8fb53af42cc4bc4e1a1531d09a4877b116e1637
-F src/fossil.storage.js 4c448700c6038b71dd931ea4e2c6e91d393ef9d3a4697f63606e9c568ce75726
+F src/fossil.storage.js f9455cbc564bc1a2ee3c4b4241c5dc752644c061f855694a130371039245052f
 F src/fossil.tabs.js 56a57bda17eb3a3b8bfbbc43e2475f1fd66b4fb009d7f78ca44f5561c44e08bf
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bbef8ce398703cb06e79c0659fd1c2cc18a0ba02ecb26a36facbfb7d56e59ec2
-R 16ec748a38338af96c2ea64fa97ca253
+P c0cb0b9d33b9d3e16f0ff32b2c8f706cc652ff7a52f997453479813cac64c625
+R f24ad0d29485db259cc1f650e8ca9267
 U wyoung
-Z 6b56ed5ec3d96424310d58862894780e
+Z 3c54a5ba6807b963f7ae4dbbb9722068
