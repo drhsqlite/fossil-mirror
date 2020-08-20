@@ -122,18 +122,15 @@ ones we’ve heard before and give our stock answers to them here:
     the Fossil instance, so even this limited data cannot leak between
     Fossil instances or into other web sites.
 
-    There is some server-side event logging, but that is done entirely
-    without JavaScript, so it’s off-topic here.
-
 5.  “**JavaScript is fundamentally insecure.**”
 
-    JavaScript is historically associated with some nefarious uses, but
-    if we wish to have more features in Fossil, the alternative is to
-    add more C code to the Fossil binary, a language with *far more*
-    historical security problems associated with it.
+    JavaScript is certainly sometimes used for nefarious ends, but if we
+    wish to have more features in Fossil, the alternative is to add more
+    code to the Fossil binary, [most likely in C][fslpl], a language
+    implicated in [over 4× more security vulnerabilities][whmsl].
 
-    Does it not make sense to place as much trust in Fossil’s JavaScript
-    code as in its C code?
+    Therefore, does it not make sense to place approximately four times
+    as much trust in Fossil’s JavaScript code as in its C code?
 
     The question is not whether JavaScript is itself evil, it is whether
     its *authors* are evil. *Every byte* of JavaScript code used within
@@ -209,7 +206,7 @@ ones we’ve heard before and give our stock answers to them here:
 
 9.  <a id="block"></a>“**I block JavaScript entirely in my browser. That breaks Fossil.**”
 
-    First, see our philosophy statement above. Briefly, we intend that
+    First, see our philosophy statements above. Briefly, we intend that
     there always be some other way to get any given result without using
     JavaScript, developer interest willing.
 
@@ -226,8 +223,8 @@ ones we’ve heard before and give our stock answers to them here:
     The primary difference between these two for our purposes is that
     NoScript lets you select scripts to run on a page on a case-by-case
     basis, whereas uBlock Origin delegates those choices to a group of
-    motivated volunteers who maintain whitelists and blacklists to control
-    all of this; you can then override UBO’s stock rules as needed.
+    motivated volunteers who maintain allow/block lists to control all
+    of this; you can then override UBO’s stock rules as needed.
 
 
 10. “**My browser doesn’t even *have* a JavaScript interpreter.**”
@@ -235,7 +232,7 @@ ones we’ve heard before and give our stock answers to them here:
     The Fossil open source project has no full-time developers, and only
     a few of these part-timers are responsible for the bulk of the code
     in Fossil. If you want Fossil to support such niche use cases, then
-    you will have to [get involved with its development][cg]; it’s
+    you will have to [get involved with its development][cg]: it’s
     *your* uncommon itch.
 
 11. <a id="compat"></a>“**Fossil’s JavaScript code isn’t compatible with my browser.**”
@@ -252,21 +249,27 @@ ones we’ve heard before and give our stock answers to them here:
     new standards to propagate through the installed base.
 
     As of this writing, this means we are only using features defined in
-    [ECMAScript 2015][es2015], colloquially called “JavaScript 6.” That is a
-    sufficiently rich standard that it more than suffices for our purposes.
+    [ECMAScript 2015][es2015], colloquially called “JavaScript 6.” That
+    is a sufficiently rich standard that it more than suffices for our
+    purposes, and it is [widely deployed][es6dep]. The biggest single
+    outlier remaining is MSIE 11, and [even Microsoft is moving their
+    own products off of it][ie11x].
 
 [2cbsd]:  https://fossil-scm.org/home/doc/trunk/COPYRIGHT-BSD2.txt
 [ciu]:    https://caniuse.com/
 [cskin]:  ./customskin.md
 [dcsp]:   ./defcsp.md
 [es2015]: https://ecma-international.org/ecma-262/6.0/
+[es6dep]: https://caniuse.com/#feat=es6
 [fcgi]:   /help?cmd=cgi
 [ffor]:   https://fossil-scm.org/forum/
 [flic]:   /doc/trunk/COPYRIGHT-BSD2.txt
 [fshome]: /doc/trunk/www/server/
+[fslpl]:  /doc/trunk/www/fossil-v-git.wiki#portable
 [fsrc]:   https://fossil-scm.org/home/file/src
 [fsrv]:   /help?cmd=server
 [hljs]:   https://fossil-scm.org/forum/forumpost/9150bc22ca
+[ie11x]:  https://techcommunity.microsoft.com/t5/microsoft-365-blog/microsoft-365-apps-say-farewell-to-internet-explorer-11-and/ba-p/1591666
 [ns]:     https://noscript.net/
 [pjs]:    https://fossil-scm.org/forum/forumpost/1198651c6d
 [s1]:     https://blockmetry.com/blog/javascript-disabled
@@ -274,6 +277,7 @@ ones we’ve heard before and give our stock answers to them here:
 [s3]:     https://w3techs.com/technologies/overview/client_side_language/all
 [ubo]:    https://github.com/gorhill/uBlock/
 [v8]:     https://en.wikipedia.org/wiki/V8_(JavaScript_engine)
+[whmsl]:  https://www.whitesourcesoftware.com/most-secure-programming-languages/
 
 
 ----
@@ -315,8 +319,8 @@ diff them” feature.
 
 ### <a id="wedit"></a>The New Wiki Editor
 
-As of Fossil 2.12, the [Fossil wiki][fwt] document editor requires
-JavaScript for a few unavoidable reasons.
+The [new wiki editor][fwt] added in Fossil 2.12 has many new features, a
+few of which are impossible to get without use of JavaScript.
 
 First, it allows in-browser previews without losing client-side editor
 state, such as where your cursor is. With the old editor, you had to
@@ -339,10 +343,6 @@ persistent media when it’s restarted, giving the illusion that it was
 never shut down in the first place. This feature of Fossil’s new wiki
 editor provides that.
 
-There are many other new features in the enhanced Fossil 2.12 wiki
-editor, but those are the ones that absolutely require JavaScript to
-work.
-
 With this change, we lost the old WYSIWYG wiki editor, available since
 Fossil version 1.24. It hadn’t been maintained for years, it was
 disabled by default, and no one stepped up to defend its existence when
@@ -360,7 +360,7 @@ want to maintain three different editors. (New Ajaxy editor, old
 script-free HTML form based editor, and the old WYSIWYG JavaScript-based
 editor.) If someone wants to implement a `<noscript>` alternative to the
 new wiki editor, we will likely accept that [contribution][cg] as long
-as it doensn’t interfere with the new editor. (The same goes for adding
+as it doesn’t interfere with the new editor. (The same goes for adding
 a WYSIWYG mode to the new Ajaxy wiki editor.)
 
 _Workaround:_ You don’t have to use the browser-based wiki editor to
@@ -427,19 +427,22 @@ When viewing source files, Fossil offers to show line numbers in some
 cases. ([Example][mainc].) Toggling them on and off is currently handled
 in JavaScript, rather than forcing a page-reload via a button click.
 
-_Workaround:_ Edit the URL to give the “`ln`” query parameter per [the
-`/file` docs](/help?cmd=/file). Alternately, someone sufficiently
-interested could [provide a patch][cg] to add a `<noscript>` wrapped
-HTML button that would reload the page with this parameter
-included/excluded to implement the toggle via a server round-trip.
+_Workaround:_ Manually edit the URL to give the “`ln`” query parameter
+per [the `/file` docs](/help?cmd=/file).
+
+_Potential Better Workaround:_ Someone sufficiently interested could
+[provide a patch][cg] to add a `<noscript>` wrapped HTML button that
+would reload the page with this parameter included/excluded to implement
+the toggle via a server round-trip.
 
 As of Fossil 2.12, there is also a JavaScript-based interactive method
 for selecting a range of lines by clicking the line numbers when they’re
 visible, then copying the resulting URL to share your selection with
 others.
 
-_Workaround:_ These interactive features absolutely require JavaScript.
-The alternative is to manually edit the URL, per above.
+_Workaround:_ These interactive features would be difficult and
+expensive (in terms of network I/O) to implement without JavaScript.  A
+far simpler alternative is to manually edit the URL, per above.
 
 [mainc]: https://fossil-scm.org/fossil/artifact?ln&name=87d67e745
 
@@ -489,8 +492,8 @@ the type of artifact the hash refers to and allows you to click to copy
 the hash to the clipboard.
 
 _Graceful Fallback:_ When JavaScript is disabled, these tooltips simply
-don’t appear. You can then select and copy the hash using your browser,
-make “`fossil info`” queries on those hashes, etc.
+don’t appear, but you can still select and copy the hash using your
+platform’s “copy selected text” feature.
 
 
 ### <a id="bots"></a>Anti-Bot Defenses
@@ -527,25 +530,30 @@ header.
 
 Some stock Fossil skins include JavaScript-based features such as the
 current time of day. The Xekri skin includes this in its header, for
-example. A clock feature requires JavaScript not only to get the time
-and update inline on the page once a minute, but also so it displays *in
-the local time zone.*
+example. A clock feature requires JavaScript to get the time on initial
+page load and then to update it once a minute.
 
-Since none of this code provides a necessary Fossil feature, the core
-developers are unlikely to try to make these features work better in the
-absence of JavaScript.
+You may observe that the server could provide the current time when
+generating the page, but the client and server may not be in the same
+time zone, and there is no reliably-provided information from the client
+that would let the server give the page load time in the client’s local
+time zone. The server could only tell you *its* local time at page
+request time, not the client’s time. That still wouldn’t be a “clock,”
+since without client-side JavaScript code running, that part of the page
+couldn’t update once a second.
 
-However, we are willing to study patches to make this better. For
-example, the wall clock displays could include the page load time in the
-dynamically generated HTML shipped from the remote Fossil server, so
-that in the absence of JavaScript, you at least get the page generation
-time, expressed in the server’s time zone.
+_Potential Graceful Fallback:_ You may consider showing the server’s
+page generation time rather than the client’s wall clock time in the
+local time zone to be a useful fallback for the current feature, so [a
+patch to do this][cg] may well be accepted. Since this is not a
+*necessary* Fossil feature, an interested user is unlikely to get the
+core developers to do this work for them.
 
 ----
 
 ## <a id="future"></a>Future Plans for JavaScript in Fossil
 
-As of mid-2020, the informal provisional plan is to increase the Fossil
+As of mid-2020, the informal provisional plan is to increase Fossil
 UI's use of JavaScript considerably compared to its historically minimal
 uses. To that end, a framework of Fossil-centric APIs is being developed
 in conjunction with new features to consolidate Fossil's historical
@@ -582,5 +590,5 @@ coding even when they really don't want to. 😉
 In all of this, Fossil's project lead understandably has the final
 say-so in whether any given feature indeed gets merged into the mainline
 trunk. Development of any given feature, no matter how much effort was
-involved, does not guaranty its eventual inclusion into the public
+involved, does not guarantee its eventual inclusion into the public
 releases.
