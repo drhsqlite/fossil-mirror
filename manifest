@@ -1,5 +1,5 @@
-C Spelling\sand\sgrammar\sfixes\sto\sjavascript.md.
-D 2020-08-20T05:13:58.916
+C Update\sthe\schange\slog\sand\sthe\slatest-release\slink\son\sthe\shomepage.
+D 2020-08-20T15:22:18.992
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -834,7 +834,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki f14b505c3ba4b4dcc1bfac3e9bccc0a30c00c73885f9971feaaeba2c7111f027
+F www/changes.wiki dc9ddc6194eddead1b7e3d5e288e77345ff842d1adc7a6a8676cb3b32fcd3a8d
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -904,7 +904,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d57e945e9addc805cc4bb
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 7ecd953f41f696f78c36ff5118084ef2a9b93a4a8e1669c8a26395c00ed263e1
+F www/index.wiki 23b92442e9d9619010614ff5923375be33bf9cc85609c1cfc309f50bb563052d
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md dfcb2afd7ad53cc85708e330142c2ce991503f9498e6a810f9c62be439317d42
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 977ba78fdd2901e5bf25fee4878175ad952d14f34dc9c7e1be5c4ab9926de13a
-R a6b9dc685eae1a6fdfcef03f8b74f943
-U wyoung
-Z b4b665ac136d49adb165e01578c797ef
+P 209f73cbc251f0d25e98b98c5e6934a3990b2dcd78594611b606123701850990
+R 22422ddcb2a3b48491cc5cb9d338e3c0
+U drh
+Z a1fdcb88cf5715f7c7268ae2307afdaf
