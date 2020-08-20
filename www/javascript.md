@@ -4,10 +4,10 @@
 
 The Fossil development project’s policy is to use JavaScript where it
 helps make its web UI better, but to offer graceful fallbacks wherever
-practical. The intent is that the UI be usable with JavaScript entirely
-disabled. In every place where Fossil uses JavaScript, it is an
-enhancement to provided functionality, and there is always another way
-to accomplish a given end without using JavaScript.
+practical. The intent is that the UI be usable with JavaScript
+entirely disabled. In almost all places where Fossil uses JavaScript,
+it is an enhancement to provided functionality, and there is always
+another way to accomplish a given end without using JavaScript.
 
 This is not to say that Fossil’s fall-backs for such cases are always as
 elegant and functional as a no-JS purist might wish. That is simply
@@ -246,7 +246,7 @@ ones we’ve heard before and give our stock answers to them here:
     overwhelmingly vast majority of browsers going back approximately 5
     years, at minimum, as documented by [Can I Use...?][ciu] We avoid use of
     features added to the language more recently or those which are still in
-    flux in standards committees
+    flux in standards committees.
 
     We set this threshold based on the amount of time it typically takes for
     new standards to propagate through the installed base.
@@ -418,7 +418,7 @@ likely to accept such a [contribution][cg] as long as it doesn’t
 interfere with the new editor.
 
 [edoc]:  /doc/trunk/www/embeddeddoc.wiki
-[fedit]: /help?cmd=/fileedit
+[fedit]: /doc/trunk/www/fileedit-page.md
 
 
 ### <a id="ln"></a>Line Numbering
