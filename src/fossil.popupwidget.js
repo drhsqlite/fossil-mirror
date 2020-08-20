@@ -178,8 +178,8 @@
         D.removeClass(this.e, 'hidden');
       }else{
         D.addClass(this.e, 'hidden');
-        delete this.e.style.removeProperty('left');
-        delete this.e.style.removeProperty('top');
+        this.e.style.removeProperty('left');
+        this.e.style.removeProperty('top');
       }
       return this;
     },

@@ -1,5 +1,5 @@
-C Minor\schange\sto\sauto.def\srequested\sby\s[https://bugs.debian.org/961772]
-D 2020-08-20T19:51:20.384
+C Removed\sa\spair\sof\sbogus\s"delete"\scalls\sin\sfossil.popupwidget.js,\sflagged\nby\sGoogle\sClosure\sCompiler.\s\sYou\scan't\sdelete\sthe\sresult\sof\sa\sfunction\ncall,\sonly\sobject\sproperties.
+D 2020-08-20T19:52:44.671
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -494,7 +494,7 @@ F src/fossil.numbered-lines.js f97a8b52029259bbc4c5e82a42766abfa4d55287d6bf08c65
 F src/fossil.page.fileedit.js 8cc14738a3804f04dfc9116ed43649d4ffac2bd4ed09965889df09f7708c8eb1
 F src/fossil.page.forumpost.js 1ec2426c5e17ca59f476d7c5b2f4dcd0188d0e88d4e8d2b68c95ce60976daf48
 F src/fossil.page.wikiedit.js 0094f313103970b552290bf34584b3bf4e43b3f7fcecf9a20f87706a03e10862
-F src/fossil.popupwidget.js 3d6ebc505d736477e85cded0c11477fb4858c3e800d7d4864880b19ea40f1de9
+F src/fossil.popupwidget.js 6a5c12927c122c63f4f0c958c8fb53af42cc4bc4e1a1531d09a4877b116e1637
 F src/fossil.storage.js 4c448700c6038b71dd931ea4e2c6e91d393ef9d3a4697f63606e9c568ce75726
 F src/fossil.tabs.js 56a57bda17eb3a3b8bfbbc43e2475f1fd66b4fb009d7f78ca44f5561c44e08bf
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00eb7a05b511d1218186dd278e27e0d63762fd8b8f9e8e2bca980d0b6f9bdcb1
-R 9f1cc04589cd25f7d218b8889b95bf7a
-U drh
-Z e8233a5026e757f32cf43fd3df0181ff
+P e6de5ec7500029981e768bb3d91c2677d44378389a5f8f2abdcbbcfe4f4a17f8
+R bbe91f71f2686873e152da2cd33144af
+U wyoung
+Z 8441933e07de3daaa6668b25e440d44f
