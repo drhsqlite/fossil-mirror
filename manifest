@@ -1,5 +1,5 @@
-C Removed\sa\spair\sof\sbogus\s"delete"\scalls\sin\sfossil.popupwidget.js,\sflagged\nby\sGoogle\sClosure\sCompiler.\s\sYou\scan't\sdelete\sthe\sresult\sof\sa\sfunction\ncall,\sonly\sobject\sproperties.
-D 2020-08-20T19:52:44.671
+C Allow\s/wikiedit's\spage-list-fetch\soperation\sto\ssilently\sskip\sover\smysteriously\smissing\s(shunned\sbut\snot\syet\srebuilt?)\swiki\spages,\sto\sresolve\san\sissue\son\sthe\score\sfossil\ssite\swhere\ssuch\sa\smissing/invisible\spage\snamed\s'Security\sDesk\sTechnician'\sis\scausing\s/wikiedit\sto\sfail\sto\sload.
+D 2020-08-20T20:05:25.200
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -639,7 +639,7 @@ F src/util.c de0723ef68f92958017ee60c5dc0e6b2f4121c6deac0f8a32051a1e88f78d46c
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 8e9ca6e3d85a74efffa1a0c6facb1526a272a33e762c61812002edcfcc12de36
+F src/wiki.c 7f44f9714ebdd2d22afdb6157f889293c0df7ab4ccde16e4d9ab0e9f457038b8
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 4419c7cf4971a1abf8a0a4d20da93435bea3d6b1f05e1f4e8e5acc3039865e0d
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6de5ec7500029981e768bb3d91c2677d44378389a5f8f2abdcbbcfe4f4a17f8
-R bbe91f71f2686873e152da2cd33144af
-U wyoung
-Z 8441933e07de3daaa6668b25e440d44f
+P 0d7d54e870160b16215b4aa5cc9cebf6e09428c0589c38b34ee367495a65c305
+R 8b9683ce8b81e10995238caca722db82
+U stephan
+Z 381b8976d3763f9d91ba5c94d63cf96b
