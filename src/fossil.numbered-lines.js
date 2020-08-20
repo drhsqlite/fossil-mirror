@@ -20,7 +20,10 @@
   const F = window.fossil, D = F.dom;
   const tdLn = tbl.querySelector('td.line-numbers');
   const lineState = {
-    urlArgs: (window.location.search||'?').replace(/&?\bln=[^&]*/,''),
+    urlArgs: (window.location.search||'?')
+      .replace(/&?\budc=[^&]*/,'') /* "update display prefs cookie" */
+      .replace(/&?\bln=[^&]*/,'') /* inbound line number/range */
+      .replace('?&','?'),
     start: 0, end: 0
   };
 
@@ -40,8 +43,9 @@
         );
         D.append(
           D.clearElement(link),
-          ' ',
-          (ls.length===1 ? 'line ' : 'lines ')+ls.join('-')
+          ' Copy link to '+(
+            ls.length===1 ? 'line ' : 'lines '
+          )+ls.join('-')
         );
       }else{
         D.append(link, "No lines selected.");
@@ -57,7 +61,7 @@
         extractText: ()=>link.dataset.url,
         oncopy: (ev)=>{
           D.flashOnce(ev.target, undefined, ()=>lineTip.hide());
-          F.toast.message("Copied link to clipboard.");
+          // arguably too snazzy: F.toast.message("Copied link to clipboard.");
         }
       });
       this.e.addEventListener('click', ()=>btnCopy.click(), false);
