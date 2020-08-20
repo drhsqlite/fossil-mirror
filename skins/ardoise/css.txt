@@ -951,15 +951,15 @@ span.timelineSelected {
   text-align: left;
   background: #442800
 }
-.timelineSelected {
+tr.timelineSelected {
   background: #663C00;
   box-shadow: 0px 0px 6px rgb(255, 127, 0)
 }
-.timelineSecondary {
+tr.timelineSecondary {
   background: #003C66;
   box-shadow: 0px 0px 6px rgb(0, 127, 255)
 }
-.timelineCurrent {
+tr.timelineCurrent {
   background: #66003C;
   box-shadow: 0px 0px 6px rgb(255, 0, 127)
 }
