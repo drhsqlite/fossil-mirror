@@ -12,16 +12,13 @@ to accomplish a given end without using JavaScript.
 This is not to say that Fossil’s fall-backs for such cases are always as
 elegant and functional as a no-JS purist might wish. That is simply
 because [the vast majority of web users run with JavaScript enabled](#stats),
-and a minority of those run with some kind of conditional JavaScript
-blocking in place. Fossil’s active developers do not deviate from that
+and a minority of those run with some kind of [conditional JavaScript
+blocking](#block) in place. Fossil’s active developers do not deviate from that
 norm enough that we have many no-JS purists among us, so the no-JS case
 doesn’t get as much attention as some might want. We do [accept code
 contributions][cg], and we are philosophically in favor of graceful
 fall-backs, so you are welcome to appoint yourself the position of no-JS
 czar for the Fossil project!
-
-We cover some of the common arguments against JavaScript
-[below](#debate), with our rebuttals to them.
 
 Evil is in actions, not in nouns: we do not believe JavaScript *can*
 be evil. It is an active technology, but the actions that matter here
@@ -64,7 +61,7 @@ ones we’ve heard before and give our stock answers to them here:
     analog telephone modem, this extra script code would download in
     about a second.
 
-    Most JavaScript-based Fossil pages use less JavaScript than that.
+    Most JavaScript-based Fossil pages use less code than that.
 
     Atop that, Fossil 2.12 adds new script delivery methods with
     aggressive caching enabled so that typical page loads will skip
@@ -81,8 +78,8 @@ ones we’ve heard before and give our stock answers to them here:
     aggregate cost of such pages is typically *lower* than the older
     methods based on HTTP POST with a full server round-trip. You can
     expect to recover the cost of the initial page load in 1-2
-    round-trips. If we were to double the amount of JavaScript code, the
-    payoff time would increase to 2-4 round-trips.
+    round-trips. If we were to double the amount of JavaScript code in
+    Fossil, the payoff time would increase to 2-4 round-trips.
 
 2.  “**JavaScript is slow.**”
 
@@ -98,7 +95,7 @@ ones we’ve heard before and give our stock answers to them here:
     their engines fast and competitive.
 
     Once the scripts are cached, Ajax based page updates are faster than
-    the alternative.
+    the alternative, a full HTTP POST round-trip.
 
 3.  <a id="3pjs"></a>“**Third-party JavaScript cannot be trusted.**”
 
@@ -113,7 +110,7 @@ ones we’ve heard before and give our stock answers to them here:
     directly, just as you can hack on its C, SQL, and Tcl code. Fossil
     is free and open source software, under [a single license][2cbsd].
 
-4.  <a id="snoop"></a>“**JavaScript and cookiers are used to snoop on web users.**”
+4.  <a id="snoop"></a>“**JavaScript and cookies are used to snoop on web users.**”
 
     There is no tracking or other snooping technology in Fossil other than
     that necessary for basic security, such as IP address logging on
@@ -150,7 +147,7 @@ ones we’ve heard before and give our stock answers to them here:
     *   ...compiled directly into the `fossil` binary in a
         non-obfuscated form during the build process, so there are no
         third-party servers delivering mysterious, obfuscated JavaScript
-        code to the user.
+        code blobs to the user.
 
     Local administrators can [modify the repository’s skin][cskin] to
     inject additional JavaScript code into pages served by their Fossil
@@ -243,7 +240,7 @@ ones we’ve heard before and give our stock answers to them here:
 
 11. <a id="compat"></a>“**Fossil’s JavaScript code isn’t compatible with my browser.**”
 
-    The Fossil project’s developers aim to remain relatively compatible with
+    The Fossil project’s developers aim to remain compatible with
     the largest portions of the client-side browser base. We use only
     standards-defined JavaScript features which are known to work in the
     overwhelmingly vast majority of browsers going back approximately 5
@@ -283,8 +280,9 @@ ones we’ve heard before and give our stock answers to them here:
 
 ## <a id="uses"></a>Places Where Fossil’s Web UI Uses JavaScript
 
-The remainder of this document will explain how Fossil currently uses
-JavaScript and what it does when these uses are blocked.
+This section documents the areas where Fossil currently uses JavaScript
+and what it does when these uses are blocked. It also gives common
+workarounds where necessary.
 
 
 ### <a id="timeline"></a>Timeline Graph
@@ -318,7 +316,7 @@ diff them” feature.
 ### <a id="wedit"></a>The New Wiki Editor
 
 As of Fossil 2.12, the [Fossil wiki][fwt] document editor requires
-JavaScript, for a few unavoidable reasons.
+JavaScript for a few unavoidable reasons.
 
 First, it allows in-browser previews without losing client-side editor
 state, such as where your cursor is. With the old editor, you had to
@@ -359,11 +357,11 @@ _Graceful Fallback:_ Unlike in the Fossil 2.11 and earlier days, there
 is no longer a script-free wiki editor mode. This is not from lack of
 desire, only because the person who wrote the new wiki editor didn’t
 want to maintain three different editors. (New Ajaxy editor, old
-script-free HTML form based editor, and old WYSIWYG JavaScript-based editor.) If
-someone wants to implement a `<noscript>` alternative to the new wiki
-editor, we will likely accept that [contribution][cg] as long as it
-doensn’t interfere with the new editor. (The same goes for adding a
-WYSIWYG mode to the new Ajaxy wiki editor.)
+script-free HTML form based editor, and the old WYSIWYG JavaScript-based
+editor.) If someone wants to implement a `<noscript>` alternative to the
+new wiki editor, we will likely accept that [contribution][cg] as long
+as it doensn’t interfere with the new editor. (The same goes for adding
+a WYSIWYG mode to the new Ajaxy wiki editor.)
 
 _Workaround:_ You don’t have to use the browser-based wiki editor to
 maintain your repository’s wiki at all. Fossil’s [`wiki` command][fwc]
@@ -371,18 +369,20 @@ lets you manipulate wiki documents from the command line. For example,
 consider this `vi` based workflow:
 
 ```shell
-    $ vi 'My Article.wiki'                   # write, write, write...
+    $ vi 'My Article.wiki'                   # begin work on new article
+      ...write, write, write...
+    :w                                       # save changes to disk copy
     :!fossil create 'My Article' '%'         # current file (%) to new article
       ...write, write, write some more...
-    :w                                       # save changes to disk copy
+    :w                                       # save again
     :!fossil commit 'My Article' '%'         # update article from disk
     :q                                       # done writing for today
 
       ....days later...
     $ vi                                     # work sans named file today
-    :r !fossil wiki export 'My Article' -    # article text into vi buffer
+    :r !fossil wiki export 'My Article' -    # pull article text into vi buffer
       ...write, write, write yet more...
-    :w !fossil wiki commit -                 # update article with buffer
+    :w !fossil wiki commit -                 # vi buffer updates article
 ```
 
 Extending this concept to other text editors is an exercise left to the
