@@ -374,6 +374,75 @@ int ticket_change(const char *zUuid){
 }
 
 /*
+** An authorizer function for the SQL used to initialize the
+** schema for the ticketing system.  Only allow CREATE TABLE and
+** CREATE INDEX for tables whose names begin with "ticket" and
+** changes to tables whose names begin with "ticket".
+*/
+static int ticket_schema_auth(
+  void *pNErr,
+  int eCode,
+  const char *z0,
+  const char *z1,
+  const char *z2,
+  const char *z3
+){
+  switch( eCode ){
+    case SQLITE_CREATE_TABLE: {
+      if( sqlite3_stricmp(z2,"main")!=0
+       && sqlite3_stricmp(z2,"repository")!=0
+      ){
+        goto ticket_schema_error;
+      }
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0 ){
+        goto ticket_schema_error;
+      }
+      break;
+    }
+    case SQLITE_CREATE_INDEX: {
+      if( sqlite3_stricmp(z2,"main")!=0
+       && sqlite3_stricmp(z2,"repository")!=0
+      ){
+        goto ticket_schema_error;
+      }
+      if( sqlite3_strnicmp(z1,"ticket",6)!=0 ){
+        goto ticket_schema_error;
+      }
+      break;
+    }
+    case SQLITE_INSERT:
+    case SQLITE_UPDATE:
+    case SQLITE_DELETE: {
+      if( sqlite3_stricmp(z2,"main")!=0
+       && sqlite3_stricmp(z2,"repository")!=0
+      ){
+        goto ticket_schema_error;
+      }
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0
+       && sqlite3_strnicmp(z0,"sqlite_",7)!=0
+      ){
+        goto ticket_schema_error;
+      }
+      break;
+    }
+    case SQLITE_REINDEX:
+    case SQLITE_TRANSACTION:
+    case SQLITE_READ: {
+      break;
+    }
+    default: {
+      goto ticket_schema_error;
+    }
+  }
+  return SQLITE_OK;
+
+ticket_schema_error:
+  if( pNErr ) *(int*)pNErr  = 1;
+  return SQLITE_DENY;
+}
+
+
+/*
 ** Recreate the TICKET and TICKETCHNG tables.
 */
 void ticket_create_table(int separateConnection){
@@ -386,10 +455,13 @@ void ticket_create_table(int separateConnection){
   zSql = ticket_table_schema();
   if( separateConnection ){
     if( db_transaction_nesting_depth() ) db_end_transaction(0);
+    db_set_authorizer(ticket_schema_auth,0,"Ticket-Schema");
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
+    db_set_authorizer(ticket_schema_auth,0,"Ticket-Schema");
     db_multi_exec("%s", zSql/*safe-for-%s*/);
   }
+  db_clear_authorizer();
   fossil_free(zSql);
 }
 

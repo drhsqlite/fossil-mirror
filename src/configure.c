@@ -142,7 +142,9 @@ static struct {
   { "crnl-glob",              CONFIGSET_PROJ },
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
+#ifdef FOSSIL_LEGACY_ALLOW_SYMLINKS
   { "allow-symlinks",         CONFIGSET_PROJ },
+#endif
   { "dotfiles",               CONFIGSET_PROJ },
   { "parent-project-code",    CONFIGSET_PROJ },
   { "parent-project-name",    CONFIGSET_PROJ },

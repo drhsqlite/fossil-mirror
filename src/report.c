@@ -231,11 +231,11 @@ static int report_query_authorizer(
 ** Activate the query authorizer
 */
 void report_restrict_sql(char **pzErr){
-  sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)pzErr);
+  db_set_authorizer(report_query_authorizer,(void*)pzErr,"Ticket-Report");
   sqlite3_limit(g.db, SQLITE_LIMIT_VDBE_OP, 10000);
 }
 void report_unrestrict_sql(void){
-  sqlite3_set_authorizer(g.db, 0, 0);
+  db_clear_authorizer();
 }
 
 
@@ -681,7 +681,7 @@ static int generate_html(
     /* Turn off the authorizer.  It is no longer doing anything since the
     ** query has already been prepared.
     */
-    sqlite3_set_authorizer(g.db, 0, 0);
+    db_clear_authorizer();
 
     /* Figure out the number of columns, the column that determines background
     ** color, and whether or not this row of data is represented by multiple

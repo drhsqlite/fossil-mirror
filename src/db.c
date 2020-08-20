@@ -125,6 +125,9 @@ static struct DbLocalData {
   int nPriorChanges;        /* sqlite3_total_changes() at transaction start */
   const char *zStartFile;   /* File in which transaction was started */
   int iStartLine;           /* Line of zStartFile where transaction started */
+  int (*xAuth)(void*,int,const char*,const char*,const char*,const char*);
+  void *pAuthArg;           /* Argument to the authorizer */
+  const char *zAuthName;    /* Name of the authorizer */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -308,6 +311,32 @@ void db_commit_hook(int (*x)(void), int sequence){
   db.aHook[db.nCommitHook].sequence = sequence;
   db.aHook[db.nCommitHook].xHook = x;
   db.nCommitHook++;
+}
+
+/*
+** Set or unset the query authorizer callback function
+*/
+void db_set_authorizer(
+  int(*xAuth)(void*,int,const char*,const char*,const char*,const char*),
+  void *pArg,
+  const char *zName /* for tracing */
+){
+  if( db.xAuth ){
+    fossil_panic("multiple active db_set_authorizer() calls");
+  }
+  if( g.db ) sqlite3_set_authorizer(g.db, xAuth, pArg);
+  db.xAuth = xAuth;
+  db.pAuthArg = pArg;
+  db.zAuthName = zName;
+  if( g.fSqlTrace ) fossil_trace("-- set authorizer %s\n", zName);
+}
+void db_clear_authorizer(void){
+  if( db.zAuthName && g.fSqlTrace ){
+    fossil_trace("-- discontinue authorizer %s\n", db.zAuthName);
+  }
+  if( g.db ) sqlite3_set_authorizer(g.db, 0, 0);
+  db.xAuth = 0;
+  db.pAuthArg = 0;
 }
 
 #if INTERFACE
@@ -837,30 +866,33 @@ void db_init_database(
   const char *zSchema,     /* First part of schema */
   ...                      /* Additional SQL to run.  Terminate with NULL. */
 ){
-  sqlite3 *db;
+  sqlite3 *xdb;
   int rc;
   const char *zSql;
   va_list ap;
 
-  db = db_open(zFileName ? zFileName : ":memory:");
-  sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
-  rc = sqlite3_exec(db, zSchema, 0, 0, 0);
+  xdb = db_open(zFileName ? zFileName : ":memory:");
+  sqlite3_exec(xdb, "BEGIN EXCLUSIVE", 0, 0, 0);
+  if( db.xAuth ){
+    sqlite3_set_authorizer(xdb, db.xAuth, db.pAuthArg);
+  }
+  rc = sqlite3_exec(xdb, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
-    db_err("%s", sqlite3_errmsg(db));
+    db_err("%s", sqlite3_errmsg(xdb));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
-    rc = sqlite3_exec(db, zSql, 0, 0, 0);
+    rc = sqlite3_exec(xdb, zSql, 0, 0, 0);
     if( rc!=SQLITE_OK ){
-      db_err("%s", sqlite3_errmsg(db));
+      db_err("%s", sqlite3_errmsg(xdb));
     }
   }
   va_end(ap);
-  sqlite3_exec(db, "COMMIT", 0, 0, 0);
+  sqlite3_exec(xdb, "COMMIT", 0, 0, 0);
   if( zFileName || g.db!=0 ){
-    sqlite3_close(db);
+    sqlite3_close(xdb);
   }else{
-    g.db = db;
+    g.db = xdb;
   }
 }
 
@@ -1713,7 +1745,7 @@ const char *db_repository_filename(void){
 ** is "on".  When on Windows, this always returns false.
 */
 int db_allow_symlinks_by_default(void){
-#if defined(_WIN32)
+#if defined(_WIN32) || !defined(FOSSIL_LEGACY_ALLOW_SYMLINKS)
   return 0;
 #else
   return 1;
@@ -2006,6 +2038,7 @@ void db_must_be_within_tree(void){
 void db_close(int reportErrors){
   sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
+  sqlite3_set_authorizer(g.db, 0, 0);
   if( g.fSqlStats ){
     int cur, hiwtr;
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
@@ -2035,13 +2068,16 @@ void db_close(int reportErrors){
   while( db.pAllStmt ){
     db_finalize(db.pAllStmt);
   }
-  if( db.nBegin && reportErrors ){
-    fossil_warning("Transaction started at %s:%d never commits",
-                   db.zStartFile, db.iStartLine);
+  if( db.nBegin ){
+    if( reportErrors ){
+      fossil_warning("Transaction started at %s:%d never commits",
+                     db.zStartFile, db.iStartLine);
+    }
     db_end_transaction(1);
   }
   pStmt = 0;
-  g.dbIgnoreErrors++; /* Stop "database locked" warnings from PRAGMA optimize */
+  sqlite3_busy_timeout(g.db, 0);
+  g.dbIgnoreErrors++; /* Stop "database locked" warnings */
   sqlite3_exec(g.db, "PRAGMA optimize", 0, 0, 0);
   g.dbIgnoreErrors--;
   db_close_config();
@@ -2085,6 +2121,7 @@ void db_panic_close(void){
     sqlite3_wal_checkpoint(g.db, 0);
     rc = sqlite3_close(g.db);
     if( g.fSqlTrace ) fossil_trace("-- sqlite3_close(%d)\n", rc);
+    db_clear_authorizer();
   }
   g.db = 0;
   g.repositoryOpen = 0;
@@ -2839,6 +2876,7 @@ int db_get_boolean(const char *zName, int dflt){
   fossil_free(zVal);
   return dflt;
 }
+#ifdef FOSSIL_LEGACY_ALLOW_SYMLINKS
 int db_get_versioned_boolean(const char *zName, int dflt){
   char *zVal = db_get_versioned(zName, 0);
   if( zVal==0 ) return dflt;
@@ -2846,6 +2884,7 @@ int db_get_versioned_boolean(const char *zName, int dflt){
   if( is_false(zVal) ) return 0;
   return dflt;
 }
+#endif /* FOSSIL_LEGACY_ALLOW_SYMLINKS */
 char *db_lget(const char *zName, const char *zDefault){
   return db_text(zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
@@ -3027,7 +3066,9 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
+#ifdef FOSSIL_LEGACY_ALLOW_SYMLINKS
   int allowSymlinks;
+#endif
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
@@ -3058,6 +3099,7 @@ void cmd_open(void){
     }
   }
 
+#ifdef FOSSIL_LEGACY_ALLOW_SYMLINKS
   if( g.zOpenRevision ){
     /* Since the repository is open and we know the revision now,
     ** refresh the allow-symlinks flag.  Since neither the local
@@ -3071,6 +3113,7 @@ void cmd_open(void){
   }else{
     allowSymlinks = -1; /* Use non-versioned settings only. */
   }
+#endif
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
@@ -3084,6 +3127,7 @@ void cmd_open(void){
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local(0);
+#ifdef FOSSIL_LEGACY_ALLOW_SYMLINKS
   if( allowSymlinks>=0 ){
     /* Use the value from the versioned setting, which was read
     ** prior to opening the local checkout (i.e. which is most
@@ -3100,6 +3144,7 @@ void cmd_open(void){
     g.allowSymlinks = db_get_boolean("allow-symlinks",
                                      db_allow_symlinks_by_default());
   }
+#endif /* FOSSIL_LEGACY_ALLOW_SYMLINKS */
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
   db_set_checkout(0);
@@ -3211,7 +3256,25 @@ struct Setting {
 ** When the admin-log setting is enabled, configuration changes are recorded
 ** in the "admin_log" table of the repository.
 */
-#if defined(_WIN32)
+#if !defined(FOSSIL_LEGACY_ALLOW_SYMLINKS)
+/*
+** SETTING: allow-symlinks  boolean default=off
+**
+** When allow-symlinks is OFF (which is the default and recommended setting)
+** symbolic links are treated like text files that contain a single line of
+** content which is the name of their target.  If allow-symlinks is ON,
+** the symbolic links are actually followed.
+**
+** The use of symbolic links is dangerous.  If you checkout a maliciously
+** crafted checkin that contains symbolic links, it is possible that files
+** outside of the working directory might be overwritten.
+**
+** Keep this setting OFF unless you have a very good reason to turn it
+** on and you implicitly trust the integrity of the repositories you
+** open.
+*/
+#endif
+#if defined(_WIN32) && defined(FOSSIL_LEGACY_ALLOW_SYMLINKS)
 /*
 ** SETTING: allow-symlinks  boolean default=off versionable
 **
@@ -3222,7 +3285,7 @@ struct Setting {
 ** object to which the symbolic link points.
 */
 #endif
-#if !defined(_WIN32)
+#if !defined(_WIN32) && defined(FOSSIL_LEGACY_ALLOW_SYMLINKS)
 /*
 ** SETTING: allow-symlinks  boolean default=on versionable
 **

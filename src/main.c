@@ -1200,6 +1200,9 @@ void fossil_version_blob(
 #else
   blob_append(pOut, "FOSSIL_STATIC_BUILD\n", -1);
 #endif
+#if defined(FOSSIL_LEGACY_ALLOW_SYMLINKS)
+  blob_append(pOut, "FOSSIL_LEGACY_ALLOW_SYMLINKS\n", -1);
+#endif
 #if defined(HAVE_PLEDGE)
   blob_append(pOut, "HAVE_PLEDGE\n", -1);
 #endif
