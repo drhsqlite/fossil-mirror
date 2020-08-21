@@ -1,5 +1,5 @@
-C Extend\stranslator\sto\ssupport\stwo-\sand\sthree-argument\sprintf\sspecifiers,\se.g.\s"%.*s(len)(str)"\sor\s"%*.*d(width)(prec)(val)"
-D 2020-08-21T22:58:03.391
+C Rework\sforum\spost\sserial\sIDs\sto\sinclude\sa\srevision\snumber\swhen\sedited.\s\sThis\sfixes\sbuggy\ssids\sdisplayed\sin\sthread\s[https://fossil-scm.org/forum/forumpost/6737a387fe?t=c&threadtable].
+D 2020-08-21T23:20:22.771
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c 23409b3594cdf6141ca637c05d5615cc672bf2da6b2e4d60bc97a29e3eff631a
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c e4b9310a41d274b479be0d30c9000c2b2eea79a8ad7b7e93a3fc542903cfe6f1
+F src/forum.c 87725908e732263bc836d5747d91c86b3eab587cdab23324100c61abf3cf94c7
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
@@ -635,7 +635,7 @@ F src/url.c cb7f47aa963273e55a50a050e76d0d5b949830d166c30c11e41a687bbf879034
 F src/user.c 2c4af18fb4cf27bb0fcfddbbab3975b37bc6300d0f4cfc8d655cdcd45e0d584f
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c de0723ef68f92958017ee60c5dc0e6b2f4121c6deac0f8a32051a1e88f78d46c
+F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8d90b1f4fe63bb607b7d5b4cab6ab1b84d63bb0ca0c96654b37488f0c8f691b
-R 74925a0e4cdec593055f36308cda7d21
+P df7b0c31868613c6560463e63c624ffcce54171d81041fc855752ccb6eb6a992
+R 72e34b584bb15bae39567f12441f1464
 U andygoth
-Z 6718887ab38db841437f04c678e3e7c1
+Z c91811143efb6a1522388470718ed527

@@ -35,6 +35,7 @@
 struct ForumEntry {
   int fpid;              /* rid for this entry */
   int sid;               /* Serial ID number */
+  int rev;               /* Revision number */
   char *zUuid;           /* Artifact hash */
   ForumEntry *pIrt;      /* This entry replies to pIrt */
   ForumEntry *pEditHead; /* Original, unedited entry */
@@ -44,6 +45,7 @@ struct ForumEntry {
   ForumEntry *pNext;     /* Next in chronological order */
   ForumEntry *pPrev;     /* Previous in chronological order */
   ForumEntry *pDisplay;  /* Next in display order */
+  int nEdit;             /* Number of edits to this entry */
   int nIndent;           /* Number of levels of indentation for this entry */
 };
 
@@ -177,7 +179,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     firt = db_column_int(&q, 1);
     fprev = db_column_int(&q, 2);
     pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
-    pEntry->sid = sid++;
+    if( !fprev ) pEntry->sid = sid++;
     pEntry->pPrev = pThread->pLast;
     pEntry->pNext = 0;
     if( pThread->pLast==0 ){
@@ -185,6 +187,10 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     }else{
       pThread->pLast->pNext = pEntry;
     }
+    pThread->pLast = pEntry;
+
+    /* Find the in-reply-to post.  Default to the topic post if the replied-to
+    ** post cannot be found. */
     if( firt ){
       pEntry->pIrt = pThread->pFirst;
       for(p=pThread->pFirst; p; p=p->pNext){
@@ -194,16 +200,21 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
         }
       }
     }
+
+    /* Maintain the linked list of post edits. */
     if( fprev ){
       p = forumentry_backward(pEntry->pPrev, fprev);
       p->pEditNext = pEntry;
+      pEntry->sid = p->sid;
+      pEntry->rev = p->rev+1;
+      pEntry->nEdit = p->nEdit+1;
       pEntry->pEditPrev = p;
       pEntry->pEditHead = p->pEditHead ? p->pEditHead : p;
       for(; p; p=p->pEditPrev ){
+        p->nEdit = pEntry->nEdit;
         p->pEditTail = pEntry;
       }
     }
-    pThread->pLast = pEntry;
   }
   db_finalize(&q);
 
@@ -289,9 +300,9 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid      fpid      pIrt pEditPrev pEditTail hash\n");
+  " sid  rev      fpid      pIrt pEditPrev pEditTail hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%4d %9d %9d %9d %9d %8.8s\n", p->sid,
+    fossil_print("%4d %4d %9d %9d %9d %9d %8.8s\n", p->sid, p->rev,
        p->fpid, p->pIrt ? p->pIrt->fpid : 0,
        p->pEditPrev ? p->pEditPrev->fpid : 0,
        p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
@@ -414,7 +425,6 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     int sameUser;         /* True if author is also the reader */
     const char *zUuid;
     char *zDisplayName;   /* The display name */
-    int sid;
 
     pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
@@ -430,13 +440,17 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
-    sid = p->pEditPrev ? p->pEditPrev->sid : p->sid;
-    @ <h3 class='forumPostHdr'>(%d(sid)) By %h(zDisplayName) on %h(zDate)
+    @ <h3 class='forumPostHdr'>(%d(p->sid)\
+    if( p->nEdit ){
+      @ .%.*d(fossil_num_digits(p->nEdit))(p->rev)\
+    }
+    @ ) By %h(zDisplayName) on %h(zDate)
     fossil_free(zDisplayName);
     fossil_free(zDate);
     if( p->pEditPrev ){
       @ edit of %z(href("%R/forumpost/%S?t=%c",p->pEditPrev->zUuid,cMode))\
-      @ %d(p->pEditPrev->sid)</a>
+      @ %d(p->pEditPrev->sid)\
+      @ .%.*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
     }
     if( g.perm.Debug ){
       @ <span class="debug">\
@@ -444,12 +458,17 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     }
     if( p->pIrt ){
       @ in reply to %z(href("%R/forumpost/%S?t=%c",p->pIrt->zUuid,cMode))\
-      @ %d(p->pIrt->sid)</a>
+      @ %d(p->pIrt->sid)\
+      if( p->pIrt->nEdit ){
+        @ .%.*d(fossil_num_digits(p->pIrt->nEdit))(p->pIrt->rev)\
+      }
+      @ </a>
     }
     zUuid = p->zUuid;
     if( p->pEditTail ){
       @ updated by %z(href("%R/forumpost/%S?t=%c",p->pEditTail->zUuid,cMode))\
-      @ %d(p->pEditTail->sid)</a>
+      @ %d(p->pEditTail->sid)\
+      @ .%.*d(fossil_num_digits(p->nEdit))(p->pEditTail->rev)</a>
       zUuid = p->pEditTail->zUuid;
     }
     if( p->fpid!=target ){
@@ -510,10 +529,10 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
   if( PB("threadtable") ){
     @ <hr>
     @ <table border="1" cellpadding="3" cellspacing="0">
-    @ <tr><th>sid<th>fpid<th>pIrt<th>pEditHead<th>pEditTail\
+    @ <tr><th>sid<th>rev<th>fpid<th>pIrt<th>pEditHead<th>pEditTail\
     @ <th>pEditNext<th>pEditPrev<th>hash
     for(p=pThread->pFirst; p; p=p->pNext){
-      @ <tr><td>%d(p->sid)<td>%d(p->fpid)\
+      @ <tr><td>%d(p->sid)<td>%d(p->rev)<td>%d(p->fpid)\
       @ <td>%d(p->pIrt?p->pIrt->fpid:0)\
       @ <td>%d(p->pEditHead?p->pEditHead->fpid:0)\
       @ <td>%d(p->pEditTail?p->pEditTail->fpid:0)\
@@ -557,7 +576,11 @@ static void forum_display_history(int froot, int target, int bRawMode){
     @ <div id="forum%d(p->fpid)" class="forumTime">
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
-    @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(zDisplayName) on %h(zDate)
+    @ <h3 class='forumPostHdr'>(%d(p->sid)\
+    if( p->nEdit ){
+      @ .%.*d(fossil_num_digits(p->nEdit))(p->rev)\
+    }
+    @ ) By %h(zDisplayName) on %h(zDate)
     fossil_free(zDisplayName);
     fossil_free(zDate);
     if( g.perm.Debug ){
@@ -566,7 +589,11 @@ static void forum_display_history(int froot, int target, int bRawMode){
     }
     if( p->pIrt && cnt==1 ){
       @ in reply to %z(href("%R/forumpost/%S?t=%c",p->pIrt->zUuid,cMode))\
-      @ %d(p->pIrt->sid)</a>
+      @ %d(p->pIrt->sid)\
+      if( p->pIrt->nEdit ){
+        @ .%.*d(fossil_num_digits(p->pIrt->nEdit))(p->pIrt->rev)\
+      }
+      @ </a>
     }
     zUuid = p->zUuid;
     @ %z(href("%R/forumpost/%S?t=c",zUuid))[link]</a>
