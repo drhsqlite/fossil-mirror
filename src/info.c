@@ -2308,13 +2308,15 @@ void artifact_page(void){
       blob_zero(&path);
       hyperlinked_path(zName, &path, zCI, "dir", "", LINKPATH_FINFO);
       zPath = blob_str(&path);
-      @ <h2>File %s(zPath) \
+      @ <h2>File %s(zPath) artifact \
+      style_copy_button(1,"hash-fid",0,0,"%z%S</a> ",
+           href("%R/info/%s",zUuid),zUuid);
       if( isBranchCI ){
         @ on branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a></h2>
       }else if( isSymbolicCI ){
-        @ as of check-in %z(href("%R/info/%!S",zCIUuid))%s(zCI)</a></h2>
+        @ part of check-in %z(href("%R/info/%!S",zCIUuid))%s(zCI)</a></h2>
       }else{
-        @ as of check-in [%z(href("%R/info/%!S",zCIUuid))%S(zCIUuid)</a>]</h2>
+        @ part of check-in %z(href("%R/info/%!S",zCIUuid))%S(zCIUuid)</a></h2>
       }
       blob_reset(&path);
     }

@@ -857,7 +857,7 @@
         //commit: E('#wikiedit-tab-commit')
       }
     };
-    P.tabs = new fossil.TabManager(D.clearElement(P.e.tabContainer));
+    P.tabs = new F.TabManager(D.clearElement(P.e.tabContainer));
     P.tabs.e.container.insertBefore(
       /* Move the status bar between the tab buttons and
          tab panels. Seems to be the best fit in terms of
@@ -1324,7 +1324,7 @@
         });
       },
       onerror: (e)=>{
-        fossil.fetch.onerror(e);
+        F.fetch.onerror(e);
         callback("Error fetching preview: "+e);
       }
     });

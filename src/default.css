@@ -1252,7 +1252,7 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   border-radius: 0.25em;
   position: absolute;
   display: inline-block;
-  z-index: 100;
+  z-index: 19/*below default skin's hamburger popup*/;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.75);
   background-color: inherit;
 }

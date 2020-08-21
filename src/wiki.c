@@ -727,8 +727,20 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 ** sandbox page then a "fake" object is emitted, as the wikiajax API
 ** does not permit saving the sandbox.
 **
-** Returns true on success, false on error, and on error it
-** queues up a JSON-format error response.
+** If includeLeadingComma is true then a comma will be emitted
+** preceeding the object. This parameter is a bit of a hack to allow
+** wiki page list generation to recover from an unusual (so far unique
+** to one repo) error mode.
+**
+** Returns true on success, false on error. Its behaviour on error
+** depends on the 4th argument: if it's true, this function simply
+** returns false, else it queues up a JSON response and returns false.
+** The intention of this flag is to avoid a weird corner case seen, so
+** far, only on the main fossil repo (not clones of it) in which
+** loading fails for a page named "Security Desk Technician". The
+** hypothesis is that that page was once shunned on the core repo, but
+** a reference to it still exists in the tables from which we pull the
+** wiki list.
 **
 ** Output JSON format:
 **
@@ -745,7 +757,9 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 ** If includeContent is false then the content member is elided.
 */
 static int wiki_ajax_emit_page_object(const char *zPageName,
-                                      int includeContent){
+                                      int includeContent,
+                                      int includeLeadingComma,
+                                      int ignoreLoadError){
   Manifest * pWiki = 0;
   char * zUuid;
 
@@ -753,6 +767,9 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
     char * zMimetype =
       db_get("sandbox-mimetype","text/x-fossil-wiki");
     char * zBody = db_get("sandbox","");
+    if(includeLeadingComma){
+      CX(",");
+    }
     CX("{\"name\": %!j, \"type\": \"sandbox\", "
        "\"mimetype\": %!j, \"version\": null, \"parent\": null",
        zPageName, zMimetype);
@@ -765,10 +782,15 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
     fossil_free(zBody);
     return 1;
   }else if( !wiki_fetch_by_name(zPageName, 0, 0, &pWiki) ){
-    ajax_route_error(404, "Wiki page could not be loaded: %s",
-                     zPageName);
+    if(ignoreLoadError!=0){
+      ajax_route_error(404, "Wiki page could not be loaded: %s",
+                       zPageName);
+    }
     return 0;
   }else{
+    if(includeLeadingComma){
+      CX(",");
+    }
     zUuid = rid_to_uuid(pWiki->rid);
     CX("{\"name\": %!j, \"type\": %!j, "
        "\"version\": %!j, "
@@ -855,7 +877,7 @@ static void wiki_ajax_route_save(void){
   cgi_set_content_type("application/json");
   db_begin_transaction();
   wiki_cmd_commit(zPageName, parentRid, &content, zMimetype, 0);
-  rollback = wiki_ajax_emit_page_object(zPageName, 1) ? 0 : 1;
+  rollback = wiki_ajax_emit_page_object(zPageName, 1, 0, 0) ? 0 : 1;
   db_end_transaction(rollback);
 }
 
@@ -878,7 +900,7 @@ static void wiki_ajax_route_fetch(void){
     return;
   }
   cgi_set_content_type("application/json");
-  wiki_ajax_emit_page_object(zPageName, 1);
+  wiki_ajax_emit_page_object(zPageName, 1, 0, 0);
 }
 
 /*
@@ -986,13 +1008,14 @@ static void wiki_render_page_list_json(int verbose, int includeContent){
   CX("[");
   while( SQLITE_ROW==db_step(&q) ){
     char const * zName = db_column_text(&q,0);
-    if(n++){
-      CX(",");
-    }
     if(verbose==0){
+      if(n++){
+        CX(",");
+      }
       CX("%!j", zName);
     }else{
-      wiki_ajax_emit_page_object(zName, includeContent);
+      wiki_ajax_emit_page_object(zName, includeContent,
+                                 n++>0, 1);
     }
   }
   CX("]");

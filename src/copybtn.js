@@ -82,7 +82,7 @@ function clickCopyButton(e){
 /* Create a temporary <textarea> element and copy the contents to clipboard. */
 function copyTextToClipboard(text){
   if( window.clipboardData && window.clipboardData.setData ){
-    clipboardData.setData('Text',text);
+    window.clipboardData.setData('Text',text);
   }else{
     var x = document.createElement("textarea");
     x.style.position = 'fixed';

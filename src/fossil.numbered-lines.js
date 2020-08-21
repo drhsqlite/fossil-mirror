@@ -27,7 +27,7 @@
     start: 0, end: 0
   };
 
-  const lineTip = new fossil.PopupWidget({
+  const lineTip = new F.PopupWidget({
     style: {
       cursor: 'pointer'
     },

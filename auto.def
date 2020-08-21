@@ -178,8 +178,11 @@ if {![opt-bool internal-sqlite]} {
       user-error "unable to compile SQLite compatibility test program"
     }
     set err [catch {exec-with-stderr ./conftest__} result errinfo]
-    if {$err} {
-      user-error $result
+    if {[get-define build] eq [get-define host]} {
+      set err [catch {exec-with-stderr ./conftest__} result errinfo]
+      if {$err} {
+        user-error $result
+      }
     }
     file delete ./conftest__
   }

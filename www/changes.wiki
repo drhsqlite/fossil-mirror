@@ -6,8 +6,9 @@
   *  <i>TBD...</i>
 
 <a name='v2_12'></a>
-<h2>Changes for Version 2.12 (2020-08-16)</h2>
+<h2>Changes for Version 2.12.1 (2020-08-20)</h2>
 
+  *  (2.12.1): Fix client-side vulnerabilities discovered by Max Justicz.
   *  Security fix in the "[/help?cmd=git|fossil git export]" command.
      The same fix is also backported to version 2.10.1 and 2.11.1.
      New "safety-net" features were added to prevent similar problems
@@ -87,6 +88,8 @@
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (2020-05-25)</h2>
 
+  *  (2.11.2): Backport security fixes from 2.12.1
+  *  (2.11.1): Backport security fix for the "fossil git export" command.
   *  Support [/md_rules|Markdown] in the default ticket configuration.
   *  Timestamp strings in [./checkin_names.wiki|object names]
      can now omit punctation.  So, for example, "202004181942" and
@@ -176,6 +179,8 @@
 <a name='v2_10'></a>
 <h2>Changes for Version 2.10 (2019-10-04)</h2>
 
+  *  (2.10.2): backport security fixes from 2.12.1
+  *  (2.10.1): backport security fix for the "fossil git export" command.
   *  Added support for [./serverext.wiki|CGI-based Server Extensions].
   *  Added the [/help?cmd=repolist-skin|repolist-skin] setting used to
      add style to repository list pages.
