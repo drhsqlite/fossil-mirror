@@ -40,7 +40,7 @@ struct ForumEntry {
   int nReply;            /* Number of replies to this entry */
   int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
-  ForumEntry *pLeaf;     /* Most recent edit for this entry */
+  ForumEntry *pEditLeaf; /* Most recent edit for this entry */
   ForumEntry *pEditNext; /* This entry is edited by pEditNext */
   ForumEntry *pEditPrev; /* This entry is an edit of pEditPrev */
   ForumEntry *pNext;     /* Next in chronological order */
@@ -195,7 +195,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   bag_clear(&seen);
 
   /* Establish which entries are the latest edit.  After this loop
-  ** completes, entries that have non-NULL pLeaf should not be
+  ** completes, entries that have non-NULL pEditLeaf should not be
   ** displayed.
   */
   for(pEntry=pThread->pFirst; pEntry; pEntry=pEntry->pNext){
@@ -206,7 +206,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
       pEntry->pEditPrev = p;
       while( p ){
         pBase = p;
-        p->pLeaf = pEntry;
+        p->pEditLeaf = pEntry;
         p = pBase->pEditPrev;
       }
       for(p=pEntry->pNext; p; p=p->pNext){
@@ -297,17 +297,17 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid      fpid      firt     fprev     mfirt     pLeaf  nReply  hash\n");
+  " sid      fpid      firt     fprev     mfirt     pEditLeaf  nReply  hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%4d %9d %9d %9d %9d %9d  %6d  %8.8s\n", p->sid,
-       p->fpid, p->firt, p->fprev, p->mfirt, p->pLeaf ? p->pLeaf->fpid : 0,
-       p->nReply, p->zUuid);
+    fossil_print("%4d %9d %9d %9d %11d %9d  %6d  %8.8s\n", p->sid,
+       p->fpid, p->firt, p->fprev, p->mfirt,
+       p->pEditLeaf ? p->pEditLeaf->fpid : 0, p->nReply, p->zUuid);
   }
   fossil_print("\nDisplay\n");
   for(p=pThread->pDisplay; p; p=p->pDisplay){
     fossil_print("%*s", (p->nIndent-1)*3, "");
-    if( p->pLeaf ){
-      fossil_print("%d->%d\n", p->fpid, p->pLeaf->fpid);
+    if( p->pEditLeaf ){
+      fossil_print("%d->%d\n", p->fpid, p->pEditLeaf->fpid);
     }else{
       fossil_print("%d\n", p->fpid);
     }
@@ -427,7 +427,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     if( pPost==0 ) continue;
     if( p->fpid==target ){
       @ <div id="forum%d(p->fpid)" class="forumTime forumSel">
-    }else if( p->pLeaf!=0 ){
+    }else if( p->pEditLeaf!=0 ){
       @ <div id="forum%d(p->fpid)" class="forumTime forumObs">
     }else{
       @ <div id="forum%d(p->fpid)" class="forumTime">
@@ -458,10 +458,10 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
       }
     }
     zUuid = p->zUuid;
-    if( p->pLeaf ){
-      @ updated by %z(href("%R/forumpost/%S?t=%c",p->pLeaf->zUuid,cMode))\
-      @ %d(p->pLeaf->sid)</a>
-      zUuid = p->pLeaf->zUuid;
+    if( p->pEditLeaf ){
+      @ updated by %z(href("%R/forumpost/%S?t=%c",p->pEditLeaf->zUuid,cMode))\
+      @ %d(p->pEditLeaf->sid)</a>
+      zUuid = p->pEditLeaf->zUuid;
     }
     if( p->fpid!=target ){
       @ %z(href("%R/forumpost/%S?t=%c",zUuid,cMode))[link]</a>
@@ -478,14 +478,14 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
       const char *zMimetype;
       if( bRawMode ){
         zMimetype = "text/plain";
-      }else if( p->pLeaf!=0 ){
+      }else if( p->pEditLeaf!=0 ){
         zMimetype = "text/plain";
       }else{
         zMimetype = pPost->zMimetype;
       }
       forum_render(0, zMimetype, pPost->zWiki, 0, 1);
     }
-    if( g.perm.WrForum && p->pLeaf==0 ){
+    if( g.perm.WrForum && p->pEditLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
       @ <div><form action="%R/forumedit" method="POST">
@@ -521,11 +521,12 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
   if( PB("threadtable") ){
     @ <hr>
     @ <table border="1" cellpadding="3" cellspacing="0">
-    @ <tr><th>sid<th>fpid<th>firt<th>fprev<th>mfirt<th>pLeaf<th>nReply<th>hash
+    @ <tr><th>sid<th>fpid<th>firt<th>fprev<th>mfirt<th>pEditLeaf<th>nReply\
+    @     <th>hash
     for(p=pThread->pFirst; p; p=p->pNext){
       @ <tr><td>%d(p->sid)<td>%d(p->fpid)<td>%d(p->firt)\
       @ <td>%d(p->fprev)<td>%d(p->mfirt)\
-      @ <td>%d(p->pLeaf?p->pLeaf->fpid:0)<td>%d(p->nReply)\
+      @ <td>%d(p->pEditLeaf?p->pEditLeaf->fpid:0)<td>%d(p->nReply)\
       @ <td>%S(p->zUuid)</tr>
     }
     @ </table>
@@ -541,11 +542,11 @@ static void forum_display_history(int froot, int target, int bRawMode){
   ForumEntry *p;
   int notAnon = login_is_individual();
   char cMode = bRawMode ? 'r' : 'c';
-  ForumEntry *pLeaf = 0;
+  ForumEntry *pEditLeaf = 0;
   int cnt = 0;
   for(p=pThread->pFirst; p; p=p->pNext){
     if( p->fpid==target ){
-      pLeaf = p->pLeaf ? p->pLeaf : p;
+      pEditLeaf = p->pEditLeaf ? p->pEditLeaf : p;
       break;
     }
   }
@@ -557,7 +558,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
     const char *zUuid;
     char *zDisplayName;   /* The display name */
 
-    if( p->fpid!=pLeaf->fpid && p->pLeaf!=pLeaf ) continue;
+    if( p->fpid!=pEditLeaf->fpid && p->pEditLeaf!=pEditLeaf ) continue;
     cnt++;
     pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
@@ -593,7 +594,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
       forum_render(0, bRawMode?"text/plain":pPost->zMimetype, pPost->zWiki,
                    0, 1);
     }
-    if( g.perm.WrForum && p->pLeaf==0 ){
+    if( g.perm.WrForum && p->pEditLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
       @ <div><form action="%R/forumedit" method="POST">
@@ -655,9 +656,9 @@ static int forum_display_hierarchical(int froot, int target){
     int sameUser;          /* True if reader is also the poster */
     char *zDisplayName;    /* User name to be displayed */
     pOPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
-    if( p->pLeaf ){
-      fpid = p->pLeaf->fpid;
-      zUuid = p->pLeaf->zUuid;
+    if( p->pEditLeaf ){
+      fpid = p->pEditLeaf->fpid;
+      zUuid = p->pEditLeaf->zUuid;
       pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     }else{
       fpid = p->fpid;
@@ -685,7 +686,7 @@ static int forum_display_hierarchical(int froot, int target){
       @ <span class="debug">\
       @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
     }
-    if( p->pLeaf ){
+    if( p->pEditLeaf ){
       zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
       if( fossil_strcmp(pOPost->zUser,pPost->zUser)==0 ){
         @ and edited on %h(zDate)
@@ -695,8 +696,8 @@ static int forum_display_hierarchical(int froot, int target){
       fossil_free(zDate);
       if( g.perm.Debug ){
         @ <span class="debug">\
-        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">\
-        @ (artifact-%d(p->pLeaf->fpid))</a></span>
+        @ <a href="%R/artifact/%h(p->pEditLeaf->zUuid)">\
+        @ (artifact-%d(p->pEditLeaf->fpid))</a></span>
       }
       @ %z(href("%R/forumpost/%S?t=y",p->zUuid))[history]</a>
       manifest_destroy(pOPost);
