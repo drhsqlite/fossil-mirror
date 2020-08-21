@@ -49,18 +49,17 @@
 ** a few special cases such as the "fossil test-tarball" command when we never
 ** want to follow symlinks.
 **
-** If RepoFILE is used and if the allow-symlinks setting is true and if
-** the object is a symbolic link, then the object is treated like an ordinary
-** file whose content is name of the object to which the symbolic link
-** points.
+**   ExtFILE      Symbolic links always refer to the object to which the
+**                link points.  Symlinks are never recognized as symlinks but
+**                instead always appear to the the target object.
 **
-** If ExtFILE is used or allow-symlinks is false, then operations on a
-** symbolic link are the same as operations on the object to which the
-** symbolic link points.
+**   SymFILE      Symbolic links always appear to be files whose name is
+**                the target pathname of the symbolic link.
 **
-** SymFILE is like RepoFILE except that it always uses the target filename of
-** a symbolic link as the content, instead of the content of the object
-** that the symlink points to.  SymFILE acts as if allow-symlinks is always ON.
+**   RepoFILE     Like symfile is allow-symlinks is true, or like
+**                ExtFile if allow-symlinks is false.  In other words,
+**                symbolic links are only recognized as something different
+**                from files or directories if allow-symlinks is true.
 */
 #define ExtFILE    0  /* Always follow symlinks */
 #define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
@@ -136,9 +135,12 @@ static int fossil_stat(
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( eFType>=RepoFILE && (eFType==SymFILE || db_allow_symlinks()) ){
+  if( (eFType=RepoFILE && db_allow_symlinks())
+   || eFType==SymFILE ){
+    /* Symlinks look like files whose content is the name of the target */
     rc = lstat(zMbcs, buf);
   }else{
+    /* Symlinks look like the object to which they point */
     rc = stat(zMbcs, buf);
   }
 #else
@@ -318,7 +320,8 @@ int file_isexe(const char *zFilename, int eFType){
 ** Return TRUE if the named file is a symlink and symlinks are allowed.
 ** Return false for all other cases.
 **
-** This routines RepoFILE - that zFilename is always a file under management.
+** This routines assumes RepoFILE - that zFilename is always a file
+** under management.
 **
 ** On Windows, always return False.
 */
