@@ -243,6 +243,7 @@ static const char *backofficeParseInt(const char *z, sqlite3_uint64 *pVal){
 static void backofficeReadLease(Lease *pLease){
   Stmt q;
   memset(pLease, 0, sizeof(*pLease));
+  db_unprotect(PROTECT_CONFIG);
   db_prepare(&q, "SELECT value FROM repository.config"
                  " WHERE name='backoffice'");
   if( db_step(&q)==SQLITE_ROW ){
@@ -253,6 +254,7 @@ static void backofficeReadLease(Lease *pLease){
     backofficeParseInt(z, &pLease->tmNext);
   }
   db_finalize(&q);
+  db_protect_pop();
 }
 
 /*
@@ -279,11 +281,13 @@ char *backoffice_last_run(void){
 ** Write a lease to the backoffice property
 */
 static void backofficeWriteLease(Lease *pLease){
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "REPLACE INTO repository.config(name,value,mtime)"
     " VALUES('backoffice','%lld %lld %lld %lld',now())",
     pLease->idCurrent, pLease->tmCurrent,
     pLease->idNext, pLease->tmNext);
+  db_protect_pop();
 }
 
 /*

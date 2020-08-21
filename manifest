@@ -1,5 +1,5 @@
-C Improved\sdocumentation\sof\sthe\sdatabase\swrite\sprotection\slogic.\s\sAdded\nundocumented\sSQL\scommand\sdb_protect()\sand\sdb_protect_pop()\sto\sthe\s"sql"\ncommand.\s\sPanic\son\sa\sprotection\sstack\soverflow.
-D 2020-08-21T15:05:32.763
+C Add\smissing\sdb_unprotect()\scalls\sto\sbackoffice.
+D 2020-08-21T15:08:54.113
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -436,7 +436,7 @@ F src/alerts.c 82160a85b500d45899ab72c86bd782eb62bc41771bf435ee7e1d82fea9aab26c
 F src/allrepo.c 3fd96fc97fc2b02156399d88b6884980e7af07aa03d28a50004f4030731a80c0
 F src/attach.c 90aded4f90c9ef2bbd770e0feefc76c705b67f40bf4b1263ae9832ac268e19ae
 F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
-F src/backoffice.c a6050595f00797ed1a45ca49617607d60d223bb8fb088ff2eace2cd6a979cbd2
+F src/backoffice.c b5c14f984561e35824d82dfa656e6c635ffd5c449469bba66dcf4841b0205283
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c fa16fe02114d63561139babd2309c78d07466edb8872047c8e711b58c252c288
 F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9b9a77d592f031aa279b2accacb64440b9e03d2c96461cacf9ae889ba7c5141
-R a059d048aadcdd209efdab297a4425c7
+P 75deba73b5e00d6149b5f039b2622629679e5ddab835f80b639155f62585c5ed
+R 75363c3295f8a3fdc942d0f4bcc4e5da
 U drh
-Z d6fa9719a001d95f7b54158becbeeb3a
+Z 0083b2462c170df4502eaf672f3f73f8
