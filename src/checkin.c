@@ -2735,7 +2735,6 @@ void commit_cmd(void){
   db_multi_exec("PRAGMA repository.application_id=252006673;");
   db_multi_exec("PRAGMA localdb.application_id=252006674;");
   if( dryRunFlag ){
-    leaf_ambiguity_warning(nvid,nvid);
     db_end_transaction(1);
     exit(1);
   }
