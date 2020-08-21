@@ -3553,18 +3553,20 @@ struct Setting {
 /*
 ** SETTING: allow-symlinks  boolean default=off sensitive
 **
-** When allow-symlinks is OFF (which is the default and recommended setting)
-** symbolic links a treated like text files that contain a single line of
-** content which is the name of their target.  If allow-symlinks is ON,
-** the symbolic links are actually followed.
+** When allow-symlinks is OFF, Fossil does not see symbolic links on disk as
+** a separate class of object.  Instead Fossil sess the object that the
+** symbolic link points to.  Fossil will only manage with files and directories,
+** not symbolic links.  When a symbolic link is added to a repository, the
+** object that the link points to is added, not the link itself.
 **
-** The use of symbolic links is dangerous.  If you checkout a maliciously
-** crafted checkin that contains symbolic links, it is possible that files
-** outside of the working directory might be overwritten.
+** When allow-symlinks is ON, Fossil sees symbolic links on disk as a separate
+** object class that distinct from files and directories.  When a symbolic link
+** is added to a repository, Fossil stores just the target filename.  In other
+** words, Fossil stores the link itself, not the object that the link points to.
 **
-** Keep this setting OFF unless you have a very good reason to turn it
-** on and you implicitly trust the integrity of the repositories you
-** open.
+** Symbolic links are not cross-platform.  They are not available on all
+** operating systems and file systems.  Hence the allow-symlinks setting is
+** OFF by default, for portability.
 */
 /*
 ** SETTING: auto-captcha    boolean default=on variable=autocaptcha
