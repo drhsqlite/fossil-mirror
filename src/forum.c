@@ -37,7 +37,6 @@ struct ForumEntry {
   int fprev;             /* zero if initial entry.  non-zero if an edit */
   int firt;              /* This entry replies to firt */
   int mfirt;             /* Root in-reply-to */
-  int nReply;            /* Number of replies to this entry */
   int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
   ForumEntry *pEditHead; /* Original, unedited entry */
@@ -140,7 +139,6 @@ static void forumthread_display_order(
         forumentry_add_to_display(pThread, pPrev);
         forumthread_display_order(pThread, pPrev);
       }
-      pBase->nReply++;
       pPrev = p;
     }
   }
@@ -299,11 +297,11 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid      fpid      firt     fprev     mfirt     pEditTail  nReply  hash\n");
+  " sid      fpid      firt     fprev     mfirt pEditTail hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%4d %9d %9d %9d %11d %9d  %6d  %8.8s\n", p->sid,
+    fossil_print("%4d %9d %9d %9d %9d %9d %8.8s\n", p->sid,
        p->fpid, p->firt, p->fprev, p->mfirt,
-       p->pEditTail ? p->pEditTail->fpid : 0, p->nReply, p->zUuid);
+       p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
   }
   fossil_print("\nDisplay\n");
   for(p=pThread->pDisplay; p; p=p->pDisplay){
@@ -524,7 +522,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     @ <hr>
     @ <table border="1" cellpadding="3" cellspacing="0">
     @ <tr><th>sid<th>fpid<th>firt<th>fprev<th>mfirt<th>pEditHead<th>pEditTail\
-    @ <th>pEditNext<th>pEditPrev<th>nReply<th>hash
+    @ <th>pEditNext<th>pEditPrev<th>hash
     for(p=pThread->pFirst; p; p=p->pNext){
       @ <tr><td>%d(p->sid)<td>%d(p->fpid)<td>%d(p->firt)\
       @ <td>%d(p->fprev)<td>%d(p->mfirt)\
@@ -532,7 +530,6 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
       @ <td>%d(p->pEditTail?p->pEditTail->fpid:0)\
       @ <td>%d(p->pEditNext?p->pEditNext->fpid:0)\
       @ <td>%d(p->pEditPrev?p->pEditPrev->fpid:0)\
-      @ <td>%d(p->nReply)\
       @ <td>%S(p->zUuid)</tr>
     }
     @ </table>
