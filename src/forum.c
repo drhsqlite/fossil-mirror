@@ -41,7 +41,7 @@ struct ForumEntry {
   int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
   ForumEntry *pLeaf;     /* Most recent edit for this entry */
-  ForumEntry *pEdit;     /* This entry is an edit of pEdit */
+  ForumEntry *pEditPrev; /* This entry is an edit of pEditPrev */
   ForumEntry *pNext;     /* Next in chronological order */
   ForumEntry *pPrev;     /* Previous in chronological order */
   ForumEntry *pDisplay;  /* Next in display order */
@@ -201,11 +201,11 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     if( pEntry->fprev ){
       ForumEntry *pBase = 0, *p;
       p = forumentry_backward(pEntry->pPrev, pEntry->fprev);
-      pEntry->pEdit = p;
+      pEntry->pEditPrev = p;
       while( p ){
         pBase = p;
         p->pLeaf = pEntry;
-        p = pBase->pEdit;
+        p = pBase->pEditPrev;
       }
       for(p=pEntry->pNext; p; p=p->pNext){
         if( p->mfirt==pEntry->fpid ) p->mfirt = pBase->fpid;
@@ -435,13 +435,13 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
-    sid = p->pEdit ? p->pEdit->sid : p->sid;
+    sid = p->pEditPrev ? p->pEditPrev->sid : p->sid;
     @ <h3 class='forumPostHdr'>(%d(sid)) By %h(zDisplayName) on %h(zDate)
     fossil_free(zDisplayName);
     fossil_free(zDate);
-    if( p->pEdit ){
-      @ edit of %z(href("%R/forumpost/%S?t=%c",p->pEdit->zUuid,cMode))\
-      @ %d(p->pEdit->sid)</a>
+    if( p->pEditPrev ){
+      @ edit of %z(href("%R/forumpost/%S?t=%c",p->pEditPrev->zUuid,cMode))\
+      @ %d(p->pEditPrev->sid)</a>
     }
     if( g.perm.Debug ){
       @ <span class="debug">\
@@ -640,7 +640,7 @@ static int forum_display_hierarchical(int froot, int target){
   pThread = forumthread_create(froot, 1);
   for(p=pThread->pFirst; p; p=p->pNext){
     if( p->fpid==target ){
-      while( p->pEdit ) p = p->pEdit;
+      while( p->pEditPrev ) p = p->pEditPrev;
       target = p->fpid;
       break;
     }

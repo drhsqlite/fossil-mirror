@@ -1,5 +1,5 @@
-C Add\smissing\sbold\smarkup
-D 2020-08-21T14:40:12.208
+C Begin\srefactoring\sforum\scode\sto\ssupport\sorthogonal\shistory\sand\splaintext\soptions.\s\sFirst\sstep:\srename\spEdit\sto\spEditPrev\sto\smake\sroom\sfor\sa\spEditNext\sfield.
+D 2020-08-21T15:54:26.361
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c 23409b3594cdf6141ca637c05d5615cc672bf2da6b2e4d60bc97a29e3eff631a
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 263e90df3d53b6037b4a1030b669f2b9b32d21dda1714afa6c0146b77e5c621a
+F src/forum.c 7bc28263653b59e6bdb74b7321bf2a994e04c85545d49c737d1a0af70275cf24
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
@@ -1007,7 +1007,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f03f78a8b060650151b6350209083e45dd1f6f2190b7518838ed1bcf8a621ac
-R 5892ed8558e15cd3dfcd7b6804c4e491
+P 273dd80e85ff565da12808933c85becb9b2e4e95f1dcfd90a14ad7c6bbad437d
+R 8a7026bd2ddc9cf7e41a54fb048b9d8a
+T *branch * andygoth-forum-refactor
+T *sym-andygoth-forum-refactor *
+T -sym-trunk *
 U andygoth
-Z a54781b00026afed23ddc259475bd236
+Z 60153bf6f6e02635083718492beef41e
