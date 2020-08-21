@@ -1,5 +1,5 @@
-C More\simprovements\sto\sthe\sallow-symlinks\shelp\stext.
-D 2020-08-21T10:29:16.360
+C Fix\sthe\slocate_unmanaged_files()\sroutine\sso\sthat\sit\salways\ssee\s(and\nignores)\ssymbolic\slinks.
+D 2020-08-21T11:19:19.656
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c 987fdecbadd13d4215635aa9efb30196cc29ddb2788080ce065d862478d90a6f
 F src/cgi.c bbc6bf77990a32369c2acbd0d4d996b77fcda20fa521cfa1b44eb278bb7a7c12
-F src/checkin.c 0c6b3daf39cbf0ba1b8b12f49107b1d1684824c5caf6a73d8f7595b649cfbf2c
+F src/checkin.c 8f2bb5bcee9f1989fdfa41700b65f6e3c51d48768463111ca4749b2de0c2fb21
 F src/checkout.c 5d824323142b2a66d9b06faf9353487312be821bb14ea71867e1af56aa7d527f
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3090e91b8a2bea3c12346a022c42405088969ddb3dcdb37ba70e2dd6c23d339
-R 8b298094953f203a0e5ad60fa365974a
+P f7f31147deaeceec11028b92820347a39a6212a0cb1b0bf9b63c7616e7479a43
+R 33cec68c92a254ff9786b1e815b83dcd
 U drh
-Z 99dd74828bc1f86c4207498827e84c72
+Z 69e7f2ba109d504fe4a41a1fa8cc7302

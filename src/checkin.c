@@ -64,6 +64,9 @@ enum {
 ** all unmanaged files contained underneath those directories.  If there
 ** are no files or directories named on the command-line, then add all
 ** unmanaged files anywhere in the checkout.
+**
+** This routine never follows symlinks.  It always treats symlinks as
+** object unto themselves.
 */
 static void locate_unmanaged_files(
   int argc,           /* Number of command-line arguments to examine */
@@ -82,15 +85,15 @@ static void locate_unmanaged_files(
   nRoot = (int)strlen(g.zLocalRoot);
   if( argc==0 ){
     blob_init(&name, g.zLocalRoot, nRoot - 1);
-    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore, 0, RepoFILE);
+    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore, 0, SymFILE);
     blob_reset(&name);
   }else{
     for(i=0; i<argc; i++){
       file_canonical_name(argv[i], &name, 0);
       zName = blob_str(&name);
-      isDir = file_isdir(zName, RepoFILE);
+      isDir = file_isdir(zName, SymFILE);
       if( isDir==1 ){
-        vfile_scan(&name, nRoot-1, scanFlags, pIgnore, 0, RepoFILE);
+        vfile_scan(&name, nRoot-1, scanFlags, pIgnore, 0, SymFILE);
       }else if( isDir==0 ){
         fossil_warning("not found: %s", &zName[nRoot]);
       }else if( file_access(zName, R_OK) ){
