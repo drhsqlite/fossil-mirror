@@ -3553,19 +3553,20 @@ struct Setting {
 /*
 ** SETTING: allow-symlinks  boolean default=off sensitive
 **
-** When allow-symlinks is OFF, Fossil does not see symbolic links on disk as
-** a separate class of object.  Instead Fossil sess the object that the
-** symbolic link points to.  Fossil will only manage with files and directories,
-** not symbolic links.  When a symbolic link is added to a repository, the
-** object that the link points to is added, not the link itself.
+** When allow-symlinks is OFF, Fossil does not see symbolic links 
+** (a.k.a "symlinks") on disk as a separate class of object.  Instead Fossil
+** sees the object that the symlink points to.  Fossil will only manage files
+** and directories, not symlinks.  When a symlink is added to a repository,
+** the object that the symlink points to is added, not the symlink itself.
 **
-** When allow-symlinks is ON, Fossil sees symbolic links on disk as a separate
-** object class that distinct from files and directories.  When a symbolic link
-** is added to a repository, Fossil stores just the target filename.  In other
-** words, Fossil stores the link itself, not the object that the link points to.
+** When allow-symlinks is ON, Fossil sees symlinks on disk as a separate
+** object class that is distinct from files and directories.  When a symlink
+** is added to a repository, Fossil stores the target filename. In other
+** words, Fossil stores the symlink itself, not the object that the symlink
+** points to.
 **
-** Symbolic links are not cross-platform.  They are not available on all
-** operating systems and file systems.  Hence the allow-symlinks setting is
+** Symlinks are not cross-platform. They are not available on all
+** operating systems and file systems. Hence the allow-symlinks setting is
 ** OFF by default, for portability.
 */
 /*
