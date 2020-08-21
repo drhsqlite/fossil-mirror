@@ -34,7 +34,6 @@
 */
 struct ForumEntry {
   int fpid;              /* rid for this entry */
-  int mfirt;             /* Root in-reply-to */
   int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
   ForumEntry *pIrt;      /* This entry replies to pIrt */
@@ -131,14 +130,18 @@ static void forumthread_display_order(
 ){
   ForumEntry *p;
   ForumEntry *pPrev = 0;
+  ForumEntry *pBaseIrt;
   for(p=pBase->pNext; p; p=p->pNext){
-    if( !p->pEditPrev && p->mfirt==pBase->fpid ){
-      if( pPrev ){
-        pPrev->nIndent = pBase->nIndent + 1;
-        forumentry_add_to_display(pThread, pPrev);
-        forumthread_display_order(pThread, pPrev);
+    if( !p->pEditPrev && p->pIrt ){
+      pBaseIrt = p->pIrt->pEditHead ? p->pIrt->pEditHead : p->pIrt;
+      if( pBaseIrt==pBase ){
+        if( pPrev ){
+          pPrev->nIndent = pBase->nIndent + 1;
+          forumentry_add_to_display(pThread, pPrev);
+          forumthread_display_order(pThread, pPrev);
+        }
+        pPrev = p;
       }
-      pPrev = p;
     }
   }
   if( pPrev ){
@@ -174,7 +177,6 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     firt = db_column_int(&q, 1);
     fprev = db_column_int(&q, 2);
     pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
-    pEntry->mfirt = firt;
     pEntry->sid = sid++;
     pEntry->pPrev = pThread->pLast;
     pEntry->pNext = 0;
@@ -193,18 +195,12 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
       }
     }
     if( fprev ){
-      ForumEntry *pBase = 0;
       p = forumentry_backward(pEntry->pPrev, fprev);
       p->pEditNext = pEntry;
       pEntry->pEditPrev = p;
       pEntry->pEditHead = p->pEditHead ? p->pEditHead : p;
-      while( p ){
-        pBase = p;
+      for(; p; p=p->pEditPrev ){
         p->pEditTail = pEntry;
-        p = p->pEditPrev;
-      }
-      for(p=pEntry->pNext; p; p=p->pNext){
-        if( p->mfirt==pEntry->fpid ) p->mfirt = pBase->fpid;
       }
     }
     pThread->pLast = pEntry;
@@ -293,12 +289,11 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid      fpid      pIrt pEditPrev     mfirt pEditTail hash\n");
+  " sid      fpid      pIrt pEditPrev pEditTail hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%4d %9d %9d %9d %9d %9d %8.8s\n", p->sid,
+    fossil_print("%4d %9d %9d %9d %9d %8.8s\n", p->sid,
        p->fpid, p->pIrt ? p->pIrt->fpid : 0,
        p->pEditPrev ? p->pEditPrev->fpid : 0,
-       p->mfirt,
        p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
   }
   fossil_print("\nDisplay\n");
@@ -515,12 +510,11 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
   if( PB("threadtable") ){
     @ <hr>
     @ <table border="1" cellpadding="3" cellspacing="0">
-    @ <tr><th>sid<th>fpid<th>pIrt<th>mfirt<th>pEditHead<th>pEditTail\
+    @ <tr><th>sid<th>fpid<th>pIrt<th>pEditHead<th>pEditTail\
     @ <th>pEditNext<th>pEditPrev<th>hash
     for(p=pThread->pFirst; p; p=p->pNext){
       @ <tr><td>%d(p->sid)<td>%d(p->fpid)\
       @ <td>%d(p->pIrt?p->pIrt->fpid:0)\
-      @ <td>%d(p->mfirt)\
       @ <td>%d(p->pEditHead?p->pEditHead->fpid:0)\
       @ <td>%d(p->pEditTail?p->pEditTail->fpid:0)\
       @ <td>%d(p->pEditNext?p->pEditNext->fpid:0)\
