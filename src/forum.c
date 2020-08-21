@@ -524,7 +524,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     @ <hr>
     @ <table border="1" cellpadding="3" cellspacing="0">
     @ <tr><th>sid<th>fpid<th>firt<th>fprev<th>mfirt<th>pEditHead<th>pEditTail\
-    @     <th>pEditNext<th>pEditPrev<th>nReply<th>hash
+    @ <th>pEditNext<th>pEditPrev<th>nReply<th>hash
     for(p=pThread->pFirst; p; p=p->pNext){
       @ <tr><td>%d(p->sid)<td>%d(p->fpid)<td>%d(p->firt)\
       @ <td>%d(p->fprev)<td>%d(p->mfirt)\
