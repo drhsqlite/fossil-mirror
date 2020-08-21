@@ -1,5 +1,5 @@
-C Using\sparameters\sto\snamespace\sfunctions\sin\sfossil*.js\sinstead\sof\sthe\nglobal\s"fossil"\sobject.\s\sSquishes\sa\scomplaint\sby\sGCC\sand\smakes\sthe\scode\na\ssmidge\ssmaller\sbesides.
-D 2020-08-20T22:40:18.116
+C Add\smissing\sbold\smarkup
+D 2020-08-21T14:40:12.208
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -876,7 +876,7 @@ F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f5
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
 F www/fileedit-page.md 2a9fe155cdd6a3bbaecdaa52048ec26abc72c11a9f79ce3d601f7303329ef61c
-F www/fileformat.wiki f8db043c693b90d59dee17cd4bb255b1c21651d5766386b3ab6fff6309bb2687
+F www/fileformat.wiki 13210325a6bd101b0f92cc6207eb7b3662f406483a255571d61e07a082cfc845
 F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c29cb4b3
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0cb0b9d33b9d3e16f0ff32b2c8f706cc652ff7a52f997453479813cac64c625
-R f24ad0d29485db259cc1f650e8ca9267
-U wyoung
-Z 3c54a5ba6807b963f7ae4dbbb9722068
+P 0f03f78a8b060650151b6350209083e45dd1f6f2190b7518838ed1bcf8a621ac
+R 5892ed8558e15cd3dfcd7b6804c4e491
+U andygoth
+Z a54781b00026afed23ddc259475bd236
