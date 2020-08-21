@@ -199,7 +199,9 @@ void onoff_attribute(
     int iQ = fossil_strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
       login_verify_csrf_secret();
+      db_protect_only(PROTECT_NONE);
       db_set(zVar, iQ ? "1" : "0", 0);
+      db_protect_pop();
       setup_incr_cfgcnt();
       admin_log("Set option [%q] to [%q].",
                 zVar, iQ ? "on" : "off");
@@ -234,7 +236,9 @@ void entry_attribute(
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     setup_incr_cfgcnt();
+    db_protect_only(PROTECT_NONE);
     db_set(zVar, zQ, 0);
+    db_protect_pop();
     admin_log("Set entry_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
@@ -264,7 +268,9 @@ const char *textarea_attribute(
   if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
+    db_protect_only(PROTECT_NONE);
     db_set(zVar, zQ, 0);
+    db_protect_pop();
     setup_incr_cfgcnt();
     admin_log("Set textarea_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));

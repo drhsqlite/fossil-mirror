@@ -141,7 +141,7 @@ static struct DbLocalData {
   int nProtect;             /* Slots of aProtect used */
   unsigned aProtect[10];    /* Saved values of protectMask */
 } db = {
-  PROTECT_USER|PROTECT_CONFIG,  /* protectMask */
+  PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
   0, 0, 0, 0, 0, 0, };
 
 /*
@@ -340,7 +340,8 @@ void db_commit_hook(int (*x)(void), int sequence){
 #define PROTECT_CONFIG     0x02  /* CONFIG and GLOBAL_CONFIG tables */
 #define PROTECT_SENSITIVE  0x04  /* Sensitive and/or global settings */
 #define PROTECT_READONLY   0x08  /* everything except TEMP tables */
-#define PROTECT_ALL        0x0f  /* All of the above */
+#define PROTECT_BASELINE   0x10  /* protection system is working */
+#define PROTECT_ALL        0x1f  /* All of the above */
 #define PROTECT_NONE       0x00  /* Nothing.  Everything is open */
 #endif /* INTERFACE */
 
@@ -412,7 +413,10 @@ void db_protect_only(unsigned flags){
     fossil_panic("too many db_protect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
-  if( (flags & PROTECT_SENSITIVE)!=0 && db.bProtectTriggers==0 ){
+  if( (flags & PROTECT_SENSITIVE)!=0 
+   && db.bProtectTriggers==0
+   && g.repositoryOpen
+  ){
     /* Create the triggers needed to protect sensitive settings from
     ** being created or modified the first time that PROTECT_SENSITIVE
     ** is enabled.  Deleting a sensitive setting is harmless, so there
@@ -455,8 +459,22 @@ void db_protect_pop(void){
 */
 void db_assert_protected(unsigned flags){
   if( (flags & db.protectMask)!=flags ){
-    fossil_fatal("internal security assertion fault: missing "
-                 "database protection bits: %02x", flags & ~db.protectMask);
+    fossil_panic("missing database write protection bits: %02x",
+                 flags & ~db.protectMask);
+  }
+}
+
+/*
+** Assert that either all protections are off (including PROTECT_BASELINE
+** which is usually always enabled), or the setting named in the argument
+** is no a sensitive setting.
+**
+** This assert() is used to verify that the db_set() and db_set_int()
+** interfaces do not modify a sensitive setting.
+*/
+void db_assert_protection_off_or_not_sensitive(const char *zName){
+  if( db.protectMask!=0 && db_setting_is_protected(zName) ){
+    fossil_panic("unauthorized change to protected setting \"%s\"", zName);
   }
 }
 
@@ -1299,28 +1317,30 @@ void db_obscure(
 }
 
 /*
+** Return True if zName is a protected (a.k.a. "sensitive") setting.
+*/
+int db_setting_is_protected(const char *zName){
+  const Setting *pSetting = zName ? db_find_setting(zName,0) : 0;
+  return pSetting!=0 && pSetting->sensitive!=0;
+}
+
+/*
 ** Implement the protected_setting(X) SQL function.  This function returns
 ** true if X is the name of a protected (security-sensitive) setting and
 ** the db.protectSensitive flag is enabled.  It returns false otherwise.
 */
-LOCAL void db_protected_setting(
+LOCAL void db_protected_setting_func(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
   const char *zSetting;
-  const Setting *pSetting;
   if( (db.protectMask & PROTECT_SENSITIVE)==0 ){
     sqlite3_result_int(context, 0);
     return;
   }
   zSetting = (const char*)sqlite3_value_text(argv[0]);
-  pSetting = zSetting ? db_find_setting(zSetting,0) : 0;
-  if( pSetting && pSetting->sensitive ){
-    sqlite3_result_int(context, 1);
-  }else{
-    sqlite3_result_int(context, 0);
-  }
+  sqlite3_result_int(context, db_setting_is_protected(zSetting));
 }
 
 /*
@@ -1353,7 +1373,7 @@ void db_add_aux_functions(sqlite3 *db){
   sqlite3_create_function(db, "obscure", 1, SQLITE_UTF8, 0,
                           db_obscure, 0, 0);
   sqlite3_create_function(db, "protected_setting", 1, SQLITE_UTF8, 0,
-                          db_protected_setting, 0, 0);
+                          db_protected_setting_func, 0, 0);
 }
 
 #if USE_SEE
@@ -3105,8 +3125,9 @@ char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault)
   return z;
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
-  db_begin_transaction();
+  db_assert_protection_off_or_not_sensitive(zName);
   db_unprotect(PROTECT_CONFIG);
+  db_begin_transaction();
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%Q)",
@@ -3119,8 +3140,8 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
-  db_protect_pop();
   db_end_transaction(0);
+  db_protect_pop();
 }
 void db_unset(const char *zName, int globalFlag){
   db_begin_transaction();
@@ -3169,6 +3190,7 @@ int db_get_int(const char *zName, int dflt){
   return v;
 }
 void db_set_int(const char *zName, int value, int globalFlag){
+  db_assert_protection_off_or_not_sensitive(zName);
   db_unprotect(PROTECT_CONFIG);
   if( globalFlag ){
     db_swap_connections();
@@ -4303,7 +4325,9 @@ void setting_cmd(void){
       if( unsetFlag ){
         db_unset(pSetting->name, globalFlag);
       }else{
+        db_protect_only(PROTECT_NONE);
         db_set(pSetting->name, g.argv[3], globalFlag);
+        db_protect_pop();
       }
       if( isManifest && g.localOpen ){
         manifest_to_disk(db_lget_int("checkout", 0));
