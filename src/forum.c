@@ -34,7 +34,6 @@
 */
 struct ForumEntry {
   int fpid;              /* rid for this entry */
-  int fprev;             /* zero if initial entry.  non-zero if an edit */
   int mfirt;             /* Root in-reply-to */
   int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
@@ -133,7 +132,7 @@ static void forumthread_display_order(
   ForumEntry *p;
   ForumEntry *pPrev = 0;
   for(p=pBase->pNext; p; p=p->pNext){
-    if( p->fprev==0 && p->mfirt==pBase->fpid ){
+    if( !p->pEditPrev && p->mfirt==pBase->fpid ){
       if( pPrev ){
         pPrev->nIndent = pBase->nIndent + 1;
         forumentry_add_to_display(pThread, pPrev);
@@ -159,7 +158,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   ForumEntry *p;
   Stmt q;
   int sid = 1;
-  int firt;
+  int firt, fprev;
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
   db_prepare(&q,
@@ -173,7 +172,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     memset(pEntry, 0, sizeof(*pEntry));
     pEntry->fpid = db_column_int(&q, 0);
     firt = db_column_int(&q, 1);
-    pEntry->fprev = db_column_int(&q, 2);
+    fprev = db_column_int(&q, 2);
     pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
     pEntry->mfirt = firt;
     pEntry->sid = sid++;
@@ -193,31 +192,24 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
         }
       }
     }
-    pThread->pLast = pEntry;
-  }
-  db_finalize(&q);
-
-  /* Establish which entries are the latest edit.  After this loop
-  ** completes, entries that have non-NULL pEditTail should not be
-  ** displayed.
-  */
-  for(pEntry=pThread->pFirst; pEntry; pEntry=pEntry->pNext){
-    if( pEntry->fprev ){
+    if( fprev ){
       ForumEntry *pBase = 0;
-      p = forumentry_backward(pEntry->pPrev, pEntry->fprev);
+      p = forumentry_backward(pEntry->pPrev, fprev);
       p->pEditNext = pEntry;
       pEntry->pEditPrev = p;
       pEntry->pEditHead = p->pEditHead ? p->pEditHead : p;
       while( p ){
         pBase = p;
         p->pEditTail = pEntry;
-        p = pBase->pEditPrev;
+        p = p->pEditPrev;
       }
       for(p=pEntry->pNext; p; p=p->pNext){
         if( p->mfirt==pEntry->fpid ) p->mfirt = pBase->fpid;
       }
     }
+    pThread->pLast = pEntry;
   }
+  db_finalize(&q);
 
   if( computeHierarchy ){
     /* Compute the hierarchical display order */
@@ -301,10 +293,12 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid      fpid      pIrt     fprev     mfirt pEditTail hash\n");
+  " sid      fpid      pIrt pEditPrev     mfirt pEditTail hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
     fossil_print("%4d %9d %9d %9d %9d %9d %8.8s\n", p->sid,
-       p->fpid, p->pIrt ? p->pIrt->fpid : 0, p->fprev, p->mfirt,
+       p->fpid, p->pIrt ? p->pIrt->fpid : 0,
+       p->pEditPrev ? p->pEditPrev->fpid : 0,
+       p->mfirt,
        p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
   }
   fossil_print("\nDisplay\n");
@@ -521,12 +515,12 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
   if( PB("threadtable") ){
     @ <hr>
     @ <table border="1" cellpadding="3" cellspacing="0">
-    @ <tr><th>sid<th>fpid<th>pIrt<th>fprev<th>mfirt<th>pEditHead<th>pEditTail\
+    @ <tr><th>sid<th>fpid<th>pIrt<th>mfirt<th>pEditHead<th>pEditTail\
     @ <th>pEditNext<th>pEditPrev<th>hash
     for(p=pThread->pFirst; p; p=p->pNext){
       @ <tr><td>%d(p->sid)<td>%d(p->fpid)\
       @ <td>%d(p->pIrt?p->pIrt->fpid:0)\
-      @ <td>%d(p->fprev)<td>%d(p->mfirt)\
+      @ <td>%d(p->mfirt)\
       @ <td>%d(p->pEditHead?p->pEditHead->fpid:0)\
       @ <td>%d(p->pEditTail?p->pEditTail->fpid:0)\
       @ <td>%d(p->pEditNext?p->pEditNext->fpid:0)\
