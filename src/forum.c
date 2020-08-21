@@ -645,7 +645,7 @@ static int forum_display_hierarchical(int froot, int target){
   pThread = forumthread_create(froot, 1);
   for(p=pThread->pFirst; p; p=p->pNext){
     if( p->fpid==target ){
-      while( p->pEditPrev ) p = p->pEditPrev;
+      if( p->pEditHead ) p = p->pEditHead;
       target = p->fpid;
       break;
     }
