@@ -357,23 +357,76 @@ void db_commit_hook(int (*x)(void), int sequence){
 ** db_protect_pop() to pop the stack and restore the protections that
 ** existed prior to the call.  The protection mask stack has a limited
 ** depth, so take care not to next calls too deeply.
+**
+** About Database Write Protection
+** -------------------------------
+**
+** This is *not* a primary means of defending the application from
+** attack.  Fossil should be secure even if this mechanism is disabled.
+** The purpose of database write protection is to provide an additional
+** layer of defense in case SQL injection bugs somehow slip into other
+** parts of the system.  In other words, database write protection is
+** not primary defense but rather defense in depth.
+**
+** This mechanism mostly focuses on the USER table, to prevent an
+** attacker from giving themselves Admin privilegs, and on the
+** CONFIG table and specially "sensitive" settings such as
+** "diff-command" or "editor" that if compromised by an attacker
+** could lead to an RCE.
+**
+** By default, the USER and CONFIG tables are read-only.  Various
+** subsystems that legitimately need to change those tables can
+** temporarily do so using:
+**
+**     db_unprotect(PROTECT_xxx);
+**     // make the legitmate changes here
+**     db_protect_pop();
+**
+** Code that runs inside of reduced protections should be carefully
+** reviewed to ensure that it is harmless and not subject to SQL
+** injection.
+**
+** Read-only operations (such as many web pages like /timeline)
+** can invoke db_protect(PROTECT_ALL) to effectively make the database
+** read-only.  TEMP tables (which are often used for these kinds of
+** pages) are still writable, however.
+**
+** The PROTECT_SENSITIVE protection is a subset of PROTECT_CONFIG
+** that blocks changes to all of the global_config table, but only
+** "sensitive" settings in the config table.  PROTECT_SENSITIVE
+** relies on triggers and the protected_setting() SQL function to
+** prevent changes to sensitive settings.
+**
+** Additional Notes
+** ----------------
+**
+** Calls to routines like db_set() and db_unset() temporarily disable
+** the PROTECT_CONFIG protection.  The assumption is that these calls
+** cannot be invoked by an SQL injection and are thus safe.  Make sure
+** this is the case by always using a string literal as the name argument
+** to db_set() and db_unset() and friend, not a variable that might
+** be compromised by an attack.
 */
 void db_protect_only(unsigned flags){
-  if( db.nProtect>=count(db.aProtect) ){
-    fossil_fatal("too many db_protect() calls");
+  if( db.nProtect>=count(db.aProtect)-2 ){
+    fossil_panic("too many db_protect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
-  if( (flags & PROTECT_SENSITIVE)!=0
-   && (db.protectMask & PROTECT_SENSITIVE)==0
-   && db.bProtectTriggers==0
-  ){
+  if( (flags & PROTECT_SENSITIVE)!=0 && db.bProtectTriggers==0 ){
+    /* Create the triggers needed to protect sensitive settings from
+    ** being created or modified the first time that PROTECT_SENSITIVE
+    ** is enabled.  Deleting a sensitive setting is harmless, so there
+    ** is not trigger to block deletes.  After being created once, the
+    ** triggers persist for the life of the database connection. */
     db_multi_exec(
-      "CREATE TEMP TRIGGER IF NOT EXISTS protect_1"
-      " BEFORE INSERT ON config WHEN protected_setting(new.name)"
-      " BEGIN SELECT raise(abort,'not authorized'); END;\n"
-      "CREATE TEMP TRIGGER IF NOT EXISTS protect_2"
-      " BEFORE UPDATE ON config WHEN protected_setting(new.name)"
-      " BEGIN SELECT raise(abort,'not authorized'); END;\n"
+      "CREATE TEMP TRIGGER protect_1 BEFORE INSERT ON config"
+      " WHEN protected_setting(new.name) BEGIN"
+      "  SELECT raise(abort,'not authorized');"
+      "END;\n"
+      "CREATE TEMP TRIGGER protect_2 BEFORE UPDATE ON config"
+      " WHEN protected_setting(new.name) BEGIN"
+      "  SELECT raise(abort,'not authorized');"
+      "END;\n"
     );
     db.bProtectTriggers = 1;
   }
@@ -383,14 +436,16 @@ void db_protect(unsigned flags){
   db_protect_only(db.protectMask | flags);
 }
 void db_unprotect(unsigned flags){
-  if( db.nProtect>=count(db.aProtect) ){
-    fossil_fatal("too many db_unprotect() calls");
+  if( db.nProtect>=count(db.aProtect)-2 ){
+    fossil_panic("too many db_unprotect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
   db.protectMask &= ~flags;
 }
 void db_protect_pop(void){
-  if( db.nProtect<1 ) fossil_fatal("too many db_protect_pop() calls");
+  if( db.nProtect<1 ){
+    fossil_panic("too many db_protect_pop() calls");
+  }
   db.protectMask = db.aProtect[--db.nProtect];
 }
 
@@ -411,7 +466,7 @@ void db_assert_protected(unsigned flags){
 ** duration of the connection.  This authenticator will call any
 ** sub-authenticators that are registered using db_set_authorizer().
 */
-static int db_top_authorizer(
+int db_top_authorizer(
   void *pNotUsed,
   int eCode,
   const char *z0,
@@ -441,6 +496,8 @@ static int db_top_authorizer(
       break;
     }
     case SQLITE_DROP_TEMP_TRIGGER: {
+      /* Do not allow the triggers that enforce PROTECT_SENSITIVE
+      ** to be dropped */
       rc = SQLITE_DENY;
       break;
     }
