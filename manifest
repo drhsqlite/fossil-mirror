@@ -1,5 +1,5 @@
-C Rename\spEditLeaf\sto\spEditTail
-D 2020-08-21T19:34:09.245
+C Add\spEditHead\sfield\sto\savoid\srepeatedly\swalking\sback\sto\sfind\sthe\soriginal\spost
+D 2020-08-21T19:41:41.682
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c 23409b3594cdf6141ca637c05d5615cc672bf2da6b2e4d60bc97a29e3eff631a
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 1fdac5e848380793ec5cca5a5cb6fb7f60099bd8bb27db907011a20eb5615f95
+F src/forum.c 6ed241f863e3861bb9f7c80d7884ffc20a989f32142d7a27d5b4ebed83eb9ca8
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 763d22b78a5e78459732cd0161fa15963d7f255c767b4ee5010e0a435e2694bb
-R f5a1547bf6e4dc7fb3db442b501d687b
+P 145a6ef281a66d310858cdd552bda8f389baf333dc17109b0a4030ad2837a795
+R 29a5b5fc57d6e7ef78671f22c7734ad2
 U andygoth
-Z ef6c711fd658bab26c5a545dbc0db0ae
+Z f65c396eb43b0c564698141a3cca84ed
