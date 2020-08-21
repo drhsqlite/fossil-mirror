@@ -32,37 +32,37 @@
 ** either the initial post, an edit to a post, a reply, or an edit to
 ** a reply.
 */
-struct ForumEntry {
-  int fpid;              /* rid for this entry */
+struct ForumPost {
+  int fpid;              /* rid for this post */
   int sid;               /* Serial ID number */
   int rev;               /* Revision number */
   char *zUuid;           /* Artifact hash */
-  ForumEntry *pIrt;      /* This entry replies to pIrt */
-  ForumEntry *pEditHead; /* Original, unedited entry */
-  ForumEntry *pEditTail; /* Most recent edit for this entry */
-  ForumEntry *pEditNext; /* This entry is edited by pEditNext */
-  ForumEntry *pEditPrev; /* This entry is an edit of pEditPrev */
-  ForumEntry *pNext;     /* Next in chronological order */
-  ForumEntry *pPrev;     /* Previous in chronological order */
-  ForumEntry *pDisplay;  /* Next in display order */
-  int nEdit;             /* Number of edits to this entry */
-  int nIndent;           /* Number of levels of indentation for this entry */
+  ForumPost *pIrt;       /* This post replies to pIrt */
+  ForumPost *pEditHead;  /* Original, unedited post */
+  ForumPost *pEditTail;  /* Most recent edit for this post */
+  ForumPost *pEditNext;  /* This post is edited by pEditNext */
+  ForumPost *pEditPrev;  /* This post is an edit of pEditPrev */
+  ForumPost *pNext;      /* Next in chronological order */
+  ForumPost *pPrev;      /* Previous in chronological order */
+  ForumPost *pDisplay;   /* Next in display order */
+  int nEdit;             /* Number of edits to this post */
+  int nIndent;           /* Number of levels of indentation for this post */
 };
 
 /*
 ** A single instance of the following tracks all entries for a thread.
 */
 struct ForumThread {
-  ForumEntry *pFirst;    /* First entry in chronological order */
-  ForumEntry *pLast;     /* Last entry in chronological order */
-  ForumEntry *pDisplay;  /* Entries in display order */
-  ForumEntry *pTail;     /* Last on the display list */
+  ForumPost *pFirst;     /* First post in chronological order */
+  ForumPost *pLast;      /* Last post in chronological order */
+  ForumPost *pDisplay;   /* Entries in display order */
+  ForumPost *pTail;      /* Last on the display list */
   int mxIndent;          /* Maximum indentation level */
 };
 #endif /* INTERFACE */
 
 /*
-** Return true if the forum entry with the given rid has been
+** Return true if the forum post with the given rid has been
 ** subsequently edited.
 */
 int forum_rid_has_been_edited(int rid){
@@ -82,37 +82,37 @@ int forum_rid_has_been_edited(int rid){
 ** Delete a complete ForumThread and all its entries.
 */
 static void forumthread_delete(ForumThread *pThread){
-  ForumEntry *pEntry, *pNext;
-  for(pEntry=pThread->pFirst; pEntry; pEntry = pNext){
-    pNext = pEntry->pNext;
-    fossil_free(pEntry->zUuid);
-    fossil_free(pEntry);
+  ForumPost *pPost, *pNext;
+  for(pPost=pThread->pFirst; pPost; pPost = pNext){
+    pNext = pPost->pNext;
+    fossil_free(pPost->zUuid);
+    fossil_free(pPost);
   }
   fossil_free(pThread);
 }
 
 #if 0 /* not used */
 /*
-** Search a ForumEntry list forwards looking for the entry with fpid
+** Search a ForumPost list forwards looking for the post with fpid
 */
-static ForumEntry *forumentry_forward(ForumEntry *p, int fpid){
+static ForumPost *forumpost_forward(ForumPost *p, int fpid){
   while( p && p->fpid!=fpid ) p = p->pNext;
   return p;
 }
 #endif
 
 /*
-** Search backwards for a ForumEntry
+** Search backwards for a ForumPost
 */
-static ForumEntry *forumentry_backward(ForumEntry *p, int fpid){
+static ForumPost *forumpost_backward(ForumPost *p, int fpid){
   while( p && p->fpid!=fpid ) p = p->pPrev;
   return p;
 }
 
 /*
-** Add an entry to the display list
+** Add a post to the display list
 */
-static void forumentry_add_to_display(ForumThread *pThread, ForumEntry *p){
+static void forumpost_add_to_display(ForumThread *pThread, ForumPost *p){
   if( pThread->pDisplay==0 ){
     pThread->pDisplay = p;
   }else{
@@ -123,23 +123,23 @@ static void forumentry_add_to_display(ForumThread *pThread, ForumEntry *p){
 
 /*
 ** Extend the display list for pThread by adding all entries that
-** reference fpid.  The first such entry will be no earlier then
-** entry "p".
+** reference fpid.  The first such post will be no earlier then
+** post "p".
 */
 static void forumthread_display_order(
   ForumThread *pThread,    /* The complete thread */
-  ForumEntry *pBase        /* Add replies to this entry */
+  ForumPost *pBase         /* Add replies to this post */
 ){
-  ForumEntry *p;
-  ForumEntry *pPrev = 0;
-  ForumEntry *pBaseIrt;
+  ForumPost *p;
+  ForumPost *pPrev = 0;
+  ForumPost *pBaseIrt;
   for(p=pBase->pNext; p; p=p->pNext){
     if( !p->pEditPrev && p->pIrt ){
       pBaseIrt = p->pIrt->pEditHead ? p->pIrt->pEditHead : p->pIrt;
       if( pBaseIrt==pBase ){
         if( pPrev ){
           pPrev->nIndent = pBase->nIndent + 1;
-          forumentry_add_to_display(pThread, pPrev);
+          forumpost_add_to_display(pThread, pPrev);
           forumthread_display_order(pThread, pPrev);
         }
         pPrev = p;
@@ -149,7 +149,7 @@ static void forumthread_display_order(
   if( pPrev ){
     pPrev->nIndent = pBase->nIndent + 1;
     if( pPrev->nIndent>pThread->mxIndent ) pThread->mxIndent = pPrev->nIndent;
-    forumentry_add_to_display(pThread, pPrev);
+    forumpost_add_to_display(pThread, pPrev);
     forumthread_display_order(pThread, pPrev);
   }
 }
@@ -159,8 +159,8 @@ static void forumthread_display_order(
 */
 static ForumThread *forumthread_create(int froot, int computeHierarchy){
   ForumThread *pThread;
-  ForumEntry *pEntry;
-  ForumEntry *p;
+  ForumPost *pPost;
+  ForumPost *p;
   Stmt q;
   int sid = 1;
   int firt, fprev;
@@ -173,29 +173,29 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
      froot
   );
   while( db_step(&q)==SQLITE_ROW ){
-    pEntry = fossil_malloc( sizeof(*pEntry) );
-    memset(pEntry, 0, sizeof(*pEntry));
-    pEntry->fpid = db_column_int(&q, 0);
+    pPost = fossil_malloc( sizeof(*pPost) );
+    memset(pPost, 0, sizeof(*pPost));
+    pPost->fpid = db_column_int(&q, 0);
     firt = db_column_int(&q, 1);
     fprev = db_column_int(&q, 2);
-    pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
-    if( !fprev ) pEntry->sid = sid++;
-    pEntry->pPrev = pThread->pLast;
-    pEntry->pNext = 0;
+    pPost->zUuid = fossil_strdup(db_column_text(&q,3));
+    if( !fprev ) pPost->sid = sid++;
+    pPost->pPrev = pThread->pLast;
+    pPost->pNext = 0;
     if( pThread->pLast==0 ){
-      pThread->pFirst = pEntry;
+      pThread->pFirst = pPost;
     }else{
-      pThread->pLast->pNext = pEntry;
+      pThread->pLast->pNext = pPost;
     }
-    pThread->pLast = pEntry;
+    pThread->pLast = pPost;
 
     /* Find the in-reply-to post.  Default to the topic post if the replied-to
     ** post cannot be found. */
     if( firt ){
-      pEntry->pIrt = pThread->pFirst;
+      pPost->pIrt = pThread->pFirst;
       for(p=pThread->pFirst; p; p=p->pNext){
         if( p->fpid==firt ){
-          pEntry->pIrt = p;
+          pPost->pIrt = p;
           break;
         }
       }
@@ -203,16 +203,16 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
 
     /* Maintain the linked list of post edits. */
     if( fprev ){
-      p = forumentry_backward(pEntry->pPrev, fprev);
-      p->pEditNext = pEntry;
-      pEntry->sid = p->sid;
-      pEntry->rev = p->rev+1;
-      pEntry->nEdit = p->nEdit+1;
-      pEntry->pEditPrev = p;
-      pEntry->pEditHead = p->pEditHead ? p->pEditHead : p;
+      p = forumpost_backward(pPost->pPrev, fprev);
+      p->pEditNext = pPost;
+      pPost->sid = p->sid;
+      pPost->rev = p->rev+1;
+      pPost->nEdit = p->nEdit+1;
+      pPost->pEditPrev = p;
+      pPost->pEditHead = p->pEditHead ? p->pEditHead : p;
       for(; p; p=p->pEditPrev ){
-        p->nEdit = pEntry->nEdit;
-        p->pEditTail = pEntry;
+        p->nEdit = pPost->nEdit;
+        p->pEditTail = pPost;
       }
     }
   }
@@ -220,11 +220,11 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
 
   if( computeHierarchy ){
     /* Compute the hierarchical display order */
-    pEntry = pThread->pFirst;
-    pEntry->nIndent = 1;
+    pPost = pThread->pFirst;
+    pPost->nIndent = 1;
     pThread->mxIndent = 1;
-    forumentry_add_to_display(pThread, pEntry);
-    forumthread_display_order(pThread, pEntry);
+    forumpost_add_to_display(pThread, pPost);
+    forumthread_display_order(pThread, pPost);
   }
 
   /* Return the result */
@@ -272,7 +272,7 @@ void forumthread_cmd(void){
   int froot;
   const char *zName;
   ForumThread *pThread;
-  ForumEntry *p;
+  ForumPost *p;
 
   db_find_and_open_repository(0,0);
   verify_all_options();
@@ -415,7 +415,7 @@ char *display_name_from_login(const char *zLogin){
 */
 static void forum_display_chronological(int froot, int target, int bRawMode){
   ForumThread *pThread = forumthread_create(froot, 0);
-  ForumEntry *p;
+  ForumPost *p;
   int notAnon = login_is_individual();
   char cMode = bRawMode ? 'r' : 'c';
   for(p=pThread->pFirst; p; p=p->pNext){
@@ -550,10 +550,10 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
 */
 static void forum_display_history(int froot, int target, int bRawMode){
   ForumThread *pThread = forumthread_create(froot, 0);
-  ForumEntry *p;
+  ForumPost *p;
   int notAnon = login_is_individual();
   char cMode = bRawMode ? 'r' : 'c';
-  ForumEntry *pEditTail = 0;
+  ForumPost *pEditTail = 0;
   int cnt = 0;
   for(p=pThread->pFirst; p; p=p->pNext){
     if( p->fpid==target ){
@@ -646,7 +646,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
 */
 static int forum_display_hierarchical(int froot, int target){
   ForumThread *pThread;
-  ForumEntry *p;
+  ForumPost *p;
   Manifest *pPost, *pOPost;
   int fpid;
   const char *zUuid;
@@ -1033,7 +1033,7 @@ static int forum_post(
 /*
 ** Paint the form elements for entering a Forum post
 */
-static void forum_entry_widget(
+static void forum_post_widget(
   const char *zTitle,
   const char *zMimetype,
   const char *zContent
@@ -1142,7 +1142,7 @@ void forumnew_page(void){
   @ <form action="%R/forume1" method="POST">
   @ <h1>New Thread:</h1>
   forum_from_line();
-  forum_entry_widget(zTitle, zMimetype, zContent);
+  forum_post_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
   if( P("preview") && !whitespace_only(zContent) ){
     @ <input type="submit" name="submit" value="Submit">
@@ -1292,7 +1292,7 @@ void forumedit_page(void){
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
     forum_from_line();
-    forum_entry_widget(zTitle, zMimetype, zContent);
+    forum_post_widget(zTitle, zMimetype, zContent);
   }else{
     /* Reply */
     char *zDisplayName;
@@ -1318,7 +1318,7 @@ void forumedit_page(void){
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="reply" value="1">
     forum_from_line();
-    forum_entry_widget(0, zMimetype, zContent);
+    forum_post_widget(0, zMimetype, zContent);
   }
   if( !isDelete ){
     @ <input type="submit" name="preview" value="Preview">
