@@ -41,6 +41,7 @@ struct ForumEntry {
   int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
   ForumEntry *pLeaf;     /* Most recent edit for this entry */
+  ForumEntry *pEditNext; /* This entry is edited by pEditNext */
   ForumEntry *pEditPrev; /* This entry is an edit of pEditPrev */
   ForumEntry *pNext;     /* Next in chronological order */
   ForumEntry *pPrev;     /* Previous in chronological order */
@@ -201,6 +202,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     if( pEntry->fprev ){
       ForumEntry *pBase = 0, *p;
       p = forumentry_backward(pEntry->pPrev, pEntry->fprev);
+      p->pEditNext = pEntry;
       pEntry->pEditPrev = p;
       while( p ){
         pBase = p;
