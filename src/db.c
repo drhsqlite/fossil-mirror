@@ -137,6 +137,7 @@ static struct DbLocalData {
   int (*xAuth)(void*,int,const char*,const char*,const char*,const char*);
   void *pAuthArg;           /* Argument to the authorizer */
   const char *zAuthName;    /* Name of the authorizer */
+  int bProtectTriggers;     /* True if protection triggers already exist */
   int nProtect;             /* Slots of aProtect used */
   unsigned aProtect[10];    /* Saved values of protectMask */
 } db = {
@@ -249,7 +250,7 @@ void db_end_transaction(int rollbackFlag){
     int i;
     if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
       i = 0;
-      db_unprotect(PROTECT_ALL);
+      db_protect_only(PROTECT_SENSITIVE);
       while( db.nBeforeCommit ){
         db.nBeforeCommit--;
         sqlite3_exec(g.db, db.azBeforeCommit[i], 0, 0, 0);
@@ -332,34 +333,54 @@ void db_commit_hook(int (*x)(void), int sequence){
 
 #if INTERFACE
 /*
-** Flag bits for db_protect() and db_unprotect()
+** Flag bits for db_protect() and db_unprotect() indicating which parts
+** of the databases should be write protected or write enabled, respectively.
 */
-#define PROTECT_USER       0x01
-#define PROTECT_CONFIG     0x02
-#define PROTECT_SENSITIVE  0x04
-#define PROTECT_READONLY   0x08
+#define PROTECT_USER       0x01  /* USER table */
+#define PROTECT_CONFIG     0x02  /* CONFIG and GLOBAL_CONFIG tables */
+#define PROTECT_SENSITIVE  0x04  /* Sensitive and/or global settings */
+#define PROTECT_READONLY   0x08  /* everything except TEMP tables */
 #define PROTECT_ALL        0x0f  /* All of the above */
+#define PROTECT_NONE       0x00  /* Nothing.  Everything is open */
 #endif /* INTERFACE */
 
 /*
 ** Enable or disable database write protections.
-** Use db_protect() to enable write permissions.  Use
-** db_unprotect() to disable them.
 **
-** Each call to db_protect() and/or db_unprotect() should be followed
-** by a corresponding call to db_protect_pop().  The db_protect_pop()
-** call restores the protection settings to what they were before.
+**    db_protext(X)         Add protects on X
+**    db_unprotect(X)       Remove protections on X
+**    db_protect_only(X)    Remove all prior protections then set
+**                          protections to only X.
 **
-** The stack of protection settings is finite, so do not nest calls
-** to db_protect()/db_unprotect() too deeply.  And make sure calls
-** to db_protect()/db_unprotect() are balanced.
+** Each of these routines pushes the previous protection mask onto
+** a finite-size stack.  Each should be followed by a call to
+** db_protect_pop() to pop the stack and restore the protections that
+** existed prior to the call.  The protection mask stack has a limited
+** depth, so take care not to next calls too deeply.
 */
-void db_protect(unsigned flags){
+void db_protect_only(unsigned flags){
   if( db.nProtect>=count(db.aProtect) ){
     fossil_fatal("too many db_protect() calls");
   }
   db.aProtect[db.nProtect++] = db.protectMask;
-  db.protectMask |= flags;
+  if( (flags & PROTECT_SENSITIVE)!=0
+   && (db.protectMask & PROTECT_SENSITIVE)==0
+   && db.bProtectTriggers==0
+  ){
+    db_multi_exec(
+      "CREATE TEMP TRIGGER IF NOT EXISTS protect_1"
+      " BEFORE INSERT ON config WHEN protected_setting(new.name)"
+      " BEGIN SELECT raise(abort,'not authorized'); END;\n"
+      "CREATE TEMP TRIGGER IF NOT EXISTS protect_2"
+      " BEFORE UPDATE ON config WHEN protected_setting(new.name)"
+      " BEGIN SELECT raise(abort,'not authorized'); END;\n"
+    );
+    db.bProtectTriggers = 1;
+  }
+  db.protectMask = flags;
+}
+void db_protect(unsigned flags){
+  db_protect_only(db.protectMask | flags);
 }
 void db_unprotect(unsigned flags){
   if( db.nProtect>=count(db.aProtect) ){
@@ -371,6 +392,17 @@ void db_unprotect(unsigned flags){
 void db_protect_pop(void){
   if( db.nProtect<1 ) fossil_fatal("too many db_protect_pop() calls");
   db.protectMask = db.aProtect[--db.nProtect];
+}
+
+/*
+** Verify that the desired database write pertections are in place.
+** Throw a fatal error if not.
+*/
+void db_assert_protected(unsigned flags){
+  if( (flags & db.protectMask)!=flags ){
+    fossil_fatal("internal security assertion fault: missing "
+                 "database protection bits: %02x", flags & ~db.protectMask);
+  }
 }
 
 /*
@@ -398,6 +430,9 @@ static int db_top_authorizer(
       }else if( (db.protectMask & PROTECT_CONFIG)!=0 &&
                (sqlite3_stricmp(z0,"config")==0 ||
                 sqlite3_stricmp(z0,"global_config")==0) ){
+        rc = SQLITE_DENY;
+      }else if( (db.protectMask & PROTECT_SENSITIVE)!=0 &&
+                sqlite3_stricmp(z0,"global_config")==0 ){
         rc = SQLITE_DENY;
       }else if( (db.protectMask & PROTECT_READONLY)!=0
                 && sqlite3_stricmp(z2,"temp")!=0 ){
@@ -2322,6 +2357,7 @@ void db_close(int reportErrors){
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;
+  db.bProtectTriggers = 0;
   assert( g.dbConfig==0 );
   assert( g.zConfigDbName==0 );
   backoffice_run_if_needed();
@@ -3236,7 +3272,7 @@ void db_record_repository_filename(const char *zName){
     Blob localRoot;
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
     zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
-    db_unprotect(PROTECT_CONFIG|PROTECT_SENSITIVE);
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM global_config WHERE name %s = %Q;",
        filename_collation(), zCkoutSetting
