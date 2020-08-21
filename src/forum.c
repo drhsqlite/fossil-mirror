@@ -28,17 +28,17 @@
 
 #if INTERFACE
 /*
-** Each instance of the following object represents a single message - 
+** Each instance of the following object represents a single message -
 ** either the initial post, an edit to a post, a reply, or an edit to
 ** a reply.
 */
 struct ForumEntry {
   int fpid;              /* rid for this entry */
   int fprev;             /* zero if initial entry.  non-zero if an edit */
-  int firt;              /* This entry replies to firt */
   int mfirt;             /* Root in-reply-to */
   int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
+  ForumEntry *pIrt;      /* This entry replies to pIrt */
   ForumEntry *pEditHead; /* Original, unedited entry */
   ForumEntry *pEditTail; /* Most recent edit for this entry */
   ForumEntry *pEditNext; /* This entry is edited by pEditNext */
@@ -156,9 +156,10 @@ static void forumthread_display_order(
 static ForumThread *forumthread_create(int froot, int computeHierarchy){
   ForumThread *pThread;
   ForumEntry *pEntry;
+  ForumEntry *p;
   Stmt q;
   int sid = 1;
-  Bag seen = Bag_INIT;
+  int firt;
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
   db_prepare(&q,
@@ -171,27 +172,30 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     pEntry = fossil_malloc( sizeof(*pEntry) );
     memset(pEntry, 0, sizeof(*pEntry));
     pEntry->fpid = db_column_int(&q, 0);
-    pEntry->firt = db_column_int(&q, 1);
+    firt = db_column_int(&q, 1);
     pEntry->fprev = db_column_int(&q, 2);
     pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
-    pEntry->mfirt = pEntry->firt;
+    pEntry->mfirt = firt;
     pEntry->sid = sid++;
     pEntry->pPrev = pThread->pLast;
     pEntry->pNext = 0;
-    bag_insert(&seen, pEntry->fpid);
     if( pThread->pLast==0 ){
       pThread->pFirst = pEntry;
     }else{
       pThread->pLast->pNext = pEntry;
     }
-    if( pEntry->firt && !bag_find(&seen,pEntry->firt) ){
-      pEntry->firt = froot;
-      pEntry->mfirt = froot;
+    if( firt ){
+      pEntry->pIrt = pThread->pFirst;
+      for(p=pThread->pFirst; p; p=p->pNext){
+        if( p->fpid==firt ){
+          pEntry->pIrt = p;
+          break;
+        }
+      }
     }
     pThread->pLast = pEntry;
   }
   db_finalize(&q);
-  bag_clear(&seen);
 
   /* Establish which entries are the latest edit.  After this loop
   ** completes, entries that have non-NULL pEditTail should not be
@@ -199,7 +203,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   */
   for(pEntry=pThread->pFirst; pEntry; pEntry=pEntry->pNext){
     if( pEntry->fprev ){
-      ForumEntry *pBase = 0, *p;
+      ForumEntry *pBase = 0;
       p = forumentry_backward(pEntry->pPrev, pEntry->fprev);
       p->pEditNext = pEntry;
       pEntry->pEditPrev = p;
@@ -297,10 +301,10 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid      fpid      firt     fprev     mfirt pEditTail hash\n");
+  " sid      fpid      pIrt     fprev     mfirt pEditTail hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
     fossil_print("%4d %9d %9d %9d %9d %9d %8.8s\n", p->sid,
-       p->fpid, p->firt, p->fprev, p->mfirt,
+       p->fpid, p->pIrt ? p->pIrt->fpid : 0, p->fprev, p->mfirt,
        p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
   }
   fossil_print("\nDisplay\n");
@@ -449,13 +453,9 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
       @ <span class="debug">\
       @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
     }
-    if( p->firt ){
-      ForumEntry *pIrt = p->pPrev;
-      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
-      if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=%c",pIrt->zUuid,cMode))\
-        @ %d(pIrt->sid)</a>
-      }
+    if( p->pIrt ){
+      @ in reply to %z(href("%R/forumpost/%S?t=%c",p->pIrt->zUuid,cMode))\
+      @ %d(p->pIrt->sid)</a>
     }
     zUuid = p->zUuid;
     if( p->pEditTail ){
@@ -521,11 +521,12 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
   if( PB("threadtable") ){
     @ <hr>
     @ <table border="1" cellpadding="3" cellspacing="0">
-    @ <tr><th>sid<th>fpid<th>firt<th>fprev<th>mfirt<th>pEditHead<th>pEditTail\
+    @ <tr><th>sid<th>fpid<th>pIrt<th>fprev<th>mfirt<th>pEditHead<th>pEditTail\
     @ <th>pEditNext<th>pEditPrev<th>hash
     for(p=pThread->pFirst; p; p=p->pNext){
-      @ <tr><td>%d(p->sid)<td>%d(p->fpid)<td>%d(p->firt)\
-      @ <td>%d(p->fprev)<td>%d(p->mfirt)\
+      @ <tr><td>%d(p->sid)<td>%d(p->fpid)\
+      @ <td>%d(p->pIrt?p->pIrt->fpid:0)\
+      @ <td>%d(p->fprev)\
       @ <td>%d(p->pEditHead?p->pEditHead->fpid:0)\
       @ <td>%d(p->pEditTail?p->pEditTail->fpid:0)\
       @ <td>%d(p->pEditNext?p->pEditNext->fpid:0)\
@@ -575,13 +576,9 @@ static void forum_display_history(int froot, int target, int bRawMode){
       @ <span class="debug">\
       @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
     }
-    if( p->firt && cnt==1 ){
-      ForumEntry *pIrt = p->pPrev;
-      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
-      if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=%c",pIrt->zUuid,cMode))\
-        @ %d(pIrt->sid)</a>
-      }
+    if( p->pIrt && cnt==1 ){
+      @ in reply to %z(href("%R/forumpost/%S?t=%c",p->pIrt->zUuid,cMode))\
+      @ %d(p->pIrt->sid)</a>
     }
     zUuid = p->zUuid;
     @ %z(href("%R/forumpost/%S?t=c",zUuid))[link]</a>
@@ -709,13 +706,9 @@ static int forum_display_hierarchical(int froot, int target){
       @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
     }
     @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
-    if( p->firt ){
-      ForumEntry *pIrt = p->pPrev;
-      while( pIrt && pIrt->fpid!=p->mfirt ) pIrt = pIrt->pPrev;
-      if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=h",pIrt->zUuid))\
-        @ %d(pIrt->sid)</a>
-      }
+    if( p->pIrt ){
+      @ in reply to %z(href("%R/forumpost/%S?t=h",p->pIrt->zUuid))\
+      @ %d(p->pIrt->sid)</a>
     }
     @ </h3>
     isPrivate = content_is_private(fpid);
@@ -957,7 +950,7 @@ static int forum_post(
   zDate = date_in_standard_format("now");
   blob_appendf(&x, "D %s\n", zDate);
   fossil_free(zDate);
-  zG = db_text(0, 
+  zG = db_text(0,
      "SELECT uuid FROM blob, forumpost"
      " WHERE blob.rid==forumpost.froot"
      "   AND forumpost.fpid=%d", iBasis);
@@ -1211,7 +1204,7 @@ void forumedit_page(void){
       return;
     }
     if( P("reject") ){
-      char *zParent = 
+      char *zParent =
         db_text(0,
           "SELECT uuid FROM forumpost, blob"
           " WHERE forumpost.fpid=%d AND blob.rid=forumpost.firt",
