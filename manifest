@@ -1,5 +1,5 @@
-C Internally\srename\s"entry"\sto\s"post"\sfor\smore\sconsistent\sterminology
-D 2020-08-21T23:40:52.071
+C Unify\sand\sregularize\sforum\sdisplay\scode
+D 2020-08-22T02:38:18.176
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c 23409b3594cdf6141ca637c05d5615cc672bf2da6b2e4d60bc97a29e3eff631a
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c daaf72885f667a5cfe257c553074bc50fbc63fe13675cd4204bd50ee4fc3253e
+F src/forum.c 10dff6661a1baa5747ff52829aefb6967183701692ab2364c1600777e0e146f5
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd47b8c311ab4765bf1deb5749199b1ae6f4a87ca077da2f1054dfe4093e4e59
-R 9eef0fbd61de81272432fb2188c68913
+P adefa86c5e1fe13ae5dd0208425da7e5801830ef0dde458be867c8d7ce6cdeca
+R 43d13ae21e98cc2c4084ba4a19157f08
 U andygoth
-Z 95d4497afa18ab8d25758d6e96388044
+Z 0a39a13ee2e4531d3081e5ea513bc87f
