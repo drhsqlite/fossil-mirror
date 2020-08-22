@@ -1210,6 +1210,8 @@ static const char *wiki_is_overridden(const char *zTarget){
 **       Code:PageName
 **
 ** "Code" is a brief code that describes the intended target wiki.
+** The code must be ASCII alpha-numeric.  No symbols or non-ascii
+** characters are allows.  Case is ignored for the code.
 ** Codes are assigned by "intermap:*" entries in the CONFIG table.
 ** The link is only valid if there exists an try in the CONFIG table
 ** that matches "intermap:Code".
@@ -1253,8 +1255,8 @@ static char *wiki_is_interwiki(const char *zTarget){
   int nPage;
   char *zUrl = 0;
   Stmt q;
-  for(i=0; zTarget[i] && zTarget[i]!=':'; i++){}
-  if( zTarget[i]==0 ) return 0;
+  for(i=0; fossil_isalnum(zTarget[i]); i++){}
+  if( zTarget[i]!=':' ) return 0;
   nCode = i;
   if( nCode==4 && strncmp(zTarget,"wiki",4)==0 ) return 0;
   zPage = zTarget + nCode + 1;
