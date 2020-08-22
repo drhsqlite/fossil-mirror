@@ -154,3 +154,7 @@
 >    document title displayed at the top of the Fossil page.
 
 [daringfireball.net]: http://daringfireball.net/projects/markdown/syntax
+
+## See also:
+
+  *  [Fossil Wiki Formatting Rules](/wiki_rules)

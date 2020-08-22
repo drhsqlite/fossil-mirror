@@ -222,6 +222,7 @@ void markdown_rules_page(void){
   }else{
     style_submenu_element("Plain-Text", "%R/md_rules?txt=1");
   }
+  style_submenu_element("Wiki", "%R/wiki_rules");
   blob_init(&x, builtin_text("markdown.md"), -1);
   blob_materialize(&x);
   safe_html_context(DOCSRC_TRUSTED);
@@ -244,6 +245,7 @@ void wiki_rules_page(void){
   }else{
     style_submenu_element("Plain-Text", "%R/wiki_rules?txt=1");
   }
+  style_submenu_element("Markdown","%R/md_rules");
   blob_init(&x, builtin_text("wiki.wiki"), -1);
   blob_materialize(&x);
   safe_html_context(DOCSRC_TRUSTED);
