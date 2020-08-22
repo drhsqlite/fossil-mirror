@@ -469,11 +469,11 @@ static void forum_display_post(
       @ </a>
     }
 
-    /* If this post was later edited, refer forward to the new version. */
-    if( p->pEditTail ){
-      @ updated by %z(href("%R/forumpost/%S?%s",p->pEditTail->zUuid,zQuery))\
-      @ %d(p->pEditTail->sid)\
-      @ .%.*d(fossil_num_digits(p->nEdit))(p->pEditTail->rev)</a>
+    /* If this post was later edited, refer forward to the next edit. */
+    if( p->pEditNext ){
+      @ updated by %z(href("%R/forumpost/%S?%s",p->pEditNext->zUuid,zQuery))\
+      @ %d(p->pEditNext->sid)\
+      @ .%.*d(fossil_num_digits(p->nEdit))(p->pEditNext->rev)</a>
     }
 
     /* Provide a link to select the individual post. */

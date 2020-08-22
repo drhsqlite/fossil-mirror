@@ -1,5 +1,5 @@
-C When\sshowing\sthe\ssource\sof\san\sedited\spost,\sshow\sthat\sexact\sversion\srather\sthan\sthe\snewest\sversion
-D 2020-08-22T02:50:36.932
+C Link\sto\sthe\snext\sedit\srather\sthan\sthe\sfinal\sedit
+D 2020-08-22T02:53:56.899
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c 23409b3594cdf6141ca637c05d5615cc672bf2da6b2e4d60bc97a29e3eff631a
 F src/fileedit.c fc44a733b2297860b077945c6f0efa33c84516981d321ea49e44df7a1b7fe705
 F src/finfo.c 4620d485a54428bb11daaf44cbb92170e603825973d738e3b474a0b2d201ca1a
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 67cbcb7dccb25cc1351ff4a2ad7152e3997f68906c95e962cf8f16244009d9e9
+F src/forum.c 59e8923cb429ed6e9a45ac60dda610e61090f3a443e6a6afe6307abf06aef9cb
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
 F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6999639bbb87f642816887e2e743209ebb45d3302818f8e94535f070b98bc4de
-R d374e178a077d67bd30da19ce674ffca
+P df916a9d019ba735a6b4d176c6f660b16a2ce0566cd1ff2afade595359dd7542
+R 104a087be057e3f719d0c270fafa4b59
 U andygoth
-Z 27c4be4c5f9b7d6339f04f5a520051e1
+Z 61c1fd23df81895f43abd151b95d8c25
