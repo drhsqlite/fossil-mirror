@@ -1,5 +1,5 @@
-C Amend\sbroken\slink\sto\sOpenBSD\sserver\sdoc\sfrom\sfile\sname\schange:\sserver/openbsd/httpd.md\s->\sserver/openbsd/fastcgi.md
-D 2020-08-22T12:04:40.280
+C URL\sfixes\sin\swww/quotes.wiki;\swhere\sa\snew\sURL\scan't\sbe\sfound,\sremoved\nthe\squote\sas\sunsupportable.
+D 2020-08-22T13:49:47.800
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -943,7 +943,7 @@ F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
 F www/quickstart.wiki 18a1bd7bb08d7d4455fe4aca0019146e5ffdcb3f2f03c58a4bdda0fa374bd3e1
-F www/quotes.wiki dcb5b56c3438294218ccb7f0c6f7c81c98f747a46472516e1d6f17dac9f5c783
+F www/quotes.wiki 85a875fab87e9d1aebdab1677a4f8f77a8186de32ff7ecb569d126b405a8bd1f
 F www/rebase01.graphml 574098b3e357c102c7458379ee897a0cb220d45fd9619b6e77e7aff12add9e6f
 F www/rebase01.svg ea0836ca60e620c2ad79f1ac32fd88599a9606b9a290ae68b0f46fdfd63b5d2b
 F www/rebase02.graphml d2759751581f4d3716cba256814fef9ed05ff46cc161a600ab43dcf019782dcc
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96f1a9f50aed93845e7f8285e50f2e9f9a7efab11ddca0e07f13fc18d3827fe5
-R 7abe95232488e53d41191748e5ba2304
-U jamsek
-Z b435f3a5cc81f25c28f748bc56fac8ca
+P 0fd7302d9565ae3b28a00acc42fb59ebea9edf2c49ba4e1824f411595ed5c3f1
+R c459087242d9551b0ada515c4d75b764
+U wyoung
+Z 6cea6a94c9632bdc4f0e2d802376e8ea
