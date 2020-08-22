@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sforum\sthread\sdisplay.\s\sAdditional\sdetails\son\sthe\n[https://fossil-scm.org/forum/forumpost/3d3ffe23ed?t=h|forum\sthread].
-D 2020-08-22T15:34:31.497
+C More\srobust\shandling\sof\smissing\sCGI\sparameters.\s\sSee\sdiscussion\sat\n[https://www.fossil-scm.org/forum/forumpost/e2e75f8aec|forum\sthread\se2e75f8aec].
+D 2020-08-22T16:10:18.723
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c f2a22f48e00f2e791cbc7ddaf90fd2a000f3f4902de4fdecfc06998965fa3f1e
-F src/cgi.c bbc6bf77990a32369c2acbd0d4d996b77fcda20fa521cfa1b44eb278bb7a7c12
+F src/cgi.c f9029d6f7ae29c9e5c2aa596e226551907a2bf459aabed8be84b362b47b59197
 F src/checkin.c 34d8bf184605ae15664207f68ecbf3be439359007f5cc97d0d9b9ecef79dc3f5
 F src/checkout.c 5d824323142b2a66d9b06faf9353487312be821bb14ea71867e1af56aa7d527f
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -1007,8 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c80762fa811264605792fbbf473de09f3d091e5983e5b8aa56b3f41f19af0f51 71fe590e99d933ec99b0ff52456a72e4997a47c703cfdf0d1e18309e184f48ef
-R 14bb5bdc726f32011b03e914c6247e12
-T +closed 71fe590e99d933ec99b0ff52456a72e4997a47c703cfdf0d1e18309e184f48ef
+P 5182a1bfbf43e94d230544b738900497dfbf394cb64cdb65e0e951155e693e1e
+R 47e920527a5d8fc85954fb11b32c55f1
 U drh
-Z 4a4c5ccd9b642f9d7089c40b780d3673
+Z 7f3013e003608ecfe61e31725702cd9b
