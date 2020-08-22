@@ -734,7 +734,7 @@ void forumthread_page(void){
   int bRaw = PB("raw");
   int bUnf = PB("unf");
   int bHist = PB("hist");
-  int mode;
+  int mode = 0;
   login_check_credentials();
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);

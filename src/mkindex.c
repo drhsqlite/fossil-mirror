@@ -343,6 +343,8 @@ void scan_for_func(char *zLine){
     while( fossil_isspace(zLine[i]) ){ i++; }
     for(j=0; fossil_isident(zLine[i+j]); j++){}
     if( j==0 ) goto page_skip;
+  }else{
+    j = 0;
   }
   for(k=nHelp-1; k>=0 && fossil_isspace(zHelp[k]); k--){}
   nHelp = k+1;
