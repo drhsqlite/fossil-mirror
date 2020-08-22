@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings.
-D 2020-08-22T16:24:53.371
+C Typo\sfix.\sRemoved\s13th\squote,\sas\sthe\slink\sis\snow\s404,\sper\snote\sin\sthe\sforum.
+D 2020-08-22T16:26:36.088
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -943,7 +943,7 @@ F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
 F www/quickstart.wiki 18a1bd7bb08d7d4455fe4aca0019146e5ffdcb3f2f03c58a4bdda0fa374bd3e1
-F www/quotes.wiki 85a875fab87e9d1aebdab1677a4f8f77a8186de32ff7ecb569d126b405a8bd1f
+F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
 F www/rebase01.graphml 574098b3e357c102c7458379ee897a0cb220d45fd9619b6e77e7aff12add9e6f
 F www/rebase01.svg ea0836ca60e620c2ad79f1ac32fd88599a9606b9a290ae68b0f46fdfd63b5d2b
 F www/rebase02.graphml d2759751581f4d3716cba256814fef9ed05ff46cc161a600ab43dcf019782dcc
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6f69343ca4673d5128f40be011d6d16bca6f33f5bcdaeaca45eec544f8a4447
-R 1ee4d79cf2fbe2f53ef039dc0858196c
-U drh
-Z 73c5d0bd52a85171abf647e68b880b6b
+P a872067f7e7de38e74410418835584ac76347b14728adb835a62516c307a6c3a
+R e6239f7df583de9199bac276c42495d8
+U stephan
+Z 474561492fa01531fb71a533623a16fe
