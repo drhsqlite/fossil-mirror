@@ -1,5 +1,5 @@
-C Correct\sminor\sdocumentation\stypo\s(bytes\s->\sbits)
-D 2020-08-22T03:25:03.555
+C Amend\sbroken\slink\sto\sOpenBSD\sserver\sdoc\sfrom\sfile\sname\schange:\sserver/openbsd/httpd.md\s->\sserver/openbsd/fastcgi.md
+D 2020-08-22T12:04:40.280
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -838,7 +838,7 @@ F www/changes.wiki dc9ddc6194eddead1b7e3d5e288e77345ff842d1adc7a6a8676cb3b32fcd3
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
-F www/chroot.md 7f9b8ecaab29511d8a0c9a576635ef7d9a433dada85467c01a50c2488f22b55a
+F www/chroot.md bf75bbf5dbd1aef9d31b7744b9ba8ff647f956467107076c757cc86ee31ead80
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -964,7 +964,7 @@ F www/server/any/cgi.md 936ee3d21bbc4a9b47e20e3051177aed3e80ca42b970480b98dd374c
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
-F www/server/any/scgi.md 50c9e77ab325fee2746a3a2ac0e368ef5a61c3f5901effe8fcad4984b645d7ec
+F www/server/any/scgi.md d64d83db364b4777a1a20285f6eb7bccb63195bf9c851e165506090057d514e9
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/index.md 4260e776efd327e5e5873271d5599b753f464b78c41b8cbfc4b094b53e6fb896
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6eb1f43485233480b7327fd9d31181f4c681b262adee0a5d90eb0b9238fbdd4f
-R 7fafdbf471c2c15bbda69546e6101f73
-U andygoth
-Z 7db931db6a361137986ffa83dc9b8ba1
+P 96f1a9f50aed93845e7f8285e50f2e9f9a7efab11ddca0e07f13fc18d3827fe5
+R 7abe95232488e53d41191748e5ba2304
+U jamsek
+Z b435f3a5cc81f25c28f748bc56fac8ca
