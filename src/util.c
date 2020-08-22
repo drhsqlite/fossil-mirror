@@ -693,7 +693,7 @@ char *fossil_random_password(int N){
 
   /* Source characters for the password.  Omit characters like "0", "O",
   ** "1" and "I"  that might be easily confused */
-  static const char zAlphabet[] = 
+  static const char zAlphabet[] =
            /*  0         1         2         3         4         5       */
            /*   123456789 123456789 123456789 123456789 123456789 123456 */
               "23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -729,4 +729,14 @@ void test_random_password(void){
     N = atoi(g.argv[2]);
   }
   fossil_print("%s\n", fossil_random_password(N));
+}
+
+/*
+** Return the number of decimal digits in a nonnegative integer.  This is useful
+** when formatting text.
+*/
+int fossil_num_digits(int n){
+  return n<      10 ? 1 : n<      100 ? 2 : n<      1000 ? 3
+       : n<   10000 ? 4 : n<   100000 ? 5 : n<   1000000 ? 6
+       : n<10000000 ? 7 : n<100000000 ? 8 : n<1000000000 ? 9 : 10;
 }
