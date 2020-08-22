@@ -1201,6 +1201,96 @@ static const char *wiki_is_overridden(const char *zTarget){
 }
 
 /*
+** If zTarget is an interwiki link, return a pointer to a URL for that
+** link target in memory obtained from fossil_malloc().  If zTarget is
+** not a valid interwiki link, return NULL.
+**
+** An interwiki link target is of the form:
+**
+**       Code:PageName
+**
+** "Code" is a brief code that describes the intended target wiki.
+** Codes are assigned by "intermap:*" entries in the CONFIG table.
+** The link is only valid if there exists an try in the CONFIG table
+** that matches "intermap:Code".
+**
+** Each value of each intermap:Code entry in the CONFIG table is a JSON
+** object with the following fields:
+**
+**    {
+**      "base":  Base URL for the remote site.
+**      "hash":  Append this to "base" for Hash targets.
+**      "wiki":  Append this to "base" for Wiki targets.
+**    }
+**
+** If the remote wiki is Fossil, then the correct value for "hash" 
+** is "/info/" and the correct value for "wiki" is "/wiki?name=".
+** If (for example) Wikipedia is the remote, then "hash" should be
+** omitted and the correct value for "wiki" is "/wiki/".  
+**
+** PageName is link name of the target wiki.  Several different forms
+** of PageName are recognized.
+**
+**    Path       If PageName is empty or begins with a "/" character, then
+**               it is a pathname that is appended to "base".
+**
+**    Hash       If PageName is a hexadecimal string of 4 or more
+**               characters, then PageName is appended to "hash" which
+**               is then appended to "base".
+**
+**    Wiki       If PageName does not start with "/" and it is
+**               not a hexadecimal string of 4 or more characters, then
+**               PageName is appended to "wiki" and that combination is
+**               appended to "base".
+**
+** See https://en.wikipedia.org/wiki/Interwiki_links for further information
+** on interwiki links.
+*/
+static char *wiki_is_interwiki(const char *zTarget){
+  int nCode;
+  int i;
+  const char *zPage;
+  int nPage;
+  char *zUrl = 0;
+  Stmt q;
+  for(i=0; zTarget[i] && zTarget[i]!=':'; i++){}
+  if( zTarget[i]==0 ) return 0;
+  nCode = i;
+  if( nCode==4 && strncmp(zTarget,"wiki",4)==0 ) return 0;
+  zPage = zTarget + nCode + 1;
+  nPage = (int)strlen(zPage);
+  db_prepare(&q, 
+     "SELECT json_extract(value,'$.base'),"
+           " json_extract(value,'$.hash'),"
+           " json_extract(value,'$.wiki')"
+     " FROM config WHERE name=lower('interwiki:%.*q')",
+     nCode, zTarget);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zBase = db_column_text(&q,0);
+    if( zBase==0 || zBase[0]==0 ) break;
+    if( nPage==0 || zPage[0]=='/' ){
+      /* Path */
+      zUrl = mprintf("%s%s", zBase, zPage);
+    }else if( nPage>=4 && validate16(zPage,nPage) ){
+      /* Hash */
+      const char *zHash = db_column_text(&q,1);
+      if( zHash && zHash[0] ){
+        zUrl = mprintf("%s%s%s", zBase, zHash, zPage);
+      }
+    }else{
+      /* Wiki */
+      const char *zWiki = db_column_text(&q,2);
+      if( zWiki && zWiki[0] ){
+        zUrl = mprintf("%s%s%s", zBase, zWiki, zPage);
+      }
+    }
+    break;
+  }
+  db_finalize(&q);
+  return zUrl;
+}
+
+/*
 ** Resolve a hyperlink.  The zTarget argument is the content of the [...]
 ** in the wiki.  Append to the output string whatever text is appropriate
 ** for opening the hyperlink.  Write into zClose[0...nClose-1] text that will
@@ -1232,6 +1322,8 @@ static const char *wiki_is_overridden(const char *zTarget){
 **    [wiki:WikiPageName]
 **
 **    [2010-02-27 07:13]
+**
+**    [InterMap:Link]  ->  Interwiki link
 */
 void wiki_resolve_hyperlink(
   Blob *pOut,             /* Write the HTML output here */
@@ -1246,6 +1338,7 @@ void wiki_resolve_hyperlink(
   const char *z;
   char *zExtra = 0;
   const char *zExtraNS = 0;
+  char *zRemote = 0;
 
   if( zTitle ){
     zExtra = mprintf(" title='%h'", zTitle);
@@ -1305,6 +1398,9 @@ void wiki_resolve_hyperlink(
     }else{
       zTerm = "";
     }
+  }else if( (zRemote = wiki_is_interwiki(zTarget))!=0 ){
+    blob_appendf(pOut, "<a href=\"%z\"%s>", zRemote, zExtra);
+    zTerm = "</a>";
   }else if( (z = validWikiPageName(mFlags, zTarget))!=0 ){
     /* The link is to a valid wiki page name */
     const char *zOverride = wiki_is_overridden(zTarget);

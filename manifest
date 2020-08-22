@@ -1,5 +1,5 @@
-C Update\sthe\sFossil\sWiki\sand\sMarkdown\scheat-sheets\sto\sinclude\shyperlinks\sto\none\sanother.
-D 2020-08-22T19:07:17.399
+C Rudimentary\ssupport\sfor\s[wikipedia:interwiki_links|interwiki\slinks].
+D 2020-08-22T20:23:28.575
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -641,7 +641,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 540a0f79875e714ac9156d4d425a4ff688e81a4c100d5a91096f997540904a5a
 F src/wiki.wiki 6d753d178eba73befe21b03a7639fe96df85bcd2c36f23453f42ae41706cb35c
-F src/wikiformat.c 4419c7cf4971a1abf8a0a4d20da93435bea3d6b1f05e1f4e8e5acc3039865e0d
+F src/wikiformat.c cce2a25760f851bdd4046060a6adf63e91876b08957b77d46a928297462c4089
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/xfer.c 1774cede1435f5a3dfac847929fa347d02483b422d67b50f8993066792f32f93
@@ -1007,7 +1007,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 659f6cd080d7825b61eef8d1400984e1f7c30ce7f64692126b64b3ea5910420e
-R 756e595e05942f0a7079ca347d69e4ca
+P 0ae2dbd40a3e33530906ccaa38268cbbb186751bdd0d502fed5bf2e9c19d6622
+R 981563bf493d53d3b0cae55b612c1fff
+T *branch * interwiki
+T *sym-interwiki *
+T -sym-trunk *
 U drh
-Z 85494b4e151ea37b8494c1158a17dd1c
+Z 1acb03f6f4cd8a4ec3065085ef014f21
