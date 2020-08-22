@@ -572,6 +572,7 @@ static void forum_display_thread(
   ForumPost *p;         /* Post iterator pointer */
   char *zQuery;         /* Common query string */
   int iIndentScale = 4; /* Indent scale factor, measured in "ex" units */
+  int sid;              /* Comparison serial ID */
 
   /* In raw mode, force unformatted display and disable history. */
   if( mode == FD_RAW ){
@@ -633,8 +634,9 @@ static void forum_display_thread(
       if( bHist ){
         p = p->pNext;
       }else{
+        sid = p->sid;
         if( p->pEditHead ) p = p->pEditHead;
-        do p = p->pNext; while( p && p->sid<=p->pPrev->sid );
+        do p = p->pNext; while( p && p->sid<=sid );
         if( p && p->pEditTail ) p = p->pEditTail;
       }
     }else if( bHist && p->pEditNext ){
