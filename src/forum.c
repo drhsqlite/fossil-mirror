@@ -592,9 +592,9 @@ static void forum_display_thread(
     iIndentScale = 0;
   }
 
-  /* Find the selected post, or (if history not shown) its latest edit. */
+  /* Find the selected post, or (depending on parameters) its latest edit. */
   pSelect = fpid ? forumpost_forward(pThread->pFirst, fpid) : 0;
-  if( !bHist && pSelect && pSelect->pEditTail ){
+  if( !bHist && mode!=FD_RAW && pSelect && pSelect->pEditTail ){
     pSelect = pSelect->pEditTail;
   }
 
