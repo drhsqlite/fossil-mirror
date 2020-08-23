@@ -265,3 +265,120 @@ void interwiki_append_map_table(Blob *out){
     blob_appendf(out,"<i>None</i></blockquote>\n");
   }
 }
+
+/*
+** WEBPAGE: /intermap
+**
+** View and modify the interwiki tag map or "intermap".
+** This page is visible to administrators only.
+*/
+void interwiki_page(void){
+  Stmt q;
+  int n = 0;
+  const char *z;
+  const char *zTag = "";
+  const char *zBase = "";
+  const char *zHash = "";
+  const char *zWiki = "";
+  char *zErr = 0;
+
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  if( P("submit")!=0 && cgi_csrf_safe(1) ){
+    zTag = PT("tag");
+    zBase = PT("base");
+    zHash = PT("hash");
+    zWiki = PT("wiki");
+    if( zTag==0 || zTag[0]==0 || !interwiki_valid_name(zTag) ){
+      zErr = mprintf("Not a valid interwiki tag name: \"%s\"", zTag ? zTag : "");
+    }else if( zBase==0 || zBase[0]==0 ){
+      db_multi_exec("DELETE FROM config WHERE name='interwiki:%q';", zTag);
+    }else{
+      if( zHash && zHash[0]==0 ) zHash = 0;
+      if( zWiki && zWiki[0]==0 ) zWiki = 0;
+      db_multi_exec(
+        "REPLACE INTO config(name,value,mtime)"
+        "VALUES('interwiki:'||lower(%Q),"
+        " json_object('base',%Q,'hash',%Q,'wiki',%Q),"
+        " now());",
+        zTag, zBase, zHash, zWiki);
+    }
+  }
+
+  style_header("Interwiki Map Configuration");
+  @ <p>Interwiki links are hyperlink targets of the form
+  @ <blockquote><i>Tag</i><b>:</b><i>PageName</i></blockquote>
+  @ <p>Such links resolve to links to <i>PageName</i> on a separate server
+  @ identified by <i>Tag</i>.  The Interwiki Map or "intermap" is a mapping
+  @ from <i>Tags</i> to complete Server URLs.
+  db_prepare(&q,
+    "SELECT substr(name,11),"
+    "       json_extract(value,'$.base'),"
+    "       json_extract(value,'$.hash'),"
+    "       json_extract(value,'$.wiki')"
+    "  FROM config WHERE name glob 'interwiki:*'"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    if( n==0 ){
+      @ The current mapping is as follows:
+      @ <ol>
+    }
+    @ <li><p> %h(db_column_text(&q,0))
+    @ <ul>
+    @ <li> Base-URL: <tt>%h(db_column_text(&q,1))</tt>
+    z = db_column_text(&q,2);
+    if( z==0 ){
+      @ <li> Hash-path: <i>NULL</i>
+    }else{
+      @ <li> Hash-path: <tt>%h(z)</tt>
+    }
+    z = db_column_text(&q,3);
+    if( z==0 ){
+      @ <li> Wiki-path: <i>NULL</i>
+    }else{
+      @ <li> Wiki-path: <tt>%h(z)</tt>
+    }
+    @ </ul>
+    n++;
+  }
+  db_finalize(&q);
+  if( n ){
+    @ </ol>
+  }else{
+    @ No mappings are currently defined.
+  }
+
+  @ <p>To add a new mapping, fill out the form below providing a unique name
+  @ for the tag.  To edit an exist mapping, fill out the form and use the
+  @ existing name as the tag.  To delete an existing mapping, fill in the
+  @ tag field but leave the "Base URL" field blank.</p>
+  if( zErr ){
+    @ <p class="error">%h(zErr)</p>
+  }
+  @ <form method="POST" action="%R/intermap">
+  login_insert_csrf_secret();
+  @ <table border="0">
+  @ <tr><td class="form_label" id="imtag">Tag:</td>
+  @ <td><input type="text" id="tag" aria-labeledby="imtag" name="tag" \
+  @ size="15" value="%h(zTag)"></td></tr>
+  @ <tr><td class="form_label" id="imbase">Base&nbsp;URL:</td>
+  @ <td><input type="text" id="base" aria-labeledby="imbase" name="base" \
+  @ size="70" value="%h(zBase)"></td></tr>
+  @ <tr><td class="form_label" id="imhash">Hash-path:</td>
+  @ <td><input type="text" id="hash" aria-labeledby="imhash" name="hash" \
+  @ size="20" value="%h(zHash)">
+  @ (use "<tt>/info/</tt>" when the target is Fossil)</td></tr>
+  @ <tr><td class="form_label" id="imwiki">Wiki-path:</td>
+  @ <td><input type="text" id="wiki" aria-labeledby="imwiki" name="wiki" \
+  @ size="20" value="%h(zWiki)">
+  @ (use "<tt>/wiki?name=</tt>" when the target is Fossil)</td></tr>
+  @ <tr><td></td>
+  @ <td><input type="submit" name="submit" value="Apply Changes"></td></tr>
+  @ </table>
+  @ </form>
+
+  style_footer(); 
+}

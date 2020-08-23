@@ -1,5 +1,5 @@
-C Add\spreliminary\sdocumentation\sfor\sinterwiki\slinks.\s\sList\sthe\sintermap\son\nthe\s/md_rules\sand\s/wiki_rules\spages.
-D 2020-08-23T14:04:00.901
+C Add\sthe\s/intermap\spage\sfor\sadjusting\sthe\sinterwiki\smapping\susing\sa\sWeb\ninterface.
+D 2020-08-23T15:52:01.200
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -513,7 +513,7 @@ F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c b6e7722f771ee53570ff2533f137c2df3dd437dfdab9c07d5b9c7999c09744d2
 F src/info.c 7c8e2872c86e666586596246318265f1227610bc28b0f5bbc816e83aba044f9c
-F src/interwiki.c 0a942e92fe9a5fa63104e78209b63c2b042a7ca3ee01b780f1469c6bfb4ab167
+F src/interwiki.c 1fb5409893576120ccbac598117d6b14abe58952e1f0f34328381c875dd4e279
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -574,7 +574,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
 F src/security_audit.c 9971efdae334f67fdbeebb9d8c3dca6de11edcf277f3b4a6a5970231b2490eed
-F src/setup.c 65e0561749d4176cdb5bb95527161ec5578ebd0e3788f8c3d667abc0986219fe
+F src/setup.c d9389c3d24c90ad98679351216745f266c01246f11054f1f3fd4c00d300ba786
 F src/setupuser.c a87e8429e5a245b3461f848a0547922612b0458d991d7ff9bd8a98585f37b9fa
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fa105da061b91b846e9086b0603d613696d3ae29af502e8ce3e6392e23fc3754
-R 43cee7a1e969e21392e607d983e6dbff
+P 1a4158ea86747320c337438168e242bead4c0ec733ecf74c49b6430c42f9bd7d
+R 0549fed8230c385950eb22601aa53d2a
 U drh
-Z aa86f3ebef469ef7da1b13e928f96ae0
+Z 133f48fea2da194ef358da564d63d4a3
