@@ -264,8 +264,8 @@ int configure_is_exportable(const char *zName){
   if( strncmp(zName, "walias:/", 8)==0 ){
     return CONFIGSET_ALIAS;
   }
-  if( strncmp(zName, "intermap:/", 10)==0 ){
-    return CONFIGSET_PROJ;
+  if( strncmp(zName, "interwiki:", 10)==0 ){
+    return CONFIGSET_IWIKI;
   }
   return 0;
 }
@@ -606,7 +606,7 @@ int configure_send_group(
   }
   if( groupMask & CONFIGSET_IWIKI ){
     db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
-                   " WHERE name GLOB 'intermap:/*' AND mtime>=%lld", iStart);
+                   " WHERE name GLOB 'interwiki:*' AND mtime>=%lld", iStart);
     while( db_step(&q)==SQLITE_ROW ){
       blob_appendf(&rec,"%s %s value %s",
         db_column_text(&q, 0),
