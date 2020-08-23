@@ -1,5 +1,5 @@
-C The\s"Code"\son\san\sinter-wiki\slink\smust\sbe\sascii\salphanumeric.\s\sSync\sthe\ninter-wiki\sconfig\stable\sentries\son\sclone.
-D 2020-08-22T23:21:59.924
+C Typo\sfix\sin\scomment
+D 2020-08-23T00:29:35.354
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -641,7 +641,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 540a0f79875e714ac9156d4d425a4ff688e81a4c100d5a91096f997540904a5a
 F src/wiki.wiki 6d753d178eba73befe21b03a7639fe96df85bcd2c36f23453f42ae41706cb35c
-F src/wikiformat.c a124397d924299cac83efe1c9d97d471fd950aea741183db5eb26c5caaed84db
+F src/wikiformat.c f8f6400009c7c1784ae4f847650e0531e1e0c2e4107953b57a8e6e0401ab6331
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/xfer.c 1774cede1435f5a3dfac847929fa347d02483b422d67b50f8993066792f32f93
@@ -1007,7 +1007,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ca23edc8fe05300dc31dbc3d771e39a1a7fa99bde0712ffd799e2ac6dff3dcc
-R 1bc625aabe85f8ad917e67168129ec8c
-U drh
-Z e18a3685adc670d097175c31d8f8aac3
+P 550536789fbefa43f825908300577f568b34bd48cefdc29f9b52cc581531eed7
+R c6e5487e46239e6035bb15f0fe4f1acf
+U wyoung
+Z 05749c35a28fed157a3717172c916eb3

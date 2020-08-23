@@ -1213,7 +1213,7 @@ static const char *wiki_is_overridden(const char *zTarget){
 ** The code must be ASCII alpha-numeric.  No symbols or non-ascii
 ** characters are allows.  Case is ignored for the code.
 ** Codes are assigned by "intermap:*" entries in the CONFIG table.
-** The link is only valid if there exists an try in the CONFIG table
+** The link is only valid if there exists an entry in the CONFIG table
 ** that matches "intermap:Code".
 **
 ** Each value of each intermap:Code entry in the CONFIG table is a JSON
