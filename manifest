@@ -1,5 +1,5 @@
-C Move\smuch\sinterwiki\scode\sinto\sa\snew\ssource\sfiles\s"interwiki.c".\s\sAdd\sthe\n"fossil\sinterwiki"\scommand\sfor\smanaging\sthe\slist\sof\sremote\swikis.
-D 2020-08-23T01:43:55.045
+C Fix\ssyntax\serror\sin\sthe\sprevious\scommit.\s\sDunno\show\sI\smanaged\sto\scheck\sin\na\schange\sthat\sdoesn't\sbuild....
+D 2020-08-23T01:47:59.942
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -513,7 +513,7 @@ F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c b6e7722f771ee53570ff2533f137c2df3dd437dfdab9c07d5b9c7999c09744d2
 F src/info.c 7c8e2872c86e666586596246318265f1227610bc28b0f5bbc816e83aba044f9c
-F src/interwiki.c 1bce0e2687c176e400ab44e21d84b4492228dea909905c22fe728f9ab7c2f44c
+F src/interwiki.c 5fe08164fbe2c8a76fd68085270854d6a595e8a3a0286d2ac3075c6ba54e581f
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -1008,7 +1008,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c959dde140adc6ffeb96fe5515d15776bd7d5afd0a28520a8678a3a813a20cc6
-R dcf4c4aeeb2c41e7b65c9fd463494aab
+P 0875073359ec24d80dfb9881b57efe69aa9ec6653ed7cb20f5389c8e1df23ee7
+R dcd77db3645f486e8429b201ff02f4ff
 U drh
-Z df7afa616d5facc87e6a97354bdbf751
+Z 2a0b7b8f2e07db69e9a2236f30c2e313

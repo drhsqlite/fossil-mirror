@@ -70,7 +70,7 @@
 ** See https://en.wikipedia.org/wiki/Interwiki_links for further information
 ** on interwiki links.
 */
-static char *interwiki_url(const char *zTarget){
+char *interwiki_url(const char *zTarget){
   int nCode;
   int i;
   const char *zPage;
