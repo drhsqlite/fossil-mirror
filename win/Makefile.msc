@@ -409,6 +409,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\http_transport_.c" \
         "$(OX)\import_.c" \
         "$(OX)\info_.c" \
+        "$(OX)\interwiki_.c" \
         "$(OX)\json_.c" \
         "$(OX)\json_artifact_.c" \
         "$(OX)\json_branch_.c" \
@@ -660,6 +661,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\http_transport$O" \
         "$(OX)\import$O" \
         "$(OX)\info$O" \
+        "$(OX)\interwiki$O" \
         "$(OX)\json$O" \
         "$(OX)\json_artifact$O" \
         "$(OX)\json_branch$O" \
@@ -886,6 +888,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\http_transport.obj" >> $@
 	echo "$(OX)\import.obj" >> $@
 	echo "$(OX)\info.obj" >> $@
+	echo "$(OX)\interwiki.obj" >> $@
 	echo "$(OX)\json.obj" >> $@
 	echo "$(OX)\json_artifact.obj" >> $@
 	echo "$(OX)\json_branch.obj" >> $@
@@ -1551,6 +1554,12 @@ realclean: clean
 "$(OX)\info_.c" : "$(SRCDIR)\info.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\interwiki$O" : "$(OX)\interwiki_.c" "$(OX)\interwiki.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\interwiki_.c"
+
+"$(OX)\interwiki_.c" : "$(SRCDIR)\interwiki.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\json$O" : "$(OX)\json_.c" "$(OX)\json.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\json_.c"
 
@@ -2118,6 +2127,7 @@ realclean: clean
 			"$(OX)\http_transport_.c":"$(OX)\http_transport.h" \
 			"$(OX)\import_.c":"$(OX)\import.h" \
 			"$(OX)\info_.c":"$(OX)\info.h" \
+			"$(OX)\interwiki_.c":"$(OX)\interwiki.h" \
 			"$(OX)\json_.c":"$(OX)\json.h" \
 			"$(OX)\json_artifact_.c":"$(OX)\json_artifact.h" \
 			"$(OX)\json_branch_.c":"$(OX)\json_branch.h" \
