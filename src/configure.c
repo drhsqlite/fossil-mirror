@@ -733,7 +733,8 @@ static void export_config(
 **         Write to FILENAME exported configuration information for AREA.
 **         AREA can be one of:
 **
-**             all email project shun skin ticket user alias subscriber
+**             all email interwiki project shun skin
+**             ticket user alias subscriber
 **
 ** >  fossil configuration import FILENAME
 **
