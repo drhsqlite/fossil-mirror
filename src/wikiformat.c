@@ -1232,6 +1232,8 @@ static const char *wiki_is_overridden(const char *zTarget){
 **    [wiki:WikiPageName]
 **
 **    [2010-02-27 07:13]
+**
+**    [InterMap:Link]  ->  Interwiki link
 */
 void wiki_resolve_hyperlink(
   Blob *pOut,             /* Write the HTML output here */
@@ -1246,6 +1248,7 @@ void wiki_resolve_hyperlink(
   const char *z;
   char *zExtra = 0;
   const char *zExtraNS = 0;
+  char *zRemote = 0;
 
   if( zTitle ){
     zExtra = mprintf(" title='%h'", zTitle);
@@ -1305,6 +1308,9 @@ void wiki_resolve_hyperlink(
     }else{
       zTerm = "";
     }
+  }else if( (zRemote = interwiki_url(zTarget))!=0 ){
+    blob_appendf(pOut, "<a href=\"%z\"%s>", zRemote, zExtra);
+    zTerm = "</a>";
   }else if( (z = validWikiPageName(mFlags, zTarget))!=0 ){
     /* The link is to a valid wiki page name */
     const char *zOverride = wiki_is_overridden(zTarget);

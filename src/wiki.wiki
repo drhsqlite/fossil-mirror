@@ -45,7 +45,9 @@ The last two rules are the HTML formatting rules.
   5.  <b>Hyperlinks.</b>
       Text within square brackets <nowiki>("[...]")</nowiki> becomes a
       hyperlink. The target can be a wiki page name, the artifact ID of
-      a check-in or ticket, the name of an image, or a URL.
+      a check-in or ticket, the name of an image, a URL, or an
+      [#intermap|interwiki link] of the form 
+      "<i>Tag</i><b>:</b><i>PageName</i>".
       By default, the target is displayed as the text of the hyperlink.
       But you can specify alternative text after the target name
       separated by a "|" character.
@@ -80,6 +82,5 @@ The last two rules are the HTML formatting rules.
       like &lt;pre&gt; with the addition that it also disables all wiki
       and HTML markup through the matching &lt;/verbatim&gt;.
 
-<h2>See Also</h2>
-
-  *  [/md_rules|Markdown formatting rules]
+<a name="intermap"></a>
+<h2>Interwiki Tag Map</h2>
