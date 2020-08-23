@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s"fossil\sconfig"\scommand\sdocumentation\sand\sthe\schange\slog.
-D 2020-08-23T20:06:57.563
+C Provide\sbacklinks\sfrom\sForum\sposts.\s\sRun\srebuild\sto\sinsert\sForum\sbacklinks\ninto\sthe\sBACKLINK\stable\safter\sapplying\sthis\spatch.
+D 2020-08-23T22:11:08.175
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -435,7 +435,7 @@ F src/ajax.c cfb937838211d61ce4dfca117aa7268ce213f57335c9199ff942655fc0005835
 F src/alerts.c 9773defbf3d7134aaad841ad6698f7c899c311bca0ebf680c7dbf65168cd2dbf
 F src/allrepo.c 52b44fe6a430f2d4821500ac75c76617b3c1103983572e3e887cee363d27a9a9
 F src/attach.c 90aded4f90c9ef2bbd770e0feefc76c705b67f40bf4b1263ae9832ac268e19ae
-F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a0
+F src/backlink.c 71ccb7e575c15dc88e0bbc482327b8e4bec27da318db3d5ee15a65e94d8b2e15
 F src/backoffice.c a6050595f00797ed1a45ca49617607d60d223bb8fb088ff2eace2cd6a979cbd2
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c fa16fe02114d63561139babd2309c78d07466edb8872047c8e711b58c252c288
@@ -542,7 +542,7 @@ F src/main.mk d5c841c3a5bd3e20dcb451c7218da00fe19f36d7ce3399f700e166f8fc821516
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 586eb42bbd36264bbdb3cb8690be136c69bb85954216f46610baeebeb525ac31 x
-F src/manifest.c b982d37188a07537954990fe06a6751cb9033342a4cc655ebba0d9ceb0e654ac
+F src/manifest.c 09660088ea35f0195906fdbb301153c96f4324450a21729c7b3a019b20851164
 F src/markdown.c 1dc6457837632cda872d68d79ab69a2a305d58689a2fdc9ac09e7a6bef7a5561
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
 F src/markdown_html.c ebd8d9a98ea3402403453c517aa822da1bd01923e38bf7a8632cb667db90da31
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5244a5484a103065aa15cbeadeb93990398f0ead392e0bcec4d307a72d0a1316
-R e75897e7c9e5da59ec88cd6e3b09ca39
+P 79b1cd4bf55857ffd679b104063ea415b07fd852fdd2c98010dc8411bd74d54c
+R 6661b4256ff651c7ea94446225227b17
 U drh
-Z 650bf317ed0226d9ae600f5c276148e5
+Z bb3ed7e13507af170774673bb555b155
