@@ -75,6 +75,7 @@ SRC = \
   $(SRCDIR)/http_transport.c \
   $(SRCDIR)/import.c \
   $(SRCDIR)/info.c \
+  $(SRCDIR)/interwiki.c \
   $(SRCDIR)/json.c \
   $(SRCDIR)/json_artifact.c \
   $(SRCDIR)/json_branch.c \
@@ -327,6 +328,7 @@ TRANS_SRC = \
   $(OBJDIR)/http_transport_.c \
   $(OBJDIR)/import_.c \
   $(OBJDIR)/info_.c \
+  $(OBJDIR)/interwiki_.c \
   $(OBJDIR)/json_.c \
   $(OBJDIR)/json_artifact_.c \
   $(OBJDIR)/json_branch_.c \
@@ -472,6 +474,7 @@ OBJ = \
  $(OBJDIR)/http_transport.o \
  $(OBJDIR)/import.o \
  $(OBJDIR)/info.o \
+ $(OBJDIR)/interwiki.o \
  $(OBJDIR)/json.o \
  $(OBJDIR)/json_artifact.o \
  $(OBJDIR)/json_branch.o \
@@ -807,6 +810,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/http_transport_.c:$(OBJDIR)/http_transport.h \
 	$(OBJDIR)/import_.c:$(OBJDIR)/import.h \
 	$(OBJDIR)/info_.c:$(OBJDIR)/info.h \
+	$(OBJDIR)/interwiki_.c:$(OBJDIR)/interwiki.h \
 	$(OBJDIR)/json_.c:$(OBJDIR)/json.h \
 	$(OBJDIR)/json_artifact_.c:$(OBJDIR)/json_artifact.h \
 	$(OBJDIR)/json_branch_.c:$(OBJDIR)/json_branch.h \
@@ -1369,6 +1373,14 @@ $(OBJDIR)/info.o:	$(OBJDIR)/info_.c $(OBJDIR)/info.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/info.o -c $(OBJDIR)/info_.c
 
 $(OBJDIR)/info.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/interwiki_.c:	$(SRCDIR)/interwiki.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/interwiki.c >$@
+
+$(OBJDIR)/interwiki.o:	$(OBJDIR)/interwiki_.c $(OBJDIR)/interwiki.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/interwiki.o -c $(OBJDIR)/interwiki_.c
+
+$(OBJDIR)/interwiki.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/json_.c:	$(SRCDIR)/json.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/json.c >$@

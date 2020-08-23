@@ -3,7 +3,7 @@
 <a name='v2_13'></a>
 <h2>Changes for Version 2.13 (pending)</h2>
 
-  *  <i>TBD...</i>
+  *  Added support for [./interwiki.md|interwiki links].
 
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12.1 (2020-08-20)</h2>

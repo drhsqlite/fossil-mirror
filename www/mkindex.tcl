@@ -63,6 +63,7 @@ set doclist {
   history.md {The Purpose And History Of Fossil}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
+  interwiki.md {Interwiki Links}
   image-format-vs-repo-size.md {Image Format vs Fossil Repo Size}
   javascript.md {Use of JavaScript in Fossil}
   makefile.wiki {The Fossil Build Process}

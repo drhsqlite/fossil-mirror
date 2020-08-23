@@ -1087,6 +1087,11 @@ void setup_wiki(void){
   @ to generate unsafe HTML.
   @ (Property: "safe-html")</p>
   @ <hr />
+  @ The current interwiki tag map is as follows:
+  interwiki_append_map_table(cgi_output_blob());
+  @ <p>Visit <a href="./intermap">%R/intermap</a> for details or to
+  @ modify the interwiki tag map.
+  @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
   @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
