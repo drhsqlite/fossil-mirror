@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sinterwiki\slinks.
-D 2020-08-23T15:55:37.831
+C For\sthe\swiki_render_page_list_json()\sfunction,\sonly\sinclude\spages\son\sthe\slist\nif\sthey\shave\sone\sor\smore\sartifacts.\s\sThis\sseems\sto\sclears\sthe\sbug\sdescribed\nby\s["Wiki\seditor\sinop"\sforum\spost](forum:a9e345482e).
+D 2020-08-23T18:12:47.302
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -640,7 +640,7 @@ F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 0fce068de39000f17bbfae7625be15ec019b014186fd088c370134f24a8f05a5
+F src/wiki.c 3aa7e723b49004bf5a2eb1cd7a61dbb154bf9c8fa48f4fcf55143056b4c49aef
 F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
 F src/wikiformat.c 4558bd1542c709babdd78e51328a7e0e058c8583b68a8af2a125b0c16b05f58f
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1009,8 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0ae2dbd40a3e33530906ccaa38268cbbb186751bdd0d502fed5bf2e9c19d6622 dab94dda308cf6b3dbc8be0f9dab26380d5eb7502fa0aad12bd7469449a567fb
-R 0549fed8230c385950eb22601aa53d2a
-T +closed dab94dda308cf6b3dbc8be0f9dab26380d5eb7502fa0aad12bd7469449a567fb
+P f4dc114a780fea418993a34843e11b8c826cfae3fff23633c69b18d69413c799
+R c66eab2315b42b266103449ecbeed9ad
 U drh
-Z 41459a7eb4ff67773d9d754bb989a361
+Z 35e6d983bb8726137391146bec2625ec
