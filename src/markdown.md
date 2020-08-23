@@ -46,11 +46,12 @@
 > <ul>
 > <li>  A relative pathname.
 > <li>  A pathname starting with "/" in which case the Fossil server
->      URL prefix is prepended
+>       URL prefix is prepended
 > <li>  A wiki page name, or a wiki page name preceded by "wiki:"
-> <li> An artifact or ticket hash or hash prefix
+> <li>  An artifact or ticket hash or hash prefix
 > <li>  A date and time stamp: "YYYY-MM-DD HH:MM:SS" or a subset that
->      includes at least the day of the month.</ul>
+>       includes at least the day of the month.
+> <li>  An [interwiki link](#intermap) of the form "<i>Tag</i><b>:</b><i>PageName</i>"</ul>
 
 > In format 8, then the URL becomes the display text.  This is useful for
 > hyperlinks that refer to wiki pages and check-in and ticket hashes.
@@ -155,6 +156,5 @@
 
 [daringfireball.net]: http://daringfireball.net/projects/markdown/syntax
 
-## See also:
-
-  *  [Fossil Wiki Formatting Rules](/wiki_rules)
+<a name="intermap"></a>
+## Interwiki Tag Map

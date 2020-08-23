@@ -133,17 +133,18 @@ static int interwiki_valid_name(const char *zName){
 **
 ** Usage: %fossil interwiki COMMAND ...
 **
-** Manage interwiki labels using the following commands:
+** Manage the "intermap" that defines the mapping from interwiki tags
+** to complete URLs for interwiki links.
 **
-** >  fossil interwiki delete NAME ...
+** >  fossil interwiki delete TAG ...
 **
 **        Delete one or more interwiki maps.
 **
-** >  fossil interwiki edit NAME --base URL --hash PATH --wiki PATH
+** >  fossil interwiki edit TAG --base URL --hash PATH --wiki PATH
 **
-**        Create a interwiki referenced call NAME.  The base URL is
+**        Create a interwiki referenced call TAG.  The base URL is
 **        the --base option, which is required.  The --hash and --wiki
-**        paths are optional.  The NAME must be lower-case alphanumeric
+**        paths are optional.  The TAG must be lower-case alphanumeric
 **        and must be unique.  A new entry is created if it does not
 **        already exit.
 **
@@ -166,7 +167,7 @@ void interwiki_cmd(void){
     const char *zHash = find_option("hash",0,1);
     const char *zWiki = find_option("wiki",0,1);
     verify_all_options();
-    if( g.argc!=4 ) usage("add NAME ?OPTIONS?");
+    if( g.argc!=4 ) usage("add TAG ?OPTIONS?");
     zName = g.argv[3];
     if( zBase){
       fossil_fatal("the --base option is required");
@@ -231,5 +232,36 @@ void interwiki_cmd(void){
   {
      fossil_fatal("unknown command \"%s\" - should be one of: "
                   "delete edit list", zCmd);
+  }
+}
+
+
+/*
+** Append text to the "Markdown" or "Wiki" rules pages that shows
+** a table of all interwiki tags available on this system.
+*/
+void interwiki_append_map_table(Blob *out){
+  int n = 0;
+  Stmt q;
+  db_prepare(&q,
+    "SELECT substr(name,11), json_extract(value,'$.base')"
+    "  FROM config WHERE name glob 'interwiki:*'"
+    " ORDER BY name;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    if( n==0 ){
+      blob_appendf(out, "<blockquote><table>\n");
+    }
+    blob_appendf(out,"<tr><td>%h</td><td>&nbsp;&rarr;&nbsp;</td>",
+       db_column_text(&q,0));
+    blob_appendf(out,"<td>%h</td></tr>\n",
+       db_column_text(&q,1));
+    n++;
+  }
+  db_finalize(&q);
+  if( n>0 ){
+    blob_appendf(out,"</table></blockquote>\n");
+  }else{
+    blob_appendf(out,"<i>None</i></blockquote>\n");
   }
 }
