@@ -1,5 +1,5 @@
-C Provide\sbacklinks\sfrom\sForum\sposts.\s\sRun\srebuild\sto\sinsert\sForum\sbacklinks\ninto\sthe\sBACKLINK\stable\safter\sapplying\sthis\spatch.
-D 2020-08-23T22:11:08.175
+C Reverted\s[37409e7dbe]\sin\sfavor\sof\s[5244a548],\swhich\sis\scleaner,\ssmaller,\sand\sworks.
+D 2020-08-24T04:33:41.803
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -640,7 +640,7 @@ F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 3aa7e723b49004bf5a2eb1cd7a61dbb154bf9c8fa48f4fcf55143056b4c49aef
+F src/wiki.c 1de12501d57be9d5c64988988b0025abbd10f5111cf82785952329e17113add6
 F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
 F src/wikiformat.c 4558bd1542c709babdd78e51328a7e0e058c8583b68a8af2a125b0c16b05f58f
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 79b1cd4bf55857ffd679b104063ea415b07fd852fdd2c98010dc8411bd74d54c
-R 6661b4256ff651c7ea94446225227b17
-U drh
-Z bb3ed7e13507af170774673bb555b155
+P 2df0e5c4288df7c77e598caafa97e5bedb81167b4dc7552b2372bf9c8d4f410f
+R 600668028dc7fc50525cc2943391fc2f
+U stephan
+Z d899c82c62d1b9520b47b86bde264f30
