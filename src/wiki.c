@@ -1287,12 +1287,13 @@ void wikiedit_page(void){
     CX("</div>"/*#wikiedit-tab-save*/);
   }
 
-  builtin_request_js("sbsdiff.js");
   if(!builtin_bundle_all_fossil_js_apis()){
     builtin_emit_fossil_js_apis("fetch", "dom", "tabs", "confirmer",
-                              "storage", "page.wikiedit", 0);
+                                "storage", "popupwidget", 0);
   }
+  builtin_request_js("sbsdiff.js");
   builtin_request_js("fossil.page.wikiedit.js");
+  builtin_fulfill_js_requests();
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);
   {

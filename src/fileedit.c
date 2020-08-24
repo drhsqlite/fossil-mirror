@@ -1988,10 +1988,9 @@ void fileedit_page(void){
   }
   CX("</div>"/*#fileedit-tab-help*/);
 
-  builtin_request_js("sbsdiff.js");
   if(!builtin_bundle_all_fossil_js_apis()){
     builtin_emit_fossil_js_apis("fetch", "dom", "tabs", "confirmer",
-                              "storage", 0);
+                                "storage", "popupwidget", 0);
   }
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
@@ -2002,6 +2001,7 @@ void fileedit_page(void){
   ** the JS multiple times.
   */
   ajax_emit_js_preview_modes(1);
+  builtin_request_js("sbsdiff.js");
   builtin_request_js("fossil.page.fileedit.js");
   builtin_fulfill_js_requests();
   {

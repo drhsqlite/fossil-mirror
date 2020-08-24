@@ -702,6 +702,17 @@ void builtin_emit_fossil_js_apis( const char * zApi, ... ) {
 **
 ** If the current JS delivery mode is *not* JS_BUNDLED then this
 ** function is a no-op and returns false.
+**
+** Minor caveat: the purpose of emitting all of the fossil.XYZ JS APIs
+** at once is to reduce over-the-wire transfers by enabling cross-page
+** caching, but if there are other JS scripts pending via
+** builtin_request_js() when this is called then they will be included
+** in the JS request emitted by this routine, resulting in a different
+** script URL than if they were not included. Thus, if a given page
+** has its own scripts to install via builtin_request_js(), they
+** should, if possible, be delayed until after this is called OR the
+** page should call builtin_fulfill_js_requests() to flush the request
+** queue before calling this routine.
 */
 int builtin_bundle_all_fossil_js_apis(void){
   static int bundled = 0;
