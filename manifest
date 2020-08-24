@@ -1,5 +1,5 @@
-C Reverted\s[37409e7dbe]\sin\sfavor\sof\s[5244a548],\swhich\sis\scleaner,\ssmaller,\sand\sworks.
-D 2020-08-24T04:33:41.803
+C Applied\sfix\sfrom\s[5244a548]\sto\s/json/wiki/list.
+D 2020-08-24T04:44:09.371
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -529,7 +529,7 @@ F src/json_status.c 9aa7c3f2c0a450b9a567316261197f85e61e743637844776ad61f8a952d9
 F src/json_tag.c e5831408c4967d13d949c6296d0f6c3bde69ecb2d1d67285128d04112ab94d70
 F src/json_timeline.c 25f5da14306f30a3ce31a8e2448708affddb0ba7f13be29fb7cdaae5383df762
 F src/json_user.c e7324a6400e53f6d04b690fe3fb642f504ff24dcb91f974dc56b044401233411
-F src/json_wiki.c 67ce76b80f4571bb928c4f0e1beec3231404b9c3
+F src/json_wiki.c 287d1628a7b3295112eb8edfc7541ae6ac6c248c680f26d324e20f097847a22d
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2df0e5c4288df7c77e598caafa97e5bedb81167b4dc7552b2372bf9c8d4f410f
-R 600668028dc7fc50525cc2943391fc2f
+P a7d8c58d48c0810219dcba440c3dbcdd95b7d91584bb135d7eac22eb0c74cde4
+R 9169bede1a15c06ba04badcbac24233e
 U stephan
-Z d899c82c62d1b9520b47b86bde264f30
+Z 8d2caab059d8310c9df21a18657c5283
