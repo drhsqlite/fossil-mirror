@@ -200,6 +200,15 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
 
   blob_zero(pOut);         /* Merge results stored in pOut */
   
+  /* If both pV1 and pV2 start with a UTF-8 byte-order-mark (BOM),
+  ** keep it in the output. This should be secure enough not to cause
+  ** unintended changes to the merged file and consistent with what
+  ** users are using in their source files.
+  */
+  if( starts_with_utf8_bom(pV1, 0) && starts_with_utf8_bom(pV2, 0) ){
+    blob_append(pOut, get_utf8_bom(0), -1);
+  }
+
   /* Check once to see if both pV1 and pV2 contains CR/LF endings.
   ** If true, CR/LF pair will be used later to append the
   ** boundary markers for merge conflicts.

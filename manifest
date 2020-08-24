@@ -1,11 +1,8 @@
 B 1f4143ba285d490f9e8a9bb401c541d885f08287d9ed421cd62c345bcb7ac10e
-C Adjust\s'fossil\smerge'\scommand\sto\suse\sCR/LF\sline\sendings\sfor\sconflict\smarkings\sif\sboth\sfiles\sbeing\smerged\salready\suse\ssuch\sline\sending\stype.
-D 2020-08-24T22:45:18.977
-F src/merge3.c 3622d775bc9977273c11ab7cfae3f12f485152c9027447d2e7004f9c33d7bf4e
-P 1f4143ba285d490f9e8a9bb401c541d885f08287d9ed421cd62c345bcb7ac10e
-R abab0bc4af2e859f31dce232d3a21cfb
-T *branch * merge-crlf-bom
-T *sym-merge-crlf-bom *
-T -sym-trunk *
+C If\sboth\sfiles\sbeing\smerged\sby\s'fossil\smerge'\scontain\sa\sUTF-8\sbyte\sorder\smark\s(BOM),\skeep\sit\sin\sthe\sproduced\smerged\sfile.
+D 2020-08-24T22:57:37.219
+F src/merge3.c ce84f97f42f312533b355e5998086e48fba67760093f7fedc906f57dc39aa51a
+P 60ecf5d9ed6379968b40a1d879045655484469f81fea64a85208ce58133e68ad
+R e77233c0d54f0e51c65ad84643d37ffb
 U marciogabe
-Z e68d09ec5da83a0686e63a0e8776b983
+Z 8c71993c38fca52a24f6d1c8f92f3118
