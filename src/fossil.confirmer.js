@@ -166,11 +166,14 @@ Terse Change history:
              current width or its waiting-on-confirmation width
              to avoid layout reflow when it's activated. */
           const digits = (''+(opt.timeout/1000 || opt.ticks)).length;
-          const lblLong = formatCountdown(opt.confirmText, "00000000".substr(0,digits));
-          const w1 = parseFloat(window.getComputedStyle(target).width);
+          const lblLong = formatCountdown(opt.confirmText, "00000000".substr(0,digits+1));
+          const w1 = parseInt(target.getBoundingClientRect().width);
           updateText(lblLong);
-          const w2 = parseFloat(window.getComputedStyle(target).width);
-          target.style.minWidth = target.style.maxWidth = (w1>w2 ? w1 : w2)+"px";
+          const w2 = parseInt(target.getBoundingClientRect().width);
+          if(w1 || w2){
+            /* If target is not in visible part of the DOM, those values may be 0. */
+            target.style.minWidth = target.style.maxWidth = (w1>w2 ? w1 : w2)+"px";
+          }
         }
         updateText(this.opt.initialText);
         if(this.opt.ticks && !this.opt.ontick){

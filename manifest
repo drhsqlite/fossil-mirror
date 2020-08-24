@@ -1,5 +1,5 @@
-C For\sHash\sor\sWiki\sinterwiki\shyperlinks\sin\sFossil\sWiki\swithout\san\salternative\ndisplay,\selide\sthe\sinitial\sinterwiki\stag\sfrom\sthe\sdisplay.
-D 2020-08-24T12:35:12.678
+C Changed\show\sfossil.confirmer\spinSize\soption\scomputes\selement\swidth\sto\sbe\smore\srobust\sin\sthe\sface\sof\sCSS\s'auto'\swidth\svalues.
+D 2020-08-24T20:24:00.579
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -486,7 +486,7 @@ F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 71dee6d7a6b716d4af433c72e678ae417ce8692afbaca8564c11318506b4e952
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 43571a791991d1ed7da6bcc79743e70b47e2448a6882068ed554a837854be5fa
-F src/fossil.confirmer.js 4f9b4b31287012d1d0c56c40eeb97bcc1c068781eb08d497731d2fb20344ae01
+F src/fossil.confirmer.js 381023fea55b0df523b4a0561290782e421c8647ce3bd49e98809d8fa5739b90
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
 F src/fossil.dom.js dd4f9c08237019f52b409061c46fa8c383a8e5a1d079983bf5bd041eee69ee74
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5a568d8b1f38e45e50f0a8e4ca310588c638a7a6687326644dcca51d1555cca0
-R 37b4821d96d087af409cd0d5e62498c2
-U drh
-Z bc7bb703b8a2cb3f2348870c9bf51cec
+P 2d1a493d9c0c7becb68af7e13b48e9da7b6c91b168c769b1659fd0f3e952fd96
+R 7e244c61f122eb84bfc65211ef86c8fc
+U stephan
+Z fa4b921cb56108d5383d0b9d7dbbb6c3
