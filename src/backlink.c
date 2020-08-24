@@ -171,7 +171,8 @@ void backlink_wiki_refresh(const char *zWikiTitle){
   if( rid==0 ) return;
   pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
   if( pWiki ){
-    backlink_extract(pWiki->zWiki, pWiki->zMimetype, tagid, 2, pWiki->rDate,1);
+    backlink_extract(pWiki->zWiki, pWiki->zMimetype, tagid, BKLNK_WIKI,
+                     pWiki->rDate, 1);
     manifest_destroy(pWiki);
   }
 }

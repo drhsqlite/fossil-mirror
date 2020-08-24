@@ -1006,7 +1006,8 @@ static void wiki_render_page_list_json(int verbose, int includeContent){
   db_begin_transaction();
   db_prepare(&q, "SELECT"
              " substr(tagname,6) AS name"
-             " FROM tag WHERE tagname GLOB 'wiki-*'"
+             " FROM tag JOIN tagxref USING('tagid')"
+             " WHERE tagname GLOB 'wiki-*'"
              " UNION SELECT 'Sandbox' AS name"
              " ORDER BY name COLLATE NOCASE");
   CX("[");

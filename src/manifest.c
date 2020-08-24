@@ -2678,6 +2678,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       );
       fossil_free(zTitle);
     }
+    if( p->zWiki[0] ){
+      backlink_extract(p->zWiki, p->zMimetype, rid, BKLNK_FORUM, p->rDate, 1);
+    }
   }
   db_end_transaction(0);
   if( permitHooks ){
