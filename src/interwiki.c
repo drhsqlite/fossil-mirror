@@ -194,13 +194,14 @@ void interwiki_cmd(void){
     verify_all_options();
     if( g.argc!=4 ) usage("add TAG ?OPTIONS?");
     zName = g.argv[3];
-    if( zBase){
+    if( zBase==0 ){
       fossil_fatal("the --base option is required");
     }
     if( !interwiki_valid_name(zName) ){
       fossil_fatal("not a valid interwiki tag: \"%s\"", zName);
     }
     db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "REPLACE INTO config(name,value,mtime)"
        " VALUES('interwiki:'||lower(%Q),"
@@ -209,6 +210,7 @@ void interwiki_cmd(void){
        zName, zBase, zHash, zWiki
     );
     setup_incr_cfgcnt();
+    db_protect_pop();
     db_commit_transaction();
   }else
   if( strncmp(zCmd, "delete", nCmd)==0 ){
@@ -216,6 +218,7 @@ void interwiki_cmd(void){
     verify_all_options();
     if( g.argc<4 ) usage("delete ID ...");
     db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
     for(i=3; i<g.argc; i++){
       const char *zName = g.argv[i];
       db_multi_exec(
@@ -224,6 +227,7 @@ void interwiki_cmd(void){
       );
     }
     setup_incr_cfgcnt();
+    db_protect_pop();
     db_commit_transaction();
   }else
   if( strncmp(zCmd, "list", nCmd)==0 ){
@@ -318,18 +322,22 @@ void interwiki_page(void){
     zHash = PT("hash");
     zWiki = PT("wiki");
     if( zTag==0 || zTag[0]==0 || !interwiki_valid_name(zTag) ){
-      zErr = mprintf("Not a valid interwiki tag name: \"%s\"", zTag ? zTag : "");
+      zErr = mprintf("Not a valid interwiki tag name: \"%s\"", zTag?zTag : "");
     }else if( zBase==0 || zBase[0]==0 ){
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec("DELETE FROM config WHERE name='interwiki:%q';", zTag);
+      db_protect_pop();
     }else{
       if( zHash && zHash[0]==0 ) zHash = 0;
       if( zWiki && zWiki[0]==0 ) zWiki = 0;
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec(
         "REPLACE INTO config(name,value,mtime)"
         "VALUES('interwiki:'||lower(%Q),"
         " json_object('base',%Q,'hash',%Q,'wiki',%Q),"
         " now());",
         zTag, zBase, zHash, zWiki);
+      db_protect_pop();
     }
   }
 

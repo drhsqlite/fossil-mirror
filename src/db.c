@@ -71,6 +71,7 @@ const struct Stmt empty_Stmt = empty_Stmt_m;
 
 /*
 ** Call this routine when a database error occurs.
+** This routine throws a fatal error.  It does not return.
 */
 static void db_err(const char *zFormat, ...){
   va_list ap;
@@ -115,6 +116,7 @@ static void db_check_result(int rc, Stmt *pStmt){
 ** the following structure.
 */
 static struct DbLocalData {
+  unsigned protectMask;     /* Prevent changes to database */
   int nBegin;               /* Nesting depth of BEGIN */
   int doRollback;           /* True to force a rollback */
   int nCommitHook;          /* Number of commit hooks */
@@ -132,7 +134,15 @@ static struct DbLocalData {
   int nPriorChanges;        /* sqlite3_total_changes() at transaction start */
   const char *zStartFile;   /* File in which transaction was started */
   int iStartLine;           /* Line of zStartFile where transaction started */
-} db = {0, 0, 0, 0, 0, 0, };
+  int (*xAuth)(void*,int,const char*,const char*,const char*,const char*);
+  void *pAuthArg;           /* Argument to the authorizer */
+  const char *zAuthName;    /* Name of the authorizer */
+  int bProtectTriggers;     /* True if protection triggers already exist */
+  int nProtect;             /* Slots of aProtect used */
+  unsigned aProtect[10];    /* Saved values of protectMask */
+} db = {
+  PROTECT_USER|PROTECT_CONFIG|PROTECT_BASELINE,  /* protectMask */
+  0, 0, 0, 0, 0, 0, };
 
 /*
 ** Arrange for the given file to be deleted on a failure.
@@ -240,6 +250,7 @@ void db_end_transaction(int rollbackFlag){
     int i;
     if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
       i = 0;
+      db_protect_only(PROTECT_SENSITIVE);
       while( db.nBeforeCommit ){
         db.nBeforeCommit--;
         sqlite3_exec(g.db, db.azBeforeCommit[i], 0, 0, 0);
@@ -247,6 +258,7 @@ void db_end_transaction(int rollbackFlag){
         i++;
       }
       leaf_do_pending_checks();
+      db_protect_pop();
     }
     for(i=0; db.doRollback==0 && i<db.nCommitHook; i++){
       int rc = db.aHook[i].xHook();
@@ -321,6 +333,226 @@ void db_commit_hook(int (*x)(void), int sequence){
 
 #if INTERFACE
 /*
+** Flag bits for db_protect() and db_unprotect() indicating which parts
+** of the databases should be write protected or write enabled, respectively.
+*/
+#define PROTECT_USER       0x01  /* USER table */
+#define PROTECT_CONFIG     0x02  /* CONFIG and GLOBAL_CONFIG tables */
+#define PROTECT_SENSITIVE  0x04  /* Sensitive and/or global settings */
+#define PROTECT_READONLY   0x08  /* everything except TEMP tables */
+#define PROTECT_BASELINE   0x10  /* protection system is working */
+#define PROTECT_ALL        0x1f  /* All of the above */
+#define PROTECT_NONE       0x00  /* Nothing.  Everything is open */
+#endif /* INTERFACE */
+
+/*
+** Enable or disable database write protections.
+**
+**    db_protext(X)         Add protects on X
+**    db_unprotect(X)       Remove protections on X
+**    db_protect_only(X)    Remove all prior protections then set
+**                          protections to only X.
+**
+** Each of these routines pushes the previous protection mask onto
+** a finite-size stack.  Each should be followed by a call to
+** db_protect_pop() to pop the stack and restore the protections that
+** existed prior to the call.  The protection mask stack has a limited
+** depth, so take care not to next calls too deeply.
+**
+** About Database Write Protection
+** -------------------------------
+**
+** This is *not* a primary means of defending the application from
+** attack.  Fossil should be secure even if this mechanism is disabled.
+** The purpose of database write protection is to provide an additional
+** layer of defense in case SQL injection bugs somehow slip into other
+** parts of the system.  In other words, database write protection is
+** not primary defense but rather defense in depth.
+**
+** This mechanism mostly focuses on the USER table, to prevent an
+** attacker from giving themselves Admin privilegs, and on the
+** CONFIG table and specially "sensitive" settings such as
+** "diff-command" or "editor" that if compromised by an attacker
+** could lead to an RCE.
+**
+** By default, the USER and CONFIG tables are read-only.  Various
+** subsystems that legitimately need to change those tables can
+** temporarily do so using:
+**
+**     db_unprotect(PROTECT_xxx);
+**     // make the legitmate changes here
+**     db_protect_pop();
+**
+** Code that runs inside of reduced protections should be carefully
+** reviewed to ensure that it is harmless and not subject to SQL
+** injection.
+**
+** Read-only operations (such as many web pages like /timeline)
+** can invoke db_protect(PROTECT_ALL) to effectively make the database
+** read-only.  TEMP tables (which are often used for these kinds of
+** pages) are still writable, however.
+**
+** The PROTECT_SENSITIVE protection is a subset of PROTECT_CONFIG
+** that blocks changes to all of the global_config table, but only
+** "sensitive" settings in the config table.  PROTECT_SENSITIVE
+** relies on triggers and the protected_setting() SQL function to
+** prevent changes to sensitive settings.
+**
+** Additional Notes
+** ----------------
+**
+** Calls to routines like db_set() and db_unset() temporarily disable
+** the PROTECT_CONFIG protection.  The assumption is that these calls
+** cannot be invoked by an SQL injection and are thus safe.  Make sure
+** this is the case by always using a string literal as the name argument
+** to db_set() and db_unset() and friend, not a variable that might
+** be compromised by an attack.
+*/
+void db_protect_only(unsigned flags){
+  if( db.nProtect>=count(db.aProtect)-2 ){
+    fossil_panic("too many db_protect() calls");
+  }
+  db.aProtect[db.nProtect++] = db.protectMask;
+  if( (flags & PROTECT_SENSITIVE)!=0 
+   && db.bProtectTriggers==0
+   && g.repositoryOpen
+  ){
+    /* Create the triggers needed to protect sensitive settings from
+    ** being created or modified the first time that PROTECT_SENSITIVE
+    ** is enabled.  Deleting a sensitive setting is harmless, so there
+    ** is not trigger to block deletes.  After being created once, the
+    ** triggers persist for the life of the database connection. */
+    db_multi_exec(
+      "CREATE TEMP TRIGGER protect_1 BEFORE INSERT ON config"
+      " WHEN protected_setting(new.name) BEGIN"
+      "  SELECT raise(abort,'not authorized');"
+      "END;\n"
+      "CREATE TEMP TRIGGER protect_2 BEFORE UPDATE ON config"
+      " WHEN protected_setting(new.name) BEGIN"
+      "  SELECT raise(abort,'not authorized');"
+      "END;\n"
+    );
+    db.bProtectTriggers = 1;
+  }
+  db.protectMask = flags;
+}
+void db_protect(unsigned flags){
+  db_protect_only(db.protectMask | flags);
+}
+void db_unprotect(unsigned flags){
+  if( db.nProtect>=count(db.aProtect)-2 ){
+    fossil_panic("too many db_unprotect() calls");
+  }
+  db.aProtect[db.nProtect++] = db.protectMask;
+  db.protectMask &= ~flags;
+}
+void db_protect_pop(void){
+  if( db.nProtect<1 ){
+    fossil_panic("too many db_protect_pop() calls");
+  }
+  db.protectMask = db.aProtect[--db.nProtect];
+}
+
+/*
+** Verify that the desired database write pertections are in place.
+** Throw a fatal error if not.
+*/
+void db_assert_protected(unsigned flags){
+  if( (flags & db.protectMask)!=flags ){
+    fossil_panic("missing database write protection bits: %02x",
+                 flags & ~db.protectMask);
+  }
+}
+
+/*
+** Assert that either all protections are off (including PROTECT_BASELINE
+** which is usually always enabled), or the setting named in the argument
+** is no a sensitive setting.
+**
+** This assert() is used to verify that the db_set() and db_set_int()
+** interfaces do not modify a sensitive setting.
+*/
+void db_assert_protection_off_or_not_sensitive(const char *zName){
+  if( db.protectMask!=0 && db_setting_is_protected(zName) ){
+    fossil_panic("unauthorized change to protected setting \"%s\"", zName);
+  }
+}
+
+/*
+** Every Fossil database connection automatically registers the following
+** overarching authenticator callback, and leaves it registered for the
+** duration of the connection.  This authenticator will call any
+** sub-authenticators that are registered using db_set_authorizer().
+*/
+int db_top_authorizer(
+  void *pNotUsed,
+  int eCode,
+  const char *z0,
+  const char *z1,
+  const char *z2,
+  const char *z3
+){
+  int rc = SQLITE_OK;
+  switch( eCode ){
+    case SQLITE_INSERT:
+    case SQLITE_UPDATE:
+    case SQLITE_DELETE: {
+      if( (db.protectMask & PROTECT_USER)!=0
+          && sqlite3_stricmp(z0,"user")==0 ){
+        rc = SQLITE_DENY;
+      }else if( (db.protectMask & PROTECT_CONFIG)!=0 &&
+               (sqlite3_stricmp(z0,"config")==0 ||
+                sqlite3_stricmp(z0,"global_config")==0) ){
+        rc = SQLITE_DENY;
+      }else if( (db.protectMask & PROTECT_SENSITIVE)!=0 &&
+                sqlite3_stricmp(z0,"global_config")==0 ){
+        rc = SQLITE_DENY;
+      }else if( (db.protectMask & PROTECT_READONLY)!=0
+                && sqlite3_stricmp(z2,"temp")!=0 ){
+        rc = SQLITE_DENY;
+      }
+      break;
+    }
+    case SQLITE_DROP_TEMP_TRIGGER: {
+      /* Do not allow the triggers that enforce PROTECT_SENSITIVE
+      ** to be dropped */
+      rc = SQLITE_DENY;
+      break;
+    }
+  }
+  if( db.xAuth && rc==SQLITE_OK ){
+    rc = db.xAuth(db.pAuthArg, eCode, z0, z1, z2, z3);
+  }
+  return rc;
+}
+
+/*
+** Set or unset the query authorizer callback function
+*/
+void db_set_authorizer(
+  int(*xAuth)(void*,int,const char*,const char*,const char*,const char*),
+  void *pArg,
+  const char *zName /* for tracing */
+){
+  if( db.xAuth ){
+    fossil_panic("multiple active db_set_authorizer() calls");
+  }
+  db.xAuth = xAuth;
+  db.pAuthArg = pArg;
+  db.zAuthName = zName;
+  if( g.fSqlTrace ) fossil_trace("-- set authorizer %s\n", zName);
+}
+void db_clear_authorizer(void){
+  if( db.zAuthName && g.fSqlTrace ){
+    fossil_trace("-- discontinue authorizer %s\n", db.zAuthName);
+  }
+  db.xAuth = 0;
+  db.pAuthArg = 0;
+  db.zAuthName = 0;
+}
+
+#if INTERFACE
+/*
 ** Possible flags to db_vprepare
 */
 #define DB_PREPARE_IGNORE_ERROR  0x001  /* Suppress errors */
@@ -336,6 +568,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   int rc;
   int prepFlags = 0;
   char *zSql;
+  const char *zExtra = 0;
   blob_zero(&pStmt->sql);
   blob_vappendf(&pStmt->sql, zFormat, ap);
   va_end(ap);
@@ -344,9 +577,11 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   if( flags & DB_PREPARE_PERSISTENT ){
     prepFlags = SQLITE_PREPARE_PERSISTENT;
   }
-  rc = sqlite3_prepare_v3(g.db, zSql, -1, prepFlags, &pStmt->pStmt, 0);
+  rc = sqlite3_prepare_v3(g.db, zSql, -1, prepFlags, &pStmt->pStmt, &zExtra);
   if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)==0 ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
+  }else if( zExtra && !fossil_all_whitespace(zExtra) ){
+    db_err("surplus text follows SQL: \"%s\"", zExtra);
   }
   pStmt->pNext = db.pAllStmt;
   pStmt->pPrev = 0;
@@ -613,6 +848,7 @@ int db_exec(Stmt *pStmt){
 
 /*
 ** COMMAND: test-db-exec-error
+** Usage: %fossil test-db-exec-error
 **
 ** Invoke the db_exec() interface with an erroneous SQL statement
 ** in order to verify the error handling logic.
@@ -622,6 +858,23 @@ void db_test_db_exec_cmd(void){
   db_find_and_open_repository(0,0);
   db_prepare(&err, "INSERT INTO repository.config(name) VALUES(NULL);");
   db_exec(&err);
+}
+
+/*
+** COMMAND: test-db-prepare
+** Usage: %fossil test-db-prepare ?OPTIONS? SQL
+**
+** Invoke db_prepare() on the SQL input.  Report any errors encountered.
+** This command is used to verify error detection logic in the db_prepare()
+** utility routine.
+*/
+void db_test_db_prepare(void){
+  Stmt err;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  if( g.argc!=3 ) usage("?OPTIONS? SQL");
+  db_prepare(&err, "%s", g.argv[2]/*safe-for-%s*/);
+  db_finalize(&err);
 }
 
 /*
@@ -846,30 +1099,30 @@ void db_init_database(
   const char *zSchema,     /* First part of schema */
   ...                      /* Additional SQL to run.  Terminate with NULL. */
 ){
-  sqlite3 *db;
+  sqlite3 *xdb;
   int rc;
   const char *zSql;
   va_list ap;
 
-  db = db_open(zFileName ? zFileName : ":memory:");
-  sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
-  rc = sqlite3_exec(db, zSchema, 0, 0, 0);
+  xdb = db_open(zFileName ? zFileName : ":memory:");
+  sqlite3_exec(xdb, "BEGIN EXCLUSIVE", 0, 0, 0);
+  rc = sqlite3_exec(xdb, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
-    db_err("%s", sqlite3_errmsg(db));
+    db_err("%s", sqlite3_errmsg(xdb));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
-    rc = sqlite3_exec(db, zSql, 0, 0, 0);
+    rc = sqlite3_exec(xdb, zSql, 0, 0, 0);
     if( rc!=SQLITE_OK ){
-      db_err("%s", sqlite3_errmsg(db));
+      db_err("%s", sqlite3_errmsg(xdb));
     }
   }
   va_end(ap);
-  sqlite3_exec(db, "COMMIT", 0, 0, 0);
+  sqlite3_exec(xdb, "COMMIT", 0, 0, 0);
   if( zFileName || g.db!=0 ){
-    sqlite3_close(db);
+    sqlite3_close(xdb);
   }else{
-    g.db = db;
+    g.db = xdb;
   }
 }
 
@@ -1064,6 +1317,33 @@ void db_obscure(
 }
 
 /*
+** Return True if zName is a protected (a.k.a. "sensitive") setting.
+*/
+int db_setting_is_protected(const char *zName){
+  const Setting *pSetting = zName ? db_find_setting(zName,0) : 0;
+  return pSetting!=0 && pSetting->sensitive!=0;
+}
+
+/*
+** Implement the protected_setting(X) SQL function.  This function returns
+** true if X is the name of a protected (security-sensitive) setting and
+** the db.protectSensitive flag is enabled.  It returns false otherwise.
+*/
+LOCAL void db_protected_setting_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zSetting;
+  if( (db.protectMask & PROTECT_SENSITIVE)==0 ){
+    sqlite3_result_int(context, 0);
+    return;
+  }
+  zSetting = (const char*)sqlite3_value_text(argv[0]);
+  sqlite3_result_int(context, db_setting_is_protected(zSetting));
+}
+
+/*
 ** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
@@ -1092,6 +1372,8 @@ void db_add_aux_functions(sqlite3 *db){
                           alert_display_name_func, 0, 0);
   sqlite3_create_function(db, "obscure", 1, SQLITE_UTF8, 0,
                           db_obscure, 0, 0);
+  sqlite3_create_function(db, "protected_setting", 1, SQLITE_UTF8, 0,
+                          db_protected_setting_func, 0, 0);
 }
 
 #if USE_SEE
@@ -1350,6 +1632,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_db_config(db, SQLITE_DBCONFIG_ENABLE_FKEY, 0, &rc);
+  sqlite3_set_authorizer(db, db_top_authorizer, db);
   return db;
 }
 
@@ -1794,18 +2077,6 @@ const char *db_repository_filename(void){
 }
 
 /*
-** Returns non-zero if the default value for the "allow-symlinks" setting
-** is "on".  When on Windows, this always returns false.
-*/
-int db_allow_symlinks_by_default(void){
-#if defined(_WIN32)
-  return 0;
-#else
-  return 1;
-#endif
-}
-
-/*
 ** Returns non-zero if support for symlinks is currently enabled.
 */
 int db_allow_symlinks(void){
@@ -1850,9 +2121,10 @@ void db_open_repository(const char *zDbName){
   g.repositoryOpen = 1;
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
                        &g.iRepoDataVers);
+
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
-  g.allowSymlinks = db_get_boolean("allow-symlinks",
-                                   db_allow_symlinks_by_default());
+  g.allowSymlinks = db_get_boolean("allow-symlinks",0);
+
   g.zAuxSchema = db_get("aux-schema","");
   g.eHashPolicy = db_get_int("hash-policy",-1);
   if( g.eHashPolicy<0 ){
@@ -2091,6 +2363,7 @@ void db_must_be_within_tree(void){
 void db_close(int reportErrors){
   sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
+  sqlite3_set_authorizer(g.db, 0, 0);
   if( g.fSqlStats ){
     int cur, hiwtr;
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
@@ -2120,13 +2393,16 @@ void db_close(int reportErrors){
   while( db.pAllStmt ){
     db_finalize(db.pAllStmt);
   }
-  if( db.nBegin && reportErrors ){
-    fossil_warning("Transaction started at %s:%d never commits",
-                   db.zStartFile, db.iStartLine);
+  if( db.nBegin ){
+    if( reportErrors ){
+      fossil_warning("Transaction started at %s:%d never commits",
+                     db.zStartFile, db.iStartLine);
+    }
     db_end_transaction(1);
   }
   pStmt = 0;
-  g.dbIgnoreErrors++; /* Stop "database locked" warnings from PRAGMA optimize */
+  sqlite3_busy_timeout(g.db, 0);
+  g.dbIgnoreErrors++; /* Stop "database locked" warnings */
   sqlite3_exec(g.db, "PRAGMA optimize", 0, 0, 0);
   g.dbIgnoreErrors--;
   db_close_config();
@@ -2138,7 +2414,9 @@ void db_close(int reportErrors){
     int nFree = db_int(0, "PRAGMA localdb.freelist_count");
     int nTotal = db_int(0, "PRAGMA localdb.page_count");
     if( nFree>nTotal/4 ){
+      db_unprotect(PROTECT_ALL);
       db_multi_exec("VACUUM localdb;");
+      db_protect_pop();
     }
   }
 
@@ -2156,6 +2434,7 @@ void db_close(int reportErrors){
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;
+  db.bProtectTriggers = 0;
   assert( g.dbConfig==0 );
   assert( g.zConfigDbName==0 );
   backoffice_run_if_needed();
@@ -2170,6 +2449,7 @@ void db_panic_close(void){
     sqlite3_wal_checkpoint(g.db, 0);
     rc = sqlite3_close(g.db);
     if( g.fSqlTrace ) fossil_trace("-- sqlite3_close(%d)\n", rc);
+    db_clear_authorizer();
   }
   g.db = 0;
   g.repositoryOpen = 0;
@@ -2217,6 +2497,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   if( zUser==0 ){
     zUser = "root";
   }
+  db_unprotect(PROTECT_USER);
   db_multi_exec(
      "INSERT OR IGNORE INTO user(login, info) VALUES(%Q,'')", zUser
   );
@@ -2236,6 +2517,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
        "   VALUES('reader','','kptw','Reader');"
     );
   }
+  db_protect_pop();
 }
 
 /*
@@ -2287,6 +2569,7 @@ void db_initial_setup(
   Blob hash;
   Blob manifest;
 
+  db_unprotect(PROTECT_ALL);
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
@@ -2345,6 +2628,7 @@ void db_initial_setup(
       " WHERE user.login IN ('anonymous','nobody','developer','reader');"
     );
   }
+  db_protect_pop();
 
   if( zInitialDate ){
     int rid;
@@ -2841,6 +3125,8 @@ char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault)
   return z;
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
+  db_assert_protection_off_or_not_sensitive(zName);
+  db_unprotect(PROTECT_CONFIG);
   db_begin_transaction();
   if( globalFlag ){
     db_swap_connections();
@@ -2855,9 +3141,11 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
   db_end_transaction(0);
+  db_protect_pop();
 }
 void db_unset(const char *zName, int globalFlag){
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
@@ -2868,6 +3156,7 @@ void db_unset(const char *zName, int globalFlag){
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
+  db_protect_pop();
   db_end_transaction(0);
 }
 int db_is_global(const char *zName){
@@ -2901,6 +3190,8 @@ int db_get_int(const char *zName, int dflt){
   return v;
 }
 void db_set_int(const char *zName, int value, int globalFlag){
+  db_assert_protection_off_or_not_sensitive(zName);
+  db_unprotect(PROTECT_CONFIG);
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%d)",
@@ -2913,6 +3204,7 @@ void db_set_int(const char *zName, int value, int globalFlag){
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
+  db_protect_pop();
 }
 int db_get_boolean(const char *zName, int dflt){
   char *zVal = db_get(zName, dflt ? "on" : "off");
@@ -3042,6 +3334,8 @@ void db_record_repository_filename(const char *zName){
   (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
   zRepoSetting = mprintf("repo:%q", blob_str(&full));
+  
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
      "DELETE FROM global_config WHERE name %s = %Q;",
      filename_collation(), zRepoSetting
@@ -3051,11 +3345,13 @@ void db_record_repository_filename(const char *zName){
      "VALUES(%Q,1);",
      zRepoSetting
   );
+  db_protect_pop();
   fossil_free(zRepoSetting);
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
     Blob localRoot;
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
     zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM global_config WHERE name %s = %Q;",
        filename_collation(), zCkoutSetting
@@ -3075,6 +3371,7 @@ void db_record_repository_filename(const char *zName){
         "VALUES(%Q,1,now());",
         zCkoutSetting
     );
+    db_protect_pop();
     fossil_free(zCkoutSetting);
     blob_reset(&localRoot);
   }else{
@@ -3133,7 +3430,6 @@ void cmd_open(void){
   int keepFlag;
   int forceMissingFlag;
   int allowNested;
-  int allowSymlinks;
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   int bForce = 0;                /* --force.  Open even if non-empty dir */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
@@ -3244,19 +3540,6 @@ void cmd_open(void){
     }
   }
 
-  if( g.zOpenRevision ){
-    /* Since the repository is open and we know the revision now,
-    ** refresh the allow-symlinks flag.  Since neither the local
-    ** checkout nor the configuration database are open at this
-    ** point, this should always return the versioned setting,
-    ** if any, or the default value, which is negative one.  The
-    ** value negative one, in this context, means that the code
-    ** below should fallback to using the setting value from the
-    ** repository or global configuration databases only. */
-    allowSymlinks = db_get_versioned_boolean("allow-symlinks", -1);
-  }else{
-    allowSymlinks = -1; /* Use non-versioned settings only. */
-  }
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
@@ -3270,22 +3553,6 @@ void cmd_open(void){
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local(0);
-  if( allowSymlinks>=0 ){
-    /* Use the value from the versioned setting, which was read
-    ** prior to opening the local checkout (i.e. which is most
-    ** likely empty and does not actually contain any versioned
-    ** setting files yet).  Normally, this value would be given
-    ** first priority within db_get_boolean(); however, this is
-    ** a special case because we know the on-disk files may not
-    ** exist yet. */
-    g.allowSymlinks = allowSymlinks;
-  }else{
-    /* Since the local checkout may not have any files at this
-    ** point, this will probably be the setting value from the
-    ** repository or global configuration databases. */
-    g.allowSymlinks = db_get_boolean("allow-symlinks",
-                                     db_allow_symlinks_by_default());
-  }
   db_lset("repository", zRepo);
   db_record_repository_filename(zRepo);
   db_set_checkout(0);
@@ -3378,8 +3645,9 @@ struct Setting {
   int width;            /* Width of display.  0 for boolean values and
                         ** negative for values which should not appear
                         ** on the /setup_settings page. */
-  int versionable;      /* Is this setting versionable? */
-  int forceTextArea;    /* Force using a text area for display? */
+  char versionable;     /* Is this setting versionable? */
+  char forceTextArea;   /* Force using a text area for display? */
+  char sensitive;       /* True if this a security-sensitive setting */
   const char *def;      /* Default value */
 };
 #endif /* INTERFACE */
@@ -3397,28 +3665,25 @@ struct Setting {
 ** When the admin-log setting is enabled, configuration changes are recorded
 ** in the "admin_log" table of the repository.
 */
-#if defined(_WIN32)
 /*
-** SETTING: allow-symlinks  boolean default=off versionable
+** SETTING: allow-symlinks  boolean default=off sensitive
 **
-** When allow-symlinks is OFF, symbolic links in the repository are followed
-** and treated no differently from real files.  When allow-symlinks is ON,
-** the object to which the symbolic link points is ignored, and the content
-** of the symbolic link that is stored in the repository is the name of the
-** object to which the symbolic link points.
-*/
-#endif
-#if !defined(_WIN32)
-/*
-** SETTING: allow-symlinks  boolean default=on versionable
+** When allow-symlinks is OFF, Fossil does not see symbolic links 
+** (a.k.a "symlinks") on disk as a separate class of object.  Instead Fossil
+** sees the object that the symlink points to.  Fossil will only manage files
+** and directories, not symlinks.  When a symlink is added to a repository,
+** the object that the symlink points to is added, not the symlink itself.
 **
-** When allow-symlinks is OFF, symbolic links in the repository are followed
-** and treated no differently from real files.  When allow-symlinks is ON,
-** the object to which the symbolic link points is ignored, and the content
-** of the symbolic link that is stored in the repository is the name of the
-** object to which the symbolic link points.
+** When allow-symlinks is ON, Fossil sees symlinks on disk as a separate
+** object class that is distinct from files and directories.  When a symlink
+** is added to a repository, Fossil stores the target filename. In other
+** words, Fossil stores the symlink itself, not the object that the symlink
+** points to.
+**
+** Symlinks are not cross-platform. They are not available on all
+** operating systems and file systems. Hence the allow-symlinks setting is
+** OFF by default, for portability.
 */
-#endif
 /*
 ** SETTING: auto-captcha    boolean default=on variable=autocaptcha
 ** If enabled, the /login page provides a button that will automatically
@@ -3472,7 +3737,7 @@ struct Setting {
 ** backoffice will not occur.
 */
 /*
-** SETTING: backoffice-logfile width=40
+** SETTING: backoffice-logfile width=40 sensitive
 ** If backoffice-logfile is not an empty string and is a valid
 ** filename, then a one-line message is appended to that file
 ** every time the backoffice runs.  This can be used for debugging,
@@ -3549,7 +3814,7 @@ struct Setting {
 ** This is an alias for the crlf-glob setting.
 */
 /*
-** SETTING: default-perms   width=16 default=u
+** SETTING: default-perms   width=16 default=u sensitive
 ** Permissions given automatically to new users.  For more
 ** information on permissions see the Users page in Server
 ** Administration of the HTTP UI.
@@ -3561,7 +3826,7 @@ struct Setting {
 ** external diff programs.  If disabled, skip these files.
 */
 /*
-** SETTING: diff-command    width=40
+** SETTING: diff-command    width=40 sensitive
 ** The value is an external command to run when performing a diff.
 ** If undefined, the internal text diff will be used.
 */
@@ -3576,7 +3841,7 @@ struct Setting {
 ** If enabled, include --dotfiles option for all compatible commands.
 */
 /*
-** SETTING: editor          width=32
+** SETTING: editor          width=32 sensitive
 ** The value is an external command that will launch the
 ** text editor command used for check-in comments.
 */
@@ -3619,12 +3884,12 @@ struct Setting {
 ** contain any globs for, e.g., images or PDFs.
 */
 /*
-** SETTING: gdiff-command    width=40 default=gdiff
+** SETTING: gdiff-command    width=40 default=gdiff sensitive
 ** The value is an external command to run when performing a graphical
 ** diff. If undefined, text diff will be used.
 */
 /*
-** SETTING: gmerge-command   width=40
+** SETTING: gmerge-command   width=40 sensitive
 ** The value is a graphical merge conflict resolver command operating
 ** on four files.  Examples:
 **
@@ -3759,7 +4024,7 @@ struct Setting {
 ** files from within the checkout.
 */
 /*
-** SETTING: pgp-command      width=40
+** SETTING: pgp-command      width=40 sensitive
 ** Command used to clear-sign manifests at check-in.
 ** Default value is "gpg --clearsign -o"
 */
@@ -3819,18 +4084,18 @@ struct Setting {
 ** the list in use cases 1 through 4, but not for 5 and 6.
 */
 /*
-** SETTING: self-register    boolean default=off
+** SETTING: self-register    boolean default=off sensitive
 ** Allow users to register themselves through the HTTP UI.
 ** This is useful if you want to see other names than
 ** "Anonymous" in e.g. ticketing system. On the other hand
 ** users can not be deleted.
 */
 /*
-** SETTING: ssh-command      width=40
+** SETTING: ssh-command      width=40 sensitive
 ** The command used to talk to a remote machine with  the "ssh://" protocol.
 */
 /*
-** SETTING: ssl-ca-location  width=40
+** SETTING: ssl-ca-location  width=40 sensitive
 ** The full pathname to a file containing PEM encoded
 ** CA root certificates, or a directory of certificates
 ** with filenames formed from the certificate hashes as
@@ -3844,7 +4109,7 @@ struct Setting {
 ** application.
 */
 /*
-** SETTING: ssl-identity     width=40
+** SETTING: ssl-identity     width=40 sensitive
 ** The full pathname to a file containing a certificate
 ** and private key in PEM format. Create by concatenating
 ** the certificate and private key files.
@@ -3855,7 +4120,7 @@ struct Setting {
 */
 #ifdef FOSSIL_ENABLE_TCL
 /*
-** SETTING: tcl              boolean default=off
+** SETTING: tcl              boolean default=off sensitive
 ** If enabled Tcl integration commands will be added to the TH1
 ** interpreter, allowing arbitrary Tcl expressions and
 ** scripts to be evaluated from TH1.  Additionally, the Tcl
@@ -3863,21 +4128,21 @@ struct Setting {
 ** expressions and scripts.
 */
 /*
-** SETTING: tcl-setup        width=40 block-text
+** SETTING: tcl-setup        width=40 block-text sensitive
 ** This is the setup script to be evaluated after creating
 ** and initializing the Tcl interpreter.  By default, this
 ** is empty and no extra setup is performed.
 */
 #endif /* FOSSIL_ENABLE_TCL */
 /*
-** SETTING: tclsh            width=80 default=tclsh
+** SETTING: tclsh            width=80 default=tclsh sensitive
 ** Name of the external TCL interpreter used for such things
 ** as running the GUI diff viewer launched by the --tk option
 ** of the various "diff" commands.
 */
 #ifdef FOSSIL_ENABLE_TH1_DOCS
 /*
-** SETTING: th1-docs         boolean default=off
+** SETTING: th1-docs         boolean default=off sensitive
 ** If enabled, this allows embedded documentation files to contain
 ** arbitrary TH1 scripts that are evaluated on the server.  If native
 ** Tcl integration is also enabled, this setting has the
@@ -3934,7 +4199,7 @@ struct Setting {
 ** needed to clone or sync unversioned files.
 */
 /*
-** SETTING: web-browser      width=30
+** SETTING: web-browser      width=30 sensitive
 ** A shell command used to launch your preferred
 ** web browser when given a URL as an argument.
 ** Defaults to "start" on windows, "open" on Mac,
@@ -4060,7 +4325,9 @@ void setting_cmd(void){
       if( unsetFlag ){
         db_unset(pSetting->name, globalFlag);
       }else{
+        db_protect_only(PROTECT_NONE);
         db_set(pSetting->name, g.argv[3], globalFlag);
+        db_protect_pop();
       }
       if( isManifest && g.localOpen ){
         manifest_to_disk(db_lget_int("checkout", 0));

@@ -158,6 +158,7 @@ static int add_one_file(
   const char *zPath,   /* Tree-name of file to add. */
   int vid              /* Add to this VFILE */
 ){
+  int doSkip = 0;
   if( !file_is_simple_pathname(zPath, 1) ){
     fossil_warning("filename contains illegal characters: %s", zPath);
     return 0;
@@ -170,13 +171,18 @@ static int add_one_file(
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     int isExe = file_isexe(zFullname, RepoFILE);
-    db_multi_exec(
-      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
-      "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
-      vid, zPath, isExe, file_islink(0));
+    if( file_nondir_objects_on_path(g.zLocalRoot, zFullname) ){
+      /* Do not add unsafe files to the vfile */
+      doSkip = 1;
+    }else{
+      db_multi_exec(
+        "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
+        "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
+        vid, zPath, isExe, file_islink(0));
+    }
     fossil_free(zFullname);
   }
-  if( db_changes() ){
+  if( db_changes() && !doSkip ){
     fossil_print("ADDED  %s\n", zPath);
     return 1;
   }else{
@@ -188,7 +194,9 @@ static int add_one_file(
 /*
 ** Add all files in the sfile temp table.
 **
-** Automatically exclude the repository file.
+** Automatically exclude the repository file and any other files
+** with reserved names. Also exclude files that are beneath an 
+** existing symlink.
 */
 static int add_files_in_sfile(int vid){
   const char *zRepo;        /* Name of the repository database file */
@@ -210,14 +218,26 @@ static int add_files_in_sfile(int vid){
   }else{
     xCmp = fossil_stricmp;
   }
-  db_prepare(&loop, "SELECT pathname FROM sfile ORDER BY pathname");
+  db_prepare(&loop, 
+     "SELECT pathname FROM sfile"
+     " WHERE pathname NOT IN ("
+       "SELECT sfile.pathname FROM vfile, sfile"
+       " WHERE vfile.islink"
+       "   AND NOT vfile.deleted"
+       "   AND sfile.pathname>(vfile.pathname||'/')"
+       "   AND sfile.pathname<(vfile.pathname||'0'))"
+     " ORDER BY pathname");
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
-    for(i=0; (zReserved = fossil_reserved_name(i, 0))!=0; i++){
-      if( xCmp(zToAdd, zReserved)==0 ) break;
+    if( strchr(zToAdd,'/') ){
+      if( file_is_reserved_name(zToAdd, -1) ) continue;
+    }else{
+      for(i=0; (zReserved = fossil_reserved_name(i, 0))!=0; i++){
+        if( xCmp(zToAdd, zReserved)==0 ) break;
+      }
+      if( zReserved ) continue;
     }
-    if( zReserved ) continue;
     nAdd += add_one_file(zToAdd, vid);
   }
   db_finalize(&loop);

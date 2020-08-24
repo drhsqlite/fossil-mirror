@@ -301,7 +301,9 @@ void all_cmd(void){
       if( dryRunFlag ){
         fossil_print("%s\n", blob_sql_text(&sql));
       }else{
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec("%s", blob_sql_text(&sql));
+        db_protect_pop();
       }
     }
     db_end_transaction(0);
@@ -336,7 +338,9 @@ void all_cmd(void){
       if( dryRunFlag ){
         fossil_print("%s\n", blob_sql_text(&sql));
       }else{
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec("%s", blob_sql_text(&sql));
+        db_protect_pop();
       }
     }
     db_end_transaction(0);
@@ -430,7 +434,9 @@ void all_cmd(void){
     if( dryRunFlag ){
       fossil_print("%s\n", zSql);
     }else{
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec("%s", zSql /*safe-for-%s*/ );
+      db_protect_pop();
     }
   }
 }

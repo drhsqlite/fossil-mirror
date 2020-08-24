@@ -317,7 +317,9 @@ void user_edit(void){
     int n;
     if( P("verifydelete") ){
       /* Verified delete user request */
+      db_unprotect(PROTECT_USER);
       db_multi_exec("DELETE FROM user WHERE uid=%d", uid);
+      db_protect_pop();
       moderation_disapprove_for_missing_users();
       admin_log("Deleted user [%s] (uid %d).",
                 PD("login","???")/*safe-for-%s*/, uid);
@@ -403,11 +405,13 @@ void user_edit(void){
       return;
     }
     login_verify_csrf_secret();
+    db_unprotect(PROTECT_USER);
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
        "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
       uid, zLogin, P("info"), zPw, zCap
     );
+    db_protect_pop();
     setup_incr_cfgcnt();
     admin_log( "Updated user [%q] with capabilities [%q].",
                zLogin, zCap );
@@ -434,7 +438,9 @@ void user_edit(void){
         zLogin, P("pw"), zLogin, P("info"), zCap,
         zOldLogin
       );
+      db_unprotect(PROTECT_USER);
       login_group_sql(blob_str(&sql), "<li> ", " </li>\n", &zErr);
+      db_protect_pop();
       blob_reset(&sql);
       admin_log( "Updated user [%q] in all login groups "
                  "with capabilities [%q].",

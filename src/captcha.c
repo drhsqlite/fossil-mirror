@@ -460,10 +460,12 @@ const char *captcha_decode(unsigned int seed){
 
   zSecret = db_get("captcha-secret", 0);
   if( zSecret==0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('captcha-secret', lower(hex(randomblob(20))));"
     );
+    db_protect_pop();
     zSecret = db_get("captcha-secret", 0);
     assert( zSecret!=0 );
   }

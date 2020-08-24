@@ -434,8 +434,10 @@ void user_cmd(void){
       fossil_print("password unchanged\n");
     }else{
       char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3], 0);
+      db_unprotect(PROTECT_USER);
       db_multi_exec("UPDATE user SET pw=%Q, mtime=now() WHERE uid=%d",
                     zSecret, uid);
+      db_protect_pop();
       free(zSecret);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
@@ -448,10 +450,12 @@ void user_cmd(void){
       fossil_fatal("no such user: %s", g.argv[3]);
     }
     if( g.argc==5 ){
+      db_unprotect(PROTECT_USER);
       db_multi_exec(
         "UPDATE user SET cap=%Q, mtime=now() WHERE uid=%d",
         g.argv[4], uid
       );
+      db_protect_pop();
     }
     fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
   }else{
@@ -575,6 +579,7 @@ void user_hash_passwords_cmd(void){
   db_open_repository(g.argv[2]);
   sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
                           sha1_shared_secret_sql_function, 0, 0);
+  db_unprotect(PROTECT_ALL);
   db_multi_exec(
     "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
     " WHERE length(pw)>0 AND length(pw)!=40"

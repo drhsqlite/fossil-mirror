@@ -362,10 +362,12 @@ static char *getSkin(const char *zName){
         fossil_free(zLabel);
       }
     }
+    db_unprotect(PROTECT_CONFIG);
     blob_appendf(&val,
        "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now());\n",
        azSkinFile[i], z
     );
+    db_protect_pop();
   }
   return blob_str(&val);
 }
@@ -404,10 +406,12 @@ static int skinRename(void){
     style_footer();
     return 1;
   }
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "UPDATE config SET name='skin:%q' WHERE name='skin:%q';",
     zNewName, zOldName
   );
+  db_protect_pop();
   return 0;
 }
 
@@ -442,11 +446,13 @@ static int skinSave(const char *zCurrent){
     style_footer();
     return 1;
   }
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "INSERT OR IGNORE INTO config(name, value, mtime)"
     "VALUES('skin:%q',%Q,now())",
     zNewName, zCurrent
   );
+  db_protect_pop();
   return 0;
 }
 
@@ -493,12 +499,16 @@ void setup_skin_admin(void){
       return;
     }
     if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+      db_protect_pop();
     }
     if( P("draftdel")!=0 ){
       const char *zDraft = P("name");
       if( sqlite3_strglob("draft[1-9]",zDraft)==0 ){
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
+        db_protect_pop();
       }
     }
     if( skinRename() || skinSave(zCurrent) ){
@@ -523,11 +533,13 @@ void setup_skin_admin(void){
         seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
                          " AND value=%Q", zCurrent);
         if( !seen ){
+          db_unprotect(PROTECT_CONFIG);
           db_multi_exec(
             "INSERT INTO config(name,value,mtime) VALUES("
             "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
             "  %Q,now())", zCurrent
           );
+          db_protect_pop();
         }
       }
       seen = 0;
@@ -869,11 +881,13 @@ static void skin_publish(int iSkin){
                        " AND value=%Q", zCurrent);
   }
   if( !seen ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "INSERT INTO config(name,value,mtime) VALUES("
       "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
       "  %Q,now())", zCurrent
     );
+    db_protect_pop();
   }
 
   /* Publish draft iSkin */

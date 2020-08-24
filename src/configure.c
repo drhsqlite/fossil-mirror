@@ -147,7 +147,6 @@ static struct {
   { "crnl-glob",              CONFIGSET_PROJ },
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
-  { "allow-symlinks",         CONFIGSET_PROJ },
   { "dotfiles",               CONFIGSET_PROJ },
   { "parent-project-code",    CONFIGSET_PROJ },
   { "parent-project-name",    CONFIGSET_PROJ },
@@ -448,6 +447,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
     }
+    db_protect_only(PROTECT_SENSITIVE);
     db_multi_exec("%s)", blob_sql_text(&sql));
     if( db_changes()==0 ){
       blob_reset(&sql);
@@ -462,6 +462,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
                    azToken[0]/*safe-for-%s*/);
       db_multi_exec("%s", blob_sql_text(&sql));
     }
+    db_protect_pop();
     blob_reset(&sql);
     rebuildMask |= thisMask;
   }
@@ -863,9 +864,13 @@ void configuration_cmd(void){
       const char *zName = aConfig[i].zName;
       if( (aConfig[i].groupMask & mask)==0 ) continue;
       if( zName[0]!='@' ){
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+        db_protect_pop();
       }else if( fossil_strcmp(zName,"@user")==0 ){
+        db_unprotect(PROTECT_USER);
         db_multi_exec("DELETE FROM user");
+        db_protect_pop();
         db_create_default_users(0, 0);
       }else if( fossil_strcmp(zName,"@concealed")==0 ){
         db_multi_exec("DELETE FROM concealed");
@@ -1077,6 +1082,7 @@ void test_var_set_cmd(void){
   }else{
     blob_init(&x,g.argv[3],-1);
   }
+  db_unprotect(PROTECT_CONFIG);
   db_prepare(&ins,
      "REPLACE INTO config(name,value,mtime)"
      "VALUES(%Q,:val,now())", zVar);
@@ -1087,5 +1093,6 @@ void test_var_set_cmd(void){
   }
   db_step(&ins);
   db_finalize(&ins);
+  db_protect_pop();
   blob_reset(&x);
 }

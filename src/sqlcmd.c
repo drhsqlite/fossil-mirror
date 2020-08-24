@@ -157,6 +157,40 @@ int add_content_sql_commands(sqlite3 *db){
 }
 
 /*
+** Undocumented test SQL functions:
+**
+**     db_protect(X)
+**     db_protect_pop(X)
+**
+** These invoke the corresponding C routines.  Misuse may result in
+** an assertion fault.
+*/
+static void sqlcmd_db_protect(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  unsigned mask = 0;
+  const char *z = (const char*)sqlite3_value_text(argv[0]);
+  if( sqlite3_stricmp(z,"user")==0 )      mask |= PROTECT_USER;
+  if( sqlite3_stricmp(z,"config")==0 )    mask |= PROTECT_CONFIG;
+  if( sqlite3_stricmp(z,"sensitive")==0 ) mask |= PROTECT_SENSITIVE;
+  if( sqlite3_stricmp(z,"readonly")==0 )  mask |= PROTECT_READONLY;
+  if( sqlite3_stricmp(z,"all")==0 )       mask |= PROTECT_ALL;
+  db_protect(mask);
+}
+static void sqlcmd_db_protect_pop(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  db_protect_pop();
+}
+
+
+
+
+/*
 ** This is the "automatic extension" initializer that runs right after
 ** the connection to the repository database is opened.  Set up the
 ** database connection to be more useful to the human operator.
@@ -195,6 +229,12 @@ static int sqlcmd_autoinit(
   ** will get cleaned up when the shell closes the database connection */
   if( g.fSqlTrace ) mTrace |= SQLITE_TRACE_PROFILE;
   sqlite3_trace_v2(db, mTrace, db_sql_trace, 0);
+  db_protect_only(PROTECT_NONE);
+  sqlite3_set_authorizer(db, db_top_authorizer, db);
+  sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
+                          sqlcmd_db_protect, 0, 0);
+  sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
+                          sqlcmd_db_protect_pop, 0, 0);
   return SQLITE_OK;
 }
 
