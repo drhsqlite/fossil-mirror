@@ -115,6 +115,31 @@ char *interwiki_url(const char *zTarget){
 }
 
 /*
+** If hyperlink target zTarget begins with an interwiki tag that ought
+** to be excluded from display, then return the number of characters in
+** that tag.
+**
+** Path interwiki targets always return zero.  In other words, links
+** of the form:
+**
+**       remote:/path/to/file.txt
+**
+** Do not have the interwiki tag removed.  But Hash and Wiki links are
+** transformed:
+**
+**       src:39cb0a323f2f3fb6  ->  39cb0a323f2f3fb6
+**       fossil:To Do List     ->  To Do List
+*/
+int interwiki_removable_prefix(const char *zTarget){
+  int i;
+  for(i=0; fossil_isalnum(zTarget[i]); i++){}
+  if( zTarget[i]!=':' ) return 0;
+  i++;
+  if( zTarget[i]==0 || zTarget[i]=='/' ) return 0;
+  return i;
+}
+
+/*
 ** Verify that a name is a valid interwiki "Code".  Rules:
 **
 **     *    ascii

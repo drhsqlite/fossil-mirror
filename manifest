@@ -1,5 +1,5 @@
-C Applied\sfix\sfrom\s[5244a548]\sto\s/json/wiki/list.
-D 2020-08-24T04:44:09.371
+C For\sHash\sor\sWiki\sinterwiki\shyperlinks\sin\sFossil\sWiki\swithout\san\salternative\ndisplay,\selide\sthe\sinitial\sinterwiki\stag\sfrom\sthe\sdisplay.
+D 2020-08-24T12:35:12.678
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -513,7 +513,7 @@ F src/http_ssl.c dbc7cacde293c37d858b0d33e70ac21f9fd44c0de06f121ede28ec09e029635
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c b6e7722f771ee53570ff2533f137c2df3dd437dfdab9c07d5b9c7999c09744d2
 F src/info.c 7c8e2872c86e666586596246318265f1227610bc28b0f5bbc816e83aba044f9c
-F src/interwiki.c 1fb5409893576120ccbac598117d6b14abe58952e1f0f34328381c875dd4e279
+F src/interwiki.c 08349984c181e111e88218d3f72abe25956160756cc02b685f5eca0ba83506a4
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -642,7 +642,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 1de12501d57be9d5c64988988b0025abbd10f5111cf82785952329e17113add6
 F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
-F src/wikiformat.c 4558bd1542c709babdd78e51328a7e0e058c8583b68a8af2a125b0c16b05f58f
+F src/wikiformat.c 654c95849749ac80bae4d7653c9e4164c4870a6bd6311e1f8bce3676fe51872e
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/xfer.c 1774cede1435f5a3dfac847929fa347d02483b422d67b50f8993066792f32f93
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a7d8c58d48c0810219dcba440c3dbcdd95b7d91584bb135d7eac22eb0c74cde4
-R 9169bede1a15c06ba04badcbac24233e
-U stephan
-Z 8d2caab059d8310c9df21a18657c5283
+P 5a568d8b1f38e45e50f0a8e4ca310588c638a7a6687326644dcca51d1555cca0
+R 37b4821d96d087af409cd0d5e62498c2
+U drh
+Z bc7bb703b8a2cb3f2348870c9bf51cec

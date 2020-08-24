@@ -1522,7 +1522,7 @@ static void wiki_render(Renderer *p, char *z){
         }
         z[i] = 0;
         if( zDisplay==0 ){
-          zDisplay = zTarget;
+          zDisplay = zTarget + interwiki_removable_prefix(zTarget);
         }else{
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
