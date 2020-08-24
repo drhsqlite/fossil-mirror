@@ -1232,12 +1232,12 @@ static char * style_next_input_id(){
 **
 ** Resulting structure:
 **
-** <span class='input-with-label' title={{zTip}} id={{zWrapperId}}>
+** <div class='input-with-label' title={{zTip}} id={{zWrapperId}}>
 **   <input type='checkbox' name={{zFieldName}} value={{zValue}}
 **          id='A RANDOM VALUE'
 **          {{isChecked ? " checked : ""}}/>
 **   <label for='ID OF THE INPUT FIELD'>{{zLabel}}</label>
-** </span>
+** </div>
 **
 ** zLabel, and zValue are required. zFieldName, zWrapperId, and zTip
 ** are may be NULL or empty.
@@ -1251,7 +1251,7 @@ void style_labeled_checkbox(const char * zWrapperId,
                             const char * zValue, int isChecked,
                             const char * zTip){
   char * zLabelID = style_next_input_id();
-  CX("<span class='input-with-label'");
+  CX("<div class='input-with-label'");
   if(zTip && *zTip){
     CX(" title='%h'", zTip);
   }
@@ -1264,7 +1264,7 @@ void style_labeled_checkbox(const char * zWrapperId,
   }
   CX("value='%T'%s/>",
      zValue ? zValue : "", isChecked ? " checked" : "");
-  CX("<label for='%s'>%h</label></span>", zLabelID, zLabel);
+  CX("<label for='%s'>%h</label></div>", zLabelID, zLabel);
   fossil_free(zLabelID);
 }
 
@@ -1298,10 +1298,10 @@ void style_labeled_checkbox(const char * zWrapperId,
 **
 ** The structure of the emitted HTML is:
 **
-** <span class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
+** <div class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
 **   <label for='SELECT ELEMENT ID'>{{zLabel}}</label>
 **   <select id='RANDOM ID' name={{zFieldName}}>...</select>
-** </span>
+** </div>
 **
 ** Example:
 **
@@ -1320,7 +1320,7 @@ void style_select_list_int(const char * zWrapperId,
   va_list vargs;
 
   va_start(vargs,selectedVal);
-  CX("<span class='input-with-label'");
+  CX("<div class='input-with-label'");
   if(zToolTip && *zToolTip){
     CX(" title='%h'",zToolTip);
   }
@@ -1349,7 +1349,7 @@ void style_select_list_int(const char * zWrapperId,
     CX("</option>\n");
   }
   CX("</select>\n");
-  CX("</span>\n");
+  CX("</div>\n");
   va_end(vargs);
   fossil_free(zLabelID);
 }
@@ -1384,7 +1384,7 @@ void style_select_list_str(const char * zWrapperId,
   if(!zSelectedVal){
     zSelectedVal = __FILE__/*some string we'll never match*/;
   }
-  CX("<span class='input-with-label'");
+  CX("<div class='input-with-label'");
   if(zToolTip && *zToolTip){
     CX(" title='%h'",zToolTip);
   }
@@ -1413,7 +1413,7 @@ void style_select_list_str(const char * zWrapperId,
     CX("</option>\n");
   }
   CX("</select>\n");
-  CX("</span>\n");
+  CX("</div>\n");
   va_end(vargs);
   fossil_free(zLabelID);
 }
@@ -1561,4 +1561,19 @@ void style_emit_fossil_js_apis( int dummy, ... ) {
     fossil_free(zName);
   }
   va_end(vargs);
+}
+
+/*
+** Emits, via builtin_request_js(), all JS fossil.XYZ APIs which are
+** not strictly specific to a single page. The idea is that we can get
+** better bundle caching and reduced HTTP requests by including all
+** JS, rather than creating separate bundles on a per-page basis.
+*/
+void style_emit_all_fossil_js_apis(void){
+  style_emit_fossil_js_apis(0,
+                            "dom", "fetch",
+                            "storage", "tabs",
+                            "confirmer", "popupwidget",
+                            "copybutton", "numbered-lines",
+                            0);
 }

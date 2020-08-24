@@ -1982,8 +1982,14 @@ void fileedit_page(void){
   CX("</div>"/*#fileedit-tab-help*/);
 
   builtin_request_js("sbsdiff.js");
+#if 0
   style_emit_fossil_js_apis(0, "fetch", "dom", "tabs", "confirmer",
                             "storage", 0);
+#else
+  style_emit_all_fossil_js_apis();
+  builtin_fulfill_js_requests();
+  builtin_request_js("fossil.page.fileedit.js");
+#endif
   builtin_fulfill_js_requests();
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is

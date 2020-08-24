@@ -330,6 +330,14 @@
     window.addEventListener('load', callback, false);
     return this;
   };
+  /**
+     Convenience wrapper which adds a DOMContentLoadedevent listener
+     to the window object. Returns this.
+  */
+  F.onDOMContentLoaded = function(callback){
+    window.addEventListener('DOMContentLoaded', callback, false);
+    return this;
+  };
 
   /**
      Assuming name is a repo-style filename, this function returns

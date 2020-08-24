@@ -266,4 +266,111 @@
     }
   }/*F.toast*/;
 
+
+  F.helpButtonlets = {
+    /**
+       Initializes one or more "help buttonlets". It may be passed any of:
+
+       - A string: CSS selector (multiple matches are legal)
+
+       - A single DOM element.
+
+       - A forEach-compatible container of DOM elements.
+
+       - No arguments, which is equivalent to passing the string
+       ".help-buttonlet:not(.processed)".
+
+       Passing the same element(s) more than once is a no-op: during
+       initialization, each elements get the class'processed' added to
+       it, and any elements with that class are skipped.
+
+       All child nodes of a help buttonlet are removed from the button
+       during initialization and stashed away for use in a PopupWidget
+       when the botton is clicked.
+
+    */
+    setup: function f(){
+      if(!f.clickHandler){
+        f.clickHandler = function fch(ev){
+          if(!fch.popup){
+            fch.popup = new F.PopupWidget({
+              cssClass: ['fossil-tooltip', 'help-buttonlet-content'],
+              refresh: function(){
+              }
+            });
+            const hide = ()=>fch.popup.hide();
+            fch.popup.e.addEventListener('click', hide, false);
+            document.body.addEventListener('click', hide, true);
+            document.body.addEventListener('keydown', function(ev){
+              if(fch.popup.isShown() && 27===ev.which){
+                fch.popup.hide();
+              }
+            }, true);
+          }
+          D.append(D.clearElement(fch.popup.e), ev.target.$helpContent);
+          const rect1 = ev.target.getClientRects()[0];
+          var x = rect1.left, y = rect1.top;
+          if(x<0) x = 0;
+          if(y<0) y = 0;
+          /* shift help to the left 1/2 the width of fch.popup.e. However,
+             fch.popup.e.getClientRects() is empty until the popup is shown,
+             so we have to show it, calculate that size, then move it. */
+          fch.popup.show(x, y);
+          const rect2 = fch.popup.e.getClientRects()[0];
+          x -= rect2.width/2;
+          if(x<0) x = 0;
+          fch.popup.show(x, y);
+        };
+      }
+      var elems;
+      if(!arguments.length){
+        arguments[0] = '.help-buttonlet:not(.processed)';
+        arguments.length = 1;
+      }
+      if(arguments.length){
+        if('string'===typeof arguments[0]){
+          elems = document.querySelectorAll(arguments[0]);
+        }else if(arguments[0] instanceof HTMLElement){
+          elems = [arguments[0]];
+        }else{/* assume DOM element list or array */
+          elems = arguments[0];
+        }
+      }
+      if(!elems) return;
+      elems.forEach(function(e){
+        if(e.classList.contains('processed')) return;
+        e.classList.add('processed');
+        e.$helpContent = [];
+        /* We have to move all child nodes out of the way because we
+           cannot hide TEXT nodes via CSS (which cannot select TEXT
+           nodes). We have to do it in two steps to avoid invaliding
+           the list during traversal. */
+        e.childNodes.forEach((ch)=>e.$helpContent.push(ch));
+        e.$helpContent.forEach((ch)=>ch.remove());
+        e.addEventListener('click', f.clickHandler, false);
+      });
+    },
+    
+    /**
+       Sets up the given element as a "help buttonlet", adding the CSS
+       class help-buttonlet to it. Any (optional) arguments after the
+       first are appended to the element using fossil.dom.append(), so
+       that they become the content for the buttonlet's popup help.
+
+       The element is then passed to this.setup() before it
+       is returned from this function.
+    */
+    create: function(elem/*...body*/){
+      D.addClass(elem, 'help-buttonlet');
+      if(arguments.length>1){
+        const args = Array.prototype.slice.call(arguments,1);
+        D.append(elem, args);
+      }
+      this.setup(elem);
+      return elem;
+    }
+  }/*helpButtonlets*/;
+
+  F.onDOMContentLoaded( ()=>F.helpButtonlets.setup() );
+  
 })(window.fossil);

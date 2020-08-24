@@ -4,7 +4,7 @@
      Client-side implementation of the /wikiedit app. Requires that
      the fossil JS bootstrapping is complete and that several fossil
      JS APIs have been installed: fossil.fetch, fossil.dom,
-     fossil.tabs, fossil.storage, fossil.confirmer.
+     fossil.tabs, fossil.storage, fossil.confirmer, fossil.popupwidget.
 
      Custom events which can be listened for via
      fossil.page.addEventListener():
@@ -559,7 +559,7 @@
 
       /** Set up filter checkboxes for the various types
           of wiki pages... */
-      const fsFilter = D.fieldset("Page types"),
+      const fsFilter = D.addClass(D.fieldset("Page types"),"page-types-list"),
             fsFilterBody = D.div(),
             filters = ['normal', 'branch/...', 'tag/...', 'checkin/...']
       ;
@@ -599,9 +599,14 @@
               cb = D.attr(D.input('checkbox'), 'id', cbId);
         cb.checked = false;
         D.addClass(parentElem,'hide-deleted');
-        D.attr(lbl, 'title',
-               'Fossil considers empty pages to be "deleted" in some contexts.');
-        D.append(fsFilterBody, D.append(D.span(), cb, lbl));
+        D.attr(lbl);
+        const deletedTip = F.helpButtonlets.create(
+          D.span(),
+          'Fossil considers empty pages to be "deleted" in some contexts.'
+        );
+        D.append(fsFilterBody, D.append(
+          D.span(), cb, lbl, deletedTip
+        ));
         cb.addEventListener(
           'change',
           function(ev){
@@ -684,18 +689,22 @@
         D.attr(D.div(),'id','wikiedit-stash-selector'),
         'input-with-label'
       );
-      const sel = this.e.select = D.select();
-      const btnClear = this.e.btnClear = D.button("Discard Edits");
+      const sel = this.e.select = D.select(),
+            btnClear = this.e.btnClear = D.button("Discard Edits"),
+            btnHelp = D.append(
+              D.addClass(D.div(), "help-buttonlet"),
+              'Locally-edited wiki pages. Timestamps are the last local edit time. ',
+              'Only the ',P.config.defaultMaxStashSize,' most recent pages ',
+              'are retained. Saving or reloading a file removes it from this list. ',
+              D.append(D.code(),'localStorage'),' uses browser-local persistent storage. ',
+              D.append(D.code(),'sessionStorage'),' uses storage local to this browser tab.'
+            );
       D.append(wrapper, "Local edits (",
                D.append(D.code(),
                         F.storage.storageImplName()),
                "):",
-               sel, btnClear);
-      D.attr(wrapper, "title", [
-        'Locally-edited wiki pages. Timestamps are the last local edit time.',
-        'Only the',P.config.defaultMaxStashSize,'most recent pages',
-        'are retained. Saving or reloading a file removes it from this list.'
-      ].join(' '));
+               btnHelp, sel, btnClear);
+      F.helpButtonlets.setup(btnHelp);
       D.option(D.disable(sel), "(empty)");
       P.addEventListener('wiki-stash-updated',(e)=>this.updateList(e.detail));
       P.addEventListener('wiki-page-loaded',(e)=>this.updateList($stash, e.detail));
@@ -837,9 +846,7 @@
       taEditor: E('#wikiedit-content-editor'),
       btnReload: E("#wikiedit-tab-content button.wikiedit-content-reload"),
       btnSave: E("button.wikiedit-save"),
-      btnSaveClose: D.attr(E("button.wikiedit-save-close"),
-                           'title',
-                           'Save changes and return to the wiki reader.'),
+      btnSaveClose: E("button.wikiedit-save-close"),
       selectMimetype: E('select[name=mimetype]'),
       selectFontSizeWrap: E('#select-font-size'),
 //      selectDiffWS:  E('select[name=diff_ws]'),
@@ -872,8 +879,8 @@
         if(btnSlot){
           /* Several places make sense for a save button, so we'll
              move that button around to those tabs where it makes sense. */
-          btnSlot.parentNode.insertBefore( P.e.btnSave, btnSlot );
-          btnSlot.parentNode.insertBefore( P.e.btnSaveClose, btnSlot );
+          btnSlot.parentNode.insertBefore( P.e.btnSave.parentNode, btnSlot );
+          btnSlot.parentNode.insertBefore( P.e.btnSaveClose.parentNode, btnSlot );
           P.updateSaveButton();
         }
         if(theTab===P.e.tabs.preview){
@@ -960,6 +967,7 @@
     };
 
     if(P.config.useConfirmerButtons.reload){
+      P.tabs.switchToTab(1/*DOM visibility workaround*/);
       F.confirmer(P.e.btnReload, {
         pinSize: true,
         confirmText: "Really reload, losing edits?",
@@ -970,6 +978,7 @@
       P.e.btnReload.addEventListener('click', doReload, false);
     }
     if(P.config.useConfirmerButtons.save){
+      P.tabs.switchToTab(1/*DOM visibility workaround*/);
       F.confirmer(P.e.btnSave, {
         pinSize: true,
         confirmText: "Really save changes?",
@@ -1071,9 +1080,15 @@
       },
       false
     );
-    /* These init()s need to come after P's event handlers are registered */
+    /* These init()s need to come after P's event handlers are registered.
+       The tab-switching is a workaround for the pinSize option of the confirmer widgets:
+       it does not work if the confirmer button being initialized is in a hidden
+       part of the DOM :/. */
+    P.tabs.switchToTab(0);
     WikiList.init( P.e.tabs.pageList.firstElementChild );
+    P.tabs.switchToTab(1);
     P.stashWidget.init(P.e.tabs.content.lastElementChild);
+    P.tabs.switchToTab(0);
     //P.$wikiList = WikiList/*only for testing/debugging*/;
   }/*F.onPageLoad()*/);
 

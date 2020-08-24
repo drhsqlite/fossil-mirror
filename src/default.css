@@ -1102,11 +1102,12 @@ hr {
 }
 
 /**
-   .input-with-label is intended to be a wrapper element which
-   contain both a LABEL tag and an INPUT or SELECT control.
-   The wrapper is "necessary", as opposed to placing the INPUT
-   in the LABEL, so that we can include multiple INPUT
-   elements (e.g. a set of radio buttons).
+   .input-with-label is intended to be a wrapper element which contain
+   both a LABEL tag and an INPUT or SELECT control.  The wrapper is
+   "necessary", as opposed to placing the INPUT in the LABEL, so that
+   we can include multiple INPUT elements (e.g. a set of radio
+   buttons). Note that these elements must sometimes be BLOCK elements
+   (e.g. DIV) so that certain nesting constructs are legal.
 */
 .input-with-label {
   border: 1px inset #808080;
@@ -1294,4 +1295,57 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
 blockquote.file-content {
   /* file content block in the /file page */
   margin: 0 1em;
+}
+
+
+/**
+   Circular "help" buttons intended to be placed to the right of
+   another element and hold text text for it. These get initialized
+   automatically at page startup via fossil.popupwidget.js. All child
+   content gets moved out of the DOM and shown in a popup when they
+   are clicked. They may be SPAN elements if their children are all
+   inline elements, otherwise they must be DIVs (block elements)
+   so that nesting of block elements is legal.
+*/
+.help-buttonlet {
+	display: inline-block;
+	min-width: 1rem;
+	max-width: 1rem;
+	min-height: 1rem;
+	max-height: 1rem;
+	font-size: 0.9em;
+	border-radius: 0.5rem;
+	background-color: rgba(54, 54, 255,0.4);
+  color: rgb(255, 255, 255);
+	cursor: pointer;
+	font-family: monspace;
+  text-align: center;
+	margin: 0 0 0 0.35em;
+	border-width: 1px;
+	border-style: outset;
+	font-weight: 700;
+  overflow: hidden;
+}
+
+.help-buttonlet::before {
+  content: "?";
+}
+
+/**
+   We really want to hide all help text via CSS but CSS cannot select
+   TEXT nodes. Thus we move them out of the way programmatically
+   during initialization.
+*/
+.help-buttonlet > *{}
+
+/**
+   CSS class for PopupWidget which wraps .help-buttonlet content.
+   They also have class fossil-tooltip. We need an overly-exact
+   selector here to be certain that this class's style overrides
+   that of fossil-tooltip.
+*/
+.fossil-tooltip.help-buttonlet-content {
+  cursor: default;
+  text-align: left;
+  border-style: outset;
 }

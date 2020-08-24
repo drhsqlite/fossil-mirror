@@ -494,6 +494,7 @@
         ));
       }
       domInsertPoint.parentNode.insertBefore(wrapper, domInsertPoint);
+      P.tabs.switchToTab(1/*DOM visibility workaround*/);
       F.confirmer(btnClear, {
         /* must come after insertion into the DOM for the pinSize option to work. */
         pinSize: true,
@@ -511,6 +512,7 @@
       });
       D.addClass(this.e.btnClear,'hidden' /* must not be set until after confirmer is set up!*/);
       $stash._fireStashEvent(/*read the page-load-time stash*/);
+      P.tabs.switchToTab(0/*DOM visibility workaround*/);
       delete this.init;
     },
     /**
@@ -739,6 +741,7 @@
     P.e.btnCommit.addEventListener(
       "click",(e)=>P.commit(), false
     );
+    P.tabs.switchToTab(1/*DOM visibility workaround*/);
     F.confirmer(P.e.btnReload, {
       pinSize: true,
       confirmText: "Really reload, losing edits?",

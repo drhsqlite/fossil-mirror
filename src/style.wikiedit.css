@@ -186,9 +186,16 @@ body.wikiedit #wikiedit-stash-selector {
   align-items: baseline;
 }
 body.wikiedit #wikiedit-stash-selector select {
-  margin: 0 1em;
+  margin: 0 1em 0 0.5em;
   height: initial;
   font-family: monospace;
   flex: 10 1 auto;
 }
 
+
+body.wikiedit fieldset.page-types-list > div > span {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
