@@ -1315,7 +1315,7 @@ blockquote.file-content {
 	max-height: 1rem;
 	font-size: 0.9em;
 	border-radius: 0.5rem;
-	background-color: rgba(54, 54, 255,0.4);
+	background-color: rgba(54, 54, 255,1);
   color: rgb(255, 255, 255);
 	cursor: pointer;
 	font-family: monspace;

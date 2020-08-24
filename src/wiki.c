@@ -1183,7 +1183,7 @@ void wikiedit_page(void){
        "<button class='wikiedit-save-close'>"
        "Save &amp; Close</button>"
        "<div class='help-buttonlet'>"
-       "Saves edits to this page and returns to the wiki page viewer."
+       "Save edits to this page and returns to the wiki page viewer."
        "</div>"
        "</div>" /*will get moved around dynamically*/);
     CX("<span class='save-button-slot'></span>");
@@ -1229,11 +1229,11 @@ void wikiedit_page(void){
     /* Toggle auto-update of preview when the Preview tab is selected. */
     CX("<div class='input-with-label'>"
        "<input type='checkbox' value='1' "
-       "id='cb-preview-autorefresh' checked=''>"
+       "id='cb-preview-autorefresh' checked>"
        "<label for='cb-preview-autorefresh'>Auto-refresh?</label>"
        "<div class='help-buttonlet'>"
        "If on, the preview will automatically "
-       "refresh when this tab is selected."
+       "refresh (if needed) when this tab is selected."
        "</div>"
        "</div>");
     CX("<span class='save-button-slot'></span>");
@@ -1288,15 +1288,11 @@ void wikiedit_page(void){
   }
 
   builtin_request_js("sbsdiff.js");
-#if 0
-  style_emit_fossil_js_apis(0, "fetch", "dom", "tabs", "confirmer",
-                            "storage", "page.wikiedit", 0);
-#else
-  style_emit_all_fossil_js_apis();
-  builtin_fulfill_js_requests();
+  if(!builtin_bundle_all_fossil_js_apis()){
+    builtin_emit_fossil_js_apis("fetch", "dom", "tabs", "confirmer",
+                              "storage", "page.wikiedit", 0);
+  }
   builtin_request_js("fossil.page.wikiedit.js");
-#endif
-  builtin_fulfill_js_requests();
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);
   {

@@ -262,6 +262,14 @@ void builtin_set_js_delivery_mode(const char *zMode, int bSilent){
 }
 
 /*
+** Returns the current JS delivery mode: one of JS_INLINE,
+** JS_SEPARATE, JS_BUNDLED.
+*/
+int builtin_get_js_delivery_mode(void){
+  return builtin.eDelivery;
+}
+
+/*
 ** The caller wants the Javascript file named by zFilename to be
 ** included in the generated page.  Add the file to the queue of
 ** requested javascript resources, if it is not there already.
@@ -561,3 +569,154 @@ int builtin_vtab_register(sqlite3 *db){
 }
 /* End of the builtin virtual table
 ******************************************************************************/
+
+
+/*
+** The first time this is called, it emits code to install and
+** bootstrap the window.fossil object, using the built-in file
+** fossil.bootstrap.js (not to be confused with bootstrap.js).
+**
+** Subsequent calls are no-ops.
+**
+** It emits 2 parts:
+**
+** 1) window.fossil core object, some of which depends on C-level
+** runtime data. That part of the script is always emitted inline. If
+** addScriptTag is true then it is wrapped in its own SCRIPT tag, else
+** it is assumed that the caller already opened a tag.
+**
+** 2) Emits the static fossil.bootstrap.js using builtin_request_js().
+*/
+void builtin_emit_script_fossil_bootstrap(int addScriptTag){
+  static int once = 0;
+  if(0==once++){
+    char * zName;
+    /* Set up the generic/app-agnostic parts of window.fossil
+    ** which require C-level state... */
+    if(addScriptTag!=0){
+      style_emit_script_tag(0,0);
+    }
+    CX("(function(){\n");
+    CX(/*MSIE NodeList.forEach polyfill, courtesy of Mozilla:
+    https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach#Polyfill
+       */
+       "if(window.NodeList && !NodeList.prototype.forEach){"
+       "NodeList.prototype.forEach = Array.prototype.forEach;"
+       "}\n");
+    CX("if(!window.fossil) window.fossil={};\n"
+       "window.fossil.version = %!j;\n"
+    /* fossil.rootPath is the top-most CGI/server path,
+    ** including a trailing slash. */
+       "window.fossil.rootPath = %!j+'/';\n",
+       get_version(), g.zTop);
+    /* fossil.config = {...various config-level options...} */
+    CX("window.fossil.config = {");
+    zName = db_get("project-name", "");
+    CX("projectName: %!j,\n", zName);
+    fossil_free(zName);
+    zName = db_get("short-project-name", "");
+    CX("shortProjectName: %!j,\n", zName);
+    fossil_free(zName);
+    zName = db_get("project-code", "");
+    CX("projectCode: %!j,\n", zName);
+    fossil_free(zName);
+    CX("/* Length of UUID hashes for display purposes. */");
+    CX("hashDigits: %d, hashDigitsUrl: %d,\n",
+       hash_digits(0), hash_digits(1));
+    CX("editStateMarkers: {"
+       "/*Symbolic markers to denote certain edit states.*/"
+       "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
+    CX("confirmerButtonTicks: 3 "
+       "/*default fossil.confirmer tick count.*/\n");
+    CX("};\n"/* fossil.config */);
+#if 0
+    /* Is it safe to emit the CSRF token here? Some pages add it
+    ** as a hidden form field. */
+    if(g.zCsrfToken[0]!=0){
+      CX("window.fossil.csrfToken = %!j;\n",
+         g.zCsrfToken);
+    }
+#endif
+    /*
+    ** fossil.page holds info about the current page. This is also
+    ** where the current page "should" store any of its own
+    ** page-specific state, and it is reserved for that purpose.
+    */
+    CX("window.fossil.page = {"
+       "name:\"%T\""
+       "};\n", g.zPath);
+    CX("})();\n");
+    if(addScriptTag!=0){
+      style_emit_script_tag(1,0);
+    }
+    /* The remaining window.fossil bootstrap code is not dependent on
+    ** C-runtime state... */
+    builtin_request_js("fossil.bootstrap.js");
+  }
+}
+
+
+/*
+** Convenience wrapper which calls builtin_request_js() for a series
+** of builtin scripts named fossil.NAME.js. The first time it is
+** called, it also calls builtin_emit_script_fossil_bootstrap() to
+** initialize the window.fossil JS API. The first argument is the NAME
+** part of the first API to emit. All subsequent arguments must be
+** strings of the NAME part of additional fossil.NAME.js files,
+** followed by a NULL argument to terminate the list.
+**
+** e.g. pass it ("fetch", "dom", "tabs", 0) to load those 3
+** APIs. Do not forget the trailing 0!
+*/
+void builtin_emit_fossil_js_apis( const char * zApi, ... ) {
+  static int once = 0;
+  const char *zArg;
+  char * zName;
+  va_list vargs;
+
+  if(0==once++){
+    builtin_emit_script_fossil_bootstrap(1);
+  }
+  zName = mprintf("fossil.%s.js", zApi);
+  builtin_request_js(zName);
+  fossil_free(zName);
+
+  va_start(vargs,zApi);
+  while( (zArg = va_arg (vargs, const char *))!=0 ){
+    zName = mprintf("fossil.%s.js", zArg);
+    builtin_request_js(zName);
+    fossil_free(zName);
+  }
+  va_end(vargs);
+}
+
+/*
+** If builtin_get_js_delivery_mode() returns JS_BUNDLED then this
+** function emits, via builtin_request_js(), all JS fossil.XYZ APIs
+** which are not strictly specific to a single page, and then calls
+** builtin_fulfill_js_requests(). The idea is that we can get better
+** bundle caching and reduced HTTP requests by including all JS,
+** rather than creating separate bundles on a per-page basis. It then
+** returns true. As a special case, if this is called more than once
+** in bundled mode, subsequent calls are a no-op.
+**
+** If the current JS delivery mode is *not* JS_BUNDLED then this
+** function is a no-op and returns false.
+*/
+int builtin_bundle_all_fossil_js_apis(void){
+  static int bundled = 0;
+  if(JS_BUNDLED == builtin_get_js_delivery_mode()){
+    if(!bundled){
+      bundled = 1;
+      builtin_emit_fossil_js_apis("dom", "fetch",
+                                  "storage", "tabs",
+                                  "confirmer", "popupwidget",
+                                  "copybutton", "numbered-lines",
+                                  0);
+      builtin_fulfill_js_requests();
+    }
+    return 1;
+  }else{
+    return 0;
+  }
+}

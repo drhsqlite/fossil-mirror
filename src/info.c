@@ -2026,12 +2026,20 @@ int artifact_from_ci_and_filename(const char *zNameParam){
 ** If there are two line numbers, highlight the range of lines.
 ** Multiple ranges can be highlighed by adding additional line numbers
 ** separated by a non-digit character (also not one of [-,.]).
+**
+** If includeJS is true then the JS code associated with line
+** numbering is also emitted, else it is not. If this routine is
+** called multiple times in a single app run, the JS is emitted only
+** once. Note that when using this routine to emit Ajax responses, the
+** JS should be not be included, as it will not get imported properly
+** into the response's rendering.
 */
 void output_text_with_line_numbers(
   const char *z,
   int nZ,
   const char *zName,
-  const char *zLn
+  const char *zLn,
+  int includeJS
 ){
   int iStart, iEnd;    /* Start and end of region to highlight */
   int n = 0;           /* Current line number */
@@ -2040,6 +2048,7 @@ void output_text_with_line_numbers(
   int nLine = 0;       /* content line count */
   int nSpans = 0;      /* number of distinct zLn spans */
   const char *zExt = file_extension(zName);
+  static int emittedJS = 0; /* emitted shared JS yet? */
   Stmt q;
 
   iStart = iEnd = atoi(zLn);
@@ -2117,15 +2126,16 @@ void output_text_with_line_numbers(
   }
   cgi_printf("%z", htmlize(z, nZ));
   CX("</code></pre></td></tr></tbody></table>\n");
-  if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
-    builtin_request_js("scroll.js");
+  if(includeJS && !emittedJS){
+    emittedJS = 1;
+    if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
+      builtin_request_js("scroll.js");
+    }
+    if(!builtin_bundle_all_fossil_js_apis()){
+      builtin_emit_fossil_js_apis("dom", "copybutton", "popupwidget",
+                                  "numbered-lines", 0);
+    }
   }
-#if 0
-  style_emit_fossil_js_apis(0, "dom", "copybutton", "popupwidget",
-                            "numbered-lines", 0);
-#else
-  style_emit_all_fossil_js_apis();
-#endif
 }
 
 /*
@@ -2150,7 +2160,7 @@ void cmd_test_line_numbers(void){
 
   blob_read_from_file(&content, zFilename, ExtFILE);
   output_text_with_line_numbers(blob_str(&content), blob_size(&content),
-                                zFilename, zLn);
+                                zFilename, zLn, 0);
   blob_reset(&content);
   fossil_print("%b\n", cgi_output_blob());
 }
@@ -2462,7 +2472,7 @@ void artifact_page(void){
         zExt = zFileName ? file_extension(zFileName) : 0;
         if( zLn ){
           output_text_with_line_numbers(z, blob_size(&content),
-                                        zFileName, zLn);
+                                        zFileName, zLn, 1);
         }else if( zExt && zExt[1] ){
           @ <pre>
           @ <code class="language-%s(zExt)">%h(z)</code>

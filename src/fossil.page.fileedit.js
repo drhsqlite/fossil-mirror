@@ -466,19 +466,22 @@
         'input-with-label'
       );
       const sel = this.e.select = D.select();
-      const btnClear = this.e.btnClear
-            = D.button("Discard Edits");
+      const btnClear = this.e.btnClear = D.button("Discard Edits"),
+            btnHelp = D.append(
+              D.addClass(D.div(), "help-buttonlet"),
+              'Locally-edited files. Timestamps are the last local edit time. ',
+              'Only the ',P.config.defaultMaxStashSize,' most recent files ',
+              'are retained. Saving or reloading a file removes it from this list. ',
+              D.append(D.code(),'localStorage'),' uses browser-local persistent storage. ',
+              D.append(D.code(),'sessionStorage'),' uses storage local to this browser tab.'
+            );
+
       D.append(wrapper, "Local edits (",
                D.append(D.code(),
                         F.storage.storageImplName()),
                "):",
-               sel, btnClear);
-      D.attr(wrapper, "title", [
-        'Locally-edited files. Timestamps are the last local edit time.',
-        'Only the',P.config.defaultMaxStashSize,'most recent checkin/file',
-        'combinations are retained.',
-        'Committing or reloading a file removes it from this list.'
-      ].join(' '));
+               btnHelp, sel, btnClear);
+      F.helpButtonlets.setup(btnHelp);
       D.option(D.disable(sel), "(empty)");
       F.page.addEventListener('fileedit-stash-updated',(e)=>this.updateList(e.detail));
       F.page.addEventListener('fileedit-file-loaded',(e)=>this.updateList($stash, e.detail));
@@ -658,7 +661,7 @@
       selectFontSizeWrap: E('#select-font-size'),
       selectDiffWS:  E('select[name=diff_ws]'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
-      cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
+      cbAutoPreview: E('#cb-preview-autorefresh'),
       previewTarget: E('#fileedit-tab-preview-wrapper'),
       manifestTarget: E('#fileedit-manifest'),
       diffTarget: E('#fileedit-tab-diff-wrapper'),

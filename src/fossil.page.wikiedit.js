@@ -850,7 +850,7 @@
       selectMimetype: E('select[name=mimetype]'),
       selectFontSizeWrap: E('#select-font-size'),
 //      selectDiffWS:  E('select[name=diff_ws]'),
-      cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
+      cbAutoPreview: E('#cb-preview-autorefresh'),
       previewTarget: E('#wikiedit-tab-preview-wrapper'),
       diffTarget: E('#wikiedit-tab-diff-wrapper'),
       editStatus: E('#wikiedit-edit-status'),

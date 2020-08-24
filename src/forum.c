@@ -806,7 +806,7 @@ void forumthread_page(void){
   forum_display_thread(froot, fpid, mode, bUnf, bHist);
 
   /* Emit Forum Javascript. */
-  style_emit_script_fossil_bootstrap(1);
+  builtin_emit_script_fossil_bootstrap(1);
   builtin_request_js("forum.js");
   builtin_request_js("fossil.dom.js");
   builtin_request_js("fossil.page.forumpost.js");

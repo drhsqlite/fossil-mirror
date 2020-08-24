@@ -191,8 +191,6 @@ body.wikiedit #wikiedit-stash-selector select {
   font-family: monospace;
   flex: 10 1 auto;
 }
-
-
 body.wikiedit fieldset.page-types-list > div > span {
   display: flex;
   flex-direction: row;
