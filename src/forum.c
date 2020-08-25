@@ -413,7 +413,7 @@ static void forum_display_post(
   const char *zMimetype;/* Formatting MIME type */
 
   /* Get the original and revised artifacts for the post.  Abort if either is
-   * not found (e.g. shunned). */
+  ** not found (e.g. shunned). */
   if( p->pEditHead ){
     pOriginal = manifest_get(p->pEditHead->fpid, CFTYPE_FORUM, 0);
     pRevised = manifest_get(p->fpid, CFTYPE_FORUM, 0);
