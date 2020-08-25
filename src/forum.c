@@ -405,15 +405,22 @@ static void forum_display_post(
   char *zDisplayName;   /* The display name */
   char *zDate;          /* The time/date string */
   char *zHist;          /* History query string */
-  Manifest *pManifest;  /* Manifest comprising the current post */
+  Manifest *pOriginal;  /* Original post artifact */
+  Manifest *pRevised;   /* Revised post artifact (may be same as pOriginal) */
   int bPrivate;         /* True for posts awaiting moderation */
   int bSameUser;        /* True if author is also the reader */
   int iIndent;          /* Indent level */
   const char *zMimetype;/* Formatting MIME type */
 
-  /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
-  pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
-  if( !pManifest ) return;
+  /* Get the original and revised artifacts for the post.  Abort if either is
+   * not found (e.g. shunned). */
+  if( p->pEditHead ){
+    pOriginal = manifest_get(p->pEditHead->fpid, CFTYPE_FORUM, 0);
+    pRevised = manifest_get(p->fpid, CFTYPE_FORUM, 0);
+  }else{
+    pOriginal = pRevised = manifest_get(p->fpid, CFTYPE_FORUM, 0);
+  }
+  if( !pOriginal || !pRevised ) return;
 
   /* When not in raw mode, create the border around the post. */
   if( !bRaw ){
@@ -429,13 +436,13 @@ static void forum_display_post(
     @ >
 
     /* If this is the first post (or an edit thereof), emit the thread title. */
-    if( pManifest->zThreadTitle ){
-      @ <h1>%h(pManifest->zThreadTitle)</h1>
+    if( pRevised->zThreadTitle ){
+      @ <h1>%h(pRevised->zThreadTitle)</h1>
     }
 
     /* Emit the serial number, revision number, author, and date. */
-    zDisplayName = display_name_from_login(pManifest->zUser);
-    zDate = db_text(0, "SELECT datetime(%.17g)", pManifest->rDate);
+    zDisplayName = display_name_from_login(pOriginal->zUser);
+    zDate = db_text(0, "SELECT datetime(%.17g)", pOriginal->rDate);
     @ <h3 class='forumPostHdr'>(%d(p->sid)\
     if( p->nEdit ){
       @ .%.*d(fossil_num_digits(p->nEdit))(p->rev)\
@@ -444,6 +451,12 @@ static void forum_display_post(
     fossil_free(zDisplayName);
     fossil_free(zDate);
 
+    /* If debugging is enabled, link to the artifact page. */
+    if( g.perm.Debug ){
+      @ <span class="debug">\
+      @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
+    }
+
     /* If this is an edit, refer back to the old version.  Be sure "hist" is in
     ** the query string so the old version will actually be shown. */
     if( p->pEditPrev ){
@@ -451,12 +464,6 @@ static void forum_display_post(
       @ edit of \
       @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
       @ %d(p->sid).%.*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
-    }
-
-    /* If debugging is enabled, link to the artifact page. */
-    if( g.perm.Debug ){
-      @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
     }
 
     /* If this is a reply, refer back to the parent post. */
@@ -485,13 +492,22 @@ static void forum_display_post(
     if( !bUnf ){
       @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
     }
+
+    /* If this is an edit, identify the editor and date. */
+    if( p->pEditPrev ){
+      zDisplayName = display_name_from_login(pRevised->zUser);
+      zDate = db_text(0, "SELECT datetime(%.17g)", pRevised->rDate);
+      @ <br>Edited by %h(zDisplayName) on %h(zDate)
+      fossil_free(zDisplayName);
+      fossil_free(zDate);
+    }
     @ </h3>
   }
 
   /* Check if this post is approved, also if it's by the current user. */
   bPrivate = content_is_private(p->fpid);
   bSameUser = login_is_individual()
-           && fossil_strcmp(pManifest->zUser, g.zLogin)==0;
+           && fossil_strcmp(pOriginal->zUser, g.zLogin)==0;
 
   /* Render the post if the user is able to see it. */
   if( bPrivate && !g.perm.ModForum && !bSameUser ){
@@ -500,9 +516,9 @@ static void forum_display_post(
     if( bRaw || bUnf || p->pEditTail ){
       zMimetype = "text/plain";
     }else{
-      zMimetype = pManifest->zMimetype;
+      zMimetype = pRevised->zMimetype;
     }
-    forum_render(0, zMimetype, pManifest->zWiki, 0, !bRaw);
+    forum_render(0, zMimetype, pRevised->zWiki, 0, !bRaw);
   }
 
   /* When not in raw mode, finish creating the border around the post. */
@@ -525,12 +541,12 @@ static void forum_display_post(
         ** able to post unmoderated. */
         @ <input type="submit" name="approve" value="Approve">
         @ <input type="submit" name="reject" value="Reject">
-        if( g.perm.AdminForum && !login_is_special(pManifest->zUser) ){
+        if( g.perm.AdminForum && !login_is_special(pOriginal->zUser) ){
           @ <br><label><input type="checkbox" name="trust">
-          @ Trust user "%h(pManifest->zUser)" so that future posts by \
-          @ "%h(pManifest->zUser)" do not require moderation.
+          @ Trust user "%h(pOriginal->zUser)" so that future posts by \
+          @ "%h(pOriginal->zUser)" do not require moderation.
           @ </label>
-          @ <input type="hidden" name="trustuser" value="%h(pManifest->zUser)">
+          @ <input type="hidden" name="trustuser" value="%h(pOriginal->zUser)">
         }
       }else if( bSameUser ){
         /* Allow users to delete (reject) their own pending posts. */
@@ -542,7 +558,8 @@ static void forum_display_post(
   }
 
   /* Clean up. */
-  manifest_destroy(pManifest);
+  if( pRevised!=pOriginal ) manifest_destroy(pRevised);
+  manifest_destroy(pOriginal);
 }
 
 /*

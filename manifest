@@ -1,5 +1,5 @@
-C Removed\ssome\shard\stabs\sin\sCSS\sinjected\sby\scopy/paste\sfrom\sthe\sbrowser\sdev\stools.
-D 2020-08-25T07:07:45.798
+C Separately\sshow\soriginal\sand\sedited\suser/date
+D 2020-08-25T13:47:29.684
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c a0219721bf661a404b590a9257d8386d9e77d1d9a2227d54ab567c207a3b7e7b
 F src/fileedit.c 5888dd53fdc4989d895c5629d2f6f07a5e845886ca6943540d50ba8c9a6f4cac
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 334d89c9f79ff063b81e2122fd11aa02bcf8f354666aeb11d12929ef94068ebf
+F src/forum.c d20e87a325aea6d80fdc424aab0ec39dc98a3b49ed242a8bb6825bb7fc1f1611
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 69ce782ad7f04780e678547f7340b709b6b4cf5d880b41be72fae3fc1825d910
 F src/fossil.confirmer.js 381023fea55b0df523b4a0561290782e421c8647ce3bd49e98809d8fa5739b90
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 34f7fd72c62dae25a183b4c99cf7c77bb43e71bacf703ce31ed36530e97c1402
-R 00b1be738b7507f33a078ee54fb34cc8
-U stephan
-Z 1fb42523341782cfd59b4df4d059f498
+P 1bfa36867dd94b07a20f5ab82bc741ee3cd45cdd343980ed85dcf88270ffc0fd
+R b23354566d112279e99adbeb1ebe52c6
+U andygoth
+Z 471d04a889796a7cf3c90c00da9c5bf0
