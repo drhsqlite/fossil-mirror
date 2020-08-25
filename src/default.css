@@ -1311,22 +1311,22 @@ blockquote.file-content {
    block-element content is legal.
 */
 .help-buttonlet {
-	display: inline-block;
-	min-width: 1rem;
-	max-width: 1rem;
-	min-height: 1rem;
-	max-height: 1rem;
-	font-size: 0.9em;
-	border-radius: 0.5rem;
-	background-color: rgba(54, 54, 255,1);
+  display: inline-block;
+  min-width: 1rem;
+  max-width: 1rem;
+  min-height: 1rem;
+  max-height: 1rem;
+  font-size: 0.9em;
+  border-radius: 0.5rem;
+  background-color: rgba(54, 54, 255,1);
   color: rgb(255, 255, 255);
-	cursor: pointer;
-	font-family: monspace;
+  cursor: pointer;
+  font-family: monspace;
   text-align: center;
-	margin: 0 0 0 0.35em;
-	border-width: 1px;
-	border-style: outset;
-	font-weight: 700;
+  margin: 0 0 0 0.35em;
+  border-width: 1px;
+  border-style: outset;
+  font-weight: 700;
   overflow: hidden;
 }
 
