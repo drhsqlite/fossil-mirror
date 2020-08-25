@@ -472,8 +472,8 @@
               'Locally-edited files. Timestamps are the last local edit time. ',
               'Only the ',P.config.defaultMaxStashSize,' most recent files ',
               'are retained. Saving or reloading a file removes it from this list. ',
-              D.append(D.code(),'localStorage'),' uses browser-local persistent storage. ',
-              D.append(D.code(),'sessionStorage'),' uses storage local to this browser tab.'
+              D.append(D.code(),F.storage.storageImplName()),
+              ' = ',F.storage.storageHelpDescription()
             );
 
       D.append(wrapper, "Local edits (",

@@ -1,5 +1,5 @@
-C Improved\scross-page\scaching\sof\swikiedit/fileedit\sbundle,\sreducing\sthose\spages\sto\sa\ssingle\srequest\sof\s10-13k\sonce\scache\sis\swarm.\sFixed\snon-bundled\sJS\sdistribution\sof\sfileedit\sand\swikiedit.
-D 2020-08-24T22:46:28.813
+C Lots\sof\stweaking\sto\sthe\s"help\sbuttonlet"\spopup\sposition.\sSomething\sto\simprove\ssome\srainy\sday.
+D 2020-08-25T06:18:18.189
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c a8737ceda18a1f0bd8b02647a0ac9da384fd017bf2cc51d1bc4e579378ce5a53
-F src/default.css 56148dc52cf050ab87be8c75b4f9594ddf38294624ea5007c73c6074da88bf5e
+F src/default.css b552beac6351655d07d9bd17e2ed72c2b4ce3d262c6296b94322723bd3fdf0c5
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -491,11 +491,11 @@ F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f7
 F src/fossil.dom.js dd4f9c08237019f52b409061c46fa8c383a8e5a1d079983bf5bd041eee69ee74
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
-F src/fossil.page.fileedit.js 8d70d8a10c5bc3451950cd47313045ea0cafee11a210672e1932bd861c58a38d
+F src/fossil.page.fileedit.js 50119e56e306e5eef9d552bf5f3db2f2d6f7c0025a62cfd6ec6c23c635301cff
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.wikiedit.js 0efa0050c088c562511e70eda8f737efaa922475e4a2f5b6dfeed905132e72d1
-F src/fossil.popupwidget.js 7a2548431176042fbacf3aa2d9eff852c1240909d202b5b4c8b8acef51214b13
-F src/fossil.storage.js f9455cbc564bc1a2ee3c4b4241c5dc752644c061f855694a130371039245052f
+F src/fossil.page.wikiedit.js 6b19f9a0de9dd58668a87c5397e58d9a26cbe94f831f0113ad427f28baea206e
+F src/fossil.popupwidget.js 8eb2e2338bf8bd540bf9de84209d893f8c34633683a6e42ef4b257a8620b6cc6
+F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 56a57bda17eb3a3b8bfbbc43e2475f1fd66b4fb009d7f78ca44f5561c44e08bf
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c515e5fd9f41fc3f311a74af3c598c28879cd532ac2bd117d2674ae03231e89b
-R 5630db09987fdd94ad3d88250159a425
+P 20c50cd1e5ca52be02cc98eb819b5a4efe798621501be6d4a36c541ba03c2038
+R 532fe4a04accd865c2346074a6b645c2
 U stephan
-Z d708b952b929610ff6ea35f2a4c6e320
+Z 5d923e9e4fbe2d3890b2377fb56ce893

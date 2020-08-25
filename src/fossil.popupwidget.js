@@ -290,7 +290,7 @@
 
     */
     setup: function f(){
-      if(!f.clickHandler){
+      if(!f.hasOwnProperty('clickHandler')){
         f.clickHandler = function fch(ev){
           if(!fch.popup){
             fch.popup = new F.PopupWidget({
@@ -298,6 +298,7 @@
               refresh: function(){
               }
             });
+            fch.popup.e.style.maxWidth = '80%'/*of body*/;
             const hide = ()=>fch.popup.hide();
             fch.popup.e.addEventListener('click', hide, false);
             document.body.addEventListener('click', hide, true);
@@ -308,20 +309,54 @@
             }, true);
           }
           D.append(D.clearElement(fch.popup.e), ev.target.$helpContent);
-          const rect1 = ev.target.getClientRects()[0];
-          var x = rect1.left, y = rect1.top;
+          var popupRect = ev.target.getClientRects()[0];
+          var x = popupRect.left, y = popupRect.top;
           if(x<0) x = 0;
           if(y<0) y = 0;
-          /* shift help to the left 1/2 the width of fch.popup.e. However,
-             fch.popup.e.getClientRects() is empty until the popup is shown,
-             so we have to show it, calculate that size, then move it. */
+          /* Shift the help around a bit to "better" fit the
+             screen. However, fch.popup.e.getClientRects() is empty
+             until the popup is shown, so we have to show it,
+             calculate the resulting size, then move and/or resize it.
+
+             This algorithm/these heuristics can certainly be improved
+             upon. Just be careful to mess only with the X coordinate
+             and the width. The browser will try to keep the widget
+             from being truncated off-screen on the right, shifting it
+             to the left if needed, and we cannot generically be sure
+             that an enforced fully on-screen size will actually fit
+             the current help text.
+          */
           fch.popup.show(x, y);
-          const rect2 = fch.popup.e.getClientRects()[0];
-          x -= rect2.width/2;
+          x = popupRect.left, y = popupRect.top;
+          popupRect = fch.popup.e.getBoundingClientRect();
+          const rectBody = document.body.getClientRects()[0];
+          if(popupRect.right > rectBody.right){
+            x -= (popupRect.right - rectBody.right);
+          }
+          if(x + popupRect.width > rectBody.right){
+            x = rectBody.x + (rectBody.width*0.1);
+            fch.popup.e.style.minWidth = '70%';
+          }else{
+            fch.popup.e.style.removeProperty('min-width');
+            x -= popupRect.width/2;
+          }
           if(x<0) x = 0;
+          //console.debug("dimensions",x,y, popupRect, rectBody);
           fch.popup.show(x, y);
         };
-      }
+        f.foreachElement = function(e){
+          if(e.classList.contains('processed')) return;
+          e.classList.add('processed');
+          e.$helpContent = [];
+          /* We have to move all child nodes out of the way because we
+             cannot hide TEXT nodes via CSS (which cannot select TEXT
+             nodes). We have to do it in two steps to avoid invaliding
+             the list during traversal. */
+          e.childNodes.forEach((ch)=>e.$helpContent.push(ch));
+          e.$helpContent.forEach((ch)=>ch.remove());
+          e.addEventListener('click', f.clickHandler, false);
+        };
+      }/*static init*/
       var elems;
       if(!arguments.length){
         arguments[0] = '.help-buttonlet:not(.processed)';
@@ -332,23 +367,11 @@
           elems = document.querySelectorAll(arguments[0]);
         }else if(arguments[0] instanceof HTMLElement){
           elems = [arguments[0]];
-        }else{/* assume DOM element list or array */
+        }else if(arguments[0].forEach){/* assume DOM element list or array */
           elems = arguments[0];
         }
       }
-      if(!elems) return;
-      elems.forEach(function(e){
-        if(e.classList.contains('processed')) return;
-        e.classList.add('processed');
-        e.$helpContent = [];
-        /* We have to move all child nodes out of the way because we
-           cannot hide TEXT nodes via CSS (which cannot select TEXT
-           nodes). We have to do it in two steps to avoid invaliding
-           the list during traversal. */
-        e.childNodes.forEach((ch)=>e.$helpContent.push(ch));
-        e.$helpContent.forEach((ch)=>ch.remove());
-        e.addEventListener('click', f.clickHandler, false);
-      });
+      if(elems) elems.forEach(f.foreachElement);
     },
     
     /**

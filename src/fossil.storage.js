@@ -137,6 +137,21 @@
       if($storage===window.localStorage) return 'localStorage';
       else if($storage===window.sessionStorage) return 'sessionStorage';
       else return 'transient';
+    },
+
+    /**
+       Returns a brief help text string for the currently-selected
+       storage type.
+    */
+    storageHelpDescription: function(){
+      return {
+        localStorage: "Browser-local persistent storage with an "+
+          "unspecified long-term lifetime (survives closing the browser, "+
+          "but maybe not a browser upgrade).",
+        sessionStorage: "Storage local to this browser tab, "+
+          "lost if this tab is closed.",
+        "transient": "Transient storage local to this invocation of this page."
+      }[this.storageImplName()];
     }
   };
 

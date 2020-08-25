@@ -1348,4 +1348,5 @@ blockquote.file-content {
   cursor: default;
   text-align: left;
   border-style: outset;
+  box-shadow: 0em 0em 0.2em 0.2em rgba(0,0,0,0.40);
 }
