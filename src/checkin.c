@@ -418,7 +418,7 @@ static int determine_cwd_relative_option()
 **                      directory.
 **    --hash            Verify file status using hashing rather than
 **                      relying on file mtimes.
-**    --case-sensitive <BOOL>  Override case-sensitive setting.
+**    --case-sensitive BOOL  Override case-sensitive setting.
 **    --dotfiles        Include unmanaged files beginning with a dot.
 **    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
 **

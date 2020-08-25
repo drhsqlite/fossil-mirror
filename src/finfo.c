@@ -46,15 +46,14 @@
 **                        boolean: "yes", "no", "true", "false", etc.
 **   -l|--log             select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
-**                        N<=0 means no limit.
+**                        N less than 0 means no limit.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
 **   -s|--status          select status mode (print a status indicator for FILE)
-**   -W|--width <num>     Width of lines (default is to auto-detect). Must be
-**                        >22 or 0 (= no limit, resulting in a single line per
-**                        entry).
+**   -W|--width N         Width of lines (default is to auto-detect). Must be
+**                        more than 22 or else 0 to indicate no limit.
 **
 ** See also: [[artifact]], [[cat]], [[descendants]], [[info]], [[leaves]]
 */
