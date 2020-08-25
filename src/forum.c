@@ -37,6 +37,8 @@ struct ForumPost {
   int sid;               /* Serial ID number */
   int rev;               /* Revision number */
   char *zUuid;           /* Artifact hash */
+  char *zDisplayName;    /* Name of user who wrote this post */
+  double rDate;          /* Date for this post */
   ForumPost *pIrt;       /* This post replies to pIrt */
   ForumPost *pEditHead;  /* Original, unedited post */
   ForumPost *pEditTail;  /* Most recent edit for this post */
@@ -86,6 +88,7 @@ static void forumthread_delete(ForumThread *pThread){
   for(pPost=pThread->pFirst; pPost; pPost = pNext){
     pNext = pPost->pNext;
     fossil_free(pPost->zUuid);
+    fossil_free(pPost->zDisplayName);
     fossil_free(pPost);
   }
   fossil_free(pThread);
@@ -165,7 +168,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
   db_prepare(&q,
-     "SELECT fpid, firt, fprev, (SELECT uuid FROM blob WHERE rid=fpid)"
+     "SELECT fpid, firt, fprev, (SELECT uuid FROM blob WHERE rid=fpid), fmtime"
      "  FROM forumpost"
      " WHERE froot=%d ORDER BY fmtime",
      froot
@@ -177,6 +180,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     firt = db_column_int(&q, 1);
     fprev = db_column_int(&q, 2);
     pPost->zUuid = fossil_strdup(db_column_text(&q,3));
+    pPost->rDate = db_column_double(&q,4);
     if( !fprev ) pPost->sid = sid++;
     pPost->pPrev = pThread->pLast;
     pPost->pNext = 0;
@@ -369,7 +373,7 @@ void forum_render(
 ** Space to hold the returned name is obtained from fossil_strdup() or
 ** mprintf() and should be freed by the caller.
 */
-char *display_name_from_login(const char *zLogin){
+static char *display_name_from_login(const char *zLogin){
   static Stmt q;
   char *zResult;
   db_static_prepare(&q,
@@ -391,6 +395,30 @@ char *display_name_from_login(const char *zLogin){
 }
 
 /*
+** Compute and return the display name for a ForumPost.  If
+** pManifest is not NULL, then it is a Manifest object for the post.
+** if pManifest is NULL, this routine has to fetch and parse the
+** Manifest object for itself.
+**
+** Memory to hold the display name is attached to p->zDisplayName
+** and will be freed together with the ForumPost object p when it
+** is freed.
+*/
+static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
+  Manifest *pToFree = 0;
+  if( p->zDisplayName ) return p->zDisplayName;
+  if( pManifest==0 ){
+    pManifest = pToFree = manifest_get(p->fpid, CFTYPE_FORUM, 0);
+    if( pManifest==0 ) return "(unknown)";
+  }
+  p->zDisplayName = display_name_from_login(pManifest->zUser);
+  if( pToFree ) manifest_destroy(pToFree);
+  if( p->zDisplayName==0 ) return "(unknown)";
+  return p->zDisplayName;
+}
+
+
+/*
 ** Display a single post in a forum thread.
 */
 static void forum_display_post(
@@ -402,25 +430,19 @@ static void forum_display_post(
   int bSelect,          /* True if this is the selected post */
   char *zQuery          /* Common query string */
 ){
-  char *zDisplayName;   /* The display name */
+  char *zPosterName;    /* Name of user who originally made this post */
+  char *zEditorName;    /* Name of user who provided the current edit */
   char *zDate;          /* The time/date string */
   char *zHist;          /* History query string */
-  Manifest *pOriginal;  /* Original post artifact */
-  Manifest *pRevised;   /* Revised post artifact (may be same as pOriginal) */
+  Manifest *pManifest;  /* Manifest comprising the current post */
   int bPrivate;         /* True for posts awaiting moderation */
   int bSameUser;        /* True if author is also the reader */
   int iIndent;          /* Indent level */
   const char *zMimetype;/* Formatting MIME type */
 
-  /* Get the original and revised artifacts for the post.  Abort if either is
-  ** not found (e.g. shunned). */
-  if( p->pEditHead ){
-    pOriginal = manifest_get(p->pEditHead->fpid, CFTYPE_FORUM, 0);
-    pRevised = manifest_get(p->fpid, CFTYPE_FORUM, 0);
-  }else{
-    pOriginal = pRevised = manifest_get(p->fpid, CFTYPE_FORUM, 0);
-  }
-  if( !pOriginal || !pRevised ) return;
+  /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
+  pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
+  if( !pManifest ) return;
 
   /* When not in raw mode, create the border around the post. */
   if( !bRaw ){
@@ -436,20 +458,46 @@ static void forum_display_post(
     @ >
 
     /* If this is the first post (or an edit thereof), emit the thread title. */
-    if( pRevised->zThreadTitle ){
-      @ <h1>%h(pRevised->zThreadTitle)</h1>
+    if( pManifest->zThreadTitle ){
+      @ <h1>%h(pManifest->zThreadTitle)</h1>
     }
 
-    /* Emit the serial number, revision number, author, and date. */
-    zDisplayName = display_name_from_login(pOriginal->zUser);
-    zDate = db_text(0, "SELECT datetime(%.17g)", pOriginal->rDate);
-    @ <h3 class='forumPostHdr'>(%d(p->sid)\
-    if( p->nEdit ){
-      @ .%.*d(fossil_num_digits(p->nEdit))(p->rev)\
+    /* Begin emitting the header line.  The forum of the title
+    ** varies depending on whether:
+    **    *  The post is uneditted
+    **    *  The post was last editted by the original author
+    **    *  The post was last editted by a different person
+    */
+    if( p->pEditHead ){
+      zDate = db_text(0, "SELECT datetime(%.17g)", p->pEditHead->rDate);
+    }else{
+      zPosterName = forum_post_display_name(p, pManifest);
+      zEditorName = zPosterName;
     }
-    @ ) By %h(zDisplayName) on %h(zDate)
-    fossil_free(zDisplayName);
+    zDate = db_text(0, "SELECT datetime(%.17g)", p->rDate);
+    if( p->pEditPrev ){
+      zPosterName = forum_post_display_name(p->pEditHead, 0);
+      zEditorName = forum_post_display_name(p, pManifest);
+      zHist = bHist ? "" : "&hist";
+      @ <h3 class='forumPostHdr'>(%d(p->sid)\
+      @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
+      if( fossil_strcmp(zPosterName, zEditorName)==0 ){
+        @ By %h(zPosterName) on %h(zDate) editted from \
+        @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+        @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
+      }else{
+        @ Originally by %h(zPosterName) \
+        @ with edits by %h(zEditorName) on %h(zDate) from \
+        @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+        @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
+      }
+    }else{
+      zPosterName = forum_post_display_name(p, pManifest);
+      @ <h3 class='forumPostHdr'>(%d(p->sid)) \
+      @ By %h(zPosterName) on %h(zDate)
+    }
     fossil_free(zDate);
+
 
     /* If debugging is enabled, link to the artifact page. */
     if( g.perm.Debug ){
@@ -457,21 +505,12 @@ static void forum_display_post(
       @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
     }
 
-    /* If this is an edit, refer back to the old version.  Be sure "hist" is in
-    ** the query string so the old version will actually be shown. */
-    if( p->pEditPrev ){
-      zHist = bHist ? "" : "&hist";
-      @ edit of \
-      @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
-      @ %d(p->sid).%.*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
-    }
-
     /* If this is a reply, refer back to the parent post. */
     if( p->pIrt ){
       @ in reply to %z(href("%R/forumpost/%S?%s",p->pIrt->zUuid,zQuery))\
       @ %d(p->pIrt->sid)\
       if( p->pIrt->nEdit ){
-        @ .%.*d(fossil_num_digits(p->pIrt->nEdit))(p->pIrt->rev)\
+        @ .%0*d(fossil_num_digits(p->pIrt->nEdit))(p->pIrt->rev)\
       }
       @ </a>
     }
@@ -480,7 +519,7 @@ static void forum_display_post(
     if( p->pEditNext ){
       @ updated by %z(href("%R/forumpost/%S?%s",p->pEditNext->zUuid,zQuery))\
       @ %d(p->pEditNext->sid)\
-      @ .%.*d(fossil_num_digits(p->nEdit))(p->pEditNext->rev)</a>
+      @ .%0*d(fossil_num_digits(p->nEdit))(p->pEditNext->rev)</a>
     }
 
     /* Provide a link to select the individual post. */
@@ -492,22 +531,13 @@ static void forum_display_post(
     if( !bUnf ){
       @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
     }
-
-    /* If this is an edit, identify the editor and date. */
-    if( p->pEditPrev ){
-      zDisplayName = display_name_from_login(pRevised->zUser);
-      zDate = db_text(0, "SELECT datetime(%.17g)", pRevised->rDate);
-      @ <br>Edited by %h(zDisplayName) on %h(zDate)
-      fossil_free(zDisplayName);
-      fossil_free(zDate);
-    }
     @ </h3>
   }
 
   /* Check if this post is approved, also if it's by the current user. */
   bPrivate = content_is_private(p->fpid);
   bSameUser = login_is_individual()
-           && fossil_strcmp(pOriginal->zUser, g.zLogin)==0;
+           && fossil_strcmp(pManifest->zUser, g.zLogin)==0;
 
   /* Render the post if the user is able to see it. */
   if( bPrivate && !g.perm.ModForum && !bSameUser ){
@@ -516,9 +546,9 @@ static void forum_display_post(
     if( bRaw || bUnf || p->pEditTail ){
       zMimetype = "text/plain";
     }else{
-      zMimetype = pRevised->zMimetype;
+      zMimetype = pManifest->zMimetype;
     }
-    forum_render(0, zMimetype, pRevised->zWiki, 0, !bRaw);
+    forum_render(0, zMimetype, pManifest->zWiki, 0, !bRaw);
   }
 
   /* When not in raw mode, finish creating the border around the post. */
@@ -541,12 +571,12 @@ static void forum_display_post(
         ** able to post unmoderated. */
         @ <input type="submit" name="approve" value="Approve">
         @ <input type="submit" name="reject" value="Reject">
-        if( g.perm.AdminForum && !login_is_special(pOriginal->zUser) ){
+        if( g.perm.AdminForum && !login_is_special(pManifest->zUser) ){
           @ <br><label><input type="checkbox" name="trust">
-          @ Trust user "%h(pOriginal->zUser)" so that future posts by \
-          @ "%h(pOriginal->zUser)" do not require moderation.
+          @ Trust user "%h(pManifest->zUser)" so that future posts by \
+          @ "%h(pManifest->zUser)" do not require moderation.
           @ </label>
-          @ <input type="hidden" name="trustuser" value="%h(pOriginal->zUser)">
+          @ <input type="hidden" name="trustuser" value="%h(pManifest->zUser)">
         }
       }else if( bSameUser ){
         /* Allow users to delete (reject) their own pending posts. */
@@ -558,8 +588,7 @@ static void forum_display_post(
   }
 
   /* Clean up. */
-  if( pRevised!=pOriginal ) manifest_destroy(pRevised);
-  manifest_destroy(pOriginal);
+  manifest_destroy(pManifest);
 }
 
 /*

@@ -1,5 +1,5 @@
-C Tiniest\sstyle\stweak\sfor\sconsistency
-D 2020-08-25T13:53:17.301
+C Improved\stitles\sfor\sforum\sposts\sthat\sshow\sthe\soriginal\sposter\sand\sthe\nlatest\seditor\sif\sthey\sare\sdifferent\speople.
+D 2020-08-25T14:34:54.764
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c a0219721bf661a404b590a9257d8386d9e77d1d9a2227d54ab567c207a3b7e7b
 F src/fileedit.c 5888dd53fdc4989d895c5629d2f6f07a5e845886ca6943540d50ba8c9a6f4cac
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 336198d95c43a2a32780d5a29ddd65570a3a0d75c4e17648bede4989c3b9a0f8
+F src/forum.c 3613347ca76e979eb4b85aa36742dab9545af3f7b04e00797bb620a22593a898
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 69ce782ad7f04780e678547f7340b709b6b4cf5d880b41be72fae3fc1825d910
 F src/fossil.confirmer.js 381023fea55b0df523b4a0561290782e421c8647ce3bd49e98809d8fa5739b90
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39a550c8d56c67baf8a7f51352f3c5c679bfe6ffa54208fe6a47ae187e0b388c
-R 9b61e4743e242585f41978c2192b515a
-U andygoth
-Z 455dec97b068ebf8edca37b2e399b36c
+P 7ea825864da0be13199ba0741343ccbcf94d6ec496850e7e004c10d7e5137719
+R 989e98fab36a6597f8da1366bb04603a
+U drh
+Z 1f444ecf68a1680ae6cf0041a3019c9d
