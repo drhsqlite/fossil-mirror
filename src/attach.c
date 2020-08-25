@@ -619,7 +619,7 @@ void ainfo_page(void){
     blob_to_utf8_no_bom(&attach, 0);
     z = blob_str(&attach);
     if( zLn ){
-      output_text_with_line_numbers(z, blob_size(&attach), zName, zLn);
+      output_text_with_line_numbers(z, blob_size(&attach), zName, zLn, 1);
     }else{
       @ <pre>
       @ %h(z)

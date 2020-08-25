@@ -7,14 +7,14 @@
   window.CustomEvent = function(event, params) {
     if(!params) params = {bubbles: false, cancelable: false, detail: null};
     const evt = document.createEvent('CustomEvent');
-    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+    evt.initCustomEvent( event, !!params.bubbles, !!params.cancelable, params.detail );
     return evt;
   };
 })();
 (function(global){
-  /* Bootstrapping bits for the global.fossil object. Must be
-     loaded after style.c:style_emit_script_tag() has initialized
-     that object.
+  /* Bootstrapping bits for the global.fossil object. Must be loaded
+     after style.c:builtin_emit_script_fossil_bootstrap() has
+     initialized that object.
   */
 
   const F = global.fossil;
@@ -328,6 +328,14 @@
   */
   F.onPageLoad = function(callback){
     window.addEventListener('load', callback, false);
+    return this;
+  };
+  /**
+     Convenience wrapper which adds a DOMContentLoadedevent listener
+     to the window object. Returns this.
+  */
+  F.onDOMContentLoaded = function(callback){
+    window.addEventListener('DOMContentLoaded', callback, false);
     return this;
   };
 

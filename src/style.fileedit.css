@@ -223,3 +223,12 @@ body.fileedit #fileedit-edit-status span.links > *::before {
 body.fileedit #fileedit-edit-status span.links > *::after {
   content: "]";
 }
+/* JS selection of line numbers cannot work in preview mode,
+   so disable the UI indications which imply that it does
+   something... */
+body.fileedit table.numbered-lines td.line-numbers > span {
+  cursor: unset;
+}
+body.fileedit table.numbered-lines td.line-numbers > span:hover {
+  background-color: inherit;
+}

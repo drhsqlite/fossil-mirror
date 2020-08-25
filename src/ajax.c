@@ -43,7 +43,7 @@
 ** If addScriptTag is true then the output is wrapped in a SCRIPT tag
 ** with the current nonce, else no SCRIPT tag is emitted.
 **
-** Requires that style_emit_script_fossil_bootstrap() has already been
+** Requires that builtin_emit_script_fossil_bootstrap() has already been
 ** called in order to initialize the window.fossil.page object.
 */
 void ajax_emit_js_preview_modes(int addScriptTag){
@@ -133,7 +133,7 @@ void ajax_render_preview(Blob * pContent, const char *zName,
       const char *zContent = blob_str(pContent);
       if(AJAX_PREVIEW_LINE_NUMBERS & flags){
         output_text_with_line_numbers(zContent, blob_size(pContent),
-                                      zName, "on");
+                                      zName, "on", 0);
       }else{
         const char *zExt = strrchr(zName,'.');
         if(zExt && zExt[1]){

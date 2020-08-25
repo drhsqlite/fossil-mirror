@@ -8,8 +8,7 @@
     fossil.copybutton
   */
   var tbl = arg || document.querySelectorAll('table.numbered-lines');
-  if(!tbl) return /* no matching elements */;
-  else if(!arg){
+  if(tbl && !arg){
     if(tbl.length>1){ /* multiple query results: recurse */
       tbl.forEach( (t)=>callee(t) );
       return;
@@ -17,6 +16,7 @@
       tbl = tbl[0];
     }
   }
+  if(!tbl) return /* no matching elements */;
   const F = window.fossil, D = F.dom;
   const tdLn = tbl.querySelector('td.line-numbers');
   const lineState = {

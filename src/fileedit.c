@@ -1707,12 +1707,16 @@ void fileedit_page(void){
        "class='hidden'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
-    CX("<button class='fileedit-content-reload confirmer' "
-       "title='Reload the file from the server, discarding "
+    CX("<div class='input-with-label'>"
+       "<button class='fileedit-content-reload confirmer' "
+       ">Discard &amp; Reload</button>"
+       "<div class='help-buttonlet'>"
+       "Reload the file from the server, discarding "
        "any local edits. To help avoid accidental loss of "
        "edits, it requires confirmation (a second click) within "
-       "a few seconds or it will not reload.'"
-       ">Discard &amp; Reload</button>");
+       "a few seconds or it will not reload."
+       "</div>"
+       "</div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
                           NULL/*tooltip*/,
@@ -1748,12 +1752,15 @@ void fileedit_page(void){
        /* ^^^ dest elem ID */
        ">Refresh</button>");
     /* Toggle auto-update of preview when the Preview tab is selected. */
-    style_labeled_checkbox("cb-preview-autoupdate",
-                           NULL,
-                           "Auto-refresh?",
-                           "1", 1,
-                           "If on, the preview will automatically "
-                           "refresh when this tab is selected.");
+    CX("<div class='input-with-label'>"
+       "<input type='checkbox' value='1' "
+       "id='cb-preview-autorefresh' checked>"
+       "<label for='cb-preview-autorefresh'>Auto-refresh?</label>"
+       "<div class='help-buttonlet'>"
+       "If on, the preview will automatically "
+       "refresh (if needed) when this tab is selected."
+       "</div>"
+       "</div>");
 
     /* Default preview rendering mode selection... */
     previewRenderMode = zFileMime
@@ -1981,10 +1988,10 @@ void fileedit_page(void){
   }
   CX("</div>"/*#fileedit-tab-help*/);
 
-  builtin_request_js("sbsdiff.js");
-  style_emit_fossil_js_apis(0, "fetch", "dom", "tabs", "confirmer",
-                            "storage", 0);
-  builtin_fulfill_js_requests();
+  if(!builtin_bundle_all_fossil_js_apis()){
+    builtin_emit_fossil_js_apis("fetch", "dom", "tabs", "confirmer",
+                                "storage", "popupwidget", 0);
+  }
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
   ** used for dynamically toggling certain UI components on and off.
@@ -1994,6 +2001,7 @@ void fileedit_page(void){
   ** the JS multiple times.
   */
   ajax_emit_js_preview_modes(1);
+  builtin_request_js("sbsdiff.js");
   builtin_request_js("fossil.page.fileedit.js");
   builtin_fulfill_js_requests();
   {
