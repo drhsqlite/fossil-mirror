@@ -1,5 +1,5 @@
-C Merge\smiscellanous\sauxiliary\sdefenses\sand\ssecurity\senhancements.\s\sThis\ncheck-in\sis\snot\sneeded\sto\sfix\sany\sproblems\sthat\sare\snot\salready\sfixed\sin\nversion\s3.12.1.\s\sIt\smerely\sprovides\sadditional\sdefense\sin\sdepth.
-D 2020-08-24T23:24:02.789
+C Improvements\sto\shandling\sof\sline\sendings\sand\sBOM\smarks\swhen\sdoing\sa\n3-way\smerge.
+D 2020-08-25T00:01:25.496
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -549,7 +549,7 @@ F src/markdown_html.c ebd8d9a98ea3402403453c517aa822da1bd01923e38bf7a8632cb667db
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
-F src/merge3.c f9759d721961f1c9a62485f2cda91ebbd5ad9dc37e2b6318859a1287da4dff50
+F src/merge3.c 6d1a4bca4e219e85b3ba36504217f591c3bfec5ac2c075adc2a595cee1238cf0
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F src/mkindex.c 971441257ae3452150daa6f70c08db56e2d18cd1073472cf9d3e92b8b7d18d62
@@ -1010,8 +1010,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f4143ba285d490f9e8a9bb401c541d885f08287d9ed421cd62c345bcb7ac10e 4a8bc878f03b3bfef427800ff4a92f2df82eb6b4d2532009a30fdc92a1daaf5e
-R 42a90125fb23d7940ef6fc933fb45536
-T +closed 4a8bc878f03b3bfef427800ff4a92f2df82eb6b4d2532009a30fdc92a1daaf5e
+P f741baa6be99434854b3ca8f20e95230a0e964cf03b2cb7765e685cf9e85b07d 91182cd1f369b9c1f4173eb106319dfd485c623e97a8c0acfdb16f6443dd40f9
+R 8a4f74d45d7c361515fe8e544d0bbd21
+T +closed 91182cd1f369b9c1f4173eb106319dfd485c623e97a8c0acfdb16f6443dd40f9
 U drh
-Z 25e0c83990e6a050b73d4676f2dfcd8c
+Z d4dd6f9bdba038fdad5b08681498a17c
