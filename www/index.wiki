@@ -86,10 +86,12 @@ management system with these advanced features:
   8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>[https://www.fossil-scm.org/forum/info/a05ae3ce7760daf6|Latest Release]: 2.12.1 (2020-08-20)</h3>
+<h3>[/timeline?t=release|Latest Release]: 2.12.1 (2020-08-20)</h3>
 
   *  [/uv/download.html|Download]
   *  [./changes.wiki#v2_12|Change Summary]
+  *  [/timeline?p=version-2.12.1&bt=version-2.11&n=all|Check-ins in version 2.12.1]
+  *  [/timeline?p=trunk&bt=version-2.12&n=all|Check-ins pending for the next release]
 
 <hr>
 <h3>Quick Start</h3>

@@ -1,5 +1,5 @@
-C Improved\stitles\sfor\sforum\sposts\sthat\sshow\sthe\soriginal\sposter\sand\sthe\nlatest\seditor\sif\sthey\sare\sdifferent\speople.
-D 2020-08-25T14:34:54.764
+C Update\sthe\shomepage\swith\slinks\sto\sthe\slatest\srelease\sand\sthe\scommits\nthat\shave\sgone\sinto\sit.
+D 2020-08-25T16:10:00.864
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -906,7 +906,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d57e945e9addc805cc4bb
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 23b92442e9d9619010614ff5923375be33bf9cc85609c1cfc309f50bb563052d
+F www/index.wiki 0b067c9c63242c4d58a1297a7a58fb9031c1a3d101b9680d809af22a403eeb0d
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/interwiki.md 923193a501b2b8f3e3f2a0abfdfc0804f5559d3cfd8cbad5559784442d40b36d
 F www/javascript.md 257bb6c25527662ea164316a9187db07d52fc1e8a9edb48014d1f56b6b0ea243
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ea825864da0be13199ba0741343ccbcf94d6ec496850e7e004c10d7e5137719
-R 989e98fab36a6597f8da1366bb04603a
+P 9543ddbef25dcb49fd6fcfb290494449f008c1532065042cdb41793cbb9ed2df
+R 43471a9da8b4c21ad8f336fb67b48aec
 U drh
-Z 1f444ecf68a1680ae6cf0041a3019c9d
+Z ee6fea0072c8a8f979c41d3edfbd5937
