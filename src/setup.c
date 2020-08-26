@@ -29,10 +29,12 @@ void setup_incr_cfgcnt(void){
   static int once = 1;
   if( once ){
     once = 0;
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("UPDATE config SET value=value+1 WHERE name='cfgcnt'");
     if( db_changes()==0 ){
       db_multi_exec("INSERT INTO config(name,value) VALUES('cfgcnt',1)");
     }
+    db_protect_pop();
   }
 }
 
@@ -197,7 +199,9 @@ void onoff_attribute(
     int iQ = fossil_strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
       login_verify_csrf_secret();
+      db_protect_only(PROTECT_NONE);
       db_set(zVar, iQ ? "1" : "0", 0);
+      db_protect_pop();
       setup_incr_cfgcnt();
       admin_log("Set option [%q] to [%q].",
                 zVar, iQ ? "on" : "off");
@@ -232,7 +236,9 @@ void entry_attribute(
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     setup_incr_cfgcnt();
+    db_protect_only(PROTECT_NONE);
     db_set(zVar, zQ, 0);
+    db_protect_pop();
     admin_log("Set entry_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
@@ -262,7 +268,9 @@ const char *textarea_attribute(
   if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
+    db_protect_only(PROTECT_NONE);
     db_set(zVar, zQ, 0);
+    db_protect_pop();
     setup_incr_cfgcnt();
     admin_log("Set textarea_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
@@ -1079,6 +1087,11 @@ void setup_wiki(void){
   @ to generate unsafe HTML.
   @ (Property: "safe-html")</p>
   @ <hr />
+  @ The current interwiki tag map is as follows:
+  interwiki_append_map_table(cgi_output_blob());
+  @ <p>Visit <a href="./intermap">%R/intermap</a> for details or to
+  @ modify the interwiki tag map.
+  @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
   @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
@@ -1159,7 +1172,9 @@ void setup_adunit(void){
   }
   db_begin_transaction();
   if( P("clear")!=0 && cgi_csrf_safe(1) ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
+    db_protect_pop();
     cgi_replace_parameter("adunit","");
     cgi_replace_parameter("adright","");
     setup_incr_cfgcnt();
@@ -1257,6 +1272,7 @@ void setup_logo(void){
     return;
   }
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
   if( !cgi_csrf_safe(1) ){
     /* Allow no state changes if not safe from CSRF */
   }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
@@ -1287,6 +1303,7 @@ void setup_logo(void){
     Blob img;
     Stmt ins;
     blob_init(&img, aBgImg, szBgImg);
+    db_unprotect(PROTECT_CONFIG);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('background-image',:bytes,now())"
@@ -1299,9 +1316,11 @@ void setup_logo(void){
        " VALUES('background-mimetype',%Q,now())",
        zBgMime
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrbg")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('background-image','background-mimetype')"
@@ -1312,6 +1331,7 @@ void setup_logo(void){
     Blob img;
     Stmt ins;
     blob_init(&img, aIconImg, szIconImg);
+    db_unprotect(PROTECT_CONFIG);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('icon-image',:bytes,now())"
@@ -1324,6 +1344,7 @@ void setup_logo(void){
        " VALUES('icon-mimetype',%Q,now())",
        zIconMime
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clricon")!=0 ){
@@ -1783,18 +1804,23 @@ static void setup_update_url_alias(
   if( !cgi_csrf_safe(1) ) return;
   if( zNewName[0]==0 || zValue[0]==0 ){
     if( zOldName[0] ){
+      db_unprotect(PROTECT_CONFIG);
       blob_append_sql(pSql,
         "DELETE FROM config WHERE name='walias:%q';\n",
         zOldName);
+      db_protect_pop();
     }
     return;
   }
   if( zOldName[0]==0 ){
+    db_unprotect(PROTECT_CONFIG);
     blob_append_sql(pSql,
       "INSERT INTO config(name,value,mtime) VALUES('walias:%q',%Q,now());\n",
       zNewName, zValue);
+    db_protect_pop();
     return;
   }
+  db_unprotect(PROTECT_CONFIG);
   if( strcmp(zOldName, zNewName)!=0 ){
     blob_append_sql(pSql,
        "UPDATE config SET name='walias:%q', value=%Q, mtime=now()"
@@ -1806,6 +1832,7 @@ static void setup_update_url_alias(
        " WHERE name='walias:%q' AND value<>%Q;\n",
        zValue, zOldName, zValue);
   }
+  db_protect_pop();
 }
 
 /*

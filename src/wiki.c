@@ -222,8 +222,10 @@ void markdown_rules_page(void){
   }else{
     style_submenu_element("Plain-Text", "%R/md_rules?txt=1");
   }
+  style_submenu_element("Wiki", "%R/wiki_rules");
   blob_init(&x, builtin_text("markdown.md"), -1);
   blob_materialize(&x);
+  interwiki_append_map_table(&x);
   safe_html_context(DOCSRC_TRUSTED);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
   blob_reset(&x);
@@ -244,8 +246,10 @@ void wiki_rules_page(void){
   }else{
     style_submenu_element("Plain-Text", "%R/wiki_rules?txt=1");
   }
+  style_submenu_element("Markdown","%R/md_rules");
   blob_init(&x, builtin_text("wiki.wiki"), -1);
   blob_materialize(&x);
+  interwiki_append_map_table(&x);
   safe_html_context(DOCSRC_TRUSTED);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
   blob_reset(&x);
@@ -980,7 +984,8 @@ static void wiki_render_page_list_json(int verbose, int includeContent){
   db_begin_transaction();
   db_prepare(&q, "SELECT"
              " substr(tagname,6) AS name"
-             " FROM tag WHERE tagname GLOB 'wiki-*'"
+             " FROM tag JOIN tagxref USING('tagid')"
+             " WHERE tagname GLOB 'wiki-*'"
              " UNION SELECT 'Sandbox' AS name"
              " ORDER BY name COLLATE NOCASE");
   CX("[");

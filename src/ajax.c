@@ -132,7 +132,8 @@ void ajax_render_preview(Blob * pContent, const char *zName,
     default:{
       const char *zContent = blob_str(pContent);
       if(AJAX_PREVIEW_LINE_NUMBERS & flags){
-        output_text_with_line_numbers(zContent, "on");
+        output_text_with_line_numbers(zContent, blob_size(pContent),
+                                      zName, "on");
       }else{
         const char *zExt = strrchr(zName,'.');
         if(zExt && zExt[1]){

@@ -1,7 +1,7 @@
 (function(F/*the fossil object*/){
   "use strict";
   /* JS code for /forumpage and friends. Requires fossil.dom. */
-  const P = fossil.page, D = fossil.dom;
+  const P = F.page, D = F.dom;
 
   F.onPageLoad(function(){
     const scrollbarIsVisible = (e)=>e.scrollHeight > e.clientHeight;

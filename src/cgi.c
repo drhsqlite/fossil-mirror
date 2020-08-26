@@ -1055,6 +1055,17 @@ static NORETURN void malformed_request(const char *zMsg);
 **
 ** SCGI typically omits PATH_INFO.  CGI sometimes omits REQUEST_URI and
 ** PATH_INFO when it is empty.
+**
+** CGI Parameter quick reference:
+**
+**                                      REQUEST_URI
+**                               _____________|____________
+**                              /                          \
+**    https://www.fossil-scm.org/forum/info/12736b30c072551a?t=c
+**            \________________/\____/\____________________/ \_/
+**                    |            |             |            |
+**               HTTP_HOST         |        PATH_INFO     QUERY_STRING
+**                            SCRIPT_NAME
 */
 void cgi_init(void){
   char *z;
@@ -1062,8 +1073,8 @@ void cgi_init(void){
   char *zSemi;
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
-  const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
-  const char *zPathInfo = cgi_parameter("PATH_INFO",0);
+  const char *zScriptName = cgi_parameter("SCRIPT_NAME","");
+  const char *zPathInfo = cgi_parameter("PATH_INFO","");
 #ifdef _WIN32
   const char *zServerSoftware = cgi_parameter("SERVER_SOFTWARE",0);
 #endif
@@ -1073,7 +1084,23 @@ void cgi_init(void){
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
-  if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
+
+  /* We must have SCRIPT_NAME. If the web server did not supply it, try
+  ** to compute it from REQUEST_URI and PATH_INFO. */
+  if( zScriptName==0 ){
+    size_t nRU, nPI;
+    if( zRequestUri==0 || zPathInfo==0 ){
+      malformed_request("missing SCRIPT_NAME");  /* Does not return */
+    }
+    nRU = strlen(zRequestUri);
+    nPI = strlen(zPathInfo);
+    if( nRU<nPI ){
+      malformed_request("PATH_INFO is longer than REQUEST_URI");
+    }
+    zScriptName = mprintf("%.*s", (int)(nRU-nPI), zRequestUri);
+    cgi_set_parameter("SCRIPT_NAME", zScriptName);
+  }
+
 #ifdef _WIN32
   /* The Microsoft IIS web server does not define REQUEST_URI, instead it uses
   ** PATH_INFO for virtually the same purpose.  Define REQUEST_URI the same as
@@ -1259,12 +1286,11 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 
   /* If no match is found and the name begins with an upper-case
   ** letter, then check to see if there is an environment variable
-  ** with the given name. Handle environment variables with empty values
-  ** the same as non-existent environment variables.
+  ** with the given name.
   */
   if( fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
-    if( zValue && zValue[0] ){
+    if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue, 0);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));
       return zValue;

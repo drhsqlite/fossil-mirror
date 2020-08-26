@@ -21,7 +21,9 @@ successive commits onto the projected manifold of each cloned
 repository.</nowiki>
 
 <blockquote>
-<i>At [http://tartley.com/?p=1267]</i>
+<i>Previously at
+[https://www.tartley.com/a-guide-to-git-using-spatial-analogies], since
+removed;<br>Quoted here: [https://lwn.net/Articles/420152/].</i>
 </blockquote>
 
 <li>Git is not a Prius. Git is a Model T.
@@ -52,12 +54,6 @@ Demented workflow complexity on acid?
 <i>by Donal K. Fellow (dkf) on the Tcl/Tk chatroom, 2013-04-09.</i>
 </blockquote>
 
-<li>Klingon Code Warriors embrace Git; we enjoy arbitrary conflicts. Git is not for the weak and feeble. TODAY IS A GOOD DAY TO CODE.
-
-<blockquote>
-<i>teastain at [http://www.reddit.com/r/programming/comments/xpitj/10_things_i_hate_about_git/c5oj4fk]
-</blockquote>
-
 <li>&#91;G&#93;it is <i>designed</i> to forget things.
 
 <blockquote>
@@ -68,7 +64,7 @@ Demented workflow complexity on acid?
 (while following the instructions!!!) than any other single piece of software.
 
 <blockquote>
-<i>Stephen Beal on the [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg17181.html|Fossil mailing list]
+<i>Stephan Beal on the [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg17181.html|Fossil mailing list]
    2014-09-01.</i>
 </blockquote>
 
@@ -93,7 +89,7 @@ Fossil mesmerizes me with simplicity especially after I struggled to
 get a bug-tracking system to work with mercurial.
 
 <blockquote>
-<i>rawjeev at [http://stackoverflow.com/questions/156322/what-do-people-think-of-the-fossil-dvcs]</i>
+<i>rawjeev at [https://stackoverflow.com/a/2100469/142454]</i>
 </blockquote>
 
 <li>Fossil is the best thing to happen
@@ -104,13 +100,6 @@ with Fossil.
 
 <blockquote>
 <i>Joe Prostko at [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg16716.html]
-</blockquote>
-
-<li>Fossil is awesome!!! I have never seen an app like that before,
-such simplicity and flexibility!!!
-
-<blockquote>
-<i>zengr at [http://stackoverflow.com/questions/138621/best-version-control-for-lone-developer]</i>
 </blockquote>
 
 <li>This is my favourite VCS. I can carry it on a USB. And it's a complete system, with it's own
@@ -128,7 +117,7 @@ the entire program in a single file!
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=15>
+<li value=14>
 After prolonged exposure to fossil, i tend to get the jitters when I work with git...
 
 <blockquote>
@@ -152,7 +141,7 @@ and teaching a Msc/Phd student (read complete novice) fossil has just
 been a smoother ride than Git was.
 
 <blockquote>
-<i>viablepanic at [http://www.reddit.com/r/programming/comments/bxcto/why_not_fossil_scm/]</i>
+<i>viablepanic at [https://www.reddit.com/r/programming/comments/bxcto/why_not_fossil_scm/c0p30b4?utm_source=share&utm_medium=web2x&context=3]</i>
 </blockquote>
 
 <li>In the fossil community - and hence in fossil itself - development history

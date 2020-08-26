@@ -54,6 +54,7 @@ static void rebuild_update_schema(void){
   /* Add the user.mtime column if it is missing. (2011-04-27)
   */
   if( !db_table_has_column("repository", "user", "mtime") ){
+    db_unprotect(PROTECT_ALL);
     db_multi_exec(
       "CREATE TEMP TABLE temp_user AS SELECT * FROM user;"
       "DROP TABLE user;"
@@ -74,15 +75,18 @@ static void rebuild_update_schema(void){
                " ipaddr, cexpire, info, now(), photo FROM temp_user;"
       "DROP TABLE temp_user;"
     );
+    db_protect_pop();
   }
 
   /* Add the config.mtime column if it is missing.  (2011-04-27)
   */
   if( !db_table_has_column("repository", "config", "mtime") ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "ALTER TABLE config ADD COLUMN mtime INTEGER;"
       "UPDATE config SET mtime=now();"
     );
+    db_protect_pop();
   }
 
   /* Add the shun.mtime and shun.scom columns if they are missing.
@@ -384,6 +388,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   alert_triggers_disable();
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
+  db_unprotect(PROTECT_ALL);
   db_prepare(&q,
      "SELECT name FROM sqlite_schema /*scan*/"
      " WHERE type='table'"
@@ -477,6 +482,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     percent_complete(1000);
     fossil_print("\n");
   }
+  db_protect_pop();
   return errCnt;
 }
 
@@ -669,6 +675,7 @@ void rebuild_database(void){
   verify_all_options();
 
   db_begin_transaction();
+  db_unprotect(PROTECT_ALL);
   if( !compressOnlyFlag ){
     search_drop_index();
     ttyOutput = 1;
@@ -722,6 +729,7 @@ void rebuild_database(void){
     }
   }
   if( runReindex ) search_rebuild_index();
+  db_protect_pop();
   if( showStats ){
     static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
@@ -757,6 +765,7 @@ void rebuild_database(void){
 void test_detach_cmd(void){
   db_find_and_open_repository(0, 2);
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "DELETE FROM config WHERE name GLOB 'last-sync-*';"
     "DELETE FROM config WHERE name GLOB 'sync-*:*';"
@@ -765,6 +774,7 @@ void test_detach_cmd(void){
     "UPDATE config SET value='detached-' || value"
     " WHERE name='project-name' AND value NOT GLOB 'detached-*';"
   );
+  db_protect_pop();
   db_end_transaction(0);
 }
 
@@ -912,6 +922,7 @@ void scrub_cmd(void){
     delete_private_content();
   }
   if( !privateOnly ){
+    db_unprotect(PROTECT_ALL);
     db_multi_exec(
       "UPDATE user SET pw='';"
       "DELETE FROM config WHERE name GLOB 'last-sync-*';"
@@ -935,10 +946,13 @@ void scrub_cmd(void){
         "DROP TABLE IF EXISTS vcache;\n"
       );
     }
+    db_protect_pop();
   }
   if( !bNeedRebuild ){
     db_end_transaction(0);
+    db_unprotect(PROTECT_ALL);
     db_multi_exec("VACUUM;");
+    db_protect_pop();
   }else{
     rebuild_db(0, 1, 0);
     db_end_transaction(0);

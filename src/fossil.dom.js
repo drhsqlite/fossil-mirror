@@ -220,10 +220,12 @@
     for(let i in a) {
       var e = a[i];
       if(isArray(e) || e.forEach){
-        e.forEach((x)=>f.call(this, parent,e));
+        e.forEach((x)=>f.call(this, parent,x));
         continue;
       }
-      if('string'===typeof e || 'number'===typeof e) e = this.text(e);
+      if('string'===typeof e
+         || 'number'===typeof e
+         || 'boolean'===typeof e) e = this.text(e);
       parent.appendChild(e);
     }
     return parent;
@@ -467,6 +469,99 @@
       e = new Error("Cannot find DOM element: "+x);
       console.error(e, src);
       throw e;
+    }
+    return e;
+  };
+
+  /**
+     "Blinks" the given element a single time for the given number of
+     milliseconds, defaulting (if the 2nd argument is falsy or not a
+     number) to flashOnce.defaultTimeMs. If a 3rd argument is passed
+     in, it must be a function, and it gets callback back at the end
+     of the asynchronous flashing processes.
+
+     This will only activate once per element during that timeframe -
+     further calls will become no-ops until the blink is
+     completed. This routine adds a dataset member to the element for
+     the duration of the blink, to allow it to block multiple blinks.
+
+     If passed 2 arguments and the 2nd is a function, it behaves as if
+     it were called as (arg1, undefined, arg2).
+
+     Returns e, noting that the flash itself is asynchronous and may
+     still be running, or not yet started, when this function returns.
+  */
+  dom.flashOnce = function f(e,howLongMs,afterFlashCallback){
+    if(e.dataset.isBlinking){
+      return;
+    }
+    if(2===arguments.length && 'function' ===typeof howLongMs){
+      afterFlashCallback = howLongMs;
+      howLongMs = f.defaultTimeMs;
+    }
+    if(!howLongMs || 'number'!==typeof howLongMs){
+      howLongMs = f.defaultTimeMs;
+    }
+    e.dataset.isBlinking = true;
+    const transition = e.style.transition;
+    e.style.transition = "opacity "+howLongMs+"ms ease-in-out";
+    const opacity = e.style.opacity;
+    e.style.opacity = 0;
+    setTimeout(function(){
+      e.style.transition = transition;
+      e.style.opacity = opacity;
+      delete e.dataset.isBlinking;
+      if(afterFlashCallback) afterFlashCallback();
+    }, howLongMs);
+    return e;
+  };
+  dom.flashOnce.defaultTimeMs = 400;
+
+  /**
+     Attempts to copy the given text to the system clipboard. Returns
+     true if it succeeds, else false.
+  */
+  dom.copyTextToClipboard = function(text){
+    if( window.clipboardData && window.clipboardData.setData ){
+      window.clipboardData.setData('Text',text);
+      return true;
+    }else{
+      const x = document.createElement("textarea");
+      x.style.position = 'fixed';
+      x.value = text;
+      document.body.appendChild(x);
+      x.select();
+      var rc;
+      try{
+        document.execCommand('copy');
+        rc = true;
+      }catch(err){
+        rc = false;
+      }finally{
+        document.body.removeChild(x);
+      }
+      return rc;
+    }
+  };
+
+  /**
+     Copies all properties from the 2nd argument (a plain object) into
+     the style member of the first argument (DOM element or a
+     forEach-capable list of elements). If the 2nd argument is falsy
+     or empty, this is a no-op.
+
+     Returns its first argument.
+  */
+  dom.copyStyle = function f(e, style){
+    if(e.forEach){
+      e.forEach((x)=>f(x, style));
+      return e;
+    }
+    if(style){
+      let k;
+      for(k in style){
+        if(style.hasOwnProperty(k)) e.style[k] = style[k];
+      }
     }
     return e;
   };

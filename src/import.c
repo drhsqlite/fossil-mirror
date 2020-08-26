@@ -1761,6 +1761,7 @@ void import_cmd(void){
   }
   db_open_repository(g.argv[2]);
   db_open_config(0, 0);
+  db_unprotect(PROTECT_ALL);
 
   db_begin_transaction();
   if( !incrFlag ){

@@ -427,9 +427,11 @@ void remote_url_cmd(void){
     */
     if( g.argc!=3 ) usage("off");
 remote_delete_default:
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "DELETE FROM config WHERE name GLOB 'last-sync-*';"
     );
+    db_protect_pop();
     return;
   }
   if( strncmp(zArg, "list", nArg)==0 || strcmp(zArg,"ls")==0 ){
@@ -459,6 +461,7 @@ remote_delete_default:
     if( strcmp(zName,"default")==0 ) goto remote_add_default;
     url_parse_local(zUrl, URL_PROMPT_PW, &x);
     db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "REPLACE INTO config(name, value, mtime)"
        " VALUES('sync-url:%q',%Q,now())",
@@ -469,6 +472,7 @@ remote_delete_default:
        " VALUES('sync-pw:%q',obscure(%Q),now())",
        zName, x.passwd
     );
+    db_protect_pop();
     db_commit_transaction();
     return;
   }
@@ -478,8 +482,10 @@ remote_delete_default:
     zName = g.argv[3];
     if( strcmp(zName,"default")==0 ) goto remote_delete_default;
     db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("DELETE FROM config WHERE name glob 'sync-url:%q'", zName);
     db_multi_exec("DELETE FROM config WHERE name glob 'sync-pw:%q'", zName);
+    db_protect_pop();
     db_commit_transaction();
     return;
   }
@@ -507,7 +513,7 @@ remote_add_default:
 **
 ** Make a backup of the repository into the named file or into the named
 ** directory.  This backup is guaranteed to be consistent even if there are
-** concurrent chnages taking place on the repository.  In other words, it
+** concurrent changes taking place on the repository.  In other words, it
 ** is safe to run "fossil backup" on a repository that is in active use.
 **
 ** Only the main repository database is backed up by this command.  The
@@ -516,7 +522,7 @@ remote_add_default:
 **
 ** Options:
 **
-**    --overwrite              OK to overwrite an existing file.
+**    --overwrite              OK to overwrite an existing file
 **    -R NAME                  Filename of the repository to backup
 */
 void backup_cmd(void){
@@ -541,5 +547,6 @@ void backup_cmd(void){
       fossil_fatal("backup \"%s\" already exists", zDest);
     }
   }
+  db_unprotect(PROTECT_ALL);
   db_multi_exec("VACUUM repository INTO %Q", zDest);
 }

@@ -39,7 +39,8 @@
 #define CONFIGSET_XFER      0x000080     /* Transfer configuration */
 #define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
 #define CONFIGSET_SCRIBER   0x000200     /* Email subscribers */
-#define CONFIGSET_ALL       0x0003ff     /* Everything */
+#define CONFIGSET_IWIKI     0x000400     /* Interwiki codes */
+#define CONFIGSET_ALL       0x0007ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 
@@ -60,18 +61,19 @@ static struct {
   int groupMask;       /* Mask for that configuration set */
   const char *zHelp;   /* What it does */
 } aGroupName[] = {
-  { "/email",       CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
-  { "/project",     CONFIGSET_PROJ,  "Project name and description"         },
+  { "/email",       CONFIGSET_ADDR,    "Concealed email addresses in tickets" },
+  { "/project",     CONFIGSET_PROJ,    "Project name and description"         },
   { "/skin",        CONFIGSET_SKIN | CONFIGSET_CSS,
-                                     "Web interface appearance settings"    },
-  { "/css",         CONFIGSET_CSS,   "Style sheet"                          },
-  { "/shun",        CONFIGSET_SHUN,  "List of shunned artifacts"            },
-  { "/ticket",      CONFIGSET_TKT,   "Ticket setup",                        },
-  { "/user",        CONFIGSET_USER,  "Users and privilege settings"         },
-  { "/xfer",        CONFIGSET_XFER,  "Transfer setup",                      },
-  { "/alias",       CONFIGSET_ALIAS, "URL Aliases",                         },
-  { "/subscriber",  CONFIGSET_SCRIBER,"Email notification subscriber list"  },
-  { "/all",         CONFIGSET_ALL,   "All of the above"                     },
+                                       "Web interface appearance settings"    },
+  { "/css",         CONFIGSET_CSS,     "Style sheet"                          },
+  { "/shun",        CONFIGSET_SHUN,    "List of shunned artifacts"            },
+  { "/ticket",      CONFIGSET_TKT,     "Ticket setup",                        },
+  { "/user",        CONFIGSET_USER,    "Users and privilege settings"         },
+  { "/xfer",        CONFIGSET_XFER,    "Transfer setup",                      },
+  { "/alias",       CONFIGSET_ALIAS,   "URL Aliases",                         },
+  { "/subscriber",  CONFIGSET_SCRIBER, "Email notification subscriber list"   },
+  { "/interwiki",   CONFIGSET_IWIKI,   "Inter-wiki link prefixes"             },
+  { "/all",         CONFIGSET_ALL,     "All of the above"                     },
 };
 
 
@@ -145,9 +147,6 @@ static struct {
   { "crnl-glob",              CONFIGSET_PROJ },
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
-#ifdef FOSSIL_LEGACY_ALLOW_SYMLINKS
-  { "allow-symlinks",         CONFIGSET_PROJ },
-#endif
   { "dotfiles",               CONFIGSET_PROJ },
   { "parent-project-code",    CONFIGSET_PROJ },
   { "parent-project-name",    CONFIGSET_PROJ },
@@ -178,6 +177,8 @@ static struct {
   { "@alias",                 CONFIGSET_ALIAS },
 
   { "@subscriber",            CONFIGSET_SCRIBER },
+
+  { "@interwiki",             CONFIGSET_IWIKI },
 
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
@@ -261,6 +262,9 @@ int configure_is_exportable(const char *zName){
   }
   if( strncmp(zName, "walias:/", 8)==0 ){
     return CONFIGSET_ALIAS;
+  }
+  if( strncmp(zName, "interwiki:", 10)==0 ){
+    return CONFIGSET_IWIKI;
   }
   return 0;
 }
@@ -443,6 +447,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
     }
+    db_protect_only(PROTECT_SENSITIVE);
     db_multi_exec("%s)", blob_sql_text(&sql));
     if( db_changes()==0 ){
       blob_reset(&sql);
@@ -457,6 +462,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
                    azToken[0]/*safe-for-%s*/);
       db_multi_exec("%s", blob_sql_text(&sql));
     }
+    db_protect_pop();
     blob_reset(&sql);
     rebuildMask |= thisMask;
   }
@@ -599,6 +605,22 @@ int configure_send_group(
     }
     db_finalize(&q);
   }
+  if( groupMask & CONFIGSET_IWIKI ){
+    db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
+                   " WHERE name GLOB 'interwiki:*' AND mtime>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,"%s %s value %s",
+        db_column_text(&q, 0),
+        db_column_text(&q, 1),
+        db_column_text(&q, 2)
+      );
+      blob_appendf(pOut, "config /config %d\n%s\n",
+                   blob_size(&rec), blob_str(&rec));
+      nCard++;
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
   if( (groupMask & CONFIGSET_SCRIBER)!=0
    && db_table_exists("repository","subscriber")
   ){
@@ -712,7 +734,8 @@ static void export_config(
 **         Write to FILENAME exported configuration information for AREA.
 **         AREA can be one of:
 **
-**             all email project shun skin ticket user alias subscriber
+**             all email interwiki project shun skin
+**             ticket user alias subscriber
 **
 ** >  fossil configuration import FILENAME
 **
@@ -841,9 +864,13 @@ void configuration_cmd(void){
       const char *zName = aConfig[i].zName;
       if( (aConfig[i].groupMask & mask)==0 ) continue;
       if( zName[0]!='@' ){
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+        db_protect_pop();
       }else if( fossil_strcmp(zName,"@user")==0 ){
+        db_unprotect(PROTECT_USER);
         db_multi_exec("DELETE FROM user");
+        db_protect_pop();
         db_create_default_users(0, 0);
       }else if( fossil_strcmp(zName,"@concealed")==0 ){
         db_multi_exec("DELETE FROM concealed");
@@ -1055,6 +1082,7 @@ void test_var_set_cmd(void){
   }else{
     blob_init(&x,g.argv[3],-1);
   }
+  db_unprotect(PROTECT_CONFIG);
   db_prepare(&ins,
      "REPLACE INTO config(name,value,mtime)"
      "VALUES(%Q,:val,now())", zVar);
@@ -1065,5 +1093,6 @@ void test_var_set_cmd(void){
   }
   db_step(&ins);
   db_finalize(&ins);
+  db_protect_pop();
   blob_reset(&x);
 }

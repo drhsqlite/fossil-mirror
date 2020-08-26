@@ -91,7 +91,7 @@
      Which exact storage implementation is uses is unspecified, and
      apps must not rely on it.
   */
-  fossil.storage = {
+  F.storage = {
     storageKeyPrefix: storageKeyPrefix,
     /** Sets the storage key k to value v, implicitly converting
         it to a string. */

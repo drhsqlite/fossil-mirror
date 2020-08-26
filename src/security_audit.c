@@ -284,6 +284,14 @@ void secaudit0_page(void){
     @ on the <a href="setup_ulist">User Configuration</a> page.
   }
 
+  /* The strict-manifest-syntax setting should be on. */
+  if( db_get_boolean("strict-manifest-syntax",1)==0 ){
+    @ <li><p><b>WARNING:</b>
+    @ The "strict-manifest-syntax"  flag is off.  This is a security
+    @ risk.  Turn this setting on (its default) to protect the users
+    @ of this repository.
+  }
+
   /* Obsolete:  */
   if( hasAnyCap(zAnonCap, "d") ||
       hasAnyCap(zDevCap,  "d") ||
@@ -598,11 +606,13 @@ void takeitprivate_page(void){
     cgi_redirect("secaudit0");
   }
   if( P("apply") ){
+    db_unprotect(PROTECT_USER);
     db_multi_exec(
       "UPDATE user SET cap=''"
       " WHERE login IN ('nobody','anonymous');"
       "DELETE FROM config WHERE name='public-pages';"
     );
+    db_protect_pop();
     db_set("self-register","0",0);
     cgi_redirect("secaudit0");
   }

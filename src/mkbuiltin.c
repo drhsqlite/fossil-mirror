@@ -64,6 +64,7 @@ static unsigned char *read_file(const char *zFilename, int *pnByte){
   return z;
 }
 
+#ifndef FOSSIL_DEBUG
 /*
 ** Try to compress a javascript file by removing unnecessary whitespace.
 **
@@ -101,6 +102,7 @@ static void compressJavascript(unsigned char *z, int *pn){
   z[j] = 0;
   *pn = j;
 }
+#endif /* FOSSIL_DEBUG */
 
 /*
 ** There is an instance of the following for each file translated.
@@ -281,7 +283,9 @@ int main(int argc, char **argv){
   int nErr = 0;
   int nSkip;
   int nPrefix = 0;
+#ifndef FOSSIL_DEBUG
   int nName;
+#endif
 
   if( argc==1 ){
     fprintf(stderr, "usage\t:%s "
@@ -352,6 +356,7 @@ int main(int argc, char **argv){
       if( pData[nSkip]=='\n' ) nSkip++;
     }
 
+#ifndef FOSSIL_DEBUG
     /* Compress javascript source files */
     nName = (int)strlen(aRes[i].zName);
     if( (nName>3 && strcmp(&aRes[i].zName[nName-3],".js")==0)
@@ -361,6 +366,7 @@ int main(int argc, char **argv){
       compressJavascript(pData+nSkip, &x);
       sz = x + nSkip;
     }
+#endif
 
     aRes[i].nByte = sz - nSkip;
     aRes[i].idx = i;

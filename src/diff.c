@@ -127,7 +127,7 @@ struct DContext {
 ** function, a string is considered empty if it contains no characters
 ** -OR- it contains only NUL characters.
 */
-static int count_lines(
+int count_lines(
   const char *z,
   int n,
   int *pnLine
@@ -1568,7 +1568,7 @@ static void longestCommonSequence(
       iEYp = iEY;
     }
   }
-  if( iSXb==iEXb && (iE1-iS1)*(iE2-iS2)<400 ){
+  if( iSXb==iEXb && (sqlite3_int64)(iE1-iS1)*(iE2-iS2)<400 ){
     /* If no common sequence is found using the hashing heuristic and
     ** the input is not too big, use the expensive exact solution */
     optimalLCS(p, iS1, iE1, iS2, iE2, piSX, piEX, piSY, piEY);

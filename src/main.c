@@ -1229,9 +1229,6 @@ void fossil_version_blob(
 #else
   blob_append(pOut, "FOSSIL_STATIC_BUILD\n", -1);
 #endif
-#if defined(FOSSIL_LEGACY_ALLOW_SYMLINKS)
-  blob_append(pOut, "FOSSIL_LEGACY_ALLOW_SYMLINKS\n", -1);
-#endif
 #if defined(HAVE_PLEDGE)
   blob_append(pOut, "HAVE_PLEDGE\n", -1);
 #endif
@@ -1377,6 +1374,7 @@ void set_base_url(const char *zAltBase){
     }
   }
   if( db_is_writeable("repository") ){
+    db_unprotect(PROTECT_CONFIG);
     if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", g.zBaseURL)){
       db_multi_exec("INSERT INTO config(name,value,mtime)"
                     "VALUES('baseurl:%q',1,now())", g.zBaseURL);
@@ -1386,6 +1384,7 @@ void set_base_url(const char *zAltBase){
            "VALUES('baseurl:%q',1,now())", g.zBaseURL
       );
     }
+    db_protect_pop();
   }
 }
 
@@ -2639,6 +2638,7 @@ void cmd_test_http(void){
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
+  g.sslNotAvailable = 1;  /* Avoid attempts to redirect */
   zIpAddr = cgi_ssh_remote_addr(0);
   if( zIpAddr && zIpAddr[0] ){
     g.fSshClient |= CGI_SSH_CLIENT;

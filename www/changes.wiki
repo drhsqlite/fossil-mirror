@@ -1,19 +1,16 @@
 <title>Change Log</title>
 
-<a name='v2_12_1'></a>
-<h2>Changes for Version 2.12.1 (2020-08-19)</h2>
+<a name='v2_13'></a>
+<h2>Changes for Version 2.13 (pending)</h2>
 
-  *  Fix in the new [/help?cmd=/wikiedit|/wikiedit] and
-     [/help?cmd=/fileedit|/fileedit] pages for a mistake which allowed
-     both to leak edits across all repositories on the same "origin"
-     (in short, the same domain, port number, and browser profile
-     instance). Full details are in
-     [https://fossil-scm.org/forum/forumpost/33dd754eaf|the support
-     forum]. This does not affect any versions prior to 2.12.
+  *  Added support for [./interwiki.md|interwiki links].
+  *  Enable &lt;del&gt; and &lt;ins&gt; markup in  wiki.
+  *  Improvements to the Forum threading display.
 
 <a name='v2_12'></a>
-<h2>Changes for Version 2.12 (pending)</h2>
+<h2>Changes for Version 2.12.1 (2020-08-20)</h2>
 
+  *  (2.12.1): Fix client-side vulnerabilities discovered by Max Justicz.
   *  Security fix in the "[/help?cmd=git|fossil git export]" command.
      The same fix is also backported to version 2.10.1 and 2.11.1.
      New "safety-net" features were added to prevent similar problems
@@ -50,6 +47,7 @@
   *  Enhance the [/help?cmd=revert|fossil revert] command so that it
      is able to revert all files beneath a directory.
   *  Add the [/help?cmd=bisect|fossil bisect skip] command.
+  *  Add the [/help?cmd=backup|fossil backup] command.
   *  Enhance [/help?cmd=bisect|fossil bisect ui] so that it shows all unchecked
      check-ins in between the innermost "good" and "bad" check-ins.
   *  Added the <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
@@ -92,6 +90,8 @@
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (2020-05-25)</h2>
 
+  *  (2.11.2): Backport security fixes from 2.12.1
+  *  (2.11.1): Backport security fix for the "fossil git export" command.
   *  Support [/md_rules|Markdown] in the default ticket configuration.
   *  Timestamp strings in [./checkin_names.wiki|object names]
      can now omit punctation.  So, for example, "202004181942" and
@@ -181,6 +181,8 @@
 <a name='v2_10'></a>
 <h2>Changes for Version 2.10 (2019-10-04)</h2>
 
+  *  (2.10.2): backport security fixes from 2.12.1
+  *  (2.10.1): backport security fix for the "fossil git export" command.
   *  Added support for [./serverext.wiki|CGI-based Server Extensions].
   *  Added the [/help?cmd=repolist-skin|repolist-skin] setting used to
      add style to repository list pages.

@@ -565,7 +565,7 @@ in the same format as a comment string in a <b>C</b> card.
 All follow-up posts have an <b>I</b> card that
 indicates which prior post in the same thread the current forum
 post is replying to, and a <b>G</b> card specifying the root post for
-the entire thread.  The argument to G and <b>I</b> cards is the
+the entire thread.  The argument to <b>G</b> and <b>I</b> cards is the
 artifact hash for the prior forum post to which the card refers.
 
 In theory, it is sufficient for follow-up posts to have only an

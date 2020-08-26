@@ -1816,11 +1816,7 @@ void manifest_reparent_checkin(int rid, const char *zValue){
     z[j] = 0;
     i += j;
   }
-  if( !db_exists("SELECT 1 FROM plink WHERE cid=%d AND pid=%d",
-                 rid, uuid_to_rid(azParent[0],0))
-  ){
-    p = manifest_get(rid, CFTYPE_MANIFEST, 0);
-  }
+  p = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( p!=0 ){
     db_multi_exec(
        "DELETE FROM plink WHERE cid=%d;"
@@ -1828,8 +1824,8 @@ void manifest_reparent_checkin(int rid, const char *zValue){
        rid, rid
     );
     manifest_add_checkin_linkages(rid,p,nParent,azParent);
+    manifest_destroy(p);
   }
-  manifest_destroy(p);
 reparent_abort:
   fossil_free(azParent);
   fossil_free(zCopy);
@@ -2681,6 +2677,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         p->rDate, rid, p->zUser, zFType, zTitle
       );
       fossil_free(zTitle);
+    }
+    if( p->zWiki[0] ){
+      backlink_extract(p->zWiki, p->zMimetype, rid, BKLNK_FORUM, p->rDate, 1);
     }
   }
   db_end_transaction(0);

@@ -28,40 +28,41 @@
 
 #if INTERFACE
 /*
-** Each instance of the following object represents a single message - 
+** Each instance of the following object represents a single message -
 ** either the initial post, an edit to a post, a reply, or an edit to
 ** a reply.
 */
-struct ForumEntry {
-  int fpid;              /* rid for this entry */
-  int fprev;             /* zero if initial entry.  non-zero if an edit */
-  int firt;              /* This entry replies to firt */
-  int mfirt;             /* Root in-reply-to */
-  int nReply;            /* Number of replies to this entry */
+struct ForumPost {
+  int fpid;              /* rid for this post */
   int sid;               /* Serial ID number */
+  int rev;               /* Revision number */
   char *zUuid;           /* Artifact hash */
-  ForumEntry *pLeaf;     /* Most recent edit for this entry */
-  ForumEntry *pEdit;     /* This entry is an edit of pEdit */
-  ForumEntry *pNext;     /* Next in chronological order */
-  ForumEntry *pPrev;     /* Previous in chronological order */
-  ForumEntry *pDisplay;  /* Next in display order */
-  int nIndent;           /* Number of levels of indentation for this entry */
+  ForumPost *pIrt;       /* This post replies to pIrt */
+  ForumPost *pEditHead;  /* Original, unedited post */
+  ForumPost *pEditTail;  /* Most recent edit for this post */
+  ForumPost *pEditNext;  /* This post is edited by pEditNext */
+  ForumPost *pEditPrev;  /* This post is an edit of pEditPrev */
+  ForumPost *pNext;      /* Next in chronological order */
+  ForumPost *pPrev;      /* Previous in chronological order */
+  ForumPost *pDisplay;   /* Next in display order */
+  int nEdit;             /* Number of edits to this post */
+  int nIndent;           /* Number of levels of indentation for this post */
 };
 
 /*
 ** A single instance of the following tracks all entries for a thread.
 */
 struct ForumThread {
-  ForumEntry *pFirst;    /* First entry in chronological order */
-  ForumEntry *pLast;     /* Last entry in chronological order */
-  ForumEntry *pDisplay;  /* Entries in display order */
-  ForumEntry *pTail;     /* Last on the display list */
+  ForumPost *pFirst;     /* First post in chronological order */
+  ForumPost *pLast;      /* Last post in chronological order */
+  ForumPost *pDisplay;   /* Entries in display order */
+  ForumPost *pTail;      /* Last on the display list */
   int mxIndent;          /* Maximum indentation level */
 };
 #endif /* INTERFACE */
 
 /*
-** Return true if the forum entry with the given rid has been
+** Return true if the forum post with the given rid has been
 ** subsequently edited.
 */
 int forum_rid_has_been_edited(int rid){
@@ -81,37 +82,35 @@ int forum_rid_has_been_edited(int rid){
 ** Delete a complete ForumThread and all its entries.
 */
 static void forumthread_delete(ForumThread *pThread){
-  ForumEntry *pEntry, *pNext;
-  for(pEntry=pThread->pFirst; pEntry; pEntry = pNext){
-    pNext = pEntry->pNext;
-    fossil_free(pEntry->zUuid);
-    fossil_free(pEntry);
+  ForumPost *pPost, *pNext;
+  for(pPost=pThread->pFirst; pPost; pPost = pNext){
+    pNext = pPost->pNext;
+    fossil_free(pPost->zUuid);
+    fossil_free(pPost);
   }
   fossil_free(pThread);
 }
 
-#if 0 /* not used */
 /*
-** Search a ForumEntry list forwards looking for the entry with fpid
+** Search a ForumPost list forwards looking for the post with fpid
 */
-static ForumEntry *forumentry_forward(ForumEntry *p, int fpid){
+static ForumPost *forumpost_forward(ForumPost *p, int fpid){
   while( p && p->fpid!=fpid ) p = p->pNext;
   return p;
 }
-#endif
 
 /*
-** Search backwards for a ForumEntry
+** Search backwards for a ForumPost
 */
-static ForumEntry *forumentry_backward(ForumEntry *p, int fpid){
+static ForumPost *forumpost_backward(ForumPost *p, int fpid){
   while( p && p->fpid!=fpid ) p = p->pPrev;
   return p;
 }
 
 /*
-** Add an entry to the display list
+** Add a post to the display list
 */
-static void forumentry_add_to_display(ForumThread *pThread, ForumEntry *p){
+static void forumpost_add_to_display(ForumThread *pThread, ForumPost *p){
   if( pThread->pDisplay==0 ){
     pThread->pDisplay = p;
   }else{
@@ -122,30 +121,33 @@ static void forumentry_add_to_display(ForumThread *pThread, ForumEntry *p){
 
 /*
 ** Extend the display list for pThread by adding all entries that
-** reference fpid.  The first such entry will be no earlier then
-** entry "p".
+** reference fpid.  The first such post will be no earlier then
+** post "p".
 */
 static void forumthread_display_order(
   ForumThread *pThread,    /* The complete thread */
-  ForumEntry *pBase        /* Add replies to this entry */
+  ForumPost *pBase         /* Add replies to this post */
 ){
-  ForumEntry *p;
-  ForumEntry *pPrev = 0;
+  ForumPost *p;
+  ForumPost *pPrev = 0;
+  ForumPost *pBaseIrt;
   for(p=pBase->pNext; p; p=p->pNext){
-    if( p->fprev==0 && p->mfirt==pBase->fpid ){
-      if( pPrev ){
-        pPrev->nIndent = pBase->nIndent + 1;
-        forumentry_add_to_display(pThread, pPrev);
-        forumthread_display_order(pThread, pPrev);
+    if( !p->pEditPrev && p->pIrt ){
+      pBaseIrt = p->pIrt->pEditHead ? p->pIrt->pEditHead : p->pIrt;
+      if( pBaseIrt==pBase ){
+        if( pPrev ){
+          pPrev->nIndent = pBase->nIndent + 1;
+          forumpost_add_to_display(pThread, pPrev);
+          forumthread_display_order(pThread, pPrev);
+        }
+        pPrev = p;
       }
-      pBase->nReply++;
-      pPrev = p;
     }
   }
   if( pPrev ){
     pPrev->nIndent = pBase->nIndent + 1;
     if( pPrev->nIndent>pThread->mxIndent ) pThread->mxIndent = pPrev->nIndent;
-    forumentry_add_to_display(pThread, pPrev);
+    forumpost_add_to_display(pThread, pPrev);
     forumthread_display_order(pThread, pPrev);
   }
 }
@@ -155,10 +157,11 @@ static void forumthread_display_order(
 */
 static ForumThread *forumthread_create(int froot, int computeHierarchy){
   ForumThread *pThread;
-  ForumEntry *pEntry;
+  ForumPost *pPost;
+  ForumPost *p;
   Stmt q;
   int sid = 1;
-  Bag seen = Bag_INIT;
+  int firt, fprev;
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
   db_prepare(&q,
@@ -168,58 +171,58 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
      froot
   );
   while( db_step(&q)==SQLITE_ROW ){
-    pEntry = fossil_malloc( sizeof(*pEntry) );
-    memset(pEntry, 0, sizeof(*pEntry));
-    pEntry->fpid = db_column_int(&q, 0);
-    pEntry->firt = db_column_int(&q, 1);
-    pEntry->fprev = db_column_int(&q, 2);
-    pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
-    pEntry->mfirt = pEntry->firt;
-    pEntry->sid = sid++;
-    pEntry->pPrev = pThread->pLast;
-    pEntry->pNext = 0;
-    bag_insert(&seen, pEntry->fpid);
+    pPost = fossil_malloc( sizeof(*pPost) );
+    memset(pPost, 0, sizeof(*pPost));
+    pPost->fpid = db_column_int(&q, 0);
+    firt = db_column_int(&q, 1);
+    fprev = db_column_int(&q, 2);
+    pPost->zUuid = fossil_strdup(db_column_text(&q,3));
+    if( !fprev ) pPost->sid = sid++;
+    pPost->pPrev = pThread->pLast;
+    pPost->pNext = 0;
     if( pThread->pLast==0 ){
-      pThread->pFirst = pEntry;
+      pThread->pFirst = pPost;
     }else{
-      pThread->pLast->pNext = pEntry;
+      pThread->pLast->pNext = pPost;
     }
-    if( pEntry->firt && !bag_find(&seen,pEntry->firt) ){
-      pEntry->firt = froot;
-      pEntry->mfirt = froot;
+    pThread->pLast = pPost;
+
+    /* Find the in-reply-to post.  Default to the topic post if the replied-to
+    ** post cannot be found. */
+    if( firt ){
+      pPost->pIrt = pThread->pFirst;
+      for(p=pThread->pFirst; p; p=p->pNext){
+        if( p->fpid==firt ){
+          pPost->pIrt = p;
+          break;
+        }
+      }
     }
-    pThread->pLast = pEntry;
+
+    /* Maintain the linked list of post edits. */
+    if( fprev ){
+      p = forumpost_backward(pPost->pPrev, fprev);
+      p->pEditNext = pPost;
+      pPost->sid = p->sid;
+      pPost->rev = p->rev+1;
+      pPost->nEdit = p->nEdit+1;
+      pPost->pEditPrev = p;
+      pPost->pEditHead = p->pEditHead ? p->pEditHead : p;
+      for(; p; p=p->pEditPrev ){
+        p->nEdit = pPost->nEdit;
+        p->pEditTail = pPost;
+      }
+    }
   }
   db_finalize(&q);
-  bag_clear(&seen);
-
-  /* Establish which entries are the latest edit.  After this loop
-  ** completes, entries that have non-NULL pLeaf should not be
-  ** displayed.
-  */
-  for(pEntry=pThread->pFirst; pEntry; pEntry=pEntry->pNext){
-    if( pEntry->fprev ){
-      ForumEntry *pBase = 0, *p;
-      p = forumentry_backward(pEntry->pPrev, pEntry->fprev);
-      pEntry->pEdit = p;
-      while( p ){
-        pBase = p;
-        p->pLeaf = pEntry;
-        p = pBase->pEdit;
-      }
-      for(p=pEntry->pNext; p; p=p->pNext){
-        if( p->mfirt==pEntry->fpid ) p->mfirt = pBase->fpid;
-      }
-    }
-  }
 
   if( computeHierarchy ){
     /* Compute the hierarchical display order */
-    pEntry = pThread->pFirst;
-    pEntry->nIndent = 1;
+    pPost = pThread->pFirst;
+    pPost->nIndent = 1;
     pThread->mxIndent = 1;
-    forumentry_add_to_display(pThread, pEntry);
-    forumthread_display_order(pThread, pEntry);
+    forumpost_add_to_display(pThread, pPost);
+    forumthread_display_order(pThread, pPost);
   }
 
   /* Return the result */
@@ -267,7 +270,7 @@ void forumthread_cmd(void){
   int froot;
   const char *zName;
   ForumThread *pThread;
-  ForumEntry *p;
+  ForumPost *p;
 
   db_find_and_open_repository(0,0);
   verify_all_options();
@@ -295,17 +298,18 @@ void forumthread_cmd(void){
   fossil_print(
 /* 0         1         2         3         4         5         6         7    */
 /*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
-  " sid      fpid      firt     fprev     mfirt     pLeaf  nReply  hash\n");
+  " sid  rev      fpid      pIrt pEditPrev pEditTail hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%4d %9d %9d %9d %9d %9d  %6d  %8.8s\n", p->sid,
-       p->fpid, p->firt, p->fprev, p->mfirt, p->pLeaf ? p->pLeaf->fpid : 0,
-       p->nReply, p->zUuid);
+    fossil_print("%4d %4d %9d %9d %9d %9d %8.8s\n", p->sid, p->rev,
+       p->fpid, p->pIrt ? p->pIrt->fpid : 0,
+       p->pEditPrev ? p->pEditPrev->fpid : 0,
+       p->pEditTail ? p->pEditTail->fpid : 0, p->zUuid);
   }
   fossil_print("\nDisplay\n");
   for(p=pThread->pDisplay; p; p=p->pDisplay){
     fossil_print("%*s", (p->nIndent-1)*3, "");
-    if( p->pLeaf ){
-      fossil_print("%d->%d\n", p->fpid, p->pLeaf->fpid);
+    if( p->pEditTail ){
+      fossil_print("%d->%d\n", p->fpid, p->pEditTail->fpid);
     }else{
       fossil_print("%d\n", p->fpid);
     }
@@ -355,24 +359,6 @@ void forum_render(
 }
 
 /*
-** Generate the buttons in the display that allow a forum supervisor to
-** mark a user as trusted.  Only do this if:
-**
-**   (1)  The poster is an individual, not a special user like "anonymous"
-**   (2)  The current user has Forum Supervisor privilege
-*/
-static void generateTrustControls(Manifest *pPost){
-  if( !g.perm.AdminForum ) return;
-  if( login_is_special(pPost->zUser) ) return;
-  @ <br>
-  @ <label><input type="checkbox" name="trust">
-  @ Trust user "%h(pPost->zUser)"
-  @ so that future posts by "%h(pPost->zUser)" do not require moderation.
-  @ </label>
-  @ <input type="hidden" name="trustuser" value="%h(pPost->zUser)">
-}
-
-/*
 ** Compute a display name from a login name.
 **
 ** If the input login is found in the USER table, then check the USER.INFO
@@ -405,407 +391,320 @@ char *display_name_from_login(const char *zLogin){
 }
 
 /*
-** Display all posts in a forum thread in chronological order
+** Display a single post in a forum thread.
 */
-static void forum_display_chronological(int froot, int target, int bRawMode){
-  ForumThread *pThread = forumthread_create(froot, 0);
-  ForumEntry *p;
-  int notAnon = login_is_individual();
-  char cMode = bRawMode ? 'r' : 'c';
-  for(p=pThread->pFirst; p; p=p->pNext){
-    char *zDate;
-    Manifest *pPost;
-    int isPrivate;        /* True for posts awaiting moderation */
-    int sameUser;         /* True if author is also the reader */
-    const char *zUuid;
-    char *zDisplayName;   /* The display name */
-    int sid;
+static void forum_display_post(
+  ForumPost *p,         /* Forum post to display */
+  int iIndentScale,     /* Indent scale factor */
+  int bRaw,             /* True to omit the border */
+  int bUnf,             /* True to leave the post unformatted */
+  int bHist,            /* True if showing edit history */
+  int bSelect,          /* True if this is the selected post */
+  char *zQuery          /* Common query string */
+){
+  char *zDisplayName;   /* The display name */
+  char *zDate;          /* The time/date string */
+  char *zHist;          /* History query string */
+  Manifest *pManifest;  /* Manifest comprising the current post */
+  int bPrivate;         /* True for posts awaiting moderation */
+  int bSameUser;        /* True if author is also the reader */
+  int iIndent;          /* Indent level */
+  const char *zMimetype;/* Formatting MIME type */
 
-    pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
-    if( pPost==0 ) continue;
-    if( p->fpid==target ){
-      @ <div id="forum%d(p->fpid)" class="forumTime forumSel">
-    }else if( p->pLeaf!=0 ){
-      @ <div id="forum%d(p->fpid)" class="forumTime forumObs">
-    }else{
-      @ <div id="forum%d(p->fpid)" class="forumTime">
+  /* Get the manifest for the post.  Abort if not found (e.g. shunned). */
+  pManifest = manifest_get(p->fpid, CFTYPE_FORUM, 0);
+  if( !pManifest ) return;
+
+  /* When not in raw mode, create the border around the post. */
+  if( !bRaw ){
+    /* Open the <div> enclosing the post.  Set the class string to mark the post
+    ** as selected and/or obsolete. */
+    iIndent = (p->pEditHead ? p->pEditHead->nIndent : p->nIndent)-1;
+    @ <div id='forum%d(p->fpid)' class='forumTime\
+    @ %s(bSelect ? " forumSel" : "")\
+    @ %s(p->pEditTail ? " forumObs" : "")'\
+    if( iIndent && iIndentScale ){
+      @ style='margin-left: %d(iIndent*iIndentScale)ex'
     }
-    if( pPost->zThreadTitle ){
-      @ <h1>%h(pPost->zThreadTitle)</h1>
+    @ >
+
+    /* If this is the first post (or an edit thereof), emit the thread title. */
+    if( pManifest->zThreadTitle ){
+      @ <h1>%h(pManifest->zThreadTitle)</h1>
     }
-    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    zDisplayName = display_name_from_login(pPost->zUser);
-    sid = p->pEdit ? p->pEdit->sid : p->sid;
-    @ <h3 class='forumPostHdr'>(%d(sid)) By %h(zDisplayName) on %h(zDate)
+
+    /* Emit the serial number, revision number, author, and date. */
+    zDisplayName = display_name_from_login(pManifest->zUser);
+    zDate = db_text(0, "SELECT datetime(%.17g)", pManifest->rDate);
+    @ <h3 class='forumPostHdr'>(%d(p->sid)\
+    if( p->nEdit ){
+      @ .%.*d(fossil_num_digits(p->nEdit))(p->rev)\
+    }
+    @ ) By %h(zDisplayName) on %h(zDate)
     fossil_free(zDisplayName);
     fossil_free(zDate);
-    if( p->pEdit ){
-      @ edit of %z(href("%R/forumpost/%S?t=%c",p->pEdit->zUuid,cMode))\
-      @ %d(p->pEdit->sid)</a>
+
+    /* If this is an edit, refer back to the old version.  Be sure "hist" is in
+    ** the query string so the old version will actually be shown. */
+    if( p->pEditPrev ){
+      zHist = bHist ? "" : "&hist";
+      @ edit of \
+      @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+      @ %d(p->sid).%.*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
     }
+
+    /* If debugging is enabled, link to the artifact page. */
     if( g.perm.Debug ){
       @ <span class="debug">\
       @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
     }
-    if( p->firt ){
-      ForumEntry *pIrt = p->pPrev;
-      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
-      if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=%c",pIrt->zUuid,cMode))\
-        @ %d(pIrt->sid)</a>
+
+    /* If this is a reply, refer back to the parent post. */
+    if( p->pIrt ){
+      @ in reply to %z(href("%R/forumpost/%S?%s",p->pIrt->zUuid,zQuery))\
+      @ %d(p->pIrt->sid)\
+      if( p->pIrt->nEdit ){
+        @ .%.*d(fossil_num_digits(p->pIrt->nEdit))(p->pIrt->rev)\
       }
+      @ </a>
     }
-    zUuid = p->zUuid;
-    if( p->pLeaf ){
-      @ updated by %z(href("%R/forumpost/%S?t=%c",p->pLeaf->zUuid,cMode))\
-      @ %d(p->pLeaf->sid)</a>
-      zUuid = p->pLeaf->zUuid;
+
+    /* If this post was later edited, refer forward to the next edit. */
+    if( p->pEditNext ){
+      @ updated by %z(href("%R/forumpost/%S?%s",p->pEditNext->zUuid,zQuery))\
+      @ %d(p->pEditNext->sid)\
+      @ .%.*d(fossil_num_digits(p->nEdit))(p->pEditNext->rev)</a>
     }
-    if( p->fpid!=target ){
-      @ %z(href("%R/forumpost/%S?t=%c",zUuid,cMode))[link]</a>
+
+    /* Provide a link to select the individual post. */
+    if( !bSelect ){
+      @ %z(href("%R/forumpost/%S?%s",p->zUuid,zQuery))[link]</a>
     }
-    if( !bRawMode ){
-      @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
+
+    /* Provide a link to the raw source code. */
+    if( !bUnf ){
+      @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
     }
-    isPrivate = content_is_private(p->fpid);
-    sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     @ </h3>
-    if( isPrivate && !g.perm.ModForum && !sameUser ){
-      @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
+  }
+
+  /* Check if this post is approved, also if it's by the current user. */
+  bPrivate = content_is_private(p->fpid);
+  bSameUser = login_is_individual()
+           && fossil_strcmp(pManifest->zUser, g.zLogin)==0;
+
+  /* Render the post if the user is able to see it. */
+  if( bPrivate && !g.perm.ModForum && !bSameUser ){
+    @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
+  }else{
+    if( bRaw || bUnf || p->pEditTail ){
+      zMimetype = "text/plain";
     }else{
-      const char *zMimetype;
-      if( bRawMode ){
-        zMimetype = "text/plain";
-      }else if( p->pLeaf!=0 ){
-        zMimetype = "text/plain";
-      }else{
-        zMimetype = pPost->zMimetype;
-      }
-      forum_render(0, zMimetype, pPost->zWiki, 0, 1);
+      zMimetype = pManifest->zMimetype;
     }
-    if( g.perm.WrForum && p->pLeaf==0 ){
-      int sameUser = login_is_individual()
-                     && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+    forum_render(0, zMimetype, pManifest->zWiki, 0, !bRaw);
+  }
+
+  /* When not in raw mode, finish creating the border around the post. */
+  if( !bRaw ){
+    /* If the user is able to write to the forum and if this post has not been
+    ** edited, create a form with various interaction buttons. */
+    if( g.perm.WrForum && !p->pEditTail ){
       @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
-      if( !isPrivate ){
-        /* Reply and Edit are only available if the post has already
-        ** been approved */
+      if( !bPrivate ){
+        /* Reply and Edit are only available if the post has been approved. */
         @ <input type="submit" name="reply" value="Reply">
-        if( g.perm.Admin || sameUser ){
+        if( g.perm.Admin || bSameUser ){
           @ <input type="submit" name="edit" value="Edit">
           @ <input type="submit" name="nullout" value="Delete">
         }
       }else if( g.perm.ModForum ){
-        /* Provide moderators with moderation buttons for posts that
-        ** are pending moderation */
+        /* Allow moderators to approve or reject pending posts.  Also allow
+        ** forum supervisors to mark non-special users as trusted and therefore
+        ** able to post unmoderated. */
         @ <input type="submit" name="approve" value="Approve">
         @ <input type="submit" name="reject" value="Reject">
-        generateTrustControls(pPost);
-      }else if( sameUser ){
-        /* A post that is pending moderation can be deleted by the
-        ** person who originally submitted the post */
+        if( g.perm.AdminForum && !login_is_special(pManifest->zUser) ){
+          @ <br><label><input type="checkbox" name="trust">
+          @ Trust user "%h(pManifest->zUser)" so that future posts by \
+          @ "%h(pManifest->zUser)" do not require moderation.
+          @ </label>
+          @ <input type="hidden" name="trustuser" value="%h(pManifest->zUser)">
+        }
+      }else if( bSameUser ){
+        /* Allow users to delete (reject) their own pending posts. */
         @ <input type="submit" name="reject" value="Delete">
       }
       @ </form></div>
     }
-    manifest_destroy(pPost);
     @ </div>
   }
 
-  /* Undocumented "threadtable" query parameter causes thread table
-  ** to be displayed for debugging purposes.
-  */
+  /* Clean up. */
+  manifest_destroy(pManifest);
+}
+
+/*
+** Possible display modes for forum_display_thread().
+*/
+enum {
+  FD_RAW,     /* Like FD_SINGLE, but additionally omit the border, force
+              ** unformatted mode, and inhibit history mode */
+  FD_SINGLE,  /* Render a single post and (optionally) its edit history */
+  FD_CHRONO,  /* Render all posts in chronological order */
+  FD_HIER,    /* Render all posts in an indented hierarchy */
+};
+
+/*
+** Display a forum thread.  If mode is FD_RAW or FD_SINGLE, display only a
+** single post from the thread and (optionally) its edit history.
+*/
+static void forum_display_thread(
+  int froot,            /* Forum thread root post ID */
+  int fpid,             /* Selected forum post ID, or 0 if none selected */
+  int mode,             /* Forum display mode, one of the FD_* enumerations */
+  int bUnf,             /* True if rendering unformatted */
+  int bHist             /* True if showing edit history, ignored for FD_RAW */
+){
+  ForumThread *pThread; /* Thread structure */
+  ForumPost *pSelect;   /* Currently selected post, or NULL if none */
+  ForumPost *p;         /* Post iterator pointer */
+  char *zQuery;         /* Common query string */
+  int iIndentScale = 4; /* Indent scale factor, measured in "ex" units */
+  int sid;              /* Comparison serial ID */
+
+  /* In raw mode, force unformatted display and disable history. */
+  if( mode == FD_RAW ){
+    bUnf = 1;
+    bHist = 0;
+  }
+
+  /* Thread together the posts and (optionally) compute the hierarchy. */
+  pThread = forumthread_create(froot, mode==FD_HIER);
+
+  /* Compute the appropriate indent scaling. */
+  if( mode==FD_HIER ){
+    iIndentScale = 4;
+    while( iIndentScale>1 && iIndentScale*pThread->mxIndent>25 ){
+      iIndentScale--;
+    }
+  }else{
+    iIndentScale = 0;
+  }
+
+  /* Find the selected post, or (depending on parameters) its latest edit. */
+  pSelect = fpid ? forumpost_forward(pThread->pFirst, fpid) : 0;
+  if( !bHist && mode!=FD_RAW && pSelect && pSelect->pEditTail ){
+    pSelect = pSelect->pEditTail;
+  }
+
+  /* When displaying only a single post, abort if no post was selected or the
+  ** selected forum post does not exist in the thread.  Otherwise proceed to
+  ** display the entire thread without marking any posts as selected. */
+  if( !pSelect && (mode==FD_RAW || mode==FD_SINGLE) ){
+    return;
+  }
+
+  /* Create the common query string to append to nearly all post links. */
+  zQuery = mode==FD_RAW ? 0 : mprintf("t=%c%s%s",
+      mode==FD_SINGLE ? 's' : mode==FD_CHRONO ? 'c' : 'h',
+      bUnf ? "&unf" : "", bHist ? "&hist" : "");
+
+  /* Identify which post to display first.  If history is shown, start with the
+  ** original, unedited post.  Otherwise advance to the post's latest edit.  */
+  if( mode==FD_RAW || mode==FD_SINGLE ){
+    p = pSelect;
+    if( bHist && p->pEditHead ) p = p->pEditHead;
+  }else{
+    p = mode==FD_CHRONO ? pThread->pFirst : pThread->pDisplay;
+    if( !bHist && p->pEditTail ) p = p->pEditTail;
+  }
+
+  /* Display the appropriate subset of posts in sequence. */
+  while( p ){
+    /* Display the post. */
+    forum_display_post(p, iIndentScale, mode==FD_RAW,
+        bUnf, bHist, p==pSelect, zQuery);
+
+    /* Advance to the next post in the thread. */
+    if( mode==FD_CHRONO ){
+      /* Chronological mode: display posts (optionally including edits) in their
+      ** original commit order. */
+      if( bHist ){
+        p = p->pNext;
+      }else{
+        sid = p->sid;
+        if( p->pEditHead ) p = p->pEditHead;
+        do p = p->pNext; while( p && p->sid<=sid );
+        if( p && p->pEditTail ) p = p->pEditTail;
+      }
+    }else if( bHist && p->pEditNext ){
+      /* Hierarchical and single mode: display each post's edits in sequence. */
+      p = p->pEditNext;
+    }else if( mode==FD_HIER ){
+      /* Hierarchical mode: after displaying with each post (optionally
+      ** including edits), go to the next post in computed display order. */
+      p = p->pEditHead ? p->pEditHead->pDisplay : p->pDisplay;
+      if( !bHist && p && p->pEditTail ) p = p->pEditTail;
+    }else{
+      /* Single and raw mode: terminate after displaying the selected post and
+      ** (optionally) its edits. */
+      break;
+    }
+  }
+
+  /* Undocumented "threadtable" query parameter causes thread table to be
+  ** displayed for debugging purposes. */
   if( PB("threadtable") ){
     @ <hr>
     @ <table border="1" cellpadding="3" cellspacing="0">
-    @ <tr><th>sid<th>fpid<th>firt<th>fprev<th>mfirt<th>pLeaf<th>nReply<th>hash
+    @ <tr><th>sid<th>rev<th>fpid<th>pIrt<th>pEditHead<th>pEditTail\
+    @ <th>pEditNext<th>pEditPrev<th>pDisplay<th>hash
     for(p=pThread->pFirst; p; p=p->pNext){
-      @ <tr><td>%d(p->sid)<td>%d(p->fpid)<td>%d(p->firt)\
-      @ <td>%d(p->fprev)<td>%d(p->mfirt)\
-      @ <td>%d(p->pLeaf?p->pLeaf->fpid:0)<td>%d(p->nReply)\
+      @ <tr><td>%d(p->sid)<td>%d(p->rev)<td>%d(p->fpid)\
+      @ <td>%d(p->pIrt ? p->pIrt->fpid : 0)\
+      @ <td>%d(p->pEditHead ? p->pEditHead->fpid : 0)\
+      @ <td>%d(p->pEditTail ? p->pEditTail->fpid : 0)\
+      @ <td>%d(p->pEditNext ? p->pEditNext->fpid : 0)\
+      @ <td>%d(p->pEditPrev ? p->pEditPrev->fpid : 0)\
+      @ <td>%d(p->pDisplay ? p->pDisplay->fpid : 0)\
       @ <td>%S(p->zUuid)</tr>
     }
     @ </table>
   }
 
+  /* Clean up. */
   forumthread_delete(pThread);
-}
-/*
-** Display all the edit history of post "target".
-*/
-static void forum_display_history(int froot, int target, int bRawMode){
-  ForumThread *pThread = forumthread_create(froot, 0);
-  ForumEntry *p;
-  int notAnon = login_is_individual();
-  char cMode = bRawMode ? 'r' : 'c';
-  ForumEntry *pLeaf = 0;
-  int cnt = 0;
-  for(p=pThread->pFirst; p; p=p->pNext){
-    if( p->fpid==target ){
-      pLeaf = p->pLeaf ? p->pLeaf : p;
-      break;
-    }
-  }
-  for(p=pThread->pFirst; p; p=p->pNext){
-    char *zDate;
-    Manifest *pPost;
-    int isPrivate;        /* True for posts awaiting moderation */
-    int sameUser;         /* True if author is also the reader */
-    const char *zUuid;
-    char *zDisplayName;   /* The display name */
-
-    if( p->fpid!=pLeaf->fpid && p->pLeaf!=pLeaf ) continue;
-    cnt++;
-    pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
-    if( pPost==0 ) continue;
-    @ <div id="forum%d(p->fpid)" class="forumTime">
-    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    zDisplayName = display_name_from_login(pPost->zUser);
-    @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(zDisplayName) on %h(zDate)
-    fossil_free(zDisplayName);
-    fossil_free(zDate);
-    if( g.perm.Debug ){
-      @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
-    }
-    if( p->firt && cnt==1 ){
-      ForumEntry *pIrt = p->pPrev;
-      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
-      if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=%c",pIrt->zUuid,cMode))\
-        @ %d(pIrt->sid)</a>
-      }
-    }
-    zUuid = p->zUuid;
-    @ %z(href("%R/forumpost/%S?t=c",zUuid))[link]</a>
-    if( !bRawMode ){
-      @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
-    }
-    isPrivate = content_is_private(p->fpid);
-    sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-    @ </h3>
-    if( isPrivate && !g.perm.ModForum && !sameUser ){
-      @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
-    }else{
-      forum_render(0, bRawMode?"text/plain":pPost->zMimetype, pPost->zWiki,
-                   0, 1);
-    }
-    if( g.perm.WrForum && p->pLeaf==0 ){
-      int sameUser = login_is_individual()
-                     && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      @ <div><form action="%R/forumedit" method="POST">
-      @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
-      if( !isPrivate ){
-        /* Reply and Edit are only available if the post has already
-        ** been approved */
-        @ <input type="submit" name="reply" value="Reply">
-        if( g.perm.Admin || sameUser ){
-          @ <input type="submit" name="edit" value="Edit">
-          @ <input type="submit" name="nullout" value="Delete">
-        }
-      }else if( g.perm.ModForum ){
-        /* Provide moderators with moderation buttons for posts that
-        ** are pending moderation */
-        @ <input type="submit" name="approve" value="Approve">
-        @ <input type="submit" name="reject" value="Reject">
-        generateTrustControls(pPost);
-      }else if( sameUser ){
-        /* A post that is pending moderation can be deleted by the
-        ** person who originally submitted the post */
-        @ <input type="submit" name="reject" value="Delete">
-      }
-      @ </form></div>
-    }
-    manifest_destroy(pPost);
-    @ </div>
-  }
-  forumthread_delete(pThread);
-}
-
-/*
-** Display all messages in a forumthread with indentation.
-*/
-static int forum_display_hierarchical(int froot, int target){
-  ForumThread *pThread;
-  ForumEntry *p;
-  Manifest *pPost, *pOPost;
-  int fpid;
-  const char *zUuid;
-  char *zDate;
-  const char *zSel;
-  int notAnon = login_is_individual();
-  int iIndentScale = 4;
-
-  pThread = forumthread_create(froot, 1);
-  for(p=pThread->pFirst; p; p=p->pNext){
-    if( p->fpid==target ){
-      while( p->pEdit ) p = p->pEdit;
-      target = p->fpid;
-      break;
-    }
-  }
-  while( iIndentScale>1 && iIndentScale*pThread->mxIndent>25 ){
-    iIndentScale--;
-  }
-  for(p=pThread->pDisplay; p; p=p->pDisplay){
-    int isPrivate;         /* True for posts awaiting moderation */
-    int sameUser;          /* True if reader is also the poster */
-    char *zDisplayName;    /* User name to be displayed */
-    pOPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
-    if( p->pLeaf ){
-      fpid = p->pLeaf->fpid;
-      zUuid = p->pLeaf->zUuid;
-      pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
-    }else{
-      fpid = p->fpid;
-      zUuid = p->zUuid;
-      pPost = pOPost;
-    }
-    zSel = p->fpid==target ? " forumSel" : "";
-    if( p->nIndent==1 ){
-      @ <div id='forum%d(fpid)' class='forumHierRoot%s(zSel)'>
-    }else{
-      @ <div id='forum%d(fpid)' class='forumHier%s(zSel)' \
-      @ style='margin-left: %d((p->nIndent-1)*iIndentScale)ex;'>
-    }
-    if( pPost==0 ) continue;
-    if( pPost->zThreadTitle ){
-      @ <h1>%h(pPost->zThreadTitle)</h1>
-    }
-    zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
-    zDisplayName = display_name_from_login(pOPost->zUser);
-    @ <h3 class='forumPostHdr'>\
-    @ (%d(p->sid)) By %h(zDisplayName) on %h(zDate)
-    fossil_free(zDisplayName);
-    fossil_free(zDate);
-    if( g.perm.Debug ){
-      @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
-    }
-    if( p->pLeaf ){
-      zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-      if( fossil_strcmp(pOPost->zUser,pPost->zUser)==0 ){
-        @ and edited on %h(zDate)
-      }else{
-        @ as edited by %h(pPost->zUser) on %h(zDate)
-      }
-      fossil_free(zDate);
-      if( g.perm.Debug ){
-        @ <span class="debug">\
-        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">\
-        @ (artifact-%d(p->pLeaf->fpid))</a></span>
-      }
-      @ %z(href("%R/forumpost/%S?t=y",p->zUuid))[history]</a>
-      manifest_destroy(pOPost);
-    }
-    if( fpid!=target ){
-      @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
-    }
-    @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
-    if( p->firt ){
-      ForumEntry *pIrt = p->pPrev;
-      while( pIrt && pIrt->fpid!=p->mfirt ) pIrt = pIrt->pPrev;
-      if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=h",pIrt->zUuid))\
-        @ %d(pIrt->sid)</a>
-      }
-    }
-    @ </h3>
-    isPrivate = content_is_private(fpid);
-    sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-    if( isPrivate && !g.perm.ModForum && !sameUser ){
-      @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
-    }else{
-      forum_render(0, pPost->zMimetype, pPost->zWiki, 0, 1);
-    }
-    if( g.perm.WrForum ){
-      @ <div><form action="%R/forumedit" method="POST">
-      @ <input type="hidden" name="fpid" value="%s(zUuid)">
-      if( !isPrivate ){
-        /* Reply and Edit are only available if the post has already
-        ** been approved */
-        @ <input type="submit" name="reply" value="Reply">
-        if( g.perm.Admin || sameUser ){
-          @ <input type="submit" name="edit" value="Edit">
-          @ <input type="submit" name="nullout" value="Delete">
-        }
-      }else if( g.perm.ModForum ){
-        /* Provide moderators with moderation buttons for posts that
-        ** are pending moderation */
-        @ <input type="submit" name="approve" value="Approve">
-        @ <input type="submit" name="reject" value="Reject">
-        generateTrustControls(pPost);
-      }else if( sameUser ){
-        /* A post that is pending moderation can be deleted by the
-        ** person who originally submitted the post */
-        @ <input type="submit" name="reject" value="Delete">
-      }
-      @ </form></div>
-    }
-    manifest_destroy(pPost);
-    @ </div>
-  }
-  forumthread_delete(pThread);
-  return target;
-}
-
-/*
-** Emits all JS code required by /forumpost.
-*/
-static void forumpost_emit_page_js(){
-  static int once = 0;
-  if(0==once){
-    once = 1;
-    style_emit_script_fossil_bootstrap(1);
-    builtin_request_js("forum.js");
-    builtin_request_js("fossil.dom.js");
-    builtin_request_js("fossil.page.forumpost.js");
-  }
+  fossil_free(zQuery);
 }
 
 /*
 ** WEBPAGE: forumpost
 **
 ** Show a single forum posting. The posting is shown in context with
-** it's entire thread.  The selected posting is enclosed within
+** its entire thread.  The selected posting is enclosed within
 ** <div class='forumSel'>...</div>.  Javascript is used to move the
 ** selected posting into view after the page loads.
 **
 ** Query parameters:
 **
-**   name=X        REQUIRED.  The hash of the post to display
-**   t=MODE        Display mode.
-**                   'c' for chronological
-**                   'h' for hierarchical
-**                   'a' for automatic
-**                   'r' for raw
-**                   'y' for history of post X only
-**   raw           If present, show only the post specified and
-**                 show its original unformatted source text.
+**   name=X        REQUIRED.  The hash of the post to display.
+**   t=a           Automatic display mode, i.e. hierarchical for
+**                 desktop and chronological for mobile.  This is the
+**                 default if the "t" query parameter is omitted.
+**   t=c           Show posts in the order they were written.
+**   t=h           Show posts usin hierarchical indenting.
+**   t=s           Show only the post specified by "name=X".
+**   t=r           Alias for "t=c&unf&hist".
+**   t=y           Alias for "t=s&unf&hist".
+**   raw           Alias for "t=s&unf".  Additionally, omit the border
+**                 around the post, and ignore "t" and "hist".
+**   unf           Show the original, unformatted source text.
+**   hist          Show edit history in addition to current posts.
 */
 void forumpost_page(void){
   forumthread_page();
-}
-
-/*
-** Add an appropriate style_header() to include title of the
-** given forum post.
-*/
-static int forumthread_page_header(int froot, int fpid){
-  char *zThreadTitle = 0;
-
-  zThreadTitle = db_text("",
-    "SELECT"
-    " substr(event.comment,instr(event.comment,':')+2)"
-    " FROM forumpost, event"
-    " WHERE event.objid=forumpost.fpid"
-    "   AND forumpost.fpid=%d;",
-    fpid
-  );
-  style_header("%s%s", zThreadTitle, zThreadTitle[0] ? "" : "Forum");
-  fossil_free(zThreadTitle);
-  return 0;
 }
 
 /*
@@ -818,20 +717,24 @@ static int forumthread_page_header(int froot, int fpid){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of any post of the thread.
-**   t=MODE        Display mode. MODE is...
-**                   'c' for chronological, or
-**                   'h' for hierarchical, or
-**                   'a' for automatic, or
-**                   'r' for raw.
-**   raw           Show only the post given by name= and show it unformatted
-**   hist          Show only the edit history for the name= post
+**   t=a           Automatic display mode, i.e. hierarchical for
+**                 desktop and chronological for mobile.  This is the
+**                 default if the "t" query parameter is omitted.
+**   t=c           Show posts in the order they were written.
+**   t=h           Show posts using hierarchical indenting.
+**   unf           Show the original, unformatted source text.
+**   hist          Show edit history in addition to current posts.
 */
 void forumthread_page(void){
   int fpid;
   int froot;
+  char *zThreadTitle;
   const char *zName = P("name");
   const char *zMode = PD("t","a");
   int bRaw = PB("raw");
+  int bUnf = PB("unf");
+  int bHist = PB("hist");
+  int mode = 0;
   login_check_credentials();
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
@@ -849,50 +752,66 @@ void forumthread_page(void){
     webpage_error("Not a forum post: \"%s\"", zName);
   }
   if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
-  if( zMode[0]=='a' ){
-    if( cgi_from_mobile() ){
-      zMode = "c";  /* Default to chronological on mobile */
-    }else{
-      zMode = "h";
-    }
-  }
-  if( zMode[0]!='y' ){
-    forumthread_page_header(froot, fpid);
-  }
-  if( bRaw && fpid ){
-    Manifest *pPost;
-    pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
-    if( pPost==0 ){
-      @ <p>No such forum post: %h(zName)
-    }else{
-      int isPrivate = content_is_private(fpid);
-      int notAnon = login_is_individual();
-      int sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      if( isPrivate && !g.perm.ModForum && !sameUser ){
-        @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
-      }else{
-        forum_render(0, "text/plain", pPost->zWiki, 0, 0);
-      }
-      manifest_destroy(pPost);
-    }
-  }else if( zMode[0]=='c' ){
-    style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
-    style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
-    forum_display_chronological(froot, fpid, 0);
-  }else if( zMode[0]=='r' ){
-    style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
-    style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
-    forum_display_chronological(froot, fpid, 1);
-  }else if( zMode[0]=='y' ){
-    style_header("Edit History Of A Forum Post");
-    style_submenu_element("Complete Thread", "%R/%s/%s?t=a", g.zPath, zName);
-    forum_display_history(froot, fpid, 1);
+
+  /* Decode the mode parameters. */
+  if( bRaw ){
+    mode = FD_RAW;
+    bUnf = 1;
+    bHist = 0;
+    cgi_replace_query_parameter("unf", "on");
+    cgi_delete_query_parameter("hist");
+    cgi_delete_query_parameter("raw");
   }else{
-    style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
-    style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
-    forum_display_hierarchical(froot, fpid);
+    switch( *zMode ){
+      case 'a': mode = cgi_from_mobile() ? FD_CHRONO : FD_HIER; break;
+      case 'c': mode = FD_CHRONO; break;
+      case 'h': mode = FD_HIER; break;
+      case 's': mode = FD_SINGLE; break;
+      case 'r': mode = FD_CHRONO; break;
+      case 'y': mode = FD_SINGLE; break;
+      default: webpage_error("Invalid thread mode: \"%s\"", zMode);
+    }
+    if( *zMode=='r' || *zMode=='y') {
+      bUnf = 1;
+      bHist = 1;
+      cgi_replace_query_parameter("t", mode==FD_CHRONO ? "c" : "s");
+      cgi_replace_query_parameter("unf", "on");
+      cgi_replace_query_parameter("hist", "on");
+    }
   }
-  forumpost_emit_page_js();
+
+  /* Define the page header. */
+  zThreadTitle = db_text("",
+    "SELECT"
+    " substr(event.comment,instr(event.comment,':')+2)"
+    " FROM forumpost, event"
+    " WHERE event.objid=forumpost.fpid"
+    "   AND forumpost.fpid=%d;",
+    fpid
+  );
+  style_header("%s%s", zThreadTitle, *zThreadTitle ? "" : "Forum");
+  fossil_free(zThreadTitle);
+  if( mode!=FD_CHRONO ){
+    style_submenu_element("Chronological", "%R/%s/%s?t=c%s%s", g.zPath, zName,
+        bUnf ? "&unf" : "", bHist ? "&hist" : "");
+  }
+  if( mode!=FD_HIER ){
+    style_submenu_element("Hierarchical", "%R/%s/%s?t=h%s%s", g.zPath, zName,
+        bUnf ? "&unf" : "", bHist ? "&hist" : "");
+  }
+  style_submenu_checkbox("unf", "Unformatted", 0, 0);
+  style_submenu_checkbox("hist", "History", 0, 0);
+
+  /* Display the thread. */
+  forum_display_thread(froot, fpid, mode, bUnf, bHist);
+
+  /* Emit Forum Javascript. */
+  style_emit_script_fossil_bootstrap(1);
+  builtin_request_js("forum.js");
+  builtin_request_js("fossil.dom.js");
+  builtin_request_js("fossil.page.forumpost.js");
+
+  /* Emit the page style. */
   style_footer();
 }
 
@@ -951,7 +870,7 @@ static int forum_post(
   zDate = date_in_standard_format("now");
   blob_appendf(&x, "D %s\n", zDate);
   fossil_free(zDate);
-  zG = db_text(0, 
+  zG = db_text(0,
      "SELECT uuid FROM blob, forumpost"
      " WHERE blob.rid==forumpost.froot"
      "   AND forumpost.fpid=%d", iBasis);
@@ -1019,7 +938,7 @@ static int forum_post(
 /*
 ** Paint the form elements for entering a Forum post
 */
-static void forum_entry_widget(
+static void forum_post_widget(
   const char *zTitle,
   const char *zMimetype,
   const char *zContent
@@ -1128,7 +1047,7 @@ void forumnew_page(void){
   @ <form action="%R/forume1" method="POST">
   @ <h1>New Thread:</h1>
   forum_from_line();
-  forum_entry_widget(zTitle, zMimetype, zContent);
+  forum_post_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
   if( P("preview") && !whitespace_only(zContent) ){
     @ <input type="submit" name="submit" value="Submit">
@@ -1197,15 +1116,17 @@ void forumedit_page(void){
        && PB("trust")
        && (zUserToTrust = P("trustuser"))!=0
       ){
+        db_unprotect(PROTECT_USER);
         db_multi_exec("UPDATE user SET cap=cap||'4' "
                       "WHERE login=%Q AND cap NOT GLOB '*4*'",
                       zUserToTrust);
+        db_protect_pop();
       }
       cgi_redirectf("%R/forumpost/%S",P("fpid"));
       return;
     }
     if( P("reject") ){
-      char *zParent = 
+      char *zParent =
         db_text(0,
           "SELECT uuid FROM forumpost, blob"
           " WHERE forumpost.fpid=%d AND blob.rid=forumpost.firt",
@@ -1278,7 +1199,7 @@ void forumedit_page(void){
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
     forum_from_line();
-    forum_entry_widget(zTitle, zMimetype, zContent);
+    forum_post_widget(zTitle, zMimetype, zContent);
   }else{
     /* Reply */
     char *zDisplayName;
@@ -1304,7 +1225,7 @@ void forumedit_page(void){
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="reply" value="1">
     forum_from_line();
-    forum_entry_widget(0, zMimetype, zContent);
+    forum_post_widget(0, zMimetype, zContent);
   }
   if( !isDelete ){
     @ <input type="submit" name="preview" value="Preview">

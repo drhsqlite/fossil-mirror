@@ -442,12 +442,6 @@ span.usertype:before {
 span.usertype:after {
   content:"'";
 }
-div.selectedText {
-  font-weight: bold;
-  color: blue;
-  background-color: #d5d5ff;
-  border: 1px blue solid;
-}
 p.missingPriv {
  color: blue;
 }
@@ -950,15 +944,19 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   background: yellow;
 }
 .warning {
-  color: darkred;
+  color: black;
   background: yellow;
-  opacity: 0.7;
 }
 .hidden {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  display: none;
+  /* The framework-wide way of hiding elements is to assign them this
+     CSS class. To make them visible again, remove it. The !important
+     qualifiers are unfortunate but sometimes necessary when hidden
+     element has other classes which specify visibility-related
+     options. */
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
 }
 input {
   max-width: 95%;
@@ -996,17 +994,7 @@ hr {
   border-style: outset;
   border-color: inherit;
 }
-.tab-container > .tabs > .tab-panel,
-.tab-container > .tabs > fieldset.tab-wrapper {
-  align-self: stretch;
-  flex: 10 1 auto;
-  display: flex;
-  flex-direction: row;
-  border: 0;
-  padding: 0;
-  margin: 0;
-}
-.tab-container > .tabs > fieldset.tab-wrapper > .tab-panel{
+.tab-container > .tabs > .tab-panel {
   align-self: stretch;
   flex: 10 1 auto;
   display: block;
@@ -1159,4 +1147,151 @@ hr {
   font-weight: initial;
   margin: 0 0.25em 0 0.25em;
   vertical-align: middle;
+}
+
+table.numbered-lines {
+  width: 100%;
+  table-layout: fixed /* required to keep ultra-wide code from exceeding
+                         window width, and instead force a scrollbar
+                         on them. */;
+}
+table.numbered-lines > tbody > tr {
+  font-family: monospace;
+  line-height: 1.35;
+  white-space: pre;
+}
+table.numbered-lines > tbody > tr > td {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: inherit;
+  margin: 0;
+  vertical-align: top;
+  padding: 0.25em 0 0 0 /*prevents slight overlap at top */;
+}
+table.numbered-lines td.line-numbers {
+  width: 4.5em;
+}
+table.numbered-lines td.line-numbers > span:first-of-type {
+  margin-top: 0.25em/*must match top PADDING of
+                      td.file-content > pre > code*/;
+}
+table.numbered-lines td.line-numbers > span {
+  display: block;
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: pre;
+  margin-right: 2px/*keep selection from nudging the right column */;
+  text-align: right;
+}
+table.numbered-lines td.line-numbers > span:hover {
+  background-color: rgba(112, 112, 112, 0.25);
+}
+table.numbered-lines td.file-content {
+  padding-left: 0.25em;
+}
+table.numbered-lines td.file-content > pre,
+table.numbered-lines td.file-content > pre > code {
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  white-space: pre;
+  display: block/*necessary for certain skins!*/;
+}
+table.numbered-lines td.file-content > pre {
+}
+table.numbered-lines td.file-content > pre > code {
+  overflow: auto;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.25em/*any top padding here must match the top MARGIN of
+                       td.line-numbers's first span child or the
+                       lines/code will get misaligned. */;
+  padding-bottom: 0.25em/*prevents a slight overlap at bottom from
+                          triggering a scroller*/;
+}
+table.numbered-lines td.file-content > pre > code > * {
+  /* Defense against syntax highlighters indirectly messing up these
+     properties... */
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+}
+table.numbered-lines td.line-numbers span.selected-line/*replacement*/ {
+  font-weight: bold;
+  color: blue;
+  background-color: #d5d5ff;
+  border: 1px blue solid;
+  border-top-width: 0;
+  border-bottom-width: 0;
+  padding: 0;
+  margin: 0;
+}
+table.numbered-lines td.line-numbers span.selected-line.start {
+  border-top-width: 1px;
+  margin-top: -1px/*restore alignment*/;
+}
+table.numbered-lines td.line-numbers span.selected-line.end {
+  border-bottom-width: 1px;
+  margin-top: -1px/*restore alignment*/;
+}
+table.numbered-lines td.line-numbers span.selected-line.start.end {
+  margin-top: -2px/*restore alignment*/;
+}
+
+.fossil-tooltip {
+  text-align: center;
+  padding: 0.2em 1em;
+  border: 1px solid black;
+  border-radius: 0.25em;
+  position: absolute;
+  display: inline-block;
+  z-index: 19/*below default skin's hamburger popup*/;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.75);
+  background-color: inherit;
+}
+
+.fossil-toast-message {
+  /* "toast"-style popup message.
+     See fossil.popupwidget:toast() */
+  position: absolute;
+  display: block;
+  z-index: 101;
+  text-align: left;
+  padding: 0.15em 0.5em;
+  margin: 0;
+  font-size: 1em;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba( 127, 127, 127, 0.75 );
+  border-radius: 0.25em;
+  background-color: rgba(20, 20, 20, 1)
+  /* problem: if we inherit the color it may either be
+     transparent or inherit translucency via the
+     skin, leaving it unreadable. Since we set the bg
+     color we must also set the fg color. */;
+  color: rgba(235, 235, 235, 0.9);
+}
+.fossil-toast-message.error,
+.fossil-toast-message.warning {
+  background: yellow;
+}
+.fossil-toast-message.error {
+  font-weight: bold;
+  color: darkred;
+  border-color: darkred;
+}
+.fossil-toast-message.warning {
+  color: black;
+}
+
+blockquote.file-content {
+  /* file content block in the /file page */
+  margin: 0 1em;
 }

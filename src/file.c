@@ -49,18 +49,17 @@
 ** a few special cases such as the "fossil test-tarball" command when we never
 ** want to follow symlinks.
 **
-** If RepoFILE is used and if the allow-symlinks setting is true and if
-** the object is a symbolic link, then the object is treated like an ordinary
-** file whose content is name of the object to which the symbolic link
-** points.
+**   ExtFILE      Symbolic links always refer to the object to which the
+**                link points.  Symlinks are never recognized as symlinks but
+**                instead always appear to the the target object.
 **
-** If ExtFILE is used or allow-symlinks is false, then operations on a
-** symbolic link are the same as operations on the object to which the
-** symbolic link points.
+**   SymFILE      Symbolic links always appear to be files whose name is
+**                the target pathname of the symbolic link.
 **
-** SymFILE is like RepoFILE except that it always uses the target filename of
-** a symbolic link as the content, instead of the content of the object
-** that the symlink points to.  SymFILE acts as if allow-symlinks is always ON.
+**   RepoFILE     Like symfile is allow-symlinks is true, or like
+**                ExtFile if allow-symlinks is false.  In other words,
+**                symbolic links are only recognized as something different
+**                from files or directories if allow-symlinks is true.
 */
 #define ExtFILE    0  /* Always follow symlinks */
 #define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
@@ -136,9 +135,12 @@ static int fossil_stat(
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( eFType>=RepoFILE && (eFType==SymFILE || db_allow_symlinks()) ){
+  if( (eFType=RepoFILE && db_allow_symlinks())
+   || eFType==SymFILE ){
+    /* Symlinks look like files whose content is the name of the target */
     rc = lstat(zMbcs, buf);
   }else{
+    /* Symlinks look like the object to which they point */
     rc = stat(zMbcs, buf);
   }
 #else
@@ -318,7 +320,8 @@ int file_isexe(const char *zFilename, int eFType){
 ** Return TRUE if the named file is a symlink and symlinks are allowed.
 ** Return false for all other cases.
 **
-** This routines RepoFILE - that zFilename is always a file under management.
+** This routines assumes RepoFILE - that zFilename is always a file
+** under management.
 **
 ** On Windows, always return False.
 */
@@ -1313,8 +1316,8 @@ static void emitFileStat(
   memset(zBuf, 0, sizeof(zBuf));
   blob_zero(&x);
   file_canonical_name(zPath, &x, slash);
-  fossil_print("[%s] -> [%s]\n", zPath, blob_buffer(&x));
-  blob_reset(&x);
+  char *zFull = blob_str(&x);
+  fossil_print("[%s] -> [%s]\n", zPath, zFull);
   memset(&testFileStat, 0, sizeof(struct fossilStat));
   rc = fossil_stat(zPath, &testFileStat, 0);
   fossil_print("  stat_rc                = %d\n", rc);
@@ -1362,6 +1365,9 @@ static void emitFileStat(
   fossil_print("  file_isexe(RepoFILE)   = %d\n", file_isexe(zPath,RepoFILE));
   fossil_print("  file_isdir(RepoFILE)   = %d\n", file_isdir(zPath,RepoFILE));
   fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
+  fossil_print("  file_is_reserved_name  = %d\n",
+                                             file_is_reserved_name(zFull,-1));
+  blob_reset(&x);
   if( reset ) resetStat();
 }
 
@@ -1377,13 +1383,15 @@ static void emitFileStat(
 **
 **     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
 **     --open-config                Open the configuration database first.
-**     --slash                      Trailing slashes, if any, are retained.
 **     --reset                      Reset cached stat() info for each file.
+**     --root ROOT                  Use ROOT as the root of the checkout
+**     --slash                      Trailing slashes, if any, are retained.
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
+  const char *zRoot = find_option("root",0,1);
   const char *zAllow = find_option("allow-symlinks",0,1);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
@@ -1391,14 +1399,25 @@ void cmd_test_file_environment(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
-  fossil_print("db_allow_symlinks_by_default() = %d\n",
-               db_allow_symlinks_by_default());
   if( zAllow ){
     g.allowSymlinks = !is_false(zAllow);
   }
+  if( zRoot==0 ) zRoot = g.zLocalRoot;
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
+  fossil_print("local-root = [%s]\n", zRoot);
   for(i=2; i<g.argc; i++){
+    char *z;
     emitFileStat(g.argv[i], slashFlag, resetFlag);
+    z = file_canonical_name_dup(g.argv[i]);
+    fossil_print("  file_canonical_name    = %s\n", z);
+    fossil_print("  file_nondir_path       = ");
+    if( fossil_strnicmp(zRoot,z,(int)strlen(zRoot))!=0 ){
+      fossil_print("(--root is not a prefix of this file)\n");
+    }else{
+      int n = file_nondir_objects_on_path(zRoot, z);
+      fossil_print("%.*s\n", n, z);
+    }
+    fossil_free(z);
   }
 }
 
@@ -2476,6 +2495,17 @@ void touch_cmd(){
 }
 
 /*
+** If zFileName is not NULL and contains a '.', this returns a pointer
+** to the position after the final '.', else it returns NULL. As a
+** special case, if it ends with a period then a pointer to the
+** terminating NUL byte is returned.
+*/
+const char * file_extension(const char *zFileName){
+  const char * zExt = zFileName ? strrchr(zFileName, '.') : 0;
+  return zExt ? &zExt[1] : 0;
+}
+
+/*
 ** Returns non-zero if the specified file name ends with any reserved name,
 ** e.g.: _FOSSIL_ or .fslckout.  Specifically, it returns 1 for exact match
 ** or 2 for a tail match on a longer file name.
@@ -2534,26 +2564,5 @@ int file_is_reserved_name(const char *zFilename, int nFilename){
     default:{
       return 0;
     }
-  }
-}
-
-/*
-** COMMAND: test-is-reserved-name
-**
-** Usage: %fossil test-is-ckout-db FILENAMES...
-**
-** Passes each given name to file_is_reserved_name() and outputs one
-** line per file: the result value of that function followed by the
-** name.
-*/
-void test_is_reserved_name_cmd(void){
-  int i;
-
-  if(g.argc<3){
-    usage("FILENAME_1 [...FILENAME_N]");
-  }
-  for( i = 2; i < g.argc; ++i ){
-    const int check = file_is_reserved_name(g.argv[i], -1);
-    fossil_print("%d %s\n", check, g.argv[i]);
   }
 }

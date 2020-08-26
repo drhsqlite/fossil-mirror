@@ -640,7 +640,7 @@
   F.onPageLoad(function() {
     P.base = {tag: E('base')};
     P.base.originalHref = P.base.tag.href;
-    P.tabs = new fossil.TabManager('#fileedit-tabs');
+    P.tabs = new F.TabManager('#fileedit-tabs');
     P.e = { /* various DOM elements we work with... */
       taEditor: E('#fileedit-content-editor'),
       taCommentSmall: E('#fileedit-comment'),
@@ -1144,7 +1144,7 @@
         });
       },
       onerror: (e)=>{
-        fossil.fetch.onerror(e);
+        F.fetch.onerror(e);
         callback("Error fetching preview: "+e);
       }
     });
