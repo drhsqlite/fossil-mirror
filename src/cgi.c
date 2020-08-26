@@ -66,6 +66,17 @@
 #define PCK(x)      cgi_parameter_checked(x,1)
 #define PIF(x,y)    cgi_parameter_checked(x,y)
 
+/*
+** Shortcut for the cgi_printf() routine.  Instead of using the
+**
+**    @ ...
+**
+** notation provided by the translate.c utility, you can also
+** optionally use:
+**
+**    CX(...)
+*/
+#define CX cgi_printf
 
 /*
 ** Destinations for output text.
@@ -225,7 +236,8 @@ void cgi_printf_header(const char *zLine, ...){
 ** Set a cookie by queuing up the appropriate HTTP header output. If
 ** !g.isHTTP, this is a no-op.
 **
-** Zero lifetime implies a session cookie.
+** Zero lifetime implies a session cookie. A negative one expires
+** the cookie immediately.
 */
 void cgi_set_cookie(
   const char *zName,    /* Name of the cookie */
@@ -242,13 +254,15 @@ void cgi_set_cookie(
   if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
     zSecure = " secure;";
   }
-  if( lifetime>0 ){
+  if( lifetime!=0 ){
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly;%s Version=1\r\n",
-        zName, zValue, zPath, lifetime, zSecure);
+       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; "
+       "%s Version=1\r\n",
+       zName, lifetime>0 ? zValue : "null", zPath, lifetime, zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; HttpOnly;%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly; "
+       "%s Version=1\r\n",
        zName, zValue, zPath, zSecure);
   }
 }
@@ -291,19 +305,19 @@ void cgi_reply(void){
     assert( rangeEnd==0 );
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
-  if( g.isConst ){
+  if( etag_tag()[0]!=0 ){
+    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
+    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
+    if( etag_mtime()>0 ){
+      fprintf(g.httpOut, "Last-Modified: %s\r\n",
+              cgi_rfc822_datestamp(etag_mtime()));
+    }
+  }else if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
     fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
-  }else if( etag_tag()[0]!=0 ){
-    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
-    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
   }else{
     fprintf(g.httpOut, "Cache-control: no-cache\r\n");
-  }
-  if( etag_mtime()>0 ){
-    fprintf(g.httpOut, "Last-Modified: %s\r\n",
-            cgi_rfc822_datestamp(etag_mtime()));
   }
 
   if( blob_size(&extraHeader)>0 ){
@@ -949,7 +963,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   CgiPostReadState state;
   cson_parse_opt popt = cson_parse_opt_empty;
   cson_parse_info pinfo = cson_parse_info_empty;
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
   popt.maxDepth = 15;
   state.fh = zIn;
   state.len = contentLen;
@@ -1055,8 +1069,7 @@ void cgi_init(void){
 #endif
 
 #ifdef FOSSIL_ENABLE_JSON
-  int noJson = P("no_json")!=0;
-  if( noJson==0 ){ json_main_bootstrap(); }
+  const int noJson = P("no_json")!=0;
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
@@ -1092,14 +1105,14 @@ void cgi_init(void){
     cgi_set_parameter("PATH_INFO", zPathInfo);
   }
 #ifdef FOSSIL_ENABLE_JSON
-  if(strncmp("/json",zPathInfo,5)==0
-     && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+  if(noJson==0 && json_request_is_json_api(zPathInfo)){
     /* We need to change some following behaviour depending on whether
     ** we are operating in JSON mode or not. We cannot, however, be
     ** certain whether we should/need to be in JSON mode until the
     ** PATH_INFO is set up.
     */
     g.json.isJsonMode = 1;
+    json_bootstrap_early();
   }else{
     assert(!g.json.isJsonMode &&
            "Internal misconfiguration of g.json.isJsonMode");
@@ -1736,6 +1749,9 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   int i, content_length = 0;
   char zLine[2000];     /* A single line of input. */
 
+#ifdef FOSSIL_ENABLE_JSON
+  if( nCycles==0 ){ json_bootstrap_early(); }
+#endif
   if( zIpAddr ){
     if( nCycles==0 ){
       cgi_setenv("REMOTE_ADDR", zIpAddr);

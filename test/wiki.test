@@ -20,6 +20,12 @@
 
 test_setup
 
+# Disable backoffice for this test, otherwise its process lingers for some
+# time after the test has completed.
+# Perhaps, this should be done in test_setup and enabled explicitly only
+# when needed.
+fossil set backoffice-disable 1
+
 # Return true if two files are similar (i.e. not only compress trailing spaces
 # from a line, but remove any final LF from the file as well)
 proc similar_file {a b} {

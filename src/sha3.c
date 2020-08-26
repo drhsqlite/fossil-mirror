@@ -639,6 +639,8 @@ char *sha3sum(const char *zIn, int iSize){
 **                        128 and 512.
 **    -h, --dereference   If FILE is a symbolic link, compute the hash on
 **                        the object pointed to, not on the link itself.
+**
+** See also: [[md5sum]], [[sha1sum]]
 */
 void sha3sum_test(void){
   int i;

@@ -89,7 +89,7 @@ void uncheckout(int vid){
 
 
 /*
-** Given the abbreviated UUID name of a version, load the content of that
+** Given the abbreviated hash of a version, load the content of that
 ** version in the VFILE table.  Return the VID for the version.
 **
 ** If anything goes wrong, panic.
@@ -281,7 +281,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
 **                      times (the timestamp of the last checkin which modified
 **                      them).
 **
-** See also: update
+** See also: [[update]]
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
@@ -389,14 +389,14 @@ static void unlink_local_database(int manifestOnly){
 **
 ** Usage: %fossil close ?OPTIONS?
 **
-** The opposite of "open".  Close the current database connection.
+** The opposite of "[[open]]".  Close the current database connection.
 ** Require a -f or --force flag if there are unsaved changes in the
 ** current check-out or if there is non-empty stash.
 **
 ** Options:
 **   --force|-f  necessary to close a check out with uncommitted changes
 **
-** See also: open
+** See also: [[open]]
 */
 void close_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;

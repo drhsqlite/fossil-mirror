@@ -221,7 +221,7 @@ the CGI.  These are followed by a blank line and then the content.
 Typical parameter output looks like this:
 
 <blockquote><verbatim>
-Status: 200 Ok
+Status: 200 OK
 Content-Type: text/html
 </verbatim></blockquote>
 

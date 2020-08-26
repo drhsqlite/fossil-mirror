@@ -79,7 +79,13 @@ static void db_err(const char *zFormat, ...){
   z = vmprintf(zFormat, ap);
   va_end(ap);
 #ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
+  if( g.json.isJsonMode!=0 ){
+    /*
+    ** Avoid calling into the JSON support subsystem if it
+    ** has not yet been initialized, e.g. early SQLite log
+    ** messages, etc.
+    */
+    json_bootstrap_early();
     json_err( 0, z, 1 );
   }
   else
@@ -112,6 +118,7 @@ static struct DbLocalData {
   int nBegin;               /* Nesting depth of BEGIN */
   int doRollback;           /* True to force a rollback */
   int nCommitHook;          /* Number of commit hooks */
+  int wrTxn;                /* Outer-most TNX is a write */
   Stmt *pAllStmt;           /* List of all unfinalized statements */
   int nPrepare;             /* Number of calls to sqlite3_prepare_v2() */
   int nDeleteOnFail;        /* Number of entries in azDeleteOnFail[] */
@@ -194,6 +201,7 @@ void db_begin_transaction_real(const char *zStartFile, int iStartLine){
     db.doRollback = 0;
     db.zStartFile = zStartFile;
     db.iStartLine = iStartLine;
+    db.wrTxn = 0;
   }
   db.nBegin++;
 }
@@ -208,7 +216,8 @@ void db_begin_write_real(const char *zStartFile, int iStartLine){
     db.doRollback = 0;
     db.zStartFile = zStartFile;
     db.iStartLine = iStartLine;
-  }else{
+    db.wrTxn = 1;
+  }else if( !db.wrTxn ){
     fossil_warning("read txn at %s:%d might cause SQLITE_BUSY "
        "for the write txn at %s:%d",
        db.zStartFile, db.iStartLine, zStartFile, iStartLine);
@@ -520,7 +529,7 @@ static void db_stats(Stmt *pStmt){
 */
 int db_reset(Stmt *pStmt){
   int rc;
-  db_stats(pStmt);
+  if( g.fSqlStats ){ db_stats(pStmt); }
   rc = sqlite3_reset(pStmt->pStmt);
   db_check_result(rc, pStmt);
   return rc;
@@ -537,7 +546,7 @@ int db_finalize(Stmt *pStmt){
   }
   pStmt->pNext = 0;
   pStmt->pPrev = 0;
-  db_stats(pStmt);
+  if( g.fSqlStats ){ db_stats(pStmt); }
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
   db_check_result(rc, pStmt);
@@ -1052,6 +1061,41 @@ void db_hextoblob(
 }
 
 /*
+** Return the XOR-obscured version of the input text.  Useful for
+** updating authentication strings in Fossil settings.  To change
+** the password locally stored for sync, for instance:
+**
+**    echo "UPDATE config
+**        SET value = obscure('monkey123')
+**        WHERE name = 'last-sync-pw'" |
+**      fossil sql
+**
+** Note that user.pw uses a different obscuration algorithm, but
+** you don't need to use 'fossil sql' for that anyway.  Just call
+**
+**    fossil user pass monkey123
+**
+** to change the local user entry's password in the same way.
+*/
+void db_obscure(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *zIn = sqlite3_value_text(argv[0]);
+  int nIn = sqlite3_value_bytes(argv[0]);
+  char *zOut, *zTemp;
+  if( 0==zIn ) return;
+  if( 0==(zOut = sqlite3_malloc64( nIn * 2 + 3 )) ){
+    sqlite3_result_error_nomem(context);
+    return;
+  }
+  strcpy(zOut, zTemp = obscure((char*)zIn));
+  fossil_free(zTemp);
+  sqlite3_result_text(context, zOut, strlen(zOut), sqlite3_free);
+}
+
+/*
 ** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
@@ -1078,6 +1122,8 @@ void db_add_aux_functions(sqlite3 *db){
                           alert_find_emailaddr_func, 0, 0);
   sqlite3_create_function(db, "display_name", 1, SQLITE_UTF8, 0,
                           alert_display_name_func, 0, 0);
+  sqlite3_create_function(db, "obscure", 1, SQLITE_UTF8, 0,
+                          db_obscure, 0, 0);
 }
 
 #if USE_SEE
@@ -1216,6 +1262,32 @@ void db_read_saved_encryption_key_from_process(
     fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
   }
 }
+
+/*
+** This function evaluates the specified TH1 script and attempts to parse
+** its result as a colon-delimited triplet containing a process identifier,
+** address, and size (in bytes) of the database encryption key.  This is
+** only necessary (or functional) on Windows.
+*/
+void db_read_saved_encryption_key_from_process_via_th1(
+  const char *zConfig /* The TH1 script to evaluate. */
+){
+  int rc;
+  char *zResult;
+  Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_NEED_CONFIG | TH_INIT_NO_REPO);
+  rc = Th_Eval(g.interp, 0, zConfig, -1);
+  zResult = (char*)Th_GetResult(g.interp, 0);
+  if( rc!=TH_OK ){
+    fossil_fatal("script for pid key failed: %s", zResult);
+  }
+  if( zResult ){
+    DWORD processId = 0;
+    LPVOID pAddress = NULL;
+    SIZE_T nSize = 0;
+    parse_pid_key_value(zResult, &processId, &pAddress, &nSize);
+    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+  }
+}
 #endif /* defined(_WIN32) */
 #endif /* USE_SEE */
 
@@ -1293,7 +1365,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
   db_maybe_set_encryption_key(db, zDbName);
-  sqlite3_busy_timeout(db, 5000);
+  sqlite3_busy_timeout(db, 15000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
@@ -1309,7 +1381,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
-  sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
+  sqlite3_db_config(db, SQLITE_DBCONFIG_ENABLE_FKEY, 0, &rc);
   return db;
 }
 
@@ -1327,7 +1399,7 @@ void db_detach(const char *zLabel){
 */
 void db_attach(const char *zDbName, const char *zLabel){
   Blob key;
-  if( db_table_exists(zLabel,"sqlite_master") ) return;
+  if( db_table_exists(zLabel,"sqlite_schema") ) return;
   blob_init(&key, 0, 0);
   db_maybe_obtain_encryption_key(zDbName, &key);
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
@@ -1420,6 +1492,8 @@ void db_close_config(){
     rc = sqlite3_close(g.db);
     if( g.fSqlTrace ) fossil_trace("-- db_close_config(%d)\n", rc);
     g.db = 0;
+    g.repositoryOpen = 0;
+    g.localOpen = 0;
   }else{
     return;
   }
@@ -1620,7 +1694,7 @@ static int isValidLocalDb(const char *zDbName){
   /* Check to see if the checkout database has the lastest schema changes.
   ** The most recent schema change (2019-01-19) is the addition of the
   ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
-  ** column, assume everything else is up-to-date. 
+  ** column, assume everything else is up-to-date.
   */
   if( db_table_has_column("localdb","vmerge","mhash") ){
     return 1;   /* This is a checkout database with the latest schema */
@@ -1678,11 +1752,15 @@ static int isValidLocalDb(const char *zDbName){
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
 **
+** In db_open_local_v2(), if the bRootOnly flag is true, then only
+** look in the CWD for the checkout database.  Do not scan upwards in
+** the file hierarchy.
+**
 ** This routine always opens the user database regardless of whether or
 ** not the repository database is found.  If the _FOSSIL_ or .fslckout file
 ** is found, it is attached to the open database connection too.
 */
-int db_open_local(const char *zDbName){
+int db_open_local_v2(const char *zDbName, int bRootOnly){
   int i, n;
   char zPwd[2000];
   static const char *(aDbName[]) = { "_FOSSIL_", ".fslckout", ".fos" };
@@ -1710,6 +1788,7 @@ int db_open_local(const char *zDbName){
         return 1;
       }
     }
+    if( bRootOnly ) break;
     n--;
     while( n>1 && zPwd[n]!='/' ){ n--; }
     while( n>1 && zPwd[n-1]=='/' ){ n--; }
@@ -1718,6 +1797,9 @@ int db_open_local(const char *zDbName){
 
   /* A checkout database file could not be found */
   return 0;
+}
+int db_open_local(const char *zDbName){
+  return db_open_local_v2(zDbName, 0);
 }
 
 /*
@@ -1851,7 +1933,7 @@ void db_open_repository(const char *zDbName){
       }
     }
 
-    /* Make sure the checkout database schema migration of 2019-01-20 
+    /* Make sure the checkout database schema migration of 2019-01-20
     ** has occurred.
     **
     ** The 2019-01-19 migration is the addition of the vmerge.mhash and
@@ -1868,7 +1950,7 @@ void db_open_repository(const char *zDbName){
       if( !db_table_has_column("localdb", "vmerge", "mhash") ){
         db_exec_sql("ALTER TABLE vmerge RENAME TO old_vmerge;");
         db_exec_sql(zLocalSchemaVmerge);
-        db_exec_sql(  
+        db_exec_sql(
            "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
            "  SELECT id, merge, blob.uuid FROM old_vmerge, blob"
            "   WHERE old_vmerge.merge=blob.rid;"
@@ -1891,7 +1973,7 @@ int db_repository_has_changed(void){
   unsigned int v;
   if( !g.repositoryOpen ) return 0;
   sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION, &v);
-  return g.iRepoDataVers != v;               
+  return g.iRepoDataVers != v;
 }
 
 /*
@@ -2348,7 +2430,7 @@ void db_initial_setup(
 **    --template      FILE         Copy settings from repository file
 **    --admin-user|-A USERNAME     Select given USERNAME as admin user
 **    --date-override DATETIME     Use DATETIME as time of the initial check-in
-**    --sha1                       Use a initial hash policy of "sha1"
+**    --sha1                       Use an initial hash policy of "sha1"
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -2356,7 +2438,7 @@ void db_initial_setup(
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 **
-** See also: clone
+** See also: [[clone]]
 */
 void create_repository_cmd(void){
   char *zPassword;
@@ -3040,26 +3122,47 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME ?VERSION? ?OPTIONS?
+** Usage: %fossil open REPOSITORY ?VERSION? ?OPTIONS?
 **
-** Open a connection to the local repository in FILENAME.  A checkout
-** for the repository is created with its root at the working directory.
-** If VERSION is specified then that version is checked out.  Otherwise
-** the latest version is checked out.  No files other than "manifest"
-** and "manifest.uuid" are modified if the --keep option is present.
+** Open a new connection to the repository name REPOSITORY.  A checkout
+** for the repository is created with its root at the current working
+** directory, or in DIR if the "--workdir DIR" is used.  If VERSION is
+** specified then that version is checked out.  Otherwise the most recent
+** check-in on the main branch (usually "trunk") is used.
+**
+** REPOSITORY can be the filename for a repository that already exists on the
+** local machine or it can be a URI for a remote repository.  If REPOSITORY
+** is a URI in one of the formats recognized by the [[clone]] command, then
+** remote repo is first cloned, then the clone is opened. The clone will be
+** stored in the current directory, or in DIR if the "--repodir DIR" option
+** is used. The name of the clone will be taken from the last term of the URI.
+** For "http:" and "https:" URIs, you can append an extra term to the end of
+** the URI to get any repository name you like. For example:
+**
+**     fossil open https://fossil-scm.org/home/new-name
+**
+** The base URI for cloning is "https://fossil-scm.org/home".  The extra
+** "new-name" term means that the cloned repository will be called
+** "new-name.fossil".
 **
 ** Options:
 **   --empty           Initialize checkout as being empty, but still connected
 **                     with the local repository. If you commit this checkout,
 **                     it will become a new "initial" commit in the repository.
+**   --force           Continue with the open even if the working directory is
+**                     not empty.
+**   --force-missing   Force opening a repository with missing content
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
-**   --force-missing   Force opening a repository with missing content
+**   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
+**                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
+**   --workdir DIR     Use DIR as the working directory instead of ".". The DIR
+**                     directory is created if it does not exist.
 **
-** See also: close
+** See also: [[close]], [[clone]]
 */
 void cmd_open(void){
   int emptyFlag;
@@ -3070,7 +3173,13 @@ void cmd_open(void){
   int allowSymlinks;
 #endif
   int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
+  int bForce = 0;                /* --force.  Open even if non-empty dir */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
+  const char *zWorkDir;          /* --workdir value */
+  const char *zRepo = 0;         /* Name of the repository file */
+  const char *zRepoDir = 0;      /* --repodir value */
+  char *zPwd;                    /* Initial working directory */
+  int isUri = 0;                 /* True if REPOSITORY is a URI */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3078,6 +3187,11 @@ void cmd_open(void){
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+  zWorkDir = find_option("workdir",0,1);
+  zRepoDir = find_option("repodir",0,1);
+  bForce = find_option("force",0,0)!=0;  
+  zPwd = file_getcwd(0,0);
+  
 
   /* We should be done with options.. */
   verify_all_options();
@@ -3085,10 +3199,79 @@ void cmd_open(void){
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
-  if( !allowNested && db_open_local(0) ){
-    fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
+  zRepo = g.argv[2];
+  if( sqlite3_strglob("http://*", zRepo)==0
+   || sqlite3_strglob("https://*", zRepo)==0
+   || sqlite3_strglob("ssh:*", zRepo)==0
+   || sqlite3_strglob("file:*", zRepo)==0
+  ){
+    isUri = 1;
   }
-  db_open_repository(g.argv[2]);
+
+  /* If --workdir is specified, change to the requested working directory */
+  if( zWorkDir ){
+    if( !isUri ){
+      zRepo = file_canonical_name_dup(zRepo);
+    }
+    if( zRepoDir ){
+      zRepoDir = file_canonical_name_dup(zRepoDir);
+    }
+    if( file_isdir(zWorkDir, ExtFILE)!=1 ){
+      file_mkfolder(zWorkDir, ExtFILE, 0, 0);
+      if( file_mkdir(zWorkDir, ExtFILE, 0) ){
+        fossil_fatal("cannot create directory %s", zWorkDir);
+      }
+    }
+    if( file_chdir(zWorkDir, 0) ){
+      fossil_fatal("unable to make %s the working directory", zWorkDir);
+    }
+  }
+  if( keepFlag==0 && bForce==0 && file_directory_size(".", 0, 1)>0 ){
+    fossil_fatal("directory %s is not empty\n"
+                 "use the --force option to override", file_getcwd(0,0));
+  }
+
+  if( db_open_local_v2(0, allowNested) ){
+    fossil_fatal("there is already an open tree at %s", g.zLocalRoot);
+  }
+
+  /* If REPOSITORY looks like a URI, then try to clone it first */
+  if( isUri ){
+    char *zNewBase;   /* Base name of the cloned repository file */
+    const char *zUri; /* URI to clone */
+    int i;            /* Loop counter */
+    int rc;           /* Result code from fossil_system() */
+    Blob cmd;         /* Clone command to be run */
+    char *zCmd;       /* String version of the clone command */
+
+    zUri = zRepo;
+    zNewBase = fossil_strdup(file_tail(zUri));
+    for(i=(int)strlen(zNewBase)-1; i>1 && zNewBase[i]!='.'; i--){}
+    if( zNewBase[i]=='.' ) zNewBase[i] = 0;
+    if( zRepoDir==0 ) zRepoDir = zPwd;
+    zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
+    fossil_free(zNewBase);
+    blob_init(&cmd, 0, 0);
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append(&cmd, " clone", -1);
+    blob_append_escaped_arg(&cmd, zUri);
+    blob_append_escaped_arg(&cmd, zRepo);
+    zCmd = blob_str(&cmd);
+    fossil_print("%s\n", zCmd);
+    if( zWorkDir ) file_chdir(zPwd, 0);
+    rc = fossil_system(zCmd);
+    if( rc ){
+      fossil_fatal("clone of %s failed", zUri);
+    }
+    blob_reset(&cmd);
+    if( zWorkDir ) file_chdir(zWorkDir, 0);
+  }else if( zRepoDir ){
+    fossil_fatal("the --repodir option only makes sense if the REPOSITORY "
+                 "argument is a URI that begins with http:, https:, ssh:, "
+                 "or file:");
+  }
+
+  db_open_repository(zRepo);
 
   /* Figure out which revision to open. */
   if( !emptyFlag ){
@@ -3145,8 +3328,8 @@ void cmd_open(void){
                                      db_allow_symlinks_by_default());
   }
 #endif /* FOSSIL_LEGACY_ALLOW_SYMLINKS */
-  db_lset("repository", g.argv[2]);
-  db_record_repository_filename(g.argv[2]);
+  db_lset("repository", zRepo);
+  db_record_repository_filename(zRepo);
   db_set_checkout(0);
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
@@ -3486,6 +3669,15 @@ struct Setting {
 ** gdiff), use relative paths.
 */
 #endif
+
+/*
+** SETTING: fileedit-glob       width=40 block-text
+** A comma- or newline-separated list of globs of filenames
+** which are allowed to be edited using the /fileedit page.
+** An empty list prohibits editing via that page. Note that
+** it cannot edit binary files, so the list should not
+** contain any globs for, e.g., images or PDFs.
+*/
 /*
 ** SETTING: gdiff-command    width=40 default=gdiff
 ** The value is an external command to run when performing a graphical
@@ -3556,7 +3748,7 @@ struct Setting {
 **
 ** For maximum security, set "localauth" to 1.  However, because
 ** of the other restrictions (2) through (4), it should be safe
-** to leave "localauth" set to 0 in most installations, and 
+** to leave "localauth" set to 0 in most installations, and
 ** especially on cloned repositories on workstations. Leaving
 ** "localauth" at 0 makes the "fossil ui" command more convenient
 ** to use.
@@ -3619,7 +3811,6 @@ struct Setting {
 ** are hashed to detect changes, which can be slow for large
 ** projects.
 */
-#if FOSSIL_ENABLE_LEGACY_MV_RM
 /*
 ** SETTING: mv-rm-files      boolean default=off
 ** If enabled, the "mv" and "rename" commands will also move
@@ -3627,7 +3818,6 @@ struct Setting {
 ** and "delete" commands will also remove the associated
 ** files from within the checkout.
 */
-#endif
 /*
 ** SETTING: pgp-command      width=40
 ** Command used to clear-sign manifests at check-in.
@@ -3635,7 +3825,12 @@ struct Setting {
 */
 /*
 ** SETTING: forbid-delta-manifests    boolean default=off
-** If enabled, new delta manifests are prohibited.
+** If enabled on a client, new delta manifests are prohibited on
+** commits.  If enabled on a server, whenever a client attempts
+** to obtain a check-in lock during auto-sync, the server will 
+** send the "pragma avoid-delta-manifests" statement in its reply,
+** which will cause the client to avoid generating a delta
+** manifest.
 */
 /*
 ** SETTING: proxy            width=32 default=off
@@ -3869,7 +4064,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **   --exact    only consider exact name matches.
 **
-** See also: configuration
+** See also: [[configuration]]
 */
 void setting_cmd(void){
   int i;
@@ -3988,6 +4183,8 @@ void test_timespan_cmd(void){
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);
   g.db = 0;
+  g.repositoryOpen = 0;
+  g.localOpen = 0;
 }
 
 /*
@@ -4014,7 +4211,7 @@ void test_without_rowid(void){
     db_open_or_attach(g.argv[i], "main");
     blob_init(&allSql, "BEGIN;\n", -1);
     db_prepare(&q,
-      "SELECT name, sql FROM main.sqlite_master "
+      "SELECT name, sql FROM main.sqlite_schema "
       " WHERE type='table' AND sql NOT LIKE '%%WITHOUT ROWID%%'"
       "   AND name IN ('global_config','shun','concealed','config',"
                     "  'plink','tagxref','backlink','vcache');"
@@ -4137,7 +4334,7 @@ void test_database_name_cmd(void){
 ** are no security concerns - this is just a checksum, not a security
 ** token.
 */
-char *db_fingerprint(int rcvid, int iVersion){ 
+char *db_fingerprint(int rcvid, int iVersion){
   char *z = 0;
   Blob sql = BLOB_INITIALIZER;
   Stmt q;
@@ -4193,14 +4390,14 @@ void test_fingerprint(void){
     rcvid = atoi(g.argv[2]);
   }else if( g.argc!=2 ){
     fossil_fatal("wrong number of arguments");
-  } 
+  }
   fossil_print("legacy:              %z\n", db_fingerprint(rcvid, 0));
   fossil_print("version-1:           %z\n", db_fingerprint(rcvid, 1));
   if( g.localOpen ){
     fossil_print("localdb:             %z\n", db_lget("fingerprint","(none)"));
     fossil_print("db_fingerprint_ok(): %d\n", db_fingerprint_ok());
   }
-  fossil_print("Fossil version:      %s - %.10s %.19s\n", 
+  fossil_print("Fossil version:      %s - %.10s %.19s\n",
     RELEASE_VERSION, MANIFEST_DATE, MANIFEST_UUID);
 }
 
@@ -4252,7 +4449,7 @@ int db_fingerprint_ok(void){
     zRepo = db_fingerprint(atoi(zCkout), 0);
     rc = fossil_strcmp(zCkout,zRepo)==0;
     fossil_free(zRepo);
-  }  
+  }
   fossil_free(zCkout);
   return rc;
 }

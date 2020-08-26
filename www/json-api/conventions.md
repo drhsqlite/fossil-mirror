@@ -586,7 +586,8 @@ knows which part of the request was valid/invalid):
 - `FOSSIL-3002`: Required argument(s)/parameter(s) missing from
   request
 - `FOSSIL-3003`: Requested resource identifier is ambiguous (e.g. a
-  shortened UUID can be ambiguous).
+  shortened hash that matches multiple artifacts, an abbreviated
+  date that matches multiple commits, etc.)
 - `FOSSIL-3004`: Unresolved resource identifier. A branch/tag/uuid
   provided by client code could not be resolved. This is a special
   case of #3006.

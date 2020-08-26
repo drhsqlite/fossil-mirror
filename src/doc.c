@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -149,7 +149,7 @@ static const struct {
   { "jpe",        3, "image/jpeg"                        },
   { "jpeg",       4, "image/jpeg"                        },
   { "jpg",        3, "image/jpeg"                        },
-  { "js",         2, "application/x-javascript"          },
+  { "js",         2, "application/javascript"            },
   { "kar",        3, "audio/midi"                        },
   { "latex",      5, "application/x-latex"               },
   { "lha",        3, "application/octet-stream"          },
@@ -1134,25 +1134,30 @@ void background_page(void){
 /*
 ** WEBPAGE: favicon.ico
 **
-** Return the default favicon.ico image.  The returned image is for the
-** Fossil lizard icon.
+** Return the configured "favicon.ico" image.  If no "favicon.ico" image
+** is defined, the returned image is for the Fossil lizard icon.
 **
-** The intended use case here is to supply a favicon for the "fossil ui"
+** The intended use case here is to supply an icon for the "fossil ui"
 ** command.  For a permanent website, the recommended process is for
-** the admin to set up a project-specific favicon and reference that
-** icon in the HTML header using a line like:
+** the admin to set up a project-specific icon and reference that icon
+** in the HTML header using a line like:
 **
 **   <link rel="icon" href="URL-FOR-YOUR-ICON" type="MIMETYPE"/>
 ** 
 */
 void favicon_page(void){
-  Blob favicon;
+  Blob icon;
+  char *zMime;
 
   etag_check(ETAG_CONFIG, 0);
-  blob_zero(&favicon);
-  blob_init(&favicon, (char*)aLogo, sizeof(aLogo));
-  cgi_set_content_type("image/gif");
-  cgi_set_content(&favicon);
+  zMime = db_get("icon-mimetype", "image/gif");
+  blob_zero(&icon);
+  db_blob(&icon, "SELECT value FROM config WHERE name='icon-image'");
+  if( blob_size(&icon)==0 ){
+    blob_init(&icon, (char*)aLogo, sizeof(aLogo));
+  }
+  cgi_set_content_type(zMime);
+  cgi_set_content(&icon);
 }
 
 /*

@@ -9,8 +9,8 @@
 <li> Tag name
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
-<li> <b>root :</b> <i>branchname</i>
-<li> <b>merge-in :</b> <i>branchname</i>
+<li> <b>root <big>:</big></b> <i>branchname</i>
+<li> <b>merge-in <big>:</big></b> <i>branchname</i>
 <li> Special names:
 <ul>
 <li> <b>tip</b>
@@ -44,7 +44,7 @@ determines which version of the documentation to display.
 Fossil provides a variety of ways to specify a check-in.  This
 document describes the various methods.
 
-<h2>Canonical Check-in Name</h2>
+<h2 id="canonical">Canonical Check-in Name</h2>
 
 The canonical name of a check-in is the hash of its
 [./fileformat.wiki#manifest | manifest] expressed as a 40-or-more character
@@ -69,7 +69,7 @@ fossil info e5a7
 Many web-interface screens identify check-ins by 10- or 16-character
 prefix of canonical name.
 
-<h2>Tags And Branch Names</h2>
+<h2 id="tags">Tags And Branch Names</h2>
 
 Using a tag or branch name where a check-in name is expected causes
 Fossil to choose the most recent check-in with that tag or branch name.
@@ -102,6 +102,7 @@ is not anything special; it is simply a sequence of check-ins that
 share a common tag.  So the same mechanism that resolves tag names
 also resolves branch names.
 
+<a id="tagpfx"></a>
 Note also that there can (in theory) be an ambiguity between tag names
 and canonical names.  Suppose, for example, you had a check-in with
 the canonical name deed28aa99a835f01fa06d5b4a41ecc2121bf419 and you
@@ -118,7 +119,7 @@ The "tag:deed2" name will refer to the most recent check-in
 tagged with "deed2" not to the
 check-in whose canonical name begins with "deed2".
 
-<h2>Whole Branches</h2>
+<h2 id="whole-branches">Whole Branches</h2>
 
 Usually when a branch name is specified, it means the latest check-in on
 that branch.  But for some commands (ex: [/help/purge|purge]) a branch name
@@ -139,7 +140,7 @@ back down the branch looking for the first check-in of that branch.
 
 Again, this behavior only occurs on a few commands where it make sense.
 
-<h2>Timestamps</h2>
+<h2 id="timestamps">Timestamps</h2>
 
 A timestamp in one of the formats shown below means the most recent
 check-in that occurs no later than the timestamp given:
@@ -172,6 +173,14 @@ everything, but if Fossil has been switched to local time mode, then the
 "<b>Z</b>" suffix means to interpret that particular timestamp using
 UTC instead of local time.
 
+You may prefix a timestamp with the string “date:”, in which case
+processing stops immediately, whether the string is parsed correctly and
+refers to anything within the repository or not. The prefix is therefore
+useful when the date could be misinterpreted as a tag. For example, a
+repo could have release tags like “2020-04-01”, the date the release was
+cut, but you could force Fossil to interpret that string as a date
+rather than as a tag by passing “date:2020-04-01”.
+
 For an example of how timestamps are useful,
 consider the homepage for the Fossil website itself:
 
@@ -187,7 +196,7 @@ the URL to the following:
 http://www.fossil-scm.org/fossil/doc/<b>2009-01-01</b>/www/index.wiki
 </blockquote>
 
-<h2>Tag And Timestamp</h2>
+<h2 id="tag-ts">Tag And Timestamp</h2>
 
 A check-in name can also take the form of a tag or branch name followed by
 a colon and then a timestamp.  The combination means to take the most
@@ -202,7 +211,7 @@ Would cause Fossil to update the working check-out to be the most recent
 check-in on the trunk that is not more recent that 14:30 (UTC) on
 July 1, 2010.
 
-<h2>Root Of A Branch</h2>
+<h2 id="root">Root Of A Branch</h2>
 
 A branch name that begins with the "<tt>root:</tt>" prefix refers to the
 last check-in in the parent branch prior to the beginning of the branch.
@@ -214,6 +223,7 @@ branch "xyzzy":
 fossil diff --from root:xyzzy --to xyzzy
 </blockquote>
 
+<a id="merge-in"></a>
 A branch name that begins with the "<tt>merge-in:</tt>" prefix refers not
 to the root of the branch, but to the most recent merge-in for that branch
 from its parent.  The most recent merge-in is the version to diff the branch
@@ -221,24 +231,36 @@ against in order to see all changes in just the branch itself, omitting
 any changes that have already been merged in from the parent branch.
 
 
-<h2>Special Tags</h2>
+<h2 id="special">Special Tags</h2>
 
 The tag "tip" means the most recent check-in.  The "tip" tag is roughly
 equivalent to the timestamp tag "5000-01-01".
 
-If the command is being run from a working check-out (not against a bare
-repository) then a few extra tags apply.  The "current" tag means the
-current check-out.  The "next" tag means the youngest child of the
-current check-out.  And the "previous" or "prev" tag means the primary
-(non-merge) parent of the current check-out.
+This special name works anywhere you can pass a "NAME", such as in in
+<tt>/info</tt> URLs:
 
-For embedded documentation, the tag "ckout" means the version as present in
-the local source tree on disk, provided that the web server is started using
-"fossil ui" or "fossil server" from within the source tree. This tag can be
-used to preview local changes to documentation before committing them. It does
-not apply to CLI commands.
+<blockquote><pre>
+http://localhost:8080/info/tip
+</pre></blockquote>
 
-<h2>Additional Examples</h2>
+There are several other special names, but they only work from within a
+check-out directory because they are relative to the current checked-out
+version:
+
+  *  "current": the current checked-out version
+  *  "next": the youngest child of the current checked-out version
+  *  "previous" or "prev": the primary (non-merge) parent of "current"
+
+Therefore, you can use these names in a <tt>fossil info</tt> command,
+but not in an <tt>/info</tt> URL, for example.
+
+For embedded documentation URLs only, there is one more special name,
+"ckout". See [./embeddeddoc.wiki#ckout | its coverage elsewhere] for
+more details. You cannot currently use "ckout" anywhere other than in
+<tt>/doc</tt> URLs.
+
+
+<h2 id="examples">Additional Examples</h2>
 
 To view the changes in the most recent check-in prior to the version currently
 checked out:
@@ -253,3 +275,21 @@ Then to see everything that has changed on the trunk since the last release:
 <blockquote><pre>
 fossil diff --from release --to trunk
 </pre></blockquote>
+
+
+<h2 id="order">Resolution Order</h2>
+
+Fossil currently resolves name strings to artifact hashes in the
+following order:
+
+  #  Exact matches on [#special | the special names]
+  #  [#timestamps | Timestamps], with preference to ISO8601 forms
+  #  [#tagpfx | tag:TAGNAME]
+  #  [#root | root:BRANCH]
+  #  [#merge-in | merge-in:BRANCH]
+  #  [#tag-ts | TAG:timestamp]
+  #  Full artifact hash or hash prefix.
+  #  Any other type of symbolic name that Fossil extracts from
+     blockchain artifacts.
+
+<div style="height:40em" id="this-space-intentionally-left-blank"></div>

@@ -65,7 +65,7 @@ void hyperlink_to_event_tagid(int tagid){
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
-  char *zUuid;             /* UUID corresponding to rid */
+  char *zUuid;             /* artifact hash corresponding to rid */
   const char *zId;         /* Event identifier */
   const char *zVerbose;    /* Value of verbose option */
   char *zETime;            /* Time of the tech-note */
@@ -510,6 +510,7 @@ void eventedit_page(void){
     @ <blockquote>
     blob_init(&event, 0, 0);
     blob_append(&event, zBody, -1);
+    safe_html_context(DOCSRC_WIKI);
     wiki_render_by_mimetype(&event, zMimetype);
     @ </blockquote><hr />
     blob_reset(&event);

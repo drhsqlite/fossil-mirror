@@ -1044,6 +1044,7 @@ int file_simplify_name(char *z, int n, int slash){
   int i = 1, j;
   assert( z!=0 );
   if( n<0 ) n = strlen(z);
+  if( n==0 ) return 0;
 
   /* On windows and cygwin convert all \ characters to /
    * and remove extended path prefix if present */
@@ -1181,6 +1182,8 @@ int file_is_absolute_path(const char *zPath){
 ** Convert /A/../ to just /
 ** If the slash parameter is non-zero, the trailing slash, if any,
 ** is retained.
+**
+** See also: file_canonical_name_dup()
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
   blob_zero(pOut);
@@ -1215,6 +1218,21 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 #endif
   blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
                                        blob_size(pOut), slash));
+}
+
+/*
+** Compute the canonical name of a file.  Store that name in
+** memory obtained from fossil_malloc() and return a pointer to the
+** name.
+**
+** See also: file_canonical_name()
+*/
+char *file_canonical_name_dup(const char *zOrigName){
+  Blob x;
+  if( zOrigName==0 ) return 0;
+  blob_init(&x, 0, 0);
+  file_canonical_name(zOrigName, &x, 0);
+  return blob_str(&x);
 }
 
 /*

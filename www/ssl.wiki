@@ -123,8 +123,18 @@ server. Verify the certificate fingerprint is correct, then answer
 
 If you are cloning from or syncing to Fossil servers that use a
 certificate signed by a well-known CA or one of its delegates, Fossil
-still has to know which CA roots to trust. When this fails, you get a
-big long error message that starts with this text:
+still has to know which CA roots to trust. When this fails, you get an
+error message that looks like this in Fossil 2.11 and newer:
+
+<pre>
+    Unable to verify SSL cert from www.fossil-scm.org
+      subject: CN = sqlite.org
+      issuer:  C = US, O = Let's Encrypt, CN = Let's Encrypt Authority X3
+      sha256:  bf26092dd97df6e4f7bf1926072e7e8d200129e1ffb8ef5276c1e5dd9bc95d52
+    accept this cert and continue (y/N)?
+</pre>
+
+In older versions, the message was much longer and began with this line:
 
 <pre>
     SSL verification failed: unable to get local issuer certificate

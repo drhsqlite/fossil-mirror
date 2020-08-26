@@ -38,6 +38,8 @@
 
   th.fep {
     background-color: #e8e8e8;
+    font-family: "Helvetica Neue", "Arial Narrow", "Myriad Pro", "Avenir Next Condensed";
+    font-stretch: condensed;
     min-width: 3em;
     padding: 0.4em;
     white-space: nowrap;
@@ -45,6 +47,8 @@
 
   th.host {
     background-color: #e8e8e8;
+    font-family: "Helvetica Neue", "Arial Narrow", "Myriad Pro", "Avenir Next Condensed";
+    font-stretch: condensed;
     padding: 0.4em;
     text-align: right;
   }
@@ -199,53 +203,71 @@ particular operating systems or front-end software:</p>
         <th class="fep">stunnel</th>
         <th class="fep">CGI</th>
         <th class="fep">SCGI</th>
+        <th class="fep">FastCGI</th>
         <th class="fep">althttpd</th>
         <th class="fep">proxy</th>
         <th class="fep">service</th>
     </tr>
 
     <tr>
-        <th class="host">Any</th>
+        <th class="host"><a href="any/">Any</a></th>
         <td class="doc"><a href="any/none.md">✅</a></td>
         <td class="doc"><a href="any/inetd.md">✅</a></td>
         <td class="doc"><a href="any/stunnel.md">✅</a></td>
         <td class="doc"><a href="any/cgi.md">✅</a></td>
         <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc">❌</td>
         <td class="doc"><a href="any/althttpd.md">✅</a></td>
         <td class="doc">❌</td>
         <td class="doc">❌</td>
     </tr>
 
     <tr>
-        <th class="host">Debian/Ubuntu</th>
+        <th class="host"><a href="debian/">Debian/Ubuntu</a></th>
         <td class="doc"><a href="any/none.md">✅</a></td>
         <td class="doc"><a href="any/inetd.md">✅</a></td>
         <td class="doc"><a href="any/stunnel.md">✅</a></td>
         <td class="doc"><a href="any/cgi.md">✅</a></td>
         <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc">❌</td>
         <td class="doc"><a href="any/althttpd.md">✅</a></td>
         <td class="doc"><a href="debian/nginx.md">✅</a></td>
         <td class="doc"><a href="debian/service.md">✅</a></td>
     </tr>
 
     <tr>
-        <th class="host">macOS</th>
+        <th class="host"><a href="macos/">macOS</a></th>
         <td class="doc"><a href="any/none.md">✅</a></td>
         <td class="doc">❌</td>
         <td class="doc"><a href="any/stunnel.md">✅</a></td>
         <td class="doc"><a href="any/cgi.md">✅</a></td>
         <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc">❌</td>
         <td class="doc"><a href="any/althttpd.md">✅</a></td>
         <td class="doc">❌</td>
         <td class="doc"><a href="macos/service.md">✅</a></td>
     </tr>
 
     <tr>
-        <th class="host">Windows</th>
+        <th class="host"><a href="openbsd/">OpenBSD</a></th>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="openbsd/fastcgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+    </tr>
+
+    <tr>
+        <th class="host"><a href="windows/">Windows</a></th>
         <td class="doc"><a href="windows/none.md">✅</a></td>
         <td class="doc">❌</td>
         <td class="doc"><a href="windows/stunnel.md">✅</a></td>
         <td class="doc"><a href="windows/cgi.md">✅</a></td>
+        <td class="doc">❌</td>
         <td class="doc">❌</td>
         <td class="doc">❌</td>
         <td class="doc"><a href="windows/iis.md">✅</a></td>

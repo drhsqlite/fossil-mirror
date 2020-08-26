@@ -90,10 +90,6 @@ static int submenuEnable = 1;
 ** Flags for various javascript files needed prior to </body>
 */
 static int needHrefJs = 0;      /* href.js */
-static int needSortJs = 0;      /* sorttable.js */
-static int needGraphJs = 0;     /* graph.js */
-static int needCopyBtnJs = 0;   /* copybtn.js */
-static int needAccordionJs = 0; /* accordion.js */
 
 /*
 ** Extra JS added to the end of the file.
@@ -342,8 +338,8 @@ static int submenuCompare(const void *a, const void *b){
   return fossil_strcmp(A->zLabel, B->zLabel);
 }
 
-/* Use this for the $current_page variable if it is not NULL.  If it is
-** NULL then use g.zPath.
+/* Use this for the $current_page variable if it is not NULL.  If it
+** is NULL then use g.zPath.
 */
 static char *local_zCurrentPage = 0;
 
@@ -363,8 +359,9 @@ void style_set_current_page(const char *zFormat, ...){
 }
 
 /*
-** Create a TH1 variable containing the URL for the specified config resource.
-** The resulting variable name will be of the form $[zVarPrefix]_url.
+** Create a TH1 variable containing the URL for the specified config
+** resource. The resulting variable name will be of the form
+** $[zVarPrefix]_url.
 */
 static void url_var(
   const char *zVarPrefix,
@@ -372,11 +369,25 @@ static void url_var(
   const char *zPageName
 ){
   char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zUrl = mprintf("%R/%s?id=%x", zPageName,
-                       skin_id(zConfigName));
+  char *zUrl = 0;              /* stylesheet URL */
+  int hasBuiltin = 0;          /* true for built-in page-specific CSS */
+
+  if(0==strcmp("css",zConfigName)){
+    /* Account for page-specific CSS, appending a /{{g.zPath}} to the
+    ** url only if we have a corresponding built-in page-specific CSS
+    ** file. Do not append it to all pages because we would
+    ** effectively cache-bust all pages which do not have
+    ** page-specific CSS. */
+    char * zBuiltin = mprintf("style.%s.css", g.zPath);
+    hasBuiltin = builtin_file(zBuiltin,0)!=0;
+    fossil_free(zBuiltin);
+  }
+  zUrl = mprintf("%R/%s%s%s?id=%x", zPageName,
+                 hasBuiltin ? "/" : "", hasBuiltin ? g.zPath : "",
+                 skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
-  free(zUrl);
-  free(zVarName);
+  fossil_free(zUrl);
+  fossil_free(zVarName);
 }
 
 /*
@@ -471,7 +482,7 @@ char *style_copy_button(
     }
   }
   free(zText);
-  style_copybutton_control();
+  builtin_request_js("copybtn.js");
   return zResult;
 }
 
@@ -681,62 +692,13 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
 ** Indicate that the table-sorting javascript is needed.
 */
 void style_table_sorter(void){
-  needSortJs = 1;
-}
-
-/*
-** Indicate that the accordion javascript is needed.
-*/
-void style_accordion(void){
-  needAccordionJs = 1;
-}
-
-/*
-** Indicate that the timeline graph javascript is needed.
-*/
-void style_graph_generator(void){
-  needGraphJs = 1;
-}
-
-/*
-** Indicate that the copy button javascript is needed.
-*/
-void style_copybutton_control(void){
-  needCopyBtnJs = 1;
-}
-
-/*
-** Generate code to load a single javascript file
-*/
-void style_load_one_js_file(const char *zFile){
-  @ <script src='%R/builtin/%s(zFile)?id=%S(fossil_exe_id())'></script>
-}
-
-/*
-** All extra JS files to load.
-*/
-static const char *azJsToLoad[4];
-static int nJsToLoad = 0;
-
-/*
-** Register a new JS file to load at the end of the document.
-*/
-void style_load_js(const char *zName){
-  int i;
-  for(i=0; i<nJsToLoad; i++){
-    if( fossil_strcmp(zName, azJsToLoad[i])==0 ) return;
-  }
-  if( nJsToLoad>=sizeof(azJsToLoad)/sizeof(azJsToLoad[0]) ){
-    fossil_panic("too many JS files");
-  }
-  azJsToLoad[nJsToLoad++] = zName;
+  builtin_request_js("sorttable.js");
 }
 
 /*
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
-  int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
@@ -749,22 +711,8 @@ static void style_load_all_js_files(void){
   @ if(n){n.textContent=msg;}
   @ }
   if( needHrefJs ){
+    @ /* href.js */
     cgi_append_content(builtin_text("href.js"),-1);
-  }
-  if( needSortJs ){
-    cgi_append_content(builtin_text("sorttable.js"),-1);
-  }
-  if( needGraphJs ){
-    cgi_append_content(builtin_text("graph.js"),-1);
-  }
-  if( needCopyBtnJs ){
-    cgi_append_content(builtin_text("copybtn.js"),-1);
-  }
-  if( needAccordionJs ){
-    cgi_append_content(builtin_text("accordion.js"),-1);
-  }
-  for(i=0; i<nJsToLoad; i++){
-    cgi_append_content(builtin_text(azJsToLoad[i]),-1);
   }
   if( blob_size(&blobOnLoad)>0 ){
     @ window.onload = function(){
@@ -772,16 +720,7 @@ static void style_load_all_js_files(void){
     cgi_append_content("\n}\n", -1);
   }
   @ </script>
-}
-
-/*
-** Extra JS to run after all content is loaded.
-*/
-void style_js_onload(const char *zFormat, ...){
-  va_list ap;
-  va_start(ap, zFormat);
-  blob_vappendf(&blobOnLoad, zFormat, ap);
-  va_end(ap);
+  builtin_fulfill_js_requests();
 }
 
 /*
@@ -903,7 +842,7 @@ void style_footer(void){
       cgi_query_parameters_to_hidden();
       cgi_tag_query_parameter(0);
       @ </form>
-      style_load_one_js_file("menu.js");
+      builtin_request_js("menu.js");
     }
   }
 
@@ -975,29 +914,6 @@ void style_sidebox_end(void){
 }
 
 /*
-** Insert the cssDefaultList[] table, generated from default_css.txt
-** using the mkcss.c program.
-*/
-#include "default_css.h"
-
-/*
-** Append all of the default CSS to the CGI output.
-*/
-void cgi_append_default_css(void) {
-  int i;
-
-  cgi_printf("%s", builtin_text("skins/default/css.txt"));
-  for( i=0; cssDefaultList[i].elementClass; i++ ){
-    if( cssDefaultList[i].elementClass[0] ){
-      cgi_printf("%s {\n%s\n}\n\n",
-                 cssDefaultList[i].elementClass,
-                 cssDefaultList[i].value
-                );
-    }
-  }
-}
-
-/*
 ** Search string zCss for zSelector.
 **
 ** Return true if found.  Return false if not found
@@ -1026,6 +942,11 @@ static int containsSelector(const char *zCss, const char *zSelector){
 ** Usage: %fossil test-contains-selector FILENAME SELECTOR
 **
 ** Determine if the CSS stylesheet FILENAME contains SELECTOR.
+**
+** Note that as of 2020-05-28, the default rules are always emitted,
+** so the containsSelector() logic is no longer applied when emitting
+** style.css. It is unclear whether this test command is now obsolete
+** or whether it may still serve a purpose.
 */
 void contains_selector_cmd(void){
   int found;
@@ -1058,6 +979,43 @@ void page_script_js(void){
   Th_Render(zScript?zScript:"");
 }
 
+/*
+** If one of the "name" or "page" URL parameters (in that order)
+** is set then this function looks for page/page group-specific
+** CSS and (if found) appends it to pOut, else it is a no-op.
+*/
+static void page_style_css_append_page_style(Blob *pOut){
+  const char *zPage = PD("name",P("page"));
+  char * zFile;
+  int nFile = 0;
+  const char *zBuiltin;
+
+  if(zPage==0 || zPage[0]==0){
+    return;
+  }
+  zFile = mprintf("style.%s.css", zPage);
+  zBuiltin = (const char *)builtin_file(zFile, &nFile);
+  if(nFile>0){
+    blob_appendf(pOut,
+      "\n/***********************************************************\n"
+      "** Start of page-specific CSS for page %s...\n"
+      "***********************************************************/\n",
+      zPage);
+    blob_append(pOut, zBuiltin, nFile);
+    blob_appendf(pOut,
+      "\n/***********************************************************\n"
+      "** End of page-specific CSS for page %s.\n"
+      "***********************************************************/\n",
+      zPage);
+    fossil_free(zFile);
+    return;
+  }
+  /* Potential TODO: check for aliases/page groups. e.g. group all
+  ** /forumXYZ CSS into one file, all /setupXYZ into another, etc. As
+  ** of this writing, doing so would only shave a few kb from
+  ** default.css. */
+  fossil_free(zFile);
+}
 
 /*
 ** WEBPAGE: style.css
@@ -1065,34 +1023,23 @@ void page_script_js(void){
 ** Return the style sheet.
 */
 void page_style_css(void){
-  Blob css;
+  Blob css = empty_blob;
   int i;
-  int isInit = 0;
+  const char * zDefaults;
 
   cgi_set_content_type("text/css");
-  blob_init(&css,skin_get("css"),-1);
-
-  /* add special missing definitions */
-  for(i=1; cssDefaultList[i].elementClass; i++){
-    char *z = blob_str(&css);
-    if( !containsSelector(z, cssDefaultList[i].elementClass) ){
-      if( !isInit ){
-        isInit = 1;
-        blob_append(&css,
-          "\n/***********************************************************\n"
-          "** All CSS above is supplied by the repository \"skin\".\n"
-          "** That which follows is generated automatically by Fossil\n"
-          "** to fill in needed selectors that are missing from the\n"
-          "** \"skin\" CSS.\n"
-          "***********************************************************/\n",
-          -1);
-      }
-      blob_appendf(&css, "%s {\n%s}\n",
-          cssDefaultList[i].elementClass,
-          cssDefaultList[i].value);
-    }
-  }
-
+  etag_check(0, 0);
+  /* Emit all default rules... */
+  zDefaults = (const char*)builtin_file("default.css", &i);
+  blob_append(&css, zDefaults, i);
+  /* Page-specific CSS, if any... */
+  page_style_css_append_page_style(&css);
+  blob_append(&css,
+     "\n/***********************************************************\n"
+     "** All CSS which follows is supplied by the repository \"skin\".\n"
+     "***********************************************************/\n",
+     -1);
+  blob_append(&css,skin_get("css"),-1);
   /* Process through TH1 in order to give an opportunity to substitute
   ** variables such as $baseurl.
   */
@@ -1105,42 +1052,6 @@ void page_style_css(void){
 
   /* Tell CGI that the content returned by this page is considered cacheable */
   g.isConst = 1;
-}
-
-/*
-** WEBPAGE: builtin
-** URL:  builtin/FILENAME
-**
-** Return the built-in text given by FILENAME.  This is used internally 
-** by many Fossil web pages to load built-in javascript files.
-**
-** If the id= query parameter is present, then Fossil assumes that the
-** result is immutable and sets a very large cache retention time (1 year).
-*/
-void page_builtin_text(void){
-  Blob out;
-  const char *zName = P("name");
-  const char *zTxt = 0;
-  const char *zId = P("id");
-  int nId;
-  if( zName ) zTxt = builtin_text(zName);
-  if( zTxt==0 ){
-    cgi_set_status(404, "Not Found");
-    @ File "%h(zName)" not found
-    return;
-  }
-  if( sqlite3_strglob("*.js", zName)==0 ){
-    cgi_set_content_type("application/javascript");
-  }else{
-    cgi_set_content_type("text/plain");
-  }
-  if( zId && (nId = (int)strlen(zId))>=8 && strncmp(zId,MANIFEST_UUID,nId)==0 ){
-    g.isConst = 1;
-  }else{
-    etag_check(0,0);
-  }
-  blob_init(&out, zTxt, -1);
-  cgi_set_content(&out);
 }
 
 /*
@@ -1298,3 +1209,356 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 #if INTERFACE
 # define webpage_assert(T) if(!(T)){webpage_assert_page(__FILE__,__LINE__,#T);}
 #endif
+
+/*
+** Returns a pseudo-random input field ID, for use in associating an
+** ID-less input field with a label. The memory is owned by the
+** caller.
+*/
+static char * style_next_input_id(){
+  static int inputID = 0;
+  ++inputID;
+  return mprintf("input-id-%d", inputID);
+}
+
+/*
+** Outputs a labeled checkbox element. zWrapperId is an optional ID
+** value for the containing element (see below). zFieldName is the
+** form element name. zLabel is the label for the checkbox. zValue is
+** the optional value for the checkbox. zTip is an optional tooltip,
+** which gets set as the "title" attribute of the outermost
+** element. If isChecked is true, the checkbox gets the "checked"
+** attribute set, else it is not.
+**
+** Resulting structure:
+**
+** <span class='input-with-label' title={{zTip}} id={{zWrapperId}}>
+**   <input type='checkbox' name={{zFieldName}} value={{zValue}}
+**          id='A RANDOM VALUE'
+**          {{isChecked ? " checked : ""}}/>
+**   <label for='ID OF THE INPUT FIELD'>{{zLabel}}</label>
+** </span>
+**
+** zLabel, and zValue are required. zFieldName, zWrapperId, and zTip
+** are may be NULL or empty.
+**
+** Be sure that the input-with-label CSS class is defined sensibly, in
+** particular, having its display:inline-block is useful for alignment
+** purposes.
+*/
+void style_labeled_checkbox(const char * zWrapperId,
+                            const char *zFieldName, const char * zLabel,
+                            const char * zValue, int isChecked,
+                            const char * zTip){
+  char * zLabelID = style_next_input_id();
+  CX("<span class='input-with-label'");
+  if(zTip && *zTip){
+    CX(" title='%h'", zTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
+  }
+  CX("><input type='checkbox' id='%s' ", zLabelID);
+  if(zFieldName && *zFieldName){
+    CX("name='%s' ",zFieldName);
+  }
+  CX("value='%T'%s/>",
+     zValue ? zValue : "", isChecked ? " checked" : "");
+  CX("<label for='%s'>%h</label></span>", zLabelID, zLabel);
+  fossil_free(zLabelID);
+}
+
+/*
+** Outputs a SELECT list from a compile-time list of integers.
+** The vargs must be a list of (const char *, int) pairs, terminated
+** with a single NULL. Each pair is interpreted as...
+**
+** If the (const char *) is NULL, it is the end of the list, else
+** a new OPTION entry is created. If the string is empty, the
+** label and value of the OPTION is the integer part of the pair.
+** If the string is not empty, it becomes the label and the integer
+** the value. If that value == selectedValue then that OPTION
+** element gets the 'selected' attribute.
+**
+** Note that the pairs are not in (int, const char *) order because
+** there is no well-known integer value which we can definitively use
+** as a list terminator.
+**
+** zWrapperId is an optional ID value for the containing element (see
+** below).
+**
+** zFieldName is the value of the form element's name attribute. Note
+** that fossil prefers underscores over '-' for separators in form
+** element names.
+**
+** zLabel is an optional string to use as a "label" for the element
+** (see below).
+**
+** zTooltip is an optional value for the SELECT's title attribute.
+**
+** The structure of the emitted HTML is:
+**
+** <span class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
+**   <label for='SELECT ELEMENT ID'>{{zLabel}}</label>
+**   <select id='RANDOM ID' name={{zFieldName}}>...</select>
+** </span>
+**
+** Example:
+**
+** style_select_list_int("my-grapes", "my_grapes", "Grapes",
+**                      "Select the number of grapes",
+**                       atoi(PD("my_field","0")),
+**                       "", 1, "2", 2, "Three", 3,
+**                       NULL);
+** 
+*/
+void style_select_list_int(const char * zWrapperId,
+                           const char *zFieldName, const char * zLabel,
+                           const char * zToolTip, int selectedVal,
+                           ... ){
+  char * zLabelID = style_next_input_id();
+  va_list vargs;
+
+  va_start(vargs,selectedVal);
+  CX("<span class='input-with-label'");
+  if(zToolTip && *zToolTip){
+    CX(" title='%h'",zToolTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
+  }
+  CX(">");
+  if(zLabel && *zLabel){
+    CX("<label for='%s'>%h</label>", zLabelID, zLabel);
+  }
+  CX("<select name='%s' id='%s'>",zFieldName, zLabelID);
+  while(1){
+    const char * zOption = va_arg(vargs,char *);
+    int v;
+    if(NULL==zOption){
+      break;
+    }
+    v = va_arg(vargs,int);
+    CX("<option value='%d'%s>",
+         v, v==selectedVal ? " selected" : "");
+    if(*zOption){
+      CX("%s", zOption);
+    }else{
+      CX("%d",v);
+    }
+    CX("</option>\n");
+  }
+  CX("</select>\n");
+  CX("</span>\n");
+  va_end(vargs);
+  fossil_free(zLabelID);
+}
+
+/*
+** The C-string counterpart of style_select_list_int(), this variant
+** differs only in that its variadic arguments are C-strings in pairs
+** of (optionLabel, optionValue). If a given optionLabel is an empty
+** string, the corresponding optionValue is used as its label. If any
+** given value matches zSelectedVal, that option gets preselected. If
+** no options match zSelectedVal then the first entry is selected by
+** default.
+**
+** Any of (zWrapperId, zTooltip, zSelectedVal) may be NULL or empty.
+**
+** Example:
+**
+** style_select_list_str("my-grapes", "my_grapes", "Grapes",
+**                      "Select the number of grapes",
+**                       P("my_field"),
+**                       "1", "One", "2", "Two", "", "3",
+**                       NULL);
+*/
+void style_select_list_str(const char * zWrapperId,
+                           const char *zFieldName, const char * zLabel,
+                           const char * zToolTip, char const * zSelectedVal,
+                           ... ){
+  char * zLabelID = style_next_input_id();
+  va_list vargs;
+
+  va_start(vargs,zSelectedVal);
+  if(!zSelectedVal){
+    zSelectedVal = __FILE__/*some string we'll never match*/;
+  }
+  CX("<span class='input-with-label'");
+  if(zToolTip && *zToolTip){
+    CX(" title='%h'",zToolTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
+  }
+  CX(">");
+  if(zLabel && *zLabel){
+    CX("<label for='%s'>%h</label>", zLabelID, zLabel);
+  }
+  CX("<select name='%s' id='%s'>",zFieldName, zLabelID);
+  while(1){
+    const char * zLabel = va_arg(vargs,char *);
+    const char * zVal;
+    if(NULL==zLabel){
+      break;
+    }
+    zVal = va_arg(vargs,char *);
+    CX("<option value='%T'%s>",
+       zVal, 0==fossil_strcmp(zVal, zSelectedVal) ? " selected" : "");
+    if(*zLabel){
+      CX("%s", zLabel);
+    }else{
+      CX("%h",zVal);
+    }
+    CX("</option>\n");
+  }
+  CX("</select>\n");
+  CX("</span>\n");
+  va_end(vargs);
+  fossil_free(zLabelID);
+}
+
+
+/*
+** The first time this is called, it emits code to install and
+** bootstrap the window.fossil object, using the built-in file
+** fossil.bootstrap.js (not to be confused with bootstrap.js).
+**
+** Subsequent calls are no-ops.
+**
+** It emits 2 parts:
+**
+** 1) window.fossil core object, some of which depends on C-level
+** runtime data. That part of the script is always emitted inline. If
+** addScriptTag is true then it is wrapped in its own SCRIPT tag, else
+** it is assumed that the caller already opened a tag.
+**
+** 2) Emits the static fossil.bootstrap.js using builtin_request_js().
+*/
+void style_emit_script_fossil_bootstrap(int addScriptTag){
+  static int once = 0;
+  if(0==once++){
+    char * zName;
+    /* Set up the generic/app-agnostic parts of window.fossil
+    ** which require C-level state... */
+    if(addScriptTag!=0){
+      style_emit_script_tag(0,0);
+    }
+    CX("(function(){\n");
+    CX(/*MSIE NodeList.forEach polyfill, courtesy of Mozilla:
+    https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach#Polyfill
+       */
+       "if(window.NodeList && !NodeList.prototype.forEach){"
+       "NodeList.prototype.forEach = Array.prototype.forEach;"
+       "}\n");
+    CX("if(!window.fossil) window.fossil={};\n"
+       "window.fossil.version = %!j;\n"
+    /* fossil.rootPath is the top-most CGI/server path,
+    ** including a trailing slash. */
+       "window.fossil.rootPath = %!j+'/';\n",
+       get_version(), g.zTop);
+    /* fossil.config = {...various config-level options...} */
+    CX("window.fossil.config = {");
+    zName = db_get("project-name", "");
+    CX("projectName: %!j,\n", zName);
+    fossil_free(zName);
+    zName = db_get("short-project-name", "");
+    CX("shortProjectName: %!j,\n", zName);
+    fossil_free(zName);
+    zName = db_get("project-code", "");
+    CX("projectCode: %!j,\n", zName);
+    fossil_free(zName);
+    CX("/* Length of UUID hashes for display purposes. */");
+    CX("hashDigits: %d, hashDigitsUrl: %d,\n",
+       hash_digits(0), hash_digits(1));
+    CX("editStateMarkers: {"
+       "/*Symbolic markers to denote certain edit states.*/"
+       "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
+    CX("confirmerButtonTicks: 3 "
+       "/*default fossil.confirmer tick count.*/\n");
+    CX("};\n"/* fossil.config */);
+#if 0
+    /* Is it safe to emit the CSRF token here? Some pages add it
+    ** as a hidden form field. */
+    if(g.zCsrfToken[0]!=0){
+      CX("window.fossil.csrfToken = %!j;\n",
+         g.zCsrfToken);
+    }
+#endif
+    /*
+    ** fossil.page holds info about the current page. This is also
+    ** where the current page "should" store any of its own
+    ** page-specific state, and it is reserved for that purpose.
+    */
+    CX("window.fossil.page = {"
+       "name:\"%T\""
+       "};\n", g.zPath);
+    CX("})();\n");
+    if(addScriptTag!=0){
+      style_emit_script_tag(1,0);
+    }
+    /* The remaining window.fossil bootstrap code is not dependent on
+    ** C-runtime state... */
+    builtin_request_js("fossil.bootstrap.js");
+  }
+}
+
+/*
+** If passed 0 as its first argument, it emits a script opener tag
+** with this request's nonce. If passed non-0 it emits a script
+** closing tag. Mnemonic for remembering the order in which to pass 0
+** or 1 as the first argument to this function: 0 comes before 1.
+**
+** If passed 0 as its first argument and a non-NULL/non-empty zSrc,
+** then it instead emits:
+**
+** <script src='%R/{{zSrc}}'></script>
+**
+** zSrc is always assumed to be a repository-relative path without
+** a leading slash, and has %R/ prepended to it.
+**
+** Meaning that no follow-up call to pass a non-0 first argument
+** to close the tag. zSrc is ignored if the first argument is not
+** 0.
+*/
+void style_emit_script_tag(int isCloser, const char * zSrc){
+  if(0==isCloser){
+    if(zSrc!=0 && zSrc[0]!=0){
+      CX("<script src='%R/%T'></script>\n", zSrc);
+    }else{
+      CX("<script nonce='%s'>", style_nonce());
+    }
+  }else{
+    CX("</script>\n");
+  }
+}
+
+/*
+** Convenience wrapper which calls builtin_request_js() for a series
+** of builtin scripts named fossil.NAME.js. The first time it is
+** called, it also calls style_emit_script_fossil_bootstrap() to
+** initialize the window.fossil JS API. The first argument is a
+** no-meaning dummy required by the va_start() interface. All
+** subsequent arguments must be strings of the NAME part of
+** fossil.NAME.js, followed by a NULL argument to terminate the list.
+**
+** e.g. pass it (0, "fetch", "dom", "tabs", 0) to load those 3
+** APIs. Do not forget the trailing 0!
+*/
+void style_emit_fossil_js_apis( int dummy, ... ) {
+  static int once = 0;
+  const char *zArg;
+  char * zName;
+  va_list vargs;
+
+  if(0==once++){
+    style_emit_script_fossil_bootstrap(1);
+  }
+  va_start(vargs,dummy);
+  while( (zArg = va_arg (vargs, const char *))!=0 ){
+    zName = mprintf("fossil.%s.js", zArg);
+    builtin_request_js(zName);
+    fossil_free(zName);
+  }
+  va_end(vargs);
+}

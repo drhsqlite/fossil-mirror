@@ -57,7 +57,9 @@ use.  But Windows users probably already know this.)
 
 The backoffice is serialized and rate limited.  No more than a single
 backoffice process will be running at once, and backoffice runs will not
-occur more frequently than once every 60 seconds.
+occur more frequently than once every 60 seconds.  (The 60-second spacing
+is controlled by the BKOFCE_LEASE_TIME macro in the 
+[backoffice.c](/file/src/backoffice.c) source file.)
 
 If a Fossil server is idle, then no backoffice processes will be running.
 That means there are no extra processes sitting around taking up memory
@@ -89,10 +91,44 @@ daily digest emails.  And even for a private server, if there is very
 little traffic, then the daily digests are probably a no-op anyhow
 and won't be missed.
 
+Automatic Backoffice Does Not Work On Some Systems
+--------------------------------------------------
+
+We have observed that the automatic backoffice does not work on
+some system - OpenBSD in particular.  We still do not understand why
+this is.  (If you have insights, please share them on the
+[Fossil Forum](https://fossil-scm.org/forum) so that we can perhaps
+fix the problem.)  For now, the backoffice must be run manually
+on OpenBSD systems.
+
+To set up fully-manual backoffice, first disable the automatic backoffice
+using the "[backoffice-disable](/help?cmd=backoffice-disable)" setting.
+
+>   fossil setting backoffice-disable on
+
+Then arrange to invoke the backoffice separately using a command
+like this:
+
+>   fossil backoffice --poll 30 _REPOSITORY-LIST_
+
+Multiple repositories can be named.  This one command will handle
+launching the backoffice for all of them.  There are additional useful
+command-line options.  See the "[fossil backoffice](/help?cmd=backoffice)"
+documentation for details.
+
+The backoffice processes run manually using the "fossil backoffice"
+command do not normally use a lease.  That means that you run the
+"fossil backoffice" command with --poll and you forget to disable
+automatic backoffice by setting the "backoffice-disable" flag, then
+you might have one backoffice running due command and another due
+to a webpage access, both at the same time.  This is harmless.  The
+only downside is that it uses extra CPU time.
+
 How Backoffice Is Implemented
 -----------------------------
 
-The backoffice is implemented by the "backoffice.c" source file.
+The backoffice is implemented by the 
+"[backoffice.c](/file/src/backoffice.c)" source file.
 
 Serialization and rate limiting is handled by a single entry in the
 repository database CONFIG table named "backoffice".  This entry is

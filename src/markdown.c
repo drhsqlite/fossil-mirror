@@ -468,6 +468,47 @@ static void parse_inline(
   }
 }
 
+/*
+** data[*pI] should be a "`" character that introduces a code-span.
+** The code-span boundry mark can be any number of one or more "`"
+** characters.  We do not know the size of the boundry marker, only
+** that there is at least one "`" at data[*pI].
+**
+** This routine increases *pI to move it past the code-span, including
+** the closing boundary mark.  Or, if the code-span is unterminated,
+** this routine moves *pI past the opening boundary mark only.
+*/
+static void skip_codespan(const char *data, size_t size, size_t *pI){
+  size_t i = *pI;
+  size_t span_nb;   /* Number of "`" characters in the boundary mark */
+  size_t bt;
+
+  assert( i<size );
+  assert( data[i]=='`' );
+  data += i;
+  size -= i;
+
+  /* counting the number of opening backticks */
+  i = 0;
+  span_nb = 0;
+  while( i<size && data[i]=='`' ){
+    i++;
+    span_nb++;
+  }
+  if( i>=size ){
+    *pI += span_nb;
+    return;
+  }
+
+  /* finding the matching closing sequence */
+  bt = 0;
+  while( i<size && bt<span_nb ){
+    if( data[i]=='`' ) bt += 1; else bt = 0;
+    i++;
+  }
+  *pI += (bt == span_nb) ? i : span_nb;
+}
+
 
 /* find_emph_char -- looks for the next emph char, skipping other constructs */
 static size_t find_emph_char(char *data, size_t size, char c){
@@ -485,30 +526,9 @@ static size_t find_emph_char(char *data, size_t size, char c){
 
     if( data[i]==c ) return i;
 
-    /* skipping a code span */
-    if( data[i]=='`' ){
-      size_t span_nb = 0, bt;
-      size_t tmp_i = 0;
-
-      /* counting the number of opening backticks */
-      while( i<size && data[i]=='`' ){
-        i++;
-        span_nb++;
-      }
-      if( i>=size ) return 0;
-
-      /* finding the matching closing sequence */
-      bt = 0;
-      while( i<size && bt<span_nb ){
-        if( !tmp_i && data[i]==c ) tmp_i = i;
-        if( data[i]=='`' ) bt += 1; else bt = 0;
-        i++;
-      }
-      if( i>=size ) return tmp_i;
-      i++;
-
-    /* skipping a link */
-    }else if( data[i]=='[' ){
+    if( data[i]=='`' ){            /* skip a code span */
+      skip_codespan(data, size, &i);
+    }else if( data[i]=='[' ){      /* skip a link */
       size_t tmp_i = 0;
       char cc;
       i++;
@@ -537,6 +557,39 @@ static size_t find_emph_char(char *data, size_t size, char c){
   return 0;
 }
 
+/* CommonMark defines separate "right-flanking" and "left-flanking"
+** deliminators for emphasis.  Whether a deliminator is left- or
+** right-flanking, or both, or neither depends on the characters
+** immediately before and after.
+**
+**   before   after   example    left-flanking   right-flanking
+**   ------   -----   -------    -------------   --------------
+**    space   space      *            no              no
+**    space   punct      *)          yes              no
+**    space   alnum      *x          yes              no
+**    punct   space     (*            no             yes
+**    punct   punct     (*)          yes             yes
+**    punct   alnum     (*x          yes              no
+**    alnum   space     a*            no             yes
+**    alnum   punct     a*(           no             yes
+**    alnum   alnum     a*x          yes             yes
+**
+** The following routines determine whether a delimitor is left
+** or right flanking.
+*/
+static int left_flanking(char before, char after){
+  if( fossil_isspace(after) ) return 0;
+  if( fossil_isalnum(after) ) return 1;
+  if( fossil_isalnum(before) ) return 0;
+  return 1;
+}
+static int right_flanking(char before, char after){
+  if( fossil_isspace(before) ) return 0;
+  if( fossil_isalnum(before) ) return 1;
+  if( fossil_isalnum(after) ) return 0;
+  return 1;
+}
+
 
 /* parse_emph1 -- parsing single emphasis */
 /* closed by a symbol not preceded by whitespace and not followed by symbol */
@@ -550,6 +603,7 @@ static size_t parse_emph1(
   size_t i = 0, len;
   struct Blob *work = 0;
   int r;
+  char after;
 
   if( !rndr->make.emphasis ) return 0;
 
@@ -566,10 +620,10 @@ static size_t parse_emph1(
       i++;
       continue;
     }
+    after = i+1<size ? data[i+1] : ' ';
     if( data[i]==c
-     && data[i-1]!=' '
-     && data[i-1]!='\t'
-     && data[i-1]!='\n'
+     && right_flanking(data[i-1],after)
+     && (c!='_' || !fossil_isalnum(after))
      && !too_deep(rndr)
     ){
       work = new_work_buffer(rndr);
@@ -594,6 +648,7 @@ static size_t parse_emph2(
   size_t i = 0, len;
   struct Blob *work = 0;
   int r;
+  char after;
 
   if( !rndr->make.double_emphasis ) return 0;
 
@@ -601,13 +656,12 @@ static size_t parse_emph2(
     len = find_emph_char(data+i, size-i, c);
     if( !len ) return 0;
     i += len;
+    after = i+2<size ? data[i+2] : ' ';
     if( i+1<size
      && data[i]==c
      && data[i+1]==c
-     && i
-     && data[i-1]!=' '
-     && data[i-1]!='\t'
-     && data[i-1]!='\n'
+     && right_flanking(data[i-1],after)
+     && (c!='_' || !fossil_isalnum(after))
      && !too_deep(rndr)
     ){
       work = new_work_buffer(rndr);
@@ -679,13 +733,12 @@ static size_t char_emphasis(
   size_t size
 ){
   char c = data[0];
+  char before = offset>0 ? data[-1] : ' ';
   size_t ret;
 
   if( size>2 && data[1]!=c ){
-    /* whitespace cannot follow an opening emphasis */
-    if( data[1]==' '
-     || data[1]=='\t'
-     || data[1]=='\n'
+    if( !left_flanking(before, data[1])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph1(ob, rndr, data+1, size-1, c))==0
     ){
       return 0;
@@ -694,9 +747,8 @@ static size_t char_emphasis(
   }
 
   if( size>3 && data[1]==c && data[2]!=c ){
-    if( data[2]==' '
-     || data[2]=='\t'
-     || data[2]=='\n'
+    if( !left_flanking(before, data[2])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph2(ob, rndr, data+2, size-2, c))==0
     ){
       return 0;
@@ -705,9 +757,8 @@ static size_t char_emphasis(
   }
 
   if( size>4 && data[1]==c && data[2]==c && data[3]!=c ){
-    if( data[3]==' '
-     || data[3]=='\t'
-     || data[3]=='\n'
+    if( !left_flanking(before, data[3])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph3(ob, rndr, data+3, size-3, c))==0
     ){
       return 0;
@@ -1176,6 +1227,10 @@ static int is_tableline(char *data, size_t size){
   /* count the number of pipes in the line */
   for(n_sep=0; i<size && data[i]!='\n'; i++){
     if( is_table_sep(data, i) ) n_sep++;
+    if( data[i]=='`' ){
+      skip_codespan(data, size, &i);
+      i--;
+    }
   }
 
   /* march back to check for optional last '|' before blanks and EOL */
@@ -1836,7 +1891,13 @@ static size_t parse_table_row(
     beg = i;
 
     /* forward to the next separator or EOL */
-    while( i<size && !is_table_sep(data, i) && data[i]!='\n' ){ i++; }
+    while( i<size && !is_table_sep(data, i) && data[i]!='\n' ){
+      if( data[i]=='`' ){
+        skip_codespan(data, size, &i);
+      }else{
+        i++;
+      }
+    }
     end = i;
     if( i<size ){
       i++;
@@ -1980,7 +2041,8 @@ static void parse_block(
   char *txt_data;
   int has_table = (rndr->make.table
     && rndr->make.table_row
-    && rndr->make.table_cell);
+    && rndr->make.table_cell
+    && memchr(data, '|', size)!=0);
 
   beg = 0;
   while( beg<size ){

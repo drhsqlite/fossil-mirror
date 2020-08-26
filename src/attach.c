@@ -25,15 +25,18 @@
 ** WEBPAGE: attachlist
 ** List attachments.
 **
-**    tkt=TICKETUUID
+**    tkt=HASH
 **    page=WIKIPAGE
+**    technote=HASH
 **
-** At most one of technote=, tkt= or page= are supplied.
-** If none is given, all attachments are listed.  If one is given,
-** only attachments for the designated technote, ticket or wiki page
-** are shown. TECHNOTEUUID and TICKETUUID may be just a prefix of the
-** relevant technical note or ticket, in which case all attachments
-** of all technical notes or tickets with the prefix will be listed.
+** At most one of technote=, tkt= or page= may be supplied.
+**
+** If none are given, all attachments are listed.  If one is given, only
+** attachments for the designated technote, ticket or wiki page are shown.
+**
+** HASH may be just a prefix of the relevant technical note or ticket
+** artifact hash, in which case all attachments of all technical notes or
+** tickets with the prefix will be listed.
 */
 void attachlist_page(void){
   const char *zPage = P("page");
@@ -154,11 +157,12 @@ void attachlist_page(void){
 ** WEBPAGE: attachview
 **
 ** Download or display an attachment.
+**
 ** Query parameters:
 **
-**    tkt=TICKETUUID
+**    tkt=HASH
 **    page=WIKIPAGE
-**    technote=TECHNOTEUUID
+**    technote=HASH
 **    file=FILENAME
 **    attachid=ID
 **
@@ -252,7 +256,7 @@ static void attach_put(
 */
 void attach_commit(
   const char *zName,                   /* The filename of the attachment */
-  const char *zTarget,                 /* The artifact uuid to attach to */
+  const char *zTarget,                 /* The artifact hash to attach to */
   const char *aContent,                /* The content of the attachment */
   int         szContent,               /* The length of the attachment */
   int         needModerator,           /* Moderate the attachment? */
@@ -307,9 +311,9 @@ void attach_commit(
 ** WEBPAGE: attachadd
 ** Add a new attachment.
 **
-**    tkt=TICKETUUID
+**    tkt=HASH
 **    page=WIKIPAGE
-**    technote=TECHNOTEUUID
+**    technote=HASH
 **    from=URL
 **
 */
@@ -422,10 +426,10 @@ void ainfo_page(void){
   int rid;                       /* RID for the control artifact */
   int ridSrc;                    /* RID for the attached file */
   char *zDate;                   /* Date attached */
-  const char *zUuid;             /* UUID of the control artifact */
+  const char *zUuid;             /* Hash of the control artifact */
   Manifest *pAttach;             /* Parse of the control artifact */
   const char *zTarget;           /* Wiki, ticket or tech note attached to */
-  const char *zSrc;              /* UUID of the attached file */
+  const char *zSrc;              /* Hash of the attached file */
   const char *zName;             /* Name of the attached file */
   const char *zDesc;             /* Description of the attached file */
   const char *zWikiName = 0;     /* Wiki page name when attached to Wiki */
@@ -683,18 +687,19 @@ void attachment_list(
 **
 ** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
 **
-**       Add an attachment to an existing wiki page or tech note.
+** Add an attachment to an existing wiki page or tech note.
+** Options:
 **
-**       Options:
-**         -t|--technote DATETIME      Specifies the timestamp of
-**                                     the technote to which the attachment
-**                                     is to be made. The attachment will be
-**                                     to the most recently modified tech note
-**                                     with the specified timestamp.
-**         -t|--technote TECHNOTE-ID   Specifies the technote to be
-**                                     updated by its technote id.
+**    -t|--technote DATETIME      Specifies the timestamp of
+**                                the technote to which the attachment
+**                                is to be made. The attachment will be
+**                                to the most recently modified tech note
+**                                with the specified timestamp.
 **
-**       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
+**    -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                updated by its technote id.
+**
+** One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -765,7 +770,7 @@ void attachment_cmd(void){
     user_select();
     attach_commit(
       zFile,                   /* The filename of the attachment */
-      zTarget,                 /* The artifact uuid to attach to */
+      zTarget,                 /* The artifact hash to attach to */
       blob_buffer(&content),   /* The content of the attachment */
       blob_size(&content),     /* The length of the attachment */
       0,                       /* No need to moderate the attachment */

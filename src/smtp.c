@@ -1238,15 +1238,18 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
 /*
 ** Remove stale content from the emailblob table.
 */
-void smtp_cleanup(void){
+int smtp_cleanup(void){
+  int nAction = 0;
   if( db_table_exists("repository","emailblob") ){
     db_begin_transaction();
     db_multi_exec(
       "UPDATE emailblob SET ets=NULL WHERE enref<=0;"
       "DELETE FROM emailblob WHERE enref<=0;"
     );
+    nAction = db_changes();
     db_end_transaction(0);
   }
+  return nAction;
 }
 
 /*
@@ -1530,7 +1533,7 @@ void pop3d_command(void){
       int i;
       pop3_print(pLog, "+OK");
       for(i=0; i<sizeof(azCap)/sizeof(azCap[0]); i++){
-        pop3_print(pLog, azCap[i]);
+        pop3_print(pLog, "%s", azCap[i]);
       }
       pop3_print(pLog, ".");
       continue;

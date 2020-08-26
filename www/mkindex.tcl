@@ -43,6 +43,7 @@ set doclist {
   env-opts.md {Environment Variables and Global Options}
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
+  fileedit-page.md {The fileedit Page}
   fileformat.wiki {Fossil File Format}
   fiveminutes.wiki {Up and Running in 5 Minutes as a Single User}
   forum.wiki {Fossil Forums}
@@ -55,6 +56,7 @@ set doclist {
   grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
   hacker-howto.wiki {Fossil Developers Guide}
+  hashes.md {Hashes: Fossil Artifact Identification}
   hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
@@ -139,10 +141,10 @@ puts $out {
 <h2>Primary Documents:</h2>
 <ul>
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
+<li> <a href='$ROOT/help'>Built-in help for commands and webpages</a>
 <li> <a href='history.md'>Purpose and History of Fossil</a>
 <li> <a href='build.wiki'>Compiling and installing Fossil</a>
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
-<li> <a href='$ROOT/help'>List of commands, web-pages, and settings</a>
 <li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
 <li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
 <li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's

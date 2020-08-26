@@ -17,6 +17,7 @@ TESTFLAGS := -quiet
 
 SRC = \
   $(SRCDIR)/add.c \
+  $(SRCDIR)/ajax.c \
   $(SRCDIR)/alerts.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
@@ -56,6 +57,7 @@ SRC = \
   $(SRCDIR)/export.c \
   $(SRCDIR)/extcgi.c \
   $(SRCDIR)/file.c \
+  $(SRCDIR)/fileedit.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
   $(SRCDIR)/forum.c \
@@ -66,6 +68,7 @@ SRC = \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
   $(SRCDIR)/hname.c \
+  $(SRCDIR)/hook.c \
   $(SRCDIR)/http.c \
   $(SRCDIR)/http_socket.c \
   $(SRCDIR)/http_ssl.c \
@@ -153,7 +156,6 @@ SRC = \
   $(SRCDIR)/wikiformat.c \
   $(SRCDIR)/winfile.c \
   $(SRCDIR)/winhttp.c \
-  $(SRCDIR)/wysiwyg.c \
   $(SRCDIR)/xfer.c \
   $(SRCDIR)/xfersetup.c \
   $(SRCDIR)/zip.c
@@ -218,8 +220,19 @@ EXTRA_FILES = \
   $(SRCDIR)/accordion.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
+  $(SRCDIR)/default.css \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
+  $(SRCDIR)/fossil.bootstrap.js \
+  $(SRCDIR)/fossil.confirmer.js \
+  $(SRCDIR)/fossil.dom.js \
+  $(SRCDIR)/fossil.fetch.js \
+  $(SRCDIR)/fossil.page.fileedit.js \
+  $(SRCDIR)/fossil.page.forumpost.js \
+  $(SRCDIR)/fossil.page.whistory.js \
+  $(SRCDIR)/fossil.page.wikiedit.js \
+  $(SRCDIR)/fossil.storage.js \
+  $(SRCDIR)/fossil.tabs.js \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
@@ -245,13 +258,16 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/d.wav \
   $(SRCDIR)/sounds/e.wav \
   $(SRCDIR)/sounds/f.wav \
+  $(SRCDIR)/style.admin_log.css \
+  $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
-  $(SRCDIR)/whistory.js \
   $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
+  $(OBJDIR)/ajax_.c \
   $(OBJDIR)/alerts_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
@@ -291,6 +307,7 @@ TRANS_SRC = \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/extcgi_.c \
   $(OBJDIR)/file_.c \
+  $(OBJDIR)/fileedit_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
   $(OBJDIR)/forum_.c \
@@ -301,6 +318,7 @@ TRANS_SRC = \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
   $(OBJDIR)/hname_.c \
+  $(OBJDIR)/hook_.c \
   $(OBJDIR)/http_.c \
   $(OBJDIR)/http_socket_.c \
   $(OBJDIR)/http_ssl_.c \
@@ -388,13 +406,13 @@ TRANS_SRC = \
   $(OBJDIR)/wikiformat_.c \
   $(OBJDIR)/winfile_.c \
   $(OBJDIR)/winhttp_.c \
-  $(OBJDIR)/wysiwyg_.c \
   $(OBJDIR)/xfer_.c \
   $(OBJDIR)/xfersetup_.c \
   $(OBJDIR)/zip_.c
 
 OBJ = \
  $(OBJDIR)/add.o \
+ $(OBJDIR)/ajax.o \
  $(OBJDIR)/alerts.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
@@ -434,6 +452,7 @@ OBJ = \
  $(OBJDIR)/export.o \
  $(OBJDIR)/extcgi.o \
  $(OBJDIR)/file.o \
+ $(OBJDIR)/fileedit.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
  $(OBJDIR)/forum.o \
@@ -444,6 +463,7 @@ OBJ = \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
  $(OBJDIR)/hname.o \
+ $(OBJDIR)/hook.o \
  $(OBJDIR)/http.o \
  $(OBJDIR)/http_socket.o \
  $(OBJDIR)/http_ssl.o \
@@ -531,7 +551,6 @@ OBJ = \
  $(OBJDIR)/wikiformat.o \
  $(OBJDIR)/winfile.o \
  $(OBJDIR)/winhttp.o \
- $(OBJDIR)/wysiwyg.o \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
  $(OBJDIR)/zip.o
@@ -562,9 +581,6 @@ $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
-$(OBJDIR)/mkcss:	$(SRCDIR)/mkcss.c
-	$(XBCC) -o $(OBJDIR)/mkcss $(SRCDIR)/mkcss.c
-
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
@@ -584,11 +600,11 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
-$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
-	$(OBJDIR)/mkcss $(SRCDIR)/default_css.txt $(OBJDIR)/default_css.h
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time we run "make"
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
@@ -599,7 +615,6 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
                  -DSQLITE_OMIT_DECLTYPE \
                  -DSQLITE_OMIT_DEPRECATED \
-                 -DSQLITE_OMIT_GET_TABLE \
                  -DSQLITE_OMIT_PROGRESS_CALLBACK \
                  -DSQLITE_OMIT_SHARED_CACHE \
                  -DSQLITE_OMIT_LOAD_EXTENSION \
@@ -627,7 +642,6 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
                 -DSQLITE_OMIT_DECLTYPE \
                 -DSQLITE_OMIT_DEPRECATED \
-                -DSQLITE_OMIT_GET_TABLE \
                 -DSQLITE_OMIT_PROGRESS_CALLBACK \
                 -DSQLITE_OMIT_SHARED_CACHE \
                 -DSQLITE_OMIT_LOAD_EXTENSION \
@@ -731,8 +745,9 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
 	$(OBJDIR)/mkbuiltin --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
+	$(OBJDIR)/ajax_.c:$(OBJDIR)/ajax.h \
 	$(OBJDIR)/alerts_.c:$(OBJDIR)/alerts.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -772,6 +787,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 	$(OBJDIR)/extcgi_.c:$(OBJDIR)/extcgi.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
+	$(OBJDIR)/fileedit_.c:$(OBJDIR)/fileedit.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
 	$(OBJDIR)/forum_.c:$(OBJDIR)/forum.h \
@@ -782,6 +798,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 	$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
 	$(OBJDIR)/hname_.c:$(OBJDIR)/hname.h \
+	$(OBJDIR)/hook_.c:$(OBJDIR)/hook.h \
 	$(OBJDIR)/http_.c:$(OBJDIR)/http.h \
 	$(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h \
 	$(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h \
@@ -869,7 +886,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
 	$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
 	$(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h \
-	$(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h \
 	$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 	$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
@@ -887,6 +903,14 @@ $(OBJDIR)/add.o:	$(OBJDIR)/add_.c $(OBJDIR)/add.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/add.o -c $(OBJDIR)/add_.c
 
 $(OBJDIR)/add.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/ajax_.c:	$(SRCDIR)/ajax.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/ajax.c >$@
+
+$(OBJDIR)/ajax.o:	$(OBJDIR)/ajax_.c $(OBJDIR)/ajax.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/ajax.o -c $(OBJDIR)/ajax_.c
+
+$(OBJDIR)/ajax.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/alerts_.c:	$(SRCDIR)/alerts.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/alerts.c >$@
@@ -1200,6 +1224,14 @@ $(OBJDIR)/file.o:	$(OBJDIR)/file_.c $(OBJDIR)/file.h $(SRCDIR)/config.h
 
 $(OBJDIR)/file.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/fileedit_.c:	$(SRCDIR)/fileedit.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fileedit.c >$@
+
+$(OBJDIR)/fileedit.o:	$(OBJDIR)/fileedit_.c $(OBJDIR)/fileedit.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fileedit.o -c $(OBJDIR)/fileedit_.c
+
+$(OBJDIR)/fileedit.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/finfo_.c:	$(SRCDIR)/finfo.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/finfo.c >$@
 
@@ -1279,6 +1311,14 @@ $(OBJDIR)/hname.o:	$(OBJDIR)/hname_.c $(OBJDIR)/hname.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/hname.o -c $(OBJDIR)/hname_.c
 
 $(OBJDIR)/hname.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/hook_.c:	$(SRCDIR)/hook.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/hook.c >$@
+
+$(OBJDIR)/hook.o:	$(OBJDIR)/hook_.c $(OBJDIR)/hook.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/hook.o -c $(OBJDIR)/hook_.c
+
+$(OBJDIR)/hook.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/http.c >$@
@@ -1787,7 +1827,7 @@ $(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/style.c >$@
 
-$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(OBJDIR)/default_css.h $(SRCDIR)/config.h
+$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/style.o -c $(OBJDIR)/style_.c
 
 $(OBJDIR)/style.h:	$(OBJDIR)/headers
@@ -1975,14 +2015,6 @@ $(OBJDIR)/winhttp.o:	$(OBJDIR)/winhttp_.c $(OBJDIR)/winhttp.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/winhttp.o -c $(OBJDIR)/winhttp_.c
 
 $(OBJDIR)/winhttp.h:	$(OBJDIR)/headers
-
-$(OBJDIR)/wysiwyg_.c:	$(SRCDIR)/wysiwyg.c $(OBJDIR)/translate
-	$(OBJDIR)/translate $(SRCDIR)/wysiwyg.c >$@
-
-$(OBJDIR)/wysiwyg.o:	$(OBJDIR)/wysiwyg_.c $(OBJDIR)/wysiwyg.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/wysiwyg.o -c $(OBJDIR)/wysiwyg_.c
-
-$(OBJDIR)/wysiwyg.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/xfer_.c:	$(SRCDIR)/xfer.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/xfer.c >$@

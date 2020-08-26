@@ -104,7 +104,6 @@ int wiki_prev(int tagid, double mtime){
      tagid, mtime);
 }
 
-
 /*
 ** WEBPAGE: home
 ** WEBPAGE: index
@@ -190,6 +189,8 @@ const char *wiki_filter_mimetypes(const char *zMimetype){
 **   text/x-fossil-wiki      Fossil wiki
 **   text/x-markdown         Markdown
 **   anything else...        Plain text
+**
+** If zMimetype is a null pointer, then use "text/x-fossil-wiki".
 */
 void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
   if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
@@ -197,6 +198,7 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pWiki, 0, &tail);
+    safe_html(&tail);
     @ %s(blob_str(&tail))
     blob_reset(&tail);
   }else{
@@ -222,6 +224,7 @@ void markdown_rules_page(void){
   }
   blob_init(&x, builtin_text("markdown.md"), -1);
   blob_materialize(&x);
+  safe_html_context(DOCSRC_TRUSTED);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
   blob_reset(&x);
   style_footer();
@@ -243,6 +246,7 @@ void wiki_rules_page(void){
   }
   blob_init(&x, builtin_text("wiki.wiki"), -1);
   blob_materialize(&x);
+  safe_html_context(DOCSRC_TRUSTED);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
   blob_reset(&x);
   style_footer();
@@ -397,6 +401,20 @@ int wiki_page_type(const char *zPageName){
 }
 
 /*
+** Returns a JSON-friendly string form of the integer value returned
+** by wiki_page_type(zPageName).
+*/
+const char * wiki_page_type_name(const char *zPageName){
+  switch(wiki_page_type(zPageName)){
+    case WIKITYPE_CHECKIN: return "checkin";
+    case WIKITYPE_BRANCH: return "branch";
+    case WIKITYPE_TAG: return "tag";
+    case WIKITYPE_NORMAL:
+    default: return "normal";
+  }
+}
+
+/*
 ** Add an appropriate style_header() for either the /wiki or /wikiedit page
 ** for zPageName.  zExtra is an empty string for /wiki but has the text
 ** "Edit: " for /wikiedit.
@@ -538,12 +556,7 @@ void wiki_page(void){
     if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
      && wiki_special_permission(zPageName)
     ){
-      if( db_get_boolean("wysiwyg-wiki", 0) ){
-        style_submenu_element("Edit", "%R/wikiedit?name=%T&wysiwyg=1",
-                              zPageName);
-      }else{
-        style_submenu_element("Edit", "%R/wikiedit?name=%T", zPageName);
-      }
+      style_submenu_element("Edit", "%R/wikiedit?name=%T", zPageName);
     }else if( rid && g.perm.ApndWiki ){
       style_submenu_element("Edit", "%R/wikiappend?name=%T", zPageName);
     }
@@ -560,6 +573,7 @@ void wiki_page(void){
     @ <i>This page has been deleted</i>
   }else{
     blob_init(&wiki, zBody, -1);
+    safe_html_context(DOCSRC_WIKI);
     wiki_render_by_mimetype(&wiki, zMimetype);
     blob_reset(&wiki);
   }
@@ -575,7 +589,7 @@ int wiki_put(Blob *pWiki, int parent, int needMod){
   int nrid;
   if( !needMod ){
     nrid = content_put_ex(pWiki, 0, 0, 0, 0);
-    if( parent) content_deltify(parent, &nrid, 1, 0);
+    if( parent ) content_deltify(parent, &nrid, 1, 0);
   }else{
     nrid = content_put_ex(pWiki, 0, 0, 0, 1);
     moderation_table_create();
@@ -618,213 +632,686 @@ static const char *mimetype_common_name(const char *zMimetype){
 }
 
 /*
-** WEBPAGE: wikiedit
-** URL: /wikiedit?name=PAGENAME
-**
-** Edit a wiki page.
-*/
-void wikiedit_page(void){
-  char *zTag;
-  int rid = 0;
-  int isSandbox;
-  Blob wiki;
+ ** Tries to fetch a wiki page for the given name. If found, it
+ ** returns true, else false.
+ **
+ ** versionsBack specifies how many versions back in the history to
+ ** fetch. Use 0 for the latest version, 1 for its parent, etc.
+ **
+ ** If pRid is not NULL then if a result is found *pRid is set to its
+ ** RID. If ppWiki is not NULL then if found *ppWiki is set to the
+ ** loaded wiki object, which the caller is responsible for passing to
+ ** manifest_destroy().
+ */
+static int wiki_fetch_by_name( const char *zPageName,
+                               unsigned int versionsBack,
+                               int * pRid, Manifest **ppWiki ){
   Manifest *pWiki = 0;
-  const char *zPageName;
-  int n;
-  const char *z;
-  char *zBody = (char*)P("w");
-  const char *zMimetype = wiki_filter_mimetypes(P("mimetype"));
-  int isWysiwyg = P("wysiwyg")!=0;
-  int goodCaptcha = 1;
-  int eType = WIKITYPE_UNKNOWN;
-  int havePreview = 0;
+  char *zTag = mprintf("wiki-%s", zPageName);
+  Stmt q = empty_Stmt;
+  int rid = 0;
 
-  if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
-  if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
-  if( zBody ){
-    if( isWysiwyg ){
-      Blob body;
-      blob_zero(&body);
-      htmlTidy(zBody, &body);
-      zBody = blob_str(&body);
+  db_prepare(&q, "SELECT rid FROM tagxref"
+             " WHERE tagid=(SELECT tagid FROM tag WHERE"
+             "   tagname=%Q) "
+             " ORDER BY mtime DESC LIMIT -1 OFFSET %u", zTag,
+             versionsBack);
+  fossil_free(zTag);
+  if(SQLITE_ROW == db_step(&q)){
+    rid = db_column_int(&q, 0);
+  }
+  db_finalize(&q);
+  if( rid == 0 ){
+    return 0;
+  }
+  else if(pRid){
+    *pRid = rid;
+  }
+  if(ppWiki){
+    pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
+    if( pWiki==0 ){
+      /* "Cannot happen." */
+      return 0;
+    }
+    *ppWiki = pWiki;
+  }
+  return 1;
+}
+
+/*
+** Determines whether the wiki page with the given name can be edited
+** or created by the current user. If not, an AJAX error is queued and
+** false is returned, else true is returned. A NULL, empty, or
+** malformed name is considered non-writable, regardless of the user.
+**
+** If pRid is not NULL then this function writes the page's rid to
+** *pRid (whether or not access is granted). On error or if the page
+** does not yet exist, *pRid will be set to 0.
+**
+** Note that the sandbox is a special case: it is a pseudo-page with
+** no rid and the /wikiajax API does not allow anyone to actually save
+** a sandbox page, but it is reported as writable here (with rid 0).
+*/
+static int wiki_ajax_can_write(const char *zPageName, int * pRid){
+  int rid = 0;
+  const char * zErr = 0;
+ 
+  if(pRid) *pRid = 0;
+  if(!zPageName || !*zPageName
+     || !wiki_name_is_wellformed((unsigned const char *)zPageName)){
+    zErr = "Invalid page name.";
+  }else if(is_sandbox(zPageName)){
+    return 1;
+  }else{
+    wiki_fetch_by_name(zPageName, 0, &rid, 0);
+    if(pRid) *pRid = rid;
+    if(!wiki_special_permission(zPageName)){
+      zErr = "Editing this page requires non-wiki write permissions.";
+    }else if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
+      return 3;
+    }else if(rid && !g.perm.WrWiki){
+      zErr = "Requires wiki-write permissions.";
+    }else if(!rid && !g.perm.NewWiki){
+      zErr = "Requires new-wiki permissions.";
     }else{
-      zBody = mprintf("%s", zBody);
+      zErr = "Cannot happen! Please report this as a bug.";
     }
   }
+  ajax_route_error(403, "%s", zErr);
+  return 0;  
+}
+
+/*
+** Loads the given wiki page, sets the response type to
+** application/json, and emits it as a JSON object.  If zPageName is a
+** sandbox page then a "fake" object is emitted, as the wikiajax API
+** does not permit saving the sandbox.
+**
+** Returns true on success, false on error, and on error it
+** queues up a JSON-format error response.
+**
+** Output JSON format:
+**
+** { name: "page name",
+**   type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
+**   mimetype: "mime type",
+**   version: UUID string or null for a sandbox page,
+**   parent: "parent uuid" or null if no parent,
+**   isDeleted: true if the page has no content (is "deleted")
+**              else not set (making it "falsy" in JS),
+**   content: "page content" (only if includeContent is true)
+** }
+**
+** If includeContent is false then the content member is elided.
+*/
+static int wiki_ajax_emit_page_object(const char *zPageName,
+                                      int includeContent){
+  Manifest * pWiki = 0;
+  char * zUuid;
+
+  if( is_sandbox(zPageName) ){
+    char * zMimetype =
+      db_get("sandbox-mimetype","text/x-fossil-wiki");
+    char * zBody = db_get("sandbox","");
+    CX("{\"name\": %!j, \"type\": \"sandbox\", "
+       "\"mimetype\": %!j, \"version\": null, \"parent\": null",
+       zPageName, zMimetype);
+    if(includeContent){
+      CX(", \"content\": %!j",
+       zBody);
+    }
+    CX("}");
+    fossil_free(zMimetype);
+    fossil_free(zBody);
+    return 1;
+  }else if( !wiki_fetch_by_name(zPageName, 0, 0, &pWiki) ){
+    ajax_route_error(404, "Wiki page could not be loaded: %s",
+                     zPageName);
+    return 0;
+  }else{
+    zUuid = rid_to_uuid(pWiki->rid);
+    CX("{\"name\": %!j, \"type\": %!j, "
+       "\"version\": %!j, "
+       "\"mimetype\": %!j, ",
+       pWiki->zWikiTitle,
+       wiki_page_type_name(pWiki->zWikiTitle),
+       zUuid,
+       pWiki->zMimetype ? pWiki->zMimetype : "text/x-fossil-wiki");
+    CX("\"parent\": ");
+    if(pWiki->nParent){
+      CX("%!j", pWiki->azParent[0]);
+    }else{
+      CX("null");
+    }
+    if(!pWiki->zWiki || !pWiki->zWiki[0]){
+      CX(", \"isEmpty\": true");
+    }
+    if(includeContent){
+      CX(", \"content\": %!j", pWiki->zWiki);
+    }
+    CX("}");
+    fossil_free(zUuid);
+    manifest_destroy(pWiki);
+    return 2;
+  }
+}
+
+/*
+** Ajax route handler for /wikiajax/save.
+**
+** URL params:
+**
+**  page = the wiki page name.
+**  mimetype = content mime type.
+**  content = page content. Fossil considers an empty page to
+**            be "deleted".
+**  isnew = 1 if the page is to be newly-created, else 0 or
+**          not send.
+**
+** Responds with JSON. On error, an object in the form documented by
+** ajax_route_error(). On success, an object in the form documented
+** for wiki_ajax_emit_page_object().
+**
+** The wikiajax API disallows saving of a sandbox pseudo-page, and
+** will respond with an error if asked to save one. Should we want to
+** enable it, it's implemented like this for any saved page for which
+** is_sandbox(zPageName) is true:
+**
+**  db_set("sandbox",zBody,0);
+**  db_set("sandbox-mimetype",zMimetype,0);
+**
+*/
+static void wiki_ajax_route_save(void){
+  const char *zPageName = P("page");
+  const char *zMimetype = P("mimetype");
+  const char *zContent = P("content");
+  const int isNew = ajax_p_bool("isnew");
+  Blob content = empty_blob;
+  int parentRid = 0;
+  int rollback = 0;
+
+  if(!wiki_ajax_can_write(zPageName, &parentRid)){
+    return;
+  }else if(is_sandbox(zPageName)){
+    ajax_route_error(403,"Saving a sandbox page is prohibited.");
+    return;
+  }
+  /* These isNew checks are just me being pedantic. We could just as
+     easily derive isNew based on whether or not the page already
+     exists. */
+  if(isNew){
+    if(parentRid>0){
+      ajax_route_error(403,"Requested a new page, "
+                       "but it already exists with RID %d: %s",
+                       parentRid, zPageName);
+      return;
+    }
+  }else if(parentRid==0){
+    ajax_route_error(403,"Creating new page [%s] requires passing "
+                     "isnew=1.", zPageName);
+    return;
+  }
+  blob_init(&content, zContent ? zContent : "", -1);
+  cgi_set_content_type("application/json");
+  db_begin_transaction();
+  wiki_cmd_commit(zPageName, parentRid, &content, zMimetype, 0);
+  rollback = wiki_ajax_emit_page_object(zPageName, 1) ? 0 : 1;
+  db_end_transaction(rollback);
+}
+
+/*
+** Ajax route handler for /wikiajax/fetch.
+**
+** URL params:
+**
+**  page = the wiki page name
+**
+** Responds with JSON. On error, an object in the form documented by
+** ajax_route_error(). On success, an object in the form documented
+** for wiki_ajax_emit_page_object().
+*/
+static void wiki_ajax_route_fetch(void){
+  const char * zPageName = P("page");
+  
+  if( zPageName==0 || zPageName[0]==0 ){
+    ajax_route_error(400,"Missing page name.");
+    return;
+  }
+  cgi_set_content_type("application/json");
+  wiki_ajax_emit_page_object(zPageName, 1);
+}
+
+/*
+** Ajax route handler for /wikiajax/diff.
+**
+** URL params:
+**
+**  page = the wiki page name
+**  content = the new/edited wiki page content
+**
+** Requires that the user have write access solely to avoid some
+** potential abuse cases. It does not actually write anything.
+*/
+static void wiki_ajax_route_diff(void){
+  const char * zPageName = P("page");
+  Blob contentNew = empty_blob, contentOrig = empty_blob;
+  Manifest * pParent = 0;
+  const char * zContent = P("content");
+  u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR;
+
+  if( zPageName==0 || zPageName[0]==0 ){
+    ajax_route_error(400,"Missing page name.");
+    return;
+  }else if(!wiki_ajax_can_write(zPageName, 0)){
+    return;
+  }
+  switch(atoi(PD("sbs","0"))){
+    case 0: diffFlags |= DIFF_LINENO; break;
+    default: diffFlags |= DIFF_SIDEBYSIDE;
+  }
+  switch(atoi(PD("ws","2"))){
+    case 1: diffFlags |= DIFF_IGNORE_EOLWS; break;
+    case 2: diffFlags |= DIFF_IGNORE_ALLWS; break;
+    default: break;
+  }
+  wiki_fetch_by_name( zPageName, 0, 0, &pParent );
+  if( pParent && pParent->zWiki && *pParent->zWiki ){
+    blob_init(&contentOrig, pParent->zWiki, -1);
+  }else{
+    blob_init(&contentOrig, "", 0);
+  }
+  blob_init(&contentNew, zContent ? zContent : "", -1);
+  cgi_set_content_type("text/html");
+  ajax_render_diff(&contentOrig, &contentNew, diffFlags);
+  blob_reset(&contentNew);
+  blob_reset(&contentOrig);
+  manifest_destroy(pParent);
+}
+
+/*
+** Ajax route handler for /wikiajax/preview.
+**
+** URL params:
+**
+**  page = wiki page name. This is only needed for authorization
+**  checking.
+**  mimetype = the wiki page mimetype (determines rendering style)
+**  content = the wiki page content
+*/
+static void wiki_ajax_route_preview(void){
+  const char * zPageName = P("page");
+  const char * zContent = P("content");
+
+  if(!wiki_ajax_can_write(zPageName, 0)){
+    return;
+  }else if( zContent==0 ){
+    ajax_route_error(400,"Missing content to preview.");
+    return;
+  }else{
+    Blob content = empty_blob;
+    const char * zMimetype = PD("mimetype","text/x-fossil-wiki");
+
+    blob_init(&content, zContent, -1);
+    cgi_set_content_type("text/html");
+    wiki_render_by_mimetype(&content, zMimetype);
+    blob_reset(&content);
+  }
+}
+
+/*
+** Outputs the wiki page list in JSON form. If verbose is false then
+** it emits an array of strings (page names). If verbose is true it outputs
+** an array of objects in this form:
+**
+** { name: string, version: string or null of sandbox box,
+**   parent: uuid or null for first version or sandbox,
+**   mimetype: string,
+**   type: string (normal, branch, tag, checkin, or sandbox)
+** }
+**
+** If includeContent is true, the object contains a "content" member
+** with the raw page content. includeContent is ignored if verbose is
+** false.
+**
+*/
+static void wiki_render_page_list_json(int verbose, int includeContent){
+  Stmt q = empty_Stmt;
+  int n = 0;
+  db_begin_transaction();
+  db_prepare(&q, "SELECT"
+             " substr(tagname,6) AS name"
+             " FROM tag WHERE tagname GLOB 'wiki-*'"
+             " UNION SELECT 'Sandbox' AS name"
+             " ORDER BY name COLLATE NOCASE");
+  CX("[");
+  while( SQLITE_ROW==db_step(&q) ){
+    char const * zName = db_column_text(&q,0);
+    if(n++){
+      CX(",");
+    }
+    if(verbose==0){
+      CX("%!j", zName);
+    }else{
+      wiki_ajax_emit_page_object(zName, includeContent);
+    }
+  }
+  CX("]");
+  db_finalize(&q);
+  db_end_transaction(0);
+}
+
+/*
+** Ajax route handler for /wikiajax/list.
+**
+** Optional parameters: verbose, includeContent (see below).
+**
+** Responds with JSON. On error, an object in the form documented by
+** ajax_route_error().
+**
+** On success, it emits an array of strings (page names) sorted
+** case-insensitively. If the "verbose" parameter is passed in then
+** the result list contains objects in the format documented for
+** wiki_ajax_emit_page_object(). The content of each object is elided
+** unless the "includeContent" parameter is passed on with a
+** "non-false" value..
+**
+** The result list always contains an entry named "Sandbox" which
+** represents the sandbox pseudo-page.
+*/
+static void wiki_ajax_route_list(void){
+  const int verbose = ajax_p_bool("verbose");
+  const int includeContent = ajax_p_bool("includeContent");
+
+  cgi_set_content_type("application/json");
+  wiki_render_page_list_json(verbose, includeContent);
+}
+
+/*
+** WEBPAGE: wikiajax
+**
+** An internal dispatcher for wiki AJAX operations. Not for direct
+** client use. All routes defined by this interface are app-internal,
+** subject to change 
+*/
+void wiki_ajax_page(void){
+  const char * zName = P("name");
+  AjaxRoute routeName = {0,0,0,0};
+  const AjaxRoute * pRoute = 0;
+  const AjaxRoute routes[] = {
+  /* Keep these sorted by zName (for bsearch()) */
+  {"diff", wiki_ajax_route_diff, 1, 1},
+  {"fetch", wiki_ajax_route_fetch, 0, 0},
+  {"list", wiki_ajax_route_list, 0, 0},
+  {"preview", wiki_ajax_route_preview, 0, 1}
+  /* preview access mode: whether or not wiki-write mode is needed
+     really depends on multiple factors. e.g. the sandbox page does
+     not normally require more than anonymous access. We set its
+     write-mode to false and do those checks manually in that route's
+     handler.
+  */,
+  {"save", wiki_ajax_route_save, 1, 1}
+  };
+
+  if(zName==0 || zName[0]==0){
+    ajax_route_error(400,"Missing required [route] 'name' parameter.");
+    return;
+  }
+  routeName.zName = zName;
+  pRoute = (const AjaxRoute *)bsearch(&routeName, routes,
+                                      count(routes), sizeof routes[0],
+                                      cmp_ajax_route_name);
+  if(pRoute==0){
+    ajax_route_error(404,"Ajax route not found.");
+    return;
+  }
+  login_check_credentials();
+  if( pRoute->bWriteMode!=0 && g.perm.WrWiki==0 ){
+    ajax_route_error(403,"Write permissions required.");
+    return;
+  }else if(0==cgi_csrf_safe(pRoute->bPost)){
+    ajax_route_error(403,
+                     "CSRF violation (make sure sending of HTTP "
+                     "Referer headers is enabled for XHR "
+                     "connections).");
+    return;
+  }
+  pRoute->xCallback();
+}
+
+/*
+** WEBPAGE: wikiedit
+** URL: /wikedit?name=PAGENAME
+**
+** The main front-end for the Ajax-based wiki editor app. Passing
+** in the name of an unknown page will trigger the creation
+** of a new page (which is not actually created in the database
+** until the user explicitly saves it). If passed no page name,
+** the user may select a page from the list on the first UI tab.
+**
+** When creating a new page, the mimetype URL parameter may optionally
+** be used to set its mimetype to one of text/x-fossil-wiki,
+** text/x-markdown, or text/plain, defauling to the former.
+*/
+void wikiedit_page(void){
+  const char *zPageName;
+  const char * zMimetype = P("mimetype");
+  int isSandbox;
+  int found = 0;
+
   login_check_credentials();
   zPageName = PD("name","");
-  if( check_name(zPageName) ) return;
+  if(zPageName && *zPageName){
+    if( check_name(zPageName) ) return;
+  }
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
     if( !g.perm.WrWiki ){
       login_needed(g.anon.WrWiki);
       return;
     }
-    if( zBody==0 ){
-      zBody = db_get("sandbox","");
-      zMimetype = db_get("sandbox-mimetype","text/x-fossil-wiki");
-    }
-  }else{
-    zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-      " ORDER BY mtime DESC", zTag
-    );
-    free(zTag);
+    found = 1;
+  }else if( zPageName!=0 ){
+    int rid = 0;
     if( !wiki_special_permission(zPageName) ){
       login_needed(0);
       return;
     }
+    found = wiki_fetch_by_name(zPageName, 0, &rid, 0);
     if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
       login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
       return;
     }
-    if( zBody==0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
-      zBody = pWiki->zWiki;
-      zMimetype = pWiki->zMimetype;
-    }
   }
-  if( P("submit")!=0 && zBody!=0
-   && (goodCaptcha = captcha_is_correct(0))
-  ){
-    char *zDate;
-    Blob cksum;
-    blob_zero(&wiki);
-    db_begin_transaction();
-    if( isSandbox ){
-      db_set("sandbox",zBody,0);
-      db_set("sandbox-mimetype",zMimetype,0);
-    }else{
-      login_verify_csrf_secret();
-      zDate = date_in_standard_format("now");
-      blob_appendf(&wiki, "D %s\n", zDate);
-      free(zDate);
-      blob_appendf(&wiki, "L %F\n", zPageName);
-      if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")!=0 ){
-        blob_appendf(&wiki, "N %s\n", zMimetype);
-      }
-      if( rid ){
-        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-        blob_appendf(&wiki, "P %s\n", zUuid);
-        free(zUuid);
-      }
-      if( !login_is_nobody() ){
-        blob_appendf(&wiki, "U %F\n", login_name());
-      }
-      blob_appendf(&wiki, "W %d\n%s\n", strlen(zBody), zBody);
-      md5sum_blob(&wiki, &cksum);
-      blob_appendf(&wiki, "Z %b\n", &cksum);
-      blob_reset(&cksum);
-      wiki_put(&wiki, 0, wiki_need_moderation(0));
-    }
-    db_end_transaction(0);
-    cgi_redirectf("wiki?name=%T", zPageName);
+  style_header("Wiki Editor");
+
+  /* Status bar */
+  CX("<div id='fossil-status-bar' "
+     "title='Status message area. Double-click to clear them.'>"
+     "Status messages will go here.</div>\n"
+     /* will be moved into the tab container via JS */);
+
+  CX("<div id='wikiedit-edit-status''>"
+     "<span class='name'></span>"
+     "<span class='links'></span>"
+     "</div>");
+  
+  /* Main tab container... */
+  CX("<div id='wikiedit-tabs' class='tab-container'>Loading...</div>");
+  /* The .hidden class on the following tab elements is to help lessen
+     the FOUC effect of the tabs before JS re-assembles them. */
+
+  /******* Page list *******/
+  {
+    CX("<div id='wikiedit-tab-pages' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Wiki Page List' "
+       "class='hidden'"
+       ">");
+    CX("<div>Loading wiki pages list...</div>");
+    CX("</div>"/*#wikiedit-tab-pages*/);
   }
-  if( P("cancel")!=0 ){
-    cgi_redirectf("wiki?name=%T", zPageName);
-    return;
+  
+  /******* Content tab *******/
+  {
+    CX("<div id='wikiedit-tab-content' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Editor' "
+       "class='hidden'"
+       ">");
+    CX("<div class='flex-container flex-row child-gap-small'>");
+    CX("<span class='input-with-label'>"
+       "<label>Mime type</label>");
+    mimetype_option_menu(0);
+    CX("</span>");
+    style_select_list_int("select-font-size",
+                          "editor_font_size", "Editor font size",
+                          NULL/*tooltip*/,
+                          100,
+                          "100%", 100, "125%", 125,
+                          "150%", 150, "175%", 175,
+                          "200%", 200, NULL);
+    CX("<button class='wikiedit-save'>"
+       "Save</button>"
+       /*will get moved around dynamically*/);
+    CX("<button class='wikiedit-save-close'>"
+       "Save &amp; Close</button>"/*will get moved around dynamically*/);
+    CX("<span class='save-button-slot'></span>");
+    CX("<button class='wikiedit-content-reload' "
+       "title='Reload the file from the server, discarding "
+       "any local edits. To help avoid accidental loss of "
+       "edits, it requires confirmation (a second click) within "
+       "a few seconds or it will not reload.'"
+       ">Discard &amp; Reload</button>");
+    CX("</div>");
+    CX("<div class='flex-container flex-column stretch'>");
+    CX("<textarea name='content' id='wikiedit-content-editor' "
+       "class='wikiedit' rows='25'>");
+    CX("</textarea>");
+    CX("</div>"/*textarea wrapper*/);
+    CX("</div>"/*#tab-file-content*/);
   }
-  if( zBody==0 ){
-    zBody = mprintf("");
+  /****** Preview tab ******/
+  {
+    CX("<div id='wikiedit-tab-preview' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Preview' "
+       "class='hidden'"
+       ">");
+    CX("<div class='wikiedit-options flex-container "
+       "flex-row child-gap-small'>");
+    CX("<button id='btn-preview-refresh' "
+       "data-f-preview-from='wikiContent' "
+       /* ^^^ fossil.page[methodName]() OR text source elem ID,
+      ** but we need a method in order to support clients swapping out
+      ** the text editor with their own. */
+       "data-f-preview-via='_postPreview' "
+       /* ^^^ fossil.page[methodName](content, callback) */
+       "data-f-preview-to='#wikiedit-tab-preview-wrapper' "
+       /* ^^^ dest elem ID */
+       ">Refresh</button>");
+    /* Toggle auto-update of preview when the Preview tab is selected. */
+    style_labeled_checkbox("cb-preview-autoupdate",
+                           NULL,
+                           "Auto-refresh?",
+                           "1", 1,
+                           "If on, the preview will automatically "
+                           "refresh when this tab is selected.");
+    CX("<span class='save-button-slot'></span>");
+    CX("</div>"/*.wikiedit-options*/);
+    CX("<div id='wikiedit-tab-preview-wrapper'></div>");
+    CX("</div>"/*#wikiedit-tab-preview*/);
   }
-  style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  eType = wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "Edit: ");
-  if( rid && !isSandbox && g.perm.ApndWiki ){
-    if( g.perm.Attach ){
-      style_submenu_element("Attach",
-           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
-           g.zTop, zPageName, g.zTop, zPageName);
-    }
+
+  /****** Diff tab ******/
+  {
+    CX("<div id='wikiedit-tab-diff' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Diff' "
+       "class='hidden'"
+       ">");
+
+    CX("<div class='wikiedit-options flex-container "
+       "flex-row child-gap-small' "
+       "id='wikiedit-tab-diff-buttons'>");
+    CX("<button class='sbs'>Side-by-side</button>"
+       "<button class='unified'>Unified</button>");
+    CX("<span class='save-button-slot'></span>");
+    CX("</div>");
+    CX("<div id='wikiedit-tab-diff-wrapper'>"
+       "Diffs will be shown here."
+       "</div>");
+    CX("</div>"/*#wikiedit-tab-diff*/);
   }
-  if( !goodCaptcha ){
-    @ <p class="generalError">Error:  Incorrect security code.</p>
+
+  /****** The obligatory "Misc" tab ******/
+  {
+    CX("<div id='wikiedit-tab-misc' "
+       "data-tab-parent='wikiedit-tabs' "
+       "data-tab-label='Help' "
+       "class='hidden'"
+       ">");
+    CX("<h2>Wiki formatting rules</h2>");
+    CX("<ul>");
+    CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");
+    CX("<li><a href='%R/md_rules'>Markdown format</a></li>");
+    CX("<li>Plain-text pages use no special formatting.</li>");
+    CX("</ul>");
+    CX("<h2>The \"Sandbox\" Page</h2>");
+    CX("<p>The page named \"Sandbox\" is not a real wiki page. "
+       "It provides a place where users may test out wiki syntax "
+       "without having to actually save anything, nor pollute "
+       "the repo with endless test runs. Any attempt to save the "
+       "sandbox page will fail.</p>");
+    CX("<h2>Wiki Name Rules</h2>");
+    well_formed_wiki_name_rules();
+    CX("</div>"/*#wikiedit-tab-save*/);
   }
-  blob_zero(&wiki);
-  while( fossil_isspace(zBody[0]) ) zBody++;
-  blob_append(&wiki, zBody, -1);
-  if( P("preview")!=0 ){
-    havePreview = 1;
-    if( zBody[0] ){
-      @ Preview:<hr />
-      wiki_render_by_mimetype(&wiki, zMimetype);
-      @ <hr />
-      blob_reset(&wiki);
-    }
+
+  builtin_request_js("sbsdiff.js");
+  style_emit_fossil_js_apis(0, "fetch", "dom", "tabs", "confirmer",
+                            "storage", "page.wikiedit", 0);
+  builtin_fulfill_js_requests();
+  /* Dynamically populate the editor... */
+  style_emit_script_tag(0,0);
+  {
+    /* Render the current page list to save us an XHR request
+       during page initialization. This must be OUTSIDE of
+       an onPageLoad() handler or else it does not get applied
+       until after the wiki list widget is initialized. Similarly,
+       it must come *after* window.fossil is initialized. */
+    CX("\nfossil.page.initialPageList = ");
+    wiki_render_page_list_json(1, 0);
+    CX(";\n");
   }
-  for(n=2, z=zBody; z[0]; z++){
-    if( z[0]=='\n' ) n++;
+  CX("fossil.onPageLoad(function(){\n");
+  CX("const P = fossil.page;\n"
+     "try{\n");
+  if(!found && zPageName && *zPageName){
+    /* For a new page, stick a dummy entry in the JS-side stash
+       and "load" it from there. */
+    CX("const winfo = {"
+       "\"name\": %!j, \"mimetype\": %!j, "
+       "\"type\": %!j, "
+       "\"parent\": null, \"version\": null"
+       "};\n",
+       zPageName,
+       zMimetype ? zMimetype : "text/x-fossil-wiki",
+       wiki_page_type_name(zPageName));
+    /* If the JS-side stash already has this page, load that
+       copy from the stash, otherwise inject a new stash entry
+       for it and load *that* one... */
+    CX("if(!P.$stash.getWinfo(winfo)){"
+       "P.$stash.updateWinfo(winfo,'');"
+       "}\n");
   }
-  if( n<20 ) n = 20;
-  if( n>30 ) n = 30;
-  if( !isWysiwyg ){
-    /* Traditional markup-only editing */
-    char *zPlaceholder = 0;
-    switch( eType ){
-      case WIKITYPE_NORMAL: {
-        zPlaceholder = mprintf("Enter text for wiki page %s", zPageName);
-        break;
-      }
-      case WIKITYPE_BRANCH: {
-        zPlaceholder = mprintf("Enter notes about branch %s", zPageName+7);
-        break;
-      }
-      case WIKITYPE_CHECKIN: {
-        zPlaceholder = mprintf("Enter notes about check-in %.20s", zPageName+8);
-        break;
-      }
-      case WIKITYPE_TAG: {
-        zPlaceholder = mprintf("Enter notes about tag %s", zPageName+4);
-        break;
-      }
-    }
-    form_begin(0, "%R/wikiedit");
-    @ <div>%z(href("%R/markup_help"))Markup style</a>:
-    mimetype_option_menu(zMimetype);
-    @ <br /><textarea name="w" class="wikiedit" cols="80" \
-    @  rows="%d(n)" wrap="virtual" placeholder="%h(zPlaceholder)">\
-    @ %h(zBody)</textarea>
-    @ <br />
-    fossil_free(zPlaceholder);
-    if( db_get_boolean("wysiwyg-wiki", 0) ){
-      @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor"
-      @  onclick='return confirm("Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?")' />
-    }
-    @ <input type="submit" name="preview" value="Preview Your Changes" />
-  }else{
-    /* Wysiwyg editing */
-    Blob html, temp;
-    havePreview = 1;
-    form_begin("", "%R/wikiedit");
-    @ <div>
-    @ <input type="hidden" name="wysiwyg" value="1" />
-    blob_zero(&temp);
-    wiki_convert(&wiki, &temp, 0);
-    blob_zero(&html);
-    htmlTidy(blob_str(&temp), &html);
-    blob_reset(&temp);
-    wysiwygEditor("w", blob_str(&html), 60, n);
-    blob_reset(&html);
-    @ <br />
-    @ <input type="submit" name="edit-markup" value="Markup Editor"
-    @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
+  if(zPageName && *zPageName){
+    CX("P.loadPage(%!j);\n", zPageName);
   }
-  login_insert_csrf_secret();
-  if( havePreview ){
-    if( isWysiwyg || zBody[0] ){
-      @ <input type="submit" name="submit" value="Apply These Changes" />
-    }else{
-      @ <input type="submit" name="submit" value="Delete This Wiki Page" />
-    }
-  }
-  @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <input type="submit" name="cancel" value="Cancel"
-  @  onclick='confirm("Abandon your changes?")' />
-  @ </div>
-  captcha_generate(0);
-  @ </form>
-  manifest_destroy(pWiki);
-  blob_reset(&wiki);
+  CX("}catch(e){"
+     "fossil.error(e); console.error('Exception:',e);"
+     "}\n");
+  CX("});\n"/*fossil.onPageLoad()*/);
+  style_emit_script_tag(1,0);
   style_footer();
 }
 
@@ -846,13 +1333,7 @@ void wikinew_page(void){
   zName = PD("name","");
   zMimetype = wiki_filter_mimetypes(P("mimetype"));
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
-    if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")==0
-     && db_get_boolean("wysiwyg-wiki", 0)
-    ){
-      cgi_redirectf("wikiedit?name=%T&wysiwyg=1", zName);
-    }else{
-      cgi_redirectf("wikiedit?name=%T&mimetype=%s", zName, zMimetype);
-    }
+    cgi_redirectf("wikiedit?name=%T&mimetype=%s", zName, zMimetype);
   }
   style_header("Create A New Wiki Page");
   wiki_standard_submenu(W_ALL_BUT(W_NEW));
@@ -1009,6 +1490,7 @@ void wikiappend_page(void){
     blob_zero(&preview);
     appendRemark(&preview, zMimetype);
     @ Preview:<hr />
+    safe_html_context(DOCSRC_WIKI);
     wiki_render_by_mimetype(&preview, zMimetype);
     @ <hr />
     blob_reset(&preview);
@@ -1118,7 +1600,7 @@ void whistory_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
-  style_load_one_js_file("whistory.js");
+  builtin_request_js("fossil.page.whistory.js");
   /* style_table_sorter(); */
   style_footer();
 }
@@ -1418,30 +1900,30 @@ int wiki_technote_to_rid(const char *zETime) {
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    %fossil wiki export ?OPTIONS? PAGENAME ?FILE?
-**    %fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
+** > fossil wiki export ?OPTIONS? PAGENAME ?FILE?
+** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
 **
 **       Sends the latest version of either a wiki page or of a tech
 **       note to the given file or standard output.  A filename of "-"
 **       writes the output to standard output.  The directory parts of
 **       the output filename are created if needed.
-**
-**    Options:
 **       If PAGENAME is provided, the named wiki page will be output.
-**       --technote|-t DATETIME|TECHNOTE-ID
-**                  Specifies that a technote, rather than a wiki page,
-**                  will be exported. If DATETIME is used, the most
-**                  recently modified tech note with that DATETIME will
-**                  output.
-**       -h|--html  The body (only) is rendered in HTML form, without
-**                  any page header/foot or HTML/BODY tag wrappers.
-**       -H|--HTML  Works like -h|-html but wraps the output in
-**                  <html><body>...</body></html>.
-**       -p|--pre   If -h|-H is used and the page or technote has
-**                  the text/plain mimetype, its HTML-escaped output
-**                  will be wrapped in <pre>...</pre>.
 **
-**    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
+**       Options:
+**         --technote|-t DATETIME|TECHNOTE-ID
+**                    Specifies that a technote, rather than a wiki page,
+**                    will be exported. If DATETIME is used, the most
+**                    recently modified tech note with that DATETIME will
+**                    output.
+**         -h|--html  The body (only) is rendered in HTML form, without
+**                    any page header/foot or HTML/BODY tag wrappers.
+**         -H|--HTML  Works like -h|-html but wraps the output in
+**                    <html><body>...</body></html>.
+**         -p|--pre   If -h|-H is used and the page or technote has
+**                    the text/plain mimetype, its HTML-escaped output
+**                    will be wrapped in <pre>...</pre>.
+**
+** > fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
 **
 **       Create a new or commit changes to an existing wiki page or
 **       technote from FILE or from standard input. PAGENAME is the
@@ -1454,7 +1936,7 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     the previous version of the
 **                                     page, or text/x-fossil-wiki.
 **                                     Valid values are: text/x-fossil-wiki,
-**                                     text/markdown and text/plain. fossil,
+**                                     text/x-markdown and text/plain. fossil,
 **                                     markdown or plain can be specified as
 **                                     synonyms of these values.
 **         -t|--technote DATETIME      Specifies the timestamp of
@@ -1469,8 +1951,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **         --technote-bgcolor COLOR    The color used for the technote
 **                                     on the timeline.
 **
-**    %fossil wiki list ?OPTIONS?
-**    %fossil wiki ls ?OPTIONS?
+** > fossil wiki list ?OPTIONS?
+** > fossil wiki ls ?OPTIONS?
 **
 **       Lists all wiki entries, one per line, ordered
 **       case-insensitively by name.
@@ -1492,9 +1974,14 @@ int wiki_technote_to_rid(const char *zETime) {
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 **
+** The "Sandbox" wiki pseudo-page is a special case. Its name is
+** checked case-insensitively and either "create" or "commit" may be
+** used to update its contents.
 */
 void wiki_cmd(void){
   int n;
+  int isSandbox = 0;     /* true if dealing with sandbox pseudo-page */
+
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
     goto wiki_cmd_usage;
@@ -1505,10 +1992,10 @@ void wiki_cmd(void){
   }
 
   if( strncmp(g.argv[2],"export",n)==0 ){
-    const char *zPageName;        /* Name of the wiki page to export */
+    const char *zPageName = 0;    /* Name of the wiki page to export */
     const char *zFile;            /* Name of the output file (0=stdout) */
     const char *zETime;           /* The name of the technote to export */
-    int rid;                      /* Artifact ID of the wiki page */
+    int rid = 0;                  /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
     Blob body = empty_blob;       /* Wiki page content */
@@ -1530,13 +2017,14 @@ void wiki_cmd(void){
         usage("export ?-html? PAGENAME ?FILE?");
       }
       zPageName = g.argv[3];
-      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-        " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-        " ORDER BY x.mtime DESC LIMIT 1",
-        zPageName
-      );
-      if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
-        zBody = pWiki->zWiki;
+      isSandbox = is_sandbox(zPageName);
+      if(isSandbox){
+        zBody = db_get("sandbox", 0);
+      }else{
+        wiki_fetch_by_name(zPageName, 0, &rid, &pWiki);
+        if(pWiki){
+          zBody = pWiki->zWiki;
+        }
       }
       if( zBody==0 ){
         fossil_fatal("wiki page [%s] not found",zPageName);
@@ -1566,24 +2054,20 @@ void wiki_cmd(void){
       blob_append(&body, "\n", 1);
     }else{
       Blob html = empty_blob;   /* HTML-ized content */
-      const char * zMimetype = wiki_filter_mimetypes(pWiki->zMimetype);
+      const char * zMimetype = isSandbox
+        ? db_get("sandbox-mimetype", "text/x-fossil-wiki")
+        : wiki_filter_mimetypes(pWiki->zMimetype);
       if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
         wiki_convert(&body,&html,0);
       }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-        markdown_to_html(&body,0,&html)
-          /* TODO: add -HTML|-H flag to work like -html|-h but also
-          ** add <html><body> tag wrappers around the output. The
-          ** hurdle here is that the markdown converter resets its
-          ** input blob before appending the output, which is
-          ** different from wiki_convert() and htmlize_to_blob(), and
-          ** precludes us simply appending the opening <html><body>
-          ** part to the body
-          */;
+        markdown_to_html(&body,0,&html);
+        safe_html_context(DOCSRC_WIKI);
+        safe_html(&html);
       }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
         htmlize_to_blob(&html,zBody,i);
       }else{
         fossil_fatal("Unsupported MIME type '%s' for wiki page '%s'.",
-                     zMimetype, pWiki->zWikiTitle );
+                     zMimetype, pWiki ? pWiki->zWikiTitle : zPageName );
       }
       blob_reset(&body);
       body = html /* transfer memory */;
@@ -1629,14 +2113,10 @@ void wiki_cmd(void){
     }else{
       blob_read_from_file(&content, g.argv[4], ExtFILE);
     }
+    isSandbox = is_sandbox(zPageName);
     if ( !zETime ){
-      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-                   " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-                   " ORDER BY x.mtime DESC LIMIT 1",
-                   zPageName
-                   );
-      if( rid>0 ){
-        pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
+      if( !isSandbox ){
+        wiki_fetch_by_name(zPageName, 0, &rid, &pWiki);
       }
     }else{
       rid = wiki_technote_to_rid(zETime);
@@ -1646,7 +2126,11 @@ void wiki_cmd(void){
     }
     if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */
-      if( pWiki!=0 && (pWiki->zMimetype && *pWiki->zMimetype) ){
+      if(isSandbox){
+        zMimeType =
+          wiki_filter_mimetypes(db_get("sandbox-mimetype",
+                                       "text/x-fossil-wiki"));
+      }else if( pWiki!=0 && (pWiki->zMimetype && *pWiki->zMimetype) ){
         zMimeType = pWiki->zMimetype;
       }
     }else{
@@ -1660,7 +2144,7 @@ void wiki_cmd(void){
            and should create a new tech note */
         rid = 0;
       }
-    }else if( !isCreate && rid == 0 ){
+    }else if( !isCreate && rid==0 && isSandbox==0 ){
       if ( !zETime ){
         fossil_fatal("no such wiki page: %s", zPageName);
       }else{
@@ -1669,11 +2153,17 @@ void wiki_cmd(void){
     }
 
     if( !zETime ){
-      wiki_cmd_commit(zPageName, rid, &content, zMimeType, 1);
-      if( g.argv[2][1]=='r' ){
-        fossil_print("Created new wiki page %s.\n", zPageName);
+      if(isSandbox){
+        db_set("sandbox",blob_str(&content),0);
+        db_set("sandbox-mimetype",zMimeType,0);
+        fossil_print("Updated sandbox pseudo-page.\n");
       }else{
-        fossil_print("Updated wiki page %s.\n", zPageName);
+        wiki_cmd_commit(zPageName, rid, &content, zMimeType, 1);
+        if( g.argv[2][1]=='r' ){
+          fossil_print("Created new wiki page %s.\n", zPageName);
+        }else{
+          fossil_print("Updated wiki page %s.\n", zPageName);
+        }
       }
     }else{
       if( rid != -1 ){
@@ -1820,6 +2310,8 @@ int wiki_render_associated(
     }
     wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
     @ <div class="accordion_panel">
+    safe_html_context(DOCSRC_WIKI);
+    safe_html(&tail);
     convert_href_and_output(&tail);
     @ </div>
     blob_reset(&tail);
@@ -1853,6 +2345,6 @@ int wiki_render_associated(
     blob_reset(&wiki);
   }
   manifest_destroy(pWiki);
-  style_accordion();
+  builtin_request_js("accordion.js");
   return 1;
 }

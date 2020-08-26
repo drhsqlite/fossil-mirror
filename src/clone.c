@@ -85,27 +85,33 @@ void delete_private_content(void){
 ** Usage: %fossil clone ?OPTIONS? URI FILENAME
 **
 ** Make a clone of a repository specified by URI in the local
-** file named FILENAME.
+** file named FILENAME. URI may be one of the following forms:
+** ([...] denotes optional elements):
 **
-** URI may be one of the following form: ([...] mean optional)
-**   HTTP/HTTPS protocol:
-**     http[s]://[userid[:password]@]host[:port][/path]
+**  * HTTP/HTTPS protocol:
 **
-**   SSH protocol:
-**     ssh://[userid@]host[:port]/path/to/repo.fossil\\
-**     [?fossil=path/to/fossil.exe]
+**      http[s]://[userid[:password]@]host[:port][/path]
 **
-**   Filesystem:
-**     [file://]path/to/repo.fossil
+**  * SSH protocol:
 **
-** Note 1: For ssh and filesystem, path must have an extra leading
-**         '/' to use an absolute path.
+**      ssh://[userid@]host[:port]/path/to/repo.fossil[?fossil=path/fossil.exe]
 **
-** Note 2: Use %HH escapes for special characters in the userid and
-**         password.  For example "%40" in place of "@", "%2f" in place
-**         of "/", and "%3a" in place of ":".
+**  * Filesystem:
 **
-** By default, your current login name is used to create the default
+**      [file://]path/to/repo.fossil
+**
+** Note that in Fossil (in contrast to some other DVCSes) a repository
+** is distinct from a checkout.  This command create a clone of a repository.
+** Use the separate [[open]] command to open a checkout from that repository.
+**
+** For ssh and filesystem, path must have an extra leading
+** '/' to use an absolute path.
+**
+** Use %HH escapes for special characters in the userid and
+** password.  For example "%40" in place of "@", "%2f" in place
+** of "/", and "%3a" in place of ":".
+**
+** By default, the current login name is used to create the default
 ** admin user. This can be overridden using the -A|--admin-user
 ** parameter.
 **
@@ -121,7 +127,7 @@ void delete_private_content(void){
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
 **
-** See also: init
+** See also: [[init]], [[open]]
 */
 void clone_cmd(void){
   char *zPassword;

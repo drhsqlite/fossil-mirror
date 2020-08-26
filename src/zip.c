@@ -616,7 +616,7 @@ void filezip_cmd(void){
 ** added to as part of the zip file. It may be 0 or an empty string,
 ** in which case it is ignored. The intention is to create a zip which
 ** politely expands into a subdir instead of filling your current dir
-** with source files. For example, pass a UUID or "ProjectName".
+** with source files. For example, pass a commit hash or "ProjectName".
 **
 */
 static void zip_of_checkin(

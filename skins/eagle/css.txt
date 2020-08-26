@@ -18,6 +18,7 @@ div.logo {
   font-weight: bold;
   color: white;
   padding: 5 0 5 0em;
+  min-width: 200px;
   white-space: nowrap;
 }
 
@@ -356,6 +357,42 @@ span.diffln {
   background-color: #7EA2D9;
 }
 
+span.modpending {
+  color: #c0c0c0;
+  font-style: italic;
+}
+span.forum_author {
+  color: white;
+  font-size: 75%;
+}
+span.forum_age {
+  color: white;
+  font-size: 85%;
+}
+span.forum_npost {
+  color: white;
+  font-size: 75%;
+}
+.debug {
+  background-color: #808080;
+  border: 2px solid white;
+}
+div.forumEdit {
+  border: 1px solid white;
+}
+div.forumTimeline {
+  border: 1px solid white;
+}
+div.forumHier, div.forumTime {
+  border: 1px solid white;
+}
+div.forumSel {
+  background-color: #808080;
+}
+div.forumObs {
+  color: white;
+}
+
 .fileage td {
   font-family: "courier new";
 }
@@ -374,4 +411,19 @@ div.selectedText {
 
 .timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
   background-color: #455978;
+}
+
+div.difflncol {
+  padding-right: 1em;
+  text-align: right;
+  color: white;
+}
+.capsumOff {
+  background-color: #bbbbbb;
+}
+.capsumRead {
+  background-color: #006d00;
+}
+.capsumWrite {
+  background-color: #e5e500;
 }

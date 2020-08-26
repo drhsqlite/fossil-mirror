@@ -220,29 +220,270 @@ void dispatch_matching_names(const char *zPrefix, Blob *pList){
 }
 
 /*
+** Return the index of the first non-space character that follows
+** a span of two or more spaces.  Return 0 if there is not gap.
+*/
+static int hasGap(const char *z, int n){
+  int i;
+  for(i=3; i<n-1; i++){
+    if( z[i]==' ' && z[i+1]!=' ' && z[i-1]==' ' && z[i-2]!='.' ) return i+1;
+  }
+  return 0 ;
+}
+
+/*
+** Append text to pOut, adding formatting markup.  Terms that
+** have all lower-case letters are within <tt>..</tt>.  Terms
+** that have all upper-case letters are within <i>..</i>.
+*/
+static void appendMixedFont(Blob *pOut, const char *z, int n){
+  const char *zEnd = "";
+  int i = 0;
+  int j;
+  while( i<n ){
+    if( z[i]==' ' || z[i]=='=' ){
+      for(j=i+1; j<n && (z[j]==' ' || z[j]=='='); j++){}
+      blob_append(pOut, z+i, j-i);
+      i = j;
+    }else{
+      for(j=i; j<n && z[j]!=' ' && z[j]!='=' && !fossil_isalpha(z[j]); j++){}
+      if( j>=n || z[j]==' ' || z[j]=='=' ){
+        zEnd = "";
+      }else{
+        if( fossil_isupper(z[j]) && z[i]!='-' ){
+          blob_append(pOut, "<i>",3);
+          zEnd = "</i>";
+        }else{
+          blob_append(pOut, "<tt>", 4);
+          zEnd = "</tt>";
+        }
+      }
+      while( j<n && z[j]!=' ' && z[j]!='=' ){ j++; }
+      blob_appendf(pOut, "%#h", j-i, z+i);
+      if( zEnd[0] ) blob_append(pOut, zEnd, -1);
+      i = j;
+    }
+  }
+}
+
+/*
+** Input string zIn starts with '['.  If the content is a hyperlink of the
+** form [[...]] then return the index of the closing ']'.  Otherwise return 0.
+*/
+static int help_is_link(const char *z, int n){
+  int i;
+  char c;
+  if( n<5 ) return 0;
+  if( z[1]!='[' ) return 0;
+  for(i=3; i<n && (c = z[i])!=0; i++){
+    if( c==']' && z[i-1]==']' ) return i;
+  }
+  return 0;
+}
+
+/*
+** Append text to pOut, adding hyperlink markup for [...].
+*/
+static void appendLinked(Blob *pOut, const char *z, int n){
+  int i = 0;
+  int j;
+  while( i<n ){
+    if( z[i]=='[' && (j = help_is_link(z+i, n-i))>0 ){
+      if( i ) blob_append(pOut, z, i);
+      z += i+2;
+      n -= i+2;
+      blob_appendf(pOut, "<a href='%R/help?cmd=%.*s'>%.*s</a>",
+         j-3, z, j-3, z);
+      z += j-1;
+      n -= j-1;
+      i = 0;
+    }else{
+      i++;
+    }
+  }
+  blob_append(pOut, z, i);
+}
+
+/*
 ** Attempt to reformat plain-text help into HTML for display on a webpage.
 **
 ** The HTML output is appended to Blob pHtml, which should already be
 ** initialized.
+**
+** Formatting rules:
+**
+**   *  Bullet lists are indented from the surrounding text by
+**      at least one space.  Each bullet begins with " * ".
+**
+**   *  Display lists are indented from the surrounding text.
+**      Each tag begins with "-" or occur on a line that is
+**      followed by two spaces and a non-space.  <dd> elements can begin
+**      on the same line as long as they are separated by at least
+**      two spaces.
+**
+**   *  Indented text is show verbatim (<pre>...</pre>)
 */
 static void help_to_html(const char *zHelp, Blob *pHtml){
-  char *s;
-  char *d;
-  char *z;
+  int i;
+  char c;
+  int nIndent = 0;
+  int wantP = 0;
+  int wantBR = 0;
+  int aIndent[10];
+  const char *azEnd[10];
+  int iLevel = 0;
+  int isLI = 0;
+  int isDT = 0;
+  static const char *zEndDL = "</dl></blockquote>";
+  static const char *zEndPRE = "</pre></blockquote>";
+  static const char *zEndUL = "</ul>";
+  static const char *zEndDD = "</dd>";
 
-  /* Transform "%fossil" into just "fossil" */
-  z = s = d = mprintf("%s", zHelp);
-  while( *s ){
-    if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
-      s++;
-    }else{
-      *d++ = *s++;
+  aIndent[0] = 0;
+  azEnd[0] = "";
+  while( zHelp[0] ){
+    i = 0;
+    while( (c = zHelp[i])!=0
+        && c!='\n'
+        && c!='<'
+        && (c!='%' || strncmp(zHelp+i,"%fossil",7)!=0)
+    ){ i++; }
+    if( c=='%' ){
+      if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
+      zHelp += i + 1;
+      wantBR = 1;
+      continue;
+    }else if( c=='<' ){
+      if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
+      blob_append(pHtml, "&amp;", 5);
+      zHelp += i + 1;
+      continue;
     }
+    if( i>2 && zHelp[0]=='>' && zHelp[1]==' ' ){
+      isDT = 1;
+      for(nIndent=1; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    }else{
+      isDT = 0;
+      for(nIndent=0; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    }
+    if( nIndent==i ){
+      if( c==0 ) break;
+      blob_append(pHtml, "\n", 1);
+      wantP = 1;
+      wantBR = 0;
+      zHelp += i+1;
+      continue;
+    }
+    if( nIndent+2<i && zHelp[nIndent]=='*' && zHelp[nIndent+1]==' ' ){
+      nIndent += 2;
+      while( nIndent<i && zHelp[nIndent]==' '){ nIndent++; }
+      isLI = 1;
+    }else{
+      isLI = 0;
+    }
+    while( iLevel>0 && aIndent[iLevel]>nIndent ){
+      blob_append(pHtml, azEnd[iLevel--], -1);
+    }
+    if( nIndent>aIndent[iLevel] ){
+      assert( iLevel<ArraySize(aIndent)-2 );
+      if( isLI ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndUL;
+        blob_append(pHtml, "<ul>\n", 5);
+      }else if( isDT 
+             || zHelp[nIndent]=='-'
+             || hasGap(zHelp+nIndent,i-nIndent) ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndDL;
+        blob_append(pHtml, "<blockquote><dl>\n", -1);
+      }else if( azEnd[iLevel]==zEndDL ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndDD;
+        blob_append(pHtml, "<dd>", 4);
+      }else if( wantP ){
+        iLevel++;
+        aIndent[iLevel] = nIndent;
+        azEnd[iLevel] = zEndPRE;
+        blob_append(pHtml, "<blockquote><pre>", -1);
+        wantP = 0;
+      }
+    }
+    if( isLI ){
+      blob_append(pHtml, "<li> ", 5);
+    }
+    if( wantP ){
+      blob_append(pHtml, "<p> ", 4);
+      wantP = 0;
+    }
+    if( azEnd[iLevel]==zEndDL ){
+      int iDD;
+      blob_append(pHtml, "<dt> ", 5);
+      iDD = hasGap(zHelp+nIndent, i-nIndent);
+      if( iDD ){
+        int x;
+        assert( iLevel<ArraySize(aIndent)-1 );
+        iLevel++;
+        aIndent[iLevel] = x = nIndent+iDD;
+        azEnd[iLevel] = zEndDD;
+        appendMixedFont(pHtml, zHelp+nIndent, iDD-2);
+        blob_appendf(pHtml, "</dt><dd>%#h\n", i-x, zHelp+x);
+      }else{
+        appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
+        blob_append(pHtml, "</dt>\n", 6);
+      }
+    }else if( wantBR ){
+      appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
+      blob_append(pHtml, "<br>\n", 5);
+      wantBR = 0;
+    }else{
+      appendLinked(pHtml, zHelp+nIndent, i-nIndent);
+      blob_append_char(pHtml, '\n');
+    }
+    zHelp += i+1;
+    i = 0;
+    if( c==0 ) break;
   }
-  *d = 0;
+  while( iLevel>0 ){
+    blob_appendf(pHtml, "%s\n", azEnd[iLevel--]);
+  }
+}
 
-  blob_appendf(pHtml, "<pre>\n%h\n</pre>\n", z);
-  fossil_free(z);
+/*
+** Format help text for TTY display.
+*/
+static void help_to_text(const char *zHelp, Blob *pText){
+  int i, x;
+  char c;
+  for(i=0; (c = zHelp[i])!=0; i++){
+    if( c=='%' && strncmp(zHelp+i,"%fossil",7)==0 ){
+      if( i>0 ) blob_append(pText, zHelp, i);
+      blob_append(pText, "fossil", 6);
+      zHelp += i+7;
+      i = -1;
+      continue;
+    }
+    if( c=='\n' && strncmp(zHelp+i+1,"> ",2)==0 ){
+      blob_append(pText, zHelp, i+1);
+      blob_append(pText, " ", 1);
+      zHelp += i+2;
+      i = -1;
+      continue;
+    }
+    if( c=='[' && (x = help_is_link(zHelp+i, 100000))!=0 ){
+      if( i>0 ) blob_append(pText, zHelp, i);
+      zHelp += i+2;
+      blob_append(pText, zHelp, x-3);
+      zHelp += x-1;
+      i = -1;
+      continue;
+    }     
+  }
+  if( i>0 ){
+    blob_append(pText, zHelp, i);
+  }      
 }
 
 /*
@@ -260,11 +501,13 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
 **    -w|--www          Show WWW pages.
 **    -s|--settings     Show settings.
 **    -h|--html         Transform output to HTML.
+**    -r|--raw          No output formatting.
 */
 void test_all_help_cmd(void){
   int i;
   int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
   int useHtml = find_option("html","h",0)!=0;
+  int rawOut = find_option("raw","r",0)!=0;
 
   if( find_option("www","w",0) ){
     mask = CMDFLAG_WEBPAGE;
@@ -294,15 +537,23 @@ void test_all_help_cmd(void){
   }
   for(i=0; i<MX_COMMAND; i++){
     if( (aCommand[i].eCmdFlags & mask)==0 ) continue;
-    fossil_print("# %s\n", aCommand[i].zName);
     if( useHtml ){
       Blob html;
-      blob_zero(&html);
+      blob_init(&html, 0, 0);
       help_to_html(aCommand[i].zHelp, &html);
-      fossil_print("%s\n\n", blob_str(&html));
+      fossil_print("<h1>%h</h1>\n", aCommand[i].zName);
+      fossil_print("%s\n<hr>\n", blob_str(&html));
       blob_reset(&html);
-    }else{
+    }else if( rawOut ){
+      fossil_print("# %s\n", aCommand[i].zName);
       fossil_print("%s\n\n", aCommand[i].zHelp);
+    }else{
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_text(aCommand[i].zHelp, &txt);
+      fossil_print("# %s\n", aCommand[i].zName);
+      fossil_print("%s\n\n", blob_str(&txt));
+      blob_reset(&txt);
     }
   }
   if( useHtml ){
@@ -314,11 +565,153 @@ void test_all_help_cmd(void){
 }
 
 /*
+** Count the number of entries in the aCommand[] table that match
+** the given flag.
+*/
+static int countCmds(unsigned int eFlg){
+  int n = 0;
+  int i;
+  for(i=0; i<MX_COMMAND; i++){
+    if( (aCommand[i].eCmdFlags & eFlg)!=0 ) n++;
+  }
+  return n;
+}
+
+/*
+** COMMAND: test-command-stats
+**
+** Print statistics about the built-in command dispatch table.
+*/
+void test_command_stats_cmd(void){
+  fossil_print("commands:       %4d\n",
+     countCmds( CMDFLAG_COMMAND ));
+  fossil_print("  1st tier         %4d\n",
+     countCmds( CMDFLAG_1ST_TIER ));
+  fossil_print("  2nd tier         %4d\n",
+     countCmds( CMDFLAG_2ND_TIER ));
+  fossil_print("  test             %4d\n",
+     countCmds( CMDFLAG_TEST ));
+  fossil_print("web-pages:      %4d\n",
+     countCmds( CMDFLAG_WEBPAGE ));
+  fossil_print("settings:       %4d\n",
+     countCmds( CMDFLAG_SETTING ));
+  fossil_print("total entries:  %4d\n", MX_COMMAND);
+}
+
+/*
+** Compute an estimate of the edit-distance between to input strings.
+**
+** The first string is the input.  The second is the pattern.  Only the
+** first 100 characters of the pattern are considered.
+*/
+static int edit_distance(const char *zA, const char *zB){
+  int nA = (int)strlen(zA);
+  int nB = (int)strlen(zB);
+  int i, j, m;
+  int p0, p1, c0;
+  int a[100];
+  static const int incr = 4;
+
+  for(j=0; j<nB; j++) a[j] = 1;
+  for(i=0; i<nA; i++){
+    p0 = i==0 ? 0 : i*incr-1;
+    c0 = i*incr;
+    for(j=0; j<nB; j++){
+      int m = 999;
+      p1 = a[j];
+      if( zA[i]==zB[j] ){
+        m = p0;
+      }else{
+        m = c0+2;
+        if( m>p1+2 ) m = p1+2;
+        if( m>p0+3 ) m = p0+3;
+      }
+      c0 = a[j];
+      a[j] = m;
+      p0 = p1;
+    }
+  }
+  m = a[nB-1];
+  for(j=0; j<nB-1; j++){
+    if( a[j]+1<m ) m = a[j]+1;
+  }
+  return m;
+}
+
+/*
+** Fill the pointer array with names of commands that approximately
+** match the input.  Return the number of approximate matches.
+**
+** Closest matches appear first.
+*/
+int dispatch_approx_match(const char *zIn, int nArray, const char **azArray){
+  int i;
+  int bestScore;
+  int m;
+  int n = 0;
+  int mnScore = 0;
+  int mxScore = 99999;
+  int iFirst, iLast;
+
+  if( zIn[0]=='/' ){
+    iFirst = 0;
+    iLast = FOSSIL_FIRST_CMD-1;
+  }else{
+    iFirst = FOSSIL_FIRST_CMD;
+    iLast = MX_COMMAND-1;
+  }
+
+  while( n<nArray ){
+    bestScore = mxScore;    
+    for(i=iFirst; i<=iLast; i++){
+      m = edit_distance(zIn, aCommand[i].zName);
+      if( m<mnScore ) continue;
+      if( m==mnScore ){
+        azArray[n++] = aCommand[i].zName;
+        if( n>=nArray ) return n;
+       }else if( m<bestScore ){
+        bestScore = m;
+      }
+    }
+    if( bestScore>=mxScore ) break;
+    mnScore = bestScore;
+  }
+  return n;
+}
+
+/*
+** COMMAND: test-approx-match
+**
+** Test the approximate match algorithm
+*/
+void test_approx_match_command(void){
+  int i, j, n;
+  const char *az[20];
+  for(i=2; i<g.argc; i++){
+    fossil_print("%s:\n", g.argv[i]);
+    n = dispatch_approx_match(g.argv[i], 20, az);
+    for(j=0; j<n; j++){
+      fossil_print("   %s\n", az[j]);
+    }
+  }
+}
+
+/*
 ** WEBPAGE: help
 ** URL: /help?name=CMD
 **
 ** Show the built-in help text for CMD.  CMD can be a command-line interface
 ** command or a page name from the web interface or a setting.
+** Query parameters:
+**
+**    name=CMD        Show help for CMD where CMD is a command name or
+**                    webpage name or setting name.
+**
+**    plaintext       Show the help within <pre>...</pre>, as if it were
+**                    displayed using the "fossil help" command.
+**
+**    raw             Show the raw help text without any formatting.
+**                    (Used for debugging.)
 */
 void help_page(void){
   const char *zCmd = P("cmd");
@@ -331,7 +724,7 @@ void help_page(void){
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%s/help", g.zTop);
-    rc = dispatch_name_search(zCmd, CMDFLAG_ANY, &pCmd);
+    rc = dispatch_name_search(zCmd, CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
     if( *zCmd=='/' ){
       /* Some of the webpages require query parameters in order to work.
       ** @ <h1>The "<a href='%R%s(zCmd)'>%s(zCmd)</a>" page:</h1> */
@@ -348,10 +741,22 @@ void help_page(void){
     }else{
       if( pCmd->zHelp[0]==0 ){
         @ No help available for "%h(pCmd->zName)"
+      }else if( P("plaintext") ){
+        Blob txt;
+        blob_init(&txt, 0, 0);
+        help_to_text(pCmd->zHelp, &txt);
+        @ <pre class="helpPage">
+        @ %h(blob_str(&txt))
+        @ </pre>
+        blob_reset(&txt);
+      }else if( P("raw") ){
+        @ <pre class="helpPage">
+        @ %h(pCmd->zHelp)
+        @ </pre>
       }else{
-        @ <blockquote>
+        @ <div class="helpPage">
         help_to_html(pCmd->zHelp, cgi_output_blob());
-        @ </blockquote>
+        @ </div>
       }
     }
   }else{
@@ -559,34 +964,40 @@ static const char zOptions[] =
 /*
 ** COMMAND: help
 **
-** Usage: %fossil help TOPIC
-**    or: %fossil TOPIC --help
+** Usage: %fossil help [OPTIONS] [TOPIC]
 **
 ** Display information on how to use TOPIC, which may be a command, webpage, or
-** setting.  Webpage names begin with "/".  To display a list of available
-** topics, use one of:
+** setting.  Webpage names begin with "/".  If TOPIC is omitted, a list of
+** topics is returned.
 **
-**    %fossil help                Show common commands
-**    %fossil help -a|--all       Show both common and auxiliary commands
-**    %fossil help -o|--options   Show command-line options common to all cmds
-**    %fossil help -s|--setting   Show setting names
-**    %fossil help -t|--test      Show test commands only
-**    %fossil help -x|--aux       Show auxiliary commands only
-**    %fossil help -w|--www       Show list of webpages
+** The following options can be used when TOPIC is omitted:
+**
+**    -a|--all          List both common and auxiliary commands
+**    -o|--options      List command-line options common to all commands
+**    -s|--setting      List setting names
+**    -t|--test         List unsupported "test" commands
+**    -x|--aux          List only auxiliary commands
+**    -w|--www          List all web pages
+**
+** These options can be used when TOPIC is present:
+**
+**    -h|--html         Format output as HTML rather than plain text
 */
 void help_cmd(void){
   int rc;
   int isPage = 0;
   const char *z;
   const char *zCmdOrPage;
-  const char *zCmdOrPagePlural;
   const CmdOrPage *pCmd = 0;
+  int useHtml = 0;
+  Blob txt;
   if( g.argc<3 ){
     z = g.argv[0];
     fossil_print(
       "Usage: %s help TOPIC\n"
-      "Common commands:  (use \"%s help help\" for more options)\n",
-      z, z);
+      "Try \"%s help help\" or \"%s help -a\" for more options\n"
+      "Frequently used commands:\n",
+      z, z, z);
     command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();
     return;
@@ -615,25 +1026,32 @@ void help_cmd(void){
     command_list(0, CMDFLAG_SETTING);
     return;
   }
+  useHtml = find_option("html","h",0)!=0;
   isPage = ('/' == *g.argv[2]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
-    zCmdOrPagePlural = "pages";
   }else{
     zCmdOrPage = "command or setting";
-    zCmdOrPagePlural = "commands and settings";
   }
   rc = dispatch_name_search(g.argv[2], CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
-  if( rc==1 ){
-    fossil_print("unknown %s: %s\nConsider using:\n", zCmdOrPage, g.argv[2]);
+  if( rc ){
+    int i, n;
+    const char *az[5];
+    if( rc==1 ){
+      fossil_print("unknown %s: %s\n", zCmdOrPage, g.argv[2]);
+    }else{
+      fossil_print("ambiguous %s prefix: %s\n",
+                 zCmdOrPage, g.argv[2]);
+    }
+    fossil_print("Did you mean one of:\n");
+    n = dispatch_approx_match(g.argv[2], 5, az);
+    for(i=0; i<n; i++){
+      fossil_print("  *  %s\n", az[i]);
+    }
+    fossil_print("Also consider using:\n");
     fossil_print("   fossil help -a     ;# show all commands\n");
     fossil_print("   fossil help -w     ;# show all web-pages\n");
     fossil_print("   fossil help -s     ;# show all settings\n");
-    fossil_exit(1);
-  }else if( rc==2 ){
-    fossil_print("ambiguous %s prefix: %s\nMatching %s:\n",
-                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
-    command_list(g.argv[2], 0xff);
     fossil_exit(1);
   }
   z = pCmd->zHelp;
@@ -647,16 +1065,14 @@ void help_cmd(void){
          (pCmd->eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ? " (versionable)" : ""
     );
   }
-  while( *z ){
-    if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
-      fossil_print("%s", g.argv[0]);
-      z += 7;
-    }else{
-      putchar(*z);
-      z++;
-    }
+  blob_init(&txt, 0, 0);
+  if( useHtml ){
+    help_to_html(z, &txt);
+  }else{
+    help_to_text(z, &txt);
   }
-  putchar('\n');
+  fossil_print("%s\n", blob_str(&txt));
+  blob_reset(&txt);
 }
 
 /*
@@ -669,3 +1085,247 @@ const Setting *setting_info(int *pnCount){
   if( pnCount ) *pnCount = (int)(sizeof(aSetting)/sizeof(aSetting[0])) - 1;
   return aSetting;
 }
+
+/*****************************************************************************
+** A virtual table for accessing the information in aCommand[], and
+** especially the help-text
+*/
+
+/* helptextVtab_vtab is a subclass of sqlite3_vtab which is
+** underlying representation of the virtual table
+*/
+typedef struct helptextVtab_vtab helptextVtab_vtab;
+struct helptextVtab_vtab {
+  sqlite3_vtab base;  /* Base class - must be first */
+  /* Add new fields here, as necessary */
+};
+
+/* helptextVtab_cursor is a subclass of sqlite3_vtab_cursor which will
+** serve as the underlying representation of a cursor that scans
+** over rows of the result
+*/
+typedef struct helptextVtab_cursor helptextVtab_cursor;
+struct helptextVtab_cursor {
+  sqlite3_vtab_cursor base;  /* Base class - must be first */
+  /* Insert new fields here.  For this helptextVtab we only keep track
+  ** of the rowid */
+  sqlite3_int64 iRowid;      /* The rowid */
+};
+
+/*
+** The helptextVtabConnect() method is invoked to create a new
+** helptext virtual table.
+**
+** Think of this routine as the constructor for helptextVtab_vtab objects.
+**
+** All this routine needs to do is:
+**
+**    (1) Allocate the helptextVtab_vtab object and initialize all fields.
+**
+**    (2) Tell SQLite (via the sqlite3_declare_vtab() interface) what the
+**        result set of queries against the virtual table will look like.
+*/
+static int helptextVtabConnect(
+  sqlite3 *db,
+  void *pAux,
+  int argc, const char *const*argv,
+  sqlite3_vtab **ppVtab,
+  char **pzErr
+){
+  helptextVtab_vtab *pNew;
+  int rc;
+
+  rc = sqlite3_declare_vtab(db,
+           "CREATE TABLE x(name,type,flags,helptext,formatted,html)"
+       );
+  if( rc==SQLITE_OK ){
+    pNew = sqlite3_malloc( sizeof(*pNew) );
+    *ppVtab = (sqlite3_vtab*)pNew;
+    if( pNew==0 ) return SQLITE_NOMEM;
+    memset(pNew, 0, sizeof(*pNew));
+  }
+  return rc;
+}
+
+/*
+** This method is the destructor for helptextVtab_vtab objects.
+*/
+static int helptextVtabDisconnect(sqlite3_vtab *pVtab){
+  helptextVtab_vtab *p = (helptextVtab_vtab*)pVtab;
+  sqlite3_free(p);
+  return SQLITE_OK;
+}
+
+/*
+** Constructor for a new helptextVtab_cursor object.
+*/
+static int helptextVtabOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
+  helptextVtab_cursor *pCur;
+  pCur = sqlite3_malloc( sizeof(*pCur) );
+  if( pCur==0 ) return SQLITE_NOMEM;
+  memset(pCur, 0, sizeof(*pCur));
+  *ppCursor = &pCur->base;
+  return SQLITE_OK;
+}
+
+/*
+** Destructor for a helptextVtab_cursor.
+*/
+static int helptextVtabClose(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  sqlite3_free(pCur);
+  return SQLITE_OK;
+}
+
+
+/*
+** Advance a helptextVtab_cursor to its next row of output.
+*/
+static int helptextVtabNext(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  pCur->iRowid++;
+  return SQLITE_OK;
+}
+
+/*
+** Return values of columns for the row at which the helptextVtab_cursor
+** is currently pointing.
+*/
+static int helptextVtabColumn(
+  sqlite3_vtab_cursor *cur,   /* The cursor */
+  sqlite3_context *ctx,       /* First argument to sqlite3_result_...() */
+  int i                       /* Which column to return */
+){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  const CmdOrPage *pPage = aCommand + pCur->iRowid;
+  switch( i ){
+    case 0:  /* name */
+      sqlite3_result_text(ctx, pPage->zName, -1, SQLITE_STATIC);
+      break;
+    case 1: { /* type */
+      const char *zType = 0;
+      if( pPage->eCmdFlags & CMDFLAG_COMMAND ){
+        zType = "command";
+      }else if( pPage->eCmdFlags & CMDFLAG_WEBPAGE ){
+        zType = "webpage";
+      }else if( pPage->eCmdFlags & CMDFLAG_SETTING ){
+        zType = "setting";
+      }
+      sqlite3_result_text(ctx, zType, -1, SQLITE_STATIC);
+      break;
+    }
+    case 2:  /* flags */
+      sqlite3_result_int(ctx, pPage->eCmdFlags);
+      break;
+    case 3:  /* helptext */
+      sqlite3_result_text(ctx, pPage->zHelp, -1, SQLITE_STATIC);
+      break;
+    case 4: { /* formatted */
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_text(pPage->zHelp, &txt);
+      sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
+      break;
+    }
+    case 5: { /* formatted */
+      Blob txt;
+      blob_init(&txt, 0, 0);
+      help_to_html(pPage->zHelp, &txt);
+      sqlite3_result_text(ctx, blob_str(&txt), -1, fossil_free);
+      break;
+    }
+  }
+  return SQLITE_OK;
+}
+
+/*
+** Return the rowid for the current row.  In this implementation, the
+** rowid is the same as the output value.
+*/
+static int helptextVtabRowid(sqlite3_vtab_cursor *cur, sqlite_int64 *pRowid){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  *pRowid = pCur->iRowid;
+  return SQLITE_OK;
+}
+
+/*
+** Return TRUE if the cursor has been moved off of the last
+** row of output.
+*/
+static int helptextVtabEof(sqlite3_vtab_cursor *cur){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor*)cur;
+  return pCur->iRowid>=MX_COMMAND;
+}
+
+/*
+** This method is called to "rewind" the helptextVtab_cursor object back
+** to the first row of output.  This method is always called at least
+** once prior to any call to helptextVtabColumn() or helptextVtabRowid() or 
+** helptextVtabEof().
+*/
+static int helptextVtabFilter(
+  sqlite3_vtab_cursor *pVtabCursor, 
+  int idxNum, const char *idxStr,
+  int argc, sqlite3_value **argv
+){
+  helptextVtab_cursor *pCur = (helptextVtab_cursor *)pVtabCursor;
+  pCur->iRowid = 1;
+  return SQLITE_OK;
+}
+
+/*
+** SQLite will invoke this method one or more times while planning a query
+** that uses the virtual table.  This routine needs to create
+** a query plan for each invocation and compute an estimated cost for that
+** plan.
+*/
+static int helptextVtabBestIndex(
+  sqlite3_vtab *tab,
+  sqlite3_index_info *pIdxInfo
+){
+  pIdxInfo->estimatedCost = (double)MX_COMMAND;
+  pIdxInfo->estimatedRows = MX_COMMAND;
+  return SQLITE_OK;
+}
+
+/*
+** This following structure defines all the methods for the 
+** virtual table.
+*/
+static sqlite3_module helptextVtabModule = {
+  /* iVersion    */ 0,
+  /* xCreate     */ 0,  /* Helptext is eponymous and read-only */
+  /* xConnect    */ helptextVtabConnect,
+  /* xBestIndex  */ helptextVtabBestIndex,
+  /* xDisconnect */ helptextVtabDisconnect,
+  /* xDestroy    */ 0,
+  /* xOpen       */ helptextVtabOpen,
+  /* xClose      */ helptextVtabClose,
+  /* xFilter     */ helptextVtabFilter,
+  /* xNext       */ helptextVtabNext,
+  /* xEof        */ helptextVtabEof,
+  /* xColumn     */ helptextVtabColumn,
+  /* xRowid      */ helptextVtabRowid,
+  /* xUpdate     */ 0,
+  /* xBegin      */ 0,
+  /* xSync       */ 0,
+  /* xCommit     */ 0,
+  /* xRollback   */ 0,
+  /* xFindMethod */ 0,
+  /* xRename     */ 0,
+  /* xSavepoint  */ 0,
+  /* xRelease    */ 0,
+  /* xRollbackTo */ 0,
+  /* xShadowName */ 0
+};
+
+
+/*
+** Register the helptext virtual table
+*/
+int helptext_vtab_register(sqlite3 *db){
+  int rc = sqlite3_create_module(db, "helptext", &helptextVtabModule, 0);
+  return rc;
+}
+/* End of the helptext virtual table
+******************************************************************************/

@@ -172,35 +172,53 @@ proc fossil_maybe_answer {answer args} {
     set keepNewline 1
     set args [lreplace $args $index $index]
   }
+  set whatIf 0
+  set index [lsearch -exact $args -whatIf]
+  if {$index != -1} {
+    set whatIf 1
+    set args [lreplace $args $index $index]
+  }
   foreach a $args {
     lappend cmd $a
   }
   protOut $cmd
 
   flush stdout
-  if {[string length $answer] > 0} {
-    protOut $answer
-    set prompt_file [file join $::tempPath fossil_prompt_answer]
-    write_file $prompt_file $answer\n
-    if {$keepNewline} {
-      set rc [catch {eval exec -keepnewline $cmd <$prompt_file} result]
-    } else {
-      set rc [catch {eval exec $cmd <$prompt_file} result]
-    }
-    file delete $prompt_file
+  if {$whatIf} {
+    protOut [pwd]; protOut $answer
+    set result WHAT-IF-MODE; set rc 42
   } else {
-    if {$keepNewline} {
-      set rc [catch {eval exec -keepnewline $cmd} result]
+    if {[string length $answer] > 0} {
+      protOut $answer
+      set prompt_file [file join $::tempPath fossil_prompt_answer]
+      write_file $prompt_file $answer\n
+      set execCmd [list eval exec]
+      if {$keepNewline} {lappend execCmd -keepnewline}
+      lappend execCmd $cmd <$prompt_file
+      set rc [catch $execCmd result]
+      file delete $prompt_file
     } else {
-      set rc [catch {eval exec $cmd} result]
+      set execCmd [list eval exec]
+      if {$keepNewline} {lappend execCmd -keepnewline}
+      lappend execCmd $cmd
+      set rc [catch $execCmd result]
     }
+  }
+  set ab(str) {child process exited abnormally}
+  set ab(len) [string length $ab(str)]
+  set ab(off) [expr {$ab(len) - 1}]
+  if {$rc && $expectError && \
+      [string range $result end-$ab(off) end] eq $ab(str)} {
+    set result [string range $result 0 end-$ab(len)]
   }
   global RESULT CODE
   set CODE $rc
-  if {($rc && !$expectError) || (!$rc && $expectError)} {
-    protOut "ERROR: $result" 1
-  } elseif {$::VERBOSE} {
-    protOut "RESULT: $result"
+  if {!$whatIf} {
+    if {($rc && !$expectError) || (!$rc && $expectError)} {
+      protOut "ERROR ($rc): $result" 1
+    } elseif {$::VERBOSE} {
+      protOut "RESULT ($rc): $result"
+    }
   }
   set RESULT $result
 }
@@ -245,15 +263,7 @@ proc get_versionable_settings {} {
       encoding-glob \
       ignore-glob \
       keep-glob \
-      manifest \
-      th1-setup \
-      th1-uri-regexp]
-
-  fossil test-th-eval "hasfeature tcl"
-
-  if {[normalize_result] eq "1"} {
-    lappend result tcl-setup
-  }
+      manifest]
 
   return [lsort -dictionary $result]
 }
@@ -284,21 +294,27 @@ proc get_all_settings {} {
       comment-format \
       crlf-glob \
       crnl-glob \
+      default-csp \
       default-perms \
       diff-binary \
       diff-command \
       dont-push \
       dotfiles \
       editor \
+      email-admin \
       email-self \
       email-send-command \
       email-send-db \
       email-send-dir \
       email-send-method \
       email-send-relayhost \
+      email-subname \
+      email-url \
       empty-dirs \
       encoding-glob \
       exec-rel-paths \
+      fileedit-glob \
+      forbid-delta-manifests \
       gdiff-command \
       gmerge-command \
       hash-digits \
@@ -307,16 +323,20 @@ proc get_all_settings {} {
       ignore-glob \
       keep-glob \
       localauth \
+      lock-timeout \
       main-branch \
       manifest \
       max-loadavg \
       max-upload \
+      mimetypes \
       mtime-changes \
       pgp-command \
       proxy \
+      redirect-to-https \
       relative-paths \
       repo-cksum \
       repolist-skin \
+      safe-html \
       self-register \
       ssh-command \
       ssl-ca-location \
@@ -361,7 +381,15 @@ proc same_file {a b} {
   regsub -all { +\n} $x \n x
   set y [read_file $b]
   regsub -all { +\n} $y \n y
-  return [expr {$x==$y}]
+  if {$x == $y} {
+    return 1
+  } else {
+    if {$::VERBOSE} {
+      protOut "NOT_SAME_FILE($a): \{\n$x\n\}"
+      protOut "NOT_SAME_FILE($b): \{\n$y\n\}"
+    }
+    return 0
+  }
 }
 
 # Return true if two strings refer to the
@@ -374,7 +402,7 @@ proc same_uuid {a b} {
   if {$na == $nb} {
     return [expr {$a eq $b}]
   }
-  if {$na < $nb} then {
+  if {$na < $nb} {
     return [string match "$a*" $b]
   }
   return [string match "$b*" $a]
@@ -954,7 +982,10 @@ proc test_fossil_http { repository dataFileName url } {
   set data [subst [read_file $dataFileName]]
 
   write_file $inFileName $data
-  fossil http $inFileName $outFileName 127.0.0.1 $repository --localauth
+
+  fossil http --in $inFileName --out $outFileName --ipaddr 127.0.0.1 \
+      $repository --localauth --th-trace
+
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
   if {1} {

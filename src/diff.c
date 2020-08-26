@@ -2401,15 +2401,15 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **    checkin=ID          The check-in at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers=BOOLEAN    Show file versions rather than check-in versions
-**    limit=LIMIT         Limit the amount of analysis:
-**                           "none"  No limit
-**                           "Xs"    As much as can be computed in X seconds
-**                           "N"     N versions
+**    limit=LIMIT         Limit the amount of analysis.  LIMIT can be one of:
+**                           none   No limit
+**                           Xs     As much as can be computed in X seconds
+**                           N      N versions
 **    log=BOOLEAN         Show a log of versions analyzed
 **    origin=ID           The origin checkin.  If unspecified, the root
-**                           check-in over the entire repository is used.
-**                           Specify "origin=trunk" or similar for a reverse
-**                           annotation
+**                        check-in over the entire repository is used.
+**                        Specify "origin=trunk" or similar for a reverse
+**                        annotation
 **    w=BOOLEAN           Ignore whitespace
 */
 void annotation_page(void){
@@ -2564,7 +2564,7 @@ void annotation_page(void){
 /*
 ** COMMAND: annotate
 ** COMMAND: blame
-** COMMAND: praise
+** COMMAND: praise*
 **
 ** Usage: %fossil annotate|blame|praise ?OPTIONS? FILENAME
 **
@@ -2588,17 +2588,17 @@ void annotation_page(void){
 **                               check-in versions
 **   -r|--revision VERSION       The specific check-in containing the file
 **   -l|--log                    List all versions analyzed
-**   -n|--limit LIMIT            Limit the amount of analysis:
+**   -n|--limit LIMIT            LIMIT can be one of:
 **                                 N      Up to N versions
 **                                 Xs     As much as possible in X seconds
 **                                 none   No limit
 **   -o|--origin VERSION         The origin check-in. By default this is the
-**                                 root of the repository. Set to "trunk" or
-**                                 similar for a reverse annotation.
+**                               root of the repository. Set to "trunk" or
+**                               similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
-** See also: info, finfo, timeline
+** See also: [[info]], [[finfo]], [[timeline]]
 */
 void annotate_cmd(void){
   const char *zRevision; /* Revision name, or NULL for current check-in */

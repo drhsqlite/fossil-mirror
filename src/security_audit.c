@@ -524,6 +524,13 @@ void secaudit0_page(void){
     @ %d(nCgi) CGIs and %d(nFile-nCgi) static content and data files.
   }
 
+  if( fileedit_glob()!=0 ){
+    @ <li><p><a href='%R/fileedit'>Online File Editing</a> is enabled
+    @ for this repository.  Clear the 
+    @ <a href='%R/setup_settings'>"fileedit-glob" setting</a> to
+    @ disable online editing.</p>
+  }
+
   @ <li><p> User capability summary:
   capability_summary();
 
@@ -681,7 +688,7 @@ void errorlog_page(void){
   style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
   if( in==0 ){
-    @ <p class='generalError'>Unable top open that file for reading!</p>
+    @ <p class='generalError'>Unable to open that file for reading!</p>
     style_footer();
     return;
   }

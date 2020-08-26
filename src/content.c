@@ -328,7 +328,7 @@ int content_get(int rid, Blob *pBlob){
 ** Options:
 **    -R|--repository FILE       Extract artifacts from repository FILE
 **
-** See also: finfo
+** See also: [[finfo]]
 */
 void artifact_cmd(void){
   int rid;
@@ -566,7 +566,7 @@ int content_put_ex(
       return rid;
     }
   }else{
-    rid = 0;  /* No entry with the same UUID currently exists */
+    rid = 0;  /* No entry with the same hash currently exists */
     markAsUnclustered = 1;
   }
   db_finalize(&s1);
@@ -661,7 +661,7 @@ int content_put(Blob *pBlob){
 
 
 /*
-** Create a new phantom with the given UUID and return its artifact ID.
+** Create a new phantom with the given hash and return its artifact ID.
 */
 int content_new(const char *zUuid, int isPrivate){
   int rid;
@@ -807,7 +807,7 @@ void content_make_private(int rid){
 ** the source of the delta.  It is OK to delta private->private and
 ** public->private and public->public.  Just no private->public delta.
 **
-** If aSrc[bestSrc] is already a dleta that depends on rid, then it is
+** If aSrc[bestSrc] is already a delta that depends on rid, then it is
 ** converted to undeltaed text before the aSrc[bestSrc]->rid delta is
 ** created, in order to prevent a delta loop.
 **
@@ -1112,11 +1112,12 @@ void test_orphans(void){
 
 /* This is a helper routine for test-artifacts.
 **
-** Check to see that artifact zUuid exists in the repository.  If it does,
-** return 0.  If it does not, generate an error message and return 1.
+** Check to see that the artifact hash referenced by zUuid exists in the
+** repository.  If it does, return 0.  If it does not, generate an error
+** message and return 1.
 */
 static int check_exists(
-  const char *zUuid,     /* The artifact we are checking for */
+  const char *zUuid,     /* Hash of the artifact we are checking for */
   unsigned flags,        /* Flags */
   Manifest *p,           /* The control artifact that references zUuid */
   const char *zRole,     /* Role of zUuid in p */

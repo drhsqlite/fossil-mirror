@@ -379,11 +379,18 @@ u32 fossil_utf8_read(
 }
 
 /*
-** Encode a UTF8 string as a JSON string literal (without the surrounding
-** "...") and return a pointer to the encoding.  Space to hold the encoding
-** is obtained from fossil_malloc() and must be freed by the caller.
+** Encode a UTF8 string as a JSON string literal (with or without the
+** surrounding "...", depending on whether the 2nd argument is true or
+** false) and return a pointer to the encoding.  Space to hold the
+** encoding is obtained from fossil_malloc() and must be freed by the
+** caller.
+**
+** If nOut is not NULL then it is assigned to the length, in bytes, of
+** the returned string (its strlen(), not counting the terminating
+** NUL).
 */
-char *encode_json_string_literal(const char *zStr){
+char *encode_json_string_literal(const char *zStr, int fAddQuotes,
+                                 int * nOut){
   const unsigned char *z;
   char *zOut;
   u32 c;
@@ -403,12 +410,18 @@ char *encode_json_string_literal(const char *zStr){
       n++;
     }
   }
+  if(fAddQuotes){
+    n += 2;
+  }
   zOut = fossil_malloc(n+1);
   if( zOut==0 ) return 0;
   z = (const unsigned char*)zStr;
   i = 0;
+  if(fAddQuotes){
+    zOut[i++] = '"';
+  }
   while( (c = fossil_utf8_read(&z))!=0 ){
-    if( c=='\\' ){
+    if( c=='\\' || c=='"' ){
       zOut[i++] = '\\';
       zOut[i++] = c;
     }else if( c<' ' || c>=0x7f ){
@@ -429,7 +442,13 @@ char *encode_json_string_literal(const char *zStr){
       zOut[i++] = c;
     }
   }
+  if(fAddQuotes){
+    zOut[i++] = '"';
+  }
   zOut[i] = 0;
+  if(nOut!=0){
+    *nOut = i;
+  }
   return zOut;
 }
 

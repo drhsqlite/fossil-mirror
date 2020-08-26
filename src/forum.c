@@ -342,6 +342,7 @@ void forum_render(
     }
     blob_init(&x, 0, 0);
     blob_append(&x, zContent, -1);
+    safe_html_context(DOCSRC_FORUM);
     wiki_render_by_mimetype(&x, zMimetype);
     blob_reset(&x);
     @ </div>
@@ -402,7 +403,6 @@ char *display_name_from_login(const char *zLogin){
   db_reset(&q);
   return zResult;
 }
-
 
 /*
 ** Display all posts in a forum thread in chronological order
@@ -486,7 +486,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -507,7 +507,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>
@@ -594,7 +594,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -615,7 +615,7 @@ static void forum_display_history(int froot, int target, int bRawMode){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>
@@ -669,7 +669,6 @@ static int forum_display_hierarchical(int froot, int target){
       @ <div id='forum%d(fpid)' class='forumHier%s(zSel)' \
       @ style='margin-left: %d((p->nIndent-1)*iIndentScale)ex;'>
     }
-    pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>
@@ -721,7 +720,7 @@ static int forum_display_hierarchical(int froot, int target){
       forum_render(0, pPost->zMimetype, pPost->zWiki, 0, 1);
     }
     if( g.perm.WrForum ){
-      @ <p><form action="%R/forumedit" method="POST">
+      @ <div><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
@@ -742,13 +741,27 @@ static int forum_display_hierarchical(int froot, int target){
         ** person who originally submitted the post */
         @ <input type="submit" name="reject" value="Delete">
       }
-      @ </form></p>
+      @ </form></div>
     }
     manifest_destroy(pPost);
     @ </div>
   }
   forumthread_delete(pThread);
   return target;
+}
+
+/*
+** Emits all JS code required by /forumpost.
+*/
+static void forumpost_emit_page_js(){
+  static int once = 0;
+  if(0==once){
+    once = 1;
+    style_emit_script_fossil_bootstrap(1);
+    builtin_request_js("forum.js");
+    builtin_request_js("fossil.dom.js");
+    builtin_request_js("fossil.page.forumpost.js");
+  }
 }
 
 /*
@@ -879,7 +892,7 @@ void forumthread_page(void){
     style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
-  style_load_js("forum.js");
+  forumpost_emit_page_js();
   style_footer();
 }
 
@@ -995,7 +1008,9 @@ static int forum_post(
     blob_reset(&x);
     return 0;
   }else{
-    int nrid = wiki_put(&x, 0, forum_need_moderation());
+    int nrid = wiki_put(&x, iEdit>0 ? iEdit : 0,
+                        forum_need_moderation());
+    blob_reset(&x);
     cgi_redirectf("%R/forumpost/%S", rid_to_uuid(nrid));
     return 1;
   }

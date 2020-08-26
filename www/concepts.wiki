@@ -82,7 +82,7 @@ repositories are identified by URL.  You can also point a web browser
 at a repository and get human-readable status, history, and tracking
 information about the project.
 
-<h3>2.1 Identification Of Artifacts</h3>
+<h3><a id="artifacts"></a>2.1 Identification Of Artifacts</h3>
 
 A particular version of a particular file is called an "artifact".  Each
 artifact has a universally unique name which is the <a
@@ -236,7 +236,7 @@ token after the name of the Fossil executable, as shown above.
 <a name="workflow"></a>
 <h2>4.0 Workflow</h2>
 
-<img src="concept2.gif" align="right" hspace="10">
+<img src="concept2.gif" align="right" hspace="10" style="max-width:50%;">
 
 Fossil has two modes of operation: <i>"autosync"</i> and
 <i>"manual-merge"</i>

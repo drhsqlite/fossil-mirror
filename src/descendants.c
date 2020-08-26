@@ -161,29 +161,74 @@ void compute_leaves(int iBase, int closeMode){
 
 /*
 ** Load the record ID rid and up to |N|-1 closest ancestors into
-** the "ok" table.  If N is zero, no limit.
+** the "ok" table.  If N is zero, no limit.  If ridBackTo is not zero
+** then stop the search upon reaching the ancestor with rid==ridBackTo.
 */
-void compute_ancestors(int rid, int N, int directOnly){
+void compute_ancestors(int rid, int N, int directOnly, int ridBackTo){
   if( !N ){
      N = -1;
   }else if( N<0 ){
      N = -N;
   }
-  db_multi_exec(
-    "WITH RECURSIVE "
-    "  ancestor(rid, mtime) AS ("
-    "    SELECT %d, mtime FROM event WHERE objid=%d "
-    "    UNION "
-    "    SELECT plink.pid, event.mtime"
-    "      FROM ancestor, plink, event"
-    "     WHERE plink.cid=ancestor.rid"
-    "       AND event.objid=plink.pid %s"
-    "     ORDER BY mtime DESC LIMIT %d"
-    "  )"
-    "INSERT INTO ok"
-    "  SELECT rid FROM ancestor;",
-    rid, rid, directOnly ? "AND plink.isPrim" : "", N
-  );
+  if( directOnly ){
+    /* Direct mode means to show primary parents only */
+    db_multi_exec(
+      "WITH RECURSIVE "
+      "  ancestor(rid, mtime) AS ("
+      "    SELECT %d, mtime FROM event WHERE objid=%d "
+      "    UNION "
+      "    SELECT plink.pid, event.mtime"
+      "      FROM ancestor, plink, event"
+      "     WHERE plink.cid=ancestor.rid"
+      "       AND event.objid=plink.pid"
+      "       AND plink.isPrim"
+      "     ORDER BY mtime DESC LIMIT %d"
+      "  )"
+      "INSERT INTO ok"
+      "  SELECT rid FROM ancestor;",
+      rid, rid, N
+    );
+  }else{
+    /* If not in directMode, also include merge parents, including
+    ** cherrypick merges.  Except, terminate searches at the cherrypick
+    ** merge parent itself.  In other words, include:
+    **    (1)  Primary parents
+    **    (2)  Merge parents
+    **    (3)  Cherrypick merge parents.
+    **    (4)  All ancestores of 1 and 2 but not of 3.
+    */
+    double rLimitMtime = 0.0;
+    if( ridBackTo ){
+      rLimitMtime = db_double(0.0,
+         "SELECT mtime FROM event WHERE objid=%d",
+         ridBackTo);
+    }
+    db_multi_exec(
+      "WITH RECURSIVE "
+      "  parent(pid,cid,isCP) AS ("
+      "    SELECT plink.pid, plink.cid, 0 AS xisCP FROM plink"
+      "    UNION ALL"
+      "    SELECT parentid, childid, 1 FROM cherrypick WHERE NOT isExclude"
+      "  ),"
+      "  ancestor(rid, mtime, isCP) AS ("
+      "    SELECT %d, mtime, 0 FROM event WHERE objid=%d "
+      "    UNION "
+      "    SELECT parent.pid, event.mtime, parent.isCP"
+      "      FROM ancestor, parent, event"
+      "     WHERE parent.cid=ancestor.rid"
+      "       AND event.objid=parent.pid"
+      "       AND NOT ancestor.isCP"
+      "       AND (event.mtime>=%.17g OR parent.pid=%d)"
+      "     ORDER BY mtime DESC LIMIT %d"
+      "  )"
+      "INSERT OR IGNORE INTO ok"
+      "  SELECT rid FROM ancestor;",
+      rid, rid, rLimitMtime, ridBackTo, N
+    );
+    if( ridBackTo && db_changes()>1 ){
+      db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", ridBackTo);
+    }
+  }
 }
 
 /*
@@ -250,7 +295,7 @@ int mtime_of_manifest_file(
     prevVid = vid;
     db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
                   "DELETE FROM ok;");
-    compute_ancestors(vid, 100000000, 1);
+    compute_ancestors(vid, 100000000, 1, 0);
   }
   db_static_prepare(&q,
     "SELECT (max(event.mtime)-2440587.5)*86400 FROM mlink, event"
@@ -305,7 +350,7 @@ void compute_descendants(int rid, int N){
 **                               Must be >20 or 0 (= no limit, resulting in a
 **                               single line per entry).
 **
-** See also: finfo, info, leaves
+** See also: [[finfo]], [[info]], [[leaves]]
 */
 void descendants_cmd(void){
   Stmt q;
@@ -365,7 +410,7 @@ void descendants_cmd(void){
 **                    >39 or 0 (= no limit, resulting in a single line per
 **                    entry).
 **
-** See also: descendants, finfo, info, branch
+** See also: [[descendants]], [[finfo]], [[info]], [[branch]]
 */
 void leaves_cmd(void){
   Stmt q;

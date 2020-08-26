@@ -143,6 +143,8 @@ int repo_list_page(void){
   if( n==0 ){
     sqlite3_close(g.db);
     g.db = 0;
+    g.repositoryOpen = 0;
+    g.localOpen = 0;
     return 0;
   }else{
     Stmt q;

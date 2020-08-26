@@ -22,37 +22,11 @@
 #include <assert.h>
 
 /*
-** The input string is a filename.  Return a new copy of this
-** filename if the filename requires quoting due to special characters
-** such as spaces in the name.
-**
-** If the filename cannot be safely quoted, return a NULL pointer.
-**
-** Space to hold the returned string is obtained from malloc.  A new
-** string is returned even if no quoting is needed.
-*/
-static char *quoteFilename(const char *zFilename){
-  int i, c;
-  int needQuote = 0;
-  for(i=0; (c = zFilename[i])!=0; i++){
-    if( c=='"' ) return 0;
-    if( fossil_isspace(c) ) needQuote = 1;
-    if( c=='\\' && zFilename[i+1]==0 ) return 0;
-    if( c=='$' ) return 0;
-  }
-  if( needQuote ){
-    return mprintf("\"%s\"", zFilename);
-  }else{
-    return mprintf("%s", zFilename);
-  }
-}
-
-/*
 ** Build a string that contains all of the command-line options
 ** specified as arguments.  If the option name begins with "+" then
 ** it takes an argument.  Without the "+" it does not.
 */
-static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort){
+static void collect_argument(Blob *pExtra,const char *zArg,const char *zShort){
   const char *z = find_option(zArg, zShort, 0);
   if( z!=0 ){
     blob_appendf(pExtra, " %s", z);
@@ -62,7 +36,7 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
   const char *zValue = find_option(zArg, 0, 1);
   if( zValue ){
     if( zValue[0] ){
-      blob_appendf(pExtra, " --%s %s", zArg, zValue);
+      blob_appendf(pExtra, " --%s %$", zArg, zValue);
     }else{
       blob_appendf(pExtra, " --%s \"\"", zArg);
     }
@@ -89,6 +63,9 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** %LOCALAPPDATA%, %APPDATA% or %HOMEPATH%.
 **
 ** Available operations are:
+**
+**    backup      Backup all repositories.  The argument must the name of
+**                a directory into which all backup repositories are written.
 **
 **    cache       Manages the cache used for potentially expensive web
 **                pages.  Any additional arguments are passed on verbatim
@@ -132,9 +109,9 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    sync        Run a "sync" on all repositories.  Only the --verbose
 **                and --unversioned options are supported.
 **
-**    setting     Run the "setting", "set", or "unset" commands on all
-**    set         repositories.  These command are particularly useful in
-**    unset       conjunction with the "max-loadavg" setting which cannot
+**    set|unset   Run the "setting", "set", or "unset" commands on all
+**                repositories.  These command are particularly useful in
+**                conjunction with the "max-loadavg" setting which cannot
 **                otherwise be set globally.
 **
 **    server      Run the "ui" or "server" commands on all repositories.
@@ -171,8 +148,6 @@ void all_cmd(void){
   Stmt q;
   const char *zCmd;
   char *zSyscmd;
-  char *zFossil;
-  char *zQFilename;
   Blob extra;
   int useCheckouts = 0;
   int quiet = 0;
@@ -204,6 +179,16 @@ void all_cmd(void){
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
+  }else if( strncmp(zCmd, "backup", n)==0 ){
+    char *zDest;
+    zCmd = "backup -R";
+    collect_argument(&extra, "overwrite",0);
+    if( g.argc!=4 ) usage("backup DIRECTORY");
+    zDest = g.argv[3];
+    if( file_isdir(zDest, ExtFILE)!=1 ){
+      fossil_fatal("argument to \"fossil all backup\" must be a directory");
+    }
+    blob_appendf(&extra, " %$", zDest);
   }else if( strncmp(zCmd, "clean", n)==0 ){
     zCmd = "clean --chdir";
     collect_argument(&extra, "allckouts",0);
@@ -236,6 +221,7 @@ void all_cmd(void){
     quiet = 1;
     collect_argument(&extra, "brief", "b");
     collect_argument(&extra, "db-check", 0);
+    collect_argument(&extra, "db-verify", 0);
   }else if( strncmp(zCmd, "extras", n)==0 ){
     if( showFile ){
       zCmd = "extras --chdir";
@@ -372,7 +358,6 @@ void all_cmd(void){
                  "info list ls pull push rebuild server setting sync ui unset");
   }
   verify_all_options();
-  zFossil = quoteFilename(g.nameOfExe);
   db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
   if( useCheckouts ){
     db_multi_exec(
@@ -414,9 +399,8 @@ void all_cmd(void){
       fossil_print("%s: %s\n", useCheckouts ? "checkout" : "repository",
                    zFilename);
     }
-    zQFilename = quoteFilename(zFilename);
-    zSyscmd = mprintf("%s %s %s%s",
-                      zFossil, zCmd, zQFilename, blob_str(&extra));
+    zSyscmd = mprintf("%$ %s %$%s",
+                      g.nameOfExe, zCmd, zFilename, blob_str(&extra));
     if( showLabel ){
       int len = (int)strlen(zFilename);
       int nStar = 80 - (len + 15);
@@ -430,7 +414,6 @@ void all_cmd(void){
     }
     rc = dryRunFlag ? 0 : fossil_system(zSyscmd);
     free(zSyscmd);
-    free(zQFilename);
     if( stopOnError && rc ){
       break;
     }

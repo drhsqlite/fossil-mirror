@@ -184,8 +184,36 @@ REM
 
 REM
 REM NOTE: Attempt to create the build output directory, if necessary.
+REM       In order to build using the current directory as the build
+REM       output directory, use the following command before executing
+REM       this tool:
 REM
-IF NOT DEFINED BUILDDIR (
+REM       SET BUILDDIR=%CD%
+REM
+IF DEFINED BUILDDIR (
+  IF DEFINED BUILDSUFFIX (
+    CALL :fn_FindVarInVar BUILDSUFFIX BUILDDIR
+
+    IF ERRORLEVEL 1 (
+      REM
+      REM NOTE: The build suffix is already present, do nothing.
+      REM
+    ) ELSE (
+      REM
+      REM NOTE: The build suffix is not present, add it now.
+      REM
+      SET BUILDDIR=%BUILDDIR%%BUILDSUFFIX%
+    )
+
+    CALL :fn_ResetErrorLevel
+  )
+) ELSE (
+  REM
+  REM NOTE: By default, when BUILDDIR is unset, build in the "msvcbld"
+  REM       sub-directory relative to the root of the source checkout.
+  REM       This retains backward compatibility with third-party build
+  REM       scripts, etc,
+  REM
   SET BUILDDIR=%ROOT%\msvcbld%BUILDSUFFIX%
 )
 
@@ -203,7 +231,7 @@ IF NOT EXIST "%BUILDDIR%" (
 
 REM
 REM NOTE: Attempt to change to the created build output directory so that
-REM       the generated files will be placed there.
+REM       the generated files will be placed there, if needed.
 REM
 %__ECHO2% PUSHD "%BUILDDIR%"
 
@@ -211,6 +239,8 @@ IF ERRORLEVEL 1 (
   ECHO Could not change to directory "%BUILDDIR%".
   GOTO errors
 )
+
+SET NEED_POPD=1
 
 REM
 REM NOTE: If requested, setup the build environment to refer to the Windows
@@ -225,26 +255,34 @@ IF DEFINED USE_V110SDK71A (
 %_VECHO% Path = '%PATH%'
 %_VECHO% Include = '%INCLUDE%'
 %_VECHO% Lib = '%LIB%'
+%_VECHO% Tools = '%TOOLS%'
+%_VECHO% Root = '%ROOT%'
 %_VECHO% NmakeArgs = '%NMAKE_ARGS%'
 
 REM
 REM NOTE: Attempt to execute NMAKE for the Fossil MSVC makefile, passing
 REM       anything extra from our command line along (e.g. extra options).
+REM       Also, pass the base directory of the Fossil source tree as this
+REM       allows an out-of-source-tree build.
 REM
-%__ECHO% nmake /f "%TOOLS%\Makefile.msc" %NMAKE_ARGS% %*
+%__ECHO% nmake /f "%TOOLS%\Makefile.msc" B="%ROOT%" %NMAKE_ARGS% %*
 
 IF ERRORLEVEL 1 (
   GOTO errors
 )
 
 REM
-REM NOTE: Attempt to restore the previously saved directory.
+REM NOTE: Attempt to restore the previously saved directory, if needed.
 REM
-%__ECHO2% POPD
+IF DEFINED NEED_POPD (
+  %__ECHO2% POPD
 
-IF ERRORLEVEL 1 (
-  ECHO Could not restore directory.
-  GOTO errors
+  IF ERRORLEVEL 1 (
+    ECHO Could not restore directory.
+    GOTO errors
+  )
+
+  CALL :fn_UnsetVariable NEED_POPD
 )
 
 GOTO no_errors
@@ -258,13 +296,31 @@ GOTO no_errors
   :set_v110Sdk71A_done
   SET PATH=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Bin;%PATH%
   SET INCLUDE=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%
-  IF "%PLATFORM%" == "x64" (
-    SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib\x64;%LIB%
-  ) ELSE (
-    SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%
-  )
+  IF "%PLATFORM%" == "x64" GOTO set_v110Sdk71A_lib_x64
+  SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%
+  GOTO set_v110Sdk71A_lib_done
+  :set_v110Sdk71A_lib_x64
+  SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib\x64;%LIB%
+  :set_v110Sdk71A_lib_done
   CALL :fn_UnsetVariable PFILES_SDK71A
   SET NMAKE_ARGS=%NMAKE_ARGS% FOSSIL_ENABLE_WINXP=1
+  GOTO :EOF
+
+:fn_FindVarInVar
+  IF NOT DEFINED %1 GOTO :EOF
+  IF NOT DEFINED %2 GOTO :EOF
+  SETLOCAL
+  CALL :fn_UnsetVariable VALUE
+  SET __ECHO_CMD=ECHO %%%2%% ^^^| FIND /I "%%%1%%"
+  FOR /F "delims=" %%V IN ('%__ECHO_CMD%') DO (
+    SET VALUE=%%V
+  )
+  IF DEFINED VALUE (
+    CALL :fn_SetErrorLevel
+  ) ELSE (
+    CALL :fn_ResetErrorLevel
+  )
+  ENDLOCAL
   GOTO :EOF
 
 :fn_UnsetVariable

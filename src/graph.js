@@ -433,14 +433,28 @@ function TimelineGraph(tx){
         }
         x1 += mergeLines[p.mo]
         var y0 = p.y+2;
+        var isCP = p.hasOwnProperty('cu');
         if( p.mu==p.id ){
-          drawCherrypickLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
+          /* Special case:  The merge riser already exists.  Only draw the
+          /* horizontal line or arrow going from the node out to the riser. */
+          var dx = x1<x0 ? mArrow.w : -mArrow.w;
+          if( isCP ){
+            drawCherrypickLine(x0,y0,x1+dx,null);
+            cls = "arrow cherrypick " + (x1<x0 ? "l" : "r");
+          }else{
+            drawMergeLine(x0,y0,x1+dx,null);
+            cls = "arrow merge " + (x1<x0 ? "l" : "r");
+          }
+          if( !isCP || p.mu==p.cu ){
+            dx = x1<x0 ? mLine.w : -(mArrow.w + mLine.w/2);
+            drawBox(cls,null,x1+dx,y0+(mLine.w-mArrow.h)/2);
+          }
           y1 = y0;
         }else{
           drawMergeLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
           drawMergeLine(x1,y0+mLine.w,null,y1);
         }
-        if( p.hasOwnProperty('cu') ){
+        if( isCP && p.cu!=p.id ){
           var u2 = tx.rowinfo[p.cu-tx.iTopRow];
           var y2 = miLineY(u2);
           drawCherrypickLine(x1,y1,null,y2);
@@ -767,4 +781,4 @@ function TimelineGraph(tx){
     var tx = JSON.parse(txJson);
     TimelineGraph(tx);
   }
-}())
+}());

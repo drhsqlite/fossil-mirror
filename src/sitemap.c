@@ -85,6 +85,7 @@ void sitemap_page(void){
   }
   @ </li>
   if( g.perm.Read ){
+    const char *zEditGlob = db_get("fileedit-glob","");
     @ <li>%z(href("%R/tree"))File Browser</a>
     @   <ul>
     @   <li>%z(href("%R/tree?type=tree&ci=trunk"))Tree-view,
@@ -92,6 +93,9 @@ void sitemap_page(void){
     @   <li>%z(href("%R/tree?type=flat"))Flat-view</a></li>
     @   <li>%z(href("%R/fileage?name=trunk"))File ages for Trunk</a></li>
     @   <li>%z(href("%R/uvlist"))Unversioned Files</a>
+    if( g.perm.Write && zEditGlob[0]!=0 ){
+      @   <li>%z(href("%R/fileedit"))On-line File Editor</li>
+    }
     @ </ul>
   }
   if( g.perm.Read ){

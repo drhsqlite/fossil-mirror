@@ -99,9 +99,12 @@ int length_of_S_display(void){
 #define etFOSSILIZE  20 /* The fossil header encoding format. */
 #define etPATH       21 /* Path type */
 #define etWIKISTR    22 /* Timeline comment text rendered from a char*: %W */
-#define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
+#define etSTRINGID   23 /* String with length limit for a hash prefix: %S */
 #define etROOT       24 /* String value of g.zTop: %R */
-#define etJSONSTR    25 /* String encoded as a JSON string literal: %j */
+#define etJSONSTR    25 /* String encoded as a JSON string literal: %j
+                           Use %!j to include double-quotes around it. */
+#define etSHELLESC   26 /* Escape a filename for use in a shell command: %$
+                           See blob_append_escaped_arg() for details */
 
 
 /*
@@ -168,6 +171,7 @@ static const et_info fmtinfo[] = {
   {  '%',  0, 0, etPERCENT,    0,  0 },
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
+  {  '$',  0, 0, etSHELLESC,   0,  0 },
 };
 #define etNINFO count(fmtinfo)
 
@@ -800,8 +804,8 @@ int vxprintf(
           ** "unused variable" compiler warning. */
         }
         if( zMem==0 ) zMem = "";
-        zExtra = bufpt = encode_json_string_literal(zMem);
-        length = strlen(bufpt);
+        zExtra = bufpt =
+          encode_json_string_literal(zMem, flag_altform2, &length);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
@@ -812,6 +816,12 @@ int vxprintf(
         blob_init(&wiki, zWiki, limit);
         wiki_convert(&wiki, pBlob, wiki_convert_flags(flag_altform2));
         blob_reset(&wiki);
+        length = width = 0;
+        break;
+      }
+      case etSHELLESC: {
+        char *zArg = va_arg(ap, char*);
+        blob_append_escaped_arg(pBlob, zArg);
         length = width = 0;
         break;
       }
@@ -1067,10 +1077,20 @@ static int mainInFatalError = 0;
 */
 static int fossil_print_error(int rc, const char *z){
 #ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
+  if( g.json.isJsonMode!=0 ){
+    /*
+    ** Avoid calling into the JSON support subsystem if it
+    ** has not yet been initialized, e.g. early SQLite log
+    ** messages, etc.
+    */
+    assert(json_is_bootstrapped_early());
     json_err( 0, z, 1 );
-    if( g.isHTTP ){
+    if( g.isHTTP && !g.json.preserveRc ){
       rc = 0 /* avoid HTTP 500 */;
+    }
+    if( g.cgiOutput==1 ){
+      g.cgiOutput = 2;
+      cgi_reply();
     }
   }
   else
@@ -1080,6 +1100,7 @@ static int fossil_print_error(int rc, const char *z){
     cgi_reset_content();
     cgi_set_content_type("text/html");
     style_header("Bad Request");
+    etag_cancel();
     @ <p class="generalError">%h(z)</p>
     cgi_set_status(400, "Bad Request");
     style_footer();
@@ -1182,12 +1203,19 @@ void fossil_warning(const char *zFormat, ...){
   va_end(ap);
   fossil_errorlog("warning: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
-  if(g.json.isJsonMode){
+  if( g.json.isJsonMode!=0 ){
+    /*
+    ** Avoid calling into the JSON support subsystem if it
+    ** has not yet been initialized, e.g. early SQLite log
+    ** messages, etc.
+    */
+    assert(json_is_bootstrapped_early());
     json_warn( FSL_JSON_W_UNKNOWN, "%s", z );
   }else
 #endif
   {
     if( g.cgiOutput==1 ){
+      etag_cancel();
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
     }else{
       fossil_force_newline();

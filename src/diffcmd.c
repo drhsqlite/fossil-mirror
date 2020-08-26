@@ -745,7 +745,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
      */
 #endif
     zTempFile = write_blob_to_temp_file(&script);
-    zCmd = mprintf("\"%s\" \"%s\"", zTclsh, zTempFile);
+    zCmd = mprintf("%$ %$", zTclsh, zTempFile);
     fossil_system(zCmd);
     file_delete(zTempFile);
     fossil_free(zCmd);

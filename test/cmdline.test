@@ -20,16 +20,34 @@
 
 test_setup ""
 
-proc cmd-line {testname args} {
+proc cmd-line {usefile testname args} {
   set i 1
   foreach {cmdline result} $args {
-    fossil test-echo $cmdline
-    test cmd-line-$testname.$i {[lrange [split $::RESULT \n] 3 end]=="\{argv\[2\] = \[$result\]\}"}
+    if {$usefile} {
+      set cmdlinefile [file join \
+          [getTemporaryPath] fossil-cmd-line-$testname.txt]
+
+      write_file $cmdlinefile $cmdline
+      fossil test-echo --args $cmdlinefile
+      file delete $cmdlinefile
+    } else {
+      fossil test-echo $cmdline
+    }
+
+    test cmd-line-$testname.$i \
+        {[lrange [split $::RESULT \n] 3 end]=="\{argv\[2\] = \[$result\]\}"}
+
     incr i
   }
 }
-cmd-line 100 abc abc a\"bc a\"bc \"abc\" \"abc\"
-cmd-line 101 * * *.* *.*
+
+cmd-line false 100 abc abc a\"bc a\"bc \"abc\" \"abc\"
+
+#
+# NOTE: Use an --args file on Windows to avoid unwanted glob expansion
+#       from MinGW and/or the MSVCRT.
+#
+cmd-line $is_windows 101 * * *.* *.*
 
 ###############################################################################
 

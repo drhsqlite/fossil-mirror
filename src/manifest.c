@@ -1084,7 +1084,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
 manifest_syntax_error:
   {
-    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    char *zUuid = rid_to_uuid(rid);
     if( zUuid ){
       blob_appendf(pErr, "artifact [%s] ", zUuid);
       fossil_free(zUuid);
@@ -1347,7 +1347,7 @@ static int filename_to_fnid(const char *zFilename){
 ** Compute an appropriate mlink.mperm integer for the permission string
 ** of a file.
 */
-int manifest_file_mperm(ManifestFile *pFile){
+int manifest_file_mperm(const ManifestFile *pFile){
   int mperm = PERM_REG;
   if( pFile && pFile->zPerm){
     if( strstr(pFile->zPerm,"x")!=0 ){
@@ -2454,7 +2454,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     ** process the attachment artifact before the artifact to
     ** which it is attached!) */
     char attachToType = 'w';
-    if( fossil_is_uuid(p->zAttachTarget) ){
+    if( fossil_is_artifact_hash(p->zAttachTarget) ){
       if( db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'",
             p->zAttachTarget)
         ){

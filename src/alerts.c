@@ -1588,22 +1588,22 @@ static void alert_unsubscribe(int sid){
 **
 ** The subscriber is identified in several ways:
 **
-**    (1)  The name= query parameter contains the complete subscriberCode.
+**    *    The name= query parameter contains the complete subscriberCode.
 **         This only happens when the user receives a verification
 **         email and clicks on the link in the email.  When a
 **         compilete subscriberCode is seen on the name= query parameter,
 **         that constitutes verification of the email address.
 **
-**    (2)  The sid= query parameter contains an integer subscriberId.
+**    *    The sid= query parameter contains an integer subscriberId.
 **         This only works for the administrator.  It allows the
 **         administrator to edit any subscription.
 **         
-**    (3)  The user is logged into an account other than "nobody" or
+**    *    The user is logged into an account other than "nobody" or
 **         "anonymous".  In that case the notification settings
 **         associated with that account can be edited without needing
 **         to know the subscriber code.
 **
-**    (4)  The name= query parameter contains a 32-digit prefix of
+**    *    The name= query parameter contains a 32-digit prefix of
 **         subscriber code.  (Subscriber codes are normally 64 hex digits
 **         in length.) This uniquely identifies the subscriber without
 **         revealing the complete subscriber code, and hence without
@@ -2556,9 +2556,10 @@ void test_add_alert_cmd(void){
 ** subscribers to be flooded with repeated notifications every 60
 ** seconds!
 */
-void alert_send_alerts(u32 flags){
+int alert_send_alerts(u32 flags){
   EmailEvent *pEvents, *p;
   int nEvent = 0;
+  int nSent = 0;
   Stmt q;
   const char *zDigest = "false";
   Blob hdr, body;
@@ -2702,6 +2703,7 @@ void alert_send_alerts(u32 flags){
         blob_appendf(&fbody, "\n-- \nSubscription info: %s/alerts/%s\n",
            zUrl, zCode);
         alert_send(pSender,&fhdr,&fbody,p->zFromName);
+        nSent++;
         blob_reset(&fhdr);
         blob_reset(&fbody);
       }else{
@@ -2725,6 +2727,7 @@ void alert_send_alerts(u32 flags){
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
          zUrl, zCode);
     alert_send(pSender,&hdr,&body,0);
+    nSent++;
     blob_truncate(&hdr, 0);
     blob_truncate(&body, 0);
   }
@@ -2741,6 +2744,7 @@ void alert_send_alerts(u32 flags){
 send_alert_done:
   alert_sender_free(pSender);
   if( g.fSqlTrace ) fossil_trace("-- END alert_send_alerts(%u)\n", flags);
+  return nSent;
 }
 
 /*
@@ -2754,15 +2758,17 @@ send_alert_done:
 ** this flag is zero, but the test-set-alert command sets it to
 ** SENDALERT_TRACE.
 */
-void alert_backoffice(u32 mFlags){
+int alert_backoffice(u32 mFlags){
   int iJulianDay;
-  if( !alert_tables_exist() ) return;
-  alert_send_alerts(mFlags);
+  int nSent = 0;
+  if( !alert_tables_exist() ) return 0;
+  nSent = alert_send_alerts(mFlags);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
     db_set_int("email-last-digest",iJulianDay,0);
-    alert_send_alerts(SENDALERT_DIGEST|mFlags);
+    nSent += alert_send_alerts(SENDALERT_DIGEST|mFlags);
   }
+  return nSent;
 }
 
 /*

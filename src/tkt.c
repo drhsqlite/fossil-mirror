@@ -586,6 +586,7 @@ void tktview_page(void){
   zScript = ticket_viewpage_code();
   if( P("showfields")!=0 ) showAllFields();
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
+  safe_html_context(DOCSRC_TICKET);
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
 
@@ -1209,7 +1210,7 @@ void ticket_output_change_artifact(
 **
 ** Run various subcommands to control tickets
 **
-**   %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?OPTIONS?
+** > fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?OPTIONS?
 **
 **     Options:
 **       -l|--limit LIMITCHAR
@@ -1238,18 +1239,18 @@ void ticket_output_change_artifact(
 **     number; the special report number 0 lists all columns defined in
 **     the ticket table.
 **
-**   %fossil ticket list fields
-**   %fossil ticket ls fields
+** > fossil ticket list fields
+** > fossil ticket ls fields
 **
 **     List all fields defined for ticket in the fossil repository.
 **
-**   %fossil ticket list reports
-**   %fossil ticket ls reports
+** > fossil ticket list reports
+** > fossil ticket ls reports
 **
 **     List all ticket reports defined in the fossil repository.
 **
-**   %fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
-**   %fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
+** > fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
+** > fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
 **
 **     Change ticket identified by TICKETUUID to set the values of
 **     each field FIELD to VALUE.
@@ -1265,11 +1266,11 @@ void ticket_output_change_artifact(
 **     show", which allows setting multiline text or text with special
 **     characters.
 **
-**   %fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+** > fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
 **
 **     Like set, but create a new ticket with the given values.
 **
-**   %fossil ticket history TICKETUUID
+** > fossil ticket history TICKETUUID
 **
 **     Show the complete change history for the ticket
 **

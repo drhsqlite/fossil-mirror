@@ -195,6 +195,7 @@ static int report_query_authorizer(
          "tag",
          "tagxref",
          "unversioned",
+         "backlink",
       };
       int i;
       if( zArg1==0 ){
@@ -512,9 +513,9 @@ void view_edit(void){
 */
 static void report_format_hints(void){
   char *zSchema;
-  zSchema = db_text(0,"SELECT sql FROM sqlite_master WHERE name='ticket'");
+  zSchema = db_text(0,"SELECT sql FROM sqlite_schema WHERE name='ticket'");
   if( zSchema==0 ){
-    zSchema = db_text(0,"SELECT sql FROM repository.sqlite_master"
+    zSchema = db_text(0,"SELECT sql FROM repository.sqlite_schema"
                         " WHERE name='ticket'");
   }
   @ <hr /><h3>TICKET Schema</h3>
@@ -672,7 +673,7 @@ static int generate_html(
 ){
   struct GenerateHTML *pState = (struct GenerateHTML*)pUser;
   int i;
-  const char *zTid;  /* Ticket UUID.  (value of column named '#') */
+  const char *zTid;  /* Ticket hash.  (value of column named '#') */
   const char *zBg = 0; /* Use this background color */
 
   /* Do initialization

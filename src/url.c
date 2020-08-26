@@ -49,9 +49,10 @@ struct UrlData {
   int isFile;      /* True if a "file:" url */
   int isHttps;     /* True if a "https:" url */
   int isSsh;       /* True if an "ssh:" url */
+  int isAlias;     /* Input URL was an alias */
   char *name;      /* Hostname for http: or filename for file: */
   char *hostname;  /* The HOST: parameter on http headers */
-  char *protocol;  /* "http" or "https" */
+  const char *protocol; /* "http" or "https" or "ssh" */
   int port;        /* TCP port number for http: or https: */
   int dfltPort;    /* The default port for the given protocol */
   char *path;      /* Pathname for http: */
@@ -69,7 +70,9 @@ struct UrlData {
 
 
 /*
-** Parse the given URL.  Populate members of the provided UrlData structure
+** Parse the given URL.  Or if zUrl is NULL, parse the URL in the
+** last-sync-url setting using last-sync-pw as the password.  Store
+** the parser results in the pUrlData object.  Populate members of pUrlData
 ** as follows:
 **
 **      isFile      True if FILE:
@@ -85,6 +88,9 @@ struct UrlData {
 **      hostname    HOST:PORT or just HOST if port is the default.
 **      canonical   The URL in canonical form, omitting the password
 **
+** This routine differs from url_parse() in that this routine stores the
+** results in pUrlData and does not change the values of global variables.
+** The url_parse() routine puts its result in g.url.
 */
 void url_parse_local(
   const char *zUrl,
@@ -94,11 +100,26 @@ void url_parse_local(
   int i, j, c;
   char *zFile = 0;
 
-  if( zUrl==0 ){
+  if( zUrl==0 || strcmp(zUrl,"default")==0 ){
     zUrl = db_get("last-sync-url", 0);
     if( zUrl==0 ) return;
     if( pUrlData->passwd==0 ){
       pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
+    }
+    pUrlData->isAlias = 1;
+  }else{
+    char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
+    char *zAlt = db_get(zKey, 0);
+    sqlite3_free(zKey);
+    if( zAlt ){
+      pUrlData->passwd = unobscure(
+        db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
+      );
+      zUrl = zAlt;
+      urlFlags |= URL_REMEMBER_PW;
+      pUrlData->isAlias = 1;
+    }else{
+      pUrlData->isAlias = 0;
     }
   }
 
@@ -263,7 +284,8 @@ void url_parse_local(
     pUrlData->name = mprintf("%b", &cfile);
     pUrlData->canonical = mprintf("file://%T", pUrlData->name);
     blob_reset(&cfile);
-  }else if( pUrlData->user!=0 && pUrlData->passwd==0 && (urlFlags & URL_PROMPT_PW) ){
+  }else if( pUrlData->user!=0 && pUrlData->passwd==0 
+         && (urlFlags & URL_PROMPT_PW)!=0 ){
     url_prompt_for_password_local(pUrlData);
   }else if( pUrlData->user!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
     if( isatty(fileno(stdin)) && ( urlFlags & URL_REMEMBER_PW )==0 ){
@@ -278,7 +300,9 @@ void url_parse_local(
 
 /*
 ** Parse the given URL, which describes a sync server.  Populate variables
-** in the global "g" structure as follows:
+** in the global "g.url" structure as shown below.  If zUrl is NULL, then
+** parse the URL given in the last-sync-url setting, taking the password
+** form last-sync-pw.
 **
 **      g.url.isFile      True if FILE:
 **      g.url.isHttps     True if HTTPS:

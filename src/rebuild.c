@@ -146,7 +146,7 @@ static void rebuild_update_schema(void){
 **       is greater than or equal to 40, not exactly equal to 40.
 */
 void rebuild_schema_update_2_0(void){
-  char *z = db_text(0, "SELECT sql FROM repository.sqlite_master"
+  char *z = db_text(0, "SELECT sql FROM repository.sqlite_schema"
                        " WHERE name='blob'");
   if( z ){
     /* Search for:  length(uuid)==40
@@ -157,7 +157,7 @@ void rebuild_schema_update_2_0(void){
         z[i] = '>';
         db_multi_exec(
            "PRAGMA writable_schema=ON;"
-           "UPDATE repository.sqlite_master SET sql=%Q WHERE name LIKE 'blob';"
+           "UPDATE repository.sqlite_schema SET sql=%Q WHERE name LIKE 'blob';"
            "PRAGMA writable_schema=OFF;",
            z
         );
@@ -385,7 +385,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
   db_prepare(&q,
-     "SELECT name FROM sqlite_master /*scan*/"
+     "SELECT name FROM sqlite_schema /*scan*/"
      " WHERE type='table'"
      " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','alias',"
                        "'config','shun','private','reportfmt',"
@@ -603,8 +603,6 @@ static void reconstruct_private_table(void){
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding
 **   --wal             Set Write-Ahead-Log journalling mode on the database
-**
-** See also: deconstruct, reconstruct
 */
 void rebuild_database(void){
   int forceFlag;
@@ -760,7 +758,8 @@ void test_detach_cmd(void){
   db_find_and_open_repository(0, 2);
   db_begin_transaction();
   db_multi_exec(
-    "DELETE FROM config WHERE name='last-sync-url';"
+    "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+    "DELETE FROM config WHERE name GLOB 'sync-*:*';"
     "UPDATE config SET value=lower(hex(randomblob(20)))"
     " WHERE name='project-code';"
     "UPDATE config SET value='detached-' || value"
@@ -916,10 +915,13 @@ void scrub_cmd(void){
     db_multi_exec(
       "UPDATE user SET pw='';"
       "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+      "DELETE FROM config WHERE name GLOB 'sync-*:*';"
       "DELETE FROM config WHERE name GLOB 'peer-*';"
       "DELETE FROM config WHERE name GLOB 'login-group-*';"
       "DELETE FROM config WHERE name GLOB 'skin:*';"
       "DELETE FROM config WHERE name GLOB 'subrepo:*';"
+      "DELETE FROM config WHERE name GLOB 'http-auth:*';"
+      "DELETE FROM config WHERE name GLOB 'cert:*';"
     );
     if( bVerily ){
       db_multi_exec(
@@ -1151,7 +1153,7 @@ void private_export(char *zFileName)
 {
   Stmt q;
   Blob fctx = empty_blob;
-  blob_append(&fctx, "# The UUIDs of private artifacts\n", -1);
+  blob_append(&fctx, "# The hashes of private artifacts\n", -1);
   db_prepare(&q,
     "SELECT uuid FROM blob WHERE rid IN ( SELECT rid FROM private );");
   while( db_step(&q)==SQLITE_ROW ){
@@ -1203,8 +1205,6 @@ void private_import(char *zFileName)
 **                      file .rid in DIRECTORY.
 **   -P|--keep-private  Mark the artifacts listed in the file .private in
 **                      DIRECTORY as private in the new Fossil repository.
-**
-** See also: deconstruct, rebuild
 */
 void reconstruct_cmd(void) {
   char *zPassword;
@@ -1278,8 +1278,6 @@ void reconstruct_cmd(void) {
 **   -P|--keep-private           Save the list of private artifacts to the file
 **                               .private in the DESTINATION directory (implies
 **                               the --private option).
-**
-** See also: reconstruct, rebuild
 */
 void deconstruct_cmd(void){
   const char *zPrefixOpt;

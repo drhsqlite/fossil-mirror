@@ -96,6 +96,8 @@ static struct {
   { "logo-image",             CONFIGSET_SKIN },
   { "background-mimetype",    CONFIGSET_SKIN },
   { "background-image",       CONFIGSET_SKIN },
+  { "icon-mimetype",          CONFIGSET_SKIN },
+  { "icon-image",             CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-date-format",   CONFIGSET_SKIN },
   { "timeline-default-style", CONFIGSET_SKIN },
@@ -114,6 +116,7 @@ static struct {
   { "sitemap-download",       CONFIGSET_SKIN },
   { "sitemap-license",        CONFIGSET_SKIN },
   { "sitemap-contact",        CONFIGSET_SKIN },
+  { "safe-html",              CONFIGSET_SKIN },
 
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   { "th1-docs",               CONFIGSET_TH1 },
@@ -152,11 +155,7 @@ static struct {
   { "comment-format",         CONFIGSET_PROJ },
   { "mimetypes",              CONFIGSET_PROJ },
   { "forbid-delta-manifests", CONFIGSET_PROJ },
-
-#ifdef FOSSIL_ENABLE_LEGACY_MV_RM
   { "mv-rm-files",            CONFIGSET_PROJ },
-#endif
-
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
   { "ticket-change",          CONFIGSET_TKT  },
@@ -708,43 +707,43 @@ static void export_config(
 ** Where METHOD is one of: export import merge pull push reset.  All methods
 ** accept the -R or --repository option to specify a repository.
 **
-**    %fossil configuration export AREA FILENAME
+** >  fossil configuration export AREA FILENAME
 **
 **         Write to FILENAME exported configuration information for AREA.
 **         AREA can be one of:
 **
 **             all email project shun skin ticket user alias subscriber
 **
-**    %fossil configuration import FILENAME
+** >  fossil configuration import FILENAME
 **
 **         Read a configuration from FILENAME, overwriting the current
 **         configuration.
 **
-**    %fossil configuration merge FILENAME
+** >  fossil configuration merge FILENAME
 **
 **         Read a configuration from FILENAME and merge its values into
 **         the current configuration.  Existing values take priority over
 **         values read from FILENAME.
 **
-**    %fossil configuration pull AREA ?URL?
+** >  fossil configuration pull AREA ?URL?
 **
 **         Pull and install the configuration from a different server
 **         identified by URL.  If no URL is specified, then the default
 **         server is used.  Use the --overwrite flag to completely
 **         replace local settings with content received from URL.
 **
-**    %fossil configuration push AREA ?URL?
+** >  fossil configuration push AREA ?URL?
 **
 **         Push the local configuration into the remote server identified
 **         by URL.  Admin privilege is required on the remote server for
 **         this to work.  When the same record exists both locally and on
 **         the remote end, the one that was most recently changed wins.
 **
-**    %fossil configuration reset AREA
+** >  fossil configuration reset AREA
 **
 **         Restore the configuration to the default.  AREA as above.
 **
-**    %fossil configuration sync AREA ?URL?
+** >  fossil configuration sync AREA ?URL?
 **
 **         Synchronize configuration changes in the local repository with
 **         the remote repository at URL.
@@ -752,7 +751,7 @@ static void export_config(
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
 **
-** See also: settings, unset
+** See also: [[settings]], [[unset]]
 */
 void configuration_cmd(void){
   int n;

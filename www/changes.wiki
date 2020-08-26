@@ -1,7 +1,96 @@
 <title>Change Log</title>
 
+<a name='v2_12_1'></a>
+<h2>Changes for Version 2.12.1 (2020-08-19)</h2>
+
+  *  Fix in the new [/help?cmd=/wikiedit|/wikiedit] and
+     [/help?cmd=/fileedit|/fileedit] pages for a mistake which allowed
+     both to leak edits across all repositories on the same "origin"
+     (in short, the same domain, port number, and browser profile
+     instance). Full details are in
+     [https://fossil-scm.org/forum/forumpost/33dd754eaf|the support
+     forum]. This does not affect any versions prior to 2.12.
+
+<a name='v2_12'></a>
+<h2>Changes for Version 2.12 (pending)</h2>
+
+  *  Security fix in the "[/help?cmd=git|fossil git export]" command.
+     The same fix is also backported to version 2.10.1 and 2.11.1.
+     New "safety-net" features were added to prevent similar problems
+     in the future.
+  *  Enhancements to the graph display for cases when there are
+     many cherry-pick merges into a single check-in.
+     [/timeline?f=2d75e87b760c0a9|Example]
+  *  Enhance the [/help?cmd=open|fossil open] command with the new
+     --workdir option and the ability to accept a URL as the repository
+     name, causing the remote repository to be cloned automatically.
+     Do not allow "fossil open" to open in a non-empty working directory
+     unless the --keep option or the new --force option is used.
+  *  Enhance the markdown formatter to more closely follow the
+     [https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis|CommonMark specification]
+     with regard to text highlighting.
+     Underscores in the middle of identifiers (ex: fossil_printf())
+     no longer need to be escaped.
+  *  The markdown-to-html translator can prevent unsafe HTML
+     (for example: &lt;script&gt;) on user-contributed pages like forum and
+     tickets and wiki.  The admin can adjust this behavior using
+     the [/help?cmd=safe-html|safe-html setting] on the Admin/Wiki page.
+     The default is to disallow unsafe HTML everywhere.
+     [https://www.fossil-scm.org/forum/forumpost/3714e6568f|Example].
+  *  Added the "collapse" and "expand" capability for long forum posts.
+     [https://fossil-scm.org/forum/forumpost/9297029862|Example]
+  *  The "[/help?cmd=remote-url|fossil remote]" command now has options for
+     specifying multiple persistent remotes with symbolic names.  Currently
+     only one remote can be used at a time, but that might change in the
+     future.
+  *  Add the "Remember me?" checkbox on the login page.  Use a session
+     cookie for the login if it is not checked.
+  *  Added the experimental "[/help?cmd=hook|fossil hook]" command for
+     managing "hook scripts" that run before checkin or after a push.
+  *  Enhance the [/help?cmd=revert|fossil revert] command so that it
+     is able to revert all files beneath a directory.
+  *  Add the [/help?cmd=bisect|fossil bisect skip] command.
+  *  Enhance [/help?cmd=bisect|fossil bisect ui] so that it shows all unchecked
+     check-ins in between the innermost "good" and "bad" check-ins.
+  *  Added the <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
+     "[/help?cmd=rm|fossil rm]", and
+     "[/help?cmd=addremove|fossil addremove]" commands.
+  *  Added the "<tt>--min</tt> <i>N</i>" and "<tt>--logfile</tt> <i>FILENAME</i>"
+     flags to the [/help?cmd=backoffice|backoffice] command, as well as other
+     enhancements to make the backoffice command a viable replacement for
+     automatic backoffice.  Other incremental backoffice improvements.
+  *  Added the [/help?cmd=/fileedit|/fileedit page], which allows
+     editing of text files online. Requires explicit activation by
+     a setup user.
+  *  Translate built-in help text into HTML for display on web pages.
+     [/help?cmd=help|Example].
+  *  On the [/help?cmd=/timeline|/timeline] webpage, the combination
+     of query parameters "p=CHECKIN" and "bt=ANCESTOR" draws all
+     ancestors of CHECKIN going back to ANCESTOR.  For example,
+     [/timeline?p=202006271506&bt=version-2.11] shows all ancestors
+     of the checkin that occured on 2020-06-27 15:06 going back to
+     the 2.11 release.
+  *  Update the built-in SQLite so that the
+     "[/help?cmd=sql|fossil sql]" command supports new output
+     modes ".mode box" and ".mode json".
+  *  Add the "<tt>obscure()</tt>" SQL function to the 
+     "[/help?cmd=sql|fossil sql]" command.
+  *  Added virtual tables "<tt>helptext</tt>" and "<tt>builtin</tt>" to
+     the "[/help?cmd=sql|fossil sql]" command, providing access to the
+     dispatch table including all help text, and the builtin data files,
+     respectively.
+  *  [./delta_format.wiki|Delta compression] is now applied to forum edits.
+  *  The [/help?cmd=/wikiedit|wiki editor] has been modernized and is
+     now Ajax-based. The WYSIWYG editing option for Fossil-format wiki
+     pages was removed. (Please let us know, via the site's Support menu,
+     if that removal unduly impacts you.) This also changes the semantics
+     of the wiki "Sandbox": that pseudo-page may be freely edited but
+     no longer saved via the UI (the [/help?cmd=wiki|wiki CLI command]
+     can, though).
+  *  Countless documentation enhancements.
+
 <a name='v2_11'></a>
-<h2>Changes for Version 2.11 (pending)</h2>
+<h2>Changes for Version 2.11 (2020-05-25)</h2>
 
   *  Support [/md_rules|Markdown] in the default ticket configuration.
   *  Timestamp strings in [./checkin_names.wiki|object names]
