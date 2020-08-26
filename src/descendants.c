@@ -346,9 +346,9 @@ void compute_descendants(int rid, int N){
 **
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
-**    -W|--width <num>           Width of lines (default is to auto-detect).
-**                               Must be >20 or 0 (= no limit, resulting in a
-**                               single line per entry).
+**    -W|--width N               Width of lines (default is to auto-detect).
+**                               Must be greater than 20 or else 0 for no
+**                               limit, resulting in a one line per entry.
 **
 ** See also: [[finfo]], [[info]], [[leaves]]
 */
@@ -406,9 +406,9 @@ void descendants_cmd(void){
 **   -c|--closed      show only closed leaves
 **   -m|--multiple    show only cases with multiple leaves on a single branch
 **   --recompute      recompute the "leaf" table in the repository DB
-**   -W|--width <num> Width of lines (default is to auto-detect). Must be
-**                    >39 or 0 (= no limit, resulting in a single line per
-**                    entry).
+**   -W|--width N     Width of lines (default is to auto-detect). Must be
+**                    more than 39 or else 0 no limit, resulting in a single
+**                    line per entry.
 **
 ** See also: [[descendants]], [[finfo]], [[info]], [[branch]]
 */

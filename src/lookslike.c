@@ -402,7 +402,7 @@ int could_be_utf16(const Blob *pContent, int *pbReverse){
 ** Usage:  %fossil test-looks-like-utf FILENAME
 **
 ** Options:
-**    -n|--limit <num> Repeat looks-like function <num> times, for
+**    -n|--limit N     Repeat looks-like function N times, for
 **                     performance measurement. Default = 1;
 **    --utf8           Ignoring BOM and file size, force UTF-8 checking
 **    --utf16          Ignoring BOM and file size, force UTF-16 checking

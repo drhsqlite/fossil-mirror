@@ -553,7 +553,7 @@ static void process_files_to_remove(
 **   --soft                  Skip removing files from the checkout.
 **                           This supersedes the --hard option.
 **   --hard                  Remove files from the checkout.
-**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   --case-sensitive BOOL   Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
 **   --reset                 Reset the DELETED state of a checkout, such
 **                           that all newly-rm'd (but not yet committed)
@@ -655,7 +655,7 @@ void capture_case_sensitive_option(void){
 ** If case-sensitivity is enabled in the windows kernel, the Cygwin port
 ** of fossil.exe can detect that, and modifies the default to 'on'.
 **
-** The --case-sensitive <BOOL> command-line option overrides any
+** The "--case-sensitive BOOL" command-line option overrides any
 ** setting.
 */
 int filenames_are_case_sensitive(void){
@@ -991,7 +991,7 @@ static void process_files_to_move(
 **   --soft                    Skip moving files within the checkout.
 **                             This supersedes the --hard option.
 **   --hard                    Move files within the checkout.
-**   --case-sensitive <BOOL>   Override the case-sensitive setting.
+**   --case-sensitive BOOL     Override the case-sensitive setting.
 **   -n|--dry-run              If given, display instead of run actions.
 **
 ** See also: [[changes]], [[status]]

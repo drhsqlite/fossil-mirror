@@ -1164,10 +1164,10 @@ void wikiedit_page(void){
        "class='hidden'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
-    CX("<span class='input-with-label'>"
+    CX("<div class='input-with-label'>"
        "<label>Mime type</label>");
     mimetype_option_menu(0);
-    CX("</span>");
+    CX("</div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
                           NULL/*tooltip*/,
@@ -1175,18 +1175,30 @@ void wikiedit_page(void){
                           "100%", 100, "125%", 125,
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
-    CX("<button class='wikiedit-save'>"
+    CX("<div class='input-with-label'>"
+       "<button class='wikiedit-save'>"
        "Save</button>"
-       /*will get moved around dynamically*/);
-    CX("<button class='wikiedit-save-close'>"
-       "Save &amp; Close</button>"/*will get moved around dynamically*/);
+       "</div>" /*will get moved around dynamically*/);
+    CX("<div class='input-with-label'>"
+       "<button class='wikiedit-save-close'>"
+       "Save &amp; Close</button>"
+       "<div class='help-buttonlet'>"
+       "Save edits to this page and returns to the wiki page viewer."
+       "</div>"
+       "</div>" /*will get moved around dynamically*/);
     CX("<span class='save-button-slot'></span>");
-    CX("<button class='wikiedit-content-reload' "
-       "title='Reload the file from the server, discarding "
+
+    CX("<div class='input-with-label'>"
+       "<button class='wikiedit-content-reload' "
+       ">Discard &amp; Reload</button>"
+       "<div class='help-buttonlet'>"
+       "Reload the file from the server, discarding "
        "any local edits. To help avoid accidental loss of "
        "edits, it requires confirmation (a second click) within "
-       "a few seconds or it will not reload.'"
-       ">Discard &amp; Reload</button>");
+       "a few seconds or it will not reload."
+       "</div>"
+       "</div>");
+
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='wikiedit-content-editor' "
@@ -1215,12 +1227,15 @@ void wikiedit_page(void){
        /* ^^^ dest elem ID */
        ">Refresh</button>");
     /* Toggle auto-update of preview when the Preview tab is selected. */
-    style_labeled_checkbox("cb-preview-autoupdate",
-                           NULL,
-                           "Auto-refresh?",
-                           "1", 1,
-                           "If on, the preview will automatically "
-                           "refresh when this tab is selected.");
+    CX("<div class='input-with-label'>"
+       "<input type='checkbox' value='1' "
+       "id='cb-preview-autorefresh' checked>"
+       "<label for='cb-preview-autorefresh'>Auto-refresh?</label>"
+       "<div class='help-buttonlet'>"
+       "If on, the preview will automatically "
+       "refresh (if needed) when this tab is selected."
+       "</div>"
+       "</div>");
     CX("<span class='save-button-slot'></span>");
     CX("</div>"/*.wikiedit-options*/);
     CX("<div id='wikiedit-tab-preview-wrapper'></div>");
@@ -1272,9 +1287,12 @@ void wikiedit_page(void){
     CX("</div>"/*#wikiedit-tab-save*/);
   }
 
+  if(!builtin_bundle_all_fossil_js_apis()){
+    builtin_emit_fossil_js_apis("fetch", "dom", "tabs", "confirmer",
+                                "storage", "popupwidget", 0);
+  }
   builtin_request_js("sbsdiff.js");
-  style_emit_fossil_js_apis(0, "fetch", "dom", "tabs", "confirmer",
-                            "storage", "page.wikiedit", 0);
+  builtin_request_js("fossil.page.wikiedit.js");
   builtin_fulfill_js_requests();
   /* Dynamically populate the editor... */
   style_emit_script_tag(0,0);

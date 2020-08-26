@@ -37,6 +37,8 @@ struct ForumPost {
   int sid;               /* Serial ID number */
   int rev;               /* Revision number */
   char *zUuid;           /* Artifact hash */
+  char *zDisplayName;    /* Name of user who wrote this post */
+  double rDate;          /* Date for this post */
   ForumPost *pIrt;       /* This post replies to pIrt */
   ForumPost *pEditHead;  /* Original, unedited post */
   ForumPost *pEditTail;  /* Most recent edit for this post */
@@ -86,6 +88,7 @@ static void forumthread_delete(ForumThread *pThread){
   for(pPost=pThread->pFirst; pPost; pPost = pNext){
     pNext = pPost->pNext;
     fossil_free(pPost->zUuid);
+    fossil_free(pPost->zDisplayName);
     fossil_free(pPost);
   }
   fossil_free(pThread);
@@ -165,7 +168,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
   db_prepare(&q,
-     "SELECT fpid, firt, fprev, (SELECT uuid FROM blob WHERE rid=fpid)"
+     "SELECT fpid, firt, fprev, (SELECT uuid FROM blob WHERE rid=fpid), fmtime"
      "  FROM forumpost"
      " WHERE froot=%d ORDER BY fmtime",
      froot
@@ -177,6 +180,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     firt = db_column_int(&q, 1);
     fprev = db_column_int(&q, 2);
     pPost->zUuid = fossil_strdup(db_column_text(&q,3));
+    pPost->rDate = db_column_double(&q,4);
     if( !fprev ) pPost->sid = sid++;
     pPost->pPrev = pThread->pLast;
     pPost->pNext = 0;
@@ -369,7 +373,7 @@ void forum_render(
 ** Space to hold the returned name is obtained from fossil_strdup() or
 ** mprintf() and should be freed by the caller.
 */
-char *display_name_from_login(const char *zLogin){
+static char *display_name_from_login(const char *zLogin){
   static Stmt q;
   char *zResult;
   db_static_prepare(&q,
@@ -391,6 +395,30 @@ char *display_name_from_login(const char *zLogin){
 }
 
 /*
+** Compute and return the display name for a ForumPost.  If
+** pManifest is not NULL, then it is a Manifest object for the post.
+** if pManifest is NULL, this routine has to fetch and parse the
+** Manifest object for itself.
+**
+** Memory to hold the display name is attached to p->zDisplayName
+** and will be freed together with the ForumPost object p when it
+** is freed.
+*/
+static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
+  Manifest *pToFree = 0;
+  if( p->zDisplayName ) return p->zDisplayName;
+  if( pManifest==0 ){
+    pManifest = pToFree = manifest_get(p->fpid, CFTYPE_FORUM, 0);
+    if( pManifest==0 ) return "(unknown)";
+  }
+  p->zDisplayName = display_name_from_login(pManifest->zUser);
+  if( pToFree ) manifest_destroy(pToFree);
+  if( p->zDisplayName==0 ) return "(unknown)";
+  return p->zDisplayName;
+}
+
+
+/*
 ** Display a single post in a forum thread.
 */
 static void forum_display_post(
@@ -402,7 +430,8 @@ static void forum_display_post(
   int bSelect,          /* True if this is the selected post */
   char *zQuery          /* Common query string */
 ){
-  char *zDisplayName;   /* The display name */
+  char *zPosterName;    /* Name of user who originally made this post */
+  char *zEditorName;    /* Name of user who provided the current edit */
   char *zDate;          /* The time/date string */
   char *zHist;          /* History query string */
   Manifest *pManifest;  /* Manifest comprising the current post */
@@ -433,25 +462,42 @@ static void forum_display_post(
       @ <h1>%h(pManifest->zThreadTitle)</h1>
     }
 
-    /* Emit the serial number, revision number, author, and date. */
-    zDisplayName = display_name_from_login(pManifest->zUser);
-    zDate = db_text(0, "SELECT datetime(%.17g)", pManifest->rDate);
-    @ <h3 class='forumPostHdr'>(%d(p->sid)\
-    if( p->nEdit ){
-      @ .%.*d(fossil_num_digits(p->nEdit))(p->rev)\
+    /* Begin emitting the header line.  The forum of the title
+    ** varies depending on whether:
+    **    *  The post is uneditted
+    **    *  The post was last editted by the original author
+    **    *  The post was last editted by a different person
+    */
+    if( p->pEditHead ){
+      zDate = db_text(0, "SELECT datetime(%.17g)", p->pEditHead->rDate);
+    }else{
+      zPosterName = forum_post_display_name(p, pManifest);
+      zEditorName = zPosterName;
     }
-    @ ) By %h(zDisplayName) on %h(zDate)
-    fossil_free(zDisplayName);
+    zDate = db_text(0, "SELECT datetime(%.17g)", p->rDate);
+    if( p->pEditPrev ){
+      zPosterName = forum_post_display_name(p->pEditHead, 0);
+      zEditorName = forum_post_display_name(p, pManifest);
+      zHist = bHist ? "" : "&hist";
+      @ <h3 class='forumPostHdr'>(%d(p->sid)\
+      @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
+      if( fossil_strcmp(zPosterName, zEditorName)==0 ){
+        @ By %h(zPosterName) on %h(zDate) editted from \
+        @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+        @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
+      }else{
+        @ Originally by %h(zPosterName) \
+        @ with edits by %h(zEditorName) on %h(zDate) from \
+        @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
+        @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
+      }
+    }else{
+      zPosterName = forum_post_display_name(p, pManifest);
+      @ <h3 class='forumPostHdr'>(%d(p->sid)) \
+      @ By %h(zPosterName) on %h(zDate)
+    }
     fossil_free(zDate);
 
-    /* If this is an edit, refer back to the old version.  Be sure "hist" is in
-    ** the query string so the old version will actually be shown. */
-    if( p->pEditPrev ){
-      zHist = bHist ? "" : "&hist";
-      @ edit of \
-      @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
-      @ %d(p->sid).%.*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
-    }
 
     /* If debugging is enabled, link to the artifact page. */
     if( g.perm.Debug ){
@@ -464,7 +510,7 @@ static void forum_display_post(
       @ in reply to %z(href("%R/forumpost/%S?%s",p->pIrt->zUuid,zQuery))\
       @ %d(p->pIrt->sid)\
       if( p->pIrt->nEdit ){
-        @ .%.*d(fossil_num_digits(p->pIrt->nEdit))(p->pIrt->rev)\
+        @ .%0*d(fossil_num_digits(p->pIrt->nEdit))(p->pIrt->rev)\
       }
       @ </a>
     }
@@ -473,7 +519,7 @@ static void forum_display_post(
     if( p->pEditNext ){
       @ updated by %z(href("%R/forumpost/%S?%s",p->pEditNext->zUuid,zQuery))\
       @ %d(p->pEditNext->sid)\
-      @ .%.*d(fossil_num_digits(p->nEdit))(p->pEditNext->rev)</a>
+      @ .%0*d(fossil_num_digits(p->nEdit))(p->pEditNext->rev)</a>
     }
 
     /* Provide a link to select the individual post. */
@@ -806,7 +852,7 @@ void forumthread_page(void){
   forum_display_thread(froot, fpid, mode, bUnf, bHist);
 
   /* Emit Forum Javascript. */
-  style_emit_script_fossil_bootstrap(1);
+  builtin_emit_script_fossil_bootstrap(1);
   builtin_request_js("forum.js");
   builtin_request_js("fossil.dom.js");
   builtin_request_js("fossil.page.forumpost.js");

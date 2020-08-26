@@ -525,7 +525,7 @@ static int stash_get_id(const char *zStashId){
 **      arguments.  The "snapshot" verb works the same as "save" but
 **      omits the revert, keeping the checkout unchanged.
 **
-** > fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
+** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
 **
 **      List all changes sets currently stashed.  Show information about
 **      individual files in each changeset if -v or --verbose is used.

@@ -2860,9 +2860,10 @@ static int fossil_is_julianday(const char *zDate){
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the check-in comment.
-**   -W|--width <num>     Width of lines (default is to auto-detect). Must be
-**                        >20 or 0 (= no limit, resulting in a single line per
-**                        entry).
+**   -W|--width N         Width of lines (default is to auto-detect). N must be
+**                        either greater than 20 or it ust be zero 0 to
+**                        indicate no limit, resulting in a single line per
+**                        entry.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current checkout's repository.
 */

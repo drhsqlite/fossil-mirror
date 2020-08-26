@@ -54,20 +54,20 @@ ones we’ve heard before and give our stock answers to them here:
 
 1.  “**It increases the size of the page download.**”
 
-    The heaviest such pages served by Fossil only have about 8 kB of
+    The heaviest such pages served by Fossil only have about 15 kB of
     compressed JavaScript. (You have to go out of your way to get Fossil
     to serve uncompressed pages.) This is negligible, even over very
     slow data connections. If you are still somehow on a 56 kbit/sec
     analog telephone modem, this extra script code would download in
-    about a second.
+    a few seconds.
 
     Most JavaScript-based Fossil pages use less code than that.
 
-    Atop that, Fossil 2.12 adds new script delivery methods with
-    aggressive caching enabled so that typical page loads will skip
+    Atop that, Fossil sends HTTP headers to the browser that allow it
+    to perform aggressive caching so that typical page loads will skip
     re-loading this content on subsequent loads. These features are
     currently optional: you must either set the new [`fossil server
-    --jsmode` option][fsrv] or the corresponding `jsmode` control line
+    --jsmode bundle` option][fsrv] or the corresponding `jsmode` control line
     in your [`fossil cgi`][fcgi] script when setting up your
     [Fossil server][fshome]. That done, Fossil’s JavaScript files will
     load almost instantly from the browser’s cache after the initial

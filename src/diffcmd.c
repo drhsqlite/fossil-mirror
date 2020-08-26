@@ -817,30 +817,31 @@ const char *diff_get_binary_glob(void){
 ** This option overrides the "binary-glob" setting.
 **
 ** Options:
-**   --binary PATTERN           Treat files that match the glob PATTERN as binary
-**   --branch BRANCH            Show diff of all changes on BRANCH
-**   --brief                    Show filenames only
-**   --checkin VERSION          Show diff of all changes in VERSION
-**   --command PROG             External diff program - overrides "diff-command"
-**   --context|-c N             Use N lines of context
-**   --diff-binary BOOL         Include binary files when using external commands
-**   --exec-abs-paths           Force absolute path names with external commands.
-**   --exec-rel-paths           Force relative path names with external commands.
-**   --from|-r VERSION          Select VERSION as source for the diff
-**   --internal|-i              Use internal diff logic
-**   --new-file|-N              Show complete text of added and deleted files
-**   --numstat                  Show only the number of lines delete and added
-**   --side-by-side|-y          Side-by-side diff
-**   --strip-trailing-cr        Strip trailing CR
-**   --tclsh PATH               Tcl/Tk used for --tk (default: "tclsh")
-**   --tk                       Launch a Tcl/Tk GUI for display
-**   --to VERSION               Select VERSION as target for the diff
-**   --undo                     Diff against the "undo" buffer
-**   --unified                  Unified diff
-**   -v|--verbose               Output complete text of added or deleted files
-**   -w|--ignore-all-space      Ignore white space when comparing lines
-**   -W|--width <num>           Width of lines in side-by-side diff
-**   -Z|--ignore-trailing-space Ignore changes to end-of-line whitespace
+**   --binary PATTERN            Treat files that match the glob PATTERN
+**                               as binary
+**   --branch BRANCH             Show diff of all changes on BRANCH
+**   --brief                     Show filenames only
+**   --checkin VERSION           Show diff of all changes in VERSION
+**   --command PROG              External diff program. Overrides "diff-command"
+**   --context|-c N              Use N lines of context
+**   --diff-binary BOOL          Include binary files with external commands
+**   --exec-abs-paths            Force absolute path names on external commands
+**   --exec-rel-paths            Force relative path names on external commands
+**   --from|-r VERSION           Select VERSION as source for the diff
+**   --internal|-i               Use internal diff logic
+**   --new-file|-N               Show complete text of added and deleted files
+**   --numstat                   Show only the number of lines delete and added
+**   --side-by-side|-y           Side-by-side diff
+**   --strip-trailing-cr         Strip trailing CR
+**   --tclsh PATH                Tcl/Tk used for --tk (default: "tclsh")
+**   --tk                        Launch a Tcl/Tk GUI for display
+**   --to VERSION                Select VERSION as target for the diff
+**   --undo                      Diff against the "undo" buffer
+**   --unified                   Unified diff
+**   -v|--verbose                Output complete text of added or deleted files
+**   -w|--ignore-all-space       Ignore white space when comparing lines
+**   -W|--width N                Width of lines in side-by-side diff
+**   -Z|--ignore-trailing-space  Ignore changes to end-of-line whitespace
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
