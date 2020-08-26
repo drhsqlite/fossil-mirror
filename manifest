@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.34.0\salpha\sthat\sincludes\ssupport\nfor\sthe\ssqlite3_txn_state()\sinterface,\swith\san\seye\stoward\susing\nsqlite3_txn_state()\sto\shelp\sprevent\s"busy"\serrors\scoming\sfrom\shigh-load\nFossil\sservers.
-D 2020-08-26T14:46:57.647
+C Improvements\sto\shelp-text\sHTML\sformatting.
+D 2020-08-26T21:43:54.147
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -472,7 +472,7 @@ F src/descendants.c bac0aaa4ec52616ea1b7ebd40e76fe2412af0960158aabb2994df17b0f7e
 F src/diff.c 149a5477a22cb731966f4d79aa15341844f19e0f0c7caa6d074d89505560eb65
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c f9768b2a69f118c9d2543b808d9f20fd2d534be92f83be241316cd842d0aeadf
-F src/dispatch.c e8b2a8e285ec30206f38edaa30c6b4fde53aad961bbc2ad24e1d0eb43899b2b9
+F src/dispatch.c 0c46e3750ec22ac7d65abdc61974582256295584c3a70a8fcfba82ea40ac4c88
 F src/doc.c cfb3ae907707a2c97e05a57a01781006a92915813398c1e1ed7c61dc3deab3d6
 F src/encode.c e330c36991335742bc42ec6e01ee2a14158f08b4b36ae84ec405294adf465f96
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
@@ -537,7 +537,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c 3bcdd658f29a4a6302b1dee8200ebd565b4ddaddd587e38c6be962cbb15b03f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 7858636d35f3706d124e53a5e237b7eada43417a5523d97bd4afac83de59b63c
+F src/main.c 33ed4a3588019a47daf98285dc1ae5b9ffabc5aee44e2ace62163d0e3678b104
 F src/main.mk d5c841c3a5bd3e20dcb451c7218da00fe19f36d7ce3399f700e166f8fc821516
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d32221c2ac441c25b4cf29ea691b1a0b0e363e537d727cf1ec824246fd111fa
-R 4fbb3bece01edeff6099fb1233e72405
+P e3ca34cb382aef5e8a6d2f889f0a600b77c5ecba38d0efac61fb62679607ca9e
+R 4abe860ca0400c4426d950a4d3bd436c
 U drh
-Z 4358fe50402185185d7beb2bc07faf3e
+Z 7ea68a89392e960d9ca5d5e89128bcba

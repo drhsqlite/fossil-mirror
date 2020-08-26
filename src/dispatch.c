@@ -232,41 +232,6 @@ static int hasGap(const char *z, int n){
 }
 
 /*
-** Append text to pOut, adding formatting markup.  Terms that
-** have all lower-case letters are within <tt>..</tt>.  Terms
-** that have all upper-case letters are within <i>..</i>.
-*/
-static void appendMixedFont(Blob *pOut, const char *z, int n){
-  const char *zEnd = "";
-  int i = 0;
-  int j;
-  while( i<n ){
-    if( z[i]==' ' || z[i]=='=' ){
-      for(j=i+1; j<n && (z[j]==' ' || z[j]=='='); j++){}
-      blob_append(pOut, z+i, j-i);
-      i = j;
-    }else{
-      for(j=i; j<n && z[j]!=' ' && z[j]!='=' && !fossil_isalpha(z[j]); j++){}
-      if( j>=n || z[j]==' ' || z[j]=='=' ){
-        zEnd = "";
-      }else{
-        if( fossil_isupper(z[j]) && z[i]!='-' ){
-          blob_append(pOut, "<i>",3);
-          zEnd = "</i>";
-        }else{
-          blob_append(pOut, "<tt>", 4);
-          zEnd = "</tt>";
-        }
-      }
-      while( j<n && z[j]!=' ' && z[j]!='=' ){ j++; }
-      blob_appendf(pOut, "%#h", j-i, z+i);
-      if( zEnd[0] ) blob_append(pOut, zEnd, -1);
-      i = j;
-    }
-  }
-}
-
-/*
 ** Input string zIn starts with '['.  If the content is a hyperlink of the
 ** form [[...]] then return the index of the closing ']'.  Otherwise return 0.
 */
@@ -282,13 +247,18 @@ static int help_is_link(const char *z, int n){
 }
 
 /*
-** Append text to pOut, adding hyperlink markup for [...].
+** Append text to pOut with changes:
+**
+**    *   Add hyperlink markup for [[...]]
+**    *   Escape HTML characters: < > & and "
+**    *   Change "%fossil" to just "fossil"
 */
 static void appendLinked(Blob *pOut, const char *z, int n){
   int i = 0;
   int j;
   while( i<n ){
-    if( z[i]=='[' && (j = help_is_link(z+i, n-i))>0 ){
+    char c = z[i];
+    if( c=='[' && (j = help_is_link(z+i, n-i))>0 ){
       if( i ) blob_append(pOut, z, i);
       z += i+2;
       n -= i+2;
@@ -297,11 +267,70 @@ static void appendLinked(Blob *pOut, const char *z, int n){
       z += j-1;
       n -= j-1;
       i = 0;
+    }else if( c=='%' && n-i>=7 && strncmp(z+i,"%fossil",7)==0 ){
+      if( i ) blob_append(pOut, z, i);
+      z += i+7;
+      n -= i+7;
+      blob_append(pOut, "fossil", 6);
+      i = 0;
+    }else if( c=='<' ){
+      if( i ) blob_append(pOut, z, i);
+      blob_append(pOut, "&lt;", 4);
+      z += i+1;
+      n -= i+1;
+      i = 0;
+    }else if( c=='>' ){
+      if( i ) blob_append(pOut, z, i);
+      blob_append(pOut, "&gt;", 4);
+      z += i+1;
+      n -= i+1;
+      i = 0;
+    }else if( c=='&' ){
+      if( i ) blob_append(pOut, z, i);
+      blob_append(pOut, "&amp;", 5);
+      z += i+1;
+      n -= i+1;
+      i = 0;
     }else{
       i++;
     }
   }
   blob_append(pOut, z, i);
+}
+
+/*
+** Append text to pOut, adding formatting markup.  Terms that
+** have all lower-case letters are within <tt>..</tt>.  Terms
+** that have all upper-case letters are within <i>..</i>.
+*/
+static void appendMixedFont(Blob *pOut, const char *z, int n){
+  const char *zEnd = "";
+  int i = 0;
+  int j;
+  while( i<n ){
+    if( z[i]==' ' || z[i]=='=' ){
+      for(j=i+1; j<n && (z[j]==' ' || z[j]=='='); j++){}
+      appendLinked(pOut, z+i, j-i);
+      i = j;
+    }else{
+      for(j=i; j<n && z[j]!=' ' && z[j]!='=' && !fossil_isalpha(z[j]); j++){}
+      if( j>=n || z[j]==' ' || z[j]=='=' ){
+        zEnd = "";
+      }else{
+        if( fossil_isupper(z[j]) && z[i]!='-' ){
+          blob_append(pOut, "<i>",3);
+          zEnd = "</i>";
+        }else{
+          blob_append(pOut, "<tt>", 4);
+          zEnd = "</tt>";
+        }
+      }
+      while( j<n && z[j]!=' ' && z[j]!='=' ){ j++; }
+      appendLinked(pOut, z+i, j-i);
+      if( zEnd[0] ) blob_append(pOut, zEnd, -1);
+      i = j;
+    }
+  }
 }
 
 /*
@@ -343,21 +372,15 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
   azEnd[0] = "";
   while( zHelp[0] ){
     i = 0;
-    while( (c = zHelp[i])!=0
-        && c!='\n'
-        && c!='<'
-        && (c!='%' || strncmp(zHelp+i,"%fossil",7)!=0)
-    ){ i++; }
-    if( c=='%' ){
-      if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
-      zHelp += i + 1;
-      wantBR = 1;
-      continue;
-    }else if( c=='<' ){
-      if( i ) blob_appendf(pHtml, "%#h", i, zHelp);
-      blob_append(pHtml, "&amp;", 5);
-      zHelp += i + 1;
-      continue;
+    while( (c = zHelp[i])!=0 && c!='\n' ){
+      if( c=='%' && i>2 && zHelp[i-2]==':' && strncmp(zHelp+i,"%fossil",7)==0 ){
+        appendLinked(pHtml, zHelp, i);
+        zHelp += i+1;
+        i = 0;
+        wantBR = 1;
+        continue;
+      }
+      i++;
     }
     if( i>2 && zHelp[0]=='>' && zHelp[1]==' ' ){
       isDT = 1;
@@ -368,7 +391,11 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
     }
     if( nIndent==i ){
       if( c==0 ) break;
-      blob_append(pHtml, "\n", 1);
+      if( iLevel && azEnd[iLevel]==zEndPRE ){
+        /* Skip the newline at the end of a <pre> */
+      }else{
+        blob_append_char(pHtml, '\n');
+      }
       wantP = 1;
       wantBR = 0;
       zHelp += i+1;
@@ -429,11 +456,12 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
         aIndent[iLevel] = x = nIndent+iDD;
         azEnd[iLevel] = zEndDD;
         appendMixedFont(pHtml, zHelp+nIndent, iDD-2);
-        blob_appendf(pHtml, "</dt><dd>%#h\n", i-x, zHelp+x);
+        blob_append(pHtml, "</dt><dd>",9);
+        appendLinked(pHtml, zHelp+x, i-x);
       }else{
         appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
-        blob_append(pHtml, "</dt>\n", 6);
       }
+      blob_append(pHtml, "</dt>\n", 6);
     }else if( wantBR ){
       appendMixedFont(pHtml, zHelp+nIndent, i-nIndent);
       blob_append(pHtml, "<br>\n", 5);

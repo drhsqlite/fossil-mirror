@@ -2100,7 +2100,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             processed in order.  If the REPO is "*", then
 **                             an unconditional redirect to URL is taken.
 **
-**     jsmode: VALUE           Specifies the delivery mode for JavaScript
+**    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
 **                             flag of the http command.
 **
