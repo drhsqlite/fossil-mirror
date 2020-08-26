@@ -858,8 +858,10 @@ void extras_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
+#ifdef FOSSIL_LEGACY_ALLOW_SYMLINKS
   /* Always consider symlinks. */
   g.allowSymlinks = db_allow_symlinks_by_default();
+#endif
   locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore);
   glob_free(pIgnore);
 
@@ -1017,8 +1019,10 @@ void clean_cmd(void){
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);
+#ifdef FOSSIL_LEGACY_ALLOW_SYMLINKS
   /* Always consider symlinks. */
   g.allowSymlinks = db_allow_symlinks_by_default();
+#endif
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;

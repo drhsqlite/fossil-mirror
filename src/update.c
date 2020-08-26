@@ -878,6 +878,8 @@ void revert_cmd(void){
         "DELETE FROM vfile WHERE pathname=%Q",
         zFile, zFile
       );
+    }else if( file_unsafe_in_tree_path(zFull) ){
+      /* Ignore this file */
     }else{
       sqlite3_int64 mtime;
       int rvChnged = 0;

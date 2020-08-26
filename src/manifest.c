@@ -483,10 +483,19 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   /* Then verify the Z-card.
   */
+#if 1
+  /* Disable this ***ONLY*** (ONLY!) when testing hand-written inputs
+     for card-related syntax errors. */
   if( verify_z_card(z, n, pErr)==2 ){
     blob_reset(pContent);
     return 0;
   }
+#else
+#warning ACHTUNG - z-card check is disabled for testing purposes.
+  if(0 && verify_z_card(NULL, 0, NULL)){
+    /*avoid unused static func error*/
+  }
+#endif
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -603,6 +612,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->rEventDate = db_double(0.0,"SELECT julianday(%Q)", next_token(&x,0));
         if( p->rEventDate<=0.0 ) SYNTAX("malformed date on E-card");
         p->zEventId = next_token(&x, &sz);
+        if( p->zEventId==0 ) SYNTAX("missing hash on E-card");
         if( !hname_validate(p->zEventId, sz) ){
           SYNTAX("malformed hash on E-card");
         }
@@ -627,6 +637,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){
+          if( zUuid==0 ) SYNTAX("missing hash on F-card");
           if( !hname_validate(zUuid,sz) ){
             SYNTAX("F-card hash invalid");
           }
@@ -645,13 +656,20 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
                                     p->nFileAlloc*sizeof(p->aFile[0]) );
         }
         i = p->nFile++;
+        if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
+          SYNTAX("incorrect F-card sort order");
+        }
+        if( file_is_reserved_name(zName,-1) ){
+          /* If reserved names leaked into historical manifests due to
+          ** slack oversight by older versions of Fossil, simply ignore
+          ** those files */
+          p->nFile--;
+          break;
+        }
         p->aFile[i].zName = zName;
         p->aFile[i].zUuid = zUuid;
         p->aFile[i].zPerm = zPerm;
         p->aFile[i].zPrior = zPriorName;
-        if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
-          SYNTAX("incorrect F-card sort order");
-        }
         p->type = CFTYPE_MANIFEST;
         break;
       }
