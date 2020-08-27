@@ -1,5 +1,5 @@
-C Improvements\sto\shelp-text\sHTML\sformatting.
-D 2020-08-26T21:43:54.147
+C Fix\sthe\sserver-side\sclone\sso\sthat\sit\sis\sable\sto\soperate\son\sa\sread-only\nrepository\sdatabase.
+D 2020-08-27T01:37:19.054
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c4759690612956fa087bcb520ac029ddb942871cb0a48414b8c12c1341ec7ca3
+F src/db.c ea16f92bdf30a0d7984c4e51600646629c619c81d6969334815a84fd7a31f929
 F src/default.css 5db3cd8cdb32f0f357e853c86261d42c5aa9793da3e0a21430b3d2adf7adf055
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -505,7 +505,7 @@ F src/graph.c a9e1f5aae6551892f96c84bd4cd1708da2843bdd372bc45367493e8cd16f5e17
 F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c e01d48cf36d731a3435c44d53bf3b0bc10e9444218de4a094872fb9ff0b311a4
+F src/hook.c 7b750b22ce8bd621b63f2528dc29fc03eea0367099c11655855a16365dbef7b4
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3ca34cb382aef5e8a6d2f889f0a600b77c5ecba38d0efac61fb62679607ca9e
-R 4abe860ca0400c4426d950a4d3bd436c
+P 517223eca965c361d6619aae668786be1203aa783c97fd517a3d32ba3e9e417b
+R e2f10862dc8c98f1744b1c88311e0a1e
 U drh
-Z 7ea68a89392e960d9ca5d5e89128bcba
+Z a668cd4bdbe9144663e55096c42dcbcd

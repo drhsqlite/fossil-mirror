@@ -124,7 +124,9 @@ static char *hook_subst(
 ** soon and so post-receive hooks can be run without delay.
 */
 void hook_expecting_more_artifacts(int N){
-  if( N>0 ){
+  if( !db_is_writeable("repository") ){
+    /* No-op */
+  }else if( N>0 ){
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"

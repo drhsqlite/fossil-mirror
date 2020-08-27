@@ -217,13 +217,17 @@ void db_begin_transaction_real(const char *zStartFile, int iStartLine){
 */
 void db_begin_write_real(const char *zStartFile, int iStartLine){
   if( db.nBegin==0 ){
-    db_multi_exec("BEGIN IMMEDIATE");
-    sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
-    db.nPriorChanges = sqlite3_total_changes(g.db);
-    db.doRollback = 0;
-    db.zStartFile = zStartFile;
-    db.iStartLine = iStartLine;
-    db.wrTxn = 1;
+    if( !db_is_writeable("repository") ){
+      db_multi_exec("BEGIN");
+    }else{
+      db_multi_exec("BEGIN IMMEDIATE");
+      sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
+      db.nPriorChanges = sqlite3_total_changes(g.db);
+      db.doRollback = 0;
+      db.zStartFile = zStartFile;
+      db.iStartLine = iStartLine;
+      db.wrTxn = 1;
+    }
   }else if( !db.wrTxn ){
     fossil_warning("read txn at %s:%d might cause SQLITE_BUSY "
        "for the write txn at %s:%d",
