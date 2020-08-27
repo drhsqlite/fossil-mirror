@@ -1,5 +1,5 @@
-C Additional\sinterlinking\sand\sclarification\sof\sCGI\sdocumentation.
-D 2020-08-27T15:11:58.507
+C Clarified\sthe\sonline\sdocs\sfor\sthe\s"fossil\sremote\sREF"\scommand\sform.\s\sIt\nwasn't\sobvious\sbefore\sthat\syou\scould\sgive\sa\sNAME\sinstead\sof\sa\sURL.
+D 2020-08-27T17:56:20.770
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -614,7 +614,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c 5dc16b2eae9beaf5e735c6742d19d2aaeb378e13c39131c27e2fbd31ea64f13f
 F src/style.fileedit.css 70130b5ecd2b57599d175a392c03e0d028995841bfdf3b3cc21e6ed7c62b172b
 F src/style.wikiedit.css 43a169e16798a585d7217406e1bce94b3e242f1678dba03df321070f24eb21b7
-F src/sync.c fee0a8d6a620c5a123a757ea08b984a63ce0d56f098bdbba1f04176f7c82d8aa
+F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
 F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2f
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9601b6cfc7470668b7d16aaa669a5dba02ffdcf0db7046ff717820ab526294b9
-R 6ed270184622efd54abb66481ce475ed
-U drh
-Z 69c784f34893bc9bd4de21bb568a7c28
+P 43fb402bfd374f71bf2d3a13c59435b67e8cc86f14315ce04d4fda234abe4677
+R 275b83d2474a69e0440c0cf6af6ae086
+U wyoung
+Z db5a3d69309e47c055841f5019e34baf
