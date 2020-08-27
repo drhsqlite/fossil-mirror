@@ -464,9 +464,9 @@ static void forum_display_post(
 
     /* Begin emitting the header line.  The forum of the title
     ** varies depending on whether:
-    **    *  The post is uneditted
-    **    *  The post was last editted by the original author
-    **    *  The post was last editted by a different person
+    **    *  The post is unedited
+    **    *  The post was last edited by the original author
+    **    *  The post was last edited by a different person
     */
     if( p->pEditHead ){
       zDate = db_text(0, "SELECT datetime(%.17g)", p->pEditHead->rDate);
@@ -482,7 +482,7 @@ static void forum_display_post(
       @ <h3 class='forumPostHdr'>(%d(p->sid)\
       @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
-        @ By %h(zPosterName) on %h(zDate) editted from \
+        @ By %h(zPosterName) on %h(zDate) edited from \
         @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }else{
@@ -1122,7 +1122,7 @@ void forumnew_page(void){
 ** Edit an existing forum message.
 ** Query parameters:
 **
-**   fpid=X        Hash of the post to be editted.  REQUIRED
+**   fpid=X        Hash of the post to be edited.  REQUIRED
 */
 void forumedit_page(void){
   int fpid;

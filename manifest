@@ -1,5 +1,5 @@
-C Clarified\sthe\sonline\sdocs\sfor\sthe\s"fossil\sremote\sREF"\scommand\sform.\s\sIt\nwasn't\sobvious\sbefore\sthat\syou\scould\sgive\sa\sNAME\sinstead\sof\sa\sURL.
-D 2020-08-27T17:56:20.770
+C Typo\sfix:\sTurns\sout\s"edited"\sonly\shas\sone\s"t".\s\sWho\sknew?
+D 2020-08-27T23:54:52.984
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c a0219721bf661a404b590a9257d8386d9e77d1d9a2227d54ab567c207a3b7e7b
 F src/fileedit.c 5888dd53fdc4989d895c5629d2f6f07a5e845886ca6943540d50ba8c9a6f4cac
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 3613347ca76e979eb4b85aa36742dab9545af3f7b04e00797bb620a22593a898
+F src/forum.c 829eea65555879adc13cdc9ad986f0b236e1f2b651a1275a6a124a8e7d9bc44f
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 69ce782ad7f04780e678547f7340b709b6b4cf5d880b41be72fae3fc1825d910
 F src/fossil.confirmer.js 381023fea55b0df523b4a0561290782e421c8647ce3bd49e98809d8fa5739b90
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 43fb402bfd374f71bf2d3a13c59435b67e8cc86f14315ce04d4fda234abe4677
-R 275b83d2474a69e0440c0cf6af6ae086
-U wyoung
-Z db5a3d69309e47c055841f5019e34baf
+P 292ba94e6b7fd96d9d212670e7571c13f0fc526c95ee9cd77b643a08771b3533
+R d8234b4a765399265573001864de7c86
+U drh
+Z a79980124030fa8518247d9bd029f5a8
