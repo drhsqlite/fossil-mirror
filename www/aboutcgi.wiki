@@ -3,8 +3,12 @@
 <p>CGI or "Common Gateway Interface" is a venerable yet reliable technique for
 generating dynamic web content.  This article gives a quick background on how
 CGI works and describes how Fossil can act as a CGI service.
-<p>This is a "how it works" guide.  If you just want to set up Fossil
-as a CGI server, see the [./server/ | Fossil Server Setup] page.
+<p>This is a "how it works" guide.  This document provides background
+information on the CGI protocol so that you can better understand what
+is going on behind the scenes.  If you just want to set up Fossil
+as a CGI server, see the [./server/ | Fossil Server Setup] page.  Or
+if you want to development CGI-based extensions to Fossil, see
+the [./serverext.wiki|CGI Server Extensions] page.
 </blockquote>
 <h2>A Quick Review Of CGI</h2><blockquote>
 <p>
@@ -16,7 +20,7 @@ that appears in the URL bar at the top of the web browser that is making
 the request.  The URL might contain a "?" character followed
 query parameters.  The HTTP will usually also contain other information
 such as the name of the application that made the request, whether or
-not the requesting application can except a compressed reply, POST
+not the requesting application can accept a compressed reply, POST
 parameters from forms, and so forth.
 <p>
 The job of the web server is to interpret the HTTP request and formulate
@@ -25,7 +29,7 @@ The web server is free to interpret the HTTP request in any way it wants.
 But most web servers follow a similar pattern, described below.
 (Note: details may vary from one web server to another.)
 <p>
-Suppose the URL in the HTTP request looks like this:
+Suppose the filename component of the URL in the HTTP request looks like this:
 <blockquote><b>/one/two/timeline/four</b></blockquote>
 Most web servers will search their content area for files that match
 some prefix of the URL.  The search starts with <b>/one</b>, then goes to
@@ -182,6 +186,19 @@ Here is what happens:
 <li> Fossil looks at the rest of PATH_INFO to see that the webpage
      requested is "timeline".
 </ol>
+<a name="cgivar"></a>
+The web server sets many environment variables in step 2 in addition
+to just PATH_INFO.  The following diagram shows a few of these variables
+and their relationship to the request URL:
+<pre>
+                                   REQUEST_URI
+                         ______________|___________________
+                        /                                  \
+      http://example.com/cgis/example2/subdir/three/timeline?c=55d7e1
+             \_________/\____________/\____________________/ \______/
+                  |            |                 |               |
+              HTTP_HOST   SCRIPT_NAME        PATH_INFO      QUERY_STRING
+</pre>
 </blockquote>
 <h2>Additional CGI Script Options</h2>
 <blockquote>

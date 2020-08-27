@@ -1,5 +1,5 @@
-C Do\snot\sassume\sthat\smissing\sSCRIPT_NAME\sand\sPATH_INFO\senvironment\svariables\nfor\sCGI\shave\sa\svalue\swhich\sis\san\sempty\sstring.
-D 2020-08-27T12:34:04.513
+C Additional\sinterlinking\sand\sclarification\sof\sCGI\sdocumentation.
+D 2020-08-27T15:11:58.507
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -799,7 +799,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/aboutcgi.wiki 1213785a5b889c2eaf6bfbe05836f2e253a6fdd7a4de14b36dbdf248c178ca9d
+F www/aboutcgi.wiki 41eb3fb9357be6d3893f05897bcfd39ddb81c87d6dc36b1e9ad5bf40bc8d6e06
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
 F www/adding_code.wiki 0c6c3aa15c2f2d9b89607d39738aa5dbbea312553f859563d22848a476906acf
 F www/alerts.md 66619f74c5bfa23fb1bfb47828656d7718926230b8e24e5eca15927039e9a034
@@ -961,9 +961,9 @@ F www/rebaseharm.md cb0befdc92a3fe1c112b769164d2645754a39aaca0f68e16fbda307969a3
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
-F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
+F www/selfhost.wiki 2d67d60528cae118f0cc214aa375ff60279cba8161746189a71aaffe4b71aa01
 F www/server/any/althttpd.md 450f52ad23c0ac8b3783302964e60b765dcf8a4fca9b6efc18bedecbcccd08d2
-F www/server/any/cgi.md 936ee3d21bbc4a9b47e20e3051177aed3e80ca42b970480b98dd374cc27f99a3
+F www/server/any/cgi.md 3ee9338cbcac68b1dad69c21202f7af2b98886990916e872d9141a82af54a38c
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
@@ -989,7 +989,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
-F www/serverext.wiki c890f2198c9652495d0d2db6b9d2595a52d9d0807667e1f5087ec91c57511395
+F www/serverext.wiki 72701435746518239ed71af39ff9401a6896fb1181898eb6bc6ea24418bab9f8
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
 F www/ssl.wiki 0dd97431ff90fce1f19a7d2e60bdae07fd1b079d90b7e76750eaa9be44b4f7ce
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 147bf47d6e145686550304ec8061281e5557ac419151e2109c95819e6be02984
-R a80a89c59e6ac6ac54d32a322288cc5a
+P 9601b6cfc7470668b7d16aaa669a5dba02ffdcf0db7046ff717820ab526294b9
+R 6ed270184622efd54abb66481ce475ed
 U drh
-Z d1bfda5c0559b08d59de1f16a98510b4
+Z 69c784f34893bc9bd4de21bb568a7c28
