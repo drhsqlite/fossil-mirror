@@ -1,5 +1,5 @@
-C Unprotect\sthe\sssl-identity\sproperty\swhen\ssetting\sit.
-D 2020-08-28T09:47:22.993
+C The\s/wcontent\spage\sadds\sthe\s"p"\squery\sparameter\sto\slinks\sso\sthat\swe\ncan\sactually\sedit\scheckin/*\sand\sbranch/*\swiki\spages.
+D 2020-08-28T12:22:14.163
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -640,7 +640,7 @@ F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 2c9e078b7bd13383c11ae7c0279c53487049798e4d599cf6e11d312507428d32
+F src/wiki.c 56b06fdf8574b3c6eccea350de1e177c084a68bc2b902da53c7a9802e49be411
 F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
 F src/wikiformat.c 654c95849749ac80bae4d7653c9e4164c4870a6bd6311e1f8bce3676fe51872e
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cef8425cf4a482a3f7b77546393f2e90efdaaab22c751b1dfaef0c53d91ef8d3
-R 5aa88b5304898cc22a8f26bfcf6a105d
+P e3636830abcee11c75da3e5c74ff02f7c8fafc09cc7e78568863d9d82240e7ca
+R 3498e81db4ae0162d4a05cec3fe741fb
 U drh
-Z 0c1fb2de43792c7ee831de6ae85d0283
+Z b8a560e72cfadfb4f3a3960807917dbe

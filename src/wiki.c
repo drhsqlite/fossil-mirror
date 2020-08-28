@@ -1732,7 +1732,7 @@ void wcontent_page(void){
       @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWDisplayName)</s></a></td>
     }else{
       @ <tr><td data-sortkey="%h(zSort)">\
-      @ %z(href("%R/wiki?name=%T",zWName))%h(zWDisplayName)</a></td>
+      @ %z(href("%R/wiki?name=%T&p",zWName))%h(zWDisplayName)</a></td>
     }
     zAge = human_readable_age(rNow - rWmtime);
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
