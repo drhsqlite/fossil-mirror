@@ -128,7 +128,7 @@ void sitemap_page(void){
     @ </li>
   }
   if( g.perm.RdTkt ){
-    @ <li>%z(href("%R/reportlist"))Tickets</a>
+    @ <li>%z(href("%R/reportlist"))Tickets/Bug Reports</a>
     @   <ul>
     if( srchFlags & SRCH_TKT ){
       @   <li>%z(href("%R/tktsrch"))Ticket Search</a></li>
@@ -197,7 +197,7 @@ void sitemap_page(void){
     @   </ul>
     @ </li>
   }
-  @ <li>Help
+  @ <li>%z(href("%R/help"))Help</a>
   @   <ul>
   if( g.perm.Admin || g.perm.Write ||
       g.perm.WrForum || g.perm.WrTForum ||
@@ -206,10 +206,10 @@ void sitemap_page(void){
     @   <li>%z(href("%R/wiki_rules"))Wiki Formatting Rules</a></li>
     @   <li>%z(href("%R/md_rules"))Markdown Formatting Rules</a></li>
   }
-  @   <li>%z(href("%R/help"))List of All Commands and Web Pages</a></li>
   @   <li>%z(href("%R/test-all-help"))All "help" text on a single page</a></li>
   if( g.perm.Admin || g.perm.Write || g.perm.WrUnver ){
-    @   <li>%z(href("%R/mimetype_list"))Filename suffix to MIME type map</a></li>
+    @   <li>%z(href("%R/mimetype_list"))\
+    @ Filename suffix to MIME type map</a></li>
   }
   @   </ul></li>
   if( g.perm.Admin ){
