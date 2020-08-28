@@ -480,6 +480,20 @@ hook_backoffice_done:
 }
 
 /*
+** Return true if one or more hooks of type zType exit.
+*/
+int hook_exists(const char *zType){
+  return db_exists(
+      "SELECT 1"
+      "  FROM config, json_each(config.value) AS jx"
+      " WHERE config.name='hooks' AND json_valid(config.value)"
+      "   AND json_extract(jx.value,'$.type')=%Q"
+      " ORDER BY json_extract(jx.value,'$.seq');",
+      zType
+  );
+}
+
+/*
 ** Run all hooks of type zType.  Use zAuxFile as the auxiliary information
 ** file.
 **
