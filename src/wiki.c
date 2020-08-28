@@ -1549,63 +1549,30 @@ void wikiappend_page(void){
 ** Show the complete change history for a single wiki page.
 */
 void whistory_page(void){
-  Stmt q;
   const char *zPageName;
-  double rNow;
-  int showRid;
+  Blob sql;
+  Stmt q;
   login_check_credentials();
-  if( !g.perm.Hyperlink ){ login_needed(g.anon.Hyperlink); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = PD("name","");
   style_header("History Of %s", zPageName);
-  showRid = P("showid")!=0;
-  db_prepare(&q,
-    "SELECT"
-    "  event.mtime,"
-    "  blob.uuid,"
-    "  coalesce(event.euser,event.user),"
-    "  event.objid"
-    " FROM event, blob, tag, tagxref"
-    " WHERE event.type='w' AND blob.rid=event.objid"
-    "   AND tag.tagname='wiki-%q'"
-    "   AND tagxref.tagid=tag.tagid AND tagxref.srcid=event.objid"
-    " ORDER BY event.mtime DESC",
-    zPageName
+  blob_init(&sql, 0, 0);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql,
+     "AND event.objid IN ("
+     " SELECT tagxref.srcid"
+     " FROM tagxref, tag"
+     " WHERE tagxref.tagid=tag.tagid"
+     " AND tag.tagname='wiki-%q')"
+     " ORDER BY mtime DESC",
+     zPageName
   );
-  @ <h2>History of <a href="%R/wiki?name=%T(zPageName)">%h(zPageName)</a></h2>
-  @ <div class="brlist">
-  @ <table>
-  @ <thead><tr>
-  @ <th>Age</th>
-  @ <th>Hash</th>
-  @ <th>User</th>
-  if( showRid ){
-    @ <th>RID</th>
-  }
-  @ <th>&nbsp;</th>
-  @ </tr></thead><tbody>
-  rNow = db_double(0.0, "SELECT julianday('now')");
-  while( db_step(&q)==SQLITE_ROW ){
-    double rMtime = db_column_double(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
-    int wrid = db_column_int(&q, 3);
-    /* sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0); */
-    char *zAge = human_readable_age(rNow - rMtime);
-    @ <tr>
-    /* @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td> */
-    @ <td>%s(zAge)</td>
-    fossil_free(zAge);
-    @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td>
-    @ <td>%h(zUser)</td>
-    if( showRid ){
-      @ <td>%z(href("%R/artifact/%S",zUuid))%d(wrid)</a></td>
-    }
-    @ <td>%z(href("%R/wdiff?id=%S",zUuid))diff</a></td>
-    @ </tr>
-  }
-  @ </tbody></table></div>
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  www_print_timeline(&q,
+    TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_REFS,
+    0, 0, 0, 0, 0, 0);
   db_finalize(&q);
-  /* style_table_sorter(); */
+  blob_reset(&sql);
   style_footer();
 }
 
