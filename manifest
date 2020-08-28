@@ -1,5 +1,5 @@
-C The\s/wcontent\spage\sadds\sthe\s"p"\squery\sparameter\sto\slinks\sso\sthat\swe\ncan\sactually\sedit\scheckin/*\sand\sbranch/*\swiki\spages.
-D 2020-08-28T12:22:14.163
+C Add\sthe\scontact\sinformation\spage.
+D 2020-08-28T13:22:28.443
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -845,6 +845,7 @@ F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki e23c7f6a0105786816e91e7d9643b388d1680b339cb31d092e14bba55102a3f8
+F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
 F www/contribute.wiki 992fee5fb4e3c586c9dfc6f7538b29d76407f1bfd3ed1306c107b42efda2f412
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -1010,7 +1011,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3636830abcee11c75da3e5c74ff02f7c8fafc09cc7e78568863d9d82240e7ca
-R 3498e81db4ae0162d4a05cec3fe741fb
+P 50e7a310a572a798767821b8204f99ad25e5f78a563215ca64745e5acb16793d
+R 8e77162efbd96d355847fddb990ec6cd
 U drh
-Z b8a560e72cfadfb4f3a3960807917dbe
+Z d93aa9e194abeeb01cd7887206284a4a
