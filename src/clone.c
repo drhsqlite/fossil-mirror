@@ -201,7 +201,9 @@ void clone_cmd(void){
       Blob fn;
       blob_zero(&fn);
       file_canonical_name(g.zSSLIdentity, &fn, 0);
+      db_unprotect(PROTECT_ALL);
       db_set("ssl-identity", blob_str(&fn), 0);
+      db_protect_pop();
       blob_reset(&fn);
     }
     db_unprotect(PROTECT_CONFIG);
