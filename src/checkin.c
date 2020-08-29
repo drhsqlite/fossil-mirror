@@ -1335,13 +1335,14 @@ static void prepare_commit_comment(
 */
 static char *prepare_commit_description_file(
   CheckinInfo *p,     /* Information about this commit */
-  int parent_rid      /* parent check-in */
+  int parent_rid,     /* parent check-in */
+  Blob *pComment,     /* Check-in comment */
+  int dryRunFlag      /* True for a dry-run only */
 ){
   Blob *pDesc;
   char *zTags;
   char *zFilename;
   Blob desc;
-  unsigned int r[2];
   blob_init(&desc, 0, 0);
   pDesc = &desc;
   blob_appendf(pDesc, "checkout %s\n", g.zLocalRoot);
@@ -1372,10 +1373,21 @@ static char *prepare_commit_description_file(
   if( p->integrateFlag ){
     blob_append(pDesc, "integrate\n", -1);
   }
-  sqlite3_randomness(sizeof(r), r);
-  zFilename = mprintf("%scommit-description-%08x%08x.txt",
-                      g.zLocalRoot, r[0], r[1]);
-  blob_write_to_file(pDesc, zFilename);
+  if( pComment && blob_size(pComment)>0 ){
+    blob_appendf(pDesc, "checkin-comment\n%s\n", blob_str(pComment));
+  }
+  if( dryRunFlag ){
+    zFilename = 0;
+    fossil_print("******* Commit Description *******\n%s"
+                 "***** End Commit Description *****\n",
+                 blob_str(pDesc));
+  }else{
+    unsigned int r[2];
+    sqlite3_randomness(sizeof(r), r);
+    zFilename = mprintf("%scommit-description-%08x%08x.txt",
+                        g.zLocalRoot, r[0], r[1]);
+    blob_write_to_file(pDesc, zFilename);
+  }
   blob_reset(pDesc);
   return zFilename;
 }
@@ -2413,16 +2425,6 @@ void commit_cmd(void){
     /* Always exit the loop on the second pass */
     if( bRecheck ) break;
 
-    /* Run before-commit hooks */
-    if( !noVerify ){
-      char *zAuxFile = prepare_commit_description_file(&sCiInfo,vid);
-      int rc = hook_run("before-commit",zAuxFile,bTrace);
-      file_delete(zAuxFile);
-      fossil_free(zAuxFile);
-      if( rc ){
-        fossil_fatal("Before-commit hook failed\n");
-      }
-    }
   
     /* Get the check-in comment.  This might involve prompting the
     ** user for the check-in comment, in which case we should resync
@@ -2477,6 +2479,21 @@ void commit_cmd(void){
       }
       if( cReply!='y' && cReply!='Y' ){
         fossil_exit(1);
+      }
+    }
+  }
+
+  if( !noVerify && hook_exists("before-commit") ){
+    /* Run before-commit hooks */
+    char *zAuxFile;
+    zAuxFile = prepare_commit_description_file(
+                     &sCiInfo, vid, &comment, dryRunFlag);
+    if( zAuxFile ){
+      int rc = hook_run("before-commit",zAuxFile,bTrace);
+      file_delete(zAuxFile);
+      fossil_free(zAuxFile);
+      if( rc ){
+        fossil_fatal("Before-commit hook failed\n");
       }
     }
   }
