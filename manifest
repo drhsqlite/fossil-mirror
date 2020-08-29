@@ -1,5 +1,5 @@
-C Plugged\sa\sleaky\sabstraction\sin\swikiedit\sand\sfileedit\swhich\sapplied\swhen\sconnecting\sa\s3rd-party\seditor\swidget\sand\sadded\san\sexample\sof\show\sto\splug\sin\sTinyMCE\sto\sthe\sfileedit\sdocs.
-D 2020-08-29T14:07:55.081
+C Minor\s/wikiedit\slayout\simprovements\sand\sremoved\sthe\sprobably-obvious\s'?'\sbutton\sfrom\sthe\sauto-refresh\scheckbox.
+D 2020-08-29T14:22:17.155
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -640,7 +640,7 @@ F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 56b06fdf8574b3c6eccea350de1e177c084a68bc2b902da53c7a9802e49be411
+F src/wiki.c d79c98d885c2ded2da87e8875855786f7006be9326121265003cca4c24b8171b
 F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
 F src/wikiformat.c 654c95849749ac80bae4d7653c9e4164c4870a6bd6311e1f8bce3676fe51872e
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1011,7 +1011,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ff4e1c8a7b5935476faad9f9614be9bad9af0dbd13213c322578e6334fc33b3
-R 98971f024f508bf2694c0d86c691ff8f
+P 88703f001d7b0cb3b47351e98f36636689e24d36e50f11c53748ed63551b8852
+R 4437af2cd74ebd9dff8438a682af040b
 U stephan
-Z d5901428517507db1c623e54101a705a
+Z 23ab3a32429b50831133e10bc0ed2417
