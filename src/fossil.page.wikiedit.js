@@ -996,12 +996,7 @@
       P.e.btnSaveClose.addEventListener('click', ()=>doSave(true), false);
     }
 
-    P.e.taEditor.addEventListener(
-      'change', function(){
-        P._isDirty = true;
-        P.stashContentChange();
-      }, false
-    );
+    P.e.taEditor.addEventListener('change', ()=>P.notifyOfChange(), false);
     
     P.selectMimetype(false, true);
     P.e.selectMimetype.addEventListener(
@@ -1199,9 +1194,31 @@
   };
 
   /**
+     Alerts the editor app that a "change" has happened in the editor.
+     When connecting 3rd-party editor widgets to this app, it is
+     necessary to call this for any "change" events the widget emits.
+     Whether or not "change" means that there were "really" edits is
+     irrelevant, but this app will not allow saving unless it believes
+     at least one "change" has been made (by being signaled through
+     this method).
+
+     This function may perform an arbitrary amount of work, so it
+     should not be called for every keypress within the editor
+     widget. Calling it for "blur" events is generally sufficient, and
+     calling it for each Enter keypress is generally reasonable but
+     also computationally costly.
+  */
+  P.notifyOfChange = function(){
+    P._isDirty = true;
+    P.stashContentChange();
+  };
+
+  /**
      Removes the default editor widget (and any dependent elements)
      from the DOM, adds the given element in its place, removes this
-     method from this object, and returns this object.
+     method from this object, and returns this object. This is not
+     needed if the 3rd-party widget replaces or hides this app's
+     editor widget (e.g. TinyMCE).
   */
   P.replaceEditorElement = function(newEditor){
     P.e.taEditor.parentNode.insertBefore(newEditor, P.e.taEditor);
@@ -1455,7 +1472,7 @@
       }else{
         $stash.updateWinfo(wi, P.wikiContent());
       }
-      F.message("Stashed change(s) to page ["+wi.name+"].");
+      F.message("Stashed changes to page ["+wi.name+"].");
       P.updatePageTitle();
       $stash.prune();
       this.previewNeedsUpdate = true;

@@ -1,5 +1,5 @@
-C Run\sthe\sbefore-commit\shook\safter\sthe\scheck-in\scomment\shas\sbeen\scollected\sfrom\nthe\suser\sand\sinclude\sthe\scheck-in\scomment\sin\sthe\sinformation\sprovided\sto\nthe\shook.
-D 2020-08-29T13:06:11.942
+C Plugged\sa\sleaky\sabstraction\sin\swikiedit\sand\sfileedit\swhich\sapplied\swhen\sconnecting\sa\s3rd-party\seditor\swidget\sand\sadded\san\sexample\sof\show\sto\splug\sin\sTinyMCE\sto\sthe\sfileedit\sdocs.
+D 2020-08-29T14:07:55.081
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -491,9 +491,9 @@ F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f7
 F src/fossil.dom.js dd4f9c08237019f52b409061c46fa8c383a8e5a1d079983bf5bd041eee69ee74
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
-F src/fossil.page.fileedit.js 50119e56e306e5eef9d552bf5f3db2f2d6f7c0025a62cfd6ec6c23c635301cff
+F src/fossil.page.fileedit.js ff219158e615e4f87ec61b686cd97c11799168521ed047fce43a8a5bb4b66169
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.wikiedit.js 6b19f9a0de9dd58668a87c5397e58d9a26cbe94f831f0113ad427f28baea206e
+F src/fossil.page.wikiedit.js 3237576075150f7bfc902701dac3081e0ae78d1c746b3f95ee48f6f93432b7b9
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 56a57bda17eb3a3b8bfbbc43e2475f1fd66b4fb009d7f78ca44f5561c44e08bf
@@ -878,7 +878,7 @@ F www/env-opts.md 49f9284459d093d158ff0584072cb4a0da6a7a545c42b12aceffbac2613e18
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
-F www/fileedit-page.md 2a9fe155cdd6a3bbaecdaa52048ec26abc72c11a9f79ce3d601f7303329ef61c
+F www/fileedit-page.md d400818b30015b6a14c8ed615af5513544adec84667d87f867530de3db2fe9f1
 F www/fileformat.wiki 13210325a6bd101b0f92cc6207eb7b3662f406483a255571d61e07a082cfc845
 F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c29cb4b3
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
@@ -1011,8 +1011,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 23f95bfc06b7ebb07adbd79947f1c09d3330d14d638e37a4ba90b2dac393fe04 b4006e2e2ac46209b6d5e0b3ea23b4c404ad25166fba986796d070fee3db2f86
-R c930ce611a80e3a2087dcb61e6e65f54
-T +closed b4006e2e2ac46209b6d5e0b3ea23b4c404ad25166fba986796d070fee3db2f86
-U drh
-Z 89faedb555b3fb7ee701403145d2dac2
+P 4ff4e1c8a7b5935476faad9f9614be9bad9af0dbd13213c322578e6334fc33b3
+R 98971f024f508bf2694c0d86c691ff8f
+U stephan
+Z d5901428517507db1c623e54101a705a

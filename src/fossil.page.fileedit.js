@@ -755,9 +755,7 @@
       "click",(e)=>P.toggleCommentMode(), false
     );
 
-    P.e.taEditor.addEventListener(
-      'change', ()=>P.stashContentChange(), false
-    );
+    P.e.taEditor.addEventListener('change', ()=>P.notifyOfChange(), false);
     P.e.cbIsExe.addEventListener(
       'change', ()=>P.stashContentChange(true), false
     );
@@ -857,6 +855,23 @@
     this.fileContent.get = getter;
     this.fileContent.set = setter;
     return this;
+  };
+
+  /**
+     Alerts the editor app that a "change" has happened in the editor.
+     When connecting 3rd-party editor widgets to this app, it is (or
+     may be) necessary to call this for any "change" events the widget
+     emits.  Whether or not "change" means that there were "really"
+     edits is irrelevant.
+
+     This function may perform an arbitrary amount of work, so it
+     should not be called for every keypress within the editor
+     widget. Calling it for "blur" events is generally sufficient, and
+     calling it for each Enter keypress is generally reasonable but
+     also computationally costly.
+  */
+  P.notifyOfChange = function(){
+    P.stashContentChange();
   };
 
   /**

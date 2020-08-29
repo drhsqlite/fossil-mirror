@@ -227,8 +227,10 @@ the preview which explicitly have a CSS class named
 
 ## Integrating a Custom Editor Widget
 
-*Hypothetically*, though this is currently unproven "in the wild," it
-is possible to replace `/filepage`'s basic text-editing widget (a
+(These instructions also work for the `/wikiedit` page by eplacing
+"fileedit" with "wikiedit" in any strings or symbol names!)
+
+It is possible to replace `/filepage`'s basic text-editing widget (a
 `textarea` element) with a fancy 3rd-party editor widget by following
 these instructions...
 
@@ -253,8 +255,21 @@ fossil.page.setContentMethods(
 };
 ```
 
-Secondly, inject the custom editor widget into the UI, replacing
-the default editor widget:
+Secondly, we need to alert the editor app when there are changes so
+that it can do things like store edits locally so that they are not
+lost on a page reload. How that is done is completely dependent on the
+3rd-party editor widget, but it generically looks something like:
+
+```
+myCustomWidget.on('eventName', ()=>fossil.page.notifyOfChange());
+```
+
+(This feature requires fossil version 2.13 or later. In 2.12 it is
+possible to do this but requires making use of a "leaky abstraction".)
+
+Lastly, if the 3rd-party editor does *not* hide or remove the native
+editor widget, and does not inject itself into the DOM on the caller's
+behalf, we can replace the native widget with the 3rd-party one with:
 
 ```javascript
 fossil.page.replaceEditorWidget(yourNewWidgetElement);
@@ -263,9 +278,43 @@ fossil.page.replaceEditorWidget(yourNewWidgetElement);
 That method must be passed a DOM element and may only be called once:
 it *removes itself* the first time it is called.
 
-That "should" be all there is to it. When `fossil.page` needs to get
-the being-edited content, it will call `fossil.page.fileContent()`
-with no arguments, and when it sets the content (immediately after
-(re)loading a file), it will pass that content to
-`fossil.page.fileContent()`. Those, in turn will trigger the installed
-proxies and fire any relevant events.
+That should be all there is to it. When `fossil.page` needs to get the
+being-edited content, it will call the installed content-getter
+function with no arguments, and when it sets the content (immediately
+after (re)loading a file or grabbing local edits), it will pass that
+content to the installed content-setter method. Those, in turn will
+trigger the installed proxies and fire any relevant events.
+
+Below is an example of Fossil skin footer content which plugs in the
+TinyMCE HTML editor into the `/wikiedit` page, but the process is
+identical for `/fileedit` (noting that `/fileedit` may need to be able
+to edit multiple types of files for which a special-purpose editor
+like TinyMCE may not be suitable). Note that any paths to CSS and JS
+resources of course need to be modified to suit one's own
+installation.
+
+```
+<!-- TinyMCE CSS and JS: -->
+<link href="$<home>/doc/ckout/skin.min.css" rel="stylesheet" type="text/css">
+<link href="$<home>/doc/ckout/content.min.css" rel="stylesheet" type="text/css">
+<script src='$<home>/doc/ckout/tinymce.min.js'></script>
+<script src='$<home>/doc/ckout/theme.min.js'></script>
+<script src='$<home>/doc/ckout/icons.min.js'></script>
+<!-- Integrate TinyMCE into /wikiedit: -->
+<script nonce="$<nonce>">
+if(window.fossil && window.fossil.page.name==='wikiedit'){
+  window.fossil.onPageLoad( function(){
+    const elemId = 'wikiedit-content-editor';
+    tinymce.init({selector: 'textarea#'+elemId});
+    const widget = tinymce.get(elemId);
+    fossil.page.setContentMethods(
+      function(){return widget.getContent()},
+      function(content){widget.setContent(content)}
+    );
+    widget.on('change', function(){
+      if(widget.isDirty()) fossil.page.notifyOfChange();
+    });
+  });
+}
+</script>
+```
