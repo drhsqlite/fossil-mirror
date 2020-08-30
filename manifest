@@ -1,5 +1,5 @@
-C Make\sthe\swikiedit/fileedit\sedit-stash\sselect\selement\sgrow\sless\sagressively.
-D 2020-08-30T19:48:27.081
+C Fix\sa\sdb_unprotect()\scall\sin\sthe\sAdmin\spages.
+D 2020-08-30T20:29:56.922
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -574,7 +574,7 @@ F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
-F src/security_audit.c 008fc9b163b7527a279f448da178c894795901442d0fa0e94e3a46f9c91fb466
+F src/security_audit.c 06a7565989b4b37b5ec25ce11315ded0b291d165816fccec2e0480516ae9312c
 F src/setup.c 8e2357dc05675dc9190b9262a37c86655687a2a177b6e5d43d983d94151b27e2
 F src/setupuser.c e26e42573837861f64cdcefaeb52e18d8d41bb8359779fe513fec446556b8734
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef6cdb68c8b3317c604f03d55556d8f0281797790519ce64befbb8f8b8006bf8
-R 7db827379ce48e8e1dde850b1ff59bea
-U stephan
-Z cd7d5b193d15c90348c850fd81f52c98
+P a645302b4783fd59c3f070922da85436ff4b5a4fabc19b4ad644149c0aac0c32
+R ec0bcc25fed4ddbdb8eed7adfbea2018
+U drh
+Z 65a4bac96121ca44484b3c4e3196278d

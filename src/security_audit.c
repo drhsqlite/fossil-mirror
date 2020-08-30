@@ -606,7 +606,7 @@ void takeitprivate_page(void){
     cgi_redirect("secaudit0");
   }
   if( P("apply") ){
-    db_unprotect(PROTECT_USER);
+    db_unprotect(PROTECT_USER|PROTECT_CONFIG);
     db_multi_exec(
       "UPDATE user SET cap=''"
       " WHERE login IN ('nobody','anonymous');"
