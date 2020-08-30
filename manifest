@@ -1,5 +1,5 @@
-C Night-imperceptible\salignment\stweak\son\sthe\shelp\sbuttons.
-D 2020-08-30T19:16:43.615
+C Fixed\sa\sstroke\swidth\sin\sthat\sprevious\scommit.
+D 2020-08-30T19:18:03.406
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ea16f92bdf30a0d7984c4e51600646629c619c81d6969334815a84fd7a31f929
-F src/default.css cb1a8f1e8cfc4e45d9351041b4ce94b7f77ba6c75f929b97aed91ec6444d7418
+F src/default.css f3328a84fb09a43f551ff4beeec2234770d6408d0d983ab003bc525a1684fe87
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e05bbdec0a62ffe0a4881807642940823f73710b0e1a81d24b00b86250d9e6cd
-R 82cce2d79898ac0e0577a9057fa5c816
+P 28b1718bfc0c8889fe5407288dc9fb9d9b8849235e850a4fc785a01c60ec30b9
+R 6cc388837c504a1cb7b164cbdfa0f4bd
 U stephan
-Z d0e396c854cad014aee7825c1ece2dba
+Z 409c8f3965e2a0ef5fe8e2d69e0e9ade
