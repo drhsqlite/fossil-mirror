@@ -1116,6 +1116,7 @@ hr {
   margin: 0 0.5em;
   display: inline-block;
   cursor: default;
+  white-space: nowrap;
 }
 .input-with-label > * {
   vertical-align: middle;
