@@ -1,5 +1,5 @@
-C Fixed\scolor\squirk\s(unintentionally\sderiving\sa\sdefault\scolor)\sin\sthe\sAroise\sskin\sreported\sat\s[https://fossil-scm.org/forum/forumpost/9ac6b287d9\s|\s/forumpost/9ac6b287d9].
-D 2020-08-30T06:07:16.814
+C An\sexperiment\sin\sreactivating\sthe\slegacy\swysiwyg\seditor\sin\sthe\snew\swikiedit\spage.\sIt\sworks,\sbut\scannot\scurrently\sbe\sremoved\sfrom\sthe\spage\sonce\sit's\sinstalled\swithout\sreloading\sthe\spage.
+D 2020-08-30T10:42:14.927
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,6 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js ff219158e615e4f87ec61b686cd97c11799168521ed047fce43a8a5bb4b66169
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
+F src/fossil.page.wikiedit-wysiwyg-legacy.js 36b6c9c131060adbc4dd31009811d963a85b13f31e7238ad956fe714cd8e93e4
 F src/fossil.page.wikiedit.js 3237576075150f7bfc902701dac3081e0ae78d1c746b3f95ee48f6f93432b7b9
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
@@ -538,7 +539,7 @@ F src/login.c 3bcdd658f29a4a6302b1dee8200ebd565b4ddaddd587e38c6be962cbb15b03f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
 F src/main.c 33ed4a3588019a47daf98285dc1ae5b9ffabc5aee44e2ace62163d0e3678b104
-F src/main.mk d5c841c3a5bd3e20dcb451c7218da00fe19f36d7ce3399f700e166f8fc821516
+F src/main.mk e68ce36e053db1374dde28cb9c77dba696f10429d06a8cf03a46495d54c5b391
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 586eb42bbd36264bbdb3cb8690be136c69bb85954216f46610baeebeb525ac31 x
@@ -786,9 +787,9 @@ F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba 
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc 9c1a5abf659ee5d2bd8169f7f056aebd649c7004a735e5dad5fdf44a4feeb3b4
-F win/Makefile.mingw a81b306f109ca43dedfb0c780497276cb1507bc3625e107a3b770229447cba70
+F win/Makefile.mingw e27130f9d63fc85e99e3237569a1dff8a1297b66848c64c80260c818f0b73ec5
 F win/Makefile.mingw.mistachkin 31e71b9dada88563bb32df4004ece6ebe26012bc66dd697246812ba2c4a26426
-F win/Makefile.msc e7e824b227a15a46acae5189d8177cba7e5a02b4e05ca27e801fe44310d42aac
+F win/Makefile.msc 4dbe4fa856c535a037a9e7fc6789438733d05bc4bbe79e36d0a09eaa02d6c59a
 F win/buildmsvc.bat 401f6d57cd024c5484fccf3ed07bd2f1d8bfd20b7487fe7f0282b335ac9f9b5b x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -1011,7 +1012,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37c290597dc42728d4fa4d71906c3b6ab5cbefbde2300a7e6f5a9885b469bda1
-R a0016d0d2a3c1e0e486d482f4cf251f3
+P 693bf6b22221c368ffc074f0a1fc5cc2fc3d5935a4c4cacb01b49a7ba91c260c
+R 9835127384b1dd683e4becfa3a4f6db6
+T *branch * wikiedit-wysiwyg-legacy
+T *sym-wikiedit-wysiwyg-legacy *
+T -sym-trunk *
 U stephan
-Z 6e33ed7e68da7e40f83ebb1fe906f809
+Z 70b40e4ff9cd0f11f4c6a96ca3cd29f1

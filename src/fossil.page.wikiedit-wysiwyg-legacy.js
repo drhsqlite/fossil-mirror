@@ -1,0 +1,499 @@
+/**
+   A slight adaptation of fossil's legacy wysiwyg wiki editor which
+   makes it usable with the newer editor's edit widget replacement
+   API.
+
+   Requires: window.fossil, fossil.dom.
+
+   Maintenance note: mkbuiltins strips anything which looks like a
+   C++-style comment, even if it's in a string literal, and thus the
+   runs of / characters in DOM element data attributes have been
+   mangled to work around that.
+*/
+(function(F/*fossil object*/){
+  'use strict';
+  if(!F || !F.page || F.page.name!=='wikiedit') return;
+
+  const D = F.dom;
+
+  (function(){
+    const head = document.head || document.querySelector('head'),
+          styleTag = document.createElement('style'),
+          styleCSS = `
+.intLink { cursor: pointer; }
+img.intLink { border: 0; }
+#wysiwygBox {
+  border: 1px #000000 solid;
+  padding: 12px;
+}
+#wysiwygEditMode label { cursor: pointer; }
+#wysiwygBox {
+  resize: body;
+  overflow: auto;
+  width: calc(100% - 1em);
+  min-height: 20em;
+}
+#wysiwyg-toolbars {
+  display: flex;
+  flex-direction: row;
+}
+`;
+    head.appendChild(styleTag);
+    /* Adapted from https://stackoverflow.com/a/524721 */
+    styleTag.type = 'text/css';
+    styleTag.appendChild(document.createTextNode(styleCSS));
+  })();
+
+  const outerContainer = D.attr(D.div(), 'id', 'wysiwyg-container');
+
+  const toolbars = D.attr(D.div(), 'id', 'wysiwyg-toolbars');
+  D.append(outerContainer, toolbars);
+
+  var select, div = D.attr(D.div(), 'id', 'wysiwygEditModeDiv');
+  const selectEditMode = select = D.attr(
+    D.attr(D.select(), 'id', 'wysiwygEditMode'),
+    'size',
+    1
+  );
+  D.append(
+    toolbars,
+    D.append(div, select)
+  );
+  D.option(select, "0", "WYSIWYG");
+  D.option(select, "1", "Raw HTML");
+  select.selectedIndex = 0;
+
+  const toolbar1 = div = D.attr(D.div(), 'id', 'toolBar1');
+  D.append(toolbars, toolbar1);
+  select = D.addClass(D.select(), 'format');
+  select.dataset.format = "formatblock";
+  D.append(div, select);
+  D.option(select, '', '- formatting -');
+  D.option(select, "h1", "Title 1 <h1>");
+  D.option(select, "h2", "Title 2 <h2>");
+  D.option(select, "h3", "Title 3 <h3>");
+  D.option(select, "h4", "Title 4 <h4>");
+  D.option(select, "h5", "Title 5 <h5>");
+  D.option(select, "h6", "Subtitle <h6>");
+  D.option(select, "p", "Paragraph <p>");
+  D.option(select, "pre", "Preformatted <pre>");
+
+  select = D.addClass(D.select(), 'format');
+  select.dataset.format = "fontname";
+  D.append(div, select);
+  D.addClass(
+    D.option(select, '', '- font -'),
+    "heading"
+  );
+  D.option(select, 'Arial');
+  D.option(select, 'Arial Black');
+  D.option(select, 'Courier New');
+  D.option(select, 'Times New Roman');
+
+  select = D.addClass(D.select(), 'format');
+  D.append(div, select);
+  select.dataset.format = "fontsize";
+  D.addClass(
+    D.option(select, '', '- size -'),
+    "heading"
+  );
+  D.option(select, "1", "Very small");
+  D.option(select, "2", "A bit small");
+  D.option(select, "3", "Normal");
+  D.option(select, "4", "Medium-large");
+  D.option(select, "5", "Big");
+  D.option(select, "6", "Very big");
+  D.option(select, "7", "Maximum");
+
+  select = D.addClass(D.select(), 'format');
+  D.append(div, select);
+  select.dataset.format = 'forecolor';
+  D.addClass(
+    D.option(select, '', '- color -'),
+    "heading"
+  );
+  D.option(select, "red", "Red");
+  D.option(select, "blue", "Blue");
+  D.option(select, "green", "Green");
+  D.option(select, "black", "Black");
+
+  const toolbar2 = div = D.attr(D.div(), 'id', 'toolBar2');
+  D.append(toolbars, toolbar2);
+  var img = D.img();
+  D.append(div, img);
+  D.addClass(img, 'intLink');
+  D.attr(img, 'title', 'Undo');
+  img.dataset.format = 'undo';
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAOMKADljwliE33mOrpGjuYKl8aezxqPD+7",
+     "/I19DV3NHa7P/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f",
+     "/\u002f/\u002f/\u002f/yH5BAEKAA8ALAAAAAAWABYAAARR8MlJq704680",
+     "7TkaYeJJBnES4EeUJvIGapWYAC0CsocQ7SDlWJkAkCA6ToMYWIARGQF3mRQVIEjkkSVLIbSfE",
+     "whdRIH4fh/DZMICe3/C4nBQBADs="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Redo");
+  img.dataset.format="redo";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAMIHAB1ChDljwl9vj1iE34Kl8aPD+7/I1/",
+     "/\u002f/yH5BAEKAAcALAAAAAAWABYAAANKeLrc/jDKSesyphi7SiEgsVXZEATDICqBVJjpqWZt9Na",
+     "EDNbQK1wCQsxlYnxMAImhyDoFAElJasRRvAZVRqqQXUy7Cgx4TC6bswkAOw=="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Remove formatting");
+  img.dataset.format="removeFormat";
+  D.attr(
+    img, 'src',
+    ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AA",
+     "AABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOxAAADsQBlSsOGwA",
+     "AAAd0SU1FB9oECQMCKPI8CIIAAAAIdEVYdENvbW1lbnQA9syWvwAAAuhJREFUOMtjYBgFxAB5",
+     "01ZWBvVaL2nHnlmk6mXCJbF69zU+Hz/9fB5O1lx+bg45qhl8/fYr5it3XrP/YWTUvvvk3VeqG",
+     "Xz70TvbJy8+Wv39+2/Hz19/mGwjZzuTYjALuoBv9jImaXHeyD3H7kU8fPj2ICML8z92dlbtMz",
+     "deiG3fco7J08foH1kurkm3E9iw54YvKwuTuom+LPt/BgbWf3/\u002fsf37/1/c02cCG1lB8f/\u002ff95",
+     "DZx74MTMzshhoSm6szrQ/a6Ir/Z2RkfEjBxuLYFpDiDi6Af/\u002f/2ckaHBp7+7wmavP5n76+P2C",
+     "lrLIYl8H9W36auJCbCxM4szMTJac7Kza/\u002f/\u002fR3H1w2cfWAgafPbqs5g7D95++/P1B4+ECK8tA",
+     "wMDw/1H7159+/7r7ZcvPz4fOHbzEwMDwx8GBgaGnNatfHZx8zqrJ+4VJBh5CQEGOySEua/v3n",
+     "7hXmqI8WUGBgYGL3vVG7fuPK3i5GD9/fja7ZsMDAzMG/Ze52mZeSj4yu1XEq/ff7W5dvfVAS1",
+     "lsXc4Db7z8C3r8p7Qjf/\u002f/2dnZGxlqJuyr3rPqQd/Hhyu7oSpYWScylDQsd3kzvnH738wMDzj",
+     "5GBN1VIWW4c3KDon7VOvm7S3paB9u5qsU5/x5KUnlY+eexQbkLNsErK61+++VnAJcfkyMTIwf",
+     "fj0QwZbJDKjcETs1Y8evyd48toz8y/ffzv/\u002fvPP4veffxpX77z6l5JewHPu8MqTDAwMDLzyrj",
+     "b/mZm0JcT5Lj+89+Ybm6zz95oMh7s4XbygN3Sluq4Mj5K8iKMgP4f0/\u002f/\u002ffv77/\u002f8nLy+7MCc",
+     "XmyYDAwODS9jM9tcvPypd35pne3ljdjvj26+H2dhYpuENikgfvQeXNmSl3tqepxXsqhXPyc66",
+     "6s+fv1fMdKR3TK72zpix8nTc7bdfhfkEeVbC9KhbK/9iYWHiErbu6MWbY/7/\u002f8/4/\u002f9/pgOnH",
+     "6jGVazvFDRtq2VgiBIZrUTIBgCk+ivHvuEKwAAAAABJRU5ErkJggg=="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Bold");
+  img.dataset.format="bold";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAID/AMDAwAAAACH5BAEAAAAALAAAAAAWAB",
+     "YAQAInhI+pa+H9mJy0LhdgtrxzDG5WGFVk6aXqyk6Y9kXvKKNuLbb6zgMFADs="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Italic");
+  img.dataset.format="italic";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAKEDAAAAAF9vj5WIbf/\u002f/yH5BAEAAAMALA",
+     "AAAAAWABYAAAIjnI+py+0Po5x0gXvruEKHrF2BB1YiCWgbMFIYpsbyTNd2UwAAOw=="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Underline");
+  img.dataset.format="underline";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAKECAAAAAF9vj/\u002f/\u002f/\u002f/\u002fyH5BAEAAAIALA",
+     "AAAAAWABYAAAIrlI+py+0Po5zUgAsEzvEeL4Ea15EiJJ5PSqJmuwKBEKgxVuXWtun+DwxCCgA",
+     "7"].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Left align");
+  img.dataset.format="justifyleft";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAID/AMDAwAAAACH5BAEAAAAALAAAAAAWAB",
+     "YAQAIghI+py+0Po5y02ouz3jL4D4JMGELkGYxo+qzl4nKyXAAAOw=="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Center align");
+  img.dataset.format="justifycenter";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAID/AMDAwAAAACH5BAEAAAAALAAAAAAWAB",
+     "YAQAIfhI+py+0Po5y02ouz3jL4D4JOGI7kaZ5Bqn4sycVbAQA7"].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Right align");
+  img.dataset.format="justifyright";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAID/AMDAwAAAACH5BAEAAAAALAAAAAAWAB",
+     "YAQAIghI+py+0Po5y02ouz3jL4D4JQGDLkGYxouqzl43JyVgAAOw=="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Numbered list");
+  img.dataset.format="insertorderedlist";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAMIGAAAAADljwliE35GjuaezxtHa7P/\u002f/\u002f",
+     "/\u002f/yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKSespwjoRFvggCBUBoTFBeq6QIAysQnRHaEO",
+     "zyaZ07Lu9lUBnC0UGQU1K52s6n5oEADs="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Dotted list");
+  img.dataset.format="insertunorderedlist";
+
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAMIGAAAAAB1ChF9vj1iE33mOrqezxv/\u002f/\u002f",
+     "/\u002f/yH5BAEAAAcALAAAAAAWABYAAAMyeLrc/jDKSesppNhGRlBAKIZRERBbqm6YtnbfMY7lud6",
+     "4UwiuKnigGQliQuWOyKQykgAAOw=="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Quote");
+  img.dataset.format="formatblock";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAIQXAC1NqjFRjkBgmT9nqUJnsk9xrFJ7u2",
+     "R9qmKBt1iGzHmOrm6Sz4OXw3Odz4Cl2ZSnw6KxyqO306K63bG70bTB0rDI3bvI4P",
+     "/\u002f/\u002f/\u002f/\u002f/",
+     "/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f",
+     "/\u002f/\u002f/\u002fyH5BAEKAB8ALAAAAAAWABYAAAVP4CeOZGmeaKqubEs2Cekk",
+     "ErvEI1zZuOgYFlakECEZFi0GgTGKEBATFmJAVXweVOoKEQgABB9IQDCmrLpjETrQQlhHjINrT",
+     "q/b7/i8fp8PAQA7"].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Delete indentation");
+  img.dataset.format="outdent";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAMIHAAAAADljwliE35GjuaezxtDV3NHa7P",
+     "/\u002f/yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKCQG9F2i7u8agQgyK1z2EIBil+TWqEMxhMcz",
+     "sYVJ3e4ahk+sFnAgtxSQDqWw6n5cEADs="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Add indentation");
+  img.dataset.format="indent";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAOMIAAAAADljwl9vj1iE35GjuaezxtDV3N",
+     "Ha7P/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/yH5BAEAAAgALAAAAAAWABYAAAQ7EMlJq704650",
+     "B/x8gemMpgugwHJNZXodKsO5oqUOgo5KhBwWESyMQsCRDHu9VOyk5TM9zSpFSr9gsJwIAOw=="
+    ].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Hyperlink");
+  img.dataset.format="createlink";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAOMKAB1ChDRLY19vj3mOrpGjuaezxrCztb",
+     "/I19Ha7Pv8/f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/yH5BAEKAA8ALAAAAAAWABYAAARY8MlJq704682",
+     "7/2BYIQVhHg9pEgVGIklyDEUBy/RlE4FQF4dCj2AQXAiJQDCWQCAEBwIioEMQBgSAFhDAGghG",
+     "i9XgHAhMNoSZgJkJei33UESv2+/4vD4TAQA7"].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Cut");
+  img.dataset.format="cut";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAIQSAB1ChBFNsRJTySJYwjljwkxwl19vj1",
+     "dusYODhl6MnHmOrpqbmpGjuaezxrCztcDCxL/I18rL1P/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/",
+     "/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002fyH5BAEAAB8ALAAAAAAWABYAAAVu4CeOZGmeaKqubDs6TNnE",
+     "bGNApNG0kbGMi5trwcA9GArXh+FAfBAw5UexUDAQESkRsfhJPwaH4YsEGAAJGisRGAQY7UCC9",
+     "ZAXBB+74LGCRxIEHwAHdWooDgGJcwpxDisQBQRjIgkDCVlfmZqbmiEAOw=="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Copy");
+  img.dataset.format="copy";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAIQcAB1ChBFNsTRLYyJYwjljwl9vj1iE31",
+     "iGzF6MnHWX9HOdz5GjuYCl2YKl8ZOt4qezxqK63aK/9KPD+7DI3b/I17LM/MrL1MLY9NHa7OP",
+     "s++bx/Pv8/f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/yH5BAEAAB8ALAAAAAAWABYAAAWG4CeOZGmeaKqubOum1SQ/",
+     "kPVOW749BeVSus2CgrCxHptLBbOQxCSNCCaF1GUqwQbBd0JGJAyGJJiobE+LnCaDcXAaEoxhQ",
+     "ACgNw0FQx9kP+wmaRgYFBQNeAoGihCAJQsCkJAKOhgXEw8BLQYciooHf5o7EA+kC40qBKkAAA",
+     "Grpy+wsbKzIiEAOw=="].join('')
+  );
+
+  img = D.img();
+  D.append(div, img);
+  D.addClass(img, "intLink");
+  D.attr(img, 'title', "Paste");
+  img.dataset.format="paste";
+  D.attr(
+    img, 'src',
+    ["data:image/gif;base64,R0lGODlhFgAWAIQUAD04KTRLY2tXQF9vj414WZWIbXmOrp",
+     "qbmpGjudClFaezxsa0cb/I1+3YitHa7PrkIPHvbuPs+/fvrvv8/f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/",
+     "/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002fyH5BAEAAB8ALAAAAAAWABYAAAWN4CeOZGmeaKqubGsusPvB",
+     "SyFJjVDs6nJLB0khR4AkBCmfsCGBQAoCwjF5gwquVykSFbwZE+AwIBV0GhFog2EwIDchjwRiQ",
+     "o9E2Fx4XD5R+B0DDAEnBXBhBhN2DgwDAQFjJYVhCQYRfgoIDGiQJAWTCQMRiwwMfgicnVcAAA",
+     "MOaK+bLAOrtLUyt7i5uiUhADs="].join('')
+  );
+
+  const oDoc = div = D.attr(D.div(), 'id', "wysiwygBox");
+  D.attr(div, 'contenteditable', 'true');
+  D.append(outerContainer, div);
+  
+  /* Initialize the document editor */
+  function initDoc() {
+    initEventHandlers();
+    if (!isWysiwyg()) { setDocMode(true); }
+  }
+
+  function initEventHandlers() {
+    //console.debug("initEventHandlers()");
+    const handleDropDown = function() {
+      formatDoc(this.dataset.format,this[this.selectedIndex].value);
+      this.selectedIndex = 0;
+    };
+    
+    const handleFormatButton = function() {
+      var extra;
+      switch (this.dataset.format) {
+      case 'createlink':
+        const sLnk = prompt('Target URL:','');
+        if(sLnk) extra = sLnk;
+        break;
+      case 'formatblock':
+        extra = 'blockquote';
+        break;
+      }
+      formatDoc(this.dataset.format, extra);
+    };
+
+    selectEditMode.addEventListener('change',function() { 
+      setDocMode(this.selectedIndex)
+    },false);
+    var i, controls = outerContainer.querySelectorAll('select.format');
+    for(i = 0; i < controls.length; i++) {
+      //console.debug("select.format",controls[i]);
+      controls[i].addEventListener('change', handleDropDown, false);;
+    }
+    controls = outerContainer.querySelectorAll('.intLink');
+    for(i = 0; i < controls.length; i++) {
+      //console.debug("intLink",controls[i]);
+      controls[i].addEventListener('click', handleFormatButton, false);
+    }
+  }
+
+  /* Return true if the document editor is in WYSIWYG mode.  Return
+  ** false if it is in Markup mode */
+  function isWysiwyg() {
+    return 0===selectEditMode.selectedIndex;
+  }
+
+  /* Invoke this routine prior to submitting the HTML content back
+  ** to the server */
+  /*function wysiwygSubmit() {
+    if(oDoc.style.whiteSpace=="pre-wrap"){setDocMode(0);}
+    document.getElementById("wysiwygValue").value=oDoc.innerHTML;
+  }*/
+
+  /* Run the editing command if in WYSIWYG mode */
+  function formatDoc(sCmd, sValue) {
+    if (isWysiwyg()){
+      try {
+        // First, try the W3C draft standard way, which has
+        // been working on all non-IE browsers for a while.
+        // It is also supported by IE11 and higher.
+        document.execCommand("styleWithCSS", false, false);
+      } catch (e) {
+        try {
+          // For IE9 or IE10, this should work.
+          document.execCommand("useCSS", 0, true);
+        } catch (e) {
+          // OK, that apparently did not work, do nothing.
+        }
+      }
+      document.execCommand(sCmd, false, sValue);
+      oDoc.focus();
+    }
+  }
+
+  /* Change the editing mode.  Convert to markup if the argument
+  ** is true and wysiwyg if the argument is false. */
+  function setDocMode(bToMarkup, content) {
+    if(undefined===content){
+      content = bToMarkup ? oDoc.innerHTML : oDoc.innerText;
+    }
+    if(!setDocMode.linebreak){
+      setDocMode.linebreak = new RegExp("</p><p>","ig");
+    }
+    if (bToMarkup) {
+      /* WYSIWYG -> Markup */
+      // Legacy did this: content=content.replace(setDocMode.linebreak,"</p>\n\n<p>")
+      D.append(D.clearElement(oDoc), content)
+      oDoc.style.whiteSpace = "pre-wrap";
+      D.addClass([toolbar1, toolbar2], 'hidden');
+    } else {
+      /* Markup -> WYSIWYG */
+      oDoc.innerHTML = content;
+      oDoc.style.whiteSpace = "normal";
+      D.removeClass([toolbar1, toolbar2], 'hidden');
+    }
+    oDoc.focus();
+  }
+
+  F.page.wysiwyg = {
+    oDoc: oDoc,
+    init: function(){
+      initDoc();
+      /* Must not be called outside of an onPageLoad handler, else it
+         can run before to the wikiedit app has been initialized. */
+      const content = F.page.wikiContent() || '';
+      var isDirty = false /* keep from stashing too often */;
+      F.page.setContentMethods(
+        function(){
+          //selectEditMode.selectedIndex = 1;
+          const rc = isWysiwyg() ? oDoc.innerHTML : oDoc.innerText;
+          //setDocMode(selectEditMode.selectedIndex, rc);
+          return rc;
+        },
+        function(content){
+          //selectEditMode.selectedIndex = 1;
+          //oDoc.innerText = content;
+          isDirty = false;
+          setDocMode(selectEditMode.selectedIndex, content);
+        }
+      );
+      oDoc.addEventListener('blur', function(){
+        if(isDirty) F.page.notifyOfChange();
+      }, false);
+      oDoc.addEventListener('input', function(){isDirty = true}, false);
+      F.page.wikiContent(content)/*feed it back in to our widget*/;
+      F.page.replaceEditorElement(outerContainer);
+      F.message("Replaced wiki editor widget with legacy wysiwyg editor.");
+    }
+  };
+})(window.fossil);
