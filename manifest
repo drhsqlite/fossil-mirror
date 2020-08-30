@@ -1,5 +1,5 @@
-C Minor\s/wikiedit\slayout\simprovements\sand\sremoved\sthe\sprobably-obvious\s'?'\sbutton\sfrom\sthe\sauto-refresh\scheckbox.
-D 2020-08-29T14:22:17.155
+C Add\sdb_unprotect()/db_protect_pop()\sto\s/setup_skin_admin\swhen\sthe\suser\sselects\sone\sof\sthe\sbuiltin\sskins\sto\sfix\sproblem\sreported\sat\s[https://fossil-scm.org/forum/forumpost/72a1db2bdc\s|\s/forumpost/72a1db2bdc].
+D 2020-08-30T06:05:06.991
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -583,7 +583,7 @@ F src/shell.c cd9ecb24b91c387bdc3ec0719f814c5973b62662390773dad8e636e8c92f3d47
 F src/shun.c ad762c0c170cae98d0f09a5999b0bbcdb8783e8f69e65846d102084f6dd588f3
 F src/sitemap.c 16c9ede1a1c9fee7c4acda7171d1d7c1545c0988a8d149c08d91b3e3399202cb
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 208b5cb3f681e3f9faf922fef2f3ebd89a54388d71059313302f567441bbeee0
+F src/skins.c 18eef7b4ab34b0e14fd972e61cdf21396d7eabd53ad518bb483fb4bd687aa448
 F src/smtp.c d696ad3604f3190dafef28a8d7475822d8e232eeabbd6f9069a497cf845ecdc9
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -1011,7 +1011,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 88703f001d7b0cb3b47351e98f36636689e24d36e50f11c53748ed63551b8852
-R 4437af2cd74ebd9dff8438a682af040b
+P f83c4fa41d920293a714d909ce367aed941f1f475661ddda016d120007dbe748
+R ed8e7cb5173a4123aa892d40025e8752
 U stephan
-Z 23ab3a32429b50831133e10bc0ed2417
+Z a6140d0a08831eae03c051578d747f04

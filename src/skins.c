@@ -547,14 +547,18 @@ void setup_skin_admin(void){
         if( fossil_strcmp(aBuiltinSkin[i].zDesc, z)==0 ){
           seen = 1;
           zCurrent = aBuiltinSkin[i].zSQL;
+          db_unprotect(PROTECT_CONFIG);
           db_multi_exec("%s", zCurrent/*safe-for-%s*/);
+          db_protect_pop();
           break;
         }
       }
       if( !seen ){
         zName = skinVarName(z,0);
         zCurrent = db_get(zName, 0);
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec("%s", zCurrent/*safe-for-%s*/);
+        db_protect_pop();
       }
     }
   }
