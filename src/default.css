@@ -1110,9 +1110,9 @@ hr {
    (e.g. DIV) so that certain nesting constructs are legal.
 */
 .input-with-label {
-  border: 1px inset #808080;
+  border: 1px inset rgba(128, 128, 128, 0.5);
   border-radius: 0.25em;
-  padding: 0.25em 0.4em;
+  padding: 0.15em 0.25em;
   margin: 0 0.5em;
   display: inline-block;
   cursor: default;
@@ -1317,7 +1317,8 @@ blockquote.file-content {
   max-width: 1rem;
   min-height: 1rem;
   max-height: 1rem;
-  font-size: 0.9em;
+  line-height: 1 /*important for some skins*/;
+  font-size: 100%;
   border-radius: 0.5rem;
   background-color: rgba(54, 54, 255,1);
   color: rgb(255, 255, 255);
