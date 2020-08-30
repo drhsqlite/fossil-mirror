@@ -195,7 +195,7 @@ img.intLink { border: 0; }
      mkbuiltins strips anything which looks like a C++-style comment,
      even if it's in a string literal, and thus the runs of "/"
      characters in the DOM element data attributes have been mangled
-     to work around that: we simply use \u002f for every 2nd slash.
+     to work around that: we simply use \x2f for every 2nd slash.
   */
   (function f(title,format,src){
     const img = D.img();
@@ -208,14 +208,14 @@ img.intLink { border: 0; }
   })(
     'Undo', 'undo',
     ["data:image/gif;base64,R0lGODlhFgAWAOMKADljwliE33mOrpGjuYKl8aezxqPD+7",
-     "/I19DV3NHa7P/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f",
-     "/\u002f/\u002f/\u002f/yH5BAEKAA8ALAAAAAAWABYAAARR8MlJq704680",
+     "/I19DV3NHa7P/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f",
+     "/\x2f/\x2f/\x2f/yH5BAEKAA8ALAAAAAAWABYAAARR8MlJq704680",
      "7TkaYeJJBnES4EeUJvIGapWYAC0CsocQ7SDlWJkAkCA6ToMYWIARGQF3mRQVIEjkkSVLIbSfE",
      "whdRIH4fh/DZMICe3/C4nBQBADs="]
   )(
     'Redo','redo',
     ["data:image/gif;base64,R0lGODlhFgAWAMIHAB1ChDljwl9vj1iE34Kl8aPD+7/I1/",
-     "/\u002f/yH5BAEKAAcALAAAAAAWABYAAANKeLrc/jDKSesyphi7SiEgsVXZEATDICqBVJjpqWZt9Na",
+     "/\x2f/yH5BAEKAAcALAAAAAAWABYAAANKeLrc/jDKSesyphi7SiEgsVXZEATDICqBVJjpqWZt9Na",
      "EDNbQK1wCQsxlYnxMAImhyDoFAElJasRRvAZVRqqQXUy7Cgx4TC6bswkAOw=="]
   )(
     "Remove formatting",
@@ -225,17 +225,17 @@ img.intLink { border: 0; }
      "AAAd0SU1FB9oECQMCKPI8CIIAAAAIdEVYdENvbW1lbnQA9syWvwAAAuhJREFUOMtjYBgFxAB5",
      "01ZWBvVaL2nHnlmk6mXCJbF69zU+Hz/9fB5O1lx+bg45qhl8/fYr5it3XrP/YWTUvvvk3VeqG",
      "Xz70TvbJy8+Wv39+2/Hz19/mGwjZzuTYjALuoBv9jImaXHeyD3H7kU8fPj2ICML8z92dlbtMz",
-     "deiG3fco7J08foH1kurkm3E9iw54YvKwuTuom+LPt/BgbWf3/\u002fsf37/1/c02cCG1lB8f/\u002ff95",
-     "DZx74MTMzshhoSm6szrQ/a6Ir/Z2RkfEjBxuLYFpDiDi6Af/\u002f/2ckaHBp7+7wmavP5n76+P2C",
-     "lrLIYl8H9W36auJCbCxM4szMTJac7Kza/\u002f/\u002fR3H1w2cfWAgafPbqs5g7D95++/P1B4+ECK8tA",
+     "deiG3fco7J08foH1kurkm3E9iw54YvKwuTuom+LPt/BgbWf3/\x2fsf37/1/c02cCG1lB8f/\x2ff95",
+     "DZx74MTMzshhoSm6szrQ/a6Ir/Z2RkfEjBxuLYFpDiDi6Af/\x2f/2ckaHBp7+7wmavP5n76+P2C",
+     "lrLIYl8H9W36auJCbCxM4szMTJac7Kza/\x2f/\x2fR3H1w2cfWAgafPbqs5g7D95++/P1B4+ECK8tA",
      "wMDw/1H7159+/7r7ZcvPz4fOHbzEwMDwx8GBgaGnNatfHZx8zqrJ+4VJBh5CQEGOySEua/v3n",
      "7hXmqI8WUGBgYGL3vVG7fuPK3i5GD9/fja7ZsMDAzMG/Ze52mZeSj4yu1XEq/ff7W5dvfVAS1",
-     "lsXc4Db7z8C3r8p7Qjf/\u002f/2dnZGxlqJuyr3rPqQd/Hhyu7oSpYWScylDQsd3kzvnH738wMDzj",
+     "lsXc4Db7z8C3r8p7Qjf/\x2f/2dnZGxlqJuyr3rPqQd/Hhyu7oSpYWScylDQsd3kzvnH738wMDzj",
      "5GBN1VIWW4c3KDon7VOvm7S3paB9u5qsU5/x5KUnlY+eexQbkLNsErK61+++VnAJcfkyMTIwf",
-     "fj0QwZbJDKjcETs1Y8evyd48toz8y/ffzv/\u002fvPP4veffxpX77z6l5JewHPu8MqTDAwMDLzyrj",
-     "b/mZm0JcT5Lj+89+Ybm6zz95oMh7s4XbygN3Sluq4Mj5K8iKMgP4f0/\u002f/\u002ffv77/\u002f8nLy+7MCc",
+     "fj0QwZbJDKjcETs1Y8evyd48toz8y/ffzv/\x2fvPP4veffxpX77z6l5JewHPu8MqTDAwMDLzyrj",
+     "b/mZm0JcT5Lj+89+Ybm6zz95oMh7s4XbygN3Sluq4Mj5K8iKMgP4f0/\x2f/\x2ffv77/\x2f8nLy+7MCc",
      "XmyYDAwODS9jM9tcvPypd35pne3ljdjvj26+H2dhYpuENikgfvQeXNmSl3tqepxXsqhXPyc66",
-     "6s+fv1fMdKR3TK72zpix8nTc7bdfhfkEeVbC9KhbK/9iYWHiErbu6MWbY/7/\u002f8/4/\u002f9/pgOnH",
+     "6s+fv1fMdKR3TK72zpix8nTc7bdfhfkEeVbC9KhbK/9iYWHiErbu6MWbY/7/\x2f8/4/\x2f9/pgOnH",
      "6jGVazvFDRtq2VgiBIZrUTIBgCk+ivHvuEKwAAAAABJRU5ErkJggg=="]
   )(
     "Bold",
@@ -245,12 +245,12 @@ img.intLink { border: 0; }
   )(
     "Italic",
     "italic",
-    ["data:image/gif;base64,R0lGODlhFgAWAKEDAAAAAF9vj5WIbf/\u002f/yH5BAEAAAMALA",
+    ["data:image/gif;base64,R0lGODlhFgAWAKEDAAAAAF9vj5WIbf/\x2f/yH5BAEAAAMALA",
      "AAAAAWABYAAAIjnI+py+0Po5x0gXvruEKHrF2BB1YiCWgbMFIYpsbyTNd2UwAAOw=="]
   )(
     "Underline",
     "underline",
-    ["data:image/gif;base64,R0lGODlhFgAWAKECAAAAAF9vj/\u002f/\u002f/\u002f/\u002fyH5BAEAAAIALA",
+    ["data:image/gif;base64,R0lGODlhFgAWAKECAAAAAF9vj/\x2f/\x2f/\x2f/\x2fyH5BAEAAAIALA",
      "AAAAAWABYAAAIrlI+py+0Po5zUgAsEzvEeL4Ea15EiJJ5PSqJmuwKBEKgxVuXWtun+DwxCCgA",
      "7"]
   )(
@@ -271,51 +271,55 @@ img.intLink { border: 0; }
   )(
     "Numbered list",
     "insertorderedlist",
-    ["data:image/gif;base64,R0lGODlhFgAWAMIGAAAAADljwliE35GjuaezxtHa7P/\u002f/\u002f",
-     "/\u002f/yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKSespwjoRFvggCBUBoTFBeq6QIAysQnRHaEO",
+    ["data:image/gif;base64,R0lGODlhFgAWAMIGAAAAADljwliE35GjuaezxtHa7P/\x2f/\x2f",
+     "/\x2f/yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKSespwjoRFvggCBUBoTFBeq6QIAysQnRHaEO",
      "zyaZ07Lu9lUBnC0UGQU1K52s6n5oEADs="]
   )(
     "Dotted list",
     "insertunorderedlist",
-    ["data:image/gif;base64,R0lGODlhFgAWAMIGAAAAAB1ChF9vj1iE33mOrqezxv/\u002f/\u002f",
-     "/\u002f/yH5BAEAAAcALAAAAAAWABYAAAMyeLrc/jDKSesppNhGRlBAKIZRERBbqm6YtnbfMY7lud6",
+    ["data:image/gif;base64,R0lGODlhFgAWAMIGAAAAAB1ChF9vj1iE33mOrqezxv/\x2f/\x2f",
+     "/\x2f/yH5BAEAAAcALAAAAAAWABYAAAMyeLrc/jDKSesppNhGRlBAKIZRERBbqm6YtnbfMY7lud6",
      "4UwiuKnigGQliQuWOyKQykgAAOw=="]
   )(
     "Quote",
     "formatblock",
     ["data:image/gif;base64,R0lGODlhFgAWAIQXAC1NqjFRjkBgmT9nqUJnsk9xrFJ7u2",
      "R9qmKBt1iGzHmOrm6Sz4OXw3Odz4Cl2ZSnw6KxyqO306K63bG70bTB0rDI3bvI4P",
-     "/\u002f/\u002f/\u002f/\u002f/",
-     "/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f",
-     "/\u002f/\u002f/\u002fyH5BAEKAB8ALAAAAAAWABYAAAVP4CeOZGmeaKqubEs2Cekk",
+     "/\x2f/\x2f/\x2f/\x2f/",
+     "/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f",
+     "/\x2f/\x2f/\x2fyH5BAEKAB8ALAAAAAAWABYAAAVP4CeOZGmeaKqubEs2Cekk",
      "ErvEI1zZuOgYFlakECEZFi0GgTGKEBATFmJAVXweVOoKEQgABB9IQDCmrLpjETrQQlhHjINrT",
      "q/b7/i8fp8PAQA7"]
   )(
     "Delete indentation",
     "outdent",
     ["data:image/gif;base64,R0lGODlhFgAWAMIHAAAAADljwliE35GjuaezxtDV3NHa7P",
-     "/\u002f/yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKCQG9F2i7u8agQgyK1z2EIBil+TWqEMxhMcz",
+     "/\x2f/yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKCQG9F2i7u8agQgyK1z2EIBil+TWqEMxhMcz",
      "sYVJ3e4ahk+sFnAgtxSQDqWw6n5cEADs="]
   )(
     "Add indentation",
     "indent",
     ["data:image/gif;base64,R0lGODlhFgAWAOMIAAAAADljwl9vj1iE35GjuaezxtDV3N",
-     "Ha7P/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/yH5BAEAAAgALAAAAAAWABYAAAQ7EMlJq704650",
+     "Ha7P/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f",
+     "/\x2f/\x2f/yH5BAEAAAgALAAAAAAWABYAAAQ7EMlJq704650",
      "B/x8gemMpgugwHJNZXodKsO5oqUOgo5KhBwWESyMQsCRDHu9VOyk5TM9zSpFSr9gsJwIAOw=="
     ]
   )(
     "Hyperlink",
     "createlink",
     ["data:image/gif;base64,R0lGODlhFgAWAOMKAB1ChDRLY19vj3mOrpGjuaezxrCztb",
-     "/I19Ha7Pv8/f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/yH5BAEKAA8ALAAAAAAWABYAAARY8MlJq704682",
+     "/I19Ha7Pv8/f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f",
+     "/yH5BAEKAA8ALAAAAAAWABYAAARY8MlJq704682",
      "7/2BYIQVhHg9pEgVGIklyDEUBy/RlE4FQF4dCj2AQXAiJQDCWQCAEBwIioEMQBgSAFhDAGghG",
      "i9XgHAhMNoSZgJkJei33UESv2+/4vD4TAQA7"]
   )(
     "Cut",
     "cut",
     ["data:image/gif;base64,R0lGODlhFgAWAIQSAB1ChBFNsRJTySJYwjljwkxwl19vj1",
-     "dusYODhl6MnHmOrpqbmpGjuaezxrCztcDCxL/I18rL1P/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/",
-     "/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002fyH5BAEAAB8ALAAAAAAWABYAAAVu4CeOZGmeaKqubDs6TNnE",
+     "dusYODhl6MnHmOrpqbmpGjuaezxrCztcDCxL/I18rL1P/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f",
+     "/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/",
+     "/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f",
+     "yH5BAEAAB8ALAAAAAAWABYAAAVu4CeOZGmeaKqubDs6TNnE",
      "bGNApNG0kbGMi5trwcA9GArXh+FAfBAw5UexUDAQESkRsfhJPwaH4YsEGAAJGisRGAQY7UCC9",
      "ZAXBB+74LGCRxIEHwAHdWooDgGJcwpxDisQBQRjIgkDCVlfmZqbmiEAOw=="]
   )(
@@ -323,7 +327,8 @@ img.intLink { border: 0; }
     "copy",
     ["data:image/gif;base64,R0lGODlhFgAWAIQcAB1ChBFNsTRLYyJYwjljwl9vj1iE31",
      "iGzF6MnHWX9HOdz5GjuYCl2YKl8ZOt4qezxqK63aK/9KPD+7DI3b/I17LM/MrL1MLY9NHa7OP",
-     "s++bx/Pv8/f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/yH5BAEAAB8ALAAAAAAWABYAAAWG4CeOZGmeaKqubOum1SQ/",
+     "s++bx/Pv8/f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f",
+     "/yH5BAEAAB8ALAAAAAAWABYAAAWG4CeOZGmeaKqubOum1SQ/",
      "kPVOW749BeVSus2CgrCxHptLBbOQxCSNCCaF1GUqwQbBd0JGJAyGJJiobE+LnCaDcXAaEoxhQ",
      "ACgNw0FQx9kP+wmaRgYFBQNeAoGihCAJQsCkJAKOhgXEw8BLQYciooHf5o7EA+kC40qBKkAAA",
      "Grpy+wsbKzIiEAOw=="]
@@ -333,8 +338,10 @@ img.intLink { border: 0; }
     "Paste (does not work in all environments)",
     "paste",
     ["data:image/gif;base64,R0lGODlhFgAWAIQUAD04KTRLY2tXQF9vj414WZWIbXmOrp",
-     "qbmpGjudClFaezxsa0cb/I1+3YitHa7PrkIPHvbuPs+/fvrvv8/f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/",
-     "/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002fyH5BAEAAB8ALAAAAAAWABYAAAWN4CeOZGmeaKqubGsusPvB",
+     "qbmpGjudClFaezxsa0cb/I1+3YitHa7PrkIPHvbuPs+/fvrvv8/f/\x2f/\x2f/\x2f",
+     "/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/",
+     "/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f/\x2f",
+     "yH5BAEAAB8ALAAAAAAWABYAAAWN4CeOZGmeaKqubGsusPvB",
      "SyFJjVDs6nJLB0khR4AkBCmfsCGBQAoCwjF5gwquVykSFbwZE+AwIBV0GhFog2EwIDchjwRiQ",
      "o9E2Fx4XD5R+B0DDAEnBXBhBhN2DgwDAQFjJYVhCQYRfgoIDGiQJAWTCQMRiwwMfgicnVcAAA",
      "MOaK+bLAOrtLUyt7i5uiUhADs="]
