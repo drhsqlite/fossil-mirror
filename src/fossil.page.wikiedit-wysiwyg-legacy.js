@@ -3,7 +3,8 @@
    makes it usable with the newer editor's edit widget replacement
    API.
 
-   Requires: window.fossil, fossil.dom.
+   Requires: window.fossil, fossil.dom, and that the current page is
+   /wikiedit. If called from another page it returns without effect.
 */
 (function(F/*fossil object*/){
   'use strict';
@@ -59,84 +60,101 @@ img.intLink { border: 0; }
 
   const outerContainer = D.attr(D.div(), 'id', 'wysiwyg-container');
 
-  const toolbars = D.attr(D.div(), 'id', 'wysiwyg-toolbars');
-  D.append(outerContainer, toolbars);
+  const toolbars = D.attr(D.div(), 'id', 'wysiwyg-toolbars'),
+        toolbar1 = D.attr(D.div(), 'id', 'wysiwyg-toolBar1'),
+        toolbar2 = D.attr(D.div(), 'id', 'wysiwyg-toolBar2');
+  D.append(outerContainer,
+           D.append(toolbars, toolbar1, toolbar2));
 
-  var select, div;
+  /** Returns a function which simplifies adding a list of options
+      to the given select element. See below for example usage. */
+  const addOptions = function(select){
+    return function ff(value, label){
+      D.option(select, value, label || value);
+      return ff;
+    };
+  };
 
-  const toolbar1 = D.attr(D.div(), 'id', 'wysiwyg-toolBar1');
-
+  ////////////////////////////////////////////////////////////////////////
+  // Edit mode selection button
+  var select;
   const selectEditMode = select = D.attr(
     D.attr(D.select(), 'id', 'wysiwygEditMode'),
     'size',
     1
   );
   D.append(toolbar1, select);
-  D.option(select, "0", "WYSIWYG");
-  D.option(select, "1", "Raw HTML");
+  addOptions(select)(
+    0, "WYSIWYG")(
+    1, "Raw HTML");
   select.selectedIndex = 0;
 
-  
-  div = toolbar1;
-  D.append(toolbars, ' ', toolbar1);
+
+  ////////////////////////////////////////////////////////////////////////
+  // Text formatting options...
   select = D.addClass(D.select(), 'format');
   select.dataset.format = "formatblock";
-  D.append(div, select);
-  D.option(select, '', '- formatting -');
-  D.option(select, "h1", "Title 1 <h1>");
-  D.option(select, "h2", "Title 2 <h2>");
-  D.option(select, "h3", "Title 3 <h3>");
-  D.option(select, "h4", "Title 4 <h4>");
-  D.option(select, "h5", "Title 5 <h5>");
-  D.option(select, "h6", "Subtitle <h6>");
-  D.option(select, "p", "Paragraph <p>");
-  D.option(select, "pre", "Preformatted <pre>");
+  D.append(toolbar1, select);
+  addOptions(select)(
+    '', '- formatting -')(
+    "h1", "Title 1 <h1>")(
+    "h2", "Title 2 <h2>")(
+    "h3", "Title 3 <h3>")(
+    "h4", "Title 4 <h4>")(
+    "h5", "Title 5 <h5>")(
+    "h6", "Subtitle <h6>")(
+    "p", "Paragraph <p>")(
+    "pre", "Preformatted <pre>");
 
   select = D.addClass(D.select(), 'format');
   select.dataset.format = "fontname";
-  D.append(div, select);
+  D.append(toolbar1, select);
   D.addClass(
     D.option(select, '', '- font -'),
     "heading"
   );
-  D.option(select, 'Arial');
-  D.option(select, 'Arial Black');
-  D.option(select, 'Courier New');
-  D.option(select, 'Times New Roman');
+  addOptions(select)(
+    'Arial')(
+    'Arial Black')(
+    'Courier New')(
+    'Times New Roman');
 
   select = D.addClass(D.select(), 'format');
-  D.append(div, select);
+  D.append(toolbar1, select);
   select.dataset.format = "fontsize";
   D.addClass(
     D.option(select, '', '- size -'),
     "heading"
   );
-  D.option(select, "1", "Very small");
-  D.option(select, "2", "A bit small");
-  D.option(select, "3", "Normal");
-  D.option(select, "4", "Medium-large");
-  D.option(select, "5", "Big");
-  D.option(select, "6", "Very big");
-  D.option(select, "7", "Maximum");
+  addOptions(select)(
+    "1", "Very small")(
+    "2", "A bit small")(
+    "3", "Normal")(
+    "4", "Medium-large")(
+    "5", "Big")(
+    "6", "Very big")(
+    "7", "Maximum");
 
   select = D.addClass(D.select(), 'format');
-  D.append(div, select);
+  D.append(toolbar1, select);
   select.dataset.format = 'forecolor';
   D.addClass(
     D.option(select, '', '- color -'),
     "heading"
   );
-  D.option(select, "red", "Red");
-  D.option(select, "blue", "Blue");
-  D.option(select, "green", "Green");
-  D.option(select, "black", "Black");
-  D.option(select, "yellow", "Yellow");
-  D.option(select, "cyan", "Cyan");
-  D.option(select, "magenta", "Magenta");
+  addOptions(select)(
+    "red", "Red")(
+    "blue", "Blue")(
+    "green", "Green")(
+    "black", "Black")(
+    "grey", "Grey")(
+    "yellow", "Yellow")(
+    "cyan", "Cyan")(
+    "magenta", "Magenta");
 
-  const toolbar2 = D.attr(D.div(), 'id', 'wysiwyg-toolBar2');
-  D.append(toolbars, toolbar2);
 
+  ////////////////////////////////////////////////////////////////////////
+  // Icon-based toolbar...
   /**
      Inject the icons...
 
@@ -276,7 +294,9 @@ img.intLink { border: 0; }
      "ACgNw0FQx9kP+wmaRgYFBQNeAoGihCAJQsCkJAKOhgXEw8BLQYciooHf5o7EA+kC40qBKkAAA",
      "Grpy+wsbKzIiEAOw=="]
   )(
-    "Paste",
+    /* Paste, when activated via JS, has no effect in some (maybe all)
+       environments. Activated externally, e.g. keyboard, it works. */
+    "Paste (does not work in all environments)",
     "paste",
     ["data:image/gif;base64,R0lGODlhFgAWAIQUAD04KTRLY2tXQF9vj414WZWIbXmOrp",
      "qbmpGjudClFaezxsa0cb/I1+3YitHa7PrkIPHvbuPs+/fvrvv8/f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/\u002f/",
@@ -286,9 +306,11 @@ img.intLink { border: 0; }
      "MOaK+bLAOrtLUyt7i5uiUhADs="]
   );
 
-  const oDoc = div = D.attr(D.div(), 'id', "wysiwygBox");
-  D.attr(div, 'contenteditable', 'true');
-  D.append(outerContainer, div);
+  ////////////////////////////////////////////////////////////////////////
+  // The main editor area...
+  const oDoc = D.attr(D.div(), 'id', "wysiwygBox");
+  D.attr(oDoc, 'contenteditable', 'true');
+  D.append(outerContainer, oDoc);
   
   /* Initialize the document editor */
   function initDoc() {
@@ -322,12 +344,10 @@ img.intLink { border: 0; }
     },false);
     var i, controls = outerContainer.querySelectorAll('select.format');
     for(i = 0; i < controls.length; i++) {
-      //console.debug("select.format",controls[i]);
       controls[i].addEventListener('change', handleDropDown, false);;
     }
     controls = outerContainer.querySelectorAll('.intLink');
     for(i = 0; i < controls.length; i++) {
-      //console.debug("intLink",controls[i]);
       controls[i].addEventListener('click', handleFormatButton, false);
     }
   }
@@ -395,12 +415,23 @@ img.intLink { border: 0; }
     oDoc.focus();
   }
 
+  ////////////////////////////////////////////////////////////////////////
+  // A hook which can be activated via a site skin to plug this editor
+  // in to the wikiedit page.
   F.page.wysiwyg = {
     // only for debugging: oDoc: oDoc,
+    /*
+      Replaces wikiedit's default editor widget with this wysiwyg
+      editor.
+
+      Must either be called via an onPageLoad handler instead via the
+      site skin's footer or else it can be called manually from the
+      dev tools console. Calling it too early (e.g. in the page
+      footer *without* outside of an an onPageLoad handler) will
+      crash because wikiedit has not been initialized.
+    */
     init: function(){
       initDoc();
-      /* Must not be called outside of an onPageLoad handler, else it
-         can run before to the wikiedit app has been initialized. */
       const content = F.page.wikiContent() || '';
       var isDirty = false /* keep from stashing too often */;
       F.page.setContentMethods(
