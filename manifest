@@ -1,5 +1,5 @@
-C Code\sduplication\sreduction.
-D 2020-08-30T18:32:55.005
+C Added\sstyle\sfor\sthe\snew\shelp-buttonlet\swidgets\sin\sthe\sxekri\sskin,\selse\sthey\send\sup\swith\sa\stransparent\sbackground.
+D 2020-08-30T18:42:40.386
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -424,7 +424,7 @@ F skins/rounded1/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b
 F skins/rounded1/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/rounded1/header.txt e7298779cd3482f749238b3636b0badd0b046915664ffa52f11330671fd18ef3
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 38d644ecd154b9704d0a5c6b6414a0f7ac137992b79ce0ef57b0b04146f71f0b
+F skins/xekri/css.txt 0cde2c58f983a067f335668a1947c47b77975aadfa36b18f525b4c26a3e4a201
 F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f4d6889631e
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 145546623455cccbed397bacc2ede564a11b175fb7afbc247e4ed292ff6da682
-R fa5b5763c97a55a84d2412ea8b1330bb
+P f107854c97654ee802a3235ad0de088a9b1cf4a90ae11453df83b73fc3e4823e
+R 8e2a580c3bae6e2961f130b923722d4d
 U stephan
-Z d1d241485b08f57e11d6a83d8535af3a
+Z 1d88281264588ccbad3097b9165bb61c
