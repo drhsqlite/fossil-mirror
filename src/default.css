@@ -1257,6 +1257,7 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   z-index: 19/*below default skin's hamburger popup*/;
   box-shadow: -0.15em 0.15em 0.2em rgba(0, 0, 0, 0.75);
   background-color: inherit;
+  color: inherit;
 }
 
 .fossil-toast-message {
@@ -1372,5 +1373,4 @@ V 13.32691 H 6.1597329 Z' style='fill:%23f8f8f8;stroke-width:1.32118618' /%3e%3c
   cursor: default;
   text-align: left;
   border-style: outset;
-  background-color: inherit;
 }

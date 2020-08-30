@@ -1,5 +1,5 @@
-C Reintroduced\sthe\slegacy\swysiwyg\swiki\seditor\sas\san\soptional\selement\swhich\scan\sbe\splugged\sin\svia\sthe\sskin\sif\sdesired.\sSeveral\ssemi-related\s"code-adjacent"\stweaks\sand\simprovements.
-D 2020-08-30T18:58:42.810
+C Explicit\sfont\scolor\sinheritance\sfix\sfor\s.fossil-tooltip\selements\sto\sfix\sit\sfor\sa\scouple\sskins,\sand\sadded\ssome\scontrast\sto\sthose\swidgets\sin\sthe\sdefault\sskin.
+D 2020-08-30T19:07:06.432
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -393,7 +393,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt 9a6197431010e9f52fea99f6a96ab5d86425934bafadec0bc8684a54c2912a9c
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 2266ed6c2a6334d65cdf8375d9faf35cf169d2982c833ecf546e0d0e8d98606e
+F skins/default/css.txt dab4ffb2a04a2fadf50e5ce1f0157c5bf5c6aa60426b13ff472926d377c11ab1
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt d3a0e23a6bd14bf25f7193841e8434bc2454281eb63a7373678ffed9ffbad76f
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ea16f92bdf30a0d7984c4e51600646629c619c81d6969334815a84fd7a31f929
-F src/default.css fb29947ad472c2b47d20d4e3a7e98de7116b98099be4cfc72a4162f5da2c452a
+F src/default.css da2ca615c9a5fcaacd8ce513a75774f565553b65f208cde488bfd5f2a8ccee6e
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -1012,8 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 693bf6b22221c368ffc074f0a1fc5cc2fc3d5935a4c4cacb01b49a7ba91c260c b2ece413ba8ca073f9dc016b83ce360bcc489ac9f39d3c6a8c8ecef8e6265901
-R 018f119d138b8c1835e8fd09420faa65
-T +closed b2ece413ba8ca073f9dc016b83ce360bcc489ac9f39d3c6a8c8ecef8e6265901
+P 03a64a39adcefcc5d9beb525531a4bb5d0809cfeba25190c1b2c6311d352ef01
+R 74ce0a178767c070d84d4d12dcf33a3b
 U stephan
-Z 33d84abadb9a7b9da786d578f50ff208
+Z cffe315180010be03f588f50f3a66170
