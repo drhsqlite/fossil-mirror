@@ -183,7 +183,7 @@ body.wikiedit #wikiedit-stash-selector {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
 }
 body.wikiedit #wikiedit-stash-selector select {
   margin: 0 1em 0 0.5em;

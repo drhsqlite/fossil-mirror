@@ -1,5 +1,5 @@
-C Added\sstyle\sfor\sthe\snew\shelp-buttonlet\swidgets\sin\sthe\sxekri\sskin,\selse\sthey\send\sup\swith\sa\stransparent\sbackground.
-D 2020-08-30T18:42:40.386
+C Adapted\sSVG\sbackground\sfrom\sFlorian\sfor\sthe\s.help-buttonlet\sCSS.
+D 2020-08-30T18:43:07.595
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c ea16f92bdf30a0d7984c4e51600646629c619c81d6969334815a84fd7a31f929
-F src/default.css 465260d0e0a24447eedc37f81088207c43d33493df178f28cb477c6e6a62b08d
+F src/default.css c046d0f888902c0f91ce55f1f0505d835d86d1aa6785d2cd2933685a47be2110
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -613,8 +613,8 @@ F src/stat.c f36d74389e5a386f795dc00787bfbe981b8590441eea027a86602cf539874391
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 5dc16b2eae9beaf5e735c6742d19d2aaeb378e13c39131c27e2fbd31ea64f13f
-F src/style.fileedit.css 70130b5ecd2b57599d175a392c03e0d028995841bfdf3b3cc21e6ed7c62b172b
-F src/style.wikiedit.css 47fde8d808ca6ccb906d636828f0ccbd070919c978c8686e6f866488c9a73b51
+F src/style.fileedit.css 81e482052e954239d382b22b138b6f21a0110f50e352bac57d0cb527472b216a
+F src/style.wikiedit.css b7d0bb51fbe137261686be2bae2c657d64d2d801d340a3080d4c33c97fb6859a
 F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
 F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f107854c97654ee802a3235ad0de088a9b1cf4a90ae11453df83b73fc3e4823e
-R 8e2a580c3bae6e2961f130b923722d4d
+P 8b0d0002003f845823c2962d18b18ad1bbb63752fc5310b1f067fd37e05388bd
+R c97149c001ce80076934ddadd39f9075
 U stephan
-Z 1d88281264588ccbad3097b9165bb61c
+Z d1709f4b42f02d55097a42737f818b1e

@@ -1313,29 +1313,48 @@ blockquote.file-content {
 */
 .help-buttonlet {
   display: inline-block;
-  min-width: 1rem;
-  max-width: 1rem;
-  min-height: 1rem;
-  max-height: 1rem;
-  line-height: 1 /*important for some skins*/;
-  font-size: 100%;
-  border-radius: 0.5rem;
-  background-color: rgba(54, 54, 255,1);
-  color: rgb(255, 255, 255);
+  min-width: 1em;
+  max-width: 1em;
+  min-height: 1em;
+  max-height: 1em;
   cursor: pointer;
-  font-family: monspace;
-  text-align: center;
   margin: 0 0 0 0.35em;
-  border-width: 1px;
+  background-image: /* white question mark on blue circular background */
+    url("data:image/svg+xml;charset=UTF-8, \
+%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15.867574 15.867574'%3e\
+%3ccircle style='fill:%23f0f0f0;stroke-width:1.0' r='7.9337869' cy='7.9337869' \
+cx='7.9337869'/%3e%3ccircle  style='fill:%23404040;stroke-width:1.0' r='6.9662519' \
+cy='7.9337869' cx='7.9337869'/%3e%3ccircle style='fill:%235080d0;stroke-width:1.0' r='5.9987168' \
+cy='7.9337869' cx='7.9337869'/%3e%3cpath style='fill:%23f8f8f8' d='M 8.5299783,9.3087873 \
+H 6.5910134 V 9.0456038 q 0,-0.4404297 0.1772461,-0.7788086 0.1772461,-0.34375 \
+0.7465821,-0.8701172 l 0.34375,-0.3115235 Q 8.1647439,6.8058577 8.3043923,6.5587873 \
+8.4494119,6.311717 8.4494119,6.0646467 q 0,-0.3759765 -0.2578125,-0.5854492 \
+-0.2578125,-0.2148437 -0.7197266,-0.2148437 -0.4350586,0 -0.9399414,0.1826171 \
+Q 6.0270486,5.624217 5.479197,5.9787092 V 4.2921858 Q 6.1290994,4.0665998 \
+6.6662087,3.959178 7.2033181,3.8517561 7.7028298,3.8517561 q 1.3105469,0 \
+1.9980469,0.5371094 0.6875003,0.5317383 0.6875003,1.5576172 0,0.5263671 \
+-0.209473,0.9453125 -0.2094726,0.4135742 -0.7143554,0.8916015 l -0.34375,0.3061524 \
+Q 8.7555642,8.4225569 8.6427712,8.6266584 8.5299783,8.8253889 8.5299783,9.0670881 \
+Z M 6.5910134,10.103709 h 1.9389649 v 1.91211 H 6.5910134 Z' /%3e%3c/svg%3e ");
+  background-repeat: no-repeat;
+  background-position: center;
+  /* When not using a background image, this works reasonably
+     well along with a ::before content of "?": */
+  /*border-width: 1px;
   border-style: outset;
+  border-radius: 0.5em;
+  font-size: 100%;
+  font-family: monspace;
   font-weight: 700;
   overflow: hidden;
+  background-color: rgba(54, 54, 255,1);
+  color: rgb(255, 255, 255);
+  text-align: center;
+  line-height: 1; */
 }
-
-.help-buttonlet::before {
+/*.help-buttonlet::before {
   content: "?";
-}
-
+}*/
 /**
    We really want to hide all help text via CSS but CSS cannot select
    TEXT nodes. Thus we move them out of the way programmatically
@@ -1353,4 +1372,5 @@ blockquote.file-content {
   cursor: default;
   text-align: left;
   border-style: outset;
+  background-color: inherit;
 }
