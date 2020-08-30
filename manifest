@@ -1,5 +1,5 @@
-C Replaced\s\\u002f\sslash\sescapes\swith\s\\x25,\sthanks\sto\sa\shint\sfrom\sArseniy\sTerekhin.
-D 2020-08-30T17:12:47.865
+C Code\sduplication\sreduction.
+D 2020-08-30T18:32:55.005
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -491,13 +491,13 @@ F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f7
 F src/fossil.dom.js 5673c028fa1fc27413d8198b580e615abf44a10718275c2b7149c139a41f6f13
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
-F src/fossil.page.fileedit.js ff219158e615e4f87ec61b686cd97c11799168521ed047fce43a8a5bb4b66169
+F src/fossil.page.fileedit.js 01ddddfc8565a3d6e7866cdfbdf4e268209e722878e926e8e48877e903eca2f9
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
 F src/fossil.page.wikiedit-wysiwyg-legacy.js ea075166a42c728c6eae22f2611ab9a41219d2bb8965661a238caefd49360bcc
-F src/fossil.page.wikiedit.js 3237576075150f7bfc902701dac3081e0ae78d1c746b3f95ee48f6f93432b7b9
+F src/fossil.page.wikiedit.js f1cd4f8db6b1d589fef55e078473f31f900afc0ebd2548b19c7f41b4e662dcdc
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
-F src/fossil.tabs.js 56a57bda17eb3a3b8bfbbc43e2475f1fd66b4fb009d7f78ca44f5561c44e08bf
+F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e982f18bd30de69382b9eb0866fa68fb48873d14dc69bcc5f10a1d40bcb0d82a
-R 82d218eb0691421d2bd264805b4770e9
+P 145546623455cccbed397bacc2ede564a11b175fb7afbc247e4ed292ff6da682
+R fa5b5763c97a55a84d2412ea8b1330bb
 U stephan
-Z a2a269926d7125fc7c96cba3d1cdb648
+Z d1d241485b08f57e11d6a83d8535af3a

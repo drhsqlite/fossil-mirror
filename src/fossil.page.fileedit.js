@@ -689,14 +689,7 @@
       D.addClass(P.e.taCommentBig, 'hidden');
     }
     D.removeClass(P.e.taComment, 'hidden');
-    P.tabs.e.container.insertBefore(
-      /* Move the status bar between the tab buttons and
-         tab panels. Seems to be the best fit in terms of
-         functionality and visibility. */
-      E('#fossil-status-bar'), P.tabs.e.tabs
-    );
-    P.tabs.e.container.insertBefore(P.e.editStatus, P.tabs.e.tabs);
-
+    P.tabs.addCustomWidget( E('#fossil-status-bar') ).addCustomWidget(P.e.editStatus);
     P.tabs.addEventListener(
       /* Set up auto-refresh of the preview tab... */
       'before-switch-to', function(ev){
