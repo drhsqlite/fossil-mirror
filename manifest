@@ -1,5 +1,5 @@
-C Fixed\s(removed)\swrapping\sof\s.input-with-label\selements.
-D 2020-08-30T15:50:22.418
+C fossil.dom.attr(target,key,val)\snow\ssupports\sany\snumber\sof\skey/value\spairs\sto\sset\sin\sa\ssingle\scall.
+D 2020-08-30T15:57:31.627
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,7 +488,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 69ce782ad7f04780e678547f7340b709b6b4cf5d880b41be72fae3fc1825d910
 F src/fossil.confirmer.js 381023fea55b0df523b4a0561290782e421c8647ce3bd49e98809d8fa5739b90
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
-F src/fossil.dom.js dd4f9c08237019f52b409061c46fa8c383a8e5a1d079983bf5bd041eee69ee74
+F src/fossil.dom.js 5673c028fa1fc27413d8198b580e615abf44a10718275c2b7149c139a41f6f13
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js ff219158e615e4f87ec61b686cd97c11799168521ed047fce43a8a5bb4b66169
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 79cb2df73ca12e314cb6079c6d71d87cd2aa07caf64cd0cd4386f83bc0bf2e38
-R 36c3b7d3d9b69119faf1999638df2768
+P b012ecb7143707b29b9ef4d3a1f7698f13713bc443e789a0cb2a79e196b70091
+R 7d37c8847d75476bd46079bc4f4b9b13
 U stephan
-Z bf707b510c8c96bb0b14d9a06aaff44c
+Z d2027742c511e892e5bdd88a84467631
