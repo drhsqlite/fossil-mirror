@@ -402,22 +402,31 @@
   /**
      Two args == getter: (e,key), returns value
 
-     Three == setter: (e,key,val), returns e. If val===null
-     or val===undefined then the attribute is removed. If (e)
-     has a forEach method then this routine is applied to each
-     element of that collection via that method.           
+     Three or more == setter: (e,key,val[...,keyN,valN]), returns
+     e. If val===null or val===undefined then the attribute is
+     removed. If (e) has a forEach method then this routine is applied
+     to each element of that collection via that method. Each pair of
+     keys/values is applied to all elements designated by the first
+     argument.
   */
   dom.attr = function f(e){
     if(2===arguments.length) return e.getAttribute(arguments[1]);
-    if(e.forEach){
-      e.forEach((x)=>f(x,arguments[1],arguments[2]));
+    const a = argsToArray(arguments);
+    if(e.forEach){ /* Apply to all elements in the collection */
+      e.forEach(function(x){
+        a[0] = x;
+        f.apply(f,a);
+      });
       return e;
-    }            
-    const key = arguments[1], val = arguments[2];
-    if(null===val || undefined===val){
-      e.removeAttribute(key);
-    }else{
-      e.setAttribute(key,val);
+    }
+    a.shift(/*element(s)*/);
+    while(a.length){
+      const key = a.shift(), val = a.shift();
+      if(null===val || undefined===val){
+        e.removeAttribute(key);
+      }else{
+        e.setAttribute(key,val);
+      }
     }
     return e;
   };

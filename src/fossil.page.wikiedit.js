@@ -865,13 +865,10 @@
       }
     };
     P.tabs = new F.TabManager(D.clearElement(P.e.tabContainer));
-    P.tabs.e.container.insertBefore(
-      /* Move the status bar between the tab buttons and
-         tab panels. Seems to be the best fit in terms of
-         functionality and visibility. */
-      E('#fossil-status-bar'), P.tabs.e.tabs
-    );
-    P.tabs.e.container.insertBefore(P.e.editStatus, P.tabs.e.tabs);
+    /* Move the status bar between the tab buttons and
+       tab panels. Seems to be the best fit in terms of
+       functionality and visibility. */
+    P.tabs.addCustomWidget( E('#fossil-status-bar') ).addCustomWidget(P.e.editStatus);
     P.tabs.addEventListener(
       /* Set up some before-switch-to tab event tasks... */
       'before-switch-to', function(ev){

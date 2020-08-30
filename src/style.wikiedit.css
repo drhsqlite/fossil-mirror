@@ -40,7 +40,7 @@ body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > input {
 }
 body.wikiedit .tab-container > .tabs > .tab-panel > .wikiedit-options > .input-with-label {
   vertical-align: middle;
-  margin: 0.5em;
+  margin: 0 0.5em 0.25em 0.5em;
 }
 body.wikiedit label {
   display: inline; /* some skins set label display to block! */
@@ -183,7 +183,7 @@ body.wikiedit #wikiedit-stash-selector {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
 }
 body.wikiedit #wikiedit-stash-selector select {
   margin: 0 1em 0 0.5em;

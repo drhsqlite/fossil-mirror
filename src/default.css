@@ -1110,12 +1110,13 @@ hr {
    (e.g. DIV) so that certain nesting constructs are legal.
 */
 .input-with-label {
-  border: 1px inset #808080;
+  border: 1px inset rgba(128, 128, 128, 0.5);
   border-radius: 0.25em;
-  padding: 0.25em 0.4em;
+  padding: 0.15em 0.25em;
   margin: 0 0.5em;
   display: inline-block;
   cursor: default;
+  white-space: nowrap;
 }
 .input-with-label > * {
   vertical-align: middle;
@@ -1312,28 +1313,48 @@ blockquote.file-content {
 */
 .help-buttonlet {
   display: inline-block;
-  min-width: 1rem;
-  max-width: 1rem;
-  min-height: 1rem;
-  max-height: 1rem;
-  font-size: 0.9em;
-  border-radius: 0.5rem;
-  background-color: rgba(54, 54, 255,1);
-  color: rgb(255, 255, 255);
+  min-width: 1em;
+  max-width: 1em;
+  min-height: 1em;
+  max-height: 1em;
   cursor: pointer;
-  font-family: monspace;
-  text-align: center;
   margin: 0 0 0 0.35em;
-  border-width: 1px;
+  background-image: /* white question mark on blue circular background */
+   url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' \
+viewBox='0 0 15.867574 15.867574'%3e%3ccircle cx='7.9337869' cy='7.9337869' \
+r='7.9337869' style='fill:%23f0f0f0;stroke-width:1' /%3e%3ccircle cx='7.9337869' \
+cy='7.9337869' r='6.9662519' style='fill:%23404040;stroke-width:1' /%3e%3ccircle \
+cx='7.9337869' cy='7.9337869' r='5.9987168' style='fill:%235080d0;stroke-width:1' \
+ /%3e%3cpath d='M 8.7214664,9.7504179 H 6.1597329 V 9.4027037 q 0,-0.5818896 \
+0.234175,-1.0289511 Q 6.628083,7.9195949 7.3802819,7.2241658 L 7.8344395,6.8125852 \
+Q 8.2389238,6.4435822 8.4234253,6.1171563 8.6150232,5.7907304 8.6150232,5.4643045 \
+q 0,-0.496735 -0.3406184,-0.7734874 Q 7.9337866,4.4069686 7.323512,4.4069686 q \
+-0.5747934,0 -1.2418375,0.2412712 Q 5.4146304,4.8824149 4.6908164,5.3507651 \
+V 3.1225537 Q 5.5494585,2.8245126 6.2590798,2.6825884 6.9687013,2.5406641 \
+7.6286492,2.5406641 q 1.7314764,0 2.6397908,0.7096215 0.908317,0.7025253 \
+0.908317,2.0579022 0,0.6954289 -0.276754,1.2489339 -0.276751,0.5464084 \
+-0.9437957,1.1779715 L 9.5020499,8.1395775 Q 9.0195073,8.5795428 8.8704867,8.8491989 \
+8.7214664,9.1117588 8.7214664,9.4310884 Z M 6.1597329,10.800658 H 8.7214664 \
+V 13.32691 H 6.1597329 Z' style='fill:%23f8f8f8;stroke-width:1.32118618' /%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  /* When not using a background image, this additional style works
+     reasonably well along with a ::before content of "?": */
+  /*border-width: 1px;
   border-style: outset;
+  border-radius: 0.5em;
+  font-size: 100%;
+  font-family: monspace;
   font-weight: 700;
   overflow: hidden;
+  background-color: rgba(54, 54, 255,1);
+  color: rgb(255, 255, 255);
+  text-align: center;
+  line-height: 1; */
 }
-
-.help-buttonlet::before {
+/*.help-buttonlet::before {
   content: "?";
-}
-
+}*/
 /**
    We really want to hide all help text via CSS but CSS cannot select
    TEXT nodes. Thus we move them out of the way programmatically
@@ -1351,4 +1372,5 @@ blockquote.file-content {
   cursor: default;
   text-align: left;
   border-style: outset;
+  background-color: inherit;
 }
