@@ -11,6 +11,7 @@ table.login_out td,
 tr.timelineCurrent,
 tr.timelineCurrent td.timelineTableCell,
 tr.timelineSelected {
+  background-color: initial;
   border: 0
 }
 ol,
