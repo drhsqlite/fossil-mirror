@@ -26,11 +26,13 @@ img.intLink { border: 0; }
   max-width: 100% /* w/o this, toolbars don't wrap properly! */
 }
 #wysiwygBox {
-  border: 1px #000000 solid;
-  padding: 0 1em;
+  border: 1px solid rgba(127,127,127,0.3);
+  border-radius: 0.25em;
+  padding: 0.25em 1em;
   margin: 0;
   overflow: auto;
   min-height: 20em;
+  resize: vertical;
 }
 #wysiwygEditMode { /* wrapper for radio buttons */
   border: 1px solid rgba(127,127,127,0.3);
