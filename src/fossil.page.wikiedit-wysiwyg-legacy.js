@@ -12,6 +12,8 @@
 
   const D = F.dom;
 
+  ////////////////////////////////////////////////////////////////////////
+  // Install an app-specific stylesheet...
   (function(){
     const head = document.head || document.querySelector('head'),
           styleTag = document.createElement('style'),
@@ -19,37 +21,49 @@
 .intLink { cursor: pointer; }
 img.intLink { border: 0; }
 #wysiwyg-container {
-  max-width: calc(100% - 1em);
   display: flex;
   flex-direction: column;
+  max-width: 100% /* w/o this, toolbars don't wrap properly! */
 }
 #wysiwygBox {
   border: 1px #000000 solid;
   padding: 0 1em;
+  margin: 0;
   overflow: auto;
   min-height: 20em;
+}
+#wysiwygEditMode { /* wrapper for radio buttons */
+  border: 1px solid rgba(127,127,127,0.3);
+  border-radius: 0.25em;
+  padding: 0 0.35em 0 0.35em
+}
+#wysiwygEditMode > * {
+  vertical-align: text-top;
 }
 #wysiwygEditMode label { cursor: pointer; }
 #wysiwyg-toolbars {
   margin: 0 0 0.25em 0;
   display: flex;
   flex-wrap: wrap;
-  flex-direction: row;
+  flex-direction: column;
   align-items: flex-start;
 }
 #wysiwyg-toolbars > * {
   margin: 0 0.5em 0.25em 0;
-  align-self: center;
 }
 #wysiwyg-toolBar1, #wysiwyg-toolBar2 {
+  margin: 0 0.2em 0.2em 0;
+  display: flex;
+  flex-flow: row wrap;
 }
 #wysiwyg-toolBar1 > * { /* formatting buttons */
-  margin: 0 0.2em 0.2em 0;
+  vertical-align: middle;
+  margin: 0 0.25em 0.25em 0;
 }
 #wysiwyg-toolBar2 > * { /* icons */
-  margin: 0 0.2em 0.2em 0;
   border: 1px solid rgba(127,127,127,0.3);
-  align-self: end;
+  vertical-align: baseline;
+  margin: 0.1em;
 }
 `;
     head.appendChild(styleTag);
@@ -58,13 +72,14 @@ img.intLink { border: 0; }
     D.append(styleTag, styleCSS);
   })();
 
-  const outerContainer = D.attr(D.div(), 'id', 'wysiwyg-container');
-
-  const toolbars = D.attr(D.div(), 'id', 'wysiwyg-toolbars'),
+  const outerContainer = D.attr(D.div(), 'id', 'wysiwyg-container'),
+        toolbars = D.attr(D.div(), 'id', 'wysiwyg-toolbars'),
         toolbar1 = D.attr(D.div(), 'id', 'wysiwyg-toolBar1'),
-        toolbar2 = D.attr(D.div(), 'id', 'wysiwyg-toolBar2');
-  D.append(outerContainer,
-           D.append(toolbars, toolbar1, toolbar2));
+        // ^^^ formatting options
+        toolbar2 = D.attr(D.div(), 'id', 'wysiwyg-toolBar2')
+        // ^^^^ action icon buttons
+  ;
+  D.append(outerContainer, D.append(toolbars, toolbar1, toolbar2));
 
   /** Returns a function which simplifies adding a list of options
       to the given select element. See below for example usage. */
@@ -76,22 +91,39 @@ img.intLink { border: 0; }
   };
 
   ////////////////////////////////////////////////////////////////////////
-  // Edit mode selection button
-  var select;
-  const selectEditMode = select = D.attr(
-    D.attr(D.select(), 'id', 'wysiwygEditMode'),
-    'size',
-    1
-  );
-  D.append(toolbar1, select);
-  addOptions(select)(
-    0, "WYSIWYG")(
-    1, "Raw HTML");
-  select.selectedIndex = 0;
+  // Edit mode selection (radio buttons).
+  const radio0 =
+        D.attr(
+          D.input('radio'),
+          'name','wysiwyg-mode',
+          'id', 'wysiwyg-mode-0',
+          'value',0,
+          'checked',true),
+        radio1 = D.attr(
+          D.input('radio'),
+          'id','wysiwyg-mode-1',
+          'name','wysiwyg-mode',
+          'value',1),
+        radios = D.append(
+          D.attr(D.span(), 'id', 'wysiwygEditMode'),
+          radio0, D.append(
+            D.attr(D.label(), 'for', 'wysiwyg-mode-0'),
+            "WYSIWYG"
+          ),
+          radio1, D.append(
+            D.attr(D.label(), 'for', 'wysiwyg-mode-1'),
+            "Raw HTML"
+          )
+        );
+  D.append(toolbar1, radios);
+  const radioHandler = function(){setDocMode(+this.value)};
+  radio0.addEventListener('change',radioHandler, false);
+  radio1.addEventListener('change',radioHandler, false);
 
 
   ////////////////////////////////////////////////////////////////////////
   // Text formatting options...
+  var select;
   select = D.addClass(D.select(), 'format');
   select.dataset.format = "formatblock";
   D.append(toolbar1, select);
@@ -165,7 +197,7 @@ img.intLink { border: 0; }
   */
   (function f(title,format,src){
     const img = D.img();
-    D.append(toolbar2, ' ', img);
+    D.append(toolbar2, img);
     D.addClass(img, 'intLink');
     D.attr(img, 'title', title);
     img.dataset.format = format;
@@ -339,9 +371,6 @@ img.intLink { border: 0; }
       formatDoc(this.dataset.format, extra);
     };
 
-    selectEditMode.addEventListener('change',function() { 
-      setDocMode(this.selectedIndex)
-    },false);
     var i, controls = outerContainer.querySelectorAll('select.format');
     for(i = 0; i < controls.length; i++) {
       controls[i].addEventListener('change', handleDropDown, false);;
@@ -355,7 +384,7 @@ img.intLink { border: 0; }
   /* Return true if the document editor is in WYSIWYG mode.  Return
   ** false if it is in Markup mode */
   function isWysiwyg() {
-    return 0===selectEditMode.selectedIndex;
+    return radio0.checked;
   }
 
   /* Invoke this routine prior to submitting the HTML content back
@@ -436,16 +465,12 @@ img.intLink { border: 0; }
       var isDirty = false /* keep from stashing too often */;
       F.page.setContentMethods(
         function(){
-          //selectEditMode.selectedIndex = 1;
           const rc = isWysiwyg() ? oDoc.innerHTML : oDoc.innerText;
-          //setDocMode(selectEditMode.selectedIndex, rc);
           return rc;
         },
         function(content){
-          //selectEditMode.selectedIndex = 1;
-          //oDoc.innerText = content;
           isDirty = false;
-          setDocMode(selectEditMode.selectedIndex, content);
+          setDocMode(radio0.checked ? 0 : 1, content);
         }
       );
       oDoc.addEventListener('blur', function(){
