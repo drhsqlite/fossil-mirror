@@ -1,5 +1,5 @@
-C An\sexperiment\sin\sreactivating\sthe\slegacy\swysiwyg\seditor\sin\sthe\snew\swikiedit\spage.\sIt\sworks,\sbut\scannot\scurrently\sbe\sremoved\sfrom\sthe\spage\sonce\sit's\sinstalled\swithout\sreloading\sthe\spage.
-D 2020-08-30T10:42:14.927
+C Significant\scleanups\sin\sand\sshortening\sof\sthe\slegacy\swysiwyg\sJS\scode.
+D 2020-08-30T13:20:45.887
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js ff219158e615e4f87ec61b686cd97c11799168521ed047fce43a8a5bb4b66169
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.wikiedit-wysiwyg-legacy.js 36b6c9c131060adbc4dd31009811d963a85b13f31e7238ad956fe714cd8e93e4
+F src/fossil.page.wikiedit-wysiwyg-legacy.js b783e9a848c381c2f925ca882b50bbc4e5fb3ad849909b5a656cd27c6876abfa
 F src/fossil.page.wikiedit.js 3237576075150f7bfc902701dac3081e0ae78d1c746b3f95ee48f6f93432b7b9
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
@@ -1012,10 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 693bf6b22221c368ffc074f0a1fc5cc2fc3d5935a4c4cacb01b49a7ba91c260c
-R 9835127384b1dd683e4becfa3a4f6db6
-T *branch * wikiedit-wysiwyg-legacy
-T *sym-wikiedit-wysiwyg-legacy *
-T -sym-trunk *
+P 629bc0e131f29e2932e0b4817a4853dd75b4ece63f565278f41a19ca72f7b3da
+R 63a586ace7f569b49cf5d9c3d162b651
 U stephan
-Z 70b40e4ff9cd0f11f4c6a96ca3cd29f1
+Z 703d9d57f75df9a4c109e70f55adde73
