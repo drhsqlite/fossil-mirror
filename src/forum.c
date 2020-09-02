@@ -343,6 +343,8 @@ void forum_render(
   }
   if( zContent && zContent[0] ){
     Blob x;
+    const int isFossilWiki = zMimetype==0
+      || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0;
     if( bScroll ){
       @ <div class='forumPostBody'>
     }else{
@@ -351,7 +353,18 @@ void forum_render(
     blob_init(&x, 0, 0);
     blob_append(&x, zContent, -1);
     safe_html_context(DOCSRC_FORUM);
+    if( isFossilWiki ){
+      /* Markdown and plain-text rendering add a wrapper DIV resp. PRE
+      ** element around the post, and some CSS relies on its existence
+      ** in order to handle expansion/collapse of the post. Fossil
+      ** Wiki rendering does not do so, so we must wrap those manually
+      ** here. */
+      @ <div class='fossilWiki'>
+    }
     wiki_render_by_mimetype(&x, zMimetype);
+    if( isFossilWiki ){
+      @ </div>
+    }
     blob_reset(&x);
     @ </div>
   }else{
