@@ -528,6 +528,7 @@ char *style_csp(int toHeader){
   Blob csp;
   char *zNonce;
   char *zCsp;
+  int i;
   if( zFormat[0]==0 ){
     zFormat = zBackupCSP;
   }
@@ -539,6 +540,9 @@ char *style_csp(int toHeader){
   }
   blob_append(&csp, zFormat, -1);
   zCsp = blob_str(&csp);
+  /* No whitespace other than actual space characters allowed in the CSP
+  ** string.  See https://fossil-scm.org/forum/forumpost/d29e3af43c */
+  for(i=0; zCsp[i]; i++){ if( fossil_isspace(zCsp[i]) ) zCsp[i] = ' '; }
   if( toHeader ){
     cgi_printf_header("Content-Security-Policy: %s\r\n", zCsp);
   }
