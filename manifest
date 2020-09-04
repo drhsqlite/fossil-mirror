@@ -1,5 +1,5 @@
-C Make\ssure\sthat\sany\snewlines\sin\sthe\sCSP\sare\sconverted\sinto\ssimple\sspaces\nbefore\sthe\sCSP\sis\sadded\sto\san\sHTTP\sheader.\s\sThis\s*might*\sfix\sa\nproblem\sreported\s[forum:/info/d29e3af43c|on\sthe\sforum].
-D 2020-09-03T19:04:02.702
+C Removed\sinherited\sbox\sshadow\sfrom\sardoise\s.timelineSelected,\s[https://fossil-scm.org/forum/forumpost/60c5fcd604\s|\sper\sforum\srequest].
+D 2020-09-04T17:00:00.894
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -328,7 +328,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 14bd1403c4f17758758dfffc95e5928bccb7843ecc540e0652c67052b6a781b4
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 0ccbcbd2b8e0f9b2f1f52d1f4f2f4c85b439da7483f916408b2dee40144a9d94
+F skins/ardoise/css.txt 78534f73afb8c0e4bbc603d3db6b6abbb008a83791fea3aec95213085bf96e65
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
 F skins/ardoise/header.txt 47309feeacc1a9d4d65affb0174b914dcb96dcef1666356248039145c2feeb9e
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7caaa287b82a19988adb4a8dc6797fc057e793084afc0b7419360c0bfd87d10b
-R 12b65f1eef1b4e592d255fc8ba9ffa8e
-U drh
-Z affc02fb1fe8a2dbb8104b3f7c4f3581
+P e0f2283c154a019ab61f7a928069e90e19a259c62a96c3484315a365d2f31a98
+R 6b4761ca3fb6fab9942a62fe17a99557
+U stephan
+Z 6d130d727709a30fa8eec425ccc0fee3
