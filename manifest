@@ -1,5 +1,5 @@
-C Disable\sthe\sETAG\scache\sfor\sthe\s/draftN\spages\sso\sthat\scaching\sdoes\snot\ninterfere\swith\spreview.
-D 2020-09-06T14:37:59.904
+C Fix\sthe\sskin\seditor\sso\swhen\sloading\sthe\s"Current\sIn\sUse"\sskin,\sit\nactually\spulls\sin\sthe\scurrently\sin\suse\sskin,\seven\sif\sthat\sskins\sis\san\nalternative\sskin\sspecified\son\sthe\scommand-line\sor\sthe\sbuilt-in\sdefault\sskin.
+D 2020-09-06T14:49:24.995
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -584,7 +584,7 @@ F src/shell.c cd9ecb24b91c387bdc3ec0719f814c5973b62662390773dad8e636e8c92f3d47
 F src/shun.c ad762c0c170cae98d0f09a5999b0bbcdb8783e8f69e65846d102084f6dd588f3
 F src/sitemap.c 16c9ede1a1c9fee7c4acda7171d1d7c1545c0988a8d149c08d91b3e3399202cb
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 18eef7b4ab34b0e14fd972e61cdf21396d7eabd53ad518bb483fb4bd687aa448
+F src/skins.c 2bc8fd57b2de0c577af02d772e65caa39f6e191bdf28f9575e1c527ed0ff5d35
 F src/smtp.c d696ad3604f3190dafef28a8d7475822d8e232eeabbd6f9069a497cf845ecdc9
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3af6e7ceb44231699f921ffef3e67d6763e13dae191d5bd9ca6b937e14a73913
-R c826b929cb90cd07c78756837bd293ed
+P 03643a632c27788f7c740f614ad3bfb00bcba1b03b4844d69002e86fbddc009b
+R 7162bada1f3aae96c9bc7e319512fc61
 U drh
-Z fe75946eb4c3c9f4b47b9022eab2b947
+Z 45c881ca1855b4561a137bc4f8ba5785

@@ -695,7 +695,7 @@ static void skin_emit_skin_selector(
 static const char *skin_file_content(const char *zLabel, const char *zFile){
   const char *zResult;
   if( fossil_strcmp(zLabel, "current")==0 ){
-    zResult = db_get(zFile, "");
+    zResult = skin_get(zFile);
   }else if( sqlite3_strglob("draft[1-9]", zLabel)==0 ){
     zResult = db_get_mprintf("", "%s-%s", zLabel, zFile);
   }else{
