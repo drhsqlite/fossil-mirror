@@ -1,5 +1,5 @@
-C Removed\sinherited\sbox\sshadow\sfrom\sardoise\s.timelineSelected,\s[https://fossil-scm.org/forum/forumpost/60c5fcd604\s|\sper\sforum\srequest].
-D 2020-09-04T17:00:00.894
+C Disable\sthe\sETAG\scache\sfor\sthe\s/draftN\spages\sso\sthat\scaching\sdoes\snot\ninterfere\swith\spreview.
+D 2020-09-06T14:37:59.904
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -538,7 +538,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c 3bcdd658f29a4a6302b1dee8200ebd565b4ddaddd587e38c6be962cbb15b03f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 33ed4a3588019a47daf98285dc1ae5b9ffabc5aee44e2ace62163d0e3678b104
+F src/main.c e2c0ee7fb16a40af73b79be1f32c97651cc5a61c1715a6d2c75ef93257b9410c
 F src/main.mk e68ce36e053db1374dde28cb9c77dba696f10429d06a8cf03a46495d54c5b391
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0f2283c154a019ab61f7a928069e90e19a259c62a96c3484315a365d2f31a98
-R 6b4761ca3fb6fab9942a62fe17a99557
-U stephan
-Z 6d130d727709a30fa8eec425ccc0fee3
+P 3af6e7ceb44231699f921ffef3e67d6763e13dae191d5bd9ca6b937e14a73913
+R c826b929cb90cd07c78756837bd293ed
+U drh
+Z fe75946eb4c3c9f4b47b9022eab2b947

@@ -1801,6 +1801,7 @@ static void process_one_web_page(
     zPathInfo += 7;
     cgi_replace_parameter("PATH_INFO", zPathInfo);
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+    etag_cancel();
   }
 
   /* If the content type is application/x-fossil or 
