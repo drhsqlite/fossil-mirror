@@ -1,5 +1,5 @@
-C file_mkdir()\sshould\suse\sthe\sconverted\sfilename,\snot\sthe\soriginal.
-D 2020-09-07T14:01:37.723
+C The\sadditional\sdb_unprotect()\swork\sof\scheck-in\s[b9fa7e28712c5981]\swas\nincomplete.\s\sHere\sis\san\sattempt\sto\sfinish\sthe\sjob.
+D 2020-09-07T14:08:02.026
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -574,7 +574,7 @@ F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
-F src/security_audit.c 06a7565989b4b37b5ec25ce11315ded0b291d165816fccec2e0480516ae9312c
+F src/security_audit.c 6e3ff3b8df26e7df9c0abf259d3439005fafaf9bc9e70ce42e3bd5991bdc222c
 F src/setup.c 8e2357dc05675dc9190b9262a37c86655687a2a177b6e5d43d983d94151b27e2
 F src/setupuser.c e26e42573837861f64cdcefaeb52e18d8d41bb8359779fe513fec446556b8734
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c90832d7980f146411ee891c775b33354bdfbf4380bb89baa4021d5fe2402b9
-R a8bd64589cb3e22fc3ca837333c0a92a
+P 45fc083bbfd73a8f2ca36292232167cc732509071c1ae78f1757434b24495727
+R 8716dc1f989527bd81e67c7daa08b572
 U drh
-Z 6798cbd8cc96c662c168bb1a7d89d886
+Z fd8caff09e377c25c8316c14e49198f6
