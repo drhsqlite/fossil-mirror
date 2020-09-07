@@ -774,7 +774,7 @@ int file_mkdir(const char *zName, int eFType, int forceFlag){
     rc = _wmkdir(zMbcs);
 #else
     char *zMbcs = fossil_utf8_to_path(zName, 1);
-    rc = mkdir(zName, 0755);
+    rc = mkdir(zMbcs, 0755);
 #endif
     fossil_path_free(zMbcs);
     return rc;

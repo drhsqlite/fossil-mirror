@@ -1,5 +1,5 @@
-C Fix\sthe\sskin\seditor\sso\swhen\sloading\sthe\s"Current\sIn\sUse"\sskin,\sit\nactually\spulls\sin\sthe\scurrently\sin\suse\sskin,\seven\sif\sthat\sskins\sis\san\nalternative\sskin\sspecified\son\sthe\scommand-line\sor\sthe\sbuilt-in\sdefault\sskin.
-D 2020-09-06T14:49:24.995
+C file_mkdir()\sshould\suse\sthe\sconverted\sfilename,\snot\sthe\soriginal.
+D 2020-09-07T14:01:37.723
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c a0219721bf661a404b590a9257d8386d9e77d1d9a2227d54ab567c207a3b7e7b
+F src/file.c 5c46fae3769188c446c0c7668201e1189fa93badc6ba5c8d6efea05cb864f00c
 F src/fileedit.c 5888dd53fdc4989d895c5629d2f6f07a5e845886ca6943540d50ba8c9a6f4cac
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -1012,7 +1012,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03643a632c27788f7c740f614ad3bfb00bcba1b03b4844d69002e86fbddc009b
-R 7162bada1f3aae96c9bc7e319512fc61
+P 5c90832d7980f146411ee891c775b33354bdfbf4380bb89baa4021d5fe2402b9
+R a8bd64589cb3e22fc3ca837333c0a92a
 U drh
-Z 45c881ca1855b4561a137bc4f8ba5785
+Z 6798cbd8cc96c662c168bb1a7d89d886
