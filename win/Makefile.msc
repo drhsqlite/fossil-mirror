@@ -440,6 +440,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\name_.c" \
         "$(OX)\path_.c" \
         "$(OX)\piechart_.c" \
+        "$(OX)\pikchr_.c" \
         "$(OX)\pivot_.c" \
         "$(OX)\popen_.c" \
         "$(OX)\pqueue_.c" \
@@ -693,6 +694,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\name$O" \
         "$(OX)\path$O" \
         "$(OX)\piechart$O" \
+        "$(OX)\pikchr$O" \
         "$(OX)\pivot$O" \
         "$(OX)\popen$O" \
         "$(OX)\pqueue$O" \
@@ -920,6 +922,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\name.obj" >> $@
 	echo "$(OX)\path.obj" >> $@
 	echo "$(OX)\piechart.obj" >> $@
+	echo "$(OX)\pikchr.obj" >> $@
 	echo "$(OX)\pivot.obj" >> $@
 	echo "$(OX)\popen.obj" >> $@
 	echo "$(OX)\pqueue.obj" >> $@
@@ -1742,6 +1745,12 @@ realclean: clean
 "$(OX)\piechart_.c" : "$(SRCDIR)\piechart.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\pikchr$O" : "$(OX)\pikchr_.c" "$(OX)\pikchr.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\pikchr_.c"
+
+"$(OX)\pikchr_.c" : "$(SRCDIR)\pikchr.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\pivot$O" : "$(OX)\pivot_.c" "$(OX)\pivot.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\pivot_.c"
 
@@ -2160,6 +2169,7 @@ realclean: clean
 			"$(OX)\name_.c":"$(OX)\name.h" \
 			"$(OX)\path_.c":"$(OX)\path.h" \
 			"$(OX)\piechart_.c":"$(OX)\piechart.h" \
+			"$(OX)\pikchr_.c":"$(OX)\pikchr.h" \
 			"$(OX)\pivot_.c":"$(OX)\pivot.h" \
 			"$(OX)\popen_.c":"$(OX)\popen.h" \
 			"$(OX)\pqueue_.c":"$(OX)\pqueue.h" \

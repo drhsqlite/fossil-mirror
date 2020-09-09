@@ -326,6 +326,25 @@ static int html_autolink(
   return 1;
 }
 
+/*
+** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
+** text and insert the result in place of the original.
+*/
+static void fenced_code_pikchr_to_html(Blob *ob, const char *zSrc, int nSrc){
+  int w = 0, h = 0;
+  char *zIn = fossil_strndup(zSrc, nSrc);
+  char *zOut = pikchr(zIn, "pikchr", 0, &w, &h);
+  fossil_free(zIn);
+  if( w>0 && h>0 ){
+    const char *zNonce = safe_html_nonce(1);
+    blob_appendf(ob, "%s\n%s%s", zNonce, zOut, zNonce);
+  }else{
+    blob_appendf(ob, "<pre>\n%s\n</pre>\n", zOut);
+  }
+  free(zOut);
+}
+
+
 /* Invoked for `...` blocks where there are nSep grave accents in a
 ** row that serve as the delimiter.  According to CommonMark:
 **
@@ -364,8 +383,12 @@ static int html_codespan(
         blob_appendf(ob, "<pre><code>%#h</code></pre>", n-i, z+i);
       }else{
         for(j=k+1; j<i && !fossil_isspace(z[j]); j++){}
-        blob_appendf(ob, "<pre><code class='language-%#h'>%#h</code></pre>",
-                          j-k, z+k, n-i, z+i);
+        if( j-k==6 && strncmp(z+k,"pikchr",6)==0 ){
+          fenced_code_pikchr_to_html(ob, z+i, n-i);
+        }else{
+          blob_appendf(ob, "<pre><code class='language-%#h'>%#h</code></pre>",
+                            j-k, z+k, n-i, z+i);
+        }
       }
     }
   }

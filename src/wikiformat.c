@@ -2521,6 +2521,18 @@ static void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
 }
 
 /*
+** Return a nonce to indicate safe-html can allow code through
+*/
+const char *safe_html_nonce(int bGenerate){
+  static char *zNonce = 0;
+  if( zNonce==0 && bGenerate ){
+    zNonce = db_text(0, "SELECT '<!--'||hex(randomblob(32))||'-->';");
+  }
+  return zNonce;
+}
+#define SAFE_NONCE_SIZE (4+64+3)
+
+/*
 ** Append a safe translation of HTML text to a Blob object.
 **
 ** Restriction: The input to this routine must be writable.
@@ -2535,6 +2547,8 @@ static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
   int i, j, n;
   HtmlTagStack s;
   ParsedMarkup markup;
+  const char *zNonce;
+  char *z;
 
   if( nHtml<=0 ) return;
   cLast = zHtml[nHtml];
@@ -2546,13 +2560,23 @@ static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
     if( zHtml[i]=='<' ){
       j = i;
     }else{
-      char *z = strchr(zHtml+i, '<');
+      z = strchr(zHtml+i, '<');
       if( z==0 ){
         blob_append(pBlob, zHtml+i, nHtml-i);
         break;
       }
       j = (int)(z - zHtml);
       blob_append(pBlob, zHtml+i, j-i);
+    }
+    if( zHtml[j+1]=='!'
+     && j+2*SAFE_NONCE_SIZE<nHtml
+     && (zNonce = safe_html_nonce(0))!=0
+     && strncmp(zHtml+j,zNonce,SAFE_NONCE_SIZE)==0
+     && (z = strstr(zHtml+j+SAFE_NONCE_SIZE,zNonce))!=0
+    ){
+      i = (int)(z - zHtml) + SAFE_NONCE_SIZE;
+      blob_append(pBlob, zHtml+j, i-j);
+      continue;
     }
     n = html_tag_length(zHtml+j);
     if( n==0 ){
