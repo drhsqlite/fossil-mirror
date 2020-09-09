@@ -116,6 +116,7 @@ set src {
   name
   path
   piechart
+  pikchr
   pivot
   popen
   pqueue
