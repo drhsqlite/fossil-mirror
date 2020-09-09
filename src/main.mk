@@ -107,6 +107,7 @@ SRC = \
   $(SRCDIR)/path.c \
   $(SRCDIR)/piechart.c \
   $(SRCDIR)/pikchr.c \
+  $(SRCDIR)/pikchrshow.c \
   $(SRCDIR)/pivot.c \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
@@ -362,6 +363,7 @@ TRANS_SRC = \
   $(OBJDIR)/path_.c \
   $(OBJDIR)/piechart_.c \
   $(OBJDIR)/pikchr_.c \
+  $(OBJDIR)/pikchrshow_.c \
   $(OBJDIR)/pivot_.c \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
@@ -509,6 +511,7 @@ OBJ = \
  $(OBJDIR)/path.o \
  $(OBJDIR)/piechart.o \
  $(OBJDIR)/pikchr.o \
+ $(OBJDIR)/pikchrshow.o \
  $(OBJDIR)/pivot.o \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
@@ -846,6 +849,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
 	$(OBJDIR)/piechart_.c:$(OBJDIR)/piechart.h \
 	$(OBJDIR)/pikchr_.c:$(OBJDIR)/pikchr.h \
+	$(OBJDIR)/pikchrshow_.c:$(OBJDIR)/pikchrshow.h \
 	$(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h \
 	$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 	$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
@@ -1634,6 +1638,14 @@ $(OBJDIR)/pikchr.o:	$(OBJDIR)/pikchr_.c $(OBJDIR)/pikchr.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/pikchr.o -c $(OBJDIR)/pikchr_.c
 
 $(OBJDIR)/pikchr.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/pikchrshow_.c:	$(SRCDIR)/pikchrshow.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/pikchrshow.c >$@
+
+$(OBJDIR)/pikchrshow.o:	$(OBJDIR)/pikchrshow_.c $(OBJDIR)/pikchrshow.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/pikchrshow.o -c $(OBJDIR)/pikchrshow_.c
+
+$(OBJDIR)/pikchrshow.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/pivot.c >$@
