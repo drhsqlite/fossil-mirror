@@ -388,11 +388,13 @@ void user_cmd(void){
       prompt_for_password("password: ", &passwd, 1);
     }
     zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
+    db_unprotect(PROTECT_USER);
     db_multi_exec(
       "INSERT INTO user(login,pw,cap,info,mtime)"
       "VALUES(%B,%Q,%B,%B,now())",
       &login, zPw, &caps, &contact
     );
+    db_protect_pop();
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
     if( g.argc==3 ){
