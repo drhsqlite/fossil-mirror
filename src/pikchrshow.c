@@ -25,6 +25,9 @@
 
 /*
 ** WEBPAGE: pikchrshow
+**
+** A basic pikchr code editor and renderer, allowing users with write-
+** or wiki-write permissions to experiment with pikchr code.
 */
 void pikchrshow_cmd(void){
   const char *zContent = P("content");
