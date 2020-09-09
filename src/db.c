@@ -361,7 +361,7 @@ void db_commit_hook(int (*x)(void), int sequence){
 ** a finite-size stack.  Each should be followed by a call to
 ** db_protect_pop() to pop the stack and restore the protections that
 ** existed prior to the call.  The protection mask stack has a limited
-** depth, so take care not to next calls too deeply.
+** depth, so take care not to nest calls too deeply.
 **
 ** About Database Write Protection
 ** -------------------------------
