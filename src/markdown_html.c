@@ -330,14 +330,43 @@ static int html_autolink(
 ** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
 ** text and insert the result in place of the original.
 */
-static void fenced_code_pikchr_to_html(Blob *ob, const char *zSrc, int nSrc){
+static void fenced_code_pikchr_to_html(
+  Blob *ob,                     /* Write the generated SVG here */
+  const char *zSrc, int nSrc,   /* The Pikchr source text */
+  const char *zArg, int nArg    /* Addition arguments */
+){
   int w = 0, h = 0;
   char *zIn = fossil_strndup(zSrc, nSrc);
   char *zOut = pikchr(zIn, "pikchr", 0, &w, &h);
   fossil_free(zIn);
   if( w>0 && h>0 ){
     const char *zNonce = safe_html_nonce(1);
-    blob_appendf(ob, "%s\n%s%s", zNonce, zOut, zNonce);
+    char *zCss = 0;
+    blob_append(ob, zNonce, -1);
+    blob_append_char(ob, '\n');
+    while( nArg>0 && zCss==0 ){
+      int i;
+      for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
+      if( i==6 && strncmp(zArg, "center", 6)==0 ){
+        zCss = mprintf("display:block;margin:auto;width:%dpx;", w);
+      }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
+        zCss = fossil_strdup("margin-left:4em;");
+      }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
+        zCss = mprintf("float:left;width:%d;padding=4em;",w);
+      }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
+        zCss = mprintf("float:right;width:%d;padding=4em;",w);
+      }
+      while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
+      zArg += i;
+      nArg -= i;
+    }
+    if( zCss ) blob_appendf(ob, "<div style='%s'>\n", zCss);
+    blob_append(ob, zOut, -1);
+    if( zCss ){
+      blob_appendf(ob, "</div>\n");
+      fossil_free(zCss);
+    }
+    blob_appendf(ob, "%s\n", zNonce);
   }else{
     blob_appendf(ob, "<pre>\n%s\n</pre>\n", zOut);
   }
@@ -384,7 +413,8 @@ static int html_codespan(
       }else{
         for(j=k+1; j<i && !fossil_isspace(z[j]); j++){}
         if( j-k==6 && strncmp(z+k,"pikchr",6)==0 ){
-          fenced_code_pikchr_to_html(ob, z+i, n-i);
+          while( j<i && fossil_isspace(z[j]) ){ j++; }
+          fenced_code_pikchr_to_html(ob, z+i, n-i, z+j, i-j);
         }else{
           blob_appendf(ob, "<pre><code class='language-%#h'>%#h</code></pre>",
                             j-k, z+k, n-i, z+i);

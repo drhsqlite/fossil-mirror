@@ -1,5 +1,5 @@
-C Enable\spikchr\smark-up\sinside\sof\sMarkdown\sfenced\scode\sblock\sthat\sare\slabeled\nwith\slanguage\s"pikchr".
-D 2020-09-09T15:30:06.668
+C Parse\sthe\s"info\sstring"\sfor\sPikchr\sblocks\sfor\sone\sof\s"center",\s"indent",\n"float-left",\sor\s"float-right"\sand\sadd\sa\s&lt;div&gt;\sto\saccomplished\sthe\ndesired\sdisplay\smode.
+D 2020-09-09T17:10:11.374
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -546,7 +546,7 @@ F src/makemake.tcl c988ac717fe63b122e97d9696ce979135aeb53e8bc308b961a6cca64cde56
 F src/manifest.c 2971adbac3f6ddf2bea086656451d19b361a15e93cb07650c80e420ac9724070
 F src/markdown.c 1dc6457837632cda872d68d79ab69a2a305d58689a2fdc9ac09e7a6bef7a5561
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
-F src/markdown_html.c 332504395a956345ce99c41cdeba667ae6167abe998177f312e7e48b6337fa06
+F src/markdown_html.c ae4b1668ae1d63d0a44d01c0bf80b93fd69d83b0d39640b75f0157c128ae22aa
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -1013,8 +1013,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca5a5c7948cc68317ea16372db65ec11bff2399981196adc085ce9ad028a70b0 0df84add062e7b21938393ee8194a27d868204b917546d5de5de394113a52a4d
-R ae34c5643da8c18328ce7777748f92f8
-T +closed 0df84add062e7b21938393ee8194a27d868204b917546d5de5de394113a52a4d
+P a13082c284d12dbae0e7790e2e97565895938f3bc4d1bbaac0e4f1bec1afb102
+R ad894ae5ebf27438bc2efbb39abf9fd9
 U drh
-Z be5c034eb3c6800ae5673b4690136415
+Z 1a1d2744ba82ed1547a7404987485b62
