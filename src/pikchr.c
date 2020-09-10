@@ -3508,7 +3508,7 @@ static void circleRender(Pik *p, PElem *pElem){
   if( pElem->sw>0.0 ){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
-    pik_append_dis(p," r=\"", r, "\"");
+    pik_append_dis(p," r=\"", r, "\" ");
     pik_append_style(p,pElem);
     pik_append(p,"\" />\n", -1);
   }
@@ -3636,7 +3636,7 @@ static void ellipseRender(Pik *p, PElem *pElem){
     pik_append_x(p,"<ellipse cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," rx=\"", w/2.0, "\"");
-    pik_append_dis(p," ry=\"", h/2.0, "\"");
+    pik_append_dis(p," ry=\"", h/2.0, "\" ");
     pik_append_style(p,pElem);
     pik_append(p,"\" />\n", -1);
   }

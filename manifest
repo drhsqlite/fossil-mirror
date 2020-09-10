@@ -1,5 +1,5 @@
-C Pikchr\stext\sformatting\sbug\sfix:\s\sPreserve\s"bold"\sand\s"italic"\son\nmulti-line\stext\sobjects.
-D 2020-09-10T16:52:47.635
+C Replace\sthe\slast\sseparate\sSVG\sfile\sin\sbranching.wiki\swith\sin-lin\sPikchr.\nAlso\supdate\spikchr.c\sto\sfix\smissing\srequired\swhitespaces\sin\sthe\sgenerated\ncircle\sand\sellipse\smarkup.
+D 2020-09-10T17:18:10.143
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -560,7 +560,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 6a51afeb845bcb3e97b852cf3c33750b1342f751db17a4c3c8297d7568c8ea6b
+F src/pikchr.c 383d3c2aec699dd673e8fa1b8e9d3d97a9cd55a20c9b2ed42690ac989bc43245
 F src/pikchrshow.c 701752acd74a7d9f553c588fadcb3197f9c999464af9462fdb0e20018d4201b1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -818,9 +818,8 @@ F www/branch02.graphml 749e6d5bf29fa4b934cc0a9f8234d55fdaeac704eabe0954fa286c6f0
 F www/branch03.graphml 758a9549975a25483ff723f119931cdbe0c25bca9ff75c31d2a906da8397bec5
 F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb60ce84f
 F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
-F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
 F www/branch06.graphml 7a1a988adf9c0266df256eaa2d4b31d11dc3a3cb78c67ea7d7485a97b916c89d
-F www/branching.wiki e9950788fa854a15059960d2bca3516cbad5e3b55a3a2d20e236f1d60338d40e
+F www/branching.wiki ab6c547a0b30de1162cec5aabec51d89e16424a6af7a65828a12bc51e19773fc
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -1010,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0b2f838887c30f9b6e976b57b8de20caf87cbce4e26bf3c0241af6365db35a02
-R 6c5c3dbf73bd9c43a9c246e5a4e36c3a
+P bf01b42928e913fc1d0d43e569b0214d35beeaaa2de52a969a8ca1ce4f139134
+R e3d173fd777816894cf9153a41afe677
 U drh
-Z 2cb015f3a6d9e7627d685f26ded67ab6
+Z 3e496df82850f025ca045944f35e3cc4

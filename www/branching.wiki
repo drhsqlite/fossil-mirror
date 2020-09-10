@@ -408,8 +408,41 @@ same scenario as Figure 4 but with tags and properties added:
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch05.svg"><br>
-Figure 5
+<verbatim type="pikchr">
+arrowht = 0.07
+C1: circle rad 40% thickness 1.5px fill white "1"
+arrow 40%
+C2: circle same "2"
+arrow same
+circle same "3"
+arrow same
+C5: circle same "5"
+arrow same
+C7: circle same "7"
+arrow same
+C8: circle same "8"
+arrow same
+C10: circle same "10"
+C4: circle same at 3rd circle-(0,.35) "4"
+C6: circle same at (1/2 way between C5 and C7,C4) "6"
+C9: circle same at (1/2 way between C8 and C10,C4) "9"
+arrow from C2 to C4 chop
+arrow from C4 to C6 chop
+arrow from C6 to C9 chop
+arrow dashed 0.03 from C6 to C7 chop
+arrow same from C9 to C10
+layer = 0
+box fill 0x9bcdfc color 0x9bcdfc wid (C10.e.x - C2.w.x) ht C6.height*1.5 at C6.c
+text " test" above ljust at last box.sw
+box fill lightgray "branch=trunk" "sym-trunk" fit with .ne at C1-(0.05,0.3);
+line color gray from last box.ne to C1 chop
+box same "branch=test" "sym-test" "bgcolor=blue" "cancel=sym-trunk" fit \
+   with .n at C4-(0,0.3)
+line color gray from last box.n to C4 chop
+box same "sym-release-1.0" "closed" fit with .n at C9-(0,0.3)
+line color gray from last box.n to C9 chop
+</verbatim>
+<p>Figure 5</p>
 </td></tr></table>
 
 A <i>tag</i> is a name that is attached to a check-in.  A
