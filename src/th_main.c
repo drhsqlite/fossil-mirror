@@ -1349,6 +1349,25 @@ static int renderCmd(
 }
 
 /*
+** TH1 command: defHeader TITLE
+**
+** Returns the default page header.
+*/
+static int defHeaderCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "defHeader");
+  }
+  Th_SetResult(interp, get_default_header(), -1);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: styleHeader TITLE
 **
 ** Render the configured style header for the selected skin.
@@ -2114,6 +2133,7 @@ void Th_FossilInit(u32 flags){
     {"copybtn",       copybtnCmd,           0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
+    {"defHeader",     defHeaderCmd,         0},
     {"dir",           dirCmd,               0},
     {"enable_output", enableOutputCmd,      0},
     {"encode64",      encode64Cmd,          0},

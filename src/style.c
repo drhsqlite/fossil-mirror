@@ -554,7 +554,7 @@ char *style_csp(int toHeader){
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
 */
-static char zDfltHeader[] = 
+static const char zDfltHeader[] = 
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
@@ -567,6 +567,13 @@ static char zDfltHeader[] =
 @ </head>
 @ <body>
 ;
+
+/*
+** Returns the default page header.
+*/
+const char *get_default_header(){
+  return zDfltHeader;
+}
 
 /*
 ** Initialize all the default TH1 variables

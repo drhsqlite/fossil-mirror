@@ -175,6 +175,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  copybtn
   *  date
   *  decorate
+  *  defHeader
   *  dir
   *  enable\_output
   *  encode64
@@ -318,6 +319,13 @@ option is used, the date appears using localtime instead of UTC.
 
 Renders STRING as wiki content; however, only links are handled.  No
 other markup is processed.
+
+<a name="defHeader"></a>TH1 defHeader Command
+---------------------------------------------
+
+  *  defHeader
+
+Returns the default page header.
 
 <a name="dir"></a>TH1 dir Command
 ---------------------------------

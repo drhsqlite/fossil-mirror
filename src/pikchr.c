@@ -5116,7 +5116,7 @@ static PNum pik_value(Pik *p, const char *z, int n, int *pMiss){
 ** an error.
 */
 static PNum pik_lookup_color(Pik *p, PToken *pId){
-  int first, last, mid, c;
+  int first, last, mid, c = 0;
   first = 0;
   last = count(aColor)-1;
   while( first<=last ){
@@ -5481,6 +5481,7 @@ static void pik_elem_setname(Pik *p, PElem *pElem, PToken *pName){
 */
 static PElem *pik_find_chopper(PEList *pList, PPoint *pCenter){
   int i;
+  if( pList==0 ) return 0;
   for(i=pList->n-1; i>=0; i--){
     PElem *pElem = pList->a[i];
     if( pElem->type->xChop!=0
@@ -6332,4 +6333,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 6360 "pikchr.c"
+#line 6361 "pikchr.c"

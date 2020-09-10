@@ -330,7 +330,7 @@ static int html_autolink(
 ** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
 ** text and insert the result in place of the original.
 */
-static void fenced_code_pikchr_to_html(
+void pikchr_to_html(
   Blob *ob,                     /* Write the generated SVG here */
   const char *zSrc, int nSrc,   /* The Pikchr source text */
   const char *zArg, int nArg    /* Addition arguments */
@@ -414,7 +414,7 @@ static int html_codespan(
         for(j=k+1; j<i && !fossil_isspace(z[j]); j++){}
         if( j-k==6 && strncmp(z+k,"pikchr",6)==0 ){
           while( j<i && fossil_isspace(z[j]) ){ j++; }
-          fenced_code_pikchr_to_html(ob, z+i, n-i, z+j, i-j);
+          pikchr_to_html(ob, z+i, n-i, z+j, i-j);
         }else{
           blob_appendf(ob, "<pre><code class='language-%#h'>%#h</code></pre>",
                             j-k, z+k, n-i, z+i);
