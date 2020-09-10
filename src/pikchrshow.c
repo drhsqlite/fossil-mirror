@@ -48,10 +48,15 @@ void pikchrshow_cmd(void){
   }
   style_header("PikchrShow");
   CX("<style>");
+  CX("#sbs-wrapper {"
+     "display: flex; flex-direction: row; flex-wrap: wrap;"
+     "}");
+  CX("#sbs-wrapper > * {margin: 0 0 1em 0}");
   CX("#pikchrshow-output, #pikchrshow-form"
-     "{display: flex; flex-direction: column;}");
-  CX("#pikchrshow-form > * {margin: 0.25em 0;}");
-  CX("#pikchrshow-output {margin-top: 1em;}");
+     "{display: flex; flex-direction: column}");
+  CX("#pikchrshow-form {flex: 2 1 auto}");
+  CX("#pikchrshow-form > * {margin: 0.25em 0}");
+  CX("#pikchrshow-output {flex: 1 1 auto}");
   CX("#pikchrshow-controls {"
      "display: flex; flex-direction: row; align-items: center;"
      "}");
@@ -68,23 +73,15 @@ void pikchrshow_cmd(void){
        "filter: invert(1) hue-rotate(180deg);"
        "}</style>");
   }
-  CX("<form method='POST' id='pikchrshow-form' action=''>");
   CX("<div>Input pikchr code and tap SUBMIT to render it:</div>");
-  CX("<textarea name='content' rows='10' cols='80'>");
-  CX("%s", zContent/*safe-for-%s*/);
-  CX("</textarea>");
+  CX("<div id='sbs-wrapper'>");
+  CX("<form method='POST' id='pikchrshow-form' action=''>");
+  CX("<textarea name='content' rows='15'>%s</textarea>",
+     zContent/*safe-for-%s*/);
   CX("<div id='pikchrshow-controls'>");
   CX("<input type='submit' value='Submit'></input>");
-  CX("<span class='input-with-label'>"
-     "<input id='flipcolors' type='checkbox' value='1' "
-     "name='flipcolors'");
-  if(flipColors){
-    CX(" checked");
-  }
-  CX("/>");
-  CX("<label for='flipcolors'>"
-     "Simulate dark color theme?</label>");
-  CX("</span>");
+  style_labeled_checkbox(0, "flipcolors", "Simulate dark color theme?",
+                         "1", flipColors, 0);
   CX("</div>"/*#pikchrshow-controls*/);
   CX("</form>"/*#pikchrshow-form*/);
   CX("<div id='pikchrshow-output'>");
@@ -99,7 +96,8 @@ void pikchrshow_cmd(void){
     }
     fossil_free(zOut);
   }
-  CX("</div>");
+  CX("</div>"/*#pikchrshow-output*/);
+  CX("</div>"/*sbs-wrapper*/);
   style_footer();
 }
 
