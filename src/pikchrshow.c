@@ -68,6 +68,7 @@ void pikchrshow_cmd(void){
   }
   style_header("PikchrShow");
   CX("<style>");
+  CX("div.content { padding-top: 0.5em }");
   CX("#sbs-wrapper {"
      "display: flex; flex-direction: row; flex-wrap: wrap;"
      "}");
