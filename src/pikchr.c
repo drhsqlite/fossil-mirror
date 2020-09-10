@@ -4233,7 +4233,7 @@ static void pik_txt_vertical_layout(Pik *p, PElem *pElem){
     /* Set the VMASK for all unassigned texts */
     for(i=iSlot=0; i<n; i++){
       if( (aTxt[i].eCode & TP_VMASK)==0 ){
-        aTxt[i].eCode = aFree[iSlot++];
+        aTxt[i].eCode |= aFree[iSlot++];
       }
     }
   }
