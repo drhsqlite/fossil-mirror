@@ -1,5 +1,5 @@
-C Enable\sPikchr\sin\sFossil\sWiki\susing\smarkup\sof\sthe\sform:\n&lt;verbatim\stype="pikchr"&gt;...&lt;/verbatim&gt;.
-D 2020-09-10T00:53:50.993
+C Add\sthe\s'defHeader'\scommand\sto\sTH1.
+D 2020-09-10T00:54:54.720
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -613,7 +613,7 @@ F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c f36d74389e5a386f795dc00787bfbe981b8590441eea027a86602cf539874391
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 7cdb68cd36b5093d31a648d1b38ebd896fb371417ab87f5dce9691f7a9b7c4c2
+F src/style.c e13d46565143482642fd1ded232e6830e704794b1e21d25ca16aeb759fde6cf2
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
@@ -623,7 +623,7 @@ F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c ef836b0721a6c6bdc221cbbbdd1567afc9b34d79b623e9e3ae952c0b9664b012
+F src/th_main.c 37f31992db70052818e9638e965615b524879dd4daa4a72e1c9ac1f32b9b13d4
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 4a0363bf4cdbd3dbba352eef10310cda7a4982cee3babb9977ed9a4dcd12f558
 F src/tkt.c 5251a6ce64e744297f76dcc0c9d0be94dcbcc7e4ed9965622e618a11184abb46
@@ -714,7 +714,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 6491c25bbda2d01d49140d82236fdd62e7e80c374744ce9e260fc4812e37cfb4
+F test/th1.test f1b9bd7e0ca5cf6d982d69827a6a138f70cd4bccffad0c9fb212c042ec54fc7d
 F test/unversioned.test 0162745841cd4d32646b74f5630721cb4f6f94ad70ba3114b4e06a52eb5bfe35
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -1001,7 +1001,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
 F www/tech_overview.wiki 086ebcdc9ca9b019c4a3556691653fb49b05dd9b9ebd5aea89701cfaa46d387e
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md 91bd4a81c1a90eaab82b3545fc10989464fbbd65dfed09502829aaa0a84ef616
+F www/th1.md f6ffdb7bdec5c434e58f9bf4b3004a2ab27f6c9d347742e403fb2ce51c9ef0ca
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911b3c
@@ -1013,7 +1013,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c294f6bfe6f2eb6d650edacf2043527eee6aa84f5f55ab2524e5859a9fe2d30e
-R 53add388ae0b573d96b8ec2f0f0ccf3f
-U drh
-Z 53690139b533b07871c021d0eace2e02
+P 1fc2df905e74e1ebc77eec88bde5c5dd035551189ee5e021a364f5c28cd1fe98
+R cf779373c0ba3bd44ecac613600a7690
+U mistachkin
+Z f125eb3582ea2e89b0257391d723a201
