@@ -234,6 +234,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
+  $(SRCDIR)/fossil.page.pikchrshow.js \
   $(SRCDIR)/fossil.page.wikiedit-wysiwyg-legacy.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.popupwidget.js \

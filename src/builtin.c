@@ -627,7 +627,15 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        "/*Symbolic markers to denote certain edit states.*/"
        "isNew:'[+]', isModified:'[*]', isDeleted:'[-]'},\n");
     CX("confirmerButtonTicks: 3 "
-       "/*default fossil.confirmer tick count.*/\n");
+       "/*default fossil.confirmer tick count.*/,\n");
+    /* Inject certain info about the current skin... */
+    CX("skin:{");
+    /* can leak a local filesystem path:
+       CX("name: %!j,", skin_in_use());*/
+    CX("isDark: %s"
+       "/*true if the current skin has the 'white-foreground' detail*/",
+       skin_detail_boolean("white-foreground") ? "true" : "false");
+    CX("}\n"/*fossil.config.skin*/);
     CX("};\n"/* fossil.config */);
 #if 0
     /* Is it safe to emit the CSRF token here? Some pages add it
@@ -654,7 +662,6 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     builtin_request_js("fossil.bootstrap.js");
   }
 }
-
 
 /*
 ** Convenience wrapper which calls builtin_request_js() for a series

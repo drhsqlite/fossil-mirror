@@ -567,6 +567,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\fossil.numbered-lines.js" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
+        "$(SRCDIR)\fossil.page.pikchrshow.js" \
         "$(SRCDIR)\fossil.page.wikiedit-wysiwyg-legacy.js" \
         "$(SRCDIR)\fossil.page.wikiedit.js" \
         "$(SRCDIR)\fossil.popupwidget.js" \
@@ -1171,6 +1172,7 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.numbered-lines.js" >> $@
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
+	echo "$(SRCDIR)\fossil.page.pikchrshow.js" >> $@
 	echo "$(SRCDIR)\fossil.page.wikiedit-wysiwyg-legacy.js" >> $@
 	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
 	echo "$(SRCDIR)\fossil.popupwidget.js" >> $@
