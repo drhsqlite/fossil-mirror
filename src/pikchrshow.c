@@ -31,11 +31,14 @@
 */
 void pikchrshow_cmd(void){
   const char *zContent = P("content");
+  int isDark, flipColors;
 
   login_check_credentials();
   if( !g.perm.WrWiki && !g.perm.Write ){
     cgi_redirectf("%s/login?g=%s/pikchrshow", g.zTop, g.zTop);
   }
+  isDark = skin_detail_boolean("white-foreground");
+  flipColors = isDark ? (zContent ? P("flipcolors")!=0 : 1) : 0;
   if(!zContent){
     zContent = "arrow right 200% \"Markdown\" \"Source\"\n"
       "box rad 10px \"Markdown\" \"Formatter\" \"(markdown.c)\" fit\n"
@@ -49,8 +52,12 @@ void pikchrshow_cmd(void){
      "{display: flex; flex-direction: column;}"
      "#pikchrshow-form > * {margin: 0.25em 0;}"
      "#pikchrshow-output {margin-top: 1em;}"
+     "#pikchrshow-controls {"
+     "display: flex; flex-direction: row; align-items: center;"
+     "}"
+     "#pikchrshow-controls > * {margin: 0 0.5em 0 0}"
      "</style>");
-  if( skin_detail_boolean("white-foreground") ){
+  if( flipColors ){
     /* Flip the colors to approximate a dark theme look */
     CX("<style>#pikchrshow-output > svg {"
        "filter: invert(1) hue-rotate(180deg);"
@@ -61,7 +68,19 @@ void pikchrshow_cmd(void){
   CX("<textarea name='content' rows='15' cols='80'>");
   CX("%s", zContent/*safe-for-%s*/);
   CX("</textarea>");
-  CX("<input type='submit'></input>");
+  CX("<div id='pikchrshow-controls'>");
+  CX("<input type='submit' value='Submit'></input>");
+  if(isDark){
+    CX("<input id='flipcolors' type='checkbox' value='1' "
+       "name='flipcolors'");
+    if(flipColors){
+      CX(" checked");
+    }
+    CX("/>");
+    CX("<label for='flipcolors'>"
+       "Simulate dark color theme?</label>");
+  }
+  CX("</div>");
   CX("</form>");
   CX("<div id='pikchrshow-output'>");
   if(*zContent){
