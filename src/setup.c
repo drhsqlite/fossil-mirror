@@ -307,8 +307,10 @@ void multiple_choice_attribute(
   if( zQ && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
+    db_unprotect(PROTECT_ALL);
     db_set(zVar, zQ, 0);
     setup_incr_cfgcnt();
+    db_protect_pop();
     admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
