@@ -99,6 +99,7 @@
     if(label) b.appendChild(this.text(label));
     return b;
   };
+  dom.textarea = dom.createElemFactory('textarea');
   dom.select = dom.createElemFactory('select');
   /**
      Returns an OPTION element with the given value and label

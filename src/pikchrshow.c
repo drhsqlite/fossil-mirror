@@ -72,24 +72,24 @@ void pikchrshow_cmd(void){
   CX("#sbs-wrapper {"
      "display: flex; flex-direction: row; flex-wrap: wrap;"
      "}");
-  CX("#sbs-wrapper > * {margin: 0 0 1em 0}");
-  CX("#pikchrshow-output, #pikchrshow-form"
-     "{display: flex; flex-direction: column}");
-  CX("#pikchrshow-form {flex: 2 1 auto}");
-  CX("#pikchrshow-form > * {margin: 0.25em 0}");
-  CX("#pikchrshow-output {"
-     "flex: 1 1 auto; border-width: 1px; border-style: solid;"
-     "border-radius: 0.25em; padding: 0.5em;"
+  CX("#sbs-wrapper > * {"
+     "margin: 0 0.25em 0.5em 0; flex: 1 10 auto;"
      "}");
+  CX("#sbs-wrapper textarea {max-width: initial}");
+  CX("#pikchrshow-output, #pikchrshow-form"
+     "{display: flex; flex-direction: column; align-items: stretch;}");
+  CX("#pikchrshow-form > * {margin: 0.25em 0}");
+  CX("#pikchrshow-output {flex: 5 1 auto; padding: 0}");
   CX("#pikchrshow-output > pre, "
      "#pikchrshow-output > pre > div, "
      "#pikchrshow-output > pre > div > pre "
      "{margin: 0; padding: 0}");
-  CX("#pikchrshow-controls {"
-     "display: flex; flex-direction: row; align-items: center;"
+  CX("#pikchrshow-controls {" /* where the buttons live */
+     "display: flex; flex-direction: row; "
+     "align-items: center; flex-wrap: wrap;"
      "}");
   CX("#pikchrshow-controls > * {"
-     "display: inline; margin-left: 0.5em;"
+     "display: inline; margin: 0 0.25em 0.5em 0;"
      "}");
   CX("#pikchrshow-controls > .input-with-label > * {"
      "cursor: pointer;"
@@ -98,19 +98,25 @@ void pikchrshow_cmd(void){
      /* Flip the colors to approximate a dark theme look */
      "filter: invert(1) hue-rotate(180deg);"
      "}");
+  CX("#sbs-wrapper > fieldset {"
+     "padding: 0.25em 0.5em; border-radius: 0.25em;"
+     "}");
+  CX("fieldset > legend > .copy-button {margin-left: 0.25em}");
   CX("</style>");
   CX("<div>Input pikchr code and tap Preview to render it:</div>");
   CX("<div id='sbs-wrapper'>");
   CX("<div id='pikchrshow-form'>");
-  CX("<textarea id='content' name='content' rows='15'>%s</textarea>",
-     zContent/*safe-for-%s*/);
   CX("<div id='pikchrshow-controls'>");
   CX("<button id='pikchr-submit-preview'>Preview</button>");
   style_labeled_checkbox("flipcolors-wrapper", "flipcolors",
-                         "Simulate dark color theme?",
+                         "Simulate dark theme?",
                          "1", flipColors, 0);
   CX("</div>"/*#pikchrshow-controls*/);
+  CX("<textarea id='content' name='content' rows='15'>%s</textarea>",
+     zContent/*safe-for-%s*/);
   CX("</div>"/*#pikchrshow-form*/);
+  CX("<fieldset id='pikchrshow-output-wrapper'>");
+  CX("<legend>Preview <span class='copy-button'></span></legend>");
   CX("<div id='pikchrshow-output'>");
   if(*zContent){
     int w = 0, h = 0;
@@ -124,9 +130,10 @@ void pikchrshow_cmd(void){
     fossil_free(zOut);
   }
   CX("</div>"/*#pikchrshow-output*/);
+  CX("</fieldset>");
   CX("</div>"/*sbs-wrapper*/);
   if(!builtin_bundle_all_fossil_js_apis()){
-    builtin_emit_fossil_js_apis("dom", "fetch", 0);
+    builtin_emit_fossil_js_apis("dom", "fetch", "copybutton", 0);
   }
   builtin_emit_fossil_js_apis("page.pikchrshow", 0);
   builtin_fulfill_js_requests();
