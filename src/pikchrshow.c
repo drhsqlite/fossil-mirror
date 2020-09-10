@@ -38,7 +38,7 @@ void pikchrshow_cmd(void){
     cgi_redirectf("%s/login?g=%s/pikchrshow", g.zTop, g.zTop);
   }
   isDark = skin_detail_boolean("white-foreground");
-  flipColors = isDark ? (zContent ? P("flipcolors")!=0 : 1) : 0;
+  flipColors = zContent ? P("flipcolors")!=0 : isDark;
   if(!zContent){
     zContent = "arrow right 200% \"Markdown\" \"Source\"\n"
       "box rad 10px \"Markdown\" \"Formatter\" \"(markdown.c)\" fit\n"
@@ -47,16 +47,21 @@ void pikchrshow_cmd(void){
       "box same \"Pikchr\" \"Formatter\" \"(pikchr.c)\" fit\n";
   }
   style_header("PikchrShow");
-  CX("<style>"
-     "#pikchrshow-output, #pikchrshow-form"
-     "{display: flex; flex-direction: column;}"
-     "#pikchrshow-form > * {margin: 0.25em 0;}"
-     "#pikchrshow-output {margin-top: 1em;}"
-     "#pikchrshow-controls {"
+  CX("<style>");
+  CX("#pikchrshow-output, #pikchrshow-form"
+     "{display: flex; flex-direction: column;}");
+  CX("#pikchrshow-form > * {margin: 0.25em 0;}");
+  CX("#pikchrshow-output {margin-top: 1em;}");
+  CX("#pikchrshow-controls {"
      "display: flex; flex-direction: row; align-items: center;"
-     "}"
-     "#pikchrshow-controls > * {margin: 0 0.5em 0 0}"
-     "</style>");
+     "}");
+  CX("#pikchrshow-controls > * {"
+     "display: inline; margin-left: 0.5em;"
+     "}");
+  CX("#pikchrshow-controls > .input-with-label > * {"
+     "cursor: pointer;"
+     "}");
+  CX("</style>");
   if( flipColors ){
     /* Flip the colors to approximate a dark theme look */
     CX("<style>#pikchrshow-output > svg {"
@@ -65,23 +70,23 @@ void pikchrshow_cmd(void){
   }
   CX("<form method='POST' id='pikchrshow-form' action=''>");
   CX("<div>Input pikchr code and tap SUBMIT to render it:</div>");
-  CX("<textarea name='content' rows='15' cols='80'>");
+  CX("<textarea name='content' rows='10' cols='80'>");
   CX("%s", zContent/*safe-for-%s*/);
   CX("</textarea>");
   CX("<div id='pikchrshow-controls'>");
   CX("<input type='submit' value='Submit'></input>");
-  if(isDark){
-    CX("<input id='flipcolors' type='checkbox' value='1' "
-       "name='flipcolors'");
-    if(flipColors){
-      CX(" checked");
-    }
-    CX("/>");
-    CX("<label for='flipcolors'>"
-       "Simulate dark color theme?</label>");
+  CX("<span class='input-with-label'>"
+     "<input id='flipcolors' type='checkbox' value='1' "
+     "name='flipcolors'");
+  if(flipColors){
+    CX(" checked");
   }
-  CX("</div>");
-  CX("</form>");
+  CX("/>");
+  CX("<label for='flipcolors'>"
+     "Simulate dark color theme?</label>");
+  CX("</span>");
+  CX("</div>"/*#pikchrshow-controls*/);
+  CX("</form>"/*#pikchrshow-form*/);
   CX("<div id='pikchrshow-output'>");
   if(*zContent){
     int w = 0, h = 0;
