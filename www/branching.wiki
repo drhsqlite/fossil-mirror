@@ -6,7 +6,15 @@ linearly, as shown in Figure 1.
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch01.svg"><br>
+<verbatim type="pikchr center">
+circle rad 40% thickness 1.5px "1"
+arrow right 40%
+circle same "2"
+arrow same
+circle same "3"
+arrow same
+circle same "4"
+</verbatim>
 Figure 1
 </td></tr></table>
 
@@ -41,7 +49,15 @@ After both changes are committed, the check-in graph looks like Figure 2:
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch02.svg"><br>
+<verbatim type="pikchr center">
+circle rad 40% thickness 1.5px "1"
+arrow right 40%
+circle same "2"
+circle same "3" at 2nd circle+(.4,.3)
+arrow from 2nd circle to 3rd circle chop
+circle same "4" at 2nd circle+(.4,-.3)
+arrow from 2nd circle to 4th circle chop
+</verbatim>
 Figure 2
 </td></tr></table>
 
@@ -111,8 +127,19 @@ so, commit the results as check-in 5.  This results in a DAG as shown in
 Figure 3.
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<img src="branch03.svg"><br>
+<tr><td align="cent">
+<verbatim type="pikchr">
+circle rad 40% thickness 1.5px "1"
+arrow right 40%
+circle same "2"
+circle same "3" at 2nd circle+(.4,.3)
+arrow from 2nd circle to 3rd circle chop
+circle same "4" at 2nd circle+(.4,-.3)
+arrow from 2nd circle to 4th circle chop
+circle same "5" at 3rd circle+(.4,-.3)
+arrow from 3rd circle to 5th circle chop
+arrow dashed .03 from 4th circle to 5th circle chop
+</verbatim>
 Figure 3
 </td></tr></table>
 
@@ -167,7 +194,33 @@ for development work and another for testing.
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch04.svg"><br>
+<verbatim type="pikchr">
+circle rad 40% thickness 1.5px fill white "1"
+arrow 40%
+C2: circle same "2"
+arrow same
+circle same "3"
+arrow same
+C5: circle same "5"
+arrow same
+C7: circle same "7"
+arrow same
+C8: circle same "8"
+arrow same
+C10: circle same "10"
+C4: circle same at 3rd circle-(0,.35) "4"
+C6: circle same at (1/2 way between C5 and C7,C4) "6"
+C9: circle same at (1/2 way between C8 and C10,C4) "9"
+arrow from C2 to C4 chop
+arrow from C4 to C6 chop
+arrow from C6 to C9 chop
+arrow dashed 0.03 from C6 to C7 chop
+arrow same from C9 to C10
+layer = 0
+box fill 0x9bcdfc color 0x9bcdfc wid (C10.e.x - C2.w.x) ht C6.height*1.5 at C6.c
+text " test" above ljust at last box.sw
+</verbatim>
+<p>
 Figure 4
 </td></tr></table>
 
@@ -425,7 +478,72 @@ diagram:
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch06.svg"><br>
+<verbatim type="pikchr">
+    $laneh = 0.75
+
+    # Draw the lanes
+    down
+    box width 3.5in height $laneh fill 0xacc9e3
+    box same fill 0xc5d8ef
+    box same as first box
+    box same as 2nd box
+    line from 1st box.sw+(0.2,0) up until even with 1st box.n \
+      "Alan" above aligned
+    line from 2nd box.sw+(0.2,0) up until even with 2nd box.n \
+      "Betty" above aligned
+    line from 3rd box.sw+(0.2,0) up until even with 3rd box.n \
+      "Charlie" above aligned
+    line from 4th box.sw+(0.2,0) up until even with 4th box.n \
+       "Darlene" above aligned
+
+    # fill in content for the Alice lane
+    right
+A1: circle rad 0.1in at end of first line + (0.2,-0.2) \
+       fill white thickness 1.5px "1" 
+    arrow right 50%
+    circle same "2"
+    arrow right until even with first box.e - (0.65,0.0)
+    ellipse "future" fit fill white height 0.2 width 0.5 thickness 1.5px
+A3: circle same at A1+(0.8,-0.3) "3" fill 0xc0c0c0
+    arrow from A1 to last circle chop "fork!" below aligned
+
+    # content for the Betty lane
+B1: circle same as A1 at A1-(0,$laneh) "1"
+    arrow right 50%
+    circle same "2"
+    arrow right until even with first ellipse.w
+    ellipse same "future"
+B3: circle same at A3-(0,$laneh) "3"
+    arrow right 50%
+    circle same as A3 "4"
+    arrow from B1 to 2nd last circle chop
+
+    # content for the Charlie lane
+C1: circle same as A1 at B1-(0,$laneh) "1"
+    arrow 50%
+    circle same "2"
+    arrow right 0.8in "goes" "offline"
+C5: circle same as A3 "5"
+    arrow right until even with first ellipse.w
+    ellipse same "future"
+    text "back online" "pushes 5" "pulls 3 &amp; 4" with .n at last arrow
+
+    # content for the Darlene lane
+D1: circle same as A1 at C1-(0,$laneh) "1"
+    arrow 50%
+    circle same "2"
+    arrow right until even with C5.w
+    circle same "5"
+    arrow 50%
+    circle same as A3 "6"
+    arrow right until even with first ellipse.w
+    ellipse same "future"
+D3: circle same as B3 at B3-(0,2*$laneh) "3"
+    arrow 50%
+    circle same "4"
+    arrow from D1 to D3 chop
+</verbatim>
+<br>
 Figure 6
 </td></tr></table>
 
