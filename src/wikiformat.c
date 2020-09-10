@@ -1362,6 +1362,56 @@ static int endVerbatim(Renderer *p, ParsedMarkup *pMarkup){
 }
 
 /*
+** z[] points to the text that immediately follows markup of the form:
+**
+**      <verbatim type='pikchr ...'>
+**
+** zClass is the argument to "type".  This routine will process the
+** Pikchr text through the next matching </verbatim> (or until end-of-file)
+** and append the resulting SVG output onto p.  It then returns the
+** number of bytes of text processed, including the closing </verbatim>.
+*/
+static int wiki_process_pikchr(Renderer *p, char *z, const char *zClass){
+  ParsedMarkup m;         /* Parsed closing tag */
+  int i = 0;              /* For looping over z[] in search of </verbatim> */
+  int iRet = 0;           /* Value  to return */
+  int atEnd = 0;          /* True if se have found the </verbatim> */
+  int nMarkup = 0;        /* Length of a markup we are checking */
+
+  /* Search for the closing </verbatim> tag */
+  while( z[i]!=0 ){
+    char *zEnd = strchr(z+i, '<');
+    if( zEnd==0 ){
+      i += (int)strlen(z+i);
+      iRet = i;
+      break;
+    }
+    nMarkup = html_tag_length(zEnd);
+    if( nMarkup<11 || fossil_strnicmp(zEnd, "</verbatim", 10)!=0 ){
+      i = (int)(zEnd - z) + 1;
+      continue;
+    }
+    (void)parseMarkup(&m, z+i);
+    atEnd = endVerbatim(p, &m);
+    unparseMarkup(&m);
+    if( atEnd ){
+      iRet = i + nMarkup;
+      break;
+    }
+    i++;
+  }
+
+  /* The Pikchr source text should be i character in length and iRet is
+  ** i plus the number of bytes in the </verbatim>.  Generate the reply.
+  */
+  assert( strncmp(zClass,"pikchr",6)==0 );
+  zClass += 6;
+  while( fossil_isspace(zClass[0]) ) zClass++;
+  pikchr_to_html(p->pOut, z, i, zClass, (int)strlen(zClass));
+  return iRet;
+}
+
+/*
 ** Return the MUTYPE for the top of the stack.
 */
 static int stackTopType(Renderer *p){
@@ -1660,7 +1710,8 @@ static void wiki_render(Renderer *p, char *z){
         ** ignored.
         */
         if( markup.iCode==MARKUP_VERBATIM ){
-          int ii, vAttrDidAppend=0;
+          int ii; //, vAttrDidAppend=0;
+          const char *zClass = 0;
           p->zVerbatimId = 0;
           p->inVerbatim = 1;
           p->preVerbState = p->state;
@@ -1669,17 +1720,23 @@ static void wiki_render(Renderer *p, char *z){
             if( markup.aAttr[ii].iACode == ATTR_ID ){
               p->zVerbatimId = markup.aAttr[ii].zValue;
             }else if( markup.aAttr[ii].iACode==ATTR_TYPE ){
-              blob_appendf(p->pOut, "<pre name='code' class='%s'>",
-                markup.aAttr[ii].zValue);
-              vAttrDidAppend=1;
+              zClass = markup.aAttr[ii].zValue;
             }else if( markup.aAttr[ii].iACode==ATTR_LINKS
                    && !is_false(markup.aAttr[ii].zValue) ){
               p->state |= ALLOW_LINKS;
             }
           }
-          if( !vAttrDidAppend ) {
-            endAutoParagraph(p);
+          endAutoParagraph(p);
+          if( zClass==0 ){
             blob_append_string(p->pOut, "<pre class='verbatim'>");
+          }else if( strncmp(zClass,"pikchr",6)==0 &&
+                    (fossil_isspace(zClass[6]) || zClass[6]==0) ){
+            n += wiki_process_pikchr(p, z+n, zClass);
+            p->inVerbatim = 0;
+            p->state = p->preVerbState;
+          }else{
+            blob_appendf(p->pOut, "<pre name='code' class='%h'>",
+               zClass);
           }
           p->wantAutoParagraph = 0;
         }else
