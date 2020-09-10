@@ -50,9 +50,15 @@ void pikchrshow_cmd(void){
      "#pikchrshow-form > * {margin: 0.25em 0;}"
      "#pikchrshow-output {margin-top: 1em;}"
      "</style>");
+  if( skin_detail_boolean("white-foreground") ){
+    /* Flip the colors to approximate a dark theme look */
+    CX("<style>#pikchrshow-output > svg {"
+       "filter: invert(1) hue-rotate(180deg);"
+       "}</style>");
+  }
   CX("<form method='POST' id='pikchrshow-form' action=''>");
   CX("<div>Input pikchr code and tap SUBMIT to render it:</div>");
-  CX("<textarea name='content' rows='20' cols='80'>");
+  CX("<textarea name='content' rows='15' cols='80'>");
   CX("%s", zContent/*safe-for-%s*/);
   CX("</textarea>");
   CX("<input type='submit'></input>");
