@@ -1274,13 +1274,13 @@ void setup_logo(void){
     return;
   }
   db_begin_transaction();
-  db_unprotect(PROTECT_CONFIG);
   if( !cgi_csrf_safe(1) ){
     /* Allow no state changes if not safe from CSRF */
   }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
     Blob img;
     Stmt ins;
     blob_init(&img, aLogoImg, szLogoImg);
+    db_unprotect(PROTECT_CONFIG);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('logo-image',:bytes,now())"
@@ -1292,13 +1292,16 @@ void setup_logo(void){
        "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
        zLogoMime
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrlogo")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('logo-image','logo-mimetype')"
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("setbg")!=0 && zBgMime && zBgMime[0] && szBgImg>0 ){
@@ -1327,6 +1330,7 @@ void setup_logo(void){
        "DELETE FROM config WHERE name IN "
            "('background-image','background-mimetype')"
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("seticon")!=0 && zIconMime && zIconMime[0] && szIconImg>0 ){
@@ -1350,10 +1354,12 @@ void setup_logo(void){
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clricon")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('icon-image','icon-mimetype')"
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }
@@ -1806,23 +1812,18 @@ static void setup_update_url_alias(
   if( !cgi_csrf_safe(1) ) return;
   if( zNewName[0]==0 || zValue[0]==0 ){
     if( zOldName[0] ){
-      db_unprotect(PROTECT_CONFIG);
       blob_append_sql(pSql,
         "DELETE FROM config WHERE name='walias:%q';\n",
         zOldName);
-      db_protect_pop();
     }
     return;
   }
   if( zOldName[0]==0 ){
-    db_unprotect(PROTECT_CONFIG);
     blob_append_sql(pSql,
       "INSERT INTO config(name,value,mtime) VALUES('walias:%q',%Q,now());\n",
       zNewName, zValue);
-    db_protect_pop();
     return;
   }
-  db_unprotect(PROTECT_CONFIG);
   if( strcmp(zOldName, zNewName)!=0 ){
     blob_append_sql(pSql,
        "UPDATE config SET name='walias:%q', value=%Q, mtime=now()"
@@ -1834,7 +1835,6 @@ static void setup_update_url_alias(
        " WHERE name='walias:%q' AND value<>%Q;\n",
        zValue, zOldName, zValue);
   }
-  db_protect_pop();
 }
 
 /*
@@ -1876,7 +1876,9 @@ void page_waliassetup(){
     sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
     zValue = PD(zCnt,"");
     setup_update_url_alias(&sql, "", zNewName, zValue);
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("%s", blob_sql_text(&sql));
+    db_protect_pop();
     blob_reset(&sql);
     blob_reset(&namelist);
     cnt = 0;

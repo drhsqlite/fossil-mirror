@@ -1,5 +1,5 @@
-C Allow\sthe\ssetup\spages\sto\schange\semail-send-method.
-D 2020-09-10T18:15:20.990
+C Fix\smisplaced\s/\smissing\sdb_unprotect()\scalls\sin\sthe\s'waliassetup'\sand\s'setup_logo'\spages.
+D 2020-09-10T21:51:20.039
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -578,7 +578,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
 F src/security_audit.c 6e3ff3b8df26e7df9c0abf259d3439005fafaf9bc9e70ce42e3bd5991bdc222c
-F src/setup.c b94eded4db88905fed1d00ffdef26cc86c2d5ccf717cacd199f2eb5f8743be58
+F src/setup.c fbbca0beedea24f123e26274fd25d17021e24c8137829edcf3997b934ff44458
 F src/setupuser.c e26e42573837861f64cdcefaeb52e18d8d41bb8359779fe513fec446556b8734
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ec0ccee3357dcbcff5ce3499caf5a0e3529dc591d83023c629a68015f59625d
-R ff047a80df733c24e0c18e7c5ffc656d
-U drh
-Z 9053dbfa1ef639200aa9828709d7ed6a
+P 95e735165e8cb2d5ae5ca2f9e5acd71e15468da01cad5d167217fa4b58600bcf
+R 6546d3a0998350d2335903ba4908566c
+U mistachkin
+Z f3edba8fb367ba6d4f803e8e1c3e5736
