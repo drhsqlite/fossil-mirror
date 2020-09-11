@@ -29,7 +29,7 @@
 ** A basic pikchr code editor and renderer, allowing users with write-
 ** or wiki-write permissions to experiment with pikchr code.
 */
-void pikchrshow_cmd(void){
+void pikchrshow_page(void){
   const char *zContent = 0;
   int isDark, flipColors;
 
@@ -46,7 +46,8 @@ void pikchrshow_cmd(void){
       char *zOut = pikchr(zContent, "pikchr", 0, &w, &h);
       if( w>0 && h>0 ){
         const char *zNonce = safe_html_nonce(1);
-        CX("%s\n%s%s", zNonce, zOut, zNonce);
+        CX("%s<div style='max-width:%dpx;'>\n%s</div>%s",
+           zNonce, w, zOut, zNonce);
       }else{
         cgi_printf_header("x-pikchrshow-is-error: 1\r\n");
         CX("<pre>\n%s\n</pre>\n", zOut);
@@ -129,7 +130,8 @@ void pikchrshow_cmd(void){
     char *zOut = pikchr(zContent, "pikchr", 0, &w, &h);
     if( w>0 && h>0 ){
       const char *zNonce = safe_html_nonce(1);
-      CX("%s\n%s%s", zNonce, zOut, zNonce);
+      CX("%s<div style='max-width:%dpx;'>\n%s</div>%s",
+         zNonce, w, zOut, zNonce);
     }else{
       CX("<pre>\n%s\n</pre>\n", zOut);
     }
@@ -145,4 +147,3 @@ void pikchrshow_cmd(void){
   builtin_fulfill_js_requests();
   style_footer();
 }
-

@@ -341,31 +341,35 @@ void pikchr_to_html(
   fossil_free(zIn);
   if( w>0 && h>0 ){
     const char *zNonce = safe_html_nonce(1);
-    char *zCss = 0;
+    Blob css;
+    blob_init(&css,0,0);
+    blob_appendf(&css,"max-width:%dpx;",w);
     blob_append(ob, zNonce, -1);
     blob_append_char(ob, '\n');
-    while( nArg>0 && zCss==0 ){
+    while( nArg>0 ){
       int i;
       for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
       if( i==6 && strncmp(zArg, "center", 6)==0 ){
-        zCss = mprintf("display:block;margin:auto;width:%dpx;", w);
+        blob_appendf(&css, "display:block;margin:auto;");
+        break;
       }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
-        zCss = fossil_strdup("margin-left:4em;");
+        blob_appendf(&css, "margin-left:4em;");
+        break;
       }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
-        zCss = mprintf("float:left;width:%d;padding=4em;",w);
+        blob_appendf(&css, "float:left;padding=4em;");
+        break;
       }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
-        zCss = mprintf("float:right;width:%d;padding=4em;",w);
+        blob_appendf(&css, "float:right;padding=4em;");
+        break;
       }
       while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
       zArg += i;
       nArg -= i;
     }
-    if( zCss ) blob_appendf(ob, "<div style='%s'>\n", zCss);
+    blob_appendf(ob, "<div style='%s'>\n", blob_str(&css));
     blob_append(ob, zOut, -1);
-    if( zCss ){
-      blob_appendf(ob, "</div>\n");
-      fossil_free(zCss);
-    }
+    blob_appendf(ob, "</div>\n");
+    blob_reset(&css);
     blob_appendf(ob, "%s\n", zNonce);
   }else{
     blob_appendf(ob, "<pre>\n%s\n</pre>\n", zOut);
