@@ -1407,7 +1407,9 @@ static int wiki_process_pikchr(Renderer *p, char *z, const char *zClass){
   assert( strncmp(zClass,"pikchr",6)==0 );
   zClass += 6;
   while( fossil_isspace(zClass[0]) ) zClass++;
+  blob_append(p->pOut, "<p>", 3);
   pikchr_to_html(p->pOut, z, i, zClass, (int)strlen(zClass));
+  blob_append(p->pOut, "</p>\n", 5);
   return iRet;
 }
 
