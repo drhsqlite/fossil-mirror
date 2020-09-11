@@ -21,18 +21,24 @@
     document.body.classList.add('pikchrshow');
     P.e = { /* various DOM elements we work with... */
       previewTarget: E('#pikchrshow-output'),
-      previewModeLabel: E('#pikchrshow-output-wrapper > legend'),
-      btnCopy: E('#pikchrshow-output-wrapper > legend > .copy-button'),
+      previewLegend: E('#pikchrshow-output-wrapper > legend'),
+      previewModeLabel: D.span(/*holds the text for the preview mode label*/),
+      previewCopyButton: D.addClass(D.span(), 'copy-button'),
       btnSubmit: E('#pikchr-submit-preview'),
       cbDarkMode: E('#flipcolors-wrapper > input[type=checkbox]'),
       taContent: E('#content'),
       taPreviewText: D.attr(D.textarea(), 'rows', 20, 'cols', 60,
                             'readonly', true),
       uiControls: E('#pikchrshow-controls'),
-      btnTogglePreviewMode: D.button("Preview mode"),
+      previewModeToggle: D.button("Preview mode"),
       selectMarkupAlignment: D.select()
     };
-    D.append(P.e.uiControls, P.e.btnTogglePreviewMode);
+    ////////////////////////////////////////////////////////////
+    // Setup the preview fieldset's LEGEND element...
+    D.append( P.e.previewLegend,
+              P.e.previewModeToggle,
+              P.e.previewModeLabel,
+              P.e.previewCopyButton );    
 
     ////////////////////////////////////////////////////////////
     // Setup markup alignment selection...
@@ -44,10 +50,8 @@
 
     ////////////////////////////////////////////////////////////
     // Setup clipboard-copy of markup/SVG...
-    F.copyButton(P.e.btnCopy, {copyFromElement: P.e.taPreviewText});
-    P.e.btnCopy.addEventListener('text-copied',function(ev){
-       D.flashOnce(ev.target);
-    },false);
+    F.copyButton(P.e.previewCopyButton, {copyFromElement: P.e.taPreviewText});
+    P.e.previewCopyButton.addEventListener('text-copied', D.flashOnce.eventHandler, false);
 
     ////////////////////////////////////////////////////////////
     // Set up dark mode simulator...
@@ -60,7 +64,7 @@
     ////////////////////////////////////////////////////////////
     // Set up preview update and preview mode toggle...
     P.e.btnSubmit.addEventListener('click', ()=>P.preview(), false);
-    P.e.btnTogglePreviewMode.addEventListener('click', function(){
+    P.e.previewModeToggle.addEventListener('click', function(){
       /* Rotate through the 4 available preview modes */
       P.previewMode = ++P.previewMode % 4;
       P.renderPreview();
@@ -188,7 +192,8 @@
       return;
     }
     D.removeClass(preTgt, 'error');
-    D.enable(this.e.btnTogglePreviewMode);
+    D.removeClass(P.e.previewCopyButton, 'disabled');
+    D.enable(this.e.previewModeToggle);
     let label;
     switch(this.previewMode){
     case 0:
@@ -220,8 +225,7 @@
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
     }
-    D.append(D.clearElement(this.e.previewModeLabel),
-             label, this.e.btnCopy);
+    this.e.previewModeLabel.innerText = label;
   };
 
   /**
@@ -235,7 +239,7 @@
         this.e.btnSubmit, this.e.taContent,
         this.e.selectMarkupAlignment,
         this.e.cbAutoPreview, this.e.selectScript
-        /* this.e.btnTogglePreviewMode is handled separately */
+        /* this.e.previewModeToggle is handled separately */
       ];
       fp.target = this.e.previewTarget;
       fp.updateView = function(c,isError){
@@ -246,7 +250,8 @@
         P.renderPreview();
       };
     }
-    D.disable(fp.toDisable, this.e.btnTogglePreviewMode);
+    D.disable(fp.toDisable, this.e.previewModeToggle);
+    D.addClass(this.e.previewCopyButton, 'disabled');
     const content = this.e.taContent.value.trim();
     this.response.raw = undefined;
     this.response.inputText = content;

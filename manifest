@@ -1,5 +1,5 @@
-C Minor\scode\sreadability\stweaks,\snothing\sfunctional.
-D 2020-09-11T22:30:06.935
+C Rearranged\sthe\spikchrshow\scontrols\sa\sbit\sto\smake\sbetter\suse\sof\sspace\sand\sreduce\sflickering\sof\sthe\spreview\smode\slabel/controls.\sAdapted\sCSS\sfor\spikchr\serror\sreporting\sstructure\schanges.\sCode\srenaming\sfor\sconsistency/clarity.\sfossil.copyButton()\sclick\shandler\sis\snow\sa\sno-op\sif\sthe\spseudo-button\selement\shas\sthe\s'disabled'\sCSS\sclass\sand\sadded\sstyle\sto\sgrey\ssuch\sa\sbutton\sout.
+D 2020-09-11T23:56:22.404
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 23fd0d42d31911013c0267d4d98e7da03e6dce8e52cd1a79306297e81e4404ff
-F src/default.css f3328a84fb09a43f551ff4beeec2234770d6408d0d983ab003bc525a1684fe87
+F src/default.css af1cabf3fc213a8ecc8930b8b73bb407ea7cba5ea9ab3508670520e5d3568dde
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -487,13 +487,13 @@ F src/forum.c c098cf47d2f620e834cc2db4234ce691fcf54dd18b98fb974ea2d89435443b40
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 69ce782ad7f04780e678547f7340b709b6b4cf5d880b41be72fae3fc1825d910
 F src/fossil.confirmer.js 381023fea55b0df523b4a0561290782e421c8647ce3bd49e98809d8fa5739b90
-F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
-F src/fossil.dom.js 91b2d3b93db85ae97a9a5ab34601ba868dbe4b4a7db2a7cbe01571066bbc7b92
+F src/fossil.copybutton.js 2139f7acaf924854d6a46488a3a90d686c8702203d620cfb357ad6c2660629a8
+F src/fossil.dom.js 7d24c1e4b0bbf230a0c3527aec2551b594ec531a32d556236cfbf569b3cbf0f6
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 01ddddfc8565a3d6e7866cdfbdf4e268209e722878e926e8e48877e903eca2f9
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.pikchrshow.js 3abf2f288f806967ca38e7d2c8b55e7d021eb2ba4f5d51318e0ac318ce39f188
+F src/fossil.page.pikchrshow.js cf088819fca7faca5e82c06f8fecb9c4c340ecac00c3f5c631603c5a1df77c57
 F src/fossil.page.wikiedit-wysiwyg-legacy.js ea075166a42c728c6eae22f2611ab9a41219d2bb8965661a238caefd49360bcc
 F src/fossil.page.wikiedit.js f1cd4f8db6b1d589fef55e078473f31f900afc0ebd2548b19c7f41b4e662dcdc
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
@@ -561,7 +561,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c 149f6f763f67535a3ff16f08800849dd78ae80abf5ba57d927cf69f9b47f8da2
-F src/pikchrshow.c c5f222a4a6f6500cf1edd629f36005216d7db8da8e730a253544316062d3c6d2
+F src/pikchrshow.c 24ecce7c3a43f025a219270543b29dbcee524e2d3b736e1d985851c6089bf114
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ddd2781a0b568d2fad90aefd25359965f5b77bcd07c4af8a1e06064c8b2f73d
-R 8665e897e7a15bd46bd855f437b12fe1
+P f73f1e36adc6685fb4413202939f8731bbb8139968dbf28a399c59d1a05bd8ef
+R a312d38feaac617fdfde97a0dae27e6b
 U stephan
-Z f6d9a7f0083b1255bb0c9c37f88aefc1
+Z 90de0702aad03fee83726c53f0b8d3fe

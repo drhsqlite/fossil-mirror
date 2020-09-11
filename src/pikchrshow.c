@@ -88,7 +88,7 @@ void pikchrshow_page(void){
      "#pikchrshow-output > pre > div, "
      "#pikchrshow-output > pre > div > pre "
      "{margin: 0; padding: 0}");
-  CX("#pikchrshow-output > pre > div > pre "
+  CX("#pikchrshow-output.error > pre "
      /* Server-side error report */
      "{padding: 0.5em}");
   CX("#pikchrshow-controls {" /* where the buttons live */
@@ -108,7 +108,7 @@ void pikchrshow_page(void){
   CX("#sbs-wrapper > fieldset {"
      "padding: 0.25em 0.5em; border-radius: 0.25em;"
      "}");
-  CX("fieldset > legend > .copy-button {margin-left: 0.25em}");
+  CX("fieldset > legend > * {margin-right: 0.25em}");
   CX(".dragover {border: 0.5em dotted rgba(0,255,0,0.6)}");
   CX("</style>");
   CX("<div>Input pikchr code and tap Preview to render it:</div>");
@@ -124,7 +124,7 @@ void pikchrshow_page(void){
   CX("</div>"/*#pikchrshow-controls*/);
   CX("</div>"/*#pikchrshow-form*/);
   CX("<fieldset id='pikchrshow-output-wrapper'>");
-  CX("<legend>Preview <span class='copy-button'></span></legend>");
+  CX("<legend></legend>");
   CX("<div id='pikchrshow-output'>");
   if(*zContent){
     int w = 0, h = 0;

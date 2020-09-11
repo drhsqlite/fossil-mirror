@@ -317,6 +317,10 @@
     return domAddRemoveClass.apply(this, a);
   };
 
+  /**
+     Returns true if DOM element e contains CSS class c, else
+     false.
+  */
   dom.hasClass = function(e,c){
     return (e && e.classList) ? e.classList.contains(c) : false;
   };
@@ -544,6 +548,11 @@
     return e;
   };
   dom.flashOnce.defaultTimeMs = 400;
+  /**
+     A DOM event handler which simply passes event.target
+     to dom.flashOnce().
+  */
+  dom.flashOnce.eventHandler = (event)=>dom.flashOnce(event.target)
 
   /**
      Attempts to copy the given text to the system clipboard. Returns

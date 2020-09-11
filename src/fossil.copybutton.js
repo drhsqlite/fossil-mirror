@@ -60,6 +60,12 @@
      not fired if copying to the clipboard fails (e.g. is not
      available in the current environment).
 
+     As a special case, the copy button's click handler is suppressed
+     (becomes a no-op) for as long as the element has the CSS class
+     "disabled". This allows elements which cannot be disabled via
+     HTML attributes, e.g. a SPAN, to act as a copy button while still
+     providing a way to disable them.
+
      Returns the copy-initialized element.
 
      Example:
@@ -93,6 +99,7 @@
     e.addEventListener(
       'click',
       function(){
+        if(e.classList.contains('disabled')) return;
         const txt = extract.call(opt);
         if(txt && D.copyTextToClipboard(txt)){
           e.dispatchEvent(new CustomEvent('text-copied',{

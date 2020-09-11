@@ -906,6 +906,9 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   background-position: center;
   cursor: pointer;
 }
+.copy-button.disabled {
+  opacity: 0.4;
+}
 .copy-button-flipped {
 /*Note: .16em is suitable for element grouping.*/
   margin-left: .16em;
