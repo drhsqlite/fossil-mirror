@@ -1,5 +1,5 @@
-C In\sthe\sbranching.wiki\sdocument,\smake\sthe\sfigure\snumbers\spart\sof\sthe\sPikchr,\nthus\savoiding\sthe\sneed\sfor\stables,\sand\sallowing\sthe\sfigures\sto\sscale\son\nmobile\sdevices.
-D 2020-09-11T19:58:32.829
+C fossil.dom:\sadded\slabel()\sand\scheckbox()\smethods.
+D 2020-09-11T21:52:48.316
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,7 +488,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 69ce782ad7f04780e678547f7340b709b6b4cf5d880b41be72fae3fc1825d910
 F src/fossil.confirmer.js 381023fea55b0df523b4a0561290782e421c8647ce3bd49e98809d8fa5739b90
 F src/fossil.copybutton.js 2b55d30d7a269ce6ef94811b5c9f17fdbe84872f457c56df2b9f77266a00dd79
-F src/fossil.dom.js a72844ccd4c528d018c60cdaacdf44e95755bbdc0a1158823e6678efeb5947cf
+F src/fossil.dom.js 91b2d3b93db85ae97a9a5ab34601ba868dbe4b4a7db2a7cbe01571066bbc7b92
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 01ddddfc8565a3d6e7866cdfbdf4e268209e722878e926e8e48877e903eca2f9
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 75d4517515e7538bec05366813107ad1353a10bcc51ffe181224be76ae25867b
-R 92eb805152e4f8c8ab80958d2e635306
-U drh
-Z 151ad3f00880e96422a5e68b7d0f8e42
+P 299e06435d51e830d6dbd34603e6f2727ae4eef3c39cce81b4e6a47a7880786f
+R f242c3a605a54a9ac3f5c6f2737f5be9
+U stephan
+Z 421797075d1cd57e0135d609da787fe8

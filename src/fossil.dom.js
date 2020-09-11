@@ -74,7 +74,24 @@
   dom.span = dom.createElemFactory('span');
   dom.strong = dom.createElemFactory('strong');
   dom.em = dom.createElemFactory('em');
-  dom.label = dom.createElemFactory('label');
+  /**
+     Returns a LABEL element. If passed an argument,
+     it must be an id or an HTMLElement with an id,
+     and that id is set as the 'for' attribute of the
+     label. If passed 2 arguments, the 2nd is text or
+     a DOM element to append to the label.
+  */
+  dom.label = function(forElem, text){
+    const rc = document.createElement('label');
+    if(forElem){
+      if(forElem instanceof HTMLElement){
+        forElem = dom.attr(forElem, 'id');
+      }
+      dom.attr(rc, 'for', forElem);
+    }
+    if(text) dom.append(rc, text);
+    return rc;
+  };
   dom.img = function(src){
     const e = dom.create('img');
     if(src) e.setAttribute('src',src);
@@ -235,7 +252,8 @@
   dom.input = function(type){
     return this.attr(this.create('input'), 'type', type);
   };
-  
+  dom.checkbox = ()=>dom.input('checkbox');
+
   /**
      Internal impl for addClass(), removeClass().
   */
