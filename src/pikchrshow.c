@@ -109,6 +109,7 @@ void pikchrshow_page(void){
      "padding: 0.25em 0.5em; border-radius: 0.25em;"
      "}");
   CX("fieldset > legend > .copy-button {margin-left: 0.25em}");
+  CX(".dragover {border: 0.5em dotted rgba(0,255,0,0.6)}");
   CX("</style>");
   CX("<div>Input pikchr code and tap Preview to render it:</div>");
   CX("<div id='sbs-wrapper'>");
