@@ -1,5 +1,5 @@
-C New\sversion\sof\spikchr.c\sthat\ssupport\s"thick"\sand\s"thin"\sattributes\n(which\sis\sjust\sa\sconvenience\sfor\s"thickness\s125%"\sand\s"thickness\s66%"\nand\snew\stext\sattributes\s"big"\sand\s"small"\s(which\sis\sa\snew\scapability).\nAll\scan\sbe\suttered\stwice\sfor\senhanced\seffect.
-D 2020-09-11T19:45:54.023
+C In\sthe\sbranching.wiki\sdocument,\smake\sthe\sfigure\snumbers\spart\sof\sthe\sPikchr,\nthus\savoiding\sthe\sneed\sfor\stables,\sand\sallowing\sthe\sfigures\sto\sscale\son\nmobile\sdevices.
+D 2020-09-11T19:58:32.829
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -819,7 +819,7 @@ F www/branch03.graphml 758a9549975a25483ff723f119931cdbe0c25bca9ff75c31d2a906da8
 F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb60ce84f
 F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
 F www/branch06.graphml 7a1a988adf9c0266df256eaa2d4b31d11dc3a3cb78c67ea7d7485a97b916c89d
-F www/branching.wiki ab6c547a0b30de1162cec5aabec51d89e16424a6af7a65828a12bc51e19773fc
+F www/branching.wiki 3497022875db42372a5e6d7144dc5af363dd3e001efefd61ee31a32ef7990c0c
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2dd0a40e599676c4ee822b313dd79564ec710317369e2396fd0b12032f0e8375
-R 1008c49a8bc246edaa200cbc9d46013c
+P 75d4517515e7538bec05366813107ad1353a10bcc51ffe181224be76ae25867b
+R 92eb805152e4f8c8ab80958d2e635306
 U drh
-Z ddf06e3cb5c3a9c9c15b852419a62da0
+Z 151ad3f00880e96422a5e68b7d0f8e42

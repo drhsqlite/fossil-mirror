@@ -4,19 +4,16 @@
 In a simple and perfect world, the development of a project would proceed
 linearly, as shown in Figure 1.
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
 <verbatim type="pikchr center">
-circle rad 40% thickness 1.5px "1"
+ALL: [circle rad 40% thickness 1.5px "1"
 arrow right 40%
 circle same "2"
 arrow same
 circle same "3"
 arrow same
-circle same "4"
+circle same "4"]
+box invis "Figure 1" big fit with .n at .3cm below ALL.s
 </verbatim>
-Figure 1
-</td></tr></table>
 
 Each circle represents a check-in.  For the sake of clarity, the check-ins
 are given small consecutive numbers.  In a real system, of course, the
@@ -47,19 +44,16 @@ Alas, reality often interferes with the simple linear development of a
 project.  Suppose two programmers make independent modifications to check-in 2.
 After both changes are committed, the check-in graph looks like Figure 2:
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
 <verbatim type="pikchr center">
-circle rad 40% thickness 1.5px "1"
+ALL: [circle rad 40% thickness 1.5px "1"
 arrow right 40%
 circle same "2"
 circle same "3" at 2nd circle+(.4,.3)
 arrow from 2nd circle to 3rd circle chop
 circle same "4" at 2nd circle+(.4,-.3)
-arrow from 2nd circle to 4th circle chop
+arrow from 2nd circle to 4th circle chop]
+box invis "Figure 2" big fit with .n at .3cm below ALL.s
 </verbatim>
-Figure 2
-</td></tr></table>
 
 The graph in Figure 2 has two leaves: check-ins 3 and 4.  Check-in 2 has
 two children, check-ins 3 and 4.  We call this state a <i>fork</i>.
@@ -126,10 +120,8 @@ current branch. Alice can then verify that the merge is sensible and if
 so, commit the results as check-in 5.  This results in a DAG as shown in
 Figure 3.
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="cent">
-<verbatim type="pikchr">
-circle rad 40% thickness 1.5px "1"
+<verbatim type="pikchr center">
+ALL: [circle rad 40% thickness 1.5px "1"
 arrow right 40%
 circle same "2"
 circle same "3" at 2nd circle+(.4,.3)
@@ -138,10 +130,9 @@ circle same "4" at 2nd circle+(.4,-.3)
 arrow from 2nd circle to 4th circle chop
 circle same "5" at 3rd circle+(.4,-.3)
 arrow from 3rd circle to 5th circle chop
-arrow dashed .03 from 4th circle to 5th circle chop
+arrow dashed .03 from 4th circle to 5th circle chop]
+box invis "Figure 3" big fit with .n at .2cm below ALL.s
 </verbatim>
-Figure 3
-</td></tr></table>
 
 Check-in 5 is a child of check-in 3 because it was created by editing
 check-in 3, but since check-in 5 also inherits the changes from check-in 4 by
@@ -192,10 +183,8 @@ instead of <i>forking</i>:
 Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<verbatim type="pikchr">
-circle rad 40% thickness 1.5px fill white "1"
+<verbatim type="pikchr center">
+ALL: [circle rad 40% thickness 1.5px fill white "1"
 arrow 40%
 C2: circle same "2"
 arrow same
@@ -218,11 +207,9 @@ arrow dashed 0.03 from C6 to C7 chop
 arrow same from C9 to C10
 layer = 0
 box fill 0x9bcdfc color 0x9bcdfc wid (C10.e.x - C2.w.x) ht C6.height*1.5 at C6.c
-text " test" above ljust at last box.sw
+box invis "test" fit with .sw at last box.sw]
+box invis "Figure 4" big with .n at 0 below ALL.s
 </verbatim>
-<p>
-Figure 4
-</td></tr></table>
 
 Figure 4 diagrams the following scenario: the project starts and
 progresses to a point where (at check-in 2)
@@ -406,10 +393,8 @@ Tags and properties are used in Fossil to help express the intent, and
 thus to distinguish between forks and branches.  Figure 5 shows the
 same scenario as Figure 4 but with tags and properties added:
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<verbatim type="pikchr">
-arrowht = 0.07
+<verbatim type="pikchr center">
+ALL: [arrowht = 0.07
 C1: circle rad 40% thickness 1.5px fill white "1"
 arrow 40%
 C2: circle same "2"
@@ -440,10 +425,9 @@ box same "branch=test" "sym-test" "bgcolor=blue" "cancel=sym-trunk" fit \
    with .n at C4-(0,0.3)
 line color gray from last box.n to C4 chop
 box same "sym-release-1.0" "closed" fit with .n at C9-(0,0.3)
-line color gray from last box.n to C9 chop
+line color gray from last box.n to C9 chop]
+box invis "Figure 5" bold fit with .n at 0.2cm below ALL.s
 </verbatim>
-<p>Figure 5</p>
-</td></tr></table>
 
 A <i>tag</i> is a name that is attached to a check-in.  A
 <i>property</i> is a name/value pair.  Internally, Fossil implements
@@ -509,11 +493,10 @@ effort on a branch can be divided among the forks. It might not be
 immediately obvious why this is so. To see it, consider this swim lane
 diagram:
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<verbatim type="pikchr">
+<verbatim type="pikchr center">
     $laneh = 0.75
 
+ALL: [
     # Draw the lanes
     down
     box width 3.5in height $laneh fill 0xacc9e3
@@ -575,10 +558,9 @@ D3: circle same as B3 at B3-(0,2*$laneh) "3"
     arrow 50%
     circle same "4"
     arrow from D1 to D3 chop
+]
+box invis "Figure 6" big fit with .n at 0.2cm below ALL.s
 </verbatim>
-<br>
-Figure 6
-</td></tr></table>
 
 This is a happy, cooperating team. That is an important restriction on
 our example, because you must understand that this sort of problem can
