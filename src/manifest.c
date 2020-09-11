@@ -1199,6 +1199,7 @@ void manifest_test_parse_cmd(void){
   Blob b;
   int i;
   int n = 1;
+  int isWF;
   db_find_and_open_repository(OPEN_SUBSTITUTE|OPEN_OK_NOT_FOUND,0);
   verify_all_options();
   if( g.argc!=3 && g.argc!=4 ){
@@ -1206,13 +1207,26 @@ void manifest_test_parse_cmd(void){
   }
   blob_read_from_file(&b, g.argv[2], ExtFILE);
   if( g.argc>3 ) n = atoi(g.argv[3]);
+  isWF = manifest_is_well_formed(blob_buffer(&b), blob_size(&b));
+  fossil_print("manifest_is_well_formed() reports the input %s\n",
+       isWF ? "is ok" : "contains errors");
   for(i=0; i<n; i++){
     Blob b2;
     Blob err;
     blob_copy(&b2, &b);
     blob_zero(&err);
     p = manifest_parse(&b2, 0, &err);
-    if( p==0 ) fossil_print("ERROR: %s\n", blob_str(&err));
+    if( p==0 ){
+      fossil_print("ERROR: %s\n", blob_str(&err));
+    }else if( i==0 || (n==2 && i==1) ){
+      fossil_print("manifest_parse() worked\n");
+    }else if( i==n-1 ){
+      fossil_print("manifest_parse() worked %d more times\n", n-1);
+    }
+    if( (p==0 && isWF) || (p!=0 && !isWF) ){
+      fossil_print("ERROR: manifest_is_well_formed() and "
+                   "manifest_parse() disagree!\n");
+    }
     blob_reset(&err);
     manifest_destroy(p);
   }

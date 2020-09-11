@@ -1,5 +1,5 @@
-C Add\sthe\smanifest_is_well_formed()\sroutine\swhich\scan\squickly\scheck\sto\ssee\nif\swhat\swe\sbelieve\sto\sbe\sa\sdata\sfile\sis\sactually\sa\scontrol\sartifact\sof\nsome\skind.\s\sAdd\soptions\sto\sthe\s"test-parse-all-blobs"\scommand\sto\sverify\nthis\sinterface.
-D 2020-09-11T14:15:11.364
+C Enhancements\sto\sthe\stest-parse-manifest\scommand\sto\salso\stest\sthe\nmanifest_is_well_formed()\sinterface.
+D 2020-09-11T15:20:26.594
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -544,7 +544,7 @@ F src/main.mk 3ab3096139c517c1f5b287c5f85462cab9dd21e8b9a4dd10dc906a52b44ea122
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab13108cf x
-F src/manifest.c f43fef9b7c346a765b3564ead634c2178f95aaa624e7d955c4d2183ec7f67591
+F src/manifest.c 3d456a2a8b3951ef25bb2e45e263b5cc496cfea48a3bef9c847409c5fc6ee6ca
 F src/markdown.c 1dc6457837632cda872d68d79ab69a2a305d58689a2fdc9ac09e7a6bef7a5561
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
 F src/markdown_html.c 1d7ebf6d44748f86671ed175bc3f25ef877b69905b653b676a3f35174be9a854
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d9d8654a39db1893df0b79da63259a47e51fb76b35edd69769f1f3146e9a4af
-R 3a6efed5fa957b28b445b41d465244c5
+P 0f7eff9eebc00cc84b1d0faf60b8677d7ee1721385898663ef07a40f4e2d499d
+R 15e0df90962026455064de7d260a2c4d
 U drh
-Z 53c8a3ee04d34278217f4fc36ba26bab
+Z 36dfd44c5d2c7e19944379255ffc1fdc
