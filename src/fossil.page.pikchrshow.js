@@ -4,7 +4,7 @@
      Client-side implementation of the /pikchrshow app. Requires that
      the fossil JS bootstrapping is complete and that these fossil JS
      APIs have been installed: fossil.fetch, fossil.dom,
-     fossil.copybutton
+     fossil.copybutton, fossil.popupwidget
   */
   const E = (s)=>document.querySelector(s),
         D = F.dom,
@@ -79,7 +79,19 @@
         cbWrap,
         selectScript,
         cbAutoPreview,
-        D.label(cbAutoPreview,"Auto-preview?")
+        D.label(cbAutoPreview,"Auto-preview?"),
+        F.helpButtonlets.create(
+          D.append(D.div(),
+                   'Auto-preview automatically previews selected ',
+                   'built-in pikchr scripts by sending them to ',
+                   'the server for rendering. Not recommended on a ',
+                   'slow connection/server.',
+                   D.br(),D.br(),
+                   'Pikchr scripts may also be dragged/dropped from ',
+                   'the local filesystem into the text area, but ',
+                   'the auto-preview option does not apply to them.'
+                  )
+        )
       ).childNodes.forEach(function(ch){
         ch.style.margin = "0 0.25em";
       });
@@ -99,8 +111,21 @@
       }, false);
     }
     
-    // Move dark mode checkbox to the end
-    D.append(P.e.uiControls, P.e.cbDarkMode.parentNode);
+    // Move dark mode checkbox to the end and add a help buttonlet
+    D.append(
+      P.e.uiControls,
+      D.append(
+        P.e.cbDarkMode.parentNode,
+        F.helpButtonlets.create(
+          D.span(),
+          'Dark mode changes the colors of rendered SVG to ',
+          'make them more visible in dark-themed skins. ',
+          'This only changes (using CSS) how they are rendered, ',
+          'not any actual colors written in the script.'
+        )
+      )
+    );
+    
 
     // File drag/drop pikchr scripts into P.e.taContent.
     // Adapted from: https://stackoverflow.com/a/58677161
@@ -255,7 +280,6 @@
   */
   P.predefinedPiks = [
     {name: "--Predefined Scripts--"},
-    {name: "Tip: drag/drop pikchr files into the textarea"},
 /*
   The following were imported from the pikchr test scripts:
 

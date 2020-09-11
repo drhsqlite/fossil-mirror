@@ -119,7 +119,7 @@ void pikchrshow_page(void){
   CX("<div id='pikchrshow-controls'>");
   CX("<button id='pikchr-submit-preview'>Preview</button>");
   style_labeled_checkbox("flipcolors-wrapper", "flipcolors",
-                         "Simulate dark theme?",
+                         "Dark mode?",
                          "1", flipColors, 0);
   CX("</div>"/*#pikchrshow-controls*/);
   CX("</div>"/*#pikchrshow-form*/);
@@ -142,7 +142,8 @@ void pikchrshow_page(void){
   CX("</fieldset>");
   CX("</div>"/*sbs-wrapper*/);
   if(!builtin_bundle_all_fossil_js_apis()){
-    builtin_emit_fossil_js_apis("dom", "fetch", "copybutton", 0);
+    builtin_emit_fossil_js_apis("dom", "fetch", "copybutton",
+                                "popupwidget", 0);
   }
   builtin_emit_fossil_js_apis("page.pikchrshow", 0);
   builtin_fulfill_js_requests();
