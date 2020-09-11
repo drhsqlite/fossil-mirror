@@ -2580,7 +2580,24 @@ static void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
 }
 
 /*
-** Return a nonce to indicate safe-html can allow code through
+** Return a nonce to indicate that safe_html() can allow code through
+** without censoring.
+**
+** When safe_html() is asked to sanitize some HTML, it will ignore
+** any text in between two consecutive instances of the nonce.  The
+** nonce itself is an HTML comment so it is harmless to keep the
+** nonce in the middle of the HTML stream.  A different nonce is
+** choosen each time Fossil is run, using a lot of randomness, so
+** an attacker will be unable to guess the nonce in advance.
+**
+** The original use-case for this mechanism is to allow Pikchr-generated
+** SVG in the middle of HTML generated from Markdown.  The Markdown
+** output will normally be processed by safe_html() to prevent accidental
+** or malicious introduction of harmful HTML (ex: <script>) in the
+** output stream.  The safe_html() only lets through HTML elements
+** that are on its allow-list and SVG is not on that list.  Hence, in order
+** to allow the Pikchr-generated SVG through, it must be surrounded by
+** the nonce.
 */
 const char *safe_html_nonce(int bGenerate){
   static char *zNonce = 0;

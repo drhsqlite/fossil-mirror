@@ -1,5 +1,5 @@
-C The\s&lt;verbatim\stype="pikchr"&gt;\smarkup\sof\sFossil\swiki\snow\salways\sputs\sthe\nresulting\simage\sin\sa\sseparate\sblock,\snot\sallowing\sit\sto\sbe\sin-line.
-D 2020-09-11T16:41:15.758
+C Improved\scomments\son\sthe\ssafe_html_nonce()\sroutine.
+D 2020-09-11T17:05:53.985
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -646,7 +646,7 @@ F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c d79c98d885c2ded2da87e8875855786f7006be9326121265003cca4c24b8171b
 F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
-F src/wikiformat.c 843dac433bacab13a050ffd47a2fadbbfabe9331768b1d0c0f96d764e3267972
+F src/wikiformat.c cb264c12bc55d84e4e1431a35af62f5c30315a333eb294f4e8313a653904590e
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c b30ba807ffc837f7797efe6cf4569462967fe51bb7e2194cc348a2b7c59072e2
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2777682b632030db27990aa8b1f7ede64c0b6f17faabc84c45283218771be70f
-R 09b5ba7dfa5aa3c633dd82a8294b3385
+P a0ef47e79fec07f85abfda72e36ced4a0b402dad810f89043709168d8ca07b00
+R 18d4c0dac3704cee91c7879f60d7fbd3
 U drh
-Z db7979d53a77274c442d2a28194f5a81
+Z f633758a31f3587dcf66deba149e3c70
