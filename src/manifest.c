@@ -291,8 +291,8 @@ static int after_blank_line(const char *z){
 /*
 ** Remove the PGP signature from the artifact, if there is one.
 */
-static void remove_pgp_signature(char **pz, int *pn){
-  char *z = *pz;
+static void remove_pgp_signature(const char **pz, int *pn){
+  const char *z = *pz;
   int n = *pn;
   int i;
   if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
@@ -471,7 +471,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
   /* Strip off the PGP signature if there is one.
   */
-  remove_pgp_signature(&z, &n);
+  remove_pgp_signature((const char**)&z, &n);
 
   /* Verify that the first few characters of the artifact look like
   ** a control artifact.
@@ -1146,6 +1146,47 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
 }
 
 /*
+** The input blob is text that may or may not be a valid Fossil
+** control artifact of some kind.  This routine returns true if
+** the input is a well-formed control artifact and false if it
+** is not.
+**
+** This routine is optimized to return false quickly and with minimal
+** work in the common case where the input is some random file.
+*/
+int manifest_is_well_formed(const char *zIn, int nIn){
+  int i;
+  int iRes;
+  Manifest *pManifest;
+  Blob copy, errmsg;
+  remove_pgp_signature(&zIn, &nIn);
+
+  /* Check to see that the file begins with a "card" */
+  if( nIn<3 ) return 0;
+  if( zIn[0]<'A' || zIn[0]>'M' || zIn[1]!=' ' ) return 0;
+
+  /* Check to see that the first card is followed by one more card */
+  for(i=2; i<nIn && zIn[i]!='\n'; i++){}
+  if( i>=nIn-3 ) return 0;
+  i++;
+  if( !fossil_isupper(zIn[i]) || zIn[i]<zIn[0] || zIn[i+1]!=' ' ) return 0;
+
+  /* The checks above will eliminate most random inputs.  If these
+  ** quick checks pass, then we could be dealing with a well-formed
+  ** control artifact.  Make a copy, and run it through the official
+  ** artifact parser.  This is the slow path, but it is rarely taken.
+  */
+  blob_init(&copy, 0, 0);
+  blob_init(&errmsg, 0, 0);
+  blob_append(&copy, zIn, nIn);
+  pManifest = manifest_parse(&copy, 0, &errmsg);
+  iRes = pManifest!=0;  
+  manifest_destroy(pManifest);
+  blob_reset(&errmsg);
+  return iRes;
+}
+
+/*
 ** COMMAND: test-parse-manifest
 **
 ** Usage: %fossil test-parse-manifest FILENAME ?N?
@@ -1158,7 +1199,7 @@ void manifest_test_parse_cmd(void){
   Blob b;
   int i;
   int n = 1;
-  db_find_and_open_repository(0,0);
+  db_find_and_open_repository(OPEN_SUBSTITUTE|OPEN_OK_NOT_FOUND,0);
   verify_all_options();
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
@@ -1181,14 +1222,21 @@ void manifest_test_parse_cmd(void){
 /*
 ** COMMAND: test-parse-all-blobs
 **
-** Usage: %fossil test-parse-all-blobs [--limit N]
+** Usage: %fossil test-parse-all-blobs ?OPTIONS?
 **
 ** Parse all entries in the BLOB table that are believed to be non-data
 ** artifacts and report any errors.  Run this test command on historical
 ** repositories after making any changes to the manifest_parse()
 ** implementation to confirm that the changes did not break anything.
 **
-** If the --limit N argument is given, parse no more than N blobs
+** Options:
+**
+**   --limit N            Parse no more than N artifacts before stopping.
+**   --wellformed         Use all BLOB table entries as input, not just
+**                        those entries that are believed to be valid
+**                        artifacts, and verify that the result the
+**                        manifest_is_well_formed() agrees with the
+**                        result of manifest_parse().
 */
 void manifest_test_parse_all_blobs_cmd(void){
   Manifest *p;
@@ -1197,22 +1245,46 @@ void manifest_test_parse_all_blobs_cmd(void){
   int nTest = 0;
   int nErr = 0;
   int N = 1000000000;
+  int bWellFormed;
   const char *z;
   db_find_and_open_repository(0, 0);
   z = find_option("limit", 0, 1);
   if( z ) N = atoi(z);
+  bWellFormed = find_option("wellformed",0,0)!=0;
   verify_all_options();
-  db_prepare(&q, "SELECT DISTINCT objid FROM EVENT");
+  if( bWellFormed ){
+    db_prepare(&q, "SELECT rid FROM blob ORDER BY rid");
+  }else{
+    db_prepare(&q, "SELECT DISTINCT objid FROM EVENT ORDER BY objid");
+  }
   while( (N--)>0 && db_step(&q)==SQLITE_ROW ){
     int id = db_column_int(&q,0);
     fossil_print("Checking %d       \r", id);
     nTest++;
     fflush(stdout);
     blob_init(&err, 0, 0);
-    p = manifest_get(id, CFTYPE_ANY, &err);
-    if( p==0 ){
-      fossil_print("%d ERROR: %s\n", id, blob_str(&err));
-      nErr++;
+    if( bWellFormed ){
+      Blob content;
+      int isWF;
+      content_get(id, &content);
+      isWF = manifest_is_well_formed(blob_buffer(&content),blob_size(&content));
+      p = manifest_parse(&content, id, &err);
+      if( isWF && p==0 ){
+        fossil_print("%d ERROR: manifest_is_well_formed() reported true "
+                     "but manifest_parse() reports an error: %s\n",
+                     id, blob_str(&err));
+        nErr++;
+      }else if( !isWF && p!=0 ){
+        fossil_print("%d ERROR: manifest_is_well_formed() reported false "
+                     "but manifest_parse() found nothing wrong.\n", id);
+        nErr++;
+      }
+    }else{            
+      p = manifest_get(id, CFTYPE_ANY, &err);
+      if( p==0 ){
+        fossil_print("%d ERROR: %s\n", id, blob_str(&err));
+        nErr++;
+      }
     }
     blob_reset(&err);
     manifest_destroy(p);
@@ -2062,7 +2134,7 @@ void sterilize_manifest(Blob *p){
 
   z = zOrig = blob_materialize(p);
   n = nOrig = blob_size(p);
-  remove_pgp_signature(&z, &n);
+  remove_pgp_signature((const char **)&z, &n);
   if( z==zOrig ){
     blob_append(p, zExtraLine, -1);
   }else{
