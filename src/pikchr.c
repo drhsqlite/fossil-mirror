@@ -368,7 +368,7 @@ static void pik_append_dis(Pik*,const char*,PNum,const char*);
 static void pik_append_arc(Pik*,PNum,PNum,PNum,PNum);
 static void pik_append_clr(Pik*,const char*,PNum,const char*);
 static void pik_append_style(Pik*,PElem*);
-static void pik_append_txt(Pik*,PElem*);
+static void pik_append_txt(Pik*,PElem*, PBox*);
 static void pik_draw_arrowhead(Pik*,PPoint*pFrom,PPoint*pTo,PElem*);
 static void pik_chop(Pik*,PPoint*pFrom,PPoint*pTo,PNum);
 static void pik_error(Pik*,PToken*,const char*);
@@ -403,7 +403,7 @@ static PPoint pik_place_of_elem(Pik*,PElem*,PToken*);
 static int pik_bbox_isempty(PBox*);
 static void pik_bbox_init(PBox*);
 static void pik_bbox_addbox(PBox*,PBox*);
-static void pik_bbox_addpt(PBox*,PPoint*);
+static void pik_bbox_add_xy(PBox*,PNum,PNum);
 static void pik_bbox_addellipse(PBox*,PNum x,PNum y,PNum rx,PNum ry);
 static void pik_add_txt(Pik*,PToken*,int);
 static int pik_text_length(const PToken *pToken);
@@ -3310,7 +3310,7 @@ static void arcRender(Pik *p, PElem *pElem){
   pik_append_style(p,pElem);
   pik_append(p,"\" />\n", -1);
 
-  pik_append_txt(p, pElem);
+  pik_append_txt(p, pElem, 0);
 }
 
 
@@ -3451,7 +3451,7 @@ static void boxRender(Pik *p, PElem *pElem){
     pik_append_style(p,pElem);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem);
+  pik_append_txt(p, pElem, 0);
 }
 
 /* Methods for the "circle" class */
@@ -3510,7 +3510,7 @@ static void circleRender(Pik *p, PElem *pElem){
     pik_append_style(p,pElem);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem);
+  pik_append_txt(p, pElem, 0);
 }
 
 /* Methods for the "cylinder" class */
@@ -3535,7 +3535,7 @@ static void cylinderRender(Pik *p, PElem *pElem){
     pik_append_style(p,pElem);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem);
+  pik_append_txt(p, pElem, 0);
 }
 static PPoint cylinderOffset(Pik *p, PElem *pElem, int cp){
   PPoint pt;
@@ -3582,7 +3582,7 @@ static void dotRender(Pik *p, PElem *pElem){
     pik_append_style(p,pElem);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem);
+  pik_append_txt(p, pElem, 0);
 }
 
 
@@ -3638,7 +3638,7 @@ static void ellipseRender(Pik *p, PElem *pElem){
     pik_append_style(p,pElem);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem);
+  pik_append_txt(p, pElem, 0);
 }
 
 /* Methods for the "line" class */
@@ -3672,7 +3672,7 @@ static void lineRender(Pik *p, PElem *pElem){
     pik_append_style(p,pElem);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem);
+  pik_append_txt(p, pElem, 0);
 }
 
 /* Methods for the "move" class */
@@ -3775,7 +3775,7 @@ static void splineRender(Pik *p, PElem *pElem){
     }
     radiusPath(p,pElem,pElem->rad);
   }
-  pik_append_txt(p, pElem);
+  pik_append_txt(p, pElem, 0);
 }
 
 
@@ -4231,9 +4231,13 @@ static void pik_txt_vertical_layout(Pik *p, PElem *pElem){
   }
 }
 
-/* Append multiple <text> SGV element for the text fields of the PElem
+/* Append multiple <text> SGV element for the text fields of the PElem.
+**
+** Or, if pBox!=NULL, then do not actually do any output.  Instead
+** guess at how large the various <text> elements would be and where
+** the will be located and expand the pBox to include them.
 */
-static void pik_append_txt(Pik *p, PElem *pElem){
+static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
   PNum dy;      /* Half the height of a single line of text */
   PNum dy2;     /* Extra vertical space around the center */
   int n, i, nz;
@@ -4266,6 +4270,24 @@ static void pik_append_txt(Pik *p, PElem *pElem){
     if( t->eCode & TP_ABOVE  ) y += dy2 + dy;
     if( t->eCode & TP_BELOW  ) y -= dy2 + dy;
     if( t->eCode & TP_BELOW2 ) y -= dy2 + 3*dy;
+
+    if( pBox!=0 ){
+      /* If pBox is not NULL, do not draw any <text>.  Instead, just expand
+      ** pBox to include the text */
+      PNum cw = pik_text_length(t)*p->charWidth;
+      PNum ch = p->charHeight*0.5;
+      if( t->eCode & TP_RJUST ){
+        pik_bbox_add_xy(pBox, x, y-ch);
+        pik_bbox_add_xy(pBox, x-cw, y+ch);
+      }else if( t->eCode & TP_LJUST ){
+        pik_bbox_add_xy(pBox, x, y-ch);
+        pik_bbox_add_xy(pBox, x+cw, y+ch);
+      }else{
+        pik_bbox_add_xy(pBox, x+cw/2, y+ch);
+        pik_bbox_add_xy(pBox, x-cw/2, y-ch);
+      }
+      continue;
+    }
 
     pik_append_x(p, "<text x=\"", x, "\"");
     pik_append_y(p, " y=\"", y, "\"");
@@ -4444,16 +4466,18 @@ static void pik_bbox_addbox(PBox *pA, PBox *pB){
 /* Enlarge the PBox of the first argument, if necessary, so that
 ** it contains the PPoint in the second argument
 */
-static void pik_bbox_addpt(PBox *pA, PPoint *pPt){
+static void pik_bbox_add_xy(PBox *pA, PNum x, PNum y){
   if( pik_bbox_isempty(pA) ){
-    pA->ne = *pPt;
-    pA->sw = *pPt;
+    pA->ne.x = x;
+    pA->ne.y = y;
+    pA->sw.x = x;
+    pA->sw.y = y;
     return;
   }
-  if( pA->sw.x>pPt->x ) pA->sw.x = pPt->x;
-  if( pA->sw.y>pPt->y ) pA->sw.y = pPt->y;
-  if( pA->ne.x<pPt->x ) pA->ne.x = pPt->x;
-  if( pA->ne.y<pPt->y ) pA->ne.y = pPt->y;
+  if( pA->sw.x>x ) pA->sw.x = x;
+  if( pA->sw.y>y ) pA->sw.y = y;
+  if( pA->ne.x<x ) pA->ne.x = x;
+  if( pA->ne.y<y ) pA->ne.y = y;
 }
 
 /* Enlarge the PBox so that it is able to contain an ellipse
@@ -5665,7 +5689,7 @@ static void pik_after_adding_attributes(Pik *p, PElem *pElem){
       pElem->nPath = p->nTPath;
       for(i=0; i<p->nTPath; i++){
         pElem->aPath[i] = p->aTPath[i];
-        pik_bbox_addpt(&pElem->bbox, &pElem->aPath[i]);
+        pik_bbox_add_xy(&pElem->bbox, pElem->aPath[i].x, pElem->aPath[i].y);
       }
     }
 
@@ -5790,6 +5814,32 @@ void pik_elist_render(Pik *p, PEList *pEList){
   }while( bMoreToDo );
 }
 
+/* Add all elements of the list pEList to the bounding box
+*/
+static void pik_bbox_add_elist(Pik *p, PEList *pEList, PNum wArrow){
+  int i;
+  for(i=0; i<pEList->n; i++){
+    PElem *pElem = pEList->a[i];
+    pik_bbox_addbox(&p->bbox, &pElem->bbox);
+    pik_append_txt(p, pElem, &p->bbox);
+    if( pElem->pSublist ) pik_bbox_add_elist(p, pElem->pSublist, wArrow);
+
+
+    /* Expand the bounding box to account for arrowheads on lines */
+    if( pElem->type->isLine && pElem->nPath>0 ){
+      if( pElem->larrow ){
+        pik_bbox_addellipse(&p->bbox, pElem->aPath[0].x, pElem->aPath[0].y,
+                            wArrow, wArrow);
+      }
+      if( pElem->rarrow ){
+        int j = pElem->nPath-1;
+        pik_bbox_addellipse(&p->bbox, pElem->aPath[j].x, pElem->aPath[j].y,
+                            wArrow, wArrow);
+      }
+    }
+  }
+}
+
 /* Recompute key layout parameters from variables. */
 static void pik_compute_layout_settings(Pik *p){
   PNum thickness;  /* Line thickness */
@@ -5816,7 +5866,6 @@ static void pik_compute_layout_settings(Pik *p){
 ** Delete the input element_list before returnning.
 */
 static void pik_render(Pik *p, PEList *pEList){
-  int i, j;
   if( pEList==0 ) return;
   if( p->nErr==0 ){
     PNum thickness;  /* Stroke width */
@@ -5837,23 +5886,7 @@ static void pik_render(Pik *p, PEList *pEList){
     /* Compute a bounding box over all objects so that we can know
     ** how big to declare the SVG canvas */
     pik_bbox_init(&p->bbox);
-    for(i=0; i<pEList->n; i++){
-      PElem *pElem = pEList->a[i];
-      pik_bbox_addbox(&p->bbox, &pElem->bbox);
-
-      /* Expand the bounding box to account for arrowheads on lines */
-      if( pElem->type->isLine && pElem->nPath>0 ){
-        if( pElem->larrow ){
-          pik_bbox_addellipse(&p->bbox, pElem->aPath[0].x, pElem->aPath[0].y,
-                              wArrow, wArrow);
-        }
-        if( pElem->rarrow ){
-          j = pElem->nPath-1;
-          pik_bbox_addellipse(&p->bbox, pElem->aPath[j].x, pElem->aPath[j].y,
-                              wArrow, wArrow);
-        }
-      }
-    }
+    pik_bbox_add_elist(p, pEList, wArrow);
 
     /* Expand the bounding box slightly to account for line thickness
     ** and the optional "margin = EXPR" setting. */
@@ -6453,4 +6486,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 6481 "pikchr.c"
+#line 6514 "pikchr.c"
