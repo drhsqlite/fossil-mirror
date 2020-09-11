@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\stest-parse-manifest\scommand\sto\salso\stest\sthe\nmanifest_is_well_formed()\sinterface.
-D 2020-09-11T15:20:26.594
+C If\sthe\s"fossil\simport\s--git"\scommand\sencounters\sa\sfile\sthat\slooks\slike\sa\nwell-formed\sFossil\sartifact,\sappend\sa\sline\sto\sthe\send\sof\sthat\sfile\sso\sthat\nit\sis\sno\slonger\sa\swell-formed\sartifact\sbefore\simporting\sit.\s\sThis\sprevents\n"manifest"\sfiles\sthat\sfound\stheir\sway\sinto\sGit\sfrom\sbeing\sreinterpreted\sby\nFossil\swhen\sthe\srepository\sis\sreimported\sback\sinto\sFossil.
+D 2020-09-11T15:40:49.197
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf
 F src/captcha.c 987fdecbadd13d4215635aa9efb30196cc29ddb2788080ce065d862478d90a6f
 F src/cgi.c 9efe8767e9114f5334347d2f45b9660e597f73b2a0ebbee077254e0ce0743189
 F src/checkin.c d3f54a2a1d85c92a7d2acad3cb190dc88991f499ff853722f9ab8bcb3c901acf
-F src/checkout.c 5d824323142b2a66d9b06faf9353487312be821bb14ea71867e1af56aa7d527f
+F src/checkout.c d297ecc288189c3ffe78184e04126b7fb0726601a0be71555b4c0f8ed37fa907
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c b6044e4f0fd8510e661e24276b445b6df937edf18782267cbc163e2930bf00df
@@ -513,7 +513,7 @@ F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
-F src/import.c 524231291457ad21dae9c601a9eded03ae3360c5ceccd1f5adf883737b2d2d16
+F src/import.c 2d041f8f97ac100409e5e632368b6b665f6787ca1c74c453101b3de6fe12c90a
 F src/info.c 9852b680971c8c03dac4474d3ab18b333a393535a77beccacb08f1b0c73ee704
 F src/interwiki.c ef2dfc844dfc1396ce60923d9f547730f8d2d505adef2869e09e36846ccdf555
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
@@ -544,7 +544,7 @@ F src/main.mk 3ab3096139c517c1f5b287c5f85462cab9dd21e8b9a4dd10dc906a52b44ea122
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab13108cf x
-F src/manifest.c 3d456a2a8b3951ef25bb2e45e263b5cc496cfea48a3bef9c847409c5fc6ee6ca
+F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
 F src/markdown.c 1dc6457837632cda872d68d79ab69a2a305d58689a2fdc9ac09e7a6bef7a5561
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
 F src/markdown_html.c 1d7ebf6d44748f86671ed175bc3f25ef877b69905b653b676a3f35174be9a854
@@ -620,7 +620,7 @@ F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
 F src/tag.c 8242b629d52bcb473da7b0c6de50a934782a4e088adce5e8c79c45aad7b40f4a
-F src/tar.c f7b0290f4a23050c8b5ee32768b82922839964923651052b2cf3d76ea7752cd4
+F src/tar.c 9197c27d243ca2d12b2b261252116c95c985c54f169290c8d051c7c8d3dd78a5
 F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2f
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
@@ -651,7 +651,7 @@ F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c b30ba807ffc837f7797efe6cf4569462967fe51bb7e2194cc348a2b7c59072e2
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
-F src/zip.c 4108b1aeb6643568b322d12ad7953b321b287bf7a37c5d39c998865ec99d1d59
+F src/zip.c 8911092170560345e1fd8f672591dcaf708eec3dfb92372835485cec103834aa
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f7eff9eebc00cc84b1d0faf60b8677d7ee1721385898663ef07a40f4e2d499d
-R 15e0df90962026455064de7d260a2c4d
+P 761696443aca574f1deeea0ec0865ff6d97f3c26a2b22f6126438d2ac2f7a8bb
+R 86c2a885aba70950edc72d8a326651a0
 U drh
-Z 36dfd44c5d2c7e19944379255ffc1fdc
+Z 0291e0eb0039e2ad4aec2edd72d205ae

@@ -2140,17 +2140,18 @@ void manifest_ticket_event(
 ** However, if the manifest is PGP signed then the extra line has to be
 ** inserted before the PGP signature (thus invalidating the signature).
 */
-void sterilize_manifest(Blob *p){
+void sterilize_manifest(Blob *p, int eType){
   char *z, *zOrig;
   int n, nOrig;
   static const char zExtraLine[] =
-      "# Remove this line to create a well-formed manifest.\n";
+      "# Remove this line to create a well-formed Fossil %s.\n";
+  const char *zType = eType==CFTYPE_MANIFEST ? "manifest" : "control artifact";
 
   z = zOrig = blob_materialize(p);
   n = nOrig = blob_size(p);
   remove_pgp_signature((const char **)&z, &n);
   if( z==zOrig ){
-    blob_append(p, zExtraLine, -1);
+    blob_appendf(p, zExtraLine/*works-like:"%s"*/, zType);
   }else{
     int iEnd;
     Blob copy;
@@ -2158,7 +2159,7 @@ void sterilize_manifest(Blob *p){
     blob_init(p, 0, 0);
     iEnd = (int)(&z[n] - zOrig);
     blob_append(p, zOrig, iEnd);
-    blob_append(p, zExtraLine, -1);
+    blob_appendf(p, zExtraLine/*works-like:"%s"*/, zType);
     blob_append(p, &zOrig[iEnd], -1);
     blob_zero(&copy);
   }

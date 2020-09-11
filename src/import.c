@@ -204,6 +204,9 @@ static int fast_insert_content(
 static void finish_blob(void){
   Blob content;
   blob_init(&content, gg.aData, gg.nData);
+  if( manifest_is_well_formed(gg.aData, gg.nData) ){
+    sterilize_manifest(&content, -1);
+  }
   fast_insert_content(&content, gg.zMark, 0, 0);
   blob_reset(&content);
   import_reset(0);
