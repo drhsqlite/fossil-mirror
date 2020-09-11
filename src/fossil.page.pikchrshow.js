@@ -93,7 +93,7 @@
       return;
     }
     D.removeClass(preTgt, 'error');
-    D.removeClass(this.e.btnTogglePreviewMode, 'hidden');
+    D.enable(this.e.btnTogglePreviewMode);
     let label;
     switch(this.previewMode){
     case 0:
@@ -133,9 +133,11 @@
       the rendered SVG content or error report. */
   P.preview = function fp(){
     if(!fp.hasOwnProperty('toDisable')){
-      fp.toDisable = [ /* elements to disable during ajax operations */
+      fp.toDisable = [
+        /* input elements to disable during ajax operations */
         this.e.btnSubmit, this.e.taContent,
-        this.e.btnTogglePreviewMode, this.e.selectMarkupAlignment,
+        this.e.selectMarkupAlignment
+        /* this.e.btnTogglePreviewMode is handled separately */
       ];
       fp.target = this.e.previewTarget;
       fp.updateView = function(c,isError){
@@ -146,8 +148,7 @@
         P.renderPreview();
       };
     }
-    D.disable(fp.toDisable);
-    D.addClass(this.e.btnTogglePreviewMode, 'hidden');
+    D.disable(fp.toDisable, this.e.btnTogglePreviewMode);
     const content = this.e.taContent.value.trim();
     this.response.raw = undefined;
     this.response.inputText = content;

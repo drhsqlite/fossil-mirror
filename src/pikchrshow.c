@@ -74,8 +74,11 @@ void pikchrshow_cmd(void){
      "}");
   CX("#sbs-wrapper > * {"
      "margin: 0 0.25em 0.5em 0; flex: 1 10 auto;"
+     "align-self: stretch;"
      "}");
-  CX("#sbs-wrapper textarea {max-width: initial}");
+  CX("#sbs-wrapper textarea {"
+     "max-width: initial; flex: 1 1 auto;"
+     "}");
   CX("#pikchrshow-output, #pikchrshow-form"
      "{display: flex; flex-direction: column; align-items: stretch;}");
   CX("#pikchrshow-form > * {margin: 0.25em 0}");
@@ -84,6 +87,9 @@ void pikchrshow_cmd(void){
      "#pikchrshow-output > pre > div, "
      "#pikchrshow-output > pre > div > pre "
      "{margin: 0; padding: 0}");
+  CX("#pikchrshow-output > pre > div > pre "
+     /* Server-side error report */
+     "{padding: 0.5em}");
   CX("#pikchrshow-controls {" /* where the buttons live */
      "display: flex; flex-direction: row; "
      "align-items: center; flex-wrap: wrap;"
