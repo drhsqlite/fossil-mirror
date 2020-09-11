@@ -573,7 +573,7 @@ static void git_fast_import(FILE *pIn){
       ** documentation.  We had to figure it out via trial and error.
       */
       for(i=5; i<strlen(zRefName) && zRefName[i]!='/'; i++){}
-      gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0;  /* True for pattern B */
+      gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0; /* pattern B */
       if( zRefName[i+1]!=0 ) zRefName += i+1;
       if( fossil_strcmp(zRefName, "master")==0 ) zRefName = ggit.zMasterName;
       gg.zBranch = fossil_strdup(zRefName);
@@ -659,7 +659,7 @@ static void git_fast_import(FILE *pIn){
         secSince1970 = secSince1970*10 + *zTo - '0';
       }
       fossil_free(gg.zDate);
-      gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", secSince1970);
+      gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')",secSince1970);
       gg.zDate[10] = 'T';
     }else
     if( strncmp(zLine, "from ", 5)==0 ){
@@ -1351,7 +1351,8 @@ static void svn_dump_import(FILE *pIn){
   );
   db_prepare(&cpyPath,
     "INSERT INTO xfiles (tpath, tbranch, tuuid, tperm)"
-    " SELECT :path||:sep||substr(filename, length(:srcpath)+2), :branch, uuid, perm"
+    " SELECT :path||:sep||substr(filename,"
+          "  length(:srcpath)+2), :branch, uuid, perm"
     " FROM xfoci"
     " WHERE checkinID=:rid"
     "   AND filename>:srcpath||'/'"
