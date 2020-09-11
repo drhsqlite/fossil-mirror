@@ -71,7 +71,7 @@ void pikchrshow_page(void){
   CX("<style>");
   CX("div.content { padding-top: 0.5em }");
   CX("#sbs-wrapper {"
-     "display: flex; flex-direction: row; flex-wrap: wrap;"
+     "display: flex; flex-direction: column;"
      "}");
   CX("#sbs-wrapper > * {"
      "margin: 0 0.25em 0.5em 0; flex: 1 10 auto;"
@@ -101,7 +101,7 @@ void pikchrshow_page(void){
   CX("#pikchrshow-controls > .input-with-label > * {"
      "cursor: pointer;"
      "}");
-  CX("#pikchrshow-output.dark-mode > svg {"
+  CX("#pikchrshow-output.dark-mode svg {"
      /* Flip the colors to approximate a dark theme look */
      "filter: invert(1) hue-rotate(180deg);"
      "}");
@@ -113,14 +113,14 @@ void pikchrshow_page(void){
   CX("<div>Input pikchr code and tap Preview to render it:</div>");
   CX("<div id='sbs-wrapper'>");
   CX("<div id='pikchrshow-form'>");
+  CX("<textarea id='content' name='content' rows='15'>%s</textarea>",
+     zContent/*safe-for-%s*/);
   CX("<div id='pikchrshow-controls'>");
   CX("<button id='pikchr-submit-preview'>Preview</button>");
   style_labeled_checkbox("flipcolors-wrapper", "flipcolors",
                          "Simulate dark theme?",
                          "1", flipColors, 0);
   CX("</div>"/*#pikchrshow-controls*/);
-  CX("<textarea id='content' name='content' rows='15'>%s</textarea>",
-     zContent/*safe-for-%s*/);
   CX("</div>"/*#pikchrshow-form*/);
   CX("<fieldset id='pikchrshow-output-wrapper'>");
   CX("<legend>Preview <span class='copy-button'></span></legend>");
