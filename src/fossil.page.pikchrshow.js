@@ -388,10 +388,9 @@
 /*
   The following were imported from the pikchr test scripts:
 
-  https://fossil-scm.org/pikchr/dir/tests
+  https://fossil-scm.org/pikchr/dir/examples
 */
-
-{name: "headings01", code:`   linerad = 5px
+{name:"Cardinal headings",code:`   linerad = 5px
 C: circle "Center" rad 150%
    circle "N"  at 1.0 n  of C; arrow from C to last chop ->
    circle "NE" at 1.0 ne of C; arrow from C to last chop <-
@@ -410,8 +409,7 @@ C: circle "Center" rad 150%
    arrow from ESE up 1.35 then to NE chop
    line dashed <- from E.e to (ESE.x,E.y)
    line dotted <-> thickness 50% from N to NW chop
-`},
-{name: "objects", code:`AllObjects: [
+`},{name:"Core object types",code:`AllObjects: [
 
 # First row of objects
 box "box"
@@ -462,8 +460,7 @@ spline same from .4cm below start of previous <->
 
 # Label the whole diagram
 text "Examples Of Pikchr Objects" big bold  at .8cm above north of AllObjects
-`},
-{name: "swimlane", code:`    $laneh = 0.75
+`},{name:"Swimlanes",code:`    $laneh = 0.75
 
     # Draw the lanes
     down

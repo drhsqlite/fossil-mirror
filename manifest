@@ -1,5 +1,5 @@
-C Milestone:\seliminated\sthe\sremaining\sassign-to-DOMElement.innerHTML\sin\sthe\sfossil.*.js\sAPIs\s(ostensible\ssecurity\senhancement),\sthanks\sto\sthe\sDOMParser\sinterface.\sFixed\san\sobscure\sminor\sbug\sin\s/fileedit\swhere\sa\scommit\smessage\swhich\scontained\sHTML\stags\scould\scause\sthe\spage\sto\smisbehave\sif\sthe\s'response\smanifest'\sdebugging\soption\swas\sturned\son.
-D 2020-09-12T12:21:11.823
+C Re-imported\spikchr's\sexample\sscripts\susing\sthe\soutput\sfrom\sits\snew\sexample-to-js\sconverter.
+D 2020-09-12T19:28:01.115
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js c1289f700e644abf872deff99b8d3115899841dc798b559f36f31bb1a61f48c3
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.pikchrshow.js c8b6e831c5ee8b61af52495a5a9f433690afde0f0aa4c7a7e0ae89135a7e7b38
+F src/fossil.page.pikchrshow.js 941b5e282e9593c60d435e293f52e04f886b1e52914b9df1451c2de0408f89da
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 1f81b2ac6e6e45167bbb36cb98ebb147855f5f08b94d6c35942c2dc051c2aaf6
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74791f8873a98ec4b024edbc7257f78211bbf189f7ab4802c31685dd999282b9
-R a660f28656c01178fb57a66f64a49ff5
+P 79023c9273e2536d1aacae7734ea7996f6fe31462a32380b86f105087b636fcd
+R 77bd67d423e251bb9cb6f999b20a11eb
 U stephan
-Z aa9b44f0afcffb40e7aeeb22a004cd9f
+Z 48dcda15c2665be87d9f63917f286724
