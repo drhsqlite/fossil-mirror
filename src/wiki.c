@@ -1128,6 +1128,7 @@ void wikiedit_page(void){
     }
   }
   style_header("Wiki Editor");
+  style_emit_noscript_for_js_page();
 
   /* Status bar */
   CX("<div id='fossil-status-bar' "

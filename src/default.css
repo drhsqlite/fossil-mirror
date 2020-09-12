@@ -1380,3 +1380,9 @@ style='fill:%23f8f8f8;stroke-width:1.35412836' /%3e%3c/svg%3e ");
   text-align: left;
   border-style: outset;
 }
+
+noscript > .error {
+  /* Part of the style_emit_noscript_for_js_page() interface. */
+  padding: 1em;
+  font-size: 150%;
+}

@@ -140,11 +140,15 @@
       D.append(
         P.e.cbDarkMode.parentNode/*the .input-with-label element*/,
         F.helpButtonlets.create(
-          D.span(),
+          D.div(),
           'Dark mode changes the colors of rendered SVG to ',
           'make them more visible in dark-themed skins. ',
           'This only changes (using CSS) how they are rendered, ',
-          'not any actual colors written in the script.'
+          'not any actual colors written in the script.',
+          D.br(), D.br(),
+          'In some color combinations, certain browsers might ',
+          'cause the SVG image to blur considerably with this ',
+          'setting enabled!'
         )
       )
     );

@@ -1458,3 +1458,15 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
     CX("</script>\n");
   }
 }
+
+/*
+** Emits a NOSCRIPT tag with an error message stating that JS is
+** required for the current page. This "should" be called near the top
+** of pages which *require* JS. The inner DIV has the CSS class
+** 'error' and can be styled via a (noscript > .error) CSS selector.
+*/
+void style_emit_noscript_for_js_page(void){
+  CX("<noscript><div class='error'>"
+     "This page requires JavaScript (ES2015, a.k.a. ES6, or newer)."
+     "</div></noscript>");
+}

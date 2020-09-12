@@ -1635,6 +1635,7 @@ void fileedit_page(void){
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
   style_header("File Editor");
+  style_emit_noscript_for_js_page();
   /* As of this point, don't use return or fossil_fatal(). Write any
   ** error in (&err) and goto end_footer instead so that we can be
   ** sure to emit the error message, do any cleanup, and end the

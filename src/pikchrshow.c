@@ -32,7 +32,7 @@
 */
 void pikchrshow_page(void){
   const char *zContent = 0;
-  int isDark, flipColors;
+  int isDark;              /* true if the current skin is "dark" */
 
   login_check_credentials();
   if( !g.perm.RdWiki && !g.perm.Read && !g.perm.RdForum ){
@@ -59,8 +59,8 @@ void pikchrshow_page(void){
     }
     return;
   }
+  style_emit_noscript_for_js_page();
   isDark = skin_detail_boolean("white-foreground");
-  flipColors = zContent ? P("flipcolors")!=0 : isDark;
   if(!zContent){
     zContent = "arrow right 200% \"Markdown\" \"Source\"\n"
       "box rad 10px \"Markdown\" \"Formatter\" \"(markdown.c)\" fit\n"
@@ -130,7 +130,7 @@ void pikchrshow_page(void){
   CX("<button id='pikchr-submit-preview'>Preview</button>");
   style_labeled_checkbox("flipcolors-wrapper", "flipcolors",
                          "Dark mode?",
-                         "1", flipColors, 0);
+                         "1", isDark, 0);
   CX("</div>"/*#pikchrshow-controls*/);
   CX("</div>"/*#pikchrshow-form*/);
   CX("<fieldset id='pikchrshow-output-wrapper'>");
