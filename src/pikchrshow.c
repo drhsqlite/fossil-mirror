@@ -111,15 +111,15 @@ void pikchrshow_page(void){
      "}");
   CX("#pikchrshow-output-wrapper {"
      "padding: 0.25em 0.5em; border-radius: 0.25em;"
+     "border-width: 1px;"/*some skins disable fieldset borders*/
      "}");
   CX("#pikchrshow-output-wrapper > legend {"
      "display: flex; flex-direction: row;"
      "align-items: center;"
      "}");
   CX("#pikchrshow-output-wrapper > legend > *:not(.copy-button)"
-     "{margin-right: 0.5em}"
-     );
-  CX(".dragover {border: 0.5em dotted rgba(0,255,0,0.6)}");
+     "{margin-right: 0.5em}");
+  CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}");
   CX("</style>");
   CX("<div>Input pikchr code and tap Preview to render it:</div>");
   CX("<div id='sbs-wrapper'>");

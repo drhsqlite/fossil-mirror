@@ -150,30 +150,62 @@
     ////////////////////////////////////////////////////////////
     // File drag/drop pikchr scripts into P.e.taContent.
     // Adapted from: https://stackoverflow.com/a/58677161
-    const dropfile = function(file){
-      const reader = new FileReader();
-      reader.onload = function(e) {P.e.taContent.value = e.target.result};
-      reader.readAsText(file, "UTF-8");
+    const dropHighlight = P.e.taContent;
+    const dropEvents = {
+      drop: function(ev){
+        //ev.stopPropagation();
+        ev.preventDefault();
+        D.removeClass(dropHighlight, 'dragover');
+        const file = ev.dataTransfer.files[0];
+        if(file) {
+          const reader = new FileReader();
+          reader.addEventListener(
+            'load', function(e) {P.e.taContent.value = e.target.result}, false
+          );
+          reader.readAsText(file, "UTF-8");
+        }
+      },
+      dragenter: function(ev){
+        //ev.stopPropagation();
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = "copy";
+        D.addClass(dropHighlight, 'dragover');
+        //console.debug("dragenter");
+      },
+      dragover: function(ev){
+        //ev.stopPropagation();
+        ev.preventDefault();
+        //console.debug("dragover");
+      },
+      dragend: function(ev){
+        //ev.stopPropagation();
+        ev.preventDefault();
+        //console.debug("dragend");
+      },
+      dragleave: function(ev){
+        //ev.stopPropagation();
+        ev.preventDefault();
+        D.removeClass(dropHighlight, 'dragover');
+        //console.debug("dragleave");
+      }
     };
-    const dropTarget = P.e.taContent /* document.body does not behave how i'd like */;
-    dropTarget.addEventListener('drop', function(ev){
-      D.removeClass(dropTarget, 'dragover');
-      ev.preventDefault();
-      const file = ev.dataTransfer.files[0];
-      if(file) dropfile(file);
-    }, false);
-    dropTarget.addEventListener('dragenter', function(ev){
-      ev.stopPropagation();
-      ev.preventDefault();
-      console.debug("dragenter");
-      D.addClass(dropTarget, 'dragover');
-    }, false);
-    dropTarget.addEventListener('dragleave', function(ev){
-      ev.stopPropagation();
-      ev.preventDefault();
-      console.debug("dragleave");
-      D.removeClass(dropTarget, 'dragover');
-    }, false);
+    /*
+      The idea here is to accept drops at multiple points or, ideally,
+      document.body, and apply them to P.e.taContent, but the precise
+      combination of event handling needed to pull this off is eluding
+      me.
+    */
+    [P.e.taContent
+     //P.e.previewTarget,// works only until we drag over the SVG element!
+     //document.body
+     /* ideally we'd link only to document.body, but the events seem to
+        get out of whack, with dropleave being triggered
+        at unexpected points. */
+    ].forEach(function(e){
+        Object.keys(dropEvents).forEach(
+          (k)=>e.addEventListener(k, dropEvents[k], true)
+        );
+    });
 
     ////////////////////////////////////////////////////////////
     // If we start with content, get it in sync with the state
