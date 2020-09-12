@@ -70,56 +70,56 @@ void pikchrshow_page(void){
   }
   style_header("PikchrShow");
   CX("<style>");
-  CX("div.content { padding-top: 0.5em }");
+  CX("div.content { padding-top: 0.5em }\n");
   CX("#sbs-wrapper {"
      "display: flex; flex-direction: column;"
-     "}");
+     "}\n");
   CX("#sbs-wrapper > * {"
      "margin: 0 0.25em 0.5em 0; flex: 1 10 auto;"
      "align-self: stretch;"
-     "}");
+     "}\n");
   CX("#sbs-wrapper textarea {"
      "max-width: initial; flex: 1 1 auto;"
-     "}");
+     "}\n");
   CX("#pikchrshow-output, #pikchrshow-form"
      "{display: flex; flex-direction: column; align-items: stretch;}");
-  CX("#pikchrshow-form > * {margin: 0.25em 0}");
-  CX("#pikchrshow-output {flex: 5 1 auto; padding: 0}");
+  CX("#pikchrshow-form > * {margin: 0.25em 0}\n");
+  CX("#pikchrshow-output {flex: 5 1 auto; padding: 0}\n");
   CX("#pikchrshow-output > pre, "
      "#pikchrshow-output > pre > div, "
      "#pikchrshow-output > pre > div > pre "
-     "{margin: 0; padding: 0}");
+     "{margin: 0; padding: 0}\n");
   CX("#pikchrshow-output.error > pre "
      /* Server-side error report */
-     "{padding: 0.5em}");
+     "{padding: 0.5em}\n");
   CX("#pikchrshow-controls {" /* where the buttons live */
      "display: flex; flex-direction: row; "
      "align-items: center; flex-wrap: wrap;"
-     "}");
+     "}\n");
   CX("#pikchrshow-controls > * {"
      "display: inline; margin: 0 0.25em 0.5em 0;"
-     "}");
+     "}\n");
   CX("#pikchrshow-output-wrapper label {"
      "cursor: pointer;"
-     "}");
+     "}\n");
   CX("body.pikchrshow .input-with-label > * {"
      "margin: 0 0.2em; cursor: pointer;"
-     "}");
+     "}\n");
   CX("#pikchrshow-output.dark-mode svg {"
      /* Flip the colors to approximate a dark theme look */
      "filter: invert(1) hue-rotate(180deg);"
-     "}");
+     "}\n");
   CX("#pikchrshow-output-wrapper {"
      "padding: 0.25em 0.5em; border-radius: 0.25em;"
      "border-width: 1px;"/*some skins disable fieldset borders*/
-     "}");
-  CX("#pikchrshow-output-wrapper > legend {"
-     "display: flex; flex-direction: row;"
-     "align-items: center;"
-     "}");
-  CX("#pikchrshow-output-wrapper > legend > *:not(.copy-button)"
-     "{margin-right: 0.5em}");
-  CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}");
+     "}\n");
+  CX("#pikchrshow-output-wrapper > legend > *:not(.copy-button){"
+     "margin-right: 0.5em; vertical-align: middle;"
+     "}\n");
+  CX("body.pikchrshow .v-align-middle{"
+     "vertical-align: middle"
+     "}\n");
+  CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}\n");
   CX("</style>");
   CX("<div>Input pikchr code and tap Preview to render it:</div>");
   CX("<div id='sbs-wrapper'>");
@@ -134,7 +134,10 @@ void pikchrshow_page(void){
   CX("</div>"/*#pikchrshow-controls*/);
   CX("</div>"/*#pikchrshow-form*/);
   CX("<fieldset id='pikchrshow-output-wrapper'>");
-  CX("<legend></legend>");
+  CX("<legend></legend>"
+     /* Reminder: Firefox does not properly flexbox a LEGEND element,
+        always flowing it in column mode (at least when its fieldset
+        has a flexbox column layout). */);
   CX("<div id='pikchrshow-output'>");
   if(*zContent){
     int w = 0, h = 0;
@@ -149,7 +152,7 @@ void pikchrshow_page(void){
     fossil_free(zOut);
   }
   CX("</div>"/*#pikchrshow-output*/);
-  CX("</fieldset>");
+  CX("</fieldset>"/*#pikchrshow-output-wrapper*/);
   CX("</div>"/*sbs-wrapper*/);
   if(!builtin_bundle_all_fossil_js_apis()){
     builtin_emit_fossil_js_apis("dom", "fetch", "copybutton",

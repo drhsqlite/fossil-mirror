@@ -35,7 +35,7 @@
       uiControls: E('#pikchrshow-controls'),
       previewModeToggle: D.button("Preview mode"),
       markupAlignCenter: D.attr(D.checkbox(), 'id','markup-align-center'),
-      markupAlignWrapper: D.span()//D.addClass(D.span(), 'input-with-label')
+      markupAlignWrapper: D.span()
     };
 
     ////////////////////////////////////////////////////////////
@@ -47,8 +47,10 @@
       }
     }, false);
     D.append(P.e.markupAlignWrapper,
-             P.e.markupAlignCenter,
-             D.label(P.e.markupAlignCenter, "Align center?"));
+             D.addClass([
+               P.e.markupAlignCenter,
+               D.label(P.e.markupAlignCenter, "Align center?")
+             ], 'v-align-middle') );
 
     ////////////////////////////////////////////////////////////
     // Setup the preview fieldset's LEGEND element...

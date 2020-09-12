@@ -1,5 +1,5 @@
-C Work\son\sthe\spikchrshow\sdrag/drop\shandling.
-D 2020-09-12T04:33:23.370
+C pikchrshow:\sdiscovered\sthat\sFirefox\scannot\sflexbox\sa\sLEGEND\selement\sproperly,\sso\sworked\saround\sthat.
+D 2020-09-12T05:41:59.600
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 01ddddfc8565a3d6e7866cdfbdf4e268209e722878e926e8e48877e903eca2f9
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.pikchrshow.js c17aae03a8440daab9952a30275a92a28326b57785e90a2d77785280a97c97e2
+F src/fossil.page.pikchrshow.js a1ee9bea91dd6d43be833897739fc6db2f686aa1059bd4f39ce726ad07d8b6d5
 F src/fossil.page.wikiedit-wysiwyg-legacy.js ea075166a42c728c6eae22f2611ab9a41219d2bb8965661a238caefd49360bcc
 F src/fossil.page.wikiedit.js f1cd4f8db6b1d589fef55e078473f31f900afc0ebd2548b19c7f41b4e662dcdc
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
@@ -561,7 +561,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c 88786ec8ac588a749a8f34af0b39aadde1e7ae42f19ef8d2b9b8ed8e0c047d96
-F src/pikchrshow.c a1e920ddda657c0f3a6a28b7cf09da855c9b050b27fed7f2cdf1aa19d2ba0c5f
+F src/pikchrshow.c 323dc1f8b2e9a83b09277caf21b5cfcd852d41b15ec6e1d5156855f09b17fe07
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be125040540e605d57cc7f7eee8390cf8be5caca2b70075560e434b62772fc26
-R 2391df59fe7513087ea38913b183d0db
+P 3ffd3be3dc4b279a07f5a3f9d22128b5f7de527a7d3dd32a3a06f1fbdb4e0c39
+R e4098ce7b0450585dd130b3a8292d394
 U stephan
-Z 6840f6acb9a718ff0a23e2ef486414db
+Z 97521e8ac701487c0005c20fd76a6169
