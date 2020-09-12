@@ -540,9 +540,9 @@ C1: circle same as A1 at B1-(0,$laneh) "1"
     circle same "2"
     arrow right 0.8in "goes" "offline"
 C5: circle same as A3 "5"
-    arrow right until even with first ellipse.w
+    arrow right until even with first ellipse.w \
+      "back online" above "pushes 5" below "pulls 3 &amp; 4" below 
     ellipse same "future"
-    text "back online" "pushes 5" "pulls 3 &amp; 4" with .n at last arrow
 
     # content for the Darlene lane
 D1: circle same as A1 at C1-(0,$laneh) "1"

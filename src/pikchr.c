@@ -3879,8 +3879,8 @@ static void splineRender(Pik *p, PElem *pElem){
 
 /* Methods for the "text" class */
 static void textInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "textwid",7,0);
-  pElem->h = pik_value(p, "textht",6,0);
+  pik_value(p, "textwid",7,0);
+  pik_value(p, "textht",6,0);
   pElem->sw = 0.0;
 }
 
@@ -4032,7 +4032,7 @@ static const PClass aClass[] = {
       /* xNumProp */      0,
       /* xChop */         boxChop,
       /* xOffset */       boxOffset,
-      /* xFit */          0,
+      /* xFit */          boxFit,
       /* xRender */       boxRender 
    },
 };
@@ -5480,7 +5480,7 @@ static short int pik_nth_value(Pik *p, PToken *pNth){
 ** The pNth token describes the N-th search.  The pNth->eCode value
 ** is one more than the number of items to skip.  It is negative
 ** to search backwards.  If pNth->eType==T_ID, then it is the name
-** of a primative time to search for.  If pNth->eType==T_LB, then
+** of a class to search for.  If pNth->eType==T_LB, then
 ** search for a [] object.  If pNth->eType==T_LAST, then search for
 ** any type.
 **
@@ -5844,6 +5844,11 @@ static void pik_after_adding_attributes(Pik *p, PElem *pElem){
     }
   }
 
+  /* Run "fit" on the text type automatically */
+  if( pElem->type->xInit==textInit && pElem->nTxt ){
+    pik_size_to_fit(p, &pElem->errTok);
+  }
+
   /* Compute final bounding box, entry and exit points, center
   ** point (ptAt) and path for the element
   */
@@ -5988,7 +5993,7 @@ static void pik_bbox_add_elist(Pik *p, PEList *pEList, PNum wArrow){
   int i;
   for(i=0; i<pEList->n; i++){
     PElem *pElem = pEList->a[i];
-    pik_bbox_addbox(&p->bbox, &pElem->bbox);
+    if( pElem->sw>0.0 ) pik_bbox_addbox(&p->bbox, &pElem->bbox);
     pik_append_txt(p, pElem, &p->bbox);
     if( pElem->pSublist ) pik_bbox_add_elist(p, pElem->pSublist, wArrow);
 
@@ -6152,6 +6157,7 @@ static const PikWord pik_keywords[] = {
   { "north",      5,   T_EDGEPT,    0,         CP_N    },
   { "nw",         2,   T_EDGEPT,    0,         CP_NW   },
   { "of",         2,   T_OF,        0,         0       },
+  { "previous",   8,   T_LAST,      0,         0,      },
   { "print",      5,   T_PRINT,     0,         0       },
   { "rad",        3,   T_RADIUS,    0,         0       },
   { "radius",     6,   T_RADIUS,    0,         0       },
@@ -6659,4 +6665,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 6687 "pikchr.c"
+#line 6693 "pikchr.c"

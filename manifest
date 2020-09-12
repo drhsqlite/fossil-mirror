@@ -1,5 +1,5 @@
-C pikchrshow:\smoved\smarkup\salignment\sselection\sinto\sthe\sfieldset\slegend\sand\sonly\sshow\sit\swhen\sthe\spreview\sis\sshowing\sone\sof\sthe\smarkup\stypes.
-D 2020-09-12T00:46:53.761
+C Update\spikchr.c\sto\sthe\slatest.\s\sThis\salso\srequired\sa\ssmall\scorrection\sto\ntext\salignment\sin\sfigure\s6\sof\sbranching.wiki
+D 2020-09-12T02:24:05.538
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -560,7 +560,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 688bfb2a32b6756c4973bd739c46ff6f180e15fe2b01bff59f37629f5ca000e4
+F src/pikchr.c 756717ea32cb599b2bcf147c78c967a4213266cd05fd21ebe5bfe4e684b6ff87
 F src/pikchrshow.c dc8d21ead0196f15742d03981d65d1f0f4201588462f59a96092c53385676fe8
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -819,7 +819,7 @@ F www/branch03.graphml 758a9549975a25483ff723f119931cdbe0c25bca9ff75c31d2a906da8
 F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb60ce84f
 F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
 F www/branch06.graphml 7a1a988adf9c0266df256eaa2d4b31d11dc3a3cb78c67ea7d7485a97b916c89d
-F www/branching.wiki 3497022875db42372a5e6d7144dc5af363dd3e001efefd61ee31a32ef7990c0c
+F www/branching.wiki 0d073a59bdd0531dcf92ccff70218ad28ddf686b1016ca8f8c7927fc9d6b758d
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb31279a19aeba427be931ac101773f5be3ca6726f148e61ba2097d4f348c9bb
-R 7a669caa27ee46816341fcd1d4af14e4
-U stephan
-Z 11c15adc1d8ca344e7357d755e93bdf9
+P be99269dc3ffb06f8861bba78ebed8f6d58bb8ccbc9debcbb047ff515fb8930f
+R 40fed43bc18a6f190d9bbdb07cee3678
+U drh
+Z 2e5bf4178bf8d2d849f1691076d2e866
