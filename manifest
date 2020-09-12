@@ -1,5 +1,5 @@
-C Rearranged\sthe\spikchrshow\scontrols\sa\sbit\sto\smake\sbetter\suse\sof\sspace\sand\sreduce\sflickering\sof\sthe\spreview\smode\slabel/controls.\sAdapted\sCSS\sfor\spikchr\serror\sreporting\sstructure\schanges.\sCode\srenaming\sfor\sconsistency/clarity.\sfossil.copyButton()\sclick\shandler\sis\snow\sa\sno-op\sif\sthe\spseudo-button\selement\shas\sthe\s'disabled'\sCSS\sclass\sand\sadded\sstyle\sto\sgrey\ssuch\sa\sbutton\sout.
-D 2020-09-11T23:56:22.404
+C Import\sthe\slatest\sversion\sof\spikchr\sthat\ssupports\sthe\s"file"\sobject\stype.
+D 2020-09-12T00:00:46.864
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -560,7 +560,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 149f6f763f67535a3ff16f08800849dd78ae80abf5ba57d927cf69f9b47f8da2
+F src/pikchr.c 688bfb2a32b6756c4973bd739c46ff6f180e15fe2b01bff59f37629f5ca000e4
 F src/pikchrshow.c 24ecce7c3a43f025a219270543b29dbcee524e2d3b736e1d985851c6089bf114
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f73f1e36adc6685fb4413202939f8731bbb8139968dbf28a399c59d1a05bd8ef
-R a312d38feaac617fdfde97a0dae27e6b
-U stephan
-Z 90de0702aad03fee83726c53f0b8d3fe
+P c304b4ffdf163aed2b7ab42084a87ce5dadc7a4c057ce827137db9562ac15d6d
+R 3faefabb91fcbc20bdb081e7fdbca7bc
+U drh
+Z 799c1e9be7f7feaf22d67e4d8f02746a
