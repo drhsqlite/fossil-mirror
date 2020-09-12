@@ -422,23 +422,21 @@
   };
 
   /**
-     Each argument after the first may be a single DOM element
-     or a container of them with a forEach() method. All such
-     elements are appended, in the given order, to the dest
-     element.
+     Each argument after the first may be a single DOM element or a
+     container of them with a forEach() method. All such elements are
+     appended, in the given order, to the dest element using
+     dom.append(dest,theElement). Thus the 2nd and susequent arguments
+     may be any type supported as the 2nd argument to that function.
 
      Returns dest.
   */
   dom.moveTo = function(dest,e){
     const n = arguments.length;
     var i = 1;
+    const self = this;
     for( ; i < n; ++i ){
       e = arguments[i];
-      if(e.forEach){
-        e.forEach((x)=>dest.appendChild(x));
-      }else{
-        dest.appendChild(e);
-      }
+      this.append(dest, e);
     }
     return dest;
   };
@@ -698,6 +696,184 @@
     }
     return e;
   };
+
+  /**
+     Parses a string as HTML.
+
+     Usages:
+
+     (htmlString)
+     (DOMElement target, htmlString)
+
+     The first form parses the string as HTML and returns an Array of
+     all elements parsed from it. If string is falsy then it returns
+     an empty array.
+
+     The second form parses the HTML string and appends all elements
+     to the given target element using dom.append(), then returns the
+     first argument.
+
+     Caveats:
+
+     - It expects a partial HTML document as input, not a full HTML
+     document with a HEAD and BODY tags. Because of how DOMParser
+     works, only children of the parsed document's (virtual) body are
+     acknowledged by this routine.
+  */
+  dom.parseHtml = function(){
+    let childs, string, tgt;
+    if(1===arguments.length){
+      string = arguments[0];
+    }else if(2==arguments.length){
+      tgt = arguments[0];
+      string  = arguments[1];
+    }
+    if(string){
+      const newNode = new DOMParser().parseFromString(string, 'text/html');
+      childs = newNode.documentElement.querySelector('body');
+      childs = childs ? Array.prototype.slice.call(childs.childNodes, 0) : [];
+      /* ^^^ we need a clone of the list because reparenting them
+         modifies a NodeList they're in. */
+    }else{
+      childs = [];
+    }
+    return tgt ? this.moveTo(tgt, childs) : childs;
+  };
+
+  /**
+     Sets up pseudo-automatic content preview handling between a
+     source element (typically a TEXTAREA) and a target rendering
+     element (typically a DIV). The selector argument must be one of:
+
+     - A single DOM element
+     - A collection of DOM elements with a forEach method.
+     - A CSS selector
+
+     Each element in the collection must have the following data
+     attributes:
+
+     - data-f-preview-from: is either a DOM element id, WITH a leading
+     '#' prefix, or the name of a method (see below). If it's an ID,
+     the DOM element must support .value to get the content.
+
+     - data-f-preview-to: the DOM element id of the target "previewer"
+       element, WITH a leading '#', or the name of a method (see below).
+
+     - data-f-preview-via: the name of a method (see below).
+
+     - OPTIONAL data-f-preview-as-text: a numeric value. Explained below.
+
+     Each element gets a click handler added to it which does the
+     following:
+
+     1) Reads the content from its data-f-preview-from element or, if
+     that property refers to a method, calls the method without
+     arguments and uses its result as the content.
+
+     2) Passes the content to
+     methodNamespace[f-data-post-via](content,callback). f-data-post-via
+     is responsible for submitting the preview HTTP request, including
+     any parameters the request might require. When the response
+     arrives, it must pass the content of the response to its 2nd
+     argument, an auto-generated callback installed by this mechanism
+     which...
+
+     3) Assigns the response text to the data-f-preview-to element or
+     passes it to the function
+     methodNamespace[f-data-preview-to](content), as appropriate. If
+     data-f-preview-to is a DOM element and data-f-preview-as-text is
+     '0' (the default) then the target elements contents are replaced
+     with the given content as HTML, else the content is assigned to
+     the target's textContent property. (Note that this routine uses
+     DOMParser, rather than assignment to innerHTML, to apply
+     HTML-format content.)
+
+     The methodNamespace (2nd argument) defaults to fossil.page, and
+     any method-name data properties, e.g. data-f-preview-via and
+     potentially data-f-preview-from/to, must be a single method name,
+     not a property-access-style string. e.g. "myPreview" is legal but
+     "foo.myPreview" is not (unless, of course, the method is actually
+     named "foo.myPreview" (which is legal but would be
+     unconventional)).
+
+     An example...
+
+     First an input button:
+
+     <button id='test-preview-connector'
+       data-f-preview-from='#fileedit-content-editor' // elem ID or method name
+       data-f-preview-via='myPreview' // method name
+       data-f-preview-to='#fileedit-tab-preview-wrapper' // elem ID or method name
+     >Preview update</button>
+
+     And a sample data-f-preview-via method:
+
+     fossil.page.myPreview = function(content,callback){
+       const fd = new FormData();
+       fd.append('foo', ...);
+       fossil.fetch('preview_forumpost',{
+         payload: fd,
+         onload: callback,
+         onerror: (e)=>{ // only if app-specific handling is needed
+           fossil.fetch.onerror(e); // default impl
+           ... any app-specific error reporting ...
+         }
+       });
+     };
+
+     Then connect the parts with:
+
+     fossil.connectPagePreviewers('#test-preview-connector');
+
+     Note that the data-f-preview-from, data-f-preview-via, and
+     data-f-preview-to selector are not resolved until the button is
+     actually clicked, so they need not exist in the DOM at the
+     instant when the connection is set up, so long as they can be
+     resolved when the preview-refreshing element is clicked.
+
+     Maintenance reminder: this method is not strictly part of
+     fossil.dom, but is in its file because it needs access to
+     dom.parseHtml() to avoid an innerHTML assignment and all code
+     which uses this routine also needs fossil.dom.
+  */
+  F.connectPagePreviewers = function f(selector,methodNamespace){
+    if('string'===typeof selector){
+      selector = document.querySelectorAll(selector);
+    }else if(!selector.forEach){
+      selector = [selector];
+    }
+    if(!methodNamespace){
+      methodNamespace = F.page;
+    }
+    selector.forEach(function(e){
+      e.addEventListener(
+        'click', function(r){
+          const eTo = '#'===e.dataset.fPreviewTo[0]
+                ? document.querySelector(e.dataset.fPreviewTo)
+                : methodNamespace[e.dataset.fPreviewTo],
+                eFrom = '#'===e.dataset.fPreviewFrom[0]
+                ? document.querySelector(e.dataset.fPreviewFrom)
+                : methodNamespace[e.dataset.fPreviewFrom],
+                asText = +(e.dataset.fPreviewAsText || 0);
+          eTo.textContent = "Fetching preview...";
+          methodNamespace[e.dataset.fPreviewVia](
+            (eFrom instanceof Function ? eFrom() : eFrom.value),
+            function(r){
+              if(eTo instanceof Function) eTo(r||'');
+              else if(!r){
+                dom.clearElement(eTo);
+              }else if(asText){
+                eTo.textContent = r;
+              }else{
+                dom.parseHtml(dom.clearElement(eTo), r);
+              }
+            }
+          );
+        }, false
+      );
+    });
+    return this;
+  }/*F.connectPagePreviewers()*/;
 
   return F.dom = dom;
 })(window.fossil);

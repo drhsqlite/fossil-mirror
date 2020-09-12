@@ -1317,9 +1317,9 @@
     if(!affirmPageLoaded()) return this;
     const target = this.e.previewTarget,
           self = this;
-    const updateView = function(c){
+    const updateView = function(c,mimetype){
       D.clearElement(target);
-      if('string'===typeof c) target.innerHTML = c;
+      if('string'===typeof c) D.parseHtml(target,c);
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
     return this._postPreview(this.wikiContent(), updateView);
@@ -1400,12 +1400,12 @@
     ).fetch('wikiajax/diff',{
       payload: fd,
       onload: function(c){
-        target.innerHTML = [
+        D.parseHtml(D.clearElement(target), [
           "<div>Diff <code>[",
           self.winfo.name,
           "]</code> &rarr; Local Edits</div>",
           c||'No changes.'
-        ].join('');
+        ].join(''));
         if(sbs) P.tweakSbsDiffs2();
         F.message('Updated diff.');
         self.tabs.switchToTab(self.e.tabs.diff);

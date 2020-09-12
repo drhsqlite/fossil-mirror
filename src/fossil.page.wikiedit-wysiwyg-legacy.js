@@ -446,7 +446,7 @@ img.intLink { border: 0; }
       D.addClass(setDocMode.toHide, 'hidden');
     } else {
       /* Markup -> WYSIWYG */
-      oDoc.innerHTML = content;
+      D.parseHtml(D.clearElement(oDoc), content);
       oDoc.style.whiteSpace = "normal";
       D.removeClass(setDocMode.toHide, 'hidden');
     }

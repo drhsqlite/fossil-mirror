@@ -1118,7 +1118,7 @@
           self = this;
     const updateView = function(c){
       D.clearElement(target);
-      if('string'===typeof c) target.innerHTML = c;
+      if('string'===typeof c) D.parseHtml(target,c);
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
     return this._postPreview(this.fileContent(), updateView);
@@ -1206,12 +1206,12 @@
     ).fetch('fileedit/diff',{
       payload: fd,
       onload: function(c){
-        target.innerHTML = [
+        D.parseHtml(D.clearElement(target),[
           "<div>Diff <code>[",
           self.finfo.checkin,
           "]</code> &rarr; Local Edits</div>",
           c||'No changes.'
-        ].join('');
+        ].join(''));
         if(sbs) P.tweakSbsDiffs2();
         F.message('Updated diff.');
         self.tabs.switchToTab(self.e.tabs.diff);
@@ -1238,14 +1238,17 @@
       f.onload = function(c){
         const oldFinfo = JSON.parse(JSON.stringify(self.finfo))
         if(c.manifest){
-          target.innerHTML = [
+          D.parseHtml(D.clearElement(target), [
             "<h3>Manifest",
             (c.dryRun?" (dry run)":""),
             ": ", F.hashDigits(c.checkin),"</h3>",
-            "<code class='fileedit-manifest'>",
-            c.manifest,
+            "<pre><code class='fileedit-manifest'>",
+            c.manifest.replace(/</g,'&lt;'),
+            /* ^^^ replace() necessary or this breaks if the manifest
+               comment contains an unclosed HTML tags,
+               e.g. <script> */
             "</code></pre>"
-          ].join('');
+          ].join(''));
           delete c.manifest/*so we don't stash this with finfo*/;
         }
         const msg = [

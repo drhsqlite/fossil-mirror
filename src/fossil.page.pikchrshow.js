@@ -258,21 +258,10 @@
         else if(P.e.markupAlignIndent.checked) return ' indent';
         return '';
       };
-      /* Parses P.response.raw as HTML without using innerHTML. */
-      f.parseResponse = function(tgt){
-        let childs;
-        if(P.response.raw){
-          const newNode = new DOMParser().parseFromString(P.response.raw, 'text/html');
-          childs = newNode.documentElement.querySelectorAll('body > *');
-        }else{
-          childs = [];
-        }
-        D.append(D.clearElement(tgt), childs);
-      };
     }
     const preTgt = this.e.previewTarget;
     if(this.response.isError){
-      f.parseResponse(preTgt);
+      D.append(D.clearElement(preTgt), D.parseHtml(P.response.raw));
       D.addClass(preTgt, 'error');
       this.e.previewModeLabel.innerText = "Error";
       return;
@@ -286,7 +275,7 @@
     case 0:
       label = "SVG";
       f.showMarkupAlignment(false);
-      f.parseResponse(preTgt);
+      D.append(D.clearElement(preTgt), D.parseHtml(P.response.raw));
       this.e.taPreviewText.value =
         this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
       break;
