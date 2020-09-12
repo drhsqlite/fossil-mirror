@@ -31,33 +31,30 @@
                             'readonly', true),
       uiControls: E('#pikchrshow-controls'),
       previewModeToggle: D.button("Preview mode"),
-      selectAlignment: D.append(
-        D.select(/*alignment for markup blocks*/),
-        D.option('', 'Markup Alignment'),
-        D.option('', 'left (default)'),
-        D.option('center', 'center')
-      )
+      markupAlignCenter: D.attr(D.checkbox(), 'id','markup-align-center'),
+      markupAlignWrapper: D.span()//D.addClass(D.span(), 'input-with-label')
     };
 
     ////////////////////////////////////////////////////////////
     // Setup markup alignment selection...
-    D.disable(P.e.selectAlignment.options[0]
-      /*has to be done after creation for default selection to work*/
-    );
-    P.e.selectAlignment.addEventListener('change', function(ev){
+    P.e.markupAlignCenter.addEventListener('change', function(ev){
       /* Update markdown/fossil wiki preview if it's active */
       if(P.previewMode==1 || P.previewMode==2){
         P.renderPreview();
       }
     }, false);
+    D.append(P.e.markupAlignWrapper,
+             P.e.markupAlignCenter,
+             D.label(P.e.markupAlignCenter, "Align center?"));
 
     ////////////////////////////////////////////////////////////
     // Setup the preview fieldset's LEGEND element...
     D.append( P.e.previewLegend,
               P.e.previewModeToggle,
-              P.e.previewModeLabel,
+              '\u00a0',
               P.e.previewCopyButton,
-              D.addClass(P.e.selectAlignment, 'hidden') );
+              P.e.previewModeLabel,
+              P.e.markupAlignWrapper );
 
     ////////////////////////////////////////////////////////////
     // Setup clipboard-copy of markup/SVG...
@@ -106,9 +103,9 @@
                    'the auto-preview option does not apply to them.'
                   )
         )
-      ).childNodes.forEach(function(ch){
+      )/*.childNodes.forEach(function(ch){
         ch.style.margin = "0 0.25em";
-      });
+      })*/;
       D.append(P.e.uiControls, cbWrap);
       P.predefinedPiks.forEach(function(script,ndx){
         const opt = D.option(script.code ? script.code.trim() :'', script.name);
@@ -181,9 +178,9 @@
     }    
   }/*F.onPageLoad()*/);
 
-  /* Shows or hides P.e.selectAlignment */
+  /* Shows or hides P.e.markupAlignWrapper */
   const showMarkupAlignment = function(showIt){
-    P.e.selectAlignment.classList[showIt ? 'remove' : 'add']('hidden');
+    P.e.markupAlignWrapper.classList[showIt ? 'remove' : 'add']('hidden');
   };
 
   /**
@@ -203,11 +200,11 @@
     }
     D.removeClass(preTgt, 'error');
     D.removeClass(P.e.previewCopyButton, 'disabled');
-    D.enable(this.e.previewModeToggle);
+    D.enable(this.e.previewModeToggle, this.e.markupAlignCenter);
     let label;
     switch(this.previewMode){
     case 0:
-      label = "Rendered SVG";
+      label = "SVG";
       showMarkupAlignment(false);
       preTgt.innerHTML = this.response.raw;
       this.e.taPreviewText.value = this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
@@ -216,8 +213,7 @@
       label = "Markdown";
       showMarkupAlignment(true);
       this.e.taPreviewText.value = [
-        '```pikchr'+(this.e.selectAlignment.value
-                     ? ' '+this.e.selectAlignment.value : ''),
+        '```pikchr'+(this.e.markupAlignCenter.checked? ' center' : ''),
         this.response.inputText, '```'
       ].join('\n');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
@@ -227,7 +223,7 @@
       showMarkupAlignment(true);
       this.e.taPreviewText.value = [
         '<verbatim type="pikchr',
-        this.e.selectAlignment.value ? ' '+this.e.selectAlignment.value : '',
+        this.e.markupAlignCenter.checked ? ' center' : '',
         '">', this.response.inputText, '</verbatim>'
       ].join('');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
@@ -251,9 +247,9 @@
       fp.toDisable = [
         /* input elements to disable during ajax operations */
         this.e.btnSubmit, this.e.taContent,
-        this.e.selectAlignment,
         this.e.cbAutoPreview, this.e.selectScript
-        /* handled separately: previewModeToggle, previewCopyButton */
+        /* handled separately: previewModeToggle, previewCopyButton,
+           markupAlignCenter */
       ];
       fp.target = this.e.previewTarget;
       fp.updateView = function(c,isError){
@@ -264,7 +260,7 @@
         P.renderPreview();
       };
     }
-    D.disable(fp.toDisable, this.e.previewModeToggle);
+    D.disable(fp.toDisable, this.e.previewModeToggle, this.e.markupAlignCenter);
     D.addClass(this.e.previewCopyButton, 'disabled');
     const content = this.e.taContent.value.trim();
     this.response.raw = undefined;

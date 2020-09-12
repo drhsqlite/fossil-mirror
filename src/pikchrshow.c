@@ -99,18 +99,25 @@ void pikchrshow_page(void){
   CX("#pikchrshow-controls > * {"
      "display: inline; margin: 0 0.25em 0.5em 0;"
      "}");
-  CX("#pikchrshow-controls > .input-with-label > * {"
+  CX("#pikchrshow-output-wrapper label {"
      "cursor: pointer;"
+     "}");
+  CX("body.pikchrshow .input-with-label > * {"
+     "margin: 0 0.2em; cursor: pointer;"
      "}");
   CX("#pikchrshow-output.dark-mode svg {"
      /* Flip the colors to approximate a dark theme look */
      "filter: invert(1) hue-rotate(180deg);"
      "}");
-  CX("#sbs-wrapper > fieldset {"
+  CX("#pikchrshow-output-wrapper {"
      "padding: 0.25em 0.5em; border-radius: 0.25em;"
      "}");
-  CX("fieldset > legend > *,"
-     "fieldset > legend > .copy-button"
+  CX("#pikchrshow-output-wrapper > legend {"
+     "display: flex; flex-direction: row;"
+     "align-items: center;"
+     "}");
+  CX("#pikchrshow-output-wrapper > legend > *,"
+     "#pikchrshow-output-wrapper > legend > .copy-button"
      /* ^^^ better-match .copy-button selector required to override
         default */
      "{margin-right: 0.5em}");

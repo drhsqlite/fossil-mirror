@@ -1115,7 +1115,7 @@ hr {
 .input-with-label {
   border: 1px inset rgba(128, 128, 128, 0.5);
   border-radius: 0.25em;
-  padding: 0.15em 0.25em;
+  padding: 0.1em;
   margin: 0 0.5em;
   display: inline-block;
   cursor: default;
@@ -1142,11 +1142,15 @@ hr {
 .input-with-label > textarea {
   margin: 0;
 }
+/* Browsers are unfortunately inconsistent in how they
+   align checkboxes and radio buttons, even if they're
+   given the same vertical-align value. 'middle' seems to
+   be the least bad option, rather than the ideal. */
 .input-with-label > input[type=checkbox] {
-  vertical-align: sub;
+  vertical-align: middle;
 }
 .input-with-label > input[type=radio] {
-  vertical-align: sub;
+  vertical-align: middle;
 }
 .input-with-label > label {
   font-weight: initial;
