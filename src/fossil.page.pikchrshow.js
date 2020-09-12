@@ -396,8 +396,9 @@ circle "circle" at 1in right of previous
 ellipse "ellipse" at 1in right of previous
 
 # second row of objects
-oval "oval" at 1in below first box
-oval "(tall &amp;" "thin)" "oval" wid ovalht ht ovalwid at 1in right of previous
+OVAL1: oval "oval" at 1in below first box
+oval "(tall &amp;" "thin)" "oval" width OVAL1.height height OVAL1.width \
+    at 1in right of previous
 cylinder "cylinder" at 1in right of previous
 file "file" at 1in right of previous
 
@@ -405,9 +406,15 @@ file "file" at 1in right of previous
 dot "dot" above at 1in below first oval
 line right from 1.8cm right of previous "lines" above
 arrow right from 1.8cm right of previous "arrows" above
-spline from 2cm right of previous \
-   right .15 up .25 then right .3 down .5 then up .25 right .15 \
-   "splines" above ljust
+spline from 1.8cm right of previous \
+   go right .15 then .3 heading 30 then .5 heading 160 then .4 heading 20 \
+   then right .15
+"splines" at 3rd vertex of previous
+
+# The third vertex of the spline is not actually on the drawn
+# curve.  The third vertex is a control point.  To see its actual
+# position, uncomment the following line:
+#dot color red at 3rd vertex of previous spline
 
 # Draw various lines below the first line
 line dashed right from 0.3cm below start of previous line
@@ -423,14 +430,11 @@ arrow <-> right from 0.4cm below start of previous
 
 # Draw splines with different arrowhead configurations below
 # the first spline
-spline ->  from .4cm below start of first spline \
-           right .15 up .25 then right .3 down .5 then up .25 right .15
-spline <-  from .4cm below start of previous spline \
-           right .15 up .25 then right .3 down .5 then up .25 right .15
-spline <-> from .4cm below start of previous spline \
-           right .15 up .25 then right .3 down .5 then up .25 right .15
+spline same from .4cm below start of first spline ->
+spline same from .4cm below start of previous <-
+spline same from .4cm below start of previous <->
 
-] # end of All Objects
+] # end of AllObjects
 
 # Label the whole diagram
 text "Examples Of Pikchr Objects" big bold  at .8cm above north of AllObjects
