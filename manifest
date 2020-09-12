@@ -1,5 +1,5 @@
-C Import\sthe\slatest\sversion\sof\spikchr\sthat\ssupports\sthe\s"file"\sobject\stype.
-D 2020-09-12T00:00:46.864
+C Updated\s/pikchrshow\shelp\sand\schanges.wiki\sto\smention\spikchr.
+D 2020-09-12T00:09:41.976
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c 688bfb2a32b6756c4973bd739c46ff6f180e15fe2b01bff59f37629f5ca000e4
-F src/pikchrshow.c 24ecce7c3a43f025a219270543b29dbcee524e2d3b736e1d985851c6089bf114
+F src/pikchrshow.c b65565dddd6c31c5db14cb5cdf63264ef32c493a5a762e32c660d39d70c4bf15
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -834,7 +834,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 3350b97c9676e745a2c36e9e5eb6216cfdb5c63ec57a9b3467d628ea1e0b8852
+F www/changes.wiki 4f074706452e42cadb01611c84e116174b25e59264b4d47b8c57be07a5e4d68a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c304b4ffdf163aed2b7ab42084a87ce5dadc7a4c057ce827137db9562ac15d6d
-R 3faefabb91fcbc20bdb081e7fdbca7bc
-U drh
-Z 799c1e9be7f7feaf22d67e4d8f02746a
+P b01fae602d9387fa52012432993dd8c5a58360a03510b253acac3736dabde7a3
+R dec649378f03734870f188842b2eb660
+U stephan
+Z fdabc7f8be8f6d60e3aa6e4e75a78aac

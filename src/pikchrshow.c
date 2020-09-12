@@ -26,8 +26,9 @@
 /*
 ** WEBPAGE: pikchrshow
 **
-** A basic pikchr code editor and renderer, allowing users with write-
-** or wiki-write permissions to experiment with pikchr code.
+** A pikchr code editor and previewer, allowing users to experiment
+** with pikchr code or prototype it for use in copy/pasting into forum
+** posts, wiki pages, or embedded docs.
 */
 void pikchrshow_page(void){
   const char *zContent = 0;

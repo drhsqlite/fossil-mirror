@@ -6,6 +6,10 @@
   *  Added support for [./interwiki.md|interwiki links].
   *  Enable &lt;del&gt; and &lt;ins&gt; markup in  wiki.
   *  Improvements to the Forum threading display.
+  *  Added support for embedding [https://fossil-scm.org/pikchr|pikchr]
+     markup in markdown and fossil-wiki content.
+  *  The new [/help?cmd=/pikchrshow|pikchrshow] page provides an
+     editor and previewer for pikchr markup.
 
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12.1 (2020-08-20)</h2>
