@@ -1,5 +1,5 @@
-C Simplified\spikchrshow\smarkup\salignment\sselection\sto\sa\ssingle\scheckbox.\sRelated\sCSS/layout\stweaks.
-D 2020-09-12T02:58:27.451
+C Replaced\spredefined\spikchr\sscript\slist\swith\sthe\snew\spikchr\sexamples/*.txt\s(was\stests/*.txt)\sand\scache\snon-error\spreview\sresponses\sfor\sthose\sscripts.\sThis\shalves\sthe\sover-the-wire\ssize\sof\sfossil.page.pikchrshow.js.
+D 2020-09-12T03:22:51.618
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 01ddddfc8565a3d6e7866cdfbdf4e268209e722878e926e8e48877e903eca2f9
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.pikchrshow.js 0152cf946edab9268b6857aa6bce3223fadba647c721858c9cb1ad62b2e9d483
+F src/fossil.page.pikchrshow.js 412eec65446110ff8d0a7b418abd99c62d88f9d8d7d50e77258bcac198a7990c
 F src/fossil.page.wikiedit-wysiwyg-legacy.js ea075166a42c728c6eae22f2611ab9a41219d2bb8965661a238caefd49360bcc
 F src/fossil.page.wikiedit.js f1cd4f8db6b1d589fef55e078473f31f900afc0ebd2548b19c7f41b4e662dcdc
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3bb7cd22a8dde6fdb33be159192b24d477232a5d9b59a49c942b7c6efb41ec7
-R e153f6507df8e0b2ae02d921a3c54992
+P 240646ef7d8eb2ae5684b54c8f444bd9c8cfd3cc65b96e8a0ea7f463452df855
+R 6f748df69d6cdd2b9172def830e6c142
 U stephan
-Z b6bfe49595d1b0667394fa1cca4fd5e9
+Z 0fa76f8afe5d143c2501b9afba43aff2
