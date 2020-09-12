@@ -34,23 +34,41 @@
                             'readonly', true),
       uiControls: E('#pikchrshow-controls'),
       previewModeToggle: D.button("Preview mode"),
-      markupAlignCenter: D.attr(D.checkbox(), 'id','markup-align-center'),
-      markupAlignWrapper: D.span()
+      markupAlignDefault: D.attr(D.radio('markup-align','',true),
+                                 'id','markup-align-default'),
+      markupAlignCenter: D.attr(D.radio('markup-align','center'),
+                                'id','markup-align-center'),
+      markupAlignIndent: D.attr(D.radio('markup-align','indent'),
+                                'id','markup-align-indent'),
+      markupAlignWrapper: D.addClass(D.span(), 'input-with-label')
     };
 
     ////////////////////////////////////////////////////////////
     // Setup markup alignment selection...
-    P.e.markupAlignCenter.addEventListener('change', function(ev){
+    const alignEvent = function(ev){
       /* Update markdown/fossil wiki preview if it's active */
       if(P.previewMode==1 || P.previewMode==2){
         P.renderPreview();
       }
-    }, false);
+    };
+    P.e.markupAlignRadios = [
+      P.e.markupAlignDefault,
+      P.e.markupAlignCenter,
+      P.e.markupAlignIndent
+    ];
     D.append(P.e.markupAlignWrapper,
-             D.addClass([
-               P.e.markupAlignCenter,
-               D.label(P.e.markupAlignCenter, "Align center?")
-             ], 'v-align-middle') );
+             D.addClass(D.append(D.span(),"align:"),
+                        'v-align-middle'));
+    P.e.markupAlignRadios.forEach(
+      function(e){
+        e.addEventListener('change', alignEvent, false);
+        D.append(P.e.markupAlignWrapper,
+                 D.addClass([
+                   e,
+                   D.label(e, e.value || "left")
+                 ], 'v-align-middle'));
+      }
+    );
 
     ////////////////////////////////////////////////////////////
     // Setup the preview fieldset's LEGEND element...
@@ -89,7 +107,7 @@
     if(true){
       const selectScript = P.e.selectScript = D.select(),
             cbAutoPreview = P.e.cbAutoPreview =
-            D.attr(D.checkbox(),'id', 'cb-auto-preview','checked',true),
+            D.attr(D.checkbox(true),'id', 'cb-auto-preview'),
             cbWrap = D.addClass(D.div(),'input-with-label')
       ;
       D.append(
@@ -105,8 +123,9 @@
                    'slow connection/server.',
                    D.br(),D.br(),
                    'Pikchr scripts may also be dragged/dropped from ',
-                   'the local filesystem into the text area, but ',
-                   'the auto-preview option does not apply to them.'
+                   'the local filesystem into the text area, if the ',
+                   'environment supports it, but the auto-preview ',
+                   'option does not apply to them.'
                   )
         )
       )/*.childNodes.forEach(function(ch){
@@ -225,11 +244,6 @@
     }    
   }/*F.onPageLoad()*/);
 
-  /* Shows or hides P.e.markupAlignWrapper */
-  const showMarkupAlignment = function(showIt){
-    P.e.markupAlignWrapper.classList[showIt ? 'remove' : 'add']('hidden');
-  };
-
   /**
      Updates the preview view based on the current preview mode and
      error state.
@@ -237,6 +251,14 @@
   P.renderPreview = function f(){
     if(!f.hasOwnProperty('rxNonce')){
       f.rxNonce = /<!--.+-->\r?\n?/g /*pikchr nonce comments*/;
+      f.showMarkupAlignment = function(showIt){
+        P.e.markupAlignWrapper.classList[showIt ? 'remove' : 'add']('hidden');
+      };
+      f.getMarkupAlignmentClass = function(){
+        if(P.e.markupAlignCenter.checked) return ' center';
+        else if(P.e.markupAlignIndent.checked) return ' indent';
+        return '';
+      };
     }
     const preTgt = this.e.previewTarget;
     if(this.response.isError){
@@ -246,38 +268,40 @@
       return;
     }
     D.removeClass(preTgt, 'error');
-    D.removeClass(P.e.previewCopyButton, 'disabled');
-    D.enable(this.e.previewModeToggle, this.e.markupAlignCenter);
+    D.removeClass(this.e.previewCopyButton, 'disabled');
+    D.removeClass(this.e.markupAlignWrapper, 'hidden');
+    D.enable(this.e.previewModeToggle, this.e.markupAlignRadios);
     let label;
     switch(this.previewMode){
     case 0:
       label = "SVG";
-      showMarkupAlignment(false);
+      f.showMarkupAlignment(false);
       preTgt.innerHTML = this.response.raw;
-      this.e.taPreviewText.value = this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
+      this.e.taPreviewText.value =
+        this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
       break;
     case 1:
       label = "Markdown";
-      showMarkupAlignment(true);
+      f.showMarkupAlignment(true);
       this.e.taPreviewText.value = [
-        '```pikchr'+(this.e.markupAlignCenter.checked? ' center' : ''),
+        '```pikchr'+f.getMarkupAlignmentClass(),
         this.response.inputText, '```'
       ].join('\n');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
     case 2:
       label = "Fossil wiki";
-      showMarkupAlignment(true);
+      f.showMarkupAlignment(true);
       this.e.taPreviewText.value = [
         '<verbatim type="pikchr',
-        this.e.markupAlignCenter.checked ? ' center' : '',
+        f.getMarkupAlignmentClass(),
         '">', this.response.inputText, '</verbatim>'
       ].join('');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
     case 3:
       label = "Raw SVG";
-      showMarkupAlignment(false);
+      f.showMarkupAlignment(false);
       this.e.taPreviewText.value = this.response.raw.replace(f.rxNonce, '');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
@@ -296,7 +320,7 @@
         this.e.btnSubmit, this.e.taContent,
         this.e.cbAutoPreview, this.e.selectScript
         /* handled separately: previewModeToggle, previewCopyButton,
-           markupAlignCenter */
+           markupAlignRadios */
       ];
       fp.target = this.e.previewTarget;
       fp.updateView = function(c,isError){
@@ -307,7 +331,8 @@
         P.renderPreview();
       };
     }
-    D.disable(fp.toDisable, this.e.previewModeToggle, this.e.markupAlignCenter);
+    D.disable(fp.toDisable, this.e.previewModeToggle, this.e.markupAlignRadios);
+    D.addClass(this.e.markupAlignWrapper, 'hidden');
     D.addClass(this.e.previewCopyButton, 'disabled');
     const content = this.e.taContent.value.trim();
     this.response.raw = undefined;

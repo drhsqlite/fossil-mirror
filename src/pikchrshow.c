@@ -103,7 +103,10 @@ void pikchrshow_page(void){
      "cursor: pointer;"
      "}\n");
   CX("body.pikchrshow .input-with-label > * {"
-     "margin: 0 0.2em; cursor: pointer;"
+     "margin: 0 0.2em;"
+     "}\n");
+  CX("body.pikchrshow .input-with-label > label {"
+     "cursor: pointer;"
      "}\n");
   CX("#pikchrshow-output.dark-mode svg {"
      /* Flip the colors to approximate a dark theme look */
@@ -136,8 +139,7 @@ void pikchrshow_page(void){
   CX("<fieldset id='pikchrshow-output-wrapper'>");
   CX("<legend></legend>"
      /* Reminder: Firefox does not properly flexbox a LEGEND element,
-        always flowing it in column mode (at least when its fieldset
-        has a flexbox column layout). */);
+        always flowing it in column mode. */);
   CX("<div id='pikchrshow-output'>");
   if(*zContent){
     int w = 0, h = 0;

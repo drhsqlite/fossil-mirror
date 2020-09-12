@@ -252,7 +252,55 @@
   dom.input = function(type){
     return this.attr(this.create('input'), 'type', type);
   };
-  dom.checkbox = ()=>dom.input('checkbox');
+  /**
+     Returns a new CHECKBOX input element.
+
+     Usages:
+
+     ([boolean checked = false])
+     (non-boolean value [,boolean checked])
+  */
+  dom.checkbox = function(value, checked){
+    const rc = this.input('checkbox');
+    if(1===arguments.length && 'boolean'===typeof value){
+      checked = !!value;
+      value = undefined;
+    }
+    if(undefined !== value) rc.value = value;
+    if(!!checked) rc.checked = true;
+    return rc;
+  };
+  /**
+     Returns a new RADIO input element.
+
+     ([boolean checked = false])
+     (string name [,boolean checked])
+     (string name, non-boolean value [,boolean checked])
+  */
+  dom.radio = function(){
+    const rc = this.input('radio');
+    let name, value, checked;
+    if(1===arguments.length && 'boolean'===typeof name){
+      checked = arguments[0];
+      name = value = undefined;
+    }else if(2===arguments.length){
+      name = arguments[0];
+      if('boolean'===typeof arguments[1]){
+        checked = arguments[1];
+      }else{
+        value = arguments[1];
+        checked = undefined;
+      }
+    }else if(arguments.length){
+      name = arguments[0];
+      value = arguments[1];
+      checked = arguments[2];
+    }
+    if(name) this.attr(rc, 'name', name);
+    if(undefined!==value) rc.value = value;
+    if(!!checked) rc.checked = true;
+    return rc;
+  };
 
   /**
      Internal impl for addClass(), removeClass().
