@@ -275,7 +275,7 @@
     case 0:
       label = "SVG";
       f.showMarkupAlignment(false);
-      D.append(D.clearElement(preTgt), D.parseHtml(P.response.raw));
+      D.parseHtml(D.clearElement(preTgt), P.response.raw);
       this.e.taPreviewText.value =
         this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
       break;
@@ -301,7 +301,16 @@
     case 3:
       label = "Raw SVG";
       f.showMarkupAlignment(false);
-      this.e.taPreviewText.value = this.response.raw.replace(f.rxNonce, '');
+      const childs = D.parseHtml(this.response.raw);
+      const wrapper = childs.filter((e)=>'DIV'===e.tagName)[0];
+      const svg = wrapper ? wrapper.querySelector('svg.pikchr') : undefined;
+      if(svg){
+        this.e.taPreviewText.value = svg.outerHTML;
+      }else{
+        this.e.taPreviewText.value = "ERROR parsing response HTML:\n"+
+          this.response.raw;
+        console.error("svg parsed HTML nodes:",childs);
+      }
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
     }

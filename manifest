@@ -1,5 +1,5 @@
-C Fix\sthe\s".end"\sand\s".start"\scorners\sfor\sblock\sobects\sin\sthe\sPikchr\sformatter.
-D 2020-09-12T20:56:02.403
+C Adapted\spixchrshow\sraw\sSVG\spreview\sto\saccount\sfor\spixchr\soutput\scontaining\san\souter\sDIV.\sResolves\s(for\sme,\sanyway)\sInkscape\simport\sproblem\sreported\sin\sthe\sforum.
+D 2020-09-12T23:26:58.809
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js c1289f700e644abf872deff99b8d3115899841dc798b559f36f31bb1a61f48c3
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.pikchrshow.js 941b5e282e9593c60d435e293f52e04f886b1e52914b9df1451c2de0408f89da
+F src/fossil.page.pikchrshow.js a8f95dd8033410a19012cba07fc5a25d1273dde9f82788e14b42bb25335bfb76
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 1f81b2ac6e6e45167bbb36cb98ebb147855f5f08b94d6c35942c2dc051c2aaf6
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d946271f73ed3f23a52fee81bda030187c9fd18c6e84847a9c79b60062cf89a
-R 106a532468d76e57e4fa3fe21fb85856
-U drh
-Z d82cef53d699d342329373df62a56be5
+P 66b2ae5a58071e994560575ff63a07be134db66a67356f21eceaf8a1614493da
+R 382bcd8bc6a6c933ee6bc1ba47000e60
+U stephan
+Z 6df251887f81e4afe392e6ec725c8689
