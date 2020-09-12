@@ -1,5 +1,5 @@
-C Re-imported\spikchr's\sexample\sscripts\susing\sthe\soutput\sfrom\sits\snew\sexample-to-js\sconverter.
-D 2020-09-12T19:28:01.115
+C Fix\sthe\s".end"\sand\s".start"\scorners\sfor\sblock\sobects\sin\sthe\sPikchr\sformatter.
+D 2020-09-12T20:56:02.403
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -560,7 +560,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 88786ec8ac588a749a8f34af0b39aadde1e7ae42f19ef8d2b9b8ed8e0c047d96
+F src/pikchr.c e02c6ce665a5040d9d288baae4f8ff006b7a58667a47c0112879672e621fe229
 F src/pikchrshow.c 48d67851d2641cff1b1797da63df87e51e0d9289e9499604de8cf80932780375
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 79023c9273e2536d1aacae7734ea7996f6fe31462a32380b86f105087b636fcd
-R 77bd67d423e251bb9cb6f999b20a11eb
-U stephan
-Z 48dcda15c2665be87d9f63917f286724
+P 4d946271f73ed3f23a52fee81bda030187c9fd18c6e84847a9c79b60062cf89a
+R 106a532468d76e57e4fa3fe21fb85856
+U drh
+Z d82cef53d699d342329373df62a56be5
