@@ -22,8 +22,11 @@
     P.e = { /* various DOM elements we work with... */
       previewTarget: E('#pikchrshow-output'),
       previewLegend: E('#pikchrshow-output-wrapper > legend'),
-      previewModeLabel: D.span(/*holds the text for the preview mode label*/),
-      previewCopyButton: D.addClass(D.span(), 'copy-button'),
+      previewCopyButton: D.attr(
+        D.addClass(D.span(),'copy-button'),
+        'id','preview-copy-button' 
+      ),
+      previewModeLabel: D.label('preview-copy-button'),
       btnSubmit: E('#pikchr-submit-preview'),
       cbDarkMode: E('#flipcolors-wrapper > input[type=checkbox]'),
       taContent: E('#content'),
@@ -60,6 +63,7 @@
     // Setup clipboard-copy of markup/SVG...
     F.copyButton(P.e.previewCopyButton, {copyFromElement: P.e.taPreviewText});
     P.e.previewCopyButton.addEventListener('text-copied', D.flashOnce.eventHandler, false);
+    P.e.previewModeLabel.addEventListener('click', ()=>P.e.previewCopyButton.click(), false);
 
     ////////////////////////////////////////////////////////////
     // Set up dark mode simulator...
