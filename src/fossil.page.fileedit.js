@@ -482,7 +482,7 @@
                "):",
                btnHelp, sel, btnClear);
       F.helpButtonlets.setup(btnHelp);
-      D.option(D.disable(sel), "(empty)");
+      D.option(D.disable(sel), undefined, "(empty)");
       F.page.addEventListener('fileedit-stash-updated',(e)=>this.updateList(e.detail));
       F.page.addEventListener('fileedit-file-loaded',(e)=>this.updateList($stash, e.detail));
       sel.addEventListener('change',function(e){
@@ -545,7 +545,7 @@
       D.clearElement(this.e.select);
       if(0===ilist.length){
         D.addClass(this.e.btnClear, 'hidden');
-        D.option(D.disable(this.e.select),"No local edits");
+        D.option(D.disable(this.e.select),undefined,"No local edits");
         return;
       }
       D.enable(this.e.select);

@@ -30,8 +30,7 @@
       btnSubmit: E('#pikchr-submit-preview'),
       cbDarkMode: E('#flipcolors-wrapper > input[type=checkbox]'),
       taContent: E('#content'),
-      taPreviewText: D.attr(D.textarea(), 'rows', 20, 'cols', 60,
-                            'readonly', true),
+      taPreviewText: D.textarea(20,0,true),
       uiControls: E('#pikchrshow-controls'),
       previewModeToggle: D.button("Preview mode"),
       markupAlignDefault: D.attr(D.radio('markup-align','',true),
@@ -259,10 +258,21 @@
         else if(P.e.markupAlignIndent.checked) return ' indent';
         return '';
       };
+      /* Parses P.response.raw as HTML without using innerHTML. */
+      f.parseResponse = function(tgt){
+        let childs;
+        if(P.response.raw){
+          const newNode = new DOMParser().parseFromString(P.response.raw, 'text/html');
+          childs = newNode.documentElement.querySelectorAll('body > *');
+        }else{
+          childs = [];
+        }
+        D.append(D.clearElement(tgt), childs);
+      };
     }
     const preTgt = this.e.previewTarget;
     if(this.response.isError){
-      preTgt.innerHTML = this.response.raw;
+      f.parseResponse(preTgt);
       D.addClass(preTgt, 'error');
       this.e.previewModeLabel.innerText = "Error";
       return;
@@ -276,7 +286,7 @@
     case 0:
       label = "SVG";
       f.showMarkupAlignment(false);
-      preTgt.innerHTML = this.response.raw;
+      f.parseResponse(preTgt);
       this.e.taPreviewText.value =
         this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
       break;
@@ -285,7 +295,7 @@
       f.showMarkupAlignment(true);
       this.e.taPreviewText.value = [
         '```pikchr'+f.getMarkupAlignmentClass(),
-        this.response.inputText, '```'
+        this.response.inputText.trim(), '```'
       ].join('\n');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
@@ -295,7 +305,7 @@
       this.e.taPreviewText.value = [
         '<verbatim type="pikchr',
         f.getMarkupAlignmentClass(),
-        '">', this.response.inputText, '</verbatim>'
+        '">', this.response.inputText.trim(), '</verbatim>'
       ].join('');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;

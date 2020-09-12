@@ -85,15 +85,19 @@
     const rc = document.createElement('label');
     if(forElem){
       if(forElem instanceof HTMLElement){
-        forElem = dom.attr(forElem, 'id');
+        forElem = this.attr(forElem, 'id');
       }
       dom.attr(rc, 'for', forElem);
     }
-    if(text) dom.append(rc, text);
+    if(text) this.append(rc, text);
     return rc;
   };
+  /**
+     Returns an IMG element with an optional src
+     attribute value.
+  */
   dom.img = function(src){
-    const e = dom.create('img');
+    const e = this.create('img');
     if(src) e.setAttribute('src',src);
     return e;
   };
@@ -103,7 +107,7 @@
      as the label.
   */
   dom.a = function(href,label){
-    const e = dom.create('a');
+    const e = this.create('a');
     if(href) e.setAttribute('href',href);
     if(label) e.appendChild(dom.text(true===label ? href : label));
     return e;
@@ -116,19 +120,61 @@
     if(label) b.appendChild(this.text(label));
     return b;
   };
-  dom.textarea = dom.createElemFactory('textarea');
-  dom.select = dom.createElemFactory('select');
   /**
-     Returns an OPTION element with the given value and label
-     text (which defaults to the value).
+     Returns a TEXTAREA element.
 
-     May be called as (value), (selectElement), (selectElement,
-     value), (value, label) or (selectElement, value,
-     label). The latter appends the new element to the given
-     SELECT element.
+     Usages:
 
-     If the value has the undefined value then it is NOT
-     assigned as the option element's value.
+     ([boolean readonly = false])
+     (non-boolean rows[,cols[,readonly=false]])
+
+     Each of the rows/cols/readonly attributes is only set if it is
+     truthy.
+  */
+  dom.textarea = function(){
+    const rc = this.create('textarea');
+    let rows, cols, readonly;
+    if(1===arguments.length){
+      if('boolean'===typeof arguments[0]){
+        readonly = !!arguments[0];
+      }else{
+        rows = arguments[0];
+      }
+    }else if(arguments.length){
+      rows = arguments[0];
+      cols = arguments[1];
+      readonly = arguments[2];
+    }
+    if(rows) rc.setAttribute('rows',rows);
+    if(cols) rc.setAttribute('cols', cols);
+    if(readonly) rc.setAttribute('readonly', true);
+    return rc;
+  };
+
+  /**
+     Returns a new SELECT element.
+  */
+  dom.select = dom.createElemFactory('select');
+
+  /**
+     Returns an OPTION element with the given value and label text
+     (which defaults to the value).
+
+     Usage:
+
+     (value[, label])
+     (selectElement [,value [,label = value]])
+
+     Any forms taking a SELECT element append the new element to the
+     given SELECT element.
+
+     If any label is falsy and the value is not then the value is used
+     as the label. A non-falsy label value may have any type suitable
+     for passing as the 2nd argument to dom.append().
+
+     If the value has the undefined value then it is NOT assigned as
+     the option element's value and no label is set unless it has a
+     non-undefined value.
   */
   dom.option = function(value,label){
     const a = arguments;
@@ -157,6 +203,8 @@
     if(undefined !== value){
       o.value = value;
       this.append(o, this.text(label || value));
+    }else if(undefined !== label){
+      this.append(o, label);
     }
     if(sel) this.append(sel, o);
     return o;
@@ -198,20 +246,20 @@
   dom.td = dom.createElemFactoryWithOptionalParent('td');
   dom.th = dom.createElemFactoryWithOptionalParent('th');
 
-  
   /**
-     Creates and returns a FIELDSET element, optionaly with a
-     LEGEND element added to it.
+     Creates and returns a FIELDSET element, optionaly with a LEGEND
+     element added to it. If legendText is an HTMLElement then it is
+     appended as-is, else it is assume (if truthy) to be a value
+     suitable for passing to dom.append(aLegendElement,...).
   */
   dom.fieldset = function(legendText){
     const fs = this.create('fieldset');
     if(legendText){
       this.append(
         fs,
-        this.append(
-          this.create('legend'),
-          legendText
-        )
+        (legendText instanceof HTMLElement)
+          ? legendText
+          : this.append(this.create('legend'),legendText)
       );
     }
     return fs;

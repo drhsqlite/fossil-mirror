@@ -555,7 +555,7 @@
                  sel)
       );
       D.attr(sel, 'size', 12);
-      D.option(D.disable(D.clearElement(sel)), "Loading...");
+      D.option(D.disable(D.clearElement(sel)), undefined, "Loading...");
 
       /** Set up filter checkboxes for the various types
           of wiki pages... */
@@ -705,7 +705,7 @@
                "):",
                btnHelp, sel, btnClear);
       F.helpButtonlets.setup(btnHelp);
-      D.option(D.disable(sel), "(empty)");
+      D.option(D.disable(sel), undefined, "(empty)");
       P.addEventListener('wiki-stash-updated',(e)=>this.updateList(e.detail));
       P.addEventListener('wiki-page-loaded',(e)=>this.updateList($stash, e.detail));
       sel.addEventListener('change',function(e){
@@ -760,7 +760,7 @@
       D.clearElement(this.e.select);
       if(0===ilist.length){
         D.addClass(this.e.btnClear, 'hidden');
-        D.option(D.disable(this.e.select),"No local edits");
+        D.option(D.disable(this.e.select),undefined,"No local edits");
         return;
       }
       D.enable(this.e.select);
@@ -771,7 +771,7 @@
            P.e.btnReload. Not yet sure how best to resolve that. */
         D.removeClass(this.e.btnClear, 'hidden');
       }
-      D.disable(D.option(this.e.select,0,"Select a local edit..."));
+      D.disable(D.option(this.e.select,undefined,"Select a local edit..."));
       const currentWinfo = theWinfo || P.winfo || {name:''};
       ilist.sort(f.compare).forEach(function(winfo,n){
         const key = stasher.indexKey(winfo),
