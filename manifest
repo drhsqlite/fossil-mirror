@@ -1,5 +1,5 @@
-C Updated\s/pikchrshow\shelp\sand\schanges.wiki\sto\smention\spikchr.
-D 2020-09-12T00:09:41.976
+C pikchrshow:\smoved\smarkup\salignment\sselection\sinto\sthe\sfieldset\slegend\sand\sonly\sshow\sit\swhen\sthe\spreview\sis\sshowing\sone\sof\sthe\smarkup\stypes.
+D 2020-09-12T00:46:53.761
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 01ddddfc8565a3d6e7866cdfbdf4e268209e722878e926e8e48877e903eca2f9
 F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
-F src/fossil.page.pikchrshow.js cf088819fca7faca5e82c06f8fecb9c4c340ecac00c3f5c631603c5a1df77c57
+F src/fossil.page.pikchrshow.js 6249a2a277855342d2b3865ab81699bc16c62c1a0ab686e2010b2221de770c0d
 F src/fossil.page.wikiedit-wysiwyg-legacy.js ea075166a42c728c6eae22f2611ab9a41219d2bb8965661a238caefd49360bcc
 F src/fossil.page.wikiedit.js f1cd4f8db6b1d589fef55e078473f31f900afc0ebd2548b19c7f41b4e662dcdc
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
@@ -561,7 +561,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c 688bfb2a32b6756c4973bd739c46ff6f180e15fe2b01bff59f37629f5ca000e4
-F src/pikchrshow.c b65565dddd6c31c5db14cb5cdf63264ef32c493a5a762e32c660d39d70c4bf15
+F src/pikchrshow.c dc8d21ead0196f15742d03981d65d1f0f4201588462f59a96092c53385676fe8
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b01fae602d9387fa52012432993dd8c5a58360a03510b253acac3736dabde7a3
-R dec649378f03734870f188842b2eb660
+P bb31279a19aeba427be931ac101773f5be3ca6726f148e61ba2097d4f348c9bb
+R 7a669caa27ee46816341fcd1d4af14e4
 U stephan
-Z fdabc7f8be8f6d60e3aa6e4e75a78aac
+Z 11c15adc1d8ca344e7357d755e93bdf9

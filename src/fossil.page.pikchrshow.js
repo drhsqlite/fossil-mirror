@@ -31,22 +31,33 @@
                             'readonly', true),
       uiControls: E('#pikchrshow-controls'),
       previewModeToggle: D.button("Preview mode"),
-      selectMarkupAlignment: D.select()
+      selectAlignment: D.append(
+        D.select(/*alignment for markup blocks*/),
+        D.option('', 'Markup Alignment'),
+        D.option('', 'left (default)'),
+        D.option('center', 'center')
+      )
     };
+
+    ////////////////////////////////////////////////////////////
+    // Setup markup alignment selection...
+    D.disable(P.e.selectAlignment.options[0]
+      /*has to be done after creation for default selection to work*/
+    );
+    P.e.selectAlignment.addEventListener('change', function(ev){
+      /* Update markdown/fossil wiki preview if it's active */
+      if(P.previewMode==1 || P.previewMode==2){
+        P.renderPreview();
+      }
+    }, false);
+
     ////////////////////////////////////////////////////////////
     // Setup the preview fieldset's LEGEND element...
     D.append( P.e.previewLegend,
               P.e.previewModeToggle,
               P.e.previewModeLabel,
-              P.e.previewCopyButton );    
-
-    ////////////////////////////////////////////////////////////
-    // Setup markup alignment selection...
-    D.append(P.e.uiControls, P.e.selectMarkupAlignment);
-    D.disable(D.option(P.e.selectMarkupAlignment, '', 'Markup Alignment'));
-    ['left', 'center'].forEach(function(val,ndx){
-      D.option(P.e.selectMarkupAlignment, ndx ? val : '', val);
-    });
+              P.e.previewCopyButton,
+              D.addClass(P.e.selectAlignment, 'hidden') );
 
     ////////////////////////////////////////////////////////////
     // Setup clipboard-copy of markup/SVG...
@@ -68,12 +79,6 @@
       /* Rotate through the 4 available preview modes */
       P.previewMode = ++P.previewMode % 4;
       P.renderPreview();
-    }, false);
-    P.e.selectMarkupAlignment.addEventListener('change', function(ev){
-      /* Update markdown/fossil wiki preview if it's active */
-      if(P.previewMode==1 || P.previewMode==2){
-        P.renderPreview();
-      }
     }, false);
 
     ////////////////////////////////////////////////////////////
@@ -176,6 +181,11 @@
     }    
   }/*F.onPageLoad()*/);
 
+  /* Shows or hides P.e.selectAlignment */
+  const showMarkupAlignment = function(showIt){
+    P.e.selectAlignment.classList[showIt ? 'remove' : 'add']('hidden');
+  };
+
   /**
      Updates the preview view based on the current preview mode and
      error state.
@@ -198,29 +208,33 @@
     switch(this.previewMode){
     case 0:
       label = "Rendered SVG";
+      showMarkupAlignment(false);
       preTgt.innerHTML = this.response.raw;
       this.e.taPreviewText.value = this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
       break;
     case 1:
       label = "Markdown";
+      showMarkupAlignment(true);
       this.e.taPreviewText.value = [
-        '```pikchr'+(this.e.selectMarkupAlignment.value
-                     ? ' '+this.e.selectMarkupAlignment.value : ''),
+        '```pikchr'+(this.e.selectAlignment.value
+                     ? ' '+this.e.selectAlignment.value : ''),
         this.response.inputText, '```'
       ].join('\n');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
     case 2:
       label = "Fossil wiki";
+      showMarkupAlignment(true);
       this.e.taPreviewText.value = [
         '<verbatim type="pikchr',
-        this.e.selectMarkupAlignment.value ? ' '+this.e.selectMarkupAlignment.value : '',
+        this.e.selectAlignment.value ? ' '+this.e.selectAlignment.value : '',
         '">', this.response.inputText, '</verbatim>'
       ].join('');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
     case 3:
       label = "Raw SVG";
+      showMarkupAlignment(false);
       this.e.taPreviewText.value = this.response.raw.replace(f.rxNonce, '');
       D.append(D.clearElement(preTgt), this.e.taPreviewText);
       break;
@@ -237,9 +251,9 @@
       fp.toDisable = [
         /* input elements to disable during ajax operations */
         this.e.btnSubmit, this.e.taContent,
-        this.e.selectMarkupAlignment,
+        this.e.selectAlignment,
         this.e.cbAutoPreview, this.e.selectScript
-        /* this.e.previewModeToggle is handled separately */
+        /* handled separately: previewModeToggle, previewCopyButton */
       ];
       fp.target = this.e.previewTarget;
       fp.updateView = function(c,isError){
