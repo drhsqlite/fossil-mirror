@@ -146,8 +146,9 @@ void sitemap_page(void){
     }
     @     <li>%z(href("%R/wcontent"))List of Wiki Pages</a></li>
     @     <li>%z(href("%R/timeline?y=w"))Recent activity</a></li>
-    @     <li>%z(href("%R/wiki?name=Sandbox"))Sandbox</a></li>
+    @     <li>%z(href("%R/wikiedit?name=Sandbox"))Wiki Sandbox</a></li>
     @     <li>%z(href("%R/attachlist"))List of Attachments</a></li>
+    @     <li>%z(href("%R/pikchrshow"))Pikchr Sandbox</a></li>
     @   </ul>
     @ </li>
   }

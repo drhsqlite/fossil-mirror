@@ -1,5 +1,5 @@
-C /wikiedit\scan\snow\sbe\sopened\sif\sthe\suser\shas\sat\sleast\sRdWiki\spermissions,\sprimarily\sto\sallow\saccess\sto\sthe\sSandbox\sfor\spikchr\sexperimentation.\sA\suser\swithout\sWrWiki\sstill\scannot\ssave\sanything,\sand\susers\swithout\sRdWiki\scannot\sopen\sit\sat\sall\sbecause\sit\swould\sgive\sthem\saccess\sto\sthe\slist\sof\swiki\spages,\swhich\sthey\sotherwise\saren't\sprivvy\sto\swithout\sRdWiki.\sAlso\sadded\sa\sRdWiki\scheck\sto\sthe\sinternal\swikiedit\sajax\sroutes,\sas\sthose\scould\shave\spotentially\sleaked\spages\sto\sunprivileged\susers\swho\sdecoded\stheir\sinternal\sajax\sinterfaces.
-D 2020-09-13T00:00:26.268
+C Sitemap:\spointed\swiki\sSandbox\sat\s/wikiedit,\sinstead\sof\s/wiki,\sto\saccount\sfor\srecent\ssandbox-handling\schanges.\sAdded\sa\sPikchr\sSandbox\s(/pikchrshow)\slink\sunder\sthe\sWiki\ssection.
+D 2020-09-13T00:14:49.950
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -585,7 +585,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
 F src/shell.c cd9ecb24b91c387bdc3ec0719f814c5973b62662390773dad8e636e8c92f3d47
 F src/shun.c ad762c0c170cae98d0f09a5999b0bbcdb8783e8f69e65846d102084f6dd588f3
-F src/sitemap.c 16c9ede1a1c9fee7c4acda7171d1d7c1545c0988a8d149c08d91b3e3399202cb
+F src/sitemap.c 42b937bfa42b9e53ac6c45549f006c60edc882faa89c5b38d15127632131660f
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 2bc8fd57b2de0c577af02d772e65caa39f6e191bdf28f9575e1c527ed0ff5d35
 F src/smtp.c d696ad3604f3190dafef28a8d7475822d8e232eeabbd6f9069a497cf845ecdc9
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ffd9dd1bfd9d02696ede03f1968ceb9a0eab2355f60d4e1af045801de312255
-R 686fbae3927b9c91781267900fb2481d
+P bff3df00b80ffe478b89cf2a143445cf0b203f5d279c2bf79db1488d9f44bf9f
+R 23c8bd042523c9354eefebbeaa030435
 U stephan
-Z 02647147db36c8ba9cb52d3083c71bf3
+Z 77aad8c62b8967730d47243a05d4170f
