@@ -1,5 +1,5 @@
-C Added\scaptureTh1\sTH1\scommand\swhich\sruns\sTH1\sand\scaptures\sany\soutput\sas\sa\sstring,\swhich\sbecomes\sthe\sfunction's\sresult.
-D 2020-09-13T21:37:25.336
+C Added\scaptureTh1\sto\swww/th1.md,\shyperlinked\sthe\sentries\sof\sthe\sth1\scommand\slist\sto\stheir\sdoc\ssections,\sand\sreplaced\s"a\sname=..."\swith\s"a\sid=...",\sas\sthe\sformer\sis\slong\ssince\sdeprecated\s(has\sthe\ssame\seffect,\sthough).
+D 2020-09-13T22:09:59.376
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -997,7 +997,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
 F www/tech_overview.wiki 086ebcdc9ca9b019c4a3556691653fb49b05dd9b9ebd5aea89701cfaa46d387e
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md f6ffdb7bdec5c434e58f9bf4b3004a2ab27f6c9d347742e403fb2ce51c9ef0ca
+F www/th1.md e3c3ab5a02d304692c8b81e1916d511a9e422d38628d8b1ea4d6d0bf7cac96ea
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911b3c
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b95861fb8a617db2dbd4b726b4caa6a905ee4268492f34564f949d071f80baf5
-R 3ee75c545c3b47782478020bc353e06c
+P c3991493b9889d6723e1ce9a7b82ff875b655b7ae416c7f07fa584e4bc4f0ddc
+R 9f36fdc38492fd12c550d0ad5b7d9d11
 U stephan
-Z 592e2c65091c5b9ebcd5a376f3c32782
+Z 62b302dc9c66d4deea74afb6ed3ab0e1
