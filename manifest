@@ -1,5 +1,5 @@
-C Update\spikchr.c\sto\sthe\slastest\sversion\swill\sall\sof\sthe\slatest\sbug\sfixes.
-D 2020-09-13T17:51:32.288
+C Import\sthe\slatest\spikchr.c\scode\swith\sboundary-point\supdates.
+D 2020-09-13T22:45:29.781
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -560,7 +560,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 7f0fc81e82a9cdc30eed807bd9c4cbac3bd141fe57b112647f7566e76011e9e4
+F src/pikchr.c 5b3cc69347b792f65dcb0503d217fb01c2060fd4543b0a708ce9ebfde97d39af
 F src/pikchrshow.c 1ad036884fd5c6580583fb748f4c570d050e26e7632966c99230fd12be40b40b
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 931f782ff3f02ea4e4276b8245f167da9bb65e73af8c48de0ee8cb9c8bdc282f
-R 0354b6630cd9c61fa58546ce5b884359
+P d9f61a9ab2726ff20b75ef281e3a5bb758f7c91c250e34ac63293268b7d08552
+R 4f2810feeba341b77f59032af05a7fe6
 U drh
-Z 253f7f195b27c21da87150987aac3843
+Z 19e934452d2a0a5a3855515c5c05d757
