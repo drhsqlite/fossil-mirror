@@ -169,7 +169,7 @@ void pikchrshow_page(void){
 }
 
 static void pikchr_th_init(u32 fThInit){
-  Th_FossilInit(fThInit);
+  Th_FossilInit(fThInit & TH_INIT_MASK);
 }
 
 /*
@@ -187,6 +187,9 @@ static void pikchr_th_init(u32 fThInit){
 **    -th-novar Disable $var and $<var> TH1 processing. Only applies
 **              with the -th flag.
 **
+**    -th-nopic When using -th, output the post-TH1'd script
+**              instead of the pikchr-rendered output.
+**
 **    -th-trace Trace TH1 execution (for debugging purposes)
 **
 ** TH1 Caveats: the built-in TH1 commands make some assumptions about
@@ -202,9 +205,10 @@ void pikchr_cmd(void){
   const char * zOutfile = "-";
   const int fWithDiv = find_option("div",0,0)!=0;
   const int fTh1 = find_option("th",0,0)!=0;
-  const int fNoVar = find_option("th-novar",0,0)!=0;
+  const int fNoPic = find_option("th-nopic",0,0)!=0;
   int isErr = 0;
-  u32 fThInit = TH_INIT_DEFAULT;
+  u32 fThFlags = TH_INIT_DEFAULT | TH_INIT_NO_ESC
+    | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
 
   Th_InitTraceLog()/*processes -th-trace flag*/;
   verify_all_options();
@@ -220,38 +224,47 @@ void pikchr_cmd(void){
   blob_read_from_file(&bIn, zInfile, ExtFILE);
   if(fTh1){
     Blob out = empty_blob;
-    Blob * oldOut;
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0)
-      /* ^^^ needed for certain functions to work */;
-    oldOut = Th_SetOutputBlob(&out);
-    pikchr_th_init(fThInit);
-    isErr = Th_RenderToBlob(blob_str(&bIn), &out,
-                            fNoVar ? TH_R2B_NO_VARS : 0);
-    blob_reset(&bIn);
-    bIn = out;
-    Th_SetOutputBlob(oldOut);
-    /*fossil_print("th'd:\n%b\n", &bIn);*/
+      /* ^^^ needed for certain TH1 functions to work */;
+    pikchr_th_init(fThFlags);
+    isErr = Th_RenderToBlob(blob_str(&bIn), &out, fThFlags) ? 1 : 0;
+    if(isErr){
+      blob_reset(&bOut);
+      bOut = out;
+    }else{
+      blob_reset(&bIn);
+      bIn = out;
+    }
   }
   if(!isErr){
-    int w = 0, h = 0;
-    const char * zContent = blob_str(&bIn);
-    char *zOut = pikchr(zContent, "pikchr", 0, &w, &h);
-    if( w>0 && h>0 ){
-      if(fWithDiv){
-        blob_appendf(&bOut,"<div style='max-width:%dpx;'>\n", w);
-      }
-      blob_append(&bOut, zOut, -1);
-      if(fWithDiv){
-        blob_append(&bOut,"</div>\n", 7);
-      }
+    if(fTh1 && fNoPic){
+      bOut = bIn;
+      bIn = empty_blob;
     }else{
-      isErr = 1;
-      blob_append(&bOut, zOut, -1);
+      int w = 0, h = 0;
+      const char * zContent = blob_str(&bIn);
+      char *zOut;
+
+      zOut = pikchr(zContent, "pikchr", 0, &w, &h);
+      if( w>0 && h>0 ){
+        if(fWithDiv){
+          blob_appendf(&bOut,"<div style='max-width:%dpx;'>\n", w);
+        }
+        blob_append(&bOut, zOut, -1);
+        if(fWithDiv){
+          blob_append(&bOut,"</div>\n", 7);
+        }
+      }else{
+        isErr = 2;
+        blob_append(&bOut, zOut, -1);
+      }
+      fossil_free(zOut);
     }
-    fossil_free(zOut);
   }
   if(isErr){
-    fossil_fatal("ERROR: %b", &bOut);
+    /*fossil_print("ERROR: raw input:\n%b\n", &bIn);*/
+    fossil_fatal("%s ERROR: %b", 1==isErr ? "TH1" : "pikchr",
+                 &bOut);
   }else{
     blob_write_to_file(&bOut, zOutfile);
   }

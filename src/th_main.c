@@ -33,7 +33,8 @@
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_NO_REPO     ((u32)0x00000010) /* Skip opening repository. */
-#define TH_INIT_MASK        ((u32)0x0000001F) /* All possible init flags. */
+#define TH_INIT_NO_ESC      ((u32)0x00000020) /* Do not html-escape certain output. */
+#define TH_INIT_MASK        ((u32)0x0000003F) /* All possible init flags. */
 
 /*
 ** Useful and/or "well-known" combinations of flag values.
@@ -473,10 +474,12 @@ static int putsCmd(
   const char **argv,
   int *argl
 ){
+  unsigned int doEscape = (TH_INIT_NO_ESC & g.th1Flags)
+    ? 0U : *(unsigned int*)pConvert;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  sendText(0,(char*)argv[1], argl[1], *(unsigned int*)pConvert);
+  sendText(0,(char*)argv[1], argl[1], doEscape);
   return TH_OK;
 }
 
@@ -2140,7 +2143,7 @@ void Th_FossilInit(u32 flags){
   int forceTcl = flags & TH_INIT_FORCE_TCL;
   int forceSetup = flags & TH_INIT_FORCE_SETUP;
   int noRepo = flags & TH_INIT_NO_REPO;
-  static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
+  static unsigned int aFlags[] = {0, 1, WIKI_LINKSONLY };
   static int anonFlag = LOGIN_ANON;
   static int zeroInt = 0;
   static struct _Command {
@@ -2656,10 +2659,9 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   int n;
   int rc = TH_OK;
   char *zResult;
-  Blob * const origOut = pThOut;
+  Blob * const origOut = Th_SetOutputBlob(pOut);
 
   assert(0==(TH_R2B_MASK & TH_INIT_MASK) && "init/r2b mask conflict");
-  pThOut = pOut;
   Th_FossilInit(mFlags & TH_INIT_MASK);
   while( z[i] ){
     if( !(TH_R2B_NO_VARS & mFlags)
@@ -2711,7 +2713,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   }else{
     sendText(pOut,z, i, 0);
   }
-  pThOut = origOut;
+  Th_SetOutputBlob(origOut);
   return rc;
 }
 
