@@ -2094,6 +2094,40 @@ static int httpCmd(
 }
 
 /*
+** TH1 command: captureTh1 STRING
+**
+** Evaluates the given string as TH1 code and captures any of its
+** TH1-generated output as a string (instead of it being output),
+** which becomes the result of the function.
+*/
+static int captureTh1Cmd(
+  Th_Interp *interp,
+  void *pConvert,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Blob out = empty_blob;
+  Blob * pOrig;
+  const char * zStr;
+  int nStr, rc;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "captureTh1 STRING");
+  }
+  pOrig = Th_SetOutputBlob(&out);
+  zStr = argv[1];
+  nStr = argl[1];
+  rc = Th_Eval(g.interp, 0, zStr, nStr);
+  Th_SetOutputBlob(pOrig);
+  if(0==rc){
+    Th_SetResult(g.interp, blob_str(&out), blob_size(&out));
+  }
+  blob_reset(&out);
+  return rc;
+}
+
+
+/*
 ** Attempts to open the configuration ("user") database.  Optionally, also
 ** attempts to try to find the repository and open it.
 */
@@ -2159,6 +2193,7 @@ void Th_FossilInit(u32 flags){
     {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
+    {"captureTh1",    captureTh1Cmd,        0},
     {"cgiHeaderLine", cgiHeaderLineCmd,     0},
     {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
