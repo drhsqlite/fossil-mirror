@@ -2143,7 +2143,11 @@ void Th_FossilInit(u32 flags){
   int forceTcl = flags & TH_INIT_FORCE_TCL;
   int forceSetup = flags & TH_INIT_FORCE_SETUP;
   int noRepo = flags & TH_INIT_NO_REPO;
-  static unsigned int aFlags[] = {0, 1, WIKI_LINKSONLY };
+  static unsigned int aFlags[] = {
+    0,
+    (TH_INIT_NO_ESC ? 0 : 1),
+    WIKI_LINKSONLY
+  };
   static int anonFlag = LOGIN_ANON;
   static int zeroInt = 0;
   static struct _Command {
