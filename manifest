@@ -1,5 +1,5 @@
-C Update\spikchr.c\sto\sa\sversion\sthat\savoids\susing\sthe\s"&amp;nbsp;"\sentity.
-D 2020-09-13T11:31:42.011
+C Initial\swork\son\sa\spikchr\sCLI\scommand\swhich\sintegrates\sTH1\sfor\sprogrammatic\spikchr\sgeneration.\sDO\sNOT\sMERGE:\sthe\srequired\schanges\sto\sTH1\sneed\smore\stesting\sto\sensure\sthey\sdo\snot\sintroduce\sfallout\sin\sthe\sskin\soutput.\sAlso,\soutput\sredirection\sis\sstill\svery\simcomplete\sand\sTH1\serror\sreporting\sdoes\snot\syet\sdo\sthe\sright\sthing.
+D 2020-09-13T16:35:10.218
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c adb62e19b51b3bf658d415ac42680f628a59b30b799469d64317628aa2e6e2d9
-F src/pikchrshow.c 1ad036884fd5c6580583fb748f4c570d050e26e7632966c99230fd12be40b40b
+F src/pikchrshow.c 782f046f14ffc73f1db2b60dd5e9db5025ed284de5192b487e1df6626882116f
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -625,7 +625,7 @@ F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c 37f31992db70052818e9638e965615b524879dd4daa4a72e1c9ac1f32b9b13d4
+F src/th_main.c 6744b47c54cb6611076a52d217e382e55de49bee3efdbf1544f70051eb99af0a
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 4a0363bf4cdbd3dbba352eef10310cda7a4982cee3babb9977ed9a4dcd12f558
 F src/tkt.c 5251a6ce64e744297f76dcc0c9d0be94dcbcc7e4ed9965622e618a11184abb46
@@ -1009,7 +1009,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 18dee26eee8da7156c3510ca97aaa4c637741a14dd53b2860c9214d4ab8ecc39
-R f1212f717d9c3cff3ca8f4db207f0ce8
-U drh
-Z 3def0dcac1ac821fdc706b6bcde688b9
+P 931f782ff3f02ea4e4276b8245f167da9bb65e73af8c48de0ee8cb9c8bdc282f
+R 6d8b46f1e7b95cbe6141807968904abc
+T *branch * pikchr-th
+T *sym-pikchr-th *
+T -sym-trunk *
+U stephan
+Z 4e7b1d3a113bc5977b73cc3f9df84c43

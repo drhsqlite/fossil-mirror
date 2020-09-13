@@ -311,19 +311,40 @@ const char *Th_ReturnCodeName(int rc, int nullIfOk){
   return zRc;
 }
 
+static Blob * pThOut = 0;
 /*
-** Send text to the appropriate output:  Either to the console
-** or to the CGI reply buffer.  Escape all characters with special
-** meaning to HTML if the encode parameter is true.
+** Sets the th1-internal output-redirection blob and returns the
+** previous value. That blob is used by certain output-generation
+** routines to emit its output.
 */
-static void sendText(const char *z, int n, int encode){
+Blob * Th_SetOutputBlob(Blob * pOut){
+  Blob * tmp = pThOut;
+  pThOut = pOut;
+  return tmp;
+}
+
+/*
+** Send text to the appropriate output: If pOut is not NULL, it is
+** appended there, else to the console or to the CGI reply buffer.
+** Escape all characters with special meaning to HTML if the encode
+** parameter is true.
+**
+** If pOut is NULL and the global pThOut is not then that blob
+** is used for output.
+*/
+static void sendText(Blob * pOut, const char *z, int n, int encode){
+  if(0==pOut && pThOut!=0){
+    pOut = pThOut;
+  }
   if( enableOutput && n ){
     if( n<0 ) n = strlen(z);
     if( encode ){
       z = htmlize(z, n);
       n = strlen(z);
     }
-    if( g.cgiOutput ){
+    if(pOut!=0){
+      blob_append(pOut, z, n);
+    }else if( g.cgiOutput ){
       cgi_append_content(z, n);
     }else{
       fwrite(z, 1, n, stdout);
@@ -333,15 +354,18 @@ static void sendText(const char *z, int n, int encode){
   }
 }
 
-static void sendError(const char *z, int n, int forceCgi){
+/*
+** error-reporting counterpart of sendText().
+*/
+static void sendError(Blob * pOut, const char *z, int n, int forceCgi){
   int savedEnable = enableOutput;
   enableOutput = 1;
   if( forceCgi || g.cgiOutput ){
-    sendText("<hr /><p class=\"thmainError\">", -1, 0);
+    sendText(pOut, "<hr /><p class=\"thmainError\">", -1, 0);
   }
-  sendText("ERROR: ", -1, 0);
-  sendText((char*)z, n, 1);
-  sendText(forceCgi || g.cgiOutput ? "</p>" : "\n", -1, 0);
+  sendText(pOut,"ERROR: ", -1, 0);
+  sendText(pOut,(char*)z, n, 1);
+  sendText(pOut,forceCgi || g.cgiOutput ? "</p>" : "\n", -1, 0);
   enableOutput = savedEnable;
 }
 
@@ -452,7 +476,7 @@ static int putsCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  sendText((char*)argv[1], argl[1], *(unsigned int*)pConvert);
+  sendText(0,(char*)argv[1], argl[1], *(unsigned int*)pConvert);
   return TH_OK;
 }
 
@@ -998,7 +1022,7 @@ static int comboboxCmd(
     zH = htmlize(blob_buffer(&name), blob_size(&name));
     z = mprintf("<select id=\"%s\" name=\"%s\" size=\"%d\">", zH, zH, height);
     free(zH);
-    sendText(z, -1, 0);
+    sendText(0,z, -1, 0);
     free(z);
     blob_reset(&name);
     for(i=0; i<nElem; i++){
@@ -1011,10 +1035,10 @@ static int comboboxCmd(
         z = mprintf("<option value=\"%s\">%s</option>", zH, zH);
       }
       free(zH);
-      sendText(z, -1, 0);
+      sendText(0,z, -1, 0);
       free(z);
     }
-    sendText("</select>", -1, 0);
+    sendText(0,"</select>", -1, 0);
     Th_Free(interp, azElem);
   }
   return TH_OK;
@@ -1062,7 +1086,7 @@ static int copybtnCmd(
     zResult = style_copy_button(
                 /*bOutputCGI==*/0, /*TARGETID==*/(char*)argv[1],
                 flipped, copylength, "%h", /*TEXT==*/(char*)argv[3]);
-    sendText(zResult, -1, 0);
+    sendText(0,zResult, -1, 0);
     free(zResult);
   }
   return TH_OK;
@@ -2223,7 +2247,7 @@ void Th_FossilInit(u32 flags){
       if( rc==TH_ERROR ){
         int nResult = 0;
         char *zResult = (char*)Th_GetResult(g.interp, &nResult);
-        sendError(zResult, nResult, 0);
+        sendError(0,zResult, nResult, 0);
       }
     }
     if( g.thTrace ){
@@ -2448,7 +2472,7 @@ int Th_CommandHook(
     ** command hook handler as that is not actually an error condition.
     */
     if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
-      sendError(zResult, nResult, 0);
+      sendError(0,zResult, nResult, 0);
     }else{
       /*
       ** There is no command hook handler "installed".  This situation
@@ -2535,7 +2559,7 @@ int Th_WebpageHook(
     ** webpage hook handler as that is not actually an error condition.
     */
     if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
-      sendError(zResult, nResult, 1);
+      sendError(0,zResult, nResult, 1);
     }else{
       /*
       ** There is no webpage hook handler "installed".  This situation
@@ -2612,28 +2636,38 @@ int Th_AreDocsEnabled(void){
 #endif
 
 
+#if INTERFACE
 /*
-** The z[] input contains text mixed with TH1 scripts.
-** The TH1 scripts are contained within <th1>...</th1>.
-** TH1 variables are $aaa or $<aaa>.  The first form of
-** variable is literal.  The second is run through htmlize
-** before being inserted.
-**
-** This routine processes the template and writes the results
-** on either stdout or into CGI.
+** Flags for use with Th_RenderToBlob. These must not overlap with
+** TH_INIT_MASK.
 */
-int Th_Render(const char *z){
+#define TH_R2B_MASK    ((u32)0xff0000)
+#define TH_R2B_NO_VARS ((u32)0x010000) /* Disables eval of $vars and $<vars> */
+#endif
+
+/*
+** If pOut is NULL, this works identically to Th_Render(), else it
+** works just like that function but appends any TH1-generated output
+** to the given blob. A bitmask of TH_R2B_xxx and/or TH_INIT_xxx flags
+** may be passed as the 3rd argument, or 0 for default options.
+*/
+int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   int i = 0;
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit(TH_INIT_DEFAULT);
+  Blob * const origOut = pThOut;
+
+  assert(0==(TH_R2B_MASK & TH_INIT_MASK) && "init/r2b mask conflict");
+  pThOut = pOut;
+  Th_FossilInit(mFlags & TH_INIT_MASK);
   while( z[i] ){
-    if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
+    if( !(TH_R2B_NO_VARS & mFlags)
+        && z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
       int nVar;
       int encode = 1;
-      sendText(z, i, 0);
+      sendText(pOut,z, i, 0);
       if( z[i+1]=='<' ){
         /* Variables of the form $<aaa> are html escaped */
         zVar = &z[i+2];
@@ -2648,9 +2682,9 @@ int Th_Render(const char *z){
       z += i+1+n;
       i = 0;
       zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText((char*)zResult, n, encode);
+      sendText(pOut,(char*)zResult, n, encode);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
-      sendText(z, i, 0);
+      sendText(pOut,z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       if( g.thTrace ){
@@ -2673,12 +2707,29 @@ int Th_Render(const char *z){
   }
   if( rc==TH_ERROR ){
     zResult = (char*)Th_GetResult(g.interp, &n);
-    sendError(zResult, n, 1);
+    sendError(pOut,zResult, n, 1);
   }else{
-    sendText(z, i, 0);
+    sendText(pOut,z, i, 0);
   }
+  pThOut = origOut;
   return rc;
 }
+
+/*
+** The z[] input contains text mixed with TH1 scripts.
+** The TH1 scripts are contained within <th1>...</th1>.
+** TH1 variables are $aaa or $<aaa>.  The first form of
+** variable is literal.  The second is run through htmlize
+** before being inserted.
+**
+** This routine processes the template and writes the results on
+** either stdout, into CGI, or to an internal blob which was set up
+** via a recursive call to this routine.
+*/
+int Th_Render(const char *z){
+  return Th_RenderToBlob(z, pThOut, 0);
+}
+
 
 /*
 ** COMMAND: test-th-render
@@ -2901,14 +2952,14 @@ void test_th_hook(void){
   if( g.interp ){
     zResult = (char*)Th_GetResult(g.interp, &nResult);
   }
-  sendText("RESULT (", -1, 0);
-  sendText(Th_ReturnCodeName(rc, 0), -1, 0);
-  sendText(")", -1, 0);
+  sendText(0,"RESULT (", -1, 0);
+  sendText(0,Th_ReturnCodeName(rc, 0), -1, 0);
+  sendText(0,")", -1, 0);
   if( zResult && nResult>0 ){
-    sendText(": ", -1, 0);
-    sendText(zResult, nResult, 0);
+    sendText(0,": ", -1, 0);
+    sendText(0,zResult, nResult, 0);
   }
-  sendText("\n", -1, 0);
+  sendText(0,"\n", -1, 0);
   Th_PrintTraceLog();
   if( forceCgi ) cgi_reply();
 }

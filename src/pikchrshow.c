@@ -167,3 +167,95 @@ void pikchrshow_page(void){
   builtin_fulfill_js_requests();
   style_footer();
 }
+
+static void pikchr_th_init(u32 fThInit){
+  Th_FossilInit(fThInit);
+}
+
+/*
+** COMMAND: pikchr
+**
+** Usage: %fossil pikchr [options] ?INFILE? ?OUTFILE?
+**
+** Options:
+**
+**    -div      On success, adds a DIV wrapper around the
+**              resulting SVG output which limits its max-width.
+**
+**    -th       Process the input using TH1 before passing it to pikchr.
+**
+**    -th-novar Disable $var and $<var> TH1 processing. Only applies
+**              with the -th flag.
+**
+**    -th-trace Trace TH1 execution (for debugging purposes)
+**
+** TH1 Caveats: the built-in TH1 commands make some assumptions about
+** HTML escaping and output which do not apply via this
+** command. e.g. some commands will output directly to stdout, rather
+** than the output buffer this command requires. Improvements in that
+** regard are under consideration/construction.
+*/
+void pikchr_cmd(void){
+  Blob bIn = empty_blob;
+  Blob bOut = empty_blob;
+  const char * zInfile = "-";
+  const char * zOutfile = "-";
+  const int fWithDiv = find_option("div",0,0)!=0;
+  const int fTh1 = find_option("th",0,0)!=0;
+  const int fNoVar = find_option("th-novar",0,0)!=0;
+  int isErr = 0;
+  u32 fThInit = TH_INIT_DEFAULT;
+
+  Th_InitTraceLog()/*processes -th-trace flag*/;
+  verify_all_options();
+  if(g.argc>4){
+    usage("?INFILE? ?OUTFILE?");
+  }
+  if(g.argc>2){
+    zInfile = g.argv[2];
+  }
+  if(g.argc>3){
+    zOutfile = g.argv[3];
+  }
+  blob_read_from_file(&bIn, zInfile, ExtFILE);
+  if(fTh1){
+    Blob out = empty_blob;
+    Blob * oldOut;
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0)
+      /* ^^^ needed for certain functions to work */;
+    oldOut = Th_SetOutputBlob(&out);
+    pikchr_th_init(fThInit);
+    isErr = Th_RenderToBlob(blob_str(&bIn), &out,
+                            fNoVar ? TH_R2B_NO_VARS : 0);
+    blob_reset(&bIn);
+    bIn = out;
+    Th_SetOutputBlob(oldOut);
+    /*fossil_print("th'd:\n%b\n", &bIn);*/
+  }
+  if(!isErr){
+    int w = 0, h = 0;
+    const char * zContent = blob_str(&bIn);
+    char *zOut = pikchr(zContent, "pikchr", 0, &w, &h);
+    if( w>0 && h>0 ){
+      if(fWithDiv){
+        blob_appendf(&bOut,"<div style='max-width:%dpx;'>\n", w);
+      }
+      blob_append(&bOut, zOut, -1);
+      if(fWithDiv){
+        blob_append(&bOut,"</div>\n", 7);
+      }
+    }else{
+      isErr = 1;
+      blob_append(&bOut, zOut, -1);
+    }
+    fossil_free(zOut);
+  }
+  if(isErr){
+    fossil_fatal("ERROR: %b", &bOut);
+  }else{
+    blob_write_to_file(&bOut, zOutfile);
+  }
+  Th_PrintTraceLog();
+  blob_reset(&bIn);
+  blob_reset(&bOut);
+}
