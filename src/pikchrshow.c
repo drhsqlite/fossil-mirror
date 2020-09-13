@@ -187,7 +187,7 @@ static void pikchr_th_init(u32 fThInit){
 **    -th-novar Disable $var and $<var> TH1 processing. Only applies
 **              with the -th flag.
 **
-**    -th-nopic When using -th, output the post-TH1'd script
+**    -th-nosvg When using -th, output the post-TH1'd script
 **              instead of the pikchr-rendered output.
 **
 **    -th-trace Trace TH1 execution (for debugging purposes)
@@ -205,7 +205,7 @@ void pikchr_cmd(void){
   const char * zOutfile = "-";
   const int fWithDiv = find_option("div",0,0)!=0;
   const int fTh1 = find_option("th",0,0)!=0;
-  const int fNoPic = find_option("th-nopic",0,0)!=0;
+  const int fNosvg = find_option("th-nosvg",0,0)!=0;
   int isErr = 0;
   u32 fThFlags = TH_INIT_DEFAULT/* | TH_INIT_NO_ESC*/
     | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
@@ -237,7 +237,8 @@ void pikchr_cmd(void){
     }
   }
   if(!isErr){
-    if(fTh1 && fNoPic){
+    if(fTh1 && fNosvg){
+      assert(0==blob_size(&bOut));
       bOut = bIn;
       bIn = empty_blob;
     }else{
