@@ -29,6 +29,9 @@
 ** A pikchr code editor and previewer, allowing users to experiment
 ** with pikchr code or prototype it for use in copy/pasting into forum
 ** posts, wiki pages, or embedded docs.
+**
+** It optionally accepts a p=pikchr-script-code URL parameter or POST
+** value to pre-populate the editor with that code.
 */
 void pikchrshow_page(void){
   const char *zContent = 0;
@@ -38,7 +41,7 @@ void pikchrshow_page(void){
   if( !g.perm.RdWiki && !g.perm.Read && !g.perm.RdForum ){
     cgi_redirectf("%s/login?g=%s/pikchrshow", g.zTop, g.zTop);
   }
-  zContent = P("content");
+  zContent = PD("content",P("p"));
   if(P("ajax")!=0){
     /* Called from the JS-side preview updater. */
     cgi_set_content_type("text/html");
