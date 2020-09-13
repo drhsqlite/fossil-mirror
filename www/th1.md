@@ -178,6 +178,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  [decorate](#decorate)
   *  [defHeader](#defHeader)
   *  [dir](#dir)
+  *  [enable\_htmlify](#enable_htmlify)
   *  [enable\_output](#enable_output)
   *  [encode64](#encode64)
   *  [getParameter](#getParameter)
@@ -351,6 +352,20 @@ If DETAILS is non-zero, the result will be a list-of-lists, with each
 element containing at least three elements: the file name, the file
 size (in bytes), and the file last modification time (relative to the
 time zone configured for the repository).
+
+<a id="enable_htmlify"></a>TH1 enable\_htmlify Command
+------------------------------------------------------
+
+  *  enable\_htmlify ?TRACE-LABEL? BOOLEAN
+
+By default, certain output from `puts` and similar commands is escaped
+for HTML. That feature can be toggled off by passing `0` to this
+command and re-enabled by passing any non-0 value. The optional
+`TRACE-LABEL` argument causes the TH1 tracing output (if enabled) to
+add a marker when this command is invoked, and includes that label and
+the boolean argument's value in the trace. If tracing is disabled,
+that argument has no effect.
+
 
 <a id="enable_output"></a>TH1 enable\_output Command
 ------------------------------------------------------

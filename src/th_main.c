@@ -293,6 +293,37 @@ static int enableOutputCmd(
 }
 
 /*
+** TH1 command: enable_htmlify BOOLEAN
+**
+** Enable or disable the HTML escaping done by all output which
+** originates from TH1 (via sendText()).
+*/
+static int enableHtmlifyCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc, buul;
+  if( argc<2 || argc>3 ){
+    return Th_WrongNumArgs(interp,
+                           "enable_htmlify [TRACE_LABEL] BOOLEAN");
+  }
+  rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &buul);
+  if( g.thTrace ){
+    Th_Trace("enable_htmlify {%.*s} -> %d<br />\n",
+             argl[1],argv[1],buul);
+  }
+  if(buul){
+    g.th1Flags &= ~TH_INIT_NO_ENCODE;
+  }else{
+    g.th1Flags |= TH_INIT_NO_ENCODE;
+  }
+  return rc;
+}
+
+/*
 ** Returns a name for a TH1 return code.
 */
 const char *Th_ReturnCodeName(int rc, int nullIfOk){
@@ -2202,6 +2233,7 @@ void Th_FossilInit(u32 flags){
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"defHeader",     defHeaderCmd,         0},
     {"dir",           dirCmd,               0},
+    {"enable_htmlify",enableHtmlifyCmd,     0},
     {"enable_output", enableOutputCmd,      0},
     {"encode64",      encode64Cmd,          0},
     {"getParameter",  getParameterCmd,      0},
@@ -2684,15 +2716,18 @@ int Th_AreDocsEnabled(void){
 ** Flags for use with Th_RenderToBlob. These must not overlap with
 ** TH_INIT_MASK.
 */
-#define TH_R2B_MASK    ((u32)0xff0000)
-#define TH_R2B_NO_VARS ((u32)0x010000) /* Disables eval of $vars and $<vars> */
+#define TH_R2B_MASK    ((u32)0x0f000)
+#define TH_R2B_NO_VARS ((u32)0x01000) /* Disables eval of $vars and $<vars> */
 #endif
 
 /*
 ** If pOut is NULL, this works identically to Th_Render(), else it
 ** works just like that function but appends any TH1-generated output
 ** to the given blob. A bitmask of TH_R2B_xxx and/or TH_INIT_xxx flags
-** may be passed as the 3rd argument, or 0 for default options.
+** may be passed as the 3rd argument, or 0 for default options.  Note
+** that this function necessarily calls Th_FossilInit(), which may
+** unset flags used on previous calls unless mFlags is explicitly
+** passed in.
 */
 int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   int i = 0;
@@ -2704,7 +2739,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   assert(0==(TH_R2B_MASK & TH_INIT_MASK) && "init/r2b mask conflict");
   Th_FossilInit(mFlags & TH_INIT_MASK);
   while( z[i] ){
-    if( !(TH_R2B_NO_VARS & mFlags)
+    if( 0!=(TH_R2B_NO_VARS & mFlags)
         && z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
       int nVar;

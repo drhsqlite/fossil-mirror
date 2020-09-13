@@ -1,5 +1,5 @@
-C Added\scaptureTh1\sto\swww/th1.md,\shyperlinked\sthe\sentries\sof\sthe\sth1\scommand\slist\sto\stheir\sdoc\ssections,\sand\sreplaced\s"a\sname=..."\swith\s"a\sid=...",\sas\sthe\sformer\sis\slong\ssince\sdeprecated\s(has\sthe\ssame\seffect,\sthough).
-D 2020-09-13T22:09:59.376
+C Added\sth1\s(enable_htmlify\sbool)\scommand\sso\sthat\spikchr\sth1\scode\sin\sth1Docs\shas\sa\sway\sof\stoggling\sthat\sg.th1Flag\soff\sand\son.
+D 2020-09-13T23:38:08.321
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c 7f0fc81e82a9cdc30eed807bd9c4cbac3bd141fe57b112647f7566e76011e9e4
-F src/pikchrshow.c ca63d56947601ba4f058cc686618e5fc2aca6be1fe5ab3c45dbdaeb00326a233
+F src/pikchrshow.c 0c5ea8884ccb1385e4e0cd3104cf4956a0bd5b801ac0b0f06b4dc27cc549ccb0
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -625,7 +625,7 @@ F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c 720fc1a8bfb8aa0aa5bea68e90f4ad953a6635e0058b586f15d91da32c0a0b46
+F src/th_main.c 09f124d3f6a9347c4b9c5c4613c0eee848f5838a791de4c356734aed3832fa7e
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 4a0363bf4cdbd3dbba352eef10310cda7a4982cee3babb9977ed9a4dcd12f558
 F src/tkt.c 5251a6ce64e744297f76dcc0c9d0be94dcbcc7e4ed9965622e618a11184abb46
@@ -997,7 +997,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
 F www/tech_overview.wiki 086ebcdc9ca9b019c4a3556691653fb49b05dd9b9ebd5aea89701cfaa46d387e
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md e3c3ab5a02d304692c8b81e1916d511a9e422d38628d8b1ea4d6d0bf7cac96ea
+F www/th1.md b74852b266ebd187ceffb02388e5ece35d7b7f29dd2a8bee14b6b2a7cf09c906
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911b3c
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3991493b9889d6723e1ce9a7b82ff875b655b7ae416c7f07fa584e4bc4f0ddc
-R 9f36fdc38492fd12c550d0ad5b7d9d11
+P e7dcfc90f04cc98904c4052ad8ca2e353faaa13e9c952a48af78e04c1e36dc7c
+R f00a8166040d210aa765af42e374e135
 U stephan
-Z 62b302dc9c66d4deea74afb6ed3ab0e1
+Z 02604ebcbf20cb5d14d4a5fb3ef7bf2e

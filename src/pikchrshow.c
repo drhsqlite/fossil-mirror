@@ -168,14 +168,13 @@ void pikchrshow_page(void){
   style_footer();
 }
 
-static void pikchr_th_init(u32 fThInit){
-  Th_FossilInit(fThInit & TH_INIT_MASK);
-}
-
 /*
 ** COMMAND: pikchr
 **
 ** Usage: %fossil pikchr [options] ?INFILE? ?OUTFILE?
+**
+** Accepts a pikchr script as input and outputs the rendered
+** script as an SVG graphic.
 **
 ** Options:
 **
@@ -185,18 +184,23 @@ static void pikchr_th_init(u32 fThInit){
 **    -th       Process the input using TH1 before passing it to pikchr.
 **
 **    -th-novar Disable $var and $<var> TH1 processing. Only applies
-**              with the -th flag.
+**              with the -th flag. Use this if the pikchr script uses
+**              '$' for its own purposes.
 **
 **    -th-nosvg When using -th, output the post-TH1'd script
 **              instead of the pikchr-rendered output.
 **
 **    -th-trace Trace TH1 execution (for debugging purposes)
 **
-** TH1 Caveats: the built-in TH1 commands make some assumptions about
-** HTML escaping and output which do not apply via this
-** command. e.g. some commands will output directly to stdout, rather
-** than the output buffer this command requires. Improvements in that
-** regard are under consideration/construction.
+** TH1 Caveats:
+**
+** If the -th flag is used, this command must open a fossil database
+** for certain functionality to work. It will run TH1 without opening
+** a db if one cannot be found in the current checkout or with the -R
+** REPO flag, but any TH1 commands which require a db will then fail.
+**
+** Many of the fossil-installed TH1 functions do not make any sense
+** for pikchr scripts
 */
 void pikchr_cmd(void){
   Blob bIn = empty_blob;
@@ -207,7 +211,7 @@ void pikchr_cmd(void){
   const int fTh1 = find_option("th",0,0)!=0;
   const int fNosvg = find_option("th-nosvg",0,0)!=0;
   int isErr = 0;
-  u32 fThFlags = TH_INIT_DEFAULT | TH_INIT_NO_ENCODE
+  u32 fThFlags = TH_INIT_NO_ENCODE
     | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
 
   Th_InitTraceLog()/*processes -th-trace flag*/;
@@ -226,8 +230,8 @@ void pikchr_cmd(void){
     Blob out = empty_blob;
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0)
       /* ^^^ needed for certain TH1 functions to work */;
-    pikchr_th_init(fThFlags);
-    isErr = Th_RenderToBlob(blob_str(&bIn), &out, fThFlags) ? 1 : 0;
+    isErr = Th_RenderToBlob(blob_str(&bIn), &out, fThFlags)
+      ? 1 : 0;
     if(isErr){
       blob_reset(&bOut);
       bOut = out;
