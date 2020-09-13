@@ -33,7 +33,7 @@
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_NO_REPO     ((u32)0x00000010) /* Skip opening repository. */
-#define TH_INIT_NO_ESC      ((u32)0x00000020) /* Do not html-escape certain output. */
+#define TH_INIT_NO_ENCODE   ((u32)0x00000020) /* Do not html-encode sentText() output. */
 #define TH_INIT_MASK        ((u32)0x0000003F) /* All possible init flags. */
 
 /*
@@ -312,11 +312,14 @@ const char *Th_ReturnCodeName(int rc, int nullIfOk){
   return zRc;
 }
 
+/* See Th_SetOutputBlob() */
 static Blob * pThOut = 0;
 /*
 ** Sets the th1-internal output-redirection blob and returns the
 ** previous value. That blob is used by certain output-generation
-** routines to emit its output.
+** routines to emit its output. It returns the previous value so that
+** a routing can temporarily replace the buffer with its own and
+** restore it when it's done.
 */
 Blob * Th_SetOutputBlob(Blob * pOut){
   Blob * tmp = pThOut;
@@ -328,7 +331,8 @@ Blob * Th_SetOutputBlob(Blob * pOut){
 ** Send text to the appropriate output: If pOut is not NULL, it is
 ** appended there, else to the console or to the CGI reply buffer.
 ** Escape all characters with special meaning to HTML if the encode
-** parameter is true.
+** parameter is true, with the exception that that flag is ignored if
+** g.th1Flags has the TH_INIT_NO_ENCODE flag.
 **
 ** If pOut is NULL and the global pThOut is not then that blob
 ** is used for output.
@@ -337,6 +341,9 @@ static void sendText(Blob * pOut, const char *z, int n, int encode){
   if(0==pOut && pThOut!=0){
     pOut = pThOut;
   }
+  if(TH_INIT_NO_ENCODE & g.th1Flags){
+    encode = 0;
+  }     
   if( enableOutput && n ){
     if( n<0 ) n = strlen(z);
     if( encode ){
@@ -474,12 +481,10 @@ static int putsCmd(
   const char **argv,
   int *argl
 ){
-  unsigned int doEscape = (TH_INIT_NO_ESC & g.th1Flags)
-    ? 0U : *(unsigned int*)pConvert;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  sendText(0,(char*)argv[1], argl[1], doEscape);
+  sendText(0,(char*)argv[1], argl[1], *(unsigned int*)pConvert);
   return TH_OK;
 }
 
@@ -2724,14 +2729,13 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
 ** variable is literal.  The second is run through htmlize
 ** before being inserted.
 **
-** This routine processes the template and writes the results on
-** either stdout, into CGI, or to an internal blob which was set up
-** via a recursive call to this routine.
+** This routine processes the template and writes the results to one
+** of stdout, CGI, or an internal blob which was set up via a prior
+** call to Th_SetOutputBlob().
 */
 int Th_Render(const char *z){
-  return Th_RenderToBlob(z, pThOut, 0);
+  return Th_RenderToBlob(z, 0, 0);
 }
-
 
 /*
 ** COMMAND: test-th-render
