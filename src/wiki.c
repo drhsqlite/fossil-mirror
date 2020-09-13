@@ -937,18 +937,13 @@ static void wiki_ajax_route_diff(void){
 **
 ** URL params:
 **
-**  page = wiki page name. This is only needed for authorization
-**  checking.
 **  mimetype = the wiki page mimetype (determines rendering style)
 **  content = the wiki page content
 */
 static void wiki_ajax_route_preview(void){
-  const char * zPageName = P("page");
   const char * zContent = P("content");
 
-  if(!wiki_ajax_can_write(zPageName, 0)){
-    return;
-  }else if( zContent==0 ){
+  if( zContent==0 ){
     ajax_route_error(400,"Missing content to preview.");
     return;
   }else{
@@ -1047,13 +1042,7 @@ void wiki_ajax_page(void){
   {"diff", wiki_ajax_route_diff, 1, 1},
   {"fetch", wiki_ajax_route_fetch, 0, 0},
   {"list", wiki_ajax_route_list, 0, 0},
-  {"preview", wiki_ajax_route_preview, 0, 1}
-  /* preview access mode: whether or not wiki-write mode is needed
-     really depends on multiple factors. e.g. the sandbox page does
-     not normally require more than anonymous access. We set its
-     write-mode to false and do those checks manually in that route's
-     handler.
-  */,
+  {"preview", wiki_ajax_route_preview, 0, 1},
   {"save", wiki_ajax_route_save, 1, 1}
   };
 
