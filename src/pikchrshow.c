@@ -207,7 +207,7 @@ void pikchr_cmd(void){
   const int fTh1 = find_option("th",0,0)!=0;
   const int fNosvg = find_option("th-nosvg",0,0)!=0;
   int isErr = 0;
-  u32 fThFlags = TH_INIT_DEFAULT/* | TH_INIT_NO_ESC*/
+  u32 fThFlags = TH_INIT_DEFAULT | TH_INIT_NO_ESC
     | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
 
   Th_InitTraceLog()/*processes -th-trace flag*/;
