@@ -1073,6 +1073,9 @@ void wiki_ajax_page(void){
   if( pRoute->bWriteMode!=0 && g.perm.WrWiki==0 ){
     ajax_route_error(403,"Write permissions required.");
     return;
+  }else if( pRoute->bWriteMode==0 && g.perm.RdWiki==0 ){
+    ajax_route_error(403,"Read-Wiki permissions required.");
+    return;
   }else if(0==cgi_csrf_safe(pRoute->bPost)){
     ajax_route_error(403,
                      "CSRF violation (make sure sending of HTTP "
@@ -1110,20 +1113,25 @@ void wikiedit_page(void){
   }
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
-    if( !g.perm.WrWiki ){
-      login_needed(g.anon.WrWiki);
+    if( !g.perm.RdWiki ){
+      login_needed(g.anon.RdWiki);
       return;
     }
     found = 1;
-  }else if( zPageName!=0 ){
+  }else if( zPageName!=0 && zPageName[0]!=0){
     int rid = 0;
     if( !wiki_special_permission(zPageName) ){
       login_needed(0);
       return;
     }
     found = wiki_fetch_by_name(zPageName, 0, &rid, 0);
-    if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
-      login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
+    if( (rid && !g.perm.RdWiki) || (!rid && !g.perm.NewWiki) ){
+      login_needed(rid ? g.anon.RdWiki : g.anon.NewWiki);
+      return;
+    }
+  }else{
+    if( !g.perm.RdWiki ){
+      login_needed(g.anon.RdWiki);
       return;
     }
   }
