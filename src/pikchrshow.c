@@ -171,7 +171,7 @@ void pikchrshow_page(void){
     builtin_emit_fossil_js_apis("dom", "fetch", "copybutton",
                                 "popupwidget", "storage", 0);
   }
-  builtin_emit_fossil_js_apis("page.pikchrshow", 0);
+  builtin_emit_fossil_js_apis("page.pikchrshow", "pikchr-util", 0);
   builtin_fulfill_js_requests();
   style_footer();
 }

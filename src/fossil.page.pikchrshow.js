@@ -84,7 +84,6 @@
     ////////////////////////////////////////////////////////////
     // Setup clipboard-copy of markup/SVG...
     F.copyButton(P.e.previewCopyButton, {copyFromElement: P.e.taPreviewText});
-    P.e.previewCopyButton.addEventListener('text-copied', D.flashOnce.eventHandler, false);
     P.e.previewModeLabel.addEventListener('click', ()=>P.e.previewCopyButton.click(), false);
 
     ////////////////////////////////////////////////////////////
@@ -316,6 +315,9 @@
       D.parseHtml(D.clearElement(preTgt), P.response.raw);
       this.e.taPreviewText.value =
         this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
+      if(F.pikchr){
+        F.pikchr.addSrcView(preTgt.querySelector('svg'));
+      }
       break;
     case 1:
       label = "Markdown";

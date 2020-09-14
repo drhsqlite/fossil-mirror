@@ -414,6 +414,19 @@
   };
 
   /**
+     Toggles CSS class c on e (a single element for forEach-capable
+     collection of elements. Returns its first argument.
+  */
+  dom.toggleClass = function f(e,c){
+    if(e.forEach){
+      e.forEach((x)=>x.classList.toggle(c));
+    }else{
+      e.classList.toggle(c);
+    }
+    return e;
+  };
+
+  /**
      Returns true if DOM element e contains CSS class c, else
      false.
   */

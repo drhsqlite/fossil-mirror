@@ -42,7 +42,9 @@
      listener for the 'text-copied' event (see below). There is
      functionally no difference from setting this option or adding a
      'text-copied' event listener to the element, and this option is
-     considered to be a convenience form of that.
+     considered to be a convenience form of that. For the sake of
+     framework-level consistency, the default value is a callback
+     which passes the copy button to fossil.dom.flashOnce().
 
      Note that this function's own defaultOptions object holds default
      values for some options. Any changes made to that object affect
@@ -117,6 +119,7 @@
 
   F.copyButton.defaultOptions = {
     cssClass: 'copy-button',
+    oncopy: D.flashOnce.eventHandler,
     style: {/*properties copied as-is into element.style*/}
   };
   
