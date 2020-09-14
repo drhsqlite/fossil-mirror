@@ -135,7 +135,10 @@ textarea.pikchr-src-text {
       }
     );
     D.append(parent, D.addClass(srcView, 'hidden'), btnFlip, btnCopy);
-    btnFlip.addEventListener('click', function(){
+    btnFlip.addEventListener('click', function f(){
+      if(!f.hasOwnProperty('parentMaxWidth')){
+        f.parentMaxWidth = parent.style.maxWidth;
+      }
       const svgStyle = window.getComputedStyle(svg);
       srcView.style.minWidth = svgStyle.width;
       srcView.style.minHeight = svgStyle.height;
@@ -144,6 +147,11 @@ textarea.pikchr-src-text {
          enlargable. */
       btnFlip.classList.toggle('src-active');
       D.toggleClass([svg, srcView], 'hidden');
+      if(svg.classList.contains('hidden')){
+        parent.style.maxWidth = 'unset';
+      }else{
+        parent.style.maxWidth = f.parentMaxWidth;
+      }
     }, false);
   };
   
