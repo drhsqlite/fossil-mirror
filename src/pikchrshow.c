@@ -167,3 +167,126 @@ void pikchrshow_page(void){
   builtin_fulfill_js_requests();
   style_footer();
 }
+
+/*
+** COMMAND: pikchr*
+**
+** Usage: %fossil pikchr [options] ?INFILE? ?OUTFILE?
+**
+** Accepts a pikchr script as input and outputs the rendered script as
+** an SVG graphic. The INFILE and OUTFILE options default to stdin
+** resp. stdout, and the names "-" can be used as aliases for those
+** streams.
+**
+** Options:
+**
+**    -div       On success, adds a DIV wrapper around the
+**               resulting SVG output which limits its max-width to
+**               its computed maximum ideal size, in order to mimic
+**               how fossil's web-based components work.
+**
+**    -th        Process the input using TH1 before passing it to pikchr.
+**
+**    -th-novar  Disable $var and $<var> TH1 processing. Use this if the
+**               pikchr script uses '$' for its own purposes and that
+**               causes issues.
+**
+**    -th-nosvg  When using -th, output the post-TH1'd script
+**               instead of the pikchr-rendered output.
+**
+**    -th-trace  Trace TH1 execution (for debugging purposes).
+**
+** TH1-related Notes and Caveats:
+**
+** If the -th flag is used, this command must open a fossil database
+** for certain functionality to work (via a checkout or the -R REPO
+** flag). If opening a db fails, execution will continue but any TH1
+** commands which require a db will trigger a fatal error.
+**
+** In Fossil skins, TH1 variables in the form $varName are expanded
+** as-is and those in the form $<varName> are htmlized in the
+** resulting output. This processor disables the htmlizing step, so $x
+** and $<x> are equivalent unless the TH1-processed pikchr script
+** invokes the TH1 command [enable_htmlify 1] to enable it. Normally
+** that option will interfere with pikchr output, however, e.g. by
+** HTML-encoding double-quotes.
+**
+** Many of the fossil-installed TH1 functions simply do not make any
+** sense for pikchr scripts.
+*/
+void pikchr_cmd(void){
+  Blob bIn = empty_blob;
+  Blob bOut = empty_blob;
+  const char * zInfile = "-";
+  const char * zOutfile = "-";
+  const int fWithDiv = find_option("div",0,0)!=0;
+  const int fTh1 = find_option("th",0,0)!=0;
+  const int fNosvg = find_option("th-nosvg",0,0)!=0;
+  int isErr = 0;
+  u32 fThFlags = TH_INIT_NO_ENCODE
+    | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
+
+  Th_InitTraceLog()/*processes -th-trace flag*/;
+  verify_all_options();
+  if(g.argc>4){
+    usage("?INFILE? ?OUTFILE?");
+  }
+  if(g.argc>2){
+    zInfile = g.argv[2];
+  }
+  if(g.argc>3){
+    zOutfile = g.argv[3];
+  }
+  blob_read_from_file(&bIn, zInfile, ExtFILE);
+  if(fTh1){
+    Blob out = empty_blob;
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0)
+      /* ^^^ needed for certain TH1 functions to work */;
+    /*Th_FossilInit(fThFlags);*/
+    isErr = Th_RenderToBlob(blob_str(&bIn), &out, fThFlags)
+      ? 1 : 0;
+    if(isErr){
+      blob_reset(&bOut);
+      bOut = out;
+    }else{
+      blob_reset(&bIn);
+      bIn = out;
+    }
+  }
+  if(!isErr){
+    if(fTh1 && fNosvg){
+      assert(0==blob_size(&bOut));
+      bOut = bIn;
+      bIn = empty_blob;
+    }else{
+      int w = 0, h = 0;
+      const char * zContent = blob_str(&bIn);
+      char *zOut;
+
+      zOut = pikchr(zContent, "pikchr", 0, &w, &h);
+      if( w>0 && h>0 ){
+        if(fWithDiv){
+          blob_appendf(&bOut,"<div style='max-width:%dpx;'>\n", w);
+        }
+        blob_append(&bOut, zOut, -1);
+        if(fWithDiv){
+          blob_append(&bOut,"</div>\n", 7);
+        }
+        fossil_free(zOut);
+      }else{
+        isErr = 2;
+        blob_set_dynamic(&bOut, zOut);
+      }
+    }
+  }
+  if(isErr){
+    /*fossil_print("ERROR: raw input:\n%b\n", &bIn);*/
+    fossil_fatal("%s ERROR: %b", 1==isErr ? "TH1" : "pikchr",
+                 &bOut);
+  }else{
+    blob_write_to_file(&bOut, zOutfile);
+  }
+  Th_PrintTraceLog();
+  blob_reset(&bIn);
+  blob_reset(&bOut);
+}
