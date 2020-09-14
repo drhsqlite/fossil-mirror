@@ -20,9 +20,9 @@
   font-size: ${wh};
   position: absolute;
   top: 0;
-  left: calc(${wh} * 4 / 5 * -1);
+  left: -${wh};
   border: 1px solid black;
-  background-color: rgba(255,255,0,0.5);
+  background-color: rgba(255,255,0,0.2);
   border-radius: 0.25cm;
   z-index: 50;
   cursor: pointer;
@@ -34,11 +34,13 @@
   transition: transform 250ms linear;
 }
 .pikchr-src-button.src-active {
-  background-color: rgba(0,255,0,0.5);
   transform: scaleX(-1);
 }
 .pikchr-src-button > span {
   vertical-align: middle;
+}
+textarea.pikchr-src-text {
+  box-sizing: border-box/*reduces UI shift*/;
 }
 .pikchr-copy-button {
   min-width: ${wh}; max-width: ${wh};
@@ -46,7 +48,7 @@
   display: inline-block;
   position: absolute;
   top: calc(${wh} * 1.25);
-  left: calc(${wh} * 4 / 5 * -1);
+  left: -${wh};
   z-index: 50;
   margin-right: 0;
 }
@@ -115,7 +117,7 @@
     },opt);
     const parent = svg.parentNode;
     parent.style.position = 'relative' /* REQUIRED for btn placement */;
-    const srcView = D.textarea(0,0,true);
+    const srcView = D.addClass(D.textarea(0,0,true), 'pikchr-src-text');
     srcView.value = src.textContent;
     const btnFlip = D.append(
       D.addClass(D.span(), 'pikchr-src-button'),

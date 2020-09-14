@@ -907,6 +907,7 @@ d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
   cursor: pointer;
 }
 .copy-button.disabled {
+  filter: grayscale(1);
   opacity: 0.4;
 }
 .copy-button-flipped {

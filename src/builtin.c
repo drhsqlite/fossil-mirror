@@ -740,17 +740,32 @@ void builtin_emit_fossil_js_apis( const char * zApi, ... ) {
 ** should, if possible, be delayed until after this is called OR the
 ** page should call builtin_fulfill_js_requests() to flush the request
 ** queue before calling this routine.
+**
+** Example usage:
+**
+** if(!builtin_bundle_all_fossil_js_apis()){
+**    builtin_emit_fossil_js_apis("dom", "fetch", 0);
+** }
+**
+** In bundled mode, that will emit all builtin fossil JS APIs, and in
+** non-bundled mode it will queue up the "dom" and "fetch" APIs to be
+** emitted the next time builtin_fulfill_js_requests() is called.
 */
 int builtin_bundle_all_fossil_js_apis(void){
   static int bundled = 0;
   if(JS_BUNDLED == builtin_get_js_delivery_mode()){
     if(!bundled){
       bundled = 1;
-      builtin_emit_fossil_js_apis("dom", "fetch",
-                                  "storage", "tabs",
-                                  "confirmer", "popupwidget",
-                                  "copybutton", "numbered-lines",
-                                  0);
+      builtin_emit_fossil_js_apis(
+         /* The order of the following arguments is important: any
+            which have dependencies must be listed after their
+            dependencies. ALL of them depend on the core
+            window.fossil bootstrapping bits. */
+          "dom", "fetch", "storage", "tabs",
+          "confirmer", "popupwidget",
+          "copybutton", "numbered-lines",
+          "pikchr",
+          0);
       builtin_fulfill_js_requests();
     }
     return 1;

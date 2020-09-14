@@ -237,7 +237,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.pikchrshow.js \
   $(SRCDIR)/fossil.page.wikiedit-wysiwyg-legacy.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
-  $(SRCDIR)/fossil.pikchr-util.js \
+  $(SRCDIR)/fossil.pikchr.js \
   $(SRCDIR)/fossil.popupwidget.js \
   $(SRCDIR)/fossil.storage.js \
   $(SRCDIR)/fossil.tabs.js \
