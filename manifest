@@ -1,5 +1,5 @@
-C pikchr:\sexperimentally\sonly\sshow\sthe\ssource/svg\sand\scopy\sbuttons\swhen\sthe\smouse\sis\sover\sthe\spikchr\sarea\sor\sthe\suser\staps\son\sit\s(which\stoggles\sthe\sbuttons).\sThis\sallows\sus\sto\smake\sthem\sa\sbit\sbigger\sand\skeeps\sthem\sfrom\sblocking\snearby\sUI\selements\swhen\sthey're\snot\sneeded.
-D 2020-09-14T15:08:51.796
+C New\spikchr.c\sthat\sfixes\sthe\sarc\sbounding\sbox\sproblem.
+D 2020-09-14T15:53:15.318
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 5b3cc69347b792f65dcb0503d217fb01c2060fd4543b0a708ce9ebfde97d39af
+F src/pikchr.c 611968a8cb95b3da4a4da263bc5d16ef679756de18729771ff7862326e6ab878
 F src/pikchrshow.c 64228fafe14129ff8a338b88f3aa232e73d77b5f0c0a5b03affe822685c30cca
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a35126bf289da01c85c6a676d4851f0d00b46daf551ae748a5d7fdd43858c346
-R 846a8f18b7d93a4ebcb4a764f112f72d
-U stephan
-Z 8792c1882d5ef97c437a53984d7e2242
+P 460376e6a44fd956f5913836b5c54128d5eda04b40fc2abe3741760dff4b738b
+R c11bcfc4cb1761a18686f4d86f8b079d
+U drh
+Z 19ebf2e5d495fb6ec689ce02de427b68
