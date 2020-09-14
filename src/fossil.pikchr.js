@@ -12,14 +12,14 @@
   (function(){
     const head = document.head || document.querySelector('head'),
           styleTag = document.createElement('style'),
-          wh = '1em' /* fixed width/height of buttons */,
+          wh = '1.5em' /* fixed width/height of buttons */,
           styleCSS = `
 .pikchr-src-button {
   min-height: ${wh}; max-height: ${wh};
   min-width: ${wh}; max-width: ${wh};
   font-size: ${wh};
   position: absolute;
-  top: calc(-${wh} / 2);
+  top: 0;
   left: 0;
   border: 1px solid black;
   background-color: rgba(255,255,0,0.2);
@@ -48,8 +48,8 @@ textarea.pikchr-src-text {
   min-height: ${wh}; max-height: ${wh};
   display: inline-block;
   position: absolute;
-  top: calc(-${wh} / 2);
-  left: calc(${wh} * 1.5);
+  top: calc(${wh} * 2);
+  left: 0;
   z-index: 50;
   padding: 0; margin: 0;
 }
@@ -134,8 +134,32 @@ textarea.pikchr-src-text {
         }
       }
     );
-    D.append(parent, D.addClass(srcView, 'hidden'), btnFlip, btnCopy);
-    btnFlip.addEventListener('click', function f(){
+    const buttons = [btnFlip, btnCopy];
+    D.addClass(buttons, 'hidden');
+    D.append(parent, D.addClass(srcView, 'hidden'), buttons);
+
+    /**
+       Toggle the buttons on only when the mouse is in the parent
+       widget's area or the user taps on that area. This seems much
+       less "busy" than having them always visible and slightly in the way.
+       It also means that we can make them a bit larger.
+    */
+    parent.addEventListener('mouseenter', function(ev){
+      if(ev.target === parent) D.removeClass(buttons, 'hidden');
+    }, true);
+    parent.addEventListener('mouseleave', function(ev){
+      if(ev.target === parent) D.addClass(buttons, 'hidden');
+    }, true);
+    /* mouseenter/leave work well... but only if there's a mouse. */
+    parent.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      D.toggleClass(buttons, 'hidden');
+    }, false);
+
+    btnFlip.addEventListener('click', function f(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
       if(!f.hasOwnProperty('origMaxWidth')){
         f.origMaxWidth = parent.style.maxWidth;
       }

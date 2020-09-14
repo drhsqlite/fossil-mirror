@@ -100,7 +100,9 @@
     D.copyStyle(e, opt.style);
     e.addEventListener(
       'click',
-      function(){
+      function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
         if(e.classList.contains('disabled')) return;
         const txt = extract.call(opt);
         if(txt && D.copyTextToClipboard(txt)){
