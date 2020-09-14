@@ -637,6 +637,8 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        skin_detail_boolean("white-foreground") ? "true" : "false");
     CX("}\n"/*fossil.config.skin*/);
     CX("};\n"/* fossil.config */);
+    CX("if(fossil.config.skin.isDark) "
+       "document.body.classList.add('fossil-dark-style');\n");
 #if 0
     /* Is it safe to emit the CSRF token here? Some pages add it
     ** as a hidden form field. */

@@ -1,5 +1,5 @@
-C pikchrshow:\scorrected\sclipboard\scopy\scontents\sfor\sraw\sSVG\smode\s(it\swas\sincluding\scontaining\sDIV\selement).
-D 2020-09-14T21:40:58.415
+C The\swindow.fossil\sbootstrapping\scode\snow\sadds\sthe\sCSS\sclass\s'fossil-dark-style'\sto\sthe\sbody\selement\sif\sthe\sskin\shas\sa\strue\swhite-foreground\ssetting.\sThe\sinitial\suse\scase\sfor\sthis\sis\sCSS-based\scolor\schanging\sfor\spikchr\sSVGs,\sso\sthat\sthe\ssame\spikchrs\swork\sin\slight\sand\sdark\sthemes.
+D 2020-09-14T23:42:10.836
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/bisect.c fa16fe02114d63561139babd2309c78d07466edb8872047c8e711b58c252c288
 F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
 F src/branch.c 00a400c285171a4c6147d1788b98f458916bfcf319275a0df82b68de84aefb2a
 F src/browse.c 8058ebc25615e77091505543150dfbb01e61a2197fab3b4ba0ba1d0734c7319f
-F src/builtin.c 432b5d514672005c5f2bbfbf6e8710086428f0449ad0da13f8b3c090076f5e91
+F src/builtin.c f79af96bfc27a9757e03be7fbec001777df54c62dc5bec180f8488d5b9841e60
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 863d272205172935214f12bb14ad5ea1a7f4773d6359972e4666b16bc9798537
-R 3b4ee575c1b0b4f21b19fe439c7c9be1
+P bb56d3d5a2e39f508998062c4f40a0b8f1cb4d318b8f1b0e23f6724fb843bd8e
+R acf3ba8970f32729a49e9cf46bba3255
 U stephan
-Z 893ab7d0879a200a090434f3fd0b8b84
+Z cac14cd3693cbea78efc39ca95326331
