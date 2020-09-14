@@ -197,7 +197,8 @@ void pikchrshow_page(void){
 **
 **    -th-novar  Disable $var and $<var> TH1 processing. Use this if the
 **               pikchr script uses '$' for its own purposes and that
-**               causes issues.
+**               causes issues. This only affects parsing of '$' outside
+**               of TH1 script blocks. Code in such blocks is unaffected.
 **
 **    -th-nosvg  When using -th, output the post-TH1'd script
 **               instead of the pikchr-rendered output.

@@ -1,5 +1,5 @@
-C pikchrshow\snow\ssupports\sstashing\sa\ssingle\spikchr\sto/from\sbrowser-local\sstorage\sto\senable\sswitching\sback\sand\sforth\sbetween\sexample\sscripts\swhile\sediting\sone's\sown\sscript.\sExperimentally\sre-indented\sthe\sC-side\simplementation\sto\smake\sits\sgenerated\sHTML\shierarchy\sclearer.\sOver-the-wire\ssize\sis\snow\s4.8kb.
-D 2020-09-14T02:06:13.090
+C Minor\spikchr\scommand\sdoc\supdate.
+D 2020-09-14T05:38:22.145
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c 5b3cc69347b792f65dcb0503d217fb01c2060fd4543b0a708ce9ebfde97d39af
-F src/pikchrshow.c 1f756a9c026340e680ff7e3dc4bbf04f50e4b13ab7aa8b67075cec4bd1843ab1
+F src/pikchrshow.c a5603188ee31d2193db19db0905757710064783d948a74aa11915976ac138087
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 56a744638ac7daed73a463d55031c36505e5a2c84173609406e7486f614f4e5c
-R ed4eb78d740530d2127a174a232e06ef
+P 49a04c97b5a78055f2da0f7920ba4c9a2a444bb22336a1296e91ebe9c9f7b590
+R 9afda3bdc9fe92ce6c084d84377a3122
 U stephan
-Z e50de2703cfa37d027a246d291665585
+Z 26e036596218c2a2a4083b9b7e89d40e
