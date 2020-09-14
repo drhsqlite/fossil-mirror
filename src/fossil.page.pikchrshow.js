@@ -295,6 +295,11 @@
         else if(P.e.markupAlignIndent.checked) return ' indent';
         return '';
       };
+      f.getSvgNode = function(txt){
+        const childs = D.parseHtml(txt);
+        const wrapper = childs.filter((e)=>'DIV'===e.tagName)[0];
+        return wrapper ? wrapper.querySelector('svg.pikchr') : undefined;
+      };
     }
     const preTgt = this.e.previewTarget;
     if(this.response.isError){
@@ -307,14 +312,16 @@
     D.removeClass(this.e.previewCopyButton, 'disabled');
     D.removeClass(this.e.markupAlignWrapper, 'hidden');
     D.enable(this.e.previewModeToggle, this.e.markupAlignRadios);
-    let label;
+    let label, svg;
     switch(this.previewMode){
     case 0:
       label = "SVG";
       f.showMarkupAlignment(false);
       D.parseHtml(D.clearElement(preTgt), P.response.raw);
-      this.e.taPreviewText.value =
-        this.response.raw.replace(f.rxNonce, '')/*for copy button*/;
+      svg = f.getSvgNode(this.response.raw);
+      if(svg){ /*for copy button*/
+        this.e.taPreviewText.value = svg.outerHTML;
+      }
       if(F.pikchr){
         F.pikchr.addSrcView(preTgt.querySelector('svg'));
       }
@@ -341,9 +348,7 @@
     case 3:
       label = "Raw SVG";
       f.showMarkupAlignment(false);
-      const childs = D.parseHtml(this.response.raw);
-      const wrapper = childs.filter((e)=>'DIV'===e.tagName)[0];
-      const svg = wrapper ? wrapper.querySelector('svg.pikchr') : undefined;
+      svg = f.getSvgNode(this.response.raw);
       if(svg){
         this.e.taPreviewText.value = svg.outerHTML;
       }else{

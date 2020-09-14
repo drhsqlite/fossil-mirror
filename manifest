@@ -1,5 +1,5 @@
-C New\spikchr.c\sthat\sfixes\san\sadditional\sproblem\swith\s"to"\sterms\son\sline\spaths\nand\sthat\sensures\sthat\s"dot"\sobjects\sto\snot\schange\sthe\sexit\spoint.
-D 2020-09-14T17:03:50.074
+C pikchrshow:\scorrected\sclipboard\scopy\scontents\sfor\sraw\sSVG\smode\s(it\swas\sincluding\scontaining\sDIV\selement).
+D 2020-09-14T21:40:58.415
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js c1289f700e644abf872deff99b8d3115899841dc798b559f36f31bb1a61f48c3
 F src/fossil.page.forumpost.js 3fa95e3585d59f3e56b4429531db3ea058bd5f44cd5a3d46ac2f9189de3d8122
-F src/fossil.page.pikchrshow.js 2b301c8121a6c03bf23b7a8eee4902a1117a75942420f44ad350014f2caa8bac
+F src/fossil.page.pikchrshow.js ec99ac1a7c02ff3dc1930f7626455f48d249383bce7c21a2c44fc6711c82bff4
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 1f81b2ac6e6e45167bbb36cb98ebb147855f5f08b94d6c35942c2dc051c2aaf6
 F src/fossil.pikchr.js c465b6fcb32f64dc5d08dfafe3bc9cf8d09739a8dc3da23dd947aedd06530efe
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 868c38e361715a81f596ec9dde2dce679c47df5114a7a6e1d9ec67de83a20c90
-R 5ca243a6696110f2e547a30da896da67
-U drh
-Z 4a4ef4b8f4b4ed131719566c05f349f1
+P 863d272205172935214f12bb14ad5ea1a7f4773d6359972e4666b16bc9798537
+R 3b4ee575c1b0b4f21b19fe439c7c9be1
+U stephan
+Z 893ab7d0879a200a090434f3fd0b8b84
