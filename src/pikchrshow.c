@@ -173,34 +173,46 @@ void pikchrshow_page(void){
 **
 ** Usage: %fossil pikchr [options] ?INFILE? ?OUTFILE?
 **
-** Accepts a pikchr script as input and outputs the rendered
-** script as an SVG graphic.
+** Accepts a pikchr script as input and outputs the rendered script as
+** an SVG graphic. The INFILE and OUTFILE options default to stdin
+** resp. stdout, and the names "-" can be used as aliases for those
+** streams.
 **
 ** Options:
 **
-**    -div      On success, adds a DIV wrapper around the
-**              resulting SVG output which limits its max-width.
+**    -div       On success, adds a DIV wrapper around the
+**               resulting SVG output which limits its max-width to
+**               its computed maximum ideal size, in order to mimic
+**               how fossil's web-based components work.
 **
-**    -th       Process the input using TH1 before passing it to pikchr.
+**    -th        Process the input using TH1 before passing it to pikchr.
 **
-**    -th-novar Disable $var and $<var> TH1 processing. Only applies
-**              with the -th flag. Use this if the pikchr script uses
-**              '$' for its own purposes.
+**    -th-novar  Disable $var and $<var> TH1 processing. Use this if the
+**               pikchr script uses '$' for its own purposes and that
+**               causes
 **
-**    -th-nosvg When using -th, output the post-TH1'd script
-**              instead of the pikchr-rendered output.
+**    -th-nosvg  When using -th, output the post-TH1'd script
+**               instead of the pikchr-rendered output.
 **
-**    -th-trace Trace TH1 execution (for debugging purposes)
+**    -th-trace  Trace TH1 execution (for debugging purposes).
 **
-** TH1 Caveats:
+** TH1-related Notes and Caveats:
 **
 ** If the -th flag is used, this command must open a fossil database
-** for certain functionality to work. It will run TH1 without opening
-** a db if one cannot be found in the current checkout or with the -R
-** REPO flag, but any TH1 commands which require a db will then fail.
+** for certain functionality to work (via a checkout or the -R REPO
+** flag). If opening a db fails, execution will continue but any TH1
+** commands which require a db will trigger a fatal error.
 **
-** Many of the fossil-installed TH1 functions do not make any sense
-** for pikchr scripts
+** In Fossil skins, TH1 vars in the form $x are expanded as-is and
+** those in the form $<x> are htmlized in the resulting output. This
+** processor disables the htmlizing step, so $x and $<x> are
+** equivalent UNLESS the TH1-processed pikchr script invokes the TH1
+** enable_htmlify command to enable it. Normally that option will
+** interfere with pikchr output, however, e.g. by HTML-encoding
+** double-quotes.
+**
+** Many of the fossil-installed TH1 functions simply do not make any
+** sense for pikchr scripts
 */
 void pikchr_cmd(void){
   Blob bIn = empty_blob;
@@ -260,11 +272,11 @@ void pikchr_cmd(void){
         if(fWithDiv){
           blob_append(&bOut,"</div>\n", 7);
         }
+        fossil_free(zOut);
       }else{
         isErr = 2;
-        blob_append(&bOut, zOut, -1);
+        blob_set_dynamic(&bOut, zOut);
       }
-      fossil_free(zOut);
     }
   }
   if(isErr){
