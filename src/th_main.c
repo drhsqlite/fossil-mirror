@@ -293,10 +293,13 @@ static int enableOutputCmd(
 }
 
 /*
-** TH1 command: enable_htmlify BOOLEAN
+** TH1 command: enable_htmlify ?BOOLEAN?
 **
 ** Enable or disable the HTML escaping done by all output which
 ** originates from TH1 (via sendText()).
+**
+** If passed no arguments it instead returns 0 or 1 to indicate the
+** current state.
 */
 static int enableHtmlifyCmd(
   Th_Interp *interp,
@@ -305,20 +308,26 @@ static int enableHtmlifyCmd(
   const char **argv,
   int *argl
 ){
-  int rc, buul;
-  if( argc<2 || argc>3 ){
+  int rc = 0, buul;
+  if( argc>3 ){
     return Th_WrongNumArgs(interp,
-                           "enable_htmlify [TRACE_LABEL] BOOLEAN");
+                           "enable_htmlify [TRACE_LABEL] ?BOOLEAN?");
   }
-  rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &buul);
-  if( g.thTrace ){
-    Th_Trace("enable_htmlify {%.*s} -> %d<br />\n",
-             argl[1],argv[1],buul);
-  }
-  if(buul){
-    g.th1Flags &= ~TH_INIT_NO_ENCODE;
-  }else{
-    g.th1Flags |= TH_INIT_NO_ENCODE;
+  buul = (TH_INIT_NO_ENCODE & g.th1Flags) ? 0 : 1;
+  Th_SetResultInt(g.interp, buul);
+  if(argc>1){
+    if( g.thTrace ){
+      Th_Trace("enable_htmlify {%.*s} -> %d<br />\n",
+               argl[1],argv[1],buul);
+    }
+    rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &buul);
+    if(!rc){
+      if(buul){
+        g.th1Flags &= ~TH_INIT_NO_ENCODE;
+      }else{
+        g.th1Flags |= TH_INIT_NO_ENCODE;
+      }
+    }
   }
   return rc;
 }
@@ -2739,7 +2748,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   assert(0==(TH_R2B_MASK & TH_INIT_MASK) && "init/r2b mask conflict");
   Th_FossilInit(mFlags & TH_INIT_MASK);
   while( z[i] ){
-    if( 0!=(TH_R2B_NO_VARS & mFlags)
+    if( 0==(TH_R2B_NO_VARS & mFlags)
         && z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
       int nVar;

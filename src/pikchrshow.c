@@ -230,6 +230,7 @@ void pikchr_cmd(void){
     Blob out = empty_blob;
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0)
       /* ^^^ needed for certain TH1 functions to work */;
+    /*Th_FossilInit(fThFlags);*/
     isErr = Th_RenderToBlob(blob_str(&bIn), &out, fThFlags)
       ? 1 : 0;
     if(isErr){

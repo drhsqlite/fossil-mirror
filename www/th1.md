@@ -356,15 +356,19 @@ time zone configured for the repository).
 <a id="enable_htmlify"></a>TH1 enable\_htmlify Command
 ------------------------------------------------------
 
+  *  enable\_htmlify
   *  enable\_htmlify ?TRACE-LABEL? BOOLEAN
 
 By default, certain output from `puts` and similar commands is escaped
-for HTML. That feature can be toggled off by passing `0` to this
-command and re-enabled by passing any non-0 value. The optional
-`TRACE-LABEL` argument causes the TH1 tracing output (if enabled) to
-add a marker when this command is invoked, and includes that label and
-the boolean argument's value in the trace. If tracing is disabled,
-that argument has no effect.
+for HTML. The first call form returns the current state of that
+feature: `1` for on and `0` for off. The second call form enables
+(non-0) or disables (0) that feature and returns the *pre-call* state
+of that feature (so that a second call can pass that value to restore
+it to its previous state). The optional `TRACE-LABEL` argument causes
+the TH1 tracing output (if enabled) to add a marker when the second
+form of this command is invoked, and includes that label and the
+boolean argument's value in the trace. If tracing is disabled, that
+argument has no effect.
 
 
 <a id="enable_output"></a>TH1 enable\_output Command
@@ -528,7 +532,8 @@ Returns the value of the cryptographic nonce for the request being processed.
 
   *  puts STRING
 
-Outputs the STRING unchanged.
+Outputs the STRING unchanged, where "unchanged" might, depending on
+the context, mean "with some characters escaped for HTML."
 
 <a id="query"></a>TH1 query Command
 -------------------------------------
