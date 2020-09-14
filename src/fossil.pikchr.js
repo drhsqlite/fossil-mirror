@@ -12,15 +12,15 @@
   (function(){
     const head = document.head || document.querySelector('head'),
           styleTag = document.createElement('style'),
-          wh = '0.75cm',
+          wh = '1em' /* fixed width/height of buttons */,
           styleCSS = `
 .pikchr-src-button {
   min-height: ${wh}; max-height: ${wh};
   min-width: ${wh}; max-width: ${wh};
   font-size: ${wh};
   position: absolute;
-  top: 0;
-  left: -${wh};
+  top: calc(-${wh} / 2);
+  left: 0;
   border: 1px solid black;
   background-color: rgba(255,255,0,0.2);
   border-radius: 0.25cm;
@@ -32,6 +32,7 @@
   justify-content: center;
   transform-origin: center;
   transition: transform 250ms linear;
+  padding: 0; margin: 0;
 }
 .pikchr-src-button.src-active {
   transform: scaleX(-1);
@@ -47,10 +48,10 @@ textarea.pikchr-src-text {
   min-height: ${wh}; max-height: ${wh};
   display: inline-block;
   position: absolute;
-  top: calc(${wh} * 1.25);
-  left: -${wh};
+  top: calc(-${wh} / 2);
+  left: calc(${wh} * 1.5);
   z-index: 50;
-  margin-right: 0;
+  padding: 0; margin: 0;
 }
 `;
     head.appendChild(styleTag);
@@ -136,8 +137,11 @@ textarea.pikchr-src-text {
     D.append(parent, D.addClass(srcView, 'hidden'), btnFlip, btnCopy);
     btnFlip.addEventListener('click', function(){
       const svgStyle = window.getComputedStyle(svg);
-      srcView.style.width = svgStyle.width;
-      srcView.style.height = svgStyle.height;
+      srcView.style.minWidth = svgStyle.width;
+      srcView.style.minHeight = svgStyle.height;
+      /* ^^^ The SVG wrapper/parent element has a max-width, so the
+         textarea will be too small on tiny images and won't be
+         enlargable. */
       btnFlip.classList.toggle('src-active');
       D.toggleClass([svg, srcView], 'hidden');
     }, false);

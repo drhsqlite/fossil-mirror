@@ -1,6 +1,7 @@
 (function(F/*the fossil object*/){
   "use strict";
-  /* JS code for /forumpage and friends. Requires fossil.dom. */
+  /* JS code for /forumpage and friends. Requires fossil.dom
+     and can optionally use fossil.pikchr. */
   const P = F.page, D = F.dom;
 
   F.onPageLoad(function(){
@@ -82,6 +83,10 @@
       rightTapZone.addEventListener('click', widgetEventHandler, false);
       refillTapZone();
     });
+
+    if(F.pikchr){
+      F.pikchr.addSrcView();
+    }
   })/*onload callback*/;
   
 })(window.fossil);

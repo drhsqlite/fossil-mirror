@@ -865,10 +865,12 @@ void forumthread_page(void){
   forum_display_thread(froot, fpid, mode, bUnf, bHist);
 
   /* Emit Forum Javascript. */
-  builtin_emit_script_fossil_bootstrap(1);
   builtin_request_js("forum.js");
-  builtin_request_js("fossil.dom.js");
-  builtin_request_js("fossil.page.forumpost.js");
+  if(!builtin_bundle_all_fossil_js_apis()){
+    builtin_emit_fossil_js_apis("dom", "copybutton",
+                                "pikchr", 0);
+  }
+  builtin_emit_fossil_js_apis("page.forumpost", 0);
 
   /* Emit the page style. */
   style_footer();

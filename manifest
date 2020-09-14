@@ -1,5 +1,5 @@
-C Renamed\sfossil.pikchr-util.js\sto\sfossil.pikchr.js.\sMinor\sUI\stweaks\sin\sthe\spikchr-related\sbits.
-D 2020-09-14T10:48:44.498
+C Had\sto\smove\sthe\spikchr\ssvg/source\sbuttons\salong\sthe\stop\sto\skeep\sthem\sfrom\sgetting\struncated\soff-screen\sin\sthe\sforum.\sAdded\sthem\sto\sthe\sforum.\sThere\sare\ssizing\sproblems\sof\sthe\ssource\sview\sfor\ssmall\spics\sbecause\sthe\sparent\selement\shas\sa\sfixed\smax-width.
+D 2020-09-14T11:12:26.053
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c 5c46fae3769188c446c0c7668201e1189fa93badc6ba5c8d6efea05cb864f00c
 F src/fileedit.c 88c6dfec77331473adad39daa1fcf267472f67ac129067a405d7d56986a3f806
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c c098cf47d2f620e834cc2db4234ce691fcf54dd18b98fb974ea2d89435443b40
+F src/forum.c 7389e728e46f45a983961e6d257f9211dd06306183c00efd3de23db5b131face
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -492,11 +492,11 @@ F src/fossil.dom.js ab539537e696c8d3580e30d837d993f7f4e0b51c51a3af8306d508014fde
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js c1289f700e644abf872deff99b8d3115899841dc798b559f36f31bb1a61f48c3
-F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e5228339c54fffba
+F src/fossil.page.forumpost.js 3fa95e3585d59f3e56b4429531db3ea058bd5f44cd5a3d46ac2f9189de3d8122
 F src/fossil.page.pikchrshow.js 2b301c8121a6c03bf23b7a8eee4902a1117a75942420f44ad350014f2caa8bac
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 1f81b2ac6e6e45167bbb36cb98ebb147855f5f08b94d6c35942c2dc051c2aaf6
-F src/fossil.pikchr.js d36fdcfb26d19b0de23105ff9e62b9d9a3305fbc08313f729fe7fdcd04144319 w src/fossil.pikchr-util.js
+F src/fossil.pikchr.js 9040bb04ab323642ce8ce1d9e4a96efa1fec93db1fea975b3f1a2ef4c4968818
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b74d1a3fd1fcf0c929e3dfc2682d68338ec669da9ff4d0608538b93a1bed07d9
-R 52e7b53c5c4226cfdda5a93de99c1444
+P f5c040869d21927b3368952578cf44684d94f90ec3a675aa4e9484bc488e9e9e
+R d93a69efc5e3dae05268297fe0405baf
 U stephan
-Z 14af2c6d965835bc5db1f1b3c59f49a2
+Z 04024225d45cb36bbc3927fae6e9346f
