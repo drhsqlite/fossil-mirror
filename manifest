@@ -1,5 +1,5 @@
-C Typo\sfix\sand\schangelog\spikchr\supdate.
-D 2020-09-14T00:55:22.399
+C /wiki\slinks\swhich\spointed\sto\sthe\sSandbox\spage\snow\slink\sto\s/wikiedit\sto\saccommodate\srecent\schanges\sin\sthe\ssandbox\shandling.
+D 2020-09-14T00:59:11.155
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -644,7 +644,7 @@ F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c f1be07d0b7c51493192d798a7362e1763d67c8f990f629786199288bad4bdd70
+F src/wiki.c 3b2b2cb454f0aaa12e3ab72bd2dd72943d4fa29fe01d66d25480133627ea83b4
 F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
 F src/wikiformat.c cb264c12bc55d84e4e1431a35af62f5c30315a333eb294f4e8313a653904590e
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1009,7 +1009,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5173701de4b4a3b75937225501a085584d61176097f6352b4359b89e214cd73d
-R 9466fb44f3bc4bf5e4b2184eac8f0294
+P d9b42358123b7599196c3e7406af4af1657cfd7dd5d0c09b38907bba5be6e62a
+R 81c69e80d322ea9fa480584124044a77
 U stephan
-Z 6f089b6803ef57051d232a7840aa5d4b
+Z 49abecc921907fd3154726e6f90bda23

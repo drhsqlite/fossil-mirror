@@ -320,7 +320,7 @@ static void wiki_standard_submenu(unsigned int ok){
     style_submenu_element("New", "%R/wikinew");
   }
   if( (ok & W_SANDBOX)!=0 ){
-    style_submenu_element("Sandbox", "%R/wiki?name=Sandbox");
+    style_submenu_element("Sandbox", "%R/wikiedit?name=Sandbox");
   }
 }
 
@@ -338,7 +338,7 @@ void wiki_helppage(void){
   @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
   @ <li> Formatting rules for %z(href("%R/wiki_rules"))Fossil Wiki</a> and for
   @ %z(href("%R/md_rules"))Markdown Wiki</a>.</li>
-  @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
+  @ <li> Use the %z(href("%R/wikiedit?name=Sandbox"))Sandbox</a>
   @      to experiment.</li>
   if( g.perm.NewWiki ){
     @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
