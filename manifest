@@ -1,5 +1,5 @@
-C Added\sUI\scontrol\sto\stoggle\sarbitrary\spikchr\sSVG\sfiles\sbetween\sSVG\sand\ssource\sviews,\salong\swith\sa\scopy\sbutton\sto\scopy\sthe\ssource\sof\sthe\scurrently-selected\sview.\sRequires\spikchr.c\scode\swhich\sis\snot\scurrently\sin\sthe\sfossil\stree,\sbut\sonce\sthat\scode\sis\simported,\sthis\sfeature\swill\sactivate\sautomatically.\sCurrently\sonly\sused\sby\spikchrshow,\sbut\sis\strivial\sto\sactivate\sin\sarbitrary\spages.\sfossil.copybutton\sAPI\snow\suses\sflashOnce\sas\sits\sdefault\soncopy\sevent\shandler,\sto\ssimplify\sits\smost\scommon\susage.
-D 2020-09-14T09:05:49.366
+C Moved\sSVG/pikchr\smode\sbuttons\sto\sthe\sleft\sof\sthe\sSVG\sso\sthat\stheir\spositions\sremain\sstable\swhen\sswitching\simages\sin\spikchrshow\sor\sresizing\sthem\svia\swindow-resize\sin\sother\sviews.\sCSS-animated\sthe\smode-change\sbutton\stoggle.
+D 2020-09-14T09:19:14.989
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/fossil.page.forumpost.js 022d86750a9fee2276dd30982c98c0bb64c29546916b0ca8e
 F src/fossil.page.pikchrshow.js 2b301c8121a6c03bf23b7a8eee4902a1117a75942420f44ad350014f2caa8bac
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 1f81b2ac6e6e45167bbb36cb98ebb147855f5f08b94d6c35942c2dc051c2aaf6
-F src/fossil.pikchr-util.js b77daa3f73c555b9fe136a8f51b3c005c117d735c15852bf64f124864a188151
+F src/fossil.pikchr-util.js 793ae46fbe41723649e854a8bcadbb2bce73d2289a27a29f23729cf0c32229eb
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 120558e50da34cc33b3f934ddab8c23b3a516ea665e7c1964c2d325558147de7
-R 0f2f9dddfd9f777bb06cecf746946986
+P 475b3a7fbb0ce338a153bf827de7e93870a7ff4b5570077408f04866dbaf4b85
+R ce266f2db2569284833f2a9c65609c48
 U stephan
-Z cb5239fc5d51ef56067b97f78e18fa73
+Z cc86d8f50ef6cc227b70ec5a6697409e

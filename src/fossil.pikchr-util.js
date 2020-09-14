@@ -19,8 +19,8 @@
   min-width: ${wh}; max-width: ${wh};
   font-size: ${wh};
   position: absolute;
-  top: calc(-${wh} / 2);
-  right: calc(-${wh} / 2);
+  top: 0;
+  left: calc(${wh} * 4 / 5 * -1);
   border: 1px solid black;
   background-color: rgba(255,255,0,0.5);
   border-radius: 0.25cm;
@@ -30,9 +30,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transform-origin: center;
+  transition: transform 250ms linear;
 }
 .pikchr-src-button.src-active {
   background-color: rgba(0,255,0,0.5);
+  transform: scaleX(-1);
 }
 .pikchr-src-button > span {
   vertical-align: middle;
@@ -42,8 +45,8 @@
   min-height: ${wh}; max-height: ${wh};
   display: inline-block;
   position: absolute;
-  top: calc(${wh} / 2 + ${wh} / 4);
-  right: calc(-${wh} / 2);
+  top: calc(${wh} * 1.25);
+  left: calc(${wh} * 4 / 5 * -1);
   z-index: 50;
   margin-right: 0;
 }
