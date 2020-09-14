@@ -136,8 +136,8 @@ textarea.pikchr-src-text {
     );
     D.append(parent, D.addClass(srcView, 'hidden'), btnFlip, btnCopy);
     btnFlip.addEventListener('click', function f(){
-      if(!f.hasOwnProperty('parentMaxWidth')){
-        f.parentMaxWidth = parent.style.maxWidth;
+      if(!f.hasOwnProperty('origMaxWidth')){
+        f.origMaxWidth = parent.style.maxWidth;
       }
       const svgStyle = window.getComputedStyle(svg);
       srcView.style.minWidth = svgStyle.width;
@@ -145,13 +145,47 @@ textarea.pikchr-src-text {
       /* ^^^ The SVG wrapper/parent element has a max-width, so the
          textarea will be too small on tiny images and won't be
          enlargable. */
+      if(0){
+        /* We seem to have a fundamental incompatibility with how we
+           really want to position srcView at the same pos/size as the
+           svg and how that interacts with centered items.
+           Until/unless this can be solved, we have to decide between
+           the lesser of two evils:
+
+           1) This option. Small images have uselessly tiny source
+           view which cannot be enlarged because the parent element
+           has a width and/or max-width. width/max-width are important
+           for center alignment via the margin:auto trick.
+
+           2) Center-aligned images shift all the way to the left when
+           the source view is visible, then back to the center when
+           source view is hidden. Source views are resizable and may
+           even grow a bit automatically for tiny images.
+        */
+        if(srcView.classList.contains('hidden')){/*initial state*/
+          parent.style.width = f.origMaxWidth;
+          parent.style.maxWidth = 'unset';
+        }else{/*srcView is active*/
+          parent.style.maxWidth = f.origMaxWidth;
+          parent.style.width = 'unset';
+        }
+      }else{
+        /* Option #2: gives us good results for non-centered items but
+           not for centered. We apparently have no(?) reliable way of
+           distinguishing centered from left/indented pikchrs here
+           unless we add a CSS class to mark them as such in the
+           pikchr-to-wiki-image code. */
+        if(srcView.classList.contains('hidden')){/*initial state*/
+          parent.style.width = 'unset';
+          parent.style.maxWidth = 'unset';
+        }else{/*srcView is active*/
+          parent.style.maxWidth = f.origMaxWidth;
+          parent.style.width = 'unset';
+        }
+
+      }
       btnFlip.classList.toggle('src-active');
       D.toggleClass([svg, srcView], 'hidden');
-      if(svg.classList.contains('hidden')){
-        parent.style.maxWidth = 'unset';
-      }else{
-        parent.style.maxWidth = f.parentMaxWidth;
-      }
     }, false);
   };
   

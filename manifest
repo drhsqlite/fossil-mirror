@@ -1,5 +1,5 @@
-C When\stoggling\spikchr\sSVG/src\sview,\sunset\sparent\selement's\smax-width\sfor\ssrc\sview\sand\sre-install\sit\sfor\sSVG\sview.\sThis\sallows\ssmall\simages\sto\shave\sa\ssanely-sized\ssource\sview.
-D 2020-09-14T11:17:32.664
+C pikchr:\sdocumented\swhat\sappears\sto\sbe\sa\sfundamental\sincompatibility\sbetween\sour\sdesire\sto\sopen\sthe\ssource\sview\sin\sthe\ssame\ssize/pos\sas\sthe\sSVG\sview\sand\show\scentering\sis\shandled.\sWe\sseem\sto\shave\stwo\sevils\sto\schoose\sfrom\sand\scurrently\suse\swhat\sseems\sto\sbe\sthe\slesser\sof\sthem.
+D 2020-09-14T13:36:00.019
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/fossil.page.forumpost.js 3fa95e3585d59f3e56b4429531db3ea058bd5f44cd5a3d46a
 F src/fossil.page.pikchrshow.js 2b301c8121a6c03bf23b7a8eee4902a1117a75942420f44ad350014f2caa8bac
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 1f81b2ac6e6e45167bbb36cb98ebb147855f5f08b94d6c35942c2dc051c2aaf6
-F src/fossil.pikchr.js 1847cb0b6fd770e3b91c5e3f66ee133d6215ef4ab81986db3e3be2f8fa3bd7ad
+F src/fossil.pikchr.js 38f69c3b6cd4b425b70387498989b1ae08b7d205299a5fcd226d218351036bfb
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e6aeb5fb3c79ec00ad34d462d6ae079d46b421b15870c744a2a3664987545b3
-R fdfff5d1fa7c9112202949fd927dcac0
+P 212d01c1aed8bfa2e6109779eea8613fcc43f25b2a70d54e01b7880744941153
+R e7733ca4e5bd2a55330eba582f8a16c4
 U stephan
-Z a2676be66e07d3eee9d1ae9682025ef4
+Z 181ff034be04a1de8b5e7c18e2510328
