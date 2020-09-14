@@ -4067,12 +4067,14 @@ static void textInit(Pik *p, PElem *pElem){
   pik_value(p, "textht",6,0);
   pElem->sw = 0.0;
 }
-static void textCheck(Pik *p, PElem *pElem){
+static PPoint textOffset(Pik *p, PElem *pElem, int cp){
   /* Automatically slim-down the width and height of text
-  ** elements so that the bounding box tightly encloses the text */
+  ** elements so that the bounding box tightly encloses the text,
+  ** then get boxOffset() to do the offset computation.
+  */
   pik_size_to_fit(p, &pElem->errTok);
+  return boxOffset(p, pElem, cp);
 }
-
 
 /* Methods for the "sublist" class */
 static void sublistInit(Pik *p, PElem *pElem){
@@ -4232,9 +4234,9 @@ static const PClass aClass[] = {
       /* eJust */         0,
       /* xInit */         textInit,
       /* xNumProp */      0,
-      /* xCheck */        textCheck,
+      /* xCheck */        0,
       /* xChop */         boxChop,
-      /* xOffset */       boxOffset,
+      /* xOffset */       textOffset,
       /* xFit */          boxFit,
       /* xRender */       boxRender 
    },
@@ -5413,7 +5415,7 @@ static void pik_add_to(Pik *p, PElem *pElem, PToken *pTk, PPoint *pPt){
     pik_error(p, pTk, "polygon is closed");
     return;
   }
-  if( p->mTPath || p->mTPath ){
+  if( p->mTPath==3 || p->thenFlag ){
     n = pik_next_rpath(p, pTk);
   }
   p->aTPath[n] = *pPt;
@@ -6080,6 +6082,8 @@ static void pik_after_adding_attributes(Pik *p, PElem *pElem){
   PNum dx, dy;
 
   if( p->nErr ) return;
+
+  /* Position block elements */
   ofst = pik_elem_offset(p, pElem, pElem->eWith);
   dx = (pElem->with.x - ofst.x) - pElem->ptAt.x;
   dy = (pElem->with.y - ofst.y) - pElem->ptAt.y;
@@ -6498,6 +6502,15 @@ static const PikWord *pik_find_word(
   return 0;
 }
 
+/*
+** Set a symbolic debugger breakpoint on this routine to receive a
+** breakpoint when the "#breakpoint" token is parsed.
+*/
+static void pik_breakpoint(const unsigned char *z){
+  /* Prevent C compilers from optimizing out this routine. */
+  if( z[2]=='X' ) exit(1);
+}
+
 
 /*
 ** Return the length of next token.  The token starts on
@@ -6543,6 +6556,10 @@ static int pik_token_length(PToken *pToken){
     case '#': {
       for(i=1; (c = z[i])!=0 && c!='\n'; i++){}
       pToken->eType = T_WHITESPACE;
+      /* If the comment is "#breakpoint" then invoke the pik_breakpoint()
+      ** routine.  The pik_breakpoint() routie is a no-op that serves as
+      ** a convenient place to set a gdb breakpoint when debugging. */
+      if( strncmp((const char*)z,"#breakpoint",11)==0 ) pik_breakpoint(z);
       return i;
     }
     case '/': {
@@ -6974,4 +6991,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 7002 "pikchr.c"
+#line 7019 "pikchr.c"
