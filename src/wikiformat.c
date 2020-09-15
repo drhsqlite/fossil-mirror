@@ -829,7 +829,10 @@ static int parseMarkup(ParsedMarkup *p, char *z){
         while( z[i] && z[i]!='\'' ){ i++; }
       }else{
         zValue = &z[i];
-        while( !fossil_isspace(z[i]) && z[i]!='>' ){ z++; }
+        while( !fossil_isspace(z[i]) && z[i]!='>' ){
+          if( z[i]!='\'' && z[i]!='"' ) attrOk = 0;
+          z++;
+        }
       }
       if( attrOk ){
         p->aAttr[p->nAttr].zValue = zValue;

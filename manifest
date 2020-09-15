@@ -1,5 +1,5 @@
-C Added\spost\sexpand/collapse\sJS\sto\sforum\spost\screate/edit\spages\sand\sactivated\spikchr\ssource/svg\stoggle\son\sthose\spages.\sThis\sis\sall\snice-to-have\sJS,\snot\srequired,\sso\swon't\sbreak\snon-JS-capable\sclients.
-D 2020-09-15T14:13:23.976
+C When\sparsing\sHTML\sattribute\svalues\sin\sFossil\sWiki\sformatting,\sdo\snot\sallow\nquoting\scharacters\sinside\sof\snon-quoted\svalues.
+D 2020-09-15T14:17:08.394
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -647,7 +647,7 @@ F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 3b2b2cb454f0aaa12e3ab72bd2dd72943d4fa29fe01d66d25480133627ea83b4
 F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
-F src/wikiformat.c cb264c12bc55d84e4e1431a35af62f5c30315a333eb294f4e8313a653904590e
+F src/wikiformat.c a59f3436f367b6322ed19c94538e1cca6c1e30da6a81c0e123a554fed99a831a
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c b30ba807ffc837f7797efe6cf4569462967fe51bb7e2194cc348a2b7c59072e2
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7da8813eefa123d2c68b9f0542f77c665d10bc178075495b56118bcdd4f7cc53
-R 72bd2860bda460fa9533c4df9b726219
-U stephan
-Z eb2b62e2cddb86c13aef607db9340a01
+P db865174a03ee9d309e6a27386522037537bfa6b819de4f5d492506d17e0adce
+R 2e33b36528ff445c6e930d1deb019f4f
+U drh
+Z 6fef7153cd6c8c6f12ca0f02a30047af
