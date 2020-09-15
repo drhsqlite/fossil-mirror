@@ -1,5 +1,5 @@
-C fossil.pikchr.addSrcView()\snow\stags\seach\sprocessed\sSVG\selement\sto\savoid\spotentially\sprocessing\sthe\ssame\sone\smultiple\stimes.\sAdded\sfossil.pikchr\ssupport\sto\s/doc,\s/wiki,\sand\s/wikiedit/fileedit\spreviews.\sThis\sis\sharmless\sif\sthere\sare\sno\spikchrs\sor\sJS\sis\sdisabled.
-D 2020-09-15T16:40:32.187
+C Remove\ssome\send-of-line\swhitespace\sand\sfix\ssome\svery\sminor\scomment\stypos\sand\scapitalization\serrors
+D 2020-09-15T19:23:02.963
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -430,7 +430,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
-F src/add.c dc3cd2b054b9e4d35151cc46908ad5809df8fdd845fc72babb1093cb2ed96983
+F src/add.c 0621c962d37867babc6d2b217ac6b913fd9a65491eea5e2e7f5cb55cc9762af2
 F src/ajax.c b1e45ce535abf94e7cb76efe599d8c759771dc6ab4e4d2f1e461337516f1b1e4
 F src/alerts.c 82160a85b500d45899ab72c86bd782eb62bc41771bf435ee7e1d82fea9aab26c
 F src/allrepo.c 3fd96fc97fc2b02156399d88b6884980e7af07aa03d28a50004f4030731a80c0
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c d0785feafa8d40acd60a687c84b58d673d44d5bb315e8c9a3213ca49d6005164
+F src/file.c d651645be8228151fddf9e47b0a5d9ea5f9f96bfa4cb4ff1219aa64c9eb26fef
 F src/fileedit.c 34629a5d5381fe6aae996a4b940615383a128c3310252537a8b64edcd82c6557
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 881f86645a8d2abe6adad520c478dd711d5636643d86f64f7d015e87309bf0e0
-R 36164644c6d48dcc1c8e237c99db1290
-U stephan
-Z 422d6ede7a49ee84d7b66c5fb1f0fc2f
+P 83f03e91c455e513001d53b2034388b068f6fcb294e5eb0267c5cbdde65c3698
+R 1f6a93198b50399a63f1b55b6df1caf5
+U andygoth
+Z df2fb6ddf5859a31d0ccbe6f77dbb659

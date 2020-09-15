@@ -56,8 +56,8 @@
 **   SymFILE      Symbolic links always appear to be files whose name is
 **                the target pathname of the symbolic link.
 **
-**   RepoFILE     Like symfile is allow-symlinks is true, or like
-**                ExtFile if allow-symlinks is false.  In other words,
+**   RepoFILE     Like SymFILE if allow-symlinks is true, or like
+**                ExtFILE if allow-symlinks is false.  In other words,
 **                symbolic links are only recognized as something different
 **                from files or directories if allow-symlinks is true.
 */
@@ -441,7 +441,7 @@ int file_is_repository(const char *zFilename){
   sz = file_size(zFilename, ExtFILE);
   if( sz<35328 ) return 0;
   if( sz%512!=0 ) return 0;
-  rc = sqlite3_open_v2(zFilename, &db, 
+  rc = sqlite3_open_v2(zFilename, &db,
           SQLITE_OPEN_READWRITE, 0);
   if( rc!=0 ) goto not_a_repo;
   for(i=0; i<count(azReqTab); i++){
@@ -647,7 +647,7 @@ int file_setexe(const char *zFilename, int onoff){
   int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( fossil_stat(zFilename, &buf, RepoFILE)!=0 
+  if( fossil_stat(zFilename, &buf, RepoFILE)!=0
    || S_ISLNK(buf.st_mode)
    || S_ISDIR(buf.st_mode)
   ){
@@ -2556,7 +2556,7 @@ int file_is_reserved_name(const char *zFilename, int nFilename){
     case 't':{
       if( nFilename<9 || zEnd[-9]!='.'
        || fossil_strnicmp(".fslckout", &zEnd[-9], 9) ){
-        return 0; 
+        return 0;
       }
       if( 9==nFilename ) return 1;
       return zEnd[-10]=='/' ? 2 : gotSuffix;

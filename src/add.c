@@ -195,7 +195,7 @@ static int add_one_file(
 ** Add all files in the sfile temp table.
 **
 ** Automatically exclude the repository file and any other files
-** with reserved names. Also exclude files that are beneath an 
+** with reserved names. Also exclude files that are beneath an
 ** existing symlink.
 */
 static int add_files_in_sfile(int vid){
@@ -218,7 +218,7 @@ static int add_files_in_sfile(int vid){
   }else{
     xCmp = fossil_stricmp;
   }
-  db_prepare(&loop, 
+  db_prepare(&loop,
      "SELECT pathname FROM sfile"
      " WHERE pathname NOT IN ("
        "SELECT sfile.pathname FROM vfile, sfile"
