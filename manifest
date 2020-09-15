@@ -1,5 +1,5 @@
-C Consolidates\spikchrshow\spage/pikchr\scommand\suse\sof\spikchr()/th1\sinto\sa\sshared\sroutine\s(though\s/pikchrshow\sdoes\snot\scurrently\sallow\sth1-processed\sscripts,\sit\smight\sbe\sinteresting\sto\senable\sfor\susers\swith\sedit/checkin\s(or\sadmin)\srights.
-D 2020-09-15T07:51:19.977
+C Fix\sthe\sfile_mkfolder()\sfunction\sso\sthat\sit\sworks\sfor\sfiles\sin\sthe\sroot\ndirectory.
+D 2020-09-15T12:59:34.613
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c bb6c6f7abcee83130a34eb3ed879f6f936e07cef5d02dd25f25faa251dd8f05d
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 5c46fae3769188c446c0c7668201e1189fa93badc6ba5c8d6efea05cb864f00c
+F src/file.c d0785feafa8d40acd60a687c84b58d673d44d5bb315e8c9a3213ca49d6005164
 F src/fileedit.c 88c6dfec77331473adad39daa1fcf267472f67ac129067a405d7d56986a3f806
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 927c90e88fba297527abfc89aad79aa072c80fbf598ed192576711873efc57f4
-R fa2a2bd3d82e53eb46b2c3f78efa3a2f
-U stephan
-Z 274fb52fea202902066e44af32f034e1
+P 893bf2a146be9e9c9910ba4e4f064dc7228e179a61e867d0197b70bcdea86dfd
+R c7d19e9d3767bdd8b9cb351c921eeb2a
+U drh
+Z 640a058e95cf1974c31fe0419938033b

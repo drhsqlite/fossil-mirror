@@ -802,7 +802,7 @@ int file_mkfolder(
   zName = mprintf("%s", zFilename);
   nName = file_simplify_name(zName, nName, 0);
   while( nName>0 && zName[nName-1]!='/' ){ nName--; }
-  if( nName ){
+  if( nName>1 ){
     zName[nName-1] = 0;
     if( file_isdir(zName, eFType)!=1 ){
       rc = file_mkfolder(zName, eFType, forceFlag, errorReturn);
