@@ -12,7 +12,7 @@
   (function(){
     const head = document.head || document.querySelector('head'),
           styleTag = document.createElement('style'),
-          wh = '1.5em' /* fixed width/height of buttons */,
+          wh = '1cm' /* fixed width/height of buttons */,
           styleCSS = `
 .pikchr-src-button {
   min-height: ${wh}; max-height: ${wh};
@@ -22,7 +22,7 @@
   top: 0;
   left: 0;
   border: 1px solid black;
-  background-color: rgba(255,255,0,0.2);
+  background-color: rgba(255,255,0,0.7);
   border-radius: 0.25cm;
   z-index: 50;
   cursor: pointer;
@@ -33,12 +33,26 @@
   transform-origin: center;
   transition: transform 250ms linear;
   padding: 0; margin: 0;
+/* MIT-licensed SVG from: https://github.com/leungwensen/svg-icon/blob/master/dist/svg/ant/code.svg */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg viewBox='0 0 1195 1195' \
+xmlns='http:/\x2fwww.w3.org/2000/svg'%3e%3cpath d='M321.333 440q-9-10-22.5-10t-22.5 \
+10l-182 181q-9 9-9 22.5t9 22.5l182 182q9 10 22.5 10t22.5-10q10-9 10-22.5t-10-22.5l-159-159 \
+159-159q10-10 10-23t-10-22zm552 0q9-10 22.5-10t22.5 10l182 181q9 9 9 22.5t-9 \
+22.5l-182 182q-9 10-22.5 10t-22.5-10q-10-9-10-22.5t10-22.5l159-159-159-159q-10-10-10-23t10-22zm-97-180q12 \
+6 16 19t-2 24l-371 704q-7 12-19.5 16t-24.5-2q-11-7-15-19.5t2-24.5l371-703q6-12 \
+18.5-16t24.5 2z'/%3e%3c/svg%3e");
+  background-size: contain;
 }
 .pikchr-src-button.src-active {
   transform: scaleX(-1);
-}
-.pikchr-src-button > span {
-  vertical-align: middle;
+/* MIT-licensed SVG from: https://github.com/leungwensen/svg-icon/blob/master/dist/svg/ant/picture.svg */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg viewBox='0 0 1195 1195' \
+xmlns='http:/\x2fwww.w3.org/2000/svg'%3e%3cpath d='M1045.333 192h-896q-26 0-45 \
+19t-19 45v768q0 26 19 45t45 19h896q26 0 45-19t19-45V256q0-26-19-45t-45-19zm-896 \
+64h896v714l-236-348q-7-12-21-14t-25 7l-154 125-174-243q-10-14-28-13t-26 17l-232 \
+448V256zm855 768h-822l231-447 184 255 179-145zm-182-642q13 0 22.5 9.5t9.5 22.5-9.5 \
+22.5-22.5 9.5-22.5-9.5-9.5-22.5 9.5-22.5 22.5-9.5zm0-64q-40 0-68 28t-28 68 28 68 68 \
+28 68-28 28-68-28-68-68-28z'/%3e%3c/svg%3e");
 }
 textarea.pikchr-src-text {
   box-sizing: border-box/*reduces UI shift*/;
@@ -48,7 +62,7 @@ textarea.pikchr-src-text {
   min-height: ${wh}; max-height: ${wh};
   display: inline-block;
   position: absolute;
-  top: calc(${wh} * 2);
+  top: calc(${wh} * 1.3);
   left: 0;
   z-index: 50;
   padding: 0; margin: 0;
@@ -122,7 +136,6 @@ textarea.pikchr-src-text {
     srcView.value = src.textContent;
     const btnFlip = D.append(
       D.addClass(D.span(), 'pikchr-src-button'),
-      D.append(D.span(), "⟳")
     );
     const btnCopy = F.copyButton(
       D.span(), {
