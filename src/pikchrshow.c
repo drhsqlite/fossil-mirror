@@ -29,6 +29,7 @@
 #define PIKCHR_PROCESS_DIV        0x04
 #define PIKCHR_PROCESS_NONCE      0x08
 #define PIKCHR_PROCESS_ERR_PRE    0x10
+#define PIKCHR_PROCESS_NO_SRC     0x20
 #endif
 
 /*
@@ -52,8 +53,13 @@
 ** TH1 step, thus the output will be (presumably) a
 ** TH1-generated/processed pikchr script, and not an SVG. If this flag
 ** is set, PIKCHR_PROCESS_TH1 is assumed even if it is not specified.
-** The remaining flags listed below are ignored if this flag is
-** specified.
+**
+** The remaining flags listed below are ignored if
+** PIKCHR_PROCESS_TH1_NOSVG is specified:
+**
+** - PIKCHR_PROCESS_NO_SRC: by default the contents of zIn are stored
+** in the resulting SVG content, as part of the image metadata. That
+** is suppressed if this flag is set.
 **
 ** - PIKCHR_PROCESS_DIV: if set, the SVG result is wrapped in a DIV
 ** element which specifies a max-width style value based on the SVG's
@@ -96,8 +102,10 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
       int w = 0, h = 0;
       const char * zContent = blob_str(&bIn);
       char *zOut;
-
-      zOut = pikchr(zContent, "pikchr", 0, &w, &h);
+      const unsigned int pikFlags2 = (PIKCHR_PROCESS_NO_SRC & pikFlags)
+        ? 0 : PIKCHR_INCLUDE_SOURCE;
+      
+      zOut = pikchr(zContent, "pikchr", pikFlags2, &w, &h);
       if( w>0 && h>0 ){
         const char *zNonce = (PIKCHR_PROCESS_NONCE & pikFlags)
           ? safe_html_nonce(1) : 0;
@@ -261,16 +269,11 @@ void pikchrshow_page(void){
             element, always flowing it in column mode. */);
       CX("<div id='pikchrshow-output'>");
       if(*zContent){
-        int w = 0, h = 0;
-        char *zOut = pikchr(zContent, "pikchr", 0, &w, &h);
-        if( w>0 && h>0 ){
-          const char *zNonce = safe_html_nonce(1);
-          CX("%s<div style='max-width:%dpx;'>\n%s</div>%s",
-             zNonce, w, zOut, zNonce);
-        }else{
-          CX("<pre>\n%s\n</pre>\n", zOut);
-        }
-        fossil_free(zOut);
+        Blob out = empty_blob;
+        pikchr_process(zContent, PIKCHR_PROCESS_ERR_PRE
+                       | PIKCHR_PROCESS_DIV, 0, &out);
+        CX("%b", &out);
+        blob_reset(&out);
       } CX("</div>"/*#pikchrshow-output*/);
     } CX("</fieldset>"/*#pikchrshow-output-wrapper*/);
   } CX("</div>"/*sbs-wrapper*/);
@@ -300,6 +303,9 @@ void pikchrshow_page(void){
 **               resulting SVG output which limits its max-width to
 **               its computed maximum ideal size, in order to mimic
 **               how fossil's web-based components work.
+**
+**    -svg-src   Stores the input pikchr's source code in the SVG's
+**               metadata.
 **
 **    -th        Process the input using TH1 before passing it to pikchr.
 **
@@ -340,7 +346,8 @@ void pikchr_cmd(void){
   const int fTh1 = find_option("th",0,0)!=0;
   const int fNosvg = find_option("th-nosvg",0,0)!=0;
   int isErr = 0;
-  int pikFlags = 0;
+  int pikFlags = find_option("svg-src",0,0)!=0
+    ? 0 : PIKCHR_PROCESS_NO_SRC;
   u32 fThFlags = TH_INIT_NO_ENCODE
     | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
 
