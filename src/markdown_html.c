@@ -337,7 +337,7 @@ void pikchr_to_html(
 ){
   int w = 0, h = 0;
   char *zIn = fossil_strndup(zSrc, nSrc);
-  char *zOut = pikchr(zIn, "pikchr", 0, &w, &h);
+  char *zOut = pikchr(zIn, "pikchr", PIKCHR_INCLUDE_SOURCE, &w, &h);
   fossil_free(zIn);
   if( w>0 && h>0 ){
     const char *zNonce = safe_html_nonce(1);
