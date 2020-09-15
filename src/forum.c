@@ -739,6 +739,19 @@ static void forum_display_thread(
 }
 
 /*
+** Emit Forum Javascript which applies (or optionally can apply)
+** to all forum-related pages. It does not include page-specific
+** code (e.g. "forum.js").
+*/
+static void forum_emit_js(void){
+  if(!builtin_bundle_all_fossil_js_apis()){
+    builtin_emit_fossil_js_apis("dom", "copybutton",
+                                "pikchr", 0);
+  }
+  builtin_emit_fossil_js_apis("page.forumpost", 0);
+}
+
+/*
 ** WEBPAGE: forumpost
 **
 ** Show a single forum posting. The posting is shown in context with
@@ -866,11 +879,7 @@ void forumthread_page(void){
 
   /* Emit Forum Javascript. */
   builtin_request_js("forum.js");
-  if(!builtin_bundle_all_fossil_js_apis()){
-    builtin_emit_fossil_js_apis("dom", "copybutton",
-                                "pikchr", 0);
-  }
-  builtin_emit_fossil_js_apis("page.forumpost", 0);
+  forum_emit_js();
 
   /* Emit the page style. */
   style_footer();
@@ -1068,6 +1077,7 @@ void forum_page_init(void){
   @ </form>
   @ <td>Log into an existing account
   @ </table>
+  forum_emit_js();
   style_footer();
   fossil_free(zGoto);
 }
@@ -1128,6 +1138,7 @@ void forumnew_page(void){
     @ </div>
   }
   @ </form>
+  forum_emit_js();
   style_footer();
 }
 
@@ -1307,6 +1318,7 @@ void forumedit_page(void){
     @ </div>
   }
   @ </form>
+  forum_emit_js();
   style_footer();
 }
 

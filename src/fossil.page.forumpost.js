@@ -4,6 +4,20 @@
      and can optionally use fossil.pikchr. */
   const P = F.page, D = F.dom;
 
+  /**
+     When the page is loaded, this handler does the following:
+
+     - Installs expand/collapse UI elements on "long" posts and collapses
+     them.
+  
+     - Any pikchr-generated SVGs get a source-toggle button added to them
+     which activates when the mouse is over the image or it is tapped.
+
+     This is a harmless no-op if the current page has neither forum
+     post constructs for (1) nor any pikchr images for (2), nor will
+     NOT running this code cause any breakage for clients with no JS
+     support: this is all "nice-to-have", not required functionality.
+  */
   F.onPageLoad(function(){
     const scrollbarIsVisible = (e)=>e.scrollHeight > e.clientHeight;
     /* Returns an event handler which implements the post expand/collapse toggle
@@ -33,7 +47,7 @@
        scrolling is currently activated because they are taller than
        their max-height). */
     document.querySelectorAll(
-      'div.forumHier, div.forumTime, div.forumHierRoot'
+      'div.forumHier, div.forumTime, div.forumHierRoot, div.forumEdit'
     ).forEach(function f(forumPostWrapper){
       const content = forumPostWrapper.querySelector('div.forumPostBody');
       if(!content || !scrollbarIsVisible(content)) return;
@@ -82,7 +96,7 @@
       content.appendChild(rightTapZone);
       rightTapZone.addEventListener('click', widgetEventHandler, false);
       refillTapZone();
-    });
+    })/*F.onPageLoad()*/;
 
     if(F.pikchr){
       F.pikchr.addSrcView();
