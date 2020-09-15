@@ -1,5 +1,5 @@
-C Restrict\spikchr\ssvg/source\stoggle\sto\sclicks,\sper\sforum\sfeedback.
-D 2020-09-15T14:54:50.083
+C Provide\sa\scustom\sstructure\sto\sthe\s"opaque"\spointer\sof\sthe\sgeneric\sMarkdown\ntranslator\sfor\suse\swhen\stranslating\sMarkdown\sinto\sHTML.
+D 2020-09-15T14:56:59.407
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
 F src/markdown.c 1dc6457837632cda872d68d79ab69a2a305d58689a2fdc9ac09e7a6bef7a5561
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
-F src/markdown_html.c f071bffaf5e6b5c6d25ad364dfbd78795a7a7fab640076ebcdb715f6d3d49886
+F src/markdown_html.c 52fbd4f1c00a396929f24635eb2ecf8d00e3e5438b270f177100a3a17b48e63d
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b07834b386f02f7368c4ef3be2a08dd8eb192b960289f256c0d6e8c0feb5de0e
-R 5aa92d01dfb6365b916a04610dc341d4
-U stephan
-Z a1307471b557b7375fec4916f287362b
+P 4e757d8c4872802291ff9352002d9d03b6fb3d965c52927afaed675baaccd1c1
+R 72dbd73540677bbafcfebc33dc2e4a87
+U drh
+Z 3d13725881d2d400af304918b329d0a8

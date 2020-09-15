@@ -31,6 +31,15 @@ void markdown_to_html(
 
 #endif /* INTERFACE */
 
+/*
+** An instance of the following structure is passed through the
+** "opaque" pointer.
+*/
+typedef struct MarkdownToHtml MarkdownToHtml;
+struct MarkdownToHtml {
+  Blob *output_title;     /* Store the title here */
+};
+
 
 /* INTER_BLOCK -- skip a line between block level elements */
 #define INTER_BLOCK(ob) \
@@ -134,7 +143,7 @@ static void html_epilog(struct Blob *ob, void *opaque){
 static void html_blockhtml(struct Blob *ob, struct Blob *text, void *opaque){
   char *data = blob_buffer(text);
   size_t size = blob_size(text);
-  Blob *title = (Blob*)opaque;
+  Blob *title = ((MarkdownToHtml*)opaque)->output_title;
   while( size>0 && fossil_isspace(data[0]) ){ data++; size--; }
   while( size>0 && fossil_isspace(data[size-1]) ){ size--; }
   /* If the first raw block is an <h1> element, then use it as the title. */
@@ -173,7 +182,7 @@ static void html_header(
   int level,
   void *opaque
 ){
-  struct Blob *title = opaque;
+  struct Blob *title = ((MarkdownToHtml*)opaque)->output_title;
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
   if( blob_size(ob)<=PROLOG_SIZE && title!=0 && blob_size(title)==0 ){
@@ -571,7 +580,10 @@ void markdown_to_html(
     "*_", /* emph_chars */
     0     /* opaque */
   };
-  html_renderer.opaque = output_title;
+  MarkdownToHtml context;
+  memset(&context, 0, sizeof(context));
+  context.output_title = output_title;
+  html_renderer.opaque = &context;
   if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);
