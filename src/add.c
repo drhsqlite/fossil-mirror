@@ -171,6 +171,7 @@ static int add_one_file(
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     int isExe = file_isexe(zFullname, RepoFILE);
+    int isLink = file_islink(0);
     if( file_nondir_objects_on_path(g.zLocalRoot, zFullname) ){
       /* Do not add unsafe files to the vfile */
       doSkip = 1;
@@ -178,7 +179,7 @@ static int add_one_file(
       db_multi_exec(
         "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
         "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
-        vid, zPath, isExe, file_islink(0));
+        vid, zPath, isExe, isLink);
     }
     fossil_free(zFullname);
   }
