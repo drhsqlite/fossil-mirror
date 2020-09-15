@@ -40,6 +40,8 @@ struct MarkdownHeading {
   MarkdownHeading *pPrev, *pNext;  /* List of them all */
   char *zTitle;                    /* Text as displayed */
   char *zTag;                      /* Pandoc-style tag */
+  int iLevel;                      /* Level number for this entry */
+  int nth;                         /* This is the nth with the same tag */
 };
 
 /*
@@ -49,12 +51,106 @@ struct MarkdownHeading {
 typedef struct MarkdownToHtml MarkdownToHtml;
 struct MarkdownToHtml {
   Blob *output_title;                /* Store the title here */
-  MarkdownHeading *pFirst, *pList;   /* List of all headings */
+  MarkdownHeading *pFirst, *pLast;   /* List of all headings */
   int iToc;         /* Where to insert table-of-contents */
   int mxToc;        /* Maximum table-of-content level */
+  int mnLevel;      /* Minimum level seen over all headings */
   int iHdngNums;    /* True to automatically number headings */
   int aNum[6];      /* Most recent number at each level */
 };
+
+/*
+** Add a new heading to the heading list.  This involves generating
+** a Pandoc-compatible identifier based on the heading text.
+*/
+static void html_new_heading(MarkdownToHtml *pCtx, Blob *text, int iLevel){
+  MarkdownHeading *pNew, *pSearch;
+  int nText = blob_size(text);
+  size_t n = sizeof(*pNew) + nText*2 + 10;
+  const char *zText = blob_buffer(text);
+  char *zTag;
+  int i, j;
+  int seenChar = 0;
+
+  pNew = fossil_malloc( n );
+  memset(pNew, 0, n);
+  if( pCtx->pLast ){
+    pCtx->pLast->pNext = pNew;
+    if( pCtx->mnLevel>iLevel ) pCtx->mnLevel = iLevel;
+  }else{
+    pCtx->mnLevel = iLevel;
+  }
+  pNew->pPrev = pCtx->pLast;
+  pCtx->pLast = pNew;
+  if( pCtx->pFirst==0 ) pCtx->pFirst = pNew;
+  pNew->zTitle = (char*)&pNew[1];
+  memcpy(pNew->zTitle, zText, nText);
+  pNew->zTitle[nText] = 0;
+  pNew->zTag = pNew->zTitle + nText + 1;
+  pNew->iLevel = iLevel;
+  pNew->nth = 0;
+
+  /* Generate an identifier.  The identifer name is approximately the
+  ** same as a Pandoc identifier.
+  **
+  **  *  Skip all text up to the first letter.
+  **  *  Remove all text past the last letter.
+  **  *  Remove HTML markup and entities.
+  **  *  Replace all whitespace sequences with a single "-"
+  **  *  Remove all characters other than alphanumeric, "_", "-", and ".".
+  **  *  Convert all alphabetics to lower case.
+  **  *  If nothing remains, use "section" as the identifier.
+  */
+  while( nText>0 && !fossil_isalpha(zText[nText-1]) ){ nText--; }
+  memcpy(pNew->zTag, zText, nText);
+  pNew->zTag[nText] = 0;
+  zTag = pNew->zTag;
+  for(i=j=0; zTag[i]; i++){
+    if( fossil_isupper(zTag[i]) ){
+      if( !seenChar ){ j = 0; seenChar = 1; }
+      zTag[j++] = fossil_tolower(zTag[i]);
+      continue;
+    }
+    if( fossil_islower(zTag[i]) ){
+      if( !seenChar ){ j = 0; seenChar = 1; }
+      zTag[j++] = zTag[i];
+      continue;
+    }
+    if( zTag[i]=='<' ){
+      i += html_tag_length(zTag+i) - 1;
+      continue;
+    }
+    if( zTag[i]=='&' ){
+      while( zTag[i] && zTag[i]!=';' ){ i++; }
+      if( zTag[i]==0 ) break;
+      continue;
+    }
+    if( fossil_isspace(zTag[i]) ){
+      zTag[j++] = '-';
+      while( fossil_isspace(zTag[i+1]) ){ i++; }
+      continue;
+    }
+    if( !fossil_isalnum(zTag[i]) && zTag[i]!='.' && zTag[i]!='_' ){
+      zTag[j++] = '-';
+    }else{
+      zTag[j++] = zTag[i];
+    }
+  }
+  if( j==0 || !seenChar ){
+    memcpy(zTag, "section", 7);
+    j = 7;
+  }
+  while( j>0 && !fossil_isalpha(zTag[j-1]) ){ j--; }
+  zTag[j] = 0;
+
+  /* Search for duplicate identifiers and disambiguate */
+  pNew->nth = 0;
+  for(pSearch=pNew->pPrev; pSearch; pSearch=pSearch->pPrev){
+    if( strcmp(pSearch->zTag,zTag)==0 ){
+      pNew->nth = pSearch->nth+1;
+    }
+  }
+}   
 
 
 /* INTER_BLOCK -- skip a line between block level elements */
@@ -248,6 +344,7 @@ static void html_header(
   void *opaque
 ){
   MarkdownToHtml *pCtx = (MarkdownToHtml*)opaque;
+  MarkdownHeading *pHdng;
   struct Blob *title = pCtx->output_title;
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
@@ -256,7 +353,13 @@ static void html_header(
     return;
   }
   INTER_BLOCK(ob);
-  blob_appendf(ob, "<h%d>", level);
+  html_new_heading(pCtx, text, level);
+  pHdng = pCtx->pLast;
+  if( pHdng->nth ){
+    blob_appendf(ob, "<h%d id='%h-%d'>", level, pHdng->zTag, pHdng->nth);
+  }else{
+    blob_appendf(ob, "<h%d id='%h'>", level, pHdng->zTag);
+  }
   if( pCtx->iHdngNums && level>=pCtx->iHdngNums ){
     int i;
     for(i=pCtx->iHdngNums-1; i<level-1; i++){
@@ -611,6 +714,49 @@ static void html_normal_text(struct Blob *ob, struct Blob *text, void *opaque){
 }
 
 /*
+** Insert a table of contents into the body of the document.
+**
+** The pCtx provides the information needed to do this:
+**
+**    pCtx->iToc              Offset into pOut of where to insert the TOC
+**    pCtx->mxToc             Maximum depth of the TOC
+**    pCtx->pFirst            List of paragraphs to form the TOC
+*/
+static void html_insert_toc(MarkdownToHtml *pCtx, Blob *pOut){
+  Blob new;
+  MarkdownHeading *pX;
+  int iLevel = pCtx->mnLevel-1;
+  int iBase = iLevel;
+  blob_init(&new, 0, 0);
+  blob_append(&new, blob_buffer(pOut), pCtx->iToc);
+  blob_append(&new, "<div class='markdown-toc'>\n", -1);
+  for(pX=pCtx->pFirst; pX; pX=pX->pNext){
+    if( pX->iLevel>pCtx->mxToc ) continue;
+    while( iLevel<pX->iLevel ){
+      iLevel++;
+      blob_appendf(&new, "<ul class='markdown-toc%d markdown-toc'>\n",
+                         iLevel - iBase);
+    }
+    while( iLevel>pX->iLevel ){
+      iLevel--;
+      blob_appendf(&new, "</ul>\n");
+    }
+    blob_appendf(&new,"<li><a href='#%h'>", pX->zTag);
+    html_to_plaintext(pX->zTitle, &new);
+    blob_appendf(&new,"</a></li>\n");
+  }
+  while( iLevel>iBase ){
+    iLevel--;
+    blob_appendf(&new, "</ul>\n");
+  }
+  blob_appendf(&new, "</div>\n");
+  blob_append(&new, blob_buffer(pOut)+pCtx->iToc,
+                    blob_size(pOut)-pCtx->iToc);
+  blob_reset(pOut);
+  *pOut = new;
+}
+
+/*
 ** Convert markdown into HTML.
 **
 ** The document title is placed in output_title if not NULL.  Or if
@@ -667,6 +813,7 @@ void markdown_to_html(
   if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);
+  if( context.mxToc>0 ) html_insert_toc(&context, output_body);
   for(pHdng=context.pFirst; pHdng; pHdng=pNextHdng){
     pNextHdng = pHdng->pNext;
     fossil_free(pHdng);
