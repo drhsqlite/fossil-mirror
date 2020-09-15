@@ -101,39 +101,39 @@ static void html_new_heading(MarkdownToHtml *pCtx, Blob *text, int iLevel){
   **  *  Convert all alphabetics to lower case.
   **  *  If nothing remains, use "section" as the identifier.
   */
-  while( nText>0 && !fossil_isalpha(zText[nText-1]) ){ nText--; }
   memcpy(pNew->zTag, zText, nText);
   pNew->zTag[nText] = 0;
   zTag = pNew->zTag;
   for(i=j=0; zTag[i]; i++){
-    if( fossil_isupper(zTag[i]) ){
+    char c = zTag[i];
+    if( fossil_isupper(c) ){
       if( !seenChar ){ j = 0; seenChar = 1; }
-      zTag[j++] = fossil_tolower(zTag[i]);
+      zTag[j++] = fossil_tolower(c);
       continue;
     }
-    if( fossil_islower(zTag[i]) ){
+    if( fossil_islower(c) ){
       if( !seenChar ){ j = 0; seenChar = 1; }
-      zTag[j++] = zTag[i];
+      zTag[j++] = c;
       continue;
     }
-    if( zTag[i]=='<' ){
+    if( c=='<' ){
       i += html_tag_length(zTag+i) - 1;
       continue;
     }
-    if( zTag[i]=='&' ){
+    if( c=='&' ){
       while( zTag[i] && zTag[i]!=';' ){ i++; }
       if( zTag[i]==0 ) break;
       continue;
     }
-    if( fossil_isspace(zTag[i]) ){
-      zTag[j++] = '-';
+    if( fossil_isspace(c) ){
+      if( j && zTag[j-1]!='-' ) zTag[j++] = '-';
       while( fossil_isspace(zTag[i+1]) ){ i++; }
       continue;
     }
-    if( !fossil_isalnum(zTag[i]) && zTag[i]!='.' && zTag[i]!='_' ){
-      zTag[j++] = '-';
+    if( !fossil_isalnum(c) && c!='.' && c!='_' && c!='-' ){
+      if( j && zTag[j-1]!='-' ) zTag[j++] = '-';
     }else{
-      zTag[j++] = zTag[i];
+      zTag[j++] = c;
     }
   }
   if( j==0 || !seenChar ){
@@ -148,6 +148,7 @@ static void html_new_heading(MarkdownToHtml *pCtx, Blob *text, int iLevel){
   for(pSearch=pNew->pPrev; pSearch; pSearch=pSearch->pPrev){
     if( strcmp(pSearch->zTag,zTag)==0 ){
       pNew->nth = pSearch->nth+1;
+      break;
     }
   }
 }   
