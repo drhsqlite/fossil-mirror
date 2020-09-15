@@ -157,13 +157,15 @@ textarea.pikchr-src-text {
        less "busy" than having them always visible and slightly in the way.
        It also means that we can make them a bit larger.
     */
-    parent.addEventListener('mouseenter', function(ev){
-      if(ev.target === parent) D.removeClass(buttons, 'hidden');
-    }, true);
-    parent.addEventListener('mouseleave', function(ev){
-      if(ev.target === parent) D.addClass(buttons, 'hidden');
-    }, true);
-    /* mouseenter/leave work well... but only if there's a mouse. */
+    if(0){ /* Mouse enter/leave triggers currently disabled by request */
+      parent.addEventListener('mouseenter', function(ev){
+        if(ev.target === parent) D.removeClass(buttons, 'hidden');
+      }, true);
+      parent.addEventListener('mouseleave', function(ev){
+        if(ev.target === parent) D.addClass(buttons, 'hidden');
+      }, true);
+      /* mouseenter/leave work well... but only if there's a mouse. */
+    }
     parent.addEventListener('click', function(ev){
       ev.preventDefault();
       ev.stopPropagation();

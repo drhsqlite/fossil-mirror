@@ -1,5 +1,5 @@
-C When\sparsing\sHTML\sattribute\svalues\sin\sFossil\sWiki\sformatting,\sdo\snot\sallow\nquoting\scharacters\sinside\sof\snon-quoted\svalues.
-D 2020-09-15T14:17:08.394
+C Restrict\spikchr\ssvg/source\stoggle\sto\sclicks,\sper\sforum\sfeedback.
+D 2020-09-15T14:54:50.083
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7
 F src/fossil.page.pikchrshow.js ec99ac1a7c02ff3dc1930f7626455f48d249383bce7c21a2c44fc6711c82bff4
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 1f81b2ac6e6e45167bbb36cb98ebb147855f5f08b94d6c35942c2dc051c2aaf6
-F src/fossil.pikchr.js e792be5512684eb69a122fecfa28b595db96bb6643330881904022071b57e1d5
+F src/fossil.pikchr.js 1b3943965da84ce007d4fc8d3a770488926124ccf096015ece1c791c7f3e7d61
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db865174a03ee9d309e6a27386522037537bfa6b819de4f5d492506d17e0adce
-R 2e33b36528ff445c6e930d1deb019f4f
-U drh
-Z 6fef7153cd6c8c6f12ca0f02a30047af
+P b07834b386f02f7368c4ef3be2a08dd8eb192b960289f256c0d6e8c0feb5de0e
+R 5aa92d01dfb6365b916a04610dc341d4
+U stephan
+Z a1307471b557b7375fec4916f287362b
