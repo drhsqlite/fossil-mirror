@@ -583,6 +583,7 @@ void wiki_page(void){
   }
   attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
   manifest_destroy(pWiki);
+  document_emit_js(/*for optional pikchr support*/);
   style_footer();
 }
 
@@ -1283,10 +1284,10 @@ void wikiedit_page(void){
     well_formed_wiki_name_rules();
     CX("</div>"/*#wikiedit-tab-save*/);
   }
-
   if(!builtin_bundle_all_fossil_js_apis()){
     builtin_emit_fossil_js_apis("fetch", "dom", "tabs", "confirmer",
-                                "storage", "popupwidget", 0);
+                                "storage", "popupwidget", "copybutton",
+                                "pikchr", 0);
   }
   builtin_request_js("sbsdiff.js");
   builtin_request_js("fossil.page.wikiedit.js");

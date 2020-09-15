@@ -1120,6 +1120,7 @@
       D.clearElement(target);
       if('string'===typeof c) D.parseHtml(target,c);
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
+      if(F.pikchr) F.pikchr.addSrcView();
     };
     return this._postPreview(this.fileContent(), updateView);
   };

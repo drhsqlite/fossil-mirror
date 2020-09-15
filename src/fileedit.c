@@ -1991,7 +1991,8 @@ void fileedit_page(void){
 
   if(!builtin_bundle_all_fossil_js_apis()){
     builtin_emit_fossil_js_apis("fetch", "dom", "tabs", "confirmer",
-                                "storage", "popupwidget", 0);
+                                "storage", "popupwidget", "copybutton",
+                                "pikchr", 0);
   }
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is

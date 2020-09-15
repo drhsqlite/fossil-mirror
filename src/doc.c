@@ -401,6 +401,23 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
 }
 
 /*
+** Emit Javascript which applies (or optionally can apply) to both the
+** /doc and /wiki pages. None of this implements required
+** functionality, just nice-to-haves. Only call this once per page.
+*/
+void document_emit_js(void){
+  if(!builtin_bundle_all_fossil_js_apis()){
+    builtin_emit_fossil_js_apis("dom", "copybutton",
+                                "pikchr", 0);
+  }
+  style_emit_script_tag(0,0);
+  CX("window.addEventListener('load', "
+     "()=>window.fossil.pikchr.addSrcView(), "
+     "false);\n");
+  style_emit_script_tag(1,0);
+}
+
+/*
 ** Guess the mime-type of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
@@ -752,6 +769,7 @@ void document_render(
       style_header("%s", zDefaultTitle);
       wiki_convert(pBody, 0, WIKI_BUTTONS);
     }
+    document_emit_js();
     style_footer();
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
@@ -762,18 +780,21 @@ void document_render(
       style_header("%s", zDefaultTitle);
     }
     convert_href_and_output(&tail);
+    document_emit_js();
     style_footer();
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("%s", zDefaultTitle);
     @ <blockquote><pre>
     @ %h(blob_str(pBody))
     @ </pre></blockquote>
+    document_emit_js();
     style_footer();
   }else if( fossil_strcmp(zMime, "text/html")==0
             && doc_is_embedded_html(pBody, &title) ){
     if( blob_size(&title)==0 ) blob_append(&title,zFilename,-1);
     style_header("%s", blob_str(&title));
     convert_href_and_output(pBody);
+    document_emit_js();
     style_footer();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
@@ -794,6 +815,7 @@ void document_render(
       Th_Render(blob_str(pBody));
     }
     if( !raw ){
+      document_emit_js();
       style_footer();
     }
 #endif

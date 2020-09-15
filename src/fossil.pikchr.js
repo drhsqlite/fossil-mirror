@@ -111,6 +111,11 @@ textarea.pikchr-src-text {
      The 2nd argument is intended to be a plain options object, but it
      is currently unused, as it's not yet clear what we can/should
      make configurable.
+
+     Each element will only be processed once by this routine, even if
+     it is passed to this function multiple times. Each processed
+     element gets a "data" attribute set to it to indicate that it was
+     already dealt with.
   */
   P.addSrcView = function f(svg,opt){
     if(!svg) svg = 'svg.pikchr';
@@ -123,6 +128,10 @@ textarea.pikchr-src-text {
       svg.forEach((e)=>f.call(this, e, opt));
       return this;
     }
+    if(svg.dataset.pikchrProcessed){
+      return this;
+    }
+    svg.dataset.pikchrProcessed = 1;
     const src = svg.querySelector('pikchr\\:src');
     if(!src){
       console.warn("No pikchr:src node found in",svg);
