@@ -2512,7 +2512,7 @@ void commit_cmd(void){
   */
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, %s, %s FROM vfile "
-    "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
+    "WHERE chnged IN (1, 7, 9) AND NOT deleted AND is_selected(id)",
     g.zLocalRoot,
     glob_expr("pathname", db_get("crlf-glob",db_get("crnl-glob",""))),
     glob_expr("pathname", db_get("binary-glob","")),
