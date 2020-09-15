@@ -1,5 +1,5 @@
-C fossil.pikchr.addSrcView()\snow\stags\seach\sprocessed\sSVG\selement\sto\savoid\spotentially\sprocessing\sthe\ssame\sone\smultiple\stimes.\sAdded\sfossil.pikchr\ssupport\sto\s/doc,\s/wiki,\sand\s/wikiedit/fileedit\spreviews.\sThis\sis\sharmless\sif\sthere\sare\sno\spikchrs\sor\sJS\sis\sdisabled.
-D 2020-09-15T16:40:32.187
+C Enable\sautomatic\sparagraph\snumbering\sin\sMarkdown\susing\sa\sspecial\nHTML\scomment:\s\s"&lt;--markdown\sparagraph-numbers=on\s--&gt;"
+D 2020-09-15T18:20:36.458
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -439,7 +439,7 @@ F src/backlink.c 71ccb7e575c15dc88e0bbc482327b8e4bec27da318db3d5ee15a65e94d8b2e1
 F src/backoffice.c b5c14f984561e35824d82dfa656e6c635ffd5c449469bba66dcf4841b0205283
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c fa16fe02114d63561139babd2309c78d07466edb8872047c8e711b58c252c288
-F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
+F src/blob.c 61d1dc694f7f745de6d64316bc579433edb17fdae7c07ef54e8d89f146ae7417
 F src/branch.c 00a400c285171a4c6147d1788b98f458916bfcf319275a0df82b68de84aefb2a
 F src/browse.c 8058ebc25615e77091505543150dfbb01e61a2197fab3b4ba0ba1d0734c7319f
 F src/builtin.c f79af96bfc27a9757e03be7fbec001777df54c62dc5bec180f8488d5b9841e60
@@ -546,9 +546,9 @@ F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d4
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab13108cf x
 F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
-F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
+F src/markdown.c 76c4508b29f3290463c6d3ed753210e5768a78be71a89441778a39dc33642c8f
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
-F src/markdown_html.c 52fbd4f1c00a396929f24635eb2ecf8d00e3e5438b270f177100a3a17b48e63d
+F src/markdown_html.c 46240c29540df4cdff942c35d97e7b3e5528a10d1a4671bdbce2440d3be4a689
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -1010,7 +1010,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 881f86645a8d2abe6adad520c478dd711d5636643d86f64f7d015e87309bf0e0
-R 36164644c6d48dcc1c8e237c99db1290
-U stephan
-Z 422d6ede7a49ee84d7b66c5fb1f0fc2f
+P 83f03e91c455e513001d53b2034388b068f6fcb294e5eb0267c5cbdde65c3698
+R cb8d4b3d449583023617b7f9fb568a9b
+T *branch * auto-toc
+T *sym-auto-toc *
+T -sym-trunk *
+U drh
+Z 19bf138bcc2795b29d7ea8df70616c9a

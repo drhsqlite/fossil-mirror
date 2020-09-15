@@ -32,12 +32,28 @@ void markdown_to_html(
 #endif /* INTERFACE */
 
 /*
+** Each heading is recorded as an instance of the following
+** structure, in its own separate memory allocation.
+*/
+typedef struct MarkdownHeading MarkdownHeading;
+struct MarkdownHeading {
+  MarkdownHeading *pPrev, *pNext;  /* List of them all */
+  char *zTitle;                    /* Text as displayed */
+  char *zTag;                      /* Pandoc-style tag */
+};
+
+/*
 ** An instance of the following structure is passed through the
 ** "opaque" pointer.
 */
 typedef struct MarkdownToHtml MarkdownToHtml;
 struct MarkdownToHtml {
-  Blob *output_title;     /* Store the title here */
+  Blob *output_title;                /* Store the title here */
+  MarkdownHeading *pFirst, *pList;   /* List of all headings */
+  int iToc;         /* Where to insert table-of-contents */
+  int mxToc;        /* Maximum table-of-content level */
+  int iHdngNums;    /* True to automatically number headings */
+  int aNum[6];      /* Most recent number at each level */
 };
 
 
@@ -140,10 +156,59 @@ static void html_epilog(struct Blob *ob, void *opaque){
   BLOB_APPEND_LITERAL(ob, "</div>\n");
 }
 
+/*
+** If text is an HTML control comment, then deal with it and return true.
+** Otherwise just return false without making any changes.
+**
+** We are looking for comments of the following form:
+**
+**     <!--markdown: toc=N -->
+**     <!--markdown: paragraph-numbers=on -->
+**     <!--markdown: paragraph-numbers=N -->
+**
+** In the paragraph-numbers=N form with N>1, N-th level headings are
+** numbered like top-levels.  N+1-th level headings are like 2nd levels.
+** and so forth.
+**
+** In the toc=N form, a table of contents is generated for all headings
+** less than or equal to leve N.
+*/
+static int html_control_comment(Blob *ob, Blob *text, void *opaque){
+  Blob token, arg;
+  MarkdownToHtml *pCtx;
+  if( blob_size(text)<20 ) return 0;
+  if( strncmp(blob_buffer(text),"<!--markdown:",13)!=0 ) return 0;
+  pCtx = (MarkdownToHtml*)opaque;
+  blob_seek(text, 13, BLOB_SEEK_SET);
+  blob_init(&token, 0, 0);
+  blob_init(&arg, 0, 0);
+  while( blob_argument_token(text, &token, 0) ){
+    if( blob_eq_str(&token, "toc", 3) && blob_argument_token(text, &arg, 1) ){
+      pCtx->iToc = blob_size(ob);
+      pCtx->mxToc = atoi(blob_str(&arg));
+      blob_reset(&arg);
+    }else
+    if( blob_eq_str(&token,"paragraph-numbers",-1)
+     && blob_argument_token(text,&arg,1)
+    ){
+      char *zArg = blob_str(&arg);   
+      pCtx->iHdngNums = fossil_isdigit(zArg[0]) ? atoi(zArg) : is_truth(zArg);
+      blob_reset(&arg);
+    }else
+    if( !blob_eq_str(&token,"-->",3) ){
+      blob_appendf(ob, "<!--markdown: unknown-tag=\"%h\" -->",
+                   blob_str(&token));
+    }
+    blob_reset(&token); 
+  } 
+  return 1;
+}
+
 static void html_blockhtml(struct Blob *ob, struct Blob *text, void *opaque){
   char *data = blob_buffer(text);
   size_t size = blob_size(text);
   Blob *title = ((MarkdownToHtml*)opaque)->output_title;
+  if( html_control_comment(ob,text,opaque) ) return;
   while( size>0 && fossil_isspace(data[0]) ){ data++; size--; }
   while( size>0 && fossil_isspace(data[size-1]) ){ size--; }
   /* If the first raw block is an <h1> element, then use it as the title. */
@@ -182,7 +247,8 @@ static void html_header(
   int level,
   void *opaque
 ){
-  struct Blob *title = ((MarkdownToHtml*)opaque)->output_title;
+  MarkdownToHtml *pCtx = (MarkdownToHtml*)opaque;
+  struct Blob *title = pCtx->output_title;
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
   if( blob_size(ob)<=PROLOG_SIZE && title!=0 && blob_size(title)==0 ){
@@ -191,6 +257,16 @@ static void html_header(
   }
   INTER_BLOCK(ob);
   blob_appendf(ob, "<h%d>", level);
+  if( pCtx->iHdngNums && level>=pCtx->iHdngNums ){
+    int i;
+    for(i=pCtx->iHdngNums-1; i<level-1; i++){
+      blob_appendf(ob,"%d.",pCtx->aNum[i]);
+    }
+    blob_appendf(ob,"%d", ++pCtx->aNum[i]);
+    if( i==pCtx->iHdngNums-1 ) blob_append(ob, ".0", 2);
+    blob_append(ob, " ", 1);
+    for(i++; i<6; i++) pCtx->aNum[i] = 0;
+  }
   BLOB_APPEND_BLOB(ob, text);
   blob_appendf(ob, "</h%d>", level);
 }
@@ -305,12 +381,14 @@ static void html_table_row(
   BLOB_APPEND_LITERAL(ob, "  </tr>\n");
 }
 
-
-
 /* HTML span tags */
-
 static int html_raw_html_tag(struct Blob *ob, struct Blob *text, void *opaque){
-  blob_append(ob, blob_buffer(text), blob_size(text));
+  if( html_control_comment(ob,text,opaque) ){
+    /* No-op */
+  }else{
+    /* Everything else is passed through without change */
+    blob_append(ob, blob_buffer(text), blob_size(text));
+  }
   return 1;
 }
 
@@ -581,10 +659,16 @@ void markdown_to_html(
     0     /* opaque */
   };
   MarkdownToHtml context;
+  MarkdownHeading *pHdng, *pNextHdng;
+
   memset(&context, 0, sizeof(context));
   context.output_title = output_title;
   html_renderer.opaque = &context;
   if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);
+  for(pHdng=context.pFirst; pHdng; pHdng=pNextHdng){
+    pNextHdng = pHdng->pNext;
+    fossil_free(pHdng);
+  }
 }

@@ -656,6 +656,60 @@ int blob_token(Blob *pFrom, Blob *pTo){
 }
 
 /*
+** Extract a single token of one of the forms:
+**
+**       ="TEXT"
+**       ='TEXT'
+**       =TEXT
+**
+** The leading = is present if and only if skipEq is true.
+**
+** TEXT is the part that is extracted. There can be whitespace on
+** either side of the text.  The TEXT ends at the matching delimiter,
+** or at whitespace if there is no delimiter.
+**
+** Return true if an argument is found.   Return zero and leave
+** the cursor unchanged if there is no argument.
+**
+** The cursor of pFrom is left pointing at the first character past
+** the end of the argument.
+**
+** pTo will be an ephermeral blob.  If pFrom changes, it might alter
+** pTo as well.
+*/
+int blob_argument_token(Blob *pFrom, Blob *pTo, int skipEq){
+  char *aData = pFrom->aData;
+  int n = pFrom->nUsed;
+  int i = pFrom->iCursor;
+  int iStart;
+  char cDelim;
+  while( i<n && fossil_isspace(aData[i]) ){ i++; }
+  if( skipEq ){
+    if( i>=n || aData[i]!='=' ) return 0;
+    i++;
+    while( i<n && fossil_isspace(aData[i]) ){ i++; }
+  }
+  if( i>=n ) return 0;
+  cDelim = aData[i];
+  if( cDelim=='\'' || cDelim=='"' ){
+    if( i>=n-2 ) return 0;
+    i++;
+    iStart = pFrom->iCursor = i;
+    while( i<n && aData[i]!=cDelim ){ i++; }
+    if( i>=n ) return 0;
+    blob_extract(pFrom, i-iStart, pTo);
+    i++;
+  }else{
+    iStart = pFrom->iCursor = i;
+    while( i<n && !fossil_isspace(aData[i]) && aData[i]!='=' ){ i++; }
+    blob_extract(pFrom, i-iStart, pTo);
+  }
+  while( i<n && fossil_isspace(aData[i]) ){ i++; }
+  pFrom->iCursor = i;
+  return 1;
+}
+
+/*
 ** Extract a single SQL token from pFrom and use it to initialize pTo.
 ** Return the number of bytes in the token.  If no token is found,
 ** return 0.

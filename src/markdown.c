@@ -374,7 +374,7 @@ static size_t tag_length(char *data, size_t size, enum mkd_autolink *autolink){
   if( (data[i]<'a' || data[i]>'z') &&  (data[i]<'A' || data[i]>'Z') ){
     if( data[1]=='!' && size>=7 && data[2]=='-' && data[3]=='-' ){
       for(i=6; i<size && (data[i]!='>'||data[i-1]!='-'|| data[i-2]!='-');i++){}
-      if( i<size ) return i;
+      if( i<size ) return i+1;
     }
     return 0;
   }
