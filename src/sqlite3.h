@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.34.0"
 #define SQLITE_VERSION_NUMBER 3034000
-#define SQLITE_SOURCE_ID      "2020-08-26 10:50:48 6c716f4b556ea8f9c9f15cffd81cb970488eadf1d5da2ba6b366d3bdeb36e492"
+#define SQLITE_SOURCE_ID      "2020-09-15 20:48:30 3d35fa0be866213274fc09250225b345f6b08a9b4ec373d53d95e627e24512be"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -6199,7 +6199,7 @@ SQLITE_API int sqlite3_db_readonly(sqlite3 *db, const char *zDbName);
 ** <li value="1"> SQLITE_TXN_READ
 ** <li value="2"> SQLITE_TXN_WRITE
 ** </ol>
-** ^If the S argument to sqlite3_txn_state(D,S) is in the name of
+** ^If the S argument to sqlite3_txn_state(D,S) is not the name of
 ** a valid schema, then -1 is returned.
 */
 SQLITE_API int sqlite3_txn_state(sqlite3*,const char *zSchema);
@@ -7739,6 +7739,7 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_PRNG_SAVE                5
 #define SQLITE_TESTCTRL_PRNG_RESTORE             6
 #define SQLITE_TESTCTRL_PRNG_RESET               7  /* NOT USED */
+#define SQLITE_TESTCTRL_SEEK_COUNT               7
 #define SQLITE_TESTCTRL_BITVEC_TEST              8
 #define SQLITE_TESTCTRL_FAULT_INSTALL            9
 #define SQLITE_TESTCTRL_BENIGN_MALLOC_HOOKS     10
