@@ -1,5 +1,5 @@
-C In\spikchr:\sfix\sminor\sdetails\son\sdrawing\sfilled\s"file"\sobjects\sand\sthe\n"fit"\soperator\son\s"cylinder"\sobjects.
-D 2020-09-16T20:49:05.679
+C Changelog\supdate\sper\sforum\srequest.
+D 2020-09-16T22:25:45.827
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -835,7 +835,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki cad83fd4d56a1bb11e958c84367a69b02b56857c88b4eabc3a8e47e4bc7df96f
+F www/changes.wiki 6014accc29b3575b3cb364095ab95507861037bbc17906490b1ede2e22014ae0
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c28d11d9ad2dc13a3b291a04972923bcd5f4a6a75af0caa4f7bc9c5249143c8
-R 3f33e77f8cdd4733111ee8c8e5db1297
-U drh
-Z 3baf106a2035c79a37a8ffa873fc5c07
+P db02f9b8899f5c3c42bc5744d67f3b84833ee12f96e190f8f8b2315f43f78ed9
+R 8f77d55ea26f34c114541baacd6ba080
+U stephan
+Z 6a4872534447b32e3dcc703a6ab44eb1

@@ -14,6 +14,10 @@
      site skins are.
   *  The new [/help?cmd=/pikchrshow|pikchrshow] page provides an
      editor and previewer for pikchr markup.
+  *  In [/help?cmd=/wikiedit|/wikiedit] and
+     [/help?cmd=/fileedit|/fileedit], Ctrl-Enter can now be used
+     initiate a preview and to toggle between the editor and preview
+     tabs.
 
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12.1 (2020-08-20)</h2>
