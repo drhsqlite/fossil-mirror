@@ -112,8 +112,11 @@ static void sqlcmd_decompress(
   int rc;
 
   pIn = sqlite3_value_blob(argv[0]);
+  if( pIn==0 ) return;
   nIn = sqlite3_value_bytes(argv[0]);
+  if( nIn<4 ) return;
   nOut = (pIn[0]<<24) + (pIn[1]<<16) + (pIn[2]<<8) + pIn[3];
+  if( nOut<0 ) return;
   pOut = sqlite3_malloc( nOut+1 );
   rc = uncompress(pOut, &nOut, &pIn[4], nIn-4);
   if( rc==Z_OK ){

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sand\sPikchr\sto\sthe\slatest\scode,\sfor\stesting.
-D 2020-09-16T13:45:12.260
+C Fix\sproblems\swith\sthe\sbuilt-in\s"decompress()"\sSQL\sfunction.
+D 2020-09-16T13:58:31.973
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -608,7 +608,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c ff05cebca177e3284578140d89e1da0123bab55bd61b7b2647f4d23f2efa7f13
+F src/sqlcmd.c a31cf3116595a82bc37dc6f1612fbd3a6013710e4fe04a9b446d9aaa37d20e5c
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
 F src/sqlite3.c 775fd6896755672197c03a39f71aeca904dac9e55d0b71063fbba334b598c4bf
 F src/sqlite3.h c4d901906c55c8d61a0876d1577e10a8a0d2de58a9ce06ad33a8fb72fc6b3b95
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 59ba20f8450bb8583aa71cead5cf2abd2fbdf2a3b85ec9a6b9f9ad168504b488
-R f897655b8d213e2fa6ea602e3eb16d53
+P ecf679b28956ccb39787f9915e7446b3ee2577c03426f268af72c57afdf23d05
+R 0d95aa8d613466c03bf538861a476149
 U drh
-Z 222ffae6e62aca954d3f67237b0de9da
+Z e131219bf4cb5d2cd3bb55c2e10c7e3a
