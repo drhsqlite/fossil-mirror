@@ -400,7 +400,7 @@ static void pik_append_xy(Pik*,const char*,PNum,PNum);
 static void pik_append_dis(Pik*,const char*,PNum,const char*);
 static void pik_append_arc(Pik*,PNum,PNum,PNum,PNum);
 static void pik_append_clr(Pik*,const char*,PNum,const char*);
-static void pik_append_style(Pik*,PElem*);
+static void pik_append_style(Pik*,PElem*,int);
 static void pik_append_txt(Pik*,PElem*, PBox*);
 static void pik_draw_arrowhead(Pik*,PPoint*pFrom,PPoint*pTo,PElem*);
 static void pik_chop(PPoint*pFrom,PPoint*pTo,PNum);
@@ -3519,7 +3519,7 @@ static void arcRender(Pik *p, PElem *pElem){
   pik_append_xy(p,"Q", m.x, m.y);
   pik_append_xy(p," ", t.x, t.y);
   pik_append(p,"\" ",2);
-  pik_append_style(p,pElem);
+  pik_append_style(p,pElem,0);
   pik_append(p,"\" />\n", -1);
 
   pik_append_txt(p, pElem, 0);
@@ -3662,7 +3662,7 @@ static void boxRender(Pik *p, PElem *pElem){
       pik_append_arc(p, rad, rad, x1, y0);
       pik_append(p,"Z\" ",-1);
     }
-    pik_append_style(p,pElem);
+    pik_append_style(p,pElem,1);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pElem, 0);
@@ -3724,7 +3724,7 @@ static void circleRender(Pik *p, PElem *pElem){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," r=\"", r, "\" ");
-    pik_append_style(p,pElem);
+    pik_append_style(p,pElem,1);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pElem, 0);
@@ -3735,6 +3735,11 @@ static void cylinderInit(Pik *p, PElem *pElem){
   pElem->w = pik_value(p, "cylwid",6,0);
   pElem->h = pik_value(p, "cylht",5,0);
   pElem->rad = pik_value(p, "cylrad",6,0); /* Minor radius of ellipses */
+}
+static void cylinderFit(Pik *p, PElem *pElem, PNum w, PNum h){
+  if( w>0 ) pElem->w = w;
+  if( h>0 ) pElem->h = h + 4*pElem->rad + pElem->sw;
+  UNUSED_PARAMETER(p);
 }
 static void cylinderRender(Pik *p, PElem *pElem){
   PNum w2 = 0.5*pElem->w;
@@ -3749,7 +3754,7 @@ static void cylinderRender(Pik *p, PElem *pElem){
     pik_append_arc(p,w2,rad,pt.x-w2,pt.y+h2-rad);
     pik_append_arc(p,w2,rad,pt.x+w2,pt.y+h2-rad);
     pik_append(p,"\" ",-1);
-    pik_append_style(p,pElem);
+    pik_append_style(p,pElem,1);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pElem, 0);
@@ -3812,7 +3817,7 @@ static void dotRender(Pik *p, PElem *pElem){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," r=\"", r, "\"");
-    pik_append_style(p,pElem);
+    pik_append_style(p,pElem,1);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pElem, 0);
@@ -3870,7 +3875,7 @@ static void ellipseRender(Pik *p, PElem *pElem){
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," rx=\"", w/2.0, "\"");
     pik_append_dis(p," ry=\"", h/2.0, "\" ");
-    pik_append_style(p,pElem);
+    pik_append_style(p,pElem,1);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pElem, 0);
@@ -3928,13 +3933,13 @@ static void fileRender(Pik *p, PElem *pElem){
     pik_append_xy(p,"L", pt.x+(w2-rad),pt.y+h2);
     pik_append_xy(p,"L", pt.x-w2,pt.y+h2);
     pik_append(p,"Z\" ",-1);
-    pik_append_style(p,pElem);
+    pik_append_style(p,pElem,1);
     pik_append(p,"\" />\n",-1);
     pik_append_xy(p,"<path d=\"M", pt.x+(w2-rad), pt.y+h2);
     pik_append_xy(p,"L", pt.x+(w2-rad),pt.y+(h2-rad));
     pik_append_xy(p,"L", pt.x+w2, pt.y+(h2-rad));
     pik_append(p,"\" ",-1);
-    pik_append_style(p,pElem);
+    pik_append_style(p,pElem,0);
     pik_append(p,"\" />\n",-1);
   }
   pik_append_txt(p, pElem, 0);
@@ -3982,7 +3987,7 @@ static void lineRender(Pik *p, PElem *pElem){
       pElem->fill = -1.0;
     }
     pik_append(p,"\" ",-1);
-    pik_append_style(p,pElem);
+    pik_append_style(p,pElem,pElem->bClose);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pElem, 0);
@@ -4074,7 +4079,7 @@ static void radiusPath(Pik *p, PElem *pElem, PNum r){
   }
   pik_append_xy(p," L ",a[i].x,a[i].y);
   pik_append(p,"\" ",-1);
-  pik_append_style(p,pElem);
+  pik_append_style(p,pElem,0);
   pik_append(p,"\" />\n", -1);
 }
 static void splineRender(Pik *p, PElem *pElem){
@@ -4186,7 +4191,7 @@ static const PClass aClass[] = {
       /* xCheck */        0,
       /* xChop */         boxChop,
       /* xOffset */       cylinderOffset,
-      /* xFit */          0,
+      /* xFit */          cylinderFit,
       /* xRender */       cylinderRender
    },
    {  /* name */          "dot",
@@ -4508,9 +4513,9 @@ static void pik_append_arc(Pik *p, PNum r1, PNum r2, PNum x, PNum y){
 /* Append a style="..." text.  But, leave the quote unterminated, in case
 ** the caller wants to add some more.
 */
-static void pik_append_style(Pik *p, PElem *pElem){
+static void pik_append_style(Pik *p, PElem *pElem, int bFill){
   pik_append(p, " style=\"", -1);
-  if( pElem->fill>=0 ){
+  if( pElem->fill>=0 && bFill ){
     pik_append_clr(p, "fill:", pElem->fill, ";");
   }else{
     pik_append(p,"fill:none;",-1);
@@ -7061,4 +7066,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 7089 "pikchr.c"
+#line 7094 "pikchr.c"
