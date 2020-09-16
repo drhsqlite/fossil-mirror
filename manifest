@@ -1,5 +1,5 @@
-C pikchrshow,\swikiedit,\sand\sfileedit\snow\sall\srespond\sto\sctrl-enter\sin\stheir\seditor\sto\srefresh\sthe\spreview.\sThe\slatter\stwo,\son\stheir\spreview\stabs,\srespond\sto\sctrl-enter\sto\sswitch\sback\sto\sthe\seditor\sand\sgive\sit\sfocus.\sIt's\snow\spossible\sto\sedit,\spreview,\sand\sswitch\sback\sto\sthe\ssame\sediting\sposition\swithout\sthe\smouse\s:).
-D 2020-09-16T08:04:53.588
+C Make\san\sappropriate\sentry\sin\sthe\srcvfrom\stable\swhen\sdoing\sa\sgit\sor\ssvn\nimport.\s\sSee\s[forum:92db82a45e|forum\spost\s92db82a45e]\sfor\sdetails\son\sthe\nproblem\sthat\sthis\scheck-in\sattempts\sto\sfix.
+D 2020-09-16T13:21:48.935
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -514,7 +514,7 @@ F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
-F src/import.c 2d041f8f97ac100409e5e632368b6b665f6787ca1c74c453101b3de6fe12c90a
+F src/import.c dd5d4cad8e8a31c9cf0b6eac90ac97f675eb319cb0502c89d8b199d88ed18734
 F src/info.c 9852b680971c8c03dac4474d3ab18b333a393535a77beccacb08f1b0c73ee704
 F src/interwiki.c ef2dfc844dfc1396ce60923d9f547730f8d2d505adef2869e09e36846ccdf555
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9c54aad9c5f6e44675cf277b20d031403f1cfde71e1fe365f6bb51cd1a85e08
-R d88bac044b4cfe10732204a0e69f7bbc
-U stephan
-Z 161fdfc0bf00610e64da5f575ff1aa92
+P a1838297f9450fce2b27d4054e094cdb82ec42634e371d585b9bc4297c73fc5a
+R 4940bb7f8eedbfa3974d9b07886f4431
+U drh
+Z 707808238e0eb660314d81ee87447f41

@@ -162,8 +162,10 @@ static int fast_insert_content(
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &hash);
   if( rid==0 ){
     static Stmt ins;
+    assert( g.rcvid>0 );
     db_static_prepare(&ins,
-        "INSERT INTO blob(uuid, size, content) VALUES(:uuid, :size, :content)"
+        "INSERT INTO blob(uuid, size, rcvid, content)"
+        "VALUES(:uuid, :size, %d, :content)", g.rcvid
     );
     db_bind_text(&ins, ":uuid", blob_str(&hash));
     db_bind_int(&ins, ":size", gg.nData);
@@ -1772,6 +1774,7 @@ void import_cmd(void){
     db_initial_setup(0, 0, zDefaultUser);
     db_set("main-branch", gimport.zTrunkName, 0);
   }
+  content_rcvid_init(svnFlag ? "svn-import" : "git-import");
 
   if( svnFlag ){
     db_multi_exec(
