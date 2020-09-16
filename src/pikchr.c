@@ -378,7 +378,7 @@ struct PClass {
   void (*xInit)(Pik*,PElem*);              /* Initializer */
   void (*xNumProp)(Pik*,PElem*,PToken*);   /* Value change notification */
   void (*xCheck)(Pik*,PElem*);             /* Checks to after parsing */
-  PPoint (*xChop)(PElem*,PPoint*);         /* Chopper */
+  PPoint (*xChop)(Pik*,PElem*,PPoint*);    /* Chopper */
   PPoint (*xOffset)(Pik*,PElem*,int);      /* Offset from .c to edge point */
   void (*xFit)(Pik*,PElem*,PNum w,PNum h); /* Size to fit text */
   void (*xRender)(Pik*,PElem*);            /* Render */
@@ -3588,7 +3588,7 @@ static PPoint boxOffset(Pik *p, PElem *pElem, int cp){
   }
   return pt;
 }
-static PPoint boxChop(PElem *pElem, PPoint *pPt){
+static PPoint boxChop(Pik *p, PElem *pElem, PPoint *pPt){
   PNum dx, dy;
   int cp = CP_C;
   PPoint chop = pElem->ptAt;
@@ -3621,7 +3621,7 @@ static PPoint boxChop(PElem *pElem, PPoint *pPt){
       cp = CP_S;
     }
   }
-  chop = pElem->type->xOffset(0,pElem,cp);
+  chop = pElem->type->xOffset(p,pElem,cp);
   chop.x += pElem->ptAt.x;
   chop.y += pElem->ptAt.y;
   return chop;
@@ -3707,7 +3707,7 @@ static void circleNumProp(Pik *p, PElem *pElem, PToken *pId){
       break;
   }
 }
-static PPoint circleChop(PElem *pElem, PPoint *pPt){
+static PPoint circleChop(Pik *p, PElem *pElem, PPoint *pPt){
   PPoint chop;
   PNum dx = pPt->x - pElem->ptAt.x;
   PNum dy = pPt->y - pElem->ptAt.y;
@@ -3832,7 +3832,7 @@ static void ellipseInit(Pik *p, PElem *pElem){
   pElem->w = pik_value(p, "ellipsewid",10,0);
   pElem->h = pik_value(p, "ellipseht",9,0);
 }
-static PPoint ellipseChop(PElem *pElem, PPoint *pPt){
+static PPoint ellipseChop(Pik *p, PElem *pElem, PPoint *pPt){
   PPoint chop;
   PNum s, dq, dist;
   PNum dx = pPt->x - pElem->ptAt.x;
@@ -5575,7 +5575,7 @@ static int pik_text_length(const PToken *pToken){
       j++;
     }else if( z[j]=='&' ){
       int k;
-      for(k=j+1; k<j+7 && z[k]!=';'; k++){}
+      for(k=j+1; k<j+7 && z[k]!=0 && z[k]!=';'; k++){}
       if( z[k]==';' ) j = k;
     }
   }
@@ -6113,7 +6113,7 @@ static PElem *pik_find_chopper(PEList *pList, PPoint *pCenter){
 static void pik_autochop(Pik *p, PPoint *pFrom, PPoint *pTo){
   PElem *pElem = pik_find_chopper(p->list, pTo);
   if( pElem ){
-    *pTo = pElem->type->xChop(pElem, pFrom);
+    *pTo = pElem->type->xChop(p, pElem, pFrom);
   }
 }
 
@@ -6593,7 +6593,11 @@ static int pik_token_length(PToken *pToken){
     }
     case '"': {
       for(i=1; (c = z[i])!=0; i++){
-        if( c=='\\' ){ i++; continue; }
+        if( c=='\\' ){ 
+          if( z[i+1]==0 ) break;
+          i++;
+          continue;
+        }
         if( c=='"' ){
           pToken->eType = T_STRING;
           return i+1;
@@ -6720,7 +6724,7 @@ static int pik_token_length(PToken *pToken){
           ){
             /* Dot followed by something that is a 2-D place value */
             pToken->eType = T_DOT_E;
-          }else if( pFound->eType==T_X || pFound->eType==T_Y ){
+          }else if( pFound && (pFound->eType==T_X || pFound->eType==T_Y) ){
             /* Dot followed by "x" or "y" */
             pToken->eType = T_DOT_XY;
           }else{
@@ -6747,7 +6751,7 @@ static int pik_token_length(PToken *pToken){
           nDigit = 1;
           for(i=1; (c = z[i])>='0' && c<='9'; i++){ nDigit++; }
           if( i==1 && (c=='x' || c=='X') ){
-            for(i=3; (c = z[i])!=0 && isxdigit(c); i++){}
+            for(i=2; (c = z[i])!=0 && isxdigit(c); i++){}
             pToken->eType = T_NUMBER;
             return i;
           }
@@ -6779,7 +6783,7 @@ static int pik_token_length(PToken *pToken){
             while( (c = z[i])>=0 && c<='9' ){ i++; }
           }
         }
-        c2 = z[i+1];
+        c2 = c ? z[i+1] : 0;
         if( isInt ){
           if( (c=='t' && c2=='h')
            || (c=='r' && c2=='d')
@@ -7053,4 +7057,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 7081 "pikchr.c"
+#line 7085 "pikchr.c"
