@@ -82,6 +82,12 @@
               P.e.markupAlignWrapper );
 
     ////////////////////////////////////////////////////////////
+    // Trigger preview on Ctrl-Enter.
+    P.e.taContent.addEventListener('keydown',function(ev){
+      if(ev.ctrlKey && 13 === ev.keyCode) P.preview();
+    }, false);
+
+    ////////////////////////////////////////////////////////////
     // Setup clipboard-copy of markup/SVG...
     F.copyButton(P.e.previewCopyButton, {copyFromElement: P.e.taPreviewText});
     P.e.previewModeLabel.addEventListener('click', ()=>P.e.previewCopyButton.click(), false);

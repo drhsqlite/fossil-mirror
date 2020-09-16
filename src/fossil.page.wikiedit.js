@@ -869,10 +869,11 @@
        tab panels. Seems to be the best fit in terms of
        functionality and visibility. */
     P.tabs.addCustomWidget( E('#fossil-status-bar') ).addCustomWidget(P.e.editStatus);
+    let currentTab/*used for ctrl-enter switch between editor and preview*/;
     P.tabs.addEventListener(
       /* Set up some before-switch-to tab event tasks... */
       'before-switch-to', function(ev){
-        const theTab = ev.detail, btnSlot = theTab.querySelector('.save-button-slot');
+        const theTab = currentTab = ev.detail, btnSlot = theTab.querySelector('.save-button-slot');
         if(btnSlot){
           /* Several places make sense for a save button, so we'll
              move that button around to those tabs where it makes sense. */
@@ -908,6 +909,34 @@
         }
       }
     );
+    ////////////////////////////////////////////////////////////
+    // Trigger preview on Ctrl-Enter. This only works on the built-in
+    // editor widget, not a client-provided one.
+    P.e.taEditor.addEventListener('keydown',function(ev){
+      if(ev.ctrlKey && 13 === ev.keyCode){
+        ev.preventDefault();
+        ev.stopPropagation();
+        P.e.taEditor.blur(/*force change event, if needed*/);
+        P.tabs.switchToTab(P.e.tabs.preview);
+        if(!P.e.cbAutoPreview.checked){/* If NOT in auto-preview mode, trigger an update. */
+          P.preview();
+        }
+      }
+    }, false);
+    // If we're in the preview tab, have ctrl-enter switch back to the editor.
+    document.body.addEventListener('keydown',function(ev){
+      if(ev.ctrlKey && 13 === ev.keyCode){
+        if(currentTab === P.e.tabs.preview){
+          //ev.preventDefault();
+          //ev.stopPropagation();
+          P.tabs.switchToTab(P.e.tabs.content);
+          P.e.taEditor.focus(/*doesn't work for client-supplied editor widget!
+                              And it's slow as molasses for long docs, as focus()
+                              forces a document reflow. */);
+          //console.debug("BODY ctrl-enter");
+        }
+      }
+    }, true);
 
     F.connectPagePreviewers(
       P.e.tabs.preview.querySelector(

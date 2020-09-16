@@ -690,9 +690,11 @@
     }
     D.removeClass(P.e.taComment, 'hidden');
     P.tabs.addCustomWidget( E('#fossil-status-bar') ).addCustomWidget(P.e.editStatus);
+    let currentTab/*used for ctrl-enter switch between editor and preview*/;
     P.tabs.addEventListener(
       /* Set up auto-refresh of the preview tab... */
       'before-switch-to', function(ev){
+        currentTab = ev.detail;
         if(ev.detail===P.e.tabs.preview){
           P.baseHrefForFile();
           if(P.previewNeedsUpdate && P.e.cbAutoPreview.checked) P.preview();
@@ -720,6 +722,33 @@
         }
       }
     );
+    ////////////////////////////////////////////////////////////
+    // Trigger preview on Ctrl-Enter. This only works on the built-in
+    // editor widget, not a client-provided one.
+    P.e.taEditor.addEventListener('keydown',function(ev){
+      if(ev.ctrlKey && 13 === ev.keyCode){
+        ev.preventDefault();
+        ev.stopPropagation();
+        P.e.taEditor.blur(/*force change event, if needed*/);
+        P.tabs.switchToTab(P.e.tabs.preview);
+        if(!P.e.cbAutoPreview.checked){/* If NOT in auto-preview mode, trigger an update. */
+          P.preview();
+        }
+      }
+    }, false);
+    // If we're in the preview tab, have ctrl-enter switch back to the editor.
+    document.body.addEventListener('keydown',function(ev){
+      if(ev.ctrlKey && 13 === ev.keyCode){
+        if(currentTab === P.e.tabs.preview){
+          //ev.preventDefault();
+          //ev.stopPropagation();
+          P.tabs.switchToTab(P.e.tabs.content);
+          P.e.taEditor.focus(/*doesn't work for client-supplied editor widget!
+                              And it's slow as molasses for long docs, as focus()
+                              forces a document reflow.*/);
+        }
+      }
+    }, true);
 
     F.connectPagePreviewers(
       P.e.tabs.preview.querySelector(
