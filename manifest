@@ -1,5 +1,5 @@
-C Implemented\smost\sof\sthe\sfeedback\sfrom\s[https://pikchr.org/home/forumpost/f538d8e7f7],\swith\sthe\sexceptions\sbeing\sdocumented\sin\sthat\sthread.\s/pikchrshow\snow\slonger\suses\sthe\smode-swap\sfeature\s(seems\ssuperfluous\sthere)\sand\stapping\sanywhere\sin\sthe\sbody,\soutside\sof\sthe\ssource/svg\scontainer\selement,\snow\sturns\soff\sthose\sbuttons\son\sall\spikchrs\swhere\sthey\sare\scurrently\svisible.\sConsolidated\spikchr-rendering\simpl\sfor\smarkdown/fossil/pikchrshow/pikchr\scommand.
-D 2020-09-17T16:31:21.131
+C pikchr\smode\sswap:\stapping\son\san\sSVG\sswitches\smodes\sand\senables\sthe\smode-select\sbutton.\sLeaving\ssource\sview\smode\srequires\sactivating\sthat\sbutton\s(which\sworks\slike\sbefore,\sbut\sis\sonly\svisible\sin\ssource\smode).
+D 2020-09-17T16:52:25.965
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7
 F src/fossil.page.pikchrshow.js b0c825fcfc9903b3ac46e58515a6139b082f9a9e3344b9199fe3d0f558a8e0ef
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 164ec7ae03dc05888445bf4d97a0b08f9865beff501c3395929874df9984df49
-F src/fossil.pikchr.js 1801cfe3bc8f7c296e9bcb3ca413f4dcd0e26e084f363b6fcb5de9bece975b1b
+F src/fossil.pikchr.js 09c1fa1fd921e0625acbc29c97a372461f3349d13be514419eaae2f4ac71262f
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b816bae3f2ef43510550fc381bc11e4491f1f23880f8c22c2d7c837ef9162459
-R 48712a70cb8fba788aef928281e53f39
+P 4f697731832a44b4dc5bd129152324323e17b14a6498284e88cd089b8b9d5d75
+R 0797972117a57e5439eba8c7f5b5ed49
 U stephan
-Z ecbb670df482621ba12e9cbd3d6f734a
+Z 1a7e661d1a7241c56e1fbd3f380eb4c8

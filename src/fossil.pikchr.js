@@ -166,6 +166,16 @@ textarea.pikchr-src-text {
       D.toggleClass(buttonBar, 'hidden');
     }, false);
 
+    /** Show the mode-switch buttons only in source view, and switch to
+        source view if the SVG is tapped. This allows easy switching to
+        source view while also keeping the buttons out of the way in
+        SVG mode and giving the user the option of select/copy in the
+        source mode via normal text-selection approaches. */
+    svg.addEventListener('click', function(ev){
+      D.removeClass(buttonBar, 'hidden');
+      btnFlip.click();
+    }, false);
+
     /** Toggle the source/SVG view on click. */
     btnFlip.addEventListener('click', function f(ev){
       ev.preventDefault();
@@ -218,7 +228,7 @@ textarea.pikchr-src-text {
         }
       }
       btnFlip.classList.toggle('src-active');
-      D.toggleClass([svg, srcView], 'hidden');
+      D.toggleClass([svg, srcView, buttonBar], 'hidden');
     }, false);
   };
   
