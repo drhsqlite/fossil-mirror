@@ -74,7 +74,6 @@
       /* Without this element, there's nothing for us to do here. */
       return this;
     }
-    console.debug(svg, parent, srcView);
     parent.dataset.origMaxWidth = parent.style.maxWidth;
     parent._childs = [svg, srcView];
     D.addClass(srcView, 'hidden');

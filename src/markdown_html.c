@@ -354,22 +354,16 @@ void pikchr_to_html(
     for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
     if( i==6 && strncmp(zArg, "center", 6)==0 ){
       pikFlags |= PIKCHR_PROCESS_DIV_CENTER;
-      break;
     }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
       pikFlags |= PIKCHR_PROCESS_DIV_INDENT;
-      break;
     }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
       pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_LEFT;
-      break;
     }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
       pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_RIGHT;
-      break;
     }else if( i==6 && strncmp(zArg, "toggle", 6)==0 ){
       pikFlags |= PIKCHR_PROCESS_DIV_TOGGLE;
-      break;
     }else if( i==6 && strncmp(zArg, "source", 6)==0 ){
       pikFlags |= PIKCHR_PROCESS_DIV_SOURCE;
-      break;
     }
     while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
     zArg += i;
