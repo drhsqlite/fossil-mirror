@@ -1,5 +1,5 @@
-C pikchr\ssource\sview:\stentatively\sre-added\sthe\scopy\sbutton\s(only\sin\ssource\sview,\snot\sSVG),\sbut\sit\snow\sswitches\sback\sto\sSVG\smode\sif\sit\ssuccessfully\scopies\sthe\ssource\scode.
-D 2020-09-17T17:13:33.444
+C Pedantic\sCSS\stweaks.
+D 2020-09-17T17:17:58.195
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7
 F src/fossil.page.pikchrshow.js b0c825fcfc9903b3ac46e58515a6139b082f9a9e3344b9199fe3d0f558a8e0ef
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 164ec7ae03dc05888445bf4d97a0b08f9865beff501c3395929874df9984df49
-F src/fossil.pikchr.js b68a23e53bd6778d4c51475598221d21c227b62176a876411b87d16147bd22a0
+F src/fossil.pikchr.js 512c5a88f75c235cda2c3040bfd74e5728619df4b9c3a362b8954835ca12abb4
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2a2be013199e051a1deb8668ee2aa68e25aacf9a639b69a7919ca6241993e8d1
-R 480714d46c25761fba2b92b0021231f1
+P d369f4f389c6a4471cdd314ea93e02d8552f5e5ba6da337f8c5f65eb9f56cf8c
+R bed186fe2fc16937ca4f95af72dd376d
 U stephan
-Z 8e97111d1fa60f4e2f99d45cebedb137
+Z e63ae5578d25717a29f60f72900fd28a

@@ -66,11 +66,10 @@ textarea.pikchr-src-text {
   min-width: ${wh}; max-width: ${wh};
   min-height: ${wh}; max-height: ${wh};
   display: inline-block;
-  position: absolute;
-  top: calc(${wh} * 1.3);
-  left: 0;
-  z-index: 50;
-  padding: 0; margin: 0;
+}
+.pikchr-button-bar > .pikchr-src-button,
+.pikchr-button-bar > .pikchr-copy-button {
+  margin-bottom: 0.3em;
 }
 `;
     head.appendChild(styleTag);
