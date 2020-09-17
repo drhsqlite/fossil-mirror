@@ -715,8 +715,8 @@
 
      Usages:
 
-     (htmlString)
-     (DOMElement target, htmlString)
+     Array (htmlString)
+     DOMElement (DOMElement target, htmlString)
 
      The first form parses the string as HTML and returns an Array of
      all elements parsed from it. If string is falsy then it returns

@@ -35,14 +35,17 @@
 #define PIKCHR_PROCESS_DIV_CENTER      0x0200
 #define PIKCHR_PROCESS_DIV_FLOAT_LEFT  0x0400
 #define PIKCHR_PROCESS_DIV_FLOAT_RIGHT 0x0800
+#define PIKCHR_PROCESS_DIV_TOGGLE      0x1000
+#define PIKCHR_PROCESS_DIV_SOURCE      0x2000
 #endif
 
 /*
-** Processes a pikchr script, optionally with embedded TH1. zIn is the
-** input script. pikFlags may be a bitmask of any of the
-** PIKCHR_PROCESS_xxx flags (see below). thFlags may be a bitmask of
-** any of the TH_INIT_xxx and/or TH_R2B_xxx flags. Output is sent to
-** pOut, appending to it without modifying any prior contents.
+** Processes a pikchr script, optionally with embedded TH1, and
+** produces HTML code for it. zIn is the NUL-terminated input
+** script. pikFlags may be a bitmask of any of the PIKCHR_PROCESS_xxx
+** flags documented below. thFlags may be a bitmask of any of the
+** TH_INIT_xxx and/or TH_R2B_xxx flags. Output is sent to pOut,
+** appending to it without modifying any prior contents.
 **
 ** Returns 0 on success, 1 if TH1 processing failed, or 2 if pikchr
 ** processing failed. In either case, the error message (if any) from
@@ -55,13 +58,13 @@
 ** this flag is assumed even if it is not specified.
 **
 ** - PIKCHR_PROCESS_TH1_NOSVG means that processing stops after the
-** TH1 step, thus the output will be (presumably) a
+** TH1 eval step, thus the output will be (presumably) a
 ** TH1-generated/processed pikchr script (or whatever else the TH1
 ** outputs). If this flag is set, PIKCHR_PROCESS_TH1 is assumed even
 ** if it is not specified.
 **
-** The remaining flags listed below are ignored if
-** PIKCHR_PROCESS_TH1_NOSVG is specified:
+** All of the remaining flags listed below are ignored if
+** PIKCHR_PROCESS_TH1_NOSVG is specified!
 **
 ** - PIKCHR_PROCESS_DIV: if set, the SVG result is wrapped in a DIV
 ** element which specifies a max-width style value based on the SVG's
@@ -73,27 +76,43 @@
 **  - PIKCHR_PROCESS_DIV_FLOAT_LEFT floats the div left.
 **  - PIKCHR_PROCESS_DIV_FLOAT_RIGHT floats the div right.
 **
-** If more than one is specified, which one is used is undefined.
+** If more than one is specified, which one is used is undefined. Those
+** flags may be OR'd with one or both of the following:
+**
+**  - PIKCHR_PROCESS_DIV_TOGGLE: adds the 'toggle' CSS class to the
+**    outer DIV so that event-handler code can install different
+**    toggling behaviour than the default. Default is ctrl-click, but
+**    this flag enables single-click toggling for the element.
+**
+**  - PIKCHR_PROCESS_DIV_SOURCE: adds the 'source' CSS class to the
+**    outer DIV, which is a hint to the client-side renderer (see
+**    fossil.pikchr.js) that the pikchr should initially be rendered
+**    in source code form mode (the default is to hide the source and
+**    show the SVG).
 **
 ** - PIKCHR_PROCESS_NONCE: if set, the resulting SVG/DIV are wrapped
 ** in "safe nonce" comments, which are a fossil-internal mechanism
 ** which prevents the wiki/markdown processors from re-processing this
-** output.
+** output. This is necessary when calling this routine in the context
+** of wiki/embedded doc processing, but not (e.g.) when fetching
+** an image for /pikchrpage.
 **
-** - PIKCHR_PROCESS_SRC: if set, a new TEXTAREA.pikchr-src element is injected
-** adjacet to the SVG element which contains the HTML-escaped content of
-** the input script.
+** - PIKCHR_PROCESS_SRC: if set, a new PRE.pikchr-src element is
+** injected adjacent to the SVG element which contains the
+** HTML-escaped content of the input script.
 **
 ** - PIKCHR_PROCESS_SRC_HIDDEN: exactly like PIKCHR_PROCESS_SRC but
 ** the .pikchr-src tag also gets the CSS class 'hidden' (which, in
-** fossil's default CSS, will hide that element).
+** fossil's default CSS, will hide that element). This is almost
+** always what client code will want to do if it includes the source
+** at all.
 **
 ** - PIKCHR_PROCESS_ERR_PRE: if set and pikchr() fails, the resulting
 ** error report is wrapped in a PRE element, else it is retained
-** as-is (intended for console output).
+** as-is (intended only for console output).
 */
 int pikchr_process(const char * zIn, int pikFlags, int thFlags,
-                    Blob * pOut){
+                   Blob * pOut){
   Blob bIn = empty_blob;
   int isErr = 0;
 
@@ -103,6 +122,8 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
          | PIKCHR_PROCESS_DIV_CENTER
          | PIKCHR_PROCESS_DIV_FLOAT_RIGHT
          | PIKCHR_PROCESS_DIV_FLOAT_LEFT
+         | PIKCHR_PROCESS_DIV_SOURCE
+         | PIKCHR_PROCESS_DIV_TOGGLE
          ) & pikFlags){
     pikFlags |= PIKCHR_PROCESS_DIV;
   }
@@ -134,6 +155,8 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
 
       zOut = pikchr(zContent, "pikchr", 0, &w, &h);
       if( w>0 && h>0 ){
+        const char * zClassToggle = "";
+        const char * zClassSource = "";
         const char *zNonce = (PIKCHR_PROCESS_NONCE & pikFlags)
           ? safe_html_nonce(1) : 0;
         if(zNonce){
@@ -151,15 +174,23 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           }else if(PIKCHR_PROCESS_DIV_FLOAT_RIGHT & pikFlags){
             blob_append(&css, "float:right;padding=4em;", -1);
           }
-          blob_appendf(pOut,"<div class=\"pikchr\" style=\"%b\">\n", &css);
+          if(PIKCHR_PROCESS_DIV_TOGGLE & pikFlags){
+            zClassToggle = " toggle";
+          }
+          if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
+            zClassSource = " source";
+          }
+          blob_appendf(pOut,"<div class=\"pikchr-svg%s%s\" "
+                       "style=\"%b\">\n",
+                       zClassToggle/*safe-for-%s*/,
+                       zClassSource/*safe-for-%s*/, &css);
           blob_reset(&css);
         }
         blob_append(pOut, zOut, -1);
         if((PIKCHR_PROCESS_SRC & pikFlags)
            || (PIKCHR_PROCESS_SRC_HIDDEN & pikFlags)){
-          blob_appendf(pOut, "<textarea rows='10' readonly "
-                       "class='pikchr-src%s'>"
-                       "%h</textarea>\n",
+          blob_appendf(pOut, "<pre class='pikchr-src%s'>"
+                       "%h</pre>\n",
                        (PIKCHR_PROCESS_SRC_HIDDEN & pikFlags)
                        ? " hidden" : "",
                        blob_str(&bIn));
@@ -359,7 +390,7 @@ void pikchrshow_page(void){
 **
 **    -div-right  Like -div but floats the div right.
 **
-**    -svg-src   Stores the input pikchr's source code in the output as
+**    -src       Stores the input pikchr's source code in the output as
 **               a separate element adjacent to the SVG one. The
 **               source element initially has the "hidden" CSS class.
 **
@@ -401,7 +432,7 @@ void pikchr_cmd(void){
   const int fTh1 = find_option("th",0,0)!=0;
   const int fNosvg = find_option("th-nosvg",0,0)!=0;
   int isErr = 0;
-  int pikFlags = find_option("svg-src",0,0)!=0
+  int pikFlags = find_option("src",0,0)!=0
     ? PIKCHR_PROCESS_SRC_HIDDEN : 0;
   u32 fThFlags = TH_INIT_NO_ENCODE
     | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
@@ -418,6 +449,12 @@ void pikchr_cmd(void){
     pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_LEFT;
   }else if(find_option("div-float-right",0,0)!=0){
     pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_RIGHT;
+  }
+  if(find_option("div-toggle",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DIV_TOGGLE;
+  }
+  if(find_option("div-source",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DIV_SOURCE;
   }
 
   verify_all_options();

@@ -324,9 +324,10 @@
       label = "SVG";
       f.showMarkupAlignment(false);
       D.parseHtml(D.clearElement(preTgt), P.response.raw);
-      svg = f.getSvgNode(this.response.raw);
+      svg = preTgt.querySelector('svg.pikchr');
       if(svg){ /*for copy button*/
         this.e.taPreviewText.value = svg.outerHTML;
+        F.pikchr.addSrcView(svg);
       }
       break;
     case 1:

@@ -344,60 +344,42 @@ void pikchr_to_html(
   const char *zSrc, int nSrc,   /* The Pikchr source text */
   const char *zArg, int nArg    /* Addition arguments */
 ){
-  int w = 0, h = 0;
-  char *zIn = fossil_strndup(zSrc, nSrc);
-  char *zOut = pikchr(zIn, "pikchr", 0, &w, &h);
-  if( w>0 && h>0 ){
-    static int nSvg = 0;
-    const char *zSafeNonce = safe_html_nonce(1);
-    const char *zCss = "";
-    const char *zClickOk = "e.ctrlKey";
-    blob_append(ob, zSafeNonce, -1);
-    blob_append_char(ob, '\n');
-    while( nArg>0 ){
-      int i;
-      for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
-      if( i==6 && strncmp(zArg, "center", 6)==0 ){
-        zCss = "display:block;margin:auto;";
-      }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
-        zCss = "margin-left:4em;";
-      }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
-        zCss = "float:left;padding=4em;";
-      }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
-        zCss = "float:right;padding=4em;";
-      }else if( i==6 && strncmp(zArg, "toggle", 6)==0 ){
-        zClickOk = "1";
-      }
-      while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
-      zArg += i;
-      nArg -= i;
+  int pikFlags = PIKCHR_PROCESS_NONCE
+    | PIKCHR_PROCESS_DIV
+    | PIKCHR_PROCESS_SRC_HIDDEN;
+  Blob bSrc = empty_blob;
+
+  while( nArg>0 ){
+    int i;
+    for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
+    if( i==6 && strncmp(zArg, "center", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_CENTER;
+      break;
+    }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_INDENT;
+      break;
+    }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_LEFT;
+      break;
+    }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_RIGHT;
+      break;
+    }else if( i==6 && strncmp(zArg, "toggle", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_TOGGLE;
+      break;
+    }else if( i==6 && strncmp(zArg, "source", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_SOURCE;
+      break;
     }
-    blob_appendf(ob, "<div id='svgid-%d'>\n", ++nSvg);
-    blob_appendf(ob, "<div class='pikchr-svg'");
-    blob_appendf(ob, " style='max-width:%dpx;%s'>\n", w, zCss);
-    blob_append(ob, zOut, -1);
-    blob_appendf(ob, "</div>\n");
-    blob_appendf(ob, "<pre class='hidden'><code>"
-                     "%s</code></pre>\n", zIn);
-    blob_appendf(ob, "</div>\n");
-    blob_appendf(ob,
-      "<script nonce='%s'>\n"
-      "document.getElementById('svgid-%d').onclick=function(e){\n"
-      "  if(%s){\n"
-      "    for(var c of this.children){c.classList.toggle('hidden');}\n"
-      "  }\n"
-      "}\n"
-      "</script>\n",
-      style_nonce(), nSvg, zClickOk);
-    blob_appendf(ob, "%s\n", zSafeNonce);
-  }else{
-    blob_appendf(ob, "<pre>\n%s\n</pre>\n", zOut);
+    while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
+    zArg += i;
+    nArg -= i;
   }
-  fossil_free(zIn);
-  free(zOut);
+  blob_append(&bSrc, zSrc, nSrc)
+    /*have to dup input to ensure a NUL-terminated source string */;
+  pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
+  blob_reset(&bSrc);
 }
-
-
 
 /* Invoked for `...` blocks where there are nSep grave accents in a
 ** row that serve as the delimiter.  According to CommonMark:
