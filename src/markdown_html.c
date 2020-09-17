@@ -425,7 +425,6 @@ void pikchr_to_html(
     blob_appendf(ob, "<pre class='pikchr-src' style='display:none;'>"
                      "%s</pre>\n", zIn);
     blob_appendf(ob, "</div>\n");
-    blob_appendf(ob, "%s\n", zSafeNonce);
     blob_appendf(ob,
       "<script nonce='%s'>\n"
       "document.getElementById('svgid-%d').ondblclick=function(){\n"
@@ -435,6 +434,7 @@ void pikchr_to_html(
       "}\n"
       "</script>\n",
       style_nonce(), nSvg);
+    blob_appendf(ob, "%s\n", zSafeNonce);
   }else{
     blob_appendf(ob, "<pre>\n%s\n</pre>\n", zOut);
   }
