@@ -1,5 +1,5 @@
-C Cleanup\sthe\sdouble-click\ssource\sdisplay\sfor\sPikchr.
-D 2020-09-17T19:20:14.617
+C Toggle\sbetween\sSVG\sand\sPikchr\ssource\scode\susing\sthe\s"hidden"\sclass\nand\suse\sctrl-click\srather\sthan\sdouble-click.
+D 2020-09-17T19:30:35.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
-F src/markdown_html.c a157438a378fa1ad6bc6df60bd7d36ad827df6257361508fb7ca6f8275e73b8e
+F src/markdown_html.c cf0ee9cb5a49896ced2ab38e191d45d7e03263775e0d44ac7acd2228f9365c14
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebf5b595704788c4e89704b7de38b7b23a663fa209edcab5330bd1212ff0b02c
-R 65a56f50e0bee4a80c4deb11cdfa3925
+P 5634dfeb2f8197a0dfc50170c39e299228f75bd8d2c8e3687b33c96af5a31ead
+R 6f4eaebeb742cc25b934a79c4b2691b6
 U drh
-Z aacc733f13af3503c9f31a284f790c1b
+Z 65ec705d156e2348ad078c332af4de45

@@ -380,14 +380,14 @@ void pikchr_to_html(
     blob_append(ob, zOut, -1);
     blob_appendf(ob, "</div>\n");
     blob_reset(&css);
-    blob_appendf(ob, "<pre style='display:none;'><code>"
+    blob_appendf(ob, "<pre class='hidden'><code>"
                      "%s</code></pre>\n", zIn);
     blob_appendf(ob, "</div>\n");
     blob_appendf(ob,
       "<script nonce='%s'>\n"
-      "document.getElementById('svgid-%d').ondblclick=function(){\n"
-      "  for(var c of this.children){\n"
-      "    c.style.display = c.style.display=='none'?'block':'none';\n"
+      "document.getElementById('svgid-%d').onclick=function(e){\n"
+      "  if(e.ctrlKey){\n"
+      "    for(var c of this.children){c.classList.toggle('hidden');}\n"
       "  }\n"
       "}\n"
       "</script>\n",
