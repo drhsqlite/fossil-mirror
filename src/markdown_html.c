@@ -335,6 +335,7 @@ static int html_autolink(
   return 1;
 }
 
+#if 0
 /*
 ** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
 ** text and insert the result in place of the original.
@@ -374,6 +375,73 @@ void pikchr_to_html(
   pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
   blob_reset(&bSrc);
 }
+#endif
+
+/*
+** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
+** text and insert the result in place of the original.
+*/
+void pikchr_to_html(
+  Blob *ob,                     /* Write the generated SVG here */
+  const char *zSrc, int nSrc,   /* The Pikchr source text */
+  const char *zArg, int nArg    /* Addition arguments */
+){
+  int w = 0, h = 0;
+  char *zIn = fossil_strndup(zSrc, nSrc);
+  char *zOut = pikchr(zIn, "pikchr", PIKCHR_INCLUDE_SOURCE, &w, &h);
+  if( w>0 && h>0 ){
+    static int nSvg = 0;
+    const char *zSafeNonce = safe_html_nonce(1);
+    Blob css;
+    blob_init(&css,0,0);
+    blob_appendf(&css,"max-width:%dpx;",w);
+    blob_append(ob, zSafeNonce, -1);
+    blob_append_char(ob, '\n');
+    while( nArg>0 ){
+      int i;
+      for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
+      if( i==6 && strncmp(zArg, "center", 6)==0 ){
+        blob_appendf(&css, "display:block;margin:auto;");
+        break;
+      }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
+        blob_appendf(&css, "margin-left:4em;");
+        break;
+      }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
+        blob_appendf(&css, "float:left;padding=4em;");
+        break;
+      }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
+        blob_appendf(&css, "float:right;padding=4em;");
+        break;
+      }
+      while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
+      zArg += i;
+      nArg -= i;
+    }
+    blob_appendf(ob, "<div id='svgid-%d'>\n", ++nSvg);
+    blob_appendf(ob, "<div class='pikchr-svg' style='%s'>\n", blob_str(&css));
+    blob_append(ob, zOut, -1);
+    blob_appendf(ob, "</div>\n");
+    blob_reset(&css);
+    blob_appendf(ob, "<pre class='pikchr-src' style='display:none;'>"
+                     "%s</pre>\n", zIn);
+    blob_appendf(ob, "</div>\n");
+    blob_appendf(ob, "%s\n", zSafeNonce);
+    blob_appendf(ob,
+      "<script nonce='%s'>\n"
+      "document.getElementById('svgid-%d').ondblclick=function(){\n"
+      "  for(var c of this.children){"
+      "    c.style.display = c.style.display=='none'?'block':'none';"
+      "  }\n"
+      "}\n"
+      "</script>\n",
+      style_nonce(), nSvg);
+  }else{
+    blob_appendf(ob, "<pre>\n%s\n</pre>\n", zOut);
+  }
+  fossil_free(zIn);
+  free(zOut);
+}
+
 
 
 /* Invoked for `...` blocks where there are nSep grave accents in a

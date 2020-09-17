@@ -1,5 +1,5 @@
-C Pedantic\sCSS\stweaks.
-D 2020-09-17T17:17:58.195
+C Experimental\sdouble-click\sto\stoggle\sbetween\sSVG\sand\spikchr\ssource.
+D 2020-09-17T17:58:45.223
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
-F src/markdown_html.c 383894b822fdaf6940a2a4e865cb37754d3afbb0eb18471ec03fc2702c9341d8
+F src/markdown_html.c 53a94bf5c13831f8fb1479bb9a6362044281e870c4da5f33a11cf6556414d24b
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d369f4f389c6a4471cdd314ea93e02d8552f5e5ba6da337f8c5f65eb9f56cf8c
-R bed186fe2fc16937ca4f95af72dd376d
-U stephan
-Z e63ae5578d25717a29f60f72900fd28a
+P 5b93a4da7304df337c475ae220a6e388d0b4c8fc33aeb57cfc5f82e99d66ac1c
+R 86fbd9ca22af4006be3b7ed11ddf9e03
+U drh
+Z b4f6d0887c47e91c65f57d8697a6e7c9
