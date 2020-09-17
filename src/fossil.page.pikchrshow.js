@@ -328,9 +328,6 @@
       if(svg){ /*for copy button*/
         this.e.taPreviewText.value = svg.outerHTML;
       }
-      if(F.pikchr){
-        F.pikchr.addSrcView(preTgt.querySelector('svg'));
-      }
       break;
     case 1:
       label = "Markdown";

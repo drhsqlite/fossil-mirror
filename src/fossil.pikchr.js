@@ -14,13 +14,18 @@
           styleTag = document.createElement('style'),
           wh = '1cm' /* fixed width/height of buttons */,
           styleCSS = `
+.pikchr-button-bar {
+  position: absolute;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  flex-direction: column;
+}
 .pikchr-src-button {
   min-height: ${wh}; max-height: ${wh};
   min-width: ${wh}; max-width: ${wh};
   font-size: ${wh};
-  position: absolute;
-  top: 0;
-  left: 0;
   border: 1px solid black;
   background-color: rgba(255,255,0,0.7);
   border-radius: 0.25cm;
@@ -118,6 +123,12 @@ textarea.pikchr-src-text {
      already dealt with.
   */
   P.addSrcView = function f(svg,opt){
+    if(!f.hasOwnProperty('bodyClick')){
+      f.bodyClick = function(){
+        D.addClass(document.querySelectorAll('.pikchr-button-bar'), 'hidden');
+      };
+      document.body.addEventListener('click', f.bodyClick, false);
+    }
     if(!svg) svg = 'svg.pikchr';
     if('string' === typeof svg){
       document.querySelectorAll(svg).forEach(
@@ -132,55 +143,30 @@ textarea.pikchr-src-text {
       return this;
     }
     svg.dataset.pikchrProcessed = 1;
-    const src = svg.querySelector('pikchr\\:src');
-    if(!src){
-      console.warn("No pikchr:src node found in",svg);
-      return this;
-    }
-    opt = F.mergeLastWins({
-    },opt);
     const parent = svg.parentNode;
     parent.style.position = 'relative' /* REQUIRED for btn placement */;
-    const srcView = D.addClass(D.textarea(0,0,true), 'pikchr-src-text');
-    srcView.value = src.textContent;
+    const srcView = parent.querySelector('.pikchr-src');
+    if(!srcView){
+      console.warn("No pikchr source node found in",parent);
+      return this;
+    }
+    const buttonBar = D.addClass(D.span(), 'pikchr-button-bar');
     const btnFlip = D.append(
       D.addClass(D.span(), 'pikchr-src-button'),
     );
-    const btnCopy = F.copyButton(
-      D.span(), {
-        cssClass: ['copy-button', 'pikchr-copy-button'],
-        extractText: function(){
-          return (srcView.classList.contains('hidden')
-                  ? svg.outerHTML
-                  : srcView.value);
-        }
-      }
-    );
-    const buttons = [btnFlip, btnCopy];
-    D.addClass(buttons, 'hidden');
-    D.append(parent, D.addClass(srcView, 'hidden'), buttons);
+    D.append(buttonBar, btnFlip);
+    // not yet sure which options we can/should support:
+    // opt = F.mergeLastWins({},opt);
+    D.addClass(srcView, 'hidden')/*should already be so, but just in case*/;
+    D.append(parent, D.addClass(buttonBar, 'hidden'));
 
-    /**
-       Toggle the buttons on only when the mouse is in the parent
-       widget's area or the user taps on that area. This seems much
-       less "busy" than having them always visible and slightly in the way.
-       It also means that we can make them a bit larger.
-    */
-    if(0){ /* Mouse enter/leave triggers currently disabled by request */
-      parent.addEventListener('mouseenter', function(ev){
-        if(ev.target === parent) D.removeClass(buttons, 'hidden');
-      }, true);
-      parent.addEventListener('mouseleave', function(ev){
-        if(ev.target === parent) D.addClass(buttons, 'hidden');
-      }, true);
-      /* mouseenter/leave work well... but only if there's a mouse. */
-    }
-    parent.addEventListener('click', function(ev){
+    parent.addEventListener('click', function f(ev){
       ev.preventDefault();
       ev.stopPropagation();
-      D.toggleClass(buttons, 'hidden');
+      D.toggleClass(buttonBar, 'hidden');
     }, false);
 
+    /** Toggle the source/SVG view on click. */
     btnFlip.addEventListener('click', function f(ev){
       ev.preventDefault();
       ev.stopPropagation();
@@ -217,7 +203,7 @@ textarea.pikchr-src-text {
           parent.style.maxWidth = f.origMaxWidth;
           parent.style.width = 'unset';
         }
-      }else{
+      }else if(1){
         /* Option #2: gives us good results for non-centered items but
            not for centered. We apparently have no(?) reliable way of
            distinguishing centered from left/indented pikchrs here
@@ -230,7 +216,6 @@ textarea.pikchr-src-text {
           parent.style.maxWidth = f.origMaxWidth;
           parent.style.width = 'unset';
         }
-
       }
       btnFlip.classList.toggle('src-active');
       D.toggleClass([svg, srcView], 'hidden');

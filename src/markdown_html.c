@@ -344,46 +344,35 @@ void pikchr_to_html(
   const char *zSrc, int nSrc,   /* The Pikchr source text */
   const char *zArg, int nArg    /* Addition arguments */
 ){
-  int w = 0, h = 0;
-  char *zIn = fossil_strndup(zSrc, nSrc);
-  char *zOut = pikchr(zIn, "pikchr", PIKCHR_INCLUDE_SOURCE, &w, &h);
-  fossil_free(zIn);
-  if( w>0 && h>0 ){
-    const char *zNonce = safe_html_nonce(1);
-    Blob css;
-    blob_init(&css,0,0);
-    blob_appendf(&css,"max-width:%dpx;",w);
-    blob_append(ob, zNonce, -1);
-    blob_append_char(ob, '\n');
-    while( nArg>0 ){
-      int i;
-      for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
-      if( i==6 && strncmp(zArg, "center", 6)==0 ){
-        blob_appendf(&css, "display:block;margin:auto;");
-        break;
-      }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
-        blob_appendf(&css, "margin-left:4em;");
-        break;
-      }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
-        blob_appendf(&css, "float:left;padding=4em;");
-        break;
-      }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
-        blob_appendf(&css, "float:right;padding=4em;");
-        break;
-      }
-      while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
-      zArg += i;
-      nArg -= i;
+  int pikFlags = PIKCHR_PROCESS_NONCE
+    | PIKCHR_PROCESS_DIV
+    | PIKCHR_PROCESS_SRC_HIDDEN;
+  Blob bSrc = empty_blob;
+
+  while( nArg>0 ){
+    int i;
+    for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
+    if( i==6 && strncmp(zArg, "center", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_CENTER;
+      break;
+    }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_INDENT;
+      break;
+    }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_LEFT;
+      break;
+    }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_RIGHT;
+      break;
     }
-    blob_appendf(ob, "<div style='%s'>\n", blob_str(&css));
-    blob_append(ob, zOut, -1);
-    blob_appendf(ob, "</div>\n");
-    blob_reset(&css);
-    blob_appendf(ob, "%s\n", zNonce);
-  }else{
-    blob_appendf(ob, "<pre>\n%s\n</pre>\n", zOut);
+    while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
+    zArg += i;
+    nArg -= i;
   }
-  free(zOut);
+  blob_append(&bSrc, zSrc, nSrc)
+    /*have to dupe input to ensure a NUL-terminated source string */;
+  pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
+  blob_reset(&bSrc);
 }
 
 

@@ -1388,3 +1388,9 @@ noscript > .error {
   padding: 1em;
   font-size: 150%;
 }
+.pikchr-src { /* source code view for a pikchr (see fossil.pikchr.js) */
+  box-sizing: border-box/*reduces UI shift*/;
+  border-width: 1px;
+  border-style: dotted;
+  overflow: auto;
+}

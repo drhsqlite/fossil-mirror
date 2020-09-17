@@ -22,14 +22,19 @@
 #include <ctype.h>
 #include "pikchrshow.h"
 
-#ifdef INTERFACE
+#if INTERFACE
 /* These are described in pikchr_process()'s docs. */
 #define PIKCHR_PROCESS_TH1        0x01
 #define PIKCHR_PROCESS_TH1_NOSVG  0x02
-#define PIKCHR_PROCESS_DIV        0x04
-#define PIKCHR_PROCESS_NONCE      0x08
-#define PIKCHR_PROCESS_ERR_PRE    0x10
-#define PIKCHR_PROCESS_NO_SRC     0x20
+#define PIKCHR_PROCESS_NONCE      0x04
+#define PIKCHR_PROCESS_ERR_PRE    0x08
+#define PIKCHR_PROCESS_SRC        0x10
+#define PIKCHR_PROCESS_SRC_HIDDEN 0x20
+#define PIKCHR_PROCESS_DIV        0x40
+#define PIKCHR_PROCESS_DIV_INDENT      0x0100
+#define PIKCHR_PROCESS_DIV_CENTER      0x0200
+#define PIKCHR_PROCESS_DIV_FLOAT_LEFT  0x0400
+#define PIKCHR_PROCESS_DIV_FLOAT_RIGHT 0x0800
 #endif
 
 /*
@@ -51,34 +56,58 @@
 **
 ** - PIKCHR_PROCESS_TH1_NOSVG means that processing stops after the
 ** TH1 step, thus the output will be (presumably) a
-** TH1-generated/processed pikchr script, and not an SVG. If this flag
-** is set, PIKCHR_PROCESS_TH1 is assumed even if it is not specified.
+** TH1-generated/processed pikchr script (or whatever else the TH1
+** outputs). If this flag is set, PIKCHR_PROCESS_TH1 is assumed even
+** if it is not specified.
 **
 ** The remaining flags listed below are ignored if
 ** PIKCHR_PROCESS_TH1_NOSVG is specified:
 **
-** - PIKCHR_PROCESS_NO_SRC: by default the contents of zIn are stored
-** in the resulting SVG content, as part of the image metadata. That
-** is suppressed if this flag is set.
-**
 ** - PIKCHR_PROCESS_DIV: if set, the SVG result is wrapped in a DIV
 ** element which specifies a max-width style value based on the SVG's
-** calculated size.
+** calculated size. This flag has multiple mutually exclusive forms:
 **
-** - PIKCHR_PROCESS_NONCE: if set, the resulting SVG/DEV are wrapped
+**  - PIKCHR_PROCESS_DIV uses default element alignment.
+**  - PIKCHR_PROCESS_DIV_INDENT indents the div.
+**  - PIKCHR_PROCESS_DIV_CENTER centers the div.
+**  - PIKCHR_PROCESS_DIV_FLOAT_LEFT floats the div left.
+**  - PIKCHR_PROCESS_DIV_FLOAT_RIGHT floats the div right.
+**
+** If more than one is specified, which one is used is undefined.
+**
+** - PIKCHR_PROCESS_NONCE: if set, the resulting SVG/DIV are wrapped
 ** in "safe nonce" comments, which are a fossil-internal mechanism
-** which prevents the wiki/markdown processors from processing this
+** which prevents the wiki/markdown processors from re-processing this
 ** output.
 **
+** - PIKCHR_PROCESS_SRC: if set, a new TEXTAREA.pikchr-src element is injected
+** adjacet to the SVG element which contains the HTML-escaped content of
+** the input script.
+**
+** - PIKCHR_PROCESS_SRC_HIDDEN: exactly like PIKCHR_PROCESS_SRC but
+** the .pikchr-src tag also gets the CSS class 'hidden' (which, in
+** fossil's default CSS, will hide that element).
+**
 ** - PIKCHR_PROCESS_ERR_PRE: if set and pikchr() fails, the resulting
-** error report is wrapped in PRE element.
+** error report is wrapped in a PRE element, else it is retained
+** as-is (intended for console output).
 */
 int pikchr_process(const char * zIn, int pikFlags, int thFlags,
-                   Blob * pOut){
+                    Blob * pOut){
   Blob bIn = empty_blob;
   int isErr = 0;
 
+  if(!(PIKCHR_PROCESS_DIV & pikFlags)
+     /* If any DIV_xxx flags are set, set DIV */
+     && (PIKCHR_PROCESS_DIV_INDENT
+         | PIKCHR_PROCESS_DIV_CENTER
+         | PIKCHR_PROCESS_DIV_FLOAT_RIGHT
+         | PIKCHR_PROCESS_DIV_FLOAT_LEFT
+         ) & pikFlags){
+    pikFlags |= PIKCHR_PROCESS_DIV;
+  }
   if(!(PIKCHR_PROCESS_TH1 & pikFlags)
+     /* If any TH1_xxx flags are set, set TH1 */
      && (PIKCHR_PROCESS_TH1_NOSVG & pikFlags || thFlags!=0)){
     pikFlags |= PIKCHR_PROCESS_TH1;
   }  
@@ -102,10 +131,8 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
       int w = 0, h = 0;
       const char * zContent = blob_str(&bIn);
       char *zOut;
-      const unsigned int pikFlags2 = (PIKCHR_PROCESS_NO_SRC & pikFlags)
-        ? 0 : PIKCHR_INCLUDE_SOURCE;
-      
-      zOut = pikchr(zContent, "pikchr", pikFlags2, &w, &h);
+
+      zOut = pikchr(zContent, "pikchr", 0, &w, &h);
       if( w>0 && h>0 ){
         const char *zNonce = (PIKCHR_PROCESS_NONCE & pikFlags)
           ? safe_html_nonce(1) : 0;
@@ -113,11 +140,32 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           blob_append(pOut, zNonce, -1);
         }
         if(PIKCHR_PROCESS_DIV & pikFlags){
-          blob_appendf(pOut,"<div style='max-width:%dpx;'>\n", w);
+          Blob css = empty_blob;
+          blob_appendf(&css, "max-width:%dpx;", w);
+          if(PIKCHR_PROCESS_DIV_CENTER & pikFlags){
+            blob_append(&css, "display:block;margin-auto;", -1);
+          }else if(PIKCHR_PROCESS_DIV_INDENT & pikFlags){
+            blob_append(&css, "margin-left:4em", -1);
+          }else if(PIKCHR_PROCESS_DIV_FLOAT_LEFT & pikFlags){
+            blob_append(&css, "float:left;padding=4em;", -1);
+          }else if(PIKCHR_PROCESS_DIV_FLOAT_RIGHT & pikFlags){
+            blob_append(&css, "float:right;padding=4em;", -1);
+          }
+          blob_appendf(pOut,"<div class=\"pikchr\" style=\"%b\">\n", &css);
+          blob_reset(&css);
         }
         blob_append(pOut, zOut, -1);
+        if((PIKCHR_PROCESS_SRC & pikFlags)
+           || (PIKCHR_PROCESS_SRC_HIDDEN & pikFlags)){
+          blob_appendf(pOut, "<textarea rows='10' readonly "
+                       "class='pikchr-src%s'>"
+                       "%h</textarea>\n",
+                       (PIKCHR_PROCESS_SRC_HIDDEN & pikFlags)
+                       ? " hidden" : "",
+                       blob_str(&bIn));
+        }
         if(PIKCHR_PROCESS_DIV & pikFlags){
-          blob_append(pOut,"</div>\n", 7);
+          blob_append(pOut, "</div>\n", 7);
         }
         if(zNonce){
           blob_append(pOut, zNonce, -1);
@@ -152,6 +200,9 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
 void pikchrshow_page(void){
   const char *zContent = 0;
   int isDark;              /* true if the current skin is "dark" */
+  int pikFlags = PIKCHR_PROCESS_DIV
+    | PIKCHR_PROCESS_SRC_HIDDEN
+    | PIKCHR_PROCESS_ERR_PRE;
 
   login_check_credentials();
   if( !g.perm.RdWiki && !g.perm.Read && !g.perm.RdForum ){
@@ -164,9 +215,7 @@ void pikchrshow_page(void){
     if(zContent && *zContent){
       Blob out = empty_blob;
       const int isErr =
-        pikchr_process(zContent,
-                       PIKCHR_PROCESS_DIV | PIKCHR_PROCESS_ERR_PRE,
-                       0, &out);
+        pikchr_process(zContent, pikFlags, 0, &out);
       if(isErr){
         cgi_printf_header("x-pikchrshow-is-error: %d\r\n", isErr);
       }
@@ -270,8 +319,7 @@ void pikchrshow_page(void){
       CX("<div id='pikchrshow-output'>");
       if(*zContent){
         Blob out = empty_blob;
-        pikchr_process(zContent, PIKCHR_PROCESS_ERR_PRE
-                       | PIKCHR_PROCESS_DIV, 0, &out);
+        pikchr_process(zContent, pikFlags, 0, &out);
         CX("%b", &out);
         blob_reset(&out);
       } CX("</div>"/*#pikchrshow-output*/);
@@ -301,11 +349,19 @@ void pikchrshow_page(void){
 **
 **    -div       On success, adds a DIV wrapper around the
 **               resulting SVG output which limits its max-width to
-**               its computed maximum ideal size, in order to mimic
-**               how fossil's web-based components work.
+**               its computed maximum ideal size.
 **
-**    -svg-src   Stores the input pikchr's source code in the SVG's
-**               metadata.
+**    -div-indent Like -div but indents the div.
+**
+**    -div-center Like -div but centers the div.
+**
+**    -div-left   Like -div but floats the div left.
+**
+**    -div-right  Like -div but floats the div right.
+**
+**    -svg-src   Stores the input pikchr's source code in the output as
+**               a separate element adjacent to the SVG one. The
+**               source element initially has the "hidden" CSS class.
 **
 **    -th        Process the input using TH1 before passing it to pikchr.
 **
@@ -342,16 +398,28 @@ void pikchr_cmd(void){
   Blob bOut = empty_blob;
   const char * zInfile = "-";
   const char * zOutfile = "-";
-  const int fWithDiv = find_option("div",0,0)!=0;
   const int fTh1 = find_option("th",0,0)!=0;
   const int fNosvg = find_option("th-nosvg",0,0)!=0;
   int isErr = 0;
   int pikFlags = find_option("svg-src",0,0)!=0
-    ? 0 : PIKCHR_PROCESS_NO_SRC;
+    ? PIKCHR_PROCESS_SRC_HIDDEN : 0;
   u32 fThFlags = TH_INIT_NO_ENCODE
     | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
 
   Th_InitTraceLog()/*processes -th-trace flag*/;
+
+  if(find_option("div",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DIV;
+  }else if(find_option("div-indent",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DIV_INDENT;
+  }else if(find_option("div-center",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DIV_CENTER;
+  }else if(find_option("div-float-left",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_LEFT;
+  }else if(find_option("div-float-right",0,0)!=0){
+    pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_RIGHT;
+  }
+
   verify_all_options();
   if(g.argc>4){
     usage("?INFILE? ?OUTFILE?");
@@ -368,9 +436,6 @@ void pikchr_cmd(void){
       /* ^^^ needed for certain TH1 functions to work */;;
     pikFlags |= PIKCHR_PROCESS_TH1;
     if(fNosvg) pikFlags |= PIKCHR_PROCESS_TH1_NOSVG;
-  }
-  if(fWithDiv){
-    pikFlags |= PIKCHR_PROCESS_DIV;
   }
   isErr = pikchr_process(blob_str(&bIn), pikFlags,
                          fTh1 ? fThFlags : 0, &bOut);

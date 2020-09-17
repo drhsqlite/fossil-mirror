@@ -1,5 +1,5 @@
-C Changelog\supdate\sper\sforum\srequest.
-D 2020-09-16T22:25:45.827
+C Implemented\smost\sof\sthe\sfeedback\sfrom\s[https://pikchr.org/home/forumpost/f538d8e7f7],\swith\sthe\sexceptions\sbeing\sdocumented\sin\sthat\sthread.\s/pikchrshow\snow\slonger\suses\sthe\smode-swap\sfeature\s(seems\ssuperfluous\sthere)\sand\stapping\sanywhere\sin\sthe\sbody,\soutside\sof\sthe\ssource/svg\scontainer\selement,\snow\sturns\soff\sthose\sbuttons\son\sall\spikchrs\swhere\sthey\sare\scurrently\svisible.\sConsolidated\spikchr-rendering\simpl\sfor\smarkdown/fossil/pikchrshow/pikchr\scommand.
+D 2020-09-17T16:31:21.131
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 23fd0d42d31911013c0267d4d98e7da03e6dce8e52cd1a79306297e81e4404ff
-F src/default.css e01a7b9e32b681f34a2feaace12c0b14245ed9ac6ec05d35111b3bea8f7346e1
+F src/default.css b1ba7526dee7bb33ec642196713b8f530019159e2b3b8329b53f9f14a3faba88
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -493,10 +493,10 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js fd2d5e8eb0ffd242d60d5aacdf3396b852313ffb6b984ac95f3bd4f5c23b6c4c
 F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7ecd1f7761b69fd8
-F src/fossil.page.pikchrshow.js 3ebf07ea2dfcfe923ab70255deb338ff3b7b704356ee561c021e69ec8bff6b5d
+F src/fossil.page.pikchrshow.js b0c825fcfc9903b3ac46e58515a6139b082f9a9e3344b9199fe3d0f558a8e0ef
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 164ec7ae03dc05888445bf4d97a0b08f9865beff501c3395929874df9984df49
-F src/fossil.pikchr.js 508eeaabc6793b42c2eecc4cbd524d9294e5a2ac84a4633cbdb5863ae023f505
+F src/fossil.pikchr.js 1801cfe3bc8f7c296e9bcb3ca413f4dcd0e26e084f363b6fcb5de9bece975b1b
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
-F src/markdown_html.c 52fbd4f1c00a396929f24635eb2ecf8d00e3e5438b270f177100a3a17b48e63d
+F src/markdown_html.c 383894b822fdaf6940a2a4e865cb37754d3afbb0eb18471ec03fc2702c9341d8
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -562,7 +562,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c abbb16e518199b702367d1bc64a164b7a6641d22878fcc9524228ce4a2d9b0f1
-F src/pikchrshow.c 127a38862310b7346d7ca9d21023964ab338c09de12ae48d77b50d7da3e75118
+F src/pikchrshow.c fb354006f163f921296541c5d4ab000dd014c89f315169dc14843d23b0be68db
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db02f9b8899f5c3c42bc5744d67f3b84833ee12f96e190f8f8b2315f43f78ed9
-R 8f77d55ea26f34c114541baacd6ba080
+P b816bae3f2ef43510550fc381bc11e4491f1f23880f8c22c2d7c837ef9162459
+R 48712a70cb8fba788aef928281e53f39
 U stephan
-Z 6a4872534447b32e3dcc703a6ab44eb1
+Z ecbb670df482621ba12e9cbd3d6f734a
