@@ -1,5 +1,5 @@
-C Misuse\sof\sa\spotentially\sunsigned\svalue,\scaught\sby\sclang.\sOnly\saffected\splatforms\swhere\schar\sis\sunsigned\sby\sdefault.
-D 2020-09-17T19:31:14.861
+C Toggle\sPikchr\sbetween\sSVG\sand\ssource\scode\susing\sctrl-click.\s\sOr\sif\nthe\sPikchr\swas\screated\susing\sthe\s"toggle"\stag,\san\splain\sold\ssingle-click\nwill\ssuffice.
+D 2020-09-17T21:09:36.194
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
-F src/markdown_html.c cf0ee9cb5a49896ced2ab38e191d45d7e03263775e0d44ac7acd2228f9365c14
+F src/markdown_html.c 0ac7d163f9da0565a4a2bc69cbb22543d15011b21f25c4302dc1497fa229868e
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22ba9a41e4169887142092d28a969818a6c9ec501bc1fd10caa66e0ddd48980d
-R 48838d94552623b5af4598f9842518e7
-U stephan
-Z d8cf6b6763c59e87517b3625f3f5ccbb
+P 5c92bbfca7e36751b81ee28ce52de05d432028e0a05ae33604239084594c1538
+R e2414c4dea31025290879f0938a972b2
+U drh
+Z f7ba52c5009819d410f9a1af312a1107
