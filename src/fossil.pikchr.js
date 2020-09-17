@@ -154,7 +154,13 @@ textarea.pikchr-src-text {
     const btnFlip = D.append(
       D.addClass(D.span(), 'pikchr-src-button'),
     );
-    D.append(buttonBar, btnFlip);
+    const btnCopy = F.copyButton(D.span(), {
+      cssClass: ['copy-button', 'pikchr-copy-button'],
+      extractText: ()=>(srcView.classList.contains('hidden') ? svg.outerHTML : srcView.value),
+      oncopy: ()=>D.flashOnce(btnCopy, ()=>btnFlip.click())
+      // ^^^ after copying and flashing, flip back to SVG mode. */
+    });
+    D.append(buttonBar, btnFlip, btnCopy);
     // not yet sure which options we can/should support:
     // opt = F.mergeLastWins({},opt);
     D.addClass(srcView, 'hidden')/*should already be so, but just in case*/;
