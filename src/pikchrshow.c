@@ -382,13 +382,19 @@ void pikchrshow_page(void){
 **               resulting SVG output which limits its max-width to
 **               its computed maximum ideal size.
 **
-**    -div-indent Like -div but indents the div.
+**    -div-indent  Like -div but indents the div.
 **
-**    -div-center Like -div but centers the div.
+**    -div-center  Like -div but centers the div.
 **
-**    -div-left   Like -div but floats the div left.
+**    -div-left    Like -div but floats the div left.
 **
-**    -div-right  Like -div but floats the div right.
+**    -div-right   Like -div but floats the div right.
+**
+**    -div-toggle  Sets the 'toggle' flag on the div (used by the
+**                 JavaScript-side post-processor).
+**
+**    -div-source  Sets the 'source' flag on the div (used by the
+**                 JavaScript-side post-processor).
 **
 **    -src       Stores the input pikchr's source code in the output as
 **               a separate element adjacent to the SVG one. The
@@ -405,6 +411,9 @@ void pikchrshow_page(void){
 **               instead of the pikchr-rendered output.
 **
 **    -th-trace  Trace TH1 execution (for debugging purposes).
+**
+**
+** The -div-indent/center/left/right flags may not be combined.
 **
 ** TH1-related Notes and Caveats:
 **
