@@ -335,48 +335,6 @@ static int html_autolink(
   return 1;
 }
 
-#if 0
-/*
-** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
-** text and insert the result in place of the original.
-*/
-void pikchr_to_html(
-  Blob *ob,                     /* Write the generated SVG here */
-  const char *zSrc, int nSrc,   /* The Pikchr source text */
-  const char *zArg, int nArg    /* Addition arguments */
-){
-  int pikFlags = PIKCHR_PROCESS_NONCE
-    | PIKCHR_PROCESS_DIV
-    | PIKCHR_PROCESS_SRC_HIDDEN;
-  Blob bSrc = empty_blob;
-
-  while( nArg>0 ){
-    int i;
-    for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
-    if( i==6 && strncmp(zArg, "center", 6)==0 ){
-      pikFlags |= PIKCHR_PROCESS_DIV_CENTER;
-      break;
-    }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
-      pikFlags |= PIKCHR_PROCESS_DIV_INDENT;
-      break;
-    }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
-      pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_LEFT;
-      break;
-    }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
-      pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_RIGHT;
-      break;
-    }
-    while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
-    zArg += i;
-    nArg -= i;
-  }
-  blob_append(&bSrc, zSrc, nSrc)
-    /*have to dupe input to ensure a NUL-terminated source string */;
-  pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
-  blob_reset(&bSrc);
-}
-#endif
-
 /*
 ** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
 ** text and insert the result in place of the original.
@@ -388,7 +346,7 @@ void pikchr_to_html(
 ){
   int w = 0, h = 0;
   char *zIn = fossil_strndup(zSrc, nSrc);
-  char *zOut = pikchr(zIn, "pikchr", PIKCHR_INCLUDE_SOURCE, &w, &h);
+  char *zOut = pikchr(zIn, "pikchr", 0, &w, &h);
   if( w>0 && h>0 ){
     static int nSvg = 0;
     const char *zSafeNonce = safe_html_nonce(1);
@@ -422,14 +380,14 @@ void pikchr_to_html(
     blob_append(ob, zOut, -1);
     blob_appendf(ob, "</div>\n");
     blob_reset(&css);
-    blob_appendf(ob, "<pre class='pikchr-src' style='display:none;'>"
-                     "%s</pre>\n", zIn);
+    blob_appendf(ob, "<pre style='display:none;'><code>"
+                     "%s</code></pre>\n", zIn);
     blob_appendf(ob, "</div>\n");
     blob_appendf(ob,
       "<script nonce='%s'>\n"
       "document.getElementById('svgid-%d').ondblclick=function(){\n"
-      "  for(var c of this.children){"
-      "    c.style.display = c.style.display=='none'?'block':'none';"
+      "  for(var c of this.children){\n"
+      "    c.style.display = c.style.display=='none'?'block':'none';\n"
       "  }\n"
       "}\n"
       "</script>\n",
