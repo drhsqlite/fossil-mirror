@@ -1405,7 +1405,6 @@ div.pikchr-svg {/*wrapper for SVG.pikchr element*/}
 svg.pikchr {/*pikchr SVG*/}
 pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
   box-sizing: border-box;
-  overflow: auto;
   text-align: left;
 }
 /* The .source-inline class tells the .source class that the
