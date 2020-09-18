@@ -1,5 +1,5 @@
-C An\salternate\simpl\sfor\scentering\spikchrs\swhich\sdoes\snot\srely\son\smargin:auto.
-D 2020-09-18T10:32:39.414
+C Fix\sminor\sformatting\serror\sin\sthe\sHTML\sfor\shierarchical\sforum.
+D 2020-09-18T11:27:58.686
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c d651645be8228151fddf9e47b0a5d9ea5f9f96bfa4cb4ff1219aa64c9eb26fef
 F src/fileedit.c 7af9d6b27ed16f783c1809ca952f090843af488fa0a5899867b8274a22f3e590
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 4a2a96710d51e09e15d105e7c1272a42f75f14018f2087ab8f377a690698d38c
+F src/forum.c ec54b602704274456a5475e7077938b6c14a1fe76f5dbfde8033fd4cb67ef931
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 052d37480927b6010c8a33549254fe0f2113ff7dc9e44498c6237e0c058150d9
-R c7acfc377d86c0a4f26f783d694b6779
-U stephan
-Z b4c60f0c09e5a3e74f18cf586d9b0177
+P 2963f440e8fb01e21af8c4a4d672dd54ddd7d6ee1aae042661d3a9683f64e7d1
+R 67f2f98b0a374d0b36d9bac81dbc80c9
+U drh
+Z 56d576f184796909368208c14f1350d8

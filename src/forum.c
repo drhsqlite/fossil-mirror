@@ -464,11 +464,12 @@ static void forum_display_post(
     iIndent = (p->pEditHead ? p->pEditHead->nIndent : p->nIndent)-1;
     @ <div id='forum%d(p->fpid)' class='forumTime\
     @ %s(bSelect ? " forumSel" : "")\
-    @ %s(p->pEditTail ? " forumObs" : "")'\
+    @ %s(p->pEditTail ? " forumObs" : "")' \
     if( iIndent && iIndentScale ){
-      @ style='margin-left: %d(iIndent*iIndentScale)ex'
+      @ style='margin-left:%d(iIndent*iIndentScale)ex;'>
+    }else{
+      @ >
     }
-    @ >
 
     /* If this is the first post (or an edit thereof), emit the thread title. */
     if( pManifest->zThreadTitle ){
