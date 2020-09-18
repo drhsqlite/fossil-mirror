@@ -160,7 +160,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
         const char *zNonce = (PIKCHR_PROCESS_NONCE & pikFlags)
           ? safe_html_nonce(1) : 0;
         if(zNonce){
-          blob_append(pOut, zNonce, -1);
+          blob_appendf(pOut, "%s\n", zNonce);
         }
         if(PIKCHR_PROCESS_DIV & pikFlags){
           Blob css = empty_blob;

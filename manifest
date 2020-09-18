@@ -1,5 +1,5 @@
-C pixchr\slayout\schanges\srequested\sat\s[https://pikchr.org/home/forumpost/504f54f61b].\sSee\sthe\scomments\sabout\salt/ctrl/meta\skeys.
-D 2020-09-18T01:21:09.569
+C Always\sinclude\sa\s\\n\safter\sthe\sopening\ssafe_html()\snonce\swhen\sgenerating\nPikchr\soutput,\sfor\simproved\shuman\sreadability\sof\sthe\sgenerated\sHTML.
+D 2020-09-18T02:54:41.896
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -562,7 +562,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c abbb16e518199b702367d1bc64a164b7a6641d22878fcc9524228ce4a2d9b0f1
-F src/pikchrshow.c 71bf45d24e8a70ef25fbc5f663990f98ca49ecee119fe063956b2b3e2c3c2a8a
+F src/pikchrshow.c 776a65bb73079a2ca6d3cce6f2617b86e04ffc53e92c19cfa9916b2ea431cad4
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82a0b517a78e44c0748360ae9b1be48af36c09a7963c72a8e0b379206562898d
-R 4a4c5781fac7ec0ee4f22591fa917baf
-U stephan
-Z 3ba1aa283ed8c0d1c6f2d15f4e7ec0bd
+P cd22f0f07d452bcc542bc949eb5f28f1f65ec4caf690758b7e570672ac6ca5e0
+R e0c7ae018c99ad05097f020070089a25
+U drh
+Z f179bd8928334ab6bdc5f582482c6ddb
