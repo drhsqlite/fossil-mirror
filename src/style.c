@@ -142,6 +142,7 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 char *xhref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
   va_list ap;
+  if( !g.perm.Hyperlink ) return fossil_strdup("");
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
@@ -166,6 +167,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
 char *chref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
   va_list ap;
+  if( !g.perm.Hyperlink ) return fossil_strdup("");
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
@@ -181,6 +183,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
 char *href(const char *zFormat, ...){
   char *zUrl;
   va_list ap;
+  if( !g.perm.Hyperlink ) return fossil_strdup("");
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
@@ -710,7 +713,7 @@ void style_table_sorter(void){
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
-  if( needHrefJs ){
+  if( needHrefJs && g.perm.Hyperlink ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
     @ <script id='href-data' type='application/json'>\
@@ -721,7 +724,7 @@ static void style_load_all_js_files(void){
   @ var n = document.getElementById("debugMsg");
   @ if(n){n.textContent=msg;}
   @ }
-  if( needHrefJs ){
+  if( needHrefJs && g.perm.Hyperlink ){
     @ /* href.js */
     cgi_append_content(builtin_text("href.js"),-1);
   }

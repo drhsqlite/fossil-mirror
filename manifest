@@ -1,5 +1,5 @@
-C Fix\sminor\sformatting\serror\sin\sthe\sHTML\sfor\shierarchical\sforum.
-D 2020-09-18T11:27:58.686
+C Be\scareful\sto\shonor\sthe\sauto-hyperlinks\ssetting\swhen\sit\sis\soff,\sand\snot\ndisplay\sany\shyperlinks.\s\sSee\s[forum:5a7530639a|forum\spost\s5a7530639a]\sfor\nthe\sbug\sreport.
+D 2020-09-18T13:18:49.225
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -616,7 +616,7 @@ F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c f36d74389e5a386f795dc00787bfbe981b8590441eea027a86602cf539874391
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 64ee3c9eb1ba890e3854c19549429ed72fefbaaeafda2882865118f44134a0e6
+F src/style.c 25e0599e770893d49fc00eaf6b7abdccfd6ec9a7702a392df6c833cc6878cb83
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2963f440e8fb01e21af8c4a4d672dd54ddd7d6ee1aae042661d3a9683f64e7d1
-R 67f2f98b0a374d0b36d9bac81dbc80c9
+P 7221e497fc951a3630cace2bb41cd8407cc0de53b78d78d2932bc75a77876882
+R 895ff384f8b1167cce4b16380eb2237e
 U drh
-Z 56d576f184796909368208c14f1350d8
+Z f66df7b22e4c3c5d9bc971155a8eaca5
