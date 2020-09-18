@@ -29,8 +29,7 @@
 #define PIKCHR_PROCESS_NONCE      0x04
 #define PIKCHR_PROCESS_ERR_PRE    0x08
 #define PIKCHR_PROCESS_SRC        0x10
-#define PIKCHR_PROCESS_SRC_HIDDEN 0x20
-#define PIKCHR_PROCESS_DIV        0x40
+#define PIKCHR_PROCESS_DIV        0x20
 #define PIKCHR_PROCESS_DIV_INDENT      0x0100
 #define PIKCHR_PROCESS_DIV_CENTER      0x0200
 #define PIKCHR_PROCESS_DIV_FLOAT_LEFT  0x0400
@@ -99,13 +98,9 @@
 **
 ** - PIKCHR_PROCESS_SRC: if set, a new PRE.pikchr-src element is
 ** injected adjacent to the SVG element which contains the
-** HTML-escaped content of the input script.
-**
-** - PIKCHR_PROCESS_SRC_HIDDEN: exactly like PIKCHR_PROCESS_SRC but
-** the .pikchr-src tag also gets the CSS class 'hidden' (which, in
-** fossil's default CSS, will hide that element). This is almost
-** always what client code will want to do if it includes the source
-** at all.
+** HTML-escaped content of the input script. If
+** PIKCHR_PROCESS_DIV_SOURCE is set, this flag is automatically
+** implied.
 **
 ** - PIKCHR_PROCESS_ERR_PRE: if set and pikchr() fails, the resulting
 ** error report is wrapped in a PRE element, else it is retained
@@ -164,42 +159,36 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           blob_appendf(pOut, "%s\n", zNonce);
         }
         if(PIKCHR_PROCESS_DIV & pikFlags){
-          Blob css = empty_blob;
-          blob_appendf(&css, "max-width:%dpx;", w);
           if(PIKCHR_PROCESS_DIV_CENTER & pikFlags){
             /*blob_append(&css, "display:block;margin:auto;", -1);*/
             zWrapperClass = " center";
           }else if(PIKCHR_PROCESS_DIV_INDENT & pikFlags){
-            blob_append(&css, "margin-left:4em", -1);
+            zWrapperClass = " indent";
           }else if(PIKCHR_PROCESS_DIV_FLOAT_LEFT & pikFlags){
-            blob_append(&css, "float:left;padding=4em;", -1);
+            zWrapperClass = " float-left";
           }else if(PIKCHR_PROCESS_DIV_FLOAT_RIGHT & pikFlags){
-            blob_append(&css, "float:right;padding=4em;", -1);
+            zWrapperClass = " float-right";
           }
           if(PIKCHR_PROCESS_DIV_TOGGLE & pikFlags){
             zClassToggle = " toggle";
           }
           if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
             zClassSource = " source";
+            pikFlags |= PIKCHR_PROCESS_SRC;
           }
-          blob_appendf(pOut,"<div class='pikchr-wrapper%s'>"
-                       "<div class=\"pikchr-svg%s%s\" "
-                       "style=\"%b\">\n",
+          blob_appendf(pOut,"<div class='pikchr-wrapper%s%s%s'>"
+                       "<div class=\"pikchr-svg\" "
+                       "style=\"max-width:%dpx\">\n",
                        zWrapperClass/*safe-for-%s*/,
                        zClassToggle/*safe-for-%s*/,
-                       zClassSource/*safe-for-%s*/, &css);
-          blob_reset(&css);
+                       zClassSource/*safe-for-%s*/, w);
         }
         blob_append(pOut, zOut, -1);
         if(PIKCHR_PROCESS_DIV & pikFlags){
           blob_append(pOut, "</div>\n", 7);
         }
-        if((PIKCHR_PROCESS_SRC & pikFlags)
-           || (PIKCHR_PROCESS_SRC_HIDDEN & pikFlags)){
-          blob_appendf(pOut, "<pre class='pikchr-src%s'>"
-                       "%h</pre>\n",
-                       (PIKCHR_PROCESS_SRC_HIDDEN & pikFlags)
-                       ? " hidden" : "",
+        if(PIKCHR_PROCESS_SRC & pikFlags){
+          blob_appendf(pOut, "<pre class='pikchr-src'>%h</pre>\n",
                        blob_str(&bIn));
         }
         if(PIKCHR_PROCESS_DIV & pikFlags){
@@ -239,7 +228,7 @@ void pikchrshow_page(void){
   const char *zContent = 0;
   int isDark;              /* true if the current skin is "dark" */
   int pikFlags = PIKCHR_PROCESS_DIV
-    | PIKCHR_PROCESS_SRC_HIDDEN
+    | PIKCHR_PROCESS_SRC
     | PIKCHR_PROCESS_ERR_PRE;
 
   login_check_credentials();
@@ -394,15 +383,16 @@ void pikchrshow_page(void){
 **
 **    -div-right   Like -div but floats the div right.
 **
-**    -div-toggle  Sets the 'toggle' flag on the div (used by the
+**    -div-toggle  Sets the 'toggle' CSS class on the div (used by the
 **                 JavaScript-side post-processor).
 **
-**    -div-source  Sets the 'source' flag on the div (used by the
-**                 JavaScript-side post-processor).
+**    -div-source  Sets the 'source' CSS class on the div, which tells
+**                 CSS to hide the SVG and reveal the source by default.
 **
 **    -src       Stores the input pikchr's source code in the output as
-**               a separate element adjacent to the SVG one. The
-**               source element initially has the "hidden" CSS class.
+**               a separate element adjacent to the SVG one. Implied
+**               by -div-source.
+**                
 **
 **    -th        Process the input using TH1 before passing it to pikchr.
 **
@@ -446,7 +436,7 @@ void pikchr_cmd(void){
   const int fNosvg = find_option("th-nosvg",0,0)!=0;
   int isErr = 0;
   int pikFlags = find_option("src",0,0)!=0
-    ? PIKCHR_PROCESS_SRC_HIDDEN : 0;
+    ? PIKCHR_PROCESS_SRC : 0;
   u32 fThFlags = TH_INIT_NO_ENCODE
     | (find_option("th-novar",0,0)!=0 ? TH_R2B_NO_VARS : 0);
 
@@ -467,7 +457,7 @@ void pikchr_cmd(void){
     pikFlags |= PIKCHR_PROCESS_DIV_TOGGLE;
   }
   if(find_option("div-source",0,0)!=0){
-    pikFlags |= PIKCHR_PROCESS_DIV_SOURCE;
+    pikFlags |= PIKCHR_PROCESS_DIV_SOURCE | PIKCHR_PROCESS_SRC;
   }
 
   verify_all_options();

@@ -346,7 +346,7 @@ void pikchr_to_html(
 ){
   int pikFlags = PIKCHR_PROCESS_NONCE
     | PIKCHR_PROCESS_DIV
-    | PIKCHR_PROCESS_SRC_HIDDEN;
+    | PIKCHR_PROCESS_SRC;
   Blob bSrc = empty_blob;
 
   while( nArg>0 ){

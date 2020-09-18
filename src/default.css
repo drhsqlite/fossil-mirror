@@ -1388,8 +1388,19 @@ noscript > .error {
   padding: 1em;
   font-size: 150%;
 }
+
+/************************************************************
+ pikchr...
+ DOM structure:
+  <DIV.pikchr-wrapper>
+    <DIV.pikchr-svg>
+      <SVG.pikchr>...</SVG>
+    </DIV.pikchr-svg>
+    <PRE.pikchr-src>...</PRE>
+  </DIV.pikchr-wrapper>
+************************************************************/
 div.pikchr-wrapper {/*outer wrapper elem for a pikchr construct*/}
-div.pikchr {/*wrapper for SVG.pikchr element*/}
+div.pikchr-svg {/*wrapper for SVG.pikchr element*/}
 svg.pikchr {/*pikchr SVG*/}
 pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
   box-sizing: border-box;
@@ -1404,5 +1415,32 @@ div.pikchr-wrapper.center > div.pikchr-svg {
 }
 div.pikchr-wrapper.center > pre.pikchr-src,
 div.pikchr-wrapper.center > div.pikchr-svg{
-  display:inline-block;
+  display:inline-block/*allows text-align to do the alignment*/;
+}
+div.pikchr-wrapper.indent {
+  margin-left: 4em;
+}
+div.pikchr-wrapper.float-left {
+  float: left;
+  padding: 4em;
+}
+div.pikchr-wrapper.float-right {
+  float: right;
+  padding: 4em;
+}
+
+div.pikchr-wrapper.source > pre.pikchr-src {
+}
+/* For non-source view, pre.pikchr-src and reveal svg.pikchr... */
+div.pikchr-wrapper:not(.source) > pre.pikchr-src {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
+}
+div.pikchr-wrapper.source > div.pikchr-svg {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
 }

@@ -38,8 +38,8 @@
      This code expects the following structure around the SVGs, and
      will not process any which don't match this:
 
-     <DIV>
-       <DIV><SVG.pikchr></SVG></DIV>
+     <DIV.pikchr-wrapper>
+       <DIV.pikchr-svg><SVG.pikchr></SVG></DIV>
        <PRE.pikchr-src></PRE>
      </DIV>
   */
@@ -55,7 +55,9 @@
               (except Shift) and the user will need to find one which
               works on on their environment. */
            || this.classList.contains('toggle')){
-          this._toHide.forEach((e)=>e.classList.toggle('hidden'));
+          this.classList.toggle('source');
+          ev.stopPropagation();
+          ev.preventDefault();
         }
       };
     };
@@ -71,21 +73,12 @@
       return this;
     }
     svg.dataset.pikchrProcessed = 1;
-    const parent = svg.parentNode;
-    const srcView = parent.nextElementSibling;
+    const parent = svg.parentNode.parentNode /* outermost div.pikchr-wrapper */;
+    const srcView = parent ? svg.parentNode.nextElementSibling : undefined;
     if(!srcView || !srcView.classList.contains('pikchr-src')){
       /* Without this element, there's nothing for us to do here. */
       return this;
     }
-    parent._toHide = [parent, srcView];
-    D.addClass(srcView, 'hidden');
-    D.removeClass(svg, 'hidden');
     parent.addEventListener('click', f.parentClick, false);
-    /* When the parent is hidden, it has 0 height so cannot be clicked, so... */
-    srcView.addEventListener('click', (ev)=>f.parentClick.call(parent, ev), false);
-    if(parent.classList.contains('source')){
-      /* Start off in source-view mode via a very fake click event */
-      f.parentClick.call(parent, {ctrlKey:true});
-    }
   };
 })(window.fossil);
