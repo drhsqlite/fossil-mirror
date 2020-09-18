@@ -2626,6 +2626,7 @@ void page_timeline(void){
   if( zOlderButton ){
     @ %z(chref("button","%z",zOlderButton))More&nbsp;&darr;</a>
   }
+  document_emit_js(/*handles pikchrs rendered above*/);
   style_footer();
 }
 

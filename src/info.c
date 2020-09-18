@@ -1049,6 +1049,7 @@ void winfo_page(void){
   wiki_render_by_mimetype(&wiki, pWiki->zMimetype);
   blob_reset(&wiki);
   manifest_destroy(pWiki);
+  document_emit_js();
   style_footer();
 }
 
@@ -2131,8 +2132,7 @@ void output_text_with_line_numbers(
     if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
       builtin_request_js("scroll.js");
     }
-    builtin_fossil_js_bundle_or("dom", "copybutton", "popupwidget",
-                                "numbered-lines", 0);
+    builtin_fossil_js_bundle_or("numbered-lines", 0);
   }
 }
 
@@ -2439,6 +2439,7 @@ void artifact_page(void){
     if( renderAsWiki ){
       safe_html_context(DOCSRC_FILE);
       wiki_render_by_mimetype(&content, zMime);
+      document_emit_js();
     }else if( renderAsHtml ){
       @ <iframe src="%R/raw/%s(zUuid)"
       @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"

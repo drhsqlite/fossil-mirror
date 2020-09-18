@@ -744,8 +744,8 @@ static void forum_display_thread(
 ** code (e.g. "forum.js").
 */
 static void forum_emit_js(void){
-  builtin_fossil_js_bundle_or("dom", "copybutton", "pikchr", 0);
-  builtin_emit_fossil_js_apis("page.forumpost", 0);
+  builtin_fossil_js_bundle_or("copybutton", "pikchr", 0);
+  builtin_request_js("fossil.page.forumpost.js");
 }
 
 /*

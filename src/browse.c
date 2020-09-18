@@ -394,6 +394,7 @@ void page_dir(void){
         content_get(rid, &content);
         safe_html_context(DOCSRC_FILE);
         wiki_render_by_mimetype(&content, zMime);
+        document_emit_js();
       }
     }
   }

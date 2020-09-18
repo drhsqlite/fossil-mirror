@@ -403,15 +403,19 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
 /*
 ** Emit Javascript which applies (or optionally can apply) to both the
 ** /doc and /wiki pages. None of this implements required
-** functionality, just nice-to-haves. Only call this once per page.
+** functionality, just nice-to-haves. Any calls after the first are
+** no-ops.
 */
 void document_emit_js(void){
-  builtin_fossil_js_bundle_or("dom", "copybutton", "pikchr", 0);
-  style_script_begin(__FILE__,__LINE__);
-  CX("window.addEventListener('load', "
-     "()=>window.fossil.pikchr.addSrcView(), "
-     "false);\n");
-  style_script_end();
+  static int once = 0;
+  if(0==once++){
+    builtin_fossil_js_bundle_or("pikchr", 0);
+    style_script_begin(__FILE__,__LINE__);
+    CX("window.addEventListener('load', "
+       "()=>window.fossil.pikchr.addSrcView(), "
+       "false);\n");
+    style_script_end();
+  }
 }
 
 /*
