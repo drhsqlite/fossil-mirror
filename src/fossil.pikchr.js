@@ -55,7 +55,7 @@
               (except Shift) and the user will need to find one which
               works on on their environment. */
            || this.classList.contains('toggle')){
-          this._childs.forEach((e)=>e.classList.toggle('hidden'));
+          this._toHide.forEach((e)=>e.classList.toggle('hidden'));
         }
       };
     };
@@ -77,8 +77,7 @@
       /* Without this element, there's nothing for us to do here. */
       return this;
     }
-    parent.dataset.origMaxWidth = parent.style.maxWidth;
-    parent._childs = [svg, srcView];
+    parent._toHide = [parent, srcView];
     D.addClass(srcView, 'hidden');
     D.removeClass(svg, 'hidden');
     parent.addEventListener('click', f.parentClick, false);

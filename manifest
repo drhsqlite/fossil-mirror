@@ -1,5 +1,5 @@
-C Clarify\sthe\sorigin\sof\sJS\sin\sthe\sgenerated\sHTML.
-D 2020-09-18T03:28:39.788
+C pikchr\sjs:\shide/show\sthe\sSVG's\sparent\selement\sinstead\sof\sthe\sSVG,\sso\sthat\soutput\sfrom\spikchr\sprint\scommands\sis\shidden\swhen\sthe\ssource\sis\sshown.
+D 2020-09-18T04:10:08.974
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7
 F src/fossil.page.pikchrshow.js 0717de3c18340af37498344844a03c5db7b7f3784ef7c2b721173e7f6a703669
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js 164ec7ae03dc05888445bf4d97a0b08f9865beff501c3395929874df9984df49
-F src/fossil.pikchr.js a706426af73b43290d45c078388cc0a9e880ae7f9cbe35347605d76f15128b83
+F src/fossil.pikchr.js abd651bfd927272f1a855d57f69a7939c7339f15528b28bc84f65c46afc18c77
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39b2081e6eea8caf36fdf84835644ca181bdd897bdaa35ec8e6b54e547506674
-R 1ee6c199895ce99c9847060499c05272
-U drh
-Z 4bcfe701f21b8c115ff2fbf39fb7dcca
+P 6854244949f334722f97d3d8a60ee8adb5c26e09154d5d1437d6331f46964271
+R 763f55e332eb2928ad1a073687008507
+U stephan
+Z 131bba03e083566053bbca02b2294509
