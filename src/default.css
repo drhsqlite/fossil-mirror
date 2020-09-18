@@ -1388,7 +1388,18 @@ noscript > .error {
   padding: 1em;
   font-size: 150%;
 }
-.pikchr-src { /* source code view for a pikchr (see fossil.pikchr.js) */
-  box-sizing: border-box/*reduces UI shift*/;
+div.pikchr-wrapper {/*outer wrapper elem for a pikchr construct*/}
+div.pikchr {/*wrapper for SVG.pikchr element*/}
+svg.pikchr {/*pikchr SVG*/}
+pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
+  box-sizing: border-box;
   overflow: auto;
+  text-align: left;
+}
+div.pikchr-wrapper.center {
+  text-align: center;
+}
+div.pikchr-wrapper.center > pre.pikchr-src,
+div.pikchr-wrapper.center > div.pikchr-svg{
+  display:inline-block;
 }

@@ -157,6 +157,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
       if( w>0 && h>0 ){
         const char * zClassToggle = "";
         const char * zClassSource = "";
+        const char * zWrapperClass = "";
         const char *zNonce = (PIKCHR_PROCESS_NONCE & pikFlags)
           ? safe_html_nonce(1) : 0;
         if(zNonce){
@@ -166,7 +167,8 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           Blob css = empty_blob;
           blob_appendf(&css, "max-width:%dpx;", w);
           if(PIKCHR_PROCESS_DIV_CENTER & pikFlags){
-            blob_append(&css, "display:block;margin-auto;", -1);
+            /*blob_append(&css, "display:block;margin:auto;", -1);*/
+            zWrapperClass = " center";
           }else if(PIKCHR_PROCESS_DIV_INDENT & pikFlags){
             blob_append(&css, "margin-left:4em", -1);
           }else if(PIKCHR_PROCESS_DIV_FLOAT_LEFT & pikFlags){
@@ -180,8 +182,10 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
             zClassSource = " source";
           }
-          blob_appendf(pOut,"<div><div class=\"pikchr-svg%s%s\" "
+          blob_appendf(pOut,"<div class='pikchr-wrapper%s'>"
+                       "<div class=\"pikchr-svg%s%s\" "
                        "style=\"%b\">\n",
+                       zWrapperClass/*safe-for-%s*/,
                        zClassToggle/*safe-for-%s*/,
                        zClassSource/*safe-for-%s*/, &css);
           blob_reset(&css);

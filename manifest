@@ -1,5 +1,5 @@
-C Fixed\sa\spreview\squirk\swhich\scaused\sthe\spikchr\sclick\shandlers\sto\snot\sget\sprocessed\son\swikiedit/fileedit\spreviews\safter\sthe\sfirst\sone.
-D 2020-09-18T09:21:14.849
+C An\salternate\simpl\sfor\scentering\spikchrs\swhich\sdoes\snot\srely\son\smargin:auto.
+D 2020-09-18T10:32:39.414
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 23fd0d42d31911013c0267d4d98e7da03e6dce8e52cd1a79306297e81e4404ff
-F src/default.css 663dfde260b069d06bea5175903d790697fa6b01e59e7215dba02d8b067761c5
+F src/default.css 1a53ec0cffe7f31d087e7bc15a27c42acb1ae85976153b5584ab84e6214b213d
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -562,7 +562,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c abbb16e518199b702367d1bc64a164b7a6641d22878fcc9524228ce4a2d9b0f1
-F src/pikchrshow.c 56d48a9771a166d6e10e5a4b6effc85afbdc210c3f2e65d0539e51e5fadaec83
+F src/pikchrshow.c 82899a434ff65e9a849841843fb4768384522e1ccc3ef84ba1bfd0614693e4bb
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 539eb61f85bcc6f3c849bbe152754718134cc18220dbc6db431c74ce83095e64
-R 9d999f0d020b4acaee1b8c4ef98c8825
+P 052d37480927b6010c8a33549254fe0f2113ff7dc9e44498c6237e0c058150d9
+R c7acfc377d86c0a4f26f783d694b6779
 U stephan
-Z 6fbdb45669a538aec956906106c628bf
+Z b4c60f0c09e5a3e74f18cf586d9b0177
