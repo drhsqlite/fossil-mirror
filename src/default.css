@@ -1399,6 +1399,9 @@ pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
 div.pikchr-wrapper.center {
   text-align: center;
 }
+div.pikchr-wrapper.center > div.pikchr-svg {
+  width: 100%/*necessary for Chrome!*/;
+}
 div.pikchr-wrapper.center > pre.pikchr-src,
 div.pikchr-wrapper.center > div.pikchr-svg{
   display:inline-block;
