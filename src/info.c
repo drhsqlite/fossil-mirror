@@ -2131,10 +2131,8 @@ void output_text_with_line_numbers(
     if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
       builtin_request_js("scroll.js");
     }
-    if(!builtin_bundle_all_fossil_js_apis()){
-      builtin_emit_fossil_js_apis("dom", "copybutton", "popupwidget",
-                                  "numbered-lines", 0);
-    }
+    builtin_fossil_js_bundle_or("dom", "copybutton", "popupwidget",
+                                "numbered-lines", 0);
   }
 }
 

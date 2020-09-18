@@ -406,10 +406,7 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
 ** functionality, just nice-to-haves. Only call this once per page.
 */
 void document_emit_js(void){
-  if(!builtin_bundle_all_fossil_js_apis()){
-    builtin_emit_fossil_js_apis("dom", "copybutton",
-                                "pikchr", 0);
-  }
+  builtin_fossil_js_bundle_or("dom", "copybutton", "pikchr", 0);
   style_script_begin(__FILE__,__LINE__);
   CX("window.addEventListener('load', "
      "()=>window.fossil.pikchr.addSrcView(), "

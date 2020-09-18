@@ -702,7 +702,6 @@ void builtin_emit_fossil_js_apis( const char * zApi, ... ) {
   zName = mprintf("fossil.%s.js", zApi);
   builtin_request_js(zName);
   fossil_free(zName);
-
   va_start(vargs,zApi);
   while( (zArg = va_arg (vargs, const char *))!=0 ){
     zName = mprintf("fossil.%s.js", zArg);
@@ -711,6 +710,40 @@ void builtin_emit_fossil_js_apis( const char * zApi, ... ) {
   }
   va_end(vargs);
 }
+
+/*
+** This is a variant of builtin_emit_fossil_js_apis() which is
+** equivalent to:
+**
+** if(!builtin_bundle_all_fossil_js_apis()){
+**    builtin_emit_fossil_js_apis(zApi, ...args);
+** }
+**
+*/
+void builtin_fossil_js_bundle_or( const char * zApi, ... ) {
+  const char *zArg;
+  char * zName;
+  va_list vargs;
+  static int once = 0;
+
+  if(builtin_bundle_all_fossil_js_apis()){
+    return;
+  }
+  if(0==once++){
+    builtin_emit_script_fossil_bootstrap(1);
+  }
+  zName = mprintf("fossil.%s.js", zApi);
+  builtin_request_js(zName);
+  fossil_free(zName);
+  va_start(vargs,zApi);
+  while( (zArg = va_arg (vargs, const char *))!=0 ){
+    zName = mprintf("fossil.%s.js", zArg);
+    builtin_request_js(zName);
+    fossil_free(zName);
+  }
+  va_end(vargs);
+}
+
 
 /*
 ** If builtin_get_js_delivery_mode() returns JS_BUNDLED then this
@@ -726,7 +759,7 @@ void builtin_emit_fossil_js_apis( const char * zApi, ... ) {
 ** function is a no-op and returns false. The reason is simply because
 ** bundled mode is the only mode in which this API improves aggregate
 ** over-the-wire and HTTP request costs. For other modes, reducing the
-** inclusion of fossil.XYZ APIs to their bare minimum, provides the
+** inclusion of fossil.XYZ APIs to their bare minimum provides the
 ** lowest aggregate costs. For debate and details, see the discussion
 ** at:
 **
@@ -761,8 +794,9 @@ int builtin_bundle_all_fossil_js_apis(void){
       builtin_emit_fossil_js_apis(
          /* The order of the following arguments is important: any
             which have dependencies must be listed after their
-            dependencies. ALL of them depend on the core
-            window.fossil bootstrapping bits. */
+            dependencies. ALL of them depend on the core window.fossil
+            bootstrapping bits, and those are initialize by this
+            call. */
           "dom", "fetch", "storage", "tabs",
           "confirmer", "popupwidget",
           "copybutton", "numbered-lines",

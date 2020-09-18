@@ -1989,11 +1989,9 @@ void fileedit_page(void){
   }
   CX("</div>"/*#fileedit-tab-help*/);
 
-  if(!builtin_bundle_all_fossil_js_apis()){
-    builtin_emit_fossil_js_apis("fetch", "dom", "tabs", "confirmer",
-                                "storage", "popupwidget", "copybutton",
-                                "pikchr", 0);
-  }
+  builtin_fossil_js_bundle_or("fetch", "dom", "tabs", "confirmer",
+                              "storage", "popupwidget", "copybutton",
+                              "pikchr", 0);
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
   ** used for dynamically toggling certain UI components on and off.

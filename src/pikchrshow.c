@@ -359,11 +359,8 @@ void pikchrshow_page(void){
       } CX("</div>"/*#pikchrshow-output*/);
     } CX("</fieldset>"/*#pikchrshow-output-wrapper*/);
   } CX("</div>"/*sbs-wrapper*/);
-  if(!builtin_bundle_all_fossil_js_apis()){
-    builtin_emit_fossil_js_apis("dom", "fetch", "copybutton",
-                                "popupwidget", "storage",
-                                "pikchr", 0);
-  }
+  builtin_fossil_js_bundle_or("dom", "fetch", "copybutton",
+                              "popupwidget", "storage", "pikchr", 0);
   builtin_emit_fossil_js_apis("page.pikchrshow", 0);
   builtin_fulfill_js_requests();
   style_footer();
