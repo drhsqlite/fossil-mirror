@@ -91,8 +91,8 @@
 **    show the SVG).
 **
 **  - PIKCHR_PROCESS_DIV_SOURCE_INLINE: adds the 'source-inline' CSS
-**    class to the outer wrapper. If PIKCHR_PROCESS_DIV_SOURCE is
-**    specified, this modifier indicates that the source code view
+**    class to the outer wrapper. This modifier changes how the
+**    'source' CSS class gets applied: with this flag, the source view
 **    should be rendered "inline" (same position as the graphic), else
 **    it is to be left-aligned.
 **
@@ -168,7 +168,6 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
         }
         if(PIKCHR_PROCESS_DIV & pikFlags){
           if(PIKCHR_PROCESS_DIV_CENTER & pikFlags){
-            /*blob_append(&css, "display:block;margin:auto;", -1);*/
             zWrapperClass = " center";
           }else if(PIKCHR_PROCESS_DIV_INDENT & pikFlags){
             zWrapperClass = " indent";

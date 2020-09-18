@@ -1439,17 +1439,20 @@ div.pikchr-wrapper.float-right.source.source-inline{
   padding: 4em;
 }
 
-/* For .source view, pre.pikchr-src and reveal svg.pikchr... */
+/* For pikchr-wrapper.source mode, toggle pre.pikchr-src and
+   svg.pikchr visibility... */
 div.pikchr-wrapper.source > pre.pikchr-src {
-  /* Source code  ^^^^^^^ is visible */
+  /* Source code  ^^^^^^^ is visible, else it is hidden */
 }
 div.pikchr-wrapper:not(.source) > pre.pikchr-src {
+  /* Hide sources when image is being shown. */
   position: absolute !important;
   opacity: 0 !important;
   pointer-events: none !important;
   display: none !important;
 }
 div.pikchr-wrapper.source > div.pikchr-svg {
+  /* Hide image when sources are being shown. */
   position: absolute !important;
   opacity: 0 !important;
   pointer-events: none !important;
