@@ -715,7 +715,7 @@ static int builtin_emit_fossil_js_once(const char * zName){
     for( i = 0; i < nFjs; ++i ){
       builtin_emit_fossil_js_once(fjs[i].zName);
     }
-    return 0;
+    return -1;
   }
   for( i = 0; i < nFjs; ++i ){
     if(0==strcmp(zName, fjs[i].zName)){

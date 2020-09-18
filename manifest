@@ -1,5 +1,5 @@
-C The\sroutines\swhich\semit\sfossil.XYZ.js\smodules\snow\sunderstand\stheir\sdependencies,\semit\sany\sdeps\sin\sdependency\sorder\s(recursively),\sand\sdo\snot\semit\sa\sgiven\smodule\smore\sthan\sonce\s(simplifies\susage\sand\sis\san\sand\soverall\simprovement\sin\scacheability).\sAdded\sthe\spikchr\sclick\ssupport\sto\smore\spages.
-D 2020-09-18T07:37:30.199
+C Made\sthe\sreturn\scode\sof\sa\sbit\sof\snew\scode\smatch\sits\sdocs.
+D 2020-09-18T07:48:20.098
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/bisect.c fa16fe02114d63561139babd2309c78d07466edb8872047c8e711b58c252c288
 F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
 F src/branch.c 00a400c285171a4c6147d1788b98f458916bfcf319275a0df82b68de84aefb2a
 F src/browse.c e62f5b0ebec7519b3618d4195b6ef9a1dd2cb599f2402660be8ddbe9d84085a3
-F src/builtin.c abbb1e7349137e51171f80e47a0927b37f4852b38f768b87457bf7c780442cc5
+F src/builtin.c 6eb5285f83faca16ff2024926f82076d4634b8d964a6e4f1b1348c706d3eab49
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
@@ -1010,7 +1010,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 58d86b16bf2c233e03f34ab9960ce75336d345a4e7a2e5613fc3915495690e2c
-R 5de74425d059963a5c7c5ab49fd9e359
+P 9b2b6f5b1cc695e52e89ae579850a4270115bbe43a64377743200fa9d82dcc58
+R ffebc4befec20ef417f52d8c3e499eb5
 U stephan
-Z 055d6800906295840a8f8ddf85ad8d0a
+Z 6fce9a2b49bfd07f9a1dcbc6d6bff99d
