@@ -1143,17 +1143,25 @@
   */
   P.preview = function f(switchToTab){
     if(!affirmHasFile()) return this;
-    const target = this.e.previewTarget,
-          self = this;
-    const updateView = function(c){
-      D.clearElement(target);
-      if('string'===typeof c) D.parseHtml(target,c);
+    return this._postPreview(this.fileContent(), function(c){
+      P._previewTo(c);
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
-      if(F.pikchr) F.pikchr.addSrcView();
-    };
-    return this._postPreview(this.fileContent(), updateView);
+    });
   };
 
+    /**
+     Callback for use with F.connectPagePreviewers(). Gets passed
+     the preview content.
+  */
+  P._previewTo = function(c){
+    const target = this.e.previewTarget;
+    D.clearElement(target);
+    if('string'===typeof c) D.parseHtml(target,c);
+    if(F.pikchr){
+      F.pikchr.addSrcView(target.querySelectorAll('svg.pikchr'));
+    }
+  };
+  
   /**
      Callback for use with F.connectPagePreviewers()
   */

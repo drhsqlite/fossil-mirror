@@ -807,7 +807,8 @@
      not a property-access-style string. e.g. "myPreview" is legal but
      "foo.myPreview" is not (unless, of course, the method is actually
      named "foo.myPreview" (which is legal but would be
-     unconventional)).
+     unconventional)). All such methods are called with
+     methodNamespace as their "this".
 
      An example...
 
@@ -870,9 +871,9 @@
                 asText = +(e.dataset.fPreviewAsText || 0);
           eTo.textContent = "Fetching preview...";
           methodNamespace[e.dataset.fPreviewVia](
-            (eFrom instanceof Function ? eFrom() : eFrom.value),
+            (eFrom instanceof Function ? eFrom.call(methodNamespace) : eFrom.value),
             function(r){
-              if(eTo instanceof Function) eTo(r||'');
+              if(eTo instanceof Function) eTo.call(methodNamespace, r||'');
               else if(!r){
                 dom.clearElement(eTo);
               }else if(asText){

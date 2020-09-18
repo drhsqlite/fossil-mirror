@@ -1749,7 +1749,7 @@ void fileedit_page(void){
       ** the text editor with their own. */
        "data-f-preview-via='_postPreview' "
        /* ^^^ fossil.page[methodName](content, callback) */
-       "data-f-preview-to='#fileedit-tab-preview-wrapper' "
+       "data-f-preview-to='_previewTo' "
        /* ^^^ dest elem ID */
        ">Refresh</button>");
     /* Toggle auto-update of preview when the Preview tab is selected. */

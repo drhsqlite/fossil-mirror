@@ -1344,17 +1344,25 @@
   */
   P.preview = function f(switchToTab){
     if(!affirmPageLoaded()) return this;
-    const target = this.e.previewTarget,
-          self = this;
-    const updateView = function(c,mimetype){
-      D.clearElement(target);
-      if('string'===typeof c) D.parseHtml(target,c);
+    return this._postPreview(this.wikiContent(), function(c){
+      P._previewTo(c);
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
-      if(F.pikchr) F.pikchr.addSrcView();
-    };
-    return this._postPreview(this.wikiContent(), updateView);
+    });
   };
 
+  /**
+     Callback for use with F.connectPagePreviewers(). Gets passed
+     the preview content.
+  */
+  P._previewTo = function(c){
+    const target = this.e.previewTarget;
+    D.clearElement(target);
+    if('string'===typeof c) D.parseHtml(target,c);
+    if(F.pikchr){
+      F.pikchr.addSrcView(target.querySelectorAll('svg.pikchr'));
+    }
+  };
+  
   /**
      Callback for use with F.connectPagePreviewers()
   */

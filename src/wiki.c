@@ -1223,8 +1223,8 @@ void wikiedit_page(void){
       ** the text editor with their own. */
        "data-f-preview-via='_postPreview' "
        /* ^^^ fossil.page[methodName](content, callback) */
-       "data-f-preview-to='#wikiedit-tab-preview-wrapper' "
-       /* ^^^ dest elem ID */
+       "data-f-preview-to='_previewTo' "
+       /* ^^^ dest elem ID or fossil.page[methodName]*/
        ">Refresh</button>");
     /* Toggle auto-update of preview when the Preview tab is selected. */
     CX("<div class='input-with-label'>"
