@@ -410,11 +410,11 @@ void document_emit_js(void){
     builtin_emit_fossil_js_apis("dom", "copybutton",
                                 "pikchr", 0);
   }
-  style_emit_script_tag(0,0);
+  style_script_begin(__FILE__,__LINE__);
   CX("window.addEventListener('load', "
      "()=>window.fossil.pikchr.addSrcView(), "
      "false);\n");
-  style_emit_script_tag(1,0);
+  style_script_end();
 }
 
 /*

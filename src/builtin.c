@@ -318,7 +318,7 @@ void builtin_fulfill_js_requests(void){
       CX("<script nonce='%h'>\n",style_nonce());
       do{
         int i = builtin.aReq[builtin.nSent++];
-        CX("/* %s */\n", aBuiltinFiles[i].zName);
+        CX("/* %s %.60c*/\n", aBuiltinFiles[i].zName, '*');
         cgi_append_content((const char*)aBuiltinFiles[i].pData,
                            aBuiltinFiles[i].nByte);
       }while( builtin.nSent<builtin.nReq );
@@ -594,7 +594,7 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
     /* Set up the generic/app-agnostic parts of window.fossil
     ** which require C-level state... */
     if(addScriptTag!=0){
-      style_emit_script_tag(0,0);
+      style_script_begin(__FILE__,__LINE__);
     }
     CX("(function(){\n");
     CX(/*MSIE NodeList.forEach polyfill, courtesy of Mozilla:
@@ -657,7 +657,7 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        "};\n", g.zPath);
     CX("})();\n");
     if(addScriptTag!=0){
-      style_emit_script_tag(1,0);
+      style_script_end();
     }
     /* The remaining window.fossil bootstrap code is not dependent on
     ** C-runtime state... */

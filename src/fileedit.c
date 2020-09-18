@@ -1668,9 +1668,9 @@ void fileedit_page(void){
   ** selectors, but we do have the BODY, which we can decorate with
   ** whatever CSS we wish...
   */
-  style_emit_script_tag(0,0);
+  style_script_begin(__FILE__,__LINE__);
   CX("document.body.classList.add('fileedit');\n");
-  style_emit_script_tag(1,0);
+  style_script_end();
   
   /* Status bar */
   CX("<div id='fossil-status-bar' "
@@ -2011,7 +2011,7 @@ void fileedit_page(void){
     ** blob, and/or switch to tab #0, where the file selector
     ** lives. The extra C scopes here correspond to JS-level scopes,
     ** to improve grokability. */
-    style_emit_script_tag(0,0);
+    style_script_begin(__FILE__,__LINE__);
     CX("\n(function(){\n");
     CX("try{\n");
     {
@@ -2060,7 +2060,7 @@ void fileedit_page(void){
        "fossil.error(e); console.error('Exception:',e);"
        "}\n");
     CX("})();")/*anonymous function*/;
-    style_emit_script_tag(1,0);
+    style_script_end();
   }
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);

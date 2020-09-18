@@ -1293,7 +1293,7 @@ void wikiedit_page(void){
   builtin_request_js("fossil.page.wikiedit.js");
   builtin_fulfill_js_requests();
   /* Dynamically populate the editor... */
-  style_emit_script_tag(0,0);
+  style_script_begin(__FILE__,__LINE__);
   {
     /* Render the current page list to save us an XHR request
        during page initialization. This must be OUTSIDE of
@@ -1332,7 +1332,7 @@ void wikiedit_page(void){
      "fossil.error(e); console.error('Exception:',e);"
      "}\n");
   CX("});\n"/*fossil.onPageLoad()*/);
-  style_emit_script_tag(1,0);
+  style_script_end();
   style_footer();
 }
 

@@ -2446,7 +2446,7 @@ void artifact_page(void){
       @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"
       @ sandbox="allow-same-origin" id="ifm1">
       @ </iframe>
-      @ <script nonce="%h(style_nonce())">
+      @ <script nonce="%h(style_nonce())">/* info.c:%d(__LINE__) */
       @ document.getElementById("ifm1").addEventListener("load",
       @   function(){
       @     this.height=this.contentDocument.documentElement.scrollHeight + 75;

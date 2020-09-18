@@ -716,7 +716,7 @@ static void style_load_all_js_files(void){
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
-  @ <script nonce="%h(style_nonce())">
+  @ <script nonce="%h(style_nonce())">/* style.c:%d(__LINE__) */
   @ function debugMsg(msg){
   @ var n = document.getElementById("debugMsg");
   @ if(n){n.textContent=msg;}
@@ -1430,33 +1430,25 @@ void style_select_list_str(const char * zWrapperId,
 }
 
 /*
-** If passed 0 as its first argument, it emits a script opener tag
-** with this request's nonce. If passed non-0 it emits a script
-** closing tag. Mnemonic for remembering the order in which to pass 0
-** or 1 as the first argument to this function: 0 comes before 1.
+** Generate a <script> with an appropriate nonce.
 **
-** If passed 0 as its first argument and a non-NULL/non-empty zSrc,
-** then it instead emits:
-**
-** <script src='%R/{{zSrc}}'></script>
-**
-** zSrc is always assumed to be a repository-relative path without
-** a leading slash, and has %R/ prepended to it.
-**
-** Meaning that no follow-up call to pass a non-0 first argument
-** to close the tag. zSrc is ignored if the first argument is not
-** 0.
+** zOrigin and iLine are the source code filename and line number
+** that generated this request.
 */
-void style_emit_script_tag(int isCloser, const char * zSrc){
-  if(0==isCloser){
-    if(zSrc!=0 && zSrc[0]!=0){
-      CX("<script src='%R/%T'></script>\n", zSrc);
-    }else{
-      CX("<script nonce='%s'>", style_nonce());
+void style_script_begin(const char *zOrigin, int iLine){
+  const char *z;
+  for(z=zOrigin; z[0]!=0; z++){
+    if( z[0]=='/' || z[0]=='\\' ){
+      zOrigin = z+1;
     }
-  }else{
-    CX("</script>\n");
   }
+  CX("<script nonce='%s'>/* %s:%d */\n", style_nonce(), zOrigin, iLine);
+}
+
+/* Generate the closing </script> tag 
+*/
+void style_script_end(void){
+  CX("</script>\n");
 }
 
 /*
