@@ -1398,6 +1398,7 @@ noscript > .error {
     </DIV.pikchr-svg>
     <PRE.pikchr-src>...</PRE>
   </DIV.pikchr-wrapper>
+
 ************************************************************/
 div.pikchr-wrapper {/*outer wrapper elem for a pikchr construct*/}
 div.pikchr-svg {/*wrapper for SVG.pikchr element*/}
@@ -1407,31 +1408,42 @@ pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
   overflow: auto;
   text-align: left;
 }
-div.pikchr-wrapper.center {
+/* The .source-inline class tells the .source class that the
+   source view, when enbaled, should be "inline" (same position
+   as the graphic), else the sources are shifted to the left as
+   if they were "plain text". */
+div.pikchr-wrapper.center:not(.source),
+div.pikchr-wrapper.center.source.source-inline{
   text-align: center;
 }
 div.pikchr-wrapper.center > div.pikchr-svg {
   width: 100%/*necessary for Chrome!*/;
 }
-div.pikchr-wrapper.center > pre.pikchr-src,
-div.pikchr-wrapper.center > div.pikchr-svg{
+div.pikchr-wrapper.center:not(.source) > pre.pikchr-src,
+div.pikchr-wrapper.center:not(.source) > div.pikchr-svg,
+div.pikchr-wrapper.center.source.source-inline > pre.pikchr-src,
+div.pikchr-wrapper.center.source.source-inline > div.pikchr-svg{
   display:inline-block/*allows text-align to do the alignment*/;
 }
-div.pikchr-wrapper.indent {
+div.pikchr-wrapper.indent:not(.source),
+div.pikchr-wrapper.indent.source.source-inline{
   margin-left: 4em;
 }
-div.pikchr-wrapper.float-left {
+div.pikchr-wrapper.float-left:not(.source),
+div.pikchr-wrapper.float-left.source.source-inline {
   float: left;
   padding: 4em;
 }
-div.pikchr-wrapper.float-right {
+div.pikchr-wrapper.float-right:not(.source),
+div.pikchr-wrapper.float-right.source.source-inline{
   float: right;
   padding: 4em;
 }
 
+/* For .source view, pre.pikchr-src and reveal svg.pikchr... */
 div.pikchr-wrapper.source > pre.pikchr-src {
+  /* Source code  ^^^^^^^ is visible */
 }
-/* For non-source view, pre.pikchr-src and reveal svg.pikchr... */
 div.pikchr-wrapper:not(.source) > pre.pikchr-src {
   position: absolute !important;
   opacity: 0 !important;

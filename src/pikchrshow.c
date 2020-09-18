@@ -30,12 +30,13 @@
 #define PIKCHR_PROCESS_ERR_PRE    0x08
 #define PIKCHR_PROCESS_SRC        0x10
 #define PIKCHR_PROCESS_DIV        0x20
-#define PIKCHR_PROCESS_DIV_INDENT      0x0100
-#define PIKCHR_PROCESS_DIV_CENTER      0x0200
-#define PIKCHR_PROCESS_DIV_FLOAT_LEFT  0x0400
-#define PIKCHR_PROCESS_DIV_FLOAT_RIGHT 0x0800
-#define PIKCHR_PROCESS_DIV_TOGGLE      0x1000
-#define PIKCHR_PROCESS_DIV_SOURCE      0x2000
+#define PIKCHR_PROCESS_DIV_INDENT        0x0100
+#define PIKCHR_PROCESS_DIV_CENTER        0x0200
+#define PIKCHR_PROCESS_DIV_FLOAT_LEFT    0x0400
+#define PIKCHR_PROCESS_DIV_FLOAT_RIGHT   0x0800
+#define PIKCHR_PROCESS_DIV_TOGGLE        0x1000
+#define PIKCHR_PROCESS_DIV_SOURCE        0x2000
+#define PIKCHR_PROCESS_DIV_SOURCE_INLINE 0x4000
 #endif
 
 /*
@@ -89,6 +90,12 @@
 **    in source code form mode (the default is to hide the source and
 **    show the SVG).
 **
+**  - PIKCHR_PROCESS_DIV_SOURCE_INLINE: adds the 'source-inline' CSS
+**    class to the outer wrapper. If PIKCHR_PROCESS_DIV_SOURCE is
+**    specified, this modifier indicates that the source code view
+**    should be rendered "inline" (same position as the graphic), else
+**    it is to be left-aligned.
+**
 ** - PIKCHR_PROCESS_NONCE: if set, the resulting SVG/DIV are wrapped
 ** in "safe nonce" comments, which are a fossil-internal mechanism
 ** which prevents the wiki/markdown processors from re-processing this
@@ -99,8 +106,8 @@
 ** - PIKCHR_PROCESS_SRC: if set, a new PRE.pikchr-src element is
 ** injected adjacent to the SVG element which contains the
 ** HTML-escaped content of the input script. If
-** PIKCHR_PROCESS_DIV_SOURCE is set, this flag is automatically
-** implied.
+** PIKCHR_PROCESS_DIV_SOURCE or PIKCHR_PROCESS_DIV_SOURCE_INLINE is
+** set, this flag is automatically implied.
 **
 ** - PIKCHR_PROCESS_ERR_PRE: if set and pikchr() fails, the resulting
 ** error report is wrapped in a PRE element, else it is retained
@@ -118,6 +125,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
          | PIKCHR_PROCESS_DIV_FLOAT_RIGHT
          | PIKCHR_PROCESS_DIV_FLOAT_LEFT
          | PIKCHR_PROCESS_DIV_SOURCE
+         | PIKCHR_PROCESS_DIV_SOURCE_INLINE
          | PIKCHR_PROCESS_DIV_TOGGLE
          ) & pikFlags){
     pikFlags |= PIKCHR_PROCESS_DIV;
@@ -172,11 +180,19 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           if(PIKCHR_PROCESS_DIV_TOGGLE & pikFlags){
             zClassToggle = " toggle";
           }
-          if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
+          if(PIKCHR_PROCESS_DIV_SOURCE_INLINE & pikFlags){
+            if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
+              zClassSource = " source source-inline";
+            }else{
+              zClassSource = " source-inline";
+            }
+            pikFlags |= PIKCHR_PROCESS_SRC;
+          }else if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
             zClassSource = " source";
             pikFlags |= PIKCHR_PROCESS_SRC;
           }
-          blob_appendf(pOut,"<div class='pikchr-wrapper%s%s%s'>"
+          blob_appendf(pOut,"<div class='pikchr-wrapper "
+                       "%s%s%s'>"
                        "<div class=\"pikchr-svg\" "
                        "style=\"max-width:%dpx\">\n",
                        zWrapperClass/*safe-for-%s*/,
@@ -227,7 +243,8 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
 void pikchrshow_page(void){
   const char *zContent = 0;
   int isDark;              /* true if the current skin is "dark" */
-  int pikFlags = PIKCHR_PROCESS_DIV
+  int pikFlags =
+    PIKCHR_PROCESS_DIV
     | PIKCHR_PROCESS_SRC
     | PIKCHR_PROCESS_ERR_PRE;
 

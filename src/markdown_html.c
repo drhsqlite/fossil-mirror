@@ -364,6 +364,8 @@ void pikchr_to_html(
       pikFlags |= PIKCHR_PROCESS_DIV_TOGGLE;
     }else if( i==6 && strncmp(zArg, "source", 6)==0 ){
       pikFlags |= PIKCHR_PROCESS_DIV_SOURCE;
+    }else if( i==13 && strncmp(zArg, "source-inline", 13)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_SOURCE_INLINE;
     }
     while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
     zArg += i;
