@@ -180,13 +180,16 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
           if(PIKCHR_PROCESS_DIV_SOURCE & pikFlags){
             zClassSource = " source";
           }
-          blob_appendf(pOut,"<div class=\"pikchr-svg%s%s\" "
+          blob_appendf(pOut,"<div><div class=\"pikchr-svg%s%s\" "
                        "style=\"%b\">\n",
                        zClassToggle/*safe-for-%s*/,
                        zClassSource/*safe-for-%s*/, &css);
           blob_reset(&css);
         }
         blob_append(pOut, zOut, -1);
+        if(PIKCHR_PROCESS_DIV & pikFlags){
+          blob_append(pOut, "</div>\n", 7);
+        }
         if((PIKCHR_PROCESS_SRC & pikFlags)
            || (PIKCHR_PROCESS_SRC_HIDDEN & pikFlags)){
           blob_appendf(pOut, "<pre class='pikchr-src%s'>"

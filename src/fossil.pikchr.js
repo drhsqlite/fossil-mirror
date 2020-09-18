@@ -38,21 +38,24 @@
      This code expects the following structure around the SVGs, and
      will not process any which don't match this:
 
-     <DIV><SVG.pikchr></SVG><PRE.pikchr-src></PRE></DIV>
+     <DIV>
+       <DIV><SVG.pikchr></SVG></DIV>
+       <PRE.pikchr-src></PRE>
+     </DIV>
   */
   P.addSrcView = function f(svg){
     if(!f.hasOwnProperty('parentClick')){
       f.parentClick = function(ev){
-        if(ev.ctrlKey || this.classList.contains('toggle')){
+        if(ev.altKey || ev.metaKey || ev.ctrlKey
+           /* Every combination of special key (alt, shift, ctrl,
+              meta) is handled differently everywhere. Shift is used
+              by the browser, Ctrl doesn't work on an iMac, and Alt is
+              intercepted by most Linux window managers to control
+              window movement! So...  we just listen for *any* of them
+              (except Shift) and the user will need to find one which
+              works on on their environment. */
+           || this.classList.contains('toggle')){
           this._childs.forEach((e)=>e.classList.toggle('hidden'));
-        }
-        /* For the sake of small pics, we have to eliminate the
-           parent element's max-width... */
-        const src = this._childs[1];
-        if(src.classList.contains('hidden')){
-          this.style.maxWidth = this.dataset.origMaxWidth;
-        }else{
-          this.style.maxWidth = "unset";
         }
       };
     };
@@ -69,7 +72,7 @@
     }
     svg.dataset.pikchrProcessed = 1;
     const parent = svg.parentNode;
-    const srcView = svg.nextElementSibling;
+    const srcView = parent.nextElementSibling;
     if(!srcView || !srcView.classList.contains('pikchr-src')){
       /* Without this element, there's nothing for us to do here. */
       return this;
@@ -79,6 +82,8 @@
     D.addClass(srcView, 'hidden');
     D.removeClass(svg, 'hidden');
     parent.addEventListener('click', f.parentClick, false);
+    /* When the parent is hidden, it has 0 height so cannot be clicked, so... */
+    srcView.addEventListener('click', (ev)=>f.parentClick.call(parent, ev), false);
     if(parent.classList.contains('source')){
       /* Start off in source-view mode via a very fake click event */
       f.parentClick.call(parent, {ctrlKey:true});
