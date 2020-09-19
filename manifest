@@ -1,5 +1,5 @@
-C Update\sthe\ssqlite3.h\sfile\sso\sthat\sthe\ssource-id\sis\sthe\ssame\sas\ssqlite3.c
-D 2020-09-19T11:04:40.049
+C Squelched\san\sominous\sbut\sharmless\serror\sfrom\swikedit\swhen\sopened\swith\sa\ssandbox\spage\sname\susing\sany\scase\sother\sthan\s'Sandbox'.
+D 2020-09-19T12:45:55.301
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -495,7 +495,7 @@ F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db503
 F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7ecd1f7761b69fd8
 F src/fossil.page.pikchrshow.js 0717de3c18340af37498344844a03c5db7b7f3784ef7c2b721173e7f6a703669
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
-F src/fossil.page.wikiedit.js 4092a90b57a1ae51a52a2b40c40154d6f37756a20eeecde8921957ba5cb9d602
+F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5e2dac0761eee663e102604b1730df052f50321b8dd6e55f02b9199dfa7154c
-R af447753730fc5afa71dbbdc3f803508
-U drh
-Z 0e8cd00ec249db158fc9db9ed5060fb7
+P 09cea3cbf471070735b3fd089e176a35dfb47042218ba91d019a1c019be00785
+R fe602894933e5c0f78925f908bf05b71
+U stephan
+Z b9e68a0e790966ba0a646ec7e0265b7d

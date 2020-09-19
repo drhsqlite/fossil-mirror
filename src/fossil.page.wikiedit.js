@@ -671,7 +671,7 @@
           if(page.isEmpty) opt.dataset.isDeleted = true;
           else delete opt.dataset.isDeleted;
           self._refreshStashMarks(opt);
-        }else{
+        }else if('sandbox'!==page.type){
           F.error("BUG: internal mis-handling of page object: missing OPTION for page "+page.name);
         }
       });
