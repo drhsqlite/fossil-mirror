@@ -1,5 +1,5 @@
-C Worked\saround\san\sSVG\srendering\sbug\sin\sChrome\sby\ssetting\sthe\swidth\sof\sall\ssvg.pikchr\sto\s100%,\sregardless\sof\salignment\s(previously\swas\sonly\sapplied\sto\scentered\sSVGs).
-D 2020-09-19T12:49:43.650
+C Documented\sa\ssimpler\spikchr-centering\simplementation\sfor\spotential\sfuture\suse\sbut\sdid\snot\sactivate\sit\sdue\sto\sconcerns\sabout\scurrent\sbrowser-side\savailability.
+D 2020-09-19T13:10:34.220
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 23fd0d42d31911013c0267d4d98e7da03e6dce8e52cd1a79306297e81e4404ff
-F src/default.css fe892506c5abd99e58cbde89c352238c3f0639286262e0aecd124a17307aa5dd
+F src/default.css 2bb2a1ed525eb0b789006a5bdeeb44b7e1432e896eec14e2537833790a6085b5
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e828971b25b5dc7f8b51d921490da4a49eb34baa18e2bd2580344ee0bdacf76
-R 30ec198b287f0a8740dd255ea7bb51fa
+P 4ad86dd5f752f85f72166aa3c6ac24aaac3d7e18b77cd32b611d88bd20a8cc7a
+R 22a2db09ef765cb77d06aaf9d65883fd
 U stephan
-Z 6afd87c31726446bcc0afa8d4819bf99
+Z d925e248a8d3a23d76d93478b11bcf9a
