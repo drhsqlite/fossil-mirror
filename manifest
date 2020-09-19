@@ -1,5 +1,5 @@
-C Mention\sskip\sin\sbisect\soptions\slist
-D 2020-09-19T14:03:13.175
+C Moved\spikchr_process()\snonce\sso\sthat\sit\salso\sapplies\sfor\serror\soutput.\sAdded\smissing\s'error'\sCSS\sclass\sto\sthe\serror-report\sPRE\stag.\sAdded\smention\sof\sCtrl-Enter\sin\spikchshow\sintro\stext.
+D 2020-09-19T16:36:07.268
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
 F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
-F src/markdown_html.c c66efd4cf37be5aaad93ddb6b984c116c80b2da8f9ca67fadd117dbae92e4871
+F src/markdown_html.c 65eda1f443c23d8d682408dc73ed7f3cd578864f40cac9a0deabd18061cccced
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -562,7 +562,7 @@ F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c cde0d9d3fdf1654114866fd2159a96e3b5c44be1842d5368b54e69e0a9389c23
-F src/pikchrshow.c e6b56b33f1264f971ca7adc3ca4544a1a00c90dccc8977a08205bf3a3e47840d
+F src/pikchrshow.c 38230d83b2aba9bfb3f4d612b835ea824fefa447e20619d837d1d80f27d04681
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e45212a5bea9605bf2f3752a0cd903c5da3c3284073003e06cd567baefec2b0
-R 8171641c4289f0b3736bc30fb47aaa3b
-U andygoth
-Z c4c503aa35921cba271e22e7c2a9f2bd
+P 79499fc4742376fbb642846661872868cd65cd5626eb99aeb2128f44979ba201
+R bac57a6d2b1dc1f2ceb89eaf43c869fe
+U stephan
+Z 9cf4f9d29073daf3f40a2b7e66dd387d

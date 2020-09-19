@@ -117,6 +117,8 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
                    Blob * pOut){
   Blob bIn = empty_blob;
   int isErr = 0;
+  const char *zNonce = (PIKCHR_PROCESS_NONCE & pikFlags)
+    ? safe_html_nonce(1) : 0;
 
   if(!(PIKCHR_PROCESS_DIV & pikFlags)
      /* If any DIV_xxx flags are set, set DIV */
@@ -135,6 +137,9 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
      && (PIKCHR_PROCESS_TH1_NOSVG & pikFlags || thFlags!=0)){
     pikFlags |= PIKCHR_PROCESS_TH1;
   }  
+  if(zNonce){
+    blob_appendf(pOut, "%s\n", zNonce);
+  }
   if(PIKCHR_PROCESS_TH1 & pikFlags){
     Blob out = empty_blob;
     isErr = Th_RenderToBlob(zIn, &out, thFlags)
@@ -155,17 +160,11 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
       int w = 0, h = 0;
       const char * zContent = blob_str(&bIn);
       char *zOut;
-
       zOut = pikchr(zContent, "pikchr", 0, &w, &h);
       if( w>0 && h>0 ){
         const char * zClassToggle = "";
         const char * zClassSource = "";
         const char * zWrapperClass = "";
-        const char *zNonce = (PIKCHR_PROCESS_NONCE & pikFlags)
-          ? safe_html_nonce(1) : 0;
-        if(zNonce){
-          blob_appendf(pOut, "%s\n", zNonce);
-        }
         if(PIKCHR_PROCESS_DIV & pikFlags){
           if(PIKCHR_PROCESS_DIV_CENTER & pikFlags){
             zWrapperClass = " center";
@@ -209,13 +208,10 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
         if(PIKCHR_PROCESS_DIV & pikFlags){
           blob_append(pOut, "</div>\n", 7);
         }
-        if(zNonce){
-          blob_append(pOut, zNonce, -1);
-        }
       }else{
         isErr = 2;
         if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
-          blob_append(pOut, "<pre>\n", 6);
+          blob_append(pOut, "<pre class='error'>\n", 20);
         }
         blob_append(pOut, zOut, -1);
         if(PIKCHR_PROCESS_ERR_PRE & pikFlags){
@@ -224,6 +220,9 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
       }
       fossil_free(zOut);
     }
+  }
+  if(zNonce){
+    blob_appendf(pOut, "%s\n", zNonce);
   }
   blob_reset(&bIn);
   return isErr;
@@ -334,7 +333,8 @@ void pikchrshow_page(void){
        "}\n");
     CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}\n");
   } CX("</style>");
-  CX("<div>Input pikchr code and tap Preview to render it:</div>");
+  CX("<div>Input pikchr code and tap Preview or Ctrl-Enter) to render "
+     "it:</div>");
   CX("<div id='sbs-wrapper'>"); {
     CX("<div id='pikchrshow-form'>"); {
       CX("<textarea id='content' name='content' rows='15'>"
