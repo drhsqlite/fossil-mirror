@@ -1402,7 +1402,9 @@ noscript > .error {
 ************************************************************/
 div.pikchr-wrapper {/*outer wrapper elem for a pikchr construct*/}
 div.pikchr-svg {/*wrapper for SVG.pikchr element*/}
-svg.pikchr {/*pikchr SVG*/}
+svg.pikchr {/*pikchr SVG*/
+  width: 100%/*necessary for SOME SVGs for Chrome!*/;
+}
 pre.pikchr-src {/*source code view for a pikchr (see fossil.pikchr.js)*/
   box-sizing: border-box;
   text-align: left;
@@ -1416,7 +1418,6 @@ div.pikchr-wrapper.center.source.source-inline{
   text-align: center;
 }
 div.pikchr-wrapper.center > div.pikchr-svg {
-  width: 100%/*necessary for Chrome!*/;
 }
 div.pikchr-wrapper.center:not(.source) > pre.pikchr-src,
 div.pikchr-wrapper.center:not(.source) > div.pikchr-svg,
