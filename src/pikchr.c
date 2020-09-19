@@ -5558,7 +5558,7 @@ static void pik_close_path(Pik *p, PToken *pErr){
 */
 static void pik_behind(Pik *p, PElem *pOther){
   PElem *pElem = p->cur;
-  if( pElem->iLayer>=pOther->iLayer ){
+  if( p->nErr==0 && pElem->iLayer>=pOther->iLayer ){
     pElem->iLayer = pOther->iLayer - 1;
   }
 }
