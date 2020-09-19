@@ -1,5 +1,5 @@
-C Clean\sup\sthe\sfossil\sbisect\ssummary\sper\s[https://fossil-scm.org/forum/forumpost/00503372fc]
-D 2020-09-19T13:58:09.540
+C Mention\sskip\sin\sbisect\soptions\slist
+D 2020-09-19T14:03:13.175
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/attach.c 0f1bde2edad00d6514db8672dde8cae34ff9f36a76ab54f49199833955612853
 F src/backlink.c 71ccb7e575c15dc88e0bbc482327b8e4bec27da318db3d5ee15a65e94d8b2e15
 F src/backoffice.c b5c14f984561e35824d82dfa656e6c635ffd5c449469bba66dcf4841b0205283
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
-F src/bisect.c 31a2be22741ec38d83f99af864e75818486a8ec5eb018d45a8710e60098213d1
+F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
 F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
 F src/branch.c 00a400c285171a4c6147d1788b98f458916bfcf319275a0df82b68de84aefb2a
 F src/browse.c e62f5b0ebec7519b3618d4195b6ef9a1dd2cb599f2402660be8ddbe9d84085a3
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1620841523844e2411f4e64cc97d4a08a28886691c421432b0d805da40b8be1d
-R adbbe608df112cd8aa85c55f71ac4213
+P 6e45212a5bea9605bf2f3752a0cd903c5da3c3284073003e06cd567baefec2b0
+R 8171641c4289f0b3736bc30fb47aaa3b
 U andygoth
-Z 76598e570b5beaf558304d7e839cc230
+Z c4c503aa35921cba271e22e7c2a9f2bd
