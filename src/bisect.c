@@ -444,7 +444,7 @@ void bisect_cmd(void){
   int foundCmd = 0;
   db_must_be_within_tree();
   if( g.argc<3 ){
-    usage("bad|good|log|next|options|reset|skip|status|undo");
+    goto usage;
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);
@@ -612,6 +612,7 @@ void bisect_cmd(void){
     int fAll = find_option("all", "a", 0)!=0;
     bisect_list(!fAll);
   }else if( !foundCmd ){
-    usage("bad|good|log|next|options|reset|status|ui|undo");
+usage:
+    usage("bad|good|log|chart|next|options|reset|skip|status|ui|undo");
   }
 }
