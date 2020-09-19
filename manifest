@@ -1,5 +1,5 @@
-C Fix\sa\sminor\sproblem\swith\sthe\s"behind"\sattribute\sin\sPikchr
-D 2020-09-19T04:29:51.851
+C Update\sthe\ssqlite3.h\sfile\sso\sthat\sthe\ssource-id\sis\sthe\ssame\sas\ssqlite3.c
+D 2020-09-19T11:04:40.049
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -611,7 +611,7 @@ F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e80346
 F src/sqlcmd.c a31cf3116595a82bc37dc6f1612fbd3a6013710e4fe04a9b446d9aaa37d20e5c
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
 F src/sqlite3.c a826a52246af1780249820741f21d84d5ca9eae258f7db4226f0739ec7ecc5f9
-F src/sqlite3.h c4d901906c55c8d61a0876d1577e10a8a0d2de58a9ce06ad33a8fb72fc6b3b95
+F src/sqlite3.h 5e34318916deb911ca7414ff3b80d43fec448b72c17ce87566f781e5d6208d58
 F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c f36d74389e5a386f795dc00787bfbe981b8590441eea027a86602cf539874391
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af52ad89ca10a3b20ec1aa68e03c281a569dd103c262fabdf4d7479ffd3d3cee
-R 4a4f2986527b79358ffe847184fdfac7
+P e5e2dac0761eee663e102604b1730df052f50321b8dd6e55f02b9199dfa7154c
+R af447753730fc5afa71dbbdc3f803508
 U drh
-Z 3ffcc15ed41ac1f3da1c051e1c73e855
+Z 0e8cd00ec249db158fc9db9ed5060fb7

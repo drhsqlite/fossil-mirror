@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.34.0"
 #define SQLITE_VERSION_NUMBER 3034000
-#define SQLITE_SOURCE_ID      "2020-09-15 20:48:30 3d35fa0be866213274fc09250225b345f6b08a9b4ec373d53d95e627e24512be"
+#define SQLITE_SOURCE_ID      "2020-09-17 21:11:25 4542d194e2fef5e21e1c3679914bd9e21fab31cfb111cf640524fb3514a8afa3"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -9471,7 +9471,7 @@ SQLITE_API int sqlite3_db_cacheflush(sqlite3*);
 ** seventh parameter is the final rowid value of the row being inserted
 ** or updated. The value of the seventh parameter passed to the callback
 ** function is not defined for operations on WITHOUT ROWID tables, or for
-** INSERT operations on rowid tables.
+** DELETE operations on rowid tables.
 **
 ** The [sqlite3_preupdate_old()], [sqlite3_preupdate_new()],
 ** [sqlite3_preupdate_count()], and [sqlite3_preupdate_depth()] interfaces
