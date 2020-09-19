@@ -32,11 +32,38 @@ To help illustrate this fact,
 consider the first rebase example from the 
 [Git documentation][gitrebase].  The merge looks like this:
 
-![merge case](./rebase01.svg)
+~~~ pikchr
+scale = 0.8
+circle "C0" fit
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C3"
+arrow same
+circle same "C5"
+circle same "C4" at 1cm above C3
+arrow from C2 to C4 chop
+arrow from C4 to C5 chop
+~~~
 
 And the rebase looks like this:
 
-![rebase case](./rebase02.svg)
+~~~ pikchr
+scale = 0.8
+circle "C0" fit
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C3"
+arrow same
+circle same "C4'"
+circle same "C4" at 1cm above C3
+arrow from C2 to C4 chop
+~~~
 
 As the [Git documentation][gitrebase] points out, check-ins C4\' and C5
 are identical.  The only difference between C4\' and C5 is that C5
@@ -70,7 +97,27 @@ allows one to see just the changes in the feature branch without
 the concurrent changes in the main line of development. 
 Consider a hypothetical case:
 
-![unmerged feature branch](./rebase03.svg)
+~~~ pikchr
+scale = 0.8
+circle "C0" fit fill white
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C4"
+arrow same
+circle same "C6"
+circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
+arrow right 50%
+circle same "C5"
+arrow from C2 to C3 chop
+box ht C3.y-C2.y wid C6.e.x-C0.w.x+1.5*C1.rad at C2 behind C0 fill 0xc6e2ff color 0xaac5df
+box ht previous.ht wid previous.wid*0.55 with .se at previous.ne \
+   behind C0 fill 0x9accfc color 0xaac5df
+text "feature" with .s at previous.n
+text "main" with .n at first box.s
+~~~
 
 In the above, a feature branch consisting of check-ins C3 and C5 is
 run concurrently with the main line in check-ins C4 and C6.  Advocates
@@ -78,7 +125,32 @@ for rebase say that you should rebase the feature branch to the tip
 of main in order to remove main-line development differences from
 the feature branch's history:
 
-![rebased feature branch](./rebase04.svg)
+~~~ pikchr
+scale = 0.8
+circle "C0" fit fill white
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C4"
+arrow same
+circle same "C6"
+circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
+arrow right 50%
+circle same "C5"
+arrow from C2 to C3 chop
+C3P: circle same "C3'" at first arrow.width + C0.rad*2 heading 30 from C6
+arrow right 50% from C3P.e
+C5P: circle same "C5'"
+arrow from C6 to C3P chop
+
+box ht C3.y-C2.y wid C5P.e.x-C0.w.x+1.5*C1.rad with .w at 0.5*(first arrow.wid) west of C0.w \
+   behind C0 fill 0xc6e2ff color 0xaac5df
+box ht previous.ht wid previous.e.x - C2.w.x with .se at previous.ne \
+   behind C0 fill 0x9accfc color 0xaac5df
+~~~
+
 
 You could choose to collapse C3\' and C5\' into a single check-in
 as part of this rebase, but that's a side issue we'll deal with
@@ -87,7 +159,31 @@ as part of this rebase, but that's a side issue we'll deal with
 Because Fossil purposefully lacks rebase, the closest you can get to this same check-in
 history is the following merge:
 
-![merged feature branch](./rebase05.svg)
+~~~ pikchr
+scale = 0.8
+circle "C0" fit fill white
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C4"
+arrow same
+circle same "C6"
+circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
+arrow right 50%
+circle same "C5"
+arrow same
+circle same "C7"
+arrow from C2 to C3 chop
+arrow from C6 to C7 chop
+
+box ht C3.y-C2.y wid C7.e.x-C0.w.x+1.5*C1.rad with .w at 0.5*(first arrow.wid) west of C0.w \
+   behind C0 fill 0xc6e2ff color 0xaac5df
+box ht previous.ht wid previous.e.x - C2.w.x with .se at previous.ne \
+   behind C0 fill 0x9accfc color 0xaac5df
+~~~
+
 
 Check-ins C5\' and C7 check-ins hold identical code.  The only
 difference is in their history.  
