@@ -309,6 +309,7 @@ div.browser > span {
   background-position: 0px center;
   padding-left: 20px;
   padding-top: 2px;
+  font-family: monospace /* only for testing the col width calculation! */;
 }
 div.browser > span.file {
   background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/\

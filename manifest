@@ -1,5 +1,5 @@
-C An\sexperiment\sin\simproving\sthe\s/dir\scolumn\sflow.\s(Not\sready\sto\smerge.)
-D 2020-09-20T07:28:22.287
+C Removed\smultiplier\sfrom\sthe\sfont\ssize\scalculation,\sas\sit\sdoes\snot\swork\swith\smonospace\sfont.\sChanged\s/dir\sfont\sto\smonospace\sonly\sfor\stesting\spurposes,\sas\sthat\sone\sis\sour\spathological\scolumn-width\scase.
+D 2020-09-20T07:41:39.610
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -441,7 +441,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
 F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
 F src/branch.c 00a400c285171a4c6147d1788b98f458916bfcf319275a0df82b68de84aefb2a
-F src/browse.c b03e7a307c11613c6bb39475a329d59963a7b3f32b7b09d20c634e6e0deb4105
+F src/browse.c 4613c40f1d9f0ff3f7d35480388b262ee37ace246701425fb56f097b61c30780
 F src/builtin.c 6eb5285f83faca16ff2024926f82076d4634b8d964a6e4f1b1348c706d3eab49
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 23fd0d42d31911013c0267d4d98e7da03e6dce8e52cd1a79306297e81e4404ff
-F src/default.css 043b95a7ef6fda96923671437a0bfcc702da6075e53c6e0658a0512b07396ab1
+F src/default.css 650f3bd5ebd1036797b931b6306bdb0d97cf8949d611c6a5276de2d99f7d0d59
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -1005,10 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11e7960e51efc3d47edf37c51ca5f0950e5b5cc377552edfa662de90b680c89e
-R c7d798cbce6257bf2c930f91c7c48ac8
-T *branch * dir-columns-revisited
-T *sym-dir-columns-revisited *
-T -sym-trunk *
+P e5121a4934b4f938a47a2e9207bf602349a38ab1365a986dd9d97871b2e4a244
+R f6b3afd8583613701d2e855bca98d536
 U stephan
-Z 49a8d2c19cbbd8522ce62887175ce9d8
+Z 3254c25d8a3420cfe02dd7b308551013

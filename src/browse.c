@@ -308,7 +308,7 @@ void page_dir(void){
   /* Generate a multi-column table listing the contents of zD[]
   ** directory.
   */
-  mxLen = db_int(12, "SELECT max(length(x)) * 0.85 "
+  mxLen = db_int(12, "SELECT max(length(x)) "
                  "FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
