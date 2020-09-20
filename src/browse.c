@@ -308,18 +308,19 @@ void page_dir(void){
   /* Generate a multi-column table listing the contents of zD[]
   ** directory.
   */
-  mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
+  mxLen = db_int(12, "SELECT max(length(x)) * 0.85 "
+                 "FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
-  @ <div class="columns files" style="columns: %d(mxLen)ex auto">
-  @ <ul class="browser">
+  @ <div class="columns files">
+  @ <div class="browser" style="columns: %d(mxLen)ex auto">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFN;
     zFN = db_column_text(&q, 0);
     if( zFN[0]=='/' ){
       zFN++;
-      @ <li class="dir">%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
+      @ <span class="dir">%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></span>
     }else{
       const char *zLink;
       if( zCI ){
@@ -327,12 +328,12 @@ void page_dir(void){
       }else{
         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
       }
-      @ <li class="%z(fileext_class(zFN))">%z(zLink)%h(zFN)</a></li>
+      @ <span class="%z(fileext_class(zFN))">%z(zLink)%h(zFN)</a></span>
     }
   }
   db_finalize(&q);
   manifest_destroy(pM);
-  @ </ul></div>
+  @ </div></div>
 
   /* If the "noreadme" query parameter is present, do not try to
   ** show the content of the README file.

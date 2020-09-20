@@ -227,6 +227,9 @@ div.columns {
   padding: 0 2em 0 2em;
   max-width: 1000px;
 }
+div.columns.files {
+  max-width: unset;
+}
 div.columns > ul {
   margin: 0;
   padding: 0 0 0 1em;
@@ -295,29 +298,27 @@ ImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==");
   background-position: center left;
   background-repeat: no-repeat;
 }
-ul.browser {
-  list-style-type: none;
+div.browser {
   padding: 10px;
   margin: 0px;
   white-space: nowrap;
 }
-ul.browser li.file {
-  background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/\
-yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14Gq\
-FXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==");
+div.browser > span {
+  display: block;
   background-repeat: no-repeat;
   background-position: 0px center;
   padding-left: 20px;
   padding-top: 2px;
 }
-ul.browser li.dir {
+div.browser > span.file {
+  background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/\
+yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14Gq\
+FXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==");
+}
+div.browser span.dir {
   background-image: url("data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiI\
 v\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+\
 jUs6b5Z/K4siDu5RPUFADs=");
-  background-repeat: no-repeat;
-  background-position: 0px center;
-  padding-left: 20px;
-  padding-top: 2px;
 }
 div.filetreeline {
   display: table;
