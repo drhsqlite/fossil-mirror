@@ -15,8 +15,26 @@
   P.response = {/*stashed state for the server's preview response*/
     isError: false,
     inputText: undefined /* value of the editor field at render-time */,
-    raw: undefined /* raw response text/HTML from server */
+    raw: undefined /* raw response text/HTML from server */,
+    rawSvg: undefined /* plain-text SVG part of responses. Required
+                         because the browser will convert \u00a0 to
+                         &nbsp; if we extract the SVG from the DOM,
+                         resulting in illegal SVG. */
   };
+
+  /**
+     If string r contains an SVG element, this returns that section
+     of the string, else it returns falsy.
+   */
+  const getResponseSvg = function(r){
+    const i0 = r.indexOf("<svg");
+    if(i0>=0){
+      const i1 = r.indexOf("</svg");
+      return r.substring(i0,i1+6);
+    }
+    return '';
+  };
+
   F.onPageLoad(function() {
     document.body.classList.add('pikchrshow');
     P.e = { /* various DOM elements we work with... */
@@ -277,6 +295,10 @@
       /* Fill our "response" state so that renderPreview() can work */
       P.response.inputText = P.e.taContent.value;
       P.response.raw = P.e.previewTarget.innerHTML;
+      P.response.rawSvg = getResponseSvg(
+        P.response.raw /*note that this is already in the DOM,
+                         which means that the browser has already mangled
+                         \u00a0 to &nbsp;, so...*/.split('&nbsp;').join('\u00a0'));
       if(needsPreview) P.preview();
       else{
         /*If it's from the server, it's already rendered, but this
@@ -325,8 +347,8 @@
       f.showMarkupAlignment(false);
       D.parseHtml(D.clearElement(preTgt), P.response.raw);
       svg = preTgt.querySelector('svg.pikchr');
-      if(svg){ /*for copy button*/
-        this.e.taPreviewText.value = svg.outerHTML;
+      if(svg && P.response.rawSvg){ /*for copy button*/
+        this.e.taPreviewText.value = P.response.rawSvg;
         F.pikchr.addSrcView(svg);
       }
       break;
@@ -354,7 +376,8 @@
       f.showMarkupAlignment(false);
       svg = f.getSvgNode(this.response.raw);
       if(svg){
-        this.e.taPreviewText.value = svg.outerHTML;
+        this.e.taPreviewText.value =
+          P.response.rawSvg || "Error extracting SVG element.";
       }else{
         this.e.taPreviewText.value = "ERROR parsing response HTML:\n"+
           this.response.raw;
@@ -384,6 +407,7 @@
       fp.updateView = function(c,isError){
         P.previewMode = 0;
         P.response.raw = c;
+        P.response.rawSvg = getResponseSvg(c);
         P.response.isError = isError;
         D.enable(fp.toDisable);
         P.renderPreview();
@@ -393,7 +417,7 @@
     D.addClass(this.e.markupAlignWrapper, 'hidden');
     D.addClass(this.e.previewCopyButton, 'disabled');
     const content = this.e.taContent.value.trim();
-    this.response.raw = undefined;
+    this.response.raw = this.response.rawSvg = undefined;
     this.response.inputText = content;
     const sampleScript = fp.$_sampleScript;
     delete fp.$_sampleScript;

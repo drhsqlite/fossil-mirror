@@ -1,5 +1,5 @@
-C Latest\spikchr.c\sfixes\sa\svariable\sinitialization\sproblem\sand\sadds\sthe\nxmlns\sattribute\sto\sthe\sSVG\smarkup.
-D 2020-09-21T14:21:35.336
+C pikchrshow\snow\ssquirrels\saway\sa\scopy\sof\sthe\sraw\sresponse\sSVG,\sinstead\sof\sfishing\sit\sout\sthe\sDOM\son\sdemand,\sbecause\sin\sthe\slatter\scase\sthe\sbrowser\sconverts\su00a0\scharacters\sto\snbsp\selements,\sresulting\sin\sillegal\sSVG.
+D 2020-09-25T03:04:41.599
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -493,7 +493,7 @@ F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7ecd1f7761b69fd8
-F src/fossil.page.pikchrshow.js 0717de3c18340af37498344844a03c5db7b7f3784ef7c2b721173e7f6a703669
+F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
 F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cab87e342005b3a5629a4c7dcafe8a9676d4284bf9f8a9910daf58b0bfdb9c35
-R dbcfd76334ff1c135f070ad656f5e8b2
-U drh
-Z d912b800d02fec9b1c2b749282088eb7
+P 7de85417dee9c28bd4ae8997f987b37dc7749c41d90d635725d2741dc7c84098
+R 4093ad68a33af234598e6bac0530df21
+U stephan
+Z c941152b72b55bc4408a8be8224d3a24
