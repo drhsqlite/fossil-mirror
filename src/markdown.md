@@ -110,10 +110,12 @@
 > code syntax highlighters. Thus <tt>\`\`\`c</tt> would mark a block of code
 > in the C programming language. Text to be rendered inside the code block
 > should therefore start on the next line, not be cuddled up with the
-> backticks or tildes.
+> backticks or tildes.  See the "Diagrams" section below for the case where
+> "`language-WORD`" is "pikchr".
 
 > With the standard skins, verbatim text is rendered in a fixed-width font,
 > but that is purely a presentation matter, controlled by the skin’s CSS.
+
 
 ## Tables ##
 
@@ -133,6 +135,22 @@
 
 > The leftmost or rightmost **\|** is required only if the first or last column,
 > respectively, contains at least one blank cell.
+
+## Diagrams ##
+
+>
+~~~~~
+~~~ pikchr
+oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
+~~~
+~~~~~
+
+> Formatted using [Pikchr](https://pikchr.org/home), resulting in:
+
+>
+~~~ pikchr
+oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
+~~~
 
 ## Miscellaneous ##
 

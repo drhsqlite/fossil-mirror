@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\spikchr.c\sto\sinclude\sthe\slatest\senhancements\sand\sfixes.
-D 2020-09-26T11:24:24.911
+C Briefly\smention\show\sto\sinvoke\sPikchr\sfrom\sthe\sMarkdown\sand\sFossil\sWiki\nrule\scheatsheets.
+D 2020-09-26T15:51:43.285
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -547,7 +547,7 @@ F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd
 F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab13108cf x
 F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
-F src/markdown.md 95417d833ab942ee579c337e41580eb877a035a60481c7bef92206cbe553e1a6
+F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
 F src/markdown_html.c 65eda1f443c23d8d682408dc73ed7f3cd578864f40cac9a0deabd18061cccced
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -646,7 +646,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c bfab2e08e90927231e1f697342efe41adeb099a912ff7d6378aeb8bdbe1545af
-F src/wiki.wiki c47ce57f78f977f811ee70fb57b09702290cdf5503a625c3c02cd7fdde22c150
+F src/wiki.wiki 115d2665e40e871dfb83533f366bac52fcff5b214c8f117c69fc26465240d05b
 F src/wikiformat.c a353a06aefbd146fdf12babd166524c3a1aaf9835e1a88ff0ce42a3ed0df0db9
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c b30ba807ffc837f7797efe6cf4569462967fe51bb7e2194cc348a2b7c59072e2
@@ -1005,7 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1165ed88f3f60f15b8af8611b495199026481a1ec2f83912540d25a71fc81fe1
-R 60d4ee5100774980d1363ef0bb038603
+P 1347e990ac744d7d5539524787ff1819c9882173e0f147695560302360df348d
+R d5368bb692f01e15dc4141553fd6143a
 U drh
-Z b0eaeb040968e8c8b9f36197603006c2
+Z 0322b20dfa598b5ed6884b1a1affe6d4

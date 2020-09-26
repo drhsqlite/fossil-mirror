@@ -81,6 +81,10 @@ The last two rules are the HTML formatting rules.
       the matching &lt;/nowiki&gt; element. The &lt;verbatim&gt; tag works
       like &lt;pre&gt; with the addition that it also disables all wiki
       and HTML markup through the matching &lt;/verbatim&gt;.
+      Text within 
+      <tt>&lt;verbatim&nbsp;type="pikchr"&gt;...&lt;/verbatim&gt;</tt>
+      is formatted using <a href="https://pikchr.org/home">Pikchr</a>.
+
 
 <a name="intermap"></a>
 <h2>Interwiki Tag Map</h2>
