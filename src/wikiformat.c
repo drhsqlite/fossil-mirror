@@ -830,8 +830,8 @@ static int parseMarkup(ParsedMarkup *p, char *z){
       }else{
         zValue = &z[i];
         while( !fossil_isspace(z[i]) && z[i]!='>' ){
-          if( z[i]!='\'' && z[i]!='"' ) attrOk = 0;
-          z++;
+          if( z[i]=='\'' || z[i]=='"' ) attrOk = 0;
+          i++;
         }
       }
       if( attrOk ){
