@@ -372,7 +372,7 @@ struct PClass {
   char eJust;                            /* Use box-style text justification */
   void (*xInit)(Pik*,PElem*);              /* Initializer */
   void (*xNumProp)(Pik*,PElem*,PToken*);   /* Value change notification */
-  void (*xCheck)(Pik*,PElem*);             /* Checks to after parsing */
+  void (*xCheck)(Pik*,PElem*);             /* Checks to do after parsing */
   PPoint (*xChop)(Pik*,PElem*,PPoint*);    /* Chopper */
   PPoint (*xOffset)(Pik*,PElem*,int);      /* Offset from .c to edge point */
   void (*xFit)(Pik*,PElem*,PNum w,PNum h); /* Size to fit text */
@@ -4426,7 +4426,7 @@ static void pik_append(Pik *p, const char *zText, int n){
 /*
 ** Append text to zOut with HTML characters escaped.
 **
-**   *  The space character is changed into non-breaking space (U+0080)
+**   *  The space character is changed into non-breaking space (U+00a0)
 **      if mFlags has the 0x01 bit set. This is needed when outputting
 **      text to preserve leading and trailing whitespace.  Turns out we
 **      cannot use &nbsp; as that is an HTML-ism and is not valid in XML.
@@ -4792,8 +4792,13 @@ static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
       }
     }
     pik_append(p," dominant-baseline=\"central\">",-1);
-    z = t->z+1;
-    nz = t->n-2;
+    if( t->n>=2 && t->z[0]=='"' ){
+      z = t->z+1;
+      nz = t->n-2;
+    }else{
+      z = t->z;
+      nz = t->n;
+    }
     while( nz>0 ){
       int j;
       for(j=0; j<nz && z[j]!='\\'; j++){}
@@ -5917,7 +5922,7 @@ static PNum pik_value(Pik *p, const char *z, int n, int *pMiss){
 ** color-names are not case sensitive.  So "DarkBlue" and "darkblue"
 ** and "DARKBLUE" all find the same value (139).
 **
-** If not found, return -1.0.  Also post an error if p!=NULL.
+** If not found, return -99.0.  Also post an error if p!=NULL.
 **
 ** Special color names "None" and "Off" return -1.0 without causing
 ** an error.
@@ -5949,7 +5954,7 @@ static PNum pik_lookup_color(Pik *p, PToken *pId){
     }
   }
   if( p ) pik_error(p, pId, "not a known color name");
-  return -1.0;
+  return -99.0;
 }
 
 /* Get the value of a variable.
@@ -5967,7 +5972,7 @@ static PNum pik_get_var(Pik *p, PToken *pId){
   PNum v = pik_value(p, pId->z, pId->n, &miss);
   if( miss==0 ) return v;
   v = pik_lookup_color(0, pId);
-  if( v>=0.0 ) return v;
+  if( v>-90.0 ) return v;
   pik_error(p,pId,"no such variable");
   return 0.0;
 }
@@ -6473,7 +6478,9 @@ void pik_elist_render(Pik *p, PEList *pEList){
   int iNextLayer = 0;
   int iThisLayer;
   int bMoreToDo;
+  int miss = 0;
   int mDebug = (int)pik_value(p, "debug", 5, 0);
+  PNum colorLabel;
   do{
     bMoreToDo = 0;
     iThisLayer = iNextLayer;
@@ -6498,6 +6505,29 @@ void pik_elist_render(Pik *p, PEList *pEList){
       }
     }
   }while( bMoreToDo );
+
+  /* If the color_debug_label value is defined, then go through
+  ** and paint a dot at every label location */
+  colorLabel = pik_value(p, "debug_label_color", 17, &miss);
+  if( miss==0 && colorLabel>=0.0 ){
+    PElem dot;
+    memset(&dot, 0, sizeof(dot));
+    dot.type = &noopClass;
+    dot.rad = 0.015;
+    dot.sw = 0.015;
+    dot.fill = colorLabel;
+    dot.color = colorLabel;
+    dot.nTxt = 1;
+    dot.aTxt[0].eCode = TP_ABOVE;
+    for(i=0; i<pEList->n; i++){
+      PElem *pElem = pEList->a[i];
+      if( pElem->zName==0 ) continue;
+      dot.ptAt = pElem->ptAt;
+      dot.aTxt[0].z = pElem->zName;
+      dot.aTxt[0].n = (int)strlen(pElem->zName);
+      dotRender(p, &dot);
+    }
+  }
 }
 
 /* Add all elements of the list pEList to the bounding box
@@ -7111,6 +7141,9 @@ char *pikchr(
     pik_parser(&sParse, 0, token);
   }
   pik_parserFinalize(&sParse);
+  if( s.zOut==0 && s.nErr==0 ){
+    pik_append(&s, "<!-- empty pikchr diagram -->\n", -1);
+  }
   while( s.pVar ){
     PVar *pNext = s.pVar->pNext;
     free(s.pVar);
@@ -7286,4 +7319,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 7314 "pikchr.c"
+#line 7347 "pikchr.c"
