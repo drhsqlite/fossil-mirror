@@ -70,43 +70,43 @@
 ** track its internal state.  The Pik structure lives for the duration
 ** of the pikchr() call.
 **
-** The input is a sequence of objects or "elements".  Each element is
-** parsed into a PElem object.  These are stored on an extensible array
-** called PEList.  All parameters to each PElem are computed as the
-** object is parsed.  (Hence, the parameters to a PElem may only refer
-** to prior elements.) Once the PElem is completely assembled, it is
-** added to the end of a PEList and never changes thereafter - except,
-** PElem objects that are part of a "[...]" block might have their
+** The input is a sequence of objects or "statements".  Each statement is
+** parsed into a PObj object.  These are stored on an extensible array
+** called PList.  All parameters to each PObj are computed as the
+** object is parsed.  (Hence, the parameters to a PObj may only refer
+** to prior statements.) Once the PObj is completely assembled, it is
+** added to the end of a PList and never changes thereafter - except,
+** PObj objects that are part of a "[...]" block might have their
 ** absolute position shifted when the outer [...] block is positioned.
-** But apart from this repositioning, PElem objects are unchanged once
-** they are added to the list. The order of elements on a PEList does
+** But apart from this repositioning, PObj objects are unchanged once
+** they are added to the list. The order of statements on a PList does
 ** not change.
 **
-** After all input has been parsed, the top-level PEList is walked to
+** After all input has been parsed, the top-level PList is walked to
 ** generate output.  Sub-lists resulting from [...] blocks are scanned
 ** as they are encountered.  All input must be collected and parsed ahead
-** of output generation because the size and position of elements must be
+** of output generation because the size and position of statements must be
 ** known in order to compute a bounding box on the output.
 **
-** Each PElem is on a "layer".  (The common case is that all PElem's are
+** Each PObj is on a "layer".  (The common case is that all PObj's are
 ** on a single layer, but multiple layers are possible.)  A separate pass
 ** is made through the list for each layer.
 **
-** After all output is generated, the Pik object and all the PEList
-** and PElem objects are deallocated and the generated output string is
+** After all output is generated, the Pik object and all the PList
+** and PObj objects are deallocated and the generated output string is
 ** returned.  Upon any error, the Pik.nErr flag is set, processing quickly
 ** stops, and the stack unwinds.  No attempt is made to continue reading
 ** input after an error.
 **
-** Most elements begin with a class name like "box" or "arrow" or "move".
-** There is a class named "text" which is used for elements that begin
+** Most statements begin with a class name like "box" or "arrow" or "move".
+** There is a class named "text" which is used for statements that begin
 ** with a string literal.  You can also specify the "text" class.
 ** A Sublist ("[...]") is a single object that contains a pointer to
-** its subelements, all gathered onto a separate PEList object.
+** its substatements, all gathered onto a separate PList object.
 **
 ** Variables go into PVar objects that form a linked list.
 **
-** Each PElem has zero or one names.  Input constructs that attempt
+** Each PObj has zero or one names.  Input constructs that attempt
 ** to assign a new name from an older name, for example:
 **
 **      Abc:  Abc + (0.5cm, 0)
@@ -133,14 +133,15 @@
 
 typedef struct Pik Pik;          /* Complete parsing context */
 typedef struct PToken PToken;    /* A single token */
-typedef struct PElem PElem;      /* A single diagram object or "element" */
-typedef struct PEList PEList;    /* A list of elements */
-typedef struct PClass PClass;    /* Description of elements types */
+typedef struct PObj PObj;        /* A single diagram object */
+typedef struct PList PList;      /* A list of diagram objects */
+typedef struct PClass PClass;    /* Description of statements types */
 typedef double PNum;             /* Numeric value */
 typedef struct PRel PRel;        /* Absolute or percentage value */
 typedef struct PPoint PPoint;    /* A position in 2-D space */
 typedef struct PVar PVar;        /* script-defined variable */
 typedef struct PBox PBox;        /* A bounding box */
+typedef struct PMacro PMacro;    /* A "define" macro */
 
 /* Compass points */
 #define CP_N      1
@@ -183,11 +184,11 @@ static const PNum pik_hdg_angle[] = {
 #define TP_LJUST   0x0001  /* left justify......          */
 #define TP_RJUST   0x0002  /*            ...Right justify */
 #define TP_JMASK   0x0003  /* Mask for justification bits */
-#define TP_ABOVE2  0x0004  /* Position text way above PElem.ptAt */
-#define TP_ABOVE   0x0008  /* Position text above PElem.ptAt */
+#define TP_ABOVE2  0x0004  /* Position text way above PObj.ptAt */
+#define TP_ABOVE   0x0008  /* Position text above PObj.ptAt */
 #define TP_CENTER  0x0010  /* On the line */
-#define TP_BELOW   0x0020  /* Position text below PElem.ptAt */
-#define TP_BELOW2  0x0040  /* Position text way below PElem.ptAt */
+#define TP_BELOW   0x0020  /* Position text below PObj.ptAt */
+#define TP_BELOW2  0x0040  /* Position text way below PObj.ptAt */
 #define TP_VMASK   0x007c  /* Mask for text positioning flags */
 #define TP_BIG     0x0100  /* Larger font */
 #define TP_SMALL   0x0200  /* Smaller font */
@@ -256,6 +257,7 @@ static int pik_token_eq(PToken *pToken, const char *z){
 /* Extra token types not generated by LEMON but needed by the
 ** tokenizer
 */
+#define T_PARAMETER  253     /* $1, $2, ..., $9 */
 #define T_WHITESPACE 254     /* Whitespace of comments */
 #define T_ERROR      255     /* Any text that is not a valid token */
 
@@ -268,8 +270,8 @@ static int pik_token_eq(PToken *pToken, const char *z){
 #define IsUpDown(X)     (((X)&1)==1)
 #define IsLeftRight(X)  (((X)&1)==0)
 
-/* Bitmask for the various attributes for PElem.  These bits are
-** collected in PElem.mProp and PElem.mCalc to check for constraint
+/* Bitmask for the various attributes for PObj.  These bits are
+** collected in PObj.mProp and PObj.mCalc to check for constraint
 ** errors. */
 #define A_WIDTH         0x0001
 #define A_HEIGHT        0x0002
@@ -283,16 +285,17 @@ static int pik_token_eq(PToken *pToken, const char *z){
 #define A_CW            0x0200
 #define A_AT            0x0400
 #define A_TO            0x0800 /* one or more movement attributes */
+#define A_FIT           0x1000
 
 
-/* A single element */
-struct PElem {
-  const PClass *type;      /* Element type */
+/* A single graphics object */
+struct PObj {
+  const PClass *type;      /* Object type or class */
   PToken errTok;           /* Reference token for error messages */
   PPoint ptAt;             /* Reference point for the object */
   PPoint ptEnter, ptExit;  /* Entry and exit points */
-  PEList *pSublist;        /* Substructure for [...] elements */
-  char *zName;             /* Name assigned to this element */
+  PList *pSublist;         /* Substructure for [...] objects */
+  char *zName;             /* Name assigned to this statement */
   PNum w;                  /* "width" property */
   PNum h;                  /* "height" property */
   PNum rad;                /* "radius" property */
@@ -319,11 +322,19 @@ struct PElem {
   PBox bbox;               /* Bounding box */
 };
 
-/* A list of elements */
-struct PEList {
-  int n;          /* Number of elements in the list */
+/* A list of graphics objects */
+struct PList {
+  int n;          /* Number of statements in the list */
   int nAlloc;     /* Allocated slots in a[] */
-  PElem **a;      /* Pointers to individual elements */
+  PObj **a;       /* Pointers to individual objects */
+};
+
+/* A macro definition */
+struct PMacro {
+  PMacro *pNext;       /* Next in the list */
+  PToken macroName;    /* Name of the macro */
+  PToken macroBody;    /* Body of the macro */
+  int inUse;           /* Do not allow recursion */
 };
 
 /* Each call to the pikchr() subroutine uses an instance of the following
@@ -331,17 +342,17 @@ struct PEList {
 */
 struct Pik {
   unsigned nErr;           /* Number of errors seen */
-  const char *zIn;         /* Input PIKCHR-language text.  zero-terminated */
-  unsigned int nIn;        /* Number of bytes in zIn */
+  PToken sIn;              /* Input Pikchr-language text */
   char *zOut;              /* Result accumulates here */
   unsigned int nOut;       /* Bytes written to zOut[] so far */
   unsigned int nOutAlloc;  /* Space allocated to zOut[] */
   unsigned char eDir;      /* Current direction */
   unsigned int mFlags;     /* Flags passed to pikchr() */
-  PElem *cur;              /* Element under construction */
-  PEList *list;            /* Element list under construction */
+  PObj *cur;               /* Object under construction */
+  PList *list;             /* Object list under construction */
+  PMacro *pMacros;         /* List of all defined macros */
   PVar *pVar;              /* Application-defined variables */
-  PBox bbox;               /* Bounding box around all elements */
+  PBox bbox;               /* Bounding box around all statements */
                            /* Cache of layout values.  <=0.0 for unknown... */
   PNum rScale;                 /* Multiply to convert inches to pixels */
   PNum fontScale;              /* Scale fonts by this percent */
@@ -355,10 +366,13 @@ struct Pik {
   const char *zClass;      /* Class name for the <svg> */
   int wSVG, hSVG;          /* Width and height of the <svg> */
   /* Paths for lines are constructed here first, then transferred into
-  ** the PElem object at the end: */
+  ** the PObj object at the end: */
   int nTPath;              /* Number of entries on aTPath[] */
   int mTPath;              /* For last entry, 1: x set,  2: y set */
   PPoint aTPath[1000];     /* Path under construction */
+  /* Error contexts */
+  unsigned int nCtx;       /* Number of error contexts */
+  PToken aCtx[10];         /* Nested error contexts */
 };
 
 
@@ -370,13 +384,13 @@ struct PClass {
   const char *zName;                     /* Name of class */
   char isLine;                           /* True if a line class */
   char eJust;                            /* Use box-style text justification */
-  void (*xInit)(Pik*,PElem*);              /* Initializer */
-  void (*xNumProp)(Pik*,PElem*,PToken*);   /* Value change notification */
-  void (*xCheck)(Pik*,PElem*);             /* Checks to do after parsing */
-  PPoint (*xChop)(Pik*,PElem*,PPoint*);    /* Chopper */
-  PPoint (*xOffset)(Pik*,PElem*,int);      /* Offset from .c to edge point */
-  void (*xFit)(Pik*,PElem*,PNum w,PNum h); /* Size to fit text */
-  void (*xRender)(Pik*,PElem*);            /* Render */
+  void (*xInit)(Pik*,PObj*);              /* Initializer */
+  void (*xNumProp)(Pik*,PObj*,PToken*);   /* Value change notification */
+  void (*xCheck)(Pik*,PObj*);             /* Checks to do after parsing */
+  PPoint (*xChop)(Pik*,PObj*,PPoint*);    /* Chopper */
+  PPoint (*xOffset)(Pik*,PObj*,int);      /* Offset from .c to edge point */
+  void (*xFit)(Pik*,PObj*,PNum w,PNum h); /* Size to fit text */
+  void (*xRender)(Pik*,PObj*);            /* Render */
 };
 
 
@@ -391,41 +405,41 @@ static void pik_append_xy(Pik*,const char*,PNum,PNum);
 static void pik_append_dis(Pik*,const char*,PNum,const char*);
 static void pik_append_arc(Pik*,PNum,PNum,PNum,PNum);
 static void pik_append_clr(Pik*,const char*,PNum,const char*);
-static void pik_append_style(Pik*,PElem*,int);
-static void pik_append_txt(Pik*,PElem*, PBox*);
-static void pik_draw_arrowhead(Pik*,PPoint*pFrom,PPoint*pTo,PElem*);
+static void pik_append_style(Pik*,PObj*,int);
+static void pik_append_txt(Pik*,PObj*, PBox*);
+static void pik_draw_arrowhead(Pik*,PPoint*pFrom,PPoint*pTo,PObj*);
 static void pik_chop(PPoint*pFrom,PPoint*pTo,PNum);
 static void pik_error(Pik*,PToken*,const char*);
-static void pik_elist_free(Pik*,PEList*);
-static void pik_elem_free(Pik*,PElem*);
-static void pik_render(Pik*,PEList*);
-static PEList *pik_elist_append(Pik*,PEList*,PElem*);
-static PElem *pik_elem_new(Pik*,PToken*,PToken*,PEList*);
+static void pik_elist_free(Pik*,PList*);
+static void pik_elem_free(Pik*,PObj*);
+static void pik_render(Pik*,PList*);
+static PList *pik_elist_append(Pik*,PList*,PObj*);
+static PObj *pik_elem_new(Pik*,PToken*,PToken*,PList*);
 static void pik_set_direction(Pik*,int);
-static void pik_elem_setname(Pik*,PElem*,PToken*);
+static void pik_elem_setname(Pik*,PObj*,PToken*);
 static void pik_set_var(Pik*,PToken*,PNum,PToken*);
 static PNum pik_value(Pik*,const char*,int,int*);
 static PNum pik_lookup_color(Pik*,PToken*);
 static PNum pik_get_var(Pik*,PToken*);
 static PNum pik_atof(PToken*);
-static void pik_after_adding_attributes(Pik*,PElem*);
-static void pik_elem_move(PElem*,PNum dx, PNum dy);
-static void pik_elist_move(PEList*,PNum dx, PNum dy);
+static void pik_after_adding_attributes(Pik*,PObj*);
+static void pik_elem_move(PObj*,PNum dx, PNum dy);
+static void pik_elist_move(PList*,PNum dx, PNum dy);
 static void pik_set_numprop(Pik*,PToken*,PRel*);
 static void pik_set_clrprop(Pik*,PToken*,PNum);
 static void pik_set_dashed(Pik*,PToken*,PNum*);
-static void pik_then(Pik*,PToken*,PElem*);
+static void pik_then(Pik*,PToken*,PObj*);
 static void pik_add_direction(Pik*,PToken*,PRel*);
 static void pik_move_hdg(Pik*,PRel*,PToken*,PNum,PToken*,PToken*);
 static void pik_evenwith(Pik*,PToken*,PPoint*);
-static void pik_set_from(Pik*,PElem*,PToken*,PPoint*);
-static void pik_add_to(Pik*,PElem*,PToken*,PPoint*);
+static void pik_set_from(Pik*,PObj*,PToken*,PPoint*);
+static void pik_add_to(Pik*,PObj*,PToken*,PPoint*);
 static void pik_close_path(Pik*,PToken*);
 static void pik_set_at(Pik*,PToken*,PPoint*,PToken*);
 static short int pik_nth_value(Pik*,PToken*);
-static PElem *pik_find_nth(Pik*,PElem*,PToken*);
-static PElem *pik_find_byname(Pik*,PElem*,PToken*);
-static PPoint pik_place_of_elem(Pik*,PElem*,PToken*);
+static PObj *pik_find_nth(Pik*,PObj*,PToken*);
+static PObj *pik_find_byname(Pik*,PObj*,PToken*);
+static PPoint pik_place_of_elem(Pik*,PObj*,PToken*);
 static int pik_bbox_isempty(PBox*);
 static void pik_bbox_init(PBox*);
 static void pik_bbox_addbox(PBox*,PBox*);
@@ -433,24 +447,25 @@ static void pik_bbox_add_xy(PBox*,PNum,PNum);
 static void pik_bbox_addellipse(PBox*,PNum x,PNum y,PNum rx,PNum ry);
 static void pik_add_txt(Pik*,PToken*,int);
 static int pik_text_length(const PToken *pToken);
-static void pik_size_to_fit(Pik*,PToken*);
+static void pik_size_to_fit(Pik*,PToken*,int);
 static int pik_text_position(int,PToken*);
-static PNum pik_property_of(PElem*,PToken*);
+static PNum pik_property_of(PObj*,PToken*);
 static PNum pik_func(Pik*,PToken*,PNum,PNum);
 static PPoint pik_position_between(PNum x, PPoint p1, PPoint p2);
 static PPoint pik_position_at_angle(PNum dist, PNum r, PPoint pt);
 static PPoint pik_position_at_hdg(PNum dist, PToken *pD, PPoint pt);
-static void pik_same(Pik *p, PElem*, PToken*);
-static PPoint pik_nth_vertex(Pik *p, PToken *pNth, PToken *pErr, PElem *pElem);
+static void pik_same(Pik *p, PObj*, PToken*);
+static PPoint pik_nth_vertex(Pik *p, PToken *pNth, PToken *pErr, PObj *pObj);
 static PToken pik_next_semantic_token(PToken *pThis);
 static void pik_compute_layout_settings(Pik*);
-static void pik_behind(Pik*,PElem*);
-static PElem *pik_assert(Pik*,PNum,PToken*,PNum);
-static PElem *pik_position_assert(Pik*,PPoint*,PToken*,PPoint*);
+static void pik_behind(Pik*,PObj*);
+static PObj *pik_assert(Pik*,PNum,PToken*,PNum);
+static PObj *pik_position_assert(Pik*,PPoint*,PToken*,PPoint*);
 static PNum pik_dist(PPoint*,PPoint*);
+static void pik_add_macro(Pik*,PToken *pId,PToken *pCode);
 
 
-#line 479 "pikchr.c"
+#line 494 "pikchr.c"
 /**************** End of %include directives **********************************/
 /* These constants specify the various numeric values for terminal symbols.
 ***************** Begin token definitions *************************************/
@@ -472,83 +487,85 @@ static PNum pik_dist(PPoint*,PPoint*);
 #define T_LP                             15
 #define T_EQ                             16
 #define T_RP                             17
-#define T_FILL                           18
-#define T_COLOR                          19
-#define T_THICKNESS                      20
-#define T_PRINT                          21
-#define T_STRING                         22
-#define T_COMMA                          23
-#define T_CLASSNAME                      24
-#define T_LB                             25
-#define T_RB                             26
-#define T_UP                             27
-#define T_DOWN                           28
-#define T_LEFT                           29
-#define T_RIGHT                          30
-#define T_CLOSE                          31
-#define T_CHOP                           32
-#define T_FROM                           33
-#define T_TO                             34
-#define T_THEN                           35
-#define T_HEADING                        36
-#define T_GO                             37
-#define T_AT                             38
-#define T_WITH                           39
-#define T_SAME                           40
-#define T_AS                             41
-#define T_FIT                            42
-#define T_BEHIND                         43
-#define T_UNTIL                          44
-#define T_EVEN                           45
-#define T_DOT_E                          46
-#define T_HEIGHT                         47
-#define T_WIDTH                          48
-#define T_RADIUS                         49
-#define T_DIAMETER                       50
-#define T_DOTTED                         51
-#define T_DASHED                         52
-#define T_CW                             53
-#define T_CCW                            54
-#define T_LARROW                         55
-#define T_RARROW                         56
-#define T_LRARROW                        57
-#define T_INVIS                          58
-#define T_THICK                          59
-#define T_THIN                           60
-#define T_CENTER                         61
-#define T_LJUST                          62
-#define T_RJUST                          63
-#define T_ABOVE                          64
-#define T_BELOW                          65
-#define T_ITALIC                         66
-#define T_BOLD                           67
-#define T_ALIGNED                        68
-#define T_BIG                            69
-#define T_SMALL                          70
-#define T_AND                            71
-#define T_LT                             72
-#define T_GT                             73
-#define T_ON                             74
-#define T_WAY                            75
-#define T_BETWEEN                        76
-#define T_THE                            77
-#define T_NTH                            78
-#define T_VERTEX                         79
-#define T_TOP                            80
-#define T_BOTTOM                         81
-#define T_START                          82
-#define T_END                            83
-#define T_IN                             84
-#define T_DOT_U                          85
-#define T_LAST                           86
-#define T_NUMBER                         87
-#define T_FUNC1                          88
-#define T_FUNC2                          89
-#define T_DIST                           90
-#define T_DOT_XY                         91
-#define T_X                              92
-#define T_Y                              93
-#define T_DOT_L                          94
+#define T_DEFINE                         18
+#define T_CODEBLOCK                      19
+#define T_FILL                           20
+#define T_COLOR                          21
+#define T_THICKNESS                      22
+#define T_PRINT                          23
+#define T_STRING                         24
+#define T_COMMA                          25
+#define T_CLASSNAME                      26
+#define T_LB                             27
+#define T_RB                             28
+#define T_UP                             29
+#define T_DOWN                           30
+#define T_LEFT                           31
+#define T_RIGHT                          32
+#define T_CLOSE                          33
+#define T_CHOP                           34
+#define T_FROM                           35
+#define T_TO                             36
+#define T_THEN                           37
+#define T_HEADING                        38
+#define T_GO                             39
+#define T_AT                             40
+#define T_WITH                           41
+#define T_SAME                           42
+#define T_AS                             43
+#define T_FIT                            44
+#define T_BEHIND                         45
+#define T_UNTIL                          46
+#define T_EVEN                           47
+#define T_DOT_E                          48
+#define T_HEIGHT                         49
+#define T_WIDTH                          50
+#define T_RADIUS                         51
+#define T_DIAMETER                       52
+#define T_DOTTED                         53
+#define T_DASHED                         54
+#define T_CW                             55
+#define T_CCW                            56
+#define T_LARROW                         57
+#define T_RARROW                         58
+#define T_LRARROW                        59
+#define T_INVIS                          60
+#define T_THICK                          61
+#define T_THIN                           62
+#define T_CENTER                         63
+#define T_LJUST                          64
+#define T_RJUST                          65
+#define T_ABOVE                          66
+#define T_BELOW                          67
+#define T_ITALIC                         68
+#define T_BOLD                           69
+#define T_ALIGNED                        70
+#define T_BIG                            71
+#define T_SMALL                          72
+#define T_AND                            73
+#define T_LT                             74
+#define T_GT                             75
+#define T_ON                             76
+#define T_WAY                            77
+#define T_BETWEEN                        78
+#define T_THE                            79
+#define T_NTH                            80
+#define T_VERTEX                         81
+#define T_TOP                            82
+#define T_BOTTOM                         83
+#define T_START                          84
+#define T_END                            85
+#define T_IN                             86
+#define T_DOT_U                          87
+#define T_LAST                           88
+#define T_NUMBER                         89
+#define T_FUNC1                          90
+#define T_FUNC2                          91
+#define T_DIST                           92
+#define T_DOT_XY                         93
+#define T_X                              94
+#define T_Y                              95
+#define T_DOT_L                          96
 #endif
 /**************** End token definitions ***************************************/
 
@@ -608,18 +625,18 @@ static PNum pik_dist(PPoint*,PPoint*);
 #endif
 /************* Begin control #defines *****************************************/
 #define YYCODETYPE unsigned char
-#define YYNOCODE 131
+#define YYNOCODE 133
 #define YYACTIONTYPE unsigned short int
 #define pik_parserTOKENTYPE PToken
 typedef union {
   int yyinit;
   pik_parserTOKENTYPE yy0;
-  PEList* yy56;
-  int yy116;
-  PRel yy164;
-  PPoint yy175;
-  PElem* yy226;
-  PNum yy257;
+  int yy46;
+  PPoint yy47;
+  PNum yy121;
+  PRel yy134;
+  PObj* yy138;
+  PList* yy191;
 } YYMINORTYPE;
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
@@ -635,18 +652,18 @@ typedef union {
 #define pik_parserCTX_FETCH Pik *p=yypParser->p;
 #define pik_parserCTX_STORE yypParser->p=p;
 #define YYFALLBACK 1
-#define YYNSTATE             162
-#define YYNRULE              153
-#define YYNRULE_WITH_ACTION  113
-#define YYNTOKEN             95
-#define YY_MAX_SHIFT         161
-#define YY_MIN_SHIFTREDUCE   282
-#define YY_MAX_SHIFTREDUCE   434
-#define YY_ERROR_ACTION      435
-#define YY_ACCEPT_ACTION     436
-#define YY_NO_ACTION         437
-#define YY_MIN_REDUCE        438
-#define YY_MAX_REDUCE        590
+#define YYNSTATE             164
+#define YYNRULE              154
+#define YYNRULE_WITH_ACTION  114
+#define YYNTOKEN             97
+#define YY_MAX_SHIFT         163
+#define YY_MIN_SHIFTREDUCE   285
+#define YY_MAX_SHIFTREDUCE   438
+#define YY_ERROR_ACTION      439
+#define YY_ACCEPT_ACTION     440
+#define YY_NO_ACTION         441
+#define YY_MIN_REDUCE        442
+#define YY_MAX_REDUCE        595
 /************* End control #defines *******************************************/
 #define YY_NLOOKAHEAD ((int)(sizeof(yy_lookahead)/sizeof(yy_lookahead[0])))
 
@@ -713,324 +730,320 @@ typedef union {
 **  yy_default[]       Default action for each state.
 **
 *********** Begin parsing tables **********************************************/
-#define YY_ACTTAB_COUNT (1244)
+#define YY_ACTTAB_COUNT (1223)
 static const YYACTIONTYPE yy_action[] = {
- /*     0 */   564,  438,   25,  444,   29,   74,  127,  146,   54,   51,
- /*    10 */   564,   36,  445,  113,  120,  159,  119,  126,  419,  420,
- /*    20 */   333,  548,   81,  520,  549,  550,  564,   64,   63,   62,
- /*    30 */    61,  316,  317,    9,    8,   33,  147,   32,    7,   71,
- /*    40 */   125,   28,  329,   66,  568,  300,   50,  333,  333,  333,
- /*    50 */   333,  417,  418,  334,  335,  336,  337,  338,  339,  340,
- /*    60 */   341,  465,   64,   63,   62,   61,  121,  439,  446,   29,
- /*    70 */    36,  465,   30,  442,  368,  292,  486,  159,  119,  419,
- /*    80 */   420,  333,   31,   81,  161,  350,  304,  465,  436,   27,
- /*    90 */   324,   13,  316,  317,    9,    8,   33,   69,   32,    7,
- /*   100 */    71,  125,   83,  329,   66,  483,  159,  119,  333,  333,
- /*   110 */   333,  333,  417,  418,  334,  335,  336,  337,  338,  339,
- /*   120 */   340,  341,  386,  427,   46,   59,   60,   64,   63,   62,
- /*   130 */    61,  307,   84,  368,  322,   35,    2,  293,  386,  427,
- /*   140 */   108,   59,   60,   80,    4,  302,   79,    3,  117,  368,
- /*   150 */   433,  432,    2,   62,   61,  154,  154,  154,  386,  390,
- /*   160 */   391,   59,   60,  518,  159,  119,  433,  432,   47,  102,
- /*   170 */    38,   67,   42,   48,   37,  295,  296,  297,   69,  299,
- /*   180 */   372,  155,  426,  343,  343,  343,  343,  343,  343,  343,
- /*   190 */   343,  343,  343,  371,  157,  566,   77,  566,  426,  106,
- /*   200 */    76,  428,  429,  430,  431,    5,    6,  117,  385,  153,
- /*   210 */   152,  151,  523,  159,  119,  106,  416,  428,  429,  430,
- /*   220 */   431,  415,  427,  117,  385,  153,  152,  151,  386,  427,
- /*   230 */   129,   59,   60,  389,    1,  106,  521,  159,  119,  368,
- /*   240 */    11,   12,    2,  117,  385,  153,  152,  151,   65,  433,
- /*   250 */   432,   64,   63,   62,   61,  349,  433,  432,  136,  140,
- /*   260 */   138,   64,   63,   62,   61,  386,   75,  427,   59,   60,
- /*   270 */    53,  424,  422,   45,  137,   14,  368,   16,   18,   42,
- /*   280 */    55,  426,  154,  154,  154,   44,  145,  144,  426,   64,
- /*   290 */    63,   62,   61,   43,  433,  432,   64,   63,   62,   61,
- /*   300 */   428,  429,  430,  431,   19,  106,  114,  428,  429,  430,
- /*   310 */   431,   20,   68,  117,  385,  153,  152,  151,   15,  352,
- /*   320 */    23,   22,   21,  384,  376,   17,  426,  370,  156,   24,
- /*   330 */    26,  143,  139,  423,  140,  138,   64,   63,   62,   61,
- /*   340 */   374,   57,  106,   58,  375,  428,  429,  430,  431,  383,
- /*   350 */   117,  385,  153,  152,  151,   55,   64,   63,   62,   61,
- /*   360 */   369,  145,  144,  403,  404,  405,  406,  158,   43,  348,
- /*   370 */    70,  140,  138,   64,   63,   62,   61,  386,  464,   39,
- /*   380 */    59,   60,   64,   63,   62,   61,  437,  437,  368,  118,
- /*   390 */   437,   42,   55,  437,  437,  383,   22,   21,  145,  144,
- /*   400 */   395,   49,  437,  524,   24,   43,  143,  139,  423,  437,
- /*   410 */   437,  131,  464,  124,  437,  437,  437,  396,  397,  398,
- /*   420 */   400,   80,  437,  302,   79,  437,  403,  404,  405,  406,
- /*   430 */   440,  446,   29,   22,   21,  386,  442,  437,   59,   60,
- /*   440 */   437,   24,  524,  143,  139,  423,  368,  161,  524,   42,
- /*   450 */   437,  524,   27,  437,  106,  437,  386,  141,  437,   59,
- /*   460 */    60,  437,  117,  385,  153,  152,  151,  368,  437,  437,
- /*   470 */    42,  437,  386,  142,  437,   59,   60,  386,  130,  128,
- /*   480 */    59,   60,  437,  368,  370,  156,   42,  437,  368,  437,
- /*   490 */   386,   42,  437,   59,   60,  386,  437,  437,   59,   60,
- /*   500 */   437,  102,  437,  437,   42,  437,  368,  437,  437,   40,
- /*   510 */   437,  437,  106,  437,  386,  437,  437,   59,   60,  437,
- /*   520 */   117,  385,  153,  152,  151,  368,  437,  437,   41,   64,
- /*   530 */    63,   62,   61,  106,   64,   63,   62,   61,  437,  160,
- /*   540 */   437,  117,  385,  153,  152,  151,  118,  387,   56,  106,
- /*   550 */   437,  437,  437,  437,  106,  437,  437,  117,  385,  153,
- /*   560 */   152,  151,  117,  385,  153,  152,  151,  106,   64,   63,
- /*   570 */    62,   61,  106,  437,  437,  117,  385,  153,  152,  151,
- /*   580 */   117,  385,  153,  152,  151,  419,  420,  333,  437,  437,
- /*   590 */   437,  106,  437,  437,  437,   88,  437,  437,  437,  117,
- /*   600 */   385,  153,  152,  151,  120,  159,  119,  437,  437,  437,
- /*   610 */    10,  470,  470,  437,  333,  333,  333,  333,  417,  418,
- /*   620 */    73,  437,  146,  437,  437,  437,  150,  112,  113,  120,
- /*   630 */   159,  119,  437,   74,  437,  146,   64,   63,   62,   61,
- /*   640 */   122,  113,  120,  159,  119,   72,  437,  146,  437,  347,
- /*   650 */   437,  147,  123,  113,  120,  159,  119,  437,   74,  437,
- /*   660 */   146,  437,  437,  437,  147,  488,  113,  120,  159,  119,
- /*   670 */   437,  437,   74,  437,  146,  437,  147,  437,  437,  487,
- /*   680 */   113,  120,  159,  119,   74,  437,  146,  437,  437,  147,
- /*   690 */   437,  481,  113,  120,  159,  119,  437,  437,  437,   74,
- /*   700 */   437,  146,   88,  147,  437,  437,  475,  113,  120,  159,
- /*   710 */   119,  120,  159,  119,   74,  147,  146,  437,  110,  110,
- /*   720 */   437,  474,  113,  120,  159,  119,  437,   74,  437,  146,
- /*   730 */   147,  437,  437,  150,  471,  113,  120,  159,  119,  437,
- /*   740 */    74,  437,  146,  437,  437,  147,  437,  132,  113,  120,
- /*   750 */   159,  119,   74,  437,  146,  437,  437,  437,  147,  507,
- /*   760 */   113,  120,  159,  119,  437,   74,  437,  146,  437,  437,
- /*   770 */   437,  147,  135,  113,  120,  159,  119,  437,  437,   74,
- /*   780 */   437,  146,  437,  147,  437,  437,  515,  113,  120,  159,
- /*   790 */   119,   74,  437,  146,  437,  437,  147,  437,  517,  113,
- /*   800 */   120,  159,  119,  437,  437,  437,   74,  437,  146,   88,
- /*   810 */   147,  437,  437,  514,  113,  120,  159,  119,  120,  159,
- /*   820 */   119,   74,  147,  146,  437,  111,  111,  437,  516,  113,
- /*   830 */   120,  159,  119,  437,   74,  437,  146,  147,  437,  437,
- /*   840 */   150,  513,  113,  120,  159,  119,  437,   74,  437,  146,
- /*   850 */   437,  437,  147,  437,  512,  113,  120,  159,  119,   74,
- /*   860 */   437,  146,  437,  437,  437,  147,  511,  113,  120,  159,
- /*   870 */   119,  437,   74,  437,  146,  437,  437,  437,  147,  510,
- /*   880 */   113,  120,  159,  119,  437,  437,   74,  437,  146,  437,
- /*   890 */   147,  437,  437,  509,  113,  120,  159,  119,   74,  437,
- /*   900 */   146,  107,  437,  147,  437,  148,  113,  120,  159,  119,
- /*   910 */   120,  159,  119,   74,  469,  146,   85,  147,  437,  437,
- /*   920 */   149,  113,  120,  159,  119,  120,  159,  119,   74,  147,
- /*   930 */   146,  437,  150,  437,  437,  134,  113,  120,  159,  119,
- /*   940 */   437,   74,  437,  146,  147,  107,  437,  150,  133,  113,
- /*   950 */   120,  159,  119,  437,  120,  159,  119,  437,  454,  147,
- /*   960 */   437,   64,   63,   62,   61,   78,   78,  437,   88,  437,
- /*   970 */   437,  437,  147,  437,  383,  437,  150,  120,  159,  119,
- /*   980 */    52,  437,  437,  437,   82,  437,   88,  437,  437,  437,
- /*   990 */   437,  457,  437,   34,  107,  120,  159,  119,  437,  150,
- /*  1000 */   437,  437,  466,  120,  159,  119,  437,  454,  437,  109,
- /*  1010 */   439,  446,   29,  437,  437,  558,  442,  150,  437,  437,
- /*  1020 */   107,   64,   63,   62,   61,  150,   86,  161,  437,  120,
- /*  1030 */   159,  119,   27,  443,  388,  120,  159,  119,   98,  437,
- /*  1040 */   437,  437,  437,   89,  437,  437,  437,  120,  159,  119,
- /*  1050 */    90,  150,  120,  159,  119,   87,  437,  150,  437,  120,
- /*  1060 */   159,  119,   99,  437,  120,  159,  119,  437,  100,  150,
- /*  1070 */   437,  120,  159,  119,  150,  437,  437,  120,  159,  119,
- /*  1080 */   101,  150,   64,   63,   62,   61,  150,  437,  437,  120,
- /*  1090 */   159,  119,  437,  150,   91,  383,  437,  103,  437,  150,
- /*  1100 */   437,  437,  437,  120,  159,  119,  120,  159,  119,   92,
- /*  1110 */   437,  150,   93,  437,  437,  437,  437,  437,  120,  159,
- /*  1120 */   119,  120,  159,  119,  437,  150,  104,  437,  150,  437,
- /*  1130 */   437,  437,  437,  437,  437,  120,  159,  119,   94,  437,
- /*  1140 */   150,  437,  437,  150,  437,  437,  437,  120,  159,  119,
- /*  1150 */   105,  437,  437,   95,  437,  437,  437,  150,  437,  120,
- /*  1160 */   159,  119,  120,  159,  119,   96,  437,  437,   97,  150,
- /*  1170 */   437,  437,  437,  437,  120,  159,  119,  120,  159,  119,
- /*  1180 */   538,  150,  437,  437,  150,  437,  437,  437,  437,  120,
- /*  1190 */   159,  119,  437,  537,  437,  437,  150,  536,  437,  150,
- /*  1200 */   437,  437,  120,  159,  119,  535,  120,  159,  119,  115,
- /*  1210 */   437,  150,  116,  437,  120,  159,  119,  437,  120,  159,
- /*  1220 */   119,  120,  159,  119,  150,  437,  437,  437,  150,  437,
- /*  1230 */   437,  437,  437,  437,  437,  437,  150,  437,  437,  437,
- /*  1240 */   150,  437,  437,  150,
+ /*     0 */   569,  491,  161,  119,   25,  448,   29,   74,  129,  148,
+ /*    10 */   569,  488,  161,  119,  449,  113,  120,  161,  119,  525,
+ /*    20 */   423,  424,  337,  553,   81,   36,  554,  555,  569,   64,
+ /*    30 */    63,   62,   61,  320,  321,    9,    8,   33,  149,   32,
+ /*    40 */     7,   71,  127,  308,  333,   66,  523,  161,  119,  337,
+ /*    50 */   337,  337,  337,  421,  422,  338,  339,  340,  341,  342,
+ /*    60 */   343,  344,  345,  470,   64,   63,   62,   61,  311,   28,
+ /*    70 */    73,  304,  148,  470,  528,  161,  119,  112,  113,  120,
+ /*    80 */   161,  119,  128,  423,  424,  337,  354,   81,  526,  161,
+ /*    90 */   119,  470,  374,  158,   13,   30,  320,  321,    9,    8,
+ /*   100 */    33,  149,   32,    7,   71,  127,  372,  333,   66,  573,
+ /*   110 */   328,   31,  337,  337,  337,  337,  421,  422,  338,  339,
+ /*   120 */   340,  341,  342,  343,  344,  345,  390,  431,  326,   59,
+ /*   130 */    60,  407,  408,  409,  410,  374,  158,  372,   35,  390,
+ /*   140 */     2,   38,   59,   60,   48,   37,   46,  162,  442,   80,
+ /*   150 */   372,  306,   79,   42,  118,   83,  437,  436,   36,  390,
+ /*   160 */   431,   84,   59,   60,   47,  297,  571,   77,  571,  122,
+ /*   170 */   372,  296,  390,    2,  108,   59,   60,   76,  156,  156,
+ /*   180 */   156,    3,  117,  372,  132,  130,   42,   69,  430,  437,
+ /*   190 */   436,    4,  390,  431,   67,   59,   60,  118,   64,   63,
+ /*   200 */    62,   61,    5,  372,    6,  106,    2,  432,  433,  434,
+ /*   210 */   435,  387,    1,  117,  389,  155,  154,  153,  106,   49,
+ /*   220 */   420,  430,  437,  436,  107,   65,  117,  389,  155,  154,
+ /*   230 */   153,   54,   51,  120,  161,  119,  419,  459,  106,  131,
+ /*   240 */   432,  433,  434,  435,   78,   78,  117,  389,  155,  154,
+ /*   250 */   153,  106,  393,  390,  430,  152,   59,   60,   11,  117,
+ /*   260 */   389,  155,  154,  153,  102,  376,  157,   42,  394,  395,
+ /*   270 */    69,  106,  353,  432,  433,  434,  435,  375,  159,  117,
+ /*   280 */   389,  155,  154,  153,  142,  140,   64,   63,   62,   61,
+ /*   290 */    12,   64,   63,   62,   61,   62,   61,  428,   45,  138,
+ /*   300 */   139,  142,  140,   64,   63,   62,   61,   55,   64,   63,
+ /*   310 */    62,   61,  426,  147,  146,  390,  387,   44,   59,   60,
+ /*   320 */    43,  295,   15,   14,   55,   16,  102,   18,   19,   42,
+ /*   330 */   147,  146,  106,   20,  299,  300,  301,   43,  303,   68,
+ /*   340 */   117,  389,  155,  154,  153,  444,  450,   29,   22,   21,
+ /*   350 */   114,  446,  356,   23,   26,   57,   24,   58,  145,  141,
+ /*   360 */   427,  388,  163,  380,  373,   22,   21,   27,  160,  378,
+ /*   370 */    70,  379,   39,   24,  441,  145,  141,  427,  142,  140,
+ /*   380 */    64,   63,   62,   61,  347,  347,  347,  347,  347,  347,
+ /*   390 */   347,  347,  347,  347,  106,  441,  441,   64,   63,   62,
+ /*   400 */    61,   55,  117,  389,  155,  154,  153,  147,  146,  399,
+ /*   410 */   387,  441,  441,  441,   43,  441,  441,  441,   52,  441,
+ /*   420 */   133,  441,  126,  441,  441,  441,  123,  441,  400,  401,
+ /*   430 */   402,  404,   80,  441,  306,   79,  441,  407,  408,  409,
+ /*   440 */   410,  441,   22,   21,  390,  441,  441,   59,   60,  441,
+ /*   450 */    24,  441,  145,  141,  427,  372,  441,  441,   42,  441,
+ /*   460 */   441,  441,  441,  156,  156,  156,  390,  469,  441,   59,
+ /*   470 */    60,  390,  143,  441,   59,   60,  441,  372,  441,  529,
+ /*   480 */    42,  441,  372,  441,  441,   42,  441,  390,  144,  441,
+ /*   490 */    59,   60,  441,  390,  441,  441,   59,   60,  372,  441,
+ /*   500 */   441,   42,  441,  469,  372,   88,  390,   40,  441,   59,
+ /*   510 */    60,  441,  441,  441,  120,  161,  119,  372,  529,  441,
+ /*   520 */    41,   82,  441,  106,  529,  441,  441,  529,  462,  441,
+ /*   530 */    34,  117,  389,  155,  154,  153,  152,   85,   64,   63,
+ /*   540 */    62,   61,  441,  441,  441,  106,  120,  161,  119,  441,
+ /*   550 */   106,  441,  441,  117,  389,  155,  154,  153,  117,  389,
+ /*   560 */   155,  154,  153,  441,  441,  441,  106,  441,  152,   17,
+ /*   570 */   441,  441,  106,  441,  117,  389,  155,  154,  153,  431,
+ /*   580 */   117,  389,  155,  154,  153,  106,  441,  423,  424,  337,
+ /*   590 */   441,  441,   86,  117,  389,  155,  154,  153,  441,  441,
+ /*   600 */   441,  120,  161,  119,  121,  443,  450,   29,  437,  436,
+ /*   610 */   441,  446,   64,   63,   62,   61,  337,  337,  337,  337,
+ /*   620 */   421,  422,  163,  152,  441,   75,  440,   27,  109,  443,
+ /*   630 */   450,   29,  441,   50,   74,  446,  148,  441,  441,  441,
+ /*   640 */   430,  124,  113,  120,  161,  119,  163,   72,  441,  148,
+ /*   650 */   441,   27,  431,  441,  125,  113,  120,  161,  119,  432,
+ /*   660 */   433,  434,  435,  441,   74,  149,  148,   64,   63,   62,
+ /*   670 */    61,  493,  113,  120,  161,  119,  441,   74,  149,  148,
+ /*   680 */   352,  437,  436,  441,  492,  113,  120,  161,  119,   74,
+ /*   690 */   441,  148,  441,  441,   98,  149,  486,  113,  120,  161,
+ /*   700 */   119,  441,  441,  120,  161,  119,  441,   74,  149,  148,
+ /*   710 */   441,  441,  441,  430,  480,  113,  120,  161,  119,   74,
+ /*   720 */   149,  148,  441,  441,  441,  152,  479,  113,  120,  161,
+ /*   730 */   119,   88,  432,  433,  434,  435,  441,  441,  149,  441,
+ /*   740 */   120,  161,  119,  441,   74,  441,  148,  110,  110,  441,
+ /*   750 */   149,  476,  113,  120,  161,  119,   74,  441,  148,  107,
+ /*   760 */   441,  441,  152,  134,  113,  120,  161,  119,  120,  161,
+ /*   770 */   119,  441,  459,  441,   74,  149,  148,  441,  441,  441,
+ /*   780 */   563,  512,  113,  120,  161,  119,   74,  149,  148,  441,
+ /*   790 */   152,  441,  441,  137,  113,  120,  161,  119,  441,   74,
+ /*   800 */   441,  148,  441,  441,  441,  149,  520,  113,  120,  161,
+ /*   810 */   119,   74,  441,  148,  441,  441,   88,  149,  522,  113,
+ /*   820 */   120,  161,  119,  441,  441,  120,  161,  119,  441,   74,
+ /*   830 */   149,  148,  111,  111,  441,  441,  519,  113,  120,  161,
+ /*   840 */   119,  441,  149,  441,  441,  441,   74,  152,  148,  441,
+ /*   850 */   441,  441,   88,  521,  113,  120,  161,  119,  441,  441,
+ /*   860 */   149,  120,  161,  119,  441,   74,  441,  148,  471,  441,
+ /*   870 */   441,  441,  518,  113,  120,  161,  119,  149,   74,  441,
+ /*   880 */   148,  441,  441,  152,  441,  517,  113,  120,  161,  119,
+ /*   890 */    74,  441,  148,  441,  441,  441,  149,  516,  113,  120,
+ /*   900 */   161,  119,  441,   74,  441,  148,  441,  441,  441,  149,
+ /*   910 */   515,  113,  120,  161,  119,   74,  441,  148,   89,  441,
+ /*   920 */   441,  149,  514,  113,  120,  161,  119,  120,  161,  119,
+ /*   930 */   441,   74,  441,  148,  149,  441,  441,  441,  150,  113,
+ /*   940 */   120,  161,  119,  441,  441,  441,  149,  441,   74,  152,
+ /*   950 */   148,  441,  441,  441,   90,  151,  113,  120,  161,  119,
+ /*   960 */   441,  441,  149,  120,  161,  119,  441,   74,  441,  148,
+ /*   970 */    64,   63,   62,   61,  136,  113,  120,  161,  119,  149,
+ /*   980 */    74,  441,  148,  351,  441,  152,  441,  135,  113,  120,
+ /*   990 */   161,  119,   88,   64,   63,   62,   61,  441,  149,  441,
+ /*  1000 */   441,  120,  161,  119,  441,  107,  392,   10,  475,  475,
+ /*  1010 */   441,  149,  441,  441,  120,  161,  119,  107,  474,   64,
+ /*  1020 */    63,   62,   61,  152,   87,  441,  120,  161,  119,   99,
+ /*  1030 */   447,  441,  391,  120,  161,  119,  152,  441,  120,  161,
+ /*  1040 */   119,  100,  441,  441,   64,   63,   62,   61,  152,  441,
+ /*  1050 */   120,  161,  119,  441,  441,  152,  101,  387,  441,   91,
+ /*  1060 */   152,  441,  441,  441,  103,  120,  161,  119,  120,  161,
+ /*  1070 */   119,   92,  152,  120,  161,  119,  441,  441,  441,  441,
+ /*  1080 */   120,  161,  119,  441,  441,  441,  441,  152,  441,   93,
+ /*  1090 */   152,  441,  441,  441,  104,  152,  441,  441,  120,  161,
+ /*  1100 */   119,  441,  152,  120,  161,  119,  441,   94,  441,  441,
+ /*  1110 */   441,  441,  441,  105,  441,  441,  120,  161,  119,   95,
+ /*  1120 */   152,  441,  120,  161,  119,  152,   96,  441,  120,  161,
+ /*  1130 */   119,   97,  441,  441,  441,  120,  161,  119,  152,  441,
+ /*  1140 */   120,  161,  119,  543,  152,  441,  441,  441,  441,  441,
+ /*  1150 */   152,  441,  120,  161,  119,  441,  441,  152,  542,  441,
+ /*  1160 */   441,  541,  152,  441,  441,  441,  540,  120,  161,  119,
+ /*  1170 */   120,  161,  119,  115,  152,  120,  161,  119,   64,   63,
+ /*  1180 */    62,   61,  120,  161,  119,   64,   63,   62,   61,  152,
+ /*  1190 */   441,  116,  152,  441,  441,  441,  441,  152,  441,   53,
+ /*  1200 */   120,  161,  119,  441,  152,  441,   56,  441,  441,  441,
+ /*  1210 */   441,  441,  441,  441,  441,  441,  441,  441,  441,  441,
+ /*  1220 */   441,  441,  152,
 };
 static const YYCODETYPE yy_lookahead[] = {
- /*     0 */     0,    0,  129,   97,   98,   99,  101,  101,    4,    5,
- /*    10 */    10,   10,  106,  107,  108,  109,  110,  101,   18,   19,
- /*    20 */    20,  100,   22,  101,  103,  104,   26,    4,    5,    6,
- /*    30 */     7,   31,   32,   33,   34,   35,  130,   37,   38,   39,
- /*    40 */    40,  102,   42,   43,  128,   23,   23,   47,   48,   49,
+ /*     0 */     0,  110,  111,  112,  131,   99,  100,  101,  103,  103,
+ /*    10 */    10,  110,  111,  112,  108,  109,  110,  111,  112,  103,
+ /*    20 */    20,   21,   22,  102,   24,   10,  105,  106,   28,    4,
+ /*    30 */     5,    6,    7,   33,   34,   35,   36,   37,  132,   39,
+ /*    40 */    40,   41,   42,   28,   44,   45,  110,  111,  112,   49,
  /*    50 */    50,   51,   52,   53,   54,   55,   56,   57,   58,   59,
- /*    60 */    60,    0,    4,    5,    6,    7,   95,   96,   97,   98,
- /*    70 */    10,   10,  121,  102,   12,   17,  108,  109,  110,   18,
- /*    80 */    19,   20,  123,   22,  113,   17,   26,   26,  117,  118,
- /*    90 */     2,   23,   31,   32,   33,   34,   35,    3,   37,   38,
- /*   100 */    39,   40,  111,   42,   43,  108,  109,  110,   47,   48,
- /*   110 */    49,   50,   51,   52,   53,   54,   55,   56,   57,   58,
- /*   120 */    59,   60,    1,    2,   36,    4,    5,    4,    5,    6,
- /*   130 */     7,    8,  111,   12,    2,  124,   15,   17,    1,    2,
- /*   140 */    78,    4,    5,   22,   15,   24,   25,   16,   86,   12,
- /*   150 */    29,   30,   15,    6,    7,   18,   19,   20,    1,   92,
- /*   160 */    93,    4,    5,  108,  109,  110,   29,   30,   36,   12,
- /*   170 */   100,   41,   15,  103,  104,   18,   19,   20,   84,   22,
- /*   180 */    24,   25,   61,   61,   62,   63,   64,   65,   66,   67,
- /*   190 */    68,   69,   70,   24,   25,  125,  126,  127,   61,   78,
- /*   200 */    46,   80,   81,   82,   83,   38,   38,   86,   87,   88,
- /*   210 */    89,   90,  108,  109,  110,   78,   39,   80,   81,   82,
- /*   220 */    83,   39,    2,   86,   87,   88,   89,   90,    1,    2,
- /*   230 */    45,    4,    5,   17,   13,   78,  108,  109,  110,   12,
- /*   240 */    23,   71,   15,   86,   87,   88,   89,   90,   94,   29,
- /*   250 */    30,    4,    5,    6,    7,   17,   29,   30,   75,    2,
- /*   260 */     3,    4,    5,    6,    7,    1,   46,    2,    4,    5,
- /*   270 */    23,   76,   76,   16,   77,    3,   12,    3,    3,   15,
- /*   280 */    23,   61,   18,   19,   20,   36,   29,   30,   61,    4,
- /*   290 */     5,    6,    7,   36,   29,   30,    4,    5,    6,    7,
- /*   300 */    80,   81,   82,   83,    3,   78,   91,   80,   81,   82,
- /*   310 */    83,    3,    3,   86,   87,   88,   89,   90,   33,   73,
- /*   320 */    23,   64,   65,   17,   26,   33,   61,   24,   25,   72,
- /*   330 */    15,   74,   75,   76,    2,    3,    4,    5,    6,    7,
- /*   340 */    26,   15,   78,   15,   26,   80,   81,   82,   83,   17,
- /*   350 */    86,   87,   88,   89,   90,   23,    4,    5,    6,    7,
- /*   360 */    12,   29,   30,   27,   28,   29,   30,   85,   36,   17,
- /*   370 */     3,    2,    3,    4,    5,    6,    7,    1,    2,   11,
- /*   380 */     4,    5,    4,    5,    6,    7,  131,  131,   12,   86,
- /*   390 */   131,   15,   23,  131,  131,   17,   64,   65,   29,   30,
- /*   400 */     1,   23,  131,   46,   72,   36,   74,   75,   76,  131,
- /*   410 */   131,   12,   36,   14,  131,  131,  131,   18,   19,   20,
- /*   420 */    21,   22,  131,   24,   25,  131,   27,   28,   29,   30,
- /*   430 */    96,   97,   98,   64,   65,    1,  102,  131,    4,    5,
- /*   440 */   131,   72,   85,   74,   75,   76,   12,  113,   91,   15,
- /*   450 */   131,   94,  118,  131,   78,  131,    1,    2,  131,    4,
- /*   460 */     5,  131,   86,   87,   88,   89,   90,   12,  131,  131,
- /*   470 */    15,  131,    1,    2,  131,    4,    5,    1,   44,   45,
- /*   480 */     4,    5,  131,   12,   24,   25,   15,  131,   12,  131,
- /*   490 */     1,   15,  131,    4,    5,    1,  131,  131,    4,    5,
- /*   500 */   131,   12,  131,  131,   15,  131,   12,  131,  131,   15,
- /*   510 */   131,  131,   78,  131,    1,  131,  131,    4,    5,  131,
- /*   520 */    86,   87,   88,   89,   90,   12,  131,  131,   15,    4,
- /*   530 */     5,    6,    7,   78,    4,    5,    6,    7,  131,   79,
- /*   540 */   131,   86,   87,   88,   89,   90,   86,   17,   23,   78,
- /*   550 */   131,  131,  131,  131,   78,  131,  131,   86,   87,   88,
- /*   560 */    89,   90,   86,   87,   88,   89,   90,   78,    4,    5,
- /*   570 */     6,    7,   78,  131,  131,   86,   87,   88,   89,   90,
- /*   580 */    86,   87,   88,   89,   90,   18,   19,   20,  131,  131,
- /*   590 */   131,   78,  131,  131,  131,   99,  131,  131,  131,   86,
- /*   600 */    87,   88,   89,   90,  108,  109,  110,  131,  131,  131,
- /*   610 */   114,  115,  116,  131,   47,   48,   49,   50,   51,   52,
- /*   620 */    99,  131,  101,  131,  131,  131,  130,  106,  107,  108,
- /*   630 */   109,  110,  131,   99,  131,  101,    4,    5,    6,    7,
- /*   640 */   106,  107,  108,  109,  110,   99,  131,  101,  131,   17,
- /*   650 */   131,  130,  106,  107,  108,  109,  110,  131,   99,  131,
- /*   660 */   101,  131,  131,  131,  130,  106,  107,  108,  109,  110,
- /*   670 */   131,  131,   99,  131,  101,  131,  130,  131,  131,  106,
- /*   680 */   107,  108,  109,  110,   99,  131,  101,  131,  131,  130,
- /*   690 */   131,  106,  107,  108,  109,  110,  131,  131,  131,   99,
- /*   700 */   131,  101,   99,  130,  131,  131,  106,  107,  108,  109,
- /*   710 */   110,  108,  109,  110,   99,  130,  101,  131,  115,  116,
- /*   720 */   131,  106,  107,  108,  109,  110,  131,   99,  131,  101,
- /*   730 */   130,  131,  131,  130,  106,  107,  108,  109,  110,  131,
- /*   740 */    99,  131,  101,  131,  131,  130,  131,  106,  107,  108,
- /*   750 */   109,  110,   99,  131,  101,  131,  131,  131,  130,  106,
- /*   760 */   107,  108,  109,  110,  131,   99,  131,  101,  131,  131,
- /*   770 */   131,  130,  106,  107,  108,  109,  110,  131,  131,   99,
- /*   780 */   131,  101,  131,  130,  131,  131,  106,  107,  108,  109,
- /*   790 */   110,   99,  131,  101,  131,  131,  130,  131,  106,  107,
- /*   800 */   108,  109,  110,  131,  131,  131,   99,  131,  101,   99,
- /*   810 */   130,  131,  131,  106,  107,  108,  109,  110,  108,  109,
- /*   820 */   110,   99,  130,  101,  131,  115,  116,  131,  106,  107,
- /*   830 */   108,  109,  110,  131,   99,  131,  101,  130,  131,  131,
- /*   840 */   130,  106,  107,  108,  109,  110,  131,   99,  131,  101,
- /*   850 */   131,  131,  130,  131,  106,  107,  108,  109,  110,   99,
- /*   860 */   131,  101,  131,  131,  131,  130,  106,  107,  108,  109,
- /*   870 */   110,  131,   99,  131,  101,  131,  131,  131,  130,  106,
- /*   880 */   107,  108,  109,  110,  131,  131,   99,  131,  101,  131,
- /*   890 */   130,  131,  131,  106,  107,  108,  109,  110,   99,  131,
- /*   900 */   101,   99,  131,  130,  131,  106,  107,  108,  109,  110,
- /*   910 */   108,  109,  110,   99,  112,  101,   99,  130,  131,  131,
- /*   920 */   106,  107,  108,  109,  110,  108,  109,  110,   99,  130,
- /*   930 */   101,  131,  130,  131,  131,  106,  107,  108,  109,  110,
- /*   940 */   131,   99,  131,  101,  130,   99,  131,  130,  106,  107,
- /*   950 */   108,  109,  110,  131,  108,  109,  110,  131,  112,  130,
- /*   960 */   131,    4,    5,    6,    7,  119,  120,  131,   99,  131,
- /*   970 */   131,  131,  130,  131,   17,  131,  130,  108,  109,  110,
- /*   980 */    23,  131,  131,  131,  115,  131,   99,  131,  131,  131,
- /*   990 */   131,  122,  131,  124,   99,  108,  109,  110,  131,  130,
- /*  1000 */   131,  131,  115,  108,  109,  110,  131,  112,  131,   95,
- /*  1010 */    96,   97,   98,  131,  131,  120,  102,  130,  131,  131,
- /*  1020 */    99,    4,    5,    6,    7,  130,   99,  113,  131,  108,
- /*  1030 */   109,  110,  118,  112,   17,  108,  109,  110,   99,  131,
- /*  1040 */   131,  131,  131,   99,  131,  131,  131,  108,  109,  110,
- /*  1050 */    99,  130,  108,  109,  110,   99,  131,  130,  131,  108,
- /*  1060 */   109,  110,   99,  131,  108,  109,  110,  131,   99,  130,
- /*  1070 */   131,  108,  109,  110,  130,  131,  131,  108,  109,  110,
- /*  1080 */    99,  130,    4,    5,    6,    7,  130,  131,  131,  108,
- /*  1090 */   109,  110,  131,  130,   99,   17,  131,   99,  131,  130,
- /*  1100 */   131,  131,  131,  108,  109,  110,  108,  109,  110,   99,
- /*  1110 */   131,  130,   99,  131,  131,  131,  131,  131,  108,  109,
- /*  1120 */   110,  108,  109,  110,  131,  130,   99,  131,  130,  131,
- /*  1130 */   131,  131,  131,  131,  131,  108,  109,  110,   99,  131,
- /*  1140 */   130,  131,  131,  130,  131,  131,  131,  108,  109,  110,
- /*  1150 */    99,  131,  131,   99,  131,  131,  131,  130,  131,  108,
- /*  1160 */   109,  110,  108,  109,  110,   99,  131,  131,   99,  130,
- /*  1170 */   131,  131,  131,  131,  108,  109,  110,  108,  109,  110,
- /*  1180 */    99,  130,  131,  131,  130,  131,  131,  131,  131,  108,
- /*  1190 */   109,  110,  131,   99,  131,  131,  130,   99,  131,  130,
- /*  1200 */   131,  131,  108,  109,  110,   99,  108,  109,  110,   99,
- /*  1210 */   131,  130,   99,  131,  108,  109,  110,  131,  108,  109,
- /*  1220 */   110,  108,  109,  110,  130,  131,  131,  131,  130,  131,
- /*  1230 */   131,  131,  131,  131,  131,  131,  130,  131,  131,  131,
- /*  1240 */   130,  131,  131,  130,   95,   95,   95,   95,   95,   95,
- /*  1250 */    95,   95,   95,   95,   95,   95,   95,   95,   95,   95,
- /*  1260 */    95,   95,   95,   95,   95,   95,   95,   95,   95,   95,
- /*  1270 */    95,   95,   95,   95,   95,   95,   95,   95,   95,   95,
- /*  1280 */    95,   95,   95,   95,   95,   95,   95,   95,   95,   95,
- /*  1290 */    95,   95,   95,   95,   95,   95,   95,   95,   95,   95,
- /*  1300 */    95,   95,   95,   95,   95,   95,   95,   95,   95,   95,
- /*  1310 */    95,   95,   95,   95,   95,   95,   95,   95,   95,   95,
- /*  1320 */    95,   95,   95,   95,   95,   95,   95,   95,   95,   95,
- /*  1330 */    95,   95,   95,   95,   95,   95,   95,   95,   95,
+ /*    60 */    60,   61,   62,    0,    4,    5,    6,    7,    8,  104,
+ /*    70 */   101,   25,  103,   10,  110,  111,  112,  108,  109,  110,
+ /*    80 */   111,  112,  103,   20,   21,   22,   17,   24,  110,  111,
+ /*    90 */   112,   28,   26,   27,   25,  123,   33,   34,   35,   36,
+ /*   100 */    37,  132,   39,   40,   41,   42,   12,   44,   45,  130,
+ /*   110 */     2,  125,   49,   50,   51,   52,   53,   54,   55,   56,
+ /*   120 */    57,   58,   59,   60,   61,   62,    1,    2,    2,    4,
+ /*   130 */     5,   29,   30,   31,   32,   26,   27,   12,  126,    1,
+ /*   140 */    15,  102,    4,    5,  105,  106,   38,   81,    0,   24,
+ /*   150 */    12,   26,   27,   15,   88,  113,   31,   32,   10,    1,
+ /*   160 */     2,  113,    4,    5,   38,   19,  127,  128,  129,    1,
+ /*   170 */    12,   17,    1,   15,   80,    4,    5,   48,   20,   21,
+ /*   180 */    22,   16,   88,   12,   46,   47,   15,    3,   63,   31,
+ /*   190 */    32,   15,    1,    2,   43,    4,    5,   88,    4,    5,
+ /*   200 */     6,    7,   40,   12,   40,   80,   15,   82,   83,   84,
+ /*   210 */    85,   17,   13,   88,   89,   90,   91,   92,   80,   25,
+ /*   220 */    41,   63,   31,   32,  101,   96,   88,   89,   90,   91,
+ /*   230 */    92,    4,    5,  110,  111,  112,   41,  114,   80,   47,
+ /*   240 */    82,   83,   84,   85,  121,  122,   88,   89,   90,   91,
+ /*   250 */    92,   80,   17,    1,   63,  132,    4,    5,   25,   88,
+ /*   260 */    89,   90,   91,   92,   12,   26,   27,   15,   94,   95,
+ /*   270 */    86,   80,   17,   82,   83,   84,   85,   26,   27,   88,
+ /*   280 */    89,   90,   91,   92,    2,    3,    4,    5,    6,    7,
+ /*   290 */    73,    4,    5,    6,    7,    6,    7,   78,   16,   77,
+ /*   300 */    79,    2,    3,    4,    5,    6,    7,   25,    4,    5,
+ /*   310 */     6,    7,   78,   31,   32,    1,   17,   38,    4,    5,
+ /*   320 */    38,   17,   35,    3,   25,    3,   12,    3,    3,   15,
+ /*   330 */    31,   32,   80,    3,   20,   21,   22,   38,   24,    3,
+ /*   340 */    88,   89,   90,   91,   92,   98,   99,  100,   66,   67,
+ /*   350 */    93,  104,   75,   25,   15,   15,   74,   15,   76,   77,
+ /*   360 */    78,   17,  115,   28,   12,   66,   67,  120,   87,   28,
+ /*   370 */     3,   28,   11,   74,  133,   76,   77,   78,    2,    3,
+ /*   380 */     4,    5,    6,    7,   63,   64,   65,   66,   67,   68,
+ /*   390 */    69,   70,   71,   72,   80,  133,  133,    4,    5,    6,
+ /*   400 */     7,   25,   88,   89,   90,   91,   92,   31,   32,    1,
+ /*   410 */    17,  133,  133,  133,   38,  133,  133,  133,   25,  133,
+ /*   420 */    12,  133,   14,  133,  133,  133,   18,  133,   20,   21,
+ /*   430 */    22,   23,   24,  133,   26,   27,  133,   29,   30,   31,
+ /*   440 */    32,  133,   66,   67,    1,  133,  133,    4,    5,  133,
+ /*   450 */    74,  133,   76,   77,   78,   12,  133,  133,   15,  133,
+ /*   460 */   133,  133,  133,   20,   21,   22,    1,    2,  133,    4,
+ /*   470 */     5,    1,    2,  133,    4,    5,  133,   12,  133,   48,
+ /*   480 */    15,  133,   12,  133,  133,   15,  133,    1,    2,  133,
+ /*   490 */     4,    5,  133,    1,  133,  133,    4,    5,   12,  133,
+ /*   500 */   133,   15,  133,   38,   12,  101,    1,   15,  133,    4,
+ /*   510 */     5,  133,  133,  133,  110,  111,  112,   12,   87,  133,
+ /*   520 */    15,  117,  133,   80,   93,  133,  133,   96,  124,  133,
+ /*   530 */   126,   88,   89,   90,   91,   92,  132,  101,    4,    5,
+ /*   540 */     6,    7,  133,  133,  133,   80,  110,  111,  112,  133,
+ /*   550 */    80,  133,  133,   88,   89,   90,   91,   92,   88,   89,
+ /*   560 */    90,   91,   92,  133,  133,  133,   80,  133,  132,   35,
+ /*   570 */   133,  133,   80,  133,   88,   89,   90,   91,   92,    2,
+ /*   580 */    88,   89,   90,   91,   92,   80,  133,   20,   21,   22,
+ /*   590 */   133,  133,  101,   88,   89,   90,   91,   92,  133,  133,
+ /*   600 */   133,  110,  111,  112,   97,   98,   99,  100,   31,   32,
+ /*   610 */   133,  104,    4,    5,    6,    7,   49,   50,   51,   52,
+ /*   620 */    53,   54,  115,  132,  133,   48,  119,  120,   97,   98,
+ /*   630 */    99,  100,  133,   25,  101,  104,  103,  133,  133,  133,
+ /*   640 */    63,  108,  109,  110,  111,  112,  115,  101,  133,  103,
+ /*   650 */   133,  120,    2,  133,  108,  109,  110,  111,  112,   82,
+ /*   660 */    83,   84,   85,  133,  101,  132,  103,    4,    5,    6,
+ /*   670 */     7,  108,  109,  110,  111,  112,  133,  101,  132,  103,
+ /*   680 */    17,   31,   32,  133,  108,  109,  110,  111,  112,  101,
+ /*   690 */   133,  103,  133,  133,  101,  132,  108,  109,  110,  111,
+ /*   700 */   112,  133,  133,  110,  111,  112,  133,  101,  132,  103,
+ /*   710 */   133,  133,  133,   63,  108,  109,  110,  111,  112,  101,
+ /*   720 */   132,  103,  133,  133,  133,  132,  108,  109,  110,  111,
+ /*   730 */   112,  101,   82,   83,   84,   85,  133,  133,  132,  133,
+ /*   740 */   110,  111,  112,  133,  101,  133,  103,  117,  118,  133,
+ /*   750 */   132,  108,  109,  110,  111,  112,  101,  133,  103,  101,
+ /*   760 */   133,  133,  132,  108,  109,  110,  111,  112,  110,  111,
+ /*   770 */   112,  133,  114,  133,  101,  132,  103,  133,  133,  133,
+ /*   780 */   122,  108,  109,  110,  111,  112,  101,  132,  103,  133,
+ /*   790 */   132,  133,  133,  108,  109,  110,  111,  112,  133,  101,
+ /*   800 */   133,  103,  133,  133,  133,  132,  108,  109,  110,  111,
+ /*   810 */   112,  101,  133,  103,  133,  133,  101,  132,  108,  109,
+ /*   820 */   110,  111,  112,  133,  133,  110,  111,  112,  133,  101,
+ /*   830 */   132,  103,  117,  118,  133,  133,  108,  109,  110,  111,
+ /*   840 */   112,  133,  132,  133,  133,  133,  101,  132,  103,  133,
+ /*   850 */   133,  133,  101,  108,  109,  110,  111,  112,  133,  133,
+ /*   860 */   132,  110,  111,  112,  133,  101,  133,  103,  117,  133,
+ /*   870 */   133,  133,  108,  109,  110,  111,  112,  132,  101,  133,
+ /*   880 */   103,  133,  133,  132,  133,  108,  109,  110,  111,  112,
+ /*   890 */   101,  133,  103,  133,  133,  133,  132,  108,  109,  110,
+ /*   900 */   111,  112,  133,  101,  133,  103,  133,  133,  133,  132,
+ /*   910 */   108,  109,  110,  111,  112,  101,  133,  103,  101,  133,
+ /*   920 */   133,  132,  108,  109,  110,  111,  112,  110,  111,  112,
+ /*   930 */   133,  101,  133,  103,  132,  133,  133,  133,  108,  109,
+ /*   940 */   110,  111,  112,  133,  133,  133,  132,  133,  101,  132,
+ /*   950 */   103,  133,  133,  133,  101,  108,  109,  110,  111,  112,
+ /*   960 */   133,  133,  132,  110,  111,  112,  133,  101,  133,  103,
+ /*   970 */     4,    5,    6,    7,  108,  109,  110,  111,  112,  132,
+ /*   980 */   101,  133,  103,   17,  133,  132,  133,  108,  109,  110,
+ /*   990 */   111,  112,  101,    4,    5,    6,    7,  133,  132,  133,
+ /*  1000 */   133,  110,  111,  112,  133,  101,   17,  116,  117,  118,
+ /*  1010 */   133,  132,  133,  133,  110,  111,  112,  101,  114,    4,
+ /*  1020 */     5,    6,    7,  132,  101,  133,  110,  111,  112,  101,
+ /*  1030 */   114,  133,   17,  110,  111,  112,  132,  133,  110,  111,
+ /*  1040 */   112,  101,  133,  133,    4,    5,    6,    7,  132,  133,
+ /*  1050 */   110,  111,  112,  133,  133,  132,  101,   17,  133,  101,
+ /*  1060 */   132,  133,  133,  133,  101,  110,  111,  112,  110,  111,
+ /*  1070 */   112,  101,  132,  110,  111,  112,  133,  133,  133,  133,
+ /*  1080 */   110,  111,  112,  133,  133,  133,  133,  132,  133,  101,
+ /*  1090 */   132,  133,  133,  133,  101,  132,  133,  133,  110,  111,
+ /*  1100 */   112,  133,  132,  110,  111,  112,  133,  101,  133,  133,
+ /*  1110 */   133,  133,  133,  101,  133,  133,  110,  111,  112,  101,
+ /*  1120 */   132,  133,  110,  111,  112,  132,  101,  133,  110,  111,
+ /*  1130 */   112,  101,  133,  133,  133,  110,  111,  112,  132,  133,
+ /*  1140 */   110,  111,  112,  101,  132,  133,  133,  133,  133,  133,
+ /*  1150 */   132,  133,  110,  111,  112,  133,  133,  132,  101,  133,
+ /*  1160 */   133,  101,  132,  133,  133,  133,  101,  110,  111,  112,
+ /*  1170 */   110,  111,  112,  101,  132,  110,  111,  112,    4,    5,
+ /*  1180 */     6,    7,  110,  111,  112,    4,    5,    6,    7,  132,
+ /*  1190 */   133,  101,  132,  133,  133,  133,  133,  132,  133,   25,
+ /*  1200 */   110,  111,  112,  133,  132,  133,   25,  133,  133,  133,
+ /*  1210 */   133,  133,  133,  133,  133,  133,  133,  133,  133,  133,
+ /*  1220 */   133,  133,  132,  133,  133,  133,  133,  133,  133,  133,
+ /*  1230 */   133,  133,  133,  133,  133,  133,  133,  133,  133,  133,
+ /*  1240 */   133,  133,  133,  133,  133,  133,  133,  133,  133,  133,
+ /*  1250 */   133,  133,  133,  133,  133,  133,  133,  133,  133,  133,
+ /*  1260 */   133,  133,  133,  133,  133,  133,  133,  133,  133,  133,
+ /*  1270 */   133,  133,  133,  133,  133,  133,  133,  133,  133,  133,
+ /*  1280 */   133,  133,  133,   97,   97,   97,   97,   97,   97,   97,
+ /*  1290 */    97,   97,   97,   97,   97,   97,   97,   97,   97,   97,
+ /*  1300 */    97,   97,   97,   97,   97,   97,   97,   97,   97,   97,
+ /*  1310 */    97,   97,   97,   97,   97,   97,   97,   97,   97,   97,
 };
-#define YY_SHIFT_COUNT    (161)
+#define YY_SHIFT_COUNT    (163)
 #define YY_SHIFT_MIN      (0)
-#define YY_SHIFT_MAX      (1078)
+#define YY_SHIFT_MAX      (1181)
 static const unsigned short int yy_shift_ofst[] = {
- /*     0 */   399,  121,  137,  227,  227,  227,  227,  227,  227,  227,
- /*    10 */   227,  227,  227,  227,  227,  227,  227,  227,  227,  227,
- /*    20 */   227,  227,  227,  227,  227,  227,  227,  157,  434,  476,
- /*    30 */   157,  399,  376,  376,    0,   61,  399,  489,  476,  489,
- /*    40 */   264,  264,  264,  455,  471,  476,  476,  476,  476,  476,
- /*    50 */   476,  494,  476,  476,  513,  476,  476,  476,  476,  476,
- /*    60 */   476,  476,  476,  476,  476,  567,   62,   62,   62,   62,
- /*    70 */    62,  220,  257,  332,  369,  265,  265,  336,   22, 1244,
- /*    80 */  1244, 1244, 1244,  122,  122,  378,  957,   58,  123,  285,
- /*    90 */   292,  352,   23,  632,  247, 1017,  525,  530, 1078,  564,
- /*   100 */   564,  564,  357,  564,  564,  564,  460,  564,  303,   60,
- /*   110 */    88,  132,   68,    4,   67,  147,  147,  156,  169,   94,
- /*   120 */   154,    1,  120,  131,  129,  130,  167,  168,  177,  182,
- /*   130 */   185,  221,  216,  217,  170,  238,  195,  183,  197,  196,
- /*   140 */   272,  274,  275,  249,  301,  308,  309,  215,  246,  297,
- /*   150 */   215,  315,  326,  328,  306,  298,  314,  318,  348,  282,
- /*   160 */   367,  368,
+ /*     0 */   408,  125,  158,  191,  191,  191,  191,  191,  191,  191,
+ /*    10 */   191,  191,  191,  191,  191,  191,  191,  191,  191,  191,
+ /*    20 */   191,  191,  191,  191,  191,  191,  191,  314,  138,  171,
+ /*    30 */   314,  408,  465,  465,    0,   63,  408,  252,  171,  252,
+ /*    40 */   443,  443,  443,  470,  486,  171,  171,  171,  171,  171,
+ /*    50 */   171,  492,  171,  171,  505,  171,  171,  171,  171,  171,
+ /*    60 */   171,  171,  171,  171,  171,  567,   94,   94,   94,   94,
+ /*    70 */    94,  577,  282,  299,  376,  650,  650,  102,   46, 1223,
+ /*    80 */  1223, 1223, 1223,  321,  321,  194,  393,  304,   60,  287,
+ /*    90 */   534,  663,  608,  966, 1174,  989, 1181, 1015, 1040,   25,
+ /*   100 */    25,   25,  431,   25,   25,   25,   66,   25,  109,   15,
+ /*   110 */   108,  126,   69,  227,  174,  289,  289,  239,  251,  184,
+ /*   120 */   129,  148,  146,  168,  154,  165,  176,  151,  162,  164,
+ /*   130 */   179,  195,  192,  199,  235,  233,  217,  255,  219,  222,
+ /*   140 */   221,  234,  320,  322,  324,  279,  325,  330,  336,  257,
+ /*   150 */   277,  328,  257,  339,  340,  342,  344,  335,  341,  343,
+ /*   160 */   352,  281,  367,  361,
 };
 #define YY_REDUCE_COUNT (82)
 #define YY_REDUCE_MIN   (-127)
-#define YY_REDUCE_MAX   (1113)
+#define YY_REDUCE_MAX   (1090)
 static const short yy_reduce_ofst[] = {
- /*     0 */   -29,  -94,  521,  534,  546,  559,  573,  585,  600,  615,
- /*    10 */   628,  641,  653,  666,  680,  692,  707,  722,  735,  748,
- /*    20 */   760,  773,  787,  799,  814,  829,  842,  846,  496,  869,
- /*    30 */   895,  914,  603,  710,   70,   70,  334,  802,  887,  921,
- /*    40 */   817,  927,  939,  944,  951,  956,  963,  969,  981,  995,
- /*    50 */   998, 1010, 1013, 1027, 1039, 1051, 1054, 1066, 1069, 1081,
- /*    60 */  1094, 1098, 1106, 1110, 1113,  -79,  -32,   -3,   55,  104,
- /*    70 */   128,  -84, -127, -127, -127,  -95,  -78,  -61,  -49,  -41,
- /*    80 */    -9,   21,   11,
+ /*     0 */   507,  -94,  -31,  533,  546,  563,  576,  588,  606,  618,
+ /*    10 */   643,  655,  673,  685,  698,  710,  728,  745,  764,  777,
+ /*    20 */   789,  802,  814,  830,  847,  866,  879,  123,  891,  404,
+ /*    30 */   658,  531,  630,  715,   39,   39,  247,  904,  751,  916,
+ /*    40 */   436,  491,  593,  817,  853,  923,  928,  940,  955,  958,
+ /*    50 */   963,  970,  988,  993, 1006, 1012, 1018, 1025, 1030, 1042,
+ /*    60 */  1057, 1060, 1065, 1072, 1090,  -79, -109,  -99,  -64,  -36,
+ /*    70 */   -22,  -21, -127, -127, -127,  -95,  -84,  -35,  -28,  -14,
+ /*    80 */    42,   48,   12,
 };
 static const YYACTIONTYPE yy_default[] = {
- /*     0 */   441,  435,  435,  435,  435,  435,  435,  435,  435,  435,
- /*    10 */   435,  435,  435,  435,  435,  435,  435,  435,  435,  435,
- /*    20 */   435,  435,  435,  435,  435,  435,  435,  435,  464,  565,
- /*    30 */   435,  441,  569,  476,  570,  570,  441,  435,  435,  435,
- /*    40 */   435,  435,  435,  435,  435,  435,  435,  435,  468,  435,
- /*    50 */   435,  435,  435,  435,  435,  435,  435,  435,  435,  435,
- /*    60 */   435,  435,  435,  435,  435,  435,  435,  435,  435,  435,
- /*    70 */   435,  435,  435,  435,  435,  435,  435,  435,  447,  461,
- /*    80 */   498,  498,  565,  459,  484,  435,  435,  435,  462,  435,
- /*    90 */   435,  435,  435,  435,  435,  435,  435,  435,  435,  479,
- /*   100 */   477,  467,  450,  502,  501,  500,  435,  555,  435,  435,
- /*   110 */   435,  435,  435,  577,  435,  534,  533,  529,  435,  522,
- /*   120 */   519,  435,  435,  435,  435,  482,  435,  435,  435,  435,
- /*   130 */   435,  435,  435,  435,  435,  435,  435,  435,  435,  435,
- /*   140 */   435,  435,  435,  435,  435,  435,  435,  581,  435,  435,
- /*   150 */   435,  435,  435,  435,  435,  435,  435,  435,  435,  590,
- /*   160 */   435,  435,
+ /*     0 */   445,  439,  439,  439,  439,  439,  439,  439,  439,  439,
+ /*    10 */   439,  439,  439,  439,  439,  439,  439,  439,  439,  439,
+ /*    20 */   439,  439,  439,  439,  439,  439,  439,  439,  469,  570,
+ /*    30 */   439,  445,  574,  481,  575,  575,  445,  439,  439,  439,
+ /*    40 */   439,  439,  439,  439,  439,  439,  439,  439,  473,  439,
+ /*    50 */   439,  439,  439,  439,  439,  439,  439,  439,  439,  439,
+ /*    60 */   439,  439,  439,  439,  439,  439,  439,  439,  439,  439,
+ /*    70 */   439,  439,  439,  439,  439,  439,  439,  439,  451,  466,
+ /*    80 */   503,  503,  570,  464,  489,  439,  439,  439,  467,  439,
+ /*    90 */   439,  439,  439,  439,  439,  439,  439,  439,  439,  484,
+ /*   100 */   482,  472,  455,  507,  506,  505,  439,  560,  439,  439,
+ /*   110 */   439,  439,  439,  582,  439,  539,  538,  534,  439,  527,
+ /*   120 */   524,  439,  439,  439,  439,  439,  439,  487,  439,  439,
+ /*   130 */   439,  439,  439,  439,  439,  439,  439,  439,  439,  439,
+ /*   140 */   439,  439,  439,  439,  439,  439,  439,  439,  439,  586,
+ /*   150 */   439,  439,  439,  439,  439,  439,  439,  439,  439,  439,
+ /*   160 */   439,  595,  439,  439,
 };
 /********** End of lemon-generated parsing tables *****************************/
 
@@ -1068,6 +1081,8 @@ static const YYCODETYPE yyFallback[] = {
     0,  /*         LP => nothing */
     0,  /*         EQ => nothing */
     0,  /*         RP => nothing */
+    0,  /*     DEFINE => nothing */
+    0,  /*  CODEBLOCK => nothing */
     0,  /*       FILL => nothing */
     0,  /*      COLOR => nothing */
     0,  /*  THICKNESS => nothing */
@@ -1251,119 +1266,121 @@ static const char *const yyTokenName[] = {
   /*   15 */ "LP",
   /*   16 */ "EQ",
   /*   17 */ "RP",
-  /*   18 */ "FILL",
-  /*   19 */ "COLOR",
-  /*   20 */ "THICKNESS",
-  /*   21 */ "PRINT",
-  /*   22 */ "STRING",
-  /*   23 */ "COMMA",
-  /*   24 */ "CLASSNAME",
-  /*   25 */ "LB",
-  /*   26 */ "RB",
-  /*   27 */ "UP",
-  /*   28 */ "DOWN",
-  /*   29 */ "LEFT",
-  /*   30 */ "RIGHT",
-  /*   31 */ "CLOSE",
-  /*   32 */ "CHOP",
-  /*   33 */ "FROM",
-  /*   34 */ "TO",
-  /*   35 */ "THEN",
-  /*   36 */ "HEADING",
-  /*   37 */ "GO",
-  /*   38 */ "AT",
-  /*   39 */ "WITH",
-  /*   40 */ "SAME",
-  /*   41 */ "AS",
-  /*   42 */ "FIT",
-  /*   43 */ "BEHIND",
-  /*   44 */ "UNTIL",
-  /*   45 */ "EVEN",
-  /*   46 */ "DOT_E",
-  /*   47 */ "HEIGHT",
-  /*   48 */ "WIDTH",
-  /*   49 */ "RADIUS",
-  /*   50 */ "DIAMETER",
-  /*   51 */ "DOTTED",
-  /*   52 */ "DASHED",
-  /*   53 */ "CW",
-  /*   54 */ "CCW",
-  /*   55 */ "LARROW",
-  /*   56 */ "RARROW",
-  /*   57 */ "LRARROW",
-  /*   58 */ "INVIS",
-  /*   59 */ "THICK",
-  /*   60 */ "THIN",
-  /*   61 */ "CENTER",
-  /*   62 */ "LJUST",
-  /*   63 */ "RJUST",
-  /*   64 */ "ABOVE",
-  /*   65 */ "BELOW",
-  /*   66 */ "ITALIC",
-  /*   67 */ "BOLD",
-  /*   68 */ "ALIGNED",
-  /*   69 */ "BIG",
-  /*   70 */ "SMALL",
-  /*   71 */ "AND",
-  /*   72 */ "LT",
-  /*   73 */ "GT",
-  /*   74 */ "ON",
-  /*   75 */ "WAY",
-  /*   76 */ "BETWEEN",
-  /*   77 */ "THE",
-  /*   78 */ "NTH",
-  /*   79 */ "VERTEX",
-  /*   80 */ "TOP",
-  /*   81 */ "BOTTOM",
-  /*   82 */ "START",
-  /*   83 */ "END",
-  /*   84 */ "IN",
-  /*   85 */ "DOT_U",
-  /*   86 */ "LAST",
-  /*   87 */ "NUMBER",
-  /*   88 */ "FUNC1",
-  /*   89 */ "FUNC2",
-  /*   90 */ "DIST",
-  /*   91 */ "DOT_XY",
-  /*   92 */ "X",
-  /*   93 */ "Y",
-  /*   94 */ "DOT_L",
-  /*   95 */ "element_list",
-  /*   96 */ "element",
-  /*   97 */ "unnamed_element",
-  /*   98 */ "basetype",
-  /*   99 */ "expr",
-  /*  100 */ "numproperty",
-  /*  101 */ "edge",
-  /*  102 */ "direction",
-  /*  103 */ "dashproperty",
-  /*  104 */ "colorproperty",
-  /*  105 */ "locproperty",
-  /*  106 */ "position",
-  /*  107 */ "place",
-  /*  108 */ "object",
-  /*  109 */ "objectname",
-  /*  110 */ "nth",
-  /*  111 */ "textposition",
-  /*  112 */ "rvalue",
-  /*  113 */ "lvalue",
-  /*  114 */ "even",
-  /*  115 */ "relexpr",
-  /*  116 */ "optrelexpr",
-  /*  117 */ "document",
-  /*  118 */ "print",
-  /*  119 */ "prlist",
-  /*  120 */ "pritem",
-  /*  121 */ "prsep",
-  /*  122 */ "attribute_list",
-  /*  123 */ "savelist",
-  /*  124 */ "alist",
-  /*  125 */ "attribute",
-  /*  126 */ "go",
-  /*  127 */ "boolproperty",
-  /*  128 */ "withclause",
-  /*  129 */ "between",
-  /*  130 */ "place2",
+  /*   18 */ "DEFINE",
+  /*   19 */ "CODEBLOCK",
+  /*   20 */ "FILL",
+  /*   21 */ "COLOR",
+  /*   22 */ "THICKNESS",
+  /*   23 */ "PRINT",
+  /*   24 */ "STRING",
+  /*   25 */ "COMMA",
+  /*   26 */ "CLASSNAME",
+  /*   27 */ "LB",
+  /*   28 */ "RB",
+  /*   29 */ "UP",
+  /*   30 */ "DOWN",
+  /*   31 */ "LEFT",
+  /*   32 */ "RIGHT",
+  /*   33 */ "CLOSE",
+  /*   34 */ "CHOP",
+  /*   35 */ "FROM",
+  /*   36 */ "TO",
+  /*   37 */ "THEN",
+  /*   38 */ "HEADING",
+  /*   39 */ "GO",
+  /*   40 */ "AT",
+  /*   41 */ "WITH",
+  /*   42 */ "SAME",
+  /*   43 */ "AS",
+  /*   44 */ "FIT",
+  /*   45 */ "BEHIND",
+  /*   46 */ "UNTIL",
+  /*   47 */ "EVEN",
+  /*   48 */ "DOT_E",
+  /*   49 */ "HEIGHT",
+  /*   50 */ "WIDTH",
+  /*   51 */ "RADIUS",
+  /*   52 */ "DIAMETER",
+  /*   53 */ "DOTTED",
+  /*   54 */ "DASHED",
+  /*   55 */ "CW",
+  /*   56 */ "CCW",
+  /*   57 */ "LARROW",
+  /*   58 */ "RARROW",
+  /*   59 */ "LRARROW",
+  /*   60 */ "INVIS",
+  /*   61 */ "THICK",
+  /*   62 */ "THIN",
+  /*   63 */ "CENTER",
+  /*   64 */ "LJUST",
+  /*   65 */ "RJUST",
+  /*   66 */ "ABOVE",
+  /*   67 */ "BELOW",
+  /*   68 */ "ITALIC",
+  /*   69 */ "BOLD",
+  /*   70 */ "ALIGNED",
+  /*   71 */ "BIG",
+  /*   72 */ "SMALL",
+  /*   73 */ "AND",
+  /*   74 */ "LT",
+  /*   75 */ "GT",
+  /*   76 */ "ON",
+  /*   77 */ "WAY",
+  /*   78 */ "BETWEEN",
+  /*   79 */ "THE",
+  /*   80 */ "NTH",
+  /*   81 */ "VERTEX",
+  /*   82 */ "TOP",
+  /*   83 */ "BOTTOM",
+  /*   84 */ "START",
+  /*   85 */ "END",
+  /*   86 */ "IN",
+  /*   87 */ "DOT_U",
+  /*   88 */ "LAST",
+  /*   89 */ "NUMBER",
+  /*   90 */ "FUNC1",
+  /*   91 */ "FUNC2",
+  /*   92 */ "DIST",
+  /*   93 */ "DOT_XY",
+  /*   94 */ "X",
+  /*   95 */ "Y",
+  /*   96 */ "DOT_L",
+  /*   97 */ "statement_list",
+  /*   98 */ "statement",
+  /*   99 */ "unnamed_statement",
+  /*  100 */ "basetype",
+  /*  101 */ "expr",
+  /*  102 */ "numproperty",
+  /*  103 */ "edge",
+  /*  104 */ "direction",
+  /*  105 */ "dashproperty",
+  /*  106 */ "colorproperty",
+  /*  107 */ "locproperty",
+  /*  108 */ "position",
+  /*  109 */ "place",
+  /*  110 */ "object",
+  /*  111 */ "objectname",
+  /*  112 */ "nth",
+  /*  113 */ "textposition",
+  /*  114 */ "rvalue",
+  /*  115 */ "lvalue",
+  /*  116 */ "even",
+  /*  117 */ "relexpr",
+  /*  118 */ "optrelexpr",
+  /*  119 */ "document",
+  /*  120 */ "print",
+  /*  121 */ "prlist",
+  /*  122 */ "pritem",
+  /*  123 */ "prsep",
+  /*  124 */ "attribute_list",
+  /*  125 */ "savelist",
+  /*  126 */ "alist",
+  /*  127 */ "attribute",
+  /*  128 */ "go",
+  /*  129 */ "boolproperty",
+  /*  130 */ "withclause",
+  /*  131 */ "between",
+  /*  132 */ "place2",
 };
 #endif /* defined(YYCOVERAGE) || !defined(NDEBUG) */
 
@@ -1371,159 +1388,160 @@ static const char *const yyTokenName[] = {
 /* For tracing reduce actions, the names of all rules are required.
 */
 static const char *const yyRuleName[] = {
- /*   0 */ "document ::= element_list",
- /*   1 */ "element_list ::= element",
- /*   2 */ "element_list ::= element_list EOL element",
- /*   3 */ "element ::=",
- /*   4 */ "element ::= direction",
- /*   5 */ "element ::= lvalue ASSIGN rvalue",
- /*   6 */ "element ::= PLACENAME COLON unnamed_element",
- /*   7 */ "element ::= PLACENAME COLON position",
- /*   8 */ "element ::= unnamed_element",
- /*   9 */ "element ::= print prlist",
- /*  10 */ "element ::= ASSERT LP expr EQ expr RP",
- /*  11 */ "element ::= ASSERT LP position EQ position RP",
- /*  12 */ "rvalue ::= PLACENAME",
- /*  13 */ "pritem ::= FILL",
- /*  14 */ "pritem ::= COLOR",
- /*  15 */ "pritem ::= THICKNESS",
- /*  16 */ "pritem ::= rvalue",
- /*  17 */ "pritem ::= STRING",
- /*  18 */ "prsep ::= COMMA",
- /*  19 */ "unnamed_element ::= basetype attribute_list",
- /*  20 */ "basetype ::= CLASSNAME",
- /*  21 */ "basetype ::= STRING textposition",
- /*  22 */ "basetype ::= LB savelist element_list RB",
- /*  23 */ "savelist ::=",
- /*  24 */ "relexpr ::= expr",
- /*  25 */ "relexpr ::= expr PERCENT",
- /*  26 */ "optrelexpr ::=",
- /*  27 */ "attribute_list ::= relexpr alist",
- /*  28 */ "attribute ::= numproperty relexpr",
- /*  29 */ "attribute ::= dashproperty expr",
- /*  30 */ "attribute ::= dashproperty",
- /*  31 */ "attribute ::= colorproperty rvalue",
- /*  32 */ "attribute ::= go direction optrelexpr",
- /*  33 */ "attribute ::= go direction even position",
- /*  34 */ "attribute ::= CLOSE",
- /*  35 */ "attribute ::= CHOP",
- /*  36 */ "attribute ::= FROM position",
- /*  37 */ "attribute ::= TO position",
- /*  38 */ "attribute ::= THEN",
- /*  39 */ "attribute ::= THEN optrelexpr HEADING expr",
- /*  40 */ "attribute ::= THEN optrelexpr EDGEPT",
- /*  41 */ "attribute ::= GO optrelexpr HEADING expr",
- /*  42 */ "attribute ::= GO optrelexpr EDGEPT",
- /*  43 */ "attribute ::= AT position",
- /*  44 */ "attribute ::= SAME",
- /*  45 */ "attribute ::= SAME AS object",
- /*  46 */ "attribute ::= STRING textposition",
- /*  47 */ "attribute ::= FIT",
- /*  48 */ "attribute ::= BEHIND object",
- /*  49 */ "withclause ::= DOT_E edge AT position",
- /*  50 */ "withclause ::= edge AT position",
- /*  51 */ "numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS",
- /*  52 */ "boolproperty ::= CW",
- /*  53 */ "boolproperty ::= CCW",
- /*  54 */ "boolproperty ::= LARROW",
- /*  55 */ "boolproperty ::= RARROW",
- /*  56 */ "boolproperty ::= LRARROW",
- /*  57 */ "boolproperty ::= INVIS",
- /*  58 */ "boolproperty ::= THICK",
- /*  59 */ "boolproperty ::= THIN",
- /*  60 */ "textposition ::=",
- /*  61 */ "textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL",
- /*  62 */ "position ::= expr COMMA expr",
- /*  63 */ "position ::= place PLUS expr COMMA expr",
- /*  64 */ "position ::= place MINUS expr COMMA expr",
- /*  65 */ "position ::= place PLUS LP expr COMMA expr RP",
- /*  66 */ "position ::= place MINUS LP expr COMMA expr RP",
- /*  67 */ "position ::= LP position COMMA position RP",
- /*  68 */ "position ::= LP position RP",
- /*  69 */ "position ::= expr between position AND position",
- /*  70 */ "position ::= expr LT position COMMA position GT",
- /*  71 */ "position ::= expr ABOVE position",
- /*  72 */ "position ::= expr BELOW position",
- /*  73 */ "position ::= expr LEFT OF position",
- /*  74 */ "position ::= expr RIGHT OF position",
- /*  75 */ "position ::= expr ON HEADING EDGEPT OF position",
- /*  76 */ "position ::= expr HEADING EDGEPT OF position",
- /*  77 */ "position ::= expr EDGEPT OF position",
- /*  78 */ "position ::= expr ON HEADING expr FROM position",
- /*  79 */ "position ::= expr HEADING expr FROM position",
- /*  80 */ "place ::= edge OF object",
- /*  81 */ "place2 ::= object",
- /*  82 */ "place2 ::= object DOT_E edge",
- /*  83 */ "place2 ::= NTH VERTEX OF object",
- /*  84 */ "object ::= nth",
- /*  85 */ "object ::= nth OF|IN object",
- /*  86 */ "objectname ::= PLACENAME",
- /*  87 */ "objectname ::= objectname DOT_U PLACENAME",
- /*  88 */ "nth ::= NTH CLASSNAME",
- /*  89 */ "nth ::= NTH LAST CLASSNAME",
- /*  90 */ "nth ::= LAST CLASSNAME",
- /*  91 */ "nth ::= LAST",
- /*  92 */ "nth ::= NTH LB RB",
- /*  93 */ "nth ::= NTH LAST LB RB",
- /*  94 */ "nth ::= LAST LB RB",
- /*  95 */ "expr ::= expr PLUS expr",
- /*  96 */ "expr ::= expr MINUS expr",
- /*  97 */ "expr ::= expr STAR expr",
- /*  98 */ "expr ::= expr SLASH expr",
- /*  99 */ "expr ::= MINUS expr",
- /* 100 */ "expr ::= PLUS expr",
- /* 101 */ "expr ::= LP expr RP",
- /* 102 */ "expr ::= LP FILL|COLOR|THICKNESS RP",
- /* 103 */ "expr ::= NUMBER",
- /* 104 */ "expr ::= ID",
- /* 105 */ "expr ::= FUNC1 LP expr RP",
- /* 106 */ "expr ::= FUNC2 LP expr COMMA expr RP",
- /* 107 */ "expr ::= DIST LP position COMMA position RP",
- /* 108 */ "expr ::= place2 DOT_XY X",
- /* 109 */ "expr ::= place2 DOT_XY Y",
- /* 110 */ "expr ::= object DOT_L numproperty",
- /* 111 */ "expr ::= object DOT_L dashproperty",
- /* 112 */ "expr ::= object DOT_L colorproperty",
- /* 113 */ "lvalue ::= ID",
- /* 114 */ "lvalue ::= FILL",
- /* 115 */ "lvalue ::= COLOR",
- /* 116 */ "lvalue ::= THICKNESS",
- /* 117 */ "rvalue ::= expr",
- /* 118 */ "print ::= PRINT",
- /* 119 */ "prlist ::= pritem",
- /* 120 */ "prlist ::= prlist prsep pritem",
- /* 121 */ "direction ::= UP",
- /* 122 */ "direction ::= DOWN",
- /* 123 */ "direction ::= LEFT",
- /* 124 */ "direction ::= RIGHT",
- /* 125 */ "optrelexpr ::= relexpr",
- /* 126 */ "attribute_list ::= alist",
- /* 127 */ "alist ::=",
- /* 128 */ "alist ::= alist attribute",
- /* 129 */ "attribute ::= boolproperty",
- /* 130 */ "attribute ::= WITH withclause",
- /* 131 */ "go ::= GO",
- /* 132 */ "go ::=",
- /* 133 */ "even ::= UNTIL EVEN WITH",
- /* 134 */ "even ::= EVEN WITH",
- /* 135 */ "dashproperty ::= DOTTED",
- /* 136 */ "dashproperty ::= DASHED",
- /* 137 */ "colorproperty ::= FILL",
- /* 138 */ "colorproperty ::= COLOR",
- /* 139 */ "position ::= place",
- /* 140 */ "between ::= WAY BETWEEN",
- /* 141 */ "between ::= BETWEEN",
- /* 142 */ "between ::= OF THE WAY BETWEEN",
- /* 143 */ "place ::= place2",
- /* 144 */ "edge ::= CENTER",
- /* 145 */ "edge ::= EDGEPT",
- /* 146 */ "edge ::= TOP",
- /* 147 */ "edge ::= BOTTOM",
- /* 148 */ "edge ::= START",
- /* 149 */ "edge ::= END",
- /* 150 */ "edge ::= RIGHT",
- /* 151 */ "edge ::= LEFT",
- /* 152 */ "object ::= objectname",
+ /*   0 */ "document ::= statement_list",
+ /*   1 */ "statement_list ::= statement",
+ /*   2 */ "statement_list ::= statement_list EOL statement",
+ /*   3 */ "statement ::=",
+ /*   4 */ "statement ::= direction",
+ /*   5 */ "statement ::= lvalue ASSIGN rvalue",
+ /*   6 */ "statement ::= PLACENAME COLON unnamed_statement",
+ /*   7 */ "statement ::= PLACENAME COLON position",
+ /*   8 */ "statement ::= unnamed_statement",
+ /*   9 */ "statement ::= print prlist",
+ /*  10 */ "statement ::= ASSERT LP expr EQ expr RP",
+ /*  11 */ "statement ::= ASSERT LP position EQ position RP",
+ /*  12 */ "statement ::= DEFINE ID CODEBLOCK",
+ /*  13 */ "rvalue ::= PLACENAME",
+ /*  14 */ "pritem ::= FILL",
+ /*  15 */ "pritem ::= COLOR",
+ /*  16 */ "pritem ::= THICKNESS",
+ /*  17 */ "pritem ::= rvalue",
+ /*  18 */ "pritem ::= STRING",
+ /*  19 */ "prsep ::= COMMA",
+ /*  20 */ "unnamed_statement ::= basetype attribute_list",
+ /*  21 */ "basetype ::= CLASSNAME",
+ /*  22 */ "basetype ::= STRING textposition",
+ /*  23 */ "basetype ::= LB savelist statement_list RB",
+ /*  24 */ "savelist ::=",
+ /*  25 */ "relexpr ::= expr",
+ /*  26 */ "relexpr ::= expr PERCENT",
+ /*  27 */ "optrelexpr ::=",
+ /*  28 */ "attribute_list ::= relexpr alist",
+ /*  29 */ "attribute ::= numproperty relexpr",
+ /*  30 */ "attribute ::= dashproperty expr",
+ /*  31 */ "attribute ::= dashproperty",
+ /*  32 */ "attribute ::= colorproperty rvalue",
+ /*  33 */ "attribute ::= go direction optrelexpr",
+ /*  34 */ "attribute ::= go direction even position",
+ /*  35 */ "attribute ::= CLOSE",
+ /*  36 */ "attribute ::= CHOP",
+ /*  37 */ "attribute ::= FROM position",
+ /*  38 */ "attribute ::= TO position",
+ /*  39 */ "attribute ::= THEN",
+ /*  40 */ "attribute ::= THEN optrelexpr HEADING expr",
+ /*  41 */ "attribute ::= THEN optrelexpr EDGEPT",
+ /*  42 */ "attribute ::= GO optrelexpr HEADING expr",
+ /*  43 */ "attribute ::= GO optrelexpr EDGEPT",
+ /*  44 */ "attribute ::= AT position",
+ /*  45 */ "attribute ::= SAME",
+ /*  46 */ "attribute ::= SAME AS object",
+ /*  47 */ "attribute ::= STRING textposition",
+ /*  48 */ "attribute ::= FIT",
+ /*  49 */ "attribute ::= BEHIND object",
+ /*  50 */ "withclause ::= DOT_E edge AT position",
+ /*  51 */ "withclause ::= edge AT position",
+ /*  52 */ "numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS",
+ /*  53 */ "boolproperty ::= CW",
+ /*  54 */ "boolproperty ::= CCW",
+ /*  55 */ "boolproperty ::= LARROW",
+ /*  56 */ "boolproperty ::= RARROW",
+ /*  57 */ "boolproperty ::= LRARROW",
+ /*  58 */ "boolproperty ::= INVIS",
+ /*  59 */ "boolproperty ::= THICK",
+ /*  60 */ "boolproperty ::= THIN",
+ /*  61 */ "textposition ::=",
+ /*  62 */ "textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL",
+ /*  63 */ "position ::= expr COMMA expr",
+ /*  64 */ "position ::= place PLUS expr COMMA expr",
+ /*  65 */ "position ::= place MINUS expr COMMA expr",
+ /*  66 */ "position ::= place PLUS LP expr COMMA expr RP",
+ /*  67 */ "position ::= place MINUS LP expr COMMA expr RP",
+ /*  68 */ "position ::= LP position COMMA position RP",
+ /*  69 */ "position ::= LP position RP",
+ /*  70 */ "position ::= expr between position AND position",
+ /*  71 */ "position ::= expr LT position COMMA position GT",
+ /*  72 */ "position ::= expr ABOVE position",
+ /*  73 */ "position ::= expr BELOW position",
+ /*  74 */ "position ::= expr LEFT OF position",
+ /*  75 */ "position ::= expr RIGHT OF position",
+ /*  76 */ "position ::= expr ON HEADING EDGEPT OF position",
+ /*  77 */ "position ::= expr HEADING EDGEPT OF position",
+ /*  78 */ "position ::= expr EDGEPT OF position",
+ /*  79 */ "position ::= expr ON HEADING expr FROM position",
+ /*  80 */ "position ::= expr HEADING expr FROM position",
+ /*  81 */ "place ::= edge OF object",
+ /*  82 */ "place2 ::= object",
+ /*  83 */ "place2 ::= object DOT_E edge",
+ /*  84 */ "place2 ::= NTH VERTEX OF object",
+ /*  85 */ "object ::= nth",
+ /*  86 */ "object ::= nth OF|IN object",
+ /*  87 */ "objectname ::= PLACENAME",
+ /*  88 */ "objectname ::= objectname DOT_U PLACENAME",
+ /*  89 */ "nth ::= NTH CLASSNAME",
+ /*  90 */ "nth ::= NTH LAST CLASSNAME",
+ /*  91 */ "nth ::= LAST CLASSNAME",
+ /*  92 */ "nth ::= LAST",
+ /*  93 */ "nth ::= NTH LB RB",
+ /*  94 */ "nth ::= NTH LAST LB RB",
+ /*  95 */ "nth ::= LAST LB RB",
+ /*  96 */ "expr ::= expr PLUS expr",
+ /*  97 */ "expr ::= expr MINUS expr",
+ /*  98 */ "expr ::= expr STAR expr",
+ /*  99 */ "expr ::= expr SLASH expr",
+ /* 100 */ "expr ::= MINUS expr",
+ /* 101 */ "expr ::= PLUS expr",
+ /* 102 */ "expr ::= LP expr RP",
+ /* 103 */ "expr ::= LP FILL|COLOR|THICKNESS RP",
+ /* 104 */ "expr ::= NUMBER",
+ /* 105 */ "expr ::= ID",
+ /* 106 */ "expr ::= FUNC1 LP expr RP",
+ /* 107 */ "expr ::= FUNC2 LP expr COMMA expr RP",
+ /* 108 */ "expr ::= DIST LP position COMMA position RP",
+ /* 109 */ "expr ::= place2 DOT_XY X",
+ /* 110 */ "expr ::= place2 DOT_XY Y",
+ /* 111 */ "expr ::= object DOT_L numproperty",
+ /* 112 */ "expr ::= object DOT_L dashproperty",
+ /* 113 */ "expr ::= object DOT_L colorproperty",
+ /* 114 */ "lvalue ::= ID",
+ /* 115 */ "lvalue ::= FILL",
+ /* 116 */ "lvalue ::= COLOR",
+ /* 117 */ "lvalue ::= THICKNESS",
+ /* 118 */ "rvalue ::= expr",
+ /* 119 */ "print ::= PRINT",
+ /* 120 */ "prlist ::= pritem",
+ /* 121 */ "prlist ::= prlist prsep pritem",
+ /* 122 */ "direction ::= UP",
+ /* 123 */ "direction ::= DOWN",
+ /* 124 */ "direction ::= LEFT",
+ /* 125 */ "direction ::= RIGHT",
+ /* 126 */ "optrelexpr ::= relexpr",
+ /* 127 */ "attribute_list ::= alist",
+ /* 128 */ "alist ::=",
+ /* 129 */ "alist ::= alist attribute",
+ /* 130 */ "attribute ::= boolproperty",
+ /* 131 */ "attribute ::= WITH withclause",
+ /* 132 */ "go ::= GO",
+ /* 133 */ "go ::=",
+ /* 134 */ "even ::= UNTIL EVEN WITH",
+ /* 135 */ "even ::= EVEN WITH",
+ /* 136 */ "dashproperty ::= DOTTED",
+ /* 137 */ "dashproperty ::= DASHED",
+ /* 138 */ "colorproperty ::= FILL",
+ /* 139 */ "colorproperty ::= COLOR",
+ /* 140 */ "position ::= place",
+ /* 141 */ "between ::= WAY BETWEEN",
+ /* 142 */ "between ::= BETWEEN",
+ /* 143 */ "between ::= OF THE WAY BETWEEN",
+ /* 144 */ "place ::= place2",
+ /* 145 */ "edge ::= CENTER",
+ /* 146 */ "edge ::= EDGEPT",
+ /* 147 */ "edge ::= TOP",
+ /* 148 */ "edge ::= BOTTOM",
+ /* 149 */ "edge ::= START",
+ /* 150 */ "edge ::= END",
+ /* 151 */ "edge ::= RIGHT",
+ /* 152 */ "edge ::= LEFT",
+ /* 153 */ "object ::= objectname",
 };
 #endif /* NDEBUG */
 
@@ -1649,20 +1667,20 @@ static void yy_destructor(
     ** inside the C code.
     */
 /********* Begin destructor definitions ***************************************/
-    case 95: /* element_list */
+    case 97: /* statement_list */
 {
-#line 468 "pikchr.y"
-pik_elist_free(p,(yypminor->yy56));
-#line 1681 "pikchr.c"
+#line 483 "pikchr.y"
+pik_elist_free(p,(yypminor->yy191));
+#line 1699 "pikchr.c"
 }
       break;
-    case 96: /* element */
-    case 97: /* unnamed_element */
-    case 98: /* basetype */
+    case 98: /* statement */
+    case 99: /* unnamed_statement */
+    case 100: /* basetype */
 {
-#line 470 "pikchr.y"
-pik_elem_free(p,(yypminor->yy226));
-#line 1690 "pikchr.c"
+#line 485 "pikchr.y"
+pik_elem_free(p,(yypminor->yy138));
+#line 1708 "pikchr.c"
 }
       break;
 /********* End destructor definitions *****************************************/
@@ -1880,10 +1898,10 @@ static void yyStackOverflow(yyParser *yypParser){
    /* Here code is inserted which will execute if the parser
    ** stack every overflows */
 /******** Begin %stack_overflow code ******************************************/
-#line 502 "pikchr.y"
+#line 517 "pikchr.y"
 
   pik_error(p, 0, "parser stack overflow");
-#line 1911 "pikchr.c"
+#line 1929 "pikchr.c"
 /******** End %stack_overflow code ********************************************/
    pik_parserARG_STORE /* Suppress warning about unused %extra_argument var */
    pik_parserCTX_STORE
@@ -1955,317 +1973,319 @@ static void yy_shift(
 /* For rule J, yyRuleInfoLhs[J] contains the symbol on the left-hand side
 ** of that rule */
 static const YYCODETYPE yyRuleInfoLhs[] = {
-   117,  /* (0) document ::= element_list */
-    95,  /* (1) element_list ::= element */
-    95,  /* (2) element_list ::= element_list EOL element */
-    96,  /* (3) element ::= */
-    96,  /* (4) element ::= direction */
-    96,  /* (5) element ::= lvalue ASSIGN rvalue */
-    96,  /* (6) element ::= PLACENAME COLON unnamed_element */
-    96,  /* (7) element ::= PLACENAME COLON position */
-    96,  /* (8) element ::= unnamed_element */
-    96,  /* (9) element ::= print prlist */
-    96,  /* (10) element ::= ASSERT LP expr EQ expr RP */
-    96,  /* (11) element ::= ASSERT LP position EQ position RP */
-   112,  /* (12) rvalue ::= PLACENAME */
-   120,  /* (13) pritem ::= FILL */
-   120,  /* (14) pritem ::= COLOR */
-   120,  /* (15) pritem ::= THICKNESS */
-   120,  /* (16) pritem ::= rvalue */
-   120,  /* (17) pritem ::= STRING */
-   121,  /* (18) prsep ::= COMMA */
-    97,  /* (19) unnamed_element ::= basetype attribute_list */
-    98,  /* (20) basetype ::= CLASSNAME */
-    98,  /* (21) basetype ::= STRING textposition */
-    98,  /* (22) basetype ::= LB savelist element_list RB */
-   123,  /* (23) savelist ::= */
-   115,  /* (24) relexpr ::= expr */
-   115,  /* (25) relexpr ::= expr PERCENT */
-   116,  /* (26) optrelexpr ::= */
-   122,  /* (27) attribute_list ::= relexpr alist */
-   125,  /* (28) attribute ::= numproperty relexpr */
-   125,  /* (29) attribute ::= dashproperty expr */
-   125,  /* (30) attribute ::= dashproperty */
-   125,  /* (31) attribute ::= colorproperty rvalue */
-   125,  /* (32) attribute ::= go direction optrelexpr */
-   125,  /* (33) attribute ::= go direction even position */
-   125,  /* (34) attribute ::= CLOSE */
-   125,  /* (35) attribute ::= CHOP */
-   125,  /* (36) attribute ::= FROM position */
-   125,  /* (37) attribute ::= TO position */
-   125,  /* (38) attribute ::= THEN */
-   125,  /* (39) attribute ::= THEN optrelexpr HEADING expr */
-   125,  /* (40) attribute ::= THEN optrelexpr EDGEPT */
-   125,  /* (41) attribute ::= GO optrelexpr HEADING expr */
-   125,  /* (42) attribute ::= GO optrelexpr EDGEPT */
-   125,  /* (43) attribute ::= AT position */
-   125,  /* (44) attribute ::= SAME */
-   125,  /* (45) attribute ::= SAME AS object */
-   125,  /* (46) attribute ::= STRING textposition */
-   125,  /* (47) attribute ::= FIT */
-   125,  /* (48) attribute ::= BEHIND object */
-   128,  /* (49) withclause ::= DOT_E edge AT position */
-   128,  /* (50) withclause ::= edge AT position */
-   100,  /* (51) numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS */
-   127,  /* (52) boolproperty ::= CW */
-   127,  /* (53) boolproperty ::= CCW */
-   127,  /* (54) boolproperty ::= LARROW */
-   127,  /* (55) boolproperty ::= RARROW */
-   127,  /* (56) boolproperty ::= LRARROW */
-   127,  /* (57) boolproperty ::= INVIS */
-   127,  /* (58) boolproperty ::= THICK */
-   127,  /* (59) boolproperty ::= THIN */
-   111,  /* (60) textposition ::= */
-   111,  /* (61) textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL */
-   106,  /* (62) position ::= expr COMMA expr */
-   106,  /* (63) position ::= place PLUS expr COMMA expr */
-   106,  /* (64) position ::= place MINUS expr COMMA expr */
-   106,  /* (65) position ::= place PLUS LP expr COMMA expr RP */
-   106,  /* (66) position ::= place MINUS LP expr COMMA expr RP */
-   106,  /* (67) position ::= LP position COMMA position RP */
-   106,  /* (68) position ::= LP position RP */
-   106,  /* (69) position ::= expr between position AND position */
-   106,  /* (70) position ::= expr LT position COMMA position GT */
-   106,  /* (71) position ::= expr ABOVE position */
-   106,  /* (72) position ::= expr BELOW position */
-   106,  /* (73) position ::= expr LEFT OF position */
-   106,  /* (74) position ::= expr RIGHT OF position */
-   106,  /* (75) position ::= expr ON HEADING EDGEPT OF position */
-   106,  /* (76) position ::= expr HEADING EDGEPT OF position */
-   106,  /* (77) position ::= expr EDGEPT OF position */
-   106,  /* (78) position ::= expr ON HEADING expr FROM position */
-   106,  /* (79) position ::= expr HEADING expr FROM position */
-   107,  /* (80) place ::= edge OF object */
-   130,  /* (81) place2 ::= object */
-   130,  /* (82) place2 ::= object DOT_E edge */
-   130,  /* (83) place2 ::= NTH VERTEX OF object */
-   108,  /* (84) object ::= nth */
-   108,  /* (85) object ::= nth OF|IN object */
-   109,  /* (86) objectname ::= PLACENAME */
-   109,  /* (87) objectname ::= objectname DOT_U PLACENAME */
-   110,  /* (88) nth ::= NTH CLASSNAME */
-   110,  /* (89) nth ::= NTH LAST CLASSNAME */
-   110,  /* (90) nth ::= LAST CLASSNAME */
-   110,  /* (91) nth ::= LAST */
-   110,  /* (92) nth ::= NTH LB RB */
-   110,  /* (93) nth ::= NTH LAST LB RB */
-   110,  /* (94) nth ::= LAST LB RB */
-    99,  /* (95) expr ::= expr PLUS expr */
-    99,  /* (96) expr ::= expr MINUS expr */
-    99,  /* (97) expr ::= expr STAR expr */
-    99,  /* (98) expr ::= expr SLASH expr */
-    99,  /* (99) expr ::= MINUS expr */
-    99,  /* (100) expr ::= PLUS expr */
-    99,  /* (101) expr ::= LP expr RP */
-    99,  /* (102) expr ::= LP FILL|COLOR|THICKNESS RP */
-    99,  /* (103) expr ::= NUMBER */
-    99,  /* (104) expr ::= ID */
-    99,  /* (105) expr ::= FUNC1 LP expr RP */
-    99,  /* (106) expr ::= FUNC2 LP expr COMMA expr RP */
-    99,  /* (107) expr ::= DIST LP position COMMA position RP */
-    99,  /* (108) expr ::= place2 DOT_XY X */
-    99,  /* (109) expr ::= place2 DOT_XY Y */
-    99,  /* (110) expr ::= object DOT_L numproperty */
-    99,  /* (111) expr ::= object DOT_L dashproperty */
-    99,  /* (112) expr ::= object DOT_L colorproperty */
-   113,  /* (113) lvalue ::= ID */
-   113,  /* (114) lvalue ::= FILL */
-   113,  /* (115) lvalue ::= COLOR */
-   113,  /* (116) lvalue ::= THICKNESS */
-   112,  /* (117) rvalue ::= expr */
-   118,  /* (118) print ::= PRINT */
-   119,  /* (119) prlist ::= pritem */
-   119,  /* (120) prlist ::= prlist prsep pritem */
-   102,  /* (121) direction ::= UP */
-   102,  /* (122) direction ::= DOWN */
-   102,  /* (123) direction ::= LEFT */
-   102,  /* (124) direction ::= RIGHT */
-   116,  /* (125) optrelexpr ::= relexpr */
-   122,  /* (126) attribute_list ::= alist */
-   124,  /* (127) alist ::= */
-   124,  /* (128) alist ::= alist attribute */
-   125,  /* (129) attribute ::= boolproperty */
-   125,  /* (130) attribute ::= WITH withclause */
-   126,  /* (131) go ::= GO */
-   126,  /* (132) go ::= */
-   114,  /* (133) even ::= UNTIL EVEN WITH */
-   114,  /* (134) even ::= EVEN WITH */
-   103,  /* (135) dashproperty ::= DOTTED */
-   103,  /* (136) dashproperty ::= DASHED */
-   104,  /* (137) colorproperty ::= FILL */
-   104,  /* (138) colorproperty ::= COLOR */
-   106,  /* (139) position ::= place */
-   129,  /* (140) between ::= WAY BETWEEN */
-   129,  /* (141) between ::= BETWEEN */
-   129,  /* (142) between ::= OF THE WAY BETWEEN */
-   107,  /* (143) place ::= place2 */
-   101,  /* (144) edge ::= CENTER */
-   101,  /* (145) edge ::= EDGEPT */
-   101,  /* (146) edge ::= TOP */
-   101,  /* (147) edge ::= BOTTOM */
-   101,  /* (148) edge ::= START */
-   101,  /* (149) edge ::= END */
-   101,  /* (150) edge ::= RIGHT */
-   101,  /* (151) edge ::= LEFT */
-   108,  /* (152) object ::= objectname */
+   119,  /* (0) document ::= statement_list */
+    97,  /* (1) statement_list ::= statement */
+    97,  /* (2) statement_list ::= statement_list EOL statement */
+    98,  /* (3) statement ::= */
+    98,  /* (4) statement ::= direction */
+    98,  /* (5) statement ::= lvalue ASSIGN rvalue */
+    98,  /* (6) statement ::= PLACENAME COLON unnamed_statement */
+    98,  /* (7) statement ::= PLACENAME COLON position */
+    98,  /* (8) statement ::= unnamed_statement */
+    98,  /* (9) statement ::= print prlist */
+    98,  /* (10) statement ::= ASSERT LP expr EQ expr RP */
+    98,  /* (11) statement ::= ASSERT LP position EQ position RP */
+    98,  /* (12) statement ::= DEFINE ID CODEBLOCK */
+   114,  /* (13) rvalue ::= PLACENAME */
+   122,  /* (14) pritem ::= FILL */
+   122,  /* (15) pritem ::= COLOR */
+   122,  /* (16) pritem ::= THICKNESS */
+   122,  /* (17) pritem ::= rvalue */
+   122,  /* (18) pritem ::= STRING */
+   123,  /* (19) prsep ::= COMMA */
+    99,  /* (20) unnamed_statement ::= basetype attribute_list */
+   100,  /* (21) basetype ::= CLASSNAME */
+   100,  /* (22) basetype ::= STRING textposition */
+   100,  /* (23) basetype ::= LB savelist statement_list RB */
+   125,  /* (24) savelist ::= */
+   117,  /* (25) relexpr ::= expr */
+   117,  /* (26) relexpr ::= expr PERCENT */
+   118,  /* (27) optrelexpr ::= */
+   124,  /* (28) attribute_list ::= relexpr alist */
+   127,  /* (29) attribute ::= numproperty relexpr */
+   127,  /* (30) attribute ::= dashproperty expr */
+   127,  /* (31) attribute ::= dashproperty */
+   127,  /* (32) attribute ::= colorproperty rvalue */
+   127,  /* (33) attribute ::= go direction optrelexpr */
+   127,  /* (34) attribute ::= go direction even position */
+   127,  /* (35) attribute ::= CLOSE */
+   127,  /* (36) attribute ::= CHOP */
+   127,  /* (37) attribute ::= FROM position */
+   127,  /* (38) attribute ::= TO position */
+   127,  /* (39) attribute ::= THEN */
+   127,  /* (40) attribute ::= THEN optrelexpr HEADING expr */
+   127,  /* (41) attribute ::= THEN optrelexpr EDGEPT */
+   127,  /* (42) attribute ::= GO optrelexpr HEADING expr */
+   127,  /* (43) attribute ::= GO optrelexpr EDGEPT */
+   127,  /* (44) attribute ::= AT position */
+   127,  /* (45) attribute ::= SAME */
+   127,  /* (46) attribute ::= SAME AS object */
+   127,  /* (47) attribute ::= STRING textposition */
+   127,  /* (48) attribute ::= FIT */
+   127,  /* (49) attribute ::= BEHIND object */
+   130,  /* (50) withclause ::= DOT_E edge AT position */
+   130,  /* (51) withclause ::= edge AT position */
+   102,  /* (52) numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS */
+   129,  /* (53) boolproperty ::= CW */
+   129,  /* (54) boolproperty ::= CCW */
+   129,  /* (55) boolproperty ::= LARROW */
+   129,  /* (56) boolproperty ::= RARROW */
+   129,  /* (57) boolproperty ::= LRARROW */
+   129,  /* (58) boolproperty ::= INVIS */
+   129,  /* (59) boolproperty ::= THICK */
+   129,  /* (60) boolproperty ::= THIN */
+   113,  /* (61) textposition ::= */
+   113,  /* (62) textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL */
+   108,  /* (63) position ::= expr COMMA expr */
+   108,  /* (64) position ::= place PLUS expr COMMA expr */
+   108,  /* (65) position ::= place MINUS expr COMMA expr */
+   108,  /* (66) position ::= place PLUS LP expr COMMA expr RP */
+   108,  /* (67) position ::= place MINUS LP expr COMMA expr RP */
+   108,  /* (68) position ::= LP position COMMA position RP */
+   108,  /* (69) position ::= LP position RP */
+   108,  /* (70) position ::= expr between position AND position */
+   108,  /* (71) position ::= expr LT position COMMA position GT */
+   108,  /* (72) position ::= expr ABOVE position */
+   108,  /* (73) position ::= expr BELOW position */
+   108,  /* (74) position ::= expr LEFT OF position */
+   108,  /* (75) position ::= expr RIGHT OF position */
+   108,  /* (76) position ::= expr ON HEADING EDGEPT OF position */
+   108,  /* (77) position ::= expr HEADING EDGEPT OF position */
+   108,  /* (78) position ::= expr EDGEPT OF position */
+   108,  /* (79) position ::= expr ON HEADING expr FROM position */
+   108,  /* (80) position ::= expr HEADING expr FROM position */
+   109,  /* (81) place ::= edge OF object */
+   132,  /* (82) place2 ::= object */
+   132,  /* (83) place2 ::= object DOT_E edge */
+   132,  /* (84) place2 ::= NTH VERTEX OF object */
+   110,  /* (85) object ::= nth */
+   110,  /* (86) object ::= nth OF|IN object */
+   111,  /* (87) objectname ::= PLACENAME */
+   111,  /* (88) objectname ::= objectname DOT_U PLACENAME */
+   112,  /* (89) nth ::= NTH CLASSNAME */
+   112,  /* (90) nth ::= NTH LAST CLASSNAME */
+   112,  /* (91) nth ::= LAST CLASSNAME */
+   112,  /* (92) nth ::= LAST */
+   112,  /* (93) nth ::= NTH LB RB */
+   112,  /* (94) nth ::= NTH LAST LB RB */
+   112,  /* (95) nth ::= LAST LB RB */
+   101,  /* (96) expr ::= expr PLUS expr */
+   101,  /* (97) expr ::= expr MINUS expr */
+   101,  /* (98) expr ::= expr STAR expr */
+   101,  /* (99) expr ::= expr SLASH expr */
+   101,  /* (100) expr ::= MINUS expr */
+   101,  /* (101) expr ::= PLUS expr */
+   101,  /* (102) expr ::= LP expr RP */
+   101,  /* (103) expr ::= LP FILL|COLOR|THICKNESS RP */
+   101,  /* (104) expr ::= NUMBER */
+   101,  /* (105) expr ::= ID */
+   101,  /* (106) expr ::= FUNC1 LP expr RP */
+   101,  /* (107) expr ::= FUNC2 LP expr COMMA expr RP */
+   101,  /* (108) expr ::= DIST LP position COMMA position RP */
+   101,  /* (109) expr ::= place2 DOT_XY X */
+   101,  /* (110) expr ::= place2 DOT_XY Y */
+   101,  /* (111) expr ::= object DOT_L numproperty */
+   101,  /* (112) expr ::= object DOT_L dashproperty */
+   101,  /* (113) expr ::= object DOT_L colorproperty */
+   115,  /* (114) lvalue ::= ID */
+   115,  /* (115) lvalue ::= FILL */
+   115,  /* (116) lvalue ::= COLOR */
+   115,  /* (117) lvalue ::= THICKNESS */
+   114,  /* (118) rvalue ::= expr */
+   120,  /* (119) print ::= PRINT */
+   121,  /* (120) prlist ::= pritem */
+   121,  /* (121) prlist ::= prlist prsep pritem */
+   104,  /* (122) direction ::= UP */
+   104,  /* (123) direction ::= DOWN */
+   104,  /* (124) direction ::= LEFT */
+   104,  /* (125) direction ::= RIGHT */
+   118,  /* (126) optrelexpr ::= relexpr */
+   124,  /* (127) attribute_list ::= alist */
+   126,  /* (128) alist ::= */
+   126,  /* (129) alist ::= alist attribute */
+   127,  /* (130) attribute ::= boolproperty */
+   127,  /* (131) attribute ::= WITH withclause */
+   128,  /* (132) go ::= GO */
+   128,  /* (133) go ::= */
+   116,  /* (134) even ::= UNTIL EVEN WITH */
+   116,  /* (135) even ::= EVEN WITH */
+   105,  /* (136) dashproperty ::= DOTTED */
+   105,  /* (137) dashproperty ::= DASHED */
+   106,  /* (138) colorproperty ::= FILL */
+   106,  /* (139) colorproperty ::= COLOR */
+   108,  /* (140) position ::= place */
+   131,  /* (141) between ::= WAY BETWEEN */
+   131,  /* (142) between ::= BETWEEN */
+   131,  /* (143) between ::= OF THE WAY BETWEEN */
+   109,  /* (144) place ::= place2 */
+   103,  /* (145) edge ::= CENTER */
+   103,  /* (146) edge ::= EDGEPT */
+   103,  /* (147) edge ::= TOP */
+   103,  /* (148) edge ::= BOTTOM */
+   103,  /* (149) edge ::= START */
+   103,  /* (150) edge ::= END */
+   103,  /* (151) edge ::= RIGHT */
+   103,  /* (152) edge ::= LEFT */
+   110,  /* (153) object ::= objectname */
 };
 
 /* For rule J, yyRuleInfoNRhs[J] contains the negative of the number
 ** of symbols on the right-hand side of that rule. */
 static const signed char yyRuleInfoNRhs[] = {
-   -1,  /* (0) document ::= element_list */
-   -1,  /* (1) element_list ::= element */
-   -3,  /* (2) element_list ::= element_list EOL element */
-    0,  /* (3) element ::= */
-   -1,  /* (4) element ::= direction */
-   -3,  /* (5) element ::= lvalue ASSIGN rvalue */
-   -3,  /* (6) element ::= PLACENAME COLON unnamed_element */
-   -3,  /* (7) element ::= PLACENAME COLON position */
-   -1,  /* (8) element ::= unnamed_element */
-   -2,  /* (9) element ::= print prlist */
-   -6,  /* (10) element ::= ASSERT LP expr EQ expr RP */
-   -6,  /* (11) element ::= ASSERT LP position EQ position RP */
-   -1,  /* (12) rvalue ::= PLACENAME */
-   -1,  /* (13) pritem ::= FILL */
-   -1,  /* (14) pritem ::= COLOR */
-   -1,  /* (15) pritem ::= THICKNESS */
-   -1,  /* (16) pritem ::= rvalue */
-   -1,  /* (17) pritem ::= STRING */
-   -1,  /* (18) prsep ::= COMMA */
-   -2,  /* (19) unnamed_element ::= basetype attribute_list */
-   -1,  /* (20) basetype ::= CLASSNAME */
-   -2,  /* (21) basetype ::= STRING textposition */
-   -4,  /* (22) basetype ::= LB savelist element_list RB */
-    0,  /* (23) savelist ::= */
-   -1,  /* (24) relexpr ::= expr */
-   -2,  /* (25) relexpr ::= expr PERCENT */
-    0,  /* (26) optrelexpr ::= */
-   -2,  /* (27) attribute_list ::= relexpr alist */
-   -2,  /* (28) attribute ::= numproperty relexpr */
-   -2,  /* (29) attribute ::= dashproperty expr */
-   -1,  /* (30) attribute ::= dashproperty */
-   -2,  /* (31) attribute ::= colorproperty rvalue */
-   -3,  /* (32) attribute ::= go direction optrelexpr */
-   -4,  /* (33) attribute ::= go direction even position */
-   -1,  /* (34) attribute ::= CLOSE */
-   -1,  /* (35) attribute ::= CHOP */
-   -2,  /* (36) attribute ::= FROM position */
-   -2,  /* (37) attribute ::= TO position */
-   -1,  /* (38) attribute ::= THEN */
-   -4,  /* (39) attribute ::= THEN optrelexpr HEADING expr */
-   -3,  /* (40) attribute ::= THEN optrelexpr EDGEPT */
-   -4,  /* (41) attribute ::= GO optrelexpr HEADING expr */
-   -3,  /* (42) attribute ::= GO optrelexpr EDGEPT */
-   -2,  /* (43) attribute ::= AT position */
-   -1,  /* (44) attribute ::= SAME */
-   -3,  /* (45) attribute ::= SAME AS object */
-   -2,  /* (46) attribute ::= STRING textposition */
-   -1,  /* (47) attribute ::= FIT */
-   -2,  /* (48) attribute ::= BEHIND object */
-   -4,  /* (49) withclause ::= DOT_E edge AT position */
-   -3,  /* (50) withclause ::= edge AT position */
-   -1,  /* (51) numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS */
-   -1,  /* (52) boolproperty ::= CW */
-   -1,  /* (53) boolproperty ::= CCW */
-   -1,  /* (54) boolproperty ::= LARROW */
-   -1,  /* (55) boolproperty ::= RARROW */
-   -1,  /* (56) boolproperty ::= LRARROW */
-   -1,  /* (57) boolproperty ::= INVIS */
-   -1,  /* (58) boolproperty ::= THICK */
-   -1,  /* (59) boolproperty ::= THIN */
-    0,  /* (60) textposition ::= */
-   -2,  /* (61) textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL */
-   -3,  /* (62) position ::= expr COMMA expr */
-   -5,  /* (63) position ::= place PLUS expr COMMA expr */
-   -5,  /* (64) position ::= place MINUS expr COMMA expr */
-   -7,  /* (65) position ::= place PLUS LP expr COMMA expr RP */
-   -7,  /* (66) position ::= place MINUS LP expr COMMA expr RP */
-   -5,  /* (67) position ::= LP position COMMA position RP */
-   -3,  /* (68) position ::= LP position RP */
-   -5,  /* (69) position ::= expr between position AND position */
-   -6,  /* (70) position ::= expr LT position COMMA position GT */
-   -3,  /* (71) position ::= expr ABOVE position */
-   -3,  /* (72) position ::= expr BELOW position */
-   -4,  /* (73) position ::= expr LEFT OF position */
-   -4,  /* (74) position ::= expr RIGHT OF position */
-   -6,  /* (75) position ::= expr ON HEADING EDGEPT OF position */
-   -5,  /* (76) position ::= expr HEADING EDGEPT OF position */
-   -4,  /* (77) position ::= expr EDGEPT OF position */
-   -6,  /* (78) position ::= expr ON HEADING expr FROM position */
-   -5,  /* (79) position ::= expr HEADING expr FROM position */
-   -3,  /* (80) place ::= edge OF object */
-   -1,  /* (81) place2 ::= object */
-   -3,  /* (82) place2 ::= object DOT_E edge */
-   -4,  /* (83) place2 ::= NTH VERTEX OF object */
-   -1,  /* (84) object ::= nth */
-   -3,  /* (85) object ::= nth OF|IN object */
-   -1,  /* (86) objectname ::= PLACENAME */
-   -3,  /* (87) objectname ::= objectname DOT_U PLACENAME */
-   -2,  /* (88) nth ::= NTH CLASSNAME */
-   -3,  /* (89) nth ::= NTH LAST CLASSNAME */
-   -2,  /* (90) nth ::= LAST CLASSNAME */
-   -1,  /* (91) nth ::= LAST */
-   -3,  /* (92) nth ::= NTH LB RB */
-   -4,  /* (93) nth ::= NTH LAST LB RB */
-   -3,  /* (94) nth ::= LAST LB RB */
-   -3,  /* (95) expr ::= expr PLUS expr */
-   -3,  /* (96) expr ::= expr MINUS expr */
-   -3,  /* (97) expr ::= expr STAR expr */
-   -3,  /* (98) expr ::= expr SLASH expr */
-   -2,  /* (99) expr ::= MINUS expr */
-   -2,  /* (100) expr ::= PLUS expr */
-   -3,  /* (101) expr ::= LP expr RP */
-   -3,  /* (102) expr ::= LP FILL|COLOR|THICKNESS RP */
-   -1,  /* (103) expr ::= NUMBER */
-   -1,  /* (104) expr ::= ID */
-   -4,  /* (105) expr ::= FUNC1 LP expr RP */
-   -6,  /* (106) expr ::= FUNC2 LP expr COMMA expr RP */
-   -6,  /* (107) expr ::= DIST LP position COMMA position RP */
-   -3,  /* (108) expr ::= place2 DOT_XY X */
-   -3,  /* (109) expr ::= place2 DOT_XY Y */
-   -3,  /* (110) expr ::= object DOT_L numproperty */
-   -3,  /* (111) expr ::= object DOT_L dashproperty */
-   -3,  /* (112) expr ::= object DOT_L colorproperty */
-   -1,  /* (113) lvalue ::= ID */
-   -1,  /* (114) lvalue ::= FILL */
-   -1,  /* (115) lvalue ::= COLOR */
-   -1,  /* (116) lvalue ::= THICKNESS */
-   -1,  /* (117) rvalue ::= expr */
-   -1,  /* (118) print ::= PRINT */
-   -1,  /* (119) prlist ::= pritem */
-   -3,  /* (120) prlist ::= prlist prsep pritem */
-   -1,  /* (121) direction ::= UP */
-   -1,  /* (122) direction ::= DOWN */
-   -1,  /* (123) direction ::= LEFT */
-   -1,  /* (124) direction ::= RIGHT */
-   -1,  /* (125) optrelexpr ::= relexpr */
-   -1,  /* (126) attribute_list ::= alist */
-    0,  /* (127) alist ::= */
-   -2,  /* (128) alist ::= alist attribute */
-   -1,  /* (129) attribute ::= boolproperty */
-   -2,  /* (130) attribute ::= WITH withclause */
-   -1,  /* (131) go ::= GO */
-    0,  /* (132) go ::= */
-   -3,  /* (133) even ::= UNTIL EVEN WITH */
-   -2,  /* (134) even ::= EVEN WITH */
-   -1,  /* (135) dashproperty ::= DOTTED */
-   -1,  /* (136) dashproperty ::= DASHED */
-   -1,  /* (137) colorproperty ::= FILL */
-   -1,  /* (138) colorproperty ::= COLOR */
-   -1,  /* (139) position ::= place */
-   -2,  /* (140) between ::= WAY BETWEEN */
-   -1,  /* (141) between ::= BETWEEN */
-   -4,  /* (142) between ::= OF THE WAY BETWEEN */
-   -1,  /* (143) place ::= place2 */
-   -1,  /* (144) edge ::= CENTER */
-   -1,  /* (145) edge ::= EDGEPT */
-   -1,  /* (146) edge ::= TOP */
-   -1,  /* (147) edge ::= BOTTOM */
-   -1,  /* (148) edge ::= START */
-   -1,  /* (149) edge ::= END */
-   -1,  /* (150) edge ::= RIGHT */
-   -1,  /* (151) edge ::= LEFT */
-   -1,  /* (152) object ::= objectname */
+   -1,  /* (0) document ::= statement_list */
+   -1,  /* (1) statement_list ::= statement */
+   -3,  /* (2) statement_list ::= statement_list EOL statement */
+    0,  /* (3) statement ::= */
+   -1,  /* (4) statement ::= direction */
+   -3,  /* (5) statement ::= lvalue ASSIGN rvalue */
+   -3,  /* (6) statement ::= PLACENAME COLON unnamed_statement */
+   -3,  /* (7) statement ::= PLACENAME COLON position */
+   -1,  /* (8) statement ::= unnamed_statement */
+   -2,  /* (9) statement ::= print prlist */
+   -6,  /* (10) statement ::= ASSERT LP expr EQ expr RP */
+   -6,  /* (11) statement ::= ASSERT LP position EQ position RP */
+   -3,  /* (12) statement ::= DEFINE ID CODEBLOCK */
+   -1,  /* (13) rvalue ::= PLACENAME */
+   -1,  /* (14) pritem ::= FILL */
+   -1,  /* (15) pritem ::= COLOR */
+   -1,  /* (16) pritem ::= THICKNESS */
+   -1,  /* (17) pritem ::= rvalue */
+   -1,  /* (18) pritem ::= STRING */
+   -1,  /* (19) prsep ::= COMMA */
+   -2,  /* (20) unnamed_statement ::= basetype attribute_list */
+   -1,  /* (21) basetype ::= CLASSNAME */
+   -2,  /* (22) basetype ::= STRING textposition */
+   -4,  /* (23) basetype ::= LB savelist statement_list RB */
+    0,  /* (24) savelist ::= */
+   -1,  /* (25) relexpr ::= expr */
+   -2,  /* (26) relexpr ::= expr PERCENT */
+    0,  /* (27) optrelexpr ::= */
+   -2,  /* (28) attribute_list ::= relexpr alist */
+   -2,  /* (29) attribute ::= numproperty relexpr */
+   -2,  /* (30) attribute ::= dashproperty expr */
+   -1,  /* (31) attribute ::= dashproperty */
+   -2,  /* (32) attribute ::= colorproperty rvalue */
+   -3,  /* (33) attribute ::= go direction optrelexpr */
+   -4,  /* (34) attribute ::= go direction even position */
+   -1,  /* (35) attribute ::= CLOSE */
+   -1,  /* (36) attribute ::= CHOP */
+   -2,  /* (37) attribute ::= FROM position */
+   -2,  /* (38) attribute ::= TO position */
+   -1,  /* (39) attribute ::= THEN */
+   -4,  /* (40) attribute ::= THEN optrelexpr HEADING expr */
+   -3,  /* (41) attribute ::= THEN optrelexpr EDGEPT */
+   -4,  /* (42) attribute ::= GO optrelexpr HEADING expr */
+   -3,  /* (43) attribute ::= GO optrelexpr EDGEPT */
+   -2,  /* (44) attribute ::= AT position */
+   -1,  /* (45) attribute ::= SAME */
+   -3,  /* (46) attribute ::= SAME AS object */
+   -2,  /* (47) attribute ::= STRING textposition */
+   -1,  /* (48) attribute ::= FIT */
+   -2,  /* (49) attribute ::= BEHIND object */
+   -4,  /* (50) withclause ::= DOT_E edge AT position */
+   -3,  /* (51) withclause ::= edge AT position */
+   -1,  /* (52) numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS */
+   -1,  /* (53) boolproperty ::= CW */
+   -1,  /* (54) boolproperty ::= CCW */
+   -1,  /* (55) boolproperty ::= LARROW */
+   -1,  /* (56) boolproperty ::= RARROW */
+   -1,  /* (57) boolproperty ::= LRARROW */
+   -1,  /* (58) boolproperty ::= INVIS */
+   -1,  /* (59) boolproperty ::= THICK */
+   -1,  /* (60) boolproperty ::= THIN */
+    0,  /* (61) textposition ::= */
+   -2,  /* (62) textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL */
+   -3,  /* (63) position ::= expr COMMA expr */
+   -5,  /* (64) position ::= place PLUS expr COMMA expr */
+   -5,  /* (65) position ::= place MINUS expr COMMA expr */
+   -7,  /* (66) position ::= place PLUS LP expr COMMA expr RP */
+   -7,  /* (67) position ::= place MINUS LP expr COMMA expr RP */
+   -5,  /* (68) position ::= LP position COMMA position RP */
+   -3,  /* (69) position ::= LP position RP */
+   -5,  /* (70) position ::= expr between position AND position */
+   -6,  /* (71) position ::= expr LT position COMMA position GT */
+   -3,  /* (72) position ::= expr ABOVE position */
+   -3,  /* (73) position ::= expr BELOW position */
+   -4,  /* (74) position ::= expr LEFT OF position */
+   -4,  /* (75) position ::= expr RIGHT OF position */
+   -6,  /* (76) position ::= expr ON HEADING EDGEPT OF position */
+   -5,  /* (77) position ::= expr HEADING EDGEPT OF position */
+   -4,  /* (78) position ::= expr EDGEPT OF position */
+   -6,  /* (79) position ::= expr ON HEADING expr FROM position */
+   -5,  /* (80) position ::= expr HEADING expr FROM position */
+   -3,  /* (81) place ::= edge OF object */
+   -1,  /* (82) place2 ::= object */
+   -3,  /* (83) place2 ::= object DOT_E edge */
+   -4,  /* (84) place2 ::= NTH VERTEX OF object */
+   -1,  /* (85) object ::= nth */
+   -3,  /* (86) object ::= nth OF|IN object */
+   -1,  /* (87) objectname ::= PLACENAME */
+   -3,  /* (88) objectname ::= objectname DOT_U PLACENAME */
+   -2,  /* (89) nth ::= NTH CLASSNAME */
+   -3,  /* (90) nth ::= NTH LAST CLASSNAME */
+   -2,  /* (91) nth ::= LAST CLASSNAME */
+   -1,  /* (92) nth ::= LAST */
+   -3,  /* (93) nth ::= NTH LB RB */
+   -4,  /* (94) nth ::= NTH LAST LB RB */
+   -3,  /* (95) nth ::= LAST LB RB */
+   -3,  /* (96) expr ::= expr PLUS expr */
+   -3,  /* (97) expr ::= expr MINUS expr */
+   -3,  /* (98) expr ::= expr STAR expr */
+   -3,  /* (99) expr ::= expr SLASH expr */
+   -2,  /* (100) expr ::= MINUS expr */
+   -2,  /* (101) expr ::= PLUS expr */
+   -3,  /* (102) expr ::= LP expr RP */
+   -3,  /* (103) expr ::= LP FILL|COLOR|THICKNESS RP */
+   -1,  /* (104) expr ::= NUMBER */
+   -1,  /* (105) expr ::= ID */
+   -4,  /* (106) expr ::= FUNC1 LP expr RP */
+   -6,  /* (107) expr ::= FUNC2 LP expr COMMA expr RP */
+   -6,  /* (108) expr ::= DIST LP position COMMA position RP */
+   -3,  /* (109) expr ::= place2 DOT_XY X */
+   -3,  /* (110) expr ::= place2 DOT_XY Y */
+   -3,  /* (111) expr ::= object DOT_L numproperty */
+   -3,  /* (112) expr ::= object DOT_L dashproperty */
+   -3,  /* (113) expr ::= object DOT_L colorproperty */
+   -1,  /* (114) lvalue ::= ID */
+   -1,  /* (115) lvalue ::= FILL */
+   -1,  /* (116) lvalue ::= COLOR */
+   -1,  /* (117) lvalue ::= THICKNESS */
+   -1,  /* (118) rvalue ::= expr */
+   -1,  /* (119) print ::= PRINT */
+   -1,  /* (120) prlist ::= pritem */
+   -3,  /* (121) prlist ::= prlist prsep pritem */
+   -1,  /* (122) direction ::= UP */
+   -1,  /* (123) direction ::= DOWN */
+   -1,  /* (124) direction ::= LEFT */
+   -1,  /* (125) direction ::= RIGHT */
+   -1,  /* (126) optrelexpr ::= relexpr */
+   -1,  /* (127) attribute_list ::= alist */
+    0,  /* (128) alist ::= */
+   -2,  /* (129) alist ::= alist attribute */
+   -1,  /* (130) attribute ::= boolproperty */
+   -2,  /* (131) attribute ::= WITH withclause */
+   -1,  /* (132) go ::= GO */
+    0,  /* (133) go ::= */
+   -3,  /* (134) even ::= UNTIL EVEN WITH */
+   -2,  /* (135) even ::= EVEN WITH */
+   -1,  /* (136) dashproperty ::= DOTTED */
+   -1,  /* (137) dashproperty ::= DASHED */
+   -1,  /* (138) colorproperty ::= FILL */
+   -1,  /* (139) colorproperty ::= COLOR */
+   -1,  /* (140) position ::= place */
+   -2,  /* (141) between ::= WAY BETWEEN */
+   -1,  /* (142) between ::= BETWEEN */
+   -4,  /* (143) between ::= OF THE WAY BETWEEN */
+   -1,  /* (144) place ::= place2 */
+   -1,  /* (145) edge ::= CENTER */
+   -1,  /* (146) edge ::= EDGEPT */
+   -1,  /* (147) edge ::= TOP */
+   -1,  /* (148) edge ::= BOTTOM */
+   -1,  /* (149) edge ::= START */
+   -1,  /* (150) edge ::= END */
+   -1,  /* (151) edge ::= RIGHT */
+   -1,  /* (152) edge ::= LEFT */
+   -1,  /* (153) object ::= objectname */
 };
 
 static void yy_accept(yyParser*);  /* Forward Declaration */
@@ -2356,643 +2376,648 @@ static YYACTIONTYPE yy_reduce(
   */
 /********** Begin reduce actions **********************************************/
         YYMINORTYPE yylhsminor;
-      case 0: /* document ::= element_list */
-#line 506 "pikchr.y"
-{pik_render(p,yymsp[0].minor.yy56);}
-#line 2387 "pikchr.c"
+      case 0: /* document ::= statement_list */
+#line 521 "pikchr.y"
+{pik_render(p,yymsp[0].minor.yy191);}
+#line 2407 "pikchr.c"
         break;
-      case 1: /* element_list ::= element */
-#line 509 "pikchr.y"
-{ yylhsminor.yy56 = pik_elist_append(p,0,yymsp[0].minor.yy226); }
-#line 2392 "pikchr.c"
-  yymsp[0].minor.yy56 = yylhsminor.yy56;
+      case 1: /* statement_list ::= statement */
+#line 524 "pikchr.y"
+{ yylhsminor.yy191 = pik_elist_append(p,0,yymsp[0].minor.yy138); }
+#line 2412 "pikchr.c"
+  yymsp[0].minor.yy191 = yylhsminor.yy191;
         break;
-      case 2: /* element_list ::= element_list EOL element */
-#line 511 "pikchr.y"
-{ yylhsminor.yy56 = pik_elist_append(p,yymsp[-2].minor.yy56,yymsp[0].minor.yy226); }
-#line 2398 "pikchr.c"
-  yymsp[-2].minor.yy56 = yylhsminor.yy56;
+      case 2: /* statement_list ::= statement_list EOL statement */
+#line 526 "pikchr.y"
+{ yylhsminor.yy191 = pik_elist_append(p,yymsp[-2].minor.yy191,yymsp[0].minor.yy138); }
+#line 2418 "pikchr.c"
+  yymsp[-2].minor.yy191 = yylhsminor.yy191;
         break;
-      case 3: /* element ::= */
-#line 514 "pikchr.y"
-{ yymsp[1].minor.yy226 = 0; }
-#line 2404 "pikchr.c"
+      case 3: /* statement ::= */
+#line 529 "pikchr.y"
+{ yymsp[1].minor.yy138 = 0; }
+#line 2424 "pikchr.c"
         break;
-      case 4: /* element ::= direction */
-#line 515 "pikchr.y"
-{ pik_set_direction(p,yymsp[0].minor.yy0.eCode);  yylhsminor.yy226=0; }
-#line 2409 "pikchr.c"
-  yymsp[0].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 5: /* element ::= lvalue ASSIGN rvalue */
-#line 516 "pikchr.y"
-{pik_set_var(p,&yymsp[-2].minor.yy0,yymsp[0].minor.yy257,&yymsp[-1].minor.yy0); yylhsminor.yy226=0;}
-#line 2415 "pikchr.c"
-  yymsp[-2].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 6: /* element ::= PLACENAME COLON unnamed_element */
-#line 518 "pikchr.y"
-{ yylhsminor.yy226 = yymsp[0].minor.yy226;  pik_elem_setname(p,yymsp[0].minor.yy226,&yymsp[-2].minor.yy0); }
-#line 2421 "pikchr.c"
-  yymsp[-2].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 7: /* element ::= PLACENAME COLON position */
-#line 520 "pikchr.y"
-{ yylhsminor.yy226 = pik_elem_new(p,0,0,0);
-                 if(yylhsminor.yy226){ yylhsminor.yy226->ptAt = yymsp[0].minor.yy175; pik_elem_setname(p,yylhsminor.yy226,&yymsp[-2].minor.yy0); }}
-#line 2428 "pikchr.c"
-  yymsp[-2].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 8: /* element ::= unnamed_element */
-#line 522 "pikchr.y"
-{yylhsminor.yy226 = yymsp[0].minor.yy226;}
-#line 2434 "pikchr.c"
-  yymsp[0].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 9: /* element ::= print prlist */
-#line 523 "pikchr.y"
-{pik_append(p,"<br>\n",5); yymsp[-1].minor.yy226=0;}
-#line 2440 "pikchr.c"
-        break;
-      case 10: /* element ::= ASSERT LP expr EQ expr RP */
-#line 528 "pikchr.y"
-{yymsp[-5].minor.yy226=pik_assert(p,yymsp[-3].minor.yy257,&yymsp[-2].minor.yy0,yymsp[-1].minor.yy257);}
-#line 2445 "pikchr.c"
-        break;
-      case 11: /* element ::= ASSERT LP position EQ position RP */
+      case 4: /* statement ::= direction */
 #line 530 "pikchr.y"
-{yymsp[-5].minor.yy226=pik_position_assert(p,&yymsp[-3].minor.yy175,&yymsp[-2].minor.yy0,&yymsp[-1].minor.yy175);}
-#line 2450 "pikchr.c"
+{ pik_set_direction(p,yymsp[0].minor.yy0.eCode);  yylhsminor.yy138=0; }
+#line 2429 "pikchr.c"
+  yymsp[0].minor.yy138 = yylhsminor.yy138;
         break;
-      case 12: /* rvalue ::= PLACENAME */
-#line 541 "pikchr.y"
-{yylhsminor.yy257 = pik_lookup_color(p,&yymsp[0].minor.yy0);}
-#line 2455 "pikchr.c"
-  yymsp[0].minor.yy257 = yylhsminor.yy257;
+      case 5: /* statement ::= lvalue ASSIGN rvalue */
+#line 531 "pikchr.y"
+{pik_set_var(p,&yymsp[-2].minor.yy0,yymsp[0].minor.yy121,&yymsp[-1].minor.yy0); yylhsminor.yy138=0;}
+#line 2435 "pikchr.c"
+  yymsp[-2].minor.yy138 = yylhsminor.yy138;
         break;
-      case 13: /* pritem ::= FILL */
-      case 14: /* pritem ::= COLOR */ yytestcase(yyruleno==14);
-      case 15: /* pritem ::= THICKNESS */ yytestcase(yyruleno==15);
+      case 6: /* statement ::= PLACENAME COLON unnamed_statement */
+#line 533 "pikchr.y"
+{ yylhsminor.yy138 = yymsp[0].minor.yy138;  pik_elem_setname(p,yymsp[0].minor.yy138,&yymsp[-2].minor.yy0); }
+#line 2441 "pikchr.c"
+  yymsp[-2].minor.yy138 = yylhsminor.yy138;
+        break;
+      case 7: /* statement ::= PLACENAME COLON position */
+#line 535 "pikchr.y"
+{ yylhsminor.yy138 = pik_elem_new(p,0,0,0);
+                 if(yylhsminor.yy138){ yylhsminor.yy138->ptAt = yymsp[0].minor.yy47; pik_elem_setname(p,yylhsminor.yy138,&yymsp[-2].minor.yy0); }}
+#line 2448 "pikchr.c"
+  yymsp[-2].minor.yy138 = yylhsminor.yy138;
+        break;
+      case 8: /* statement ::= unnamed_statement */
+#line 537 "pikchr.y"
+{yylhsminor.yy138 = yymsp[0].minor.yy138;}
+#line 2454 "pikchr.c"
+  yymsp[0].minor.yy138 = yylhsminor.yy138;
+        break;
+      case 9: /* statement ::= print prlist */
+#line 538 "pikchr.y"
+{pik_append(p,"<br>\n",5); yymsp[-1].minor.yy138=0;}
+#line 2460 "pikchr.c"
+        break;
+      case 10: /* statement ::= ASSERT LP expr EQ expr RP */
+#line 543 "pikchr.y"
+{yymsp[-5].minor.yy138=pik_assert(p,yymsp[-3].minor.yy121,&yymsp[-2].minor.yy0,yymsp[-1].minor.yy121);}
+#line 2465 "pikchr.c"
+        break;
+      case 11: /* statement ::= ASSERT LP position EQ position RP */
+#line 545 "pikchr.y"
+{yymsp[-5].minor.yy138=pik_position_assert(p,&yymsp[-3].minor.yy47,&yymsp[-2].minor.yy0,&yymsp[-1].minor.yy47);}
+#line 2470 "pikchr.c"
+        break;
+      case 12: /* statement ::= DEFINE ID CODEBLOCK */
 #line 546 "pikchr.y"
+{yymsp[-2].minor.yy138=0; pik_add_macro(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy0);}
+#line 2475 "pikchr.c"
+        break;
+      case 13: /* rvalue ::= PLACENAME */
+#line 557 "pikchr.y"
+{yylhsminor.yy121 = pik_lookup_color(p,&yymsp[0].minor.yy0);}
+#line 2480 "pikchr.c"
+  yymsp[0].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 14: /* pritem ::= FILL */
+      case 15: /* pritem ::= COLOR */ yytestcase(yyruleno==15);
+      case 16: /* pritem ::= THICKNESS */ yytestcase(yyruleno==16);
+#line 562 "pikchr.y"
 {pik_append_num(p,"",pik_value(p,yymsp[0].minor.yy0.z,yymsp[0].minor.yy0.n,0));}
-#line 2463 "pikchr.c"
+#line 2488 "pikchr.c"
         break;
-      case 16: /* pritem ::= rvalue */
-#line 549 "pikchr.y"
-{pik_append_num(p,"",yymsp[0].minor.yy257);}
-#line 2468 "pikchr.c"
-        break;
-      case 17: /* pritem ::= STRING */
-#line 550 "pikchr.y"
-{pik_append_text(p,yymsp[0].minor.yy0.z+1,yymsp[0].minor.yy0.n-2,0);}
-#line 2473 "pikchr.c"
-        break;
-      case 18: /* prsep ::= COMMA */
-#line 551 "pikchr.y"
-{pik_append(p, " ", 1);}
-#line 2478 "pikchr.c"
-        break;
-      case 19: /* unnamed_element ::= basetype attribute_list */
-#line 554 "pikchr.y"
-{yylhsminor.yy226 = yymsp[-1].minor.yy226; pik_after_adding_attributes(p,yylhsminor.yy226);}
-#line 2483 "pikchr.c"
-  yymsp[-1].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 20: /* basetype ::= CLASSNAME */
-#line 556 "pikchr.y"
-{yylhsminor.yy226 = pik_elem_new(p,&yymsp[0].minor.yy0,0,0); }
-#line 2489 "pikchr.c"
-  yymsp[0].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 21: /* basetype ::= STRING textposition */
-#line 558 "pikchr.y"
-{yymsp[-1].minor.yy0.eCode = yymsp[0].minor.yy116; yylhsminor.yy226 = pik_elem_new(p,0,&yymsp[-1].minor.yy0,0); }
-#line 2495 "pikchr.c"
-  yymsp[-1].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 22: /* basetype ::= LB savelist element_list RB */
-#line 560 "pikchr.y"
-{ p->list = yymsp[-2].minor.yy56; yymsp[-3].minor.yy226 = pik_elem_new(p,0,0,yymsp[-1].minor.yy56); if(yymsp[-3].minor.yy226) yymsp[-3].minor.yy226->errTok = yymsp[0].minor.yy0; }
-#line 2501 "pikchr.c"
-        break;
-      case 23: /* savelist ::= */
+      case 17: /* pritem ::= rvalue */
 #line 565 "pikchr.y"
-{yymsp[1].minor.yy56 = p->list; p->list = 0;}
-#line 2506 "pikchr.c"
+{pik_append_num(p,"",yymsp[0].minor.yy121);}
+#line 2493 "pikchr.c"
         break;
-      case 24: /* relexpr ::= expr */
+      case 18: /* pritem ::= STRING */
+#line 566 "pikchr.y"
+{pik_append_text(p,yymsp[0].minor.yy0.z+1,yymsp[0].minor.yy0.n-2,0);}
+#line 2498 "pikchr.c"
+        break;
+      case 19: /* prsep ::= COMMA */
+#line 567 "pikchr.y"
+{pik_append(p, " ", 1);}
+#line 2503 "pikchr.c"
+        break;
+      case 20: /* unnamed_statement ::= basetype attribute_list */
+#line 570 "pikchr.y"
+{yylhsminor.yy138 = yymsp[-1].minor.yy138; pik_after_adding_attributes(p,yylhsminor.yy138);}
+#line 2508 "pikchr.c"
+  yymsp[-1].minor.yy138 = yylhsminor.yy138;
+        break;
+      case 21: /* basetype ::= CLASSNAME */
 #line 572 "pikchr.y"
-{yylhsminor.yy164.rAbs = yymsp[0].minor.yy257; yylhsminor.yy164.rRel = 0;}
-#line 2511 "pikchr.c"
-  yymsp[0].minor.yy164 = yylhsminor.yy164;
+{yylhsminor.yy138 = pik_elem_new(p,&yymsp[0].minor.yy0,0,0); }
+#line 2514 "pikchr.c"
+  yymsp[0].minor.yy138 = yylhsminor.yy138;
         break;
-      case 25: /* relexpr ::= expr PERCENT */
-#line 573 "pikchr.y"
-{yylhsminor.yy164.rAbs = 0; yylhsminor.yy164.rRel = yymsp[-1].minor.yy257/100;}
-#line 2517 "pikchr.c"
-  yymsp[-1].minor.yy164 = yylhsminor.yy164;
+      case 22: /* basetype ::= STRING textposition */
+#line 574 "pikchr.y"
+{yymsp[-1].minor.yy0.eCode = yymsp[0].minor.yy46; yylhsminor.yy138 = pik_elem_new(p,0,&yymsp[-1].minor.yy0,0); }
+#line 2520 "pikchr.c"
+  yymsp[-1].minor.yy138 = yylhsminor.yy138;
         break;
-      case 26: /* optrelexpr ::= */
-#line 575 "pikchr.y"
-{yymsp[1].minor.yy164.rAbs = 0; yymsp[1].minor.yy164.rRel = 1.0;}
-#line 2523 "pikchr.c"
+      case 23: /* basetype ::= LB savelist statement_list RB */
+#line 576 "pikchr.y"
+{ p->list = yymsp[-2].minor.yy191; yymsp[-3].minor.yy138 = pik_elem_new(p,0,0,yymsp[-1].minor.yy191); if(yymsp[-3].minor.yy138) yymsp[-3].minor.yy138->errTok = yymsp[0].minor.yy0; }
+#line 2526 "pikchr.c"
         break;
-      case 27: /* attribute_list ::= relexpr alist */
-#line 577 "pikchr.y"
-{pik_add_direction(p,0,&yymsp[-1].minor.yy164);}
-#line 2528 "pikchr.c"
-        break;
-      case 28: /* attribute ::= numproperty relexpr */
+      case 24: /* savelist ::= */
 #line 581 "pikchr.y"
-{ pik_set_numprop(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy164); }
-#line 2533 "pikchr.c"
+{yymsp[1].minor.yy191 = p->list; p->list = 0;}
+#line 2531 "pikchr.c"
         break;
-      case 29: /* attribute ::= dashproperty expr */
-#line 582 "pikchr.y"
-{ pik_set_dashed(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy257); }
-#line 2538 "pikchr.c"
+      case 25: /* relexpr ::= expr */
+#line 588 "pikchr.y"
+{yylhsminor.yy134.rAbs = yymsp[0].minor.yy121; yylhsminor.yy134.rRel = 0;}
+#line 2536 "pikchr.c"
+  yymsp[0].minor.yy134 = yylhsminor.yy134;
         break;
-      case 30: /* attribute ::= dashproperty */
-#line 583 "pikchr.y"
-{ pik_set_dashed(p,&yymsp[0].minor.yy0,0);  }
-#line 2543 "pikchr.c"
+      case 26: /* relexpr ::= expr PERCENT */
+#line 589 "pikchr.y"
+{yylhsminor.yy134.rAbs = 0; yylhsminor.yy134.rRel = yymsp[-1].minor.yy121/100;}
+#line 2542 "pikchr.c"
+  yymsp[-1].minor.yy134 = yylhsminor.yy134;
         break;
-      case 31: /* attribute ::= colorproperty rvalue */
-#line 584 "pikchr.y"
-{ pik_set_clrprop(p,&yymsp[-1].minor.yy0,yymsp[0].minor.yy257); }
+      case 27: /* optrelexpr ::= */
+#line 591 "pikchr.y"
+{yymsp[1].minor.yy134.rAbs = 0; yymsp[1].minor.yy134.rRel = 1.0;}
 #line 2548 "pikchr.c"
         break;
-      case 32: /* attribute ::= go direction optrelexpr */
-#line 585 "pikchr.y"
-{ pik_add_direction(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy164);}
+      case 28: /* attribute_list ::= relexpr alist */
+#line 593 "pikchr.y"
+{pik_add_direction(p,0,&yymsp[-1].minor.yy134);}
 #line 2553 "pikchr.c"
         break;
-      case 33: /* attribute ::= go direction even position */
-#line 586 "pikchr.y"
-{pik_evenwith(p,&yymsp[-2].minor.yy0,&yymsp[0].minor.yy175);}
+      case 29: /* attribute ::= numproperty relexpr */
+#line 597 "pikchr.y"
+{ pik_set_numprop(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy134); }
 #line 2558 "pikchr.c"
         break;
-      case 34: /* attribute ::= CLOSE */
-#line 587 "pikchr.y"
-{ pik_close_path(p,&yymsp[0].minor.yy0); }
+      case 30: /* attribute ::= dashproperty expr */
+#line 598 "pikchr.y"
+{ pik_set_dashed(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy121); }
 #line 2563 "pikchr.c"
         break;
-      case 35: /* attribute ::= CHOP */
-#line 588 "pikchr.y"
-{ p->cur->bChop = 1; }
+      case 31: /* attribute ::= dashproperty */
+#line 599 "pikchr.y"
+{ pik_set_dashed(p,&yymsp[0].minor.yy0,0);  }
 #line 2568 "pikchr.c"
         break;
-      case 36: /* attribute ::= FROM position */
-#line 589 "pikchr.y"
-{ pik_set_from(p,p->cur,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy175); }
+      case 32: /* attribute ::= colorproperty rvalue */
+#line 600 "pikchr.y"
+{ pik_set_clrprop(p,&yymsp[-1].minor.yy0,yymsp[0].minor.yy121); }
 #line 2573 "pikchr.c"
         break;
-      case 37: /* attribute ::= TO position */
-#line 590 "pikchr.y"
-{ pik_add_to(p,p->cur,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy175); }
+      case 33: /* attribute ::= go direction optrelexpr */
+#line 601 "pikchr.y"
+{ pik_add_direction(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy134);}
 #line 2578 "pikchr.c"
         break;
-      case 38: /* attribute ::= THEN */
-#line 591 "pikchr.y"
-{ pik_then(p, &yymsp[0].minor.yy0, p->cur); }
+      case 34: /* attribute ::= go direction even position */
+#line 602 "pikchr.y"
+{pik_evenwith(p,&yymsp[-2].minor.yy0,&yymsp[0].minor.yy47);}
 #line 2583 "pikchr.c"
         break;
-      case 39: /* attribute ::= THEN optrelexpr HEADING expr */
-      case 41: /* attribute ::= GO optrelexpr HEADING expr */ yytestcase(yyruleno==41);
-#line 593 "pikchr.y"
-{pik_move_hdg(p,&yymsp[-2].minor.yy164,&yymsp[-1].minor.yy0,yymsp[0].minor.yy257,0,&yymsp[-3].minor.yy0);}
-#line 2589 "pikchr.c"
-        break;
-      case 40: /* attribute ::= THEN optrelexpr EDGEPT */
-      case 42: /* attribute ::= GO optrelexpr EDGEPT */ yytestcase(yyruleno==42);
-#line 594 "pikchr.y"
-{pik_move_hdg(p,&yymsp[-1].minor.yy164,0,0,&yymsp[0].minor.yy0,&yymsp[-2].minor.yy0);}
-#line 2595 "pikchr.c"
-        break;
-      case 43: /* attribute ::= AT position */
-#line 599 "pikchr.y"
-{ pik_set_at(p,0,&yymsp[0].minor.yy175,&yymsp[-1].minor.yy0); }
-#line 2600 "pikchr.c"
-        break;
-      case 44: /* attribute ::= SAME */
-#line 601 "pikchr.y"
-{pik_same(p,0,&yymsp[0].minor.yy0);}
-#line 2605 "pikchr.c"
-        break;
-      case 45: /* attribute ::= SAME AS object */
-#line 602 "pikchr.y"
-{pik_same(p,yymsp[0].minor.yy226,&yymsp[-2].minor.yy0);}
-#line 2610 "pikchr.c"
-        break;
-      case 46: /* attribute ::= STRING textposition */
+      case 35: /* attribute ::= CLOSE */
 #line 603 "pikchr.y"
-{pik_add_txt(p,&yymsp[-1].minor.yy0,yymsp[0].minor.yy116);}
-#line 2615 "pikchr.c"
+{ pik_close_path(p,&yymsp[0].minor.yy0); }
+#line 2588 "pikchr.c"
         break;
-      case 47: /* attribute ::= FIT */
+      case 36: /* attribute ::= CHOP */
 #line 604 "pikchr.y"
-{pik_size_to_fit(p,&yymsp[0].minor.yy0); }
+{ p->cur->bChop = 1; }
+#line 2593 "pikchr.c"
+        break;
+      case 37: /* attribute ::= FROM position */
+#line 605 "pikchr.y"
+{ pik_set_from(p,p->cur,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy47); }
+#line 2598 "pikchr.c"
+        break;
+      case 38: /* attribute ::= TO position */
+#line 606 "pikchr.y"
+{ pik_add_to(p,p->cur,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy47); }
+#line 2603 "pikchr.c"
+        break;
+      case 39: /* attribute ::= THEN */
+#line 607 "pikchr.y"
+{ pik_then(p, &yymsp[0].minor.yy0, p->cur); }
+#line 2608 "pikchr.c"
+        break;
+      case 40: /* attribute ::= THEN optrelexpr HEADING expr */
+      case 42: /* attribute ::= GO optrelexpr HEADING expr */ yytestcase(yyruleno==42);
+#line 609 "pikchr.y"
+{pik_move_hdg(p,&yymsp[-2].minor.yy134,&yymsp[-1].minor.yy0,yymsp[0].minor.yy121,0,&yymsp[-3].minor.yy0);}
+#line 2614 "pikchr.c"
+        break;
+      case 41: /* attribute ::= THEN optrelexpr EDGEPT */
+      case 43: /* attribute ::= GO optrelexpr EDGEPT */ yytestcase(yyruleno==43);
+#line 610 "pikchr.y"
+{pik_move_hdg(p,&yymsp[-1].minor.yy134,0,0,&yymsp[0].minor.yy0,&yymsp[-2].minor.yy0);}
 #line 2620 "pikchr.c"
         break;
-      case 48: /* attribute ::= BEHIND object */
-#line 605 "pikchr.y"
-{pik_behind(p,yymsp[0].minor.yy226);}
+      case 44: /* attribute ::= AT position */
+#line 615 "pikchr.y"
+{ pik_set_at(p,0,&yymsp[0].minor.yy47,&yymsp[-1].minor.yy0); }
 #line 2625 "pikchr.c"
         break;
-      case 49: /* withclause ::= DOT_E edge AT position */
-      case 50: /* withclause ::= edge AT position */ yytestcase(yyruleno==50);
-#line 613 "pikchr.y"
-{ pik_set_at(p,&yymsp[-2].minor.yy0,&yymsp[0].minor.yy175,&yymsp[-1].minor.yy0); }
-#line 2631 "pikchr.c"
-        break;
-      case 51: /* numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS */
+      case 45: /* attribute ::= SAME */
 #line 617 "pikchr.y"
+{pik_same(p,0,&yymsp[0].minor.yy0);}
+#line 2630 "pikchr.c"
+        break;
+      case 46: /* attribute ::= SAME AS object */
+#line 618 "pikchr.y"
+{pik_same(p,yymsp[0].minor.yy138,&yymsp[-2].minor.yy0);}
+#line 2635 "pikchr.c"
+        break;
+      case 47: /* attribute ::= STRING textposition */
+#line 619 "pikchr.y"
+{pik_add_txt(p,&yymsp[-1].minor.yy0,yymsp[0].minor.yy46);}
+#line 2640 "pikchr.c"
+        break;
+      case 48: /* attribute ::= FIT */
+#line 620 "pikchr.y"
+{pik_size_to_fit(p,&yymsp[0].minor.yy0,3); }
+#line 2645 "pikchr.c"
+        break;
+      case 49: /* attribute ::= BEHIND object */
+#line 621 "pikchr.y"
+{pik_behind(p,yymsp[0].minor.yy138);}
+#line 2650 "pikchr.c"
+        break;
+      case 50: /* withclause ::= DOT_E edge AT position */
+      case 51: /* withclause ::= edge AT position */ yytestcase(yyruleno==51);
+#line 629 "pikchr.y"
+{ pik_set_at(p,&yymsp[-2].minor.yy0,&yymsp[0].minor.yy47,&yymsp[-1].minor.yy0); }
+#line 2656 "pikchr.c"
+        break;
+      case 52: /* numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS */
+#line 633 "pikchr.y"
 {yylhsminor.yy0 = yymsp[0].minor.yy0;}
-#line 2636 "pikchr.c"
+#line 2661 "pikchr.c"
   yymsp[0].minor.yy0 = yylhsminor.yy0;
         break;
-      case 52: /* boolproperty ::= CW */
-#line 628 "pikchr.y"
+      case 53: /* boolproperty ::= CW */
+#line 644 "pikchr.y"
 {p->cur->cw = 1;}
-#line 2642 "pikchr.c"
-        break;
-      case 53: /* boolproperty ::= CCW */
-#line 629 "pikchr.y"
-{p->cur->cw = 0;}
-#line 2647 "pikchr.c"
-        break;
-      case 54: /* boolproperty ::= LARROW */
-#line 630 "pikchr.y"
-{p->cur->larrow=1; p->cur->rarrow=0; }
-#line 2652 "pikchr.c"
-        break;
-      case 55: /* boolproperty ::= RARROW */
-#line 631 "pikchr.y"
-{p->cur->larrow=0; p->cur->rarrow=1; }
-#line 2657 "pikchr.c"
-        break;
-      case 56: /* boolproperty ::= LRARROW */
-#line 632 "pikchr.y"
-{p->cur->larrow=1; p->cur->rarrow=1; }
-#line 2662 "pikchr.c"
-        break;
-      case 57: /* boolproperty ::= INVIS */
-#line 633 "pikchr.y"
-{p->cur->sw = 0.0;}
 #line 2667 "pikchr.c"
         break;
-      case 58: /* boolproperty ::= THICK */
-#line 634 "pikchr.y"
-{p->cur->sw *= 1.5;}
+      case 54: /* boolproperty ::= CCW */
+#line 645 "pikchr.y"
+{p->cur->cw = 0;}
 #line 2672 "pikchr.c"
         break;
-      case 59: /* boolproperty ::= THIN */
-#line 635 "pikchr.y"
-{p->cur->sw *= 0.67;}
+      case 55: /* boolproperty ::= LARROW */
+#line 646 "pikchr.y"
+{p->cur->larrow=1; p->cur->rarrow=0; }
 #line 2677 "pikchr.c"
         break;
-      case 60: /* textposition ::= */
-#line 637 "pikchr.y"
-{yymsp[1].minor.yy116 = 0;}
+      case 56: /* boolproperty ::= RARROW */
+#line 647 "pikchr.y"
+{p->cur->larrow=0; p->cur->rarrow=1; }
 #line 2682 "pikchr.c"
         break;
-      case 61: /* textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL */
-#line 640 "pikchr.y"
-{yylhsminor.yy116 = pik_text_position(yymsp[-1].minor.yy116,&yymsp[0].minor.yy0);}
-#line 2687 "pikchr.c"
-  yymsp[-1].minor.yy116 = yylhsminor.yy116;
-        break;
-      case 62: /* position ::= expr COMMA expr */
-#line 643 "pikchr.y"
-{yylhsminor.yy175.x=yymsp[-2].minor.yy257; yylhsminor.yy175.y=yymsp[0].minor.yy257;}
-#line 2693 "pikchr.c"
-  yymsp[-2].minor.yy175 = yylhsminor.yy175;
-        break;
-      case 63: /* position ::= place PLUS expr COMMA expr */
-#line 645 "pikchr.y"
-{yylhsminor.yy175.x=yymsp[-4].minor.yy175.x+yymsp[-2].minor.yy257; yylhsminor.yy175.y=yymsp[-4].minor.yy175.y+yymsp[0].minor.yy257;}
-#line 2699 "pikchr.c"
-  yymsp[-4].minor.yy175 = yylhsminor.yy175;
-        break;
-      case 64: /* position ::= place MINUS expr COMMA expr */
-#line 646 "pikchr.y"
-{yylhsminor.yy175.x=yymsp[-4].minor.yy175.x-yymsp[-2].minor.yy257; yylhsminor.yy175.y=yymsp[-4].minor.yy175.y-yymsp[0].minor.yy257;}
-#line 2705 "pikchr.c"
-  yymsp[-4].minor.yy175 = yylhsminor.yy175;
-        break;
-      case 65: /* position ::= place PLUS LP expr COMMA expr RP */
+      case 57: /* boolproperty ::= LRARROW */
 #line 648 "pikchr.y"
-{yylhsminor.yy175.x=yymsp[-6].minor.yy175.x+yymsp[-3].minor.yy257; yylhsminor.yy175.y=yymsp[-6].minor.yy175.y+yymsp[-1].minor.yy257;}
-#line 2711 "pikchr.c"
-  yymsp[-6].minor.yy175 = yylhsminor.yy175;
+{p->cur->larrow=1; p->cur->rarrow=1; }
+#line 2687 "pikchr.c"
         break;
-      case 66: /* position ::= place MINUS LP expr COMMA expr RP */
+      case 58: /* boolproperty ::= INVIS */
+#line 649 "pikchr.y"
+{p->cur->sw = 0.0;}
+#line 2692 "pikchr.c"
+        break;
+      case 59: /* boolproperty ::= THICK */
 #line 650 "pikchr.y"
-{yylhsminor.yy175.x=yymsp[-6].minor.yy175.x-yymsp[-3].minor.yy257; yylhsminor.yy175.y=yymsp[-6].minor.yy175.y-yymsp[-1].minor.yy257;}
-#line 2717 "pikchr.c"
-  yymsp[-6].minor.yy175 = yylhsminor.yy175;
+{p->cur->sw *= 1.5;}
+#line 2697 "pikchr.c"
         break;
-      case 67: /* position ::= LP position COMMA position RP */
+      case 60: /* boolproperty ::= THIN */
 #line 651 "pikchr.y"
-{yymsp[-4].minor.yy175.x=yymsp[-3].minor.yy175.x; yymsp[-4].minor.yy175.y=yymsp[-1].minor.yy175.y;}
-#line 2723 "pikchr.c"
+{p->cur->sw *= 0.67;}
+#line 2702 "pikchr.c"
         break;
-      case 68: /* position ::= LP position RP */
-#line 652 "pikchr.y"
-{yymsp[-2].minor.yy175=yymsp[-1].minor.yy175;}
-#line 2728 "pikchr.c"
+      case 61: /* textposition ::= */
+#line 653 "pikchr.y"
+{yymsp[1].minor.yy46 = 0;}
+#line 2707 "pikchr.c"
         break;
-      case 69: /* position ::= expr between position AND position */
-#line 654 "pikchr.y"
-{yylhsminor.yy175 = pik_position_between(yymsp[-4].minor.yy257,yymsp[-2].minor.yy175,yymsp[0].minor.yy175);}
-#line 2733 "pikchr.c"
-  yymsp[-4].minor.yy175 = yylhsminor.yy175;
-        break;
-      case 70: /* position ::= expr LT position COMMA position GT */
+      case 62: /* textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL */
 #line 656 "pikchr.y"
-{yylhsminor.yy175 = pik_position_between(yymsp[-5].minor.yy257,yymsp[-3].minor.yy175,yymsp[-1].minor.yy175);}
-#line 2739 "pikchr.c"
-  yymsp[-5].minor.yy175 = yylhsminor.yy175;
+{yylhsminor.yy46 = pik_text_position(yymsp[-1].minor.yy46,&yymsp[0].minor.yy0);}
+#line 2712 "pikchr.c"
+  yymsp[-1].minor.yy46 = yylhsminor.yy46;
         break;
-      case 71: /* position ::= expr ABOVE position */
-#line 657 "pikchr.y"
-{yylhsminor.yy175=yymsp[0].minor.yy175; yylhsminor.yy175.y += yymsp[-2].minor.yy257;}
-#line 2745 "pikchr.c"
-  yymsp[-2].minor.yy175 = yylhsminor.yy175;
-        break;
-      case 72: /* position ::= expr BELOW position */
-#line 658 "pikchr.y"
-{yylhsminor.yy175=yymsp[0].minor.yy175; yylhsminor.yy175.y -= yymsp[-2].minor.yy257;}
-#line 2751 "pikchr.c"
-  yymsp[-2].minor.yy175 = yylhsminor.yy175;
-        break;
-      case 73: /* position ::= expr LEFT OF position */
+      case 63: /* position ::= expr COMMA expr */
 #line 659 "pikchr.y"
-{yylhsminor.yy175=yymsp[0].minor.yy175; yylhsminor.yy175.x -= yymsp[-3].minor.yy257;}
-#line 2757 "pikchr.c"
-  yymsp[-3].minor.yy175 = yylhsminor.yy175;
+{yylhsminor.yy47.x=yymsp[-2].minor.yy121; yylhsminor.yy47.y=yymsp[0].minor.yy121;}
+#line 2718 "pikchr.c"
+  yymsp[-2].minor.yy47 = yylhsminor.yy47;
         break;
-      case 74: /* position ::= expr RIGHT OF position */
-#line 660 "pikchr.y"
-{yylhsminor.yy175=yymsp[0].minor.yy175; yylhsminor.yy175.x += yymsp[-3].minor.yy257;}
-#line 2763 "pikchr.c"
-  yymsp[-3].minor.yy175 = yylhsminor.yy175;
+      case 64: /* position ::= place PLUS expr COMMA expr */
+#line 661 "pikchr.y"
+{yylhsminor.yy47.x=yymsp[-4].minor.yy47.x+yymsp[-2].minor.yy121; yylhsminor.yy47.y=yymsp[-4].minor.yy47.y+yymsp[0].minor.yy121;}
+#line 2724 "pikchr.c"
+  yymsp[-4].minor.yy47 = yylhsminor.yy47;
         break;
-      case 75: /* position ::= expr ON HEADING EDGEPT OF position */
+      case 65: /* position ::= place MINUS expr COMMA expr */
 #line 662 "pikchr.y"
-{yylhsminor.yy175 = pik_position_at_hdg(yymsp[-5].minor.yy257,&yymsp[-2].minor.yy0,yymsp[0].minor.yy175);}
-#line 2769 "pikchr.c"
-  yymsp[-5].minor.yy175 = yylhsminor.yy175;
+{yylhsminor.yy47.x=yymsp[-4].minor.yy47.x-yymsp[-2].minor.yy121; yylhsminor.yy47.y=yymsp[-4].minor.yy47.y-yymsp[0].minor.yy121;}
+#line 2730 "pikchr.c"
+  yymsp[-4].minor.yy47 = yylhsminor.yy47;
         break;
-      case 76: /* position ::= expr HEADING EDGEPT OF position */
+      case 66: /* position ::= place PLUS LP expr COMMA expr RP */
 #line 664 "pikchr.y"
-{yylhsminor.yy175 = pik_position_at_hdg(yymsp[-4].minor.yy257,&yymsp[-2].minor.yy0,yymsp[0].minor.yy175);}
-#line 2775 "pikchr.c"
-  yymsp[-4].minor.yy175 = yylhsminor.yy175;
+{yylhsminor.yy47.x=yymsp[-6].minor.yy47.x+yymsp[-3].minor.yy121; yylhsminor.yy47.y=yymsp[-6].minor.yy47.y+yymsp[-1].minor.yy121;}
+#line 2736 "pikchr.c"
+  yymsp[-6].minor.yy47 = yylhsminor.yy47;
         break;
-      case 77: /* position ::= expr EDGEPT OF position */
+      case 67: /* position ::= place MINUS LP expr COMMA expr RP */
 #line 666 "pikchr.y"
-{yylhsminor.yy175 = pik_position_at_hdg(yymsp[-3].minor.yy257,&yymsp[-2].minor.yy0,yymsp[0].minor.yy175);}
-#line 2781 "pikchr.c"
-  yymsp[-3].minor.yy175 = yylhsminor.yy175;
+{yylhsminor.yy47.x=yymsp[-6].minor.yy47.x-yymsp[-3].minor.yy121; yylhsminor.yy47.y=yymsp[-6].minor.yy47.y-yymsp[-1].minor.yy121;}
+#line 2742 "pikchr.c"
+  yymsp[-6].minor.yy47 = yylhsminor.yy47;
         break;
-      case 78: /* position ::= expr ON HEADING expr FROM position */
+      case 68: /* position ::= LP position COMMA position RP */
+#line 667 "pikchr.y"
+{yymsp[-4].minor.yy47.x=yymsp[-3].minor.yy47.x; yymsp[-4].minor.yy47.y=yymsp[-1].minor.yy47.y;}
+#line 2748 "pikchr.c"
+        break;
+      case 69: /* position ::= LP position RP */
 #line 668 "pikchr.y"
-{yylhsminor.yy175 = pik_position_at_angle(yymsp[-5].minor.yy257,yymsp[-2].minor.yy257,yymsp[0].minor.yy175);}
-#line 2787 "pikchr.c"
-  yymsp[-5].minor.yy175 = yylhsminor.yy175;
+{yymsp[-2].minor.yy47=yymsp[-1].minor.yy47;}
+#line 2753 "pikchr.c"
         break;
-      case 79: /* position ::= expr HEADING expr FROM position */
+      case 70: /* position ::= expr between position AND position */
 #line 670 "pikchr.y"
-{yylhsminor.yy175 = pik_position_at_angle(yymsp[-4].minor.yy257,yymsp[-2].minor.yy257,yymsp[0].minor.yy175);}
-#line 2793 "pikchr.c"
-  yymsp[-4].minor.yy175 = yylhsminor.yy175;
+{yylhsminor.yy47 = pik_position_between(yymsp[-4].minor.yy121,yymsp[-2].minor.yy47,yymsp[0].minor.yy47);}
+#line 2758 "pikchr.c"
+  yymsp[-4].minor.yy47 = yylhsminor.yy47;
         break;
-      case 80: /* place ::= edge OF object */
+      case 71: /* position ::= expr LT position COMMA position GT */
+#line 672 "pikchr.y"
+{yylhsminor.yy47 = pik_position_between(yymsp[-5].minor.yy121,yymsp[-3].minor.yy47,yymsp[-1].minor.yy47);}
+#line 2764 "pikchr.c"
+  yymsp[-5].minor.yy47 = yylhsminor.yy47;
+        break;
+      case 72: /* position ::= expr ABOVE position */
+#line 673 "pikchr.y"
+{yylhsminor.yy47=yymsp[0].minor.yy47; yylhsminor.yy47.y += yymsp[-2].minor.yy121;}
+#line 2770 "pikchr.c"
+  yymsp[-2].minor.yy47 = yylhsminor.yy47;
+        break;
+      case 73: /* position ::= expr BELOW position */
+#line 674 "pikchr.y"
+{yylhsminor.yy47=yymsp[0].minor.yy47; yylhsminor.yy47.y -= yymsp[-2].minor.yy121;}
+#line 2776 "pikchr.c"
+  yymsp[-2].minor.yy47 = yylhsminor.yy47;
+        break;
+      case 74: /* position ::= expr LEFT OF position */
+#line 675 "pikchr.y"
+{yylhsminor.yy47=yymsp[0].minor.yy47; yylhsminor.yy47.x -= yymsp[-3].minor.yy121;}
+#line 2782 "pikchr.c"
+  yymsp[-3].minor.yy47 = yylhsminor.yy47;
+        break;
+      case 75: /* position ::= expr RIGHT OF position */
+#line 676 "pikchr.y"
+{yylhsminor.yy47=yymsp[0].minor.yy47; yylhsminor.yy47.x += yymsp[-3].minor.yy121;}
+#line 2788 "pikchr.c"
+  yymsp[-3].minor.yy47 = yylhsminor.yy47;
+        break;
+      case 76: /* position ::= expr ON HEADING EDGEPT OF position */
+#line 678 "pikchr.y"
+{yylhsminor.yy47 = pik_position_at_hdg(yymsp[-5].minor.yy121,&yymsp[-2].minor.yy0,yymsp[0].minor.yy47);}
+#line 2794 "pikchr.c"
+  yymsp[-5].minor.yy47 = yylhsminor.yy47;
+        break;
+      case 77: /* position ::= expr HEADING EDGEPT OF position */
+#line 680 "pikchr.y"
+{yylhsminor.yy47 = pik_position_at_hdg(yymsp[-4].minor.yy121,&yymsp[-2].minor.yy0,yymsp[0].minor.yy47);}
+#line 2800 "pikchr.c"
+  yymsp[-4].minor.yy47 = yylhsminor.yy47;
+        break;
+      case 78: /* position ::= expr EDGEPT OF position */
 #line 682 "pikchr.y"
-{yylhsminor.yy175 = pik_place_of_elem(p,yymsp[0].minor.yy226,&yymsp[-2].minor.yy0);}
-#line 2799 "pikchr.c"
-  yymsp[-2].minor.yy175 = yylhsminor.yy175;
+{yylhsminor.yy47 = pik_position_at_hdg(yymsp[-3].minor.yy121,&yymsp[-2].minor.yy0,yymsp[0].minor.yy47);}
+#line 2806 "pikchr.c"
+  yymsp[-3].minor.yy47 = yylhsminor.yy47;
         break;
-      case 81: /* place2 ::= object */
-#line 683 "pikchr.y"
-{yylhsminor.yy175 = pik_place_of_elem(p,yymsp[0].minor.yy226,0);}
-#line 2805 "pikchr.c"
-  yymsp[0].minor.yy175 = yylhsminor.yy175;
-        break;
-      case 82: /* place2 ::= object DOT_E edge */
+      case 79: /* position ::= expr ON HEADING expr FROM position */
 #line 684 "pikchr.y"
-{yylhsminor.yy175 = pik_place_of_elem(p,yymsp[-2].minor.yy226,&yymsp[0].minor.yy0);}
-#line 2811 "pikchr.c"
-  yymsp[-2].minor.yy175 = yylhsminor.yy175;
+{yylhsminor.yy47 = pik_position_at_angle(yymsp[-5].minor.yy121,yymsp[-2].minor.yy121,yymsp[0].minor.yy47);}
+#line 2812 "pikchr.c"
+  yymsp[-5].minor.yy47 = yylhsminor.yy47;
         break;
-      case 83: /* place2 ::= NTH VERTEX OF object */
-#line 685 "pikchr.y"
-{yylhsminor.yy175 = pik_nth_vertex(p,&yymsp[-3].minor.yy0,&yymsp[-2].minor.yy0,yymsp[0].minor.yy226);}
-#line 2817 "pikchr.c"
-  yymsp[-3].minor.yy175 = yylhsminor.yy175;
+      case 80: /* position ::= expr HEADING expr FROM position */
+#line 686 "pikchr.y"
+{yylhsminor.yy47 = pik_position_at_angle(yymsp[-4].minor.yy121,yymsp[-2].minor.yy121,yymsp[0].minor.yy47);}
+#line 2818 "pikchr.c"
+  yymsp[-4].minor.yy47 = yylhsminor.yy47;
         break;
-      case 84: /* object ::= nth */
-#line 697 "pikchr.y"
-{yylhsminor.yy226 = pik_find_nth(p,0,&yymsp[0].minor.yy0);}
-#line 2823 "pikchr.c"
-  yymsp[0].minor.yy226 = yylhsminor.yy226;
-        break;
-      case 85: /* object ::= nth OF|IN object */
+      case 81: /* place ::= edge OF object */
 #line 698 "pikchr.y"
-{yylhsminor.yy226 = pik_find_nth(p,yymsp[0].minor.yy226,&yymsp[-2].minor.yy0);}
-#line 2829 "pikchr.c"
-  yymsp[-2].minor.yy226 = yylhsminor.yy226;
+{yylhsminor.yy47 = pik_place_of_elem(p,yymsp[0].minor.yy138,&yymsp[-2].minor.yy0);}
+#line 2824 "pikchr.c"
+  yymsp[-2].minor.yy47 = yylhsminor.yy47;
         break;
-      case 86: /* objectname ::= PLACENAME */
+      case 82: /* place2 ::= object */
+#line 699 "pikchr.y"
+{yylhsminor.yy47 = pik_place_of_elem(p,yymsp[0].minor.yy138,0);}
+#line 2830 "pikchr.c"
+  yymsp[0].minor.yy47 = yylhsminor.yy47;
+        break;
+      case 83: /* place2 ::= object DOT_E edge */
 #line 700 "pikchr.y"
-{yylhsminor.yy226 = pik_find_byname(p,0,&yymsp[0].minor.yy0);}
-#line 2835 "pikchr.c"
-  yymsp[0].minor.yy226 = yylhsminor.yy226;
+{yylhsminor.yy47 = pik_place_of_elem(p,yymsp[-2].minor.yy138,&yymsp[0].minor.yy0);}
+#line 2836 "pikchr.c"
+  yymsp[-2].minor.yy47 = yylhsminor.yy47;
         break;
-      case 87: /* objectname ::= objectname DOT_U PLACENAME */
-#line 702 "pikchr.y"
-{yylhsminor.yy226 = pik_find_byname(p,yymsp[-2].minor.yy226,&yymsp[0].minor.yy0);}
-#line 2841 "pikchr.c"
-  yymsp[-2].minor.yy226 = yylhsminor.yy226;
+      case 84: /* place2 ::= NTH VERTEX OF object */
+#line 701 "pikchr.y"
+{yylhsminor.yy47 = pik_nth_vertex(p,&yymsp[-3].minor.yy0,&yymsp[-2].minor.yy0,yymsp[0].minor.yy138);}
+#line 2842 "pikchr.c"
+  yymsp[-3].minor.yy47 = yylhsminor.yy47;
         break;
-      case 88: /* nth ::= NTH CLASSNAME */
-#line 704 "pikchr.y"
+      case 85: /* object ::= nth */
+#line 713 "pikchr.y"
+{yylhsminor.yy138 = pik_find_nth(p,0,&yymsp[0].minor.yy0);}
+#line 2848 "pikchr.c"
+  yymsp[0].minor.yy138 = yylhsminor.yy138;
+        break;
+      case 86: /* object ::= nth OF|IN object */
+#line 714 "pikchr.y"
+{yylhsminor.yy138 = pik_find_nth(p,yymsp[0].minor.yy138,&yymsp[-2].minor.yy0);}
+#line 2854 "pikchr.c"
+  yymsp[-2].minor.yy138 = yylhsminor.yy138;
+        break;
+      case 87: /* objectname ::= PLACENAME */
+#line 716 "pikchr.y"
+{yylhsminor.yy138 = pik_find_byname(p,0,&yymsp[0].minor.yy0);}
+#line 2860 "pikchr.c"
+  yymsp[0].minor.yy138 = yylhsminor.yy138;
+        break;
+      case 88: /* objectname ::= objectname DOT_U PLACENAME */
+#line 718 "pikchr.y"
+{yylhsminor.yy138 = pik_find_byname(p,yymsp[-2].minor.yy138,&yymsp[0].minor.yy0);}
+#line 2866 "pikchr.c"
+  yymsp[-2].minor.yy138 = yylhsminor.yy138;
+        break;
+      case 89: /* nth ::= NTH CLASSNAME */
+#line 720 "pikchr.y"
 {yylhsminor.yy0=yymsp[0].minor.yy0; yylhsminor.yy0.eCode = pik_nth_value(p,&yymsp[-1].minor.yy0); }
-#line 2847 "pikchr.c"
+#line 2872 "pikchr.c"
   yymsp[-1].minor.yy0 = yylhsminor.yy0;
         break;
-      case 89: /* nth ::= NTH LAST CLASSNAME */
-#line 705 "pikchr.y"
+      case 90: /* nth ::= NTH LAST CLASSNAME */
+#line 721 "pikchr.y"
 {yylhsminor.yy0=yymsp[0].minor.yy0; yylhsminor.yy0.eCode = -pik_nth_value(p,&yymsp[-2].minor.yy0); }
-#line 2853 "pikchr.c"
+#line 2878 "pikchr.c"
   yymsp[-2].minor.yy0 = yylhsminor.yy0;
         break;
-      case 90: /* nth ::= LAST CLASSNAME */
-#line 706 "pikchr.y"
+      case 91: /* nth ::= LAST CLASSNAME */
+#line 722 "pikchr.y"
 {yymsp[-1].minor.yy0=yymsp[0].minor.yy0; yymsp[-1].minor.yy0.eCode = -1;}
-#line 2859 "pikchr.c"
+#line 2884 "pikchr.c"
         break;
-      case 91: /* nth ::= LAST */
-#line 707 "pikchr.y"
+      case 92: /* nth ::= LAST */
+#line 723 "pikchr.y"
 {yylhsminor.yy0=yymsp[0].minor.yy0; yylhsminor.yy0.eCode = -1;}
-#line 2864 "pikchr.c"
+#line 2889 "pikchr.c"
   yymsp[0].minor.yy0 = yylhsminor.yy0;
         break;
-      case 92: /* nth ::= NTH LB RB */
-#line 708 "pikchr.y"
+      case 93: /* nth ::= NTH LB RB */
+#line 724 "pikchr.y"
 {yylhsminor.yy0=yymsp[-1].minor.yy0; yylhsminor.yy0.eCode = pik_nth_value(p,&yymsp[-2].minor.yy0);}
-#line 2870 "pikchr.c"
+#line 2895 "pikchr.c"
   yymsp[-2].minor.yy0 = yylhsminor.yy0;
         break;
-      case 93: /* nth ::= NTH LAST LB RB */
-#line 709 "pikchr.y"
+      case 94: /* nth ::= NTH LAST LB RB */
+#line 725 "pikchr.y"
 {yylhsminor.yy0=yymsp[-1].minor.yy0; yylhsminor.yy0.eCode = -pik_nth_value(p,&yymsp[-3].minor.yy0);}
-#line 2876 "pikchr.c"
+#line 2901 "pikchr.c"
   yymsp[-3].minor.yy0 = yylhsminor.yy0;
         break;
-      case 94: /* nth ::= LAST LB RB */
-#line 710 "pikchr.y"
-{yymsp[-2].minor.yy0=yymsp[-1].minor.yy0; yymsp[-2].minor.yy0.eCode = -1; }
-#line 2882 "pikchr.c"
-        break;
-      case 95: /* expr ::= expr PLUS expr */
-#line 712 "pikchr.y"
-{yylhsminor.yy257=yymsp[-2].minor.yy257+yymsp[0].minor.yy257;}
-#line 2887 "pikchr.c"
-  yymsp[-2].minor.yy257 = yylhsminor.yy257;
-        break;
-      case 96: /* expr ::= expr MINUS expr */
-#line 713 "pikchr.y"
-{yylhsminor.yy257=yymsp[-2].minor.yy257-yymsp[0].minor.yy257;}
-#line 2893 "pikchr.c"
-  yymsp[-2].minor.yy257 = yylhsminor.yy257;
-        break;
-      case 97: /* expr ::= expr STAR expr */
-#line 714 "pikchr.y"
-{yylhsminor.yy257=yymsp[-2].minor.yy257*yymsp[0].minor.yy257;}
-#line 2899 "pikchr.c"
-  yymsp[-2].minor.yy257 = yylhsminor.yy257;
-        break;
-      case 98: /* expr ::= expr SLASH expr */
-#line 715 "pikchr.y"
-{
-  if( yymsp[0].minor.yy257==0.0 ){ pik_error(p, &yymsp[-1].minor.yy0, "division by zero"); yylhsminor.yy257 = 0.0; }
-  else{ yylhsminor.yy257 = yymsp[-2].minor.yy257/yymsp[0].minor.yy257; }
-}
-#line 2908 "pikchr.c"
-  yymsp[-2].minor.yy257 = yylhsminor.yy257;
-        break;
-      case 99: /* expr ::= MINUS expr */
-#line 719 "pikchr.y"
-{yymsp[-1].minor.yy257=-yymsp[0].minor.yy257;}
-#line 2914 "pikchr.c"
-        break;
-      case 100: /* expr ::= PLUS expr */
-#line 720 "pikchr.y"
-{yymsp[-1].minor.yy257=yymsp[0].minor.yy257;}
-#line 2919 "pikchr.c"
-        break;
-      case 101: /* expr ::= LP expr RP */
-#line 721 "pikchr.y"
-{yymsp[-2].minor.yy257=yymsp[-1].minor.yy257;}
-#line 2924 "pikchr.c"
-        break;
-      case 102: /* expr ::= LP FILL|COLOR|THICKNESS RP */
-#line 722 "pikchr.y"
-{yymsp[-2].minor.yy257=pik_get_var(p,&yymsp[-1].minor.yy0);}
-#line 2929 "pikchr.c"
-        break;
-      case 103: /* expr ::= NUMBER */
-#line 723 "pikchr.y"
-{yylhsminor.yy257=pik_atof(&yymsp[0].minor.yy0);}
-#line 2934 "pikchr.c"
-  yymsp[0].minor.yy257 = yylhsminor.yy257;
-        break;
-      case 104: /* expr ::= ID */
-#line 724 "pikchr.y"
-{yylhsminor.yy257=pik_get_var(p,&yymsp[0].minor.yy0);}
-#line 2940 "pikchr.c"
-  yymsp[0].minor.yy257 = yylhsminor.yy257;
-        break;
-      case 105: /* expr ::= FUNC1 LP expr RP */
-#line 725 "pikchr.y"
-{yylhsminor.yy257 = pik_func(p,&yymsp[-3].minor.yy0,yymsp[-1].minor.yy257,0.0);}
-#line 2946 "pikchr.c"
-  yymsp[-3].minor.yy257 = yylhsminor.yy257;
-        break;
-      case 106: /* expr ::= FUNC2 LP expr COMMA expr RP */
+      case 95: /* nth ::= LAST LB RB */
 #line 726 "pikchr.y"
-{yylhsminor.yy257 = pik_func(p,&yymsp[-5].minor.yy0,yymsp[-3].minor.yy257,yymsp[-1].minor.yy257);}
-#line 2952 "pikchr.c"
-  yymsp[-5].minor.yy257 = yylhsminor.yy257;
+{yymsp[-2].minor.yy0=yymsp[-1].minor.yy0; yymsp[-2].minor.yy0.eCode = -1; }
+#line 2907 "pikchr.c"
         break;
-      case 107: /* expr ::= DIST LP position COMMA position RP */
-#line 727 "pikchr.y"
-{yymsp[-5].minor.yy257 = pik_dist(&yymsp[-3].minor.yy175,&yymsp[-1].minor.yy175);}
-#line 2958 "pikchr.c"
-        break;
-      case 108: /* expr ::= place2 DOT_XY X */
+      case 96: /* expr ::= expr PLUS expr */
 #line 728 "pikchr.y"
-{yylhsminor.yy257 = yymsp[-2].minor.yy175.x;}
-#line 2963 "pikchr.c"
-  yymsp[-2].minor.yy257 = yylhsminor.yy257;
+{yylhsminor.yy121=yymsp[-2].minor.yy121+yymsp[0].minor.yy121;}
+#line 2912 "pikchr.c"
+  yymsp[-2].minor.yy121 = yylhsminor.yy121;
         break;
-      case 109: /* expr ::= place2 DOT_XY Y */
+      case 97: /* expr ::= expr MINUS expr */
 #line 729 "pikchr.y"
-{yylhsminor.yy257 = yymsp[-2].minor.yy175.y;}
-#line 2969 "pikchr.c"
-  yymsp[-2].minor.yy257 = yylhsminor.yy257;
+{yylhsminor.yy121=yymsp[-2].minor.yy121-yymsp[0].minor.yy121;}
+#line 2918 "pikchr.c"
+  yymsp[-2].minor.yy121 = yylhsminor.yy121;
         break;
-      case 110: /* expr ::= object DOT_L numproperty */
-      case 111: /* expr ::= object DOT_L dashproperty */ yytestcase(yyruleno==111);
-      case 112: /* expr ::= object DOT_L colorproperty */ yytestcase(yyruleno==112);
+      case 98: /* expr ::= expr STAR expr */
 #line 730 "pikchr.y"
-{yylhsminor.yy257=pik_property_of(yymsp[-2].minor.yy226,&yymsp[0].minor.yy0);}
+{yylhsminor.yy121=yymsp[-2].minor.yy121*yymsp[0].minor.yy121;}
+#line 2924 "pikchr.c"
+  yymsp[-2].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 99: /* expr ::= expr SLASH expr */
+#line 731 "pikchr.y"
+{
+  if( yymsp[0].minor.yy121==0.0 ){ pik_error(p, &yymsp[-1].minor.yy0, "division by zero"); yylhsminor.yy121 = 0.0; }
+  else{ yylhsminor.yy121 = yymsp[-2].minor.yy121/yymsp[0].minor.yy121; }
+}
+#line 2933 "pikchr.c"
+  yymsp[-2].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 100: /* expr ::= MINUS expr */
+#line 735 "pikchr.y"
+{yymsp[-1].minor.yy121=-yymsp[0].minor.yy121;}
+#line 2939 "pikchr.c"
+        break;
+      case 101: /* expr ::= PLUS expr */
+#line 736 "pikchr.y"
+{yymsp[-1].minor.yy121=yymsp[0].minor.yy121;}
+#line 2944 "pikchr.c"
+        break;
+      case 102: /* expr ::= LP expr RP */
+#line 737 "pikchr.y"
+{yymsp[-2].minor.yy121=yymsp[-1].minor.yy121;}
+#line 2949 "pikchr.c"
+        break;
+      case 103: /* expr ::= LP FILL|COLOR|THICKNESS RP */
+#line 738 "pikchr.y"
+{yymsp[-2].minor.yy121=pik_get_var(p,&yymsp[-1].minor.yy0);}
+#line 2954 "pikchr.c"
+        break;
+      case 104: /* expr ::= NUMBER */
+#line 739 "pikchr.y"
+{yylhsminor.yy121=pik_atof(&yymsp[0].minor.yy0);}
+#line 2959 "pikchr.c"
+  yymsp[0].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 105: /* expr ::= ID */
+#line 740 "pikchr.y"
+{yylhsminor.yy121=pik_get_var(p,&yymsp[0].minor.yy0);}
+#line 2965 "pikchr.c"
+  yymsp[0].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 106: /* expr ::= FUNC1 LP expr RP */
+#line 741 "pikchr.y"
+{yylhsminor.yy121 = pik_func(p,&yymsp[-3].minor.yy0,yymsp[-1].minor.yy121,0.0);}
+#line 2971 "pikchr.c"
+  yymsp[-3].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 107: /* expr ::= FUNC2 LP expr COMMA expr RP */
+#line 742 "pikchr.y"
+{yylhsminor.yy121 = pik_func(p,&yymsp[-5].minor.yy0,yymsp[-3].minor.yy121,yymsp[-1].minor.yy121);}
 #line 2977 "pikchr.c"
-  yymsp[-2].minor.yy257 = yylhsminor.yy257;
+  yymsp[-5].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 108: /* expr ::= DIST LP position COMMA position RP */
+#line 743 "pikchr.y"
+{yymsp[-5].minor.yy121 = pik_dist(&yymsp[-3].minor.yy47,&yymsp[-1].minor.yy47);}
+#line 2983 "pikchr.c"
+        break;
+      case 109: /* expr ::= place2 DOT_XY X */
+#line 744 "pikchr.y"
+{yylhsminor.yy121 = yymsp[-2].minor.yy47.x;}
+#line 2988 "pikchr.c"
+  yymsp[-2].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 110: /* expr ::= place2 DOT_XY Y */
+#line 745 "pikchr.y"
+{yylhsminor.yy121 = yymsp[-2].minor.yy47.y;}
+#line 2994 "pikchr.c"
+  yymsp[-2].minor.yy121 = yylhsminor.yy121;
+        break;
+      case 111: /* expr ::= object DOT_L numproperty */
+      case 112: /* expr ::= object DOT_L dashproperty */ yytestcase(yyruleno==112);
+      case 113: /* expr ::= object DOT_L colorproperty */ yytestcase(yyruleno==113);
+#line 746 "pikchr.y"
+{yylhsminor.yy121=pik_property_of(yymsp[-2].minor.yy138,&yymsp[0].minor.yy0);}
+#line 3002 "pikchr.c"
+  yymsp[-2].minor.yy121 = yylhsminor.yy121;
         break;
       default:
-      /* (113) lvalue ::= ID */ yytestcase(yyruleno==113);
-      /* (114) lvalue ::= FILL */ yytestcase(yyruleno==114);
-      /* (115) lvalue ::= COLOR */ yytestcase(yyruleno==115);
-      /* (116) lvalue ::= THICKNESS */ yytestcase(yyruleno==116);
-      /* (117) rvalue ::= expr */ yytestcase(yyruleno==117);
-      /* (118) print ::= PRINT */ yytestcase(yyruleno==118);
-      /* (119) prlist ::= pritem (OPTIMIZED OUT) */ assert(yyruleno!=119);
-      /* (120) prlist ::= prlist prsep pritem */ yytestcase(yyruleno==120);
-      /* (121) direction ::= UP */ yytestcase(yyruleno==121);
-      /* (122) direction ::= DOWN */ yytestcase(yyruleno==122);
-      /* (123) direction ::= LEFT */ yytestcase(yyruleno==123);
-      /* (124) direction ::= RIGHT */ yytestcase(yyruleno==124);
-      /* (125) optrelexpr ::= relexpr (OPTIMIZED OUT) */ assert(yyruleno!=125);
-      /* (126) attribute_list ::= alist */ yytestcase(yyruleno==126);
-      /* (127) alist ::= */ yytestcase(yyruleno==127);
-      /* (128) alist ::= alist attribute */ yytestcase(yyruleno==128);
-      /* (129) attribute ::= boolproperty (OPTIMIZED OUT) */ assert(yyruleno!=129);
-      /* (130) attribute ::= WITH withclause */ yytestcase(yyruleno==130);
-      /* (131) go ::= GO */ yytestcase(yyruleno==131);
-      /* (132) go ::= */ yytestcase(yyruleno==132);
-      /* (133) even ::= UNTIL EVEN WITH */ yytestcase(yyruleno==133);
-      /* (134) even ::= EVEN WITH */ yytestcase(yyruleno==134);
-      /* (135) dashproperty ::= DOTTED */ yytestcase(yyruleno==135);
-      /* (136) dashproperty ::= DASHED */ yytestcase(yyruleno==136);
-      /* (137) colorproperty ::= FILL */ yytestcase(yyruleno==137);
-      /* (138) colorproperty ::= COLOR */ yytestcase(yyruleno==138);
-      /* (139) position ::= place */ yytestcase(yyruleno==139);
-      /* (140) between ::= WAY BETWEEN */ yytestcase(yyruleno==140);
-      /* (141) between ::= BETWEEN */ yytestcase(yyruleno==141);
-      /* (142) between ::= OF THE WAY BETWEEN */ yytestcase(yyruleno==142);
-      /* (143) place ::= place2 */ yytestcase(yyruleno==143);
-      /* (144) edge ::= CENTER */ yytestcase(yyruleno==144);
-      /* (145) edge ::= EDGEPT */ yytestcase(yyruleno==145);
-      /* (146) edge ::= TOP */ yytestcase(yyruleno==146);
-      /* (147) edge ::= BOTTOM */ yytestcase(yyruleno==147);
-      /* (148) edge ::= START */ yytestcase(yyruleno==148);
-      /* (149) edge ::= END */ yytestcase(yyruleno==149);
-      /* (150) edge ::= RIGHT */ yytestcase(yyruleno==150);
-      /* (151) edge ::= LEFT */ yytestcase(yyruleno==151);
-      /* (152) object ::= objectname */ yytestcase(yyruleno==152);
+      /* (114) lvalue ::= ID */ yytestcase(yyruleno==114);
+      /* (115) lvalue ::= FILL */ yytestcase(yyruleno==115);
+      /* (116) lvalue ::= COLOR */ yytestcase(yyruleno==116);
+      /* (117) lvalue ::= THICKNESS */ yytestcase(yyruleno==117);
+      /* (118) rvalue ::= expr */ yytestcase(yyruleno==118);
+      /* (119) print ::= PRINT */ yytestcase(yyruleno==119);
+      /* (120) prlist ::= pritem (OPTIMIZED OUT) */ assert(yyruleno!=120);
+      /* (121) prlist ::= prlist prsep pritem */ yytestcase(yyruleno==121);
+      /* (122) direction ::= UP */ yytestcase(yyruleno==122);
+      /* (123) direction ::= DOWN */ yytestcase(yyruleno==123);
+      /* (124) direction ::= LEFT */ yytestcase(yyruleno==124);
+      /* (125) direction ::= RIGHT */ yytestcase(yyruleno==125);
+      /* (126) optrelexpr ::= relexpr (OPTIMIZED OUT) */ assert(yyruleno!=126);
+      /* (127) attribute_list ::= alist */ yytestcase(yyruleno==127);
+      /* (128) alist ::= */ yytestcase(yyruleno==128);
+      /* (129) alist ::= alist attribute */ yytestcase(yyruleno==129);
+      /* (130) attribute ::= boolproperty (OPTIMIZED OUT) */ assert(yyruleno!=130);
+      /* (131) attribute ::= WITH withclause */ yytestcase(yyruleno==131);
+      /* (132) go ::= GO */ yytestcase(yyruleno==132);
+      /* (133) go ::= */ yytestcase(yyruleno==133);
+      /* (134) even ::= UNTIL EVEN WITH */ yytestcase(yyruleno==134);
+      /* (135) even ::= EVEN WITH */ yytestcase(yyruleno==135);
+      /* (136) dashproperty ::= DOTTED */ yytestcase(yyruleno==136);
+      /* (137) dashproperty ::= DASHED */ yytestcase(yyruleno==137);
+      /* (138) colorproperty ::= FILL */ yytestcase(yyruleno==138);
+      /* (139) colorproperty ::= COLOR */ yytestcase(yyruleno==139);
+      /* (140) position ::= place */ yytestcase(yyruleno==140);
+      /* (141) between ::= WAY BETWEEN */ yytestcase(yyruleno==141);
+      /* (142) between ::= BETWEEN */ yytestcase(yyruleno==142);
+      /* (143) between ::= OF THE WAY BETWEEN */ yytestcase(yyruleno==143);
+      /* (144) place ::= place2 */ yytestcase(yyruleno==144);
+      /* (145) edge ::= CENTER */ yytestcase(yyruleno==145);
+      /* (146) edge ::= EDGEPT */ yytestcase(yyruleno==146);
+      /* (147) edge ::= TOP */ yytestcase(yyruleno==147);
+      /* (148) edge ::= BOTTOM */ yytestcase(yyruleno==148);
+      /* (149) edge ::= START */ yytestcase(yyruleno==149);
+      /* (150) edge ::= END */ yytestcase(yyruleno==150);
+      /* (151) edge ::= RIGHT */ yytestcase(yyruleno==151);
+      /* (152) edge ::= LEFT */ yytestcase(yyruleno==152);
+      /* (153) object ::= objectname */ yytestcase(yyruleno==153);
         break;
 /********** End reduce actions ************************************************/
   };
@@ -3052,7 +3077,7 @@ static void yy_syntax_error(
   pik_parserCTX_FETCH
 #define TOKEN yyminor
 /************ Begin %syntax_error code ****************************************/
-#line 494 "pikchr.y"
+#line 509 "pikchr.y"
 
   if( TOKEN.z && TOKEN.z[0] ){
     pik_error(p, &TOKEN, "syntax error");
@@ -3060,7 +3085,7 @@ static void yy_syntax_error(
     pik_error(p, 0, "syntax error");
   }
   UNUSED_PARAMETER(yymajor);
-#line 3088 "pikchr.c"
+#line 3113 "pikchr.c"
 /************ End %syntax_error code ******************************************/
   pik_parserARG_STORE /* Suppress warning about unused %extra_argument variable */
   pik_parserCTX_STORE
@@ -3293,7 +3318,7 @@ int pik_parserFallback(int iToken){
   return 0;
 #endif
 }
-#line 735 "pikchr.y"
+#line 751 "pikchr.y"
 
 
 
@@ -3499,9 +3524,9 @@ static const struct { const char *zName; PNum val; } aBuiltin[] = {
 
 
 /* Methods for the "arc" class */
-static void arcInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "arcrad",6,0);
-  pElem->h = pElem->w;
+static void arcInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "arcrad",6,0);
+  pObj->h = pObj->w;
 }
 /* Hack: Arcs are here rendered as quadratic Bezier curves rather
 ** than true arcs.  Multiple reasons: (1) the legacy-PIC parameters
@@ -3525,61 +3550,61 @@ static PPoint arcControlPoint(int cw, PPoint f, PPoint t, PNum rScale){
   }
   return m;
 }
-static void arcCheck(Pik *p, PElem *pElem){
+static void arcCheck(Pik *p, PObj *pObj){
   PPoint m;
   if( p->nTPath>2 ){
-    pik_error(p, &pElem->errTok, "arc geometry error");
+    pik_error(p, &pObj->errTok, "arc geometry error");
     return;
   }
-  m = arcControlPoint(pElem->cw, p->aTPath[0], p->aTPath[1], 0.5);
-  pik_bbox_add_xy(&pElem->bbox, m.x, m.y);
+  m = arcControlPoint(pObj->cw, p->aTPath[0], p->aTPath[1], 0.5);
+  pik_bbox_add_xy(&pObj->bbox, m.x, m.y);
 }
-static void arcRender(Pik *p, PElem *pElem){
+static void arcRender(Pik *p, PObj *pObj){
   PPoint f, m, t;
-  if( pElem->nPath<2 ) return;
-  if( pElem->sw<=0.0 ) return;
-  f = pElem->aPath[0];
-  t = pElem->aPath[1];
-  m = arcControlPoint(pElem->cw,f,t,1.0);
-  if( pElem->larrow ){
-    pik_draw_arrowhead(p,&m,&f,pElem);
+  if( pObj->nPath<2 ) return;
+  if( pObj->sw<=0.0 ) return;
+  f = pObj->aPath[0];
+  t = pObj->aPath[1];
+  m = arcControlPoint(pObj->cw,f,t,1.0);
+  if( pObj->larrow ){
+    pik_draw_arrowhead(p,&m,&f,pObj);
   }
-  if( pElem->rarrow ){
-    pik_draw_arrowhead(p,&m,&t,pElem);
+  if( pObj->rarrow ){
+    pik_draw_arrowhead(p,&m,&t,pObj);
   }
   pik_append_xy(p,"<path d=\"M", f.x, f.y);
   pik_append_xy(p,"Q", m.x, m.y);
   pik_append_xy(p," ", t.x, t.y);
   pik_append(p,"\" ",2);
-  pik_append_style(p,pElem,0);
+  pik_append_style(p,pObj,0);
   pik_append(p,"\" />\n", -1);
 
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
 
 
 /* Methods for the "arrow" class */
-static void arrowInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "linewid",7,0);
-  pElem->h = pik_value(p, "lineht",6,0);
-  pElem->rad = pik_value(p, "linerad",7,0);
-  pElem->fill = -1.0;
-  pElem->rarrow = 1;
+static void arrowInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "linewid",7,0);
+  pObj->h = pik_value(p, "lineht",6,0);
+  pObj->rad = pik_value(p, "linerad",7,0);
+  pObj->fill = -1.0;
+  pObj->rarrow = 1;
 }
 
 /* Methods for the "box" class */
-static void boxInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "boxwid",6,0);
-  pElem->h = pik_value(p, "boxht",5,0);
-  pElem->rad = pik_value(p, "boxrad",6,0);
+static void boxInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "boxwid",6,0);
+  pObj->h = pik_value(p, "boxht",5,0);
+  pObj->rad = pik_value(p, "boxrad",6,0);
 }
 /* Return offset from the center of the box to the compass point 
 ** given by parameter cp */
-static PPoint boxOffset(Pik *p, PElem *pElem, int cp){
+static PPoint boxOffset(Pik *p, PObj *pObj, int cp){
   PPoint pt = cZeroPoint;
-  PNum w2 = 0.5*pElem->w;
-  PNum h2 = 0.5*pElem->h;
-  PNum rad = pElem->rad;
+  PNum w2 = 0.5*pObj->w;
+  PNum h2 = 0.5*pObj->h;
+  PNum rad = pObj->rad;
   PNum rx;
   if( rad<=0.0 ){
     rx = 0.0;
@@ -3603,14 +3628,14 @@ static PPoint boxOffset(Pik *p, PElem *pElem, int cp){
   UNUSED_PARAMETER(p);
   return pt;
 }
-static PPoint boxChop(Pik *p, PElem *pElem, PPoint *pPt){
+static PPoint boxChop(Pik *p, PObj *pObj, PPoint *pPt){
   PNum dx, dy;
   int cp = CP_C;
-  PPoint chop = pElem->ptAt;
-  if( pElem->w<=0.0 ) return chop;
-  if( pElem->h<=0.0 ) return chop;
-  dx = (pPt->x - pElem->ptAt.x)*pElem->h/pElem->w;
-  dy = (pPt->y - pElem->ptAt.y);
+  PPoint chop = pObj->ptAt;
+  if( pObj->w<=0.0 ) return chop;
+  if( pObj->h<=0.0 ) return chop;
+  dx = (pPt->x - pObj->ptAt.x)*pObj->h/pObj->w;
+  dy = (pPt->y - pObj->ptAt.y);
   if( dx>0.0 ){
     if( dy>=2.414*dx ){
       cp = CP_N;
@@ -3636,22 +3661,22 @@ static PPoint boxChop(Pik *p, PElem *pElem, PPoint *pPt){
       cp = CP_S;
     }
   }
-  chop = pElem->type->xOffset(p,pElem,cp);
-  chop.x += pElem->ptAt.x;
-  chop.y += pElem->ptAt.y;
+  chop = pObj->type->xOffset(p,pObj,cp);
+  chop.x += pObj->ptAt.x;
+  chop.y += pObj->ptAt.y;
   return chop;
 }
-static void boxFit(Pik *p, PElem *pElem, PNum w, PNum h){
-  if( w>0 ) pElem->w = w;
-  if( h>0 ) pElem->h = h;
+static void boxFit(Pik *p, PObj *pObj, PNum w, PNum h){
+  if( w>0 ) pObj->w = w;
+  if( h>0 ) pObj->h = h;
   UNUSED_PARAMETER(p);
 }
-static void boxRender(Pik *p, PElem *pElem){
-  PNum w2 = 0.5*pElem->w;
-  PNum h2 = 0.5*pElem->h;
-  PNum rad = pElem->rad;
-  PPoint pt = pElem->ptAt;
-  if( pElem->sw>0.0 ){
+static void boxRender(Pik *p, PObj *pObj){
+  PNum w2 = 0.5*pObj->w;
+  PNum h2 = 0.5*pObj->h;
+  PNum rad = pObj->rad;
+  PPoint pt = pObj->ptAt;
+  if( pObj->sw>0.0 ){
     if( rad<=0.0 ){
       pik_append_xy(p,"<path d=\"M", pt.x-w2,pt.y-h2);
       pik_append_xy(p,"L", pt.x+w2,pt.y-h2);
@@ -3694,91 +3719,91 @@ static void boxRender(Pik *p, PElem *pElem){
       pik_append_arc(p, rad, rad, x1, y0);
       pik_append(p,"Z\" ",-1);
     }
-    pik_append_style(p,pElem,1);
+    pik_append_style(p,pObj,1);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
 
 /* Methods for the "circle" class */
-static void circleInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "circlerad",9,0)*2;
-  pElem->h = pElem->w;
-  pElem->rad = 0.5*pElem->w;
+static void circleInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "circlerad",9,0)*2;
+  pObj->h = pObj->w;
+  pObj->rad = 0.5*pObj->w;
 }
-static void circleNumProp(Pik *p, PElem *pElem, PToken *pId){
+static void circleNumProp(Pik *p, PObj *pObj, PToken *pId){
   /* For a circle, the width must equal the height and both must
   ** be twice the radius.  Enforce those constraints. */
   switch( pId->eType ){
     case T_RADIUS:
-      pElem->w = pElem->h = 2.0*pElem->rad;
+      pObj->w = pObj->h = 2.0*pObj->rad;
       break;
     case T_WIDTH:
-      pElem->h = pElem->w;
-      pElem->rad = 0.5*pElem->w;
+      pObj->h = pObj->w;
+      pObj->rad = 0.5*pObj->w;
       break;
     case T_HEIGHT:
-      pElem->w = pElem->h;
-      pElem->rad = 0.5*pElem->w;
+      pObj->w = pObj->h;
+      pObj->rad = 0.5*pObj->w;
       break;
   }
   UNUSED_PARAMETER(p);
 }
-static PPoint circleChop(Pik *p, PElem *pElem, PPoint *pPt){
+static PPoint circleChop(Pik *p, PObj *pObj, PPoint *pPt){
   PPoint chop;
-  PNum dx = pPt->x - pElem->ptAt.x;
-  PNum dy = pPt->y - pElem->ptAt.y;
+  PNum dx = pPt->x - pObj->ptAt.x;
+  PNum dy = pPt->y - pObj->ptAt.y;
   PNum dist = hypot(dx,dy);
-  if( dist<pElem->rad ) return pElem->ptAt;
-  chop.x = pElem->ptAt.x + dx*pElem->rad/dist;
-  chop.y = pElem->ptAt.y + dy*pElem->rad/dist;
+  if( dist<pObj->rad ) return pObj->ptAt;
+  chop.x = pObj->ptAt.x + dx*pObj->rad/dist;
+  chop.y = pObj->ptAt.y + dy*pObj->rad/dist;
   UNUSED_PARAMETER(p);
   return chop;
 }
-static void circleFit(Pik *p, PElem *pElem, PNum w, PNum h){
+static void circleFit(Pik *p, PObj *pObj, PNum w, PNum h){
   PNum mx = 0.0;
   if( w>0 ) mx = w;
   if( h>mx ) mx = h;
-  if( (w*w + h*h) > mx*mx ){
+  if( w*h>0 && (w*w + h*h) > mx*mx ){
     mx = hypot(w,h);
   }
   if( mx>0.0 ){
-    pElem->rad = 0.5*mx;
-    pElem->w = pElem->h = mx;
+    pObj->rad = 0.5*mx;
+    pObj->w = pObj->h = mx;
   }
   UNUSED_PARAMETER(p);
 }
 
-static void circleRender(Pik *p, PElem *pElem){
-  PNum r = pElem->rad;
-  PPoint pt = pElem->ptAt;
-  if( pElem->sw>0.0 ){
+static void circleRender(Pik *p, PObj *pObj){
+  PNum r = pObj->rad;
+  PPoint pt = pObj->ptAt;
+  if( pObj->sw>0.0 ){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," r=\"", r, "\" ");
-    pik_append_style(p,pElem,1);
+    pik_append_style(p,pObj,1);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
 
 /* Methods for the "cylinder" class */
-static void cylinderInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "cylwid",6,0);
-  pElem->h = pik_value(p, "cylht",5,0);
-  pElem->rad = pik_value(p, "cylrad",6,0); /* Minor radius of ellipses */
+static void cylinderInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "cylwid",6,0);
+  pObj->h = pik_value(p, "cylht",5,0);
+  pObj->rad = pik_value(p, "cylrad",6,0); /* Minor radius of ellipses */
 }
-static void cylinderFit(Pik *p, PElem *pElem, PNum w, PNum h){
-  if( w>0 ) pElem->w = w;
-  if( h>0 ) pElem->h = h + 4*pElem->rad + pElem->sw;
+static void cylinderFit(Pik *p, PObj *pObj, PNum w, PNum h){
+  if( w>0 ) pObj->w = w;
+  if( h>0 ) pObj->h = h + 4*pObj->rad + pObj->sw;
   UNUSED_PARAMETER(p);
 }
-static void cylinderRender(Pik *p, PElem *pElem){
-  PNum w2 = 0.5*pElem->w;
-  PNum h2 = 0.5*pElem->h;
-  PNum rad = pElem->rad;
-  PPoint pt = pElem->ptAt;
-  if( pElem->sw>0.0 ){
+static void cylinderRender(Pik *p, PObj *pObj){
+  PNum w2 = 0.5*pObj->w;
+  PNum h2 = 0.5*pObj->h;
+  PNum rad = pObj->rad;
+  PPoint pt = pObj->ptAt;
+  if( pObj->sw>0.0 ){
     pik_append_xy(p,"<path d=\"M", pt.x-w2,pt.y+h2-rad);
     pik_append_xy(p,"L", pt.x-w2,pt.y-h2+rad);
     pik_append_arc(p,w2,rad,pt.x+w2,pt.y-h2+rad);
@@ -3786,16 +3811,16 @@ static void cylinderRender(Pik *p, PElem *pElem){
     pik_append_arc(p,w2,rad,pt.x-w2,pt.y+h2-rad);
     pik_append_arc(p,w2,rad,pt.x+w2,pt.y+h2-rad);
     pik_append(p,"\" ",-1);
-    pik_append_style(p,pElem,1);
+    pik_append_style(p,pObj,1);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
-static PPoint cylinderOffset(Pik *p, PElem *pElem, int cp){
+static PPoint cylinderOffset(Pik *p, PObj *pObj, int cp){
   PPoint pt = cZeroPoint;
-  PNum w2 = pElem->w*0.5;
-  PNum h1 = pElem->h*0.5;
-  PNum h2 = h1 - pElem->rad;
+  PNum w2 = pObj->w*0.5;
+  PNum h1 = pObj->h*0.5;
+  PNum h2 = h1 - pObj->rad;
   switch( cp ){
     case CP_C:                                break;
     case CP_N:   pt.x = 0.0;   pt.y = h1;     break;
@@ -3813,75 +3838,75 @@ static PPoint cylinderOffset(Pik *p, PElem *pElem, int cp){
 }
 
 /* Methods for the "dot" class */
-static void dotInit(Pik *p, PElem *pElem){
-  pElem->rad = pik_value(p, "dotrad",6,0);
-  pElem->h = pElem->w = pElem->rad*6;
-  pElem->fill = pElem->color;
+static void dotInit(Pik *p, PObj *pObj){
+  pObj->rad = pik_value(p, "dotrad",6,0);
+  pObj->h = pObj->w = pObj->rad*6;
+  pObj->fill = pObj->color;
 }
-static void dotNumProp(Pik *p, PElem *pElem, PToken *pId){
+static void dotNumProp(Pik *p, PObj *pObj, PToken *pId){
   switch( pId->eType ){
     case T_COLOR:
-      pElem->fill = pElem->color;
+      pObj->fill = pObj->color;
       break;
     case T_FILL:
-      pElem->color = pElem->fill;
+      pObj->color = pObj->fill;
       break;
   }
   UNUSED_PARAMETER(p);
 }
-static void dotCheck(Pik *p, PElem *pElem){
-  pElem->w = pElem->h = 0;
-  pik_bbox_addellipse(&pElem->bbox, pElem->ptAt.x, pElem->ptAt.y,
-                       pElem->rad, pElem->rad);
+static void dotCheck(Pik *p, PObj *pObj){
+  pObj->w = pObj->h = 0;
+  pik_bbox_addellipse(&pObj->bbox, pObj->ptAt.x, pObj->ptAt.y,
+                       pObj->rad, pObj->rad);
   UNUSED_PARAMETER(p);
 }
-static PPoint dotOffset(Pik *p, PElem *pElem, int cp){
+static PPoint dotOffset(Pik *p, PObj *pObj, int cp){
   UNUSED_PARAMETER(p);
-  UNUSED_PARAMETER(pElem);
+  UNUSED_PARAMETER(pObj);
   UNUSED_PARAMETER(cp);
   return cZeroPoint;
 }
-static void dotRender(Pik *p, PElem *pElem){
-  PNum r = pElem->rad;
-  PPoint pt = pElem->ptAt;
-  if( pElem->sw>0.0 ){
+static void dotRender(Pik *p, PObj *pObj){
+  PNum r = pObj->rad;
+  PPoint pt = pObj->ptAt;
+  if( pObj->sw>0.0 ){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," r=\"", r, "\"");
-    pik_append_style(p,pElem,1);
+    pik_append_style(p,pObj,1);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
 
 
 
 /* Methods for the "ellipse" class */
-static void ellipseInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "ellipsewid",10,0);
-  pElem->h = pik_value(p, "ellipseht",9,0);
+static void ellipseInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "ellipsewid",10,0);
+  pObj->h = pik_value(p, "ellipseht",9,0);
 }
-static PPoint ellipseChop(Pik *p, PElem *pElem, PPoint *pPt){
+static PPoint ellipseChop(Pik *p, PObj *pObj, PPoint *pPt){
   PPoint chop;
   PNum s, dq, dist;
-  PNum dx = pPt->x - pElem->ptAt.x;
-  PNum dy = pPt->y - pElem->ptAt.y;
-  if( pElem->w<=0.0 ) return pElem->ptAt;
-  if( pElem->h<=0.0 ) return pElem->ptAt;
-  s = pElem->h/pElem->w;
+  PNum dx = pPt->x - pObj->ptAt.x;
+  PNum dy = pPt->y - pObj->ptAt.y;
+  if( pObj->w<=0.0 ) return pObj->ptAt;
+  if( pObj->h<=0.0 ) return pObj->ptAt;
+  s = pObj->h/pObj->w;
   dq = dx*s;
   dist = hypot(dq,dy);
-  if( dist<pElem->h ) return pElem->ptAt;
-  chop.x = pElem->ptAt.x + 0.5*dq*pElem->h/(dist*s);
-  chop.y = pElem->ptAt.y + 0.5*dy*pElem->h/dist;
+  if( dist<pObj->h ) return pObj->ptAt;
+  chop.x = pObj->ptAt.x + 0.5*dq*pObj->h/(dist*s);
+  chop.y = pObj->ptAt.y + 0.5*dy*pObj->h/dist;
   UNUSED_PARAMETER(p);
   return chop;
 }
-static PPoint ellipseOffset(Pik *p, PElem *pElem, int cp){
+static PPoint ellipseOffset(Pik *p, PObj *pObj, int cp){
   PPoint pt = cZeroPoint;
-  PNum w = pElem->w*0.5;
+  PNum w = pObj->w*0.5;
   PNum w2 = w*0.70710678118654747608;
-  PNum h = pElem->h*0.5;
+  PNum h = pObj->h*0.5;
   PNum h2 = h*0.70710678118654747608;
   switch( cp ){
     case CP_C:                                break;
@@ -3898,34 +3923,34 @@ static PPoint ellipseOffset(Pik *p, PElem *pElem, int cp){
   UNUSED_PARAMETER(p);
   return pt;
 }
-static void ellipseRender(Pik *p, PElem *pElem){
-  PNum w = pElem->w;
-  PNum h = pElem->h;
-  PPoint pt = pElem->ptAt;
-  if( pElem->sw>0.0 ){
+static void ellipseRender(Pik *p, PObj *pObj){
+  PNum w = pObj->w;
+  PNum h = pObj->h;
+  PPoint pt = pObj->ptAt;
+  if( pObj->sw>0.0 ){
     pik_append_x(p,"<ellipse cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," rx=\"", w/2.0, "\"");
     pik_append_dis(p," ry=\"", h/2.0, "\" ");
-    pik_append_style(p,pElem,1);
+    pik_append_style(p,pObj,1);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
 
 /* Methods for the "file" object */
-static void fileInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "filewid",7,0);
-  pElem->h = pik_value(p, "fileht",6,0);
-  pElem->rad = pik_value(p, "filerad",7,0);
+static void fileInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "filewid",7,0);
+  pObj->h = pik_value(p, "fileht",6,0);
+  pObj->rad = pik_value(p, "filerad",7,0);
 }
 /* Return offset from the center of the file to the compass point 
 ** given by parameter cp */
-static PPoint fileOffset(Pik *p, PElem *pElem, int cp){
+static PPoint fileOffset(Pik *p, PObj *pObj, int cp){
   PPoint pt = cZeroPoint;
-  PNum w2 = 0.5*pElem->w;
-  PNum h2 = 0.5*pElem->h;
-  PNum rx = pElem->rad;
+  PNum w2 = 0.5*pObj->w;
+  PNum h2 = 0.5*pObj->h;
+  PNum rx = pObj->rad;
   PNum mn = w2<h2 ? w2 : h2;
   if( rx>mn ) rx = mn;
   if( rx<mn*0.25 ) rx = mn*0.25;
@@ -3946,128 +3971,129 @@ static PPoint fileOffset(Pik *p, PElem *pElem, int cp){
   UNUSED_PARAMETER(p);
   return pt;
 }
-static void fileFit(Pik *p, PElem *pElem, PNum w, PNum h){
-  if( w>0 ) pElem->w = w;
-  if( h>0 ) pElem->h = h + 2*pElem->rad;
+static void fileFit(Pik *p, PObj *pObj, PNum w, PNum h){
+  if( w>0 ) pObj->w = w;
+  if( h>0 ) pObj->h = h + 2*pObj->rad;
   UNUSED_PARAMETER(p);
 }
-static void fileRender(Pik *p, PElem *pElem){
-  PNum w2 = 0.5*pElem->w;
-  PNum h2 = 0.5*pElem->h;
-  PNum rad = pElem->rad;
-  PPoint pt = pElem->ptAt;
+static void fileRender(Pik *p, PObj *pObj){
+  PNum w2 = 0.5*pObj->w;
+  PNum h2 = 0.5*pObj->h;
+  PNum rad = pObj->rad;
+  PPoint pt = pObj->ptAt;
   PNum mn = w2<h2 ? w2 : h2;
   if( rad>mn ) rad = mn;
   if( rad<mn*0.25 ) rad = mn*0.25;
-  if( pElem->sw>0.0 ){
+  if( pObj->sw>0.0 ){
     pik_append_xy(p,"<path d=\"M", pt.x-w2,pt.y-h2);
     pik_append_xy(p,"L", pt.x+w2,pt.y-h2);
     pik_append_xy(p,"L", pt.x+w2,pt.y+(h2-rad));
     pik_append_xy(p,"L", pt.x+(w2-rad),pt.y+h2);
     pik_append_xy(p,"L", pt.x-w2,pt.y+h2);
     pik_append(p,"Z\" ",-1);
-    pik_append_style(p,pElem,1);
+    pik_append_style(p,pObj,1);
     pik_append(p,"\" />\n",-1);
     pik_append_xy(p,"<path d=\"M", pt.x+(w2-rad), pt.y+h2);
     pik_append_xy(p,"L", pt.x+(w2-rad),pt.y+(h2-rad));
     pik_append_xy(p,"L", pt.x+w2, pt.y+(h2-rad));
     pik_append(p,"\" ",-1);
-    pik_append_style(p,pElem,0);
+    pik_append_style(p,pObj,0);
     pik_append(p,"\" />\n",-1);
   }
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
 
 
 /* Methods for the "line" class */
-static void lineInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "linewid",7,0);
-  pElem->h = pik_value(p, "lineht",6,0);
-  pElem->rad = pik_value(p, "linerad",7,0);
-  pElem->fill = -1.0;
+static void lineInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "linewid",7,0);
+  pObj->h = pik_value(p, "lineht",6,0);
+  pObj->rad = pik_value(p, "linerad",7,0);
+  pObj->fill = -1.0;
 }
-static PPoint lineOffset(Pik *p, PElem *pElem, int cp){
+static PPoint lineOffset(Pik *p, PObj *pObj, int cp){
 #if 0
   /* In legacy PIC, the .center of an unclosed line is half way between
   ** its .start and .end. */
-  if( cp==CP_C && !pElem->bClose ){
+  if( cp==CP_C && !pObj->bClose ){
     PPoint out;
-    out.x = 0.5*(pElem->ptEnter.x + pElem->ptExit.x) - pElem->ptAt.x;
-    out.y = 0.5*(pElem->ptEnter.x + pElem->ptExit.y) - pElem->ptAt.y;
+    out.x = 0.5*(pObj->ptEnter.x + pObj->ptExit.x) - pObj->ptAt.x;
+    out.y = 0.5*(pObj->ptEnter.x + pObj->ptExit.y) - pObj->ptAt.y;
     return out;
   }
 #endif
-  return boxOffset(p,pElem,cp);
+  return boxOffset(p,pObj,cp);
 }
-static void lineRender(Pik *p, PElem *pElem){
+static void lineRender(Pik *p, PObj *pObj){
   int i;
-  if( pElem->sw>0.0 ){
+  if( pObj->sw>0.0 ){
     const char *z = "<path d=\"M";
-    int n = pElem->nPath;
-    if( pElem->larrow ){
-      pik_draw_arrowhead(p,&pElem->aPath[1],&pElem->aPath[0],pElem);
+    int n = pObj->nPath;
+    if( pObj->larrow ){
+      pik_draw_arrowhead(p,&pObj->aPath[1],&pObj->aPath[0],pObj);
     }
-    if( pElem->rarrow ){
-      pik_draw_arrowhead(p,&pElem->aPath[n-2],&pElem->aPath[n-1],pElem);
+    if( pObj->rarrow ){
+      pik_draw_arrowhead(p,&pObj->aPath[n-2],&pObj->aPath[n-1],pObj);
     }
-    for(i=0; i<pElem->nPath; i++){
-      pik_append_xy(p,z,pElem->aPath[i].x,pElem->aPath[i].y);
+    for(i=0; i<pObj->nPath; i++){
+      pik_append_xy(p,z,pObj->aPath[i].x,pObj->aPath[i].y);
       z = "L";
     }
-    if( pElem->bClose ){
+    if( pObj->bClose ){
       pik_append(p,"Z",1);
     }else{
-      pElem->fill = -1.0;
+      pObj->fill = -1.0;
     }
     pik_append(p,"\" ",-1);
-    pik_append_style(p,pElem,pElem->bClose);
+    pik_append_style(p,pObj,pObj->bClose);
     pik_append(p,"\" />\n", -1);
   }
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
 
 /* Methods for the "move" class */
-static void moveInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "movewid",7,0);
-  pElem->h = pElem->w;
-  pElem->fill = -1.0;
-  pElem->color = -1.0;
-  pElem->sw = -1.0;
+static void moveInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "movewid",7,0);
+  pObj->h = pObj->w;
+  pObj->fill = -1.0;
+  pObj->color = -1.0;
+  pObj->sw = -1.0;
 }
-static void moveRender(Pik *p, PElem *pElem){
+static void moveRender(Pik *p, PObj *pObj){
   /* No-op */
   UNUSED_PARAMETER(p);
-  UNUSED_PARAMETER(pElem);
+  UNUSED_PARAMETER(pObj);
 }
 
 /* Methods for the "oval" class */
-static void ovalInit(Pik *p, PElem *pElem){
-  pElem->h = pik_value(p, "ovalht",6,0);
-  pElem->w = pik_value(p, "ovalwid",7,0);
-  pElem->rad = 0.5*(pElem->h<pElem->w?pElem->h:pElem->w);
+static void ovalInit(Pik *p, PObj *pObj){
+  pObj->h = pik_value(p, "ovalht",6,0);
+  pObj->w = pik_value(p, "ovalwid",7,0);
+  pObj->rad = 0.5*(pObj->h<pObj->w?pObj->h:pObj->w);
 }
-static void ovalNumProp(Pik *p, PElem *pElem, PToken *pId){
+static void ovalNumProp(Pik *p, PObj *pObj, PToken *pId){
   UNUSED_PARAMETER(p);
   UNUSED_PARAMETER(pId);
   /* Always adjust the radius to be half of the smaller of
   ** the width and height. */
-  pElem->rad = 0.5*(pElem->h<pElem->w?pElem->h:pElem->w);
+  pObj->rad = 0.5*(pObj->h<pObj->w?pObj->h:pObj->w);
 }
-static void ovalFit(Pik *p, PElem *pElem, PNum w, PNum h){
+static void ovalFit(Pik *p, PObj *pObj, PNum w, PNum h){
   UNUSED_PARAMETER(p);
-  if( w>0 ) pElem->w = w;
-  if( h>0 ) pElem->h = h;
-  if( pElem->w<pElem->h ) pElem->w = pElem->h;
+  if( w>0 ) pObj->w = w;
+  if( h>0 ) pObj->h = h;
+  if( pObj->w<pObj->h ) pObj->w = pObj->h;
+  pObj->rad = 0.5*(pObj->h<pObj->w?pObj->h:pObj->w);
 }
 
 
 
 /* Methods for the "spline" class */
-static void splineInit(Pik *p, PElem *pElem){
-  pElem->w = pik_value(p, "linewid",7,0);
-  pElem->h = pik_value(p, "lineht",6,0);
-  pElem->rad = 1000;
-  pElem->fill = -1.0;  /* Disable fill by default */
+static void splineInit(Pik *p, PObj *pObj){
+  pObj->w = pik_value(p, "linewid",7,0);
+  pObj->h = pik_value(p, "lineht",6,0);
+  pObj->rad = 1000;
+  pObj->fill = -1.0;  /* Disable fill by default */
 }
 /* Return a point along the path from "f" to "t" that is r units
 ** prior to reaching "t", except if the path is less than 2*r total,
@@ -4091,10 +4117,10 @@ static PPoint radiusMidpoint(PPoint f, PPoint t, PNum r, int *pbMid){
   m.y = t.y - r*dy;
   return m;
 }
-static void radiusPath(Pik *p, PElem *pElem, PNum r){
+static void radiusPath(Pik *p, PObj *pObj, PNum r){
   int i;
-  int n = pElem->nPath;
-  const PPoint *a = pElem->aPath;
+  int n = pObj->nPath;
+  const PPoint *a = pObj->aPath;
   PPoint m;
   int isMid = 0;
 
@@ -4112,64 +4138,64 @@ static void radiusPath(Pik *p, PElem *pElem, PNum r){
   }
   pik_append_xy(p," L ",a[i].x,a[i].y);
   pik_append(p,"\" ",-1);
-  pik_append_style(p,pElem,0);
+  pik_append_style(p,pObj,0);
   pik_append(p,"\" />\n", -1);
 }
-static void splineRender(Pik *p, PElem *pElem){
-  if( pElem->sw>0.0 ){
-    int n = pElem->nPath;
-    PNum r = pElem->rad;
+static void splineRender(Pik *p, PObj *pObj){
+  if( pObj->sw>0.0 ){
+    int n = pObj->nPath;
+    PNum r = pObj->rad;
     if( n<3 || r<=0.0 ){
-      lineRender(p,pElem);
+      lineRender(p,pObj);
       return;
     }
-    if( pElem->larrow ){
-      pik_draw_arrowhead(p,&pElem->aPath[1],&pElem->aPath[0],pElem);
+    if( pObj->larrow ){
+      pik_draw_arrowhead(p,&pObj->aPath[1],&pObj->aPath[0],pObj);
     }
-    if( pElem->rarrow ){
-      pik_draw_arrowhead(p,&pElem->aPath[n-2],&pElem->aPath[n-1],pElem);
+    if( pObj->rarrow ){
+      pik_draw_arrowhead(p,&pObj->aPath[n-2],&pObj->aPath[n-1],pObj);
     }
-    radiusPath(p,pElem,pElem->rad);
+    radiusPath(p,pObj,pObj->rad);
   }
-  pik_append_txt(p, pElem, 0);
+  pik_append_txt(p, pObj, 0);
 }
 
 
 /* Methods for the "text" class */
-static void textInit(Pik *p, PElem *pElem){
+static void textInit(Pik *p, PObj *pObj){
   pik_value(p, "textwid",7,0);
   pik_value(p, "textht",6,0);
-  pElem->sw = 0.0;
+  pObj->sw = 0.0;
 }
-static PPoint textOffset(Pik *p, PElem *pElem, int cp){
+static PPoint textOffset(Pik *p, PObj *pObj, int cp){
   /* Automatically slim-down the width and height of text
-  ** elements so that the bounding box tightly encloses the text,
+  ** statements so that the bounding box tightly encloses the text,
   ** then get boxOffset() to do the offset computation.
   */
-  pik_size_to_fit(p, &pElem->errTok);
-  return boxOffset(p, pElem, cp);
+  pik_size_to_fit(p, &pObj->errTok,3);
+  return boxOffset(p, pObj, cp);
 }
 
 /* Methods for the "sublist" class */
-static void sublistInit(Pik *p, PElem *pElem){
-  PEList *pList = pElem->pSublist;
+static void sublistInit(Pik *p, PObj *pObj){
+  PList *pList = pObj->pSublist;
   int i;
   UNUSED_PARAMETER(p);
-  pik_bbox_init(&pElem->bbox);
+  pik_bbox_init(&pObj->bbox);
   for(i=0; i<pList->n; i++){
-    pik_bbox_addbox(&pElem->bbox, &pList->a[i]->bbox);
+    pik_bbox_addbox(&pObj->bbox, &pList->a[i]->bbox);
   }
-  pElem->w = pElem->bbox.ne.x - pElem->bbox.sw.x;
-  pElem->h = pElem->bbox.ne.y - pElem->bbox.sw.y;
-  pElem->ptAt.x = 0.5*(pElem->bbox.ne.x + pElem->bbox.sw.x);
-  pElem->ptAt.y = 0.5*(pElem->bbox.ne.y + pElem->bbox.sw.y);
-  pElem->mCalc |= A_WIDTH|A_HEIGHT|A_RADIUS;
+  pObj->w = pObj->bbox.ne.x - pObj->bbox.sw.x;
+  pObj->h = pObj->bbox.ne.y - pObj->bbox.sw.y;
+  pObj->ptAt.x = 0.5*(pObj->bbox.ne.x + pObj->bbox.sw.x);
+  pObj->ptAt.y = 0.5*(pObj->bbox.ne.y + pObj->bbox.sw.y);
+  pObj->mCalc |= A_WIDTH|A_HEIGHT|A_RADIUS;
 }
 
 
 /*
-** The following array holds all the different kinds of named
-** elements.  The special STRING and [] elements are separate.
+** The following array holds all the different kinds of objects.
+** The special [] object is separate.
 */
 static const PClass aClass[] = {
    {  /* name */          "arc",
@@ -4246,7 +4272,7 @@ static const PClass aClass[] = {
       /* xCheck */        0,
       /* xChop */         ellipseChop,
       /* xOffset */       ellipseOffset,
-      /* xFit */          0,
+      /* xFit */          boxFit,
       /* xRender */       ellipseRender
    },
    {  /* name */          "file",
@@ -4365,16 +4391,16 @@ static void pik_chop(PPoint *f, PPoint *t, PNum amt){
 ** Also, shorten the line segment (by changing the value of pTo) so that
 ** the shaft of the arrow does not extend into the arrowhead.
 */
-static void pik_draw_arrowhead(Pik *p, PPoint *f, PPoint *t, PElem *pElem){
+static void pik_draw_arrowhead(Pik *p, PPoint *f, PPoint *t, PObj *pObj){
   PNum dx = t->x - f->x;
   PNum dy = t->y - f->y;
   PNum dist = hypot(dx,dy);
-  PNum h = p->hArrow * pElem->sw;
-  PNum w = p->wArrow * pElem->sw;
+  PNum h = p->hArrow * pObj->sw;
+  PNum w = p->wArrow * pObj->sw;
   PNum e1, ddx, ddy;
   PNum bx, by;
-  if( pElem->color<0.0 ) return;
-  if( pElem->sw<=0.0 ) return;
+  if( pObj->color<0.0 ) return;
+  if( pObj->sw<=0.0 ) return;
   if( dist<=0.0 ) return;  /* Unable */
   dx /= dist;
   dy /= dist;
@@ -4390,16 +4416,16 @@ static void pik_draw_arrowhead(Pik *p, PPoint *f, PPoint *t, PElem *pElem){
   pik_append_xy(p,"<polygon points=\"", t->x, t->y);
   pik_append_xy(p," ",bx-ddx, by-ddy);
   pik_append_xy(p," ",bx+ddx, by+ddy);
-  pik_append_clr(p,"\" style=\"fill:",pElem->color,"\"/>\n");
+  pik_append_clr(p,"\" style=\"fill:",pObj->color,"\"/>\n");
   pik_chop(f,t,h/2);
 }
 
 /*
 ** Compute the relative offset to an edge location from the reference for a
-** an element.
+** an statement.
 */
-static PPoint pik_elem_offset(Pik *p, PElem *pElem, int cp){
-  return pElem->type->xOffset(p, pElem, cp);
+static PPoint pik_elem_offset(Pik *p, PObj *pObj, int cp){
+  return pObj->type->xOffset(p, pObj, cp);
 }
 
 
@@ -4546,27 +4572,27 @@ static void pik_append_arc(Pik *p, PNum r1, PNum r2, PNum x, PNum y){
 /* Append a style="..." text.  But, leave the quote unterminated, in case
 ** the caller wants to add some more.
 */
-static void pik_append_style(Pik *p, PElem *pElem, int bFill){
+static void pik_append_style(Pik *p, PObj *pObj, int bFill){
   pik_append(p, " style=\"", -1);
-  if( pElem->fill>=0 && bFill ){
-    pik_append_clr(p, "fill:", pElem->fill, ";");
+  if( pObj->fill>=0 && bFill ){
+    pik_append_clr(p, "fill:", pObj->fill, ";");
   }else{
     pik_append(p,"fill:none;",-1);
   }
-  if( pElem->sw>0.0 && pElem->color>=0.0 ){
-    PNum sw = pElem->sw;
+  if( pObj->sw>0.0 && pObj->color>=0.0 ){
+    PNum sw = pObj->sw;
     pik_append_dis(p, "stroke-width:", sw, ";");
-    if( pElem->nPath>2 && pElem->rad<=pElem->sw ){
+    if( pObj->nPath>2 && pObj->rad<=pObj->sw ){
       pik_append(p, "stroke-linejoin:round;", -1);
     }
-    pik_append_clr(p, "stroke:",pElem->color,";");
-    if( pElem->dotted>0.0 ){
-      PNum v = pElem->dotted;
+    pik_append_clr(p, "stroke:",pObj->color,";");
+    if( pObj->dotted>0.0 ){
+      PNum v = pObj->dotted;
       if( sw<2.1/p->rScale ) sw = 2.1/p->rScale;
       pik_append_dis(p,"stroke-dasharray:",sw,"");
       pik_append_dis(p,",",v,";");
-    }else if( pElem->dashed>0.0 ){
-      PNum v = pElem->dashed;
+    }else if( pObj->dashed>0.0 ){
+      PNum v = pObj->dashed;
       pik_append_dis(p,"stroke-dasharray:",v,"");
       pik_append_dis(p,",",v,";");
     }
@@ -4575,16 +4601,16 @@ static void pik_append_style(Pik *p, PElem *pElem, int bFill){
 
 /*
 ** Compute the vertical locations for all text items in the
-** element pElem.  In other words, set every pElem->aTxt[*].eCode
+** object pObj.  In other words, set every pObj->aTxt[*].eCode
 ** value to contain exactly one of: TP_ABOVE2, TP_ABOVE, TP_CENTER,
 ** TP_BELOW, or TP_BELOW2 is set.
 */
-static void pik_txt_vertical_layout(PElem *pElem){
+static void pik_txt_vertical_layout(PObj *pObj){
   int n, i;
   PToken *aTxt;
-  n = pElem->nTxt;
+  n = pObj->nTxt;
   if( n==0 ) return;
-  aTxt = pElem->aTxt;
+  aTxt = pObj->aTxt;
   if( n==1 ){
     if( (aTxt[0].eCode & TP_VMASK)==0 ){
       aTxt[0].eCode |= TP_CENTER;
@@ -4651,18 +4677,18 @@ static void pik_txt_vertical_layout(PElem *pElem){
   }
 }
 
-/* Append multiple <text> SVG element for the text fields of the PElem.
+/* Append multiple <text> SVG elements for the text fields of the PObj.
 ** Parameters:
 **
 **    p          The Pik object into which we are rendering
 **
-**    pElem      Object containing the text to be rendered
+**    pObj      Object containing the text to be rendered
 **
 **    pBox       If not NULL, do no rendering at all.  Instead
 **               expand the box object so that it will include all
 **               of the text.
 */
-static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
+static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
   PNum dy;          /* Half the height of a single line of text */
   PNum dy2;         /* Extra vertical space around the center */
   PNum jw;          /* Justification margin relative to center */
@@ -4673,31 +4699,31 @@ static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
   int hasCenter = 0;
 
   if( p->nErr ) return;
-  if( pElem->nTxt==0 ) return;
-  aTxt = pElem->aTxt;
+  if( pObj->nTxt==0 ) return;
+  aTxt = pObj->aTxt;
   dy = 0.5*p->charHeight;
-  n = pElem->nTxt;
-  pik_txt_vertical_layout(pElem);
-  x = pElem->ptAt.x;
+  n = pObj->nTxt;
+  pik_txt_vertical_layout(pObj);
+  x = pObj->ptAt.x;
   for(i=0; i<n; i++){
-    if( (pElem->aTxt[i].eCode & TP_CENTER)!=0 ) hasCenter = 1;
+    if( (pObj->aTxt[i].eCode & TP_CENTER)!=0 ) hasCenter = 1;
   }
   if( hasCenter ){
     dy2 = dy;
-  }else if( pElem->type->isLine ){
-    dy2 = pElem->sw;
+  }else if( pObj->type->isLine ){
+    dy2 = pObj->sw;
   }else{
     dy2 = 0.0;
   }
-  if( pElem->type->eJust==1 ){
-    jw = 0.5*(pElem->w - 0.5*(p->charWidth + pElem->sw));
+  if( pObj->type->eJust==1 ){
+    jw = 0.5*(pObj->w - 0.5*(p->charWidth + pObj->sw));
   }else{
     jw = 0.0;
   }
   for(i=0; i<n; i++){
     PToken *t = &aTxt[i];
     PNum xtraFontScale = 1.0;
-    orig_y = pElem->ptAt.y;
+    orig_y = pObj->ptAt.y;
     PNum nx = 0;
     y = 0;
     if( t->eCode & TP_ABOVE2 ) y += dy2 + 3*dy;
@@ -4715,7 +4741,7 @@ static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
       ** pBox to include the text */
       PNum cw = pik_text_length(t)*p->charWidth*xtraFontScale*0.01;
       PNum ch = p->charHeight*0.5*xtraFontScale;
-      PNum x0, y0, x1, y1;  /* Boundary of text relative to pElem->ptAt */
+      PNum x0, y0, x1, y1;  /* Boundary of text relative to pObj->ptAt */
       if( t->eCode & TP_BOLD ) cw *= 1.1;
       if( t->eCode & TP_RJUST ){
         x0 = nx;
@@ -4733,10 +4759,10 @@ static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
         x1 = nx-cw/2;
         y1 = y-ch;
       }
-      if( (t->eCode & TP_ALIGN)!=0 && pElem->nPath>=2 ){
-        int n = pElem->nPath;
-        PNum dx = pElem->aPath[n-1].x - pElem->aPath[0].x;
-        PNum dy = pElem->aPath[n-1].y - pElem->aPath[0].y;
+      if( (t->eCode & TP_ALIGN)!=0 && pObj->nPath>=2 ){
+        int n = pObj->nPath;
+        PNum dx = pObj->aPath[n-1].x - pObj->aPath[0].x;
+        PNum dy = pObj->aPath[n-1].y - pObj->aPath[0].y;
         if( dx!=0 || dy!=0 ){
           PNum dist = hypot(dx,dy);
           PNum t;
@@ -4772,18 +4798,18 @@ static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
     if( t->eCode & TP_BOLD ){
       pik_append(p, " font-weight=\"bold\"", -1);
     }
-    if( pElem->color>=0.0 ){
-      pik_append_clr(p, " fill=\"", pElem->color, "\"");
+    if( pObj->color>=0.0 ){
+      pik_append_clr(p, " fill=\"", pObj->color, "\"");
     }
     xtraFontScale *= p->fontScale;
     if( xtraFontScale<=0.99 || xtraFontScale>=1.01 ){
       pik_append_num(p, " font-size=\"", xtraFontScale*100.0);
       pik_append(p, "%\"", 2);
     }
-    if( (t->eCode & TP_ALIGN)!=0 && pElem->nPath>=2 ){
-      int n = pElem->nPath;
-      PNum dx = pElem->aPath[n-1].x - pElem->aPath[0].x;
-      PNum dy = pElem->aPath[n-1].y - pElem->aPath[0].y;
+    if( (t->eCode & TP_ALIGN)!=0 && pObj->nPath>=2 ){
+      int n = pObj->nPath;
+      PNum dx = pObj->aPath[n-1].x - pObj->aPath[0].x;
+      PNum dy = pObj->aPath[n-1].y - pObj->aPath[0].y;
       if( dx!=0 || dy!=0 ){
         PNum ang = atan2(dy,dx)*-180/M_PI;
         pik_append_num(p, " transform=\"rotate(", ang);
@@ -4810,6 +4836,51 @@ static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
   }
 }
 
+/*
+** Append text (that will go inside of a <pre>...</pre>) that
+** shows the context of an error token.
+*/
+static void pik_error_context(Pik *p, PToken *pErr, int nContext){
+  int iErrPt;           /* Index of first byte of error from start of input */
+  int iErrCol;          /* Column of the error token on its line */
+  int iStart;           /* Start position of the error context */
+  int iEnd;             /* End position of the error context */
+  int iLineno;          /* Line number of the error */
+  int iFirstLineno;     /* Line number of start of error context */
+  int i;                /* Loop counter */
+  char zLineno[20];     /* Buffer in which to generate line numbers */
+
+  iErrPt = (int)(pErr->z - p->sIn.z);
+  iLineno = 1;
+  for(i=0; i<iErrPt; i++){
+    if( p->sIn.z[i]=='\n' ){
+      iLineno++;
+    }
+  }
+  iStart = 0;
+  iFirstLineno = 1;
+  while( iFirstLineno+nContext<iLineno ){
+    while( p->sIn.z[iStart]!='\n' ){ iStart++; }
+    iStart++;
+    iFirstLineno++;
+  }
+  for(iEnd=iErrPt; p->sIn.z[iEnd]!=0 && p->sIn.z[iEnd]!='\n'; iEnd++){}
+  i = iStart;
+  while( iFirstLineno<=iLineno ){
+    snprintf(zLineno,sizeof(zLineno)-1,"/* %4d */  ", iFirstLineno++);
+    zLineno[sizeof(zLineno)-1] = 0;
+    pik_append(p, zLineno, -1);
+    for(i=iStart; p->sIn.z[i]!=0 && p->sIn.z[i]!='\n'; i++){}
+    pik_append_text(p, p->sIn.z+iStart, i-iStart, 0);
+    iStart = i+1;
+    pik_append(p, "\n", 1);
+  }
+  for(iErrCol=0, i=iErrPt; i>0 && p->sIn.z[i]!='\n'; iErrCol++, i--){}
+  for(i=0; i<iErrCol+11; i++){ pik_append(p, " ", 1); }
+  for(i=0; i<(int)pErr->n; i++) pik_append(p, "^", 1);
+  pik_append(p, "\n", 1);
+}
+
 
 /*
 ** Generate an error message for the output.  pErr is the token at which
@@ -4819,10 +4890,7 @@ static void pik_append_txt(Pik *p, PElem *pElem, PBox *pBox){
 ** This routine is a no-op if there has already been an error reported.
 */
 static void pik_error(Pik *p, PToken *pErr, const char *zMsg){
-  int i, j;
-  int iCol;
-  int nExtra;
-  char c;
+  int i;
   if( p==0 ) return;
   if( p->nErr ) return;
   p->nErr++;
@@ -4835,25 +4903,22 @@ static void pik_error(Pik *p, PToken *pErr, const char *zMsg){
     pik_append_text(p, zMsg, -1, 0);
     return;
   }
-  i = (int)(pErr->z - p->zIn);
-  for(j=i; j>0 && p->zIn[j-1]!='\n'; j--){}
-  iCol = i - j;
-  for(nExtra=0; (c = p->zIn[i+nExtra])!=0 && c!='\n'; nExtra++){}
   pik_append(p, "<div><pre>\n", -1);
-  pik_append_text(p, p->zIn, i+nExtra, 3);
-  pik_append(p, "\n", 1);
-  for(i=0; i<iCol; i++){ pik_append(p, " ", 1); }
-  for(i=0; i<(int)pErr->n; i++) pik_append(p, "^", 1);
-  pik_append(p, "\nERROR: ", -1);
+  pik_error_context(p, pErr, 5);
+  pik_append(p, "ERROR: ", -1);
   pik_append_text(p, zMsg, -1, 0);
   pik_append(p, "\n", 1);
-  pik_append(p, "\n</pre></div>\n", -1);
+  for(i=p->nCtx-1; i>=0; i--){
+    pik_append(p, "Called from:\n", -1);
+    pik_error_context(p, &p->aCtx[i], 0);
+  }
+  pik_append(p, "</pre></div>\n", -1);
 }
 
 /*
 ** Process an "assert( e1 == e2 )" statement.  Always return NULL.
 */
-static PElem *pik_assert(Pik *p, PNum e1, PToken *pEq, PNum e2){
+static PObj *pik_assert(Pik *p, PNum e1, PToken *pEq, PNum e2){
   char zE1[100], zE2[100], zMsg[300];
 
   /* Convert the numbers to strings using %g for comparison.  This
@@ -4870,7 +4935,7 @@ static PElem *pik_assert(Pik *p, PNum e1, PToken *pEq, PNum e2){
 /*
 ** Process an "assert( place1 == place2 )" statement.  Always return NULL.
 */
-static PElem *pik_position_assert(Pik *p, PPoint *e1, PToken *pEq, PPoint *e2){
+static PObj *pik_position_assert(Pik *p, PPoint *e1, PToken *pEq, PPoint *e2){
   char zE1[100], zE2[100], zMsg[210];
 
   /* Convert the numbers to strings using %g for comparison.  This
@@ -4884,25 +4949,25 @@ static PElem *pik_position_assert(Pik *p, PPoint *e1, PToken *pEq, PPoint *e2){
   return 0;
 }
 
-/* Free a complete list of elements */
-static void pik_elist_free(Pik *p, PEList *pEList){
+/* Free a complete list of objects */
+static void pik_elist_free(Pik *p, PList *pList){
   int i;
-  if( pEList==0 ) return;
-  for(i=0; i<pEList->n; i++){
-    pik_elem_free(p, pEList->a[i]);
+  if( pList==0 ) return;
+  for(i=0; i<pList->n; i++){
+    pik_elem_free(p, pList->a[i]);
   }
-  free(pEList->a);
-  free(pEList);
+  free(pList->a);
+  free(pList);
   return;
 }
 
-/* Free a single element, and its substructure */
-static void pik_elem_free(Pik *p, PElem *pElem){
-  if( pElem==0 ) return;
-  free(pElem->zName);
-  pik_elist_free(p, pElem->pSublist);
-  free(pElem->aPath);
-  free(pElem);
+/* Free a single object, and its substructure */
+static void pik_elem_free(Pik *p, PObj *pObj){
+  if( pObj==0 ) return;
+  free(pObj->zName);
+  pik_elist_free(p, pObj->pSublist);
+  free(pObj->aPath);
+  free(pObj);
 }
 
 /* Convert a numeric literal into a number.  Return that number.
@@ -5019,38 +5084,38 @@ static void pik_bbox_addellipse(PBox *pA, PNum x, PNum y, PNum rx, PNum ry){
 
 
 
-/* Append a new element onto the end of an element_list.  The
-** element_list is created if it does not already exist.  Return
-** the new element list.
+/* Append a new object onto the end of an object list.  The
+** object list is created if it does not already exist.  Return
+** the new object list.
 */
-static PEList *pik_elist_append(Pik *p, PEList *pEList, PElem *pElem){
-  if( pElem==0 ) return pEList;
-  if( pEList==0 ){
-    pEList = malloc(sizeof(*pEList));
-    if( pEList==0 ){
+static PList *pik_elist_append(Pik *p, PList *pList, PObj *pObj){
+  if( pObj==0 ) return pList;
+  if( pList==0 ){
+    pList = malloc(sizeof(*pList));
+    if( pList==0 ){
       pik_error(p, 0, 0);
-      pik_elem_free(p, pElem);
+      pik_elem_free(p, pObj);
       return 0;
     }
-    memset(pEList, 0, sizeof(*pEList));
+    memset(pList, 0, sizeof(*pList));
   }
-  if( pEList->n>=pEList->nAlloc ){
-    int nNew = (pEList->n+5)*2;
-    PElem **pNew = realloc(pEList->a, sizeof(PElem*)*nNew);
+  if( pList->n>=pList->nAlloc ){
+    int nNew = (pList->n+5)*2;
+    PObj **pNew = realloc(pList->a, sizeof(PObj*)*nNew);
     if( pNew==0 ){
       pik_error(p, 0, 0);
-      pik_elem_free(p, pElem);
-      return pEList;
+      pik_elem_free(p, pObj);
+      return pList;
     }
-    pEList->nAlloc = nNew;
-    pEList->a = pNew;
+    pList->nAlloc = nNew;
+    pList->a = pNew;
   }
-  pEList->a[pEList->n++] = pElem;
-  p->list = pEList;
-  return pEList;
+  pList->a[pList->n++] = pObj;
+  p->list = pList;
+  return pList;
 }
 
-/* Convert an element class name into a PClass pointer
+/* Convert an object class name into a PClass pointer
 */
 static const PClass *pik_find_class(PToken *pId){
   int first = 0;
@@ -5071,15 +5136,15 @@ static const PClass *pik_find_class(PToken *pId){
   return 0;
 }
 
-/* Allocate and return a new PElem object.
+/* Allocate and return a new PObj object.
 **
-** If pId!=0 then pId is an identifier that defines the element class.
+** If pId!=0 then pId is an identifier that defines the object class.
 ** If pStr!=0 then it is a STRING literal that defines a text object.
 ** If pSublist!=0 then this is a [...] object. If all three parameters
 ** are NULL then this is a no-op object used to define a PLACENAME.
 */
-static PElem *pik_elem_new(Pik *p, PToken *pId, PToken *pStr,PEList *pSublist){
-  PElem *pNew;
+static PObj *pik_elem_new(Pik *p, PToken *pId, PToken *pStr,PList *pSublist){
+  PObj *pNew;
   int miss = 0;
 
   if( p->nErr ) return 0;
@@ -5097,7 +5162,7 @@ static PElem *pik_elem_new(Pik *p, PToken *pId, PToken *pStr,PEList *pSublist){
     pNew->ptAt.x = pNew->ptAt.y = 0.0;
     pNew->eWith = CP_C;
   }else{
-    PElem *pPrior = p->list->a[p->list->n-1];
+    PObj *pPrior = p->list->a[p->list->n-1];
     pNew->ptAt = pPrior->ptExit;
     switch( p->eDir ){
       default:         pNew->eWith = CP_W;   break;
@@ -5140,7 +5205,7 @@ static PElem *pik_elem_new(Pik *p, PToken *pId, PToken *pStr,PEList *pSublist){
       pClass->xInit(p, pNew);
       return pNew;
     }
-    pik_error(p, pId, "unknown element type");
+    pik_error(p, pId, "unknown object type");
     pik_elem_free(p, pNew);
     return 0;
   }
@@ -5150,18 +5215,58 @@ static PElem *pik_elem_new(Pik *p, PToken *pId, PToken *pStr,PEList *pSublist){
 }
 
 /*
-** Set the output direction and exit point for an element.
+** If the ID token in the argument is the name of a macro, return
+** the PMacro object for that macro
 */
-static void pik_elem_set_exit(PElem *pElem, int eDir){
+static PMacro *pik_find_macro(Pik *p, PToken *pId){
+  PMacro *pMac;
+  for(pMac = p->pMacros; pMac; pMac=pMac->pNext){
+    if( pMac->macroName.n==pId->n
+     && strncmp(pMac->macroName.z,pId->z,pId->n)==0
+    ){
+      return pMac;
+    }
+  }
+  return 0;
+}
+
+/* Add a new macro
+*/
+static void pik_add_macro(
+  Pik *p,          /* Current Pikchr diagram */
+  PToken *pId,     /* The ID token that defines the macro name */
+  PToken *pCode    /* Macro body inside of {...} */
+){
+  PMacro *pNew = pik_find_macro(p, pId);
+  if( pNew==0 ){
+    pNew = malloc( sizeof(*pNew) );
+    if( pNew==0 ){
+      pik_error(p, 0, 0);
+      return;
+    }
+    pNew->pNext = p->pMacros;
+    p->pMacros = pNew;
+    pNew->macroName = *pId;
+  }
+  pNew->macroBody.z = pCode->z+1;
+  pNew->macroBody.n = pCode->n-2;
+  pNew->inUse = 0;
+}
+
+
+/*
+** Set the output direction and exit point for an object
+*/
+static void pik_elem_set_exit(PObj *pObj, int eDir){
   assert( ValidDir(eDir) );
-  pElem->outDir = eDir;
-  if( !pElem->type->isLine || pElem->bClose ){
-    pElem->ptExit = pElem->ptAt;
-    switch( pElem->outDir ){
-      default:         pElem->ptExit.x += pElem->w*0.5;  break;
-      case DIR_LEFT:   pElem->ptExit.x -= pElem->w*0.5;  break;
-      case DIR_UP:     pElem->ptExit.y += pElem->h*0.5;  break;
-      case DIR_DOWN:   pElem->ptExit.y -= pElem->h*0.5;  break;
+  pObj->outDir = eDir;
+  if( !pObj->type->isLine || pObj->bClose ){
+    pObj->ptExit = pObj->ptAt;
+    switch( pObj->outDir ){
+      default:         pObj->ptExit.x += pObj->w*0.5;  break;
+      case DIR_LEFT:   pObj->ptExit.x -= pObj->w*0.5;  break;
+      case DIR_UP:     pObj->ptExit.y += pObj->h*0.5;  break;
+      case DIR_DOWN:   pObj->ptExit.y -= pObj->h*0.5;  break;
     }
   }
 }
@@ -5190,30 +5295,30 @@ static void pik_set_direction(Pik *p, int eDir){
   }
 }
 
-/* Move all coordinates contained within an element (and within its
+/* Move all coordinates contained within an object (and within its
 ** substructure) by dx, dy
 */
-static void pik_elem_move(PElem *pElem, PNum dx, PNum dy){
+static void pik_elem_move(PObj *pObj, PNum dx, PNum dy){
   int i;
-  pElem->ptAt.x += dx;
-  pElem->ptAt.y += dy;
-  pElem->ptEnter.x += dx;
-  pElem->ptEnter.y += dy;
-  pElem->ptExit.x += dx;
-  pElem->ptExit.y += dy;
-  pElem->bbox.ne.x += dx;
-  pElem->bbox.ne.y += dy;
-  pElem->bbox.sw.x += dx;
-  pElem->bbox.sw.y += dy;
-  for(i=0; i<pElem->nPath; i++){
-    pElem->aPath[i].x += dx;
-    pElem->aPath[i].y += dy;
+  pObj->ptAt.x += dx;
+  pObj->ptAt.y += dy;
+  pObj->ptEnter.x += dx;
+  pObj->ptEnter.y += dy;
+  pObj->ptExit.x += dx;
+  pObj->ptExit.y += dy;
+  pObj->bbox.ne.x += dx;
+  pObj->bbox.ne.y += dy;
+  pObj->bbox.sw.x += dx;
+  pObj->bbox.sw.y += dy;
+  for(i=0; i<pObj->nPath; i++){
+    pObj->aPath[i].x += dx;
+    pObj->aPath[i].y += dy;
   }
-  if( pElem->pSublist ){
-    pik_elist_move(pElem->pSublist, dx, dy);
+  if( pObj->pSublist ){
+    pik_elist_move(pObj->pSublist, dx, dy);
   }
 }
-static void pik_elist_move(PEList *pList, PNum dx, PNum dy){
+static void pik_elist_move(PList *pList, PNum dx, PNum dy){
   int i;
   for(i=0; i<pList->n; i++){
     pik_elem_move(pList->a[i], dx, dy);
@@ -5225,27 +5330,27 @@ static void pik_elist_move(PEList *pList, PNum dx, PNum dy){
 ** Return 0 if it is ok. If it not ok, generate an appropriate
 ** error message and return non-zero.
 **
-** Flags are set in pElem so that the same element or conflicting
-** elements may not be set again.
+** Flags are set in pObj so that the same object or conflicting
+** objects may not be set again.
 **
 ** To be ok, bit mThis must be clear and no more than one of
 ** the bits identified by mBlockers may be set.
 */
 static int pik_param_ok(
   Pik *p,             /* For storing the error message (if any) */
-  PElem *pElem,       /* The element under construction */
+  PObj *pObj,       /* The object under construction */
   PToken *pId,        /* Make the error point to this token */
   int mThis           /* Value we are trying to set */
 ){
-  if( pElem->mProp & mThis ){
+  if( pObj->mProp & mThis ){
     pik_error(p, pId, "value is already set");
     return 1;
   }
-  if( pElem->mCalc & mThis ){
+  if( pObj->mCalc & mThis ){
     pik_error(p, pId, "value already fixed by prior constraints");
     return 1;
   }
-  pElem->mProp |= mThis;
+  pObj->mProp |= mThis;
   return 0;
 }
 
@@ -5257,31 +5362,31 @@ static int pik_param_ok(
 ** a relative value by which to change the current value.
 */
 void pik_set_numprop(Pik *p, PToken *pId, PRel *pVal){
-  PElem *pElem = p->cur;
+  PObj *pObj = p->cur;
   switch( pId->eType ){
     case T_HEIGHT:
-      if( pik_param_ok(p, pElem, pId, A_HEIGHT) ) return;
-      pElem->h = pElem->h*pVal->rRel + pVal->rAbs;
+      if( pik_param_ok(p, pObj, pId, A_HEIGHT) ) return;
+      pObj->h = pObj->h*pVal->rRel + pVal->rAbs;
       break;
     case T_WIDTH:
-      if( pik_param_ok(p, pElem, pId, A_WIDTH) ) return;
-      pElem->w = pElem->w*pVal->rRel + pVal->rAbs;
+      if( pik_param_ok(p, pObj, pId, A_WIDTH) ) return;
+      pObj->w = pObj->w*pVal->rRel + pVal->rAbs;
       break;
     case T_RADIUS:
-      if( pik_param_ok(p, pElem, pId, A_RADIUS) ) return;
-      pElem->rad = pElem->rad*pVal->rRel + pVal->rAbs;
+      if( pik_param_ok(p, pObj, pId, A_RADIUS) ) return;
+      pObj->rad = pObj->rad*pVal->rRel + pVal->rAbs;
       break;
     case T_DIAMETER:
-      if( pik_param_ok(p, pElem, pId, A_RADIUS) ) return;
-      pElem->rad = pElem->rad*pVal->rRel + 0.5*pVal->rAbs; /* diam it 2x rad */
+      if( pik_param_ok(p, pObj, pId, A_RADIUS) ) return;
+      pObj->rad = pObj->rad*pVal->rRel + 0.5*pVal->rAbs; /* diam it 2x rad */
       break;
     case T_THICKNESS:
-      if( pik_param_ok(p, pElem, pId, A_THICKNESS) ) return;
-      pElem->sw = pElem->sw*pVal->rRel + pVal->rAbs;
+      if( pik_param_ok(p, pObj, pId, A_THICKNESS) ) return;
+      pObj->sw = pObj->sw*pVal->rRel + pVal->rAbs;
       break;
   }
-  if( pElem->type->xNumProp ){
-    pElem->type->xNumProp(p, pElem, pId);
+  if( pObj->type->xNumProp ){
+    pObj->type->xNumProp(p, pObj, pId);
   }
   return;
 }
@@ -5290,19 +5395,19 @@ void pik_set_numprop(Pik *p, PToken *pId, PRel *pVal){
 ** Set a color property.  The argument is an RGB value.
 */
 void pik_set_clrprop(Pik *p, PToken *pId, PNum rClr){
-  PElem *pElem = p->cur;
+  PObj *pObj = p->cur;
   switch( pId->eType ){
     case T_FILL:
-      if( pik_param_ok(p, pElem, pId, A_FILL) ) return;
-      pElem->fill = rClr;
+      if( pik_param_ok(p, pObj, pId, A_FILL) ) return;
+      pObj->fill = rClr;
       break;
     case T_COLOR:
-      if( pik_param_ok(p, pElem, pId, A_COLOR) ) return;
-      pElem->color = rClr;
+      if( pik_param_ok(p, pObj, pId, A_COLOR) ) return;
+      pObj->color = rClr;
       break;
   }
-  if( pElem->type->xNumProp ){
-    pElem->type->xNumProp(p, pElem, pId);
+  if( pObj->type->xNumProp ){
+    pObj->type->xNumProp(p, pObj, pId);
   }
   return;
 }
@@ -5314,19 +5419,19 @@ void pik_set_clrprop(Pik *p, PToken *pId, PNum rClr){
 ** a default.
 */
 void pik_set_dashed(Pik *p, PToken *pId, PNum *pVal){
-  PElem *pElem = p->cur;
+  PObj *pObj = p->cur;
   PNum v;
   switch( pId->eType ){
     case T_DOTTED:  {
       v = pVal==0 ? pik_value(p,"dashwid",7,0) : *pVal;
-      pElem->dotted = v;
-      pElem->dashed = 0.0;
+      pObj->dotted = v;
+      pObj->dashed = 0.0;
       break;
     }
     case T_DASHED:  {
       v = pVal==0 ? pik_value(p,"dashwid",7,0) : *pVal;
-      pElem->dashed = v;
-      pElem->dotted = 0.0;
+      pObj->dashed = v;
+      pObj->dotted = 0.0;
       break;
     }
   }
@@ -5348,14 +5453,14 @@ static void pik_reset_samepath(Pik *p){
 ** the information in the ptTo field over onto the path and into ptFrom
 ** resetting the ptTo.
 */
-static void pik_then(Pik *p, PToken *pToken, PElem *pElem){
+static void pik_then(Pik *p, PToken *pToken, PObj *pObj){
   int n;
-  if( !pElem->type->isLine ){
+  if( !pObj->type->isLine ){
     pik_error(p, pToken, "use with line-oriented objects only");
     return;
   }
   n = p->nTPath - 1;
-  if( n<1 && (pElem->mProp & A_FROM)==0 ){
+  if( n<1 && (pObj->mProp & A_FROM)==0 ){
     pik_error(p, pToken, "no prior path points");
     return;
   }
@@ -5377,18 +5482,18 @@ static int pik_next_rpath(Pik *p, PToken *pErr){
   return n;
 }
 
-/* Add a direction term to an element.  "up 0.5", or "left 3", or "down"
+/* Add a direction term to an object.  "up 0.5", or "left 3", or "down"
 ** or "down 50%".
 */
 static void pik_add_direction(Pik *p, PToken *pDir, PRel *pVal){
-  PElem *pElem = p->cur;
+  PObj *pObj = p->cur;
   int n;
   int dir;
-  if( !pElem->type->isLine ){
+  if( !pObj->type->isLine ){
     if( pDir ){
       pik_error(p, pDir, "use with line-oriented objects only");
     }else{
-      PToken x = pik_next_semantic_token(&pElem->errTok);
+      PToken x = pik_next_semantic_token(&pObj->errTok);
       pik_error(p, &x, "syntax error");
     }
     return;
@@ -5403,26 +5508,26 @@ static void pik_add_direction(Pik *p, PToken *pDir, PRel *pVal){
   switch( dir ){
     case DIR_UP:
        if( p->mTPath & 2 ) n = pik_next_rpath(p, pDir);
-       p->aTPath[n].y += pVal->rAbs + pElem->h*pVal->rRel;
+       p->aTPath[n].y += pVal->rAbs + pObj->h*pVal->rRel;
        p->mTPath |= 2;
        break;
     case DIR_DOWN:
        if( p->mTPath & 2 ) n = pik_next_rpath(p, pDir);
-       p->aTPath[n].y -= pVal->rAbs + pElem->h*pVal->rRel;
+       p->aTPath[n].y -= pVal->rAbs + pObj->h*pVal->rRel;
        p->mTPath |= 2;
        break;
     case DIR_RIGHT:
        if( p->mTPath & 1 ) n = pik_next_rpath(p, pDir);
-       p->aTPath[n].x += pVal->rAbs + pElem->w*pVal->rRel;
+       p->aTPath[n].x += pVal->rAbs + pObj->w*pVal->rRel;
        p->mTPath |= 1;
        break;
     case DIR_LEFT:
        if( p->mTPath & 1 ) n = pik_next_rpath(p, pDir);
-       p->aTPath[n].x -= pVal->rAbs + pElem->w*pVal->rRel;
+       p->aTPath[n].x -= pVal->rAbs + pObj->w*pVal->rRel;
        p->mTPath |= 1;
        break;
   }
-  pElem->outDir = dir;
+  pObj->outDir = dir;
 }
 
 /* Process a movement attribute of one of these forms:
@@ -5439,10 +5544,10 @@ static void pik_move_hdg(
   PToken *pEdgept,     /* EDGEPT keyword "ne", "sw", etc... */
   PToken *pErr         /* Token to use for error messages */
 ){
-  PElem *pElem = p->cur;
+  PObj *pObj = p->cur;
   int n;
   PNum rDist = pDist->rAbs + pik_value(p,"linewid",7,0)*pDist->rRel;
-  if( !pElem->type->isLine ){
+  if( !pObj->type->isLine ){
     pik_error(p, pErr, "use with line-oriented objects only");
     return;
   }
@@ -5462,15 +5567,15 @@ static void pik_move_hdg(
     rHdg = pik_hdg_angle[pEdgept->eEdge];
   }
   if( rHdg<=45.0 ){
-    pElem->outDir = DIR_UP;
+    pObj->outDir = DIR_UP;
   }else if( rHdg<=135.0 ){
-    pElem->outDir = DIR_RIGHT;
+    pObj->outDir = DIR_RIGHT;
   }else if( rHdg<=225.0 ){
-    pElem->outDir = DIR_DOWN;
+    pObj->outDir = DIR_DOWN;
   }else if( rHdg<=315.0 ){
-    pElem->outDir = DIR_LEFT;
+    pObj->outDir = DIR_LEFT;
   }else{
-    pElem->outDir = DIR_UP;
+    pObj->outDir = DIR_UP;
   }
   rHdg *= 0.017453292519943295769;  /* degrees to radians */
   p->aTPath[n].x += rDist*sin(rHdg);
@@ -5486,9 +5591,9 @@ static void pik_move_hdg(
 ** the point specified by pPoint.
 */
 static void pik_evenwith(Pik *p, PToken *pDir, PPoint *pPlace){
-  PElem *pElem = p->cur;
+  PObj *pObj = p->cur;
   int n;
-  if( !pElem->type->isLine ){
+  if( !pObj->type->isLine ){
     pik_error(p, pDir, "use with line-oriented objects only");
     return;
   }
@@ -5512,21 +5617,21 @@ static void pik_evenwith(Pik *p, PToken *pDir, PPoint *pPlace){
        p->mTPath |= 1;
        break;
   }
-  pElem->outDir = pDir->eCode;
+  pObj->outDir = pDir->eCode;
 }
 
-/* Set the "from" of an element
+/* Set the "from" of an object
 */
-static void pik_set_from(Pik *p, PElem *pElem, PToken *pTk, PPoint *pPt){
-  if( !pElem->type->isLine ){
+static void pik_set_from(Pik *p, PObj *pObj, PToken *pTk, PPoint *pPt){
+  if( !pObj->type->isLine ){
     pik_error(p, pTk, "use \"at\" to position this object");
     return;
   }
-  if( pElem->mProp & A_FROM ){
+  if( pObj->mProp & A_FROM ){
     pik_error(p, pTk, "line start location already fixed");
     return;
   }
-  if( pElem->bClose ){
+  if( pObj->bClose ){
     pik_error(p, pTk, "polygon is closed");
     return;
   }
@@ -5541,18 +5646,18 @@ static void pik_set_from(Pik *p, PElem *pElem, PToken *pTk, PPoint *pPt){
   }
   p->aTPath[0] = *pPt;
   p->mTPath = 3;
-  pElem->mProp |= A_FROM;
+  pObj->mProp |= A_FROM;
 }
 
-/* Set the "to" of an element
+/* Set the "to" of an object
 */
-static void pik_add_to(Pik *p, PElem *pElem, PToken *pTk, PPoint *pPt){
+static void pik_add_to(Pik *p, PObj *pObj, PToken *pTk, PPoint *pPt){
   int n = p->nTPath-1;
-  if( !pElem->type->isLine ){
+  if( !pObj->type->isLine ){
     pik_error(p, pTk, "use \"at\" to position this object");
     return;
   }
-  if( pElem->bClose ){
+  if( pObj->bClose ){
     pik_error(p, pTk, "polygon is closed");
     return;
   }
@@ -5564,61 +5669,66 @@ static void pik_add_to(Pik *p, PElem *pElem, PToken *pTk, PPoint *pPt){
 }
 
 static void pik_close_path(Pik *p, PToken *pErr){
-  PElem *pElem = p->cur;
+  PObj *pObj = p->cur;
   if( p->nTPath<3 ){
     pik_error(p, pErr,
       "need at least 3 vertexes in order to close the polygon");
     return;
   }
-  if( pElem->bClose ){
+  if( pObj->bClose ){
     pik_error(p, pErr, "polygon already closed");
     return;
   }
-  pElem->bClose = 1;
+  pObj->bClose = 1;
 }
 
-/* Lower the layer of the current element so that it is behind the
-** given element.
+/* Lower the layer of the current object so that it is behind the
+** given object.
 */
-static void pik_behind(Pik *p, PElem *pOther){
-  PElem *pElem = p->cur;
-  if( p->nErr==0 && pElem->iLayer>=pOther->iLayer ){
-    pElem->iLayer = pOther->iLayer - 1;
+static void pik_behind(Pik *p, PObj *pOther){
+  PObj *pObj = p->cur;
+  if( p->nErr==0 && pObj->iLayer>=pOther->iLayer ){
+    pObj->iLayer = pOther->iLayer - 1;
   }
 }
 
 
-/* Set the "at" of an element
+/* Set the "at" of an object
 */
 static void pik_set_at(Pik *p, PToken *pEdge, PPoint *pAt, PToken *pErrTok){
-  PElem *pElem;
+  PObj *pObj;
+  static unsigned char eDirToCp[] = { CP_E, CP_S, CP_W, CP_N };
   if( p->nErr ) return;
-  pElem = p->cur;
+  pObj = p->cur;
 
-  if( pElem->type->isLine ){
+  if( pObj->type->isLine ){
     pik_error(p, pErrTok, "use \"from\" and \"to\" to position this object");
     return;
   }
-  if( pElem->mProp & A_AT ){
+  if( pObj->mProp & A_AT ){
     pik_error(p, pErrTok, "location fixed by prior \"at\"");
     return;
   }
-  pElem->mProp |= A_AT;
-  pElem->eWith = pEdge ? pEdge->eEdge : CP_C;
-  pElem->with = *pAt;
+  pObj->mProp |= A_AT;
+  pObj->eWith = pEdge ? pEdge->eEdge : CP_C;
+  if( pObj->eWith>=CP_END ){
+    int dir = pObj->eWith==CP_END ? pObj->outDir : pObj->inDir;
+    pObj->eWith = eDirToCp[dir];
+  }
+  pObj->with = *pAt;
 }
 
 /*
-** Try to add a text attribute to an element
+** Try to add a text attribute to an object
 */
 static void pik_add_txt(Pik *p, PToken *pTxt, int iPos){
-  PElem *pElem = p->cur;
+  PObj *pObj = p->cur;
   PToken *pT;
-  if( pElem->nTxt >= count(pElem->aTxt) ){
+  if( pObj->nTxt >= count(pObj->aTxt) ){
     pik_error(p, pTxt, "too many text terms");
     return;
   }
-  pT = &pElem->aTxt[pElem->nTxt++];
+  pT = &pObj->aTxt[pObj->nTxt++];
   *pT = *pTxt;
   pT->eCode = iPos;
 }
@@ -5815,25 +5925,32 @@ static int pik_text_length(const PToken *pToken){
 **        "width 1in fit" might cause the height to change, but the
 **        width is now set.
 **    (5) This only works for attributes that have an xFit method.
+**
+** The eWhich parameter is:
+**
+**    1:   Fit horizontally only
+**    2:   Fit vertically only
+**    3:   Fit both ways
 */
-static void pik_size_to_fit(Pik *p, PToken *pFit){
-  PElem *pElem;
+static void pik_size_to_fit(Pik *p, PToken *pFit, int eWhich){
+  PObj *pObj;
   PNum w, h;
   PBox bbox;
   if( p->nErr ) return;
-  pElem = p->cur;
+  pObj = p->cur;
 
-  if( pElem->nTxt==0 ){
+  if( pObj->nTxt==0 ){
     pik_error(0, pFit, "no text to fit to");
     return;
   }
-  if( pElem->type->xFit==0 ) return;
+  if( pObj->type->xFit==0 ) return;
   pik_bbox_init(&bbox);
   pik_compute_layout_settings(p);
-  pik_append_txt(p, pElem, &bbox);
-  w = (bbox.ne.x - bbox.sw.x) + p->charWidth;
-  h = (bbox.ne.y - bbox.sw.y) + 0.5*p->charHeight;
-  pElem->type->xFit(p, pElem, w, h);
+  pik_append_txt(p, pObj, &bbox);
+  w = (eWhich & 1)!=0 ? (bbox.ne.x - bbox.sw.x) + p->charWidth : 0;
+  h = (eWhich & 2)!=0 ? (bbox.ne.y - bbox.sw.y) + 0.5*p->charHeight : 0;
+  pObj->type->xFit(p, pObj, w, h);
+  pObj->mProp |= A_FIT;
 }
 
 /* Set a local variable name to "val".
@@ -5990,11 +6107,11 @@ static short int pik_nth_value(Pik *p, PToken *pNth){
   return i;
 }
 
-/* Search for the NTH element.
+/* Search for the NTH object.
 **
-** If pBasis is not NULL then it should be a [] element.  Use the
-** sublist of that [] element for the search.  If pBasis is not a []
-** element, then throw an error.
+** If pBasis is not NULL then it should be a [] object.  Use the
+** sublist of that [] object for the search.  If pBasis is not a []
+** object, then throw an error.
 **
 ** The pNth token describes the N-th search.  The pNth->eCode value
 ** is one more than the number of items to skip.  It is negative
@@ -6005,8 +6122,8 @@ static short int pik_nth_value(Pik *p, PToken *pNth){
 **
 ** Raise an error if the item is not found.
 */
-static PElem *pik_find_nth(Pik *p, PElem *pBasis, PToken *pNth){
-  PEList *pList;
+static PObj *pik_find_nth(Pik *p, PObj *pBasis, PToken *pNth){
+  PList *pList;
   int i, n;
   const PClass *pClass;
   if( pBasis==0 ){
@@ -6032,30 +6149,30 @@ static PElem *pik_find_nth(Pik *p, PElem *pBasis, PToken *pNth){
   n = pNth->eCode;
   if( n<0 ){
     for(i=pList->n-1; i>=0; i--){
-      PElem *pElem = pList->a[i];
-      if( pClass && pElem->type!=pClass ) continue;
+      PObj *pObj = pList->a[i];
+      if( pClass && pObj->type!=pClass ) continue;
       n++;
-      if( n==0 ){ return pElem; }
+      if( n==0 ){ return pObj; }
     }
   }else{
     for(i=0; i<pList->n; i++){
-      PElem *pElem = pList->a[i];
-      if( pClass && pElem->type!=pClass ) continue;
+      PObj *pObj = pList->a[i];
+      if( pClass && pObj->type!=pClass ) continue;
       n--;
-      if( n==0 ){ return pElem; }
+      if( n==0 ){ return pObj; }
     }
   }
   pik_error(p, pNth, "no such object");
   return 0;
 }
 
-/* Search for an element by name.
+/* Search for an object by name.
 **
 ** Search in pBasis->pSublist if pBasis is not NULL.  If pBasis is NULL
 ** then search in p->list.
 */
-static PElem *pik_find_byname(Pik *p, PElem *pBasis, PToken *pName){
-  PEList *pList;
+static PObj *pik_find_byname(Pik *p, PObj *pBasis, PToken *pName){
+  PList *pList;
   int i, j;
   if( pBasis==0 ){
     pList = p->list;
@@ -6068,19 +6185,19 @@ static PElem *pik_find_byname(Pik *p, PElem *pBasis, PToken *pName){
   }
   /* First look explicitly tagged objects */
   for(i=pList->n-1; i>=0; i--){
-    PElem *pElem = pList->a[i];
-    if( pElem->zName && pik_token_eq(pName,pElem->zName)==0 ){
-      return pElem;
+    PObj *pObj = pList->a[i];
+    if( pObj->zName && pik_token_eq(pName,pObj->zName)==0 ){
+      return pObj;
     }
   }
   /* If not found, do a second pass looking for any object containing
   ** text which exactly matches pName */
   for(i=pList->n-1; i>=0; i--){
-    PElem *pElem = pList->a[i];
-    for(j=0; j<pElem->nTxt; j++){
-      if( pElem->aTxt[j].n==pName->n+2
-       && memcmp(pElem->aTxt[j].z+1,pName->z,pName->n)==0 ){
-        return pElem;
+    PObj *pObj = pList->a[i];
+    for(j=0; j<pObj->nTxt; j++){
+      if( pObj->aTxt[j].n==pName->n+2
+       && memcmp(pObj->aTxt[j].z+1,pName->z,pName->n)==0 ){
+        return pObj;
       }
     }
   }
@@ -6089,24 +6206,24 @@ static PElem *pik_find_byname(Pik *p, PElem *pBasis, PToken *pName){
 }
 
 /* Change most of the settings for the current object to be the
-** same as the pOther object, or the most recent element of the same
+** same as the pOther object, or the most recent object of the same
 ** type if pOther is NULL.
 */
-static void pik_same(Pik *p, PElem *pOther, PToken *pErrTok){
-  PElem *pElem = p->cur;
+static void pik_same(Pik *p, PObj *pOther, PToken *pErrTok){
+  PObj *pObj = p->cur;
   if( p->nErr ) return;
   if( pOther==0 ){
     int i;
     for(i=(p->list ? p->list->n : 0)-1; i>=0; i--){
       pOther = p->list->a[i];
-      if( pOther->type==pElem->type ) break;
+      if( pOther->type==pObj->type ) break;
     }
     if( i<0 ){
       pik_error(p, pErrTok, "no prior objects of the same type");
       return;
     }
   }
-  if( pOther->nPath && pElem->type->isLine ){
+  if( pOther->nPath && pObj->type->isLine ){
     PNum dx, dy;
     int i;
     dx = p->aTPath[0].x - pOther->aPath[0].x;
@@ -6119,49 +6236,49 @@ static void pik_same(Pik *p, PElem *pOther, PToken *pErrTok){
     p->mTPath = 3;
     p->samePath = 1;
   }
-  if( !pElem->type->isLine ){
-    pElem->w = pOther->w;
-    pElem->h = pOther->h;
+  if( !pObj->type->isLine ){
+    pObj->w = pOther->w;
+    pObj->h = pOther->h;
   }
-  pElem->rad = pOther->rad;
-  pElem->sw = pOther->sw;
-  pElem->dashed = pOther->dashed;
-  pElem->dotted = pOther->dotted;
-  pElem->fill = pOther->fill;
-  pElem->color = pOther->color;
-  pElem->cw = pOther->cw;
-  pElem->larrow = pOther->larrow;
-  pElem->rarrow = pOther->rarrow;
-  pElem->bClose = pOther->bClose;
-  pElem->bChop = pOther->bChop;
-  pElem->inDir = pOther->inDir;
-  pElem->outDir = pOther->outDir;
-  pElem->iLayer = pOther->iLayer;
+  pObj->rad = pOther->rad;
+  pObj->sw = pOther->sw;
+  pObj->dashed = pOther->dashed;
+  pObj->dotted = pOther->dotted;
+  pObj->fill = pOther->fill;
+  pObj->color = pOther->color;
+  pObj->cw = pOther->cw;
+  pObj->larrow = pOther->larrow;
+  pObj->rarrow = pOther->rarrow;
+  pObj->bClose = pOther->bClose;
+  pObj->bChop = pOther->bChop;
+  pObj->inDir = pOther->inDir;
+  pObj->outDir = pOther->outDir;
+  pObj->iLayer = pOther->iLayer;
 }
 
 
-/* Return a "Place" associated with element pElem.  If pEdge is NULL
+/* Return a "Place" associated with object pObj.  If pEdge is NULL
 ** return the center of the object.  Otherwise, return the corner
 ** described by pEdge.
 */
-static PPoint pik_place_of_elem(Pik *p, PElem *pElem, PToken *pEdge){
+static PPoint pik_place_of_elem(Pik *p, PObj *pObj, PToken *pEdge){
   PPoint pt = cZeroPoint;
   const PClass *pClass;
-  if( pElem==0 ) return pt;
+  if( pObj==0 ) return pt;
   if( pEdge==0 ){
-    return pElem->ptAt;
+    return pObj->ptAt;
   }
-  pClass = pElem->type;
+  pClass = pObj->type;
   if( pEdge->eType==T_EDGEPT || (pEdge->eEdge>0 && pEdge->eEdge<CP_END) ){
-    pt = pClass->xOffset(p, pElem, pEdge->eEdge);
-    pt.x += pElem->ptAt.x;
-    pt.y += pElem->ptAt.y;
+    pt = pClass->xOffset(p, pObj, pEdge->eEdge);
+    pt.x += pObj->ptAt.x;
+    pt.y += pObj->ptAt.y;
     return pt;
   }
   if( pEdge->eType==T_START ){
-    return pElem->ptEnter;
+    return pObj->ptEnter;
   }else{
-    return pElem->ptExit;
+    return pObj->ptExit;
   }
 }
 
@@ -6194,7 +6311,7 @@ static PPoint pik_position_at_hdg(PNum dist, PToken *pD, PPoint pt){
 
 /* Return the coordinates for the n-th vertex of a line.
 */
-static PPoint pik_nth_vertex(Pik *p, PToken *pNth, PToken *pErr, PElem *pObj){
+static PPoint pik_nth_vertex(Pik *p, PToken *pNth, PToken *pErr, PObj *pObj){
   static const PPoint zero;
   int n;
   if( p->nErr || pObj==0 ) return p->aTPath[0];
@@ -6212,24 +6329,24 @@ static PPoint pik_nth_vertex(Pik *p, PToken *pNth, PToken *pErr, PElem *pObj){
 
 /* Return the value of a property of an object.
 */
-static PNum pik_property_of(PElem *pElem, PToken *pProp){
+static PNum pik_property_of(PObj *pObj, PToken *pProp){
   PNum v = 0.0;
   switch( pProp->eType ){
-    case T_HEIGHT:    v = pElem->h;            break;
-    case T_WIDTH:     v = pElem->w;            break;
-    case T_RADIUS:    v = pElem->rad;          break;
-    case T_DIAMETER:  v = pElem->rad*2.0;      break;
-    case T_THICKNESS: v = pElem->sw;           break;
-    case T_DASHED:    v = pElem->dashed;       break;
-    case T_DOTTED:    v = pElem->dotted;       break;
-    case T_FILL:      v = pElem->fill;         break;
-    case T_COLOR:     v = pElem->color;        break;
-    case T_X:         v = pElem->ptAt.x;       break;
-    case T_Y:         v = pElem->ptAt.y;       break;
-    case T_TOP:       v = pElem->bbox.ne.y;    break;
-    case T_BOTTOM:    v = pElem->bbox.sw.y;    break;
-    case T_LEFT:      v = pElem->bbox.sw.x;    break;
-    case T_RIGHT:     v = pElem->bbox.ne.x;    break;
+    case T_HEIGHT:    v = pObj->h;            break;
+    case T_WIDTH:     v = pObj->w;            break;
+    case T_RADIUS:    v = pObj->rad;          break;
+    case T_DIAMETER:  v = pObj->rad*2.0;      break;
+    case T_THICKNESS: v = pObj->sw;           break;
+    case T_DASHED:    v = pObj->dashed;       break;
+    case T_DOTTED:    v = pObj->dotted;       break;
+    case T_FILL:      v = pObj->fill;         break;
+    case T_COLOR:     v = pObj->color;        break;
+    case T_X:         v = pObj->ptAt.x;       break;
+    case T_Y:         v = pObj->ptAt.y;       break;
+    case T_TOP:       v = pObj->bbox.ne.y;    break;
+    case T_BOTTOM:    v = pObj->bbox.sw.y;    break;
+    case T_LEFT:      v = pObj->bbox.sw.x;    break;
+    case T_RIGHT:     v = pObj->bbox.ne.x;    break;
   }
   return v;
 }
@@ -6258,18 +6375,18 @@ static PNum pik_func(Pik *p, PToken *pFunc, PNum x, PNum y){
   return v;
 }
 
-/* Attach a name to an element
+/* Attach a name to an object
 */
-static void pik_elem_setname(Pik *p, PElem *pElem, PToken *pName){
-  if( pElem==0 ) return;
+static void pik_elem_setname(Pik *p, PObj *pObj, PToken *pName){
+  if( pObj==0 ) return;
   if( pName==0 ) return;
-  free(pElem->zName);
-  pElem->zName = malloc(pName->n+1);
-  if( pElem->zName==0 ){
+  free(pObj->zName);
+  pObj->zName = malloc(pName->n+1);
+  if( pObj->zName==0 ){
     pik_error(p,0,0);
   }else{
-    memcpy(pElem->zName,pName->z,pName->n);
-    pElem->zName[pName->n] = 0;
+    memcpy(pObj->zName,pName->z,pName->n);
+    pObj->zName[pName->n] = 0;
   }
   return;
 }
@@ -6278,19 +6395,19 @@ static void pik_elem_setname(Pik *p, PElem *pElem, PToken *pName){
 ** Search for object located at *pCenter that has an xChop method.
 ** Return a pointer to the object, or NULL if not found.
 */
-static PElem *pik_find_chopper(PEList *pList, PPoint *pCenter){
+static PObj *pik_find_chopper(PList *pList, PPoint *pCenter){
   int i;
   if( pList==0 ) return 0;
   for(i=pList->n-1; i>=0; i--){
-    PElem *pElem = pList->a[i];
-    if( pElem->type->xChop!=0
-     && pElem->ptAt.x==pCenter->x
-     && pElem->ptAt.y==pCenter->y
+    PObj *pObj = pList->a[i];
+    if( pObj->type->xChop!=0
+     && pObj->ptAt.x==pCenter->x
+     && pObj->ptAt.y==pCenter->y
     ){
-      return pElem;
-    }else if( pElem->pSublist ){
-      pElem = pik_find_chopper(pElem->pSublist,pCenter);
-      if( pElem ) return pElem;
+      return pObj;
+    }else if( pObj->pSublist ){
+      pObj = pik_find_chopper(pObj->pSublist,pCenter);
+      if( pObj ) return pObj;
     }
   }
   return 0;
@@ -6304,76 +6421,95 @@ static PElem *pik_find_chopper(PEList *pList, PPoint *pCenter){
 ** of pFrom.
 */
 static void pik_autochop(Pik *p, PPoint *pFrom, PPoint *pTo){
-  PElem *pElem = pik_find_chopper(p->list, pTo);
-  if( pElem ){
-    *pTo = pElem->type->xChop(p, pElem, pFrom);
+  PObj *pObj = pik_find_chopper(p->list, pTo);
+  if( pObj ){
+    *pTo = pObj->type->xChop(p, pObj, pFrom);
   }
 }
 
 /* This routine runs after all attributes have been received
-** on an element.
+** on an object.
 */
-static void pik_after_adding_attributes(Pik *p, PElem *pElem){
+static void pik_after_adding_attributes(Pik *p, PObj *pObj){
   int i;
   PPoint ofst;
   PNum dx, dy;
 
   if( p->nErr ) return;
 
-  /* Position block elements */
-  if( pElem->type->isLine==0 ){
-    ofst = pik_elem_offset(p, pElem, pElem->eWith);
-    dx = (pElem->with.x - ofst.x) - pElem->ptAt.x;
-    dy = (pElem->with.y - ofst.y) - pElem->ptAt.y;
+  /* Position block objects */
+  if( pObj->type->isLine==0 ){
+    /* A height or width less than or equal to zero means "autofit".
+    ** Change the height or width to be big enough to contain the text,
+    */
+    if( pObj->h<=0.0 ){
+      if( pObj->nTxt==0 ){
+        pObj->h = 0.0;
+      }else if( pObj->w<=0.0 ){
+        pik_size_to_fit(p, &pObj->errTok, 3);
+      }else{
+        pik_size_to_fit(p, &pObj->errTok, 2);
+      }
+    }
+    if( pObj->w<=0.0 ){
+      if( pObj->nTxt==0 ){
+        pObj->w = 0.0;
+      }else{
+        pik_size_to_fit(p, &pObj->errTok, 1);
+      }
+    }
+    ofst = pik_elem_offset(p, pObj, pObj->eWith);
+    dx = (pObj->with.x - ofst.x) - pObj->ptAt.x;
+    dy = (pObj->with.y - ofst.y) - pObj->ptAt.y;
     if( dx!=0 || dy!=0 ){
-      pik_elem_move(pElem, dx, dy);
+      pik_elem_move(pObj, dx, dy);
     }
   }
 
   /* For a line object with no movement specified, a single movement
   ** of the default length in the current direction
   */
-  if( pElem->type->isLine && p->nTPath<2 ){
+  if( pObj->type->isLine && p->nTPath<2 ){
     pik_next_rpath(p, 0);
     assert( p->nTPath==2 );
-    switch( pElem->inDir ){
-      default:        p->aTPath[1].x += pElem->w; break;
-      case DIR_DOWN:  p->aTPath[1].y -= pElem->h; break;
-      case DIR_LEFT:  p->aTPath[1].x -= pElem->w; break;
-      case DIR_UP:    p->aTPath[1].y += pElem->h; break;
+    switch( pObj->inDir ){
+      default:        p->aTPath[1].x += pObj->w; break;
+      case DIR_DOWN:  p->aTPath[1].y -= pObj->h; break;
+      case DIR_LEFT:  p->aTPath[1].x -= pObj->w; break;
+      case DIR_UP:    p->aTPath[1].y += pObj->h; break;
     }
-    if( pElem->type->xInit==arcInit ){
-      p->eDir = pElem->outDir = (pElem->inDir + (pElem->cw ? 1 : 3))%4;
-      switch( pElem->outDir ){
-        default:        p->aTPath[1].x += pElem->w; break;
-        case DIR_DOWN:  p->aTPath[1].y -= pElem->h; break;
-        case DIR_LEFT:  p->aTPath[1].x -= pElem->w; break;
-        case DIR_UP:    p->aTPath[1].y += pElem->h; break;
+    if( pObj->type->xInit==arcInit ){
+      p->eDir = pObj->outDir = (pObj->inDir + (pObj->cw ? 1 : 3))%4;
+      switch( pObj->outDir ){
+        default:        p->aTPath[1].x += pObj->w; break;
+        case DIR_DOWN:  p->aTPath[1].y -= pObj->h; break;
+        case DIR_LEFT:  p->aTPath[1].x -= pObj->w; break;
+        case DIR_UP:    p->aTPath[1].y += pObj->h; break;
       }
     }
   }
 
   /* Initialize the bounding box prior to running xCheck */
-  pik_bbox_init(&pElem->bbox);
+  pik_bbox_init(&pObj->bbox);
 
   /* Run object-specific code */
-  if( pElem->type->xCheck!=0 ){
-    pElem->type->xCheck(p,pElem);
+  if( pObj->type->xCheck!=0 ){
+    pObj->type->xCheck(p,pObj);
     if( p->nErr ) return;
   }
 
   /* Compute final bounding box, entry and exit points, center
-  ** point (ptAt) and path for the element
+  ** point (ptAt) and path for the object
   */
-  if( pElem->type->isLine ){
-    pElem->aPath = malloc( sizeof(PPoint)*p->nTPath );
-    if( pElem->aPath==0 ){
+  if( pObj->type->isLine ){
+    pObj->aPath = malloc( sizeof(PPoint)*p->nTPath );
+    if( pObj->aPath==0 ){
       pik_error(p, 0, 0);
       return;
     }else{
-      pElem->nPath = p->nTPath;
+      pObj->nPath = p->nTPath;
       for(i=0; i<p->nTPath; i++){
-        pElem->aPath[i] = p->aTPath[i];
+        pObj->aPath[i] = p->aTPath[i];
       }
     }
 
@@ -6381,14 +6517,14 @@ static void pik_after_adding_attributes(Pik *p, PElem *pElem){
     ** If the line goes to the center of an object with an
     ** xChop method, then use the xChop method to trim the line.
     */
-    if( pElem->bChop && pElem->nPath>=2 ){
-      int n = pElem->nPath;
-      pik_autochop(p, &pElem->aPath[n-2], &pElem->aPath[n-1]);
-      pik_autochop(p, &pElem->aPath[1], &pElem->aPath[0]);
+    if( pObj->bChop && pObj->nPath>=2 ){
+      int n = pObj->nPath;
+      pik_autochop(p, &pObj->aPath[n-2], &pObj->aPath[n-1]);
+      pik_autochop(p, &pObj->aPath[1], &pObj->aPath[0]);
     }
 
-    pElem->ptEnter = pElem->aPath[0];
-    pElem->ptExit = pElem->aPath[pElem->nPath-1];
+    pObj->ptEnter = pObj->aPath[0];
+    pObj->ptExit = pObj->aPath[pObj->nPath-1];
 
     /* Compute the center of the line based on the bounding box over
     ** the vertexes.  This is a difference from PIC.  In Pikchr, the
@@ -6396,84 +6532,84 @@ static void pik_after_adding_attributes(Pik *p, PElem *pElem){
     ** center of a line is halfway between its .start and .end.  For
     ** straight lines, this is the same point, but for multi-segment
     ** lines the result is usually diferent */
-    for(i=0; i<pElem->nPath; i++){
-      pik_bbox_add_xy(&pElem->bbox, pElem->aPath[i].x, pElem->aPath[i].y);
+    for(i=0; i<pObj->nPath; i++){
+      pik_bbox_add_xy(&pObj->bbox, pObj->aPath[i].x, pObj->aPath[i].y);
     }
-    pElem->ptAt.x = (pElem->bbox.ne.x + pElem->bbox.sw.x)/2.0;
-    pElem->ptAt.y = (pElem->bbox.ne.y + pElem->bbox.sw.y)/2.0;
+    pObj->ptAt.x = (pObj->bbox.ne.x + pObj->bbox.sw.x)/2.0;
+    pObj->ptAt.y = (pObj->bbox.ne.y + pObj->bbox.sw.y)/2.0;
 
     /* Reset the width and height of the object to be the width and height
     ** of the bounding box over vertexes */
-    pElem->w = pElem->bbox.ne.x - pElem->bbox.sw.x;
-    pElem->h = pElem->bbox.ne.y - pElem->bbox.sw.y;
+    pObj->w = pObj->bbox.ne.x - pObj->bbox.sw.x;
+    pObj->h = pObj->bbox.ne.y - pObj->bbox.sw.y;
 
     /* If this is a polygon (if it has the "close" attribute), then
     ** adjust the exit point */
-    if( pElem->bClose ){
+    if( pObj->bClose ){
       /* For "closed" lines, the .end is one of the .e, .s, .w, or .n
       ** points of the bounding box, as with block objects. */
-      pik_elem_set_exit(pElem, pElem->inDir);
+      pik_elem_set_exit(pObj, pObj->inDir);
     }
   }else{
-    PNum w2 = pElem->w/2.0;
-    PNum h2 = pElem->h/2.0;
-    pElem->ptEnter = pElem->ptAt;
-    pElem->ptExit = pElem->ptAt;
-    switch( pElem->inDir ){
-      default:         pElem->ptEnter.x -= w2;  break;
-      case DIR_LEFT:   pElem->ptEnter.x += w2;  break;
-      case DIR_UP:     pElem->ptEnter.y -= h2;  break;
-      case DIR_DOWN:   pElem->ptEnter.y += h2;  break;
+    PNum w2 = pObj->w/2.0;
+    PNum h2 = pObj->h/2.0;
+    pObj->ptEnter = pObj->ptAt;
+    pObj->ptExit = pObj->ptAt;
+    switch( pObj->inDir ){
+      default:         pObj->ptEnter.x -= w2;  break;
+      case DIR_LEFT:   pObj->ptEnter.x += w2;  break;
+      case DIR_UP:     pObj->ptEnter.y -= h2;  break;
+      case DIR_DOWN:   pObj->ptEnter.y += h2;  break;
     }
-    switch( pElem->outDir ){
-      default:         pElem->ptExit.x += w2;  break;
-      case DIR_LEFT:   pElem->ptExit.x -= w2;  break;
-      case DIR_UP:     pElem->ptExit.y += h2;  break;
-      case DIR_DOWN:   pElem->ptExit.y -= h2;  break;
+    switch( pObj->outDir ){
+      default:         pObj->ptExit.x += w2;  break;
+      case DIR_LEFT:   pObj->ptExit.x -= w2;  break;
+      case DIR_UP:     pObj->ptExit.y += h2;  break;
+      case DIR_DOWN:   pObj->ptExit.y -= h2;  break;
     }
-    pik_bbox_add_xy(&pElem->bbox, pElem->ptAt.x - w2, pElem->ptAt.y - h2);
-    pik_bbox_add_xy(&pElem->bbox, pElem->ptAt.x + w2, pElem->ptAt.y + h2);
+    pik_bbox_add_xy(&pObj->bbox, pObj->ptAt.x - w2, pObj->ptAt.y - h2);
+    pik_bbox_add_xy(&pObj->bbox, pObj->ptAt.x + w2, pObj->ptAt.y + h2);
   }
-  p->eDir = pElem->outDir;
+  p->eDir = pObj->outDir;
 }
 
-/* Show basic information about each element as a comment in the
+/* Show basic information about each object as a comment in the
 ** generated HTML.  Used for testing and debugging.  Activated
 ** by the (undocumented) "debug = 1;"
 ** command.
 */
-static void pik_elem_render(Pik *p, PElem *pElem){
+static void pik_elem_render(Pik *p, PObj *pObj){
   char *zDir;
-  if( pElem==0 ) return;
+  if( pObj==0 ) return;
   pik_append(p,"<!-- ", -1);
-  if( pElem->zName ){
-    pik_append_text(p, pElem->zName, -1, 0);
+  if( pObj->zName ){
+    pik_append_text(p, pObj->zName, -1, 0);
     pik_append(p, ": ", 2);
   }
-  pik_append_text(p, pElem->type->zName, -1, 0);
-  if( pElem->nTxt ){
+  pik_append_text(p, pObj->type->zName, -1, 0);
+  if( pObj->nTxt ){
     pik_append(p, " \"", 2);
-    pik_append_text(p, pElem->aTxt[0].z+1, pElem->aTxt[0].n-2, 1);
+    pik_append_text(p, pObj->aTxt[0].z+1, pObj->aTxt[0].n-2, 1);
     pik_append(p, "\"", 1);
   }
-  pik_append_num(p, " w=", pElem->w);
-  pik_append_num(p, " h=", pElem->h);
-  pik_append_point(p, " center=", &pElem->ptAt);
-  pik_append_point(p, " enter=", &pElem->ptEnter);
-  switch( pElem->outDir ){
+  pik_append_num(p, " w=", pObj->w);
+  pik_append_num(p, " h=", pObj->h);
+  pik_append_point(p, " center=", &pObj->ptAt);
+  pik_append_point(p, " enter=", &pObj->ptEnter);
+  switch( pObj->outDir ){
     default:        zDir = " right";  break;
     case DIR_LEFT:  zDir = " left";   break;
     case DIR_UP:    zDir = " up";     break;
     case DIR_DOWN:  zDir = " down";   break;
   }
-  pik_append_point(p, " exit=", &pElem->ptExit);
+  pik_append_point(p, " exit=", &pObj->ptExit);
   pik_append(p, zDir, -1);
   pik_append(p, " -->\n", -1);
 }
 
-/* Render a list of elements
+/* Render a list of objects
 */
-void pik_elist_render(Pik *p, PEList *pEList){
+void pik_elist_render(Pik *p, PList *pList){
   int i;
   int iNextLayer = 0;
   int iThisLayer;
@@ -6485,23 +6621,23 @@ void pik_elist_render(Pik *p, PEList *pEList){
     bMoreToDo = 0;
     iThisLayer = iNextLayer;
     iNextLayer = 0x7fffffff;
-    for(i=0; i<pEList->n; i++){
-      PElem *pElem = pEList->a[i];
-      if( pElem->iLayer>iThisLayer ){
-        if( pElem->iLayer<iNextLayer ) iNextLayer = pElem->iLayer;
+    for(i=0; i<pList->n; i++){
+      PObj *pObj = pList->a[i];
+      if( pObj->iLayer>iThisLayer ){
+        if( pObj->iLayer<iNextLayer ) iNextLayer = pObj->iLayer;
         bMoreToDo = 1;
         continue; /* Defer until another round */
-      }else if( pElem->iLayer<iThisLayer ){
+      }else if( pObj->iLayer<iThisLayer ){
         continue;
       }
-      void (*xRender)(Pik*,PElem*);
-      if( mDebug & 1 ) pik_elem_render(p, pElem);
-      xRender = pElem->type->xRender;
+      void (*xRender)(Pik*,PObj*);
+      if( mDebug & 1 ) pik_elem_render(p, pObj);
+      xRender = pObj->type->xRender;
       if( xRender ){
-        xRender(p, pElem);
+        xRender(p, pObj);
       }
-      if( pElem->pSublist ){
-        pik_elist_render(p, pElem->pSublist);
+      if( pObj->pSublist ){
+        pik_elist_render(p, pObj->pSublist);
       }
     }
   }while( bMoreToDo );
@@ -6510,7 +6646,7 @@ void pik_elist_render(Pik *p, PEList *pEList){
   ** and paint a dot at every label location */
   colorLabel = pik_value(p, "debug_label_color", 17, &miss);
   if( miss==0 && colorLabel>=0.0 ){
-    PElem dot;
+    PObj dot;
     memset(&dot, 0, sizeof(dot));
     dot.type = &noopClass;
     dot.rad = 0.015;
@@ -6519,37 +6655,37 @@ void pik_elist_render(Pik *p, PEList *pEList){
     dot.color = colorLabel;
     dot.nTxt = 1;
     dot.aTxt[0].eCode = TP_ABOVE;
-    for(i=0; i<pEList->n; i++){
-      PElem *pElem = pEList->a[i];
-      if( pElem->zName==0 ) continue;
-      dot.ptAt = pElem->ptAt;
-      dot.aTxt[0].z = pElem->zName;
-      dot.aTxt[0].n = (int)strlen(pElem->zName);
+    for(i=0; i<pList->n; i++){
+      PObj *pObj = pList->a[i];
+      if( pObj->zName==0 ) continue;
+      dot.ptAt = pObj->ptAt;
+      dot.aTxt[0].z = pObj->zName;
+      dot.aTxt[0].n = (int)strlen(pObj->zName);
       dotRender(p, &dot);
     }
   }
 }
 
-/* Add all elements of the list pEList to the bounding box
+/* Add all objects of the list pList to the bounding box
 */
-static void pik_bbox_add_elist(Pik *p, PEList *pEList, PNum wArrow){
+static void pik_bbox_add_elist(Pik *p, PList *pList, PNum wArrow){
   int i;
-  for(i=0; i<pEList->n; i++){
-    PElem *pElem = pEList->a[i];
-    if( pElem->sw>0.0 ) pik_bbox_addbox(&p->bbox, &pElem->bbox);
-    pik_append_txt(p, pElem, &p->bbox);
-    if( pElem->pSublist ) pik_bbox_add_elist(p, pElem->pSublist, wArrow);
+  for(i=0; i<pList->n; i++){
+    PObj *pObj = pList->a[i];
+    if( pObj->sw>0.0 ) pik_bbox_addbox(&p->bbox, &pObj->bbox);
+    pik_append_txt(p, pObj, &p->bbox);
+    if( pObj->pSublist ) pik_bbox_add_elist(p, pObj->pSublist, wArrow);
 
 
     /* Expand the bounding box to account for arrowheads on lines */
-    if( pElem->type->isLine && pElem->nPath>0 ){
-      if( pElem->larrow ){
-        pik_bbox_addellipse(&p->bbox, pElem->aPath[0].x, pElem->aPath[0].y,
+    if( pObj->type->isLine && pObj->nPath>0 ){
+      if( pObj->larrow ){
+        pik_bbox_addellipse(&p->bbox, pObj->aPath[0].x, pObj->aPath[0].y,
                             wArrow, wArrow);
       }
-      if( pElem->rarrow ){
-        int j = pElem->nPath-1;
-        pik_bbox_addellipse(&p->bbox, pElem->aPath[j].x, pElem->aPath[j].y,
+      if( pObj->rarrow ){
+        int j = pObj->nPath-1;
+        pik_bbox_addellipse(&p->bbox, pObj->aPath[j].x, pObj->aPath[j].y,
                             wArrow, wArrow);
       }
     }
@@ -6576,11 +6712,11 @@ static void pik_compute_layout_settings(Pik *p){
   p->bLayoutVars = 1;
 }
 
-/* Render a list of elements.  Write the SVG into p->zOut.
-** Delete the input element_list before returnning.
+/* Render a list of objects.  Write the SVG into p->zOut.
+** Delete the input object_list before returnning.
 */
-static void pik_render(Pik *p, PEList *pEList){
-  if( pEList==0 ) return;
+static void pik_render(Pik *p, PList *pList){
+  if( pList==0 ) return;
   if( p->nErr==0 ){
     PNum thickness;  /* Stroke width */
     PNum margin;     /* Extra bounding box margin */
@@ -6599,7 +6735,7 @@ static void pik_render(Pik *p, PEList *pEList){
     /* Compute a bounding box over all objects so that we can know
     ** how big to declare the SVG canvas */
     pik_bbox_init(&p->bbox);
-    pik_bbox_add_elist(p, pEList, wArrow);
+    pik_bbox_add_elist(p, pList, wArrow);
 
     /* Expand the bounding box slightly to account for line thickness
     ** and the optional "margin = EXPR" setting. */
@@ -6629,13 +6765,13 @@ static void pik_render(Pik *p, PEList *pEList){
     }
     pik_append_dis(p, " viewBox=\"0 0 ",w,"");
     pik_append_dis(p, " ",h,"\">\n");
-    pik_elist_render(p, pEList);
+    pik_elist_render(p, pList);
     pik_append(p,"</svg>\n", -1);
   }else{
     p->wSVG = -1;
     p->hSVG = -1;
   }
-  pik_elist_free(p, pEList);
+  pik_elist_free(p, pList);
 }
 
 
@@ -6678,6 +6814,7 @@ static const PikWord pik_keywords[] = {
   { "cos",        3,   T_FUNC1,     FN_COS,    0        },
   { "cw",         2,   T_CW,        0,         0        },
   { "dashed",     6,   T_DASHED,    0,         0        },
+  { "define",     6,   T_DEFINE,    0,         0        },
   { "diameter",   8,   T_DIAMETER,  0,         0        },
   { "dist",       4,   T_DIST,      0,         0        },
   { "dotted",     6,   T_DOTTED,    0,         0        },
@@ -6747,7 +6884,7 @@ static const PikWord pik_keywords[] = {
 
 /*
 ** Search a PikWordlist for the given keyword.  Return a pointer to the
-** element found.  Or return 0 if not found.
+** keyword entry found.  Or return 0 if not found.
 */
 static const PikWord *pik_find_word(
   const char *zIn,              /* Word to search for */
@@ -6789,7 +6926,7 @@ static void pik_breakpoint(const unsigned char *z){
 ** the pToken->z character.  Fill in other fields of the
 ** pToken object as appropriate.
 */
-static int pik_token_length(PToken *pToken){
+static int pik_token_length(PToken *pToken, int bAllowCodeBlock){
   const unsigned char *z = (const unsigned char*)pToken->z;
   int i;
   unsigned char c, c2;
@@ -6923,6 +7060,31 @@ static int pik_token_length(PToken *pToken){
         return 1;
       }
     }
+    case '{': {
+      int len, depth;
+      i = 1;
+      if( bAllowCodeBlock ){
+        depth = 1;
+        while( z[i] && depth>0 ){
+          PToken x;
+          x.z = (char*)(z+i);
+          len = pik_token_length(&x, 0);
+          if( len==1 ){
+            if( z[i]=='{' ) depth++;
+            if( z[i]=='}' ) depth--;
+          }
+          i += len;
+        }
+      }else{
+        depth = 0;
+      }
+      if( depth ){
+        pToken->eType = T_ERROR;
+        return 1;
+      }
+      pToken->eType = T_CODEBLOCK;
+      return i;
+    }
     default: {
       c = z[0];
       if( c=='.' ){
@@ -6983,6 +7145,7 @@ static int pik_token_length(PToken *pToken){
           return i;
         }
         if( c=='e' || c=='E' ){
+          int iBefore = i;
           i++;
           c2 = z[i];
           if( c2=='+' || c2=='-' ){
@@ -6991,7 +7154,7 @@ static int pik_token_length(PToken *pToken){
           }
           if( c2<'0' || c>'9' ){
             /* This is not an exp */
-            i -= 2;
+            i = iBefore;
           }else{
             i++;
             isInt = 0;
@@ -7020,7 +7183,7 @@ static int pik_token_length(PToken *pToken){
         }
         pToken->eType = T_NUMBER;
         return i;
-      }else if( islower(c) || c=='_' || c=='$' || c=='@' ){
+      }else if( islower(c) ){
         const PikWord *pFound;
         for(i=1; (c =  z[i])!=0 && (isalnum(c) || c=='_'); i++){}
         pFound = pik_find_word((const char*)z, i,
@@ -7042,6 +7205,14 @@ static int pik_token_length(PToken *pToken){
         for(i=1; (c =  z[i])!=0 && (isalnum(c) || c=='_'); i++){}
         pToken->eType = T_PLACENAME;
         return i;
+      }else if( c=='$' && z[1]>='1' && z[1]<='9' && !isdigit(z[2]) ){
+        pToken->eType = T_PARAMETER;
+        pToken->eCode = z[1] - '1';
+        return 2;
+      }else if( c=='_' || c=='$' || c=='@' ){
+        for(i=1; (c =  z[i])!=0 && (isalnum(c) || c=='_'); i++){}
+        pToken->eType = T_ID;
+        return i;
       }else{
         pToken->eType = T_ERROR;
         return 1;
@@ -7062,12 +7233,141 @@ static PToken pik_next_semantic_token(PToken *pThis){
   x.z = pThis->z;
   while(1){
     x.z = pThis->z + i;
-    sz = pik_token_length(&x);
+    sz = pik_token_length(&x, 1);
     if( x.eType!=T_WHITESPACE ){
       x.n = sz;
       return x;
     }
     i += sz;
+  }
+}
+
+/* Parser arguments to a macro invocation
+**
+**     (arg1, arg2, ...)
+**
+** Arguments are comma-separated, except that commas within string
+** literals or with (...), {...}, or [...] do not count.  The argument
+** list begins and ends with parentheses.  There can be at most 9
+** arguments.
+**
+** Return the number of bytes in the argument list.
+*/
+static unsigned int pik_parse_macro_args(
+  Pik *p,
+  const char *z,     /* Start of the argument list */
+  int n,             /* Available bytes */
+  PToken *args
+){
+  int nArg = 0;
+  int i, sz;
+  int iStart;
+  int depth = 0;
+  PToken x;
+  if( z[0]!='(' ) return 0;
+  args[0].z = z+1;
+  iStart = 1;
+  for(i=1; i<n && z[i]!=')'; i+=sz){
+    x.z = z+i;
+    sz = pik_token_length(&x, 0);
+    if( sz!=1 ) continue;
+    if( z[i]==',' && depth<=0 ){
+      args[nArg].n = i - iStart;
+      if( nArg==8 ){
+        x.z = z;
+        x.n = 1;
+        pik_error(p, &x, "too many macro arguments - max 9");
+        return 0;
+      }
+      nArg++;
+      args[nArg].z = z+i+1;
+      iStart = i+1;
+      depth = 0;
+    }else if( z[i]=='(' || z[i]=='{' || z[i]=='[' ){
+      depth++;
+    }else if( z[i]==')' || z[i]=='}' || z[i]==']' ){
+      depth--;
+    }
+  }
+  if( z[i]==')' ){
+    args[nArg].n = i - iStart;
+    return i+1;
+  }
+  x.z = z;
+  x.n = 1;
+  pik_error(p, &x, "unterminated macro argument list");
+  return 0;
+}
+
+/*
+** Split up the content of a PToken into multiple tokens and
+** send each to the parser.
+*/
+void pik_tokenize(Pik *p, PToken *pIn, yyParser *pParser, PToken *aParam){
+  unsigned int i;
+  int sz = 0;
+  PToken token;
+  PMacro *pMac;
+  for(i=0; i<pIn->n && pIn->z[i] && p->nErr==0; i+=sz){
+    token.eCode = 0;
+    token.eEdge = 0;
+    token.z = pIn->z + i;
+    sz = pik_token_length(&token, 1);
+    if( token.eType==T_WHITESPACE ){
+      /* no-op */
+    }else if( sz>1000 ){
+      token.n = 1;
+      pik_error(p, &token, "token is too long - max length 1000 bytes");
+      break;
+    }else if( token.eType==T_ERROR ){
+      token.n = (unsigned short)(sz & 0xffff);
+      pik_error(p, &token, "unrecognized token");
+      break;
+    }else if( sz+i>pIn->n ){
+      token.n = pIn->n - i;
+      pik_error(p, &token, "syntax error");
+      break;
+    }else if( token.eType==T_PARAMETER ){
+      /* Substitute a parameter into the input stream */
+      if( aParam==0 || aParam[token.eCode].n==0 ){
+        continue;
+      }
+      token.n = (unsigned short)(sz & 0xffff);
+      if( p->nCtx>=count(p->aCtx) ){
+        pik_error(p, &token, "macros nested too deep");
+      }else{
+        p->aCtx[p->nCtx++] = token;
+        pik_tokenize(p, &aParam[token.eCode], pParser, 0);
+        p->nCtx--;
+      }
+    }else if( token.eType==T_ID && (pMac = pik_find_macro(p,&token))!=0 ){
+      PToken args[9];
+      unsigned int j = i+sz;
+      if( pMac->inUse ){
+        pik_error(p, &pMac->macroName, "recursive macro definition");
+        break;
+      }
+      token.n = (short int)(sz & 0xffff);
+      if( p->nCtx>=count(p->aCtx) ){
+        pik_error(p, &token, "macros nested too deep");
+        break;
+      } 
+      pMac->inUse = 1;
+      memset(args, 0, sizeof(args));
+      p->aCtx[p->nCtx++] = token;
+      sz += pik_parse_macro_args(p, pIn->z+j, pIn->n-j, args);
+      pik_tokenize(p, &pMac->macroBody, pParser, args);
+      p->nCtx--;
+      pMac->inUse = 0;
+    }else{
+#if 0
+      printf("******** Token %s (%d): \"%.*s\" **************\n",
+             yyTokenName[token.eType], token.eType,
+             (int)(isspace(token.z[0]) ? 0 : sz), token.z);
+#endif
+      token.n = (unsigned short)(sz & 0xffff);
+      pik_parser(pParser, token.eType, token);
+    }
   }
 }
 
@@ -7094,15 +7394,12 @@ char *pikchr(
   int *pnWidth,          /* Write width of <svg> here, if not NULL */
   int *pnHeight          /* Write height here, if not NULL */
 ){
-  int i;
-  int sz;
-  PToken token;
   Pik s;
   yyParser sParse;
 
   memset(&s, 0, sizeof(s));
-  s.zIn = zText;
-  s.nIn = (unsigned int)strlen(zText);
+  s.sIn.z = zText;
+  s.sIn.n = (unsigned int)strlen(zText);
   s.eDir = DIR_RIGHT;
   s.zClass = zClass;
   s.mFlags = mFlags;
@@ -7110,32 +7407,9 @@ char *pikchr(
 #if 0
   pik_parserTrace(stdout, "parser: ");
 #endif
-  for(i=0; zText[i] && s.nErr==0; i+=sz){
-    token.eCode = 0;
-    token.eEdge = 0;
-    token.z = zText + i;
-    sz = pik_token_length(&token);
-    if( token.eType==T_WHITESPACE ){
-      /* no-op */
-    }else if( sz>1000 ){
-      token.n = 1;
-      pik_error(&s, &token, "token is too long - max length 1000 bytes");
-      break;
-    }else if( token.eType==T_ERROR ){
-      token.n = (unsigned short)(sz & 0xffff);
-      pik_error(&s, &token, "unrecognized token");
-      break;
-    }else{
-#if 0
-      printf("******** Token %s (%d): \"%.*s\" **************\n",
-             yyTokenName[token.eType], token.eType,
-             isspace(token.z[0]) ? 0 : token.n, token.z);
-#endif
-      token.n = (unsigned short)(sz & 0xffff);
-      pik_parser(&sParse, token.eType, token);
-    }
-  }
+  pik_tokenize(&s, &s.sIn, &sParse, 0);
   if( s.nErr==0 ){
+    PToken token;
     memset(&token,0,sizeof(token));
     token.z = zText;
     pik_parser(&sParse, 0, token);
@@ -7148,6 +7422,11 @@ char *pikchr(
     PVar *pNext = s.pVar->pNext;
     free(s.pVar);
     s.pVar = pNext;
+  }
+  while( s.pMacros ){
+    PMacro *pNext = s.pMacros->pNext;
+    free(s.pMacros);
+    s.pMacros = pNext;
   }
   if( pnWidth ) *pnWidth = s.nErr ? -1 : s.wSVG;
   if( pnHeight ) *pnHeight = s.nErr ? -1 : s.hSVG;
@@ -7319,4 +7598,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 7347 "pikchr.c"
+#line 7626 "pikchr.c"
