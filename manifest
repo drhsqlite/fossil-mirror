@@ -1,5 +1,5 @@
-C Move\schange\sto\sintended\slocation\s(shouldn't\shave\sbeen\son\sbranch)
-D 2020-09-28T02:29:51.853
+C If\sI\sam\sreading\sthis\scorrectly,\sthe\sJPEG\sand\sPNG\sbars\sare\sthe\sones\sincreasing\swith\seach\scommit,\snot\sso\smuch\sthe\sTIFF\sbar\sdue\sto\susing\suncompressed\sTIFF
+D 2020-09-28T04:03:55.675
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -904,7 +904,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/history.md 623088f2e3c27956411551d416e5e53f3e9c1249e0ab70399fbc79c16bb48a9b
 F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
-F www/image-format-vs-repo-size.md af8b04610cd4f37891ccc5d65a0ad8ba0766888c1d9d57e945e9addc805cc4bb
+F www/image-format-vs-repo-size.md 9a6dc73a00da6f71b20fcddb4aa16c3ffe00c92ab9b0762d4baad3bff4541dc8
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 3aed0b0ac48e9d50d4df3066c61cc799b40407d148f60327d4718aa285a6f002
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
@@ -1005,8 +1005,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a53f343024274cf4dac8ea5a82499d2ff4793201e7be26afb66ee79be96d665
-Q +5b101aa706e2555a86b367bbca3ff51510d90932d4cc780572a2433f2ffcdfc0
-R bea5b64a64b15fd38950cd15a350dfdd
+P fb6b093d9713506f7d872a6a2e5b64bb00ec324a223d2b4716e4e06f3bbc7da7
+R 0e25c3c91cc36a41c309c421bd0577c1
 U andygoth
-Z 623970c0bf3ff818a2c2ba991f814e28
+Z b18b0f4eb9aa5db8e1b80c8a5728bd37
