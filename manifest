@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sdisplaying\sSVG\sfiles
-D 2020-09-28T02:14:52.188
+C Move\schange\sto\sintended\slocation\s(shouldn't\shave\sbeen\son\sbranch)
+D 2020-09-28T02:29:51.853
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -645,7 +645,7 @@ F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c bfab2e08e90927231e1f697342efe41adeb099a912ff7d6378aeb8bdbe1545af
+F src/wiki.c 79dbdedfb6ab6b1913baaa516ca297467c80e44c4c6869320d2b82588be715b8
 F src/wiki.wiki 115d2665e40e871dfb83533f366bac52fcff5b214c8f117c69fc26465240d05b
 F src/wikiformat.c a353a06aefbd146fdf12babd166524c3a1aaf9835e1a88ff0ce42a3ed0df0db9
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -1005,7 +1005,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6dd3a5b75ffd5ba3bf07c88a0efdf68613e0000daff7db72ee2dcae98bb00f38
-R 99e3f4e00a2f9fc0b2ea4059260df4e7
+P 4a53f343024274cf4dac8ea5a82499d2ff4793201e7be26afb66ee79be96d665
+Q +5b101aa706e2555a86b367bbca3ff51510d90932d4cc780572a2433f2ffcdfc0
+R bea5b64a64b15fd38950cd15a350dfdd
 U andygoth
-Z c3c878e136a42022d480cb50caefcd49
+Z 623970c0bf3ff818a2c2ba991f814e28

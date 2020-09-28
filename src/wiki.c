@@ -2256,14 +2256,14 @@ int wiki_render_associated(
     " ORDER BY mtime DESC LIMIT 1",
     zPrefix, zName
   );
-  if( rid==0 ){
+  pWiki = rid==0 ? 0 : manifest_get(rid, CFTYPE_WIKI, 0);
+  if( pWiki==0 || pWiki->zWiki==0 || pWiki->zWiki[0]==0 ){
     if( g.perm.WrWiki && g.perm.Write && (mFlags & WIKIASSOC_MENU_WRITE)!=0 ){
       style_submenu_element("Add Wiki", "%R/wikiedit?name=%s/%t",
                             zPrefix, zName);
     }
+    return 0;
   }
-  pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
-  if( pWiki==0 ) return 0;
   if( fossil_strcmp(pWiki->zMimetype, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     Blob title = BLOB_INITIALIZER;
