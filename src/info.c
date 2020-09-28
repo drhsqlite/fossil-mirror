@@ -2187,6 +2187,7 @@ void cmd_test_line_numbers(void){
 **   fn=NAME         - alternative spelling for "name="
 **   ci=VERSION      - The specific check-in to use with "name=" to
 **                     identify the file.
+**   txt             - Force display of unformatted source text
 **
 ** The /artifact page show the complete content of a file
 ** identified by HASH.  The /whatis page shows only a description
@@ -2211,6 +2212,7 @@ void artifact_page(void){
   Blob downloadName;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
+  int renderAsSvg = 0;
   int objType;
   int asText;
   const char *zUuid = 0;
@@ -2421,6 +2423,13 @@ void artifact_page(void){
         renderAsWiki = 1;
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
       }
+    }else if( fossil_strcmp(zMime, "image/svg+xml")==0 ){
+      if( asText ){
+        style_submenu_element("Svg", "%s", url_render(&url, "txt", 0, 0, 0));
+      }else{
+        renderAsSvg = 1;
+        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+      }
     }
     if( fileedit_is_editable(zName) ){
       style_submenu_element("Edit",
@@ -2452,6 +2461,8 @@ void artifact_page(void){
       @   }
       @ );
       @ </script>
+    }else if( renderAsSvg ){
+      @ <object type="image/svg+xml" data="%R/raw/%s(zUuid)"></object>
     }else{
       style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
       if( zLn==0 || atoi(zLn)==0 ){
