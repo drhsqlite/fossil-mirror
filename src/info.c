@@ -2408,7 +2408,7 @@ void artifact_page(void){
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
       if( asText ){
-        style_submenu_element("Html", "%s", url_render(&url, "txt", 0, 0, 0));
+        style_submenu_element("HTML", "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsHtml = 1;
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));

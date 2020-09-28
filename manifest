@@ -1,5 +1,5 @@
-C In\sPikchr:\sAdd\ssupport\sfor\smacros.\sAlso\sif\sthe\swidth\sor\sheight\sof\san\sobject\nare\szero\sor\sless,\sthen\sautofit\sthe\scorresponding\sdimension.
-D 2020-09-28T00:14:38.390
+C Capitalize\s"HTML"
+D 2020-09-28T01:54:00.179
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -515,7 +515,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c dd5d4cad8e8a31c9cf0b6eac90ac97f675eb319cb0502c89d8b199d88ed18734
-F src/info.c 50bac8bc1e0968701b281a9cff4a043dbf876bf8bca86fec336633fbeb896a8a
+F src/info.c f20fc508de2d0e0315e74cb2e27a4ad64ea923252cc783f8bea85de84b3cb12f
 F src/interwiki.c ef2dfc844dfc1396ce60923d9f547730f8d2d505adef2869e09e36846ccdf555
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -1005,7 +1005,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4083e5d322dfaebe1955f03b57505b583cfa3d3912b3aff48a6b2eeb3f89208c
-R b0b8f96d8491e84198bd6b6042a6fdf1
-U drh
-Z 98c0258e9d46f5f476236aa0fd5b2bc1
+P 6dd3a5b75ffd5ba3bf07c88a0efdf68613e0000daff7db72ee2dcae98bb00f38
+R 3aec9a677e7a9938085c3d661f99ca8a
+T *branch * andygoth-html-caps
+T *sym-andygoth-html-caps *
+T -sym-trunk *
+U andygoth
+Z b4e6e139ee63edc9c75cde6a1a71111d
