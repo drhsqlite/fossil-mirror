@@ -1,5 +1,5 @@
-C Fix\sbackslash\sprocessing\sin\spikchr.
-D 2020-09-29T11:44:06.495
+C Removed\sunused\swww/CollRev?.gif\sand\sthe\sreferences\sto\sit\sfrom\ntest/commit-warning.test.\s\sAlso\sremoved\sobsolete\sreferences\nto\salready-removed\swww/branch??.gif.
+D 2020-09-29T23:33:16.653
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -659,7 +659,7 @@ F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test 1f5e6e008a22b687892e0497d477d153d15f16ab56c26ec6e5d9ac164fef6797
+F test/commit-warning.test 83381cbbc8747c5fe56732752699888f994df2d8d52af0030991e5c876571ad9
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
@@ -800,10 +800,6 @@ F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc d86e2b5468fbfdcfa244432defe4029d39071fa92bf3f81f10d7ee7869ada19b
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
-F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
-F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
-F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
-F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 41eb3fb9357be6d3893f05897bcfd39ddb81c87d6dc36b1e9ad5bf40bc8d6e06
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
 F www/adding_code.wiki 0c6c3aa15c2f2d9b89607d39738aa5dbbea312553f859563d22848a476906acf
@@ -994,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3c3a099fb4d78d51da1e7fa82b25ce67b1afcda04b4259272c8b820fc954c26
-R d2169f71d6f1c2dc49c3ddcd74d40c5d
-U drh
-Z 542cec17686d1d7d330bcea72e538cf5
+P 7a9bf394b1179b1ddbf0b836341a1c8f1c26a5ee90da3f51ba35b5d11c53871d
+R 8413ad3f1b9de606a21c0b50400b8cab
+U wyoung
+Z 3b17e809e51abfe027458a89ac3cf053
