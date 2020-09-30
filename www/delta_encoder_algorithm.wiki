@@ -109,7 +109,34 @@ to <a href="delta_format.wiki#copyrange">copy a range</a>, or
 </ul>
 </p>
 
-<img src="encode10.gif" align="right" hspace="10">
+<div style="float:right">
+<verbatim type="pikchr" style="float:right">
+TARGET: [
+       down
+       "Target" bold
+       box fill palegreen width 150% height 200% "Processed"
+   GI: box same as first box fill yellow height 25% "Gap → Insert"
+   CC: box same fill orange height 200% "Common → Copy"
+    W: box same as GI fill lightgray width 125% height 200% "Window" bold
+       box same as CC height 125% ""
+       box same fill white ""
+]
+
+[ "Base"  bold ; right ; arrow 33% ] with .e at TARGET.GI.nw
+[ "Slide" bold ; right ; arrow 33% ] with .e at TARGET.W.nw
+
+ORIGIN: [
+       down
+       "Origin" bold
+   B1: box fill white
+   B2: box fill orange height 200%
+   B3: box fill white  height 200%
+] with .nw at 0.75 right of TARGET.ne
+
+arrow from TARGET.W.e to ORIGIN.B2.w "Signature" aligned above
+</verbatim>
+</div>
+
 <p>To make this decision the encoder first computes the hash value for
 the NHASH bytes in the window and then looks at all the locations in
 the "origin" which have the same signature. This part uses the hash
