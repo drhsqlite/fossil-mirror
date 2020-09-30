@@ -121,7 +121,7 @@ fully.</p>
         B1: box height 50% width 15% ""
         B2: box same ""
         B3: box same ""
-            move 0.1 ; box same invisible "***" ; move 0.1
+            "***"
             box height 50% width 15% ""
         I1: line down 50% from B2 .s
             arrow right until even with B3.e
@@ -131,11 +131,13 @@ fully.</p>
             box "Copy Range" height 50%
     ]
     down
-    box invisible "" height 0.1
-    box "Length" height 50% with .nw at (PART1.w, previous.s)
-    right
-    box "\":\"" same
-    box "Bytes" same
+    PART2: [
+        ""
+        box "Length" height 50%
+        right
+        box "\":\"" same
+        box "Bytes" same
+    ] with .nw at previous.sw
 </verbatim>
 
 <p>The segment-list of a delta describes how to create the target from

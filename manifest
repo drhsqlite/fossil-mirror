@@ -1,5 +1,5 @@
-C Replaced\sold\sGIF\sdiagrams\sfrom\sthe\sdelta_format.wiki\sdoc\swith\sPikchrs.\nAlso\sremoved\sdelta?.gif\sfrom\stest/commit-warning.test.
-D 2020-09-30T00:08:58.860
+C Replaced\shacky\sinvisible\sbox\shacks\sin\sdelta_format.wiki\sdoc\swith\smore\nidiomatic\sPIC\scode.
+D 2020-09-30T00:30:01.423
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -844,7 +844,7 @@ F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 750aaf7f1e4dce7c0e0d8b1423a7c1c5213c358587c40ad0e5c258649bdf4041
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
-F www/delta_format.wiki 61468d7b943635bd190f2846b10f2c402a16bd7d320661b461a9c1e0724a4f2c
+F www/delta_format.wiki b59af959936e7dbdef103fcbaeed5d6da914aa0f475595f5b27ebe11654d9232
 F www/embeddeddoc.wiki 3d2290e52d8eb50fba08a91f3fc15574d012d5627b3c5ce80d7386ad05afb445
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -984,8 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec816c919e241a8cf7b6f3924357ae295449d87190efa903cc6f4a98085d0dde b72cc79526c4bf089418c44a988dbc25bafac512e47958225c4b4e411068dd55
-R d1987657b0aa3c953dd231a55d5f42cb
-T +closed b72cc79526c4bf089418c44a988dbc25bafac512e47958225c4b4e411068dd55
+P d7c074e7fafb0575358f194015b2654f453361e6503a37aa330ca0bf2ff1fba4
+R c34471d53a61448caa171dfd3ff407e3
 U wyoung
-Z cc2ba171db5b772e70e03279aef5a234
+Z 63e1d7ba6ea0cd911013329bf4d46b2b
