@@ -7283,10 +7283,11 @@ static unsigned int pik_parse_macro_args(
   Pik *p,
   const char *z,     /* Start of the argument list */
   int n,             /* Available bytes */
-  PToken *args
+  PToken *args,      /* Fill in with the arguments */
+  PToken *pOuter     /* Arguments of the next outer context, or NULL */
 ){
   int nArg = 0;
-  int i, sz;
+  int i, j, sz;
   int iStart;
   int depth = 0;
   PToken x;
@@ -7317,6 +7318,18 @@ static unsigned int pik_parse_macro_args(
   }
   if( z[i]==')' ){
     args[nArg].n = i - iStart;
+    /* Remove leading and trailing whitespace from each argument.
+    ** If what remains is one of $1, $2, ... $9 then transfer the
+    ** corresponding argument from the outer context */
+    for(j=0; j<=nArg; j++){
+      PToken *t = &args[j];
+      while( t->n>0 && isspace(t->z[0]) ){ t->n--; t->z++; }
+      while( t->n>0 && isspace(t->z[t->n-1]) ){ t->n--; }
+      if( t->n==2 && t->z[0]=='$' && t->z[1]>='1' && t->z[1]<='9' ){
+        if( pOuter ) *t = pOuter[t->z[1]-'1'];
+        else t->n = 0;
+      }
+    }
     return i+1;
   }
   x.z = z;
@@ -7381,7 +7394,7 @@ void pik_tokenize(Pik *p, PToken *pIn, yyParser *pParser, PToken *aParam){
       pMac->inUse = 1;
       memset(args, 0, sizeof(args));
       p->aCtx[p->nCtx++] = token;
-      sz += pik_parse_macro_args(p, pIn->z+j, pIn->n-j, args);
+      sz += pik_parse_macro_args(p, pIn->z+j, pIn->n-j, args, aParam);
       pik_tokenize(p, &pMac->macroBody, pParser, args);
       p->nCtx--;
       pMac->inUse = 0;
@@ -7624,4 +7637,4 @@ int main(int argc, char **argv){
 }
 #endif /* PIKCHR_SHELL */
 
-#line 7652 "pikchr.c"
+#line 7665 "pikchr.c"
