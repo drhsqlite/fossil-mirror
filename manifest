@@ -1,5 +1,5 @@
-C Replaced\swww/encode10.gif\sin\swww/delta_encoder_algorithm.wiki\swith\sa\nPikchr.
-D 2020-09-30T08:38:25.898
+C Added\s"toggle"\sattributes\sto\sthe\spikchrs\sin\sthe\sbranching\sand\srebase\nharm\sdocs,\sso\sthey\sact\sas\sinline\sexamples\sof\sthe\stech.
+D 2020-09-30T10:30:02.488
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -810,7 +810,7 @@ F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md 7d4c2009260416f767d23a288b2a4ffc506bdca8b02f589d140b8c7ebec3b382
-F www/branching.wiki 0d073a59bdd0531dcf92ccff70218ad28ddf686b1016ca8f8c7927fc9d6b758d
+F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -930,7 +930,7 @@ F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0c
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
 F www/quickstart.wiki 18a1bd7bb08d7d4455fe4aca0019146e5ffdcb3f2f03c58a4bdda0fa374bd3e1
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
-F www/rebaseharm.md 623cdc118ec303746e3be2bff640660ba65795dde9235b44c93728cf72625704
+F www/rebaseharm.md 0c3b4906ea01a4fa82a681251ec99bfd7026e59329f423674823cf29c122ee41
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5251d44f3a35ae44c29ebce71156c2f6aa03418808806eb8f5b8b325f1c5a1a2
-R fe92a75ce04f29f516e4652899217095
+P a9d0c2a68c326c2664b2c259a3c1e4246be5c3e8907ad564f4dc6f888ad9fdbc
+R d02f4379df9d0095779e8b9a36c9e702
 U wyoung
-Z 3af3b90400f8650e830d27c6953175d6
+Z 643452581c675e086539130ef70e1820

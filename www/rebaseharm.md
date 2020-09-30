@@ -32,7 +32,7 @@ To help illustrate this fact,
 consider the first rebase example from the 
 [Git documentation][gitrebase].  The merge looks like this:
 
-~~~ pikchr
+~~~ pikchr toggle
 scale = 0.8
 circle "C0" fit
 arrow right 50%
@@ -50,7 +50,7 @@ arrow from C4 to C5 chop
 
 And the rebase looks like this:
 
-~~~ pikchr
+~~~ pikchr toggle
 scale = 0.8
 circle "C0" fit
 arrow right 50%
@@ -97,7 +97,7 @@ allows one to see just the changes in the feature branch without
 the concurrent changes in the main line of development. 
 Consider a hypothetical case:
 
-~~~ pikchr
+~~~ pikchr toggle
 scale = 0.8
 circle "C0" fit fill white
 arrow right 50%
@@ -125,7 +125,7 @@ for rebase say that you should rebase the feature branch to the tip
 of main in order to remove main-line development differences from
 the feature branch's history:
 
-~~~ pikchr
+~~~ pikchr toggle
 scale = 0.8
 circle "C0" fit fill white
 arrow right 50%
@@ -159,7 +159,7 @@ as part of this rebase, but that's a side issue we'll deal with
 Because Fossil purposefully lacks rebase, the closest you can get to this same check-in
 history is the following merge:
 
-~~~ pikchr
+~~~ pikchr toggle
 scale = 0.8
 circle "C0" fit fill white
 arrow right 50%

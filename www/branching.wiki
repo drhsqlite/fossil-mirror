@@ -4,7 +4,7 @@
 In a simple and perfect world, the development of a project would proceed
 linearly, as shown in Figure 1.
 
-<verbatim type="pikchr center">
+<verbatim type="pikchr center toggle">
 ALL: [circle rad 40% thickness 1.5px "1"
 arrow right 40%
 circle same "2"
@@ -44,7 +44,7 @@ Alas, reality often interferes with the simple linear development of a
 project.  Suppose two programmers make independent modifications to check-in 2.
 After both changes are committed, the check-in graph looks like Figure 2:
 
-<verbatim type="pikchr center">
+<verbatim type="pikchr center toggle">
 ALL: [circle rad 40% thickness 1.5px "1"
 arrow right 40%
 circle same "2"
@@ -120,7 +120,7 @@ current branch. Alice can then verify that the merge is sensible and if
 so, commit the results as check-in 5.  This results in a DAG as shown in
 Figure 3.
 
-<verbatim type="pikchr center">
+<verbatim type="pikchr center toggle">
 ALL: [circle rad 40% thickness 1.5px "1"
 arrow right 40%
 circle same "2"
@@ -183,7 +183,7 @@ instead of <i>forking</i>:
 Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
 
-<verbatim type="pikchr center">
+<verbatim type="pikchr center toggle">
 ALL: [circle rad 40% thickness 1.5px fill white "1"
 arrow 40%
 C2: circle same "2"
@@ -393,7 +393,7 @@ Tags and properties are used in Fossil to help express the intent, and
 thus to distinguish between forks and branches.  Figure 5 shows the
 same scenario as Figure 4 but with tags and properties added:
 
-<verbatim type="pikchr center">
+<verbatim type="pikchr center toggle">
 ALL: [arrowht = 0.07
 C1: circle rad 40% thickness 1.5px fill white "1"
 arrow 40%
@@ -493,7 +493,7 @@ effort on a branch can be divided among the forks. It might not be
 immediately obvious why this is so. To see it, consider this swim lane
 diagram:
 
-<verbatim type="pikchr center">
+<verbatim type="pikchr center toggle toggle">
     $laneh = 0.75
 
 ALL: [
