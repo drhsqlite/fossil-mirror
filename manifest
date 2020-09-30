@@ -1,5 +1,5 @@
-C Merged\sin\strunk
-D 2020-09-30T00:02:24.888
+C Tweak\sto\sthe\s"\\n"\stext\sinside\s2.1\sHeader\sof\sthe\snew\sdelta_format.wiki\ndoc\sto\smake\suse\sof\snew\sPikchr\shandling\sof\sbackslashes.
+D 2020-09-30T00:05:18.649
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -844,7 +844,7 @@ F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 750aaf7f1e4dce7c0e0d8b1423a7c1c5213c358587c40ad0e5c258649bdf4041
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
-F www/delta_format.wiki 473fb3166ab1cf3ee1a4fc4e5863846fa69f18e64c2723ff1b9405002a2eac81
+F www/delta_format.wiki 61468d7b943635bd190f2846b10f2c402a16bd7d320661b461a9c1e0724a4f2c
 F www/embeddeddoc.wiki 3d2290e52d8eb50fba08a91f3fc15574d012d5627b3c5ce80d7386ad05afb445
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1aaf9f850b2319327c1634bfe5b126fcec81d9a4f1b54df3b3db7d5959e4d7ac ec816c919e241a8cf7b6f3924357ae295449d87190efa903cc6f4a98085d0dde
-R 38ef0a26c01d0f41e4d7506334a041d6
+P 45ff53dd6ffa84e2b0a149733ad3b139d578801259d039aa87f690a19179c572
+R 888ec93a877efc71bbe983d7d92ab5ce
 U wyoung
-Z 546bd3eb9a8263e23b8ac4be8ac49ad6
+Z 7b39e4ba8ffbd903b975d5d4d1c469bd

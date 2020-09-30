@@ -81,7 +81,7 @@ be constructed from the original.</p>
 <verbatim type="pikchr">
     leftmargin = 0.1
     box height 50% "Size"
-    box same "\"\n\""
+    box same "\"\\n\""
 </verbatim>
 
 <p>The header consists of a single number followed by a newline
