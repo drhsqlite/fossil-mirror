@@ -1,5 +1,5 @@
-C Converted\swww/delta?.gif\sto\sPikchr\sdiagrams.\sThey're\smostly\sfaithful\sto\nthe\soriginals,\sbut\sthere's\sa\sbug\sthat\sneeds\sfixing\sin\sPikchr\s(or\sworked\naround\ssomehow\shere)\sbefore\sthis\scan\sbe\smerged\sto\strunk.\s\sMy\sposting\sto\nthe\spikchr\sforum\salso\sneeds\sto\sbe\sedited\sto\spoint\sto\sa\shistorical\nversion\sof\swww/delta6.gif\sto\savoid\screating\sa\sdangling\shyperlink\swhen\nthis\sis\smerged\sdown.
-D 2020-09-29T00:56:01.788
+C Replaced\sthe\sinvisible\sempty\sbox\shack\sfor\sleft\smargin\sin\sthe\snew\ndelta_format.wiki\sdiagrams\swith\suse\sof\sthe\s"leftmargin"\sglobal\sPIC\nproperty.
+D 2020-09-30T00:00:51.111
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -848,7 +848,7 @@ F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 750aaf7f1e4dce7c0e0d8b1423a7c1c5213c358587c40ad0e5c258649bdf4041
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
-F www/delta_format.wiki 873a5543d4cdd9246792a66639a561622f727588f2823c66cea14a4400b9b020
+F www/delta_format.wiki 473fb3166ab1cf3ee1a4fc4e5863846fa69f18e64c2723ff1b9405002a2eac81
 F www/embeddeddoc.wiki 3d2290e52d8eb50fba08a91f3fc15574d012d5627b3c5ce80d7386ad05afb445
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -993,10 +993,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 387322d6d9bceb1e3e69b555ab5026a24bc8563d440c3e3019c2d3887ea67d2d
-R a779309bb2fb7b14a239fea10f6067d2
-T *branch * delta-format-pikchr
-T *sym-delta-format-pikchr *
-T -sym-trunk *
+P e0dd267b89bd05e80c170ebe0468e8ff0e72f08ac54646f71287f97357067f15
+R 287b94728a52513568eea0ee61ba719a
 U wyoung
-Z 02ee37554115ebc7a6d438d2f7de3ef7
+Z c9201574800fa5ef0ad78430374b7d5d

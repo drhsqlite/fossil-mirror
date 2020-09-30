@@ -64,7 +64,7 @@ additional SQL functions are provided:
 
 <a name="structure"></a><h1>2.0 Structure</h1>
 <verbatim type="pikchr">
-    box invisible width 0.2 ""
+    leftmargin = 0.1
     box height 50% "Header"
     box same "Segments"
     box same "Trailer"
@@ -79,7 +79,7 @@ be constructed from the original.</p>
 
 <a name="header"></a><h2>2.1 Header</h2>
 <verbatim type="pikchr">
-    box invisible width 0.2 ""
+    leftmargin = 0.1
     box height 50% "Size"
     box same "\"\n\""
 </verbatim>
@@ -95,7 +95,7 @@ there. In other words, before it has to decode everything else.</p>
 
 <a name="trailer"></a><h2>2.2 Trailer</h2>
 <verbatim type="pikchr">
-    box invisible width 0.2 ""
+    leftmargin = 0.1
     box height 50% "Checksum"
     box same "\":\""
 </verbatim>
@@ -116,7 +116,7 @@ fully.</p>
 
 <a name="slist"></a><h2>2.3 Segment-List</h2>
 <verbatim type="pikchr">
-    box invisible width 0.2 ""
+    leftmargin = 0.1
     PART1: [
         B1: box height 50% width 15% ""
         B2: box same ""
@@ -154,7 +154,7 @@ instructions, with no gaps.</p>
 bytes, and the bytes of the literal itself.</p>
 
 <verbatim type="pikchr">
-    box invisible width 0.2 ""
+    leftmargin = 0.1
     box "Length" height 50%
     box "\":\"" same
     box "Bytes" same
@@ -171,7 +171,7 @@ bytes. The size zero is special, its usage indicates that the range
 extends to the end of the original.</p>
 
 <verbatim type="pikchr">
-    box invisible width 0.2 ""
+    leftmargin = 0.1
     box "Length" height 50%
     box "\"@\"" same
     box "Offset" same
