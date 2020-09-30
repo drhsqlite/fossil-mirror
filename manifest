@@ -1,5 +1,5 @@
-C Removed\sunused\swww/CollRev?.gif\sand\sthe\sreferences\sto\sit\sfrom\ntest/commit-warning.test.\s\sAlso\sremoved\sobsolete\sreferences\nto\salready-removed\swww/branch??.gif.
-D 2020-09-29T23:33:16.653
+C Replaced\sold\sGIF\sdiagrams\sfrom\sthe\sdelta_format.wiki\sdoc\swith\sPikchrs.\nAlso\sremoved\sdelta?.gif\sfrom\stest/commit-warning.test.
+D 2020-09-30T00:08:58.860
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -659,7 +659,7 @@ F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test 83381cbbc8747c5fe56732752699888f994df2d8d52af0030991e5c876571ad9
+F test/commit-warning.test 492e95288202c5791d9d15b1c74138a95766fccb42b7fa698a963d4d99e546bd
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
@@ -843,14 +843,8 @@ F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 750aaf7f1e4dce7c0e0d8b1423a7c1c5213c358587c40ad0e5c258649bdf4041
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
-F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
-F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
-F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
-F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
-F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
-F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
-F www/delta_format.wiki e70aabb6f50657b435f5ea9f31180ad43c1c239cfc3f56e1d370ae4095b90039
+F www/delta_format.wiki 61468d7b943635bd190f2846b10f2c402a16bd7d320661b461a9c1e0724a4f2c
 F www/embeddeddoc.wiki 3d2290e52d8eb50fba08a91f3fc15574d012d5627b3c5ce80d7386ad05afb445
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -990,7 +984,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7a9bf394b1179b1ddbf0b836341a1c8f1c26a5ee90da3f51ba35b5d11c53871d
-R 8413ad3f1b9de606a21c0b50400b8cab
+P ec816c919e241a8cf7b6f3924357ae295449d87190efa903cc6f4a98085d0dde b72cc79526c4bf089418c44a988dbc25bafac512e47958225c4b4e411068dd55
+R d1987657b0aa3c953dd231a55d5f42cb
+T +closed b72cc79526c4bf089418c44a988dbc25bafac512e47958225c4b4e411068dd55
 U wyoung
-Z 3b17e809e51abfe027458a89ac3cf053
+Z cc2ba171db5b772e70e03279aef5a234

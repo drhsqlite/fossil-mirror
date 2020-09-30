@@ -272,12 +272,6 @@ test_block_in_checkout pre-commit-warnings-fossil-1 {
   1\twww/concept1.gif\tbinary data
   1\twww/concept2.gif\tbinary data
   1\twww/copyright-release.pdf\tbinary data
-  1\twww/delta1.gif\tbinary data
-  1\twww/delta2.gif\tbinary data
-  1\twww/delta3.gif\tbinary data
-  1\twww/delta4.gif\tbinary data
-  1\twww/delta5.gif\tbinary data
-  1\twww/delta6.gif\tbinary data
   1\twww/encode1.gif\tbinary data
   1\twww/encode10.gif\tbinary data
   1\twww/encode2.gif\tbinary data
