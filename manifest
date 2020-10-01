@@ -1,5 +1,5 @@
-C Latest\spikchr.c\sfixes\san\sissue\swith\s"same"\sand\slines\sthat\shave\sa\s"to"\nattribute.
-D 2020-10-01T16:01:34.856
+C Improvements\sto\sthe\s"fossil\simport"\scommand\sso\sthat\sit\scan\snow\n(hopefully)\sinterpret\s"breezy"\sfiles.
+D 2020-10-01T18:34:33.008
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -514,7 +514,7 @@ F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
-F src/import.c dd5d4cad8e8a31c9cf0b6eac90ac97f675eb319cb0502c89d8b199d88ed18734
+F src/import.c 1ebd6da35f8c913f974474ac6f2661c4490d2d6771dc5da1a022b366c39bd897
 F src/info.c 2dc61dc12c22b1f2a8a734475bb25282527bb6212192c2ff0ce28688805a10a1
 F src/interwiki.c ef2dfc844dfc1396ce60923d9f547730f8d2d505adef2869e09e36846ccdf555
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
@@ -983,7 +983,8 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02c6b07eab4a148be17923c4f02efe06a7685a3f3f7f957ff0cfd7ff9a69109c
-R 54687973f1db6bbf8c34cfd77c5faf0b
+P 42caafaf3ba5e5e26d1fdeefa2aa1fba8744d9a7a706085ac85e1e81a9b7eae0 8e5b01034925671f5fdb086a0c9e84e033d0e12d16e1432bdc46e4842bc26705
+R a7661bcaf875f99d7decb9cfba683f98
+T +closed 8e5b01034925671f5fdb086a0c9e84e033d0e12d16e1432bdc46e4842bc26705
 U drh
-Z 7ee2f9b620c3935b0546f74155077685
+Z cc93edc1b27d60b19ca4b8336541d514

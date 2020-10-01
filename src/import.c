@@ -70,6 +70,7 @@ static struct {
   int nFile;                  /* Number of aFile values */
   int nFileAlloc;             /* Number of slots in aFile[] */
   ImportFile *aFile;          /* Information about files in a commit */
+  ImportFile *pInlineFile;    /* File marked "inline" */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
   int tagCommit;              /* True if the commit adds a tag */
 } gg;
@@ -151,6 +152,7 @@ static void import_reset(int freeAll){
 static int fast_insert_content(
   Blob *pContent,          /* Content to insert */
   const char *zMark,       /* Label using this mark, if not NULL */
+  ImportFile *pFile,       /* Save hash on this file, if not NULL */
   int saveHash,            /* Save artifact hash in gg.zPrevCheckin */
   int doParse              /* Invoke manifest_crosslink() */
 ){
@@ -195,8 +197,26 @@ static int fast_insert_content(
     fossil_free(gg.zPrevCheckin);
     gg.zPrevCheckin = fossil_strdup(blob_str(&hash));
   }
+  if( pFile ){
+    fossil_free(pFile->zUuid);
+    pFile->zUuid = fossil_strdup(blob_str(&hash));
+  }
   blob_reset(&hash);
   return rid;
+}
+
+/*
+** Check to ensure the file in gg.aData,gg.nData is not a control
+** artifact.  Then add the file to the repository.
+*/
+static void check_and_add_file(const char *zMark, ImportFile *pFile){
+  Blob content;
+  blob_init(&content, gg.aData, gg.nData);
+  if( gg.nData && manifest_is_well_formed(gg.aData, gg.nData) ){
+    sterilize_manifest(&content, -1);
+  }
+  fast_insert_content(&content, zMark, pFile, 0, 0);
+  blob_reset(&content);
 }
 
 /*
@@ -204,13 +224,7 @@ static int fast_insert_content(
 ** to the BLOB table.
 */
 static void finish_blob(void){
-  Blob content;
-  blob_init(&content, gg.aData, gg.nData);
-  if( manifest_is_well_formed(gg.aData, gg.nData) ){
-    sterilize_manifest(&content, -1);
-  }
-  fast_insert_content(&content, gg.zMark, 0, 0);
-  blob_reset(&content);
+  check_and_add_file(gg.zMark, 0);
   import_reset(0);
 }
 
@@ -231,7 +245,7 @@ static void finish_tag(void){
     blob_appendf(&record, "\nU %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
-    fast_insert_content(&record, 0, 0, 1);
+    fast_insert_content(&record, 0, 0, 0, 1);
     blob_reset(&cksum);
     blob_reset(&record);
   }
@@ -330,7 +344,7 @@ static void finish_commit(void){
   blob_appendf(&record, "U %F\n", gg.zUser);
   md5sum_blob(&record, &cksum);
   blob_appendf(&record, "Z %b\n", &cksum);
-  fast_insert_content(&record, gg.zMark, 1, 1);
+  fast_insert_content(&record, gg.zMark, 0, 1, 1);
   blob_reset(&cksum);
 
   /* The "git fast-export" command might output multiple "commit" lines
@@ -629,6 +643,10 @@ static void git_fast_import(FILE *pIn){
           gg.nData = 0;
         }
       }
+      if( gg.pInlineFile ){
+        check_and_add_file(0, gg.pInlineFile);
+        gg.pInlineFile = 0;
+      }
     }else
     if( (!ggit.authorFlag && strncmp(zLine, "author ", 7)==0)
         || (ggit.authorFlag && strncmp(zLine, "committer ",10)==0
@@ -699,7 +717,12 @@ static void git_fast_import(FILE *pIn){
       pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
       pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);
       fossil_free(pFile->zUuid);
-      pFile->zUuid = resolve_committish(zUuid);
+      if( strcmp(zUuid,"inline")==0 ){
+        pFile->zUuid = 0;
+        gg.pInlineFile = pFile;
+      }else{
+        pFile->zUuid = resolve_committish(zUuid);
+      }
       pFile->isFrom = 0;
     }else
     if( strncmp(zLine, "D ", 2)==0 ){
@@ -733,7 +756,7 @@ static void git_fast_import(FILE *pIn){
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
-          pNew->zName = fossil_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(zTo);
         }
         pNew->isExe = pFile->isExe;
         pNew->isLink = pFile->isLink;
@@ -756,7 +779,7 @@ static void git_fast_import(FILE *pIn){
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
-          pNew->zName = fossil_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(zTo);
         }
         pNew->zPrior = pFile->zName;
         pNew->isExe = pFile->isExe;
@@ -767,7 +790,6 @@ static void git_fast_import(FILE *pIn){
         *pFile = *pNew;
         memset(pNew, 0, sizeof(*pNew));
       }
-      fossil_fatal("cannot handle R records, use --full-tree");
     }else
     if( strncmp(zLine, "deleteall", 9)==0 ){
       gg.fromLoaded = 1;
@@ -775,7 +797,15 @@ static void git_fast_import(FILE *pIn){
     if( strncmp(zLine, "N ", 2)==0 ){
       /* No-op */
     }else
-
+    if( strncmp(zLine, "property branch-nick ", 21)==0 ){
+      /* Breezy uses this property to store the branch name.
+      ** It has two values. Integer branch number, then the 
+      ** user-readable branch name. */
+      z = &zLine[21];
+      next_token(&z);
+      fossil_free(gg.zBranch);
+      gg.zBranch = fossil_strdup(next_token(&z));
+    }else
     {
       goto malformed_line;
     }
@@ -1878,7 +1908,7 @@ void import_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       Blob record;
       db_ephemeral_blob(&q, 0, &record);
-      fast_insert_content(&record, 0, 0, 1);
+      fast_insert_content(&record, 0, 0, 0, 1);
       import_reset(0);
     }
     db_finalize(&q);
