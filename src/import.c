@@ -756,7 +756,7 @@ static void git_fast_import(FILE *pIn){
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
-          pNew->zName = fossil_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(zTo);
         }
         pNew->isExe = pFile->isExe;
         pNew->isLink = pFile->isLink;
@@ -779,7 +779,7 @@ static void git_fast_import(FILE *pIn){
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
-          pNew->zName = fossil_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(zTo);
         }
         pNew->zPrior = pFile->zName;
         pNew->isExe = pFile->isExe;
