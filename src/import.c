@@ -212,7 +212,7 @@ static int fast_insert_content(
 static void check_and_add_file(const char *zMark, ImportFile *pFile){
   Blob content;
   blob_init(&content, gg.aData, gg.nData);
-  if( manifest_is_well_formed(gg.aData, gg.nData) ){
+  if( gg.nData && manifest_is_well_formed(gg.aData, gg.nData) ){
     sterilize_manifest(&content, -1);
   }
   fast_insert_content(&content, zMark, pFile, 0, 0);
