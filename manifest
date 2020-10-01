@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.33\salpha\sfor\stesting.
-D 2020-09-30T21:11:23.512
+C Latest\spikchr.c\sfixes\san\sissue\swith\s"same"\sand\slines\sthat\shave\sa\s"to"\nattribute.
+D 2020-10-01T16:01:34.856
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c 6748299155dd21ec3717f084ebbec3e75991980ce953c94180b9c4165b9cf6b8
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c b9a59d2aa4eb851cccb9c30aca839e5557b4df4232744743af6f70d53a1732ca
+F src/pikchr.c 8f0dc5ef148b50847f914a2b70af018571164b3d6bb7961e9f70d31be386b2a7
 F src/pikchrshow.c 38230d83b2aba9bfb3f4d612b835ea824fefa447e20619d837d1d80f27d04681
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7259ea07c0ce42bc7ef0b6ff613af8f7f31ac179fcedbaca70f54a0b4e26089
-R 3b6d677665cb61b706ae67492dbea90e
+P 02c6b07eab4a148be17923c4f02efe06a7685a3f3f7f957ff0cfd7ff9a69109c
+R 54687973f1db6bbf8c34cfd77c5faf0b
 U drh
-Z 92d7ebf92252f342d2950f81b1ad6ae4
+Z 7ee2f9b620c3935b0546f74155077685
