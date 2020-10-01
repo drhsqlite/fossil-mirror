@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.33\salpha\sfor\stesting.
-D 2020-09-30T21:11:23.512
+C An\sattempt\sto\senhance\sthe\sgit-fast-export\sreader\sso\sthat\sit\scan\shandle\nbreezy-generated\soutput\sfiles.
+D 2020-10-01T12:13:44.299
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -514,7 +514,7 @@ F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
-F src/import.c dd5d4cad8e8a31c9cf0b6eac90ac97f675eb319cb0502c89d8b199d88ed18734
+F src/import.c 7d2a7ed616fead650581f02dd9b2733eb91d734801ab8d237b3bdfcb18b9c7d9
 F src/info.c 2dc61dc12c22b1f2a8a734475bb25282527bb6212192c2ff0ce28688805a10a1
 F src/interwiki.c ef2dfc844dfc1396ce60923d9f547730f8d2d505adef2869e09e36846ccdf555
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
@@ -983,7 +983,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7259ea07c0ce42bc7ef0b6ff613af8f7f31ac179fcedbaca70f54a0b4e26089
-R 3b6d677665cb61b706ae67492dbea90e
+P 02c6b07eab4a148be17923c4f02efe06a7685a3f3f7f957ff0cfd7ff9a69109c
+R fd1bb66c83f1facaf7fff98f67c11803
+T *branch * breezy-fast-import
+T *sym-breezy-fast-import *
+T -sym-trunk *
 U drh
-Z 92d7ebf92252f342d2950f81b1ad6ae4
+Z d8ad36cd114bd22c0b08bdf6823fd2d9
