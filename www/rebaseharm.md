@@ -253,24 +253,7 @@ wait until you finally push a collapsed version of a private working
 branch to the parent repo? Will the many eyeballs even see those errors
 when they’re intermingled with code implementing some compelling new feature?
 
-## <a name="testing"></a>4.0 Rebase commits untested check-ins to the blockchain
-
-Rebase adds new check-ins to the blockchain without giving the operator
-an opportunity to test and verify those check-ins.  Just because the
-underlying three-way merge had no conflict does not mean that the resulting
-code actually works.  Thus, rebase runs the very real risk of adding
-non-functional check-ins to the permanent record.
-
-Of course, a user can also commit untested or broken check-ins without
-the help of rebase.  But at least with an ordinary commit or merge
-(in Fossil at least), the operator
-has the *opportunity* to test and verify the merge before it is committed,
-and a chance to back out or fix the change if it is broken without leaving
-busted check-ins on the blockchain to complicate future bisects.
-
-With rebase, pre-commit testing is not an option.
-
-## <a name="timestamps"></a>5.0 Rebase causes timestamp confusion
+## <a name="timestamps"></a>4.0 Rebase causes timestamp confusion
 
 Consider the earlier example of rebasing a feature branch:
 
@@ -312,7 +295,7 @@ about when those check-ins were originally created, which can make
 historical analysis of changes more difficult. It might also
 complicate the legal defense of prior art claims.
 
-## <a name="lying"></a>6.0 Rebasing is lying about the project history
+## <a name="lying"></a>5.0 Rebasing is lying about the project history
 
 By discarding parentage information, rebase attempts to deceive the
 reader about how the code actually came together.
@@ -371,7 +354,7 @@ to check-ins.
 Wouldn't it be better to fix the version control tool
 rather than requiring users to fabricate a fictitious project history?
 
-## <a name="collapsing"></a>7.0 Collapsing check-ins throws away valuable information
+## <a name="collapsing"></a>6.0 Collapsing check-ins throws away valuable information
 
 One of the oft-cited advantages of rebasing in Git is that it lets you
 collapse multiple check-ins down to a single check-in to make the
@@ -386,7 +369,7 @@ The common counterargument is that collapsed check-ins represent a
 better world, the ideal we're striving for. What that argument overlooks
 is that we must throw away valuable information to get there.
 
-### <a name="empathy"></a>7.1 Individual check-ins support developer empathy
+### <a name="empathy"></a>6.1 Individual check-ins support developer empathy
 
 Ideally, future developers of our software can understand every feature
 in it using only context available in the version of the code they start
@@ -431,7 +414,7 @@ finished feature.
 
 [sdm]: ./fossil-v-git.wiki#durable
 
-### <a name="bisecting"></a>7.2 Bisecting works better on small check-ins
+### <a name="bisecting"></a>6.2 Bisecting works better on small check-ins
 
 Git lets a developer write a feature in ten check-ins but collapse it
 down to an eleventh check-in and then deliberately push only that final
@@ -446,7 +429,7 @@ repository so that a later investigator doing the same sort of bisect
 sees the complete check-in history. That bisect will point the
 investigator at the single original check-in that caused the problem.
 
-### <a name="comments"></a>7.3 Multiple check-ins require multiple check-in comments
+### <a name="comments"></a>6.3 Multiple check-ins require multiple check-in comments
 
 The more comments you have from a given developer on a given body of
 code, the more concise documentation you have of that developer's
@@ -458,7 +441,7 @@ accomplish than if they must work that out from the eleventh check-in's
 comment, which only explains the "clean" version of the collapsed
 feature.
 
-### <a name="cherrypicking"></a>7.4 Cherry-picks work better with small check-ins
+### <a name="cherrypicking"></a>6.4 Cherry-picks work better with small check-ins
 
 While working on a new feature in one branch, you may come across a bug
 in the pre-existing code that you need to fix in order for work on that
@@ -500,7 +483,7 @@ them more time to do the cherry-pick that way.
 
 [rh]: https://en.wikipedia.org/wiki/Red_Hat
 
-### <a name="backouts"></a>7.5 Back-outs also work better with small check-ins
+### <a name="backouts"></a>6.5 Back-outs also work better with small check-ins
 
 The inverse of the cherry-pick merge is the back-out merge. If you push
 only a collapsed version of a private working branch up to the parent
@@ -509,7 +492,7 @@ any of the individual check-ins that went into that private branch.
 Others must either manually disentangle the problematic part of your
 merge check-in or back out the entire feature.
 
-## <a name="better-plan"></a>8.0 Cherry-pick merges work better than rebase
+## <a name="better-plan"></a>7.0 Cherry-pick merges work better than rebase
 
 Perhaps there are some cases where a rebase-like transformation
 is actually helpful, but those cases are rare, and when they do
@@ -531,7 +514,7 @@ topology with several advantages:
 
 [tbc]: ./fossil-v-git.wiki#testing
 
-## <a name="conclusion"></a>9.0 Summary and conclusion
+## <a name="conclusion"></a>8.0 Summary and conclusion
 
 Rebasing is an anti-pattern.  It is dishonest.  It deliberately
 omits historical information.  It causes problems for collaboration.
