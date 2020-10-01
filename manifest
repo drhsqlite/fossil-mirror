@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s"fossil\simport"\scommand\sso\sthat\sit\scan\snow\n(hopefully)\sinterpret\s"breezy"\sfiles.
-D 2020-10-01T18:34:33.008
+C The\srebaseharm.md\sdoc\sreferred\sto\srebase04.svg\s*twice*,\sso\swhile\sall\nSVGs\sassociated\swith\sthe\sdoc\swere\sreplaced,\sthe\ssecond\sbecame\sa\sbroken\nlink\swhen\sthe\sSVG\sfiles\swere\sremoved.\s\sSimply\sduplicating\sthe\scode\swith\ncomments\sto\stry\sto\sstave\soff\sversion\sdrift\sfor\snow.
+D 2020-10-01T20:37:34.399
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -930,7 +930,7 @@ F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0c
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
 F www/quickstart.wiki 18a1bd7bb08d7d4455fe4aca0019146e5ffdcb3f2f03c58a4bdda0fa374bd3e1
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
-F www/rebaseharm.md 0c3b4906ea01a4fa82a681251ec99bfd7026e59329f423674823cf29c122ee41
+F www/rebaseharm.md 997710d398d21fe417fb9115f7f4a9a7a573dbd84ec927b62a848627eecb8e46
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
@@ -983,8 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42caafaf3ba5e5e26d1fdeefa2aa1fba8744d9a7a706085ac85e1e81a9b7eae0 8e5b01034925671f5fdb086a0c9e84e033d0e12d16e1432bdc46e4842bc26705
-R a7661bcaf875f99d7decb9cfba683f98
-T +closed 8e5b01034925671f5fdb086a0c9e84e033d0e12d16e1432bdc46e4842bc26705
-U drh
-Z cc93edc1b27d60b19ca4b8336541d514
+P d82534b3acd76e9d92f9f801666448c072fa2990842883f821d2b05aea92f0ff
+R 6b6fedea6d8f0dfa60a3dc6310debcdf
+U wyoung
+Z c40fa7ff14acc887592a51f24d0a1021
