@@ -327,11 +327,11 @@ by allowing users to:
   2.  Attach supplemental notes to check-ins or whole branches
   3.  Cross-reference check-ins with each other, or with
       wiki, tickets, forum posts, and/or embedded documentation
-  4.  Cause mistaken or unused branches to be hidden from
-      routine display
+  4.  Hide ill-conceived or now-unused branches from routine display
   5.  Fix faulty check-in date/times resulting from misconfigured
       system clocks
-  6.  And so forth....
+ 
+…and so forth.
 
 These changes are accomplished not by removing or modifying existing
 repository entries, but rather by adding new supplemental records.
@@ -369,7 +369,7 @@ The common counterargument is that collapsed check-ins represent a
 better world, the ideal we're striving for. What that argument overlooks
 is that we must throw away valuable information to get there.
 
-### <a name="empathy"></a>6.1 Individual check-ins support developer empathy
+### <a name="empathy"></a>6.1 Individual check-ins support mutual understanding
 
 Ideally, future developers of our software can understand every feature
 in it using only context available in the version of the code they start
@@ -386,7 +386,7 @@ developer thinking?" you haven't been developing software for very long.
 
 When a developer can go back to the individual check-ins leading up to
 the current code, they can work out the answers to such questions using
-only the level of empathy necessary to be a good developer. To
+only the level of personal brilliance necessary to be a good developer. To
 understand such code using only the finished form, you are asking future
 developers to make intuitive leaps that the original developer was
 unable to make. In other words, you are asking your future maintenance
@@ -499,17 +499,29 @@ is actually helpful, but those cases are rare, and when they do
 come up, running a series of cherry-pick merges achieves the same
 topology with several advantages:
 
-  1.  Cherry-pick merges preserve an honest record of history.
-      (They do in Fossil at least.  Git's file format does not have
-      a slot to record cherry-pick merge history, unfortunately.)
+  1.  In Fossil, cherry-pick merges preserve an honest and clear record
+      of history.  Fossil remembers where a cherry-pick came from, and
+      it shows this in its timeline, so other developers can understand
+      how a cherry-pick based commit came together.
 
-  2.  Cherry-picks provide an opportunity to [test each new check-in
-      before it is committed][tbc] to the blockchain
+      Git lacks the ability to remember the source of a cherry-pick as
+      part of the commit. This fact has no direct bearing on this
+      document’s thesis, but we can make a few observations. First, Git
+      forgets history in more cases than in rebasing. Second, if Git
+      remembered the source of cherry-picks in commits, Git users might
+      have a better argument for avoiding rebase, because they’d have an
+      alternative that *didn’t* lose history.
 
-  3.  Cherry-pick merges are "safe" in the sense that they do not
-      cause problems for collaborators if you do them on public branches.
+  2.  Fossil’s [test before commit philosophy][tbc] means you can test a
+      cherry-pick before committing it. Because Fossil allows multiple
+      cherry-picks in a single commit and it remembers them all, you can
+      do this for a complicated merge in step-wise fashion.
 
-  4.  Cherry-picks keep both the original and the revised check-ins,
+      Git commits cherry-picks straight to the repository, so that if it
+      results in a bad state, you have to do something drastic like
+      `git reset --hard` to repair the damage.
+
+  3.  Cherry-picks keep both the original and the revised check-ins,
       so both timestamps are preserved.
 
 [tbc]: ./fossil-v-git.wiki#testing
