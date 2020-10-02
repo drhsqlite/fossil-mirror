@@ -680,6 +680,8 @@ static void ls_cmd_rev(
 **   -t                    Sort output in time order.
 **   -r VERSION            The specific check-in to list.
 **   -R|--repository FILE  Extract info from repository FILE.
+**   --hash                With -v, verify file status using hashing
+**                         rather than relying on file sizes and mtimes.
 **
 ** See also: [[changes]], [[extras]], [[status]]
 */
@@ -692,6 +694,7 @@ void ls_cmd(void){
   char *zOrderBy = "pathname";
   Blob where;
   int i;
+  int useHash = 0;
   const char *zName;
   const char *zRev;
 
@@ -702,6 +705,9 @@ void ls_cmd(void){
   showAge = find_option("age",0,0)!=0;
   zRev = find_option("r","r",1);
   timeOrder = find_option("t","t",0)!=0;
+  if( verboseFlag ){
+    useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
+  }
 
   if( zRev!=0 ){
     db_find_and_open_repository(0, 0);
@@ -739,7 +745,7 @@ void ls_cmd(void){
        zName, filename_collation()
     );
   }
-  vfile_check_signature(vid, 0);
+  vfile_check_signature(vid, useHash ? CKSIG_HASH : 0);
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"

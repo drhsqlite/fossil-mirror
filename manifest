@@ -1,5 +1,5 @@
-C Clarity\spass\son\sthe\srebaseharm\sdoc\sfollowing\sthe\srecent\sHacker\sNews\nthread,\sto\saddress\sconfusions\sthat\scame\sup\sthere.
-D 2020-10-01T21:21:54.236
+C Added\s--hash\sflag\sto\sls\s-v,\sfor\sconsistency\swith\sstatus/changes,\sper\s[https://fossil-scm.org/forum/forumpost/896de8f963].
+D 2020-10-02T09:38:25.561
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c 982dbbcf3104b2de063b43a0f4798a7c15137e34e2cf2c306072e3a1b4dc221c
 F src/cgi.c 9efe8767e9114f5334347d2f45b9660e597f73b2a0ebbee077254e0ce0743189
-F src/checkin.c 14225096b6f85d04a1fbb2966aac2b0fd4ea5476c4d29b97c3f6ebf44a54e765
+F src/checkin.c 90dd0ab17921fc986938e72f4674b46fea81235919063fea680a58331e7117a8
 F src/checkout.c d297ecc288189c3ffe78184e04126b7fb0726601a0be71555b4c0f8ed37fa907
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e0dba257b226383c8d61e5decfd61231f9f81793d1510eed132d98928e89c8b
-R 60fa9bdd7cb2bef64437cdccfe3d0fa9
-U wyoung
-Z a021f7fea0a1047ee2e1b3ff7f217406
+P 068e26af37d7f6464b2bbb9522e140770b0198157ff15126926e51bc93b7ef2e
+R 547aa7753ff2bc84b2505c7fb8a1df5f
+U stephan
+Z 4cdf7ee0b7f42ab4ea0ebaee04d56094
