@@ -394,10 +394,10 @@ and painlessly.</p>
 <h2 id="links">Other Resources</h2>
 
    <ul>
-   <li> <a href="./gitusers.md">Hints for users with prior Git experience</a>
-   <li> <a href="./whyusefossil.wiki">Benefits Of Version Control</a>
-   <li> <a href="./history.md">The Purpose And History of Fossil</a>
-   <li> <a href="./branching.wiki">Branching, Forking, Merge, and Taggings</a>
-   <li> <a href="./hints.wiki">Tips and Usage Hints</a>
-   <li> <a href="./permutedindex.html">Comprehensive documentation index</a>
+   <li> <a href="./gitusers.md">Hints For Users With Prior Git Experience</a>
+   <li> <a href="./whyusefossil.wiki">Why You Should Use Fossil</a>
+   <li> <a href="./history.md">The History and Purpose of Fossil</a>
+   <li> <a href="./branching.wiki">Branching, Forking, and Tagging</a>
+   <li> <a href="./hints.wiki">Fossil Tips and Usage Hints</a>
+   <li> <a href="./permutedindex.html">Comprehensive Fossil Doc Index</a>
    </ul>

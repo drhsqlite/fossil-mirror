@@ -1,5 +1,5 @@
-C Converted\sobsolete\s<a\sname>\sanchors\sin\sthe\squickstart\sdoc\sto\sfragment\nidentifiers\son\sthe\sheaders,\sand\sadded\sfragment\sIDs\sto\sall\sof\sthe\sh2\nlevel\sheaders\sthat\slacked\sone.
-D 2020-10-02T20:25:28.453
+C Changed\sthe\sname\sof\sdocs\sat\sthe\send\sof\sthe\squickstart\sdoc\sto\smatch\stheir\nactual\stitles.
+D 2020-10-02T20:28:40.179
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -928,7 +928,7 @@ F www/permutedindex.html c7fd5f42cd8dc8766d532637309be4bfa9ecc51196efbaa3cca342c
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
-F www/quickstart.wiki 589f2a7794b5d178fca2b56e709983de5597f88460eb2579e9d2084d32468958
+F www/quickstart.wiki 018effa5c7c0d4589eea0881a078f8cb019b2f4cdda8e1f36bfa89438d8d14bb
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
 F www/rebaseharm.md 7c0d45b467ba8ff9f907d1d5406322080ac273bcd59d0e3730401c6f72bae857
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aae387d956850ab9ffb6c4be668a5512a792283c0d5d9027d5cf5a70e20a1869
-R b26e23e5d627843bfaf78a1e47daf5d4
+P 8da7b15e7149d39a367e0f65fbf0e3517a21d06a0ea2be4198217a84227a39e8
+R b9c4e1124ec23362db96d9346e75dea2
 U wyoung
-Z a27846740ec51a1f6b5b7472aa8f37fa
+Z 82dd4745dc79f13e8b5809bbd580c9e9
