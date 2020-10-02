@@ -67,20 +67,42 @@ of the files you want to commit as arguments, like this:
 
         fossil commit src/main.c doc/readme.md
 
-## Create Branches After-The-Fact
+## Create Branches At Point Of Need, Rather Than Ahead of Need
 
-Fossil perfers that you create new branches when you commit using
-the "`--branch` _BRANCH-NAME_" command-line option.  For example:
+Fossil prefers that you create new branches as part of the first commit
+on that branch:
 
-        fossil commit --branch my-new-branch
+       fossil commit --branch my-new-branch
 
-It is not necessary to create branches ahead of time, as in Git, though
-that is allowed using the "`fossil branch new`" command, if you
-prefer.  Fossil also allows you to move a check-in to a different branch
+If that commit is successful, your local checkout directory is then
+switched to the tip of that branch, so subsequent commits don’t need the
+“`--branch`” option. You have to switch back to the parent branch
+explicitly, as with
+
+       fossil update trunk       # return to parent, “trunk” in this case
+
+Fossil does also support the Git style, creating the branch ahead of
+need:
+
+       fossil branch new my-new-branch
+       fossil update my-new-branch
+       ...work on first commit...
+       fossil commit
+
+This is more verbose, but it has the same effect: put the first commit
+onto `my-new-branch` and switch the checkout directory to that branch so
+subsequent commits are descendants of that initial branch commit.
+
+Fossil also allows you to move a check-in to a different branch
 *after* you commit it, using the "`fossil amend`" command.
 For example:
 
         fossil amend current --branch my-new-branch
+
+(“current” is one of the [special check-in names][scin] in Fossil. See
+that document for the many other names you can give to “`amend`”.)
+
+[scin]: ./checkin_names.wiki
 
 ## Autosync
 
