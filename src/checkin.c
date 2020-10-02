@@ -706,7 +706,7 @@ void ls_cmd(void){
   zRev = find_option("r","r",1);
   timeOrder = find_option("t","t",0)!=0;
   if( verboseFlag ){
-    useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
+    useHash = find_option("hash",0,0)!=0;
   }
 
   if( zRev!=0 ){
