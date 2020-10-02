@@ -106,17 +106,20 @@ individual branches.  When you sync/push/pull in Fossil, you sync/push/pull
 everything - all branches, all wiki, all tickets, all forum posts,
 all tags, all technotes - everything.
 
-## The Main Branch Is Called "`trunk`", not "`master`"
+## The Main Branch Is Called "`trunk`"
 
 In Fossil, the traditional name and the default name for the main branch
 is "`trunk`".  The "`trunk`" branch in Fossil corresponds to the
-"`master`" branch in Git.
+"`master`" branch in stock Git or the "`main`" branch in GitHub.
 
-These naming conventions are so embedded in each system, that the
-"trunk" branch name is automatically translated to "master" when
-a [Fossil repo is mirrored to GitHub][6].
+Because the `fossil git export` command has to work with both stock Git
+and with GitHub, Fossil uses Git’s default: your Fossil repo’s “trunk”
+branch becomes “master” on GitHub, not “main,” as in new GitHub repos.
+It is not known what happens on subsequent exports if you
+[later rename it][ghmain].
 
 [6]: ./mirrortogithub.md
+[ghmain]: https://github.com/github/renaming
 
 ## The "`fossil status`" Command Does Not Show Unmanaged Files
 
