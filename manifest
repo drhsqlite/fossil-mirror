@@ -1,5 +1,5 @@
-C Clarified\sand\sexpanded\sthe\s"create\sbranches\sat\spoint\sof\sneed"\ssection\sof\nthe\sgitusers.md\sdoc.
-D 2020-10-02T22:11:38.094
+C Expanded\son\sseveral\spoints\sin\sthe\sgitusers\sdoc,\sadded\slinks\sto\sother\ndocs,\sadded\snamed\sanchors\sto\sall\sof\sthe\stop-level\ssections,\sand\sremoved\nthe\sobsolete\ssection\son\s"no\smultiple\sremotes"\snow\sthat\swe\shave\sthe\n"fossil\sremote\sadd"\sfeature.
+D 2020-10-03T01:35:53.784
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -877,7 +877,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md 731d4ba2d0ae1ac3abd698ca4e9b71299f115e7ea33d52a14d18db541ca9e696
+F www/gitusers.md 5901979a29c9f14216a30dac25ff629e72008ba1874d6b8a1374922e71add043
 F www/globs.md fb92287b95e7fc588a768f5961b3268a1b8d82c4b3e657ee0453f988825ebc72
 F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b0ee3d5d75b38fffb41a2dc8bfd3d522930ba5ff50f47787e7e9c2c1522d56e2
-R f327ff0902d212a2a6298026dd21ddb2
+P 331dc0d334f6566d917052c473a0be523bf9e0d73e8db8d0fe8e7c4e2df0540a
+R df37d6870da89a808203364ad811c85f
 U wyoung
-Z 1ece9d65cc7ab979811c62c2ae7cbdf5
+Z 65cdf000d646af782acb8ac69fc622bf

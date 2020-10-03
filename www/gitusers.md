@@ -5,6 +5,7 @@ new users of Fossil who have had prior exposure to Git.  In other words,
 this document tries to describe the differences in how Fossil works 
 from the perspective of Git users.
 
+
 ## Help Improve This Document
 
 If you have a lot of prior Git experience, and you are new to Fossil
@@ -20,6 +21,8 @@ will help us to improve the document.
 Specific suggestions on how to improve this document are also welcomed,
 of course.
 
+
+<a id="mwd"></a>
 ## Repositories And Checkouts Are Distinct
 
 A repository and a check-out are distinct concepts in Fossil, whereas
@@ -56,6 +59,8 @@ move or rename the repository file, the check-outs won't be able to find
 it and will complain.  But you can freely move check-outs around without
 causing any problems.
 
+
+<a id="staging"></a>
 ## There Is No Staging Area
 
 Fossil omits the "Git index" or "staging area" concept.  When you
@@ -67,6 +72,8 @@ of the files you want to commit as arguments, like this:
 
         fossil commit src/main.c doc/readme.md
 
+
+<a id="bneed"></a>
 ## Create Branches At Point Of Need, Rather Than Ahead of Need
 
 Fossil prefers that you create new branches as part of the first commit
@@ -104,6 +111,8 @@ that document for the many other names you can give to “`amend`”.)
 
 [scin]: ./checkin_names.wiki
 
+
+<a id="autosync"></a>
 ## Autosync
 
 Fossil has a feature called "[autosync][5]".  Autosync defaults on.
@@ -121,13 +130,30 @@ If your local machine dies catastrophically, you haven't lost any
 (committed) work.  But you can still work and commit while off network,
 with changes resyncing automatically when you get back on-line.
 
+
+<a id="syncall"></a>
 ## Syncing Is All-Or-Nothing
 
 Fossil does not support the concept of syncing, pushing, or pulling
 individual branches.  When you sync/push/pull in Fossil, you sync/push/pull
-everything - all branches, all wiki, all tickets, all forum posts,
-all tags, all technotes - everything.
+everything: all branches, all wiki, all tickets, all forum posts,
+all tags, all technotes… Everything.
 
+Furthermore, branch *names* sync automatically in Fossil, not just the
+content of those branches. This means this common Git command:
+
+        git push origin master
+
+is simply this in Fossil:
+
+        fossil push
+
+Fossil doesn’t need to be told what to push or where to push it: it just
+keeps using the same remote server URL and branch name you gave it last,
+until you tell it to do something different.
+
+
+<a id="trunk"></a>
 ## The Main Branch Is Called "`trunk`"
 
 In Fossil, the traditional name and the default name for the main branch
@@ -143,6 +169,8 @@ It is not known what happens on subsequent exports if you
 [6]: ./mirrortogithub.md
 [ghmain]: https://github.com/github/renaming
 
+
+<a id="unmanaged"></a>
 ## The "`fossil status`" Command Does Not Show Unmanaged Files
 
 The "`fossil status`" command shows you what files in your check-out have
@@ -151,16 +179,26 @@ But unlike "`git status`", the "`fossil status`" command does not warn
 you about unmanaged files in your local check-out.  There is a separate
 "`fossil extras`" command for that.
 
+
+<a id="rebase"></a>
 ## There Is No Rebase
 
-Fossil does not support rebase.
-This is a [deliberate design decision][3] that has been thoroughly,
-carefully, and throughtfully discussed, many times.  If you are fond
-of rebase, you should read the [Rebase Considered Harmful][3] document
-carefully before expressing your views.
+Fossil does not support rebase, [on purpose][3].
+
+This is a deliberate design decision that the Fossil community has
+thought about carefully and discussed many times, resulting in the
+linked document. If you are fond of rebase, you should read it carefully
+before expressing your views: it not only answers many of the common
+arguments in favor of rebase known at the time the document’s first
+draft was written, it’s been revised multiple times to address less
+common objections as well. Chances are not good that you are going to
+come up with a new objection that we haven’t already considered and
+addressed there.
 
 [3]: ./rebaseharm.md
 
+
+<a id="btnames"></a>
 ## Branch and Tag Names
 
 Fossil has no special restrictions on the names of tags and branches,
@@ -171,44 +209,45 @@ in mind if you plan on mirroring your Fossil repository to GitHub.
 
 Fossil does not require tag and branch names to be unique.  It is
 common, for example, to put a "`release`" tag on every release for a
-Fossil-hosted project.
+Fossil-hosted project. This does not create a conflict in Fossil, since
+Fossil resolves such conflicts in a predictable way: the newest match
+wins. Therefore, “`fossil up release`” always gets you the current
+release in a project that uses this tagging convention.
 
-## Only One "origin" At A Time
 
-A Fossil repository only keeps track of one "origin" server at a time.
-If you specify a new "origin" it forgets the previous one.  Use the
-"`fossil remote`" command to see or change the "origin".
+<a id="cpickrev"></a>
+## Cherry-Picking and Reverting Commits
 
-Fossil uses a very different sync protocol than Git, so it isn't as
-important for Fossil to keep track of multiple origins as it is with
-Git.  So only having a single origin has never been a big enough problem
-in Fossil that somebody felt the need to extend it.
+Git’s separate "`git cherry-pick`" and “`git revert`” commands are
+options to the [`fossil merge` command][merge]: `--cherrypick` and
+`--backout`, respectively.
 
-Maybe we will add multiple origin support to Fossil someday.  Patches
-are welcomed if you want to have a go at it.
+Unlike in Git, the Fossil file format remembers cherrypicks and backouts
+and can later show them as dashed lines on the graphical timeline.
 
-## Cherry-pick Is An Option To The "merge" Command
+[merge]: /help?cmd=merge
 
-In Git, "`git cherry-pick`" is a separate command.
-In Fossil, "`fossil merge --cherrypick`" is an option on the merge
-command.  Otherwise, they work mostly the same.
 
-Except, the Fossil file format remembers cherrypicks and actually
-shows them as dashed lines on the graphical DAG display, whereas
-there is no provision for recording cherry-picks in the Git file
-format, so you have to talk about the cherry-pick in the commit
-comment if you want to remember it.
 
-## The "`fossil mv`" and "`fossil rm`" Commands Do Not Actually Rename Or Delete The Files (by default)
+<a id="mvrm"></a>
+## File Moves And Renames Are Soft By Default
 
-By default,
-the "`fossil mv`" and "`fossil rm`" commands work like they do in CVS in
-that they schedule the changes for the next commit, but do not actually
-rename or delete the files in your check-out.  You can to add the "--hard"
-option to also changes the files in your check-out.
-If you run
+The "[`fossil mv`][mv]" and "[`fossil rm`][rm]" commands work like they
+do in CVS in that they schedule the changes for the next commit by
+default: they do not actually rename or delete the files in your
+check-out.
+
+If you don’t like that default, you can change it globally:
 
          fossil setting --global mv-rm-files 1
 
-it makes a notation in your per-user "~/.fossil" settings file so that
-the "--hard" behavior becomes the new default.
+Now these commands behave like in Git in any Fossil repository where
+this setting hasn’t been overridden locally.
+
+If you want to keep Fossil’s soft `mv/rm` behavior most of the time, you
+can cast it away on a per-command basis:
+
+         fossil mv --hard old-name new-name
+
+[mv]: /help?cmd=mv
+[rm]: /help?cmd=rm
