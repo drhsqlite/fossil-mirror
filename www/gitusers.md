@@ -291,7 +291,20 @@ repo up to the NAS:
         ssh my-nas.local 'git init --bare /SHARES/dayjob/repo.git'
         git push --all ssh://my-nas.local//SHARES/dayjob/repo.git
 
-Now we can tell Git that there is a second origin, a “home” repo in
+Realize that this is carefully optimized down to these two long
+commands. In practice, typing these commands by hand, from memory, we’d
+expect a normal user to need to give four or more commands here instead.
+Packing the “`git init`” call into the “`ssh`” call is something more
+done in scripts and documentation examples than is done interactively,
+which then necessitates a third command before the push, “`exit`”.
+There’s also a good chance that you’ll forget the need for the `--bare`
+option here to avoid a fatal complaint from Git that the laptop can’t
+push into a non-empty repo. If you fall into this trap, among the many
+that Git lays for newbies, you have to nuke the incorrectly initted
+repo, search the web and docs to find out about `--bare`, and try again.
+
+Having navigated that little minefield,
+we can tell Git that there is a second origin, a “home” repo in
 addition to the named “work” repo we set up earlier:
 
         git remote add home ssh://my-nas.local//SHARES/dayjob/repo.git
@@ -368,12 +381,8 @@ up to the NAS:
         rsync repo.fossil my-nas.local:/SHARES/dayjob/
 
 Now we’re beginning to see the advantage of Fossil’s simpler model,
-relative the tricky “`git init && git push`” sequence above. It’d be
-four commands instead of two if you weren’t clever enough to pack the
-init into an `ssh` command, and unless you’re well versed with Git,
-you’ll probably forget to give the `--bare` option the first time,
-adding more commands as you blow the first attempt away and try again.
-Contrast the Fossil alternative, which is almost impossible to get
+relative the tricky “`git init && git push`” sequence above.
+Fossil’s alternative is almost impossible to get
 wrong: copy this to that.  *Done.*
 
 We’re relying on the `rsync` feature that creates up to one level of
@@ -394,10 +403,7 @@ case:
 The first command is nearly identical to the Git version, but the second
 is considerably simpler. And to be fair, you won’t find that second
 command in all Git tutorials: the more common one we found with web
-searches is “`git push --set-upstream home master`”. Not only is it
-longer, it’s wasteful to do it that way in the example above because
-we’re working with a just-created remote clone of the local repo, so
-doing this via “push” makes Git do pointless extra work.
+searches is “`git push --set-upstream home master`”.
 
 Where Fossil really wins is in the next step, making the initial commit
 from home:
