@@ -251,3 +251,168 @@ can cast it away on a per-command basis:
 
 [mv]: /help?cmd=mv
 [rm]: /help?cmd=rm
+
+
+<a id="morigin"></a>
+## Multiple "origin" Servers
+
+In this final section of the document, we’ll go into a lot more detail
+to illustrate the points above, not just give a quick summary of this
+single difference.
+
+Consider a common use case — at the time of this writing, during the
+COVID-19 pandemic — where you’re working from home a lot, going into the
+office maybe one part-day a week.  Let us also say you have no remote
+access back into the work LAN, such as because your site IT is paranoid
+about security. You may still want off-machine backups of your commits,
+so what you want is the ability to quickly switch between the “home” and
+“work” remote repositories, with your laptop acting as a kind of
+[sneakernet][sn] link between the big development server at the office
+and your family’s home NAS.
+
+### Git Method
+
+We first need to clone the work repo down to our laptop, so we can work on it
+at home:
+
+        git clone https://dev-server.example.com/repo
+        cd repo
+        git remote rename origin work
+
+The last command is optional, strictly speaking. We could continue to
+use Git’s default name for the work repo’s origin — sensibly enough
+called “`origin`” — but it makes later commands harder to understand, so
+we rename it here. This will also make the parallel with Fossil easier
+to draw.
+
+The first time we go home after this, we have to reverse-clone the work
+repo up to the NAS:
+
+        ssh my-nas.local 'git init --bare /SHARES/dayjob/repo.git'
+        git push --all ssh://my-nas.local//SHARES/dayjob/repo.git
+
+Now we can tell Git that there is a second origin, a “home” repo in
+addition to the named “work” repo we set up earlier:
+
+        git remote add home ssh://my-nas.local//SHARES/dayjob/repo.git
+        git config master.remote home
+
+We don’t have to push or pull because the remote repo is a complete
+clone of the repo on the laptop at this point, so we can just get to
+work now, committing along the way to get our work safely off-machine
+and onto the NAS, like so:
+
+        git add
+        git commit
+        git push
+
+We didn’t need to give a remote name on the push because we told it the
+new upstream is the home NAS earlier.
+
+Now Friday comes along, and one of your office-mates needs a feature
+you’re working on. You agree to come into the office later that
+afternoon to sync up via the dev server:
+
+        git push work master      # send your changes from home up
+        git pull work master      # get your coworkers’ changes
+
+Because we didn’t use `--set-upstream/-u` here, we have to name the
+“work” origin explicitly in these commands. (This also shows Git’s
+unwillingness to sync branch names, covered elsewhere in this document.)
+
+### Fossil Method
+
+Now we’re going to do the same thing as above using Fossil. We’ve broken
+the commands up into blocks corresponding to those above for comparison.
+We start the same way, cloning the work repo down to the laptop:
+
+        mkdir repo
+        cd repo
+        fossil open https://dev-server.example.com/repo
+        fossil remote add work https://dev-server.example.com/repo
+
+Unlike Git, Fossil’s “clone and open” feature doesn’t create the
+directory for you, so we need an extra `mkdir` call here that isn’t
+needed in the Git case. This is an indirect reflection of Fossil’s
+[multiple working directories](#mwd) design philosophy: its
+[`open` command][open] requires that you either issue it in an empty
+directory or one containing a prior closed checkout. In exchange for
+this extra command, we get the advantage of Fossil’s
+[superior handling][shwmd] of multiple working directories. To get the
+full power of this feature, you’d switch from the “`fossil open URI`”
+command form to the separate clone-and-open form shown in
+[the quick start guide][qs], which adds one more command.
+
+We can’t spin the longer final command as a trade-off giving us extra
+power, though: the simple fact is, Fossil currently has no short command
+to rename an existing remote. Worse, unlike with Git, we can’t just keep
+using the default remote name because Fossil uses that slot in its
+configuration database to store the *current* remote name, so on
+switching from work to home, the home URL will overwrite the work URL if
+we don’t give it an explicit name first.
+
+Keep these costs in perspective, however: they’re one-time setup costs,
+easily amortized to insignificance by the shorter day-to-day commands
+below.
+
+On first beginning to work from home, we reverse-clone the Fossil repo
+up to the NAS:
+
+        rsync repo.fossil my-nas.local:/SHARES/dayjob/
+
+Now we’re beginning to see the advantage of Fossil’s simpler model,
+relative the tricky “`git init && git push`” sequence above. It’d be
+four commands instead of two if you weren’t clever enough to pack the
+init into an `ssh` command, and unless you’re well versed with Git,
+you’ll probably forget to give the `--bare` option the first time,
+adding more commands as you blow the first attempt away and try again.
+Contrast the Fossil alternative, which is almost impossible to get
+wrong: copy this to that.  *Done.*
+
+We’re relying on the `rsync` feature that creates up to one level of
+missing directory (here, `dayjob/`) on the remote. If you know in
+advance that the remote directory already exists, you could use a
+slightly shorter `scp` command instead. Even with the extra 2 characters
+in the `rsync` form, it’s much shorter because a Fossil repository is a
+single SQLite database file, not a tree containing a pile of assorted
+files.  Because of this, it works reliably without any of [the caveats
+inherent in using `rsync` to clone a Git repo][grsync].
+
+Now we set up the second remote, which is again simpler in the Fossil
+case:
+
+        fossil remote add home ssh://my-nas.local//SHARES/dayjob/repo.fossil
+        fossil remote home
+
+The first command is nearly identical to the Git version, but the second
+is considerably simpler. And to be fair, you won’t find that second
+command in all Git tutorials: the more common one we found with web
+searches is “`git push --set-upstream home master`”. Not only is it
+longer, it’s wasteful to do it that way in the example above because
+we’re working with a just-created remote clone of the local repo, so
+doing this via “push” makes Git do pointless extra work.
+
+Where Fossil really wins is in the next step, making the initial commit
+from home:
+
+        fossil ci
+
+It’s one short command for Fossil instead of three for Git — or two if
+you abbreviate it as “`git commit -a && git push`” — because of Fossil’s
+[autosync feature](#autosync) feature and deliberate omission of a
+[staging feature](#staging).
+
+The “Friday afternoon sync-up” case is simpler, too:
+
+        fossil remote work
+        fossil sync
+
+Back at home, it’s even simpler: we can do away with the second command,
+saying just “`fossil remote home`” because the sync will happen as part
+of the next commit, thanks once again to Fossil’s autosync feature.
+
+[grsync]: https://stackoverflow.com/q/1398018/142454
+[open]:   /help?cmd=open
+[qs]:     ./quickstart.wiki
+[shwmd]:  ./fossil-v-git.wiki#checkouts
+[sn]:     https://en.wikipedia.org/wiki/Sneakernet
