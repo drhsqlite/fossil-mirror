@@ -316,9 +316,16 @@ afternoon to sync up via the dev server:
         git push work master      # send your changes from home up
         git pull work master      # get your coworkers’ changes
 
-Because we didn’t use `--set-upstream/-u` here, we have to name the
-“work” origin explicitly in these commands. (This also shows Git’s
-unwillingness to sync branch names, covered elsewhere in this document.)
+Alternately, we could add “`--set-upstream/-u work`” to the first
+command if we were coming into work long enough to do several Git-based things, not just pop in and sync.
+That would allow the second to be just “`git pull`”, but the cost is
+that when returning home, you’d have to manually reset the upstream
+again.
+
+This example also shows a consequence of that fact that
+[Git doesn’t sync branch names](#syncall): you have to keep repeating
+yourself, “master, master.”
+
 
 ### Fossil Method
 
