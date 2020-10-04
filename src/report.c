@@ -1031,7 +1031,7 @@ void rptview_page(void){
       style_submenu_element("SQL", "rptsql?rn=%d",rn);
     }
     if( g.perm.NewTkt ){
-      style_submenu_element("New Ticket", "%s/tktnew", g.zTop);
+      style_submenu_element("New Ticket", "%R/tktnew");
     }
     style_header("%s", zTitle);
     output_color_key(zClrKey, 1,

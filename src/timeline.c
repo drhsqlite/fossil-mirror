@@ -206,7 +206,7 @@ void test_hash_color_page(void){
   if( cnt ){
     @ <hr />
   }
-  @ <form method="post" action="%s(g.zTop)/hash-color-test">
+  @ <form method="post" action="%R/hash-color-test">
   @ <p>Enter candidate branch names below and see them displayed in their
   @ default background colors above.</p>
   for(i=0; i<10; i++){

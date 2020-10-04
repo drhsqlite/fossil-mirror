@@ -123,10 +123,10 @@ void home_page(void){
     if( fossil_strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
   }
   if( zIndexPage ){
-    cgi_redirectf("%s/%s", g.zTop, zIndexPage);
+    cgi_redirectf("%R/%s", zIndexPage);
   }
   if( !g.perm.RdWiki ){
-    cgi_redirectf("%s/login?g=%s/home", g.zTop, g.zTop);
+    cgi_redirectf("%R/login?g=%R/home");
   }
   if( zPageName ){
     login_check_credentials();
@@ -1690,9 +1690,9 @@ void wcontent_page(void){
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   style_header("Available Wiki Pages");
   if( showAll ){
-    style_submenu_element("Active", "%s/wcontent", g.zTop);
+    style_submenu_element("Active", "%R/wcontent");
   }else{
-    style_submenu_element("All", "%s/wcontent?all=1", g.zTop);
+    style_submenu_element("All", "%R/wcontent?all=1");
   }
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
   db_prepare(&q, listAllWikiPages/*works-like:""*/);

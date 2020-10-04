@@ -869,7 +869,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
       if( p->aAttr[i].zValue ){
         const char *zVal = p->aAttr[i].zValue;
         if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
-          blob_appendf(pOut, "=\"%s%s\"", g.zTop, zVal);
+          blob_appendf(pOut, "=\"%R%s\"", zVal);
         }else{
           blob_appendf(pOut, "=\"%s\"", zVal);
         }
