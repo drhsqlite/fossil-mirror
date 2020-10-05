@@ -26,38 +26,116 @@ of course.
 ## Repositories And Checkouts Are Distinct
 
 A repository and a check-out are distinct concepts in Fossil, whereas
-the two are often conflated with Git.  A repository is a database in
+the two are collocated by default with Git.
+
+A Fossil repository is a SQLite database in
 which the entire history of a project is stored.  A check-out is a
-directory hierarchy that contains a snapshot of your project that you
-are currently working on.  See [detailed definitions][2] for more
-information.  With Git, the repository and check-out are closely
-related - the repository is the contents of the "`.git`" subdirectory
-at the root of your check-out.  But with Fossil, the repository and
-the check-out are completely separate.  A Fossil repository can reside
-in the same directory hierarchy with the check-out as with Git, but it
-is more common to put the repository in a separate directory.
+directory that contains a snapshot of your project that you
+are currently working on, extracted for you from that database by the
+`fossil` program. See [the Fossil glossary][gloss] for more information.
 
-[2]: ./whyusefossil.wiki#definitions
+With Git, cloning a repository gets you what Fossil would call a
+check-out directory with the repository stored in a `.git` subdirectory
+of that check-out. There are methods to get more working directories
+pointing at that same Git repository, but because it’s not designed into
+the core concept of the tool, Git tutorials usually advocate a
+switch-in-place working mode instead.
 
-Fossil repositories are a single file, rather than being a directory
-hierarchy as with the "`.git`" folder in Git.  The repository file
-can be named anything you want, but it is best to use the "`.fossil`"
-suffix.  Many people choose to gather all of their Fossil repositories
-in a single directory on their machine, such as "`~/Fossils`" or
+Fossil can operate in the Git mode, switching between versions in a
+single check-out directory:
+
+        fossil clone https://example.com/repo /path/to/repo.fossil
+        mkdir work-dir
+        cd work-dir
+        fossil open /path/to/repo.fossil
+        ...work on trunk...
+        fossil update my-other-branch       # like “git checkout”
+        ...work on your other branch in the same directory...
+
+As of Fossil 2.12, it can clone-and-open into a single directory, as Git
+always has done:
+
+        mkdir work-dir
+        cd work-dir
+        fossil open https://example.com/repo
+
+Now you have “trunk” open in `work-dir`, with the repo file stored as
+`repo.fossil` in that same directory.
+
+(Note that Fossil purposefully does not create the directory for you as
+Git does, because this feature is an extension of
+[the “open” command][open], which historically means “open in the
+current directory” in Fossil. It would be wrong for Fossil to create a
+subdirectory when passed a URI but not when passed any other parameter.)
+
+The repository file can be named anything you want, with a single
+exception: if you’re going to use the [`fossil server DIRECTORY`][server]
+feature, the repositories need to have a "`.fossil`" suffix. That aside,
+you can follow any other convention that makes sense to you.
+
+Many people choose to gather all of their Fossil repositories
+in a single directory on their machine, such as "`~/museum`" or
 "`C:\Fossils`".  This can help humans to keep their repositories
-organized, but Fossil itself doesn't really care.
+organized, but Fossil itself doesn't really care. (Why “museum”?
+Because that is where one stores valuable fossils.)
 
 Because Fossil cleanly separates the repository from the check-out, it
-is routine to have multiple check-outs from the same repository.  Each
-check-out can be on a separate branch, or on the same branch.  Each
-check-out operates independently of the others.
+is routine to have multiple check-outs from the same repository:
 
-Each Fossil check-out contains a file (usually named "`.fslckout`" on
-unix or "`_FOSSIL_`" on Windows) that keeps track of the status of that
-particular check-out and keeps a pointer to the repository.  If you
-move or rename the repository file, the check-outs won't be able to find 
-it and will complain.  But you can freely move check-outs around without
-causing any problems.
+        mkdir -p ~/src/my-project/trunk
+        cd ~/src/my-project/trunk
+        fossil open /path/to/repo.fossil    # implicitly opens “trunk”
+        mkdir ../my-other-branch
+        cd ../my-other-branch
+        fossil open /path/to/repo.fossil my-other-branch
+        mkdir ../release
+        cd ../release
+        fossil open /path/to/repo.fossil release
+        mkdir ../scratch
+        cd ../scratch
+        fossil open /path/to/repo.fossil abcd1234
+        mkdir ../test
+        cd ../test
+        fossil open /path/to/repo.fossil 2019-04-01
+        
+Now you have five separate check-out directories: one each for trunk, an
+alternate branch you’re working on, the latest tagged public release, a
+“scratch” directory for experiments or brief bits of work you don’t want
+to do in the other check-out directories, and a directory for testing a
+user report of a bug in the trunk version as of last April Fool’s Day.
+Each check-out operates independently of the others.
+
+This working style is especially useful when programming in languages
+where there is a “build” step that transforms source files into files
+you actually run or distribute. With Git, switching versions in a single
+working tree means you have to rebuild all outputs from the source files
+that differ between those versions. In the above Fossil working model,
+you switch versions with a “`cd`” command instead, so that you only have
+to rebuild outputs from files you yourself change.
+
+This style is also useful when a check-out directory may be tied up with
+some long-running process, as with the “test” example above, where you
+might need to run an hours-long brute-force replication script to tickle
+a [Heisenbug][hb]. While that runs, you can “`cd ../trunk`” and get back
+to work.
+
+Git users may be initially confused by the `.fslckout` file at the root
+of a check-out directory. (Or with native Windows builds of Fossil, the
+`_FOSSIL_` file, which is the same thing, so-named  to get around the
+historical 3-character extension limit with certain legacy filesystems.)
+This is not the same thing as `.git`. It’s a per-checkout SQLite
+database that keeps track of local state such as what version you have
+checked out, the contents of the stash for that working directory, the
+[undo] buffers, per-checkout settings, and so forth. Largely what Fossil
+does when you ask it to [close] a check-out is to remove this file after
+making certain safety checks.
+
+[close]:  /help?cmd=close
+[gloss]:  ./whyusefossil.wiki#definitions
+[hb]:     https://en.wikipedia.org/wiki/Heisenbug
+[open]:   /help?cmd=open
+[server]: /help?cmd=server
+[undo]:   /help?cmd=undo
 
 
 <a id="staging"></a>
@@ -425,7 +503,6 @@ saying just “`fossil remote home`” because the sync will happen as part
 of the next commit, thanks once again to Fossil’s autosync feature.
 
 [grsync]: https://stackoverflow.com/q/1398018/142454
-[open]:   /help?cmd=open
 [qs]:     ./quickstart.wiki
 [shwmd]:  ./fossil-v-git.wiki#checkouts
 [sn]:     https://en.wikipedia.org/wiki/Sneakernet
