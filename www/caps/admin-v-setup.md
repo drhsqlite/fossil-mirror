@@ -458,3 +458,4 @@ accidental push.
 [snoy]:  https://fossil-scm.org/forum/forumpost/00e1c4ecff
 [th1]:   ../th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
+[webo]:  ./#webonly
