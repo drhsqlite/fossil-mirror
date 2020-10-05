@@ -49,7 +49,7 @@ changes to the shun table as well.
 
 
 
-## Universioned Artifacts
+## Unversioned Artifacts
 
 Data in Fossil’s [unversioned artifacts table][uv] doesn’t sync down by
 default unless you specifically ask for it. Like local configuration
