@@ -1,5 +1,5 @@
-C Added\s"Restoring\sFrom\sAn\sEncrypted\sBackup"\ssection\sto\sthe\snew\sbackup.md\sdoc.
-D 2020-10-05T16:37:57.441
+C Added\sa\snew\sdoc,\s"Fossil\sand\sthe\sCAP\sTheorem."\s\sIt\sdistills\ssome\sgood\ninfo\sfrom\sthe\sforum,\sso\swe\scan\sjust\spoint\sat\sit\sinstead\sof\nrecapitulating\sit.\sBut\sit's\sbeing\schecked\sin\snow\sbecause\san\supcoming\ncommit\swill\srefer\sto\sit.
+D 2020-10-05T17:02:55.321
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -820,6 +820,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 9022b0a0977f57faa5db4c0580ebf76b75fd01abc886fdec013b7dba15aee614
+F www/cap-theorem.md 9a05da3b082d0160e74da50f84c74061ac110df48645b03c33b50a8c2f8ce51a
 F www/caps/admin-v-setup.md 033c8f057f5d986720eb63aac42cb653f90ff832a9cc49e26cbeb7feee0b535c
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
@@ -922,10 +923,10 @@ F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 7440d0a6924555b3699988e542e5f44862378af3e19505c2816bf1db9bf55751
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 75129082da7dbb7dc9277d83a8f2597d4269a15e6195e96d6150c38c4aef0883 x
+F www/mkindex.tcl 2c539d24ddc9a428c5f09c1f4944a599d2bfc8ae3ec257df2c48ab7c7357ad74 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 476cf46e5d3bba5a38e1c855b75f674354e6b192ad4b2856883a66fc87ba8848
+F www/permutedindex.html 185c2aae1acd5d5e2b3218bd6cc1c8428cb6a6e34fe31842ccd2e914a6635cf2
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
@@ -984,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5ad07dcf6455466db6d7fd557ebfd6df7be719b20e9afa7b5932e4e7f7d5c2a
-R 48ef17312f0f4008e5ca9bccc168ef95
+P e0a38eb3eb67c7cfd1d62788c0384090f31f9e534911a61e5fd057f55000cd6e
+R 1372c79efa277ca45eaebfd05973f1dd
 U wyoung
-Z 10f755b2585aa40cf616f9ccb0126aa2
+Z 9994a17bee0694def075d76d10db2ee2

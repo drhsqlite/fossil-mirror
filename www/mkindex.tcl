@@ -20,6 +20,7 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
+  cap-theorem.md {Fossil and the CAP Theorem}
   caps/ {Administering User Capabilities}
   caps/admin-v-setup.md {Differences Between Setup and Admin Users}
   caps/ref.html {User Capability Reference}
