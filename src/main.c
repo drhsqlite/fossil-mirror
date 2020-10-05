@@ -1392,7 +1392,7 @@ void set_base_url(const char *zAltBase){
 ** Send an HTTP redirect back to the designated Index Page.
 */
 NORETURN void fossil_redirect_home(void){
-  cgi_redirectf("%s%s", g.zTop, db_get("index-page", "/index"));
+  cgi_redirectf("%R%s", db_get("index-page", "/index"));
 }
 
 /*
@@ -1756,7 +1756,7 @@ static void process_one_web_page(
     ** name from the beginning of PATH_INFO.
     */
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
-    if( g.zTop ) g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+    if( g.zTop ) g.zTop = mprintf("%R%.*s", i, zPathInfo);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
     zPathInfo += i;
@@ -1796,7 +1796,7 @@ static void process_one_web_page(
     char *zNewScript;
     skin_use_draft(iSkin);
     zNewScript = mprintf("%T/draft%d", P("SCRIPT_NAME"), iSkin);
-    if( g.zTop ) g.zTop = mprintf("%s/draft%d", g.zTop, iSkin);
+    if( g.zTop ) g.zTop = mprintf("%R/draft%d", iSkin);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
     zPathInfo += 7;
     cgi_replace_parameter("PATH_INFO", zPathInfo);

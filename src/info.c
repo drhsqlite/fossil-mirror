@@ -1935,10 +1935,9 @@ void hexdump_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#delshun",
-            g.zTop, zUuid);
+      style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#delshun", zUuid);
     }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+      style_submenu_element("Shun", "%R/shun?shun=%s#addshun", zUuid);
     }
   }
   style_header("Hex Artifact Content");
@@ -2363,10 +2362,9 @@ void artifact_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#accshun",
-            g.zTop, zUuid);
+      style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#accshun", zUuid);
     }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+      style_submenu_element("Shun", "%R/shun?shun=%s#addshun",zUuid);
     }
   }
 
@@ -2464,7 +2462,7 @@ void artifact_page(void){
     }else if( renderAsSvg ){
       @ <object type="image/svg+xml" data="%R/raw/%s(zUuid)"></object>
     }else{
-      style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      style_submenu_element("Hex", "%R/hexdump?name=%s", zUuid);
       if( zLn==0 || atoi(zLn)==0 ){
         style_submenu_checkbox("ln", "Line Numbers", 0, 0);
       }
@@ -2527,10 +2525,9 @@ void tinfo_page(void){
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#accshun",
-            g.zTop, zUuid);
+      style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#accshun", zUuid);
     }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+      style_submenu_element("Shun", "%R/shun?shun=%s#addshun", zUuid);
     }
   }
   pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);

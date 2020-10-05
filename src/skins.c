@@ -391,7 +391,7 @@ static int skinRename(void){
       @ <p><span class="generalError">There is already another skin
       @ named "%h(zNewName)".  Choose a different name.</span></p>
     }
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
+    @ <form action="%R/setup_skin_admin" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Current name:<td align="left"><b>%h(zOldName)</b>
     @ <tr><td align="right">New name:<td align="left">
@@ -433,7 +433,7 @@ static int skinSave(const char *zCurrent){
       @ <p><span class="generalError">There is already another skin
       @ named "%h(zNewName)".  Choose a different name.</span></p>
     }
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
+    @ <form action="%R/setup_skin_admin" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Name for this skin:<td align="left">
     @ <input type="text" size="35" name="svname" value="%h(zNewName)">
@@ -486,7 +486,7 @@ void setup_skin_admin(void){
     /* Process requests to delete a user-defined skin */
     if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
       style_header("Confirm Custom Skin Delete");
-      @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
+      @ <form action="%R/setup_skin_admin" method="post"><div>
       @ <p>Deletion of a custom skin is a permanent action that cannot
       @ be undone.  Please confirm that this is what you want to do:</p>
       @ <input type="hidden" name="sn" value="%h(P("sn"))" />
@@ -576,7 +576,7 @@ void setup_skin_admin(void){
       @ (Currently In Use)
       seenCurrent = 1;
     }else{
-      @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+      @ <form action="%R/setup_skin_admin" method="post">
       @ <input type="hidden" name="sn" value="%h(z)" />
       @ <input type="submit" name="load" value="Install" />
       if( pAltSkin==&aBuiltinSkin[i] ){
@@ -602,7 +602,7 @@ void setup_skin_admin(void){
       @ in the CONFIG table:</h2></td></tr>
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+    @ <form action="%R/setup_skin_admin" method="post">
     if( fossil_strcmp(zV, zCurrent)==0 ){
       @ (Currently In Use)
       seenCurrent = 1;
@@ -620,7 +620,7 @@ void setup_skin_admin(void){
     @ <tr><td colspan=4><h2>Current skin in css/header/footer/details entries \
     @ in the CONFIG table:</h2></td></tr>
     @ <tr><td>%d(i).<td><i>Current</i><td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+    @ <form action="%R/setup_skin_admin" method="post">
     @ <input type="submit" name="save" value="Backup">
     @ </form>
   }
@@ -639,7 +639,7 @@ void setup_skin_admin(void){
       @ in the CONFIG table:</h2></td></tr>
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+    @ <form action="%R/setup_skin_admin" method="post">
     @ <input type="submit" name="draftdel" value="Delete">
     @ <input type="hidden" name="name" value="%h(zN)">
     @ </form></tr>
@@ -800,7 +800,7 @@ void setup_skinedit(void){
     style_submenu_element(aSkinAttr[j].zSubmenu,
           "%R/setup_skinedit?w=%d&basis=%h&sk=%d",j,zBasis,iSkin);
   }
-  @ <form action="%s(g.zTop)/setup_skinedit" method="post"><div>
+  @ <form action="%R/setup_skinedit" method="post"><div>
   login_insert_csrf_secret();
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>

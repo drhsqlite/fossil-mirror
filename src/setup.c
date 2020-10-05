@@ -343,7 +343,7 @@ void setup_access(void){
 
   style_header("Access Control Settings");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_access" method="post"><div>
+  @ <form action="%R/setup_access" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -620,7 +620,7 @@ void setup_login_group(void){
     @ is not currently part of any login-group.
     @ To join a login group, fill out the form below.</p>
     @
-    @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    @ <form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
     @ <blockquote><table border="0">
     @
@@ -676,7 +676,7 @@ void setup_login_group(void){
     db_finalize(&q);
     @ </table>
     @
-    @ <p><form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    @ <p><form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
@@ -733,7 +733,7 @@ void setup_timeline(void){
 
   style_header("Timeline Display Preferences");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_timeline" method="post"><div>
+  @ <form action="%R/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
 
@@ -879,7 +879,7 @@ void setup_settings(void){
   @ If the file for a versionable setting exists, the value cannot be
   @ changed on this screen.</p><hr /><p>
   @
-  @ <form action="%s(g.zTop)/setup_settings" method="post"><div>
+  @ <form action="%R/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
@@ -955,7 +955,7 @@ void setup_config(void){
 
   style_header("WWW Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_config" method="post"><div>
+  @ <form action="%R/setup_config" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -1051,7 +1051,7 @@ void setup_wiki(void){
 
   style_header("Wiki Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_wiki" method="post"><div>
+  @ <form action="%R/setup_wiki" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -1183,7 +1183,7 @@ void setup_adunit(void){
   }
 
   style_header("Edit Ad Unit");
-  @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
+  @ <form action="%R/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
   @ <b>Banner Ad-Unit:</b><br />
  textarea_attribute("", 6, 80, "adunit", "adunit", "", 0);
@@ -1366,11 +1366,11 @@ void setup_logo(void){
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" \
+  @ <blockquote><p><img src="%R/logo/%z(zLogoMtime)" \
   @ alt="logo" border="1" />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
@@ -1390,11 +1390,11 @@ void setup_logo(void){
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" \
+  @ <blockquote><p><img src="%R/background/%z(zBgMtime)" \
   @ alt="background" border=1 />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The background image is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/background">%s(g.zBaseURL)/background</a>.
@@ -1414,11 +1414,11 @@ void setup_logo(void){
   @
   @ <p>The current icon image has a MIME-Type of <b>%h(zIconMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/favicon.ico/%z(zIconMtime)" \
+  @ <blockquote><p><img src="%R/favicon.ico/%z(zIconMtime)" \
   @ alt="icon" border=1 />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The icon image is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/favicon.ico">%s(g.zBaseURL)/favicon.ico</a>.
@@ -1516,7 +1516,7 @@ void sql_page(void){
      go = 1;
   }
   @
-  @ <form method="post" action="%s(g.zTop)/admin_sql">
+  @ <form method="post" action="%R/admin_sql">
   login_insert_csrf_secret();
   @ SQL:<br />
   @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea><br />
@@ -1625,7 +1625,7 @@ void th1_page(void){
   @ run by this page.  If Tcl integration was enabled at compile-time and
   @ the "tcl" setting is enabled, Tcl commands may be run as well.</p>
   @
-  @ <form method="post" action="%s(g.zTop)/admin_th1">
+  @ <form method="post" action="%R/admin_th1">
   login_insert_csrf_secret();
   @ TH1:<br />
   @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
@@ -1727,7 +1727,7 @@ void page_srchsetup(){
     return;
   }
   style_header("Search Configuration");
-  @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
+  @ <form action="%R/srchsetup" method="post"><div>
   login_insert_csrf_secret();
   @ <div style="text-align:center;font-weight:bold;">
   @ Server-specific settings that affect the
@@ -1887,7 +1887,7 @@ void page_waliassetup(){
       "SELECT substr(name,8), value FROM config WHERE name GLOB 'walias:/*'"
       " UNION ALL SELECT '', ''"
   );
-  @ <form action="%s(g.zTop)/waliassetup" method="post"><div>
+  @ <form action="%R/waliassetup" method="post"><div>
   login_insert_csrf_secret();
   @ <table border=0 cellpadding=5>
   @ <tr><th>Alias<th>URI That The Alias Maps Into
