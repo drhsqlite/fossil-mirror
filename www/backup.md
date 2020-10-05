@@ -5,7 +5,8 @@ Simply cloning a Fossil repository does not necessarily create a
 clone, Fossil’s autosync feature isn’t enough to keep that clone fully
 up-to-date in a backup failover sense. This document explains what your
 clone may be missing and how to ensure that it is complete for cases
-where you intend to provide a complete backup of the remote.
+where you wish to have a backup suitable for replacing it without data
+loss, should the need arise.
 
 
 
@@ -87,10 +88,11 @@ remote, such as SQL-level customizations that the sync protocol can’t
 see. (Some [ticket system customization][tkt] schemes do this.) You can
 solve such problems if you have access to the remote server, which
 allows you to get a SQL-level backup. This requires Fossil 2.12 or
-newer, which added [the `backup` command][bu].
+newer, which added [the `backup` command][bu], which takes care of
+locking and transaction isolation to allow backing up an in-use
+repository.
 
-You can get an off-machine SQL-level backup of a Fossil repository on
-a remote server over SSH like so:
+If you have SSH access to the remote server, something like this will work:
 
 ----
 
@@ -106,7 +108,7 @@ ssh example.com "cd museum ; fossil backup -R repo.fossil backups/$bf" &&
 
 A useful refinement that you can apply to both methods above is
 encrypted off-site backups. You may wish to store backups of your
-repositories off-site on services such as Dropbox, Google Drive, iCloud,
+repositories off-site on a service such as Dropbox, Google Drive, iCloud,
 or Microsoft OneDrive, where you don’t fully trust the service not to
 leak your information. This addition to the prior scripts will encrypt
 the resulting backup in such a way that the cloud copy is a useless blob
@@ -146,12 +148,17 @@ the first is [here][grcp], and for the second, [here][rint].
 Compressing the data before encrypting it removes redundancies that can
 make decryption easier, and it results in a smaller backup than you get
 with the previous script alone, at the expense of a lot of CPU time
-during the backup.
+during the backup. You may wish to switch to a less space-efficient
+compression algorithm that takes less CPU power, such as [`lz4`][lz4].
+Changing up the compression algorithm also provides some
+security-thru-obscurity, which is useless on its own, but it *is* a
+useful adjunct to strong encryption.
 
 [bu]:    /help?cmd=backup
 [grcp]:  https://www.grc.com/passwords.htm
 [hb]:    https://brew.sh
 [hbul]:  https://docs.brew.sh/FAQ#what-does-keg-only-mean
+[lz4]:   https://lz4.github.io/lz4/
 [pbr]:   ./private.wiki
 [rint]:  https://www.random.org/integers/?num=1&min=10000&max=100000&col=5&base=10&format=html&rnd=new
 [setup]: ./caps/admin-v-setup.md#apsu
