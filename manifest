@@ -1,5 +1,5 @@
-C Clarity\stweaks\sto\sthe\snew\s"multiple\sorigins"\sscenario\sin\sthe\sgitusers\ndoc.
-D 2020-10-03T02:06:19.443
+C uv\sls/list\sdoc\spatch\sfrom\s[https://fossil-scm.org/forum/forumpost/cdc43ffe60].
+D 2020-10-05T10:13:17.195
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -635,7 +635,7 @@ F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1b
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c a08b302f48e6f7e3d199ce0cef5e9b74620750ad94408d1527982c7c4d4f1bc7
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
-F src/unversioned.c 4b1807aa4edacefdd05e7971a9397349441af656904cc9264aaf9bc8abc9fd6f
+F src/unversioned.c 03501e965afb3d455f659ac85df04023329aedab3f44099375fcce0a3080efa6
 F src/update.c 23cbad78c65b18d714eec8c7988893e67668a67354b8f90210f98bf2ed7d7d92
 F src/url.c c5909f7e89f65d7a26dcc3591bfadfc4e0c917816cbdca6bb688854a510d68dc
 F src/user.c d515073deda5d38ec9e518636ab27535213ddd26356140cc987ef08570afeb6f
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e67c413d505071c2936bc6d8e52de50d80a87df0aff8851dfb9fb93d1e7e966f
-R 5eabfe64740e1258eb3281df68149976
-U wyoung
-Z a94d58b1ce58961f37d2cddef066e4b0
+P 77bb3e4c33f9ff54fc4a9200fb9f2fe5d9425963a6ef47842c6ae14a2746a4ea
+R b53ea685c0f61c54876cad00d0378e39
+U stephan
+Z 640707373d2a6359910caf536c04fb9e

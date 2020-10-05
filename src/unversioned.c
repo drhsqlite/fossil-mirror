@@ -258,6 +258,9 @@ static int contains_whitespace(const char *zName){
 **
 **                              --glob PATTERN   Show only files that match
 **                              --like PATTERN   Show only files that match
+**                              -l               Show additional details for
+**                                               files that match. Implied
+**                                               when 'list' is used.
 **
 **    revert ?URL?           Restore the state of all unversioned files in the
 **                           local repository to match the remote repository
