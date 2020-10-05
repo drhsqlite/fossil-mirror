@@ -1,5 +1,5 @@
-C Fixed\sthe\sscp\scommand\sin\sthe\snew\sbackup.md\sdoc
-D 2020-10-05T13:59:36.881
+C URL\sfix
+D 2020-10-05T14:10:41.526
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -820,7 +820,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 9022b0a0977f57faa5db4c0580ebf76b75fd01abc886fdec013b7dba15aee614
-F www/caps/admin-v-setup.md 1fed1fd5d19c1e5e7780aa743fef959020105f05d8273a0365a20007051ee7f8
+F www/caps/admin-v-setup.md da84fbdb5f2e1b537bbd3bace4253ee2ca046addf1fba65e7cb1619cad9670ec
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb34dd52e2422f84ea675b726b3d19968a90c73244182efe878ea9a90b5fb108
-R 4943db50da22e76d54fa06ef433893f7
+P e3e4bec36092f91d5706d5433c569bc9e49427d86fc7401fcc3c920b99d304e7
+R e40d6fbff762c51cf7559c2f66faee7f
 U wyoung
-Z 8a5f7cd8bf8373ec5f5e68ad95d02c62
+Z 07cd484addbbc217307ad16a6df709e9
