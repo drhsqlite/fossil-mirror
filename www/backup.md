@@ -48,6 +48,7 @@ your local clone to be a precise match to the remote, it needs to track
 changes to the shun table as well.
 
 
+
 ## Universioned Artifacts
 
 Data in Fossil’s [unversioned artifacts table][uv] doesn’t sync down by
@@ -58,9 +59,40 @@ initial clone unless you ask for it by passing the `--unversioned/-u`
 flag.
 
 
+## Autosync Is Intransitive
+
+If you’re using Fossil in a truly distributed mode, rather than the
+simple central-and-clones model that is more common, there may be no
+single source of truth in the network because Fossil’s autosync feature
+isn’t transitive.
+
+That is, if you cloned from server A, and then you stand that up on a
+server B, then if I clone from you as repository C, changes to B
+autosync up to A, but not down to me on C until I do something locally
+that triggers autosync. The inverse is also true: if I commit something
+on C, it will autosync up to B, but A won’t get a copy until someone on
+B does something to trigger autosync there.
+
+An easy way to run into this problem is to set up failover servers
+`svr1` thru `svr3.example.com`, then set `svr2` and `svr3` up to sync
+with the first.  If all of the users normally clone from `svr1`, their
+commits don’t get to `svr2` and `svr3` until something on one of the
+servers pushes or pulls the changes down to the next server in the sync
+chain.
+
+Likewise, if `svr1` falls over and all of the users re-point their local
+clones at `svr2`, then `svr1` later reappears, `svr1` is likely to
+remain a stale copy of the old version of the repository until someone
+causes it to sync with `svr2` or `svr3` to catch up again.  And then if
+you originally designed the sync scheme to treat `svr1` as the primary
+source of truth, those users still syncing with `svr2` won’t have their
+commits pushed up to `svr1` unless you’ve set up bidirectional sync,
+rather than have the two backup servers do `pull` only.
+
+
 # Solutions
 
-The following script solves all of the above problems for the use case
+The following script solves most of the above problems for the use case
 where you want a *nearly-complete* clone of the remote repository using nothing
 but the normal Fossil sync protocol. It requires that you be logged into
 the remote as a user with Setup capability.
