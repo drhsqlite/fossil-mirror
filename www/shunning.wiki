@@ -34,8 +34,8 @@ fossil record:
 
 <ul>
     <li><p>When a forum post or wiki article is "deleted," what actually
-    happens is that a new empty version is added to the Fossil
-    [./blockchain.md | block chain]. The web interface interprets this
+    happens is that a new empty version is added to the Fossil repository.
+    The web interface interprets this
     as "deleted," but the prior version remains available if you go
     digging for it.</p></li>
 

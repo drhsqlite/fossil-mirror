@@ -232,7 +232,7 @@ The baseline data structures for Fossil and Git are the same, modulo
 formatting details. Both systems manage a
 [https://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic
 graph] (DAG) of [https://en.wikipedia.org/wiki/Merkle_tree | Merkle
-tree] / [./blockchain.md | block chain] structured check-in objects.
+tree] structured check-in objects.
 Check-ins are identified by a cryptographic hash of the check-in
 contents, and each check-in refers to its parent via <i>its</i> hash.
 
@@ -743,7 +743,7 @@ change yet. It's possible to argue for such a design in a tool like Git
 which doesn't automatically push the change up to its parent, because
 you can still test the change before pushing local changes to the parent
 repo, but in the meantime you've made a durable change to your local Git
-repository's blockchain. You must do something drastic like <tt>git
+repository. You must do something drastic like <tt>git
 reset --hard</tt> to revert that rebase if it causes a problem. If you
 push your rebased local repo up to the parent without testing first,
 you've now committed the error on a public branch, effectively a
@@ -761,7 +761,7 @@ Fossil cannot sensibly work that way because of its default-enabled
 autosync feature. Instead of jumping straight to the commit step, Fossil
 applies the proposed merge to the local working directory only,
 requiring a separate check-in step before the change is committed to the
-repository blockchain. This gives you a chance to test the change first,
+repository. This gives you a chance to test the change first,
 either manually or by running your software's automatic tests. (Ideally,
 both!)
 

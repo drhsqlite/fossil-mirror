@@ -58,7 +58,7 @@ protections.
 ## `/fileedit` **Works by Creating Commits**
 
 Thus any edits made via that page become a normal part of the
-repository's blockchain.
+repository.
 
 ## `/fileedit` is *Intended* for use with Embedded Docs
 

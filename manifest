@@ -1,5 +1,5 @@
-C Added\sa\snew\sdoc,\s"Fossil\sand\sthe\sCAP\sTheorem."\s\sIt\sdistills\ssome\sgood\ninfo\sfrom\sthe\sforum,\sso\swe\scan\sjust\spoint\sat\sit\sinstead\sof\nrecapitulating\sit.\sBut\sit's\sbeing\schecked\sin\snow\sbecause\san\supcoming\ncommit\swill\srefer\sto\sit.
-D 2020-10-05T17:02:55.321
+C Recast\sthe\sblockchain.md\sdoc\sas\s"Is\sFossil\sa\sBlockchain?"\s(answer:\nmostly\sno)\sand\supdated\sall\sreferences\sto\sit\sto\seither\sremove\sthe\sterm,\nuse\s"repository"\sinstead\swhere\sthat's\ssufficiently\sclear,\sor\sto\ssay\neither\s"Merkle\stree"\sor\s"hash\stree"\sinstead\swhere\swe\sneed\sto\sdistinguish\nthe\shash\stree\sitself\sfrom\sthe\srest\sof\sthe\srepo\sDB\sfile's\scontents.\s\sThis\ndepends\son\sthe\sprior\sCAP\stheorem\sdoc,\ssince\spart\sof\sthe\sargument\sfor\nFossil\snot\sbeing\sa\sblockchain\sgets\sus\sdown\sinto\sthose\sweeds.
+D 2020-10-05T18:15:28.859
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -810,7 +810,7 @@ F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
 F www/backup.md 94e1392a5b1f0f5bcd31ea86938f059a0506424a0ef487e710966a096e021f46
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
-F www/blockchain.md 7d4c2009260416f767d23a288b2a4ffc506bdca8b02f589d140b8c7ebec3b382
+F www/blockchain.md 3edb1aa5fd6ca15e57852441dfe2716ae5a4dd7b55ed4412083e28a7e6a88af9
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
@@ -821,15 +821,15 @@ F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 9022b0a0977f57faa5db4c0580ebf76b75fd01abc886fdec013b7dba15aee614
 F www/cap-theorem.md 9a05da3b082d0160e74da50f84c74061ac110df48645b03c33b50a8c2f8ce51a
-F www/caps/admin-v-setup.md 033c8f057f5d986720eb63aac42cb653f90ff832a9cc49e26cbeb7feee0b535c
-F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
+F www/caps/admin-v-setup.md 03aa8af79bb4f087215146f7e6ac63861802ae0da7ea856f16b24d4350811493
+F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
 F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
-F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
+F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
 F www/changes.wiki 6014accc29b3575b3cb364095ab95507861037bbc17906490b1ede2e22014ae0
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
+F www/checkin_names.wiki 537ab816377b7c9b24b3f1204fe78bc826c9b9d99abd2f3f2dfcb965de4ebbdf
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md bf75bbf5dbd1aef9d31b7744b9ba8ff647f956467107076c757cc86ee31ead80
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
@@ -862,13 +862,13 @@ F www/env-opts.md 49f9284459d093d158ff0584072cb4a0da6a7a545c42b12aceffbac2613e18
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
-F www/fileedit-page.md d400818b30015b6a14c8ed615af5513544adec84667d87f867530de3db2fe9f1
+F www/fileedit-page.md 139ad529b35d38bf57b3d68381ae0119948faccffb0561d764bb6ceac102afd7
 F www/fileformat.wiki 13210325a6bd101b0f92cc6207eb7b3662f406483a255571d61e07a082cfc845
 F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c29cb4b3
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 5be319151d215a42193e652fce604127bc6f94966304fb2d9013972b675e1bac
+F www/fossil-v-git.wiki 9886b47cff40c1e1992fd3f6bee3ea6b4d5aa44c5b812d5813dba6ca2cf1511a
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -921,12 +921,12 @@ F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b
 F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
 F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e3d58
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
-F www/mirrorlimitations.md 7440d0a6924555b3699988e542e5f44862378af3e19505c2816bf1db9bf55751
+F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 2c539d24ddc9a428c5f09c1f4944a599d2bfc8ae3ec257df2c48ab7c7357ad74 x
+F www/mkindex.tcl aa1f9b0b7a2b938560514e93ea8ddeffb81f496d0fc6e5ee15cc1f9409a1b4b1 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 185c2aae1acd5d5e2b3218bd6cc1c8428cb6a6e34fe31842ccd2e914a6635cf2
+F www/permutedindex.html e262c7fd969a08d0382ba1f893b1c0250fa37ee262d21b6dc44a5c9c7009317f
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
@@ -966,7 +966,7 @@ F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
 F www/serverext.wiki 72701435746518239ed71af39ff9401a6896fb1181898eb6bc6ea24418bab9f8
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
-F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
+F www/shunning.wiki 036c770a25d2ec30d22f05519563d6957dc9c91a48dffdfe52cbc4c383f1cab1
 F www/ssl.wiki 0dd97431ff90fce1f19a7d2e60bdae07fd1b079d90b7e76750eaa9be44b4f7ce
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0a38eb3eb67c7cfd1d62788c0384090f31f9e534911a61e5fd057f55000cd6e
-R 1372c79efa277ca45eaebfd05973f1dd
+P 3ddd56d0b03d83c3a02c9c707922f698e9e88c9b774fc782bf16f26734f950fc
+R eea594d36bb2f3c20f3a3982fd0d7232
 U wyoung
-Z 9994a17bee0694def075d76d10db2ee2
+Z 81a6c22910c881198868eb67ea96e036

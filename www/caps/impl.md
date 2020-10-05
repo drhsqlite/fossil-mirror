@@ -64,7 +64,7 @@ design choice are:
     Fossil tries to make that a Setup-only operation.
 
 All of this falls out of two of Fossil’s design choices: sync is
-all-or-nothing, and [the Fossil block chain][bc] is immutable. Fossil
+all-or-nothing, and [the Fossil hash tree][bc] is immutable. Fossil
 would have to violate one or both of these principles to filter such
 problems out of incoming syncs.
 
