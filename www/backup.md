@@ -183,6 +183,39 @@ Changing up the compression algorithm also provides some
 security-thru-obscurity, which is useless on its own, but it *is* a
 useful adjunct to strong encryption.
 
+
+## Restoring From An Encrypted Backup
+
+The “restore” script for the above fragment is basically an inverse of
+it, but it’s worth showing it because there are some subtleties to take
+care of. If all variables defined in earlier scripts are available, then
+restoration is:
+
+```
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 52830 -pass pass:"$pass" -in "$gd" |
+    xz -d | sqlite3 ~/museum/restored-repo.fossil
+```
+
+We changed the `-e` to `-d` on the `openssl` command to get decryption,
+and we changed the `-out` to `-in` so it reads from the encrypted backup
+file and writes the result to stdout.
+
+The decompression step is trivial.
+
+The last change is tricky: we used `fossil sql` above to ensure that
+we’re using the same version of SQLite to write the encrypted backup DB
+as was used to maintain the repository, but unfortunately, we can’t get
+the built-in SQLite shell to write a backup into an empty database.
+Therefore, we have to either run the restoration against a
+possibly-different version of SQLite and hope there are no
+incompatibilities, or we have to go out of our way to build a matching
+version of `sqlite3` before we can safely do the restoration.
+
+Keep in mind that Fossil often acts as a dogfooding project for SQLite,
+making use of the latest features, so it is quite likely that a given
+random `sqlite3` binary in your `PATH` may be unable to understand the
+dump file created by the backup script!
+
 [bu]:    /help?cmd=backup
 [grcp]:  https://www.grc.com/passwords.htm
 [hb]:    https://brew.sh
