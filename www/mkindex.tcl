@@ -14,6 +14,7 @@ set doclist {
   alerts.md {Email Alerts And Notifications}
   antibot.wiki {Defense against Spiders and Bots}
   backoffice.md {The "Backoffice" mechanism of Fossil}
+  backup.md {Backing Up a Remote Fossil Repository}
   blame.wiki {The Annotate/Blame Algorithm Of Fossil}
   blockchain.md {Fossil As Blockchain}
   branching.wiki {Branching, Forking, Merging, and Tagging}
