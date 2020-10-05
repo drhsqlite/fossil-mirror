@@ -18,9 +18,6 @@ may have a different `user` table than the remote, because only the
 Setup user is allowed to see the full version for privacy and security
 reasons.
 
-Even with setup capability, though, you may not get updates to the
-remote configuration, which brings us to...
-
 
 ## Configuration Drift
 
@@ -132,7 +129,7 @@ If you have SSH access to the remote server, something like this will work:
 #!/bin/bash
 bf=repo-$(date +%Y-%m-%d).fossil
 ssh example.com "cd museum ; fossil backup -R repo.fossil backups/$bf" &&
-    scp example.com/museum/backups/$bf ~/museum/backups
+    scp example.com:museum/backups/$bf ~/museum/backups
 ```
 
 
