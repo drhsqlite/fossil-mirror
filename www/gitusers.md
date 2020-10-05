@@ -193,20 +193,46 @@ that document for the many other names you can give to “`amend`”.)
 <a id="autosync"></a>
 ## Autosync
 
-Fossil has a feature called "[autosync][5]".  Autosync defaults on.
+Fossil’s [autosync][wflow] feature, normally enabled, has no
+equivalent in Git. If you want Fossil to behave like Git, you will turn
+it off:
+
+        fossil set autosync 0
+
+It’s better to understand what the feature does and why it is enabled by
+default.
+
 When autosync is enabled, Fossil automatically pushes your changes
-to the remote server whenever you "`fossil commit`".  It also automatically
-pulls all remote changes down to your local repository before you
-"`fossil update`".
+to the remote server whenever you "`fossil commit`", and it
+pulls all remote changes down to your local clone of the repository as
+part of a "`fossil update`".
+This provides most of the advantages of a centralized version control
+system while retaining the advantages of distributed version control:
 
-[5]: ./concepts.wiki#workflow
+1.  Your work stays synced up with your coworkers as long as your
+    machine can connect to the remote repository, but at need, you can go
+    off-network and continue work atop the last version you sync’d with
+    the remote.
 
-Autosync provides most of the advantages of a centralized version
-control system while retaining the advantages of distributed version
-control.  Your work stays synced up with your coworkers at all times.
-If your local machine dies catastrophically, you haven't lost any
-(committed) work.  But you can still work and commit while off network,
-with changes resyncing automatically when you get back on-line.
+2.  It provides immediate off-machine backup of your commits. Unlike
+    centralized version control, though, you can still work while
+    disconnected; your changes will sync up with the remote once you get
+    back online.
+
+3.  Because there is little distinction betwen the clones in the Fossil
+    model — unlike in Git, where clones often quickly diverge from each
+    other, usually on purpose — the backup advantage applies in inverse
+    as well: if the remote server falls over dead, one of those with a
+    clone of that repository can stand it back up, and everyone can get
+    back to work.  If the remote comes back later, it can sync with the
+    new central version, then perhaps take over as the primary source of
+    truth once again.
+
+    (There are caveats to this, [covered elsewhere][bu].)
+
+[bu]:    ./backup.md
+[setup]: ./caps/admin-v-setup.md#apsu
+[wflow]: ./concepts.wiki#workflow
 
 
 <a id="syncall"></a>
