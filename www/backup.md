@@ -168,7 +168,7 @@ encryption significantly, so you should install a newer version rather
 than work around the lack of these features. If you’re on macOS, which
 still ships 1.0 as of the time of this writing, [Homebrew][hb] offers
 the current version of OpenSSL, but to avoid a conflict with the platform
-version it’s [unliked][hbul] by default, so you have to give an explicit
+version it’s [unlinked][hbul] by default, so you have to give an explicit
 path to its “cellar” directory:
 
        /usr/local/Cellar/openssl\@1.1/1.1.1g/bin/openssl ...
