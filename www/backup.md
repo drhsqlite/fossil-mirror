@@ -31,6 +31,15 @@ remote’s skin. You have to ask for updates to these configuration areas
 explicitly.
 
 
+## Private Branches
+
+The very nature of Fossil’s [private branch feature][pbr] ensures that
+remote clones don’t get a copy of those branches. Normally this is
+exactly what you want, but in the case of making backups, you probably
+want these branches as well. One of the two backup methods below
+provides this.
+
+
 ## Shunned Artifacts
 
 Fossil purposefully doesn’t sync [shunned artifacts][shun]. If you want
@@ -51,7 +60,7 @@ flag.
 # Solutions
 
 The following script solves all of the above problems for the use case
-where you want a *complete* clone of the remote repository using nothing
+where you want a *nearly-complete* clone of the remote repository using nothing
 but the normal Fossil sync protocol. It requires that you be logged into
 the remote as a user with Setup capability.
 
@@ -72,10 +81,16 @@ are removed from the local clone. The second step includes
 to others cloning from it, but the backup can’t be said to be “complete”
 if it contains information that the remote now lacks.
 
-Alternately, if you have access to the remote server, you could get a
-SQL-level backup if you’re using Fossil 2.12 or newer by using its new
-[`backup` command][bu]. You could get an off-machine backup of a remote
-server over SSH like so:
+This method doesn’t get you a copy of the remote’s
+[private branches][pbr], on purpose. It may also miss other info on the
+remote, such as SQL-level customizations that the sync protocol can’t
+see. (Some [ticket system customization][tkt] schemes do this.) You can
+solve such problems if you have access to the remote server, which
+allows you to get a SQL-level backup. This requires Fossil 2.12 or
+newer, which added [the `backup` command][bu].
+
+You can get an off-machine SQL-level backup of a Fossil repository on
+a remote server over SSH like so:
 
 ----
 
@@ -137,7 +152,9 @@ during the backup.
 [grcp]:  https://www.grc.com/passwords.htm
 [hb]:    https://brew.sh
 [hbul]:  https://docs.brew.sh/FAQ#what-does-keg-only-mean
+[pbr]:   ./private.wiki
 [rint]:  https://www.random.org/integers/?num=1&min=10000&max=100000&col=5&base=10&format=html&rnd=new
 [setup]: ./caps/admin-v-setup.md#apsu
 [shun]:  ./shunning.wiki
+[tkt]:   ./tickets.wiki
 [uv]:    ./unvers.wiki

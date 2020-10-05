@@ -1,5 +1,5 @@
-C Added\sa\snew\sdoc,\s"Backing\sUp\sa\sRemote\sFossil\sRepository".
-D 2020-10-05T11:54:51.400
+C Added\sinfo\sabout\sprivate\sbranches\sto\sthe\snew\sbackup.md\sdoc.
+D 2020-10-05T12:07:06.321
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -808,7 +808,7 @@ F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
-F www/backup.md d572ca8841c85a550066a77d6c15f3ebcb1e8695d566a74e4345cb8852b14c9d
+F www/backup.md 887d4292f441f6e548b00d5e9a8bd4f1acb9dfa6006e3d346121400bd9a39ca2
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md 7d4c2009260416f767d23a288b2a4ffc506bdca8b02f589d140b8c7ebec3b382
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a40e8a093496ec2c157059630b61ba06fb0bc21da9b7bd9f4ae6f7a5cb842df4
-R d66e012b73be72de7b7bf4ff60b5dd5f
+P 5c2ef2a2e3b37f525112aec10457b9db464c384def268976b1bd040cffe6d3e5
+R e0100bf3c8eb90c7bf68ca0fbeda54b8
 U wyoung
-Z 79cd0eedec88e1ea8f42297da87f9d9d
+Z 3244075e24322535e6fa2e044fe5b5ef
