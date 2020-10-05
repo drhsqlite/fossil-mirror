@@ -32,14 +32,18 @@ A Fossil repository is a SQLite database in
 which the entire history of a project is stored.  A check-out is a
 directory that contains a snapshot of your project that you
 are currently working on, extracted for you from that database by the
-`fossil` program. See [the Fossil glossary][gloss] for more information.
+`fossil` program.
+
+(See [the Fossil glossary][gloss] for more Fossil terms of art that may
+be unfamiliar to a Git user.)
 
 With Git, cloning a repository gets you what Fossil would call a
 check-out directory with the repository stored in a `.git` subdirectory
 of that check-out. There are methods to get more working directories
 pointing at that same Git repository, but because it’s not designed into
 the core concept of the tool, Git tutorials usually advocate a
-switch-in-place working mode instead.
+switch-in-place working mode instead, so that is how most users end up
+working with it.
 
 Fossil can operate in the Git mode, switching between versions in a
 single check-out directory:
@@ -116,25 +120,30 @@ to rebuild outputs from files you yourself change.
 This style is also useful when a check-out directory may be tied up with
 some long-running process, as with the “test” example above, where you
 might need to run an hours-long brute-force replication script to tickle
-a [Heisenbug][hb]. While that runs, you can “`cd ../trunk`” and get back
+a [Heisenbug][hb], forcing it to show itself. While that runs, you can “`cd ../trunk`” and get back
 to work.
 
 Git users may be initially confused by the `.fslckout` file at the root
-of a check-out directory. (Or with native Windows builds of Fossil, the
-`_FOSSIL_` file, which is the same thing, so-named  to get around the
-historical 3-character extension limit with certain legacy filesystems.)
+of a check-out directory.
 This is not the same thing as `.git`. It’s a per-checkout SQLite
 database that keeps track of local state such as what version you have
-checked out, the contents of the stash for that working directory, the
-[undo] buffers, per-checkout settings, and so forth. Largely what Fossil
+checked out, the contents of the [stash] for that working directory, the
+[undo] buffers, per-checkout [settings][set], and so forth. Largely what Fossil
 does when you ask it to [close] a check-out is to remove this file after
 making certain safety checks.
+
+(In native Windows builds of Fossil, this file is called `_FOSSIL_`
+instead to get around the historical 3-character extension limit with
+certain legacy filesystems. “Native” here is a distinction to exclude
+Cygwin and WSL builds, which use `.fslckout`.)
 
 [close]:  /help?cmd=close
 [gloss]:  ./whyusefossil.wiki#definitions
 [hb]:     https://en.wikipedia.org/wiki/Heisenbug
 [open]:   /help?cmd=open
+[set]:    /help?cmd=setting
 [server]: /help?cmd=server
+[stash]:  /help?cmd=stash
 [undo]:   /help?cmd=undo
 
 
@@ -159,7 +168,7 @@ on that branch:
 
        fossil commit --branch my-new-branch
 
-If that commit is successful, your local checkout directory is then
+If that commit is successful, your local check-out directory is then
 switched to the tip of that branch, so subsequent commits don’t need the
 “`--branch`” option. You have to switch back to the parent branch
 explicitly, as with
@@ -175,7 +184,7 @@ need:
        fossil commit
 
 This is more verbose, but it has the same effect: put the first commit
-onto `my-new-branch` and switch the checkout directory to that branch so
+onto `my-new-branch` and switch the check-out directory to that branch so
 subsequent commits are descendants of that initial branch commit.
 
 Fossil also allows you to move a check-in to a different branch
@@ -185,7 +194,8 @@ For example:
         fossil amend current --branch my-new-branch
 
 (“current” is one of the [special check-in names][scin] in Fossil. See
-that document for the many other names you can give to “`amend`”.)
+that document for the many other names you can give to “`amend`”, or
+indeed to any other Fossil command that accepts a “version” string.)
 
 [scin]: ./checkin_names.wiki
 
@@ -221,10 +231,11 @@ system while retaining the advantages of distributed version control:
 
 3.  Because there is little distinction betwen the clones in the Fossil
     model — unlike in Git, where clones often quickly diverge from each
-    other, usually on purpose — the backup advantage applies in inverse
+    other, quite possibly on purpose — the backup advantage applies in inverse
     as well: if the remote server falls over dead, one of those with a
     clone of that repository can stand it back up, and everyone can get
-    back to work.  If the remote comes back later, it can sync with the
+    back to work simply by re-pointing their local repo at the new
+    remote.  If the failed remote comes back later, it can sync with the
     new central version, then perhaps take over as the primary source of
     truth once again.
 
@@ -460,7 +471,7 @@ directory for you, so we need an extra `mkdir` call here that isn’t
 needed in the Git case. This is an indirect reflection of Fossil’s
 [multiple working directories](#mwd) design philosophy: its
 [`open` command][open] requires that you either issue it in an empty
-directory or one containing a prior closed checkout. In exchange for
+directory or one containing a prior closed check-out. In exchange for
 this extra command, we get the advantage of Fossil’s
 [superior handling][shwmd] of multiple working directories. To get the
 full power of this feature, you’d switch from the “`fossil open URI`”
@@ -485,7 +496,7 @@ up to the NAS:
         rsync repo.fossil my-nas.local:/SHARES/dayjob/
 
 Now we’re beginning to see the advantage of Fossil’s simpler model,
-relative the tricky “`git init && git push`” sequence above.
+relative to the tricky “`git init && git push`” sequence above.
 Fossil’s alternative is almost impossible to get
 wrong: copy this to that.  *Done.*
 
@@ -505,9 +516,10 @@ case:
         fossil remote home
 
 The first command is nearly identical to the Git version, but the second
-is considerably simpler. And to be fair, you won’t find that second
-command in all Git tutorials: the more common one we found with web
-searches is “`git push --set-upstream home master`”.
+is considerably simpler. And to be fair, you won’t find the
+“`git config`” command above in all Git tutorials. The more common
+alternative we found with web searches is even longer:
+“`git push --set-upstream home master`”.
 
 Where Fossil really wins is in the next step, making the initial commit
 from home:
@@ -524,7 +536,7 @@ The “Friday afternoon sync-up” case is simpler, too:
         fossil remote work
         fossil sync
 
-Back at home, it’s even simpler: we can do away with the second command,
+Back at home, it’s simpler still: we can do away with the second command,
 saying just “`fossil remote home`” because the sync will happen as part
 of the next commit, thanks once again to Fossil’s autosync feature.
 
