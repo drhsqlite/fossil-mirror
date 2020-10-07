@@ -1,5 +1,5 @@
-C Added\sa\snew\sdoc,\s"Fossil\sand\sthe\sCAP\sTheorem."\s\sIt\sdistills\ssome\sgood\ninfo\sfrom\sthe\sforum,\sso\swe\scan\sjust\spoint\sat\sit\sinstead\sof\nrecapitulating\sit.\sBut\sit's\sbeing\schecked\sin\snow\sbecause\san\supcoming\ncommit\swill\srefer\sto\sit.
-D 2020-10-05T17:02:55.321
+C Increase\smaximum\stoken\ssize\sin\sPikchr\sto\s50000\sbytes.\s\sImportant\sfor\nmacros.
+D 2020-10-07T05:39:21.182
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c cd500b617d51453c4f1666832bcc22d8ad8b5791748da224359340f0e4530040
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 8f0dc5ef148b50847f914a2b70af018571164b3d6bb7961e9f70d31be386b2a7
+F src/pikchr.c feb57e361cdfae14702e1f6509de22975e461b568921d9ab098f73202aa827a2
 F src/pikchrshow.c 700bb4b9036094015eefa62fdfc89f6930a18e433b24e085624b8d6dcd08e8ca
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0a38eb3eb67c7cfd1d62788c0384090f31f9e534911a61e5fd057f55000cd6e
-R 1372c79efa277ca45eaebfd05973f1dd
-U wyoung
-Z 9994a17bee0694def075d76d10db2ee2
+P 3ddd56d0b03d83c3a02c9c707922f698e9e88c9b774fc782bf16f26734f950fc
+R 1ebd36b2251c55107ef8825a2e7d93cf
+U drh
+Z 4ab658ce1ac1579c32c97cf92a7090cf

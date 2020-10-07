@@ -375,6 +375,11 @@ struct Pik {
   PToken aCtx[10];         /* Nested error contexts */
 };
 
+/* Include PIKCHR_PLAINTEXT_ERRORS among the bits of mFlags on the 3rd
+** argument to pikchr() in order to cause error message text to come out
+** as text/plain instead of as text/html
+*/
+#define PIKCHR_PLAINTEXT_ERRORS 0x0001
 
 /*
 ** The behavior of an object class is defined by an instance of
@@ -465,7 +470,7 @@ static PNum pik_dist(PPoint*,PPoint*);
 static void pik_add_macro(Pik*,PToken *pId,PToken *pCode);
 
 
-#line 494 "pikchr.c"
+#line 499 "pikchr.c"
 /**************** End of %include directives **********************************/
 /* These constants specify the various numeric values for terminal symbols.
 ***************** Begin token definitions *************************************/
@@ -1682,18 +1687,18 @@ static void yy_destructor(
 /********* Begin destructor definitions ***************************************/
     case 98: /* statement_list */
 {
-#line 483 "pikchr.y"
+#line 488 "pikchr.y"
 pik_elist_free(p,(yypminor->yy119));
-#line 1712 "pikchr.c"
+#line 1717 "pikchr.c"
 }
       break;
     case 99: /* statement */
     case 100: /* unnamed_statement */
     case 101: /* basetype */
 {
-#line 485 "pikchr.y"
+#line 490 "pikchr.y"
 pik_elem_free(p,(yypminor->yy38));
-#line 1721 "pikchr.c"
+#line 1726 "pikchr.c"
 }
       break;
 /********* End destructor definitions *****************************************/
@@ -1911,10 +1916,10 @@ static void yyStackOverflow(yyParser *yypParser){
    /* Here code is inserted which will execute if the parser
    ** stack every overflows */
 /******** Begin %stack_overflow code ******************************************/
-#line 517 "pikchr.y"
+#line 522 "pikchr.y"
 
   pik_error(p, 0, "parser stack overflow");
-#line 1942 "pikchr.c"
+#line 1947 "pikchr.c"
 /******** End %stack_overflow code ********************************************/
    pik_parserARG_STORE /* Suppress warning about unused %extra_argument var */
    pik_parserCTX_STORE
@@ -2392,610 +2397,610 @@ static YYACTIONTYPE yy_reduce(
 /********** Begin reduce actions **********************************************/
         YYMINORTYPE yylhsminor;
       case 0: /* document ::= statement_list */
-#line 521 "pikchr.y"
+#line 526 "pikchr.y"
 {pik_render(p,yymsp[0].minor.yy119);}
-#line 2422 "pikchr.c"
+#line 2427 "pikchr.c"
         break;
       case 1: /* statement_list ::= statement */
-#line 524 "pikchr.y"
+#line 529 "pikchr.y"
 { yylhsminor.yy119 = pik_elist_append(p,0,yymsp[0].minor.yy38); }
-#line 2427 "pikchr.c"
+#line 2432 "pikchr.c"
   yymsp[0].minor.yy119 = yylhsminor.yy119;
         break;
       case 2: /* statement_list ::= statement_list EOL statement */
-#line 526 "pikchr.y"
+#line 531 "pikchr.y"
 { yylhsminor.yy119 = pik_elist_append(p,yymsp[-2].minor.yy119,yymsp[0].minor.yy38); }
-#line 2433 "pikchr.c"
+#line 2438 "pikchr.c"
   yymsp[-2].minor.yy119 = yylhsminor.yy119;
         break;
       case 3: /* statement ::= */
-#line 529 "pikchr.y"
+#line 534 "pikchr.y"
 { yymsp[1].minor.yy38 = 0; }
-#line 2439 "pikchr.c"
+#line 2444 "pikchr.c"
         break;
       case 4: /* statement ::= direction */
-#line 530 "pikchr.y"
+#line 535 "pikchr.y"
 { pik_set_direction(p,yymsp[0].minor.yy0.eCode);  yylhsminor.yy38=0; }
-#line 2444 "pikchr.c"
+#line 2449 "pikchr.c"
   yymsp[0].minor.yy38 = yylhsminor.yy38;
         break;
       case 5: /* statement ::= lvalue ASSIGN rvalue */
-#line 531 "pikchr.y"
+#line 536 "pikchr.y"
 {pik_set_var(p,&yymsp[-2].minor.yy0,yymsp[0].minor.yy265,&yymsp[-1].minor.yy0); yylhsminor.yy38=0;}
-#line 2450 "pikchr.c"
+#line 2455 "pikchr.c"
   yymsp[-2].minor.yy38 = yylhsminor.yy38;
         break;
       case 6: /* statement ::= PLACENAME COLON unnamed_statement */
-#line 533 "pikchr.y"
+#line 538 "pikchr.y"
 { yylhsminor.yy38 = yymsp[0].minor.yy38;  pik_elem_setname(p,yymsp[0].minor.yy38,&yymsp[-2].minor.yy0); }
-#line 2456 "pikchr.c"
+#line 2461 "pikchr.c"
   yymsp[-2].minor.yy38 = yylhsminor.yy38;
         break;
       case 7: /* statement ::= PLACENAME COLON position */
-#line 535 "pikchr.y"
+#line 540 "pikchr.y"
 { yylhsminor.yy38 = pik_elem_new(p,0,0,0);
                  if(yylhsminor.yy38){ yylhsminor.yy38->ptAt = yymsp[0].minor.yy43; pik_elem_setname(p,yylhsminor.yy38,&yymsp[-2].minor.yy0); }}
-#line 2463 "pikchr.c"
+#line 2468 "pikchr.c"
   yymsp[-2].minor.yy38 = yylhsminor.yy38;
         break;
       case 8: /* statement ::= unnamed_statement */
-#line 537 "pikchr.y"
+#line 542 "pikchr.y"
 {yylhsminor.yy38 = yymsp[0].minor.yy38;}
-#line 2469 "pikchr.c"
+#line 2474 "pikchr.c"
   yymsp[0].minor.yy38 = yylhsminor.yy38;
         break;
       case 9: /* statement ::= print prlist */
-#line 538 "pikchr.y"
-{pik_append(p,"<br>\n",5); yymsp[-1].minor.yy38=0;}
-#line 2475 "pikchr.c"
-        break;
-      case 10: /* statement ::= ASSERT LP expr EQ expr RP */
 #line 543 "pikchr.y"
-{yymsp[-5].minor.yy38=pik_assert(p,yymsp[-3].minor.yy265,&yymsp[-2].minor.yy0,yymsp[-1].minor.yy265);}
+{pik_append(p,"<br>\n",5); yymsp[-1].minor.yy38=0;}
 #line 2480 "pikchr.c"
         break;
-      case 11: /* statement ::= ASSERT LP position EQ position RP */
-#line 545 "pikchr.y"
-{yymsp[-5].minor.yy38=pik_position_assert(p,&yymsp[-3].minor.yy43,&yymsp[-2].minor.yy0,&yymsp[-1].minor.yy43);}
+      case 10: /* statement ::= ASSERT LP expr EQ expr RP */
+#line 548 "pikchr.y"
+{yymsp[-5].minor.yy38=pik_assert(p,yymsp[-3].minor.yy265,&yymsp[-2].minor.yy0,yymsp[-1].minor.yy265);}
 #line 2485 "pikchr.c"
         break;
-      case 12: /* statement ::= DEFINE ID CODEBLOCK */
-#line 546 "pikchr.y"
-{yymsp[-2].minor.yy38=0; pik_add_macro(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy0);}
+      case 11: /* statement ::= ASSERT LP position EQ position RP */
+#line 550 "pikchr.y"
+{yymsp[-5].minor.yy38=pik_position_assert(p,&yymsp[-3].minor.yy43,&yymsp[-2].minor.yy0,&yymsp[-1].minor.yy43);}
 #line 2490 "pikchr.c"
         break;
-      case 13: /* rvalue ::= PLACENAME */
-#line 557 "pikchr.y"
-{yylhsminor.yy265 = pik_lookup_color(p,&yymsp[0].minor.yy0);}
+      case 12: /* statement ::= DEFINE ID CODEBLOCK */
+#line 551 "pikchr.y"
+{yymsp[-2].minor.yy38=0; pik_add_macro(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy0);}
 #line 2495 "pikchr.c"
+        break;
+      case 13: /* rvalue ::= PLACENAME */
+#line 562 "pikchr.y"
+{yylhsminor.yy265 = pik_lookup_color(p,&yymsp[0].minor.yy0);}
+#line 2500 "pikchr.c"
   yymsp[0].minor.yy265 = yylhsminor.yy265;
         break;
       case 14: /* pritem ::= FILL */
       case 15: /* pritem ::= COLOR */ yytestcase(yyruleno==15);
       case 16: /* pritem ::= THICKNESS */ yytestcase(yyruleno==16);
-#line 562 "pikchr.y"
+#line 567 "pikchr.y"
 {pik_append_num(p,"",pik_value(p,yymsp[0].minor.yy0.z,yymsp[0].minor.yy0.n,0));}
-#line 2503 "pikchr.c"
-        break;
-      case 17: /* pritem ::= rvalue */
-#line 565 "pikchr.y"
-{pik_append_num(p,"",yymsp[0].minor.yy265);}
 #line 2508 "pikchr.c"
         break;
-      case 18: /* pritem ::= STRING */
-#line 566 "pikchr.y"
-{pik_append_text(p,yymsp[0].minor.yy0.z+1,yymsp[0].minor.yy0.n-2,0);}
+      case 17: /* pritem ::= rvalue */
+#line 570 "pikchr.y"
+{pik_append_num(p,"",yymsp[0].minor.yy265);}
 #line 2513 "pikchr.c"
         break;
-      case 19: /* prsep ::= COMMA */
-#line 567 "pikchr.y"
-{pik_append(p, " ", 1);}
+      case 18: /* pritem ::= STRING */
+#line 571 "pikchr.y"
+{pik_append_text(p,yymsp[0].minor.yy0.z+1,yymsp[0].minor.yy0.n-2,0);}
 #line 2518 "pikchr.c"
         break;
-      case 20: /* unnamed_statement ::= basetype attribute_list */
-#line 570 "pikchr.y"
-{yylhsminor.yy38 = yymsp[-1].minor.yy38; pik_after_adding_attributes(p,yylhsminor.yy38);}
+      case 19: /* prsep ::= COMMA */
+#line 572 "pikchr.y"
+{pik_append(p, " ", 1);}
 #line 2523 "pikchr.c"
+        break;
+      case 20: /* unnamed_statement ::= basetype attribute_list */
+#line 575 "pikchr.y"
+{yylhsminor.yy38 = yymsp[-1].minor.yy38; pik_after_adding_attributes(p,yylhsminor.yy38);}
+#line 2528 "pikchr.c"
   yymsp[-1].minor.yy38 = yylhsminor.yy38;
         break;
       case 21: /* basetype ::= CLASSNAME */
-#line 572 "pikchr.y"
+#line 577 "pikchr.y"
 {yylhsminor.yy38 = pik_elem_new(p,&yymsp[0].minor.yy0,0,0); }
-#line 2529 "pikchr.c"
+#line 2534 "pikchr.c"
   yymsp[0].minor.yy38 = yylhsminor.yy38;
         break;
       case 22: /* basetype ::= STRING textposition */
-#line 574 "pikchr.y"
+#line 579 "pikchr.y"
 {yymsp[-1].minor.yy0.eCode = yymsp[0].minor.yy196; yylhsminor.yy38 = pik_elem_new(p,0,&yymsp[-1].minor.yy0,0); }
-#line 2535 "pikchr.c"
+#line 2540 "pikchr.c"
   yymsp[-1].minor.yy38 = yylhsminor.yy38;
         break;
       case 23: /* basetype ::= LB savelist statement_list RB */
-#line 576 "pikchr.y"
-{ p->list = yymsp[-2].minor.yy119; yymsp[-3].minor.yy38 = pik_elem_new(p,0,0,yymsp[-1].minor.yy119); if(yymsp[-3].minor.yy38) yymsp[-3].minor.yy38->errTok = yymsp[0].minor.yy0; }
-#line 2541 "pikchr.c"
-        break;
-      case 24: /* savelist ::= */
 #line 581 "pikchr.y"
-{yymsp[1].minor.yy119 = p->list; p->list = 0;}
+{ p->list = yymsp[-2].minor.yy119; yymsp[-3].minor.yy38 = pik_elem_new(p,0,0,yymsp[-1].minor.yy119); if(yymsp[-3].minor.yy38) yymsp[-3].minor.yy38->errTok = yymsp[0].minor.yy0; }
 #line 2546 "pikchr.c"
         break;
-      case 25: /* relexpr ::= expr */
-#line 588 "pikchr.y"
-{yylhsminor.yy200.rAbs = yymsp[0].minor.yy265; yylhsminor.yy200.rRel = 0;}
+      case 24: /* savelist ::= */
+#line 586 "pikchr.y"
+{yymsp[1].minor.yy119 = p->list; p->list = 0;}
 #line 2551 "pikchr.c"
+        break;
+      case 25: /* relexpr ::= expr */
+#line 593 "pikchr.y"
+{yylhsminor.yy200.rAbs = yymsp[0].minor.yy265; yylhsminor.yy200.rRel = 0;}
+#line 2556 "pikchr.c"
   yymsp[0].minor.yy200 = yylhsminor.yy200;
         break;
       case 26: /* relexpr ::= expr PERCENT */
-#line 589 "pikchr.y"
+#line 594 "pikchr.y"
 {yylhsminor.yy200.rAbs = 0; yylhsminor.yy200.rRel = yymsp[-1].minor.yy265/100;}
-#line 2557 "pikchr.c"
+#line 2562 "pikchr.c"
   yymsp[-1].minor.yy200 = yylhsminor.yy200;
         break;
       case 27: /* optrelexpr ::= */
-#line 591 "pikchr.y"
+#line 596 "pikchr.y"
 {yymsp[1].minor.yy200.rAbs = 0; yymsp[1].minor.yy200.rRel = 1.0;}
-#line 2563 "pikchr.c"
-        break;
-      case 28: /* attribute_list ::= relexpr alist */
-#line 593 "pikchr.y"
-{pik_add_direction(p,0,&yymsp[-1].minor.yy200);}
 #line 2568 "pikchr.c"
         break;
-      case 29: /* attribute ::= numproperty relexpr */
-#line 597 "pikchr.y"
-{ pik_set_numprop(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy200); }
+      case 28: /* attribute_list ::= relexpr alist */
+#line 598 "pikchr.y"
+{pik_add_direction(p,0,&yymsp[-1].minor.yy200);}
 #line 2573 "pikchr.c"
         break;
-      case 30: /* attribute ::= dashproperty expr */
-#line 598 "pikchr.y"
-{ pik_set_dashed(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy265); }
+      case 29: /* attribute ::= numproperty relexpr */
+#line 602 "pikchr.y"
+{ pik_set_numprop(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy200); }
 #line 2578 "pikchr.c"
         break;
-      case 31: /* attribute ::= dashproperty */
-#line 599 "pikchr.y"
-{ pik_set_dashed(p,&yymsp[0].minor.yy0,0);  }
+      case 30: /* attribute ::= dashproperty expr */
+#line 603 "pikchr.y"
+{ pik_set_dashed(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy265); }
 #line 2583 "pikchr.c"
         break;
-      case 32: /* attribute ::= colorproperty rvalue */
-#line 600 "pikchr.y"
-{ pik_set_clrprop(p,&yymsp[-1].minor.yy0,yymsp[0].minor.yy265); }
+      case 31: /* attribute ::= dashproperty */
+#line 604 "pikchr.y"
+{ pik_set_dashed(p,&yymsp[0].minor.yy0,0);  }
 #line 2588 "pikchr.c"
         break;
-      case 33: /* attribute ::= go direction optrelexpr */
-#line 601 "pikchr.y"
-{ pik_add_direction(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy200);}
+      case 32: /* attribute ::= colorproperty rvalue */
+#line 605 "pikchr.y"
+{ pik_set_clrprop(p,&yymsp[-1].minor.yy0,yymsp[0].minor.yy265); }
 #line 2593 "pikchr.c"
         break;
-      case 34: /* attribute ::= go direction even position */
-#line 602 "pikchr.y"
-{pik_evenwith(p,&yymsp[-2].minor.yy0,&yymsp[0].minor.yy43);}
+      case 33: /* attribute ::= go direction optrelexpr */
+#line 606 "pikchr.y"
+{ pik_add_direction(p,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy200);}
 #line 2598 "pikchr.c"
         break;
-      case 35: /* attribute ::= CLOSE */
-#line 603 "pikchr.y"
-{ pik_close_path(p,&yymsp[0].minor.yy0); }
+      case 34: /* attribute ::= go direction even position */
+#line 607 "pikchr.y"
+{pik_evenwith(p,&yymsp[-2].minor.yy0,&yymsp[0].minor.yy43);}
 #line 2603 "pikchr.c"
         break;
-      case 36: /* attribute ::= CHOP */
-#line 604 "pikchr.y"
-{ p->cur->bChop = 1; }
+      case 35: /* attribute ::= CLOSE */
+#line 608 "pikchr.y"
+{ pik_close_path(p,&yymsp[0].minor.yy0); }
 #line 2608 "pikchr.c"
         break;
-      case 37: /* attribute ::= FROM position */
-#line 605 "pikchr.y"
-{ pik_set_from(p,p->cur,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy43); }
+      case 36: /* attribute ::= CHOP */
+#line 609 "pikchr.y"
+{ p->cur->bChop = 1; }
 #line 2613 "pikchr.c"
         break;
-      case 38: /* attribute ::= TO position */
-#line 606 "pikchr.y"
-{ pik_add_to(p,p->cur,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy43); }
+      case 37: /* attribute ::= FROM position */
+#line 610 "pikchr.y"
+{ pik_set_from(p,p->cur,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy43); }
 #line 2618 "pikchr.c"
         break;
-      case 39: /* attribute ::= THEN */
-#line 607 "pikchr.y"
-{ pik_then(p, &yymsp[0].minor.yy0, p->cur); }
+      case 38: /* attribute ::= TO position */
+#line 611 "pikchr.y"
+{ pik_add_to(p,p->cur,&yymsp[-1].minor.yy0,&yymsp[0].minor.yy43); }
 #line 2623 "pikchr.c"
+        break;
+      case 39: /* attribute ::= THEN */
+#line 612 "pikchr.y"
+{ pik_then(p, &yymsp[0].minor.yy0, p->cur); }
+#line 2628 "pikchr.c"
         break;
       case 40: /* attribute ::= THEN optrelexpr HEADING expr */
       case 42: /* attribute ::= GO optrelexpr HEADING expr */ yytestcase(yyruleno==42);
-#line 609 "pikchr.y"
+#line 614 "pikchr.y"
 {pik_move_hdg(p,&yymsp[-2].minor.yy200,&yymsp[-1].minor.yy0,yymsp[0].minor.yy265,0,&yymsp[-3].minor.yy0);}
-#line 2629 "pikchr.c"
+#line 2634 "pikchr.c"
         break;
       case 41: /* attribute ::= THEN optrelexpr EDGEPT */
       case 43: /* attribute ::= GO optrelexpr EDGEPT */ yytestcase(yyruleno==43);
-#line 610 "pikchr.y"
-{pik_move_hdg(p,&yymsp[-1].minor.yy200,0,0,&yymsp[0].minor.yy0,&yymsp[-2].minor.yy0);}
-#line 2635 "pikchr.c"
-        break;
-      case 44: /* attribute ::= AT position */
 #line 615 "pikchr.y"
-{ pik_set_at(p,0,&yymsp[0].minor.yy43,&yymsp[-1].minor.yy0); }
+{pik_move_hdg(p,&yymsp[-1].minor.yy200,0,0,&yymsp[0].minor.yy0,&yymsp[-2].minor.yy0);}
 #line 2640 "pikchr.c"
         break;
-      case 45: /* attribute ::= SAME */
-#line 617 "pikchr.y"
-{pik_same(p,0,&yymsp[0].minor.yy0);}
+      case 44: /* attribute ::= AT position */
+#line 620 "pikchr.y"
+{ pik_set_at(p,0,&yymsp[0].minor.yy43,&yymsp[-1].minor.yy0); }
 #line 2645 "pikchr.c"
         break;
-      case 46: /* attribute ::= SAME AS object */
-#line 618 "pikchr.y"
-{pik_same(p,yymsp[0].minor.yy38,&yymsp[-2].minor.yy0);}
+      case 45: /* attribute ::= SAME */
+#line 622 "pikchr.y"
+{pik_same(p,0,&yymsp[0].minor.yy0);}
 #line 2650 "pikchr.c"
         break;
-      case 47: /* attribute ::= STRING textposition */
-#line 619 "pikchr.y"
-{pik_add_txt(p,&yymsp[-1].minor.yy0,yymsp[0].minor.yy196);}
+      case 46: /* attribute ::= SAME AS object */
+#line 623 "pikchr.y"
+{pik_same(p,yymsp[0].minor.yy38,&yymsp[-2].minor.yy0);}
 #line 2655 "pikchr.c"
         break;
-      case 48: /* attribute ::= FIT */
-#line 620 "pikchr.y"
-{pik_size_to_fit(p,&yymsp[0].minor.yy0,3); }
+      case 47: /* attribute ::= STRING textposition */
+#line 624 "pikchr.y"
+{pik_add_txt(p,&yymsp[-1].minor.yy0,yymsp[0].minor.yy196);}
 #line 2660 "pikchr.c"
         break;
-      case 49: /* attribute ::= BEHIND object */
-#line 621 "pikchr.y"
-{pik_behind(p,yymsp[0].minor.yy38);}
+      case 48: /* attribute ::= FIT */
+#line 625 "pikchr.y"
+{pik_size_to_fit(p,&yymsp[0].minor.yy0,3); }
 #line 2665 "pikchr.c"
+        break;
+      case 49: /* attribute ::= BEHIND object */
+#line 626 "pikchr.y"
+{pik_behind(p,yymsp[0].minor.yy38);}
+#line 2670 "pikchr.c"
         break;
       case 50: /* withclause ::= DOT_E edge AT position */
       case 51: /* withclause ::= edge AT position */ yytestcase(yyruleno==51);
-#line 629 "pikchr.y"
+#line 634 "pikchr.y"
 { pik_set_at(p,&yymsp[-2].minor.yy0,&yymsp[0].minor.yy43,&yymsp[-1].minor.yy0); }
-#line 2671 "pikchr.c"
+#line 2676 "pikchr.c"
         break;
       case 52: /* numproperty ::= HEIGHT|WIDTH|RADIUS|DIAMETER|THICKNESS */
-#line 633 "pikchr.y"
+#line 638 "pikchr.y"
 {yylhsminor.yy0 = yymsp[0].minor.yy0;}
-#line 2676 "pikchr.c"
+#line 2681 "pikchr.c"
   yymsp[0].minor.yy0 = yylhsminor.yy0;
         break;
       case 53: /* boolproperty ::= CW */
-#line 644 "pikchr.y"
+#line 649 "pikchr.y"
 {p->cur->cw = 1;}
-#line 2682 "pikchr.c"
-        break;
-      case 54: /* boolproperty ::= CCW */
-#line 645 "pikchr.y"
-{p->cur->cw = 0;}
 #line 2687 "pikchr.c"
         break;
-      case 55: /* boolproperty ::= LARROW */
-#line 646 "pikchr.y"
-{p->cur->larrow=1; p->cur->rarrow=0; }
+      case 54: /* boolproperty ::= CCW */
+#line 650 "pikchr.y"
+{p->cur->cw = 0;}
 #line 2692 "pikchr.c"
         break;
-      case 56: /* boolproperty ::= RARROW */
-#line 647 "pikchr.y"
-{p->cur->larrow=0; p->cur->rarrow=1; }
+      case 55: /* boolproperty ::= LARROW */
+#line 651 "pikchr.y"
+{p->cur->larrow=1; p->cur->rarrow=0; }
 #line 2697 "pikchr.c"
         break;
-      case 57: /* boolproperty ::= LRARROW */
-#line 648 "pikchr.y"
-{p->cur->larrow=1; p->cur->rarrow=1; }
+      case 56: /* boolproperty ::= RARROW */
+#line 652 "pikchr.y"
+{p->cur->larrow=0; p->cur->rarrow=1; }
 #line 2702 "pikchr.c"
         break;
-      case 58: /* boolproperty ::= INVIS */
-#line 649 "pikchr.y"
-{p->cur->sw = 0.0;}
+      case 57: /* boolproperty ::= LRARROW */
+#line 653 "pikchr.y"
+{p->cur->larrow=1; p->cur->rarrow=1; }
 #line 2707 "pikchr.c"
         break;
-      case 59: /* boolproperty ::= THICK */
-#line 650 "pikchr.y"
-{p->cur->sw *= 1.5;}
+      case 58: /* boolproperty ::= INVIS */
+#line 654 "pikchr.y"
+{p->cur->sw = 0.0;}
 #line 2712 "pikchr.c"
         break;
-      case 60: /* boolproperty ::= THIN */
-#line 651 "pikchr.y"
-{p->cur->sw *= 0.67;}
+      case 59: /* boolproperty ::= THICK */
+#line 655 "pikchr.y"
+{p->cur->sw *= 1.5;}
 #line 2717 "pikchr.c"
         break;
+      case 60: /* boolproperty ::= THIN */
+#line 656 "pikchr.y"
+{p->cur->sw *= 0.67;}
+#line 2722 "pikchr.c"
+        break;
       case 61: /* boolproperty ::= SOLID */
-#line 652 "pikchr.y"
+#line 657 "pikchr.y"
 {p->cur->sw = pik_value(p,"thickness",9,0);
                                p->cur->dotted = p->cur->dashed = 0.0;}
-#line 2723 "pikchr.c"
-        break;
-      case 62: /* textposition ::= */
-#line 655 "pikchr.y"
-{yymsp[1].minor.yy196 = 0;}
 #line 2728 "pikchr.c"
         break;
-      case 63: /* textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL */
-#line 658 "pikchr.y"
-{yylhsminor.yy196 = pik_text_position(yymsp[-1].minor.yy196,&yymsp[0].minor.yy0);}
+      case 62: /* textposition ::= */
+#line 660 "pikchr.y"
+{yymsp[1].minor.yy196 = 0;}
 #line 2733 "pikchr.c"
+        break;
+      case 63: /* textposition ::= textposition CENTER|LJUST|RJUST|ABOVE|BELOW|ITALIC|BOLD|ALIGNED|BIG|SMALL */
+#line 663 "pikchr.y"
+{yylhsminor.yy196 = pik_text_position(yymsp[-1].minor.yy196,&yymsp[0].minor.yy0);}
+#line 2738 "pikchr.c"
   yymsp[-1].minor.yy196 = yylhsminor.yy196;
         break;
       case 64: /* position ::= expr COMMA expr */
-#line 661 "pikchr.y"
+#line 666 "pikchr.y"
 {yylhsminor.yy43.x=yymsp[-2].minor.yy265; yylhsminor.yy43.y=yymsp[0].minor.yy265;}
-#line 2739 "pikchr.c"
+#line 2744 "pikchr.c"
   yymsp[-2].minor.yy43 = yylhsminor.yy43;
         break;
       case 65: /* position ::= place PLUS expr COMMA expr */
-#line 663 "pikchr.y"
+#line 668 "pikchr.y"
 {yylhsminor.yy43.x=yymsp[-4].minor.yy43.x+yymsp[-2].minor.yy265; yylhsminor.yy43.y=yymsp[-4].minor.yy43.y+yymsp[0].minor.yy265;}
-#line 2745 "pikchr.c"
+#line 2750 "pikchr.c"
   yymsp[-4].minor.yy43 = yylhsminor.yy43;
         break;
       case 66: /* position ::= place MINUS expr COMMA expr */
-#line 664 "pikchr.y"
+#line 669 "pikchr.y"
 {yylhsminor.yy43.x=yymsp[-4].minor.yy43.x-yymsp[-2].minor.yy265; yylhsminor.yy43.y=yymsp[-4].minor.yy43.y-yymsp[0].minor.yy265;}
-#line 2751 "pikchr.c"
+#line 2756 "pikchr.c"
   yymsp[-4].minor.yy43 = yylhsminor.yy43;
         break;
       case 67: /* position ::= place PLUS LP expr COMMA expr RP */
-#line 666 "pikchr.y"
+#line 671 "pikchr.y"
 {yylhsminor.yy43.x=yymsp[-6].minor.yy43.x+yymsp[-3].minor.yy265; yylhsminor.yy43.y=yymsp[-6].minor.yy43.y+yymsp[-1].minor.yy265;}
-#line 2757 "pikchr.c"
+#line 2762 "pikchr.c"
   yymsp[-6].minor.yy43 = yylhsminor.yy43;
         break;
       case 68: /* position ::= place MINUS LP expr COMMA expr RP */
-#line 668 "pikchr.y"
+#line 673 "pikchr.y"
 {yylhsminor.yy43.x=yymsp[-6].minor.yy43.x-yymsp[-3].minor.yy265; yylhsminor.yy43.y=yymsp[-6].minor.yy43.y-yymsp[-1].minor.yy265;}
-#line 2763 "pikchr.c"
+#line 2768 "pikchr.c"
   yymsp[-6].minor.yy43 = yylhsminor.yy43;
         break;
       case 69: /* position ::= LP position COMMA position RP */
-#line 669 "pikchr.y"
+#line 674 "pikchr.y"
 {yymsp[-4].minor.yy43.x=yymsp[-3].minor.yy43.x; yymsp[-4].minor.yy43.y=yymsp[-1].minor.yy43.y;}
-#line 2769 "pikchr.c"
-        break;
-      case 70: /* position ::= LP position RP */
-#line 670 "pikchr.y"
-{yymsp[-2].minor.yy43=yymsp[-1].minor.yy43;}
 #line 2774 "pikchr.c"
         break;
-      case 71: /* position ::= expr between position AND position */
-#line 672 "pikchr.y"
-{yylhsminor.yy43 = pik_position_between(yymsp[-4].minor.yy265,yymsp[-2].minor.yy43,yymsp[0].minor.yy43);}
+      case 70: /* position ::= LP position RP */
+#line 675 "pikchr.y"
+{yymsp[-2].minor.yy43=yymsp[-1].minor.yy43;}
 #line 2779 "pikchr.c"
+        break;
+      case 71: /* position ::= expr between position AND position */
+#line 677 "pikchr.y"
+{yylhsminor.yy43 = pik_position_between(yymsp[-4].minor.yy265,yymsp[-2].minor.yy43,yymsp[0].minor.yy43);}
+#line 2784 "pikchr.c"
   yymsp[-4].minor.yy43 = yylhsminor.yy43;
         break;
       case 72: /* position ::= expr LT position COMMA position GT */
-#line 674 "pikchr.y"
+#line 679 "pikchr.y"
 {yylhsminor.yy43 = pik_position_between(yymsp[-5].minor.yy265,yymsp[-3].minor.yy43,yymsp[-1].minor.yy43);}
-#line 2785 "pikchr.c"
+#line 2790 "pikchr.c"
   yymsp[-5].minor.yy43 = yylhsminor.yy43;
         break;
       case 73: /* position ::= expr ABOVE position */
-#line 675 "pikchr.y"
+#line 680 "pikchr.y"
 {yylhsminor.yy43=yymsp[0].minor.yy43; yylhsminor.yy43.y += yymsp[-2].minor.yy265;}
-#line 2791 "pikchr.c"
+#line 2796 "pikchr.c"
   yymsp[-2].minor.yy43 = yylhsminor.yy43;
         break;
       case 74: /* position ::= expr BELOW position */
-#line 676 "pikchr.y"
+#line 681 "pikchr.y"
 {yylhsminor.yy43=yymsp[0].minor.yy43; yylhsminor.yy43.y -= yymsp[-2].minor.yy265;}
-#line 2797 "pikchr.c"
+#line 2802 "pikchr.c"
   yymsp[-2].minor.yy43 = yylhsminor.yy43;
         break;
       case 75: /* position ::= expr LEFT OF position */
-#line 677 "pikchr.y"
+#line 682 "pikchr.y"
 {yylhsminor.yy43=yymsp[0].minor.yy43; yylhsminor.yy43.x -= yymsp[-3].minor.yy265;}
-#line 2803 "pikchr.c"
+#line 2808 "pikchr.c"
   yymsp[-3].minor.yy43 = yylhsminor.yy43;
         break;
       case 76: /* position ::= expr RIGHT OF position */
-#line 678 "pikchr.y"
+#line 683 "pikchr.y"
 {yylhsminor.yy43=yymsp[0].minor.yy43; yylhsminor.yy43.x += yymsp[-3].minor.yy265;}
-#line 2809 "pikchr.c"
+#line 2814 "pikchr.c"
   yymsp[-3].minor.yy43 = yylhsminor.yy43;
         break;
       case 77: /* position ::= expr ON HEADING EDGEPT OF position */
-#line 680 "pikchr.y"
+#line 685 "pikchr.y"
 {yylhsminor.yy43 = pik_position_at_hdg(yymsp[-5].minor.yy265,&yymsp[-2].minor.yy0,yymsp[0].minor.yy43);}
-#line 2815 "pikchr.c"
+#line 2820 "pikchr.c"
   yymsp[-5].minor.yy43 = yylhsminor.yy43;
         break;
       case 78: /* position ::= expr HEADING EDGEPT OF position */
-#line 682 "pikchr.y"
+#line 687 "pikchr.y"
 {yylhsminor.yy43 = pik_position_at_hdg(yymsp[-4].minor.yy265,&yymsp[-2].minor.yy0,yymsp[0].minor.yy43);}
-#line 2821 "pikchr.c"
+#line 2826 "pikchr.c"
   yymsp[-4].minor.yy43 = yylhsminor.yy43;
         break;
       case 79: /* position ::= expr EDGEPT OF position */
-#line 684 "pikchr.y"
+#line 689 "pikchr.y"
 {yylhsminor.yy43 = pik_position_at_hdg(yymsp[-3].minor.yy265,&yymsp[-2].minor.yy0,yymsp[0].minor.yy43);}
-#line 2827 "pikchr.c"
+#line 2832 "pikchr.c"
   yymsp[-3].minor.yy43 = yylhsminor.yy43;
         break;
       case 80: /* position ::= expr ON HEADING expr FROM position */
-#line 686 "pikchr.y"
+#line 691 "pikchr.y"
 {yylhsminor.yy43 = pik_position_at_angle(yymsp[-5].minor.yy265,yymsp[-2].minor.yy265,yymsp[0].minor.yy43);}
-#line 2833 "pikchr.c"
+#line 2838 "pikchr.c"
   yymsp[-5].minor.yy43 = yylhsminor.yy43;
         break;
       case 81: /* position ::= expr HEADING expr FROM position */
-#line 688 "pikchr.y"
+#line 693 "pikchr.y"
 {yylhsminor.yy43 = pik_position_at_angle(yymsp[-4].minor.yy265,yymsp[-2].minor.yy265,yymsp[0].minor.yy43);}
-#line 2839 "pikchr.c"
+#line 2844 "pikchr.c"
   yymsp[-4].minor.yy43 = yylhsminor.yy43;
         break;
       case 82: /* place ::= edge OF object */
-#line 700 "pikchr.y"
+#line 705 "pikchr.y"
 {yylhsminor.yy43 = pik_place_of_elem(p,yymsp[0].minor.yy38,&yymsp[-2].minor.yy0);}
-#line 2845 "pikchr.c"
+#line 2850 "pikchr.c"
   yymsp[-2].minor.yy43 = yylhsminor.yy43;
         break;
       case 83: /* place2 ::= object */
-#line 701 "pikchr.y"
+#line 706 "pikchr.y"
 {yylhsminor.yy43 = pik_place_of_elem(p,yymsp[0].minor.yy38,0);}
-#line 2851 "pikchr.c"
+#line 2856 "pikchr.c"
   yymsp[0].minor.yy43 = yylhsminor.yy43;
         break;
       case 84: /* place2 ::= object DOT_E edge */
-#line 702 "pikchr.y"
+#line 707 "pikchr.y"
 {yylhsminor.yy43 = pik_place_of_elem(p,yymsp[-2].minor.yy38,&yymsp[0].minor.yy0);}
-#line 2857 "pikchr.c"
+#line 2862 "pikchr.c"
   yymsp[-2].minor.yy43 = yylhsminor.yy43;
         break;
       case 85: /* place2 ::= NTH VERTEX OF object */
-#line 703 "pikchr.y"
+#line 708 "pikchr.y"
 {yylhsminor.yy43 = pik_nth_vertex(p,&yymsp[-3].minor.yy0,&yymsp[-2].minor.yy0,yymsp[0].minor.yy38);}
-#line 2863 "pikchr.c"
+#line 2868 "pikchr.c"
   yymsp[-3].minor.yy43 = yylhsminor.yy43;
         break;
       case 86: /* object ::= nth */
-#line 715 "pikchr.y"
+#line 720 "pikchr.y"
 {yylhsminor.yy38 = pik_find_nth(p,0,&yymsp[0].minor.yy0);}
-#line 2869 "pikchr.c"
+#line 2874 "pikchr.c"
   yymsp[0].minor.yy38 = yylhsminor.yy38;
         break;
       case 87: /* object ::= nth OF|IN object */
-#line 716 "pikchr.y"
+#line 721 "pikchr.y"
 {yylhsminor.yy38 = pik_find_nth(p,yymsp[0].minor.yy38,&yymsp[-2].minor.yy0);}
-#line 2875 "pikchr.c"
+#line 2880 "pikchr.c"
   yymsp[-2].minor.yy38 = yylhsminor.yy38;
         break;
       case 88: /* objectname ::= PLACENAME */
-#line 718 "pikchr.y"
+#line 723 "pikchr.y"
 {yylhsminor.yy38 = pik_find_byname(p,0,&yymsp[0].minor.yy0);}
-#line 2881 "pikchr.c"
+#line 2886 "pikchr.c"
   yymsp[0].minor.yy38 = yylhsminor.yy38;
         break;
       case 89: /* objectname ::= objectname DOT_U PLACENAME */
-#line 720 "pikchr.y"
+#line 725 "pikchr.y"
 {yylhsminor.yy38 = pik_find_byname(p,yymsp[-2].minor.yy38,&yymsp[0].minor.yy0);}
-#line 2887 "pikchr.c"
+#line 2892 "pikchr.c"
   yymsp[-2].minor.yy38 = yylhsminor.yy38;
         break;
       case 90: /* nth ::= NTH CLASSNAME */
-#line 722 "pikchr.y"
+#line 727 "pikchr.y"
 {yylhsminor.yy0=yymsp[0].minor.yy0; yylhsminor.yy0.eCode = pik_nth_value(p,&yymsp[-1].minor.yy0); }
-#line 2893 "pikchr.c"
+#line 2898 "pikchr.c"
   yymsp[-1].minor.yy0 = yylhsminor.yy0;
         break;
       case 91: /* nth ::= NTH LAST CLASSNAME */
-#line 723 "pikchr.y"
+#line 728 "pikchr.y"
 {yylhsminor.yy0=yymsp[0].minor.yy0; yylhsminor.yy0.eCode = -pik_nth_value(p,&yymsp[-2].minor.yy0); }
-#line 2899 "pikchr.c"
+#line 2904 "pikchr.c"
   yymsp[-2].minor.yy0 = yylhsminor.yy0;
         break;
       case 92: /* nth ::= LAST CLASSNAME */
-#line 724 "pikchr.y"
+#line 729 "pikchr.y"
 {yymsp[-1].minor.yy0=yymsp[0].minor.yy0; yymsp[-1].minor.yy0.eCode = -1;}
-#line 2905 "pikchr.c"
+#line 2910 "pikchr.c"
         break;
       case 93: /* nth ::= LAST */
-#line 725 "pikchr.y"
+#line 730 "pikchr.y"
 {yylhsminor.yy0=yymsp[0].minor.yy0; yylhsminor.yy0.eCode = -1;}
-#line 2910 "pikchr.c"
+#line 2915 "pikchr.c"
   yymsp[0].minor.yy0 = yylhsminor.yy0;
         break;
       case 94: /* nth ::= NTH LB RB */
-#line 726 "pikchr.y"
+#line 731 "pikchr.y"
 {yylhsminor.yy0=yymsp[-1].minor.yy0; yylhsminor.yy0.eCode = pik_nth_value(p,&yymsp[-2].minor.yy0);}
-#line 2916 "pikchr.c"
+#line 2921 "pikchr.c"
   yymsp[-2].minor.yy0 = yylhsminor.yy0;
         break;
       case 95: /* nth ::= NTH LAST LB RB */
-#line 727 "pikchr.y"
+#line 732 "pikchr.y"
 {yylhsminor.yy0=yymsp[-1].minor.yy0; yylhsminor.yy0.eCode = -pik_nth_value(p,&yymsp[-3].minor.yy0);}
-#line 2922 "pikchr.c"
+#line 2927 "pikchr.c"
   yymsp[-3].minor.yy0 = yylhsminor.yy0;
         break;
       case 96: /* nth ::= LAST LB RB */
-#line 728 "pikchr.y"
+#line 733 "pikchr.y"
 {yymsp[-2].minor.yy0=yymsp[-1].minor.yy0; yymsp[-2].minor.yy0.eCode = -1; }
-#line 2928 "pikchr.c"
+#line 2933 "pikchr.c"
         break;
       case 97: /* expr ::= expr PLUS expr */
-#line 730 "pikchr.y"
+#line 735 "pikchr.y"
 {yylhsminor.yy265=yymsp[-2].minor.yy265+yymsp[0].minor.yy265;}
-#line 2933 "pikchr.c"
+#line 2938 "pikchr.c"
   yymsp[-2].minor.yy265 = yylhsminor.yy265;
         break;
       case 98: /* expr ::= expr MINUS expr */
-#line 731 "pikchr.y"
+#line 736 "pikchr.y"
 {yylhsminor.yy265=yymsp[-2].minor.yy265-yymsp[0].minor.yy265;}
-#line 2939 "pikchr.c"
+#line 2944 "pikchr.c"
   yymsp[-2].minor.yy265 = yylhsminor.yy265;
         break;
       case 99: /* expr ::= expr STAR expr */
-#line 732 "pikchr.y"
+#line 737 "pikchr.y"
 {yylhsminor.yy265=yymsp[-2].minor.yy265*yymsp[0].minor.yy265;}
-#line 2945 "pikchr.c"
+#line 2950 "pikchr.c"
   yymsp[-2].minor.yy265 = yylhsminor.yy265;
         break;
       case 100: /* expr ::= expr SLASH expr */
-#line 733 "pikchr.y"
+#line 738 "pikchr.y"
 {
   if( yymsp[0].minor.yy265==0.0 ){ pik_error(p, &yymsp[-1].minor.yy0, "division by zero"); yylhsminor.yy265 = 0.0; }
   else{ yylhsminor.yy265 = yymsp[-2].minor.yy265/yymsp[0].minor.yy265; }
 }
-#line 2954 "pikchr.c"
+#line 2959 "pikchr.c"
   yymsp[-2].minor.yy265 = yylhsminor.yy265;
         break;
       case 101: /* expr ::= MINUS expr */
-#line 737 "pikchr.y"
+#line 742 "pikchr.y"
 {yymsp[-1].minor.yy265=-yymsp[0].minor.yy265;}
-#line 2960 "pikchr.c"
-        break;
-      case 102: /* expr ::= PLUS expr */
-#line 738 "pikchr.y"
-{yymsp[-1].minor.yy265=yymsp[0].minor.yy265;}
 #line 2965 "pikchr.c"
         break;
-      case 103: /* expr ::= LP expr RP */
-#line 739 "pikchr.y"
-{yymsp[-2].minor.yy265=yymsp[-1].minor.yy265;}
+      case 102: /* expr ::= PLUS expr */
+#line 743 "pikchr.y"
+{yymsp[-1].minor.yy265=yymsp[0].minor.yy265;}
 #line 2970 "pikchr.c"
         break;
-      case 104: /* expr ::= LP FILL|COLOR|THICKNESS RP */
-#line 740 "pikchr.y"
-{yymsp[-2].minor.yy265=pik_get_var(p,&yymsp[-1].minor.yy0);}
+      case 103: /* expr ::= LP expr RP */
+#line 744 "pikchr.y"
+{yymsp[-2].minor.yy265=yymsp[-1].minor.yy265;}
 #line 2975 "pikchr.c"
         break;
-      case 105: /* expr ::= NUMBER */
-#line 741 "pikchr.y"
-{yylhsminor.yy265=pik_atof(&yymsp[0].minor.yy0);}
+      case 104: /* expr ::= LP FILL|COLOR|THICKNESS RP */
+#line 745 "pikchr.y"
+{yymsp[-2].minor.yy265=pik_get_var(p,&yymsp[-1].minor.yy0);}
 #line 2980 "pikchr.c"
+        break;
+      case 105: /* expr ::= NUMBER */
+#line 746 "pikchr.y"
+{yylhsminor.yy265=pik_atof(&yymsp[0].minor.yy0);}
+#line 2985 "pikchr.c"
   yymsp[0].minor.yy265 = yylhsminor.yy265;
         break;
       case 106: /* expr ::= ID */
-#line 742 "pikchr.y"
+#line 747 "pikchr.y"
 {yylhsminor.yy265=pik_get_var(p,&yymsp[0].minor.yy0);}
-#line 2986 "pikchr.c"
+#line 2991 "pikchr.c"
   yymsp[0].minor.yy265 = yylhsminor.yy265;
         break;
       case 107: /* expr ::= FUNC1 LP expr RP */
-#line 743 "pikchr.y"
+#line 748 "pikchr.y"
 {yylhsminor.yy265 = pik_func(p,&yymsp[-3].minor.yy0,yymsp[-1].minor.yy265,0.0);}
-#line 2992 "pikchr.c"
+#line 2997 "pikchr.c"
   yymsp[-3].minor.yy265 = yylhsminor.yy265;
         break;
       case 108: /* expr ::= FUNC2 LP expr COMMA expr RP */
-#line 744 "pikchr.y"
+#line 749 "pikchr.y"
 {yylhsminor.yy265 = pik_func(p,&yymsp[-5].minor.yy0,yymsp[-3].minor.yy265,yymsp[-1].minor.yy265);}
-#line 2998 "pikchr.c"
+#line 3003 "pikchr.c"
   yymsp[-5].minor.yy265 = yylhsminor.yy265;
         break;
       case 109: /* expr ::= DIST LP position COMMA position RP */
-#line 745 "pikchr.y"
+#line 750 "pikchr.y"
 {yymsp[-5].minor.yy265 = pik_dist(&yymsp[-3].minor.yy43,&yymsp[-1].minor.yy43);}
-#line 3004 "pikchr.c"
+#line 3009 "pikchr.c"
         break;
       case 110: /* expr ::= place2 DOT_XY X */
-#line 746 "pikchr.y"
+#line 751 "pikchr.y"
 {yylhsminor.yy265 = yymsp[-2].minor.yy43.x;}
-#line 3009 "pikchr.c"
+#line 3014 "pikchr.c"
   yymsp[-2].minor.yy265 = yylhsminor.yy265;
         break;
       case 111: /* expr ::= place2 DOT_XY Y */
-#line 747 "pikchr.y"
+#line 752 "pikchr.y"
 {yylhsminor.yy265 = yymsp[-2].minor.yy43.y;}
-#line 3015 "pikchr.c"
+#line 3020 "pikchr.c"
   yymsp[-2].minor.yy265 = yylhsminor.yy265;
         break;
       case 112: /* expr ::= object DOT_L numproperty */
       case 113: /* expr ::= object DOT_L dashproperty */ yytestcase(yyruleno==113);
       case 114: /* expr ::= object DOT_L colorproperty */ yytestcase(yyruleno==114);
-#line 748 "pikchr.y"
+#line 753 "pikchr.y"
 {yylhsminor.yy265=pik_property_of(yymsp[-2].minor.yy38,&yymsp[0].minor.yy0);}
-#line 3023 "pikchr.c"
+#line 3028 "pikchr.c"
   yymsp[-2].minor.yy265 = yylhsminor.yy265;
         break;
       default:
@@ -3098,7 +3103,7 @@ static void yy_syntax_error(
   pik_parserCTX_FETCH
 #define TOKEN yyminor
 /************ Begin %syntax_error code ****************************************/
-#line 509 "pikchr.y"
+#line 514 "pikchr.y"
 
   if( TOKEN.z && TOKEN.z[0] ){
     pik_error(p, &TOKEN, "syntax error");
@@ -3106,7 +3111,7 @@ static void yy_syntax_error(
     pik_error(p, 0, "syntax error");
   }
   UNUSED_PARAMETER(yymajor);
-#line 3134 "pikchr.c"
+#line 3139 "pikchr.c"
 /************ End %syntax_error code ******************************************/
   pik_parserARG_STORE /* Suppress warning about unused %extra_argument variable */
   pik_parserCTX_STORE
@@ -3339,7 +3344,7 @@ int pik_parserFallback(int iToken){
   return 0;
 #endif
 }
-#line 753 "pikchr.y"
+#line 758 "pikchr.y"
 
 
 
@@ -4511,6 +4516,19 @@ static void pik_append_text(Pik *p, const char *zText, int n, int mFlags){
   }
 }
 
+/*
+** Append error message text.  This is either a raw append, or an append
+** with HTML escapes, depending on whether the PIKCHR_PLAINTEXT_ERRORS flag
+** is set.
+*/
+static void pik_append_errtxt(Pik *p, const char *zText, int n){
+  if( p->mFlags & PIKCHR_PLAINTEXT_ERRORS ){
+    pik_append(p, zText, n);
+  }else{
+    pik_append_text(p, zText, n, 0);
+  }
+}
+
 /* Append a PNum value
 */
 static void pik_append_num(Pik *p, const char *z,PNum v){
@@ -4896,7 +4914,7 @@ static void pik_error_context(Pik *p, PToken *pErr, int nContext){
     zLineno[sizeof(zLineno)-1] = 0;
     pik_append(p, zLineno, -1);
     for(i=iStart; p->sIn.z[i]!=0 && p->sIn.z[i]!='\n'; i++){}
-    pik_append_text(p, p->sIn.z+iStart, i-iStart, 0);
+    pik_append_errtxt(p, p->sIn.z+iStart, i-iStart);
     iStart = i+1;
     pik_append(p, "\n", 1);
   }
@@ -4920,24 +4938,32 @@ static void pik_error(Pik *p, PToken *pErr, const char *zMsg){
   if( p->nErr ) return;
   p->nErr++;
   if( zMsg==0 ){
-    pik_append(p, "\n<div><p>Out of memory</p></div>\n", -1);
+    if( p->mFlags & PIKCHR_PLAINTEXT_ERRORS ){
+      pik_append(p, "\nOut of memory\n", -1);
+    }else{
+      pik_append(p, "\n<div><p>Out of memory</p></div>\n", -1);
+    }
     return;
   }
   if( pErr==0 ){
     pik_append(p, "\n", 1);
-    pik_append_text(p, zMsg, -1, 0);
+    pik_append_errtxt(p, zMsg, -1);
     return;
   }
-  pik_append(p, "<div><pre>\n", -1);
+  if( (p->mFlags & PIKCHR_PLAINTEXT_ERRORS)==0 ){
+    pik_append(p, "<div><pre>\n", -1);
+  }
   pik_error_context(p, pErr, 5);
   pik_append(p, "ERROR: ", -1);
-  pik_append_text(p, zMsg, -1, 0);
+  pik_append_errtxt(p, zMsg, -1);
   pik_append(p, "\n", 1);
   for(i=p->nCtx-1; i>=0; i--){
     pik_append(p, "Called from:\n", -1);
     pik_error_context(p, &p->aCtx[i], 0);
   }
-  pik_append(p, "</pre></div>\n", -1);
+  if( (p->mFlags & PIKCHR_PLAINTEXT_ERRORS)==0 ){
+    pik_append(p, "</pre></div>\n", -1);
+  }
 }
 
 /*
@@ -7355,9 +7381,9 @@ void pik_tokenize(Pik *p, PToken *pIn, yyParser *pParser, PToken *aParam){
     sz = pik_token_length(&token, 1);
     if( token.eType==T_WHITESPACE ){
       /* no-op */
-    }else if( sz>1000 ){
+    }else if( sz>50000 ){
       token.n = 1;
-      pik_error(p, &token, "token is too long - max length 1000 bytes");
+      pik_error(p, &token, "token is too long - max length 50000 bytes");
       break;
     }else if( token.eType==T_ERROR ){
       token.n = (unsigned short)(sz & 0xffff);
@@ -7537,6 +7563,8 @@ int main(int argc, char **argv){
   int i;
   int bSvgOnly = 0;            /* Output SVG only.  No HTML wrapper */
   int bDontStop = 0;           /* Continue in spite of errors */
+  int exitCode = 0;            /* What to return */
+  int mFlags = 0;              /* mFlags argument to pikchr() */
   const char *zHtmlHdr = 
     "<!DOCTYPE html>\n"
     "<html lang=\"en-US\">\n"
@@ -7581,6 +7609,7 @@ int main(int argc, char **argv){
           exit(1);
         }
         bSvgOnly = 1;
+        mFlags |= PIKCHR_PLAINTEXT_ERRORS;
       }else
       {
         fprintf(stderr,"unknown option: \"%s\"\n", argv[i]);
@@ -7605,7 +7634,7 @@ int main(int argc, char **argv){
     sz = fread(zIn, 1, sz, in);
     fclose(in);
     zIn[sz] = 0;
-    zOut = pikchr(zIn, "pikchr", 0, &w, &h);
+    zOut = pikchr(zIn, "pikchr", mFlags, &w, &h);
     if( zOut==0 ){
       fprintf(stderr, "pikchr() returns NULL.  Out of memory?\n");
       if( !bDontStop ) exit(1);
@@ -7619,6 +7648,7 @@ int main(int argc, char **argv){
       printf("<h1>File %s</h1>\n", argv[i]);
       if( w<0 ){
         printf("<p>ERROR</p>\n%s\n", zOut);
+        exitCode = 1;
       }else{
         printf("<div id=\"svg-%d\" onclick=\"toggleHidden('svg-%d')\">\n",i,i);
         printf("<div style='border:3px solid lightgray;max-width:%dpx;'>\n",w);
@@ -7634,8 +7664,68 @@ int main(int argc, char **argv){
   if( !bSvgOnly ){
     printf("</body></html>\n");
   }
-  return 0; 
+  return exitCode; 
 }
 #endif /* PIKCHR_SHELL */
 
-#line 7666 "pikchr.c"
+#ifdef PIKCHR_TCL
+#include <tcl.h>
+/*
+** An interface to TCL
+**
+** TCL command:     pikchr $INPUTTEXT
+**
+** Returns a list of 3 elements which are the output text, the width, and
+** the height.
+**
+** Register the "pikchr" command by invoking Pikchr_Init(Tcl_Interp*).  Or
+** compile this source file as a shared library and load it using the
+** "load" command of Tcl.
+**
+** Compile this source-code file into a shared library using a command
+** similar to this:
+**
+**    gcc -c pikchr.so -DPIKCHR_TCL -shared pikchr.c
+*/
+static int pik_tcl_command(
+  ClientData clientData, /* Not Used */
+  Tcl_Interp *interp,    /* The TCL interpreter that invoked this command */
+  int objc,              /* Number of arguments */
+  Tcl_Obj *CONST objv[]  /* Command arguments */
+){
+  int w, h;              /* Width and height of the pikchr */
+  const char *zIn;       /* Source text input */
+  char *zOut;            /* SVG output text */
+  Tcl_Obj *pRes;         /* The result TCL object */
+
+  if( objc!=2 ){
+    Tcl_WrongNumArgs(interp, 1, objv, "PIKCHR_SOURCE_TEXT");
+    return TCL_ERROR;
+  }
+  zIn = Tcl_GetString(objv[1]);
+  w = h = 0;
+  zOut = pikchr(zIn, "pikchr", 0, &w, &h);
+  if( zOut==0 ){
+    return TCL_ERROR;  /* Out of memory */
+  }
+  pRes = Tcl_NewObj();
+  Tcl_ListObjAppendElement(0, pRes, Tcl_NewStringObj(zOut, -1));
+  free(zOut);
+  Tcl_ListObjAppendElement(0, pRes, Tcl_NewIntObj(w));
+  Tcl_ListObjAppendElement(0, pRes, Tcl_NewIntObj(h));
+  Tcl_SetObjResult(interp, pRes);
+  return TCL_OK;
+}
+
+/* Invoke this routine to register the "pikchr" command with the interpreter
+** given in the argument */
+int Pikchr_Init(Tcl_Interp *interp){
+  Tcl_CreateObjCommand(interp, "pikchr", pik_tcl_command, 0, 0);
+  return TCL_OK;
+}
+
+
+#endif /* PIKCHR_TCL */
+
+
+#line 7756 "pikchr.c"
