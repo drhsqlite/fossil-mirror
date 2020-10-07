@@ -1,5 +1,5 @@
-C Recast\sthe\sblockchain.md\sdoc\sas\s"Is\sFossil\sa\sBlockchain?"\s(answer:\nmostly\sno)\sand\supdated\sall\sreferences\sto\sit\sto\seither\sremove\sthe\sterm,\nuse\s"repository"\sinstead\swhere\sthat's\ssufficiently\sclear,\sor\sto\ssay\neither\s"Merkle\stree"\sor\s"hash\stree"\sinstead\swhere\swe\sneed\sto\sdistinguish\nthe\shash\stree\sitself\sfrom\sthe\srest\sof\sthe\srepo\sDB\sfile's\scontents.\s\sThis\ndepends\son\sthe\sprior\sCAP\stheorem\sdoc,\ssince\spart\sof\sthe\sargument\sfor\nFossil\snot\sbeing\sa\sblockchain\sgets\sus\sdown\sinto\sthose\sweeds.
-D 2020-10-05T18:15:28.859
+C Removed\sseveral\sweak\sarguments\sfrom\sthe\sblockchain.md\sdoc\sand\sadded\sa\nlot\smore\sinfo\sabout\scryptocurrencies\sto\sshow\sthe\sdifferences\sbetween\nthem\sand\sFossil.\sTweaked\smuch\sof\sthe\spreexisting\smaterial.
+D 2020-10-07T00:29:00.747
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -810,7 +810,7 @@ F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
 F www/backup.md 94e1392a5b1f0f5bcd31ea86938f059a0506424a0ef487e710966a096e021f46
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
-F www/blockchain.md 3edb1aa5fd6ca15e57852441dfe2716ae5a4dd7b55ed4412083e28a7e6a88af9
+F www/blockchain.md a2731dbd06e462e6c2368f0b9619a318462bab2ba6ad84a04d7351b0c47e53d3
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ddd56d0b03d83c3a02c9c707922f698e9e88c9b774fc782bf16f26734f950fc
-R eea594d36bb2f3c20f3a3982fd0d7232
+P 855578b61091c49d24a891b8b2db4f92705842794e3e3292a1b0700efac2a21c
+R 604f103e5d7a6b9aa83171ec25f655d6
 U wyoung
-Z 81a6c22910c881198868eb67ea96e036
+Z db88bd9d9472cc50022a98e31f9e91b0
