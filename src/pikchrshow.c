@@ -191,7 +191,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
             zClassSource = " source";
             pikFlags |= PIKCHR_PROCESS_SRC;
           }
-          blob_appendf(pOut,"<div class='pikchr-wrapper "
+          blob_appendf(pOut,"<div class='pikchr-wrapper"
                        "%s%s%s'>"
                        "<div class=\"pikchr-svg\" "
                        "style=\"max-width:%dpx\">\n",
@@ -492,15 +492,15 @@ void pikchr_cmd(void){
   blob_read_from_file(&bIn, zInfile, ExtFILE);
   if(fTh1){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0)
-      /* ^^^ needed for certain TH1 functions to work */;;
+      /* ^^^ needed for certain TH1 functions to work */;
     pikFlags |= PIKCHR_PROCESS_TH1;
     if(fNosvg) pikFlags |= PIKCHR_PROCESS_TH1_NOSVG;
   }
   isErr = pikchr_process(blob_str(&bIn), pikFlags,
                          fTh1 ? fThFlags : 0, &bOut);
   if(isErr){
-    /*fossil_print("ERROR: raw input:\n%b\n", &bIn);*/
-    fossil_fatal("%s ERROR: %b", 1==isErr ? "TH1" : "pikchr",
+    fossil_fatal("%s ERROR:%c%b", 1==isErr ? "TH1" : "pikchr",
+                 1==isErr ? ' ' : '\n',
                  &bOut);
   }else{
     blob_write_to_file(&bOut, zOutfile);
