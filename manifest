@@ -1,5 +1,5 @@
-C Increase\smaximum\stoken\ssize\sin\sPikchr\sto\s50000\sbytes.\s\sImportant\sfor\nmacros.
-D 2020-10-07T05:39:21.182
+C pikchr_process()\snow\smakes\suse\sof\sthe\sas-yet-not-public\sPIKCHR_PLAINTEXT_ERRORS\sflag\sto\smaintain\scontrol\sof\sthe\serror\soutput\sDOM\sstructure.
+D 2020-10-07T06:59:17.917
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -562,7 +562,7 @@ F src/name.c cd500b617d51453c4f1666832bcc22d8ad8b5791748da224359340f0e4530040
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c feb57e361cdfae14702e1f6509de22975e461b568921d9ab098f73202aa827a2
-F src/pikchrshow.c 700bb4b9036094015eefa62fdfc89f6930a18e433b24e085624b8d6dcd08e8ca
+F src/pikchrshow.c 8db5c6fec29d13422bd552780fc8488e4192e68a4c7bb404641bba1987b3ad17
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ddd56d0b03d83c3a02c9c707922f698e9e88c9b774fc782bf16f26734f950fc
-R 1ebd36b2251c55107ef8825a2e7d93cf
-U drh
-Z 4ab658ce1ac1579c32c97cf92a7090cf
+P da1ff5c2d1037b34fc9c9e5259c84b118c0e54bd139adcbe30f1aed780ca6c3a
+R 4bff514caf0ae8aa191f495f1b019cee
+U stephan
+Z 3ab91dae46033b220d40a1e3edd40b52

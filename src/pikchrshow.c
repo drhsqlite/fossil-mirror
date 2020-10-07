@@ -160,7 +160,9 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
       int w = 0, h = 0;
       const char * zContent = blob_str(&bIn);
       char *zOut;
-      zOut = pikchr(zContent, "pikchr", 0, &w, &h);
+      zOut = pikchr(zContent, "pikchr",
+                    0x01/*==>PIKCHR_PLAINTEXT_ERRORS*/,
+                    &w, &h);
       if( w>0 && h>0 ){
         const char * zClassToggle = "";
         const char * zClassSource = "";
@@ -252,7 +254,8 @@ void pikchrshow_page(void){
   }
   zContent = PD("content",P("p"));
   if(P("ajax")!=0){
-    /* Called from the JS-side preview updater. */
+    /* Called from the JS-side preview updater.
+       TODO: respond with JSON instead.*/
     cgi_set_content_type("text/html");
     if(zContent && *zContent){
       Blob out = empty_blob;
