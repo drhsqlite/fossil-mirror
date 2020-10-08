@@ -173,12 +173,19 @@ How does all of this compare to Fossil?
     individual human intellect, thus necessarily unique in all but
     trivial cases. This is foundational to copyright law.
 
-3.  <a id="lcr"></a>**Longest-Chain Rule.** Cryptocurrencies generally
+3.  <a id="lcr"></a>**Longest Chain Rule.** Cryptocurrencies generally
     need some way to distinguish which blocks are legitimate and which
     not.  They do this in part by identifying the linear chain with the
     greatest cumulative [work time](#work) as the legitimate chain. All
     blocks not on that linear chain are considered “orphans” and are
     ignored by the cryptocurrency software.
+
+    It inverse is sometimes called the “51% attack” because a single
+    actor would have to do slightly more work than the entire rest of
+    the community using a given cryptocurrency in order for their fork
+    of the currency to be considered the legitimate fork. This argument
+    soothes concerns that a single bad actor could take over the
+    network.
 
     The closest we can come to that notion in Fossil is the default
     “trunk” branch, but there’s nothing in Fossil that delegitimizes
@@ -362,6 +369,12 @@ you’re using [multiple remotes][mrep]. This table is far more
 interesting on the server side, containing the IP addresses of all
 contentful pushes; thus [the `scrub` command][scrub].
 
+Because Fossil doesn’t
+remember IP addresses in commit manifests or require commit signing, it
+allows at least *pseudonymous* commits. When someone clones a remote
+repository, they don’t learn the email address, IP address, or any other
+sort of [PII] of prior committers, on purpose.
+
 Some people say that private, permissioned blockchains (as you may
 imagine Fossil to be) are inherently problematic by the very reason that
 they don’t bake anonymous contribution into their core. The very
@@ -372,7 +385,7 @@ do this, for example: anyone can “mine” a new coin and push it into the
 blockchain, and there is no central authority restricting the transfer
 of cryptocurrency from one user to another.
 
-A similar analogy can be made to encryption, where an algorithm is
+We can draw an analogy to encryption, where an algorithm is
 considered inherently insecure if it depends on keeping any information
 from an attacker other than the key. Encryption schemes that do
 otherwise are derided as “security through obscurity.”
@@ -383,12 +396,6 @@ Fossil’s core hash-chained repository data structure. If you take the
 position that you don’t have a “blockchain” unless it allows anonymous
 contribution, with any needed restrictions provided only by the very
 structure of the managed data, then Fossil does not qualify.
-
-You can make a good inverse argument, however: because Fossil doesn’t
-remember IP addresses in commit manifests or require commit signing, it
-allows at least *pseudonymous* commits. When someone clones a remote
-repository, they don’t learn email address, IP address, or any other
-sort of [PII] of prior committers, on purpose.
 
 Why do some people care about this distinction? Consider Bitcoin,
 wherein an anonymous user cannot spam the blockchain with bogus coins
@@ -403,10 +410,34 @@ back to the [digital ledger question](#dlt), where we can talk about
 what it means to later correct a bad commit that got through the RBAC
 check.
 
+We may be willing to accept pseudonymity, rather than full anonymity.
+If we configure Fossil as above, either bypassing the RBAC or abandoning
+human control over it, scrubbing IP addresses, etc., is it then a public
+permissionless blockchain in that sense?
+
+We think not, because there is no [longest chain rule](#lcr) or anything
+like it in Fossil.
+
+For a fair model of how a Fossil repository might behave under such
+conditions, consider GitHub: here one user can fork another’s repository
+and make an arbitrary number of commits to their public fork.  Imagine
+this happens 10 times. How does someone come along later and
+*automatically* evaluate which of the 11 forks of the code (counting the
+original repository among their number) is the “best” one? For a
+computer software project, the best we could do to approximate this
+devolves to a [software project cost estimation problem][scost]. These
+methods are rather questionable in their own right, being mathematical
+judgement values on human work products, but even if we accept their
+usefulness, then we still cannot say which fork is better based solely
+on their scores under these metrics. We may well prefer to use the fork
+of a software program that took *less* effort, being smaller, more
+self-contained, and with a smaller attack surface.
+
 
 [alert]: ./alerts.md
 [capi]:  ./caps/ref.html#i
 [mrep]:  /help?cmd=remote
+[scost]: https://en.wikipedia.org/wiki/Software_development_effort_estimation
 [scrub]: /help?cmd=scrub
 [sreg]:  /help?cmd=self-register
 
