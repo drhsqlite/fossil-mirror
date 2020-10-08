@@ -13,6 +13,7 @@ reason using its results here. For that, we recommend [this article][tut].
 [tut]: https://www.ibm.com/cloud/learn/cap-theorem
 
 
+<a id="ap"></a>
 ## Fossil Is an AP-Mode System
 
 As with all common [DVCSes][dvcs], Fossil is an AP-mode system, meaning
@@ -33,6 +34,7 @@ There’s no getting around the CAP theorem!
 [dvcs]: https://en.wikipedia.org/wiki/Distributed_version_control
 
 
+<a id="ca"></a>
 ## CA-Mode Fossil
 
 What would it mean to redesign Fossil to be CA-mode?
@@ -79,6 +81,7 @@ with replication, but without any useful amount of failover.
 [svn]:   https://en.wikipedia.org/wiki/Apache_Subversion
 
 
+<a id="cp"></a>
 ## CP-Mode Fossil
 
 What if we modify our CA-mode system above with “warm spares”?  We can
