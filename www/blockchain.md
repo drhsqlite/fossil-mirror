@@ -390,6 +390,19 @@ allows at least *pseudonymous* commits. When someone clones a remote
 repository, they don’t learn email address, IP address, or any other
 sort of [PII] of prior committers, on purpose.
 
+Why do some people care about this distinction? Consider Bitcoin,
+wherein an anonymous user cannot spam the blockchain with bogus coins
+because its [proof-of-work][pow] protocol allows such coins to be
+rejected immediately. There is no equivalent in Fossil: it has no
+technology that allows the receiving server to look at the content of a
+commit and automatically judge it to be “good.” Fossil relies on its
+RBAC system to provide such distinctions: if you have a commit bit, your
+commits are *ipso facto* judged “good,” insofar as any human work
+product can be so judged by a blob of compiled C code. This takes us
+back to the [digital ledger question](#dlt), where we can talk about
+what it means to later correct a bad commit that got through the RBAC
+check.
+
 
 [alert]: ./alerts.md
 [capi]:  ./caps/ref.html#i
