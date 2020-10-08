@@ -36,6 +36,7 @@ the repository, extending this tree.
 
 
 
+<a id="currency"></a>
 ## Cryptocurrency
 
 Because blockchain technology was first popularized as Bitcoin, many
@@ -189,13 +190,13 @@ How does all of this compare to Fossil?
 This much is certain: Fossil is definitely not a cryptocurrency. Whether
 this makes it “not a blockchain” is a subjective matter.
 
-[arh]:  https://fossil-scm.org/fossil/doc/trunk/www/hooks.md
+[arh]:  ./hooks.md
 [bse]:  https://www.researchgate.net/publication/311572122_What_is_Blockchain_a_Gentle_Introduction
 [caps]: ./caps/
-[cs]:   https://fossil-scm.org/home/help?cmd=clearsign
+[cs]:   /help?cmd=clearsign
 [dboc]: https://en.wikipedia.org/wiki/Debasement
 [dsig]: https://en.wikipedia.org/wiki/Digital_signature
-[fb]:   https://fossil-scm.org/home/doc/trunk/www/branching.wiki
+[fb]:   ./branching.wiki
 [GPG]:  https://gnupg.org/
 [PGP]:  https://www.openpgp.org/
 [PII]:  https://en.wikipedia.org/wiki/Personal_data
@@ -205,11 +206,12 @@ this makes it “not a blockchain” is a subjective matter.
 
 
 
+<a id="dlt"></a>
 ## Distributed Ledgers
 
 Cryptocurrencies are an instance of [distributed ledger technology][dlt]. If
 we can convince ourselves that Fossil is also a distributed
-ledger, then we might think of Fossil as at least a peer technology,
+ledger, then we might think of Fossil as a peer technology,
 having at least some qualifications toward being considered a blockchain.
 
 A key tenet of DLT is that records be unmodifiable after they’re
@@ -236,8 +238,8 @@ given time. If you had an AP-mode accounts receivable system, it could
 have different bottom-line totals at different sites, because you’ve
 cast away “C” to get AP-mode operation.
 
-Because of this, you could still not guarantee that the command “`fossil
-info tip`” gives the same result everywhere. A CA or CP-mode Fossil
+Because of this, you could still not guarantee that the command
+“`fossil info tip`” gives the same result everywhere. A CA or CP-mode Fossil
 variant would guarantee that everyone got the same result. (Everyone not
 partitioned away from the majority of the network at any rate, in the CP
 case.)
@@ -262,6 +264,7 @@ sense.
 [shun]:   ./shunning.wiki
 
 
+<a id="dpc"></a>
 ## Distributed Partial Consensus
 
 If we can’t get DLT, can we at least get some kind of distributed
@@ -274,7 +277,7 @@ a legitimate part of the whole blockchain, or it is not.
 Unfortunately, this author doesn’t see a way to do that with Fossil.
 Given only one “block” in Fossil’s putative “blockchain” — a commit, in
 Fossil terminology — all you can prove is whether it is internally
-consistent, not corrupt. That then points you at the parent(s) of that
+consistent, that it is not corrupt. That then points you at the parent(s) of that
 commit, which you can repeat the exercise on, back to the root of the
 DAG. This is what the enabled-by-default [`repo-cksum` setting][rcks]
 does.
@@ -304,17 +307,95 @@ since you can’t verify the proofs of these signatures if you can’t first
 prove that the provided signatures belong to people you trust. This is a
 notoriously hard problem in its own right.
 
-A future version of Fossil could instead provide consensus [in the CAP
-sense][cacp]. For instance, you could say that if a quorum of servers
+A future version of Fossil could instead provide [consensus in the CAP
+sense][ctcp]. For instance, you could say that if a quorum of servers
 all have a given commit, it “belongs.” Fossil’s strong hashing tech
 would mean that querying whether a given commit is part of the
 “blockchain” would be as simple as going down the list of servers and
-sending it an HTTP GET `/info` query for the artifact ID, returning
-“Yes” once you get enough HTTP 200 status codes back. All of this is
+sending each an HTTP GET `/info` query for the artifact ID, concluding
+that the commit is legitimate once you get enough HTTP 200 status codes back. All of this is
 hypothetical, because Fossil doesn’t do this today.
 
 [AGI]:  https://en.wikipedia.org/wiki/Artificial_general_intelligence
-[rcks]: https://fossil-scm.org/home/help?cmd=repo-cksum
+[rcks]: /help?cmd=repo-cksum
+
+
+
+<a id="anon"></a>
+## Anonymity
+
+Many blockchain based technologies go to extraordinary lengths to
+allow anonymous use of their service.
+
+As typically configured, Fossil does not: commits synced between servers
+always at least have a user name associated with them, which the remote
+system must accept through its [RBAC system][caps]. That system can run
+without having the user’s email address, but it’s needed if [email
+alerts][alert] are enabled on the server. The remote server logs the IP
+address of the commit for security reasons. That coupled with the
+timestamp on the commit could sufficiently deanonymize users in many
+common situations.
+
+It is possible to configure Fossil so it doesn’t do this:
+
+* You can give [Write capability][capi] to user category “nobody,” so
+  that anyone that can reach your server can push commits into its
+  repository.
+
+* You could give that capability to user category “anonymous” instead,
+  which requires that the user log in with a CAPTCHA, but which doesn’t
+  require that the user otherwise identify themselves.
+
+* You could enable [the `self-register` setting][sreg] and choose not to
+  enable [commit clear-signing][cs] so that anonymous users could push
+  commits into your repository under any name they want.
+
+On the server side, you can also [scrub] the logging that remembers
+where each commit came from.
+
+That info isn’t transmitted from the remote server on clone or pull.
+Instead, the size of the `rcvfrom` table after initial clone is 1: it
+contains the remote server’s IP address. On each pull containing new
+artifacts, your local `fossil` instance adds another entry to this
+table, likely with the same IP address unless the server has moved or
+you’re using [multiple remotes][mrep]. This table is far more
+interesting on the server side, containing the IP addresses of all
+contentful pushes; thus [the `scrub` command][scrub].
+
+Some people say that private, permissioned blockchains (as you may
+imagine Fossil to be) are inherently problematic by the very reason that
+they don’t bake anonymous contribution into their core. The very
+existence of an RBAC is a moving piece that can break. Isn’t it better,
+the argument goes, to have a system that works even in the face of
+anonymous contribution, so that you don’t need an RBAC? Cryptocurrencies
+do this, for example: anyone can “mine” a new coin and push it into the
+blockchain, and there is no central authority restricting the transfer
+of cryptocurrency from one user to another.
+
+A similar analogy can be made to encryption, where an algorithm is
+considered inherently insecure if it depends on keeping any information
+from an attacker other than the key. Encryption schemes that do
+otherwise are derided as “security through obscurity.”
+
+You may be wondering what any of this has to do with whether Fossil is a
+blockchain, but that is exactly the point: all of this is outside
+Fossil’s core hash-chained repository data structure. If you take the
+position that you don’t have a “blockchain” unless it allows anonymous
+contribution, with any needed restrictions provided only by the very
+structure of the managed data, then Fossil does not qualify.
+
+You can make a good inverse argument, however: because Fossil doesn’t
+remember IP addresses in commit manifests or require commit signing, it
+allows at least *pseudonymous* commits. When someone clones a remote
+repository, they don’t learn email address, IP address, or any other
+sort of [PII] of prior committers, on purpose.
+
+
+[alert]: ./alerts.md
+[capi]:  ./caps/ref.html#i
+[mrep]:  /help?cmd=remote
+[scrub]: /help?cmd=scrub
+[sreg]:  /help?cmd=self-register
 
 
 # Conclusion
