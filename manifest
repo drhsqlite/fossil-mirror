@@ -1,5 +1,5 @@
-C Merged\strunk\schanges\sin
-D 2020-10-08T04:11:31.619
+C All\sbut\srewrote\sthe\sCryptocurrency\ssection\sof\sthe\snew\sblockchain.md\sdoc\nto\sclarify\sthe\ssorts\sof\sfrauds\seach\ssystem\shas\sto\sprevent\sso\sthat\swe\scan\ndraw\sclearer\sanalogies.
+D 2020-10-08T06:42:18.211
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -810,7 +810,7 @@ F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
 F www/backup.md 94e1392a5b1f0f5bcd31ea86938f059a0506424a0ef487e710966a096e021f46
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
-F www/blockchain.md a2731dbd06e462e6c2368f0b9619a318462bab2ba6ad84a04d7351b0c47e53d3
+F www/blockchain.md d09d54e198e9b77fc346e7d32939bbefa00c21a8e5008ef70cce61c79a4fb0fa
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d55f44376b09e3a0919a0a9ce37e6f66e907fbe612e66054220591b025361b7 991b0899258dc42d60b0dff632b78268ee31bab3bde6b5e1a36b96aeb1a2654c
-R 469939ec27a727ba17155230016d0c34
+P 95203913c0cf229843b9a9cde2ff7f358b8802aa77dadf469040db516409f76a
+R 7a2931b78da07ce0f6fd3625dcb0c052
 U wyoung
-Z 9e5c880d92fffeb72b69c41658a683a8
+Z 89ba5191f5c54b14dc15e02b04c3be0a

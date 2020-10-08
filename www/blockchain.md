@@ -27,7 +27,7 @@ root by following the parent hashes in each manifest, you will then have
 a Merkle tree. Point-for-point, Fossil follows that definition.
 
 Every change in Fossil starts by adding one or more manifests to
-the repository.
+the repository, extending this tree.
 
 [bcwp]:  https://en.wikipedia.org/wiki/Blockchain
 [DAG]:   https://en.wikipedia.org/wiki/Directed_acyclic_graph
@@ -40,133 +40,177 @@ the repository.
 
 Because blockchain technology was first popularized as Bitcoin, many
 people associate the term with cryptocurrency.  Fossil has nothing to do
-with cryptocurrency, so a claim that “Fossil is a blockchain” may run up
-against problems due to conflation with cryptocurrency.
+with cryptocurrency, so a claim that “Fossil is a blockchain” may fail
+to communicate the speaker’s concepts clearly due to conflation with
+cryptocurrency.
 
 Cryptocurrency has several features and requirements that Fossil doesn’t
 provide, either because it doesn’t need them or because we haven’t
 gotten around to creating the feature. Whether these are essential to
-the definition of “blockchain” and thus make Fossil “not a blockchain”
+the definition of “blockchain” and thus disqualify Fossil as a blockchain
 is for you to decide.
 
-1.  **Signatures.** Blocks in a cryptocurrency have to be signed by the
-    *prior* owner of each block in order to transfer the money to the
-    new holder, else the new recipient could claim to have received any
-    amount of money they want by editing the face value of the currency
-    block. The chain of signatures also lets us verify that each block
-    is transferred only once, solving the double-spending problem. These
-    are both types of forgery, but they’re distinct sorts: changing a
-    US $20 bill to $100 is different from simply making more $20 bills
-    that look sufficiently like the original.
+Cryptocurrencies must prevent three separate types of fraud to be useful:
 
-    This chain of signatures prevents both types of forgery, and it is a
-    second type of link between the blocks, separate from the “hash
-    chain” that applies an ordering to the blocks. (This distinction of
-    terms comes from [_Blockchain: Simple Explanation_][bse].)
+*   **Type 1** is modification of existing currency. To draw an analogy
+    to paper money, we wish to prevent someone from using green and
+    black markers to draw extra zeroes on a US $10 bill so that it
+    claims to be a $100 bill. Cryptocurrencies apply digital signatures
+    to each block so that a given block of currency’s face value cannot
+    be changed after it is created. The [proof-of-work][pow] aspect
+    prevents the creator from setting its initial value fraudulently.
 
-    Fossil has an off-by-default feature to call out to an external copy
-    of PGP or GPG to sign commit manifests before inserting them into
-    the repository, but it’s rarely used, and even when it is used,
-    Fossil doesn’t currently verify those signatures in any way.
+*   **Type 2** is making new counterfeit $10 bills that look
+    sufficiently like the original to pass in commerce. Cryptocurrencies
+    chain blocks together and establish a sufficiently hard work problem
+    to create new currency that Type 2 frauds are impractical short of
+    doing the actual mining needed to produce legitimate cryptocurrency.
 
-    Even if Fossil someday gets a built-in commit signature feature, and
-    even if this new feature enforces a rule that rejects commits that
-    don’t include a verifiable signature, Fossil will still not provide
-    the sort of cross-block transfer signatures needed by
-    cryptocurrencies. Fossil commit signatures simply attest that the
-    new commit was created by some verifiable person while preventing
-    that attestation and the block it attests to from being changed.  (A
-    failure in this feature would be analogous to the first type of
-    forgery above: changing the “face value” of a commit.) As long as I
-    retain control over my private commit signing key, no one can take
-    one of my commits and change its contents.
+*   **Type 3** is double-spending existing legitimate cryptocurrency.
+    There is no analogy in paper money due to its physical form; it is a
+    problem unique to digital currency due to its infinitely-copyable
+    nature.  Cryptocurrencies prevent Type 3 frauds by making the
+    *prior* owner of a block sign it over to the new owner. To avoid an
+    O(n²) auditing problem as a result, cryptocurrencies also use a
+    chain of hashes to make checking for double-spending quick and easy.
 
-    There is no need in Fossil for cross-commit sign-overs, because
-    there is no useful analog to double-spending fraud in Fossil.
+How does all of this compare to Fossil?
 
-    The lack of commit signing in the default Fossil configuration means
-    forgery of commits is possible by anyone with commit capability. If
-    that is an essential element to your notion of “blockchain,” and you
-    wish to have some of the same guarantees from Fossil as you get from
-    other types of blockchains, then you should enable its [clearsign
-    feature][cs], coupled with a server-side [“after receive” hook][arh]
-    to reject commits if they aren’t signed.
+1.  <a id="signatures"></a>**Signatures.** Cryptocurrencies use a chain
+    of [digital signatures][dsig] to prevent Type 1 and Type 3 frauds. This
+    chain forms an additional link between the blocks, separate from the
+    hash chain that applies an ordering and lookup scheme to the blocks.
+    [_Blockchain: Simple Explanation_][bse] explains this “hash chain”
+    vs. “block chain” distinction in more detail.
 
-    Fossil’s chain of hashes prevents modification of existing commits
-    as long as the receiving Fossil server is secure. Even if you manage
-    to execute a [preimage attack][prei] on the hash algorthm — SHA3-256
-    by default in the current version of Fossil — our sync protocol will
-    prevent the modification from being accepted into the repository. To
-    modify an existing commit, an attacker would have to attack the
-    remote host itself somehow, not its repository data structures.
-    Strong signatures are only needed to prevent *new* commits from
-    being forged at the tips of the DAG, and to avoid the need to trust
-    the remote Fossil server quite so heavily.
+    Fossil has [a disabled-by-default feature][cs] to call out to an
+    external copy of [PGP] or [GPG] to sign commit manifests before
+    inserting them into the repository. You may wish to couple that with
+    a server-side [after-receive hook][arh] to reject unsigned commits.
 
-    If you’re wondering why Fossil currently lacks built-in commit
-    signing and verification, and why its current commit signing feature
-    is not enabled by default, it is because Fossil is not itself a
-    [PKI], and there is no way for regular users of Fossil to link it to
-    a PKI, since doing so would likely result in an unwanted [PII]
-    disclosure.  There is no email address in a Fossil commit manifest
-    that you could use to query one of the public PGP keyservers, for
-    example. It therefore becomes a local policy matter as to whether
-    you even *want* to have signatures, because they’re not without
-    their downsides.
+    Although there are several distinctions you can draw between the way
+    Fossil’s commit signing scheme works and the way block signing works
+    in cryptocurrencies, only one is of material interest for our
+    purposes here: Fossil commit signatures apply only to a single
+    commit. Fossil does not sign one commit over to the next “owner” of
+    that commit in the way that a blockchain-based cryptocurrency must
+    when transferring currency from one user to another, beacuse there
+    is no useful analog to the double-spending problem in Fossil.  The
+    closest you can come to this is double-insert of commits into the
+    blockchain, which we’ll address shortly.
 
-2.  **Longest-Chain Rule.** Cryptocurrencies generally need some way to
-    distinguish which blocks are legitimate and which not.
+    What Fossil commit signatures actually do is provide in-tree forgery
+    prevention, both Type 1 and Type 2. You cannot modify existing
+    commits (Type 1 forgery) because you do not have the original
+    committer’s private signing key, and you cannot forge new commits
+    attesting to come from some other trusted committer (Type 2) because
+    you don’t have any of their private signing keys, either.
+    Cyrptocurrencies also use the work problem to prevent Type 2
+    forgeries, but the application of that to Fossil is a matter we get
+    to [later](#work).
 
-    There is the proof-of-work aspect of this, which has no useful
-    application to Fossil, so we can ignore that.
+    If Fossil signatures prevent Type 1 and Type 2 frauds, why then are
+    they not enabled by default? Because they are defense-in-depth
+    measures, not the minimum sufficient measures needed to prevent
+    repository fraud in Fossil. Fossil provides its primary protections
+    through other means.
 
-    The other aspect of this does have applicability to Fossil is the
-    notion (as in Bitcoin) that the linear chain with the greatest
-    cumulative work-time is the legitimate chain. Everything else is
-    considered an “orphan” block and is ignored by the software. The
-    closest we can come to that notion in Fossil is the default “trunk”
-    branch, but there’s nothing in Fossil that delegitimizes other
-    branches just because they’re shorter, nor is there any way in
-    Fossil to score the amount of work that went into a commit. Indeed,
-    [forks and branches][fb] are *valuable and desirable* things in
-    Fossil.
+    Although you have complete control over the contents of your local
+    Fossil repository clone, you cannot perform Type 1 forgery on its
+    contents short of executing a [preimage attack][prei] on the hash
+    algorthm. ([SHA3-256][SHA-3] by default in the current version of
+    Fossil.) Even if you could, Fossil’s sync protocol will prevent the
+    modification from being pushed into another repository: the remote
+    Fossil instance says, “I’ve already got that one, thanks,” and
+    ignores the push.  Thus, short of breaking into the remote server
+    and modifying the repository in place, you couldn’t even make use of
+    a preimage attack if you had that power. This is an attack on the
+    server itself, not on Fossil’s data structures, so while it is
+    useful to think through this problem, it is not helpful to answering
+    our questions here.
 
-3.  **Work Contests.** Cryptocurrencies prevent forgery by setting up
-    some sort of contest that ensures that new coins can come into
-    existence only by doing some difficult work task. This “mining”
+    The Fossil sync protocol also prevents the closest analog to Type 3
+    frauds in Fossil: copying a commit manifest in your local repo clone
+    won’t result in a double-commit on sync.
+
+    In the absence of digital signatures, Fossil’s [RBAC system][caps]
+    restricts Type 2 forgery to trusted committers. Thus once again
+    we’re reduced to an infosec problem, not a data structure design
+    question.  (Inversely, enabling commit clearsigning is a good idea
+    if you have committers on your repo whom you don’t trust not to
+    commit Type 2 frauds. But let us be clear: your choice of setting
+    does not answer the question of whether Fossil is a blockchain.)
+
+    If you’re wondering why Fossil’s current commit signing feature is
+    not enabled by default and why it doesn’t verify signatures on
+    commits, it is because Fossil is not itself a [PKI], and there is no
+    way for regular users of Fossil to link it to a PKI, since doing so
+    would likely result in an unwanted [PII] disclosure.  There is no
+    email address in a Fossil commit manifest that you could use to
+    query one of the public PGP keyservers, for example. It therefore
+    becomes a local policy matter as to whether you even *want* to have
+    signatures, because they’re not without their downsides.
+
+2.  <a id="work"></a>**Work Contests.** Cryptocurrencies prevent forgery
+    by setting up some sort of contest that ensures that new coins can come
+    into existence only by doing some difficult work task. This “mining”
     activity results in a coin that took considerable work to create,
     which thus has economic value by being a) difficult to re-create,
     and b) resistant to [debasement][dboc].
 
     Fossil repositories are most often used to store the work product of
     individuals, rather than cryptocoin mining machines. There is
-    generally no contest in trying to produce the most commits.
+    generally no contest in trying to produce the most commits. There
+    may be an implicit contest to produce the “best” commits, but that
+    is a matter of project management, not something that can be
+    automatically mediated through objective measures.
+
     Incentives to commit to the repository come from outside of Fossil;
     they are not inherent to its nature, as with cryptocurrencies.
     Moreover, there is no useful sense in which we could say that one
     commit “re-creates” another. Commits are generally products of
     individual human intellect, thus necessarily unique in all but
-    trivial cases. Thus the entire basis of copyright law.
+    trivial cases. This is foundational to copyright law.
 
-This much is certain: Fossil is definitely not a cryptocurrency.
+3.  <a id="lcr"></a>**Longest-Chain Rule.** Cryptocurrencies generally
+    need some way to distinguish which blocks are legitimate and which
+    not.  They do this in part by identifying the linear chain with the
+    greatest cumulative [work time](#work) as the legitimate chain. All
+    blocks not on that linear chain are considered “orphans” and are
+    ignored by the cryptocurrency software.
+
+    The closest we can come to that notion in Fossil is the default
+    “trunk” branch, but there’s nothing in Fossil that delegitimizes
+    other branches just because they’re shorter, nor is there any way in
+    Fossil to score the amount of work that went into a commit. Indeed,
+    [forks and branches][fb] are *valuable and desirable* things in
+    Fossil.
+
+This much is certain: Fossil is definitely not a cryptocurrency. Whether
+this makes it “not a blockchain” is a subjective matter.
 
 [arh]:  https://fossil-scm.org/fossil/doc/trunk/www/hooks.md
 [bse]:  https://www.researchgate.net/publication/311572122_What_is_Blockchain_a_Gentle_Introduction
+[caps]: ./caps/
 [cs]:   https://fossil-scm.org/home/help?cmd=clearsign
 [dboc]: https://en.wikipedia.org/wiki/Debasement
+[dsig]: https://en.wikipedia.org/wiki/Digital_signature
 [fb]:   https://fossil-scm.org/home/doc/trunk/www/branching.wiki
+[GPG]:  https://gnupg.org/
+[PGP]:  https://www.openpgp.org/
 [PII]:  https://en.wikipedia.org/wiki/Personal_data
 [PKI]:  https://en.wikipedia.org/wiki/Public_key_infrastructure
+[pow]:  https://en.wikipedia.org/wiki/Proof_of_work
 [prei]: https://en.wikipedia.org/wiki/Preimage_attack
 
 
 
 ## Distributed Ledgers
 
-Cryptocurrencies are a type of [distributed ledger technology][dlt]. If
-we can convince ourselves that Fossil is also a type of distributed
-ledger, then we might think of Fossil as a peer technology, thus also a
-type of blockchain.
+Cryptocurrencies are an instance of [distributed ledger technology][dlt]. If
+we can convince ourselves that Fossil is also a distributed
+ledger, then we might think of Fossil as at least a peer technology,
+having at least some qualifications toward being considered a blockchain.
 
 A key tenet of DLT is that records be unmodifiable after they’re
 committed to the ledger, which matches quite well with Fossil’s design
@@ -176,23 +220,30 @@ modification of existing records and injection of incorrect records.
 Yet, Fossil also has [purge] and [shunning][shun]. Doesn’t that mean
 Fossil cannot be a distributed ledger?
 
-These features remove commits from the repository. If you want a
+These features only remove existing commits from the repository. If you want a
 currency analogy, they are ways to burn a paper bill or to melt a [fiat
 coin][fc] down to slag. In a cryptocurrency, you can erase your “wallet”
-file, effectively destroying money in a similar way. You can’t use these
-features of Fossil to forge new commits or forge a modification to an
-existing commit.
+file, effectively destroying money in a similar way. These features
+do not permit forgery of either type described above: you can’t use them
+to change the value of existing commits (Type 1) or add new commits to
+the repository (Type 2).
 
 What if we removed those features from Fossil, creating an append-only
-variant? Is it a DLT then? Arguably still not, because [today’s Fossil
-is an AP-mode system][fapm] in the [CAP theorem][cap] sense, which means
+Fossil variant? Is it a DLT then? Arguably still not, because [today’s Fossil
+is an AP-mode system][ctap] in the [CAP theorem][cap] sense, which means
 there can be no guaranteed consensus on the content of the ledger at any
 given time. If you had an AP-mode accounts receivable system, it could
 have different bottom-line totals at different sites, because you’ve
 cast away “C” to get AP-mode operation.
 
+Because of this, you could still not guarantee that the command “`fossil
+info tip`” gives the same result everywhere. A CA or CP-mode Fossil
+variant would guarantee that everyone got the same result. (Everyone not
+partitioned away from the majority of the network at any rate, in the CP
+case.)
+
 What are the prospects for CA-mode or CP-mode Fossil? [We don’t want
-CA-mode Fossil, but CP-mode could be useful.][fapm] Until the latter
+CA-mode Fossil][ctca], but [CP-mode could be useful][ctcp]. Until the latter
 exists, this author believes Fossil is not a distributed ledger in a
 technologically defensible sense.
 
@@ -200,7 +251,9 @@ The most common technologies answering to the label “blockchain” are all
 DLTs, so if Fossil is not a DLT, then it is not a blockchain in that
 sense.
 
-[fapm]:   ./cap-theorem.md
+[ctap]:   ./cap-theorem.md#ap
+[ctca]:   ./cap-theorem.md#ca
+[ctcp]:   ./cap-theorem.md#cp
 [cap]:    https://en.wikipedia.org/wiki/CAP_theorem
 [dlt]:    https://en.wikipedia.org/wiki/Distributed_ledger
 [DVCS]:   https://en.wikipedia.org/wiki/Distributed_version_control
@@ -252,7 +305,7 @@ prove that the provided signatures belong to people you trust. This is a
 notoriously hard problem in its own right.
 
 A future version of Fossil could instead provide consensus [in the CAP
-sense][fapm]. For instance, you could say that if a quorum of servers
+sense][cacp]. For instance, you could say that if a quorum of servers
 all have a given commit, it “belongs.” Fossil’s strong hashing tech
 would mean that querying whether a given commit is part of the
 “blockchain” would be as simple as going down the list of servers and
@@ -277,11 +330,12 @@ defend it.  The people you’re communicating your ideas to must have the
 same concept of the terms you use.
 
 
-What term should you use instead? A blockchain is a type of [Merkle
-tree][mt], named after [its inventor][drrm]. You could also call it by
-the more generic term “hash tree.” That Fossil certainly is.
+What term should you use instead? Fossil stores a DAG of hash-chained
+commits, so an indisputably correct term is a [Merkle tree][mt], named
+after [its inventor][drrm].  You could also use the more generic term
+“hash tree.”
 
-Fossil is a technological peer to many common types of blockchain
+Fossil is a technological peer to many common sorts of blockchain
 technology. There is a lot of overlap in concepts and implementation
 details, but when speaking of what most people understand as
 “blockchain,” Fossil is not that.
