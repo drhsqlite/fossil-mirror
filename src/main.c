@@ -718,7 +718,7 @@ int fossil_main(int argc, char **argv){
       fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
     }
   }
-  if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
+  if( !find_option("nocgi", 0, 0) && fossil_getenv("GATEWAY_INTERFACE")!=0){
     zCmdName = "cgi";
     g.isHTTP = 1;
   }else if( g.argc<2 && !fossilExeHasAppendedRepo() ){

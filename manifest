@@ -1,5 +1,5 @@
-C Small\sclarity\sfix\sin\sthe\snew\sCAP\stheorem\sdoc
-D 2020-10-08T07:04:31.054
+C Always\sconsume\sthe\s--nocgi\scommand-line\soption\seven\sif\sit\sis\snot\sused.
+D 2020-10-08T14:49:18.530
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -540,7 +540,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c 4ea53c2730a0391f3488f802e216adbbbc8926067760791cdd22721b40779b95
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 1585ea0897a53a7dd6c46df0a590a73ba3adf6ef14ebe55ef6a0af945dd777df
+F src/main.c 1eec3c02fd548138ab90442a9252b842ecadbb7fbed1b0c0fee0cf6d1e80758f
 F src/main.mk 615f45c0f9f044721573a7fc43d8c79fb54b56d02a553135458627536cbde585
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 991b0899258dc42d60b0dff632b78268ee31bab3bde6b5e1a36b96aeb1a2654c
-R 961cb159d839ee6a7713c0b0eacc678c
-U wyoung
-Z 8631e36ecac949bfef1208e91c3062b5
+P 8a9facbb3e007d321f24127b5f2f2622b2857654aae8e79935b56b13a93ff86a
+R 55ecdb56c50e93115374a219f3265faf
+U drh
+Z 30744128ab710e8208d4e06c796971b4
