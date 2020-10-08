@@ -160,7 +160,9 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
       int w = 0, h = 0;
       const char * zContent = blob_str(&bIn);
       char *zOut;
-      zOut = pikchr(zContent, "pikchr", 0, &w, &h);
+      zOut = pikchr(zContent, "pikchr",
+                    0x01/*==>PIKCHR_PLAINTEXT_ERRORS*/,
+                    &w, &h);
       if( w>0 && h>0 ){
         const char * zClassToggle = "";
         const char * zClassSource = "";
@@ -189,7 +191,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
             zClassSource = " source";
             pikFlags |= PIKCHR_PROCESS_SRC;
           }
-          blob_appendf(pOut,"<div class='pikchr-wrapper "
+          blob_appendf(pOut,"<div class='pikchr-wrapper"
                        "%s%s%s'>"
                        "<div class=\"pikchr-svg\" "
                        "style=\"max-width:%dpx\">\n",
@@ -252,7 +254,8 @@ void pikchrshow_page(void){
   }
   zContent = PD("content",P("p"));
   if(P("ajax")!=0){
-    /* Called from the JS-side preview updater. */
+    /* Called from the JS-side preview updater.
+       TODO: respond with JSON instead.*/
     cgi_set_content_type("text/html");
     if(zContent && *zContent){
       Blob out = empty_blob;
@@ -489,15 +492,15 @@ void pikchr_cmd(void){
   blob_read_from_file(&bIn, zInfile, ExtFILE);
   if(fTh1){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0)
-      /* ^^^ needed for certain TH1 functions to work */;;
+      /* ^^^ needed for certain TH1 functions to work */;
     pikFlags |= PIKCHR_PROCESS_TH1;
     if(fNosvg) pikFlags |= PIKCHR_PROCESS_TH1_NOSVG;
   }
   isErr = pikchr_process(blob_str(&bIn), pikFlags,
                          fTh1 ? fThFlags : 0, &bOut);
   if(isErr){
-    /*fossil_print("ERROR: raw input:\n%b\n", &bIn);*/
-    fossil_fatal("%s ERROR: %b", 1==isErr ? "TH1" : "pikchr",
+    fossil_fatal("%s ERROR:%c%b", 1==isErr ? "TH1" : "pikchr",
+                 1==isErr ? ' ' : '\n',
                  &bOut);
   }else{
     blob_write_to_file(&bOut, zOutfile);

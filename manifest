@@ -1,5 +1,5 @@
-C Removed\sseveral\sweak\sarguments\sfrom\sthe\sblockchain.md\sdoc\sand\sadded\sa\nlot\smore\sinfo\sabout\scryptocurrencies\sto\sshow\sthe\sdifferences\sbetween\nthem\sand\sFossil.\sTweaked\smuch\sof\sthe\spreexisting\smaterial.
-D 2020-10-07T00:29:00.747
+C Merged\strunk\schanges\sin
+D 2020-10-08T04:11:31.619
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,8 +561,8 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c cd500b617d51453c4f1666832bcc22d8ad8b5791748da224359340f0e4530040
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 8f0dc5ef148b50847f914a2b70af018571164b3d6bb7961e9f70d31be386b2a7
-F src/pikchrshow.c 700bb4b9036094015eefa62fdfc89f6930a18e433b24e085624b8d6dcd08e8ca
+F src/pikchr.c feb57e361cdfae14702e1f6509de22975e461b568921d9ab098f73202aa827a2
+F src/pikchrshow.c a9d1e00bc5b18cd98c296ad56672d2e1cb25a45419413e644c573186b272b31e
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -820,7 +820,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 9022b0a0977f57faa5db4c0580ebf76b75fd01abc886fdec013b7dba15aee614
-F www/cap-theorem.md 9a05da3b082d0160e74da50f84c74061ac110df48645b03c33b50a8c2f8ce51a
+F www/cap-theorem.md 6b5a8459fc2745b4db3cfd986e66246d0e0cc75620a5b59035db025c259196e2
 F www/caps/admin-v-setup.md 03aa8af79bb4f087215146f7e6ac63861802ae0da7ea856f16b24d4350811493
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
 F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 855578b61091c49d24a891b8b2db4f92705842794e3e3292a1b0700efac2a21c
-R 604f103e5d7a6b9aa83171ec25f655d6
+P 3d55f44376b09e3a0919a0a9ce37e6f66e907fbe612e66054220591b025361b7 991b0899258dc42d60b0dff632b78268ee31bab3bde6b5e1a36b96aeb1a2654c
+R 469939ec27a727ba17155230016d0c34
 U wyoung
-Z db88bd9d9472cc50022a98e31f9e91b0
+Z 9e5c880d92fffeb72b69c41658a683a8
