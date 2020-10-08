@@ -1,5 +1,5 @@
-C Added\sfragment\sidentifiers\sto\sthe\snew\sCAP\stheorem\sdoc.
-D 2020-10-08T04:11:10.145
+C Small\sclarity\sfix\sin\sthe\snew\sCAP\stheorem\sdoc
+D 2020-10-08T07:04:31.054
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -820,7 +820,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 9022b0a0977f57faa5db4c0580ebf76b75fd01abc886fdec013b7dba15aee614
-F www/cap-theorem.md 6b5a8459fc2745b4db3cfd986e66246d0e0cc75620a5b59035db025c259196e2
+F www/cap-theorem.md f2bdddb2f8fbd660d634ab7c743f294d954933a7097252b4ba492c31b8030fcd
 F www/caps/admin-v-setup.md 033c8f057f5d986720eb63aac42cb653f90ff832a9cc49e26cbeb7feee0b535c
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3b2671f6d5c775234e12654dce64c852a8f6156ac3171ebe1742220a0dcb0d7
-R 334563e7121a3a455dc812cf9cfc52e7
+P 991b0899258dc42d60b0dff632b78268ee31bab3bde6b5e1a36b96aeb1a2654c
+R 961cb159d839ee6a7713c0b0eacc678c
 U wyoung
-Z b0cd65ad8afa8c5bcdb8335b3788238a
+Z 8631e36ecac949bfef1208e91c3062b5

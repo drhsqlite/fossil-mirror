@@ -99,8 +99,7 @@ servers. This is a formalization of the warm spare concept above: with
 *N* server nodes, you need at least ⌊*N* / 2⌋ + 1 of them to be online
 for a commit to succeed.
 
-Many distributed database systems run in CP mode, particularly
-distributed database systems, because consistency (C) and
+Many distributed database systems run in CP mode because consistency (C) and
 partition-tolerance (P) is a useful combination. What you lose is
 always-available (A) operation: with a suitably bad partition, the
 system goes down for users on the small side of that partition.
