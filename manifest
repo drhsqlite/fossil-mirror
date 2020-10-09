@@ -1,5 +1,5 @@
-C Always\sconsume\sthe\s--nocgi\scommand-line\soption\seven\sif\sit\sis\snot\sused.
-D 2020-10-08T14:49:18.530
+C Replace\sthe\stwo\sGIF\simages\sin\sthe\swww/concepts.wiki\sdocument\swith\sPikchrs.
+D 2020-10-09T21:09:11.442
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -833,9 +833,7 @@ F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md bf75bbf5dbd1aef9d31b7744b9ba8ff647f956467107076c757cc86ee31ead80
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
-F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
-F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki e23c7f6a0105786816e91e7d9643b388d1680b339cb31d092e14bba55102a3f8
+F www/concepts.wiki 8a6095ecb6582181fd13fb5c1474b2edf0a042750d9e959a703747f7045a5c17
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
 F www/contribute.wiki 992fee5fb4e3c586c9dfc6f7538b29d76407f1bfd3ed1306c107b42efda2f412
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
@@ -985,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a9facbb3e007d321f24127b5f2f2622b2857654aae8e79935b56b13a93ff86a
-R 55ecdb56c50e93115374a219f3265faf
+P 8594e7a68a01ed8ada7db605bc6cdddfc62c8c740f5baffe16edb51b7dc80272
+R d731ba7de839e4e21754bfdd1961186c
 U drh
-Z 30744128ab710e8208d4e06c796971b4
+Z e756ee7ac3bad6238fc3a7b97ceda456
