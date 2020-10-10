@@ -1,5 +1,5 @@
-C Relax\sconstraints\son\sthe\sSQL\sused\sto\sset\sup\sthe\sticket\sschema\sslightly:\n(1)\sAllow\screating\sviews\swhose\snames\sbegin\swith\s"ticket"\sor\s"fx_".\n(2)\sAllow\screating\stables\swhose\snames\sbegin\swith\s"fx_".\n(3)\sAllow\sdata\schanges\sto\stables\swhose\snames\sbegin\swith\s"fx_".
-D 2020-10-10T15:52:52.702
+C Improved\sinterwiki\slink\sdocumentation.\s\sEnhance\sthe\s/intermap\spage\sso\sthat\nit\sshows\sthe\scurrent\sintermap\s(read-only)\sto\snon-setup\susers,\srather\sthan\ncompletely\sexluding\ssuch\susers.
+D 2020-10-10T16:32:29.074
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -516,7 +516,7 @@ F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 1ebd6da35f8c913f974474ac6f2661c4490d2d6771dc5da1a022b366c39bd897
 F src/info.c d27ae6df134adcd085edb09c6ee37d05e5f49874ee2ebb8e7e58f863e5f0ceab
-F src/interwiki.c ef2dfc844dfc1396ce60923d9f547730f8d2d505adef2869e09e36846ccdf555
+F src/interwiki.c f52d2407376d8435f65f70b1f4e0b58ad657d77aa098c373e2908de6f79a5c45
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -891,7 +891,7 @@ F www/image-format-vs-repo-size.md 9a6dc73a00da6f71b20fcddb4aa16c3ffe00c92ab9b07
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki 3aed0b0ac48e9d50d4df3066c61cc799b40407d148f60327d4718aa285a6f002
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/interwiki.md 923193a501b2b8f3e3f2a0abfdfc0804f5559d3cfd8cbad5559784442d40b36d
+F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 257bb6c25527662ea164316a9187db07d52fc1e8a9edb48014d1f56b6b0ea243
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a759842a7adf9d58ee96b4cff8c02ffe288dec53f722967b3971bd8a81b07ee1
-R f23e9c3e16acc91d4040e0c7b52890c9
+P 93c45cd4e04a59c60dd3477d1ae8f06187a6422263ba15401687798352d89aee
+R 9a49037b401b0d8d948c9541df765d82
 U drh
-Z 197ddc0953489e548a3b01d41afe60d3
+Z f0091ee629eabaf4bb31fd8ed4489fb4

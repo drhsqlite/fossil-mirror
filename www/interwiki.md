@@ -36,7 +36,7 @@ refer to the forum repository:
 
 Fossil supports interwiki links in both the 
 [Fossil Wiki](/wiki_rules) and [Markdown](/md_rules) markup
-styles. An interwiki link consists of a tag followed a colon
+styles. An interwiki link consists of a tag followed by a colon
 and the link target:
 
 > <i>Tag</i><b>:</b><i>PageName</i>
@@ -46,7 +46,7 @@ punctuation or whitespace or characters greater than U+007A.
 The PageName is the link notation on the target wiki.
 Three different classes of PageNames are recognized by Fossil:
 
-  1.  <b>Path Links</b> &rarr; the PageName is begins with the "/" character
+  1.  <b>Path Links</b> &rarr; the PageName begins with the "/" character
       or is an empty string.
 
   2.  <b>Hash Links</b> &rarr; the PageName is a hexadecimal number with
@@ -64,10 +64,15 @@ Hash and Wiki links, respectively.
 
 The intermap defines a mapping from interwiki Tags to full URLs.  The
 Intermap can be viewed and managed using the [fossil interwiki][iwiki]
-command or the [/intermap][imap] webpages.
+command or the [/intermap][imap] webpages.  
 
 [iwiki]: /help?cmd=interwiki
-[imap]: /help?cmd=/intermap
+[imap]: /intermap
+
+The current intermap for a server is seen on the [/intermap][imap] page
+(which is read-only for non-Setup users) and at the bottom of the built-in
+[Fossil Wiki rules](/wiki_rules) and [Markdown rules](/md_rules)
+documentation pages.
 
 Each intermap entry stores, at a minimum, the base URL for the remote
 wiki.  The intermap entry might also store additional path text that
@@ -94,7 +99,7 @@ extensions for provided in the intermap.
      ([example](31af805348690958).  In other words, Fossil tracks not just
      "_source&rarr;target_", but it also tracks "_target&rarr;source_".
      But backtracking do not work for interwiki links, since the Fossil
-     running on the target has no way of knowing scanning the source and
+     running on the target has no way of scanning the source text and
      hence has no way of knowing that it is a target of a link from the source.
 
 [fcfg]: /help?cmd=config

@@ -312,11 +312,11 @@ void interwiki_page(void){
   char *zErr = 0;
 
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Read && !g.perm.RdWiki && ~g.perm.RdTkt ){
     login_needed(0);
     return;
   }
-  if( P("submit")!=0 && cgi_csrf_safe(1) ){
+  if( g.perm.Setup && P("submit")!=0 && cgi_csrf_safe(1) ){
     zTag = PT("tag");
     zBase = PT("base");
     zHash = PT("hash");
@@ -382,6 +382,12 @@ void interwiki_page(void){
     @ </ol>
   }else{
     @ No mappings are currently defined.
+  }
+
+  if( !g.perm.Setup ){
+    /* Do not show intermap editing fields to non-setup users */
+    style_footer();
+    return;
   }
 
   @ <p>To add a new mapping, fill out the form below providing a unique name
