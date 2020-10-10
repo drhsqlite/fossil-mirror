@@ -1,5 +1,5 @@
-C Improved\sinterwiki\slink\sdocumentation.\s\sEnhance\sthe\s/intermap\spage\sso\sthat\nit\sshows\sthe\scurrent\sintermap\s(read-only)\sto\snon-setup\susers,\srather\sthan\ncompletely\sexluding\ssuch\susers.
-D 2020-10-10T16:32:29.074
+C Add\sa\scatch-all\sbullet\sfor\sother\smiscellaneous\schanges\sto\sthe\schange\slist\nfor\s2.13.
+D 2020-10-10T16:34:08.288
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -827,7 +827,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki d278ad955b68b1010a900846f7df26ec17e541240847a75ba5fe5b9ed65ed855
+F www/changes.wiki 01cdd44826138e25e604faa18f2192bf9b8d470681bc7a5833a7b45bc011bbda
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93c45cd4e04a59c60dd3477d1ae8f06187a6422263ba15401687798352d89aee
-R 9a49037b401b0d8d948c9541df765d82
+P baeab56efff03545bd894e127b5508ef30e0e02d9e0b67b9b855824484a2650a
+R accd3c6cd3bc28de64467dbffc281e83
 U drh
-Z f0091ee629eabaf4bb31fd8ed4489fb4
+Z 886b5d6ae418fe6f25eacbbf57a49d2a
