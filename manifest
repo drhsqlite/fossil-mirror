@@ -1,5 +1,5 @@
-C Fix\sthe\sfossil_stat()\sroutine\s(broken\sby\scheck-in\s[39a5df1fde741d08])\sso\nthat\sit\sresponds\scorrectly\swhen\sthe\ssecond\sargument\sis\sSymFILE.\nThis\sis\sa\sfix\sfor\sthe\sproblem\sdescribed\sin\n[forum:/info/251ffc0584|Forum\spost\s251ffc0584]
-D 2020-10-10T00:01:33.185
+C Renamed\sfossil.page.wikiedit-wysiwyg-legacy.js\sto\sfossil.wikiedit-wysiwyg.js\sso\sthat\sthe\sexcessively\slong\sname\sdoesn't\scause\s/dir\sto\shave,\sat\smost,\s2\scolumns.\sRemoved\ssome\sdead\scode\sand\sadded\sa\stiny\sbit\sof\sdocs.\sUpdated\schangelog\sper\sforum\srequest.
+D 2020-10-10T12:05:15.706
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -494,12 +494,12 @@ F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd3
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7ecd1f7761b69fd8
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
-F src/fossil.page.wikiedit-wysiwyg-legacy.js f5a182a9d2e396271f5e45a3782b380021105dde6e6afd0a732329a32c9a0862
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
+F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697 w src/fossil.page.wikiedit-wysiwyg-legacy.js
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
@@ -541,7 +541,7 @@ F src/login.c 4ea53c2730a0391f3488f802e216adbbbc8926067760791cdd22721b40779b95
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
 F src/main.c 1eec3c02fd548138ab90442a9252b842ecadbb7fbed1b0c0fee0cf6d1e80758f
-F src/main.mk 615f45c0f9f044721573a7fc43d8c79fb54b56d02a553135458627536cbde585
+F src/main.mk 7fbf63cd4d00405563440e54d6d567846111dccb2c1a52f53438a8e9b291f085
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab13108cf x
@@ -791,9 +791,9 @@ F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba 
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc 963751fd72313cc5718b08a955d24d726385dd1100d952186d6c40cf331768a7
-F win/Makefile.mingw 1cea8ced262b1f89b0daebe06c12af301a3fa97250866d552952774cbb16c514
+F win/Makefile.mingw 58dc248167ec79a0d1426d6b0f944f98b7ac92875d67ff70acfbc42def3fb2b4
 F win/Makefile.mingw.mistachkin 31e71b9dada88563bb32df4004ece6ebe26012bc66dd697246812ba2c4a26426
-F win/Makefile.msc 6985893c47a5d887867b0dbc18d3b8ea9dfcddc00a8785841ce24aedc09d2011
+F win/Makefile.msc 97211d20e3b6c9f7ba452ce9a1df150ae901fbfd0888a183655e31cc9e70a87e
 F win/buildmsvc.bat 401f6d57cd024c5484fccf3ed07bd2f1d8bfd20b7487fe7f0282b335ac9f9b5b x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -827,7 +827,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 6014accc29b3575b3cb364095ab95507861037bbc17906490b1ede2e22014ae0
+F www/changes.wiki d278ad955b68b1010a900846f7df26ec17e541240847a75ba5fe5b9ed65ed855
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b7c3a7c5844ab1395c1e1aea5bf2ab09ef7a5df1e8c63f2750cfc42e9728746c
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bd9bf24837b4f73975abc9b2fc96ac51855c7f172671e41377a8f505d23533cc
-R 9bea42e58f119e3f5e6c0ea627791994
-U drh
-Z 749dc9ce9fe5e65bf8b3650a3b0a1ed8
+P 4d445ead4cdca1ff553f92bf4eb10cea6fa003207ec500ae6eadd8b9cc1f0e38
+R 8745f75793dfd109776fe3e068137b40
+U stephan
+Z 3999023bffdc53d6a69dc84fa5006675

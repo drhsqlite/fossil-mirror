@@ -5,6 +5,10 @@
 
    Requires: window.fossil, fossil.dom, and that the current page is
    /wikiedit. If called from another page it returns without effect.
+
+   Caveat: this is an all-or-nothing solution. That is, once plugged
+   in to /wikiedit, it cannot be removed without reloading the page.
+   That is a limitation of the current editor-widget-swapping API.
 */
 (function(F/*fossil object*/){
   'use strict';
@@ -69,7 +73,6 @@ img.intLink { border: 0; }
 }
 `;
     head.appendChild(styleTag);
-    /* Adapted from https://stackoverflow.com/a/524721 */
     styleTag.type = 'text/css';
     D.append(styleTag, styleCSS);
   })();
@@ -396,13 +399,6 @@ img.intLink { border: 0; }
     return radio0.checked;
   }
 
-  /* Invoke this routine prior to submitting the HTML content back
-  ** to the server */
-  /*function wysiwygSubmit() {
-    if(oDoc.style.whiteSpace=="pre-wrap"){setDocMode(0);}
-    document.getElementById("wysiwygValue").value=oDoc.innerHTML;
-  }*/
-
   /* Run the editing command if in WYSIWYG mode */
   function formatDoc(sCmd, sValue) {
     if (isWysiwyg()){
@@ -462,11 +458,11 @@ img.intLink { border: 0; }
       Replaces wikiedit's default editor widget with this wysiwyg
       editor.
 
-      Must either be called via an onPageLoad handler instead via the
-      site skin's footer or else it can be called manually from the
-      dev tools console. Calling it too early (e.g. in the page
-      footer *without* outside of an an onPageLoad handler) will
-      crash because wikiedit has not been initialized.
+      Must either be called via an onPageLoad handler via the site
+      skin's footer or else it can be called manually from the dev
+      tools console. Calling it too early (e.g. in the page footer
+      outside of an an onPageLoad handler) will crash because wikiedit
+      has not been initialized.
     */
     init: function(){
       initDoc();
