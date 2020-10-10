@@ -1,5 +1,5 @@
-C Update\spikchr.c\swith\senhancements\sin\stext\slayout\swhen\susing\s"big"\sor\s"small".
-D 2020-10-10T20:24:39.545
+C New\spikchr.c\sthat\sfixes\sthe\stop\sand\sbottom\smargin\sthat\swas\slost\sin\sthe\nprevious\scheck-in.
+D 2020-10-10T20:33:35.088
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -561,7 +561,7 @@ F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d286218
 F src/name.c cd500b617d51453c4f1666832bcc22d8ad8b5791748da224359340f0e4530040
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
-F src/pikchr.c 56a398f21cde5f3833bd5d39310a10ab1395ba5e90632fefa785bacf6213e2c5
+F src/pikchr.c 61104a1004866b25d780f748ce4f32069027e52cdc721acc510b5a56333c6c70
 F src/pikchrshow.c a9d1e00bc5b18cd98c296ad56672d2e1cb25a45419413e644c573186b272b31e
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40f0d5ab62d06ecc4518799f4a87a8168efd2d9348b77ecded3b2bf60ce1ae0b
-R 8ef84b19030d932117065c5a1078f7e4
+P b80bd64b42fd62175c2d0d9701ae8e288319ab58bcb74e4f4fb70ad56a496087
+R 3e36be0bf480fd57ff8f1768843d8f73
 U drh
-Z 454a5122012809301dec94c5d5b7faae
+Z 7c617cab2ac8c7a3377b99896a3413f3

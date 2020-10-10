@@ -6045,7 +6045,7 @@ static void pik_size_to_fit(Pik *p, PToken *pFit, int eWhich){
     PNum h1, h2;
     h1 = (bbox.ne.y - pObj->ptAt.y);
     h2 = (pObj->ptAt.y - bbox.sw.y);
-    h = 2.0*( h1<h2 ? h2 : h1 );
+    h = 2.0*( h1<h2 ? h2 : h1 ) + 0.5*p->charHeight;
   }else{
     h = 0;
   }
