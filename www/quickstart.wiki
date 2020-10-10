@@ -14,8 +14,7 @@ and painlessly.</p>
     Install Fossil by putting the fossil binary
     someplace on your $PATH.</p>
 
-<a name="fslclone"></a>
-<h2>General Work Flow</h2>
+<h2 id="workflow" name="fslclone">General Work Flow</h2>
 
     <p>Fossil works with repository files (a database with the project's
     complete history) and with checked-out local trees (the working directory
@@ -34,7 +33,7 @@ and painlessly.</p>
     <p>The following sections will give you a brief overview of these
     operations.</p>
 
-<h2>Starting A New Project</h2>
+<h2 id="new">Starting A New Project</h2>
 
     <p>To start a new project with fossil, create a new empty repository
     this way: ([/help/init | more info]) </p>
@@ -43,7 +42,7 @@ and painlessly.</p>
     <b>fossil init </b><i> repository-filename</i>
     </blockquote>
 
-<h2>Cloning An Existing Repository</h2>
+<h2 id="clone">Cloning An Existing Repository</h2>
 
     <p>Most fossil operations interact with a repository that is on the
     local disk drive, not on a remote system.  Hence, before accessing
@@ -90,14 +89,14 @@ and painlessly.</p>
     [/help/scrub|fossil scrub] command to remove sensitive information
     before transmitting the file.
 
-<h2>Importing From Another Version Control System</h2>
+<h2 id="import">Importing From Another Version Control System</h2>
 
     <p>Rather than start a new project, or clone an existing Fossil project,
     you might prefer to
     <a href="./inout.wiki">import an existing Git project</a>
     into Fossil using the [/help/import | fossil import] command.
 
-<h2>Checking Out A Local Tree</h2>
+<h2 id="checkout">Checking Out A Local Tree</h2>
 
     <p>To work on a project in fossil, you need to check out a local
     copy of the source tree.  Create the directory you want to be
@@ -143,7 +142,7 @@ and painlessly.</p>
     automatically sync and does a "hard" switch, overwriting local
     changes if told to do so.</p>
 
-<h2>Configuring Your Local Repository</h2>
+<h2 id="config">Configuring Your Local Repository</h2>
 
     <p>When you create a new repository, either by cloning an existing
     project or create a new project of your own, you usually want to do some
@@ -175,7 +174,7 @@ and painlessly.</p>
     <p>When you are finished configuring, just press Control-C or use
     the <b>kill</b> command to shut down the mini-server.</p>
 
-<h2>Making Changes</h2>
+<h2 id="changes">Making Changes</h2>
 
     <p>To add new files to your project, or remove old files, use these
     commands:</p>
@@ -203,7 +202,7 @@ and painlessly.</p>
     Remember that your coworkers can not see your changes until you
     commit and push them.</p>
 
-<h2>Sharing Changes</h2>
+<h2 id="sharing">Sharing Changes</h2>
 
     <p>When [./concepts.wiki#workflow|autosync] is turned off,
     the changes you [/help/commit | commit] are only
@@ -259,7 +258,7 @@ and painlessly.</p>
     them and fails if local changes exist unless the <tt>--force</tt>
     flag is used.</p>
 
-<h2>Branching And Merging</h2>
+<h2 id="branch" name="merge">Branching And Merging</h2>
 
     <p>Use the --branch option to the [/help/commit | commit] command
     to start a new branch.  Note that in Fossil, branches are normally
@@ -317,7 +316,7 @@ and painlessly.</p>
     level of undo/redo.</p>
 
 
-<h2>Setting Up A Server</h2>
+<h2 id="server">Setting Up A Server</h2>
 
     <p>Fossil can act as a stand-alone web server using one of these
     commands:</p>
@@ -349,8 +348,7 @@ and painlessly.</p>
     <p>The [./selfhost.wiki | self-hosting fossil repositories] use
     CGI.
 
-<a name="proxy"></a>
-<h2>HTTP Proxies</h2>
+<h2 id="proxy">HTTP Proxies</h2>
 
     <p>If you are behind a restrictive firewall that requires you to use
     an HTTP proxy to reach the internet, then you can configure the proxy
@@ -396,10 +394,10 @@ and painlessly.</p>
 <h2 id="links">Other Resources</h2>
 
    <ul>
-   <li> <a href="./gitusers.md">Hints for users with prior Git experience</a>
-   <li> <a href="./whyusefossil.wiki">Benefits Of Version Control</a>
-   <li> <a href="./history.md">The Purpose And History of Fossil</a>
-   <li> <a href="./branching.wiki">Branching, Forking, Merge, and Taggings</a>
-   <li> <a href="./hints.wiki">Tips and Usage Hints</a>
-   <li> <a href="./permutedindex.html">Comprehensive documentation index</a>
+   <li> <a href="./gitusers.md">Hints For Users With Prior Git Experience</a>
+   <li> <a href="./whyusefossil.wiki">Why You Should Use Fossil</a>
+   <li> <a href="./history.md">The History and Purpose of Fossil</a>
+   <li> <a href="./branching.wiki">Branching, Forking, and Tagging</a>
+   <li> <a href="./hints.wiki">Fossil Tips and Usage Hints</a>
+   <li> <a href="./permutedindex.html">Comprehensive Fossil Doc Index</a>
    </ul>

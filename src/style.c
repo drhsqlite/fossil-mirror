@@ -142,6 +142,7 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 char *xhref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
   va_list ap;
+  if( !g.perm.Hyperlink ) return fossil_strdup("");
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
@@ -166,6 +167,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
 char *chref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
   va_list ap;
+  if( !g.perm.Hyperlink ) return fossil_strdup("");
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
@@ -181,6 +183,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
 char *href(const char *zFormat, ...){
   char *zUrl;
   va_list ap;
+  if( !g.perm.Hyperlink ) return fossil_strdup("");
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
@@ -528,6 +531,7 @@ char *style_csp(int toHeader){
   Blob csp;
   char *zNonce;
   char *zCsp;
+  int i;
   if( zFormat[0]==0 ){
     zFormat = zBackupCSP;
   }
@@ -539,6 +543,9 @@ char *style_csp(int toHeader){
   }
   blob_append(&csp, zFormat, -1);
   zCsp = blob_str(&csp);
+  /* No whitespace other than actual space characters allowed in the CSP
+  ** string.  See https://fossil-scm.org/forum/forumpost/d29e3af43c */
+  for(i=0; zCsp[i]; i++){ if( fossil_isspace(zCsp[i]) ) zCsp[i] = ' '; }
   if( toHeader ){
     cgi_printf_header("Content-Security-Policy: %s\r\n", zCsp);
   }
@@ -550,7 +557,7 @@ char *style_csp(int toHeader){
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
 */
-static char zDfltHeader[] = 
+static const char zDfltHeader[] = 
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
@@ -563,6 +570,13 @@ static char zDfltHeader[] =
 @ </head>
 @ <body>
 ;
+
+/*
+** Returns the default page header.
+*/
+const char *get_default_header(){
+  return zDfltHeader;
+}
 
 /*
 ** Initialize all the default TH1 variables
@@ -699,18 +713,18 @@ void style_table_sorter(void){
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
-  if( needHrefJs ){
+  if( needHrefJs && g.perm.Hyperlink ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
-  @ <script nonce="%h(style_nonce())">
+  @ <script nonce="%h(style_nonce())">/* style.c:%d(__LINE__) */
   @ function debugMsg(msg){
   @ var n = document.getElementById("debugMsg");
   @ if(n){n.textContent=msg;}
   @ }
-  if( needHrefJs ){
+  if( needHrefJs && g.perm.Hyperlink ){
     @ /* href.js */
     cgi_append_content(builtin_text("href.js"),-1);
   }
@@ -1419,31 +1433,35 @@ void style_select_list_str(const char * zWrapperId,
 }
 
 /*
-** If passed 0 as its first argument, it emits a script opener tag
-** with this request's nonce. If passed non-0 it emits a script
-** closing tag. Mnemonic for remembering the order in which to pass 0
-** or 1 as the first argument to this function: 0 comes before 1.
+** Generate a <script> with an appropriate nonce.
 **
-** If passed 0 as its first argument and a non-NULL/non-empty zSrc,
-** then it instead emits:
-**
-** <script src='%R/{{zSrc}}'></script>
-**
-** zSrc is always assumed to be a repository-relative path without
-** a leading slash, and has %R/ prepended to it.
-**
-** Meaning that no follow-up call to pass a non-0 first argument
-** to close the tag. zSrc is ignored if the first argument is not
-** 0.
+** zOrigin and iLine are the source code filename and line number
+** that generated this request.
 */
-void style_emit_script_tag(int isCloser, const char * zSrc){
-  if(0==isCloser){
-    if(zSrc!=0 && zSrc[0]!=0){
-      CX("<script src='%R/%T'></script>\n", zSrc);
-    }else{
-      CX("<script nonce='%s'>", style_nonce());
+void style_script_begin(const char *zOrigin, int iLine){
+  const char *z;
+  for(z=zOrigin; z[0]!=0; z++){
+    if( z[0]=='/' || z[0]=='\\' ){
+      zOrigin = z+1;
     }
-  }else{
-    CX("</script>\n");
   }
+  CX("<script nonce='%s'>/* %s:%d */\n", style_nonce(), zOrigin, iLine);
+}
+
+/* Generate the closing </script> tag 
+*/
+void style_script_end(void){
+  CX("</script>\n");
+}
+
+/*
+** Emits a NOSCRIPT tag with an error message stating that JS is
+** required for the current page. This "should" be called near the top
+** of pages which *require* JS. The inner DIV has the CSS class
+** 'error' and can be styled via a (noscript > .error) CSS selector.
+*/
+void style_emit_noscript_for_js_page(void){
+  CX("<noscript><div class='error'>"
+     "This page requires JavaScript (ES2015, a.k.a. ES6, or newer)."
+     "</div></noscript>");
 }

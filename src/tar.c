@@ -529,7 +529,7 @@ void tarball_of_checkin(
           zName = blob_str(&filename);
         }
         if( eflg & MFESTFLG_RAW ) {
-          sterilize_manifest(&mfile);
+          sterilize_manifest(&mfile, CFTYPE_MANIFEST);
           tar_add_file(zName, &mfile, 0, mTime);
         }
       }

@@ -6,6 +6,22 @@
   *  Added support for [./interwiki.md|interwiki links].
   *  Enable &lt;del&gt; and &lt;ins&gt; markup in  wiki.
   *  Improvements to the Forum threading display.
+  *  Added support for embedding [https://pikchr.org|pikchr]
+     markup in markdown and fossil-wiki content.
+  *  The new "[/help?cmd=pikchr|pikchr]" command can render
+     pikchr scripts, optionally pre-processed with
+     [/doc/trunk/www/th1.md|TH1] blocks and variables exactly like
+     site skins are.
+  *  The new [/help?cmd=/pikchrshow|pikchrshow] page provides an
+     editor and previewer for pikchr markup.
+  *  In [/help?cmd=/wikiedit|/wikiedit] and
+     [/help?cmd=/fileedit|/fileedit], Ctrl-Enter can now be used
+     initiate a preview and to toggle between the editor and preview
+     tabs.
+  *  The <tt>/artifact</tt> and <tt>/file</tt> views, when in
+     line-number mode, now support interactive selection of a range
+     of lines to hyperlink to.
+  *  Countless other minor refinements and documentation improvements.
 
 <a name='v2_12'></a>
 <h2>Changes for Version 2.12.1 (2020-08-20)</h2>

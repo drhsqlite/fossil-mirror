@@ -77,7 +77,8 @@ static const struct {
   const char *zDesc;
 } aBisectOption[] = {
   { "auto-next",    "on",    "Automatically run \"bisect next\" after each "
-                             "\"bisect good\" or \"bisect bad\"" },
+                             "\"bisect good\", \"bisect bad\", or \"bisect "
+                             "skip\"" },
   { "direct-only",  "on",    "Follow only primary parent-child links, not "
                              "merges\n" },
   { "display",    "chart",   "Command to run after \"next\".  \"chart\", "
@@ -230,7 +231,7 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
       if( zDesc[0]=='s' ) blob_append(&log, "s", 1);
       for(i=1; ((c = zDesc[i])>='0' && c<='9') || (c>='a' && c<='f'); i++){}
       if( i==1 ) break;
-      rid = db_int(0, 
+      rid = db_int(0,
         "SELECT rid FROM blob"
         " WHERE uuid LIKE '%.*q%%'"
         "   AND EXISTS(SELECT 1 FROM plink WHERE cid=rid)",
@@ -444,7 +445,7 @@ void bisect_cmd(void){
   int foundCmd = 0;
   db_must_be_within_tree();
   if( g.argc<3 ){
-    usage("bad|good|log|next|options|reset|skip|status|undo");
+    goto usage;
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);
@@ -489,7 +490,7 @@ void bisect_cmd(void){
     }
     if( ridSkip>0 ){
       bisect_append_skip(ridSkip);
-      if( bisect_option("auto-next") 
+      if( bisect_option("auto-next")
        && db_lget_int("bisect-bad",0)>0
        && db_lget_int("bisect-good",0)>0
       ){
@@ -612,6 +613,7 @@ void bisect_cmd(void){
     int fAll = find_option("all", "a", 0)!=0;
     bisect_list(!fAll);
   }else if( !foundCmd ){
-    usage("bad|good|log|next|options|reset|status|ui|undo");
+usage:
+    usage("bad|good|log|chart|next|options|reset|skip|status|ui|undo");
   }
 }

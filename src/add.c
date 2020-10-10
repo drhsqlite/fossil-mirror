@@ -171,6 +171,7 @@ static int add_one_file(
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     int isExe = file_isexe(zFullname, RepoFILE);
+    int isLink = file_islink(0);
     if( file_nondir_objects_on_path(g.zLocalRoot, zFullname) ){
       /* Do not add unsafe files to the vfile */
       doSkip = 1;
@@ -178,7 +179,7 @@ static int add_one_file(
       db_multi_exec(
         "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
         "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
-        vid, zPath, isExe, file_islink(0));
+        vid, zPath, isExe, isLink);
     }
     fossil_free(zFullname);
   }
@@ -195,7 +196,7 @@ static int add_one_file(
 ** Add all files in the sfile temp table.
 **
 ** Automatically exclude the repository file and any other files
-** with reserved names. Also exclude files that are beneath an 
+** with reserved names. Also exclude files that are beneath an
 ** existing symlink.
 */
 static int add_files_in_sfile(int vid){
@@ -218,7 +219,7 @@ static int add_files_in_sfile(int vid){
   }else{
     xCmp = fossil_stricmp;
   }
-  db_prepare(&loop, 
+  db_prepare(&loop,
      "SELECT pathname FROM sfile"
      " WHERE pathname NOT IN ("
        "SELECT sfile.pathname FROM vfile, sfile"

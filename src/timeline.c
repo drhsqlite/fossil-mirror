@@ -206,7 +206,7 @@ void test_hash_color_page(void){
   if( cnt ){
     @ <hr />
   }
-  @ <form method="post" action="%s(g.zTop)/hash-color-test">
+  @ <form method="post" action="%R/hash-color-test">
   @ <p>Enter candidate branch names below and see them displayed in their
   @ default background colors above.</p>
   for(i=0; i<10; i++){
@@ -2626,6 +2626,7 @@ void page_timeline(void){
   if( zOlderButton ){
     @ %z(chref("button","%z",zOlderButton))More&nbsp;&darr;</a>
   }
+  document_emit_js(/*handles pikchrs rendered above*/);
   style_footer();
 }
 

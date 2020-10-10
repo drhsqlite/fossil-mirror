@@ -226,7 +226,9 @@ span.submenuctrl {
 div.submenu label {
   white-space: nowrap;
 }
-
+.fossil-tooltip.help-buttonlet-content {
+  background-color: lightyellow;
+}
 @media screen and (max-width: 600px) {
   /* Spacing for mobile */
   body {

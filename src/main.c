@@ -718,7 +718,7 @@ int fossil_main(int argc, char **argv){
       fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
     }
   }
-  if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
+  if( !find_option("nocgi", 0, 0) && fossil_getenv("GATEWAY_INTERFACE")!=0){
     zCmdName = "cgi";
     g.isHTTP = 1;
   }else if( g.argc<2 && !fossilExeHasAppendedRepo() ){
@@ -1392,7 +1392,7 @@ void set_base_url(const char *zAltBase){
 ** Send an HTTP redirect back to the designated Index Page.
 */
 NORETURN void fossil_redirect_home(void){
-  cgi_redirectf("%s%s", g.zTop, db_get("index-page", "/index"));
+  cgi_redirectf("%R%s", db_get("index-page", "/index"));
 }
 
 /*
@@ -1756,7 +1756,7 @@ static void process_one_web_page(
     ** name from the beginning of PATH_INFO.
     */
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
-    if( g.zTop ) g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+    if( g.zTop ) g.zTop = mprintf("%R%.*s", i, zPathInfo);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
     zPathInfo += i;
@@ -1796,11 +1796,12 @@ static void process_one_web_page(
     char *zNewScript;
     skin_use_draft(iSkin);
     zNewScript = mprintf("%T/draft%d", P("SCRIPT_NAME"), iSkin);
-    if( g.zTop ) g.zTop = mprintf("%s/draft%d", g.zTop, iSkin);
+    if( g.zTop ) g.zTop = mprintf("%R/draft%d", iSkin);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
     zPathInfo += 7;
     cgi_replace_parameter("PATH_INFO", zPathInfo);
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+    etag_cancel();
   }
 
   /* If the content type is application/x-fossil or 
@@ -2100,7 +2101,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             processed in order.  If the REPO is "*", then
 **                             an unconditional redirect to URL is taken.
 **
-**     jsmode: VALUE           Specifies the delivery mode for JavaScript
+**    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
 **                             flag of the http command.
 **

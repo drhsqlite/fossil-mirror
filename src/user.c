@@ -388,11 +388,13 @@ void user_cmd(void){
       prompt_for_password("password: ", &passwd, 1);
     }
     zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
+    db_unprotect(PROTECT_USER);
     db_multi_exec(
       "INSERT INTO user(login,pw,cap,info,mtime)"
       "VALUES(%B,%Q,%B,%B,now())",
       &login, zPw, &caps, &contact
     );
+    db_protect_pop();
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
     if( g.argc==3 ){
@@ -657,24 +659,24 @@ void access_log_page(void){
 
   if( P("delall") && P("delallbtn") ){
     db_multi_exec("DELETE FROM accesslog");
-    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delanon") && P("delanonbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE uname='anonymous'");
-    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delfail") && P("delfailbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE NOT success");
-    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delold") && P("deloldbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE rowid in"
                   "(SELECT rowid FROM accesslog ORDER BY rowid DESC"
                   " LIMIT -1 OFFSET 200)");
-    cgi_redirectf("%s/access_log?y=%d&n=%d", g.zTop, y, n);
+    cgi_redirectf("%R/access_log?y=%d&n=%d", y, n);
     return;
   }
   style_header("Access Log");
@@ -694,8 +696,8 @@ void access_log_page(void){
   }
   blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
-    style_submenu_element("Newer", "%s/access_log?o=%d&n=%d&y=%d",
-              g.zTop, skip>=n ? skip-n : 0, n, y);
+    style_submenu_element("Newer", "%R/access_log?o=%d&n=%d&y=%d",
+              skip>=n ? skip-n : 0, n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
   fLogEnabled = db_get_boolean("access-log", 0);
@@ -712,8 +714,8 @@ void access_log_page(void){
     int bSuccess = db_column_int(&q, 3);
     cnt++;
     if( cnt>n ){
-      style_submenu_element("Older", "%s/access_log?o=%d&n=%d&y=%d",
-                  g.zTop, skip+n, n, y);
+      style_submenu_element("Older", "%R/access_log?o=%d&n=%d&y=%d",
+                  skip+n, n, y);
       break;
     }
     if( bSuccess ){
@@ -724,27 +726,27 @@ void access_log_page(void){
     @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td></tr>
   }
   if( skip>0 || cnt>n ){
-    style_submenu_element("All", "%s/access_log?n=10000000", g.zTop);
+    style_submenu_element("All", "%R/access_log?n=10000000");
   }
   @ </tbody></table>
   db_finalize(&q);
   @ <hr />
-  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delold">
   @ Delete all but the most recent 200 entries</input></label>
   @ <input type="submit" name="deloldbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delanon">
   @ Delete all entries for user "anonymous"</input></label>
   @ <input type="submit" name="delanonbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delfail">
   @ Delete all failed login attempts</input></label>
   @ <input type="submit" name="delfailbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delall">
   @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>

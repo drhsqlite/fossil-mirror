@@ -120,8 +120,9 @@ TODO:
 after X time/ticks.
 
 - Internally we save/restore the initial text of non-INPUT elements
-using innerHTML. We should instead move their child nodes aside (into
-an internal out-of-DOM element) and restore them as needed.
+using a relatively expensive bit of DOMParser hoop-jumping. We
+"should" instead move their child nodes aside (into an internal
+out-of-DOM element) and restore them as needed.
 
 Terse Change history:
 
@@ -158,7 +159,14 @@ Terse Change history:
         const isInput = f.isInput(target);
         const updateText = function(msg){
           if(isInput) target.value = msg;
-          else target.innerHTML = msg;
+          else{
+            /* Jump through some hoops to avoid assigning to innerHTML... */
+            const newNode = new DOMParser().parseFromString(msg, 'text/html');
+            let childs = newNode.documentElement.querySelector('body');
+            childs = childs ? Array.prototype.slice.call(childs.childNodes, 0) : [];
+            target.innerText = '';
+            childs.forEach((e)=>target.appendChild(e));
+          }
         }
         const formatCountdown = (txt, number) => txt + " ["+number+"]";
         if(opt.pinSize && opt.confirmText){

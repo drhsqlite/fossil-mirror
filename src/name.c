@@ -690,7 +690,7 @@ int name_to_rid_www(const char *zParamName){
   if( zName==0 || zName[0]==0 ) return 0;
   rid = symbolic_name_to_rid(zName, "*");
   if( rid<0 ){
-    cgi_redirectf("%s/ambiguous/%T?src=%t", g.zTop, zName, g.zPath);
+    cgi_redirectf("%R/ambiguous/%T?src=%t", zName, g.zPath);
     rid = 0;
   }
   return rid;

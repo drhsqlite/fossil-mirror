@@ -773,6 +773,17 @@ this is a trace message.
 
 ###############################################################################
 
+fossil test-th-eval "defHeader {Page Title Here}"
+test th1-defHeader-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "defHeader"}}
+
+###############################################################################
+
+fossil test-th-eval "defHeader"
+test th1-defHeader-2 {[string match *<body> [normalize_result]]}
+
+###############################################################################
+
 fossil test-th-eval "styleHeader {Page Title Here}"
 test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
@@ -1038,11 +1049,11 @@ fossil test-th-eval "info commands"
 set sorted_result [lsort $RESULT]
 protOut "Sorted: $sorted_result"
 set base_commands {anoncap anycap array artifact break breakpoint catch\
-      cgiHeaderLine checkout combobox continue copybtn date decorate dir \
-      enable_output encode64 error expr for getParameter glob_match \
-      globalState hascap hasfeature html htmlize http httpize if info \
-      insertCsrf lindex linecount list llength lsearch markdown nonce proc \
-      puts query randhex redirect regexp reinitialize rename render \
+      cgiHeaderLine checkout combobox continue copybtn date decorate \
+      defHeader dir enable_output encode64 error expr for getParameter \
+      glob_match globalState hascap hasfeature html htmlize http httpize if \
+      info insertCsrf lindex linecount list llength lsearch markdown nonce \
+      proc puts query randhex redirect regexp reinitialize rename render \
       repository return searchable set setParameter setting stime string \
       styleFooter styleHeader styleScript tclReady trace unset unversioned \
       uplevel upvar utime verifyCsrf verifyLogin wiki}

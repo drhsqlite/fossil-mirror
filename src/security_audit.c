@@ -606,14 +606,14 @@ void takeitprivate_page(void){
     cgi_redirect("secaudit0");
   }
   if( P("apply") ){
-    db_unprotect(PROTECT_USER);
+    db_unprotect(PROTECT_ALL);
     db_multi_exec(
       "UPDATE user SET cap=''"
       " WHERE login IN ('nobody','anonymous');"
       "DELETE FROM config WHERE name='public-pages';"
     );
-    db_protect_pop();
     db_set("self-register","0",0);
+    db_protect_pop();
     cgi_redirect("secaudit0");
   }
   style_header("Make This Website Private");

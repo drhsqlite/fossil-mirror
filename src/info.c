@@ -1049,6 +1049,7 @@ void winfo_page(void){
   wiki_render_by_mimetype(&wiki, pWiki->zMimetype);
   blob_reset(&wiki);
   manifest_destroy(pWiki);
+  document_emit_js();
   style_footer();
 }
 
@@ -1934,10 +1935,9 @@ void hexdump_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#delshun",
-            g.zTop, zUuid);
+      style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#delshun", zUuid);
     }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+      style_submenu_element("Shun", "%R/shun?shun=%s#addshun", zUuid);
     }
   }
   style_header("Hex Artifact Content");
@@ -2131,10 +2131,7 @@ void output_text_with_line_numbers(
     if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
       builtin_request_js("scroll.js");
     }
-    if(!builtin_bundle_all_fossil_js_apis()){
-      builtin_emit_fossil_js_apis("dom", "copybutton", "popupwidget",
-                                  "numbered-lines", 0);
-    }
+    builtin_fossil_js_bundle_or("numbered-lines", 0);
   }
 }
 
@@ -2189,6 +2186,7 @@ void cmd_test_line_numbers(void){
 **   fn=NAME         - alternative spelling for "name="
 **   ci=VERSION      - The specific check-in to use with "name=" to
 **                     identify the file.
+**   txt             - Force display of unformatted source text
 **
 ** The /artifact page show the complete content of a file
 ** identified by HASH.  The /whatis page shows only a description
@@ -2213,6 +2211,7 @@ void artifact_page(void){
   Blob downloadName;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
+  int renderAsSvg = 0;
   int objType;
   int asText;
   const char *zUuid = 0;
@@ -2363,10 +2362,9 @@ void artifact_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#accshun",
-            g.zTop, zUuid);
+      style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#accshun", zUuid);
     }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+      style_submenu_element("Shun", "%R/shun?shun=%s#addshun",zUuid);
     }
   }
 
@@ -2423,6 +2421,13 @@ void artifact_page(void){
         renderAsWiki = 1;
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
       }
+    }else if( fossil_strcmp(zMime, "image/svg+xml")==0 ){
+      if( asText ){
+        style_submenu_element("Svg", "%s", url_render(&url, "txt", 0, 0, 0));
+      }else{
+        renderAsSvg = 1;
+        style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
+      }
     }
     if( fileedit_is_editable(zName) ){
       style_submenu_element("Edit",
@@ -2441,20 +2446,23 @@ void artifact_page(void){
     if( renderAsWiki ){
       safe_html_context(DOCSRC_FILE);
       wiki_render_by_mimetype(&content, zMime);
+      document_emit_js();
     }else if( renderAsHtml ){
       @ <iframe src="%R/raw/%s(zUuid)"
       @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"
       @ sandbox="allow-same-origin" id="ifm1">
       @ </iframe>
-      @ <script nonce="%h(style_nonce())">
+      @ <script nonce="%h(style_nonce())">/* info.c:%d(__LINE__) */
       @ document.getElementById("ifm1").addEventListener("load",
       @   function(){
       @     this.height=this.contentDocument.documentElement.scrollHeight + 75;
       @   }
       @ );
       @ </script>
+    }else if( renderAsSvg ){
+      @ <object type="image/svg+xml" data="%R/raw/%s(zUuid)"></object>
     }else{
-      style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      style_submenu_element("Hex", "%R/hexdump?name=%s", zUuid);
       if( zLn==0 || atoi(zLn)==0 ){
         style_submenu_checkbox("ln", "Line Numbers", 0, 0);
       }
@@ -2517,10 +2525,9 @@ void tinfo_page(void){
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?accept=%s&sub=1#accshun",
-            g.zTop, zUuid);
+      style_submenu_element("Unshun", "%R/shun?accept=%s&sub=1#accshun", zUuid);
     }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
+      style_submenu_element("Shun", "%R/shun?shun=%s#addshun", zUuid);
     }
   }
   pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);

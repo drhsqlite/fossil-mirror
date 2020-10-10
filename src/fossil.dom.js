@@ -74,9 +74,30 @@
   dom.span = dom.createElemFactory('span');
   dom.strong = dom.createElemFactory('strong');
   dom.em = dom.createElemFactory('em');
-  dom.label = dom.createElemFactory('label');
+  /**
+     Returns a LABEL element. If passed an argument,
+     it must be an id or an HTMLElement with an id,
+     and that id is set as the 'for' attribute of the
+     label. If passed 2 arguments, the 2nd is text or
+     a DOM element to append to the label.
+  */
+  dom.label = function(forElem, text){
+    const rc = document.createElement('label');
+    if(forElem){
+      if(forElem instanceof HTMLElement){
+        forElem = this.attr(forElem, 'id');
+      }
+      dom.attr(rc, 'for', forElem);
+    }
+    if(text) this.append(rc, text);
+    return rc;
+  };
+  /**
+     Returns an IMG element with an optional src
+     attribute value.
+  */
   dom.img = function(src){
-    const e = dom.create('img');
+    const e = this.create('img');
     if(src) e.setAttribute('src',src);
     return e;
   };
@@ -86,7 +107,7 @@
      as the label.
   */
   dom.a = function(href,label){
-    const e = dom.create('a');
+    const e = this.create('a');
     if(href) e.setAttribute('href',href);
     if(label) e.appendChild(dom.text(true===label ? href : label));
     return e;
@@ -99,18 +120,61 @@
     if(label) b.appendChild(this.text(label));
     return b;
   };
-  dom.select = dom.createElemFactory('select');
   /**
-     Returns an OPTION element with the given value and label
-     text (which defaults to the value).
+     Returns a TEXTAREA element.
 
-     May be called as (value), (selectElement), (selectElement,
-     value), (value, label) or (selectElement, value,
-     label). The latter appends the new element to the given
-     SELECT element.
+     Usages:
 
-     If the value has the undefined value then it is NOT
-     assigned as the option element's value.
+     ([boolean readonly = false])
+     (non-boolean rows[,cols[,readonly=false]])
+
+     Each of the rows/cols/readonly attributes is only set if it is
+     truthy.
+  */
+  dom.textarea = function(){
+    const rc = this.create('textarea');
+    let rows, cols, readonly;
+    if(1===arguments.length){
+      if('boolean'===typeof arguments[0]){
+        readonly = !!arguments[0];
+      }else{
+        rows = arguments[0];
+      }
+    }else if(arguments.length){
+      rows = arguments[0];
+      cols = arguments[1];
+      readonly = arguments[2];
+    }
+    if(rows) rc.setAttribute('rows',rows);
+    if(cols) rc.setAttribute('cols', cols);
+    if(readonly) rc.setAttribute('readonly', true);
+    return rc;
+  };
+
+  /**
+     Returns a new SELECT element.
+  */
+  dom.select = dom.createElemFactory('select');
+
+  /**
+     Returns an OPTION element with the given value and label text
+     (which defaults to the value).
+
+     Usage:
+
+     (value[, label])
+     (selectElement [,value [,label = value]])
+
+     Any forms taking a SELECT element append the new element to the
+     given SELECT element.
+
+     If any label is falsy and the value is not then the value is used
+     as the label. A non-falsy label value may have any type suitable
+     for passing as the 2nd argument to dom.append().
+
+     If the value has the undefined value then it is NOT assigned as
+     the option element's value and no label is set unless it has a
+     non-undefined value.
   */
   dom.option = function(value,label){
     const a = arguments;
@@ -139,6 +203,8 @@
     if(undefined !== value){
       o.value = value;
       this.append(o, this.text(label || value));
+    }else if(undefined !== label){
+      this.append(o, label);
     }
     if(sel) this.append(sel, o);
     return o;
@@ -180,20 +246,20 @@
   dom.td = dom.createElemFactoryWithOptionalParent('td');
   dom.th = dom.createElemFactoryWithOptionalParent('th');
 
-  
   /**
-     Creates and returns a FIELDSET element, optionaly with a
-     LEGEND element added to it.
+     Creates and returns a FIELDSET element, optionaly with a LEGEND
+     element added to it. If legendText is an HTMLElement then it is
+     appended as-is, else it is assume (if truthy) to be a value
+     suitable for passing to dom.append(aLegendElement,...).
   */
   dom.fieldset = function(legendText){
     const fs = this.create('fieldset');
     if(legendText){
       this.append(
         fs,
-        this.append(
-          this.create('legend'),
-          legendText
-        )
+        (legendText instanceof HTMLElement)
+          ? legendText
+          : this.append(this.create('legend'),legendText)
       );
     }
     return fs;
@@ -234,7 +300,56 @@
   dom.input = function(type){
     return this.attr(this.create('input'), 'type', type);
   };
-  
+  /**
+     Returns a new CHECKBOX input element.
+
+     Usages:
+
+     ([boolean checked = false])
+     (non-boolean value [,boolean checked])
+  */
+  dom.checkbox = function(value, checked){
+    const rc = this.input('checkbox');
+    if(1===arguments.length && 'boolean'===typeof value){
+      checked = !!value;
+      value = undefined;
+    }
+    if(undefined !== value) rc.value = value;
+    if(!!checked) rc.checked = true;
+    return rc;
+  };
+  /**
+     Returns a new RADIO input element.
+
+     ([boolean checked = false])
+     (string name [,boolean checked])
+     (string name, non-boolean value [,boolean checked])
+  */
+  dom.radio = function(){
+    const rc = this.input('radio');
+    let name, value, checked;
+    if(1===arguments.length && 'boolean'===typeof name){
+      checked = arguments[0];
+      name = value = undefined;
+    }else if(2===arguments.length){
+      name = arguments[0];
+      if('boolean'===typeof arguments[1]){
+        checked = arguments[1];
+      }else{
+        value = arguments[1];
+        checked = undefined;
+      }
+    }else if(arguments.length){
+      name = arguments[0];
+      value = arguments[1];
+      checked = arguments[2];
+    }
+    if(name) this.attr(rc, 'name', name);
+    if(undefined!==value) rc.value = value;
+    if(!!checked) rc.checked = true;
+    return rc;
+  };
+
   /**
      Internal impl for addClass(), removeClass().
   */
@@ -298,28 +413,43 @@
     return domAddRemoveClass.apply(this, a);
   };
 
+  /**
+     Toggles CSS class c on e (a single element for forEach-capable
+     collection of elements. Returns its first argument.
+  */
+  dom.toggleClass = function f(e,c){
+    if(e.forEach){
+      e.forEach((x)=>x.classList.toggle(c));
+    }else{
+      e.classList.toggle(c);
+    }
+    return e;
+  };
+
+  /**
+     Returns true if DOM element e contains CSS class c, else
+     false.
+  */
   dom.hasClass = function(e,c){
     return (e && e.classList) ? e.classList.contains(c) : false;
   };
 
   /**
-     Each argument after the first may be a single DOM element
-     or a container of them with a forEach() method. All such
-     elements are appended, in the given order, to the dest
-     element.
+     Each argument after the first may be a single DOM element or a
+     container of them with a forEach() method. All such elements are
+     appended, in the given order, to the dest element using
+     dom.append(dest,theElement). Thus the 2nd and susequent arguments
+     may be any type supported as the 2nd argument to that function.
 
      Returns dest.
   */
   dom.moveTo = function(dest,e){
     const n = arguments.length;
     var i = 1;
+    const self = this;
     for( ; i < n; ++i ){
       e = arguments[i];
-      if(e.forEach){
-        e.forEach((x)=>dest.appendChild(x));
-      }else{
-        dest.appendChild(e);
-      }
+      this.append(dest, e);
     }
     return dest;
   };
@@ -402,22 +532,31 @@
   /**
      Two args == getter: (e,key), returns value
 
-     Three == setter: (e,key,val), returns e. If val===null
-     or val===undefined then the attribute is removed. If (e)
-     has a forEach method then this routine is applied to each
-     element of that collection via that method.           
+     Three or more == setter: (e,key,val[...,keyN,valN]), returns
+     e. If val===null or val===undefined then the attribute is
+     removed. If (e) has a forEach method then this routine is applied
+     to each element of that collection via that method. Each pair of
+     keys/values is applied to all elements designated by the first
+     argument.
   */
   dom.attr = function f(e){
     if(2===arguments.length) return e.getAttribute(arguments[1]);
-    if(e.forEach){
-      e.forEach((x)=>f(x,arguments[1],arguments[2]));
+    const a = argsToArray(arguments);
+    if(e.forEach){ /* Apply to all elements in the collection */
+      e.forEach(function(x){
+        a[0] = x;
+        f.apply(f,a);
+      });
       return e;
-    }            
-    const key = arguments[1], val = arguments[2];
-    if(null===val || undefined===val){
-      e.removeAttribute(key);
-    }else{
-      e.setAttribute(key,val);
+    }
+    a.shift(/*element(s)*/);
+    while(a.length){
+      const key = a.shift(), val = a.shift();
+      if(null===val || undefined===val){
+        e.removeAttribute(key);
+      }else{
+        e.setAttribute(key,val);
+      }
     }
     return e;
   };
@@ -516,6 +655,11 @@
     return e;
   };
   dom.flashOnce.defaultTimeMs = 400;
+  /**
+     A DOM event handler which simply passes event.target
+     to dom.flashOnce().
+  */
+  dom.flashOnce.eventHandler = (event)=>dom.flashOnce(event.target)
 
   /**
      Attempts to copy the given text to the system clipboard. Returns
@@ -565,6 +709,185 @@
     }
     return e;
   };
+
+  /**
+     Parses a string as HTML.
+
+     Usages:
+
+     Array (htmlString)
+     DOMElement (DOMElement target, htmlString)
+
+     The first form parses the string as HTML and returns an Array of
+     all elements parsed from it. If string is falsy then it returns
+     an empty array.
+
+     The second form parses the HTML string and appends all elements
+     to the given target element using dom.append(), then returns the
+     first argument.
+
+     Caveats:
+
+     - It expects a partial HTML document as input, not a full HTML
+     document with a HEAD and BODY tags. Because of how DOMParser
+     works, only children of the parsed document's (virtual) body are
+     acknowledged by this routine.
+  */
+  dom.parseHtml = function(){
+    let childs, string, tgt;
+    if(1===arguments.length){
+      string = arguments[0];
+    }else if(2==arguments.length){
+      tgt = arguments[0];
+      string  = arguments[1];
+    }
+    if(string){
+      const newNode = new DOMParser().parseFromString(string, 'text/html');
+      childs = newNode.documentElement.querySelector('body');
+      childs = childs ? Array.prototype.slice.call(childs.childNodes, 0) : [];
+      /* ^^^ we need a clone of the list because reparenting them
+         modifies a NodeList they're in. */
+    }else{
+      childs = [];
+    }
+    return tgt ? this.moveTo(tgt, childs) : childs;
+  };
+
+  /**
+     Sets up pseudo-automatic content preview handling between a
+     source element (typically a TEXTAREA) and a target rendering
+     element (typically a DIV). The selector argument must be one of:
+
+     - A single DOM element
+     - A collection of DOM elements with a forEach method.
+     - A CSS selector
+
+     Each element in the collection must have the following data
+     attributes:
+
+     - data-f-preview-from: is either a DOM element id, WITH a leading
+     '#' prefix, or the name of a method (see below). If it's an ID,
+     the DOM element must support .value to get the content.
+
+     - data-f-preview-to: the DOM element id of the target "previewer"
+       element, WITH a leading '#', or the name of a method (see below).
+
+     - data-f-preview-via: the name of a method (see below).
+
+     - OPTIONAL data-f-preview-as-text: a numeric value. Explained below.
+
+     Each element gets a click handler added to it which does the
+     following:
+
+     1) Reads the content from its data-f-preview-from element or, if
+     that property refers to a method, calls the method without
+     arguments and uses its result as the content.
+
+     2) Passes the content to
+     methodNamespace[f-data-post-via](content,callback). f-data-post-via
+     is responsible for submitting the preview HTTP request, including
+     any parameters the request might require. When the response
+     arrives, it must pass the content of the response to its 2nd
+     argument, an auto-generated callback installed by this mechanism
+     which...
+
+     3) Assigns the response text to the data-f-preview-to element or
+     passes it to the function
+     methodNamespace[f-data-preview-to](content), as appropriate. If
+     data-f-preview-to is a DOM element and data-f-preview-as-text is
+     '0' (the default) then the target elements contents are replaced
+     with the given content as HTML, else the content is assigned to
+     the target's textContent property. (Note that this routine uses
+     DOMParser, rather than assignment to innerHTML, to apply
+     HTML-format content.)
+
+     The methodNamespace (2nd argument) defaults to fossil.page, and
+     any method-name data properties, e.g. data-f-preview-via and
+     potentially data-f-preview-from/to, must be a single method name,
+     not a property-access-style string. e.g. "myPreview" is legal but
+     "foo.myPreview" is not (unless, of course, the method is actually
+     named "foo.myPreview" (which is legal but would be
+     unconventional)). All such methods are called with
+     methodNamespace as their "this".
+
+     An example...
+
+     First an input button:
+
+     <button id='test-preview-connector'
+       data-f-preview-from='#fileedit-content-editor' // elem ID or method name
+       data-f-preview-via='myPreview' // method name
+       data-f-preview-to='#fileedit-tab-preview-wrapper' // elem ID or method name
+     >Preview update</button>
+
+     And a sample data-f-preview-via method:
+
+     fossil.page.myPreview = function(content,callback){
+       const fd = new FormData();
+       fd.append('foo', ...);
+       fossil.fetch('preview_forumpost',{
+         payload: fd,
+         onload: callback,
+         onerror: (e)=>{ // only if app-specific handling is needed
+           fossil.fetch.onerror(e); // default impl
+           ... any app-specific error reporting ...
+         }
+       });
+     };
+
+     Then connect the parts with:
+
+     fossil.connectPagePreviewers('#test-preview-connector');
+
+     Note that the data-f-preview-from, data-f-preview-via, and
+     data-f-preview-to selector are not resolved until the button is
+     actually clicked, so they need not exist in the DOM at the
+     instant when the connection is set up, so long as they can be
+     resolved when the preview-refreshing element is clicked.
+
+     Maintenance reminder: this method is not strictly part of
+     fossil.dom, but is in its file because it needs access to
+     dom.parseHtml() to avoid an innerHTML assignment and all code
+     which uses this routine also needs fossil.dom.
+  */
+  F.connectPagePreviewers = function f(selector,methodNamespace){
+    if('string'===typeof selector){
+      selector = document.querySelectorAll(selector);
+    }else if(!selector.forEach){
+      selector = [selector];
+    }
+    if(!methodNamespace){
+      methodNamespace = F.page;
+    }
+    selector.forEach(function(e){
+      e.addEventListener(
+        'click', function(r){
+          const eTo = '#'===e.dataset.fPreviewTo[0]
+                ? document.querySelector(e.dataset.fPreviewTo)
+                : methodNamespace[e.dataset.fPreviewTo],
+                eFrom = '#'===e.dataset.fPreviewFrom[0]
+                ? document.querySelector(e.dataset.fPreviewFrom)
+                : methodNamespace[e.dataset.fPreviewFrom],
+                asText = +(e.dataset.fPreviewAsText || 0);
+          eTo.textContent = "Fetching preview...";
+          methodNamespace[e.dataset.fPreviewVia](
+            (eFrom instanceof Function ? eFrom.call(methodNamespace) : eFrom.value),
+            function(r){
+              if(eTo instanceof Function) eTo.call(methodNamespace, r||'');
+              else if(!r){
+                dom.clearElement(eTo);
+              }else if(asText){
+                eTo.textContent = r;
+              }else{
+                dom.parseHtml(dom.clearElement(eTo), r);
+              }
+            }
+          );
+        }, false
+      );
+    });
+    return this;
+  }/*F.connectPagePreviewers()*/;
 
   return F.dom = dom;
 })(window.fossil);

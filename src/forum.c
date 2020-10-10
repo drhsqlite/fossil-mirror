@@ -343,6 +343,8 @@ void forum_render(
   }
   if( zContent && zContent[0] ){
     Blob x;
+    const int isFossilWiki = zMimetype==0
+      || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0;
     if( bScroll ){
       @ <div class='forumPostBody'>
     }else{
@@ -351,7 +353,18 @@ void forum_render(
     blob_init(&x, 0, 0);
     blob_append(&x, zContent, -1);
     safe_html_context(DOCSRC_FORUM);
+    if( isFossilWiki ){
+      /* Markdown and plain-text rendering add a wrapper DIV resp. PRE
+      ** element around the post, and some CSS relies on its existence
+      ** in order to handle expansion/collapse of the post. Fossil
+      ** Wiki rendering does not do so, so we must wrap those manually
+      ** here. */
+      @ <div class='fossilWiki'>
+    }
     wiki_render_by_mimetype(&x, zMimetype);
+    if( isFossilWiki ){
+      @ </div>
+    }
     blob_reset(&x);
     @ </div>
   }else{
@@ -451,11 +464,12 @@ static void forum_display_post(
     iIndent = (p->pEditHead ? p->pEditHead->nIndent : p->nIndent)-1;
     @ <div id='forum%d(p->fpid)' class='forumTime\
     @ %s(bSelect ? " forumSel" : "")\
-    @ %s(p->pEditTail ? " forumObs" : "")'\
+    @ %s(p->pEditTail ? " forumObs" : "")' \
     if( iIndent && iIndentScale ){
-      @ style='margin-left: %d(iIndent*iIndentScale)ex'
+      @ style='margin-left:%d(iIndent*iIndentScale)ex;'>
+    }else{
+      @ >
     }
-    @ >
 
     /* If this is the first post (or an edit thereof), emit the thread title. */
     if( pManifest->zThreadTitle ){
@@ -464,9 +478,9 @@ static void forum_display_post(
 
     /* Begin emitting the header line.  The forum of the title
     ** varies depending on whether:
-    **    *  The post is uneditted
-    **    *  The post was last editted by the original author
-    **    *  The post was last editted by a different person
+    **    *  The post is unedited
+    **    *  The post was last edited by the original author
+    **    *  The post was last edited by a different person
     */
     if( p->pEditHead ){
       zDate = db_text(0, "SELECT datetime(%.17g)", p->pEditHead->rDate);
@@ -482,7 +496,7 @@ static void forum_display_post(
       @ <h3 class='forumPostHdr'>(%d(p->sid)\
       @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
-        @ By %h(zPosterName) on %h(zDate) editted from \
+        @ By %h(zPosterName) on %h(zDate) edited from \
         @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }else{
@@ -726,6 +740,16 @@ static void forum_display_thread(
 }
 
 /*
+** Emit Forum Javascript which applies (or optionally can apply)
+** to all forum-related pages. It does not include page-specific
+** code (e.g. "forum.js").
+*/
+static void forum_emit_js(void){
+  builtin_fossil_js_bundle_or("copybutton", "pikchr", 0);
+  builtin_request_js("fossil.page.forumpost.js");
+}
+
+/*
 ** WEBPAGE: forumpost
 **
 ** Show a single forum posting. The posting is shown in context with
@@ -852,10 +876,8 @@ void forumthread_page(void){
   forum_display_thread(froot, fpid, mode, bUnf, bHist);
 
   /* Emit Forum Javascript. */
-  builtin_emit_script_fossil_bootstrap(1);
   builtin_request_js("forum.js");
-  builtin_request_js("fossil.dom.js");
-  builtin_request_js("fossil.page.forumpost.js");
+  forum_emit_js();
 
   /* Emit the page style. */
   style_footer();
@@ -1053,6 +1075,7 @@ void forum_page_init(void){
   @ </form>
   @ <td>Log into an existing account
   @ </table>
+  forum_emit_js();
   style_footer();
   fossil_free(zGoto);
 }
@@ -1113,6 +1136,7 @@ void forumnew_page(void){
     @ </div>
   }
   @ </form>
+  forum_emit_js();
   style_footer();
 }
 
@@ -1122,7 +1146,7 @@ void forumnew_page(void){
 ** Edit an existing forum message.
 ** Query parameters:
 **
-**   fpid=X        Hash of the post to be editted.  REQUIRED
+**   fpid=X        Hash of the post to be edited.  REQUIRED
 */
 void forumedit_page(void){
   int fpid;
@@ -1292,6 +1316,7 @@ void forumedit_page(void){
     @ </div>
   }
   @ </form>
+  forum_emit_js();
   style_footer();
 }
 

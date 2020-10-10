@@ -681,7 +681,7 @@ static void zip_of_checkin(
         blob_append(&filename, "manifest", -1);
         zName = blob_str(&filename);
         zip_add_folders(&sArchive, zName);
-        sterilize_manifest(&mfile);
+        sterilize_manifest(&mfile, CFTYPE_MANIFEST);
         zip_add_file(&sArchive, zName, &mfile, 0);
       }
       if( eflg & MFESTFLG_UUID ){

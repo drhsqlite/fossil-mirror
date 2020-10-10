@@ -307,8 +307,10 @@ void multiple_choice_attribute(
   if( zQ && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
+    db_unprotect(PROTECT_ALL);
     db_set(zVar, zQ, 0);
     setup_incr_cfgcnt();
+    db_protect_pop();
     admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
@@ -341,7 +343,7 @@ void setup_access(void){
 
   style_header("Access Control Settings");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_access" method="post"><div>
+  @ <form action="%R/setup_access" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -618,7 +620,7 @@ void setup_login_group(void){
     @ is not currently part of any login-group.
     @ To join a login group, fill out the form below.</p>
     @
-    @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    @ <form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
     @ <blockquote><table border="0">
     @
@@ -674,7 +676,7 @@ void setup_login_group(void){
     db_finalize(&q);
     @ </table>
     @
-    @ <p><form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    @ <p><form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
@@ -731,7 +733,7 @@ void setup_timeline(void){
 
   style_header("Timeline Display Preferences");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_timeline" method="post"><div>
+  @ <form action="%R/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
 
@@ -877,7 +879,7 @@ void setup_settings(void){
   @ If the file for a versionable setting exists, the value cannot be
   @ changed on this screen.</p><hr /><p>
   @
-  @ <form action="%s(g.zTop)/setup_settings" method="post"><div>
+  @ <form action="%R/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
@@ -953,7 +955,7 @@ void setup_config(void){
 
   style_header("WWW Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_config" method="post"><div>
+  @ <form action="%R/setup_config" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -1049,7 +1051,7 @@ void setup_wiki(void){
 
   style_header("Wiki Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_wiki" method="post"><div>
+  @ <form action="%R/setup_wiki" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -1181,7 +1183,7 @@ void setup_adunit(void){
   }
 
   style_header("Edit Ad Unit");
-  @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
+  @ <form action="%R/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
   @ <b>Banner Ad-Unit:</b><br />
  textarea_attribute("", 6, 80, "adunit", "adunit", "", 0);
@@ -1272,13 +1274,13 @@ void setup_logo(void){
     return;
   }
   db_begin_transaction();
-  db_unprotect(PROTECT_CONFIG);
   if( !cgi_csrf_safe(1) ){
     /* Allow no state changes if not safe from CSRF */
   }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
     Blob img;
     Stmt ins;
     blob_init(&img, aLogoImg, szLogoImg);
+    db_unprotect(PROTECT_CONFIG);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('logo-image',:bytes,now())"
@@ -1290,13 +1292,16 @@ void setup_logo(void){
        "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
        zLogoMime
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrlogo")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('logo-image','logo-mimetype')"
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("setbg")!=0 && zBgMime && zBgMime[0] && szBgImg>0 ){
@@ -1325,6 +1330,7 @@ void setup_logo(void){
        "DELETE FROM config WHERE name IN "
            "('background-image','background-mimetype')"
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("seticon")!=0 && zIconMime && zIconMime[0] && szIconImg>0 ){
@@ -1348,21 +1354,23 @@ void setup_logo(void){
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clricon")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('icon-image','icon-mimetype')"
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" \
+  @ <blockquote><p><img src="%R/logo/%z(zLogoMtime)" \
   @ alt="logo" border="1" />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
@@ -1382,11 +1390,11 @@ void setup_logo(void){
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" \
+  @ <blockquote><p><img src="%R/background/%z(zBgMtime)" \
   @ alt="background" border=1 />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The background image is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/background">%s(g.zBaseURL)/background</a>.
@@ -1406,11 +1414,11 @@ void setup_logo(void){
   @
   @ <p>The current icon image has a MIME-Type of <b>%h(zIconMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/favicon.ico/%z(zIconMtime)" \
+  @ <blockquote><p><img src="%R/favicon.ico/%z(zIconMtime)" \
   @ alt="icon" border=1 />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The icon image is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/favicon.ico">%s(g.zBaseURL)/favicon.ico</a>.
@@ -1508,7 +1516,7 @@ void sql_page(void){
      go = 1;
   }
   @
-  @ <form method="post" action="%s(g.zTop)/admin_sql">
+  @ <form method="post" action="%R/admin_sql">
   login_insert_csrf_secret();
   @ SQL:<br />
   @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea><br />
@@ -1519,7 +1527,7 @@ void sql_page(void){
   @ </form>
   if( P("schema") ){
     zQ = sqlite3_mprintf(
-            "SELECT sql FROM repository.sqlite_sqlite"
+            "SELECT sql FROM repository.sqlite_schema"
             " WHERE sql IS NOT NULL ORDER BY name");
     go = 1;
   }else if( P("tablelist") ){
@@ -1617,7 +1625,7 @@ void th1_page(void){
   @ run by this page.  If Tcl integration was enabled at compile-time and
   @ the "tcl" setting is enabled, Tcl commands may be run as well.</p>
   @
-  @ <form method="post" action="%s(g.zTop)/admin_th1">
+  @ <form method="post" action="%R/admin_th1">
   login_insert_csrf_secret();
   @ TH1:<br />
   @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
@@ -1719,7 +1727,7 @@ void page_srchsetup(){
     return;
   }
   style_header("Search Configuration");
-  @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
+  @ <form action="%R/srchsetup" method="post"><div>
   login_insert_csrf_secret();
   @ <div style="text-align:center;font-weight:bold;">
   @ Server-specific settings that affect the
@@ -1804,23 +1812,18 @@ static void setup_update_url_alias(
   if( !cgi_csrf_safe(1) ) return;
   if( zNewName[0]==0 || zValue[0]==0 ){
     if( zOldName[0] ){
-      db_unprotect(PROTECT_CONFIG);
       blob_append_sql(pSql,
         "DELETE FROM config WHERE name='walias:%q';\n",
         zOldName);
-      db_protect_pop();
     }
     return;
   }
   if( zOldName[0]==0 ){
-    db_unprotect(PROTECT_CONFIG);
     blob_append_sql(pSql,
       "INSERT INTO config(name,value,mtime) VALUES('walias:%q',%Q,now());\n",
       zNewName, zValue);
-    db_protect_pop();
     return;
   }
-  db_unprotect(PROTECT_CONFIG);
   if( strcmp(zOldName, zNewName)!=0 ){
     blob_append_sql(pSql,
        "UPDATE config SET name='walias:%q', value=%Q, mtime=now()"
@@ -1832,7 +1835,6 @@ static void setup_update_url_alias(
        " WHERE name='walias:%q' AND value<>%Q;\n",
        zValue, zOldName, zValue);
   }
-  db_protect_pop();
 }
 
 /*
@@ -1874,7 +1876,9 @@ void page_waliassetup(){
     sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
     zValue = PD(zCnt,"");
     setup_update_url_alias(&sql, "", zNewName, zValue);
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("%s", blob_sql_text(&sql));
+    db_protect_pop();
     blob_reset(&sql);
     blob_reset(&namelist);
     cnt = 0;
@@ -1883,7 +1887,7 @@ void page_waliassetup(){
       "SELECT substr(name,8), value FROM config WHERE name GLOB 'walias:/*'"
       " UNION ALL SELECT '', ''"
   );
-  @ <form action="%s(g.zTop)/waliassetup" method="post"><div>
+  @ <form action="%R/waliassetup" method="post"><div>
   login_insert_csrf_secret();
   @ <table border=0 cellpadding=5>
   @ <tr><th>Alias<th>URI That The Alias Maps Into

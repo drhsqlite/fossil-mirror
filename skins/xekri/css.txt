@@ -1120,3 +1120,8 @@ tr.row0 {
 tr.row1 {
   /* Use default */
 }
+
+.fossil-tooltip.help-buttonlet-content {
+  background-color: #111;
+  border: 1px solid rgba(255,255,255,0.5);
+}

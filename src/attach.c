@@ -377,7 +377,7 @@ void attachadd_page(void){
     zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
                           zTkt, zTkt);
   }
-  if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
+  if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ){
     cgi_redirect(zFrom);
   }
@@ -451,19 +451,6 @@ void ainfo_page(void){
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-#if 0
-  /* Shunning here needs to get both the attachment control artifact and
-  ** the object that is attached. */
-  if( g.perm.Admin ){
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%q'", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?uuid=%s&sub=1",
-            g.zTop, zUuid);
-    }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun",
-            g.zTop, zUuid);
-    }
-  }
-#endif
   pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
   zTarget = pAttach->zAttachTarget;

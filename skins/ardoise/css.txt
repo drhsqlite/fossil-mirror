@@ -11,6 +11,7 @@ table.login_out td,
 tr.timelineCurrent,
 tr.timelineCurrent td.timelineTableCell,
 tr.timelineSelected {
+  background-color: initial;
   border: 0
 }
 ol,
@@ -954,7 +955,9 @@ span.timelineSelected {
   text-align: left;
   background: #442800
 }
-.timelineSelected {}
+.timelineSelected {
+  box-shadow: none;
+}
 .timelineSecondary {}
 .timelineSecondary > .timelineColumnarCell,
 .timelineSecondary > .timelineCompactCell,

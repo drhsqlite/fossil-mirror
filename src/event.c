@@ -230,6 +230,7 @@ void event_page(void){
                        " WHERE tagname GLOB 'event-%q*'",
                     zId);
   attachment_list(zFullId, "<hr /><h2>Attachments:</h2><ul>");
+  document_emit_js();
   style_footer();
   manifest_destroy(pTNote);
 }

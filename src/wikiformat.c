@@ -829,7 +829,10 @@ static int parseMarkup(ParsedMarkup *p, char *z){
         while( z[i] && z[i]!='\'' ){ i++; }
       }else{
         zValue = &z[i];
-        while( !fossil_isspace(z[i]) && z[i]!='>' ){ z++; }
+        while( !fossil_isspace(z[i]) && z[i]!='>' ){
+          if( z[i]=='\'' || z[i]=='"' ) attrOk = 0;
+          i++;
+        }
       }
       if( attrOk ){
         p->aAttr[p->nAttr].zValue = zValue;
@@ -866,7 +869,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
       if( p->aAttr[i].zValue ){
         const char *zVal = p->aAttr[i].zValue;
         if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
-          blob_appendf(pOut, "=\"%s%s\"", g.zTop, zVal);
+          blob_appendf(pOut, "=\"%R%s\"", zVal);
         }else{
           blob_appendf(pOut, "=\"%s\"", zVal);
         }
@@ -1362,6 +1365,58 @@ static int endVerbatim(Renderer *p, ParsedMarkup *pMarkup){
 }
 
 /*
+** z[] points to the text that immediately follows markup of the form:
+**
+**      <verbatim type='pikchr ...'>
+**
+** zClass is the argument to "type".  This routine will process the
+** Pikchr text through the next matching </verbatim> (or until end-of-file)
+** and append the resulting SVG output onto p.  It then returns the
+** number of bytes of text processed, including the closing </verbatim>.
+*/
+static int wiki_process_pikchr(Renderer *p, char *z, const char *zClass){
+  ParsedMarkup m;         /* Parsed closing tag */
+  int i = 0;              /* For looping over z[] in search of </verbatim> */
+  int iRet = 0;           /* Value  to return */
+  int atEnd = 0;          /* True if se have found the </verbatim> */
+  int nMarkup = 0;        /* Length of a markup we are checking */
+
+  /* Search for the closing </verbatim> tag */
+  while( z[i]!=0 ){
+    char *zEnd = strchr(z+i, '<');
+    if( zEnd==0 ){
+      i += (int)strlen(z+i);
+      iRet = i;
+      break;
+    }
+    nMarkup = html_tag_length(zEnd);
+    if( nMarkup<11 || fossil_strnicmp(zEnd, "</verbatim", 10)!=0 ){
+      i = (int)(zEnd - z) + 1;
+      continue;
+    }
+    (void)parseMarkup(&m, z+i);
+    atEnd = endVerbatim(p, &m);
+    unparseMarkup(&m);
+    if( atEnd ){
+      iRet = i + nMarkup;
+      break;
+    }
+    i++;
+  }
+
+  /* The Pikchr source text should be i character in length and iRet is
+  ** i plus the number of bytes in the </verbatim>.  Generate the reply.
+  */
+  assert( strncmp(zClass,"pikchr",6)==0 );
+  zClass += 6;
+  while( fossil_isspace(zClass[0]) ) zClass++;
+  blob_append(p->pOut, "<p>", 3);
+  pikchr_to_html(p->pOut, z, i, zClass, (int)strlen(zClass));
+  blob_append(p->pOut, "</p>\n", 5);
+  return iRet;
+}
+
+/*
 ** Return the MUTYPE for the top of the stack.
 */
 static int stackTopType(Renderer *p){
@@ -1660,7 +1715,8 @@ static void wiki_render(Renderer *p, char *z){
         ** ignored.
         */
         if( markup.iCode==MARKUP_VERBATIM ){
-          int ii, vAttrDidAppend=0;
+          int ii; //, vAttrDidAppend=0;
+          const char *zClass = 0;
           p->zVerbatimId = 0;
           p->inVerbatim = 1;
           p->preVerbState = p->state;
@@ -1669,17 +1725,23 @@ static void wiki_render(Renderer *p, char *z){
             if( markup.aAttr[ii].iACode == ATTR_ID ){
               p->zVerbatimId = markup.aAttr[ii].zValue;
             }else if( markup.aAttr[ii].iACode==ATTR_TYPE ){
-              blob_appendf(p->pOut, "<pre name='code' class='%s'>",
-                markup.aAttr[ii].zValue);
-              vAttrDidAppend=1;
+              zClass = markup.aAttr[ii].zValue;
             }else if( markup.aAttr[ii].iACode==ATTR_LINKS
                    && !is_false(markup.aAttr[ii].zValue) ){
               p->state |= ALLOW_LINKS;
             }
           }
-          if( !vAttrDidAppend ) {
-            endAutoParagraph(p);
+          endAutoParagraph(p);
+          if( zClass==0 ){
             blob_append_string(p->pOut, "<pre class='verbatim'>");
+          }else if( strncmp(zClass,"pikchr",6)==0 &&
+                    (fossil_isspace(zClass[6]) || zClass[6]==0) ){
+            n += wiki_process_pikchr(p, z+n, zClass);
+            p->inVerbatim = 0;
+            p->state = p->preVerbState;
+          }else{
+            blob_appendf(p->pOut, "<pre name='code' class='%h'>",
+               zClass);
           }
           p->wantAutoParagraph = 0;
         }else
@@ -2521,6 +2583,35 @@ static void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
 }
 
 /*
+** Return a nonce to indicate that safe_html() can allow code through
+** without censoring.
+**
+** When safe_html() is asked to sanitize some HTML, it will ignore
+** any text in between two consecutive instances of the nonce.  The
+** nonce itself is an HTML comment so it is harmless to keep the
+** nonce in the middle of the HTML stream.  A different nonce is
+** choosen each time Fossil is run, using a lot of randomness, so
+** an attacker will be unable to guess the nonce in advance.
+**
+** The original use-case for this mechanism is to allow Pikchr-generated
+** SVG in the middle of HTML generated from Markdown.  The Markdown
+** output will normally be processed by safe_html() to prevent accidental
+** or malicious introduction of harmful HTML (ex: <script>) in the
+** output stream.  The safe_html() only lets through HTML elements
+** that are on its allow-list and SVG is not on that list.  Hence, in order
+** to allow the Pikchr-generated SVG through, it must be surrounded by
+** the nonce.
+*/
+const char *safe_html_nonce(int bGenerate){
+  static char *zNonce = 0;
+  if( zNonce==0 && bGenerate ){
+    zNonce = db_text(0, "SELECT '<!--'||hex(randomblob(32))||'-->';");
+  }
+  return zNonce;
+}
+#define SAFE_NONCE_SIZE (4+64+3)
+
+/*
 ** Append a safe translation of HTML text to a Blob object.
 **
 ** Restriction: The input to this routine must be writable.
@@ -2535,6 +2626,8 @@ static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
   int i, j, n;
   HtmlTagStack s;
   ParsedMarkup markup;
+  const char *zNonce;
+  char *z;
 
   if( nHtml<=0 ) return;
   cLast = zHtml[nHtml];
@@ -2546,13 +2639,23 @@ static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
     if( zHtml[i]=='<' ){
       j = i;
     }else{
-      char *z = strchr(zHtml+i, '<');
+      z = strchr(zHtml+i, '<');
       if( z==0 ){
         blob_append(pBlob, zHtml+i, nHtml-i);
         break;
       }
       j = (int)(z - zHtml);
       blob_append(pBlob, zHtml+i, j-i);
+    }
+    if( zHtml[j+1]=='!'
+     && j+2*SAFE_NONCE_SIZE<nHtml
+     && (zNonce = safe_html_nonce(0))!=0
+     && strncmp(zHtml+j,zNonce,SAFE_NONCE_SIZE)==0
+     && (z = strstr(zHtml+j+SAFE_NONCE_SIZE,zNonce))!=0
+    ){
+      i = (int)(z - zHtml) + SAFE_NONCE_SIZE;
+      blob_append(pBlob, zHtml+j, i-j);
+      continue;
     }
     n = html_tag_length(zHtml+j);
     if( n==0 ){

@@ -48,8 +48,7 @@
 */
 void ajax_emit_js_preview_modes(int addScriptTag){
   if(addScriptTag){
-    style_emit_script_tag(0,0);
-    CX("\n");
+    style_script_begin(__FILE__,__LINE__);
   }
   CX("fossil.page.previewModes={"
      "guess: %d, %d: 'guess', wiki: %d, %d: 'wiki',"
@@ -63,7 +62,7 @@ void ajax_emit_js_preview_modes(int addScriptTag){
      AJAX_RENDER_HTML_INLINE, AJAX_RENDER_HTML_INLINE,
      AJAX_RENDER_PLAIN_TEXT, AJAX_RENDER_PLAIN_TEXT);
   if(addScriptTag){
-    style_emit_script_tag(1,0);
+    style_script_end();
   }
 }
 

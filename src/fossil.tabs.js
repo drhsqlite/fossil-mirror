@@ -208,6 +208,16 @@
     },
 
     /**
+       Inserts the given DOM element immediately after the tab bar.
+       Intended for a status bar or similar always-visible component.
+       Returns this object.
+    */
+    addCustomWidget: function(e){
+      this.e.container.insertBefore(e, this.e.tabs);
+      return this;
+    },
+
+    /**
        If the given DOM element, unique selector, or integer (0-based
        tab number) is one of this object's tabs, the UI makes that tab
        the currently-visible one, firing any relevant events. Returns

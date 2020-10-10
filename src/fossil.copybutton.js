@@ -42,7 +42,9 @@
      listener for the 'text-copied' event (see below). There is
      functionally no difference from setting this option or adding a
      'text-copied' event listener to the element, and this option is
-     considered to be a convenience form of that.
+     considered to be a convenience form of that. For the sake of
+     framework-level consistency, the default value is a callback
+     which passes the copy button to fossil.dom.flashOnce().
 
      Note that this function's own defaultOptions object holds default
      values for some options. Any changes made to that object affect
@@ -59,6 +61,12 @@
      text. Other properties may be added in the future. The event is
      not fired if copying to the clipboard fails (e.g. is not
      available in the current environment).
+
+     As a special case, the copy button's click handler is suppressed
+     (becomes a no-op) for as long as the element has the CSS class
+     "disabled". This allows elements which cannot be disabled via
+     HTML attributes, e.g. a SPAN, to act as a copy button while still
+     providing a way to disable them.
 
      Returns the copy-initialized element.
 
@@ -92,7 +100,10 @@
     D.copyStyle(e, opt.style);
     e.addEventListener(
       'click',
-      function(){
+      function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(e.classList.contains('disabled')) return;
         const txt = extract.call(opt);
         if(txt && D.copyTextToClipboard(txt)){
           e.dispatchEvent(new CustomEvent('text-copied',{
@@ -110,6 +121,7 @@
 
   F.copyButton.defaultOptions = {
     cssClass: 'copy-button',
+    oncopy: D.flashOnce.eventHandler,
     style: {/*properties copied as-is into element.style*/}
   };
   

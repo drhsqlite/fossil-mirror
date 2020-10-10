@@ -261,17 +261,8 @@ test_block_in_checkout pre-commit-warnings-fossil-1 {
   1\twin/buildmsvc.bat\tCR/LF line endings
   1\twin/fossil.ico\tbinary data
   1\twin/fossil.rc\tinvalid UTF-8
-  1\twww/CollRev1.gif\tbinary data
-  1\twww/CollRev2.gif\tbinary data
-  1\twww/CollRev3.gif\tbinary data
-  1\twww/CollRev4.gif\tbinary data
   1\twww/apple-touch-icon.png\tbinary data
   1\twww/background.jpg\tbinary data
-  1\twww/branch01.gif\tbinary data
-  1\twww/branch02.gif\tbinary data
-  1\twww/branch03.gif\tbinary data
-  1\twww/branch04.gif\tbinary data
-  1\twww/branch05.gif\tbinary data
   1\twww/build-icons/linux.gif\tbinary data
   1\twww/build-icons/linux64.gif\tbinary data
   1\twww/build-icons/mac.gif\tbinary data
@@ -281,14 +272,7 @@ test_block_in_checkout pre-commit-warnings-fossil-1 {
   1\twww/concept1.gif\tbinary data
   1\twww/concept2.gif\tbinary data
   1\twww/copyright-release.pdf\tbinary data
-  1\twww/delta1.gif\tbinary data
-  1\twww/delta2.gif\tbinary data
-  1\twww/delta3.gif\tbinary data
-  1\twww/delta4.gif\tbinary data
-  1\twww/delta5.gif\tbinary data
-  1\twww/delta6.gif\tbinary data
   1\twww/encode1.gif\tbinary data
-  1\twww/encode10.gif\tbinary data
   1\twww/encode2.gif\tbinary data
   1\twww/encode3.gif\tbinary data
   1\twww/encode4.gif\tbinary data

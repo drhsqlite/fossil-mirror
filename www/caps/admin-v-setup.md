@@ -355,7 +355,7 @@ about half of its functions, but only Setup can use these pages:
     works. The justification in the **TH1** section below therefore
     applies.
 
-*   **TH1**: The [TH1 language][TH1] is quite restricted relative to the
+*   **TH1**: The [TH1 language][th1] is quite restricted relative to the
     Tcl language it descends from, so this author does not believe there
     is a way to damage the Fossil repository or its host via the Admin →
     TH1 feature, which allows execution of arbitrary TH1 code within the
@@ -456,4 +456,6 @@ accidental push.
 [rs]:    https://www.fossil-scm.org/index.html/doc/trunk/www/settings.wiki
 [sia]:   https://fossil-scm.org/fossil/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
 [snoy]:  https://fossil-scm.org/forum/forumpost/00e1c4ecff
+[th1]:   ../th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
+[webo]:  ./#webonly

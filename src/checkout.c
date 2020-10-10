@@ -182,7 +182,7 @@ void manifest_to_disk(int vid){
   if( flg & MFESTFLG_RAW ){
     blob_zero(&manifest);
     content_get(vid, &manifest);
-    sterilize_manifest(&manifest);
+    sterilize_manifest(&manifest, CFTYPE_MANIFEST);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManFile);
     free(zManFile);

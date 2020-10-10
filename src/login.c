@@ -1987,6 +1987,7 @@ void login_group_join(
   zSelfProjCode = abbreviated_project_code(zSelfProjCode);
   zOtherProjCode = abbreviated_project_code(zOtherProjCode);
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "DELETE FROM \"%w\".config WHERE name GLOB 'peer-*';"
     "INSERT INTO \"%w\".config(name,value) VALUES('peer-repo-%q',%Q);"
@@ -2010,6 +2011,7 @@ void login_group_join(
     "   WHERE name GLOB 'peer-*' OR name GLOB 'login-group-*'",
     zSelf
   );
+  db_protect_pop();
   db_end_transaction(0);
   db_multi_exec("DETACH other");
 

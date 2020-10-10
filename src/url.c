@@ -542,7 +542,7 @@ char *url_render(
   int i;
 
   blob_reset(&p->url);
-  blob_appendf(&p->url, "%s/%s", g.zTop, p->zBase);
+  blob_appendf(&p->url, "%R/%s", p->zBase);
   for(i=0; i<p->nParam; i++){
     const char *z = p->azValue[i];
     if( zName1 && fossil_strcmp(zName1,p->azName[i])==0 ){

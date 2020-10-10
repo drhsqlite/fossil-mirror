@@ -130,7 +130,7 @@ chart:
     feature: it is encoding each of those single-pixel changes in a very
     small amount of repository space.
 
-*   The JPEG and TIFF bars increase by large amounts on most checkins
+*   The JPEG and PNG bars increase by large amounts on most checkins
     even though each checkin *also* encodes only a *single-pixel change*.
 
 *   The size of the first checkin in the BMP and TIFF cases is roughly

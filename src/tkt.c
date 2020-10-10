@@ -375,9 +375,26 @@ int ticket_change(const char *zUuid){
 
 /*
 ** An authorizer function for the SQL used to initialize the
-** schema for the ticketing system.  Only allow CREATE TABLE and
-** CREATE INDEX for tables whose names begin with "ticket" and
-** changes to tables whose names begin with "ticket".
+** schema for the ticketing system.  Only allow
+**
+**     CREATE TABLE
+**     CREATE INDEX
+**     CREATE VIEW
+**
+** And for objects in "main" or "repository" whose names
+** begin with "ticket" or "fx_".  Also allow
+**
+**     INSERT
+**     UPDATE
+**     DELETE
+**
+** But only for tables in "main" or "repository" whose names
+** begin with "ticket", "sqlite_", or "fx_".
+**
+** Of particular importance for security is that this routine
+** disallows data changes on the "config" table, as that could
+** allow a malicious server to modify settings in such a way as
+** to cause a remote code execution.
 */
 static int ticket_schema_auth(
   void *pNErr,
@@ -388,13 +405,16 @@ static int ticket_schema_auth(
   const char *z3
 ){
   switch( eCode ){
+    case SQLITE_CREATE_VIEW:
     case SQLITE_CREATE_TABLE: {
       if( sqlite3_stricmp(z2,"main")!=0
        && sqlite3_stricmp(z2,"repository")!=0
       ){
         goto ticket_schema_error;
       }
-      if( sqlite3_strnicmp(z0,"ticket",6)!=0 ){
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0 
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
+      ){
         goto ticket_schema_error;
       }
       break;
@@ -405,7 +425,9 @@ static int ticket_schema_auth(
       ){
         goto ticket_schema_error;
       }
-      if( sqlite3_strnicmp(z1,"ticket",6)!=0 ){
+      if( sqlite3_strnicmp(z1,"ticket",6)!=0
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
+      ){
         goto ticket_schema_error;
       }
       break;
@@ -420,6 +442,7 @@ static int ticket_schema_auth(
       }
       if( sqlite3_strnicmp(z0,"ticket",6)!=0
        && sqlite3_strnicmp(z0,"sqlite_",7)!=0
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
       ){
         goto ticket_schema_error;
       }
@@ -545,18 +568,18 @@ void tktview_page(void){
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   if( g.anon.WrTkt || g.anon.ApndTkt ){
-    style_submenu_element("Edit", "%s/tktedit?name=%T", g.zTop, PD("name",""));
+    style_submenu_element("Edit", "%R/tktedit?name=%T", PD("name",""));
   }
   if( g.perm.Hyperlink ){
-    style_submenu_element("History", "%s/tkthistory/%T", g.zTop, zUuid);
-    style_submenu_element("Check-ins", "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
+    style_submenu_element("History", "%R/tkthistory/%T", zUuid);
+    style_submenu_element("Check-ins", "%R/tkttimeline/%T?y=ci", zUuid);
   }
   if( g.anon.NewTkt ){
-    style_submenu_element("New Ticket", "%s/tktnew", g.zTop);
+    style_submenu_element("New Ticket", "%R/tktnew");
   }
   if( g.anon.ApndTkt && g.anon.Attach ){
-    style_submenu_element("Attach", "%s/attachadd?tkt=%T&from=%s/tktview/%t",
-        g.zTop, zUuid, g.zTop, zUuid);
+    style_submenu_element("Attach", "%R/attachadd?tkt=%T&from=%R/tktview/%t",
+        zUuid, zUuid);
   }
   if( P("plaintext") ){
     style_submenu_element("Formatted", "%R/tktview/%s", zUuid);
@@ -575,7 +598,7 @@ void tktview_page(void){
     }
   }
   if( !showTimeline && g.perm.Hyperlink ){
-    style_submenu_element("Timeline", "%s/info/%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "%R/info/%T", zUuid);
   }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
@@ -813,7 +836,7 @@ void tktnew_page(void){
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
+    cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
     return;
   }
   captcha_generate(0);
@@ -884,7 +907,7 @@ void tktedit_page(void){
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
+    cgi_redirect(mprintf("%R/tktview/%s", zName));
     return;
   }
   captcha_generate(0);
@@ -1002,13 +1025,12 @@ void tkttimeline_page(void){
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
-    style_submenu_element("Check-ins", "%s/tkttimeline?name=%T&y=ci",
-       g.zTop, zUuid);
+    style_submenu_element("Check-ins", "%R/tkttimeline?name=%T&y=ci", zUuid);
   }else{
-    style_submenu_element("Timeline", "%s/tkttimeline?name=%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "%R/tkttimeline?name=%T", zUuid);
   }
-  style_submenu_element("History", "%s/tkthistory/%s", g.zTop, zUuid);
-  style_submenu_element("Status", "%s/info/%s", g.zTop, zUuid);
+  style_submenu_element("History", "%R/tkthistory/%s", zUuid);
+  style_submenu_element("Status", "%R/info/%s", zUuid);
   if( zType[0]=='c' ){
     zTitle = mprintf("Check-ins Associated With Ticket %h", zUuid);
   }else{
@@ -1055,10 +1077,9 @@ void tkthistory_page(void){
   }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
-  style_submenu_element("Status", "%s/info/%s", g.zTop, zUuid);
-  style_submenu_element("Check-ins", "%s/tkttimeline?name=%s&y=ci",
-    g.zTop, zUuid);
-  style_submenu_element("Timeline", "%s/tkttimeline?name=%s", g.zTop, zUuid);
+  style_submenu_element("Status", "%R/info/%s", zUuid);
+  style_submenu_element("Check-ins", "%R/tkttimeline?name=%s&y=ci", zUuid);
+  style_submenu_element("Timeline", "%R/tkttimeline?name=%s", zUuid);
   if( P("raw")!=0 ){
     style_submenu_element("Decoded", "%R/tkthistory/%s", zUuid);
   }else if( g.perm.Admin ){

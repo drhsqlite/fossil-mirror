@@ -396,9 +396,10 @@ void sync_unversioned(unsigned syncFlags){
 **     Disable the default URL.  Use this as a shorthand to prevent
 **     autosync while in airplane mode, for example.
 **
-** > fossil remote URL
+** > fossil remote REF
 **
-**     Make URL the new default URL.  The prior default URL is replaced.
+**     Make REF the new default URL.  The prior default URL is replaced.
+**     REF can be either an explicit URL or a NAME from a prior "add".
 */
 void remote_url_cmd(void){
   char *zUrl, *zArg;

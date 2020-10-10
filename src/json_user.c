@@ -400,7 +400,7 @@ static cson_value * json_user_save(){
      a JSON form of it... */
   cson_object * u = cson_new_object();
   char const * str = NULL;
-  char b = -1;
+  int b = -1;
   int i = -1;
   int uid = -1;
   cson_value * payload = NULL;
@@ -414,7 +414,7 @@ static cson_value * json_user_save(){
 #undef PROP
   /* Boolean properties... */
 #define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);     \
-  if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
+  if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b ? 1 : 0)); } (void)0
   PROP("forceLogout",-1);
 #undef PROP
 

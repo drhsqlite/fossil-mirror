@@ -42,6 +42,19 @@
 #include "hook.h"
 
 /*
+** SETTING: hooks sensitive
+** The "hooks" setting contains JSON that describes all defined
+** hooks.  The value is an array of objects.  Each object describes
+** a single hook.  Example:
+**
+**
+**    {
+**    "type": "after-receive",  // type of hook
+**    "cmd": "command-to-run",  // command to run
+**    "seq": 50                 // run in this order
+**    }
+*/
+/*
 ** List of valid hook types:
 */
 static const char *azType[] = {
@@ -124,7 +137,9 @@ static char *hook_subst(
 ** soon and so post-receive hooks can be run without delay.
 */
 void hook_expecting_more_artifacts(int N){
-  if( N>0 ){
+  if( !db_is_writeable("repository") ){
+    /* No-op */
+  }else if( N>0 ){
     db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
@@ -475,6 +490,20 @@ int hook_backoffice(void){
 hook_backoffice_done:
   db_commit_transaction();
   return cnt;
+}
+
+/*
+** Return true if one or more hooks of type zType exit.
+*/
+int hook_exists(const char *zType){
+  return db_exists(
+      "SELECT 1"
+      "  FROM config, json_each(config.value) AS jx"
+      " WHERE config.name='hooks' AND json_valid(config.value)"
+      "   AND json_extract(jx.value,'$.type')=%Q"
+      " ORDER BY json_extract(jx.value,'$.seq');",
+      zType
+  );
 }
 
 /*
