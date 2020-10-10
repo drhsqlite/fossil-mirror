@@ -1,5 +1,5 @@
-C Replace\sthe\stwo\sGIF\simages\sin\sthe\swww/concepts.wiki\sdocument\swith\sPikchrs.
-D 2020-10-09T21:09:11.442
+C Fix\sthe\sfossil_stat()\sroutine\s(broken\sby\scheck-in\s[39a5df1fde741d08])\sso\nthat\sit\sresponds\scorrectly\swhen\sthe\ssecond\sargument\sis\sSymFILE.\nThis\sis\sa\sfix\sfor\sthe\sproblem\sdescribed\sin\n[forum:/info/251ffc0584|Forum\spost\s251ffc0584]
+D 2020-10-10T00:01:33.185
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 9c704eb6be3135530ff2ae0fe66eb0798b727d9b7295c93b7d52dbc4181816ae
 F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c d651645be8228151fddf9e47b0a5d9ea5f9f96bfa4cb4ff1219aa64c9eb26fef
+F src/file.c 0b83f7d34ab9cad7409d2229c0c7a7b03be8fa4db10d500d1247c3eb67a2326e
 F src/fileedit.c 7af9d6b27ed16f783c1809ca952f090843af488fa0a5899867b8274a22f3e590
 F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8594e7a68a01ed8ada7db605bc6cdddfc62c8c740f5baffe16edb51b7dc80272
-R d731ba7de839e4e21754bfdd1961186c
+P bd9bf24837b4f73975abc9b2fc96ac51855c7f172671e41377a8f505d23533cc
+R 9bea42e58f119e3f5e6c0ea627791994
 U drh
-Z e756ee7ac3bad6238fc3a7b97ceda456
+Z 749dc9ce9fe5e65bf8b3650a3b0a1ed8

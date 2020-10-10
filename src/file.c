@@ -135,7 +135,7 @@ static int fossil_stat(
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( (eFType=RepoFILE && db_allow_symlinks())
+  if( (eFType==RepoFILE && db_allow_symlinks())
    || eFType==SymFILE ){
     /* Symlinks look like files whose content is the name of the target */
     rc = lstat(zMbcs, buf);
