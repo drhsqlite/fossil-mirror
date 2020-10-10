@@ -1,5 +1,5 @@
-C Renamed\sfossil.page.wikiedit-wysiwyg-legacy.js\sto\sfossil.wikiedit-wysiwyg.js\sso\sthat\sthe\sexcessively\slong\sname\sdoesn't\scause\s/dir\sto\shave,\sat\smost,\s2\scolumns.\sRemoved\ssome\sdead\scode\sand\sadded\sa\stiny\sbit\sof\sdocs.\sUpdated\schangelog\sper\sforum\srequest.
-D 2020-10-10T12:05:15.706
+C Relax\sconstraints\son\sthe\sSQL\sused\sto\sset\sup\sthe\sticket\sschema\sslightly:\n(1)\sAllow\screating\sviews\swhose\snames\sbegin\swith\s"ticket"\sor\s"fx_".\n(2)\sAllow\screating\stables\swhose\snames\sbegin\swith\s"fx_".\n(3)\sAllow\sdata\schanges\sto\stables\swhose\snames\sbegin\swith\s"fx_".
+D 2020-10-10T15:52:52.702
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -499,7 +499,7 @@ F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac757948560
 F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
-F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697 w src/fossil.page.wikiedit-wysiwyg-legacy.js
+F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
@@ -629,7 +629,7 @@ F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 7e1d4e07fd9e40712e87e43443233c2a991ad363f23f1b2fad074e362eb76d57
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 27fa61992ca5565d64d596657ddaacaf4a5ad37135b8ae7662dc176882c96ad7
-F src/tkt.c d1b3230c61d61c5c8913381b809888042f2ca1d5f57558883ca21058038fa852
+F src/tkt.c c31298b758d596fc6b800af2b86defbe894c70d0b20c9a7a89323dee9b3d5ae4
 F src/tktsetup.c 3778b61b72bbaa2aa808d1611487383ffe93af98f99cc9d387519fe06e80f051
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d445ead4cdca1ff553f92bf4eb10cea6fa003207ec500ae6eadd8b9cc1f0e38
-R 8745f75793dfd109776fe3e068137b40
-U stephan
-Z 3999023bffdc53d6a69dc84fa5006675
+P a759842a7adf9d58ee96b4cff8c02ffe288dec53f722967b3971bd8a81b07ee1
+R f23e9c3e16acc91d4040e0c7b52890c9
+U drh
+Z 197ddc0953489e548a3b01d41afe60d3

@@ -375,9 +375,26 @@ int ticket_change(const char *zUuid){
 
 /*
 ** An authorizer function for the SQL used to initialize the
-** schema for the ticketing system.  Only allow CREATE TABLE and
-** CREATE INDEX for tables whose names begin with "ticket" and
-** changes to tables whose names begin with "ticket".
+** schema for the ticketing system.  Only allow
+**
+**     CREATE TABLE
+**     CREATE INDEX
+**     CREATE VIEW
+**
+** And for objects in "main" or "repository" whose names
+** begin with "ticket" or "fx_".  Also allow
+**
+**     INSERT
+**     UPDATE
+**     DELETE
+**
+** But only for tables in "main" or "repository" whose names
+** begin with "ticket", "sqlite_", or "fx_".
+**
+** Of particular importance for security is that this routine
+** disallows data changes on the "config" table, as that could
+** allow a malicious server to modify settings in such a way as
+** to cause a remote code execution.
 */
 static int ticket_schema_auth(
   void *pNErr,
@@ -388,13 +405,16 @@ static int ticket_schema_auth(
   const char *z3
 ){
   switch( eCode ){
+    case SQLITE_CREATE_VIEW:
     case SQLITE_CREATE_TABLE: {
       if( sqlite3_stricmp(z2,"main")!=0
        && sqlite3_stricmp(z2,"repository")!=0
       ){
         goto ticket_schema_error;
       }
-      if( sqlite3_strnicmp(z0,"ticket",6)!=0 ){
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0 
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
+      ){
         goto ticket_schema_error;
       }
       break;
@@ -405,7 +425,9 @@ static int ticket_schema_auth(
       ){
         goto ticket_schema_error;
       }
-      if( sqlite3_strnicmp(z1,"ticket",6)!=0 ){
+      if( sqlite3_strnicmp(z1,"ticket",6)!=0
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
+      ){
         goto ticket_schema_error;
       }
       break;
@@ -420,6 +442,7 @@ static int ticket_schema_auth(
       }
       if( sqlite3_strnicmp(z0,"ticket",6)!=0
        && sqlite3_strnicmp(z0,"sqlite_",7)!=0
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
       ){
         goto ticket_schema_error;
       }
