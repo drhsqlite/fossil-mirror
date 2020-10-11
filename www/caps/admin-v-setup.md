@@ -48,8 +48,8 @@ choices.
 You can also look at the role of Admin from the other direction, up
 through the [user power hierarchy][ucap] rather than down from Setup. An
 Admin user is usually a “super-developer” role, given full control over
-the repository’s managed content: versioned artifacts in [the block
-chain][bc], [unversioned content][uv], forum posts, wiki articles,
+the repository’s managed content: versioned artifacts in [the hash tree][bc],
+[unversioned content][uv], forum posts, wiki articles,
 tickets, etc.
 
 We’ll explore these distinctions in the rest of this document.
@@ -160,13 +160,13 @@ Setup user:
 
     Coupled with the Rebuild button on the same page, an Admin user has
     the power to delete the repository's entire
-    [blockchain][bc]! This makes this feature a pretty good
+    [hash tree][bc]! This makes this feature a pretty good
     razor in deciding whether to grant someone Admin capability: do you
     trust that user to shun Fossil artifacts responsibly?
 
     Realize that shunning is cooperative in Fossil. As long as there are
     surviving repository clones, an Admin-only user who deletes the
-    whole blockchain has merely caused a nuisance. An Admin-only user
+    whole hash tree has merely caused a nuisance. An Admin-only user
     cannot permanently destroy the repository unless the Setup user has
     been so silly as to have no up-to-date clones.
 
@@ -346,7 +346,7 @@ about half of its functions, but only Setup can use these pages:
 
 *   **SQL**: The Admin → SQL feature allows the Setup user to enter raw
     SQL queries against the Fossil repository via Fossil UI. This not
-    only allows arbitrary ability to modify the repository blockchain
+    only allows arbitrary ability to modify the repository hash tree
     and its backing data tables, it can probably also be used to damage
     the host such as via `PRAGMA temp_store = FILE`.
 

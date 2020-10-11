@@ -290,6 +290,6 @@ following order:
   #  [#tag-ts | TAG:timestamp]
   #  Full artifact hash or hash prefix.
   #  Any other type of symbolic name that Fossil extracts from
-     blockchain artifacts.
+     artifacts.
 
 <div style="height:40em" id="this-space-intentionally-left-blank"></div>
