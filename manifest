@@ -1,5 +1,5 @@
-C Greatly\sexpanded\sthe\ssimple\sdefinition\sof\s"blockchain"\sin\sthe\seponymous\ndoc\sto\sinclude\smore\sdetails\sof\scommon\sblockchain\simplementations\sto\sdraw\nclearer\sparallels.\sThis\scauses\sour\sconclusion\sto\sflip\saround\sfrom\sthe\nprior\sversion\sof\sthis\sdoc,\sbut\sit's\sworth\skeeping\sthe\sdoc\sbecause\sit\nserves\sto\scompare\sand\scontrast\sFossil\sto\sother\ssystems.
-D 2020-10-11T06:51:54.427
+C Attempt\sto\suse\sthe\sfeature\sadded\sin\s[e32214a409]\sto\sextract\sthe\nduplicate\sPikchr\scode\sfor\sdiagram\s#4\sin\sthe\srebase\sdoc\sas\sa\sseparate\nfile,\sso\swe\scan\srefer\sto\sit\stwice\svia\sa\sMarkdown\simage\slink\sinstead.\nDoesn't\swork,\sbut\smy\snext\ssteps\srequire\sa\scheckin\sI\scan\sreference.
+D 2020-10-11T07:03:33.475
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -930,7 +930,8 @@ F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0c
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
 F www/quickstart.wiki 018effa5c7c0d4589eea0881a078f8cb019b2f4cdda8e1f36bfa89438d8d14bb
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
-F www/rebaseharm.md 7c0d45b467ba8ff9f907d1d5406322080ac273bcd59d0e3730401c6f72bae857
+F www/rebase04.pikchr 4b90741cfad4b961c72c5fbd8a680cf67cbeed0e73f7198d1673a5b922960b4e
+F www/rebaseharm.md 2d4a904211b157c53ec057b24c7b632c91f3e57abb717bf4f97d43601e718f75
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
@@ -983,8 +984,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e32214a40901de44c99e2eafb00cd2dcf47761c56219944357ee6363282fee9b 87b1385dac16abd0b99e6af5b8f29df22b5c51ed0232be48d29b29c13bc76705
-R 1edffbac96c0ee09486fb273e49c4de1
-T +closed 87b1385dac16abd0b99e6af5b8f29df22b5c51ed0232be48d29b29c13bc76705
+P 1ddb400886783aeb8374c504cdcfb66bdbcd9665e69c96cfe6f7c103cb52f893
+R 12853e03f69bf67940655ddf24d6bfe8
+T *branch * extract-pikchr
+T *sym-extract-pikchr *
+T -sym-trunk *
 U wyoung
-Z f40e989d9b7e9c6de6c11c75155db35c
+Z 3b30185b6af6406e6d999a201274174f

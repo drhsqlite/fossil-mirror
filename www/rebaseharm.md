@@ -125,32 +125,9 @@ for rebase say that you should rebase the feature branch to the tip
 of main in order to remove main-line development differences from
 the feature branch's history:
 
-~~~ pikchr toggle
-# Duplicated below in section 5.0
-scale = 0.8
-circle "C0" fit fill white
-arrow right 50%
-circle same "C1"
-arrow same
-circle same "C2"
-arrow same
-circle same "C4"
-arrow same
-circle same "C6"
-circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
-arrow right 50%
-circle same "C5"
-arrow from C2 to C3 chop
-C3P: circle same "C3'" at first arrow.width + C0.rad*2 heading 30 from C6
-arrow right 50% from C3P.e
-C5P: circle same "C5'"
-arrow from C6 to C3P chop
+![rebase diagram][4]
 
-box ht C3.y-C2.y wid C5P.e.x-C0.w.x+1.5*C1.rad with .w at 0.5*(first arrow.wid) west of C0.w \
-   behind C0 fill 0xc6e2ff color 0xaac5df
-box ht previous.ht wid previous.e.x - C2.w.x with .se at previous.ne \
-   behind C0 fill 0x9accfc color 0xaac5df
-~~~
+[4]: ./rebase04.pikchr
 
 
 You could choose to collapse C3\' and C5\' into a single check-in
@@ -257,32 +234,7 @@ when they’re intermingled with code implementing some compelling new feature?
 
 Consider the earlier example of rebasing a feature branch:
 
-~~~ pikchr toggle
-# Copy of second diagram in section 2.2 above
-scale = 0.8
-circle "C0" fit fill white
-arrow right 50%
-circle same "C1"
-arrow same
-circle same "C2"
-arrow same
-circle same "C4"
-arrow same
-circle same "C6"
-circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
-arrow right 50%
-circle same "C5"
-arrow from C2 to C3 chop
-C3P: circle same "C3'" at first arrow.width + C0.rad*2 heading 30 from C6
-arrow right 50% from C3P.e
-C5P: circle same "C5'"
-arrow from C6 to C3P chop
-
-box ht C3.y-C2.y wid C5P.e.x-C0.w.x+1.5*C1.rad with .w at 0.5*(first arrow.wid) west of C0.w \
-   behind C0 fill 0xc6e2ff color 0xaac5df
-box ht previous.ht wid previous.e.x - C2.w.x with .se at previous.ne \
-   behind C0 fill 0x9accfc color 0xaac5df
-~~~
+![rebase diagram from section 2.2 again][4]
 
 What timestamps go on the C3\' and C5\' check-ins?  If you choose
 the same timestamps as the original C3 and C5, then you have the
