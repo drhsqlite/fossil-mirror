@@ -2414,9 +2414,11 @@ void artifact_page(void){
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
       }
     }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
-           || fossil_strcmp(zMime, "text/x-markdown")==0 ){
+           || fossil_strcmp(zMime, "text/x-markdown")==0
+           || fossil_strcmp(zMime, "text/x-pikchr")==0 ){
       if( asText ){
-        style_submenu_element("Wiki", "%s", url_render(&url, "txt", 0, 0, 0));
+        style_submenu_element(zMime[7]=='p' ? "Pikchr" : "Wiki",
+                              "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsWiki = 1;
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));

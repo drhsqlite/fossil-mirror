@@ -188,6 +188,7 @@ const char *wiki_filter_mimetypes(const char *zMimetype){
 **
 **   text/x-fossil-wiki      Fossil wiki
 **   text/x-markdown         Markdown
+**   text/x-pikchr           Pikchr
 **   anything else...        Plain text
 **
 ** If zMimetype is a null pointer, then use "text/x-fossil-wiki".
@@ -201,6 +202,20 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
     safe_html(&tail);
     @ %s(blob_str(&tail))
     blob_reset(&tail);
+  }else if( fossil_strcmp(zMimetype, "text/x-pikchr")==0 ){
+    const char *zPikchr = blob_str(pWiki);
+    int w, h;
+    char *zOut = pikchr(zPikchr, "pikchr", 0, &w, &h);
+    if( w>0 ){
+      @ <div class="pikchr-svg" style="max-width:%d(w)px">
+      @ %s(zOut)
+      @ </div>
+    }else{
+      @ <pre class='error'>\n">
+      @ %s(zOut);
+      @ </pre>
+    }
+    free(zOut);
   }else{
     @ <pre class='textPlain'>
     @ %h(blob_str(pWiki))

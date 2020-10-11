@@ -1,5 +1,5 @@
-C New\spikchr.c\sthat\sfixes\sthe\stop\sand\sbottom\smargin\sthat\swas\slost\sin\sthe\nprevious\scheck-in.
-D 2020-10-10T20:33:35.088
+C Understand\sfiles\sending\sin\s".pikchr"\sto\sbe\sPikchr\ssource\stext\sand\srender\nthem\sappropriately.
+D 2020-10-11T01:19:47.835
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -473,7 +473,7 @@ F src/diff.c 149a5477a22cb731966f4d79aa15341844f19e0f0c7caa6d074d89505560eb65
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c f9768b2a69f118c9d2543b808d9f20fd2d534be92f83be241316cd842d0aeadf
 F src/dispatch.c bd9be74b73d514f128fc7596db1379cda7cb37161a15f885c942a98a0673f028
-F src/doc.c 1ff4a2b3f6b550c61c58e5a1ae7c5e3777fd263374dec6065a705b86ae7aabbb
+F src/doc.c f7ce665dd2f25e0b8342c204bfbf17bc0d3f3a96d45a36bf42bb5a4e5f30356a
 F src/encode.c e330c36991335742bc42ec6e01ee2a14158f08b4b36ae84ec405294adf465f96
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 9c704eb6be3135530ff2ae0fe66eb0798b727d9b7295c93b7d52dbc4181816ae
@@ -515,7 +515,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 1ebd6da35f8c913f974474ac6f2661c4490d2d6771dc5da1a022b366c39bd897
-F src/info.c d27ae6df134adcd085edb09c6ee37d05e5f49874ee2ebb8e7e58f863e5f0ceab
+F src/info.c 9650660aba99c9e61190bb6d2f2d3bd32b3e2315930143bc0b3bcb53203eacdd
 F src/interwiki.c f52d2407376d8435f65f70b1f4e0b58ad657d77aa098c373e2908de6f79a5c45
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -645,7 +645,7 @@ F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c ce32f0b70bfd156180bc5544bef3995f347872b60b35a14fc301c2680149178c
+F src/wiki.c dff209bf083aad8a748769a676fc837f113c6e5fa59338f63e4cf4616efe3dfe
 F src/wiki.wiki 115d2665e40e871dfb83533f366bac52fcff5b214c8f117c69fc26465240d05b
 F src/wikiformat.c e8c67955e633e73690361e0b5bdb225cadf5eafbbaeb4f60d773e64bb9ec72ae
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -983,7 +983,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b80bd64b42fd62175c2d0d9701ae8e288319ab58bcb74e4f4fb70ad56a496087
-R 3e36be0bf480fd57ff8f1768843d8f73
+P 0ec09ea894906b6fbb8146cc5924e764169c4126ad796d30b9d00231cd6cbd16
+R 03d16bd46df83bfbc00e7b397d4680b8
 U drh
-Z 7c617cab2ac8c7a3377b99896a3413f3
+Z 37d43bb2302e1e4386c6d731e371d636

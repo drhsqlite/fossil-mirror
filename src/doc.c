@@ -192,6 +192,7 @@ static const struct {
   { "pgm",        3, "image/x-portable-graymap"          },
   { "pgn",        3, "application/x-chess-pgn"           },
   { "pgp",        3, "application/pgp"                   },
+  { "pikchr",     6, "text/x-pikchr"                     },
   { "pl",         2, "application/x-perl"                },
   { "pm",         2, "application/x-perl"                },
   { "png",        3, "image/png"                         },
@@ -796,6 +797,11 @@ void document_render(
     style_header("%s", blob_str(&title));
     convert_href_and_output(pBody);
     document_emit_js();
+    style_footer();
+  }else if( fossil_strcmp(zMime, "text/x-pikchr")==0 ){
+    style_adunit_config(ADUNIT_RIGHT_OK);
+    style_header("%s", zDefaultTitle);
+    wiki_render_by_mimetype(pBody, zMime);
     style_footer();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
