@@ -6,7 +6,7 @@
   *  Added support for [./interwiki.md|interwiki links].
   *  Enable &lt;del&gt; and &lt;ins&gt; markup in  wiki.
   *  Improvements to the Forum threading display.
-  *  Added support for embedding [https://pikchr.org|pikchr]
+  *  Added support for embedding [./pikchr.md|pikchr]
      markup in markdown and fossil-wiki content.
   *  The new "[/help?cmd=pikchr|pikchr]" command can render
      pikchr scripts, optionally pre-processed with

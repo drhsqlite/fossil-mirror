@@ -1,5 +1,5 @@
-C Greatly\sexpanded\sthe\ssimple\sdefinition\sof\s"blockchain"\sin\sthe\seponymous\ndoc\sto\sinclude\smore\sdetails\sof\scommon\sblockchain\simplementations\sto\sdraw\nclearer\sparallels.\sThis\scauses\sour\sconclusion\sto\sflip\saround\sfrom\sthe\nprior\sversion\sof\sthis\sdoc,\sbut\sit's\sworth\skeeping\sthe\sdoc\sbecause\sit\nserves\sto\scompare\sand\scontrast\sFossil\sto\sother\ssystems.
-D 2020-10-11T06:51:54.427
+C New\sdocument:\spikchr.md
+D 2020-10-12T13:39:02.429
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -826,8 +826,8 @@ F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede
 F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
-F www/cgi.wiki 8c3f8df3c15efc444802516cb68f94aa81b9d39492ec8cccd04ef74bc8687d07
-F www/changes.wiki 01cdd44826138e25e604faa18f2192bf9b8d470681bc7a5833a7b45bc011bbda
+F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
+F www/changes.wiki 7db1271ade60b39dbc7383935c4c3bf1dae2f6a936e277093e478653efb5b2b2
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 537ab816377b7c9b24b3f1204fe78bc826c9b9d99abd2f3f2dfcb965de4ebbdf
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -925,6 +925,7 @@ F www/mkindex.tcl aa1f9b0b7a2b938560514e93ea8ddeffb81f496d0fc6e5ee15cc1f9409a1b4
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
 F www/permutedindex.html e262c7fd969a08d0382ba1f893b1c0250fa37ee262d21b6dc44a5c9c7009317f
+F www/pikchr.md b43cd87bc38b8bedbf1dd21a5023621044636df989c650f3a58388be87bde86f
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
@@ -983,8 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e32214a40901de44c99e2eafb00cd2dcf47761c56219944357ee6363282fee9b 87b1385dac16abd0b99e6af5b8f29df22b5c51ed0232be48d29b29c13bc76705
-R 1edffbac96c0ee09486fb273e49c4de1
-T +closed 87b1385dac16abd0b99e6af5b8f29df22b5c51ed0232be48d29b29c13bc76705
-U wyoung
-Z f40e989d9b7e9c6de6c11c75155db35c
+P 1ddb400886783aeb8374c504cdcfb66bdbcd9665e69c96cfe6f7c103cb52f893
+R 6dd2d2bd8f8f651dcc051f32100d776c
+U drh
+Z b226026fbf5e32ddd388b4f70ffe2fb7
