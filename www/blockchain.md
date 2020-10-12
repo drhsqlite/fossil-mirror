@@ -58,14 +58,16 @@ Cryptocurrencies must prevent three separate types of fraud to be useful:
     black markers to draw extra zeroes on a US $10 bill so that it
     claims to be a $100 bill. Cryptocurrencies apply digital signatures
     to each block so that a given block of currency’s face value cannot
-    be changed after it is created. The [proof-of-work][pow] aspect
-    prevents the creator from setting its initial value fraudulently.
+    be changed after it is created.
 
-*   **Type 2** is making new counterfeit $10 bills that look
-    sufficiently like the original to pass in commerce. Cryptocurrencies
-    chain blocks together and establish a sufficiently hard work problem
-    to create new currency that Type 2 frauds are impractical short of
-    doing the actual mining needed to produce legitimate cryptocurrency.
+*   **Type 2** is creation of new fraudulent currency that will pass
+    in commerce.  To extend our analogy, it is the creation of new
+    US $10 bills. There are two sub-types to this fraud. In terms of
+    our analogy, they are:
+
+    *  **Type 2a**: copying of an existing legitimate $10 bill
+    *  **Type 2b**: printing a new $10 bill that is unlike an existing
+       legitimate one, yet which will still pass in commerce
 
 *   **Type 3** is double-spending existing legitimate cryptocurrency.
     There is no analogy in paper money due to its physical form; it is a
@@ -110,12 +112,6 @@ How does all of this compare to Fossil?
     forgeries, but the application of that to Fossil is a matter we get
     to [later](#work).
 
-    If Fossil signatures prevent Type 1 and Type 2 frauds, why then are
-    they not enabled by default? Because they are defense-in-depth
-    measures, not the minimum sufficient measures needed to prevent
-    repository fraud in Fossil. Fossil provides its primary protections
-    through other means.
-
     Although you have complete control over the contents of your local
     Fossil repository clone, you cannot perform Type 1 forgery on its
     contents short of executing a [preimage attack][prei] on the hash
@@ -142,17 +138,23 @@ How does all of this compare to Fossil?
     commit Type 2 frauds. But let us be clear: your choice of setting
     does not answer the question of whether Fossil is a blockchain.)
 
-    If you’re wondering why Fossil’s current commit signing feature is
-    not enabled by default and why it doesn’t verify signatures on
-    commits, it is because Fossil is not itself a [PKI], and there is no
-    way for regular users of Fossil to link it to a PKI, since doing so
-    would likely result in an unwanted [PII] disclosure.  There is no
-    email address in a Fossil commit manifest that you could use to
-    query one of the public PGP keyservers, for example. It therefore
-    becomes a local policy matter as to whether you even *want* to have
-    signatures, because they’re not without their downsides.
+    If Fossil signatures prevent Type 1 and Type 2 frauds, you
+    may wonder why they are not enabled by default. It is because
+    they are defense-in-depth measures, not the minimum sufficient
+    measures needed to prevent repository fraud, unlike the equivalent
+    protections in a cryptocurrency blockcahin. Fossil provides its
+    primary protections through other means, so it doesn’t need to
+    mandate signatures.
 
-2.  <a id="work"></a>**Work Contests.** Cryptocurrencies prevent forgery
+    Also, Fossil is not itself a [PKI], and there is no way for regular
+    users of Fossil to link it to a PKI, since doing so would likely
+    result in an unwanted [PII] disclosure.  There is no email address
+    in a Fossil commit manifest that you could use to query one of the
+    public PGP keyservers, for example. It therefore becomes a local
+    policy matter as to whether you even *want* to have signatures,
+    because they’re not without their downsides.
+
+2.  <a id="work"></a>**Work Contests.** Cryptocurrencies prevent Type 2b forgeries
     by setting up some sort of contest that ensures that new coins can come
     into existence only by doing some difficult work task. This “mining”
     activity results in a coin that took considerable work to create,
@@ -180,7 +182,7 @@ How does all of this compare to Fossil?
     blocks not on that linear chain are considered “orphans” and are
     ignored by the cryptocurrency software.
 
-    It inverse is sometimes called the “51% attack” because a single
+    Its inverse is sometimes called the “51% attack” because a single
     actor would have to do slightly more work than the entire rest of
     the community using a given cryptocurrency in order for their fork
     of the currency to be considered the legitimate fork. This argument
