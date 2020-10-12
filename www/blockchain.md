@@ -56,9 +56,7 @@ Cryptocurrencies must prevent three separate types of fraud to be useful:
 *   **Type 1** is modification of existing currency. To draw an analogy
     to paper money, we wish to prevent someone from using green and
     black markers to draw extra zeroes on a US $10 bill so that it
-    claims to be a $100 bill. Cryptocurrencies apply digital signatures
-    to each block so that a given block of currency’s face value cannot
-    be changed after it is created.
+    claims to be a $100 bill.
 
 *   **Type 2** is creation of new fraudulent currency that will pass
     in commerce.  To extend our analogy, it is the creation of new
@@ -72,10 +70,7 @@ Cryptocurrencies must prevent three separate types of fraud to be useful:
 *   **Type 3** is double-spending existing legitimate cryptocurrency.
     There is no analogy in paper money due to its physical form; it is a
     problem unique to digital currency due to its infinitely-copyable
-    nature.  Cryptocurrencies prevent Type 3 frauds by making the
-    *prior* owner of a block sign it over to the new owner. To avoid an
-    O(n²) auditing problem as a result, cryptocurrencies also use a
-    chain of hashes to make checking for double-spending quick and easy.
+    nature.
 
 How does all of this compare to Fossil?
 
@@ -85,6 +80,17 @@ How does all of this compare to Fossil?
     hash chain that applies an ordering and lookup scheme to the blocks.
     [_Blockchain: Simple Explanation_][bse] explains this “hash chain”
     vs. “block chain” distinction in more detail.
+
+    These signatures prevent modification of the face value of each
+    transation (Type 1 fraud) by ensuring that only the one signing a
+    new block has the private signing key that could change an issued
+    block after the fact.
+
+    The fact that these signatures are also *chained* prevents Type
+    3 frauds by making the *prior* owner of a block sign it over to
+    the new owner. To avoid an O(n²) auditing problem as a result,
+    cryptocurrencies add a separate chain of hashes to make checking
+    for double-spending quick and easy.
 
     Fossil has [a disabled-by-default feature][cs] to call out to an
     external copy of [PGP] or [GPG] to sign commit manifests before
