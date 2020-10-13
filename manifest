@@ -1,5 +1,5 @@
-C Improved\sidentification\sof\sthe\ssource\sof\sphantoms\swhen\sthey\sare\snamed\nin\sa\scluster\sbut\snowhere\selse.
-D 2020-10-13T13:26:02.679
+C Enhance\sthe\swhatis\scommand\sto\sshow\sa\sdescription\sof\sthe\sorigin\sof\sphantoms.
+D 2020-10-13T13:50:37.630
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -558,7 +558,7 @@ F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf
 F src/mkindex.c 971441257ae3452150daa6f70c08db56e2d18cd1073472cf9d3e92b8b7d18d62
 F src/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d2691
 F src/moderate.c 698b8f4090ac6a6a66b75473ec2255c6dddc14c2c0e2aae884928d89d2862182
-F src/name.c 5d1956449436651288ca5650a1fbb89921e6187c4d715ca9583ecdb4e8e7a0cb
+F src/name.c 85c457e533c14fc8efe58a4643699aa8505af9641d7fe4c9df29b18007f1fdb1
 F src/path.c 98a54b46f9eee20f7d418da41462c984e265a2757e715642cdaf53096cfdf319
 F src/piechart.c 4ccd3929622bd5911de825a2f69ec103f31d7915792f4fd457ab28f362ae92ba
 F src/pikchr.c 61104a1004866b25d780f748ce4f32069027e52cdc721acc510b5a56333c6c70
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ec0dc29f386cc5dc16a34f64e3f23be89a899717d5b713cf11cc46845086ebe
-R 1b5ee6559f16c3ffb48cd63bcffa598f
+P cd624d4ff267736272794085aa8cacd41e175ab7d3f089889f183487d378ca77
+R 78c0c78b5c3da1e36a5a2b259d2d5353
 U drh
-Z 4d5458a673ec673ff27783333eb2180f
+Z 5507e20d4e61f3c754434b3918bf8612

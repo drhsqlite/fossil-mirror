@@ -778,6 +778,7 @@ void whatis_rid(int rid, int verboseFlag){
                  db_column_text(&q, 1));
     fossil_print("comment:    ");
     comment_print(db_column_text(&q,3), 0, 12, -1, get_comment_format());
+    cnt++;
   }
   db_finalize(&q);
 
@@ -800,6 +801,7 @@ void whatis_rid(int rid, int verboseFlag){
       db_column_text(&q, 2));
     fossil_print("            ");
     comment_print(db_column_text(&q,4), 0, 12, -1, get_comment_format());
+    cnt++;
   }
   db_finalize(&q);
 
@@ -835,8 +837,22 @@ void whatis_rid(int rid, int verboseFlag){
                  db_column_text(&q,2), db_column_text(&q,3));
     fossil_print("            ");
     comment_print(db_column_text(&q,1), 0, 12, -1, get_comment_format());
+    cnt++;
   }
   db_finalize(&q);
+
+  /* If other information available, try to describe the object */
+  if( cnt==0 ){
+    char *zWhere = mprintf("=%d", rid);
+    char *zDesc;
+    describe_artifacts(zWhere);
+    free(zWhere);
+    zDesc = db_text(0,
+       "SELECT printf('%%-12s%%s %%s',type||':',summary,substr(ref,1,16))"
+       "  FROM description WHERE rid=%d", rid);
+    fossil_print("%s\n", zDesc);
+    fossil_free(zDesc);
+  }
 }
 
 /*
