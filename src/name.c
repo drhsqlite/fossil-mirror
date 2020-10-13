@@ -1043,7 +1043,8 @@ static void describe_unknown_artifacts(){
     "   WHERE description.summary='unknown'\n"
     "     AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
     "     AND blob.rid=tagxref.rid\n"
-    "     AND content(blob.uuid) GLOB ('*M '||blob.uuid||'*');"
+    "     AND CAST(content(blob.uuid) AS text)"
+    "                   GLOB ('*M '||description.uuid||'*');"
   );
 }
 
@@ -1220,7 +1221,7 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   int cnt = 0;
   if( zWhere!=0 ) describe_artifacts(zWhere);
   db_prepare(&q,
-    "SELECT uuid, summary, isPrivate\n"
+    "SELECT uuid, summary, coalesce(ref,''), isPrivate\n"
     "  FROM description\n"
     " ORDER BY ctime, type;"
   );
@@ -1229,8 +1230,9 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
       fossil_print("%s\n", zLabel);
       zLabel = 0;
     }
-    fossil_print("  %.16s %s", db_column_text(&q,0), db_column_text(&q,1));
-    if( db_column_int(&q,2) ) fossil_print(" (private)");
+    fossil_print("  %.16s %s %s", db_column_text(&q,0),
+           db_column_text(&q,1), db_column_text(&q,2));
+    if( db_column_int(&q,3) ) fossil_print(" (private)");
     fossil_print("\n");
     cnt++;
   }
