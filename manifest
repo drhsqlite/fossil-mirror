@@ -1,5 +1,5 @@
-C Assorted\sminor\stweaks\sto\sthe\snew\sbackup.md\sdoc
-D 2020-10-13T08:32:45.768
+C Typo\sfix
+D 2020-10-13T08:35:00.847
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -808,7 +808,7 @@ F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
-F www/backup.md 353f4cddce1dc822a8f5f88365d7147a8e86bc62ef28e74420df2d16de189a0d
+F www/backup.md bfe95f47c84d75b93f0f29c0bd52e9ee0673456fb3b7d41f2bc731c08da84ef6
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md 002ed6db927843a7998067420eb53414784ab6030c38055af4645e6c1c18d299
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c14a1f6001d9554972d70eba3cc36c725b379119a05488298030b81e66ae227c
-R 80ce59ade2287f398bfdfbf92e6ce542
+P fc2c12442ca27953cbf1af106835d3ac7a7c60911321a18e94f42a6249c9a58b
+R 7e85ff60806b2cf8bed6b54b5f6d391e
 U wyoung
-Z 0ac55d1a4e3752625286db4d861d9bf5
+Z 056afda406cbb209bb0f99d6e60722fb

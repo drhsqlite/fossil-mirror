@@ -33,7 +33,7 @@ that of the remote. With the exception of the prior item, you get a copy
 of these configuration areas on initial clone, but after that, some
 remote configuration changes don’t sync down automatically, such as the
 remote’s skin. You can ask for updates by running the
-[`fossil config pull skiin`](./help?cmd=config) command, but that
+[`fossil config pull skin`](./help?cmd=config) command, but that
 does not happen automatically during the course of normal development.
 
 
