@@ -1,5 +1,5 @@
-C Enhance\sthe\swhatis\scommand\sto\sshow\sa\sdescription\sof\sthe\sorigin\sof\sphantoms.
-D 2020-10-13T13:50:37.630
+C Fix\sthe\s--baseurl\soption\son\s"fossil\sserver"\sso\sthat\sit\sautomatically\sstrips\nof\strailing\s/\scharacters.
+D 2020-10-13T20:47:34.782
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -540,7 +540,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c 4ea53c2730a0391f3488f802e216adbbbc8926067760791cdd22721b40779b95
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 1eec3c02fd548138ab90442a9252b842ecadbb7fbed1b0c0fee0cf6d1e80758f
+F src/main.c f5a90ba9128f9ec7160fb9edbc36777d3df80fcd3c7ae5d6cf0ec79ac4251597
 F src/main.mk 7fbf63cd4d00405563440e54d6d567846111dccb2c1a52f53438a8e9b291f085
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd624d4ff267736272794085aa8cacd41e175ab7d3f089889f183487d378ca77
-R 78c0c78b5c3da1e36a5a2b259d2d5353
+P d25027685b7d9757af721dd494b626461fe7feca2edd7c5246e79a73398ded9b
+R 7d835fec22a2d6d120207bd6bf7bce4d
 U drh
-Z 5507e20d4e61f3c754434b3918bf8612
+Z 6eadb4886eba7f147ceb8fd86a029b5e
