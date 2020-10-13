@@ -1,14 +1,20 @@
 # Backing Up a Remote Fossil Repository
 
-Simply cloning a Fossil repository does not necessarily create a
-*complete* backup of the remote repository’s contents. With an existing
-clone, Fossil’s autosync feature isn’t enough to keep that clone fully
-up-to-date in a backup failover sense. This document explains what your
-clone may be missing and how to ensure that it is complete for cases
-where you wish to have a backup suitable for replacing it without data
-loss, should the need arise.
+One of the great benefits of Fossil and other [distributed version control systems][dvcs]
+is that cloning a repository makes a backup.  So if you are running a project with multiple
+developers who share their work using a [central server][server] and the server hardware
+catches fire or otherwise becomes unavailable, the clones of the repository on each developer
+workstation serve as a suitable backup.
 
+[dvcs]: wikipedia:/wiki/Distributed_version_control
+[server]: ./server/whyuseaserver.wiki
 
+Mostly.
+
+It turns out not everything in a Fossil repository is copied via clone.  A clone
+protects all of the checked in code.  But a Fossil repository typically contains
+other useful information that is not always shared as part of a clone, and might need
+to be backed up separately.  To wit:
 
 ## Sensitive Information
 
@@ -25,8 +31,9 @@ Fossil allows the local configuration in certain areas to differ from
 that of the remote. With the exception of the prior item, you get a copy
 of these configuration areas on initial clone, but after that, some
 remote configuration changes don’t sync down automatically, such as the
-remote’s skin. You have to ask for updates to these configuration areas
-explicitly.
+remote’s skin. You can ask for updates by running the
+[`fossil config pull skiin`](./help?cmd=config) if you want, but that
+does not happen automatically during the course of normal development.
 
 
 ## Private Branches
