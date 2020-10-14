@@ -1,5 +1,5 @@
-C Fix\sthe\s--baseurl\soption\son\s"fossil\sserver"\sso\sthat\sit\sautomatically\sstrips\nof\strailing\s/\scharacters.
-D 2020-10-13T20:47:34.782
+C Take\spositive\scherrypick\smerges\sinto\saccount\swhen\scomputing\sthe\sMLINK\stable\nfor\sa\scheck-in.
+D 2020-10-14T12:15:09.971
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -545,7 +545,7 @@ F src/main.mk 7fbf63cd4d00405563440e54d6d567846111dccb2c1a52f53438a8e9b291f085
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab13108cf x
-F src/manifest.c ab155cd74c23699b26b7ffafc29744cde6ef0fe2ad9ca1c5b623912a830c11cb
+F src/manifest.c 5a6db9ea6719ef18e2eac993ae3fa76e9bdb0e25c0defd3542cfbe96219f9445
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
 F src/markdown_html.c 65eda1f443c23d8d682408dc73ed7f3cd578864f40cac9a0deabd18061cccced
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d25027685b7d9757af721dd494b626461fe7feca2edd7c5246e79a73398ded9b
-R 7d835fec22a2d6d120207bd6bf7bce4d
+P 9e816f0aa91bc39ef3533b420f9b9ebf4b890acc269148401a9d06899091d7d1
+R fb21cbf48f9f427a7e4ab4c166f52901
 U drh
-Z 6eadb4886eba7f147ceb8fd86a029b5e
+Z f9438d7ea3bc4b46e5a001c817a43287
