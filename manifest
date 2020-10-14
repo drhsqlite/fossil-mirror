@@ -1,5 +1,5 @@
-C Take\spositive\scherrypick\smerges\sinto\saccount\swhen\scomputing\sthe\sMLINK\stable\nfor\sa\scheck-in.
-D 2020-10-14T12:15:09.971
+C For\sthe\s"fossil\sall"\scommand,\smake\s--dont-stop\sthe\sdefault.\s\sThere\sis\sa\snew\noption\s--stop-on-error\sthat\ssets\sthe\slegacy\sbehavior.\s\sPause\sfor\s1/3rd\sof\na\ssecond\safter\sany\ssubprocess\sfailure\sso\sthat\sif\sthe\sfailures\sis\sdue\sto\nSIGINT,\sa\ssecond\sSIGINT\scan\shave\stime\sto\sarrive\sbefore\scontinuing.
+D 2020-10-14T17:47:49.226
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -433,7 +433,7 @@ F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a
 F src/add.c 9e534b3ba7b639756417fa40c8273a24b0a849e4c8ad0077c937c7824d437e82
 F src/ajax.c 1e403cdfe1f046a851b98dd00250359e253c06180794035c074061545b56ee34
 F src/alerts.c 82160a85b500d45899ab72c86bd782eb62bc41771bf435ee7e1d82fea9aab26c
-F src/allrepo.c 3fd96fc97fc2b02156399d88b6884980e7af07aa03d28a50004f4030731a80c0
+F src/allrepo.c 2537269a1af06ce3757159c7ae0f0a7e39090bf7f5f0a20b8cee3ac90c01d256
 F src/attach.c eecce3ea967a4124346c4e7efc3bdd7bf04d3993a2a8e4436f5fecbb9c397456
 F src/backlink.c 71ccb7e575c15dc88e0bbc482327b8e4bec27da318db3d5ee15a65e94d8b2e15
 F src/backoffice.c b5c14f984561e35824d82dfa656e6c635ffd5c449469bba66dcf4841b0205283
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9e816f0aa91bc39ef3533b420f9b9ebf4b890acc269148401a9d06899091d7d1
-R fb21cbf48f9f427a7e4ab4c166f52901
+P e0d8f733b7f9a9d4c556dfd831fa5e2f2f9b0b695a917b1cba62393809adb9b4
+R 6b273aca047eef4e76a86d99a39038fd
 U drh
-Z f9438d7ea3bc4b46e5a001c817a43287
+Z a9193059642644b27a40ca806910dd2f
