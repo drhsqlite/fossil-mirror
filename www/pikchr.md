@@ -53,7 +53,7 @@ Fossil Wiki markup or used, including:
 
 Even though the original author of Pikchr is the same as the original
 creator of Fossil, the sources to the Pikchr formatter are maintained
-as a [separate project nameed "pikchr.org"](https://pikchr.org).
+as a [separate project named "pikchr.org"](https://pikchr.org).
 Pikchr is a delivered as a single file of C code.  The "pikchr.c" file
 from the Pikchr project is periodically copied into the Fossil source
 tree.  Pikchr is maintained as a project distinct from Fossil so that it
