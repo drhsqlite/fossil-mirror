@@ -1,5 +1,5 @@
-C Fix\stypo\sin\spikchr.md
-D 2020-10-15T11:23:04.449
+C Expand\sthe\sallowed\sdate/time\sformat\sfor\sthe\s"a="\sand\s"b="\squery\sparameters\nto\sthe\s/finfo\spage,\sso\sthat\sit\sis\scompatible\swith\s/timeline.
+D 2020-10-15T14:59:12.757
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -481,7 +481,7 @@ F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 0b83f7d34ab9cad7409d2229c0c7a7b03be8fa4db10d500d1247c3eb67a2326e
 F src/fileedit.c 7af9d6b27ed16f783c1809ca952f090843af488fa0a5899867b8274a22f3e590
-F src/finfo.c 71017fdf9eb11a41d1ff638fbfc9e2ca6b5be1e68b5d20b370b25ec0efa3d2ea
+F src/finfo.c d889dd79936afadb35c3d7272e6613d01c96e9e316974d7b888ae757f10f4f46
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c ec54b602704274456a5475e7077938b6c14a1fe76f5dbfde8033fd4cb67ef931
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bcd5adddbbbd323187e51e776a70ed096b5e746ecc0355e704ff3f486f44d581
-R 5806bee3f7429b900a57101946040fad
+P 9bdc9ca40b4f006ccf455c277fd60c3f87e76fd0e22df066f98e921966fde791
+R 55cd754c100a9f57c06d0c33e1543240
 U drh
-Z 7d9718974d598cc611ccd07c46d1d7f7
+Z fac94a1d688e03d81059ad6210706317

@@ -279,21 +279,19 @@ void cat_cmd(void){
 **
 ** Additional query parameters:
 **
-**    a=DATETIME Only show changes after DATETIME
-**    b=DATETIME Only show changes before DATETIME
-**    m=HASH     Mark this particular file version
-**    n=NUM      Show the first NUM changes only
-**    brbg       Background color by branch name
-**    ubg        Background color by user name
-**    ci=HASH    Ancestors of a particular check-in
-**    orig=HASH  If both ci and orig are supplied, only show those
+**    a=DATETIME   Only show changes after DATETIME
+**    b=DATETIME   Only show changes before DATETIME
+**    m=HASH       Mark this particular file version
+**    n=NUM        Show the first NUM changes only
+**    brbg         Background color by branch name
+**    ubg          Background color by user name
+**    ci=HASH      Ancestors of a particular check-in
+**    orig=HASH    If both ci and orig are supplied, only show those
 **                 changes on a direct path from orig to ci.
-**    showid     Show RID values for debugging
+**    showid       Show RID values for debugging
 **
-** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
-** year-month-day form, it may be truncated, and it may also name a
-** timezone offset from UTC as "-HH:MM" (westward) or "+HH:MM"
-** (eastward). Either no timezone suffix or "Z" means UTC.
+** DATETIME may be in any of usual formats, including "now",
+** "YYYY-MM-DDTHH:MM:SS.SSS", "YYYYMMDDHHMM", and others.
 */
 void finfo_page(void){
   Stmt q;
@@ -388,11 +386,13 @@ void finfo_page(void){
     TAG_BRANCH, fnid
   );
   if( (zA = P("a"))!=0 ){
-    blob_append_sql(&sql, " AND event.mtime>=julianday('%q')", zA);
+    blob_append_sql(&sql, " AND event.mtime>=%.16g",
+         symbolic_name_to_mtime(zA,0));
     url_add_parameter(&url, "a", zA);
   }
   if( (zB = P("b"))!=0 ){
-    blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
+    blob_append_sql(&sql, " AND event.mtime<=%.16g",
+         symbolic_name_to_mtime(zB,0));
     url_add_parameter(&url, "b", zB);
   }
   if( baseCheckin ){
