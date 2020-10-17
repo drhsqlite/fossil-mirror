@@ -2485,9 +2485,9 @@ void annotation_page(void){
 
   @ <div id="annotation_log" style='display:%s(showLog?"block":"none");'>
   if( zOrigin ){
-    zLink = href("%R/finfo?name=%t&ci=%!S&orig=%!S",zFilename,zCI,zOrigin);
+    zLink = href("%R/finfo?name=%t&from=%!S&to=%!S",zFilename,zCI,zOrigin);
   }else{
-    zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
+    zLink = href("%R/finfo?name=%t&from=%!S",zFilename,zCI);
   }
   @ <h2>Versions of %z(zLink)%h(zFilename)</a> analyzed:</h2>
   @ <ol>
@@ -2504,17 +2504,17 @@ void annotation_page(void){
   if( !ann.bMoreToDo ){
     assert( ann.origId==0 );  /* bMoreToDo always set for a point-to-point */
     @ <h2>Origin for each line in
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }else if( ann.origId>0 ){
     @ <h2>Lines of
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>
     @ that are changed by the sequence of edits moving toward
     @ check-in %z(href("%R/info/%!S",zOrigin))%S(zOrigin)</a>:</h2>
   }else{
     @ <h2>Lines added by the %d(ann.nVers) most recent ancestors of
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>

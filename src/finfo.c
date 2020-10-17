@@ -279,16 +279,17 @@ void cat_cmd(void){
 **
 ** Additional query parameters:
 **
-**    a=DATETIME   Only show changes after DATETIME
-**    b=DATETIME   Only show changes before DATETIME
-**    m=HASH       Mark this particular file version
-**    n=NUM        Show the first NUM changes only
-**    brbg         Background color by branch name
-**    ubg          Background color by user name
-**    ci=HASH      Ancestors of a particular check-in
-**    orig=HASH    If both ci and orig are supplied, only show those
-**                 changes on a direct path from orig to ci.
-**    showid       Show RID values for debugging
+**    a=DATETIME      Only show changes after DATETIME
+**    b=DATETIME      Only show changes before DATETIME
+**    m=HASH          Mark this particular file version
+**    n=NUM           Show the first NUM changes only
+**    name=FILENAME   (Required) name of file whose history to show
+**    brbg            Background color by branch name
+**    ubg             Background color by user name
+**    from=HASH       Ancestors of a particular check-in
+**    to=HASH         If both from= and to= are supplied, only show those
+**                    changes on the direct path between them.
+**    showid          Show RID values for debugging
 **
 ** DATETIME may be in any of usual formats, including "now",
 ** "YYYY-MM-DDTHH:MM:SS.SSS", "YYYYMMDDHHMM", and others.
@@ -300,8 +301,8 @@ void finfo_page(void){
   const char *zA;
   const char *zB;
   int n;
-  int baseCheckin;
-  int origCheckin = 0;
+  int ridFrom;
+  int ridTo = 0;
   int fnid;
   Blob title;
   Blob sql;
@@ -342,7 +343,7 @@ void finfo_page(void){
   url_initialize(&url, "finfo");
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
-  baseCheckin = name_to_rid_www("ci");
+  ridFrom = name_to_rid_www("from");
   zPrevDate[0] = 0;
   cookie_render();
   if( fnid==0 ){
@@ -353,12 +354,12 @@ void finfo_page(void){
   if( g.perm.Admin ){
     style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
-  if( baseCheckin ){
-    if( P("orig")!=0 ){
-      origCheckin = name_to_typed_rid(P("orig"),"ci");
-      path_shortest_stored_in_ancestor_table(origCheckin, baseCheckin);
+  if( ridFrom ){
+    if( P("to")!=0 ){
+      ridTo = name_to_typed_rid(P("to"),"ci");
+      path_shortest_stored_in_ancestor_table(ridFrom,ridTo);
     }else{
-      compute_direct_ancestors(baseCheckin);
+      compute_direct_ancestors(ridFrom);
     }
   }
   url_add_parameter(&url, "name", zFilename);
@@ -395,7 +396,7 @@ void finfo_page(void){
          symbolic_name_to_mtime(zB,0));
     url_add_parameter(&url, "b", zB);
   }
-  if( baseCheckin ){
+  if( ridFrom ){
     blob_append_sql(&sql,
       " AND mlink.mid IN (SELECT rid FROM ancestor)"
       " GROUP BY mlink.fid"
@@ -429,10 +430,10 @@ void finfo_page(void){
   }
   blob_reset(&sql);
   blob_zero(&title);
-  if( baseCheckin ){
-    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
+  if( ridFrom ){
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ridFrom);
     char *zLink = href("%R/info/%!S", zUuid);
-    if( origCheckin ){
+    if( ridTo ){
       blob_appendf(&title, "Changes to file ");
     }else if( n>0 ){
       blob_appendf(&title, "First %d ancestors of file ", n);
@@ -443,12 +444,12 @@ void finfo_page(void){
                  href("%R/file?name=%T&ci=%!S", zFilename, zUuid),
                  zFilename);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
-    blob_append(&title, origCheckin ? " between " : " from ", -1);
+    blob_append(&title, ridTo ? " between " : " from ", -1);
     blob_appendf(&title, "check-in %z%S</a>", zLink, zUuid);
-    if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
+    if( fShowId ) blob_appendf(&title, " (%d)", ridFrom);
     fossil_free(zUuid);
-    if( origCheckin ){
-      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", origCheckin);
+    if( ridTo ){
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ridTo);
       zLink = href("%R/info/%!S", zUuid);
       blob_appendf(&title, " and check-in %z%S</a>", zLink, zUuid);
       fossil_free(zUuid);
@@ -465,7 +466,7 @@ void finfo_page(void){
   blob_reset(&title);
   pGraph = graph_init();
   @ <table id="timelineTable%d(iTableId)" class="timelineTable">
-  if( baseCheckin ){
+  if( ridFrom ){
     db_prepare(&qparent,
       "SELECT DISTINCT pid FROM mlink"
       " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
@@ -589,7 +590,7 @@ void finfo_page(void){
     }else{
       @ size:&nbsp;%d(szFile)
     }
-    if( zUuid && origCheckin==0 ){
+    if( zUuid && ridTo==0 ){
       if( nParent==0 ){
         @ <b>Added</b>
       }else if( pfnid ){
