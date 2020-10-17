@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\s/finfo\spage\sso\sthat\sit\sfollows\sthe\sfile\sacross\nname\schanges\sif\sthe\sci=HASH\squery\sparameter\sis\sused.
-D 2020-10-17T14:57:56.881
+C Use\sthe\scorrect\sfilename\sin\shyperlinks\sin\sthe\snew\s/finfo\spage.
+D 2020-10-17T18:47:39.974
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -481,7 +481,7 @@ F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 0b83f7d34ab9cad7409d2229c0c7a7b03be8fa4db10d500d1247c3eb67a2326e
 F src/fileedit.c 7af9d6b27ed16f783c1809ca952f090843af488fa0a5899867b8274a22f3e590
-F src/finfo.c f77f310c724a30c283b920285cb149cd3485e978c517957594a441806d29b6f8
+F src/finfo.c a957009e320ecc564c6129ef1263329973bad09aacb19932cec00a68e0ab239f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c ec54b602704274456a5475e7077938b6c14a1fe76f5dbfde8033fd4cb67ef931
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 299800b29d85e71e177be140af568419cbfa19287a54cadc414611e8a6392a52
-R e0a960c973f0a719b3a273efcbc17e5f
+P b54d9396f9de3cbcc47a210bf7c3f301e9d7033ff7d04d0393ebc61a203b7628
+R baf7805091e13a608deb258b8aff2b68
 U drh
-Z 4a51089c3da6227bd396bafd7783d1c9
+Z 8391ebb1901dc365d49d4db16b87e5f1

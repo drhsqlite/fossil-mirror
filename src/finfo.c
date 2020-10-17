@@ -466,11 +466,13 @@ void finfo_page(void){
     "  mlink.mid,\n"                                    /* check-in ID */
     "  mlink.pfnid,\n"                                  /* Previous filename */
     "  blob.size,\n"                                    /* File size */
-    "  mlink.fnid\n"                                    /* Current filename */
-    "FROM clade, mlink, event, blob\n"
+    "  mlink.fnid,\n"                                   /* Current filename */
+    "  filename.name\n"                                 /* Current filename */
+    "FROM clade, mlink, event, blob, filename\n"
     "WHERE mlink.fnid=clade.fnid AND mlink.fid=clade.fid\n"
     "  AND event.objid=mlink.mid\n"
-    "  AND blob.rid=clade.fid\n",
+    "  AND blob.rid=clade.fid\n"
+    "  AND filename.fnid=clade.fnid\n",
     TAG_BRANCH
   );
   if( (zA = P("a"))!=0 ){
@@ -589,6 +591,7 @@ void finfo_page(void){
     int pfnid = db_column_int(&q, 11);
     int szFile = db_column_int(&q, 12);
     int fnid = db_column_int(&q, 13);
+    const char *zFName = db_column_text(&q,14);
     int gidx;
     char zTime[10];
     int nParent = 0;
@@ -625,7 +628,7 @@ void finfo_page(void){
       @ <tr>
     }
     @ <td class="timelineTime">\
-    @ %z(href("%R/file?name=%T&ci=%!S",zFilename,zCkin))%s(zTime)</a></td>
+    @ %z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))%s(zTime)</a></td>
     @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div>
     @ </td>
     if( zBgClr && zBgClr[0] ){
@@ -662,7 +665,7 @@ void finfo_page(void){
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
     if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
-      @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFilename,zCkin))\
+      @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))\
       @ [%S(zUuid)]</a>
       if( fShowId ){
         int srcId = delta_source_rid(frid);
@@ -703,7 +706,7 @@ void finfo_page(void){
         "   (SELECT fnid FROM mlink"
         "     WHERE mid=%d"
         "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
-        fmid, zFilename);
+        fmid, zFName);
       if( zNewName ){
         @ <b>Renamed</b> to
         @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>
@@ -713,7 +716,7 @@ void finfo_page(void){
       }
     }
     if( g.perm.Hyperlink && zUuid ){
-      const char *z = zFilename;
+      const char *z = zFName;
       @ <span id='links-%d(frid)'><span class='timelineExtraLinks'>
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
@@ -723,8 +726,8 @@ void finfo_page(void){
       if( fpid>0 ){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
-      if( fileedit_is_editable(zFilename) ){
-        @ %z(href("%R/fileedit?filename=%T&checkin=%!S",zFilename,zCkin))\
+      if( fileedit_is_editable(zFName) ){
+        @ %z(href("%R/fileedit?filename=%T&checkin=%!S",zFName,zCkin))\
         @ [edit]</a>
       }
       @ </span></span>
@@ -739,7 +742,7 @@ void finfo_page(void){
           @ %d(aParent[ii])
         }
       }
-      zAncLink = href("%R/finfo?name=%T&from=%!S&debug=1",zFilename,zCkin);
+      zAncLink = href("%R/finfo?name=%T&from=%!S&debug=1",zFName,zCkin);
       @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
