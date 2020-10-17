@@ -1,5 +1,5 @@
-C On\sthe\s/finfo\spage,\schange\sthe\scheck-in\srange\squery\sparameters\sfrom\nci=\sand\sorig=\sinto\sfrom=\sand\sto=.\s\sThis\sgets\sthe\sci=\squery\sparameter\sout\sof\nthe\sway\sso\sthat\sit\scan\sbe\sreused.
-D 2020-10-17T12:34:35.622
+C Enhancements\sto\sthe\s/finfo\spage\sso\sthat\sit\sfollows\sthe\sfile\sacross\nname\schanges\sif\sthe\sci=HASH\squery\sparameter\sis\sused.
+D 2020-10-17T14:57:56.881
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -481,7 +481,7 @@ F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 0b83f7d34ab9cad7409d2229c0c7a7b03be8fa4db10d500d1247c3eb67a2326e
 F src/fileedit.c 7af9d6b27ed16f783c1809ca952f090843af488fa0a5899867b8274a22f3e590
-F src/finfo.c 3b8c9c819f191a196a10b8943e9040e1946f9bb8e2ce299c1aacd365578f425d
+F src/finfo.c f77f310c724a30c283b920285cb149cd3485e978c517957594a441806d29b6f8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c ec54b602704274456a5475e7077938b6c14a1fe76f5dbfde8033fd4cb67ef931
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -515,7 +515,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 1ebd6da35f8c913f974474ac6f2661c4490d2d6771dc5da1a022b366c39bd897
-F src/info.c 9650660aba99c9e61190bb6d2f2d3bd32b3e2315930143bc0b3bcb53203eacdd
+F src/info.c c90b6afabf30fff04dee5608ed4a2952cb08023e1049f271623e674dbba5d12d
 F src/interwiki.c f52d2407376d8435f65f70b1f4e0b58ad657d77aa098c373e2908de6f79a5c45
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 04ef2df613c2126e1eb2091ab061a2fe313d45e4b682eaa65c0326c8f9f513d4
-R ad037d7b0707cb21451d9e536d50cae5
+P 299800b29d85e71e177be140af568419cbfa19287a54cadc414611e8a6392a52
+R e0a960c973f0a719b3a273efcbc17e5f
 U drh
-Z 9b6419b5263d329b14e1c028d5e50041
+Z 4a51089c3da6227bd396bafd7783d1c9

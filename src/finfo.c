@@ -273,23 +273,38 @@ void cat_cmd(void){
 
 /*
 ** WEBPAGE: finfo
-** URL: /finfo?name=FILENAME
+** Usage:
+**   *  /finfo?name=FILENAME
+**   *  /finfo?name=FILENAME&ci=HASH
 **
-** Show the change history for a single file.
+** Show the change history for a single file.  The name=FILENAME query
+** parameter gives the filename and is a required parameter.  If the
+** ci=HASH parameter is also supplied, then the FILENAME,HASH combination
+** identifies a particular version of a file, and in that case all changes
+** to that one file version are tracked across both edits and renames.
+** If only the name=FILENAME parameter is supplied (if ci=HASH is omitted)
+** then the graph shows all changes to any file while it happened
+** to be called FILENAME and changes are not tracked across renames.
 **
 ** Additional query parameters:
 **
 **    a=DATETIME      Only show changes after DATETIME
 **    b=DATETIME      Only show changes before DATETIME
-**    m=HASH          Mark this particular file version
+**    ci=HASH         identify a particular version of a file and then
+**                    track changes to that file across renames
+**    m=HASH          Mark this particular file version.
 **    n=NUM           Show the first NUM changes only
 **    name=FILENAME   (Required) name of file whose history to show
 **    brbg            Background color by branch name
 **    ubg             Background color by user name
-**    from=HASH       Ancestors of a particular check-in
+**    from=HASH       Ancestors only (not descendents) of the version of
+**                    the file in this particular check-in.
 **    to=HASH         If both from= and to= are supplied, only show those
-**                    changes on the direct path between them.
+**                    changes on the direct path between the two given
+**                    checkins.
 **    showid          Show RID values for debugging
+**    showsql         Show the SQL query used to gather the data for
+**                    the graph
 **
 ** DATETIME may be in any of usual formats, including "now",
 ** "YYYY-MM-DDTHH:MM:SS.SSS", "YYYYMMDDHHMM", and others.
@@ -303,6 +318,8 @@ void finfo_page(void){
   int n;
   int ridFrom;
   int ridTo = 0;
+  int ridCi = 0;
+  const char *zCI = P("ci");
   int fnid;
   Blob title;
   Blob sql;
@@ -322,10 +339,13 @@ void finfo_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  ridCi = zCI ? name_to_rid_www("ci") : 0;
   if( fnid==0 ){
     style_header("No such file");
+  }else if( ridCi==0 ){
+    style_header("All files named \"%s\"", zFilename);
   }else{
-    style_header("History for %s", zFilename);
+    style_header("History of %s of %s",zFilename, zCI);
   }
   login_anonymous_available();
   tmFlags = timeline_ss_submenu();
@@ -364,42 +384,109 @@ void finfo_page(void){
   }
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
+  if( ridCi ){
+    /* If we will be tracking changes across renames, some extra temp
+    ** tables (implemented as CTEs) are required */
+    blob_append_sql(&sql,
+      /* The fns(fnid) table holds the list of all filename-IDs that
+      ** might possibly exist in the output.  This is an optimization
+      ** used to reduce the size and computation efforts for subsequent
+      ** CTEs.
+      */
+      "WITH RECURSIVE fns(fnid) AS (\n"
+      "  SELECT %d\n"   /* <---- fnid */
+      "  UNION\n"
+      "  SELECT pfnid FROM mlink, fns\n"
+      "   WHERE mlink.fnid=fns.fnid\n"
+      "     AND pfnid>0\n"
+      "),\n"
+
+      /* The flink(fid,fnid,pfid,pfnid) table indicates that there
+      ** is an edit and/or rename arc connecting two files (fid,fnid)
+      ** and (pfid,pfnid).  This is similar to the built-in mlink
+      ** table except that flink() is bidirectional.  Also the pfnid
+      ** column is always set even no rename occurs.
+      */
+      "flink(fid,fnid,pfid,pfnid) AS (\n"
+      "  SELECT fid, fnid, pid,\n"
+      "    CASE WHEN pfnid>0 THEN pfnid ELSE fnid END\n"
+      "    FROM mlink\n"
+      "   WHERE NOT isaux AND fid>0 AND pid>0 AND fnid IN fns\n"
+      "  UNION\n"
+      "  SELECT pid,\n"
+      "    CASE WHEN pfnid>0 THEN pfnid ELSE fnid END,\n"
+      "    fid, fnid\n"
+      "    FROM mlink\n"
+      "   WHERE NOT isaux AND pid>0 AND fid>0 AND fnid IN fns\n"
+      "),\n"
+
+      /* The clade(fid,fnid) table is the set of all (fid,fnid) pairs
+      ** that should participate in the output.  Clade is computed by
+      ** walking the graph formed by the flink table.
+      */
+      "clade(fid,fnid) AS (\n"
+      "  SELECT blob.rid, %d FROM blob\n"         /* %d is fnid */
+      "   WHERE blob.uuid=(SELECT uuid FROM files_of_checkin(%Q)\n"
+                         " WHERE filename=%Q)\n"  /* %Q is the filename */
+      "   UNION\n"
+      "  SELECT flink.fid, flink.fnid\n"
+      "    FROM clade, flink\n"
+      "   WHERE clade.fid=flink.pfid AND clade.fnid=flink.pfnid\n"
+      ")\n",
+      fnid, fnid, zCI, zFilename
+    );
+  }else{
+    /* This is the case for all files with a given name.  We will still
+    ** create a "clade(fid,fnid)" table that identifies all participates
+    ** in the output graph, so that subsequent queries can all be the same,
+    ** but in the case the clade table is much simplier, being just a
+    ** single direct query against the mlink table.
+    */
+    blob_append_sql(&sql,
+      "WITH clade(fid,fnid) AS (\n"
+      "  SELECT DISTINCT fid, %d\n"
+      "    FROM mlink\n"
+      "   WHERE fnid=%d)",
+      fnid, fnid
+    );
+  }
   blob_append_sql(&sql,
-    "SELECT"
-    " datetime(min(event.mtime),toLocal()),"         /* Date of change */
-    " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
-    " coalesce(event.euser, event.user),"            /* User who made chng */
-    " mlink.pid,"                                    /* Parent file rid */
-    " mlink.fid,"                                    /* File rid */
-    " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file hash */
-    " blob.uuid,"                                    /* Current file hash */
-    " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in hash */
-    " event.bgcolor,"                                /* Background color */
-    " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)," /* Branchname */
-    " mlink.mid,"                                    /* check-in ID */
-    " mlink.pfnid,"                                  /* Previous filename */
-    " blob.size"                                     /* File size */
-    "  FROM mlink, event, blob"
-    " WHERE mlink.fnid=%d"
-    "   AND event.objid=mlink.mid"
-    "   AND mlink.fid=blob.rid",
-    TAG_BRANCH, fnid
+    "SELECT\n"
+    "  datetime(min(event.mtime),toLocal()),\n"         /* Date of change */
+    "  coalesce(event.ecomment, event.comment),\n"      /* Check-in comment */
+    "  coalesce(event.euser, event.user),\n"            /* User who made chng */
+    "  mlink.pid,\n"                                    /* Parent file rid */
+    "  mlink.fid,\n"                                    /* File rid */
+    "  (SELECT uuid FROM blob WHERE rid=mlink.pid),\n"  /* Parent file hash */
+    "  blob.uuid,\n"                                    /* Current file hash */
+    "  (SELECT uuid FROM blob WHERE rid=mlink.mid),\n"  /* Check-in hash */
+    "  event.bgcolor,\n"                                /* Background color */
+    "  (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
+                             " AND tagxref.rid=mlink.mid),\n" /* Branchname */
+    "  mlink.mid,\n"                                    /* check-in ID */
+    "  mlink.pfnid,\n"                                  /* Previous filename */
+    "  blob.size,\n"                                    /* File size */
+    "  mlink.fnid\n"                                    /* Current filename */
+    "FROM clade, mlink, event, blob\n"
+    "WHERE mlink.fnid=clade.fnid AND mlink.fid=clade.fid\n"
+    "  AND event.objid=mlink.mid\n"
+    "  AND blob.rid=clade.fid\n",
+    TAG_BRANCH
   );
   if( (zA = P("a"))!=0 ){
-    blob_append_sql(&sql, " AND event.mtime>=%.16g",
+    blob_append_sql(&sql, "  AND event.mtime>=%.16g\n",
          symbolic_name_to_mtime(zA,0));
     url_add_parameter(&url, "a", zA);
   }
   if( (zB = P("b"))!=0 ){
-    blob_append_sql(&sql, " AND event.mtime<=%.16g",
+    blob_append_sql(&sql, "  AND event.mtime<=%.16g\n",
          symbolic_name_to_mtime(zB,0));
     url_add_parameter(&url, "b", zB);
   }
   if( ridFrom ){
     blob_append_sql(&sql,
-      " AND mlink.mid IN (SELECT rid FROM ancestor)"
-      " GROUP BY mlink.fid"
+      "  AND mlink.mid IN (SELECT rid FROM ancestor)\n"
+      "GROUP BY mlink.fid\n"
     );
   }else{
     /* We only want each version of a file to appear on the graph once,
@@ -411,18 +498,19 @@ void finfo_page(void){
     ** The same fake-fid must be used on the graph.
     */
     blob_append_sql(&sql,
-      " GROUP BY"
-      "   CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END"
+      "GROUP BY"
+      " CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END\n"
     );
   }
-  blob_append_sql(&sql, " ORDER BY event.mtime DESC /*sort*/");
+  blob_append_sql(&sql, "ORDER BY event.mtime DESC");
   if( (n = atoi(PD("n","0")))>0 ){
     blob_append_sql(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
   }
+  blob_append_sql(&sql, " /*sort*/\n");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   if( P("showsql")!=0 ){
-    @ <p>SQL: %h(blob_str(&sql))</p>
+    @ <p>SQL: <blockquote><pre>%h(blob_str(&sql))</blockquote></pre>
   }
   zMark = P("m");
   if( zMark ){
@@ -454,6 +542,12 @@ void finfo_page(void){
       blob_appendf(&title, " and check-in %z%S</a>", zLink, zUuid);
       fossil_free(zUuid);
     }
+  }else if( ridCi ){
+    blob_appendf(&title, "History of the file that is called ");
+    hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
+    if( fShowId ) blob_appendf(&title, " (%d)", fnid);
+    blob_appendf(&title, " at checkin %z%h</a>",
+        href("%R/info?name=%t",zCI), zCI);
   }else{
     blob_appendf(&title, "History for ");
     hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
@@ -494,6 +588,7 @@ void finfo_page(void){
     int fmid = db_column_int(&q, 10);
     int pfnid = db_column_int(&q, 11);
     int szFile = db_column_int(&q, 12);
+    int fnid = db_column_int(&q, 13);
     int gidx;
     char zTime[10];
     int nParent = 0;
@@ -567,7 +662,8 @@ void finfo_page(void){
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
     if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
-      @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFilename,zCkin))[%S(zUuid)]</a>
+      @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFilename,zCkin))\
+      @ [%S(zUuid)]</a>
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
@@ -628,7 +724,8 @@ void finfo_page(void){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
       if( fileedit_is_editable(zFilename) ){
-        @ %z(href("%R/fileedit?filename=%T&checkin=%!S",zFilename,zCkin))[edit]</a>
+        @ %z(href("%R/fileedit?filename=%T&checkin=%!S",zFilename,zCkin))\
+        @ [edit]</a>
       }
       @ </span></span>
     }
@@ -642,7 +739,7 @@ void finfo_page(void){
           @ %d(aParent[ii])
         }
       }
-      zAncLink = href("%R/finfo?name=%T&ci=%!S&debug=1",zFilename,zCkin);
+      zAncLink = href("%R/finfo?name=%T&from=%!S&debug=1",zFilename,zCkin);
       @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
