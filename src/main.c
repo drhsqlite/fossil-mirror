@@ -1219,6 +1219,7 @@ void fossil_version_blob(
 #if defined(FOSSIL_ENABLE_JSON)
   blob_appendf(pOut, "JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
+  blob_append(pOut, "MARKDOWN\n", -1);
 #if defined(BROKEN_MINGW_CMDLINE)
   blob_append(pOut, "MBCS_COMMAND_LINE\n", -1);
 #else

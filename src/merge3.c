@@ -197,6 +197,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int nCpy, nDel, nIns;  /* Number of lines to copy, delete, or insert */
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
+  int useCrLf = 0;
 
   blob_zero(pOut);         /* Merge results stored in pOut */
   
@@ -213,7 +214,6 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** If true, CR/LF pair will be used later to append the
   ** boundary markers for merge conflicts.
   */
-  int useCrLf = 0;
   if( contains_crlf(pV1) && contains_crlf(pV2) ){
     useCrLf = 1;
   }

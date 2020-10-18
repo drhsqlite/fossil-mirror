@@ -1310,13 +1310,14 @@ static void emitFileStat(
   char zBuf[200];
   char *z;
   Blob x;
+  char *zFull;
   int rc;
   sqlite3_int64 iMtime;
   struct fossilStat testFileStat;
   memset(zBuf, 0, sizeof(zBuf));
   blob_zero(&x);
   file_canonical_name(zPath, &x, slash);
-  char *zFull = blob_str(&x);
+  zFull = blob_str(&x);
   fossil_print("[%s] -> [%s]\n", zPath, zFull);
   memset(&testFileStat, 0, sizeof(struct fossilStat));
   rc = fossil_stat(zPath, &testFileStat, 0);

@@ -2077,7 +2077,7 @@ void page_timeline(void){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     const char *zCiName;
-    int np, nd;
+    int np = 0, nd;
     const char *zBackTo = 0;
     int ridBackTo = 0;
 
