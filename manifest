@@ -1,5 +1,5 @@
-C Do\sa\sbetter\sjob\sof\sshowing\swhen\sa\sfile\sis\sadded,\sdeleted,\sor\srenamed\nin\sthe\s/finfo\spage.
-D 2020-10-19T20:09:25.463
+C Update\sthe\sbuilt-in\sSQLite\sto\sfix\sa\sbug\sintroduced\sby\sthe\sprevious\supdate.
+D 2020-10-19T20:52:34.416
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -610,8 +610,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c a31cf3116595a82bc37dc6f1612fbd3a6013710e4fe04a9b446d9aaa37d20e5c
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c 812b16fce831fe62ff99349d2902eef7f9de91bf0c235dabd90fdbfed1528ab7
-F src/sqlite3.h a700ae556ebd7eb273f7c19e456648298720bd18b2fa947e6b1d24b0db3c630d
+F src/sqlite3.c b43992ebedad472fc758475e1be35757273921860c6294bcbb18b780b9628ffb
+F src/sqlite3.h 13603824980497bddc3a447fd32fedf4cbd8cd563047f97f826d6ec4201d0573
 F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c f36d74389e5a386f795dc00787bfbe981b8590441eea027a86602cf539874391
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c598d7232c227e199612aa305e85d0f9534334077b49d66bbe163ccdff0b0f4
-R 9d3f3e42180d9438511eda0b359173a4
+P a0bca48147b3ff1dca048b0e1d9fff2878e03b2f45fda8b1c7a86d57862929ad
+R 93591736dfc125f336254de8790fed8b
 U drh
-Z 008323cea6ead3a06657b0e24f44b97e
+Z b3aad4318826f392a864d8f5fadcc86c
