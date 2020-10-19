@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.34.0\salpha\sthat\sincludes\nthe\sability\sto\shave\smultiple\srecursive\sterms\sin\sa\srecursive\sCTE.\s\sThat\nnew\scapability\sis\sexpected\sto\sbe\shelpful\sin\simproving\sthe\s/finfo\spage.
-D 2020-10-19T13:25:38.330
+C Use\sthe\snew\smulti-recursive-term\scapability\sof\sCTEs\sin\sSQLite\sto\sfix\nthe\s/finfo\sclade\scalculation,\sand\sto\smake\s/finfo\srun\sabout\s5x\sfaster.
+D 2020-10-19T14:37:26.684
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -481,7 +481,7 @@ F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 7af9d6b27ed16f783c1809ca952f090843af488fa0a5899867b8274a22f3e590
-F src/finfo.c a957009e320ecc564c6129ef1263329973bad09aacb19932cec00a68e0ab239f
+F src/finfo.c 4ce4ad4c57d34692a2d31f48afaa791e174604b658035ff30e48cc255b66f682
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c ec54b602704274456a5475e7077938b6c14a1fe76f5dbfde8033fd4cb67ef931
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 750879ead431429cff743baec3d437a9be4a1abe19cb00e550ecdf0bcebabeb6
-R 7f3b201c1669adf9bf1dd6d95edce924
+P 5328f8216004895097bb94f0301b4f6538914da1a86bbb85302987f7f33a0835
+R a74dde200e38f53abfd61ba43a803f69
 U drh
-Z 68efe4d02ba22de06fc58e46a966371b
+Z a9505d6490a27c22dee8ee3e826a41d5

@@ -388,52 +388,30 @@ void finfo_page(void){
     /* If we will be tracking changes across renames, some extra temp
     ** tables (implemented as CTEs) are required */
     blob_append_sql(&sql,
-      /* The fns(fnid) table holds the list of all filename-IDs that
-      ** might possibly exist in the output.  This is an optimization
-      ** used to reduce the size and computation efforts for subsequent
-      ** CTEs.
-      */
-      "WITH RECURSIVE fns(fnid) AS (\n"
-      "  SELECT %d\n"   /* <---- fnid */
-      "  UNION\n"
-      "  SELECT pfnid FROM mlink, fns\n"
-      "   WHERE mlink.fnid=fns.fnid\n"
-      "     AND pfnid>0\n"
-      "),\n"
-
-      /* The flink(fid,fnid,pfid,pfnid) table indicates that there
-      ** is an edit and/or rename arc connecting two files (fid,fnid)
-      ** and (pfid,pfnid).  This is similar to the built-in mlink
-      ** table except that flink() is bidirectional.  Also the pfnid
-      ** column is always set even no rename occurs.
-      */
-      "flink(fid,fnid,pfid,pfnid) AS (\n"
-      "  SELECT fid, fnid, pid,\n"
-      "    CASE WHEN pfnid>0 THEN pfnid ELSE fnid END\n"
-      "    FROM mlink\n"
-      "   WHERE NOT isaux AND fid>0 AND pid>0 AND fnid IN fns\n"
-      "  UNION\n"
-      "  SELECT pid,\n"
-      "    CASE WHEN pfnid>0 THEN pfnid ELSE fnid END,\n"
-      "    fid, fnid\n"
-      "    FROM mlink\n"
-      "   WHERE NOT isaux AND pid>0 AND fid>0 AND fnid IN fns\n"
-      "),\n"
-
       /* The clade(fid,fnid) table is the set of all (fid,fnid) pairs
       ** that should participate in the output.  Clade is computed by
-      ** walking the graph formed by the flink table.
+      ** walking the graph of mlink edges.
       */
-      "clade(fid,fnid) AS (\n"
+      "WITH RECURSIVE clade(fid,fnid) AS (\n"
       "  SELECT blob.rid, %d FROM blob\n"         /* %d is fnid */
       "   WHERE blob.uuid=(SELECT uuid FROM files_of_checkin(%Q)\n"
                          " WHERE filename=%Q)\n"  /* %Q is the filename */
       "   UNION\n"
-      "  SELECT flink.fid, flink.fnid\n"
-      "    FROM clade, flink\n"
-      "   WHERE clade.fid=flink.pfid AND clade.fnid=flink.pfnid\n"
+      "  SELECT mlink.fid, mlink.fnid\n"
+      "    FROM clade, mlink\n"
+      "   WHERE clade.fid=mlink.pid\n"
+      "     AND ((mlink.pfnid=0 AND mlink.fnid=clade.fnid)\n"
+      "          OR mlink.pfnid=clade.fnid)\n"
+      "     AND mlink.fid>0"
+      "   UNION\n"
+      "  SELECT mlink.pid,"
+              " CASE WHEN mlink.pfnid>0 THEN mlink.pfnid ELSE mlink.fnid END\n"
+      "    FROM clade, mlink\n"
+      "   WHERE mlink.pid>0\n"
+      "     AND mlink.fid=clade.fid\n"
+      "     AND mlink.fnid=clade.fnid\n"
       ")\n",
-      fnid, fnid, zCI, zFilename
+      fnid, zCI, zFilename
     );
   }else{
     /* This is the case for all files with a given name.  We will still
@@ -468,7 +446,7 @@ void finfo_page(void){
     "  blob.size,\n"                                    /* File size */
     "  mlink.fnid,\n"                                   /* Current filename */
     "  filename.name\n"                                 /* Current filename */
-    "FROM clade, mlink, event, blob, filename\n"
+    "FROM clade CROSS JOIN mlink, event, blob, filename\n"
     "WHERE mlink.fnid=clade.fnid AND mlink.fid=clade.fid\n"
     "  AND event.objid=mlink.mid\n"
     "  AND blob.rid=clade.fid\n"
