@@ -403,7 +403,9 @@ void finfo_page(void){
       "   WHERE clade.fid=mlink.pid\n"
       "     AND ((mlink.pfnid=0 AND mlink.fnid=clade.fnid)\n"
       "          OR mlink.pfnid=clade.fnid)\n"
-      "     AND mlink.fid>0"
+      "     AND (mlink.fid>0 OR NOT EXISTS(SELECT 1 FROM mlink AS mx"
+                 " WHERE mx.mid=mlink.mid AND mx.pid=mlink.pid"
+                 "   AND mx.fid>0 AND mx.pfnid=mlink.fnid))\n"
       "   UNION\n"
       "  SELECT mlink.pid,"
               " CASE WHEN mlink.pfnid>0 THEN mlink.pfnid ELSE mlink.fnid END\n"
@@ -447,11 +449,11 @@ void finfo_page(void){
     "  blob.size,\n"                                    /* File size */
     "  mlink.fnid,\n"                                   /* Current filename */
     "  filename.name\n"                                 /* Current filename */
-    "FROM clade CROSS JOIN mlink, event, blob, filename\n"
+    "FROM clade CROSS JOIN mlink, event"
+    " LEFT JOIN blob ON blob.rid=clade.fid"
+    " LEFT JOIN filename ON filename.fnid=clade.fnid\n"
     "WHERE mlink.fnid=clade.fnid AND mlink.fid=clade.fid\n"
-    "  AND event.objid=mlink.mid\n"
-    "  AND blob.rid=clade.fid\n"
-    "  AND filename.fnid=clade.fnid\n",
+    "  AND event.objid=mlink.mid\n",
     TAG_BRANCH
   );
   if( (zA = P("a"))!=0 ){
@@ -624,6 +626,31 @@ void finfo_page(void){
       @ <span class='timelineCompactComment' data-id='%d(frid)'>
     }else{
       @ <span class='timeline%s(zStyle)Comment'>
+      if( pfnid ){
+        char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
+                                   pfnid);
+        @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        fossil_free(zPrevName);
+      }
+      if( zUuid && ridTo==0 && nParent==0 ){
+        @ <b>Added:</b>
+      }
+      if( zUuid==0 ){
+        char *zNewName;
+        zNewName = db_text(0,
+          "SELECT name FROM filename WHERE fnid = "
+          "   (SELECT fnid FROM mlink"
+          "     WHERE mid=%d"
+          "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
+          fmid, zFName);
+        if( zNewName ){
+          @ <b>Renamed</b> to
+          @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>.
+          fossil_free(zNewName);
+        }else{
+          @ <b>Deleted:</b>
+        }
+      }
       if( (tmFlags & TIMELINE_VERBOSE)!=0 && zUuid ){
         hyperlink_to_version(zUuid);
         @ part of check-in \
@@ -647,12 +674,6 @@ void finfo_page(void){
       cgi_printf("<span class='clutter' id='detail-%d'>",frid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( pfnid ){
-      char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
-                                 pfnid);
-      @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
-      fossil_free(zPrevName);
-    }
     if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
       @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))\
@@ -679,25 +700,6 @@ void finfo_page(void){
     }else{
       @ size:&nbsp;%d(szFile)
     }
-    if( zUuid && ridTo==0 && nParent==0 ){
-      @ <b>Added</b>
-    }
-    if( zUuid==0 ){
-      char *zNewName;
-      zNewName = db_text(0,
-        "SELECT name FROM filename WHERE fnid = "
-        "   (SELECT fnid FROM mlink"
-        "     WHERE mid=%d"
-        "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
-        fmid, zFName);
-      if( zNewName ){
-        @ <b>Renamed</b> to
-        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>
-        fossil_free(zNewName);
-      }else{
-        @ <b>Deleted</b>
-      }
-    }
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFName;
       @ <span id='links-%d(frid)'><span class='timelineExtraLinks'>
@@ -718,7 +720,10 @@ void finfo_page(void){
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
       char *zAncLink;
-      @ <br />fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
+      @ <br />fid=%d(frid) \
+      @ graph-id=%d(frid>0 ? frid*(mxfnid+1)+fnid : fpid+1000000000) \
+      @ pid=%d(fpid) mid=%d(fmid) fnid=%d(fnid) \
+      @ pfnid=%d(pfnid) mxfnid=%d(mxfnid)
       if( nParent>0 ){
         @ parents=%d(aParent[0])
         for(ii=1; ii<nParent; ii++){

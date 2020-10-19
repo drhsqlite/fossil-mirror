@@ -1,5 +1,5 @@
-C Improvements\sto\s/finfo:\s\sShow\sall\sfile\srename\sevents.\s\sThe\s"rid"\sfor\seach\ntimeline\sentry\smust\sbe\sa\scombination\sof\sthe\sfile-id\s"fid"\sand\sthe\nfilename-id\s"fnid"\ssince\seither\sone\sof\sthose\stwo\smight\schange\swhich\sshould\nresult\sin\sa\snew\sentry\son\sthe\stimeline.
-D 2020-10-19T18:24:41.157
+C Do\sa\sbetter\sjob\sof\sshowing\swhen\sa\sfile\sis\sadded,\sdeleted,\sor\srenamed\nin\sthe\s/finfo\spage.
+D 2020-10-19T20:09:25.463
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -481,7 +481,7 @@ F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 7af9d6b27ed16f783c1809ca952f090843af488fa0a5899867b8274a22f3e590
-F src/finfo.c bccc41bfa40fa710969f858aad27e92d070293e0bf69338febed462f7f0a0799
+F src/finfo.c 6be330ae51fb25f434ad2702fe0f243dfd399a47fe52166382feeaf6bedf0c2b
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c ec54b602704274456a5475e7077938b6c14a1fe76f5dbfde8033fd4cb67ef931
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47bfea074b1226161c9cbe6489b742b7b8cdf3d3c2cd985718d6d504b1a5a37c
-R e4d7432b2877c3491fc3e9d34d006dc1
+P 8c598d7232c227e199612aa305e85d0f9534334077b49d66bbe163ccdff0b0f4
+R 9d3f3e42180d9438511eda0b359173a4
 U drh
-Z 8f83f5e9d3709e3ebce74078b051a110
+Z 008323cea6ead3a06657b0e24f44b97e
