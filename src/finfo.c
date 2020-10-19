@@ -335,6 +335,7 @@ void finfo_page(void){
   const char *zStyle;         /* Viewing mode name */
   const char *zMark;          /* Mark this version of the file */
   int selRid = 0;             /* RID of the marked file version */
+  int mxfnid;                 /* Maximum filename.fnid value */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -394,7 +395,7 @@ void finfo_page(void){
       */
       "WITH RECURSIVE clade(fid,fnid) AS (\n"
       "  SELECT blob.rid, %d FROM blob\n"         /* %d is fnid */
-      "   WHERE blob.uuid=(SELECT uuid FROM files_of_checkin(%Q)\n"
+      "   WHERE blob.uuid=(SELECT uuid FROM files_of_checkin(%Q)"
                          " WHERE filename=%Q)\n"  /* %Q is the filename */
       "   UNION\n"
       "  SELECT mlink.fid, mlink.fnid\n"
@@ -479,7 +480,8 @@ void finfo_page(void){
     */
     blob_append_sql(&sql,
       "GROUP BY"
-      " CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END\n"
+      " CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END,"
+      " mlink.fnid\n"
     );
   }
   blob_append_sql(&sql, "ORDER BY event.mtime DESC");
@@ -540,18 +542,21 @@ void finfo_page(void){
   blob_reset(&title);
   pGraph = graph_init();
   @ <table id="timelineTable%d(iTableId)" class="timelineTable">
+  mxfnid = db_int(0, "SELECT max(fnid) FROM filename");
   if( ridFrom ){
     db_prepare(&qparent,
-      "SELECT DISTINCT pid FROM mlink"
+      "SELECT DISTINCT pid*%d+CASE WHEN pfnid>0 THEN pfnid ELSE fnid END"
+      "  FROM mlink"
       " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
       "   AND pmid IN (SELECT rid FROM ancestor)"
-      " ORDER BY isaux /*sort*/"
+      " ORDER BY isaux /*sort*/", mxfnid+1
     );
   }else{
     db_prepare(&qparent,
-      "SELECT DISTINCT pid FROM mlink"
+      "SELECT DISTINCT pid*%d+CASE WHEN pfnid>0 THEN pfnid ELSE fnid END"
+      "  FROM mlink"
       " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
-      " ORDER BY isaux /*sort*/"
+      " ORDER BY isaux /*sort*/", mxfnid+1
     );
   }
   while( db_step(&q)==SQLITE_ROW ){
@@ -589,7 +594,8 @@ void finfo_page(void){
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid>0 ? frid : fpid+1000000000,
+    gidx = graph_add_row(pGraph,
+                         frid>0 ? frid*(mxfnid+1)+fnid : fpid+1000000000,
                          nParent, 0, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
@@ -641,6 +647,12 @@ void finfo_page(void){
       cgi_printf("<span class='clutter' id='detail-%d'>",frid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
+    if( pfnid ){
+      char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
+                                 pfnid);
+      @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+      fossil_free(zPrevName);
+    }
     if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
       @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))\
@@ -667,15 +679,8 @@ void finfo_page(void){
     }else{
       @ size:&nbsp;%d(szFile)
     }
-    if( zUuid && ridTo==0 ){
-      if( nParent==0 ){
-        @ <b>Added</b>
-      }else if( pfnid ){
-        char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
-                                  pfnid);
-        @ <b>Renamed</b> from
-        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
-      }
+    if( zUuid && ridTo==0 && nParent==0 ){
+      @ <b>Added</b>
     }
     if( zUuid==0 ){
       char *zNewName;
