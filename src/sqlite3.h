@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.34.0"
 #define SQLITE_VERSION_NUMBER 3034000
-#define SQLITE_SOURCE_ID      "2020-10-12 18:09:16 7e17c2f4b7dc9b563d0b4da949bb134dc7c4fc9c86ce03891432a884ca6409d5"
+#define SQLITE_SOURCE_ID      "2020-10-19 12:35:08 77e64647ec429c6e0d884abbd00dabebe738f89544a4984d6fd7a702b928ccfd"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -9244,10 +9244,11 @@ SQLITE_API int sqlite3_vtab_on_conflict(sqlite3 *);
 ** CAPI3REF: Determine If Virtual Table Column Access Is For UPDATE
 **
 ** If the sqlite3_vtab_nochange(X) routine is called within the [xColumn]
-** method of a [virtual table], then it returns true if and only if the
+** method of a [virtual table], then it might return true if the
 ** column is being fetched as part of an UPDATE operation during which the
-** column value will not change.  Applications might use this to substitute
-** a return value that is less expensive to compute and that the corresponding
+** column value will not change.  The virtual table implementation can use
+** this hint as permission to substitute a return value that is less
+** expensive to compute and that the corresponding
 ** [xUpdate] method understands as a "no-change" value.
 **
 ** If the [xColumn] method calls sqlite3_vtab_nochange() and finds that
@@ -9256,6 +9257,12 @@ SQLITE_API int sqlite3_vtab_on_conflict(sqlite3 *);
 ** any of the [sqlite3_result_int|sqlite3_result_xxxxx() interfaces].
 ** In that case, [sqlite3_value_nochange(X)] will return true for the
 ** same column in the [xUpdate] method.
+**
+** The sqlite3_vtab_nochange() routine is an optimization.  Virtual table
+** implementations should continue to give a correct answer even if the
+** sqlite3_vtab_nochange() interface were to always return false.  In the
+** current implementation, the sqlite3_vtab_nochange() interface does always
+** returns false for the enhanced [UPDATE FROM] statement.
 */
 SQLITE_API int sqlite3_vtab_nochange(sqlite3_context*);
 

@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings.\s\sUpdate\sthe\scustom\sMinGW\smakefile.\s\sMake\sfeature\sreporting\sconsistent\sfor\s'markdown',\swhich\sis\snow\salways\senabled.
-D 2020-10-18T18:38:51.571
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.34.0\salpha\sthat\sincludes\nthe\sability\sto\shave\smultiple\srecursive\sterms\sin\sa\srecursive\sCTE.\s\sThat\nnew\scapability\sis\sexpected\sto\sbe\shelpful\sin\simproving\sthe\s/finfo\spage.
+D 2020-10-19T13:25:38.330
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -584,7 +584,7 @@ F src/setupuser.c e26e42573837861f64cdcefaeb52e18d8d41bb8359779fe513fec446556b87
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
-F src/shell.c 3c402be10c5e62b9ac7aa10e4f9394fbe8c7d42b247cf847ac5d34e75020fd70
+F src/shell.c ccbc02a9ee96acd24ab23fd2aea34513ba7f5ee549befe709864b826a483b481
 F src/shun.c 25e6b8c3b73cbd9b7e75d820ae91aa0b0b7cec4373e64455d934386114cfffd8
 F src/sitemap.c 42b937bfa42b9e53ac6c45549f006c60edc882faa89c5b38d15127632131660f
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -610,8 +610,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c a31cf3116595a82bc37dc6f1612fbd3a6013710e4fe04a9b446d9aaa37d20e5c
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c 2b1738592b5d14f675d2bbde5c8a0f1cc2bad096f8cf97a89edb75883dbe25ee
-F src/sqlite3.h 3bf0601638c1d2152fd191359f44cff41c1edcf17f2fd5d7e18b6b182f97a21d
+F src/sqlite3.c 812b16fce831fe62ff99349d2902eef7f9de91bf0c235dabd90fdbfed1528ab7
+F src/sqlite3.h a700ae556ebd7eb273f7c19e456648298720bd18b2fa947e6b1d24b0db3c630d
 F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c f36d74389e5a386f795dc00787bfbe981b8590441eea027a86602cf539874391
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0af477224547fea832dae6a6c740d89da7cf293288cbebf295107922dd37cdfd
-R 3673526c268c34b88a67b7b2ef4f7e73
-U mistachkin
-Z bf6d36499a9345294078d8e0112ca2e2
+P 750879ead431429cff743baec3d437a9be4a1abe19cb00e550ecdf0bcebabeb6
+R 7f3b201c1669adf9bf1dd6d95edce924
+U drh
+Z 68efe4d02ba22de06fc58e46a966371b
