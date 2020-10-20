@@ -2313,7 +2313,7 @@ void artifact_page(void){
       );
       if( db_step(&q)==SQLITE_ROW ){
         rid = db_column_int(&q, 0);
-        zCIUuid = zCI = fossil_strdup(db_column_text(&q, 1));
+        zCI = zCIUuid = fossil_strdup(db_column_text(&q, 1));
         url_add_parameter(&url, "ci", zCI);
       }
       db_finalize(&q);
