@@ -1,5 +1,5 @@
-C For\sthe\sgraph\sdrawing\sroutines,\smake\sthe\sgraph\srow\sidentifier\sa\s64-bit\ninteger\stype\sto\savoid\sthe\spossibility\sof\sinteger\soverflow\sin\s/finfo\swhere\nthe\srow\sids\sare\sa\scomposite\sof\sthe\sblob.rid\sand\sfilename.fnid\sand\shence\smight\nbecome\slarge\sfor\srepositories\swith\smany\sfiles\sand\smany\scheck-ins.
-D 2020-10-20T00:20:35.510
+C Small\stweaks\sto\sthe\sCAP\sTheorem\sdoc
+D 2020-10-20T10:08:01.437
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -820,7 +820,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 9022b0a0977f57faa5db4c0580ebf76b75fd01abc886fdec013b7dba15aee614
-F www/cap-theorem.md f2bdddb2f8fbd660d634ab7c743f294d954933a7097252b4ba492c31b8030fcd
+F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 03aa8af79bb4f087215146f7e6ac63861802ae0da7ea856f16b24d4350811493
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
 F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0fac549b5663fafc39bfaff7b96e37008bb67e1721e681af51360ff283271ec1
-R 9e971ac60625a0be5542a2ac7ca22d50
-U drh
-Z a4faadcc8ac3ead98b84132b1dc938e2
+P ab71d95a9f3263699fc4e64e2f8a6ea9dfa6afffbec8e611d21bff6e77bfadc0
+R 739812a2cfe878a75b88afea0db7dfa9
+U wyoung
+Z 0e05238a5e88131c8a2d55954bbbc353

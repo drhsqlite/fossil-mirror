@@ -27,7 +27,11 @@ time.
 You may consider that going back online restores “C”, because upon sync,
 you’re now consistent with the repo you cloned from. But, if another
 user has gone offline in the meantime, and they’ve made commits to their
-disconnected repo, *you* aren’t consistent with *them.*
+disconnected repo, *you* aren’t consistent with *them.* Besides which,
+if another user commits to the central repo, that doesn’t push the
+change down to you automatically: even if all users of a Fossil system
+are online at the same instant, and they’re all using autosync, Fossil
+doesn’t guarantee consistency across the network.
 
 There’s no getting around the CAP theorem!
 
@@ -43,18 +47,23 @@ It means we get a system that is always consistent (C) and available (A)
 as long as there are no partitions (P).
 
 That’s basically [CVS] and [Subversion][svn]: you can only continue
-working as long as your connection to the central repo server functions.
+working with the repository itself as long as your connection to the central repo server functions.
 
-It’s rather trivial to talk about single-point-of-failure systems as
+It’s rather trivial to talk about single-point-of-failure systems like
+CVS or Subversion as
 CA-mode. Another common example used this way is a classical RDBMS, but
 aren’t we here to talk about distributed systems? What’s a good example
 of a *distributed* CA-mode system?
 
 A better example is [Kafka], which in its default configuration assumes
 it being run on a corporate LAN in a single data center, so network
-partitions are exceedingly rare. In its application of CA mode, a
+partitions are exceedingly rare. It therefore sacrifices partition
+tolerance to get the advantages of CA-mode operation. In its particular application of
+this mode, a
 message isn’t “committed” until all running brokers have a copy of it,
-at which point the message becomes visible to the client(s).
+at which point the message becomes visible to the client(s). In that
+way, all clients always see the same message store as long as all of the
+Kafka servers are up and communicating.
 
 How would that work in Fossil terms?
 
@@ -90,7 +99,7 @@ servers, but a loss of one active server requires that one warm spare
 come into active state, and all of the clients learn that the spare is
 now considered “active.” At this point, you have a CP-mode system, not a
 CA-mode system, because it’s now partition-tolerant (P) but it becomes
-unavailable, losing “A” when there aren’t enough active servers or warm
+unavailable when there aren’t enough active servers or warm
 spares to promote to active status.
 
 CP is your classical [BFT] style distributed consensus system, where the
