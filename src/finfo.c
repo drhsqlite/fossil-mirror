@@ -580,13 +580,13 @@ void finfo_page(void){
     int gidx;
     char zTime[10];
     int nParent = 0;
-    int aParent[GR_MAX_RAIL];
+    GraphRowId aParent[GR_MAX_RAIL];
 
     db_bind_int(&qparent, ":fid", frid);
     db_bind_int(&qparent, ":mid", fmid);
     db_bind_int(&qparent, ":fnid", fnid);
     while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
-      aParent[nParent] = db_column_int(&qparent, 0);
+      aParent[nParent] = db_column_int64(&qparent, 0);
       nParent++;
     }
     db_reset(&qparent);
@@ -597,9 +597,9 @@ void finfo_page(void){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
     gidx = graph_add_row(pGraph,
-                         frid>0 ? frid*(mxfnid+1)+fnid : fpid+1000000000,
-                         nParent, 0, aParent, zBr, zBgClr,
-                         zUuid, 0);
+                   frid>0 ? (GraphRowId)frid*(mxfnid+1)+fnid : fpid+1000000000,
+                   nParent, 0, aParent, zBr, zBgClr,
+                   zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
@@ -721,13 +721,13 @@ void finfo_page(void){
       int ii;
       char *zAncLink;
       @ <br />fid=%d(frid) \
-      @ graph-id=%d(frid>0 ? frid*(mxfnid+1)+fnid : fpid+1000000000) \
+      @ graph-id=%lld(frid>0?(GraphRowId)frid*(mxfnid+1)+fnid:fpid+1000000000) \
       @ pid=%d(fpid) mid=%d(fmid) fnid=%d(fnid) \
       @ pfnid=%d(pfnid) mxfnid=%d(mxfnid)
       if( nParent>0 ){
-        @ parents=%d(aParent[0])
+        @ parents=%lld(aParent[0])
         for(ii=1; ii<nParent; ii++){
-          @ %d(aParent[ii])
+          @ %lld(aParent[ii])
         }
       }
       zAncLink = href("%R/finfo?name=%T&from=%!S&debug=1",zFName,zCkin);

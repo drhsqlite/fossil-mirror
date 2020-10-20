@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sfix\sa\sbug\sintroduced\sby\sthe\sprevious\supdate.
-D 2020-10-19T20:52:34.416
+C For\sthe\sgraph\sdrawing\sroutines,\smake\sthe\sgraph\srow\sidentifier\sa\s64-bit\ninteger\stype\sto\savoid\sthe\spossibility\sof\sinteger\soverflow\sin\s/finfo\swhere\nthe\srow\sids\sare\sa\scomposite\sof\sthe\sblob.rid\sand\sfilename.fnid\sand\shence\smight\nbecome\slarge\sfor\srepositories\swith\smany\sfiles\sand\smany\scheck-ins.
+D 2020-10-20T00:20:35.510
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -481,7 +481,7 @@ F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 7af9d6b27ed16f783c1809ca952f090843af488fa0a5899867b8274a22f3e590
-F src/finfo.c 6be330ae51fb25f434ad2702fe0f243dfd399a47fe52166382feeaf6bedf0c2b
+F src/finfo.c ea2da1c95b49281ec08c0a43978aafa1f4bd4d2e71578a6e519fe25dc7c61b3e
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c ec54b602704274456a5475e7077938b6c14a1fe76f5dbfde8033fd4cb67ef931
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -504,7 +504,7 @@ F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
 F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
-F src/graph.c a9e1f5aae6551892f96c84bd4cd1708da2843bdd372bc45367493e8cd16f5e17
+F src/graph.c 9da0f3859017b29ed9bc51c72185656ec8a77b0dc53f2569828ae6f4f8a5a772
 F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -628,7 +628,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 7e1d4e07fd9e40712e87e43443233c2a991ad363f23f1b2fad074e362eb76d57
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c af2780827aba1f794e6aee472183b8111f3f1cc59048571950184f5cb280fb1a
+F src/timeline.c ac1b72339fcc2cbb8bd660a7b184069b09c10219414e6301ecdb2d704631c8da
 F src/tkt.c c31298b758d596fc6b800af2b86defbe894c70d0b20c9a7a89323dee9b3d5ae4
 F src/tktsetup.c 3778b61b72bbaa2aa808d1611487383ffe93af98f99cc9d387519fe06e80f051
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0bca48147b3ff1dca048b0e1d9fff2878e03b2f45fda8b1c7a86d57862929ad
-R 93591736dfc125f336254de8790fed8b
+P 0fac549b5663fafc39bfaff7b96e37008bb67e1721e681af51360ff283271ec1
+R 9e971ac60625a0be5542a2ac7ca22d50
 U drh
-Z b3aad4318826f392a864d8f5fadcc86c
+Z a4faadcc8ac3ead98b84132b1dc938e2
