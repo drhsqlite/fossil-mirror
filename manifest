@@ -1,5 +1,5 @@
-C Small\stweaks\sto\sthe\sCAP\sTheorem\sdoc
-D 2020-10-20T10:08:01.437
+C The\s/file\spage\sfor\sa\sfile\sthat\sis\snot\spart\sof\sthe\slatest\scheckin\stries\sto\nsubstitute\sthe\smost\srecent\schecking\sthat\sadded\sthe\sfile.
+D 2020-10-20T23:37:29.686
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -515,7 +515,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 1ebd6da35f8c913f974474ac6f2661c4490d2d6771dc5da1a022b366c39bd897
-F src/info.c c90b6afabf30fff04dee5608ed4a2952cb08023e1049f271623e674dbba5d12d
+F src/info.c 5430ee9aab4fe838e0634db94c2f12efba152a8007289ab9db872ad51ec504d2
 F src/interwiki.c f52d2407376d8435f65f70b1f4e0b58ad657d77aa098c373e2908de6f79a5c45
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab71d95a9f3263699fc4e64e2f8a6ea9dfa6afffbec8e611d21bff6e77bfadc0
-R 739812a2cfe878a75b88afea0db7dfa9
-U wyoung
-Z 0e05238a5e88131c8a2d55954bbbc353
+P 67a4c1d3134784dffed4ddae84a3ef55663025f6b886cb3fbdb86dc7bba018bb
+R 770c4c2869044a346e7db597ffc79718
+U drh
+Z 06f64e7227a8d233f3aacb60aa8b55fc

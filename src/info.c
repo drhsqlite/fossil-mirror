@@ -2286,6 +2286,7 @@ void artifact_page(void){
 
   if( rid==0 ){  /* Artifact not found */
     if( isFile ){
+      Stmt q;
       /* For /file, also check to see if name= refers to a directory,
       ** and if so, do a listing for that directory */
       int nName = (int)strlen(zName);
@@ -2299,14 +2300,35 @@ void artifact_page(void){
         page_tree();
         return;
       }
-      style_header("No such file");
-      @ File '%h(zName)' does not exist in this repository.
+      /* No directory found, look for an historic version of the file
+      ** that was subsequently deleted. */
+      db_prepare(&q, 
+        "SELECT fid, uuid FROM mlink, filename, event, blob"
+        " WHERE filename.name=%Q"
+        "   AND mlink.fnid=filename.fnid AND mlink.fid>0"
+        "   AND event.objid=mlink.mid"
+        "   AND blob.rid=mlink.mid"
+        " ORDER BY event.mtime DESC",
+        zName
+      );
+      if( db_step(&q)==SQLITE_ROW ){
+        rid = db_column_int(&q, 0);
+        zCIUuid = zCI = fossil_strdup(db_column_text(&q, 1));
+        url_add_parameter(&url, "ci", zCI);
+      }
+      db_finalize(&q);
+      if( rid==0 ){     
+        style_header("No such file");
+        @ File '%h(zName)' does not exist in this repository.
+      }
     }else{
       style_header("No such artifact");
       @ Artifact '%h(zName)' does not exist in this repository.
     }
-    style_footer();
-    return;
+    if( rid==0 ){
+      style_footer();
+      return;
+    }
   }
 
   if( descOnly || P("verbose")!=0 ){
