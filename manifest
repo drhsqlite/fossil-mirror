@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning\sin\sthe\sprevious\scheck-in.
-D 2020-10-20T23:40:13.556
+C Assorted\sminor\sfixes\sand\stweaks\sto\sthe\scheck-in\snames\sdoc
+D 2020-10-22T17:35:15.287
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -829,7 +829,7 @@ F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a5
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
 F www/changes.wiki 7db1271ade60b39dbc7383935c4c3bf1dae2f6a936e277093e478653efb5b2b2
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki 537ab816377b7c9b24b3f1204fe78bc826c9b9d99abd2f3f2dfcb965de4ebbdf
+F www/checkin_names.wiki b58919c219e2513b61e283d30e2b8e792ee50e63b2445cbe7d5ffb22d6734051
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md bf75bbf5dbd1aef9d31b7744b9ba8ff647f956467107076c757cc86ee31ead80
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
@@ -984,7 +984,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5cf5ad8491c97b09aa992135bbf20c0e8f5aa0f1f3d03a02ad76e379928e9bd3
-R 576a4df73cc8a7cd1a425eb00826e89c
-U drh
-Z 851e7e53ccb2e9a969a20317131f7451
+P 6c2b5bafb6820af958cf371cb4d94eb2df5e5e73ebd2ad366dedbfec592b4bf0
+R 04d1740737320dd3820c886679f064e5
+U wyoung
+Z 286670e80fdc5b0963f8223da42df562
