@@ -18,7 +18,7 @@ and painlessly.</p>
     <blockquote>
     <b>
     fossil version<br>
-    This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC<br>
+    <tt>This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC</tt><br>
     </b>
     </blockquote>
 
@@ -38,15 +38,15 @@ and painlessly.</p>
             configuration).
     </ul>
 
-    Fossil can be entirely driven from the command line, while many features
+    Fossil can be entirely driven from the command line. Many features
     can also be conveniently accessed from the build-in web interface.
 
-    <p>The following sections will give you a brief overview of these
+    <p>The following sections give a brief overview of these
     operations.</p>
 
 <h2 id="new">Starting A New Project</h2>
 
-    <p>To start a new project with fossil, create a new empty repository
+    <p>To start a new project with fossil create a new empty repository
     this way: ([/help/init | more info]) </p>
 
     <blockquote>
@@ -83,7 +83,7 @@ and painlessly.</p>
     If your logged-in username is 'exampleuser', you should see output something like this:
 
     <blockquote>
-    <b>
+    <b><tt>
             Round-trips: 8   Artifacts sent: 0  received: 39421<br>
             Clone done, sent: 2424  received: 42965725  ip: 10.10.10.0<br>
             Rebuilding repository meta-data...<br>
@@ -93,7 +93,7 @@ and painlessly.</p>
             project-id: 94259BB9F186226D80E49D1FA2DB29F935CCA0333<br>
             server-id:  016595e9043054038a9ea9bc526d7f33f7ac0e42<br>
             admin-user: exampleuser (password is "yoWgDR42iv")><br>
-    </b>
+    </tt></b>
     </blockquote>
 
     <p>If the remote repository requires a login, include a
@@ -151,13 +151,13 @@ and painlessly.</p>
     for example:
 
     <blockquote>
-    <b>
+    <b><tt>
         fossil open ../myclone.fossil<br>
         BUILD.txt<br>
         COPYRIGHT-BSD2.txt<br>
         README.md<br>
           ︙<br>
-    </b>
+    </tt></b>
     </blockquote>
 
     (or "fossil open ..\myclone.fossil" on Windows).
@@ -178,7 +178,7 @@ and painlessly.</p>
     <b>[/help/branch | fossil branch]</b><br>
     </blockquote>
 
-   <p>If you created a new respository using "fossil init" then some commands will not
+   <p>If you created a new respository using "fossil init" some commands will not
     produce much output.</p>
 
     <p>Note that Fossil allows you to make multiple check-outs in
@@ -230,25 +230,25 @@ and painlessly.</p>
     [/help/diff | fossil diff]:
     <blockquote>
     <b>
-            fossil diff <br>
+            fossil diff <br><tt>
             Index: README.md<br>
             ============================================================<br>
             --- README.md<br>
             +++ README.md<br>
             @@ -1,5 +1,6 @@<br>
-            +I made a change<br>
+            +Made some changes to the project<br>
             # Original text<br>
-     </b>
+     </tt></b>
     </blockquote>
  
-    <p>"fossil diff" is the difference between your tree on disk now and as it was
+    <p>"fossil diff" is the difference between your tree on disk now and as the tree was
     when you did "fossil open". An open is the first checkout from a repository 
     into a new directory. </p>
 
     <p>To commit your changes to a local-only repository:</p>
     <blockquote>
     <b>
-    fossil commit     (... Fossil will start your editor, if defined)<br>
+    fossil commit     (... Fossil will start your editor, if defined)<br><tt>
     # Enter a commit message for this check-in. Lines beginning with # are ignored.<br>
     #<br>
     # user: exampleuser<br>
@@ -257,7 +257,7 @@ and painlessly.</p>
     # EDITED     README.md<br>
     Edited file to add description of code changes<br>
     New_Version: 7b9a416ced4a69a60589dde1aedd1a30fde8eec3528d265dbeed5135530440ab<br>
-    </b>
+    </tt></b>
     </blockquote>
 
    <p>You will be prompted for check-in comments using whatever editor

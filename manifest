@@ -1,5 +1,5 @@
-C Add\sexamples\sand\sexpand\son\sthe\sworkflow
-D 2020-10-26T15:56:48.884
+C Minor\smods,\sand\suse\s<tt>\sfor\scommand\soutput
+D 2020-10-26T16:35:01.172
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -930,7 +930,7 @@ F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
-F www/quickstart.wiki f8f445991dd3c758006707bf69785adbd1a0043859cc0921a615b37c9cf0c832
+F www/quickstart.wiki 03c4113a6a94c9ff6f6816459f328da7c7332710166cba4859e1e4b4a952108e
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
 F www/rebaseharm.md 7c0d45b467ba8ff9f907d1d5406322080ac273bcd59d0e3730401c6f72bae857
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
@@ -985,10 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e299531d5b450607774f832d59af311a30a915245d519353207c6e98d4bc282c
-R 8cf62cd2d03648a07ab7be27fab13042
-T *branch * quickstart
-T *sym-quickstart *
-T -sym-trunk *
+P 3e44368b6c8a0b05f3e0f12aeae17587ebd21c5c86c7f5dfc3446fb7134fa82f
+R a91e30289361a482d35f4a16a4f5c455
 U danshearer
-Z 1dd450da5945c6532486fca71696c7f0
+Z e1e3dd61b3dfc727ecb69d7baf5a0d2e
