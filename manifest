@@ -1,5 +1,5 @@
-C Assorted\sminor\sfixes\sand\stweaks\sto\sthe\scheck-in\snames\sdoc
-D 2020-10-22T17:35:15.287
+C Added\szsh\sfossil\sautocompletion,\sas\sdiscussed\sin\s[https://fossil-scm.org/forum/forumpost/47a180c815].
+D 2020-10-26T06:46:05.522
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -783,6 +783,7 @@ F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829aba
 F tools/email-sender.tcl 68217a0707268b570bd2f78e1799ae86c5cb0cc4e7eac321963fa24b6305c446 x
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
+F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
 F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e x
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0 x
@@ -984,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c2b5bafb6820af958cf371cb4d94eb2df5e5e73ebd2ad366dedbfec592b4bf0
-R 04d1740737320dd3820c886679f064e5
-U wyoung
-Z 286670e80fdc5b0963f8223da42df562
+P 68a78b895e91f10d97ff33c5ea8e143ef32a6c8b1b600f345baed3b4b6a6df90
+R 822a76877ff032d6070beb6a517ef443
+U stephan
+Z 515ce13daff10f0cd32d0f81db09254b
