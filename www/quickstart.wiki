@@ -248,7 +248,7 @@ and painlessly.</p>
     <p>To commit your changes to a local-only repository:</p>
     <blockquote>
     <b>
-    fossil commit     (... Fossil will start your editor, if defined)<br><tt>
+    fossil commit     </b><i>(... Fossil will start your editor, if defined)</i><b><br><tt>
     # Enter a commit message for this check-in. Lines beginning with # are ignored.<br>
     #<br>
     # user: exampleuser<br>
