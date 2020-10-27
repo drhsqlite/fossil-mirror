@@ -1,5 +1,5 @@
-C Merge\senhancements\sto\sthe\squickstart.wiki\sdocumentation\spage\sonto\strunk.
-D 2020-10-26T19:49:38.473
+C Correct\stypo;\sX\sswapped\swith\sY
+D 2020-10-27T08:04:02.122
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -982,11 +982,10 @@ F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md d747d853e9f3d357c2f7bd9f371c6b98519e5644890861b45fad610804a1920d
 F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31a
-F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
+F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e299531d5b450607774f832d59af311a30a915245d519353207c6e98d4bc282c 2c9ccd77e4e5b81924689503c91e3a7d95d43e865b63e0dcc034a31b25ade82a
-R c7469188b5c8f36ec77dc76b29b8c470
-T +closed 2c9ccd77e4e5b81924689503c91e3a7d95d43e865b63e0dcc034a31b25ade82a
-U drh
-Z 3318aaa9f94927efee216b424ed826dd
+P f2abc2b0095401a37c34f4653d1a2f2f8fceb39764db9d5114f0ddbdbcc51bb1
+R e8467c7d350253a8647b92c280ec0cbf
+U danshearer
+Z 88c91797bc822548388eb599e17ee76d

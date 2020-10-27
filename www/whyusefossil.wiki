@@ -189,7 +189,7 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
       the history of a project as a directed acyclic graph (DAG).
       <ul>
       <li><p>Each check-in is a node in the graph
-      <li><p>If check-in X is derived from check-in Y then there is
+      <li><p>If check-in Y is derived from check-in X then there is
           an arc in the graph from node X to node Y.
       <li><p>The older check-in (X) is call the "parent" and the newer
           check-in (Y) is the "child".  The child is derived from
