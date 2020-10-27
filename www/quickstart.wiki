@@ -270,6 +270,30 @@ and painlessly.</p>
     committed to the local repository immediately on to the remote parent repository. This
     only works if you have write permission to the remote respository.</p>
 
+<h2 id="naming">Naming of Files, Checkins, and Branches</h2>
+
+    <p>Fossil deals with information artifacts. This Quickstart document only deals
+    with files and collections of files, but be aware there are also tickets, wiki pages and more. 
+    Every artifact in Fossil has a universally-unique hash id, and may also have a
+    human-readable name.</p>
+
+    <p>The following are all equivalent ways of identifying a Fossil file,
+    checkin or branch artifact:</p>
+
+    <ul>
+    <li> the full unique SHA-256 hash, such as be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
+    <li> an abbreviated hash prefix, such as the first ten characters: be836de35a . This won't be universally unique, but it is usually unique within any one repository. As an example, the [https://fossil-scm.org/home/hash-collisions|Fossil project hash collisions] showed at the time of writing that there are no artifacts with identical first 8 characters
+    <li> a branch name, such as "special-features" or "juliet-testing". Each branch also has a unique SHA-256 hash
+    </ul>
+
+    <p>A special convenience branch is "trunk", which is Fossil's default branch name for
+    the first checkin, and the default for any time a branch name is needed but not
+    specified.</p>
+
+    This will get you started on identifying checkins. The
+    <a href="./checkin_names.wiki">Checkin Names document</a> is a complete reference, including
+    how timestamps can also be used.
+
 <h2 id="config">Configuring Your Local Repository</h2>
 
     <p>When you create a new repository, either by cloning an existing
