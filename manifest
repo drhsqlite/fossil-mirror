@@ -1,5 +1,5 @@
-C Add\ssection\s"Naming\sof\sFiles,\sCheckins,\sand\sBranches"
-D 2020-10-27T08:47:55.552
+C When\sdeleting\sa\ssubscription,\salso\sprovide\sthe\sopportunity\sto\sdelete\sthe\ncorresponding\suser.\s\sWhen\sdeleting\sa\suser,\salways\salso\sdelete\ssubscriptions\nassociated\swith\sthat\suser.
+D 2020-10-28T16:13:42.471
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -432,7 +432,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c 9e534b3ba7b639756417fa40c8273a24b0a849e4c8ad0077c937c7824d437e82
 F src/ajax.c 1e403cdfe1f046a851b98dd00250359e253c06180794035c074061545b56ee34
-F src/alerts.c 82160a85b500d45899ab72c86bd782eb62bc41771bf435ee7e1d82fea9aab26c
+F src/alerts.c 336a7b26327c2b425ec98fde11cbfec39d0c1d489c2ab025d32a57d07b950170
 F src/allrepo.c 2537269a1af06ce3757159c7ae0f0a7e39090bf7f5f0a20b8cee3ac90c01d256
 F src/attach.c eecce3ea967a4124346c4e7efc3bdd7bf04d3993a2a8e4436f5fecbb9c397456
 F src/backlink.c 71ccb7e575c15dc88e0bbc482327b8e4bec27da318db3d5ee15a65e94d8b2e15
@@ -580,7 +580,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 1fa8f8672ab07281f22c65f3495cc5bcc4d49b761045baf0599a040e716dbffe
 F src/security_audit.c 6e3ff3b8df26e7df9c0abf259d3439005fafaf9bc9e70ce42e3bd5991bdc222c
 F src/setup.c 74737f118a56047ccde9f20b33d3c00e5f684b7cf625014a80aa924502cc7179
-F src/setupuser.c e26e42573837861f64cdcefaeb52e18d8d41bb8359779fe513fec446556b8734
+F src/setupuser.c 4b57bec5a10cdc0412ecaa01dce7a9fc8dfd40f2378937dde39fc456400e40e3
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 986bde2b54df73d65c01c8460caae074983bc615bf65afaa58c45b85aa1a02c9
-R 3764dbeca72ee32bab28314b9224d2db
-U danshearer
-Z c61c1fa89699ef49cd076015404accd3
+P 590a8fcac60f6cd8887c4d20ef9862eef1e8d126927e06a5dfb688cc2a9b00ba
+R 499be9196e6c9f2f07d7c6674054b8f4
+U drh
+Z c7040a31f83f7e561d601015f736177b

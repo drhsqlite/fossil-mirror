@@ -318,6 +318,11 @@ void user_edit(void){
     if( P("verifydelete") ){
       /* Verified delete user request */
       db_unprotect(PROTECT_USER);
+      if( db_table_exists("repository","subscriber") ){
+        /* Also delete any subscriptions associated with this user */
+        db_multi_exec("DELETE FROM subscriber WHERE suname="
+                      "(SELECT login FROM user WHERE uid=%d)", uid);
+      }
       db_multi_exec("DELETE FROM user WHERE uid=%d", uid);
       db_protect_pop();
       moderation_disapprove_for_missing_users();
