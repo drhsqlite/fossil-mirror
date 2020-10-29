@@ -1,5 +1,5 @@
-C Requires\sSQLite\sversion\s3.34.0\sor\slater,\sdue\sto\sthe\srecursive\sCTE\senhancement\nneeded\sby\s/finfo.
-D 2020-10-29T16:30:30.881
+C Reworked\sthe\s"Clones\sand\sBackups"\ssection\sof\swww/caps/admin-v-setup.md\nnow\sthat\swe\shave\swww/backup.md.
+D 2020-10-29T19:07:12.802
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -822,7 +822,7 @@ F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 9022b0a0977f57faa5db4c0580ebf76b75fd01abc886fdec013b7dba15aee614
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
-F www/caps/admin-v-setup.md 03aa8af79bb4f087215146f7e6ac63861802ae0da7ea856f16b24d4350811493
+F www/caps/admin-v-setup.md f8872d567f52a377f6c07a976439a49af3bfca33c4896b7ec9bbf3b56f5dbbfa
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
 F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5febff257d6fce74409829906103bf87cf4b68217199547b7ca5821277bdfc30
-R 5fa15733ff068c9e79d152b3f201ff85
-U drh
-Z 0b3712c9480c24d52cf8c37cdac7d065
+P 8813ae91a699ac7303b6321fb7c41c1936cd08fadeba500270bb9e3fa200db1c
+R 2d08205d72332070c61aef5993c5fcc6
+U wyoung
+Z dc33e4c86ece78b1c0e935f0e0d124de

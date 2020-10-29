@@ -1,4 +1,4 @@
-# Differences Between Setup and Admin User
+# Differences Between Setup and Admin Users
 
 This document explains the distinction between [Setup users][caps] and
 [Admin users][capa]. For other information about use types, see:
@@ -231,23 +231,23 @@ user with these powers, you should not grant that user Admin capability.
 
 ## <a name="clones"></a>Clones and Backups
 
-Keep in mind that Fossil is a *distributed* version control system,
-which means that a user known to Fossil might have Setup capability on
-one repository but be a mere "user" on one of its clones. The most
-common case is that when you clone a repository, even anonymously, you
-gain Setup power over the local clone.
+Fossil is a *distributed* version control system, which has direct
+effects on the “Setup user” concept in the face of clones. When you
+clone a repository, your local user becomes a Setup user on the local
+clone even if you are not one on the remote repository. This may be
+surprising to you, but it should also be sensible once you realize that
+your operating system will generally give you full control over the
+local repository file.  What use trying to apply remote restrictions on
+the local file, then?
 
 The distinctions above therefore are intransitive: they apply only
 within a single repository instance.
 
-The exception to this is when the clone is done as a Setup user, since
-this also copies the `user` table on the initial clone. A user with
-Setup capability can subsequently say [`fossil conf pull all`][fcp] to
-update that table and everything else not normally synchronized between
-Fossil repositories. In this way, a Setup user can create multiple
-interchangeable clones. This is useful not only to guard against rogue
-Admin-only users, it is a useful element of a load balancing and
-failover system.
+Fossil behaves differently when you do a clone as a user with Setup
+capability on the remote repository, which primarily has effects on the
+fidelity of clone-as-backup, which we cover [elsewhere](../backup.md).
+We strongly encourage you to read that document if you expect to use a
+clone as a complete replacement for the remote repository.
 
 
 ## <a name="apsu"></a>The All-Powerful Setup User
