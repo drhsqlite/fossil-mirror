@@ -3614,7 +3614,6 @@ static void arrowInit(Pik *p, PObj *pObj){
   pObj->w = pik_value(p, "linewid",7,0);
   pObj->h = pik_value(p, "lineht",6,0);
   pObj->rad = pik_value(p, "linerad",7,0);
-  pObj->fill = -1.0;
   pObj->rarrow = 1;
 }
 
@@ -4035,7 +4034,6 @@ static void lineInit(Pik *p, PObj *pObj){
   pObj->w = pik_value(p, "linewid",7,0);
   pObj->h = pik_value(p, "lineht",6,0);
   pObj->rad = pik_value(p, "linerad",7,0);
-  pObj->fill = -1.0;
 }
 static PPoint lineOffset(Pik *p, PObj *pObj, int cp){
 #if 0
@@ -4119,7 +4117,6 @@ static void splineInit(Pik *p, PObj *pObj){
   pObj->w = pik_value(p, "linewid",7,0);
   pObj->h = pik_value(p, "lineht",6,0);
   pObj->rad = 1000;
-  pObj->fill = -1.0;  /* Disable fill by default */
 }
 /* Return a point along the path from "f" to "t" that is r units
 ** prior to reaching "t", except if the path is less than 2*r total,
@@ -4148,23 +4145,31 @@ static void radiusPath(Pik *p, PObj *pObj, PNum r){
   int n = pObj->nPath;
   const PPoint *a = pObj->aPath;
   PPoint m;
+  PPoint an = a[n-1];
   int isMid = 0;
+  int iLast = pObj->bClose ? n : n-1;
 
   pik_append_xy(p,"<path d=\"M", a[0].x, a[0].y);
   m = radiusMidpoint(a[0], a[1], r, &isMid);
   pik_append_xy(p," L ",m.x,m.y);
-  for(i=1; i<n-1; i++){
-    m = radiusMidpoint(a[i+1],a[i],r, &isMid);
+  for(i=1; i<iLast; i++){
+    an = i<n-1 ? a[i+1] : a[0];
+    m = radiusMidpoint(an,a[i],r, &isMid);
     pik_append_xy(p," Q ",a[i].x,a[i].y);
     pik_append_xy(p," ",m.x,m.y);
     if( !isMid ){
-      m = radiusMidpoint(a[i],a[i+1],r, &isMid);
+      m = radiusMidpoint(a[i],an,r, &isMid);
       pik_append_xy(p," L ",m.x,m.y);
     }
   }
-  pik_append_xy(p," L ",a[i].x,a[i].y);
+  pik_append_xy(p," L ",an.x,an.y);
+  if( pObj->bClose ){
+    pik_append(p,"Z",1);
+  }else{
+    pObj->fill = -1.0;
+  }
   pik_append(p,"\" ",-1);
-  pik_append_style(p,pObj,0);
+  pik_append_style(p,pObj,pObj->bClose);
   pik_append(p,"\" />\n", -1);
 }
 static void splineRender(Pik *p, PObj *pObj){
@@ -4806,8 +4811,8 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
   for(i=0; i<n; i++){
     PToken *t = &aTxt[i];
     PNum xtraFontScale = pik_font_scale(t);
-    orig_y = pObj->ptAt.y;
     PNum nx = 0;
+    orig_y = pObj->ptAt.y;
     y = 0;
     if( t->eCode & TP_ABOVE2 ) y += 0.5*hc + ha1 + 0.5*ha2;
     if( t->eCode & TP_ABOVE  ) y += 0.5*hc + 0.5*ha1;
@@ -5287,8 +5292,9 @@ static PObj *pik_elem_new(Pik *p, PToken *pId, PToken *pStr,PList *pSublist){
     return pNew;
   }
   if( pId ){
+    const PClass *pClass;
     pNew->errTok = *pId;
-    const PClass *pClass = pik_find_class(pId);
+    pClass = pik_find_class(pId);
     if( pClass ){
       pNew->type = pClass;
       pNew->sw = pik_value(p, "thickness",9,0);
@@ -6723,6 +6729,7 @@ void pik_elist_render(Pik *p, PList *pList){
     iNextLayer = 0x7fffffff;
     for(i=0; i<pList->n; i++){
       PObj *pObj = pList->a[i];
+      void (*xRender)(Pik*,PObj*);
       if( pObj->iLayer>iThisLayer ){
         if( pObj->iLayer<iNextLayer ) iNextLayer = pObj->iLayer;
         bMoreToDo = 1;
@@ -6730,7 +6737,6 @@ void pik_elist_render(Pik *p, PList *pList){
       }else if( pObj->iLayer<iThisLayer ){
         continue;
       }
-      void (*xRender)(Pik*,PObj*);
       if( mDebug & 1 ) pik_elem_render(p, pObj);
       xRender = pObj->type->xRender;
       if( xRender ){
@@ -7776,4 +7782,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 7804 "pikchr.c"
+#line 7810 "pikchr.c"
