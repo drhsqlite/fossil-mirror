@@ -170,8 +170,8 @@ Setup user:
     cannot permanently destroy the repository unless the Setup user has
     been so silly as to have no up-to-date clones.
 
-*   **Moderation**: According to the power hierarchy laid out at the top
-    of this article, Admins are greater than Moderators, so control over
+*   **Moderation**: According to [the user power hierarchy][ucap],
+    Admins are greater than Moderators, so control over
     what Moderators can do clearly belongs to both Admins and to the
     Setup user(s).
 
