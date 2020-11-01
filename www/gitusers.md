@@ -65,19 +65,35 @@ This author uses a scheme like the following on mobile machines that
 shuttle between home and the office:
 
 ``` pikchr toggle indent
-box "~/museum/" fit ; right ; "where one stores valuable fossils"
+box "~/museum/" fit
+move right 0.1
+line right dotted
+move right 0.05
+box invis "where one stores valuable fossils" ljust
 
-arrow down 50% from previous box.s then right 50%
-box "work/" fit ; line dashed right ; "projects from $dayjob"
+arrow down 50% from first box.s then right 50%
+box "work/" fit
+move right 0.1
+line dotted
+move right 0.05
+box invis "projects from $dayjob" ljust
 
 arrow down 50% from 2nd vertex of previous arrow then right 50%
-box "home/" fit ; line dashed right until even with previous text.w ; "personal at-home projects"
+box "home/" fit
+move right 0.1
+line dotted right until even with previous line.end
+move right 0.05
+box invis "personal at-home projects" ljust
 
 arrow down 50% from 2nd vertex of previous arrow then right 50%
-box "other/" fit ; line dashed right until even with previous text.w ; "clones of Fossil itself, SQLite, etc."
+box "other/" fit
+move right 0.1
+line dotted right until even with previous line.end
+move right 0.05
+box invis "clones of Fossil itself, SQLite, etc." ljust
 ```
 
-On a Windows box, you might choose "`C:\Fossils`" instead
+On a Windows box, you might instead choose "`C:\Fossils`"
 and do without the subdirectory scheme, for example.
 
 
