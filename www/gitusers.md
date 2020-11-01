@@ -51,7 +51,38 @@ the core concept of the tool, Git tutorials usually advocate a
 switch-in-place working mode instead, so that is how most users end up
 working with it.
 
-You can use Fossil the same way, switching between versions in a
+
+#### <a id="rname"></a> Naming Repositories
+
+The Fossil repository database file can be named anything
+you want, with a single exception: if you’re going to use the
+[`fossil server DIRECTORY`][server] feature, the repositories you wish
+to serve need to be stored together in a flat directory and have a
+"`.fossil`" suffix. That aside, you can follow any other convention that
+makes sense to you.
+
+This author uses a scheme like the following on mobile machines that
+shuttle between home and the office:
+
+``` pikchr toggle indent
+box "~/museum/" fit ; right ; "where one stores valuable fossils"
+
+arrow down 50% from previous box.s then right 50%
+box "work/" fit ; line dashed right ; "projects from $dayjob"
+
+arrow down 50% from 2nd vertex of previous arrow then right 50%
+box "home/" fit ; line dashed right until even with previous text.w ; "personal at-home projects"
+
+arrow down 50% from 2nd vertex of previous arrow then right 50%
+box "other/" fit ; line dashed right until even with previous text.w ; "clones of Fossil itself, SQLite, etc."
+```
+
+On a Windows box, you might choose "`C:\Fossils`" instead, for example.
+
+
+#### <a id="scw"></a> Single-Checkout Workflows
+
+You can use Fossil in the typical Git way, switching between versions in a
 single check-out directory:
 
         fossil clone https://example.com/repo /path/to/repo.fossil
@@ -87,16 +118,8 @@ would mean `fossil open` has two different ways of working depending on
 the argument, which is a non-Fossil sort of thing to do. We strive for
 consistent behavior across commands and modes.
 
-The Fossil repository file can be named anything you want, with a single
-exception: if you’re going to use the [`fossil server DIRECTORY`][server]
-feature, the repositories need to have a "`.fossil`" suffix. That aside,
-you can follow any other convention that makes sense to you.
 
-Many Fossil users gather all of their Fossil repositories
-in a single directory on their machine, such as "`~/museum`" or
-"`C:\Fossils`".  This can help humans to keep their repositories
-organized, but Fossil itself doesn't really care. (Why “museum”?
-Because that is where one stores valuable fossils.)
+#### <a id="mcw"></a> Multiple-Checkout Workflows
 
 Because Fossil cleanly separates the repository from the check-out, it
 is routine to have multiple check-outs from the same repository:
@@ -139,6 +162,9 @@ a [Heisenbug][hb], forcing it to show itself. While that runs, you can
 open a new terminal tab, “`cd ../trunk`”, and get back
 to work.
 
+
+#### <a id="dotfile"></a> `.git` vs. `.fslckout`
+
 Git users may be initially confused by the `.fslckout` file at the root
 of a check-out directory.
 This is not the same thing as `.git`. It’s a per-checkout SQLite
@@ -148,10 +174,10 @@ checked out, the contents of the [stash] for that working directory, the
 does when you ask it to [close] a check-out is to remove this file after
 making certain safety checks.
 
-(In native Windows builds of Fossil, this file is called `_FOSSIL_`
+In native Windows builds of Fossil — that is, excluding Cygwin and WSL
+builds, which follow POSIX conventions —  this file is called `_FOSSIL_`
 instead to get around the historical 3-character extension limit with
-certain legacy filesystems. “Native” here is a distinction to exclude
-Cygwin and WSL builds, which use `.fslckout`.)
+certain legacy filesystems.
 
 [clone]:  /help?cmd=clone
 [close]:  /help?cmd=close
