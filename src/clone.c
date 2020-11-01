@@ -173,29 +173,26 @@ void clone_cmd(void){
     usage("?OPTIONS? FILE-OR-URL ?NEW-REPOSITORY?");
   }
   db_open_config(0, 0);
-  zRepo = g.argc==4 ? g.argv[3] : 0;
-  if( zRepo!=0 && -1 != file_size(zRepo, ExtFILE) ){
-    fossil_fatal("file already exists: %s", zRepo);
-  }
-  url_parse(g.argv[2], urlFlags);
-  if( zRepo==0 ){
-    int i;
-    const char *z = file_tail(g.url.isFile ? g.url.name : g.url.path);
-    if( z==0 || z[0]==0 ){
+  if( g.argc==4 ){
+    zRepo = g.argv[3];
+  }else{
+    char *zBase = url_to_repo_basename(g.argv[2]);
+    if( zBase==0 ){
       fossil_fatal(
         "unable to guess a repository name from the url \"%s\".\n"
         "give the repository filename as an additional argument.",
         g.argv[2]);
     }
-    for(i=0; z[i] && z[i]!='.'; i++){}
+    zRepo = mprintf("./%s.fossil", zBase);
     if( zWorkDir==0 ){
-      zWorkDir = mprintf("./%.*s", i, z);
+      zWorkDir = mprintf("./%s", zBase);
     }
-    zRepo = mprintf("./%.*s.fossil", i, z);
-    if( -1 != file_size(zRepo, ExtFILE) ){
-      fossil_fatal("file already exists: %s", zRepo);
-    }
+    fossil_free(zBase);
+  }  
+  if( -1 != file_size(zRepo, ExtFILE) ){
+    fossil_fatal("file already exists: %s", zRepo);
   }
+  url_parse(g.argv[2], urlFlags);
   if( zDefaultUser==0 && g.url.user!=0 ) zDefaultUser = g.url.user;
   if( g.url.isFile ){
     file_copy(g.url.name, zRepo);

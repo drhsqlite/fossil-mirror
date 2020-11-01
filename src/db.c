@@ -3507,9 +3507,11 @@ void cmd_open(void){
     char *zCmd;       /* String version of the clone command */
 
     zUri = zRepo;
-    zNewBase = fossil_strdup(file_tail(zUri));
-    for(i=(int)strlen(zNewBase)-1; i>1 && zNewBase[i]!='.'; i--){}
-    if( zNewBase[i]=='.' ) zNewBase[i] = 0;
+    zNewBase = url_to_repo_basename(zUri);
+    if( zNewBase==0 ){
+      fossil_fatal("unable to deduce a repository name from the url \"%s\"",
+                   zUri);
+    }
     if( zRepoDir==0 ) zRepoDir = zPwd;
     zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
     fossil_free(zNewBase);
