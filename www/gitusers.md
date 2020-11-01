@@ -535,6 +535,31 @@ would confuse `diffstat`.
 [dst]:   https://invisible-island.net/diffstat/diffstat.html
 
 
+## <a id="whatchanged"></a> What Changed?
+
+As with `git show`, there is no `fossil whatchanged` command, but the
+information is usually available. For example, to pull the current
+changes from the remote repository and then inspect them before updating
+the local working directory, you might say this in Git:
+
+        git fetch
+        git whatchanged ..@{u}
+
+…which you can approximate in Fossil as:
+
+        fossil pull
+        fossil diff --from tip
+        fossil timeline after current
+
+Note the use of [human-readable symbolic version names][scin] rather than
+cryptic notations.
+
+To invert the diff direction of the second command, say:
+
+        fossil diff --from current --to tip
+
+You can abbreviate the last command as `fossil tim after curr`.
+
 
 <a id="btnames"></a>
 ## Branch and Tag Names
