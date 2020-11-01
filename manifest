@@ -1,5 +1,5 @@
-C Version\s2.13\s"All\sSaints"
-D 2020-11-01T00:13:51.371
+C Update\sthe\slatest\srelease\snotation\son\sthe\shomepage.
+D 2020-11-01T00:27:43.999
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -890,7 +890,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 9a6dc73a00da6f71b20fcddb4aa16c3ffe00c92ab9b0762d4baad3bff4541dc8
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 3aed0b0ac48e9d50d4df3066c61cc799b40407d148f60327d4718aa285a6f002
+F www/index.wiki ec9f990fa0ab801d93260e0a0c7729c7bc1f1eb803b345fbbe4448b28fea4415
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 257bb6c25527662ea164316a9187db07d52fc1e8a9edb48014d1f56b6b0ea243
@@ -985,9 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6ad6fb179b4075856c5133e902e1c15163fe15e702a632ed9481e9e4d045fdc
-R 6042f2dc8ea1fefef0369c5c6a2ed28c
-T +sym-release *
-T +sym-version-2.13 *
+P e7bba4ff367e6890ad0dfe68bce0c0869b1e49486b9b74a940121f9bfc609a1e
+R 5a566f4d91a7c6b1cbeda02ed19a31a9
 U drh
-Z f2e759ce0c4d471a7cfc43f93c714966
+Z 64e0df670ce82bfc740630cc19eea631
