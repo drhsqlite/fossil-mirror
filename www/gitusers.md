@@ -116,19 +116,19 @@ The main Git-specific thing to add to that document is that this:
 
 #### <a id="close" name="dotfile"></a> Closing A Check-Out
 
-The `fossil close` command dissaociates a check-out directory from the
-Fossil repository database, nondestructively inverting `fossil open`. It
+The [`fossil close`][close] command dissaociates a check-out directory from the
+Fossil repository database, nondestructively inverting [`fossil open`][open]. It
 won’t remove the managed files, and unless you give the `--force`
 option, it won’t let you close the check-out with uncommitted changes to
 those managed files.
 
-The `close` command also refuses to run without `--force` when you have
+The `close` command refuses to run without `--force` when you have
 certain precious per-checkout data, which Fossil stores in the
 `.fslckout` file at the root of a check-out directory. This is a SQLite
 database that keeps track of local state such as what version you have
 checked out, the contents of the [stash] for that working directory, the
 [undo] buffers, per-checkout [settings][set], and so forth. The stash
-and undo buffers are considered precious, being “uncommitted changes,”
+and undo buffers are considered precious uncommitted changes,
 so you have to force Fossil to discard these as part of closing the
 check-out.
 
@@ -139,19 +139,21 @@ builds, which follow POSIX conventions —  this file is called `_FOSSIL_`
 instead to get around the historical 3-character extension limit with
 certain legacy filesystems.
 
-Closing a check-out directory is a rare operation. One common use case
-is that you’re about to delete it, so you want Fossil to forget about it
-for the purposes of commands like [`fossil all`][all].
+Closing a check-out directory is a rare operation. One use case
+is that you’re about to delete the directory, so you want Fossil to forget about it
+for the purposes of commands like [`fossil all`][all]. Even that isn’t
+necessary, because Fossil will detect that this has happened and forget
+the working directory for you.
 
-The closest equivalent for `fossil close` in Git is
-`git worktree remove`.
+The closest equivalent in Git is `git worktree remove`.
 
 [all]: /help?cmd=all
 
 
 #### <a id="iip"></a> Init In Place
 
-To illustrate these differences, consider this common Git “init in place”
+To illustrate the differences that Fossil’s separation of repository
+from working directory creates in practice, consider this common Git “init in place”
 method for creating a new repository from an existing tree of files,
 perhaps because you are placing that project under version control for
 the first time:
@@ -184,7 +186,7 @@ purposes of this example.
 We’ve drawn this example to create a tight parallel between Fossil and
 Git, not to commend this `.fsl`-at-project-root trick to you. A better
 choice would be `~/museum/home/long-established-project.fossil`, if
-you’re following the directory scheme exemplified above. That said, it
+you’re following [the directory scheme exemplified above](#rname). That said, it
 does emphasize an earlier point: Fossil doesn’t care where you put the
 repo DB file or what you name it.
 

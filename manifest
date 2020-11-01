@@ -1,5 +1,5 @@
-C Extracted\sthe\scheckout\sworkflows\ssection\sof\sthe\sgitusers.md\sdoc\sto\sa\snew\nwww/ckout-workflows.md\sdoc,\swhich\stalks\sabout\sGit\sonly\sas\sa\scommon\ncomparison.\s\sLinking\sto\sit\sfrom\sthe\sgitusers.md\sdoc,\swhich\snow\sonly\ntalks\sabout\sthe\sGit-specific\sbits\swe\shad\sin\sthat\ssection.
-D 2020-11-01T23:35:34.885
+C Minor\stweaks\sto\sthe\sgitusers\sdoc\sto\strack\sthe\sprior\scommit.
+D 2020-11-01T23:44:38.993
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -879,7 +879,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md caa5f2b833d429795d60fd0f211d51ac19f339d8a77ea26732ff4b66fc9724b1
+F www/gitusers.md f294e6060257c7251b3216797a6d92a0e190cf7032b1dcaff907c970be44b0ec
 F www/globs.md fb92287b95e7fc588a768f5961b3268a1b8d82c4b3e657ee0453f988825ebc72
 F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54001a4efef57c30a12107bffb79b3b87f99d57e8803162c5d0b914b13dbcf54
-R 21672a25cdefd07d1a53d2a31665fcab
+P b6b1b705d001178bcc88438f6fbd314d6f75dedf8b5851fed32133089a8529e5
+R 93420cde6367fb4a356d2fd5b2bb5a65
 U wyoung
-Z 76e4361efad2581badcd5a1b82946b68
+Z b12571abbdcad04b49640579ec2db3a8
