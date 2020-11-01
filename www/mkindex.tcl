@@ -29,6 +29,7 @@ set doclist {
   checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
   childprojects.wiki {Child Projects}
+  ckout-workflows.md {Check-Out Workflows}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
