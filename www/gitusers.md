@@ -192,6 +192,9 @@ Closing a check-out directory is a rare operation. One common use case
 is that you’re about to delete it, so you want Fossil to forget about it
 for the purposes of commands like [`fossil all`][all].
 
+The closest equivalent for `fossil close` in Git is
+`git worktree remove`.
+
 [all]: /help?cmd=all
 
 
