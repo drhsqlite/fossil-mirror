@@ -178,20 +178,6 @@ If you’re adding this to the first script above, remove the
 “`-R repo-name`” bit so you get a dump of the repository backing the
 current working directory.
 
-This requires OpenSSL 1.1 or higher. If you’re on 1.0 or older, you
-won’t have the `-pbkdf2` and `-iter` options, and you may have to choose
-a different cipher algorithm; both changes are likely to weaken the
-encryption significantly, so you should install a newer version rather
-than work around the lack of these features.
-
-If you’re on macOS, which
-still ships 1.0 as of the time of this writing, [Homebrew][hb] offers
-the current version of OpenSSL, but to avoid a conflict with the platform
-version it’s [unlinked][hbul] by default, so you have to give an explicit
-path to its “cellar” directory:
-
-       /usr/local/Cellar/openssl\@1.1/1.1.1g/bin/openssl ...
-
 Change the `pass` value to some other long random string, and change the
 `iter` value to something between 10000 and 100000. A good source for
 the first is [here][grcp], and for the second, [here][rint].
@@ -204,6 +190,18 @@ compression algorithm that takes less CPU power, such as [`lz4`][lz4].
 Changing up the compression algorithm also provides some
 security-thru-obscurity, which is useless on its own, but it *is* a
 useful adjunct to strong encryption.
+
+This requires OpenSSL 1.1 or higher. If you’re on 1.0 or older, you
+won’t have the `-pbkdf2` and `-iter` options, and you may have to choose
+a different cipher algorithm; both changes are likely to weaken the
+encryption significantly, so you should install a newer version rather
+than work around the lack of these features. If you’re on macOS, which
+still ships 1.0 as of the time of this writing, [Homebrew][hb] offers
+the current version of OpenSSL, but to avoid a conflict with the platform
+version, it’s [unlinked][hbul] by default, so you have to give an explicit
+path to its “cellar” directory:
+
+       /usr/local/Cellar/openssl\@1.1/1.1.1g/bin/openssl ...
 
 
 ## <a id="rest"></a> Restoring From An Encrypted Backup
