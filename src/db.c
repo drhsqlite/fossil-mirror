@@ -3501,7 +3501,6 @@ void cmd_open(void){
   if( isUri ){
     char *zNewBase;   /* Base name of the cloned repository file */
     const char *zUri; /* URI to clone */
-    int i;            /* Loop counter */
     int rc;           /* Result code from fossil_system() */
     Blob cmd;         /* Clone command to be run */
     char *zCmd;       /* String version of the clone command */

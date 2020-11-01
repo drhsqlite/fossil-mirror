@@ -1,5 +1,5 @@
-C Factor\sout\sthe\slogic\sthat\stries\sto\sdeduce\san\sappropriate\srepository\sname\nfrom\sa\sremote\sURL\sand\sput\sit\sin\sthe\surl_to_repo_basename()\sroutine\sof\surl.c.
-D 2020-11-01T20:37:44.920
+C Fix\sa\sharmless\scompiler\swarning.
+D 2020-11-01T20:44:26.601
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7b6162bcbda411886171f562c03c0b7f7707b2c8742f70243fa1b547183da73e
+F src/db.c 109a1234b07084d43037188028ef10b4fa9667f353e80e2ab4e709f6ce52222d
 F src/default.css 71c6480170369aeb36424cea1188640c1028bf8835b1793925ca903df67ea6ee
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b564baa67f7e50090dcff22a9eb14f0c6c332e16da0d4923af343f1c9994f4ce
-R a777375540107f5707dff2b358b0023e
+P f978fcdce15d4f82ef013646e86ab17f23cb9e8a4fbb476fdf0ac203c422d6fa
+R 0aaead8087f676300d8d3516a1e0c03e
 U drh
-Z 1f72f05747a6e80c410617b55cd90853
+Z 9699459eb5131e11b32bab382815b100
