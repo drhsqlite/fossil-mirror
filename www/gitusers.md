@@ -179,6 +179,46 @@ builds, which follow POSIX conventions —  this file is called `_FOSSIL_`
 instead to get around the historical 3-character extension limit with
 certain legacy filesystems.
 
+
+#### <a id="iip"></a> Init In Place
+
+To illustrate these differences, consider this common Git “init in place”
+method for creating a new repository from an existing tree of files,
+perhaps because you are placing that project under version control for
+the first time:
+
+        cd long-established-project
+        git init
+        git add *
+        git commit -m "Initial commit of project."
+
+The closest equivalent in Fossil is:
+
+        cd long-established-project
+        fossil init .fsl
+        fossil open --force .fsl
+        fossil add *
+        fossil ci -m "Initial commit of project."
+
+Note that unlike in Git, you can abbreviate the “`commit`” command in
+Fossil as “`ci`” for compatibility with CVS, Subversion, etc.
+
+This creates a `.fsl` repo DB at the root of the project check-out to
+emulate the `.git` repo dir. We have to use the `--force` flag on
+opening the new repo because Fossil expects you to open a repo into an
+empty directory in order to avoid spamming the contents of a repo over
+an existing directory full of files. Here, we know the directory
+contains files that will soon belong in the repository, though, so we
+override this check. From then on, Fossil works like Git, for the
+purposes of this example.
+
+We’ve drawn this example to create a tight parallel between Fossil and
+Git, not to commend this `.fsl`-at-project-root trick to you. A better
+choice would be `~/museum/home/long-established-project.fossil`, if
+you’re following the directory scheme exemplified above. That said, it
+does emphasize an earlier point: Fossil doesn’t care where you put the
+repo DB file or what you name it.
+
 [clone]:  /help?cmd=clone
 [close]:  /help?cmd=close
 [gloss]:  ./whyusefossil.wiki#definitions
