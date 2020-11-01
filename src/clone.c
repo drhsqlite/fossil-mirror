@@ -181,6 +181,12 @@ void clone_cmd(void){
   if( zRepo==0 ){
     int i;
     const char *z = file_tail(g.url.isFile ? g.url.name : g.url.path);
+    if( z==0 || z[0]==0 ){
+      fossil_fatal(
+        "unable to guess a repository name from the url \"%s\".\n"
+        "give the repository filename as an additional argument.",
+        g.argv[2]);
+    }
     for(i=0; z[i] && z[i]!='.'; i++){}
     if( zWorkDir==0 ){
       zWorkDir = mprintf("./%.*s", i, z);

@@ -1,5 +1,5 @@
-C Broke\sthe\slong\s"Repositories\sAnd\sCheckouts\sAre\sDistinct"\ssection\sin\nthe\sgitusers\sdoc\sup\sinto\ssections,\sreordered\ssome\sthings,\sand\sadded\sa\nPikchr\sshowing\smy\s~museum\sdirectory\sstructure\sas\san\sexample.
-D 2020-11-01T20:07:24.666
+C For\sthe\s"clone"\scommand,\sthrow\sa\sfatal\serror\sif\sthe\sFILENAME\sargument\sis\nomitted\sand\swe\sare\sunable\sto\sguess\san\sappropriate\sfilename\sfrom\sthe\sURL.
+D 2020-11-01T20:18:36.835
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -452,7 +452,7 @@ F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c d297ecc288189c3ffe78184e04126b7fb0726601a0be71555b4c0f8ed37fa907
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c fc60a500cbbb324e6d1be5e7b62694c83534d7987265b1f1ce3165ab85607705
+F src/clone.c e304a7aadb14af6b382f6d6738dce13da60f155d63080ff76884b8a5ed242d0c
 F src/codecheck1.c 0ca97e0ad67ee180590b536c5f8cf1e3a7ce6da15e42d9380a8a61b804e4da8f
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
 F src/config.h 722b2a0ac17571cdf9c0d285b945f0f29168924311203bca652e5d7fe3dfbf30
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8d7878789da6e33e3cba8f8e0be5e3741a432543031214c8dad14ed0db7c32d
-R f488e386e2079eda7f23b10915989f90
-U wyoung
-Z 1790ebb97b382ad4d209f66d04185736
+P 88a833075839d87bfa83869875262b207ad3cca2607112a596dff9918db81d11
+R 5f77b155f076588ea3612677d09b6552
+U drh
+Z c44c0d307a25432c45e6526e34e84be3
