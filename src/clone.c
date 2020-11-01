@@ -82,11 +82,13 @@ void delete_private_content(void){
 /*
 ** COMMAND: clone
 **
-** Usage: %fossil clone ?OPTIONS? URI FILENAME
+** Usage: %fossil clone ?OPTIONS? URI ?FILENAME?
 **
 ** Make a clone of a repository specified by URI in the local
-** file named FILENAME. URI may be one of the following forms:
-** ([...] denotes optional elements):
+** file named FILENAME.  If FILENAME is omitted, then an appropriate
+** filename is deduced from last element of the path in the URL.
+**
+** URI may be one of the following forms ([...] denotes optional elements):
 **
 **  * HTTP/HTTPS protocol:
 **
@@ -100,10 +102,6 @@ void delete_private_content(void){
 **
 **      [file://]path/to/repo.fossil
 **
-** Note that in Fossil (in contrast to some other DVCSes) a repository
-** is distinct from a checkout.  This command create a clone of a repository.
-** Use the separate [[open]] command to open a checkout from that repository.
-**
 ** For ssh and filesystem, path must have an extra leading
 ** '/' to use an absolute path.
 **
@@ -111,14 +109,24 @@ void delete_private_content(void){
 ** password.  For example "%40" in place of "@", "%2f" in place
 ** of "/", and "%3a" in place of ":".
 **
+** Note that in Fossil (in contrast to some other DVCSes) a repository
+** is distinct from a checkout.  Cloning a repository is not the same thing
+** as opening a repository.  This command always clones the repository.  This
+** command might also open the repository, but only if the --no-open option
+** is omitted and either the --workdir option is included or the FILENAME
+** argument is omitted.  Use the separate [[open]] command to open a
+** repository that was previously cloned and already exists on the
+** local machine.
+**
 ** By default, the current login name is used to create the default
-** admin user. This can be overridden using the -A|--admin-user
-** parameter.
+** admin user for the new clone. This can be overridden using
+** the -A|--admin-user parameter.
 **
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
 **    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
 **    --nocompress               Omit extra delta compression
+**    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
 **    --save-http-password       Remember the HTTP password without asking
@@ -126,6 +134,7 @@ void delete_private_content(void){
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
+**    --workdir DIR              Also open a checkout in DIR
 **
 ** See also: [[init]], [[open]]
 */
@@ -137,6 +146,10 @@ void clone_cmd(void){
   int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
   int syncFlags = SYNC_CLONE;
   int noCompress = find_option("nocompress",0,0)!=0;
+  int noOpen = find_option("no-open",0,0)!=0;
+  const char *zRepo = 0;      /* Name of the new local repository file */
+  const char *zWorkDir = 0;   /* Open in this director, if not zero */
+
 
   /* Also clone private branches */
   if( find_option("private",0,0)!=0 ) syncFlags |= SYNC_PRIVATE;
@@ -149,28 +162,41 @@ void clone_cmd(void){
   if( find_option("unversioned","u",0)!=0 ) syncFlags |= SYNC_UNVERSIONED;
   zHttpAuth = find_option("httpauth","B",1);
   zDefaultUser = find_option("admin-user","A",1);
+  zWorkDir = find_option("workdir", 0, 1);
   clone_ssh_find_options();
   url_proxy_options();
 
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc < 4 ){
-    usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
+  if( g.argc < 3 ){
+    usage("?OPTIONS? FILE-OR-URL ?NEW-REPOSITORY?");
   }
   db_open_config(0, 0);
-  if( -1 != file_size(g.argv[3], ExtFILE) ){
-    fossil_fatal("file already exists: %s", g.argv[3]);
+  zRepo = g.argc==4 ? g.argv[3] : 0;
+  if( zRepo!=0 && -1 != file_size(zRepo, ExtFILE) ){
+    fossil_fatal("file already exists: %s", zRepo);
   }
-
   url_parse(g.argv[2], urlFlags);
+  if( zRepo==0 ){
+    int i;
+    const char *z = file_tail(g.url.isFile ? g.url.name : g.url.path);
+    for(i=0; z[i] && z[i]!='.'; i++){}
+    if( zWorkDir==0 ){
+      zWorkDir = mprintf("./%.*s", i, z);
+    }
+    zRepo = mprintf("./%.*s.fossil", i, z);
+    if( -1 != file_size(zRepo, ExtFILE) ){
+      fossil_fatal("file already exists: %s", zRepo);
+    }
+  }
   if( zDefaultUser==0 && g.url.user!=0 ) zDefaultUser = g.url.user;
   if( g.url.isFile ){
-    file_copy(g.url.name, g.argv[3]);
+    file_copy(g.url.name, zRepo);
     db_close(1);
-    db_open_repository(g.argv[3]);
+    db_open_repository(zRepo);
     db_open_config(1,0);
-    db_record_repository_filename(g.argv[3]);
+    db_record_repository_filename(zRepo);
     url_remember();
     if( !(syncFlags & SYNC_PRIVATE) ) delete_private_content();
     shun_artifacts();
@@ -180,14 +206,14 @@ void clone_cmd(void){
     }else{
       g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
     }
-    fossil_print("Repository cloned into %s\n", g.argv[3]);
+    fossil_print("Repository cloned into %s\n", zRepo);
   }else{
     db_close_config();
-    db_create_repository(g.argv[3]);
-    db_open_repository(g.argv[3]);
+    db_create_repository(zRepo);
+    db_open_repository(zRepo);
     db_open_config(0,0);
     db_begin_transaction();
-    db_record_repository_filename(g.argv[3]);
+    db_record_repository_filename(zRepo);
     db_initial_setup(0, 0, zDefaultUser);
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
@@ -223,10 +249,10 @@ void clone_cmd(void){
     db_end_transaction(0);
     db_close(1);
     if( nErr ){
-      file_delete(g.argv[3]);
+      file_delete(zRepo);
       fossil_fatal("server returned an error - clone aborted");
     }
-    db_open_repository(g.argv[3]);
+    db_open_repository(zRepo);
   }
   db_begin_transaction();
   fossil_print("Rebuilding repository meta-data...\n");
@@ -249,6 +275,20 @@ void clone_cmd(void){
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
+     char *azNew[6];
+     fossil_print("opening the new %s repository in directory %s...\n",
+        zRepo, zWorkDir);
+     azNew[0] = g.argv[0];
+     azNew[1] = "open";
+     azNew[2] = (char*)zRepo;
+     azNew[3] = "--workdir";
+     azNew[4] = (char*)zWorkDir;
+     azNew[5] = 0;
+     g.argv = azNew;
+     g.argc = 5;
+     cmd_open();
+  }
 }
 
 /*

@@ -1,5 +1,5 @@
-C Added\sthe\s"Summary\sLine\sConvention\sIn\sCommit\sComments"\ssection\sto\sthe\ngitusers\sdoc.
-D 2020-11-01T19:27:11.621
+C Enhance\sthe\sclone\scommand\sso\sthat\sif\sit\sincludes\seither\sthe\s"--workdir\sDIR"\noption,\sor\sif\somits\sthe\slocal\srepository\sfilename\sargument,\sand\sif\sthe\n"--no-open"\soption\sis\somitted,\sthen\sthe\srepository\sis\sopened\safter\sit\sis\ncloned.\s\sHence\sthe\scommand\s"fossil\sclone\shttps://whatever.com/x/y/repo"\nworks\smore\slike\sGit\sin\sthat\sit\sfirst\sclones\sinto\s"repo.fossil"\sthen\nopens\sthe\snew\srepository\sin\sthe\s"repo"\ssubdirectory.
+D 2020-11-01T20:06:15.165
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -452,7 +452,7 @@ F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c d297ecc288189c3ffe78184e04126b7fb0726601a0be71555b4c0f8ed37fa907
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c b6044e4f0fd8510e661e24276b445b6df937edf18782267cbc163e2930bf00df
+F src/clone.c fc60a500cbbb324e6d1be5e7b62694c83534d7987265b1f1ce3165ab85607705
 F src/codecheck1.c 0ca97e0ad67ee180590b536c5f8cf1e3a7ce6da15e42d9380a8a61b804e4da8f
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
 F src/config.h 722b2a0ac17571cdf9c0d285b945f0f29168924311203bca652e5d7fe3dfbf30
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8b414ab8db3f24fa207594611ec3beda680214c18d3d7f2631333d06d73da9d
-R a63ebeadee942c1cf0511305f990f4db
-U wyoung
-Z b51134f418249528038085865fe301f9
+P 46a30e7e9b0cd2b70d6eb572a8101b44e694e4265ccc00b0bd36f35508b3ba25
+R 728a44df2a0fa519d85e9e0d2bd5d5ee
+U drh
+Z 16fb6e7ca1c21f0709e921ec1380e546
