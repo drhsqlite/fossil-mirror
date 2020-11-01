@@ -646,7 +646,7 @@ void url_get_password_if_needed(void){
 ** returned if there is an error.
 */
 char *url_to_repo_basename(const char *zUrl){
-  const char *zTail;
+  const char *zTail = 0;
   int i;
   if( zUrl==0 ) return 0;
   for(i=0; zUrl[i]; i++){
