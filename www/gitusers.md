@@ -467,6 +467,75 @@ addressed there.
 [3]: ./rebaseharm.md
 
 
+## <a id="show"></a> Showing Information About Commits
+
+While there is no direct equivalent to Git’s “`show`” command, similar
+functionality may be present in Fossil under other commands:
+
+
+#### <a name="patch"></a> Show A Patch For A Commit
+
+        git show -p COMMIT_ID
+
+…gives much the same output as
+
+        fossil diff --checkin COMMIT_ID
+
+…only without the patch email header. Git comes out of the [LKML] world,
+where emailing a patch is a normal thing to do. Fossil is designed for
+[more cohesive teams][devorg] where such drive-by patches are rarer.
+
+You can use any of [Fossil’s special check-in names][scin] in place of
+the `COMMIT_ID` in this and later examples. Fossil docs usually say
+“`VERSION`” or “`NAME`” where this is allowed, since the version string
+or name might not refer to a commit ID, but instead to a forum post, a
+wiki document, etc. The following command answers the question “What did
+I just commit?”
+
+        fossil diff --checkin tip
+
+[devorg]: ./fossil-v-git.wiki#devorg
+[LKML]:   https://lkml.org/
+
+
+#### <a name="cmsg"></a> Show A Specific Commit Message
+
+        git show -s COMMIT_ID
+
+
+…is
+
+        fossil time -n 1 COMMIT_ID
+
+…or with a shorter, more obvious command, with more verbose output:
+
+        fossil info COMMIT_ID
+
+The `fossil info` command isn’t otherwise a good equivalent to
+`git show`. It just overlaps its functionality in some areas. Much of
+what’s missing is present in the corresponding [`/info` web
+view][infow], though.
+
+
+#### <a name="dstat"></a> Diff Statistics
+
+Fossil doesn’t have an internal equivalent to commands like
+`git show --stat`, but it’s easily remedied by using
+[the widely-available `diffstat` tool][dst]:
+
+       fossil diff -i --from 2020-04-01 | diffstat
+
+We gave the `-i` flag here to force Fossil to use its internal diff
+implementation, bypassing [your local `diff-command` setting][dcset].
+If you had that set to [`colordiff`][cdiff], for example, its output
+would confuse `diffstat`.
+
+[cdiff]: https://www.colordiff.org/
+[dcset]: https://fossil-scm.org/home/help?cmd=diff-command
+[dst]:   https://invisible-island.net/diffstat/diffstat.html
+
+
+
 <a id="btnames"></a>
 ## Branch and Tag Names
 
