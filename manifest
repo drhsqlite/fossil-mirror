@@ -1,5 +1,5 @@
-C Using\s`fossil\ssql\s--no-repository`\sinstead\sof\s`sqlite3`\sin\sthe\srestore\nstep\sof\sbackup.md.
-D 2020-11-01T17:52:05.231
+C Several\srefinements\sto\sthe\sbackup.md\sdoc,\sthe\smost\ssubstantive\sof\swhich\nis\sthat\sit\snow\swarns\sthat\seven\sthe\ssecond\smethod\sdoesn't\sinherently\nsolve\sthe\sstale-repo\sproblem\sin\sdistributed\scloning\snetworks.
+D 2020-11-01T18:06:07.389
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -809,7 +809,7 @@ F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
-F www/backup.md 831ff5c824fcac4f84e3706cddd8de566cf634f13a0d23c9f706a9d5ba07e7f4
+F www/backup.md 07cf03880e60e3c2b8b220b12116ac9d80653730c8f57d4010dde789aa80928b
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md 002ed6db927843a7998067420eb53414784ab6030c38055af4645e6c1c18d299
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9b5a983cc8014939af1722451be96e5a009bd9d91c2b6da3b9934a822ed1148
-R 03b779e2d5fd736074e0e48d53c28ed3
+P ff7cedfeec93a059769720a0ac6741cbc6940acccc908a61c4d654b87dca9199
+R 7d3339f626e037eeae5543bda8f8b0c4
 U wyoung
-Z f7efb7e11a8247c0db4bd5504fe3287d
+Z 0f7b9ff8c314a1e8f43ed9467055e4a5
