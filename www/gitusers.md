@@ -35,21 +35,51 @@ you to understand some of the other Fossil docs better.
 ## Repositories And Checkouts Are Distinct
 
 A repository and a check-out are distinct concepts in Fossil, whereas
-the two are collocated by default with Git.
+the two are collocated by default with Git. This difference shows up in
+several separate places when it comes to moving from Git to Fossil.
 
-A Fossil repository is a SQLite database storing
-the entire history of a project.  A Fossil check-out is a
-directory that contains a snapshot of your project that you
-are currently working on, extracted for you from that database by the
-`fossil` program.
 
-With Git, cloning a repository gets you what Fossil would call a
-check-out directory with the repository stored in a `.git` subdirectory
-of that check-out. There are methods to get additional working directories
-pointing at that same Git repository, but because it’s not designed into
-the core concept of the tool, Git tutorials usually advocate a
-switch-in-place working mode instead, so that is how most users end up
-working with it.
+
+#### <a id="cwork" name="scw"></a> Checkout Workflows
+
+A Fossil repository is a SQLite database storing the entire history of a
+project. It is not normally stored inside the working tree, as with Git.
+
+The working tree — also called a check-out in Fossil — is a directory
+that contains a snapshot of your project that you are currently working
+on, extracted for you from the repository database file by the `fossil`
+program.
+
+Git commingles these two by default, with the repository stored in a
+`.git` subdirectory underneath your working directory. There are ways to
+emulate the Fossil working style in Git, but because they’re not
+designed into the core concept of the tool, Git tutorials usually
+advocate a switch-in-place working mode instead, so that is how most
+users end up working with Git. Contrast [Fossil’s check-out workflow
+document][ckwf] to see the practical differences.
+
+There are two key Git-specific things to add to that document.
+
+First, this:
+
+        git checkout some-branch
+
+…is spelled:
+
+       fossil update some-branch
+
+…in Fossil.
+
+Second, as of Fossil 2.14, we now have Git-style clone-and-open:
+
+       fossil clone https://example.com/repo
+
+That gets you a `repo.fossil` file, opened into a `repo/` working
+directory alongside it. Note that we do not commingle the repo and
+working directory even in this case. See [the workflows doc][ckwf]
+for more detail on this and related topics.
+
+[ckwf]: ./ckout-workflows.md
 
 
 #### <a id="rname"></a> Naming Repositories
@@ -95,23 +125,6 @@ box invis "clones of Fossil itself, SQLite, etc." ljust
 
 On a Windows box, you might instead choose "`C:\Fossils`"
 and do without the subdirectory scheme, for example.
-
-
-#### <a id="cwork" name="scw"></a> Checkout Workflows
-
-This is a complicated topic, so we [cover it elsewhere][cw].
-
-The main Git-specific thing to add to that document is that this:
-
-        git checkout some-branch
-
-…is spelled:
-
-       fossil update some-branch
-
-…in Fossil.
-
-[cw]: ./ckout-workflows.md
 
 
 #### <a id="close" name="dotfile"></a> Closing A Check-Out
