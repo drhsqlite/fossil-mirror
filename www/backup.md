@@ -204,7 +204,7 @@ restoration is:
 
 ```
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 52830 -pass pass:"$pass" -in "$gd" |
-    xz -d | sqlite3 ~/museum/restored-repo.fossil
+    xz -d | fossil --no-repository ~/museum/restored-repo.fossil
 ```
 
 We changed the `-e` to `-d` on the `openssl` command to get decryption,
@@ -215,19 +215,18 @@ The decompression step is trivial.
 
 The last change is tricky: we used `fossil sql` above to ensure that
 we’re using the same version of SQLite to write the encrypted backup DB
-as was used to maintain the repository, but unfortunately, we can’t get
-the built-in SQLite shell to write a backup into an empty database.
-(As soon as it starts up, it goes looking for tables created by
-`fossil init` and fails with an error.)
-Therefore, we have to either run the restoration against a
-possibly-different version of SQLite and hope there are no
-incompatibilities, or we have to go out of our way to build a matching
-version of `sqlite3` before we can safely do the restoration.
-
-Keep in mind that Fossil often acts as a dogfooding project for SQLite,
-making use of the latest features, so it is quite likely that a given
+as was used to maintain the repository. We must also do that on
+restoration:
+Fossil serves as a dogfooding project for SQLite,
+often making use of the latest features, so it is quite likely that a given
 random `sqlite3` binary in your `PATH` will be unable to understand the
-file created by “`fossil sql .dump`”!
+file created by “`fossil sql .dump`”! The tricky bit is, you can’t just
+pipe the decrpted SQL dump into `fossil sql`, because on startup, Fossil
+normally goes looking for tables created by `fossil init`, and it won’t
+find them in a newly-created repo DB. We get around this by passing
+the `--no-repository` flag, which suppresses this behavior. Doing it
+this way saves you from needing to go and build a matching version of
+`sqlite3` just to restore the backup.
 
 [bu]:    /help?cmd=backup
 [grcp]:  https://www.grc.com/passwords.htm
