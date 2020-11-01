@@ -166,17 +166,47 @@ Cygwin and WSL builds, which use `.fslckout`.)
 
 ## <a id="log"></a> Fossil’s Timeline is the “Log”
 
-Git users often need to use the `git log` command to grovel through
+Git users often need to use the `git log` command to dig linearly through
 commit histories due to its [weak data model][wdm].
 
 Fossil parses a huge amount of information out of commits that allow it
-to produce its [timeline CLI][tlc] and [its `/timeline` web view][tlw],
+to produce its [timeline CLI][tlc] and [its `/timeline` web view][tlw]
+using indexed SQL lookups,
 which generally have the info you would have to manually extract from
-`git log`.
+`git log`, produced much more quickly than Git can.
 
-[tlc]: /help?cmd=timeline
-[tlw]: /help?cmd=/timeline
-[wdm]: ./fossil-v-git.wiki#durable
+Unlike Git’s log, Fossil’s timeline shows info across branches by
+default, a feature for maintaining better situational awareness. The
+`fossil timeline` command has no way to show a single branch’s commits,
+but you can restrict your view like this using the web UI equivalent by
+clicking the name of a branch on the `/timeline` or `/brlist` page. (Or
+manually, by adding the `r=` query parameter.) Note that even in this
+case, the Fossil timeline still shows other branches where they interact
+with the one you’ve referenced in this way; again, better situational
+awareness.
+
+If you truly need a backwards-in-time-only view of history in Fossil to
+emulate `git log`, this is as close as you can currently come:
+
+        fossil timeline parents current
+
+Again, though, this isn’t restricted to a single branch, as `git log`
+is.
+
+Another useful rough equivalent is:
+
+        git log --raw
+        fossil time -v
+
+This shows what changed in each version, though Fossil’s view is more a
+summary than a list of raw changes. To dig deeper into single commits,
+you can use Fossil’s [`info` command][infoc] or its [`/info` view][infow].
+
+[infoc]: /help?cmd=info
+[infow]: /help?cmd=/info
+[tlc]:   /help?cmd=timeline
+[tlw]:   /help?cmd=/timeline
+[wdm]:   ./fossil-v-git.wiki#durable
 
 
 <a id="staging"></a>
