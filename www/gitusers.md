@@ -1,4 +1,4 @@
-# Git Translation Guide
+# Git to Fossil Translation Guide
 
 ## Introduction
 
