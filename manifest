@@ -1,5 +1,5 @@
-C Added\sthe\s"What\sChanged?"\ssection\sto\sthe\sgitusers\sdoc.
-D 2020-11-01T21:12:32.310
+C Enhance\sthe\sCGI\sextension\sdocumentation\sto\spoint\sout\sthat\sCGI\sextensions\nare\saccessible\sto\sall\susers\sand\sthat\saccess\scontrol\sis\sthe\sresponsibility\nof\sthe\sindividual\sextensions.
+D 2020-11-01T21:14:52.017
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -964,7 +964,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
-F www/serverext.wiki 72701435746518239ed71af39ff9401a6896fb1181898eb6bc6ea24418bab9f8
+F www/serverext.wiki afd625caa3518230dd5323df86acd1ed37805ecbe84751facd2b60627d6d5773
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 036c770a25d2ec30d22f05519563d6957dc9c91a48dffdfe52cbc4c383f1cab1
 F www/ssl.wiki 0dd97431ff90fce1f19a7d2e60bdae07fd1b079d90b7e76750eaa9be44b4f7ce
@@ -985,7 +985,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9cf1a1664e9f9d4694ffaf376b1345e7e8032b9b5df8367af31763371a2ff7f6
-R 58fd2c29b9dd2ab34305062fdb118306
-U wyoung
-Z 138ffb017366fc7545258d1577a09ff8
+P 7c511caeccf09ce0796c1adc8e901b2a27152f31703fed711ecce98f81e52135
+R b4a7fae34ead27c55c8552791b0e4fec
+U drh
+Z b32ca9459df212e8019d12091fa3dcaa
