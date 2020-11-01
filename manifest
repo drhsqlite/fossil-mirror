@@ -1,5 +1,5 @@
-C Covered\sthe\sdifference\sbetween\s"git\slog"\sand\s"fossil\stimeline"\sin\sthe\ngitusers\sdoc;\smade\sseveral\sother\simprovements\swhile\sin\sthere.
-D 2020-10-31T03:15:32.248
+C Version\s2.13\s"All\sSaints"
+D 2020-11-01T00:13:51.371
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -828,7 +828,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
-F www/changes.wiki 7db1271ade60b39dbc7383935c4c3bf1dae2f6a936e277093e478653efb5b2b2
+F www/changes.wiki db757603b69f805e78cbbc5f800e284099712812df26101137c7d5f1f67d058c
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b58919c219e2513b61e283d30e2b8e792ee50e63b2445cbe7d5ffb22d6734051
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -985,7 +985,9 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a6fd6b911f2a33fab5d49fba70a469d46adfbb56f5fc228da595809c1d929a8
-R cf88046379872b9735e70efb0541b3de
-U wyoung
-Z 4fc5da46cdc5e774c67b271a9e7bd470
+P f6ad6fb179b4075856c5133e902e1c15163fe15e702a632ed9481e9e4d045fdc
+R 6042f2dc8ea1fefef0369c5c6a2ed28c
+T +sym-release *
+T +sym-version-2.13 *
+U drh
+Z f2e759ce0c4d471a7cfc43f93c714966
