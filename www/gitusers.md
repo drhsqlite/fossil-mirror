@@ -1,37 +1,34 @@
-# Hints For Users With Prior Git Experience
+# Git Translation Guide
 
-This document is a semi-random collection of hints intended to help
-new users of Fossil who have had prior exposure to Git.  In other words,
-this document tries to describe the differences in how Fossil works 
-from the perspective of Git users.
+## Introduction
 
+This document attempts to provide equivalents for common Git commands
+and workflows where possible, and where not, to explain those cases.
 
-## Help Improve This Document
+Although Fossil shares many similarities with Git, there are enough
+differences that we can’t provide a simple “translation dictionary” for
+some commands. This document is more concerned with those cases than the
+simple 1:1 mappings, which you can likely find on your own. In many
+cases, the sub-commands are identical: `fossil bisect` does essentially
+the same thing as `git bisect`, for example.
 
-If you have a lot of prior Git experience, and you are new to Fossil
-and are struggling with some concepts, please ask for help on the
-[Fossil Forum][1].  The people who write this document are intimately
-familiar with Fossil and less familiar with Git.  It is difficult for
-us to anticipate the perspective of people who are initimately familiar
-with Git and less familiar with Fossil.  Asking questions on the Forum
-will help us to improve the document.
+We present this from the perspective of Git users moving to Fossil, but
+it is also possible to read this document as a Fossil user who speaks
+only pidgin Git, who may often have questions of the form, “Now how do I
+do X in Git again?”
 
-[1]:  https://fossil-scm.org/forum
-
-Specific suggestions on how to improve this document are also welcomed,
-of course.
-
-
-
-## <a id="term"></a> Terminology
+This document’s authors are intimately familiar with Fossil, so it is
+difficult for us to anticipate the perspective of people who are
+initimately familiar with Git. If you have a lot of prior Git
+experience, we welcome your contributions and questions on the [Fossil
+Forum][ffor].
 
 While we do try to explain Fossil-specific terminology inline here
 as-needed, you may find it helpful to skim [the Fossil glossary][gloss].
 It will give you another take on our definitions here, and it may help
 you to understand some of the other Fossil docs better.
 
-
-----
+[ffor]:  https://fossil-scm.org/forum
 
 
 <a id="mwd"></a>
