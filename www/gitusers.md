@@ -209,6 +209,29 @@ you can use Fossil’s [`info` command][infoc] or its [`/info` view][infow].
 [wdm]:   ./fossil-v-git.wiki#durable
 
 
+
+## <a id="slcom"></a> Summary Line Convention In Commit Comments
+
+The Git convention of a [length-limited summary line][lsl] at the start
+of commit comments has no equivalent in Fossil. You’re welcome to style
+your commit comments thus, but the convention isn’t used or enforced
+anywhere in Fossil. For instance, setting `EDITOR=vim` and making a
+commit doesn’t do syntax highlighting on the commit message to warn that
+you’ve gone over the conventional limit on the first line, and the
+Fossil web timeline display doesn’t show the summary line in bold.
+
+If you wish to follow such conventions in a Fossil project, you may want
+to enable the “Allow block-markup in timeline” setting under Admin →
+Timeline in the web UI to prevent Fossil from showing the message as a
+single paragraph, sans line breaks. [Skin customization][cskin] would
+allow you to style the first line of the commit message in bold in
+`/timeline` views.
+
+[cskin]: ./customskin.md
+[lsl]:   https://chris.beams.io/posts/git-commit/#limit-50
+
+
+
 <a id="staging"></a>
 ## There Is No Staging Area
 
