@@ -304,6 +304,9 @@ case, the Fossil timeline still shows other branches where they interact
 with the one you’ve referenced in this way; again, better situational
 awareness.
 
+
+#### <a id="emu-log"></a> Emulating `git log`
+
 If you truly need a backwards-in-time-only view of history in Fossil to
 emulate `git log`, this is as close as you can currently come:
 
@@ -321,15 +324,97 @@ This shows what changed in each version, though Fossil’s view is more a
 summary than a list of raw changes. To dig deeper into single commits,
 you can use Fossil’s [`info` command][infoc] or its [`/info` view][infow].
 
+Inversely, you may more exactly emulate the default `fossil timeline`
+output with `git log --name-status`.
+
+
+#### <a id="whatchanged"></a> What Changed?
+
+A related command is `git whatchanged`, which gives results similar to
+`git log --raw`.
+
+Though there is no `fossil whatchanged` command, the same sort of
+information is available. For example, to pull the current changes from
+the remote repository and then inspect them before updating the local
+working directory, you might say this in Git:
+
+        git fetch
+        git whatchanged ..@{u}
+
+…which you can approximate in Fossil as:
+
+        fossil pull
+        fossil up -n
+        fossil diff --from tip
+
+To invert the direction of the `diff`, say instead:
+
+        fossil diff --from current --to tip
+
+Rather than use the “dry run” form of [the `update` command][up], you can
+say:
+
+        fossil timeline after current
+
+…or if you want to restrict the output to the current branch:
+
+        fossil timeline descendants current
+
+
+#### <a id="ckin-names"></a> Symbolic Check-In Names
+
+Note the use of [human-readable symbolic version names][scin] in Fossil
+rather than [Git’s cryptic notations][gcn].
+
+For a more dramatic example of this, let us ask Git, “What changed since the
+beginning of last month?” being October 2020 as I write this:
+
+        git log master@{2020-10-01}..HEAD
+
+That’s rather obscure! Fossil answers the same question with a simpler
+command:
+
+        fossil timeline after 2020-10-01
+
+You may need to add `-n 0` to bypass the default output limit of
+`fossil timeline`, 20 entries. Without that, this command reads
+almost like English.
+
+Some Git users like to write commands like the above so:
+
+        git log @{2020-10-01}..@
+
+Is that better? “@” now means two different things: an at-time reference
+and a shortcut for `HEAD`!
+
+If you are one of those that like short commands, Fossil’s method is
+less cryptic: it lets you shorten words in most cases up to the point
+that they become ambiguous. For example, you may abbreviate the last
+`fossil` command in the prior section:
+
+        fossil tim d c
+
+…beyond which the `timeline` command becomes ambiguous with `ticket`.
+
+Some Fossil users employ shell aliases, symlinks, or scripts to shorten
+the command still further:
+
+        alias f=fossil
+        f tim d c
+
+Granted, that’s rather obscure, but you you can also choose something
+intermediate like “`f time desc curr`”.
+
 [35pct]: https://www.sqlite.org/fasterthanfs.html
 [btree]: https://sqlite.org/btreemodule.html
+[gcn]:   https://git-scm.com/docs/gitrevisions
 [infoc]: /help?cmd=info
 [infow]: /help?cmd=/info
 [ocomp]: https://www.bigocheatsheet.com/
 [tlc]:   /help?cmd=timeline
 [tlw]:   /help?cmd=/timeline
+[up]: /help?cmd=update
 [wdm]:   ./fossil-v-git.wiki#durable
-
 
 
 ## <a id="slcom"></a> Summary Line Convention In Commit Comments
@@ -595,52 +680,6 @@ would confuse `diffstat`.
 [cdiff]: https://www.colordiff.org/
 [dcset]: https://fossil-scm.org/home/help?cmd=diff-command
 [dst]:   https://invisible-island.net/diffstat/diffstat.html
-
-
-## <a id="whatchanged"></a> What Changed?
-
-As with `git show`, there is no `fossil whatchanged` command, but the
-information is usually available. For example, to pull the current
-changes from the remote repository and then inspect them before updating
-the local working directory, you might say this in Git:
-
-        git fetch
-        git whatchanged ..@{u}
-
-…which you can approximate in Fossil as:
-
-        fossil pull
-        fossil up -n
-        fossil diff --from tip
-
-To invert the direction of the `diff`, say instead:
-
-        fossil diff --from current --to tip
-
-Rather than use the “dry run” form of [the `update` command][up], you can
-say:
-
-        fossil timeline after current
-
-…or if you want to restrict the output to the current branch:
-
-        fossil timeline descendants current
-
-Note the use of [human-readable symbolic version names][scin] rather than
-cryptic notations.
-
-If you prefer brief commands, Fossil lets you abbreviate the last one as
-far as “`fossil tim d c`”, beyond which the `timeline` command becomes
-ambiguous with `ticket`. Some of the core Fossil developers set
-“`alias f=fossil`” in their command shell or symlink the `fossil`
-executable to `f` so that the command becomes rather obscure:
-“`f tim d c`”.
-
-You might need to add `-n 0` to
-these `fossil timeline` commands to bypass the default output limit, 20
-entries.
-
-[up]: /help?cmd=update
 
 
 <a id="btnames"></a>
