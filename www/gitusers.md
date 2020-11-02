@@ -852,8 +852,8 @@ discrepancy.
 You may have noticed the difference between my story’s final command and
 the one given on Stack Overflow: `--first-parent` versus `--no-merges`.
 As far as I can tell, the SO answer is wrong, a conclusion I came to
-while writing this reply and finding that it didn’t do what I expected.
-None of the answers on that page give the `--no-merges` option. This is
+while writing this case study and finding that the command didn’t do what the SO answer claimed it did.
+None of the other answers on that page give the `--no-merges` option, either. This is
 one of the sneaky problems with complicated commands: people copy them
 around from place to place without trying to understand them first, so
 errors propagate.
