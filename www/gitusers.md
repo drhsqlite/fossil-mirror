@@ -864,7 +864,7 @@ The point is that the equivalent in Fossil is simply:
         fossil up 2020-04-12
 
 …and the commit will *always* be the one closest to the 12th of April, 2020, no matter
-whether it’s a fresh clone or an ancient one, praise be Ritchie!
+whether it’s a fresh clone or a stale one, praise be Ritchie!
 
 [gbash]:  https://appuals.com/what-is-git-bash/
 [gcod]:   https://stackoverflow.com/a/6990682/142454
