@@ -19,7 +19,7 @@ do X in Git again?”
 
 This document’s authors are intimately familiar with Fossil, so it is
 difficult for us to anticipate the perspective of people who are
-initimately familiar with Git. If you have a lot of prior Git
+intimately familiar with Git. If you have a lot of prior Git
 experience, we welcome your contributions and questions on the [Fossil
 Forum][ffor].
 
@@ -134,7 +134,7 @@ and do without the subdirectory scheme, for example.
 
 #### <a id="close" name="dotfile"></a> Closing A Check-Out
 
-The [`fossil close`][close] command dissaociates a check-out directory from the
+The [`fossil close`][close] command dissociates a check-out directory from the
 Fossil repository database, nondestructively inverting [`fossil open`][open]. It
 won’t remove the managed files, and unless you give the `--force`
 option, it won’t let you close the check-out with uncommitted changes to
@@ -288,10 +288,10 @@ Fossil parses a huge amount of information out of commits that allow it
 to produce its [timeline CLI][tlc] and [its `/timeline` web view][tlw]
 using indexed SQL lookups, which generally have the info you would have
 to manually extract from `git log`, produced much more quickly than Git
-can, all else being equal: [SQLite’s B-tree data structures][btree]
+can, all else being equal: operations over [SQLite’s B-tree data structures][btree]
 generally run in O(log n) time, faster than O(n) for equal *n* when the
 constants are equal. Yet the constants are *not* equal because Fossil
-reads read from a single disk file rather than visit potentially many
+reads from a single disk file rather than visit potentially many
 files in sequence as Git must, so the OS’s buffer cache can result in
 [still better performance][35pct].
 
@@ -331,8 +331,8 @@ output with `git log --name-status`.
 
 #### <a id="whatchanged"></a> What Changed?
 
-A related command is `git whatchanged`, which gives results similar to
-`git log --raw`.
+A related — though deprecated — command is `git whatchanged`, which gives results similar to
+`git log --raw`, so we cover it here.
 
 Though there is no `fossil whatchanged` command, the same sort of
 information is available. For example, to pull the current changes from
@@ -348,7 +348,9 @@ working directory, you might say this in Git:
         fossil up -n
         fossil diff --from tip
 
-To invert the direction of the `diff`, say instead:
+To invert the `diff` to show a more natural patch, the command needs to
+be a bit more complicated, since you can’t currently give `--to`
+without `--from`.
 
         fossil diff --from current --to tip
 
@@ -404,7 +406,7 @@ the command still further:
         f tim d c
 
 Granted, that’s rather obscure, but you you can also choose something
-intermediate like “`f time desc curr`”.
+intermediate like “`f time desc curr`”, which is reasonably clear.
 
 [35pct]: https://www.sqlite.org/fasterthanfs.html
 [btree]: https://sqlite.org/btreemodule.html
@@ -452,6 +454,11 @@ of the files or directories you want to commit as arguments, like this:
 
         fossil commit src/feature.c doc/feature.md examples/feature
 
+There are currently no interactive patching features in Fossil like
+`git add --patch/-p` or `git commit -p`. [Contributions welcome!][ctrb]
+
+[ctrb]: https://fossil-scm.org/fossil/doc/trunk/www/contribute.wiki
+
 
 <a id="bneed"></a>
 ## Create Branches At Point Of Need, Rather Than Ahead of Need
@@ -469,6 +476,10 @@ adding commits to the tip of that branch.
 To switch back to the parent branch, say something like:
 
         fossil update trunk       # ≅ git checkout master
+
+(There is also `fossil checkout trunk`, but it’s a 2nd-tier command
+meant for more specialized purposes. Almost always, you want to use
+`update` instead.)
 
 Fossil does also support the Git style, creating the branch ahead of
 need:
@@ -525,7 +536,7 @@ system while retaining the advantages of distributed version control:
     disconnected; your changes will sync up with the remote once you get
     back online.
 
-3.  Because there is little distinction betwen the clones in the Fossil
+3.  Because there is little distinction between the clones in the Fossil
     model — unlike in Git, where clones often quickly diverge from each
     other, quite possibly on purpose — the backup advantage applies in inverse
     as well: if the remote server falls over dead, one of those with a
@@ -556,7 +567,7 @@ content of those branches. That means this common Git command:
 
         git push origin master
 
-is simply this in Fossil:
+…is simply this in Fossil:
 
         fossil push
 
@@ -630,8 +641,8 @@ functionality may be present in Fossil under other commands:
         fossil diff --checkin COMMIT_ID
 
 …only without the patch email header. Git comes out of the [LKML] world,
-where emailing a patch is a normal thing to do. Fossil is designed for
-[more cohesive teams][devorg] where such drive-by patches are rarer.
+where emailing a patch is a normal thing to do. Fossil is [designed for
+cohesive teams][devorg] where such drive-by patches are rarer.
 
 You can use any of [Fossil’s special check-in names][scin] in place of
 the `COMMIT_ID` in this and later examples. Fossil docs usually say
@@ -655,12 +666,12 @@ I just commit?”
 
         fossil time -n 1 COMMIT_ID
 
-…or with a shorter, more obvious command with more verbose output:
+…or with a shorter, more obvious command, though with more verbose output:
 
         fossil info COMMIT_ID
 
 The `fossil info` command isn’t otherwise a good equivalent to
-`git show`. It just overlaps its functionality in some areas. Much of
+`git show`; it just overlaps its functionality in some areas. Much of
 what’s missing is present in the corresponding [`/info` web
 view][infow], though.
 
@@ -693,12 +704,14 @@ in mind if you plan on [mirroring your Fossil repository to GitHub][mirgh].
 Fossil does not require tag and branch names to be unique.  It is
 common, for example, to put a "`release`" tag on every release for a
 Fossil-hosted project. This does not create a conflict in Fossil, since
-Fossil resolves such conflicts in a predictable way: the newest match
+Fossil resolves the ambiguity in a predictable way: the newest match
 wins. Therefore, “`fossil up release`” always gets you the current
 release in a project that uses this tagging convention.
 
 [The `fossil git export` command][fge] squashes repeated tags down to a
-single instance to avoid confusing Git, exporting only the newest tag.
+single instance to avoid confusing Git, exporting only the newest tag,
+emulating Fossil’s own ambiguity resolution rule as best it can within
+Git’s limitations.
 
 [fge]:  /help?cmd=git
 [gcrf]: https://git-scm.com/docs/git-check-ref-format
@@ -758,18 +771,18 @@ a version by date. Perhaps this is because your customer gave you a
 vague bug report — “I think it broke on a Wednesday… Yes, there was a
 full moon, and the Dodgers were playing in Boston…” — or perhaps you’re
 poking semi-randomly through history to find a “good” version to set up
-a [`bisect`][bis] operation.
+the start point of a [`bisect`][bis] operation.
 
 Because Git doesn’t maintain comprehensive lookup tables into its log —
 [as detailed above](#log) — you will find pages online recommending
-horrorshow commands like this:
+horror-show commands like this:
 
         git checkout $(git rev-list -n 1 --first-parent --before="2020-04-12" master)
 
 That’s [the top answer on Stack Overflow][gcod] for the first hit on
 “git checkout by date” in the web search engine I used.
 
-We believe you get such answers for requests for help with Git in part
+We believe you get such answers to Git help requests in part
 because of its lack of an always-up-to-date index into its log and in
 part because of its “small tools loosely joined” design philosophy. This
 sort of command is therefore composed piece by piece:
@@ -824,12 +837,17 @@ And too bad if you’re a Windows user who doesn’t want to use [Git
 Bash][gbash], since neither of the stock OS command shells have a
 command interpolation feature needed to run that horrid command.
 
-(By the way, if you think the bit about “a commit from 2019-12-15” in my
+By the way, congratulations, you just created a [detached head][gdh]
+along with all of its attendant risks. There’s no such state in Fossil
+due to its robust commit history indexing.
+
+If you think the bit about “a commit from 2019-12-15” in my
 little story above is made up, try `git rev-parse master@{2020-04-12}`
-on [Git’s own repository][gitgh]: it gives [this commit][grpgh]! Oddly,
-GitHub shows the date we asked for, unlike the `git show` command above.
-It’s success, of a sort, though it leaves us wondering why there’s a
-discrepancy.)
+on [Git’s own repository][gitgh]: it gives [this commit][grpgh]! Though
+GitHub shows the date we asked for, the `git show` command above gives
+the confusing result referenced in the story.
+This fixup within GitHub is success, of a sort, though it leaves us wondering why there’s a
+discrepancy.
 
 But hark! The same Stack Overflow answer gives a much simpler
 alternative based on Git’s [`rev-parse` feature][grp]:
@@ -848,8 +866,9 @@ repository and re-cloned, after which it at least warned me that the
 reflog didn’t go back that far… But it still gave me an answer: a wrong
 one!
 
-Why? Because Git lacks comprehensive up-to-date indices into its log.
-When I nuked my clone and re-cloned, I also nuked my stale reflog, so my
+Why? Because Git lacks comprehensive up-to-date indices into its log,
+and my clone was stale.
+When I nuked my stale clone and re-cloned, my
 command above started giving me today’s latest commit, that being as far
 back in history as it could dig. Who wants this behavior?
 
@@ -868,6 +887,7 @@ whether it’s a fresh clone or a stale one, praise be Ritchie!
 
 [gbash]:  https://appuals.com/what-is-git-bash/
 [gcod]:   https://stackoverflow.com/a/6990682/142454
+[gdh]:    https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/
 [gitgh]:  https://github.com/git/git/
 [grp]:    https://git-scm.com/docs/git-rev-parse
 [grpgh]:  https://github.com/git/git/commit/a99bc27aec74071aa1
@@ -911,8 +931,8 @@ repo up to the NAS:
         git push --all ssh://my-nas.local//SHARES/dayjob/repo.git
 
 Realize that this is carefully optimized down to these two long
-commands. In practice, typing these commands by hand, from memory, we’d
-expect a normal user to need to give four or more commands here instead.
+commands. In practice, we’d expect a user typing these commands by hand from memory
+to need to give four or more commands here instead.
 Packing the “`git init`” call into the “`ssh`” call is something more
 often done in scripts and documentation examples than done interactively,
 which then necessitates a third command before the push, “`exit`”.
@@ -920,7 +940,7 @@ There’s also a good chance that you’ll forget the need for the `--bare`
 option here to avoid a fatal complaint from Git that the laptop can’t
 push into a non-empty repo. If you fall into this trap, among the many
 that Git lays for newbies, you have to nuke the incorrectly initted
-repo, search the web and docs to find out about `--bare`, and try again.
+repo, search the web or Git man pages to find out about `--bare`, and try again.
 
 Having navigated that little minefield,
 we can tell Git that there is a second origin, a “home” repo in
@@ -932,7 +952,7 @@ addition to the named “work” repo we set up earlier:
 We don’t have to push or pull because the remote repo is a complete
 clone of the repo on the laptop at this point, so we can just get to
 work now, committing along the way to get our work safely off-machine
-and onto the NAS, like so:
+and onto our home NAS, like so:
 
         git add
         git commit
@@ -956,13 +976,14 @@ again.
 
 This example also shows a consequence of that fact that
 [Git doesn’t sync branch names](#syncall): you have to keep repeating
-yourself, “master, master.”
+yourself like an obsequious supplicant: “Master, master.” Didn’t we
+invent computers to serve humans, rather than the other way around?
 
 
 #### Fossil Method
 
-Now we’re going to do the same thing as above using Fossil. We’ve broken
-the commands up into blocks corresponding to those above for comparison.
+Now we’re going to do the same thing using Fossil, with
+the commands arranged in blocks corresponding to those above for comparison.
 
 We start the same way, cloning the work repo down to the laptop:
 
@@ -974,7 +995,7 @@ We’ve chosen the new “`fossil clone URI`” syntax added in Fossil 2.14 rath
 `clone` and `open` commands to make the parallel with Git clearer. [See
 above](#mwd) for more on that topic.
 
-Fossil’s equivalent [`remote` command][rem] is longer than the Git equivalent because
+Our [`remote` command][rem] is longer than the Git equivalent because
 Fossil currently has no short command
 to rename an existing remote. Worse, unlike with Git, we can’t just keep
 using the default remote name because Fossil uses that slot in its
@@ -982,7 +1003,7 @@ configuration database to store the *current* remote name, so on
 switching from work to home, the home URL will overwrite the work URL if
 we don’t give it an explicit name first.
 
-So far, the Fossil commands are longer, but keep these costs in perspective:
+Although the Fossil commands are longer, so far, keep it in perspective:
 they’re one-time setup costs,
 easily amortized to insignificance by the shorter day-to-day commands
 below.
