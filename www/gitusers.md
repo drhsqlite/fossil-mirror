@@ -70,13 +70,13 @@ First, this:
 
 …is spelled:
 
-       fossil update some-branch
+        fossil update some-branch
 
 …in Fossil.
 
 Second, as of Fossil 2.14, we now have Git-style clone-and-open:
 
-       fossil clone https://example.com/repo
+        fossil clone https://example.com/repo
 
 That gets you a `repo.fossil` file, opened into a `repo/` working
 directory alongside it. Note that we do not commingle the repo and
@@ -189,8 +189,8 @@ this problem two years earlier with the `git-worktree` command in Git
 
 That is approximately equivalent to this in Fossil:
 
-       mkdir ../foo-branch
-       fossil open /path/to/repo.fossil foo-branch
+        mkdir ../foo-branch
+        fossil open /path/to/repo.fossil foo-branch
 
 That then leads us to the closest equivalent in Git to [closing a Fossil
 check-out](#close):
@@ -204,7 +204,7 @@ remember, and safer.
 
 There’s another way to get Fossil-like separate worktrees in Git:
 
-       git clone --separate-git-dir repo.git https://example.com/repo
+        git clone --separate-git-dir repo.git https://example.com/repo
 
 This allows you to have your Git repository directory entirely separate
 from your working tree, with `.git` in the check-out directory being a
@@ -364,7 +364,7 @@ of the files or directories you want to commit as arguments, like this:
 Fossil prefers that you create new branches as part of the first commit
 on that branch:
 
-       fossil commit --branch my-new-branch
+        fossil commit --branch my-new-branch
 
 If that commit is successful, your local check-out directory is then
 switched to the tip of that branch, so subsequent commits don’t need the
@@ -373,15 +373,15 @@ adding commits to the tip of that branch.
 
 To switch back to the parent branch, say something like:
 
-       fossil update trunk       # ≅ git checkout master
+        fossil update trunk       # ≅ git checkout master
 
 Fossil does also support the Git style, creating the branch ahead of
 need:
 
-       fossil branch new my-new-branch
-       fossil update my-new-branch
-       ...work on first commit...
-       fossil commit
+        fossil branch new my-new-branch
+        fossil update my-new-branch
+        ...work on first commit...
+        fossil commit
 
 This is more verbose, but it has the same effect: put the first commit
 onto `my-new-branch` and switch the check-out directory to that branch so
@@ -576,7 +576,7 @@ Fossil doesn’t have an internal equivalent to commands like
 `git show --stat`, but it’s easily remedied by using
 [the widely-available `diffstat` tool][dst]:
 
-       fossil diff -i --from 2020-04-01 | diffstat
+        fossil diff -i --from 2020-04-01 | diffstat
 
 We gave the `-i` flag here to force Fossil to use its internal diff
 implementation, bypassing [your local `diff-command` setting][dcset].
@@ -663,7 +663,7 @@ check-out.
 
 If you don’t like that default, you can change it globally:
 
-         fossil setting --global mv-rm-files 1
+        fossil setting --global mv-rm-files 1
 
 Now these commands behave like in Git in any Fossil repository where
 this setting hasn’t been overridden locally.
@@ -671,7 +671,7 @@ this setting hasn’t been overridden locally.
 If you want to keep Fossil’s soft `mv/rm` behavior most of the time, you
 can cast it away on a per-command basis:
 
-         fossil mv --hard old-name new-name
+        fossil mv --hard old-name new-name
 
 [mv]: /help?cmd=mv
 [rm]: /help?cmd=rm
