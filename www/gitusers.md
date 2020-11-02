@@ -601,19 +601,29 @@ the local working directory, you might say this in Git:
 …which you can approximate in Fossil as:
 
         fossil pull
+        fossil up -n
         fossil diff --from tip
 
-…plus…
+Instead of the “dry run” form of [the “`update` command][up], you can
+say:
 
         fossil timeline after current
 
+…or if you want to restrict the output to the current branch:
+
+        fossil timeline descendants current
+
 Note the use of [human-readable symbolic version names][scin] rather than
 cryptic notations. (But if you like brief commands, you can abbreviate
-it as `fossil tim after curr`.)
+the last one as `fossil tim desc curr`.) You might need to add `-n 0` to
+these commands to bypass the default limit on `timeline` output, 20
+entries.
 
 To invert the direction of the `diff` command above, say instead:
 
         fossil diff --from current --to tip
+
+[up]: /help?cmd=update
 
 
 <a id="btnames"></a>
