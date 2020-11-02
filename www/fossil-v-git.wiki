@@ -27,6 +27,9 @@ might be biased in favor of Fossil, if only because we spend most of our
 time using Fossil, not Git.  Ask around for second opinions from
 people who have used <em>both</em> Fossil and Git.
 
+If you want a more practical, less philosophical guide to moving from
+Git to Fossil, see our [./gitusers.md | Git to Fossil Translation Guide].
+
 
 <h2>2.0 Differences Between Fossil And Git</h2>
 

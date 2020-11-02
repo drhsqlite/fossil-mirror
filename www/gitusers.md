@@ -28,7 +28,11 @@ as-needed, you may find it helpful to skim [the Fossil glossary][gloss].
 It will give you another take on our definitions here, and it may help
 you to understand some of the other Fossil docs better.
 
+We focus more on practical command examples here than on [the
+philosophical underpinnings][fvg] that drive these differences.
+
 [ffor]:  https://fossil-scm.org/forum
+[fvg]:   ./fossil-v-git.wiki
 
 
 <a id="mwd"></a>
