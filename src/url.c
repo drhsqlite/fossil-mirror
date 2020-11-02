@@ -651,11 +651,11 @@ char *url_to_repo_basename(const char *zUrl){
   if( zUrl==0 ) return 0;
   for(i=0; zUrl[i]; i++){
     if( zUrl[i]=='?' ) break;
-    if( zUrl[i]=='/' && zUrl[i+1]!=0 ) zTail = &zUrl[i+1];
+    if( (zUrl[i]=='/' || zUrl[i]=='@') && zUrl[i+1]!=0 ) zTail = &zUrl[i+1];
   }
   if( zTail==0 ) return 0;
   if( sqlite3_strnicmp(zTail, "www.", 4)==0 ) zTail += 4;
-  if( zTail[i]==0 ) return 0;
+  if( zTail[0]==0 ) return 0;
   for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?'; i++){}
   if( i==0 ) return 0;
   return mprintf("%.*s", i, zTail);
