@@ -212,11 +212,11 @@ As of Fossil 2.14, there is a direct equivalent:
 
 It’s a shorter command because we deduce `repo.fossil` and the `repo/`
 working directory from the last element of the path in the URI. If you
-wanted to override both inferences, you’d say:
+wanted to override both deductions, you’d say:
 
         fossil clone --workdir foo https://example.com/repo/bar
 
-That gets you `bar.fossil` with a `foo/` working directory.
+That gets you `bar.fossil` with a `foo/` working directory alongside it.
 
 [mcw]:   ./ckout-workflows.md#mcw
 [wsyml]: https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
@@ -273,7 +273,7 @@ repo DB file or what you name it.
 [undo]:   /help?cmd=undo
 
 
-## <a id="log"></a> Fossil’s Timeline is the “Log”
+## <a id="log"></a> Fossil’s Timeline Is The “Log”
 
 Git users often need to use the `git log` command to dig linearly through
 commit histories due to its [weak data model][wdm].
@@ -369,7 +369,7 @@ adding commits to the tip of that branch.
 
 To switch back to the parent branch, say something like:
 
-       fossil update trunk       # like “git checkout”
+       fossil update trunk       # ≅ git checkout master
 
 Fossil does also support the Git style, creating the branch ahead of
 need:
@@ -389,9 +389,10 @@ For example:
 
         fossil amend current --branch my-new-branch
 
-(“current” is one of the [special check-in names][scin] in Fossil. See
+(The version string “current” is one of the [special check-in names][scin] in Fossil. See
 that document for the many other names you can give to “`amend`”, or
-indeed to any other Fossil command that accepts a “version” string.)
+indeed to any other Fossil command documented to accept a `VERSION` or
+`NAME` string.)
 
 [scin]: ./checkin_names.wiki
 
@@ -446,13 +447,13 @@ system while retaining the advantages of distributed version control:
 ## Sync Is All-Or-Nothing
 
 Fossil does not support the concept of syncing, pushing, or pulling
-individual branches.  When you sync/push/pull in Fossil, you
-sync/push/pull everything stored as artifacts in its hash tree:
+individual branches.  When you sync/push/pull in Fossil, it
+processes all artifacts in its hash tree:
 branches, tags, wiki articles, tickets, forum posts, technotes…
-[Almost everything][bu].
+This is [not quite “everything,” full stop][bu], but it’s close.
 
 Furthermore, branch *names* sync automatically in Fossil, not just the
-content of those branches. This means this common Git command:
+content of those branches. That means this common Git command:
 
         git push origin master
 
@@ -461,25 +462,30 @@ is simply this in Fossil:
         fossil push
 
 Fossil doesn’t need to be told what to push or where to push it: it just
-keeps using the same remote server URL and branch name you gave it last,
-until you tell it to do something different.
+keeps using the same remote server URL you gave it last
+until you [tell it to do something different][rem], and it pushes all
+branches, not just one named local branch.
+
+[rem]: /help?cmd=remote
 
 
 <a id="trunk"></a>
 ## The Main Branch Is Called "`trunk`"
 
-In Fossil, the traditional name and the default name for the main branch
+In Fossil, the default name for the main branch
 is "`trunk`".  The "`trunk`" branch in Fossil corresponds to the
-"`master`" branch in stock Git or the "`main`" branch in GitHub.
+"`master`" branch in stock Git or to [the “`main`” branch in GitHub][mbgh].
 
 Because the `fossil git export` command has to work with both stock Git
-and with GitHub, Fossil uses Git’s default: your Fossil repo’s “trunk”
-branch becomes “master” on GitHub, not “main,” as in new GitHub repos.
-It is not known what happens on subsequent exports if you
-[later rename it][ghmain].
+and with GitHub, Fossil uses Git’s traditional default rather than
+GitHub’s new default: your Fossil repo’s “trunk” branch becomes “master”
+when [mirroring to GitHub][mirgh], not “main.”
 
-[6]: ./mirrortogithub.md
-[ghmain]: https://github.com/github/renaming
+We do not know what happens on subsequent exports if you later rename
+this branch on the GitHub side.
+
+[mbgh]:  https://github.com/github/renaming
+[mirgh]: ./mirrortogithub.md
 
 
 <a id="unmanaged"></a>
@@ -550,7 +556,7 @@ I just commit?”
 
         fossil time -n 1 COMMIT_ID
 
-…or with a shorter, more obvious command, with more verbose output:
+…or with a shorter, more obvious command with more verbose output:
 
         fossil info COMMIT_ID
 
@@ -592,26 +598,26 @@ the local working directory, you might say this in Git:
 
         fossil pull
         fossil diff --from tip
+
+…plus…
+
         fossil timeline after current
 
 Note the use of [human-readable symbolic version names][scin] rather than
-cryptic notations.
+cryptic notations. (But if you like brief commands, you can abbreviate
+it as `fossil tim after curr`.)
 
-To invert the diff direction of the second command, say:
+To invert the direction of the `diff` command above, say instead:
 
         fossil diff --from current --to tip
 
-You can abbreviate the last command as `fossil tim after curr`.
-
 
 <a id="btnames"></a>
-## Branch and Tag Names
+## Branch And Tag Names
 
 Fossil has no special restrictions on the names of tags and branches,
-though you might want to keep [Git's tag and branch name restrictions][4]
-in mind if you plan on mirroring your Fossil repository to GitHub.
-
-[4]: https://git-scm.com/docs/git-check-ref-format
+though you might want to keep [Git's tag and branch name restrictions][gcrf]
+in mind if you plan on [mirroring your Fossil repository to GitHub][mirgh].
 
 Fossil does not require tag and branch names to be unique.  It is
 common, for example, to put a "`release`" tag on every release for a
@@ -620,9 +626,17 @@ Fossil resolves such conflicts in a predictable way: the newest match
 wins. Therefore, “`fossil up release`” always gets you the current
 release in a project that uses this tagging convention.
 
+[The `fossil git export` command][fge] squashes repeated tags down to a
+single instance to avoid confusing Git, exporting only the newest tag.
+
+[fge]:  /help?cmd=git
+[gcrf]: https://git-scm.com/docs/git-check-ref-format
+
+
+
 
 <a id="cpickrev"></a>
-## Cherry-Picking and Reverting Commits
+## Cherry-Picking And Reverting Commits
 
 Git’s separate "`git cherry-pick`" and “`git revert`” commands are
 options to the [`fossil merge` command][merge]: `--cherrypick` and
@@ -758,16 +772,15 @@ the commands up into blocks corresponding to those above for comparison.
 
 We start the same way, cloning the work repo down to the laptop:
 
-        mkdir repo
+        fossil clone https://dev-server.example.com/repo
         cd repo
-        fossil open https://dev-server.example.com/repo
         fossil remote add work https://dev-server.example.com/repo
 
-We’ve chosen the “`fossil open URI`” syntax here rather than separate
+We’ve chosen the new “`fossil clone URI`” syntax added in Fossil 2.14 rather than separate
 `clone` and `open` commands to make the parallel with Git clearer. [See
 above](#mwd) for more on that topic.
 
-The final command is longer than the Git equivalent because
+Fossil’s equivalent [`remote` command][rem] is longer than the Git equivalent because
 Fossil currently has no short command
 to rename an existing remote. Worse, unlike with Git, we can’t just keep
 using the default remote name because Fossil uses that slot in its
