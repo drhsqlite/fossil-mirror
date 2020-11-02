@@ -648,7 +648,7 @@ checkouts when you have long-lived working branches that are different
 enough that switching in place is disruptive.
 
 While you can [./gitusers.md#worktree | use Git in the Fossil style],
-feature, Git's default tie between working directory and
+Git's default tie between working directory and
 repository means the standard method for working with a Git repo is to
 have one working directory only. Most Git tutorials teach this style, so
 it is how most people learn to use Git. Because relatively few people
