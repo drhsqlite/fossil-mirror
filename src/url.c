@@ -660,3 +660,22 @@ char *url_to_repo_basename(const char *zUrl){
   if( i==0 ) return 0;
   return mprintf("%.*s", i, zTail);
 }
+
+/*
+** COMMAND: test-url-basename
+** Usage: %fossil test-url-basenames URL ...
+**
+** This command is used for unit testing of the url_to_repo_basename()
+** routine.  The command-line arguments are URL, presumably for remote
+** Fossil repositories.  This command runs url_to_repo_basename() on each
+** of those inputs and displays the result.
+*/
+void cmd_test_url_basename(void){
+  int i;
+  char *z;
+  for(i=2; i<g.argc; i++){
+    z = url_to_repo_basename(g.argv[i]);
+    fossil_print("%s -> %s\n", g.argv[i], z);
+    fossil_free(z);
+  }
+}
