@@ -52,7 +52,7 @@ program.
 
 Git commingles these two by default, with the repository stored in a
 `.git` subdirectory underneath your working directory. There are ways to
-emulate the Fossil working style in Git, but because they’re not
+[emulate the Fossil working style in Git](#worktree), but because they’re not
 designed into the core concept of the tool, Git tutorials usually
 advocate a switch-in-place working mode instead, so that is how most
 users end up working with Git. Contrast [Fossil’s check-out workflow
@@ -158,9 +158,68 @@ for the purposes of commands like [`fossil all`][all]. Even that isn’t
 necessary, because Fossil will detect that this has happened and forget
 the working directory for you.
 
-The closest equivalent in Git is `git worktree remove`.
-
 [all]: /help?cmd=all
+
+
+#### <a id="worktree"></a> Git Worktrees
+
+There are at least three different ways to get [Fossil-style multiple
+check-out directories][mcw] with Git.
+
+The old way is to simply symlink the `.git` directory between working
+trees:
+
+        mkdir ../foo-branch
+        ln -s ../actual-clone-dir/.git .
+        git checkout foo-branch
+
+The symlink trick has a number of problems, the largest being that
+symlinks weren’t available on Windows until Vista, and until the Windows
+10 Creators Update was released in spring of 2017, you had to be an
+Administrator to use the feature besides. ([Source][wsyml]) Git solved
+this problem two years earlier with the `git-worktree` command in Git
+2.5:
+
+        git worktree add ../foo-branch foo-branch
+        cd ../foo-branch
+
+That is approximately equivalent to this in Fossil:
+
+       mkdir ../foo-branch
+       fossil open /path/to/repo.fossil foo-branch
+
+That then leads us to the closest equivalent in Git to [closing a Fossil
+check-out](#close):
+
+        git worktree remove .
+
+Note, however, that unlike `fossil close`, once the Git command
+determines that there are no uncommitted changes, it blows away all of
+the checked-out files! Fossil’s alternative is shorter, easier to
+remember, and safer.
+
+There’s another way to get Fossil-like separate worktrees in Git:
+
+       git clone --separate-git-dir repo.git https://example.com/repo
+
+This allows you to have your Git repository directory entirely separate
+from your working tree, with `.git` in the check-out directory being a
+file that points to `../repo.git`, in this example.
+
+As of Fossil 2.14, there is a direct equivalent:
+
+        fossil clone https://example.com/repo
+
+It’s a shorter command because we deduce `repo.fossil` and the `repo/`
+working directory from the last element of the path in the URI. If you
+wanted to override both inferences, you’d say:
+
+        fossil clone --workdir foo https://example.com/repo/bar
+
+That gets you `bar.fossil` with a `foo/` working directory.
+
+[mcw]:   ./ckout-workflows.md#mcw
+[wsyml]: https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
 
 
 #### <a id="iip"></a> Init In Place
