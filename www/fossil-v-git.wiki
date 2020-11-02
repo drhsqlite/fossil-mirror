@@ -647,17 +647,16 @@ the disturbance from switching branches is small, and to use multiple
 checkouts when you have long-lived working branches that are different
 enough that switching in place is disruptive.
 
-You can use Git in the Fossil style, either by manually symlinking the
-<tt>.git</tt> directory from one working directory to another or by use
-of the <tt>[https://git-scm.com/docs/git-worktree|git-worktree]</tt>
-feature. Nevertheless, Git's default tie between working directory and
+While you can [./gitusers.md#worktree | use Git in the Fossil style],
+feature, Git's default tie between working directory and
 repository means the standard method for working with a Git repo is to
 have one working directory only. Most Git tutorials teach this style, so
 it is how most people learn to use Git. Because relatively few people
 use Git with multiple working directories per repository, there are
 [https://duckduckgo.com/?q=git+worktree+problem | several known
 problems] with that way of working, problems which don't happen in Fossil because of
-the clear separation between repository and working directory.
+the clear [./ckout-workflows.md | separation] between a Fossil repository and
+each working directory.
 
 This distinction matters because switching branches inside a single working directory loses local context
 on each switch.
