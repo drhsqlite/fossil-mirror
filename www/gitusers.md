@@ -604,7 +604,11 @@ the local working directory, you might say this in Git:
         fossil up -n
         fossil diff --from tip
 
-Instead of the “dry run” form of [the “`update` command][up], you can
+To invert the direction of the `diff`, say instead:
+
+        fossil diff --from current --to tip
+
+Rather than use the “dry run” form of [the `update` command][up], you can
 say:
 
         fossil timeline after current
@@ -614,14 +618,18 @@ say:
         fossil timeline descendants current
 
 Note the use of [human-readable symbolic version names][scin] rather than
-cryptic notations. (But if you like brief commands, you can abbreviate
-the last one as `fossil tim desc curr`.) You might need to add `-n 0` to
-these commands to bypass the default limit on `timeline` output, 20
+cryptic notations.
+
+If you prefer brief commands, Fossil lets you abbreviate the last one as
+far as “`fossil tim d c`”, beyond which the `timeline` command becomes
+ambiguous with `ticket`. Some of the core Fossil developers set
+“`alias f=fossil`” in their command shell or symlink the `fossil`
+executable to `f` so that the command becomes rather obscure:
+“`f tim d c`”.
+
+You might need to add `-n 0` to
+these `fossil timeline` commands to bypass the default output limit, 20
 entries.
-
-To invert the direction of the `diff` command above, say instead:
-
-        fossil diff --from current --to tip
 
 [up]: /help?cmd=update
 
