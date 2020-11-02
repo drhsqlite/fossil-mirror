@@ -849,6 +849,15 @@ the confusing result referenced in the story.
 This fixup within GitHub is success, of a sort, though it leaves us wondering why there’s a
 discrepancy.
 
+You may have noticed the difference between my story’s final command and
+the one given on Stack Overflow: `--first-parent` versus `--no-merges`.
+As far as I can tell, the SO answer is wrong, a conclusion I came to
+while writing this reply and finding that it didn’t do what I expected.
+None of the answers on that page give the `--no-merges` option. This is
+one of the sneaky problems with complicated commands: people copy them
+around from place to place without trying to understand them first, so
+errors propagate.
+
 But hark! The same Stack Overflow answer gives a much simpler
 alternative based on Git’s [`rev-parse` feature][grp]:
 
