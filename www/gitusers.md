@@ -280,13 +280,19 @@ repo DB file or what you name it.
 ## <a id="log"></a> Fossil’s Timeline Is The “Log”
 
 Git users often need to use the `git log` command to dig linearly through
-commit histories due to its [weak data model][wdm].
+commit histories due to its [weak data model][wdm], giving [O(n)
+performance][ocomp].
 
 Fossil parses a huge amount of information out of commits that allow it
 to produce its [timeline CLI][tlc] and [its `/timeline` web view][tlw]
-using indexed SQL lookups,
-which generally have the info you would have to manually extract from
-`git log`, produced much more quickly than Git can.
+using indexed SQL lookups, which generally have the info you would have
+to manually extract from `git log`, produced much more quickly than Git
+can, all else being equal: [SQLite’s B-tree data structures][btree]
+generally run in O(log n) time, faster than O(n) for equal *n* when the
+constants are equal. Yet the constants are *not* equal because Fossil
+reads read from a single disk file rather than visit potentially many
+files in sequence as Git must, so the OS’s buffer cache can result in
+[still better performance][35pct].
 
 Unlike Git’s log, Fossil’s timeline shows info across branches by
 default, a feature for maintaining better situational awareness. The
@@ -315,8 +321,11 @@ This shows what changed in each version, though Fossil’s view is more a
 summary than a list of raw changes. To dig deeper into single commits,
 you can use Fossil’s [`info` command][infoc] or its [`/info` view][infow].
 
+[35pct]: https://www.sqlite.org/fasterthanfs.html
+[btree]: https://sqlite.org/btreemodule.html
 [infoc]: /help?cmd=info
 [infow]: /help?cmd=/info
+[ocomp]: https://www.bigocheatsheet.com/
 [tlc]:   /help?cmd=timeline
 [tlw]:   /help?cmd=/timeline
 [wdm]:   ./fossil-v-git.wiki#durable
