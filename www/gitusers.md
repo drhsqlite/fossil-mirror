@@ -775,26 +775,39 @@ can cast it away on a per-command basis:
 
 Let’s get into something a bit more complicated: a case study showing
 how the concepts lined out above cause Fossil to materially differ in
-day-to-day operation from Git.
-
-You may need to check out
+day-to-day operation from Git. The goal: you need to check out
 a version of a project by date. Perhaps your customer gave you a
 vague bug report referencing only a date rather than a version, or perhaps you’re
 poking semi-randomly through history to find a “good” version to anchor
 the start point of a [`bisect`][bis] operation.
 
-Because Git doesn’t maintain comprehensive lookup tables into its log —
-[as detailed above](#log) — you will find pages online recommending
-long, nested commands like this:
+My search engine’s first result for “git checkout by date” gives [a
+highly-upvoted accepted answer on Stack Overflow][gcod]. It gives two
+alternative commands, the first of which is based on Git’s [`rev-parse`
+feature][grp]:
 
-        git checkout $(git rev-list -n 1 --first-parent --before="2020-04-12" master)
+        git checkout master@{2020-03-12}
 
-That’s [the top answer on Stack Overflow][gcod] for
-“git checkout by date” as surfaced by the web search engine I used,
-its first search result.
+It’s a bit cryptic, but that’s not its major flaw: it only works if the
+target commit is in Git’s [reflog], which Git [automatically
+prunes][gle] to 90 days of history, by default. Worse, the command won’t
+fail outright if the reflog can’t resolve the given date, it will
+instead give an *incorrect* result on `stdout`, being the closest it can
+come to your requested date, even if that’s months or years out from
+your target! I’ve even managed to get it to give an incorrect result
+without the warning by running it on stale Git clones.
+
+In other words, Git tries its best, and it may or may not warn if it
+fails, but it absolutely should never be trusted, because it’s working
+from a purgeable and possibly-stale local cache.
+
+That same Stack Overflow answer therefore goes on to recommend an
+entirely different command:
+
+        git checkout $(git rev-list -n 1 --first-parent --before="2020-03-12" master)
 
 We believe you get such answers to Git help requests in part
-because of its lack of an always-up-to-date index into its log and in
+because of its lack of an always-up-to-date [index into its log](#log) and in
 part because of its “small tools loosely joined” design philosophy. This
 sort of command is therefore composed piece by piece:
 
@@ -808,33 +821,31 @@ user.
 “Oh, I know, I’ll search the rev-list, which outputs commit IDs by
 parsing the log backwards from `HEAD`! Easy!”
 
-        git rev-list --before=2020-04-12
+        git rev-list --before=2020-03-12
 
 “Blast! Forgot the commit ID!”
 
-        git rev-list --before=2020-04-12 master
+        git rev-list --before=2020-03-12 master
 
 “Double blast! It just spammed my terminal with revision IDs! I need to
 limit it to the single closest match:
 
-        git rev-list -n 1 --before=2020-04-12 master
+        git rev-list -n 1 --before=2020-03-12 master
 
 “Okay, it gives me a single revision ID now, but is it what I’m after?
 Let’s take a look…”
 
-        git show $(git rev-list -n 1 --before=2020-04-12 master)
+        git show $(git rev-list -n 1 --before=2020-03-12 master)
 
-“Um… Why does it give me a commit from 2019-12-15? Maybe that was when
-it was committed on another branch, and I’m seeing a merge-commit made
-months later? Off to search the web… Okay, it says I need to give the
+“Oops, that’s giving me a merge commit, not what I want.
+Off to search the web… Okay, it says I need to give the
 `--no-merges` flag to show only regular commits, not merge-commits:”
 
-        git show $(git rev-list -n 1 --no-merges --before=2020-04-12 master)
+        git show $(git rev-list -n 1 --no-merges --before=2020-03-12 master)
 
-“Well poop: it shows the same commit! Eff it; let’s just try it and hope
-it’s close enough.”
+“Better. Let’s check it out:”
 
-        git checkout $(git rev-list -n 1 --no-merges --before=2020-04-12 master)
+        git checkout $(git rev-list -n 1 --no-merges --before=2020-03-12 master)
 
 “Success, I guess?”
 
@@ -849,58 +860,30 @@ And too bad if you’re a Windows user who doesn’t want to use [Git
 Bash][gbash], since neither of the stock OS command shells have a
 command interpolation feature needed to run that horrid command.
 
-If you think the bit about “a commit from 2019-12-15” in my
-little story above is made up, try `git rev-parse master@{2020-04-12}`
-on [Git’s own repository][gitgh]: it gives [this commit][grpgh]! Though
-GitHub shows the date we asked for, the `git show` command above gives
-the confusing result referenced in the story.
-This fixup within GitHub is success, of a sort, though it leaves us wondering why there’s a
-discrepancy.
+All of the command examples above were done on [Git’s own
+repository][gitgh]. Your results with the first command — the one based
+on [Git’s `rev-parse` feature][grp] — will vary depending on the state
+of your local reflog.
 
 You may have noticed the difference between my story’s final command and
 the one given on Stack Overflow: `--first-parent` versus `--no-merges`.
 As far as I can tell, the SO answer is wrong, a conclusion I came to
-while writing this case study and finding that the command didn’t do what the SO answer claimed it did.
-None of the other answers on that page give the `--no-merges` option, either. This is
-one of the sneaky problems with complicated commands: people copy them
-around from place to place without trying to understand them first, so
-errors propagate.
-
-But hark! The same Stack Overflow answer gives a much simpler
-alternative based on Git’s [`rev-parse` feature][grp]:
-
-        git checkout master@{2020-04-12}
-
-It’s a bit cryptic, but it’s much nicer than the prior command.
-
-Too bad it only works if the target commit is in Git’s [reflog], which
-Git [automatically prunes][gle] to 90 days of history from time to time. But
-the above command won’t fail outright if the reflog can’t resolve the
-given date, it will instead give an *incorrect* result on `stdout`,
-*possibly* accompanied by a warning on *stderr!* While I was writing
-this, it happily gave me a commit from 2019-07-19 until I nuked the
-repository and re-cloned, after which it at least warned me that the
-reflog didn’t go back that far… But it still gave me an answer: a wrong
-one!
-
-Why? Because Git lacks comprehensive up-to-date indices into its log,
-and my clone was stale, apparently last updated in July of 2019.
-When I nuked my stale clone and re-cloned, my
-command above started giving me today’s latest commit, that being as far
-back in history as it could dig. Who wants this behavior?
-
-Well, at least it works on Windows… That’s something!
-
-But woe betide you if you leave off the `master` bit. Or forget some bit
-of the cryptic punctuation.
+while writing this case study and finding that the command didn’t do
+what the SO answer claimed it did.  None of the other answers on that
+page give the `--no-merges` option, either. This is one of the sneaky
+problems with complicated commands: people copy them around from place
+to place without trying to understand them first, so errors propagate.
 
 You may be asking with an exasperated huff, “What is your *point*, man?”
 The point is that the equivalent in Fossil is simply:
 
-        fossil up 2020-04-12
+        fossil up 2020-03-12
 
-…and the commit will *always* be the one closest to the 12th of April, 2020, no matter
-whether it’s a fresh clone or a stale one.
+…and the commit will *always* be the one closest to the 12th of March, 2020, no matter
+whether it’s a fresh clone or a stale one because of Fossil’s autosync
+feature.
+
+In Git terms, Fossil’s “reflog” is always complete and up-to-date.
 
 [gbash]:  https://appuals.com/what-is-git-bash/
 [gcod]:   https://stackoverflow.com/a/6990682/142454
@@ -908,7 +891,6 @@ whether it’s a fresh clone or a stale one.
 [gitgh]:  https://github.com/git/git/
 [gle]:    https://git-scm.com/docs/git-reflog#_options_for_expire
 [grp]:    https://git-scm.com/docs/git-rev-parse
-[grpgh]:  https://github.com/git/git/commit/a99bc27aec74071aa1
 [reflog]: https://git-scm.com/docs/git-reflog
 
 ----
