@@ -48,9 +48,8 @@ several separate places when it comes to moving from Git to Fossil.
 #### <a id="cwork" name="scw"></a> Checkout Workflows
 
 A Fossil repository is a SQLite database storing the entire history of a
-project. It is not normally stored inside the working tree, as with Git.
-
-The working tree — also called a check-out in Fossil — is a directory
+project. It is not normally stored inside the working tree.
+A Fossil working tree — also called a check-out — is a directory
 that contains a snapshot of your project that you are currently working
 on, extracted for you from the repository database file by the `fossil`
 program.
@@ -63,26 +62,33 @@ advocate a switch-in-place working mode instead, so that is how most
 users end up working with Git. Contrast [Fossil’s check-out workflow
 document][ckwf] to see the practical differences.
 
-There are two key Git-specific things to add to that document.
-
-First, this:
+There is one Git-specific detail we wish to add beyond what that
+document already covers. This command:
 
         git checkout some-branch
 
-…is spelled:
+…is best given as:
 
         fossil update some-branch
 
-…in Fossil.
+…in Fossil. There is a `fossil checkout` command, but it has two
+restrictions that push you toward using `fossil update` instead:
 
-Second, as of Fossil 2.14, we now have Git-style clone-and-open:
+1.  Several features in `fossil update` do not exist in
+    `fossil checkout`.
 
-        fossil clone https://example.com/repo
+2.  The lone exception is `fossil checkout --keep`, a rarely-needed
+    operation.
 
-That gets you a `repo.fossil` file, opened into a `repo/` working
-directory alongside it. Note that we do not commingle the repo and
-working directory even in this case. See [the workflows doc][ckwf]
-for more detail on this and related topics.
+3.  Fossil will have you typing “`fossil up`” frequently anyway to pull
+    remote changes and merge them into the local check-out directory.
+    Adding a `VERSION` string for the cases where you mean something
+    other than “tip of the current branch” is an easy habit to develop.
+
+Neither command is an alias for the other. They overlap enough that they
+can be used interchangeably for everyday use cases, but since `update`
+is more powerful, we recommend that you break the habit of typing
+`checkout`.
 
 [ckwf]: ./ckout-workflows.md
 
@@ -420,6 +426,15 @@ intermediate like “`f time desc curr`”, which is reasonably clear.
 [wdm]:   ./fossil-v-git.wiki#durable
 
 
+## <a id="dhead"></a> Detached HEAD State
+
+The SQL indexes in Fossil which we brought up above have a very useful
+side benefit: you cannot have a [detached HEAD state][gdh] in Fossil,
+the source of untold pain and data loss in Git. It simply cannot be done
+in Fossil, because the indexes always let us find our way back into the
+hash tree.
+
+
 ## <a id="slcom"></a> Summary Line Convention In Commit Comments
 
 The Git convention of a [length-limited summary line][lsl] at the start
@@ -476,10 +491,6 @@ adding commits to the tip of that branch.
 To switch back to the parent branch, say something like:
 
         fossil update trunk       # ≅ git checkout master
-
-(There is also `fossil checkout trunk`, but it’s a 2nd-tier command
-meant for more specialized purposes. Almost always, you want to use
-`update` instead.)
 
 Fossil does also support the Git style, creating the branch ahead of
 need:
@@ -766,21 +777,21 @@ Let’s get into something a bit more complicated: a case study showing
 how the concepts lined out above cause Fossil to materially differ in
 day-to-day operation from Git.
 
-A common thing to need to do in a version control system is to check out
-a version by date. Perhaps this is because your customer gave you a
-vague bug report — “I think it broke on a Wednesday… Yes, there was a
-full moon, and the Dodgers were playing in Boston…” — or perhaps you’re
-poking semi-randomly through history to find a “good” version to set up
+You may need to check out
+a version of a project by date. Perhaps your customer gave you a
+vague bug report referencing only a date rather than a version, or perhaps you’re
+poking semi-randomly through history to find a “good” version to anchor
 the start point of a [`bisect`][bis] operation.
 
 Because Git doesn’t maintain comprehensive lookup tables into its log —
 [as detailed above](#log) — you will find pages online recommending
-horror-show commands like this:
+long, nested commands like this:
 
         git checkout $(git rev-list -n 1 --first-parent --before="2020-04-12" master)
 
-That’s [the top answer on Stack Overflow][gcod] for the first hit on
-“git checkout by date” in the web search engine I used.
+That’s [the top answer on Stack Overflow][gcod] for
+“git checkout by date” as surfaced by the web search engine I used,
+its first search result.
 
 We believe you get such answers to Git help requests in part
 because of its lack of an always-up-to-date index into its log and in
@@ -791,7 +802,8 @@ sort of command is therefore composed piece by piece:
 
 **Given:** Git lacks a reliable lookup-by-date index into its log.
 
-**Goal:** Find the commit ID nearest a given date, you poor sod.
+**Goal:** Find the commit ID nearest a given date, you poor unfortunate
+user.
 
 “Oh, I know, I’ll search the rev-list, which outputs commit IDs by
 parsing the log backwards from `HEAD`! Easy!”
@@ -824,7 +836,7 @@ it’s close enough.”
 
         git checkout $(git rev-list -n 1 --no-merges --before=2020-04-12 master)
 
-“Success! Just so easy!”
+“Success, I guess?”
 
 <center>◆  ◆  ◆</center>
 
@@ -836,10 +848,6 @@ normal user.
 And too bad if you’re a Windows user who doesn’t want to use [Git
 Bash][gbash], since neither of the stock OS command shells have a
 command interpolation feature needed to run that horrid command.
-
-By the way, congratulations, you just created a [detached head][gdh]
-along with all of its attendant risks. There’s no such state in Fossil
-due to its robust commit history indexing.
 
 If you think the bit about “a commit from 2019-12-15” in my
 little story above is made up, try `git rev-parse master@{2020-04-12}`
@@ -866,7 +874,7 @@ alternative based on Git’s [`rev-parse` feature][grp]:
 It’s a bit cryptic, but it’s much nicer than the prior command.
 
 Too bad it only works if the target commit is in Git’s [reflog], which
-Git automatically prunes to 90 days of history from time to time. But
+Git [automatically prunes][gle] to 90 days of history from time to time. But
 the above command won’t fail outright if the reflog can’t resolve the
 given date, it will instead give an *incorrect* result on `stdout`,
 *possibly* accompanied by a warning on *stderr!* While I was writing
@@ -876,12 +884,12 @@ reflog didn’t go back that far… But it still gave me an answer: a wrong
 one!
 
 Why? Because Git lacks comprehensive up-to-date indices into its log,
-and my clone was stale.
+and my clone was stale, apparently last updated in July of 2019.
 When I nuked my stale clone and re-cloned, my
 command above started giving me today’s latest commit, that being as far
 back in history as it could dig. Who wants this behavior?
 
-Well, at least it works on Windows! That’s something!
+Well, at least it works on Windows… That’s something!
 
 But woe betide you if you leave off the `master` bit. Or forget some bit
 of the cryptic punctuation.
@@ -892,12 +900,13 @@ The point is that the equivalent in Fossil is simply:
         fossil up 2020-04-12
 
 …and the commit will *always* be the one closest to the 12th of April, 2020, no matter
-whether it’s a fresh clone or a stale one, praise be Ritchie!
+whether it’s a fresh clone or a stale one.
 
 [gbash]:  https://appuals.com/what-is-git-bash/
 [gcod]:   https://stackoverflow.com/a/6990682/142454
 [gdh]:    https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/
 [gitgh]:  https://github.com/git/git/
+[gle]:    https://git-scm.com/docs/git-reflog#_options_for_expire
 [grp]:    https://git-scm.com/docs/git-rev-parse
 [grpgh]:  https://github.com/git/git/commit/a99bc27aec74071aa1
 [reflog]: https://git-scm.com/docs/git-reflog
