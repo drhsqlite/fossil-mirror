@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sURL-to-repository-filename\sconverter.
-D 2020-11-02T18:11:16.036
+C Add\s'contact'\ssubcommand\sto\sthe\s'fossil\suser'\scommand.\sThis\senables\schanging\scontact\sinformation\sfor\sa\sgiven\suser.\sIf\sno\sargument\sis\spassed,\sthis\sdisplays\sthe\scurrent\scontact\sinfo\sof\sthe\spassed\sin\susername.
+D 2020-11-04T00:43:56.866
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -638,7 +638,7 @@ F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 03501e965afb3d455f659ac85df04023329aedab3f44099375fcce0a3080efa6
 F src/update.c 23cbad78c65b18d714eec8c7988893e67668a67354b8f90210f98bf2ed7d7d92
 F src/url.c 09059182407bf8881845e5b41383a2813676dd0aafa5fdfb67962ea6c20119b7
-F src/user.c 1d1b211733c10a6736ad154faf490a15defa1a85a22dc150b83ee9e7720e2f41
+F src/user.c 13a736d5c2cbc82327c4d2d00da3333c59a9bf164f108dc00c5f89671758fade
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d9ea283732ef8c406abd31c20757ae01583a9e30032f6c5c756e1055074bc18
-R 8a4796c483e6afaf2f949f1a312b7106
-U drh
-Z 3423ab2fd800454f3917867873403275
+P 23679d720dc49920abbe8a5ce98ad8af6dd558a4ae17c1447133ab110e46e94d
+R e5b467b57aef9bd96b32a18a5e2fc1fd
+U jamsek
+Z b51a2b337358dddfee66c48cd7892b2f
