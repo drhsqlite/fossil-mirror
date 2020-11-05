@@ -174,11 +174,11 @@ hr {
 
 /* Forum */
 
-div.forumPosts a:visited {
+.forum a:visited {
   color: #6A7F94;
 }
 
-div.forumHierRoot blockquote, div.forumHier blockquote, div.forumEdit blockquote, div.forumTime blockquote, div.forumTimeline blockquote {
+.forum > blockquote {
   background-color: rgba(65, 131, 196, 0.1);
   border-left: 3px solid #254769;
   padding: .1em 1em;

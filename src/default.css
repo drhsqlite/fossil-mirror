@@ -764,9 +764,7 @@ div.forumHier, div.forumTime, div.forumHierRoot {
   display: flex;
   flex-direction: column;
 }
-div.forumHier > div > form,
-div.forumTime > div > form,
-div.forumHierRoot > div > form {
+.forum > div > form {
   margin: 0.5em 0;
 }
 .forum-post-collapser {
