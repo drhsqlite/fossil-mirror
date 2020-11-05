@@ -1,5 +1,5 @@
-C Another\sattempt\sat\saddressing\sforum\scritiques\sabout\sthe\sgitusers\sdoc's\nCase\sStudy\s1.\s\sAlso\shad\sto\supdate\sthe\sexample\sdate\swe're\ssearching\sfor\nagain,\sso\sI\saddeed\sa\sparagraph\sexplaining\swhy\sthe\sexample\smight\sbreak\nagain.
-D 2020-11-05T03:08:11.859
+C Clarify\sthat\sa\slegitimate\sreason\sfor\sremoving\sdata\sis\sreceiving\sa\slegitimate\nlegal\srequest,\sas\sper\shttps://fossil-scm.org/forum/forumpost/bbfb0e910e.\nAdd\sthe\sexception\sfor\snon-versioned\sdata\s(ie\s"fossil\sscrub").\sThis\smay\sneed\s\nto\sbe\sexplained\sbetter.
+D 2020-11-05T11:25:36.745
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -967,7 +967,7 @@ F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
 F www/serverext.wiki afd625caa3518230dd5323df86acd1ed37805ecbe84751facd2b60627d6d5773
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
-F www/shunning.wiki 036c770a25d2ec30d22f05519563d6957dc9c91a48dffdfe52cbc4c383f1cab1
+F www/shunning.wiki 42bec5417f7dc1cf3ad6f5f8c07005088e340788d7a440c701c79f7afeb29ca6
 F www/ssl.wiki 0dd97431ff90fce1f19a7d2e60bdae07fd1b079d90b7e76750eaa9be44b4f7ce
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 18fc69710671d9f163a5e7659791289242e1d27732374f86e382ba87f72ab0f2
-R efe960aa079d4f5b30e819408da742f3
-U wyoung
-Z fc8dd017a87714c8107dced762017401
+P 278a2b7453a759b8036104ea48e3446265ee2f6ce13ade553a442ede7c2643d1
+R 2d11f6a09017ec000fd1e5f0cb1e67a2
+U danshearer
+Z f66d06a4382ac7480c36532fdf021ee7
