@@ -1,5 +1,5 @@
-C Disentangled\san\sincorrect\sintermingling\sof\sthe\s"adunit"\sfeature\sand\sthe\n"content"\sdiv\sthe\sbegins\sthe\sbody\sarea\sof\seach\spage.
-D 2020-11-05T22:32:47.224
+C Moved\sa\scomment\sdown\sin\ssrc/style.c\sand\sremoved\sa\spart\sof\sit\sthat\sseems\nto\srefer\sto\sinline\sCSS\sthat's\ssince\smoved\sto\sstyle.css.
+D 2020-11-05T22:34:06.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -616,7 +616,7 @@ F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c f36d74389e5a386f795dc00787bfbe981b8590441eea027a86602cf539874391
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c c994204386536a8d87614a00deca56c1a6dd697dbaa0791ff737a77e97e4a8bc
+F src/style.c f9c2d1ea2faded11dc461864abc97198a8116984e162b1df617b53a5448740f2
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8b15a3689060c47b0a7501941775f920a997f5f1b4cdd060d364b4b1efdd7c0
-R 47cd92f866e66efbb92708aef3df4ab3
+P e7fe61c13d4e562c665e67b3545bf186683a792801fd3ba0011d9835b865dbc1
+R 9fe9cb35841205072b14b3eac980c088
 U wyoung
-Z 6a98c923b06c7ecabda72b28aadc53e2
+Z 42a01030256c4d9b4e4e91b0abfa614a

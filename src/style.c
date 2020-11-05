@@ -876,16 +876,11 @@ void style_footer(void){
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
-    /* Put the footer at the bottom of the page.
-    ** the additional clear/both is needed to extend the content
-    ** part to the end of an optional sidebox.
-    */
     @ <div class="endContent"></div>
   }
   @ </div>
 
-
-
+  /* Put the footer at the bottom of the page. */
   zFooter = skin_get("footer");
   if( sqlite3_strlike("%</body>%", zFooter, 0)==0 ){
     style_load_all_js_files();
