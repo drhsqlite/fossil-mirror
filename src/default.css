@@ -754,13 +754,11 @@ div.forumTimeline code {
 div.markdown code {
   white-space: pre-wrap;
 }
-div.forumHier, div.forumTime {
+div.forumTime {
   border: 1px solid black;
   padding-left: 1ex;
   padding-right: 1ex;
   margin-top: 1ex;
-}
-div.forumHier, div.forumTime {
   display: flex;
   flex-direction: column;
 }
