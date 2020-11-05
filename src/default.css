@@ -760,7 +760,7 @@ div.forumHier, div.forumTime {
   padding-right: 1ex;
   margin-top: 1ex;
 }
-div.forumHier, div.forumTime, div.forumHierRoot {
+div.forumHier, div.forumTime {
   display: flex;
   flex-direction: column;
 }

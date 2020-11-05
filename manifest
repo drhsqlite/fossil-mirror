@@ -1,5 +1,5 @@
-C Using\sthe\snew\s"forum"\spage\stype\sto\ssimplify\srepetitive\sCSS\srules.
-D 2020-11-05T23:41:51.810
+C Removed\sobsolete\sreferences\sto\sCSS\sclass\sdiv.div.forumHierRoot:\sno\ncurrent\scode\suses\sthese.
+D 2020-11-05T23:42:42.955
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -464,7 +464,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 109a1234b07084d43037188028ef10b4fa9667f353e80e2ab4e709f6ce52222d
-F src/default.css 66a181459a7696b76bc946c6057614188ffda026484d493e1c76d487ba77c616
+F src/default.css ca7eaa5fee3d1a10eaf53deb4db5fcd0b55d42046e0a88abea35d7f69e6c8b23
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -492,7 +492,7 @@ F src/fossil.dom.js 53e8fb9bf01d7e69db313373c54a1aa8ce1617495212da6781e91a785c01
 F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
-F src/fossil.page.forumpost.js 5859e2060cc56f430a489ce62306a3fc5d9217bf9f06adce7ecd1f7761b69fd8
+F src/fossil.page.forumpost.js 54ec40ca60c8e6b30413496dcfe34f897babcd0d6de637df85f923905867a026
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef5424b683ad2830bfb111ea5756e00e3b8be5df5692ec95d28f1d851170c7c5
-R 383d61ef626ae9540ff2141fb5ed4550
+P 064c677a70f25d8f6218f60635fcb1130b2850825e7db534f537de618d5462a8
+R 386cebf2766d284197adb933b8749b55
 U wyoung
-Z dc695ec3b4b62edc6d6b914a857baac9
+Z 78bfd1c6d37b1305b58a9557134e1d4e

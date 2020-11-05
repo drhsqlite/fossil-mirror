@@ -47,7 +47,7 @@
        scrolling is currently activated because they are taller than
        their max-height). */
     document.querySelectorAll(
-      'div.forumHier, div.forumTime, div.forumHierRoot, div.forumEdit'
+      'div.forumHier, div.forumTime, div.forumEdit'
     ).forEach(function f(forumPostWrapper){
       const content = forumPostWrapper.querySelector('div.forumPostBody');
       if(!content || !scrollbarIsVisible(content)) return;
