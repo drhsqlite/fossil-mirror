@@ -762,7 +762,7 @@ div.forumTime {
   display: flex;
   flex-direction: column;
 }
-.forum > div > form {
+.forum div > form {
   margin: 0.5em 0;
 }
 .forum-post-collapser {
