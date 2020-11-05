@@ -1,5 +1,5 @@
-C Clarify\sthat\sa\slegitimate\sreason\sfor\sremoving\sdata\sis\sreceiving\sa\slegitimate\nlegal\srequest,\sas\sper\shttps://fossil-scm.org/forum/forumpost/bbfb0e910e.\nAdd\sthe\sexception\sfor\snon-versioned\sdata\s(ie\s"fossil\sscrub").\sThis\smay\sneed\s\nto\sbe\sexplained\sbetter.
-D 2020-11-05T11:25:36.745
+C Increased\sthe\sblank\sspace\sat\sthe\send\sof\scheckin_names.wiki\sso\sthe\slast\ntwo\ssections\scan\sbe\sdistinguished\swhen\stargetted\sby\sHTML\sfragment\nidentifiers.
+D 2020-11-05T18:10:37.878
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -830,7 +830,7 @@ F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a5
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
 F www/changes.wiki db757603b69f805e78cbbc5f800e284099712812df26101137c7d5f1f67d058c
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki b58919c219e2513b61e283d30e2b8e792ee50e63b2445cbe7d5ffb22d6734051
+F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md bf75bbf5dbd1aef9d31b7744b9ba8ff647f956467107076c757cc86ee31ead80
 F www/ckout-workflows.md 3823df549ae687ef50ced597a47b91af71d3dac8698a1d9e7cd4734edf5c1dbe
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 278a2b7453a759b8036104ea48e3446265ee2f6ce13ade553a442ede7c2643d1
-R 2d11f6a09017ec000fd1e5f0cb1e67a2
-U danshearer
-Z f66d06a4382ac7480c36532fdf021ee7
+P 1001d86743c256b96ec52513545db4affec4a31388911fa478d40d3e50cb2bc1
+R b69bc23d7ee18660f01a2bb331d04ce5
+U wyoung
+Z 196880151192397335076e0aa8b05e56
