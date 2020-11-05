@@ -1,5 +1,5 @@
-C Increased\sthe\sblank\sspace\sat\sthe\send\sof\scheckin_names.wiki\sso\sthe\slast\ntwo\ssections\scan\sbe\sdistinguished\swhen\stargetted\sby\sHTML\sfragment\nidentifiers.
-D 2020-11-05T18:10:37.878
+C Assorted\scleanups\sin\sskins/default/css.txt:\sreordered\sstyles\sso\slike\nelements\sare\sgrouped\stogether,\sadded\sseparator\scomments\sto\stry\sand\nprevent\sthis\sdrift\sfrom\shappening\sagain,\sand\smade\sthe\sspacing\sconsistent\nwith\sthe\swww/style.wiki\srules.\sThe\sgoal\sis\sto\smake\sit\seasier\sto\sfind\nrules\swhen\sdoing\scustom\sskin\sedits.
+D 2020-11-05T22:16:41.707
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -393,7 +393,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt 9a6197431010e9f52fea99f6a96ab5d86425934bafadec0bc8684a54c2912a9c
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt dab4ffb2a04a2fadf50e5ce1f0157c5bf5c6aa60426b13ff472926d377c11ab1
+F skins/default/css.txt 1065c8dc2b5a3c926c4089806ac42a2c16f9d75cb81b3969fa5d80c621ff4720
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt d3a0e23a6bd14bf25f7193841e8434bc2454281eb63a7373678ffed9ffbad76f
@@ -986,7 +986,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1001d86743c256b96ec52513545db4affec4a31388911fa478d40d3e50cb2bc1
-R b69bc23d7ee18660f01a2bb331d04ce5
+P d2a59b03727bc3552b545efe97c95730a6b805b9342d564ff270cf595961f1d8
+R fa299cd57dbf81623d2189027eed4468
+T *branch * default-css-cleanups
+T *sym-default-css-cleanups *
+T -sym-trunk *
 U wyoung
-Z 196880151192397335076e0aa8b05e56
+Z 650223b7ca003114a6cba90a48a1e34c
