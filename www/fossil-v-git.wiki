@@ -699,9 +699,12 @@ update</tt>.
 
 Git puts a lot of emphasis on maintaining
 a "clean" check-in history.  Extraneous and experimental branches by
-individual developers often never make it into the main repository.  And
-branches are often rebased before being pushed, to make
-it appear as if development had been linear.  Git strives to record what
+individual developers often never make it into the main repository.
+Branches may be rebased before being pushed to make
+it appear as if development had been linear, or "squashed" to make it
+appear that multiple commits were made as a single commit.
+There are [https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History |
+other history rewriting mechanisms in Git] as well. Git strives to record what
 the development of a project should have looked like had there been no
 mistakes.
 
@@ -718,15 +721,55 @@ prior commits, but unlike in Git, this works not by replacing data in
 the repository, but by adding a correction record to the repository that
 affects how later Fossil operations present the corrected data. The old
 information is still there in the repository, it is just overridden from
-the amendment point forward. For extreme situations, Fossil adds the
-[/doc/trunk/www/shunning.wiki|shunning mechanism], but it has strict
-limitations that prevent global history rewrites.
+the amendment point forward.
+
+Fossil lacks almost every other history rewriting mechanism listed on
+the Git documentation page linked above. [./rebaseharm.md | There is no
+rebase] in Fossil, on purpose, thus no way to reorder or copy commits
+around in the commit hash tree. There is no commit squashing, dropping,
+or interactive patch-based cherry-picking of commit elements in Fossil.
+There is nothing like Git's <tt>filter-branch</tt> in Fossil.
+
+The lone exception is deleting commits. Fossil has two methods for doing
+that, both of which have stringent limitations, on purpose.
+
+The first is [/doc/trunk/www/shunning.wiki | shunning]. See that
+document for details, but briefly, you only get mandatory compliance
+for shun requests within a single repository. Shun requests do not
+propagate automatically between repository clones. A Fossil repository
+administrator can <i>cooperatively</i> pull another repo's shun requests
+across a sync boundary, so that two admins can get together and agree to
+shun certain committed artifacts, but a person cannot force their local
+shun requests into another repo without having admin-level control over
+the receiving repo as well. Fossil's shun feature isn't for fixing up
+everyday bad commits, it's for dealing with extreme situations: public
+commits of secret material, ticket/wiki/forum spam, law enforcement
+takedown demands, etc.
+
+There is also the experimental [/help?cmd=purge | <tt>purge</tt>
+command], which differs from shunning in ways that aren't especially
+important in the context of this document. At a 30000 foot level, you
+can think of purging as useful only when you've turned off Fossil's
+autosync feature and want to pluck artifacts out of its hash tree before
+they get pushed. In that sense, it's approximately the same as
+<tt>git rebase -i, drop</tt>. However, given that Fossil defaults to
+having autosync enabled [#devorg | for good reason], the purge command
+isn't very useful in practice: once a commit has been pushed into
+another repo, shunning is more useful if you need to delete it from
+history.
+
+If these accommodations strike you as incoherent with respect to
+Fossil's philosophy of durable, unchanging commits, realize that if
+shunning and purging were removed from Fossil, you could still remove
+artifacts from the repository with SQL <tt>DELETE</tt> statements; the
+repository database file is, after all, directly modifiable, being
+writable by your user. Where the Fossil philosophy really takes hold is
+in making it difficult to violate the integrity of the hash tree.
+It's somewhat tangential, but the document [./blockchain.md | "Is Fossil
+a Blockchain?"] touches on this and related topics.
 
 One commentator characterized Git as recording history according to
 the victors, whereas Fossil records history as it actually happened.
-
-We go into more detail on this topic in a separate article,
-[./rebaseharm.md | Rebase Considered Harmful].
 
 
 <h3 id="testing">2.8 Test Before Commit</h3>
@@ -737,46 +780,54 @@ to the commit step before a change could possibly be tested. Fossil, by
 contrast, makes the equivalent change to the local working check-out
 only, requiring a separate check-in step to commit the change. This
 design difference falls naturally out of Fossil's default-enabled
-autosync feature.
+autosync feature and its philosophy of [#history | not offering history
+rewriting features].
 
 The prime example in Git is rebasing: the change happens to the local
 repository immediately if successful, even though you haven't tested the
 change yet. It's possible to argue for such a design in a tool like Git
-which doesn't automatically push the change up to its parent, because
-you can still test the change before pushing local changes to the parent
-repo, but in the meantime you've made a durable change to your local Git
-repository. You must do something drastic like <tt>git
-reset --hard</tt> to revert that rebase if it causes a problem. If you
-push your rebased local repo up to the parent without testing first,
-you've now committed the error on a public branch, effectively a
-violation of
+since it lacks an autosync feature, because you can still test the
+change before pushing local changes to the parent repo, but in the
+meantime you've made a durable change to your local Git repository. You
+must do something drastic like <tt>git reset --hard</tt> to revert that
+rebase or rewrite history before pushing it if the rebase causes a
+problem. If you push your rebased local repo up to the parent without
+testing first, you cannot fix it without violating
 [https://www.atlassian.com/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing
 | the golden rule of rebasing].
 
 Lesser examples are the Git <tt>merge</tt>, <tt>cherry-pick</tt>, and
 <tt>revert</tt> commands, all of which apply work from one branch onto
-another, and all of which do their work immediately without giving you
-an opportunity to test the change first locally unless you give the
-<tt>--no-commit</tt> option.
+another, and all of which commit their change to the local repository
+immediately without giving you
+an opportunity to test the change first unless you give the
+<tt>--no-commit</tt> option. Otherwise, you're back in the same boat:
+reset the local repository or rewrite history to fix things, then maybe
+retry.
 
 Fossil cannot sensibly work that way because of its default-enabled
-autosync feature. Instead of jumping straight to the commit step, Fossil
+autosync feature and its purposeful paucity of commands for modifying
+commits, as discussed in [#history | the prior section].
+
+Instead of jumping straight to the commit step, Fossil
 applies the proposed merge to the local working directory only,
 requiring a separate check-in step before the change is committed to the
 repository. This gives you a chance to test the change first,
 either manually or by running your software's automatic tests. (Ideally,
-both!)
+both!) Thus, Fossil doesn't need rebase, squashing,
+<tt>reset --hard</tt>, or other Git commit mutating mechanisms.
 
-Another difference is that because Fossil requires an explicit commit
-for a merge, it makes you give an explicit commit <i>message</i> for
-each merge, whereas Git writes that commit message itself by default
+Because Fossil requires an explicit commit for a merge, it has the nice
+side benefit that it makes you give an explicit commit <i>message</i>
+for each merge, whereas Git writes that commit message itself by default
 unless you give the optional <tt>--edit</tt> flag to override it.
 
 We don't look at this difference as a workaround in Fossil for autosync,
-but instead as a test-first philosophical difference. When every commit
-is pushed to the parent repo by default, it encourages a working style
-in which every commit is tested first. We think this is an inherently
-good thing.
+but instead as a test-first philosophical difference:
+<tt>fossil commit</tt> is a <i>commitment</i>. When every commit is
+pushed to the parent repo by default, it encourages a working style in
+which every commit is tested first. It encourages thinking before
+acting. We believe this is an inherently good thing.
 
 Incidentally, this is a good example of Git's messy command design.
 These three commands:

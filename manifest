@@ -1,5 +1,5 @@
-C Flipped\sthe\sexamples\sin\sCase\sStudy\s1\sin\sgitusers.md\saround\sso\swe\napproach\sthe\sproblem\sthe\ssame\sway\sthe\sSO\sanswer\sdid.\s\sAlso\schanged\sthe\ntarget\sdate,\ssince\son\smy\slocal\sGit\sclone,\sthe\sprior\sdate\sis\snow\sgiving\nme\sa\snon-merge\scommit\sfor\ssome\sreason.\sRather\sthan\stry\sto\sexplain\sthe\ndiscrepancy,\sI've\sjust\spicked\sa\sdifferent\sexample.
-D 2020-11-04T15:45:32.975
+C Reworked\ssections\s2.7\sand\s2.8\sin\sfossil-v-git\sto\sbe\sclearer\sabout\nhistory\srewriting:\scommit\s+\sautosync\svs.\scommit\s+\spush,\srebase\s+\sdrop\nvs.\sshunning,\setc.
+D 2020-11-05T02:10:37.646
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -868,7 +868,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 155a1f7c696b8fd85d06fb8e622752ed2617e18385f143efc201fd77fdae2a4f
+F www/fossil-v-git.wiki 20d6fcd79ae209ebfc67784a2aa3af42f2baae8efbcad72def73e910bf2fe42e
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7e03f7b4d87418ad445c5b783b5d4ea431b4c018427375a4bed1c18028bfc0a1
-R ac650787cefa072ceab75516340e74bd
+P 8f96db71d3fec99914ff97cccfc585b932f01c9bd9a5743007ea744fffddc6de
+R 9df78a251064a95294b93b7d09569cf6
 U wyoung
-Z f2b9824f1aa945ac0e1804c307969acc
+Z 7df0f6f1852ec849b91ec71029df4daf
