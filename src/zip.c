@@ -957,7 +957,7 @@ void baseline_zip_page(void){
       @ zExclude = "%h(zExclude)"<br />
     }
     @ zKey = "%h(zKey)"
-    style_footer();
+    style_body_and_footer("zip");
     return;
   }
   if( referred_from_login() ){
@@ -968,7 +968,7 @@ void baseline_zip_page(void){
     @ holding the content of check-in <b>%h(zRid)</b>:
     @ <input type="submit" value="Download" />
     @ </form>
-    style_footer();
+    style_body_and_footer("zip");
     return;
   }
   blob_zero(&zip);

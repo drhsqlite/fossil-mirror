@@ -787,7 +787,7 @@ void tarball_page(void){
       @ zExclude = "%h(zExclude)"<br />
     }
     @ zKey = "%h(zKey)"
-    style_footer();
+    style_body_and_footer("tarball");
     return;
   }
   if( referred_from_login() ){
@@ -798,7 +798,7 @@ void tarball_page(void){
     @ of check-in <b>%h(zRid)</b>:
     @ <input type="submit" value="Download" />
     @ </form>
-    style_footer();
+    style_body_and_footer("tarball");
     return;
   }
   blob_zero(&tarball);

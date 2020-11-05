@@ -653,5 +653,5 @@ void test_rename_list_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
-  style_footer();
+  style_body_and_footer("test");
 }

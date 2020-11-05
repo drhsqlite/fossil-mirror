@@ -250,7 +250,7 @@ int repo_list_page(void){
     style_header("Repository List");
     @ %s(blob_str(&html))
     style_table_sorter();
-    style_footer();
+    style_body_and_footer("repolist");
   }else{
     /* If no repositories were found that had the "repolist_skin"
     ** property set, then use a default skin */

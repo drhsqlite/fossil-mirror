@@ -408,5 +408,5 @@ void download_page(void){
     @ fossil  clone  %s(g.zBaseURL)  %h(zNm).fossil
     @ </pre></blockquote>
   }
-  style_footer();
+  style_body_and_footer("download");
 }

@@ -557,7 +557,7 @@ void mimetype_list_page(void){
   }
   @ </tbody></table>
   style_table_sorter();
-  style_footer();
+  style_body_and_footer("mimetypes");
 }
 
 /*
@@ -772,7 +772,7 @@ void document_render(
       wiki_convert(pBody, 0, WIKI_BUTTONS);
     }
     document_emit_js();
-    style_footer();
+    style_body_and_footer("doc");
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pBody, &title, &tail);
@@ -783,26 +783,26 @@ void document_render(
     }
     convert_href_and_output(&tail);
     document_emit_js();
-    style_footer();
+    style_body_and_footer("doc");
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("%s", zDefaultTitle);
     @ <blockquote><pre>
     @ %h(blob_str(pBody))
     @ </pre></blockquote>
     document_emit_js();
-    style_footer();
+    style_body_and_footer("doc");
   }else if( fossil_strcmp(zMime, "text/html")==0
             && doc_is_embedded_html(pBody, &title) ){
     if( blob_size(&title)==0 ) blob_append(&title,zFilename,-1);
     style_header("%s", blob_str(&title));
     convert_href_and_output(pBody);
     document_emit_js();
-    style_footer();
+    style_body_and_footer("doc");
   }else if( fossil_strcmp(zMime, "text/x-pikchr")==0 ){
     style_adunit_config(ADUNIT_RIGHT_OK);
     style_header("%s", zDefaultTitle);
     wiki_render_by_mimetype(pBody, zMime);
-    style_footer();
+    style_body_and_footer("doc");
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
@@ -823,7 +823,7 @@ void document_render(
     }
     if( !raw ){
       document_emit_js();
-      style_footer();
+      style_body_and_footer("doc");
     }
 #endif
   }else{
@@ -1031,7 +1031,7 @@ doc_not_found:
   if( fossil_strcmp(zCheckin,"ckout")!=0 ){
     @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
   }
-  style_footer();
+  style_body_and_footer("doc");
   return;
 }
 
@@ -1204,5 +1204,5 @@ void doc_search_page(void){
   login_check_credentials();
   style_header("Document Search");
   search_screen(SRCH_DOC, 0);
-  style_footer();
+  style_body_and_footer("docsrch");
 }

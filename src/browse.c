@@ -338,7 +338,7 @@ void page_dir(void){
   ** show the content of the README file.
   */
   if( P("noreadme")!=0 ){
-    style_footer();
+    style_body_and_footer("dir");
     return;
   }
 
@@ -399,7 +399,7 @@ void page_dir(void){
     }
   }
   db_finalize(&q);
-  style_footer();
+  style_body_and_footer("dir");
 }
 
 /*
@@ -915,7 +915,7 @@ void page_tree(void){
   @ </ul>
   @ </ul></div>
   builtin_request_js("tree.js");
-  style_footer();
+  style_body_and_footer("tree");
 
   /* We could free memory used by sTree here if we needed to.  But
   ** the process is about to exit, so doing so would not really accomplish
@@ -1169,5 +1169,5 @@ void fileage_page(void){
   @ </table></div>
   db_finalize(&q1);
   db_finalize(&q2);
-  style_footer();
+  style_body_and_footer("fileage");
 }

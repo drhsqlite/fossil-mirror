@@ -880,7 +880,7 @@ void forumthread_page(void){
   forum_emit_js();
 
   /* Emit the page style. */
-  style_footer();
+  style_body_and_footer("forum");
 }
 
 /*
@@ -1076,7 +1076,7 @@ void forum_page_init(void){
   @ <td>Log into an existing account
   @ </table>
   forum_emit_js();
-  style_footer();
+  style_body_and_footer("forum");
   fossil_free(zGoto);
 }
 
@@ -1137,7 +1137,7 @@ void forumnew_page(void){
   }
   @ </form>
   forum_emit_js();
-  style_footer();
+  style_body_and_footer("forum");
 }
 
 /*
@@ -1317,7 +1317,7 @@ void forumedit_page(void){
   }
   @ </form>
   forum_emit_js();
-  style_footer();
+  style_body_and_footer("forum");
 }
 
 /*
@@ -1359,7 +1359,7 @@ void forum_main_page(void){
   if( (srchFlags & SRCH_FORUM)!=0 ){
     if( search_screen(SRCH_FORUM, 0) ){
       style_submenu_element("Recent Threads","%R/forum");
-      style_footer();
+      style_body_and_footer("forum");
       return;
     }
   }
@@ -1452,5 +1452,5 @@ void forum_main_page(void){
   }else{
     @ <h1>No forum posts found</h1>
   }
-  style_footer();
+  style_body_and_footer("forum");
 }

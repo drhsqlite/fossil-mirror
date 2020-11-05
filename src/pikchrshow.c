@@ -375,7 +375,7 @@ void pikchrshow_page(void){
                               "storage", "pikchr", 0);
   builtin_request_js("fossil.page.pikchrshow.js");
   builtin_fulfill_js_requests();
-  style_footer();
+  style_body_and_footer("pikchrshow");
 }
 
 /*

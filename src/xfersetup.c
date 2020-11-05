@@ -87,7 +87,7 @@ void xfersetup_page(void){
     }
   }
 
-  style_footer();
+  style_body_and_footer("xfersetup");
 }
 
 /*
@@ -152,7 +152,7 @@ static void xfersetup_generic(
     @ %h(zDfltValue)
     @ </pre></blockquote>
   }
-  style_footer();
+  style_body_and_footer("xfersetup");
 }
 
 static const char *zDefaultXferCommon = 0;

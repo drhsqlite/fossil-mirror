@@ -516,7 +516,7 @@ static void new_brlist_page(void){
   @ </tbody></table></div>
   db_finalize(&q);
   style_table_sorter();
-  style_footer();
+  style_body_and_footer("branch");
 }
 
 /*
@@ -624,7 +624,7 @@ void brlist_page(void){
     @ </ul>
   }
   db_finalize(&q);
-  style_footer();
+  style_body_and_footer("branch");
 }
 
 /*
@@ -700,5 +700,5 @@ void brtimeline_page(void){
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
-  style_footer();
+  style_body_and_footer("branch");
 }

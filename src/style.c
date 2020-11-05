@@ -738,9 +738,9 @@ static void style_load_all_js_files(void){
 }
 
 /*
-** Draw the footer at the bottom of the page.
+** Emit the page body and footer HTML.
 */
-void style_footer(void){
+void style_body_and_footer(const char* zPageType){
   const char *zFooter;
   const char *zAd = 0;
   unsigned int mAdFlags = 0;
@@ -872,7 +872,7 @@ void style_footer(void){
     @ </div>
   }
 
-  @ <div class="content"><span id="debugMsg"></span>
+  @ <div class="content %s(zPageType)"><span id="debugMsg"></span>
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
@@ -1191,7 +1191,7 @@ void webpage_error(const char *zFormat, ...){
       @ </pre>
     }
   }
-  style_footer();
+  style_body_and_footer("error");
   if( zErr ){
     cgi_reply();
     fossil_exit(1);

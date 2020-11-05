@@ -1214,7 +1214,7 @@ void search_page(void){
   login_check_credentials();
   style_header("Search");
   search_screen(SRCH_ALL, 1);
-  style_footer();
+  style_body_and_footer("search");
 }
 
 
@@ -1983,7 +1983,7 @@ void search_data_page(void){
   if( !g.perm.Admin ){ login_needed(0); return; }
   if( !search_index_exists() ){
     @ <p>Indexed search is disabled
-    style_footer();
+    style_body_and_footer("report");
     return;
   }
   search_sql_setup(g.db);
@@ -2027,7 +2027,7 @@ void search_data_page(void){
       style_submenu_element(zName,"%R/test-ftsdocs?y=%c&ixed=0",zDocId[0]);
     }
     db_finalize(&q);
-    style_footer();
+    style_body_and_footer("test");
     return;
   }
   if( zType!=0 && zType[0]!=0 && zType[1]==0 &&
@@ -2057,7 +2057,7 @@ void search_data_page(void){
     }
     @ </ul>
     db_finalize(&q);
-    style_footer();
+    style_body_and_footer("test");
     return;
   }
   style_header("Summary of ftsdocs");
@@ -2101,5 +2101,5 @@ void search_data_page(void){
   @ <th align="right">%d(cnt3)
   @ </tfooter>
   @ </table>
-  style_footer();
+  style_body_and_footer("test");
 }

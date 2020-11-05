@@ -726,7 +726,7 @@ void taglist_page(void){
   }
   @ </ul>
   db_finalize(&q);
-  style_footer();
+  style_body_and_footer("taglist");
 }
 
 /*
@@ -783,5 +783,5 @@ void tagtimeline_page(void){
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  style_footer();
+  style_body_and_footer("tagtimeline");
 }
