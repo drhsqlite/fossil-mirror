@@ -786,7 +786,7 @@ highly-upvoted accepted answer on Stack Overflow][gcod]. It gives two
 alternative commands, the first of which is based on Git’s [`rev-parse`
 feature][grp]:
 
-        git checkout master@{2020-03-12}
+        git checkout master@{2020-03-17}
 
 It’s a bit cryptic, but that’s not its major flaw: it only works if the
 target commit is in Git’s [reflog], which Git [automatically
@@ -804,7 +804,7 @@ from a purgeable and possibly-stale local cache.
 That same Stack Overflow answer therefore goes on to recommend an
 entirely different command:
 
-        git checkout $(git rev-list -n 1 --first-parent --before="2020-03-12" master)
+        git checkout $(git rev-list -n 1 --first-parent --before="2020-03-17" master)
 
 We believe you get such answers to Git help requests in part
 because of its lack of an always-up-to-date [index into its log](#log) and in
@@ -821,31 +821,32 @@ user.
 “Oh, I know, I’ll search the rev-list, which outputs commit IDs by
 parsing the log backwards from `HEAD`! Easy!”
 
-        git rev-list --before=2020-03-12
+        git rev-list --before=2020-03-17
 
 “Blast! Forgot the commit ID!”
 
-        git rev-list --before=2020-03-12 master
+        git rev-list --before=2020-03-17 master
 
 “Double blast! It just spammed my terminal with revision IDs! I need to
 limit it to the single closest match:
 
-        git rev-list -n 1 --before=2020-03-12 master
+        git rev-list -n 1 --before=2020-03-17 master
 
 “Okay, it gives me a single revision ID now, but is it what I’m after?
 Let’s take a look…”
 
-        git show $(git rev-list -n 1 --before=2020-03-12 master)
+        git show $(git rev-list -n 1 --before=2020-03-17 master)
 
 “Oops, that’s giving me a merge commit, not what I want.
-Off to search the web… Okay, it says I need to give the
-`--no-merges` flag to show only regular commits, not merge-commits:”
+Off to search the web… Okay, it says I need to give either the
+`--first-parent` or `--no-merges` flag to show only regular commits,
+not merge-commits. Let’s try the first one:”
 
-        git show $(git rev-list -n 1 --no-merges --before=2020-03-12 master)
+        git show $(git rev-list -n 1 --first-parent --before=2020-03-17 master)
 
 “Better. Let’s check it out:”
 
-        git checkout $(git rev-list -n 1 --no-merges --before=2020-03-12 master)
+        git checkout $(git rev-list -n 1 --first-parent --before=2020-03-17 master)
 
 “Success, I guess?”
 
@@ -865,23 +866,28 @@ repository][gitgh]. Your results with the first command — the one based
 on [Git’s `rev-parse` feature][grp] — will vary depending on the state
 of your local reflog.
 
-You may have noticed the difference between my story’s final command and
-the one given on Stack Overflow: `--first-parent` versus `--no-merges`.
-As far as I can tell, the SO answer is wrong, a conclusion I came to
-while writing this case study and finding that the command didn’t do
-what the SO answer claimed it did.  None of the other answers on that
-page give the `--no-merges` option, either. This is one of the sneaky
-problems with complicated commands: people copy them around from place
-to place without trying to understand them first, so errors propagate.
+The date we’re using is simply our attempt to produce an example that
+always points at the same merge commit. As I write this, it’s pointing
+at [this one][gmc], but this is my third attempt: prior examples
+(2020-04-12 and 2020-03-12) broke for no obvious reason, suggesting that
+a given date in the above command isn’t always guaranteed to give the
+same commit. These example dates are far enough back in history that I
+doubt this is due to history rewriting. My pet hypothesis is that Git
+isn’t always traversing the log strictly in date order, and the order of
+entries in the log can shift about from one clone to the next, so the
+commit “before” a given date might differ from one to the next. If
+that’s true, then even the second command isn’t wholly reliable.
 
 You may be asking with an exasperated huff, “What is your *point*, man?”
 The point is that the equivalent in Fossil is simply:
 
-        fossil up 2020-03-12
+        fossil up 2020-03-17
 
-…and the commit will *always* be the one closest to the 12th of March, 2020, no matter
-whether it’s a fresh clone or a stale one because of Fossil’s autosync
-feature.
+…which will *always* give the commit closest to the 17th of March, 2020,
+no matter whether you do it on a fresh clone or a stale one because of
+Fossil’s autosync feature. Because this uses a SQLite indexed
+“`ORDER BY`” query, the answer won’t shift about from one clone to the
+next.
 
 In Git terms, Fossil’s “reflog” is always complete and up-to-date.
 
@@ -890,6 +896,7 @@ In Git terms, Fossil’s “reflog” is always complete and up-to-date.
 [gdh]:    https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/
 [gitgh]:  https://github.com/git/git/
 [gle]:    https://git-scm.com/docs/git-reflog#_options_for_expire
+[gmc]:    https://github.com/git/git/commit/67b0a24910fbb23c8f5e7a2c61c339818bc68296
 [grp]:    https://git-scm.com/docs/git-rev-parse
 [reflog]: https://git-scm.com/docs/git-reflog
 
