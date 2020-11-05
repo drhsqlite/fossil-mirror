@@ -866,14 +866,13 @@ void style_footer(void){
     @ <div class="adunit_right">
     cgi_append_content(zAd, -1);
     @ </div>
-  }else{
-    if( zAd ){
-      @ <div class="adunit_banner">
-      cgi_append_content(zAd, -1);
-      @ </div>
-    }
-    @ <div class="content"><span id="debugMsg"></span>
+  }else if( zAd ){
+    @ <div class="adunit_banner">
+    cgi_append_content(zAd, -1);
+    @ </div>
   }
+
+  @ <div class="content"><span id="debugMsg"></span>
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
