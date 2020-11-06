@@ -80,6 +80,13 @@ https://github.com/username/project.git
 
 ## Notes:
 
+  *  Unless you specify --force, the mirroring only happens if the Fossil
+     repo has changed, with Fossil reporting "no changes", because Fossil 
+     does not care about the success or failure of the mirror run. If a mirror
+     run failed (for example, due to an incorrect password, or a transient
+     error at github.com), Fossil will not retry until there has been a repo
+     change or --force is supplied.
+
   *  The mirroring is one-way.  If you check in changes on GitHub, those
      changes will not be reabsorbed by Fossil.  There are technical problems
      that make a two-way mirror all but impossible. (This is not to be 
