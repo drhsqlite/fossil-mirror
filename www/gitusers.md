@@ -775,31 +775,53 @@ can cast it away on a per-command basis:
 
 Let’s get into something a bit more complicated: a case study showing
 how the concepts lined out above cause Fossil to materially differ in
-day-to-day operation from Git. The goal: you need to check out
-a version of a project by date. Perhaps your customer gave you a
-vague bug report referencing only a date rather than a version, or perhaps you’re
-poking semi-randomly through history to find a “good” version to anchor
-the start point of a [`bisect`][bis] operation.
+day-to-day operation from Git.
 
-My search engine’s first result for “git checkout by date” gives [a
-highly-upvoted accepted answer on Stack Overflow][gcod]. It gives two
-alternative commands, the first of which is based on Git’s [`rev-parse`
-feature][grp]:
+Why would you want to check out a version of a project by date?  Perhaps
+because your customer gave you a vague bug report referencing only a
+date rather than a version. Or, you may be poking semi-randomly through
+history to find a “good” version to anchor the start point of a
+[`bisect`][bis] operation.
+
+My search engine’s first result for “git checkout by date” is [this
+highly-upvoted accepted Stack Overflow answer][gcod]. The first command
+it gives is based on Git’s [`rev-parse` feature][grp]:
 
         git checkout master@{2020-03-17}
 
-It’s a bit cryptic, but that’s not its major flaw: it only works if the
-target commit is in Git’s [reflog], which Git [automatically
-prunes][gle] to 90 days of history, by default. Worse, the command won’t
-fail outright if the reflog can’t resolve the given date, it will
-instead give an *incorrect* result on `stdout`, being the closest it can
-come to your requested date, even if that’s months or years out from
-your target! I’ve even managed to get it to give an incorrect result
-without the warning by running it on stale Git clones.
+There are a number of weaknesses in this command. From least to most
+critical:
 
-In other words, Git tries its best, and it may or may not warn if it
-fails, but it absolutely should never be trusted, because it’s working
-from a purgeable and possibly-stale local cache.
+1.  It’s a bit cryptic. Leave off the refname or punctuation, and it
+    means something else. You cannot simplify the cryptic incantation in
+    the typical use case.
+
+2.  A date string in Git without a time will be interpreted as
+    “[at localtime on that date][gapxd],” so the command means something
+    different from one second to the next! If there are multiple commits
+    on that date, that command can give different results depending on
+    the time of day you run it.
+
+3.  It gives misleading output if there is no close match for the date
+    in target commit in the local [reflog]. On a fresh clone, the reflog
+    is empty, and even on a well-established clone, Git [automatically
+    prunes][gle] the reflog to 90 days of history by default. This means
+    the command above can give different results from one machine to the
+    next, or even from one day to the next on the same clone.
+
+    The command won’t fail outright if the reflog can’t resolve the
+    given date: it simply gives the closest commit it can come up with,
+    even if it’s months or years out from your target! Sometimes it
+    gives a warning about the reflog not going back far enough to give a
+    useful result, and sometimes it doesn’t. If you’re on a fresh clone,
+    you are likely to get the “tip” commit’s revision ID no matter what
+    date value you give.
+
+    Git tries its best, but because it’s working from a purgeable and
+    possibly-stale local cache, you cannot trust its results.
+
+We cannot recommend this command at all. It’s unreliable even in the
+best case.
 
 That same Stack Overflow answer therefore goes on to recommend an
 entirely different command:
@@ -812,11 +834,6 @@ part because of its “small tools loosely joined” design philosophy. This
 sort of command is therefore composed piece by piece:
 
 <center>◆  ◆  ◆</center>
-
-**Given:** Git lacks a reliable lookup-by-date index into its log.
-
-**Goal:** Find the commit ID nearest a given date, you poor unfortunate
-user.
 
 “Oh, I know, I’ll search the rev-list, which outputs commit IDs by
 parsing the log backwards from `HEAD`! Easy!”
@@ -861,37 +878,34 @@ And too bad if you’re a Windows user who doesn’t want to use [Git
 Bash][gbash], since neither of the stock OS command shells have a
 command interpolation feature needed to run that horrid command.
 
-All of the command examples above were done on [Git’s own
-repository][gitgh]. Your results with the first command — the one based
-on [Git’s `rev-parse` feature][grp] — will vary depending on the state
-of your local reflog.
-
-The date we’re using is simply our attempt to produce an example that
-always points at the same merge commit. As I write this, it’s pointing
-at [this one][gmc], but this is my third attempt: prior examples
-(2020-04-12 and 2020-03-12) broke for no obvious reason, suggesting that
-a given date in the above command isn’t always guaranteed to give the
-same commit. These example dates are far enough back in history that I
-doubt this is due to history rewriting. My pet hypothesis is that Git
-isn’t always traversing the log strictly in date order, and the order of
-entries in the log can shift about from one clone to the next, so the
-commit “before” a given date might differ from one to the next. If
-that’s true, then even the second command isn’t wholly reliable.
+This alternative command still has weakness #2 above: if you run the
+second `git show` command above on [Git’s own repository][gitgh], your
+results may vary because there were four non-merge commits to Git on the
+17th of March, 2020.
 
 You may be asking with an exasperated huff, “What is your *point*, man?”
 The point is that the equivalent in Fossil is simply:
 
         fossil up 2020-03-17
 
-…which will *always* give the commit closest to the 17th of March, 2020,
-no matter whether you do it on a fresh clone or a stale one because of
-Fossil’s autosync feature. Because this uses a SQLite indexed
-“`ORDER BY`” query, the answer won’t shift about from one clone to the
-next.
+…which will *always* give the commit closest to midnight UTC on the 17th
+of March, 2020, no matter whether you do it on a fresh clone or a stale
+one.  The answer won’t shift about from one clone to the next or from
+one local time of day to the next. We owe this reliability and stability
+to three Fossil design choices:
 
-In Git terms, Fossil’s “reflog” is always complete and up-to-date.
+*  Parse timestamps from all commits on clone into a local commit index,
+   then maintain that index through subsequent commits and syncs.
 
+*  Use an indexed SQL `ORDER BY` query to match timestamps to commit
+   IDs for a fast and consistent result.
+
+*  Round timestamp strings up using [rules][frud] consistent across
+   computers and local time of day.
+
+[frud]:   https://fossil-scm.org/home/file/src/name.c?ci=d2a59b03727bc3&ln=122-141
 [gbash]:  https://appuals.com/what-is-git-bash/
+[gapxd]:  https://github.com/git/git/blob/7f7ebe054a/date.c#L1298-L1300
 [gcod]:   https://stackoverflow.com/a/6990682/142454
 [gdh]:    https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/
 [gitgh]:  https://github.com/git/git/
