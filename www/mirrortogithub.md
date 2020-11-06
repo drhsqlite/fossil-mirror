@@ -82,7 +82,9 @@ https://github.com/username/project.git
 
   *  The mirroring is one-way.  If you check in changes on GitHub, those
      changes will not be reabsorbed by Fossil.  There are technical problems
-     that make a two-way mirror all but impossible.
+     that make a two-way mirror all but impossible. (This is not to be 
+     confused with the ability to import a Fossil mirror from Github back
+     into a Fossil repository. That works, but it is not a mirror.)
 
      This also means that you cannot accept pull requests on GitHub.
 

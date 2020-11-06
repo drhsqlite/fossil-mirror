@@ -1,5 +1,5 @@
-C Increased\sthe\sblank\sspace\sat\sthe\send\sof\scheckin_names.wiki\sso\sthe\slast\ntwo\ssections\scan\sbe\sdistinguished\swhen\stargetted\sby\sHTML\sfragment\nidentifiers.
-D 2020-11-05T18:10:37.878
+C Point\sthat\sa\stwo-way\sgit\smirror\sis\snot\sthe\ssame\sas\sre-importing\san\sexported\stree\nalthough\sit\swould\sbe\seasy\sto\sget\sconfused.\sA\stwo-way\smirror\sis\simpossible,\sbut\nthanks\sto\srecent\scommits,\sre-importing\sworks\sfine.
+D 2020-11-06T09:15:22.523
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -922,7 +922,7 @@ F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c
 F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e3d58
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
-F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
+F www/mirrortogithub.md ac9bec667d566d76e2d0aae33da2a875a1914923112478deb4a7cfc200fbfad8
 F www/mkindex.tcl d533c8cb4940bd5f2b699295dfbeb4ff2cbbbefed167465df13335aea20ae4c2 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1001d86743c256b96ec52513545db4affec4a31388911fa478d40d3e50cb2bc1
-R b69bc23d7ee18660f01a2bb331d04ce5
-U wyoung
-Z 196880151192397335076e0aa8b05e56
+P d2a59b03727bc3552b545efe97c95730a6b805b9342d564ff270cf595961f1d8
+R 43dfb1e0c3f51c03cf99b9d922820648
+U danshearer
+Z 344767926e01cdee9e4716d8ac2eb19a
