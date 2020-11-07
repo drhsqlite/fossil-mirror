@@ -738,9 +738,24 @@ static void style_load_all_js_files(void){
 }
 
 /*
-** Emit the page body and footer HTML.
+** Invoke this routine after all of the content for a webpage has been
+** generated.  This routine should be called once for every webpage, at
+** or near the end of page generation.  This routine does the following:
+**
+**   *  Populates the header of the page, including setting up appropriate
+**      submenu elements.  The header generation is deferred until this point
+**      so that we know that all style_submenu_element() and similar have
+**      been received.
+**
+**   *  Finalizes the page content.
+**
+**   *  Appends the footer.
+**
+** The zPageType argument is a class name inserted in the <div> that
+** surrounds the page content.  CSS can use this to have different styles
+** according to the page type.
 */
-void style_body_and_footer(const char* zPageType){
+void style_finish_page(const char* zPageType){
   const char *zFooter;
   const char *zAd = 0;
   unsigned int mAdFlags = 0;
@@ -1191,7 +1206,7 @@ void webpage_error(const char *zFormat, ...){
       @ </pre>
     }
   }
-  style_body_and_footer("error");
+  style_finish_page("error");
   if( zErr ){
     cgi_reply();
     fossil_exit(1);

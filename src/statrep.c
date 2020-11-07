@@ -827,5 +827,5 @@ void stats_report_page(){
       stats_report_last_change();
       break;
   }
-  style_body_and_footer("reports");
+  style_finish_page("reports");
 }

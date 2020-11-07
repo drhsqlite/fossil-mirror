@@ -796,7 +796,7 @@ void login_page(void){
       @ </form>
     }
   }
-  style_body_and_footer("login");
+  style_finish_page("login");
 }
 
 /*
@@ -1546,7 +1546,7 @@ void register_page(void){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the
     @ project administrator to obtain an account.</p>
-    style_body_and_footer("register");
+    style_finish_page("register");
     return;
   }
   zPerms = db_get("default-perms", "u");
@@ -1705,7 +1705,7 @@ void register_page(void){
       if( zGoto ){
         @ <p><a href='%h(zGoto)'>Continue</a>
       }
-      style_body_and_footer("register");
+      style_finish_page("register");
       return;
     }
     redirect_to_g();
@@ -1797,7 +1797,7 @@ void register_page(void){
   @ Enter this 8-letter code in the "Captcha" box above.
   @ </td></tr></table></div>
   @ </form>
-  style_body_and_footer("register");
+  style_finish_page("register");
 
   free(zCaptcha);
 }

@@ -227,5 +227,5 @@ void cookie_page(void){
     @ <li>%h(cookies.aParam[i].zPName): "%h(cookies.aParam[i].zPValue)"
   }
   @ </ul>
-  style_body_and_footer("cookies");
+  style_finish_page("cookies");
 }

@@ -290,7 +290,7 @@ void stat_page(void){
   }
 
   @ </table>
-  style_body_and_footer("stat");
+  style_finish_page("stat");
 }
 
 /*
@@ -509,7 +509,7 @@ void urllist_page(void){
     }
     @ </div>
   }
-  style_body_and_footer("stat");
+  style_finish_page("stat");
 }
 
 /*
@@ -567,7 +567,7 @@ void repo_schema_page(void){
       style_submenu_element("Stat1","repo_stat1");
     }
   }
-  style_body_and_footer("stat");
+  style_finish_page("stat");
 }
 
 /*
@@ -599,7 +599,7 @@ void repo_stat1_page(void){
     @ </pre>
     db_finalize(&q);
   }
-  style_body_and_footer("stat");
+  style_finish_page("stat");
 }
 
 /*
@@ -671,7 +671,7 @@ void repo_tabsize_page(void){
     piechart_render(800,500,PIE_OTHER|PIE_PERCENT);
     @ </svg></center>
   }
-  style_body_and_footer("stat");
+  style_finish_page("stat");
 }
 
 /*
@@ -812,7 +812,7 @@ void artifact_stats_page(void){
   db_finalize(&q);
   if( nTotal==0 ){
     @ No artifacts in this repository!
-    style_body_and_footer("stat");
+    style_finish_page("stat");
     return;
   }
   avgCmpr = (double)sumCmpr/nTotal;
@@ -957,5 +957,5 @@ void artifact_stats_page(void){
     db_finalize(&q);
   }
   style_table_sorter();
-  style_body_and_footer("stat");
+  style_finish_page("stat");
 }

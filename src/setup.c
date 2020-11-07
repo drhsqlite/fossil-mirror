@@ -177,7 +177,7 @@ void setup_page(void){
   }
   @ </table>
 
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -578,7 +578,7 @@ void setup_access(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -706,7 +706,7 @@ void setup_login_group(void){
     @ </tbody></table>
     style_table_sorter();
   }
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -845,7 +845,7 @@ void setup_timeline(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -938,7 +938,7 @@ void setup_settings(void){
   @ </td></tr></table>
   @ </div></form>
   db_end_transaction(0);
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -1034,7 +1034,7 @@ void setup_config(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -1110,7 +1110,7 @@ void setup_wiki(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -1156,7 +1156,7 @@ void setup_modreq(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 
 }
 
@@ -1237,7 +1237,7 @@ void setup_adunit(void){
   @ '&gt;Demo Ad&lt;/div&gt;
   @ </pre></blockquote>
   @ </li>
-  style_body_and_footer("setup");
+  style_finish_page("setup");
   db_end_transaction(0);
 }
 
@@ -1439,7 +1439,7 @@ void setup_logo(void){
   @ <p><span class="note">Note:</span>  Your browser has probably cached these
   @ images, so you may need to press the Reload button before changes will
   @ take effect. </p>
-  style_body_and_footer("setup");
+  style_finish_page("setup");
   db_end_transaction(0);
 }
 
@@ -1601,7 +1601,7 @@ void sql_page(void){
       @ </table>
     }
   }
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 
@@ -1645,7 +1645,7 @@ void th1_page(void){
       @ <pre class="th1error">%h(zR)</pre>
     }
   }
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -1712,7 +1712,7 @@ void page_admin_log(){
   if( counter>ofst+limit ){
     @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -1792,7 +1792,7 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }
 
 /*
@@ -1950,5 +1950,5 @@ void page_waliassetup(){
   @
   @ <p>To add a new alias, fill in the name and value in the bottom row
   @ of the table above and press "Apply Changes".
-  style_body_and_footer("setup");
+  style_finish_page("setup");
 }

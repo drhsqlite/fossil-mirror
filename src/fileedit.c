@@ -1608,7 +1608,7 @@ void fileedit_page(void){
     }else{
       CX("<p>Online editing is disabled for this repository.</p>\n");
     }
-    style_body_and_footer("fileedit");
+    style_finish_page("fileedit");
     return;
   }
 
@@ -2063,5 +2063,5 @@ void fileedit_page(void){
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
   db_end_transaction(0);
-  style_body_and_footer("fileedit");
+  style_finish_page("fileedit");
 }

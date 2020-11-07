@@ -115,7 +115,7 @@ void event_page(void){
   if( rid==0 || (specRid!=0 && specRid!=rid) ){
     style_header("No Such Tech-Note");
     @ Cannot locate a technical note called <b>%h(zId)</b>.
-    style_body_and_footer("event");
+    style_finish_page("event");
     return;
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -231,7 +231,7 @@ void event_page(void){
                     zId);
   attachment_list(zFullId, "<hr /><h2>Attachments:</h2><ul>");
   document_emit_js();
-  style_body_and_footer("event");
+  style_finish_page("event");
   manifest_destroy(pTNote);
 }
 
@@ -475,7 +475,7 @@ void eventedit_page(void){
       style_header("Error");
       @ Internal error:  Fossil tried to make an invalid artifact for
       @ the edited technote.
-      style_body_and_footer("event");
+      style_finish_page("event");
       return;
     }
     cgi_redirectf("%R/technote?name=%T", zId);
@@ -569,7 +569,7 @@ void eventedit_page(void){
   }
   @ </td></tr></table>
   @ </div></form>
-  style_body_and_footer("event");
+  style_finish_page("event");
 }
 
 /*

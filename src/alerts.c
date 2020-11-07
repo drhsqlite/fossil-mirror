@@ -175,7 +175,7 @@ static int alert_webpages_disabled(void){
   if( alert_tables_exist() ) return 0;
   style_header("Email Alerts Are Disabled");
   @ <p>Email alerts are disabled on this server</p>
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
   return 1;
 }
 
@@ -310,7 +310,7 @@ void setup_notification(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
 }
 
 #if 0
@@ -1437,7 +1437,7 @@ void subscribe_page(void){
         @ subscription.</p>
       }
       alert_sender_free(pSender);
-      style_body_and_footer("alerts");
+      style_finish_page("alerts");
     }
     return;
   }
@@ -1554,7 +1554,7 @@ void subscribe_page(void){
   }
   @ </form>
   fossil_free(zErr);
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
 }
 
 /*
@@ -1592,7 +1592,7 @@ static void alert_unsubscribe(int sid){
     }
   }
   db_finalize(&q);
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
   return;
 }
 
@@ -1916,7 +1916,7 @@ void alert_page(void){
   @ </form>
   fossil_free(zErr);
   db_finalize(&q);
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
   db_commit_transaction();
   return;
 }
@@ -2023,7 +2023,7 @@ void unsubscribe_page(void){
       @ unsubscribe and/or modify your subscription settings</p>
     }
     alert_sender_free(pSender);
-    style_body_and_footer("alerts");
+    style_finish_page("alerts");
     return;
   }  
 
@@ -2073,7 +2073,7 @@ void unsubscribe_page(void){
   @ </td></tr></table></div>
   @ </form>
   fossil_free(zErr);
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
 }
 
 /*
@@ -2184,7 +2184,7 @@ void subscriber_list_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
 }
 
 #if LOCAL_INTERFACE
@@ -2804,7 +2804,7 @@ void contact_admin_page(void){
   if( zAdminEmail==0 || zAdminEmail[0]==0 ){
     style_header("Outbound Email Disabled");
     @ <p>Outbound email is disabled on this repository
-    style_body_and_footer("alerts");
+    style_finish_page("alerts");
     return;
   }
   if( P("submit")!=0 
@@ -2836,7 +2836,7 @@ void contact_admin_page(void){
       @ Thank you for your input.</p>
     }
     alert_sender_free(pSender);
-    style_body_and_footer("alerts");
+    style_finish_page("alerts");
     return;
   }
   if( captcha_needed() ){
@@ -2883,7 +2883,7 @@ void contact_admin_page(void){
     @ </td></tr></table></div>
   }
   @ </form>
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
 }
 
 /*
@@ -2991,7 +2991,7 @@ void announce_page(void){
       @ <p>The announcement has been sent.
       @ <a href="%h(PD("REQUEST_URI","/"))">Send another</a></p>
     }
-    style_body_and_footer("alerts");
+    style_finish_page("alerts");
     return;
   } else if( !alert_enabled() ){
     style_header("Cannot Send Announcement");
@@ -3045,5 +3045,5 @@ void announce_page(void){
   @ </tr>
   @ </table>
   @ </form>
-  style_body_and_footer("alerts");
+  style_finish_page("alerts");
 }

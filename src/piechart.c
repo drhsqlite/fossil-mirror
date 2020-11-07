@@ -330,5 +330,5 @@ void piechart_test_page(void){
   @ <li> <a href='test-piechart?data=80,2,2,2,2,2,2,2,2,2,2,20'>Case 4</a>
   @ <li> <a href='test-piechart?data=2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2'>Case 5</a>
   @ </ul>
-  style_body_and_footer("test");
+  style_finish_page("test");
 }

@@ -852,7 +852,7 @@ void help_page(void){
     @ </ul></div>
 
   }
-  style_body_and_footer("help");
+  style_finish_page("help");
 }
 
 /*
@@ -903,7 +903,7 @@ void test_all_help_page(void){
   }
   @ </dl>
   blob_reset(&buf);
-  style_body_and_footer("help");
+  style_finish_page("help");
 }
 
 static void multi_column_list(const char **azWord, int nWord){

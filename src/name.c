@@ -670,7 +670,7 @@ void ambiguous_page(void){
   }
   @ </ol>
   db_finalize(&q);
-  style_body_and_footer("ambiguous");
+  style_finish_page("ambiguous");
 }
 
 /*
@@ -1330,7 +1330,7 @@ void bloblist_page(void){
       @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
     }
     @ </ul>
-    style_body_and_footer("bloblist");
+    style_finish_page("bloblist");
     return;
   }
   if( phantomOnly || privOnly || mx>n ){
@@ -1409,7 +1409,7 @@ void bloblist_page(void){
   }
   @ </table>
   db_finalize(&q);
-  style_body_and_footer("bloblist");
+  style_finish_page("bloblist");
 }
 
 /*
@@ -1479,7 +1479,7 @@ void phantom_list_page(void){
     style_submenu_element("Artifact Stats", "artifact_stats");
   }
   table_of_public_phantoms();
-  style_body_and_footer("phantoms");
+  style_finish_page("phantoms");
 }
 
 /*
@@ -1543,7 +1543,7 @@ void bigbloblist_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
-  style_body_and_footer("bigbloblist");
+  style_finish_page("bigbloblist");
 }
 
 /*
@@ -1667,5 +1667,5 @@ void hash_collisions_webpage(void){
                    " ORDER BY 1");
   @ <h1>Hash Prefix Collisions on All Artifacts</h1>
   collision_report("SELECT uuid FROM blob ORDER BY 1");
-  style_body_and_footer("hash-collisions");
+  style_finish_page("hash-collisions");
 }

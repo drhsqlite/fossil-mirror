@@ -68,7 +68,7 @@ static int check_name(const char *z){
     @ The wiki name "<span class="wikiError">%h(z)</span>" is not well-formed.
     @ Rules for wiki page names:
     well_formed_wiki_name_rules();
-    style_body_and_footer("wiki");
+    style_finish_page("wiki");
     return 1;
   }
   return 0;
@@ -143,7 +143,7 @@ void home_page(void){
   @ and establish a "Project Name".  Then create a
   @ wiki page with that name.  The content of that wiki page
   @ will be displayed in place of this message.</p>
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -244,7 +244,7 @@ void markdown_rules_page(void){
   safe_html_context(DOCSRC_TRUSTED);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
   blob_reset(&x);
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -268,7 +268,7 @@ void wiki_rules_page(void){
   safe_html_context(DOCSRC_TRUSTED);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
   blob_reset(&x);
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -282,7 +282,7 @@ void markup_help_page(void){
   @ <li><p>%z(href("%R/wiki_rules"))Fossil Wiki Formatting Rules</a></p></li>
   @ <li><p>%z(href("%R/md_rules"))Markdown Formatting Rules</a></p></li>
   @ </ul>
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -371,7 +371,7 @@ void wiki_helppage(void){
     @ words</li>
   }
   @ </ul>
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
   return;
 }
 
@@ -386,7 +386,7 @@ void wiki_srchpage(void){
   style_header("Wiki Search");
   wiki_standard_submenu(W_HELP|W_LIST|W_SANDBOX);
   search_screen(SRCH_WIKI, 0);
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /* Return values from wiki_page_type() */
@@ -599,7 +599,7 @@ void wiki_page(void){
   attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
   manifest_destroy(pWiki);
   document_emit_js(/*for optional pikchr support*/);
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -1346,7 +1346,7 @@ void wikiedit_page(void){
      "}\n");
   CX("});\n"/*fossil.onPageLoad()*/);
   style_script_end();
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -1384,7 +1384,7 @@ void wikinew_page(void){
     @ <p><span class="wikiError">
     @ "%h(zName)" is not a valid wiki page name!</span></p>
   }
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 
@@ -1546,7 +1546,7 @@ void wikiappend_page(void){
   @ <input type="submit" name="cancel" value="Cancel" />
   captcha_generate(0);
   @ </form>
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -1584,7 +1584,7 @@ void whistory_page(void){
     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   blob_reset(&sql);
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -1656,7 +1656,7 @@ void wdiff_page(void){
   @ <pre>
   manifest_destroy(pW1);
   manifest_destroy(pW2);
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -1758,7 +1758,7 @@ void wcontent_page(void){
   @ </tbody></table></div>
   db_finalize(&q);
   style_table_sorter();
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
@@ -1785,7 +1785,7 @@ void wfind_page(void){
   }
   db_finalize(&q);
   @ </ul>
-  style_body_and_footer("wiki");
+  style_finish_page("wiki");
 }
 
 /*
