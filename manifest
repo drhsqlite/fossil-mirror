@@ -1,5 +1,5 @@
-C Proper\sexplanation\sfor\sthe\sinconsistent\sresults\sfrom\sthe\s"git\sshow"\ncommand\sexamples\sin\sCase\sStudy\s1\sof\sthe\sgitusers\sdoc.
-D 2020-11-06T23:25:29.258
+C Allow\sthe\s"title"\sattribute\sin\s"&lt;a&gt;"\stags\sin\ssafe\sHTML.\nSee\s[forum:/forumpost/81b7308aa7|forum\spost\s81b7308aa7]
+D 2020-11-07T12:51:03.481
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -647,7 +647,7 @@ F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c dff209bf083aad8a748769a676fc837f113c6e5fa59338f63e4cf4616efe3dfe
 F src/wiki.wiki 115d2665e40e871dfb83533f366bac52fcff5b214c8f117c69fc26465240d05b
-F src/wikiformat.c e8c67955e633e73690361e0b5bdb225cadf5eafbbaeb4f60d773e64bb9ec72ae
+F src/wikiformat.c bff121e20d7be9be850e9ffc5d19186bd0595c0fd93cb0389d7425c026326b04
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c b30ba807ffc837f7797efe6cf4569462967fe51bb7e2194cc348a2b7c59072e2
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81ca92b854c4727320cd1ac5a696df14895048dbefa68e228ee1536eb4a34c19
-R 08d02f85f42e2a172b62031ef5bf5982
-U wyoung
-Z 4ab320d61a9ff0808c61ff7ca8fe5465
+P 8b1eddef96b524a9067c95a24e3fb6fec0e7a89b89d45fda6fc6f50deb5cbfec
+R b23a9708da7c1be569ce6008f6a48d2e
+U drh
+Z 2f720c6d57e8c7681649d69aab2eb826
