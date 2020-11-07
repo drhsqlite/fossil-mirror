@@ -2558,7 +2558,7 @@ void annotation_page(void){
 
   }
   @ </pre>
-  style_footer();
+  style_finish_page("annotate");
 }
 
 /*

@@ -182,7 +182,7 @@ void setup_ulist(void){
   @ </tbody></table>
   db_finalize(&s);
   style_table_sorter();
-  style_footer();
+  style_finish_page("setupuser");
 }
 
 /*
@@ -228,7 +228,7 @@ void setup_ulist_notes(void){
   capabilities_table(CAPCLASS_ALL);
   @ </li>
   @ </ol>
-  style_footer();
+  style_finish_page("setupuser");
 }
 
 /*
@@ -255,7 +255,7 @@ void setup_ucap_list(void){
   capabilities_table(CAPCLASS_SUPER);
   @ <h1>Miscellaneous capabilities</h1>
   capabilities_table(CAPCLASS_OTHER);
-  style_footer();
+  style_finish_page("setupuser");
 }
 
 /*
@@ -389,7 +389,7 @@ void user_edit(void){
       @
       @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
       @ [Bummer]</a></p>
-      style_footer();
+      style_finish_page("setupuser");
       return;
     }
     if( isValidPwString(zPw) ){
@@ -406,7 +406,7 @@ void user_edit(void){
       @
       @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
       @ [Bummer]</a></p>
-      style_footer();
+      style_finish_page("setupuser");
       return;
     }
     login_verify_csrf_secret();
@@ -458,7 +458,7 @@ void user_edit(void){
         @
         @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
         @ [Bummer]</a></p>
-        style_footer();
+        style_finish_page("setupuser");
         return;
       }
     }
@@ -876,5 +876,5 @@ void user_edit(void){
   @ but less than a <span class="usertype">developer</span>.
   @ </p></li>
   @ </ul>
-  style_footer();
+  style_finish_page("setupuser");
 }

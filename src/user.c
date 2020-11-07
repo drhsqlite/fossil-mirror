@@ -774,5 +774,5 @@ void access_log_page(void){
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
   style_table_sorter();
-  style_footer();
+  style_finish_page("access_log");
 }

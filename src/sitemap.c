@@ -235,6 +235,6 @@ void sitemap_page(void){
   @   </ul></li>
   @ </ul>
   if( !isPopup ){
-    style_footer();
+    style_finish_page("sitemap");
   }
 }

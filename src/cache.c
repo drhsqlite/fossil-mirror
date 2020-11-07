@@ -386,7 +386,7 @@ void cache_page(void){
     fossil_free(zDbName);
     sqlite3_close(db);
   }
-  style_footer();
+  style_finish_page("cache");
 }
 
 /*
@@ -409,7 +409,7 @@ void cache_getpage(void){
   if( cache_read(&content, zKey)==0 ){
     style_header("Cache Download Error");
     @ The cache does not contain any entry with this key: "%h(zKey)"
-    style_footer();
+    style_finish_page("cache");
     return;
   }
   cgi_set_content(&content);
