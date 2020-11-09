@@ -1,5 +1,5 @@
-C Styling\simprovements:\s\s(1)\sChange\sthe\s"style_footer()"\sinterface\sto\n"style_finish_page()"\sand\sgive\sit\sa\sparameter\swhich\sis\sthe\spage\stype.\n(2)\sEnhance\sthe\sCSS\sto\smake\suse\sof\sthe\spage\stype.
-D 2020-11-07T13:28:42.982
+C Automatically\sinvert\sPikchr\scolors\sin\sdark\smode\sskins,\sbased\son\sthe\n"white-foreground"\ssetting.
+D 2020-11-09T19:21:16.590
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c 5a6db9ea6719ef18e2eac993ae3fa76e9bdb0e25c0defd3542cfbe96219f9445
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
-F src/markdown_html.c 65eda1f443c23d8d682408dc73ed7f3cd578864f40cac9a0deabd18061cccced
+F src/markdown_html.c c831c8b33318e3cf6851a03e4024c338b348389a9a540d6e3b57b76bf49676a7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -561,8 +561,8 @@ F src/moderate.c 9c8e8b84f4b1c356584df96098cdb39400ab9f0c39ae41901bd293836363c14
 F src/name.c 5f26fdd3330d596b40d709130d747e9872f2f617e55a39f88d201342a8e5269e
 F src/path.c 5f2b9fcfad75eef31d4fa8abd8400cb51e3dc1fc7489d25c8c9a7c63eb65f651
 F src/piechart.c 9ba5a85eab667304c49595e51ba2b21141fd8c9842197cd4bd968ddb7589b3b5
-F src/pikchr.c c47ff4418c469dc54eb7ca010ab37597d2ddcd5cd09a30a6ae2095e74c5f2b86
-F src/pikchrshow.c 57305c308d53bbd43e484b2f22b692eb37f3cfa12d96f9f7c167a5e62d76610b
+F src/pikchr.c c85c259330744b2e7435875bcccc38bdfaca7452b4b5b5ed752a11e8ee7ffdcb
+F src/pikchrshow.c 680a22f971aba9c6ce9d1cb4cc64856e5013b7137543717847953a5cbdcacbaf
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -986,8 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8078aefef9cac95d75a7d9e3afba10a6c179e46f25fd5bcccc8d8f6997a7fa8 942b2076c6a6198cb291b1b6162c89613ba360891e79616add3cd212c69179fe
-R cc6d874d4065b0650eaeea32ed42b06a
-T +closed 942b2076c6a6198cb291b1b6162c89613ba360891e79616add3cd212c69179fe
+P 3d6444fc4a4bcb283c7028963a770b8c1f8c4a7e99ca68c4df2698fdae88231d
+R f5c2f49e6b760a14e5e1cf325d71a9a0
 U drh
-Z 544e9718c992e8ede88bd8c916de1261
+Z 9611a07f2b33625c0d2366ac92a43067

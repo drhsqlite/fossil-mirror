@@ -372,6 +372,9 @@ void pikchr_to_html(
     zArg += i;
     nArg -= i;
   }
+  if( skin_detail_boolean("white-foreground") ){
+    pikFlags |= 0x02;  /* PIKCHR_DARK_MODE */
+  }
   blob_append(&bSrc, zSrc, nSrc)
     /*have to dup input to ensure a NUL-terminated source string */;
   pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
