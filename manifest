@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sdark-mode\scolor\sinversion\salgorthm\sin\sPikchr.
-D 2020-11-09T20:45:17.169
+C Set\sthe\swhite-foreground\sflag\son\sthe\sxekri\sskin.
+D 2020-11-09T21:08:20.943
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -425,7 +425,7 @@ F skins/rounded1/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da
 F skins/rounded1/header.txt e7298779cd3482f749238b3636b0badd0b046915664ffa52f11330671fd18ef3
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
 F skins/xekri/css.txt 0cde2c58f983a067f335668a1947c47b77975aadfa36b18f525b4c26a3e4a201
-F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f4d6889631e
+F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 71c4db598ad4c2459eb876a205f7522e7384bf19c3ed6cb9b9882d9e19ab2449
-R 869c69c75432a9615dd1c7721a9cee69
+P 919fa97ed405a337c68ae72f50fb056a672f6f24b140cb14b6840ab309eaf02a
+R f4b233f69ae8bd018a2131f0add28446
 U drh
-Z 42825e2cc36ece4b21a9e212f4e85766
+Z 19608b5f525f513534a2dcb33ff03991
