@@ -413,7 +413,7 @@ static void pik_append_y(Pik*,const char*,PNum,const char*);
 static void pik_append_xy(Pik*,const char*,PNum,PNum);
 static void pik_append_dis(Pik*,const char*,PNum,const char*);
 static void pik_append_arc(Pik*,PNum,PNum,PNum,PNum);
-static void pik_append_clr(Pik*,const char*,PNum,const char*);
+static void pik_append_clr(Pik*,const char*,PNum,const char*,int);
 static void pik_append_style(Pik*,PObj*,int);
 static void pik_append_txt(Pik*,PObj*, PBox*);
 static void pik_draw_arrowhead(Pik*,PPoint*pFrom,PPoint*pTo,PObj*);
@@ -4460,7 +4460,7 @@ static void pik_draw_arrowhead(Pik *p, PPoint *f, PPoint *t, PObj *pObj){
   pik_append_xy(p,"<polygon points=\"", t->x, t->y);
   pik_append_xy(p," ",bx-ddx, by-ddy);
   pik_append_xy(p," ",bx+ddx, by+ddy);
-  pik_append_clr(p,"\" style=\"fill:",pObj->color,"\"/>\n");
+  pik_append_clr(p,"\" style=\"fill:",pObj->color,"\"/>\n",0);
   pik_chop(f,t,h/2);
 }
 
@@ -4571,7 +4571,7 @@ static void pik_append_point(Pik *p, const char *z, PPoint *pPt){
 /*
 ** Invert the RGB color so that it is appropriate for dark mode.
 */
-static int pik_color_to_dark_mode(int x){
+static int pik_color_to_dark_mode(int x, int isBg){
   int r, g, b;
   int mn, mx;
   x = 0xffffff - x;
@@ -4587,6 +4587,19 @@ static int pik_color_to_dark_mode(int x){
   r = mn + (mx-r);
   g = mn + (mx-g);
   b = mn + (mx-b);
+  if( isBg ){
+    if( mx>127 ){
+      r = (127*r)/mx;
+      g = (127*g)/mx;
+      b = (127*b)/mx;
+    }
+  }else{
+    if( mn<128 ){
+      r = 127 + ((r-mn)*128)/(mx-mn);
+      g = 127 + ((g-mn)*128)/(mx-mn);
+      b = 127 + ((b-mn)*128)/(mx-mn);
+    }
+  }
   return r*0x10000 + g*0x100 + b;
 }
 
@@ -4622,11 +4635,11 @@ static void pik_append_dis(Pik *p, const char *z1, PNum v, const char *z2){
   buf[sizeof(buf)-1] = 0;
   pik_append(p, buf, -1);
 }
-static void pik_append_clr(Pik *p, const char *z1, PNum v, const char *z2){
+static void pik_append_clr(Pik *p,const char *z1,PNum v,const char *z2,int bg){
   char buf[200];
   int x = (int)v;
   int r, g, b;
-  if( p->mFlags & PIKCHR_DARK_MODE ) x = pik_color_to_dark_mode(x);
+  if( p->mFlags & PIKCHR_DARK_MODE ) x = pik_color_to_dark_mode(x,bg);
   r = (x>>16) & 0xff;
   g = (x>>8) & 0xff;
   b = x & 0xff;
@@ -4656,7 +4669,7 @@ static void pik_append_arc(Pik *p, PNum r1, PNum r2, PNum x, PNum y){
 static void pik_append_style(Pik *p, PObj *pObj, int bFill){
   pik_append(p, " style=\"", -1);
   if( pObj->fill>=0 && bFill ){
-    pik_append_clr(p, "fill:", pObj->fill, ";");
+    pik_append_clr(p, "fill:", pObj->fill, ";",1);
   }else{
     pik_append(p,"fill:none;",-1);
   }
@@ -4666,7 +4679,7 @@ static void pik_append_style(Pik *p, PObj *pObj, int bFill){
     if( pObj->nPath>2 && pObj->rad<=pObj->sw ){
       pik_append(p, "stroke-linejoin:round;", -1);
     }
-    pik_append_clr(p, "stroke:",pObj->color,";");
+    pik_append_clr(p, "stroke:",pObj->color,";",0);
     if( pObj->dotted>0.0 ){
       PNum v = pObj->dotted;
       if( sw<2.1/p->rScale ) sw = 2.1/p->rScale;
@@ -4921,7 +4934,7 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
       pik_append(p, " font-weight=\"bold\"", -1);
     }
     if( pObj->color>=0.0 ){
-      pik_append_clr(p, " fill=\"", pObj->color, "\"");
+      pik_append_clr(p, " fill=\"", pObj->color, "\"",0);
     }
     xtraFontScale *= p->fontScale;
     if( xtraFontScale<=0.99 || xtraFontScale>=1.01 ){
@@ -7828,4 +7841,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 7856 "pikchr.c"
+#line 7869 "pikchr.c"
