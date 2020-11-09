@@ -378,6 +378,15 @@ void dbstat_cmd(void){
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
     fossil_print("%*s%,d (%,d changes)\n", colWidth, "tickets:", n, m);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
+    if( db_table_exists("repository","forumpost") ){
+      n = db_int(0, "SELECT count(*) FROM forumpost/*scan*/");
+      if( n>0 ){
+        int nThread = db_int(0, "SELECT count(*) FROM forumpost"
+                                " WHERE froot=fpid");
+        fossil_print("%*s%,d (on %,d threads)\n", colWidth, "forum-posts:",
+                     n, nThread);
+      }
+    }
     fossil_print("%*s%,d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
     fossil_print("%*s%,d\n", colWidth, "tag-changes:", n);
