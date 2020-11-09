@@ -337,7 +337,7 @@ void dbstat_cmd(void){
   fsize = file_size(g.zRepositoryName, ExtFILE);
   fossil_print( "%*s%,lld bytes\n", colWidth, "repository-size:", fsize);
   if( !brief ){
-    n = db_int(0, "SELECT count(*) FROM blob");
+    n = db_int(0, "SELECT count(*) FROM blob WHERE content IS NOT NULL");
     m = db_int(0, "SELECT count(*) FROM delta");
     fossil_print("%*s%,d (stored as %,d full text and %,d deltas)\n",
                  colWidth, "artifact-count:",
