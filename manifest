@@ -1,5 +1,5 @@
-C If\sthe\s"pikchr-foreground"\sproperty\sis\sset\sin\sthe\s"details.txt"\sfile\sof\sa\nskin,\sthen\sthe\svalue\sof\sthat\sproperty\sbecomes\sthe\sdefault\sforeground\scolor\nfor\sPikchr\sdiagrams.
-D 2020-11-10T13:40:56.846
+C The\s"pikchr-foreground"\scolor\sis\sapplied\sdirectly\sand\sis\snot\stranslated\ninto\sdark-mode\seven\sif\sthe\s"white-foreground"\sboolean\sis\strue.
+D 2020-11-10T14:14:35.345
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c 5a6db9ea6719ef18e2eac993ae3fa76e9bdb0e25c0defd3542cfbe96219f9445
 F src/markdown.c 72dbe46278551f3928dc4b7554571c8a3a0f045c12c01237d0ef964b529cede6
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
-F src/markdown_html.c 2a93220e7ef011e0138b98431e4eb871fa6f0c7c5150fc10b972c4d15aca440d
+F src/markdown_html.c 2eba7d08f73369657c624c8c547a3cf776dcb7464973ca6dbb33142e9f583463
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -561,7 +561,7 @@ F src/moderate.c 9c8e8b84f4b1c356584df96098cdb39400ab9f0c39ae41901bd293836363c14
 F src/name.c 5f26fdd3330d596b40d709130d747e9872f2f617e55a39f88d201342a8e5269e
 F src/path.c 5f2b9fcfad75eef31d4fa8abd8400cb51e3dc1fc7489d25c8c9a7c63eb65f651
 F src/piechart.c 9ba5a85eab667304c49595e51ba2b21141fd8c9842197cd4bd968ddb7589b3b5
-F src/pikchr.c ca31503203ac2a4eb6b2cc44b6501e92458e6c174962be284054f04ec149b56d
+F src/pikchr.c 06f930c4bfd40d72f542971729c2f8185212300ed7292504ebeb092560bcfc9b
 F src/pikchrshow.c 680a22f971aba9c6ce9d1cb4cc64856e5013b7137543717847953a5cbdcacbaf
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd9cfe021beae30142b3cc7837ed41ab89386facd64289ef9757777503a4f629
-R 6d57a6f00a88589d99ae4bea4b37d924
+P 0853ab7447a4a6375f546d1a7ad4b62e8ca1c943c848e0cb03b22a75ad492b48
+R b846fdc358dc3590fcafb4d734059351
 U drh
-Z 5a7fb118c5c10ec3147c79d14bf5463b
+Z a370a3dff94d870e3fe5c36e311f3899

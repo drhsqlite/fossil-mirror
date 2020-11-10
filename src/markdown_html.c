@@ -378,7 +378,7 @@ void pikchr_to_html(
   }
   zFgColor = skin_detail("pikchr-foreground");
   if( zFgColor && zFgColor[0] ){
-    blob_appendf(&bSrc, "color = %s\n", zFgColor);
+    blob_appendf(&bSrc, "fgcolor = %s\n", zFgColor);
   }
   blob_append(&bSrc, zSrc, nSrc)
     /*have to dup input to ensure a NUL-terminated source string */;
