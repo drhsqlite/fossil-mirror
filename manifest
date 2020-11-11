@@ -1,5 +1,5 @@
-C Small\sclarity\stweaks\sto\sthe\slist\sof\sweaknesses\sfor\s"git\scheckout\nmaster@{2020-03-17}"\sin\sthe\sgitusers\sdoc.
-D 2020-11-11T12:40:57.754
+C Document\sthe\s"pikchr-foreground:"\ssetting\sin\sthe\sdetails.txt\sfile\sof\sskins.
+D 2020-11-11T18:23:27.542
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -843,7 +843,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 0c820100dfd65c763360336cb1fa2c8a610e102b240db0d6a2aafa01dae86077
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 750aaf7f1e4dce7c0e0d8b1423a7c1c5213c358587c40ad0e5c258649bdf4041
+F www/customskin.md 121373f020a5ef472bec27dad1fede5c9d95dadf9300d42a5e5d48a38377d65f
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki e25c8305f5ff3404c9d35fdb6eec65f7fe1de1fdf48db7200a923d2ccb946b99
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9199f77119cc7e721be58dd83752b108f3020e1cc79ba4d116b43a25c89dd970
-R 8a7095b7375ede99cd109ca1a145f01a
-U wyoung
-Z 146d734b9981b462760dbe5722b7281b
+P ed7c2c1b685c816c552bc525fe737cd911a6afb33a0a3c88b8a767d627e0a0b6
+R b25b58b1f3d536541453cb0b3347e661
+U drh
+Z b16410b1fb325392a9914a11fadeee69

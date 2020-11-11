@@ -171,18 +171,26 @@ the look and feel, mostly of the timeline.  The default
 details.txt file looks like this:
 
 <blockquote><pre>
+pikchr-foreground:          ""
 timeline-arrowheads:        1
 timeline-circle-nodes:      1
 timeline-color-graph-lines: 1
 white-foreground:           0
 </pre></blockquote>
 
-The first three setings in details.txt control the appearance
+The three "timeline-" settings in details.txt control the appearance
 of certain aspects of the timeline graph.  The number on the
 right is a boolean - "1" to activate the feature and "0" to
 disable it.  The "white-foreground:" setting should be set to
 "1" if the page color has light-color text on a darker background,
-and "0" if the page has dark text on a light-colored background.</dd>
+and "0" if the page has dark text on a light-colored background.
+<p>
+If the "pikchr-foreground" setting (only available in Fossil 2.14 and
+later) is defined and is not an empty string then it specifies a
+foreground color to use for [pikchr diagrams](./pikchr.md).  The
+default pikchr foreground color is black, or white if the
+"white-foreground" boolean is set.
+</dd>
 
 <dt><b>footer.txt</b> and <b>header.txt</b></dt><dd>
 
