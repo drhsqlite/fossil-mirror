@@ -1,5 +1,5 @@
-C The\s"pikchr-foreground"\scolor\sis\sapplied\sdirectly\sand\sis\snot\stranslated\ninto\sdark-mode\seven\sif\sthe\s"white-foreground"\sboolean\sis\strue.
-D 2020-11-10T14:14:35.345
+C OCR\sfix\sin\sone\sof\sthe\snew\sdelta-format\sPikchrs,\sreported\son\sthe\sforum.\n(<https://www.fossil-scm.org/forum/forumpost/db23980273>)
+D 2020-11-11T12:16:24.751
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -846,7 +846,7 @@ F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 750aaf7f1e4dce7c0e0d8b1423a7c1c5213c358587c40ad0e5c258649bdf4041
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
-F www/delta_format.wiki b59af959936e7dbdef103fcbaeed5d6da914aa0f475595f5b27ebe11654d9232
+F www/delta_format.wiki e25c8305f5ff3404c9d35fdb6eec65f7fe1de1fdf48db7200a923d2ccb946b99
 F www/embeddeddoc.wiki 3d2290e52d8eb50fba08a91f3fc15574d012d5627b3c5ce80d7386ad05afb445
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0853ab7447a4a6375f546d1a7ad4b62e8ca1c943c848e0cb03b22a75ad492b48
-R b846fdc358dc3590fcafb4d734059351
-U drh
-Z a370a3dff94d870e3fe5c36e311f3899
+P 569a99322754f1d6ef453e0627a61f81a3e0463b91415db1537616939a98189b
+R 5c8235f2c5bd26b865543915e92f03f5
+U wyoung
+Z 2ee0255e925ff01f2014e5c0da8c062d

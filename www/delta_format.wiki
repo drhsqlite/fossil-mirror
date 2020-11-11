@@ -97,7 +97,7 @@ there. In other words, before it has to decode everything else.</p>
 <verbatim type="pikchr">
     leftmargin = 0.1
     box height 50% "Checksum"
-    box same "\":\""
+    box same "\";\""
 </verbatim>
 
 <p>The trailer consists of a single number followed by a semicolon (ASCII
