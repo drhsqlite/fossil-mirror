@@ -1,5 +1,5 @@
-C OCR\sfix\sin\sone\sof\sthe\snew\sdelta-format\sPikchrs,\sreported\son\sthe\sforum.\n(<https://www.fossil-scm.org/forum/forumpost/db23980273>)
-D 2020-11-11T12:16:24.751
+C Small\sclarity\stweaks\sto\sthe\slist\sof\sweaknesses\sfor\s"git\scheckout\nmaster@{2020-03-17}"\sin\sthe\sgitusers\sdoc.
+D 2020-11-11T12:40:57.754
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -879,7 +879,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md e2823dca67295569a1efa4e01630403bfb7e463bb7c63da665497f86b75ce340
+F www/gitusers.md cb1dd793889737882581a44b648138b292fc9218ee9e58f9697d621da4ce0cec
 F www/globs.md fb92287b95e7fc588a768f5961b3268a1b8d82c4b3e657ee0453f988825ebc72
 F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 569a99322754f1d6ef453e0627a61f81a3e0463b91415db1537616939a98189b
-R 5c8235f2c5bd26b865543915e92f03f5
+P 9199f77119cc7e721be58dd83752b108f3020e1cc79ba4d116b43a25c89dd970
+R 8a7095b7375ede99cd109ca1a145f01a
 U wyoung
-Z 2ee0255e925ff01f2014e5c0da8c062d
+Z 146d734b9981b462760dbe5722b7281b

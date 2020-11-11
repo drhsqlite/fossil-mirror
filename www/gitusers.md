@@ -797,14 +797,15 @@ critical:
     the typical use case.
 
 2.  A date string in Git without a time will be interpreted as
-    “[at localtime on that date][gapxd],” so the command means something
-    different from one second to the next! If there are multiple commits
-    on that date, that command can give different results depending on
-    the time of day you run it.
+    “[at the local wall clock time on the given date][gapxd],” so the
+    command means something different from one second to the next. This
+    can be a problem if there are multiple commits on that date, because
+    the command will give diffferent results depending on the time of
+    day you run it.
 
 3.  It gives misleading output if there is no close match for the date
-    in target commit in the local [reflog]. On a fresh clone, the reflog
-    is empty, and even on a well-established clone, Git [automatically
+    in the local [reflog]. It starts out empty after a fresh clone, and
+    while it does build up as you use that clone, Git [automatically
     prunes][gle] the reflog to 90 days of history by default. This means
     the command above can give different results from one machine to the
     next, or even from one day to the next on the same clone.
