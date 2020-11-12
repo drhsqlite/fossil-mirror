@@ -1,5 +1,5 @@
-C Show\sthe\sage\sof\sphantoms.\s\sProvide\stext\shints\son\show\sto\sdeal\swith\sphantoms\non\sthe\s/secaudit0\spage.
-D 2020-11-12T14:25:33.270
+C Add\snew\s--attribute\soption\sto\sthe\s'fossil\simport\s--git'\scommand\sthat\senables\sattributing\scommits\sto\sa\susername\srather\sthan\sthe\scorresponding\sGit\scommitter/author\scontact\sinfo\sof\sa\sgiven\scommit.\sConversely,\sconstruct\sa\sfull\s'user\s<emailaddr>'\sGit\scommitter\sstring\sfor\scommits\swhen\susing\s'fossil\sgit\sexport'\sby\squerying\sthe\snew\s'fx_git'\stable\sif\sit\sexists,\sor\sthe\s'info'\scolumn\sin\sthe\s'user'\stable.\sIf\sno\suser\sspecified\semailaddr\scan\sbe\sparsed,\sthen\suse\sthe\sgeneric\s'user@noemail.net'\sstring.
+D 2020-11-12T14:26:46.073
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -477,7 +477,7 @@ F src/doc.c c80596d83a6026aed55eaf88fd90081ad913cd2625f9f71cc3b71d98b5dbf2ef
 F src/encode.c e330c36991335742bc42ec6e01ee2a14158f08b4b36ae84ec405294adf465f96
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8d34ae981119c922fd07a2a2f27c1f0b5d9188a7bcfda389534afffe670860de
-F src/export.c 9528ef2396423a9162a77119b1cc147d080b394a8e70f598922a17332235b02a
+F src/export.c 53583f54088109f94adfb8996d890e69bee7750bca1540e7e6af955a7e4440f1
 F src/extcgi.c 8263a26ede42d9684504d47c8c2869e3fd99a6df9a77775f9af7bd387125721d
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 90dbe9306cec39a17daa1c00681902629791030db5545e4f99bac150fee83815
@@ -514,7 +514,7 @@ F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
-F src/import.c 1ebd6da35f8c913f974474ac6f2661c4490d2d6771dc5da1a022b366c39bd897
+F src/import.c 2da0b425cc7e2caa74bb521d1564f3f253f2a176f9c78df7d399eb6771aeb322
 F src/info.c 1c88a4d0a60f3c866b05cc9b96628858c3be710a9b90f1cd0f3a5af5292c13fd
 F src/interwiki.c eced625f4081bc74723daf48d148bbebda7bc7027d85b11b56e8ca9fb0b87b0c
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf72fc18e74ac41c2a9f2878c86aef2994dd4a941988256e52b0d08a9761253f
-R 959f3246152597a592168de62adcbf38
-U drh
-Z 1b880f4480d42b41f716db40dd7db78d
+P 97cac02b8a1a4cd75d43c7f8350d1f6646af6886d40d3b9b10c92499022ef842
+R f9073b9c616f3d7e540af8e64615f8fe
+U jamsek
+Z 8a167828b8e8270cbb23d5c70fba5d1e
