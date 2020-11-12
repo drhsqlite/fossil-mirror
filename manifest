@@ -1,5 +1,5 @@
-C Document\sthe\s"pikchr-foreground:"\ssetting\sin\sthe\sdetails.txt\sfile\sof\sskins.
-D 2020-11-11T18:23:27.542
+C Fix\sthe\spage\stitle\sfor\sthe\s/file\smethod\swithout\sa\sci=\squery\sparameter.
+D 2020-11-12T11:54:53.335
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -515,7 +515,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c 1ebd6da35f8c913f974474ac6f2661c4490d2d6771dc5da1a022b366c39bd897
-F src/info.c 7eaa6f51d73b1b183530746e2b07e74004d2690ad697c3664b8a6c7daf837ae1
+F src/info.c 1c88a4d0a60f3c866b05cc9b96628858c3be710a9b90f1cd0f3a5af5292c13fd
 F src/interwiki.c eced625f4081bc74723daf48d148bbebda7bc7027d85b11b56e8ca9fb0b87b0c
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed7c2c1b685c816c552bc525fe737cd911a6afb33a0a3c88b8a767d627e0a0b6
-R b25b58b1f3d536541453cb0b3347e661
+P 75668f4895f0afe501c2ce6e52d5e99bf8388f0310344819d9e57ec6049b592e
+R d155d2d18d7352aa58c0244978c2d342
 U drh
-Z b16410b1fb325392a9914a11fadeee69
+Z 53160c9818c9ba24bb38f6e53a2bedfd
