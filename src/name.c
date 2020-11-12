@@ -1418,27 +1418,39 @@ void bloblist_page(void){
 void table_of_public_phantoms(void){
   Stmt q;
   char *zRange;
+  double rNow;
   zRange = mprintf("IN (SELECT rid FROM phantom EXCEPT"
                    " SELECT rid FROM private)");
   describe_artifacts(zRange);
   fossil_free(zRange);
   db_prepare(&q,
-    "SELECT rid, uuid, summary, ref"
+    "SELECT rid, uuid, summary, ref,"
+    "  (SELECT mtime FROM blob, rcvfrom"
+    "    WHERE blob.uuid=ref AND rcvfrom.rcvid=blob.rcvid)"
     "  FROM description ORDER BY rid"
   );
+  rNow = db_double(0.0, "SELECT julianday('now')");
   @ <table cellpadding="2" cellspacing="0" border="1">
-  @ <tr><th>RID<th>Description<th>Source
+  @ <tr><th>RID<th>Description<th>Source<th>Age
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
     const char *zRef = db_column_text(&q,3);
+    double mtime = db_column_double(&q,4);
     @ <tr><td valign="top">%d(rid)</td>
     @ <td valign="top" align="left">%h(zUuid)<br>%h(zDesc)</td>
     if( zRef && zRef[0] ){
       @ <td valign="top">%z(href("%R/info/%!S",zRef))%!S(zRef)</a>
+      if( mtime>0 ){
+        char *zAge = human_readable_age(rNow - mtime);
+        @ <td valign="top">%h(zAge)
+        fossil_free(zAge);
+      }else{
+        @ <td>&nbsp;
+      }
     }else{
-      @ <td>&nbsp;
+      @ <td>&nbsp;<td>&nbsp;
     }
     @ </tr>
   }
