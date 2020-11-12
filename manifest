@@ -1,5 +1,5 @@
-C Forgot\sto\sremove\sredundant\sternary\soperator\safter\stesting\s[cd4fbdee00].
-D 2020-11-12T14:51:48.488
+C Nearly\scomplete\srewrite\sof\sthe\s"Caps\sAffect\sWeb\sInterfaces\sOnly"\ssection\nof\sthe\scaps/index.md\sdoc,\sdisentangling\sthe\sconcepts\sfor\sgreater\nclarity.
+D 2020-11-12T22:42:56.294
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -824,7 +824,7 @@ F www/build.wiki 9022b0a0977f57faa5db4c0580ebf76b75fd01abc886fdec013b7dba15aee61
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md 69d009330960cd08fb7be11d9a664fcc2f2f9aa285e67dd65ecdaba342ba821b
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
-F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe06cd
+F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65862f
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd4fbdee000875dde44054a2c4e0a8394f279bf5f30235494e1259c946586e80
-R d08bdca9d028fe7121357e64de469b76
-U jamsek
-Z 58d3b109bbafe27a37d5d7ddcadc4b8f
+P 52fb87ba5003934a9c7bbb2d34aa6f95fa48c57c1af2a7c57b566568d6fadac3
+R 916e5999a75d02157f26d5b25cef5f32
+U wyoung
+Z 9c57cadbea9371459fc73648770597c8
