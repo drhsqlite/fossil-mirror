@@ -1186,8 +1186,7 @@ static int gitmirror_send_checkin(
       zEmail = fossil_strdup(pMan->zUser);
     }
   }
-  fprintf(xCmd, "committer %s <%s> %s +0000\n", pMan->zUser,
-   strchr(pMan->zUser, '@') == NULL ? zEmail : pMan->zUser, buf);
+  fprintf(xCmd, "committer %s <%s> %s +0000\n", pMan->zUser, zEmail, buf);
   fossil_free(zEmail);
   blob_init(&comment, pMan->zComment, -1);
   if( blob_size(&comment)==0 ){

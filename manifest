@@ -1,5 +1,5 @@
-C Add\snew\s--attribute\soption\sto\sthe\s'fossil\simport\s--git'\scommand\sthat\senables\sattributing\scommits\sto\sa\susername\srather\sthan\sthe\scorresponding\sGit\scommitter/author\scontact\sinfo\sof\sa\sgiven\scommit.\sConversely,\sconstruct\sa\sfull\s'user\s<emailaddr>'\sGit\scommitter\sstring\sfor\scommits\swhen\susing\s'fossil\sgit\sexport'\sby\squerying\sthe\snew\s'fx_git'\stable\sif\sit\sexists,\sor\sthe\s'info'\scolumn\sin\sthe\s'user'\stable.\sIf\sno\suser\sspecified\semailaddr\scan\sbe\sparsed,\sthen\suse\sthe\sgeneric\s'user@noemail.net'\sstring.
-D 2020-11-12T14:26:46.073
+C Forgot\sto\sremove\sredundant\sternary\soperator\safter\stesting\s[cd4fbdee00].
+D 2020-11-12T14:51:48.488
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -477,7 +477,7 @@ F src/doc.c c80596d83a6026aed55eaf88fd90081ad913cd2625f9f71cc3b71d98b5dbf2ef
 F src/encode.c e330c36991335742bc42ec6e01ee2a14158f08b4b36ae84ec405294adf465f96
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8d34ae981119c922fd07a2a2f27c1f0b5d9188a7bcfda389534afffe670860de
-F src/export.c 53583f54088109f94adfb8996d890e69bee7750bca1540e7e6af955a7e4440f1
+F src/export.c a4b23f78dee8e38ea18cc520b3dd579940fedc865f3184eff2bed0fb5577b56a
 F src/extcgi.c 8263a26ede42d9684504d47c8c2869e3fd99a6df9a77775f9af7bd387125721d
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 90dbe9306cec39a17daa1c00681902629791030db5545e4f99bac150fee83815
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 97cac02b8a1a4cd75d43c7f8350d1f6646af6886d40d3b9b10c92499022ef842
-R f9073b9c616f3d7e540af8e64615f8fe
+P cd4fbdee000875dde44054a2c4e0a8394f279bf5f30235494e1259c946586e80
+R d08bdca9d028fe7121357e64de469b76
 U jamsek
-Z 8a167828b8e8270cbb23d5c70fba5d1e
+Z 58d3b109bbafe27a37d5d7ddcadc4b8f
