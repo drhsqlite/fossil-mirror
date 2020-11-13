@@ -1,5 +1,5 @@
-C Nearly\scomplete\srewrite\sof\sthe\s"Caps\sAffect\sWeb\sInterfaces\sOnly"\ssection\nof\sthe\scaps/index.md\sdoc,\sdisentangling\sthe\sconcepts\sfor\sgreater\nclarity.
-D 2020-11-12T22:42:56.294
+C Improvements\sto\s"fossil\simport"\sto\stry\sto\smake\sit\swork\sbetter\swith\nbreezy\s-\sbased\sin\spart\son\ssuggestions\sin\n[forum:/info/be2aa46dcecf1802|forum\spost\sbe2aa46dcecf1802].
+D 2020-11-13T14:49:53.579
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -514,7 +514,7 @@ F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
-F src/import.c 2da0b425cc7e2caa74bb521d1564f3f253f2a176f9c78df7d399eb6771aeb322
+F src/import.c ac992de1b26a45039256e9b46c0edfb7e7fa83a0359435dc5ccb9593ef4fd291
 F src/info.c 1c88a4d0a60f3c866b05cc9b96628858c3be710a9b90f1cd0f3a5af5292c13fd
 F src/interwiki.c eced625f4081bc74723daf48d148bbebda7bc7027d85b11b56e8ca9fb0b87b0c
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 52fb87ba5003934a9c7bbb2d34aa6f95fa48c57c1af2a7c57b566568d6fadac3
-R 916e5999a75d02157f26d5b25cef5f32
-U wyoung
-Z 9c57cadbea9371459fc73648770597c8
+P 50eeced0489532f9f9377c9b43be7844308b960bbff129bcc5d9f206625caa6d
+R 865fae83f28f3581fa25b58231b98bda
+U drh
+Z ba12a3a4d2db3708dac14912fa12b5f6

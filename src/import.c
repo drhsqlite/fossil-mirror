@@ -289,7 +289,10 @@ static void finish_commit(void){
   blob_zero(&record);
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
-  if( !g.fQuiet ) fossil_print("%.10s\r", gg.zDate);
+  if( !g.fQuiet ){
+    fossil_print("%.10s\r", gg.zDate);
+    fflush(stdout);
+  }
   for(i=0; i<gg.nFile; i++){
     const char *zUuid = gg.aFile[i].zUuid;
     if( zUuid==0 ) continue;
@@ -727,7 +730,7 @@ static void git_fast_import(FILE *pIn){
         pFile = import_add_file();
         pFile->zName = fossil_strdup(zName);
       }
-      pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
+      pFile->isExe = (sqlite3_strglob("*755",zPerm)==0);
       pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);
       fossil_free(pFile->zUuid);
       if( strcmp(zUuid,"inline")==0 ){
@@ -767,7 +770,7 @@ static void git_fast_import(FILE *pIn){
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
-          pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
+          pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
         }
@@ -790,7 +793,7 @@ static void git_fast_import(FILE *pIn){
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
-          pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
+          pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
         }
@@ -818,6 +821,10 @@ static void git_fast_import(FILE *pIn){
       next_token(&z);
       fossil_free(gg.zBranch);
       gg.zBranch = fossil_strdup(next_token(&z));
+    }else
+    if( strncmp(zLine, "property rebase-of ", 19)==0 ){
+      /* Breezy uses this property to record that a branch
+      ** was rebased.  Silently ignore it. */
     }else
     {
       goto malformed_line;
