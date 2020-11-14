@@ -689,7 +689,7 @@ static void git_fast_import(FILE *pIn){
         *(zTo-1) = '\0';
         gg.zUser = fossil_strdup(z);
       }
-      if (ggit.nGitAttr > 0) {
+      if (ggit.nGitAttr > 0 || db_table_exists("repository", "fx_git")) {
         gg.zUser = db_text(gg.zUser,
          "SELECT user FROM fx_git WHERE email=%Q", z);
       }
