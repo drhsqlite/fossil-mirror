@@ -1,5 +1,5 @@
-C Improvements\sto\s"fossil\simport"\sto\stry\sto\smake\sit\swork\sbetter\swith\nbreezy\s-\sbased\sin\spart\son\ssuggestions\sin\n[forum:/info/be2aa46dcecf1802|forum\spost\sbe2aa46dcecf1802].
-D 2020-11-13T14:49:53.579
+C Add\sdocumentation\sfor\sthe\snew\s'--attribute'\soption\sintroduced\swith\scheck-in\s[cd4fbdee00],\s'fx_git'\srepository\sdatabase\stable\sthat's\screated\swhen\sit's\sused,\sand\ssubsequent\soperational\schanges\sto\s'git\sexport'\sand\sincremental\s'import\s--git'\scalls.
+D 2020-11-14T06:34:39.747
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -892,7 +892,7 @@ F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984
 F www/image-format-vs-repo-size.md 9a6dc73a00da6f71b20fcddb4aa16c3ffe00c92ab9b0762d4baad3bff4541dc8
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
 F www/index.wiki ec9f990fa0ab801d93260e0a0c7729c7bc1f1eb803b345fbbe4448b28fea4415
-F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
+F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 257bb6c25527662ea164316a9187db07d52fc1e8a9edb48014d1f56b6b0ea243
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -922,7 +922,7 @@ F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c
 F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e3d58
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
-F www/mirrortogithub.md 61c191ff29853b7a063170fa9c99b5eb2a8cb8a832781f1abbb835d2015f23ae
+F www/mirrortogithub.md 619d489c5079392075f4de298146d7066948aae33f8c65aec46188e185078ed5
 F www/mkindex.tcl d533c8cb4940bd5f2b699295dfbeb4ff2cbbbefed167465df13335aea20ae4c2 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50eeced0489532f9f9377c9b43be7844308b960bbff129bcc5d9f206625caa6d
-R 865fae83f28f3581fa25b58231b98bda
-U drh
-Z ba12a3a4d2db3708dac14912fa12b5f6
+P 806c6f60c44e0ed4818419aedd9bee1c3e289e62eea2a5ec65cdedcdfd95fc4e
+R 79ce71a5f753fe754796e24e2968801d
+U jamsek
+Z 0830d74b5b09621605cc37c8b39fa0eb
