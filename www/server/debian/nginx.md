@@ -36,17 +36,17 @@ with the less complicated options:
     that provides transparent name-based virtual hosting for four
     separate domains:
 
-    *   One is entirely static, not involving any dynamic content or
-        Fossil integration at all.
+    *   <p>One is entirely static, not involving any dynamic content or
+        Fossil integration at all.</p>
 
-    *   Another is served almost entirely by Fossil, with a few select
+    *   <p>Another is served almost entirely by Fossil, with a few select
         static content exceptions punched past Fossil, which are handled
-        entirely via nginx.
+        entirely via nginx.</p>
 
-    *   The other two domains are aliases for one another — e.g.
+    *   <p>The other two domains are aliases for one another — e.g.
         `example.com` and `example.net` — with most of the content being
-        static.  This pair of domains has three different Fossil repo
-        proxies attached to various sections of the URI hierarchy.
+        static.  This pair of domains has several unrelated Fossil repo
+        proxies attached to various sections of the URI hierarchy.</p>
 
     By using nginx, I was able to do all of the above with minimal
     repetition between the site configurations.
@@ -66,20 +66,23 @@ package repositories, so you don’t need to go out of your way to get it.
 Fossil provides four major ways to access a repository it’s serving
 remotely, three of which are straightforward to use with nginx:
 
-*   **HTTP** — Fossil has a built-in HTTP server: [`fossil
-    server`](../any/none.md).  While this method is efficient and it’s
+*   **HTTP** — Fossil has [a built-in HTTP server](../any/none.md).
+    While this method is efficient and it’s
     possible to use nginx to proxy access to another HTTP server, we
     don’t see any particularly good reason to make nginx reinterpret
     Fossil’s own implementation of HTTP when we have a better option.
     (But see [below](#http).)
 
+*   **SSH** — This method exists primarily to avoid the need for HTTPS,
+    but we *want* HTTPS. (We’ll get to that [below](#tls).)
+    There is probably a way to get nginx to proxy Fossil to HTTPS via
+    SSH, but it would be pointlessly complicated.
+
 *   **CGI** — This method is simple but inefficient, because it launches
     a separate Fossil instance on every HTTP hit.
-
     Since Fossil is a relatively small self-contained program, and it’s
     designed to start up quickly, this method can work well in a
     surprisingly large number of cases.
-
     Nevertheless, we will avoid this option in this document because
     we’re already buying into a certain amount of complexity here in
     order to gain power.  There’s no sense in throwing away any of that
@@ -87,11 +90,6 @@ remotely, three of which are straightforward to use with nginx:
 
 *   **SCGI** — The [SCGI protocol][scgip] provides the simplicity of CGI
     without its performance problems.
-
-*   **SSH** — This method exists primarily to avoid the need for HTTPS,
-    but we *want* HTTPS. (We’ll get to that [below](#tls).)
-    There is probably a way to get nginx to proxy Fossil to HTTPS via
-    SSH, but it would be pointlessly complicated.
 
 SCGI it is, then.
 
@@ -104,6 +102,10 @@ The first step is to install some non-default packages we’ll need. SSH into
 your server, then say:
 
        $ sudo apt install fossil nginx
+
+You can leave “`fossil`” out of that if you’re building Fossil from
+source to get a more up-to-date version than is shipped with the host
+OS.
 
 
 ## <a name="scgi"></a>Running Fossil in SCGI Mode

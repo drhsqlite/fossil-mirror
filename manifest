@@ -1,5 +1,5 @@
-C Added\ssection\s#fail2ban\sto\sthe\sDebian\snginx\sserver\sguide.
-D 2020-11-16T02:30:11.804
+C Small\stweaks\sto\sthe\sDebian\snginx\sdoc.
+D 2020-11-16T02:42:15.286
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -947,7 +947,7 @@ F www/server/any/scgi.md d64d83db364b4777a1a20285f6eb7bccb63195bf9c851e165506090
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/index.md 4260e776efd327e5e5873271d5599b753f464b78c41b8cbfc4b094b53e6fb896
-F www/server/debian/nginx.md f2903bfdf3fe7a60877f15aa3fa75456738bfca450716227b141f14b47e8476a
+F www/server/debian/nginx.md 0e4c450c2f5f296561521d321de86ce423cc754b60bbb4758f38638ae09ef758
 F www/server/debian/service.md 81497ddf0aedb0b42e934d93bffa416c831cd7f2ca1d0da92a8d422934475577
 F www/server/index.html 4975ebc4dbb1aee77ea3a4c6d56e592c85f732e4abb75abeaa5c39f05d8d46dc
 F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4707c9a16b000
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0e63df14904c97fa79077deb68dac42310471af2b368f01bc629178d289f43a3
-R f50a34201256e8076836a7dc4fc16669
+P 46d5fd16ad33749afdc26a5c96dae31d2ec4d9ef8a1ca0b2c9656ea262045e3f
+R abc34da71dd18a8ebfed17e1f212b221
 U wyoung
-Z 68d0cb6738cb0b77c62d67d3b3cb835b
+Z b0e747438d112ab065db9d3e2c6ed4be
