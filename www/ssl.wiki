@@ -237,7 +237,7 @@ elsewhere in this repository that cover your options for [./server/
 
   *  <a id="stunnel"  href="./server/any/stunnel.md">Serving via stunnel</a>
   *  <a id="althttpd" href="./server/any/althttpd.md">Serving via stunnel + althttpd</a>
-  *  <a id="nginx"    href="./server/any/scgi.md">Serving via SCGI (nginx)</a>
+  *  <a id="nginx"    href="./server/debian/nginx.md#tls">Serving via SCGI with nginx on Debian</a>
 
 
 <h2 id="enforcing">Enforcing TLS Access</h2>

@@ -1,5 +1,5 @@
-C Small\stweaks\sto\sthe\sDebian\snginx\sdoc.
-D 2020-11-16T02:42:15.286
+C Linking\sto\sthe\snew\sTLS\sinfo\sfrom\sthe\sgeneric\sSSL\sdoc
+D 2020-11-16T02:45:04.838
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -968,7 +968,7 @@ F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a
 F www/serverext.wiki afd625caa3518230dd5323df86acd1ed37805ecbe84751facd2b60627d6d5773
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 42bec5417f7dc1cf3ad6f5f8c07005088e340788d7a440c701c79f7afeb29ca6
-F www/ssl.wiki d6658fde00fcd67897a12d2397dce5bbf5d6aa90cb63a7747b4da36e0e84196d
+F www/ssl.wiki f387709cfceadab46a3fff8340f9703dbc93359abce0d3edea872e3a70140fd3
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 46d5fd16ad33749afdc26a5c96dae31d2ec4d9ef8a1ca0b2c9656ea262045e3f
-R abc34da71dd18a8ebfed17e1f212b221
+P 14406b7ca25cb9f75c50b09c534272ed9c42a108e1b2733fa4b2639246f22f95
+R 219c8bf5e82d2de83f3c0bf09f283d0f
 U wyoung
-Z b0e747438d112ab065db9d3e2c6ed4be
+Z 8251a017cabe85e71bc1eb740c76d60a
