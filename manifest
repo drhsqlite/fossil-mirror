@@ -1,5 +1,5 @@
-C Failed\slogin\sattempts\svia\s/login\snow\sreturn\sHTTP\sstatus\scode\s401\n(Unauthorized),\snot\s200.\s\sThis\shas\sno\suser-visible\seffect\sin\sthe\nreturned\spage,\sbut\sit\sallows\sfail2ban\sstyle\slog\sscanning.
-D 2020-11-16T00:41:16.687
+C Moved\sthe\swww/tls-nginx.md\sdoc\scontents\sinto\sits\scompanion\sdoc\nwww/server/debian/nginx.md\sand\supdated\sit\sfor\sUbuntu\s20.04\sLTS\nand\sSnap-based\sCertbot.
+D 2020-11-16T02:05:47.990
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -923,10 +923,10 @@ F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 619d489c5079392075f4de298146d7066948aae33f8c65aec46188e185078ed5
-F www/mkindex.tcl d533c8cb4940bd5f2b699295dfbeb4ff2cbbbefed167465df13335aea20ae4c2 x
+F www/mkindex.tcl a81e9007511ce100461d57a2dd32c1a697f717980ee898a4670ba55839fefefb x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html f480091365e3cc9f84bafda20e90912e3e6b0169ad64d0d490e527285da95825
+F www/permutedindex.html 07c709f3de155fcbf82739682a2b817683a3e0cb83d0bdd35763a8ce68495830
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
@@ -947,7 +947,7 @@ F www/server/any/scgi.md d64d83db364b4777a1a20285f6eb7bccb63195bf9c851e165506090
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/index.md 4260e776efd327e5e5873271d5599b753f464b78c41b8cbfc4b094b53e6fb896
-F www/server/debian/nginx.md 9ed22c1951fd5e9043e8750086f778177f39bfc4efb8062648c2c712faebdd09
+F www/server/debian/nginx.md aa288df4d9369f704e2e0ae17796837aeedfe5cf5ab9bd1b7432666b5748a937
 F www/server/debian/service.md 81497ddf0aedb0b42e934d93bffa416c831cd7f2ca1d0da92a8d422934475577
 F www/server/index.html 4975ebc4dbb1aee77ea3a4c6d56e592c85f732e4abb75abeaa5c39f05d8d46dc
 F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4707c9a16b000
@@ -968,7 +968,7 @@ F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a
 F www/serverext.wiki afd625caa3518230dd5323df86acd1ed37805ecbe84751facd2b60627d6d5773
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 42bec5417f7dc1cf3ad6f5f8c07005088e340788d7a440c701c79f7afeb29ca6
-F www/ssl.wiki 0dd97431ff90fce1f19a7d2e60bdae07fd1b079d90b7e76750eaa9be44b4f7ce
+F www/ssl.wiki d6658fde00fcd67897a12d2397dce5bbf5d6aa90cb63a7747b4da36e0e84196d
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
@@ -977,7 +977,7 @@ F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f
 F www/th1.md 057432e59e192219c77f6d3b965127820a0e3271b73ea860d1974cf1885e0d90
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
-F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911b3c
+F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a70
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8eeba7a8db0e8c3b220d9aa115ee199cf826795b8bbe036535939aa6da07eedc
-R 994a3e8da08c51917508f050791b2de4
+P 39d7eb0e226565e31ea812d2704e114a96a30245ff8b2e343a8df82b78cf2894
+R 9b004902dd053e367cbde9bdec415065
 U wyoung
-Z 3e0dd03523f0cb78c2950696e25fbc99
+Z a42efbbcaf1826ca0b784211807285b4

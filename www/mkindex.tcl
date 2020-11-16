@@ -102,7 +102,6 @@ set doclist {
   th1.md {The TH1 Scripting Language}
   tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
-  tls-nginx.md {Proxying Fossil via HTTPS with nginx}
   unvers.wiki {Unversioned Files}
   webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}

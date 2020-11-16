@@ -282,7 +282,7 @@ ways to fix it:
 
 It's best to enforce TLS-only access at the front-end proxy level
 anyway. It not only avoids the problem entirely, it can be significantly
-more secure.  The [./tls-nginx.md|nginx TLS proxy guide] shows one way
+more secure.  The [server/debian/nginx.md#tls | nginx-on-Debian proxy guide] shows one way
 to achieve this.</p>
 
 
