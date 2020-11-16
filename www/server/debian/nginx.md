@@ -213,9 +213,49 @@ documentation on other sites easier:
         }
 
 The most common thing people get wrong when hand-rolling a configuration
-like this is to get the slashes wrong. Fossil is senstitive to this. For
+like this is to get the slashes wrong. Fossil is sensitive to this. For
 instance, Fossil will not collapse double slashes down to a single
 slash, as some other HTTP servers will.
+
+
+## <a name="fail2ban"></a> Integrating `fail2ban`
+
+You can have `fail2ban` recognize attacks and automatically block them,
+but the stock configuration doesn’t work with our Fossil setup above, so
+we have to do a bit of local adjustment.
+
+First, install it:
+
+      sudo apt install fail2ban
+
+Out of the box, you get SSH monitoring only. There are nginx monitors
+included with the package, but they don’t look in the right places for
+the right things. We’d like it to react to Fossil `/login` failures, for
+example. Put the following into
+`/etc/fail2ban/filter.d/nginx-fossil-login.conf`:
+
+      [Definition]
+      failregex = ^<HOST> - .*POST .*/login HTTP/..." 401
+
+That teaches `fail2ban` how to recognize the errors logged by Fossil
+[as of 2.14](/info/39d7eb0e22). (Earlier versions of Fossil returned
+HTTP status code 200 for this, so you couldn’t distinguish a successful
+login from a failure.)
+
+Then in `/etc/fail2ban/jail.local`, add this section:
+
+      [nginx-fossil-login]
+      enabled = true
+      logpath = /var/log/nginx/*-https-access.log
+
+The last line is the key: it tells `fail2ban` where we’ve put all of our
+per-repo access logs in the nginx config above.
+
+There’s a [lot more you can do][dof2b], but that gets us out of scope of
+this guide.
+
+
+[dof2b]: https://www.digitalocean.com/community/tutorials/how-to-protect-an-nginx-server-with-fail2ban-on-ubuntu-14-04
 
 
 ## <a name="tls"></a> Adding TLS (HTTPS) Support
