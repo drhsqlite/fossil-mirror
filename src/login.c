@@ -645,6 +645,7 @@ void login_page(void){
          @ </span></p>
       ;
       record_login_attempt(zUsername, zIpAddr, 0);
+      cgi_set_status(401, "Unauthorized");
     }else{
       /* Non-anonymous login is successful.  Set a cookie of the form:
       **

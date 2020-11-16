@@ -1,5 +1,5 @@
-C Add\sextra\scheck\sin\sgit_fast_import()\sso\sthat\s'import\s--git\s--incremental'\squeries\sthe\snew\s\stable\sif\sit\sexists\sin\sthe\srepository\sdatabase\sto\sattribute\scheck-ins.
-D 2020-11-14T06:52:08.389
+C Failed\slogin\sattempts\svia\s/login\snow\sreturn\sHTTP\sstatus\scode\s401\n(Unauthorized),\snot\s200.\s\sThis\shas\sno\suser-visible\seffect\sin\sthe\nreturned\spage,\sbut\sit\sallows\sfail2ban\sstyle\slog\sscanning.
+D 2020-11-16T00:41:16.687
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -537,7 +537,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c a5cec09d63a8029c49455479801f42f23cd1634cc02111f8077818fbdf17d62d
-F src/login.c 6418f227bfa3ecbc6e3929daded09889325ac9c8126fa22197486f1b68c8166e
+F src/login.c f3c4686b8b87ae22616077e5401636c365f2f9dc45a86e3e0f8372b016389254
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
 F src/main.c 3f9b2155a18c19fb1a82ad49ade5e415331ae7ef370a1c0bb4dead64c42e2945
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd15d28d89d472a1ff8a45080895bd5aca284a562dab33cf8abd5c1e82116a7c
-R 8ace18c925ea121c88fccda373a244ea
-U jamsek
-Z a1e36617aaec368cfba6cd28fcf14ead
+P 8eeba7a8db0e8c3b220d9aa115ee199cf826795b8bbe036535939aa6da07eedc
+R 994a3e8da08c51917508f050791b2de4
+U wyoung
+Z 3e0dd03523f0cb78c2950696e25fbc99
