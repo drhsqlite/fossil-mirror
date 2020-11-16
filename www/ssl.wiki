@@ -248,6 +248,12 @@ repository, be sure to use the <tt>https:</tt> URI scheme in
 to serve the repository via both HTTP and HTTPS, it's easy to
 accidentally use unencrypted HTTP if you forget the all-important 's'.
 
+As of Fossil 2.9, using an <tt>http://</tt> URI with <tt>fossil
+clone</tt> or <tt>sync</tt> on a site that forwards to HTTPS will cause
+Fossil to remember the secure URL. However, there's a
+[https://en.wikipedia.org/wiki/Trust_on_first_use | TOFU problem] with
+this: it's still better to use <tt>https://</tt> from the start.
+
 As of Fossil 2.8, there is a setting in the Fossil UI under Admin &rarr;
 Access called "Redirect to HTTPS," which is set to "Off" by default.
 Changing this only affects web UI access to the Fossil repository. It
