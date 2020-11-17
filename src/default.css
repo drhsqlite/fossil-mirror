@@ -754,19 +754,15 @@ div.forumTimeline code {
 div.markdown code {
   white-space: pre-wrap;
 }
-div.forumHier, div.forumTime {
+div.forumTime {
   border: 1px solid black;
   padding-left: 1ex;
   padding-right: 1ex;
   margin-top: 1ex;
-}
-div.forumHier, div.forumTime, div.forumHierRoot {
   display: flex;
   flex-direction: column;
 }
-div.forumHier > div > form,
-div.forumTime > div > form,
-div.forumHierRoot > div > form {
+.forum div > form {
   margin: 0.5em 0;
 }
 .forum-post-collapser {

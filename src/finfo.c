@@ -369,7 +369,7 @@ void finfo_page(void){
   cookie_render();
   if( fnid==0 ){
     @ No such file: %h(zFilename)
-    style_footer();
+    style_finish_page("finfo");
     return;
   }
   if( g.perm.Admin ){
@@ -756,7 +756,7 @@ void finfo_page(void){
   }
   @ </table>
   timeline_output_graph_javascript(pGraph, TIMELINE_FILEDIFF, iTableId);
-  style_footer();
+  style_finish_page("finfo");
 }
 
 /*
@@ -936,5 +936,5 @@ void mlink_page(void){
     @ </table>
     @ </div>
   }
-  style_footer();
+  style_finish_page("finfo");
 }

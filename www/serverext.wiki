@@ -276,7 +276,27 @@ files in the same directory as the CGI program itself as long as the names
 of the data files contain special characters that cause them to be ignored
 by Fossil.
 
-<h2>6.0 Trouble-Shooting Hints</h2>
+<h2>6.0 Access Permissions</h2>
+
+CGI extension files and programs are accessible to everyone.
+
+When CGI extensions have been enabled (using either "extroot:" in the
+CGI file or the --extroot option for other server methods) all files
+in the extension root directory hierarchy, except special filenames
+identified previously, are accessible to all users.  Users do not
+have to have "Read" privilege, or any other privilege, in order to
+access the extensions.
+
+This is by design.  The CGI extension mechanism is intended to operate
+in the same way as a traditional web-server.
+
+CGI programs that want to restrict access 
+can examine the FOSSIL_CAPABILITIES and/or FOSSIL_USER environment variables.
+In other words, access control is the responsibility of the individual
+extension programs.
+
+
+<h2>7.0 Trouble-Shooting Hints</h2>
 
 Remember that the /ext will return any file in the extroot directory
 hierarchy as static content if the file is readable but not executable.

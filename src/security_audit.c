@@ -587,7 +587,7 @@ void secaudit0_page(void){
   }
 
   @ </ol>
-  style_footer();
+  style_finish_page("secaudit");
 }
 
 /*
@@ -629,7 +629,7 @@ void takeitprivate_page(void){
   @ <input type="submit" name="cancel" value="Cancel">
   @ </form>
 
-  style_footer();
+  style_finish_page("takeitprivate");
 }
 
 /*
@@ -670,7 +670,7 @@ void errorlog_page(void){
     @ a command-line option "--errorlog <i>FILENAME</i>" to that
     @ command.
     @ </ol>
-    style_footer();
+    style_finish_page("errorlog");
     return;
   }
   if( P("truncate1") && cgi_csrf_safe(1) ){
@@ -690,7 +690,7 @@ void errorlog_page(void){
     @ <input type="submit" name="truncate1" value="Confirm">
     @ <input type="submit" name="cancel" value="Cancel">
     @ </form>
-    style_footer();
+    style_finish_page("errorlog");
     return;
   }
   @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
@@ -699,7 +699,7 @@ void errorlog_page(void){
   in = fossil_fopen(g.zErrlog, "rb");
   if( in==0 ){
     @ <p class='generalError'>Unable to open that file for reading!</p>
-    style_footer();
+    style_finish_page("errorlog");
     return;
   }
   if( szFile>MXSHOWLOG && P("all")==0 ){
@@ -716,5 +716,5 @@ void errorlog_page(void){
   }
   fclose(in);
   @ </pre>
-  style_footer();
+  style_finish_page("errorlog");
 }

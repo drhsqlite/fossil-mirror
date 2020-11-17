@@ -807,7 +807,7 @@ void setup_smtp(void){
   @    &larr; Add a new email address
   @   </form>
   @ </table>
-  style_footer();
+  style_finish_page("smtp");
   db_end_transaction(0);
 }
 
@@ -926,7 +926,7 @@ smtp_route_edit:
   @
   @ <p>To delete a route &rarr; erase all text from the "Routing" field then
   @ press the "Apply" button.
-  style_footer();
+  style_finish_page("smtp");
 }
 
 #if LOCAL_INTERFACE

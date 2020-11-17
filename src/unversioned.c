@@ -548,7 +548,7 @@ void uvlist_page(void){
   style_header("Unversioned Files");
   if( !db_table_exists("repository","unversioned") ){
     @ No unversioned files on this server
-    style_footer();
+    style_finish_page("uvlist");
     return;
   }
   if( PB("byage") ) zOrderBy = "mtime DESC";
@@ -634,7 +634,7 @@ void uvlist_page(void){
   }else{
     @ No unversioned files on this server.
   }
-  style_footer();
+  style_finish_page("uvlist");
 }
 
 /*

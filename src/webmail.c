@@ -515,7 +515,7 @@ static void webmail_show_one_message(
   }
 
   db_end_transaction(0);
-  style_footer();
+  style_finish_page("webmail");
   return;
 }
 
@@ -615,7 +615,7 @@ void webmail_page(void){
   if( !db_table_exists("repository","emailbox") ){
     style_header("Webmail Not Available");
     @ <p>This repository is not configured to provide webmail</p>
-    style_footer();
+    style_finish_page("webmail");
     return;
   }
   add_content_sql_commands(g.db);
@@ -759,7 +759,7 @@ void webmail_page(void){
   @   }
   @ }
   @ </script>
-  style_footer();
+  style_finish_page("webmail");
   db_end_transaction(0);
 }
 
@@ -856,7 +856,7 @@ void webmail_emailblob_page(void){
     db_finalize(&q);
     style_table_sorter();
   }
-  style_footer();
+  style_finish_page("webmail");
 }
 
 /*
@@ -913,5 +913,5 @@ void webmail_emailoutq_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
-  style_footer();
+  style_finish_page("webmail");
 }

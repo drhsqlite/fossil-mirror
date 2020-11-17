@@ -3501,15 +3501,16 @@ void cmd_open(void){
   if( isUri ){
     char *zNewBase;   /* Base name of the cloned repository file */
     const char *zUri; /* URI to clone */
-    int i;            /* Loop counter */
     int rc;           /* Result code from fossil_system() */
     Blob cmd;         /* Clone command to be run */
     char *zCmd;       /* String version of the clone command */
 
     zUri = zRepo;
-    zNewBase = fossil_strdup(file_tail(zUri));
-    for(i=(int)strlen(zNewBase)-1; i>1 && zNewBase[i]!='.'; i--){}
-    if( zNewBase[i]=='.' ) zNewBase[i] = 0;
+    zNewBase = url_to_repo_basename(zUri);
+    if( zNewBase==0 ){
+      fossil_fatal("unable to deduce a repository name from the url \"%s\"",
+                   zUri);
+    }
     if( zRepoDir==0 ) zRepoDir = zPwd;
     zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
     fossil_free(zNewBase);

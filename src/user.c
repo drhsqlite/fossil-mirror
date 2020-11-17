@@ -337,6 +337,10 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **
 **        Query or set the capabilities for user USERNAME
 **
+** > fossil user contact USERNAME ?CONTACT-INFO?
+**
+**        Query or set contact information for user USERNAME
+**
 ** > fossil user default ?USERNAME?
 **
 **        Query or set the default user.  The default user is the
@@ -460,9 +464,27 @@ void user_cmd(void){
       db_protect_pop();
     }
     fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
+  }else if( n>=2 && strncmp(g.argv[2], "contact", 2)==0 ){
+    int uid;
+    if( g.argc!=4 && g.argc!=5 ){
+      usage("contact USERNAME ?CONTACT-INFO?");
+    }
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
+    if( uid==0 ){
+      fossil_fatal("no such user: %s", g.argv[3]);
+    }
+    if( g.argc==5 ){
+      db_unprotect(PROTECT_USER);
+      db_multi_exec(
+        "UPDATE user SET info=%Q, mtime=now() WHERE uid=%d",
+        g.argv[4], uid
+      );
+      db_protect_pop();
+    }
+    fossil_print("%s\n", db_text(0, "SELECT info FROM user WHERE uid=%d", uid));
   }else{
     fossil_fatal("user subcommand should be one of: "
-                 "capabilities default list new password");
+                 "capabilities contact default list new password");
   }
 }
 
@@ -752,5 +774,5 @@ void access_log_page(void){
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
   style_table_sorter();
-  style_footer();
+  style_finish_page("access_log");
 }

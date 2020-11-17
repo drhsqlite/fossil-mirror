@@ -86,12 +86,12 @@ management system with these advanced features:
   8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>Latest Release: 2.12.1 ([/timeline?c=202008201327|2020-08-20])</h3>
+<h3>Latest Release: 2.13 ([/timeline?c=version-2.13|2020-11-01])</h3>
 
   *  [/uv/download.html|Download]
-  *  [./changes.wiki#v2_12|Change Summary]
-  *  [/timeline?p=version-2.12.1&bt=version-2.11&n=all|Check-ins in version 2.12.1]
-  *  [/timeline?d=version-2.12&n=all&nd|Check-ins derived from the 2.12 release]
+  *  [./changes.wiki#v2_13|Change Summary]
+  *  [/timeline?p=version-2.13&bt=version-2.12&n=all|Check-ins in version 2.13]
+  *  [/timeline?d=version-2.13&n=all&nd|Check-ins derived from the 2.13 release]
   *  [/timeline?t=release|Timeline of all past releases]
 
 <hr>

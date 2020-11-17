@@ -383,7 +383,7 @@ div.forumEdit {
 div.forumTimeline {
   border: 1px solid white;
 }
-div.forumHier, div.forumTime {
+div.forumTime {
   border: 1px solid white;
 }
 div.forumSel {

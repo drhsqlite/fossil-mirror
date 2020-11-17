@@ -298,4 +298,4 @@ following order:
   #  Any other type of symbolic name that Fossil extracts from
      artifacts.
 
-<div style="height:40em" id="this-space-intentionally-left-blank"></div>
+<div style="height:50em" id="this-space-intentionally-left-blank"></div>

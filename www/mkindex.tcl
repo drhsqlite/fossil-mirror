@@ -29,6 +29,7 @@ set doclist {
   checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
   childprojects.wiki {Child Projects}
+  ckout-workflows.md {Check-Out Workflows}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
@@ -54,7 +55,7 @@ set doclist {
   fossil_prompt.wiki {Fossilized Bash Prompt}
   fossil-v-git.wiki {Fossil Versus Git}
   globs.md {File Name Glob Patterns}
-  gitusers.md {Hints For Users With Git Experience}
+  gitusers.md {Git to Fossil Translation Guide}
   grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
   hacker-howto.wiki {Fossil Developers Guide}

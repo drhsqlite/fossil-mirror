@@ -1,165 +1,282 @@
-# Hints For Users With Prior Git Experience
+# Git to Fossil Translation Guide
 
-This document is a semi-random collection of hints intended to help
-new users of Fossil who have had prior exposure to Git.  In other words,
-this document tries to describe the differences in how Fossil works 
-from the perspective of Git users.
+## Introduction
 
+This document attempts to provide equivalents for common Git commands
+and workflows where possible, and where not, to explain those cases.
 
-## Help Improve This Document
+Although Fossil shares many similarities with Git, there are enough
+differences that we can’t provide a simple “translation dictionary” for
+some commands. This document is more concerned with those cases than the
+simple 1:1 mappings, which you can likely find on your own. In many
+cases, the sub-commands are identical: [`fossil bisect`][bis] does essentially
+the same thing as `git bisect`, for example.
 
-If you have a lot of prior Git experience, and you are new to Fossil
-and are struggling with some concepts, please ask for help on the
-[Fossil Forum][1].  The people who write this document are intimately
-familiar with Fossil and less familiar with Git.  It is difficult for
-us to anticipate the perspective of people who are initimately familiar
-with Git and less familiar with Fossil.  Asking questions on the Forum
-will help us to improve the document.
+We present this from the perspective of Git users moving to Fossil, but
+it is also possible to read this document as a Fossil user who speaks
+only pidgin Git, who may often have questions of the form, “Now how do I
+do X in Git again?”
 
-[1]:  https://fossil-scm.org/forum
-
-Specific suggestions on how to improve this document are also welcomed,
-of course.
-
-
-
-## <a id="term"></a> Terminology
+This document’s authors are intimately familiar with Fossil, so it is
+difficult for us to anticipate the perspective of people who are
+intimately familiar with Git. If you have a lot of prior Git
+experience, we welcome your contributions and questions on the [Fossil
+Forum][ffor].
 
 While we do try to explain Fossil-specific terminology inline here
 as-needed, you may find it helpful to skim [the Fossil glossary][gloss].
 It will give you another take on our definitions here, and it may help
 you to understand some of the other Fossil docs better.
 
+We focus more on practical command examples here than on [the
+philosophical underpinnings][fvg] that drive these differences.
 
-----
+[bis]:   /help?cmd=bisect
+[ffor]:  https://fossil-scm.org/forum
+[fvg]:   ./fossil-v-git.wiki
 
 
 <a id="mwd"></a>
 ## Repositories And Checkouts Are Distinct
 
 A repository and a check-out are distinct concepts in Fossil, whereas
-the two are collocated by default with Git.
+the two are collocated by default with Git. This difference shows up in
+several separate places when it comes to moving from Git to Fossil.
 
-A Fossil repository is a SQLite database storing
-the entire history of a project.  A Fossil check-out is a
-directory that contains a snapshot of your project that you
-are currently working on, extracted for you from that database by the
-`fossil` program.
 
-With Git, cloning a repository gets you what Fossil would call a
-check-out directory with the repository stored in a `.git` subdirectory
-of that check-out. There are methods to get additional working directories
-pointing at that same Git repository, but because it’s not designed into
-the core concept of the tool, Git tutorials usually advocate a
-switch-in-place working mode instead, so that is how most users end up
-working with it.
 
-You can use Fossil the same way, switching between versions in a
-single check-out directory:
+#### <a id="cwork" name="scw"></a> Checkout Workflows
 
-        fossil clone https://example.com/repo /path/to/repo.fossil
-        mkdir work-dir
-        cd work-dir
-        fossil open /path/to/repo.fossil
-        ...work on trunk...
-        fossil update my-other-branch       # like “git checkout”
-        ...work on your other branch in the same directory...
+A Fossil repository is a SQLite database storing the entire history of a
+project. It is not normally stored inside the working tree.
+A Fossil working tree — also called a check-out — is a directory
+that contains a snapshot of your project that you are currently working
+on, extracted for you from the repository database file by the `fossil`
+program.
 
-As of Fossil 2.12, you can ask it to clone-and-open into a single directory, as Git
-always has done:
+Git commingles these two by default, with the repository stored in a
+`.git` subdirectory underneath your working directory. There are ways to
+[emulate the Fossil working style in Git](#worktree), but because they’re not
+designed into the core concept of the tool, Git tutorials usually
+advocate a switch-in-place working mode instead, so that is how most
+users end up working with Git. Contrast [Fossil’s check-out workflow
+document][ckwf] to see the practical differences.
 
-        mkdir work-dir
-        cd work-dir
-        fossil open https://example.com/repo
+There is one Git-specific detail we wish to add beyond what that
+document already covers. This command:
 
-Now you have “trunk” open in `work-dir`, with the repo file stored as
-`repo.fossil` in that same directory.
+        git checkout some-branch
 
-You may be expecting [`fossil clone`][clone] to create a directory for
-you like Git does, but because the repository is separate from the
-working directory, it does not do that, on purpose: you have to tell it
-where to store the repository file.
+…is best given as:
 
-The [`fossil open URI`][open] syntax is our compromise for users wanting
-a clone-and-open command. But, because Fossil’s `open` command
-historically opens into the current directory, and it won’t open a
-repository into a non-empty directory by default — as of Fossil 2.12,
-anyway — you have to create the directory manually and `cd` into it
-before opening it. If `fossil open URI` worked like `git clone`, that
-would mean `fossil open` has two different ways of working depending on
-the argument, which is a non-Fossil sort of thing to do. We strive for
-consistent behavior across commands and modes.
+        fossil update some-branch
 
-The Fossil repository file can be named anything you want, with a single
-exception: if you’re going to use the [`fossil server DIRECTORY`][server]
-feature, the repositories need to have a "`.fossil`" suffix. That aside,
-you can follow any other convention that makes sense to you.
+…in Fossil. There is a `fossil checkout` command, but it has two
+restrictions that push you toward using `fossil update` instead:
 
-Many Fossil users gather all of their Fossil repositories
-in a single directory on their machine, such as "`~/museum`" or
-"`C:\Fossils`".  This can help humans to keep their repositories
-organized, but Fossil itself doesn't really care. (Why “museum”?
-Because that is where one stores valuable fossils.)
+1.  Several features in `fossil update` do not exist in
+    `fossil checkout`.
 
-Because Fossil cleanly separates the repository from the check-out, it
-is routine to have multiple check-outs from the same repository:
+2.  The lone exception is `fossil checkout --keep`, a rarely-needed
+    operation.
 
-        mkdir -p ~/src/my-project/trunk
-        cd ~/src/my-project/trunk
-        fossil open /path/to/repo.fossil    # implicitly opens “trunk”
-        mkdir ../my-other-branch
-        cd ../my-other-branch
-        fossil open /path/to/repo.fossil my-other-branch
-        mkdir ../release
-        cd ../release
-        fossil open /path/to/repo.fossil release
-        mkdir ../scratch
-        cd ../scratch
-        fossil open /path/to/repo.fossil abcd1234
-        mkdir ../test
-        cd ../test
-        fossil open /path/to/repo.fossil 2019-04-01
-        
-Now you have five separate check-out directories: one each for trunk, an
-alternate branch you’re working on, the latest tagged public release, a
-“scratch” directory for experiments or brief bits of work you don’t want
-to do in the other check-out directories, and a directory for testing a
-user report of a bug in the trunk version as of last April Fool’s Day.
-Each check-out operates independently of the others.
+3.  Fossil will have you typing “`fossil up`” frequently anyway to pull
+    remote changes and merge them into the local check-out directory.
+    Adding a `VERSION` string for the cases where you mean something
+    other than “tip of the current branch” is an easy habit to develop.
 
-This multiple-checkouts working style is especially useful when Fossil stores source code in programming languages
-where there is a “build” step that transforms source files into files
-you actually run or distribute. With Git’s typical switch-in-place workflow,
-you have to rebuild all outputs from the source files
-that differ between those versions whenever you switch versions. In the above Fossil working model,
-you switch versions with a “`cd`” command instead, so that you only have
-to rebuild outputs from files you yourself change.
+Neither command is an alias for the other. They overlap enough that they
+can be used interchangeably for everyday use cases, but since `update`
+is more powerful, we recommend that you break the habit of typing
+`checkout`.
 
-This style is also useful when a check-out directory may be tied up with
-some long-running process, as with the “test” example above, where you
-might need to run an hours-long brute-force replication script to tickle
-a [Heisenbug][hb], forcing it to show itself. While that runs, you can
-open a new terminal tab, “`cd ../trunk`”, and get back
-to work.
+[ckwf]: ./ckout-workflows.md
 
-Git users may be initially confused by the `.fslckout` file at the root
-of a check-out directory.
-This is not the same thing as `.git`. It’s a per-checkout SQLite
+
+#### <a id="rname"></a> Naming Repositories
+
+The Fossil repository database file can be named anything
+you want, with a single exception: if you’re going to use the
+[`fossil server DIRECTORY`][server] feature, the repositories you wish
+to serve need to be stored together in a flat directory and have
+"`.fossil`" suffixes. That aside, you can follow any other convention that
+makes sense to you.
+
+This author uses a scheme like the following on mobile machines that
+shuttle between home and the office:
+
+``` pikchr toggle indent
+box "~/museum/" fit
+move right 0.1
+line right dotted
+move right 0.05
+box invis "where one stores valuable fossils" ljust
+
+arrow down 50% from first box.s then right 50%
+box "work/" fit
+move right 0.1
+line dotted
+move right 0.05
+box invis "projects from $dayjob" ljust
+
+arrow down 50% from 2nd vertex of previous arrow then right 50%
+box "home/" fit
+move right 0.1
+line dotted right until even with previous line.end
+move right 0.05
+box invis "personal at-home projects" ljust
+
+arrow down 50% from 2nd vertex of previous arrow then right 50%
+box "other/" fit
+move right 0.1
+line dotted right until even with previous line.end
+move right 0.05
+box invis "clones of Fossil itself, SQLite, etc." ljust
+```
+
+On a Windows box, you might instead choose "`C:\Fossils`"
+and do without the subdirectory scheme, for example.
+
+
+#### <a id="close" name="dotfile"></a> Closing A Check-Out
+
+The [`fossil close`][close] command dissociates a check-out directory from the
+Fossil repository database, nondestructively inverting [`fossil open`][open]. It
+won’t remove the managed files, and unless you give the `--force`
+option, it won’t let you close the check-out with uncommitted changes to
+those managed files.
+
+The `close` command refuses to run without `--force` when you have
+certain precious per-checkout data, which Fossil stores in the
+`.fslckout` file at the root of a check-out directory. This is a SQLite
 database that keeps track of local state such as what version you have
 checked out, the contents of the [stash] for that working directory, the
-[undo] buffers, per-checkout [settings][set], and so forth. Largely what Fossil
-does when you ask it to [close] a check-out is to remove this file after
-making certain safety checks.
+[undo] buffers, per-checkout [settings][set], and so forth. The stash
+and undo buffers are considered precious uncommitted changes,
+so you have to force Fossil to discard these as part of closing the
+check-out.
 
-(In native Windows builds of Fossil, this file is called `_FOSSIL_`
+Thus, `.fslckout` is not the same thing as `.git`!
+
+In native Windows builds of Fossil — that is, excluding Cygwin and WSL
+builds, which follow POSIX conventions —  this file is called `_FOSSIL_`
 instead to get around the historical 3-character extension limit with
-certain legacy filesystems. “Native” here is a distinction to exclude
-Cygwin and WSL builds, which use `.fslckout`.)
+certain legacy filesystems.
+
+Closing a check-out directory is a rare operation. One use case
+is that you’re about to delete the directory, so you want Fossil to forget about it
+for the purposes of commands like [`fossil all`][all]. Even that isn’t
+necessary, because Fossil will detect that this has happened and forget
+the working directory for you.
+
+[all]: /help?cmd=all
+
+
+#### <a id="worktree"></a> Git Worktrees
+
+There are at least three different ways to get [Fossil-style multiple
+check-out directories][mcw] with Git.
+
+The old way is to simply symlink the `.git` directory between working
+trees:
+
+        mkdir ../foo-branch
+        ln -s ../actual-clone-dir/.git .
+        git checkout foo-branch
+
+The symlink trick has a number of problems, the largest being that
+symlinks weren’t available on Windows until Vista, and until the Windows
+10 Creators Update was released in spring of 2017, you had to be an
+Administrator to use the feature besides. ([Source][wsyml]) Git solved
+this problem two years earlier with the `git-worktree` command in Git
+2.5:
+
+        git worktree add ../foo-branch foo-branch
+        cd ../foo-branch
+
+That is approximately equivalent to this in Fossil:
+
+        mkdir ../foo-branch
+        fossil open /path/to/repo.fossil foo-branch
+
+That then leads us to the closest equivalent in Git to [closing a Fossil
+check-out](#close):
+
+        git worktree remove .
+
+Note, however, that unlike `fossil close`, once the Git command
+determines that there are no uncommitted changes, it blows away all of
+the checked-out files! Fossil’s alternative is shorter, easier to
+remember, and safer.
+
+There’s another way to get Fossil-like separate worktrees in Git:
+
+        git clone --separate-git-dir repo.git https://example.com/repo
+
+This allows you to have your Git repository directory entirely separate
+from your working tree, with `.git` in the check-out directory being a
+file that points to `../repo.git`, in this example.
+
+As of Fossil 2.14, there is a direct equivalent:
+
+        fossil clone https://example.com/repo
+
+It’s a shorter command because we deduce `repo.fossil` and the `repo/`
+working directory from the last element of the path in the URI. If you
+wanted to override both deductions, you’d say:
+
+        fossil clone --workdir foo https://example.com/repo/bar
+
+That gets you `bar.fossil` with a `foo/` working directory alongside it.
+
+[mcw]:   ./ckout-workflows.md#mcw
+[wsyml]: https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
+
+
+#### <a id="iip"></a> Init In Place
+
+To illustrate the differences that Fossil’s separation of repository
+from working directory creates in practice, consider this common Git “init in place”
+method for creating a new repository from an existing tree of files,
+perhaps because you are placing that project under version control for
+the first time:
+
+        cd long-established-project
+        git init
+        git add *
+        git commit -m "Initial commit of project."
+
+The closest equivalent in Fossil is:
+
+        cd long-established-project
+        fossil init .fsl
+        fossil open --force .fsl
+        fossil add *
+        fossil ci -m "Initial commit of project."
+
+Note that unlike in Git, you can abbreviate the “`commit`” command in
+Fossil as “`ci`” for compatibility with CVS, Subversion, etc.
+
+This creates a `.fsl` repo DB at the root of the project check-out to
+emulate the `.git` repo dir. We have to use the `--force` flag on
+opening the new repo because Fossil expects you to open a repo into an
+empty directory in order to avoid spamming the contents of a repo over
+an existing directory full of files. Here, we know the directory
+contains files that will soon belong in the repository, though, so we
+override this check. From then on, Fossil works like Git, for the
+purposes of this example.
+
+We’ve drawn this example to create a tight parallel between Fossil and
+Git, not to commend this `.fsl`-at-project-root trick to you. A better
+choice would be `~/museum/home/long-established-project.fossil`, if
+you’re following [the directory scheme exemplified above](#rname). That said, it
+does emphasize an earlier point: Fossil doesn’t care where you put the
+repo DB file or what you name it.
+
 
 [clone]:  /help?cmd=clone
 [close]:  /help?cmd=close
 [gloss]:  ./whyusefossil.wiki#definitions
-[hb]:     https://en.wikipedia.org/wiki/Heisenbug
 [open]:   /help?cmd=open
 [set]:    /help?cmd=setting
 [server]: /help?cmd=server
@@ -167,19 +284,177 @@ Cygwin and WSL builds, which use `.fslckout`.)
 [undo]:   /help?cmd=undo
 
 
-## <a id="log"></a> Fossil’s Timeline is the “Log”
+## <a id="log"></a> Fossil’s Timeline Is The “Log”
 
-Git users often need to use the `git log` command to grovel through
-commit histories due to its [weak data model][wdm].
+Git users often need to use the `git log` command to dig linearly through
+commit histories due to its [weak data model][wdm], giving [O(n)
+performance][ocomp].
 
 Fossil parses a huge amount of information out of commits that allow it
-to produce its [timeline CLI][tlc] and [its `/timeline` web view][tlw],
-which generally have the info you would have to manually extract from
-`git log`.
+to produce its [timeline CLI][tlc] and [its `/timeline` web view][tlw]
+using indexed SQL lookups, which generally have the info you would have
+to manually extract from `git log`, produced much more quickly than Git
+can, all else being equal: operations over [SQLite’s B-tree data structures][btree]
+generally run in O(log n) time, faster than O(n) for equal *n* when the
+constants are equal. Yet the constants are *not* equal because Fossil
+reads from a single disk file rather than visit potentially many
+files in sequence as Git must, so the OS’s buffer cache can result in
+[still better performance][35pct].
 
-[tlc]: /help?cmd=timeline
-[tlw]: /help?cmd=/timeline
-[wdm]: ./fossil-v-git.wiki#durable
+Unlike Git’s log, Fossil’s timeline shows info across branches by
+default, a feature for maintaining better situational awareness. The
+`fossil timeline` command has no way to show a single branch’s commits,
+but you can restrict your view like this using the web UI equivalent by
+clicking the name of a branch on the `/timeline` or `/brlist` page. (Or
+manually, by adding the `r=` query parameter.) Note that even in this
+case, the Fossil timeline still shows other branches where they interact
+with the one you’ve referenced in this way; again, better situational
+awareness.
+
+
+#### <a id="emu-log"></a> Emulating `git log`
+
+If you truly need a backwards-in-time-only view of history in Fossil to
+emulate `git log`, this is as close as you can currently come:
+
+        fossil timeline parents current
+
+Again, though, this isn’t restricted to a single branch, as `git log`
+is.
+
+Another useful rough equivalent is:
+
+        git log --raw
+        fossil time -v
+
+This shows what changed in each version, though Fossil’s view is more a
+summary than a list of raw changes. To dig deeper into single commits,
+you can use Fossil’s [`info` command][infoc] or its [`/info` view][infow].
+
+Inversely, you may more exactly emulate the default `fossil timeline`
+output with `git log --name-status`.
+
+
+#### <a id="whatchanged"></a> What Changed?
+
+A related — though deprecated — command is `git whatchanged`, which gives results similar to
+`git log --raw`, so we cover it here.
+
+Though there is no `fossil whatchanged` command, the same sort of
+information is available. For example, to pull the current changes from
+the remote repository and then inspect them before updating the local
+working directory, you might say this in Git:
+
+        git fetch
+        git whatchanged ..@{u}
+
+…which you can approximate in Fossil as:
+
+        fossil pull
+        fossil up -n
+        fossil diff --from tip
+
+To invert the `diff` to show a more natural patch, the command needs to
+be a bit more complicated, since you can’t currently give `--to`
+without `--from`.
+
+        fossil diff --from current --to tip
+
+Rather than use the “dry run” form of [the `update` command][up], you can
+say:
+
+        fossil timeline after current
+
+…or if you want to restrict the output to the current branch:
+
+        fossil timeline descendants current
+
+
+#### <a id="ckin-names"></a> Symbolic Check-In Names
+
+Note the use of [human-readable symbolic version names][scin] in Fossil
+rather than [Git’s cryptic notations][gcn].
+
+For a more dramatic example of this, let us ask Git, “What changed since the
+beginning of last month?” being October 2020 as I write this:
+
+        git log master@{2020-10-01}..HEAD
+
+That’s rather obscure! Fossil answers the same question with a simpler
+command:
+
+        fossil timeline after 2020-10-01
+
+You may need to add `-n 0` to bypass the default output limit of
+`fossil timeline`, 20 entries. Without that, this command reads
+almost like English.
+
+Some Git users like to write commands like the above so:
+
+        git log @{2020-10-01}..@
+
+Is that better? “@” now means two different things: an at-time reference
+and a shortcut for `HEAD`!
+
+If you are one of those that like short commands, Fossil’s method is
+less cryptic: it lets you shorten words in most cases up to the point
+that they become ambiguous. For example, you may abbreviate the last
+`fossil` command in the prior section:
+
+        fossil tim d c
+
+…beyond which the `timeline` command becomes ambiguous with `ticket`.
+
+Some Fossil users employ shell aliases, symlinks, or scripts to shorten
+the command still further:
+
+        alias f=fossil
+        f tim d c
+
+Granted, that’s rather obscure, but you you can also choose something
+intermediate like “`f time desc curr`”, which is reasonably clear.
+
+[35pct]: https://www.sqlite.org/fasterthanfs.html
+[btree]: https://sqlite.org/btreemodule.html
+[gcn]:   https://git-scm.com/docs/gitrevisions
+[infoc]: /help?cmd=info
+[infow]: /help?cmd=/info
+[ocomp]: https://www.bigocheatsheet.com/
+[tlc]:   /help?cmd=timeline
+[tlw]:   /help?cmd=/timeline
+[up]:    /help?cmd=update
+[wdm]:   ./fossil-v-git.wiki#durable
+
+
+## <a id="dhead"></a> Detached HEAD State
+
+The SQL indexes in Fossil which we brought up above have a very useful
+side benefit: you cannot have a [detached HEAD state][gdh] in Fossil,
+the source of untold pain and data loss in Git. It simply cannot be done
+in Fossil, because the indexes always let us find our way back into the
+hash tree.
+
+
+## <a id="slcom"></a> Summary Line Convention In Commit Comments
+
+The Git convention of a [length-limited summary line][lsl] at the start
+of commit comments has no equivalent in Fossil. You’re welcome to style
+your commit comments thus, but the convention isn’t used or enforced
+anywhere in Fossil. For instance, setting `EDITOR=vim` and making a
+commit doesn’t do syntax highlighting on the commit message to warn that
+you’ve gone over the conventional limit on the first line, and the
+Fossil web timeline display doesn’t show the summary line in bold.
+
+If you wish to follow such conventions in a Fossil project, you may want
+to enable the “Allow block-markup in timeline” setting under Admin →
+Timeline in the web UI to prevent Fossil from showing the message as a
+single paragraph, sans line breaks. [Skin customization][cskin] would
+allow you to style the first line of the commit message in bold in
+`/timeline` views.
+
+[cskin]: ./customskin.md
+[lsl]:   https://chris.beams.io/posts/git-commit/#limit-50
+
 
 
 <a id="staging"></a>
@@ -194,6 +469,11 @@ of the files or directories you want to commit as arguments, like this:
 
         fossil commit src/feature.c doc/feature.md examples/feature
 
+There are currently no interactive patching features in Fossil like
+`git add --patch/-p` or `git commit -p`. [Contributions welcome!][ctrb]
+
+[ctrb]: https://fossil-scm.org/fossil/doc/trunk/www/contribute.wiki
+
 
 <a id="bneed"></a>
 ## Create Branches At Point Of Need, Rather Than Ahead of Need
@@ -201,7 +481,7 @@ of the files or directories you want to commit as arguments, like this:
 Fossil prefers that you create new branches as part of the first commit
 on that branch:
 
-       fossil commit --branch my-new-branch
+        fossil commit --branch my-new-branch
 
 If that commit is successful, your local check-out directory is then
 switched to the tip of that branch, so subsequent commits don’t need the
@@ -210,15 +490,15 @@ adding commits to the tip of that branch.
 
 To switch back to the parent branch, say something like:
 
-       fossil update trunk       # like “git checkout”
+        fossil update trunk       # ≅ git checkout master
 
 Fossil does also support the Git style, creating the branch ahead of
 need:
 
-       fossil branch new my-new-branch
-       fossil update my-new-branch
-       ...work on first commit...
-       fossil commit
+        fossil branch new my-new-branch
+        fossil update my-new-branch
+        ...work on first commit...
+        fossil commit
 
 This is more verbose, but it has the same effect: put the first commit
 onto `my-new-branch` and switch the check-out directory to that branch so
@@ -230,9 +510,10 @@ For example:
 
         fossil amend current --branch my-new-branch
 
-(“current” is one of the [special check-in names][scin] in Fossil. See
+(The version string “current” is one of the [special check-in names][scin] in Fossil. See
 that document for the many other names you can give to “`amend`”, or
-indeed to any other Fossil command that accepts a “version” string.)
+indeed to any other Fossil command documented to accept a `VERSION` or
+`NAME` string.)
 
 [scin]: ./checkin_names.wiki
 
@@ -266,7 +547,7 @@ system while retaining the advantages of distributed version control:
     disconnected; your changes will sync up with the remote once you get
     back online.
 
-3.  Because there is little distinction betwen the clones in the Fossil
+3.  Because there is little distinction between the clones in the Fossil
     model — unlike in Git, where clones often quickly diverge from each
     other, quite possibly on purpose — the backup advantage applies in inverse
     as well: if the remote server falls over dead, one of those with a
@@ -287,40 +568,45 @@ system while retaining the advantages of distributed version control:
 ## Sync Is All-Or-Nothing
 
 Fossil does not support the concept of syncing, pushing, or pulling
-individual branches.  When you sync/push/pull in Fossil, you
-sync/push/pull everything stored as artifacts in its hash tree:
+individual branches.  When you sync/push/pull in Fossil, it
+processes all artifacts in its hash tree:
 branches, tags, wiki articles, tickets, forum posts, technotes…
-[Almost everything][bu].
+This is [not quite “everything,” full stop][bu], but it’s close.
 
 Furthermore, branch *names* sync automatically in Fossil, not just the
-content of those branches. This means this common Git command:
+content of those branches. That means this common Git command:
 
         git push origin master
 
-is simply this in Fossil:
+…is simply this in Fossil:
 
         fossil push
 
 Fossil doesn’t need to be told what to push or where to push it: it just
-keeps using the same remote server URL and branch name you gave it last,
-until you tell it to do something different.
+keeps using the same remote server URL you gave it last
+until you [tell it to do something different][rem], and it pushes all
+branches, not just one named local branch.
+
+[rem]: /help?cmd=remote
 
 
 <a id="trunk"></a>
 ## The Main Branch Is Called "`trunk`"
 
-In Fossil, the traditional name and the default name for the main branch
+In Fossil, the default name for the main branch
 is "`trunk`".  The "`trunk`" branch in Fossil corresponds to the
-"`master`" branch in stock Git or the "`main`" branch in GitHub.
+"`master`" branch in stock Git or to [the “`main`” branch in GitHub][mbgh].
 
 Because the `fossil git export` command has to work with both stock Git
-and with GitHub, Fossil uses Git’s default: your Fossil repo’s “trunk”
-branch becomes “master” on GitHub, not “main,” as in new GitHub repos.
-It is not known what happens on subsequent exports if you
-[later rename it][ghmain].
+and with GitHub, Fossil uses Git’s traditional default rather than
+GitHub’s new default: your Fossil repo’s “trunk” branch becomes “master”
+when [mirroring to GitHub][mirgh], not “main.”
 
-[6]: ./mirrortogithub.md
-[ghmain]: https://github.com/github/renaming
+We do not know what happens on subsequent exports if you later rename
+this branch on the GitHub side.
+
+[mbgh]:  https://github.com/github/renaming
+[mirgh]: ./mirrortogithub.md
 
 
 <a id="unmanaged"></a>
@@ -351,25 +637,101 @@ addressed there.
 [3]: ./rebaseharm.md
 
 
+## <a id="show"></a> Showing Information About Commits
+
+While there is no direct equivalent to Git’s “`show`” command, similar
+functionality may be present in Fossil under other commands:
+
+
+#### <a name="patch"></a> Show A Patch For A Commit
+
+        git show -p COMMIT_ID
+
+…gives much the same output as
+
+        fossil diff --checkin COMMIT_ID
+
+…only without the patch email header. Git comes out of the [LKML] world,
+where emailing a patch is a normal thing to do. Fossil is [designed for
+cohesive teams][devorg] where such drive-by patches are rarer.
+
+You can use any of [Fossil’s special check-in names][scin] in place of
+the `COMMIT_ID` in this and later examples. Fossil docs usually say
+“`VERSION`” or “`NAME`” where this is allowed, since the version string
+or name might not refer to a commit ID, but instead to a forum post, a
+wiki document, etc. The following command answers the question “What did
+I just commit?”
+
+        fossil diff --checkin tip
+
+[devorg]: ./fossil-v-git.wiki#devorg
+[LKML]:   https://lkml.org/
+
+
+#### <a name="cmsg"></a> Show A Specific Commit Message
+
+        git show -s COMMIT_ID
+
+
+…is
+
+        fossil time -n 1 COMMIT_ID
+
+…or with a shorter, more obvious command, though with more verbose output:
+
+        fossil info COMMIT_ID
+
+The `fossil info` command isn’t otherwise a good equivalent to
+`git show`; it just overlaps its functionality in some areas. Much of
+what’s missing is present in the corresponding [`/info` web
+view][infow], though.
+
+
+#### <a name="dstat"></a> Diff Statistics
+
+Fossil doesn’t have an internal equivalent to commands like
+`git show --stat`, but it’s easily remedied by using
+[the widely-available `diffstat` tool][dst]:
+
+        fossil diff -i --from 2020-04-01 | diffstat
+
+We gave the `-i` flag here to force Fossil to use its internal diff
+implementation, bypassing [your local `diff-command` setting][dcset].
+If you had that set to [`colordiff`][cdiff], for example, its output
+would confuse `diffstat`.
+
+[cdiff]: https://www.colordiff.org/
+[dcset]: https://fossil-scm.org/home/help?cmd=diff-command
+[dst]:   https://invisible-island.net/diffstat/diffstat.html
+
+
 <a id="btnames"></a>
-## Branch and Tag Names
+## Branch And Tag Names
 
 Fossil has no special restrictions on the names of tags and branches,
-though you might want to keep [Git's tag and branch name restrictions][4]
-in mind if you plan on mirroring your Fossil repository to GitHub.
-
-[4]: https://git-scm.com/docs/git-check-ref-format
+though you might want to keep [Git's tag and branch name restrictions][gcrf]
+in mind if you plan on [mirroring your Fossil repository to GitHub][mirgh].
 
 Fossil does not require tag and branch names to be unique.  It is
 common, for example, to put a "`release`" tag on every release for a
 Fossil-hosted project. This does not create a conflict in Fossil, since
-Fossil resolves such conflicts in a predictable way: the newest match
+Fossil resolves the ambiguity in a predictable way: the newest match
 wins. Therefore, “`fossil up release`” always gets you the current
 release in a project that uses this tagging convention.
 
+[The `fossil git export` command][fge] squashes repeated tags down to a
+single instance to avoid confusing Git, exporting only the newest tag,
+emulating Fossil’s own ambiguity resolution rule as best it can within
+Git’s limitations.
+
+[fge]:  /help?cmd=git
+[gcrf]: https://git-scm.com/docs/git-check-ref-format
+
+
+
 
 <a id="cpickrev"></a>
-## Cherry-Picking and Reverting Commits
+## Cherry-Picking And Reverting Commits
 
 Git’s separate "`git cherry-pick`" and “`git revert`” commands are
 options to the [`fossil merge` command][merge]: `--cherrypick` and
@@ -392,7 +754,7 @@ check-out.
 
 If you don’t like that default, you can change it globally:
 
-         fossil setting --global mv-rm-files 1
+        fossil setting --global mv-rm-files 1
 
 Now these commands behave like in Git in any Fossil repository where
 this setting hasn’t been overridden locally.
@@ -400,7 +762,7 @@ this setting hasn’t been overridden locally.
 If you want to keep Fossil’s soft `mv/rm` behavior most of the time, you
 can cast it away on a per-command basis:
 
-         fossil mv --hard old-name new-name
+        fossil mv --hard old-name new-name
 
 [mv]: /help?cmd=mv
 [rm]: /help?cmd=rm
@@ -409,14 +771,154 @@ can cast it away on a per-command basis:
 ----
 
 
-<a id="morigin"></a>
-## Multiple "origin" Servers
+## <a id="cvdate" name="cs1"></a> Case Study 1: Checking Out A Version By Date
 
-In this final section of the document, we’ll go into a lot more detail
-to illustrate the points above, not just give a quick summary of this
-single difference.
+Let’s get into something a bit more complicated: a case study showing
+how the concepts lined out above cause Fossil to materially differ in
+day-to-day operation from Git.
 
-Consider a common use case at the time of this writing — during the
+Why would you want to check out a version of a project by date?  Perhaps
+because your customer gave you a vague bug report referencing only a
+date rather than a version. Or, you may be poking semi-randomly through
+history to find a “good” version to anchor the start point of a
+[`bisect`][bis] operation.
+
+My search engine’s first result for “git checkout by date” is [this
+highly-upvoted accepted Stack Overflow answer][gcod]. The first command
+it gives is based on Git’s [`rev-parse` feature][grp]:
+
+        git checkout master@{2020-03-17}
+
+There are a number of weaknesses in this command. From least to most
+critical:
+
+1.  It’s a bit cryptic. Leave off the refname or punctuation, and it
+    means something else. You cannot simplify the cryptic incantation in
+    the typical use case.
+
+2.  A date string in Git without a time will be interpreted as
+    “[at localtime on that date][gapxd],” so the command means something
+    different from one second to the next! If there are multiple commits
+    on that date, that command can give different results depending on
+    the time of day you run it.
+
+3.  It gives misleading output if there is no close match for the date
+    in target commit in the local [reflog]. On a fresh clone, the reflog
+    is empty, and even on a well-established clone, Git [automatically
+    prunes][gle] the reflog to 90 days of history by default. This means
+    the command above can give different results from one machine to the
+    next, or even from one day to the next on the same clone.
+
+    The command won’t fail outright if the reflog can’t resolve the
+    given date: it simply gives the closest commit it can come up with,
+    even if it’s months or years out from your target! Sometimes it
+    gives a warning about the reflog not going back far enough to give a
+    useful result, and sometimes it doesn’t. If you’re on a fresh clone,
+    you are likely to get the “tip” commit’s revision ID no matter what
+    date value you give.
+
+    Git tries its best, but because it’s working from a purgeable and
+    possibly-stale local cache, you cannot trust its results.
+
+We cannot recommend this command at all. It’s unreliable even in the
+best case.
+
+That same Stack Overflow answer therefore goes on to recommend an
+entirely different command:
+
+        git checkout $(git rev-list -n 1 --first-parent --before="2020-03-17" master)
+
+We believe you get such answers to Git help requests in part
+because of its lack of an always-up-to-date [index into its log](#log) and in
+part because of its “small tools loosely joined” design philosophy. This
+sort of command is therefore composed piece by piece:
+
+<center>◆  ◆  ◆</center>
+
+“Oh, I know, I’ll search the rev-list, which outputs commit IDs by
+parsing the log backwards from `HEAD`! Easy!”
+
+        git rev-list --before=2020-03-17
+
+“Blast! Forgot the commit ID!”
+
+        git rev-list --before=2020-03-17 master
+
+“Double blast! It just spammed my terminal with revision IDs! I need to
+limit it to the single closest match:
+
+        git rev-list -n 1 --before=2020-03-17 master
+
+“Okay, it gives me a single revision ID now, but is it what I’m after?
+Let’s take a look…”
+
+        git show $(git rev-list -n 1 --before=2020-03-17 master)
+
+“Oops, that’s giving me a merge commit, not what I want.
+Off to search the web… Okay, it says I need to give either the
+`--first-parent` or `--no-merges` flag to show only regular commits,
+not merge-commits. Let’s try the first one:”
+
+        git show $(git rev-list -n 1 --first-parent --before=2020-03-17 master)
+
+“Better. Let’s check it out:”
+
+        git checkout $(git rev-list -n 1 --first-parent --before=2020-03-17 master)
+
+“Success, I guess?”
+
+<center>◆  ◆  ◆</center>
+
+This vignette is meant to explain some of Git’s popularity: it rewards
+the sort of people who enjoy puzzles, many of whom are software
+developers and thus need a tool like Git. Too bad if you’re just a
+normal user.
+
+And too bad if you’re a Windows user who doesn’t want to use [Git
+Bash][gbash], since neither of the stock OS command shells have a
+command interpolation feature needed to run that horrid command.
+
+This alternative command still has weakness #2 above: if you run the
+second `git show` command above on [Git’s own repository][gitgh], your
+results may vary because there were four non-merge commits to Git on the
+17th of March, 2020.
+
+You may be asking with an exasperated huff, “What is your *point*, man?”
+The point is that the equivalent in Fossil is simply:
+
+        fossil up 2020-03-17
+
+…which will *always* give the commit closest to midnight UTC on the 17th
+of March, 2020, no matter whether you do it on a fresh clone or a stale
+one.  The answer won’t shift about from one clone to the next or from
+one local time of day to the next. We owe this reliability and stability
+to three Fossil design choices:
+
+*  Parse timestamps from all commits on clone into a local commit index,
+   then maintain that index through subsequent commits and syncs.
+
+*  Use an indexed SQL `ORDER BY` query to match timestamps to commit
+   IDs for a fast and consistent result.
+
+*  Round timestamp strings up using [rules][frud] consistent across
+   computers and local time of day.
+
+[frud]:   https://fossil-scm.org/home/file/src/name.c?ci=d2a59b03727bc3&ln=122-141
+[gbash]:  https://appuals.com/what-is-git-bash/
+[gapxd]:  https://github.com/git/git/blob/7f7ebe054a/date.c#L1298-L1300
+[gcod]:   https://stackoverflow.com/a/6990682/142454
+[gdh]:    https://www.git-tower.com/learn/git/faq/detached-head-when-checkout-commit/
+[gitgh]:  https://github.com/git/git/
+[gle]:    https://git-scm.com/docs/git-reflog#_options_for_expire
+[gmc]:    https://github.com/git/git/commit/67b0a24910fbb23c8f5e7a2c61c339818bc68296
+[grp]:    https://git-scm.com/docs/git-rev-parse
+[reflog]: https://git-scm.com/docs/git-reflog
+
+----
+
+## <a id="morigin" name="cs2"></a> Case Study 2: Multiple "origin" Servers
+
+Now let us consider a common use case at the time of this writing — during the
 COVID-19 pandemic — where you’re working from home a lot, going into the
 office one part-day a week only to do things that have to be done
 on-site at the office.  Let us also say you have no remote
@@ -450,8 +952,8 @@ repo up to the NAS:
         git push --all ssh://my-nas.local//SHARES/dayjob/repo.git
 
 Realize that this is carefully optimized down to these two long
-commands. In practice, typing these commands by hand, from memory, we’d
-expect a normal user to need to give four or more commands here instead.
+commands. In practice, we’d expect a user typing these commands by hand from memory
+to need to give four or more commands here instead.
 Packing the “`git init`” call into the “`ssh`” call is something more
 often done in scripts and documentation examples than done interactively,
 which then necessitates a third command before the push, “`exit`”.
@@ -459,7 +961,7 @@ There’s also a good chance that you’ll forget the need for the `--bare`
 option here to avoid a fatal complaint from Git that the laptop can’t
 push into a non-empty repo. If you fall into this trap, among the many
 that Git lays for newbies, you have to nuke the incorrectly initted
-repo, search the web and docs to find out about `--bare`, and try again.
+repo, search the web or Git man pages to find out about `--bare`, and try again.
 
 Having navigated that little minefield,
 we can tell Git that there is a second origin, a “home” repo in
@@ -471,7 +973,7 @@ addition to the named “work” repo we set up earlier:
 We don’t have to push or pull because the remote repo is a complete
 clone of the repo on the laptop at this point, so we can just get to
 work now, committing along the way to get our work safely off-machine
-and onto the NAS, like so:
+and onto our home NAS, like so:
 
         git add
         git commit
@@ -495,26 +997,26 @@ again.
 
 This example also shows a consequence of that fact that
 [Git doesn’t sync branch names](#syncall): you have to keep repeating
-yourself, “master, master.”
+yourself like an obsequious supplicant: “Master, master.” Didn’t we
+invent computers to serve humans, rather than the other way around?
 
 
 #### Fossil Method
 
-Now we’re going to do the same thing as above using Fossil. We’ve broken
-the commands up into blocks corresponding to those above for comparison.
+Now we’re going to do the same thing using Fossil, with
+the commands arranged in blocks corresponding to those above for comparison.
 
 We start the same way, cloning the work repo down to the laptop:
 
-        mkdir repo
+        fossil clone https://dev-server.example.com/repo
         cd repo
-        fossil open https://dev-server.example.com/repo
         fossil remote add work https://dev-server.example.com/repo
 
-We’ve chosen the “`fossil open URI`” syntax here rather than separate
+We’ve chosen the new “`fossil clone URI`” syntax added in Fossil 2.14 rather than separate
 `clone` and `open` commands to make the parallel with Git clearer. [See
 above](#mwd) for more on that topic.
 
-The final command is longer than the Git equivalent because
+Our [`remote` command][rem] is longer than the Git equivalent because
 Fossil currently has no short command
 to rename an existing remote. Worse, unlike with Git, we can’t just keep
 using the default remote name because Fossil uses that slot in its
@@ -522,7 +1024,7 @@ configuration database to store the *current* remote name, so on
 switching from work to home, the home URL will overwrite the work URL if
 we don’t give it an explicit name first.
 
-So far, the Fossil commands are longer, but keep these costs in perspective:
+Although the Fossil commands are longer, so far, keep it in perspective:
 they’re one-time setup costs,
 easily amortized to insignificance by the shorter day-to-day commands
 below.

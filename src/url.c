@@ -630,3 +630,52 @@ void url_get_password_if_needed(void){
     url_prompt_for_password();
   }
 }
+
+/*
+** Given a URL for a remote repository clone point, try to come up with a
+** reasonable basename of a local clone of that repository.
+**
+**    *  If the URL has a path, use the tail of the path, with any suffix
+**       elided.
+**
+**    *  If the URL is just a domain name, without a path, then use the
+**       first element of the domain name, except skip over "www." if 
+**       present.
+**
+** The string returned is obtained from fossil_malloc().  NULL might be
+** returned if there is an error.
+*/
+char *url_to_repo_basename(const char *zUrl){
+  const char *zTail = 0;
+  int i;
+  if( zUrl==0 ) return 0;
+  for(i=0; zUrl[i]; i++){
+    if( zUrl[i]=='?' ) break;
+    if( (zUrl[i]=='/' || zUrl[i]=='@') && zUrl[i+1]!=0 ) zTail = &zUrl[i+1];
+  }
+  if( zTail==0 ) return 0;
+  if( sqlite3_strnicmp(zTail, "www.", 4)==0 ) zTail += 4;
+  if( zTail[0]==0 ) return 0;
+  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?'; i++){}
+  if( i==0 ) return 0;
+  return mprintf("%.*s", i, zTail);
+}
+
+/*
+** COMMAND: test-url-basename
+** Usage: %fossil test-url-basenames URL ...
+**
+** This command is used for unit testing of the url_to_repo_basename()
+** routine.  The command-line arguments are URL, presumably for remote
+** Fossil repositories.  This command runs url_to_repo_basename() on each
+** of those inputs and displays the result.
+*/
+void cmd_test_url_basename(void){
+  int i;
+  char *z;
+  for(i=2; i<g.argc; i++){
+    z = url_to_repo_basename(g.argv[i]);
+    fossil_print("%s -> %s\n", g.argv[i], z);
+    fossil_free(z);
+  }
+}

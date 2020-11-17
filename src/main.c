@@ -1310,7 +1310,7 @@ void test_version_page(void){
   @ <pre>
   @ %h(blob_str(&versionInfo))
   @ </pre>
-  style_footer();
+  style_finish_page("version");
 }
 
 
@@ -3097,5 +3097,5 @@ void test_warning_page(void){
   }
   @ </ol>
   @ <p>End of test</p>
-  style_footer();
+  style_finish_page("test");
 }
