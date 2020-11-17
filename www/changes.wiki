@@ -1,12 +1,12 @@
 <title>Change Log</title>
 
 <a name='v2_13'></a>
-<h2>Changes for Version 2.13 (pending)</h2>
+<h2>Changes for Version 2.13 (2020-11-01)</h2>
 
   *  Added support for [./interwiki.md|interwiki links].
   *  Enable &lt;del&gt; and &lt;ins&gt; markup in  wiki.
   *  Improvements to the Forum threading display.
-  *  Added support for embedding [https://pikchr.org|pikchr]
+  *  Added support for embedding [./pikchr.md|pikchr]
      markup in markdown and fossil-wiki content.
   *  The new "[/help?cmd=pikchr|pikchr]" command can render
      pikchr scripts, optionally pre-processed with
@@ -21,6 +21,14 @@
   *  The <tt>/artifact</tt> and <tt>/file</tt> views, when in
      line-number mode, now support interactive selection of a range
      of lines to hyperlink to.
+  *  Enhance the [/help?cmd=/finfo|/finfo] webpage so that when query
+     parameters identify both a filename and a checkin, the resulting
+     graph tracks the identified file across renames.
+  *  The built-in SQLite is updated to an alpha of version 3.34.0, and
+     the minimum SQLite version is increased to 3.34.0 because the
+     /finfo change in the previous bullet depends on enhancements to
+     recursive common table expressions that are only available in
+     SQLite 3.34.0 and later.
   *  Countless other minor refinements and documentation improvements.
 
 <a name='v2_12'></a>

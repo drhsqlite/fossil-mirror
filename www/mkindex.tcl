@@ -16,7 +16,7 @@ set doclist {
   backoffice.md {The "Backoffice" mechanism of Fossil}
   backup.md {Backing Up a Remote Fossil Repository}
   blame.wiki {The Annotate/Blame Algorithm Of Fossil}
-  blockchain.md {Fossil As Blockchain}
+  blockchain.md {Is Fossil A Blockchain?}
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}

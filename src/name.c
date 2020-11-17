@@ -778,6 +778,7 @@ void whatis_rid(int rid, int verboseFlag){
                  db_column_text(&q, 1));
     fossil_print("comment:    ");
     comment_print(db_column_text(&q,3), 0, 12, -1, get_comment_format());
+    cnt++;
   }
   db_finalize(&q);
 
@@ -800,6 +801,7 @@ void whatis_rid(int rid, int verboseFlag){
       db_column_text(&q, 2));
     fossil_print("            ");
     comment_print(db_column_text(&q,4), 0, 12, -1, get_comment_format());
+    cnt++;
   }
   db_finalize(&q);
 
@@ -835,8 +837,22 @@ void whatis_rid(int rid, int verboseFlag){
                  db_column_text(&q,2), db_column_text(&q,3));
     fossil_print("            ");
     comment_print(db_column_text(&q,1), 0, 12, -1, get_comment_format());
+    cnt++;
   }
   db_finalize(&q);
+
+  /* If other information available, try to describe the object */
+  if( cnt==0 ){
+    char *zWhere = mprintf("=%d", rid);
+    char *zDesc;
+    describe_artifacts(zWhere);
+    free(zWhere);
+    zDesc = db_text(0,
+       "SELECT printf('%%-12s%%s %%s',type||':',summary,substr(ref,1,16))"
+       "  FROM description WHERE rid=%d", rid);
+    fossil_print("%s\n", zDesc);
+    fossil_free(zDesc);
+  }
 }
 
 /*
@@ -1043,7 +1059,8 @@ static void describe_unknown_artifacts(){
     "   WHERE description.summary='unknown'\n"
     "     AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
     "     AND blob.rid=tagxref.rid\n"
-    "     AND content(blob.uuid) GLOB ('*M '||blob.uuid||'*');"
+    "     AND CAST(content(blob.uuid) AS text)"
+    "                   GLOB ('*M '||description.uuid||'*');"
   );
 }
 
@@ -1220,7 +1237,7 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   int cnt = 0;
   if( zWhere!=0 ) describe_artifacts(zWhere);
   db_prepare(&q,
-    "SELECT uuid, summary, isPrivate\n"
+    "SELECT uuid, summary, coalesce(ref,''), isPrivate\n"
     "  FROM description\n"
     " ORDER BY ctime, type;"
   );
@@ -1229,8 +1246,9 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
       fossil_print("%s\n", zLabel);
       zLabel = 0;
     }
-    fossil_print("  %.16s %s", db_column_text(&q,0), db_column_text(&q,1));
-    if( db_column_int(&q,2) ) fossil_print(" (private)");
+    fossil_print("  %.16s %s %s", db_column_text(&q,0),
+           db_column_text(&q,1), db_column_text(&q,2));
+    if( db_column_int(&q,3) ) fossil_print(" (private)");
     fossil_print("\n");
     cnt++;
   }

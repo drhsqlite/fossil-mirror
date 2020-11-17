@@ -1,24 +1,32 @@
 <title>Fossil Quick Start Guide</title>
 <h1 align="center">Fossil Quick Start</h1>
 
-<p>This is a guide to help you get started using Fossil quickly
+<p>This is a guide to help you get started using the Fossil [https://en.wikipedia.org/wiki/Distributed_version_control|Distributed Version Control System] quickly
 and painlessly.</p>
 
 <h2 id="install">Installing</h2>
 
     <p>Fossil is a single self-contained C program.  You need to
     either download a
-    <a href="https://www.fossil-scm.org/fossil/uv/download.html">precompiled
-    binary</a>
+    [https://www.fossil-scm.org/fossil/uv/download.html|precompiled
+    binary]
     or <a href="build.wiki">compile it yourself</a> from sources.
     Install Fossil by putting the fossil binary
     someplace on your $PATH.</p>
+    You can test that Fossil is present and working like this:
+
+    <blockquote>
+    <b>
+    fossil version<br>
+    <tt>This is fossil version 2.13 [309af345ab] 2020-09-28 04:02:55 UTC</tt><br>
+    </b>
+    </blockquote>
 
 <h2 id="workflow" name="fslclone">General Work Flow</h2>
 
-    <p>Fossil works with repository files (a database with the project's
+    <p>Fossil works with repository files (a database in a single file with the project's
     complete history) and with checked-out local trees (the working directory
-    you use to do your work).
+    you use to do your work). 
     (See [./whyusefossil.wiki#definitions | definitions] for more background.)
     The workflow looks like this:</p>
 
@@ -30,17 +38,24 @@ and painlessly.</p>
             configuration).
     </ul>
 
-    <p>The following sections will give you a brief overview of these
+    Fossil can be entirely driven from the command line. Many features
+    can also be conveniently accessed from the build-in web interface.
+
+    <p>The following sections give a brief overview of these
     operations.</p>
 
 <h2 id="new">Starting A New Project</h2>
 
-    <p>To start a new project with fossil, create a new empty repository
+    <p>To start a new project with fossil create a new empty repository
     this way: ([/help/init | more info]) </p>
 
     <blockquote>
     <b>fossil init </b><i> repository-filename</i>
     </blockquote>
+
+    You can name the database anything you like, and you can place it anywhere in the filesystem.
+    The <tt>.fossil</tt> extension is traditional but only required if you are going to use the 
+    <tt>[./help?cmd=/server | fossil server DIRECTORY]</tt> feature.”
 
 <h2 id="clone">Cloning An Existing Repository</h2>
 
@@ -59,23 +74,38 @@ and painlessly.</p>
     <p>The <i>URL</i> specifies the fossil repository
     you want to clone.  The <i>repository-filename</i> is the new local
     filename into which the cloned repository will be written.  For
-    example:
+    example, to clone the source code of Fossil itself:
 
     <blockquote>
-    <b>fossil clone http://www.fossil-scm.org/ myclone.fossil</b>
+    <b>fossil clone https://www.fossil-scm.org/ myclone.fossil</b>
+    </blockquote>
+
+    If your logged-in username is 'exampleuser', you should see output something like this:
+
+    <blockquote>
+    <b><tt>
+            Round-trips: 8   Artifacts sent: 0  received: 39421<br>
+            Clone done, sent: 2424  received: 42965725  ip: 10.10.10.0<br>
+            Rebuilding repository meta-data...<br>
+            100% complete...<br>
+            Extra delta compression... <br>
+            Vacuuming the database... <br>
+            project-id: 94259BB9F186226D80E49D1FA2DB29F935CCA0333<br>
+            server-id:  016595e9043054038a9ea9bc526d7f33f7ac0e42<br>
+            admin-user: exampleuser (password is "yoWgDR42iv")><br>
+    </tt></b>
     </blockquote>
 
     <p>If the remote repository requires a login, include a
     userid in the URL like this:
 
     <blockquote>
-    <b>fossil clone http://</b><i>userid</i><b>@www.fossil-scm.org/ myclone.fossil</b>
+    <b>fossil clone https://</b><i>remoteuserid</i><b>@www.example.org/ myclone.fossil</b>
     </blockquote>
 
-
     <p>You will be prompted separately for the password.
-     Use "%HH" escapes for special characters in the userid.
-     Examples: "%40" in place of "@" and "%2F" in place of "/".
+     Use [https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_reserved_characters|"%HH"] escapes for special characters in the userid.
+     For example "/" would be replaced by "%2F" meaning that a userid of "Projects/Budget" would become "Projects%2FBudget") </p>
 
     <p>If you are behind a restrictive firewall, you might need
     to <a href="#proxy">specify an HTTP proxy</a>.</p>
@@ -85,7 +115,7 @@ and painlessly.</p>
     "scp").  Note, however, that the repository file contains auxiliary
     information above and beyond the versioned files, including some
     sensitive information such as password hashes and email addresses.  If you
-    want to share Fossil repositories directly, consider running the
+    want to share Fossil repositories directly by copying, consider running the
     [/help/scrub|fossil scrub] command to remove sensitive information
     before transmitting the file.
 
@@ -94,7 +124,18 @@ and painlessly.</p>
     <p>Rather than start a new project, or clone an existing Fossil project,
     you might prefer to
     <a href="./inout.wiki">import an existing Git project</a>
-    into Fossil using the [/help/import | fossil import] command.
+    into Fossil using the [/help/import | fossil import] command. 
+
+    You can even decide to export your project back into git using the
+    [/help/git | fossil git] command, which is how the Fossil project maintains
+    [https://github.com/drhsqlite/fossil-mirror | its public GitHub mirror]. There
+    is no limit to the number of times a tree can be imported and exported between
+    Fossil and git.
+
+    The [https://git-scm.com/docs/git-fast-export|Git fast-export format] has become
+    a popular way to move files between version management systems, including from
+    [https://www.mercurial-scm.org/|Mercurial].
+    Fossil can also import [https://subversion.apache.org/|Subversion projects] directly.
 
 <h2 id="checkout">Checking Out A Local Tree</h2>
 
@@ -106,6 +147,20 @@ and painlessly.</p>
     <blockquote>
     <b>fossil open </b><i> repository-filename</i>
     </blockquote>
+
+    for example:
+
+    <blockquote>
+    <b><tt>
+        fossil open ../myclone.fossil<br>
+        BUILD.txt<br>
+        COPYRIGHT-BSD2.txt<br>
+        README.md<br>
+          ︙<br>
+    </tt></b>
+    </blockquote>
+
+    (or "fossil open ..\myclone.fossil" on Windows).
 
     <p>This leaves you with the newest version of the tree
     checked out.
@@ -122,6 +177,9 @@ and painlessly.</p>
     <b>[/help/ls | fossil ls]</b><br>
     <b>[/help/branch | fossil branch]</b><br>
     </blockquote>
+
+   <p>If you created a new respository using "fossil init" some commands will not
+    produce much output.</p>
 
     <p>Note that Fossil allows you to make multiple check-outs in
     separate directories from the same repository.  This enables you,
@@ -141,6 +199,100 @@ and painlessly.</p>
     version, whereas [/help/checkout | checkout] does not
     automatically sync and does a "hard" switch, overwriting local
     changes if told to do so.</p>
+
+<h2 id="changes">Making and Commiting Changes</h2>
+
+    <p>To add new files to your project or remove existing ones, use these
+    commands:</p>
+
+    <blockquote>
+    <b>[/help/add | fossil add]</b> <i>file...</i><br>
+    <b>[/help/rm | fossil rm]</b> <i>file...</i><br>
+    <b>[/help/addremove | fossil addremove]</b> <i>file...</i><br>
+    </blockquote>
+
+    <p>The command:</p>
+    <blockquote>
+    <b>
+            [/help/changes | fossil changes]</b>
+    </blockquote>
+    <p>lists files that have changed since the last commit to the repository. For
+    example, if you edit the file "README.md":</p>
+
+    <blockquote>
+    <b>
+            fossil changes<br>
+            EDITED     README.md
+    </b>
+    </blockquote>
+
+    <p>To see exactly what change was made you can use the command</p>
+    [/help/diff | fossil diff]:
+    <blockquote>
+    <b>
+            fossil diff <br><tt>
+            Index: README.md<br>
+            ============================================================<br>
+            --- README.md<br>
+            +++ README.md<br>
+            @@ -1,5 +1,6 @@<br>
+            +Made some changes to the project<br>
+            # Original text<br>
+     </tt></b>
+    </blockquote>
+ 
+    <p>"fossil diff" is the difference between your tree on disk now and as the tree was
+    when you did "fossil open". An open is the first checkout from a repository 
+    into a new directory. </p>
+
+    <p>To commit your changes to a local-only repository:</p>
+    <blockquote>
+    <b>
+    fossil commit     </b><i>(... Fossil will start your editor, if defined)</i><b><br><tt>
+    # Enter a commit message for this check-in. Lines beginning with # are ignored.<br>
+    #<br>
+    # user: exampleuser<br>
+    # tags: trunk<br>
+    #<br>
+    # EDITED     README.md<br>
+    Edited file to add description of code changes<br>
+    New_Version: 7b9a416ced4a69a60589dde1aedd1a30fde8eec3528d265dbeed5135530440ab<br>
+    </tt></b>
+    </blockquote>
+
+   <p>You will be prompted for check-in comments using whatever editor
+    is specified by your VISUAL or EDITOR environment variable. If none is
+    specified Fossil uses line-editing in the terminal.</p>
+
+    <p>To commit your changes to a repository that was cloned from remote you 
+    perform the same actions but the results are different. Fossil
+    defaults to 'autosync' mode, a single-stage commit that sends all changes 
+    committed to the local repository immediately on to the remote parent repository. This
+    only works if you have write permission to the remote respository.</p>
+
+<h2 id="naming">Naming of Files, Checkins, and Branches</h2>
+
+    <p>Fossil deals with information artifacts. This Quickstart document only deals
+    with files and collections of files, but be aware there are also tickets, wiki pages and more. 
+    Every artifact in Fossil has a universally-unique hash id, and may also have a
+    human-readable name.</p>
+
+    <p>The following are all equivalent ways of identifying a Fossil file,
+    checkin or branch artifact:</p>
+
+    <ul>
+    <li> the full unique SHA-256 hash, such as be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
+    <li> an abbreviated hash prefix, such as the first ten characters: be836de35a . This won't be universally unique, but it is usually unique within any one repository. As an example, the [https://fossil-scm.org/home/hash-collisions|Fossil project hash collisions] showed at the time of writing that there are no artifacts with identical first 8 characters
+    <li> a branch name, such as "special-features" or "juliet-testing". Each branch also has a unique SHA-256 hash
+    </ul>
+
+    <p>A special convenience branch is "trunk", which is Fossil's default branch name for
+    the first checkin, and the default for any time a branch name is needed but not
+    specified.</p>
+
+    This will get you started on identifying checkins. The
+    <a href="./checkin_names.wiki">Checkin Names document</a> is a complete reference, including
+    how timestamps can also be used.
 
 <h2 id="config">Configuring Your Local Repository</h2>
 

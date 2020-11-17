@@ -22,30 +22,39 @@ Specific suggestions on how to improve this document are also welcomed,
 of course.
 
 
+
+## <a id="term"></a> Terminology
+
+While we do try to explain Fossil-specific terminology inline here
+as-needed, you may find it helpful to skim [the Fossil glossary][gloss].
+It will give you another take on our definitions here, and it may help
+you to understand some of the other Fossil docs better.
+
+
+----
+
+
 <a id="mwd"></a>
 ## Repositories And Checkouts Are Distinct
 
 A repository and a check-out are distinct concepts in Fossil, whereas
 the two are collocated by default with Git.
 
-A Fossil repository is a SQLite database in
-which the entire history of a project is stored.  A check-out is a
+A Fossil repository is a SQLite database storing
+the entire history of a project.  A Fossil check-out is a
 directory that contains a snapshot of your project that you
 are currently working on, extracted for you from that database by the
 `fossil` program.
 
-(See [the Fossil glossary][gloss] for more Fossil terms of art that may
-be unfamiliar to a Git user.)
-
 With Git, cloning a repository gets you what Fossil would call a
 check-out directory with the repository stored in a `.git` subdirectory
-of that check-out. There are methods to get more working directories
+of that check-out. There are methods to get additional working directories
 pointing at that same Git repository, but because it’s not designed into
 the core concept of the tool, Git tutorials usually advocate a
 switch-in-place working mode instead, so that is how most users end up
 working with it.
 
-Fossil can operate in the Git mode, switching between versions in a
+You can use Fossil the same way, switching between versions in a
 single check-out directory:
 
         fossil clone https://example.com/repo /path/to/repo.fossil
@@ -56,7 +65,7 @@ single check-out directory:
         fossil update my-other-branch       # like “git checkout”
         ...work on your other branch in the same directory...
 
-As of Fossil 2.12, it can clone-and-open into a single directory, as Git
+As of Fossil 2.12, you can ask it to clone-and-open into a single directory, as Git
 always has done:
 
         mkdir work-dir
@@ -66,18 +75,27 @@ always has done:
 Now you have “trunk” open in `work-dir`, with the repo file stored as
 `repo.fossil` in that same directory.
 
-(Note that Fossil purposefully does not create the directory for you as
-Git does, because this feature is an extension of
-[the “open” command][open], which historically means “open in the
-current directory” in Fossil. It would be wrong for Fossil to create a
-subdirectory when passed a URI but not when passed any other parameter.)
+You may be expecting [`fossil clone`][clone] to create a directory for
+you like Git does, but because the repository is separate from the
+working directory, it does not do that, on purpose: you have to tell it
+where to store the repository file.
 
-The repository file can be named anything you want, with a single
+The [`fossil open URI`][open] syntax is our compromise for users wanting
+a clone-and-open command. But, because Fossil’s `open` command
+historically opens into the current directory, and it won’t open a
+repository into a non-empty directory by default — as of Fossil 2.12,
+anyway — you have to create the directory manually and `cd` into it
+before opening it. If `fossil open URI` worked like `git clone`, that
+would mean `fossil open` has two different ways of working depending on
+the argument, which is a non-Fossil sort of thing to do. We strive for
+consistent behavior across commands and modes.
+
+The Fossil repository file can be named anything you want, with a single
 exception: if you’re going to use the [`fossil server DIRECTORY`][server]
 feature, the repositories need to have a "`.fossil`" suffix. That aside,
 you can follow any other convention that makes sense to you.
 
-Many people choose to gather all of their Fossil repositories
+Many Fossil users gather all of their Fossil repositories
 in a single directory on their machine, such as "`~/museum`" or
 "`C:\Fossils`".  This can help humans to keep their repositories
 organized, but Fossil itself doesn't really care. (Why “museum”?
@@ -109,18 +127,19 @@ to do in the other check-out directories, and a directory for testing a
 user report of a bug in the trunk version as of last April Fool’s Day.
 Each check-out operates independently of the others.
 
-This working style is especially useful when programming in languages
+This multiple-checkouts working style is especially useful when Fossil stores source code in programming languages
 where there is a “build” step that transforms source files into files
-you actually run or distribute. With Git, switching versions in a single
-working tree means you have to rebuild all outputs from the source files
-that differ between those versions. In the above Fossil working model,
+you actually run or distribute. With Git’s typical switch-in-place workflow,
+you have to rebuild all outputs from the source files
+that differ between those versions whenever you switch versions. In the above Fossil working model,
 you switch versions with a “`cd`” command instead, so that you only have
 to rebuild outputs from files you yourself change.
 
 This style is also useful when a check-out directory may be tied up with
 some long-running process, as with the “test” example above, where you
 might need to run an hours-long brute-force replication script to tickle
-a [Heisenbug][hb], forcing it to show itself. While that runs, you can “`cd ../trunk`” and get back
+a [Heisenbug][hb], forcing it to show itself. While that runs, you can
+open a new terminal tab, “`cd ../trunk`”, and get back
 to work.
 
 Git users may be initially confused by the `.fslckout` file at the root
@@ -137,6 +156,7 @@ instead to get around the historical 3-character extension limit with
 certain legacy filesystems. “Native” here is a distinction to exclude
 Cygwin and WSL builds, which use `.fslckout`.)
 
+[clone]:  /help?cmd=clone
 [close]:  /help?cmd=close
 [gloss]:  ./whyusefossil.wiki#definitions
 [hb]:     https://en.wikipedia.org/wiki/Heisenbug
@@ -147,6 +167,21 @@ Cygwin and WSL builds, which use `.fslckout`.)
 [undo]:   /help?cmd=undo
 
 
+## <a id="log"></a> Fossil’s Timeline is the “Log”
+
+Git users often need to use the `git log` command to grovel through
+commit histories due to its [weak data model][wdm].
+
+Fossil parses a huge amount of information out of commits that allow it
+to produce its [timeline CLI][tlc] and [its `/timeline` web view][tlw],
+which generally have the info you would have to manually extract from
+`git log`.
+
+[tlc]: /help?cmd=timeline
+[tlw]: /help?cmd=/timeline
+[wdm]: ./fossil-v-git.wiki#durable
+
+
 <a id="staging"></a>
 ## There Is No Staging Area
 
@@ -154,10 +189,10 @@ Fossil omits the "Git index" or "staging area" concept.  When you
 type "`fossil commit`" _all_ changes in your check-out are committed,
 automatically.  There is no need for the "-a" option as with Git.
 
-If you only want to commit just some of the changes, you can list the names
-of the files you want to commit as arguments, like this:
+If you only want to commit _some_ of the changes, list the names
+of the files or directories you want to commit as arguments, like this:
 
-        fossil commit src/main.c doc/readme.md
+        fossil commit src/feature.c doc/feature.md examples/feature
 
 
 <a id="bneed"></a>
@@ -170,10 +205,12 @@ on that branch:
 
 If that commit is successful, your local check-out directory is then
 switched to the tip of that branch, so subsequent commits don’t need the
-“`--branch`” option. You have to switch back to the parent branch
-explicitly, as with
+“`--branch`” option. You simply say `fossil commit` again to continue
+adding commits to the tip of that branch.
 
-       fossil update trunk       # return to parent, “trunk” in this case
+To switch back to the parent branch, say something like:
+
+       fossil update trunk       # like “git checkout”
 
 Fossil does also support the Git style, creating the branch ahead of
 need:
@@ -204,12 +241,12 @@ indeed to any other Fossil command that accepts a “version” string.)
 ## Autosync
 
 Fossil’s [autosync][wflow] feature, normally enabled, has no
-equivalent in Git. If you want Fossil to behave like Git, you will turn
+equivalent in Git. If you want Fossil to behave like Git, you can turn
 it off:
 
         fossil set autosync 0
 
-It’s better to understand what the feature does and why it is enabled by
+However, it’s better to understand what the feature does and why it is enabled by
 default.
 
 When autosync is enabled, Fossil automatically pushes your changes
@@ -219,8 +256,8 @@ part of a "`fossil update`".
 This provides most of the advantages of a centralized version control
 system while retaining the advantages of distributed version control:
 
-1.  Your work stays synced up with your coworkers as long as your
-    machine can connect to the remote repository, but at need, you can go
+1.  Your work stays synced up with your coworkers’ efforts as long as your
+    machine can connect to the remote repository. At need, you can go
     off-network and continue work atop the last version you sync’d with
     the remote.
 
@@ -247,12 +284,13 @@ system while retaining the advantages of distributed version control:
 
 
 <a id="syncall"></a>
-## Syncing Is All-Or-Nothing
+## Sync Is All-Or-Nothing
 
 Fossil does not support the concept of syncing, pushing, or pulling
-individual branches.  When you sync/push/pull in Fossil, you sync/push/pull
-everything: all branches, all wiki, all tickets, all forum posts,
-all tags, all technotes… Everything.
+individual branches.  When you sync/push/pull in Fossil, you
+sync/push/pull everything stored as artifacts in its hash tree:
+branches, tags, wiki articles, tickets, forum posts, technotes…
+[Almost everything][bu].
 
 Furthermore, branch *names* sync automatically in Fossil, not just the
 content of those branches. This means this common Git command:
@@ -368,6 +406,9 @@ can cast it away on a per-command basis:
 [rm]: /help?cmd=rm
 
 
+----
+
+
 <a id="morigin"></a>
 ## Multiple "origin" Servers
 
@@ -375,17 +416,19 @@ In this final section of the document, we’ll go into a lot more detail
 to illustrate the points above, not just give a quick summary of this
 single difference.
 
-Consider a common use case — at the time of this writing, during the
+Consider a common use case at the time of this writing — during the
 COVID-19 pandemic — where you’re working from home a lot, going into the
-office maybe one part-day a week.  Let us also say you have no remote
+office one part-day a week only to do things that have to be done
+on-site at the office.  Let us also say you have no remote
 access back into the work LAN, such as because your site IT is paranoid
-about security. You may still want off-machine backups of your commits,
-so what you want is the ability to quickly switch between the “home” and
+about security. You may still want off-machine backups of your commits
+while working from home,
+so you need the ability to quickly switch between the “home” and
 “work” remote repositories, with your laptop acting as a kind of
 [sneakernet][sn] link between the big development server at the office
 and your family’s home NAS.
 
-### Git Method
+#### Git Method
 
 We first need to clone the work repo down to our laptop, so we can work on it
 at home:
@@ -410,7 +453,7 @@ Realize that this is carefully optimized down to these two long
 commands. In practice, typing these commands by hand, from memory, we’d
 expect a normal user to need to give four or more commands here instead.
 Packing the “`git init`” call into the “`ssh`” call is something more
-done in scripts and documentation examples than is done interactively,
+often done in scripts and documentation examples than done interactively,
 which then necessitates a third command before the push, “`exit`”.
 There’s also a good chance that you’ll forget the need for the `--bare`
 option here to avoid a fatal complaint from Git that the laptop can’t
@@ -455,10 +498,11 @@ This example also shows a consequence of that fact that
 yourself, “master, master.”
 
 
-### Fossil Method
+#### Fossil Method
 
 Now we’re going to do the same thing as above using Fossil. We’ve broken
 the commands up into blocks corresponding to those above for comparison.
+
 We start the same way, cloning the work repo down to the laptop:
 
         mkdir repo
@@ -466,27 +510,20 @@ We start the same way, cloning the work repo down to the laptop:
         fossil open https://dev-server.example.com/repo
         fossil remote add work https://dev-server.example.com/repo
 
-Unlike Git, Fossil’s “clone and open” feature doesn’t create the
-directory for you, so we need an extra `mkdir` call here that isn’t
-needed in the Git case. This is an indirect reflection of Fossil’s
-[multiple working directories](#mwd) design philosophy: its
-[`open` command][open] requires that you either issue it in an empty
-directory or one containing a prior closed check-out. In exchange for
-this extra command, we get the advantage of Fossil’s
-[superior handling][shwmd] of multiple working directories. To get the
-full power of this feature, you’d switch from the “`fossil open URI`”
-command form to the separate clone-and-open form shown in
-[the quick start guide][qs], which adds one more command.
+We’ve chosen the “`fossil open URI`” syntax here rather than separate
+`clone` and `open` commands to make the parallel with Git clearer. [See
+above](#mwd) for more on that topic.
 
-We can’t spin the longer final command as a trade-off giving us extra
-power, though: the simple fact is, Fossil currently has no short command
+The final command is longer than the Git equivalent because
+Fossil currently has no short command
 to rename an existing remote. Worse, unlike with Git, we can’t just keep
 using the default remote name because Fossil uses that slot in its
 configuration database to store the *current* remote name, so on
 switching from work to home, the home URL will overwrite the work URL if
 we don’t give it an explicit name first.
 
-Keep these costs in perspective, however: they’re one-time setup costs,
+So far, the Fossil commands are longer, but keep these costs in perspective:
+they’re one-time setup costs,
 easily amortized to insignificance by the shorter day-to-day commands
 below.
 

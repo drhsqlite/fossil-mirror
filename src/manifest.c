@@ -1806,6 +1806,13 @@ static void add_mlink(
       if( pmid<=0 ) continue;
       add_mlink(pmid, 0, mid, pChild, 0);
     }
+    for(i=0; i<pChild->nCherrypick; i++){
+      if( pChild->aCherrypick[i].zCPTarget[0]=='+'
+       && (pmid = uuid_to_rid(pChild->aCherrypick[i].zCPTarget+1, 0))>0
+      ){
+        add_mlink(pmid, 0, mid, pChild, 0);
+      }
+    }
   }
 }
 
@@ -1828,6 +1835,7 @@ static int manifest_add_checkin_linkages(
   int parentid = 0;
   char zBaseId[30];    /* Baseline manifest RID for deltas.  "NULL" otherwise */
   Stmt q;
+  int nLink;
 
   if( p->zBaseline ){
      sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d",
@@ -1844,7 +1852,11 @@ static int manifest_add_checkin_linkages(
     if( i==0 ) parentid = pid;
   }
   add_mlink(parentid, 0, rid, p, 1);
-  if( nParent>1 ){
+  nLink = nParent;
+  for(i=0; i<p->nCherrypick; i++){
+    if( p->aCherrypick[i].zCPTarget[0]=='+' ) nLink++;
+  }
+  if( nLink>1 ){
     /* Change MLINK.PID from 0 to -1 for files that are added by merge. */
     db_multi_exec(
       "UPDATE mlink SET pid=-1"
@@ -1853,7 +1865,7 @@ static int manifest_add_checkin_linkages(
       "   AND fnid IN "
       "  (SELECT fnid FROM mlink WHERE mid=%d GROUP BY fnid"
       "    HAVING count(*)<%d)",
-      rid, rid, nParent
+      rid, rid, nLink
     );
   }
   db_prepare(&q, "SELECT cid, isprim FROM plink WHERE pid=%d", rid);

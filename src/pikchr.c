@@ -3614,7 +3614,6 @@ static void arrowInit(Pik *p, PObj *pObj){
   pObj->w = pik_value(p, "linewid",7,0);
   pObj->h = pik_value(p, "lineht",6,0);
   pObj->rad = pik_value(p, "linerad",7,0);
-  pObj->fill = -1.0;
   pObj->rarrow = 1;
 }
 
@@ -4035,7 +4034,6 @@ static void lineInit(Pik *p, PObj *pObj){
   pObj->w = pik_value(p, "linewid",7,0);
   pObj->h = pik_value(p, "lineht",6,0);
   pObj->rad = pik_value(p, "linerad",7,0);
-  pObj->fill = -1.0;
 }
 static PPoint lineOffset(Pik *p, PObj *pObj, int cp){
 #if 0
@@ -4119,7 +4117,6 @@ static void splineInit(Pik *p, PObj *pObj){
   pObj->w = pik_value(p, "linewid",7,0);
   pObj->h = pik_value(p, "lineht",6,0);
   pObj->rad = 1000;
-  pObj->fill = -1.0;  /* Disable fill by default */
 }
 /* Return a point along the path from "f" to "t" that is r units
 ** prior to reaching "t", except if the path is less than 2*r total,
@@ -4148,23 +4145,31 @@ static void radiusPath(Pik *p, PObj *pObj, PNum r){
   int n = pObj->nPath;
   const PPoint *a = pObj->aPath;
   PPoint m;
+  PPoint an = a[n-1];
   int isMid = 0;
+  int iLast = pObj->bClose ? n : n-1;
 
   pik_append_xy(p,"<path d=\"M", a[0].x, a[0].y);
   m = radiusMidpoint(a[0], a[1], r, &isMid);
   pik_append_xy(p," L ",m.x,m.y);
-  for(i=1; i<n-1; i++){
-    m = radiusMidpoint(a[i+1],a[i],r, &isMid);
+  for(i=1; i<iLast; i++){
+    an = i<n-1 ? a[i+1] : a[0];
+    m = radiusMidpoint(an,a[i],r, &isMid);
     pik_append_xy(p," Q ",a[i].x,a[i].y);
     pik_append_xy(p," ",m.x,m.y);
     if( !isMid ){
-      m = radiusMidpoint(a[i],a[i+1],r, &isMid);
+      m = radiusMidpoint(a[i],an,r, &isMid);
       pik_append_xy(p," L ",m.x,m.y);
     }
   }
-  pik_append_xy(p," L ",a[i].x,a[i].y);
+  pik_append_xy(p," L ",an.x,an.y);
+  if( pObj->bClose ){
+    pik_append(p,"Z",1);
+  }else{
+    pObj->fill = -1.0;
+  }
   pik_append(p,"\" ",-1);
-  pik_append_style(p,pObj,0);
+  pik_append_style(p,pObj,pObj->bClose);
   pik_append(p,"\" />\n", -1);
 }
 static void splineRender(Pik *p, PObj *pObj){
@@ -4716,43 +4721,87 @@ static void pik_txt_vertical_layout(PObj *pObj){
   }
 }
 
+/* Return the font scaling factor associated with the input text attribute.
+*/
+static PNum pik_font_scale(PToken *t){
+  PNum scale = 1.0;
+  if( t->eCode & TP_BIG    ) scale *= 1.25;
+  if( t->eCode & TP_SMALL  ) scale *= 0.8;
+  if( t->eCode & TP_XTRA   ) scale *= scale;
+  return scale;
+}
+
 /* Append multiple <text> SVG elements for the text fields of the PObj.
 ** Parameters:
 **
 **    p          The Pik object into which we are rendering
 **
-**    pObj      Object containing the text to be rendered
+**    pObj       Object containing the text to be rendered
 **
 **    pBox       If not NULL, do no rendering at all.  Instead
 **               expand the box object so that it will include all
 **               of the text.
 */
 static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
-  PNum dy;          /* Half the height of a single line of text */
-  PNum dy2;         /* Extra vertical space around the center */
   PNum jw;          /* Justification margin relative to center */
+  PNum ha2 = 0.0;   /* Height of the top row of text */
+  PNum ha1 = 0.0;   /* Height of the second "above" row */
+  PNum hc = 0.0;    /* Height of the center row */
+  PNum hb1 = 0.0;   /* Height of the first "below" row of text */
+  PNum hb2 = 0.0;   /* Height of the second "below" row */
   int n, i, nz;
-  PNum x, y, orig_y;
+  PNum x, y, orig_y, s;
   const char *z;
   PToken *aTxt;
-  int hasCenter = 0;
+  unsigned allMask = 0;
 
   if( p->nErr ) return;
   if( pObj->nTxt==0 ) return;
   aTxt = pObj->aTxt;
-  dy = 0.5*p->charHeight;
   n = pObj->nTxt;
   pik_txt_vertical_layout(pObj);
   x = pObj->ptAt.x;
-  for(i=0; i<n; i++){
-    if( (pObj->aTxt[i].eCode & TP_CENTER)!=0 ) hasCenter = 1;
+  for(i=0; i<n; i++) allMask |= pObj->aTxt[i].eCode;
+  if( pObj->type->isLine ) hc = pObj->sw*1.5;
+  if( allMask & TP_CENTER ){
+    for(i=0; i<n; i++){
+      if( pObj->aTxt[i].eCode & TP_CENTER ){
+        s = pik_font_scale(pObj->aTxt+i);
+        if( hc<s*p->charHeight ) hc = s*p->charHeight;
+      }
+    }
   }
-  if( hasCenter ){
-    dy2 = dy;
-  }else if( pObj->type->isLine ){
-    dy2 = pObj->sw;
-  }else{
-    dy2 = 0.0;
+  if( allMask & TP_ABOVE ){
+    for(i=0; i<n; i++){
+      if( pObj->aTxt[i].eCode & TP_ABOVE ){
+        s = pik_font_scale(pObj->aTxt+i)*p->charHeight;
+        if( ha1<s ) ha1 = s;
+      }
+    }
+    if( allMask & TP_ABOVE2 ){
+      for(i=0; i<n; i++){
+        if( pObj->aTxt[i].eCode & TP_ABOVE2 ){
+          s = pik_font_scale(pObj->aTxt+i)*p->charHeight;
+          if( ha2<s ) ha2 = s;
+        }
+      }
+    }
+  }
+  if( allMask & TP_BELOW ){
+    for(i=0; i<n; i++){
+      if( pObj->aTxt[i].eCode & TP_BELOW ){
+        s = pik_font_scale(pObj->aTxt+i)*p->charHeight;
+        if( hb1<s ) hb1 = s;
+      }
+    }
+    if( allMask & TP_BELOW2 ){
+      for(i=0; i<n; i++){
+        if( pObj->aTxt[i].eCode & TP_BELOW2 ){
+          s = pik_font_scale(pObj->aTxt+i)*p->charHeight;
+          if( hb2<s ) hb2 = s;
+        }
+      }
+    }
   }
   if( pObj->type->eJust==1 ){
     jw = 0.5*(pObj->w - 0.5*(p->charWidth + pObj->sw));
@@ -4761,17 +4810,14 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
   }
   for(i=0; i<n; i++){
     PToken *t = &aTxt[i];
-    PNum xtraFontScale = 1.0;
-    orig_y = pObj->ptAt.y;
+    PNum xtraFontScale = pik_font_scale(t);
     PNum nx = 0;
+    orig_y = pObj->ptAt.y;
     y = 0;
-    if( t->eCode & TP_ABOVE2 ) y += dy2 + 3*dy;
-    if( t->eCode & TP_ABOVE  ) y += dy2 + dy;
-    if( t->eCode & TP_BELOW  ) y -= dy2 + dy;
-    if( t->eCode & TP_BELOW2 ) y -= dy2 + 3*dy;
-    if( t->eCode & TP_BIG    ) xtraFontScale *= 1.25;
-    if( t->eCode & TP_SMALL  ) xtraFontScale *= 0.8;
-    if( t->eCode & TP_XTRA   ) xtraFontScale *= xtraFontScale;
+    if( t->eCode & TP_ABOVE2 ) y += 0.5*hc + ha1 + 0.5*ha2;
+    if( t->eCode & TP_ABOVE  ) y += 0.5*hc + 0.5*ha1;
+    if( t->eCode & TP_BELOW  ) y -= 0.5*hc + 0.5*hb1;
+    if( t->eCode & TP_BELOW2 ) y -= 0.5*hc + hb1 + 0.5*hb2;
     if( t->eCode & TP_LJUST  ) nx -= jw;
     if( t->eCode & TP_RJUST  ) nx += jw;
 
@@ -5246,8 +5292,9 @@ static PObj *pik_elem_new(Pik *p, PToken *pId, PToken *pStr,PList *pSublist){
     return pNew;
   }
   if( pId ){
+    const PClass *pClass;
     pNew->errTok = *pId;
-    const PClass *pClass = pik_find_class(pId);
+    pClass = pik_find_class(pId);
     if( pClass ){
       pNew->type = pClass;
       pNew->sw = pik_value(p, "thickness",9,0);
@@ -6000,7 +6047,14 @@ static void pik_size_to_fit(Pik *p, PToken *pFit, int eWhich){
   pik_compute_layout_settings(p);
   pik_append_txt(p, pObj, &bbox);
   w = (eWhich & 1)!=0 ? (bbox.ne.x - bbox.sw.x) + p->charWidth : 0;
-  h = (eWhich & 2)!=0 ? (bbox.ne.y - bbox.sw.y) + 0.5*p->charHeight : 0;
+  if( eWhich & 2 ){
+    PNum h1, h2;
+    h1 = (bbox.ne.y - pObj->ptAt.y);
+    h2 = (pObj->ptAt.y - bbox.sw.y);
+    h = 2.0*( h1<h2 ? h2 : h1 ) + 0.5*p->charHeight;
+  }else{
+    h = 0;
+  }
   pObj->type->xFit(p, pObj, w, h);
   pObj->mProp |= A_FIT;
 }
@@ -6675,6 +6729,7 @@ void pik_elist_render(Pik *p, PList *pList){
     iNextLayer = 0x7fffffff;
     for(i=0; i<pList->n; i++){
       PObj *pObj = pList->a[i];
+      void (*xRender)(Pik*,PObj*);
       if( pObj->iLayer>iThisLayer ){
         if( pObj->iLayer<iNextLayer ) iNextLayer = pObj->iLayer;
         bMoreToDo = 1;
@@ -6682,7 +6737,6 @@ void pik_elist_render(Pik *p, PList *pList){
       }else if( pObj->iLayer<iThisLayer ){
         continue;
       }
-      void (*xRender)(Pik*,PObj*);
       if( mDebug & 1 ) pik_elem_render(p, pObj);
       xRender = pObj->type->xRender;
       if( xRender ){
@@ -7406,7 +7460,10 @@ void pik_tokenize(Pik *p, PToken *pIn, yyParser *pParser, PToken *aParam){
         pik_tokenize(p, &aParam[token.eCode], pParser, 0);
         p->nCtx--;
       }
-    }else if( token.eType==T_ID && (pMac = pik_find_macro(p,&token))!=0 ){
+    }else if( token.eType==T_ID
+               && (token.n = (unsigned short)(sz & 0xffff), 
+                   (pMac = pik_find_macro(p,&token))!=0)
+    ){
       PToken args[9];
       unsigned int j = i+sz;
       if( pMac->inUse ){
@@ -7635,6 +7692,7 @@ int main(int argc, char **argv){
     fclose(in);
     zIn[sz] = 0;
     zOut = pikchr(zIn, "pikchr", mFlags, &w, &h);
+    if( w<0 ) exitCode = 1;
     if( zOut==0 ){
       fprintf(stderr, "pikchr() returns NULL.  Out of memory?\n");
       if( !bDontStop ) exit(1);
@@ -7648,7 +7706,6 @@ int main(int argc, char **argv){
       printf("<h1>File %s</h1>\n", argv[i]);
       if( w<0 ){
         printf("<p>ERROR</p>\n%s\n", zOut);
-        exitCode = 1;
       }else{
         printf("<div id=\"svg-%d\" onclick=\"toggleHidden('svg-%d')\">\n",i,i);
         printf("<div style='border:3px solid lightgray;max-width:%dpx;'>\n",w);
@@ -7664,7 +7721,7 @@ int main(int argc, char **argv){
   if( !bSvgOnly ){
     printf("</body></html>\n");
   }
-  return exitCode; 
+  return exitCode ? EXIT_FAILURE : EXIT_SUCCESS; 
 }
 #endif /* PIKCHR_SHELL */
 
@@ -7728,4 +7785,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 7756 "pikchr.c"
+#line 7813 "pikchr.c"

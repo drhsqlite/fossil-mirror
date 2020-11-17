@@ -486,7 +486,7 @@ void www_print_timeline(
     if( zType[0]=='c' && pGraph ){
       int nParent = 0;
       int nCherrypick = 0;
-      int aParent[GR_MAX_RAIL];
+      GraphRowId aParent[GR_MAX_RAIL];
       static Stmt qparent;
       db_static_prepare(&qparent,
         "SELECT pid FROM plink"
@@ -2077,7 +2077,7 @@ void page_timeline(void){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     const char *zCiName;
-    int np, nd;
+    int np = 0, nd;
     const char *zBackTo = 0;
     int ridBackTo = 0;
 

@@ -16,10 +16,10 @@ so those features are not included in an export.
 
 Third-party Git based tooling may add some of these features (e.g.
 GitHub, GitLab) but because their data are not stored in the Git
-blockchain, there is no single destination for Fossil to convert its
+repository, there is no single destination for Fossil to convert its
 equivalent data *to*. For instance, Fossil tickets do not become GitHub
 issues, because that is a proprietary feature of GitHub separate from
-Git proper, stored outside the blockchain on the GitHub servers.
+Git proper, stored outside the repository on the GitHub servers.
 
 You can also see the problem in its inverse case: you do not get a copy
 of your GitHub issues when cloning the Git repository. You *do* get the
@@ -31,10 +31,10 @@ repo.
 The Git client supports cherrypick merges but does not record the
 cherrypick parent(s).
 
-Fossil tracks cherrypick merges in its blockchain and displays
+Fossil tracks cherrypick merges in its repository and displays
 cherrypicks in its timeline. (As an example, the dashed lines
 [here](/timeline?c=0a9f12ce6655b7a5) are cherrypicks.) Because Git does
-not have a way to represent this same information in its blockchain, the
+not have a way to represent this same information in its repository, the
 history of Fossil cherrypicks cannot be exported to Git, only their
 direct effects on the managed file data.
 
@@ -75,7 +75,7 @@ same answer that Fossil does.
 
 Check-ins are immutable in both Fossil and Git.
 However, Fossil has a mechanism by which tags can be added to
-its blockchain to provide after-the-fact corrections to prior check-ins.
+its repository to provide after-the-fact corrections to prior check-ins.
 
 For example, tags can be added to check-ins that correct typos in the
 check-in comment.  The original check-in is immutable and so the

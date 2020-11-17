@@ -370,6 +370,7 @@ static void append_diff(
 ** to a file between two check-ins.
 */
 static void append_file_change_line(
+  const char *zCkin,    /* The checkin on which the change occurs */
   const char *zName,    /* Name of the file that has changed */
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
@@ -403,15 +404,19 @@ static void append_file_change_line(
   }else{
     if( zOld && zNew ){
       if( fossil_strcmp(zOld, zNew)!=0 ){
-        @ Modified %z(href("%R/finfo?name=%T&m=%!S",zName,zNew))%h(zName)</a>
+        @ Modified %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+        @ %h(zName)</a>
         @ from %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>
         @ to %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
         @ Name change
-        @ from %z(href("%R/finfo?name=%T&m=%!S",zOldName,zOld))%h(zOldName)</a>
-        @ to %z(href("%R/finfo?name=%T&m=%!S",zName,zNew))%h(zName)</a>.
+        @ from %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zOldName,zOld,zCkin))\
+        @ %h(zOldName)</a>
+        @ to %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+        @ %h(zName)</a>.
       }else{
-        @ %z(href("%R/finfo?name=%T&m=%!S",zName,zNew))%h(zName)</a> became
+        @ %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+        @ %h(zName)</a> became
         if( mperm==PERM_EXE ){
           @ executable with contents
         }else if( mperm==PERM_LNK ){
@@ -422,11 +427,11 @@ static void append_file_change_line(
         @ %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
       }
     }else if( zOld ){
-      @ Deleted %z(href("%R/finfo?name=%T&m=%!S",zName,zOld))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
+      @ Deleted %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zOld,zCkin))\
+      @ %h(zName)</a> version %z(href("%R/artifact/%!S",zOld))[%S(zOld)]</a>.
     }else{
-      @ Added %z(href("%R/finfo?name=%T&m=%!S",zName,zNew))%h(zName)</a>
-      @ version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
+      @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
+      @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
     if( diffFlags ){
       append_diff(zOld, zNew, diffFlags, pRe);
@@ -931,7 +936,8 @@ void ci_page(void){
     const char *zOld = db_column_text(&q3,2);
     const char *zNew = db_column_text(&q3,3);
     const char *zOldName = db_column_text(&q3, 4);
-    append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
+    append_file_change_line(zUuid, zName, zOld, zNew, zOldName, 
+                            diffFlags,pRe,mperm);
   }
   db_finalize(&q3);
   append_diff_javascript(diffType==2);
@@ -1294,13 +1300,13 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       if( !zGlob || sqlite3_strglob(zGlob, pFileFrom->zName)==0 ){
-        append_file_change_line(pFileFrom->zName,
+        append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       if( !zGlob || sqlite3_strglob(zGlob, pFileTo->zName)==0 ){
-        append_file_change_line(pFileTo->zName,
+        append_file_change_line(zTo, pFileTo->zName,
                                 0, pFileTo->zUuid, 0, diffFlags, pRe,
                                 manifest_file_mperm(pFileTo));
       }
@@ -1311,7 +1317,7 @@ void vdiff_page(void){
     }else{
       if(!zGlob || (sqlite3_strglob(zGlob, pFileFrom->zName)==0
                 || sqlite3_strglob(zGlob, pFileTo->zName)==0) ){
-        append_file_change_line(pFileFrom->zName,
+        append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid,
                                 pFileTo->zUuid, 0, diffFlags, pRe,
                                 manifest_file_mperm(pFileTo));
@@ -1421,7 +1427,8 @@ int object_description(
         }
       }
       objType |= OBJTYPE_CONTENT;
-      @ %z(href("%R/finfo?name=%T&m=%!S",zName,zUuid))%h(zName)</a>
+      @ %z(href("%R/finfo?name=%T&ci=%!S&m=%!S",zName,zVers,zUuid))\
+      @ %h(zName)</a>
       tag_private_status(rid);
       if( showDetail ){
         @ <ul>
@@ -2279,6 +2286,7 @@ void artifact_page(void){
 
   if( rid==0 ){  /* Artifact not found */
     if( isFile ){
+      Stmt q;
       /* For /file, also check to see if name= refers to a directory,
       ** and if so, do a listing for that directory */
       int nName = (int)strlen(zName);
@@ -2292,14 +2300,35 @@ void artifact_page(void){
         page_tree();
         return;
       }
-      style_header("No such file");
-      @ File '%h(zName)' does not exist in this repository.
+      /* No directory found, look for an historic version of the file
+      ** that was subsequently deleted. */
+      db_prepare(&q, 
+        "SELECT fid, uuid FROM mlink, filename, event, blob"
+        " WHERE filename.name=%Q"
+        "   AND mlink.fnid=filename.fnid AND mlink.fid>0"
+        "   AND event.objid=mlink.mid"
+        "   AND blob.rid=mlink.mid"
+        " ORDER BY event.mtime DESC",
+        zName
+      );
+      if( db_step(&q)==SQLITE_ROW ){
+        rid = db_column_int(&q, 0);
+        zCI = zCIUuid = fossil_strdup(db_column_text(&q, 1));
+        url_add_parameter(&url, "ci", zCI);
+      }
+      db_finalize(&q);
+      if( rid==0 ){     
+        style_header("No such file");
+        @ File '%h(zName)' does not exist in this repository.
+      }
     }else{
       style_header("No such artifact");
       @ Artifact '%h(zName)' does not exist in this repository.
     }
-    style_footer();
-    return;
+    if( rid==0 ){
+      style_footer();
+      return;
+    }
   }
 
   if( descOnly || P("verbose")!=0 ){
@@ -2313,7 +2342,7 @@ void artifact_page(void){
   if( isFile ){
     if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
-      @ <h2>File %z(href("%R/finfo?name=%T&m=tip",zName))%h(zName)</a>
+      @ <h2>File %z(href("%R/finfo?name=%T&m&ci=tip",zName))%h(zName)</a>
       @ from the %z(href("%R/info/tip"))latest check-in</a></h2>
     }else{
       const char *zPath;
@@ -2414,9 +2443,11 @@ void artifact_page(void){
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
       }
     }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
-           || fossil_strcmp(zMime, "text/x-markdown")==0 ){
+           || fossil_strcmp(zMime, "text/x-markdown")==0
+           || fossil_strcmp(zMime, "text/x-pikchr")==0 ){
       if( asText ){
-        style_submenu_element("Wiki", "%s", url_render(&url, "txt", 0, 0, 0));
+        style_submenu_element(zMime[7]=='p' ? "Pikchr" : "Wiki",
+                              "%s", url_render(&url, "txt", 0, 0, 0));
       }else{
         renderAsWiki = 1;
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));

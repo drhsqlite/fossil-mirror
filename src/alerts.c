@@ -1563,20 +1563,35 @@ void subscribe_page(void){
 ** the entry has been removed.
 */
 static void alert_unsubscribe(int sid){
-  char *zEmail;
-  zEmail = db_text(0, "SELECT semail FROM subscriber"
-                      " WHERE subscriberId=%d", sid);
+  const char *zEmail = 0;
+  const char *zLogin = 0;
+  int uid = 0;
+  Stmt q;
+  db_prepare(&q, "SELECT semail, suname FROM subscriber"
+                 " WHERE subscriberId=%d", sid);
+  if( db_step(&q)==SQLITE_ROW ){
+    zEmail = db_column_text(&q, 0);
+    zLogin = db_column_text(&q, 1);
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
+  }
   if( zEmail==0 ){
     style_header("Unsubscribe Fail");
     @ <p>Unable to locate a subscriber with the requested key</p>
   }else{
+    
     db_multi_exec(
       "DELETE FROM subscriber WHERE subscriberId=%d", sid
     );
     style_header("Unsubscribed");
-    @ <p>The "%h(zEmail)" email address has been delisted.
-    @ All traces of that email address have been removed</p>
+    @ <p>The "%h(zEmail)" email address has been unsubscribed and the
+    @ corresponding row in the subscriber table has been deleted.<p>
+    if( uid && g.perm.Admin ){
+       @ <p>You may also want to
+       @ <a href="%R/setup_uedit?id=%d(uid)">edit or delete
+       @ the corresponding user "%h(zLogin)"</a></p>
+    }
   }
+  db_finalize(&q);
   style_footer();
   return;
 }

@@ -43,6 +43,18 @@
 
 #if INTERFACE
 
+/*
+** The type of integer identifiers for rows of the graph.
+**
+** For a normal /timeline graph, the identifiers are never that big
+** an an ordinary 32-bit int will work fine.  But for the /finfo page,
+** the identifier is a combination of the BLOB.RID and the FILENAME.FNID
+** values, and so it can become quite large for repos that have both many
+** check-ins and many files.  For this reason, we make the identifier
+** a 64-bit integer, to dramatically reduce the risk of an overflow.
+*/
+typedef sqlite3_int64 GraphRowId;
+
 #define GR_MAX_RAIL   40      /* Max number of "rails" to display */
 
 /* The graph appears vertically beside a timeline.  Each row in the
@@ -54,12 +66,12 @@
 ** but which are included just so that we can capture their background color.
 */
 struct GraphRow {
-  int rid;                    /* The rid for the check-in */
+  GraphRowId rid;             /* The rid for the check-in */
   i8 nParent;                 /* Number of parents. */
   i8 nCherrypick;             /* Subset of aParent that are cherrypicks */
   i8 nNonCherrypick;          /* Number of non-cherrypick parents */
   u8 nMergeChild;             /* Number of merge children */
-  int *aParent;               /* Array of parents.  0 element is primary .*/
+  GraphRowId *aParent;        /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
   char zUuid[HNAME_MAX+1];    /* Check-in for file ID */
@@ -178,7 +190,7 @@ static void hashInsert(GraphContext *p, GraphRow *pRow, int overwrite){
 /*
 ** Look up the row with rid.
 */
-static GraphRow *hashFind(GraphContext *p, int rid){
+static GraphRow *hashFind(GraphContext *p, GraphRowId rid){
   int h = rid % p->nHash;
   while( p->apHash[h] && p->apHash[h]->rid!=rid ){
     h++;
@@ -214,10 +226,10 @@ static char *persistBranchName(GraphContext *p, const char *zBranch){
 */
 int graph_add_row(
   GraphContext *p,     /* The context to which the row is added */
-  int rid,             /* RID for the check-in */
+  GraphRowId rid,      /* RID for the check-in */
   int nParent,         /* Number of parents */
   int nCherrypick,     /* How many of aParent[] are actually cherrypicks */
-  int *aParent,        /* Array of parents */
+  GraphRowId *aParent, /* Array of parents */
   const char *zBranch, /* Branch for this check-in */
   const char *zBgClr,  /* Background color. NULL or "" for white. */
   const char *zUuid,   /* hash name of the object being graphed */
@@ -231,7 +243,7 @@ int graph_add_row(
   nByte = sizeof(GraphRow);
   if( nParent>0 ) nByte += sizeof(pRow->aParent[0])*nParent;
   pRow = (GraphRow*)safeMalloc( nByte );
-  pRow->aParent = nParent>0 ? (int*)&pRow[1] : 0;
+  pRow->aParent = nParent>0 ? (GraphRowId*)&pRow[1] : 0;
   pRow->rid = rid;
   if( nCherrypick>=nParent ){
     nCherrypick = nParent-1; /* Safety. Should never happen. */
@@ -442,7 +454,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   ** coming up from the bottom of the graph from off-screen check-in Y
   ** where Y is the RID.  There is no riser on rail X if mergeRiserFrom[X]==0.
   */
-  int mergeRiserFrom[GR_MAX_RAIL];
+  GraphRowId mergeRiserFrom[GR_MAX_RAIL];
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
   p->nErr = 1;   /* Assume an error until proven otherwise */
@@ -516,7 +528,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       }
       i = pRow->nNonCherrypick;
       if( iBest>i ){
-        int x = pRow->aParent[i];
+        GraphRowId x = pRow->aParent[i];
         pRow->aParent[i] = pRow->aParent[iBest];
         pRow->aParent[iBest] = x;
       }
@@ -536,7 +548,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
         }
       }
       if( iBest>1 ){
-        int x = pRow->aParent[1];
+        GraphRowId x = pRow->aParent[1];
         pRow->aParent[1] = pRow->aParent[iBest];
         pRow->aParent[iBest] = x;
       }
@@ -556,7 +568,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     for(i=1; i<pRow->nNonCherrypick; i++){
       pParent = hashFind(p, pRow->aParent[i]);
       if( pParent && pParent->zBranch==pRow->zBranch ){
-        int t = pRow->aParent[0];
+        GraphRowId t = pRow->aParent[0];
         pRow->aParent[0] = pRow->aParent[i];
         pRow->aParent[i] = t;
         break;
@@ -654,7 +666,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   /* Assign rails to all rows that are still unassigned.
   */
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
-    int parentRid;
+    GraphRowId parentRid;
 
     if( pRow->iRail>=0 ){
       if( pRow->pChild==0 && !pRow->timeWarp ){
@@ -728,7 +740,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     int iReuseRail = -1;
     int isCherrypick = 0;
     for(i=1; i<pRow->nParent; i++){
-      int parentRid = pRow->aParent[i];
+      GraphRowId parentRid = pRow->aParent[i];
       if( i==pRow->nNonCherrypick ){
         /* Because full merges are laid out before cherrypicks,
         ** it is ok to use a full-merge raise for a cherrypick.

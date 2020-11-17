@@ -676,8 +676,8 @@ int fossil_main(int argc, char **argv){
 #endif
 
   fossil_limit_memory(1);
-  if( sqlite3_libversion_number()<3033000 ){
-    fossil_panic("Unsuitable SQLite version %s, must be at least 3.33.0",
+  if( sqlite3_libversion_number()<3034000 ){
+    fossil_panic("Unsuitable SQLite version %s, must be at least 3.34.0",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -1219,6 +1219,7 @@ void fossil_version_blob(
 #if defined(FOSSIL_ENABLE_JSON)
   blob_appendf(pOut, "JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
+  blob_append(pOut, "MARKDOWN\n", -1);
 #if defined(BROKEN_MINGW_CMDLINE)
   blob_append(pOut, "MBCS_COMMAND_LINE\n", -1);
 #else
@@ -1333,6 +1334,9 @@ void set_base_url(const char *zAltBase){
   if( zAltBase ){
     int i, n, c;
     g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
+    i = (int)strlen(g.zBaseURL);
+    while( i>3 && g.zBaseURL[i-1]=='/' ){ i--; }
+    g.zBaseURL[i] = 0;
     if( strncmp(g.zTop, "http://", 7)==0 ){
       /* it is HTTP, replace prefix with HTTPS. */
       g.zHttpsURL = mprintf("https://%s", &g.zTop[7]);
@@ -1352,6 +1356,7 @@ void set_base_url(const char *zAltBase){
         }
       }
     }
+    if( n==2 ) g.zTop = "";
     if( g.zTop==g.zBaseURL ){
       fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
