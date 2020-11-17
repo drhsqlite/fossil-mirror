@@ -1090,6 +1090,7 @@ static int gitmirror_send_checkin(
   int nErr = 0;         /* Number of errors */
   int bPhantomOk;       /* True if phantom files should be ignored */
   char buf[24];
+  char *zEmail;         /* Contact info for Git committer field */
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1166,9 +1167,27 @@ static int gitmirror_send_checkin(
   sqlite3_snprintf(sizeof(buf), buf, "%lld",
      (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
   );
-  fprintf(xCmd, "committer %s <%s@noemail.net> %s +0000\n",
-     pMan->zUser, pMan->zUser, buf
-  );
+  /*
+  ** Check for 'fx_' table from previous Git import, otherwise take contact info
+  ** from user table for <emailaddr> in committer field. If no emailaddr, check
+  ** if username is in email form, otherwise use generic 'username@noemail.net'.
+  */
+  if (db_table_exists("repository", "fx_git")) {
+    zEmail = db_text(0, "SELECT email FROM fx_git WHERE user=%Q", pMan->zUser);
+  } else {
+    zEmail = db_text(0, "SELECT info FROM user WHERE login=%Q", pMan->zUser);
+  }
+  /* Some repo 'info' fields return an empty string hence the second check */
+  if (zEmail == NULL || zEmail[0] == '\0') {
+    /* If username is in emailaddr form, don't append '@noemail.net' */
+    if (strchr(pMan->zUser, '@') == NULL) {
+      zEmail = mprintf("%s@noemail.net", pMan->zUser);
+    } else {
+      zEmail = fossil_strdup(pMan->zUser);
+    }
+  }
+  fprintf(xCmd, "committer %s <%s> %s +0000\n", pMan->zUser, zEmail, buf);
+  fossil_free(zEmail);
   blob_init(&comment, pMan->zComment, -1);
   if( blob_size(&comment)==0 ){
     blob_append(&comment, "(no comment)", -1);

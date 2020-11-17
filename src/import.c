@@ -289,7 +289,10 @@ static void finish_commit(void){
   blob_zero(&record);
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
-  if( !g.fQuiet ) fossil_print("%.10s\r", gg.zDate);
+  if( !g.fQuiet ){
+    fossil_print("%.10s\r", gg.zDate);
+    fflush(stdout);
+  }
   for(i=0; i<gg.nFile; i++){
     const char *zUuid = gg.aFile[i].zUuid;
     if( zUuid==0 ) continue;
@@ -542,6 +545,11 @@ static void dequote_git_filename(char *zName){
 static struct{
   const char *zMasterName;    /* Name of master branch */
   int authorFlag;             /* Use author as checkin committer */
+  int nGitAttr;               /* Number of Git --attribute entries */
+  struct {                    /* Git --attribute details */
+    char *zUser;
+    char *zEmail;
+  } *gitUserInfo;
 } ggit;
 
 /*
@@ -666,7 +674,11 @@ static void git_fast_import(FILE *pIn){
       while( fossil_isspace(*z) ) z++;
       if( (zTo=strchr(z, '>'))==NULL ) goto malformed_line;
       *(++zTo) = '\0';
-      /* Lookup user by contact info. */
+      /*
+      ** If --attribute requested, lookup user in fx_ table by email address,
+      ** otherwise lookup Git {author,committer} contact info in user table. If
+      ** no matches, use email address as username for check-in attribution.
+      */
       fossil_free(gg.zUser);
       gg.zUser = db_text(0, "SELECT login FROM user WHERE info=%Q", z);
       if( gg.zUser==NULL ){
@@ -676,6 +688,10 @@ static void git_fast_import(FILE *pIn){
         z++;
         *(zTo-1) = '\0';
         gg.zUser = fossil_strdup(z);
+      }
+      if (ggit.nGitAttr > 0 || db_table_exists("repository", "fx_git")) {
+        gg.zUser = db_text(gg.zUser,
+         "SELECT user FROM fx_git WHERE email=%Q", z);
       }
       secSince1970 = 0;
       for(zTo++; fossil_isdigit(*zTo); zTo++){
@@ -714,7 +730,7 @@ static void git_fast_import(FILE *pIn){
         pFile = import_add_file();
         pFile->zName = fossil_strdup(zName);
       }
-      pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
+      pFile->isExe = (sqlite3_strglob("*755",zPerm)==0);
       pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);
       fossil_free(pFile->zUuid);
       if( strcmp(zUuid,"inline")==0 ){
@@ -754,7 +770,7 @@ static void git_fast_import(FILE *pIn){
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
-          pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
+          pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
         }
@@ -777,7 +793,7 @@ static void git_fast_import(FILE *pIn){
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
-          pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
+          pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
           pNew->zName = fossil_strdup(zTo);
         }
@@ -805,6 +821,10 @@ static void git_fast_import(FILE *pIn){
       next_token(&z);
       fossil_free(gg.zBranch);
       gg.zBranch = fossil_strdup(next_token(&z));
+    }else
+    if( strncmp(zLine, "property rebase-of ", 19)==0 ){
+      /* Breezy uses this property to record that a branch
+      ** was rebased.  Silently ignore it. */
     }else
     {
       goto malformed_line;
@@ -1650,6 +1670,8 @@ static void svn_dump_import(FILE *pIn){
 **                  --export-marks  FILE Save marks table to FILE
 **                  --rename-master NAME Renames the master branch to NAME
 **                  --use-author    Uses author as the committer
+**                  --attribute     "EMAIL USER" Attribute commits to USER
+**                                  instead of Git committer EMAIL address
 **
 **   --svn        Import from the svnadmin-dump file format.  The default
 **                behaviour (unless overridden by --flat) is to treat 3
@@ -1691,6 +1713,11 @@ static void svn_dump_import(FILE *pIn){
 ** --ignore-tree is useful for importing Subversion repositories which
 ** move branches to subdirectories of "branches/deleted" instead of
 ** deleting them.  It can be supplied multiple times if necessary.
+**
+** The --attribute option takes a quoted string argument comprised of a
+** Git committer email and the username to be attributed to corresponding
+** check-ins in the Fossil repository. This option can be repeated. For
+** example, --attribute "drh@sqlite.org drh" --attribute "xyz@abc.net X"
 **
 ** See also: export
 */
@@ -1778,6 +1805,19 @@ void import_cmd(void){
       ggit.zMasterName = "master";
     }
     ggit.authorFlag = find_option("use-author", 0, 0)!=0;
+    /*
+    ** Extract --attribute 'emailaddr username' args that will populate
+    ** new 'fx_' table to later match username for check-in attribution.
+    */
+    const char *zGitUser = find_option("attribute", 0, 1);
+    while( zGitUser != 0 ){
+      ggit.gitUserInfo = fossil_realloc(ggit.gitUserInfo, ++ggit.nGitAttr
+       * sizeof(ggit.gitUserInfo[0]));
+      char *currGitUser = fossil_strdup(zGitUser);
+      ggit.gitUserInfo[ggit.nGitAttr-1].zEmail = next_token(&currGitUser);
+      ggit.gitUserInfo[ggit.nGitAttr-1].zUser = rest_of_line(&currGitUser);
+      zGitUser = find_option("attribute", 0, 1);
+    }
   }
   verify_all_options();
 
@@ -1903,6 +1943,24 @@ void import_cmd(void){
     }
 
     manifest_crosslink_begin();
+    /*
+    ** The following 'fx_' table is used to hold information needed for
+    ** importing and exporting to attribute Fossil check-ins or Git commits
+    ** to either a desired username or full contact information string.
+    */
+    if(ggit.nGitAttr > 0) {
+      db_unprotect(PROTECT_ALL);
+      db_multi_exec(
+        "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
+      );
+      for( int idx = 0; idx < ggit.nGitAttr; ++idx ){
+        db_multi_exec(
+            "INSERT OR IGNORE INTO fx_git(user, email) VALUES(%Q, %Q)",
+            ggit.gitUserInfo[idx].zUser, ggit.gitUserInfo[idx].zEmail
+        );
+      }
+      db_protect_pop();
+    }
     git_fast_import(pIn);
     db_prepare(&q, "SELECT tcontent FROM xtag");
     while( db_step(&q)==SQLITE_ROW ){

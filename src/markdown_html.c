@@ -349,6 +349,7 @@ void pikchr_to_html(
     | PIKCHR_PROCESS_SRC
     | PIKCHR_PROCESS_ERR_PRE;
   Blob bSrc = empty_blob;
+  const char *zFgColor;
 
   while( nArg>0 ){
     int i;
@@ -371,6 +372,13 @@ void pikchr_to_html(
     while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
     zArg += i;
     nArg -= i;
+  }
+  if( skin_detail_boolean("white-foreground") ){
+    pikFlags |= 0x02;  /* PIKCHR_DARK_MODE */
+  }
+  zFgColor = skin_detail("pikchr-foreground");
+  if( zFgColor && zFgColor[0] ){
+    blob_appendf(&bSrc, "fgcolor = %s\n", zFgColor);
   }
   blob_append(&bSrc, zSrc, nSrc)
     /*have to dup input to ensure a NUL-terminated source string */;

@@ -126,6 +126,23 @@ https://github.com/username/project.git
      violate these rules, then the names are translated prior to being exported
      to Git.  The translation usually involves converting the offending characters
      into underscores.
+  
+  *  If your Fossil user contact info is not set and this repository was not
+     initially [imported from Git](./inout.wiki), `fossil git export` will
+     construct a generic `user@noemail.net` for the Git *committer* and *author*
+     email fields of each commit. However, Fossil will first attempt to parse an
+     email address from your user contact info, which can be set through a
+     Fossil [UI][ui] browser window or with the [`user contact`][usercmd]
+     subcommand on the command line. Alternatively, if this repository was
+     previously imported from Git using the [`--attribute`][attr] option, the
+     [`fx_git`][fxgit] table will be queried for correspondent email addresses.
+     Only if neither of these methods produce a user specified email will the
+     abovementioned generic address be used.
+
+[attr]: /help?cmd=import
+[fxgit]: ./inout.wiki#fx_git
+[ui]: /help?cmd=ui
+[usercmd]: /help?cmd=user
 
 <a name='ex1'></a>
 ## Example GitHub Mirrors

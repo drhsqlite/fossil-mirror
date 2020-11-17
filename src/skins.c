@@ -87,10 +87,11 @@ static struct SkinDetail {
   const char *zName;      /* Name of the detail */
   const char *zValue;     /* Value of the detail */
 } aSkinDetail[] = {
-  { "timeline-arrowheads",        "1"  },
-  { "timeline-circle-nodes",      "0"  },
-  { "timeline-color-graph-lines", "0"  },
-  { "white-foreground",           "0"  },
+  { "pikchr-foreground",          ""      },
+  { "timeline-arrowheads",        "1"     },
+  { "timeline-circle-nodes",      "0"     },
+  { "timeline-color-graph-lines", "0"     },
+  { "white-foreground",           "0"     },
 };
 
 /*

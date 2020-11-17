@@ -24,12 +24,13 @@
 
 #if INTERFACE
 /* These are described in pikchr_process()'s docs. */
-#define PIKCHR_PROCESS_TH1        0x01
-#define PIKCHR_PROCESS_TH1_NOSVG  0x02
-#define PIKCHR_PROCESS_NONCE      0x04
-#define PIKCHR_PROCESS_ERR_PRE    0x08
-#define PIKCHR_PROCESS_SRC        0x10
-#define PIKCHR_PROCESS_DIV        0x20
+#define PIKCHR_PROCESS_PASSTHROUGH       0x0003   /* Pass through these flags */
+#define PIKCHR_PROCESS_TH1               0x0004
+#define PIKCHR_PROCESS_TH1_NOSVG         0x0008
+#define PIKCHR_PROCESS_NONCE             0x0010
+#define PIKCHR_PROCESS_ERR_PRE           0x0020
+#define PIKCHR_PROCESS_SRC               0x0040
+#define PIKCHR_PROCESS_DIV               0x0080
 #define PIKCHR_PROCESS_DIV_INDENT        0x0100
 #define PIKCHR_PROCESS_DIV_CENTER        0x0200
 #define PIKCHR_PROCESS_DIV_FLOAT_LEFT    0x0400
@@ -161,7 +162,7 @@ int pikchr_process(const char * zIn, int pikFlags, int thFlags,
       const char * zContent = blob_str(&bIn);
       char *zOut;
       zOut = pikchr(zContent, "pikchr",
-                    0x01/*==>PIKCHR_PLAINTEXT_ERRORS*/,
+                    0x01 | (pikFlags&PIKCHR_PROCESS_PASSTHROUGH),
                     &w, &h);
       if( w>0 && h>0 ){
         const char * zClassToggle = "";

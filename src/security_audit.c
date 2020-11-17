@@ -581,6 +581,12 @@ void secaudit0_page(void){
     @ private and those are ignored.  But public phantoms cause unnecessary
     @ sync traffic and might represent malicious attempts to corrupt the
     @ repository structure.
+    @ </p><p>
+    @ To suppress unnecessary sync traffic caused by phantoms, add the RID
+    @ of each phantom to the "private" table.  Example:
+    @ <blockquote><pre>
+    @    INSERT INTO private SELECT rid FROM blob WHERE content IS NULL;
+    @ </pre></blockquote>
     @ </p>
     table_of_public_phantoms();
     @ </li>

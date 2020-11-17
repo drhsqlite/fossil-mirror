@@ -337,7 +337,7 @@ void dbstat_cmd(void){
   fsize = file_size(g.zRepositoryName, ExtFILE);
   fossil_print( "%*s%,lld bytes\n", colWidth, "repository-size:", fsize);
   if( !brief ){
-    n = db_int(0, "SELECT count(*) FROM blob");
+    n = db_int(0, "SELECT count(*) FROM blob WHERE content IS NOT NULL");
     m = db_int(0, "SELECT count(*) FROM delta");
     fossil_print("%*s%,d (stored as %,d full text and %,d deltas)\n",
                  colWidth, "artifact-count:",
@@ -378,6 +378,15 @@ void dbstat_cmd(void){
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
     fossil_print("%*s%,d (%,d changes)\n", colWidth, "tickets:", n, m);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
+    if( db_table_exists("repository","forumpost") ){
+      n = db_int(0, "SELECT count(*) FROM forumpost/*scan*/");
+      if( n>0 ){
+        int nThread = db_int(0, "SELECT count(*) FROM forumpost"
+                                " WHERE froot=fpid");
+        fossil_print("%*s%,d (on %,d threads)\n", colWidth, "forum-posts:",
+                     n, nThread);
+      }
+    }
     fossil_print("%*s%,d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
     fossil_print("%*s%,d\n", colWidth, "tag-changes:", n);

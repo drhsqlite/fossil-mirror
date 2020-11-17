@@ -2400,7 +2400,7 @@ void artifact_page(void){
   if( isFile ){
     if( isSymbolicCI ){
       zHeader = mprintf("%s at %s", file_tail(zName), zCI);
-    }else if( zCI ){
+    }else if( zCIUuid && zCIUuid[0] ){
       zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
     }else{
       zHeader = mprintf("%s", file_tail(zName));
