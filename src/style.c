@@ -1229,6 +1229,25 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
   webpage_error("assertion fault at %s:%d - %s", zFile, iLine, zExpr);
 }
 
+/*
+** Issue a 404 Not Found error for a webpage
+*/
+void webpage_notfound_error(const char *zFormat, ...){
+  char *zMsg;
+  va_list ap;
+  if( zFormat ){
+    va_start(ap, zFormat);
+    zMsg = vmprintf(zFormat, ap);
+    va_end(ap);
+  }else{
+    zMsg = "Not Found";
+  }
+  style_header("Not Found");
+  @ <p>%h(zMsg)</p>
+  cgi_set_status(404, "Not Found");
+  style_finish_page("enotfound");
+}
+
 #if INTERFACE
 # define webpage_assert(T) if(!(T)){webpage_assert_page(__FILE__,__LINE__,#T);}
 #endif

@@ -289,7 +289,7 @@ void forumthread_cmd(void){
     fpid = db_int(0, "SELECT rid FROM blob WHERE rid=%d", atoi(zName));
   }
   if( fpid<=0 ){
-    fossil_fatal("Unknown or ambiguous forum id: \"%s\"", zName);
+    fossil_fatal("unknown or ambiguous forum id: \"%s\"", zName);
   }
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
   if( froot==0 ){
@@ -815,11 +815,16 @@ void forumthread_page(void){
   }
   fpid = symbolic_name_to_rid(zName, "f");
   if( fpid<=0 ){
-    webpage_error("Unknown or ambiguous forum id: \"%s\"", zName);
+    if( fpid==0 ){
+      webpage_notfound_error("Unknown forum id: \"%s\"", zName);
+    }else{
+      ambiguous_page();
+    }
+    return;
   }
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
   if( froot==0 ){
-    webpage_error("Not a forum post: \"%s\"", zName);
+    webpage_notfound_error("Not a forum post: \"%s\"", zName);
   }
   if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
 

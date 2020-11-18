@@ -1,5 +1,5 @@
-C Moved\sthe\ssection\son\sbackups\sin\sthe\sEmail\sAlerts\sdoc\sinto\sthe\snew\sbackup\ndoc,\sand\sexpanded\son\sthe\scoverage\sof\sconfig\sbackups\sthere,\ssince\sthis\nsplits\sthe\sprior\ssection.
-D 2020-11-18T08:01:43.132
+C Improved\serror\smessages\sfrom\sthe\sforum\swhen\sthe\sforum\sartifact\sID\sis\nincorrect.
+D 2020-11-18T14:47:17.709
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 90dbe9306cec39a17daa1c00681902629791030db5545e4f99bac150fee83815
 F src/finfo.c 8a6b412c54ca2f19f6088527eb79b6082c3a747c30080a39f257eae07bf66660
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c b4087abc0e269a9a72714650f32e73ecc09be4cea37f6dbfe923ccc17406d674
+F src/forum.c 7037f0421424ded14402a709b3fceed2cb06f2edfaa064f09dc8234c92fc73e2
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -616,7 +616,7 @@ F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c efda3d881a6840b2fed1bddf20076b4fcf03f1285b90e7de6887f3eb18ee4ea6
 F src/statrep.c d8b0365fd7ab13d51f9260fd338d62c38724452270d90447631013e1226bd22d
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 7ad3e34f8e25a553073911a09239c889ff5b729560d9fd0f8962d4c571c36d93
+F src/style.c 83823e8ab14a7cbe27edfe78f2476fea8353a85bae85565897cba34278d90f9e
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6b472ae172549d3fa5759ff728ef5f682f7fc492e1f1fda93a60cfe7bf691263
-R f9c69bade802fe61ff62b5833d47ecd0
-U wyoung
-Z c5883c148c38c41019f213a98b3b0796
+P 2b1c5bc8fe80f701b1876068afd24bb029797ebdc7c63fac43c52cd3811d8390
+R 4f8c71e1dfbf75019ff27c776ae88c3c
+U drh
+Z 3e8467ec82f3c9347b044d211c45d511
