@@ -1,5 +1,5 @@
-C Noted\sthe\sfact\sthat\sFossil\s2.9+\sremembers\sthe\sHTTPS\sURI\sin\ssync\swhen\naccessed\svia\san\sHTTP\sto\sHTTPS\sredirect.
-D 2020-11-16T02:48:22.755
+C Moved\sthe\ssection\son\sbackups\sin\sthe\sEmail\sAlerts\sdoc\sinto\sthe\snew\sbackup\ndoc,\sand\sexpanded\son\sthe\scoverage\sof\sconfig\sbackups\sthere,\ssince\sthis\nsplits\sthe\sprior\ssection.
+D 2020-11-18T08:01:43.132
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -804,12 +804,12 @@ F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d
 F www/aboutcgi.wiki 41eb3fb9357be6d3893f05897bcfd39ddb81c87d6dc36b1e9ad5bf40bc8d6e06
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
 F www/adding_code.wiki 0c6c3aa15c2f2d9b89607d39738aa5dbbea312553f859563d22848a476906acf
-F www/alerts.md 66619f74c5bfa23fb1bfb47828656d7718926230b8e24e5eca15927039e9a034
+F www/alerts.md 05df05f573a98a5d7a554291dbc36378e21d99202587e73bcdf9d43e1d82a0ea
 F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0c45
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
-F www/backup.md 5f5fa31acdfcd84934f78c100f2f6791ef94d075ac19401bb075d6cc3ff340c2
+F www/backup.md 545d2eb1aa8e27698ca5a381d7d30e7bb63f41ff9d8e0baa3e742a652d971a7a
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md 002ed6db927843a7998067420eb53414784ab6030c38055af4645e6c1c18d299
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08c52c35bada38803b45ef6ed89d23c481c1bf77b5c58171bc5be2cd2f53d09c
-R f055819015cc303202dc3c2c7b27827b
+P 6b472ae172549d3fa5759ff728ef5f682f7fc492e1f1fda93a60cfe7bf691263
+R f9c69bade802fe61ff62b5833d47ecd0
 U wyoung
-Z 85b49a1209e7546473b645a3fff32a05
+Z c5883c148c38c41019f213a98b3b0796
