@@ -1,5 +1,5 @@
-C Improved\serror\smessages\sfrom\sthe\sforum\swhen\sthe\sforum\sartifact\sID\sis\nincorrect.
-D 2020-11-18T14:47:17.709
+C Fix\sincorrect\sparsing\sof\sRFC\s822\suser\scontact\sinfo\swhen\sexporting\sto\sa\sGit\srepository\sas\sreported\sby\sWarren\sin\s[forum:/info/29e358909c|forum\spost\s29e358909c].
+D 2020-11-19T13:34:31.161
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -477,7 +477,7 @@ F src/doc.c c80596d83a6026aed55eaf88fd90081ad913cd2625f9f71cc3b71d98b5dbf2ef
 F src/encode.c e330c36991335742bc42ec6e01ee2a14158f08b4b36ae84ec405294adf465f96
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8d34ae981119c922fd07a2a2f27c1f0b5d9188a7bcfda389534afffe670860de
-F src/export.c a4b23f78dee8e38ea18cc520b3dd579940fedc865f3184eff2bed0fb5577b56a
+F src/export.c aabb0b354d44aae99e17f8b830201cc03d694c6a410bac991433c63a7319391e
 F src/extcgi.c 8263a26ede42d9684504d47c8c2869e3fd99a6df9a77775f9af7bd387125721d
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 90dbe9306cec39a17daa1c00681902629791030db5545e4f99bac150fee83815
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b1c5bc8fe80f701b1876068afd24bb029797ebdc7c63fac43c52cd3811d8390
-R 4f8c71e1dfbf75019ff27c776ae88c3c
-U drh
-Z 3e8467ec82f3c9347b044d211c45d511
+P 93a5d659b350fd9d0f60a4d39aaf565fc42512eaa38a33fc88baef4e417b537c
+R 297d9df9f96db0f656f2b849067db019
+U jamsek
+Z a78191f1df211ed0df0c1b4cc889638b

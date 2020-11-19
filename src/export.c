@@ -1172,6 +1172,7 @@ static int gitmirror_send_checkin(
   ** from user table for <emailaddr> in committer field. If no emailaddr, check
   ** if username is in email form, otherwise use generic 'username@noemail.net'.
   */
+  char *zTmp;
   if (db_table_exists("repository", "fx_git")) {
     zEmail = db_text(0, "SELECT email FROM fx_git WHERE user=%Q", pMan->zUser);
   } else {
@@ -1185,6 +1186,11 @@ static int gitmirror_send_checkin(
     } else {
       zEmail = fossil_strdup(pMan->zUser);
     }
+  } else if ((zTmp = strchr(zEmail, '<')) != NULL) {
+    ++zTmp;
+    char *zTmpEnd = strchr(zTmp, '>');
+    *(zTmpEnd) = '\0';
+    zEmail = fossil_strdup(zTmp);
   }
   fprintf(xCmd, "committer %s <%s> %s +0000\n", pMan->zUser, zEmail, buf);
   fossil_free(zEmail);
