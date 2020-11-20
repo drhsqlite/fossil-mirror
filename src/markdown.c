@@ -516,7 +516,7 @@ static void skip_codespan(const char *data, size_t size, size_t *pI){
 
 /* find_emph_char -- looks for the next emph char, skipping other constructs */
 static size_t find_emph_char(char *data, size_t size, char c){
-  size_t i = 1;
+  size_t i = data[0]!='`';
 
   while( i<size ){
     while( i<size && data[i]!=c && data[i]!='`' && data[i]!='[' ){ i++; }
