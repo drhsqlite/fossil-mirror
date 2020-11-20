@@ -3758,7 +3758,7 @@ static void boxRender(Pik *p, PObj *pObj){
       pik_append_arc(p, rad, rad, x1, y0);
       pik_append(p,"Z\" ",-1);
     }
-    pik_append_style(p,pObj,1);
+    pik_append_style(p,pObj,3);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pObj, 0);
@@ -3820,7 +3820,7 @@ static void circleRender(Pik *p, PObj *pObj){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," r=\"", r, "\" ");
-    pik_append_style(p,pObj,1);
+    pik_append_style(p,pObj,3);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pObj, 0);
@@ -3850,7 +3850,7 @@ static void cylinderRender(Pik *p, PObj *pObj){
     pik_append_arc(p,w2,rad,pt.x-w2,pt.y+h2-rad);
     pik_append_arc(p,w2,rad,pt.x+w2,pt.y+h2-rad);
     pik_append(p,"\" ",-1);
-    pik_append_style(p,pObj,1);
+    pik_append_style(p,pObj,3);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pObj, 0);
@@ -3912,7 +3912,7 @@ static void dotRender(Pik *p, PObj *pObj){
     pik_append_x(p,"<circle cx=\"", pt.x, "\"");
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," r=\"", r, "\"");
-    pik_append_style(p,pObj,1);
+    pik_append_style(p,pObj,2);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pObj, 0);
@@ -3971,7 +3971,7 @@ static void ellipseRender(Pik *p, PObj *pObj){
     pik_append_y(p," cy=\"", pt.y, "\"");
     pik_append_dis(p," rx=\"", w/2.0, "\"");
     pik_append_dis(p," ry=\"", h/2.0, "\" ");
-    pik_append_style(p,pObj,1);
+    pik_append_style(p,pObj,3);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pObj, 0);
@@ -4083,7 +4083,7 @@ static void lineRender(Pik *p, PObj *pObj){
       pObj->fill = -1.0;
     }
     pik_append(p,"\" ",-1);
-    pik_append_style(p,pObj,pObj->bClose);
+    pik_append_style(p,pObj,pObj->bClose?3:0);
     pik_append(p,"\" />\n", -1);
   }
   pik_append_txt(p, pObj, 0);
@@ -4183,7 +4183,7 @@ static void radiusPath(Pik *p, PObj *pObj, PNum r){
     pObj->fill = -1.0;
   }
   pik_append(p,"\" ",-1);
-  pik_append_style(p,pObj,pObj->bClose);
+  pik_append_style(p,pObj,pObj->bClose?3:0);
   pik_append(p,"\" />\n", -1);
 }
 static void splineRender(Pik *p, PObj *pObj){
@@ -4571,6 +4571,9 @@ static void pik_append_point(Pik *p, const char *z, PPoint *pPt){
 
 /*
 ** Invert the RGB color so that it is appropriate for dark mode.
+** Variable x hold the initial color.  The color is intended for use
+** as a background color if isBg is true, and as a foreground color
+** if isBg is false.
 */
 static int pik_color_to_dark_mode(int x, int isBg){
   int r, g, b;
@@ -4636,6 +4639,14 @@ static void pik_append_dis(Pik *p, const char *z1, PNum v, const char *z2){
   buf[sizeof(buf)-1] = 0;
   pik_append(p, buf, -1);
 }
+
+/* Append a color specification to the output.
+**
+** In PIKCHR_DARK_MODE, the color is inverted.  The "bg" flags indicates that
+** the color is intended for use as a background color if true, or as a
+** foreground color if false.  The distinction only matters for color
+** inversions in PIKCHR_DARK_MODE.
+*/
 static void pik_append_clr(Pik *p,const char *z1,PNum v,const char *z2,int bg){
   char buf[200];
   int x = (int)v;
@@ -4670,11 +4681,25 @@ static void pik_append_arc(Pik *p, PNum r1, PNum r2, PNum x, PNum y){
 
 /* Append a style="..." text.  But, leave the quote unterminated, in case
 ** the caller wants to add some more.
+**
+** eFill is non-zero to fill in the background, or 0 if no fill should
+** occur.  Non-zero values of eFill determine the "bg" flag to pik_append_clr()
+** for cases when pObj->fill==pObj->color
+**
+**     1        fill is background, and color is foreground.
+**     2        fill and color are both foreground.  (Used by "dot" objects)
+**     3        fill and color are both background.  (Used by most other objs)
 */
-static void pik_append_style(Pik *p, PObj *pObj, int bFill){
+static void pik_append_style(Pik *p, PObj *pObj, int eFill){
+  int clrIsBg = 0;
   pik_append(p, " style=\"", -1);
-  if( pObj->fill>=0 && bFill ){
-    pik_append_clr(p, "fill:", pObj->fill, ";",1);
+  if( pObj->fill>=0 && eFill ){
+    int fillIsBg = 1;
+    if( pObj->fill==pObj->color ){
+      if( eFill==2 ) fillIsBg = 0;
+      if( eFill==3 ) clrIsBg = 1;
+    }
+    pik_append_clr(p, "fill:", pObj->fill, ";", fillIsBg);
   }else{
     pik_append(p,"fill:none;",-1);
   }
@@ -4684,7 +4709,7 @@ static void pik_append_style(Pik *p, PObj *pObj, int bFill){
     if( pObj->nPath>2 && pObj->rad<=pObj->sw ){
       pik_append(p, "stroke-linejoin:round;", -1);
     }
-    pik_append_clr(p, "stroke:",pObj->color,";",0);
+    pik_append_clr(p, "stroke:",pObj->color,";",clrIsBg);
     if( pObj->dotted>0.0 ){
       PNum v = pObj->dotted;
       if( sw<2.1/p->rScale ) sw = 2.1/p->rScale;
@@ -4804,6 +4829,7 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
   PNum hc = 0.0;    /* Height of the center row */
   PNum hb1 = 0.0;   /* Height of the first "below" row of text */
   PNum hb2 = 0.0;   /* Height of the second "below" row */
+  PNum yBase = 0.0;
   int n, i, nz;
   PNum x, y, orig_y, s;
   const char *z;
@@ -4817,7 +4843,11 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
   pik_txt_vertical_layout(pObj);
   x = pObj->ptAt.x;
   for(i=0; i<n; i++) allMask |= pObj->aTxt[i].eCode;
-  if( pObj->type->isLine ) hc = pObj->sw*1.5;
+  if( pObj->type->isLine ){
+    hc = pObj->sw*1.5;
+  }else if( pObj->type->xInit==cylinderInit ){
+    yBase = -0.75*pObj->rad;
+  }
   if( allMask & TP_CENTER ){
     for(i=0; i<n; i++){
       if( pObj->aTxt[i].eCode & TP_CENTER ){
@@ -4868,7 +4898,7 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
     PNum xtraFontScale = pik_font_scale(t);
     PNum nx = 0;
     orig_y = pObj->ptAt.y;
-    y = 0;
+    y = yBase;
     if( t->eCode & TP_ABOVE2 ) y += 0.5*hc + ha1 + 0.5*ha2;
     if( t->eCode & TP_ABOVE  ) y += 0.5*hc + 0.5*ha1;
     if( t->eCode & TP_BELOW  ) y -= 0.5*hc + 0.5*hb1;
@@ -7854,4 +7884,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 7882 "pikchr.c"
+#line 7912 "pikchr.c"
