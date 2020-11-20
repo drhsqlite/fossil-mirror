@@ -3834,7 +3834,7 @@ static void cylinderInit(Pik *p, PObj *pObj){
 }
 static void cylinderFit(Pik *p, PObj *pObj, PNum w, PNum h){
   if( w>0 ) pObj->w = w;
-  if( h>0 ) pObj->h = h + 4*pObj->rad + pObj->sw;
+  if( h>0 ) pObj->h = h + 0.25*pObj->rad + pObj->sw;
   UNUSED_PARAMETER(p);
 }
 static void cylinderRender(Pik *p, PObj *pObj){
@@ -4845,7 +4845,7 @@ static void pik_append_txt(Pik *p, PObj *pObj, PBox *pBox){
   for(i=0; i<n; i++) allMask |= pObj->aTxt[i].eCode;
   if( pObj->type->isLine ){
     hc = pObj->sw*1.5;
-  }else if( pObj->type->xInit==cylinderInit ){
+  }else if( pObj->rad>0.0 && pObj->type->xInit==cylinderInit ){
     yBase = -0.75*pObj->rad;
   }
   if( allMask & TP_CENTER ){
