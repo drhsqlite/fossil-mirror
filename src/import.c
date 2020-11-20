@@ -1949,11 +1949,12 @@ void import_cmd(void){
     ** to either a desired username or full contact information string.
     */
     if(ggit.nGitAttr > 0) {
+      int idx;
       db_unprotect(PROTECT_ALL);
       db_multi_exec(
         "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
       );
-      for( int idx = 0; idx < ggit.nGitAttr; ++idx ){
+      for(idx = 0; idx < ggit.nGitAttr; ++idx ){
         db_multi_exec(
             "INSERT OR IGNORE INTO fx_git(user, email) VALUES(%Q, %Q)",
             ggit.gitUserInfo[idx].zUser, ggit.gitUserInfo[idx].zEmail
