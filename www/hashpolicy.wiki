@@ -53,11 +53,11 @@ being hashed is specifically designed to exploit the known weaknesses
 in the SHA1 algorithm, and when it detects such an attack it changes
 the hash algorithm (by increasing the number of rounds in the compression
 function) to make the algorithm secure again.  If the attack detection
-gets a false possible, that means that Hardened SHA1 will get a different
+gets a false-positive, that means that Hardened SHA1 will get a different
 answer than the standard FIPS PUB 180-4 SHA1, but the creators of
 Hardened SHA1 (see the second paper
 &#91;[https://marc-stevens.nl/research/papers/C13-S.pdf|2]&#93;)
-report that the probability of a false positive is vanishingly small -
+report that the probability of a false-positive is vanishingly small -
 less than 1 false positive out of 10<sup><font size=1>27</font></sup>
 hashes.
 

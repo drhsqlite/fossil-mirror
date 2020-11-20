@@ -1,5 +1,5 @@
-C Fix\sincorrect\sparsing\sof\sRFC\s822\suser\scontact\sinfo\swhen\sexporting\sto\sa\sGit\srepository\sas\sreported\sby\sWarren\sin\s[forum:/info/29e358909c|forum\spost\s29e358909c].
-D 2020-11-19T13:34:31.161
+C Fix\sa\stypo\sin\sthe\shashpolicy.wiki\sdocument.
+D 2020-11-20T00:53:49.310
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -884,7 +884,7 @@ F www/globs.md fb92287b95e7fc588a768f5961b3268a1b8d82c4b3e657ee0453f988825ebc72
 F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 0387dfae77f1ff423f1b554055d9211317cfb58c42096c419aa3b049b0e1a342
-F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
+F www/hashpolicy.wiki 59b6a5175af49ec5cbec767321f4fdd9a27338c019fdbfc846fd51d59f570b67
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/history.md 623088f2e3c27956411551d416e5e53f3e9c1249e0ab70399fbc79c16bb48a9b
 F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93a5d659b350fd9d0f60a4d39aaf565fc42512eaa38a33fc88baef4e417b537c
-R 297d9df9f96db0f656f2b849067db019
-U jamsek
-Z a78191f1df211ed0df0c1b4cc889638b
+P 9360b66a67086d6421383326904ab470ba4f5a9593124b5b96a956202e3c378b
+R da814f4cece3f650218b0311ecd6a3fb
+U drh
+Z eed92f61f349ec7e54a5521d3f7031e5
