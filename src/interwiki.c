@@ -76,19 +76,22 @@ char *interwiki_url(const char *zTarget){
   const char *zPage;
   int nPage;
   char *zUrl = 0;
-  Stmt q;
+  char *zName;
+  static Stmt q;
   for(i=0; fossil_isalnum(zTarget[i]); i++){}
   if( zTarget[i]!=':' ) return 0;
   nCode = i;
   if( nCode==4 && strncmp(zTarget,"wiki",4)==0 ) return 0;
   zPage = zTarget + nCode + 1;
   nPage = (int)strlen(zPage);
-  db_prepare(&q, 
+  db_static_prepare(&q, 
      "SELECT json_extract(value,'$.base'),"
            " json_extract(value,'$.hash'),"
            " json_extract(value,'$.wiki')"
-     " FROM config WHERE name=lower('interwiki:%.*q')",
-     nCode, zTarget);
+     " FROM config WHERE name=lower($name)"
+  );
+  zName = mprintf("interwiki:%.*s", nCode, zTarget);
+  db_bind_text(&q, "$name", zName);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBase = db_column_text(&q,0);
     if( zBase==0 || zBase[0]==0 ) break;
@@ -110,7 +113,8 @@ char *interwiki_url(const char *zTarget){
     }
     break;
   }
-  db_finalize(&q);
+  db_reset(&q);
+  free(zName);
   return zUrl;
 }
 

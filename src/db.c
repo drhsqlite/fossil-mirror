@@ -2778,7 +2778,10 @@ int db_sql_trace(unsigned m, void *notUsed, void *pP, void *pX){
   if( m & SQLITE_TRACE_PROFILE ){
     sqlite3_int64 nNano = *(sqlite3_int64*)pX;
     double rMillisec = 0.000001 * nNano;
-    sqlite3_snprintf(sizeof(zEnd),zEnd," /* %.3fms */\n", rMillisec);
+    int nRun = sqlite3_stmt_status(pStmt, SQLITE_STMTSTATUS_RUN, 0);
+    int nVmStep = sqlite3_stmt_status(pStmt, SQLITE_STMTSTATUS_VM_STEP, 1);
+    sqlite3_snprintf(sizeof(zEnd),zEnd," /* %.3fms, %r run, %d vm-steps */\n",
+        rMillisec, nRun, nVmStep);
   }else{
     zEnd[0] = '\n';
     zEnd[1] = 0;
@@ -3091,12 +3094,26 @@ char *db_get(const char *zName, const char *zDefault){
   char *z = 0;
   const Setting *pSetting = db_find_setting(zName, 0);
   if( g.repositoryOpen ){
-    z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
+    static Stmt q1;
+    const char *zRes;
+    db_static_prepare(&q1, "SELECT value FROM config WHERE name=$n");
+    db_bind_text(&q1, "$n", zName);
+    if( db_step(&q1)==SQLITE_ROW && (zRes = db_column_text(&q1,0))!=0 ){
+      z = fossil_strdup(zRes);
+    }
+    db_reset(&q1);
   }
   if( z==0 && g.zConfigDbName ){
+    static Stmt q2;
+    const char *zRes;
     db_swap_connections();
-    z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
+    db_static_prepare(&q2, "SELECT value FROM global_config WHERE name=$n");
     db_swap_connections();
+    db_bind_text(&q2, "$n", zName);
+    if( db_step(&q2)==SQLITE_ROW && (zRes = db_column_text(&q2,0))!=0 ){
+      z = fossil_strdup(zRes);
+    }
+    db_reset(&q2);
   }
   if( pSetting!=0 && pSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
@@ -3176,20 +3193,27 @@ int db_get_int(const char *zName, int dflt){
   int v = dflt;
   int rc;
   if( g.repositoryOpen ){
-    Stmt q;
-    db_prepare(&q, "SELECT value FROM config WHERE name=%Q", zName);
+    static Stmt q;
+    db_static_prepare(&q, "SELECT value FROM config WHERE name=$n");
+    db_bind_text(&q, "$n", zName);
     rc = db_step(&q);
     if( rc==SQLITE_ROW ){
       v = db_column_int(&q, 0);
     }
-    db_finalize(&q);
+    db_reset(&q);
   }else{
     rc = SQLITE_DONE;
   }
   if( rc==SQLITE_DONE && g.zConfigDbName ){
+    static Stmt q2;
     db_swap_connections();
-    v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
+    db_static_prepare(&q2, "SELECT value FROM global_config WHERE name=$n");
     db_swap_connections();
+    db_bind_text(&q2, "$n", zName);
+    if( db_step(&q2)==SQLITE_ROW ){
+      v = db_column_int(&q2, 0);
+    }
+    db_reset(&q2);
   }
   return v;
 }

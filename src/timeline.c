@@ -228,6 +228,22 @@ int timeline_tableid(void){
 }
 
 /*
+** Return true if the checking identified by "rid" has a valid "closed"
+** tag.
+*/
+static int has_closed_tag(int rid){
+  static Stmt q;
+  int res = 0;
+  db_static_prepare(&q,
+     "SELECT 1 FROM tagxref WHERE rid=$rid AND tagid=%d AND tagtype>0",
+     TAG_CLOSED);
+  db_bind_int(&q, "$rid", rid);
+  res = db_step(&q)==SQLITE_ROW;
+  db_reset(&q);
+  return res;
+}
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -556,9 +572,7 @@ void www_print_timeline(
       if( zType[0]=='c' ){
         hyperlink_to_version(zUuid);
         if( isLeaf ){
-          if( db_exists("SELECT 1 FROM tagxref"
-                        " WHERE rid=%d AND tagid=%d AND tagtype>0",
-                        rid, TAG_CLOSED) ){
+          if( has_closed_tag(rid) ){
             @ <span class="timelineLeaf">Closed-Leaf:</span>
           }else{
             @ <span class="timelineLeaf">Leaf:</span>
@@ -657,9 +671,7 @@ void www_print_timeline(
     if( (tmFlags & TIMELINE_CLASSIC)==0 ){
       if( zType[0]=='c' ){
         if( isLeaf ){
-          if( db_exists("SELECT 1 FROM tagxref"
-                        " WHERE rid=%d AND tagid=%d AND tagtype>0",
-                        rid, TAG_CLOSED) ){
+          if( has_closed_tag(rid) ){
             @ <span class='timelineLeaf'>Closed-Leaf</span>
           }else{
             @ <span class='timelineLeaf'>Leaf</span>
