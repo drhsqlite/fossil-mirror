@@ -28,27 +28,34 @@
 ** We also encode " as &quot; and ' as &#39; so they can appear as an argument
 ** to markup.
 */
-char *htmlize(const char *zIn, int n){
-  int c;
+char *htmlize(const char *z, int n){
+  unsigned char c;
   int i = 0;
   int count = 0;
-  char *zOut;
+  unsigned char *zOut;
+  const unsigned char *zIn = (const unsigned char*)z;
 
-  if( n<0 ) n = strlen(zIn);
-  while( i<n && (c = zIn[i])!=0 ){
-    switch( c ){
-      case '<':   count += 4;       break;
-      case '>':   count += 4;       break;
-      case '&':   count += 5;       break;
-      case '"':   count += 6;       break;
-      case '\'':  count += 5;       break;
-      default:    count++;          break;
+  if( n<0 ) n = strlen(z);
+  while( i<n ){
+    switch( zIn[i] ){
+      case '<':   count += 3;       break;
+      case '>':   count += 3;       break;
+      case '&':   count += 4;       break;
+      case '"':   count += 5;       break;
+      case '\'':  count += 4;       break;
+      case 0:     n = i;            break;
     }
     i++;
   }
   i = 0;
-  zOut = fossil_malloc( count+1 );
-  while( n-->0 && (c = *zIn)!=0 ){
+  zOut = fossil_malloc( count+n+1 );
+  if( count==0 ){
+    memcpy(zOut, zIn, n);
+    zOut[n] = 0;
+    return (char*)zOut;
+  }
+  while( n-->0 ){
+    c = *(zIn++);
     switch( c ){
       case '<':
         zOut[i++] = '&';
@@ -88,10 +95,9 @@ char *htmlize(const char *zIn, int n){
         zOut[i++] = c;
         break;
     }
-    zIn++;
   }
   zOut[i] = 0;
-  return zOut;
+  return (char*)zOut;
 }
 
 /*
