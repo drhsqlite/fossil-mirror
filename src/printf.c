@@ -176,6 +176,7 @@ static const et_info fmtinfo[] = {
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
   {  '$',  0, 0, etSHELLESC,   0,  0 },
+  {  etERROR, 0,0,0,0,0}  /* Must be last */
 };
 #define etNINFO count(fmtinfo)
 
@@ -331,13 +332,14 @@ int vxprintf(
   bufpt = 0;
   for(; (c=(*fmt))!=0; ++fmt){
     if( c!='%' ){
-      int amt;
       bufpt = (char *)fmt;
-      amt = 1;
-      while( (c=(*++fmt))!='%' && c!=0 ) amt++;
-      blob_append(pBlob,bufpt,amt);
-      count += amt;
-      if( c==0 ) break;
+#if HAVE_STRCHRNUL
+      fmt = strchrnul(fmt, '%');
+#else
+      do{ fmt++; }while( *fmt && *fmt != '%' );
+#endif
+      blob_append(pBlob, bufpt, (int)(fmt - bufpt));
+      if( *fmt==0 ) break;
     }
     if( (c=(*++fmt))==0 ){
       errorflag = 1;
