@@ -675,6 +675,7 @@ int fossil_main(int argc, char **argv){
   }
 #endif
 
+  fossil_printf_selfcheck();
   fossil_limit_memory(1);
   if( sqlite3_libversion_number()<3034000 ){
     fossil_panic("Unsuitable SQLite version %s, must be at least 3.34.0",
