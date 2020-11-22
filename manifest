@@ -1,5 +1,5 @@
-C Added\snamed\sanchors\sin\sthe\s/fileedit\sdoc\spage.
-D 2020-11-22T06:54:18.054
+C Add\ssupport\sfor\sthe\spikchr-scale\sand\spikchr-fontscale\svariables\sin\sthe\ndetails.txt\sof\sskins.\s\sUse\sthese\svalues\sto\sadjust\sthe\ssizes\sof\sPikchr\nimages\sto\sbetter\smatch\salternative\sfont\ssizes\sin\sthe\sskin.
+D 2020-11-22T12:35:35.503
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab1310
 F src/manifest.c 5a6db9ea6719ef18e2eac993ae3fa76e9bdb0e25c0defd3542cfbe96219f9445
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
-F src/markdown_html.c 2eba7d08f73369657c624c8c547a3cf776dcb7464973ca6dbb33142e9f583463
+F src/markdown_html.c 6458055892bc435d7d2891fa63e0a0efef0ffc4471518dad8e2fa49c7e275fb2
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
@@ -588,7 +588,7 @@ F src/shell.c 0d6bb839b4d2cbac3f0d7d5776569984f8bb42f0e17a220ca04a26ac331b4283
 F src/shun.c dca052cd4c8da77d91b72e67da3955b13285d4fbeb5e3f1ea7a66f81d9633c20
 F src/sitemap.c ccbe04430599915a463085a112937c2e7f570ba640b8afe119f2f5ad6db0ee94
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 48ba76eec452fc5252d59bf9ca7791f7a82f05f6f792477c14f7e936add29efe
+F src/skins.c 0fbf7b8336578fecd92e95a64ef1987016ba3e3bd93a07c0ca26026cce9beda4
 F src/smtp.c 52dfead409110bdf4faa476f2b48909a87b1ec19119f551534144cd332f5cf23
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c1d38f97b4ecf18ae95f36c42936dd5ad6bf276e31176fac3f9afd1d26be9f0
-R 31109aad941dfbdaf03676ab012d12bc
-U wyoung
-Z 6472ff9d3039b7288ab0437716417df1
+P 66851cd6bc9091f26280331ceddbf76cb29987f0eb18fee814073968fe1cc545
+R ef17349cf0ae40dafc1a725095266b2e
+U drh
+Z b65d21595e0dacb45c9bdf24e86b8243

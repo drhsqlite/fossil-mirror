@@ -87,7 +87,9 @@ static struct SkinDetail {
   const char *zName;      /* Name of the detail */
   const char *zValue;     /* Value of the detail */
 } aSkinDetail[] = {
+  { "pikchr-fontscale",           ""      },
   { "pikchr-foreground",          ""      },
+  { "pikchr-scale",               ""      },
   { "timeline-arrowheads",        "1"     },
   { "timeline-circle-nodes",      "0"     },
   { "timeline-color-graph-lines", "0"     },
