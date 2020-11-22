@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sthe\spikchr-scale\sand\spikchr-fontscale\svariables\sin\sthe\ndetails.txt\sof\sskins.\s\sUse\sthese\svalues\sto\sadjust\sthe\ssizes\sof\sPikchr\nimages\sto\sbetter\smatch\salternative\sfont\ssizes\sin\sthe\sskin.
-D 2020-11-22T12:35:35.503
+C Minor\stypo\sfix\sin\s/pikchrshow.
+D 2020-11-22T13:18:20.347
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -562,7 +562,7 @@ F src/name.c 24044e7bc1904c4cdcaaed51b942036a87f9c1ba82ef391c7be6397b281bd46c
 F src/path.c 5f2b9fcfad75eef31d4fa8abd8400cb51e3dc1fc7489d25c8c9a7c63eb65f651
 F src/piechart.c 9ba5a85eab667304c49595e51ba2b21141fd8c9842197cd4bd968ddb7589b3b5
 F src/pikchr.c fca44f9cf4d1cbaec7cd6547512befbc2613d354c350a9254d83e5be901416bf
-F src/pikchrshow.c 680a22f971aba9c6ce9d1cb4cc64856e5013b7137543717847953a5cbdcacbaf
+F src/pikchrshow.c 003be715a7c7ce644a0c421a03e9362d5b38e2e5e8e62f0cc0fa7f4e5eadfb99
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 66851cd6bc9091f26280331ceddbf76cb29987f0eb18fee814073968fe1cc545
-R ef17349cf0ae40dafc1a725095266b2e
-U drh
-Z b65d21595e0dacb45c9bdf24e86b8243
+P 08fe2bdc0d0d17853d5c32cf07f0f37f959414553c9017f29e12658cf88fb822
+R 8177bd25bc154a6277894ffa40c8ad7a
+U stephan
+Z 69c24b02d4b8d707585cb550411428d2
