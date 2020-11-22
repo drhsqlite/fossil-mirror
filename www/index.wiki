@@ -3,7 +3,7 @@
 <h3>What Is Fossil?</h3>
 
 <div style='width:200px;float:right;border:2px solid #446979;padding:10px;margin:0px 10px;'>
-<ul>
+<ul style="margin-left:0">
 <li> [/uv/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]

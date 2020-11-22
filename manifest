@@ -1,5 +1,5 @@
-C First\sin\sa\spotential\sseries\sof\smany\schanges\sto\sdoc\smarkup\sin\sthis\srepo\n(especially\sto\swww/*)\sto\swork\sbetter\swith\sthe\sInskinerator\sproject's\nModern\soverride.\s\sThis\sone\schanges\san\sexplicit\sHTML\stable\sin\nwww/rebaseharm.md\sto\sa\sMarkdown\stable\sso\sour\sCSS\scan\stake\sfull\seffect.
-D 2020-11-22T14:05:24.318
+C Backed\sout\sthe\s"ul"\sleft\smargin\son\sthe\sindex\spage's\sfloat-right\sdiv.
+D 2020-11-22T14:37:03.359
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -891,7 +891,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 9a6dc73a00da6f71b20fcddb4aa16c3ffe00c92ab9b0762d4baad3bff4541dc8
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki ec9f990fa0ab801d93260e0a0c7729c7bc1f1eb803b345fbbe4448b28fea4415
+F www/index.wiki db7af090aadac8111fc900174c34e2a76af1c338f9f34359de890f02e412dc79
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 257bb6c25527662ea164316a9187db07d52fc1e8a9edb48014d1f56b6b0ea243
@@ -986,10 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09cd585f80c6c13a17d17d9680e18768947fe2cc7984adedddb4a619541dab27
-R a3df243c36e6db6f32b1c1b729d5d007
-T *branch * modern-skin-markup-fixes
-T *sym-modern-skin-markup-fixes *
-T -sym-trunk *
+P facb988055fe014dcde591432248f750f3e5966d930ff8b35f6b3c2f32bda5f4
+R 03e4015fe7a5f5f3a91744878fdf4cd5
 U wyoung
-Z 3903922bb644afc2e4e0bdda78dfb6f0
+Z 9c8e9ad29ef8a2fc64d4521ba3734012
