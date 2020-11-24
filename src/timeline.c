@@ -1736,8 +1736,10 @@ void page_timeline(void){
   int advancedMenu = 0;               /* Use the advanced menu design */
   char *zPlural;                      /* Ending for plural forms */
   int showCherrypicks = 1;            /* True to show cherrypick merges */
+  int haveParameterN;                 /* True if n= query parameter present */
 
   /* Set number of rows to display */
+  haveParameterN = P("n")!=0;
   cookie_read_parameter("n","n");
   z = P("n");
   if( z==0 ) z = db_get("timeline-default-length",0);
@@ -2066,7 +2068,6 @@ void page_timeline(void){
         glob_expr("filename.name", zChng)
       );
     }
-//    tmFlags |= TIMELINE_DISJOINT;
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
@@ -2120,6 +2121,7 @@ void page_timeline(void){
     if( p_rid ){
       zBackTo = P("bt");
       ridBackTo = zBackTo ? name_to_typed_rid(zBackTo,"ci") : 0;
+      if( !haveParameterN ) nEntry = 0;
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 || nd==0 ){
