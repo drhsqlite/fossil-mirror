@@ -1010,7 +1010,7 @@ static const char zOptions[] =
 ** These options can be used when TOPIC is present:
 **
 **    -h|--html         Format output as HTML rather than plain text
-**    -c|--command      Restrict TOPIC search to commands
+**    -c|--commands     Restrict TOPIC search to commands
 */
 void help_cmd(void){
   int rc;

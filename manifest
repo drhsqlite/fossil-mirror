@@ -1,12 +1,9 @@
 B 34f5ea44038583fe7bd255659bf28272b574b18bfc2e434c2ffe2ac363a93bc1
-C When\susing\s"fossil\scommand\s--help"\srestrict\sthe\sambiguous\smatching\sto\sjust\ncommands\sto\savoid\sbreaking\sprefixes\sthat\sotherwise\swork\sfine\sas\sa\scommand.\nFor\sexample,\s"fossil\sdi"\sworks\sfine\sas\sa\scommand,\sbut\s"fossil\sdi\s--help"\nsuddenly\smakes\sit\sambiguous.
-D 2020-11-25T20:55:12.563
-F src/dispatch.c ef6f584e0d68d927ab96eab2da7dd4f7a962579ee5cf8203f56b94b5ee1840f3
+C Restore\slost\s's'\sfrom\scommand-line\soption\sso\sdocumentation\smatches\scode.
+D 2020-11-25T20:59:03.554
+F src/dispatch.c 42cd4de2ac41c9e4923f45268bc6aaa1bbeecd886c831e82d113f7cc605fa76b
 F src/main.c 02d320b074f59dd3ec825f60e63b89434b652d169c0c998914f18cca55c9a6ae
-P 34f5ea44038583fe7bd255659bf28272b574b18bfc2e434c2ffe2ac363a93bc1
-R f4bbb2f351e2bff3adfe83479c8d7ec7
-T *branch * ambiguous-help
-T *sym-ambiguous-help *
-T -sym-trunk *
+P 99f650af0d26c232013ef9d6d69b02cca395d3e61a51acf1a83e5bf25cd517bf
+R 1e86718fd797574c413a1322ad44740a
 U andybradford
-Z ac38a9124c09c096853ba3e8766e9ddc
+Z c61afaffc5214a1421a22439665a0d4e
