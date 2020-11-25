@@ -606,14 +606,20 @@ void www_print_timeline(
         wiki_hyperlink_override(zUuid);
         if( zCom[0]=='-' ){
           @ Deleted wiki page "%z(href("%R/whistory?name=%t",zCom+1))\
-        }else if( (tmFlags & TIMELINE_REFS)!=0 ){
-          @ Wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
+          @ %h(zCom+1)</a>
+        }else if( (tmFlags & TIMELINE_REFS)!=0
+               && (zCom[0]=='+' || zCom[0]==':') ){
+          @ Wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>
         }else if( zCom[0]=='+' ){
-          @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
-        }else{
+          @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>
+        }else if( zCom[0]==':' ){
           @ Changes to wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
+          @ %h(zCom+1)</a>
+        }else{
+          /* Legacy EVENT table entry that needs to be rebuilt */
+          @ Changes to a wiki page &rarr; Obsolete EVENT table information.
+          @ Run "fossil rebuild" on the repository.
         }
-        @ %h(zCom+1)</a>"
         wiki_hyperlink_override(0);
       }else{
         wiki_convert(&comment, 0, WIKI_INLINE);
