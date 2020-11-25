@@ -2673,6 +2673,7 @@ void page_timeline(void){
 **    5.  Number of parents
 **    6.  mtime
 **    7.  branch
+**    8.  event-type: 'ci', 'w', 't', 'f', and so forth.
 */
 void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
   int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
@@ -2697,6 +2698,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     const char *zCom = db_column_text(q, 3);
     int nChild = db_column_int(q, 4);
     int nParent = db_column_int(q, 5);
+    const char *zType = db_column_text(q, 8);
     char *zFree = 0;
     int n = 0;
     char zPrefix[80];
@@ -2740,7 +2742,18 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*UNPUBLISHED* ");
       n += strlen(zPrefix+n);
     }
-    zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
+    if( zType[0]=='w' && (zCom[0]=='+' || zCom[0]=='-' || zCom[0]==':') ){
+      /* Special processing for Wiki comments */
+      if( zCom[0]=='+' ){
+        zFree = mprintf("[%S] Add wiki page \"%s\"", zId, zCom+1);
+      }else if( zCom[0]=='-' ){
+        zFree = mprintf("[%S] Delete wiki page \"%s\"", zId, zCom+1);
+      }else{
+        zFree = mprintf("[%S] Edit to wiki page \"%s\"", zId, zCom+1);
+      }
+    }else{
+      zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
+    }
     /* record another X lines */
     nLine += comment_print(zFree, zCom, 9, width, get_comment_format());
     fossil_free(zFree);
@@ -2810,7 +2823,8 @@ const char *timeline_query_for_tty(void){
     @        AS primPlinkCount,
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
     @   event.mtime AS mtime,
-    @   tagxref.value AS branch
+    @   tagxref.value AS branch,
+    @   event.type
     @ FROM tag CROSS JOIN event CROSS JOIN blob
     @      LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
     @   AND tagxref.tagtype>0
