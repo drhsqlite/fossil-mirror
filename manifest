@@ -1,5 +1,5 @@
-C On\sthe\s/timeline\spage,\sif\sthe\sp=\sand\sbt=\squery\sparameters\sare\sboth\spresent\nbut\sn=\sis\somitted,\sthen\smake\sn\sas\slarge\sas\sit\sneeds\sto\sbe\sto\scover\sall\nancestors\sof\sp=\sback\sto\sthe\slimiting\scheckin\sspecified\sby\sbt=.
-D 2020-11-24T21:24:28.185
+C Change\sthe\sway\sthat\swiki\sedits\sare\sstored\sin\sthe\sEvent\stable\sin\sorder\sto\naddress\sticket\s[4e558dbf3d2511ce].\s\sThe\sEvent.comment\sfield\sfor\sa\swiki\spage\nchange\snow\sstores\sjust\sthe\sraw\sname\sof\sthe\swiki\spage\sprefixed\swith\sa\ssingle\ncharacter\s"+",\s"-",\sor\s":"\sto\sindicate\sif\sthe\spage\swas\sadded,\sdeleted,\sor\nmodified,\srespectively.\s\sFormatting\sis\shandled\sby\sthe\stimeline\srendering.\n<b>A\s"fossil\srebuild"\sis\srequired.</b>\s\sThe\s"timeline"\scommand\sis\snot\syet\nfixed.
+D 2020-11-25T21:22:52.039
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -545,7 +545,7 @@ F src/main.mk 7fbf63cd4d00405563440e54d6d567846111dccb2c1a52f53438a8e9b291f085
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 35f38a0dcf1c9be9649ac16194c76399b52263579a05b916a98aae3ab13108cf x
-F src/manifest.c 5a6db9ea6719ef18e2eac993ae3fa76e9bdb0e25c0defd3542cfbe96219f9445
+F src/manifest.c 1a33aa1150b482496a8f45bba8b62d82ce81d6b62ad66a2ce45d95c7bd2d77bf
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
 F src/markdown_html.c 6458055892bc435d7d2891fa63e0a0efef0ffc4471518dad8e2fa49c7e275fb2
@@ -628,7 +628,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 4fa837f2a4bb35caba0fd5e584ff2934bce308861c39dedfe961c5dc62bce41a
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 1106055ec4b903354cacf07120c2e8b261ec6aacbc3df51b7a3d469934301c85
+F src/timeline.c c540643cb41cb2cb8a18195662c3c6a6fabca029045bab9d76f44dd3e689606e
 F src/tkt.c c4260df872cda61f76e9217374a5974f3c386093f6e57731b27c4a4f08d46b0b
 F src/tktsetup.c e3f94db2227764dfb2d8d165dc8d82ec81c73ba4606c8e78d0db8d1d2c5c55e2
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39b114c19f69d2fb86471b53cca7f2da9dfd1d163ee7da56858c8d35008857d9
-R a3106983eef7929d84b8f5a4d9fd3c61
+P 34f5ea44038583fe7bd255659bf28272b574b18bfc2e434c2ffe2ac363a93bc1
+R 4c382aee3697fc222bade84d2782b7bc
 U drh
-Z 6f5da9a60a42716bbff965afb6b478f2
+Z 22b79deb73ad9428397e7f1e1a9053f7
