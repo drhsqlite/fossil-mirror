@@ -1010,9 +1010,11 @@ static const char zOptions[] =
 ** These options can be used when TOPIC is present:
 **
 **    -h|--html         Format output as HTML rather than plain text
+**    -c|--commands     Restrict TOPIC search to commands
 */
 void help_cmd(void){
   int rc;
+  int mask = CMDFLAG_ANY;
   int isPage = 0;
   const char *z;
   const char *zCmdOrPage;
@@ -1058,10 +1060,13 @@ void help_cmd(void){
   isPage = ('/' == *g.argv[2]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
+  }else if( find_option("commands","c",0)!=0 ){
+    mask = CMDFLAG_COMMAND;
+    zCmdOrPage = "command";
   }else{
     zCmdOrPage = "command or setting";
   }
-  rc = dispatch_name_search(g.argv[2], CMDFLAG_ANY|CMDFLAG_PREFIX, &pCmd);
+  rc = dispatch_name_search(g.argv[2], mask|CMDFLAG_PREFIX, &pCmd);
   if( rc ){
     int i, n;
     const char *az[5];
@@ -1071,15 +1076,16 @@ void help_cmd(void){
       fossil_print("ambiguous %s prefix: %s\n",
                  zCmdOrPage, g.argv[2]);
     }
-    fossil_print("Did you mean one of:\n");
+    fossil_print("Did you mean one of these TOPICs:\n");
     n = dispatch_approx_match(g.argv[2], 5, az);
     for(i=0; i<n; i++){
       fossil_print("  *  %s\n", az[i]);
     }
     fossil_print("Also consider using:\n");
-    fossil_print("   fossil help -a     ;# show all commands\n");
-    fossil_print("   fossil help -w     ;# show all web-pages\n");
-    fossil_print("   fossil help -s     ;# show all settings\n");
+    fossil_print("   fossil help TOPIC     ;# show help on TOPIC\n");
+    fossil_print("   fossil help -a        ;# show all commands\n");
+    fossil_print("   fossil help -w        ;# show all web-pages\n");
+    fossil_print("   fossil help -s        ;# show all settings\n");
     fossil_exit(1);
   }
   z = pCmd->zHelp;

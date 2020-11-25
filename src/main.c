@@ -798,14 +798,15 @@ int fossil_main(int argc, char **argv){
        * does not begin with a "-" character.  If all arguments start with "-",
        * translate to "fossil help argv[1] argv[2]...". */
       int i, nNewArgc;
-      char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+2) );
+      char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+3) );
       zNewArgv[0] = g.argv[0];
       zNewArgv[1] = "help";
+      zNewArgv[2] = "-c";
       for(i=1; i<g.argc; i++){
         if( g.argv[i][0]!='-' ){
-          nNewArgc = 3;
-          zNewArgv[2] = g.argv[i];
-          zNewArgv[3] = 0;
+          nNewArgc = 4;
+          zNewArgv[3] = g.argv[i];
+          zNewArgv[4] = 0;
           break;
         }
       }
