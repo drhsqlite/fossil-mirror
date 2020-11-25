@@ -1,9 +1,9 @@
 B 34f5ea44038583fe7bd255659bf28272b574b18bfc2e434c2ffe2ac363a93bc1
-C Restore\slost\s's'\sfrom\scommand-line\soption\sso\sdocumentation\smatches\scode.
-D 2020-11-25T20:59:03.554
-F src/dispatch.c 42cd4de2ac41c9e4923f45268bc6aaa1bbeecd886c831e82d113f7cc605fa76b
+C Eliminate\sunnecessary\svariable.
+D 2020-11-25T21:14:38.897
+F src/dispatch.c 11538cc43e550e649e05f1acc8b5ae9971cb374bfe239d0264d0837445dbaf6f
 F src/main.c 02d320b074f59dd3ec825f60e63b89434b652d169c0c998914f18cca55c9a6ae
-P 99f650af0d26c232013ef9d6d69b02cca395d3e61a51acf1a83e5bf25cd517bf
-R 1e86718fd797574c413a1322ad44740a
+P 3eaaa56583605cbe66eed8af9b526f3446e8e1a37eeb5113ba01fb18a53d55e0
+R 6102f399c27fa0df83a5f6a111200f91
 U andybradford
-Z c61afaffc5214a1421a22439665a0d4e
+Z 49c304c16482c462df6fb59d87e52b4e

@@ -1020,7 +1020,6 @@ void help_cmd(void){
   const char *zCmdOrPage;
   const CmdOrPage *pCmd = 0;
   int useHtml = 0;
-  int fCmdsOnly = 0;
   Blob txt;
   if( g.argc<3 ){
     z = g.argv[0];
@@ -1057,12 +1056,11 @@ void help_cmd(void){
     command_list(0, CMDFLAG_SETTING);
     return;
   }
-  fCmdsOnly = find_option("commands","c",0)!=0;
   useHtml = find_option("html","h",0)!=0;
   isPage = ('/' == *g.argv[2]) ? 1 : 0;
   if(isPage){
     zCmdOrPage = "page";
-  }else if( fCmdsOnly ){
+  }else if( find_option("commands","c",0)!=0 ){
     mask = CMDFLAG_COMMAND;
     zCmdOrPage = "command";
   }else{
