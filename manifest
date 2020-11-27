@@ -1,5 +1,5 @@
-C Improve\sthe\s"--help"\soption\son\scommands\sso\sthat\sit\savoids\sambiguity\sby\nonly\slooking\sat\scommands\sin\sthe\shelp\sdictionary.
-D 2020-11-25T21:51:28.285
+C Set\san\sappropriate\sbase\sURL\sfor\sthe\s/file\spage\swhen\sit\sis\susing\sname=\nand\sci=\squery\sparameters.
+D 2020-11-27T13:08:40.284
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -515,7 +515,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c fa1a6c477bc6a7a6affb1817ffb67b6ca488b32521be6069b79236325e48e24c
-F src/info.c 1c88a4d0a60f3c866b05cc9b96628858c3be710a9b90f1cd0f3a5af5292c13fd
+F src/info.c 43db6c2f35ad1ca38045528583d7f37ba3dab592efd62f386c9db2b5e1f872fe
 F src/interwiki.c e5eab7694ba6ed0738703c7800cb3adb557d475bf0b1a8ef863d6abd2cd15032
 F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -986,8 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 471443b46424077046400be9053f0f9b6a4f2eb42eb748525de766196c5adb71 aca2988fdbae169a15ac32747e605d1d243bb60186912648ee3ccb12a30c5d9b
-R 0cdb3730bd3eab42b4bf2242749afd76
-T +closed aca2988fdbae169a15ac32747e605d1d243bb60186912648ee3ccb12a30c5d9b
+P 3091605fdf469d2f9b8d3c391967a1a02f74b278a2c01149274b0f814e11ea48
+R d8fc5cb09ac45370f166a2ceef0e52cc
 U drh
-Z 3ce693ea24dd21819155ed3f32089a7e
+Z 1b39dbef147fe6293964a2fabca501ce

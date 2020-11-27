@@ -2400,10 +2400,13 @@ void artifact_page(void){
   if( isFile ){
     if( isSymbolicCI ){
       zHeader = mprintf("%s at %s", file_tail(zName), zCI);
+      style_set_current_page("doc/%t/%T", zCI, zName);
     }else if( zCIUuid && zCIUuid[0] ){
       zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
+      style_set_current_page("doc/%S/%T", zCIUuid, zName);
     }else{
       zHeader = mprintf("%s", file_tail(zName));
+      style_set_current_page("doc/tip/%T", zName);
     }
   }else if( descOnly ){
     zHeader = mprintf("Artifact Description [%S]", zUuid);
