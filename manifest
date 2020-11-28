@@ -1,5 +1,5 @@
-C Set\san\sappropriate\sbase\sURL\sfor\sthe\s/file\spage\swhen\sit\sis\susing\sname=\nand\sci=\squery\sparameters.
-D 2020-11-27T13:08:40.284
+C Fix\stypo\sin\sthe\ssync.wiki\sdocument.
+D 2020-11-28T12:51:26.632
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -971,7 +971,7 @@ F www/shunning.wiki 42bec5417f7dc1cf3ad6f5f8c07005088e340788d7a440c701c79f7afeb2
 F www/ssl.wiki 73430a266bd8c2d65c8e37918949718e922aed719cf010d1c57d05954a053f5b
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
+F www/sync.wiki 11ad3bdd1b033bc3e13f8e7f217ec6bd14e44c7041df88b3a3735204136c70af
 F www/tech_overview.wiki 086ebcdc9ca9b019c4a3556691653fb49b05dd9b9ebd5aea89701cfaa46d387e
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md 057432e59e192219c77f6d3b965127820a0e3271b73ea860d1974cf1885e0d90
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3091605fdf469d2f9b8d3c391967a1a02f74b278a2c01149274b0f814e11ea48
-R d8fc5cb09ac45370f166a2ceef0e52cc
+P a7343c6a0cb227fac1af669642e722a4ba6dd6213d6874f045896f0dd9e476ce
+R dd1886c814f78c53918c177001d7a9d2
 U drh
-Z 1b39dbef147fe6293964a2fabca501ce
+Z 6f1570017622d9f1308408fcd76a4465
