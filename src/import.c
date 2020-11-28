@@ -37,6 +37,18 @@ struct ImportFile {
 #endif
 
 /*
+ * Flags to indicate whether the import is to an existing or new repository;
+ * or using the --attribute option and in the process of importing a commit or
+ * tag (to determine the artifact type during fast_insert_content()).
+ */
+enum import_mode {
+  OLD_REPO,
+  NEW_REPO,
+  COMMIT_ATTR,
+  TAG_ATTR
+};
+
+/*
 ** State information common to all import types.
 */
 static struct {
@@ -60,6 +72,7 @@ static struct {
   char *zMark;                /* The current mark */
   char *zDate;                /* Date/time stamp */
   char *zUser;                /* User name */
+  char *zEmail;               /* Email from Git committer string */
   char *zComment;             /* Comment of a commit */
   char *zFrom;                /* from value as a hash */
   char *zPrevCheckin;         /* Name of the previous check-in */
@@ -117,6 +130,7 @@ static void import_reset(int freeAll){
   fossil_free(gg.zMark); gg.zMark = 0;
   fossil_free(gg.zDate); gg.zDate = 0;
   fossil_free(gg.zUser); gg.zUser = 0;
+  fossil_free(gg.zEmail); gg.zEmail = 0;
   fossil_free(gg.zComment); gg.zComment = 0;
   fossil_free(gg.zFrom); gg.zFrom = 0;
   fossil_free(gg.zFromMark); gg.zFromMark = 0;
@@ -141,6 +155,19 @@ static void import_reset(int freeAll){
   gg.xFinish = finish_noop;
 }
 
+static struct{
+  const char *zMasterName;   /* Name of master branch */
+  int authorFlag;            /* Use author as checkin committer */
+  Blob altRecord;            /* Record to cross-check --attribute'd commits */
+  uint8_t commitType:2;      /* To indicate --attribute'd manifest or tag */
+  uint8_t importType:2;      /* To indicate import into new or existing repo */
+  int nGitAttr;              /* Number of Git --attribute entries */
+  struct {                   /* Git --attribute details */
+    char *zUser;
+    char *zEmail;
+  } *gitUserInfo;
+} ggit;
+
 /*
 ** Insert an artifact into the BLOB table if it isn't there already.
 ** If zMark is not zero, create a cross-reference from that mark back
@@ -162,6 +189,31 @@ static int fast_insert_content(
 
   hname_hash(pContent, 0, &hash);
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &hash);
+  /*
+   * If this repo has had --attribute'd commits, we need to check the blob
+   * table for manifests with U cards constructed from both the username and
+   * email address to ensure no duplicate entries are attempted.
+   */
+  if (ggit.commitType == COMMIT_ATTR && rid == 0) {
+    blob_reset(&hash);
+    hname_hash(&ggit.altRecord, 0, &hash);
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &hash);
+  }
+  /*
+   * Likewise, for --attribute'd tags pop the tag artifact with the alternate
+   * U card from the temp xtag2 table; both these tags and the above commit
+   * artifacts are the same as pContent albeit with the {user|email} U card.
+   */
+  if (ggit.commitType == TAG_ATTR && rid == 0) {
+    db_blob(&ggit.altRecord,
+        "SELECT tcontent FROM xtag2 ORDER BY ROWID ASC LIMIT 1");
+    db_multi_exec(
+        "DELETE FROM xtag2 WHERE tcontent=%Q", blob_str(&ggit.altRecord)
+    );
+    blob_reset(&hash);
+    hname_hash(&ggit.altRecord, 0, &hash);
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &hash);
+  }
   if( rid==0 ){
     static Stmt ins;
     assert( g.rcvid>0 );
@@ -282,7 +334,7 @@ static void finish_commit(void){
   char *zFromBranch;
   char *aTCard[4];                /* Array of T cards for manifest */
   int nTCard = 0;                 /* Entries used in aTCard[] */
-  Blob record, cksum;
+  Blob record, cksum, altCksum;
 
   import_prior_files();
   qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
@@ -344,6 +396,20 @@ static void finish_commit(void){
   free(zFromBranch);
   db_multi_exec("INSERT INTO xbranch(tname, brnm) VALUES(%Q,%Q)",
                 gg.zMark, gg.zBranch);
+  /*
+   * The fx_git table indicates this repo has --attribute'd commits; therefore,
+   * blob entries may exist with U cards generated from either a username or
+   * email address. Create both for cross-checking to avoid adding duplicates.
+   */
+  if (db_table_exists("repository", "fx_git") &&
+   db_text(0, "SELECT user FROM fx_git WHERE email=%Q", gg.zEmail)) {
+    blob_copy(&ggit.altRecord, &record);
+    blob_appendf(&ggit.altRecord, "U %F\n", gg.zEmail);
+    md5sum_blob(&ggit.altRecord, &altCksum);
+    blob_appendf(&ggit.altRecord, "Z %b\n", &altCksum);
+    blob_reset(&altCksum);
+    ggit.commitType = COMMIT_ATTR;
+  }
   blob_appendf(&record, "U %F\n", gg.zUser);
   md5sum_blob(&record, &cksum);
   blob_appendf(&record, "Z %b\n", &cksum);
@@ -361,12 +427,37 @@ static void finish_commit(void){
   ** to work around the problem than to fix git-fast-export.
   */
   if( gg.tagCommit && gg.zDate && gg.zUser && gg.zFrom ){
+    Blob altTag;
     record.nUsed = 0
       /*in case fast_insert_comment() did not indirectly blob_reset() it */;
     blob_appendf(&record, "D %s\n", gg.zDate);
     blob_appendf(&record, "T +sym-%F%F%F %s\n", gimport.zBranchPre, gg.zBranch,
         gimport.zBranchSuf, gg.zPrevCheckin);
-    blob_appendf(&record, "U %F\n", gg.zUser);
+    /*
+     * If --attribute'd commits are present, we also need tag artifacts of the
+     * other potential U card value to be cross-checked against the blob table.
+     * Due to the abovementioned Git bug, store in a different table: xtag2.
+     */
+    if (ggit.commitType == COMMIT_ATTR) {
+      blob_copy(&altTag, &record);
+      blob_appendf(&altTag, "U %F\n", gg.zEmail);
+      md5sum_blob(&altTag, &altCksum);
+      blob_appendf(&altTag, "Z %b\n", &altCksum);
+      db_multi_exec(
+         "INSERT OR REPLACE INTO xtag2(tname, tcontent)"
+         " VALUES(%Q,%Q)", gg.zBranch, blob_str(&altTag)
+      );
+      blob_reset(&altCksum);
+      blob_reset(&altTag);
+      ggit.commitType = TAG_ATTR;
+    }
+    /*
+     * IF this is a brand new repo, ONLY one type of tag artifact can exist in
+     * the blob table, which are those generated in THIS session---and these
+     * will only contain the U card created with the gg.zUser value.
+     */
+    blob_appendf(&record, "U %F\n", ggit.importType == NEW_REPO ?
+     gg.zUser : gg.zEmail);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
     db_multi_exec(
@@ -542,16 +633,6 @@ static void dequote_git_filename(char *zName){
 }
 
 
-static struct{
-  const char *zMasterName;    /* Name of master branch */
-  int authorFlag;             /* Use author as checkin committer */
-  int nGitAttr;               /* Number of Git --attribute entries */
-  struct {                    /* Git --attribute details */
-    char *zUser;
-    char *zEmail;
-  } *gitUserInfo;
-} ggit;
-
 /*
 ** Read the git-fast-import format from pIn and insert the corresponding
 ** content into the database.
@@ -693,6 +774,7 @@ static void git_fast_import(FILE *pIn){
         gg.zUser = db_text(gg.zUser,
          "SELECT user FROM fx_git WHERE email=%Q", z);
       }
+      gg.zEmail = fossil_strdup(z); /* Keep email for blob table cross-check */
       secSince1970 = 0;
       for(zTo++; fossil_isdigit(*zTo); zTo++){
         secSince1970 = secSince1970*10 + *zTo - '0';
@@ -1725,6 +1807,7 @@ void import_cmd(void){
   char *zPassword;
   FILE *pIn;
   Stmt q;
+  int fd;  /* To duplicate stdin file descriptor. */
   int forceFlag = find_option("force", "f", 0)!=0;
   int svnFlag = find_option("svn", 0, 0)!=0;
   int gitFlag = find_option("git", 0, 0)!=0;
@@ -1828,12 +1911,41 @@ void import_cmd(void){
     pIn = fossil_fopen(g.argv[3], "rb");
     if( pIn==0 ) fossil_fatal("cannot open input file \"%s\"", g.argv[3]);
   }else{
-    pIn = stdin;
+    /*
+     * If piping from stdin with git fast-export, we need to duplicate a fd
+     * so we can also accept keyboard input from the user (see: block at 1931).
+     */
+#if defined(_WIN32) || defined(_WIN64)
+    fd = _dup(fileno(stdin));
+#else  /* if UNIX */
+    fd = dup(fileno(stdin));
+#endif  /* dup() hack */
+    pIn = fdopen(fd, "r");
+    (void) freopen("/dev/tty", "r", stdin);
     fossil_binary_mode(pIn);
   }
-  if( !incrFlag ){
-    if( forceFlag ) file_delete(g.argv[2]);
+  /*
+   * If neither --incremental nor --force has been passed but the repository
+   * file exists, prompt the user to continue with an incremental import.
+   */
+  if (forceFlag && file_size(g.argv[2], ExtFILE) != -1)
+    file_delete(g.argv[2]);
+  if (!incrFlag && file_size(g.argv[2], ExtFILE) == -1) {
     db_create_repository(g.argv[2]);
+    ggit.importType = NEW_REPO;
+  } else if (!incrFlag && file_size(g.argv[2], ExtFILE) != -1) {
+    Blob x;
+    char c;
+    fossil_print( "[!] Repository file exists: <%s>\n", g.argv[2]);
+    prompt_user(">>> Proceed with incremental import [Y/n]? ", &x);
+    c = blob_str(&x)[0];
+    blob_reset(&x);
+    incrFlag = (c != 'n' && c != 'N' );
+    if (!incrFlag) {
+      fossil_print("Please either provide an alternative filename, delete "
+       "the\nfile, or use --force to overwrite the existing repository.\n");
+      exit(1);
+    }
   }
   db_open_repository(g.argv[2]);
   db_open_config(0, 0);
@@ -1922,13 +2034,17 @@ void import_cmd(void){
     ** contains the text of an artifact that will add a tag to a check-in.
     ** The git-fast-export file format might specify the same tag multiple
     ** times but only the last tag should be used.  And we do not know which
-    ** occurrence of the tag is the last until the import finishes.
+    ** occurrence of the tag is the last until the import finishes.  Also,
+    ** depending on whether --attribute'd, artifacts may contain U cards made
+    ** with either username or emailaddr, so store the last seen version of
+    ** each in the xtag and xtag2 tables, respectively.
     */
     db_multi_exec(
        "CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
        "CREATE INDEX temp.i_xmark ON xmark(trid);"
        "CREATE TEMP TABLE xbranch(tname TEXT UNIQUE, brnm TEXT);"
        "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
+       "CREATE TEMP TABLE xtag2(tname TEXT UNIQUE, tcontent TEXT);"
     );
 
     if( markfile_in ){
@@ -1951,9 +2067,11 @@ void import_cmd(void){
     if(ggit.nGitAttr > 0) {
       int idx;
       db_unprotect(PROTECT_ALL);
-      db_multi_exec(
-        "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
-      );
+      if (!db_table_exists("repository", "fx_git")) {
+        db_multi_exec(
+            "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
+            );
+      }
       for(idx = 0; idx < ggit.nGitAttr; ++idx ){
         db_multi_exec(
             "INSERT OR IGNORE INTO fx_git(user, email) VALUES(%Q, %Q)",
@@ -1963,6 +2081,8 @@ void import_cmd(void){
       db_protect_pop();
     }
     git_fast_import(pIn);
+    if (ggit.commitType == COMMIT_ATTR)
+      ggit.commitType = TAG_ATTR;
     db_prepare(&q, "SELECT tcontent FROM xtag");
     while( db_step(&q)==SQLITE_ROW ){
       Blob record;
