@@ -51,9 +51,9 @@ void uncheckout(int vid){
   if( vid<=0 ) return;
   sqlite3_create_function(g.db, "dirname",1,SQLITE_UTF8,0,
                           file_dirname_sql_function, 0, 0);
-  sqlite3_create_function(g.db, "unlink",1,SQLITE_UTF8,0,
+  sqlite3_create_function(g.db, "unlink",1,SQLITE_UTF8|SQLITE_DIRECTONLY,0,
                           file_delete_sql_function, 0, 0);
-  sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8, 0,
+  sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8|SQLITE_DIRECTONLY, 0,
                           file_rmdir_sql_function, 0, 0);
   db_multi_exec(
     "CREATE TEMP TABLE dir_to_delete(name TEXT %s PRIMARY KEY)WITHOUT ROWID",
