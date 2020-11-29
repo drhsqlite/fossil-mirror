@@ -1,5 +1,5 @@
-C Allow\sthe\suse\sof\sSQL\sfunctions\sin\sthe\sschema\sfor\sthe\sticket\stable.
-D 2020-11-29T19:33:14.447
+C Fixed\sa\sfew\serrors\sin\swww/backup.md
+D 2020-11-29T21:03:22.138
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -809,7 +809,7 @@ F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
-F www/backup.md 545d2eb1aa8e27698ca5a381d7d30e7bb63f41ff9d8e0baa3e742a652d971a7a
+F www/backup.md 7c9d2a37ecd695f4ede7d3b5dfee51c7b0f87c05601ef57407b2b04d9316f9c9
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md 002ed6db927843a7998067420eb53414784ab6030c38055af4645e6c1c18d299
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 994a7c72d9412a00a853f476589460697090fb387bffce1a2790492e9ab87fe9
-R c5a3c54cbbb5a4019f9e9e5bcb1342c5
-U drh
-Z 743438f351a1a36e38ec005348f3b87d
+P 4740cf7589b7a4bfce53c74ab1ef995d3c42beb6e783d5bda7debce359cab7aa
+R b754b0335b42cab05de70b34ed69932d
+U wyoung
+Z 72860bcf2ce30ee9419f2e0d7e4a7281
