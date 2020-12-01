@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sall\sgit\sexport"\sand\s"fossil\sall\sgit\sstatus"\scommands.
-D 2020-11-30T21:46:09.786
+C Update\slinks\sto\salthttpd\sso\sthat\sthey\spoint\sto\sthe\snew\srepository.
+D 2020-12-01T14:24:44.858
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -868,7 +868,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 20d6fcd79ae209ebfc67784a2aa3af42f2baae8efbcad72def73e910bf2fe42e
+F www/fossil-v-git.wiki e1ed50d05ea7da665fd9a2bc8f741bdc28d16056cdd1d38d31fcfaf6562a4426
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -938,7 +938,7 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
 F www/selfhost.wiki 2d67d60528cae118f0cc214aa375ff60279cba8161746189a71aaffe4b71aa01
-F www/server/any/althttpd.md 450f52ad23c0ac8b3783302964e60b765dcf8a4fca9b6efc18bedecbcccd08d2
+F www/server/any/althttpd.md 6c6d4e0970e2be998d4c016390446c4fdaf0466d41b62cf0f35246ef120a7246
 F www/server/any/cgi.md 3ee9338cbcac68b1dad69c21202f7af2b98886990916e872d9141a82af54a38c
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bcff80c1d4cb9690ee3dfe07d04ec39f5d5cf371ef10122d234b2c53e121f899
-R 6de3b282321cfacec5a0f0d7886ba9d2
+P 9d53f2f6a22037e4d27049875f179829c320ac738cf2038a2b20ceacaaf27c27
+R a3ebd3ee55c4bf44e910d3d9cd41c86f
 U drh
-Z 3010a7bddbc4ecfb6639c61a2fbfa02f
+Z b6c0a33cb2deda9fff5a17f3587ac998
