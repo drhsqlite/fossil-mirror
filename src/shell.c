@@ -5422,10 +5422,10 @@ struct series_cursor {
 */
 static int seriesConnect(
   sqlite3 *db,
-  void *pAux,
-  int argc, const char *const*argv,
+  void *pUnused,
+  int argcUnused, const char *const*argvUnused,
   sqlite3_vtab **ppVtab,
-  char **pzErr
+  char **pzErrUnused
 ){
   sqlite3_vtab *pNew;
   int rc;
@@ -5436,6 +5436,10 @@ static int seriesConnect(
 #define SERIES_COLUMN_STOP  2
 #define SERIES_COLUMN_STEP  3
 
+  (void)pUnused;
+  (void)argcUnused;
+  (void)argvUnused;
+  (void)pzErrUnused;
   rc = sqlite3_declare_vtab(db,
      "CREATE TABLE x(value,start hidden,stop hidden,step hidden)");
   if( rc==SQLITE_OK ){
@@ -5458,8 +5462,9 @@ static int seriesDisconnect(sqlite3_vtab *pVtab){
 /*
 ** Constructor for a new series_cursor object.
 */
-static int seriesOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
+static int seriesOpen(sqlite3_vtab *pUnused, sqlite3_vtab_cursor **ppCursor){
   series_cursor *pCur;
+  (void)pUnused;
   pCur = sqlite3_malloc( sizeof(*pCur) );
   if( pCur==0 ) return SQLITE_NOMEM;
   memset(pCur, 0, sizeof(*pCur));
@@ -5566,11 +5571,12 @@ static int seriesEof(sqlite3_vtab_cursor *cur){
 */
 static int seriesFilter(
   sqlite3_vtab_cursor *pVtabCursor, 
-  int idxNum, const char *idxStr,
+  int idxNum, const char *idxStrUnused,
   int argc, sqlite3_value **argv
 ){
   series_cursor *pCur = (series_cursor *)pVtabCursor;
   int i = 0;
+  (void)idxStrUnused;
   if( idxNum & 1 ){
     pCur->mnValue = sqlite3_value_int64(argv[i++]);
   }else{
@@ -5627,7 +5633,7 @@ static int seriesFilter(
 **  (8)  output in descending order
 */
 static int seriesBestIndex(
-  sqlite3_vtab *tab,
+  sqlite3_vtab *tabUnused,
   sqlite3_index_info *pIdxInfo
 ){
   int i, j;              /* Loop over constraints */
@@ -5641,6 +5647,7 @@ static int seriesBestIndex(
   ** are the last three columns in the virtual table. */
   assert( SERIES_COLUMN_STOP == SERIES_COLUMN_START+1 );
   assert( SERIES_COLUMN_STEP == SERIES_COLUMN_START+2 );
+  (void)tabUnused;
   aIdx[0] = aIdx[1] = aIdx[2] = -1;
   pConstraint = pIdxInfo->aConstraint;
   for(i=0; i<pIdxInfo->nConstraint; i++, pConstraint++){
@@ -5714,6 +5721,10 @@ static sqlite3_module seriesModule = {
   0,                         /* xRollback */
   0,                         /* xFindMethod */
   0,                         /* xRename */
+  0,                         /* xSavepoint */
+  0,                         /* xRelease */
+  0,                         /* xRollbackTo */
+  0                          /* xShadowName */
 };
 
 #endif /* SQLITE_OMIT_VIRTUALTABLE */
@@ -14457,10 +14468,11 @@ static void shellIdQuote(
 */
 static void shellUSleepFunc(
   sqlite3_context *context, 
-  int argc, 
+  int argcUnused, 
   sqlite3_value **argv
 ){
   int sleep = sqlite3_value_int(argv[0]);
+  (void)argcUnused;
   sqlite3_sleep(sleep/1000);
   sqlite3_result_int(context, sleep);
 }
@@ -20659,8 +20671,11 @@ static void process_sqliterc(
     if( stdin_is_interactive ){
       utf8_printf(stderr,"-- Loading resources from %s\n",sqliterc);
     }
-    process_input(p);
+    if( process_input(p) && bail_on_error ) exit(1);
     fclose(p->in);
+  }else if( sqliterc_override!=0 ){
+    utf8_printf(stderr,"cannot open: \"%s\"\n", sqliterc);
+    if( bail_on_error ) exit(1);
   }
   p->in = inSaved;
   p->lineno = savedLineno;
@@ -21046,6 +21061,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #endif
     }else if( strcmp(z, "-memtrace")==0 ){
       sqlite3MemTraceActivate(stderr);
+    }else if( strcmp(z,"-bail")==0 ){
+      bail_on_error = 1;
     }
   }
   verify_uninitialized();
@@ -21192,7 +21209,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       */
       ShellSetFlag(&data, SHFLG_Backslash);
     }else if( strcmp(z,"-bail")==0 ){
-      bail_on_error = 1;
+      /* No-op.  The bail_on_error flag should already be set. */
     }else if( strcmp(z,"-version")==0 ){
       printf("%s %s\n", sqlite3_libversion(), sqlite3_sourceid());
       return 0;
