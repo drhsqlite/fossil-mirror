@@ -238,18 +238,23 @@ limit. Within the `location` block:
 
 ## <a name="fail2ban"></a> Integrating `fail2ban`
 
-You can have `fail2ban` recognize attacks and automatically block them,
-but the stock configuration doesn’t work with our Fossil setup above, so
-we have to do a bit of local adjustment.
+One of the nice things that falls out of proxying Fossil behind nginx is
+that it makes it easier to configure `fail2ban` to recognize attacks on
+Fossil and automatically block them. Fossil logs the sorts of errors we
+want to detect, but it does so in places like the repository’s admin
+log, a SQL table, which `fail2ban` doesn’t know how to query. By putting
+Fossil behind an nginx proxy, we convert these failures to log file
+form, which `fail2ban` is designed to handle.
 
-First, install it:
+First, install `fail2ban`, if you haven’t already:
 
       sudo apt install fail2ban
 
-Out of the box, you get SSH monitoring only. There are nginx monitors
-included with the package, but they don’t look in the right places for
-the right things. We’d like it to react to Fossil `/login` failures, for
-example. Put the following into
+We’d like `fail2ban` to react to Fossil `/login` failures.  The stock
+configuration of `fail2ban` only detects a few common sorts of SSH
+attacks by default, and its included (but disabled) nginx attack
+detectors don’t include one that knows how to detect an attack on
+Fossil.  We have to teach it by putting the following into
 `/etc/fail2ban/filter.d/nginx-fossil-login.conf`:
 
       [Definition]
