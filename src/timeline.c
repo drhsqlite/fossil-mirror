@@ -2228,8 +2228,15 @@ void page_timeline(void){
     }
     if( zYearMonth ){
       zYearMonth = timeline_expand_datetime(zYearMonth);
+      if( strlen(zYearMonth)>7 ){
+        zYearMonth = mprintf("%.7s", zYearMonth);
+      }
+      if( db_int(0,"SELECT julianday('%q-01') IS NULL", zYearMonth) ){
+        zYearMonth = db_text(0, "SELECT strftime('%%Y-%%m','now');");
+      }
       blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
                       zYearMonth);
+      nEntry = -1;
     }
     else if( zYearWeek ){
       char *z;
@@ -2463,7 +2470,8 @@ void page_timeline(void){
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     zPlural = n==1 ? "" : "s";
     if( zYearMonth ){
-      blob_appendf(&desc, "%d %s%s for %h", n, zEType, zPlural, zYearMonth);
+      blob_appendf(&desc, "%d %s%s for month beginning %h-01",
+                   n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
       blob_appendf(&desc, "%d %s%s for week %h beginning on %h",
                    n, zEType, zPlural, zYearWeek, zYearWeekStart);

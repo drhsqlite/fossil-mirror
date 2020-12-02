@@ -1,5 +1,5 @@
-C Improvements\sto\s/sitemap:\s\sBreak\sout\sthe\s"Test\sPages"\sentry\sinto\sa\nseparate\s/sitemap-test\spage.\s\sAdd\sthe\s"Site\sMap"\sentry\sfor\spopups.
-D 2020-12-02T14:14:49.172
+C Break\sout\ssome\sof\sthe\sobscure\stimelinen\slinks\son\sthe\s/sitemap\spage\sinto\na\sseparate\s/sitemap-timeline\spage.
+D 2020-12-02T15:29:39.147
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -586,7 +586,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
 F src/shell.c a875c0ec51fd03f0a8985a1d53dff3afc51f6ce88b58f2e73667e5bbdd0ee637
 F src/shun.c dca052cd4c8da77d91b72e67da3955b13285d4fbeb5e3f1ea7a66f81d9633c20
-F src/sitemap.c 9ca86309a67a99d1abfd04af28a3e032795a35fc4ab386ae228307d3d54b09c6
+F src/sitemap.c a157d565f8d8afdfb6e0c6bcedd144c7f09644595edf65c68c35e0c38fe21e22
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 0fbf7b8336578fecd92e95a64ef1987016ba3e3bd93a07c0ca26026cce9beda4
 F src/smtp.c 52dfead409110bdf4faa476f2b48909a87b1ec19119f551534144cd332f5cf23
@@ -616,7 +616,7 @@ F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c efda3d881a6840b2fed1bddf20076b4fcf03f1285b90e7de6887f3eb18ee4ea6
 F src/statrep.c d8b0365fd7ab13d51f9260fd338d62c38724452270d90447631013e1226bd22d
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 83823e8ab14a7cbe27edfe78f2476fea8353a85bae85565897cba34278d90f9e
+F src/style.c 8e5015a497ce9421abc176948fe0e663d01d44397ac41b3def2b51d985d4ac98
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
@@ -628,7 +628,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 4fa837f2a4bb35caba0fd5e584ff2934bce308861c39dedfe961c5dc62bce41a
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c ce6580b4d11ed5f91ff7654b1207846cdd533065999b5bc64db6ab8fd723c277
+F src/timeline.c f3daea37067dee4deda9e3425325f8e17d7b6e3beb928cd60a7419b1ba7d085a
 F src/tkt.c 8eb6a9a19c410a03cf3b17a73171e29525a4675c818af4dd38efb6505e06f962
 F src/tktsetup.c e3f94db2227764dfb2d8d165dc8d82ec81c73ba4606c8e78d0db8d1d2c5c55e2
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bbfd6123506e10e1e89036d1dd89ced199a1512e9771214c00c610d4faaf1659
-R 7c2fa09f28bd9b7b03e8ed3120e26f57
+P 86737df9dcf2244cc4cdf8a646769ef3b31e7360c4ea9ef64ecc1c57fb785a2e
+R 005312a10aa02dd700f93730202e4ee3
 U drh
-Z c7934d3b6edddc828d86e069fff49248
+Z 02ddda8676265964d19ff9427d488050

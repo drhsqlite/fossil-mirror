@@ -102,10 +102,7 @@ void sitemap_page(void){
     @ <li>%z(href("%R/timeline"))Project Timeline</a>
     @ <ul>
     @   <li>%z(href("%R/reports"))Activity Reports</a></li>
-    @   <li>%z(href("%R/timeline?n=all&namechng"))File name changes</a></li>
-    @   <li>%z(href("%R/timeline?n=all&forks"))Forks</a></li>
-    @   <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10
-    @       check-ins</a></li>
+    @   <li>%z(href("%R/sitemap-timeline"))Other timelines</a></li>
     @ </ul>
     @ </li>
   }
@@ -194,7 +191,6 @@ void sitemap_page(void){
       @       this repository</a></li>
     }
     @   <li>%z(href("%R/bloblist"))List of Artifacts</a></li>
-    @   <li>%z(href("%R/timewarps"))List of "Timewarp" Check-ins</a></li>
     @   </ul>
     @ </li>
   }
@@ -278,6 +274,46 @@ void sitemap_test_page(void){
   @ <li>%z(href("%R/cookies"))Content of display preference cookie</a></li>
   @ <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
   @ <li>%z(href("%R/test-piechart"))Pie-Chart generator test</a></li>
+  if( !isPopup ){
+    style_finish_page("sitemap");
+  }
+}
+
+/*
+** WEBPAGE: sitemap-timeline
+**
+** Generate a list of hyperlinks to various (obscure) variations on
+** the /timeline page.
+*/
+void sitemap_timeline_page(void){
+  int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
+
+  login_check_credentials();
+  if( P("popup")!=0 && cgi_csrf_safe(0) ){
+    /* If this is a POST from the same origin with the popup=1 parameter,
+    ** then disable anti-robot defenses */
+    isPopup = 1;
+    g.perm.Hyperlink = 1;
+    g.javascriptHyperlink = 0;
+  }
+  if( !isPopup ){
+    style_header("Timeline Examples");
+    style_adunit_config(ADUNIT_RIGHT_OK);
+  }
+  @ <ul id="sitemap" class="columns" style="column-width:20em">
+  @ <li>%z(href("%R/timeline?ymd"))Current day</a></li>
+  @ <li>%z(href("%R/timeline?yw"))Current week</a></li>
+  @ <li>%z(href("%R/timeline?ym"))Current month</a></li>
+  @ <li>%z(href("%R/thisdayinhistory"))Today in history</a></li>
+  @ <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10
+  @     check-ins</a></li>
+  @ <li>%z(href("%R/timeline?namechng"))File name changes</a></li>
+  @ <li>%z(href("%R/timeline?forks"))Forks</a></li>
+  @ <li>%z(href("%R/timeline?cherrypicks"))Cherrypick merges</a></li>
+  @ <li>%z(href("%R/timewarps"))Timewarps</a></li>
+  @ <li>%z(href("%R/timeline?ubg"))Color-coded by user</a></li>
+  @ <li>%z(href("%R/timeline?deltabg"))Delta vs. baseline manifests</a></li>
+  @ </ul>
   if( !isPopup ){
     style_finish_page("sitemap");
   }

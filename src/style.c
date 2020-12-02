@@ -1206,10 +1206,12 @@ void webpage_error(const char *zFormat, ...){
       @ </pre>
     }
   }
-  style_finish_page("error");
-  if( zErr ){
+  if( zErr && zErr[0] ){
+    style_finish_page("error");
     cgi_reply();
     fossil_exit(1);
+  }else{
+    style_finish_page("test");
   }
 }
 
