@@ -1,5 +1,5 @@
-C Break\sout\ssome\sof\sthe\sobscure\stimelinen\slinks\son\sthe\s/sitemap\spage\sinto\na\sseparate\s/sitemap-timeline\spage.
-D 2020-12-02T15:29:39.147
+C Add\sPrevious/Following\sDay/Week/Month\slinks\son\stimeline\spages\sthat\nuse\sthe\symd,\syw,\sor\sym\squery\sparameters.
+D 2020-12-02T17:30:26.123
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -628,7 +628,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 4fa837f2a4bb35caba0fd5e584ff2934bce308861c39dedfe961c5dc62bce41a
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c f3daea37067dee4deda9e3425325f8e17d7b6e3beb928cd60a7419b1ba7d085a
+F src/timeline.c 6cf83c9d808ec13e5bd4e99ca6356e770782b3365b746e6b5afa84ea3751467a
 F src/tkt.c 8eb6a9a19c410a03cf3b17a73171e29525a4675c818af4dd38efb6505e06f962
 F src/tktsetup.c e3f94db2227764dfb2d8d165dc8d82ec81c73ba4606c8e78d0db8d1d2c5c55e2
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86737df9dcf2244cc4cdf8a646769ef3b31e7360c4ea9ef64ecc1c57fb785a2e
-R 005312a10aa02dd700f93730202e4ee3
+P 79f7808ba4b95322243f718c437c64b9bf8c05164303e2d3bdfb14156947b08c
+R e5cfe400567d6aba51f96e00a6bd0b72
 U drh
-Z 02ddda8676265964d19ff9427d488050
+Z 68fdbf16da46f7519daa767d5b183e23
