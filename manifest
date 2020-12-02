@@ -1,5 +1,5 @@
-C Added\sa\ssimilar\smessage\sto\sthe\sOpenBSD\shttpd\sguide\sas\sin\s[bd8d4376].
-D 2020-12-02T19:16:41.448
+C Fix\sminor\scalculation\serror\son\sthe\syw=\squery\sparameter\sof\sthe\s/timeline\spage.
+D 2020-12-02T19:38:04.391
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -628,7 +628,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 4fa837f2a4bb35caba0fd5e584ff2934bce308861c39dedfe961c5dc62bce41a
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 342ffa691cd70799e38ae6921c2f7ea4b1bfefcd3d466592b4137145d1d3f8ac
+F src/timeline.c 5c12333eace427f23cb9b1f87e0cbe9c5492d7b760b22950e1040f920194d8dc
 F src/tkt.c 8eb6a9a19c410a03cf3b17a73171e29525a4675c818af4dd38efb6505e06f962
 F src/tktsetup.c e3f94db2227764dfb2d8d165dc8d82ec81c73ba4606c8e78d0db8d1d2c5c55e2
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 162b7abbe067ca009ef760e005fab9aadb3a4c683fcbd0a408f966827d539c74
-R 030e19faf8e2fb4a4f3197abb88ffeab
-U wyoung
-Z 61e8b979692b795bb5b97367f2f7f75e
+P 7252f7a40a7d21489437c600b60e68a6893c9789e1fe547d6212f3633e3892c1
+R 5b3068dd4e0d4c41e2dcf26980f6c81e
+U drh
+Z d1b53f90d5dc1b1f4f02b0c405a668bb

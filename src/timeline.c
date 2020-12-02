@@ -2275,8 +2275,8 @@ void page_timeline(void){
       }else{
         if( strlen(zYearWeek)==7 ){
           zYearWeekStart = db_text(0,
-             "SELECT date('%.4q-01-01','+%d days','weekday 1')",
-             zYearWeek, atoi(zYearWeek+5)*7);
+             "SELECT date('%.4q-01-01','%+d days','weekday 1')",
+             zYearWeek, atoi(zYearWeek+5)*7-6);
         }else{
           zYearWeekStart = 0;
         }
