@@ -220,6 +220,22 @@ instance, Fossil will not collapse double slashes down to a single
 slash, as some other HTTP servers will.
 
 
+## <a name="large-uv"></a> Allowing Large Unversioned Files
+
+By default, nginx only accepts HTTP messages [up to a
+meg](http://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size)
+in size. Fossil chunks its sync protocol such that this is not normally
+a problem, but when sending [unversioned content][uv], it uses a single
+message for the entire file. Therefore, if you will be storing files
+larger than this limit as unversioned content, you need to raise the
+limit. Within the `location` block:
+
+        # Allow large unversioned file uploads, such as PDFs
+        client_max_body_size 20M;
+
+[uv]: ../../unvers.wiki
+
+
 ## <a name="fail2ban"></a> Integrating `fail2ban`
 
 You can have `fail2ban` recognize attacks and automatically block them,
