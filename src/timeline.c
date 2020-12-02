@@ -1747,6 +1747,9 @@ void page_timeline(void){
   int showCherrypicks = 1;            /* True to show cherrypick merges */
   int haveParameterN;                 /* True if n= query parameter present */
 
+  url_initialize(&url, "timeline");
+  cgi_query_parameters_to_url(&url);
+
   /* Set number of rows to display */
   haveParameterN = P("n")!=0;
   cookie_read_parameter("n","n");
@@ -1810,8 +1813,6 @@ void page_timeline(void){
     cookie_write_parameter("y","y",zType);
   }
   cookie_render();
-  url_initialize(&url, "timeline");
-  cgi_query_parameters_to_url(&url);
 
   /* Convert the cf=FILEHASH query parameter into a c=CHECKINHASH value */
   if( P("cf")!=0 ){
@@ -2715,13 +2716,15 @@ void page_timeline(void){
   }
 
   if( zNewerButton ){
-    @ %z(chref("button","%z",zNewerButton))%h(zNewerButtonLabel)&nbsp;&uarr;</a>
+    @ %z(chref("button","%s",zNewerButton))%h(zNewerButtonLabel)\
+    @ &nbsp;&uarr;</a>
   }
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, zBrName,
                      selectedRid, secondaryRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
-    @ %z(chref("button","%z",zOlderButton))%h(zOlderButtonLabel)&nbsp;&darr;</a>
+    @ %z(chref("button","%s",zOlderButton))%h(zOlderButtonLabel)\
+    @ &nbsp;&darr;</a>
   }
   document_emit_js(/*handles pikchrs rendered above*/);
   style_finish_page("timeline");
