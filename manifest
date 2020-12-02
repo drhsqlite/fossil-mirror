@@ -1,5 +1,5 @@
-C Added\ssection\sto\sthe\snginx-on-Debian\sserver\sguide\sto\scover\nclient_max_body_size\swith\s`fossil\suv\ssync`.
-D 2020-12-02T18:51:46.415
+C On\sthe\s/test-backlinks\spage,\sidentify\slinks\soriginating\sin\scomments\sas\ncoming\sfrom\sa\scheck-in,\sas\sthat\sis\sthe\susual\scase.
+D 2020-12-02T18:52:53.996
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -435,7 +435,7 @@ F src/ajax.c 1e403cdfe1f046a851b98dd00250359e253c06180794035c074061545b56ee34
 F src/alerts.c 16778ef413e54de5ba284de471ae00c257a64e6f85d58d38d55d619204620f54
 F src/allrepo.c 9404ed2458e3115c439f9e8c489692aa1f66b67b2e403688b4e4fab8150b62a2
 F src/attach.c ed7a5fa8a0c178179dadb06c539671026e28c46dee9b1791cb835256dba63a4c
-F src/backlink.c 441a0455727f541bc9d6f5c67504d0822f8d192959c9c136cae9c2388133ec6b
+F src/backlink.c 00203c0774393c1647b0fca87ec0d1f973250a755ceb6d3ae0b21965d19b1f9a
 F src/backoffice.c b5c14f984561e35824d82dfa656e6c635ffd5c449469bba66dcf4841b0205283
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53d3a755c1c6de22bdc908fa051e0c125e9ec2175ec9ae0649fcab6a5d0b813b
-R 9d26f82f4045789c2227e92d5fbcdaf4
-U wyoung
-Z 3047785e68c7532e102fde876a04ad5e
+P bd8d43767bf2a161b38a6ddb168fef9c667b31c8dee9684dba05c67f5b6c2630
+R a52cd16c14be6a34f2b7d869ca425f21
+U drh
+Z ef83fb54efa58f73353df2ff3a905f72
