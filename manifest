@@ -1,5 +1,5 @@
-C For\sthe\sdefault\sskin,\sonly\sshow\sthe\sBranches\smenu\son\swide\sdisplays,\sbut\ndo\sshow\sForum\son\sall\sdesktops.
-D 2020-12-02T12:01:17.555
+C Improvements\sto\s/sitemap:\s\sBreak\sout\sthe\s"Test\sPages"\sentry\sinto\sa\nseparate\s/sitemap-test\spage.\s\sAdd\sthe\s"Site\sMap"\sentry\sfor\spopups.
+D 2020-12-02T14:14:49.172
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -586,7 +586,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
 F src/shell.c a875c0ec51fd03f0a8985a1d53dff3afc51f6ce88b58f2e73667e5bbdd0ee637
 F src/shun.c dca052cd4c8da77d91b72e67da3955b13285d4fbeb5e3f1ea7a66f81d9633c20
-F src/sitemap.c ccbe04430599915a463085a112937c2e7f570ba640b8afe119f2f5ad6db0ee94
+F src/sitemap.c 9ca86309a67a99d1abfd04af28a3e032795a35fc4ab386ae228307d3d54b09c6
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 0fbf7b8336578fecd92e95a64ef1987016ba3e3bd93a07c0ca26026cce9beda4
 F src/smtp.c 52dfead409110bdf4faa476f2b48909a87b1ec19119f551534144cd332f5cf23
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5434159a382255a2443ed0b4c8cbed3cd0865f1e912a119fb26bc86151d4ff36
-R cb68447c347137035a6d7ab15c78e7a9
+P bbfd6123506e10e1e89036d1dd89ced199a1512e9771214c00c610d4faaf1659
+R 7c2fa09f28bd9b7b03e8ed3120e26f57
 U drh
-Z f84eade885f3730ef84c9607f68525e3
+Z c7934d3b6edddc828d86e069fff49248

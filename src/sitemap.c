@@ -221,19 +221,63 @@ void sitemap_page(void){
     @   <li>%z(href("%R/cachestat"))Status of the web-page cache</a></li>
     @   </ul></li>
   }
-  @ <li>Test Pages
-  @   <ul>
+  @ <li>%z(href("%R/sitemap-test"))Test Pages</a></li>
+  if( isPopup ){
+    @ <li>%z(href("%R/sitemap"))Site Map</a></li>
+  }
+  @ </ul>
+  if( !isPopup ){
+    style_finish_page("sitemap");
+  }
+}
+
+/*
+** WEBPAGE: sitemap-test
+**
+** List some of the web pages offered by the Fossil web engine for testing
+** purposes.  This is similar to /sitemap, but is focused only on showing
+** pages associated with testing.
+*/
+void sitemap_test_page(void){
+  int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
+
+  login_check_credentials();
+  if( P("popup")!=0 && cgi_csrf_safe(0) ){
+    /* If this is a POST from the same origin with the popup=1 parameter,
+    ** then disable anti-robot defenses */
+    isPopup = 1;
+    g.perm.Hyperlink = 1;
+    g.javascriptHyperlink = 0;
+  }
+  if( !isPopup ){
+    style_header("Test Page Map");
+    style_adunit_config(ADUNIT_RIGHT_OK);
+  }
+  @ <ul id="sitemap" class="columns" style="column-width:20em">
   if( g.perm.Admin || db_get_boolean("test_env_enable",0) ){
-    @   <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
+    @ <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
   }
   if( g.perm.Read ){
-    @   <li>%z(href("%R/test-rename-list"))List of file renames</a></li>
+    @ <li>%z(href("%R/test-rename-list"))List of file renames</a></li>
   }
-  @   <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
-  @       colors assigned to branch names</a>
-  @   <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
-  @   </ul></li>
-  @ </ul>
+  @ <li>%z(href("%R/test-builtin-files"))List of built-in files</a></li>
+  @ <li>%z(href("%R/mimetype_list"))List of MIME types</a></li>
+  @ <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
+  @     colors assigned to branch names</a>
+  if( g.perm.Admin ){
+    @ <li>%z(href("%R/test-backlinks"))List of backlinks</a></li>
+    @ <li>%z(href("%R/test-backlink-timeline"))Backlink timeline</a></li>
+    @ <li>%z(href("%R/phantoms"))List of phantom artifacts</a></li>
+    @ <li>%z(href("%R/test-warning"))Error Log test page</a></li>
+    @ <li>%z(href("%R/repo_stat1"))Repository <tt>sqlite_stat1</tt> table</a>
+    @ <li>%z(href("%R/repo_schema"))Repository schema</a></li>
+  }
+  if( g.perm.Read && g.perm.Hyperlink ){
+    @ <li>%z(href("%R/timewarps"))Timeline of timewarps</a></li>
+  }
+  @ <li>%z(href("%R/cookies"))Content of display preference cookie</a></li>
+  @ <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
+  @ <li>%z(href("%R/test-piechart"))Pie-Chart generator test</a></li>
   if( !isPopup ){
     style_finish_page("sitemap");
   }
