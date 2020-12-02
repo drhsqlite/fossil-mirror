@@ -1,5 +1,5 @@
-C Fix\sminor\scalculation\serror\son\sthe\syw=\squery\sparameter\sof\sthe\s/timeline\spage.
-D 2020-12-02T19:38:04.391
+C Add\sthe\s"To\sDo\sList"\swiki\spage\sas\sa\sprimary\sdocument\sin\sthe\sdocumentation\nindex.
+D 2020-12-02T19:59:42.295
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -923,10 +923,10 @@ F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 619d489c5079392075f4de298146d7066948aae33f8c65aec46188e185078ed5
-F www/mkindex.tcl a81e9007511ce100461d57a2dd32c1a697f717980ee898a4670ba55839fefefb x
+F www/mkindex.tcl ad242f7e58f2cd97c85ba2d0c539e7175942e675c66d3af488af434334572c69 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 07c709f3de155fcbf82739682a2b817683a3e0cb83d0bdd35763a8ce68495830
+F www/permutedindex.html f137a8306b34b6ee7ad50f6dd390a083d07a8725156d715fb391eccba6206cae
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7252f7a40a7d21489437c600b60e68a6893c9789e1fe547d6212f3633e3892c1
-R 5b3068dd4e0d4c41e2dcf26980f6c81e
+P 61086a92f4883b39685139ef619974c3ff4cc041df58c50eefd96ffc5f9f96d8
+R 850d59764b4f6c7374a945c996dee6e3
 U drh
-Z d1b53f90d5dc1b1f4f02b0c405a668bb
+Z 258a3a042baa7fe3379b3ff51c2b79a5
