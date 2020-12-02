@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sofficial\s3.34.0\srelease.
-D 2020-12-01T16:42:25.511
+C For\sthe\sdefault\sskin,\sonly\sshow\sthe\sBranches\smenu\son\swide\sdisplays,\sbut\ndo\sshow\sForum\son\sall\sdesktops.
+D 2020-12-02T12:01:17.555
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -396,7 +396,7 @@ F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 912f29737a562cd550a0a8ab19e10284fb1b567113420e1bbef34da77657b9df
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
-F skins/default/header.txt d3a0e23a6bd14bf25f7193841e8434bc2454281eb63a7373678ffed9ffbad76f
+F skins/default/header.txt 36ca4c299b29a37ca528d7639bfb0f4a6a75c24e4d1b53b9393ed9232073fe90
 F skins/default/js.txt 3e8272e6730688d9365cfb8920a157cb2893fb6267168608873ad41a0ff2041f
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt bd3ff0845ed62735597b54db4e599b41fd7c3e689ab8528895fcbaa45072b399
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ef97bdb40876cefc0deed76d90400b38556c0b37083233db5d0860f1e0d9669
-R e20d177b662263f8c41e04165cf97356
+P 5434159a382255a2443ed0b4c8cbed3cd0865f1e912a119fb26bc86151d4ff36
+R cb68447c347137035a6d7ab15c78e7a9
 U drh
-Z e61de5e8b73e3a319436f5dbf25a88b0
+Z f84eade885f3730ef84c9607f68525e3
