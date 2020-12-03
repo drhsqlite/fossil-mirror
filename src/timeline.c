@@ -2646,7 +2646,7 @@ void page_timeline(void){
             rDate+ONE_SECOND, blob_sql_text(&cond))
         ){
           zNewerButton = fossil_strdup(url_render(&url, "a", zDate, "b", 0));
-          zNewerButton = "More";
+          zNewerButtonLabel = "More";
         }
         free(zDate);
       }
