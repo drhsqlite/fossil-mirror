@@ -1,5 +1,5 @@
-C Fix\sthe\s"More\s&uarr;"\slink\sat\sthe\stop\sof\stimelines.
-D 2020-12-03T11:58:07.281
+C Grammar\sfix
+D 2020-12-03T12:12:00.471
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -847,7 +847,7 @@ F www/customskin.md 121373f020a5ef472bec27dad1fede5c9d95dadf9300d42a5e5d48a38377
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki e25c8305f5ff3404c9d35fdb6eec65f7fe1de1fdf48db7200a923d2ccb946b99
-F www/embeddeddoc.wiki 3d2290e52d8eb50fba08a91f3fc15574d012d5627b3c5ce80d7386ad05afb445
+F www/embeddeddoc.wiki 76de10045c1c7e333538ba8c7281fdc2f4ed5354728d10b9c4981a584f9c6f04
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0457c40ae79d94c0e118b8d3659d56422ae407f70202222e0c8ef7e4eeae461c
-R 36c2db9d951b85990dca980328d2cd41
-U drh
-Z 997141cb0350e331938fc709f249fa99
+P f5e4ec69c44eb18530f169fe78a3e684d41df11ab518690a9a5a5c009b51a367
+R cde76a7b297e4b1a0cf02bbe2bb289d6
+U wyoung
+Z d3ce9685eac819fe8af805a183d49c69
