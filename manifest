@@ -1,5 +1,5 @@
-C The\svariadic\sfunction\sbuiltin_fossil_js_bundle_or()\swas\susing\s0\sas\sa\nsentinel\sto\sdetect\send-of-list,\sbut\sthat\sisn't\sequivalent\sto\sNULL\sin\sa\nlist\sof\spointed-to\sobjects\sin\sall\sC\scompilers,\son\sall\ssystems.\sUsing\sa\nGCC/Clang\sfunction\sattribute\sto\sforce\sa\swarning\swhen\s0\sis\spassed\sinstead\nof\sNULL,\sthen\sfixed\sall\sresulting\swarnings.\s\sThis\sfixes\sthe\sSEGV\nreported\sin\shttps://www.fossil-scm.org/forum/forumpost/5feca9c36a\son\nMac\sOS\sX\s10.11\swith\sClang\sfrom\sXcode\s7.\s\sLater\sversions\sof\sClang\son\nmacOS\sdon't\shave\sthis\sproblem,\sbut\sit's\sstill\sUB,\sso\sfixing\sit\smay\ssolve\nsome\spain\sfor\sus\slater\son.
-D 2020-12-04T18:35:21.696
+C Comment\sfix\sto\sgo\swith\sprevious\sUB\sNULL\sfix.
+D 2020-12-04T19:22:06.721
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
 F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
 F src/branch.c f51f5992d64950f5106542de8363b9779b818bf4ec75a4b0f4e7aacd0a864882
 F src/browse.c ffa7fda0dc1ccd2847a7a50fa4de8ada91928420147314c2e0d6503142218f28
-F src/builtin.c 20a4f1a8cf46f9654a734f07ea16fbc553d52f97e676d84af7f460b6c2a0dd95
+F src/builtin.c 607ca6a12ddfa5b25d9007732a72e4f4d83fc35437875405d7f09bc32a74fb3e
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c 6167f077b5adba21c94bc83e3360f1189812945f43280083cca4df245d0fa2dd
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b13c82f0dc492e4bc21ea19b14ca30144fad4001f5d5ba73d0db27f753dcc83e
-R 7d6a8f7a37bf38301da8591fc3b59a2c
+P 815b4fc493c433a0e4f8aebe79f4f6b34e1104c33035cc3f8d0c8f43844ba20e
+R 5de32e4e32501ebe4121435c630be187
 U wyoung
-Z c8fb19a1924c2d2c2473c7830045ed00
+Z 44c6f78e2d1430116f5c4661f303542f
