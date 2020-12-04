@@ -1301,7 +1301,7 @@ void wikiedit_page(void){
   }
   builtin_fossil_js_bundle_or("fetch", "dom", "tabs", "confirmer",
                               "storage", "popupwidget", "copybutton",
-                              "pikchr", 0);
+                              "pikchr", NULL);
   builtin_request_js("sbsdiff.js");
   builtin_request_js("fossil.page.wikiedit.js");
   builtin_fulfill_js_requests();

@@ -373,7 +373,7 @@ void pikchrshow_page(void){
     } CX("</fieldset>"/*#pikchrshow-output-wrapper*/);
   } CX("</div>"/*sbs-wrapper*/);
   builtin_fossil_js_bundle_or("fetch", "copybutton", "popupwidget",
-                              "storage", "pikchr", 0);
+                              "storage", "pikchr", NULL);
   builtin_request_js("fossil.page.pikchrshow.js");
   builtin_fulfill_js_requests();
   style_finish_page("pikchrshow");

@@ -1991,7 +1991,7 @@ void fileedit_page(void){
 
   builtin_fossil_js_bundle_or("fetch", "dom", "tabs", "confirmer",
                               "storage", "popupwidget", "copybutton",
-                              "pikchr", 0);
+                              "pikchr", NULL);
   /*
   ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
   ** used for dynamically toggling certain UI components on and off.

@@ -845,14 +845,14 @@ void test_js_once(void){
 **
 ** Example usage:
 **
-** builtin_fossil_js_bundle_or("dom", "fetch", 0);
+** builtin_fossil_js_bundle_or("dom", "fetch", NULL);
 **
 ** In bundled mode, that will (the first time it is called) emit all
 ** builtin fossil JS APIs and "fulfill" the queue immediately. In
 ** non-bundled mode it will queue up the "dom" and "fetch" APIs to be
 ** emitted the next time builtin_fulfill_js_requests() is called.
 */
-void builtin_fossil_js_bundle_or( const char * zApi, ... ) {
+NULL_SENTINEL void builtin_fossil_js_bundle_or( const char * zApi, ... ) {
   static int bundled = 0;
   const char *zArg;
   va_list vargs;
@@ -866,7 +866,7 @@ void builtin_fossil_js_bundle_or( const char * zApi, ... ) {
     return;
   }
   va_start(vargs,zApi);
-  for( zArg = zApi; zArg!=0; (zArg = va_arg (vargs, const char *))){
+  for( zArg = zApi; zArg!=NULL; (zArg = va_arg (vargs, const char *))){
     if(0==builtin_emit_fossil_js_once(zArg)){
       fossil_fatal("Unknown fossil JS module: %s\n", zArg);
     }

@@ -2138,7 +2138,7 @@ void output_text_with_line_numbers(
     if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
       builtin_request_js("scroll.js");
     }
-    builtin_fossil_js_bundle_or("numbered-lines", 0);
+    builtin_fossil_js_bundle_or("numbered-lines", NULL);
   }
 }
 
