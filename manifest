@@ -1,5 +1,5 @@
-C Comment\sfix\sto\sgo\swith\sprevious\sUB\sNULL\sfix.
-D 2020-12-04T19:22:06.721
+C Updates\sto\sthe\schange\slog.
+D 2020-12-05T13:19:03.646
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -828,7 +828,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
-F www/changes.wiki 0eac0d1391e44483cc0beaadcadc93eefe947b294dca13af8ad2f95650409221
+F www/changes.wiki c73fc4c0357a14cdca26cf5c994dffc5cbd929c454ddc95bbd1d6dd1024642f9
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 815b4fc493c433a0e4f8aebe79f4f6b34e1104c33035cc3f8d0c8f43844ba20e
-R 5de32e4e32501ebe4121435c630be187
-U wyoung
-Z 44c6f78e2d1430116f5c4661f303542f
+P 4d88ef4fcdc1a5c074eb2106afc9ad9bf309c92ffba28b5809d29a80f37ca8cc
+R b2c8d2fb94e6be039a11fa98e9352421
+U drh
+Z 1991fbae0a03dae28bbf6e8416fe7974

@@ -8,7 +8,25 @@
      from the remote URL and the newly cloned repo is opened.  This makes
      the clone command work more like Git, thus making it easier for
      people transitioning from Git.
+  *  Changed the way that wiki edits are stored in the EVENT table of the
+     database, for more flexibility and better features.
+     <b>Run "fossil rebuild" to take advantage of this change</b>.
   *  Add the "contact" sub-command to [/help?cmd=user|fossil user].
+  *  Added commands "[/help?cmd=all|fossil all git export]" and
+     "[/help?cmd=all|fossil all git status]".
+  *  Improvements to the "[/sitemap]" page.  Add subpages
+     [/sitemap-timeline] and [/sitmap-test].
+  *  Better text position in cylinder objects of Pikchr diagrams.
+  *  New "details.txt" settings available to custom skins to better control
+     the rendering of Pikchr diagrams:
+     <ul>
+     <li> pikchr-foreground
+     <li> pikchr-scale
+     <li> pikchr-fontscale
+     </ul>
+  *  Allow the use of SQL functions inside the ticket table definition
+     for custom ticket configurations.
+  *  Countless improvements and enhancements to the documentation
 
 <a name='v2_13'></a>
 <h2>Changes for Version 2.13 (2020-11-01)</h2>
