@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sthe\s"--nested"\soption\sto\sthe\sclone\ssubcommand,\sso\sthe\snew\nclone/open\sin\s1\sstep\susage\scan\sbe\suse\sinsde\sa\scheckout.
-D 2020-12-07T16:12:00.357
+C Fix\shelp-text\sformatting\serror\son\sthe\sprevious\scheck-in.
+D 2020-12-08T11:47:43.154
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -452,7 +452,7 @@ F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c c4a43cff0750745699c8c66ba3742e393281953b1dea4e7338ee1b67276f6a5a
+F src/clone.c 300d5a18bff494ed615f4dfd4f7b927c0f5608e5b14496024c1ea96127c8dc71
 F src/codecheck1.c 0ca97e0ad67ee180590b536c5f8cf1e3a7ce6da15e42d9380a8a61b804e4da8f
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
 F src/config.h 2f3715d5a624250ad8f5c211cf07235a8bcd32080f97103cbd24d0c713d79dd6
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7dcf38c5b89ccc895b96e54b2c3d697bb4cd7b8dcf06a9b99e9e0cce3c47cbf
-R 89571641ba34f550205dc46b51ca016b
-U mgagnon
-Z c884482b99a0aa2e57c8bdf358b8658a
+P f3d115d9884944932247c030d3eb0db0a812edbd37d2b995900071b77262eabb
+R a17f4254443e5d0b83337445313978a6
+U drh
+Z 1613ebf20fd03464f3a3957fb78a24d6

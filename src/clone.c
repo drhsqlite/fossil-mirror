@@ -125,7 +125,8 @@ void delete_private_content(void){
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
 **    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
-**    --nested                   Allow opening a repository inside an opened checkout
+**    --nested                   Allow opening a repository inside an opened
+**                               checkout
 **    --nocompress               Omit extra delta compression
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
