@@ -614,7 +614,7 @@ void www_print_timeline(
           @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>
         }else if( zCom[0]==':' ){
           @ Changes to wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
-          @ %h(zCom+1)</a>
+          @ %h(zCom+1)</a>"
         }else{
           /* Legacy EVENT table entry that needs to be rebuilt */
           @ Changes to a wiki page &rarr; Obsolete EVENT table information.
