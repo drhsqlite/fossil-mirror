@@ -15,7 +15,7 @@
   *  Added commands "[/help?cmd=all|fossil all git export]" and
      "[/help?cmd=all|fossil all git status]".
   *  Improvements to the "[/sitemap]" page.  Add subpages
-     [/sitemap-timeline] and [/sitmap-test].
+     [/sitemap-timeline] and [/sitemap-test].
   *  Better text position in cylinder objects of Pikchr diagrams.
   *  New "details.txt" settings available to custom skins to better control
      the rendering of Pikchr diagrams:
