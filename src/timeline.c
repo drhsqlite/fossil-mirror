@@ -606,12 +606,12 @@ void www_print_timeline(
         wiki_hyperlink_override(zUuid);
         if( zCom[0]=='-' ){
           @ Deleted wiki page "%z(href("%R/whistory?name=%t",zCom+1))\
-          @ %h(zCom+1)</a>
+          @ %h(zCom+1)</a>"
         }else if( (tmFlags & TIMELINE_REFS)!=0
                && (zCom[0]=='+' || zCom[0]==':') ){
-          @ Wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>
+          @ Wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else if( zCom[0]=='+' ){
-          @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>
+          @ Added wiki page "%z(href("%R/wiki?name=%t",zCom+1))%h(zCom+1)</a>"
         }else if( zCom[0]==':' ){
           @ Changes to wiki page "%z(href("%R/wiki?name=%t",zCom+1))\
           @ %h(zCom+1)</a>"
