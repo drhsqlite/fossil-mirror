@@ -220,20 +220,41 @@ instance, Fossil will not collapse double slashes down to a single
 slash, as some other HTTP servers will.
 
 
+## <a name="large-uv"></a> Allowing Large Unversioned Files
+
+By default, nginx only accepts HTTP messages [up to a
+meg](http://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size)
+in size. Fossil chunks its sync protocol such that this is not normally
+a problem, but when sending [unversioned content][uv], it uses a single
+message for the entire file. Therefore, if you will be storing files
+larger than this limit as unversioned content, you need to raise the
+limit. Within the `location` block:
+
+        # Allow large unversioned file uploads, such as PDFs
+        client_max_body_size 20M;
+
+[uv]: ../../unvers.wiki
+
+
 ## <a name="fail2ban"></a> Integrating `fail2ban`
 
-You can have `fail2ban` recognize attacks and automatically block them,
-but the stock configuration doesn’t work with our Fossil setup above, so
-we have to do a bit of local adjustment.
+One of the nice things that falls out of proxying Fossil behind nginx is
+that it makes it easier to configure `fail2ban` to recognize attacks on
+Fossil and automatically block them. Fossil logs the sorts of errors we
+want to detect, but it does so in places like the repository’s admin
+log, a SQL table, which `fail2ban` doesn’t know how to query. By putting
+Fossil behind an nginx proxy, we convert these failures to log file
+form, which `fail2ban` is designed to handle.
 
-First, install it:
+First, install `fail2ban`, if you haven’t already:
 
       sudo apt install fail2ban
 
-Out of the box, you get SSH monitoring only. There are nginx monitors
-included with the package, but they don’t look in the right places for
-the right things. We’d like it to react to Fossil `/login` failures, for
-example. Put the following into
+We’d like `fail2ban` to react to Fossil `/login` failures.  The stock
+configuration of `fail2ban` only detects a few common sorts of SSH
+attacks by default, and its included (but disabled) nginx attack
+detectors don’t include one that knows how to detect an attack on
+Fossil.  We have to teach it by putting the following into
 `/etc/fail2ban/filter.d/nginx-fossil-login.conf`:
 
       [Definition]

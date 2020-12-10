@@ -689,16 +689,24 @@ view][infow], though.
 
 #### <a name="dstat"></a> Diff Statistics
 
-Fossil doesn’t have an internal equivalent to commands like
-`git show --stat`, but it’s easily remedied by using
-[the widely-available `diffstat` tool][dst]:
+Fossil’s closest internal equivalent to commands like
+`git show --stat` is:
 
-        fossil diff -i --from 2020-04-01 | diffstat
+        fossil diff -i --from 2020-04-01 --numstat
 
-We gave the `-i` flag here to force Fossil to use its internal diff
-implementation, bypassing [your local `diff-command` setting][dcset].
-If you had that set to [`colordiff`][cdiff], for example, its output
-would confuse `diffstat`.
+The `--numstat` output is a bit cryptic, so we recommend delegating
+this task to [the widely-available `diffstat` tool][dst]:
+
+        fossil diff -i -N --from 2020-04-01 | diffstat
+
+We gave the `-i` flag in both cases to force Fossil to use its internal
+diff implementation, bypassing [your local `diff-command` setting][dcset].
+The `--numstat` option has no effect when you have an external diff
+command set, and some diff command alternatives like
+[`colordiff`][cdiff] produce output that confuses `diffstat`.
+
+If you leave off the `-N` flag in the second example, the `diffstat`
+output won’t include info about any newly-added files.
 
 [cdiff]: https://www.colordiff.org/
 [dcset]: https://fossil-scm.org/home/help?cmd=diff-command

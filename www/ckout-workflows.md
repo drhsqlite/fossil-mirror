@@ -4,8 +4,7 @@ Because Fossil separates the concept of “check-out directory” from
 “repository DB file,” it gives you the freedom to choose from several
 working styles. Contrast Git, where the two concepts are normally
 intermingled in a single working directory, which strongly encourages
-the “update in place” working style, leaving its `git-worktree` feature
-underutilized.
+the “update in place” working style.
 
 
 ## <a id="mcw"></a> Multiple-Checkout Workflow
@@ -50,9 +49,9 @@ Each check-out operates independently of the others.
 
 This multiple-checkouts working style is especially useful when Fossil stores source code in programming languages
 where there is a “build” step that transforms source files into files
-you actually run or distribute. With Git’s typical switch-in-place workflow,
-you have to rebuild all outputs from the source files
-that differ between those versions whenever you switch versions. In the above Fossil working model,
+you actually run or distribute. Contrast a switch-in-place workflow,
+where you have to rebuild all outputs from the source files
+that differ between those versions whenever you switch versions. In the above model,
 you switch versions with a “`cd`” command instead, so that you only have
 to rebuild outputs from files you yourself change.
 
@@ -74,9 +73,9 @@ style, switching between versions in a single check-out directory.
 
 #### <a id="idiomatic"></a> The Idiomatic Fossil Way
 
-With the clone done as in [the prior section](#mdw), the most idiomatic
-way is as follows:
+The most idiomatic way is as follows:
 
+        fossil clone https://example.com/repo /path/to/repo.fossil
         mkdir work-dir
         cd work-dir
         fossil open /path/to/repo.fossil
@@ -89,10 +88,10 @@ Basically, you replace the `cd` commands in the multiple checkouts
 workflow above with `fossil up` commands.
 
 
-#### <a id="open"></a> The Clone-and-Open Way
+#### <a id="open"></a> Opening a Repository by URI
 
-In Fossil 2.12, we added a feature that allows you to get closer to
-Git’s single-step clone-and-open behavior:
+In Fossil 2.12, we added a feature to simplify the single-worktree use
+case:
 
         mkdir work-dir
         cd work-dir
@@ -101,40 +100,28 @@ Git’s single-step clone-and-open behavior:
 Now you have “trunk” open in `work-dir`, with the repo file stored as
 `repo.fossil` in that same directory.
 
-The use of [`fossil open`][open] here instead of [`fossil clone`][clone]
-is likely to surprise a Git user. When we were [discussing][caod]
-this, we considered following the Git command style, but we decided
-against it because it goes against this core Fossil design principle:
-given that the Fossil repo is separate from the check-out, why would you
-expect asking for a repo clone to also create a check-out directory for
-you?  We view commingled repository + check-out as a design error in
-Git, so why would we repeat the error?
-
-To see why we see this behavior is error-prone, consider that
-`git clean` must have an exception to avoid nuking the `.git` directory.
-We had to add that complication to `fossil clean` when we added the
-`fossil open URI` feature: it won’t nuke the repo DB file.
-
-[clone]:  /help?cmd=clone
-[open]:   /help?cmd=open
+Users of Git may be surprised that it doesn’t create a directory for you
+and that you `cd` into it *before* the clone-and-open step, not after.
+This is because we’re overloading the “open” command, which already had
+the behavior of opening into the current working directory. Changing it
+to behave like `git clone` would therefore make the behavior surprising
+to Fossil users. (See [our discussions][caod] if you want the full
+details.)
 
 
-#### <a id="clone"></a> The Git Clone Way
+#### <a id="clone"></a> Git-Like Clone-and-Open
 
-This feature didn’t placate many Git fans, though, so with Fossil 2.14 —
-currently unreleased — we now allow this:
+With Fossil 2.14 — currently unreleased — we added a more Git-like
+alternative:
 
         fossil clone https://fossil-scm.org/fossil
+        cd fossil
 
 This results in a `fossil.fossil` repo DB file and a `fossil/` working
 directory.
 
 Note that our `clone URI` behavior does not commingle the repo and
-check-out, solving our major problem with the Git design, though we
-still believe it to be confusing to have “clone” be part of “open,” and
-still more confusing to have “open” part of “clone.” We prefer keeping
-these operations entirely separate, either as at the [top of this
-section](#scw) or [as in the prior one](#mcw). Still, please yourself.
+check-out, solving our major problem with the Git design.
 
 If you want the repo to be named something else, adjust the URL:
 
@@ -151,6 +138,7 @@ repo served from `dev.example.com` and want it cloned as `my-project`:
 The `/repo` addition is the key: whatever comes after is used as the
 repository name. [See the docs][clone] for more details.
 
-[caod]: https://fossil-scm.org/forum/forumpost/3f143cec74
+[caod]:  https://fossil-scm.org/forum/forumpost/3f143cec74
+[clone]: /help?cmd=clone
 
 <div style="height:50em" id="this-space-intentionally-left-blank"></div>

@@ -132,7 +132,7 @@ void backlink_table_page(void){
     @ <tr><td><a href="%R/info/%h(zTarget)">%h(zTarget)</a>
     switch( srctype ){
       case BKLNK_COMMENT: {
-        @ <td><a href="%R/info?name=rid:%d(srcid)">comment-%d(srcid)</a>
+        @ <td><a href="%R/info?name=rid:%d(srcid)">checkin-%d(srcid)</a>
         break;
       }
       case BKLNK_TICKET: {

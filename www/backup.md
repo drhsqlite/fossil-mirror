@@ -250,7 +250,7 @@ restoration is:
 
 ```
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 52830 -pass pass:"$pass" -in "$gd" |
-    xz -d | fossil --no-repository ~/museum/restored-repo.fossil
+    xz -d | fossil sql --no-repository ~/museum/restored-repo.fossil
 ```
 
 We changed the `-e` to `-d` on the `openssl` command to get decryption,
@@ -267,7 +267,7 @@ Fossil serves as a dogfooding project for SQLite,
 often making use of the latest features, so it is quite likely that a given
 random `sqlite3` binary in your `PATH` will be unable to understand the
 file created by “`fossil sql .dump`”! The tricky bit is, you can’t just
-pipe the decrpted SQL dump into `fossil sql`, because on startup, Fossil
+pipe the decrypted SQL dump into `fossil sql`, because on startup, Fossil
 normally goes looking for tables created by `fossil init`, and it won’t
 find them in a newly-created repo DB. We get around this by passing
 the `--no-repository` flag, which suppresses this behavior. Doing it

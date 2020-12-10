@@ -35,6 +35,11 @@
 #endif
 
 /*
+** True if the "fossil sql" command has the --test flag.  False otherwise.
+*/
+static int local_bSqlCmdTest = 0;
+
+/*
 ** Implementation of the "content(X)" SQL function.  Return the complete
 ** content of artifact identified by X as a blob.
 */
@@ -116,7 +121,6 @@ static void sqlcmd_decompress(
   nIn = sqlite3_value_bytes(argv[0]);
   if( nIn<4 ) return;
   nOut = (pIn[0]<<24) + (pIn[1]<<16) + (pIn[2]<<8) + pIn[3];
-  if( nOut<0 ) return;
   pOut = sqlite3_malloc( nOut+1 );
   rc = uncompress(pOut, &nOut, &pIn[4], nIn-4);
   if( rc==Z_OK ){
@@ -165,8 +169,19 @@ int add_content_sql_commands(sqlite3 *db){
 **     db_protect(X)
 **     db_protect_pop(X)
 **
-** These invoke the corresponding C routines.  Misuse may result in
-** an assertion fault.
+** These invoke the corresponding C routines.
+**
+** WARNING:
+** Do not instantiate these functions for any Fossil webpage or command
+** method of than the "fossil sql" command.  If an attacker gains access
+** to these functions, he will be able to disable other defense mechanisms.
+**
+** This routines are for interactiving testing only.  They are experimental
+** and undocumented (apart from this comments) and might go away or change
+** in future releases.
+**
+** 2020-11-29:  This functions are now only available if the "fossil sql"
+** command is started with the --test option.
 */
 static void sqlcmd_db_protect(
   sqlite3_context *context,
@@ -175,19 +190,21 @@ static void sqlcmd_db_protect(
 ){
   unsigned mask = 0;
   const char *z = (const char*)sqlite3_value_text(argv[0]);
-  if( sqlite3_stricmp(z,"user")==0 )      mask |= PROTECT_USER;
-  if( sqlite3_stricmp(z,"config")==0 )    mask |= PROTECT_CONFIG;
-  if( sqlite3_stricmp(z,"sensitive")==0 ) mask |= PROTECT_SENSITIVE;
-  if( sqlite3_stricmp(z,"readonly")==0 )  mask |= PROTECT_READONLY;
-  if( sqlite3_stricmp(z,"all")==0 )       mask |= PROTECT_ALL;
-  db_protect(mask);
+  if( z!=0 && local_bSqlCmdTest ){
+    if( sqlite3_stricmp(z,"user")==0 )      mask |= PROTECT_USER;
+    if( sqlite3_stricmp(z,"config")==0 )    mask |= PROTECT_CONFIG;
+    if( sqlite3_stricmp(z,"sensitive")==0 ) mask |= PROTECT_SENSITIVE;
+    if( sqlite3_stricmp(z,"readonly")==0 )  mask |= PROTECT_READONLY;
+    if( sqlite3_stricmp(z,"all")==0 )       mask |= PROTECT_ALL;
+    db_protect(mask);
+  }
 }
 static void sqlcmd_db_protect_pop(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
-  db_protect_pop();
+  if( !local_bSqlCmdTest ) db_protect_pop();
 }
 
 
@@ -234,10 +251,12 @@ static int sqlcmd_autoinit(
   sqlite3_trace_v2(db, mTrace, db_sql_trace, 0);
   db_protect_only(PROTECT_NONE);
   sqlite3_set_authorizer(db, db_top_authorizer, db);
-  sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
-                          sqlcmd_db_protect, 0, 0);
-  sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
-                          sqlcmd_db_protect_pop, 0, 0);
+  if( local_bSqlCmdTest ){
+    sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
+                            sqlcmd_db_protect, 0, 0);
+    sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
+                            sqlcmd_db_protect_pop, 0, 0);
+  }
   return SQLITE_OK;
 }
 
@@ -332,6 +351,9 @@ static void fossil_close(int bDb, int noRepository){
 **
 **    -R REPOSITORY             Use REPOSITORY as the repository database
 **
+**    --test                    Enable some testing and analysis features
+**                              that are normally disabled.
+**
 ** All of the standard sqlite3 command-line shell options should also
 ** work.
 **
@@ -399,6 +421,7 @@ void cmd_sqlite3(void){
   g.fNoThHook = 1;
 #endif
   noRepository = find_option("no-repository", 0, 0)!=0;
+  local_bSqlCmdTest = find_option("test",0,0)!=0;
   if( !noRepository ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   }

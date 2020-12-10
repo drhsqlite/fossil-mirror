@@ -125,6 +125,8 @@ void delete_private_content(void){
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
 **    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
+**    --nested                   Allow opening a repository inside an opened
+**                               checkout
 **    --nocompress               Omit extra delta compression
 **    --no-open                  Clone only.  Do not open a check-out.
 **    --once                     Don't remember the URI.
@@ -147,8 +149,9 @@ void clone_cmd(void){
   int syncFlags = SYNC_CLONE;
   int noCompress = find_option("nocompress",0,0)!=0;
   int noOpen = find_option("no-open",0,0)!=0;
+  int allowNested = find_option("nested",0,0)!=0; /* Used by open */
   const char *zRepo = 0;      /* Name of the new local repository file */
-  const char *zWorkDir = 0;   /* Open in this director, if not zero */
+  const char *zWorkDir = 0;   /* Open in this directory, if not zero */
 
 
   /* Also clone private branches */
@@ -191,6 +194,12 @@ void clone_cmd(void){
   }  
   if( -1 != file_size(zRepo, ExtFILE) ){
     fossil_fatal("file already exists: %s", zRepo);
+  }
+  /* Fail before clone if open will fail because inside an open checkout */
+  if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
+    if( db_open_local_v2(0, allowNested) ){
+      fossil_fatal("there is already an open tree at %s", g.zLocalRoot);
+    }
   }
   url_parse(g.argv[2], urlFlags);
   if( zDefaultUser==0 && g.url.user!=0 ) zDefaultUser = g.url.user;
@@ -279,18 +288,25 @@ void clone_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
-     char *azNew[6];
-     fossil_print("opening the new %s repository in directory %s...\n",
-        zRepo, zWorkDir);
-     azNew[0] = g.argv[0];
-     azNew[1] = "open";
-     azNew[2] = (char*)zRepo;
-     azNew[3] = "--workdir";
-     azNew[4] = (char*)zWorkDir;
-     azNew[5] = 0;
-     g.argv = azNew;
-     g.argc = 5;
-     cmd_open();
+    char *azNew[7];
+    int nargs = 5;
+    fossil_print("opening the new %s repository in directory %s...\n",
+       zRepo, zWorkDir);
+    azNew[0] = g.argv[0];
+    azNew[1] = "open";
+    azNew[2] = (char*)zRepo;
+    azNew[3] = "--workdir";
+    azNew[4] = (char*)zWorkDir;
+    if( allowNested ){
+      azNew[5] = "--nested";
+      nargs++;
+    }else{
+      azNew[5] = 0;
+    }
+    azNew[6] = 0;
+    g.argv = azNew;
+    g.argc = nargs;
+    cmd_open();
   }
 }
 
