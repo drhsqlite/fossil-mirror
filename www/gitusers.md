@@ -469,10 +469,46 @@ of the files or directories you want to commit as arguments, like this:
 
         fossil commit src/feature.c doc/feature.md examples/feature
 
-There are currently no interactive patching features in Fossil like
-`git add --patch/-p` or `git commit -p`. [Contributions welcome!][ctrb]
+Although there are currently no
+<a id="csplit"></a>[commit splitting][gcspl] features in Fossil like
+`git add -p`, `git commit -p`, or `git rebase -i`, you can get the same
+effect by converting an uncommitted change set to a patch and then
+running it through [Patchouli].
 
-[ctrb]: https://fossil-scm.org/fossil/doc/trunk/www/contribute.wiki
+Rather than use `fossil diff -i` to produce such a patch, a safer and
+more idiomatic method would be:
+
+        fossil stash save -m 'my big ball-o-hackage'
+        fossil stash diff > my-changes.patch
+
+That stores your changes in the stash, then lets you operate on a copy
+of that patch. Each time you re-run the second command, it will take the
+current state of the working directory into account to produce a
+potentially different patch, likely smaller because it leaves out patch
+hunks already applied.
+
+In this way, the combination of working tree and stash replaces the need
+for Git’s index feature.
+
+This also solves a philosophical problem with `git commit -p`: how can
+you test that a split commit doesn’t break anything if you do it as part
+of the commit action? Git’s lack of an autosync feature means you can
+commit locally and then rewrite history if the commit doesn’t work out,
+but we’d rather make changes only to the working directory, test the
+changes there, and only commit once we’re sure it’s right.
+
+This also explains why we don’t have anything like `git rebase -i`
+to split an existing commit: in Fossil, commits are *commitments,* not
+something you want to go back and rewrite later.
+
+If someone does [contribute][ctrb] a commit splitting feature to Fossil,
+we’d expect it to be an interactive form of
+[`fossil stash apply`][stash], rather than follow Git’s ill-considered
+design leads.
+
+[ctrb]:      https://fossil-scm.org/fossil/doc/trunk/www/contribute.wiki
+[gcspl]:     https://git-scm.com/docs/git-rebase#_splitting_commits
+[Patchouli]: https://pypi.org/project/patchouli/
 
 
 <a id="bneed"></a>
@@ -634,30 +670,11 @@ common objections as well. Chances are not good that you are going to
 come up with a new objection that we haven’t already considered and
 addressed there.
 
+There is only one sub-feature of `git rebase` that is philosophically
+compatible with Fossil yet which currently has no functional equivalent.
+We cover [this and the workaround for it](#csplit) above.
+
 [3]: ./rebaseharm.md
-
-
-## <a id="split"></a> Commit Splitting
-
-Although Fossil is [highly unlikely to get rebasing](#rebase), there is
-one sub-feature of `git rebase` that currently has no functional
-equivalent in Fossil yet which is philosophically compatible with it:
-[commit splitting][gcspl].
-
-We’ve discussed designs for getting such a feature in Fossil without
-resorting to the history-rewriting features of `git rebase`, such as an
-interactive form of [`fossil stash apply`][stash]. Until someone gets
-around to providing such a feature, we suggest that you try [Patchouli].
-
-To contrast this with `git rebase -i`, you don’t commit a large change
-set and then rewrite history to split it up, you produce a patch file
-(`fossil diff -i > my-changes.patch`) and then apply a subset of those
-changes to the Fossil working tree, test the result, and commit.
-
-[gcspl]: https://git-scm.com/docs/git-rebase#_splitting_commits
-[Patchouli]: https://pypi.org/project/patchouli/
-
-
 
 
 ## <a id="show"></a> Showing Information About Commits
