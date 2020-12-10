@@ -637,6 +637,29 @@ addressed there.
 [3]: ./rebaseharm.md
 
 
+## <a id="split"></a> Commit Splitting
+
+Although Fossil is [highly unlikely to get rebasing](#rebase), there is
+one sub-feature of `git rebase` that currently has no functional
+equivalent in Fossil yet which is philosophically compatible with it:
+[commit splitting][gcspl].
+
+We’ve discussed designs for getting such a feature in Fossil without
+resorting to the history-rewriting features of `git rebase`, such as an
+interactive form of [`fossil stash apply`][stash]. Until someone gets
+around to providing such a feature, we suggest that you try [Patchouli].
+
+To contrast this with `git rebase -i`, you don’t commit a large change
+set and then rewrite history to split it up, you produce a patch file
+(`fossil diff -i > my-changes.patch`) and then apply a subset of those
+changes to the Fossil working tree, test the result, and commit.
+
+[gcspl]: https://git-scm.com/docs/git-rebase#_splitting_commits
+[Patchouli]: https://pypi.org/project/patchouli/
+
+
+
+
 ## <a id="show"></a> Showing Information About Commits
 
 While there is no direct equivalent to Git’s “`show`” command, similar
