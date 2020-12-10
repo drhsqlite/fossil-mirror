@@ -1,5 +1,5 @@
-C Recommending\sadding\s-N\sto\s"fossil\sdiff"\scommands\swhen\spiping\sthru\ndiffstat\sin\sthe\sgitusers.md\sdoc.
-D 2020-12-10T20:59:10.988
+C Reworked\ssection\s5.0\sof\sthe\srebaseharm\sdoc\sto\sbe\sless\scontroversial.\nCharged\swords\sare\squotes\sfrom\sthe\sGit\sdocs,\snot\swords\swe\ssling\sat\sit,\netc.\sThis\salso\smore\sclearly\sseparates\sthe\s"merge\salternative"\saspects\sof\nrebase\sfrom\sthe\shistory-mutating\saspects.
+D 2020-12-10T21:33:26.537
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -933,7 +933,7 @@ F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0c
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
 F www/quickstart.wiki c2626296ee879600911ab1004fa9c1ebdd86e105a8ef3026ba567cfcb048ddff
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
-F www/rebaseharm.md 7c0d45b467ba8ff9f907d1d5406322080ac273bcd59d0e3730401c6f72bae857
+F www/rebaseharm.md a21ade941ac2abdc239bd1c0ef03568d2cbddce07e24d0fbda77406aeed45cd1
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11e3366c21153b6b685164dba7abbeb03911dd998a8e6d79fe66f82d566a1ccc
-R b86d02661a3f6a6a8039904204fe2f01
+P a4e84fb5974058fb60a6fb32e0cec2067395a50da1671d20700a5c3b681f4c3c
+R 74111b224e2823b6de3aaf893f75c33e
 U wyoung
-Z 2ec9da0957f4f0812190c59210975fe1
+Z 0cf45e48fbc55444bf84bd739b702524

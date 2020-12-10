@@ -300,59 +300,42 @@ complicate the legal defense of prior art claims.
 By discarding parentage information, rebase attempts to deceive the
 reader about how the code actually came together.
 
-The [Git rebase documentation][gitrebase] admits as much.  They acknowledge
-that when you view a repository as record of what actually happened,
-doing a rebase is "blasphemous" and "you're _lying_ about what
-actually happened", but then goes on to justify rebase as follows:
+You may be tempted to dismiss this as an anti-Git opinion on a Fossil
+web site, but it’s spelled out just like that [in the Git rebase
+documentation][gitrebase]. It speaks of “lying,” “telling stories,”
+and “blasphemy.”
 
->
-_"The opposing point of view is that the commit history is the **story of 
-how your project was made.** You wouldn't publish the first draft of a 
-book, and the manual for how to maintain your software deserves careful
-editing. This is the camp that uses tools like rebase and filter-branch 
-to tell the story in the way that's best for future readers."_
-
-This counter-argument assumes you must
-change history in order to enhance readability, which is not true.
-
-In fairness to the Git documentation authors, changing the
-project history appears to be the only way to make editorial
-changes in Git.
-But it does not have to be that way.
-Fossil demonstrates how "the story of your project"
-can be enhanced without changing the actual history
-by allowing users to:
+That section of the Git docs is contrasting rebase with merge, which we
+cover [above](#cap-loss), but Git’s rebase feature is more than just an
+alternative to merging: it also provides mechanisms for changing the
+project history in order to make editorial changes.  Fossil shows that
+you can get similar effects without modifying historical records,
+allowing users to:
 
   1.  Edit check-in comments to fix typos or enhance clarity
   2.  Attach supplemental notes to check-ins or whole branches
-  3.  Cross-reference check-ins with each other, or with
-      wiki, tickets, forum posts, and/or embedded documentation
-  4.  Hide ill-conceived or now-unused branches from routine display
-  5.  Fix faulty check-in date/times resulting from misconfigured
+  3.  Hide ill-conceived or now-unused branches from routine display
+  4.  Fix faulty check-in date/times resulting from misconfigured
       system clocks
+  5.  Cross-reference check-ins with each other, or with
+      wiki, tickets, forum posts, and/or embedded documentation
  
 …and so forth.
 
-These changes are accomplished not by removing or modifying existing
+Fossil allows all of this not by removing or modifying existing
 repository entries, but rather by adding new supplemental records.
-The original incorrect or unclear inputs are preserved and are
-readily accessible.  The original history is preserved.
-But for routine display purposes, the more
-readable edited presentation is provided.
+Fossil keeps the original incorrect or unclear inputs and makes them
+readily accessible, preserving the original historical record. Fossil
+doesn’t make the user tell counter-factual “stories,” it only allows the
+user to provide annotations to provide a more readable edited
+presentation for routine display purposes.
 
-A repository can be a true and accurate
-representation of history even without getting everything perfect
-on the first draft.  Those are not contradictory goals, at least
-not in theory.
-
-Unfortunately, Git does not currently provide the ability to add
-corrections or clarifications or supplimental notes to historical check-ins.
-Hence, once again,
-rebase can be seen as an attempt to work around limitations
-of Git.  Git could be enhanced to support editorial changes
-to check-ins. 
-Wouldn't it be better to fix the version control tool
-rather than requiring users to fabricate a fictitious project history?
+Git needs rebase because it lacks these annotation facilities.  Rather
+than consider rebase a desirable feature missing in Fossil, ask instead
+why Git lacks support for making editorial changes to check-ins without
+modifyihng history?  Wouldn't it be better to fix the version control
+tool rather than requiring users to fabricate a fictitious project
+history?
 
 ## <a name="collapsing"></a>6.0 Collapsing check-ins throws away valuable information
 
