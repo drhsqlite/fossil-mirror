@@ -1,5 +1,5 @@
-C Replaced\sa\sfew\sremaining\s"block\schain"\sreferences\swith\s"Merkle\stree"\sin\s\nthe\sFossil\sv\sGit\sarticle.
-D 2020-12-10T20:19:31.604
+C Using\sthe\sless\sjargony\sterm\s"crawling"\sinstead\sof\s"grovel"\sin\sthe\sFossil\nv\sGit\sarticle.
+D 2020-12-10T20:20:31.399
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -868,7 +868,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 68d10cc26e6d8b3c92d354515e08947878109977c7d025dc2717a892167a3589
+F www/fossil-v-git.wiki beaa96fda514e3b8fc7b2ff9bbfd75f47ea6ed98249338d7cce50a6f87920f9c
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6ab24fd26a1ba1c98e0b6ad23bad841e5fe7d4976a0575d2d00a852d1d21006
-R d38634d8c2a76424db191c0eec8ccb28
+P e673065280bbd81ec08e1364ee494505e59653a5c0ff853ead2f33388c2b526a
+R dcf62c1680d6bd8019d111c1e93d023f
 U wyoung
-Z 7c23723ad60315cc9113992d7ffab32c
+Z 895564cbb1923e90c5f7b36d2c60d6fe
