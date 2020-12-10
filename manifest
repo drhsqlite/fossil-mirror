@@ -1,5 +1,5 @@
-C Using\sthe\sless\sjargony\sterm\s"crawling"\sinstead\sof\s"grovel"\sin\sthe\sFossil\nv\sGit\sarticle.
-D 2020-12-10T20:20:31.399
+C Edit\spass\sfor\sclarity\son\sthe\sckout-workflows\sdoc
+D 2020-12-10T20:47:41.169
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -833,7 +833,7 @@ F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md bf75bbf5dbd1aef9d31b7744b9ba8ff647f956467107076c757cc86ee31ead80
-F www/ckout-workflows.md 3823df549ae687ef50ced597a47b91af71d3dac8698a1d9e7cd4734edf5c1dbe
+F www/ckout-workflows.md 24b691b62c9cc51cc0f0d5ecf0b2d91526ce956f18bd935d3629d8056836f939
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 8a6095ecb6582181fd13fb5c1474b2edf0a042750d9e959a703747f7045a5c17
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e673065280bbd81ec08e1364ee494505e59653a5c0ff853ead2f33388c2b526a
-R dcf62c1680d6bd8019d111c1e93d023f
+P 3f6f7deaf6d434d33d3ce75e704630a30011c9702b2643e587752d90f522791a
+R 53a18a02d5bdc37caf3ff7ddc77300fa
 U wyoung
-Z 895564cbb1923e90c5f7b36d2c60d6fe
+Z fcdbb4f8e0fdaef46cc20f4a84a02e98
