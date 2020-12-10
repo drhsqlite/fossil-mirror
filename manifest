@@ -1,5 +1,5 @@
-C Edit\spass\sfor\sclarity\son\sthe\sckout-workflows\sdoc
-D 2020-12-10T20:47:41.169
+C Added\sinfo\sabout\s--numstat\sto\sthe\s"Diff\sStatistics"\ssection\sof\sthe\ngitusers\sdoc.
+D 2020-12-10T20:55:44.909
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -879,7 +879,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/gitusers.md cb1dd793889737882581a44b648138b292fc9218ee9e58f9697d621da4ce0cec
+F www/gitusers.md 0396ea4fda53c6f6473f2d715d8c7c4c6afddb7553ce3297130591bb8148fc4a
 F www/globs.md fb92287b95e7fc588a768f5961b3268a1b8d82c4b3e657ee0453f988825ebc72
 F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f6f7deaf6d434d33d3ce75e704630a30011c9702b2643e587752d90f522791a
-R 53a18a02d5bdc37caf3ff7ddc77300fa
+P ea594514cc98ac7d83c3510eed121811c9135d0f44e750647c3784397e49a1e9
+R 0d8e497d15fe3b0e5c2cbd054b1045dc
 U wyoung
-Z fcdbb4f8e0fdaef46cc20f4a84a02e98
+Z c485274ad6f7365819d4cd024705c8b7
