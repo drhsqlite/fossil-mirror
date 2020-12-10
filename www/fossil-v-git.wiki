@@ -266,7 +266,8 @@ Fossil, on the other hand, parses essential information about check-ins
 relational database that can easily be queried using concise SQL
 statements to find both ancestors and descendants of a check-in. This is
 the hybrid data model mentioned above: Fossil manages your check-in and
-other data in a NoSQL block chain structured data store, but that's backed
+other data in a NoSQL [https://en.wikipedia.org/wiki/Merkle_tree |
+Merkle tree] structured data store, but that's backed
 by a set of relational lookup tables for quick indexing into that
 artifact store.  (See "[./theory1.wiki|Thoughts On The Design Of The
 Fossil DVCS]" for more details.)
@@ -278,7 +279,7 @@ state] problem has caused untold grief for
 [https://www.google.com/search?q=git+detached+head+state | a huge number
 of Git users]. With
 Fossil, detached heads are simply impossible because we can always find
-our way back into the block chain using one or more of the relational
+our way back into the Merkle tree using one or more of the relational
 indices it automatically manages for you.
 
 This design difference shows up in several other places within each
@@ -908,7 +909,7 @@ Almost three years after Fossil solved this problem, the
 weakening the case for continuing to use SHA-1.
 
 The practical impact of attacks like SHAttered and SHAmbles on the
-Git and Fossil blockchains isn't clear, but you want to have your repositories
+Git and Fossil Merkle trees isn't clear, but you want to have your repositories
 moved over to a stronger hash algorithm before someone figures out how
 to make use of the weaknesses in the old one. Fossil has had this covered
 for years now, so that the solution is now almost universally deployed.
