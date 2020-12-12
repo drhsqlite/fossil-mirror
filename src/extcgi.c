@@ -69,6 +69,7 @@ static const char *azCgiEnv[] = {
    "REMOTE_ADDR",
    "REMOTE_USER",
    "REQUEST_METHOD",
+   "REQUEST_SCHEMA",
    "REQUEST_URI",
    "SCRIPT_DIRECTORY",
    "SCRIPT_FILENAME",

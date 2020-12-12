@@ -1,5 +1,5 @@
-C If\sfossil.fetch()'s\sbeforesend()\scallback\spropagates\san\sexception,\sit\sis\snow\spassed\sto\sthe\sonerror()\scallback\sand\saborts\sthe\sfetch,\srather\sthan\sbeing\ssilently\signored.
-D 2020-12-12T10:01:50.806
+C Attempt\sto\sprovide\ssupport\sfor\sthe\sREQUEST_SCHEMA\sand\sSERVER_NAME\nenvironment\svariables\sin\sCGI\ssupport.\s\sThis\sis\san\salternative\simplementation\nof\s[0d72caae1592769e|check-in\s0d72caae1592769e].\s\sDiscussion\son\n[forum:/forumpost/cba707d7bd|forum\sthread\scba707d7bd]\sand\n[forum:/forumpost/cb17013d06|cb17013d06].
+D 2020-12-12T14:05:56.061
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c 6167f077b5adba21c94bc83e3360f1189812945f43280083cca4df245d0fa2dd
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c 55c11d5b82a715a9d9505120e927d7617dc4e2ebea360ff9fdb21834034736c0
-F src/cgi.c 9efe8767e9114f5334347d2f45b9660e597f73b2a0ebbee077254e0ce0743189
+F src/cgi.c 23fa5a105658c429a4cff075ee0441118ea1343609d773f64076d2eb26564b59
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -478,7 +478,7 @@ F src/encode.c d18d44e72c6e3361d0fd3242042980aa37d3d1ae7d774e68d3351eb144bd2238
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8d34ae981119c922fd07a2a2f27c1f0b5d9188a7bcfda389534afffe670860de
 F src/export.c c26a485351c0bcd0fc0704ba68704c20483399fe41d6a687e3aca63af9b0e5c1
-F src/extcgi.c 8263a26ede42d9684504d47c8c2869e3fd99a6df9a77775f9af7bd387125721d
+F src/extcgi.c b3479960f91f0a1de3210eb0eea7bde061300825575f964ebf158c6b32d63375
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 742f482f3bf1951f6042642cd2c842e3bf79d441b9d57f7573afe19849c09b23
 F src/finfo.c 8a6b412c54ca2f19f6088527eb79b6082c3a747c30080a39f257eae07bf66660
@@ -965,7 +965,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
-F www/serverext.wiki afd625caa3518230dd5323df86acd1ed37805ecbe84751facd2b60627d6d5773
+F www/serverext.wiki abebab317fc845ce97c98a93f57a4a3ad3f77638b80207af7a78d6539c53be25
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 42bec5417f7dc1cf3ad6f5f8c07005088e340788d7a440c701c79f7afeb29ca6
 F www/ssl.wiki 73430a266bd8c2d65c8e37918949718e922aed719cf010d1c57d05954a053f5b
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0a86f3cacf2f7d57a082aec0d2231952eb38d3e05fb632534e166bd8008e8b4
-R ab8d877574f93c5f7e88dd9034d7d6ff
-U stephan
-Z 7337054780e723bcfb42e6ee6e27cd26
+P 1515f0224dc1af8ea473220505191b23e5722b129dd6c645f04bb1666a54d24b
+R 7c22eeca4af8bf19f344e72fef3cb3fc
+U drh
+Z 41050fa6a244f7766e8bef05d6c40fd9

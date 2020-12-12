@@ -131,6 +131,7 @@ standard CGI environment variables are supported:
   *  CONTENT_TYPE
   *  DOCUMENT_ROOT
   *  GATEWAY_INTERFACE
+  *  HTTPS
   *  HTTP_ACCEPT
   *  HTTP_ACCEPT_ENCODING
   *  HTTP_COOKIE
@@ -144,6 +145,7 @@ standard CGI environment variables are supported:
   *  REMOTE_ADDR
   *  REMOTE_USER
   *  REQUEST_METHOD
+  *  REQUEST_SCHEMA
   *  REQUEST_URI
   *  SCRIPT_DIRECTORY
   *  SCRIPT_FILENAME
