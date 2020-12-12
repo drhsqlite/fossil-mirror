@@ -1,5 +1,5 @@
-C Spell\sout\sthe\sword\s"times"\srather\sthan\suse\sthe\sunicode\s"x"\scharacter.
-D 2020-12-12T01:20:00.287
+C If\sfossil.fetch()'s\sbeforesend()\scallback\spropagates\san\sexception,\sit\sis\snow\spassed\sto\sthe\sonerror()\scallback\sand\saborts\sthe\sfetch,\srather\sthan\sbeing\ssilently\signored.
+D 2020-12-12T10:01:50.806
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -489,7 +489,7 @@ F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 989b241395ef4331ea373bbaf292df7fd029d74ca9d06807f72b637be4b81043
 F src/fossil.dom.js 53e8fb9bf01d7e69db313373c54a1aa8ce1617495212da6781e91a785c016bdf
-F src/fossil.fetch.js 35d74ea5609525d87db9ed60e9b5947fe952ca1746e12346ca3f62eb04f67e0f
+F src/fossil.fetch.js 2df4ea7ec9063d45697adbf0077dd18be1e17d79773630df94fdf3b79b97648b
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41b34915bb816ab61607142bbb1a94a1bd5fdd196c9d1c085dd1ff6cfe9db712
-R 56b32efb66048b7bc728f2663507c628
-U drh
-Z 1cf0eb777f370f4199f18d998a052980
+P f0a86f3cacf2f7d57a082aec0d2231952eb38d3e05fb632534e166bd8008e8b4
+R ab8d877574f93c5f7e88dd9034d7d6ff
+U stephan
+Z 7337054780e723bcfb42e6ee6e27cd26

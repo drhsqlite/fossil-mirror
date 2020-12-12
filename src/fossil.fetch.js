@@ -72,14 +72,16 @@ const fossil = namespace;
    set multiple times, their values are (per the XHR docs)
    concatenated together with ", " between them.
 
-   - beforesend/aftersend: optional callbacks which are called without
-   arguments immediately before the request is submitted and
-   immediately after it is received, regardless of success or
-   error. In the context of the callback, the options object is the
-   "this". These can be used to, e.g., keep track of in-flight
-   requests and update the UI accordingly, e.g. disabling/enabling DOM
-   elements. Any exceptions triggered by beforesend/aftersend are
-   caught and silently ignored.
+   - beforesend/aftersend: optional callbacks which are called
+   without arguments immediately before the request is submitted
+   and immediately after it is received, regardless of success or
+   error. In the context of the callback, the options object is
+   the "this". These can be used to, e.g., keep track of in-flight
+   requests and update the UI accordingly, e.g. disabling/enabling
+   DOM elements. Any exceptions thrown in an beforesend are passed
+   to the onerror() handler and cause the fetch() to prematurely
+   abort. Exceptions thrown in aftersend are currently silently
+   ignored (feature or bug?).
 
    - timeout: integer in milliseconds specifying the XHR timeout
    duration. Default = fossil.fetch.timeout.
@@ -93,8 +95,7 @@ const fossil = namespace;
    beforesend/aftersend are no-ops. Individual pages may overwrite
    those members to provide default implementations suitable for the
    page's use, e.g. keeping track of how many in-flight ajax requests
-   are pending. Any exceptions thrown in an beforesend/aftersend
-   handler are current ignored (feature or bug?).
+   are pending.
 
    Note that this routine may add properties to the 2nd argument, so
    that instance should not be kept around for later use.
@@ -197,7 +198,11 @@ fossil.fetch = function f(uri,opt){
       opt.onerror(e);
     }
   };
-  try{opt.beforesend()}catch(e){/*ignore*/}
+  try{opt.beforesend()}
+  catch(e){
+    opt.onerror(e);
+    return;
+  }
   x.open(opt.method||'GET', url.join(''), true);
   if('POST'===opt.method && 'string'===typeof opt.contentType){
     x.setRequestHeader('Content-Type',opt.contentType);
