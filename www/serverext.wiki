@@ -214,6 +214,7 @@ If the HTTP request includes content (for example if this is a POST request)
 then the CONTENT_LENGTH value will be positive and the data for the content
 will be readable on standard input.
 
+
 <h2>4.0 CGI Outputs</h2>
 
 CGI programs construct a reply by writing to standard output.  The first
@@ -258,6 +259,18 @@ page title contained in the added header will be extracted from the
 Except for the three cases noted above, Fossil makes no changes or
 additions to the CGI-generated content.  Fossil just passes the verbatim
 content back up the stack towards the requester.
+
+<h3>4.1 <tt>GATEWAY_INTERFACE</tt> and Recursive Calls to fossil</h3>
+
+Like many CGI-aware applications, if fossil sees the environment
+variable <tt>GATEWAY_INTERFACE</tt> when it starts up, it assumes it
+is running in a CGI environment and behaves differently than when it
+is run in a non-CGI interactive session. If you intend to run fossil
+itself from within an extension CGI script, e.g. to run a query
+against the repository or simply fetch the fossil binary version, make
+sure to <em>unset</em> the <tt>GATEWAY_INTERFACE</tt> environment
+variable before doing so, otherwise the invocation will behave as if
+it's being run in CGI mode.
 
 <h2>5.0 Filename Restrictions</h2>
 

@@ -1,5 +1,5 @@
-C For\sthe\sCGI\shandler\sin\sthe\sextension\sCGI\smechanism,\sunrecognized\sheader\nstrings\scoming\sback\sfrom\sthe\sCGI\sprogram\sare\spassed\sthrough\sunaltered\sto\nthe\sHTTP\sreply.\s\sThis\sallows\sthe\sCGI\sprogram\sto\sset\scookies.
-D 2020-12-12T15:25:17.699
+C serverext.wiki:\sadded\sa\snote\sabout\sthe\sneed\sto\sunset\sGATEWAY_INTERFACE\sbefore\strying\sto\srecursively\scall\sthe\sfossil\sbinary.
+D 2020-12-12T17:29:06.774
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -965,7 +965,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
-F www/serverext.wiki b38ef8157f68bea2dc68344b43a4c03d23a0387f915487a30f9660d3cf2d5bdb
+F www/serverext.wiki 3df27662b33483b3bc5bf3e6bb179d81180b0e6dbd13ce530f286e06a126e992
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 42bec5417f7dc1cf3ad6f5f8c07005088e340788d7a440c701c79f7afeb29ca6
 F www/ssl.wiki 73430a266bd8c2d65c8e37918949718e922aed719cf010d1c57d05954a053f5b
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 282bdf01656ebcde7a2bcf0ef3cb449aae17d4d9bb410d64aff3ed19de42fbcd
-R 5032203eaf3bfd90c9679aaee58bf36f
-U drh
-Z b95471b6271dfead344460e95c8cdf23
+P 1cff8d318232ecfcdd38e9cb5c779fe0b93fd7772e3a1732c9522091ce16cd30
+R d05b86ae6560755247de0ffcb118e915
+U stephan
+Z 275867710c696113a88de1ac956709d7
