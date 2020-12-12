@@ -1,5 +1,5 @@
-C Drop\s"efficiency"\sclaims\sin\sfossil-v-git,\sas\sthe\sterm\sis\snot\squite\sright\nto\sdescribe\sthe\spoint.\s\sUse\s"self-sufficient"\sinstead.
-D 2020-12-12T01:12:47.630
+C Spell\sout\sthe\sword\s"times"\srather\sthan\suse\sthe\sunicode\s"x"\scharacter.
+D 2020-12-12T01:20:00.287
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -868,7 +868,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 366be6c527b303d0ef9944e347290812da3e0489d9e19cea2754d01db53a358b
+F www/fossil-v-git.wiki 3e97ba67660eab4efcea9e816ea1744ecc81f240b4d0e0b1d459a3d8f731f92d
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6369d7b31c9e79e104f72f9b643aa812923e11d41962ea69872555347fd4553b
-R 0caf030aae786944feb9aab1ab47bf22
+P 41b34915bb816ab61607142bbb1a94a1bd5fdd196c9d1c085dd1ff6cfe9db712
+R 56b32efb66048b7bc728f2663507c628
 U drh
-Z d18d1a52130b3c487704b97479fd89b8
+Z 1cf0eb777f370f4199f18d998a052980
