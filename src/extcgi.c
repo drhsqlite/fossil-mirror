@@ -329,6 +329,9 @@ void ext_page(void){
         for(i=13; fossil_isspace(zLine[i]); i++){}
         for(j=i; zLine[j] && zLine[j]!=';'; j++){}
         zMime = mprintf("%.*s", j-i, &zLine[i]);
+      }else{
+        cgi_append_header(zLine);
+        cgi_append_header("\r\n");
       }
     }
   }

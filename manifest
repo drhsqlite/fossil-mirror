@@ -1,5 +1,5 @@
-C In\sthe\sprevious\scheck-in,\sREQUEST_SCHEMA\sshould\sbe\sREQUEST_SCHEME\s-\swith\san\n"E"\sat\sthe\send,\snot\san\s"A".
-D 2020-12-12T14:53:20.555
+C For\sthe\sCGI\shandler\sin\sthe\sextension\sCGI\smechanism,\sunrecognized\sheader\nstrings\scoming\sback\sfrom\sthe\sCGI\sprogram\sare\spassed\sthrough\sunaltered\sto\nthe\sHTTP\sreply.\s\sThis\sallows\sthe\sCGI\sprogram\sto\sset\scookies.
+D 2020-12-12T15:25:17.699
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -478,7 +478,7 @@ F src/encode.c d18d44e72c6e3361d0fd3242042980aa37d3d1ae7d774e68d3351eb144bd2238
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8d34ae981119c922fd07a2a2f27c1f0b5d9188a7bcfda389534afffe670860de
 F src/export.c c26a485351c0bcd0fc0704ba68704c20483399fe41d6a687e3aca63af9b0e5c1
-F src/extcgi.c fc2e07889ea6795f176fa0053735fb3572840ee32b886a6f1fd1d5ef4c5c1a5c
+F src/extcgi.c a4843cd65b693757019d2532702b67152e9307b5de6f3b85d60c0d3acc9dd748
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 742f482f3bf1951f6042642cd2c842e3bf79d441b9d57f7573afe19849c09b23
 F src/finfo.c 8a6b412c54ca2f19f6088527eb79b6082c3a747c30080a39f257eae07bf66660
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f101e94da1f80571942ba608773cc4c82f817592754d88b910bae8ef64512dc6
-R 41e8036f47a37b3d2ad788a801e0c99e
+P 282bdf01656ebcde7a2bcf0ef3cb449aae17d4d9bb410d64aff3ed19de42fbcd
+R 5032203eaf3bfd90c9679aaee58bf36f
 U drh
-Z 526e0554db69b1a1de8af6a0298df5cf
+Z b95471b6271dfead344460e95c8cdf23
