@@ -1424,17 +1424,17 @@ void login_needed(int anonOk){
   }else
 #endif /* FOSSIL_ENABLE_JSON */
   {
+    /*
+    ** Note: REQUEST_URI already includes QUERY_STRING, so there
+    ** is no need to append the QUERY_STRING to the redir blob.
+    */
     const char *zUrl = PD("REQUEST_URI", "index");
-    const char *zQS = P("QUERY_STRING");
     Blob redir;
     blob_init(&redir, 0, 0);
     if( fossil_wants_https(1) ){
       blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
     }else{
       blob_appendf(&redir, "%R/login?g=%T", zUrl);
-    }
-    if( zQS && zQS[0] ){
-      blob_appendf(&redir, "%%3f%T", zQS);
     }
     if( anonOk ) blob_append(&redir, "&anon", 5);
     cgi_redirect(blob_str(&redir));
