@@ -1,5 +1,5 @@
-C serverext.wiki:\sadded\sa\snote\sabout\sthe\sneed\sto\sunset\sGATEWAY_INTERFACE\sbefore\strying\sto\srecursively\scall\sthe\sfossil\sbinary.
-D 2020-12-12T17:29:06.774
+C Omit\sthe\sTCP\sport\sfrom\sthe\sSERVER_NAME\senvironment\svariable\sfor\sthe\n"fossil\sui"\sand\s"fossil\sserver"\scommands.
+D 2020-12-12T19:37:00.741
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c 6167f077b5adba21c94bc83e3360f1189812945f43280083cca4df245d0fa2dd
 F src/capabilities.c b7a996e3dc88e4156c3350702584a4f6cf277a4a140cb8ebe8d6b8febaf0917f
 F src/captcha.c 55c11d5b82a715a9d9505120e927d7617dc4e2ebea360ff9fdb21834034736c0
-F src/cgi.c a44e6419a907683f0969ffc4751ca895480d7cb2ddc8258d5acbba35b14c9f7b
+F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1cff8d318232ecfcdd38e9cb5c779fe0b93fd7772e3a1732c9522091ce16cd30
-R d05b86ae6560755247de0ffcb118e915
-U stephan
-Z 275867710c696113a88de1ac956709d7
+P e3fbbdc1d05b840d74ef1559419cb274471d3c6d967c8b1bb98271be741ca134
+R 0ffc69dded32962f48b9c2f5d5cf2ceb
+U drh
+Z ba0ef888a2a652787136c40eecd194e5

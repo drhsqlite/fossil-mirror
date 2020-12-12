@@ -1730,7 +1730,10 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTPS", zVal);
       zScheme = "https";
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
+      char *z;
       cgi_setenv("HTTP_HOST", zVal);
+      z = strchr(zVal, ':');
+      if( z ) z[0] = 0;
       cgi_setenv("SERVER_NAME", zVal);
     }else if( fossil_strcmp(zFieldName,"if-none-match:")==0 ){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
