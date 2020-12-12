@@ -45,9 +45,9 @@ with further description in the text that follows.
     <td><a href="#features">2.1&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Sprawling and inefficient</td>
-    <td>Self-contained and efficient</td>
-    <td><a href="#efficient">2.2&nbsp;&darr;</a></td>
+    <td>Sprawling collection of programs</td>
+    <td>Self-contained, stand-alone executable</td>
+    <td><a href="#selfcontained">2.2&nbsp;&darr;</a></td>
 </tr>
 <tr>
     <td>One-off custom pile-of-files data store</td>
@@ -156,7 +156,7 @@ and all of its historical versions, plus the same for all of the other
 public content on this site.
 
 
-<h3 id="efficient" name="effective">2.2 Efficient</h3>
+<h3 id="selfcontained" name="selfcontained">2.2 Self Contained</h3>
 
 Git is actually a collection of many small tools, each doing one small
 part of the job, which can be recombined (by experts) to perform
@@ -222,12 +222,11 @@ in the cloud, you can expect to pay about 8× as much to comfortably host
 GitLab as for Fossil.³ This difference is largely due to basic
 technology choices: Ruby and PostgreSQL vs C and SQLite.
 
-The Fossil project itself is [./selfhost.wiki|hosted on a very small
-VPS], and we've received many reports on the Fossil forum about people
-successfully hosting Fossil service on bare-bones $5/month VPS hosts,
-spare Raspberry Pi boards, and other small hosts.
-
-
+The Fossil project itself is [./selfhost.wiki|hosted on a small and
+inexpensive VPS].  A bare-bones $5/month VPS or a
+spare Raspberry Pi is sufficient to run a full-up project
+site, complete with tickets, wiki, and forum, in addition to
+being a code repository.
 
 <h3 id="durable" name="database">2.3 Durable</h3>
 
