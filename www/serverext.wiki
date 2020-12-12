@@ -170,6 +170,7 @@ Fossil adds the following:
   *  FOSSIL_REPOSITORY
   *  FOSSIL_URI
   *  FOSSIL_USER
+  *  REQUEST_SCHEME (as used by Apache: "http" or "https")
 
 The FOSSIL_USER string is the name of the logged-in user.  This variable
 is missing or is an empty string if the user is not logged in.  The

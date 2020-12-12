@@ -69,6 +69,8 @@ static const char *azCgiEnv[] = {
    "REMOTE_ADDR",
    "REMOTE_USER",
    "REQUEST_METHOD",
+   "REQUEST_SCHEME", /* non-standard but supported by Apache 2.4+
+                     ** Holds either "http" or "https". */
    "REQUEST_URI",
    "SCRIPT_DIRECTORY",
    "SCRIPT_FILENAME",
@@ -268,6 +270,9 @@ void ext_page(void){
      db_text("","SELECT fullcap(cap) FROM user WHERE login=%Q",
              g.zLogin ? g.zLogin : "nobody"), 0);
   cgi_replace_parameter("GATEWAY_INTERFACE","CGI/1.0");
+  cgi_replace_parameter("REQUEST_SCHEME",
+                        strncmp(g.zTop, "https:", 6)==0
+                        ? "https" : "http");
   for(i=0; i<sizeof(azCgiEnv)/sizeof(azCgiEnv[0]); i++){
     (void)P(azCgiEnv[i]);
   }

@@ -1,5 +1,5 @@
-C Spell\sout\sthe\sword\s"times"\srather\sthan\suse\sthe\sunicode\s"x"\scharacter.
-D 2020-12-12T01:20:00.287
+C Adds\sthe\sApache-style\sREQUEST_SCHEME\senvironment\svariable\sto\sthe\s/ext\senvironment\sso\sthat\sCGIs\scan\sdetermine\swhether\sthey're\srunning\sin\sHTTP\sor\sHTTPS.
+D 2020-12-12T08:15:50.249
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -478,7 +478,7 @@ F src/encode.c d18d44e72c6e3361d0fd3242042980aa37d3d1ae7d774e68d3351eb144bd2238
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8d34ae981119c922fd07a2a2f27c1f0b5d9188a7bcfda389534afffe670860de
 F src/export.c c26a485351c0bcd0fc0704ba68704c20483399fe41d6a687e3aca63af9b0e5c1
-F src/extcgi.c 8263a26ede42d9684504d47c8c2869e3fd99a6df9a77775f9af7bd387125721d
+F src/extcgi.c ad10ac3f9175638debb86add78c9a28124a419e4edd82dada4af62b3ad150c7c
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c 742f482f3bf1951f6042642cd2c842e3bf79d441b9d57f7573afe19849c09b23
 F src/finfo.c 8a6b412c54ca2f19f6088527eb79b6082c3a747c30080a39f257eae07bf66660
@@ -965,7 +965,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
-F www/serverext.wiki afd625caa3518230dd5323df86acd1ed37805ecbe84751facd2b60627d6d5773
+F www/serverext.wiki 5062c6dee8d39fdcd063166d14eb29b016d5a060b62bfb88428764b416c814cc
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 42bec5417f7dc1cf3ad6f5f8c07005088e340788d7a440c701c79f7afeb29ca6
 F www/ssl.wiki 73430a266bd8c2d65c8e37918949718e922aed719cf010d1c57d05954a053f5b
@@ -986,7 +986,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41b34915bb816ab61607142bbb1a94a1bd5fdd196c9d1c085dd1ff6cfe9db712
-R 56b32efb66048b7bc728f2663507c628
-U drh
-Z 1cf0eb777f370f4199f18d998a052980
+P f0a86f3cacf2f7d57a082aec0d2231952eb38d3e05fb632534e166bd8008e8b4
+R c14ea4404195e5dff7fc5d552cfb70e8
+T *branch * ext-request-scheme
+T *sym-ext-request-scheme *
+T -sym-trunk *
+U stephan
+Z 8e66d3f3e75b773c557543b2314531b8
