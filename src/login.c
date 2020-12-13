@@ -1426,6 +1426,11 @@ void login_needed(int anonOk){
   {
     const char *zUrl = PD("REQUEST_URI", "index");
     const char *zQS = P("QUERY_STRING");
+    /* 
+    ** if there is already a query string, use '&' to introduce a new
+    ** parameter; otherwise use '?' to introduce a new parameter
+    */
+    char intro = (zQS && zQS[0]) ? '&' : '?';
     Blob redir;
     blob_init(&redir, 0, 0);
     if( fossil_wants_https(1) ){
@@ -1433,10 +1438,10 @@ void login_needed(int anonOk){
     }else{
       blob_appendf(&redir, "%R/login?g=%T", zUrl);
     }
-    if( zQS && zQS[0] ){
-      blob_appendf(&redir, "%%3f%T", zQS);
+    if( anonOk ){
+      blob_appendf(&redir, "%%%02Xanon", intro);
+      intro = '&'; /* change intro for subsequent parameters */
     }
-    if( anonOk ) blob_append(&redir, "&anon", 5);
     cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
     assert(0);
