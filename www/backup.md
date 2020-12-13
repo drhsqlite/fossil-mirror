@@ -203,10 +203,11 @@ of noise to anyone without the key:
 ----
 
 ```shell
+iter=52830
 pass="h8TixP6Mt6edJ3d6COaexiiFlvAM54auF2AjT7ZYYn"
 gd="$HOME/Google Drive/Fossil Backups/$bf.xz.enc"
 fossil sql -R ~/museum/backups/"$bf" .dump | xz -9 |
-    openssl enc -e -aes-256-cbc -pbkdf2 -iter 52830 -pass pass:"$pass" -out "$gd"
+    openssl enc -e -aes-256-cbc -pbkdf2 -iter $iter -pass pass:"$pass" -out "$gd"
 ```
 
 ----
@@ -249,7 +250,7 @@ care of. If all variables defined in earlier scripts are available, then
 restoration is:
 
 ```
-openssl enc -d -aes-256-cbc -pbkdf2 -iter 52830 -pass pass:"$pass" -in "$gd" |
+openssl enc -d -aes-256-cbc -pbkdf2 -iter $iter -pass pass:"$pass" -in "$gd" |
     xz -d | fossil sql --no-repository ~/museum/restored-repo.fossil
 ```
 
