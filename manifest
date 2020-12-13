@@ -1,5 +1,5 @@
-C Factored\sthe\siteration\scount\sout\sof\sthe\sencrypted\sbackup\ssolution\sin\nbackup.md,\sso\sit\sisn't\srepeated\sbetween\sthe\sbackup\sand\srestore\scases.
-D 2020-12-13T05:32:58.424
+C Updates\sto\sthe\sfossil-v-git\sdocumentation\sto\sreduce\sthe\samount\sof\sGit-bashing\nand\sto\stry\sto\smake\sthe\sdocument\sless\sconfrontational.
+D 2020-12-13T19:37:35.875
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -868,7 +868,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 3e97ba67660eab4efcea9e816ea1744ecc81f240b4d0e0b1d459a3d8f731f92d
+F www/fossil-v-git.wiki 4cd2c069ac99bcdf32c1d0a6dcb9a7b3ef1d6f24f1cb8d70dd134e03e1f9cd1c
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0872ecbef7060aa86dc6286bde7bab730b1fca0138433e6d90490090338ee3a6
-R 22ba19c2946496688e9679793a4e4ffc
-U wyoung
-Z cfe050c620ea4c7928e0691e6827dcab
+P fc300d5a9aaeb54745fc466492948611d63439bf4e4d67a84d138a6f89438a1c
+R 8b0a88e49ceb10b6306857eba0849933
+U drh
+Z 578e7bc6683ccfb5e6d952efabc2b08f
