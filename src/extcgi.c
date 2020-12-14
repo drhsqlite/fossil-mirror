@@ -69,6 +69,7 @@ static const char *azCgiEnv[] = {
    "REMOTE_ADDR",
    "REMOTE_USER",
    "REQUEST_METHOD",
+   "REQUEST_SCHEME",
    "REQUEST_URI",
    "SCRIPT_DIRECTORY",
    "SCRIPT_FILENAME",
@@ -328,6 +329,9 @@ void ext_page(void){
         for(i=13; fossil_isspace(zLine[i]); i++){}
         for(j=i; zLine[j] && zLine[j]!=';'; j++){}
         zMime = mprintf("%.*s", j-i, &zLine[i]);
+      }else{
+        cgi_append_header(zLine);
+        cgi_append_header("\r\n");
       }
     }
   }

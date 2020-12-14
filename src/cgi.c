@@ -1429,10 +1429,10 @@ void cgi_load_environment(void){
     "HTTP_IF_NONE_MATCH", "HTTP_IF_MODIFIED_SINCE",
     "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
     "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
-    "REMOTE_USER", "REQUEST_METHOD",
-    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
-    "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
-    "SQLITE_TMPDIR", "TMPDIR",
+    "REMOTE_USER", "REQUEST_METHOD", "REQUEST_SCHEME",
+    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_NAME",
+    "SERVER_PROTOCOL", "HOME", "FOSSIL_HOME", "USERNAME", "USER",
+    "FOSSIL_USER", "SQLITE_TMPDIR", "TMPDIR",
     "TEMP", "TMP", "FOSSIL_VFS",
     "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
     "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
@@ -1664,6 +1664,7 @@ char *cgi_remote_ip(int fd){
 void cgi_handle_http_request(const char *zIpAddr){
   char *z, *zToken;
   int i;
+  const char *zScheme = "http";
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
@@ -1727,8 +1728,13 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_COOKIE", zVal);
     }else if( fossil_strcmp(zFieldName,"https:")==0 ){
       cgi_setenv("HTTPS", zVal);
+      zScheme = "https";
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
+      char *z;
       cgi_setenv("HTTP_HOST", zVal);
+      z = strchr(zVal, ':');
+      if( z ) z[0] = 0;
+      cgi_setenv("SERVER_NAME", zVal);
     }else if( fossil_strcmp(zFieldName,"if-none-match:")==0 ){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( fossil_strcmp(zFieldName,"if-modified-since:")==0 ){
@@ -1754,6 +1760,7 @@ void cgi_handle_http_request(const char *zIpAddr){
       }
     }
   }
+  cgi_setenv("REQUEST_SCHEME",zScheme);
   cgi_init();
   cgi_trace(0);
 }

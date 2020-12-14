@@ -463,7 +463,7 @@ static void backoffice_error_check_one(int *pOnce){
 ** the main backoffice.
 **
 ** If a primary backoffice is running, but a on-deck backoffice is
-** needed, this routine becomes that on-desk backoffice.
+** needed, this routine becomes that on-deck backoffice.
 */
 static void backoffice_thread(void){
   Lease x;

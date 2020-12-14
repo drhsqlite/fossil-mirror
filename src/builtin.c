@@ -777,9 +777,11 @@ void test_js_once(void){
 ** strings of the NAME part of additional fossil.NAME.js files,
 ** followed by a NULL argument to terminate the list.
 **
-** e.g. pass it ("fetch", "dom", "tabs", 0) to load those 3 APIs (or
-** pass it ("fetch","tabs",0), as "dom" is a dependency of "tabs", so
-** it will be automatically loaded). Do not forget the trailing 0!
+** e.g. pass it ("fetch", "dom", "tabs", NULL) to load those 3 APIs (or
+** pass it ("fetch","tabs",NULL), as "dom" is a dependency of "tabs", so
+** it will be automatically loaded). Do not forget the trailing NULL,
+** and do not pass 0 instead, since that isn't always equivalent to NULL
+** in this context.
 **
 ** If it is JS_BUNDLED then this routine queues up an emit of ALL of
 ** the JS fossil.XYZ.js APIs which are not strictly specific to a
