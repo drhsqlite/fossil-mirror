@@ -287,6 +287,7 @@ proc check-for-openssl {msg {cflags {}} {libs {-lssl -lcrypto -lpthread}}} {
     if {[info exists ::zlib_lib]} {
         lappend libs $::zlib_lib
     }
+    lappend libs [get-define EXTRA_LDFLAGS]
     msg-quiet cc-with [list -cflags $cflags -libs $libs] {
         if {[cc-check-includes openssl/ssl.h] && \
                 [cc-check-functions SSL_new]} {
@@ -362,7 +363,12 @@ if {$ssldirs ne "none"} {
         if {$ssldirs in {auto ""}} {
             catch {
                 set cflags [exec pkg-config openssl --cflags-only-I]
-                set ldflags [exec pkg-config openssl --libs-only-L]
+                if {[opt-bool static]} {
+                    set ldflags [exec pkg-config openssl --libs]
+                    append ldflags " -lpthread"
+                } else {
+                    set ldflags [exec pkg-config openssl --libs-only-L]
+                }
                 set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
             } msg
             if {!$found} {
