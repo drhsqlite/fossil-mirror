@@ -1,5 +1,5 @@
-C Updates\sto\sthe\sfossil-v-git\sdocumentation\sto\sreduce\sthe\samount\sof\sGit-bashing\nand\sto\stry\sto\smake\sthe\sdocument\sless\sconfrontational.
-D 2020-12-13T19:37:35.875
+C If\sREQUEST_URI\sincludes\sa\squery\sstring\s(which\sit\sdoes\sfor\s"fossil\sui"\sand\nfor\sApache,\sbut\snot\sfor\salthttpd)\sthen\somit\sthat\sstring\sprior\sto\susing\nthe\sREQUEST_URI\swhen\sforming\sthe\s"g="\squery\sparameter\sfor\sthe\slogin\nredirect\sin\slogin_needed().
+D 2020-12-14T14:27:14.747
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -537,7 +537,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c a5cec09d63a8029c49455479801f42f23cd1634cc02111f8077818fbdf17d62d
-F src/login.c f3c4686b8b87ae22616077e5401636c365f2f9dc45a86e3e0f8372b016389254
+F src/login.c 5cfc04db715eae57b59ab8fee7ffaad16fd552ef90b99c33aa7f7abb42c739be
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
 F src/main.c 02d320b074f59dd3ec825f60e63b89434b652d169c0c998914f18cca55c9a6ae
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc300d5a9aaeb54745fc466492948611d63439bf4e4d67a84d138a6f89438a1c
-R 8b0a88e49ceb10b6306857eba0849933
+P 358d7d8f0ee8e53c6f8c5b655725164ead12ad03e8b903f1b850c87460896a66
+R c6926b845a68552123b36a6aedf882c2
 U drh
-Z 578e7bc6683ccfb5e6d952efabc2b08f
+Z 8451aceed2c5bd8b80f509c7bed5f267

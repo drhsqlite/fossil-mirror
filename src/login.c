@@ -1426,12 +1426,16 @@ void login_needed(int anonOk){
   {
     const char *zUrl = PD("REQUEST_URI", "index");
     const char *zQS = P("QUERY_STRING");
+    char *zUrlNoQS;
+    int i;
     Blob redir;
     blob_init(&redir, 0, 0);
+    for(i=0; zUrl[i] && zUrl[i]!='?'; i++){}
+    zUrlNoQS = fossil_strndup(zUrl, i);
     if( fossil_wants_https(1) ){
-      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
+      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrlNoQS);
     }else{
-      blob_appendf(&redir, "%R/login?g=%T", zUrl);
+      blob_appendf(&redir, "%R/login?g=%T", zUrlNoQS);
     }
     if( zQS && zQS[0] ){
       blob_appendf(&redir, "%%3f%T", zQS);
