@@ -38,5 +38,5 @@ you created to start using your Fossil server.
 *[Return to the top-level Fossil server article.](../)*
 
 
-[althttpd]:  https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md
+[althttpd]:  https://sqlite.org/althttpd/
 [cgi]:       ../../cgi.wiki

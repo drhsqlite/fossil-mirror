@@ -2138,7 +2138,7 @@ void output_text_with_line_numbers(
     if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
       builtin_request_js("scroll.js");
     }
-    builtin_fossil_js_bundle_or("numbered-lines", 0);
+    builtin_fossil_js_bundle_or("numbered-lines", NULL);
   }
 }
 
@@ -2400,10 +2400,13 @@ void artifact_page(void){
   if( isFile ){
     if( isSymbolicCI ){
       zHeader = mprintf("%s at %s", file_tail(zName), zCI);
+      style_set_current_page("doc/%t/%T", zCI, zName);
     }else if( zCIUuid && zCIUuid[0] ){
       zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
+      style_set_current_page("doc/%S/%T", zCIUuid, zName);
     }else{
       zHeader = mprintf("%s", file_tail(zName));
+      style_set_current_page("doc/tip/%T", zName);
     }
   }else if( descOnly ){
     zHeader = mprintf("Artifact Description [%S]", zUuid);

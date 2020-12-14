@@ -29,11 +29,11 @@ if {[hascap oh]} {
   menulink /dir?ci=$current_checkin Files desktoponly
 }
 if {[hascap o]} {
-  menulink  /brlist Branches desktoponly
+  menulink  /brlist Branches wideonly
   menulink  /taglist Tags wideonly
 }
 if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-  menulink /forum Forum wideonly
+  menulink /forum Forum desktoponly
 }
 if {[hascap r]} {
   menulink /ticket Tickets wideonly

@@ -150,6 +150,7 @@ puts $out {
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
 <li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
 <li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
+<li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
 <li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
 </ul>

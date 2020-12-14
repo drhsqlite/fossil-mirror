@@ -410,7 +410,7 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
 void document_emit_js(void){
   static int once = 0;
   if(0==once++){
-    builtin_fossil_js_bundle_or("pikchr", 0);
+    builtin_fossil_js_bundle_or("pikchr", NULL);
     style_script_begin(__FILE__,__LINE__);
     CX("window.addEventListener('load', "
        "()=>window.fossil.pikchr.addSrcView(), "

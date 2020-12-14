@@ -675,6 +675,7 @@ int fossil_main(int argc, char **argv){
   }
 #endif
 
+  fossil_printf_selfcheck();
   fossil_limit_memory(1);
   if( sqlite3_libversion_number()<3034000 ){
     fossil_panic("Unsuitable SQLite version %s, must be at least 3.34.0",
@@ -797,14 +798,15 @@ int fossil_main(int argc, char **argv){
        * does not begin with a "-" character.  If all arguments start with "-",
        * translate to "fossil help argv[1] argv[2]...". */
       int i, nNewArgc;
-      char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+2) );
+      char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+3) );
       zNewArgv[0] = g.argv[0];
       zNewArgv[1] = "help";
+      zNewArgv[2] = "-c";
       for(i=1; i<g.argc; i++){
         if( g.argv[i][0]!='-' ){
-          nNewArgc = 3;
-          zNewArgv[2] = g.argv[i];
-          zNewArgv[3] = 0;
+          nNewArgc = 4;
+          zNewArgv[3] = g.argv[i];
+          zNewArgv[4] = 0;
           break;
         }
       }

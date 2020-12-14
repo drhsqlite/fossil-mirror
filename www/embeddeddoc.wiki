@@ -58,7 +58,7 @@ from the any check-in.  The "<b>ckout</b>" keyword
 only works when you start your server using the 
 "[/help?cmd=server|fossil server]" or "[/help?cmd=ui|fossil ui]"
 commands.  The "/doc/ckout" URL is intended to show a preview of
-the documentation you are currently editing but have not yet you checked in.
+the documentation you are currently editing but have not yet checked in.
 
 The original designed purpose of the "ckout" feature is to allow the
 user to preview local changes to documentation before committing the

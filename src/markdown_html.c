@@ -349,7 +349,8 @@ void pikchr_to_html(
     | PIKCHR_PROCESS_SRC
     | PIKCHR_PROCESS_ERR_PRE;
   Blob bSrc = empty_blob;
-  const char *zFgColor;
+  const char *zPikVar;
+  double rPikVar;
 
   while( nArg>0 ){
     int i;
@@ -376,9 +377,23 @@ void pikchr_to_html(
   if( skin_detail_boolean("white-foreground") ){
     pikFlags |= 0x02;  /* PIKCHR_DARK_MODE */
   }
-  zFgColor = skin_detail("pikchr-foreground");
-  if( zFgColor && zFgColor[0] ){
-    blob_appendf(&bSrc, "fgcolor = %s\n", zFgColor);
+  zPikVar = skin_detail("pikchr-foreground");
+  if( zPikVar && zPikVar[0] ){
+    blob_appendf(&bSrc, "fgcolor = %s\n", zPikVar);
+  }
+  zPikVar = skin_detail("pikchr-scale");
+  if( zPikVar
+   && (rPikVar = atof(zPikVar))>=0.1
+   && rPikVar<10.0
+  ){
+    blob_appendf(&bSrc, "scale = %.13g\n", rPikVar);
+  }
+  zPikVar = skin_detail("pikchr-fontscale");
+  if( zPikVar
+   && (rPikVar = atof(zPikVar))>=0.1
+   && rPikVar<10.0
+  ){
+    blob_appendf(&bSrc, "fontscale = %.13g\n", rPikVar);
   }
   blob_append(&bSrc, zSrc, nSrc)
     /*have to dup input to ensure a NUL-terminated source string */;

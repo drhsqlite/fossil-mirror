@@ -1172,6 +1172,7 @@ static int gitmirror_send_checkin(
   ** from user table for <emailaddr> in committer field. If no emailaddr, check
   ** if username is in email form, otherwise use generic 'username@noemail.net'.
   */
+  char *zTmp;
   if (db_table_exists("repository", "fx_git")) {
     zEmail = db_text(0, "SELECT email FROM fx_git WHERE user=%Q", pMan->zUser);
   } else {
@@ -1185,6 +1186,11 @@ static int gitmirror_send_checkin(
     } else {
       zEmail = fossil_strdup(pMan->zUser);
     }
+  } else if ((zTmp = strchr(zEmail, '<')) != NULL) {
+    ++zTmp;
+    char *zTmpEnd = strchr(zTmp, '>');
+    *(zTmpEnd) = '\0';
+    zEmail = fossil_strdup(zTmp);
   }
   fprintf(xCmd, "committer %s <%s> %s +0000\n", pMan->zUser, zEmail, buf);
   fossil_free(zEmail);
@@ -1296,6 +1302,7 @@ void gitmirror_export_command(void){
   int bForce;                     /* Do the export and sync even if no changes*/
   int bNeedRepack = 0;            /* True if we should run repack at the end */
   int fManifest;                  /* Current "manifest" setting */
+  int bIfExists;                  /* The --if-mirrored flag */
   FILE *xCmd;                     /* Pipe to the "git fast-import" command */
   FILE *pMarks;                   /* Git mark files */
   Stmt q;                         /* Queries */
@@ -1310,6 +1317,7 @@ void gitmirror_export_command(void){
   }
   zAutoPush = find_option("autopush",0,1);
   bForce = find_option("force","f",0)!=0;
+  bIfExists = find_option("if-mirrored",0,0)!=0;
   gitmirror_verbosity = VERB_NORMAL;
   while( find_option("quiet","q",0)!=0 ){ gitmirror_verbosity--; }
   while( find_option("verbose","v",0)!=0 ){ gitmirror_verbosity++; }
@@ -1323,6 +1331,7 @@ void gitmirror_export_command(void){
   }
   zMirror = db_get("last-git-export-repo", 0);
   if( zMirror==0 ){
+    if( bIfExists ) return;
     fossil_fatal("no Git repository specified");
   }
 
@@ -1696,6 +1705,7 @@ void gitmirror_status_command(void){
 **         --debug FILE        Write fast-export text to FILE rather than
 **                             piping it into "git fast-import".
 **         --force|-f          Do the export even if nothing has changed
+**         --if-mirrored       No-op if the mirror does not already exist.
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
 **         --quiet|-q          Reduce output. Repeat for even less output.

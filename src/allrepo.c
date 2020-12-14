@@ -93,6 +93,9 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    fts-config  Run the "fts-config" command on all repositories.
 **
+**    git export  Do the "git export" command on all repositories for which
+**                a Git mirror has been previously established.
+**
 **    info        Run the "info" command on all repositories.
 **
 **    pull        Run a "pull" operation on all repositories.  Only the
@@ -238,6 +241,19 @@ void all_cmd(void){
     useCheckouts = 1;
     stopOnError = 0;
     quiet = 1;
+  }else if( strncmp(zCmd, "git", n)==0 ){
+    if( g.argc<4 ){
+      usage("git (export|status)");
+    }else{
+      int n3 = (int)strlen(g.argv[3]);
+      if( strncmp(g.argv[3], "export", n3)==0 ){
+        zCmd = "git export --if-mirrored -R";
+      }else if( strncmp(g.argv[3], "status", n3)==0 ){
+        zCmd = "git status -R";
+      }else{
+        usage("git (export|status)");
+      }
+    }
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
     collect_argument(&extra, "verbose","v");
@@ -360,7 +376,7 @@ void all_cmd(void){
     collect_argv(&extra, 3);
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "add cache changes clean dbstat extras fts-config ignore "
+                 "add cache changes clean dbstat extras fts-config git ignore "
                  "info list ls pull push rebuild server setting sync ui unset");
   }
   verify_all_options();

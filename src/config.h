@@ -247,10 +247,13 @@ typedef signed char i8;
 */
 #if defined(__GNUC__) || defined(__clang__)
 # define NORETURN __attribute__((__noreturn__))
+# define NULL_SENTINEL __attribute__((sentinel))
 #elif defined(_MSC_VER) && (_MSC_VER >= 1310)
 # define NORETURN __declspec(noreturn)
+# define NULL_SENTINEL
 #else
 # define NORETURN
+# define NULL_SENTINEL
 #endif
 
 /*

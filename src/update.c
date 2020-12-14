@@ -597,7 +597,7 @@ void update_cmd(void){
   }else{
     char *zPwd;
     ensure_empty_dirs_created(1);
-    sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8, 0,
+    sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8|SQLITE_DIRECTONLY, 0,
                             file_rmdir_sql_function, 0, 0);
     zPwd = file_getcwd(0,0);
     db_multi_exec(

@@ -337,7 +337,7 @@ void pikchrshow_page(void){
        "}\n");
     CX(".dragover {border: 3px dotted rgba(0,255,0,0.6)}\n");
   } CX("</style>");
-  CX("<div>Input pikchr code and tap Preview or Ctrl-Enter) to render "
+  CX("<div>Input pikchr code and tap Preview (or Ctrl-Enter) to render "
      "it:</div>");
   CX("<div id='sbs-wrapper'>"); {
     CX("<div id='pikchrshow-form'>"); {
@@ -373,7 +373,7 @@ void pikchrshow_page(void){
     } CX("</fieldset>"/*#pikchrshow-output-wrapper*/);
   } CX("</div>"/*sbs-wrapper*/);
   builtin_fossil_js_bundle_or("fetch", "copybutton", "popupwidget",
-                              "storage", "pikchr", 0);
+                              "storage", "pikchr", NULL);
   builtin_request_js("fossil.page.pikchrshow.js");
   builtin_fulfill_js_requests();
   style_finish_page("pikchrshow");

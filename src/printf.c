@@ -136,9 +136,13 @@ typedef struct et_info {   /* Information about each format field */
 /*
 ** The following table is searched linearly, so it is good to put the
 ** most frequently used conversion types first.
+**
+** NB: When modifying this table is it vital that you also update the fmtchr[]
+** variable to match!!!
 */
 static const char aDigits[] = "0123456789ABCDEF0123456789abcdef";
 static const char aPrefix[] = "-x0\000X0";
+static const char fmtchr[] = "dsgzqQbBWhRtTwFSjcouxXfeEGin%p/$";
 static const et_info fmtinfo[] = {
   {  'd', 10, 1, etRADIX,      0,  0 },
   {  's',  0, 4, etSTRING,     0,  0 },
@@ -172,8 +176,22 @@ static const et_info fmtinfo[] = {
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
   {  '$',  0, 0, etSHELLESC,   0,  0 },
+  {  etERROR, 0,0,0,0,0}  /* Must be last */
 };
 #define etNINFO count(fmtinfo)
+
+/*
+** Verify that the fmtchr[] and fmtinfo[] arrays are in agreement.
+**
+** This routine is a defense against programming errors.
+*/
+void fossil_printf_selfcheck(void){
+  int i;
+  for(i=0; fmtchr[i]; i++){
+    assert( fmtchr[i]==fmtinfo[i].fmttype );
+  }
+}
+
 
 /*
 ** "*val" is a double such that 0.1 <= *val < 10.0
@@ -308,18 +326,20 @@ int vxprintf(
   etByte flag_rtz;           /* True if trailing zeros should be removed */
   etByte flag_exp;           /* True to force display of the exponent */
   int nsd;                   /* Number of significant digits returned */
+  char *zFmtLookup;
 
   count = length = 0;
   bufpt = 0;
   for(; (c=(*fmt))!=0; ++fmt){
     if( c!='%' ){
-      int amt;
       bufpt = (char *)fmt;
-      amt = 1;
-      while( (c=(*++fmt))!='%' && c!=0 ) amt++;
-      blob_append(pBlob,bufpt,amt);
-      count += amt;
-      if( c==0 ) break;
+#if HAVE_STRCHRNUL
+      fmt = strchrnul(fmt, '%');
+#else
+      do{ fmt++; }while( *fmt && *fmt != '%' );
+#endif
+      blob_append(pBlob, bufpt, (int)(fmt - bufpt));
+      if( *fmt==0 ) break;
     }
     if( (c=(*++fmt))==0 ){
       errorflag = 1;
@@ -392,14 +412,13 @@ int vxprintf(
       flag_long = flag_longlong = 0;
     }
     /* Fetch the info entry for the field */
-    infop = 0;
-    xtype = etERROR;
-    for(idx=0; idx<etNINFO; idx++){
-      if( c==fmtinfo[idx].fmttype ){
-        infop = &fmtinfo[idx];
-        xtype = infop->type;
-        break;
-      }
+    zFmtLookup = strchr(fmtchr,c);
+    if( zFmtLookup ){
+      infop = &fmtinfo[zFmtLookup-fmtchr];
+      xtype = infop->type;
+    }else{
+      infop = 0;
+      xtype = etERROR;
     }
     zExtra = 0;
 

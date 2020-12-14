@@ -2360,10 +2360,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     char *zTag = mprintf("wiki-%s", p->zWikiTitle);
     int tagid = tag_findid(zTag, 1);
     int prior;
-    char *zComment;
-    const char *zPrefix;
+    char cPrefix;
     int nWiki;
     char zLength[40];
+
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
@@ -2379,32 +2379,11 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       content_deltify(prior, &rid, 1, 0);
     }
     if( nWiki<=0 ){
-      zPrefix = "Deleted";
+      cPrefix = '-';
     }else if( !prior ){
-      zPrefix = "Added";
+      cPrefix = '+';
     }else{
-      zPrefix = "Changes to";
-    }
-    switch( wiki_page_type(p->zWikiTitle) ){
-      case WIKITYPE_CHECKIN: {
-        zComment = mprintf("%s wiki for check-in [%S]", zPrefix,
-                           p->zWikiTitle+8);
-        break;
-      }
-      case WIKITYPE_BRANCH: {
-        zComment = mprintf("%s wiki for branch [/timeline?r=%t|%h]",
-                           zPrefix, p->zWikiTitle+7, p->zWikiTitle+7);
-        break;
-      }
-      case WIKITYPE_TAG: {
-        zComment = mprintf("%s wiki for tag [/timeline?t=%t|%h]",
-                           zPrefix, p->zWikiTitle+4, p->zWikiTitle+4);
-        break;
-      }
-      default: {
-        zComment = mprintf("%s wiki page [%h]", zPrefix, p->zWikiTitle);
-        break;
-      }
+      cPrefix = ':';
     }
     search_doc_touch('w',rid,p->zWikiTitle);
     if( manifest_crosslink_busy ){
@@ -2413,18 +2392,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       backlink_wiki_refresh(p->zWikiTitle);
     }
     db_multi_exec(
-      "REPLACE INTO event(type,mtime,objid,user,comment,"
-      "                  bgcolor,euser,ecomment)"
-      "VALUES('w',%.17g,%d,%Q,%Q,"
-      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>1),"
-      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
-      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-      p->rDate, rid, p->zUser, zComment,
-      TAG_BGCOLOR, rid,
-      TAG_USER, rid,
-      TAG_COMMENT, rid
+      "REPLACE INTO event(type,mtime,objid,user,comment)"
+      "VALUES('w',%.17g,%d,%Q,'%c%q');",
+      p->rDate, rid, p->zUser, cPrefix, p->zWikiTitle
     );
-    fossil_free(zComment);
   }
   if( p->type==CFTYPE_EVENT ){
     char *zTag = mprintf("event-%s", p->zEventId);

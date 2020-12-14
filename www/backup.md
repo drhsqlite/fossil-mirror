@@ -28,13 +28,50 @@ reasons.
 
 ## <a id="config"></a> Configuration Drift
 
-Fossil allows the local configuration in certain areas to differ from
-that of the remote. With the exception of the prior item, you get a copy
-of these configuration areas on initial clone, but after that, some
-remote configuration changes don’t sync down automatically, such as the
-remote’s skin. You can ask for updates by running the
-[`fossil config pull skin`](./help?cmd=config) command, but that
-does not happen automatically during the course of normal development.
+Fossil allows the local configuration to differ in several areas from
+that of the remote. You get a copy
+of *some* of these configuration areas on initial clone — not all! — but after that,
+remote configuration changes mostly do not sync down automatically.
+
+
+#### <a id="skin"></a> Skin
+
+Changes to the remote’s skin don’t sync down, on purpose, since you may
+want to have a different skin on the local clone than on the remote. You
+can ask for updates with [`fossil config pull skin`][cfg], but that does
+not happen automatically during the course of normal development.
+
+
+#### <a id="alerts"></a> Email Alerts
+
+The Admin → Notification settings do not get copied on clone or sync,
+and it is not possible to push such settings from one repository to
+another. We did this on purpose because you may have a network of peer
+repositories, and you only want one repository sending email alerts. If
+Fossil were to automatically replicate the email alert settings to a
+separate repository, subscribers would get multiple alerts for each
+event, which would be *bad.*
+
+The only element of the email alert configuration that can be pulled
+over the sync protocol on demand is the subscriber list, via
+[`fossil config pull subscriber`][cfg].
+
+
+#### <a id="project"></a> Project Configuration
+
+This is normally generated once during `fossil init` and never changed,
+so Fossil doesn’t pull this information without being forced, on
+purpose. You could accidentally merge two separate Fossil repos by
+pushing one repo’s project config up to another, for example.
+
+
+#### <a id="other-cfg"></a> Others
+
+A repo’s URL aliases, [interwiki configuration](./interwiki.md), and
+[ticket customizations](./custom_tcket.wiki) also do not normally sync.
+
+[cfg]: /help?cmd=configuration
+
 
 
 ## <a id="private"></a> Private Branches
@@ -94,7 +131,7 @@ commits pushed up to `svr1` unless you’ve set up bidirectional sync,
 rather than have the two backup servers do `pull` only.
 
 
-# Solution 1: Explicit Pulls
+# <a id="sync-solution"></a> Solution 1: Explicit Pulls
 
 The following script solves most of the above problems for the use case
 where you want a *nearly-complete* clone of the remote repository using nothing
@@ -121,7 +158,7 @@ not exist any more. That would be not so much a “backup” as an
 “archive,” which might not be what you want.
 
 
-# Solution 2: SQL-Level Backup
+# <a id="sql-solution"></a> Solution 2: SQL-Level Backup
 
 The first method doesn’t get you a copy of the remote’s
 [private branches][pbr], on purpose. It may also miss other info on the
@@ -213,7 +250,7 @@ restoration is:
 
 ```
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 52830 -pass pass:"$pass" -in "$gd" |
-    xz -d | fossil --no-repository ~/museum/restored-repo.fossil
+    xz -d | fossil sql --no-repository ~/museum/restored-repo.fossil
 ```
 
 We changed the `-e` to `-d` on the `openssl` command to get decryption,
@@ -230,7 +267,7 @@ Fossil serves as a dogfooding project for SQLite,
 often making use of the latest features, so it is quite likely that a given
 random `sqlite3` binary in your `PATH` will be unable to understand the
 file created by “`fossil sql .dump`”! The tricky bit is, you can’t just
-pipe the decrpted SQL dump into `fossil sql`, because on startup, Fossil
+pipe the decrypted SQL dump into `fossil sql`, because on startup, Fossil
 normally goes looking for tables created by `fossil init`, and it won’t
 find them in a newly-created repo DB. We get around this by passing
 the `--no-repository` flag, which suppresses this behavior. Doing it

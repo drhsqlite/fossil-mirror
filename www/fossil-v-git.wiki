@@ -938,7 +938,7 @@ for years now, so that the solution is now almost universally deployed.
     Download Page Works]" for details.) There may also be some purely
     static elements of the web site served via D. Richard Hipp's own
     lightweight web server,
-    <tt>[https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md|althttpd]</tt>,
+    <tt>[https://sqlite.org/althttpd/|althttpd]</tt>,
     which is configured as a front end to Fossil running in CGI mode on
     these sites.
 

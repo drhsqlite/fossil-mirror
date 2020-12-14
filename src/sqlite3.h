@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.34.0"
 #define SQLITE_VERSION_NUMBER 3034000
-#define SQLITE_SOURCE_ID      "2020-10-31 18:58:37 7d01e84dc49074e6364267eea9fd20d46a457d2498121a0f218fbf482692392d"
+#define SQLITE_SOURCE_ID      "2020-12-01 16:14:00 a26b6597e3ae272231b96f9982c3bcc17ddec2f2b6eb4df06a224b91089fed5b"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -504,6 +504,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_IOERR_COMMIT_ATOMIC     (SQLITE_IOERR | (30<<8))
 #define SQLITE_IOERR_ROLLBACK_ATOMIC   (SQLITE_IOERR | (31<<8))
 #define SQLITE_IOERR_DATA              (SQLITE_IOERR | (32<<8))
+#define SQLITE_IOERR_CORRUPTFS         (SQLITE_IOERR | (33<<8))
 #define SQLITE_LOCKED_SHAREDCACHE      (SQLITE_LOCKED |  (1<<8))
 #define SQLITE_LOCKED_VTAB             (SQLITE_LOCKED |  (2<<8))
 #define SQLITE_BUSY_RECOVERY           (SQLITE_BUSY   |  (1<<8))
@@ -6192,7 +6193,7 @@ SQLITE_API int sqlite3_db_readonly(sqlite3 *db, const char *zDbName);
 **
 ** ^The sqlite3_txn_state(D,S) interface returns the current
 ** [transaction state] of schema S in database connection D.  ^If S is NULL,
-** then the highest transaction state of any schema on databse connection D
+** then the highest transaction state of any schema on database connection D
 ** is returned.  Transaction states are (in order of lowest to highest):
 ** <ol>
 ** <li value="0"> SQLITE_TXN_NONE
@@ -7739,7 +7740,6 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_PRNG_SAVE                5
 #define SQLITE_TESTCTRL_PRNG_RESTORE             6
 #define SQLITE_TESTCTRL_PRNG_RESET               7  /* NOT USED */
-#define SQLITE_TESTCTRL_SEEK_COUNT               7
 #define SQLITE_TESTCTRL_BITVEC_TEST              8
 #define SQLITE_TESTCTRL_FAULT_INSTALL            9
 #define SQLITE_TESTCTRL_BENIGN_MALLOC_HOOKS     10
@@ -7764,7 +7764,8 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_RESULT_INTREAL          27
 #define SQLITE_TESTCTRL_PRNG_SEED               28
 #define SQLITE_TESTCTRL_EXTRA_SCHEMA_CHECKS     29
-#define SQLITE_TESTCTRL_LAST                    29  /* Largest TESTCTRL */
+#define SQLITE_TESTCTRL_SEEK_COUNT              30
+#define SQLITE_TESTCTRL_LAST                    30  /* Largest TESTCTRL */
 
 /*
 ** CAPI3REF: SQL Keyword Checking
