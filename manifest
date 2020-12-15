@@ -1,5 +1,5 @@
-C Alternative\sto\scheck-in\s[a098707051568156]\sfor\sgetting\sthe\s--static\soption\nto\s./configure\sworking\son\spkg-config\sbased\ssystems.
-D 2020-12-15T01:13:21.928
+C Update\sthe\sbuilt-in\sSQLite\sto\san\searly\s3.35\sversion\scontaining\ssupport\sfor\ngeneralized\supsert,\smath\sfunctions,\sand\sreduced\smemory\susage\sfor\sVACUUM\sof\nlarge\sblobs.
+D 2020-12-15T14:21:11.874
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -584,7 +584,7 @@ F src/setupuser.c b1a857a085dcb489b7f5948d9dcd4700101dbfd0631c4c9c61cd7c56bebe5e
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
-F src/shell.c a875c0ec51fd03f0a8985a1d53dff3afc51f6ce88b58f2e73667e5bbdd0ee637
+F src/shell.c acebe02e78af1b2ff42a7acf42801ce38590ec7bc5c98a1c14553f20fe8174be
 F src/shun.c dca052cd4c8da77d91b72e67da3955b13285d4fbeb5e3f1ea7a66f81d9633c20
 F src/sitemap.c a157d565f8d8afdfb6e0c6bcedd144c7f09644595edf65c68c35e0c38fe21e22
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -610,8 +610,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c fbd895b0655a337b2cd657675f314188a4e9fe614444cc63dfeb3f066f674514
-F src/sqlite3.h 6f0823636f4ccc06bbbea697ba0cb75870f44f6f60a47a97f94971385b02a9b9
+F src/sqlite3.c 42d66bb702d71dfdfaf20bda90497479287bc9e47c57707a2ff58c9c5bd76089
+F src/sqlite3.h 8ff2a9569ac66c6fb92b65042b7959d6a5e20416f72388e249d19b9ad99bb5b0
 F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c efda3d881a6840b2fed1bddf20076b4fcf03f1285b90e7de6887f3eb18ee4ea6
 F src/statrep.c d8b0365fd7ab13d51f9260fd338d62c38724452270d90447631013e1226bd22d
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e7dc8a6f51818e67b52e9319fa0c383d730cd951453bdedcc53d97046e32850
-R 12864585d136871957c797c003d8c8a9
+P 6f9d265234e92e25ae6ddd055b9d78fd010642a52a33527a17252f3c28c8b3eb
+R c000860aa1a19200cc7594130e0012f9
 U drh
-Z dc34c927cfaff79d19216224b782f60b
+Z eac1443bed99e3656683a132d3f969b5
