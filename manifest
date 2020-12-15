@@ -1,5 +1,5 @@
-C If\sREQUEST_URI\sincludes\sa\squery\sstring\s(which\sit\sdoes\sfor\s"fossil\sui"\sand\nfor\sApache,\sbut\snot\sfor\salthttpd)\sthen\somit\sthat\sstring\sprior\sto\susing\nthe\sREQUEST_URI\swhen\sforming\sthe\s"g="\squery\sparameter\sfor\sthe\slogin\nredirect\sin\slogin_needed().
-D 2020-12-14T14:27:14.747
+C Allow\sthe\suse\sof\sjson_each()\sand\sjson_tree()\sin\sthe\sSQL\sfor\sticket\sreports.
+D 2020-12-15T00:52:16.487
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -572,7 +572,7 @@ F src/purge.c 4f2870b9c683c1e55084a5dc1160376597bc8122e5a0808f36c42c423e992b29
 F src/rebuild.c 77133a21ae3358e0298a005c2e8ae57dbacdddd7b76fef26a152a17e1b333d28
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 157478064ca47cff4419d9813c7cf9d50e4ee8531048a0660edd3730b2a2797f
-F src/report.c 854283abf6a0c8e2bd6c1271a4021e54f5e7d05be5acafc7c6cb4ee0571a438a
+F src/report.c 6adedae12794205be9f69a422ecf3e281fddfc9fa86adc96c2f12865c807a9c6
 F src/rss.c a27ae6f0c83b99022fbf385337e3a13a4cde786a2d0a15de557386ec0c75e9cb
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 358d7d8f0ee8e53c6f8c5b655725164ead12ad03e8b903f1b850c87460896a66
-R c6926b845a68552123b36a6aedf882c2
+P d327660804fe3bd4633dd64a7e7d4813d4d598a81308a3e646fb4cdbcbf44915
+R c2f4cfdfb1c871a2c390b8b58fef9b9f
 U drh
-Z 8451aceed2c5bd8b80f509c7bed5f267
+Z 28bab94372820ee1fb860ad7b2adac41
