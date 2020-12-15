@@ -1,5 +1,5 @@
-C Allow\sthe\suse\sof\sjson_each()\sand\sjson_tree()\sin\sthe\sSQL\sfor\sticket\sreports.
-D 2020-12-15T00:52:16.487
+C Alternative\sto\scheck-in\s[a098707051568156]\sfor\sgetting\sthe\s--static\soption\nto\s./configure\sworking\son\spkg-config\sbased\ssystems.
+D 2020-12-15T01:13:21.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 18aa2dd77c9209db49f9519cf89c039273fadeae91e50e5219d9b1d3dbb44fee
+F auto.def a9e30cdea62969982de1c7d53169d384e2c640ea7dc9a66c283af493a4787fa0
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d327660804fe3bd4633dd64a7e7d4813d4d598a81308a3e646fb4cdbcbf44915
-R c2f4cfdfb1c871a2c390b8b58fef9b9f
+P 5e7dc8a6f51818e67b52e9319fa0c383d730cd951453bdedcc53d97046e32850
+R 12864585d136871957c797c003d8c8a9
 U drh
-Z 28bab94372820ee1fb860ad7b2adac41
+Z dc34c927cfaff79d19216224b782f60b
