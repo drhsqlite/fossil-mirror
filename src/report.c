@@ -185,19 +185,23 @@ static int report_query_authorizer(
     }
     case SQLITE_READ: {
       static const char *const azAllowed[] = {
-         "ticket",
-         "ticketchng",
+         "backlink",
          "blob",
+         "event",
          "filename",
+         "json_each",
+         "json_tree",
          "mlink",
          "plink",
-         "event",
          "tag",
          "tagxref",
+         "ticket",
+         "ticketchng",
          "unversioned",
-         "backlink",
       };
-      int i;
+      int lwr = 0;
+      int upr = count(azAllowed) - 1;
+      int rc = 0;
       if( zArg1==0 ){
         /* Some legacy versions of SQLite will sometimes send spurious
         ** READ authorizations that have no table name.  These can be
@@ -205,13 +209,18 @@ static int report_query_authorizer(
         rc = SQLITE_IGNORE;
         break;
       }
-      if( fossil_strncmp(zArg1, "fx_", 3)==0 ){
-        break;
+      while( lwr<upr ){
+        int i = (lwr+upr)/2;
+        int rc = fossil_stricmp(zArg1, azAllowed[i]);
+        if( rc<0 ){
+          upr = i - 1;
+        }else if( rc>0 ){
+          lwr = i + 1;
+        }else{
+          break;
+        }
       }
-      for(i=0; i<count(azAllowed); i++){
-        if( fossil_stricmp(zArg1, azAllowed[i])==0 ) break;
-      }
-      if( i>=count(azAllowed) ){
+      if( rc ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
         rc = SQLITE_DENY;
       }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
