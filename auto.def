@@ -612,15 +612,16 @@ if {[string length $fsan]} {
     }
 }
 
-# Finally, append -ldl to make sure it's the last in the list.
-# The library order matters in case of static linking.
+# Finally, append libraries that must be last. This matters more on some
+# OSes than others, but is most broadly required for static linking.
 if {[check-function-in-lib dlopen dl]} {
     # Some platforms (*BSD) have the dl functions already in libc and no libdl.
     # In such case we can link directly without -ldl.
     define-append LIBS [get-define lib_dlopen]
 }
-
 if {[opt-bool static]} {
+    # Linux can only infer the dependency on pthread from OpenSSL when
+    # doing dynamic linkage.
     define-append EXTRA_LDFLAGS -lpthread
 }
 
