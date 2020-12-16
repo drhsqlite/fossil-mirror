@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.35.0"
 #define SQLITE_VERSION_NUMBER 3035000
-#define SQLITE_SOURCE_ID      "2020-12-15 13:55:38 ea0a7f103a6f6a9e57d7377140ff9f372bf2b156f86f148291fb05a7030f2b36"
+#define SQLITE_SOURCE_ID      "2020-12-16 14:20:45 31cd1bbfa5b06723288d99d1cb423f88353bdef770b82e9103f71a796d66f660"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3697,7 +3697,7 @@ SQLITE_API sqlite3_file *sqlite3_database_file_object(const char*);
 ** If the Y parameter to sqlite3_free_filename(Y) is anything other
 ** than a NULL pointer or a pointer previously acquired from
 ** sqlite3_create_filename(), then bad things such as heap
-** corruption or segfaults may occur. The value Y should be
+** corruption or segfaults may occur. The value Y should not be
 ** used again after sqlite3_free_filename(Y) has been called.  This means
 ** that if the [sqlite3_vfs.xOpen()] method of a VFS has been called using Y,
 ** then the corresponding [sqlite3_module.xClose() method should also be

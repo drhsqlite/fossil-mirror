@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\san\searly\s3.35\sversion\scontaining\ssupport\sfor\ngeneralized\supsert,\smath\sfunctions,\sand\sreduced\smemory\susage\sfor\sVACUUM\sof\nlarge\sblobs.
-D 2020-12-15T14:21:11.874
+C Update\sto\sthe\slatest\sSQLite\s3.35\sprerelease\sin\sorder\sto\sfix\nharmless\s#ifdef\serrors\sand\scompiler\swarnings.
+D 2020-12-16T14:28:59.373
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -610,8 +610,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c 42d66bb702d71dfdfaf20bda90497479287bc9e47c57707a2ff58c9c5bd76089
-F src/sqlite3.h 8ff2a9569ac66c6fb92b65042b7959d6a5e20416f72388e249d19b9ad99bb5b0
+F src/sqlite3.c 8dde8dd4e9b399b4c2f1d33f298f6ef3a8831e63551461429e7a332a57024807
+F src/sqlite3.h 5249fd7d66fd15b64e9428c9ce9c3eadd5a9d88afc0a4455f565e5dae989ccf6
 F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c efda3d881a6840b2fed1bddf20076b4fcf03f1285b90e7de6887f3eb18ee4ea6
 F src/statrep.c d8b0365fd7ab13d51f9260fd338d62c38724452270d90447631013e1226bd22d
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f9d265234e92e25ae6ddd055b9d78fd010642a52a33527a17252f3c28c8b3eb
-R c000860aa1a19200cc7594130e0012f9
+P ea5465149ff5bc27a303bc7819689400bfaf18fcfb5ef7043063c6a622314a20
+R be4abd8017bfd866717a59b47021a9fe
 U drh
-Z eac1443bed99e3656683a132d3f969b5
+Z 25dca0b49fab3ea07f81870e5f94dd15
