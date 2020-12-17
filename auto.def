@@ -622,7 +622,7 @@ if {[check-function-in-lib dlopen dl]} {
 if {[opt-bool static]} {
     # Linux can only infer the dependency on pthread from OpenSSL when
     # doing dynamic linkage.
-    define-append EXTRA_LDFLAGS -lpthread
+    define-append LIBS -lpthread
 }
 
 

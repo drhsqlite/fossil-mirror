@@ -1,5 +1,5 @@
-C Comment\simprovements\sto\s[6f9d265234\s|\sthe\srecent\schange]\sin\sauto.def.
-D 2020-12-16T20:14:44.604
+C Moved\sthe\s-lpthread\sfor\s--static\sbuilds\sfrom\sthe\send\sof\sEXTRA_LDFLAGS\sto\nthe\send\sof\sLIBS,\ssince\sthe\slatter\sends\sup\sat\sthe\send\sof\s"LIB"\sin\sthe\nMakefile.\s\sIn\sother\swords,\sthe\sprior\sformulation\sput\s-lpthread\sin\sthe\n*middle*\sof\sthe\sLIB\sline,\snot\sat\sthe\send\sas\sintended.
+D 2020-12-17T23:58:13.790
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 964c2ce39ae3389ca86b398c236ae3ae35a451cd2bf620960622cbf4917d373a
+F auto.def 1f1f788b5728be878506606e4f335f641e2408a54bc3f3da42e991c063a03b5b
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c9b6be2f62e02ac65f27c1b51c7c957ce2d3b2bdab05c6384eb96d0144cc7f24
-R ba941b1a177756c2b043299603896cad
+P 53caec9524d73e098b73de18b7ec20e9b1d718d016620689ea79366fd7514201
+R 734ab4f0967dc23acafad3793cc2c43b
 U wyoung
-Z e21d5a5f471cf50d35a193ed807b5285
+Z 6bec2ec94542361fac2e408400f0b146
