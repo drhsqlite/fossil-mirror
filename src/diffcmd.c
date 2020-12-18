@@ -857,6 +857,7 @@ void diff_cmd(void){
   int againstUndo = 0;       /* Diff against files in the undo buffer */
   u64 diffFlags = 0;         /* Flags to control the DIFF */
   FileDirList *pFileDir = 0; /* Restrict the diff to these files */
+  g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
 
   if( find_option("tk",0,0)!=0 || has_option("tclsh") ){
     diff_tk("diff", 2);
@@ -960,6 +961,9 @@ void diff_cmd(void){
     }
     fossil_free(pFileDir);
   }
+  if ( diffFlags & DIFF_NUMSTAT )
+    fossil_print("%d files changed, %d insertions, %d deletions\n", 
+                 g.diffCnt[0], g.diffCnt[1], g.diffCnt[2]);
 }
 
 /*
