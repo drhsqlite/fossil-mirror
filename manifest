@@ -1,5 +1,5 @@
-C Prepend\sthe\stext\s"Note:"\sinstead\sof\sa\sbullet\son\sthe\stimeline\sdisplay\sof\sa\ntechnote.
-D 2020-12-19T14:16:50.373
+C On\sthe\sUser\sList\sadmin\spage,\sshow\sthe\suser's\ssubscriptions\sand\sprovide\sa\slike\nto\sthe\ssubscription\spage\s(if\sany).
+D 2020-12-19T15:59:44.710
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -580,7 +580,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c c5cbf1d1c021f33c2e326f2b03fac722b92391079006e0213b5cbb2442c67b2c
 F src/security_audit.c 2e932238b43d928a48fc14133991bf8b5ad84681ad14954a4633889d13305c7a
 F src/setup.c f02e1a2c7d788440bc0664ff9d9dc951b63badaa883ba55fc7e7929644e8cd4a
-F src/setupuser.c b1a857a085dcb489b7f5948d9dcd4700101dbfd0631c4c9c61cd7c56bebe5eb2
+F src/setupuser.c 421aff98fb7fbf6b3c8719f6bd7c75d2c4beb9b5ea916dc72e542116a2714c2d
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08ad0f52714aca3ab33667f6005b8d326d7b46c3e3b09ff8b23f64d135eb96b4
-R ada2e3fc2e9b4ca83a08429d22d1cf76
+P 2d1ef1e1f3c053ef4bc0e6a33f42ed07045b52ec213cdfe9b3cd0e790e4a3d56
+R 0f5f9ea014435429457c2eff496276b4
 U drh
-Z 8bbe44dda60d66d30202a3d5c0b07ce7
+Z a4ca74c27eefb5da8d0a23479159e5de

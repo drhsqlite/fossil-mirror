@@ -18,6 +18,9 @@
 ** Setup pages associated with user management.  The code in this
 ** file was formerly part of the "setup.c" module, but has been broken
 ** out into its own module to improve maintainability.
+**
+** Note:  Do not confuse "Users" with "Subscribers".  Code to deal with
+** subscribers is over in the "alerts.c" source file.
 */
 #include "config.h"
 #include <assert.h>
@@ -111,9 +114,10 @@ void setup_ulist(void){
     style_submenu_element("Unused", "setup_ulist?unused");
   }
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
-  @  data-column-types='ktxTTK' data-init-sort='2'>
+  @  data-column-types='ktxTTKt' data-init-sort='2'>
   @ <thead><tr>
-  @ <th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login</tr></thead>
+  @ <th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login\
+  @ <th>Alerts</tr></thead>
   @ <tbody>
   db_multi_exec(
     "CREATE TEMP TABLE lastAccess(uname TEXT PRIMARY KEY, atime REAL)"
@@ -130,6 +134,12 @@ void setup_ulist(void){
       " GROUP BY 1;"
     );
   }
+  if( !db_table_exists("repository","subscriber") ){
+    db_multi_exec(
+      "CREATE TEMP TABLE subscriber(suname PRIMARY KEY, ssub, subscriberId)"
+      "WITHOUT ROWID;"
+    );
+  }
   if( bUnusedOnly ){
     zWith = mprintf(
         " AND login NOT IN ("
@@ -144,13 +154,15 @@ void setup_ulist(void){
     zWith = "";
   }
   db_prepare(&s,
-     "SELECT uid, login, cap, info, date(mtime,'unixepoch'),"
+     "SELECT uid, login, cap, info, date(user.mtime,'unixepoch'),"
      "       lower(login) AS sortkey, "
      "       CASE WHEN info LIKE '%%expires 20%%'"
              "    THEN substr(info,instr(lower(info),'expires')+8,10)"
              "    END AS exp,"
-             "atime"
+             "atime,"
+     "       subscriber.ssub, subscriber.subscriberId"
      "  FROM user LEFT JOIN lastAccess ON login=uname"
+     "            LEFT JOIN subscriber ON login=suname"
      " WHERE login NOT IN ('anonymous','nobody','developer','reader') %s"
      " ORDER BY sortkey", zWith/*safe-for-%s*/
   );
@@ -165,6 +177,8 @@ void setup_ulist(void){
     const char *zExp = db_column_text(&s,6);
     double rATime = db_column_double(&s,7);
     char *zAge = 0;
+    const char *zSub;
+    int sid = db_column_int(&s,9);
     if( rATime>0.0 ){
       zAge = human_readable_age(rNow - rATime);
     }
@@ -176,6 +190,14 @@ void setup_ulist(void){
     @ <td>%h(zDate?zDate:"")
     @ <td>%h(zExp?zExp:"")
     @ <td data-sortkey='%f(rATime)' style='white-space:nowrap'>%s(zAge?zAge:"")
+    if( db_column_type(&s,8)==SQLITE_NULL ){
+      @ <td>
+    }else if( (zSub = db_column_text(&s,8))==0 || zSub[0]==0 ){
+      @ <td><a href="%R/alerts?sid=%d(sid)"><i>off</i></a>
+    }else{
+      @ <td><a href="%R/alerts?sid=%d(sid)">%h(zSub)</a>
+    }
+
     @ </tr>
     fossil_free(zAge);
   }
