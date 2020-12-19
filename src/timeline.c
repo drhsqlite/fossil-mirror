@@ -544,8 +544,12 @@ void www_print_timeline(
     }else{
       @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)">
     }
-    if( pGraph && zType[0]!='c' ){
-      @ &bull;
+    if( pGraph ){
+      if( zType[0]=='e' ){
+        @ <b>Note:</b>
+      }else if( zType[0]!='c' ){
+        @ &bull;
+      }
     }
     if( modPending ){
       @ <span class="modpending">(Awaiting Moderator Approval)</span>

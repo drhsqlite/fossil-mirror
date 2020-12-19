@@ -1,5 +1,5 @@
-C Moved\sthe\s-lpthread\sfor\s--static\sbuilds\sfrom\sthe\send\sof\sEXTRA_LDFLAGS\sto\nthe\send\sof\sLIBS,\ssince\sthe\slatter\sends\sup\sat\sthe\send\sof\s"LIB"\sin\sthe\nMakefile.\s\sIn\sother\swords,\sthe\sprior\sformulation\sput\s-lpthread\sin\sthe\n*middle*\sof\sthe\sLIB\sline,\snot\sat\sthe\send\sas\sintended.
-D 2020-12-17T23:58:13.790
+C Prepend\sthe\stext\s"Note:"\sinstead\sof\sa\sbullet\son\sthe\stimeline\sdisplay\sof\sa\ntechnote.
+D 2020-12-19T14:16:50.373
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -628,7 +628,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 4fa837f2a4bb35caba0fd5e584ff2934bce308861c39dedfe961c5dc62bce41a
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 332f7afb72aa966654265e696053634929633d9c4dbc78b1a2cd310be3be3b69
+F src/timeline.c 8a3586674be2729513306108d791d400ca55947c8fa56954a3a9c93380bc8d40
 F src/tkt.c 8eb6a9a19c410a03cf3b17a73171e29525a4675c818af4dd38efb6505e06f962
 F src/tktsetup.c 499fb8a5013cac2919493aa3d8d12ec2f110a599213f077320e62dd83bf50acb
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53caec9524d73e098b73de18b7ec20e9b1d718d016620689ea79366fd7514201
-R 734ab4f0967dc23acafad3793cc2c43b
-U wyoung
-Z 6bec2ec94542361fac2e408400f0b146
+P 08ad0f52714aca3ab33667f6005b8d326d7b46c3e3b09ff8b23f64d135eb96b4
+R ada2e3fc2e9b4ca83a08429d22d1cf76
+U drh
+Z 8bbe44dda60d66d30202a3d5c0b07ce7
