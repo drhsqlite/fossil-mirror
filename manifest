@@ -1,5 +1,5 @@
-C On\sthe\sUser\sList\sadmin\spage,\sshow\sthe\suser's\ssubscriptions\sand\sprovide\sa\slike\nto\sthe\ssubscription\spage\s(if\sany).
-D 2020-12-19T15:59:44.710
+C Clarified\sthe\s"fossil\shelp\sremote"\soutput.
+D 2020-12-20T05:08:33.655
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -619,7 +619,7 @@ F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538
 F src/style.c 8e5015a497ce9421abc176948fe0e663d01d44397ac41b3def2b51d985d4ac98
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
-F src/sync.c a8ee90537c0dc0f4209df1eddce00857119530379cfb6761b55d07e915138b9c
+F src/sync.c 5db49b424b371cab52cc481a0d5e04229721480f074fd8af2e20e6f982aeaebf
 F src/tag.c 4435744c50d059e9389de0aefe6a581bc71be16c2a808b1fe820cd416891d6e1
 F src/tar.c be281fab8164831e9c720b7dd480a83356e1ea3b4d6b9b1a25822513e2715566
 F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2f
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d1ef1e1f3c053ef4bc0e6a33f42ed07045b52ec213cdfe9b3cd0e790e4a3d56
-R 0f5f9ea014435429457c2eff496276b4
-U drh
-Z a4ca74c27eefb5da8d0a23479159e5de
+P 8b287e8d97f03cc4018aec70e66c328b59adecd96c811021cec037facf70df91
+R a840cc0ffc45dbf568a1ea9bff20652d
+U wyoung
+Z c2e3ca9e44b4ebfd09238205b786118b
