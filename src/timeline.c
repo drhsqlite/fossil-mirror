@@ -2743,8 +2743,8 @@ void page_timeline(void){
 **     %c  comment (\n, \t replaced by space, \r deleted)
 **     %b  branch
 **     %t  tags
-**     %p  prefix (zero or more of: *CURRENT*, *MERGE*, *FORK*,
-**                                  *UNPUBLISHED*, *LEAF*, *BRANCH*)
+**     %p  phase (zero or more of: *CURRENT*, *MERGE*, *FORK*,
+**                                 *UNPUBLISHED*, *LEAF*, *BRANCH*)
 **
 ** The returned string is obtained from fossil_malloc() and should
 ** be freed by the caller.
@@ -2758,12 +2758,13 @@ static char *timeline_entry_subst(
   const char *zCom,
   const char *zBranch,
   const char *zTags,
-  const char *zPrefix
+  const char *zPhase
 ){
-  Blob co;
-  int j;
+  Blob r, co;
+  int i, j;
+  blob_init(&r, 0, 0);
   blob_init(&co, 0, 0);
-  *nLine = 1;
+
   /* Replace LF and tab with space, delete CR */
   while( zCom[0] ){
     for(j=0; zCom[j] && zCom[j]!='\r' && zCom[j]!='\n' && zCom[j]!='\t'; j++){}
@@ -2775,9 +2776,7 @@ static char *timeline_entry_subst(
   }
   blob_str(&co);
 
-  Blob r;
-  int i;
-  blob_init(&r, 0, 0);
+  *nLine = 1;
   while( zFormat[0] ){
     for(i=0; zFormat[i] && zFormat[i]!='%'; i++){}
     blob_append(&r, zFormat, i);
@@ -2814,7 +2813,7 @@ static char *timeline_entry_subst(
       blob_append(&r, zTags, -1);
       zFormat += i+2;
     }else if( zFormat[i+1]=='p' ){
-      blob_append(&r, zPrefix, -1);
+      blob_append(&r, zPhase, -1);
       zFormat += i+2;
     }else{
       blob_append(&r, zFormat+i, 1);
@@ -3121,8 +3120,8 @@ static int fossil_is_julianday(const char *zDate){
 **                            %c  comment (NL, TAB replaced by space, LF deleted)
 **                            %b  branch
 **                            %t  tags
-**                            %p  zero or more of: *CURRENT*, *MERGE*, *FORK*,
-**                                             *UNPUBLISHED*, *LEAF*, *BRANCH*
+**                            %p  phase: zero or more of *CURRENT*, *MERGE*,
+**                                      *FORK*, *UNPUBLISHED*, *LEAF*, *BRANCH*
 **   --oneline            Show only short hash and comment for each entry
 **   --medium             Medium-verbose entry formatting
 **   --full               Extra verbose entry formatting

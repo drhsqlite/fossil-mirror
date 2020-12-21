@@ -1,16 +1,12 @@
 B 08ad0f52714aca3ab33667f6005b8d326d7b46c3e3b09ff8b23f64d135eb96b4
-C Extend\sthe\stimeline\scommand\sto\sallow\scustomized\s"pretty"\sformats.
-D 2020-12-18T15:05:49.640
+C Rename\s"prefix"\sto\s"phase"\sand\sfix\sa\sC99-ism.
+D 2020-12-21T12:14:57.612
 F src/descendants.c 9a47aa558b6de5e2e82bf78a8690c5502443f05c3d76aa4b23b1c67cebc01d68
 F src/search.c 1194821149e3692e6ea7206518f879734c7309204f45226b901969f48d75f7ef
 F src/tag.c 3292f5b77c750aca15450e88d900115a85d043130ad4541cd8ed3e712cba22d8
-F src/timeline.c ad9fb768c16ba3ff071f9f2d39f68b6bfb7e1c6319a5552aa49be11b0856ffc8
+F src/timeline.c ff41ce5c116177e67cf6f212da140bb68ca0dfe04deb2f101c4b3f91a17f54c7
 F src/update.c d1daa93931016fb64026b8a9674a7292ff1f0887805788017ed32a4a15b08990
-P 08ad0f52714aca3ab33667f6005b8d326d7b46c3e3b09ff8b23f64d135eb96b4
-R cb56582d7c37d792a289ba48e06f5f54
-T *bgcolor * #fec084
-T *branch * timeline-cmd-formatting
-T *sym-timeline-cmd-formatting *
-T -sym-trunk *
+P 5d3239bf588f7f9b7212530c6226bb960f0037a90e085eb6a36d74eba034dff5
+R 0b2b03233c5936b394747eb2b5bdd9ad
 U danield
-Z 4a9fb82f298798b2383051c11830731c
+Z d7efb16217ad0e5081958611c4080061
