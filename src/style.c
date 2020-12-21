@@ -561,6 +561,7 @@ static const char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
+@ <meta charset="UTF-8">
 @ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>

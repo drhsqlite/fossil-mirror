@@ -1,5 +1,5 @@
-C Clarified\sthe\s"fossil\shelp\sremote"\soutput.
-D 2020-12-20T05:08:33.655
+C Declare\sthe\scharacter\sset\sin\sthe\sdefault\sHTML\sheader.
+D 2020-12-21T18:20:23.270
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -616,7 +616,7 @@ F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c efda3d881a6840b2fed1bddf20076b4fcf03f1285b90e7de6887f3eb18ee4ea6
 F src/statrep.c d8b0365fd7ab13d51f9260fd338d62c38724452270d90447631013e1226bd22d
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 8e5015a497ce9421abc176948fe0e663d01d44397ac41b3def2b51d985d4ac98
+F src/style.c f814e1ef39f1b3e0ee8aedd5d3c7af82e33a6c18877def07c7f288b13d9ed84b
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 5db49b424b371cab52cc481a0d5e04229721480f074fd8af2e20e6f982aeaebf
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b287e8d97f03cc4018aec70e66c328b59adecd96c811021cec037facf70df91
-R a840cc0ffc45dbf568a1ea9bff20652d
-U wyoung
-Z c2e3ca9e44b4ebfd09238205b786118b
+P 6d7b5c4a746109b2fdc5e55c098af631fa6427e8c50815c65ecc7ff08fcd3ee7
+R 1003cb7fc391ceb45a632d581faa4f52
+U drh
+Z 1f5368d4fbfb93c9829b1cb05133de2b
