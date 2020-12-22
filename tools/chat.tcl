@@ -109,72 +109,75 @@ proc wapp-default {} {
   set downloadurl [wapp-param SCRIPT_NAME]/download
   set me [wapp-param FOSSIL_USER]
   wapp-trim {
-<script nonce="%string($nonce)">(function(){
-    let x = document.getElementById("sbox");
-    let form = document.forms[0]
-    var mxMsg = 0
-    var _me = "%string($me)"
-    form.addEventListener('submit',(e)=>{
-      e.preventDefault();
-      if( form.msg.value.length>0 || form.file.value.length>0 ){
-        fetch("%string($submiturl)",{
-          method: 'POST',
-          body: new FormData(form)
-        });
+<script nonce="%string($nonce)">
+(function(){
+  const form = document.querySelector('#chat-form');
+  let mxMsg = 0;
+  let _me = "%string($me)";
+  form.addEventListener('submit',(e)=>{
+    e.preventDefault();
+    if( form.msg.value.length>0 || form.file.value.length>0 ){
+      fetch("%string($submiturl)",{
+        method: 'POST',
+        body: new FormData(form)
+      });
+    }
+    form.msg.value = "";
+    form.file.value = "";
+    form.msg.focus();
+  });
+  function newcontent(jx){
+    var tab = document.getElementById("dialog");
+    var i;
+    for(i=0; i<jx.msgs.length; ++i){
+      let m = jx.msgs[i];
+      let r = document.createElement("tr");
+      if( m.msgid>mxMsg ) mxMsg = m.msgid;
+      tab.insertBefore(r, tab.childNodes[0]);
+      let td = document.createElement("td");
+      r.appendChild(td);
+      if( m.xfrom!=_me ){
+        td.appendChild(document.createTextNode(m.xfrom));
       }
-      form.msg.value = ""
-      form.file.value = ""
-    });
-    function newcontent(jx){
-      var tab = document.getElementById("dialog");
-      for(var i=0; i<jx.msgs.length; i++){
-        var m = jx.msgs[i]
-        var r = document.createElement("tr")
-        if( m.msgid>mxMsg ) mxMsg = m.msgid
-        tab.insertBefore(r, tab.childNodes[0]);
-        var td = document.createElement("td");
-        r.appendChild(td);
-        if( m.xfrom!=_me ){
-          td.appendChild(document.createTextNode(m.xfrom))
-        }
-        td = document.createElement("td");
-        r.appendChild(td);
-        var span = document.createElement("span");
-        td.appendChild(span)
-        if( m.fsize>0 ){
-          if( m.fmime && m.fmime.startsWith("image/") ){
-            var img = document.createElement("img");
-            img.src = "%string($downloadurl)/" + m.msgid
-            span.appendChild(img)
-          }else{
-            var a = document.createElement("a");
-            var txt = "(" + m.fname + " " + m.fsize + " bytes)"
-            a.href = "%string($downloadurl)/" + m.msgid
-            a.appendChild(document.createTextNode(txt))
-            span.appendChild(a)
-          }
-          var br = document.createElement("br");
-          br.style.clear = "both";
-          span.appendChild(br);
-        }
-        span.appendChild(document.createTextNode(m.xmsg));
-        if( m.xfrom!=_me ){
-          span.classList.add('chat-mx');
+      td = document.createElement("td");
+      r.appendChild(td);
+      let span = document.createElement("span");
+      td.appendChild(span);
+      if( m.fsize>0 ){
+        if( m.fmime && m.fmime.startsWith("image/") ){
+          let img = document.createElement("img");
+          img.src = "%string($downloadurl)/" + m.msgid;
+          span.appendChild(img);
         }else{
-          span.classList.add('chat-ms');
+          let a = document.createElement("a");
+          let txt = "(" + m.fname + " " + m.fsize + " bytes)";
+          a.href = "%string($downloadurl)/" + m.msgid;
+          a.appendChild(document.createTextNode(txt));
+          span.appendChild(a);
         }
-        td = document.createElement("td");
-        r.appendChild(td);
-        if( m.xfrom==_me ){
-          td.appendChild(document.createTextNode('me'))
-        }
+        let br = document.createElement("br");
+        br.style.clear = "both";
+        span.appendChild(br);
       }
-      setTimeout(poll, 10)
+      //console.debug("m =",m);
+      span.appendChild(document.createTextNode(m.xmsg));
+      if( m.xfrom!=_me ){
+        span.classList.add('chat-mx');
+      }else{
+        span.classList.add('chat-ms');
+      }
+      td = document.createElement("td");
+      r.appendChild(td);
+      if( m.xfrom==_me ){
+        td.appendChild(document.createTextNode('me'))
+      }
     }
-    async function poll(){
-      fetch("%string($pollurl)/" + mxMsg)
-          .then(x => x.json()).then(y => newcontent(y))
-    }
+    setTimeout(poll, 10);
+  }
+  async function poll(){
+    fetch("%string($pollurl)/" + mxMsg)
+    .then(x => x.json()).then(y => newcontent(y));
+  }
   poll();
 })();</script>
   }

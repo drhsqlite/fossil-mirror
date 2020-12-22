@@ -1,5 +1,5 @@
-C Refactored\sthe\schat\sinput\sarea\sfrom\sa\stable\sto\sa\sflexbox-based\slayout.
-D 2020-12-22T05:15:25.457
+C Generic\sJS\scleanups:\svar\sscoping\sand\smissing\ssemicolons.
+D 2020-12-22T05:58:49.417
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -726,7 +726,7 @@ F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
-F tools/chat.tcl 72853f15ee1bf0f685e1b804ca4e8de5e250f175f6ff7d721e1bf293e7893ef9 x
+F tools/chat.tcl f4c581bcb65061bd27eda946876e33c8689cc85e2b37cbd8defe982d027b63ee x
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -987,7 +987,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 84b31f44950caa767f480472ed2839c8af2d1f8f89fc8fac192d5232b03edfdc
-R 374facc66240247fed15a10b96828239
+P ba5c9147727d7e70a04f15c9f0e609cc74f5152edad8918503a87611f91b470d
+R 3e1c690bef1b520ece6b7dfbaf20a4d3
 U stephan
-Z 94b960f8dd56c08f2c1b82a328962b34
+Z 1718037efa9f513f07aac16486917f49
