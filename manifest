@@ -1,5 +1,5 @@
-C chat:\sexperimentally\schanged\spoll()\sto\suse\ssetInterval()\sinstead\sof\ssetTimeout()\sto\sattempt\sto\sautomatically\sre-activate\sa\sconnection\sif\sit's\skilled\sdue\sto\sa\stimeout\sor\s(maybe)\ssystem\ssleep/resume.
-D 2020-12-22T10:32:35.694
+C chat:\sremoved\sthe\s??empty??\smarker\sfor\sempty\smessage\sstrings,\sas\sthey're\sperfectly\slegitimate\swhen\sa\sfile/image\sis\suploaded.
+D 2020-12-22T10:37:30.988
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -726,7 +726,7 @@ F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
-F tools/chat.tcl 2bfb89fb9f6f1c8dfa49ac9ba0a88a3e554a07d16a7f553e2e2948a2fe15c1dc x
+F tools/chat.tcl 284c514f9c773f5355b85bd66f7b3302d073c0228c6d373fa7ee8896b76ae617 x
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -987,7 +987,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce988f94077314f1c952fb92ac57b17fecf5b2a0fd198023a8eb4465c1aeaa48
-R a4c07e4de11614d2934004aea59bbb70
+P f2601541147a5f01db795f1d1ae531393e06336e632d1f41a25ba1ef13c23a05
+R 9e45b105c9bf6d9111f1fd68d8b227a5
 U stephan
-Z 42d657d6f539d26a7fc0e90df2d3c61a
+Z 5c1bdc806e2cba1bf72f5ac02b3783a4

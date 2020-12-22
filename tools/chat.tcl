@@ -248,7 +248,9 @@ span.at-name { /* for @USERNAME references */
         br.style.clear = "both";
         span.appendChild(br);
       }
-      messageToDOM(m.xmsg || "??empty??", span);
+      if(m.xmsg){
+        messageToDOM(m.xmsg, span);
+      }
       span.classList.add('chat-message');
       if( m.xfrom!=_me ){
         span.classList.add('chat-mx');
