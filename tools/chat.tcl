@@ -60,20 +60,25 @@ proc wapp-default {} {
     <a href="chat/env">CGI environment</a> |
     <a href="chat/self">Wapp script</a>
     <style>
+.chat-message {/*style common to .chat-mx and .chat-ms*/
+  padding: 0.5em;
+  border-radius: 0.5em;
+  border: 1px solid black;
+  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
+  /* Bob Ross might approve of... */
+  /*
+  background-image: linear-gradient(45deg, #FFC107 0%, #ff8b5f 100%);
+  border-bottom: solid 3px #c58668;
+  */
+}
 .chat-mx {
   float: left;
   margin-right: 3em;
-  padding: 0.5em;
-  border-radius: 1em;
-  border: 1px solid black;
 }
 .chat-ms {
   float: right;
   margin-left: 3em;
-  padding: 0.5em;
-  border-radius: 1em;
   background-color: #d2dde1;
-  border: 1px solid black;
 }
 \#dialog {
   width: 97%;
@@ -138,7 +143,9 @@ span.at-name { /* for @USERNAME references */
   // ^^^ achtung, extra backslashes needed for the outer TCL.
   // Converts a message string to a message-containing DOM element
   // and returns that element, which may contain child elements.
-  const messageToDOM = function f(str){
+  // If 2nd arg is passed, it must be a DOM element to which all
+  // child elements are appended.
+  const messageToDOM = function f(str, tgtElem){
     "use strict";
     if(!f.rxUrl){
       f.rxUrl = rxUrl;
@@ -200,7 +207,7 @@ span.at-name { /* for @USERNAME references */
     });
     delete f.accum;
     //console.debug("accum2 =",accum2);
-    const span = f.ce('span');
+    const span = tgtElem || f.ce('span');
     accum2.forEach(function(e){
       if('string'===typeof e) e = f.ct(e);
       span.appendChild(e);
@@ -241,8 +248,8 @@ span.at-name { /* for @USERNAME references */
         br.style.clear = "both";
         span.appendChild(br);
       }
-      const dmsg = messageToDOM(m.xmsg || "??empty??");
-      span.appendChild(dmsg);
+      messageToDOM(m.xmsg || "??empty??", span);
+      span.classList.add('chat-message');
       if( m.xfrom!=_me ){
         span.classList.add('chat-mx');
       }else{
