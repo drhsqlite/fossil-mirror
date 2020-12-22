@@ -50,36 +50,15 @@ proc wapp-default {} {
       </div>
     </div>
     </form>
-
     <hr>
-    <table id="dialog">
-    </table>
-    </div>
+    <span id='message-inject-point'></span>
+
+    </div><!-- .fossil-doc -->
     <hr>
     <p>
     <a href="chat/env">CGI environment</a> |
     <a href="chat/self">Wapp script</a>
     <style>
-.chat-message {/*style common to .chat-mx and .chat-ms*/
-  padding: 0.5em;
-  border-radius: 0.5em;
-  border: 1px solid black;
-  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
-  /* Bob Ross might approve of... */
-  /*
-  background-image: linear-gradient(45deg, #FFC107 0%, #ff8b5f 100%);
-  border-bottom: solid 3px #c58668;
-  */
-}
-.chat-mx {
-  float: left;
-  margin-right: 3em;
-}
-.chat-ms {
-  float: right;
-  margin-left: 3em;
-  background-color: #d2dde1;
-}
 \#dialog {
   width: 97%;
 }
@@ -112,6 +91,53 @@ proc wapp-default {} {
 span.at-name { /* for @USERNAME references */
   text-decoration: underline;
   font-weight: bold;
+}
+/* A wrapper for a single single message (one row of the UI) */
+.message-row {
+  margin-bottom: 0.5em;
+  border: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  /*border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 0.25em;
+  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);*/
+  border: none;
+}
+/* Rows for the current user have the .user-is-me CSS class
+   and get right-aligned. */
+.message-row.user-is-me {
+  justify-content: flex-end;
+  /*background-color: #d2dde1;*/
+}
+/* The content area of a message (the body element of a FIELDSET) */
+.message-content {
+  display: inline-block;
+  border-radius: 0.25em;
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
+  padding: 0.25em 1em;
+  margin-top: -0.75em;
+}
+.message-row.user-is-me .message-content {
+  background-color: #d2dde1;
+}
+/* User name for the post (a LEGEND element) */
+.message-row .message-user {
+  background: inherit;
+  border-radius: 0.25em 0.25em 0 0;
+  padding: 0 0.5em;
+  /*text-align: left; Firefox requires the 'align' attribute */
+  margin-left: 0.25em;
+  padding: 0 0.5em 0em 0.5em;
+  margin-bottom: 0.4em;
+  background-color: #d2dde1;
+}
+/* Reposition "my" posts to the right */
+.message-row.user-is-me .message-user {
+  /*text-align: right; Firefox requires the 'align' attribute */
+  margin-left: 0;
+  margin-right: 0.25em;
 }
 </style>
   }
@@ -215,23 +241,36 @@ span.at-name { /* for @USERNAME references */
     //console.debug("span =",span.innerHTML);
     return span;
   }/*end messageToDOM()*/;
+  const injectMessage = function f(e){
+    if(!f.injectPoint){
+      f.injectPoint = document.querySelector('#message-inject-point');
+    }
+    f.injectPoint.parentNode.insertBefore(e, f.injectPoint.nextSibling);
+  };
   function newcontent(jx){
-    var tab = document.getElementById("dialog");
     var i;
     for(i=0; i<jx.msgs.length; ++i){
       let m = jx.msgs[i];
-      let r = document.createElement("tr");
+      let row = document.createElement("fieldset");
       if( m.msgid>mxMsg ) mxMsg = m.msgid;
-      tab.insertBefore(r, tab.childNodes[0]);
-      let td = document.createElement("td");
-      r.appendChild(td);
-      if( m.xfrom!=_me ){
-        td.appendChild(document.createTextNode(m.xfrom));
+      row.classList.add('message-row');
+      injectMessage(row);
+      const eWho = document.createElement('legend');
+      eWho.setAttribute('align', (m.xfrom===_me ? 'right' : 'left'));
+      row.appendChild(eWho);
+      eWho.classList.add('message-user');
+      let whoName;
+      if( m.xfrom===_me ){
+        whoName = 'me';
+        //eWho.classList.add('user-is-me');
+        row.classList.add('user-is-me');
+      }else{
+        whoName = m.xfrom;
       }
-      td = document.createElement("td");
-      r.appendChild(td);
-      let span = document.createElement("span");
-      td.appendChild(span);
+      eWho.append(document.createTextNode(whoName));
+      let span = document.createElement("div");
+      span.classList.add('message-content');
+      row.appendChild(span);
       if( m.fsize>0 ){
         if( m.fmime && m.fmime.startsWith("image/") ){
           let img = document.createElement("img");
@@ -256,11 +295,6 @@ span.at-name { /* for @USERNAME references */
         span.classList.add('chat-mx');
       }else{
         span.classList.add('chat-ms');
-      }
-      td = document.createElement("td");
-      r.appendChild(td);
-      if( m.xfrom==_me ){
-        td.appendChild(document.createTextNode('me'))
       }
     }
   }
