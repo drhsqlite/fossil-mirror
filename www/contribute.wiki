@@ -90,7 +90,33 @@ but contributors are encouraged to run through its steps when making
 major changes, since if the change doesn't pass this checklist, it won't
 be included in the next release.
 
-<h2>5.0 See Also</h2>
+<h2>5.0 UI and Documentation Language</h2>
+
+The Fossil project uses American English in its web interface and
+documentation. Until there is some provision for translating the UI and
+docs into other languages and dialects, we ask that you do not commit
+changes that conflict with this.
+
+We aren't opposed to such a project, but it would be a huge amount of
+work, which no one's stepped up to do yet. Not only is each individual
+translation a large ongoing job its own right, there is no
+infrastructure for it yet, so the first few translations will be harder
+than any future translation built on that infrastructure.
+
+More immediately, we're likely to reject, revert, or rework commits that
+use other English dialects. One example that comes up occasionally is
+"artefact" versus "artifact." The UI and docs use the American English
+spelling pervasively, so you have poor options if you insist on
+"artefact:"
+
+  *  attempt to slip one-off changes by your peers
+  *  attempt to change all American English usages to Commonwealth English
+  *  make the Fossil UI and docs translatable, then contribute a
+     Commonwealth English translation
+
+Only the latter is likely to succeed.
+
+<h2>6.0 See Also</h2>
 
   *  [./build.wiki | How To Compile And Install Fossil]
   *  [./makefile.wiki | The Fossil Build Process]

@@ -1,5 +1,5 @@
-C Removed\sthe\s"Multiple\slogins\sper\suser"\scaveat\sfrom\sthe\sJSON\sAPI\sintro\ndoc:\sthat\srestriction\swas\sdue\sto\sthe\sIP\saddress\sin\sthe\scookie,\swhich\sis\nnow\slong-removed.
-D 2020-12-22T09:22:56.793
+C Moved\sthe\s"artifact"\svs\s"artifact"\spoint\sin\sthe\sJSON\sAPI\sdoc\sintro\sinto\na\snew\ssection\swithin\sthe\scontribution\sdoc.
+D 2020-12-22T09:36:08.371
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -837,7 +837,7 @@ F www/ckout-workflows.md 24b691b62c9cc51cc0f0d5ecf0b2d91526ce956f18bd935d3629d80
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 8a6095ecb6582181fd13fb5c1474b2edf0a042750d9e959a703747f7045a5c17
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/contribute.wiki 6c39c7652b3487c657eb0616d52cdc8906b16e1c64ae82f34fb8bd765e1fcaf1
+F www/contribute.wiki c71a5a680b2b99926037cbf3b82122a5adc44063892dc4bc050495f90af26be9
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 0c820100dfd65c763360336cb1fa2c8a610e102b240db0d6a2aafa01dae86077
@@ -916,7 +916,7 @@ F www/json-api/api-wiki.md b2e44efaf926e3089dbafabfe1ddcd14a866ba6b139ebf765f9dd
 F www/json-api/conventions.md 53a8506dc13c23867f6e75f6f80cb2740f39273ab32df64d921a5eb745bd4f5a
 F www/json-api/hacking.md f3d3a8f029a03fe60029f15dff36a92a5103c36911e84818adc029e03be74080
 F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc4d605802
-F www/json-api/intro.md 3fe75fab40bf0450e0be126c1de83d5f1fe9f92d383498efc8b7a1a9803591c8
+F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
 F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e3d58
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f20b5379414a2dc2fd380579d5a5415fa93f7965b25436cad4c264459a40b88
-R 25677d6cd0c39ec4c18de646843678c2
+P 40715d84bc430e5623ae062538f0a051927ca78b17ce9409ce1f7d88ac88eaee
+R a822fa3afc7058f36bd2b8b3c4c909ee
 U wyoung
-Z 082afc80f08895bbd828667472f551fa
+Z eb4a7e4aaa22854a26a17e4669c3d401

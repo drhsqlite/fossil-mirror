@@ -170,6 +170,3 @@ problem areas...
     there, easily usable in most programming environments. (In
     hindsight, we might better have used a higher-precision time format,
     but changing that now would break API compatibility.)
--   **Artifact vs. Artefact:** both are correct vis-a-vis the
-    english language but Fossil consistently uses the former, so we’ll
-    use that.
