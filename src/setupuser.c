@@ -54,6 +54,7 @@ void setup_ulist(void){
   if( alert_tables_exist() ){
     style_submenu_element("Subscribers", "subscribers");
   }
+  style_set_current_feature("setup");
   style_header("User List");
   if( (zWith==0 || zWith[0]==0) && !bUnusedOnly ){
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
@@ -204,7 +205,7 @@ void setup_ulist(void){
   @ </tbody></table>
   db_finalize(&s);
   style_table_sorter();
-  style_finish_page("setupuser");
+  style_finish_page();
 }
 
 /*
@@ -215,6 +216,7 @@ void setup_ulist(void){
 ** factored out for improved presentation.
 */
 void setup_ulist_notes(void){
+  style_set_current_feature("setup");
   style_header("User Configuration Notes");
   @ <h1>User Configuration Notes:</h1>
   @ <ol>
@@ -250,7 +252,7 @@ void setup_ulist_notes(void){
   capabilities_table(CAPCLASS_ALL);
   @ </li>
   @ </ol>
-  style_finish_page("setupuser");
+  style_finish_page();
 }
 
 /*
@@ -260,6 +262,7 @@ void setup_ulist_notes(void){
 ** code letters.
 */
 void setup_ucap_list(void){
+  style_set_current_feature("setup");
   style_header("User Capability Codes");
   @ <h1>All capabilities</h1>
   capabilities_table(CAPCLASS_ALL);
@@ -277,7 +280,7 @@ void setup_ucap_list(void){
   capabilities_table(CAPCLASS_SUPER);
   @ <h1>Miscellaneous capabilities</h1>
   capabilities_table(CAPCLASS_OTHER);
-  style_finish_page("setupuser");
+  style_finish_page();
 }
 
 /*
@@ -366,6 +369,8 @@ void user_edit(void){
     }
   }
 
+  style_set_current_feature("setup");
+
   /* If we have all the necessary information, write the new or
   ** modified user record.  After writing the user record, redirect
   ** to the page that displays a list of users.
@@ -411,7 +416,7 @@ void user_edit(void){
       @
       @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
       @ [Bummer]</a></p>
-      style_finish_page("setupuser");
+      style_finish_page();
       return;
     }
     if( isValidPwString(zPw) ){
@@ -428,7 +433,7 @@ void user_edit(void){
       @
       @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
       @ [Bummer]</a></p>
-      style_finish_page("setupuser");
+      style_finish_page();
       return;
     }
     login_verify_csrf_secret();
@@ -480,7 +485,7 @@ void user_edit(void){
         @
         @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
         @ [Bummer]</a></p>
-        style_finish_page("setupuser");
+        style_finish_page();
         return;
       }
     }
@@ -898,5 +903,5 @@ void user_edit(void){
   @ but less than a <span class="usertype">developer</span>.
   @ </p></li>
   @ </ul>
-  style_finish_page("setupuser");
+  style_finish_page();
 }

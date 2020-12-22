@@ -35,7 +35,7 @@
 **      style_submenu_multichoice()
 **      style_submenu_sql()
 **
-** prior to calling style_footer().  The style_footer() routine
+** prior to calling style_finish_page().  The style_finish_page() routine
 ** will generate the appropriate HTML text just below the main
 ** menu.
 */
@@ -569,7 +569,7 @@ static const char zDfltHeader[] =
 @  href="$home/timeline.rss" />
 @ <link rel="stylesheet" href="$stylesheet_url" type="text/css" />
 @ </head>
-@ <body>
+@ <body class="$current_feature">
 ;
 
 /*
@@ -577,6 +577,39 @@ static const char zDfltHeader[] =
 */
 const char *get_default_header(){
   return zDfltHeader;
+}
+
+/*
+** Given a URL path, extract the first element as a "feature" name,
+** used as the <body class="FEATURE"> value by default, though
+** later-running code may override this, typically to group multiple
+** Fossil UI URLs into a single "feature" so you can have per-feature
+** CSS rules.
+**
+** For example, "body.forum div.markdown blockquote" targets only
+** block quotes made in forum posts, leaving other Markdown quotes
+** alone.  Because feature class "forum" groups /forummain, /forumpost,
+** and /forume2, it works across all renderings of Markdown to HTML
+** within the Fossil forum feature.
+*/
+static const char* feature_from_page_path(const char *zPath){
+  const char* zSlash = strchr(zPath, '/');
+  if (zSlash) {
+    return fossil_strndup(zPath, zSlash - zPath);
+  } else {
+    return zPath;
+  }
+}
+
+/*
+** Override the value of the TH1 variable current_feature, its default
+** set by feature_from_page_path().  We do not call this from
+** style_init_th1_vars() because that uses Th_MaybeStore() instead to
+** allow webpage implementations to call this before style_header()
+** to override that "maybe" default with something better.
+*/
+void style_set_current_feature(const char* zFeature){
+  Th_Store("current_feature", zFeature);
 }
 
 /*
@@ -615,6 +648,7 @@ static void style_init_th1_vars(const char *zTitle){
   if( !login_is_nobody() ){
     Th_Store("login", g.zLogin);
   }
+  Th_MaybeStore("current_feature", feature_from_page_path(local_zCurrentPage) );
 }
 
 /*
@@ -751,12 +785,8 @@ static void style_load_all_js_files(void){
 **   *  Finalizes the page content.
 **
 **   *  Appends the footer.
-**
-** The zPageType argument is a class name inserted in the <div> that
-** surrounds the page content.  CSS can use this to have different styles
-** according to the page type.
 */
-void style_finish_page(const char* zPageType){
+void style_finish_page(){
   const char *zFooter;
   const char *zAd = 0;
   unsigned int mAdFlags = 0;
@@ -888,7 +918,7 @@ void style_finish_page(const char* zPageType){
     @ </div>
   }
 
-  @ <div class="content %s(zPageType)"><span id="debugMsg"></span>
+  @ <div class="content"><span id="debugMsg"></span>
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
@@ -1153,6 +1183,7 @@ void webpage_error(const char *zFormat, ...){
     isAuth = 1;
   }
   cgi_load_environment();
+  style_set_current_feature("error");
   if( zFormat[0] ){
     va_list ap;
     va_start(ap, zFormat);
@@ -1208,11 +1239,11 @@ void webpage_error(const char *zFormat, ...){
     }
   }
   if( zErr && zErr[0] ){
-    style_finish_page("error");
+    style_finish_page();
     cgi_reply();
     fossil_exit(1);
   }else{
-    style_finish_page("test");
+    style_finish_page();
   }
 }
 
@@ -1245,10 +1276,11 @@ void webpage_notfound_error(const char *zFormat, ...){
   }else{
     zMsg = "Not Found";
   }
+  style_set_current_feature("enotfound");
   style_header("Not Found");
   @ <p>%h(zMsg)</p>
   cgi_set_status(404, "Not Found");
-  style_finish_page("enotfound");
+  style_finish_page();
 }
 
 #if INTERFACE

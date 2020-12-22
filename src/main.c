@@ -1312,7 +1312,7 @@ void test_version_page(void){
   @ <pre>
   @ %h(blob_str(&versionInfo))
   @ </pre>
-  style_finish_page("version");
+  style_finish_page();
 }
 
 
@@ -3051,6 +3051,7 @@ void test_warning_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("test");
   style_header("Warning Test Page");
   style_submenu_element("Error Log","%R/errorlog");
   if( iCase<1 || iCase>4 ){
@@ -3099,5 +3100,5 @@ void test_warning_page(void){
   }
   @ </ol>
   @ <p>End of test</p>
-  style_finish_page("test");
+  style_finish_page();
 }

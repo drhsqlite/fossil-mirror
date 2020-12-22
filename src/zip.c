@@ -946,6 +946,7 @@ void baseline_zip_page(void){
   zKey = blob_str(&cacheKey);
   etag_check(ETAG_HASH, zKey);
 
+  style_set_current_feature("zip");
   if( P("debug")!=0 ){
     style_header("%s Archive Generator Debug Screen", zType);
     @ zName = "%h(zName)"<br />
@@ -957,7 +958,7 @@ void baseline_zip_page(void){
       @ zExclude = "%h(zExclude)"<br />
     }
     @ zKey = "%h(zKey)"
-    style_finish_page("zip");
+    style_finish_page();
     return;
   }
   if( referred_from_login() ){
@@ -968,7 +969,7 @@ void baseline_zip_page(void){
     @ holding the content of check-in <b>%h(zRid)</b>:
     @ <input type="submit" value="Download" />
     @ </form>
-    style_finish_page("zip");
+    style_finish_page();
     return;
   }
   blob_zero(&zip);

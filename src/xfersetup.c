@@ -87,7 +87,7 @@ void xfersetup_page(void){
     }
   }
 
-  style_finish_page("xfersetup");
+  style_finish_page();
 }
 
 /*
@@ -118,6 +118,7 @@ static void xfersetup_generic(
   if( z==0 ){
     z = db_get(zDbField, zDfltValue);
   }
+  style_set_current_feature("xfersetup");
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();
@@ -152,7 +153,7 @@ static void xfersetup_generic(
     @ %h(zDfltValue)
     @ </pre></blockquote>
   }
-  style_finish_page("xfersetup");
+  style_finish_page();
 }
 
 static const char *zDefaultXferCommon = 0;
