@@ -1,5 +1,5 @@
-C Declare\sthe\scharacter\sset\sin\sthe\sdefault\sHTML\sheader.
-D 2020-12-21T18:20:23.270
+C Add\sthe\stools/chat.tcl\sWapp\sscript\sso\sthat\sit\scan\sbe\scollaboratively\sdeveloped.\nThis\sbranch\smay\swither\sand\sdie.\s\sOr,\sthe\schatroom\sidea\smight\sbe\srecoded\sin\nthe\sFossil\strunk\susing\sC.\s\sOr\sit\smight\scontinue\sas\sa\sseparate\sWapp\sextension.\nWe'll\ssee.\s\sBut\sfor\snow\sit\sis\shere\son\sa\sbranch\sso\sthat\speople\scan\shack\sat\sit.
+D 2020-12-22T03:51:20.484
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -726,6 +726,7 @@ F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
+F tools/chat.tcl 7ebb11002c048040a02ee4ac8b3b77fb917b2c2d32d57e17d94ec5e94ad27ee7 x
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -986,7 +987,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d7b5c4a746109b2fdc5e55c098af631fa6427e8c50815c65ecc7ff08fcd3ee7
-R 1003cb7fc391ceb45a632d581faa4f52
+P 1997b71cf7327ceb25d38e7f494368115541c6b5b0d614e43270451848cab7f7
+R caa558b774fc950108c3eb70446f6008
+T *branch * chatroom-dev
+T *sym-chatroom-dev *
+T -sym-trunk *
 U drh
-Z 1f5368d4fbfb93c9829b1cb05133de2b
+Z bcf940f8f844097894d6fcfe79b5bb37
