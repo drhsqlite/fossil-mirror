@@ -261,13 +261,16 @@ span.at-name { /* for @USERNAME references */
         td.appendChild(document.createTextNode('me'))
       }
     }
-    setTimeout(poll, 10);
   }
   async function poll(){
+    if(poll.running) return;
+    poll.running = true;
     fetch("%string($pollurl)/" + mxMsg)
-    .then(x => x.json()).then(y => newcontent(y));
+    .then(x=>x.json())
+    .then(y=>newcontent(y))
+    .finally(()=>poll.running=false)
   }
-  poll();
+  setInterval(poll, 1000);
 })();</script>
   }
 
