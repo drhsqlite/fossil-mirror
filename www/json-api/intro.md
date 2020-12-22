@@ -173,24 +173,3 @@ problem areas...
 -   **Artifact vs. Artefact:** both are correct vis-a-vis the
     english language but Fossil consistently uses the former, so we’ll
     use that.
--   **Multiple logins per user:** fossil currently does not allow
-    multiple active logins for a given user except anonymous. For all
-    others, the most recent login wins. This is only a very minor
-    annoyance for the HTML interface but will be more problematic for
-    JSON clients. e.g. a user might have a ticket poller and a commit poller
-    running, and both would need to be logged in.\
-    **Status:** as of 20120315 (commit
-    [*73038baaa3*](http://www.fossil-scm.org/index.html/info/73038baaa3)),
-    fossil allows a user to be logged in multiple times (confirm: only
-    within the same network?). The only caveat is that if any one of
-    them logs out, it will invalidate the login session for the others.
-    This is good enough for the time being, however. It will likely only
-    become painful if we actually get enough apps in the wild that
-    someone might have some running on his mobile phone and some on his
-    PC and some on his server. The workarounds for now are (A) not to
-    log out and (B) program apps/applets/widgets to try to re-login
-    occasionally. Fossil will at some point expire the login, anyway.
-    FIXME: update the expiry time on each request? To do that right we'd
-    have to re-set the cookie on each request :/. We could optionally
-    add a new JSON request which simply updates the login cookie
-    lifetime (e.g. /json/keepalive or expand /json/whoami to do that).
