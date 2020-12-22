@@ -51,7 +51,9 @@ proc wapp-default {} {
     </div>
     </form>
     <hr>
-    <span id='message-inject-point'></span>
+    <span id='message-inject-point'><!--
+    new chat messages get inserted immediately after this element
+    --></span>
 
     </div><!-- .fossil-doc -->
     <hr>
@@ -241,11 +243,16 @@ span.at-name { /* for @USERNAME references */
     //console.debug("span =",span.innerHTML);
     return span;
   }/*end messageToDOM()*/;
+  /* Injects element e as a new row in the chat, at the top of the list */
   const injectMessage = function f(e){
     if(!f.injectPoint){
       f.injectPoint = document.querySelector('#message-inject-point');
     }
-    f.injectPoint.parentNode.insertBefore(e, f.injectPoint.nextSibling);
+    if(f.injectPoint.nextSibling){
+      f.injectPoint.parentNode.insertBefore(e, f.injectPoint.nextSibling);
+    }else{
+      f.injectPoint.parentNode.appendChild(e);
+    }
   };
   function newcontent(jx){
     var i;

@@ -1,5 +1,5 @@
-C chat:\schanged\slayout\sfrom\stable-based\sto\sone\sfieldset\sper\srow\sof\schat\s(fieldset\srather\sthan\sa\scustom\sconstruct\sbecause\sbrowsers\shave\sspecial\ssupport\sfor\splacement\sof\sthe\sLEGEND\stag\swhich\swe\scannot\seasily\sreproduce\sin\sother\selement).\sThe\soverall\slook\sis\sapproximately\sthe\ssame,\sbut\ssaves\ssome\sspace.
-D 2020-12-22T12:02:36.225
+C chat:\sa\sproactive\sfix\sfor\sa\spotential\snull\sderef.\sDocumented\sa\snot-immediately-obvious\selement.
+D 2020-12-22T12:09:04.893
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -726,7 +726,7 @@ F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
-F tools/chat.tcl 4f741121d922734620d281e75a9fe78382fc9f20f81278a050d850c25dde48c1 x
+F tools/chat.tcl 702940312afff938ed033d643d644e2d0948f35a5c2c45519d8e6d348aa581ba x
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -987,7 +987,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a36b8e9c6c98570bfa72d06e612904a395313b6272527f2bb03f72711772d29
-R 99a1b38c57d8d02f4487eb4347ffee41
+P a0ebe0ead1fa237c2ded9714650d65167a288a65732a61938190892ce7d81bd2
+R fe30ad0e720f26d353d1099e6db421be
 U stephan
-Z 6a70b4307545a3e6e33a4c3643af0db8
+Z 202e21ff4511f324cb0496c944a133a6
