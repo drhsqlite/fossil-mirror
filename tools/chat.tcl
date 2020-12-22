@@ -38,18 +38,17 @@ proc wapp-default {} {
     return
   }
   wapp-trim {
-    <form accept-encoding="utf-8">
-    <table border="0" cellpadding="2" id="intab" width="100%">
-    <tr>
-    <td align="right">Message:</td>
-    <td width="100%"><input type="text" name="msg" id="sbox"></td>
-    <td><input type="submit" value="Send"></td>
-    </tr>
-    <tr>
-    <td align="right">File:</td>
-    <td align="left"><input type="file" name="file"></td>
-    </tr>
-    </table>
+    <form accept-encoding="utf-8" id="chat-form">
+    <div id='chat-input-area'>
+      <div id='chat-input-line'>
+        <input type="text" name="msg" id="sbox" placeholder="Type message here.">
+        <input type="submit" value="Send">
+      </div>
+      <div id='chat-input-file'>
+        <span>File:</span>
+        <input type="file" name="file">
+      </div>
+    </div>
     </form>
 
     <hr>
@@ -76,7 +75,33 @@ proc wapp-default {} {
   background-color: #d2dde1;
   border: 1px solid black;
 }
-    </style>
+\#chat-input-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+\#chat-input-line {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1em;
+  align-items: center;
+}
+\#chat-input-line > input[type=submit] {
+  flex: 1 5 auto;
+  max-width: 6em;
+}
+\#chat-input-line > input[type=text] {
+  flex: 5 1 auto;
+}
+\#chat-input-file {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+\#chat-input-file > input {
+  flex: 1 0 auto;
+}
+</style>
   }
   set nonce [wapp-param FOSSIL_NONCE]
   set submiturl [wapp-param SCRIPT_NAME]/send
@@ -84,9 +109,8 @@ proc wapp-default {} {
   set downloadurl [wapp-param SCRIPT_NAME]/download
   set me [wapp-param FOSSIL_USER]
   wapp-trim {
-    <script nonce="%string($nonce)">
+<script nonce="%string($nonce)">(function(){
     let x = document.getElementById("sbox");
-    x.size = (window.outerWidth/10) - 10;
     let form = document.forms[0]
     var mxMsg = 0
     var _me = "%string($me)"
@@ -151,8 +175,8 @@ proc wapp-default {} {
       fetch("%string($pollurl)/" + mxMsg)
           .then(x => x.json()).then(y => newcontent(y))
     }
-    poll()
-    </script>
+  poll();
+})();</script>
   }
 
   # Make sure the chat database exists
