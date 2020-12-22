@@ -75,6 +75,9 @@ proc wapp-default {} {
   background-color: #d2dde1;
   border: 1px solid black;
 }
+\#dialog {
+  width: 97%;
+}
 \#chat-input-area {
   width: 100%;
   display: flex;
@@ -126,6 +129,43 @@ proc wapp-default {} {
     form.file.value = "";
     form.msg.focus();
   });
+  // Converts a message string to a message-containing DOM element
+  // and returns that element, which may contain child elements.
+  const messageToDOM = function f(str){
+    "use strict";
+    if(!f.rx){
+      f.rx = /\\b(?:https?|ftp):\\/\\/\[a-z0-9-+&@\#\\/%?=~_|!:,.;]*\[a-z0-9-+&@\#\\/%=~_|]/gim;
+      // ^^^ achtung, extra backslashes needed for the outer TCL.
+      f.ce = (T)=>document.createElement(T);
+      f.ct = (T)=>document.createTextNode(T);
+      f.replacer = function(sub, offset){
+        if(offset > f.prevStart){
+          if(f.prevStart) f.accum.push(f.ct(' '));
+          f.accum.push(f.ct(f.str.substring(f.prevStart, offset-1)+' '));
+        }
+        const a = f.ce('a');
+        a.setAttribute('href',sub);
+        a.setAttribute('target','_blank');
+        a.appendChild(f.ct(sub));
+        f.accum.push(a);
+        f.prevStart = offset + sub.length + 1;
+        return sub;
+      }
+    }
+    f.accum = [];
+    f.rx.lastIndex = 0;
+    f.prevStart = 0;
+    f.str = str;
+    str.replace(f.rx, f.replacer);
+    f.rx.lastIndex = 0;
+    delete f.str;
+    if(f.prevStart < str.length){
+      f.accum.push(f.ct((f.prevStart ? ' ' : '')+str.substring(f.prevStart)));
+    }
+    const span = f.ce('span');
+    f.accum.forEach((e)=>span.appendChild(e));
+    return span;
+  };
   function newcontent(jx){
     var tab = document.getElementById("dialog");
     var i;
@@ -159,8 +199,8 @@ proc wapp-default {} {
         br.style.clear = "both";
         span.appendChild(br);
       }
-      //console.debug("m =",m);
-      span.appendChild(document.createTextNode(m.xmsg));
+      const dmsg = messageToDOM(m.xmsg || "??empty??");
+      span.appendChild(dmsg);
       if( m.xfrom!=_me ){
         span.classList.add('chat-mx');
       }else{
