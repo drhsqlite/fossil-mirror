@@ -104,6 +104,10 @@ proc wapp-default {} {
 \#chat-input-file > input {
   flex: 1 0 auto;
 }
+span.at-name { /* for @USERNAME references */
+  text-decoration: underline;
+  font-weight: bold;
+}
 </style>
   }
   set nonce [wapp-param FOSSIL_NONCE]
@@ -129,48 +133,81 @@ proc wapp-default {} {
     form.file.value = "";
     form.msg.focus();
   });
+  const rxUrl = /\\b(?:https?|ftp):\\/\\/\[a-z0-9-+&@\#\\/%?=~_|!:,.;]*\[a-z0-9-+&@\#\\/%=~_|]/gim;
+  const rxAtName = /@\\w+/gmi;
+  // ^^^ achtung, extra backslashes needed for the outer TCL.
   // Converts a message string to a message-containing DOM element
   // and returns that element, which may contain child elements.
   const messageToDOM = function f(str){
     "use strict";
     if(!f.rxUrl){
-      f.rxUrl = /\\b(?:https?|ftp):\\/\\/\[a-z0-9-+&@\#\\/%?=~_|!:,.;]*\[a-z0-9-+&@\#\\/%=~_|]/gim;
-      // ^^^ achtung, extra backslashes needed for the outer TCL.
+      f.rxUrl = rxUrl;
+      f.rxAt = rxAtName;
+      f.rxNS = /\\S/;
       f.ce = (T)=>document.createElement(T);
       f.ct = (T)=>document.createTextNode(T);
-      f.replaceUrls = function ff(sub, off, whole){
-        if(off > ff.prevStart){
-          f.accum.push((ff.prevStart?' ':'')+whole.substring(ff.prevStart, off-1)+' ');
+      f.replaceUrls = function ff(sub, offset, whole){
+        if(offset > ff.prevStart){
+          f.accum.push((ff.prevStart?' ':'')+whole.substring(ff.prevStart, offset-1)+' ');
         }
         const a = f.ce('a');
         a.setAttribute('href',sub);
         a.setAttribute('target','_blank');
         a.appendChild(f.ct(sub));
         f.accum.push(a);
-        ff.prevStart = off + sub.length + 1;
-        return sub;
+        ff.prevStart = offset + sub.length + 1;
+      };
+      f.replaceAtName = function ff(sub, offset,whole){
+        if(offset > ff.prevStart){
+          ff.accum.push((ff.prevStart?' ':'')+whole.substring(ff.prevStart, offset-1)+' ');
+        }else if(offset && f.rxNS.test(whole[offset-1])){
+          // Sigh: https://stackoverflow.com/questions/52655367
+          ff.accum.push(sub);
+          return;
+        }
+        const e = f.ce('span');
+        e.classList.add('at-name');
+        e.appendChild(f.ct(sub));
+        ff.accum.push(e);
+        ff.prevStart = offset + sub.length + 1;
       };
     }
     f.accum = []; // accumulate strings and DOM elements here.
-    f.rxUrl.lastIndex = 0; // reset regex cursor
-    f.replaceUrls.prevStart = 0;
+    f.rxUrl.lastIndex = f.replaceUrls.prevStart = 0; // reset regex cursor
     str.replace(f.rxUrl, f.replaceUrls);
+    // Push remaining non-URL part of the string to the queue...
     if(f.replaceUrls.prevStart < str.length){
       f.accum.push((f.replaceUrls.prevStart?' ':'')+str.substring(f.replaceUrls.prevStart));
     }
+    // Pass 2: process @NAME references...
+    // TODO: only match NAME if it's the name of a currently participating
+    // user. Add a second class if NAME == current user, and style that one
+    // differently so that people can more easily see when they're spoken to.
+    const accum2 = f.replaceAtName.accum = [];
+    //console.debug("f.accum =",f.accum);
+    f.accum.forEach(function(v){
+      //console.debug("v =",v);
+      if('string'===typeof v){
+        f.rxAt.lastIndex = f.replaceAtName.prevStart = 0;
+        v.replace(f.rxAt, f.replaceAtName);
+        if(f.replaceAtName.prevStart < v.length){
+          accum2.push((f.replaceAtName.prevStart?' ':'')+v.substring(f.replaceAtName.prevStart));
+        }
+      }else{
+        accum2.push(v);
+      }
+      //console.debug("accum2 =",accum2);
+    });
+    delete f.accum;
+    //console.debug("accum2 =",accum2);
     const span = f.ce('span');
-    f.accum.forEach(function(e){
-      // append accumulated strings/DOM elements to target element
+    accum2.forEach(function(e){
       if('string'===typeof e) e = f.ct(e);
       span.appendChild(e);
     });
-    delete f.accum;
-    // TODO: replace @WORD refs with <span class='at-me'>@WORD</span>, but
-    // only when WORD==current user name. That requires a separate pass
-    // over the remaining STRING entries and a separate array to accumulate
-    // the results to.
-   return span;
-  };
+    //console.debug("span =",span.innerHTML);
+    return span;
+  }/*end messageToDOM()*/;
   function newcontent(jx){
     var tab = document.getElementById("dialog");
     var i;
