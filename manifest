@@ -1,5 +1,5 @@
-C Calling\sthe\snew\sstyle_set_current_feature()\sfunction\sto\soverride\sthe\snew\sTH1\s\nvariable\s$current_feature\sfor\sFossil\sUI\spages\swhere\sthe\spage\sname\sisn't\nwhat\swe\swant\sused\sas\sthe\s"body"\sCSS\sclass.\s\sFor\sthe\smost\spart,\sthis\nmatches\sthe\svalue\scurrently\sbeing\spassed\sto\sstyle_finish_page(),\sbut\sa\nfew\shave\schanged\swith\sthe\sbenefit\sof\shindsight.\s\sNot\sall\scalls\sto\nstyle_finish_page()\shave\sa\scorresponding\scall\sto\sthe\snew\sfunction\ssince\nthe\sdefault\svalue\sfor\s$current_page\snow\ssuffices.
-D 2020-12-22T11:58:34.608
+C Documented\sthe\suse\sof\s$current_page\sin\shand-rolled\s"body"\stags\sin\sthe\scustomskin\sdoc.
+D 2020-12-22T11:59:06.100
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -843,7 +843,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 0c820100dfd65c763360336cb1fa2c8a610e102b240db0d6a2aafa01dae86077
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 121373f020a5ef472bec27dad1fede5c9d95dadf9300d42a5e5d48a38377d65f
+F www/customskin.md e44869e32f036775c00e38fec4206d9e0e59a20c98289e24ae75e1c52900477d
 F www/defcsp.md bf70e389d195dc78a2b31cfc49a46dd0b407a0818945db562f8d69ead47f6155
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki e25c8305f5ff3404c9d35fdb6eec65f7fe1de1fdf48db7200a923d2ccb946b99
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 556923fab5b43de54ef3c10707223df221df4b29702876127804341f58347736
-R f6d5bb9a354470b4c14dc1bfc631140f
+P 8ac0830bfce807cadcc3900557cc5a974a20bd716b27434042b56d735aaf0757
+R fa6aa1f6c6ef03264551dab389175ad4
 U wyoung
-Z bc729bda2e751e35a3bd3935cf7bb021
+Z 06a2f3e16719f655b9aeaf827378dd09

@@ -86,7 +86,19 @@ generated HTML Header will look something like this:
          <title>....</title>
          <link rel="stylesheet" href="..." type="text/css" />
          </head>
-         <body>
+         <body class="FEATURE">
+
+…where `FEATURE` is either the top-level URL element (e.g. `doc`) or a
+feature class that groups multiple URLs under a single name such as
+`forum` to contain `/forummain`, `/forumpost`, `/forume2`, etc. This
+allows per-feature CSS such as
+
+         body.forum div.markdown blockquote {
+           margin-left: 10px;
+         }
+
+That is, affect HTML `<blockquote>` tags specially only for forum posts
+written in Markdown, leaving all other block quotes alone.
 
 In most cases, it is best to leave the Fossil-generated HTML Header
 alone. (One exception is when the administrator needs to include links
