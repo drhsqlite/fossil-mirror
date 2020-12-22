@@ -3051,6 +3051,7 @@ void test_warning_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("test");
   style_header("Warning Test Page");
   style_submenu_element("Error Log","%R/errorlog");
   if( iCase<1 || iCase>4 ){

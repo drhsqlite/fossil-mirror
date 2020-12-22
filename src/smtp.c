@@ -771,6 +771,7 @@ void setup_smtp(void){
     return;
   }
   db_begin_transaction();
+  style_set_current_feature("smtp");
   style_header("Email Server Setup");
   if( db_table_exists("repository","emailroute") ){
     style_submenu_element("emailblob table", "%R/emailblob");
@@ -835,6 +836,7 @@ void setup_smtp_route(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("smtp");
   style_header("Email Route Editor");
 
   if( P("edit") && cgi_csrf_safe(1) && zEAddr!=0 && zEPolicy!=0 ){

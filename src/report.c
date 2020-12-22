@@ -327,6 +327,7 @@ void view_see_sql(void){
   rn = atoi(PD("rn","0"));
   db_prepare(&q, "SELECT title, sqlcode, owner, cols "
                    "FROM reportfmt WHERE rn=%d",rn);
+  style_set_current_feature("report");
   style_header("SQL For Report Format Number %d", rn);
   if( db_step(&q)!=SQLITE_ROW ){
     @ <p>Unknown report number: %d(rn)</p>
@@ -383,6 +384,7 @@ void view_edit(void){
     login_needed(g.anon.TktFmt);
     return;
   }
+  style_set_current_feature("report");
   /*view_add_functions(0);*/
   rn = atoi(PD("rn","0"));
   zTitle = P("t");
@@ -1031,6 +1033,7 @@ void rptview_page(void){
     struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
+    style_set_current_feature("report");
     style_submenu_element("Raw", "rptview?tablist=1&%h", PD("QUERY_STRING",""));
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){

@@ -96,6 +96,7 @@ void test_builtin_list(void){
 */
 void test_builtin_list_page(void){
   int i;
+  style_set_current_feature("test");
   style_header("Built-in Text Files");
   @ <ol>
   for(i=0; i<count(aBuiltinFiles); i++){

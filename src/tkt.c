@@ -587,6 +587,7 @@ void tktview_page(void){
   }else{
     style_submenu_element("Plaintext", "%R/tktview/%s?plaintext", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("View Ticket");
   if( showTimeline ){
     int tagid = db_int(0,"SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
@@ -817,6 +818,7 @@ void tktnew_page(void){
   if( P("cancel") ){
     cgi_redirect("home");
   }
+  style_set_current_feature("tkt");
   style_header("New Ticket");
   ticket_standard_submenu(T_ALL_BUT(T_NEW));
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
@@ -872,6 +874,7 @@ void tktedit_page(void){
   if( P("cancel") ){
     cgi_redirectf("tktview?name=%T", zName);
   }
+  style_set_current_feature("tkt");
   style_header("Edit Ticket");
   if( zName==0 || (nName = strlen(zName))<4 || nName>HNAME_LEN_SHA1
           || !validate16(zName,nName) ){
@@ -1037,6 +1040,7 @@ void tkttimeline_page(void){
   }else{
     zTitle = mprintf("Timeline Of Ticket %h", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("%z", zTitle);
 
   sqlite3_snprintf(6, zGlobPattern, "%s", zUuid);
@@ -1086,6 +1090,7 @@ void tkthistory_page(void){
   }else if( g.perm.Admin ){
     style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("%z", zTitle);
 
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
@@ -1613,6 +1618,7 @@ void tkt_home_page(void){
 */
 void tkt_srchpage(void){
   login_check_credentials();
+  style_set_current_feature("tkt");
   style_header("Ticket Search");
   ticket_standard_submenu(T_ALL_BUT(T_SRCH));
   search_screen(SRCH_TKT, 0);

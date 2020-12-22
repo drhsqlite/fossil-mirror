@@ -946,6 +946,7 @@ void baseline_zip_page(void){
   zKey = blob_str(&cacheKey);
   etag_check(ETAG_HASH, zKey);
 
+  style_set_current_feature("zip");
   if( P("debug")!=0 ){
     style_header("%s Archive Generator Debug Screen", zType);
     @ zName = "%h(zName)"<br />

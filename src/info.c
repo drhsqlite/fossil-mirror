@@ -631,6 +631,7 @@ void ci_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("vinfo");
   zName = P("name");
   rid = name_to_rid_www("name");
   if( rid==0 ){
@@ -964,6 +965,7 @@ void winfo_page(void){
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
+  style_set_current_feature("winfo");
   rid = name_to_rid_www("name");
   if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))==0 ){
     style_header("Wiki Page Information Error");
@@ -1212,6 +1214,7 @@ void vdiff_page(void){
   }
   diffFlags = construct_diff_flags(diffType);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  style_set_current_feature("vdiff");
   if( zBranch==0 ){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
   }
@@ -1732,6 +1735,7 @@ void diff_page(void){
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   diffFlags = construct_diff_flags(diffType) | DIFF_HTML;
 
+  style_set_current_feature("fdiff");
   style_header("Diff");
   style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
   if( diffType==2 ){
@@ -2236,6 +2240,7 @@ void artifact_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("artifact");
 
   /* Capture and normalize the name= and ci= query parameters */
   if( zName==0 ){
@@ -2592,6 +2597,7 @@ void tinfo_page(void){
       ? db_text("(No title)", 
                 "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
+  style_set_current_feature("tinfo");
   style_header("Ticket Change Details");
   style_submenu_element("Raw", "%R/artifact/%s", zUuid);
   style_submenu_element("History", "%R/tkthistory/%s", zTktName);

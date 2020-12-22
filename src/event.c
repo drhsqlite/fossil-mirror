@@ -112,6 +112,7 @@ void event_page(void){
     }
   }
   db_finalize(&q1);
+  style_set_current_feature("event");
   if( rid==0 || (specRid!=0 && specRid!=rid) ){
     style_header("No Such Tech-Note");
     @ Cannot locate a technical note called <b>%h(zId)</b>.
@@ -417,6 +418,7 @@ void eventedit_page(void){
     login_needed(g.anon.Write && (rid ? g.anon.WrWiki : g.anon.NewWiki));
     return;
   }
+  style_set_current_feature("event");
 
   /* Figure out the color */
   if( rid ){

@@ -1981,6 +1981,7 @@ void search_data_page(void){
   int cnt1 = 0, cnt2 = 0, cnt3 = 0;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
+  style_set_current_feature("test");
   if( !search_index_exists() ){
     @ <p>Indexed search is disabled
     style_finish_page("report");

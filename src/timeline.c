@@ -191,6 +191,7 @@ void test_hash_color_page(void){
   int i, cnt;
   login_check_credentials();
 
+  style_set_current_feature("test");
   style_header("Hash Color Test");
   for(i=cnt=0; i<10; i++){
     sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
@@ -3190,6 +3191,7 @@ void thisdayinhistory_page(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
+  style_set_current_feature("timeline");
   style_header("Today In History");
   zToday = (char*)P("today");
   if( zToday ){

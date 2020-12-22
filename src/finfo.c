@@ -781,6 +781,7 @@ void mlink_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
+  style_set_current_feature("finfo");
   style_header("MLINK Table");
   if( zFName==0 && zCI==0 ){
     @ <span class='generalError'>

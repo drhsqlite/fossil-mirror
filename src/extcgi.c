@@ -397,6 +397,7 @@ void ext_filelist_page(void){
     return;
   }
   ext_files();
+  style_set_current_feature("extcgi");
   style_header("CGI Extension Filelist");
   @ <table border="0" cellspacing="0" cellpadding="3">
   @ <tbody>

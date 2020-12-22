@@ -588,6 +588,7 @@ void captcha_test(void){
     sqlite3_randomness(sizeof(x), &x);
     zPw = mprintf("%016llx", x);
   }
+  style_set_current_feature("test");
   style_header("Captcha Test");
   @ <pre>
   @ %s(captcha_render(zPw))
@@ -623,6 +624,7 @@ int exclude_spiders(void){
   }
 
   /* This appears to be a spider.  Offer the captcha */
+  style_set_current_feature("captcha");
   style_header("Verification");
   @ <form method='POST' action='%s(g.zPath)'>
   cgi_query_parameters_to_hidden();

@@ -355,6 +355,7 @@ void cache_page(void){
 
   login_check_credentials();
   if( !g.perm.Setup ){ login_needed(0); return; }
+  style_set_current_feature("cache");
   style_header("Web Cache Status");
   db = cacheOpen(0);
   if( db==0 ){
@@ -407,6 +408,7 @@ void cache_getpage(void){
   zKey = PD("key","");
   blob_zero(&content);
   if( cache_read(&content, zKey)==0 ){
+    style_set_current_feature("cache");
     style_header("Cache Download Error");
     @ The cache does not contain any entry with this key: "%h(zKey)"
     style_finish_page("cache");

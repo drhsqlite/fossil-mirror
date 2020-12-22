@@ -749,6 +749,7 @@ void help_page(void){
     int rc;
     const CmdOrPage *pCmd = 0;
 
+  style_set_current_feature("tkt");
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%R/help");
@@ -864,6 +865,7 @@ void test_all_help_page(void){
   int i;
   Blob buf;
   blob_init(&buf,0,0);
+  style_set_current_feature("test");
   style_header("All Help Text");
   @ <dl>
   for(i=0; i<MX_COMMAND; i++){

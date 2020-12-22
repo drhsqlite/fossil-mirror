@@ -173,6 +173,7 @@ int alert_enabled(void){
 */
 static int alert_webpages_disabled(void){
   if( alert_tables_exist() ) return 0;
+  style_set_current_feature("alerts");
   style_header("Email Alerts Are Disabled");
   @ <p>Email alerts are disabled on this server</p>
   style_finish_page("alerts");
@@ -218,6 +219,7 @@ void setup_notification(void){
 
   alert_submenu_common();
   style_submenu_element("Send Announcement","%R/announce");
+  style_set_current_feature("alerts");
   style_header("Email Notification Setup");
   @ <h1>Status</h1>
   @ <table class="label-value">
@@ -1366,6 +1368,7 @@ void subscribe_page(void){
     register_page();
     return;
   }
+  style_set_current_feature("alerts");
   alert_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
@@ -1574,6 +1577,7 @@ static void alert_unsubscribe(int sid){
     zLogin = db_column_text(&q, 1);
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
   }
+  style_set_current_feature("alerts");
   if( zEmail==0 ){
     style_header("Unsubscribe Fail");
     @ <p>Unable to locate a subscriber with the requested key</p>
@@ -1739,6 +1743,7 @@ void alert_page(void){
       return; 
     }
   }
+  style_set_current_feature("alerts");
   style_header("Update Subscription");
   db_prepare(&q,
     "SELECT"
@@ -1979,6 +1984,8 @@ void unsubscribe_page(void){
     return;
   }
 
+  style_set_current_feature("alerts");
+
   zEAddr = PD("e","");
   dx = atoi(PD("dx","0"));
   bSubmit = P("submit")!=0 && P("e")!=0 && cgi_csrf_safe(1);
@@ -2100,6 +2107,7 @@ void subscriber_list_page(void){
   }
   alert_submenu_common();
   style_submenu_element("Users","setup_ulist");
+  style_set_current_feature("alerts");
   style_header("Subscriber List");
   nTotal = db_int(0, "SELECT count(*) FROM subscriber");
   nPending = db_int(0, "SELECT count(*) FROM subscriber WHERE NOT sverified");
@@ -2801,6 +2809,7 @@ void contact_admin_page(void){
   char *zCaptcha = 0;
 
   login_check_credentials();
+  style_set_current_feature("alerts");
   if( zAdminEmail==0 || zAdminEmail[0]==0 ){
     style_header("Outbound Email Disabled");
     @ <p>Outbound email is disabled on this repository
@@ -2844,6 +2853,7 @@ void contact_admin_page(void){
     zDecoded = captcha_decode(uSeed);
     zCaptcha = captcha_render(zDecoded);
   }
+  style_set_current_feature("alerts");
   style_header("Message To Administrator");
   form_begin(0, "%R/contact_admin");
   @ <p>Enter a message to the repository administrator below:</p>
@@ -2973,6 +2983,7 @@ void announce_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("alerts");
   if( fossil_strcmp(P("name"),"test1")==0 ){
     /* Visit the /announce/test1 page to see the CGI variables */
     @ <p style='border: 1px solid black; padding: 1ex;'>

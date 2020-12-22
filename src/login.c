@@ -658,6 +658,7 @@ void login_page(void){
       redirect_to_g();
     }
   }
+  style_set_current_feature("login");
   style_header("Login/Logout");
   style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)

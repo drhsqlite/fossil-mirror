@@ -389,6 +389,7 @@ static int skinRename(void){
   if( zOldName==0 ) return 0;
   if( zNewName==0 || zNewName[0]==0 || (ex = skinExists(zNewName))!=0 ){
     if( zNewName==0 ) zNewName = zOldName;
+    style_set_current_feature("skins");
     style_header("Rename A Skin");
     if( ex ){
       @ <p><span class="generalError">There is already another skin
@@ -431,6 +432,7 @@ static int skinSave(const char *zCurrent){
   }
   if( zNewName==0 || zNewName[0]==0 || (ex = skinExists(zNewName))!=0 ){
     if( zNewName==0 ) zNewName = "";
+    style_set_current_feature("skins");
     style_header("Save Current Skin");
     if( ex ){
       @ <p><span class="generalError">There is already another skin
@@ -484,6 +486,8 @@ void setup_skin_admin(void){
   for(i=0; i<count(aBuiltinSkin); i++){
     aBuiltinSkin[i].zSQL = getSkin(aBuiltinSkin[i].zLabel);
   }
+
+  style_set_current_feature("skins");
 
   if( cgi_csrf_safe(1) ){
     /* Process requests to delete a user-defined skin */
@@ -798,6 +802,7 @@ void setup_skinedit(void){
   }
 
   db_begin_transaction();
+  style_set_current_feature("skins");
   style_header("%s", zTitle);
   for(j=0; j<count(aSkinAttr); j++){
     style_submenu_element(aSkinAttr[j].zSubmenu,
@@ -964,6 +969,7 @@ void setup_skin(void){
     skin_publish(iSkin);
   }
 
+  style_set_current_feature("skins");
   style_header("Customize Skin");
 
   @ <p>Customize the look of this Fossil repository by making changes

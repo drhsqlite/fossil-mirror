@@ -461,6 +461,7 @@ void urllist_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
+  style_set_current_feature("stat");
   style_header("URLs and Checkouts");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "stat");
@@ -533,6 +534,7 @@ void repo_schema_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
+  style_set_current_feature("stat");
   style_header("Repository Schema");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "stat");
@@ -588,6 +590,7 @@ void repo_stat1_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
+  style_set_current_feature("stat");
   style_header("Repository STAT1 Table");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "stat");
@@ -623,6 +626,7 @@ void repo_tabsize_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("stat");
   style_header("Repository Table Sizes");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "stat");
@@ -800,6 +804,7 @@ void artifact_stats_page(void){
   }
   load_control();
 
+  style_set_current_feature("stat");
   style_header("Artifact Statistics");
   style_submenu_element("Repository Stats", "stat");
   style_submenu_element("Artifact List", "bloblist");

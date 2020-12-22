@@ -345,6 +345,7 @@ void interwiki_page(void){
     }
   }
 
+  style_set_current_feature("interwiki");
   style_header("Interwiki Map Configuration");
   @ <p>Interwiki links are hyperlink targets of the form
   @ <blockquote><i>Tag</i><b>:</b><i>PageName</i></blockquote>

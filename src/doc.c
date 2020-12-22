@@ -908,6 +908,7 @@ void doc_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("doc");
   blob_init(&title, 0, 0);
   zDfltTitle = isUV ? "" : "Documentation";
   db_begin_transaction();

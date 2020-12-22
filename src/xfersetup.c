@@ -118,6 +118,7 @@ static void xfersetup_generic(
   if( z==0 ){
     z = db_get(zDbField, zDfltValue);
   }
+  style_set_current_feature("xfersetup");
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();

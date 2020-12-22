@@ -78,6 +78,7 @@ void backlink_timeline_page(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
+  style_set_current_feature("test");
   style_header("Backlink Timeline (Internal Testing Use)");
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
@@ -109,6 +110,7 @@ void backlink_table_page(void){
     login_needed(g.anon.Admin);
     return;
   }
+  style_set_current_feature("test");
   style_header("Backlink Table (Internal Testing Use)");
   n = db_int(0, "SELECT count(*) FROM backlink");
   @ <p>%d(n) backlink table entries:</p>

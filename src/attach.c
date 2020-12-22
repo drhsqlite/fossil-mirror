@@ -47,6 +47,7 @@ void attachlist_page(void){
 
   if( zPage && zTkt ) zTkt = 0;
   login_check_credentials();
+  style_set_current_feature("attach");
   blob_zero(&sql);
   blob_append_sql(&sql,
      "SELECT datetime(mtime,toLocal()), src, target, filename,"
@@ -178,6 +179,7 @@ void attachview_page(void){
 
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
+  style_set_current_feature("attach");
   if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
@@ -388,6 +390,7 @@ void attachadd_page(void){
     attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
     cgi_redirect(zFrom);
   }
+  style_set_current_feature("attach");
   style_header("Add Attachment");
   if( !goodCaptcha ){
     @ <p class="generalError">Error: Incorrect security code.</p>
@@ -541,6 +544,7 @@ void ainfo_page(void){
       moderation_approve('a', rid);
     }
   }
+  style_set_current_feature("attach");
   style_header("Attachment Details");
   style_submenu_element("Raw", "%R/artifact/%s", zUuid);
   if(fShowContent){

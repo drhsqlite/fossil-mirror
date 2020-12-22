@@ -864,6 +864,7 @@ void forumthread_page(void){
     "   AND forumpost.fpid=%d;",
     fpid
   );
+  style_set_current_feature("forum");
   style_header("%s%s", zThreadTitle, *zThreadTitle ? "" : "Forum");
   fossil_free(zThreadTitle);
   if( mode!=FD_CHRONO ){
@@ -1056,6 +1057,7 @@ void forum_page_init(void){
     }
     return;
   }
+  style_set_current_feature("forum");
   style_header("%h As Anonymous?", isEdit ? "Reply" : "Post");
   @ <p>You are not logged in.
   @ <p><table border="0" cellpadding="10">
@@ -1117,6 +1119,7 @@ void forumnew_page(void){
     @ <h1>Preview:</h1>
     forum_render(zTitle, zMimetype, zContent, "forumEdit", 1);
   }
+  style_set_current_feature("forum");
   style_header("New Forum Thread");
   @ <form action="%R/forume1" method="POST">
   @ <h1>New Thread:</h1>
@@ -1216,6 +1219,7 @@ void forumedit_page(void){
       return;
     }
   }
+  style_set_current_feature("forum");
   isDelete = P("nullout")!=0;
   if( P("submit")
    && isCsrfSafe
@@ -1348,6 +1352,7 @@ void forum_main_page(void){
     login_needed(g.anon.RdForum);
     return;
   }
+  style_set_current_feature("forum");
   style_header("Forum");
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");

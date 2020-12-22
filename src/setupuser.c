@@ -54,6 +54,7 @@ void setup_ulist(void){
   if( alert_tables_exist() ){
     style_submenu_element("Subscribers", "subscribers");
   }
+  style_set_current_feature("setup");
   style_header("User List");
   if( (zWith==0 || zWith[0]==0) && !bUnusedOnly ){
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
@@ -215,6 +216,7 @@ void setup_ulist(void){
 ** factored out for improved presentation.
 */
 void setup_ulist_notes(void){
+  style_set_current_feature("setup");
   style_header("User Configuration Notes");
   @ <h1>User Configuration Notes:</h1>
   @ <ol>
@@ -260,6 +262,7 @@ void setup_ulist_notes(void){
 ** code letters.
 */
 void setup_ucap_list(void){
+  style_set_current_feature("setup");
   style_header("User Capability Codes");
   @ <h1>All capabilities</h1>
   capabilities_table(CAPCLASS_ALL);
@@ -365,6 +368,8 @@ void user_edit(void){
         P("login")/*safe-for-%s*/, n);
     }
   }
+
+  style_set_current_feature("setup");
 
   /* If we have all the necessary information, write the new or
   ** modified user record.  After writing the user record, redirect

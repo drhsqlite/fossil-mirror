@@ -409,6 +409,7 @@ static void webmail_show_one_message(
   if( zUser ) blob_append_sql(&sql, " AND euser=%Q", zUser);
   db_prepare_blob(&q, &sql);
   blob_reset(&sql);
+  style_set_current_feature("webmail");
   style_header("Message %d",emailid);
   if( db_step(&q)==SQLITE_ROW ){
     Blob msg = db_column_text_as_blob(&q, 0);
@@ -612,6 +613,7 @@ void webmail_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("webmail");
   if( !db_table_exists("repository","emailbox") ){
     style_header("Webmail Not Available");
     @ <p>This repository is not configured to provide webmail</p>
@@ -782,6 +784,7 @@ void webmail_emailblob_page(void){
     return;
   }
   add_content_sql_commands(g.db);
+  style_set_current_feature("webmail");
   style_header("emailblob table");
   if( id>0 ){
     style_submenu_element("Index", "%R/emailblob");
@@ -874,6 +877,7 @@ void webmail_emailoutq_page(void){
     return;
   }
   add_content_sql_commands(g.db);
+  style_set_current_feature("webmail");
   style_header("emailoutq table");
   style_submenu_element("emailblob table","%R/emailblob");
   db_prepare(&q,
