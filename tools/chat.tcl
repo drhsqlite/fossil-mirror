@@ -37,6 +37,8 @@ proc wapp-default {} {
     }
     return
   }
+  set scriptFile [wapp-param SCRIPT_FILENAME]
+  set cgiFn [file tail $scriptFile]
   wapp-trim {
     <form accept-encoding="utf-8" id="chat-form">
     <div id='chat-input-area'>
@@ -58,8 +60,8 @@ proc wapp-default {} {
     </div><!-- .fossil-doc -->
     <hr>
     <p>
-    <a href="chat/env">CGI environment</a> |
-    <a href="chat/self">Wapp script</a>
+    <a href="%string($cgiFn)/env">CGI environment</a> |
+    <a href="%string($cgiFn)/self">Wapp script</a>
     <style>
 \#dialog {
   width: 97%;
