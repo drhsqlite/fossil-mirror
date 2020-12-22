@@ -1,5 +1,5 @@
-C Assorted\simprovements\sto\sthe\s"Contributing\sto\sFossil"\sdoc.\sThe\smost\nsubstantial\sis\sreplacement\sof\sreferences\sto\sthe\sold\smailing\slist\swith\nreferences\sto\sthe\sforum.\sAdded\smore\sinfo\sabout\spatches\sand\sbundles,\setc.
-D 2020-12-22T08:45:59.253
+C Folded\sinfo\sabout\sbinary\sdata,\s64-bit\sints,\sand\stimestamp\svalues\sfrom\n[forum:/forumpost/819f1ddbb6\s|\sa\srecent\sforum\ssub-thread]\sinto\sthe\sJSON\nAPI\sintro\sdoc.
+D 2020-12-22T09:21:54.524
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -916,7 +916,7 @@ F www/json-api/api-wiki.md b2e44efaf926e3089dbafabfe1ddcd14a866ba6b139ebf765f9dd
 F www/json-api/conventions.md 53a8506dc13c23867f6e75f6f80cb2740f39273ab32df64d921a5eb745bd4f5a
 F www/json-api/hacking.md f3d3a8f029a03fe60029f15dff36a92a5103c36911e84818adc029e03be74080
 F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc4d605802
-F www/json-api/intro.md b2c063082f9c84251d50bd3061f772e91bd71bc0dcf31ee5aad0825bf70601da
+F www/json-api/intro.md ba2329733604b2977a7cbe05df017e8a6e10836e483ad0739c3223ae00d39110
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
 F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e3d58
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1997b71cf7327ceb25d38e7f494368115541c6b5b0d614e43270451848cab7f7
-R 9a8ec6a7d01a5d7e3c2aed0e677411f0
+P 34205ea468e4fb46d2d8109d95ee8c4841ffe697cb84d6309a9c39aec62a8773
+R d114efcf0be29b6b5da1388331f8c48e
 U wyoung
-Z 99e4aa9d8f066bf88987e0cff9c1215e
+Z b7db5c12cd5ddf7d8d93d12f6a026e99
