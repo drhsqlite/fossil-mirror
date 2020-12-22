@@ -1,5 +1,5 @@
-C chat:\shyperlink\sURL-looking\spatterns\sin\smessages.
-D 2020-12-22T07:11:45.493
+C Cleanups\sin\sthe\sauto-hyperlink\scode.
+D 2020-12-22T07:34:15.493
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -726,7 +726,7 @@ F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
-F tools/chat.tcl 9facadd09139fde63e96d53551825fad0640bd4982b750ed60862f679f39039e x
+F tools/chat.tcl acef4896cad885146efef241c5a21e6b2d2c50c0bd4cd004727d3d23cdfbba44 x
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -987,7 +987,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ec2861417ef8719ccf4214ad614fe843b6d7d699f63a8ef61e0379a651cfee5
-R c0431da9474c9d7d82dd74e31e346b56
+P 729e279a786dad89696110171cff843ce99b6dc0e0afbb7f2ccdaf797904cfb1
+R c814988c84c20beac64dd44f3ec0e536
 U stephan
-Z 845686e5da042dbf160eaa9996433406
+Z dd7c3b4036b73ca44fd1f003a39e4f7b

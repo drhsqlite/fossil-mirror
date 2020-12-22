@@ -133,37 +133,38 @@ proc wapp-default {} {
   // and returns that element, which may contain child elements.
   const messageToDOM = function f(str){
     "use strict";
-    if(!f.rx){
-      f.rx = /\\b(?:https?|ftp):\\/\\/\[a-z0-9-+&@\#\\/%?=~_|!:,.;]*\[a-z0-9-+&@\#\\/%=~_|]/gim;
+    if(!f.rxUrl){
+      f.rxUrl = /\\b(?:https?|ftp):\\/\\/\[a-z0-9-+&@\#\\/%?=~_|!:,.;]*\[a-z0-9-+&@\#\\/%=~_|]/gim;
       // ^^^ achtung, extra backslashes needed for the outer TCL.
       f.ce = (T)=>document.createElement(T);
       f.ct = (T)=>document.createTextNode(T);
-      f.replacer = function(sub, offset){
-        if(offset > f.prevStart){
-          if(f.prevStart) f.accum.push(f.ct(' '));
-          f.accum.push(f.ct(f.str.substring(f.prevStart, offset-1)+' '));
+      f.replaceUrls = function ff(sub, off, whole){
+        if(off > ff.prevStart){
+          f.accum.push(f.ct((ff.prevStart?' ':'')+whole.substring(ff.prevStart, off-1)+' '));
         }
         const a = f.ce('a');
         a.setAttribute('href',sub);
         a.setAttribute('target','_blank');
         a.appendChild(f.ct(sub));
         f.accum.push(a);
-        f.prevStart = offset + sub.length + 1;
+        ff.prevStart = off + sub.length + 1;
         return sub;
-      }
+      };
     }
     f.accum = [];
-    f.rx.lastIndex = 0;
-    f.prevStart = 0;
-    f.str = str;
-    str.replace(f.rx, f.replacer);
-    f.rx.lastIndex = 0;
-    delete f.str;
-    if(f.prevStart < str.length){
-      f.accum.push(f.ct((f.prevStart ? ' ' : '')+str.substring(f.prevStart)));
+    f.rxUrl.lastIndex = 0;
+    f.replaceUrls.prevStart = 0;
+    str.replace(f.rxUrl, f.replaceUrls);
+    if(f.replaceUrls.prevStart < str.length){
+      f.accum.push(f.ct((f.replaceUrls.prevStart?' ':'')+str.substring(f.replaceUrls.prevStart)));
     }
     const span = f.ce('span');
     f.accum.forEach((e)=>span.appendChild(e));
+    delete f.accum;
+    // TODO: replace @WORD refs with <span class='at-me'>@WORD</span>, but
+    // only when WORD==current user name. The above dissection into chunks
+    // complicates that somewhat, requiring a separate pass over the remaining
+    // TEXT nodes and a separate array to accumulate the results to.
     return span;
   };
   function newcontent(jx){
