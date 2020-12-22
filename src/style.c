@@ -592,8 +592,7 @@ const char *get_default_header(){
 ** and /forume2, it works across all renderings of Markdown to HTML
 ** within the Fossil forum feature.
 */
-static const char* feature_from_page_path(const char *zPath)
-{
+static const char* feature_from_page_path(const char *zPath){
   const char* zSlash = strchr(zPath, '/');
   if (zSlash) {
     return fossil_strndup(zPath, zSlash - zPath);
@@ -609,8 +608,7 @@ static const char* feature_from_page_path(const char *zPath)
 ** allow webpage implementations to call this before style_header()
 ** to override that "maybe" default with something better.
 */
-void style_set_current_feature(const char* zFeature)
-{
+void style_set_current_feature(const char* zFeature){
   Th_Store("current_feature", zFeature);
 }
 
