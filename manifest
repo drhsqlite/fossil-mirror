@@ -1,5 +1,5 @@
-C Declare\sthe\scharacter\sset\sin\sthe\sdefault\sHTML\sheader.
-D 2020-12-21T18:20:23.270
+C Assorted\simprovements\sto\sthe\s"Contributing\sto\sFossil"\sdoc.\sThe\smost\nsubstantial\sis\sreplacement\sof\sreferences\sto\sthe\sold\smailing\slist\swith\nreferences\sto\sthe\sforum.\sAdded\smore\sinfo\sabout\spatches\sand\sbundles,\setc.
+D 2020-12-22T08:45:59.253
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -837,7 +837,7 @@ F www/ckout-workflows.md 24b691b62c9cc51cc0f0d5ecf0b2d91526ce956f18bd935d3629d80
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 8a6095ecb6582181fd13fb5c1474b2edf0a042750d9e959a703747f7045a5c17
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
-F www/contribute.wiki 992fee5fb4e3c586c9dfc6f7538b29d76407f1bfd3ed1306c107b42efda2f412
+F www/contribute.wiki 6c39c7652b3487c657eb0616d52cdc8906b16e1c64ae82f34fb8bd765e1fcaf1
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 0c820100dfd65c763360336cb1fa2c8a610e102b240db0d6a2aafa01dae86077
@@ -986,7 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d7b5c4a746109b2fdc5e55c098af631fa6427e8c50815c65ecc7ff08fcd3ee7
-R 1003cb7fc391ceb45a632d581faa4f52
-U drh
-Z 1f5368d4fbfb93c9829b1cb05133de2b
+P 1997b71cf7327ceb25d38e7f494368115541c6b5b0d614e43270451848cab7f7
+R 9a8ec6a7d01a5d7e3c2aed0e677411f0
+U wyoung
+Z 99e4aa9d8f066bf88987e0cff9c1215e
