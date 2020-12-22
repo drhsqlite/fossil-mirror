@@ -1,5 +1,5 @@
-C Created\sa\snew\sTH1\svariable\s$current_feature\sset\sby\sdefault\sfrom\sthe\spage\nURL's\sfirst\scomponent,\sbut\swhich\smay\sbe\soverridden\sby\scode\sthat\sknows\sa\nbetter\sfeature\sname\sto\suse\sfor\sthat\spage.\s\sThis\sis\sthen\sused\sas\sthe\npage's\s"body"\sclass,\smaking\sthis\sthe\sstart\sof\sa\sreplacement\sfor\sthe\n"content\sdiv"\sbased\sfeature\sclass\sstuff\sdone\son\sbranch\n[/timeline?r=default-css-cleanups\s|\sdefault-css-cleanups].\sThis\sis\na\sbetter\sway\sto\sdo\sit\sbecause\sit\slets\sus\starget\sthings\soutside\sthe\ncontent\sdiv,\ssuch\sas\sthe\snav\sbar,\sthe\sskin\sheader,\sthe\sskin\sfooter,\setc.
-D 2020-12-22T11:55:40.385
+C Using\sthe\snew\s$current_feature\svariable\sin\sthe\sBootstrap\sskin's\sHeader,\nit\sbeing\sthe\sonly\sstock\sskin\sto\sstill\sprovide\sits\sown\s<body>.\s\sWithout\nthis\schange,\sthe\sprior\scommit\swon't\stake\seffect\swhen\susing\sBootstrap.
+D 2020-12-22T11:56:26.725
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -391,7 +391,7 @@ F skins/blitz_no_logo/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401
 F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2ac0ae3b2c31
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
-F skins/bootstrap/header.txt 9a6197431010e9f52fea99f6a96ab5d86425934bafadec0bc8684a54c2912a9c
+F skins/bootstrap/header.txt 9736a30437604c04609093c5a0e53a38e30a0303f5a6672b8670002038fd187a
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 912f29737a562cd550a0a8ab19e10284fb1b567113420e1bbef34da77657b9df
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
@@ -986,10 +986,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6e8ea8ffbec4211c5496068aadbb619a88f86681a511c672ceb4d28325d5222
-R 5621385e3d45324bd32c5dad0dacbfef
-T *branch * body-feature-class
-T *sym-body-feature-class *
-T -sym-trunk *
+P c671fc5d813fd47d1f384e0f4e74b3eeb57db7aacf2b3a3994c64b6ebff959a3
+R e5aff777aa250e043aaeec5c51237ddb
 U wyoung
-Z f394531d623e8366bf9a45b79602234d
+Z 0dae47b1286410ecc73a88568e175548
