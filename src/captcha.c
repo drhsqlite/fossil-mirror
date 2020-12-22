@@ -593,7 +593,7 @@ void captcha_test(void){
   @ <pre>
   @ %s(captcha_render(zPw))
   @ </pre>
-  style_finish_page("test");
+  style_finish_page();
 }
 
 /*
@@ -631,7 +631,7 @@ int exclude_spiders(void){
   @ <p>Please demonstrate that you are human, not a spider or robot</p>
   captcha_generate(1);
   @ </form>
-  style_finish_page("captcha");
+  style_finish_page();
   return 1;
 }
 

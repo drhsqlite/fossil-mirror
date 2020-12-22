@@ -56,7 +56,7 @@ void tktsetup_page(void){
   setup_menu_entry("Key Template", "tktsetup_keytplt",
     "The default color key for reports.");
   @ </table>
-  style_finish_page("tktsetup");
+  style_finish_page();
 }
 
 /*
@@ -167,7 +167,7 @@ static void tktsetup_generic(
   @ <blockquote><pre>
   @ %h(zDfltValue)
   @ </pre></blockquote>
-  style_finish_page("tktsetup");
+  style_finish_page();
 }
 
 /*
@@ -939,6 +939,6 @@ void tktsetup_timeline_page(void){
   @ </p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("tktsetup");
+  style_finish_page();
 
 }

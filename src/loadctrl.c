@@ -60,7 +60,7 @@ void load_control(void){
   @ Please try again later.</h2>
   @ <p>Current load average: %f(load_average()).<br />
   @ Load average limit: %f(mxLoad)</p>
-  style_finish_page("test");
+  style_finish_page();
   cgi_set_status(503,"Server Overload");
   cgi_reply();
   exit(0);

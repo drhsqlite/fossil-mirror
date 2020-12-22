@@ -217,7 +217,7 @@ void test_hash_color_page(void){
   }
   @ <input type="submit">
   @ </form>
-  style_finish_page("test");
+  style_finish_page();
 }
 
 /*
@@ -2732,7 +2732,7 @@ void page_timeline(void){
     @ &nbsp;&darr;</a>
   }
   document_emit_js(/*handles pikchrs rendered above*/);
-  style_finish_page("timeline");
+  style_finish_page();
 }
 
 /*
@@ -3239,7 +3239,7 @@ void thisdayinhistory_page(void){
     www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0, 0, 0);
   }
   db_finalize(&q);
-  style_finish_page("timeline");
+  style_finish_page();
 }
 
 
@@ -3345,5 +3345,5 @@ void test_timewarp_page(void){
   }else{
     @ </tbody></table></div>
   }
-  style_finish_page("timewarps");
+  style_finish_page();
 }

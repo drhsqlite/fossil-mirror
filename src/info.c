@@ -505,7 +505,7 @@ void ci_tags_page(void){
   if( rid==0 ){
     style_header("Check-in Information Error");
     @ No such object: %h(g.argv[2])
-    style_finish_page("ci_tags");
+    style_finish_page();
     return;
   }
   zHash = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -597,7 +597,7 @@ void ci_tags_page(void){
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
                      0, 0, 0, rid, 0, 0);
   db_finalize(&q);
-  style_finish_page("ci_tags");
+  style_finish_page();
 }
 
 /*
@@ -637,7 +637,7 @@ void ci_page(void){
   if( rid==0 ){
     style_header("Check-in Information Error");
     @ No such object: %h(g.argv[2])
-    style_finish_page("vinfo");
+    style_finish_page();
     return;
   }
   zRe = P("regex");
@@ -943,7 +943,7 @@ void ci_page(void){
   db_finalize(&q3);
   append_diff_javascript(diffType==2);
   cookie_render();
-  style_finish_page("vinfo");
+  style_finish_page();
 }
 
 /*
@@ -970,7 +970,7 @@ void winfo_page(void){
   if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))==0 ){
     style_header("Wiki Page Information Error");
     @ No such object: %h(P("name"))
-    style_finish_page("winfo");
+    style_finish_page();
     return;
   }
   if( g.perm.ModWiki && (zModAction = P("modaction"))!=0 ){
@@ -1058,7 +1058,7 @@ void winfo_page(void){
   blob_reset(&wiki);
   manifest_destroy(pWiki);
   document_emit_js();
-  style_finish_page("winfo");
+  style_finish_page();
 }
 
 /*
@@ -1332,7 +1332,7 @@ void vdiff_page(void){
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
   append_diff_javascript(diffType==2);
-  style_finish_page("vdiff");
+  style_finish_page();
 }
 
 #if INTERFACE
@@ -1767,7 +1767,7 @@ void diff_page(void){
   @ <hr />
   append_diff(zV1, zV2, diffFlags, pRe);
   append_diff_javascript(diffType);
-  style_finish_page("fdiff");
+  style_finish_page();
 }
 
 /*
@@ -1971,7 +1971,7 @@ void hexdump_page(void){
   @ <blockquote><pre>
   hexdump(&content);
   @ </pre></blockquote>
-  style_finish_page("hexdump");
+  style_finish_page();
 }
 
 /*
@@ -2270,7 +2270,7 @@ void artifact_page(void){
     }
     style_header("Missing name= query parameter");
     @ The name= query parameter is missing
-    style_finish_page("artifact");
+    style_finish_page();
     return;
   }
 
@@ -2331,7 +2331,7 @@ void artifact_page(void){
       @ Artifact '%h(zName)' does not exist in this repository.
     }
     if( rid==0 ){
-      style_finish_page("artifact");
+      style_finish_page();
       return;
     }
   }
@@ -2539,7 +2539,7 @@ void artifact_page(void){
       @ </blockquote>
     }
   }
-  style_finish_page("artifact");
+  style_finish_page();
 }
 
 /*
@@ -2647,7 +2647,7 @@ void tinfo_page(void){
   @ <p>
   ticket_output_change_artifact(pTktChng, 0, 1);
   manifest_destroy(pTktChng);
-  style_finish_page("tinfo");
+  style_finish_page();
 }
 
 
@@ -2698,7 +2698,7 @@ void info_page(void){
       @ <p>Object name should be no less than 4 characters.  Ten or more
       @ characters are recommended.</p>
     }
-    style_finish_page("info");
+    style_finish_page();
     return;
   }else if( rc==2 ){
     cgi_set_parameter("src","info");
@@ -2710,7 +2710,7 @@ void info_page(void){
   if( rid==0 ){
     style_header("Broken Link");
     @ <p>No such object: %h(zName)</p>
-    style_finish_page("info");
+    style_finish_page();
     return;
   }
   if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
@@ -3235,7 +3235,7 @@ void ci_edit_page(void){
   @ </table>
   @ </div></form>
   builtin_request_js("ci_edit.js");
-  style_finish_page("ci_edit");
+  style_finish_page();
 }
 
 /*

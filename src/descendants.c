@@ -616,7 +616,7 @@ void leaves_page(void){
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  style_finish_page("leaves");
+  style_finish_page();
 }
 
 #if INTERFACE

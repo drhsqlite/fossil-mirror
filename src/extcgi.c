@@ -423,5 +423,5 @@ void ext_filelist_page(void){
   db_finalize(&q);
   @ </tbody>
   @ </table>
-  style_finish_page("extcgi");
+  style_finish_page();
 }

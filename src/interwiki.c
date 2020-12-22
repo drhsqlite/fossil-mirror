@@ -391,7 +391,7 @@ void interwiki_page(void){
 
   if( !g.perm.Setup ){
     /* Do not show intermap editing fields to non-setup users */
-    style_finish_page("interwiki");
+    style_finish_page();
     return;
   }
 
@@ -424,5 +424,5 @@ void interwiki_page(void){
   @ </table>
   @ </form>
 
-  style_finish_page("interwiki");
+  style_finish_page();
 }

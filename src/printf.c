@@ -1123,7 +1123,7 @@ static int fossil_print_error(int rc, const char *z){
     etag_cancel();
     @ <p class="generalError">%h(z)</p>
     cgi_set_status(400, "Bad Request");
-    style_finish_page("error");
+    style_finish_page();
     cgi_reply();
   }else if( !g.fQuiet ){
     fossil_force_newline();

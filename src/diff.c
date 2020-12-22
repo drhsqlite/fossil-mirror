@@ -2559,7 +2559,7 @@ void annotation_page(void){
 
   }
   @ </pre>
-  style_finish_page("annotate");
+  style_finish_page();
 }
 
 /*

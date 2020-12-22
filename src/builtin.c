@@ -106,7 +106,7 @@ void test_builtin_list_page(void){
     @ <li>%z(zUrl)%h(z)</a>
   }
   @ </ol>
-  style_finish_page("test");
+  style_finish_page();
 }
 
 /*

@@ -787,12 +787,8 @@ static void style_load_all_js_files(void){
 **   *  Finalizes the page content.
 **
 **   *  Appends the footer.
-**
-** The zPageType argument is a class name inserted in the <div> that
-** surrounds the page content.  CSS can use this to have different styles
-** according to the page type.
 */
-void style_finish_page(const char* zPageType){
+void style_finish_page(){
   const char *zFooter;
   const char *zAd = 0;
   unsigned int mAdFlags = 0;
@@ -924,7 +920,7 @@ void style_finish_page(const char* zPageType){
     @ </div>
   }
 
-  @ <div class="content %s(zPageType)"><span id="debugMsg"></span>
+  @ <div class="content"><span id="debugMsg"></span>
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
@@ -1245,11 +1241,11 @@ void webpage_error(const char *zFormat, ...){
     }
   }
   if( zErr && zErr[0] ){
-    style_finish_page("error");
+    style_finish_page();
     cgi_reply();
     fossil_exit(1);
   }else{
-    style_finish_page("test");
+    style_finish_page();
   }
 }
 
@@ -1286,7 +1282,7 @@ void webpage_notfound_error(const char *zFormat, ...){
   style_header("Not Found");
   @ <p>%h(zMsg)</p>
   cgi_set_status(404, "Not Found");
-  style_finish_page("enotfound");
+  style_finish_page();
 }
 
 #if INTERFACE

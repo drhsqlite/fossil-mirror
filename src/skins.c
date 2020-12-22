@@ -407,7 +407,7 @@ static int skinRename(void){
     @ </table>
     login_insert_csrf_secret();
     @ </div></form>
-    style_finish_page("skins");
+    style_finish_page();
     return 1;
   }
   db_unprotect(PROTECT_CONFIG);
@@ -448,7 +448,7 @@ static int skinSave(const char *zCurrent){
     @ </table>
     login_insert_csrf_secret();
     @ </div></form>
-    style_finish_page("skins");
+    style_finish_page();
     return 1;
   }
   db_unprotect(PROTECT_CONFIG);
@@ -501,7 +501,7 @@ void setup_skin_admin(void){
       @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
       login_insert_csrf_secret();
       @ </div></form>
-      style_finish_page("skins");
+      style_finish_page();
       db_end_transaction(1);
       return;
     }
@@ -654,7 +654,7 @@ void setup_skin_admin(void){
   db_finalize(&q);
 
   @ </table>
-  style_finish_page("skins");
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -852,7 +852,7 @@ void setup_skinedit(void){
     blob_reset(&out);
   }
   @ </div></form>
-  style_finish_page("skins");
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -1131,5 +1131,5 @@ void setup_skin(void){
     @ for cleanup and recovery actions.
   }
   builtin_request_js("skin.js");
-  style_finish_page("skins");
+  style_finish_page();
 }

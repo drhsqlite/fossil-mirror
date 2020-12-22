@@ -148,7 +148,7 @@ void attachlist_page(void){
   }
   db_finalize(&q);
   @ </ol>
-  style_finish_page("attach");
+  style_finish_page();
   return;
 }
 
@@ -209,12 +209,12 @@ void attachview_page(void){
   if( zUUID==0 || zUUID[0]==0 ){
     style_header("No Such Attachment");
     @ No such attachment....
-    style_finish_page("attach");
+    style_finish_page();
     return;
   }else if( zUUID[0]=='x' ){
     style_header("Missing");
     @ Attachment has been deleted
-    style_finish_page("attach");
+    style_finish_page();
     return;
   }else{
     g.perm.Read = 1;
@@ -415,7 +415,7 @@ void attachadd_page(void){
   @ </div>
   captcha_generate(0);
   @ </form>
-  style_finish_page("attach");
+  style_finish_page();
   fossil_free(zTargetType);
 }
 
@@ -628,7 +628,7 @@ void ainfo_page(void){
   @ </blockquote>
   manifest_destroy(pAttach);
   blob_reset(&attach);
-  style_finish_page("attach");
+  style_finish_page();
 }
 
 /*

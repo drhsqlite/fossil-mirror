@@ -223,7 +223,7 @@ void sitemap_page(void){
   }
   @ </ul>
   if( !isPopup ){
-    style_finish_page("sitemap");
+    style_finish_page();
   }
 }
 
@@ -276,7 +276,7 @@ void sitemap_test_page(void){
   @ <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
   @ <li>%z(href("%R/test-piechart"))Pie-Chart generator test</a></li>
   if( !isPopup ){
-    style_finish_page("sitemap");
+    style_finish_page();
   }
 }
 
@@ -317,6 +317,6 @@ void sitemap_timeline_page(void){
   @ <li>%z(href("%R/timeline?deltabg"))Delta vs. baseline manifests</a></li>
   @ </ul>
   if( !isPopup ){
-    style_finish_page("sitemap");
+    style_finish_page();
   }
 }

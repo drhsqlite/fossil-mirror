@@ -99,7 +99,7 @@ void view_list(void){
   blob_reset(&ril);
   if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);
 
-  style_finish_page("reportlist");
+  style_finish_page();
 }
 
 /*
@@ -331,7 +331,7 @@ void view_see_sql(void){
   style_header("SQL For Report Format Number %d", rn);
   if( db_step(&q)!=SQLITE_ROW ){
     @ <p>Unknown report number: %d(rn)</p>
-    style_finish_page("report");
+    style_finish_page();
     db_finalize(&q);
     return;
   }
@@ -353,7 +353,7 @@ void view_see_sql(void){
   @ </td>
   @ </tr></table>
   report_format_hints();
-  style_finish_page("report");
+  style_finish_page();
   db_finalize(&q);
 }
 
@@ -414,7 +414,7 @@ void view_edit(void){
     @ <input type="submit" name="del2" value="Delete The Report">
     @ <input type="submit" name="can" value="Cancel">
     @ </form>
-    style_finish_page("report");
+    style_finish_page();
     return;
   }else if( P("can") ){
     /* user cancelled */
@@ -506,7 +506,7 @@ void view_edit(void){
     @ to change it.</p>
     @ </form>
     report_format_hints();
-    style_finish_page("report");
+    style_finish_page();
     return;
   }
   @ <input type="submit" value="Apply Changes" />
@@ -515,7 +515,7 @@ void view_edit(void){
   }
   @ </div></form>
   report_format_hints();
-  style_finish_page("report");
+  style_finish_page();
 }
 
 /*
@@ -1062,7 +1062,7 @@ void rptview_page(void){
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
     style_table_sorter();
-    style_finish_page("report");
+    style_finish_page();
   }else{
     report_restrict_sql(&zErr1);
     db_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);
