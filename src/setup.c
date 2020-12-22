@@ -75,6 +75,7 @@ void setup_page(void){
   }
   setup_user = g.perm.Setup;
 
+  style_set_current_feature("setup");
   style_header("Server Administration");
 
   /* Make sure the header contains <base href="...">.   Issue a warning
@@ -177,7 +178,7 @@ void setup_page(void){
   }
   @ </table>
 
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -341,6 +342,7 @@ void setup_access(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Access Control Settings");
   db_begin_transaction();
   @ <form action="%R/setup_access" method="post"><div>
@@ -578,7 +580,7 @@ void setup_access(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -610,6 +612,7 @@ void setup_login_group(void){
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
   }
+  style_set_current_feature("setup");
   style_header("Login Group Configuration");
   if( zErrMsg ){
     @ <p class="generalError">%s(zErrMsg)</p>
@@ -706,7 +709,7 @@ void setup_login_group(void){
     @ </tbody></table>
     style_table_sorter();
   }
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -731,6 +734,7 @@ void setup_timeline(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Timeline Display Preferences");
   db_begin_transaction();
   @ <form action="%R/setup_timeline" method="post"><div>
@@ -845,7 +849,7 @@ void setup_timeline(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -866,6 +870,7 @@ void setup_settings(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Settings");
   if(!g.repositoryOpen){
     /* Provide read-only access to versioned settings,
@@ -938,7 +943,7 @@ void setup_settings(void){
   @ </td></tr></table>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -953,6 +958,7 @@ void setup_config(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("WWW Configuration");
   db_begin_transaction();
   @ <form action="%R/setup_config" method="post"><div>
@@ -1034,7 +1040,7 @@ void setup_config(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1049,6 +1055,7 @@ void setup_wiki(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Wiki Configuration");
   db_begin_transaction();
   @ <form action="%R/setup_wiki" method="post"><div>
@@ -1110,7 +1117,7 @@ void setup_wiki(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1125,6 +1132,7 @@ void setup_modreq(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Moderator For Wiki And Tickets");
   db_begin_transaction();
   @ <form action="%R/setup_modreq" method="post"><div>
@@ -1156,7 +1164,7 @@ void setup_modreq(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 
 }
 
@@ -1182,6 +1190,7 @@ void setup_adunit(void){
     setup_incr_cfgcnt();
   }
 
+  style_set_current_feature("setup");
   style_header("Edit Ad Unit");
   @ <form action="%R/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
@@ -1237,7 +1246,7 @@ void setup_adunit(void){
   @ '&gt;Demo Ad&lt;/div&gt;
   @ </pre></blockquote>
   @ </li>
-  style_finish_page("setup");
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -1363,6 +1372,7 @@ void setup_logo(void){
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }
+  style_set_current_feature("setup");
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
@@ -1439,7 +1449,7 @@ void setup_logo(void){
   @ <p><span class="note">Note:</span>  Your browser has probably cached these
   @ images, so you may need to press the Reload button before changes will
   @ take effect. </p>
-  style_finish_page("setup");
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -1483,6 +1493,7 @@ void sql_page(void){
   }
   add_content_sql_commands(g.db);
   zQ = cgi_csrf_safe(1) ? P("q") : 0;
+  style_set_current_feature("setup");
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
@@ -1601,7 +1612,7 @@ void sql_page(void){
       @ </table>
     }
   }
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 
@@ -1620,6 +1631,7 @@ void th1_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Raw TH1 Commands");
   @ <p><b>Caution:</b> There are no restrictions on the TH1 that can be
   @ run by this page.  If Tcl integration was enabled at compile-time and
@@ -1645,7 +1657,7 @@ void th1_page(void){
       @ <pre class="th1error">%h(zR)</pre>
     }
   }
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1666,6 +1678,7 @@ void page_admin_log(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Admin Log");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
@@ -1712,7 +1725,7 @@ void page_admin_log(){
   if( counter>ofst+limit ){
     @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1726,6 +1739,7 @@ void page_srchsetup(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Search Configuration");
   @ <form action="%R/srchsetup" method="post"><div>
   login_insert_csrf_secret();
@@ -1792,7 +1806,7 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1851,6 +1865,7 @@ void page_waliassetup(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("URL Alias Configuration");
   if( P("submit")!=0 ){
     Blob token;
@@ -1950,5 +1965,5 @@ void page_waliassetup(){
   @
   @ <p>To add a new alias, fill in the name and value in the bottom row
   @ of the table above and press "Apply Changes".
-  style_finish_page("setup");
+  style_finish_page();
 }

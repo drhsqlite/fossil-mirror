@@ -460,6 +460,7 @@ static void new_brlist_page(void){
   int show_colors = PB("colors");
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("branch");
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
@@ -516,7 +517,7 @@ static void new_brlist_page(void){
   @ </tbody></table></div>
   db_finalize(&q);
   style_table_sorter();
-  style_finish_page("branch");
+  style_finish_page();
 }
 
 /*
@@ -558,6 +559,7 @@ void brlist_page(void){
   if( showAll ) brFlags = BRL_BOTH;
   if( showClosed ) brFlags = BRL_CLOSED_ONLY;
 
+  style_set_current_feature("branch");
   style_header("%s", showClosed ? "Closed Branches" :
                         showAll ? "All Branches" : "Open Branches");
   style_submenu_element("Timeline", "brtimeline");
@@ -624,7 +626,7 @@ void brlist_page(void){
     @ </ul>
   }
   db_finalize(&q);
-  style_finish_page("branch");
+  style_finish_page();
 }
 
 /*
@@ -673,6 +675,7 @@ void brtimeline_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
+  style_set_current_feature("branch");
   style_header("Branches");
   style_submenu_element("List", "brlist");
   login_anonymous_available();
@@ -700,5 +703,5 @@ void brtimeline_page(void){
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
-  style_finish_page("branch");
+  style_finish_page();
 }

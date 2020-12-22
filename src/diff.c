@@ -2450,6 +2450,7 @@ void annotation_page(void){
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
+  style_set_current_feature("annotate");
   style_header("Annotation For %h", zFilename);
   if( bBlame ){
     url_initialize(&url, "blame");
@@ -2558,7 +2559,7 @@ void annotation_page(void){
 
   }
   @ </pre>
-  style_finish_page("annotate");
+  style_finish_page();
 }
 
 /*

@@ -1480,7 +1480,7 @@ static int styleFooterCmd(
     return Th_WrongNumArgs(interp, "styleFooter");
   }
   if( Th_IsRepositoryOpen() ){
-    style_finish_page("th1");    /* TODO: add optional parameter to pass along? */
+    style_finish_page();
     Th_SetResult(interp, 0, 0);
     return TH_OK;
   }else{
