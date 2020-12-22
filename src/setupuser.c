@@ -683,6 +683,8 @@ void user_edit(void){
   @  Email Alerts%s(B('7'))</label>
   @  <li><label><input type="checkbox" name="aA"%s(oa['A']) />
   @  Send Announcements%s(B('A'))</label>
+  @  <li><label><input type="checkbox" name="aC"%s(oa['C']) />
+  @  Chatroom%s(B('C'))</label>
   @  <li><label><input type="checkbox" name="aD"%s(oa['D']) />
   @  Enable Debug%s(B('D'))</label>
   @ </ul></div>

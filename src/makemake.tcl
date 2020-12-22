@@ -45,6 +45,7 @@ set src {
   capabilities
   captcha
   cgi
+  chat
   checkin
   checkout
   clearsign

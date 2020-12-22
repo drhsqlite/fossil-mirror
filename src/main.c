@@ -109,6 +109,7 @@ struct FossilUserPerms {
   char AdminForum;       /* 6: Grant capability 4 to other users */
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
+  char Chat;             /* C: read or write the chatroom */
   char Debug;            /* D: show extra Fossil debugging features */
   /* These last two are included to block infinite recursion */
   char XReader;          /* u: Inherit all privileges of "reader" */

@@ -1463,3 +1463,56 @@ div.pikchr-wrapper.source > div.pikchr-svg {
   pointer-events: none !important;
   display: none !important;
 }
+
+/* Chat-related */
+span.at-name { /* for @USERNAME references */
+  text-decoration: underline;
+  font-weight: bold;
+}
+/* A wrapper for a single single message (one row of the UI) */
+.message-row {
+  margin-bottom: 0.5em;
+  border: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  /*border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 0.25em;
+  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);*/
+  border: none;
+}
+/* Rows for the current user have the .user-is-me CSS class
+   and get right-aligned. */
+.message-row.user-is-me {
+  justify-content: flex-end;
+  /*background-color: #d2dde1;*/
+}
+/* The content area of a message (the body element of a FIELDSET) */
+.message-content {
+  display: inline-block;
+  border-radius: 0.25em;
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
+  padding: 0.25em 1em;
+  margin-top: -0.75em;
+}
+.message-row.user-is-me .message-content {
+  background-color: #d2dde1;
+}
+/* User name for the post (a LEGEND element) */
+.message-row .message-user {
+  background: inherit;
+  border-radius: 0.25em 0.25em 0 0;
+  padding: 0 0.5em;
+  /*text-align: left; Firefox requires the 'align' attribute */
+  margin-left: 0.25em;
+  padding: 0 0.5em 0em 0.5em;
+  margin-bottom: 0.4em;
+  background-color: #d2dde1;
+}
+/* Reposition "my" posts to the right */
+.message-row.user-is-me .message-user {
+  /*text-align: right; Firefox requires the 'align' attribute */
+  margin-left: 0;
+  margin-right: 0.25em;
+}
