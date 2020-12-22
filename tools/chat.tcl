@@ -140,7 +140,7 @@ proc wapp-default {} {
       f.ct = (T)=>document.createTextNode(T);
       f.replaceUrls = function ff(sub, off, whole){
         if(off > ff.prevStart){
-          f.accum.push(f.ct((ff.prevStart?' ':'')+whole.substring(ff.prevStart, off-1)+' '));
+          f.accum.push((ff.prevStart?' ':'')+whole.substring(ff.prevStart, off-1)+' ');
         }
         const a = f.ce('a');
         a.setAttribute('href',sub);
@@ -151,21 +151,25 @@ proc wapp-default {} {
         return sub;
       };
     }
-    f.accum = [];
-    f.rxUrl.lastIndex = 0;
+    f.accum = []; // accumulate strings and DOM elements here.
+    f.rxUrl.lastIndex = 0; // reset regex cursor
     f.replaceUrls.prevStart = 0;
     str.replace(f.rxUrl, f.replaceUrls);
     if(f.replaceUrls.prevStart < str.length){
-      f.accum.push(f.ct((f.replaceUrls.prevStart?' ':'')+str.substring(f.replaceUrls.prevStart)));
+      f.accum.push((f.replaceUrls.prevStart?' ':'')+str.substring(f.replaceUrls.prevStart));
     }
     const span = f.ce('span');
-    f.accum.forEach((e)=>span.appendChild(e));
+    f.accum.forEach(function(e){
+      // append accumulated strings/DOM elements to target element
+      if('string'===typeof e) e = f.ct(e);
+      span.appendChild(e);
+    });
     delete f.accum;
     // TODO: replace @WORD refs with <span class='at-me'>@WORD</span>, but
-    // only when WORD==current user name. The above dissection into chunks
-    // complicates that somewhat, requiring a separate pass over the remaining
-    // TEXT nodes and a separate array to accumulate the results to.
-    return span;
+    // only when WORD==current user name. That requires a separate pass
+    // over the remaining STRING entries and a separate array to accumulate
+    // the results to.
+   return span;
   };
   function newcontent(jx){
     var tab = document.getElementById("dialog");
