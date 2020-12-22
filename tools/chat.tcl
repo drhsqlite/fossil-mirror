@@ -171,6 +171,8 @@ span.at-name { /* for @USERNAME references */
   const rxUrl = /\\b(?:https?|ftp):\\/\\/\[a-z0-9-+&@\#\\/%?=~_|!:,.;]*\[a-z0-9-+&@\#\\/%=~_|]/gim;
   const rxAtName = /@\\w+/gmi;
   // ^^^ achtung, extra backslashes needed for the outer TCL.
+  const textNode = (T)=>document.createTextNode(T);
+
   // Converts a message string to a message-containing DOM element
   // and returns that element, which may contain child elements.
   // If 2nd arg is passed, it must be a DOM element to which all
@@ -256,6 +258,20 @@ span.at-name { /* for @USERNAME references */
       f.injectPoint.parentNode.appendChild(e);
     }
   };
+  /** Returns the local time string of Date object d, defaulting
+      to the current time. */
+  const localTimeString = function ff(d){
+    if(!ff.pad){
+      ff.pad = (x)=>(''+x).length>1 ? x : '0'+x;
+    }
+    d || (d = new Date());
+    return [
+      d.getFullYear(),'-',ff.pad(d.getMonth()+1/*sigh*/),
+      '-',ff.pad(d.getDate()),
+      ' ',ff.pad(d.getHours()),':',ff.pad(d.getMinutes()),
+      ':',ff.pad(d.getSeconds())
+    ].join('');
+  };
   function newcontent(jx){
     var i;
     for(i=0; i<jx.msgs.length; ++i){
@@ -271,12 +287,14 @@ span.at-name { /* for @USERNAME references */
       let whoName;
       if( m.xfrom===_me ){
         whoName = 'me';
-        //eWho.classList.add('user-is-me');
         row.classList.add('user-is-me');
       }else{
         whoName = m.xfrom;
       }
-      eWho.append(document.createTextNode(whoName));
+      eWho.append(textNode(
+                  whoName+' @ '+
+                  localTimeString(new Date(Date.parse(m.mtime+".000Z"))))
+      );
       let span = document.createElement("div");
       span.classList.add('message-content');
       row.appendChild(span);
