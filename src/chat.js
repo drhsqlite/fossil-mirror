@@ -5,7 +5,6 @@
   const _me = F.user.name;
   /* State for paste and drag/drop */
   const BlobXferState = {
-    dropZone: document.querySelector('#chat-drop-zone'),
     dropDetails: document.querySelector('#chat-drop-details'),
     blob: undefined
   };
@@ -15,7 +14,10 @@
     const bx = BlobXferState, dd = bx.dropDetails;
     bx.blob = blob;
     D.clearElement(dd);
-    if(!blob) return;
+    if(!blob){
+      form.file.value = '';
+      return;
+    }
     D.append(dd, "Name: ", blob.name,
              D.br(), "Size: ",blob.size);
     if(blob.type && blob.type.startsWith("image/")){
@@ -29,49 +31,9 @@
     D.append(dd, D.br(), btn);
     btn.addEventListener('click', ()=>updateDropZoneContent(), false);
   };
-  ////////////////////////////////////////////////////////////
-  // File drag/drop.
-  // Adapted from: https://stackoverflow.com/a/58677161
-  const dropHighlight = BlobXferState.dropZone /* target zone */;
-  const dropEvents = {
-    drop: function(ev){
-      ev.preventDefault();
-      D.removeClass(dropHighlight, 'dragover');
-      const file = ev.dataTransfer.files[0];
-      if(file) {
-        updateDropZoneContent(file);
-      }
-    },
-    dragenter: function(ev){
-      ev.preventDefault();
-      ev.dataTransfer.dropEffect = "copy";
-      D.addClass(dropHighlight, 'dragover');
-    },
-    dragover: function(ev){
-      ev.preventDefault();
-    },
-    dragend: function(ev){
-      ev.preventDefault();
-    },
-    dragleave: function(ev){
-      ev.preventDefault();
-      D.removeClass(dropHighlight, 'dragover');
-    }
-  };
-  /*
-    The idea here is to accept drops at multiple points or, ideally,
-    document.body, and apply them to P.e.taContent, but the precise
-    combination of event handling needed to pull this off is eluding
-    me.
-  */
-  [BlobXferState.dropZone
-   /* ideally we'd link only to document.body, but the events seem to
-      get out of whack, with dropleave being triggered at unexpected
-      points. */
-  ].forEach(function(e){
-    Object.keys(dropEvents).forEach(
-      (k)=>e.addEventListener(k, dropEvents[k], true)
-    );
+  form.file.addEventListener('change', function(ev){
+    //console.debug("this =",this);
+    updateDropZoneContent(this.files && this.files[0] ? this.files[0] : undefined)
   });
 
   form.addEventListener('submit',(e)=>{
@@ -108,13 +70,12 @@
   };
   if(true){/* Add help button for drag/drop/paste zone */
     const help = D.div();
-    BlobXferState.dropDetails.parentNode.insertBefore(
-      help,BlobXferState.dropDetails
-    );
+    form.file.parentNode.insertBefore(help, form.file);
     F.helpButtonlets.create(
       help,
-      "Drag/drop a file into this spot, or paste an image "+
-        "from the clipboard if supported by your environment."
+      "Select a file to upload, drag/drop a file into this spot, ",
+      "or paste an image from the clipboard if supported by ",
+      "your environment."
     );
   }
 
