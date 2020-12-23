@@ -7,7 +7,6 @@
   const BlobXferState = {
     dropZone: document.querySelector('#chat-drop-zone'),
     dropDetails: document.querySelector('#chat-drop-details'),
-    imgTag: document.querySelector('#chat-drop-details img'),
     blob: undefined
   };
   /** Updates the paste/drop zone with details of the pasted/dropped
@@ -17,7 +16,7 @@
     bx.blob = blob;
     D.clearElement(dd);
     if(!blob) return;
-    D.append(dd, D.br(), "Name: ", blob.name,
+    D.append(dd, "Name: ", blob.name,
              D.br(), "Size: ",blob.size);
     if(blob.type && blob.type.startsWith("image/")){
       const img = D.img();
@@ -107,6 +106,18 @@
       item.getAsString((v)=>form.msg.value = v);
     }
   };
+  if(true){/* Add help button for drag/drop/paste zone */
+    const help = D.div();
+    BlobXferState.dropDetails.parentNode.insertBefore(
+      help,BlobXferState.dropDetails
+    );
+    F.helpButtonlets.create(
+      help,
+      "Drag/drop a file into this spot, or paste an image "+
+        "from the clipboard if supported by your environment."
+    );
+  }
+
   /* Injects element e as a new row in the chat, at the top of the list */
   const injectMessage = function f(e){
     if(!f.injectPoint){

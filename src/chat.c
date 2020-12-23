@@ -105,7 +105,7 @@ void chat_webpage(void){
   @ #chat-drop-zone {
   @   box-sizing: content-box;
   @   background-color: #e0e0e0;
-  @   flex: 2 1 auto;
+  @   flex: 1 1 auto;
   @   padding: 0.5em 1em;
   @   border: 1px solid #808080;
   @   border-radius: 0.25em;
@@ -128,8 +128,6 @@ void chat_webpage(void){
   @   <div id='chat-input-file'>
   @     <input type="file" name="file">
   @     <div id="chat-drop-zone">
-  @        Drag/drop a file into this spot, or paste an image from
-  @        the clipboard if supported by your environment.
   @        <div id="chat-drop-details"></div>
   @      </div>
   @   </div>
