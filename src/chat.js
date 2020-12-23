@@ -232,7 +232,7 @@
   async function poll(){
     if(poll.running) return;
     poll.running = true;
-    fetch("chat-poll/" + mxMsg)
+    fetch("chat-poll?name=" + mxMsg)
     .then(x=>x.json())
     .then(y=>newcontent(y))
     .catch(e=>console.error(e))
