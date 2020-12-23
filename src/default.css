@@ -1465,12 +1465,12 @@ div.pikchr-wrapper.source > div.pikchr-svg {
 }
 
 /* Chat-related */
-span.at-name { /* for @USERNAME references */
+body.chat span.at-name { /* for @USERNAME references */
   text-decoration: underline;
   font-weight: bold;
 }
 /* A wrapper for a single single message (one row of the UI) */
-.message-row {
+body.chat .message-row {
   margin-bottom: 0.5em;
   border: none;
   display: flex;
@@ -1482,7 +1482,7 @@ span.at-name { /* for @USERNAME references */
   border: none;
 }
 /* The content area of a message (the body element of a FIELDSET) */
-.message-content {
+body.chat .message-content {
   display: inline-block;
   border-radius: 0.25em;
   border: 1px solid rgba(0,0,0,0.2);
@@ -1492,7 +1492,7 @@ span.at-name { /* for @USERNAME references */
   min-width: 9em /*avoid unsightly "underlap" with the user name label*/;
 }
 /* User name for the post (a LEGEND element) */
-.message-row .message-user {
+body.chat .message-row .message-user {
   border-radius: 0.25em 0.25em 0 0;
   padding: 0 0.5em;
   /*text-align: left; Firefox requires the 'align' attribute */

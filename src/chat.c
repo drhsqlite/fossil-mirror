@@ -179,10 +179,11 @@ void chat_webpage(void){
   builtin_fossil_js_bundle_or("popupwidget", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
-  @ window.fossilChatInitSize = %d(db_get_int("chat-initial-history",50));
-  @ window.addEventListener('load', function(){
   /* We need an onload handler to ensure that window.fossil is
-     loaded first. */
+     initialized before the chat init code runs. */
+  @ window.addEventListener('load', function(){
+  @ window.fossil.config.chatInitSize =
+  @   %d(db_get_int("chat-initial-history",50));
   cgi_append_content(builtin_text("chat.js"),-1);
   @ }, false);
   @ </script>

@@ -1,9 +1,21 @@
 (function(){
   const form = document.querySelector('#chat-form');
-  let mxMsg = -50;
-  if( window.fossilChatInitSize ) mxMsg = -window.fossilChatInitSize;
   const F = window.fossil, D = F.dom;
-  const _me = F.user.name;
+  const Chat = (function(){
+    const cs = {
+      me: F.user.name,
+      mxMsg: F.config.chatInitSize ? -F.config.chatInitSize : -50,
+      pageIsActive: !document.hidden,
+      onPageActive: function(){console.debug("Page active.")}, //override below
+      onPageInactive: function(){console.debug("Page inactive.")} //override below
+    };
+    document.addEventListener('visibilitychange', function(ev){
+      cs.pageIsActive = !document.hidden;
+      if(cs.pageIsActive) cs.onPageActive();
+      else cs.onPageInactive();
+    }, true);
+    return cs;
+  })();
   /* State for paste and drag/drop */
   const BlobXferState = {
     dropDetails: document.querySelector('#chat-drop-details'),
@@ -122,7 +134,6 @@
     }
   };
   /* Returns a new TEXT node with the given text content. */
-  const textNode = (T)=>document.createTextNode(T);
   /** Returns the local time string of Date object d, defaulting
       to the current time. */
   const localTimeString = function ff(d){
@@ -181,66 +192,61 @@
   function newcontent(jx){
     var i;
     for(i=0; i<jx.msgs.length; ++i){
-      let m = jx.msgs[i];
-      let row = document.createElement("fieldset");
-      if( m.msgid>mxMsg ) mxMsg = m.msgid;
-      row.classList.add('message-row');
+      const m = jx.msgs[i];
+      if( m.msgid>Chat.mxMsg ) Chat.mxMsg = m.msgid;
+      const eWho = D.create('legend'),
+            row = D.addClass(D.fieldset(eWho), 'message-row');
       injectMessage(row);
-      const eWho = document.createElement('legend');
       eWho.dataset.timestamp = m.mtime;
       eWho.addEventListener('click', handleLegendClicked, false);
-      if( m.xfrom==_me && window.outerWidth<1000 ){
+      if( m.xfrom==Chat.me && window.outerWidth<1000 ){
         eWho.setAttribute('align', 'right');
         row.style.justifyContent = "flex-end";
       }else{
         eWho.setAttribute('align', 'left');
       }
       eWho.style.backgroundColor = m.uclr;
-      row.appendChild(eWho);
       eWho.classList.add('message-user');
       let whoName = m.xfrom;
       var d = new Date(m.mtime + "Z");
       if( d.getMinutes().toString()!="NaN" ){
         /* Show local time when we can compute it */
-        eWho.append(textNode(whoName+' @ '+
+        eWho.append(D.text(whoName+' @ '+
           d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3)
         ))
       }else{
         /* Show UTC on systems where Date() does not work */
-        eWho.append(textNode(whoName+' @ '+m.mtime.slice(11,16)))
+        eWho.append(D.text(whoName+' @ '+m.mtime.slice(11,16)))
       }
-      let span = document.createElement("div");
-      span.classList.add('message-content');
-      span.style.backgroundColor = m.uclr;
-      row.appendChild(span);
+      let eContent = D.addClass(D.div(),'message-content','chat-message');
+      eContent.style.backgroundColor = m.uclr;
+      row.appendChild(eContent);
       if( m.fsize>0 ){
         if( m.fmime && m.fmime.startsWith("image/") ){
-          let img = document.createElement("img");
-          img.src = "chat-download/" + m.msgid;
-          span.appendChild(img);
+          eContent.appendChild(D.img("chat-download/" + m.msgid));
         }else{
-          let a = document.createElement("a");
-          let txt = "(" + m.fname + " " + m.fsize + " bytes)";
-          a.href = window.fossil.rootPath+
-            'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname);
-          // ^^^ add m.fname to URL to cause downloaded file to have that name.
-          a.appendChild(textNode(txt));
-          span.appendChild(a);
+          eContent.appendChild(D.a(
+            window.fossil.rootPath+
+              'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname),
+            // ^^^ add m.fname to URL to cause downloaded file to have that name.
+            "(" + m.fname + " " + m.fsize + " bytes)"
+          ));
         }
-        let br = document.createElement("br");
+        const br = D.br();
         br.style.clear = "both";
-        span.appendChild(br);
+        eContent.appendChild(br);
       }
       if(m.xmsg){
-        span.innerHTML += m.xmsg;
+        try{D.moveChildrenTo(eContent, D.parseHtml(m.xmsg))}
+        catch(e){console.error(e)}
       }
-      span.classList.add('chat-message');
+      eContent.classList.add('chat-message');
     }
   }
   async function poll(){
     if(poll.running) return;
     poll.running = true;
-    fetch("chat-poll?name=" + mxMsg)
+    fetch("chat-poll?name=" + Chat.mxMsg)
     .then(x=>x.json())
     .then(y=>newcontent(y))
     .catch(e=>console.error(e))
