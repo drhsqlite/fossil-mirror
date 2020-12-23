@@ -48,9 +48,15 @@ let me = "drh";  // FIX ME
         whoName = m.xfrom;
       }
       var d = new Date(m.mtime + "Z");
-      eWho.append(textNode(whoName+' @ '+
-        d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3)
-      ))
+      if( d.getMinutes().toString()!="NaN" ){
+        /* Show local time when we can compute it */
+        eWho.append(textNode(whoName+' @ '+
+          d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3)
+        ))
+      }else{
+        /* Show UTC on systems where Date() does not work */
+        eWho.append(textNode(whoName+' @ '+m.mtime.slice(11,16)))
+      }
       let span = document.createElement("div");
       span.classList.add('message-content');
       span.style.backgroundColor = m.uclr;
