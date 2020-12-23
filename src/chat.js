@@ -152,7 +152,9 @@
         }else{
           let a = document.createElement("a");
           let txt = "(" + m.fname + " " + m.fsize + " bytes)";
-          a.href = window.fossil.rootPath+'chat-download/' + m.msgid;
+          a.href = window.fossil.rootPath+
+            'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname);
+          // ^^^ add m.fname to URL to cause downloaded file to have that name.
           a.appendChild(textNode(txt));
           span.appendChild(a);
         }
