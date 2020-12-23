@@ -396,7 +396,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
                        "'purgeevent','purgeitem','unversioned',"
-                       "'subscriber','pending_alert','alert_bounce')"
+                       "'subscriber','pending_alert','alert_bounce','chat')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
   );
@@ -944,6 +944,7 @@ void scrub_cmd(void){
         "DROP TABLE IF EXISTS purgeitem;\n"
         "DROP TABLE IF EXISTS admin_log;\n"
         "DROP TABLE IF EXISTS vcache;\n"
+        "DROP TABLE IF EXISTS chat;\n"
       );
     }
     db_protect_pop();

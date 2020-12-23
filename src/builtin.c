@@ -638,6 +638,9 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        skin_detail_boolean("white-foreground") ? "true" : "false");
     CX("}\n"/*fossil.config.skin*/);
     CX("};\n"/* fossil.config */);
+    CX("window.fossil.user = {");
+    CX("name: %!j", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
+    CX("};\n"/*fossil.user*/);
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
 #if 0

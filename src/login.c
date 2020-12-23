@@ -1232,7 +1232,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt =
                              p->RdForum = p->WrForum = p->ModForum =
-                             p->WrTForum = p->AdminForum =
+                             p->WrTForum = p->AdminForum = p->Chat = 
                              p->EmailAlert = p->Announce = p->Debug = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1269,6 +1269,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
 
       case '7':   p->EmailAlert = 1;                           break;
       case 'A':   p->Announce = 1;                             break;
+      case 'C':   p->Chat = 1;                                 break;
       case 'D':   p->Debug = 1;                                break;
 
       /* The "u" privilege recursively
@@ -1352,6 +1353,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case '6':  rc = p->AdminForum;break;
       case '7':  rc = p->EmailAlert;break;
       case 'A':  rc = p->Announce;  break;
+      case 'C':  rc = p->Chat;      break;
       case 'D':  rc = p->Debug;     break;
       default:   rc = 0;            break;
     }

@@ -117,6 +117,9 @@ void sitemap_page(void){
   if( srchFlags ){
     @ <li>%z(href("%R/search"))Search</a></li>
   }
+  if( g.perm.Chat ){
+    @ <li>%z(href("%R/chat"))Chat</a></li>
+  }
   if( g.perm.RdForum ){
     @ <li>%z(href("%R/forum"))Forum</a>
     @ <ul>
