@@ -51,6 +51,7 @@ let me = "drh";  // FIX ME
       injectMessage(row);
       const eWho = document.createElement('legend');
       eWho.setAttribute('align', (m.xfrom===_me ? 'right' : 'left'));
+      eWho.style.backgroundColor = m.uclr;
       row.appendChild(eWho);
       eWho.classList.add('message-user');
       let whoName;
@@ -66,6 +67,7 @@ let me = "drh";  // FIX ME
       );
       let span = document.createElement("div");
       span.classList.add('message-content');
+      span.style.backgroundColor = m.uclr;
       row.appendChild(span);
       if( m.fsize>0 ){
         if( m.fmime && m.fmime.startsWith("image/") ){
