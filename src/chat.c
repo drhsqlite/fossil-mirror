@@ -86,6 +86,10 @@ void chat_webpage(void){
   @   flex-direction: row;
   @   align-items: center;
   @ }
+  @ #chat-input-file > span,
+  @ #chat-input-file > input[type=file] {
+  @   align-self: flex-start;
+  @ }
   @ #chat-input-file > input {
   @   flex: 1 0 auto;
   @ }
@@ -96,20 +100,36 @@ void chat_webpage(void){
   @    text-align: left;
   @    opacity: 0.8;
   @ }
+  @ #chat-drop-zone {
+  @   box-sizing: content-box;
+  @   background-color: #e0e0e0;
+  @   flex: 3 1 auto;
+  @   padding: 0.5em 1em;
+  @   border: 1px solid #808080;
+  @   border-radius: 0.25em;
+  @ }
+  @ #chat-drop-zone.dragover {
+  @   border: 1px dashed green;
+  @ }
+  @ #chat-drop-details {
+  @   white-space: pre;
+  @   font-family: monospace;
+  @ }
   @ </style>
   @ <form accept-encoding="utf-8" id="chat-form">
   @ <div id='chat-input-area'>
   @   <div id='chat-input-line'>
-  @     <input type="text" name="msg" id="sbox"\
+  @     <input type="text" name="msg" id="sbox" \
   @      placeholder="Type message here.">
   @     <input type="submit" value="Send">
   @   </div>
   @   <div id='chat-input-file'>
   @     <span>File:</span>
   @     <input type="file" name="file">
-  @     <div id='chat-pasted-image'>
-  @        Or paste an image from the clipboard, if supported by your
-  @        environment.<br><img>
+  @     <div id="chat-drop-zone">
+  @        Or drag/drop a file in this spot, or paste an image from
+  @        the clipboard if supported by your environment.
+  @        <div id="chat-drop-details"></div>
   @      </div>
   @   </div>
   @ </div>

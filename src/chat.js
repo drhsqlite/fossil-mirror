@@ -1,27 +1,90 @@
 (function(){
   const form = document.querySelector('#chat-form');
   let mxMsg = 0;
-  const F = window.fossil;
+  const F = window.fossil, D = F.dom;
   const _me = F.user.name;
-  /* State for pasting an image from the clipboard */
-  const ImagePasteState = {
-    imgTag: document.querySelector('#chat-pasted-image img'),
+  /* State for paste and drag/drop */
+  const BlobXferState = {
+    dropZone: document.querySelector('#chat-drop-zone'),
+    dropDetails: document.querySelector('#chat-drop-details'),
+    imgTag: document.querySelector('#chat-drop-details img'),
     blob: undefined
   };
+  /** Updates the paste/drop zone with details of the pasted/dropped
+      data. */
+  const updateDropZoneContent = function(blob){
+    const bx = BlobXferState, dd = bx.dropDetails;
+    bx.blob = blob;
+    D.clearElement(dd);
+    D.append(dd, D.br(), "Name: ", blob.name,
+             D.br(), "Size: ",blob.size);
+    if(blob.type && blob.type.startsWith("image/")){
+      const img = D.img();
+      D.append(dd, D.br(), img);
+      const reader = new FileReader();
+      reader.onload = (e)=>img.setAttribute('src', e.target.result);
+      reader.readAsDataURL(blob);
+    }
+  };
+  ////////////////////////////////////////////////////////////
+  // File drag/drop.
+  // Adapted from: https://stackoverflow.com/a/58677161
+  const dropHighlight = BlobXferState.dropZone /* target zone */;
+  const dropEvents = {
+    drop: function(ev){
+      ev.preventDefault();
+      D.removeClass(dropHighlight, 'dragover');
+      const file = ev.dataTransfer.files[0];
+      if(file) {
+        updateDropZoneContent(file);
+      }
+    },
+    dragenter: function(ev){
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = "copy";
+      D.addClass(dropHighlight, 'dragover');
+    },
+    dragover: function(ev){
+      ev.preventDefault();
+    },
+    dragend: function(ev){
+      ev.preventDefault();
+    },
+    dragleave: function(ev){
+      ev.preventDefault();
+      D.removeClass(dropHighlight, 'dragover');
+    }
+  };
+  /*
+    The idea here is to accept drops at multiple points or, ideally,
+    document.body, and apply them to P.e.taContent, but the precise
+    combination of event handling needed to pull this off is eluding
+    me.
+  */
+  [BlobXferState.dropZone
+   /* ideally we'd link only to document.body, but the events seem to
+      get out of whack, with dropleave being triggered at unexpected
+      points. */
+  ].forEach(function(e){
+    Object.keys(dropEvents).forEach(
+      (k)=>e.addEventListener(k, dropEvents[k], true)
+    );
+  });
+
   form.addEventListener('submit',(e)=>{
     e.preventDefault();
     const fd = new FormData(form);
-    if(ImagePasteState.blob/*replace file content with this*/){
-      fd.set("file", ImagePasteState.blob);
+    if(BlobXferState.blob/*replace file content with this*/){
+      fd.set("file", BlobXferState.blob);
     }
-    if( form.msg.value.length>0 || form.file.value.length>0 || ImagePasteState.blob ){
+    if( form.msg.value.length>0 || form.file.value.length>0 || BlobXferState.blob ){
       fetch("chat-send",{
         method: 'POST',
         body: fd
       });
     }
-    ImagePasteState.blob = undefined;
-    ImagePasteState.imgTag.removeAttribute('src');
+    BlobXferState.blob = undefined;
+    D.clearElement(BlobXferState.dropDetails);
     form.msg.value = "";
     form.file.value = "";
     form.msg.focus();
@@ -34,14 +97,8 @@
           item = items[0];
     if(!item || !item.type) return;
     //console.debug("pasted item =",item);
-    if('file'===item.kind && item.type.startsWith("image/")){
-      ImagePasteState.blob = items[0].getAsFile();
-      //console.debug("pasted blob =",ImagePasteState.blob);
-      const reader = new FileReader();
-      reader.onload = function(event){
-        ImagePasteState.imgTag.setAttribute('src', event.target.result);
-      };
-      reader.readAsDataURL(ImagePasteState.blob);
+    if('file'===item.kind){
+      updateDropZoneContent(items[0].getAsFile());
     }else if('string'===item.kind){
       item.getAsString((v)=>form.msg.value = v);
     }
