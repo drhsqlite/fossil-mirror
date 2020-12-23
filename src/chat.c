@@ -81,16 +81,20 @@ void chat_webpage(void){
   @ #chat-input-line > input[type=text] {
   @   flex: 5 1 auto;
   @ }
-  @ #chat-input-file {
+  @ #chat-input-file-area  {
   @   display: flex;
   @   flex-direction: row;
   @   align-items: center;
   @ }
-  @ #chat-input-file > .help-buttonlet,
-  @ #chat-input-file > input[type=file] {
+  @ #chat-input-file-area > .help-buttonlet,
+  @ #chat-input-file {
   @   align-self: flex-start;
   @   margin-right: 0.5em;
-  @   flex: 1 1 auto;
+  @   flex: 0 1 auto;
+  @ }
+  @ #chat-input-file {
+  @   border: 1px solid rgba(0,0,0,0);/*to avoid UI shift during drop-targeting*/
+  @   border-radius: 0.25em;
   @ }
   @ #chat-input-file > input {
   @   flex: 1 0 auto;
@@ -102,7 +106,7 @@ void chat_webpage(void){
   @    text-align: left;
   @    opacity: 0.8;
   @ }
-  @ .dragover {
+  @ #chat-input-file.dragover {
   @   border: 1px dashed green;
   @ }
   @ #chat-drop-details {
@@ -121,8 +125,8 @@ void chat_webpage(void){
   @      placeholder="Type message here.">
   @     <input type="submit" value="Send">
   @   </div>
-  @   <div id='chat-input-file'>
-  @     <input type="file" name="file">
+  @   <div id='chat-input-file-area'>
+  @     <input type="file" name="file" id="chat-input-file">
   @     <div id="chat-drop-details"></div>
   @   </div>
   @ </div>

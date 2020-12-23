@@ -78,6 +78,28 @@
       "your environment."
     );
   }
+  ////////////////////////////////////////////////////////////
+  // File drag/drop visual notification.
+  const dropHighlight = form.file /* target zone */;
+  const dropEvents = {
+    drop: function(ev){
+      D.removeClass(dropHighlight, 'dragover');
+    },
+    dragenter: function(ev){
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = "copy";
+      D.addClass(dropHighlight, 'dragover');
+    },
+    dragleave: function(ev){
+      D.removeClass(dropHighlight, 'dragover');
+    },
+    dragend: function(ev){
+      D.removeClass(dropHighlight, 'dragover');
+    }
+  };
+  Object.keys(dropEvents).forEach(
+    (k)=>form.file.addEventListener(k, dropEvents[k], true)
+  );
 
   /* Injects element e as a new row in the chat, at the top of the list */
   const injectMessage = function f(e){
