@@ -71,42 +71,40 @@
     return d.toISOString()
       .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' GMT');
   };
-  /* Timestampt popup widget */
-  const tsPopup = new F.PopupWidget({
-    cssClass: ['fossil-tooltip', 'chat-timestamp'],
-    refresh:function(){
-      const D = F.dom;
-      D.clearElement(this.e);
-      const d = new Date(this._timestamp+"Z");
-      if(d.getMinutes().toString()!=="NaN"){
-        // Date works, render informative timestamps
-        D.append(this.e, localTimeString(d)," client-local", D.br(),
-                 iso8601ish(d));
-      }else{
-        // Date doesn't work, so dumb it down...
-        D.append(this.e, this._timestamp," GMT");
-      }
-    }
-  });
-  const hidePopup = ()=>tsPopup.hide();
-  tsPopup.e.addEventListener('click', hidePopup, false);
-  document.body.addEventListener('click', hidePopup, true);
-  document.body.addEventListener('keydown', function(ev){
-    if(tsPopup.isShown() && 27===ev.which) tsPopup.hide();
-  }, true);
   /* Event handler for clicking .message-user elements to show their
      timestamps. */
-  const handleLegendClicked = function(ev){
+  const handleLegendClicked = function f(ev){
+    if(!f.popup){
+      /* Timestamp popup widget */
+      f.popup = new F.PopupWidget({
+        cssClass: ['fossil-tooltip', 'chat-timestamp'],
+        refresh:function(){
+          const D = F.dom;
+          D.clearElement(this.e);
+          const d = new Date(this._timestamp+"Z");
+          if(d.getMinutes().toString()!=="NaN"){
+            // Date works, render informative timestamps
+            D.append(this.e, localTimeString(d)," client-local", D.br(),
+                     iso8601ish(d));
+          }else{
+            // Date doesn't work, so dumb it down...
+            D.append(this.e, this._timestamp," GMT");
+          }
+        }
+      });
+      const hidePopup = ()=>f.popup.hide();
+      f.popup.installClickToHide();
+    }
     const rect = ev.target.getBoundingClientRect();
-    tsPopup._timestamp = ev.target.dataset.timestamp;
+    f.popup._timestamp = ev.target.dataset.timestamp;
     let x = rect.left, y = rect.top - 10;
-    tsPopup.show(ev.target)/*so we can get its computed size*/;
+    f.popup.show(ev.target)/*so we can get its computed size*/;
     // Shift to the left for right-aligned messages
     if('right'===ev.target.getAttribute('align')){
-      const pRect = tsPopup.e.getBoundingClientRect();
+      const pRect = f.popup.e.getBoundingClientRect();
       x -= pRect.width/3*2;
     }
-    tsPopup.show(x, y);
+    f.popup.show(x, y);
   };
 
   function newcontent(jx){

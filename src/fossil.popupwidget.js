@@ -184,7 +184,23 @@
       return this;
     },
 
-    hide: function(){return this.show(false)}
+    hide: function(){return this.show(false)},
+
+    /**
+       A convenience method which adds click handlers to this popup's
+       main element and document.body to hide the popup when either
+       element is clicked or the ESC key is pressed. Only call this
+       once per instance, if at all. Returns this;
+    */
+    installClickToHide: function f(){
+      this.e.addEventListener('click', ()=>this.show(false), false);
+      document.body.addEventListener('click', ()=>this.show(false), true);
+      const self = this;
+      document.body.addEventListener('keydown', function(ev){
+        if(self.isShown() && 27===ev.which) self.show(false);
+      }, true);
+      return this;
+    }
   }/*F.PopupWidget.prototype*/;
 
   /**
@@ -299,14 +315,7 @@
               }
             });
             fch.popup.e.style.maxWidth = '80%'/*of body*/;
-            const hide = ()=>fch.popup.hide();
-            fch.popup.e.addEventListener('click', hide, false);
-            document.body.addEventListener('click', hide, true);
-            document.body.addEventListener('keydown', function(ev){
-              if(fch.popup.isShown() && 27===ev.which){
-                fch.popup.hide();
-              }
-            }, true);
+            fch.popup.installClickToHide();
           }
           D.append(D.clearElement(fch.popup.e), ev.target.$helpContent);
           var popupRect = ev.target.getClientRects()[0];

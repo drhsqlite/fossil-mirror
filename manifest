@@ -1,5 +1,5 @@
-C Simplified\ssome\sJSON\squoting\sin\schat.c.\sBypass\sthe\spaste-from-clipboard\shandling\sif\sthe\spaste\starget\sis\sthe\sinput\stext\sfield,\sto\savoid\sa\sconsole-level\serror\swhen\sthe\stext\scannot\sbe\sparsed\sas\san\simage.\sTODO:\sfigure\sout\show\sto\shandle\sthe\spaste-image\scase\sproperly\swhen\sthe\sevent\starget\sis\sthe\stext\sinput\sfield.
-D 2020-12-23T07:45:31.522
+C Rescoped\sthe\schat\stimestamp\spopup\swidget\sinto\sa\sdeeper\sscope\s(less\svisible/leaky).\sMoved\sthe\sduplicated\sclick-somewhere-to-close-popup\shandlers\sinto\sPopupWidget.installClickToHide()\smethod.
+D 2020-12-23T07:59:08.264
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c b339ca75c596f5c61227c1586918d56ca968b498cb896be513cdbe1fc8994ddd
-F src/chat.js bf7795162bdceb88eb1ae6cf43bdade6c62a4ea3f00c79c757d6b11c81450eb4
+F src/chat.js 5e4b96b36c0eefea94d7f8db83cadf7eb3b0eb2ab2070622ba9047e03dd879b0
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -498,7 +498,7 @@ F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c1035
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
-F src/fossil.popupwidget.js 5b41fffbe2b7ab986d392e85fcaa78ea36eed3980182b1701411271f23fb8b08
+F src/fossil.popupwidget.js 6f82818390cfba2fc71bd4c467dfd13f540696715a32fccb3da561a17d2a4b74
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
 F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b604154c3822b45e4b0be16d3373b9fd249b8a3da715cb4bec3de61a98521904
-R d69626e256c7a500b26374b6c96cc299
+P 2fe8d7c4b1d271c58c756aa9a801c979f8f4f7c3ae3d7bb22ca52614570a7ce1
+R f501fb03ddc60453d0f08034ca5b225f
 U stephan
-Z 77c01a5a16374a7b444177d3e8e9220b
+Z 916a909ce76614bd69ee97bc85cbe6dd
