@@ -89,6 +89,13 @@ void chat_webpage(void){
   @ #chat-input-file > input {
   @   flex: 1 0 auto;
   @ }
+  @ .chat-timestamp {
+  @    font-family: monospace;
+  @    font-size: 0.8em;
+  @    white-space: pre;
+  @    text-align: left;
+  @    opacity: 0.8;
+  @ }
   @ </style>
   @ <form accept-encoding="utf-8" id="chat-form">
   @ <div id='chat-input-area'>
@@ -111,8 +118,11 @@ void chat_webpage(void){
   builtin_fossil_js_bundle_or("popupwidget", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
-  @ let _me = "%j(g.zLogin)";
+  @ window.addEventListener('load', function(){
+  /* We need an onload handler to ensure that window.fossil is
+     loaded first. */
   cgi_append_content(builtin_text("chat.js"),-1);
+  @ }, false);
   @ </script>
 
   style_finish_page();

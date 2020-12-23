@@ -1,8 +1,8 @@
 (function(){
   const form = document.querySelector('#chat-form');
   let mxMsg = 0;
-  // let _me = "%string($me)";
-  let me = window.fossil.user.name;
+  const F = window.fossil;
+  const _me = F.user.name;
   form.addEventListener('submit',(e)=>{
     e.preventDefault();
     if( form.msg.value.length>0 || form.file.value.length>0 ){
@@ -41,6 +41,49 @@
       ':',ff.pad(d.getSeconds())
     ].join('');
   };
+  /* Returns an almost-ISO8601 form of Date object d. */
+  const iso8601ish = function(d){
+    return d.toISOString()
+      .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' GMT');
+  };
+  /* Timestampt popup widget */
+  const tsPopup = new F.PopupWidget({
+    cssClass: ['fossil-tooltip', 'chat-timestamp'],
+    refresh:function(){
+      const D = F.dom;
+      D.clearElement(this.e);
+      const d = new Date(this._timestamp+"Z");
+      if(d.getMinutes().toString()!=="NaN"){
+        // Date works, render informative timestamps
+        D.append(this.e, localTimeString(d)," client-local", D.br(),
+                 iso8601ish(d));
+      }else{
+        // Date doesn't work, so dumb it down...
+        D.append(this.e, this._timestamp," GMT");
+      }
+    }
+  });
+  const hidePopup = ()=>tsPopup.hide();
+  tsPopup.e.addEventListener('click', hidePopup, false);
+  document.body.addEventListener('click', hidePopup, true);
+  document.body.addEventListener('keydown', function(ev){
+    if(tsPopup.isShown() && 27===ev.which) tsPopup.hide();
+  }, true);
+  /* Event handler for clicking .message-user elements to show their
+     timestamps. */
+  const handleLegendClicked = function(ev){
+    const rect = ev.target.getBoundingClientRect();
+    tsPopup._timestamp = ev.target.dataset.timestamp;
+    let x = rect.left, y = rect.top - 10;
+    tsPopup.show(ev.target)/*so we can get its computed size*/;
+    // Shift to the left for right-aligned messages
+    if('right'===ev.target.getAttribute('align')){
+      const pRect = tsPopup.e.getBoundingClientRect();
+      x -= pRect.width/3*2;
+    }
+    tsPopup.show(x, y);
+  };
+
   function newcontent(jx){
     var i;
     for(i=0; i<jx.msgs.length; ++i){
@@ -50,6 +93,8 @@
       row.classList.add('message-row');
       injectMessage(row);
       const eWho = document.createElement('legend');
+      eWho.dataset.timestamp = m.mtime;
+      eWho.addEventListener('click', handleLegendClicked, false);
       eWho.setAttribute('align', (m.xfrom===_me ? 'right' : 'left'));
       eWho.style.backgroundColor = m.uclr;
       row.appendChild(eWho);
@@ -63,13 +108,6 @@
       }
       var d = new Date(m.mtime + "Z");
       if( d.getMinutes().toString()!="NaN" ){
-        eWho.setAttribute('title',localTimeString(d)
-                          +' client-local\n'
-                          +d.toISOString()
-                          .replace('T',' ')
-                          .replace(/\.\d+/,'')
-                          .replace('Z', ' GMT')
-                         );
         /* Show local time when we can compute it */
         eWho.append(textNode(whoName+' @ '+
           d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3)

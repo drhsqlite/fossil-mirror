@@ -1504,6 +1504,7 @@ span.at-name { /* for @USERNAME references */
   margin-left: 0.15em;
   padding: 0 0.5em 0em 0.5em;
   margin-bottom: 0.4em;
+  cursor: pointer;
 }
 /* Reposition "my" posts to the right */
 .message-row.user-is-me .message-user {
