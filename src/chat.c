@@ -154,12 +154,13 @@ void chat_webpage(void){
 static const char zChatSchema1[] =
 @ CREATE TABLE repository.chat(
 @   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
-@   mtime JULIANDAY,
-@   xfrom TEXT,
-@   xmsg  TEXT,
-@   file  BLOB,
-@   fname TEXT,
-@   fmime TEXT
+@   mtime JULIANDAY,       -- Time for this entry - Julianday Zulu
+@   xfrom TEXT,            -- Login of the sender
+@   xmsg  TEXT,            -- Raw, unformatted text of the message
+@   file  BLOB,            -- Text of the uploaded file, or NULL
+@   fname TEXT,            -- Filename of the uploaded file, or NULL
+@   fmime TEXT,            -- MIMEType of the upload file, or NULL
+@   mdel INT               -- msgid of another message to delete
 @ );
 ;
 
@@ -171,6 +172,8 @@ static const char zChatSchema1[] =
 static void chat_create_tables(void){
   if( !db_table_exists("repository","chat") ){
     db_multi_exec(zChatSchema1/*works-like:""*/);
+  }else if( !db_table_has_column("repository","chat","mdel") ){
+    db_multi_exec("ALTER TABLE chat ADD COLUMN mdel INT");
   }
 }
 
@@ -237,6 +240,7 @@ void chat_send_webpage(void){
 ** |           "fsize": integer // file attachment size in bytes
 ** |           "fname": text    // Name of file attachment
 ** |           "fmime": text    // MIME-type of file attachment
+** |           "mdel":  integer // message id of prior message to delete
 ** |        }
 ** |      ]
 ** |    }
@@ -245,6 +249,8 @@ void chat_send_webpage(void){
 ** than zero.  The "xmsg" field may be an empty string if "fsize" is zero.
 **
 ** The "msgid" values will be in increasing order.
+**
+** The "mdel" will only exist if "xmsg" is an empty string and "fsize" is zero.
 */
 void chat_poll_webpage(void){
   Blob json;                  /* The json to be constructed and returned */
@@ -260,7 +266,8 @@ void chat_poll_webpage(void){
   cgi_set_content_type("text/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
   db_prepare(&q1,
-    "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file), fname, fmime"
+    "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file),"
+    "       fname, fmime, mdel"
     "  FROM chat"
     " WHERE msgid>%d"
     " ORDER BY msgid",
@@ -274,9 +281,10 @@ void chat_poll_webpage(void){
       const char *zDate = db_column_text(&q1, 1);
       const char *zFrom = db_column_text(&q1, 2);
       const char *zRawMsg = db_column_text(&q1, 3);
-      const int nByte = db_column_int(&q1, 4);
+      int nByte = db_column_int(&q1, 4);
       const char *zFName = db_column_text(&q1, 5);
       const char *zFMime = db_column_text(&q1, 6);
+      int iToDel = db_column_int(&q1, 7);
       char *zMsg;
       cnt++;
       blob_append(&json, zSep, -1);
@@ -288,15 +296,20 @@ void chat_poll_webpage(void){
       /* TBD:  Convert the raw message into HTML, perhaps by running it
       ** through a text formatter, or putting markup on @name phrases,
       ** etc. */
-      zMsg = mprintf("%h", zRawMsg);
+      zMsg = mprintf("%h", zRawMsg ? zRawMsg : "");
       blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
       fossil_free(zMsg);
 
       if( nByte==0 ){
-        blob_appendf(&json, "\"fsize\":0}");
+        blob_appendf(&json, "\"fsize\":0");
       }else{
-        blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j}",
+        blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j",
                nByte, zFName, zFMime);
+      }
+      if( iToDel ){
+        blob_appendf(&json, ",\"mdel\":%d}", iToDel);
+      }else{
+        blob_append(&json, "}", 1);
       }
     }
     if( cnt ){
@@ -342,4 +355,42 @@ void chat_download_webpage(void){
   db_blob(&r, "SELECT file FROM chat WHERE msgid=%d", msgid);
   cgi_set_content_type(zMime);
   cgi_set_content(&r);
+}
+
+
+/*
+** WEBPAGE: chat-delete
+**
+** Delete the chat entry identified by the name query parameter.
+** Invoking fetch("chat-delete/"+msgid) from javascript in the client
+** will delete a chat entry from the CHAT table.
+**
+** This routine both deletes the identified chat entry and also inserts
+** a new entry with the current timestamp and with:
+**
+**   *  xmsg = NULL
+**   *  file = NULL
+**   *  mdel = The msgid of the row that was deleted
+**
+** This new entry will then be propagated to all listeners so that they
+** will know to delete their copies of the message too.
+*/
+void chat_delete_webpage(void){
+  int mdel;
+  char *zOwner;
+  login_check_credentials();
+  if( !g.perm.Chat ) return;
+  chat_create_tables();
+  mdel = atoi(PD("name","0"));
+  zOwner = db_text(0, "SELECT xfrom FROM chat WHERE msgid=%d", mdel);
+  if( zOwner==0 ) return;
+  if( fossil_strcmp(zOwner, g.zLogin)!=0 && !g.perm.Admin ) return;
+  db_multi_exec(
+    "BEGIN;\n"
+    "DELETE FROM chat WHERE msgid=%d;\n"
+    "INSERT INTO chat(mtime, xfrom, mdel)"
+    " VALUES(julianday('now'), %Q, %d);\n"
+    "COMMIT;",
+    mdel, g.zLogin, mdel
+  );
 }
