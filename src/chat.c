@@ -108,6 +108,7 @@ void chat_webpage(void){
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
 
+  builtin_fossil_js_bundle_or("popupwidget", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
   @ let _me = "%j(g.zLogin)";

@@ -1,5 +1,5 @@
-C Disable\sthe\sdetailed\stimestamp\spopup\swhen\sbrowser\sdoesn't\ssupport\sit.\n(example:\sSafari)
-D 2020-12-23T05:28:52.227
+C Import\sfossil\sbootstrapping\sJS\sinto\sthe\schat\sapp,\sadd\scurrent\slogin\sname\sto\swindow.fossil.user.name,\sand\suse\sthat\sname\sas\sthe\sinitial\s'me'\svalue\sin\schat.js\s(resolves\sthe\sFIXME\sin\sthat\slatter\spart).
+D 2020-12-23T05:44:11.243
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,14 +442,14 @@ F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
 F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
 F src/branch.c dd6bd065e74eabfc3b41e41d377739f374bedc69e729f84b13643b3b177271f4
 F src/browse.c 7ebe4c3ff598b65498f7b520df33cc89e8d3217a114938b469fe2d7390fb7593
-F src/builtin.c 384e9e7641f0beb4d5e864dc6c7283391b4cc7c6c40ec75dae42734b4a1eaca2
+F src/builtin.c 4c474b2b527a278c8acca3d61201bbf70992bab4a0ca203645052c14e55a7bea
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c e0bcc32d770fb50c56c8391c484148d299ecabf52a0ea92eea7c15716d2502b7
-F src/chat.js ee805c4c5b63dd029b33f753ac493c67b344b3302cdb40bc8c3bda90ba5c270a
+F src/chat.c f3466f8bae76dee64eed75baa5b7731f630ecd84a22d383e2ae149773891dd84
+F src/chat.js d81f52a05eaaf8370a09f30b7964cbbd48e2be9c0bb848566fcf734145ab5d62
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 67e5bd67d5568bcb696a160f71eda535b057bd972ed50a9041573e47b4f09797
-R cd7a8e62895eb08c0bb14d2f08d47526
-U mgagnon
-Z 0c9beb2da68c4ba68d2714e39e60dc9a
+P 5744428bfa8778a86af3dffeb1a27ce104c22aa54a8b619e537ed3400a9da95b
+R 83d8fa7ea36c819d51e1ecd0509b1812
+U stephan
+Z 50b52bea6c298d96797f67336e86fe40

@@ -2,7 +2,7 @@
   const form = document.querySelector('#chat-form');
   let mxMsg = 0;
   // let _me = "%string($me)";
-let me = "drh";  // FIX ME
+  let me = window.fossil.user.name;
   form.addEventListener('submit',(e)=>{
     e.preventDefault();
     if( form.msg.value.length>0 || form.file.value.length>0 ){
