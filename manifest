@@ -1,5 +1,5 @@
-C Rescoped\sthe\schat\stimestamp\spopup\swidget\sinto\sa\sdeeper\sscope\s(less\svisible/leaky).\sMoved\sthe\sduplicated\sclick-somewhere-to-close-popup\shandlers\sinto\sPopupWidget.installClickToHide()\smethod.
-D 2020-12-23T07:59:08.264
+C Fixed\sincorrect\schatMessage.fsize\svalue\sbeing\sserved\swith\sthe\smessage\slist\sJSON.
+D 2020-12-23T08:21:41.782
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c b339ca75c596f5c61227c1586918d56ca968b498cb896be513cdbe1fc8994ddd
+F src/chat.c 6c2df5c20f6e5caf49ea2e03ae3ae27f5ad4f9dc7120dd2d9977647e80b44d3e
 F src/chat.js 5e4b96b36c0eefea94d7f8db83cadf7eb3b0eb2ab2070622ba9047e03dd879b0
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2fe8d7c4b1d271c58c756aa9a801c979f8f4f7c3ae3d7bb22ca52614570a7ce1
-R f501fb03ddc60453d0f08034ca5b225f
+P 6bccbc20ea208283e55adeec8f3a07abd4d6424c41d07add6e69e5d21ecba1d4
+R 4d22314a0bd243dd0a278b9cc4ab12c4
 U stephan
-Z 916a909ce76614bd69ee97bc85cbe6dd
+Z 5a1f0371679b2aa1fe804e647dfd3656

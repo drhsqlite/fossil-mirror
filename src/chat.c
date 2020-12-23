@@ -257,7 +257,7 @@ void chat_poll_webpage(void){
       const char *zDate = db_column_text(&q1, 1);
       const char *zFrom = db_column_text(&q1, 2);
       const char *zRawMsg = db_column_text(&q1, 3);
-      int nByte = db_column_bytes(&q1, 4);
+      const int nByte = db_column_int(&q1, 4);
       const char *zFName = db_column_text(&q1, 5);
       const char *zFMime = db_column_text(&q1, 6);
       char *zMsg;
