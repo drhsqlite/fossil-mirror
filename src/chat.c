@@ -86,13 +86,15 @@ void chat_webpage(void){
   @   flex-direction: row;
   @   align-items: center;
   @ }
-  @ #chat-input-file > span,
   @ #chat-input-file > input[type=file] {
   @   align-self: flex-start;
+  @   flex: 1 1 auto;
   @ }
   @ #chat-input-file > input {
   @   flex: 1 0 auto;
   @ }
+  @ #chat-input-file > *:nth-child(1) { margin-right: 0.5em; }
+  @ #chat-input-file > *:nth-child(2) { margin-left: 0.5em; }
   @ .chat-timestamp {
   @    font-family: monospace;
   @    font-size: 0.8em;
@@ -103,7 +105,7 @@ void chat_webpage(void){
   @ #chat-drop-zone {
   @   box-sizing: content-box;
   @   background-color: #e0e0e0;
-  @   flex: 3 1 auto;
+  @   flex: 2 1 auto;
   @   padding: 0.5em 1em;
   @   border: 1px solid #808080;
   @   border-radius: 0.25em;
@@ -124,10 +126,9 @@ void chat_webpage(void){
   @     <input type="submit" value="Send">
   @   </div>
   @   <div id='chat-input-file'>
-  @     <span>File:</span>
   @     <input type="file" name="file">
   @     <div id="chat-drop-zone">
-  @        Or drag/drop a file in this spot, or paste an image from
+  @        Drag/drop a file into this spot, or paste an image from
   @        the clipboard if supported by your environment.
   @        <div id="chat-drop-details"></div>
   @      </div>
