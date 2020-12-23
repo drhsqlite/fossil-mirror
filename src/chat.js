@@ -63,6 +63,7 @@
     if(!item || !item.type) return;
     //console.debug("pasted item =",item);
     if('file'===item.kind){
+      updateDropZoneContent(false/*clear prev state*/);
       updateDropZoneContent(items[0].getAsFile());
     }else if('string'===item.kind){
       item.getAsString((v)=>form.msg.value = v);
