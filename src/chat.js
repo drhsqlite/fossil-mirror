@@ -26,20 +26,6 @@ let me = "drh";  // FIX ME
       f.injectPoint.parentNode.appendChild(e);
     }
   };
-  /** Returns the local time string of Date object d, defaulting
-      to the current time. */
-  const localTimeString = function ff(d){
-    if(!ff.pad){
-      ff.pad = (x)=>(''+x).length>1 ? x : '0'+x;
-    }
-    d || (d = new Date());
-    return [
-      d.getFullYear(),'-',ff.pad(d.getMonth()+1/*sigh*/),
-      '-',ff.pad(d.getDate()),
-      ' ',ff.pad(d.getHours()),':',ff.pad(d.getMinutes()),
-      ':',ff.pad(d.getSeconds())
-    ].join('');
-  };
   const textNode = (T)=>document.createTextNode(T);
   function newcontent(jx){
     var i;
@@ -61,10 +47,10 @@ let me = "drh";  // FIX ME
       }else{
         whoName = m.xfrom;
       }
-      eWho.append(textNode(
-                  whoName+' @ '+
-                  localTimeString(new Date(Date.parse(m.mtime+".000Z"))))
-      );
+      var d = new Date(m.mtime + "Z");
+      eWho.append(textNode(whoName+' @ '+
+        d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3)
+      ))
       let span = document.createElement("div");
       span.classList.add('message-content');
       span.style.backgroundColor = m.uclr;
