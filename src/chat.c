@@ -265,7 +265,6 @@ void chat_send_webpage(void){
 void chat_poll_webpage(void){
   Blob json;                  /* The json to be constructed and returned */
   sqlite3_int64 dataVersion;  /* Data version.  Used for polling. */
-  sqlite3_int64 newDataVers;
   int iDelay = 1000;          /* Delay until next poll (milliseconds) */
   const char *zSep = "{\"msgs\":[\n";   /* List separator */
   int msgid = atoi(PD("name","0"));
@@ -327,16 +326,21 @@ void chat_poll_webpage(void){
         blob_append(&json, "}", 1);
       }
     }
+    db_reset(&q1);
     if( cnt ){
       blob_append(&json, "\n]}", 3);
       cgi_set_content(&json);
       break;
     }
     sqlite3_sleep(iDelay);
-    while( (newDataVers = db_int64(0,"PRAGMA data_version"))==dataVersion ){
+    while( 1 ){
+      sqlite3_int64 newDataVers = db_int64(0,"PRAGMA repository.data_version");
+      if( newDataVers!=dataVersion ){
+        dataVersion = newDataVers;
+        break;
+      }
       sqlite3_sleep(iDelay);
     }
-    dataVersion = newDataVers;
   } /* Exit by "break" */
   db_finalize(&q1);
   return;      
