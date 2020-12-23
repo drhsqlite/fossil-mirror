@@ -62,14 +62,14 @@ let me = "drh";  // FIX ME
         whoName = m.xfrom;
       }
       var d = new Date(m.mtime + "Z");
-      eWho.setAttribute('title',localTimeString(d)
-                        +' client-local\n'
-                        +d.toISOString()
-                        .replace('T',' ')
-                        .replace(/\.\d+/,'')
-                        .replace('Z', ' GMT')
-                       );
       if( d.getMinutes().toString()!="NaN" ){
+        eWho.setAttribute('title',localTimeString(d)
+                          +' client-local\n'
+                          +d.toISOString()
+                          .replace('T',' ')
+                          .replace(/\.\d+/,'')
+                          .replace('Z', ' GMT')
+                         );
         /* Show local time when we can compute it */
         eWho.append(textNode(whoName+' @ '+
           d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3)

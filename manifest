@@ -1,5 +1,5 @@
-C Re-added\s.message-content\smin-width\swhich\swas\slost\swhen\swe\srolled\sback\s[7e6d2f0a1].
-D 2020-12-23T04:39:49.425
+C Disable\sthe\sdetailed\stimestamp\spopup\swhen\sbrowser\sdoesn't\ssupport\sit.\n(example:\sSafari)
+D 2020-12-23T05:28:52.227
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c e0bcc32d770fb50c56c8391c484148d299ecabf52a0ea92eea7c15716d2502b7
-F src/chat.js a332d93a79a89528da8bc90f3d386eded1bd884fc46bcb2e985c2f5825613c72
+F src/chat.js ee805c4c5b63dd029b33f753ac493c67b344b3302cdb40bc8c3bda90ba5c270a
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 696135b65e77b36603dbb0bbce761c203466f40deafd06b0bec498a1efeb5d69
-R 2524547109fe0492c2f9f514b8e4cebd
-U stephan
-Z 30f0457b03798b4e949ed5ea2bf0fa9e
+P 67e5bd67d5568bcb696a160f71eda535b057bd972ed50a9041573e47b4f09797
+R cd7a8e62895eb08c0bb14d2f08d47526
+U mgagnon
+Z 0c9beb2da68c4ba68d2714e39e60dc9a
