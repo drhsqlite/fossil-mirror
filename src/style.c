@@ -1183,7 +1183,7 @@ void webpage_error(const char *zFormat, ...){
     isAuth = 1;
   }
   cgi_load_environment();
-  style_set_current_feature("error");
+  style_set_current_feature(zFormat[0]==0 ? "test" : "error");
   if( zFormat[0] ){
     va_list ap;
     va_start(ap, zFormat);
