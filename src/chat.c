@@ -108,7 +108,7 @@ void chat_webpage(void){
   @     <span>File:</span>
   @     <input type="file" name="file">
   @     <div id='chat-pasted-image'>
-  @        Or paste an image from clipboard, if supported by your
+  @        Or paste an image from the clipboard, if supported by your
   @        environment.<br><img>
   @      </div>
   @   </div>
@@ -264,21 +264,21 @@ void chat_poll_webpage(void){
       cnt++;
       blob_append(&json, zSep, -1);
       zSep = ",\n";
-      blob_appendf(&json, "{\"msgid\":%d,\"mtime\":\"%j\",", id, zDate);
-      blob_appendf(&json, "\"xfrom\":\"%j\",", zFrom);
-      blob_appendf(&json, "\"uclr\":\"%j\",", hash_color(zFrom));
+      blob_appendf(&json, "{\"msgid\":%d,\"mtime\":%!j,", id, zDate);
+      blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
+      blob_appendf(&json, "\"uclr\":%!j,", hash_color(zFrom));
 
       /* TBD:  Convert the raw message into HTML, perhaps by running it
       ** through a text formatter, or putting markup on @name phrases,
       ** etc. */
       zMsg = mprintf("%h", zRawMsg);
-      blob_appendf(&json, "\"xmsg\":\"%j\",", zMsg);
+      blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
       fossil_free(zMsg);
 
       if( nByte==0 ){
         blob_appendf(&json, "\"fsize\":0}");
       }else{
-        blob_appendf(&json, "\"fsize\":%d,\"fname\":\"%j\",\"fmime\":\"%j\"}",
+        blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j}",
                nByte, zFName, zFMime);
       }
     }

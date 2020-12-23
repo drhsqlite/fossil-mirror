@@ -30,6 +30,7 @@
      paste images here (silently ignore non-image data), or change the
      related code to support non-image pasting/posting. */
   document.onpaste = function(event){
+    if(form.msg === event.target) return;
     const items = event.clipboardData.items;
     ImagePasteState.blob = items[0].getAsFile();
     const reader = new FileReader();
@@ -179,6 +180,7 @@
     fetch("chat-poll/" + mxMsg)
     .then(x=>x.json())
     .then(y=>newcontent(y))
+    .catch(e=>console.error(e))
     .finally(()=>poll.running=false)
   }
   poll();
