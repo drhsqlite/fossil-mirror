@@ -99,7 +99,7 @@ void chat_webpage(void){
   @ #chat-input-line {
   @   display: flex;
   @   flex-direction: row;
-  @   margin-bottom: 1em;
+  @   margin-bottom: 0.25em;
   @   align-items: center;
   @ }
   @ #chat-input-line > input[type=submit] {
@@ -114,15 +114,20 @@ void chat_webpage(void){
   @   flex-direction: row;
   @   align-items: center;
   @ }
-  @ #chat-input-file-area > .help-buttonlet,
-  @ #chat-input-file {
+  @ #chat-input-file-area > .file-selection-wrapper {
   @   align-self: flex-start;
   @   margin-right: 0.5em;
   @   flex: 0 1 auto;
+  @   padding: 0.25em 0.25em 0.25em 0;
+  @ }
+  @ #chat-input-file-area .file-selection-wrapper > * {
+  @   vertical-align: middle;
+  @   margin: 0;
   @ }
   @ #chat-input-file {
   @   border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
   @   border-radius: 0.25em;
+  @   padding: 0.25em;
   @ }
   @ #chat-input-file > input {
   @   flex: 1 0 auto;
@@ -154,7 +159,14 @@ void chat_webpage(void){
   @     <input type="submit" value="Send">
   @   </div>
   @   <div id='chat-input-file-area'>
-  @     <input type="file" name="file" id="chat-input-file">
+  @     <div class='file-selection-wrapper'>
+  @       <div class='help-buttonlet'>
+  @        Select a file to upload, drag/drop a file into this spot,
+  @        or paste an image from the clipboard if supported by
+  @        your environment.
+  @       </div>
+  @       <input type="file" name="file" id="chat-input-file">
+  @     </div>
   @     <div id="chat-drop-details"></div>
   @   </div>
   @ </div>

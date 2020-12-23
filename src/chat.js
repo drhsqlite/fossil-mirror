@@ -10,7 +10,8 @@
     blob: undefined
   };
   /** Updates the paste/drop zone with details of the pasted/dropped
-      data. */
+      data. The argument must be a Blob or Blob-like object (File) or
+      it can be falsy to reset/clear that state.*/
   const updateDropZoneContent = function(blob){
     const bx = BlobXferState, dd = bx.dropDetails;
     bx.blob = blob;
@@ -67,12 +68,11 @@
       updateDropZoneContent(false/*clear prev state*/);
       updateDropZoneContent(items[0].getAsFile());
     }else if(false && 'string'===item.kind){
-      /* ----^^^^^ disabled for now:
-
-         The intent here is that if form.msg is not active, populate
-         it with this text, but whether populating it from ctrl-v when
-         it does not have focus is a feature or a bug is debatable.
-      */
+      /* ----^^^^^ disabled for now: the intent here is that if
+         form.msg is not active, populate it with this text, but
+         whether populating it from ctrl-v when it does not have focus
+         is a feature or a bug is debatable.  It seems useful but may
+         violate the Principle of Least Surprise. */
       if(document.activeElement !== form.msg){
         /* Overwrite input field if it DOES NOT have focus,
            otherwise let it do its own paste handling. */
@@ -81,13 +81,10 @@
     }
   };
   if(true){/* Add help button for drag/drop/paste zone */
-    const help = D.div();
-    form.file.parentNode.insertBefore(help, form.file);
-    F.helpButtonlets.create(
-      help,
-      "Select a file to upload, drag/drop a file into this spot, ",
-      "or paste an image from the clipboard if supported by ",
-      "your environment."
+    form.file.parentNode.insertBefore(
+      F.helpButtonlets.create(
+        document.querySelector('#chat-input-file-area .help-buttonlet')
+      ), form.file
     );
   }
   ////////////////////////////////////////////////////////////

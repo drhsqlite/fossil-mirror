@@ -1501,3 +1501,7 @@ span.at-name { /* for @USERNAME references */
   margin-bottom: 0.4em;
   cursor: pointer;
 }
+
+body.chat .fossil-tooltip.help-buttonlet-content {
+  font-size: 80%;
+}
