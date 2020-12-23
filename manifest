@@ -1,5 +1,5 @@
-C Chat\smessage\sbackground\scolor\sdetermined\sby\susername.
-D 2020-12-23T02:24:18.175
+C Add\sChat\sto\sthe\s/sitemap,\sso\sthat\sit\sappears\son\sthe\shamburger\smenu.
+D 2020-12-23T02:27:50.576
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -588,7 +588,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
 F src/shell.c acebe02e78af1b2ff42a7acf42801ce38590ec7bc5c98a1c14553f20fe8174be
 F src/shun.c 011890daac7837ded87804ce576cfae317a72f447aaba5eb0e460e066e4465ff
-F src/sitemap.c 783f9289f6240a490427d1adbc3d719398f41195bcd0c2c9922f588640378dfb
+F src/sitemap.c 77716adaae53e3c4bf6e2826f9fe4365ee948fa8556f9eb7e5ea9d152ce97a98
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 80c9bb6b6caa573db79c09bdbd227d4d12c4a7dd01534ad2f827c7943bae048b
 F src/smtp.c a0abde298e1ce1bea5cc9cebffad973adce8a7647bcac3b8530b60fd2529f77c
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 441ee6af06c98a280d5f86e66dba8a651068f2d0dac3127cc64bdfb5b5ce66ac
-R 5c12f84ac5efcf63321dcf069604666f
+P adb93ca9805fff293337db896d511e7a76048d3145dbdbfb391dd6f5eab40e82
+R 06afa21c950db7e5d9db7d081535531b
 U drh
-Z 057c1b06837bd02bd30f32d8a4918943
+Z bc5344bdee82a7e610588e15a16eef4c
