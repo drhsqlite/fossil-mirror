@@ -16,6 +16,7 @@
     const bx = BlobXferState, dd = bx.dropDetails;
     bx.blob = blob;
     D.clearElement(dd);
+    if(!blob) return;
     D.append(dd, D.br(), "Name: ", blob.name,
              D.br(), "Size: ",blob.size);
     if(blob.type && blob.type.startsWith("image/")){
@@ -25,6 +26,9 @@
       reader.onload = (e)=>img.setAttribute('src', e.target.result);
       reader.readAsDataURL(blob);
     }
+    const btn = D.button("Cancel");
+    D.append(dd, D.br(), btn);
+    btn.addEventListener('click', ()=>updateDropZoneContent(), false);
   };
   ////////////////////////////////////////////////////////////
   // File drag/drop.
