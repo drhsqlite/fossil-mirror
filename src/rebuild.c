@@ -944,6 +944,7 @@ void scrub_cmd(void){
         "DROP TABLE IF EXISTS purgeitem;\n"
         "DROP TABLE IF EXISTS admin_log;\n"
         "DROP TABLE IF EXISTS vcache;\n"
+        "DROP TABLE IF EXISTS chat;\n"
       );
     }
     db_protect_pop();

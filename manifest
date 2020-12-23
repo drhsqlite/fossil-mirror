@@ -1,5 +1,5 @@
-C Made\schat\sdrop\szone\ssmaller\sby\sreplacing\sits\stext\swith\sa\shelplet\sbutton.\sAdded\s'chat'\stable\sto\sthe\slist\sof\sthose\sNOT\snuked\sby\srebuild.
-D 2020-12-23T14:21:12.230
+C The\s"fossil\sscrub\s--verily"\scommand\sdeletes\sall\schat\shistory.
+D 2020-12-23T14:29:50.331
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -571,7 +571,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 6cd5926c38643edf5a9a90eba47fb960ee4865088185e196044129e6ba23675a
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c 4f2870b9c683c1e55084a5dc1160376597bc8122e5a0808f36c42c423e992b29
-F src/rebuild.c 7ec28a2e11cd5475141f959224ff92cc305b5c13b5b5089d0ff9249f743f583f
+F src/rebuild.c e55aafa76e7ccf7ae07c6f9e1c1ff8b16aafdeb012e46158f42511c3e8f91def
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
 F src/report.c ede461643122b96aa820fc4f0d69cac9e082c801e6b7d11ad1e923da67972de3
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3c8e8385848e4168f14135779e395c453440301a5dc503ed2c57f5a2cb2f7bd
-R 32f5f6aee6d5eb2e8eab13369aaaa029
-U stephan
-Z ca8c4cd6716d9ed962c3b8d4377370bd
+P 85939ffcbe54d8562c6e2286eb32bed13bbc546ff6978cff78f6f5a2512fd77f
+R 093a9364026a81cf4ce1c1c56f7c0a84
+U drh
+Z 796d60b2afe52559a5fd1f285d3b7b57
