@@ -26,9 +26,9 @@
     form.file.value = "";
     form.msg.focus();
   });
-  /* Handle image paste from clipboard. TODO: confirm that we only
-     paste images here (silently ignore non-image data), or change the
-     related code to support non-image pasting/posting. */
+  /* Handle image paste from clipboard. TODO: figure out how we can
+     paste non-image binary data as if it had been selected via the
+     file selection element. */
   document.onpaste = function(event){
     const items = event.clipboardData.items,
           item = items[0];
@@ -99,21 +99,21 @@
           }
         }
       });
-      const hidePopup = ()=>f.popup.hide();
       f.popup.installClickToHide();
     }
     const rect = ev.target.getBoundingClientRect();
     f.popup._timestamp = ev.target.dataset.timestamp;
     let x = rect.left, y = rect.top - 10;
     f.popup.show(ev.target)/*so we can get its computed size*/;
-    // Shift to the left for right-aligned messages
     if('right'===ev.target.getAttribute('align')){
+      // Shift popup to the left for right-aligned messages to avoid
+      // truncation off the right edge of the page.
       const pRect = f.popup.e.getBoundingClientRect();
       x -= pRect.width/3*2;
     }
     f.popup.show(x, y);
   };
-
+  /** Callback for poll() to inject new content into the page. */
   function newcontent(jx){
     var i;
     for(i=0; i<jx.msgs.length; ++i){
