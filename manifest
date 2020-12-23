@@ -1,5 +1,5 @@
-C Add\sthe\s/Admin/Chat\spage.\s\sAdd\ssettings\sto\sconfigure\sthe\sinitial\shistory\nload\ssize\sof\s/chat,\sand\sto\sconfigure\spurging\sof\shistorical\smessages.
-D 2020-12-23T20:58:24.077
+C Chat:\sdisable\spasting\sof\stext\swhen\sthen\sinput\sfield\sdoes\sNOT\shave\sfocus\sand\sfix\scomplete\soverwriting\sof\sinput\sfield\swhen\spasting\sand\sit\sDOES\shave\sfocus.\sWhether\sor\snot\swe\sshould\spaste\sto\sthat\sfield\swhen\sit\sdoes\snot\shave\sfocus\sis\sdebatable\sand\spossibly\sviolates\sthe\sPrinciple\sof\sLeast\sSurprise.
+D 2020-12-23T22:16:16.738
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 8e3849f71135b37a34cf1b0f998de96bb1200594fe796df4815f1934f77a8944
-F src/chat.js ecb6a9ba247e67db8fe166eefb06eb842a30a35c013f18817e1ebc92103b13ec
+F src/chat.js 5bf74fb99d3332081d959d9b1c7ddd7a142cdd73a8fea974c096962ab48f5800
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5715978d9f2a5c3d31626ec9a38d0202a8c30a9d02d1fb200af3354128e974f0
-R bf236bbe013853ba629e8d7f762181c7
-U drh
-Z ba0fe46ede19f9d000a60dc0889f9555
+P 15bc20f29db30502a3ddf5a34f3f5e9f04fa932f409c0c5f362b68a7c430594a
+R c54d53082f1015d8ddd3a108cd491f08
+U stephan
+Z dd990b867178ad6717971126d1e9edb6
