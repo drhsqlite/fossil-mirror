@@ -42,6 +42,34 @@
 #include <assert.h>
 #include "chat.h"
 
+/* Settings that can be used to control chat */
+/*
+** SETTING: chat-initial-history    width=10 default=50
+**
+** If this setting has an integer value of N, then when /chat first
+** starts up it initializes the screen with the N most recent chat
+** messages.  If N is zero, then all chat messages are loaded.
+*/
+/*
+** SETTING: chat-keep-count    width=10 default=50
+**
+** When /chat is cleaning up older messages, it will always keep
+** the most recent chat-keep-count messages, even if some of those
+** messages are older than the discard threshold.  If this value
+** is zero, then /chat is free to delete all historic messages once
+** they are old enough.
+*/
+/*
+** SETTING: chat-keep-days    width=10 default=7
+**
+** The /chat subsystem will try to discard messages that are older then
+** chat-keep-days.  The value of chat-keep-days can be a floating point
+** number.  So, for example, if you only want to keep chat messages for
+** 12 hours, set this value to 0.5.
+**
+** A value of 0.0 or less means that messages are retained forever.
+*/
+
 /*
 ** WEBPAGE: chat
 **
@@ -93,7 +121,7 @@ void chat_webpage(void){
   @   flex: 0 1 auto;
   @ }
   @ #chat-input-file {
-  @   border: 1px solid rgba(0,0,0,0);/*to avoid UI shift during drop-targeting*/
+  @   border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
   @   border-radius: 0.25em;
   @ }
   @ #chat-input-file > input {
@@ -139,6 +167,7 @@ void chat_webpage(void){
   builtin_fossil_js_bundle_or("popupwidget", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
+  @ window.fossilChatInitSize = %d(db_get_int("chat-initial-history",50));
   @ window.addEventListener('load', function(){
   /* We need an onload handler to ensure that window.fossil is
      loaded first. */

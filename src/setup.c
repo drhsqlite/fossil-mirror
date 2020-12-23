@@ -126,6 +126,8 @@ void setup_page(void){
       "Configure the trouble-ticketing system for this repository");
     setup_menu_entry("Wiki", "setup_wiki",
       "Configure the wiki for this repository");
+    setup_menu_entry("Chat", "setup_chat",
+      "Configure the chatroom");
   }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
@@ -1113,6 +1115,51 @@ void setup_wiki(void){
   @ to trusted users. It should <strong>not</strong> be used on a publicly
   @ editable wiki.</p>
   @ (Property: "wiki-use-html")
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_chat
+**
+** The "Admin/Chat" page.  Requires Setup privilege.
+*/
+void setup_chat(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Chat Configuration");
+  db_begin_transaction();
+  @ <form action="%R/setup_chat" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  entry_attribute("Initial Chat History Size", 10,
+                  "chat-initial-history", "chatih", "50", 0);
+  @ <p>When /chat first starts up, it preloads up to this many historical
+  @ messages.
+  @ (Property: "chat-initial-history")</p>
+  @ <hr />
+  entry_attribute("Minimum Number Of Historical Messages To Retain", 10,
+                  "chat-keep-count", "chatkc", "50", 0);
+  @ <p>The chat subsystem purges older messages.  But it will always retain
+  @ the N most recent messages where N is the value of this setting.
+  @ (Property: "chat-keep-count")</p>
+  @ <hr />
+  entry_attribute("Maximum Message Age In Days", 10,
+                  "chat-keep-days", "chatkd", "7", 0);
+  @ <p>Chat message are removed after N days, where N is the value of
+  @ this setting.  N may be fractional.  So, for example, to only keep
+  @ an historical record of chat messages for 12 hours, set this value
+  @ to 0.5.
+  @ (Property: "chat-keep-days")</p>
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
