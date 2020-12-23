@@ -232,6 +232,10 @@ void chat_send_webpage(void){
 ** Hence a request like /chat-poll/-100 can be used to initialize a new
 ** chat session to just the most recent messages.
 **
+** Some webservers (althttpd) do not allow a term of the URL path to
+** begin with "-".  Then /chat-poll/-100 cannot be used.  Instead you
+** have to say "/chat-poll?name=-100".
+**
 ** The reply from this webpage is JSON that describes the new content.
 ** Format of the json:
 **
