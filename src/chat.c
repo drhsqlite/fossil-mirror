@@ -242,8 +242,10 @@ void chat_poll_webpage(void){
       const char *zDate = db_column_text(&q1, 1);
       const char *zFrom = db_column_text(&q1, 2);
       const char *zRawMsg = db_column_text(&q1, 3);
+      int nByte = db_column_bytes(&q1, 4);
+      const char *zFName = db_column_text(&q1, 5);
+      const char *zFMime = db_column_text(&q1, 6);
       char *zMsg;
-      int nByte;
       cnt++;
       blob_append(&json, zSep, -1);
       zSep = ",\n";
@@ -258,12 +260,9 @@ void chat_poll_webpage(void){
       blob_appendf(&json, "\"xmsg\":\"%j\",", zMsg);
       fossil_free(zMsg);
 
-      nByte = db_column_bytes(&q1, 4);
       if( nByte==0 ){
         blob_appendf(&json, "\"fsize\":0}");
       }else{
-        const char *zFName = db_column_text(&q1, 5);
-        const char *zFMime = db_column_text(&q1, 6);
         blob_appendf(&json, "\"fsize\":%d,\"fname\":\"%j\",\"fmime\":\"%j\"}",
                nByte, zFName, zFMime);
       }
@@ -291,7 +290,24 @@ void chat_poll_webpage(void){
 ** identifies the particular chat message.
 */
 void chat_download_webpage(void){
+  int msgid;
+  Blob r;
+  const char *zMime;
   login_check_credentials();
-  if( !g.perm.Chat ) return;
+  if( !g.perm.Chat ){
+    style_header("Chat Not Authorized");
+    @ <h1>Not Authorized</h1>
+    @ <p>You do not have permission to use the chatroom on this
+    @ repository.</p>
+    style_finish_page();
+    return;
+  }
   chat_create_tables();
+  msgid = atoi(PD("name","0"));
+  blob_zero(&r);
+  zMime = db_text(0, "SELECT fmime FROM chat wHERE msgid=%d", msgid);
+  if( zMime==0 ) return;
+  db_blob(&r, "SELECT file FROM chat WHERE msgid=%d", msgid);
+  cgi_set_content_type(zMime);
+  cgi_set_content(&r);
 }

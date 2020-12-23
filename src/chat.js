@@ -40,6 +40,7 @@ let me = "drh";  // FIX ME
       ':',ff.pad(d.getSeconds())
     ].join('');
   };
+  const textNode = (T)=>document.createTextNode(T);
   function newcontent(jx){
     var i;
     for(i=0; i<jx.msgs.length; ++i){
@@ -69,7 +70,7 @@ let me = "drh";  // FIX ME
       if( m.fsize>0 ){
         if( m.fmime && m.fmime.startsWith("image/") ){
           let img = document.createElement("img");
-          img.src = "%string($downloadurl)/" + m.msgid;
+          img.src = "chat-download/" + m.msgid;
           span.appendChild(img);
         }else{
           let a = document.createElement("a");
@@ -101,5 +102,6 @@ let me = "drh";  // FIX ME
     .then(y=>newcontent(y))
     .finally(()=>poll.running=false)
   }
-  // setInterval(poll, 1000);
+  poll();
+  setInterval(poll, 1000);
 })();
