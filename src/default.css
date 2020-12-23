@@ -1500,7 +1500,7 @@ span.at-name { /* for @USERNAME references */
   border-radius: 0.25em 0.25em 0 0;
   padding: 0 0.5em;
   /*text-align: left; Firefox requires the 'align' attribute */
-  margin-left: 0.25em;
+  margin-left: 0.15em;
   padding: 0 0.5em 0em 0.5em;
   margin-bottom: 0.4em;
 }

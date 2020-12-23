@@ -27,6 +27,20 @@ let me = "drh";  // FIX ME
     }
   };
   const textNode = (T)=>document.createTextNode(T);
+  /** Returns the local time string of Date object d, defaulting
+      to the current time. */
+  const localTimeString = function ff(d){
+    if(!ff.pad){
+      ff.pad = (x)=>(''+x).length>1 ? x : '0'+x;
+    }
+    d || (d = new Date());
+    return [
+      d.getFullYear(),'-',ff.pad(d.getMonth()+1/*sigh*/),
+      '-',ff.pad(d.getDate()),
+      ' ',ff.pad(d.getHours()),':',ff.pad(d.getMinutes()),
+      ':',ff.pad(d.getSeconds())
+    ].join('');
+  };
   function newcontent(jx){
     var i;
     for(i=0; i<jx.msgs.length; ++i){
@@ -48,6 +62,13 @@ let me = "drh";  // FIX ME
         whoName = m.xfrom;
       }
       var d = new Date(m.mtime + "Z");
+      eWho.setAttribute('title',localTimeString(d)
+                        +' client-local\n'
+                        +d.toISOString()
+                        .replace('T',' ')
+                        .replace(/\.\d+/,'')
+                        .replace('Z', ' GMT')
+                       );
       if( d.getMinutes().toString()!="NaN" ){
         /* Show local time when we can compute it */
         eWho.append(textNode(whoName+' @ '+
