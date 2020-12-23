@@ -104,15 +104,23 @@ void chat_webpage(void){
   @ </div>
   @ </form>
   @ <hr>
+
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
+
+  /* Always in-line the javascript for the chat page */
+  @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
+  @ let _me = "%j(g.zLogin)";
+  cgi_append_content(builtin_text("chat.js"),-1);
+  @ </script>
+
   style_finish_page();
 }
 
 /* Definition of repository tables used by chat
 */
 static const char zChatSchema1[] =
-@ CREATE TABLE chat(
+@ CREATE TABLE repository.chat(
 @   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
 @   mtime JULIANDAY,
 @   xfrom TEXT,
@@ -141,9 +149,35 @@ static void chat_create_tables(void){
 ** to be entered into the chat history.
 */
 void chat_send_webpage(void){
+  int nByte;
+  const char *zMsg;
   login_check_credentials();
   if( !g.perm.Chat ) return;
   chat_create_tables();
+  nByte = atoi(PD("file:bytes",0));
+  zMsg = PD("msg","");
+  if( nByte==0 ){
+    if( zMsg[0] ){
+      db_multi_exec(
+        "INSERT INTO chat(mtime,xfrom,xmsg)"
+        "VALUES(julianday('now'),%Q,%Q)",
+        g.zLogin, zMsg
+      );
+    }
+  }else{
+    Stmt q;
+    Blob b;
+    db_prepare(&q,
+        "INSERT INTO chat(mtime, xfrom,xmsg,file,fname,fmime)"
+        "VALUES(julianday('now'),%Q,%Q,:file,%Q,%Q)",
+        g.zLogin, zMsg, PD("file:filename",""),
+        PD("file:mimetype","application/octet-stream"));
+    blob_init(&b, P("file"), nByte);
+    db_bind_blob(&q, ":file", &b);
+    db_step(&q);
+    db_finalize(&q);
+    blob_reset(&b);
+  }
 }
 
 /*
@@ -160,20 +194,20 @@ void chat_send_webpage(void){
 ** The reply from this webpage is JSON that describes the new content.
 ** Format of the json:
 **
-**     {
-**       "msg": [
-**          {
-**            "msgid":  integer // message id
-**            "mtime":  text    // When sent:  YYYY-MM-DD HH:MM:SS UTC
-**            "xfrom":  text    // Login name of sender
-**            "uclr":   text    // Color string associated with the user
-**            "xmsg":   text    // HTML text of the message
-**            "fsize":  integer // file attachment size in bytes
-**            "fname":  text    // Name of file attachment
-**            "fmime":  text    // MIME-type of file attachment
-**          }
-**       ]
-**     }
+** |    {
+** |      "msg":[
+** |        {
+** |           "msgid": integer // message id
+** |           "mtime": text    // When sent:  YYYY-MM-DD HH:MM:SS UTC
+** |           "xfrom": text    // Login name of sender
+** |           "uclr":  text    // Color string associated with the user
+** |           "xmsg":  text    // HTML text of the message
+** |           "fsize": integer // file attachment size in bytes
+** |           "fname": text    // Name of file attachment
+** |           "fmime": text    // MIME-type of file attachment
+** |        }
+** |      ]
+** |    }
 **
 ** The "fname" and "fmime" fields are only present if "fsize" is greater
 ** than zero.  The "xmsg" field may be an empty string if "fsize" is zero.
@@ -181,10 +215,72 @@ void chat_send_webpage(void){
 ** The "msgid" values will be in increasing order.
 */
 void chat_poll_webpage(void){
+  Blob json;                  /* The json to be constructed and returned */
+  sqlite3_int64 dataVersion;  /* Data version.  Used for polling. */
+  sqlite3_int64 newDataVers;
+  int iDelay = 1000;          /* Delay until next poll (milliseconds) */
+  const char *zSep = "{\"msgs\":[\n";   /* List separator */
+  int msgid = atoi(PD("name","0"));
+  Stmt q1;
   login_check_credentials();
   if( !g.perm.Chat ) return;
   chat_create_tables();
   cgi_set_content_type("text/json");
+  dataVersion = db_int64(0, "PRAGMA data_version");
+  db_prepare(&q1,
+    "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file), fname, fmime"
+    "  FROM chat"
+    " WHERE msgid>%d"
+    " ORDER BY msgid",
+    msgid
+  );
+  blob_init(&json, 0, 0);
+  while(1){
+    int cnt = 0;
+    while( db_step(&q1)==SQLITE_ROW ){
+      int id = db_column_int(&q1, 0);
+      const char *zDate = db_column_text(&q1, 1);
+      const char *zFrom = db_column_text(&q1, 2);
+      const char *zRawMsg = db_column_text(&q1, 3);
+      char *zMsg;
+      int nByte;
+      cnt++;
+      blob_append(&json, zSep, -1);
+      zSep = ",\n";
+      blob_appendf(&json, "{\"msgid\":%d,\"mtime\":\"%j\",", id, zDate);
+      blob_appendf(&json, "\"xfrom\":\"%j\",", zFrom);
+      blob_appendf(&json, "\"uclr\":\"%j\",", hash_color(zFrom));
+
+      /* TBD:  Convert the raw message into HTML, perhaps by running it
+      ** through a text formatter, or putting markup on @name phrases,
+      ** etc. */
+      zMsg = mprintf("%h", zRawMsg);
+      blob_appendf(&json, "\"xmsg\":\"%j\",", zMsg);
+      fossil_free(zMsg);
+
+      nByte = db_column_bytes(&q1, 4);
+      if( nByte==0 ){
+        blob_appendf(&json, "\"fsize\":0}");
+      }else{
+        const char *zFName = db_column_text(&q1, 5);
+        const char *zFMime = db_column_text(&q1, 6);
+        blob_appendf(&json, "\"fsize\":%d,\"fname\":\"%j\",\"fmime\":\"%j\"}",
+               nByte, zFName, zFMime);
+      }
+    }
+    if( cnt ){
+      blob_append(&json, "\n]}", 3);
+      cgi_set_content(&json);
+      break;
+    }
+    sqlite3_sleep(iDelay);
+    while( (newDataVers = db_int64(0,"PRAGMA data_version"))==dataVersion ){
+      sqlite3_sleep(iDelay);
+    }
+    dataVersion = newDataVers;
+  } /* Exit by "break" */
+  db_finalize(&q1);
+  return;      
 }
 
 /*

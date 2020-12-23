@@ -1,5 +1,5 @@
-C Begin\strying\sto\sintegrate\sthe\schatroom\sprototype\sinto\sthe\sFossil\score.\nNew\scode\sis\sin\ssrc/chat.c\sand\ssrc/chat.js.\s\sAdd\sthe\snew\s"C"\scapability\nto\senable\saccess\sto\schat.\s\sThe\snew\scode\scompiles\sbut\sis\nnot\syet\sfunctional.\s\s(This\sis\san\sincremental\scheck-in.)\nThe\soriginal\stools/chat.tcl\sWapp\sscript\sis\sstill\savailable\sfor\sreference.
-D 2020-12-22T20:11:11.245
+C Get\sthe\s/chat-send\sand\s/chat-poll\sinterfaces\sworking.
+D 2020-12-23T00:58:46.994
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,8 +448,8 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c f673a7192fe444d3bcd0725ecdb066d629302cc9cbaacb1cfb9b8cd9523885d9
-F src/chat.js cd3be36997075c1b3048b2acaba18c6571194bfb4d825922ae0760679f198585
+F src/chat.c 4aa6ee93b562fcfb17d77f409175934fcc53fb11c79d6889d00207d81c3b4a93
+F src/chat.js 9c44895c3288c33fa9fc0715b601637bac4da88753c4c650f000325fb02cbac6
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -474,7 +474,7 @@ F src/descendants.c efdcb59b8e9f80cf2d68e75af0886d8600b1679fe1f256bbcbd484d8ea40
 F src/diff.c 1abc8885808926787b74e09b24f412d29b59aa01d41fe3bdca41ca40ed835ac6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c f9768b2a69f118c9d2543b808d9f20fd2d534be92f83be241316cd842d0aeadf
-F src/dispatch.c 32b4aab90dd01f9d21feeffe17ac1a2ad9f323c136654ea4b668b61dd895fadf
+F src/dispatch.c 568c17e70f3eb0ac9128f8fd9d305375a7ab478f7a42cec2f52269e90c3478c0
 F src/doc.c 5265f17a7737699095258106535633461d3e92aeb36cde4e22baeb794218d7cf
 F src/encode.c d18d44e72c6e3361d0fd3242042980aa37d3d1ae7d774e68d3351eb144bd2238
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
@@ -630,7 +630,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c a669f9157d1e3e8e58bb273258c655fe4a10ee912f91e3804ec95d1817c17d58
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 5acf419054d3fc8ea37bcce9ceaded7b084ca570db83c5c50ec5aebbc227b33b
+F src/timeline.c 6c3123bcfd5c915422acc68456d9bf239e64da73f4b652f93c246a8a68d5709e
 F src/tkt.c cfced59719018aa94676b153fd59ebf7568371c146d96a56e63a1bca8328cad7
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8d6319b5a15e440b47dc9059fc2b4c9b7b5d8b6758fafeb827402ae292b163a
-R e825c37cc722d4816c144f19bae52fc3
+P 217b0d2548c7183f899856c294270f88959d944fd3ea5109749701bd1473a5ea
+R 77d8a5c3e92475b4b5cd5f114eb6c064
 U drh
-Z 16373df1fe8581236c19372cab75ecfd
+Z 3db6a56f2b2987aa51427097c172ba51

@@ -124,6 +124,9 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 
 /*
 ** Hash a string and use the hash to determine a background color.
+**
+** This value returned is in static space and is overwritten with
+** each subsequent call.
 */
 char *hash_color(const char *z){
   int i;                       /* Loop counter */
