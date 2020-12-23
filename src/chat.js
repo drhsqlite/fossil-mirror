@@ -3,18 +3,41 @@
   let mxMsg = 0;
   const F = window.fossil;
   const _me = F.user.name;
+  /* State for pasting an image from the clipboard */
+  const ImagePasteState = {
+    imgTag: document.querySelector('#chat-pasted-image img'),
+    blob: undefined
+  };
   form.addEventListener('submit',(e)=>{
     e.preventDefault();
-    if( form.msg.value.length>0 || form.file.value.length>0 ){
+    const fd = new FormData(form);
+    if(ImagePasteState.blob/*replace file content with this*/){
+      fd.set("file", ImagePasteState.blob);
+    }
+    if( form.msg.value.length>0 || form.file.value.length>0 || ImagePasteState.blob ){
       fetch("chat-send",{
         method: 'POST',
-        body: new FormData(form)
+        body: fd
       });
     }
+    ImagePasteState.blob = undefined;
+    ImagePasteState.imgTag.removeAttribute('src');
     form.msg.value = "";
     form.file.value = "";
     form.msg.focus();
   });
+  /* Handle image paste from clipboard. TODO: confirm that we only
+     paste images here (silently ignore non-image data), or change the
+     related code to support non-image pasting/posting. */
+  document.onpaste = function(event){
+    const items = event.clipboardData.items;
+    ImagePasteState.blob = items[0].getAsFile();
+    const reader = new FileReader();
+    reader.onload = function(event){
+      ImagePasteState.imgTag.setAttribute('src', event.target.result);
+    };
+    reader.readAsDataURL(ImagePasteState.blob);
+  };
   /* Injects element e as a new row in the chat, at the top of the list */
   const injectMessage = function f(e){
     if(!f.injectPoint){
@@ -26,6 +49,7 @@
       f.injectPoint.parentNode.appendChild(e);
     }
   };
+  /* Returns a new TEXT node with the given text content. */
   const textNode = (T)=>document.createTextNode(T);
   /** Returns the local time string of Date object d, defaulting
       to the current time. */
@@ -128,8 +152,8 @@
         }else{
           let a = document.createElement("a");
           let txt = "(" + m.fname + " " + m.fsize + " bytes)";
-          a.href = "%string($downloadurl)/" + m.msgid;
-          a.appendChild(document.createTextNode(txt));
+          a.href = window.fossil.rootPath+'chat-download/' + m.msgid;
+          a.appendChild(textNode(txt));
           span.appendChild(a);
         }
         let br = document.createElement("br");

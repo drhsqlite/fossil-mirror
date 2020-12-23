@@ -107,6 +107,10 @@ void chat_webpage(void){
   @   <div id='chat-input-file'>
   @     <span>File:</span>
   @     <input type="file" name="file">
+  @     <div id='chat-pasted-image'>
+  @        Or paste an image from clipboard, if supported by your
+  @        environment.<br><img>
+  @      </div>
   @   </div>
   @ </div>
   @ </form>
