@@ -186,17 +186,16 @@
       const eWho = document.createElement('legend');
       eWho.dataset.timestamp = m.mtime;
       eWho.addEventListener('click', handleLegendClicked, false);
-      eWho.setAttribute('align', (m.xfrom===_me ? 'right' : 'left'));
+      if( m.xfrom==_me && window.outerWidth<1000 ){
+        eWho.setAttribute('align', 'right');
+        row.style.justifyContent = "flex-end";
+      }else{
+        eWho.setAttribute('align', 'left');
+      }
       eWho.style.backgroundColor = m.uclr;
       row.appendChild(eWho);
       eWho.classList.add('message-user');
-      let whoName;
-      if( m.xfrom===_me ){
-        whoName = 'me';
-        row.classList.add('user-is-me');
-      }else{
-        whoName = m.xfrom;
-      }
+      let whoName = m.xfrom;
       var d = new Date(m.mtime + "Z");
       if( d.getMinutes().toString()!="NaN" ){
         /* Show local time when we can compute it */
@@ -233,11 +232,6 @@
         span.innerHTML += m.xmsg;
       }
       span.classList.add('chat-message');
-      if( m.xfrom!=_me ){
-        span.classList.add('chat-mx');
-      }else{
-        span.classList.add('chat-ms');
-      }
     }
   }
   async function poll(){
