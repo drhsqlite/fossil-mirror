@@ -30,14 +30,21 @@
      paste images here (silently ignore non-image data), or change the
      related code to support non-image pasting/posting. */
   document.onpaste = function(event){
-    if(form.msg === event.target) return;
-    const items = event.clipboardData.items;
-    ImagePasteState.blob = items[0].getAsFile();
-    const reader = new FileReader();
-    reader.onload = function(event){
-      ImagePasteState.imgTag.setAttribute('src', event.target.result);
-    };
-    reader.readAsDataURL(ImagePasteState.blob);
+    const items = event.clipboardData.items,
+          item = items[0];
+    if(!item || !item.type) return;
+    //console.debug("pasted item =",item);
+    if('file'===item.kind && item.type.startsWith("image/")){
+      ImagePasteState.blob = items[0].getAsFile();
+      //console.debug("pasted blob =",ImagePasteState.blob);
+      const reader = new FileReader();
+      reader.onload = function(event){
+        ImagePasteState.imgTag.setAttribute('src', event.target.result);
+      };
+      reader.readAsDataURL(ImagePasteState.blob);
+    }else if('string'===item.kind){
+      item.getAsString((v)=>form.msg.value = v);
+    }
   };
   /* Injects element e as a new row in the chat, at the top of the list */
   const injectMessage = function f(e){
