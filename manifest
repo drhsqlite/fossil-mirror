@@ -1,5 +1,5 @@
-C Merge\sthe\sdevelopment\sof\sthe\sFossil\schatroom\sonto\strunk.\s\sThis\sfeature\sis\nwell\sisolated\sfrom\sthe\srest\sof\sthe\ssystem\sand\sso\swe\scan\ssafely\scontinue\ndevelopment\son\strunk,\swhich\sis\smore\sconvenient\sfor\stesting.
-D 2020-12-23T18:27:12.753
+C Turn\soff\sautocomplete\son\sthe\schat\sentry\sform.
+D 2020-12-23T19:55:04.707
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c 6769fab36c540f14568d5aa130ba9c016f1120d7565aa1a2bb0f226588736140
+F src/chat.c 8f57adc4d21ed8076166f166e5dbb717eb5536f03978e18d8ece102b560dfd8b
 F src/chat.js 1ce6d0dc6e60b53e2e356540e561aca0e363ebc801b706a9ff5f080ba586efd2
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
@@ -989,8 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2a26bca3a0d2fcedab9396b52e0bba17d751cae02ede8782c1d8e41b6873ec8 6f424a32b5ef1ddbc086dba562ff7e2ff3b5a422686ebbfa5fbcf8684692f6c8
-R 3e7c6b5d0966542633f3ae354fa5a13a
-T +closed 6f424a32b5ef1ddbc086dba562ff7e2ff3b5a422686ebbfa5fbcf8684692f6c8
+P e8ba89b1682671c769d40055c6c9c7931dab0e5257f87e8abe1ccbbcd063425e
+R 18b21e79b314732a77179743edf28e05
 U drh
-Z a42df32a8672f5febd90d1e8520680e2
+Z 4f7ee03e6deddc4621b139fb14027ba1
