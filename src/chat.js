@@ -1,6 +1,6 @@
 (function(){
   const form = document.querySelector('#chat-form');
-  let mxMsg = 0;
+  let mxMsg = -50;
   const F = window.fossil, D = F.dom;
   const _me = F.user.name;
   /* State for paste and drag/drop */

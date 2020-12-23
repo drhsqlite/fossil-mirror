@@ -1,5 +1,5 @@
-C Add\sthe\s/chat-delete\spage\sthat\scan\sbe\sused\sto\sby\san\sXHR\sto\sdelete\na\sparticular\schat\smessage.
-D 2020-12-23T15:35:33.910
+C Upon\sinitial\sconnect\sto\sthe\schatroom,\sonly\sload\sthe\smost\srecent\s50\smessages.\nThis\smagic\snumber\s"50"\sought\sto\sbe\sconfigurable,\sbut\sis\shard-coded\sfor\sthe\nmoment.\s\sWe\salso\sneed\sa\sway\sfor\sthe\suser\sto\srequest\smore\shistory.
+D 2020-12-23T16:08:38.591
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,8 +448,8 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c 9a331ae04fa9cfeba22055b8221262f2bd03233fcdedaa1b33a785dd6997bdce
-F src/chat.js 6d41153473242ef187b8baba55f65ed1436f86bcb33b7f9a48d558075a25b729
+F src/chat.c 90381d6ef58ef1ce2bbced2a432fe6731d852449484a380bc98b846a1684ca89
+F src/chat.js 079be865c4a2ab4916d0d17150f64c4298222edb7a3e15ef8d89f823453a3e9a
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63ec4a5bcd5765bf94b726fe3764299d238e7c1557e2a7e96c1c8c7f650ccd01
-R e469b535da228062518e26710663fb10
+P 2480ce94653f2b9a0faa998b1c25975b2adb792c0dd5827cc8f38ae7393fe443
+R e35b36f4d5c3953c6fa4a99c716cc7d4
 U drh
-Z f3a53791e4269c9cf01a3933e45d02cd
+Z e653c1a8d4577f052b831404d814f7be

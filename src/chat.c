@@ -226,6 +226,12 @@ void chat_send_webpage(void){
 ** blocks until the new content becomes available.  In this way, the
 ** system implements "hanging-GET" or "long-poll" style event notification.
 **
+**      /chat-poll/N
+**
+** If N is negative, then the return value is the N most recent messages.
+** Hence a request like /chat-poll/-100 can be used to initialize a new
+** chat session to just the most recent messages.
+**
 ** The reply from this webpage is JSON that describes the new content.
 ** Format of the json:
 **
@@ -265,6 +271,11 @@ void chat_poll_webpage(void){
   chat_create_tables();
   cgi_set_content_type("text/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
+  if( msgid<0 ){
+    msgid = db_int(0,
+        "SELECT msgid FROM chat WHERE mdel IS NOT true"
+        " ORDER BY msgid DESC LIMIT 1 OFFSET %d", -msgid);
+  }
   db_prepare(&q1,
     "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file),"
     "       fname, fmime, mdel"
