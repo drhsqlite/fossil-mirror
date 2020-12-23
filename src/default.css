@@ -1494,6 +1494,7 @@ span.at-name { /* for @USERNAME references */
   box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
   padding: 0.25em 1em;
   margin-top: -0.75em;
+  min-width: 9em /*avoid unsightly "underlap" with the user name label*/;
 }
 /* User name for the post (a LEGEND element) */
 .message-row .message-user {
