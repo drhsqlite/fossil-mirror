@@ -589,7 +589,10 @@ void chat_delete_webpage(void){
 */
 void chat_ping_webpage(void){
   const char *zIpAddr = PD("REMOTE_ADDR","nil");
-  if( cgi_is_loopback(zIpAddr) ) fputc(7, stderr);
+  if( cgi_is_loopback(zIpAddr) ){
+    cgi_append_header("Access-Control-Allow-Origin: *\r\n");
+    fputc(7, stderr);
+  }
 }
 
 /*
