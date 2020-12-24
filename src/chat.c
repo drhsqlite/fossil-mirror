@@ -74,13 +74,23 @@
 ** WEBPAGE: chat
 **
 ** Start up a browser-based chat session.
+**
+** This is the main page that humans use to access the chatroom.  Simply
+** point a web-browser at /chat and the screen fills with the latest
+** chat messages, and waits for new one.
+**
+** Other /chat-OP pages are used by XHR requests from this page to
+** send new chat message, delete older messages, or poll for changes.
 */
 void chat_webpage(void){
+  int iPingTcp;
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
     return;
   }
+  iPingTcp = atoi(PD("ping","0"));
+  if( iPingTcp<1000 || iPingTcp>65535 ) iPingTcp = 0;
   style_set_current_feature("chat");
   style_header("Chat");
   @ <style>
@@ -171,8 +181,9 @@ void chat_webpage(void){
   /* We need an onload handler to ensure that window.fossil is
      initialized before the chat init code runs. */
   @ window.addEventListener('load', function(){
-  @ window.fossil.config.chatInitSize =
+  @ window.fossil.config.chatInitSize =\
   @   %d(db_get_int("chat-initial-history",50));
+  @ window.fossil.config.pingTcp = %d(iPingTcp);
   cgi_append_content(builtin_text("chat.js"),-1);
   @ }, false);
   @ </script>
@@ -533,4 +544,16 @@ void chat_delete_webpage(void){
     "COMMIT;",
     mdel, g.zLogin, mdel
   );
+}
+
+/*
+** WEBPAGE: chat-ping
+**
+** HTTP requests coming to this page from a loopback IP address cause
+** a single \007 (bel) character to be written on the controlling TTY.
+** This is used to implement an audiable alert by local web clients.
+*/
+void chat_ping_webpage(void){
+  const char *zIpAddr = PD("REMOTE_ADDR","nil");
+  if( cgi_is_loopback(zIpAddr) ) fputc(7, stderr);
 }

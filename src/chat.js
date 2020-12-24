@@ -362,6 +362,9 @@
       }
       eContent.classList.add('chat-message');
     }
+    if(i && window.fossil.config.pingTcp){
+      fetch("http:/"+"/localhost:"+window.fossil.config.pingTcp+"/chat-ping");
+    }
   }
   async function poll(){
     if(poll.running) return;
