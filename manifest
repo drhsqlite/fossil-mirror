@@ -1,5 +1,5 @@
-C The\sping=TCPPORT\squery\sparameter\sto\s/chat\scauses\sa\scall\sto\s/chat-ping\son\nlocalhost\sand\sthe\sgiven\sport\swhenever\snew\schat\scontent\sarrives.\s\sCan\sbe\nused\sfor\snotifications.
-D 2020-12-24T15:10:38.587
+C Add\sthe\s"fossil\schat"\scommand\sthat\sattempts\sto\sbring\sup\sa\schat\swindow\sin\nthe\sdefault\sweb\sbrowser\sand\sprovide\salerts\sthrough\sthe\sTTY.
+D 2020-12-24T15:57:18.891
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c f288696824f8fae814150eceea1945fad78524e9ff50c262fb5f43d4d7016b34
+F src/chat.c 77e0ce788b5d4a7c741b87e8557033114eaf9bac4a9b022b73cbf69d846157ca
 F src/chat.js 7f615e6c249d818688d9f7aea44e004b8573f6b856c361cdc826277ab6f9b79c
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
@@ -542,7 +542,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c f687d6769ceee0f6963ccef23fb9b67355f15eef112c2f4b0974bc4aebe71cca
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 3442423cf99b35a72cf95fc87ba1ec56607cade468300fdbb4137446f7e72091
+F src/main.c 2158c7feab78df968ff3a9d1dbddfd79f974e3faa92039e11bd6b428de5b2106
 F src/main.mk a9b0af84ee171ed486bf485d9711850911a4f360ee5b9361d33e96ba195bce66
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 822653c26952d70c3482227e73f11cb84aa39331d6717d6ea2758ec3062b15fc
-R 500a85b67a85b5778fff4c56208b7eed
+P ebdd91b92fbff770d9457bcedd990453283763e5b70156eef2c5731ed90d7ca8
+R cb66baaa5b3b213788a987125aa67d42
 U drh
-Z 9c269e208f65e49085a966554797997b
+Z 0ce7d7e7284ad7152d7ed46f2190f08e

@@ -2809,6 +2809,7 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
+  const char *zChat = 0;     /* Remote chat URL.  (undocumented) */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2856,6 +2857,7 @@ void cmd_webserver(void){
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
+  zChat = find_option("internal-chat-url",0,1);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2912,7 +2914,9 @@ void cmd_webserver(void){
 #else
     zBrowser = db_get("web-browser", "open");
 #endif
-    if( zIpAddr==0 ){
+    if( zChat ){
+      zBrowserCmd = mprintf("%s \"%s\" &", zBrowser, zChat);
+    }else if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s \"http://localhost:%%d/%s\" &",
                             zBrowser, zInitPage);
     }else if( strchr(zIpAddr,':') ){
@@ -2975,7 +2979,9 @@ void cmd_webserver(void){
   /* Win32 implementation */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
-    if( zIpAddr==0 ){
+    if( zChat ){
+      zBrowserCmd = mprintf("%s \"%s\" &", zBrowser, zChat);
+    }else if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
                             zBrowser, zInitPage);
     }else if( strchr(zIpAddr,':') ){

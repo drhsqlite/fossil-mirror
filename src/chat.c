@@ -557,3 +557,53 @@ void chat_ping_webpage(void){
   const char *zIpAddr = PD("REMOTE_ADDR","nil");
   if( cgi_is_loopback(zIpAddr) ) fputc(7, stderr);
 }
+
+/*
+** COMMAND: chat
+**
+** Usage: %fossil chat ?URL?
+**
+** Bring up a window to the chatroom feature of the Fossil repository
+** at URL.  Or if URL is not specified, use the default remote repository.
+** Event notifications on this session cause the U+0007 character to
+** be sent to the TTY on which the "fossil chat" command is run, thus
+** causing an auditory notification.
+*/
+void chat_command(void){
+  const char *zUrl;
+  char *azArgv[5];
+  db_find_and_open_repository(0,0);
+  if( g.argc==3 ){
+    zUrl = g.argv[2];
+  }else if( g.argc!=2 ){
+    usage("?URL?");
+  }else{
+    zUrl = db_get("last-sync-url",0);
+    if( zUrl==0 ){
+      fossil_fatal("no \"remote\" repository defined.  Use a URL argument");
+    }
+    url_parse(zUrl, 0);
+    if( g.url.port==g.url.dfltPort ){
+      zUrl = mprintf(
+        "%s://%T%T",
+        g.url.protocol, g.url.name, g.url.path
+      );
+    }else{
+      zUrl = mprintf(
+        "%s://%T:%d%T",
+        g.url.protocol, g.url.name, g.url.port, g.url.path
+      );
+    }
+  }
+  if( strncmp(zUrl,"http://",7)!=0 && strncmp("https://",zUrl,8)!=0 ){
+    fossil_fatal("Not a valid URL: %s", zUrl);
+  }
+  azArgv[0] = g.argv[0];
+  azArgv[1] = "ui";
+  azArgv[2] = "--internal-chat-url";
+  azArgv[3] = mprintf("%s/chat?ping=%%d", zUrl);
+  azArgv[4] = 0;
+  g.argv = azArgv;
+  g.argc = 4;
+  cmd_webserver();
+}
