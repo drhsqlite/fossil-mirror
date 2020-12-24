@@ -1515,10 +1515,27 @@ body.chat .chat-message-popup {
   flex-direction: column;
   align-items: stretch;
 }
-.chat-message-popup > span { white-space: nowrap; }
-.chat-message-popup > .toolbar {
+body.chat .chat-message-popup > span { white-space: nowrap; }
+body.chat .chat-message-popup > .toolbar {
   padding: 0.2em;
   margin: 0;
   border: 2px inset rgba(0,0,0,0.3);
   border-radius: 0.25em;
+}
+
+body.chat .load-msg-toolbar  {
+  border-radius: 0.25em;
+  padding: 0.1em 0.2em;
+}
+body.chat .load-msg-toolbar.all-done {
+  opacity: 0.5;
+}
+body.chat .load-msg-toolbar > div {
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: wrap;
+}
+body.chat .load-msg-toolbar > div > button {
+  flex: 1 1 auto;
 }

@@ -248,9 +248,10 @@
 
   /**
      Creates and returns a FIELDSET element, optionaly with a LEGEND
-     element added to it. If legendText is an HTMLElement then it is
-     appended as-is, else it is assume (if truthy) to be a value
-     suitable for passing to dom.append(aLegendElement,...).
+     element added to it. If legendText is an HTMLElement then is is
+     assumed to be a LEGEND and is appended as-is, else it is assumed
+     (if truthy) to be a value suitable for passing to
+     dom.append(aLegendElement,...).
   */
   dom.fieldset = function(legendText){
     const fs = this.create('fieldset');
@@ -259,10 +260,20 @@
         fs,
         (legendText instanceof HTMLElement)
           ? legendText
-          : this.append(this.create('legend'),legendText)
+          : this.append(this.legend(legendText))
       );
     }
     return fs;
+  };
+  /**
+     Returns a new LEGEND legend element. The given argument, if
+     not falsy, is append()ed to the element (so it may be a string
+     or DOM element.
+  */
+  dom.legend = function(legendText){
+    const rc = this.create('legend');
+    if(legendText) this.append(rc, legendText);
+    return rc;
   };
 
   /**

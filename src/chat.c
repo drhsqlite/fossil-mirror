@@ -400,6 +400,16 @@ void chat_test_formatter_cmd(void){
 ** begin with "-".  Then /chat-poll/-100 cannot be used.  Instead you
 ** have to say "/chat-poll?name=-100".
 **
+** If the integer parameter "before" is passed in, it is assumed that
+** the client is requesting older messages, up to (but not including)
+** that message ID, in which case the next-oldest "n" messages
+** (default=chat-initial-history setting, equivalent to n=0) are
+** returned (negative n fetches all older entries). The client then
+** needs to take care to inject them at the end of the history rather
+** than the same place new messages go.
+**
+** If "before" is provided, "name" is ignored.
+**
 ** The reply from this webpage is JSON that describes the new content.
 ** Format of the json:
 **
@@ -425,38 +435,59 @@ void chat_test_formatter_cmd(void){
 ** The "msgid" values will be in increasing order.
 **
 ** The "mdel" will only exist if "xmsg" is an empty string and "fsize" is zero.
+**
+** The messages are ordered oldest first unless "before" is provided, in which
+** case they are sorted newest first (to facilitate the client-side UI update).
 */
 void chat_poll_webpage(void){
   Blob json;                  /* The json to be constructed and returned */
   sqlite3_int64 dataVersion;  /* Data version.  Used for polling. */
   int iDelay = 1000;          /* Delay until next poll (milliseconds) */
-  const char *zSep = "{\"msgs\":[\n";   /* List separator */
   int msgid = atoi(PD("name","0"));
+  const int msgBefore = atoi(PD("before","0"));
+  int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
+  Blob sql = empty_blob;
   Stmt q1;
   login_check_credentials();
   if( !g.perm.Chat ) return;
   chat_create_tables();
   cgi_set_content_type("text/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
-  if( msgid<=0 ){
+  blob_append_sql(&sql,
+    "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file),"
+    "       fname, fmime, %s"
+    "  FROM chat ",
+    msgBefore>0 ? "0 as mdel" : "mdel");
+  if( msgid<=0 || msgBefore>0 ){
     db_begin_write();
     chat_purge();
     db_commit_transaction();
   }
-  if( msgid<0 ){
-    msgid = db_int(0,
-        "SELECT msgid FROM chat WHERE mdel IS NOT true"
-        " ORDER BY msgid DESC LIMIT 1 OFFSET %d", -msgid);
+  if(msgBefore>0){
+    if(0==nLimit){
+      nLimit = db_get_int("chat-initial-history",50);
+    }
+    blob_append_sql(&sql,
+      " WHERE msgid<%d"
+      " ORDER BY msgid DESC "
+      "LIMIT %d",
+      msgBefore, nLimit>0 ? nLimit : -1
+    );
+  }else{
+    if( msgid<0 ){
+      msgid = db_int(0,
+            "SELECT msgid FROM chat WHERE mdel IS NOT true"
+            " ORDER BY msgid DESC LIMIT 1 OFFSET %d", -msgid);
+    }
+    blob_append_sql(&sql,
+      " WHERE msgid>%d"
+      " ORDER BY msgid",
+      msgid
+    );
   }
-  db_prepare(&q1,
-    "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file),"
-    "       fname, fmime, mdel"
-    "  FROM chat"
-    " WHERE msgid>%d"
-    " ORDER BY msgid",
-    msgid
-  );
-  blob_init(&json, 0, 0);
+  db_prepare(&q1, "%s", blob_sql_text(&sql));
+  blob_reset(&sql);
+  blob_init(&json, "{\"msgs\":[\n", -1);
   while(1){
     int cnt = 0;
     while( db_step(&q1)==SQLITE_ROW ){
@@ -469,9 +500,9 @@ void chat_poll_webpage(void){
       const char *zFMime = db_column_text(&q1, 6);
       int iToDel = db_column_int(&q1, 7);
       char *zMsg;
-      cnt++;
-      blob_append(&json, zSep, -1);
-      zSep = ",\n";
+      if(cnt++){
+        blob_append(&json, ",\n", 2);
+      }
       blob_appendf(&json, "{\"msgid\":%d,\"mtime\":%!j,", id, zDate);
       blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
       blob_appendf(&json, "\"uclr\":%!j,", hash_color(zFrom));
@@ -493,7 +524,7 @@ void chat_poll_webpage(void){
       }
     }
     db_reset(&q1);
-    if( cnt ){
+    if( cnt || msgBefore>0 ){
       blob_append(&json, "\n]}", 3);
       cgi_set_content(&json);
       break;
