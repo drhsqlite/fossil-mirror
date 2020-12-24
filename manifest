@@ -1,5 +1,5 @@
-C Added\sUI\sto\sdelete\schat\sposts\s(tap\son\sthe\smessage\sheader).\sMade\sa\schange\sto\sthe\ssemantics\sof\swhen\sfossil.PopupWidget's\srefresh()\scallback\sis\striggered\sto\saccount\sfor\sthe\scommon\scase\sof\shaving\sto\sshow()\sthe\spopup\stwice\sin\sa\srow\swithout\sa\shide()\sin\sbetween.
-D 2020-12-24T05:58:51.749
+C Removed\ssome\sdebug\soutput.
+D 2020-12-24T06:18:54.625
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 5296cf730d207c36d17b4dd0e0fc856a81af5e9aea55850b643920e28227ce1f
-F src/chat.js 04edcb6a93fa617e2725f43709ac64ba0e82da9fb692004c9f05331a18d84fe6
+F src/chat.js ba67e2bf25a5214c5c35f8b280d9fe2a8faf6a9b243d9ed315661c1d7547e6fb
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 247276113c0a0dc475dddf64fe54d613db13f3a467c6184c84dc25d301591253
-R 0053f1950f2312cbf594c486f3fa574f
+P b7f106da8a6e31b05dd930172bdfe4b72e45b493521fd37e5a68aa88ecde5672
+R 697f4cd1de412fe6c81866d2a758285d
 U stephan
-Z fee53bb51e1c0ce00497d1a302f0b914
+Z 9367e4b585f49cfc9a8dc5efc8313590

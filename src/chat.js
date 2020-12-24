@@ -41,7 +41,6 @@
       }else{
         e = this.getMessageElemById(id);
       }
-      console.debug("e && id ===",e&&id, e, id);
       if(e && id){
         D.remove(e);
         F.toast.message("Deleted message "+id+".");
