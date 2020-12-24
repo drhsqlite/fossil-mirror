@@ -146,8 +146,7 @@
     const items = event.clipboardData.items,
           item = items[0];
     if(!item || !item.type) return;
-    //console.debug("pasted item =",item);
-    if('file'===item.kind){
+    else if('file'===item.kind){
       updateDropZoneContent(false/*clear prev state*/);
       updateDropZoneContent(items[0].getAsFile());
     }else if(false && 'string'===item.kind){
@@ -278,6 +277,83 @@
     }
     f.popup.show(x, y);
   };
+
+  /**
+     Parses the given chat message string for hyperlinks and @NAME
+     references, replacing them with markup, then stuffs the parsed
+     content into the given target DOM element.
+
+     This is an intermediary step until we get some basic markup
+     support coming from the server side.
+  */
+  const messageToDOM = function f(str, tgtElem){
+    "use strict";
+    if(!f.rxUrl){
+      f.rxUrl = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
+      f.rxAt = /@\w+/gmi;
+      f.rxNS = /\S/;
+      f.ce = (T)=>document.createElement(T);
+      f.ct = (T)=>document.createTextNode(T);
+      f.replaceUrls = function ff(sub, offset, whole){
+        if(offset > ff.prevStart){
+          f.accum.push((ff.prevStart?' ':'')+whole.substring(ff.prevStart, offset-1)+' ');
+        }
+        const a = f.ce('a');
+        a.setAttribute('href',sub);
+        a.setAttribute('target','_blank');
+        a.appendChild(f.ct(sub));
+        f.accum.push(a);
+        ff.prevStart = offset + sub.length + 1;
+      };
+      f.replaceAtName = function ff(sub, offset,whole){
+        if(offset > ff.prevStart){
+          ff.accum.push((ff.prevStart?' ':'')+whole.substring(ff.prevStart, offset-1)+' ');
+        }else if(offset && f.rxNS.test(whole[offset-1])){
+          // Sigh: https://stackoverflow.com/questions/52655367
+          ff.accum.push(sub);
+          return;
+        }
+        const e = f.ce('span');
+        e.classList.add('at-name');
+        e.appendChild(f.ct(sub));
+        ff.accum.push(e);
+        ff.prevStart = offset + sub.length + 1;
+      };
+    }
+    f.accum = []; // accumulate strings and DOM elements here.
+    f.rxUrl.lastIndex = f.replaceUrls.prevStart = 0; // reset regex cursor
+    str.replace(f.rxUrl, f.replaceUrls);
+    // Push remaining non-URL part of the string to the queue...
+    if(f.replaceUrls.prevStart < str.length){
+      f.accum.push((f.replaceUrls.prevStart?' ':'')+str.substring(f.replaceUrls.prevStart));
+    }
+    // Pass 2: process @NAME references...
+    // TODO: only match NAME if it's the name of a currently participating
+    // user. Add a second class if NAME == current user, and style that one
+    // differently so that people can more easily see when they're spoken to.
+    const accum2 = f.replaceAtName.accum = [];
+    f.accum.forEach(function(v){
+      if('string'===typeof v){
+        f.rxAt.lastIndex = f.replaceAtName.prevStart = 0;
+        v.replace(f.rxAt, f.replaceAtName);
+        if(f.replaceAtName.prevStart < v.length){
+          accum2.push((f.replaceAtName.prevStart?' ':'')+v.substring(f.replaceAtName.prevStart));
+        }
+      }else{
+        accum2.push(v);
+      }
+    });
+    delete f.accum;
+    const theTgt = tgtElem || f.ce('div');
+    const strings = [];
+    accum2.forEach(function(e){
+      if('string'===typeof e) strings.push(e);
+      else strings.push(e.outerHTML);
+    });
+    D.parseHtml(theTgt, strings.join(''));
+    return theTgt;
+  }/*end messageToDOM()*/;
+
   /** Callback for poll() to inject new content into the page. */
   function newcontent(jx){
     var i;
@@ -334,8 +410,7 @@
         eContent.appendChild(br);
       }
       if(m.xmsg){
-        try{D.moveChildrenTo(eContent, D.parseHtml(m.xmsg))}
-        catch(e){console.error(e)}
+        messageToDOM(m.xmsg, eContent);
       }
       eContent.classList.add('chat-message');
     }
