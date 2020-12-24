@@ -77,15 +77,11 @@
 */
 void chat_webpage(void){
   login_check_credentials();
-  style_set_current_feature("chat");
   if( !g.perm.Chat ){
-    style_header("Chat Not Authorized");
-    @ <h1>Not Authorized</h1>
-    @ <p>You do not have permission to use the chatroom on this
-    @ repository.</p>
-    style_finish_page();
+    login_needed(g.anon.Chat);
     return;
   }
+  style_set_current_feature("chat");
   style_header("Chat");
   @ <style>
   @ #dialog {

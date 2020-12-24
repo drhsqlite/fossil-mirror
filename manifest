@@ -1,5 +1,5 @@
-C Several\sinternal\scleanups\sin\schat\sapp,\se.g.\sreplace\sdocument.createXYZ\swith\ssimpler\sfossil.dom\sAPI.\sEliminate\sassignment\sto\sinnerHTML,\swhich\sis\swidely\sconsidered\sunsafe.
-D 2020-12-23T23:27:35.577
+C The\s/chat\spage\snow\sredirects\sto\sthe\slogin\spage\sif\sneeded.
+D 2020-12-24T03:34:46.671
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c a3869f97a7d09485ac7e885368b478c40fd98e2d31d6af9c0b136c925290254b
+F src/chat.c e165bbc64a691b653f9a0f59028f50fc99d0f0567f18d78d76ec82a3591cc1fa
 F src/chat.js 67a5ae8badf25149827a3a3802202dcfbc0453abbac4d0fc56926b3e9d603998
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8eb01c314b0d2d3d1ce4d47b14696af6125706eaf01db1fdb7deefcf2aec4417
-R a5364772a499aeb3b9aeaeb0b5e8c6d2
-U stephan
-Z 248cd85d2e4a027230fdc63131b3b015
+P 68da24594ff5cb7aa9ad3e9e2c4ffd593a7d90c2100efe05923a57ea370913a1
+R c16134ed01a8d3396eb85684ffa28355
+U drh
+Z 6cd7bae2a2b954c5b632210cd369d491
