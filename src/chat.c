@@ -91,6 +91,7 @@ void chat_webpage(void){
   }
   iPingTcp = atoi(PD("ping","0"));
   if( iPingTcp<1000 || iPingTcp>65535 ) iPingTcp = 0;
+  if( iPingTcp ) style_disable_csp();
   style_set_current_feature("chat");
   style_header("Chat");
   @ <style>
@@ -571,6 +572,7 @@ void chat_ping_webpage(void){
 */
 void chat_command(void){
   const char *zUrl = 0;
+  size_t i;
   char *azArgv[5];
   db_find_and_open_repository(0,0);
   if( g.argc==3 ){
@@ -601,7 +603,9 @@ void chat_command(void){
   azArgv[0] = g.argv[0];
   azArgv[1] = "ui";
   azArgv[2] = "--internal-chat-url";
-  azArgv[3] = mprintf("%s/chat?ping=%%d", zUrl);
+  i = strlen(zUrl);
+  if( i && zUrl[i-1]=='/' ) i--;
+  azArgv[3] = mprintf("%.*s/chat?ping=%%d", i, zUrl);
   azArgv[4] = 0;
   g.argv = azArgv;
   g.argc = 4;
