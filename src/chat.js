@@ -1,3 +1,7 @@
+/**
+   This file contains the client-side implementation of fossil's /chat
+   application. 
+*/
 (function(){
   const form = document.querySelector('#chat-form');
   const F = window.fossil, D = F.dom;
@@ -5,16 +9,12 @@
     const cs = {
       me: F.user.name,
       mxMsg: F.config.chatInitSize ? -F.config.chatInitSize : -50,
-      pageIsActive: !document.hidden,
-      onPageActive: function(){console.debug("Page active.")}, //override below
-      onPageInactive: function(){console.debug("Page inactive.")} //override below
+      pageIsActive: 'visible'===document.visibilityState,
+      changesSincePageHidden: 0,
+      notificationBubbleColor: 'white',
+      pageTitle: document.querySelector('head title')
     };
-    document.addEventListener('visibilitychange', function(ev){
-      cs.pageIsActive = !document.hidden;
-      if(cs.pageIsActive) cs.onPageActive();
-      else cs.onPageInactive();
-    }, true);
-
+    cs.pageTitleOrig = cs.pageTitle.innerText;
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
       return Array.prototype.slice.call(args,0);
@@ -84,9 +84,8 @@
         this.deleteMessageElem(id);
       }
     };
-
     return cs;
-  })();
+  })()/*Chat initialization*/;
   /* State for paste and drag/drop */
   const BlobXferState = {
     dropDetails: document.querySelector('#chat-drop-details'),
@@ -357,6 +356,16 @@
   /** Callback for poll() to inject new content into the page. */
   function newcontent(jx){
     var i;
+    if('visible'===document.visibilityState){
+      if(Chat.changesSincePageHidden){
+        Chat.changesSincePageHidden = 0;
+        Chat.pageTitle.innerText = Chat.pageTitleOrig;
+      }
+    }else{
+      Chat.changesSincePageHidden += jx.msgs.length;
+      Chat.pageTitle.innerText = '('+Chat.changesSincePageHidden+') '+
+        Chat.pageTitleOrig;
+    }
     for(i=0; i<jx.msgs.length; ++i){
       const m = jx.msgs[i];
       if( m.msgid>Chat.mxMsg ) Chat.mxMsg = m.msgid;
