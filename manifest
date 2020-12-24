@@ -1,5 +1,5 @@
-C chat:\srevert\stitle\sto\sits\soriginalv\salue\swhen\sthe\stab\sbecomes\sactive\safter\shaving\sbeen\sinactive.
-D 2020-12-24T08:10:46.681
+C Hyperlink\sprocessing\sfor\schat\smessages\sis\snow\shandled\son\sthe\sserver\sside,\nwhere\swe\shave\sknowledge\sof\sinterwiki\slinks,\swiki\spage\snames,\sand\svalid\nartifact\shashes.
+D 2020-12-24T13:44:30.140
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,8 +448,8 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c 5296cf730d207c36d17b4dd0e0fc856a81af5e9aea55850b643920e28227ce1f
-F src/chat.js a5c394355bed28b6e803accfa6363c1c5024f59fd49df00bc57e7999b7795a5c
+F src/chat.c 0d9e47200d6e491d8af4fc937d4b7fdcf9efe5b514045afd912493d0dd3db27b
+F src/chat.js dacc39e0081324a493e8c1002442364cadee889eea054ee3b1ddff349cc8ae96
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -649,7 +649,7 @@ F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 65cf7f61a3cf9433dec6efcd5531dfcf8811e98d6c229b2fe3c691c86b085b58
 F src/wiki.c 3f53c206e8e5ff686b1e8dc531f4334b05de076c422dcc1e40acf6729a5a630d
 F src/wiki.wiki 115d2665e40e871dfb83533f366bac52fcff5b214c8f117c69fc26465240d05b
-F src/wikiformat.c bff121e20d7be9be850e9ffc5d19186bd0595c0fd93cb0389d7425c026326b04
+F src/wikiformat.c 8de002293890d3c092ed339c2053f2ec4e6d2f800080b15e907496d017b23ca8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c b30ba807ffc837f7797efe6cf4569462967fe51bb7e2194cc348a2b7c59072e2
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d79592059ae211427d37acf00bc9e78c0bb1638a294d106a28f6a92954944ef8
-R b1d3e777bb135d94cca508ae31448118
-U stephan
-Z 3e95d7407aa95a3490cd1d816b4e508e
+P 0c0be4b7633bf19ad438e2e02a4b17cd948733ac8e0fe11e651ef29fad419ea8
+R 2c44c5fa256b0261f2c5de9d8979309b
+U drh
+Z 314254a4dbcd015951ab3186cfc049ae
