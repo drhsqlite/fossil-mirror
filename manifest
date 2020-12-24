@@ -1,5 +1,5 @@
-C Fix\schat\sso\sthat\sit\sdetects\shyperlinks\sat\sthe\send\sof\sa\schat\smessage.
-D 2020-12-24T18:46:38.535
+C Show\sthe\snumber\sof\schat\smessages\sand\sthe\samount\sof\sstorage\sspace\sused\sby\nchat\son\sthe\s/stat\spage.
+D 2020-12-24T19:00:52.504
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -615,7 +615,7 @@ F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae7548
 F src/sqlite3.c 8dde8dd4e9b399b4c2f1d33f298f6ef3a8831e63551461429e7a332a57024807
 F src/sqlite3.h 5249fd7d66fd15b64e9428c9ce9c3eadd5a9d88afc0a4455f565e5dae989ccf6
 F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
-F src/stat.c bc56d7d726f00589094d71ae8b140ed99d6fee057a289c34ef4ec82bb1cd0507
+F src/stat.c 0f11070d181ea70b7931711d82523da23f4d2a277ac72db409b8a6434512b67b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c 94d7807eb4a66b3e0eed82310923847a4b58ede987f6b9ad33a9968d2689c790
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dcc854a98bac0292eccb5f37fbeaf171c84695d6728ed56ca967394a2df3b677
-R 5a60eb33a484367370ab4c37184df043
+P 6f4fdfcd6ffdbcfc20000cc4c07cb61c2e944db2e3ed90f395683b2f84f76272
+R 3e25f11aeb2a5e44020b6763a37d5ba3
 U drh
-Z fabbdb5446f8b0d29d0e86a1f9827dee
+Z d58ec98425b184c2655938683d2d5e54

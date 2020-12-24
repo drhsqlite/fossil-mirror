@@ -219,6 +219,17 @@ void stat_page(void){
                   " WHERE +tagname GLOB 'wiki-*'");
     @ %,d(n)
     @ </td></tr>
+    if( db_table_exists("repository","chat") ){
+      sqlite3_int64 sz = 0;
+      char zSz[100];
+      n = db_int(0, "SELECT max(msgid) FROM chat");
+      m = db_int(0, "SELECT count(*) FROM chat WHERE mdel IS NOT TRUE");
+      sz = db_int64(0, "SELECT sum(coalesce(length(xmsg),0)+"
+                                  "coalesce(length(file),0)) FROM chat");
+      approxSizeName(sizeof(zSz), zSz, sz);
+      @ <tr><th>Number&nbsp;Of&nbsp;Chat&nbsp;Messages:</th>
+      @ <td>%,d(n) (%,d(m) still alive, %s(zSz) in size)</td></tr>
+    }
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE +tagname GLOB 'tkt-*'");
     if( n>0 ){
