@@ -221,6 +221,31 @@ static void chat_create_tables(void){
 }
 
 /*
+** Delete old content from the chat table.
+*/
+static void chat_purge(void){
+   int mxCnt = db_get_int("chat-keep-count",50);
+   double mxDays = atof(db_get("chat-keep-days","7"));
+   double rAge;
+   int msgid;
+   rAge = db_double(0.0, "SELECT julianday('now')-mtime FROM chat"
+                         " ORDER BY msgid LIMIT 1");
+   if( rAge>mxDays ){
+     msgid = db_int(0, "SELECT msgid FROM chat"
+                       " ORDER BY msgid DESC LIMIT 1 OFFSET %d", mxCnt);
+     if( msgid>0 ){
+       Stmt s;
+       db_prepare(&s, 
+             "DELETE FROM chat WHERE mtime<julianday('now')-:mxage"
+             " AND msgid<%d", msgid);
+       db_bind_double(&s, ":mxage", mxDays);
+       db_step(&s);
+       db_finalize(&s);
+     }
+   }
+}
+
+/*
 ** WEBPAGE: chat-send
 **
 ** This page receives (via XHR) a new chat-message and/or a new file
@@ -234,6 +259,8 @@ void chat_send_webpage(void){
   chat_create_tables();
   nByte = atoi(PD("file:bytes",0));
   zMsg = PD("msg","");
+  db_begin_write();
+  chat_purge();
   if( nByte==0 ){
     if( zMsg[0] ){
       db_multi_exec(
@@ -256,6 +283,7 @@ void chat_send_webpage(void){
     db_finalize(&q);
     blob_reset(&b);
   }
+  db_commit_transaction();
 }
 
 /*
@@ -410,6 +438,11 @@ void chat_poll_webpage(void){
   chat_create_tables();
   cgi_set_content_type("text/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
+  if( msgid<=0 ){
+    db_begin_write();
+    chat_purge();
+    db_commit_transaction();
+  }
   if( msgid<0 ){
     msgid = db_int(0,
         "SELECT msgid FROM chat WHERE mdel IS NOT true"
