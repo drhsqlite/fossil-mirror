@@ -291,7 +291,8 @@
       }
       if('string'===typeof e
          || 'number'===typeof e
-         || 'boolean'===typeof e) e = this.text(e);
+         || 'boolean'===typeof e
+         || e instanceof Error) e = this.text(e);
       parent.appendChild(e);
     }
     return parent;

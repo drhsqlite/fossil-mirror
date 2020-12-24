@@ -14,6 +14,47 @@
       if(cs.pageIsActive) cs.onPageActive();
       else cs.onPageInactive();
     }, true);
+
+    const qs = (e)=>document.querySelector(e);
+    const argsToArray = function(args){
+      return Array.prototype.slice.call(args,0);
+    };
+    cs.reportError = function(/*msg args*/){
+      const args = argsToArray(arguments);
+      console.error("chat error:",args);
+      F.toast.error.apply(F.toast, args);
+    };
+
+    cs.getMessageElemById = function(id){
+      return qs('[data-msgid="'+id+'"]');
+    };
+    cs.deleteMessageElemById = function(id){
+      const e = this.getMessageElemById(id);
+      if(e) D.remove(e);
+      return !!e;
+    };
+
+    /**
+       Removes the given message ID from the local chat record and, if
+       the message was posted by this user OR this user in an
+       admin/setup, also submits it for removal on the remote.
+    */
+    cs.deleteMessageById = function(id){
+      const e = this.getMessageElemById(id);
+      if(!e) return;
+      if(this.me === e.dataset.xfrom
+         || F.user.isAdmin/*will be confirmed server-side*/
+        ){
+        fetch("chat-delete?name=" + id)
+          .then(()=>D.remove(e))
+          .then(()=>F.toast.message("Deleted message "+id+"."))
+          .catch(err=>this.reportError(err))
+      }else{
+        D.remove(e);
+        F.toast.message("Locally removed message "+id+".");
+      }
+    };
+
     return cs;
   })();
   /* State for paste and drag/drop */
@@ -194,8 +235,15 @@
     for(i=0; i<jx.msgs.length; ++i){
       const m = jx.msgs[i];
       if( m.msgid>Chat.mxMsg ) Chat.mxMsg = m.msgid;
+      if( m.mdel ){
+        /* A record deletion notice. */
+        Chat.deleteMessageElemById(m.mdel);
+        continue;
+      }
       const eWho = D.create('legend'),
             row = D.addClass(D.fieldset(eWho), 'message-row');
+      row.dataset.msgid = m.msgid;
+      row.dataset.xfrom = m.xfrom;
       injectMessage(row);
       eWho.dataset.timestamp = m.mtime;
       eWho.addEventListener('click', handleLegendClicked, false);
@@ -254,4 +302,5 @@
   }
   poll();
   setInterval(poll, 1000);
+  F.page.chat = Chat;
 })();

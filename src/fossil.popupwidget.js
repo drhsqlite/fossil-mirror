@@ -274,7 +274,7 @@
       return toastImpl('warning',1.5,arguments);
     },
     /**
-       Displays a toast with the 'warning' CSS class assigned to it. It
+       Displays a toast with the 'error' CSS class assigned to it. It
        displays for twice as long as a normal toast.
     */
     error: function(/*...*/){

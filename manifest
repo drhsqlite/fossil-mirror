@@ -1,5 +1,5 @@
-C The\s/chat\spage\snow\sredirects\sto\sthe\slogin\spage\sif\sneeded.
-D 2020-12-24T03:34:46.671
+C Initial\simpl\sfor\schat\smessage\sdeletion.\sThe\sajax\sbits\sare\sin\splace\sand\smessage\sdeletion\spropagates\sto\sother\sconnected\sclients\s(if\sthe\smessage\sis\sowned\sby\sthe\sposter\sor\sthe\suser\sis\san\sadmin)\sbut\sthere's\snot\scurrently\sa\suser\sinterface.\sTODO:\sadd\srelated\scontrols\sto\sthe\ssame\spopup\sused\sfor\sthe\smessage\stimestamps.
+D 2020-12-24T05:03:27.127
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,14 +442,14 @@ F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
 F src/blob.c 95d307d8d95387c311e0eede4c66ca801724049f0b1e78ed1f514e27fc5e01a5
 F src/branch.c dd6bd065e74eabfc3b41e41d377739f374bedc69e729f84b13643b3b177271f4
 F src/browse.c 7ebe4c3ff598b65498f7b520df33cc89e8d3217a114938b469fe2d7390fb7593
-F src/builtin.c 4c474b2b527a278c8acca3d61201bbf70992bab4a0ca203645052c14e55a7bea
+F src/builtin.c 7da5c3ef895a7296f234e16093a4e99f48270ef3409c147710424be717de52e4
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c e165bbc64a691b653f9a0f59028f50fc99d0f0567f18d78d76ec82a3591cc1fa
-F src/chat.js 67a5ae8badf25149827a3a3802202dcfbc0453abbac4d0fc56926b3e9d603998
+F src/chat.js 90a673aedd796e4200b20b56bccd35a94100767a3473ae808661cff1ecc9d211
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -490,7 +490,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 989b241395ef4331ea373bbaf292df7fd029d74ca9d06807f72b637be4b81043
-F src/fossil.dom.js 53e8fb9bf01d7e69db313373c54a1aa8ce1617495212da6781e91a785c016bdf
+F src/fossil.dom.js 95600723c2355e54d33b5cb23299e4caf861e1bd9e536e87d7f9e55d7113e3b5
 F src/fossil.fetch.js 2df4ea7ec9063d45697adbf0077dd18be1e17d79773630df94fdf3b79b97648b
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
@@ -498,7 +498,7 @@ F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c1035
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
-F src/fossil.popupwidget.js 6f82818390cfba2fc71bd4c467dfd13f540696715a32fccb3da561a17d2a4b74
+F src/fossil.popupwidget.js 52ec715925592f7eb9e10384cd80298021e3b2aee051e959e3843d176ac789ff
 F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
 F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 68da24594ff5cb7aa9ad3e9e2c4ffd593a7d90c2100efe05923a57ea370913a1
-R c16134ed01a8d3396eb85684ffa28355
-U drh
-Z 6cd7bae2a2b954c5b632210cd369d491
+P 77d30586005fc1207c265a8ff15952b0ea68750df317abe10d71cf89fcc2acd7
+R 1d612016bf7ad0bd8265f75b4c7631b1
+U stephan
+Z c85208b2db66ad1fd16dae7e997b529a
