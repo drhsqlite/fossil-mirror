@@ -1,5 +1,5 @@
-C Chat:\sif\sthe\scurrent\stab\sis\snot\sactive\swhen\sa\smessage\sarrives,\supdate\sthe\stitle\sto\sshow\sthe\snew\smessage\scount.\sWhen\sthe\stab\sis\sactive,\srevert\sthe\stitle.\sNote\sthat\sdeletions\scurrently\scount\stowards\snew\sevents,\sbut\sthat's\sarguable.
-D 2020-12-24T08:07:46.487
+C chat:\srevert\stitle\sto\sits\soriginalv\salue\swhen\sthe\stab\sbecomes\sactive\safter\shaving\sbeen\sinactive.
+D 2020-12-24T08:10:46.681
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 5296cf730d207c36d17b4dd0e0fc856a81af5e9aea55850b643920e28227ce1f
-F src/chat.js 09647e3ec62b5a8f3690031388d6b9640b25bfea8a01c1e2e7d28444b3010dc7
+F src/chat.js a5c394355bed28b6e803accfa6363c1c5024f59fd49df00bc57e7999b7795a5c
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5095283fb44031f95972dcc61955c766d2644e47298c145855dd1972331729b
-R f6772dfa96de5d6deae7c4999e6d70cc
+P d79592059ae211427d37acf00bc9e78c0bb1638a294d106a28f6a92954944ef8
+R b1d3e777bb135d94cca508ae31448118
 U stephan
-Z a7fba4aecbc84299d7e247cb111b234e
+Z 3e95d7407aa95a3490cd1d816b4e508e

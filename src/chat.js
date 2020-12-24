@@ -84,6 +84,12 @@
         this.deleteMessageElem(id);
       }
     };
+    document.addEventListener('visibilitychange', function(ev){
+      cs.pageIsActive = !document.hidden;
+      if(cs.pageIsActive){
+        cs.pageTitle.innerText = cs.pageTitleOrig;
+      }
+    }, true);
     return cs;
   })()/*Chat initialization*/;
   /* State for paste and drag/drop */
