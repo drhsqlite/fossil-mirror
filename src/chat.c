@@ -570,7 +570,7 @@ void chat_ping_webpage(void){
 ** causing an auditory notification.
 */
 void chat_command(void){
-  const char *zUrl;
+  const char *zUrl = 0;
   char *azArgv[5];
   db_find_and_open_repository(0,0);
   if( g.argc==3 ){
