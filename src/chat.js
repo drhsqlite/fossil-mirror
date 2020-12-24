@@ -28,30 +28,61 @@
     cs.getMessageElemById = function(id){
       return qs('[data-msgid="'+id+'"]');
     };
-    cs.deleteMessageElemById = function(id){
-      const e = this.getMessageElemById(id);
-      if(e) D.remove(e);
+    /**
+       LOCALLY deletes a message element by the message ID or passing
+       the .message-row element. Returns true if it removes an element,
+       else false.
+    */
+    cs.deleteMessageElem = function(id){
+      var e;
+      if(id instanceof HTMLElement){
+        e = id;
+        id = e.dataset.msgid;
+      }else{
+        e = this.getMessageElemById(id);
+      }
+      console.debug("e && id ===",e&&id, e, id);
+      if(e && id){
+        D.remove(e);
+        F.toast.message("Deleted message "+id+".");
+      }
       return !!e;
+    };
+
+    /** Given a .message-row element, this function returns whethe the
+        current user may, at least hypothetically, delete the message
+        globally.  A user may always delete a local copy of a
+        post. The server may trump this, e.g. if the login has been
+        cancelled after this page was loaded.
+    */
+    cs.userMayDelete = function(eMsg){
+      return this.me === eMsg.dataset.xfrom
+        || F.user.isAdmin/*will be confirmed server-side*/;
     };
 
     /**
        Removes the given message ID from the local chat record and, if
        the message was posted by this user OR this user in an
        admin/setup, also submits it for removal on the remote.
+
+       id may optionally be a DOM element, in which case it must be a
+       .message-row element.
     */
-    cs.deleteMessageById = function(id){
-      const e = this.getMessageElemById(id);
-      if(!e) return;
-      if(this.me === e.dataset.xfrom
-         || F.user.isAdmin/*will be confirmed server-side*/
-        ){
+    cs.deleteMessage = function(id){
+      var e;
+      if(id instanceof HTMLElement){
+        e = id;
+        id = e.dataset.msgid;
+      }else{
+        e = this.getMessageElemById(id);
+      }
+      if(!(e instanceof HTMLElement)) return;
+      if(this.userMayDelete(e)){
         fetch("chat-delete?name=" + id)
-          .then(()=>D.remove(e))
-          .then(()=>F.toast.message("Deleted message "+id+"."))
+          .then(()=>this.deleteMessageElem(e))
           .catch(err=>this.reportError(err))
       }else{
-        D.remove(e);
-        F.toast.message("Locally removed message "+id+".");
+        this.deleteMessageElem(id);
       }
     };
 
@@ -200,25 +231,44 @@
     if(!f.popup){
       /* Timestamp popup widget */
       f.popup = new F.PopupWidget({
-        cssClass: ['fossil-tooltip', 'chat-timestamp'],
+        cssClass: ['fossil-tooltip', 'chat-message-popup'],
         refresh:function(){
-          const D = F.dom;
+          const eMsg = this._eMsg;
+          if(!eMsg) return;
           D.clearElement(this.e);
-          const d = new Date(this._timestamp+"Z");
+          const d = new Date(eMsg.dataset.timestamp+"Z");
           if(d.getMinutes().toString()!=="NaN"){
             // Date works, render informative timestamps
-            D.append(this.e, localTimeString(d)," client-local", D.br(),
-                     iso8601ish(d));
+            D.append(this.e,
+                     D.append(D.span(), localTimeString(d)," client-local"),
+                     D.append(D.span(), iso8601ish(d)));
           }else{
             // Date doesn't work, so dumb it down...
-            D.append(this.e, this._timestamp," GMT");
+            D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," GMT"));
           }
+          const toolbar = D.addClass(D.div(), 'toolbar');
+          const btnDelete = D.button("Delete "+
+                                     (Chat.userMayDelete(eMsg)
+                                      ? "globally" : "locally"));
+          const self = this;
+          btnDelete.addEventListener('click', function(){
+            self.hide();
+            Chat.deleteMessage(eMsg);
+          });
+          D.append(this.e, toolbar);
+          D.append(toolbar, btnDelete);
         }
       });
       f.popup.installClickToHide();
+      f.popup.hide = function(){
+        delete this._eMsg;
+        D.clearElement(this.e);
+        return this.show(false);
+      };
     }
     const rect = ev.target.getBoundingClientRect();
-    f.popup._timestamp = ev.target.dataset.timestamp;
+    const eMsg = ev.target.parentNode/*the owning fieldset element*/;
+    f.popup._eMsg = eMsg;
     let x = rect.left, y = rect.top - 10;
     f.popup.show(ev.target)/*so we can get its computed size*/;
     if('right'===ev.target.getAttribute('align')){
@@ -237,15 +287,15 @@
       if( m.msgid>Chat.mxMsg ) Chat.mxMsg = m.msgid;
       if( m.mdel ){
         /* A record deletion notice. */
-        Chat.deleteMessageElemById(m.mdel);
+        Chat.deleteMessageElem(m.mdel);
         continue;
       }
       const eWho = D.create('legend'),
             row = D.addClass(D.fieldset(eWho), 'message-row');
       row.dataset.msgid = m.msgid;
       row.dataset.xfrom = m.xfrom;
+      row.dataset.timestamp = m.mtime;
       injectMessage(row);
-      eWho.dataset.timestamp = m.mtime;
       eWho.addEventListener('click', handleLegendClicked, false);
       if( m.xfrom==Chat.me && window.outerWidth<1000 ){
         eWho.setAttribute('align', 'right');

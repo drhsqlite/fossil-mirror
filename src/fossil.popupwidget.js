@@ -14,11 +14,19 @@
      Options:
 
      .refresh: callback which is called just before the tooltip is
-     revealed or moved. It must refresh the contents of the tooltip,
-     if needed, by applying the content to/within this.e, which is the
-     base DOM element for the tooltip (and is a child of
-     document.body). If the contents are static and set up via the
-     .init option then this callback is not needed.
+     revealed. It must refresh the contents of the tooltip, if needed,
+     by applying the content to/within this.e, which is the base DOM
+     element for the tooltip (and is a child of document.body). If the
+     contents are static and set up via the .init option then this
+     callback is not needed. When moving an already-shown tooltip,
+     this is *not* called. It arguably should be, but the fact is that
+     we often have to show() a popup twice in a row without hiding it
+     between those calls: once to get its computed size and another to
+     move it by some amount relative to that size. If the state of the
+     popup depends on its position and a "double-show()" is needed
+     then the client must hide() the popup between the two calls to
+     show() in order to force a call to refresh() on the second
+     show().
 
      .adjustX: an optional callback which is called when the tooltip
      is to be displayed at a given position and passed the X
@@ -142,12 +150,17 @@
 
        Returns this object.
 
+       If this call will reveal the element then it calls
+       this.refresh() to update the UI state. If the element was
+       already revealed, the call to refresh() is skipped.
+
        Sidebar: showing/hiding the widget is, as is conventional for
        this framework, done by removing/adding the 'hidden' CSS class
        to it, so that class must be defined appropriately.
     */
     show: function(){
-      var x = undefined, y = undefined, showIt;
+      var x = undefined, y = undefined, showIt,
+          wasShown = !this.e.classList.contains('hidden');
       if(2===arguments.length){
         x = arguments[0];
         y = arguments[1];
@@ -164,7 +177,7 @@
         }
       }
       if(showIt){
-        this.refresh();
+        if(!wasShown) this.refresh();
         x = this.options.adjustX.call(this,x);
         y = this.options.adjustY.call(this,y);
         x += window.pageXOffset;
@@ -184,20 +197,31 @@
       return this;
     },
 
+    /**
+       Equivalent to show(false), but may be overridden by instances,
+       so long as they also call this.show(false) to perform the
+       actual hiding. Overriding can be used to clean up any state so
+       that the next call to refresh() (before the popup is show()n
+       again) can recognize whether it needs to do something, noting
+       that it's legal, and sometimes necessary, to call show()
+       multiple times without needing/wanting to completely refresh
+       the popup between each call (e.g. when moving the popup after
+       it's been show()n).
+    */
     hide: function(){return this.show(false)},
 
     /**
        A convenience method which adds click handlers to this popup's
-       main element and document.body to hide the popup when either
-       element is clicked or the ESC key is pressed. Only call this
-       once per instance, if at all. Returns this;
+       main element and document.body to hide (via hide()) the popup
+       when either element is clicked or the ESC key is pressed. Only
+       call this once per instance, if at all. Returns this;
     */
     installClickToHide: function f(){
-      this.e.addEventListener('click', ()=>this.show(false), false);
-      document.body.addEventListener('click', ()=>this.show(false), true);
+      this.e.addEventListener('click', ()=>this.hide(), false);
+      document.body.addEventListener('click', ()=>this.hide(), true);
       const self = this;
       document.body.addEventListener('keydown', function(ev){
-        if(self.isShown() && 27===ev.which) self.show(false);
+        if(self.isShown() && 27===ev.which) self.hide();
       }, true);
       return this;
     }

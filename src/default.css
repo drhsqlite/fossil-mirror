@@ -1505,3 +1505,20 @@ body.chat .message-row .message-user {
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
 }
+
+body.chat .chat-message-popup {
+  font-family: monospace;
+  font-size: 0.8em;
+  text-align: left;
+  opacity: 0.8;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.chat-message-popup > span { white-space: nowrap; }
+.chat-message-popup > .toolbar {
+  padding: 0.2em;
+  margin: 0;
+  border: 2px inset rgba(0,0,0,0.3);
+  border-radius: 0.25em;
+}

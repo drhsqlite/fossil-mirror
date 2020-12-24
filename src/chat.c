@@ -128,13 +128,6 @@ void chat_webpage(void){
   @ #chat-input-file > input {
   @   flex: 1 0 auto;
   @ }
-  @ .chat-timestamp {
-  @    font-family: monospace;
-  @    font-size: 0.8em;
-  @    white-space: pre;
-  @    text-align: left;
-  @    opacity: 0.8;
-  @ }
   @ #chat-input-file.dragover {
   @   border: 1px dashed green;
   @ }
