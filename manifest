@@ -1,5 +1,5 @@
-C Initial\simpl\sof\sbuttons\sto\sload\solder\schat\smessages.\sThe\sUI\scode\sis\sa\sbit\smore\sinvolved\sthan\smight\sseem\snecessary,\sbut\sis\sso\slargely\sbecause\sit\sneeds\sto\savoid\sUI/ajax\srace\sconditions.
-D 2020-12-24T20:18:49.278
+C chat\smessage\sdeletion:\sadmins\snow\shave\sboth\sdelete\slocal\sand\sdelete\sglobal\soptions,\sin\scase\sthey\swant\sto\sremove\ssomething\sfrom\slocal\sview\swithout\sdeleting\sit\sfor\sall\susers.
+D 2020-12-24T22:07:40.399
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c f3077e254e3acc9a01b3075f8f8ab87d86a0b82abb40dad7ee26b1f9d85066ad
-F src/chat.js 4a585270b2830192dd25e0a4cd2c8daae4fdc872adc31a19cc2237aef2832c39
+F src/chat.js 9ddc42378927bda2865671a50c772650bbecec6db6a4cba3f3874b92f07aa627
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -466,7 +466,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 654cfd99cc5470ed06d821ec61b9fd7b46f99a9a3614c4ba7523209baec56b99
-F src/default.css 4a47d295a14a84f66d007d87d03ccdfb445ff0aeaa40ae1b177b2a79b52dca6f
+F src/default.css 66a5152ad74969fce9c03fe7076602e1df14c3da694dd1cd3e456bf6066f90e1
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ffb40fd8940c59a72fd68a0737f32d0c621307422d85b99fc9466a686256f17b
-R 7d27c294ff8cf7044e9d31c20d93caff
+P 6d676f6eb5d78f4dd1db55caf589d8ea360159a1b497348b5a25313b6284dffb
+R 5b60e6fa468a6c843948ff264187a974
 U stephan
-Z 9bc6280199668d0825f8704812ff3ff0
+Z 8d73140807a90cea11ff35386211fb86

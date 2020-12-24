@@ -299,22 +299,30 @@
             D.append(this.e,
                      D.append(D.span(), localTimeString(d)," client-local"),
                      D.append(D.span(), iso8601ish(d)));
-          }else{
+           }else{
             // Date doesn't work, so dumb it down...
             D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," GMT"));
           }
           const toolbar = D.addClass(D.div(), 'toolbar');
-          const btnDelete = D.button("Delete "+
-                                     (Chat.userMayDelete(eMsg)
-                                      ? "globally" : "locally"));
-          const self = this;
-          btnDelete.addEventListener('click', function(){
-            self.hide();
-            Chat.deleteMessage(eMsg);
-          });
           D.append(this.e, toolbar);
-          D.append(toolbar, btnDelete);
-        }
+          const btnDeleteLocal = D.button("Delete locally");
+          D.append(toolbar, btnDeleteLocal);
+          const self = this;
+          btnDeleteLocal.addEventListener('click', function(){
+            console.debug("local-only delete");
+            self.hide();
+            Chat.deleteMessageElem(eMsg);
+          });
+          if(Chat.userMayDelete(eMsg)){
+            const btnDeleteGlobal = D.button("Delete globally");
+            D.append(toolbar, btnDeleteGlobal);
+            btnDeleteGlobal.addEventListener('click', function(){
+              console.debug("global delete");
+              self.hide();
+              Chat.deleteMessage(eMsg);
+            });
+          }
+        }/*refresh()*/
       });
       f.popup.installClickToHide();
       f.popup.hide = function(){
