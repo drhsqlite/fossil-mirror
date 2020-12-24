@@ -2980,7 +2980,7 @@ void cmd_webserver(void){
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     if( zChat ){
-      zBrowserCmd = mprintf("%s \"%s\" &", zBrowser, zChat);
+      zBrowserCmd = mprintf("%s %s &", zBrowser, zChat);
     }else if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
                             zBrowser, zInitPage);

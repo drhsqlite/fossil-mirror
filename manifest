@@ -1,5 +1,5 @@
-C Disable\sCSP\sfor\s/chat\swith\sa\sping=\squery\sparameter.\s\sThis\sis\sa\sdrastic\smeasure\nto\sget\sthe\sfeature\sworking.\s\sWe\scan\swork\son\sproviding\sa\sbetter\ssolution\slater.
-D 2020-12-24T17:10:24.723
+C Fix\sa\sproblem\swith\sweb-browser\slaunch\son\sWindows\sfor\s"fossil\schat".
+D 2020-12-24T17:46:15.057
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -542,7 +542,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c f687d6769ceee0f6963ccef23fb9b67355f15eef112c2f4b0974bc4aebe71cca
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 2158c7feab78df968ff3a9d1dbddfd79f974e3faa92039e11bd6b428de5b2106
+F src/main.c 2b530daa3a2232249d698d95259100d162cd0113abc465f65aad0113bcca9795
 F src/main.mk a9b0af84ee171ed486bf485d9711850911a4f360ee5b9361d33e96ba195bce66
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4862238ec50899e50c7440499b7107ad2837f0226c32575ad5b5d8f6e7f47b4
-R a75018f61fdcf1f6d2f53298432b261d
+P 02961b80782e93931548889fa4833d40705d609b70df0964eaa3d9bc53a39043
+R 6070c2713f03989443239eee9851373c
 U drh
-Z d76ab17dd91382a7023b03ae0b7bd97e
+Z c436eefda4aad4bbd90d85773520d9b6
