@@ -499,7 +499,10 @@
     var p = fetch("chat-poll?name=" + Chat.mxMsg);
     p.then(x=>x.json())
       .then(y=>newcontent(y))
-      .catch(e=>Chat.reportError(e))
+      .catch(e=>console.error(e))
+    /* ^^^ we don't use Chat.reportError(e) here b/c the polling
+       fails exepectedly when it times out, but is then immediately
+       resumed, and reportError() produces a loud error message. */
       .finally(function(x){
         if(isFirstCall) Chat.ajaxEnd();
         poll.running=false;

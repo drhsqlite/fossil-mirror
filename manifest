@@ -1,5 +1,5 @@
-C chat\smessage\sdeletion:\sadmins\snow\shave\sboth\sdelete\slocal\sand\sdelete\sglobal\soptions,\sin\scase\sthey\swant\sto\sremove\ssomething\sfrom\slocal\sview\swithout\sdeleting\sit\sfor\sall\susers.
-D 2020-12-24T22:07:40.399
+C chat\spoll\sagain\suses\s"quiet"\serror\shandling\sto\savoid\sposting\stoast\serror\smessages\swhen\sit\stimes\sout\s(which\sit\sdoes\severy\s10\sminutes\sor\sso\swhen\sidle).
+D 2020-12-24T22:21:52.791
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c f3077e254e3acc9a01b3075f8f8ab87d86a0b82abb40dad7ee26b1f9d85066ad
-F src/chat.js 9ddc42378927bda2865671a50c772650bbecec6db6a4cba3f3874b92f07aa627
+F src/chat.js 511d4cc5fc433a2fd85cda12d7d030b552587aa1bb239ecea0e0fa64e17e4321
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d676f6eb5d78f4dd1db55caf589d8ea360159a1b497348b5a25313b6284dffb
-R 5b60e6fa468a6c843948ff264187a974
+P b12d69d9f4686cef96dab5b37902b0d48581116228d0f74c91fa93d9a0d0b664
+R 8c9c1cc147d8ea656dc2bac61c9155fe
 U stephan
-Z 8d73140807a90cea11ff35386211fb86
+Z aa6a51266135a17f4ffa9116ec9b8b35
