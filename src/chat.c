@@ -301,7 +301,7 @@ static char *chat_format_to_html(const char *zMsg){
            && (strncmp(zSafe+i,"http:",5)==0
                || strncmp(zSafe+i,"https:",6)==0) ){
       for(k=i+1; zSafe[k] && !fossil_isspace(zSafe[k]); k++){}
-      if( zSafe[k] && k>i+7 ){
+      if( k>i+7 ){
         char c = zSafe[k];
         if( !fossil_isalnum(zSafe[k-1]) && zSafe[k-1]!='/' ){
           k--;
