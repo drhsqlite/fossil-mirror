@@ -388,6 +388,7 @@ void chat_poll_webpage(void){
   Blob json;                  /* The json to be constructed and returned */
   sqlite3_int64 dataVersion;  /* Data version.  Used for polling. */
   int iDelay = 1000;          /* Delay until next poll (milliseconds) */
+  int nDelay = 420;           /* Maximum delay.  420*1000 = about 7 minutes */
   int msgid = atoi(PD("name","0"));
   const int msgBefore = atoi(PD("before","0"));
   int nLimit = msgBefore>0 ? atoi(PD("n","0")) : 0;
@@ -433,7 +434,7 @@ void chat_poll_webpage(void){
   db_prepare(&q1, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   blob_init(&json, "{\"msgs\":[\n", -1);
-  while(1){
+  while( nDelay>0 ){
     int cnt = 0;
     while( db_step(&q1)==SQLITE_ROW ){
       int id = db_column_int(&q1, 0);
@@ -470,21 +471,21 @@ void chat_poll_webpage(void){
     }
     db_reset(&q1);
     if( cnt || msgBefore>0 ){
-      blob_append(&json, "\n]}", 3);
-      cgi_set_content(&json);
       break;
     }
-    sqlite3_sleep(iDelay);
-    while( 1 ){
+    sqlite3_sleep(iDelay); nDelay--;
+    while( nDelay>0 ){
       sqlite3_int64 newDataVers = db_int64(0,"PRAGMA repository.data_version");
       if( newDataVers!=dataVersion ){
         dataVersion = newDataVers;
         break;
       }
-      sqlite3_sleep(iDelay);
+      sqlite3_sleep(iDelay); nDelay--;
     }
   } /* Exit by "break" */
   db_finalize(&q1);
+  blob_append(&json, "\n]}", 3);
+  cgi_set_content(&json);
   return;      
 }
 
