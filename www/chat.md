@@ -4,42 +4,40 @@
 
 As of version 2.14 (and prerelease versions after about 2020-12-25),
 Fossil supports a developer chatroom feature.  The chatroom provides an
-ephemeral discussion forum for insiders.  Design goals include:
+ephemeral discussion venue for insiders.  Design goals include:
 
   *  **Simple but functional** &rarr; Fossil chat is designed to provide a
      convenient real-time communication mechanism for geographically
-     distributed developers.  It is not intended as a replace or 
+     dispersed developers.  Fossil chat is emphatically *not* intended
+     as a replacement or 
      competitor for IRC, Slack, Discord, Telegram, Google Hangouts, etc.
 
-  *  **Low administrative overhead** &rarr;
-     There is nothing new to set up or configure.
+  *  **Low administration** &rarr;
+     There is no additional set up or configuration.
      Simply enable the [C capability](/setup_ucap_list) for users
      whom you want to give access to the chatroom.
 
   *  **Ephemeral** &rarr;
      Chat messages do not sync to peer repositories.  And they are
      automatically deleted after a configurable delay (default: 7 days).
-
-Fossil chat is designed to provide a communication venue for discussion
-that does *not* become part of the permanent record for the project.
-For persist and syncable discussion, use the [Forum](./forum.wiki).
+     They can be deleted at any time without impacting any other part
+     of the system.
 
 Fossil chat is designed for use by insiders - people with check-in
-privileges or higher.  It is not intended as a general-urpose gathering
-place for random passers-by on the internet.  (It could be used for that,
-in theory, but its feature set is not designed with that use case in mind.)
+privileges or higher.  It is not intended as a general-purpose gathering
+place for random passers-by on the internet. 
+Fossil chat is seeks to provide a communication venue for discussion
+that does *not* become part of the permanent record for the project.
+For persist and durable discussion, use the [Forum](./forum.wiki).
+Because the conversation is intended to be ephemeral, the chat messages
+are local to a single repository.  Chat content does not sync.
 
-Fossil chat is designed for transient, ephemerial, real-time discussion.
-The conversation is local to a single repository and is not synced or
-retained long-term.
-
-Fossil chat is specific to a single repository.  It is only really useful
-if you configure a [common server repository](./server/) that all chat
-participants can connect to.
 
 ## Setup
 
-To activate Fossil chat, simply add the [C capability](/setup_ucap_list)
+A Fossil repository must be functioning as a [server](./server/) in order
+for chat to work.
+To activate chat, simply add the [C capability](/setup_ucap_list)
 to every user who is authorized to participate.  Anyone who can read chat
 can also post to chat.
 
@@ -60,8 +58,8 @@ For users with appropriate permissions simply browse to the
 [/chat](/help?cmd=/chat) to start up a chat session.  The default
 skin includes a "Chat" entry on the menu bar on wide screens for
 people with chat privilege.  There is also a "Chat" option on
-the [Sitemap page](/sitemap) (which is linked to the hamburger menu
-of many skins).
+the [Sitemap page](/sitemap), which means that chat will appears
+as an option under the hamburger menu for many [skins](./customskin.md).
 
 Message text is delivered verbatim.  There is no markup.  However,
 the chat system does try to identify and tag hyperlinks, as follows:
@@ -77,16 +75,47 @@ the chat system does try to identify and tag hyperlinks, as follows:
 Apart from adding hyperlink anchor tags to bits of text that look
 like hyperlinks, no changes are made to the input text.
 
+## Aural Alerts
+
+If you have a local clone and checkout for a remote Fossil repository
+and that remote repository supports chat,
+then you can bring up a chat window for that remote repository
+that will beep whenever new content arrives.  This must be done from a
+terminal window.
+Change directories to a working checkout of the local clone and type:
+
+>    fossil chat
+
+This command will bring up a chat window in your default web-browser
+(similar to the way the "[fossil ui](/help?cmd=ui)" does).   The
+chat will be for the remote repository, the repository whose URL shows
+when you type the "[fossil remote](/help?cmd=remote)" command.  In
+addition to bring up the chat window, this command will also
+send a single "bel" character (U+0007) to standard error of the terminal
+whenever new messages arrive in the chat window.  On most systems,
+the terminal windows will emit an "beep" whenever they receive the U+0007
+character.  This works out-of-the-box for Mac and Windows, but on some
+flavors of Linux, you might need to enable terminal beeps in your system
+preferences.
+
+In theory, it should be possible to get a web-browser to make an alert
+sound whenever new content arrives in the chat window.  However, the
+Fossil developers have been unable to figure out how to do that.
+Web-browsers make it very difficult to play sounds that are
+not the direct result of a user-click, probably to prevent
+advertisements from pestering users with a cacophony of alerts.
+
+
 ## Implementation Details
 
-*(This section is informational only.  You do not need to understand
-how Fossil chat works in order to use it.  But many developers prefer
-to know what is happening "under the hood".)*
+*You do not need to understand how Fossil chat works in order to use it.
+But many developers prefer to know how their tools work.
+This section is provided for the benefit of those curious developers.*
 
 The [/chat](/help?cmd=/chat) webpage downloads a small amount of
 HTML and a few KB of javascript to run the chat session.  The 
 javascript uses XMLHttpRequest (XHR) to download chat content,
-post not content, or delete historical message.  The following
+post new content, or delete historical messages.  The following
 web interfaces are used by the XHR:
 
   *  **/chat-poll** &rarr;
@@ -103,14 +132,21 @@ web interfaces are used by the XHR:
   *  **/chat-delete** &rarr;
      Delete a chat message.
 
-The Fossil chat design uses the traditional "hanging GET" or 
+  *  **/chat-ping** &rarr;
+     An HTTP request to this page on the loopback IP address causes
+     a single U+0007 "bel" character to be sent to standard error of
+     the controlling terminal.  This is used to implement
+     aural alerts with the "[fossil chat](/help?cmd=chat)" command.
+
+Fossil chat uses the venerable "hanging GET" or 
 "[long polling](wikipedia:/wiki/Push_technology#Long_polling)"
-to wait for new chat messages.  This is done because that technique works
-easily with CGI and SCGI, which are the usual mechanisms for setting up
-a Fossil server.  More advanced techniques such as 
+technique to recieve asynchronous notification of new messages.
+This is done because long polling works well with CGI and SCGI,
+which are the usual mechanisms for setting up a Fossil server.
+More advanced notification techniques such as 
 [Server-sent events](wikipedia:/wiki/Server-sent_events) and especially
 [WebSockets](wikipedia:/wiki/WebSocket) might seem more appropriate for
-a chat system, but those technologies are not readily compatible with CGI.
+a chat system, but those technologies are not compatible with CGI.
 
 Chat messages are stored on the server-side in the CHAT table of
 the repository.

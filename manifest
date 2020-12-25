@@ -1,5 +1,5 @@
-C chat:\sadded\stoggles\sfor\ssingle/multi-line\sinput\s(non-persistent)\sand\smonospace\smessage\sfont\s(persistent\s-\saffects\smessage\sbodies\sand\stext\sinput\sfields).
-D 2020-12-25T17:52:51.123
+C Improvements\sto\schat\sdocumentation.
+D 2020-12-25T19:12:55.247
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -832,7 +832,7 @@ F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c82
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
 F www/changes.wiki 165bbeb53d7515e1a95604d33c5c4065b231e2675516502037af14620f4178ff
-F www/chat.md 70a75a3c869d2a5356c007c6b55f74b0903130a9933d0afb8e021edd84a864fb
+F www/chat.md 7ca1210e2714e236f6f41b344141412a9a443e6e419010968c8410a57f0b6b94
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bcfdc1a106cb2ab9d5b699b28abb3a35077208742a2ceae234ebe0a2564a067b
-R 3c7f9e7a354e478ee77db5de2854fd42
-U stephan
-Z 54ecf385c28509feac9e40bf30614588
+P 9d24a2849018c58e735d689121263587f752535a9534eb6fbe12ab98d4ca0da1
+R ede43f45f516ff5ea5d9dc2f3ed6d22b
+U drh
+Z 877d78c1dffa3d360e54f567bb1c1e79
