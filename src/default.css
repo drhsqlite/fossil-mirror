@@ -1475,41 +1475,41 @@ body.chat span.at-name { /* for @USERNAME references */
   font-weight: bold;
 }
 /* A wrapper for a single single message (one row of the UI) */
-body.chat .message-row {
-  margin-bottom: 0.5em;
+body.chat .message-widget {
+  margin-bottom: 0.75em;
   border: none;
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  /*border: 1px solid rgba(0,0,0,0.2);
-  border-radius: 0.25em;
-  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);*/
+  flex-direction: column;
   border: none;
+  align-items: flex-start;
+}
+body.chat.my-messages-right .message-widget.mine {
+  align-items: flex-end;
 }
 /* The content area of a message (the body element of a FIELDSET) */
-body.chat .message-content {
+body.chat .message-widget-content {
   display: inline-block;
   border-radius: 0.25em;
   border: 1px solid rgba(0,0,0,0.2);
   box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
   padding: 0.25em 0.5em;
-  margin-top: -0.75em/*slide it up to the base of the LEGEND*/;
+  margin-top: 0;
   min-width: 9em /*avoid unsightly "underlap" with the user name label*/;
   white-space: pre-wrap/*needed for multi-line edits*/;
 }
-body.chat.monospace-messages .message-content,
+body.chat.monospace-messages .message-widget-content,
 body.chat.monospace-messages textarea,
 body.chat.monospace-messages input[type=text]{
   font-family: monospace;  
 }
 
 /* User name for the post (a LEGEND element) */
-body.chat .message-row .message-user {
+body.chat .message-widget .message-widget-tab {
   border-radius: 0.25em 0.25em 0 0;
   padding: 0 0.5em;
   /*text-align: left; Firefox requires the 'align' attribute */
-  margin: 0 0.25em 0.4em 0.15em;
-  padding: 0 0.5em 0em 0.5em;
+  margin: 0 0.25em 0em 0.15em;
+  padding: 0 0.5em 0.15em 0.5em;
   cursor: pointer;
 }
 

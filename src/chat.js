@@ -33,11 +33,6 @@
       totalMessageCount: 0, // total # of inbound messages
       //! Number of messages to load for the history buttons
       loadMessageCount: Math.abs(F.config.chat.initSize || 20),
-      /* Alignment of 'my' messages: must be 'left' or 'right'. Note
-         that 'right' is conventional for mobile chat apps but can be
-         difficult to read in wide windows (desktop/tablet landscape
-         mode). Can be toggled via settings popup. */
-      msgMyAlign: (window.innerWidth<window.innerHeight) ? 'right' : 'left',
       ajaxInflight: 0,
       /** Gets (no args) or sets (1 arg) the current input text field value,
           taking into account single- vs multi-line input. The getter returns
@@ -140,6 +135,13 @@
       const v = cs.settings.get(k,f);
       if(f===v) cs.settings.set(k,cs.settings.defaults[k]);
     });
+    if(window.innerWidth<window.innerHeight){
+      /* Alignment of 'my' messages: right alignment is conventional
+         for mobile chat apps but can be difficult to read in wide
+         windows (desktop/tablet landscape mode). Can be toggled via
+         settings popup. */
+      document.body.classList.add('my-messages-right');
+    }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
     }
@@ -224,6 +226,89 @@
     }, true);
     return cs;
   })()/*Chat initialization*/;
+
+  /**
+     Custom widget type for rendering messages (one message per
+     instance). These are modelled after FIELDSET elements but we
+     don't use FIELDSET because of cross-browser inconsistencies in
+     features of the FIELDSET/LEGEND combination, e.g. inability to
+     align legends via CSS in Firefox and clicking-related
+     deficiencies in Safari.
+  */
+  const MessageWidget = (function(){
+    const cf = function(){
+      this.e = {
+        body: D.addClass(D.div(), 'message-widget'),
+        tab: D.addClass(D.span(), 'message-widget-tab'),
+        content: D.addClass(D.div(), 'message-widget-content')
+      };
+      D.append(this.e.body, this.e.tab);
+      D.append(this.e.body, this.e.content);
+      this.e.tab.setAttribute('role', 'button');
+    };
+    cf.prototype = {
+      setLabel: function(label){
+        return this;
+      },
+      setPopupCallback: function(callback){
+        this.e.tab.addEventListener('click', callback, false);
+        return this;
+      },
+      setMessage: function(m){
+        const ds = this.e.body.dataset;
+        ds.timestamp = m.mtime;
+        ds.msgid = m.msgid;
+        ds.xfrom = m.xfrom;
+        if(m.xfrom === Chat.me){
+          D.addClass(this.e.body, 'mine');
+        }
+        this.e.content.style.backgroundColor = m.uclr;
+        this.e.tab.style.backgroundColor = m.uclr;
+          
+        const d = new Date(m.mtime);
+        D.append(
+          D.clearElement(this.e.tab), D.text(
+            m.xfrom+' @ '+d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3))
+        );
+        var contentTarget = this.e.content;
+        if( m.fsize>0 ){
+          if( m.fmime
+              && m.fmime.startsWith("image/")
+              && Chat.settings.getBool('images-inline',true)
+            ){
+            contentTarget.appendChild(D.img("chat-download/" + m.msgid));
+          }else{
+            const a = D.a(
+              window.fossil.rootPath+
+                'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname),
+              // ^^^ add m.fname to URL to cause downloaded file to have that name.
+              "(" + m.fname + " " + m.fsize + " bytes)"
+            )
+            D.attr(a,'target','_blank');
+            contentTarget.appendChild(a);
+          }
+          contentTarget = D.div();
+        }
+        if(m.xmsg){
+          if(contentTarget !== this.e.content){
+            D.append(this.e.content, contentTarget);
+          }
+          // The m.xmsg text comes from the same server as this script and
+          // is guaranteed by that server to be "safe" HTML - safe in the
+          // sense that it is not possible for a malefactor to inject HTML
+          // or javascript or CSS.  The m.xmsg content might contain
+          // hyperlinks, but otherwise it will be markup-free.  See the
+          // chat_format_to_html() routine in the server for details.
+          //
+          // Hence, even though innerHTML is normally frowned upon, it is
+          // perfectly safe to use in this context.
+          contentTarget.innerHTML = m.xmsg;
+        }
+        return this;
+      }
+    };
+    return cf;
+  })()/*MessageWidget*/;
 
   const BlobXferState = (function(){/*drag/drop bits...*/
     /* State for paste and drag/drop */
@@ -415,15 +500,17 @@
       };
     }/*end static init*/
     const rect = ev.target.getBoundingClientRect();
-    const eMsg = ev.target.parentNode/*the owning fieldset element*/;
+    const eMsg = ev.target.parentNode/*the owning .message-widget element*/;
     f.popup._eMsg = eMsg;
-    let x = rect.left, y = rect.top - 10;
+    console.debug("eMsg, rect", eMsg, rect);
+    let x = rect.left, y = rect.topm;
     f.popup.show(ev.target)/*so we can get its computed size*/;
-    if('right'===ev.target.getAttribute('align')){
+    if(eMsg.dataset.xfrom===Chat.me
+       && document.body.classList.contains('my-messages-right')){
       // Shift popup to the left for right-aligned messages to avoid
       // truncation off the right edge of the page.
       const pRect = f.popup.e.getBoundingClientRect();
-      x -= pRect.width/3*2;
+      x = rect.right - pRect.width;
     }
     f.popup.show(x, y);
   }/*handleLegendClicked()*/;
@@ -497,17 +584,9 @@
       }
     },{
       label: "Left-align my posts",
-      boolValue: ()=>'left'===Chat.msgMyAlign,
+      boolValue: ()=>!document.body.classList.contains('my-messages-right'),
       callback: function f(){
-        if('right'===Chat.msgMyAlign) Chat.msgMyAlign = 'left';
-        else Chat.msgMyAlign = 'right';
-        const msgs = Chat.e.messagesWrapper.querySelectorAll('.message-row');
-        msgs.forEach(function(row){
-          if(row.dataset.xfrom!==Chat.me) return;
-          row.querySelector('legend').setAttribute('align', Chat.msgMyAlign);
-          if('right'===Chat.msgMyAlign) row.style.justifyContent = "flex-end";
-          else row.style.justifyContent = "flex-start";
-        });
+        document.body.classList.toggle('my-messages-right');
       }
     },{
       label: "Images inline",
@@ -588,72 +667,10 @@
           Chat.deleteMessageElem(m.mdel);
           return;
         }
-        const eWho = D.create('legend'),
-              row = D.addClass(D.fieldset(eWho), 'message-row');
-        row.dataset.msgid = m.msgid;
-        row.dataset.xfrom = m.xfrom;
-        row.dataset.timestamp = m.mtime;
-        Chat.injectMessageElem(row,atEnd);
-        eWho.addEventListener('click', handleLegendClicked, false);
-        eWho.setAttribute('role', 'button');
-        if( m.xfrom==Chat.me ){
-          eWho.setAttribute('align', Chat.msgMyAlign);
-          if('right'===Chat.msgMyAlign){
-            row.style.justifyContent = "flex-end";
-          }else{
-            row.style.justifyContent = "flex-start";
-          }
-        }else{
-          eWho.setAttribute('align', 'left');
-        }
-        eWho.style.backgroundColor = m.uclr;
-        eWho.classList.add('message-user');
-        let whoName = m.xfrom;
-        var d = new Date(m.mtime);
-        if( d.getMinutes().toString()!="NaN" ){
-          /* Show local time when we can compute it */
-          eWho.append(D.text(whoName+' @ '+
-                             d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3)
-                            ))
-        }else{
-          /* Show UTC on systems where Date() does not work */
-          eWho.append(D.text(whoName+' @ '+m.mtime.slice(11,16)))
-        }
-        let eContent = D.addClass(D.div(),'message-content','chat-message');
-        eContent.style.backgroundColor = m.uclr;
-        row.appendChild(eContent);
-        if( m.fsize>0 ){
-          if( m.fmime
-              && m.fmime.startsWith("image/")
-              && Chat.settings.getBool('images-inline',true)
-            ){
-            eContent.appendChild(D.img("chat-download/" + m.msgid));
-          }else{
-            const a = D.a(
-              window.fossil.rootPath+
-                'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname),
-              // ^^^ add m.fname to URL to cause downloaded file to have that name.
-              "(" + m.fname + " " + m.fsize + " bytes)"
-            )
-            D.attr(a,'target','_blank');
-            eContent.appendChild(a);
-          }
-          const br = D.br();
-          br.style.clear = "both";
-          eContent.appendChild(br);
-        }
-        if(m.xmsg){
-          // The m.xmsg text comes from the same server as this script and
-          // is guaranteed by that server to be "safe" HTML - safe in the
-          // sense that it is not possible for a malefactor to inject HTML
-          // or javascript or CSS.  The m.xmsg content might contain
-          // hyperlinks, but otherwise it will be markup-free.  See the
-          // chat_format_to_html() routine in the server for details.
-          //
-          // Hence, even though innerHTML is normally frowned upon, it is
-          // perfectly safe to use in this context.
-          eContent.innerHTML += m.xmsg
-        }
+        const row = new MessageWidget()
+        row.setMessage(m);
+        row.setPopupCallback(handleLegendClicked);
+        Chat.injectMessageElem(row.e.body,atEnd);
       }/*processPost()*/;
     }/*end static init*/
     jx.msgs.forEach((m)=>f.processPost(m,atEnd));
