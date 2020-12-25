@@ -1,5 +1,5 @@
-C Do\snot\suse\s&lt;fieldset&gt;\sand\s&lt;legend&gt;\sas\sSafari\sdoes\snot\sallow\none\sto\sbind\s'click'\sevents.
-D 2020-12-25T23:02:06.809
+C CSS\sdocs\sand\sline-wrapped\sthe\snew\ssettings\sicon\sdata\sURL.\sNo\sfunctional\schanges.
+D 2020-12-25T23:38:08.902
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -466,7 +466,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 654cfd99cc5470ed06d821ec61b9fd7b46f99a9a3614c4ba7523209baec56b99
-F src/default.css 06779eb19bb887de71cc0af9a9901916c9a621a5c122621d61e2928b174cbe1b
+F src/default.css 79a34de096aef91be0cb5ee7a738e9c3534f5e6ad22d1f8ada83d4afdcac5b5a
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -990,8 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5ab4888c2dc221aacdb0145ae8137adb7359dfaef18b7d316aab6a7daf926a8 c9ca5198be3a2b9d4239a3b9af05dae35fa01fce16fab640d344a49e5b85caa8
-R a2990dfe951d7990e1bd15e402d3b4ac
-T +closed c9ca5198be3a2b9d4239a3b9af05dae35fa01fce16fab640d344a49e5b85caa8
-U drh
-Z c7f5762aaa728c110b41bbe3fec53273
+P 6849bb0b6b5ae9ea1315fa88d43adb53c36be85fa7bc36cdffc383b786dc9fad
+R ca72798e345d3d03e34ac3a59d18ef3f
+U stephan
+Z ee0e1f9f0cd3573969c8ef53dc6c46e7

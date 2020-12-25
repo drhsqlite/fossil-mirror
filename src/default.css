@@ -1474,7 +1474,7 @@ body.chat span.at-name { /* for @USERNAME references */
   text-decoration: underline;
   font-weight: bold;
 }
-/* A wrapper for a single single message (one row of the UI) */
+/* A wrapper for a single single chat message (one row of the UI) */
 body.chat .message-widget {
   margin-bottom: 0.75em;
   border: none;
@@ -1484,9 +1484,11 @@ body.chat .message-widget {
   align-items: flex-start;
 }
 body.chat.my-messages-right .message-widget.mine {
+  /* Right-aligns a user's own chat messages, similar to how
+     most mobile messaging apps do it. */
   align-items: flex-end;
 }
-/* The content area of a message (the body element of a FIELDSET) */
+/* The content area of a message. */
 body.chat .message-widget-content {
   display: inline-block;
   border-radius: 0.25em;
@@ -1494,7 +1496,8 @@ body.chat .message-widget-content {
   box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
   padding: 0.25em 0.5em;
   margin-top: 0;
-  min-width: 9em /*avoid unsightly "underlap" with the user name label*/;
+  min-width: 9em /*avoid unsightly "underlap" with the neighboring
+                   .message-widget-tab element*/;
   white-space: pre-wrap/*needed for multi-line edits*/;
 }
 body.chat.monospace-messages .message-widget-content,
@@ -1503,11 +1506,10 @@ body.chat.monospace-messages input[type=text]{
   font-family: monospace;  
 }
 
-/* User name for the post (a LEGEND element) */
+/* User name and timestamp (a LEGEND-like element) */
 body.chat .message-widget .message-widget-tab {
   border-radius: 0.25em 0.25em 0 0;
   padding: 0 0.5em;
-  /*text-align: left; Firefox requires the 'align' attribute */
   margin: 0 0.25em 0em 0.15em;
   padding: 0 0.5em 0.15em 0.5em;
   cursor: pointer;
@@ -1517,6 +1519,8 @@ body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
 }
 
+/* The popup element for displaying message timestamps
+   and deletion controls. */
 body.chat .chat-message-popup {
   font-family: monospace;
   font-size: 0.8em;
@@ -1528,6 +1532,7 @@ body.chat .chat-message-popup {
   z-index: 200;
 }
 body.chat .chat-message-popup > span { white-space: nowrap; }
+/* Container for the message deletion buttons. */
 body.chat .chat-message-popup > .toolbar {
   padding: 0.2em;
   margin: 0;
@@ -1542,11 +1547,14 @@ body.chat .chat-message-popup > .toolbar > button {
   flex: 1 1 auto;
 }
 
+/* The main widget for loading more/older chat messages. */
 body.chat #load-msg-toolbar  {
   border-radius: 0.25em;
   padding: 0.1em 0.2em;
   margin-bottom: 1em;
 }
+/* Set when chat has loaded all of the available historical
+   messages */
 body.chat #load-msg-toolbar.all-done {
   opacity: 0.5;
 }
@@ -1560,10 +1568,19 @@ body.chat #load-msg-toolbar > div > button {
   flex: 1 1 auto;
 }
 
+/* An icon element intended for use as a button/menu for
+   accessing app-specific settings. */
 .settings-icon {
   /* Icon source: https://de.wikipedia.org/wiki/Datei:OOjs_UI_icon_settings.svg
      MIT License. */
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0, 0, 24, 24'%3e%3cg id='settings'%3e%3cpath id='gear' d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 0-1-.448-1-1v-2c0-.552.448-1 1-1zM3 11h9v2h-9zM18 11h3v2h-3zM14 10h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 0-1-.448-1-1v-2c0-.552.448-1 1-1zM3 18h6v2h-6zM15 18h6v2h-6zM11 17h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 0-1-.448-1-1v-2c0-.552.448-1 1-1z'/%3e%3c/g%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg \
+xmlns='http://www.w3.org/2000/svg' width='24' height='24' \
+viewBox='0, 0, 24, 24'%3e%3cg id='settings'%3e%3cpath id='gear' \
+d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 \
+0-1-.448-1-1v-2c0-.552.448-1 1-1zM3 11h9v2h-9zM18 11h3v2h-3zM14 10h2c.552 0 1 .448 \
+1 1v2c0 .552-.448 1-1 1h-2c-.552 0-1-.448-1-1v-2c0-.552.448-1 1-1zM3 18h6v2h-6zM15 \
+18h6v2h-6zM11 17h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 \
+0-1-.448-1-1v-2c0-.552.448-1 1-1z'/%3e%3c/g%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: center;
   display: inline-block;
@@ -1585,6 +1602,7 @@ body.fossil-dark-style .settings-icon {
 }
 body.chat #chat-settings-button {
 }
+/** Popup widget for the /chat settings. */
 body.chat .chat-settings-popup {
   font-size: 0.8em;
   text-align: left;
@@ -1619,10 +1637,13 @@ body.chat .chat-settings-popup > span.menu-entry > span.button {
 body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
   cursor: inherit;
 }
+/** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
   display: flex;
   flex-direction: column;
 }
+/* "Chat-only mode" hides the site header/footer, showing only
+   the chat app. */
 body.chat.chat-only-mode{
 }
 body.chat.chat-only-mode > div.content {
@@ -1653,7 +1674,7 @@ body.chat.chat-only-mode #chat-messages-wrapper {
                  lower than div.content then mouse events to it
                  are blocked!*/;
 }
-
+/* Wrapper for /chat user input controls */
 body.chat #chat-input-area {
   display: flex;
   flex-direction: column;
