@@ -1512,12 +1512,6 @@ body.chat .message-widget .message-widget-tab {
   padding: 0 0.5em 0.15em 0.5em;
   cursor: pointer;
 }
-/*body.chat.my-messages-right .message-widget-tab {
-}*/
-body.chat .message-widget .message-widget-tab a {
-  text-decoration: none;
-  color: inherit;
-}
 
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;

@@ -308,8 +308,8 @@
       }
     };
     return cf;
-  })();
-  
+  })()/*MessageWidget*/;
+
   const BlobXferState = (function(){/*drag/drop bits...*/
     /* State for paste and drag/drop */
     const bxs = {
