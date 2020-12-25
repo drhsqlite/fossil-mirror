@@ -16,6 +16,7 @@
         messageInjectPoint: E1('#message-inject-point'),
         pageTitle: E1('head title'),
         loadToolbar: undefined /* the load-posts toolbar (dynamically created) */,
+        inputWrapper: E1("#chat-input-area"),
         messagesWrapper: E1('#chat-messages-wrapper')
       },
       me: F.user.name,
@@ -325,7 +326,6 @@
           D.append(toolbar, btnDeleteLocal);
           const self = this;
           btnDeleteLocal.addEventListener('click', function(){
-            console.debug("local-only delete");
             self.hide();
             Chat.deleteMessageElem(eMsg);
           });
@@ -333,7 +333,6 @@
             const btnDeleteGlobal = D.button("Delete globally");
             D.append(toolbar, btnDeleteGlobal);
             btnDeleteGlobal.addEventListener('click', function(){
-              console.debug("global delete");
               self.hide();
               Chat.deleteMessage(eMsg);
             });
@@ -386,15 +385,32 @@
               f.elemsToToggle.push(e);
             }
           });
+          /* In order to make the input area opaque, such that the
+             message list scrolls under it without being visible, we
+             have to ensure that the input area has a non-inherited
+             background color. Ideally we'd select the color of
+             div.content, but that is not necessarily set, so we fall
+             back to using the body's background color. If we rely on
+             the input area having its own color specified in CSS then
+             all skins would have to define an appropriate color.
+             Thus our selection of the body color, while slightly unfortunate,
+             is in the interest of keeping skins from being forced to
+             define an opaque bg color.
+          */
+          f.initialBg = Chat.e.messagesWrapper.style.backgroundColor;
+          const cs = window.getComputedStyle(document.body);
+          f.inheritedBg = cs.backgroundColor;
         }
-        if(f.isHidden){
-          D.removeClass(f.elemsToToggle, 'hidden');
-          D.removeClass(document.body, 'chat-only-mode');
-        }else{
+        const cs = Chat.e.inputWrapper.style;
+        if((f.isHidden = !f.isHidden)){
           D.addClass(f.elemsToToggle, 'hidden');
           D.addClass(document.body, 'chat-only-mode');
+          cs.backgroundColor = f.inheritedBg;
+        }else{
+          D.removeClass(f.elemsToToggle, 'hidden');
+          D.removeClass(document.body, 'chat-only-mode');
+          cs.backgroundColor = f.initialBg;
         }
-        f.isHidden = !f.isHidden;
       }
     },{
       label: "Toggle left/right layout",

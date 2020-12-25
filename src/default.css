@@ -1269,7 +1269,7 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
      See fossil.popupwidget:toast() */
   position: absolute;
   display: block;
-  z-index: 101;
+  z-index: 1001;
   text-align: left;
   padding: 0.15em 0.5em;
   margin: 0;
@@ -1515,6 +1515,7 @@ body.chat .chat-message-popup {
   flex-direction: column;
   align-items: stretch;
   padding: 0.25em;
+  z-index: 200;
 }
 body.chat .chat-message-popup > span { white-space: nowrap; }
 body.chat .chat-message-popup > .toolbar {
@@ -1575,6 +1576,7 @@ body.chat .chat-settings-popup {
   flex-direction: column;
   align-items: stretch;
   padding: 0.25em;
+  z-index: 200;
 }
 body.chat .chat-settings-popup > span {
   margin: 0.25em 0.2em;
@@ -1603,12 +1605,20 @@ body.chat.chat-only-mode #chat-input-area {
  behind it visibly, which is really ugly. Only current workaround is
  to force an opaque background color on this element, but that's not
  skin-friendly. */
-  /*position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;*/
+  left: 0;
   padding: 0.5em 1em;
+  z-index: 100
+    /* see notes in #chat-messages-wrapper. The various popups require a
+       z-index higher than this one. */
 }
 body.chat.chat-only-mode #chat-messages-wrapper {
+  position: relative;
+  top: 0;
+  z-index: 99 /* so that it scrolls under input area. If it's
+                 lower than div.content then mouse events to it
+                 are blocked!*/;
 }
 
 body.chat #chat-input-area {
