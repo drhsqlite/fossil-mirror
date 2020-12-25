@@ -40,7 +40,7 @@ with further description in the text that follows.
 <tr><th width="49%">GIT</th><th width="49%">FOSSIL</th><th width="2%">more</th></tr>
 <tr>
     <td>File versioning only</td>
-    <td>VCS, tickets, wiki, docs, notes, forum, UI,
+    <td>VCS, tickets, wiki, docs, notes, forum, chat, UI,
     [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td>
     <td><a href="#features">2.1&nbsp;&darr;</a></td>
 </tr>
@@ -107,7 +107,8 @@ Git provides file versioning services only, whereas Fossil adds
 an integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
 [./embeddeddoc.wiki | embedded documentation], 
-[./event.wiki | technical notes], and a [./forum.wiki | web forum],
+[./event.wiki | technical notes], a [./forum.wiki | web forum],
+and a [./chat.md | chat service],
 all within a single nicely-designed [./customskin.md|skinnable] web
 [/help?cmd=ui|UI],
 protected by [./caps/ | a fine-grained role-based
@@ -227,7 +228,7 @@ technology choices: Ruby and PostgreSQL vs C and SQLite.
 The Fossil project itself is [./selfhost.wiki|hosted on a small and
 inexpensive VPS].  A bare-bones $5/month VPS or a
 spare Raspberry Pi is sufficient to run a full-up project
-site, complete with tickets, wiki, and forum, in addition to
+site, complete with tickets, wiki, chat, and forum, in addition to
 being a code repository.
 
 <h3 id="durable" name="database">2.3 Query Language</h3>
@@ -941,7 +942,10 @@ for years now, so that the solution is now almost universally deployed.
     repo] for administration reasons, and the Download page content
     isn't normally synchronized with a "<tt>fossil clone</tt>" command unless
     you add the "-u" option.  (See "[./aboutdownload.wiki|How the
-    Download Page Works]" for details.) There may also be some purely
+    Download Page Works]" for details.)
+    Chat history is deliberately not synced as
+    chat messages are intended to be ephemeral.
+    There may also be some purely
     static elements of the web site served via D. Richard Hipp's own
     lightweight web server,
     <tt>[https://sqlite.org/althttpd/|althttpd]</tt>,

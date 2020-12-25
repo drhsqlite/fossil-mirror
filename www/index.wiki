@@ -26,7 +26,7 @@ management system with these advanced features:
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
-      [./wikitheory.wiki | wiki], [./forum.wiki | forum], and
+      [./wikitheory.wiki | wiki], [./forum.wiki | forum], [./chat.md | chat], and
       [./event.wiki | technotes].
 
   2.  <b>Built-in Web Interface</b> -

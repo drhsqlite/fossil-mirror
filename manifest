@@ -1,5 +1,5 @@
-C Improved\sintroduction\sto\s"forum.wiki"
-D 2020-12-25T22:08:22.691
+C Improved\slinkage\sto\sthe\schat\sdocumentation.
+D 2020-12-25T22:13:19.806
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -872,7 +872,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki 48063750aa3ddaf99a6062eca477ec801e1c6d4c3aa4058ad6f38ef9b3bf00c9
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 4cd2c069ac99bcdf32c1d0a6dcb9a7b3ef1d6f24f1cb8d70dd134e03e1f9cd1c
+F www/fossil-v-git.wiki 81fdbb623b937f3808efbc12e76bfcfcdc8fd935cde361d6e8d65ca03f72d0e5
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -895,7 +895,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 9a6dc73a00da6f71b20fcddb4aa16c3ffe00c92ab9b0762d4baad3bff4541dc8
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki ec9f990fa0ab801d93260e0a0c7729c7bc1f1eb803b345fbbe4448b28fea4415
+F www/index.wiki baef9a58868717b85aefea8cb6260784a2b39dd42eca8da39984e8e472c895d5
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 257bb6c25527662ea164316a9187db07d52fc1e8a9edb48014d1f56b6b0ea243
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13c95f0c7537746cf7d7b1a2226d86c2b1ee136c20615c801f0d309f2264a117
-R 028f0d041be4fb94495f4f6602c8dd70
+P 44ab80ea2bbdaf1780cdc40a57d490f6826ffee3e55181d57a8a394a5808ddb9
+R aa44d83aabe98df083bb43f7cd6250ce
 U drh
-Z 9b7ace298a750b925a5a3d86265366a2
+Z 52b4afa022446e04097e7570becfaffc
