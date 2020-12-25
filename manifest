@@ -1,5 +1,5 @@
-C In\sthe\sdefault\sskin,\sadd\sa\sChat\smenu\sitem\sfor\swide\sscreens\sif\sChat\sis\senabled\nfor\sthe\suser.
-D 2020-12-25T14:36:38.896
+C Added\schat\ssetting\schat-inline-images:\sspecifies\swhether\s/chat\simages\sdefault\sto\sdisplay\sinline\sor\sas\sdownload\slinks.\sVarious\scode-adjacent\stweaks.
+D 2020-12-25T14:58:22.951
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,8 +448,8 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c 5036fecdb48c04e0ceeb5f596a98a1dd9fa6a1e373241b373da4d34936363d74
-F src/chat.js aecab5f09aa616bdab93deeef5e69c64456e6eb3da53a89f79e71f90388f674d
+F src/chat.c d09f378cd50a0a4cb9a369590bb55c0867dac6ccc90f165ef12ee12f50118f82
+F src/chat.js a65d13d133c2494596c7cadf6b102a0e0dba475da21ddae696345d0602331301
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -466,7 +466,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 654cfd99cc5470ed06d821ec61b9fd7b46f99a9a3614c4ba7523209baec56b99
-F src/default.css 5c655f451b9c23e4ef03739e1edddc0bb247b7825ce23105cf29217da868e9b4
+F src/default.css cc43efa65ca11b58a380d8f6483f8e6555a4860513b43ff7d97aee1efcf62261
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -498,8 +498,8 @@ F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c1035
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
-F src/fossil.popupwidget.js ad7aaeef82c5f5d5351e21b7864c4ec3c9625b53080875036cceb5677d1c434e
-F src/fossil.storage.js 83a15bd35044662d3b29d6e61aa28ba3eb8a074a276c093c88a3222c8d716852
+F src/fossil.popupwidget.js 192f884bcb59035a705f001d3b10ff6e1b2f77c6077107e9ad8b04984845a208
+F src/fossil.storage.js ee846952cca6914fe98b82d9048725e81bc0ce2bf719e5f6bea1cf1c80abc8cb
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
 F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697
 F src/fshell.c 6155adb8ff4176e7b9db9a3921908a7a5111cecccbd47685ba4c7a9eeee2d448
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 429e5a9bdece22026c007b61a552c5d63b4ad234675fb7cde549e5756be10591
-R f23381554b114697a3afccfb4c184fdf
-U drh
-Z 78ea0b6e6b233809ea53816ecbd30698
+P 8049da83c4ba55aa1af5ee08f1a1f9aab9b95936d860deaf7324df89cac5b76e
+R 8ddd6a5062d20fc44fae91ea111e4b96
+U stephan
+Z 754cade6774119a035c86c3b6c8d472a

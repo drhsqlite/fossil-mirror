@@ -1263,7 +1263,12 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   background-color: inherit;
   color: inherit;
 }
-
+.fossil-PopupWidget {
+  /* This class is ALWAYS set on every fossil.PopupWidget instance, in
+     addition to client/app-configured classes. It should not get any
+     style - it is only used for DOM element selecting/filtering
+     purposes. */
+}
 .fossil-toast-message {
   /* "toast"-style popup message.
      See fossil.popupwidget:toast() */
@@ -1579,12 +1584,22 @@ body.chat .chat-settings-popup {
   z-index: 200;
 }
 body.chat .chat-settings-popup > span {
-  margin: 0.25em 0.2em;
-  padding: 0.5em;
+  vertical-align: middle;
+}
+body.chat .chat-settings-popup > span.menu-entry{
   white-space: nowrap;
   cursor: pointer;
   border: 1px outset;
   border-radius: 0.25em;
+  margin: 0.25em 0.2em;
+  padding: 0.5em;
+}
+body.chat .chat-settings-popup > span.menu-entry > .help-buttonlet {
+  vertical-align: middle;
+}
+body.chat .chat-settings-popup > span.menu-entry > span.button {
+  margin: 0.25em 0.2em;
+  padding: 0.5em;
 }
 body.chat #chat-messages-wrapper {
   display: flex;

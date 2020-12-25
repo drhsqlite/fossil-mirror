@@ -67,12 +67,12 @@
      properties in the topmost level of the storage object. We do that
      because adding a layer of object to sandbox each repo would mean
      (de)serializing that whole tree on every storage property change
-     (and we update storage often during editing
-     sessions). e.g. instead of storageObject.projectName.foo we have
+     (and we update storage often during editing sessions).
+     e.g. instead of storageObject.projectName.foo we have
      storageObject[storageKeyPrefix+'foo']. That's soley for
      efficiency's sake (in terms of battery life and
-     environment-internal storage-level effort). Even so, it might
-     (or might not) be useful to do that someday.
+     environment-internal storage-level effort). Even so, it might (or
+     might not) be useful to do that someday.
   */
   const storageKeyPrefix = (
     $storageHolder===$storage/*localStorage or sessionStorage*/
@@ -103,6 +103,13 @@
     get: (k,dflt)=>$storageHolder.hasOwnProperty(
       storageKeyPrefix+k
     ) ? $storage.getItem(storageKeyPrefix+k) : dflt,
+    /** Returns true if the given key has a value of "true".  If the
+        key is not found, it returns true if the boolean value of dflt
+        is "true". (Remember that JS persistent storage values are all
+        strings.) */
+    getBool: function(k,dflt){
+      return 'true'===this.get(k,''+(!!dflt));
+    },
     /** Returns the JSON.parse()'d value of the given
         storage key's value, or dflt is the key is not
         found or JSON.parse() fails. */

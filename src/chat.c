@@ -69,7 +69,13 @@
 **
 ** A value of 0.0 or less means that messages are retained forever.
 */
-
+/*
+** SETTING: chat-inline-images    boolean default=on
+**
+** Specifies whether posted images in /chat should default to being
+** displayed inline or as downloadable links. Each chat user can
+** change this value for their current chat session in the UI.
+*/
 /*
 ** WEBPAGE: chat
 **
@@ -121,15 +127,17 @@ void chat_webpage(void){
   @ <span id='message-inject-point'></span>
   @ </div>
 
-  builtin_fossil_js_bundle_or("popupwidget", NULL);
+  builtin_fossil_js_bundle_or("popupwidget", "storage", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
   /* We need an onload handler to ensure that window.fossil is
      initialized before the chat init code runs. */
   @ window.addEventListener('load', function(){
-  @ window.fossil.config.chatInitSize =\
-  @   %d(db_get_int("chat-initial-history",50));
-  @ window.fossil.config.pingTcp = %d(iPingTcp);
+  @ window.fossil.config.chat = {
+  @   pingTcp: %d(iPingTcp),
+  @   initSize: %d(db_get_int("chat-initial-history",50)),
+  @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
+  @ };
   cgi_append_content(builtin_text("chat.js"),-1);
   @ }, false);
   @ </script>

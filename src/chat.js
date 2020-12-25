@@ -20,14 +20,14 @@
         messagesWrapper: E1('#chat-messages-wrapper')
       },
       me: F.user.name,
-      mxMsg: F.config.chatInitSize ? -F.config.chatInitSize : -50,
+      mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
       mnMsg: undefined/*lowest message ID we've seen so far (for history loading)*/,
       pageIsActive: 'visible'===document.visibilityState,
       changesSincePageHidden: 0,
       notificationBubbleColor: 'white',
       totalMessageCount: 0, // total # of inbound messages
       //! Number of messages to load for the history buttons
-      loadMessageCount: Math.abs(F.config.chatInitSize || 20),
+      loadMessageCount: Math.abs(F.config.chat.initSize || 20),
       /* Alignment of 'my' messages: must be 'left' or 'right'. Note
          that 'right' is conventional for mobile chat apps but can be
          difficult to read in wide windows (desktop/tablet landscape
@@ -87,8 +87,20 @@
             mip.parentNode.appendChild(e);
           }
         }
+      },
+      settings:{
+        get: (k,dflt)=>F.storage.get(k,dflt),
+        getBool: (k,dflt)=>F.storage.getBool(k,dflt),
+        set: (k,v)=>F.storage.set(k,v),
+        defaults:{
+          "images-inline": !!F.config.chat.imagesInline
+        }
       }
     };
+    Object.keys(cs.settings.defaults).forEach(function f(k){
+      const v = cs.settings.get(k,f);
+      if(f===v) cs.settings.set(k,cs.settings.defaults[k]);
+    });
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
@@ -370,18 +382,19 @@
         return rect.top + rect.height + 2;
       }
     });
-    settingsPopup.installClickToHide();
-
     /* Settings menu entries... */
     const settingsOps = [{
-      label: "Toggle page body",
+      label: "Toggle chat-only mode",
+      tooltip: "Toggles the page's header and footer on and off.",
       callback: function f(){
         if(undefined === f.isHidden){
           f.isHidden = false;
           f.elemsToToggle = [];
           document.body.childNodes.forEach(function(e){
             if(!e.classList) return/*TEXT nodes and such*/;
-            else if(!e.classList.contains('content')){
+            else if(!e.classList.contains('content')
+                    && !e.classList.contains('fossil-PopupWidget')
+                    /*kludge^^^ for settingsPopup click handling!*/){
               f.elemsToToggle.push(e);
             }
           });
@@ -401,19 +414,21 @@
           const cs = window.getComputedStyle(document.body);
           f.inheritedBg = cs.backgroundColor;
         }
-        const cs = Chat.e.inputWrapper.style;
+        const iws = Chat.e.inputWrapper.style;
         if((f.isHidden = !f.isHidden)){
           D.addClass(f.elemsToToggle, 'hidden');
           D.addClass(document.body, 'chat-only-mode');
-          cs.backgroundColor = f.inheritedBg;
+          iws.backgroundColor = f.inheritedBg;
         }else{
           D.removeClass(f.elemsToToggle, 'hidden');
           D.removeClass(document.body, 'chat-only-mode');
-          cs.backgroundColor = f.initialBg;
+          iws.backgroundColor = f.initialBg;
         }
       }
     },{
       label: "Toggle left/right layout",
+      tooltip: "Toggles your own messages between the right (mobile-style) "+
+        "or left of the screen (more readable on large windows).",
       callback: function f(){
         if('right'===Chat.msgMyAlign) Chat.msgMyAlign = 'left';
         else Chat.msgMyAlign = 'right';
@@ -425,19 +440,45 @@
           else row.style.justifyContent = "flex-start";
         });
       }
+    },{
+      label: "Toggle images inline",
+      persistent: true,
+      tooltip: "Toggles whether newly-arrived images appear "+
+        "inline or as download links.",
+      callback: function(){
+        const v = Chat.settings.getBool('images-inline',true);
+        Chat.settings.set('images-inline', !v);
+        F.toast.message("Image mode set to "+(v ? "hyperlink" : "inline")+".");
+      }
     }];
 
     settingsOps.forEach(function(op){
-      const btn = D.append(D.span(), op.label);
-      D.append(settingsPopup.e, btn);
+      const line = D.addClass(D.span(), 'menu-entry');
+      const btn = D.append(D.addClass(D.span(), 'button'),
+                          (op.persistent ? "[P] " : "")+op.label);
       op.callback.button = btn;
       if('function'===op.init) op.init();
+      if(op.tooltip){
+        const help = D.span();
+        D.append(line, help);
+        F.helpButtonlets.create(help, op.tooltip);
+      }
+      D.append(line, btn);
+      D.append(settingsPopup.e, line);
       btn.addEventListener('click', function(ev){
         settingsPopup.hide();
         op.callback.call(this,ev);
       });
     });
-    settingsButton.addEventListener('click',()=>settingsPopup.show(settingsButton), false);
+    D.append(settingsPopup.e, D.append(D.span(),"[P] = locally-persistent setting"));
+    // settingsPopup.installClickToHide();// Don't do this for this popup!
+    settingsButton.addEventListener('click',function(ev){
+      //ev.preventDefault();
+      if(settingsPopup.isShown()) settingsPopup.hide();
+      else settingsPopup.show(settingsButton);
+      /* Reminder: we cannot toggle the visibility from her
+       */
+    }, false);
 
     /* Find an ideal X position for the popup, directly under the settings
        button, based on the size of the popup... */
@@ -503,15 +544,20 @@
         eContent.style.backgroundColor = m.uclr;
         row.appendChild(eContent);
         if( m.fsize>0 ){
-          if( m.fmime && m.fmime.startsWith("image/") ){
+          if( m.fmime
+              && m.fmime.startsWith("image/")
+              && Chat.settings.getBool('images-inline',true)
+            ){
             eContent.appendChild(D.img("chat-download/" + m.msgid));
           }else{
-            eContent.appendChild(D.a(
+            const a = D.a(
               window.fossil.rootPath+
                 'chat-download/' + m.msgid+'/'+encodeURIComponent(m.fname),
               // ^^^ add m.fname to URL to cause downloaded file to have that name.
               "(" + m.fname + " " + m.fsize + " bytes)"
-            ));
+            )
+            D.attr(a,'target','_blank');
+            eContent.appendChild(a);
           }
           const br = D.br();
           br.style.clear = "both";
@@ -542,8 +588,8 @@
       Chat.e.pageTitle.innerText = '('+Chat.changesSincePageHidden+') '+
         Chat.pageTitleOrig;
     }
-    if(jx.msgs.length && F.config.pingTcp){
-      fetch("http:/"+"/localhost:"+window.fossil.config.pingTcp+"/chat-ping");
+    if(jx.msgs.length && F.config.chat.pingTcp){
+      fetch("http:/"+"/localhost:"+F.config.chat.pingTcp+"/chat-ping");
     }
   }/*newcontent()*/;
 

@@ -51,7 +51,10 @@
 
 
      .cssClass: optional CSS class, or list of classes, to apply to
-     the new element.
+     the new element. In addition to any supplied here (or inherited
+     from the default), the class "fossil-PopupWidget" is always set
+     in order to allow certain app-internal CSS to account for popup
+     windows in special cases.
 
      .style: optional object of properties to copy directly into
      the element's style object.     
@@ -86,7 +89,8 @@
   F.PopupWidget = function f(opt){
     opt = F.mergeLastWins(f.defaultOptions,opt);
     this.options = opt;
-    const e = this.e = D.addClass(D.div(), opt.cssClass);
+    const e = this.e = D.addClass(D.div(), opt.cssClass,
+                                  "fossil-PopupWidget");
     this.show(false);
     if(opt.style){
       let k;
@@ -332,6 +336,7 @@
     setup: function f(){
       if(!f.hasOwnProperty('clickHandler')){
         f.clickHandler = function fch(ev){
+          ev.preventDefault();
           if(!fch.popup){
             fch.popup = new F.PopupWidget({
               cssClass: ['fossil-tooltip', 'help-buttonlet-content'],
@@ -342,10 +347,6 @@
             fch.popup.installClickToHide();
           }
           D.append(D.clearElement(fch.popup.e), ev.target.$helpContent);
-          var popupRect = ev.target.getClientRects()[0];
-          var x = popupRect.left, y = popupRect.top;
-          if(x<0) x = 0;
-          if(y<0) y = 0;
           /* Shift the help around a bit to "better" fit the
              screen. However, fch.popup.e.getClientRects() is empty
              until the popup is shown, so we have to show it,
@@ -354,6 +355,27 @@
              This algorithm/these heuristics can certainly be improved
              upon.
           */
+          var popupRect, rectElem = ev.target;
+          while(rectElem){
+            popupRect = rectElem.getClientRects()[0]/*undefined if off-screen!*/;
+            if(popupRect) break;
+            rectElem = rectElem.parentNode;
+          }
+          if(!popupRect) popupRect = {x:0, y:0, left:0, right:0};
+          var x = popupRect.left, y = popupRect.top;
+          if(x<0) x = 0;
+          if(y<0) y = 0;
+          if(rectElem){
+            /* Try to ensure that the popup's z-level is higher than this element's */
+            const rz = window.getComputedStyle(rectElem).zIndex;
+            var myZ;
+            if(rz && !isNaN(+rz)){
+              myZ = +rz + 1;
+            }else{
+              myZ = 10000/*guess!*/;
+            }
+            fch.popup.e.style.zIndex = myZ;
+          }
           fch.popup.show(x, y);
           x = popupRect.left, y = popupRect.top;
           popupRect = fch.popup.e.getBoundingClientRect();
