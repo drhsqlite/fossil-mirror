@@ -5,12 +5,18 @@
 (function(){
   const form = document.querySelector('#chat-form');
   const F = window.fossil, D = F.dom;
+  const E1 = function(selector){
+    const e = document.querySelector(selector);
+    if(!e) throw new Error("missing required DOM element: "+selector);
+    return e;
+  };
   const Chat = (function(){
     const cs = {
       e:{/*map of certain DOM elements.*/
-        messageInjectPoint: document.querySelector('#message-inject-point'),
-        pageTitle: document.querySelector('head title'),
-        loadToolbar: undefined /* the load-posts toolbar (dynamically created) */
+        messageInjectPoint: E1('#message-inject-point'),
+        pageTitle: E1('head title'),
+        loadToolbar: undefined /* the load-posts toolbar (dynamically created) */,
+        messagesWrapper: E1('#chat-messages-wrapper')
       },
       me: F.user.name,
       mxMsg: F.config.chatInitSize ? -F.config.chatInitSize : -50,
@@ -357,15 +363,20 @@
       cssClass: ['fossil-tooltip', 'chat-settings-popup'],
       adjustY: function(y){
         const rect = settingsButton.getBoundingClientRect();
-        return rect.top + rect.height;
+        return rect.top + rect.height + 2;
       }
     });
     settingsPopup.installClickToHide();
     const btnToggleBody = D.button("Toggle page body");
     D.append(settingsPopup.e, btnToggleBody);
     const toggleBody = function f(){
-      if(f.isHidden) D.removeClass(f.elemsToToggle, 'hidden');
-      else D.addClass(f.elemsToToggle, 'hidden');
+      if(f.isHidden){
+        D.removeClass(f.elemsToToggle, 'hidden');
+        D.removeClass(document.body, 'chat-only-mode');
+      }else{
+        D.addClass(f.elemsToToggle, 'hidden');
+        D.addClass(document.body, 'chat-only-mode');
+      }
       f.isHidden = !f.isHidden;
     };
     toggleBody.elemsToToggle = [];
@@ -388,7 +399,6 @@
     settingsPopup.hide();
     settingsPopup.options.adjustX = function(x){
       const rect = settingsButton.getBoundingClientRect();
-      console.debug("popupSize = ",popupSize);
       return rect.right - popupSize.width;
     };
   })()/*#chat-settings-button setup*/;
@@ -486,14 +496,14 @@
     }
   }/*newcontent()*/;
 
-  if(true){
+  (function(){
     /** Add toolbar for loading older messages. We use a FIELDSET here
         because a fieldset is the only parent element type which can
         automatically enable/disable its children by
         enabling/disabling the parent element. */
     const loadLegend = D.legend("Load...");
-    const toolbar = Chat.e.loadToolbar = D.addClass(
-      D.fieldset(loadLegend), "load-msg-toolbar"
+    const toolbar = Chat.e.loadToolbar = D.attr(
+      D.fieldset(loadLegend), "id", "load-msg-toolbar"
     );
     Chat.disableDuringAjax.push(toolbar);
     /* Loads the next n oldest messages, or all previous history if n is negative. */
@@ -537,9 +547,9 @@
     btn = D.button("All previous messages");
     D.append(wrapper, btn);
     btn.addEventListener('click',()=>loadOldMessages(-1));
-    D.append(document.querySelector('body.chat > div.content'), toolbar);
-      toolbar.disabled = true /*will be enabled when msg load finishes */;
-  }/*end history loading widget setup*/
+    D.append(Chat.e.messagesWrapper, toolbar);
+    toolbar.disabled = true /*will be enabled when msg load finishes */;
+  })()/*end history loading widget setup*/;
 
   async function poll(isFirstCall){
     if(poll.running) return;

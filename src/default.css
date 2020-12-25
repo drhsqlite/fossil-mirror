@@ -1531,21 +1531,21 @@ body.chat .chat-message-popup > .toolbar > button {
   flex: 1 1 auto;
 }
 
-body.chat .load-msg-toolbar  {
+body.chat #load-msg-toolbar  {
   border-radius: 0.25em;
   padding: 0.1em 0.2em;
   margin-bottom: 1em;
 }
-body.chat .load-msg-toolbar.all-done {
+body.chat #load-msg-toolbar.all-done {
   opacity: 0.5;
 }
-body.chat .load-msg-toolbar > div {
+body.chat #load-msg-toolbar > div {
   display: flex;
   flex-direction: row;
   justify-content: stretch;
   flex-wrap: wrap;
 }
-body.chat .load-msg-toolbar > div > button {
+body.chat #load-msg-toolbar > div > button {
   flex: 1 1 auto;
 }
 
@@ -1563,6 +1563,9 @@ body.chat .load-msg-toolbar > div > button {
   margin: 0;
   padding: 0.2em/*needed to avoid image truncation*/;
 }
+body.fossil-dark-style .settings-icon {
+  filter: invert(100%);
+}
 body.chat #chat-settings-button {
 }
 body.chat .chat-settings-popup {
@@ -1573,4 +1576,86 @@ body.chat .chat-settings-popup {
   flex-direction: column;
   align-items: stretch;
   padding: 0.25em;
+}
+body.chat #chat-messages-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+body.chat.chat-only-mode{
+}
+body.chat.chat-only-mode > div.content {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+body.chat.chat-only-mode #chat-input-area {
+  /* would like to pin this to the top so that it stays in place when
+ scrolling, but doing so causes #chat-messages-wrapper to scroll
+ behind it visibly, which is really ugly. Only current workaround is
+ to force an opaque background color on this element, but that's not
+ skin-friendly. */
+  /*position: fixed;
+  top: 0;
+  left: 0;*/
+  padding: 0.5em 1em;
+}
+body.chat.chat-only-mode #chat-messages-wrapper {
+}
+
+body.chat #chat-input-area {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid black;
+  margin-bottom: 0.5em;
+}
+body.chat #chat-input-line {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.25em;
+  align-items: center;
+}
+body.chat #chat-input-line > input[type=submit] {
+  flex: 1 5 auto;
+  max-width: 6em;
+  margin-right: 1em;
+}
+body.chat #chat-input-line > input[type=text] {
+  flex: 5 1 auto;
+}
+body.chat #chat-input-file-area  {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+body.chat #chat-input-file-area > .file-selection-wrapper {
+  align-self: flex-start;
+  margin-right: 0.5em;
+  flex: 0 1 auto;
+  padding: 0.25em 0.25em 0.25em 0;
+}
+body.chat #chat-input-file-area .file-selection-wrapper > * {
+  vertical-align: middle;
+  margin: 0;
+}
+body.chat #chat-input-file {
+  border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
+  border-radius: 0.25em;
+  padding: 0.25em;
+}
+body.chat #chat-input-file > input {
+  flex: 1 0 auto;
+}
+body.chat #chat-input-file.dragover {
+  border: 1px dashed green;
+}
+body.chat #chat-drop-details {
+  flex: 0 1 auto;
+  padding: 0.5em 1em;
+  margin-left: 0.5em;
+  white-space: pre;
+  font-family: monospace;
+  max-width: 50%;
 }

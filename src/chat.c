@@ -94,65 +94,8 @@ void chat_webpage(void){
   if( iPingTcp ) style_disable_csp();
   style_set_current_feature("chat");
   style_header("Chat");
-  @ <style>
-  @ #dialog {
-  @  width: 97%%;
-  @ }
-  @ #chat-input-area {
-  @   width: 100%%;
-  @   display: flex;
-  @   flex-direction: column;
-  @ }
-  @ #chat-input-line {
-  @   display: flex;
-  @   flex-direction: row;
-  @   margin-bottom: 0.25em;
-  @   align-items: center;
-  @ }
-  @ #chat-input-line > input[type=submit] {
-  @   flex: 1 5 auto;
-  @   max-width: 6em;
-  @ }
-  @ #chat-input-line > input[type=text] {
-  @   flex: 5 1 auto;
-  @ }
-  @ #chat-input-file-area  {
-  @   display: flex;
-  @   flex-direction: row;
-  @   align-items: center;
-  @ }
-  @ #chat-input-file-area > .file-selection-wrapper {
-  @   align-self: flex-start;
-  @   margin-right: 0.5em;
-  @   flex: 0 1 auto;
-  @   padding: 0.25em 0.25em 0.25em 0;
-  @ }
-  @ #chat-input-file-area .file-selection-wrapper > * {
-  @   vertical-align: middle;
-  @   margin: 0;
-  @ }
-  @ #chat-input-file {
-  @   border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
-  @   border-radius: 0.25em;
-  @   padding: 0.25em;
-  @ }
-  @ #chat-input-file > input {
-  @   flex: 1 0 auto;
-  @ }
-  @ #chat-input-file.dragover {
-  @   border: 1px dashed green;
-  @ }
-  @ #chat-drop-details {
-  @   flex: 0 1 auto;
-  @   padding: 0.5em 1em;
-  @   margin-left: 0.5em;
-  @   white-space: pre;
-  @   font-family: monospace;
-  @   max-width: 50%%;
-  @ }
-  @ </style>
-  @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @ <div id='chat-input-area'>
+  @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @   <div id='chat-input-line'>
   @     <input type="text" name="msg" id="sbox" \
   @      placeholder="Type message here.">
@@ -170,12 +113,13 @@ void chat_webpage(void){
   @     </div>
   @     <div id="chat-drop-details"></div>
   @   </div>
-  @ </div>
   @ </form>
-  @ <hr>
+  @ </div>
 
   /* New chat messages get inserted immediately after this element */
+  @ <div id='chat-messages-wrapper'>
   @ <span id='message-inject-point'></span>
+  @ </div>
 
   builtin_fossil_js_bundle_or("popupwidget", NULL);
   /* Always in-line the javascript for the chat page */
