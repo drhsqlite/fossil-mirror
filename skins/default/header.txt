@@ -35,6 +35,9 @@ if {[hascap o]} {
 if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
   menulink /forum Forum desktoponly
 }
+if {[hascap C]} {
+  menulink /chat Chat wideonly
+}
 if {[hascap r]} {
   menulink /ticket Tickets wideonly
 }

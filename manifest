@@ -1,5 +1,5 @@
-C When\schat\sis\sin\schat-only\smode,\sthe\sinput\sarea\sis\snow\ssticky\sat\sthe\stop\sof\sthe\swindow.\sThis\srequired\sa\sbit\sof\shackery\sinvolving\sits\sbackground\scolor\sto\skeep\sit\sfrom\sbeing\stransparent\s(which\scauses\sthe\schat\smessages\sto\sbe\svisible\sthrough\sit).
-D 2020-12-25T13:00:49.495
+C In\sthe\sdefault\sskin,\sadd\sa\sChat\smenu\sitem\sfor\swide\sscreens\sif\sChat\sis\senabled\nfor\sthe\suser.
+D 2020-12-25T14:36:38.896
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -396,7 +396,7 @@ F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 912f29737a562cd550a0a8ab19e10284fb1b567113420e1bbef34da77657b9df
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
-F skins/default/header.txt 36ca4c299b29a37ca528d7639bfb0f4a6a75c24e4d1b53b9393ed9232073fe90
+F skins/default/header.txt 19f096409611cc0f71e546a5f392bbfda409087b492cd93c696372ea47ee631b
 F skins/default/js.txt 3e8272e6730688d9365cfb8920a157cb2893fb6267168608873ad41a0ff2041f
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt bd3ff0845ed62735597b54db4e599b41fd7c3e689ab8528895fcbaa45072b399
@@ -989,7 +989,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 08533f90953886e17621bf4db17792ad079d34a675c997d01492112e349a749e
-R 52d6cba25ec36d1c1fcbd9b46e285191
-U stephan
-Z 4c244b9455200f129afb96fe6a2cc028
+P 429e5a9bdece22026c007b61a552c5d63b4ad234675fb7cde549e5756be10591
+R f23381554b114697a3afccfb4c184fdf
+U drh
+Z 78ea0b6e6b233809ea53816ecbd30698
