@@ -528,6 +528,7 @@
       settingsOps.forEach(function(op){
         const line = D.addClass(D.span(), 'menu-entry');
         const btn = D.append(D.addClass(D.span(), 'button'), op.label);
+        D.attr(btn, 'role', 'button');
         const callback = function(ev){
           settingsPopup.hide();
           op.callback.call(this,ev);
@@ -548,6 +549,7 @@
        Don't do this for this popup! It interferes with the embedded
        "?" buttons in the popup, which are also PopupWidget users.
     */
+    D.attr(settingsButton, 'role', 'button');
     settingsButton.addEventListener('click',function(ev){
       //ev.preventDefault();
       if(settingsPopup.isShown()) settingsPopup.hide();
@@ -593,6 +595,7 @@
         row.dataset.timestamp = m.mtime;
         Chat.injectMessageElem(row,atEnd);
         eWho.addEventListener('click', handleLegendClicked, false);
+        eWho.setAttribute('role', 'button');
         if( m.xfrom==Chat.me ){
           eWho.setAttribute('align', Chat.msgMyAlign);
           if('right'===Chat.msgMyAlign){
