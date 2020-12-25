@@ -378,7 +378,7 @@
           const eMsg = this._eMsg;
           if(!eMsg) return;
           D.clearElement(this.e);
-          const d = new Date(eMsg.dataset.timestamp+"Z");
+          const d = new Date(eMsg.dataset.timestamp);
           if(d.getMinutes().toString()!=="NaN"){
             // Date works, render informative timestamps
             D.append(this.e,
@@ -609,7 +609,7 @@
         eWho.style.backgroundColor = m.uclr;
         eWho.classList.add('message-user');
         let whoName = m.xfrom;
-        var d = new Date(m.mtime + "Z");
+        var d = new Date(m.mtime);
         if( d.getMinutes().toString()!="NaN" ){
           /* Show local time when we can compute it */
           eWho.append(D.text(whoName+' @ '+

@@ -459,7 +459,8 @@ void chat_poll_webpage(void){
       if(cnt++){
         blob_append(&json, ",\n", 2);
       }
-      blob_appendf(&json, "{\"msgid\":%d,\"mtime\":%!j,", id, zDate);
+      blob_appendf(&json, "{\"msgid\":%d,", id);
+      blob_appendf(&json, "\"mtime\":\"%.10sT%sZ\",", zDate, zDate+11);
       blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
       blob_appendf(&json, "\"uclr\":%!j,", hash_color(zFrom));
 
