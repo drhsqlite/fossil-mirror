@@ -27,6 +27,11 @@
       totalMessageCount: 0, // total # of inbound messages
       //! Number of messages to load for the history buttons
       loadMessageCount: Math.abs(F.config.chatInitSize || 20),
+      /* Alignment of 'my' messages: must be 'left' or 'right'. Note
+         that 'right' is conventional for mobile chat apps but can be
+         difficult to read in wide windows (desktop/tablet landscape
+         mode). Can be toggled via settings popup. */
+      msgMyAlign: (window.innerWidth<window.innerHeight) ? 'right' : 'left',
       ajaxInflight: 0,
       /** Enables (if yes is truthy) or disables all elements in
        * this.disableDuringAjax. */
@@ -367,31 +372,57 @@
       }
     });
     settingsPopup.installClickToHide();
-    const btnToggleBody = D.button("Toggle page body");
-    D.append(settingsPopup.e, btnToggleBody);
-    const toggleBody = function f(){
-      if(f.isHidden){
-        D.removeClass(f.elemsToToggle, 'hidden');
-        D.removeClass(document.body, 'chat-only-mode');
-      }else{
-        D.addClass(f.elemsToToggle, 'hidden');
-        D.addClass(document.body, 'chat-only-mode');
+
+    /* Settings menu entries... */
+    const settingsOps = [{
+      label: "Toggle page body",
+      callback: function f(){
+        if(undefined === f.isHidden){
+          f.isHidden = false;
+          f.elemsToToggle = [];
+          document.body.childNodes.forEach(function(e){
+            if(!e.classList) return/*TEXT nodes and such*/;
+            else if(!e.classList.contains('content')){
+              f.elemsToToggle.push(e);
+            }
+          });
+        }
+        if(f.isHidden){
+          D.removeClass(f.elemsToToggle, 'hidden');
+          D.removeClass(document.body, 'chat-only-mode');
+        }else{
+          D.addClass(f.elemsToToggle, 'hidden');
+          D.addClass(document.body, 'chat-only-mode');
+        }
+        f.isHidden = !f.isHidden;
       }
-      f.isHidden = !f.isHidden;
-    };
-    toggleBody.elemsToToggle = [];
-    toggleBody.isHidden = false;
-    document.body.childNodes.forEach(function(e){
-      if(!e.classList) return/*TEXT nodes and such*/;
-      else if(!e.classList.contains('content')){
-        toggleBody.elemsToToggle.push(e);
+    },{
+      label: "Toggle left/right layout",
+      callback: function f(){
+        if('right'===Chat.msgMyAlign) Chat.msgMyAlign = 'left';
+        else Chat.msgMyAlign = 'right';
+        const msgs = Chat.e.messagesWrapper.querySelectorAll('.message-row');
+        msgs.forEach(function(row){
+          if(row.dataset.xfrom!==Chat.me) return;
+          row.querySelector('legend').setAttribute('align', Chat.msgMyAlign);
+          if('right'===Chat.msgMyAlign) row.style.justifyContent = "flex-end";
+          else row.style.justifyContent = "flex-start";
+        });
       }
-      settingsPopup.hide();
+    }];
+
+    settingsOps.forEach(function(op){
+      const btn = D.append(D.span(), op.label);
+      D.append(settingsPopup.e, btn);
+      op.callback.button = btn;
+      if('function'===op.init) op.init();
+      btn.addEventListener('click', function(ev){
+        settingsPopup.hide();
+        op.callback.call(this,ev);
+      });
     });
-    btnToggleBody.addEventListener('click', toggleBody);
-    settingsButton.addEventListener('click',function(){
-      settingsPopup.show(settingsButton);
-    });
+    settingsButton.addEventListener('click',()=>settingsPopup.show(settingsButton), false);
+
     /* Find an ideal X position for the popup, directly under the settings
        button, based on the size of the popup... */
     settingsPopup.show(document.body);
@@ -429,9 +460,13 @@
         row.dataset.timestamp = m.mtime;
         Chat.injectMessageElem(row,atEnd);
         eWho.addEventListener('click', handleLegendClicked, false);
-        if( m.xfrom==Chat.me && window.outerWidth<1000 ){
-          eWho.setAttribute('align', 'right');
-          row.style.justifyContent = "flex-end";
+        if( m.xfrom==Chat.me ){
+          eWho.setAttribute('align', Chat.msgMyAlign);
+          if('right'===Chat.msgMyAlign){
+            row.style.justifyContent = "flex-end";
+          }else{
+            row.style.justifyContent = "flex-start";
+          }
         }else{
           eWho.setAttribute('align', 'left');
         }

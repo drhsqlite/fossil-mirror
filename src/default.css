@@ -1571,11 +1571,18 @@ body.chat #chat-settings-button {
 body.chat .chat-settings-popup {
   font-size: 0.8em;
   text-align: left;
-  opacity: 0.8;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   padding: 0.25em;
+}
+body.chat .chat-settings-popup > span {
+  margin: 0.25em 0.2em;
+  padding: 0.5em;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px outset;
+  border-radius: 0.25em;
 }
 body.chat #chat-messages-wrapper {
   display: flex;
@@ -1619,7 +1626,7 @@ body.chat #chat-input-line {
 body.chat #chat-input-line > input[type=submit] {
   flex: 1 5 auto;
   max-width: 6em;
-  margin-right: 1em;
+  margin: 0 1em;
 }
 body.chat #chat-input-line > input[type=text] {
   flex: 5 1 auto;
