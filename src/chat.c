@@ -103,7 +103,7 @@ void chat_webpage(void){
   @ <div id='chat-input-area'>
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @   <div id='chat-input-line'>
-  @     <input type="text" name="msg" id="sbox" \
+  @     <input type="text" name="msg" id="chat-input-single" \
   @      placeholder="Type message here.">
   @     <input type="submit" value="Send">
   @     <span id="chat-settings-button" class="settings-icon"></span>

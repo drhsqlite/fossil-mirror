@@ -3,7 +3,6 @@
    application. 
 */
 (function(){
-  const form = document.querySelector('#chat-form');
   const F = window.fossil, D = F.dom;
   const E1 = function(selector){
     const e = document.querySelector(selector);
@@ -17,7 +16,10 @@
         pageTitle: E1('head title'),
         loadToolbar: undefined /* the load-posts toolbar (dynamically created) */,
         inputWrapper: E1("#chat-input-area"),
-        messagesWrapper: E1('#chat-messages-wrapper')
+        messagesWrapper: E1('#chat-messages-wrapper'),
+        inputForm: E1('#chat-form'),
+        inputSingle: E1('#chat-input-single'),
+        inputFile: E1('#chat-input-file')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -34,6 +36,23 @@
          mode). Can be toggled via settings popup. */
       msgMyAlign: (window.innerWidth<window.innerHeight) ? 'right' : 'left',
       ajaxInflight: 0,
+      /** Gets (no args) or sets (1 arg) the current input text field value,
+          taking into account single- vs multi-line input. The getter returns
+          a string and the setter returns this object. */
+      inputValue: function(){
+        const e = this.e.inputSingle;
+        if(arguments.length){
+          e.value = arguments[0];
+          return this;
+        }else {
+          return e.value;
+        }
+      },
+      /** Asks the current user input field to take focus. Returns this. */
+      inputFocus: function(){
+        this.e.inputSingle.focus();
+        return this;
+      },
       /** Enables (if yes is truthy) or disables all elements in
        * this.disableDuringAjax. */
       enableAjaxComponents: function(yes){
@@ -190,7 +209,7 @@
       clear: function(){
         this.blob = undefined;
         D.clearElement(this.dropDetails);
-        form.file.value = "";
+        Chat.e.inputFile.value = "";
       }
     };
     /** Updates the paste/drop zone with details of the pasted/dropped
@@ -201,7 +220,7 @@
       bxs.blob = blob;
       D.clearElement(dd);
       if(!blob){
-        form.file.value = '';
+        Chat.e.inputFile.value = '';
         return;
       }
       D.append(dd, "Name: ", blob.name,
@@ -217,7 +236,7 @@
       D.append(dd, D.br(), btn);
       btn.addEventListener('click', ()=>updateDropZoneContent(), false);
     };
-    form.file.addEventListener('change', function(ev){
+    Chat.e.inputFile.addEventListener('change', function(ev){
       updateDropZoneContent(this.files && this.files[0] ? this.files[0] : undefined)
     });
     /* Handle image paste from clipboard. TODO: figure out how we can
@@ -230,28 +249,17 @@
       else if('file'===item.kind){
         updateDropZoneContent(false/*clear prev state*/);
         updateDropZoneContent(items[0].getAsFile());
-      }else if(false && 'string'===item.kind){
-        /* ----^^^^^ disabled for now: the intent here is that if
-           form.msg is not active, populate it with this text, but
-           whether populating it from ctrl-v when it does not have focus
-           is a feature or a bug is debatable.  It seems useful but may
-           violate the Principle of Least Surprise. */
-        if(document.activeElement !== form.msg){
-          /* Overwrite input field if it DOES NOT have focus,
-             otherwise let it do its own paste handling. */
-          item.getAsString((v)=>form.msg.value = v);
-        }
       }
     }, false);
     /* Add help button for drag/drop/paste zone */
-    form.file.parentNode.insertBefore(
+    Chat.e.inputFile.parentNode.insertBefore(
       F.helpButtonlets.create(
         document.querySelector('#chat-input-file-area .help-buttonlet')
-      ), form.file
+      ), Chat.e.inputFile
     );
     ////////////////////////////////////////////////////////////
     // File drag/drop visual notification.
-    const dropHighlight = form.file /* target zone */;
+    const dropHighlight = Chat.e.inputFile /* target zone */;
     const dropEvents = {
       drop: function(ev){
         D.removeClass(dropHighlight, 'dragover');
@@ -269,26 +277,27 @@
       }
     };
     Object.keys(dropEvents).forEach(
-      (k)=>form.file.addEventListener(k, dropEvents[k], true)
+      (k)=>Chat.e.inputFile.addEventListener(k, dropEvents[k], true)
     );
     return bxs;
   })()/*drag/drop*/;
 
-  form.addEventListener('submit',(e)=>{
+  Chat.e.inputForm.addEventListener('submit',(e)=>{
     e.preventDefault();
-    const fd = new FormData(form);
+    const fd = new FormData(Chat.e.inputForm);
     if(BlobXferState.blob/*replace file content with this*/){
       fd.set("file", BlobXferState.blob);
     }
-    if( form.msg.value.length>0 || form.file.value.length>0 || BlobXferState.blob ){
+    if( !!Chat.inputValue()
+        || Chat.e.inputFile.value.length>0
+        || BlobXferState.blob ){
       fetch("chat-send",{
         method: 'POST',
         body: fd
       });
     }
     BlobXferState.clear();
-    form.msg.value = "";
-    form.msg.focus();
+    Chat.inputValue("").inputFocus();
   });
 
   /* Returns a new TEXT node with the given text content. */
@@ -591,8 +600,10 @@
       }
     }else{
       Chat.changesSincePageHidden += jx.msgs.length;
-      Chat.e.pageTitle.innerText = '('+Chat.changesSincePageHidden+') '+
-        Chat.pageTitleOrig;
+      if(jx.msgs.length){
+        Chat.e.pageTitle.innerText = '('+Chat.changesSincePageHidden+') '+
+          Chat.pageTitleOrig;
+      }
     }
     if(jx.msgs.length && F.config.chat.pingTcp){
       fetch("http:/"+"/localhost:"+F.config.chat.pingTcp+"/chat-ping");

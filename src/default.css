@@ -1515,7 +1515,6 @@ body.chat .chat-message-popup {
   font-family: monospace;
   font-size: 0.8em;
   text-align: left;
-  opacity: 0.8;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -1568,6 +1567,12 @@ body.chat #load-msg-toolbar > div > button {
   max-width: 1em;
   margin: 0;
   padding: 0.2em/*needed to avoid image truncation*/;
+  border: 1px solid rgba(0,0,0,0.0)/*avoid resize when hover style kicks in*/;
+  cursor: pointer;
+  border-radius: 0.25em;
+}
+.settings-icon:hover {
+  border: 1px outset rgba(127,127,127,1);
 }
 body.fossil-dark-style .settings-icon {
   filter: invert(100%);
@@ -1603,6 +1608,10 @@ body.chat .chat-settings-popup > span.menu-entry > .help-buttonlet {
 body.chat .chat-settings-popup > span.menu-entry > span.button {
   margin: 0.25em 0.2em;
   padding: 0.5em;
+  flex: 1 1 auto/*eliminates dead no-click zones on the right*/;
+}
+body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
+  cursor: inherit;
 }
 body.chat #chat-messages-wrapper {
   display: flex;
@@ -1625,7 +1634,6 @@ body.chat.chat-only-mode #chat-input-area {
  skin-friendly. */
   position: sticky;
   top: 0;
-  left: 0;
   padding: 0.5em 1em;
   z-index: 100
     /* see notes in #chat-messages-wrapper. The various popups require a
