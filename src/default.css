@@ -1534,6 +1534,7 @@ body.chat .chat-message-popup > .toolbar > button {
 body.chat .load-msg-toolbar  {
   border-radius: 0.25em;
   padding: 0.1em 0.2em;
+  margin-bottom: 1em;
 }
 body.chat .load-msg-toolbar.all-done {
   opacity: 0.5;
@@ -1546,4 +1547,30 @@ body.chat .load-msg-toolbar > div {
 }
 body.chat .load-msg-toolbar > div > button {
   flex: 1 1 auto;
+}
+
+.settings-icon {
+  /* Icon source: https://de.wikipedia.org/wiki/Datei:OOjs_UI_icon_settings.svg
+     MIT License. */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0, 0, 24, 24'%3e%3cg id='settings'%3e%3cpath id='gear' d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 0-1-.448-1-1v-2c0-.552.448-1 1-1zM3 11h9v2h-9zM18 11h3v2h-3zM14 10h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 0-1-.448-1-1v-2c0-.552.448-1 1-1zM3 18h6v2h-6zM15 18h6v2h-6zM11 17h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 0-1-.448-1-1v-2c0-.552.448-1 1-1z'/%3e%3c/g%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  min-height: 1em;
+  max-height: 1em;
+  min-width: 1em;
+  max-width: 1em;
+  margin: 0;
+  padding: 0.2em/*needed to avoid image truncation*/;
+}
+body.chat #chat-settings-button {
+}
+body.chat .chat-settings-popup {
+  font-size: 0.8em;
+  text-align: left;
+  opacity: 0.8;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.25em;
 }

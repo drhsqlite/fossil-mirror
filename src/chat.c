@@ -157,6 +157,7 @@ void chat_webpage(void){
   @     <input type="text" name="msg" id="sbox" \
   @      placeholder="Type message here.">
   @     <input type="submit" value="Send">
+  @     <span id="chat-settings-button" class="settings-icon"></span>
   @   </div>
   @   <div id='chat-input-file-area'>
   @     <div class='file-selection-wrapper'>

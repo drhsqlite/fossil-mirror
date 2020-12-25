@@ -350,6 +350,50 @@
     f.popup.show(x, y);
   }/*handleLegendClicked()*/;
 
+  (function(){/*Set up #chat-settings-button */
+    const settingsButton = document.querySelector('#chat-settings-button');
+    var popupSize = undefined/*placement workaround*/;
+    const settingsPopup = new F.PopupWidget({
+      cssClass: ['fossil-tooltip', 'chat-settings-popup'],
+      adjustY: function(y){
+        const rect = settingsButton.getBoundingClientRect();
+        return rect.top + rect.height;
+      }
+    });
+    settingsPopup.installClickToHide();
+    const btnToggleBody = D.button("Toggle page body");
+    D.append(settingsPopup.e, btnToggleBody);
+    const toggleBody = function f(){
+      if(f.isHidden) D.removeClass(f.elemsToToggle, 'hidden');
+      else D.addClass(f.elemsToToggle, 'hidden');
+      f.isHidden = !f.isHidden;
+    };
+    toggleBody.elemsToToggle = [];
+    toggleBody.isHidden = false;
+    document.body.childNodes.forEach(function(e){
+      if(!e.classList) return/*TEXT nodes and such*/;
+      else if(!e.classList.contains('content')){
+        toggleBody.elemsToToggle.push(e);
+      }
+      settingsPopup.hide();
+    });
+    btnToggleBody.addEventListener('click', toggleBody);
+    settingsButton.addEventListener('click',function(){
+      settingsPopup.show(settingsButton);
+    });
+    /* Find an ideal X position for the popup, directly under the settings
+       button, based on the size of the popup... */
+    settingsPopup.show(document.body);
+    popupSize = settingsPopup.e.getBoundingClientRect();
+    settingsPopup.hide();
+    settingsPopup.options.adjustX = function(x){
+      const rect = settingsButton.getBoundingClientRect();
+      console.debug("popupSize = ",popupSize);
+      return rect.right - popupSize.width;
+    };
+  })()/*#chat-settings-button setup*/;
+
+  
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is
       appended to the end of the chat list, else the beginning (the
