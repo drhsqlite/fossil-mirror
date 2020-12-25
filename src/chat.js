@@ -415,11 +415,12 @@
       };
     }/*end static init*/
     const rect = ev.target.getBoundingClientRect();
-    const eMsg = ev.target.parentNode/*the owning fieldset element*/;
+    const legend = ev.target.parentNode;
+    const eMsg = legend.parentNode/*the owning fieldset element*/;
     f.popup._eMsg = eMsg;
     let x = rect.left, y = rect.top - 10;
-    f.popup.show(ev.target)/*so we can get its computed size*/;
-    if('right'===ev.target.getAttribute('align')){
+    f.popup.show(legend)/*so we can get its computed size*/;
+    if('right'===legend.getAttribute('align')){
       // Shift popup to the left for right-aligned messages to avoid
       // truncation off the right edge of the page.
       const pRect = f.popup.e.getBoundingClientRect();
@@ -594,7 +595,6 @@
         row.dataset.xfrom = m.xfrom;
         row.dataset.timestamp = m.mtime;
         Chat.injectMessageElem(row,atEnd);
-        eWho.addEventListener('click', handleLegendClicked, false);
         eWho.setAttribute('role', 'button');
         if( m.xfrom==Chat.me ){
           eWho.setAttribute('align', Chat.msgMyAlign);
@@ -610,14 +610,18 @@
         eWho.classList.add('message-user');
         let whoName = m.xfrom;
         var d = new Date(m.mtime);
+        // Workaround for Safari, which isn't handling clicks on our LEGEND...
+        const link = D.a('#');
+        link.addEventListener('click', handleLegendClicked, false);
+        D.append(eWho, link);
         if( d.getMinutes().toString()!="NaN" ){
           /* Show local time when we can compute it */
-          eWho.append(D.text(whoName+' @ '+
+          link.append(D.text(whoName+' @ '+
                              d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3)
                             ))
         }else{
           /* Show UTC on systems where Date() does not work */
-          eWho.append(D.text(whoName+' @ '+m.mtime.slice(11,16)))
+          link.append(D.text(whoName+' @ '+m.mtime.slice(11,16)))
         }
         let eContent = D.addClass(D.div(),'message-content','chat-message');
         eContent.style.backgroundColor = m.uclr;

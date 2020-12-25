@@ -1,5 +1,5 @@
-C For\sthe\schat\sfunction,\sthe\sserver-to-client\sJSON\suses\sstrict\sISO8601\stime\nstrings,\sincluding\sthe\s"T"\sin\sthe\smiddle\sand\sthe\s"Z"\sat\sthe\send.
-D 2020-12-25T20:30:05.257
+C Reformulate\sthe\sLEGEND\selements\sto\sinclude\san\sembedded\sanchor\stag\sas\san\sattempt\sto\sworking\saround\sSafari's\sinability\sto\sclick\sa\sLEGEND\selement.
+D 2020-12-25T21:36:48.227
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c d5e6a43d562daffada056d002b42770202149ae0ca60179e9fc254bc476a5f0a
-F src/chat.js 317f36c9f3535fad677b8bb1342e2339f6ec16638e17e7f9d34240c87e1cad0c
+F src/chat.js 4709d51f205c2556b3f2c1aefc3251de383a7dd553470eb62abdb8b361c62aa6
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -466,7 +466,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 654cfd99cc5470ed06d821ec61b9fd7b46f99a9a3614c4ba7523209baec56b99
-F src/default.css e185358ff963789106b693f016fca8ef30190d46daaffb379087d33895ce919e
+F src/default.css f00b3686bc3cb33db944232620ba0a31dce94771c35468fcc9fca732e17e1d2a
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -990,7 +990,10 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6506b6de437636a63d333cd3cb12f9ec795244fb960aaa0ce3a9de75048a3927
-R b7d6e65a47d3edfc86d1d77fcda30c53
-U drh
-Z a9e9d4e2e2e5c8934d2410e3d9d03c58
+P 13c95f0c7537746cf7d7b1a2226d86c2b1ee136c20615c801f0d309f2264a117
+R c6c486d288b8ca330b246561611abca1
+T *branch * chat-safari-ts-popup
+T *sym-chat-safari-ts-popup *
+T -sym-trunk *
+U stephan
+Z dea97b96ab3aa109aa1c5e227b57eb48

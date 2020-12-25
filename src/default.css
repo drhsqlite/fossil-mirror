@@ -1512,7 +1512,10 @@ body.chat .message-row .message-user {
   padding: 0 0.5em 0em 0.5em;
   cursor: pointer;
 }
-
+body.chat .message-row .message-user a {
+  text-decoration: none;
+  color: inherit;
+}
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
 }
