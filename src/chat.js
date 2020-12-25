@@ -384,8 +384,8 @@
     });
     /* Settings menu entries... */
     const settingsOps = [{
-      label: "Toggle chat-only mode",
-      tooltip: "Toggles the page's header and footer on and off.",
+      label: "Chat-only mode",
+      boolValue: ()=>!!document.body.classList.contains('chat-only-mode'),
       callback: function f(){
         if(undefined === f.isHidden){
           f.isHidden = false;
@@ -426,9 +426,8 @@
         }
       }
     },{
-      label: "Toggle left/right layout",
-      tooltip: "Toggles your own messages between the right (mobile-style) "+
-        "or left of the screen (more readable on large windows).",
+      label: "Left-align my posts",
+      boolValue: ()=>'left'===Chat.msgMyAlign,
       callback: function f(){
         if('right'===Chat.msgMyAlign) Chat.msgMyAlign = 'left';
         else Chat.msgMyAlign = 'right';
@@ -441,10 +440,8 @@
         });
       }
     },{
-      label: "Toggle images inline",
-      persistent: true,
-      tooltip: "Toggles whether newly-arrived images appear "+
-        "inline or as download links.",
+      label: "Images inline",
+      boolValue: ()=>Chat.settings.getBool('images-inline'),
       callback: function(){
         const v = Chat.settings.getBool('images-inline',true);
         Chat.settings.set('images-inline', !v);
@@ -452,26 +449,35 @@
       }
     }];
 
-    settingsOps.forEach(function(op){
-      const line = D.addClass(D.span(), 'menu-entry');
-      const btn = D.append(D.addClass(D.span(), 'button'),
-                          (op.persistent ? "[P] " : "")+op.label);
-      op.callback.button = btn;
-      if('function'===op.init) op.init();
-      if(op.tooltip){
-        const help = D.span();
-        D.append(line, help);
-        F.helpButtonlets.create(help, op.tooltip);
-      }
-      D.append(line, btn);
-      D.append(settingsPopup.e, line);
-      btn.addEventListener('click', function(ev){
-        settingsPopup.hide();
-        op.callback.call(this,ev);
+    /**
+       Rebuild the menu each time it's shown so that the toggles can
+       show their current values.
+    */
+    settingsPopup.options.refresh = function(){
+      D.clearElement(this.e);
+      settingsOps.forEach(function(op){
+        const line = D.addClass(D.span(), 'menu-entry');
+        const btn = D.append(D.addClass(D.span(), 'button'), op.label);
+        const callback = function(ev){
+          settingsPopup.hide();
+          op.callback.call(this,ev);
+        };
+        D.append(line, btn);
+        if(op.hasOwnProperty('boolValue')){
+          const check = D.checkbox(1, op.boolValue());
+          D.append(line, check);
+          check.addEventListener('click', callback);
+        }
+        D.append(settingsPopup.e, line);
+        btn.addEventListener('click', callback);
       });
-    });
-    D.append(settingsPopup.e, D.append(D.span(),"[P] = locally-persistent setting"));
-    // settingsPopup.installClickToHide();// Don't do this for this popup!
+    };
+    /**
+       Reminder:
+       settingsPopup.installClickToHide();
+       Don't do this for this popup! It interferes with the embedded
+       "?" buttons in the popup, which are also PopupWidget users.
+    */
     settingsButton.addEventListener('click',function(ev){
       //ev.preventDefault();
       if(settingsPopup.isShown()) settingsPopup.hide();
