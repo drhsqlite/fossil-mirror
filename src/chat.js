@@ -157,39 +157,98 @@
     }, true);
     return cs;
   })()/*Chat initialization*/;
-  /* State for paste and drag/drop */
-  const BlobXferState = {
-    dropDetails: document.querySelector('#chat-drop-details'),
-    blob: undefined
-  };
-  /** Updates the paste/drop zone with details of the pasted/dropped
-      data. The argument must be a Blob or Blob-like object (File) or
-      it can be falsy to reset/clear that state.*/
-  const updateDropZoneContent = function(blob){
-    const bx = BlobXferState, dd = bx.dropDetails;
-    bx.blob = blob;
-    D.clearElement(dd);
-    if(!blob){
-      form.file.value = '';
-      return;
-    }
-    D.append(dd, "Name: ", blob.name,
-             D.br(), "Size: ",blob.size);
-    if(blob.type && blob.type.startsWith("image/")){
-      const img = D.img();
-      D.append(dd, D.br(), img);
-      const reader = new FileReader();
-      reader.onload = (e)=>img.setAttribute('src', e.target.result);
-      reader.readAsDataURL(blob);
-    }
-    const btn = D.button("Cancel");
-    D.append(dd, D.br(), btn);
-    btn.addEventListener('click', ()=>updateDropZoneContent(), false);
-  };
-  form.file.addEventListener('change', function(ev){
-    //console.debug("this =",this);
-    updateDropZoneContent(this.files && this.files[0] ? this.files[0] : undefined)
-  });
+
+  const BlobXferState = (function(){/*drag/drop bits...*/
+    /* State for paste and drag/drop */
+    const bxs = {
+      dropDetails: document.querySelector('#chat-drop-details'),
+      blob: undefined,
+      clear: function(){
+        this.blob = undefined;
+        D.clearElement(this.dropDetails);
+        form.file.value = "";
+      }
+    };
+    /** Updates the paste/drop zone with details of the pasted/dropped
+        data. The argument must be a Blob or Blob-like object (File) or
+        it can be falsy to reset/clear that state.*/
+    const updateDropZoneContent = function(blob){
+      const dd = bxs.dropDetails;
+      bxs.blob = blob;
+      D.clearElement(dd);
+      if(!blob){
+        form.file.value = '';
+        return;
+      }
+      D.append(dd, "Name: ", blob.name,
+               D.br(), "Size: ",blob.size);
+      if(blob.type && blob.type.startsWith("image/")){
+        const img = D.img();
+        D.append(dd, D.br(), img);
+        const reader = new FileReader();
+        reader.onload = (e)=>img.setAttribute('src', e.target.result);
+        reader.readAsDataURL(blob);
+      }
+      const btn = D.button("Cancel");
+      D.append(dd, D.br(), btn);
+      btn.addEventListener('click', ()=>updateDropZoneContent(), false);
+    };
+    form.file.addEventListener('change', function(ev){
+      updateDropZoneContent(this.files && this.files[0] ? this.files[0] : undefined)
+    });
+    /* Handle image paste from clipboard. TODO: figure out how we can
+       paste non-image binary data as if it had been selected via the
+       file selection element. */
+    document.addEventListener('paste', function(event){
+      const items = event.clipboardData.items,
+            item = items[0];
+      if(!item || !item.type) return;
+      else if('file'===item.kind){
+        updateDropZoneContent(false/*clear prev state*/);
+        updateDropZoneContent(items[0].getAsFile());
+      }else if(false && 'string'===item.kind){
+        /* ----^^^^^ disabled for now: the intent here is that if
+           form.msg is not active, populate it with this text, but
+           whether populating it from ctrl-v when it does not have focus
+           is a feature or a bug is debatable.  It seems useful but may
+           violate the Principle of Least Surprise. */
+        if(document.activeElement !== form.msg){
+          /* Overwrite input field if it DOES NOT have focus,
+             otherwise let it do its own paste handling. */
+          item.getAsString((v)=>form.msg.value = v);
+        }
+      }
+    }, false);
+    /* Add help button for drag/drop/paste zone */
+    form.file.parentNode.insertBefore(
+      F.helpButtonlets.create(
+        document.querySelector('#chat-input-file-area .help-buttonlet')
+      ), form.file
+    );
+    ////////////////////////////////////////////////////////////
+    // File drag/drop visual notification.
+    const dropHighlight = form.file /* target zone */;
+    const dropEvents = {
+      drop: function(ev){
+        D.removeClass(dropHighlight, 'dragover');
+      },
+      dragenter: function(ev){
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = "copy";
+        D.addClass(dropHighlight, 'dragover');
+      },
+      dragleave: function(ev){
+        D.removeClass(dropHighlight, 'dragover');
+      },
+      dragend: function(ev){
+        D.removeClass(dropHighlight, 'dragover');
+      }
+    };
+    Object.keys(dropEvents).forEach(
+      (k)=>form.file.addEventListener(k, dropEvents[k], true)
+    );
+    return bxs;
+  })()/*drag/drop*/;
 
   form.addEventListener('submit',(e)=>{
     e.preventDefault();
@@ -203,64 +262,10 @@
         body: fd
       });
     }
-    BlobXferState.blob = undefined;
-    D.clearElement(BlobXferState.dropDetails);
+    BlobXferState.clear();
     form.msg.value = "";
-    form.file.value = "";
     form.msg.focus();
   });
-  /* Handle image paste from clipboard. TODO: figure out how we can
-     paste non-image binary data as if it had been selected via the
-     file selection element. */
-  document.onpaste = function(event){
-    const items = event.clipboardData.items,
-          item = items[0];
-    if(!item || !item.type) return;
-    else if('file'===item.kind){
-      updateDropZoneContent(false/*clear prev state*/);
-      updateDropZoneContent(items[0].getAsFile());
-    }else if(false && 'string'===item.kind){
-      /* ----^^^^^ disabled for now: the intent here is that if
-         form.msg is not active, populate it with this text, but
-         whether populating it from ctrl-v when it does not have focus
-         is a feature or a bug is debatable.  It seems useful but may
-         violate the Principle of Least Surprise. */
-      if(document.activeElement !== form.msg){
-        /* Overwrite input field if it DOES NOT have focus,
-           otherwise let it do its own paste handling. */
-        item.getAsString((v)=>form.msg.value = v);
-      }
-    }
-  };
-  if(true){/* Add help button for drag/drop/paste zone */
-    form.file.parentNode.insertBefore(
-      F.helpButtonlets.create(
-        document.querySelector('#chat-input-file-area .help-buttonlet')
-      ), form.file
-    );
-  }
-  ////////////////////////////////////////////////////////////
-  // File drag/drop visual notification.
-  const dropHighlight = form.file /* target zone */;
-  const dropEvents = {
-    drop: function(ev){
-      D.removeClass(dropHighlight, 'dragover');
-    },
-    dragenter: function(ev){
-      ev.preventDefault();
-      ev.dataTransfer.dropEffect = "copy";
-      D.addClass(dropHighlight, 'dragover');
-    },
-    dragleave: function(ev){
-      D.removeClass(dropHighlight, 'dragover');
-    },
-    dragend: function(ev){
-      D.removeClass(dropHighlight, 'dragover');
-    }
-  };
-  Object.keys(dropEvents).forEach(
-    (k)=>form.file.addEventListener(k, dropEvents[k], true)
-  );
 
   /* Returns a new TEXT node with the given text content. */
   /** Returns the local time string of Date object d, defaulting
