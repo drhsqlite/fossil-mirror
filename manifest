@@ -1,5 +1,5 @@
-C chat\sinternal\scleanups\sin\sprep\sfor\supcoming\schanges.\sPossibly\sfixed\sthe\scosmetic\sbug\swhere\sthe\stitlebar\ssays\s'(0)\s...'\safter\sreceiving\san\sempty\slist\sof\smessages\sin\sresponse\sto\san\sauto-reconnect\safter\sa\stimeout.
-D 2020-12-25T16:08:00.085
+C First\sattempt\sat\sdocumentation\sfor\sFossil\schat.
+D 2020-12-25T16:09:13.892
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -831,7 +831,8 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
-F www/changes.wiki cdfdde01440bf6d43bbdca68420f490730f93a82301fce53cb4c6c14b6f8396e
+F www/changes.wiki 165bbeb53d7515e1a95604d33c5c4065b231e2675516502037af14620f4178ff
+F www/chat.md 70a75a3c869d2a5356c007c6b55f74b0903130a9933d0afb8e021edd84a864fb
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -989,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9e797bf9bfa92debc5684d0f249853216d5534e64e0eb612c283396aaa23bdc2
-R 407f230bca3737766c820d38bbbb17bb
-U stephan
-Z 44e3197f18476f3824733c2e3540fd67
+P e52d0fd5ce1cd608600fadecaaf5fa2bac02593b6c2f2dbec35b16c1c2d06ef8
+R 8c0b688b7d5ae0405357a2aefe1dd5b9
+U drh
+Z 33c1201ad0e575c43709d5c3fc2f7431

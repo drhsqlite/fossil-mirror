@@ -3,6 +3,7 @@
 <a name='v2_14'></a>
 <h2>Changes for Version 2.14 (pending)</h2>
 
+  *  Add support for [./chat.md|Fossil chat].
   *  The "[/help?cmd=clone|fossil clone]" command is enhanced so that
      if the repository filename is omitted, an appropriate name is derived
      from the remote URL and the newly cloned repo is opened.  This makes
