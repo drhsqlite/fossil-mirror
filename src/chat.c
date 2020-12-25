@@ -104,8 +104,10 @@ void chat_webpage(void){
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @   <div id='chat-input-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
-  @      placeholder="Type message here.">
-  @     <input type="submit" value="Send">
+  @      placeholder="Type message here." autocomplete="off">
+  @     <textarea rows="8" id="chat-input-multi" \
+  @      placeholder="Type message here" class="hidden"></textarea>
+  @     <input type="submit" value="Send" id="chat-message-submit">
   @     <span id="chat-settings-button" class="settings-icon"></span>
   @   </div>
   @   <div id='chat-input-file-area'>

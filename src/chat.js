@@ -18,7 +18,10 @@
         inputWrapper: E1("#chat-input-area"),
         messagesWrapper: E1('#chat-messages-wrapper'),
         inputForm: E1('#chat-form'),
+        btnSubmit: E1('#chat-message-submit'),
         inputSingle: E1('#chat-input-single'),
+        inputMulti: E1('#chat-input-multi'),
+        inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file')
       },
       me: F.user.name,
@@ -40,17 +43,33 @@
           taking into account single- vs multi-line input. The getter returns
           a string and the setter returns this object. */
       inputValue: function(){
-        const e = this.e.inputSingle;
+        const e = this.inputElement();
         if(arguments.length){
           e.value = arguments[0];
           return this;
-        }else {
-          return e.value;
         }
+        return e.value;
       },
       /** Asks the current user input field to take focus. Returns this. */
       inputFocus: function(){
-        this.e.inputSingle.focus();
+        this.inputElement().focus();
+        return this;
+      },
+      /** Returns the current message input element. */
+      inputElement: function(){
+        return this.e.inputCurrent;
+      },
+      /** Toggles between single- and multi-line edit modes. Returns this. */
+      inputToggleSingleMulti: function(){
+        const old = this.e.inputCurrent;
+        if(this.e.inputCurrent === this.e.inputSingle){
+          this.e.inputCurrent = this.e.inputMulti;
+        }else{
+          this.e.inputCurrent = this.e.inputSingle;
+        }
+        D.addClass(old, 'hidden');
+        D.removeClass(this.e.inputCurrent, 'hidden');
+        this.e.inputCurrent.value = old.value;
         return this;
       },
       /** Enables (if yes is truthy) or disables all elements in
@@ -112,7 +131,8 @@
         getBool: (k,dflt)=>F.storage.getBool(k,dflt),
         set: (k,v)=>F.storage.set(k,v),
         defaults:{
-          "images-inline": !!F.config.chat.imagesInline
+          "images-inline": !!F.config.chat.imagesInline,
+          "monospace-messages": false
         }
       }
     };
@@ -120,6 +140,10 @@
       const v = cs.settings.get(k,f);
       if(f===v) cs.settings.set(k,cs.settings.defaults[k]);
     });
+    if(cs.settings.getBool('monospace-messages',false)){
+      document.body.classList.add('monospace-messages');
+    }
+    cs.e.inputCurrent = cs.e.inputSingle;
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
@@ -282,15 +306,16 @@
     return bxs;
   })()/*drag/drop*/;
 
-  Chat.e.inputForm.addEventListener('submit',(e)=>{
-    e.preventDefault();
-    const fd = new FormData(Chat.e.inputForm);
-    if(BlobXferState.blob/*replace file content with this*/){
-      fd.set("file", BlobXferState.blob);
-    }
-    if( !!Chat.inputValue()
-        || Chat.e.inputFile.value.length>0
-        || BlobXferState.blob ){
+  Chat.submitMessage = function(){
+    const fd = new FormData(this.e.inputForm)
+    /* ^^^^ we don't really want/need the FORM element, but when
+       FormData() is default-constructed here then the server
+       segfaults, and i have no clue why! */;
+    const msg = this.inputValue();
+    if(msg) fd.set('msg',msg);
+    const file = BlobXferState.blob || this.e.inputFile.files[0];
+    if(file) fd.set("file", file);
+    if( msg || file ){
       fetch("chat-send",{
         method: 'POST',
         body: fd
@@ -298,6 +323,28 @@
     }
     BlobXferState.clear();
     Chat.inputValue("").inputFocus();
+  };
+
+  Chat.e.inputSingle.addEventListener('keydown',function(ev){
+    if(13===ev.keyCode/*ENTER*/){
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.submitMessage();
+      return false;
+    }
+  }, false);
+  Chat.e.inputMulti.addEventListener('keydown',function(ev){
+    if(ev.ctrlKey && 13 === ev.keyCode){
+      ev.preventDefault();
+      ev.stopPropagation();
+      Chat.submitMessage();
+      return false;
+    }
+  }, false);
+  Chat.e.btnSubmit.addEventListener('click',(e)=>{
+    e.preventDefault();
+    Chat.submitMessage();
+    return false;
   });
 
   /* Returns a new TEXT node with the given text content. */
@@ -393,6 +440,20 @@
     });
     /* Settings menu entries... */
     const settingsOps = [{
+      label: "Multi-line input",
+      boolValue: ()=>Chat.inputElement()===Chat.e.inputMulti,
+      callback: function(){
+        Chat.inputToggleSingleMulti();
+      }
+    },{
+      label: "Monospace message font",
+      boolValue: ()=>document.body.classList.contains('monospace-messages'),
+      callback: function(){
+        document.body.classList.toggle('monospace-messages');
+        Chat.settings.set('monospace-messages',
+                          document.body.classList.contains('monospace-messages'));
+      }
+    },{
       label: "Chat-only mode",
       boolValue: ()=>!!document.body.classList.contains('chat-only-mode'),
       callback: function f(){

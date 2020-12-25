@@ -1492,18 +1492,24 @@ body.chat .message-content {
   border-radius: 0.25em;
   border: 1px solid rgba(0,0,0,0.2);
   box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
-  padding: 0.25em 1em;
-  margin-top: -0.75em;
+  padding: 0.25em 0.5em;
+  margin-top: -0.75em/*slide it up to the base of the LEGEND*/;
   min-width: 9em /*avoid unsightly "underlap" with the user name label*/;
+  white-space: pre-wrap/*needed for multi-line edits*/;
 }
+body.chat.monospace-messages .message-content,
+body.chat.monospace-messages textarea,
+body.chat.monospace-messages input[type=text]{
+  font-family: monospace;  
+}
+
 /* User name for the post (a LEGEND element) */
 body.chat .message-row .message-user {
   border-radius: 0.25em 0.25em 0 0;
   padding: 0 0.5em;
   /*text-align: left; Firefox requires the 'align' attribute */
-  margin: 0 0.15em;
+  margin: 0 0.25em 0.4em 0.15em;
   padding: 0 0.5em 0em 0.5em;
-  margin-bottom: 0.4em;
   cursor: pointer;
 }
 
@@ -1633,6 +1639,7 @@ body.chat.chat-only-mode #chat-input-area {
  to force an opaque background color on this element, but that's not
  skin-friendly. */
   position: sticky;
+  position: -webkit-sticky /* supposedly some versions of Safari */;
   top: 0;
   padding: 0.5em 1em;
   z-index: 100
@@ -1657,14 +1664,15 @@ body.chat #chat-input-line {
   display: flex;
   flex-direction: row;
   margin-bottom: 0.25em;
-  align-items: center;
+  align-items: flex-start;
 }
 body.chat #chat-input-line > input[type=submit] {
   flex: 1 5 auto;
   max-width: 6em;
   margin: 0 1em;
 }
-body.chat #chat-input-line > input[type=text] {
+body.chat #chat-input-line > input[type=text],
+body.chat #chat-input-line > textarea {
   flex: 5 1 auto;
 }
 body.chat #chat-input-file-area  {
