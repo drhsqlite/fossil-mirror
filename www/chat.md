@@ -26,7 +26,7 @@ ephemeral discussion venue for insiders.  Design goals include:
 Fossil chat is designed for use by insiders - people with check-in
 privileges or higher.  It is not intended as a general-purpose gathering
 place for random passers-by on the internet. 
-Fossil chat is seeks to provide a communication venue for discussion
+Fossil chat seeks to provide a communication venue for discussion
 that does *not* become part of the permanent record for the project.
 For persist and durable discussion, use the [Forum](./forum.wiki).
 Because the conversation is intended to be ephemeral, the chat messages
@@ -68,7 +68,7 @@ the chat system does try to identify and tag hyperlinks, as follows:
      to be a hyperlink and is tagged.
 
   *  Text within `[...]` is parsed and it if is a valid hyperlink
-     target (according to the way that [Fossil Wik](/wiki_rules) or
+     target (according to the way that [Fossil Wiki](/wiki_rules) or
      [Markdown](/md_rules) understand hyperlinks) then that text
      is tagged.
 
@@ -90,7 +90,7 @@ This command will bring up a chat window in your default web-browser
 (similar to the way the "[fossil ui](/help?cmd=ui)" does).   The
 chat will be for the remote repository, the repository whose URL shows
 when you type the "[fossil remote](/help?cmd=remote)" command.  In
-addition to bring up the chat window, this command will also
+addition to bringing up the chat window, this command will also
 send a single "bel" character (U+0007) to standard error of the terminal
 whenever new messages arrive in the chat window.  On most systems,
 the terminal windows will emit an "beep" whenever they receive the U+0007
@@ -112,11 +112,11 @@ advertisements from pestering users with a cacophony of alerts.
 But many developers prefer to know how their tools work.
 This section is provided for the benefit of those curious developers.*
 
-The [/chat](/help?cmd=/chat) webpage downloads a small amount of
-HTML and a few KB of javascript to run the chat session.  The 
-javascript uses XMLHttpRequest (XHR) to download chat content,
-post new content, or delete historical messages.  The following
-web interfaces are used by the XHR:
+The [/chat](/help?cmd=/chat) webpage downloads a small amount of HTML
+and a small amount of javascript to run the chat session.  The
+javascript uses XMLHttpRequest (XHR) to download chat content, post
+new content, or delete historical messages.  The following web
+interfaces are used by the XHR:
 
   *  **/chat-poll** &rarr;
      Download chat content as JSON.
@@ -148,6 +148,13 @@ More advanced notification techniques such as
 [WebSockets](wikipedia:/wiki/WebSocket) might seem more appropriate for
 a chat system, but those technologies are not compatible with CGI.
 
+Downloading of posted files and images uses a separate, non-XHR interface:
+
+  * **/chat-download** &rarr;
+    Fetches the file content associated with a post (one file per
+    post, maximum). In the UI, this is accessed via links to uploaded
+    files and via inlined image tags.
+
 Chat messages are stored on the server-side in the CHAT table of
 the repository.
 
@@ -170,8 +177,12 @@ harm (apart from deleting all chat history, of course).  The CHAT table
 is dropped when running [fossil scrub --verily](/help?cmd=scrub).
 
 On the server-side, message text is stored exactly as entered by the
-users.  The /chat-poll page queries the CHAT table and constructs
-a JSON reply described in the [/chat-poll documentation](/help?cmd=/chat-poll).
-The message text is translated into HTML prior to being converted into
-JSON so that the text can be safely added to the display using
-innerHTML.
+users.  The /chat-poll page queries the CHAT table and constructs a
+JSON reply described in the [/chat-poll
+documentation](/help?cmd=/chat-poll).  The message text is translated
+into HTML prior to being converted into JSON so that the text can be
+safely added to the display using assignment to `innerHTML`. Though
+`innerHTML` assignment is generally considered unsafe, it is only so
+with untrusted content from untrusted sources. The chat content goes
+through sanitation steps which eliminate any potential security
+vulnerabilities of assigning that content to `innerHTML`.
