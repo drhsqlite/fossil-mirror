@@ -588,7 +588,7 @@
             D.append(this.e,
                      D.append(D.span(), localTimeString(d)," ",Chat.me," time"),
                      D.append(D.span(), iso8601ish(d)));
-            if(xfrom!==Chat.me){
+            if(eMsg.dataset.lmtime && xfrom!==Chat.me){
               D.append(this.e,
                        D.append(D.span(), localTime8601(
                          new Date(eMsg.dataset.lmtime)
