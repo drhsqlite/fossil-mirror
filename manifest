@@ -1,5 +1,5 @@
-C chat:\sdisabled\ssticky\smode\sof\sthe\sinput\sarea\sfor\sthe\stime\sbeing\sdue\sto\sgrief\sin\sconjunction\swith\smessage\sscrolling.\sWhen\stoggling\sbetween\sbottom/top\smodes,\sscroll\sto\sthe\sinput\sarea.
-D 2020-12-26T17:22:05.337
+C chat\sapp\snow\sexplicitly\ssets\sthe\sbody.chat\sCSS\sclass,\sto\saccount\sfor\sskins\swhich\sinclude\sa\sBODY\stag\sin\stheir\sheader\sand\stherefore\sdo\snot\sget\sone\sinjected\sby\sthe\sstyle\sAPI.
+D 2020-12-26T17:55:52.231
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c 20b3cd9631a0380fcf77031ff80cf50e5424150721b405495c4942a8cdae30ad
+F src/chat.c 2772faa1477f2fcb14a6b114fc7f81cf82f704b9017516209ff590bb1d9abe71
 F src/chat.js 4a1c047cc4b5aa4461f48732d3d5eda504aba78c2cd25d161ab285e185bf8bc4
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 34547542d2559a35ef85e9678734ba38e220dfd70b9e0ff0ac23c29622f14806
-R 3ba297d54813ed6b231b8af58433b042
+P ba3ebf0de93178a7c7993236b052fa59299e9f66641b5ac6be557bf9eacd5f7a
+R bbe502ce5e3b733b58992b8533478e6f
 U stephan
-Z 3e8eeda801c1c645b96a01b67a461014
+Z 0e03ebf3d64095c8b1331174428bdc58

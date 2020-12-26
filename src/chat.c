@@ -149,6 +149,8 @@ void chat_webpage(void){
   /* We need an onload handler to ensure that window.fossil is
      initialized before the chat init code runs. */
   @ window.addEventListener('load', function(){
+  @ document.body.classList.add('chat')
+  @ /*^^^for skins which add their own BODY tag */;
   @ window.fossil.config.chat = {
   @   pingTcp: %d(iPingTcp),
   @   initSize: %d(db_get_int("chat-initial-history",50)),
