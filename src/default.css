@@ -1664,7 +1664,8 @@ body.chat #chat-input-area {
   border-bottom: 1px solid black;
   padding: 0.5em 1em;
   margin-bottom: 0.5em;
-  position: sticky; top: 0;
+  /*position: sticky; top: 0; disabled for the time being because of
+    scroll-related quirks which are still unresolved. */
   z-index: 100
     /* see notes in #chat-messages-wrapper. The various popups require a
        z-index higher than this one. */;

@@ -662,7 +662,18 @@
         document.body.classList.toggle('chat-bottom-up');
         Chat.settings.set('bottom-up',
                           document.body.classList.contains('chat-bottom-up'));
-        Chat.e.inputWrapper.scrollIntoView();
+        if(false){
+          /* Reminder: in order to get a good scrolling effect when
+             sticky mode is enabled for Chat.e.inputWrapper, BOTH of
+             these scrollIntoView() calls are needed. */
+          const e = document.querySelector(
+            '.message-widget'/*this is always the most recent message,
+                               even if flexbox placed it at the end of
+                               the page!*/
+          );
+          if(e) e.scrollIntoView();
+        }
+        setTimeout(()=>Chat.e.inputWrapper.scrollIntoView(), 0);
       }
     },{
       label: "Images inline",
