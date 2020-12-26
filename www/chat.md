@@ -162,17 +162,18 @@ the repository.
    CREATE TABLE repository.chat(
       msgid INTEGER PRIMARY KEY AUTOINCREMENT,
       mtime JULIANDAY,
+      ltime TEXT,
       xfrom TEXT,
       xmsg  TEXT,
-      file  BLOB,
       fname TEXT,
       fmime TEXT,
-      mdel INT)
+      mdel  INT,
+      file  BLOB)
     );
 ~~~
 
 The CHAT table is not cross-linked with any other tables in the repository
-schema.  An administrator can "DELETE TABLE chat;" at any time, without
+schema.  An administrator can "DROP TABLE chat;" at any time, without
 harm (apart from deleting all chat history, of course).  The CHAT table
 is dropped when running [fossil scrub --verily](/help?cmd=scrub).
 
