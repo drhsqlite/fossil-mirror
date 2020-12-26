@@ -231,8 +231,8 @@
     */
     installHideHandlers: function f(onClickSelf, onClickOther, onEsc){
       if(!arguments.length) onClick = onClickOther = onEsc = true;
-      else if(2===arguments.length) onClickOther = onEsc = true;
-      else if(1===arguments.length) onEsc = true;
+      else if(1===arguments.length) onClickOther = onEsc = true;
+      else if(2===arguments.length) onEsc = true;
       if(onClickSelf) this.e.addEventListener('click', ()=>this.hide(), false);
       if(onClickOther) document.body.addEventListener('click', ()=>this.hide(), true);
       if(onEsc){

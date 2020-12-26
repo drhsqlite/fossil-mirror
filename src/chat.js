@@ -140,7 +140,7 @@
           }
           if(mip.nextSibling) mip.parentNode.insertBefore(e, mip.nextSibling);
           else mip.parentNode.appendChild(e);
-          if(false && this.isUiFlipped()){
+          if(this.isUiFlipped()){
             //e.scrollIntoView();
             setTimeout(function(){
               //self.e.inputWrapper.scrollIntoView();
