@@ -1,5 +1,5 @@
-C Fix\sthe\sdescription\sof\sbase-64\sencoding\sin\sthe\sdelta_format.wiki\sdocument.
-D 2020-12-26T21:33:44.134
+C Added\sa\sCSS\sclass\sto\sthe\sxekri\sskin\sto\skeep\sthe\schat\ssettings\smenu\sfrom\shaving\sa\stransparent\sbackground.
+D 2020-12-26T22:01:40.946
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -424,7 +424,7 @@ F skins/rounded1/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b
 F skins/rounded1/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/rounded1/header.txt e7298779cd3482f749238b3636b0badd0b046915664ffa52f11330671fd18ef3
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 0cde2c58f983a067f335668a1947c47b77975aadfa36b18f525b4c26a3e4a201
+F skins/xekri/css.txt 19b9521d212e17ad97f19f19678bb03340329398555eb8573b2cddae690f2e61
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92d74f8fb6621e6cca66a3a3732c09b5f7361f5669d2c3f40a71fb5f68bb00bf
-R b3d359e7a3a9cc9a958d5747c48eac00
-U drh
-Z af016dc8e4d7792a3ac9a42ba425637e
+P 5de02e093e15c7db9bbc59a559dd76f68357eb043f523ad194ce2d03fce0c2f8
+R bd27932b2f77745544b97b67ca978467
+U stephan
+Z c10a5ae2f88165ef80b359dd3f476a67
