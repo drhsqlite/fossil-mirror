@@ -503,8 +503,7 @@
   const localTime8601 = function(d){
     return [
       d.getYear()+1900, '-', pad2(d.getMonth()+1), '-', pad2(d.getDate()+1),
-      'T', pad2(d.getHours()),':', pad2(d.getMinutes()),':',pad2(d.getSeconds()),
-      'Z', tzOffsetToString(d.getTimezoneOffset())
+      'T', pad2(d.getHours()),':', pad2(d.getMinutes()),':',pad2(d.getSeconds())
     ].join('');
   };
     
