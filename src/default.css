@@ -1674,8 +1674,13 @@ body.chat.chat-bottom-up #chat-input-area {
   border-top: 1px solid black;
   margin-bottom: 0;
   margin-top: 0.5em;
-  position: sticky;
+  position: initial /*sticky currently disabled due to scrolling-related issues*/;
   bottom: 0;
+}
+/* An internal hack to try to help resolve a message-scrolling quirk
+   when #chat-input-area is sticky on the bottom of the screen. */
+body.chat.chat-bottom-up #chat-input-area.unsticky {
+  position: initial;
 }
 /* Widget holding the chat message input field, send button, and
    settings button. */

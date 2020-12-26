@@ -17,6 +17,7 @@
         pageTitle: E1('head title'),
         loadToolbar: undefined /* the load-posts toolbar (dynamically created) */,
         inputWrapper: E1("#chat-input-area"),
+        fileSelectWrapper: E1('#chat-input-file-area'),
         messagesWrapper: E1('#chat-messages-wrapper'),
         inputForm: E1('#chat-form'),
         btnSubmit: E1('#chat-message-submit'),
@@ -117,16 +118,37 @@
         if(atEnd){
           mip.parentNode.insertBefore(e, mip);
         }else{
-          if(mip.nextSibling) mip.parentNode.insertBefore(e, mip.nextSibling);
-          else mip.parentNode.appendChild(e);
-          if(this.isUiFlipped()){
+          const self = this;
+          if(false && this.isUiFlipped()){
             /* When UI is flipped, new messages start out under the
                text input area because of its position:sticky
                style. We have to scroll them up. When the page footer
                is not hidden but is not on-screen, this causes a
                slight amount of UI jarring as the footer is *also*
-               scrolled into view (for whatever reason). */
-            setTimeout(()=>e.scrollIntoView(), 0);
+               scrolled into view (for whatever reason).
+
+               The remaining problem here is messages with IMG tags.
+               At this point in the process their IMG.src has not yet
+               been loaded - that's async. We scroll the message into
+               view, but then the downstream loading of IMG.src pushes
+               the message content back down, sliding the message
+               behind the input field. This can be verified by delaying the
+               message scroll by a second or so to give the image time
+               to load (from a local server instance).
+            */
+            D.addClass(self.e.inputWrapper,'unsticky');
+          }
+          if(mip.nextSibling) mip.parentNode.insertBefore(e, mip.nextSibling);
+          else mip.parentNode.appendChild(e);
+          if(this.isUiFlipped()){
+            //e.scrollIntoView();
+            setTimeout(function(){
+              //self.e.inputWrapper.scrollIntoView();
+              //self.e.fileSelectWrapper.scrollIntoView();
+              //e.scrollIntoView();
+              //D.removeClass(self.e.inputWrapper,'unsticky');
+              self.e.inputWrapper.scrollIntoView();
+            },0);
           }
         }
       },
@@ -449,7 +471,7 @@
     /* Add help button for drag/drop/paste zone */
     Chat.e.inputFile.parentNode.insertBefore(
       F.helpButtonlets.create(
-        document.querySelector('#chat-input-file-area .help-buttonlet')
+        Chat.e.fileSelectWrapper.querySelector('.help-buttonlet')
       ), Chat.e.inputFile
     );
     ////////////////////////////////////////////////////////////
@@ -822,7 +844,10 @@
        fails exepectedly when it times out, but is then immediately
        resumed, and reportError() produces a loud error message. */
       .finally(function(x){
-        if(isFirstCall) Chat.ajaxEnd();
+        if(isFirstCall){
+          Chat.ajaxEnd();
+          Chat.e.inputWrapper.scrollIntoView();
+        }
         poll.running=false;
       });
   }
