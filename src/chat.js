@@ -9,6 +9,7 @@
     if(!e) throw new Error("missing required DOM element: "+selector);
     return e;
   };
+  //document.body.classList.add('chat-only-mode');
   const Chat = (function(){
     const cs = {
       e:{/*map of certain DOM elements.*/
@@ -114,12 +115,55 @@
         if(atEnd){
           mip.parentNode.insertBefore(e, mip);
         }else{
-          if(mip.nextSibling){
-            mip.parentNode.insertBefore(e, mip.nextSibling);
+          if(mip.nextSibling) mip.parentNode.insertBefore(e, mip.nextSibling);
+          else mip.parentNode.appendChild(e);
+          if(this.isChatOnlyMode()){
+            e.scrollIntoView();
           }else{
-            mip.parentNode.appendChild(e);
+            //const rect = e.getBoundingClientRect();
+            //const rect = this.e.inputWrapper.getBoundingClientRect();
+            //window.scrollBy(0, -cs.height);
+            //console.debug("rect =",rect);
+            //window.scrollBy(0,rect.height);
+            //window.scrollTo(0,rect.top);
+            //e.querySelector('.message-widget-tab').scrollIntoView();
           }
         }
+      },
+      isChatOnlyMode: function(){
+        return document.body.classList.contains('chat-only-mode');
+      },
+      chatOnlyMode: function f(yes){
+        if(undefined === f.elemsToToggle){
+          f.elemsToToggle = [];
+          document.body.childNodes.forEach(function(e){
+            if(!e.classList) return/*TEXT nodes and such*/;
+            else if(!e.classList.contains('content')
+                    && !e.classList.contains('fossil-PopupWidget')
+                    /*kludge^^^ for settingsPopup click handling!*/){
+              f.elemsToToggle.push(e);
+            }
+          });
+        }
+        if(!arguments.length) yes = true;
+        if(yes === this.isChatOnlyMode()) return this;
+        if(yes){
+          D.addClass(f.elemsToToggle, 'hidden');
+          D.addClass(document.body, 'chat-only-mode');
+          document.body.scroll(0,document.body.height);
+        }else{
+          D.removeClass(f.elemsToToggle, 'hidden');
+          D.removeClass(document.body, 'chat-only-mode');
+          setTimeout(()=>document.body.scrollIntoView(
+            /*moves to (0,0), whereas scrollTo(0,0) does not!*/
+          ), 0);
+        }
+        const msg = document.querySelector('.message-widget');
+        if(msg) msg.scrollIntoView();
+        return this;
+      },
+      toggleChatOnlyMode: function(){
+        return this.chatOnlyMode(!this.isChatOnlyMode());
       },
       settings:{
         get: (k,dflt)=>F.storage.get(k,dflt),
@@ -147,6 +191,24 @@
     }
     cs.e.inputCurrent = cs.e.inputSingle;
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
+
+    if(true){
+      /* In order to make the input area opaque, such that the message
+         list scrolls under it without being visible, we have to
+         ensure that the input area has a non-transparent background
+         color. Ideally we'd select the color of div.content, but that
+         is not necessarily set, so we fall back to using the body's
+         background color and hope it's been explicitly set
+         somewhere. If we rely on the input area having its own color
+         specified in CSS then all skins would have to define an
+         appropriate color. Thus our selection of the body color,
+         while slightly unfortunate, is in the interest of keeping
+         skins from being forced to define an opaque bg color.
+      */
+      const bodyStyle = window.getComputedStyle(document.body);
+      cs.e.inputWrapper.style.backgroundColor = bodyStyle.backgroundColor;
+    }
+
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
       return Array.prototype.slice.call(args,0);
@@ -519,11 +581,7 @@
     const settingsButton = document.querySelector('#chat-settings-button');
     var popupSize = undefined/*placement workaround*/;
     const settingsPopup = new F.PopupWidget({
-      cssClass: ['fossil-tooltip', 'chat-settings-popup'],
-      adjustY: function(y){
-        const rect = settingsButton.getBoundingClientRect();
-        return rect.top + rect.height + 2;
-      }
+      cssClass: ['fossil-tooltip', 'chat-settings-popup']
     });
     /* Settings menu entries... */
     const settingsOps = [{
@@ -542,45 +600,9 @@
       }
     },{
       label: "Chat-only mode",
-      boolValue: ()=>!!document.body.classList.contains('chat-only-mode'),
-      callback: function f(){
-        if(undefined === f.isHidden){
-          f.isHidden = false;
-          f.elemsToToggle = [];
-          document.body.childNodes.forEach(function(e){
-            if(!e.classList) return/*TEXT nodes and such*/;
-            else if(!e.classList.contains('content')
-                    && !e.classList.contains('fossil-PopupWidget')
-                    /*kludge^^^ for settingsPopup click handling!*/){
-              f.elemsToToggle.push(e);
-            }
-          });
-          /* In order to make the input area opaque, such that the
-             message list scrolls under it without being visible, we
-             have to ensure that the input area has a non-inherited
-             background color. Ideally we'd select the color of
-             div.content, but that is not necessarily set, so we fall
-             back to using the body's background color. If we rely on
-             the input area having its own color specified in CSS then
-             all skins would have to define an appropriate color.
-             Thus our selection of the body color, while slightly unfortunate,
-             is in the interest of keeping skins from being forced to
-             define an opaque bg color.
-          */
-          f.initialBg = Chat.e.messagesWrapper.style.backgroundColor;
-          const cs = window.getComputedStyle(document.body);
-          f.inheritedBg = cs.backgroundColor;
-        }
-        const iws = Chat.e.inputWrapper.style;
-        if((f.isHidden = !f.isHidden)){
-          D.addClass(f.elemsToToggle, 'hidden');
-          D.addClass(document.body, 'chat-only-mode');
-          iws.backgroundColor = f.inheritedBg;
-        }else{
-          D.removeClass(f.elemsToToggle, 'hidden');
-          D.removeClass(document.body, 'chat-only-mode');
-          iws.backgroundColor = f.initialBg;
-        }
+      boolValue: ()=>Chat.isChatOnlyMode(),
+      callback: function(){
+        Chat.toggleChatOnlyMode();
       }
     },{
       label: "Left-align my posts",
@@ -637,7 +659,7 @@
        */
     }, false);
 
-    /* Find an ideal X position for the popup, directly under the settings
+    /* Find an ideal X/Y position for the popup, directly above the settings
        button, based on the size of the popup... */
     settingsPopup.show(document.body);
     popupSize = settingsPopup.e.getBoundingClientRect();
@@ -645,6 +667,14 @@
     settingsPopup.options.adjustX = function(x){
       const rect = settingsButton.getBoundingClientRect();
       return rect.right - popupSize.width;
+    };
+    settingsPopup.options.adjustY = function(y){
+      const rect = settingsButton.getBoundingClientRect();
+      if(Chat.isChatOnlyMode()){
+        return rect.top - popupSize.height -2;
+      }else{
+        return rect.bottom + 2;
+      }
     };
   })()/*#chat-settings-button setup*/;
 

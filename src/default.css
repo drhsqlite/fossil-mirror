@@ -1600,6 +1600,10 @@ d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.55
 body.fossil-dark-style .settings-icon {
   filter: invert(100%);
 }
+/* "Chat-only mode" hides the site header/footer, showing only
+   the chat app. */
+body.chat.chat-only-mode{
+}
 body.chat #chat-settings-button {
 }
 /** Popup widget for the /chat settings. */
@@ -1642,9 +1646,13 @@ body.chat #chat-messages-wrapper {
   display: flex;
   flex-direction: column;
 }
-/* "Chat-only mode" hides the site header/footer, showing only
-   the chat app. */
-body.chat.chat-only-mode{
+body.chat.chat-only-mode #chat-messages-wrapper {
+  flex-direction: column-reverse;
+  position: relative;
+  top: 0;
+  z-index: 99 /* so that it scrolls under input area. If it's
+                 lower than div.content then mouse events to it
+                 are blocked!*/;
 }
 body.chat.chat-only-mode > div.content {
   margin: 0;
@@ -1653,33 +1661,30 @@ body.chat.chat-only-mode > div.content {
   flex-direction: column;
   align-items: stretch;
 }
-body.chat.chat-only-mode #chat-input-area {
-  /* would like to pin this to the top so that it stays in place when
- scrolling, but doing so causes #chat-messages-wrapper to scroll
- behind it visibly, which is really ugly. Only current workaround is
- to force an opaque background color on this element, but that's not
- skin-friendly. */
-  position: sticky;
-  position: -webkit-sticky /* supposedly some versions of Safari */;
-  top: 0;
-  padding: 0.5em 1em;
-  z-index: 100
-    /* see notes in #chat-messages-wrapper. The various popups require a
-       z-index higher than this one. */
-}
-body.chat.chat-only-mode #chat-messages-wrapper {
-  position: relative;
-  top: 0;
-  z-index: 99 /* so that it scrolls under input area. If it's
-                 lower than div.content then mouse events to it
-                 are blocked!*/;
+body.chat.chat-only-mode > div.content {
+  flex-direction: column-reverse;
 }
 /* Wrapper for /chat user input controls */
 body.chat #chat-input-area {
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid black;
+  padding: 0.5em 1em;
   margin-bottom: 0.5em;
+  /*position: sticky; top: 0;*/
+  /*position: -webkit-sticky*/ /* supposedly some versions of Safari */;
+}
+body.chat.chat-only-mode #chat-input-area {
+  z-index: 100
+    /* see notes in #chat-messages-wrapper. The various popups require a
+       z-index higher than this one. */;
+  border-bottom: none;
+  border-top: 1px solid black;
+  margin-bottom: 0;
+  margin-top: 0.5em;
+  position: sticky;
+  position: -webkit-sticky/* supposedly some versions of Safari */;
+  bottom: 0;
 }
 body.chat #chat-input-line {
   display: flex;
