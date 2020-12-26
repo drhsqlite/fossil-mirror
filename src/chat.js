@@ -591,7 +591,7 @@
               D.append(this.e,
                        D.append(D.span(), localTime8601(
                          new Date(eMsg.dataset.lmtime)
-                       )," ",xfrom," time"));
+                       ).replace('T',' ')," ",xfrom," time"));
             }
            }else{
             // Date doesn't work, so dumb it down...
