@@ -169,13 +169,13 @@ static const char zChatSchema1[] =
 @ CREATE TABLE repository.chat(
 @   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
 @   mtime JULIANDAY,       -- Time for this entry - Julianday Zulu
-@   lmtime TEXT,           -- Localtime when message originall sent
+@   lmtime TEXT,           -- Localtime when message originally sent
 @   xfrom TEXT,            -- Login of the sender
 @   xmsg  TEXT,            -- Raw, unformatted text of the message
-@   file  BLOB,            -- Text of the uploaded file, or NULL
 @   fname TEXT,            -- Filename of the uploaded file, or NULL
 @   fmime TEXT,            -- MIMEType of the upload file, or NULL
-@   mdel INT               -- msgid of another message to delete
+@   mdel INT,              -- msgid of another message to delete
+@   file  BLOB             -- Text of the uploaded file, or NULL
 @ );
 ;
 
