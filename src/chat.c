@@ -169,6 +169,7 @@ static const char zChatSchema1[] =
 @ CREATE TABLE repository.chat(
 @   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
 @   mtime JULIANDAY,       -- Time for this entry - Julianday Zulu
+@   lmtime TEXT,           -- Localtime when message originall sent
 @   xfrom TEXT,            -- Login of the sender
 @   xmsg  TEXT,            -- Raw, unformatted text of the message
 @   file  BLOB,            -- Text of the uploaded file, or NULL
@@ -186,8 +187,11 @@ static const char zChatSchema1[] =
 static void chat_create_tables(void){
   if( !db_table_exists("repository","chat") ){
     db_multi_exec(zChatSchema1/*works-like:""*/);
-  }else if( !db_table_has_column("repository","chat","mdel") ){
-    db_multi_exec("ALTER TABLE chat ADD COLUMN mdel INT");
+  }else if( !db_table_has_column("repository","chat","lmtime") ){
+    if( !db_table_has_column("repository","chat","mdel") ){
+      db_multi_exec("ALTER TABLE chat ADD COLUMN mdel INT");
+    }
+    db_multi_exec("ALTER TABLE chat ADD COLUMN lmtime TEXT");
   }
 }
 
@@ -235,18 +239,18 @@ void chat_send_webpage(void){
   if( nByte==0 ){
     if( zMsg[0] ){
       db_multi_exec(
-        "INSERT INTO chat(mtime,xfrom,xmsg)"
-        "VALUES(julianday('now'),%Q,%Q)",
-        g.zLogin, zMsg
+        "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
+        "VALUES(julianday('now'),%Q,%Q,%Q)",
+        P("lmtime"), g.zLogin, zMsg
       );
     }
   }else{
     Stmt q;
     Blob b;
     db_prepare(&q,
-        "INSERT INTO chat(mtime, xfrom,xmsg,file,fname,fmime)"
-        "VALUES(julianday('now'),%Q,%Q,:file,%Q,%Q)",
-        g.zLogin, zMsg, PD("file:filename",""),
+        "INSERT INTO chat(mtime,lmtime,xfrom,xmsg,file,fname,fmime)"
+        "VALUES(julianday('now'),%Q,%Q,%Q,:file,%Q,%Q)",
+        P("lmtime"), g.zLogin, zMsg, PD("file:filename",""),
         PD("file:mimetype","application/octet-stream"));
     blob_init(&b, P("file"), nByte);
     db_bind_blob(&q, ":file", &b);
@@ -394,6 +398,7 @@ void chat_test_formatter_cmd(void){
 ** |        {
 ** |           "msgid": integer // message id
 ** |           "mtime": text    // When sent:  YYYY-MM-DD HH:MM:SS UTC
+** |           "lmtime: text    // Localtime where the message was sent from
 ** |           "xfrom": text    // Login name of sender
 ** |           "uclr":  text    // Color string associated with the user
 ** |           "xmsg":  text    // HTML text of the message
@@ -411,6 +416,8 @@ void chat_test_formatter_cmd(void){
 ** The "msgid" values will be in increasing order.
 **
 ** The "mdel" will only exist if "xmsg" is an empty string and "fsize" is zero.
+**
+** The "lmtime" value might be known, in which case it is omitted.
 **
 ** The messages are ordered oldest first unless "before" is provided, in which
 ** case they are sorted newest first (to facilitate the client-side UI update).
@@ -433,7 +440,7 @@ void chat_poll_webpage(void){
   dataVersion = db_int64(0, "PRAGMA data_version");
   blob_append_sql(&sql,
     "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file),"
-    "       fname, fmime, %s"
+    "       fname, fmime, %s, lmtime"
     "  FROM chat ",
     msgBefore>0 ? "0 as mdel" : "mdel");
   if( msgid<=0 || msgBefore>0 ){
@@ -477,12 +484,16 @@ void chat_poll_webpage(void){
       const char *zFName = db_column_text(&q1, 5);
       const char *zFMime = db_column_text(&q1, 6);
       int iToDel = db_column_int(&q1, 7);
+      const char *zLMtime = db_column_text(&q1, 8);
       char *zMsg;
       if(cnt++){
         blob_append(&json, ",\n", 2);
       }
       blob_appendf(&json, "{\"msgid\":%d,", id);
       blob_appendf(&json, "\"mtime\":\"%.10sT%sZ\",", zDate, zDate+11);
+      if( zLMtime && zLMtime[0] ){
+        blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
+      }
       blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
       blob_appendf(&json, "\"uclr\":%!j,", hash_color(zFrom));
 
@@ -496,6 +507,7 @@ void chat_poll_webpage(void){
         blob_appendf(&json, "\"fsize\":%d,\"fname\":%!j,\"fmime\":%!j",
                nByte, zFName, zFMime);
       }
+
       if( iToDel ){
         blob_appendf(&json, ",\"mdel\":%d}", iToDel);
       }else{

@@ -354,6 +354,7 @@
       setMessage: function(m){
         const ds = this.e.body.dataset;
         ds.timestamp = m.mtime;
+        ds.lmtime = m.lmtime;
         ds.msgid = m.msgid;
         ds.xfrom = m.xfrom;
         if(m.xfrom === Chat.me){
@@ -494,6 +495,19 @@
     return bxs;
   })()/*drag/drop*/;
 
+  const tzOffsetToString = function(off){
+    const hours = Math.round(off/60), min = Math.round(off % 30);
+    return ''+(hours + (min ? '.5' : ''));
+  };
+  const pad2 = (x)=>('0'+x).substr(-2);
+  const localTime8601 = function(d){
+    return [
+      d.getYear()+1900, '-', pad2(d.getMonth()+1), '-', pad2(d.getDate()+1),
+      'T', pad2(d.getHours()),':', pad2(d.getMinutes()),':',pad2(d.getSeconds()),
+      'Z', tzOffsetToString(d.getTimezoneOffset())
+    ].join('');
+  };
+    
   Chat.submitMessage = function(){
     const fd = new FormData(this.e.inputForm)
     /* ^^^^ we don't really want/need the FORM element, but when
@@ -503,8 +517,8 @@
     if(msg) fd.set('msg',msg);
     const file = BlobXferState.blob || this.e.inputFile.files[0];
     if(file) fd.set("file", file);
-    fd.set("lmtime", new Date().toISOString());
     if( msg || file ){
+      fd.set("lmtime", localTime8601(new Date()));
       fetch("chat-send",{
         method: 'POST',
         body: fd
@@ -554,7 +568,7 @@
   /* Returns an almost-ISO8601 form of Date object d. */
   const iso8601ish = function(d){
     return d.toISOString()
-      .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' GMT');
+      .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' Zulu');
   };
   /* Event handler for clicking .message-user elements to show their
      timestamps. */
@@ -570,12 +584,19 @@
           const d = new Date(eMsg.dataset.timestamp);
           if(d.getMinutes().toString()!=="NaN"){
             // Date works, render informative timestamps
+            const xfrom = eMsg.dataset.xfrom;
             D.append(this.e,
-                     D.append(D.span(), localTimeString(d)," client-local"),
+                     D.append(D.span(), localTimeString(d)," ",Chat.me," time"),
                      D.append(D.span(), iso8601ish(d)));
+            if(xfrom!==Chat.me){
+              D.append(this.e,
+                       D.append(D.span(), localTime8601(
+                         new Date(eMsg.dataset.lmtime)
+                       )," ",xfrom," time"));
+            }
            }else{
             // Date doesn't work, so dumb it down...
-            D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," GMT"));
+            D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," Zulu"));
           }
           const toolbar = D.addClass(D.div(), 'toolbar');
           D.append(this.e, toolbar);
