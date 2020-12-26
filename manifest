@@ -1,5 +1,5 @@
-C Typo\sfix.\sMoved\schat.file\sto\sthe\send\sof\sthe\sschema,\sper\sforum\ssuggestion.
-D 2020-12-26T20:47:44.372
+C chat:\sdisable\sline-wrap\son\sthe\smessage\stabs.\sRemoved\san\sextraneous\sduplicated\sstyle\sentry.
+D 2020-12-26T20:57:38.205
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -466,7 +466,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 654cfd99cc5470ed06d821ec61b9fd7b46f99a9a3614c4ba7523209baec56b99
-F src/default.css 879afa8455baad353e63b95beba12ab6ab51800efe32039094dc54cbe871f57a
+F src/default.css 70f13da70d0556de7f88b345a64962ce71ed865b88ae493a6577d04d8ed3d98b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7a017e169930e7370212d10c382be1664d277958ee561db3dbef1e13b657bec
-R 404e6ffdba868ac504cfa350634c3346
+P fd73e79b8303cc4a425fcd4fa4415774f3cdfda8b2a71883bf7d016c47dd5262
+R 551b56aa3425254a51ec86930d300e10
 U stephan
-Z 032dc012ac57c54f06131f969b4414ec
+Z 2ea0d96002fb3987881944a40e89b0d0

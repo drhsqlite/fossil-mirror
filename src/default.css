@@ -1508,10 +1508,10 @@ body.chat.monospace-messages input[type=text]{
 /* User name and timestamp (a LEGEND-like element) */
 body.chat .message-widget .message-widget-tab {
   border-radius: 0.25em 0.25em 0 0;
-  padding: 0 0.5em;
   margin: 0 0.25em 0em 0.15em;
   padding: 0 0.5em 0.15em 0.5em;
   cursor: pointer;
+  white-space: nowrap;
 }
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
