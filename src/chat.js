@@ -610,7 +610,6 @@
     const rect = ev.target.getBoundingClientRect();
     const eMsg = ev.target.parentNode/*the owning .message-widget element*/;
     f.popup._eMsg = eMsg;
-    console.debug("eMsg, rect", eMsg, rect);
     let x = rect.left, y = rect.topm;
     f.popup.show(ev.target)/*so we can get its computed size*/;
     if(eMsg.dataset.xfrom===Chat.me
@@ -663,6 +662,7 @@
         document.body.classList.toggle('chat-bottom-up');
         Chat.settings.set('bottom-up',
                           document.body.classList.contains('chat-bottom-up'));
+        Chat.e.inputWrapper.scrollIntoView();
       }
     },{
       label: "Images inline",

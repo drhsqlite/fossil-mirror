@@ -1,5 +1,5 @@
-C Typo\sfix\swhich\sled\sto\san\sexception\sand\scaused\sthe\stimestamp\spopups\sto\smisbehave.
-D 2020-12-26T16:54:26.885
+C Removed\ssome\sdebug\soutput.\sWhen\stoggling\sbetween\sbottom-up/top-down\schat,\sscroll\sto\sthe\sinput\swidget\s(which\sflips\sbetween\sthe\stop\sand\sthe\sbottom\sof\sthe\spage).
+D 2020-12-26T17:07:46.984
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 20b3cd9631a0380fcf77031ff80cf50e5424150721b405495c4942a8cdae30ad
-F src/chat.js 9cb7cda85727417edde78c458b3dc938a6069eb5416b428dba17534ffb8654e2
+F src/chat.js dc0f5f385f52c490ec23d531016b247a3576bcba4c6e49f625e0bd172f8f4b44
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 322627ed7e086dad94e11cb8841327babf4b91f05dc77738a15ff559b8ef6122
-R 76d8b89edaecae907091184a1412e9f4
+P fc4782e7ef82d7ea2628e5c9f80d00477fdd0694ac515839e2dbc957f5e5fd36
+R bbe0f4ca34c901906ee5496d272effb9
 U stephan
-Z bc5759514387b23bc6f14a3384ad8e8c
+Z 4d0016e6f1349b62baccebe74389ee61
