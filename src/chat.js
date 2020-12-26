@@ -567,7 +567,7 @@
   /* Returns an almost-ISO8601 form of Date object d. */
   const iso8601ish = function(d){
     return d.toISOString()
-      .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' Zulu');
+      .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' zulu');
   };
   /* Event handler for clicking .message-user elements to show their
      timestamps. */
@@ -595,7 +595,7 @@
             }
            }else{
             // Date doesn't work, so dumb it down...
-            D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," Zulu"));
+            D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," zulu"));
           }
           const toolbar = D.addClass(D.div(), 'toolbar');
           D.append(this.e, toolbar);
