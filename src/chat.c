@@ -505,7 +505,9 @@ void chat_poll_webpage(void){
 **
 ** Download the CHAT.FILE attachment associated with a single chat
 ** entry.  The "name" query parameter begins with an integer that
-** identifies the particular chat message.
+** identifies the particular chat message. The integer may be followed
+** by a / and a filename, which will indicate to the browser to use
+** the indicated name when saving the file.
 */
 void chat_download_webpage(void){
   int msgid;

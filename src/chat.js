@@ -23,7 +23,8 @@
         inputSingle: E1('#chat-input-single'),
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
-        inputFile: E1('#chat-input-file')
+        inputFile: E1('#chat-input-file'),
+        contentDiv: E1('div.content')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -66,6 +67,7 @@
         D.addClass(old, 'hidden');
         D.removeClass(this.e.inputCurrent, 'hidden');
         this.e.inputCurrent.value = old.value;
+        old.value = '';
         return this;
       },
       /** Enables (if yes is truthy) or disables all elements in
@@ -117,22 +119,30 @@
         }else{
           if(mip.nextSibling) mip.parentNode.insertBefore(e, mip.nextSibling);
           else mip.parentNode.appendChild(e);
-          if(this.isChatOnlyMode()){
-            e.scrollIntoView();
-          }else{
-            //const rect = e.getBoundingClientRect();
-            //const rect = this.e.inputWrapper.getBoundingClientRect();
-            //window.scrollBy(0, -cs.height);
-            //console.debug("rect =",rect);
-            //window.scrollBy(0,rect.height);
-            //window.scrollTo(0,rect.top);
-            //e.querySelector('.message-widget-tab').scrollIntoView();
+          if(this.isUiFlipped()){
+            /* When UI is flipped, new messages start out under the
+               text input area because of its position:sticky
+               style. We have to scroll them up. When the page footer
+               is not hidden but is not on-screen, this causes a
+               slight amount of UI jarring as the footer is *also*
+               scrolled into view (for whatever reason). */
+            setTimeout(()=>e.scrollIntoView(), 0);
           }
         }
       },
-      isChatOnlyMode: function(){
-        return document.body.classList.contains('chat-only-mode');
+      /** Returns true if chat-only mode is enabled. */
+      isChatOnlyMode: ()=>document.body.classList.contains('chat-only-mode'),
+      /** Returns true if the UI seems to be in "bottom-up" mode. */
+      isUiFlipped: function(){
+        const style = window.getComputedStyle(this.e.contentDiv);
+        return style.flexDirection.indexOf("-reverse")>0;
       },
+      /**
+         Enters (if passed a truthy value or no arguments) or leaves
+         "chat-only" mode. That mode hides the page's header and
+         footer, leaving only the chat application visible to the
+         user.
+      */
       chatOnlyMode: function f(yes){
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
@@ -155,11 +165,13 @@
           D.removeClass(f.elemsToToggle, 'hidden');
           D.removeClass(document.body, 'chat-only-mode');
           setTimeout(()=>document.body.scrollIntoView(
-            /*moves to (0,0), whereas scrollTo(0,0) does not!*/
+            /*moves to (0,0), whereas scrollTo(0,0) does not!
+             setTimeout() is unfortunately necessary to get the scroll
+             placement correct.*/
           ), 0);
         }
         const msg = document.querySelector('.message-widget');
-        if(msg) msg.scrollIntoView();
+        if(msg) setTimeout(()=>msg.scrollIntoView(),0);
         return this;
       },
       toggleChatOnlyMode: function(){
@@ -171,20 +183,26 @@
         set: (k,v)=>F.storage.set(k,v),
         defaults:{
           "images-inline": !!F.config.chat.imagesInline,
-          "monospace-messages": false
+          "monospace-messages": false,
+          "bottom-up": true
         }
       }
     };
-    Object.keys(cs.settings.defaults).forEach(function f(k){
-      const v = cs.settings.get(k,f);
-      if(f===v) cs.settings.set(k,cs.settings.defaults[k]);
+    /* Install default settings... */
+    Object.keys(cs.settings.defaults).forEach(function(k){
+      const v = cs.settings.get(k,cs);
+      if(cs===v) cs.settings.set(k,cs.settings.defaults[k]);
     });
     if(window.innerWidth<window.innerHeight){
       /* Alignment of 'my' messages: right alignment is conventional
          for mobile chat apps but can be difficult to read in wide
-         windows (desktop/tablet landscape mode). Can be toggled via
-         settings popup. */
+         windows (desktop/tablet landscape mode), so we default to a
+         layout based on the apparently "orientation" of the window:
+         tall vs wide. Can be toggled via settings popup. */
       document.body.classList.add('my-messages-right');
+    }
+    if(cs.settings.getBool("bottom-up")){
+      document.body.classList.add('chat-bottom-up');
     }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
@@ -329,8 +347,11 @@
           
         const d = new Date(m.mtime);
         D.append(
-          D.clearElement(this.e.tab), D.text(
-            m.xfrom+' @ '+d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3))
+          D.clearElement(this.e.tab),
+          D.text(
+            m.xfrom," #",m.msgid,' @ ',d.getHours(),":",
+            (d.getMinutes()+100).toString().slice(1,3)            
+          )
         );
         var contentTarget = this.e.content;
         if( m.fsize>0 ){
@@ -349,10 +370,13 @@
             D.attr(a,'target','_blank');
             contentTarget.appendChild(a);
           }
-          contentTarget = D.div();
+          ;
         }
         if(m.xmsg){
-          if(contentTarget !== this.e.content){
+          if(m.fsize>0){
+            /* We have file/image content, so need another element for
+               the message text. */
+            contentTarget = D.div();
             D.append(this.e.content, contentTarget);
           }
           // The m.xmsg text comes from the same server as this script and
@@ -554,7 +578,7 @@
           }
         }/*refresh()*/
       });
-      f.popup.installClickToHide();
+      f.popup.installHideHandlers();
       f.popup.hide = function(){
         delete this._eMsg;
         D.clearElement(this.e);
@@ -611,6 +635,14 @@
         document.body.classList.toggle('my-messages-right');
       }
     },{
+      label: "Bottom-up chat",
+      boolValue: ()=>document.body.classList.contains('chat-bottom-up'),
+      callback: function(){
+        document.body.classList.toggle('chat-bottom-up');
+        Chat.settings.set('bottom-up',
+                          document.body.classList.contains('chat-bottom-up'));
+      }
+    },{
       label: "Images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),
       callback: function(){
@@ -644,9 +676,14 @@
         btn.addEventListener('click', callback);
       });
     };
-    settingsPopup.installClickToHide()
-    /** Reminder: that interferes with "?" embedded within the popup,
-        so cannot be used together with those. */;
+    settingsPopup.installHideHandlers(false, true, true)
+    /** Reminder: click-to-hide interferes with "?" embedded within
+        the popup, so cannot be used together with those. Enabling
+        this means, however, that tapping the menu button to toggle
+        the menu cannot work because tapping the menu button while the
+        menu is opened will, because of the click-to-hide handler,
+        hide the menu before the button gets an event saying to toggle
+        it.*/;
     D.attr(settingsButton, 'role', 'button');
     settingsButton.addEventListener('click',function(ev){
       //ev.preventDefault();
@@ -667,7 +704,7 @@
     };
     settingsPopup.options.adjustY = function(y){
       const rect = settingsButton.getBoundingClientRect();
-      if(Chat.isChatOnlyMode()){
+      if(Chat.isUiFlipped()){
         return rect.top - popupSize.height -2;
       }else{
         return rect.bottom + 2;
