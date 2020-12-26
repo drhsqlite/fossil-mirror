@@ -168,14 +168,9 @@
       chatOnlyMode: function f(yes){
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
-          document.body.childNodes.forEach(function(e){
-            if(!e.classList) return/*TEXT nodes and such*/;
-            else if(!e.classList.contains('content')
-                    && !e.classList.contains('fossil-PopupWidget')
-                    /*kludge^^^ for settingsPopup click handling!*/){
-              f.elemsToToggle.push(e);
-            }
-          });
+          document.querySelectorAll(
+            "body > div.header, body > div.footer"
+          ).forEach((e)=>f.elemsToToggle.push(e));
         }
         if(!arguments.length) yes = true;
         if(yes === this.isChatOnlyMode()) return this;
