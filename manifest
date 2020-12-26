@@ -1,5 +1,5 @@
-C Changed\show\schat-only\smode\sfigures\sout\swhich\selements\sto\shide\sto\saccount\sfor\sskins\swhich\sreplace\sdiv.content\swith\stheir\sown\selement.
-D 2020-12-26T18:08:46.431
+C Added\slmtime\s(local\smtime)\sparameter\sto\s/chat-send\scalls,\sper\schat\sdiscussion.
+D 2020-12-26T19:43:48.972
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 2772faa1477f2fcb14a6b114fc7f81cf82f704b9017516209ff590bb1d9abe71
-F src/chat.js c37bc1da12c3696004448353ed69b554791965327cb2092d5fcb034c20ac5170
+F src/chat.js 46ed1d101ce0546ad5f005713f3945147763ec4fd2dbfc6d89aab242c5c667b7
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 553ce288f8db73e55014d9506048a54aa229b5895b34727e14da8e2b694e5fdf
-R 34e2c0ed1463919c6d7294f6fd80864c
+P e390b95bbc58444ab28708da4b27d1be23646a66a9defa47af8ff328869bbd4d
+R e895662c0b87238140c48a828d032cb4
 U stephan
-Z c9e5d4265fb7cdf3312ffd8f420c7057
+Z 720d65f3ad8bce57c004fdee88277516

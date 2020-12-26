@@ -503,6 +503,7 @@
     if(msg) fd.set('msg',msg);
     const file = BlobXferState.blob || this.e.inputFile.files[0];
     if(file) fd.set("file", file);
+    fd.set("lmtime", new Date().toISOString());
     if( msg || file ){
       fetch("chat-send",{
         method: 'POST',
