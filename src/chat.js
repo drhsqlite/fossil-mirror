@@ -140,7 +140,7 @@
           }
           if(mip.nextSibling) mip.parentNode.insertBefore(e, mip.nextSibling);
           else mip.parentNode.appendChild(e);
-          if(this.isUiFlipped()){
+          if(false && this.isUiFlipped()){
             //e.scrollIntoView();
             setTimeout(function(){
               //self.e.inputWrapper.scrollIntoView();
@@ -181,11 +181,13 @@
         }else{
           D.removeClass(f.elemsToToggle, 'hidden');
           D.removeClass(document.body, 'chat-only-mode');
-          setTimeout(()=>document.body.scrollIntoView(
-            /*moves to (0,0), whereas scrollTo(0,0) does not!
-             setTimeout() is unfortunately necessary to get the scroll
-             placement correct.*/
-          ), 0);
+          if(false){
+            setTimeout(()=>document.body.scrollIntoView(
+              /*moves to (0,0), whereas scrollTo(0,0) does not!
+                setTimeout() is unfortunately necessary to get the scroll
+                placement correct.*/
+            ), 0);
+          }
         }
         const msg = document.querySelector('.message-widget');
         if(msg) setTimeout(()=>msg.scrollIntoView(),0);

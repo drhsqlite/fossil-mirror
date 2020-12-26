@@ -1,5 +1,5 @@
-C Added\sa\sCSS\sclass\sto\sthe\sxekri\sskin\sto\skeep\sthe\schat\ssettings\smenu\sfrom\shaving\sa\stransparent\sbackground.
-D 2020-12-26T22:01:40.946
+C Disabled\sautomatic\sscrolling\swhen\sa\snew\schat\smessage\sarrives,\sas\sit\sis\sunnecessary\swhen\sthe\suser\sinput\sfields\sare\snot\ssticky.\sTo\srevisit\slater\swith\ssticky\sinput\sfields.
+D 2020-12-26T22:09:32.699
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c dbff57888cba3769e635c51d898aa67ae998755603cdc16b0771b7bb5b27d740
-F src/chat.js 0db1382721680f0487672ed71a3231f115064e794cc5c76e6945c3d3f3fc0cc1
+F src/chat.js a9a9ad8ea4ee305aa3291e67e608f41f6f774abd21af99e3e8a9e4b892c0c142
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5de02e093e15c7db9bbc59a559dd76f68357eb043f523ad194ce2d03fce0c2f8
-R bd27932b2f77745544b97b67ca978467
+P 12b5391926f7aaf9416fb032bb7a6831778752e93cf0b4c1fb81b60e7d59b539
+R 80f37286631a40179d2d49f1e7591bed
 U stephan
-Z c10a5ae2f88165ef80b359dd3f476a67
+Z 72ab92965ac8d3eff668d38c40f20cf3
