@@ -1161,6 +1161,19 @@ void setup_chat(void){
   @ to 0.5.
   @ (Property: "chat-keep-days")</p>
   @ <hr />
+  entry_attribute("Chat Polling Timeout", 10,
+                  "chat-poll-timeout", "chatpt", "420", 0);
+  @ <p>New chat content is downloaded using the "long poll" technique.
+  @ HTTP requests are made to /chat-poll which blocks waiting on new
+  @ content to arrive.  But the /chat-poll cannot block forever.  It
+  @ eventual must give up and return an empty message set.  This setting
+  @ determines how long /chat-poll will wait before giving up.  The
+  @ default setting of approximately 7 minutes works well on many systems.
+  @ Shorter delays might be required on installations that use proxies
+  @ or web-servers with short timeouts.  For best efficiency, this value
+  @ should be larger rather than smaller.
+  @ (Property: "chat-chat-timeout")</p>
+  @ </hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
