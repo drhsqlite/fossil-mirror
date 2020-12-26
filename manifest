@@ -1,5 +1,5 @@
-C Disabled\sposition:sticky\son\sthe\sinput\sarea\swhen\sin\sbottom-up\schat\smode\spending\sresolution\sof\sa\sscrolling\smisbehaviour\sfor\smessages\swith\sIMG\stags.\sIMG.src\sis\sloaded\sasync,\sso\sthe\sscrolling\sis\sactually\sworking\sbut\sloading\sof\sthe\sIMG.src\sis\sthen\spushing\sthe\smessage\sback\sdown\sbehind/under\sthe\sinput\sfield.
-D 2020-12-26T16:20:46.667
+C Disabled\sa\sdangling\spart\sof\sthe\ssearch\sfor\sa\ssolution\sfor\sthe\sbottom-scrolling\sproblem.
+D 2020-12-26T16:21:47.989
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 8fb4678475e09829628bd5cad1d276b0e74beeac7cda05247d91a50fd6be3d90
-F src/chat.js 9cb7cda85727417edde78c458b3dc938a6069eb5416b428dba17534ffb8654e2
+F src/chat.js 5850b512be63821a7240758fd5c49b488ff27364a39b77e97a9f50506b57daf3
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfc20f429713e4c46e26a6d0d421162260314f32322926b6fb3dc5a88868f11a
-R 14c2be152bb7bac4245aa1003ff895d5
+P 8e12b61b50bf90dd70aa37a6fb1129af925cb90b57598530f79c02623ed20d25
+R fd5fe5b6317c303fa15c0bd0e13ce47e
 U stephan
-Z ecc8352f1584e2bfc115c9e2ade0b04c
+Z 39d066bc0ee07cc162eb37186b1a7385
