@@ -1647,14 +1647,14 @@ body.chat.chat-bottom-up #chat-messages-wrapper {
                  lower than div.content then mouse events to it
                  are blocked!*/;
 }
-body.chat > div.content {
+body.chat div.content {
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
-body.chat.chat-bottom-up > div.content {
+body.chat.chat-bottom-up div.content {
   flex-direction: column-reverse;
 }
 /* Wrapper for /chat user input controls */
