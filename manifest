@@ -1,5 +1,5 @@
-C Worked\saround\sa\sbrowser-dependent\sscrolling\squirk\sand\sfixed\sa\slogic\sbug\sin\sthe\srecent\sPopupWidget.installHideHandlers()\sAPI\schange\swhich\scaused\sthe\stimestamp\spopups\snot\sto\sclose.
-D 2020-12-26T16:39:40.405
+C Typo\sfix\swhich\sled\sto\san\sexception\sand\scaused\sthe\stimestamp\spopups\sto\smisbehave.
+D 2020-12-26T16:54:26.885
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -498,7 +498,7 @@ F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c1035
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
-F src/fossil.popupwidget.js 1316104fe6b0a72f91d379e01004692e078355cf721a1ad0824dccdbb8ea1d90
+F src/fossil.popupwidget.js 1742b0afd17702fddde854a14afbfc5a4814a25c82ea97a9425f62f09661c859
 F src/fossil.storage.js ee846952cca6914fe98b82d9048725e81bc0ce2bf719e5f6bea1cf1c80abc8cb
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
 F src/fossil.wikiedit-wysiwyg.js e009a6391a36d70996c0662effdcd27baa22cea2f02899313ec3b13584bf8697
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2572872bb0de2179f92bcb7b34b397e8995dcb6a8ce6272315a1fa47de470923
-R 27dd57c063d9328b689e360bcedc25cb
+P 322627ed7e086dad94e11cb8841327babf4b91f05dc77738a15ff559b8ef6122
+R 76d8b89edaecae907091184a1412e9f4
 U stephan
-Z 8196f270c4045a0773ead5286a4b88e3
+Z bc5759514387b23bc6f14a3384ad8e8c

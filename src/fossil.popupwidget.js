@@ -230,7 +230,7 @@
        true.
     */
     installHideHandlers: function f(onClickSelf, onClickOther, onEsc){
-      if(!arguments.length) onClick = onClickOther = onEsc = true;
+      if(!arguments.length) onClickSelf = onClickOther = onEsc = true;
       else if(1===arguments.length) onClickOther = onEsc = true;
       else if(2===arguments.length) onEsc = true;
       if(onClickSelf) this.e.addEventListener('click', ()=>this.hide(), false);
