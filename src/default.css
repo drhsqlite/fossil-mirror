@@ -1505,7 +1505,6 @@ body.chat.monospace-messages textarea,
 body.chat.monospace-messages input[type=text]{
   font-family: monospace;  
 }
-
 /* User name and timestamp (a LEGEND-like element) */
 body.chat .message-widget .message-widget-tab {
   border-radius: 0.25em 0.25em 0 0;
@@ -1514,11 +1513,9 @@ body.chat .message-widget .message-widget-tab {
   padding: 0 0.5em 0.15em 0.5em;
   cursor: pointer;
 }
-
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
 }
-
 /* The popup element for displaying message timestamps
    and deletion controls. */
 body.chat .chat-message-popup {
@@ -1531,6 +1528,7 @@ body.chat .chat-message-popup {
   padding: 0.25em;
   z-index: 200;
 }
+/* Full message timestamps. */
 body.chat .chat-message-popup > span { white-space: nowrap; }
 /* Container for the message deletion buttons. */
 body.chat .chat-message-popup > .toolbar {
@@ -1546,15 +1544,14 @@ body.chat .chat-message-popup > .toolbar {
 body.chat .chat-message-popup > .toolbar > button {
   flex: 1 1 auto;
 }
-
-/* The main widget for loading more/older chat messages. */
+/* The widget for loading more/older chat messages. */
 body.chat #load-msg-toolbar  {
   border-radius: 0.25em;
   padding: 0.1em 0.2em;
   margin-bottom: 1em;
 }
-/* Set when chat has loaded all of the available historical
-   messages */
+/* .all-done is set when chat has loaded all of the available
+   historical messages */
 body.chat #load-msg-toolbar.all-done {
   opacity: 0.5;
 }
@@ -1600,8 +1597,10 @@ d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.55
 body.fossil-dark-style .settings-icon {
   filter: invert(100%);
 }
-body.chat #chat-settings-button {
-}
+/* "Chat-only mode" hides the site header/footer, showing only
+   the chat app. */
+body.chat.chat-only-mode{}
+body.chat #chat-settings-button {}
 /** Popup widget for the /chat settings. */
 body.chat .chat-settings-popup {
   font-size: 0.8em;
@@ -1642,45 +1641,49 @@ body.chat #chat-messages-wrapper {
   display: flex;
   flex-direction: column;
 }
-/* "Chat-only mode" hides the site header/footer, showing only
-   the chat app. */
-body.chat.chat-only-mode{
+body.chat.chat-bottom-up #chat-messages-wrapper {
+  flex-direction: column-reverse;
+  z-index: 99 /* so that it scrolls under input area. If it's
+                 lower than div.content then mouse events to it
+                 are blocked!*/;
 }
-body.chat.chat-only-mode > div.content {
+body.chat > div.content {
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
-body.chat.chat-only-mode #chat-input-area {
-  /* would like to pin this to the top so that it stays in place when
- scrolling, but doing so causes #chat-messages-wrapper to scroll
- behind it visibly, which is really ugly. Only current workaround is
- to force an opaque background color on this element, but that's not
- skin-friendly. */
-  position: sticky;
-  position: -webkit-sticky /* supposedly some versions of Safari */;
-  top: 0;
-  padding: 0.5em 1em;
-  z-index: 100
-    /* see notes in #chat-messages-wrapper. The various popups require a
-       z-index higher than this one. */
-}
-body.chat.chat-only-mode #chat-messages-wrapper {
-  position: relative;
-  top: 0;
-  z-index: 99 /* so that it scrolls under input area. If it's
-                 lower than div.content then mouse events to it
-                 are blocked!*/;
+body.chat.chat-bottom-up > div.content {
+  flex-direction: column-reverse;
 }
 /* Wrapper for /chat user input controls */
 body.chat #chat-input-area {
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid black;
+  padding: 0.5em 1em;
   margin-bottom: 0.5em;
+  position: sticky; top: 0;
+  z-index: 100
+    /* see notes in #chat-messages-wrapper. The various popups require a
+       z-index higher than this one. */;
 }
+body.chat.chat-bottom-up #chat-input-area {
+  border-bottom: none;
+  border-top: 1px solid black;
+  margin-bottom: 0;
+  margin-top: 0.5em;
+  position: initial /*sticky currently disabled due to scrolling-related issues*/;
+  bottom: 0;
+}
+/* An internal hack to try to help resolve a message-scrolling quirk
+   when #chat-input-area is sticky on the bottom of the screen. */
+body.chat.chat-bottom-up #chat-input-area.unsticky {
+  position: initial;
+}
+/* Widget holding the chat message input field, send button, and
+   settings button. */
 body.chat #chat-input-line {
   display: flex;
   flex-direction: row;
@@ -1696,6 +1699,7 @@ body.chat #chat-input-line > input[type=text],
 body.chat #chat-input-line > textarea {
   flex: 5 1 auto;
 }
+/* Widget holding the file selection control and preview */
 body.chat #chat-input-file-area  {
   display: flex;
   flex-direction: row;
@@ -1720,14 +1724,15 @@ body.chat #chat-input-file {
 body.chat #chat-input-file > input {
   flex: 1 0 auto;
 }
+/* Indicator when a drag/drop is in progress */
 body.chat #chat-input-file.dragover {
   border: 1px dashed green;
 }
+/* Widget holding the details of a selected/dropped file/image. */
 body.chat #chat-drop-details {
   flex: 0 1 auto;
   padding: 0.5em 1em;
   margin-left: 0.5em;
   white-space: pre;
   font-family: monospace;
-  max-width: 50%;
 }

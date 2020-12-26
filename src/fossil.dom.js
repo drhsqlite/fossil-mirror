@@ -114,7 +114,11 @@
   };
   dom.hr = dom.createElemFactory('hr');
   dom.br = dom.createElemFactory('br');
-  dom.text = (t)=>document.createTextNode(t||'');
+  /** Returns a new TEXT node which contains the text of all of the
+      arguments appended together. */
+  dom.text = function(/*...*/){
+    return document.createTextNode(argsToArray(arguments).join(''));
+  };
   dom.button = function(label){
     const b = this.create('button');
     if(label) b.appendChild(this.text(label));

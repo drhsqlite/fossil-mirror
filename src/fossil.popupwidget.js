@@ -219,14 +219,28 @@
        main element and document.body to hide (via hide()) the popup
        when either element is clicked or the ESC key is pressed. Only
        call this once per instance, if at all. Returns this;
+
+       The first argument specifies whether a click handler on this
+       object is installed. The second specifies whether a click
+       outside of this object should close it. The third specifies
+       whether an ESC handler is installed.
+
+       Passing no arguments is equivalent to passing (true,true,true),
+       and passing fewer arguments defaults the unpassed parameters to
+       true.
     */
-    installClickToHide: function f(){
-      this.e.addEventListener('click', ()=>this.hide(), false);
-      document.body.addEventListener('click', ()=>this.hide(), true);
-      const self = this;
-      document.body.addEventListener('keydown', function(ev){
-        if(self.isShown() && 27===ev.which) self.hide();
-      }, true);
+    installHideHandlers: function f(onClickSelf, onClickOther, onEsc){
+      if(!arguments.length) onClick = onClickOther = onEsc = true;
+      else if(2===arguments.length) onClickOther = onEsc = true;
+      else if(1===arguments.length) onEsc = true;
+      if(onClickSelf) this.e.addEventListener('click', ()=>this.hide(), false);
+      if(onClickOther) document.body.addEventListener('click', ()=>this.hide(), true);
+      if(onEsc){
+        const self = this;
+        document.body.addEventListener('keydown', function(ev){
+          if(self.isShown() && 27===ev.which) self.hide();
+        }, true);
+      }
       return this;
     }
   }/*F.PopupWidget.prototype*/;
@@ -344,7 +358,7 @@
               }
             });
             fch.popup.e.style.maxWidth = '80%'/*of body*/;
-            fch.popup.installClickToHide();
+            fch.popup.installHideHandlers();
           }
           D.append(D.clearElement(fch.popup.e), ev.target.$helpContent);
           /* Shift the help around a bit to "better" fit the

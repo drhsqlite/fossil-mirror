@@ -9,6 +9,7 @@
     if(!e) throw new Error("missing required DOM element: "+selector);
     return e;
   };
+  //document.body.classList.add('chat-only-mode');
   const Chat = (function(){
     const cs = {
       e:{/*map of certain DOM elements.*/
@@ -16,13 +17,15 @@
         pageTitle: E1('head title'),
         loadToolbar: undefined /* the load-posts toolbar (dynamically created) */,
         inputWrapper: E1("#chat-input-area"),
+        fileSelectWrapper: E1('#chat-input-file-area'),
         messagesWrapper: E1('#chat-messages-wrapper'),
         inputForm: E1('#chat-form'),
         btnSubmit: E1('#chat-message-submit'),
         inputSingle: E1('#chat-input-single'),
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
-        inputFile: E1('#chat-input-file')
+        inputFile: E1('#chat-input-file'),
+        contentDiv: E1('div.content')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -65,6 +68,7 @@
         D.addClass(old, 'hidden');
         D.removeClass(this.e.inputCurrent, 'hidden');
         this.e.inputCurrent.value = old.value;
+        old.value = '';
         return this;
       },
       /** Enables (if yes is truthy) or disables all elements in
@@ -114,12 +118,86 @@
         if(atEnd){
           mip.parentNode.insertBefore(e, mip);
         }else{
-          if(mip.nextSibling){
-            mip.parentNode.insertBefore(e, mip.nextSibling);
-          }else{
-            mip.parentNode.appendChild(e);
+          const self = this;
+          if(false && this.isUiFlipped()){
+            /* When UI is flipped, new messages start out under the
+               text input area because of its position:sticky
+               style. We have to scroll them up. When the page footer
+               is not hidden but is not on-screen, this causes a
+               slight amount of UI jarring as the footer is *also*
+               scrolled into view (for whatever reason).
+
+               The remaining problem here is messages with IMG tags.
+               At this point in the process their IMG.src has not yet
+               been loaded - that's async. We scroll the message into
+               view, but then the downstream loading of IMG.src pushes
+               the message content back down, sliding the message
+               behind the input field. This can be verified by delaying the
+               message scroll by a second or so to give the image time
+               to load (from a local server instance).
+            */
+            D.addClass(self.e.inputWrapper,'unsticky');
+          }
+          if(mip.nextSibling) mip.parentNode.insertBefore(e, mip.nextSibling);
+          else mip.parentNode.appendChild(e);
+          if(false && this.isUiFlipped()){
+            //e.scrollIntoView();
+            setTimeout(function(){
+              //self.e.inputWrapper.scrollIntoView();
+              //self.e.fileSelectWrapper.scrollIntoView();
+              //e.scrollIntoView();
+              //D.removeClass(self.e.inputWrapper,'unsticky');
+              self.e.inputWrapper.scrollIntoView();
+            },0);
           }
         }
+      },
+      /** Returns true if chat-only mode is enabled. */
+      isChatOnlyMode: ()=>document.body.classList.contains('chat-only-mode'),
+      /** Returns true if the UI seems to be in "bottom-up" mode. */
+      isUiFlipped: function(){
+        const style = window.getComputedStyle(this.e.contentDiv);
+        return style.flexDirection.indexOf("-reverse")>0;
+      },
+      /**
+         Enters (if passed a truthy value or no arguments) or leaves
+         "chat-only" mode. That mode hides the page's header and
+         footer, leaving only the chat application visible to the
+         user.
+      */
+      chatOnlyMode: function f(yes){
+        if(undefined === f.elemsToToggle){
+          f.elemsToToggle = [];
+          document.body.childNodes.forEach(function(e){
+            if(!e.classList) return/*TEXT nodes and such*/;
+            else if(!e.classList.contains('content')
+                    && !e.classList.contains('fossil-PopupWidget')
+                    /*kludge^^^ for settingsPopup click handling!*/){
+              f.elemsToToggle.push(e);
+            }
+          });
+        }
+        if(!arguments.length) yes = true;
+        if(yes === this.isChatOnlyMode()) return this;
+        if(yes){
+          D.addClass(f.elemsToToggle, 'hidden');
+          D.addClass(document.body, 'chat-only-mode');
+          document.body.scroll(0,document.body.height);
+        }else{
+          D.removeClass(f.elemsToToggle, 'hidden');
+          D.removeClass(document.body, 'chat-only-mode');
+          setTimeout(()=>document.body.scrollIntoView(
+            /*moves to (0,0), whereas scrollTo(0,0) does not!
+             setTimeout() is unfortunately necessary to get the scroll
+             placement correct.*/
+          ), 0);
+        }
+        const msg = document.querySelector('.message-widget');
+        if(msg) setTimeout(()=>msg.scrollIntoView(),0);
+        return this;
+      },
+      toggleChatOnlyMode: function(){
+        return this.chatOnlyMode(!this.isChatOnlyMode());
       },
       settings:{
         get: (k,dflt)=>F.storage.get(k,dflt),
@@ -127,26 +205,50 @@
         set: (k,v)=>F.storage.set(k,v),
         defaults:{
           "images-inline": !!F.config.chat.imagesInline,
-          "monospace-messages": false
+          "monospace-messages": false,
+          "bottom-up": true
         }
       }
     };
-    Object.keys(cs.settings.defaults).forEach(function f(k){
-      const v = cs.settings.get(k,f);
-      if(f===v) cs.settings.set(k,cs.settings.defaults[k]);
+    /* Install default settings... */
+    Object.keys(cs.settings.defaults).forEach(function(k){
+      const v = cs.settings.get(k,cs);
+      if(cs===v) cs.settings.set(k,cs.settings.defaults[k]);
     });
     if(window.innerWidth<window.innerHeight){
       /* Alignment of 'my' messages: right alignment is conventional
          for mobile chat apps but can be difficult to read in wide
-         windows (desktop/tablet landscape mode). Can be toggled via
-         settings popup. */
+         windows (desktop/tablet landscape mode), so we default to a
+         layout based on the apparently "orientation" of the window:
+         tall vs wide. Can be toggled via settings popup. */
       document.body.classList.add('my-messages-right');
+    }
+    if(cs.settings.getBool("bottom-up")){
+      document.body.classList.add('chat-bottom-up');
     }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
     }
     cs.e.inputCurrent = cs.e.inputSingle;
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
+
+    if(true){
+      /* In order to make the input area opaque, such that the message
+         list scrolls under it without being visible, we have to
+         ensure that the input area has a non-transparent background
+         color. Ideally we'd select the color of div.content, but that
+         is not necessarily set, so we fall back to using the body's
+         background color and hope it's been explicitly set
+         somewhere. If we rely on the input area having its own color
+         specified in CSS then all skins would have to define an
+         appropriate color. Thus our selection of the body color,
+         while slightly unfortunate, is in the interest of keeping
+         skins from being forced to define an opaque bg color.
+      */
+      const bodyStyle = window.getComputedStyle(document.body);
+      cs.e.inputWrapper.style.backgroundColor = bodyStyle.backgroundColor;
+    }
+
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
       return Array.prototype.slice.call(args,0);
@@ -267,8 +369,11 @@
           
         const d = new Date(m.mtime);
         D.append(
-          D.clearElement(this.e.tab), D.text(
-            m.xfrom+' @ '+d.getHours()+":"+(d.getMinutes()+100).toString().slice(1,3))
+          D.clearElement(this.e.tab),
+          D.text(
+            m.xfrom," #",m.msgid,' @ ',d.getHours(),":",
+            (d.getMinutes()+100).toString().slice(1,3)            
+          )
         );
         var contentTarget = this.e.content;
         if( m.fsize>0 ){
@@ -287,10 +392,13 @@
             D.attr(a,'target','_blank');
             contentTarget.appendChild(a);
           }
-          contentTarget = D.div();
+          ;
         }
         if(m.xmsg){
-          if(contentTarget !== this.e.content){
+          if(m.fsize>0){
+            /* We have file/image content, so need another element for
+               the message text. */
+            contentTarget = D.div();
             D.append(this.e.content, contentTarget);
           }
           // The m.xmsg text comes from the same server as this script and
@@ -363,7 +471,7 @@
     /* Add help button for drag/drop/paste zone */
     Chat.e.inputFile.parentNode.insertBefore(
       F.helpButtonlets.create(
-        document.querySelector('#chat-input-file-area .help-buttonlet')
+        Chat.e.fileSelectWrapper.querySelector('.help-buttonlet')
       ), Chat.e.inputFile
     );
     ////////////////////////////////////////////////////////////
@@ -492,7 +600,7 @@
           }
         }/*refresh()*/
       });
-      f.popup.installClickToHide();
+      f.popup.installHideHandlers();
       f.popup.hide = function(){
         delete this._eMsg;
         D.clearElement(this.e);
@@ -519,11 +627,7 @@
     const settingsButton = document.querySelector('#chat-settings-button');
     var popupSize = undefined/*placement workaround*/;
     const settingsPopup = new F.PopupWidget({
-      cssClass: ['fossil-tooltip', 'chat-settings-popup'],
-      adjustY: function(y){
-        const rect = settingsButton.getBoundingClientRect();
-        return rect.top + rect.height + 2;
-      }
+      cssClass: ['fossil-tooltip', 'chat-settings-popup']
     });
     /* Settings menu entries... */
     const settingsOps = [{
@@ -542,51 +646,23 @@
       }
     },{
       label: "Chat-only mode",
-      boolValue: ()=>!!document.body.classList.contains('chat-only-mode'),
-      callback: function f(){
-        if(undefined === f.isHidden){
-          f.isHidden = false;
-          f.elemsToToggle = [];
-          document.body.childNodes.forEach(function(e){
-            if(!e.classList) return/*TEXT nodes and such*/;
-            else if(!e.classList.contains('content')
-                    && !e.classList.contains('fossil-PopupWidget')
-                    /*kludge^^^ for settingsPopup click handling!*/){
-              f.elemsToToggle.push(e);
-            }
-          });
-          /* In order to make the input area opaque, such that the
-             message list scrolls under it without being visible, we
-             have to ensure that the input area has a non-inherited
-             background color. Ideally we'd select the color of
-             div.content, but that is not necessarily set, so we fall
-             back to using the body's background color. If we rely on
-             the input area having its own color specified in CSS then
-             all skins would have to define an appropriate color.
-             Thus our selection of the body color, while slightly unfortunate,
-             is in the interest of keeping skins from being forced to
-             define an opaque bg color.
-          */
-          f.initialBg = Chat.e.messagesWrapper.style.backgroundColor;
-          const cs = window.getComputedStyle(document.body);
-          f.inheritedBg = cs.backgroundColor;
-        }
-        const iws = Chat.e.inputWrapper.style;
-        if((f.isHidden = !f.isHidden)){
-          D.addClass(f.elemsToToggle, 'hidden');
-          D.addClass(document.body, 'chat-only-mode');
-          iws.backgroundColor = f.inheritedBg;
-        }else{
-          D.removeClass(f.elemsToToggle, 'hidden');
-          D.removeClass(document.body, 'chat-only-mode');
-          iws.backgroundColor = f.initialBg;
-        }
+      boolValue: ()=>Chat.isChatOnlyMode(),
+      callback: function(){
+        Chat.toggleChatOnlyMode();
       }
     },{
       label: "Left-align my posts",
       boolValue: ()=>!document.body.classList.contains('my-messages-right'),
       callback: function f(){
         document.body.classList.toggle('my-messages-right');
+      }
+    },{
+      label: "Bottom-up chat",
+      boolValue: ()=>document.body.classList.contains('chat-bottom-up'),
+      callback: function(){
+        document.body.classList.toggle('chat-bottom-up');
+        Chat.settings.set('bottom-up',
+                          document.body.classList.contains('chat-bottom-up'));
       }
     },{
       label: "Images inline",
@@ -622,12 +698,14 @@
         btn.addEventListener('click', callback);
       });
     };
-    /**
-       Reminder:
-       settingsPopup.installClickToHide();
-       Don't do this for this popup! It interferes with the embedded
-       "?" buttons in the popup, which are also PopupWidget users.
-    */
+    settingsPopup.installHideHandlers(false, true, true)
+    /** Reminder: click-to-hide interferes with "?" embedded within
+        the popup, so cannot be used together with those. Enabling
+        this means, however, that tapping the menu button to toggle
+        the menu cannot work because tapping the menu button while the
+        menu is opened will, because of the click-to-hide handler,
+        hide the menu before the button gets an event saying to toggle
+        it.*/;
     D.attr(settingsButton, 'role', 'button');
     settingsButton.addEventListener('click',function(ev){
       //ev.preventDefault();
@@ -637,7 +715,7 @@
        */
     }, false);
 
-    /* Find an ideal X position for the popup, directly under the settings
+    /* Find an ideal X/Y position for the popup, directly above the settings
        button, based on the size of the popup... */
     settingsPopup.show(document.body);
     popupSize = settingsPopup.e.getBoundingClientRect();
@@ -645,6 +723,14 @@
     settingsPopup.options.adjustX = function(x){
       const rect = settingsButton.getBoundingClientRect();
       return rect.right - popupSize.width;
+    };
+    settingsPopup.options.adjustY = function(y){
+      const rect = settingsButton.getBoundingClientRect();
+      if(Chat.isUiFlipped()){
+        return rect.top - popupSize.height -2;
+      }else{
+        return rect.bottom + 2;
+      }
     };
   })()/*#chat-settings-button setup*/;
 
@@ -758,7 +844,10 @@
        fails exepectedly when it times out, but is then immediately
        resumed, and reportError() produces a loud error message. */
       .finally(function(x){
-        if(isFirstCall) Chat.ajaxEnd();
+        if(isFirstCall){
+          Chat.ajaxEnd();
+          Chat.e.inputWrapper.scrollIntoView();
+        }
         poll.running=false;
       });
   }
