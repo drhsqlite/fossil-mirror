@@ -644,12 +644,9 @@
         btn.addEventListener('click', callback);
       });
     };
-    /**
-       Reminder:
-       settingsPopup.installClickToHide();
-       Don't do this for this popup! It interferes with the embedded
-       "?" buttons in the popup, which are also PopupWidget users.
-    */
+    settingsPopup.installClickToHide()
+    /** Reminder: that interferes with "?" embedded within the popup,
+        so cannot be used together with those. */;
     D.attr(settingsButton, 'role', 'button');
     settingsButton.addEventListener('click',function(ev){
       //ev.preventDefault();

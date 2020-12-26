@@ -1,5 +1,5 @@
-C Initial\sgo\sat\sa\s"bottom-up"\s(mobile-like)\slayout\sfor\schat,\sbut\sit\sis\sonly\sactive\sin\schat-only\smode\swhere\swe\shave\smore\scontrol\sover\sthe\slayout.\sThe\sdefault\smode\sworks\slike\sbefore,\stop-down.\sThere\sare\sstill\sminor\susability/scrolling\sissues\sleft\sto\sresolve\sbut\sit\sseems\sto\sessentially\swork.
-D 2020-12-26T01:31:05.977
+C Settings\smenu\snow\scloses\sif\sa\sclick\sor\sESC\shappens\soutside\sof\sthe\smenu.
+D 2020-12-26T01:37:23.436
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c d5e6a43d562daffada056d002b42770202149ae0ca60179e9fc254bc476a5f0a
-F src/chat.js 56832c8ba733e95311eed543935ad0a36cf68ce0fa92f0a29522134b1ace2637
+F src/chat.js f5118d2296575fc11fe46298d7f24131fea8aa0abe13eb0100246f52cf725757
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,10 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca42098af0af0411694113550ffb41e8789ec5ae66aa931c54a284dd2197d9b6
-R 54c6c9d729da3c5bbb00e8caaf7dc1bb
-T *branch * chat-mode-bottom-up
-T *sym-chat-mode-bottom-up *
-T -sym-trunk *
+P cffd66ffe9ed970d831383df282397ace7b61addade191e076ae4eb098658893
+R ae1930051b69af7b78c8bc3fef806577
 U stephan
-Z c3da7e0d261e50fdb6224d3ec7f70068
+Z 7fa4a27278a2d9bbf95aab73e1832ae6
