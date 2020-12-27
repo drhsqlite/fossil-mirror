@@ -114,8 +114,8 @@ void chat_webpage(void){
   if( iPingTcp ) style_disable_csp();
   style_set_current_feature("chat");
   style_header("Chat");
-  @ <div id='chat-input-area'>
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
+  @ <div id='chat-input-area'>
   @   <div id='chat-input-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
   @      placeholder="Type message here." autocomplete="off">
@@ -138,8 +138,8 @@ void chat_webpage(void){
   @     </div>
   @     <div id="chat-drop-details"></div>
   @   </div>
-  @ </form>
   @ </div>
+  @ </form>
   @ <div id='chat-messages-wrapper'>
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>

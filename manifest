@@ -1,5 +1,5 @@
-C chat:\sreworked\sthe\sauto-resize\salgorithm\sto\saccount\sfor\selements\swhich\s"incorrectly"\sreport\sa\sheight\sof\s0.\sExperimentally\sremoved\sthe\s2em\sbottom\sgap\sat\sthe\send\sof\sthe\smessage\sreportedly\srequired\sby\sSafari.
-D 2020-12-27T20:33:23.079
+C Put\sthe\s&lt;form&gt;\soutside\sof\sthe\schat-input-area\s&lt;div&gt;.\s\sSafari\nrequires\sthis.
+D 2020-12-27T21:00:05.916
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,7 +448,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c 9f239e3df45dc96f9b6c12ce049fa6010b46425fe4b3f13f3ee78218a387fd6a
+F src/chat.c 6ab5313628d80c00874a0a88a02466457aea5b62c2efcf34818f6da6fa68e5e7
 F src/chat.js 5c6f2d5e304ba33407b8c07042973db1e321e61c08fdb575ab6da0471d8005a7
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3f2eee546f014ead7649c82bc2540388284fe3f4e3299fff6b736480fcdfdca
-R c2a1df6eb8c1d7cf1d756a0b3404fef3
-U stephan
-Z 7d650b20e84d12bdbbd98f22059b80d3
+P cdc6dec7c78aedfa7c2cf5812514316c46f06ad4b211c1d48aa1b69a7e53b200
+R 1928091c8523f8cb8eaf474d6ae941ee
+U drh
+Z 75af15153e9a492212ac2a046bb24f70
