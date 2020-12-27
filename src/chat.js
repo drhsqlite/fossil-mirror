@@ -832,10 +832,9 @@
           const check = D.attr(D.checkbox(1, op.boolValue()),
                                           'aria-label', op.label);
           D.append(line, check);
-          check.addEventListener('click', callback);
         }
         D.append(settingsPopup.e, line);
-        btn.addEventListener('click', callback);
+        line.addEventListener('click', callback);
       });
     };
     settingsPopup.installHideHandlers(false, true, true)
