@@ -50,16 +50,30 @@
        height here: 85% when in "normal" mode and 95% in chat-only
        mode. Larger than ~95% is too big for Firefox on Android,
        causing the input area to move off-screen. */
-    if(!f.eHead){
-      f.eHead = document.querySelector('body > div.header');
-      f.eMenu = document.querySelector('body > div.mainmenu');
-      f.eFoot = document.querySelector('body > div.footer');
+    if(!f.elemsToCount){
+      f.elemsToCount = [
+        document.querySelector('body > div.header'),
+        document.querySelector('body > div.mainmenu'),
+        document.querySelector('body > #hbdrop'),
+        document.querySelector('body > div.footer')
+      ];
       f.contentArea = E1('div.content');
       f.extra = 0;
-      f.measure = function(e){
-        if(e){
-          const m = window.getComputedStyle(e);
-          f.extra += parseFloat(m.height);
+      f.measure = function callee(e,depth){
+        if(!e) return;
+        const m = e.getBoundingClientRect();
+        //console.debug("level-"+depth+" rect",e.className,m.top,m.bottom);
+        if(0===depth){
+          callee.top = m.top;
+          callee.bottom = m.bottom;
+        }else{
+          callee.top = m.top ? Math.min(callee.top, m.top) : callee.top;
+          callee.bottom = Math.max(callee.bottom, m.bottom);
+        }
+        Array.prototype.forEach.call(e.children,(e)=>callee(e,depth+1));
+        if(0===depth){
+          //console.debug("measure() height:",e.className, callee.top, callee.bottom, (callee.bottom - callee.top));
+          f.extra += callee.bottom - callee.top;
         }
       };
     }
@@ -72,7 +86,7 @@
         ht = wh;
       }else{
         f.extra = 0;
-        [f.eHead, f.eMenu, f.eFoot].forEach(f.measure);
+        f.elemsToCount.forEach((e)=>e ? f.measure(e,0) : false);
         ht = wh - f.extra;
       }
       f.contentArea.style.height =
@@ -94,7 +108,7 @@
     resized();
     return resized;
   })();
-
+  fossil.FRK = ForceResizeKludge/*for debugging*/;
   const Chat = (function(){
     const cs = {
       e:{/*map of certain DOM elements.*/

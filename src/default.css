@@ -1677,7 +1677,7 @@ body.chat:not(.chat-only-mode) #chat-input-area{
   /* Safari user reports that 2em is necessary to keep the file selection
      widget from overlapping the page footer, whereas a margin of 0 is fine
      for FF/Chrome (and 2em is a *huge* waste of space for those). */
-  margin-bottom: 2em;
+  margin-bottom: 0;
 }
 
 /* Widget holding the chat message input field, send button, and
