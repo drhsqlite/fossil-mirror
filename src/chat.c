@@ -137,9 +137,8 @@ void chat_webpage(void){
   @   </div>
   @ </form>
   @ </div>
-
-  /* New chat messages get inserted immediately after this element */
   @ <div id='chat-messages-wrapper'>
+  /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
 

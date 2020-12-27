@@ -1638,50 +1638,32 @@ body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
 }
 /** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-body.chat.chat-bottom-up #chat-messages-wrapper {
-  flex-direction: column-reverse;
-  z-index: 99 /* so that it scrolls under input area. If it's
-                 lower than div.content then mouse events to it
-                 are blocked!*/;
 }
 body.chat div.content {
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-body.chat.chat-bottom-up div.content {
   flex-direction: column-reverse;
+  /* ^^^^ In order to get good automatic scrolling of new messages on
+     the BOTTOM in bottom-up chat mode, such that they scroll up
+     instead of down, we have to use column-reverse layout, which
+     changes #chat-messages-wrapper's "gravity" for purposes of
+     scrolling! If we instead use flex-direction:column then each new
+     message pushes #chat-input-area down further off the screen!
+ */
+  align-items: stretch;
 }
 /* Wrapper for /chat user input controls */
 body.chat #chat-input-area {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid black;
   padding: 0.5em 1em;
-  margin-bottom: 0.5em;
-  /*position: sticky; top: 0; disabled for the time being because of
-    scroll-related quirks which are still unresolved. */
-  z-index: 100
-    /* see notes in #chat-messages-wrapper. The various popups require a
-       z-index higher than this one. */;
-}
-body.chat.chat-bottom-up #chat-input-area {
   border-bottom: none;
   border-top: 1px solid black;
   margin-bottom: 0;
   margin-top: 0.5em;
   position: initial /*sticky currently disabled due to scrolling-related issues*/;
   bottom: 0;
-}
-/* An internal hack to try to help resolve a message-scrolling quirk
-   when #chat-input-area is sticky on the bottom of the screen. */
-body.chat.chat-bottom-up #chat-input-area.unsticky {
-  position: initial;
 }
 /* Widget holding the chat message input field, send button, and
    settings button. */

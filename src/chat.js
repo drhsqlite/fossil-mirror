@@ -9,13 +9,21 @@
     if(!e) throw new Error("missing required DOM element: "+selector);
     return e;
   };
-  //document.body.classList.add('chat-only-mode');
+  const isInViewport = function(e) {
+    const rect = e.getBoundingClientRect();
+    return (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  };
   const Chat = (function(){
     const cs = {
       e:{/*map of certain DOM elements.*/
         messageInjectPoint: E1('#message-inject-point'),
         pageTitle: E1('head title'),
-        loadToolbar: undefined /* the load-posts toolbar (dynamically created) */,
+        loadOlderToolbar: undefined /* the load-posts toolbar (dynamically created) */,
         inputWrapper: E1("#chat-input-area"),
         fileSelectWrapper: E1('#chat-input-file-area'),
         messagesWrapper: E1('#chat-messages-wrapper'),
@@ -114,51 +122,26 @@
          list if atEnd is falsy, else at the end of the list, before
          the load-history widget. */
       injectMessageElem: function f(e, atEnd){
-        const mip = atEnd ? this.e.loadToolbar : this.e.messageInjectPoint;
+        const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
+              holder = this.e.messagesWrapper;
         if(atEnd){
-          mip.parentNode.insertBefore(e, mip);
+          const fe = mip.nextElementSibling;
+          if(fe) mip.parentNode.insertBefore(e, fe);
+          else D.append(mip.parentNode, e);
         }else{
-          const self = this;
-          if(false && this.isUiFlipped()){
-            /* When UI is flipped, new messages start out under the
-               text input area because of its position:sticky
-               style. We have to scroll them up. When the page footer
-               is not hidden but is not on-screen, this causes a
-               slight amount of UI jarring as the footer is *also*
-               scrolled into view (for whatever reason).
-
-               The remaining problem here is messages with IMG tags.
-               At this point in the process their IMG.src has not yet
-               been loaded - that's async. We scroll the message into
-               view, but then the downstream loading of IMG.src pushes
-               the message content back down, sliding the message
-               behind the input field. This can be verified by delaying the
-               message scroll by a second or so to give the image time
-               to load (from a local server instance).
-            */
-            D.addClass(self.e.inputWrapper,'unsticky');
-          }
-          if(mip.nextSibling) mip.parentNode.insertBefore(e, mip.nextSibling);
-          else mip.parentNode.appendChild(e);
-          if(false && this.isUiFlipped()){
-            //e.scrollIntoView();
-            setTimeout(function(){
-              //self.e.inputWrapper.scrollIntoView();
-              //self.e.fileSelectWrapper.scrollIntoView();
-              //e.scrollIntoView();
-              //D.removeClass(self.e.inputWrapper,'unsticky');
-              self.e.inputWrapper.scrollIntoView();
-            },0);
-          }
+          D.append(holder,e);
+        }
+        if(!atEnd && !this.isMassLoading
+           && e.dataset.xfrom!==Chat.me && !isInViewport(e)){
+          /* If a new non-history message arrives while the user is
+             scrolled elsewhere, do not scroll to the latest
+             message, but gently alert the user that a new message
+             has arrived. */
+          F.toast.message("New message has arrived.");
         }
       },
       /** Returns true if chat-only mode is enabled. */
       isChatOnlyMode: ()=>document.body.classList.contains('chat-only-mode'),
-      /** Returns true if the UI seems to be in "bottom-up" mode. */
-      isUiFlipped: function(){
-        const style = window.getComputedStyle(this.e.contentDiv);
-        return style.flexDirection.indexOf("-reverse")>0;
-      },
       /**
          Enters (if passed a truthy value or no arguments) or leaves
          "chat-only" mode. That mode hides the page's header and
@@ -169,7 +152,7 @@
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
           document.querySelectorAll(
-            "body > div.header, body > div.footer"
+            "body > div.header, body > div.mainmenu, body > div.footer"
           ).forEach((e)=>f.elemsToToggle.push(e));
         }
         if(!arguments.length) yes = true;
@@ -181,13 +164,6 @@
         }else{
           D.removeClass(f.elemsToToggle, 'hidden');
           D.removeClass(document.body, 'chat-only-mode');
-          if(false){
-            setTimeout(()=>document.body.scrollIntoView(
-              /*moves to (0,0), whereas scrollTo(0,0) does not!
-                setTimeout() is unfortunately necessary to get the scroll
-                placement correct.*/
-            ), 0);
-          }
         }
         const msg = document.querySelector('.message-widget');
         if(msg) setTimeout(()=>msg.scrollIntoView(),0);
@@ -202,8 +178,7 @@
         set: (k,v)=>F.storage.set(k,v),
         defaults:{
           "images-inline": !!F.config.chat.imagesInline,
-          "monospace-messages": false,
-          "bottom-up": true
+          "monospace-messages": false
         }
       }
     };
@@ -219,9 +194,6 @@
          layout based on the apparently "orientation" of the window:
          tall vs wide. Can be toggled via settings popup. */
       document.body.classList.add('my-messages-right');
-    }
-    if(cs.settings.getBool("bottom-up")){
-      document.body.classList.add('chat-bottom-up');
     }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
@@ -674,26 +646,6 @@
         document.body.classList.toggle('my-messages-right');
       }
     },{
-      label: "Bottom-up chat",
-      boolValue: ()=>document.body.classList.contains('chat-bottom-up'),
-      callback: function(){
-        document.body.classList.toggle('chat-bottom-up');
-        Chat.settings.set('bottom-up',
-                          document.body.classList.contains('chat-bottom-up'));
-        if(false){
-          /* Reminder: in order to get a good scrolling effect when
-             sticky mode is enabled for Chat.e.inputWrapper, BOTH of
-             these scrollIntoView() calls are needed. */
-          const e = document.querySelector(
-            '.message-widget'/*this is always the most recent message,
-                               even if flexbox placed it at the end of
-                               the page!*/
-          );
-          if(e) e.scrollIntoView();
-        }
-        setTimeout(()=>Chat.e.inputWrapper.scrollIntoView(), 0);
-      }
-    },{
       label: "Images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),
       callback: function(){
@@ -755,11 +707,7 @@
     };
     settingsPopup.options.adjustY = function(y){
       const rect = settingsButton.getBoundingClientRect();
-      if(Chat.isUiFlipped()){
-        return rect.top - popupSize.height -2;
-      }else{
-        return rect.bottom + 2;
-      }
+      return rect.top - popupSize.height -2;
     };
   })()/*#chat-settings-button setup*/;
 
@@ -812,7 +760,7 @@
         automatically enable/disable its children by
         enabling/disabling the parent element. */
     const loadLegend = D.legend("Load...");
-    const toolbar = Chat.e.loadToolbar = D.attr(
+    const toolbar = Chat.e.loadOlderToolbar = D.attr(
       D.fieldset(loadLegend), "id", "load-msg-toolbar"
     );
     Chat.disableDuringAjax.push(toolbar);
@@ -836,12 +784,12 @@
             /* We've loaded all history. Permanently disable the
                history-load toolbar and keep it from being re-enabled
                via the ajaxStart()/ajaxEnd() mechanism... */
-            const div = Chat.e.loadToolbar.querySelector('div');
+            const div = Chat.e.loadOlderToolbar.querySelector('div');
             D.append(D.clearElement(div), "All history has been loaded.");
-            D.addClass(Chat.e.loadToolbar, 'all-done');
-            const ndx = Chat.disableDuringAjax.indexOf(Chat.e.loadToolbar);
+            D.addClass(Chat.e.loadOlderToolbar, 'all-done');
+            const ndx = Chat.disableDuringAjax.indexOf(Chat.e.loadOlderToolbar);
             if(ndx>=0) Chat.disableDuringAjax.splice(ndx,1);
-            Chat.e.loadToolbar.disabled = true;
+            Chat.e.loadOlderToolbar.disabled = true;
           }
           if(gotMessages > 0){
             F.toast.message("Loaded "+gotMessages+" older messages.");
@@ -865,6 +813,7 @@
     if(poll.running) return;
     poll.running = true;
     if(isFirstCall) Chat.ajaxStart();
+    Chat.isMassLoading = isFirstCall;
     var p = fetch("chat-poll?name=" + Chat.mxMsg);
     p.then(x=>x.json())
       .then(y=>newcontent(y))
@@ -874,6 +823,7 @@
        resumed, and reportError() produces a loud error message. */
       .finally(function(x){
         if(isFirstCall){
+          Chat.isMassLoading = false;
           Chat.ajaxEnd();
           Chat.e.inputWrapper.scrollIntoView();
         }
