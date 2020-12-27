@@ -1,5 +1,5 @@
-C Added\san\sARIA\srole=alert\sto\sthe\sfossil.toast.message/warning/error()\spopup,\sper\sform\srequest.\sToast\sAPI\sdoc\scorrections.
-D 2020-12-27T09:37:48.467
+C Some\sflicker\sreduction\swhen\sbatch\sloading\schat\smessages.\sMinor\schat\slayout\stweaks.
+D 2020-12-27T09:56:44.618
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 98b70878e6d21856ee7fd00cf075bd1ad7c52ed5e63ac3c95888fd0d758ef047
-F src/chat.js 40fe3befca19f54ec4ea53c63060f1d5e2b53423fb994d5e7eae3e3fb7c10477
+F src/chat.js 38d6da013dc1d422cfe50d8186bd7848a81c1cb4e3aee97d0d0a20bcc340e4a6
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -466,7 +466,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 654cfd99cc5470ed06d821ec61b9fd7b46f99a9a3614c4ba7523209baec56b99
-F src/default.css 464c6b4dc87014e259f545676591e47c003d96cfb3fefe7f558e839a8ab9c392
+F src/default.css dcb4f81c8d118ff7806abdb755fb85157da86dde0daf00ed951dd4dba8af64fe
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca7aae80ad701e4d4b91b911599ccd01260b43e28bfc7c69367ff18ba4ceec3c
-R 3e67463972bca6abc4fadcbcbb79c8f8
+P 23d6b4570a8752b5f00dfe0496f59324f0602b953d2679274d47ec0342a13d15
+R 425ea620d4930f44df39999600594e6e
 U stephan
-Z cea12b914c562c4f2bb4cbdc5781964a
+Z b24853f8b38d111b3956820f0ae8bb7c

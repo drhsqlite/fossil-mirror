@@ -208,16 +208,16 @@
           D.append(holder,e);
           this.e.newestMessage = e;
         }
-        if(!atEnd && !this.isMassLoading
+        if(!atEnd && !this.isBatchLoading
            && e.dataset.xfrom!==this.me && !isInViewport(e)){
           /* If a new non-history message arrives while the user is
              scrolled elsewhere, do not scroll to the latest
              message, but gently alert the user that a new message
              has arrived. */
           F.toast.message("New message has arrived.");
-        }else if(!this.isMassLoading && e.dataset.xfrom===Chat.me){
+        }else if(!this.isBatchLoading && e.dataset.xfrom===Chat.me){
           this.scheduleScrollOfMsg(e);
-        }else if(!this.isMassLoading){
+        }else if(!this.isBatchLoading){
           /* When a message from someone else arrives, we have to
              figure out whether or not to scroll it into view. Ideally
              we'd just stuff it in the UI and let the flexbox layout
@@ -291,7 +291,7 @@
         }else if(where>0){
           Chat.e.messagesWrapper.scrollTop = Chat.e.messagesWrapper.scrollHeight;
         }else if(Chat.e.newestMessage){
-          Chat.e.newestMessage.scrollIntoView();
+          Chat.e.newestMessage.scrollIntoView(false);
         }
       },
       toggleChatOnlyMode: function(){
@@ -920,6 +920,8 @@
     /* Loads the next n oldest messages, or all previous history if n is negative. */
     const loadOldMessages = function(n){
       Chat.ajaxStart();
+      Chat.e.messagesWrapper.classList.add('loading');
+      Chat.isBatchLoading = true;
       var gotMessages = false;
       fetch("chat-poll?before="+Chat.mnMsg+"&n="+n)
         .then(x=>x.json())
@@ -929,10 +931,12 @@
         })
         .catch(e=>Chat.reportError(e))
         .finally(function(){
+          Chat.isBatchLoading = false;
+          Chat.e.messagesWrapper.classList.remove('loading');
           if(n<0/*we asked for all history*/
              || 0===gotMessages/*we found no history*/
              || (n>0 && gotMessages<n /*we got fewer history entries than requested*/)
-             || (false!==gotMessages && n<0 && gotMessages<Chat.loadMessageCount
+             || (false!==gotMessages && n===0 && gotMessages<Chat.loadMessageCount
                  /*we asked for default amount and got fewer than that.*/)){
             /* We've loaded all history. Permanently disable the
                history-load toolbar and keep it from being re-enabled
@@ -965,8 +969,11 @@
   async function poll(isFirstCall){
     if(poll.running) return;
     poll.running = true;
-    if(isFirstCall) Chat.ajaxStart();
-    Chat.isMassLoading = isFirstCall;
+    if(isFirstCall){
+      Chat.ajaxStart();
+      Chat.e.messagesWrapper.classList.add('loading');
+    }
+    Chat.isBatchLoading = isFirstCall;
     var p = fetch("chat-poll?name=" + Chat.mxMsg);
     p.then(x=>x.json())
       .then(y=>newcontent(y))
@@ -976,11 +983,12 @@
        resumed, and reportError() produces a loud error message. */
       .finally(function(){
         if(isFirstCall){
-          Chat.isMassLoading = false;
+          Chat.isBatchLoading = false;
           Chat.ajaxEnd();
-          const m = Chat.e.newestMessage;
-          if(m) Chat.scheduleScrollOfMsg(m);
-          setTimeout(()=>Chat.e.inputWrapper.scrollIntoView(), 0);
+          setTimeout(function(){
+            Chat.scrollMessagesTo(1);
+            Chat.e.messagesWrapper.classList.remove('loading');
+          }, 250);
         }
         poll.running=false;
       });

@@ -1642,6 +1642,10 @@ body.chat #chat-messages-wrapper {
   /*max-height: 800em*//*will be re-calc'd in JS*/;
   flex: 2 1 auto;
 }
+body.chat #chat-messages-wrapper.loading > * {
+  /* An attempt at reducing flicker when loading lots of messages. */
+  visibility: hidden;
+}
 body.chat div.content {
   margin: 0;
   padding: 0;
@@ -1680,7 +1684,7 @@ body.chat #chat-input-line {
   display: flex;
   flex-direction: row;
   margin-bottom: 0.25em;
-  align-items: flex-start;
+  align-items: center;
 }
 body.chat #chat-input-line > input[type=submit],
 body.chat #chat-input-line > #chat-settings-button,
