@@ -18,6 +18,31 @@
       rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
   };
+
+  const ForceResizeKludge = 0 ? function(){} : (function(){
+    /* Workaround for Safari mayhem regarding use of vh CSS units....
+       We tried to use vh units to set the content area size for the
+       chat layout, but Safari chokes on that, so we calculate that
+       height here: 85% when in "normal" mode and 95% in chat-only
+       mode. Larger than ~95% is too big for Firefox on Android,
+       causing the input area to move off-screen. */
+    const contentArea = E1('div.content'),
+          bcl = document.body.classList;
+    const resized = function(){
+      const wh = window.innerHeight,
+            mult = bcl.contains('chat-only-mode') ? 0.95 : 0.85;
+      contentArea.style.maxHeight = (wh * mult)+"px";
+      console.debug("resized.",wh, mult, window.getComputedStyle(contentArea).maxHeight);
+    };
+    var doit;
+    window.addEventListener('resize',function(ev){
+      clearTimeout(doit);
+      doit = setTimeout(resized, 100);
+    }, false);
+    resized();
+    return resized;
+  })();
+
   const Chat = (function(){
     const cs = {
       e:{/*map of certain DOM elements.*/
@@ -122,14 +147,16 @@
          list if atEnd is falsy, else at the end of the list, before
          the load-history widget. */
       injectMessageElem: function f(e, atEnd){
-        const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
-              holder = this.e.messagesWrapper;
+        const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint;
+        /* Reminder: this placement is kinda odd because of the
+           flex-direction:column-reverse in this.e.messagesWrapper,
+           which reverses our directions. */
         if(atEnd){
+          mip.parentNode.insertBefore(e, mip);
+        }else{
           const fe = mip.nextElementSibling;
           if(fe) mip.parentNode.insertBefore(e, fe);
           else D.append(mip.parentNode, e);
-        }else{
-          D.append(holder,e);
         }
         if(!atEnd && !this.isMassLoading
            && e.dataset.xfrom!==Chat.me && !isInViewport(e)){
@@ -138,6 +165,8 @@
              message, but gently alert the user that a new message
              has arrived. */
           F.toast.message("New message has arrived.");
+        }else if(e.dataset.xfrom===Chat.me){
+          e.scrollIntoView();
         }
       },
       /** Returns true if chat-only mode is enabled. */
@@ -167,6 +196,7 @@
         }
         const msg = document.querySelector('.message-widget');
         if(msg) setTimeout(()=>msg.scrollIntoView(),0);
+        ForceResizeKludge();
         return this;
       },
       toggleChatOnlyMode: function(){
