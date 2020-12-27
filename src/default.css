@@ -1617,13 +1617,15 @@ body.chat .chat-settings-popup > span {
 body.chat .chat-settings-popup > span.menu-entry{
   white-space: nowrap;
   cursor: pointer;
-  border: 1px outset;
+  border: 1px solid;
   border-radius: 0.25em;
   padding: 0.25em 0.5em;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+}
+body.chat .chat-settings-popup > span.menu-entry:hover {
 }
 body.chat .chat-settings-popup > span.menu-entry > .help-buttonlet {
   vertical-align: middle;
@@ -1698,6 +1700,7 @@ body.chat #chat-input-line > button {
 }
 body.chat #chat-input-line > #chat-settings-button{
   margin: 0 0 0 0.25em;
+  max-width: 2em;
 }
 body.chat #chat-input-line > input[type=text],
 body.chat #chat-input-line > textarea {

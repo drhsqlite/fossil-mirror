@@ -53,14 +53,17 @@
             com = bcl.contains('chat-only-mode');
       var ht;
       if(com){
-        ht = wh - 10/*fudge value*/;
+        ht = wh;
       }else{
         f.extra = 0;
         [f.eHead, f.eMenu, f.eFoot].forEach(f.measure);
-        ht = wh - f.extra - 10/*fudge value*/;
+        ht = wh - f.extra;
       }
       f.contentArea.style.height =
-        f.contentArea.style.maxHeight = (ht>=100 ? ht : 100)+"px";
+        f.contentArea.style.maxHeight = [
+          "calc(", (ht>=100 ? ht : 100), "px",
+          " - 1em"/*fudge value*/,")"
+        ].join('');
       if(false){
         console.debug("resized.",wh, f.extra, ht,
                       window.getComputedStyle(f.contentArea).maxHeight,
@@ -91,7 +94,9 @@
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file'),
-        contentDiv: E1('div.content')
+        contentDiv: E1('div.content'),
+        btnMsgHome: E1('#chat-scroll-top'),
+        btnMsgEnd: E1('#chat-scroll-bottom')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -297,6 +302,14 @@
       toggleChatOnlyMode: function(){
         return this.chatOnlyMode(!this.isChatOnlyMode());
       },
+      /* Turn the message area top/bottom buttons on (yes===true), off
+         (yes==false), or toggle them (no arguments). Returns this. */
+      toggleNavButtons: function(yes){
+        const e = [this.e.btnMsgHome, this.e.btnMsgEnd], c = 'hidden';
+        if(0===arguments.length) D.toggleClass(e, c);
+        else if(!arguments[0]) D.addClass(e, c);
+        else D.removeClass(e, c);
+      },
       settings:{
         get: (k,dflt)=>F.storage.get(k,dflt),
         getBool: (k,dflt)=>F.storage.getBool(k,dflt),
@@ -319,6 +332,7 @@
          layout based on the apparently "orientation" of the window:
          tall vs wide. Can be toggled via settings popup. */
       document.body.classList.add('my-messages-right');
+      cs.toggleNavButtons(false);
     }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
@@ -786,6 +800,10 @@
       callback: function f(){
         document.body.classList.toggle('my-messages-right');
       }
+    },{
+      label: "Message home/end buttons",
+      boolValue: ()=>!Chat.e.btnMsgHome.classList.contains('hidden'),
+      callback: ()=>Chat.toggleNavButtons()
     },{
       label: "Images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),

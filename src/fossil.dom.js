@@ -632,8 +632,8 @@
      "Blinks" the given element a single time for the given number of
      milliseconds, defaulting (if the 2nd argument is falsy or not a
      number) to flashOnce.defaultTimeMs. If a 3rd argument is passed
-     in, it must be a function, and it gets callback back at the end
-     of the asynchronous flashing processes.
+     in, it must be a function, and it gets called at the end of the
+     asynchronous flashing processes.
 
      This will only activate once per element during that timeframe -
      further calls will become no-ops until the blink is
