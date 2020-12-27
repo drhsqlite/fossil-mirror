@@ -27,20 +27,45 @@
       D.append(document.body,dbg);
     }
   })();
-  const ForceResizeKludge = 0 ? function(){} : (function(){
+  const ForceResizeKludge = 0 ? function(){} : (function f(){
     /* Workaround for Safari mayhem regarding use of vh CSS units....
        We tried to use vh units to set the content area size for the
        chat layout, but Safari chokes on that, so we calculate that
        height here: 85% when in "normal" mode and 95% in chat-only
        mode. Larger than ~95% is too big for Firefox on Android,
        causing the input area to move off-screen. */
-    const contentArea = E1('div.content'),
-          bcl = document.body.classList;
+    if(!f.eHead){
+      f.eHead = document.querySelector('body > div.header');
+      f.eMenu = document.querySelector('body > div.mainmenu');
+      f.eFoot = document.querySelector('body > div.footer');
+      f.contentArea = E1('div.content');
+      f.extra = 0;
+      f.measure = function(e){
+        if(e){
+          const m = window.getComputedStyle(e);
+          f.extra += parseFloat(m.height);
+        }
+      };
+    }
+    const bcl = document.body.classList;
     const resized = function(){
       const wh = window.innerHeight,
-            mult = bcl.contains('chat-only-mode') ? 0.95 : 0.85;
-      contentArea.style.height = contentArea.style.maxHeight = (wh * mult)+"px";
-      //console.debug("resized.",wh, mult, window.getComputedStyle(contentArea).maxHeight);
+            com = bcl.contains('chat-only-mode');
+      var ht;
+      if(com){
+        ht = wh - 10/*fudge value*/;
+      }else{
+        f.extra = 0;
+        [f.eHead, f.eMenu, f.eFoot].forEach(f.measure);
+        ht = wh - f.extra - 10/*fudge value*/;
+      }
+      f.contentArea.style.height =
+        f.contentArea.style.maxHeight = (ht>=100 ? ht : 100)+"px";
+      if(false){
+        console.debug("resized.",wh, f.extra, ht,
+                      window.getComputedStyle(f.contentArea).maxHeight,
+                      f.contentArea);
+      }
     };
     var doit;
     window.addEventListener('resize',function(ev){
@@ -256,6 +281,19 @@
         }
         ForceResizeKludge();
         return this;
+      },
+      /** Tries to scroll the message area to...
+          <0 = top of the message list, >1 = bottom of the message list,
+          0 == the newest message (normally the same position as >1).
+      */
+      scrollMessagesTo: function(where){
+        if(where<0){
+          Chat.e.messagesWrapper.scrollTop = 0;
+        }else if(where>0){
+          Chat.e.messagesWrapper.scrollTop = Chat.e.messagesWrapper.scrollHeight;
+        }else if(Chat.e.newestMessage){
+          Chat.e.newestMessage.scrollIntoView();
+        }
       },
       toggleChatOnlyMode: function(){
         return this.chatOnlyMode(!this.isChatOnlyMode());
@@ -815,6 +853,18 @@
     };
   })()/*#chat-settings-button setup*/;
 
+  (function(){ /* buttons to scroll to the begin/end of the messages. */
+    E1('#chat-scroll-bottom').addEventListener('click',function(ev){
+      ev.preventDefault();
+      Chat.scrollMessagesTo(1);
+      return false;
+    });
+    E1('#chat-scroll-top').addEventListener('click',function(ev){
+      ev.preventDefault();
+      Chat.scrollMessagesTo(-1);
+      return false;
+    });
+  })();
   
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is

@@ -1663,11 +1663,17 @@ body.chat #chat-input-area {
   padding: 0.5em 1em;
   border-bottom: none;
   border-top: 1px solid black;
-  margin-bottom: 0.25em;
-  margin-top: 0.5em;
+  margin: 0.5em 1em 0 1em;
   position: initial /*sticky currently disabled due to scrolling-related issues*/;
   bottom: 0;
 }
+body.chat:not(.chat-only-mode) #chat-input-area{
+  /* Safari user reports that 2em is necessary to keep the file selection
+     widget from overlapping the page footer, whereas a margin of 0 is fine
+     for FF/Chrome (and 2em is a *huge* waste of space for those). */
+  margin-bottom: 2em;
+}
+
 /* Widget holding the chat message input field, send button, and
    settings button. */
 body.chat #chat-input-line {
@@ -1676,10 +1682,18 @@ body.chat #chat-input-line {
   margin-bottom: 0.25em;
   align-items: flex-start;
 }
-body.chat #chat-input-line > input[type=submit] {
+body.chat #chat-input-line > input[type=submit],
+body.chat #chat-input-line > #chat-settings-button,
+body.chat #chat-input-line > button {
   flex: 1 5 auto;
   max-width: 6em;
-  margin: 0 1em;
+  margin: 0 0.25em;
+}
+body.chat #chat-input-line > button {
+  max-width: 4em;
+}
+body.chat #chat-input-line > #chat-settings-button{
+  margin: 0 0 0 0.25em;
 }
 body.chat #chat-input-line > input[type=text],
 body.chat #chat-input-line > textarea {

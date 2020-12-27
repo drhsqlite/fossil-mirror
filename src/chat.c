@@ -122,6 +122,8 @@ void chat_webpage(void){
   @     <textarea rows="8" id="chat-input-multi" \
   @      placeholder="Type message here" class="hidden"></textarea>
   @     <input type="submit" value="Send" id="chat-message-submit">
+  @     <button id="chat-scroll-bottom">&darr;</button>
+  @     <button id="chat-scroll-top">&uarr;</button>
   @     <span id="chat-settings-button" class="settings-icon"></span>
   @   </div>
   @   <div id='chat-input-file-area'>
