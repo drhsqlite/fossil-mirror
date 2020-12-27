@@ -201,7 +201,7 @@ the integer to be encoded.  The encoding characters are:
 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~
 </pre></blockquote>
 
-<p>The least signficant 6 bits of the integer are encoded by
+<p>The least significant 6 bits of the integer are encoded by
 the first character, followed by
 the next 6 bits, and so on until all non-zero bits of the integer
 are encoded.  The minimum number of encoding characters is used.
