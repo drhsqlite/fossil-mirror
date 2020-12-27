@@ -268,6 +268,7 @@
       f.toaster = new F.PopupWidget({
         cssClass: 'fossil-toast-message'
       });
+      D.attr(f.toaster.e, 'role', 'alert');
     }
     const T = f.toaster;
     if(f._timer) clearTimeout(f._timer);
@@ -291,19 +292,24 @@
     },
     /**
        Convenience wrapper around a PopupWidget which pops up a shared
-       PopupWidget instance to show toast-style messages (commonly seen
-       on Android). Its arguments may be anything suitable for passing
-       to fossil.dom.append(), and each argument is first append()ed to
-       the toast widget, then the widget is shown for
-       F.toast.config.displayTimeMs milliseconds. This is called while
-       a toast is currently being displayed, the first will be overwritten
-       and the time until the message is hidden will be reset.
+       PopupWidget instance to show toast-style messages (commonly
+       seen on Android). Its arguments may be anything suitable for
+       passing to fossil.dom.append(), and each argument is first
+       append()ed to the toast widget, then the widget is shown for
+       F.toast.config.displayTimeMs milliseconds. If this is called
+       while a toast is currently being displayed, the first will be
+       overwritten and the time until the message is hidden will be
+       reset.
 
        The toast is always shown at the viewport-relative coordinates
        defined by the F.toast.config.position.
 
-       The toaster's DOM element has the CSS classes fossil-tooltip
-       and fossil-toast, so can be style via those.
+       The toaster's DOM element has the CSS class fossil-tooltip
+       and fossil-toast-message, so can be style via those.
+
+       The 3 main message types (message, warning, error) each get a
+       CSS class with that same name added to them. Thus CSS can
+       select on .fossil-toast-message.error to style error toasts.
     */
     message: function(/*...*/){
       return toastImpl(false,1, arguments);
