@@ -1,5 +1,5 @@
-C chat:\sre-integrated\sJS-based\sdiv.content\sresizer\sto\sdo\sapproximately\swhat\sthe\spreferred\s'vh'\sCSS\sunits\swould,\sbut\supon\swhich\sSafari\sapparently\schokes.\sMessage\sarea\snow\sgets\sa\sscrollbar.\sThis\sworks\sreasonably\swell\son\sFF/Chrome\son\sboth\sLinux\sand\sAndroid.\sThe\sjury\sis\sstill\sout\son\sSafari.
-D 2020-12-27T04:30:00.618
+C chat:\sreintegrated\spartial\schanges\sfrom\s[b0ab6cbd3]\sand\s[670732a6]:\sremove\sskin-induced\sdiv.content\smargins\sin\schat-only\smode\sand\scap\simage\spreview\ssize\sto\savoid\sscreen\soverflow.\sMoved\s#dbgMessage\selement\sout\sof\sthe\sway\sat\sapp\sstartup\sto\savoid\sit\spotentially\sinfluencing\sour\sflexbox\slayout,\sand\sinclude\sthat\selement\sin\sthe\sto-hide\slist\sfor\schat-only\smode.
+D 2020-12-27T04:50:13.849
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c a63d158de046402011423d6f4d07b73f24b4048c81ef541ffdc52c6fdba758be
-F src/chat.js e407358365fb8a83039f84478bd988bb69e98237739531cbe81d2c37d2697652
+F src/chat.js 5f6f8712aa2252b83e1293d39266a4a85cb4421ec1a5c360be6c9c5d689b9737
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -466,7 +466,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 654cfd99cc5470ed06d821ec61b9fd7b46f99a9a3614c4ba7523209baec56b99
-F src/default.css 33e8f008237b51c5e04dfb80a59862931ed755343917077d7053346df301494b
+F src/default.css 3826f89eb9d6727399f79900b7a25685c9bb13b2402329bbe9d4f2ccf4912c0d
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 421d6570785de527afc88ea7a164303fe1f8fc9e91f61af705d7ba9e9e34fb29
-R 7db59e712182aea5dfec8b1102db54e8
+P d488f5c66c10b351045a27bcae64351091dd2f4c60b007dda1cf57c5625bc337
+R 7c1c378d2fae2b2b7d54d35fe1c68d87
 U stephan
-Z 56578eb39b4e7da6e0c7d02df5c061fb
+Z 89bfc4a95f7a86c200d0409dc2e76434

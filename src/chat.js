@@ -9,6 +9,16 @@
     if(!e) throw new Error("missing required DOM element: "+selector);
     return e;
   };
+
+  (function(){
+    let dbg = document.querySelector('#debugMsg');
+    if(dbg){
+      /* This can inadvertently influence our flexbox layouts, so move
+         it out of the way. */
+      D.append(document.body,dbg);
+    }
+  })();
+
   const isInViewport = function(e) {
     const rect = e.getBoundingClientRect();
     return (
@@ -32,7 +42,7 @@
       const wh = window.innerHeight,
             mult = bcl.contains('chat-only-mode') ? 0.95 : 0.85;
       contentArea.style.maxHeight = (wh * mult)+"px";
-      console.debug("resized.",wh, mult, window.getComputedStyle(contentArea).maxHeight);
+      //console.debug("resized.",wh, mult, window.getComputedStyle(contentArea).maxHeight);
     };
     var doit;
     window.addEventListener('resize',function(ev){
@@ -181,7 +191,10 @@
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
           document.querySelectorAll(
-            "body > div.header, body > div.mainmenu, body > div.footer"
+            ["body > div.header",
+             "body > div.mainmenu",
+             "body > div.footer",
+             "#debugMsg"].join(',')
           ).forEach((e)=>f.elemsToToggle.push(e));
         }
         if(!arguments.length) yes = true;

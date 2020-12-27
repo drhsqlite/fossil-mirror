@@ -1657,6 +1657,14 @@ body.chat div.content {
  */
   align-items: stretch;
 }
+body.chat.chat-only-mode div.content {
+  /*max-height: 95vh*//*larger than approx. this is too big for Firefox on Android*/;
+  /* Some skins set margins and a max-width on div.content, but we
+     needn't(?) honor those in chat-only mode. */
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+}
 /* Wrapper for /chat user input controls */
 body.chat #chat-input-area {
   display: flex;
@@ -1666,8 +1674,6 @@ body.chat #chat-input-area {
   border-top: 1px solid black;
   margin-bottom: 0;
   margin-top: 0.5em;
-  position: initial /*sticky currently disabled due to scrolling-related issues*/;
-  bottom: 0;
 }
 /* Widget holding the chat message input field, send button, and
    settings button. */
@@ -1722,4 +1728,8 @@ body.chat #chat-drop-details {
   margin-left: 0.5em;
   white-space: pre;
   font-family: monospace;
+}
+body.chat #chat-drop-details img {
+  max-width: 45%;
+  max-height: 45%;
 }
