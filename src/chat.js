@@ -18,6 +18,31 @@
       rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
   };
+
+  const ForceResizeKludge = 0 ? function(){} : (function(){
+    /* Workaround for Safari mayhem regarding use of vh CSS units....
+       We tried to use vh units to set the content area size for the
+       chat layout, but Safari chokes on that, so we calculate that
+       height here: 85% when in "normal" mode and 95% in chat-only
+       mode. Larger than ~95% is too big for Firefox on Android,
+       causing the input area to move off-screen. */
+    const contentArea = E1('div.content'),
+          bcl = document.body.classList;
+    const resized = function(){
+      const wh = window.innerHeight,
+            mult = bcl.contains('chat-only-mode') ? 0.95 : 0.85;
+      contentArea.style.height = contentArea.style.maxHeight = (wh * mult)+"px";
+      //console.debug("resized.",wh, mult, window.getComputedStyle(contentArea).maxHeight);
+    };
+    var doit;
+    window.addEventListener('resize',function(ev){
+      clearTimeout(doit);
+      doit = setTimeout(resized, 100);
+    }, false);
+    resized();
+    return resized;
+  })();
+
   const Chat = (function(){
     const cs = {
       e:{/*map of certain DOM elements.*/
@@ -130,6 +155,7 @@
           else D.append(mip.parentNode, e);
         }else{
           D.append(holder,e);
+          Chat.newestMessageElem = e;
         }
         if(!atEnd && !this.isMassLoading
            && e.dataset.xfrom!==Chat.me && !isInViewport(e)){
@@ -138,6 +164,8 @@
              message, but gently alert the user that a new message
              has arrived. */
           F.toast.message("New message has arrived.");
+        }else if(e.dataset.xfrom===Chat.me){
+          e.scrollIntoView();
         }
       },
       /** Returns true if chat-only mode is enabled. */
@@ -167,6 +195,7 @@
         }
         const msg = document.querySelector('.message-widget');
         if(msg) setTimeout(()=>msg.scrollIntoView(),0);
+        ForceResizeKludge();
         return this;
       },
       toggleChatOnlyMode: function(){
@@ -231,6 +260,14 @@
     cs.getMessageElemById = function(id){
       return qs('[data-msgid="'+id+'"]');
     };
+
+    /** Finds the last .message-widget element and returns it or
+        the undefined value if none are found. */
+    cs.fetchLastMessageElem = function(){
+      const msgs = document.querySelectorAll('.message-widget');
+      return msgs.length ? msgs[msgs.length-1] : undefined;
+    };
+
     /**
        LOCALLY deletes a message element by the message ID or passing
        the .message-row element. Returns true if it removes an element,
@@ -246,6 +283,9 @@
       }
       if(e && id){
         D.remove(e);
+        if(e===this.newestMessageElem){
+          Chat.newestMessageElem = Chat.fetchLastMessageElem();
+        }
         F.toast.message("Deleted message "+id+".");
       }
       return !!e;
@@ -821,11 +861,18 @@
     /* ^^^ we don't use Chat.reportError(e) here b/c the polling
        fails exepectedly when it times out, but is then immediately
        resumed, and reportError() produces a loud error message. */
-      .finally(function(x){
+      .finally(function(){
         if(isFirstCall){
           Chat.isMassLoading = false;
           Chat.ajaxEnd();
-          Chat.e.inputWrapper.scrollIntoView();
+          setTimeout(function(){
+            const m = Chat.newestMessageElem;
+            if(m){
+              m.scrollIntoView();
+              //console.debug("Scrolling into view...",msgs[msgs.length-1]);
+            }
+            Chat.e.inputWrapper.scrollIntoView()
+          }, 0);
         }
         poll.running=false;
       });

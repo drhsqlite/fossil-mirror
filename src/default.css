@@ -1638,6 +1638,9 @@ body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
 }
 /** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
+  overflow: auto;
+  /*max-height: 800em*//*will be re-calc'd in JS*/;
+  flex: 2 1 auto;
 }
 body.chat div.content {
   margin: 0;
