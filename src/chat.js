@@ -9,7 +9,10 @@
     if(!e) throw new Error("missing required DOM element: "+selector);
     return e;
   };
-  const isInViewport = function(e) {
+  /**
+     Returns true if e is entirely within the bounds of the window's viewport.
+  */
+  const isEntirelyInViewport = function(e) {
     const rect = e.getBoundingClientRect();
     return (
       rect.top >= 0 &&
@@ -17,6 +20,19 @@
       rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
       rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
+  };
+
+  /**
+     Returns true if e's on-screen position vertically overlaps that
+     of element v's. Horizontal overlap is ignored (we don't need it
+     for our case).
+  */
+  const overlapsElemView = function(e,v) {
+    const r1 = e.getBoundingClientRect(),
+          r2 = v.getBoundingClientRect();
+    if(r1.top<=r2.bottom && r1.top>=r2.top) return true;
+    else if(r1.bottom<=r2.bottom && r1.bottom>=r2.top) return true;
+    return false;
   };
 
   (function(){
@@ -214,7 +230,10 @@
           this.e.newestMessage = e;
         }
         if(!atEnd && !this.isBatchLoading
-           && e.dataset.xfrom!==this.me && !isInViewport(e)){
+           && e.dataset.xfrom!==this.me
+           && (prevMessage
+               ? !overlapsElemView(prevMessage, this.e.messagesWrapper)
+               : false)){
           /* If a new non-history message arrives while the user is
              scrolled elsewhere, do not scroll to the latest
              message, but gently alert the user that a new message
@@ -249,7 +268,7 @@
           */
           if(1===+e.dataset.hasImage){
             e.querySelector('img').addEventListener('load',()=>e.scrollIntoView());
-          }else if(!prevMessage || (prevMessage && isInViewport(prevMessage))){
+          }else if(!prevMessage || (prevMessage && isEntirelyInViewport(prevMessage))){
             e.scrollIntoView(false);
           }
         }

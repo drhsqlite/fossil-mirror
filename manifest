@@ -1,5 +1,5 @@
-C chat:\sseem\sto\shave\seliminated\sthe\stiny\sdead-zone\sbetween\sthe\slabel\sand\scheckbox\sin\sthe\ssettings\smenu.
-D 2020-12-27T18:29:16.772
+C chat:\simproved\sthe\s'is\sprevious\smessage\scurrently\svisible'\scalculation\sfor\sthe\s'should\swe\sscroll?'\sheuristic.
+D 2020-12-27T18:56:02.238
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 9f239e3df45dc96f9b6c12ce049fa6010b46425fe4b3f13f3ee78218a387fd6a
-F src/chat.js 72e881d593ac31f1ac4e989adbfb4966e7f215607255f8b581a70c60ee89bd64
+F src/chat.js adb7355a24113fc6e315ed7cac4a03beea9ddab43624b77db8c64b0965d0ccbc
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1221a579ecdbf4d7396cc65aefc93b363f5465daedeef3a7e59068a30d5089a9
-R 05b99d503c683c3c7f443b56f53c7cad
+P dc8f3a3692628ca342695ecf2398d94a7c42d3061d220c6d6662360e1c5c5217
+R 04e4816fa39489e888a46ab783a35cc8
 U stephan
-Z bf6fb7404f8f19505b6418d2ae49fe83
+Z 6e9b236e0ca0c1c5a860f27db877d71c
