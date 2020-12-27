@@ -19,6 +19,14 @@
     );
   };
 
+  (function(){
+    let dbg = document.querySelector('#debugMsg');
+    if(dbg){
+      /* This can inadvertently influence our flexbox layouts, so move
+         it out of the way. */
+      D.append(document.body,dbg);
+    }
+  })();
   const ForceResizeKludge = 0 ? function(){} : (function(){
     /* Workaround for Safari mayhem regarding use of vh CSS units....
        We tried to use vh units to set the content area size for the
@@ -143,29 +151,78 @@
            to avoid various race conditions in the UI and long-running
            network requests. */
       ],
+      /** Either scrolls .message-widget element eMsg into view
+          immediately or, if it represents an inlined image, delays
+          the scroll until the image is loaded, at which point it will
+          scroll to either the newest message, if one is set or to
+          eMsg (the liklihood is good, at least on initial page load,
+          that the the image won't be loaded until other messages have
+          been injected). */
+      scheduleScrollOfMsg: function(eMsg){
+        if(1===+eMsg.dataset.hasImage){
+          console.debug("Delaying scroll for IMG.");
+          eMsg.querySelector('img').addEventListener(
+            'load', ()=>(this.e.newestMessage || eMsg).scrollIntoView()
+          );
+        }else{
+          eMsg.scrollIntoView();
+        }
+        return this;
+      },
       /* Injects element e as a new row in the chat, at the top of the
          list if atEnd is falsy, else at the end of the list, before
          the load-history widget. */
       injectMessageElem: function f(e, atEnd){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
-              holder = this.e.messagesWrapper;
+              holder = this.e.messagesWrapper,
+              prevMessage = this.e.newestMessage;
         if(atEnd){
           const fe = mip.nextElementSibling;
           if(fe) mip.parentNode.insertBefore(e, fe);
           else D.append(mip.parentNode, e);
         }else{
           D.append(holder,e);
-          Chat.newestMessageElem = e;
+          this.e.newestMessage = e;
         }
         if(!atEnd && !this.isMassLoading
-           && e.dataset.xfrom!==Chat.me && !isInViewport(e)){
+           && e.dataset.xfrom!==this.me && !isInViewport(e)){
           /* If a new non-history message arrives while the user is
              scrolled elsewhere, do not scroll to the latest
              message, but gently alert the user that a new message
              has arrived. */
           F.toast.message("New message has arrived.");
-        }else if(e.dataset.xfrom===Chat.me){
-          e.scrollIntoView();
+        }else if(!this.isMassLoading && e.dataset.xfrom===Chat.me){
+          this.scheduleScrollOfMsg(e);
+        }else if(!this.isMassLoading){
+          /* When a message from someone else arrives, we have to
+             figure out whether or not to scroll it into view. Ideally
+             we'd just stuff it in the UI and let the flexbox layout
+             DTRT, but Safari has expressed, in no uncertain terms,
+             some disappointment with that approach, so we'll
+             heuristicize it: if the previous last message is in view,
+             assume the user is at or near the input element and
+             scroll this one into view. If that message is NOT in
+             view, assume the user is up reading history somewhere and
+             do NOT scroll because doing so would interrupt
+             them. There are middle grounds here where the user will
+             experience a slight UI jolt, but this heuristic mostly
+             seems to work out okay. If there was no previous message,
+             assume we don't have any messages yet and go ahead and
+             scroll this message into view (noting that that scrolling
+             is hypothetically a no-op in such cases).
+
+             The wrench in these works are posts with IMG tags, as
+             those images are loaded async and the element does not
+             yet have enough information to know how far to scroll!
+             For such cases we have to delay the scroll until the
+             image loads (and we hope it does so before another
+             message arrives).
+          */
+          if(1===+e.dataset.hasImage){
+            e.querySelector('img').addEventListener('load',()=>e.scrollIntoView());
+          }else if(!prevMessage || (prevMessage && isInViewport(prevMessage))){
+            e.scrollIntoView();
+          }
         }
       },
       /** Returns true if chat-only mode is enabled. */
@@ -180,7 +237,11 @@
         if(undefined === f.elemsToToggle){
           f.elemsToToggle = [];
           document.querySelectorAll(
-            "body > div.header, body > div.mainmenu, body > div.footer"
+            ["body > div.header",
+             "body > div.mainmenu",
+             "body > div.footer",
+             "#debugMsg"
+            ].join(',')
           ).forEach((e)=>f.elemsToToggle.push(e));
         }
         if(!arguments.length) yes = true;
@@ -263,7 +324,11 @@
         the undefined value if none are found. */
     cs.fetchLastMessageElem = function(){
       const msgs = document.querySelectorAll('.message-widget');
-      return msgs.length ? msgs[msgs.length-1] : undefined;
+      var rc;
+      if(msgs.length){
+        rc = this.e.newestMessage = msgs[msgs.length-1];
+      }
+      return rc;
     };
 
     /**
@@ -281,8 +346,8 @@
       }
       if(e && id){
         D.remove(e);
-        if(e===this.newestMessageElem){
-          Chat.newestMessageElem = Chat.fetchLastMessageElem();
+        if(e===this.e.newestMessage){
+          this.fetchLastMessageElem();
         }
         F.toast.message("Deleted message "+id+".");
       }
@@ -390,6 +455,7 @@
               && Chat.settings.getBool('images-inline',true)
             ){
             contentTarget.appendChild(D.img("chat-download/" + m.msgid));
+            ds.hasImage = 1;
           }else{
             const a = D.a(
               window.fossil.rootPath+
@@ -863,14 +929,9 @@
         if(isFirstCall){
           Chat.isMassLoading = false;
           Chat.ajaxEnd();
-          setTimeout(function(){
-            const m = Chat.newestMessageElem;
-            if(m){
-              m.scrollIntoView();
-              //console.debug("Scrolling into view...",msgs[msgs.length-1]);
-            }
-            Chat.e.inputWrapper.scrollIntoView()
-          }, 0);
+          const m = Chat.e.newestMessage;
+          if(m) Chat.scheduleScrollOfMsg(m);
+          setTimeout(()=>Chat.e.inputWrapper.scrollIntoView(), 0);
         }
         poll.running=false;
       });

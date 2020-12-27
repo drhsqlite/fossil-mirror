@@ -1,5 +1,5 @@
-C chat:\sfixed\smis-scroll\swhen\stoggling\schat-only\smode.\sRe-re-introduced\sthe\simg\spreview\ssize\scap.
-D 2020-12-27T07:03:13.916
+C chat:\sauto-scrolling\sof\sother\speoples'\sposts\sinto\sview\sworks\sbased\son\sa\sheuristic\sof\swhether\sthe\s*previous*\spost\sis\sin\sview\sor\snot\s(else\swe\sassume\sthe\suser\sis\sback\sin\sthe\shistory),\swith\sthe\snotable\scaveat\sthat\sposts\swith\sinlined\simages\splay\shavok\swith\sthis,\sin\spart\sbecause\sloading\sof\simages\sis\sasync\sand\swe\srace\sagainst\sit.\sMoved\sthe\s#debugMsg\selement\sout\sof\sdiv.content\sto\skeep\sit\sfrom\sunduly\sinfluencing\sour\slayout.
+D 2020-12-27T07:45:07.750
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c a63d158de046402011423d6f4d07b73f24b4048c81ef541ffdc52c6fdba758be
-F src/chat.js b8cdb6a693dfe65f5b3bb9da5d07842d8ebe10cb6e46fd93ed731a260b114038
+F src/chat.js 4a746deb1f8bc3f4b2e27b320d2b60903e6586f7c608370b44dd99619df32d2d
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a1161fa9bd6587f81e30dd4f0b0170eb83396f8519550e5a2367230b4b62efa3
-R 799c80496544e71d9ff153709b5fe1aa
+P b09f7e990d5cc599dbfdda649068186c36acddedd0dab7a56ffa7327247930cb
+R 88b4bce1ad10143780c00e3b948e4fb4
 U stephan
-Z 832774981749588e3f22469201ad67c5
+Z c032ec84045853cdde97d38ff61c8655
