@@ -1663,7 +1663,7 @@ body.chat #chat-input-area {
   padding: 0.5em 1em;
   border-bottom: none;
   border-top: 1px solid black;
-  margin-bottom: 0;
+  margin-bottom: 0.25em;
   margin-top: 0.5em;
   position: initial /*sticky currently disabled due to scrolling-related issues*/;
   bottom: 0;
@@ -1721,4 +1721,9 @@ body.chat #chat-drop-details {
   margin-left: 0.5em;
   white-space: pre;
   font-family: monospace;
+}
+
+body.chat #chat-drop-details img {
+  max-width: 45%;
+  max-height: 45%;
 }

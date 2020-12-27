@@ -193,8 +193,6 @@
           D.removeClass(f.elemsToToggle, 'hidden');
           D.removeClass(document.body, 'chat-only-mode');
         }
-        const msg = document.querySelector('.message-widget');
-        if(msg) setTimeout(()=>msg.scrollIntoView(),0);
         ForceResizeKludge();
         return this;
       },
