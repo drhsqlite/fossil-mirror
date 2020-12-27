@@ -1,5 +1,5 @@
-C Refactored\sthe\scalc-elem-effective-height\sroutine\sinto\sthe\sfossil.dom\sAPI\sfor\sreuse\selsewhere.\sFixed\s(arguably)\sa\sminor\slayout\squirk\sin\sthe\schat\sinput\sfield\sin\smulti-line\smode.
-D 2020-12-27T21:22:26.035
+C chat:\swhen\stoggling\sbetween\ssingle/multi-line\smode,\sretain\sthe\smessage\sarea\sscroll\sposition,\sinsofar\sas\sits\ssize\sallows\sfor\s(e.g.\smight\snot\swork\sif\sthe\shistory\sis\stoo\sshort\sto\sscroll).
+D 2020-12-27T22:01:17.446
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 6ab5313628d80c00874a0a88a02466457aea5b62c2efcf34818f6da6fa68e5e7
-F src/chat.js 9e80ea5d27e01d981abccca69d2d00ec6989ccf94378a41eba82a8ebfeb06fb8
+F src/chat.js 4ef8f59791effeea6d0559e38612fc9d550452d3fd700f718b17522b48af804f
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca60df923879f7cdeddd5ed611e0a31381801f89c5bc65ff316e569212793311
-R 13d177542a228ec31c389328849b330a
+P 299fd6905f52c9c24898dc5121e63bed054280b3ba7bc5bb1648be42b5ddec29
+R ebbbf1b2291a9f85a8ca1b744795133d
 U stephan
-Z fa2e72d1935f6883be8508220d71e929
+Z 8996db8d25392a9ec96ba4a34a618ed6

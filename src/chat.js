@@ -151,8 +151,11 @@
         }else{
           this.e.inputCurrent = this.e.inputSingle;
         }
+        const ht1 = D.effectiveHeight(old); 
         D.addClass(old, 'hidden');
         D.removeClass(this.e.inputCurrent, 'hidden');
+        const ht2 = D.effectiveHeight(this.e.inputCurrent);
+        this.e.messagesWrapper.scrollBy(0, ht2 - ht1);
         this.e.inputCurrent.value = old.value;
         old.value = '';
         return this;
