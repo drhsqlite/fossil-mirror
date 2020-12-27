@@ -1686,7 +1686,7 @@ body.chat #chat-input-line {
   display: flex;
   flex-direction: row;
   margin-bottom: 0.25em;
-  align-items: center;
+  align-items: self-start;
 }
 body.chat #chat-input-line > input[type=submit],
 body.chat #chat-input-line > #chat-settings-button,

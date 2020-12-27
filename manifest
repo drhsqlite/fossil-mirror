@@ -1,5 +1,5 @@
-C Put\sthe\s&lt;form&gt;\soutside\sof\sthe\schat-input-area\s&lt;div&gt;.\s\sSafari\nrequires\sthis.
-D 2020-12-27T21:00:05.916
+C Refactored\sthe\scalc-elem-effective-height\sroutine\sinto\sthe\sfossil.dom\sAPI\sfor\sreuse\selsewhere.\sFixed\s(arguably)\sa\sminor\slayout\squirk\sin\sthe\schat\sinput\sfield\sin\smulti-line\smode.
+D 2020-12-27T21:22:26.035
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 6ab5313628d80c00874a0a88a02466457aea5b62c2efcf34818f6da6fa68e5e7
-F src/chat.js 5c6f2d5e304ba33407b8c07042973db1e321e61c08fdb575ab6da0471d8005a7
+F src/chat.js 9e80ea5d27e01d981abccca69d2d00ec6989ccf94378a41eba82a8ebfeb06fb8
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -466,7 +466,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 654cfd99cc5470ed06d821ec61b9fd7b46f99a9a3614c4ba7523209baec56b99
-F src/default.css 1e33a24d3220bdc271239b0b2bd7d05ba89d77877dbc72735610820e28ff2a42
+F src/default.css 19e79009e2af5f058249377aab53e60b52ec3b3f603f65cf3d4e6e09f1348b0d
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -490,7 +490,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 989b241395ef4331ea373bbaf292df7fd029d74ca9d06807f72b637be4b81043
-F src/fossil.dom.js 34268aaad4930f01cb2f0e33bc37c90e16d40e469d082ffeb1fc9f49760d2515
+F src/fossil.dom.js 9772189ac8a427edd7aed816edc77a9fa8965bdf8b48741443c32762fdbfb65d
 F src/fossil.fetch.js 2df4ea7ec9063d45697adbf0077dd18be1e17d79773630df94fdf3b79b97648b
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cdc6dec7c78aedfa7c2cf5812514316c46f06ad4b211c1d48aa1b69a7e53b200
-R 1928091c8523f8cb8eaf474d6ae941ee
-U drh
-Z 75af15153e9a492212ac2a046bb24f70
+P ca60df923879f7cdeddd5ed611e0a31381801f89c5bc65ff316e569212793311
+R 13d177542a228ec31c389328849b330a
+U stephan
+Z fa2e72d1935f6883be8508220d71e929

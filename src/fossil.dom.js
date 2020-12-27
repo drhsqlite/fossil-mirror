@@ -727,6 +727,41 @@
   };
 
   /**
+     Given a DOM element, this routine measures its "effective
+     height", which is the bounding top/bottom range of this element
+     and all of its children, recursively. For some DOM structure
+     cases, a parent may have a reported height of 0 even though
+     children have non-0 sizes.
+
+     Returns 0 if !e or if the element really has no height.
+  */
+  dom.effectiveHeight = function f(e){
+    if(!e) return 0;
+    if(!f.measure){
+      f.measure = function callee(e, depth){
+        if(!e) return;
+        const m = e.getBoundingClientRect();
+        if(0===depth){
+          callee.top = m.top;
+          callee.bottom = m.bottom;
+        }else{
+          callee.top = m.top ? Math.min(callee.top, m.top) : callee.top;
+          callee.bottom = Math.max(callee.bottom, m.bottom);
+        }
+        Array.prototype.forEach.call(e.children,(e)=>callee(e,depth+1));
+        if(0===depth){
+          //console.debug("measure() height:",e.className, callee.top, callee.bottom, (callee.bottom - callee.top));
+          f.extra += callee.bottom - callee.top;
+        }
+        return f.extra;
+      };
+    }
+    f.extra = 0;
+    f.measure(e,0);
+    return f.extra;
+  };
+
+  /**
      Parses a string as HTML.
 
      Usages:

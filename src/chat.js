@@ -58,44 +58,29 @@
         document.querySelector('body > div.footer')
       ];
       f.contentArea = E1('div.content');
-      f.extra = 0;
-      f.measure = function callee(e,depth){
-        if(!e) return;
-        const m = e.getBoundingClientRect();
-        //console.debug("level-"+depth+" rect",e.className,m.top,m.bottom);
-        if(0===depth){
-          callee.top = m.top;
-          callee.bottom = m.bottom;
-        }else{
-          callee.top = m.top ? Math.min(callee.top, m.top) : callee.top;
-          callee.bottom = Math.max(callee.bottom, m.bottom);
-        }
-        Array.prototype.forEach.call(e.children,(e)=>callee(e,depth+1));
-        if(0===depth){
-          //console.debug("measure() height:",e.className, callee.top, callee.bottom, (callee.bottom - callee.top));
-          f.extra += callee.bottom - callee.top;
-        }
-      };
     }
     const bcl = document.body.classList;
     const resized = function(){
       const wh = window.innerHeight,
             com = bcl.contains('chat-only-mode');
       var ht;
+      var extra = 0;
       if(com){
         ht = wh;
       }else{
-        f.extra = 0;
-        f.elemsToCount.forEach((e)=>e ? f.measure(e,0) : false);
-        ht = wh - f.extra;
+        f.elemsToCount.forEach((e)=>e ? extra += D.effectiveHeight(e) : false);
+        ht = wh - extra;
       }
       f.contentArea.style.height =
         f.contentArea.style.maxHeight = [
           "calc(", (ht>=100 ? ht : 100), "px",
           " - 1em"/*fudge value*/,")"
+          /* ^^^^ hypothetically not needed, but both Chrome/FF on
+             Linux will force scrollbars on the body if this value is
+             too small (<0.75em in my tests). */
         ].join('');
       if(false){
-        console.debug("resized.",wh, f.extra, ht,
+        console.debug("resized.",wh, extra, ht,
                       window.getComputedStyle(f.contentArea).maxHeight,
                       f.contentArea);
       }
@@ -246,7 +231,7 @@
         if(!atEnd && !this.isBatchLoading
            && e.dataset.xfrom!==this.me
            && (prevMessage
-               ? !overlapsElemView(prevMessage, this.e.messagesWrapper)
+               ? !this.messageIsInView(prevMessage)
                : false)){
           /* If a new non-history message arrives while the user is
              scrolled elsewhere, do not scroll to the latest
@@ -342,6 +327,9 @@
         if(0===arguments.length) D.toggleClass(e, c);
         else if(!arguments[0]) D.addClass(e, c);
         else D.removeClass(e, c);
+      },
+      messageIsInView: function(e){
+        return e ? overlapsElemView(e, this.e.messagesWrapper) : false;
       },
       settings:{
         get: (k,dflt)=>F.storage.get(k,dflt),
