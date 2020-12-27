@@ -124,7 +124,8 @@ void chat_webpage(void){
   @     <input type="submit" value="Send" id="chat-message-submit">
   @     <button id="chat-scroll-bottom">&darr;</button>
   @     <button id="chat-scroll-top">&uarr;</button>
-  @     <span id="chat-settings-button" class="settings-icon"></span>
+  @     <span id="chat-settings-button" class="settings-icon" \
+  @       aria-label="Settings..." aria-haspopup="true" ></span>
   @   </div>
   @   <div id='chat-input-file-area'>
   @     <div class='file-selection-wrapper'>

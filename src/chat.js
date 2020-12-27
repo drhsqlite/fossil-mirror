@@ -185,12 +185,11 @@
           been injected). */
       scheduleScrollOfMsg: function(eMsg){
         if(1===+eMsg.dataset.hasImage){
-          console.debug("Delaying scroll for IMG.");
           eMsg.querySelector('img').addEventListener(
-            'load', ()=>(this.e.newestMessage || eMsg).scrollIntoView()
+            'load', ()=>(this.e.newestMessage || eMsg).scrollIntoView(false)
           );
         }else{
-          eMsg.scrollIntoView();
+          eMsg.scrollIntoView(false);
         }
         return this;
       },
@@ -246,7 +245,7 @@
           if(1===+e.dataset.hasImage){
             e.querySelector('img').addEventListener('load',()=>e.scrollIntoView());
           }else if(!prevMessage || (prevMessage && isInViewport(prevMessage))){
-            e.scrollIntoView();
+            e.scrollIntoView(false);
           }
         }
       },
@@ -806,14 +805,14 @@
       settingsOps.forEach(function(op){
         const line = D.addClass(D.span(), 'menu-entry');
         const btn = D.append(D.addClass(D.span(), 'button'), op.label);
-        D.attr(btn, 'role', 'button');
         const callback = function(ev){
           settingsPopup.hide();
           op.callback.call(this,ev);
         };
         D.append(line, btn);
         if(op.hasOwnProperty('boolValue')){
-          const check = D.checkbox(1, op.boolValue());
+          const check = D.attr(D.checkbox(1, op.boolValue()),
+                                          'aria-label', op.label);
           D.append(line, check);
           check.addEventListener('click', callback);
         }

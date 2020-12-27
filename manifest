@@ -1,5 +1,5 @@
-C chat:\sadded\sbuttons\sto\sjump\sto\stop/bottom\sof\smessage\slist.\sAdded\sa\shuge\smargin\sunder\sthe\sinput\sarea\sbecause\sSafari\sdemands\sit.\sImproved\sthe\sdiv.content\sauto-resize\scalculation\sto\sget\sa\smore\sprecise\sfit.
-D 2020-12-27T08:32:54.902
+C chat:\sARIA-related\sattribute\schanges\ssuggested\sin\sthe\sforum.
+D 2020-12-27T09:05:18.297
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -448,8 +448,8 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
-F src/chat.c 20f04b07395bf69a34ed7d2bf0b11fb025b498200c398a177f9b7e34e6446730
-F src/chat.js cd6ab0450434846ae47ff2ac5246228bd7dbae917626f06bd32a8b295f993cf7
+F src/chat.c 98b70878e6d21856ee7fd00cf075bd1ad7c52ed5e63ac3c95888fd0d758ef047
+F src/chat.js 40fe3befca19f54ec4ea53c63060f1d5e2b53423fb994d5e7eae3e3fb7c10477
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c28d7d6cb593463c2203a16c028a64f304cd8bb23337d79a21d18901073e23c
-R 3232249cc5a59c519e788dd1cf78ffe4
+P 24080827600388c6d8fb23d9d399dfe2e3f3c2b448f5b95dcc1d0525b795a54d
+R 7fb1754a828b4456cdffa6c3d5b34172
 U stephan
-Z 0b6f66fcc6777bef5be5624a5e4f4b4a
+Z c6aa0e1faa3c4a6cca3ced4d15d70fa1
