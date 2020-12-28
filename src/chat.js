@@ -640,7 +640,7 @@
   const pad2 = (x)=>('0'+x).substr(-2);
   const localTime8601 = function(d){
     return [
-      d.getYear()+1900, '-', pad2(d.getMonth()+1), '-', pad2(d.getDate()+1),
+      d.getYear()+1900, '-', pad2(d.getMonth()+1), '-', pad2(d.getDate()),
       'T', pad2(d.getHours()),':', pad2(d.getMinutes()),':',pad2(d.getSeconds())
     ].join('');
   };
