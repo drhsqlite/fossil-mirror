@@ -366,23 +366,6 @@
     cs.e.inputCurrent = cs.e.inputSingle;
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
 
-    if(true){
-      /* In order to make the input area opaque, such that the message
-         list scrolls under it without being visible, we have to
-         ensure that the input area has a non-transparent background
-         color. Ideally we'd select the color of div.content, but that
-         is not necessarily set, so we fall back to using the body's
-         background color and hope it's been explicitly set
-         somewhere. If we rely on the input area having its own color
-         specified in CSS then all skins would have to define an
-         appropriate color. Thus our selection of the body color,
-         while slightly unfortunate, is in the interest of keeping
-         skins from being forced to define an opaque bg color.
-      */
-      const bodyStyle = window.getComputedStyle(document.body);
-      cs.e.inputWrapper.style.backgroundColor = bodyStyle.backgroundColor;
-    }
-
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
       return Array.prototype.slice.call(args,0);
@@ -1039,5 +1022,13 @@
   poll.running = false;
   poll(true);
   setInterval(poll, 1000);
+
+  if(/\bping=\d+/.test(window.location.search)){
+    /* If we see the 'ping' parameter we're certain this was run via
+       the 'fossil chat' CLI command, in which case we start up in
+       chat-only mode. */
+    Chat.chatOnlyMode(true);
+  }
+
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 })();

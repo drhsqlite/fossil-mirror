@@ -1,5 +1,5 @@
-C chat:\scorrected\sthe\sscroll\sposition\stracking\swhen\stoggling\ssingle/multi-line\smode\sto\swork\sfrom\sarbitrary\spoints\swithin\sthe\sscroll\sarea.
-D 2020-12-28T00:23:11.105
+C chat:\sremoved\ssome\sdead\scode.\sIf\sURL\sparameter\sping=###\sis\sseen,\sassuming\swe're\srunning\sfrom\sthe\s'chat'\sCLI\scommand\sand\sautomatically\sstart\sup\sin\schat-only\smode.
+D 2020-12-28T02:55:41.506
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 6ab5313628d80c00874a0a88a02466457aea5b62c2efcf34818f6da6fa68e5e7
-F src/chat.js 33c2375374b01b89615bc4f189abf6e6b33e91d368a6ff06a77b0c214e0f97f6
+F src/chat.js 15765d99b9359cd5dff303404ced293d8e7c1ea9c1f0d0142656a7c14db94836
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 423ee8101a28fb2e6ceacbe6969831108d30a62dc1104e33a7dcfa9dbbca6720
-R 91cf9ce60381fb3b3d6370a79604080e
+P 0f59fba08a141f3663072c7bb590de243d329c6dec8e9b1f2b7fd7834a9fea97
+R 4bac7be0e9725338f7db558c71ac48ef
 U stephan
-Z a783e12d5bafa84acf290eb6db9f1aff
+Z 600d0db65619818094380f6738c9fc02
