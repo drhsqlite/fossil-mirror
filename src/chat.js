@@ -948,6 +948,8 @@
       Chat.e.messagesWrapper.classList.add('loading');
       Chat.isBatchLoading = true;
       var gotMessages = false;
+      const scrollHt = Chat.e.messagesWrapper.scrollHeight,
+            scrollTop = Chat.e.messagesWrapper.scrollTop;
       fetch("chat-poll?before="+Chat.mnMsg+"&n="+n)
         .then(x=>x.json())
         .then(function(x){
@@ -975,6 +977,9 @@
           }
           if(gotMessages > 0){
             F.toast.message("Loaded "+gotMessages+" older messages.");
+            Chat.e.messagesWrapper.scrollTo(
+              0, Chat.e.messagesWrapper.scrollHeight - scrollHt + scrollTop
+            );
           }
           Chat.ajaxEnd();
         });

@@ -1,5 +1,5 @@
-C chat:\sreplaced\sthe\s(approximate)\smessages-since-hidden\scount\sin\sthe\spage\stitle\s(i.e.\sbrowser\stab\slabel)\sto\san\sasterisk\sso\sthat\susers\sdon't\sfeel\scompelled\sto\sverify\sthat\snumber\sagainst\swhat\sthey\sactually\ssee\sin\sthe\slist\s(which\sdiffers\sat\stimes).
-D 2020-12-28T08:54:03.051
+C chat:\swhen\sloading\solder\smessages,\sreturn\sscroll\spoint\sto\sthe\sposition\sit\swas\sat\swhen\sload\swas\sstarted,\sper\schat\sroom\srequest.
+D 2020-12-28T08:59:40.203
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c 6ab5313628d80c00874a0a88a02466457aea5b62c2efcf34818f6da6fa68e5e7
-F src/chat.js d01949451689361b843bc49e38387c20a3d0cb642bc8fbe4e0fe2456a2c3401b
+F src/chat.js 7dde4ef22af592f40ffc6b8759b9e9e794fa5f00a782ecb9a615069346878d7d
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b111d1ca743e0c606a0e23cff69a4bbbce471f7a24201feaed03665b5ad9957a
-R 94f05b64abc320f61c1e29145c716c1e
+P 0a5fd03e5cb49d408676961c08746afeefeed075754e22f9602c1289bbe03be4
+R bf8a03ef43b531373430607c52837504
 U stephan
-Z ef3bb209f568d868acaf8e5abe3c79c0
+Z 9df21588144d6a1903c25775955f77d3
