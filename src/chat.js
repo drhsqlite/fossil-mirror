@@ -151,11 +151,13 @@
         }else{
           this.e.inputCurrent = this.e.inputSingle;
         }
-        const ht1 = D.effectiveHeight(old); 
+        const m = this.e.messagesWrapper,
+              sTop = m.scrollTop,
+              mh1 = m.clientHeight;
         D.addClass(old, 'hidden');
         D.removeClass(this.e.inputCurrent, 'hidden');
-        const ht2 = D.effectiveHeight(this.e.inputCurrent);
-        this.e.messagesWrapper.scrollBy(0, ht2 - ht1);
+        const mh2 = m.clientHeight;
+        m.scrollTo( 0, sTop + (mh1-mh2));
         this.e.inputCurrent.value = old.value;
         old.value = '';
         return this;
