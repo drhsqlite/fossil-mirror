@@ -924,8 +924,7 @@
     }else{
       Chat.changesSincePageHidden += jx.msgs.length;
       if(jx.msgs.length){
-        Chat.e.pageTitle.innerText = '('+Chat.changesSincePageHidden+') '+
-          Chat.pageTitleOrig;
+        Chat.e.pageTitle.innerText = '[*] '+Chat.pageTitleOrig;
       }
     }
     if(jx.msgs.length && F.config.chat.pingTcp){
