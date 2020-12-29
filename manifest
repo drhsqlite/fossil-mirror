@@ -1,5 +1,5 @@
-C Chat:\sfixed\s+1\sbeing\sadded\sto\sDate.getDate()\scall\s(copy/paste\serror).
-D 2020-12-28T09:46:24.461
+C Added\snew\s'chat'\sperm\sto\s/json/cap\sresponse.
+D 2020-12-29T00:27:18.401
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -519,7 +519,7 @@ F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748
 F src/import.c fa1a6c477bc6a7a6affb1817ffb67b6ca488b32521be6069b79236325e48e24c
 F src/info.c 1d89c7d2ef63b422a82d9f9e924711681e11c41591416439f4169b13e2f07fce
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
-F src/json.c eb822cfee3d181763993511ea58fad2870a22ebfed3fd9a51c9c55dad0774ea5
+F src/json.c 063cd044d651346eff5410c327bc5fda9c66913facf3304f42afdc3aaddb5f07
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 49cc6f28e81998f2f1af3072f1e7122bbd6e893601e11b1e3b6159c11b1a20d8
-R 3cf4b73af554e3e1d80dc97a48f92528
+P 5fab875d3249b11935446d8dcf0364a6d21ab12b0b28c6f3c8185a333431b83e
+R 7d546afca67c6221628af8aec49eac79
 U stephan
-Z ed2f7b32d3ddc8b4cca765c3db8a29ca
+Z f8d3cd5fd3f825ea0a561d843af05706

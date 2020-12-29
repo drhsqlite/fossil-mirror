@@ -1980,6 +1980,7 @@ cson_value * json_page_cap(){
   ADD(EmailAlert,"emailAlert");
   ADD(Announce,"announce");
   ADD(Debug,"debug");
+  ADD(Chat,"chat");
 #undef ADD
   return payload;
 }
