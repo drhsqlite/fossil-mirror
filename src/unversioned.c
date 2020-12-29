@@ -624,7 +624,7 @@ void uvlist_page(void){
   if( n ){
     approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
     @ </tbody>
-    @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)
+    @ <tfoot><tr><td><b>Total for %d(cnt) files</b><td><td>%s(zSzName)
     @ <td><td>
     if( g.perm.Admin ){
       @ <td>
