@@ -499,17 +499,18 @@
         }
         this.e.content.style.backgroundColor = m.uclr;
         this.e.tab.style.backgroundColor = m.uclr;
-          
         const d = new Date(m.mtime);
         D.append(
           D.clearElement(this.e.tab),
           D.text(
-            m.xfrom," #",m.msgid,' @ ',d.getHours(),":",
+            m.xfrom," #",(m.msgid||'???'),' @ ',d.getHours(),":",
             (d.getMinutes()+100).toString().slice(1,3)            
           )
         );
         var contentTarget = this.e.content;
-        if( m.fsize>0 ){
+        if(m.isError){
+          D.addClass([contentTarget, this.e.tab], 'error');
+        }else if( m.fsize>0 ){
           if( m.fmime
               && m.fmime.startsWith("image/")
               && Chat.settings.getBool('images-inline',true)
@@ -526,7 +527,6 @@
             D.attr(a,'target','_blank');
             contentTarget.appendChild(a);
           }
-          ;
         }
         if(m.xmsg){
           if(m.fsize>0){
@@ -654,13 +654,24 @@
     if(msg) fd.set('msg',msg);
     const file = BlobXferState.blob || this.e.inputFile.files[0];
     if(file) fd.set("file", file);
-    if( msg || file ){
-      fd.set("lmtime", localTime8601(new Date()));
-      fetch("chat-send",{
-        method: 'POST',
-        body: fd
-      });
-    }
+    if( !msg && !file ) return;
+    const self = this;
+    fd.set("lmtime", localTime8601(new Date()));
+    fetch("chat-send",{
+      method: 'POST',
+      body: fd
+    }).then((x)=>x.text())
+      .then(function(txt){
+        if(!txt) return/*success response*/;
+        try{
+          const json = JSON.parse(txt);
+          self.newContent({msgs:[json]});
+        }catch(e){
+          self.reportError(e);
+          return;
+        }
+      })
+      .catch((e)=>this.reportError(e));
     BlobXferState.clear();
     Chat.inputValue("").inputFocus();
   };
@@ -893,8 +904,8 @@
   
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is
-      appended to the end of the chat list, else the beginning (the
-      default). */
+      appended to the end of the chat list (for loading older
+      messages), else the beginning (the default). */
   const newcontent = function f(jx,atEnd){
     if(!f.processPost){
       /** Processes chat message m, placing it either the start (if atEnd
@@ -913,6 +924,9 @@
         row.setMessage(m);
         row.setPopupCallback(handleLegendClicked);
         Chat.injectMessageElem(row.e.body,atEnd);
+        if(m.isError){
+          Chat.gotServerError = m;
+        }
       }/*processPost()*/;
     }/*end static init*/
     jx.msgs.forEach((m)=>f.processPost(m,atEnd));
@@ -931,6 +945,7 @@
       fetch("http:/"+"/localhost:"+F.config.chat.pingTcp+"/chat-ping");
     }
   }/*newcontent()*/;
+  Chat.newContent = newcontent;
 
   (function(){
     /** Add toolbar for loading older messages. We use a FIELDSET here
@@ -960,7 +975,12 @@
         .finally(function(){
           Chat.isBatchLoading = false;
           Chat.e.messagesWrapper.classList.remove('loading');
-          if(n<0/*we asked for all history*/
+          Chat.ajaxEnd();
+          if(Chat.gotServerError){
+            F.toast.error("Got an error response from the server. ",
+                          "See message for details");
+            return;
+          }else if(n<0/*we asked for all history*/
              || 0===gotMessages/*we found no history*/
              || (n>0 && gotMessages<n /*we got fewer history entries than requested*/)
              || (false!==gotMessages && n===0 && gotMessages<Chat.loadMessageCount
@@ -977,11 +997,12 @@
           }
           if(gotMessages > 0){
             F.toast.message("Loaded "+gotMessages+" older messages.");
+            /* Return scroll position to where it was when the history load
+               was requested, per user request */
             Chat.e.messagesWrapper.scrollTo(
               0, Chat.e.messagesWrapper.scrollHeight - scrollHt + scrollTop
             );
           }
-          Chat.ajaxEnd();
         });
     };
     const wrapper = D.div(); /* browsers don't all properly handle >1 child in a fieldset */;
@@ -1015,18 +1036,23 @@
         if(isFirstCall){
           Chat.isBatchLoading = false;
           Chat.ajaxEnd();
+          Chat.e.messagesWrapper.classList.remove('loading');
           setTimeout(function(){
             Chat.scrollMessagesTo(1);
-            Chat.e.messagesWrapper.classList.remove('loading');
           }, 250);
+        }
+        if(Chat.gotServerError && Chat.intervalTimer){
+          clearInterval(Chat.intervalTimer);
+          delete Chat.intervalTimer;
         }
         poll.running=false;
       });
   }
-  poll.running = false;
+  Chat.gotServerError = poll.running = false;
   poll(true);
-  setInterval(poll, 1000);
-
+  if(!Chat.gotServerError){
+    Chat.intervalTimer = setInterval(poll, 1000);
+  }
   if(/\bping=\d+/.test(window.location.search)){
     /* If we see the 'ping' parameter we're certain this was run via
        the 'fossil chat' CLI command, in which case we start up in

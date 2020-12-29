@@ -223,16 +223,51 @@ static void chat_purge(void){
 }
 
 /*
+** Sets the current CGI response type to application/json then emits a
+** JSON-format error message object. If fAsMessageList is true then
+** the object is output using the list format described for chat-post,
+** else it is emitted as a single object in that same format.
+*/
+static void chat_emit_permissions_error(int fAsMessageList){
+  char * zTime = cgi_iso8601_datestamp();
+  cgi_set_content_type("application/json");
+  if(fAsMessageList){
+    CX("{\"msgs\":[{");
+  }else{
+    CX("{");
+  }
+  CX("\"isError\": true, \"xfrom\": \"fossil\",");
+  CX("\"mtime\": %!j, \"lmtime\": %!j,", zTime, zTime);
+  CX("\"xmsg\": \"Missing permissions or not logged in. "
+     "Try <a href='%R/login?g=%R/chat'>logging in</a>.\"");
+  if(fAsMessageList){
+    CX("}]}");
+  }else{
+    CX("}");
+  }
+  fossil_free(zTime);
+}
+
+/*
 ** WEBPAGE: chat-send
 **
 ** This page receives (via XHR) a new chat-message and/or a new file
 ** to be entered into the chat history.
+**
+** On success it responds with an empty response: the new message
+** should be fetched via /chat-poll. On error, e.g. login expiry,
+** it emits a JSON response in the same form as described for
+** /chat-poll errors, but as a standalone object instead of a
+** list of objects.
 */
 void chat_send_webpage(void){
   int nByte;
   const char *zMsg;
   login_check_credentials();
-  if( !g.perm.Chat ) return;
+  if( !g.perm.Chat ) {
+    chat_emit_permissions_error(0);
+    return;
+  }
   chat_create_tables();
   nByte = atoi(PD("file:bytes",0));
   zMsg = PD("msg","");
@@ -396,7 +431,7 @@ void chat_test_formatter_cmd(void){
 ** Format of the json:
 **
 ** |    {
-** |      "msg":[
+** |      "msgs":[
 ** |        {
 ** |           "msgid": integer // message id
 ** |           "mtime": text    // When sent:  YYYY-MM-DD HH:MM:SS UTC
@@ -423,6 +458,25 @@ void chat_test_formatter_cmd(void){
 **
 ** The messages are ordered oldest first unless "before" is provided, in which
 ** case they are sorted newest first (to facilitate the client-side UI update).
+**
+** As a special case, if this routine encounters an error, e.g. the user's
+** permissions cannot be verified because their login cookie expired, the
+** request returns a slightly modified structure:
+**
+** |    {
+** |      "msgs":[
+** |        {
+** |          "isError": true,
+** |          "xfrom": "fossil",
+** |          "xmsg": "error details"
+** |          "mtime": as above,
+** |          "ltime": same as mtime
+** |        }
+** |      ]
+** |    }
+**
+** If the client gets such a response, it should display the message
+** in a prominent manner and then stop polling for new messages.
 */
 void chat_poll_webpage(void){
   Blob json;                  /* The json to be constructed and returned */
@@ -436,9 +490,12 @@ void chat_poll_webpage(void){
   Stmt q1;
   nDelay = db_get_int("chat-poll-timeout",420);  /* Default about 7 minutes */
   login_check_credentials();
-  if( !g.perm.Chat ) return;
+  if( !g.perm.Chat ) {
+    chat_emit_permissions_error(1);
+    return;
+  }
   chat_create_tables();
-  cgi_set_content_type("text/json");
+  cgi_set_content_type("application/json");
   dataVersion = db_int64(0, "PRAGMA data_version");
   blob_append_sql(&sql,
     "SELECT msgid, datetime(mtime), xfrom, xmsg, length(file),"
