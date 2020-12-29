@@ -225,7 +225,7 @@ static void chat_purge(void){
 /*
 ** Sets the current CGI response type to application/json then emits a
 ** JSON-format error message object. If fAsMessageList is true then
-** the object is output using the list format described for chat-post,
+** the object is output using the list format described for chat-poll,
 ** else it is emitted as a single object in that same format.
 */
 static void chat_emit_permissions_error(int fAsMessageList){
