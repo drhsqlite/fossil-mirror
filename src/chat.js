@@ -453,7 +453,7 @@
       }
     };
     document.addEventListener('visibilitychange', function(ev){
-      cs.pageIsActive = !document.hidden;
+      cs.pageIsActive = ('visible' === document.visibilityState);
       if(cs.pageIsActive){
         cs.e.pageTitle.innerText = cs.pageTitleOrig;
       }
