@@ -8,19 +8,22 @@ ephemeral discussion venue for insiders.  Design goals include:
 
   *  **Simple but functional** &rarr; Fossil chat is designed to provide a
      convenient real-time communication mechanism for geographically
-     dispersed developers.  Fossil chat is emphatically *not* intended
+     dispersed developers.  Fossil chat is *not* intended
      as a replacement or 
      competitor for IRC, Slack, Discord, Telegram, Google Hangouts, etc.
 
   *  **Low administration** &rarr;
-     There is no additional set up or configuration.
-     Simply enable the [C capability](/setup_ucap_list) for users
+     You can activate the chatroom in seconds without having to
+     mess with configuration files or install new software.
+     In an existing [server setup](./server/),
+     simply enable the [C capability](/setup_ucap_list) for users
      whom you want to give access to the chatroom.
 
   *  **Ephemeral** &rarr;
      Chat messages do not sync to peer repositories.  And they are
      automatically deleted after a configurable delay (default: 7 days).
-     They can be deleted at any time without impacting any other part
+     Individual messages or the entire conversation
+     can be deleted at any time without impacting any other part
      of the system.
 
 Fossil chat is designed for use by insiders - people with check-in

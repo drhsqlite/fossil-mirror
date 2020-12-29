@@ -14,15 +14,10 @@ the forum include:
      no new software to install and configure, and the same logins
      and passwords work.
 
-  *  <b>Malefactor Resistant:</b> Because Fossil accepts forum posts
-     only via the web UI, it is more resistent to spam.  Passers-by
-     can post to the forum anonymously (subject to moderation), without
-     the hassle of a sign-up process.
-
-  *  <b>Distributed and Tamper-Proof:</b> Posts are stored in the Fossil
-     repository using the same [./fileformat.wiki | DAG/Merkle-tree design]
-     that Fossil uses to store your check-ins, wiki documents, etc.
-     Forum posts sync to cloned repositories.
+  *  <b>Consistent Display:</b>  Forum posts can be in [/md_rules|Markdown], 
+     [/wiki_rules|Fossil Wiki], or plain text.  Whichever format is used, the result is
+     displayed consistently across all platforms and operating systems and
+     between mobile devices and desktops.
 
   *  <b>Editable:</b>  Forum posts can be amended after they are sent,
      to fix typos or provide updates.  The original posts are preserved
@@ -33,8 +28,8 @@ the forum include:
      the index used by the built-in Fossil search logic.
 
   *  <b>Off-Line Access:</b> Because forum posts are synced along with
-     all other artifacts, you can search the forum, or add new posts
-     to the forum, while off-line.
+     all other artifacts, you can search the forum, or add new posts, or
+     edit existing posts, all while off-line.
 
   *  <b>Automatically Cross-Referenced To Other Fossil Artifacts:</b> Because forum
      posts are normal Fossil artifacts, you can link from them to
@@ -42,9 +37,15 @@ the forum include:
      artifacts to forum posts.  The reverse links are recognized and
      displayed automatically on the receiver.
 
-  *  <b>Consistent Display:</b>  Forum posts can be in Markdown, 
-     Fossil Wiki, or plain text.  Whichever format is used, the result is
-     displayed consistently across all platforms, including mobile.
+  *  <b>Malefactor Resistant:</b> Because Fossil accepts forum posts
+     only via the web UI, it is more resistent to spam.  Passers-by
+     can post to the forum anonymously (subject to moderation), without
+     the hassle of a sign-up process.
+
+  *  <b>Distributed and Tamper-Proof:</b> Posts are stored in the Fossil
+     repository using the same [./fileformat.wiki | DAG/Merkle-tree design]
+     that Fossil uses to store your check-ins, wiki documents, etc.
+     Forum posts sync to cloned repositories.
 
 <h2>Example Installations</h2>
 

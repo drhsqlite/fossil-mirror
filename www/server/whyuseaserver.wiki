@@ -16,7 +16,8 @@ Here are a few reasons to set up a Fossil server for your project:
   1.  <b>A server works as a complete project website.</b><p>
       Fossil does more than just version control.  It also supports
       [../tickets.wiki|trouble-tickets], 
-      [../wikitheory.wiki|wiki], and a [../forum.wiki|forum].
+      [../wikitheory.wiki|wiki], 
+      a [../chat.md|developer chat room], and a [../forum.wiki|forum].
       The [../embeddeddoc.wiki|embedded documentation]
       feature provides  a great mechanism for providing project documentation.
       The [../unvers.wiki|unversioned files] feature is a convenient way
