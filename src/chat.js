@@ -162,6 +162,18 @@
         old.value = '';
         return this;
       },
+      /**
+         If passed true or no arguments, switches to multi-line mode
+         if currently in single-line mode. If passed false, switches
+         to single-line mode if currently in multi-line mode. Returns
+         this.
+      */
+      inputMultilineMode: function(yes){
+        if(!arguments.length) yes = true;
+        if(yes && this.e.inputCurrent === this.e.inputMulti) return this;
+        else if(!yes && this.e.inputCurrent === this.e.inputSingle) return this;
+        else return this.inputToggleSingleMulti();
+      },
       /** Enables (if yes is truthy) or disables all elements in
        * this.disableDuringAjax. */
       enableAjaxComponents: function(yes){
@@ -342,10 +354,13 @@
         set: (k,v)=>F.storage.set(k,v),
         defaults:{
           "images-inline": !!F.config.chat.imagesInline,
-          "monospace-messages": false
+          "edit-multiline": false,
+          "monospace-messages": false,
+          "chat-only-mode": false
         }
       }
     };
+    cs.e.inputCurrent = cs.e.inputSingle;
     /* Install default settings... */
     Object.keys(cs.settings.defaults).forEach(function(k){
       const v = cs.settings.get(k,cs);
@@ -363,7 +378,8 @@
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');
     }
-    cs.e.inputCurrent = cs.e.inputSingle;
+    cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
+    cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
 
     const qs = (e)=>document.querySelector(e);
@@ -797,20 +813,21 @@
     const settingsOps = [{
       label: "Multi-line input",
       boolValue: ()=>Chat.inputElement()===Chat.e.inputMulti,
+      persistentSetting: 'edit-multiline',
       callback: function(){
         Chat.inputToggleSingleMulti();
       }
     },{
       label: "Monospace message font",
       boolValue: ()=>document.body.classList.contains('monospace-messages'),
+      persistentSetting: 'monospace-messages',
       callback: function(){
         document.body.classList.toggle('monospace-messages');
-        Chat.settings.set('monospace-messages',
-                          document.body.classList.contains('monospace-messages'));
       }
     },{
       label: "Chat-only mode",
       boolValue: ()=>Chat.isChatOnlyMode(),
+      persistentSetting: 'chat-only-mode',
       callback: function(){
         Chat.toggleChatOnlyMode();
       }
@@ -827,6 +844,7 @@
     },{
       label: "Images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),
+      persistentSetting: 'images-inline',
       callback: function(){
         const v = Chat.settings.getBool('images-inline',true);
         Chat.settings.set('images-inline', !v);
@@ -845,7 +863,10 @@
         const btn = D.append(D.addClass(D.span(), 'button'), op.label);
         const callback = function(ev){
           settingsPopup.hide();
-          op.callback.call(this,ev);
+          op.callback(ev);
+          if(op.persistentSetting){
+            Chat.settings.set(op.persistentSetting, op.boolValue());
+          }
         };
         D.append(line, btn);
         if(op.hasOwnProperty('boolValue')){
