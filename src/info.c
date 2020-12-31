@@ -1460,7 +1460,7 @@ int object_description(
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%T&checkin=%!S",zName,zVers))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=all&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
+      @ %z(href("%R/timeline?uf=%!S",zUuid))[check-ins&nbsp;using]</a>
       if( fileedit_is_editable(zName) ){
         @ %z(href("%R/fileedit?filename=%T&checkin=%!S",zName,zVers))[edit]</a>
       }
@@ -2439,7 +2439,7 @@ void artifact_page(void){
   }
   style_submenu_element("Download", "%R/raw/%s?at=%T", zUuid, file_tail(zName));
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
+    style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
   }
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){

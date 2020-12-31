@@ -1638,6 +1638,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **                    the file with FILEHASH
 **    m=TIMEORTAG     Highlight the event at TIMEORTAG
 **    n=COUNT         Maximum number of events. "all" for no limit
+**    n1=COUNT        Same as "n" but does not set the user-preference cookie
+**                       Use "n1=COUNT" for a one-time display
 **    p=CHECKIN       Parents and ancestors of CHECKIN
 **                       bt=PRIOR   ... going back to PRIOR
 **    d=CHECKIN       Children and descendants of CHECKIN
@@ -1759,10 +1761,22 @@ void page_timeline(void){
   cgi_query_parameters_to_url(&url);
 
   /* Set number of rows to display */
-  haveParameterN = P("n")!=0;
-  cookie_read_parameter("n","n");
   z = P("n");
-  if( z==0 ) z = db_get("timeline-default-length",0);
+  if( z!=0 ){
+    haveParameterN = 1;
+  }else{
+    z = P("n1");
+    if( z ){
+      haveParameterN = 1;
+    }else{
+      haveParameterN = 0;
+      cookie_read_parameter("n","n");
+      z = P("n");
+      if( z==0 ){
+        z = db_get("timeline-default-length",0);
+      }
+    }
+  }
   if( z ){
     if( fossil_strcmp(z,"all")==0 ){
       nEntry = 0;
@@ -1923,6 +1937,7 @@ void page_timeline(void){
       compute_uses_file("usesfile", ufid, 0);
       zType = "ci";
       disableY = 1;
+      if( !haveParameterN ) nEntry = 0;
     }else{
       zUses = 0;
     }
