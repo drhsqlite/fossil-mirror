@@ -1,5 +1,5 @@
-C Fix\scheck-in\s[34f5ea44038583fe]\sso\sthat\sit\sonly\sdisables\sthe\slimit\son\sthe\nnumber\sof\sentries\sin\sa\stimeline\sif\sboth\sd=\sand\sbt=\sare\sboth\spresent.
-D 2020-12-31T01:20:30.949
+C On\sthe\shomepage,\smention\sthat\smultiple\sprojects\scan\sbe\srun\susing\sa\sFossil\nserver\srunning\son\san\sinexpensive\sVPS\sor\sRaspberry\sPi.
+D 2020-12-31T01:31:51.180
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -895,7 +895,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 9a6dc73a00da6f71b20fcddb4aa16c3ffe00c92ab9b0762d4baad3bff4541dc8
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki baef9a58868717b85aefea8cb6260784a2b39dd42eca8da39984e8e472c895d5
+F www/index.wiki 78ebb0ae95cf8290107ed12bae1025dae1eaaa9b0b223fff7917bf5c89f928e6
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 257bb6c25527662ea164316a9187db07d52fc1e8a9edb48014d1f56b6b0ea243
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00e031bb578e5cb111a380431039555da665633308b72b64f3defaa2bdbc1432
-R 69508421113d64268940b081615a477a
+P c353212cde5082653d49359b543c3759f77ac49208e403fbb79da257b08428e9
+R 2bbce98cc01c5a654460b6afd4706adb
 U drh
-Z d3506ea05db93b7e166286c425f8fdc9
+Z 746925598aaa4981aa4a3d2cc3baca52
