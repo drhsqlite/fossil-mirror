@@ -260,7 +260,7 @@ GitHub provide this capability short of crawling the
 [https://www.git-scm.com/docs/git-log|commit log].  With Fossil,
 on the other hand, finding descendents is a simple SQL query.
 It is common in Fossil to ask to see
-[/timeline?d=release&n=all&y=ci&nd|all check-ins since the last release].
+[/timeline?df=release&y=ci|all check-ins since the last release].
 Git lets you see "what came before".  Fossil makes it just as
 easy to also see "what came after".
 

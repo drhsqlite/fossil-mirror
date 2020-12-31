@@ -1643,7 +1643,12 @@ const char *timeline_expand_datetime(const char *zIn){
 **    p=CHECKIN       Parents and ancestors of CHECKIN
 **                       bt=PRIOR   ... going back to PRIOR
 **    d=CHECKIN       Children and descendants of CHECKIN
-**    dp=CHECKIN      The same as 'd=CHECKIN&p=CHECKIN'
+**    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
+**    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
+**    bt=CHECKIN      In conjuction with p=CX, this means show all
+**                       ancestors of CX going back to the time of CHECKIN.
+**                       All qualifying check-ins are shown unless there
+**                       is also an n= or n1= query pararameter.
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    rel             Show related check-ins as well as those matching t=TAG
@@ -1667,6 +1672,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
+**                       All qualifying check-ins are shown unless there is
+**                       also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
 **                    name matches one of the comma-separate GLOBLIST
 **    brbg            Background color determined by branch name
@@ -1701,9 +1708,9 @@ void page_timeline(void){
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
   int nEntry;                        /* Max number of entries on timeline */
-  int p_rid = name_to_typed_rid(P("p"),"ci");  /* artifact p and its parents */
-  int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
-  int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
+  int p_rid;                         /* artifact p and its parents */
+  int d_rid;                         /* artifact d and descendants */
+  int f_rid;                         /* artifact f and close family */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType;                 /* Type of events to display */
   const char *zAfter = P("a");       /* Events after this time */
@@ -1760,6 +1767,7 @@ void page_timeline(void){
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
+
   /* Set number of rows to display */
   z = P("n");
   if( z!=0 ){
@@ -1773,7 +1781,7 @@ void page_timeline(void){
     if( z==0 ){
       z = db_get("timeline-default-length",0);
     }
-    cgi_replace_query_parameter("n",z);
+    cgi_replace_query_parameter("n",fossil_strdup(z));
     cookie_write_parameter("n","n",0);
     z2 = P("n1");
     if( z2 ){
@@ -1792,8 +1800,21 @@ void page_timeline(void){
       }
     }
   }else{
-    z = "50";
     nEntry = 50;
+  }
+
+  /* Query parameters d=, p=, and f= and variants */
+  z = P("p");
+  p_rid = z ? name_to_typed_rid(z,"ci") : 0;
+  z = P("d");
+  d_rid = z ? name_to_typed_rid(z,"ci") : 0;
+  z = P("f");
+  f_rid = z ? name_to_typed_rid(z,"ci") : 0;
+  z = P("df");
+  if( z && (d_rid = name_to_typed_rid(z,"ci"))!=0 ){
+    nEntry = 0;
+    useDividers = 0;
+    cgi_replace_query_parameter("d",fossil_strdup(z));
   }
 
   /* Undocumented query parameter to set JS mode */

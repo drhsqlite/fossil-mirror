@@ -5,7 +5,7 @@ beginning in [2007][105] by the [architect of SQLite][110] for the
 purpose of managing the [SQLite project][115].
 
 [100]: https://en.wikipedia.org/wiki/Distributed_version_control
-[105]: /timeline?a=1970-01-01&n=10
+[105]: /timeline?a=1970-01-01&n1=10
 [110]: https://sqlite.org/crew.html
 [115]: https://sqlite.org/
 
@@ -32,7 +32,7 @@ the SQLite author developed the [CVSTrac][305] wrapper for CVS beginning
 in [2002][310].
 
 [305]: http://cvstrac.org/
-[310]: http://cvstrac.org/fossil/timeline?a=19700101&n=10
+[310]: http://cvstrac.org/fossil/timeline?a=19700101&n1=10
 
 CVSTrac greatly improved the usability of CVS and was adopted by
 other projects.  CVSTrac also [inspired the design][315] of [Trac][320],
@@ -49,8 +49,8 @@ were scarcely seen and of questionable utility in raw CVS.  CVSTrac
 changed that, making check-in comments more visible and more useful.
 The SQLite developers reacted by creating [better check-in comments][330].
 
-[325]: https://sqlite.org/src/timeline?a=19700101&n=10
-[330]: https://sqlite.org/src/timeline?c=20030101&n=10&nd
+[325]: https://sqlite.org/src/timeline?a=19700101&n1=10
+[330]: https://sqlite.org/src/timeline?c=20030101&n1=10&nd
 
 At about this same time, the [Monotone][335] system appeared.
 Monotone was one of the first distributed version control systems. As far as
@@ -80,7 +80,7 @@ Experiments continued.  Finally, a prototype capable of self-hosting
 was devised on [2007-07-16][345].
 
 [340]: https://www.tcl.tk/
-[345]: https://fossil-scm.org/fossil/timeline?c=200707211410&n=10
+[345]: https://fossil-scm.org/fossil/timeline?c=200707211410&n1=10
 
 The first project hosted by Fossil was Fossil itself.  After a
 few months of development work, the code was considered stable enough
@@ -91,5 +91,5 @@ SQLite source code itself was transfered to Fossil on
 [2009-08-11][360].
 
 [350]: https://www.sqlite.org/docsrc/doc/trunk/README.md
-[355]: https://www.sqlite.org/docsrc/timeline?c=200711120345&n=10
-[360]: https://sqlite.org/src/timeline?c=b0848925babde524&n=12&y=ci
+[355]: https://www.sqlite.org/docsrc/timeline?c=200711120345&n1=10
+[360]: https://sqlite.org/src/timeline?c=b0848925babde524&n1=12&y=ci

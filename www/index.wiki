@@ -92,8 +92,8 @@ management system with these advanced features:
 
   *  [/uv/download.html|Download]
   *  [./changes.wiki#v2_13|Change Summary]
-  *  [/timeline?p=version-2.13&bt=version-2.12&n=all|Check-ins in version 2.13]
-  *  [/timeline?d=version-2.13&n=all&nd|Check-ins derived from the 2.13 release]
+  *  [/timeline?p=version-2.13&bt=version-2.12&y=ci|Check-ins in version 2.13]
+  *  [/timeline?df=version-2.13&y=ci|Check-ins derived from the 2.13 release]
   *  [/timeline?t=release|Timeline of all past releases]
 
 <hr>
