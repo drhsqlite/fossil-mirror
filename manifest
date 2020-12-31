@@ -1,5 +1,5 @@
-C The\suf=HASH\squery\sparameter\son\s/timeline\sshows\sall\scheckins\sthat\suse\sthe\nidentified\sfile\sunless\sthere\sis\salso\san\sn=COUNT\squery\sparameter.
-D 2020-12-31T13:26:10.912
+C The\sn1=COUNT\squery\sparameter\son\s/timeline\sis\sa\sone-time\scount\sthat\sdoes\nnot\saffect\sthe\sdisplay\spreferences\scookie.
+D 2020-12-31T14:06:19.469
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -630,7 +630,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c a669f9157d1e3e8e58bb273258c655fe4a10ee912f91e3804ec95d1817c17d58
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 0ff2474dd95787c5fbfa8f179e85039a695595c10b60c33cfffe3b62bf14b838
+F src/timeline.c e77ed10cd46aec85528202b51fed1070637392e485e36337da78425c243c51c1
 F src/tkt.c cfced59719018aa94676b153fd59ebf7568371c146d96a56e63a1bca8328cad7
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6373e363cb0ce09bed28189bf1bcedd1282662fb26a55c1de114d71379492fd8
-R 6290115b01097cc8956aa38a9aee62cf
+P dffcebea147aa88890d6b9dbfa3f7d615582ca22f44e0215045e0d5d339a5dd8
+R bf50cf5e00e93fcece6f7a2d644fb34c
 U drh
-Z ec1fcaff926714c7f6782f233969468c
+Z 1e6906a9b0f8b6a52019df2c08b47c39

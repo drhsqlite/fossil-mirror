@@ -1638,8 +1638,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **                    the file with FILEHASH
 **    m=TIMEORTAG     Highlight the event at TIMEORTAG
 **    n=COUNT         Maximum number of events. "all" for no limit
-**    n1=COUNT        Same as "n" but does not set the user-preference cookie
-**                       Use "n1=COUNT" for a one-time display
+**    n1=COUNT        Same as "n" but doesn't set the display-preference cookie
+**                       Use "n1=COUNT" for a one-time display change
 **    p=CHECKIN       Parents and ancestors of CHECKIN
 **                       bt=PRIOR   ... going back to PRIOR
 **    d=CHECKIN       Children and descendants of CHECKIN
@@ -1764,17 +1764,21 @@ void page_timeline(void){
   z = P("n");
   if( z!=0 ){
     haveParameterN = 1;
+    cookie_write_parameter("n","n",0);
   }else{
-    z = P("n1");
-    if( z ){
-      haveParameterN = 1;
-    }else{
-      haveParameterN = 0;
-      cookie_read_parameter("n","n");
-      z = P("n");
-      if( z==0 ){
-        z = db_get("timeline-default-length",0);
-      }
+    const char *z2;
+    haveParameterN = 0;
+    cookie_read_parameter("n","n");
+    z = P("n");
+    if( z==0 ){
+      z = db_get("timeline-default-length",0);
+    }
+    cgi_replace_query_parameter("n",z);
+    cookie_write_parameter("n","n",0);
+    z2 = P("n1");
+    if( z2 ){
+      haveParameterN = 2;
+      z = z2;
     }
   }
   if( z ){
@@ -1797,8 +1801,6 @@ void page_timeline(void){
 
   secondaryRid = name_to_typed_rid(P("sel2"),"ci");
   selectedRid = name_to_typed_rid(P("sel1"),"ci");
-  cgi_replace_query_parameter("n",z);
-  cookie_write_parameter("n","n",0);
   tmFlags |= timeline_ss_submenu();
   cookie_link_parameter("advm","advm","0");
   advancedMenu = atoi(PD("advm","0"));
@@ -2130,7 +2132,7 @@ void page_timeline(void){
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     if( p_rid && d_rid ){
       if( p_rid!=d_rid ) p_rid = d_rid;
-      if( P("n")==0 ) nEntry = 10;
+      if( !haveParameterN ) nEntry = 10;
     }
     db_multi_exec(
        "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
