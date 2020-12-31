@@ -2139,7 +2139,7 @@ void page_timeline(void){
     if( p_rid ){
       zBackTo = P("bt");
       ridBackTo = zBackTo ? name_to_typed_rid(zBackTo,"ci") : 0;
-      if( !haveParameterN ) nEntry = 0;
+      if( ridBackTo && !haveParameterN ) nEntry = 0;
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 || nd==0 ){
