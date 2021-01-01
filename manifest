@@ -1,5 +1,5 @@
-C Add\sthe\s"df=CHECKIN"\squery\sparameter\sto\s/timeline.\s\s"df"\sis\sshorthand\sfor\n"Derived\sFrom".\s\s"df=CHECKIN"\sis\sequivalent\sto\s"d=CHECKIN&amp;n1=all&amp;nd".\nUpdate\shyperlinks\sin\sdocumentation\sto\suse\sdf=\sand/or\sn1=.
-D 2020-12-31T14:35:45.897
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.35.0\salpha\swhich\sfeatures\nfaster\sstartup\stime.
+D 2021-01-01T22:07:49.360
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -612,8 +612,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c e7713112dfc87a780ea199cbdd9f0b7e4a7d354c7da39b1d7a6b7fa8676c38e8
-F src/sqlite3.h cce9b28330ff3fbd2511d90e2a9953f2a14b5777eef1e2103dca001a707036a2
+F src/sqlite3.c 8f6b08d91e4c15eb081cce1d2bc4871aa43bbb625d9fa28f3102aed7ba42aedb
+F src/sqlite3.h 5e7cf9f94fedf076c9f11d14b72ce1cb56b9e4abf624de538f9d0a00991a5ff0
 F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c 0f11070d181ea70b7931711d82523da23f4d2a277ac72db409b8a6434512b67b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd892ac335ebd4886494608910b85cae29c87e0948ec9f9255b579e596e8160e
-R b5218d3b69caae9041acd400718525b8
+P 78819fdb0dc0c7eb0776254e84dfd99c3adc5d1da3a6acee3615e3913fb70af5
+R 082719c1b46fe424df1d6f4ef85fa929
 U drh
-Z f1c1554da2927db49477f66f3c97d04b
+Z 65e6afcc857844054ab67bed2f43f492
