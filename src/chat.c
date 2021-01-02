@@ -120,7 +120,8 @@ void chat_webpage(void){
   @     <input type="text" name="msg" id="chat-input-single" \
   @      placeholder="Type message here." autocomplete="off">
   @     <textarea rows="8" id="chat-input-multi" \
-  @      placeholder="Type message here" class="hidden"></textarea>
+  @      placeholder="Type message here. Ctrl-Enter sends it." \
+  @      class="hidden"></textarea>
   @     <input type="submit" value="Send" id="chat-message-submit">
   @     <button id="chat-scroll-top">&uarr;</button>
   @     <button id="chat-scroll-bottom">&darr;</button>
