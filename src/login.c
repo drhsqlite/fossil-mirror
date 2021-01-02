@@ -779,6 +779,7 @@ void login_page(void){
       @ for user <b>%h(g.zLogin)</b></p>
     }
     if( g.perm.Password ){
+      char *zRPW = fossil_random_password(12);
       @ <hr>
       @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
       form_begin(0, "%R/login");
@@ -788,7 +789,7 @@ void login_page(void){
       @ size="30"/></td></tr>
       @ <tr><td class="form_label" id="newpw">New Password:</td>
       @ <td><input aria-labelledby="newpw" type="password" name="n1" \
-      @ size="30" /></td></tr>
+      @ size="30" /> Suggestion: %z(zRPW)</td></tr>
       @ <tr><td class="form_label" id="reppw">Repeat New Password:</td>
       @ <td><input aria-labledby="reppw" type="password" name="n2" \
       @ size="30" /></td></tr>
@@ -1773,7 +1774,13 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right" id="pswd">Password:</td>
   @   <td><input aria-labelledby="pswd" type="password" name="p" \
-  @ value="%h(zPasswd)" size="30"></td>
+  @ value="%h(zPasswd)" size="30"> \
+  if( zPasswd[0]==0 ){
+    char *zRPW = fossil_random_password(12);
+    @ Password suggestion: %z(zRPW)</td>
+  }else{
+    @ </td>
+  }
   @ <tr>
   if( iErrLine==4 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>

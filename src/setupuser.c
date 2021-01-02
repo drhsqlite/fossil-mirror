@@ -706,8 +706,9 @@ void user_edit(void){
       @   name="pw" value="**********" /></td>
     }else{
       /* Show an empty password as an empty input field */
+      char *zRPW = fossil_random_password(12);
       @   <td><input aria-labelledby="supw" type="password" name="pw" \
-      @        autocomplete="off" value="" /></td>
+      @   autocomplete="off" value="" /> Password suggestion: %z(zRPW)</td>
     }
     @ </tr>
   }
