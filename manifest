@@ -1,5 +1,5 @@
-C Provide\ssuggested\spassword\sin\splaces\swhere\sa\susers\sis\srequired\sto\sinvent\na\snew\spassword.
-D 2021-01-02T13:39:46.916
+C Improved\schat.js\serror\sreporting\sa\sbit.\sConnection\serrors\sfor\ssend\sand\shistory-fetch\sops\sare\snow\sreported\sas\serror-style\smessags\sin\sthe\schat\sfeed.
+D 2021-01-02T19:06:40.299
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 97669d1050d3cf453d657eb91f75aa261e5765624b9acfc17f2cdd8f79756264
 F src/chat.c b58db784083bf52d0a70c991790ab0effa9b6a27584a8abc99803b3ba493baee
-F src/chat.js 69a71e600f9cdba4fa80c7cbc6060155a7cf913d561e78a7ffb6a8b9dc05ac06
+F src/chat.js 32db0175d8409ff2a36ec0c88f011962f2e21899f65db75252f62df131318e1f
 F src/checkin.c 269f750bed181b3d5160384380e362cf3ef8b2710a712acdb4330cc93f5692b2
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 931b97e8ae1113b6331a6d103685daa673b15f1f4acc0b9581fa2a0b91703731
-R b7880f52e9ee8ff3fc4183a8844c7693
-U drh
-Z 94f46ac1fdc0bceb6baf76e80d0147bd
+P 49f68be83be7de1a7af16edd3dc7c5950fc1be3e764227f1dec33f9862650e42
+R 9dfc549638ab9edb52d8fdef46dc8187
+U stephan
+Z d9448197024984d038200a3af73778c1

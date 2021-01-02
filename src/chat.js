@@ -157,7 +157,7 @@
         D.addClass(old, 'hidden');
         D.removeClass(this.e.inputCurrent, 'hidden');
         const mh2 = m.clientHeight;
-        m.scrollTo( 0, sTop + (mh1-mh2));
+        m.scrollTo(0, sTop + (mh1-mh2));
         this.e.inputCurrent.value = old.value;
         old.value = '';
         return this;
@@ -245,7 +245,7 @@
           D.append(holder,e);
           this.e.newestMessage = e;
         }
-        if(!atEnd && !this.isBatchLoading
+        if(!atEnd && !this._isBatchLoading
            && e.dataset.xfrom!==this.me
            && (prevMessage
                ? !this.messageIsInView(prevMessage)
@@ -255,9 +255,9 @@
              message, but gently alert the user that a new message
              has arrived. */
           F.toast.message("New message has arrived.");
-        }else if(!this.isBatchLoading && e.dataset.xfrom===Chat.me){
+        }else if(!this._isBatchLoading && e.dataset.xfrom===Chat.me){
           this.scheduleScrollOfMsg(e);
-        }else if(!this.isBatchLoading){
+        }else if(!this._isBatchLoading){
           /* When a message from someone else arrives, we have to
              figure out whether or not to scroll it into view. Ideally
              we'd just stuff it in the UI and let the flexbox layout
@@ -386,10 +386,36 @@
     const argsToArray = function(args){
       return Array.prototype.slice.call(args,0);
     };
+    /**
+       Reports an error via console.error() and as a toast message.
+       Accepts any argument types valid for fossil.toast.error().
+    */
     cs.reportError = function(/*msg args*/){
       const args = argsToArray(arguments);
       console.error("chat error:",args);
       F.toast.error.apply(F.toast, args);
+    };
+    /**
+       Reports an error in the form of a new message in the chat
+       feed. All arguments are appended to the message's content area
+       using fossil.dom.append(), so may be of any type supported by
+       that function.
+    */
+    cs.reportErrorAsMessage = function(/*msg args*/){
+      const args = argsToArray(arguments);
+      console.error("chat error:",args);
+      const d = new Date().toISOString(),
+            msg = {
+              isError: true,
+              xfrom: "chat.js",
+              msgid: -1,
+              mtime: d,
+              lmtime: d,
+              xmsg: args
+            }, mw = new this.MessageWidget();
+      mw.setMessage(msg);
+      this.injectMessageElem(mw.e.body);
+      mw.scrollIntoView();
     };
 
     cs.getMessageElemById = function(id){
@@ -437,10 +463,27 @@
         cancelled after this page was loaded.
     */
     cs.userMayDelete = function(eMsg){
-      return this.me === eMsg.dataset.xfrom
-        || F.user.isAdmin/*will be confirmed server-side*/;
+      return eMsg.msgid>0
+        && (this.me === eMsg.dataset.xfrom
+            || F.user.isAdmin/*will be confirmed server-side*/);
     };
 
+    /** Returns a new Error() object encapsulating state from the given
+        fetch() response promise. */
+    cs._newResponseError = function(response){
+      return new Error([
+        "HTTP status ", response.status,": ",response.url,": ",
+        response.statusText].join(''));
+    };
+    
+    /** Helper for reporting HTTP-level response errors via fetch().
+        If response.ok then response.json() is returned, else an Error
+        is thrown. */
+    cs._fetchJsonOrError = function(response){
+      if(response.ok) return response.json();
+      else throw cs._newResponseError(response);
+    };
+    
     /**
        Removes the given message ID from the local chat record and, if
        the message was posted by this user OR this user in an
@@ -461,8 +504,9 @@
       if(this.userMayDelete(e)){
         this.ajaxStart();
         fetch("chat-delete?name=" + id)
+          .then(this._fetchJsonOrError)
           .then(()=>this.deleteMessageElem(e))
-          .catch(err=>this.reportError(err))
+          .catch(err=>this.reportErrorAsMessage(err))
           .finally(()=>this.ajaxEnd());
       }else{
         this.deleteMessageElem(id);
@@ -485,24 +529,22 @@
      align legends via CSS in Firefox and clicking-related
      deficiencies in Safari.
   */
-  const MessageWidget = (function(){
+  Chat.MessageWidget = (function(){
     const cf = function(){
       this.e = {
         body: D.addClass(D.div(), 'message-widget'),
         tab: D.addClass(D.span(), 'message-widget-tab'),
         content: D.addClass(D.div(), 'message-widget-content')
       };
-      D.append(this.e.body, this.e.tab);
-      D.append(this.e.body, this.e.content);
+      D.append(this.e.body, this.e.tab, this.e.content);
       this.e.tab.setAttribute('role', 'button');
     };
     cf.prototype = {
       setLabel: function(label){
         return this;
       },
-      setPopupCallback: function(callback){
-        this.e.tab.addEventListener('click', callback, false);
-        return this;
+      scrollIntoView: function(){
+        this.e.content.scrollIntoView();
       },
       setMessage: function(m){
         const ds = this.e.body.dataset;
@@ -560,10 +602,84 @@
           //
           // Hence, even though innerHTML is normally frowned upon, it is
           // perfectly safe to use in this context.
-          contentTarget.innerHTML = m.xmsg;
+          if(m.xmsg instanceof Array){
+            // Used by Chat.reportErrorAsMessage()
+            D.append(contentTarget, m.xmsg);
+          }else{
+            contentTarget.innerHTML = m.xmsg;
+          }
         }
+        this.e.tab.addEventListener('click', this._handleLegendClicked, false);
         return this;
-      }
+      },
+      /* Event handler for clicking .message-user elements to show their
+         timestamps. */
+      _handleLegendClicked: function f(ev){
+        if(!f.popup){
+          /* Timestamp popup widget */
+          f.popup = new F.PopupWidget({
+            cssClass: ['fossil-tooltip', 'chat-message-popup'],
+            refresh:function(){
+              const eMsg = this._eMsg;
+              if(!eMsg) return;
+              D.clearElement(this.e);
+              const d = new Date(eMsg.dataset.timestamp);
+              if(d.getMinutes().toString()!=="NaN"){
+                // Date works, render informative timestamps
+                const xfrom = eMsg.dataset.xfrom;
+                D.append(this.e,
+                         D.append(D.span(), localTimeString(d)," ",Chat.me," time"),
+                         D.append(D.span(), iso8601ish(d)));
+                if(eMsg.dataset.lmtime && xfrom!==Chat.me){
+                  D.append(this.e,
+                           D.append(D.span(), localTime8601(
+                             new Date(eMsg.dataset.lmtime)
+                           ).replace('T',' ')," ",xfrom," time"));
+                }
+              }else{
+                // Date doesn't work, so dumb it down...
+                D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," zulu"));
+              }
+              const toolbar = D.addClass(D.div(), 'toolbar');
+              D.append(this.e, toolbar);
+              const btnDeleteLocal = D.button("Delete locally");
+              D.append(toolbar, btnDeleteLocal);
+              const self = this;
+              btnDeleteLocal.addEventListener('click', function(){
+                self.hide();
+                Chat.deleteMessageElem(eMsg);
+              });
+              if(Chat.userMayDelete(eMsg)){
+                const btnDeleteGlobal = D.button("Delete globally");
+                D.append(toolbar, btnDeleteGlobal);
+                btnDeleteGlobal.addEventListener('click', function(){
+                  self.hide();
+                  Chat.deleteMessage(eMsg);
+                });
+              }
+            }/*refresh()*/
+          });
+          f.popup.installHideHandlers();
+          f.popup.hide = function(){
+            delete this._eMsg;
+            D.clearElement(this.e);
+            return this.show(false);
+          };
+        }/*end static init*/
+        const rect = ev.target.getBoundingClientRect();
+        const eMsg = ev.target.parentNode/*the owning .message-widget element*/;
+        f.popup._eMsg = eMsg;
+        let x = rect.left, y = rect.topm;
+        f.popup.show(ev.target)/*so we can get its computed size*/;
+        if(eMsg.dataset.xfrom===Chat.me
+           && document.body.classList.contains('my-messages-right')){
+          // Shift popup to the left for right-aligned messages to avoid
+          // truncation off the right edge of the page.
+          const pRect = f.popup.e.getBoundingClientRect();
+          x = rect.right - pRect.width;
+        }
+        f.popup.show(x, y);
+      }/*_handleLegendClicked()*/
     };
     return cf;
   })()/*MessageWidget*/;
@@ -676,8 +792,10 @@
     fetch("chat-send",{
       method: 'POST',
       body: fd
-    }).then((x)=>x.text())
-      .then(function(txt){
+    }).then((x)=>{
+      if(x.ok) return x.text();
+      else throw Chat._newResponseError(x);
+    }).then(function(txt){
         if(!txt) return/*success response*/;
         try{
           const json = JSON.parse(txt);
@@ -687,7 +805,7 @@
           return;
         }
       })
-      .catch((e)=>this.reportError(e));
+      .catch((e)=>this.reportErrorAsMessage(e));
     BlobXferState.clear();
     Chat.inputValue("").inputFocus();
   };
@@ -734,74 +852,6 @@
     return d.toISOString()
       .replace('T',' ').replace(/\.\d+/,'').replace('Z', ' zulu');
   };
-  /* Event handler for clicking .message-user elements to show their
-     timestamps. */
-  const handleLegendClicked = function f(ev){
-    if(!f.popup){
-      /* Timestamp popup widget */
-      f.popup = new F.PopupWidget({
-        cssClass: ['fossil-tooltip', 'chat-message-popup'],
-        refresh:function(){
-          const eMsg = this._eMsg;
-          if(!eMsg) return;
-          D.clearElement(this.e);
-          const d = new Date(eMsg.dataset.timestamp);
-          if(d.getMinutes().toString()!=="NaN"){
-            // Date works, render informative timestamps
-            const xfrom = eMsg.dataset.xfrom;
-            D.append(this.e,
-                     D.append(D.span(), localTimeString(d)," ",Chat.me," time"),
-                     D.append(D.span(), iso8601ish(d)));
-            if(eMsg.dataset.lmtime && xfrom!==Chat.me){
-              D.append(this.e,
-                       D.append(D.span(), localTime8601(
-                         new Date(eMsg.dataset.lmtime)
-                       ).replace('T',' ')," ",xfrom," time"));
-            }
-           }else{
-            // Date doesn't work, so dumb it down...
-            D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," zulu"));
-          }
-          const toolbar = D.addClass(D.div(), 'toolbar');
-          D.append(this.e, toolbar);
-          const btnDeleteLocal = D.button("Delete locally");
-          D.append(toolbar, btnDeleteLocal);
-          const self = this;
-          btnDeleteLocal.addEventListener('click', function(){
-            self.hide();
-            Chat.deleteMessageElem(eMsg);
-          });
-          if(Chat.userMayDelete(eMsg)){
-            const btnDeleteGlobal = D.button("Delete globally");
-            D.append(toolbar, btnDeleteGlobal);
-            btnDeleteGlobal.addEventListener('click', function(){
-              self.hide();
-              Chat.deleteMessage(eMsg);
-            });
-          }
-        }/*refresh()*/
-      });
-      f.popup.installHideHandlers();
-      f.popup.hide = function(){
-        delete this._eMsg;
-        D.clearElement(this.e);
-        return this.show(false);
-      };
-    }/*end static init*/
-    const rect = ev.target.getBoundingClientRect();
-    const eMsg = ev.target.parentNode/*the owning .message-widget element*/;
-    f.popup._eMsg = eMsg;
-    let x = rect.left, y = rect.topm;
-    f.popup.show(ev.target)/*so we can get its computed size*/;
-    if(eMsg.dataset.xfrom===Chat.me
-       && document.body.classList.contains('my-messages-right')){
-      // Shift popup to the left for right-aligned messages to avoid
-      // truncation off the right edge of the page.
-      const pRect = f.popup.e.getBoundingClientRect();
-      x = rect.right - pRect.width;
-    }
-    f.popup.show(x, y);
-  }/*handleLegendClicked()*/;
 
   (function(){/*Set up #chat-settings-button */
     const settingsButton = document.querySelector('#chat-settings-button');
@@ -941,12 +991,11 @@
           Chat.deleteMessageElem(m.mdel);
           return;
         }
-        const row = new MessageWidget()
+        const row = new Chat.MessageWidget()
         row.setMessage(m);
-        row.setPopupCallback(handleLegendClicked);
         Chat.injectMessageElem(row.e.body,atEnd);
         if(m.isError){
-          Chat.gotServerError = m;
+          Chat._gotServerError = m;
         }
       }/*processPost()*/;
     }/*end static init*/
@@ -982,24 +1031,24 @@
     const loadOldMessages = function(n){
       Chat.ajaxStart();
       Chat.e.messagesWrapper.classList.add('loading');
-      Chat.isBatchLoading = true;
+      Chat._isBatchLoading = true;
       var gotMessages = false;
       const scrollHt = Chat.e.messagesWrapper.scrollHeight,
             scrollTop = Chat.e.messagesWrapper.scrollTop;
       fetch("chat-poll?before="+Chat.mnMsg+"&n="+n)
-        .then(x=>x.json())
+        .then(Chat._fetchJsonOrError)
         .then(function(x){
           gotMessages = x.msgs.length;
           newcontent(x,true);
         })
-        .catch(e=>Chat.reportError(e))
+        .catch(e=>Chat.reportErrorAsMessage(e))
         .finally(function(){
-          Chat.isBatchLoading = false;
+          Chat._isBatchLoading = false;
           Chat.e.messagesWrapper.classList.remove('loading');
           Chat.ajaxEnd();
-          if(Chat.gotServerError){
+          if(Chat._gotServerError){
             F.toast.error("Got an error response from the server. ",
-                          "See message for details");
+                          "See message for details.");
             return;
           }else if(n<0/*we asked for all history*/
              || 0===gotMessages/*we found no history*/
@@ -1045,9 +1094,9 @@
       Chat.ajaxStart();
       Chat.e.messagesWrapper.classList.add('loading');
     }
-    Chat.isBatchLoading = isFirstCall;
+    Chat._isBatchLoading = isFirstCall;
     var p = fetch("chat-poll?name=" + Chat.mxMsg);
-    p.then(x=>x.json())
+    p.then(Chat._fetchJsonOrError)
       .then(y=>newcontent(y))
       .catch(e=>console.error(e))
     /* ^^^ we don't use Chat.reportError(e) here b/c the polling
@@ -1055,23 +1104,23 @@
        resumed, and reportError() produces a loud error message. */
       .finally(function(){
         if(isFirstCall){
-          Chat.isBatchLoading = false;
+          Chat._isBatchLoading = false;
           Chat.ajaxEnd();
           Chat.e.messagesWrapper.classList.remove('loading');
           setTimeout(function(){
             Chat.scrollMessagesTo(1);
           }, 250);
         }
-        if(Chat.gotServerError && Chat.intervalTimer){
+        if(Chat._gotServerError && Chat.intervalTimer){
           clearInterval(Chat.intervalTimer);
           delete Chat.intervalTimer;
         }
         poll.running=false;
       });
   }
-  Chat.gotServerError = poll.running = false;
+  Chat._gotServerError = poll.running = false;
   poll(true);
-  if(!Chat.gotServerError){
+  if(!Chat._gotServerError){
     Chat.intervalTimer = setInterval(poll, 1000);
   }
   if(/\bping=\d+/.test(window.location.search)){
