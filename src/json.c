@@ -18,10 +18,9 @@
 **
 ** Code for the JSON API.
 **
-** For notes regarding the public JSON interface, please see:
+** The JSON API's public interface is documented at:
 **
-** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view
-**
+** https://fossil-scm.org/fossil/doc/trunk/www/json-api/index.md
 **
 ** Notes for hackers...
 **
