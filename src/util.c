@@ -23,6 +23,7 @@
 # include <sys/mman.h>
 # include <unistd.h>
 #endif
+#include <math.h>
 
 /*
 ** For the fossil_timer_xxx() family of functions...
@@ -699,8 +700,8 @@ char *fossil_random_password(int N){
               "23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
 
   if( N<8 ) N = 8;
-  else if( N>sizeof(zAlphabet)-2 ) N = sizeof(zAlphabet)-2;
   nSrc = sizeof(zAlphabet) - 1;
+  if( N>nSrc ) N = nSrc;
   memcpy(zSrc, zAlphabet, nSrc);
 
   for(i=0; i<N; i++){
@@ -717,18 +718,43 @@ char *fossil_random_password(int N){
 /*
 ** COMMAND: test-random-password
 **
-** Usage: %fossil test-random-password ?N?
+** Usage: %fossil test-random-password [N] [--entropy]
 **
 ** Generate a random password string of approximately N characters in length.
-** If N is omitted, use 10.  Values of N less than 8 are changed to 8
-** and greater than 55 and changed to 55.
+** If N is omitted, use 12.  Values of N less than 8 are changed to 8
+** and greater than 57 and changed to 57.
+**
+** If the --entropy flag is included, the number of bits of entropy in
+** the password is show as well.
 */
 void test_random_password(void){
-  int N = 10;
-  if( g.argc>=3 ){
-    N = atoi(g.argv[2]);
+  int N = 12;
+  int showEntropy = 0;
+  int i;
+  char *zPassword;
+  for(i=2; i<g.argc; i++){
+    const char *z = g.argv[i];
+    if( z[0]=='-' && z[1]=='-' ) z++;
+    if( strcmp(z,"-entropy")==0 ){
+      showEntropy = 1;
+    }else if( fossil_isdigit(z[0]) ){
+      N = atoi(z);
+      if( N<8 ) N = 8;
+      if( N>57 ) N = 57;
+    }else{
+      usage("[N] [--entropy]");
+    }
   }
-  fossil_print("%s\n", fossil_random_password(N));
+  zPassword = fossil_random_password(N);
+  if( showEntropy ){
+    double et = 57.0;
+    for(i=1; i<N; i++) et *= 57-i;
+    fossil_print("%s (%d bits of entropy)\n", zPassword,
+                 (int)(log(et)/log(2.0)));
+  }else{
+    fossil_print("%s\n", zPassword);
+  }
+  fossil_free(zPassword);
 }
 
 /*

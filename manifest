@@ -1,5 +1,5 @@
-C In\schat\smulti-line\smode,\sthe\s'placeholder'\stext\snow\smentions\sthat\sCtrl-Enter\ssends\sthe\smessage.
-D 2021-01-02T06:05:05.555
+C Improvements\sto\sthe\stest-random-password\scommand.
+D 2021-01-02T12:58:45.957
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -643,7 +643,7 @@ F src/url.c 09059182407bf8881845e5b41383a2813676dd0aafa5fdfb67962ea6c20119b7
 F src/user.c d27fe18d09cb06d998579440272b90a42b40f137ae0f8c88165c455685c78d20
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c 65c28c9c9ff6f69421ff2663919a0a063a559bfaea9817bb8508c31e0500f6cc
+F src/util.c d3c6aa0b33d0c2cc2316dbec58f9e6388375ee1efc1f9bd8d3b3eef008162ace
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 65cf7f61a3cf9433dec6efcd5531dfcf8811e98d6c229b2fe3c691c86b085b58
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc593ea0422fe5e0dee6ca0d35f01f3dc4048a7d5a98c0e2fbae8a68cb584dfc
-R 6257bbc7456c866c347ea3e30d842822
-U stephan
-Z 894af5f65725467dddece4d80cec7dcc
+P 16ba05da98fc290b7fcfb802000828508c33ecdf63d9284a153005c0bca2c06a
+R 73ef2ac6944f4ffd1a01b8f9c6d34919
+U drh
+Z 29abc2343dee50fc0e1204e1e33b71f7
