@@ -69,7 +69,8 @@ int json_request_is_json_api(const char * zPathInfo){
     rc = 1;
   }else if(g.zCmdName!=0 && (0==strcmp("server",g.zCmdName)
                              || 0==strcmp("ui",g.zCmdName)
-                             || 0==strcmp("cgi",g.zCmdName)) ){
+                             || 0==strcmp("cgi",g.zCmdName)
+                             || 0==strcmp("http",g.zCmdName)) ){
     /* When running in server/cgi "directory" mode, zPathInfo is
     ** prefixed with the repository's name, so in order to determine
     ** whether or not we're really running in json mode we have to try
