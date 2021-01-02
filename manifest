@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.35.0\salpha\swhich\sfeatures\nfaster\sstartup\stime.
-D 2021-01-01T22:07:49.360
+C Extended\s[dd490d17bec777c4]\sto\salso\sapply\sto\sthe\s'ui'\scommand\sto\sresolve\sa\sJSON-mode\sassertion\swhich\shappens\swhen\srunning\sui\s--repolist\sreported\sat\s[https://fossil-scm.org/forum/forumpost/2cc2bbd4a2].
+D 2021-01-02T02:56:36.909
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -519,7 +519,7 @@ F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748
 F src/import.c fa1a6c477bc6a7a6affb1817ffb67b6ca488b32521be6069b79236325e48e24c
 F src/info.c 29dda455edf4525541d44b4255d1c1daf8672086c3cc1b539cfb7d64161952ac
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
-F src/json.c 063cd044d651346eff5410c327bc5fda9c66913facf3304f42afdc3aaddb5f07
+F src/json.c daf219c2a6f9ab431443fab6234d864acecb3f2550fe36a1dee88629d2856e62
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
@@ -990,7 +990,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 78819fdb0dc0c7eb0776254e84dfd99c3adc5d1da3a6acee3615e3913fb70af5
-R 082719c1b46fe424df1d6f4ef85fa929
-U drh
-Z 65e6afcc857844054ab67bed2f43f492
+P 67d79d23e1929ee60c6b06689a6bc97ce367b03e3e866313413664125e647c2b
+R ded750c273839dbdde212429b60b00e7
+U stephan
+Z bbbd86f1871d9a7498b8dc62befc1de0
