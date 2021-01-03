@@ -1488,6 +1488,10 @@ body.chat.my-messages-right .message-widget.mine {
      most mobile messaging apps do it. */
   align-items: flex-end;
 }
+body.chat.my-messages-right .message-widget.notification {
+  /* Center-aligns a system-level notification message. */
+  align-items: center;
+}
 /* The content area of a message. */
 body.chat .message-widget-content {
   display: inline-block;

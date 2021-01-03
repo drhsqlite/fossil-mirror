@@ -356,8 +356,24 @@
           "images-inline": !!F.config.chat.imagesInline,
           "edit-multiline": false,
           "monospace-messages": false,
-          "chat-only-mode": false
+          "chat-only-mode": false,
+          "audio-notification": true,
         }
+      },
+      /** Plays a new-message notification sound IF the audio-notification
+          setting is true, else this is a no-op. Returns this.
+      */
+      playNewMessageSound: function f(){
+        if(this.settings.getBool('audio-notification',false)){
+          try{
+            if(!f.audio) f.audio = new Audio(F.rootPath+"chat-audio-received");
+            f.audio.currentTime = 0;
+            f.audio.play();
+          }catch(e){
+            console.error("Audio playblack failed.",e);
+          }
+        }
+        return this;
       }
     };
     cs.e.inputCurrent = cs.e.inputSingle;
@@ -407,13 +423,12 @@
       const d = new Date().toISOString(),
             msg = {
               isError: true,
-              xfrom: "chat.js",
+              xfrom: null,
               msgid: -1,
               mtime: d,
               lmtime: d,
               xmsg: args
-            }, mw = new this.MessageWidget();
-      mw.setMessage(msg);
+            }, mw = new this.MessageWidget(msg);
       this.injectMessageElem(mw.e.body);
       mw.scrollIntoView();
     };
@@ -530,6 +545,10 @@
      deficiencies in Safari.
   */
   Chat.MessageWidget = (function(){
+    /**
+       Constructor. If passed an argument, it is passed to
+       this.setMessage() after initialization.
+    */
     const cf = function(){
       this.e = {
         body: D.addClass(D.div(), 'message-widget'),
@@ -538,6 +557,14 @@
       };
       D.append(this.e.body, this.e.tab, this.e.content);
       this.e.tab.setAttribute('role', 'button');
+      if(arguments.length){
+        this.setMessage(arguments[0]);
+      }
+    };
+    const theTime = function(d){
+      return [d.getHours(),":",
+              (d.getMinutes()+100).toString().slice(1,3)
+             ].join('');
     };
     cf.prototype = {
       setLabel: function(label){
@@ -551,24 +578,33 @@
         ds.timestamp = m.mtime;
         ds.lmtime = m.lmtime;
         ds.msgid = m.msgid;
-        ds.xfrom = m.xfrom;
+        ds.xfrom = m.xfrom || '';
         if(m.xfrom === Chat.me){
           D.addClass(this.e.body, 'mine');
         }
-        this.e.content.style.backgroundColor = m.uclr;
-        this.e.tab.style.backgroundColor = m.uclr;
+        if(m.uclr){
+          this.e.content.style.backgroundColor = m.uclr;
+          this.e.tab.style.backgroundColor = m.uclr;
+        }
         const d = new Date(m.mtime);
-        D.append(
-          D.clearElement(this.e.tab),
-          D.text(
-            m.xfrom," #",(m.msgid||'???'),' @ ',d.getHours(),":",
-            (d.getMinutes()+100).toString().slice(1,3)            
-          )
-        );
+        D.clearElement(this.e.tab);
         var contentTarget = this.e.content;
-        if(m.isError){
-          D.addClass([contentTarget, this.e.tab], 'error');
-        }else if( m.fsize>0 ){
+        if(m.xfrom){
+          D.append(
+            this.e.tab,
+            D.text(m.xfrom," #",(m.msgid||'???'),' @ ',theTime(d))
+          );
+        }else{/*notification*/
+          D.addClass(this.e.body, 'notification');
+          if(m.isError){
+            D.addClass([contentTarget, this.e.tab], 'error');
+          }
+          D.append(
+            this.e.tab,
+            D.text('notification @ ',theTime(d))
+          );
+        }
+        if( m.xfrom && m.fsize>0 ){
           if( m.fmime
               && m.fmime.startsWith("image/")
               && Chat.settings.getBool('images-inline',true)
@@ -626,7 +662,7 @@
               const d = new Date(eMsg.dataset.timestamp);
               if(d.getMinutes().toString()!=="NaN"){
                 // Date works, render informative timestamps
-                const xfrom = eMsg.dataset.xfrom;
+                const xfrom = eMsg.dataset.xfrom || 'server';
                 D.append(this.e,
                          D.append(D.span(), localTimeString(d)," ",Chat.me," time"),
                          D.append(D.span(), iso8601ish(d)));
@@ -894,11 +930,18 @@
     },{
       label: "Images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),
-      persistentSetting: 'images-inline',
       callback: function(){
         const v = Chat.settings.getBool('images-inline',true);
         Chat.settings.set('images-inline', !v);
         F.toast.message("Image mode set to "+(v ? "hyperlink" : "inline")+".");
+      }
+    },{
+      label: "Audio notifications",
+      boolValue: ()=>Chat.settings.getBool('audio-notification'),
+      callback: function(){
+        const v = Chat.settings.getBool('audio-notification');
+        Chat.settings.set('audio-notification', !v);
+        F.toast.message("Audio notifications "+(v ? "disabled" : "enabled")+".");
       }
     }];
 
@@ -991,8 +1034,10 @@
           Chat.deleteMessageElem(m.mdel);
           return;
         }
-        const row = new Chat.MessageWidget()
-        row.setMessage(m);
+        if(!Chat._isBatchLoading && Chat.me!==m.xfrom && Chat.playNewMessageSound){
+          Chat.playNewMessageSound();
+        }
+        const row = new Chat.MessageWidget(m);
         Chat.injectMessageElem(row.e.body,atEnd);
         if(m.isError){
           Chat._gotServerError = m;

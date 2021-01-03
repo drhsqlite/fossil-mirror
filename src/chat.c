@@ -237,7 +237,7 @@ static void chat_emit_permissions_error(int fAsMessageList){
   }else{
     CX("{");
   }
-  CX("\"isError\": true, \"xfrom\": \"fossil\",");
+  CX("\"isError\": true, \"xfrom\": null,");
   CX("\"mtime\": %!j, \"lmtime\": %!j,", zTime, zTime);
   CX("\"xmsg\": \"Missing permissions or not logged in. "
      "Try <a href='%R/login?g=%R/chat'>logging in</a>.\"");
@@ -468,7 +468,7 @@ void chat_test_formatter_cmd(void){
 ** |      "msgs":[
 ** |        {
 ** |          "isError": true,
-** |          "xfrom": "fossil",
+** |          "xfrom": null,
 ** |          "xmsg": "error details"
 ** |          "mtime": as above,
 ** |          "ltime": same as mtime
@@ -677,6 +677,22 @@ void chat_ping_webpage(void){
     cgi_append_header("Access-Control-Allow-Origin: *\r\n");
     fputc(7, stderr);
   }
+}
+
+/*
+** WEBPAGE: chat-audio-received
+**
+** Responds with an audio stream suitable for use as a /chat
+** new-message-arrived notification.
+*/
+void chat_audio_alert(void){
+  Blob audio = empty_blob;
+  int n = 0;
+  const char * zAudio =
+    (const char *)builtin_file("sounds/chat-received.wav", &n);
+  blob_init(&audio, zAudio, n);
+  cgi_set_content_type("audio/wav");
+  cgi_set_content(&audio);  
 }
 
 /*

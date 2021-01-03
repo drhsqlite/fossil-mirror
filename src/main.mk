@@ -265,6 +265,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/a.wav \
   $(SRCDIR)/sounds/b.wav \
   $(SRCDIR)/sounds/c.wav \
+  $(SRCDIR)/sounds/chat-received.wav \
   $(SRCDIR)/sounds/d.wav \
   $(SRCDIR)/sounds/e.wav \
   $(SRCDIR)/sounds/f.wav \
