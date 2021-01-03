@@ -171,6 +171,31 @@ static struct {
 static int manifest_crosslink_busy = 0;
 
 /*
+** There are some triggers that need to fire whenever new content
+** is added to the EVENT table, to make corresponding changes to the
+** PENDING_ALERT and CHAT tables.  These are done with TEMP triggers
+** which are created as needed.  The reasons for using TEMP triggers:
+**
+**    *  A small minority of invocations of Fossil need to use those triggers.
+**       So we save CPU cycles in the common case by not having to parse the
+**       trigger definition
+**
+**    *  We don't have to worry about dangling table references inside
+**       of triggers.  For example, we can create a trigger that adds
+**       to the CHAT table.  But an admin can still drop that CHAT table
+**       at any moment, since the trigger that refers to CHAT is a TEMP
+**       trigger and won't persist to cause problems.
+**
+**    *  Because TEMP triggers are defined by the specific version of the
+**       application that is running, we don't have to worry with legacy
+**       compatibility of the triggers.
+**
+** This boolean variable is set when the TEMP triggers for EVENT
+** have been created.
+*/
+static int manifest_event_triggers_are_enabled = 0;
+
+/*
 ** Clear the memory allocated in a manifest object
 */
 void manifest_destroy(Manifest *p){
@@ -1940,6 +1965,7 @@ reparent_abort:
 void manifest_crosslink_begin(void){
   assert( manifest_crosslink_busy==0 );
   manifest_crosslink_busy = 1;
+  manifest_create_event_triggers();
   db_begin_transaction();
   db_multi_exec(
      "CREATE TEMP TABLE pending_xlink(id TEXT PRIMARY KEY)WITHOUT ROWID;"
@@ -2060,6 +2086,28 @@ int manifest_crosslink_end(int flags){
 }
 
 /*
+** Activate EVENT triggers if they do not already exist.
+*/
+void manifest_create_event_triggers(void){
+  if( manifest_event_triggers_are_enabled ){
+    return;  /* Triggers already exists.  No-op. */
+  }
+  alert_create_trigger();
+  manifest_event_triggers_are_enabled = 1;  
+}
+
+/*
+** Disable manifest event triggers.  Drop them if they exist, but mark
+** them has having been created so that they won't be recreated.  This
+** is used during "rebuild" to prevent triggers from firing then.
+*/
+void manifest_disable_event_triggers(void){
+  alert_drop_trigger();
+  manifest_event_triggers_are_enabled = 1;
+}
+
+
+/*
 ** Make an entry in the event table for a ticket change artifact.
 */
 void manifest_ticket_event(
@@ -2128,6 +2176,7 @@ void manifest_ticket_event(
         pManifest->zTicketUuid);
   }
   fossil_free(zTitle);
+  manifest_create_event_triggers();
   db_multi_exec(
     "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
     "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
@@ -2229,6 +2278,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( g.fSqlTrace ){
     fossil_trace("-- manifest_crosslink(%d)\n", rid);
   }
+  manifest_create_event_triggers();
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
@@ -2276,6 +2326,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       char *zCom;
       parentid = manifest_add_checkin_linkages(rid,p,p->nParent,p->azParent);
       search_doc_touch('c', rid, 0);
+      assert( manifest_event_triggers_are_enabled );
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment,omtime)"
@@ -2391,6 +2442,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }else{
       backlink_wiki_refresh(p->zWikiTitle);
     }
+    assert( manifest_event_triggers_are_enabled );
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('w',%.17g,%d,%Q,'%c%q');",
@@ -2437,6 +2489,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       content_deltify(rid, &subsequent, 1, 0);
     }else{
       search_doc_touch('e',rid,0);
+      assert( manifest_event_triggers_are_enabled );
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"
         "VALUES('e',%.17g,%d,%d,%Q,%Q,"
@@ -2577,6 +2630,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
              p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }
     }
+    assert( manifest_event_triggers_are_enabled );
     db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('%c',%.17g,%d,%Q,%Q)",
@@ -2680,6 +2734,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }
     /*blob_appendf(&comment, " &#91;[/info/%S | details]&#93;");*/
     if( blob_size(&comment)==0 ) blob_append(&comment, " ", 1);
+    assert( manifest_event_triggers_are_enabled );
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('g',%.17g,%d,%Q,%Q)",
@@ -2709,6 +2764,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         zTitle = "(Deleted)";
       }
       zFType = fprev ? "Edit" : "Post";
+      assert( manifest_event_triggers_are_enabled );
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('f',%.17g,%d,%Q,'%q: %q')",
@@ -2741,6 +2797,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }else{
         zFType = "Reply";
       }
+      assert( manifest_event_triggers_are_enabled );
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('f',%.17g,%d,%Q,'%q: %q')",

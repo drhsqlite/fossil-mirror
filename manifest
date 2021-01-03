@@ -1,5 +1,5 @@
-C Remove\sreferences\sto\sthe\sobsolete\s"ping"\sfeature\sfrom\sthe\schat\ndocumentation.
-D 2021-01-03T17:04:24.159
+C Revamp\sthe\strigger\sused\sto\scaptures\schanges\sto\sthe\sEVENT\stable\sfor\suse\sin\nother\ssubsystems.\s\sThe\strigger\sis\snow\sa\sTEMP\strigger\srather\sthan\sa\spersistent\ntrigger.\n<b>Rebuild\snotice:</b>\nYou\scan\supgrade\sthrough\sthis\schange\swithout\strouble,\sas\sthe\sschema\nwill\sadjust\sautomatically.\s\sHowever,\sif\syou\sdowngrade\sback\sthrough\sthis\nchange\syou\smust\srun\srebuild\sto\srecreate\sthe\spersistent\striggers.
+D 2021-01-03T23:18:38.424
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c 9e534b3ba7b639756417fa40c8273a24b0a849e4c8ad0077c937c7824d437e82
 F src/ajax.c 1e403cdfe1f046a851b98dd00250359e253c06180794035c074061545b56ee34
-F src/alerts.c d2f3991e3be0912cd096c760c2ebd246a413bd478ec59110d353c33cf4a83fc7
+F src/alerts.c 73d98587f2176931afbd98ecf66c34d982436d7bd0ab3ec4281af0ec254f9c7e
 F src/allrepo.c 9404ed2458e3115c439f9e8c489692aa1f66b67b2e403688b4e4fab8150b62a2
 F src/attach.c 8ed9173b64b9751609ac2e78d608b7b1c473a072d5b1e1be2b1bc20ad0361796
 F src/backlink.c 2178b2d4a5c918c9b7f13e15a4d86119d32d0a74253d20b9b23530a7cc572487
@@ -547,7 +547,7 @@ F src/main.mk fa325e28181cbef9b36a85f18351ed592800f06fbd87849d5e00cedc1b2c090f
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 2ef49d77962eaa354b589eecef46217036e5059e7a876baaf7b0aafc56b23f80 x
-F src/manifest.c 1a33aa1150b482496a8f45bba8b62d82ce81d6b62ad66a2ce45d95c7bd2d77bf
+F src/manifest.c 6dff56283ae42aa27dc7c11e676a05fde8e5ee0ea9837cd55da48d40b1f333d9
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
 F src/markdown_html.c 6458055892bc435d7d2891fa63e0a0efef0ffc4471518dad8e2fa49c7e275fb2
@@ -571,7 +571,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 6cd5926c38643edf5a9a90eba47fb960ee4865088185e196044129e6ba23675a
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c 4f2870b9c683c1e55084a5dc1160376597bc8122e5a0808f36c42c423e992b29
-F src/rebuild.c e55aafa76e7ccf7ae07c6f9e1c1ff8b16aafdeb012e46158f42511c3e8f91def
+F src/rebuild.c ca776d84a4d18997788e024c51e98f4936a7006dfa69783480ce3150e9cf15e6
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
 F src/report.c ede461643122b96aa820fc4f0d69cac9e082c801e6b7d11ad1e923da67972de3
@@ -991,7 +991,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f572b62f22466af9241046339e5400fc5186b3bd267df2b7f51c604435272754
-R 7403ec92e24e56e316f4a5c024b810d3
+P 017ec310c26442a4dbd324cb155d2659f6cde595128c0f8046a989427776a532
+R ef65eb07fc5f2958ffa49f16663e9942
 U drh
-Z d9f17ddf1a44533a990eb14376e6d473
+Z a4ce8744294cb32723dab44f0cf35160

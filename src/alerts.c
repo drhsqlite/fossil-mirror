@@ -118,7 +118,6 @@ void alert_schema(int bOnlyIfEnabled){
       return;  /* Don't create table for disabled email */
     }
     db_exec_sql(zAlertInit);
-    alert_triggers_enable();
   }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
     db_multi_exec(
       "ALTER TABLE repository.pending_alert"
@@ -131,11 +130,13 @@ void alert_schema(int bOnlyIfEnabled){
 ** Enable triggers that automatically populate the pending_alert
 ** table.
 */
-void alert_triggers_enable(void){
+void alert_create_trigger(void){
   if( !db_table_exists("repository","pending_alert") ) return;
   db_multi_exec(
-    "CREATE TRIGGER IF NOT EXISTS repository.alert_trigger1\n"
-    "AFTER INSERT ON event BEGIN\n"
+    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+    /* "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" Very old legacy */
+    "CREATE TRIGGER temp.alert_trigger1\n"
+    "AFTER INSERT ON repository.event BEGIN\n"
     "  INSERT INTO pending_alert(eventid)\n"
     "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
     "    ON CONFLICT(eventId) DO NOTHING;\n"
@@ -149,10 +150,10 @@ void alert_triggers_enable(void){
 ** This must be called before rebuilding the EVENT table, for example
 ** via the "fossil rebuild" command.
 */
-void alert_triggers_disable(void){
+void alert_drop_trigger(void){
   db_multi_exec(
-    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n"
-    "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" // Legacy
+    "DROP TRIGGER IF EXISTS temp.alert_trigger1;\n"
+    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
   );
 }
 
@@ -1064,7 +1065,7 @@ void alert_cmd(void){
       blob_reset(&yn);
     }
     if( c=='y' ){
-      alert_triggers_disable();
+      alert_drop_trigger();
       db_multi_exec(
         "DROP TABLE IF EXISTS subscriber;\n"
         "DROP TABLE IF EXISTS pending_alert;\n"
