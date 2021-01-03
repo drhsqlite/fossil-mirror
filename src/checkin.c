@@ -1181,7 +1181,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   char *zComment;
   int i;
 
-  zEditor = fossil_text_editor();db_get("editor", 0);
+  zEditor = fossil_text_editor();
   if( zEditor==0 ){
     if( blob_size(pPrompt)>0 ){
       blob_append(pPrompt,

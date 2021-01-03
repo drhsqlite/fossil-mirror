@@ -357,16 +357,16 @@
           "edit-multiline": false,
           "monospace-messages": false,
           "chat-only-mode": false,
-          "audio-notification": true,
+          "audible-alert": true,
         }
       },
-      /** Plays a new-message notification sound IF the audio-notification
+      /** Plays a new-message notification sound IF the audible-alert
           setting is true, else this is a no-op. Returns this.
       */
       playNewMessageSound: function f(){
-        if(this.settings.getBool('audio-notification',false)){
+        if(this.settings.getBool('audible-alert',false)){
           try{
-            if(!f.audio) f.audio = new Audio(F.rootPath+"chat-audio-received");
+            if(!f.audio) f.audio = new Audio(F.rootPath+"chat-alert");
             f.audio.currentTime = 0;
             f.audio.play();
           }catch(e){
@@ -936,13 +936,13 @@
         F.toast.message("Image mode set to "+(v ? "hyperlink" : "inline")+".");
       }
     },{
-      label: "Audio notifications",
-      boolValue: ()=>Chat.settings.getBool('audio-notification'),
+      label: "Audible alerts",
+      boolValue: ()=>Chat.settings.getBool('audible-alert'),
       callback: function(){
-        const v = Chat.settings.getBool('audio-notification');
-        Chat.settings.set('audio-notification', !v);
+        const v = Chat.settings.getBool('audible-alert');
+        Chat.settings.set('audible-alert', !v);
         if(!v){
-          setTimeout(()=>Chat.playNewMessageSound(), 500);
+          setTimeout(()=>Chat.playNewMessageSound(), 50);
         }
         F.toast.message("Audio notifications "+(v ? "disabled" : "enabled")+".");
       }
@@ -1059,9 +1059,6 @@
         Chat.e.pageTitle.innerText = '[*] '+Chat.pageTitleOrig;
       }
     }
-    if(jx.msgs.length && F.config.chat.pingTcp){
-      fetch("http:/"+"/localhost:"+F.config.chat.pingTcp+"/chat-ping");
-    }
   }/*newcontent()*/;
   Chat.newContent = newcontent;
 
@@ -1171,10 +1168,7 @@
   if(!Chat._gotServerError){
     Chat.intervalTimer = setInterval(poll, 1000);
   }
-  if(/\bping=\d+/.test(window.location.search)){
-    /* If we see the 'ping' parameter we're certain this was run via
-       the 'fossil chat' CLI command, in which case we start up in
-       chat-only mode. */
+  if( window.fossil.config.chat.fromcli ){
     Chat.chatOnlyMode(true);
   }
 

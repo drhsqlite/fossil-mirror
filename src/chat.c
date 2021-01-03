@@ -103,15 +103,11 @@
 ** send new chat message, delete older messages, or poll for changes.
 */
 void chat_webpage(void){
-  int iPingTcp;
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
     return;
   }
-  iPingTcp = atoi(PD("ping","0"));
-  if( iPingTcp<1000 || iPingTcp>65535 ) iPingTcp = 0;
-  if( iPingTcp ) style_disable_csp();
   style_set_current_feature("chat");
   style_header("Chat");
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
@@ -155,7 +151,7 @@ void chat_webpage(void){
   @ document.body.classList.add('chat')
   @ /*^^^for skins which add their own BODY tag */;
   @ window.fossil.config.chat = {
-  @   pingTcp: %d(iPingTcp),
+  @   fromcli: %h(PB("cli")?"true":"false"),
   @   initSize: %d(db_get_int("chat-initial-history",50)),
   @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
   @ };
@@ -665,31 +661,16 @@ void chat_delete_webpage(void){
 }
 
 /*
-** WEBPAGE: chat-ping
+** WEBPAGE: chat-alert
 **
-** HTTP requests coming to this page from a loopback IP address cause
-** a single \007 (bel) character to be written on the controlling TTY.
-** This is used to implement an audiable alert by local web clients.
-*/
-void chat_ping_webpage(void){
-  const char *zIpAddr = PD("REMOTE_ADDR","nil");
-  if( cgi_is_loopback(zIpAddr) ){
-    cgi_append_header("Access-Control-Allow-Origin: *\r\n");
-    fputc(7, stderr);
-  }
-}
-
-/*
-** WEBPAGE: chat-audio-received
-**
-** Responds with an audio stream suitable for use as a /chat
-** new-message-arrived notification.
+** Return the sound file that should be played when a new chat message
+** arrives.
 */
 void chat_audio_alert(void){
   Blob audio = empty_blob;
   int n = 0;
   const char * zAudio =
-    (const char *)builtin_file("sounds/chat-received.wav", &n);
+    (const char *)builtin_file("sounds/plunk.wav", &n);
   blob_init(&audio, zAudio, n);
   cgi_set_content_type("audio/wav");
   cgi_set_content(&audio);  
@@ -698,52 +679,37 @@ void chat_audio_alert(void){
 /*
 ** COMMAND: chat
 **
-** Usage: %fossil chat ?URL?
+** Usage: %fossil chat
 **
-** Bring up a window to the chatroom feature of the Fossil repository
-** at URL.  Or if URL is not specified, use the default remote repository.
-** Event notifications on this session cause the U+0007 character to
-** be sent to the TTY on which the "fossil chat" command is run, thus
-** causing an auditory notification.
+** Bring up a web-browser window to the chatroom of the default
+** remote Fossil repository.
 */
 void chat_command(void){
-  const char *zUrl = 0;
-  size_t i;
-  char *azArgv[5];
+  const char *zUrl;
+  const char *zBrowser;
+  char *zCmd;
   db_find_and_open_repository(0,0);
-  if( g.argc==3 ){
-    zUrl = g.argv[2];
-  }else if( g.argc!=2 ){
-    usage("?URL?");
+  if( g.argc!=2 ){
+    usage("");
+  }
+  zUrl = db_get("last-sync-url",0);
+  if( zUrl==0 ){
+    fossil_fatal("no \"remote\" repository defined");
+  }
+  url_parse(zUrl, 0);
+  if( g.url.port==g.url.dfltPort ){
+    zUrl = mprintf(
+      "%s://%T%T",
+      g.url.protocol, g.url.name, g.url.path
+    );
   }else{
-    zUrl = db_get("last-sync-url",0);
-    if( zUrl==0 ){
-      fossil_fatal("no \"remote\" repository defined.  Use a URL argument");
-    }
-    url_parse(zUrl, 0);
-    if( g.url.port==g.url.dfltPort ){
-      zUrl = mprintf(
-        "%s://%T%T",
-        g.url.protocol, g.url.name, g.url.path
-      );
-    }else{
-      zUrl = mprintf(
-        "%s://%T:%d%T",
-        g.url.protocol, g.url.name, g.url.port, g.url.path
-      );
-    }
+    zUrl = mprintf(
+      "%s://%T:%d%T",
+      g.url.protocol, g.url.name, g.url.port, g.url.path
+    );
   }
-  if( strncmp(zUrl,"http://",7)!=0 && strncmp("https://",zUrl,8)!=0 ){
-    fossil_fatal("Not a valid URL: %s", zUrl);
-  }
-  azArgv[0] = g.argv[0];
-  azArgv[1] = "ui";
-  azArgv[2] = "--internal-chat-url";
-  i = strlen(zUrl);
-  if( i && zUrl[i-1]=='/' ) i--;
-  azArgv[3] = mprintf("%.*s/chat?ping=%%d", i, zUrl);
-  azArgv[4] = 0;
-  g.argv = azArgv;
-  g.argc = 4;
-  cmd_webserver();
+  zBrowser = fossil_web_browser();
+  if( zBrowser==0 ) return;
+  zCmd = mprintf("%s \"%s/chat?cli\" &", zBrowser, zUrl);
+  fossil_system(zCmd);
 }

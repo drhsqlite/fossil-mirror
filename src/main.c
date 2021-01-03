@@ -2659,31 +2659,6 @@ void cmd_test_http(void){
   }
 }
 
-#if !defined(_WIN32)
-#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
-/*
-** Search for an executable on the PATH environment variable.
-** Return true (1) if found and false (0) if not found.
-*/
-static int binaryOnPath(const char *zBinary){
-  const char *zPath = fossil_getenv("PATH");
-  char *zFull;
-  int i;
-  int bExists;
-  while( zPath && zPath[0] ){
-    while( zPath[0]==':' ) zPath++;
-    for(i=0; zPath[i] && zPath[i]!=':'; i++){}
-    zFull = mprintf("%.*s/%s", i, zPath, zBinary);
-    bExists = file_access(zFull, X_OK);
-    fossil_free(zFull);
-    if( bExists==0 ) return 1;
-    zPath += i;
-  }
-  return 0;
-}
-#endif
-#endif
-
 /*
 ** Respond to a SIGALRM by writing a message to the error log (if there
 ** is one) and exiting.
@@ -2809,7 +2784,6 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
-  const char *zChat = 0;     /* Remote chat URL.  (undocumented) */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2857,7 +2831,6 @@ void cmd_webserver(void){
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
-  zChat = find_option("internal-chat-url",0,1);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2897,26 +2870,8 @@ void cmd_webserver(void){
 #if !defined(_WIN32)
   /* Unix implementation */
   if( isUiCmd ){
-#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
-    zBrowser = db_get("web-browser", 0);
-    if( zBrowser==0 ){
-      static const char *const azBrowserProg[] =
-          { "xdg-open", "gnome-open", "firefox", "google-chrome" };
-      int i;
-      zBrowser = "echo";
-      for(i=0; i<count(azBrowserProg); i++){
-        if( binaryOnPath(azBrowserProg[i]) ){
-          zBrowser = azBrowserProg[i];
-          break;
-        }
-      }
-    }
-#else
-    zBrowser = db_get("web-browser", "open");
-#endif
-    if( zChat ){
-      zBrowserCmd = mprintf("%s \"%s\" &", zBrowser, zChat);
-    }else if( zIpAddr==0 ){
+    zBrowser = fossil_web_browser();
+    if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s \"http://localhost:%%d/%s\" &",
                             zBrowser, zInitPage);
     }else if( strchr(zIpAddr,':') ){
@@ -2978,10 +2933,8 @@ void cmd_webserver(void){
 #else
   /* Win32 implementation */
   if( isUiCmd ){
-    zBrowser = db_get("web-browser", "start");
-    if( zChat ){
-      zBrowserCmd = mprintf("%s %s &", zBrowser, zChat);
-    }else if( zIpAddr==0 ){
+    zBrowser = fossil_web_browser();
+    if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
                             zBrowser, zInitPage);
     }else if( strchr(zIpAddr,':') ){

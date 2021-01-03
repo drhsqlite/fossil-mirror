@@ -598,10 +598,10 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\sounds\a.wav" \
         "$(SRCDIR)\sounds\b.wav" \
         "$(SRCDIR)\sounds\c.wav" \
-        "$(SRCDIR)\sounds\chat-received.wav" \
         "$(SRCDIR)\sounds\d.wav" \
         "$(SRCDIR)\sounds\e.wav" \
         "$(SRCDIR)\sounds\f.wav" \
+        "$(SRCDIR)\sounds\plunk.wav" \
         "$(SRCDIR)\style.admin_log.css" \
         "$(SRCDIR)\style.fileedit.css" \
         "$(SRCDIR)\style.wikiedit.css" \
@@ -1208,10 +1208,10 @@ realclean: clean
 	echo "$(SRCDIR)\sounds/a.wav" >> $@
 	echo "$(SRCDIR)\sounds/b.wav" >> $@
 	echo "$(SRCDIR)\sounds/c.wav" >> $@
-	echo "$(SRCDIR)\sounds/chat-received.wav" >> $@
 	echo "$(SRCDIR)\sounds/d.wav" >> $@
 	echo "$(SRCDIR)\sounds/e.wav" >> $@
 	echo "$(SRCDIR)\sounds/f.wav" >> $@
+	echo "$(SRCDIR)\sounds/plunk.wav" >> $@
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@

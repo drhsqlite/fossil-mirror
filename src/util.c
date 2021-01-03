@@ -766,3 +766,56 @@ int fossil_num_digits(int n){
        : n<   10000 ? 4 : n<   100000 ? 5 : n<   1000000 ? 6
        : n<10000000 ? 7 : n<100000000 ? 8 : n<1000000000 ? 9 : 10;
 }
+
+#if !defined(_WIN32)
+#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
+/*
+** Search for an executable on the PATH environment variable.
+** Return true (1) if found and false (0) if not found.
+*/
+static int binaryOnPath(const char *zBinary){
+  const char *zPath = fossil_getenv("PATH");
+  char *zFull;
+  int i;
+  int bExists;
+  while( zPath && zPath[0] ){
+    while( zPath[0]==':' ) zPath++;
+    for(i=0; zPath[i] && zPath[i]!=':'; i++){}
+    zFull = mprintf("%.*s/%s", i, zPath, zBinary);
+    bExists = file_access(zFull, X_OK);
+    fossil_free(zFull);
+    if( bExists==0 ) return 1;
+    zPath += i;
+  }
+  return 0;
+}
+#endif
+#endif
+
+
+/*
+** Return the name of a command that will launch a web-browser.
+*/
+const char *fossil_web_browser(void){
+  const char *zBrowser = 0;
+#if defined(_WIN32)
+  zBrowser = db_get("web-browser", "start");
+#elif defined(__DARWIN__) || defined(__APPLE__) || defined(__HAIKU__)
+  zBrowser = db_get("web-browser", "open");
+#else
+  zBrowser = db_get("web-browser", 0);
+  if( zBrowser==0 ){
+    static const char *const azBrowserProg[] =
+        { "xdg-open", "gnome-open", "firefox", "google-chrome" };
+    int i;
+    zBrowser = "echo";
+    for(i=0; i<count(azBrowserProg); i++){
+      if( binaryOnPath(azBrowserProg[i]) ){
+        zBrowser = azBrowserProg[i];
+        break;
+      }
+    }
+  }
+#endif
+  return zBrowser;
+}
