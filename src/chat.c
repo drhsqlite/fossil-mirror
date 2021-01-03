@@ -710,6 +710,10 @@ void chat_command(void){
   }
   zBrowser = fossil_web_browser();
   if( zBrowser==0 ) return;
+#ifdef _WIN32
+  zCmd = mprintf("%s %s/chat?cli &", zBrowser, zUrl);
+#else
   zCmd = mprintf("%s \"%s/chat?cli\" &", zBrowser, zUrl);
+#endif
   fossil_system(zCmd);
 }
