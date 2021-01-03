@@ -2368,10 +2368,13 @@ void artifact_page(void){
       blob_reset(&path);
     }
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
-    style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
-                          zName, zCI);
-    style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
-                          zName, zCI);
+    zMime = mimetype_from_name(zName);
+    if( zMime && strncmp(zMime, "text/", 5)==0 ){
+      style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
+                            zName, zCI);
+      style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
+                            zName, zCI);
+    }
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
   }else{
@@ -2386,6 +2389,7 @@ void artifact_page(void){
     if( asText ) objdescFlags &= ~OBJDESC_BASE;
     objType = object_description(rid, objdescFlags,
                                 (isFile?zName:0), &downloadName);
+    zMime = mimetype_from_name(blob_str(&downloadName));
   }
   if( !descOnly && P("download")!=0 ){
     cgi_redirectf("%R/raw/%s?at=%T",
@@ -2441,7 +2445,6 @@ void artifact_page(void){
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
   }
-  zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
       if( asText ){
@@ -2506,7 +2509,7 @@ void artifact_page(void){
         style_submenu_checkbox("ln", "Line Numbers", 0, 0);
       }
       blob_to_utf8_no_bom(&content, 0);
-      zMime = mimetype_from_content(&content);
+      if( zMime==0 ) zMime = mimetype_from_content(&content);
       @ <blockquote class="file-content">
       if( zMime==0 ){
         const char *z, *zFileName, *zExt;
@@ -2533,6 +2536,10 @@ void artifact_page(void){
         @ <p>(file is %d(blob_size(&content)) bytes of image data)</i></p>
         @ <p><img src="%R/raw/%s(zUuid)?m=%s(zMime)"></p>
         style_submenu_element("Image", "%R/raw/%s?m=%s", zUuid, zMime);
+      }else if( strncmp(zMime, "audio/", 6)==0 ){
+        @ <audio controls src="%R/raw/%s(zUuid)?m=%s(zMime)">
+        @ (Not supported by this browser)
+        @ </audio>
       }else{
         @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
       }
