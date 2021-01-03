@@ -941,6 +941,9 @@
       callback: function(){
         const v = Chat.settings.getBool('audio-notification');
         Chat.settings.set('audio-notification', !v);
+        if(!v){
+          setTimeout(()=>Chat.playNewMessageSound(), 500);
+        }
         F.toast.message("Audio notifications "+(v ? "disabled" : "enabled")+".");
       }
     }];
