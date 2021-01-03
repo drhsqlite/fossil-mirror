@@ -78,37 +78,6 @@ the chat system does try to identify and tag hyperlinks, as follows:
 Apart from adding hyperlink anchor tags to bits of text that look
 like hyperlinks, no changes are made to the input text.
 
-## Aural Alerts
-
-If you have a local clone and checkout for a remote Fossil repository
-and that remote repository supports chat,
-then you can bring up a chat window for that remote repository
-that will beep whenever new content arrives.  This must be done from a
-terminal window.
-Change directories to a working checkout of the local clone and type:
-
->    fossil chat
-
-This command will bring up a chat window in your default web-browser
-(similar to the way the "[fossil ui](/help?cmd=ui)" does).   The
-chat will be for the remote repository, the repository whose URL shows
-when you type the "[fossil remote](/help?cmd=remote)" command.  In
-addition to bringing up the chat window, this command will also
-send a single "bel" character (U+0007) to standard error of the terminal
-whenever new messages arrive in the chat window.  On most systems,
-the terminal windows will emit an "beep" whenever they receive the U+0007
-character.  This works out-of-the-box for Mac and Windows, but on some
-flavors of Linux, you might need to enable terminal beeps in your system
-preferences.
-
-In theory, it should be possible to get a web-browser to make an alert
-sound whenever new content arrives in the chat window.  However, the
-Fossil developers have been unable to figure out how to do that.
-Web-browsers make it very difficult to play sounds that are
-not the direct result of a user-click, probably to prevent
-advertisements from pestering users with a cacophony of alerts.
-
-
 ## Implementation Details
 
 *You do not need to understand how Fossil chat works in order to use it.
@@ -134,12 +103,6 @@ interfaces are used by the XHR:
 
   *  **/chat-delete** &rarr;
      Delete a chat message.
-
-  *  **/chat-ping** &rarr;
-     An HTTP request to this page on the loopback IP address causes
-     a single U+0007 "bel" character to be sent to standard error of
-     the controlling terminal.  This is used to implement
-     aural alerts with the "[fossil chat](/help?cmd=chat)" command.
 
 Fossil chat uses the venerable "hanging GET" or 
 "[long polling](wikipedia:/wiki/Push_technology#Long_polling)"
