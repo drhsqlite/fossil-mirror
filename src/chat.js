@@ -254,7 +254,11 @@
              scrolled elsewhere, do not scroll to the latest
              message, but gently alert the user that a new message
              has arrived. */
-          F.toast.message("New message has arrived.");
+          if(!f.btnDown){
+            f.btnDown = D.button("⇣⇣⇣");
+            f.btnDown.addEventListener('click',()=>this.scrollMessagesTo(1),false);
+          }
+          F.toast.message(f.btnDown," New message has arrived.");
         }else if(!this._isBatchLoading && e.dataset.xfrom===Chat.me){
           this.scheduleScrollOfMsg(e);
         }else if(!this._isBatchLoading){
@@ -322,7 +326,7 @@
         return this;
       },
       /** Tries to scroll the message area to...
-          <0 = top of the message list, >1 = bottom of the message list,
+          <0 = top of the message list, >0 = bottom of the message list,
           0 == the newest message (normally the same position as >1).
       */
       scrollMessagesTo: function(where){
@@ -1010,12 +1014,12 @@
   })()/*#chat-settings-button setup*/;
 
   (function(){ /* buttons to scroll to the begin/end of the messages. */
-    E1('#chat-scroll-bottom').addEventListener('click',function(ev){
+    Chat.e.btnMsgEnd.addEventListener('click',function(ev){
       ev.preventDefault();
       Chat.scrollMessagesTo(1);
       return false;
     });
-    E1('#chat-scroll-top').addEventListener('click',function(ev){
+    Chat.e.btnMsgHome.addEventListener('click',function(ev){
       ev.preventDefault();
       Chat.scrollMessagesTo(-1);
       return false;

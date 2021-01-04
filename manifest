@@ -1,5 +1,5 @@
-C chat:\strim()\sleading/trailing\sspaces\sfrom\smessage\stext\sbefore\strying\sto\ssend\sthem.
-D 2021-01-04T14:04:14.588
+C chat:\sthe\s'New\smessage...'\stoast\snow\sincludes\sa\sbutton\swhich\sscrolls\sto\sthe\sbottom\sof\sthe\smessage\sarea.
+D 2021-01-04T14:15:38.660
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -449,7 +449,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
 F src/chat.c e56a23f3d58dac60cefece77e3d125cb5917ba372f08aaac94e78a3f03ff26d9
-F src/chat.js 78a543c1ca9f508a76e5978722052633a59da5a50e00f22b454cacb519339f75
+F src/chat.js f3a6aa1d393bc9e808775233c75f5560c07bde97d0fe15b9cbc67ff55ba228da
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -991,7 +991,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d17f3d699b285ce201424d80de2fdd0ab8e7ed7dcfd392cf7bfe5d2d7b35dec6
-R 766afdc763dfd8159e9c00cabc2e75d7
+P b1d44f9ea713a6dd94c836502714165c9917a342102e25ebc7e7c970167b0692
+R 87454b7b429e84324b492c290a7086ff
 U stephan
-Z 69f59cf617f25e293f502b89fe4232b8
+Z 64a3d12cd623ac960003b58a7e495b59
