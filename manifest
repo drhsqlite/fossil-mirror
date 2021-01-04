@@ -1,5 +1,5 @@
-C Fix\srendering\son\sthe\s/file\spage\sthat\scauses\stext\sfiles\sto\sbe\sreported\nas\sbinary.\s\sCaused\sby\scheck-in\s[6643d4a0c1aabb85].
-D 2021-01-04T15:18:00.644
+C Add\stwo\snew\ssmall\sWAV\sfiles,\sperhaps\suseful\sas\saudiable\salert\ssounds,\sbut\nnot\syet\sused\sfor\sanything.
+D 2021-01-04T20:10:13.305
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -605,11 +605,14 @@ F src/sounds/8.wav 22a0e636d285da4e007c4ebaee190074711822d2cb147dc744b0672a0c202
 F src/sounds/9.wav f94d5d78c3997d36b868aa536aff45e6ba910c501dbeefab3ca06ef5c141fb46
 F src/sounds/README.md 09cb60135bc9d984bd7f78a818a605436a7fe6e763e2cc2b4a6396dc63a5cb11
 F src/sounds/a.wav d55665f17df63f03fa375797be52c59adb48129a6885df7a4a348646782f0201
+F src/sounds/b-flat.wav 784406e0e2ee5992151a0f639dded4170f6a179eb97a6f4093ff9d76a9165608
 F src/sounds/b.wav 93e876209212000e243beb47739d894d2ce1a44c286583cbde6b6f837f653313
 F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df37d0
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
+F src/sounds/g-minor-triad.wav 09fba3dc1056ca5f82403a3adc24adc48c03a63b02145624c5c61280bce2e3df
+F src/sounds/mkwav.c e65a8bd89c71692d3e099affca3c2003f9ac96b12d6cbfad219ce21721f75b22
 F src/sounds/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
@@ -991,7 +994,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6177fd43dbef3cef8194ff0eab827f0087bf807aba01f3d05d9ee4ab884faf8
-R 27254f6f7d7ea1d16d7a33a7e2ae2154
+P e5d30a7c34db7c2e7268b06b72c1ec999110396a080d8735bafe37c7062d041f
+R 9e972f83870c5d9f254b095e145e15e1
 U drh
-Z 6235b5b85626c60ad209d9194d04de1d
+Z b7e0031e9b75c788c4f2a6bc9f02c8c3
