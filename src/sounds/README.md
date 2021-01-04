@@ -12,17 +12,3 @@ and are 6000 samples in length.
 The recordings are made by Philip Bennefall and are of his own voice.
 Mr. Bennefall is himself blind and uses this system implemented with these
 recordings to complete captchas for Fossil.
-
-========================================================================
-
-`chat-received.wav` is a Creative Commons Attribution-licensed audio
-file obtained from:
-
-  https://notificationsounds.com/notification-sounds/time-is-now-585
-
-License:
-
-  https://creativecommons.org/licenses/by/4.0/legalcode
-
-This copy has been truncated, down-sampled, and converted to a
-different format than the original.

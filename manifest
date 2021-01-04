@@ -1,5 +1,5 @@
-C Show\sthe\ssize\sof\sthe\sfile\sin\sthe\s/file\sdisplay\sof\saudio/*\sfiles.
-D 2021-01-04T12:14:31.403
+C Removed\sreference\sto\snow-removed\schat-received.wav.
+D 2021-01-04T12:22:05.720
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -603,7 +603,7 @@ F src/sounds/6.wav 3b34177bd4bcc27a2e10e6067a8f6f9d16003e7188e2e44195ce8a4d6cc7f
 F src/sounds/7.wav 58423131aa56eff8cfc264d76e8623e5cf2a6411edc68102dc054eeb1f458135
 F src/sounds/8.wav 22a0e636d285da4e007c4ebaee190074711822d2cb147dc744b0672a0c202334
 F src/sounds/9.wav f94d5d78c3997d36b868aa536aff45e6ba910c501dbeefab3ca06ef5c141fb46
-F src/sounds/README.md 050ea3735d9764159b7164e944b44eaad36a90b9af01ba482644d68c4f56f519
+F src/sounds/README.md 09cb60135bc9d984bd7f78a818a605436a7fe6e763e2cc2b4a6396dc63a5cb11
 F src/sounds/a.wav d55665f17df63f03fa375797be52c59adb48129a6885df7a4a348646782f0201
 F src/sounds/b.wav 93e876209212000e243beb47739d894d2ce1a44c286583cbde6b6f837f653313
 F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df37d0
@@ -991,7 +991,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P def06dc645db7edbdf9eee0919c7e2b031e42dbdd15e6503ffb1a6905ee7f5a6
-R 9f8aedfc24dce2c33dd314e2a4a870f5
-U drh
-Z b04b078560dac005ffccaed803761966
+P dff1332593869ff5b21c2add728363afe91c50a747ef54b716fe89a8d50152b2
+R 15ece7f3eb3d063fa03ae0d4691d50f8
+U stephan
+Z e9ccb20e6c287ace0ea98514d7d65351
