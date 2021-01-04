@@ -352,12 +352,19 @@
         get: (k,dflt)=>F.storage.get(k,dflt),
         getBool: (k,dflt)=>F.storage.getBool(k,dflt),
         set: (k,v)=>F.storage.set(k,v),
+        /* Toggles the boolean setting specified by k. Returns the
+           new value.*/
+        toggle: function(k){
+          const v = this.getBool(k);
+          this.set(k, !v);
+          return !v;
+        },
         defaults:{
           "images-inline": !!F.config.chat.imagesInline,
           "edit-multiline": false,
           "monospace-messages": false,
           "chat-only-mode": false,
-          "audible-alert": true,
+          "audible-alert": true
         }
       },
       /** Plays a new-message notification sound IF the audible-alert
@@ -931,20 +938,16 @@
       label: "Images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),
       callback: function(){
-        const v = Chat.settings.getBool('images-inline',true);
-        Chat.settings.set('images-inline', !v);
-        F.toast.message("Image mode set to "+(v ? "hyperlink" : "inline")+".");
+        const v = Chat.settings.toggle('images-inline');
+        F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
       }
     },{
       label: "Audible alerts",
       boolValue: ()=>Chat.settings.getBool('audible-alert'),
       callback: function(){
-        const v = Chat.settings.getBool('audible-alert');
-        Chat.settings.set('audible-alert', !v);
-        if(!v){
-          setTimeout(()=>Chat.playNewMessageSound(), 50);
-        }
-        F.toast.message("Audio notifications "+(v ? "disabled" : "enabled")+".");
+        const v = Chat.settings.toggle('audible-alert');
+        if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
+        F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
       }
     }];
 
