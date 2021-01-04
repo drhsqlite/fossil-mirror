@@ -2511,7 +2511,7 @@ void artifact_page(void){
       blob_to_utf8_no_bom(&content, 0);
       if( zMime==0 ) zMime = mimetype_from_content(&content);
       @ <blockquote class="file-content">
-      if( zMime==0 ){
+      if( zMime==0 || strncmp(zMime, "text/", 5)==0 ){
         const char *z, *zFileName, *zExt;
         z = blob_str(&content);
         zFileName = db_text(0,

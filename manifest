@@ -1,5 +1,5 @@
-C Chat\sdocs:\sadded\snotes\sabout\sclient-side\smessage\sdeletion\sand\sclarified\shyperlink\sparsing\sa\sbit.
-D 2021-01-04T14:58:24.082
+C Fix\srendering\son\sthe\s/file\spage\sthat\scauses\stext\sfiles\sto\sbe\sreported\nas\sbinary.\s\sCaused\sby\scheck-in\s[6643d4a0c1aabb85].
+D 2021-01-04T15:18:00.644
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -517,7 +517,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c fa1a6c477bc6a7a6affb1817ffb67b6ca488b32521be6069b79236325e48e24c
-F src/info.c 2883632430eb279a7d0071f664c36ad0659cde46efe49184018587ef357dc917
+F src/info.c 0e4b6b07e9c8702e9b94adaf906f73f6587e713303360a0033313a69f873708c
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -991,7 +991,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e85b679d99619a0120a41f9b6b58475c7e31c8a696b1db200530dbb85b084279
-R f81707a27569fbad4acc73c185dad0a8
-U stephan
-Z 9579df1041d775fbd35919141a1cf91b
+P a6177fd43dbef3cef8194ff0eab827f0087bf807aba01f3d05d9ee4ab884faf8
+R 27254f6f7d7ea1d16d7a33a7e2ae2154
+U drh
+Z 6235b5b85626c60ad209d9194d04de1d
