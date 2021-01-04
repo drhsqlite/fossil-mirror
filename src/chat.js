@@ -825,7 +825,7 @@
     /* ^^^^ we don't really want/need the FORM element, but when
        FormData() is default-constructed here then the server
        segfaults, and i have no clue why! */;
-    const msg = this.inputValue();
+    const msg = this.inputValue().trim();
     if(msg) fd.set('msg',msg);
     const file = BlobXferState.blob || this.e.inputFile.files[0];
     if(file) fd.set("file", file);
