@@ -2537,6 +2537,7 @@ void artifact_page(void){
         @ <p><img src="%R/raw/%s(zUuid)?m=%s(zMime)"></p>
         style_submenu_element("Image", "%R/raw/%s?m=%s", zUuid, zMime);
       }else if( strncmp(zMime, "audio/", 6)==0 ){
+        @ <p>(file is %d(blob_size(&content)) bytes of sound data)</i></p>
         @ <audio controls src="%R/raw/%s(zUuid)?m=%s(zMime)">
         @ (Not supported by this browser)
         @ </audio>
