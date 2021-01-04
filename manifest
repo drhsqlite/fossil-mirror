@@ -1,5 +1,5 @@
-C chat:\sthe\s'New\smessage...'\stoast\snow\sincludes\sa\sbutton\swhich\sscrolls\sto\sthe\sbottom\sof\sthe\smessage\sarea.
-D 2021-01-04T14:15:38.660
+C Chat\sdocs:\sadded\snotes\sabout\sclient-side\smessage\sdeletion\sand\sclarified\shyperlink\sparsing\sa\sbit.
+D 2021-01-04T14:58:24.082
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -833,7 +833,7 @@ F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c82
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
 F www/changes.wiki 165bbeb53d7515e1a95604d33c5c4065b231e2675516502037af14620f4178ff
-F www/chat.md 689a66d726f13768d7223c8ac328dd5c25e3ee1a95a1a8e2e49a7599b1855991
+F www/chat.md 371f72a7aef66bb17866bf2308e47260c40254a8e4e2fe0bca20c272a227e245
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -991,7 +991,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b1d44f9ea713a6dd94c836502714165c9917a342102e25ebc7e7c970167b0692
-R 87454b7b429e84324b492c290a7086ff
+P e85b679d99619a0120a41f9b6b58475c7e31c8a696b1db200530dbb85b084279
+R f81707a27569fbad4acc73c185dad0a8
 U stephan
-Z 64a3d12cd623ac960003b58a7e495b59
+Z 9579df1041d775fbd35919141a1cf91b

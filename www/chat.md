@@ -72,11 +72,34 @@ the chat system does try to identify and tag hyperlinks, as follows:
 
   *  Text within `[...]` is parsed and it if is a valid hyperlink
      target (according to the way that [Fossil Wiki](/wiki_rules) or
-     [Markdown](/md_rules) understand hyperlinks) then that text
-     is tagged.
+     [Markdown](/md_rules) understand hyperlinks) then that text is
+     tagged. Note that only URLs and fossil-internal constructs such
+     as checkin hashes and wiki pages names are recognized here, not
+     constructs such as `[URL | label]` or `[label](URL)`.
 
 Apart from adding hyperlink anchor tags to bits of text that look
 like hyperlinks, no changes are made to the input text.
+
+Files may be sent via chat using the file selection element at the
+bottom of the page. If the desktop environment system supports it,
+files may be dragged and dropped onto that element. Files are not
+automatically sent - selection of a file can be cancelled using the
+Cancel button which appears only when a file is selected. When the
+Send button is pressed, any pending text is submitted along with the
+selected file. Image files sent this way will, by default, appear
+inline in messages but each user may toggle that via the settings
+popup menu, such that images instead appear as downloadable links.
+Non-image files always appear in messages as download links.
+
+### Deletion of Messages
+
+Any user may *locally* delete a given message by clicking on the "tab"
+at the top of the message and clicking the button which appears. Such
+deletions are local-only and the messages will reappear if the page
+page is reloaded. Admin users may additionally choose to globally
+delete a message from the chat record, which deletes it not only from
+their own browser but also propagates the removal to all connected
+clients the next time they poll for new messages.
 
 ## Implementation Details
 
