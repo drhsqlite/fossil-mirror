@@ -1,5 +1,5 @@
-C Removed\san\sunnecessary\slevel\sof\sif(...).
-D 2021-01-05T05:40:32.363
+C chat:\sfixed\sthe\s'may\suser\sdelete\sthis\smessage?'\scheck,\swhich\swas\scomparing\san\sincorrect\sproperty.\sCorrected\sresponse\shandling\sfor\sremote\sdeletion,\sbroken\sby\sAPI\schanges\smade\ssince\sit\swas\simplemented.
+D 2021-01-05T06:40:40.574
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -453,7 +453,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
 F src/chat.c fbffd7ac5b621e9df8aa7cc713abc76e6a15b72f392ba83b9f993c9605e22176
-F src/chat.js 9f6fb269ed8a98375c5f8acb27cdec27296ade47b2b2d06cd33fd51fd2f9a763
+F src/chat.js 3c9dfc3aab5d55454a7bf4ed2d8a7d1775bbbfc50da82d93836e506d9cd8625c
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -994,7 +994,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca0eabfdae551b982697eb6c7ea1ae0427460aa3afe87b3d7bfd96870f03fe35
-R 7259e0a9163735f225da0a6e770201f7
+P 2d329da18979aefa8042316977e153720e31b147f258155f713fbb586d9b9339
+R 3c747abdb30697c968b6641703599067
 U stephan
-Z 1cca046390866272efc925ad2e6ffb8f
+Z 706331e08849da682f2e034de139adef

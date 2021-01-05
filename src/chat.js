@@ -501,7 +501,7 @@
         cancelled after this page was loaded.
     */
     cs.userMayDelete = function(eMsg){
-      return eMsg.msgid>0
+      return +eMsg.dataset.msgid>0
         && (this.me === eMsg.dataset.xfrom
             || F.user.isAdmin/*will be confirmed server-side*/);
     };
@@ -541,8 +541,11 @@
       if(!(e instanceof HTMLElement)) return;
       if(this.userMayDelete(e)){
         this.ajaxStart();
-        fetch("chat-delete?name=" + id)
-          .then(this._fetchJsonOrError)
+        fetch("chat-delete/" + id)
+          .then(function(response){
+            if(!response.ok) throw cs._newResponseError(response);
+            return response;
+          })
           .then(()=>this.deleteMessageElem(e))
           .catch(err=>this.reportErrorAsMessage(err))
           .finally(()=>this.ajaxEnd());
