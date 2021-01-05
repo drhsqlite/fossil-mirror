@@ -1081,6 +1081,25 @@ void login_check_credentials(void){
     uid = login_basic_authentication(zIpAddr);
   }
 
+  /* Check for magic query parameters "resid" (for the username) and
+  ** "token" for the password.  Both values (if they exist) will be
+  ** obfuscated.
+  */
+  if( uid==0 ){
+    char *zUsr, *zPW;
+    if( (zUsr = unobscure(P("resid")))!=0
+     && (zPW = unobscure(P("token")))!=0
+    ){
+      char *zSha1Pw = sha1_shared_secret(zPW, zUsr, 0);
+      uid = db_int(0, "SELECT uid FROM user"
+                      " WHERE login=%Q"
+                      " AND (constant_time_cmp(pw,%Q)=0"
+                      "      OR constant_time_cmp(pw,%Q)=0)",
+                      zUsr, zSha1Pw, zPW);
+      fossil_free(zSha1Pw);
+    }
+  }
+
   /* If no user found yet, try to log in as "nobody" */
   if( uid==0 ){
     uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");

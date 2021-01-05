@@ -266,7 +266,7 @@ void chat_send_webpage(void){
     return;
   }
   chat_create_tables();
-  nByte = atoi(PD("file:bytes",0));
+  nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");
   db_begin_write();
   chat_purge();
@@ -679,41 +679,137 @@ void chat_audio_alert(void){
 /*
 ** COMMAND: chat
 **
-** Usage: %fossil chat
+** Usage: %fossil chat [SUBCOMMAND] [--remote URL] [ARGS...]
 **
-** Bring up a web-browser window to the chatroom of the default
-** remote Fossil repository.
+** This command performs actions associated with the /chat instance
+** on the default remote Fossil repository (the Fossil repository whose
+** URL shows when you run the "fossil remote" command) or to the URL
+** specified by the --remote option.  If there is no default remote
+** Fossil repository and the --remote option is omitted, then this
+** command fails with an error.
+**
+** When there is no SUBCOMMAND (when this command is simply "fossil chat")
+** the response is to bring up a web-browser window to the chatroom
+** on the default system web-browser.  You can accomplish the same by
+** typing the appropriate URL into the web-browser yourself.  This
+** command is merely a convenience for command-line oriented peope.
+**
+** The following subcommands are supported:
+**
+** > fossil chat send [ARGUMENTS]
+**
+**      This command sends a new message to the chatroom.  The message
+**      to be sent is determined by arguments as follows:
+**
+**        -m|--message TEXT      Text of the chat message
+**        -f|--file FILENAME     File to attach to the message
+**
+** Additional subcommands may be added in the future.
 */
 void chat_command(void){
-  const char *zUrl;
-  const char *zBrowser;
-  char *zCmd;
+  const char *zUrl = find_option("remote",0,1);
+  int urlFlags = 0;
+  int isDefaultUrl = 0;
+  int i;
+
   db_find_and_open_repository(0,0);
-  if( g.argc!=2 ){
-    usage("");
+  if( zUrl ){
+    urlFlags = URL_PROMPT_PW;
+  }else{
+    zUrl = db_get("last-sync-url",0);
+    if( zUrl==0 ){
+      fossil_fatal("no \"remote\" repository defined");
+    }else{
+      isDefaultUrl = 1;
+    }
   }
-  zUrl = db_get("last-sync-url",0);
-  if( zUrl==0 ){
-    fossil_fatal("no \"remote\" repository defined");
+  url_parse(zUrl, urlFlags);
+  if( g.url.isFile || g.url.isSsh ){
+    fossil_fatal("chat only works for http:// and https:// URLs");
   }
-  url_parse(zUrl, 0);
+  i = (int)strlen(g.url.path);
+  while( i>0 && g.url.path[i-1]=='/' ) i--;
   if( g.url.port==g.url.dfltPort ){
     zUrl = mprintf(
-      "%s://%T%T",
-      g.url.protocol, g.url.name, g.url.path
+      "%s://%T%.*T",
+      g.url.protocol, g.url.name, i, g.url.path
     );
   }else{
     zUrl = mprintf(
-      "%s://%T:%d%T",
-      g.url.protocol, g.url.name, g.url.port, g.url.path
+      "%s://%T:%d%.*T",
+      g.url.protocol, g.url.name, g.url.port, i, g.url.path
     );
   }
-  zBrowser = fossil_web_browser();
-  if( zBrowser==0 ) return;
+  if( g.argc==2 ){
+    const char *zBrowser = fossil_web_browser();
+    char *zCmd;
+    if( zBrowser==0 ) return;
 #ifdef _WIN32
-  zCmd = mprintf("%s %s/chat?cli &", zBrowser, zUrl);
+    zCmd = mprintf("%s %s/chat?cli &", zBrowser, zUrl);
 #else
-  zCmd = mprintf("%s \"%s/chat?cli\" &", zBrowser, zUrl);
+    zCmd = mprintf("%s \"%s/chat?cli\" &", zBrowser, zUrl);
 #endif
-  fossil_system(zCmd);
+    fossil_system(zCmd);
+  }else if( strcmp(g.argv[2],"send")==0 ){
+    const char *zFilename = find_option("file","r",1);
+    const char *zMsg = find_option("message","m",1);
+    const int mFlags = HTTP_GENERIC | HTTP_QUIET | HTTP_NOCOMPRESS;
+    int i;
+    const char *zPw;
+    Blob up, down, fcontent;
+    char zBoundary[80];
+    sqlite3_uint64 r[3];
+    if( zFilename==0 && zMsg==0 ){
+      fossil_fatal("must have --message or --file or both");
+    }
+    i = (int)strlen(g.url.path);
+    while( i>0 && g.url.path[i-1]=='/' ) i--;
+    g.url.path = mprintf("%.*s/chat-send", i, g.url.path);
+    blob_init(&up, 0, 0);
+    blob_init(&down, 0, 0);
+    sqlite3_randomness(sizeof(r),r);
+    sqlite3_snprintf(sizeof(zBoundary),zBoundary,
+                     "--------%016llu%016llu%016llu", r[0], r[1], r[2]);
+    blob_appendf(&up, "%s", zBoundary);
+    if( g.url.user && g.url.user[0] ){
+      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"resid\"\r\n"
+                       "\r\n%z\r\n%s", obscure(g.url.user), zBoundary);
+    }
+    zPw = g.url.passwd;
+    if( zPw==0 && isDefaultUrl ) zPw = unobscure(db_get("last-sync-pw", 0));
+    if( zPw && zPw[0] ){
+      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"token\"\r\n"
+                       "\r\n%z\r\n%s", obscure(zPw), zBoundary);
+    }
+    if( zMsg && zMsg[0] ){
+      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"msg\"\r\n"
+                       "\r\n%s\r\n%s", zMsg, zBoundary);
+    }
+    if( zFilename && blob_read_from_file(&fcontent, zFilename, ExtFILE)>0 ){
+      char *zFN = mprintf("%s", file_tail(zFilename));
+      int i;
+      const char *zMime = mimetype_from_name(zFilename);
+      for(i=0; zFN[i]; i++){
+        char c = zFN[i];
+        if( fossil_isalnum(c) ) continue;
+        if( c=='.' ) continue;
+        if( c=='-' ) continue;
+        zFN[i] = '_';
+      }
+      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"file\";"
+                       " filename=\"%s\"\r\n", zFN);
+      blob_appendf(&up,"Content-Type: %s\r\n\r\n", zMime);
+      blob_append(&up, fcontent.aData, fcontent.nUsed);
+      blob_appendf(&up,"\r\n%s", zBoundary);
+    }
+    blob_append(&up,"--\r\n", 4);
+    http_exchange(&up, &down, mFlags, 4, "multipart/form-data");
+    blob_reset(&up);
+    blob_reset(&down);
+  }else if( strcmp(g.argv[2],"url")==0 ){
+    /* Undocumented command.  Show the URL to access chat. */
+    fossil_print("%s/chat\n", zUrl);
+  }else{
+    fossil_fatal("no such subcommand \"%s\".  Use --help for help", g.argv[2]);
+  }
 }
