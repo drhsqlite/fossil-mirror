@@ -375,15 +375,29 @@
           setting is true, else this is a no-op. Returns this.
       */
       playNewMessageSound: function f(){
-        if(this.settings.getBool('audible-alert',false)){
+        if(f.uri){
           try{
-            if(!f.audio) f.audio = new Audio(F.rootPath+"chat-alert");
-            f.audio.currentTime = 0;
-            f.audio.play();
+            if(!f.audio) f.audio = new Audio(F.rootPath+f.uri);
+            if(f.audio){
+              f.audio.currentTime = 0;
+              f.audio.play();
+            }
           }catch(e){
             console.error("Audio playblack failed.",e);
           }
         }
+        return this;
+      },
+      /**
+         Sets the current new-message audio alert URI (must be a
+         repository-relative path which responds with an audio
+         file). Pass a falsy value to disable audio alerts. Returns
+         this. This setting is persistent.
+      */
+      setNewMessageSound: function f(uri){
+        delete this.playNewMessageSound.audio;
+        this.playNewMessageSound.uri = uri;
+        this.settings.set('audible-alert', uri || '');
         return this;
       }
     };
@@ -935,10 +949,6 @@
         document.body.classList.toggle('my-messages-right');
       }
     },{
-      label: "Message home/end buttons",
-      boolValue: ()=>!Chat.e.btnMsgHome.classList.contains('hidden'),
-      callback: ()=>Chat.toggleNavButtons()
-    },{
       label: "Images inline",
       boolValue: ()=>Chat.settings.getBool('images-inline'),
       callback: function(){
@@ -946,15 +956,36 @@
         F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
       }
     },{
-      label: "Audible alerts",
-      boolValue: ()=>Chat.settings.getBool('audible-alert'),
-      callback: function(){
-        const v = Chat.settings.toggle('audible-alert');
-        if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
-        F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-      }
+      label: "Message home/end buttons",
+      boolValue: ()=>!Chat.e.btnMsgHome.classList.contains('hidden'),
+      callback: ()=>Chat.toggleNavButtons()
     }];
 
+    /** Set up selection list of notification sounds. */
+    const selectSound = D.addClass(D.select(), 'menu-entry');
+    D.disable(D.option(selectSound, "0", "Audible alert..."));
+    D.option(selectSound, "", "(no audio)");
+    F.config.chat.alerts.forEach(function(a){
+      D.option(selectSound, a);
+    });
+    if(true===Chat.settings.getBool('audible-alert')){
+      selectSound.selectedIndex = 2/*first audio file in the list*/;
+    }else{
+      selectSound.value = Chat.settings.get('audible-alert','');
+      if(selectSound.selectedIndex<0){
+        /*Missing file - removed after this setting was applied. Fall back
+          to the first sound in the list. */
+        selectSound.selectedIndex = 2;
+      }
+    }
+    selectSound.addEventListener('change',function(){
+      const v = this.selectedIndex>1 ? this.value : '';
+      Chat.setNewMessageSound(v);
+      F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
+      if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
+      settingsPopup.hide();
+    }, false);
+    Chat.setNewMessageSound(selectSound.value);
     /**
        Rebuild the menu each time it's shown so that the toggles can
        show their current values.
@@ -980,15 +1011,23 @@
         D.append(settingsPopup.e, line);
         line.addEventListener('click', callback);
       });
+      D.append(settingsPopup.e, selectSound);
     };
-    settingsPopup.installHideHandlers(false, true, true)
+    settingsPopup.installHideHandlers(false, false, true)
     /** Reminder: click-to-hide interferes with "?" embedded within
         the popup, so cannot be used together with those. Enabling
         this means, however, that tapping the menu button to toggle
         the menu cannot work because tapping the menu button while the
         menu is opened will, because of the click-to-hide handler,
         hide the menu before the button gets an event saying to toggle
-        it.*/;
+        it.
+
+        Reminder: because we need a SELECT element for the audio file
+        selection (since that list can be arbitrarily long), we have
+        to disable tap-outside-the-popup-to-close-it via passing false
+        as the 2nd argument to installHideHandlers(). If we don't,
+        tapping on the select element is unreliable on desktop
+        browsers and doesn't seem to work at all on mobile. */;
     D.attr(settingsButton, 'role', 'button');
     settingsButton.addEventListener('click',function(ev){
       //ev.preventDefault();

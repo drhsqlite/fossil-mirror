@@ -187,6 +187,7 @@ set extra_files {
   style.*.css
   ../skins/*/*.txt
   sounds/*.wav
+  alerts/*.wav
 }
 
 # Options used to compile the included SQLite library.

@@ -42,6 +42,36 @@
 #include <assert.h>
 #include "chat.h"
 
+/*
+** Outputs JS code to initialize a list of chat alert audio files for
+** use by the chat front-end client. A handful of builtin files
+** (from alerts/\*.wav) and all unversioned files matching
+** alert-sounds/\*.{mp3,ogg,wav} are included.
+*/
+static void chat_emit_alert_list(void){
+  Stmt q = empty_Stmt;
+  unsigned int i;
+  const char * azBuiltins[] = {
+  "builtin/alerts/plunk.wav",
+  "builtin/alerts/b-flat.wav",
+  "builtin/alerts/g-minor-triad.wav"
+  };
+  CX("window.fossil.config.chat.alerts = [\n");
+  for(i=0; i < sizeof(azBuiltins)/sizeof(azBuiltins[0]); ++i){
+    CX("%s%!j", i ? ", " : "", azBuiltins[i]);
+  }
+  db_prepare(&q, "SELECT 'uv/'||name FROM unversioned "
+             "WHERE content IS NOT NULL "
+             "AND (name LIKE 'alert-sounds/%%.wav' "
+             "OR name LIKE 'alert-sounds/%%.mp3' "
+             "OR name LIKE 'alert-sounds/%%.ogg')");
+  while(SQLITE_ROW==db_step(&q)){
+    CX(", %!j", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+  CX("\n].sort();\n");
+}
+
 /* Settings that can be used to control chat */
 /*
 ** SETTING: chat-initial-history    width=10 default=50
@@ -155,6 +185,7 @@ void chat_webpage(void){
   @   initSize: %d(db_get_int("chat-initial-history",50)),
   @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
   @ };
+  chat_emit_alert_list();
   cgi_append_content(builtin_text("chat.js"),-1);
   @ }, false);
   @ </script>

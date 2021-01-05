@@ -1642,6 +1642,18 @@ body.chat .chat-settings-popup > span.menu-entry > span.button {
 body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
   cursor: inherit;
 }
+body.chat .chat-settings-popup > select.menu-entry {
+  flex: 1 1 auto;
+  padding: 0;
+  cursor: pointer;
+  min-height: 2.5em;
+  border-radius: 0.25em;
+}
+body.chat .chat-settings-popup > select.menu-entry > option {
+  /*Recall that many browsers don't allow styling of OPTION
+    elements, or allow only very limited styling.*/
+}
+
 /** Container for the list of /chat messages. */
 body.chat #chat-messages-wrapper {
   overflow: auto;

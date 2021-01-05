@@ -555,6 +555,9 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\xekri\footer.txt" \
         "$(SRCDIR)\..\skins\xekri\header.txt" \
         "$(SRCDIR)\accordion.js" \
+        "$(SRCDIR)\alerts\b-flat.wav" \
+        "$(SRCDIR)\alerts\g-minor-triad.wav" \
+        "$(SRCDIR)\alerts\plunk.wav" \
         "$(SRCDIR)\chat.js" \
         "$(SRCDIR)\ci_edit.js" \
         "$(SRCDIR)\copybtn.js" \
@@ -601,7 +604,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\sounds\d.wav" \
         "$(SRCDIR)\sounds\e.wav" \
         "$(SRCDIR)\sounds\f.wav" \
-        "$(SRCDIR)\sounds\plunk.wav" \
         "$(SRCDIR)\style.admin_log.css" \
         "$(SRCDIR)\style.fileedit.css" \
         "$(SRCDIR)\style.wikiedit.css" \
@@ -1165,6 +1167,9 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/xekri/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/header.txt" >> $@
 	echo "$(SRCDIR)\accordion.js" >> $@
+	echo "$(SRCDIR)\alerts/b-flat.wav" >> $@
+	echo "$(SRCDIR)\alerts/g-minor-triad.wav" >> $@
+	echo "$(SRCDIR)\alerts/plunk.wav" >> $@
 	echo "$(SRCDIR)\chat.js" >> $@
 	echo "$(SRCDIR)\ci_edit.js" >> $@
 	echo "$(SRCDIR)\copybtn.js" >> $@
@@ -1211,7 +1216,6 @@ realclean: clean
 	echo "$(SRCDIR)\sounds/d.wav" >> $@
 	echo "$(SRCDIR)\sounds/e.wav" >> $@
 	echo "$(SRCDIR)\sounds/f.wav" >> $@
-	echo "$(SRCDIR)\sounds/plunk.wav" >> $@
 	echo "$(SRCDIR)\style.admin_log.css" >> $@
 	echo "$(SRCDIR)\style.fileedit.css" >> $@
 	echo "$(SRCDIR)\style.wikiedit.css" >> $@

@@ -101,6 +101,30 @@ delete a message from the chat record, which deletes it not only from
 their own browser but also propagates the removal to all connected
 clients the next time they poll for new messages.
 
+### Audible Notifications
+
+On platforms which support it, chat can optionally play an audio file
+when a new message arrives from any user other than oneself. The sound
+can be selected or disabled via the settings menu. The list of sounds
+includes a small selection of sounds built in to the fossil binary and
+new sound files may be added to a repository as unversioned content:
+when the chat page is loaded, it includes a list of all unversioned
+files named `alert-sounds/*.XYZ`, where `XYZ` is one of (`wav`, `mp3`,
+`ogg`) case-insensitive.
+
+For example, a Unix-style shell command like the following would
+install all WAV files in a local directory to the list:
+
+```
+for i in *.wav; do fossil uv add "$i" --as "alert-sounds/$i"; done
+```
+
+The list of sound files is sorted client-side for display in the
+selection list. The user's selection of audio file is persistent in
+a given browser, but if the file is subsequently removed from the
+server then the next time the chat page is reloaded the sound will
+fall back to the first one in the selection list.
+
 ## Implementation Details
 
 *You do not need to understand how Fossil chat works in order to use it.

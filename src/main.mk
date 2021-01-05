@@ -222,6 +222,9 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/accordion.js \
+  $(SRCDIR)/alerts/b-flat.wav \
+  $(SRCDIR)/alerts/g-minor-triad.wav \
+  $(SRCDIR)/alerts/plunk.wav \
   $(SRCDIR)/chat.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
@@ -268,7 +271,6 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/d.wav \
   $(SRCDIR)/sounds/e.wav \
   $(SRCDIR)/sounds/f.wav \
-  $(SRCDIR)/sounds/plunk.wav \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.fileedit.css \
   $(SRCDIR)/style.wikiedit.css \
