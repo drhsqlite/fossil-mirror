@@ -378,10 +378,8 @@
         if(f.uri){
           try{
             if(!f.audio) f.audio = new Audio(F.rootPath+f.uri);
-            if(f.audio){
-              f.audio.currentTime = 0;
-              f.audio.play();
-            }
+            f.audio.currentTime = 0;
+            f.audio.play();
           }catch(e){
             console.error("Audio playblack failed.",e);
           }
