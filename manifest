@@ -1,5 +1,5 @@
-C chat:\sfixed\sthe\s'may\suser\sdelete\sthis\smessage?'\scheck,\swhich\swas\scomparing\san\sincorrect\sproperty.\sCorrected\sresponse\shandling\sfor\sremote\sdeletion,\sbroken\sby\sAPI\schanges\smade\ssince\sit\swas\simplemented.
-D 2021-01-05T06:40:40.574
+C chat:\sswitched\sback\sto\sbinary\snotification\ssound\son/off,\swithout\ssound\sfile\sselection,\sper\schatroom\sdiscussion.\sThe\sthe\sfile\sselection\sbits\sare\ssimply\sif'd\sout.\sRemoved\salerts/g-minor-triad.wav\sper\srequest.
+D 2021-01-05T12:49:11.027
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -434,7 +434,6 @@ F src/add.c 9e534b3ba7b639756417fa40c8273a24b0a849e4c8ad0077c937c7824d437e82
 F src/ajax.c 1e403cdfe1f046a851b98dd00250359e253c06180794035c074061545b56ee34
 F src/alerts.c 73d98587f2176931afbd98ecf66c34d982436d7bd0ab3ec4281af0ec254f9c7e
 F src/alerts/b-flat.wav 784406e0e2ee5992151a0f639dded4170f6a179eb97a6f4093ff9d76a9165608
-F src/alerts/g-minor-triad.wav 09fba3dc1056ca5f82403a3adc24adc48c03a63b02145624c5c61280bce2e3df
 F src/alerts/mkwav.c e65a8bd89c71692d3e099affca3c2003f9ac96b12d6cbfad219ce21721f75b22
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 9404ed2458e3115c439f9e8c489692aa1f66b67b2e403688b4e4fab8150b62a2
@@ -453,7 +452,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
 F src/chat.c fbffd7ac5b621e9df8aa7cc713abc76e6a15b72f392ba83b9f993c9605e22176
-F src/chat.js 3c9dfc3aab5d55454a7bf4ed2d8a7d1775bbbfc50da82d93836e506d9cd8625c
+F src/chat.js a0c321a939d582f805b6f0a84a845a6a2a62edb345651a48e3c9d26c08564cea
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -547,7 +546,7 @@ F src/login.c 71bf3f7634e786c0d7889b3487eb4cfe1d627ae02169e425f8ced4981c744628
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
 F src/main.c 389cee541bf7c11a0c700ec1faf2ef4d76d98401a7ccb0b2515e4ccb9dd8c848
-F src/main.mk ca95a0a2ac0a3eaff4c1ceaf5f0ab7829e403a834bc493c4238afd2d9ffbcd2f
+F src/main.mk 45e033eccb7c6b2cdc90034a5087a43442d04f3dbdfa404539d1acebfc3e61ba
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 77e6e4b3872c8105455423de0db499086d9750a50dbb30908240825ff6cf0055 x
@@ -799,9 +798,9 @@ F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba 
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc 95ff1c13f8a6b4f51c107c2601b67d5c046a86ae1c68dd05f6e1a2e9b66856c5
-F win/Makefile.mingw 6077ee04e7d86ce0dc9317066391bb584350bf2015cb29122ea60c7c98d850c7
+F win/Makefile.mingw b3a696b938b62e20035ec0f886fe33bc8311dc9316dff4d396770b6471ed7607
 F win/Makefile.mingw.mistachkin 9cea9d49c8cde167a1973862e22177f81b7ac4e47ba46c78e22020034842caf9
-F win/Makefile.msc 4dd913a15df1516b7368819683e8b287d579841928e109dbbe600eba0629c5b8
+F win/Makefile.msc a468c2249b67dcf7fbca167d8ad45c24faeb525bb854381296ba866fabae8c04
 F win/buildmsvc.bat 401f6d57cd024c5484fccf3ed07bd2f1d8bfd20b7487fe7f0282b335ac9f9b5b x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -994,7 +993,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d329da18979aefa8042316977e153720e31b147f258155f713fbb586d9b9339
-R 3c747abdb30697c968b6641703599067
+P 0fffa63bbdc8f89d6bc383c8f40f9db3a55d270742e3d4ad8866940e91584b74
+R 14169692bfad0d85fc99d094aadd75fe
 U stephan
-Z 706331e08849da682f2e034de139adef
+Z 24226bc1b072854cf38638c2097ff922

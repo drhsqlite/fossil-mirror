@@ -395,7 +395,7 @@
       setNewMessageSound: function f(uri){
         delete this.playNewMessageSound.audio;
         this.playNewMessageSound.uri = uri;
-        this.settings.set('audible-alert', uri || '');
+        this.settings.set('audible-alert', !!uri);
         return this;
       }
     };
@@ -963,30 +963,45 @@
     }];
 
     /** Set up selection list of notification sounds. */
-    const selectSound = D.addClass(D.select(), 'menu-entry');
-    D.disable(D.option(selectSound, "0", "Audible alert..."));
-    D.option(selectSound, "", "(no audio)");
-    F.config.chat.alerts.forEach(function(a){
-      D.option(selectSound, a);
-    });
-    if(true===Chat.settings.getBool('audible-alert')){
-      selectSound.selectedIndex = 2/*first audio file in the list*/;
+    if(true/*flip this to false to enable selection of audio files*/){
+      settingsOps.push({
+        label: "Audible alerts",
+        boolValue: ()=>Chat.settings.getBool('audible-alert'),
+        callback: function(){
+          const v = Chat.settings.toggle('audible-alert');
+          Chat.setNewMessageSound(v ? 'builtin/alerts/plunk.wav' : false);
+          if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
+          F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
+        }
+      });
     }else{
-      selectSound.value = Chat.settings.get('audible-alert','');
-      if(selectSound.selectedIndex<0){
-        /*Missing file - removed after this setting was applied. Fall back
-          to the first sound in the list. */
-        selectSound.selectedIndex = 2;
+      /* Disabled per chatroom discussion: selection list of audio files for
+         chat notification. */
+      const selectSound = settingsOps.selectSound = D.addClass(D.select(), 'menu-entry');
+      D.disable(D.option(selectSound, "0", "Audible alert..."));
+      D.option(selectSound, "", "(no audio)");
+      F.config.chat.alerts.forEach(function(a){
+        D.option(selectSound, a);
+      });
+      if(true===Chat.settings.getBool('audible-alert')){
+        selectSound.selectedIndex = 2/*first audio file in the list*/;
+      }else{
+        selectSound.value = Chat.settings.get('audible-alert','');
+        if(selectSound.selectedIndex<0){
+          /*Missing file - removed after this setting was applied. Fall back
+            to the first sound in the list. */
+          selectSound.selectedIndex = 2;
+        }
       }
-    }
-    selectSound.addEventListener('change',function(){
-      const v = this.selectedIndex>1 ? this.value : '';
-      Chat.setNewMessageSound(v);
-      F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
-      if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
-      settingsPopup.hide();
-    }, false);
-    Chat.setNewMessageSound(selectSound.value);
+      selectSound.addEventListener('change',function(){
+        const v = this.selectedIndex>1 ? this.value : '';
+        Chat.setNewMessageSound(v);
+        F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
+        if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
+        settingsPopup.hide();
+      }, false);
+      Chat.setNewMessageSound(selectSound.value);
+    }/*audio notification config*/
     /**
        Rebuild the menu each time it's shown so that the toggles can
        show their current values.
@@ -1012,9 +1027,13 @@
         D.append(settingsPopup.e, line);
         line.addEventListener('click', callback);
       });
-      D.append(settingsPopup.e, selectSound);
+      if(settingsOps.selectSound){
+        D.append(settingsPopup.e, settingsOps.selectSound);
+      }
     };
-    settingsPopup.installHideHandlers(false, false, true)
+    settingsPopup.installHideHandlers(
+      false, settingsOps.selectSound ? false : true,
+      true)
     /** Reminder: click-to-hide interferes with "?" embedded within
         the popup, so cannot be used together with those. Enabling
         this means, however, that tapping the menu button to toggle

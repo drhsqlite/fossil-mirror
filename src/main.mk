@@ -223,7 +223,6 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/accordion.js \
   $(SRCDIR)/alerts/b-flat.wav \
-  $(SRCDIR)/alerts/g-minor-triad.wav \
   $(SRCDIR)/alerts/plunk.wav \
   $(SRCDIR)/chat.js \
   $(SRCDIR)/ci_edit.js \

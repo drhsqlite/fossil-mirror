@@ -556,7 +556,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\xekri\header.txt" \
         "$(SRCDIR)\accordion.js" \
         "$(SRCDIR)\alerts\b-flat.wav" \
-        "$(SRCDIR)\alerts\g-minor-triad.wav" \
         "$(SRCDIR)\alerts\plunk.wav" \
         "$(SRCDIR)\chat.js" \
         "$(SRCDIR)\ci_edit.js" \
@@ -1168,7 +1167,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/xekri/header.txt" >> $@
 	echo "$(SRCDIR)\accordion.js" >> $@
 	echo "$(SRCDIR)\alerts/b-flat.wav" >> $@
-	echo "$(SRCDIR)\alerts/g-minor-triad.wav" >> $@
 	echo "$(SRCDIR)\alerts/plunk.wav" >> $@
 	echo "$(SRCDIR)\chat.js" >> $@
 	echo "$(SRCDIR)\ci_edit.js" >> $@
