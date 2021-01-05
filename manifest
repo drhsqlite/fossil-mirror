@@ -1,5 +1,5 @@
-C On\sthe\s/Admin/Chat\spage,\splay\sthe\snew\salert\ssound\sas\sit\sis\sselected.
-D 2021-01-05T20:24:23.882
+C Attempt\sto\sadd\sthe\s--mainbranch\soption\sto\sthe\s"fossil\sgit\sexport"\scommand.\nThis\sdoes\snot\sappear\sto\sbe\sworking.\s\sNeed\sadvice\sfrom\sa\sGit\sexpert.
+D 2021-01-05T23:47:47.692
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -484,7 +484,7 @@ F src/doc.c b6f05cba72e50b9ed00bc7656abf0bc4185ad80719196f691d78cfce34f8258b
 F src/encode.c d18d44e72c6e3361d0fd3242042980aa37d3d1ae7d774e68d3351eb144bd2238
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 5faaf46b539770aac4b8d7687cd4b9dda7c9124e35e6294f1a675f9256d4dc93
-F src/export.c c26a485351c0bcd0fc0704ba68704c20483399fe41d6a687e3aca63af9b0e5c1
+F src/export.c f8eb7c18b2c535bac9b11a1a9bc4b31231aa0c4e6a54b591186a233cc7fff0b1
 F src/extcgi.c dbf6e7b9d9bd691f2f108a84fbef6e028b6cc3eb8c825442d8d8c633a75936b7
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c b01622930128372313e8ffbc5924388e5e0dad0aa7bd647999e3f1f6821f912e
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 21a870d02d853ab09968d14321822c9541663e824fecd4814be166c52f960a50
-R 13792d86cc91bfc800d8a2ea5e1045cf
+P baa40a00e862db8a2321b82f4babc4aa20047f72aae80ee3c6274a330b7d7b2a
+R 7e2d202bfe93ef4f0f492878df70b4cb
 U drh
-Z 1eeabc3bf1ab6b23b975ed3c06ac574f
+Z 3941b8094c249ae0f06ec2ed8249e12a

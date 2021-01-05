@@ -864,6 +864,11 @@ void test_topological_sort(void){
 #define VERB_EXTRA  3
 static int gitmirror_verbosity = VERB_NORMAL;
 
+/* The main branch in the Git repository.  The "trunk" branch of
+** Fossil is renamed to be this branch name.
+*/
+static const char *gitmirror_mainbranch = "master";
+
 /*
 ** Output routine that depends on verbosity
 */
@@ -1151,7 +1156,7 @@ static int gitmirror_send_checkin(
   );
   if( fossil_strcmp(zBranch,"trunk")==0 ){
     fossil_free(zBranch);
-    zBranch = mprintf("master");
+    zBranch = mprintf("%s",gitmirror_mainbranch);
   }else if( zBranch==0 ){
     zBranch = mprintf("unknown");
   }else{
@@ -1296,6 +1301,7 @@ void gitmirror_export_command(void){
   char *zCmd;                     /* git command to run as a subprocess */
   const char *zDebug = 0;         /* Value of the --debug flag */
   const char *zAutoPush = 0;      /* Value of the --autopush flag */
+  const char *zMainBr = 0;        /* Value of the --mainbranch flag */
   char *zPushUrl;                 /* URL to sync the mirror to */
   double rEnd;                    /* time of most recent export */
   int rc;                         /* Result code */
@@ -1316,6 +1322,7 @@ void gitmirror_export_command(void){
     if( nLimit<=0 ) fossil_fatal("--limit must be positive");
   }
   zAutoPush = find_option("autopush",0,1);
+  zMainBr = find_option("mainbranch",0,1);
   bForce = find_option("force","f",0)!=0;
   bIfExists = find_option("if-mirrored",0,0)!=0;
   gitmirror_verbosity = VERB_NORMAL;
@@ -1406,6 +1413,15 @@ void gitmirror_export_command(void){
          zAutoPush
       );
     }
+  }
+
+  /* Change the mainbranch setting if the --mainbranch flag is present */
+  if( zMainBr && zMainBr[0] ){
+    db_multi_exec(
+       "REPLACE INTO mirror.mconfig(key,value)"
+       "VALUES('mainbranch',%Q)",
+       zMainBr
+    );
   }
 
   /* See if there is any work to be done.  Exit early if not, before starting
@@ -1522,6 +1538,10 @@ void gitmirror_export_command(void){
     "CREATE INDEX IF NOT EXISTS mirror.mmarkx1 ON mmark(githash);"
   );
 
+  /* Recover the saved name of the main branch */
+  gitmirror_mainbranch = db_text("master",
+                "SELECT value FROM mconfig WHERE key='mainbranch'");
+
   /* Do any tags that have been created since the start time */
   db_prepare(&q,
     "SELECT substr(tagname,5), githash"
@@ -1571,7 +1591,7 @@ void gitmirror_export_command(void){
     char *zRefCmd;
     if( fossil_strcmp(zBrname,"trunk")==0 ){
       fossil_free(zBrname);
-      zBrname = fossil_strdup("master");
+      zBrname = fossil_strdup(gitmirror_mainbranch);
     }else{
       gitmirror_sanitize_name(zBrname);
     }
@@ -1653,6 +1673,7 @@ void gitmirror_status_command(void){
     UrlData url;
     url_parse_local(z, 0, &url);
     fossil_print("Autopush:    %s\n", url.canonical);
+    fossil_free(z);
   }
   n = db_int(0,
     "SELECT count(*) FROM event"
@@ -1660,6 +1681,8 @@ void gitmirror_status_command(void){
     "   AND mtime>coalesce((SELECT value FROM mconfig"
                           "  WHERE key='start'),0.0)"
   );
+  z = db_text("master", "SELECT value FROM mconfig WHERE key='mainbranch'");
+  fossil_print("Main-Branch: %s\n",z);
   if( n==0 ){
     fossil_print("Status:      up-to-date\n");
   }else{
@@ -1708,6 +1731,10 @@ void gitmirror_status_command(void){
 **         --if-mirrored       No-op if the mirror does not already exist.
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
+**         --mainbranch NAME   Use NAME as the name of the main branch in Git.
+**                             The "trunk" branch of the Fossil repository is
+**                             mapped into this name.  "master" is used if
+**                             this option is omitted.
 **         --quiet|-q          Reduce output. Repeat for even less output.
 **         --verbose|-v        More output.
 **
