@@ -1131,6 +1131,8 @@ void setup_chat(void){
   static const char *const azAlerts[] = {
     "alerts/plunk.wav",  "Plunk",
     "alerts/bflat3.wav", "Tone-1",
+    "alerts/bflat2.wav", "Tone-2",
+    "alerts/bloop.wav",  "Bloop",
   };
 
   login_check_credentials();

@@ -61,15 +61,24 @@ int main(int argc, char **argv){
 # define pitch1 195.9977*2   /* G */
 # define pitch2 233.0819*2   /* B-flat */
 # define pitch3 293.6648*2   /* D */
+  while( i<N/2 ){
+    double v;
+    v = 99.0*sin((2*M_PI*pitch3*i)/8000);
+    if( i<200 ){
+      v = v*i/200.0;
+    }else if( i>N-200 ){
+      v = v*(N-i)/200.0;
+    }
+    aBuf[i] = (char)(v+99.0);
+    i++;
+  }
   while( i<N ){
     double v;
-    v = 33.0*sin((2*M_PI*pitch1*i)/8000);
-    v += 33.0*sin((2*M_PI*pitch2*i)/8000);
-    v += 33.0*sin((2*M_PI*pitch3*i)/8000);
-    if( i<100 ){
-      v = v*i/100.0;
-    }else if( i>N-100 ){
-      v = v*(N-i)/100.0;
+    v = 99.0*sin((2*M_PI*pitch1*i)/8000);
+    if( i<200 ){
+      v = v*i/200.0;
+    }else if( i>N-200 ){
+      v = v*(N-i)/200.0;
     }
     aBuf[i] = (char)(v+99.0);
     i++;

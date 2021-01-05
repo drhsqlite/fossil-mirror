@@ -222,7 +222,9 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/accordion.js \
+  $(SRCDIR)/alerts/bflat2.wav \
   $(SRCDIR)/alerts/bflat3.wav \
+  $(SRCDIR)/alerts/bloop.wav \
   $(SRCDIR)/alerts/plunk.wav \
   $(SRCDIR)/chat.js \
   $(SRCDIR)/ci_edit.js \

@@ -715,6 +715,7 @@ void chat_audio_alert(void){
   int n = 0;
   const char *zName = db_get("chat-alert-sound", "alerts/plunk.wav");
   const char *zAudio = (const char*)builtin_file(zName, &n);
+fprintf(stderr, "ALERT: %s (%d)\n", zName, n);
   blob_init(&audio, zAudio, n);
   cgi_set_content_type("audio/wav");
   cgi_set_content(&audio);  
