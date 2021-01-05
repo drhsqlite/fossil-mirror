@@ -1,5 +1,5 @@
-C Moved\schat\saudio\snotification\sfiles\sto\ssrc/alerts,\sper\schatroom\sdiscussion.\sChat\saudio\sis\snow\sconfigurable\susing\sa\sselection\sof\sbuiltin\sWAV\sfiles\sand\saudio\sfiles\sstored\sin\s/uv/alert-sounds/*.XYZ\s(==ogg,\swav,\smp3).\sThe\saddition\sof\sa\sselection\slist\smeans\sthat\sclosing\sthe\schat\ssettings\spopup\snow\srequires\stapping\seither\sa\spopup\sentry\sor\sthe\ssettings\sbutton\s-\stapping\sin\sthe\spage\sbody\swon't\sdo\sit\sbecause\sthat\shandling\scollides\swith\sthe\sselection\slist\sevent\shandling.
-D 2021-01-05T05:19:21.844
+C Changed\sa\slink\sfrom\srelative\sto\sabsolute\sto\sresolve\sbroken\slink\sreport\sfrom\s[https://fossil-scm.org/forum/forumpost/f428a9a9ce\s|\s/forumpost/f428a9a9ce].
+D 2021-01-05T05:26:25.466
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -433,10 +433,10 @@ F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a
 F src/add.c 9e534b3ba7b639756417fa40c8273a24b0a849e4c8ad0077c937c7824d437e82
 F src/ajax.c 1e403cdfe1f046a851b98dd00250359e253c06180794035c074061545b56ee34
 F src/alerts.c 73d98587f2176931afbd98ecf66c34d982436d7bd0ab3ec4281af0ec254f9c7e
-F src/alerts/b-flat.wav 784406e0e2ee5992151a0f639dded4170f6a179eb97a6f4093ff9d76a9165608 w src/sounds/b-flat.wav
-F src/alerts/g-minor-triad.wav 09fba3dc1056ca5f82403a3adc24adc48c03a63b02145624c5c61280bce2e3df w src/sounds/g-minor-triad.wav
-F src/alerts/mkwav.c e65a8bd89c71692d3e099affca3c2003f9ac96b12d6cbfad219ce21721f75b22 w src/sounds/mkwav.c
-F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4 w src/sounds/plunk.wav
+F src/alerts/b-flat.wav 784406e0e2ee5992151a0f639dded4170f6a179eb97a6f4093ff9d76a9165608
+F src/alerts/g-minor-triad.wav 09fba3dc1056ca5f82403a3adc24adc48c03a63b02145624c5c61280bce2e3df
+F src/alerts/mkwav.c e65a8bd89c71692d3e099affca3c2003f9ac96b12d6cbfad219ce21721f75b22
+F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 9404ed2458e3115c439f9e8c489692aa1f66b67b2e403688b4e4fab8150b62a2
 F src/attach.c 8ed9173b64b9751609ac2e78d608b7b1c473a072d5b1e1be2b1bc20ad0361796
 F src/backlink.c 2178b2d4a5c918c9b7f13e15a4d86119d32d0a74253d20b9b23530a7cc572487
@@ -607,7 +607,7 @@ F src/sounds/6.wav 3b34177bd4bcc27a2e10e6067a8f6f9d16003e7188e2e44195ce8a4d6cc7f
 F src/sounds/7.wav 58423131aa56eff8cfc264d76e8623e5cf2a6411edc68102dc054eeb1f458135
 F src/sounds/8.wav 22a0e636d285da4e007c4ebaee190074711822d2cb147dc744b0672a0c202334
 F src/sounds/9.wav f94d5d78c3997d36b868aa536aff45e6ba910c501dbeefab3ca06ef5c141fb46
-F src/sounds/README.md 09cb60135bc9d984bd7f78a818a605436a7fe6e763e2cc2b4a6396dc63a5cb11
+F src/sounds/README.md edb01d8aa57d67307bea721ca2600a3eeeec1e60c6d76c2278ba087902bd29d3
 F src/sounds/a.wav d55665f17df63f03fa375797be52c59adb48129a6885df7a4a348646782f0201
 F src/sounds/b.wav 93e876209212000e243beb47739d894d2ce1a44c286583cbde6b6f837f653313
 F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df37d0
@@ -994,7 +994,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be93625468b03cd43075c904913c58a1af540e8bbed0733ab84b54681c8da4ef
-R 5038950b4e8080e6cde737285b974f7c
+P 4c34053c587cb375c0c74c8f34225b7fa64014b0fa67d72c8f3b2165e3ed3631
+R 59d5407202dbdd08a9b416d3eb352234
 U stephan
-Z 1923a80965f2290736a1a0eaa5eef711
+Z a44a2c3b35bc02dac9c160f2f144d160
