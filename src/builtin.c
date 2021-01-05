@@ -181,12 +181,13 @@ static void builtin_deliver_multiple_js_files(
 void builtin_webpage(void){
   Blob out;
   const char *zName = P("name");
-  const char *zTxt = 0;
+  const char *zContent = 0;
+  int nContent = 0;
   const char *zId = P("id");
   const char *zType = P("mimetype");
   int nId;
-  if( zName ) zTxt = builtin_text(zName);
-  if( zTxt==0 ){
+  if( zName ) zContent = (const char *)builtin_file(zName, &nContent);
+  if( zContent==0 ){
     const char *zM = P("m");
     if( zM ){
       if( zId && (nId = (int)strlen(zId))>=8
@@ -217,7 +218,7 @@ void builtin_webpage(void){
     g.isConst = 1;
   }
   etag_check(0,0);
-  blob_init(&out, zTxt, -1);
+  blob_init(&out, zContent, nContent);
   cgi_set_content(&out);
 }
 
