@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sway\sthat\sthe\schat\salert\ssound\sis\sconfigured.\nRemove\sthe\s/chat-alert\swebpage.\s\sAccess\sthe\ssound\sfiles\sdirectly\nusing\s/builtin.
-D 2021-01-05T20:07:40.797
+C On\sthe\s/Admin/Chat\spage,\splay\sthe\snew\salert\ssound\sas\sit\sis\sselected.
+D 2021-01-05T20:24:23.882
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -586,7 +586,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 2921a1f8a7f86444d640b2a086de264bca5b5ce4df4e1f80662f638422537a16
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
-F src/setup.c d3cd6dddcc638e4ba993ba9c25daba3e2e9db19d4266eb7260dae2255a4b1270
+F src/setup.c 2d5feba94f6f6d501821f14c329129697aa48344634ae34983b6ec50768e1b53
 F src/setupuser.c cff08bafee6e711ed0011dd2ac284c672ae35e1f4772516881ebfe8040559c64
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42efc6295186af294bf83956660b16a5154fb2bfabed1967f031596ec19bf2ff
-R 79aecbf986e531b07a7e60c7c8e2a44f
+P 21a870d02d853ab09968d14321822c9541663e824fecd4814be166c52f960a50
+R 13792d86cc91bfc800d8a2ea5e1045cf
 U drh
-Z 4a63526a379d7e13f9a4833816d00e5b
+Z 1eeabc3bf1ab6b23b975ed3c06ac574f

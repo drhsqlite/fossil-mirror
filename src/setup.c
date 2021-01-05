@@ -1192,6 +1192,16 @@ void setup_chat(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
+  @ <script nonce="%h(style_nonce())">
+  @ (function(){
+  @   var w = document.getElementById('idsnd');
+  @   w.onchange = function(){
+  @     var audio = new Audio('%s(g.zBaseURL)/builtin/' + w.value);
+  @     audio.currentTime = 0;
+  @     audio.play();
+  @   }
+  @ })();
+  @ </script>
   style_finish_page();
 }
 
