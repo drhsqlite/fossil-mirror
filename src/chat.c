@@ -759,6 +759,7 @@ void chat_command(void){
     const int mFlags = HTTP_GENERIC | HTTP_QUIET | HTTP_NOCOMPRESS;
     int i;
     const char *zPw;
+    char *zLMTime;
     Blob up, down, fcontent;
     char zBoundary[80];
     sqlite3_uint64 r[3];
@@ -781,6 +782,12 @@ void chat_command(void){
     sqlite3_snprintf(sizeof(zBoundary),zBoundary,
                      "--------%016llu%016llu%016llu", r[0], r[1], r[2]);
     blob_appendf(&up, "%s", zBoundary);
+    zLMTime = db_text(0,
+              "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S','now','localtime')");
+    if( zLMTime ){
+      blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"lmtime\"\r\n"
+                       "\r\n%z\r\n%s", zLMTime, zBoundary);
+    }
     if( g.url.user && g.url.user[0] ){
       blob_appendf(&up,"\r\nContent-Disposition: form-data; name=\"resid\"\r\n"
                        "\r\n%z\r\n%s", obscure(g.url.user), zBoundary);
