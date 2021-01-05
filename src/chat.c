@@ -743,6 +743,7 @@ void chat_command(void){
   if( g.argc==2 ){
     const char *zBrowser = fossil_web_browser();
     char *zCmd;
+    verify_all_options();
     if( zBrowser==0 ) return;
 #ifdef _WIN32
     zCmd = mprintf("%s %s/chat?cli &", zBrowser, zUrl);
@@ -762,6 +763,7 @@ void chat_command(void){
     if( zFilename==0 && zMsg==0 ){
       fossil_fatal("must have --message or --file or both");
     }
+    verify_all_options();
     i = (int)strlen(g.url.path);
     while( i>0 && g.url.path[i-1]=='/' ) i--;
     g.url.path = mprintf("%.*s/chat-send", i, g.url.path);
