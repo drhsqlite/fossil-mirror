@@ -769,6 +769,9 @@ void chat_command(void){
       fossil_fatal("URL \"%s\" is unencrypted. Use https:// instead", zUrl);
     }
     verify_all_options();
+    if( g.argc>3 ){
+      fossil_fatal("unknown extra argument: \"%s\"", g.argv[3]);
+    }
     i = (int)strlen(g.url.path);
     while( i>0 && g.url.path[i-1]=='/' ) i--;
     g.url.path = mprintf("%.*s/chat-send", i, g.url.path);
