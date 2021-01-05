@@ -1,5 +1,5 @@
-C Remove\sa\sdebugging\sprintf()\sthat\swas\smistakenly\sleft\sin\sthe\sprevious\ncheck-in.
-D 2021-01-05T19:24:56.221
+C Improvements\sto\sthe\sway\sthat\sthe\schat\salert\ssound\sis\sconfigured.\nRemove\sthe\s/chat-alert\swebpage.\s\sAccess\sthe\ssound\sfiles\sdirectly\nusing\s/builtin.
+D 2021-01-05T20:07:40.797
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -453,8 +453,8 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
-F src/chat.c 4bdc631282c94e56cd013be57d3da82d4001d06fc51b56a9f597951dca7e9058
-F src/chat.js f27aedd2a89ac5eb1710a2a3782dd2b0b02e9b9ef1047d38f765e0b0c4c9d213
+F src/chat.c 279cbdbe3c32b8e671fdfdbb72b799000d969782febb6f5d9d7f20d416ffa97e
+F src/chat.js 82d7256cb3a0f2b5456964d4cef9f89e9815faadc13b7e4b39729268b4803f56
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35b07813a89148c580269e47b50c689ef2e6660ac7882776b95b8e3d3db39bd7
-R d6cce698b8158fe8550f1f3a0264153a
+P 42efc6295186af294bf83956660b16a5154fb2bfabed1967f031596ec19bf2ff
+R 79aecbf986e531b07a7e60c7c8e2a44f
 U drh
-Z c2080b4f558f196251b92d8a87c20602
+Z 4a63526a379d7e13f9a4833816d00e5b

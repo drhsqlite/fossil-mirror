@@ -146,11 +146,14 @@ static void chat_emit_alert_list(void){
 ** send new chat message, delete older messages, or poll for changes.
 */
 void chat_webpage(void){
+  char *zAlert;
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
     return;
   }
+  zAlert = mprintf("%s/builtin/%s", g.zBaseURL,
+                db_get("chat-alert-sound","alerts/plunk.wav"));
   style_set_current_feature("chat");
   style_header("Chat");
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
@@ -195,6 +198,7 @@ void chat_webpage(void){
   @ /*^^^for skins which add their own BODY tag */;
   @ window.fossil.config.chat = {
   @   fromcli: %h(PB("cli")?"true":"false"),
+  @   alertSound: "%h(zAlert)",
   @   initSize: %d(db_get_int("chat-initial-history",50)),
   @   imagesInline: !!%d(db_get_boolean("chat-inline-images",1))
   @ };
@@ -702,22 +706,6 @@ void chat_delete_webpage(void){
     "COMMIT;",
     mdel, g.zLogin, mdel
   );
-}
-
-/*
-** WEBPAGE: chat-alert
-**
-** Return the sound file that should be played when a new chat message
-** arrives.
-*/
-void chat_audio_alert(void){
-  Blob audio = empty_blob;
-  int n = 0;
-  const char *zName = db_get("chat-alert-sound", "alerts/plunk.wav");
-  const char *zAudio = (const char*)builtin_file(zName, &n);
-  blob_init(&audio, zAudio, n);
-  cgi_set_content_type("audio/wav");
-  cgi_set_content(&audio);  
 }
 
 /*
