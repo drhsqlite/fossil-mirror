@@ -822,6 +822,14 @@ void chat_command(void){
     blob_append(&up,"--\r\n", 4);
     http_exchange(&up, &down, mFlags, 4, "multipart/form-data");
     blob_reset(&up);
+    if( sqlite3_strglob("{\"isError\": true,*", blob_str(&down))==0 ){
+      if( strstr(blob_str(&down), "not logged in")!=0 ){
+        fossil_print("ERROR: username and/or password is incorrect\n");
+      }else{
+        fossil_print("ERROR: %s\n", blob_str(&down));
+      }
+      fossil_fatal("unable to send the chat message");
+    }
     blob_reset(&down);
   }else if( strcmp(g.argv[2],"url")==0 ){
     /* Undocumented command.  Show the URL to access chat. */
