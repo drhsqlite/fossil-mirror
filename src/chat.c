@@ -49,17 +49,23 @@
 ** alert-sounds/\*.{mp3,ogg,wav} are included.
 */
 static void chat_emit_alert_list(void){
-  Stmt q = empty_Stmt;
+  /*Stmt q = empty_Stmt;*/
   unsigned int i;
   const char * azBuiltins[] = {
   "builtin/alerts/plunk.wav",
-  "builtin/alerts/b-flat.wav",
-  "builtin/alerts/g-minor-triad.wav"
+  "builtin/alerts/b-flat.wav"
   };
   CX("window.fossil.config.chat.alerts = [\n");
   for(i=0; i < sizeof(azBuiltins)/sizeof(azBuiltins[0]); ++i){
     CX("%s%!j", i ? ", " : "", azBuiltins[i]);
   }
+#if 0
+  /*
+  ** 2020-01-05 temporarily disabled until we decide whether we're
+  ** going to keep configurable audio files or not. If we do, this
+  ** code needs to check whether the [unversioned] table exists before
+  ** querying it.
+  */
   db_prepare(&q, "SELECT 'uv/'||name FROM unversioned "
              "WHERE content IS NOT NULL "
              "AND (name LIKE 'alert-sounds/%%.wav' "
@@ -69,7 +75,8 @@ static void chat_emit_alert_list(void){
     CX(", %!j", db_column_text(&q, 0));
   }
   db_finalize(&q);
-  CX("\n].sort();\n");
+#endif
+  CX("\n];\n");
 }
 
 /* Settings that can be used to control chat */
