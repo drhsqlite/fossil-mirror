@@ -61,7 +61,7 @@ static void chat_emit_alert_list(void){
   }
 #if 0
   /*
-  ** 2020-01-05 temporarily disabled until we decide whether we're
+  ** 2021-01-05 temporarily disabled until we decide whether we're
   ** going to keep configurable audio files or not. If we do, this
   ** code needs to check whether the [unversioned] table exists before
   ** querying it.

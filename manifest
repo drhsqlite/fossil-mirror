@@ -1,5 +1,5 @@
-C Removed\sthe\sreference\sto\sthe\sunversioned\stable\sfrom\sthe\schat\salert\slist\sgeneration,\ssince\sthat\stable\sis\soptional\sand\sthe\salerts\sare\scurrently\sdisabled\s(problem\sreported\sin\s[https://fossil-scm.org/forum/forumpost/f3a522489b\s|\s/forumpost/f3a522489b].\sRemoved\smention\sof\sthe\sconfigurable\salerts\sfrom\schat.md.
-D 2021-01-05T14:00:52.956
+C It's\s2021\snow,\snot\s2020.
+D 2021-01-05T14:02:30.787
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -451,7 +451,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
-F src/chat.c 1a75aea27e97c0331f0e4b3d9d335960328a28ab72a5053ee25f9390fcf6e3df
+F src/chat.c 2b3ec2ccdb8601d62978c3c79c398e1ab813492f9c378729fedade6c39846714
 F src/chat.js a0c321a939d582f805b6f0a84a845a6a2a62edb345651a48e3c9d26c08564cea
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
@@ -993,7 +993,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 443f4182f75a1532b089cf240f70de69415d2fb15dab67c8484cc317d2d6a0ff
-R b8e4062d545c1d840a074235713a5922
+P 381ad0c8467a5032bf4b45ebdfe5f7453a37fe5ecaa4db7ab24be3d06b309c01
+R 818d03bf71744e16047d70c9085a2f48
 U stephan
-Z 902d5d195b5152709a5090c174d481de
+Z f8a1ed493d468d3fe2689a7589243375
