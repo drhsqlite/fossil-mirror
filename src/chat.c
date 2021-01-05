@@ -701,8 +701,9 @@ void chat_audio_alert(void){
 **      This command sends a new message to the chatroom.  The message
 **      to be sent is determined by arguments as follows:
 **
-**        -m|--message TEXT      Text of the chat message
 **        -f|--file FILENAME     File to attach to the message
+**        -m|--message TEXT      Text of the chat message
+**        --unsafe               Allow the use of unencrypted http://
 **
 ** Additional subcommands may be added in the future.
 */
@@ -754,6 +755,7 @@ void chat_command(void){
   }else if( strcmp(g.argv[2],"send")==0 ){
     const char *zFilename = find_option("file","r",1);
     const char *zMsg = find_option("message","m",1);
+    int allowUnsafe = find_option("unsafe",0,0)!=0;
     const int mFlags = HTTP_GENERIC | HTTP_QUIET | HTTP_NOCOMPRESS;
     int i;
     const char *zPw;
@@ -762,6 +764,9 @@ void chat_command(void){
     sqlite3_uint64 r[3];
     if( zFilename==0 && zMsg==0 ){
       fossil_fatal("must have --message or --file or both");
+    }
+    if( !g.url.isHttps && !allowUnsafe ){
+      fossil_fatal("URL \"%s\" is unencrypted. Use https:// instead", zUrl);
     }
     verify_all_options();
     i = (int)strlen(g.url.path);
