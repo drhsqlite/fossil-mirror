@@ -2504,14 +2504,16 @@ void artifact_page(void){
     }else if( renderAsSvg ){
       @ <object type="image/svg+xml" data="%R/raw/%s(zUuid)"></object>
     }else{
+      const char *zContentMime;
       style_submenu_element("Hex", "%R/hexdump?name=%s", zUuid);
       if( zLn==0 || atoi(zLn)==0 ){
         style_submenu_checkbox("ln", "Line Numbers", 0, 0);
       }
       blob_to_utf8_no_bom(&content, 0);
-      if( zMime==0 ) zMime = mimetype_from_content(&content);
+      zContentMime = mimetype_from_content(&content);
+      if( zMime==0 ) zMime = zContentMime;
       @ <blockquote class="file-content">
-      if( zMime==0 || strncmp(zMime, "text/", 5)==0 ){
+      if( zContentMime==0 ){
         const char *z, *zFileName, *zExt;
         z = blob_str(&content);
         zFileName = db_text(0,
