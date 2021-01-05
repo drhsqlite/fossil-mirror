@@ -377,7 +377,7 @@
       playNewMessageSound: function f(){
         if(f.uri){
           try{
-            if(!f.audio) f.audio = new Audio(F.rootPath+f.uri);
+            if(!f.audio) f.audio = new Audio(F.rootPath+"chat-alert");
             f.audio.currentTime = 0;
             f.audio.play();
           }catch(e){

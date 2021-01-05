@@ -1128,6 +1128,11 @@ void setup_wiki(void){
 ** The "Admin/Chat" page.  Requires Setup privilege.
 */
 void setup_chat(void){
+  static const char *const azAlerts[] = {
+    "alerts/plunk.wav",  "Plunk",
+    "alerts/bflat3.wav", "Tone-1",
+  };
+
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);
@@ -1172,8 +1177,16 @@ void setup_chat(void){
   @ Shorter delays might be required on installations that use proxies
   @ or web-servers with short timeouts.  For best efficiency, this value
   @ should be larger rather than smaller.
-  @ (Property: "chat-chat-timeout")</p>
-  @ </hr>
+  @ (Property: "chat-poll-timeout")</p>
+  @ <hr />
+
+  multiple_choice_attribute("Alert sound",
+     "chat-alert-sound", "snd", azAlerts[0],
+     count(azAlerts)/2, azAlerts);
+  @ <p>The sound used in the client-side chat to indicate that a new
+  @ chat message has arrived.
+  @ (Property: "chat-alert-sound")</p>
+  @ <hr/>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);

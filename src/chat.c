@@ -128,6 +128,12 @@ static void chat_emit_alert_list(void){
 ** does not cause timeouts in intermediate proxies or web server.
 */
 /*
+** SETTING: chat-alert-sound     width=10
+**
+** This is the name of the builtin sound file to use for the alert tone.
+** The value must be the name of one of a builtin WAV file.
+*/
+/*
 ** WEBPAGE: chat
 **
 ** Start up a browser-based chat session.
@@ -707,8 +713,8 @@ void chat_delete_webpage(void){
 void chat_audio_alert(void){
   Blob audio = empty_blob;
   int n = 0;
-  const char * zAudio =
-    (const char *)builtin_file("sounds/plunk.wav", &n);
+  const char *zName = db_get("chat-alert-sound", "alerts/plunk.wav");
+  const char *zAudio = (const char*)builtin_file(zName, &n);
   blob_init(&audio, zAudio, n);
   cgi_set_content_type("audio/wav");
   cgi_set_content(&audio);  
