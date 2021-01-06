@@ -1172,30 +1172,39 @@ static int gitmirror_send_checkin(
   sqlite3_snprintf(sizeof(buf), buf, "%lld",
      (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
   );
+
   /*
   ** Check for 'fx_' table from previous Git import, otherwise take contact info
   ** from user table for <emailaddr> in committer field. If no emailaddr, check
   ** if username is in email form, otherwise use generic 'username@noemail.net'.
   */
-  char *zTmp;
   if (db_table_exists("repository", "fx_git")) {
     zEmail = db_text(0, "SELECT email FROM fx_git WHERE user=%Q", pMan->zUser);
   } else {
     zEmail = db_text(0, "SELECT info FROM user WHERE login=%Q", pMan->zUser);
   }
+
   /* Some repo 'info' fields return an empty string hence the second check */
-  if (zEmail == NULL || zEmail[0] == '\0') {
+  if( zEmail==0 ){
     /* If username is in emailaddr form, don't append '@noemail.net' */
-    if (strchr(pMan->zUser, '@') == NULL) {
+    if( pMan->zUser==0 || strchr(pMan->zUser, '@')==0 ){
       zEmail = mprintf("%s@noemail.net", pMan->zUser);
     } else {
       zEmail = fossil_strdup(pMan->zUser);
     }
-  } else if ((zTmp = strchr(zEmail, '<')) != NULL) {
-    ++zTmp;
-    char *zTmpEnd = strchr(zTmp, '>');
-    *(zTmpEnd) = '\0';
-    zEmail = fossil_strdup(zTmp);
+  }else{
+    char *zTmp = strchr(zEmail, '<');
+    if( zTmp ){
+      char *zTmpEnd = strchr(zTmp+1, '>');
+      char *zNew;
+      int i;
+      if( zTmpEnd ) *(zTmpEnd) = 0;
+      zNew = fossil_strdup(zTmp+1);
+      fossil_free(zEmail);
+      zEmail = zNew;
+      for(i=0; zEmail[i] && !fossil_isspace(zEmail[i]); i++){}
+      zEmail[i] = 0;
+    }
   }
   fprintf(xCmd, "# rid=%d\n", rid);
   fprintf(xCmd, "committer %s <%s> %s +0000\n", pMan->zUser, zEmail, buf);

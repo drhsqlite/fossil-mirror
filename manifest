@@ -1,5 +1,5 @@
-C Add\sthe\sblob_strlen()\sinterface\sand\suse\sit\sfor\smore\srobust\sgit-export\ntext.
-D 2021-01-06T15:10:52.208
+C Fix\smultiple\sproblems\swith\scheck-in\s[9360b66a67086d64]\sthat\scan\slead\sto\ncrashes\sin\sFossil\sitself,\sand\sin\sgit-fast-import,\swhen\sattempt\sto\sexport\nFossil\sitself\sto\sGit.
+D 2021-01-06T15:38:09.326
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -484,7 +484,7 @@ F src/doc.c b6f05cba72e50b9ed00bc7656abf0bc4185ad80719196f691d78cfce34f8258b
 F src/encode.c d18d44e72c6e3361d0fd3242042980aa37d3d1ae7d774e68d3351eb144bd2238
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 5faaf46b539770aac4b8d7687cd4b9dda7c9124e35e6294f1a675f9256d4dc93
-F src/export.c 86a0d859c02d4be661af9caf301c0f2340038dfe9e2130eb30168a7f28aa458b
+F src/export.c a7075d0cc0f3f97a60b8a6c0389bc63fb8fdb9e67eff87336e3c86ea13c08b19
 F src/extcgi.c dbf6e7b9d9bd691f2f108a84fbef6e028b6cc3eb8c825442d8d8c633a75936b7
 F src/file.c 9f7bdfd73d5df24ed01d035a3f0d07c051286ad547e605139779e65290abebe2
 F src/fileedit.c b01622930128372313e8ffbc5924388e5e0dad0aa7bd647999e3f1f6821f912e
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df5be59e5da46462cce08662775931e04de54aae42de68bdf08352fcecbd458a
-R 40a450c1db4dccecca4eb19cabea0b16
+P 7e961919a0b059782ae4557b7654e944f8f865588903283abee1ef59a846ec81
+R dffe14b78f58ad78551f800c7b3c42d4
 U drh
-Z 268c085ad1aa206df5d2b0a7fbb35c2d
+Z 2bd5c8dce12b2cbe8aba997a9da3320c
