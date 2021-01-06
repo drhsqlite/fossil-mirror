@@ -867,7 +867,7 @@ static int gitmirror_verbosity = VERB_NORMAL;
 /* The main branch in the Git repository.  The "trunk" branch of
 ** Fossil is renamed to be this branch name.
 */
-static const char *gitmirror_mainbranch = "master";
+static const char *gitmirror_mainbranch = 0;
 
 /*
 ** Output routine that depends on verbosity
@@ -1155,6 +1155,7 @@ static int gitmirror_send_checkin(
     TAG_BRANCH, rid
   );
   if( fossil_strcmp(zBranch,"trunk")==0 ){
+    assert( gitmirror_mainbranch!=0 );
     fossil_free(zBranch);
     zBranch = mprintf("%s",gitmirror_mainbranch);
   }else if( zBranch==0 ){
@@ -1432,7 +1433,13 @@ void gitmirror_export_command(void){
        "VALUES('mainbranch',%Q)",
        zMainBr
     );
+    gitmirror_mainbranch = fossil_strdup(zMainBr);
+  }else{
+    /* Recover the saved name of the main branch */
+    gitmirror_mainbranch = db_text("master",
+                "SELECT value FROM mconfig WHERE key='mainbranch'");
   }
+
 
   /* See if there is any work to be done.  Exit early if not, before starting
   ** the "git fast-import" command. */
@@ -1547,10 +1554,6 @@ void gitmirror_export_command(void){
   db_multi_exec(
     "CREATE INDEX IF NOT EXISTS mirror.mmarkx1 ON mmark(githash);"
   );
-
-  /* Recover the saved name of the main branch */
-  gitmirror_mainbranch = db_text("master",
-                "SELECT value FROM mconfig WHERE key='mainbranch'");
 
   /* Do any tags that have been created since the start time */
   db_prepare(&q,
