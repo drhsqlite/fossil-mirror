@@ -377,7 +377,7 @@
       playNewMessageSound: function f(){
         if(f.uri){
           try{
-            if(!f.audio) f.audio = new Audio(window.fossil.config.chat.alertSound);
+            if(!f.audio) f.audio = new Audio(f.uri);
             f.audio.currentTime = 0;
             f.audio.play();
           }catch(e){
@@ -969,11 +969,14 @@
         boolValue: ()=>Chat.settings.getBool('audible-alert'),
         callback: function(){
           const v = Chat.settings.toggle('audible-alert');
-          Chat.setNewMessageSound(v ? 'builtin/alerts/plunk.wav' : false);
+          Chat.setNewMessageSound(v ? F.config.chat.alertSound : false);
           if(v) setTimeout(()=>Chat.playNewMessageSound(), 50);
           F.toast.message("Audio notifications "+(v ? "enabled" : "disabled")+".");
         }
       });
+      Chat.setNewMessageSound(
+        Chat.settings.getBool('audible-alert') ? F.config.chat.alertSound : false
+      );
     }else{
       /* Disabled per chatroom discussion: selection list of audio files for
          chat notification. */

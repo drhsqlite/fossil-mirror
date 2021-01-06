@@ -1,5 +1,5 @@
-C Attempt\sto\sadd\sthe\s--mainbranch\soption\sto\sthe\s"fossil\sgit\sexport"\scommand.\nThis\sdoes\snot\sappear\sto\sbe\sworking.\s\sNeed\sadvice\sfrom\sa\sGit\sexpert.
-D 2021-01-05T23:47:47.692
+C chat:\sreconnected\sthe\saudible-alert\spersistent\stoggle\sto\sthe\snew\sway\sof\sstoring\sthe\ssound\sfile\sconfig.
+D 2021-01-06T05:40:49.743
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -454,7 +454,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
 F src/chat.c 279cbdbe3c32b8e671fdfdbb72b799000d969782febb6f5d9d7f20d416ffa97e
-F src/chat.js 82d7256cb3a0f2b5456964d4cef9f89e9815faadc13b7e4b39729268b4803f56
+F src/chat.js f4684ebcda087f3e77baaafc4c774202b9682892302a22b00617364121cd3a8e
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 2a00518b480015b13e9767007e481466256c4945481b0d33a78c570d3c461823
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P baa40a00e862db8a2321b82f4babc4aa20047f72aae80ee3c6274a330b7d7b2a
-R 7e2d202bfe93ef4f0f492878df70b4cb
-U drh
-Z 3941b8094c249ae0f06ec2ed8249e12a
+P 4c384ba2f4be30916819059f17f1cf6f3ab787560dcb06610eebe8b89751c2a2
+R 04ee2ae4e695e24493e70c5350dfa515
+U stephan
+Z 9b96b713a87eca07e1ebfeb06d8890a7
