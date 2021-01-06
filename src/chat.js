@@ -412,7 +412,6 @@
          layout based on the apparently "orientation" of the window:
          tall vs wide. Can be toggled via settings popup. */
       document.body.classList.add('my-messages-right');
-      cs.toggleNavButtons(false);
     }
     if(cs.settings.getBool('monospace-messages',false)){
       document.body.classList.add('monospace-messages');

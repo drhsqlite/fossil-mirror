@@ -165,8 +165,8 @@ void chat_webpage(void){
   @      placeholder="Type message here. Ctrl-Enter sends it." \
   @      class="hidden"></textarea>
   @     <input type="submit" value="Send" id="chat-message-submit">
-  @     <button id="chat-scroll-top">&uarr;</button>
-  @     <button id="chat-scroll-bottom">&darr;</button>
+  @     <button id="chat-scroll-top" class="hidden">&uarr;</button>
+  @     <button id="chat-scroll-bottom" class="hidden">&darr;</button>
   @     <span id="chat-settings-button" class="settings-icon" \
   @       aria-label="Settings..." aria-haspopup="true" ></span>
   @   </div>
