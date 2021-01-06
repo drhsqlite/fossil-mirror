@@ -636,7 +636,8 @@ is "`trunk`".  The "`trunk`" branch in Fossil corresponds to the
 Because the `fossil git export` command has to work with both stock Git
 and with GitHub, Fossil uses Git’s traditional default rather than
 GitHub’s new default: your Fossil repo’s “trunk” branch becomes “master”
-when [mirroring to GitHub][mirgh], not “main.”
+when [mirroring to GitHub][mirgh] unless you give the `--mainbranch`
+option added in Fossil 2.14.
 
 We do not know what happens on subsequent exports if you later rename
 this branch on the GitHub side.

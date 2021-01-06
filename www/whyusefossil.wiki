@@ -225,7 +225,8 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
        <ul>
        <li><p>Branches are often given names which propagate to direct children.
            The tradition in Fossil is to call the main branch "trunk".  In
-           Git, the main branch is usually called "master".
+           Git, it's called "master" by default, though some call it
+           something else, like "main".
        <li><p>It is possible to have multiple branches with the same name.
           Fossil has no problem with this, but it can be confusing to
           humans, so best practice is to give each branch a unique name.
