@@ -573,6 +573,14 @@ cc-check-functions strchrnul
 cc-check-functions pledge
 cc-check-functions backtrace
 
+# Termux on Android adds "getpass(char *)" to unistd.h, so check this so we
+# guard against including it again; use cctest as cc-check-functions and 
+# cctest_function check for "getpass()" with no args and fail
+if {[cctest -link 1 -includes {unistd.h} -code "getpass(0);"]} {
+    define FOSSIL_HAVE_GETPASS 1
+    msg-result "Found getpass() with unistd.h"
+}
+
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
 if {![cc-check-functions getloadavg]} {
   define FOSSIL_OMIT_LOAD_AVERAGE 1

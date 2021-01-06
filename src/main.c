@@ -347,7 +347,7 @@ static void fossil_atexit(void) {
   */
   db_unsave_encryption_key();
 #endif
-#if defined(_WIN32) || defined(__BIONIC__)
+#if defined(_WIN32) || defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS)
   /*
   ** Free the secure getpass() buffer now.
   */
