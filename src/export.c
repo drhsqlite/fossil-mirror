@@ -1462,7 +1462,7 @@ void gitmirror_export_command(void){
 #else
     xCmd = popen(zCmd, "w");
 #endif
-    if( zCmd==0 ){
+    if( xCmd==0 ){
       fossil_fatal("cannot start the \"git fast-import\" command");
     }
     fossil_free(zCmd);
