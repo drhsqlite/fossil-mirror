@@ -3,6 +3,19 @@
 <a name='v2_14'></a>
 <h2>Changes for Version 2.14 (pending)</h2>
 
+  *  <b>Schema Update Notice:</b>
+     This release contains an internal repository schema change.
+     The schema upgrade happens automatically the first time you
+     add content to a repository using Fossil 2.14 or later.  No
+     action is needed on your part. However, if you upgrade to 
+     version 2.14 and then later downgrade or otherwise use an earlier
+     version of Fossil, the email notification mechanism may fail
+     to send out notifications for some events.  If you want to
+     permanently downgrade an installation, then you should run
+     "[/help?cmd=rebuild|fossil rebuild]" after the downgrade
+     to get email notifications working again.  If you are not using
+     email notification, then the schema change will not affect you in
+     any way.
   *  Add support for [./chat.md|Fossil chat].
   *  The "[/help?cmd=clone|fossil clone]" command is enhanced so that
      if the repository filename is omitted, an appropriate name is derived
@@ -12,9 +25,13 @@
   *  Changed the way that wiki edits are stored in the EVENT table of the
      database, for more flexibility and better features.
      <b>Run "fossil rebuild" to take advantage of this change</b>.
+  *  Added the --mainbranch option to the [/help?cmd=git|fossil git export]
+     command.
   *  Add the "contact" sub-command to [/help?cmd=user|fossil user].
   *  Added commands "[/help?cmd=all|fossil all git export]" and
      "[/help?cmd=all|fossil all git status]".
+  *  Added the "df=CHECKIN" query parameter to the
+     [/help?cmd=/timeline|/timeline page].
   *  Improvements to the "[/sitemap]" page.  Add subpages
      [/sitemap-timeline] and [/sitemap-test].
   *  Better text position in cylinder objects of Pikchr diagrams.
