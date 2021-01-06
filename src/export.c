@@ -1146,6 +1146,7 @@ static int gitmirror_send_checkin(
     gitmirror_message(VERB_ERROR,
              "export of %s abandoned due to missing files\n", zUuid);
     *pnLimit = 0;
+    manifest_destroy(pMan);
     return 1;
   }
 
@@ -1273,6 +1274,8 @@ static int gitmirror_send_checkin(
     fossil_free(zFNQuoted);
   }
   db_finalize(&q);
+  manifest_destroy(pMan);
+  pMan = 0;
 
   /* Include Fossil-generated auxiliary files in the check-in */
   if( fManifest & MFESTFLG_RAW ){
@@ -1301,6 +1304,74 @@ static int gitmirror_send_checkin(
 }
 
 /*
+** Create a new Git repository at zMirror to use as the mirror.
+** Try to make zMainBr be the main branch for the new repository.
+**
+** A side-effect of this routine is that current-working directory
+** is changed to zMirror.
+**
+** If zMainBr is initially NULL, then the return value will be the
+** name of the default branch to be used by Git.  If zMainBr is
+** initially non-NULL, then the return value will be a copy of zMainBr.
+*/
+static char *gitmirror_init(
+  const char *zMirror,
+  char *zMainBr
+){
+  char *zCmd;
+  int rc;
+
+  /* Create a new Git repository at zMirror */
+  zCmd = mprintf("git init %$", zMirror);
+  gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
+  rc = fossil_system(zCmd);
+  if( rc ){
+    fossil_fatal("cannot initialize git repository using: %s\n", zCmd);
+  }
+  fossil_free(zCmd);
+
+  /* Must be in the new Git repository directory for subsequent commands */
+  rc = file_chdir(zMirror, 0);
+  if( rc ){
+    fossil_fatal("cannot change to directory \"%s\"", zMirror);
+  }
+
+  if( zMainBr ){
+    /* Set the current branch to zMainBr */
+    zCmd = mprintf("git symbolic-ref HEAD refs/heads/%s", zMainBr);
+    gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
+    rc = fossil_system(zCmd);
+    if( rc ){
+      fossil_fatal("git command failed: %s", zCmd);
+    }
+    fossil_free(zCmd);
+  }else{
+    /* If zMainBr is not specified, then check to see what branch
+    ** name Git chose for itself */
+    char *z;
+    char zLine[1000];
+    FILE *xCmd;
+    int i;
+    zCmd = "git symbolic-ref --short HEAD";
+    gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
+    xCmd = popen(zCmd, "r");
+    if( xCmd==0 ){
+      fossil_fatal("git command failed: %s", zCmd);
+    }
+    
+    z = fgets(zLine, sizeof(zLine), xCmd);
+    pclose(xCmd);
+    if( z==0 ){
+      fossil_fatal("no output from \"%s\"", zCmd);
+    }
+    for(i=0; z[i] && !fossil_isspace(z[i]); i++){}
+    z[i] = 0;
+    zMainBr = fossil_strdup(z);
+  }
+  return zMainBr;
+} 
+
+/*
 ** Implementation of the "fossil git export" command.
 */
 void gitmirror_export_command(void){
@@ -1312,7 +1383,7 @@ void gitmirror_export_command(void){
   char *zCmd;                     /* git command to run as a subprocess */
   const char *zDebug = 0;         /* Value of the --debug flag */
   const char *zAutoPush = 0;      /* Value of the --autopush flag */
-  const char *zMainBr = 0;        /* Value of the --mainbranch flag */
+  char *zMainBr = 0;              /* Value of the --mainbranch flag */
   char *zPushUrl;                 /* URL to sync the mirror to */
   double rEnd;                    /* time of most recent export */
   int rc;                         /* Result code */
@@ -1333,7 +1404,7 @@ void gitmirror_export_command(void){
     if( nLimit<=0 ) fossil_fatal("--limit must be positive");
   }
   zAutoPush = find_option("autopush",0,1);
-  zMainBr = find_option("mainbranch",0,1);
+  zMainBr = (char*)find_option("mainbranch",0,1);
   bForce = find_option("force","f",0)!=0;
   bIfExists = find_option("if-mirrored",0,0)!=0;
   gitmirror_verbosity = VERB_NORMAL;
@@ -1353,6 +1424,15 @@ void gitmirror_export_command(void){
     fossil_fatal("no Git repository specified");
   }
 
+  if( zMainBr ){
+    z = fossil_strdup(zMainBr);
+    gitmirror_sanitize_name(z);
+    if( strcmp(z, zMainBr) ){
+      fossil_fatal("\"%s\" is not a legal branch name for Git", zMainBr);
+    }
+    fossil_free(z);
+  }
+
   /* Make sure the GIT repository directory exists */
   rc = file_mkdir(zMirror, ExtFILE, 0);
   if( rc ) fossil_fatal("cannot create directory \"%s\"", zMirror);
@@ -1360,13 +1440,7 @@ void gitmirror_export_command(void){
   /* Make sure GIT has been initialized */
   z = mprintf("%s/.git", zMirror);
   if( !file_isdir(z, ExtFILE) ){
-    zCmd = mprintf("git init %$",zMirror);
-    gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
-    rc = fossil_system(zCmd);
-    if( rc ){
-      fossil_fatal("cannot initialize the git repository using: \"%s\"", zCmd);
-    }
-    fossil_free(zCmd);
+    zMainBr = gitmirror_init(zMirror, zMainBr);
     bNeedRepack = 1;
   }
   fossil_free(z);
