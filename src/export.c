@@ -1197,6 +1197,7 @@ static int gitmirror_send_checkin(
     *(zTmpEnd) = '\0';
     zEmail = fossil_strdup(zTmp);
   }
+  fprintf(xCmd, "# rid=%d\n", rid);
   fprintf(xCmd, "committer %s <%s> %s +0000\n", pMan->zUser, zEmail, buf);
   fossil_free(zEmail);
   blob_init(&comment, pMan->zComment, -1);
@@ -1204,7 +1205,7 @@ static int gitmirror_send_checkin(
     blob_append(&comment, "(no comment)", -1);
   }
   blob_appendf(&comment, "\n\nFossilOrigin-Name: %s", zUuid);
-  fprintf(xCmd, "data %d\n%s\n", blob_size(&comment), blob_str(&comment));
+  fprintf(xCmd, "data %d\n%s\n", blob_strlen(&comment), blob_str(&comment));
   blob_reset(&comment);
   iParent = -1;  /* Which ancestor is the primary parent */
   for(i=0; i<pMan->nParent; i++){
@@ -1268,7 +1269,7 @@ static int gitmirror_send_checkin(
     Blob manifest;
     content_get(rid, &manifest);
     fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
-      blob_size(&manifest), blob_str(&manifest));
+      blob_strlen(&manifest), blob_str(&manifest));
     blob_reset(&manifest);
   }
   if( fManifest & MFESTFLG_UUID ){
@@ -1280,7 +1281,7 @@ static int gitmirror_send_checkin(
     blob_init(&tagslist, 0, 0);
     get_checkin_taglist(rid, &tagslist);
     fprintf(xCmd,"M 100644 inline manifest.tags\ndata %d\n%s\n",
-      blob_size(&tagslist), blob_str(&tagslist));
+      blob_strlen(&tagslist), blob_str(&tagslist));
     blob_reset(&tagslist);
   }
 

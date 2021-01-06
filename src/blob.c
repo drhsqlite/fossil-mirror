@@ -369,6 +369,17 @@ char *blob_str(Blob *p){
 }
 
 /*
+** Compute the string length of a Blob.  If there are embedded
+** nul characters, truncate the to blob at the first nul.
+*/
+int blob_strlen(Blob *p){
+  char *z = blob_str(p);
+  if( z==0 ) return 0;
+  p->nUsed = (int)strlen(p->aData);
+  return p->nUsed;
+}
+
+/*
 ** Return a pointer to a null-terminated string for a blob that has
 ** been created using blob_append_sql() and not blob_appendf().  If
 ** text was ever added using blob_appendf() then throw an error.
