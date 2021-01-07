@@ -2777,6 +2777,101 @@ void page_timeline(void){
 }
 
 /*
+** Translate a timeline entry into the printable format by
+** converting every %-substitutions as follows:
+**
+**     %n  newline
+**     %%  a raw %
+**     %H  commit hash
+**     %h  abbreviated commit hash
+**     %a  author name
+**     %d  date
+**     %c  comment (\n, \t replaced by space, \r deleted)
+**     %b  branch
+**     %t  tags
+**     %p  phase (zero or more of: *CURRENT*, *MERGE*, *FORK*,
+**                                 *UNPUBLISHED*, *LEAF*, *BRANCH*)
+**
+** The returned string is obtained from fossil_malloc() and should
+** be freed by the caller.
+*/
+static char *timeline_entry_subst(
+  const char *zFormat,
+  int *nLine,
+  const char *zId,
+  const char *zDate,
+  const char *zUser,
+  const char *zCom,
+  const char *zBranch,
+  const char *zTags,
+  const char *zPhase
+){
+  Blob r, co;
+  int i, j;
+  blob_init(&r, 0, 0);
+  blob_init(&co, 0, 0);
+
+  /* Replace LF and tab with space, delete CR */
+  while( zCom[0] ){
+    for(j=0; zCom[j] && zCom[j]!='\r' && zCom[j]!='\n' && zCom[j]!='\t'; j++){}
+    blob_append(&co, zCom, j);
+    if( zCom[j]==0 ) break;
+    if( zCom[j]!='\r')
+      blob_append(&co, " ", 1);
+    zCom += j+1;
+  }
+  blob_str(&co);
+
+  *nLine = 1;
+  while( zFormat[0] ){
+    for(i=0; zFormat[i] && zFormat[i]!='%'; i++){}
+    blob_append(&r, zFormat, i);
+    if( zFormat[i]==0 ) break;
+    if( zFormat[i+1]=='%' ){
+      blob_append(&r, "%", 1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='n' ){
+      blob_append(&r, "\n", 1);
+      *nLine += 1;
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='H' ){
+      blob_append(&r, zId, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='h' ){
+      char *zFree = 0;
+      zFree = mprintf("%S", zId);
+      blob_append(&r, zFree, -1);
+      fossil_free(zFree);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='d' ){
+      blob_append(&r, zDate, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='a' ){
+      blob_append(&r, zUser, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='c' ){
+      blob_append(&r, co.aData, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='b' ){
+      if( zBranch ) blob_append(&r, zBranch, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='t' ){
+      blob_append(&r, zTags, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='p' ){
+      blob_append(&r, zPhase, -1);
+      zFormat += i+2;
+    }else{
+      blob_append(&r, zFormat+i, 1);
+      zFormat += i+1;
+    }
+  }
+  fossil_free(co.aData);
+  blob_str(&r);
+  return r.aData;
+}
+
+/*
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
 **
@@ -2793,14 +2888,17 @@ void page_timeline(void){
 **    0.  rid
 **    1.  uuid
 **    2.  Date/Time
-**    3.  Comment string and user
+**    3.  Comment string, user, and tags
 **    4.  Number of non-merge children
 **    5.  Number of parents
 **    6.  mtime
 **    7.  branch
 **    8.  event-type: 'ci', 'w', 't', 'f', and so forth.
+**    9.  comment
+**   10.  user
+**   11.  tags
 */
-void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
+void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int verboseFlag){
   int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
   int nLine = 0;
   int nEntry = 0;
@@ -2823,7 +2921,11 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     const char *zCom = db_column_text(q, 3);
     int nChild = db_column_int(q, 4);
     int nParent = db_column_int(q, 5);
+    const char *zBranch = db_column_text(q, 7);
     const char *zType = db_column_text(q, 8);
+    const char *zComShort = db_column_text(q, 9);
+    const char *zUserShort = db_column_text(q, 10);
+    const char *zTags = db_column_text(q, 11);
     char *zFree = 0;
     int n = 0;
     char zPrefix[80];
@@ -2837,13 +2939,14 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
         break; /* entry count limit hit, stop. */
       }
     }
-    if( fossil_strnicmp(zDate, zPrevDate, 10) ){
+    if( zFormat == 0 && fossil_strnicmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
       nLine++; /* record another line */
     }
     if( zCom==0 ) zCom = "";
-    fossil_print("%.8s ", &zDate[11]);
+    if( zFormat == 0 )
+      fossil_print("%.8s ", &zDate[11]);
     zPrefix[0] = 0;
     if( nParent>1 ){
       sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
@@ -2879,8 +2982,23 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     }else{
       zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
     }
-    /* record another X lines */
-    nLine += comment_print(zFree, zCom, 9, width, get_comment_format());
+
+    if( zFormat ){
+      if( nChild==0 ){
+        sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*LEAF* ");
+      }
+      char *zEntry;
+      int nEntryLine = 0;
+      zEntry = timeline_entry_subst(zFormat, &nEntryLine, zId, zDate, zUserShort,
+                                    zComShort, zBranch, zTags, zPrefix);
+      nLine += nEntryLine;
+      fossil_print("%s\n", zEntry);
+      fossil_free(zEntry);
+    }
+    else{
+      /* record another X lines */
+      nLine += comment_print(zFree, zCom, 9, width, get_comment_format());
+    }
     fossil_free(zFree);
 
     if(verboseFlag){
@@ -2913,6 +3031,9 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       }
       db_reset(&fchngQuery);
     }
+    /* Except for "oneline", separate formatted entries by one empty line */
+    if( zFormat && fossil_strcmp(zFormat, "%h %c")!=0 )
+      fossil_print("\n");
     nEntry++; /* record another complete entry */
   }
   if( rc==SQLITE_DONE ){
@@ -2950,6 +3071,13 @@ const char *timeline_query_for_tty(void){
     @   event.mtime AS mtime,
     @   tagxref.value AS branch,
     @   event.type
+    @   , coalesce(ecomment,comment) AS comment0
+    @   , coalesce(euser,user,'?') AS user0
+    @   , (SELECT case when length(x)>0 then x else '' end
+    @         FROM (SELECT group_concat(substr(tagname,5), ', ') AS x
+    @         FROM tag, tagxref
+    @         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
+    @          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)) AS tags    
     @ FROM tag CROSS JOIN event CROSS JOIN blob
     @      LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
     @   AND tagxref.tagtype>0
@@ -2979,6 +3107,7 @@ static int fossil_is_julianday(const char *zDate){
   return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd"
                    " WHERE jd IS NOT NULL)", zDate);
 }
+
 
 /*
 ** COMMAND: timeline
@@ -3025,6 +3154,23 @@ static int fossil_is_julianday(const char *zDate){
 **                        either greater than 20 or it ust be zero 0 to
 **                        indicate no limit, resulting in a single line per
 **                        entry.
+**   -F|--format          Entry format. Values "oneline", "medium", and "full"
+**                        get mapped to the full options below. Otherwise a 
+**                        string which can contain these placeholders:
+**                            %n  newline
+**                            %%  a raw %
+**                            %H  commit hash
+**                            %h  abbreviated commit hash
+**                            %a  author name
+**                            %d  date
+**                            %c  comment (NL, TAB replaced by space, LF deleted)
+**                            %b  branch
+**                            %t  tags
+**                            %p  phase: zero or more of *CURRENT*, *MERGE*,
+**                                      *FORK*, *UNPUBLISHED*, *LEAF*, *BRANCH*
+**   --oneline            Show only short hash and comment for each entry
+**   --medium             Medium-verbose entry formatting
+**   --full               Extra verbose entry formatting
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current checkout's repository.
 */
@@ -3044,6 +3190,7 @@ void timeline_cmd(void){
   int verboseFlag = 0 ;
   int iOffset;
   const char *zFilePattern = 0;
+  const char *zFormat = 0;
   Blob treeName;
   int showSql = 0;
 
@@ -3056,6 +3203,13 @@ void timeline_cmd(void){
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
   zFilePattern = find_option("path","p",1);
+  zFormat = find_option("format","F",1);
+  if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 )
+    zFormat = "%h %c";
+  if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 )
+    zFormat = "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c";
+  if( find_option("full",0,0)!= 0 || fossil_strcmp(zFormat,"full")==0 )
+    zFormat = "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%nBranch:   %b%nTags:     %t%nPrefix:   %p";
   showSql = find_option("sql",0,0)!=0;
 
   if( !zLimit ){
@@ -3205,7 +3359,7 @@ void timeline_cmd(void){
   }
   db_prepare_blob(&q, &sql);
   blob_reset(&sql);
-  print_timeline(&q, n, width, verboseFlag);
+  print_timeline(&q, n, width, zFormat, verboseFlag);
   db_finalize(&q);
 }
 

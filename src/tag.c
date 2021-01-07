@@ -543,7 +543,7 @@ void tag_cmd(void){
         );
         db_prepare(&q, "%s", blob_sql_text(&sql));
         blob_reset(&sql);
-        print_timeline(&q, nFindLimit, 79, 0);
+        print_timeline(&q, nFindLimit, 79, 0, 0);
         db_finalize(&q);
       }
     }
