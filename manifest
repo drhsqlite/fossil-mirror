@@ -1,5 +1,5 @@
-C Add\sthe\s--format\soption\sto\sthe\s"fossil\stimeline"\scommand.
-D 2021-01-07T16:26:37.867
+C chat:\s\sEmit\sthe\saudiable\salert\ssound\seven\sfor\syour\sown\smessages.\s\sThis\sis\san\ninterim\smeasure\sto\shelp\sus\sdebug\sintermittent\ssound\sproblems\son\ssome\splatforms.\nThis\schange\swill\sprobably\sbe\sbacked\sout\sat\ssome\spoint\sin\sthe\sfuture.
+D 2021-01-07T17:42:17.120
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -454,7 +454,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
 F src/chat.c 897713b827fe8ee2541f193795a9149b8fbd63204244fda93cfe42b78788d88a
-F src/chat.js 99c1f82dde6a90aec3f807d38685aa169d89041a3534d8632ab0e2e8d19e37db
+F src/chat.js 2370741a7fbdc6f4ddcd33a1e02c8573a08b5612a65763ea51fa082f53e621ac
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
 F src/checkout.c 427f852033fc19ae7285a10a8dd294ff2d67422a7c41319887364dc422a999c3
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -995,8 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 37cb5754e48b868a1b2d9049f51ed52b2cfb7377a8600f4c8040cf5008d9741c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9bb61a420bf5158bcfecc38c891bb649d12c51dc4638843b07810eb732945555 df99abda58765884b1d0a0d67491ff8cacf1605f9c05d34ed0de005f85a1c58b
-R b931fbdc339d6b504a0084b698e29025
-T +closed df99abda58765884b1d0a0d67491ff8cacf1605f9c05d34ed0de005f85a1c58b
+P e86aeb72ac213db2224073e0b3fd9d1ca113e8f7bc572b97973c263e03dd5963
+R cedcdf4314977ba6c760f76e44cf72c6
 U drh
-Z e62d12928cafaa907d696f00e8ef796a
+Z 147489b3899030f15b15fbeb95f07920
