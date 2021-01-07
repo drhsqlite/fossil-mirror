@@ -1245,6 +1245,9 @@ void webpage_error(const char *zFormat, ...){
     }
     @ g.zRepositoryName = %h(g.zRepositoryName)<br />
     @ load_average() = %f(load_average())<br />
+#ifndef _WIN32
+    @ RSS = %.2f(fossil_rss()/1000000.0) MB</br />
+#endif
     @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
     @ fossil_exe_id() = %h(fossil_exe_id())<br />
     @ <hr />

@@ -429,6 +429,20 @@ void fossil_cpu_times(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
 }
 
 /*
+** Return the resident set size for this process
+*/
+sqlite3_uint64 fossil_rss(void){
+#ifdef _WIN32
+  return 0;
+#else
+  struct rusage s;
+  getrusage(RUSAGE_SELF, &s);
+  return s.ru_maxrss*1024;
+#endif
+}
+
+
+/*
 ** Internal helper type for fossil_timer_xxx().
  */
 enum FossilTimerEnum {

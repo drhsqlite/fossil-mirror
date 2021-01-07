@@ -1,5 +1,5 @@
-C chat:\s\sEmit\sthe\saudiable\salert\ssound\seven\sfor\syour\sown\smessages.\s\sThis\sis\san\ninterim\smeasure\sto\shelp\sus\sdebug\sintermittent\ssound\sproblems\son\ssome\splatforms.\nThis\schange\swill\sprobably\sbe\sbacked\sout\sat\ssome\spoint\sin\sthe\sfuture.
-D 2021-01-07T17:42:17.120
+C Show\sthe\sresident\sset\ssize\s(RSS)\son\sthe\s/test_env\spage.
+D 2021-01-07T20:48:19.891
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -623,7 +623,7 @@ F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c 0f11070d181ea70b7931711d82523da23f4d2a277ac72db409b8a6434512b67b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 94d7807eb4a66b3e0eed82310923847a4b58ede987f6b9ad33a9968d2689c790
+F src/style.c 776429116a93d0433b69dd07cf7b37a3d5a86c3f47f5566438a8f027b5e0afdd
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 5db49b424b371cab52cc481a0d5e04229721480f074fd8af2e20e6f982aeaebf
@@ -648,7 +648,7 @@ F src/url.c 09059182407bf8881845e5b41383a2813676dd0aafa5fdfb67962ea6c20119b7
 F src/user.c 8cf1f359475f07c43b3ce5374effc82a8b63d512aa4279452d8b42be7fe48067
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c 5cb7845c9a0296c0957fbe37ac729026f43ddd29daa145dd3a0fae6f7402fe8b
+F src/util.c 9dd3ee766a891d6161c8d8d04ed808214fda1799ca53e9ab564a6868d4ed859e
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 65cf7f61a3cf9433dec6efcd5531dfcf8811e98d6c229b2fe3c691c86b085b58
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 37cb5754e48b868a1b2d9049f51ed52b2cfb7377a8600f4c8040cf5008d9741c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e86aeb72ac213db2224073e0b3fd9d1ca113e8f7bc572b97973c263e03dd5963
-R cedcdf4314977ba6c760f76e44cf72c6
+P 85b139c3abc2ca0eb5525dd9bdcdcc78e4d37df44a34659ef33d66a09a63bacb
+R f957f73686605128338aa5cf680e6f10
 U drh
-Z 147489b3899030f15b15fbeb95f07920
+Z 943574e687944064a282b22283e33be4
