@@ -889,6 +889,7 @@ void diff_cmd(void){
   if( zCheckin!=0 && ( zFrom!=0 || zTo!=0 ) ){
     fossil_fatal("cannot use --checkin together with --from or --to");
   }
+  g.diffCnt[0] = g.diffCnt[1] = g.diffCnt[2] = 0;
   if( zTo==0 || againstUndo ){
     db_must_be_within_tree();
   }else if( zFrom==0 ){
@@ -959,6 +960,10 @@ void diff_cmd(void){
       fossil_free(pFileDir[i].zName);
     }
     fossil_free(pFileDir);
+  }
+  if ( diffFlags & DIFF_NUMSTAT ){
+    fossil_print("%10d %10d TOTAL over %d changed files\n", 
+                 g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);
   }
 }
 

@@ -323,6 +323,7 @@ struct Global {
     int timerId;               /* fetched from fossil_timer_start() */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
+  int diffCnt[3];         /* Counts for DIFF_NUMSTAT: files, ins, del */
 };
 
 /*

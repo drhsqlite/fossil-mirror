@@ -1957,7 +1957,12 @@ int *text_diff(
         nDel += c.aEdit[i+1];
         nIns += c.aEdit[i+2];
       }
-      blob_appendf(pOut, "%10d %10d", nIns, nDel);
+      g.diffCnt[1] += nIns;
+      g.diffCnt[2] += nDel;
+      if( nIns+nDel ){
+        g.diffCnt[0]++;
+        blob_appendf(pOut, "%10d %10d", nIns, nDel);
+      }
     }else if( diffFlags & DIFF_SIDEBYSIDE ){
       sbsDiff(&c, pOut, pRe, diffFlags);
     }else{
