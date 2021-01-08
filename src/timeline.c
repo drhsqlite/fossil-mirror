@@ -3209,7 +3209,7 @@ void timeline_cmd(void){
   if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 )
     zFormat = "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c";
   if( find_option("full",0,0)!= 0 || fossil_strcmp(zFormat,"full")==0 )
-    zFormat = "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%nBranch:   %b%nTags:     %t%nPrefix:   %p";
+    zFormat = "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%nBranch:   %b%nTags:     %t%nPhase:    %p";
   showSql = find_option("sql",0,0)!=0;
 
   if( !zLimit ){
