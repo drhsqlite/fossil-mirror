@@ -390,7 +390,7 @@
          Sets the current new-message audio alert URI (must be a
          repository-relative path which responds with an audio
          file). Pass a falsy value to disable audio alerts. Returns
-         this. This setting is persistent.
+         this. This setting is persistent. Returns this.
       */
       setNewMessageSound: function f(uri){
         delete this.playNewMessageSound.audio;
@@ -409,7 +409,7 @@
       /* Alignment of 'my' messages: right alignment is conventional
          for mobile chat apps but can be difficult to read in wide
          windows (desktop/tablet landscape mode), so we default to a
-         layout based on the apparently "orientation" of the window:
+         layout based on the apparent "orientation" of the window:
          tall vs wide. Can be toggled via settings popup. */
       document.body.classList.add('my-messages-right');
     }
