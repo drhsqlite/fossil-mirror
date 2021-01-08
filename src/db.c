@@ -2769,7 +2769,7 @@ int db_sql_trace(unsigned m, void *notUsed, void *pP, void *pX){
   char *zSql;
   int n;
   const char *zArg = (const char*)pX;
-  char zEnd[40];
+  char zEnd[100];
   if( m & SQLITE_TRACE_CLOSE ){
     /* If we are tracking closes, that means we want to clean up static
     ** prepared statements. */
