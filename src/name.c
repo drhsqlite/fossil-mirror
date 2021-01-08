@@ -185,6 +185,49 @@ int start_of_branch(int rid, int eType){
 }
 
 /*
+** Find the RID of the most recent object with symbolic tag zTag
+** and having a type that matches zType.
+**
+** Return 0 if there are no matches.
+**
+** This is a tricky query to do efficiently.  
+** If the tag is very common (ex: "trunk") then
+** we want to use the query identified below as Q1 - which searching
+** the most recent EVENT table entries for the most recent with the tag.
+** But if the tag is relatively scarce (anything other than "trunk", basically)
+** then we want to do the indexed search show below as Q2.
+*/
+static int most_recent_event_with_tag(const char *zTag, const char *zType){
+  return db_int(0,
+    "SELECT objid FROM ("
+      /* Q1:  Begin by looking for the tag in the 30 most recent events */
+      "SELECT objid"
+       " FROM (SELECT * FROM event ORDER BY mtime DESC LIMIT 30) AS ex"
+      " WHERE type GLOB '%q'"
+        " AND EXISTS(SELECT 1 FROM tagxref, tag"
+                     " WHERE tag.tagname='sym-%q'"
+                       " AND tagxref.tagid=tag.tagid"
+                       " AND tagxref.tagtype>0"
+                       " AND tagxref.rid=ex.objid)"
+      " ORDER BY mtime DESC LIMIT 1"
+    ") UNION ALL SELECT * FROM ("
+      /* Q2: If the tag is not found in the 30 most recent events, then using
+      ** the tagxref table to index for the tag */
+      "SELECT event.objid"
+       " FROM tag, tagxref, event"
+      " WHERE tag.tagname='sym-%q'"
+        " AND tagxref.tagid=tag.tagid"
+        " AND tagxref.tagtype>0"
+        " AND event.objid=tagxref.rid"
+        " AND event.type GLOB '%q'"
+      " ORDER BY event.mtime DESC LIMIT 1"
+    ") LIMIT 1;",
+    zType, zTag, zTag, zType
+  );
+}
+
+
+/*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
 **   *  artifact hash (optionally enclosed in [...])
@@ -227,7 +270,6 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   const char *zXTag;     /* zTag with optional [...] removed */
   int nXTag;             /* Size of zXTag */
   const char *zDate;     /* Expanded date-time string */
-  const char *zTagPrefix = "sym";
 
   if( zType==0 || zType[0]==0 ){
     zType = "*";
@@ -303,15 +345,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* "tag:" + symbolic-name */
   if( memcmp(zTag, "tag:", 4)==0 ){
-    rid = db_int(0,
-       "SELECT event.objid, max(event.mtime)"
-       "  FROM tag, tagxref, event"
-       " WHERE tag.tagname='sym-%q' "
-       "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
-       "   AND event.objid=tagxref.rid "
-       "   AND event.type GLOB '%q'",
-       &zTag[4], zType
-    );
+    rid = most_recent_event_with_tag(&zTag[4], zType);
     if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;
   }
@@ -398,18 +432,18 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   }
 
   if( zType[0]=='w' ){
-    zTagPrefix = "wiki";
+    rid = db_int(0,
+      "SELECT event.objid, max(event.mtime)"
+      "  FROM tag, tagxref, event"
+      " WHERE tag.tagname='wiki-%q' "
+      "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
+      "   AND event.objid=tagxref.rid "
+      "   AND event.type GLOB '%q'",
+      zTag, zType
+    );
+  }else{
+    rid = most_recent_event_with_tag(zTag, zType);
   }
-  /* Symbolic name */
-  rid = db_int(0,
-    "SELECT event.objid, max(event.mtime)"
-    "  FROM tag, tagxref, event"
-    " WHERE tag.tagname='%q-%q' "
-    "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
-    "   AND event.objid=tagxref.rid "
-    "   AND event.type GLOB '%q'",
-    zTagPrefix, zTag, zType
-  );
 
   if( rid>0 ){
     if( startOfBranch ) rid = start_of_branch(rid,1);
