@@ -449,9 +449,9 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 }]
 
 writeln {
-$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
+$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(EXTRAOBJ) $(OBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(EXTRAOBJ) $(OBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -1180,9 +1180,9 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(EXTRAOBJ) $(OBJ) $(OBJDIR)/fossil.o
 	$(CODECHECK1) $(TRANS_SRC)
-	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(LIB)
+	$(TCC) -o $@ $(EXTRAOBJ) $(OBJ) $(OBJDIR)/fossil.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"

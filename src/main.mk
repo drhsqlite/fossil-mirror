@@ -747,9 +747,9 @@ EXTRAOBJ = \
  $(OBJDIR)/cson_amalgamation.o
 
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
+$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(EXTRAOBJ) $(OBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(EXTRAOBJ) $(OBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
