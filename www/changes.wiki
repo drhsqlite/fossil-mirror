@@ -19,12 +19,12 @@
      email notification, then the schema change will not affect you in
      any way.
   *  <b>Schema Update Notice #2:</b>
-     This release changes the way wiki edits description are stored
+     This release changes how the descriptions of wiki edits are stored
      in the EVENT table, for improved display on timelines.  You must
      run "[/help?cmd=rebuild|fossil rebuild]" to take advantage of
-     this enhancement.  Everything will still work if you fail to run
+     this enhancement.  Everything will still work without
      "fossil rebuild", but you might see goofy descriptions on
-     wiki change notifications on timelines.
+     wiki change notifications in timelines.
   *  Add support for [./chat.md|Fossil chat].
   *  The "[/help?cmd=clone|fossil clone]" command is enhanced so that
      if the repository filename is omitted, an appropriate name is derived

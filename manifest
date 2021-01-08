@@ -1,5 +1,5 @@
-C Increase\sthe\ssize\sof\sthe\sbuffer\sused\sto\sshow\sstats\sfor\s--sqltrace,\sso\sthat\nall\stext\sis\sshown\seven\sif\sthe\snumbers\sare\slarge.
-D 2021-01-08T14:21:36.401
+C Improved\swording\son\sthe\schange\slog.
+D 2021-01-08T14:23:13.201
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -836,7 +836,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
-F www/changes.wiki 4ee4ad5bc8c6979d1a78cf71902d6dcd9383f473f732873c41c866804c909c6a
+F www/changes.wiki f755f0d69344e7fdd0ef55de84b0f50295b149a94c78f6d70c5dccce3b710812
 F www/chat.md 371f72a7aef66bb17866bf2308e47260c40254a8e4e2fe0bca20c272a227e245
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 37cb5754e48b868a1b2d9049f51ed52b2cfb7377a8600f4c8040cf5008d9741c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2dbbe1d62204da2db210f9c42c30184a5f0a87e53a33362732060d03a629e17d
-R 14cb0844beec858e1491084e5ad1a8f8
+P bf9d65b66f1de736fb6a61009a0541d465d9cb7eeaa9d9ad577826aff791eb12
+R 24a23302e69704cf7312da7f5e32460e
 U drh
-Z 4472d11bf6399fa04404cfe95b17eee9
+Z aceadd7fa8d5d6000effb71765c47f7d
