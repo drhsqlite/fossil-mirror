@@ -2369,12 +2369,10 @@ void artifact_page(void){
     }
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
     zMime = mimetype_from_name(zName);
-    if( zMime && strncmp(zMime, "text/", 5)==0 ){
-      style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
-                            zName, zCI);
-      style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
-                            zName, zCI);
-    }
+    style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
+                          zName, zCI);
+    style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
+                          zName, zCI);
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
   }else{

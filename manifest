@@ -1,5 +1,5 @@
-C In\sthe\smakefiles,\sput\ssqlite3.o\searly\sin\sthe\sdependency\slist\sso\sthat\son\na\smultithreaded\smake,\sit\sstarts\searliest.\s\sThis\smakes\sthe\smultithreaded\nmakes\sfinish\ssooner.
-D 2021-01-08T15:25:11.863
+C Always\sinclude\sthe\s"Annotate"\sand\s"Blame"\ssubmenu\sitems\sof\sthe\s/file\spage,\nnot\sjust\sfor\scases\sof\stext/\smimetypes,\ssince\ssome\sfiles\s(ex:\sMakefile.in)\ndo\snot\shave\sa\swell-defined\smimetype,\sbut\swe\sdo\swant\sto\sAnnotate\sthem.
+D 2021-01-09T18:43:40.338
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -522,7 +522,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 602ef87736cb80c85ffe9fd1d504c34a6d481570345e4247f1178538d38875a6
 F src/http_transport.c ffaac674438327ee4c26096ad31979fa37edfd1d7e4672f17625c6748bffc21e
 F src/import.c fa1a6c477bc6a7a6affb1817ffb67b6ca488b32521be6069b79236325e48e24c
-F src/info.c 4beb042beac36b25629c4a4c85b77953a88552ecc488ff615fc7fd490b7b38c6
+F src/info.c f2551932de05e6bf249c75ba806a2d6dbac45beb1fdfbb94235bb3be2b6c1a61
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 37cb5754e48b868a1b2d9049f51ed52b2cfb7377a8600f4c8040cf5008d9741c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fdeebddea7abf6addf1640da01804f230e9a10c2b081b0aafdcac1642d0412ba
-R dc6a19c95933b7213acdad53df8d1e74
+P 8ca760ce9705101c48879e6892ea9db43954b3bb104252ce801b2925b33cbad9
+R 6ce4e8f55ce830df9d2accb50fb0a669
 U drh
-Z c245b802c010b9b2af5f0565e1d121f3
+Z 8ec73e3a8a42621f2e82667fb2883e5f
