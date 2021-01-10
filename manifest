@@ -1,5 +1,5 @@
-C Narrow\sthe\sright-hand\sside\smenu\sbox\son\sthe\shomepage,\sfor\simproved\sdisplay\non\smobile.
-D 2021-01-10T14:00:52.801
+C Remove\sindentation\sfrom\sthe\squickstart\sdocument,\sto\smake\sit\smore\nmobile-friendly.
+D 2021-01-10T14:38:29.524
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -940,7 +940,7 @@ F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
-F www/quickstart.wiki c2626296ee879600911ab1004fa9c1ebdd86e105a8ef3026ba567cfcb048ddff
+F www/quickstart.wiki b4837c26ed1f5ab421c527753d04346141239f8ce397657ba8b21a604f2e860d
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
 F www/rebaseharm.md a21ade941ac2abdc239bd1c0ef03568d2cbddce07e24d0fbda77406aeed45cd1
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 37cb5754e48b868a1b2d9049f51ed52b2cfb7377a8600f4c8040cf5008d9741c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a32da8e6b5c29fad991da635cb79921e1262c14482ebd395bd3b18742bd91802
-R 4770ed6d569a1ec9561b4fa7e4119ec3
+P 390bb86563e403a3847ce8461f6d5032e923f1a0d95e41074d07acc4098c5521
+R 1bf85ce84a34a25c5abaf70313c8e1e3
 U drh
-Z 36d755d92c54b010a2fdde674a16c555
+Z 66a15184a34c38cd887146ef05c2df85
