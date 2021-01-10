@@ -788,12 +788,13 @@ void page_tree(void){
   }else{
     Stmt q;
     db_prepare(&q,
-      "SELECT filename.name, blob.uuid, max(event.mtime)\n"
-      "  FROM filename, mlink, blob, event\n"
-      " WHERE mlink.fnid=filename.fnid\n"
-      "   AND event.objid=mlink.mid\n"
-      "   AND blob.rid=mlink.fid\n"
-      " GROUP BY 1 ORDER BY 1 COLLATE nocase");
+      "SELECT\n"
+      "    (SELECT name FROM filename WHERE filename.fnid=mlink.fnid),\n"
+      "    (SELECT uuid FROM blob WHERE blob.rid=mlink.fid),\n"
+      "    max(event.mtime)\n"
+      "  FROM mlink JOIN event ON event.objid=mlink.mid\n"
+      " GROUP BY mlink.fnid\n"
+      " ORDER BY 1 COLLATE nocase;");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUuid = db_column_text(&q,1);

@@ -1,5 +1,5 @@
-C Update\sto\sthe\sbuilt-in\sSQLite\slatest\s3.35\salpha\swith\sperformance\senhancements\nand\swith\sthe\snew\s".stats\svmstep"\scommand\sfor\seasier\sperformance\smeasurement.
-D 2021-01-10T19:28:42.061
+C Faster\stree-view\squery.
+D 2021-01-10T19:39:34.211
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -446,7 +446,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
 F src/blob.c 93bad8cb90086c43d2f7019d33ac416df5deb905e1587e685a7c071a0e6946f3
 F src/branch.c dd6bd065e74eabfc3b41e41d377739f374bedc69e729f84b13643b3b177271f4
-F src/browse.c 7ebe4c3ff598b65498f7b520df33cc89e8d3217a114938b469fe2d7390fb7593
+F src/browse.c b8b08c2b5c0eb78ba90c93300172da93f2ecd9ba6314168120b3784399a21b50
 F src/builtin.c 8f2e1ff21582e0f0701c15ec4a6446eadb4cecc7c98c34bef8b242b7274f935a
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eec971fdeb143f0f41ce01a47af3b5757104e19ed30502a6a1849ee30d80970e
-R 9754652428c2b9fbcf953892ceb4471d
+P 7bf929984a46ab608e5c639e2b2d23d95b9e4d767b50beacb4360d05119457fe
+R c2fd3f00c85535249fce3d22f5744e18
 U drh
-Z d94cfa04b4fc25fb58fd2dc07f7682f2
+Z 75d86bd36afcca5517a6fba3e805869b
