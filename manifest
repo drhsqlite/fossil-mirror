@@ -1,5 +1,5 @@
-C Performance\soptimization\sfor\s/hexdump.\s\sAlso,\sprevent\s/hexdump\sfrom\sworking\nfor\srobots,\sas\srobots\slike\sto\sdownload\sthousands\sof\s/hexdumps\sfrom\sservers\nand\ssoak\sup\sCPU\stime\sand\sbandwidth,\sand\sI\scannot\sthink\sof\sany\sreason\sfor\sa\nrobot\sto\sactually\sneed\sa\shexdump.
-D 2021-01-10T01:40:41.027
+C Updated\sthe\s'common\scommands'\slist\sin\sfossil.1\s(man\spage)\sto\smatch\sthe\scurrent\shelp\soutput.
+D 2021-01-10T11:40:16.903
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -322,7 +322,7 @@ F compat/zlib/zutil.c 2f1fcc93488ac84acf984415b6ea0bd63c72aa49
 F compat/zlib/zutil.h f32dab3880d47eca1b71c308cf6542b32941b23c
 F configure 05e4b3ca2e1ff283d82e0c4ced9215edc47157c4b4ba6839fb7f895bf224dcd2 x
 F debian/makedeb.sh a178ffe4795ef9cc3ef3550572c20fe4110c8f87d9368f06526714ff12e33823
-F fossil.1 c9f35e51c0e93a3db103937c632396a4b3fdf81e158a611ba6f03ff9c7c23f17
+F fossil.1 44f8c9010eedd70369337ae18a94adb580d335a879b2c95fb15d827feec5f34f
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 14bd1403c4f17758758dfffc95e5928bccb7843ecc540e0652c67052b6a781b4
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 37cb5754e48b868a1b2d9049f51ed52b2cfb7377a8600f4c8040cf5008d9741c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b84b8bf3591ce225eb4ab9e071f0ef343c58c3b45b83907538e1529c16755187
-R 754383744441dfb2866678c02ab6ff8e
-U drh
-Z 82e5e913f2897e9e3307e8e6ab6c3e3d
+P 60736abcf6b28b85746ad64a99ccbee3b6694ba744353326f02ff4534ab0fc57
+R 1604344dee930d3cf19cbb3b3187da53
+U stephan
+Z 3ae0552433b16669d743f34a48230395
