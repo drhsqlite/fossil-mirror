@@ -1,5 +1,5 @@
-C Remove\sindentation\sfrom\sthe\squickstart\sdocument,\sto\smake\sit\smore\nmobile-friendly.
-D 2021-01-10T14:38:29.524
+C Reduce\sone\slevel\sof\sindentation\sin\sthe\swhyusefossil.wiki\sdocument,\sfor\nimproved\sreadability\son\smobile.
+D 2021-01-10T15:01:19.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -992,10 +992,10 @@ F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31a
-F www/whyusefossil.wiki 37cb5754e48b868a1b2d9049f51ed52b2cfb7377a8600f4c8040cf5008d9741c
+F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 390bb86563e403a3847ce8461f6d5032e923f1a0d95e41074d07acc4098c5521
-R 1bf85ce84a34a25c5abaf70313c8e1e3
+P 3ff09684873cb5759a5a5d0b57dc3749214342c01b56fbd5d9f33258a52984d4
+R 539f5aab35e0e56c18571055fe4c8962
 U drh
-Z 66a15184a34c38cd887146ef05c2df85
+Z 14db7472833b79fd62a1e95a69d8646d
