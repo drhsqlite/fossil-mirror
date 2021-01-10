@@ -959,12 +959,11 @@ static const char zComputeFileAgeSetup[] =
 
 static const char zComputeFileAgeRun[] =
 @ WITH RECURSIVE
-@   ckin(x,m) AS (SELECT objid, mtime FROM event WHERE objid=:ckin
-@                 UNION
-@                 SELECT plink.pid, event.mtime
-@                   FROM ckin, plink, event
-@                  WHERE plink.cid=ckin.x AND event.objid=plink.pid
-@                  ORDER BY 2 DESC)
+@  ckin(x) AS (VALUES(:ckin)
+@              UNION
+@              SELECT plink.pid
+@                FROM ckin, plink
+@               WHERE plink.cid=ckin.x)
 @ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
 @   SELECT filename.fnid, mlink.fid, mlink.mid, event.mtime, filename.name
 @     FROM foci, filename, blob, mlink, event
