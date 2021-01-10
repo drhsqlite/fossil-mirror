@@ -2,8 +2,8 @@
 
 <h3>What Is Fossil?</h3>
 
-<div style='width:200px;float:right;border:2px solid #446979;padding:0 0 10px 0;margin:0 0px 10px 10px;'>
-<ul>
+<div style='float:right;border:2px solid #446979;padding:0 15px 10px 0;margin:0 0 10px 10px;'>
+<ul style='margin-left: -10px;'>
 <li> [/uv/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
@@ -14,7 +14,7 @@
 <li> [./userlinks.wiki | User Links]
 <li> [./hacker-howto.wiki | Hacker How-To]
 <li> [./fossil-v-git.wiki | Fossil vs. Git]
-<li> [./permutedindex.html | Documentation Index]
+<li> [./permutedindex.html | Doc Index]
 </ul>
 <center><img src="fossil3.gif" align="center"></center>
 </div>

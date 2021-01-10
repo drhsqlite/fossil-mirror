@@ -1,5 +1,5 @@
-C Update\sthe\shomepage.\s\sSubstitute\sthe\s"Self-host\sFriendly"\spoint\sin\splace\sof\n"Simple\sNetworking".
-D 2021-01-10T13:48:48.209
+C Narrow\sthe\sright-hand\sside\smenu\sbox\son\sthe\shomepage,\sfor\simproved\sdisplay\non\smobile.
+D 2021-01-10T14:00:52.801
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -900,7 +900,7 @@ F www/hooks.md 638c3abb0c25413bfc5641f1d866ce22f81b3db140e141590abd9ef985a71ad5
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 9a6dc73a00da6f71b20fcddb4aa16c3ffe00c92ab9b0762d4baad3bff4541dc8
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 2703a22ffb1303667f326db53264e77847db54131fc8d75bda736098c95b5b21
+F www/index.wiki 050d89fb43cc5025bd311ca181f070cc169bbb2401e0326aa1e8cd9cd1020bd5
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 257bb6c25527662ea164316a9187db07d52fc1e8a9edb48014d1f56b6b0ea243
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 37cb5754e48b868a1b2d9049f51ed52b2cfb7377a8600f4c8040cf5008d9741c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 603e9b38655d1a983391b406114195165df4d52bee80a6e26ca42a4b2fd2380a
-R 8b7ecc5df989d676c57dd7fbd513f8ca
+P a32da8e6b5c29fad991da635cb79921e1262c14482ebd395bd3b18742bd91802
+R 4770ed6d569a1ec9561b4fa7e4119ec3
 U drh
-Z f77fa919b7fc0eb2da2fc94f9d4f7579
+Z 36d755d92c54b010a2fdde674a16c555
