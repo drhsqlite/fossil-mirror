@@ -1903,21 +1903,39 @@ static void hexdump(Blob *pBlob){
     }
     zLine[53] = ' ';
     zLine[54] = ' ';
-    for(j=0; j<16; j++){
-      k = j+55;
+    cgi_append_content(zLine, 55);
+    for(j=k=0; j<16; j++){
       if( i+j<n ){
         unsigned char c = x[i+j];
-        if( c>=0x20 && c<=0x7e ){
-          zLine[k] = c;
+        if( c>'>' && c<=0x7e ){
+          zLine[k++] = c;
+        }else if( c=='>' ){
+          zLine[k++] = '&';
+          zLine[k++] = 'g';
+          zLine[k++] = 't';
+          zLine[k++] = ';';
+        }else if( c=='<' ){
+          zLine[k++] = '&';
+          zLine[k++] = 'l';
+          zLine[k++] = 't';
+          zLine[k++] = ';';
+        }else if( c=='&' ){
+          zLine[k++] = '&';
+          zLine[k++] = 'a';
+          zLine[k++] = 'm';
+          zLine[k++] = 'p';
+          zLine[k++] = ';';
+        }else if( c>=' ' ){
+          zLine[k++] = c;
         }else{
-          zLine[k] = '.';
+          zLine[k++] = '.';
         }
       }else{
-        zLine[k] = 0;
+        break;
       }
     }
-    zLine[71] = 0;
-    @ %h(zLine)
+    zLine[k++] = '\n';
+    cgi_append_content(zLine, k);
   }
 }
 
@@ -1968,9 +1986,17 @@ void hexdump_page(void){
                         zUuid, file_tail(blob_str(&downloadName)));
   @ <hr />
   content_get(rid, &content);
-  @ <blockquote><pre>
-  hexdump(&content);
-  @ </pre></blockquote>
+  if( !g.isHuman ){
+    /* Prevent robots from running hexdump on megabyte-sized source files
+    ** and there by eating up lots of CPU time and bandwidth.  There is
+    ** no good reason for a robot to need a hexdump. */
+    @ <p>A hex dump of this file is not available.
+    @  Please download the raw binary file and generate a hex dump yourself.</p>
+  }else{
+    @ <blockquote><pre>
+    hexdump(&content);
+    @ </pre></blockquote>
+  }
   style_finish_page();
 }
 
