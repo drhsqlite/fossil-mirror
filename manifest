@@ -1,5 +1,5 @@
-C Slightly\sfaster\sfile-age\squery.
-D 2021-01-10T23:47:21.504
+C Print\sthe\spermuted\sdocumentation\sindex\sup\sto\sdate.
+D 2021-01-11T00:00:17.686
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -932,10 +932,10 @@ F www/makefile.wiki 2622b9e996e6ff40e77a5d7021410c94fbf69e9a54925d2f7c88d5aca45e
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 4b196dcc6b67781b1923297e35c4bac25ac996d9b0ec6d03d9cd322169b6a845
-F www/mkindex.tcl ad242f7e58f2cd97c85ba2d0c539e7175942e675c66d3af488af434334572c69 x
+F www/mkindex.tcl d8792ff597406773c6fef543c6634811f7bd8ab72c6345482bc4854dccd6a876 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html f137a8306b34b6ee7ad50f6dd390a083d07a8725156d715fb391eccba6206cae
+F www/permutedindex.html 8db806320ebbc822048ad97cfe9860c3b2549d6869df4e38d211e6dd12412ece
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3cd0b26414efb87b0c7855d619144ff492de51707899c055ea540d823cae9653
-R 2e6c32f9fc5f4a51f63a494a9d655400
+P f953a1638b38fd4eb1eb8e5655d677ca56a9a3d681e3061843cf7d2f05caf665
+R bbd9cc6cf038f9ed49e7a06e6643b493
 U drh
-Z deb9043cb536b37c3ed809dc2e284c4d
+Z d9dfd492f35bd606ecbcd8acd2ad9b1a
