@@ -54,7 +54,7 @@ management system with these advanced features:
       [./build.wiki | Easy-to-compile source code] is also available.
 
 
-  4.  <b>Self-host Friendly</b> - Stand up a project website using 
+  4.  <b>Self-host Friendly</b> - Stand up a project website
       in minutes using [./server/ | a variety of techniques].
       Fossil is CPU and memory efficient. Most projects can be
       hosted comfortably on a $5/month VPS or a Raspberry Pi.
