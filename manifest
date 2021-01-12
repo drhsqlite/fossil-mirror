@@ -1,5 +1,5 @@
-C Print\sthe\spermuted\sdocumentation\sindex\sup\sto\sdate.
-D 2021-01-11T00:00:17.686
+C Minor\seditorial\simprovements\sto\schat\sdocumentation
+D 2021-01-12T00:11:24.920
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -837,7 +837,7 @@ F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c82
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
 F www/changes.wiki f755f0d69344e7fdd0ef55de84b0f50295b149a94c78f6d70c5dccce3b710812
-F www/chat.md 371f72a7aef66bb17866bf2308e47260c40254a8e4e2fe0bca20c272a227e245
+F www/chat.md 8566754008c72407086110b7b0f4b447ca3f8e7d9204a263b94acf9dd4db7faa
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -995,7 +995,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f953a1638b38fd4eb1eb8e5655d677ca56a9a3d681e3061843cf7d2f05caf665
-R bbd9cc6cf038f9ed49e7a06e6643b493
-U drh
-Z d9dfd492f35bd606ecbcd8acd2ad9b1a
+P f2ec37e45e1ed2c1abc0a394aaa2dd31596845f382eefa4e4c8f58ef9715690a
+R 67e8ed777f12f019a4e9076538145bb2
+U andygoth
+Z a08a14498e9a1e7990e6db030566638d

@@ -20,7 +20,7 @@ ephemeral discussion venue for insiders.  Design goals include:
      whom you want to give access to the chatroom.
 
   *  **Ephemeral** &rarr;
-     Chat messages do not sync to peer repositories.  And they are
+     Chat messages do not sync to peer repositories, and they are
      automatically deleted after a configurable delay (default: 7 days).
      Individual messages or the entire conversation
      can be deleted at any time without impacting any other part
@@ -31,7 +31,7 @@ privileges or higher.  It is not intended as a general-purpose gathering
 place for random passers-by on the internet. 
 Fossil chat seeks to provide a communication venue for discussion
 that does *not* become part of the permanent record for the project.
-For persist and durable discussion, use the [Forum](./forum.wiki).
+For persistent and durable discussion, use the [Forum](./forum.wiki).
 Because the conversation is intended to be ephemeral, the chat messages
 are local to a single repository.  Chat content does not sync.
 
@@ -57,11 +57,11 @@ from the repository database.
 
 ## Usage
 
-For users with appropriate permissions simply browse to the
+For users with appropriate permissions, simply browse to the
 [/chat](/help?cmd=/chat) to start up a chat session.  The default
 skin includes a "Chat" entry on the menu bar on wide screens for
 people with chat privilege.  There is also a "Chat" option on
-the [Sitemap page](/sitemap), which means that chat will appears
+the [Sitemap page](/sitemap), which means that chat will appear
 as an option under the hamburger menu for many [skins](./customskin.md).
 
 Message text is delivered verbatim.  There is no markup.  However,
@@ -70,10 +70,10 @@ the chat system does try to identify and tag hyperlinks, as follows:
   *  Any word that begins with "http://" or "https://" is assumed
      to be a hyperlink and is tagged.
 
-  *  Text within `[...]` is parsed and it if is a valid hyperlink
+  *  Text within `[...]` is parsed, and it if is a valid hyperlink
      target (according to the way that [Fossil Wiki](/wiki_rules) or
-     [Markdown](/md_rules) understand hyperlinks) then that text is
-     tagged. Note that only URLs and fossil-internal constructs such
+     [Markdown](/md_rules) understand hyperlinks), then that text is
+     tagged. Note that only URLs and Fossil-internal constructs such
      as checkin hashes and wiki pages names are recognized here, not
      constructs such as `[URL | label]` or `[label](URL)`.
 
@@ -87,7 +87,7 @@ automatically sent - selection of a file can be cancelled using the
 Cancel button which appears only when a file is selected. When the
 Send button is pressed, any pending text is submitted along with the
 selected file. Image files sent this way will, by default, appear
-inline in messages but each user may toggle that via the settings
+inline in messages, but each user may toggle that via the settings
 popup menu, such that images instead appear as downloadable links.
 Non-image files always appear in messages as download links.
 
@@ -95,8 +95,8 @@ Non-image files always appear in messages as download links.
 
 Any user may *locally* delete a given message by clicking on the "tab"
 at the top of the message and clicking the button which appears. Such
-deletions are local-only and the messages will reappear if the page
-page is reloaded. Admin users may additionally choose to globally
+deletions are local-only, and the messages will reappear if the page
+is reloaded. Admin users may additionally choose to globally
 delete a message from the chat record, which deletes it not only from
 their own browser but also propagates the removal to all connected
 clients the next time they poll for new messages.
@@ -114,10 +114,10 @@ new content, or delete historical messages.  The following web
 interfaces are used by the XHR:
 
   *  **/chat-poll** &rarr;
-     Download chat content as JSON.
-     Chat messages are number sequentially.
+     Downloads chat content as JSON.
+     Chat messages are numbered sequentially.
      The client tells the server the largest chat message it currently
-     holds and the server sends back subsequent messages.  If there
+     holds, and the server sends back subsequent messages.  If there
      are no subsequent messages, the /chat-poll page blocks until new
      messages are available.
 
@@ -125,7 +125,7 @@ interfaces are used by the XHR:
      Sends a new chat message to the server.
 
   *  **/chat-delete** &rarr;
-     Delete a chat message.
+     Deletes a chat message.
 
 Fossil chat uses the venerable "hanging GET" or 
 "[long polling](wikipedia:/wiki/Push_technology#Long_polling)"
@@ -170,9 +170,9 @@ On the server-side, message text is stored exactly as entered by the
 users.  The /chat-poll page queries the CHAT table and constructs a
 JSON reply described in the [/chat-poll
 documentation](/help?cmd=/chat-poll).  The message text is translated
-into HTML prior to being converted into JSON so that the text can be
+into HTML before being converted to JSON so that the text can be
 safely added to the display using assignment to `innerHTML`. Though
 `innerHTML` assignment is generally considered unsafe, it is only so
 with untrusted content from untrusted sources. The chat content goes
-through sanitation steps which eliminate any potential security
+through sanitization steps which eliminate any potential security
 vulnerabilities of assigning that content to `innerHTML`.
