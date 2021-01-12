@@ -1645,10 +1645,10 @@ const char *timeline_expand_datetime(const char *zIn){
 **    d=CHECKIN       Children and descendants of CHECKIN
 **    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
 **    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
-**    bt=CHECKIN      In conjuction with p=CX, this means show all
+**    bt=CHECKIN      In conjunction with p=CX, this means show all
 **                       ancestors of CX going back to the time of CHECKIN.
 **                       All qualifying check-ins are shown unless there
-**                       is also an n= or n1= query pararameter.
+**                       is also an n= or n1= query parameter.
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    rel             Show related check-ins as well as those matching t=TAG

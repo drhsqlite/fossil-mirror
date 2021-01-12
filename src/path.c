@@ -609,7 +609,7 @@ static const char zDistinctRenameQuery[] =
 ** WEBPAGE: test-rename-list
 **
 ** Print a list of all file rename operations throughout history.
-** This page is intended for for testing purposes only and may change
+** This page is intended for testing purposes only and may change
 ** or be discontinued without notice.
 */
 void test_rename_list_page(void){

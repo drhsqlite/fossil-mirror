@@ -239,7 +239,7 @@ void hook_changes(Blob *pOut, const char *zBaseRcvid, const char *zNewRcvid){
 **
 **        The --base-rcvid and --new-rcvid options are silently ignored if
 **        the hook type is not "after-receive".  The default values for
-**        --base-rcvid and --new-rcvid cause the last recieve to be processed.
+**        --base-rcvid and --new-rcvid cause the last receive to be processed.
 */
 void hook_cmd(void){
   const char *zCmd;

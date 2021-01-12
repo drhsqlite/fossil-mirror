@@ -1381,7 +1381,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
 **
 ** Usage %fossil ARG ...
 **
-** Run each argment through blob_append_escaped_arg() and show the
+** Run each argument through blob_append_escaped_arg() and show the
 ** result.  Append each argument to "fossil test-echo" and run that
 ** using fossil_system() to verify that it really does get escaped
 ** correctly.

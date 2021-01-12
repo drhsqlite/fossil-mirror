@@ -724,7 +724,7 @@ void chat_delete_webpage(void){
 ** the response is to bring up a web-browser window to the chatroom
 ** on the default system web-browser.  You can accomplish the same by
 ** typing the appropriate URL into the web-browser yourself.  This
-** command is merely a convenience for command-line oriented peope.
+** command is merely a convenience for command-line oriented people.
 **
 ** The following subcommands are supported:
 **

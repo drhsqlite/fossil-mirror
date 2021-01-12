@@ -764,7 +764,7 @@ static void forum_emit_js(void){
 **                 desktop and chronological for mobile.  This is the
 **                 default if the "t" query parameter is omitted.
 **   t=c           Show posts in the order they were written.
-**   t=h           Show posts usin hierarchical indenting.
+**   t=h           Show posts using hierarchical indenting.
 **   t=s           Show only the post specified by "name=X".
 **   t=r           Alias for "t=c&unf&hist".
 **   t=y           Alias for "t=s&unf&hist".

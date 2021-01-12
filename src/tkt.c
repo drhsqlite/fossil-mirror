@@ -1065,7 +1065,7 @@ void tkttimeline_page(void){
 ** By default, the artifacts are decoded and formatted.  Text fields
 ** are formatted as text/plain, since in the general case Fossil does
 ** not have knowledge of the encoding.  If the "raw" query parameter
-** is present, then the* undecoded and unformatted text of each artifact
+** is present, then the undecoded and unformatted text of each artifact
 ** is displayed.
 */
 void tkthistory_page(void){
@@ -1497,7 +1497,7 @@ void ticket_cmd(void){
         fossil_fatal("empty %s command aborted!",g.argv[2]);
       }
       getAllTicketFields();
-      /* read commandline and assign fields in the aField[].zValue array */
+      /* read command-line and assign fields in the aField[].zValue array */
       while( i<g.argc ){
         char *zFName;
         char *zFValue;

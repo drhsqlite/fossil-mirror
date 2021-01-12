@@ -1111,7 +1111,7 @@ void wiki_ajax_page(void){
 **
 ** When creating a new page, the mimetype URL parameter may optionally
 ** be used to set its mimetype to one of text/x-fossil-wiki,
-** text/x-markdown, or text/plain, defauling to the former.
+** text/x-markdown, or text/plain, defaulting to the former.
 */
 void wikiedit_page(void){
   const char *zPageName;

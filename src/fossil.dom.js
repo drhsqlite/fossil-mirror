@@ -499,7 +499,7 @@
     for( ; i < n; ++i ){
       e = arguments[i];
       if(!e){
-        console.warn("Achtung: dom.moveChildrenTo() passed a falsy value at argment",i,"of",
+        console.warn("Achtung: dom.moveChildrenTo() passed a falsy value at argument",i,"of",
                      arguments,arguments[i]);
         continue;
       }

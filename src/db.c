@@ -3998,7 +3998,7 @@ struct Setting {
 ** Set this value to zero to disable the check-in lock mechanism.
 **
 ** This value should be set on the server to which users auto-sync
-** their work.  This setting has no affect on client repositories.  The
+** their work.  This setting has no effect on client repositories.  The
 ** check-in lock mechanism is only effective if all users are auto-syncing
 ** to the same server.
 **
