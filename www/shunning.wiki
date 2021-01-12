@@ -94,7 +94,7 @@ fossil record:
 
 It is normal and expected to delete data which is not versioned, such as
 usernames and passwords in the user table. The [/help/scrub|fossil scrub]
-command will remove all sensitive non-versioned data from a respository.
+command will remove all sensitive non-versioned data from a repository.
 
 The scrub command will remove user 'bertina', along with their password,
 any supplied IP address, any concealed email address etc. However, in the 

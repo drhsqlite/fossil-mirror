@@ -115,7 +115,7 @@ Environment Variables
 ---------------------
 
 The location of the user's account-wide [configuration database][configdb]
-depends on the operating system and on the existance of various 
+depends on the operating system and on the existence of various 
 environment variables and/or files.  See the discussion of the
 [configuration database location algorithm][configloc] for details.
 
@@ -395,7 +395,7 @@ The configuration database file includes the global settings
 and the list of repositories and checkouts used by `fossil all`.
 
 The location of the configuration database file depends on the
-operating system and on the existance of various environment
+operating system and on the existence of various environment
 variables and/or files.  In brief, the configuration database is
 usually:
 

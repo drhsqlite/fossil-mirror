@@ -318,7 +318,7 @@ Note the IDs of the images named <tt>fossil_static</tt> and <tt>alpine</tt>, the
 
 <h3>6.1 Cross-compiling from Linux</h3>
 
-The following instructions for building Fossil for Andoid,
+The following instructions for building Fossil for Android,
 without requiring a rooted OS, are adapted from
 [https://fossil-scm.org/forum/forumpost/e0e9de4a7e | forumpost/e0e9de4a7e].
 

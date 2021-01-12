@@ -82,7 +82,7 @@ How does all of this compare to Fossil?
     vs. “block chain” distinction in more detail.
 
     These signatures prevent modification of the face value of each
-    transation (Type 1 fraud) by ensuring that only the one signing a
+    transaction (Type 1 fraud) by ensuring that only the one signing a
     new block has the private signing key that could change an issued
     block after the fact.
 
@@ -121,7 +121,7 @@ How does all of this compare to Fossil?
     Although you have complete control over the contents of your local
     Fossil repository clone, you cannot perform Type 1 forgery on its
     contents short of executing a [preimage attack][prei] on the hash
-    algorthm. ([SHA3-256][SHA-3] by default in the current version of
+    algorithm. ([SHA3-256][SHA-3] by default in the current version of
     Fossil.) Even if you could, Fossil’s sync protocol will prevent the
     modification from being pushed into another repository: the remote
     Fossil instance says, “I’ve already got that one, thanks,” and
@@ -148,7 +148,7 @@ How does all of this compare to Fossil?
     may wonder why they are not enabled by default. It is because
     they are defense-in-depth measures, not the minimum sufficient
     measures needed to prevent repository fraud, unlike the equivalent
-    protections in a cryptocurrency blockcahin. Fossil provides its
+    protections in a cryptocurrency blockchain. Fossil provides its
     primary protections through other means, so it doesn’t need to
     mandate signatures.
 

@@ -105,7 +105,7 @@ There are just a small set of changes required:
         /lib/systemd/system
 
 2.  Add `User` and `Group` directives to the `[Service]` section so
-    Fossil runs as a normal user, preferrably one with access only to
+    Fossil runs as a normal user, preferably one with access only to
     the Fossil repo files, rather than running as `root`.
 
 

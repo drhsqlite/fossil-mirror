@@ -63,7 +63,7 @@ These design choices were a major source of inspiration for Fossil.
 
 Beginning around 2005, the need for a better version control system
 for SQLite began to become evident.  The SQLite architect looked
-around for a suitable replacement.  Monotone, Git, and Mercurical were
+around for a suitable replacement.  Monotone, Git, and Mercurial were
 all considered.  But at that time, none of these supported sync
 over ordinary HTTP, none could be run from an inexpensive shell
 account on a leased server (this was before the widespread availability
@@ -87,7 +87,7 @@ few months of development work, the code was considered stable enough
 to begin hosting the [SQLite documentation repository][350] which was
 split off from the main SQLite CVS repository on [2007-11-12][355].
 After two years of development work on Fossil, the
-SQLite source code itself was transfered to Fossil on
+SQLite source code itself was transferred to Fossil on
 [2009-08-11][360].
 
 [350]: https://www.sqlite.org/docsrc/doc/trunk/README.md

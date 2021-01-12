@@ -139,7 +139,7 @@ Exactly how long `localStorage` will survive, and how much it or
 will survive until the current browser tab is closed, but it survives
 across reloads of the same tab.
 
-If `/filepage` determines that no peristent storage is available a
+If `/filepage` determines that no persistent storage is available a
 warning is displayed on the editor page.
 
 [html5storage]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API

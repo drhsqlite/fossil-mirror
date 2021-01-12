@@ -178,7 +178,7 @@ your local tree:</p>
 <b>[/help/branch | fossil branch]</b><br>
 </blockquote>
 
-<p>If you created a new respository using "fossil init" some commands will not
+<p>If you created a new repository using "fossil init" some commands will not
 produce much output.</p>
 
 <p>Note that Fossil allows you to make multiple check-outs in
@@ -200,7 +200,7 @@ version, whereas [/help/checkout | checkout] does not
 automatically sync and does a "hard" switch, overwriting local
 changes if told to do so.</p>
 
-<h2 id="changes">Making and Commiting Changes</h2>
+<h2 id="changes">Making and Committing Changes</h2>
 
 <p>To add new files to your project or remove existing ones, use these
 commands:</p>
@@ -534,10 +534,10 @@ persistent using the [/help/setting | setting] command:</p>
 
 <p>Or unset the environment variable.  The fossil setting for the
 HTTP proxy takes precedence over the environment variable and the
-command-line option overrides both.  If you have an persistent
+command-line option overrides both.  If you have a persistent
 proxy setting that you want to override for a one-time sync, that
 is easily done on the command-line.  For example, to sync with
-a co-workers repository on your LAN, you might type:</p>
+a co-worker's repository on your LAN, you might type:</p>
 
 <blockquote>
 <b>fossil sync http://192.168.1.36:8080/ --proxy off</b>

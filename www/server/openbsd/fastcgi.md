@@ -70,7 +70,7 @@ from within the chroot, so need to be constructed; `/var`, however, is
 mounted with the `nodev` option. Rather than removing this default
 setting, create a small memory filesystem and then mount it on to
 `/var/www/dev` with [`mount_mfs(8)`][mfs] so that the `random` and
-`null` device files can be created. In order to avoid neccessitating a
+`null` device files can be created. In order to avoid necessitating a
 startup script to recreate the device files at boot, create a template
 of the needed ``/dev`` tree to automatically populate the memory
 filesystem.

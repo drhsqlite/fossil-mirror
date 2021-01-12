@@ -171,7 +171,7 @@ The skin is controlled by five files:
 <dt><b>css.txt</b></dt><dd>
 
 <p>The css.txt file is the text of the CSS for Fossil.
-Fossil might add additional CSS elements after the
+Fossil might add additional CSS elements after
 the css.txt file, if it sees that the css.txt omits some
 CSS components that Fossil needs.  But for the most part,
 the content of the css.txt is the CSS for the page.</dd>
@@ -265,7 +265,7 @@ press "Reload" on your browser to see the effects.
 ## <a name="headfoot"></a>Header and Footer Processing
 
 The `header.txt` and `footer.txt` control files of a skin are the HTML text
-of the Contnet Header and Content Footer, except that before being inserted
+of the Content Header and Content Footer, except that before being inserted
 into the output stream, the text is run through a
 [TH1 interpreter](./th1.md) that might adjust the text as follows:
 

@@ -849,7 +849,7 @@ critical:
     “[at the local wall clock time on the given date][gapxd],” so the
     command means something different from one second to the next. This
     can be a problem if there are multiple commits on that date, because
-    the command will give diffferent results depending on the time of
+    the command will give different results depending on the time of
     day you run it.
 
 3.  It gives misleading output if there is no close match for the date

@@ -15,7 +15,7 @@ of customizing certain CSS-based behaviors in a Fossil UI. That said...
 ## Is it Really `!important`?
 
 By and large, CSS's `!important` qualifier is not needed when
-customzing Fossil's CSS. On occasion, however, particular styles may
+customizing Fossil's CSS. On occasion, however, particular styles may
 be set directly on DOM elements when Fossil generates its HTML, and
 such cases require the use of `!important` to override them.
 

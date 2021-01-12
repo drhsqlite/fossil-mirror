@@ -637,7 +637,7 @@
 
   *  Use the
      [https://github.com/cr-marcstevens/sha1collisiondetection|hardened SHA1]
-     implemenation by Marc Stevens and Dan Shumow.
+     implementation by Marc Stevens and Dan Shumow.
   *  Add the ability to read and understand
      [./fileformat.wiki#names|artifact names] that are based on SHA3-256
      rather than SHA1, but do not actually generate any such names.
@@ -661,7 +661,7 @@
   *  Enhanced the [/help/sqlite3|fossil sql] command so that it opens the
      [./tech_overview.wiki#localdb|checkout database] and the
      [./tech_overview.wiki#configdb|configuration database] in addition to the
-     respository database.
+     repository database.
   *  TH1 enhancements:
      <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
      <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
@@ -754,7 +754,7 @@
   *  If the FOSSIL_PWREADER environment variable is set, then use the program it
      names in place of getpass() to read passwords and passphrases
   *  Option --baseurl now works on Windows.
-  *  Numerious documentation improvements.
+  *  Numerous documentation improvements.
   *  Update the built-in SQLite to version 3.13.0.
 
 <a name='v1_34'></a>
