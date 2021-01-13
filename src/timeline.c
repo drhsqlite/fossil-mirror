@@ -3142,6 +3142,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = technical notes only
+**                            f  = forum posts only
 **                            t  = tickets only
 **                            w  = wiki commits only
 **   -v|--verbose         Output the list of files changed by each commit
