@@ -2,15 +2,22 @@
 
 ## Introduction
 
-This document attempts to provide equivalents for common Git commands
-and workflows where possible, and where not, to explain those cases.
+Fossil shares many similarities with Git.  In many cases, the
+sub-commands are identical: [`fossil bisect`][fbis] does essentially the
+same thing as [`git bisect`][gbis], for example.
 
-Although Fossil shares many similarities with Git, there are enough
-differences that we can’t provide a simple “translation dictionary” for
-some commands. This document is more concerned with those cases than the
-simple 1:1 mappings, which you can likely find on your own. In many
-cases, the sub-commands are identical: [`fossil bisect`][bis] does essentially
-the same thing as `git bisect`, for example.
+This document covers the cases where there is no simple 1:1 mapping,
+usually because of intentional design differences in Fossil that prevent
+it from working exactly like Git. We choose to explain these differences
+rather than provide a simple “translation dictionary,” since to
+understand the conversion, you need to know why the difference exists.
+
+We focus on practical command examples here, leaving discussions of the
+philosophical underpinnings drive these command differences to [another
+document][fvg]. The [case studies](#cs1) do get a bit philosophical, but
+it is with the aim of illustrating how these Fossil design differences
+cause Fossil to behave materially differently from Git in everyday
+operation.
 
 We present this from the perspective of Git users moving to Fossil, but
 it is also possible to read this document as a Fossil user who speaks
@@ -28,10 +35,8 @@ as-needed, you may find it helpful to skim [the Fossil glossary][gloss].
 It will give you another take on our definitions here, and it may help
 you to understand some of the other Fossil docs better.
 
-We focus more on practical command examples here than on [the
-philosophical underpinnings][fvg] that drive these differences.
-
-[bis]:   /help?cmd=bisect
+[fbis]:  /help?cmd=bisect
+[gbis]:  https://git-scm.com/docs/git-bisect
 [ffor]:  https://fossil-scm.org/forum
 [fvg]:   ./fossil-v-git.wiki
 
