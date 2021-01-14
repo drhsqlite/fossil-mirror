@@ -1,5 +1,5 @@
-C Updated\sdoc\sreferences\sto\sFossil\s2.14\sto\sbe\sless\stentative,\snow\sthat\nit's\simminent.
-D 2021-01-14T19:32:52.412
+C Fix\sthe\sJSON\sstring\sencoder\sso\sthat\sit\sworks\sfor\snon-BMP\sunicode\scharacters.
+D 2021-01-14T20:51:13.404
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -481,7 +481,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 4c303869547276c03b1c92b4642fc808024dbeb9bcc44167ab98ca10bdb07cb3
 F src/dispatch.c 568c17e70f3eb0ac9128f8fd9d305375a7ab478f7a42cec2f52269e90c3478c0
 F src/doc.c b6f05cba72e50b9ed00bc7656abf0bc4185ad80719196f691d78cfce34f8258b
-F src/encode.c d18d44e72c6e3361d0fd3242042980aa37d3d1ae7d774e68d3351eb144bd2238
+F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 5faaf46b539770aac4b8d7687cd4b9dda7c9124e35e6294f1a675f9256d4dc93
 F src/export.c ad05e08c37a550169a81e8b94ca8155f4f594dffc48130d296dfcec786a65c6b
@@ -996,7 +996,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 863fdca4a9a48b8cad3da1224673372e80ef3bcc490f5eb34b50840ab36ebce9
-R d1af73fc981a66d66dbc131e2629310e
-U wyoung
-Z 5d59e9f56439c076f5e1aa094ebe8ada
+P 9650c739dda5d6a40d971e5d34e8ead6fdb4bb95d72f74207d394db6db0ee3e5
+R c6e38df1373743a564f59160ddf9df6c
+U drh
+Z cc2f3e5ace0cb9ebe20abb6cbacfa166
