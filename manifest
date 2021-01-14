@@ -1,5 +1,5 @@
-C Added\sthe\s"Colorized\sDiffs"\ssection\sto\sthe\sgitusers\sdoc.
-D 2021-01-14T15:36:04.289
+C New\swww/co-vs-up.md\sdoc,\swhich\sshould've\sbeen\spart\sof\scommit\s[a5ea7891].\n(D'oh!)
+D 2021-01-14T16:17:02.021
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -843,6 +843,7 @@ F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c8
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md bf75bbf5dbd1aef9d31b7744b9ba8ff647f956467107076c757cc86ee31ead80
 F www/ckout-workflows.md 24b691b62c9cc51cc0f0d5ecf0b2d91526ce956f18bd935d3629d8056836f939
+F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e854d
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 8a6095ecb6582181fd13fb5c1474b2edf0a042750d9e959a703747f7045a5c17
 F www/contact.md c1271fa209c2c7fbbad1480ba666acb0ae82c403cf7c56a0e17cff0795c11bd4
@@ -995,7 +996,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eadc427d3edd2e7f501eac663c2d78d8ef4109fae3228e128e466e9f92b5a184
-R db8879230b9b85ec812d86ad5455d3c7
+P f9e3a59174c31f5266afcd5c13acd908f6a06dc2b1cf30eb7b07ded2b9a8f711
+R 02cb6dc1dd2ded63db6f9f11a78c769d
 U wyoung
-Z 29b6d55684ca18ebf97c3188104f6766
+Z 9a900d8fb341b8896f6f709ca5e613a9
