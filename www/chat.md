@@ -2,7 +2,7 @@
 
 ## Introduction
 
-As of version 2.14 (and prerelease versions after about 2020-12-25),
+As of version 2.14,
 Fossil supports a developer chatroom feature.  The chatroom provides an
 ephemeral discussion venue for insiders.  Design goals include:
 

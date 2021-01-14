@@ -197,8 +197,8 @@ disable it.  The "white-foreground:" setting should be set to
 "1" if the page color has light-color text on a darker background,
 and "0" if the page has dark text on a light-colored background.
 <p>
-If the "pikchr-foreground" setting (only available in Fossil 2.14 and
-later) is defined and is not an empty string then it specifies a
+If the "pikchr-foreground" setting (added in Fossil 2.14)
+is defined and is not an empty string then it specifies a
 foreground color to use for [pikchr diagrams](./pikchr.md).  The
 default pikchr foreground color is black, or white if the
 "white-foreground" boolean is set.

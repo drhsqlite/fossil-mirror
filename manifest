@@ -1,5 +1,5 @@
-C New\swww/co-vs-up.md\sdoc,\swhich\sshould've\sbeen\spart\sof\scommit\s[a5ea7891].\n(D'oh!)
-D 2021-01-14T16:17:02.021
+C Updated\sdoc\sreferences\sto\sFossil\s2.14\sto\sbe\sless\stentative,\snow\sthat\nit's\simminent.
+D 2021-01-14T19:32:52.412
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -837,12 +837,12 @@ F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c82
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
 F www/changes.wiki 12b92f58352758112fdaed03773fbeef80abf16bd90b48826828eefbb0bc92a7
-F www/chat.md 8566754008c72407086110b7b0f4b447ca3f8e7d9204a263b94acf9dd4db7faa
+F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md bf75bbf5dbd1aef9d31b7744b9ba8ff647f956467107076c757cc86ee31ead80
-F www/ckout-workflows.md 24b691b62c9cc51cc0f0d5ecf0b2d91526ce956f18bd935d3629d8056836f939
+F www/ckout-workflows.md ab6e6458629a8716980e3b11dfdb0123b199bc2444365ccf587b04938c20a588
 F www/co-vs-up.md 5c725cbb084c9c3134e175315d8068e286414dafc375cdc8eeea795cb40e854d
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concepts.wiki 8a6095ecb6582181fd13fb5c1474b2edf0a042750d9e959a703747f7045a5c17
@@ -853,7 +853,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f6ffb
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md c44cea940b2d1fd5436c2d71f19a50ba1bb3b96833452fe9f838c28f2c3faa21
+F www/customskin.md 8f9843968c74da5b6148b565dbcee8721ff6a1c72aaa3bb00d52484de80b0953
 F www/defcsp.md 7f8e9746a0eeb241d524c2c86cf0b1f7b44dab8ab25354e4cd774df8510c65c8
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki 0e03b43ba0282cf6cd92fbcbb908e4006a66cd96a52ae97b6735427de1b462a7
@@ -996,7 +996,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9e3a59174c31f5266afcd5c13acd908f6a06dc2b1cf30eb7b07ded2b9a8f711
-R 02cb6dc1dd2ded63db6f9f11a78c769d
+P 863fdca4a9a48b8cad3da1224673372e80ef3bcc490f5eb34b50840ab36ebce9
+R d1af73fc981a66d66dbc131e2629310e
 U wyoung
-Z 9a900d8fb341b8896f6f709ca5e613a9
+Z 5d59e9f56439c076f5e1aa094ebe8ada
