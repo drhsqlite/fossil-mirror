@@ -706,6 +706,28 @@ We cover [this and the workaround for it](#csplit) above.
 [3]: ./rebaseharm.md
 
 
+## <a name="cdiff"></a> Colorized Diffs
+
+The graphical diffs in the Fossil web UI and `fossil diff --tk` use
+color to distinguish insertions, deletions, and replacements, but unlike
+with `git diff` when the output is to an ANSI X3.64 capable terminal,
+`fossil diff` does not.
+
+There’s an easy way to add this feature to Fossil, though: install
+[`colordiff`][cdiff], which is included in [many package systems][cdpkg],
+then say:
+
+        fossil set --global diff-command 'colordiff -wu'
+
+Because this is unconditional, unlike `git diff --color=auto`, you will
+then have to remember to add the `-i` option to `fossil diff` commands
+when you want color disabled, such as when piping diff output to another
+command that doesn’t understand ANSI escape sequences. There’s an
+example of this [below](#dstat).
+
+[cdpkg]: https://repology.org/project/colordiff/versions
+
+
 ## <a id="show"></a> Showing Information About Commits
 
 While there is no direct equivalent to Git’s “`show`” command, similar
@@ -772,7 +794,7 @@ We gave the `-i` flag in both cases to force Fossil to use its internal
 diff implementation, bypassing [your local `diff-command` setting][dcset].
 The `--numstat` option has no effect when you have an external diff
 command set, and some diff command alternatives like
-[`colordiff`][cdiff] produce output that confuses `diffstat`.
+[`colordiff`][cdiff] (covered [above](#cdiff)) produce output that confuses `diffstat`.
 
 If you leave off the `-N` flag in the second example, the `diffstat`
 output won’t include info about any newly-added files.
