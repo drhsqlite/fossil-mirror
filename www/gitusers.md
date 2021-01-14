@@ -76,26 +76,14 @@ document already covers. This command:
 
         fossil update some-branch
 
-…in Fossil. There is a `fossil checkout` command, but it has two
-restrictions that push you toward using `fossil update` instead:
-
-1.  Several features in `fossil update` do not exist in
-    `fossil checkout`.
-
-2.  The lone exception is `fossil checkout --keep`, a rarely-needed
-    operation.
-
-3.  Fossil will have you typing “`fossil up`” frequently anyway to pull
-    remote changes and merge them into the local check-out directory.
-    Adding a `VERSION` string for the cases where you mean something
-    other than “tip of the current branch” is an easy habit to develop.
-
-Neither command is an alias for the other. They overlap enough that they
-can be used interchangeably for everyday use cases, but since `update`
-is more powerful, we recommend that you break the habit of typing
-`checkout`.
+…in Fossil. There is a [`fossil checkout`][co] command, but it has
+[several differences](./co-vs-up.md) that make it less broadly useful
+than [`fossil update`][up] in everyday operation, so we recommend that
+Git users moving to Fossil develop a habit of typing `fossil up` rather
+than `fossil checkout`.
 
 [ckwf]: ./ckout-workflows.md
+[co]:   /help?cmd=checkout
 
 
 #### <a id="rname"></a> Naming Repositories

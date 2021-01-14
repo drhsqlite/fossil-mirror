@@ -32,6 +32,7 @@ set doclist {
   childprojects.wiki {Child Projects}
   chroot.md {Server Chroot Jail}
   ckout-workflows.md {Check-Out Workflows}
+  co-vs-up.md {Checkout vs Update}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contact.md {Developer Contact Information}
