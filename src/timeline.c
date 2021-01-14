@@ -2984,11 +2984,11 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
     }
 
     if( zFormat ){
+      char *zEntry;
+      int nEntryLine = 0;
       if( nChild==0 ){
         sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*LEAF* ");
       }
-      char *zEntry;
-      int nEntryLine = 0;
       zEntry = timeline_entry_subst(zFormat, &nEntryLine, zId, zDate, zUserShort,
                                     zComShort, zBranch, zTags, zPrefix);
       nLine += nEntryLine;

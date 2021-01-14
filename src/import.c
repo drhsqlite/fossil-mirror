@@ -1799,6 +1799,7 @@ void import_cmd(void){
     gsvn.revFlag = find_option("rev-tags", 0, 0)
                 || (incrFlag && !find_option("no-rev-tags", 0, 0));
   }else if( gitFlag ){
+    const char *zGitUser;
     markfile_in = find_option("import-marks", 0, 1);
     markfile_out = find_option("export-marks", 0, 1);
     if( !(ggit.zMasterName = find_option("rename-master", 0, 1)) ){
@@ -1809,11 +1810,12 @@ void import_cmd(void){
     ** Extract --attribute 'emailaddr username' args that will populate
     ** new 'fx_' table to later match username for check-in attribution.
     */
-    const char *zGitUser = find_option("attribute", 0, 1);
+    zGitUser = find_option("attribute", 0, 1);
     while( zGitUser != 0 ){
+      char *currGitUser;
       ggit.gitUserInfo = fossil_realloc(ggit.gitUserInfo, ++ggit.nGitAttr
        * sizeof(ggit.gitUserInfo[0]));
-      char *currGitUser = fossil_strdup(zGitUser);
+      currGitUser = fossil_strdup(zGitUser);
       ggit.gitUserInfo[ggit.nGitAttr-1].zEmail = next_token(&currGitUser);
       ggit.gitUserInfo[ggit.nGitAttr-1].zUser = rest_of_line(&currGitUser);
       zGitUser = find_option("attribute", 0, 1);
