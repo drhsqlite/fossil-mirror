@@ -915,7 +915,7 @@ pull, the client attempts to keep the size of the request from
 growing too large by suppressing file cards once the
 size of the request reaches 1MB.</p>
 
-<h3>5.3 Sync</h3>
+<h3 id="sync">5.3 Sync</h3>
 
 <p>A sync is just a pull and a push that happen at the same time.
 The first three steps of a pull are combined with the first five steps

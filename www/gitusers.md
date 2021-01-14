@@ -80,10 +80,45 @@ document already covers. This command:
 [several differences](./co-vs-up.md) that make it less broadly useful
 than [`fossil update`][up] in everyday operation, so we recommend that
 Git users moving to Fossil develop a habit of typing `fossil up` rather
-than `fossil checkout`.
+than `fossil checkout`. That said, one of those differences does match
+up with Git users’ expectations: `fossil checkout` doesn’t pull changes
+from the remote repository into the local clone as `fossil update` does.
+We think this is less broadly useful, but that’s the subject of the next
+section.
 
 [ckwf]: ./ckout-workflows.md
 [co]:   /help?cmd=checkout
+
+
+#### <a id="pullup"></a> Update vs Pull
+
+The closest equivalent to [`git pull`][gpull] is [`fossil up`][up],
+since Fossil tends to follow the CVS command design: `cvs up` pulls
+changes from the central CVS repository and merges them into the local
+working directory, so that’s what `fossil up` does, too.
+
+There is a `fossil pull` command, but it is simply the reverse of
+`fossil push`, so that `fossil sync` [is functionally equivalent
+to](./sync.wiki#sync):
+
+        fossil push ; fossil pull
+
+There is no “and update the local working directory” step in Fossil’s
+push, pull, or sync commands, as with `git pull`.
+
+This makes `fossil up` dual-use:
+
+*   Without the optional `VERSION` argument, it updates the working
+    checkout to the tip of the current branch.
+
+*   With that argument, it updates to the named version. If that’s the
+    name of a branch, it updates to the tip of that branch rather than
+    the current one.
+
+We think this is a more sensible command design than `git checkout` vs
+`git pull`.
+
+[gpull]: https://git-scm.com/docs/git-pull
 
 
 #### <a id="rname"></a> Naming Repositories
