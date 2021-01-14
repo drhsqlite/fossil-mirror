@@ -264,9 +264,14 @@ void get_checkin_taglist(int rid, Blob *pOut){
 ** Usage: %fossil checkout ?VERSION | --latest? ?OPTIONS?
 **    or: %fossil co ?VERSION | --latest? ?OPTIONS?
 **
-** Check out a version specified on the command-line.  This command
-** will abort if there are edited files in the current checkout unless
-** the --force option appears on the command-line.  The --keep option
+** NOTE: Most people use "fossil update" instead of "fossil checkout" for
+** day-to-day operations.  If you are new to Fossil and trying to learn your
+** way around, it is recommended that you become familiar with the
+** "fossil update" command first.
+**
+** This command changes the current check-out to the version specified
+** as an argument.  The command aborts if there are edited files in the
+** current checkout unless the --force option is used.  The --keep option
 ** leaves files on disk unchanged, except the manifest and manifest.uuid
 ** files.
 **
