@@ -11,16 +11,18 @@ another way to accomplish a given end without using JavaScript.
 
 This is not to say that Fossil’s fall-backs for such cases are always as
 elegant and functional as a no-JS purist might wish. That is simply
-because [the vast majority of web users run with JavaScript enabled](#stats),
-and a minority of those run with some kind of [conditional JavaScript
-blocking](#block) in place. Fossil’s active developers do not deviate from that
+because [the vast majority of web users leave JavaScript unconditionally
+enabled](#stats), and of the small minority of those that do not, a
+large chunk use some kind of [conditional blocking](#block) instead,
+rather than disable JavaScript entirely.
+Fossil’s active developers do not deviate from that
 norm enough that we have many no-JS purists among us, so the no-JS case
 doesn’t get as much attention as some might want. We do [accept code
 contributions][cg], and we are philosophically in favor of graceful
 fall-backs, so you are welcome to appoint yourself the position of no-JS
 czar for the Fossil project!
 
-Evil is in actions, not in nouns: we do not believe JavaScript *can*
+Evil is in actions, not in objects: we do not believe JavaScript *can*
 be evil. It is an active technology, but the actions that matter here
 are those of writing the code and checking it into the Fossil project
 repository. None of the JavaScript code in Fossil is evil, a fact we
