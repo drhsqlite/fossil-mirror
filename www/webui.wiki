@@ -102,7 +102,7 @@ changes from your co-workers the next time your repository is synchronized.
 You can view and edit <b>wiki</b> by following the "Wiki" link on the
 menu bar.  Fossil has its own easy-to-remember
 [/wiki_rules | markup rules], or if you prefer,  it also
-support [/md_rules | Markdown]. And, as with tickets, all of
+supports [/md_rules | Markdown]. And, as with tickets, all of
 your edits will automatically merge with those of your co-workers when
 your repository synchronizes.
 
@@ -132,7 +132,16 @@ for the header and footer of each page can be edited, as can the CSS
 for the entire page.  You can even change around the main menu.
 Timeline display preferences can be edited.  The page that is brought
 up as the "Home" page can be changed.  It is often useful to set the
-"Home" page to be a wiki page or an embedded document.
+"Home" page to be a wiki page or an embedded document. The built-in
+pages <b>/home</b> and <b>/index</b> can be used as the "Home" page.
+They have identical effect, which is to instruct Fossil to find and
+display a wiki page with the same name as the project, or if that
+does not exist, <b>/README.md</b> or <b>/index.wiki</b>.
+
+An embedded document link such as <b>doc/trunk/README.md</b> can be
+used for the "Home" page. If you specify one of the built-in keywords
+<b>/home</b> or <b>/index</b>, the page will not be treated as an 
+embedded document.
 
 <h2>Installing On A Network Server</h2>
 

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\slinenoise\scode\sto\sthe\slatest\sfrom\sthe\scanonical\nwebsite:\s[https://github.com/antirez/linenoise].
-D 2021-01-15T12:59:13.216
+C Improve\swiki\sexplanation\sfor\show\shome\spages\swork\swith\sembedded\sdocuments.\nChange\sexample\sfor\shome\spage\sin\ssetup.c\sto\sbe\strunk,\snot\swhatever\sbranch\shappens\sto\sbe\slatest.
+D 2021-01-15T13:25:47.397
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -586,7 +586,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 2ab213f593203d3f8f570fef19224bc2a13dbe7f667b94fea4f435c06900b978
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
-F src/setup.c 2d5feba94f6f6d501821f14c329129697aa48344634ae34983b6ec50768e1b53
+F src/setup.c aff9ae8f764309507fb7c25cfe554689e55b36382a8566d73b87d735a21ab827
 F src/setupuser.c cff08bafee6e711ed0011dd2ac284c672ae35e1f4772516881ebfe8040559c64
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -992,11 +992,11 @@ F www/uitest.html a97f05c122479801f403711edb0ba588446e1baa509c9b81e22fa3d9404294
 F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a70
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
-F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31a
+F www/webui.wiki 15af7287d80b8fd9313f2fc4bae0098d7b6d3891da278264b8e8cbc9ae5409b5
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 76c81e0359addbcf557627b36e07bbc2cc16f2cf3583f21bdcc034f2e1aa2d41
-R e72086697d2e7ac0a8d561834cc82276
-U drh
-Z 9edc0992958758c906c50ee784108f48
+P a424972e96d229a0cfd2d693fe1479f8412de69ccb725f083c19f293312afa6c
+R 308aa0eeb9da26527587774540c4793a
+U danshearer
+Z 655ee510931765df8ae76f0691879bd5
