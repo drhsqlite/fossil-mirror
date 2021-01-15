@@ -1,5 +1,5 @@
-C Added\s"chat"\sto\sthe\slist\sin\sjavascript.md
-D 2021-01-15T15:04:10.492
+C Fixed\san\sunwanted\shard\sline\sbreak\sin\sjavascript.md
+D 2021-01-15T15:11:27.735
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -904,7 +904,7 @@ F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c21
 F www/index.wiki d3739ea5ac2edd5b959b7635e8914aca1d8c723f96c7447fd781a60f42e0f1e2
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
-F www/javascript.md e93f3a0e8bdd106700dc104b097aa7d2a9cc50c78b8a669185eaa542dbeaa52a
+F www/javascript.md 16bd92b96331dbe0eb49f2b1fa0f6b5ae5df4e346d17ec22544e7bce4ea7ec07
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -996,7 +996,7 @@ F www/webui.wiki 15af7287d80b8fd9313f2fc4bae0098d7b6d3891da278264b8e8cbc9ae5409b
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20c193d8d41771c02e3c6cf5e92c32e241e54e76a31c91c9dd876f22376d237d
-R c13e9a3aaca15389f8ca85a438bcdc2f
+P debb410e9bf7991215178ace25732798a5ba1a4882a208ee261202ac18971028
+R 67a150dc1a4fbff6a88a16723e22897f
 U wyoung
-Z 2c4b3dd85f3a671931e89ba4657408a1
+Z 1495e5dfd82c906de03c0fb9a2657c57
