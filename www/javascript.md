@@ -550,6 +550,25 @@ patch to do this][cg] may well be accepted. Since this is not a
 *necessary* Fossil feature, an interested user is unlikely to get the
 core developers to do this work for them.
 
+
+### <a id="chat"></a>Chat
+
+The [chat feature](./chat.md) added in Fossil 2.14 is deeply dependent
+on JavaScript. There is no obvious way to do this sort of thing without
+active client-side code of some sort.
+
+_Potential Workaround:_ It would not be especially difficult for someone
+sufficiently motivated to build a Fossil chat gateway, connecting to
+IRC, Jabber, etc. The messages are stored in the repository’s `chat`
+table with monotonically increasing IDs, so a poller that did something
+like
+
+       SELECT xfrom, xmsg FROM chat WHERE msgid > 1234;
+
+…would pull the messages submitted since the last poll. Making the
+gateway bidirectional should be possible as well, as long as it properly
+uses SQLite transactions.
+
 ----
 
 ## <a id="future"></a>Future Plans for JavaScript in Fossil
