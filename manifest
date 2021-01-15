@@ -1,5 +1,5 @@
-C Break\soverlong\sline.
-D 2021-01-15T11:16:28.168
+C Update\sthe\sbuilt-in\slinenoise\scode\sto\sthe\slatest\sfrom\sthe\scanonical\nwebsite:\s[https://github.com/antirez/linenoise].
+D 2021-01-15T12:59:13.216
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -541,8 +541,8 @@ F src/json_timeline.c 25f5da14306f30a3ce31a8e2448708affddb0ba7f13be29fb7cdaae538
 F src/json_user.c 00121f3de127f20603d276f8c0cfe4ce0290085220cb9976e3b55a6dbbfdecf9
 F src/json_wiki.c 287d1628a7b3295112eb8edfc7541ae6ac6c248c680f26d324e20f097847a22d
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
-F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
-F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
+F src/linenoise.c 4a4898e9e5708e494e7c27110832decf4675b3017e6f7713527bc1994582e8a3
+F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
 F src/login.c 71bf3f7634e786c0d7889b3487eb4cfe1d627ae02169e425f8ced4981c744628
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
@@ -996,7 +996,7 @@ F www/webui.wiki fa9d968f06142fd5238e256ff2ab7792dd7090dfe80f2b210f2b5230260be31
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bdd48532d74a9cc613540e40460f09120d7552a7811fec5cbefc360c172a00d
-R fda924b29bac6cda2a080a5d79d9caec
-U danield
-Z a8b829a494a35f40c6130885abf9f656
+P 76c81e0359addbcf557627b36e07bbc2cc16f2cf3583f21bdcc034f2e1aa2d41
+R e72086697d2e7ac0a8d561834cc82276
+U drh
+Z 9edc0992958758c906c50ee784108f48
