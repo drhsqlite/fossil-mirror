@@ -94,8 +94,10 @@ ones we’ve heard before and give our stock answers to them here:
     services, JavaScript engine developers have ample motivation to keep
     their engines fast and competitive.
 
-    Once the scripts are cached, Ajax based page updates are faster than
-    the alternative, a full HTTP POST round-trip.
+    Ajax partial page updates are faster than
+    the no-JS alternative, a full HTTP POST round-trip to submit new
+    data to the remote server, retrieve an entire new HTML document,
+    and re-render the whole thing client-side.
 
 3.  <a id="3pjs"></a>“**Third-party JavaScript cannot be trusted.**”
 
