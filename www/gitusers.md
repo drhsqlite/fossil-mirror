@@ -880,7 +880,7 @@ Why would you want to check out a version of a project by date?  Perhaps
 because your customer gave you a vague bug report referencing only a
 date rather than a version. Or, you may be poking semi-randomly through
 history to find a “good” version to anchor the start point of a
-[`bisect`][bis] operation.
+[`fossil bisect`][fbis] operation.
 
 My search engine’s first result for “git checkout by date” is [this
 highly-upvoted accepted Stack Overflow answer][gcod]. The first command
