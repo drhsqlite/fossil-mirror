@@ -1,5 +1,5 @@
-C Improve\swiki\sexplanation\sfor\show\shome\spages\swork\swith\sembedded\sdocuments.\nChange\sexample\sfor\shome\spage\sin\ssetup.c\sto\sbe\strunk,\snot\swhatever\sbranch\shappens\sto\sbe\slatest.
-D 2021-01-15T13:25:47.397
+C Tiny\stweaks\sto\sfossil-v-git.wiki
+D 2021-01-15T14:51:37.674
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -878,7 +878,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d7
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki f4d24b16f9bac211967cc5651a554238c4bd57a20b591fde25b62959315da125
+F www/fossil-v-git.wiki 6eb40b6aa6206e8c65c586b4335d395c54b160a72a91d05f8fa20a16ac15cc61
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -996,7 +996,7 @@ F www/webui.wiki 15af7287d80b8fd9313f2fc4bae0098d7b6d3891da278264b8e8cbc9ae5409b
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a424972e96d229a0cfd2d693fe1479f8412de69ccb725f083c19f293312afa6c
-R 308aa0eeb9da26527587774540c4793a
-U danshearer
-Z 655ee510931765df8ae76f0691879bd5
+P b32461f72d26e000e781e2cadd5a2efebf9a8cea384c8c19521faf3d14876562
+R b73b8682352640bf7e104bda68410ee6
+U wyoung
+Z b14b5983827e511aa862518563cef5be

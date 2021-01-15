@@ -170,7 +170,7 @@ not expected to build Git from source and install it themselves.
 Fossil is a single self-contained stand-alone executable which by default
 depends only on common platform libraries.  You can statically link
 to get an executable with no external dependencies at all &mdash; a useful
-feature for running inside of restrictive 
+feature for running inside a restrictive 
 [https://en.wikipedia.org/wiki/Chroot|chroot jail].
 
 The precompiled Fossil binaries are delivered as just a single
@@ -540,7 +540,7 @@ not the best way to hang a picture on the living room wall.
 <h4 id="contrib">2.5.3 Accepting Contributions</h4>
 
 As of this writing, Git has received about 4.5 times as many commits as
-Fossil resulting in about 2.5times as many lines of source code. The line
+Fossil resulting in about 2.5 times as many lines of source code. The line
 count excludes tests and in-tree third-party dependencies. It does not
 exclude the default GUI for each, since it's integral for Fossil, so we
 count the size of <tt>gitk</tt> in this.
