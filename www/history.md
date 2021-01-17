@@ -27,7 +27,7 @@ multiple developers to be editing the same file at the same time.
 
 Though innovative and much loved in its time, CVS was not without problems.
 Among those was a lack of visibility into the project history and the
-lack of integrated bug tracking.  To try to address these deficiencies,
+lack of integrated bug tracking.  To address these deficiencies,
 the SQLite author developed the [CVSTrac][305] wrapper for CVS beginning
 in [2002][310].
 
@@ -67,7 +67,7 @@ around for a suitable replacement.  Monotone, Git, and Mercurial were
 all considered.  But at that time, none of these supported sync
 over ordinary HTTP, none could be run from an inexpensive shell
 account on a leased server (this was before the widespread availability
-of affordable virtual machines), and none of them supported anything 
+of affordable virtual private servers), and none of them supported anything 
 resembling the wiki and ticket features of CVSTrac that had been 
 found to be so useful.  And so, the SQLite architect began writing
 his own DVCS.

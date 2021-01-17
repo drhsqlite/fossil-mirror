@@ -22,7 +22,7 @@
 <p>Fossil is a simple, high-reliability, distributed software configuration
 management system with these advanced features:
 
-  1.  <b>Integrated Project Management</b> -
+  1.  <b>Project Management</b> -
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
@@ -46,8 +46,8 @@ management system with these advanced features:
       [./selfhost.wiki | self-hosting repositories],
       you get more than just source code - you get this entire website.
 
-  3.  <b>Self-Contained</b> -
-      Fossil is a single stand-alone executable.
+  3.  <b>All-in-one</b> -
+      Fossil is a single self-contained, stand-alone executable.
       To install, simply download a
       [/uv/download.html | precompiled binary]
       for Linux, Mac, or Windows and put it on your $PATH.

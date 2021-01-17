@@ -9,6 +9,7 @@ development project:
   *  [./embeddeddoc.wiki | On-line documentation]
   *  [./event.wiki | Technical notes]
   *  [./forum.wiki | Forum]
+  *  [./chat.md | Chatroom]
   *  Timelines
   *  Full text search over all of the above
   *  Status information
