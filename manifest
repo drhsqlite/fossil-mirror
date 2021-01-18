@@ -1,5 +1,5 @@
-C Minor\swording\stweaks\sto\svarious\sdocumentation\sfiles.
-D 2021-01-17T23:36:37.481
+C Added\s--no-print-result\sflag\sto\stest-th-source\sto\ssuppress\soutput\sof\sfinal\sresult,\sas\sthe\sdefault\sbehavior\ssometimes\scauses\sduplicate\soutput\sof\sthe\slast\sexpression.
+D 2021-01-18T04:32:28.340
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -633,7 +633,7 @@ F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c a669f9157d1e3e8e58bb273258c655fe4a10ee912f91e3804ec95d1817c17d58
+F src/th_main.c 35c1d0887561257c27b5b930e696b9f411c0a6f8b55aeb2fd4771270edff0a57
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c c8d429f5cc7e50c30ae15008a44f6216ad0c03b9527a577138c295ae00460423
 F src/tkt.c 63641b42cd6f4061b732649bbd5d5ddabe20acf2326310f9c6e4c48e7a7f748c
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a54732919d8ed1ba3adf0b5032f430da8a0c8883dcdb1affe1666613a236463b
-R 64c0a3538a498b124b071d20dfa7c126
-U drh
-Z 62bd5c642b7744d485d1c82169161079
+P 5aa71f59b709ae09c108a0e5049bfd997944c9e77058f9596e937baea35453f2
+R 095669cc37a9629eb3c78536b1e19751
+U stephan
+Z 3def03aff336c0df4b5bc34900368940

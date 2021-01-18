@@ -2934,15 +2934,18 @@ void test_th_eval(void){
 **     --set-anon-caps      Set anonymous login capabilities
 **     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
+**     --no-print-result    Do not output the final result. Use if it
+**                          interferes with script output.
 */
 void test_th_source(void){
   int rc;
   const char *zRc;
-  int forceCgi, fullHttpReply;
+  int forceCgi, fullHttpReply, fNoPrintRc;
   Blob in;
   Th_InitTraceLog();
   forceCgi = find_option("cgi", 0, 0)!=0;
   fullHttpReply = find_option("http", 0, 0)!=0;
+  fNoPrintRc = find_option("no-print-result",0,0)!=0;
   if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("open-config", 0, 0)!=0 ){
@@ -2967,7 +2970,10 @@ void test_th_source(void){
   Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, blob_str(&in), -1);
   zRc = Th_ReturnCodeName(rc, 1);
-  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
+  if(0==fNoPrintRc){
+    fossil_print("%s%s%s\n", zRc, zRc ? ": " : "",
+                 Th_GetResult(g.interp, 0));
+  }
   Th_PrintTraceLog();
   if( forceCgi ) cgi_reply();
 }
