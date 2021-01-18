@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.35\salpha\sversion\sthat\suses\sthe\nEXISTS-to-IN\soptimization.\s\sEXISTS\soperators\sare\sused\sa\slot\sin\sFossil,\nso\sFossil\sshould\sgive\sthe\snew\soptimization\sa\sgood\sreal-world\stest.
-D 2021-01-18T15:02:32.575
+C Adjust\sautomatically\schoosen\scolors\sto\sbe\sless\ssaturated,\sand\seasier\sto\sread.
+D 2021-01-18T23:29:36.207
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -635,7 +635,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 35c1d0887561257c27b5b930e696b9f411c0a6f8b55aeb2fd4771270edff0a57
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c c8d429f5cc7e50c30ae15008a44f6216ad0c03b9527a577138c295ae00460423
+F src/timeline.c a1a7b60e9ccf9f9a7edcc8dee5dd3053eed6fb97dcda4814f77f43fafa384907
 F src/tkt.c 63641b42cd6f4061b732649bbd5d5ddabe20acf2326310f9c6e4c48e7a7f748c
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 817c6434350795c61d4d3fe935130a4f2b63ed39b0658fb1677b7a0058f8817a
-R 51db7300a0f04c1f46941cde80b02fb7
+P 74dd3187a9d53f6300d42f069d4e8d4eb28a570712b4a4629d20c63b638e6c29
+R 2def803d39f5032701359f0c03a0795f
 U drh
-Z ea42ded5d702006d20877a65dfd38712
+Z c1270aec3e97a1a71a7df4960e1f3821

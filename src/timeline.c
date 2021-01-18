@@ -139,19 +139,19 @@ char *hash_color(const char *z){
 
   if( ix[0]==0 ){
     if( skin_detail_boolean("white-foreground") ){
-      ix[0] = 140;
-      ix[1] = 40;
+      ix[0] = 0x50;
+      ix[1] = 0x20;
     }else{
-      ix[0] = 216;
-      ix[1] = 16;
+      ix[0] = 0xf8;
+      ix[1] = 0x20;
     }
   }
   for(i=0; z[i]; i++ ){
     h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
   }
   h1 = h % 6;  h /= 6;
-  h3 = h % 30; h /= 30;
-  h4 = h % 40; h /= 40;
+  h3 = h % 10; h /= 10;
+  h4 = h % 10; h /= 10;
   mx = ix[0] - h3;
   mn = mx - h4 - ix[1];
   h2 = (h%(mx - mn)) + mn;
