@@ -1,5 +1,5 @@
-C Adjust\sautomatically\schoosen\scolors\sto\sbe\sless\ssaturated,\sand\seasier\sto\sread.
-D 2021-01-18T23:29:36.207
+C Enable\s[https://sqlite.org/pragma.html#pragma_secure_delete|secure_delete]\nwhen\sdeleting\schat\smessages,\sso\sthat\sthere\sare\sno\sforensic\straces\sleft\sbehind.
+D 2021-01-20T02:09:43.836
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -453,7 +453,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
-F src/chat.c ebdaa5acbc60adff68b31f427960a84e227401e95f98f4709b2fcf765fa54838
+F src/chat.c d74ac16cc95ccaea98d4ed1cd2f7bd00becac19b61aa93bace77baf4c0a84148
 F src/chat.js dec74b08020230bd0f2bc0f81b0a2390532fd463a66687278dad5c8359f3bae9
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
 F src/checkout.c c43f81eb454b53327bb3de1f60b06b685c210b327e2d12c711a62805329245db
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74dd3187a9d53f6300d42f069d4e8d4eb28a570712b4a4629d20c63b638e6c29
-R 2def803d39f5032701359f0c03a0795f
+P fb3dabd5c4bf638cd675344be5afcab0390cf2d050617abf7c19dbc8f60cf2e2
+R 409b76b87bd4706ad43ed490496e62c5
 U drh
-Z c1270aec3e97a1a71a7df4960e1f3821
+Z f3948f4c5c2c97a1ea0d86d5036bc672

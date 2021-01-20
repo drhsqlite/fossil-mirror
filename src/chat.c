@@ -257,6 +257,7 @@ static void chat_purge(void){
                        " ORDER BY msgid DESC LIMIT 1 OFFSET %d", mxCnt);
      if( msgid>0 ){
        Stmt s;
+       db_multi_exec("PRAGMA secure_delete=ON;");
        db_prepare(&s, 
              "DELETE FROM chat WHERE mtime<julianday('now')-:mxage"
              " AND msgid<%d", msgid);
@@ -699,6 +700,7 @@ void chat_delete_webpage(void){
   if( zOwner==0 ) return;
   if( fossil_strcmp(zOwner, g.zLogin)!=0 && !g.perm.Admin ) return;
   db_multi_exec(
+    "PRAGMA secure_delete=ON;\n"
     "BEGIN;\n"
     "DELETE FROM chat WHERE msgid=%d;\n"
     "INSERT INTO chat(mtime, xfrom, mdel)"
