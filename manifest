@@ -1,5 +1,5 @@
-C Enable\s[https://sqlite.org/pragma.html#pragma_secure_delete|secure_delete]\nwhen\sdeleting\schat\smessages,\sso\sthat\sthere\sare\sno\sforensic\straces\sleft\sbehind.
-D 2021-01-20T02:09:43.836
+C Enhancements\sto\sthe\schange\slog.\s\sMention\sSQLite\s3.35\sand\sFossil\sperformance\noptimizations.
+D 2021-01-20T12:16:16.732
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -836,7 +836,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
-F www/changes.wiki 12b92f58352758112fdaed03773fbeef80abf16bd90b48826828eefbb0bc92a7
+F www/changes.wiki 74647419885beb60f061342a40e5a1b8a3e9ebc5e8f3e3d5ebfc075283f3deab
 F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb3dabd5c4bf638cd675344be5afcab0390cf2d050617abf7c19dbc8f60cf2e2
-R 409b76b87bd4706ad43ed490496e62c5
+P 12a120dd378b2a541ac465b725f2d7453a42733b0a052507454841c4264b9d6d
+R e7c6039197b43792f26999fe3899f160
 U drh
-Z f3948f4c5c2c97a1ea0d86d5036bc672
+Z c204bcbcd6368f70544ce38042b5e55a

@@ -23,8 +23,8 @@
      in the EVENT table, for improved display on timelines.  You must
      run "[/help?cmd=rebuild|fossil rebuild]" to take advantage of
      this enhancement.  Everything will still work without
-     "fossil rebuild", but you might see goofy descriptions on
-     wiki change notifications in timelines.
+     "fossil rebuild", except you will get goofy descriptions of
+     wiki updates in the timeline.
   *  Add support for [./chat.md|Fossil chat].
   *  The "[/help?cmd=clone|fossil clone]" command is enhanced so that
      if the repository filename is omitted, an appropriate name is derived
@@ -56,6 +56,10 @@
      </ul>
   *  Allow the use of SQL functions inside the ticket table definition
      for custom ticket configurations.
+  *  The built-in SQLite is updated to version 3.35.0 alpha containing
+     performance optimizations, especially performance associated with
+     startup, and minor improvements to the CLI.
+  *  Performance optimizations to Fossil itself.
   *  Countless improvements and enhancements to the documentation
 
 <a name='v2_13'></a>
