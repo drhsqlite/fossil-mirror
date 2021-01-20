@@ -548,7 +548,7 @@ void uvlist_page(void){
   style_header("Unversioned Files");
   if( !db_table_exists("repository","unversioned") ){
     @ No unversioned files on this server
-    style_finish_page("uvlist");
+    style_finish_page();
     return;
   }
   if( PB("byage") ) zOrderBy = "mtime DESC";
@@ -624,7 +624,7 @@ void uvlist_page(void){
   if( n ){
     approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
     @ </tbody>
-    @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)
+    @ <tfoot><tr><td><b>Total for %d(cnt) files</b><td><td>%s(zSzName)
     @ <td><td>
     if( g.perm.Admin ){
       @ <td>
@@ -634,7 +634,7 @@ void uvlist_page(void){
   }else{
     @ No unversioned files on this server.
   }
-  style_finish_page("uvlist");
+  style_finish_page();
 }
 
 /*

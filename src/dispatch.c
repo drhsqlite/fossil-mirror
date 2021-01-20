@@ -351,6 +351,8 @@ static void appendMixedFont(Blob *pOut, const char *z, int n){
 **      two spaces.
 **
 **   *  Indented text is show verbatim (<pre>...</pre>)
+**
+**   *  Lines that begin with "|" at the left margin are in <pre>...</pre>
 */
 static void help_to_html(const char *zHelp, Blob *pHtml){
   int i;
@@ -363,6 +365,7 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
   int iLevel = 0;
   int isLI = 0;
   int isDT = 0;
+  int inPRE = 0;
   static const char *zEndDL = "</dl></blockquote>";
   static const char *zEndPRE = "</pre></blockquote>";
   static const char *zEndUL = "</ul>";
@@ -382,12 +385,28 @@ static void help_to_html(const char *zHelp, Blob *pHtml){
       }
       i++;
     }
-    if( i>2 && zHelp[0]=='>' && zHelp[1]==' ' ){
-      isDT = 1;
-      for(nIndent=1; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    if( i>2 && (zHelp[0]=='>' || zHelp[0]=='|') && zHelp[1]==' ' ){
+      if( zHelp[0]=='>' ){
+        isDT = 1;
+        for(nIndent=1; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+      }else{
+        if( !inPRE ){
+          blob_append(pHtml, "<pre>\n", -1);
+          inPRE = 1;
+        }
+      }
     }else{
+      if( inPRE ){
+        blob_append(pHtml, "</pre>\n", -1);
+        inPRE = 0;
+      }
       isDT = 0;
       for(nIndent=0; nIndent<i && zHelp[nIndent]==' '; nIndent++){}
+    }
+    if( inPRE ){
+      blob_append(pHtml, zHelp+1, i);
+      zHelp += i + 1;
+      continue;
     }
     if( nIndent==i ){
       if( c==0 ) break;
@@ -493,7 +512,7 @@ static void help_to_text(const char *zHelp, Blob *pText){
       i = -1;
       continue;
     }
-    if( c=='\n' && strncmp(zHelp+i+1,"> ",2)==0 ){
+    if( c=='\n' && (zHelp[i+1]=='>' || zHelp[i+1]=='|') && zHelp[i+2]==' ' ){
       blob_append(pText, zHelp, i+1);
       blob_append(pText, " ", 1);
       zHelp += i+2;
@@ -749,6 +768,7 @@ void help_page(void){
     int rc;
     const CmdOrPage *pCmd = 0;
 
+  style_set_current_feature("tkt");
     style_header("Help: %s", zCmd);
 
     style_submenu_element("Command-List", "%R/help");
@@ -852,7 +872,7 @@ void help_page(void){
     @ </ul></div>
 
   }
-  style_finish_page("help");
+  style_finish_page();
 }
 
 /*
@@ -864,6 +884,7 @@ void test_all_help_page(void){
   int i;
   Blob buf;
   blob_init(&buf,0,0);
+  style_set_current_feature("test");
   style_header("All Help Text");
   @ <dl>
   for(i=0; i<MX_COMMAND; i++){
@@ -903,7 +924,7 @@ void test_all_help_page(void){
   }
   @ </dl>
   blob_reset(&buf);
-  style_finish_page("help");
+  style_finish_page();
 }
 
 static void multi_column_list(const char **azWord, int nWord){

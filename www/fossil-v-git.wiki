@@ -40,7 +40,7 @@ with further description in the text that follows.
 <tr><th width="49%">GIT</th><th width="49%">FOSSIL</th><th width="2%">more</th></tr>
 <tr>
     <td>File versioning only</td>
-    <td>VCS, tickets, wiki, docs, notes, forum, UI,
+    <td>VCS, tickets, wiki, docs, notes, forum, chat, UI,
     [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td>
     <td><a href="#features">2.1&nbsp;&darr;</a></td>
 </tr>
@@ -107,7 +107,8 @@ Git provides file versioning services only, whereas Fossil adds
 an integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
 [./embeddeddoc.wiki | embedded documentation], 
-[./event.wiki | technical notes], and a [./forum.wiki | web forum],
+[./event.wiki | technical notes], a [./forum.wiki | web forum],
+and a [./chat.md | chat service],
 all within a single nicely-designed [./customskin.md|skinnable] web
 [/help?cmd=ui|UI],
 protected by [./caps/ | a fine-grained role-based
@@ -169,7 +170,7 @@ not expected to build Git from source and install it themselves.
 Fossil is a single self-contained stand-alone executable which by default
 depends only on common platform libraries.  You can statically link
 to get an executable with no external dependencies at all &mdash; a useful
-feature for running inside of restrictive 
+feature for running inside a restrictive 
 [https://en.wikipedia.org/wiki/Chroot|chroot jail].
 
 The precompiled Fossil binaries are delivered as just a single
@@ -227,7 +228,7 @@ technology choices: Ruby and PostgreSQL vs C and SQLite.
 The Fossil project itself is [./selfhost.wiki|hosted on a small and
 inexpensive VPS].  A bare-bones $5/month VPS or a
 spare Raspberry Pi is sufficient to run a full-up project
-site, complete with tickets, wiki, and forum, in addition to
+site, complete with tickets, wiki, chat, and forum, in addition to
 being a code repository.
 
 <h3 id="durable" name="database">2.3 Query Language</h3>
@@ -259,7 +260,7 @@ GitHub provide this capability short of crawling the
 [https://www.git-scm.com/docs/git-log|commit log].  With Fossil,
 on the other hand, finding descendents is a simple SQL query.
 It is common in Fossil to ask to see
-[/timeline?d=release&n=all&y=ci&nd|all check-ins since the last release].
+[/timeline?df=release&y=ci|all check-ins since the last release].
 Git lets you see "what came before".  Fossil makes it just as
 easy to also see "what came after".
 
@@ -404,6 +405,14 @@ repository it originally cloned from. Git encourages siloed development.
 Select work in a developer's local repository may remain private
 indefinitely.
 
+The Git preference for siloed development has been strongly adopted by Github,
+who say
+"[https://guides.github.com/activities/forking|Forking is at the core of social coding at GitHub]".
+As a result, as of January 2021,
+[https://github.com/search?q=is:public|Github hosts 43 million distinct software projects],
+most of them created as a results of Git/Github forking and very many
+of them discontinued.
+
 All of this is exactly what one wants when doing bazaar-style
 development.
 
@@ -539,7 +548,7 @@ not the best way to hang a picture on the living room wall.
 <h4 id="contrib">2.5.3 Accepting Contributions</h4>
 
 As of this writing, Git has received about 4.5 times as many commits as
-Fossil resulting in about 2.5times as many lines of source code. The line
+Fossil resulting in about 2.5 times as many lines of source code. The line
 count excludes tests and in-tree third-party dependencies. It does not
 exclude the default GUI for each, since it's integral for Fossil, so we
 count the size of <tt>gitk</tt> in this.
@@ -941,7 +950,10 @@ for years now, so that the solution is now almost universally deployed.
     repo] for administration reasons, and the Download page content
     isn't normally synchronized with a "<tt>fossil clone</tt>" command unless
     you add the "-u" option.  (See "[./aboutdownload.wiki|How the
-    Download Page Works]" for details.) There may also be some purely
+    Download Page Works]" for details.)
+    Chat history is deliberately not synced as
+    chat messages are intended to be ephemeral.
+    There may also be some purely
     static elements of the web site served via D. Richard Hipp's own
     lightweight web server,
     <tt>[https://sqlite.org/althttpd/|althttpd]</tt>,

@@ -193,8 +193,20 @@ written base-64 encoded, MSB first, and without leading
 </p>
 
 <p>
-The base-64 coding is described in
-<a href="http://www.ietf.org/rfc/rfc3548.txt">RFC 3548</a>.
+The base-64 encoding uses one character for each 6 bits of
+the integer to be encoded.  The encoding characters are:
+</p>
+
+<blockquote><pre>
+0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~
+</pre></blockquote>
+
+<p>The least significant 6 bits of the integer are encoded by
+the first character, followed by
+the next 6 bits, and so on until all non-zero bits of the integer
+are encoded.  The minimum number of encoding characters is used.
+Note that for integers less than 10, the base-64 coding is a
+ASCII decimal rendering of the number itself.
 </p>
 
 <a name="examples"></a><h1>4.0 Examples</h1>

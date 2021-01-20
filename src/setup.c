@@ -75,6 +75,7 @@ void setup_page(void){
   }
   setup_user = g.perm.Setup;
 
+  style_set_current_feature("setup");
   style_header("Server Administration");
 
   /* Make sure the header contains <base href="...">.   Issue a warning
@@ -125,6 +126,8 @@ void setup_page(void){
       "Configure the trouble-ticketing system for this repository");
     setup_menu_entry("Wiki", "setup_wiki",
       "Configure the wiki for this repository");
+    setup_menu_entry("Chat", "setup_chat",
+      "Configure the chatroom");
   }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
@@ -177,7 +180,7 @@ void setup_page(void){
   }
   @ </table>
 
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -341,6 +344,7 @@ void setup_access(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Access Control Settings");
   db_begin_transaction();
   @ <form action="%R/setup_access" method="post"><div>
@@ -578,7 +582,7 @@ void setup_access(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -610,6 +614,7 @@ void setup_login_group(void){
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
   }
+  style_set_current_feature("setup");
   style_header("Login Group Configuration");
   if( zErrMsg ){
     @ <p class="generalError">%s(zErrMsg)</p>
@@ -706,7 +711,7 @@ void setup_login_group(void){
     @ </tbody></table>
     style_table_sorter();
   }
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -731,6 +736,7 @@ void setup_timeline(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Timeline Display Preferences");
   db_begin_transaction();
   @ <form action="%R/setup_timeline" method="post"><div>
@@ -845,7 +851,7 @@ void setup_timeline(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -866,6 +872,7 @@ void setup_settings(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Settings");
   if(!g.repositoryOpen){
     /* Provide read-only access to versioned settings,
@@ -938,7 +945,7 @@ void setup_settings(void){
   @ </td></tr></table>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -953,6 +960,7 @@ void setup_config(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("WWW Configuration");
   db_begin_transaction();
   @ <form action="%R/setup_config" method="post"><div>
@@ -1003,7 +1011,7 @@ void setup_config(void){
   @
   @ <p>The default "/home" page displays a Wiki page with the same name
   @ as the Project Name specified above.  Some sites prefer to redirect
-  @ to a documentation page (ex: "/doc/tip/index.wiki") or to "/timeline".</p>
+  @ to a documentation page (ex: "/doc/trunk/index.wiki") or to "/timeline".</p>
   @
   @ <p>Note:  To avoid a redirect loop or other problems, this entry must
   @ begin with "/" and it must specify a valid page.  For example,
@@ -1034,7 +1042,7 @@ void setup_config(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1049,6 +1057,7 @@ void setup_wiki(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Wiki Configuration");
   db_begin_transaction();
   @ <form action="%R/setup_wiki" method="post"><div>
@@ -1110,7 +1119,90 @@ void setup_wiki(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_chat
+**
+** The "Admin/Chat" page.  Requires Setup privilege.
+*/
+void setup_chat(void){
+  static const char *const azAlerts[] = {
+    "alerts/plunk.wav",  "Plunk",
+    "alerts/bflat3.wav", "Tone-1",
+    "alerts/bflat2.wav", "Tone-2",
+    "alerts/bloop.wav",  "Bloop",
+  };
+
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Chat Configuration");
+  db_begin_transaction();
+  @ <form action="%R/setup_chat" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  entry_attribute("Initial Chat History Size", 10,
+                  "chat-initial-history", "chatih", "50", 0);
+  @ <p>When /chat first starts up, it preloads up to this many historical
+  @ messages.
+  @ (Property: "chat-initial-history")</p>
+  @ <hr />
+  entry_attribute("Minimum Number Of Historical Messages To Retain", 10,
+                  "chat-keep-count", "chatkc", "50", 0);
+  @ <p>The chat subsystem purges older messages.  But it will always retain
+  @ the N most recent messages where N is the value of this setting.
+  @ (Property: "chat-keep-count")</p>
+  @ <hr />
+  entry_attribute("Maximum Message Age In Days", 10,
+                  "chat-keep-days", "chatkd", "7", 0);
+  @ <p>Chat message are removed after N days, where N is the value of
+  @ this setting.  N may be fractional.  So, for example, to only keep
+  @ an historical record of chat messages for 12 hours, set this value
+  @ to 0.5.
+  @ (Property: "chat-keep-days")</p>
+  @ <hr />
+  entry_attribute("Chat Polling Timeout", 10,
+                  "chat-poll-timeout", "chatpt", "420", 0);
+  @ <p>New chat content is downloaded using the "long poll" technique.
+  @ HTTP requests are made to /chat-poll which blocks waiting on new
+  @ content to arrive.  But the /chat-poll cannot block forever.  It
+  @ eventual must give up and return an empty message set.  This setting
+  @ determines how long /chat-poll will wait before giving up.  The
+  @ default setting of approximately 7 minutes works well on many systems.
+  @ Shorter delays might be required on installations that use proxies
+  @ or web-servers with short timeouts.  For best efficiency, this value
+  @ should be larger rather than smaller.
+  @ (Property: "chat-poll-timeout")</p>
+  @ <hr />
+
+  multiple_choice_attribute("Alert sound",
+     "chat-alert-sound", "snd", azAlerts[0],
+     count(azAlerts)/2, azAlerts);
+  @ <p>The sound used in the client-side chat to indicate that a new
+  @ chat message has arrived.
+  @ (Property: "chat-alert-sound")</p>
+  @ <hr/>
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  @ <script nonce="%h(style_nonce())">
+  @ (function(){
+  @   var w = document.getElementById('idsnd');
+  @   w.onchange = function(){
+  @     var audio = new Audio('%s(g.zBaseURL)/builtin/' + w.value);
+  @     audio.currentTime = 0;
+  @     audio.play();
+  @   }
+  @ })();
+  @ </script>
+  style_finish_page();
 }
 
 /*
@@ -1125,6 +1217,7 @@ void setup_modreq(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Moderator For Wiki And Tickets");
   db_begin_transaction();
   @ <form action="%R/setup_modreq" method="post"><div>
@@ -1156,7 +1249,7 @@ void setup_modreq(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("setup");
+  style_finish_page();
 
 }
 
@@ -1182,6 +1275,7 @@ void setup_adunit(void){
     setup_incr_cfgcnt();
   }
 
+  style_set_current_feature("setup");
   style_header("Edit Ad Unit");
   @ <form action="%R/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
@@ -1237,7 +1331,7 @@ void setup_adunit(void){
   @ '&gt;Demo Ad&lt;/div&gt;
   @ </pre></blockquote>
   @ </li>
-  style_finish_page("setup");
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -1363,6 +1457,7 @@ void setup_logo(void){
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }
+  style_set_current_feature("setup");
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
@@ -1439,7 +1534,7 @@ void setup_logo(void){
   @ <p><span class="note">Note:</span>  Your browser has probably cached these
   @ images, so you may need to press the Reload button before changes will
   @ take effect. </p>
-  style_finish_page("setup");
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -1483,6 +1578,7 @@ void sql_page(void){
   }
   add_content_sql_commands(g.db);
   zQ = cgi_csrf_safe(1) ? P("q") : 0;
+  style_set_current_feature("setup");
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
@@ -1601,7 +1697,7 @@ void sql_page(void){
       @ </table>
     }
   }
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 
@@ -1620,6 +1716,7 @@ void th1_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Raw TH1 Commands");
   @ <p><b>Caution:</b> There are no restrictions on the TH1 that can be
   @ run by this page.  If Tcl integration was enabled at compile-time and
@@ -1645,7 +1742,7 @@ void th1_page(void){
       @ <pre class="th1error">%h(zR)</pre>
     }
   }
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1666,6 +1763,7 @@ void page_admin_log(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Admin Log");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
@@ -1712,7 +1810,7 @@ void page_admin_log(){
   if( counter>ofst+limit ){
     @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1726,6 +1824,7 @@ void page_srchsetup(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Search Configuration");
   @ <form action="%R/srchsetup" method="post"><div>
   login_insert_csrf_secret();
@@ -1792,7 +1891,7 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
-  style_finish_page("setup");
+  style_finish_page();
 }
 
 /*
@@ -1851,6 +1950,7 @@ void page_waliassetup(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("URL Alias Configuration");
   if( P("submit")!=0 ){
     Blob token;
@@ -1950,5 +2050,5 @@ void page_waliassetup(){
   @
   @ <p>To add a new alias, fill in the name and value in the bottom row
   @ of the table above and press "Apply Changes".
-  style_finish_page("setup");
+  style_finish_page();
 }

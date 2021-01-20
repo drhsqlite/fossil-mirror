@@ -18,10 +18,9 @@
 **
 ** Code for the JSON API.
 **
-** For notes regarding the public JSON interface, please see:
+** The JSON API's public interface is documented at:
 **
-** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view
-**
+** https://fossil-scm.org/fossil/doc/trunk/www/json-api/index.md
 **
 ** Notes for hackers...
 **
@@ -69,7 +68,9 @@ int json_request_is_json_api(const char * zPathInfo){
            && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
     rc = 1;
   }else if(g.zCmdName!=0 && (0==strcmp("server",g.zCmdName)
-                             || 0==strcmp("cgi",g.zCmdName)) ){
+                             || 0==strcmp("ui",g.zCmdName)
+                             || 0==strcmp("cgi",g.zCmdName)
+                             || 0==strcmp("http",g.zCmdName)) ){
     /* When running in server/cgi "directory" mode, zPathInfo is
     ** prefixed with the repository's name, so in order to determine
     ** whether or not we're really running in json mode we have to try
@@ -1980,6 +1981,7 @@ cson_value * json_page_cap(){
   ADD(EmailAlert,"emailAlert");
   ADD(Announce,"announce");
   ADD(Debug,"debug");
+  ADD(Chat,"chat");
 #undef ADD
   return payload;
 }

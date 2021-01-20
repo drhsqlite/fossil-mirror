@@ -191,7 +191,7 @@ void modreq_page(void){
     www_print_timeline(&q, 0, 0, 0, 0, 0, 0, 0);
     db_finalize(&q);
   }
-  style_finish_page("modreq");
+  style_finish_page();
 }
 
 /*

@@ -1118,11 +1118,12 @@ static int fossil_print_error(int rc, const char *z){
     g.cgiOutput = 2;
     cgi_reset_content();
     cgi_set_content_type("text/html");
+    style_set_current_feature("error");
     style_header("Bad Request");
     etag_cancel();
     @ <p class="generalError">%h(z)</p>
     cgi_set_status(400, "Bad Request");
-    style_finish_page("error");
+    style_finish_page();
     cgi_reply();
   }else if( !g.fQuiet ){
     fossil_force_newline();

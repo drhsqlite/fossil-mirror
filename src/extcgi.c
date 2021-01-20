@@ -145,7 +145,7 @@ static int isDirWithIndexFile(char **pzPath){
 **
 ** The /ext page is only functional if the "extroot: DIR" setting is
 ** found in the CGI script that launched Fossil, or if the "--extroot DIR"
-** flag is present when Fossil is lauched using the "server", "ui", or
+** flag is present when Fossil is launched using the "server", "ui", or
 ** "http" commands.  DIR must be an absolute pathname (relative to the
 ** chroot jail) of the root of the file hierarchy that implements the CGI
 ** functionality.  Executable files are CGI.  Non-executable files are
@@ -397,6 +397,7 @@ void ext_filelist_page(void){
     return;
   }
   ext_files();
+  style_set_current_feature("extcgi");
   style_header("CGI Extension Filelist");
   @ <table border="0" cellspacing="0" cellpadding="3">
   @ <tbody>
@@ -422,5 +423,5 @@ void ext_filelist_page(void){
   db_finalize(&q);
   @ </tbody>
   @ </table>
-  style_finish_page("extcgi");
+  style_finish_page();
 }

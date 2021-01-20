@@ -34,7 +34,7 @@ The last two rules are the HTML formatting rules.
       by two spaces or a tab.
       Only a single level of enumeration list is supported by wiki.
       For nested lists or for enumerations that count using letters or
-      roman numerials, use HTML.
+      roman numerals, use HTML.
 
   4.  <b>Indented Paragraphs.</b>
       Any paragraph that begins with two or more spaces or a tab and which

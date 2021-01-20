@@ -333,7 +333,7 @@ presentation for routine display purposes.
 Git needs rebase because it lacks these annotation facilities.  Rather
 than consider rebase a desirable feature missing in Fossil, ask instead
 why Git lacks support for making editorial changes to check-ins without
-modifyihng history?  Wouldn't it be better to fix the version control
+modifying history?  Wouldn't it be better to fix the version control
 tool rather than requiring users to fabricate a fictitious project
 history?
 

@@ -14,11 +14,19 @@
      Options:
 
      .refresh: callback which is called just before the tooltip is
-     revealed or moved. It must refresh the contents of the tooltip,
-     if needed, by applying the content to/within this.e, which is the
-     base DOM element for the tooltip (and is a child of
-     document.body). If the contents are static and set up via the
-     .init option then this callback is not needed.
+     revealed. It must refresh the contents of the tooltip, if needed,
+     by applying the content to/within this.e, which is the base DOM
+     element for the tooltip (and is a child of document.body). If the
+     contents are static and set up via the .init option then this
+     callback is not needed. When moving an already-shown tooltip,
+     this is *not* called. It arguably should be, but the fact is that
+     we often have to show() a popup twice in a row without hiding it
+     between those calls: once to get its computed size and another to
+     move it by some amount relative to that size. If the state of the
+     popup depends on its position and a "double-show()" is needed
+     then the client must hide() the popup between the two calls to
+     show() in order to force a call to refresh() on the second
+     show().
 
      .adjustX: an optional callback which is called when the tooltip
      is to be displayed at a given position and passed the X
@@ -43,7 +51,10 @@
 
 
      .cssClass: optional CSS class, or list of classes, to apply to
-     the new element.
+     the new element. In addition to any supplied here (or inherited
+     from the default), the class "fossil-PopupWidget" is always set
+     in order to allow certain app-internal CSS to account for popup
+     windows in special cases.
 
      .style: optional object of properties to copy directly into
      the element's style object.     
@@ -78,7 +89,8 @@
   F.PopupWidget = function f(opt){
     opt = F.mergeLastWins(f.defaultOptions,opt);
     this.options = opt;
-    const e = this.e = D.addClass(D.div(), opt.cssClass);
+    const e = this.e = D.addClass(D.div(), opt.cssClass,
+                                  "fossil-PopupWidget");
     this.show(false);
     if(opt.style){
       let k;
@@ -142,12 +154,17 @@
 
        Returns this object.
 
+       If this call will reveal the element then it calls
+       this.refresh() to update the UI state. If the element was
+       already revealed, the call to refresh() is skipped.
+
        Sidebar: showing/hiding the widget is, as is conventional for
        this framework, done by removing/adding the 'hidden' CSS class
        to it, so that class must be defined appropriately.
     */
     show: function(){
-      var x = undefined, y = undefined, showIt;
+      var x = undefined, y = undefined, showIt,
+          wasShown = !this.e.classList.contains('hidden');
       if(2===arguments.length){
         x = arguments[0];
         y = arguments[1];
@@ -164,7 +181,7 @@
         }
       }
       if(showIt){
-        this.refresh();
+        if(!wasShown) this.refresh();
         x = this.options.adjustX.call(this,x);
         y = this.options.adjustY.call(this,y);
         x += window.pageXOffset;
@@ -184,7 +201,48 @@
       return this;
     },
 
-    hide: function(){return this.show(false)}
+    /**
+       Equivalent to show(false), but may be overridden by instances,
+       so long as they also call this.show(false) to perform the
+       actual hiding. Overriding can be used to clean up any state so
+       that the next call to refresh() (before the popup is show()n
+       again) can recognize whether it needs to do something, noting
+       that it's legal, and sometimes necessary, to call show()
+       multiple times without needing/wanting to completely refresh
+       the popup between each call (e.g. when moving the popup after
+       it's been show()n).
+    */
+    hide: function(){return this.show(false)},
+
+    /**
+       A convenience method which adds click handlers to this popup's
+       main element and document.body to hide (via hide()) the popup
+       when either element is clicked or the ESC key is pressed. Only
+       call this once per instance, if at all. Returns this;
+
+       The first argument specifies whether a click handler on this
+       object is installed. The second specifies whether a click
+       outside of this object should close it. The third specifies
+       whether an ESC handler is installed.
+
+       Passing no arguments is equivalent to passing (true,true,true),
+       and passing fewer arguments defaults the unpassed parameters to
+       true.
+    */
+    installHideHandlers: function f(onClickSelf, onClickOther, onEsc){
+      if(!arguments.length) onClickSelf = onClickOther = onEsc = true;
+      else if(1===arguments.length) onClickOther = onEsc = true;
+      else if(2===arguments.length) onEsc = true;
+      if(onClickSelf) this.e.addEventListener('click', ()=>this.hide(), false);
+      if(onClickOther) document.body.addEventListener('click', ()=>this.hide(), true);
+      if(onEsc){
+        const self = this;
+        document.body.addEventListener('keydown', function(ev){
+          if(self.isShown() && 27===ev.which) self.hide();
+        }, true);
+      }
+      return this;
+    }
   }/*F.PopupWidget.prototype*/;
 
   /**
@@ -210,6 +268,7 @@
       f.toaster = new F.PopupWidget({
         cssClass: 'fossil-toast-message'
       });
+      D.attr(f.toaster.e, 'role', 'alert');
     }
     const T = f.toaster;
     if(f._timer) clearTimeout(f._timer);
@@ -233,19 +292,24 @@
     },
     /**
        Convenience wrapper around a PopupWidget which pops up a shared
-       PopupWidget instance to show toast-style messages (commonly seen
-       on Android). Its arguments may be anything suitable for passing
-       to fossil.dom.append(), and each argument is first append()ed to
-       the toast widget, then the widget is shown for
-       F.toast.config.displayTimeMs milliseconds. This is called while
-       a toast is currently being displayed, the first will be overwritten
-       and the time until the message is hidden will be reset.
+       PopupWidget instance to show toast-style messages (commonly
+       seen on Android). Its arguments may be anything suitable for
+       passing to fossil.dom.append(), and each argument is first
+       append()ed to the toast widget, then the widget is shown for
+       F.toast.config.displayTimeMs milliseconds. If this is called
+       while a toast is currently being displayed, the first will be
+       overwritten and the time until the message is hidden will be
+       reset.
 
        The toast is always shown at the viewport-relative coordinates
        defined by the F.toast.config.position.
 
-       The toaster's DOM element has the CSS classes fossil-tooltip
-       and fossil-toast, so can be style via those.
+       The toaster's DOM element has the CSS class fossil-tooltip
+       and fossil-toast-message, so can be style via those.
+
+       The 3 main message types (message, warning, error) each get a
+       CSS class with that same name added to them. Thus CSS can
+       select on .fossil-toast-message.error to style error toasts.
     */
     message: function(/*...*/){
       return toastImpl(false,1, arguments);
@@ -258,7 +322,7 @@
       return toastImpl('warning',1.5,arguments);
     },
     /**
-       Displays a toast with the 'warning' CSS class assigned to it. It
+       Displays a toast with the 'error' CSS class assigned to it. It
        displays for twice as long as a normal toast.
     */
     error: function(/*...*/){
@@ -292,6 +356,7 @@
     setup: function f(){
       if(!f.hasOwnProperty('clickHandler')){
         f.clickHandler = function fch(ev){
+          ev.preventDefault();
           if(!fch.popup){
             fch.popup = new F.PopupWidget({
               cssClass: ['fossil-tooltip', 'help-buttonlet-content'],
@@ -299,20 +364,9 @@
               }
             });
             fch.popup.e.style.maxWidth = '80%'/*of body*/;
-            const hide = ()=>fch.popup.hide();
-            fch.popup.e.addEventListener('click', hide, false);
-            document.body.addEventListener('click', hide, true);
-            document.body.addEventListener('keydown', function(ev){
-              if(fch.popup.isShown() && 27===ev.which){
-                fch.popup.hide();
-              }
-            }, true);
+            fch.popup.installHideHandlers();
           }
           D.append(D.clearElement(fch.popup.e), ev.target.$helpContent);
-          var popupRect = ev.target.getClientRects()[0];
-          var x = popupRect.left, y = popupRect.top;
-          if(x<0) x = 0;
-          if(y<0) y = 0;
           /* Shift the help around a bit to "better" fit the
              screen. However, fch.popup.e.getClientRects() is empty
              until the popup is shown, so we have to show it,
@@ -321,6 +375,27 @@
              This algorithm/these heuristics can certainly be improved
              upon.
           */
+          var popupRect, rectElem = ev.target;
+          while(rectElem){
+            popupRect = rectElem.getClientRects()[0]/*undefined if off-screen!*/;
+            if(popupRect) break;
+            rectElem = rectElem.parentNode;
+          }
+          if(!popupRect) popupRect = {x:0, y:0, left:0, right:0};
+          var x = popupRect.left, y = popupRect.top;
+          if(x<0) x = 0;
+          if(y<0) y = 0;
+          if(rectElem){
+            /* Try to ensure that the popup's z-level is higher than this element's */
+            const rz = window.getComputedStyle(rectElem).zIndex;
+            var myZ;
+            if(rz && !isNaN(+rz)){
+              myZ = +rz + 1;
+            }else{
+              myZ = 10000/*guess!*/;
+            }
+            fch.popup.e.style.zIndex = myZ;
+          }
           fch.popup.show(x, y);
           x = popupRect.left, y = popupRect.top;
           popupRect = fch.popup.e.getBoundingClientRect();

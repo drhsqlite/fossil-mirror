@@ -11,16 +11,18 @@ another way to accomplish a given end without using JavaScript.
 
 This is not to say that Fossil’s fall-backs for such cases are always as
 elegant and functional as a no-JS purist might wish. That is simply
-because [the vast majority of web users run with JavaScript enabled](#stats),
-and a minority of those run with some kind of [conditional JavaScript
-blocking](#block) in place. Fossil’s active developers do not deviate from that
+because [the vast majority of web users leave JavaScript unconditionally
+enabled](#stats), and of the small minority of those that do not, a
+large chunk use some kind of [conditional blocking](#block) instead,
+rather than disable JavaScript entirely.
+Fossil’s active developers do not deviate from that
 norm enough that we have many no-JS purists among us, so the no-JS case
 doesn’t get as much attention as some might want. We do [accept code
 contributions][cg], and we are philosophically in favor of graceful
 fall-backs, so you are welcome to appoint yourself the position of no-JS
 czar for the Fossil project!
 
-Evil is in actions, not in nouns: we do not believe JavaScript *can*
+Evil is in actions, not in objects: we do not believe JavaScript *can*
 be evil. It is an active technology, but the actions that matter here
 are those of writing the code and checking it into the Fossil project
 repository. None of the JavaScript code in Fossil is evil, a fact we
@@ -66,8 +68,9 @@ ones we’ve heard before and give our stock answers to them here:
     Atop that, Fossil sends HTTP headers to the browser that allow it
     to perform aggressive caching so that typical page loads will skip
     re-loading this content on subsequent loads. These features are
-    currently optional: you must either set the new [`fossil server
-    --jsmode bundle` option][fsrv] or the corresponding `jsmode` control line
+    currently optional: you must either set the new
+    [`fossil server --jsmode bundle` option][fsrv] or the corresponding
+    `jsmode` control line
     in your [`fossil cgi`][fcgi] script when setting up your
     [Fossil server][fshome]. That done, Fossil’s JavaScript files will
     load almost instantly from the browser’s cache after the initial
@@ -94,8 +97,10 @@ ones we’ve heard before and give our stock answers to them here:
     services, JavaScript engine developers have ample motivation to keep
     their engines fast and competitive.
 
-    Once the scripts are cached, Ajax based page updates are faster than
-    the alternative, a full HTTP POST round-trip.
+    Ajax partial page updates are faster than
+    the no-JS alternative, a full HTTP POST round-trip to submit new
+    data to the remote server, retrieve an entire new HTML document,
+    and re-render the whole thing client-side.
 
 3.  <a id="3pjs"></a>“**Third-party JavaScript cannot be trusted.**”
 
@@ -547,6 +552,25 @@ local time zone to be a useful fallback for the current feature, so [a
 patch to do this][cg] may well be accepted. Since this is not a
 *necessary* Fossil feature, an interested user is unlikely to get the
 core developers to do this work for them.
+
+
+### <a id="chat"></a>Chat
+
+The [chat feature](./chat.md) added in Fossil 2.14 is deeply dependent
+on JavaScript. There is no obvious way to do this sort of thing without
+active client-side code of some sort.
+
+_Potential Workaround:_ It would not be especially difficult for someone
+sufficiently motivated to build a Fossil chat gateway, connecting to
+IRC, Jabber, etc. The messages are stored in the repository’s `chat`
+table with monotonically increasing IDs, so a poller that did something
+like
+
+       SELECT xfrom, xmsg FROM chat WHERE msgid > 1234;
+
+…would pull the messages submitted since the last poll. Making the
+gateway bidirectional should be possible as well, as long as it properly
+uses SQLite transactions.
 
 ----
 

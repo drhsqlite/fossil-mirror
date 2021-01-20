@@ -86,7 +86,19 @@ generated HTML Header will look something like this:
          <title>....</title>
          <link rel="stylesheet" href="..." type="text/css" />
          </head>
-         <body>
+         <body class="FEATURE">
+
+…where `FEATURE` is either the top-level URL element (e.g. `doc`) or a
+feature class that groups multiple URLs under a single name such as
+`forum` to contain `/forummain`, `/forumpost`, `/forume2`, etc. This
+allows per-feature CSS such as
+
+         body.forum div.markdown blockquote {
+           margin-left: 10px;
+         }
+
+That is, affect HTML `<blockquote>` tags specially only for forum posts
+written in Markdown, leaving all other block quotes alone.
 
 In most cases, it is best to leave the Fossil-generated HTML Header
 alone. (One exception is when the administrator needs to include links
@@ -159,7 +171,7 @@ The skin is controlled by five files:
 <dt><b>css.txt</b></dt><dd>
 
 <p>The css.txt file is the text of the CSS for Fossil.
-Fossil might add additional CSS elements after the
+Fossil might add additional CSS elements after
 the css.txt file, if it sees that the css.txt omits some
 CSS components that Fossil needs.  But for the most part,
 the content of the css.txt is the CSS for the page.</dd>
@@ -185,8 +197,8 @@ disable it.  The "white-foreground:" setting should be set to
 "1" if the page color has light-color text on a darker background,
 and "0" if the page has dark text on a light-colored background.
 <p>
-If the "pikchr-foreground" setting (only available in Fossil 2.14 and
-later) is defined and is not an empty string then it specifies a
+If the "pikchr-foreground" setting (added in Fossil 2.14)
+is defined and is not an empty string then it specifies a
 foreground color to use for [pikchr diagrams](./pikchr.md).  The
 default pikchr foreground color is black, or white if the
 "white-foreground" boolean is set.
@@ -253,7 +265,7 @@ press "Reload" on your browser to see the effects.
 ## <a name="headfoot"></a>Header and Footer Processing
 
 The `header.txt` and `footer.txt` control files of a skin are the HTML text
-of the Contnet Header and Content Footer, except that before being inserted
+of the Content Header and Content Footer, except that before being inserted
 into the output stream, the text is run through a
 [TH1 interpreter](./th1.md) that might adjust the text as follows:
 

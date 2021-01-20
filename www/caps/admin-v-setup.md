@@ -350,7 +350,7 @@ about half of its functions, but only Setup can use these pages:
     and its backing data tables, it can probably also be used to damage
     the host such as via `PRAGMA temp_store = FILE`.
 
-*   **Tickets**: This section allows input of aribtrary TH1 code that
+*   **Tickets**: This section allows input of arbitrary TH1 code that
     runs on the server, affecting the way the Fossil ticketing system
     works. The justification in the **TH1** section below therefore
     applies.

@@ -96,6 +96,7 @@ void test_builtin_list(void){
 */
 void test_builtin_list_page(void){
   int i;
+  style_set_current_feature("test");
   style_header("Built-in Text Files");
   @ <ol>
   for(i=0; i<count(aBuiltinFiles); i++){
@@ -105,7 +106,7 @@ void test_builtin_list_page(void){
     @ <li>%z(zUrl)%h(z)</a>
   }
   @ </ol>
-  style_finish_page("test");
+  style_finish_page();
 }
 
 /*
@@ -180,12 +181,13 @@ static void builtin_deliver_multiple_js_files(
 void builtin_webpage(void){
   Blob out;
   const char *zName = P("name");
-  const char *zTxt = 0;
+  const char *zContent = 0;
+  int nContent = 0;
   const char *zId = P("id");
   const char *zType = P("mimetype");
   int nId;
-  if( zName ) zTxt = builtin_text(zName);
-  if( zTxt==0 ){
+  if( zName ) zContent = (const char *)builtin_file(zName, &nContent);
+  if( zContent==0 ){
     const char *zM = P("m");
     if( zM ){
       if( zId && (nId = (int)strlen(zId))>=8
@@ -216,7 +218,7 @@ void builtin_webpage(void){
     g.isConst = 1;
   }
   etag_check(0,0);
-  blob_init(&out, zTxt, -1);
+  blob_init(&out, zContent, nContent);
   cgi_set_content(&out);
 }
 
@@ -637,6 +639,10 @@ void builtin_emit_script_fossil_bootstrap(int addScriptTag){
        skin_detail_boolean("white-foreground") ? "true" : "false");
     CX("}\n"/*fossil.config.skin*/);
     CX("};\n"/* fossil.config */);
+    CX("window.fossil.user = {");
+    CX("name: %!j,", (g.zLogin&&*g.zLogin) ? g.zLogin : "guest");
+    CX("isAdmin: %s", (g.perm.Admin || g.perm.Setup) ? "true" : "false");
+    CX("};\n"/*fossil.user*/);
     CX("if(fossil.config.skin.isDark) "
        "document.body.classList.add('fossil-dark-style');\n");
 #if 0

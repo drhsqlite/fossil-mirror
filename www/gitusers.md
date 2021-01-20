@@ -2,15 +2,22 @@
 
 ## Introduction
 
-This document attempts to provide equivalents for common Git commands
-and workflows where possible, and where not, to explain those cases.
+Fossil shares many similarities with Git.  In many cases, the
+sub-commands are identical: [`fossil bisect`][fbis] does essentially the
+same thing as [`git bisect`][gbis], for example.
 
-Although Fossil shares many similarities with Git, there are enough
-differences that we can’t provide a simple “translation dictionary” for
-some commands. This document is more concerned with those cases than the
-simple 1:1 mappings, which you can likely find on your own. In many
-cases, the sub-commands are identical: [`fossil bisect`][bis] does essentially
-the same thing as `git bisect`, for example.
+This document covers the cases where there is no simple 1:1 mapping,
+usually because of intentional design differences in Fossil that prevent
+it from working exactly like Git. We choose to explain these differences
+rather than provide a simple “translation dictionary,” since to
+understand the conversion, you need to know why the difference exists.
+
+We focus on practical command examples here, leaving discussions of the
+philosophical underpinnings drive these command differences to [another
+document][fvg]. The [case studies](#cs1) do get a bit philosophical, but
+it is with the aim of illustrating how these Fossil design differences
+cause Fossil to behave materially differently from Git in everyday
+operation.
 
 We present this from the perspective of Git users moving to Fossil, but
 it is also possible to read this document as a Fossil user who speaks
@@ -28,10 +35,8 @@ as-needed, you may find it helpful to skim [the Fossil glossary][gloss].
 It will give you another take on our definitions here, and it may help
 you to understand some of the other Fossil docs better.
 
-We focus more on practical command examples here than on [the
-philosophical underpinnings][fvg] that drive these differences.
-
-[bis]:   /help?cmd=bisect
+[fbis]:  /help?cmd=bisect
+[gbis]:  https://git-scm.com/docs/git-bisect
 [ffor]:  https://fossil-scm.org/forum
 [fvg]:   ./fossil-v-git.wiki
 
@@ -71,26 +76,49 @@ document already covers. This command:
 
         fossil update some-branch
 
-…in Fossil. There is a `fossil checkout` command, but it has two
-restrictions that push you toward using `fossil update` instead:
-
-1.  Several features in `fossil update` do not exist in
-    `fossil checkout`.
-
-2.  The lone exception is `fossil checkout --keep`, a rarely-needed
-    operation.
-
-3.  Fossil will have you typing “`fossil up`” frequently anyway to pull
-    remote changes and merge them into the local check-out directory.
-    Adding a `VERSION` string for the cases where you mean something
-    other than “tip of the current branch” is an easy habit to develop.
-
-Neither command is an alias for the other. They overlap enough that they
-can be used interchangeably for everyday use cases, but since `update`
-is more powerful, we recommend that you break the habit of typing
-`checkout`.
+…in Fossil. There is a [`fossil checkout`][co] command, but it has
+[several differences](./co-vs-up.md) that make it less broadly useful
+than [`fossil update`][up] in everyday operation, so we recommend that
+Git users moving to Fossil develop a habit of typing `fossil up` rather
+than `fossil checkout`. That said, one of those differences does match
+up with Git users’ expectations: `fossil checkout` doesn’t pull changes
+from the remote repository into the local clone as `fossil update` does.
+We think this is less broadly useful, but that’s the subject of the next
+section.
 
 [ckwf]: ./ckout-workflows.md
+[co]:   /help?cmd=checkout
+
+
+#### <a id="pullup"></a> Update vs Pull
+
+The closest equivalent to [`git pull`][gpull] is [`fossil up`][up],
+since Fossil tends to follow the CVS command design: `cvs up` pulls
+changes from the central CVS repository and merges them into the local
+working directory, so that’s what `fossil up` does, too.
+
+There is a `fossil pull` command, but it is simply the reverse of
+`fossil push`, so that `fossil sync` [is functionally equivalent
+to](./sync.wiki#sync):
+
+        fossil push ; fossil pull
+
+There is no “and update the local working directory” step in Fossil’s
+push, pull, or sync commands, as with `git pull`.
+
+This makes `fossil up` dual-use:
+
+*   Without the optional `VERSION` argument, it updates the working
+    checkout to the tip of the current branch.
+
+*   With that argument, it updates to the named version. If that’s the
+    name of a branch, it updates to the tip of that branch rather than
+    the current one.
+
+We think this is a more sensible command design than `git checkout` vs
+`git pull`.
+
+[gpull]: https://git-scm.com/docs/git-pull
 
 
 #### <a id="rname"></a> Naming Repositories
@@ -636,7 +664,8 @@ is "`trunk`".  The "`trunk`" branch in Fossil corresponds to the
 Because the `fossil git export` command has to work with both stock Git
 and with GitHub, Fossil uses Git’s traditional default rather than
 GitHub’s new default: your Fossil repo’s “trunk” branch becomes “master”
-when [mirroring to GitHub][mirgh], not “main.”
+when [mirroring to GitHub][mirgh] unless you give the `--mainbranch`
+option added in Fossil 2.14.
 
 We do not know what happens on subsequent exports if you later rename
 this branch on the GitHub side.
@@ -675,6 +704,28 @@ compatible with Fossil yet which currently has no functional equivalent.
 We cover [this and the workaround for it](#csplit) above.
 
 [3]: ./rebaseharm.md
+
+
+## <a name="cdiff"></a> Colorized Diffs
+
+The graphical diffs in the Fossil web UI and `fossil diff --tk` use
+color to distinguish insertions, deletions, and replacements, but unlike
+with `git diff` when the output is to an ANSI X3.64 capable terminal,
+`fossil diff` does not.
+
+There’s an easy way to add this feature to Fossil, though: install
+[`colordiff`][cdiff], which is included in [many package systems][cdpkg],
+then say:
+
+        fossil set --global diff-command 'colordiff -wu'
+
+Because this is unconditional, unlike `git diff --color=auto`, you will
+then have to remember to add the `-i` option to `fossil diff` commands
+when you want color disabled, such as when piping diff output to another
+command that doesn’t understand ANSI escape sequences. There’s an
+example of this [below](#dstat).
+
+[cdpkg]: https://repology.org/project/colordiff/versions
 
 
 ## <a id="show"></a> Showing Information About Commits
@@ -743,7 +794,7 @@ We gave the `-i` flag in both cases to force Fossil to use its internal
 diff implementation, bypassing [your local `diff-command` setting][dcset].
 The `--numstat` option has no effect when you have an external diff
 command set, and some diff command alternatives like
-[`colordiff`][cdiff] produce output that confuses `diffstat`.
+[`colordiff`][cdiff] (covered [above](#cdiff)) produce output that confuses `diffstat`.
 
 If you leave off the `-N` flag in the second example, the `diffstat`
 output won’t include info about any newly-added files.
@@ -829,7 +880,7 @@ Why would you want to check out a version of a project by date?  Perhaps
 because your customer gave you a vague bug report referencing only a
 date rather than a version. Or, you may be poking semi-randomly through
 history to find a “good” version to anchor the start point of a
-[`bisect`][bis] operation.
+[`fossil bisect`][fbis] operation.
 
 My search engine’s first result for “git checkout by date” is [this
 highly-upvoted accepted Stack Overflow answer][gcod]. The first command
@@ -848,7 +899,7 @@ critical:
     “[at the local wall clock time on the given date][gapxd],” so the
     command means something different from one second to the next. This
     can be a problem if there are multiple commits on that date, because
-    the command will give diffferent results depending on the time of
+    the command will give different results depending on the time of
     day you run it.
 
 3.  It gives misleading output if there is no close match for the date

@@ -117,6 +117,9 @@ void sitemap_page(void){
   if( srchFlags ){
     @ <li>%z(href("%R/search"))Search</a></li>
   }
+  if( g.perm.Chat ){
+    @ <li>%z(href("%R/chat"))Chat</a></li>
+  }
   if( g.perm.RdForum ){
     @ <li>%z(href("%R/forum"))Forum</a>
     @ <ul>
@@ -223,7 +226,7 @@ void sitemap_page(void){
   }
   @ </ul>
   if( !isPopup ){
-    style_finish_page("sitemap");
+    style_finish_page();
   }
 }
 
@@ -238,6 +241,7 @@ void sitemap_test_page(void){
   int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
 
   login_check_credentials();
+  style_set_current_feature("sitemap");
   if( P("popup")!=0 && cgi_csrf_safe(0) ){
     /* If this is a POST from the same origin with the popup=1 parameter,
     ** then disable anti-robot defenses */
@@ -275,7 +279,7 @@ void sitemap_test_page(void){
   @ <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
   @ <li>%z(href("%R/test-piechart"))Pie-Chart generator test</a></li>
   if( !isPopup ){
-    style_finish_page("sitemap");
+    style_finish_page();
   }
 }
 
@@ -289,6 +293,7 @@ void sitemap_timeline_page(void){
   int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
 
   login_check_credentials();
+  style_set_current_feature("sitemap");
   if( P("popup")!=0 && cgi_csrf_safe(0) ){
     /* If this is a POST from the same origin with the popup=1 parameter,
     ** then disable anti-robot defenses */
@@ -315,6 +320,6 @@ void sitemap_timeline_page(void){
   @ <li>%z(href("%R/timeline?deltabg"))Delta vs. baseline manifests</a></li>
   @ </ul>
   if( !isPopup ){
-    style_finish_page("sitemap");
+    style_finish_page();
   }
 }

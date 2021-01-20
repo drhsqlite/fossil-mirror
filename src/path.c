@@ -609,7 +609,7 @@ static const char zDistinctRenameQuery[] =
 ** WEBPAGE: test-rename-list
 **
 ** Print a list of all file rename operations throughout history.
-** This page is intended for for testing purposes only and may change
+** This page is intended for testing purposes only and may change
 ** or be discontinued without notice.
 */
 void test_rename_list_page(void){
@@ -619,6 +619,7 @@ void test_rename_list_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("test");
   if( P("all")!=0 ){
     style_header("List Of All Filename Changes");
     db_multi_exec("%s", zRenameQuery/*safe-for-%s*/);
@@ -653,5 +654,5 @@ void test_rename_list_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
-  style_finish_page("test");
+  style_finish_page();
 }

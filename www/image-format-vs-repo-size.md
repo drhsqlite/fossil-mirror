@@ -142,7 +142,7 @@ chart:
     the cases.
 
 *   Because JPEG’s lossy nature allows it to start smaller and have
-    smaller size increases than than PNG, the crossover point with
+    smaller size increases than PNG, the crossover point with
     BMP/TIFF isn’t until 7-9 checkins in typical runs of this [Monte
     Carlo experiment][mce].  Given a choice among these four file
     formats and a willingness to use lossy image compression, a rational

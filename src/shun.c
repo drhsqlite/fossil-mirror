@@ -265,7 +265,7 @@ void shun_page(void){
   }
   db_finalize(&q);
   @ </p></blockquote>
-  style_finish_page("shun");
+  style_finish_page();
   fossil_free(zCanonical);
 }
 
@@ -405,7 +405,7 @@ void rcvfromlist_page(void){
   }
   db_finalize(&q);
   @ </table>
-  style_finish_page("rcvfromlist");
+  style_finish_page();
 }
 
 /*
@@ -551,5 +551,5 @@ void rcvfrom_page(void){
   }
   @ </table>
   db_finalize(&q);
-  style_finish_page("rcvfrom");
+  style_finish_page();
 }

@@ -111,8 +111,7 @@ details.)
 
 #### <a id="clone"></a> Git-Like Clone-and-Open
 
-With Fossil 2.14 — currently unreleased — we added a more Git-like
-alternative:
+In Fossil 2.14, we added a more Git-like alternative:
 
         fossil clone https://fossil-scm.org/fossil
         cd fossil

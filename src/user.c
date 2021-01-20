@@ -40,7 +40,7 @@ static void strip_string(Blob *pBlob, char *z){
   blob_append(pBlob, z, -1);
 }
 
-#if defined(_WIN32) || defined(__BIONIC__)
+#if defined(_WIN32) || defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS)
 #ifdef _WIN32
 #include <conio.h>
 #endif
@@ -774,5 +774,5 @@ void access_log_page(void){
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
   style_table_sorter();
-  style_finish_page("access_log");
+  style_finish_page();
 }

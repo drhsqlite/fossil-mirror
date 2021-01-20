@@ -88,7 +88,7 @@ this program can be seen at
 [https://www.sqlite.org/src/ext/checklist/3070700/self] and
 recent historical versions are available at
 [https://sqlite.org/docsrc/finfo/misc/checklist.tcl] with
-older legacy at [https://sqlite.org/checklistapp/timeline?n=all]
+older legacy at [https://sqlite.org/checklistapp/timeline?n1=all]
 
 There is a cascade of CGIs happening here.  The web server that receives
 the initial HTTP request runs Fossil as a CGI based on the

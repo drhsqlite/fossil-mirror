@@ -385,7 +385,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   if (ttyOutput && !g.fQuiet) {
     percent_complete(0);
   }
-  alert_triggers_disable();
+  manifest_disable_event_triggers();
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
   db_unprotect(PROTECT_ALL);
@@ -396,7 +396,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
                        "'purgeevent','purgeitem','unversioned',"
-                       "'subscriber','pending_alert','alert_bounce')"
+                       "'subscriber','pending_alert','alert_bounce','chat')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
   );
@@ -477,7 +477,6 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
-  alert_triggers_enable();
   if(!g.fQuiet && ttyOutput ){
     percent_complete(1000);
     fossil_print("\n");
@@ -944,6 +943,7 @@ void scrub_cmd(void){
         "DROP TABLE IF EXISTS purgeitem;\n"
         "DROP TABLE IF EXISTS admin_log;\n"
         "DROP TABLE IF EXISTS vcache;\n"
+        "DROP TABLE IF EXISTS chat;\n"
       );
     }
     db_protect_pop();

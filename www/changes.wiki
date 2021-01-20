@@ -1,19 +1,49 @@
 <title>Change Log</title>
 
 <a name='v2_14'></a>
-<h2>Changes for Version 2.14 (pending)</h2>
+<h2>Changes for Version 2.14 (2021-01-20)</h2>
 
+  *  <b>Schema Update Notice #1:</b>
+     This release drops a trigger from the database schema (replacing
+     it with a TEMP trigger that is created as needed).  This
+     change happens automatically the first time you
+     add content to a repository using Fossil 2.14 or later.  No
+     action is needed on your part. However, if you upgrade to 
+     version 2.14 and then later downgrade or otherwise use an earlier
+     version of Fossil, the email notification mechanism may fail
+     to send out notifications for some events, due to the missing
+     trigger.  If you want to
+     permanently downgrade an installation, then you should run
+     "[/help?cmd=rebuild|fossil rebuild]" after the downgrade
+     to get email notifications working again.  If you are not using
+     email notification, then the schema change will not affect you in
+     any way.
+  *  <b>Schema Update Notice #2:</b>
+     This release changes how the descriptions of wiki edits are stored
+     in the EVENT table, for improved display on timelines.  You must
+     run "[/help?cmd=rebuild|fossil rebuild]" to take advantage of
+     this enhancement.  Everything will still work without
+     "fossil rebuild", except you will get goofy descriptions of
+     wiki updates in the timeline.
+  *  Add support for [./chat.md|Fossil chat].
   *  The "[/help?cmd=clone|fossil clone]" command is enhanced so that
      if the repository filename is omitted, an appropriate name is derived
      from the remote URL and the newly cloned repo is opened.  This makes
      the clone command work more like Git, thus making it easier for
      people transitioning from Git.
-  *  Changed the way that wiki edits are stored in the EVENT table of the
-     database, for more flexibility and better features.
-     <b>Run "fossil rebuild" to take advantage of this change</b>.
+  *  Added the --mainbranch option to the [/help?cmd=git|fossil git export]
+     command.
+  *  Added the --format option to the 
+     "[/help?cmd=timeline|fossil timeline]" command.
+  *  Enhance the --numstat option on the
+     "[/help?cmd=diff|fossil diff]" command so that it shows a total
+     number of lines added and deleted and total number of files
+     modified.
   *  Add the "contact" sub-command to [/help?cmd=user|fossil user].
   *  Added commands "[/help?cmd=all|fossil all git export]" and
      "[/help?cmd=all|fossil all git status]".
+  *  Added the "df=CHECKIN" query parameter to the
+     [/help?cmd=/timeline|/timeline page].
   *  Improvements to the "[/sitemap]" page.  Add subpages
      [/sitemap-timeline] and [/sitemap-test].
   *  Better text position in cylinder objects of Pikchr diagrams.
@@ -26,6 +56,10 @@
      </ul>
   *  Allow the use of SQL functions inside the ticket table definition
      for custom ticket configurations.
+  *  The built-in SQLite is updated to version 3.35.0 alpha containing
+     performance optimizations, especially performance associated with
+     startup, and minor improvements to the CLI.
+  *  Performance optimizations to Fossil itself.
   *  Countless improvements and enhancements to the documentation
 
 <a name='v2_13'></a>
@@ -607,7 +641,7 @@
 
   *  Use the
      [https://github.com/cr-marcstevens/sha1collisiondetection|hardened SHA1]
-     implemenation by Marc Stevens and Dan Shumow.
+     implementation by Marc Stevens and Dan Shumow.
   *  Add the ability to read and understand
      [./fileformat.wiki#names|artifact names] that are based on SHA3-256
      rather than SHA1, but do not actually generate any such names.
@@ -631,7 +665,7 @@
   *  Enhanced the [/help/sqlite3|fossil sql] command so that it opens the
      [./tech_overview.wiki#localdb|checkout database] and the
      [./tech_overview.wiki#configdb|configuration database] in addition to the
-     respository database.
+     repository database.
   *  TH1 enhancements:
      <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
      <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
@@ -724,7 +758,7 @@
   *  If the FOSSIL_PWREADER environment variable is set, then use the program it
      names in place of getpass() to read passwords and passphrases
   *  Option --baseurl now works on Windows.
-  *  Numerious documentation improvements.
+  *  Numerous documentation improvements.
   *  Update the built-in SQLite to version 3.13.0.
 
 <a name='v1_34'></a>

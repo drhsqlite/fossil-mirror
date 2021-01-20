@@ -124,6 +124,9 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 
 /*
 ** Hash a string and use the hash to determine a background color.
+**
+** This value returned is in static space and is overwritten with
+** each subsequent call.
 */
 char *hash_color(const char *z){
   int i;                       /* Loop counter */
@@ -136,19 +139,19 @@ char *hash_color(const char *z){
 
   if( ix[0]==0 ){
     if( skin_detail_boolean("white-foreground") ){
-      ix[0] = 140;
-      ix[1] = 40;
+      ix[0] = 0x50;
+      ix[1] = 0x20;
     }else{
-      ix[0] = 216;
-      ix[1] = 16;
+      ix[0] = 0xf8;
+      ix[1] = 0x20;
     }
   }
   for(i=0; z[i]; i++ ){
     h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
   }
   h1 = h % 6;  h /= 6;
-  h3 = h % 30; h /= 30;
-  h4 = h % 40; h /= 40;
+  h3 = h % 10; h /= 10;
+  h4 = h % 10; h /= 10;
   mx = ix[0] - h3;
   mn = mx - h4 - ix[1];
   h2 = (h%(mx - mn)) + mn;
@@ -191,6 +194,7 @@ void test_hash_color_page(void){
   int i, cnt;
   login_check_credentials();
 
+  style_set_current_feature("test");
   style_header("Hash Color Test");
   for(i=cnt=0; i<10; i++){
     sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
@@ -216,7 +220,7 @@ void test_hash_color_page(void){
   }
   @ <input type="submit">
   @ </form>
-  style_finish_page("test");
+  style_finish_page();
 }
 
 /*
@@ -544,8 +548,12 @@ void www_print_timeline(
     }else{
       @ <td class="timeline%s(zStyle)Cell%s(zExtraClass)">
     }
-    if( pGraph && zType[0]!='c' ){
-      @ &bull;
+    if( pGraph ){
+      if( zType[0]=='e' ){
+        @ <b>Note:</b>
+      }else if( zType[0]!='c' ){
+        @ &bull;
+      }
     }
     if( modPending ){
       @ <span class="modpending">(Awaiting Moderator Approval)</span>
@@ -1630,10 +1638,17 @@ const char *timeline_expand_datetime(const char *zIn){
 **                    the file with FILEHASH
 **    m=TIMEORTAG     Highlight the event at TIMEORTAG
 **    n=COUNT         Maximum number of events. "all" for no limit
+**    n1=COUNT        Same as "n" but doesn't set the display-preference cookie
+**                       Use "n1=COUNT" for a one-time display change
 **    p=CHECKIN       Parents and ancestors of CHECKIN
 **                       bt=PRIOR   ... going back to PRIOR
 **    d=CHECKIN       Children and descendants of CHECKIN
-**    dp=CHECKIN      The same as 'd=CHECKIN&p=CHECKIN'
+**    dp=CHECKIN      Same as 'd=CHECKIN&p=CHECKIN'
+**    df=CHECKIN      Same as 'd=CHECKIN&n1=all&nd'.  Mnemonic: "Derived From"
+**    bt=CHECKIN      In conjunction with p=CX, this means show all
+**                       ancestors of CX going back to the time of CHECKIN.
+**                       All qualifying check-ins are shown unless there
+**                       is also an n= or n1= query parameter.
 **    t=TAG           Show only check-ins with the given TAG
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    rel             Show related check-ins as well as those matching t=TAG
@@ -1657,6 +1672,8 @@ const char *timeline_expand_datetime(const char *zIn){
 **                       shortest        ... show only the shortest path
 **                       rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
+**                       All qualifying check-ins are shown unless there is
+**                       also an n= or n1= query parameter.
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
 **                    name matches one of the comma-separate GLOBLIST
 **    brbg            Background color determined by branch name
@@ -1691,9 +1708,9 @@ void page_timeline(void){
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
   int nEntry;                        /* Max number of entries on timeline */
-  int p_rid = name_to_typed_rid(P("p"),"ci");  /* artifact p and its parents */
-  int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
-  int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
+  int p_rid;                         /* artifact p and its parents */
+  int d_rid;                         /* artifact d and descendants */
+  int f_rid;                         /* artifact f and close family */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType;                 /* Type of events to display */
   const char *zAfter = P("a");       /* Events after this time */
@@ -1750,11 +1767,28 @@ void page_timeline(void){
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
+
   /* Set number of rows to display */
-  haveParameterN = P("n")!=0;
-  cookie_read_parameter("n","n");
   z = P("n");
-  if( z==0 ) z = db_get("timeline-default-length",0);
+  if( z!=0 ){
+    haveParameterN = 1;
+    cookie_write_parameter("n","n",0);
+  }else{
+    const char *z2;
+    haveParameterN = 0;
+    cookie_read_parameter("n","n");
+    z = P("n");
+    if( z==0 ){
+      z = db_get("timeline-default-length",0);
+    }
+    cgi_replace_query_parameter("n",fossil_strdup(z));
+    cookie_write_parameter("n","n",0);
+    z2 = P("n1");
+    if( z2 ){
+      haveParameterN = 2;
+      z = z2;
+    }
+  }
   if( z ){
     if( fossil_strcmp(z,"all")==0 ){
       nEntry = 0;
@@ -1766,8 +1800,21 @@ void page_timeline(void){
       }
     }
   }else{
-    z = "50";
     nEntry = 50;
+  }
+
+  /* Query parameters d=, p=, and f= and variants */
+  z = P("p");
+  p_rid = z ? name_to_typed_rid(z,"ci") : 0;
+  z = P("d");
+  d_rid = z ? name_to_typed_rid(z,"ci") : 0;
+  z = P("f");
+  f_rid = z ? name_to_typed_rid(z,"ci") : 0;
+  z = P("df");
+  if( z && (d_rid = name_to_typed_rid(z,"ci"))!=0 ){
+    nEntry = 0;
+    useDividers = 0;
+    cgi_replace_query_parameter("d",fossil_strdup(z));
   }
 
   /* Undocumented query parameter to set JS mode */
@@ -1775,8 +1822,6 @@ void page_timeline(void){
 
   secondaryRid = name_to_typed_rid(P("sel2"),"ci");
   selectedRid = name_to_typed_rid(P("sel1"),"ci");
-  cgi_replace_query_parameter("n",z);
-  cookie_write_parameter("n","n",0);
   tmFlags |= timeline_ss_submenu();
   cookie_link_parameter("advm","advm","0");
   advancedMenu = atoi(PD("advm","0"));
@@ -1915,6 +1960,7 @@ void page_timeline(void){
       compute_uses_file("usesfile", ufid, 0);
       zType = "ci";
       disableY = 1;
+      if( !haveParameterN ) nEntry = 0;
     }else{
       zUses = 0;
     }
@@ -2107,7 +2153,7 @@ void page_timeline(void){
     tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     if( p_rid && d_rid ){
       if( p_rid!=d_rid ) p_rid = d_rid;
-      if( P("n")==0 ) nEntry = 10;
+      if( !haveParameterN ) nEntry = 10;
     }
     db_multi_exec(
        "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
@@ -2131,7 +2177,7 @@ void page_timeline(void){
     if( p_rid ){
       zBackTo = P("bt");
       ridBackTo = zBackTo ? name_to_typed_rid(zBackTo,"ci") : 0;
-      if( !haveParameterN ) nEntry = 0;
+      if( ridBackTo && !haveParameterN ) nEntry = 0;
       compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0, ridBackTo);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 || nd==0 ){
@@ -2727,7 +2773,102 @@ void page_timeline(void){
     @ &nbsp;&darr;</a>
   }
   document_emit_js(/*handles pikchrs rendered above*/);
-  style_finish_page("timeline");
+  style_finish_page();
+}
+
+/*
+** Translate a timeline entry into the printable format by
+** converting every %-substitutions as follows:
+**
+**     %n  newline
+**     %%  a raw %
+**     %H  commit hash
+**     %h  abbreviated commit hash
+**     %a  author name
+**     %d  date
+**     %c  comment (\n, \t replaced by space, \r deleted)
+**     %b  branch
+**     %t  tags
+**     %p  phase (zero or more of: *CURRENT*, *MERGE*, *FORK*,
+**                                 *UNPUBLISHED*, *LEAF*, *BRANCH*)
+**
+** The returned string is obtained from fossil_malloc() and should
+** be freed by the caller.
+*/
+static char *timeline_entry_subst(
+  const char *zFormat,
+  int *nLine,
+  const char *zId,
+  const char *zDate,
+  const char *zUser,
+  const char *zCom,
+  const char *zBranch,
+  const char *zTags,
+  const char *zPhase
+){
+  Blob r, co;
+  int i, j;
+  blob_init(&r, 0, 0);
+  blob_init(&co, 0, 0);
+
+  /* Replace LF and tab with space, delete CR */
+  while( zCom[0] ){
+    for(j=0; zCom[j] && zCom[j]!='\r' && zCom[j]!='\n' && zCom[j]!='\t'; j++){}
+    blob_append(&co, zCom, j);
+    if( zCom[j]==0 ) break;
+    if( zCom[j]!='\r')
+      blob_append(&co, " ", 1);
+    zCom += j+1;
+  }
+  blob_str(&co);
+
+  *nLine = 1;
+  while( zFormat[0] ){
+    for(i=0; zFormat[i] && zFormat[i]!='%'; i++){}
+    blob_append(&r, zFormat, i);
+    if( zFormat[i]==0 ) break;
+    if( zFormat[i+1]=='%' ){
+      blob_append(&r, "%", 1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='n' ){
+      blob_append(&r, "\n", 1);
+      *nLine += 1;
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='H' ){
+      blob_append(&r, zId, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='h' ){
+      char *zFree = 0;
+      zFree = mprintf("%S", zId);
+      blob_append(&r, zFree, -1);
+      fossil_free(zFree);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='d' ){
+      blob_append(&r, zDate, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='a' ){
+      blob_append(&r, zUser, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='c' ){
+      blob_append(&r, co.aData, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='b' ){
+      if( zBranch ) blob_append(&r, zBranch, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='t' ){
+      blob_append(&r, zTags, -1);
+      zFormat += i+2;
+    }else if( zFormat[i+1]=='p' ){
+      blob_append(&r, zPhase, -1);
+      zFormat += i+2;
+    }else{
+      blob_append(&r, zFormat+i, 1);
+      zFormat += i+1;
+    }
+  }
+  fossil_free(co.aData);
+  blob_str(&r);
+  return r.aData;
 }
 
 /*
@@ -2747,14 +2888,17 @@ void page_timeline(void){
 **    0.  rid
 **    1.  uuid
 **    2.  Date/Time
-**    3.  Comment string and user
+**    3.  Comment string, user, and tags
 **    4.  Number of non-merge children
 **    5.  Number of parents
 **    6.  mtime
 **    7.  branch
 **    8.  event-type: 'ci', 'w', 't', 'f', and so forth.
+**    9.  comment
+**   10.  user
+**   11.  tags
 */
-void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
+void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int verboseFlag){
   int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
   int nLine = 0;
   int nEntry = 0;
@@ -2777,7 +2921,11 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     const char *zCom = db_column_text(q, 3);
     int nChild = db_column_int(q, 4);
     int nParent = db_column_int(q, 5);
+    const char *zBranch = db_column_text(q, 7);
     const char *zType = db_column_text(q, 8);
+    const char *zComShort = db_column_text(q, 9);
+    const char *zUserShort = db_column_text(q, 10);
+    const char *zTags = db_column_text(q, 11);
     char *zFree = 0;
     int n = 0;
     char zPrefix[80];
@@ -2791,13 +2939,14 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
         break; /* entry count limit hit, stop. */
       }
     }
-    if( fossil_strnicmp(zDate, zPrevDate, 10) ){
+    if( zFormat == 0 && fossil_strnicmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
       nLine++; /* record another line */
     }
     if( zCom==0 ) zCom = "";
-    fossil_print("%.8s ", &zDate[11]);
+    if( zFormat == 0 )
+      fossil_print("%.8s ", &zDate[11]);
     zPrefix[0] = 0;
     if( nParent>1 ){
       sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
@@ -2833,8 +2982,23 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     }else{
       zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
     }
-    /* record another X lines */
-    nLine += comment_print(zFree, zCom, 9, width, get_comment_format());
+
+    if( zFormat ){
+      char *zEntry;
+      int nEntryLine = 0;
+      if( nChild==0 ){
+        sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*LEAF* ");
+      }
+      zEntry = timeline_entry_subst(zFormat, &nEntryLine, zId, zDate, zUserShort,
+                                    zComShort, zBranch, zTags, zPrefix);
+      nLine += nEntryLine;
+      fossil_print("%s\n", zEntry);
+      fossil_free(zEntry);
+    }
+    else{
+      /* record another X lines */
+      nLine += comment_print(zFree, zCom, 9, width, get_comment_format());
+    }
     fossil_free(zFree);
 
     if(verboseFlag){
@@ -2904,6 +3068,13 @@ const char *timeline_query_for_tty(void){
     @   event.mtime AS mtime,
     @   tagxref.value AS branch,
     @   event.type
+    @   , coalesce(ecomment,comment) AS comment0
+    @   , coalesce(euser,user,'?') AS user0
+    @   , (SELECT case when length(x)>0 then x else '' end
+    @         FROM (SELECT group_concat(substr(tagname,5), ', ') AS x
+    @         FROM tag, tagxref
+    @         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
+    @          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)) AS tags    
     @ FROM tag CROSS JOIN event CROSS JOIN blob
     @      LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
     @   AND tagxref.tagtype>0
@@ -2933,6 +3104,7 @@ static int fossil_is_julianday(const char *zDate){
   return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd"
                    " WHERE jd IS NOT NULL)", zDate);
 }
+
 
 /*
 ** COMMAND: timeline
@@ -2970,6 +3142,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = technical notes only
+**                            f  = forum posts only
 **                            t  = tickets only
 **                            w  = wiki commits only
 **   -v|--verbose         Output the list of files changed by each commit
@@ -2979,6 +3152,23 @@ static int fossil_is_julianday(const char *zDate){
 **                        either greater than 20 or it ust be zero 0 to
 **                        indicate no limit, resulting in a single line per
 **                        entry.
+**   -F|--format          Entry format. Values "oneline", "medium", and "full"
+**                        get mapped to the full options below. Otherwise a 
+**                        string which can contain these placeholders:
+**                            %n  newline
+**                            %%  a raw %
+**                            %H  commit hash
+**                            %h  abbreviated commit hash
+**                            %a  author name
+**                            %d  date
+**                            %c  comment (NL, TAB replaced by space, LF deleted)
+**                            %b  branch
+**                            %t  tags
+**                            %p  phase: zero or more of *CURRENT*, *MERGE*,
+**                                      *FORK*, *UNPUBLISHED*, *LEAF*, *BRANCH*
+**   --oneline            Show only short hash and comment for each entry
+**   --medium             Medium-verbose entry formatting
+**   --full               Extra verbose entry formatting
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current checkout's repository.
 */
@@ -2998,6 +3188,7 @@ void timeline_cmd(void){
   int verboseFlag = 0 ;
   int iOffset;
   const char *zFilePattern = 0;
+  const char *zFormat = 0;
   Blob treeName;
   int showSql = 0;
 
@@ -3010,6 +3201,14 @@ void timeline_cmd(void){
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
   zFilePattern = find_option("path","p",1);
+  zFormat = find_option("format","F",1);
+  if( find_option("oneline",0,0)!= 0 || fossil_strcmp(zFormat,"oneline")==0 )
+    zFormat = "%h %c";
+  if( find_option("medium",0,0)!= 0 || fossil_strcmp(zFormat,"medium")==0 )
+    zFormat = "Commit:   %h%nDate:     %d%nAuthor:   %a%nComment:  %c%n";
+  if( find_option("full",0,0)!= 0 || fossil_strcmp(zFormat,"full")==0 )
+    zFormat = "Commit:   %H%nDate:     %d%nAuthor:   %a%nComment:  %c%n"
+              "Branch:   %b%nTags:     %t%nPhase:    %p%n";
   showSql = find_option("sql",0,0)!=0;
 
   if( !zLimit ){
@@ -3159,7 +3358,7 @@ void timeline_cmd(void){
   }
   db_prepare_blob(&q, &sql);
   blob_reset(&sql);
-  print_timeline(&q, n, width, verboseFlag);
+  print_timeline(&q, n, width, zFormat, verboseFlag);
   db_finalize(&q);
 }
 
@@ -3186,6 +3385,7 @@ void thisdayinhistory_page(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
+  style_set_current_feature("timeline");
   style_header("Today In History");
   zToday = (char*)P("today");
   if( zToday ){
@@ -3233,7 +3433,7 @@ void thisdayinhistory_page(void){
     www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0, 0, 0);
   }
   db_finalize(&q);
-  style_finish_page("timeline");
+  style_finish_page();
 }
 
 
@@ -3339,5 +3539,5 @@ void test_timewarp_page(void){
   }else{
     @ </tbody></table></div>
   }
-  style_finish_page("timewarps");
+  style_finish_page();
 }

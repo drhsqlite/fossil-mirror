@@ -56,7 +56,7 @@ void tktsetup_page(void){
   setup_menu_entry("Key Template", "tktsetup_keytplt",
     "The default color key for reports.");
   @ </table>
-  style_finish_page("tktsetup");
+  style_finish_page();
 }
 
 /*
@@ -125,6 +125,7 @@ static void tktsetup_generic(
     login_needed(0);
     return;
   }
+  style_set_current_feature("tktsetup");
   if( PB("setup") ){
     cgi_redirect("tktsetup");
   }
@@ -133,6 +134,7 @@ static void tktsetup_generic(
   if( z==0 ){
     z = db_get(zDbField, zDfltValue);
   }
+  style_set_current_feature("tktsetup");
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();
@@ -165,7 +167,7 @@ static void tktsetup_generic(
   @ <blockquote><pre>
   @ %h(zDfltValue)
   @ </pre></blockquote>
-  style_finish_page("tktsetup");
+  style_finish_page();
 }
 
 /*
@@ -903,6 +905,7 @@ void tktsetup_timeline_page(void){
   if( P("setup") ){
     cgi_redirect("tktsetup");
   }
+  style_set_current_feature("tktsetup");
   style_header("Ticket Display On Timelines");
   db_begin_transaction();
   @ <form action="%R/tktsetup_timeline" method="post"><div>
@@ -936,6 +939,6 @@ void tktsetup_timeline_page(void){
   @ </p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("tktsetup");
+  style_finish_page();
 
 }

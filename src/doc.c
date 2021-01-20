@@ -40,15 +40,19 @@ const char *mimetype_from_content(Blob *pBlob){
   /* A table of mimetypes based on file content prefixes
   */
   static const struct {
-    const char *zPrefix;       /* The file prefix */
-    const int size;            /* Length of the prefix */
+    const char *z;             /* Identifying file text */
+    const unsigned char sz1;   /* Length of the prefix */
+    const unsigned char of2;   /* Offset to the second segment */
+    const unsigned char sz2;   /* Size of the second segment */
+    const unsigned char mn;    /* Minimum size of input */
     const char *zMimetype;     /* The corresponding mimetype */
   } aMime[] = {
-    { "GIF87a",                  6, "image/gif"  },
-    { "GIF89a",                  6, "image/gif"  },
-    { "\211PNG\r\n\032\n",       8, "image/png"  },
-    { "\377\332\377",            3, "image/jpeg" },
-    { "\377\330\377",            3, "image/jpeg" },
+    { "GIF87a",                  6, 0, 0, 6,  "image/gif"  },
+    { "GIF89a",                  6, 0, 0, 6,  "image/gif"  },
+    { "\211PNG\r\n\032\n",       8, 0, 0, 8,  "image/png"  },
+    { "\377\332\377",            3, 0, 0, 3,  "image/jpeg" },
+    { "\377\330\377",            3, 0, 0, 3,  "image/jpeg" },
+    { "RIFFWAVEfmt",             4, 8, 7, 15, "sound/wav"  },
   };
 
   if( !looks_like_binary(pBlob) ) {
@@ -57,9 +61,14 @@ const char *mimetype_from_content(Blob *pBlob){
   x = (const unsigned char*)blob_buffer(pBlob);
   n = blob_size(pBlob);
   for(i=0; i<count(aMime); i++){
-    if( n>=aMime[i].size && memcmp(x, aMime[i].zPrefix, aMime[i].size)==0 ){
-      return aMime[i].zMimetype;
+    if( n<aMime[i].mn ) continue;
+    if( memcmp(x, aMime[i].z, aMime[i].sz1)!=0 ) continue;
+    if( aMime[i].sz2
+     && memcmp(x+aMime[i].of2, aMime[i].z+aMime[i].sz1, aMime[i].sz2)!=0
+    ){
+      continue;
     }
+    return aMime[i].zMimetype;
   }
   return "unknown/unknown";
 }
@@ -557,7 +566,7 @@ void mimetype_list_page(void){
   }
   @ </tbody></table>
   style_table_sorter();
-  style_finish_page("mimetypes");
+  style_finish_page();
 }
 
 /*
@@ -772,7 +781,7 @@ void document_render(
       wiki_convert(pBody, 0, WIKI_BUTTONS);
     }
     document_emit_js();
-    style_finish_page("doc");
+    style_finish_page();
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pBody, &title, &tail);
@@ -783,26 +792,26 @@ void document_render(
     }
     convert_href_and_output(&tail);
     document_emit_js();
-    style_finish_page("doc");
+    style_finish_page();
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("%s", zDefaultTitle);
     @ <blockquote><pre>
     @ %h(blob_str(pBody))
     @ </pre></blockquote>
     document_emit_js();
-    style_finish_page("doc");
+    style_finish_page();
   }else if( fossil_strcmp(zMime, "text/html")==0
             && doc_is_embedded_html(pBody, &title) ){
     if( blob_size(&title)==0 ) blob_append(&title,zFilename,-1);
     style_header("%s", blob_str(&title));
     convert_href_and_output(pBody);
     document_emit_js();
-    style_finish_page("doc");
+    style_finish_page();
   }else if( fossil_strcmp(zMime, "text/x-pikchr")==0 ){
     style_adunit_config(ADUNIT_RIGHT_OK);
     style_header("%s", zDefaultTitle);
     wiki_render_by_mimetype(pBody, zMime);
-    style_finish_page("doc");
+    style_finish_page();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
@@ -823,7 +832,7 @@ void document_render(
     }
     if( !raw ){
       document_emit_js();
-      style_finish_page("doc");
+      style_finish_page();
     }
 #endif
   }else{
@@ -908,6 +917,7 @@ void doc_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("doc");
   blob_init(&title, 0, 0);
   zDfltTitle = isUV ? "" : "Documentation";
   db_begin_transaction();
@@ -1031,7 +1041,7 @@ doc_not_found:
   if( fossil_strcmp(zCheckin,"ckout")!=0 ){
     @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
   }
-  style_finish_page("doc");
+  style_finish_page();
   return;
 }
 
@@ -1204,5 +1214,5 @@ void doc_search_page(void){
   login_check_credentials();
   style_header("Document Search");
   search_screen(SRCH_DOC, 0);
-  style_finish_page("docsrch");
+  style_finish_page();
 }

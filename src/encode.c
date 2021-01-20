@@ -403,10 +403,10 @@ char *encode_json_string_literal(const char *zStr, int fAddQuotes,
   int n, i, j;
   z = (const unsigned char*)zStr;
   n = 0;
-  while( (c = fossil_utf8_read(&z))!=0 ){
+  while( (c = *(z++))!=0 ){
     if( c=='\\' || c=='"' ){
       n += 2;
-    }else if( c<' ' || c>=0x7f ){
+    }else if( c<' ' ){
       if( c=='\n' || c=='\r' ){
         n += 2;
       }else{
@@ -426,11 +426,11 @@ char *encode_json_string_literal(const char *zStr, int fAddQuotes,
   if(fAddQuotes){
     zOut[i++] = '"';
   }
-  while( (c = fossil_utf8_read(&z))!=0 ){
+  while( (c = *(z++))!=0 ){
     if( c=='\\' || c=='"' ){
       zOut[i++] = '\\';
       zOut[i++] = c;
-    }else if( c<' ' || c>=0x7f ){
+    }else if( c<' ' ){
       zOut[i++] = '\\';
       if( c=='\n' ){
         zOut[i++] = 'n';

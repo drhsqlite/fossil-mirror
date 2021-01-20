@@ -279,6 +279,7 @@ void piechart_test_page(void){
   int i, j;
 
   login_check_credentials();
+  style_set_current_feature("test");
   style_header("Pie Chart Test");
   db_multi_exec("CREATE TEMP TABLE piechart(amt REAL, label TEXT);");
   db_prepare(&ins, "INSERT INTO piechart(amt,label) VALUES(:amt,:label)");
@@ -330,5 +331,5 @@ void piechart_test_page(void){
   @ <li> <a href='test-piechart?data=80,2,2,2,2,2,2,2,2,2,2,20'>Case 4</a>
   @ <li> <a href='test-piechart?data=2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2'>Case 5</a>
   @ </ul>
-  style_finish_page("test");
+  style_finish_page();
 }

@@ -34,6 +34,7 @@
 #define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
 #define WIKI_MARKDOWNLINKS  0x080  /* Resolve hyperlinks as in markdown */
 #define WIKI_SAFE           0x100  /* Make the result safe for embedding */
+#define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
 #endif
 
 
@@ -1258,6 +1259,9 @@ void wiki_resolve_hyperlink(
 
   if( zTitle ){
     zExtra = mprintf(" title='%h'", zTitle);
+    zExtraNS = zExtra+1;
+  }else if( mFlags & WIKI_TARGET_BLANK ){
+    zExtra = mprintf(" target='_blank'");
     zExtraNS = zExtra+1;
   }
   assert( nClose>=20 );

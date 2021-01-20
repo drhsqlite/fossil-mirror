@@ -34,6 +34,7 @@ SRC = \
   $(SRCDIR)/capabilities.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
+  $(SRCDIR)/chat.c \
   $(SRCDIR)/checkin.c \
   $(SRCDIR)/checkout.c \
   $(SRCDIR)/clearsign.c \
@@ -221,6 +222,11 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/accordion.js \
+  $(SRCDIR)/alerts/bflat2.wav \
+  $(SRCDIR)/alerts/bflat3.wav \
+  $(SRCDIR)/alerts/bloop.wav \
+  $(SRCDIR)/alerts/plunk.wav \
+  $(SRCDIR)/chat.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
   $(SRCDIR)/default.css \
@@ -293,6 +299,7 @@ TRANS_SRC = \
   $(OBJDIR)/capabilities_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
+  $(OBJDIR)/chat_.c \
   $(OBJDIR)/checkin_.c \
   $(OBJDIR)/checkout_.c \
   $(OBJDIR)/clearsign_.c \
@@ -441,6 +448,7 @@ OBJ = \
  $(OBJDIR)/capabilities.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
+ $(OBJDIR)/chat.o \
  $(OBJDIR)/checkin.o \
  $(OBJDIR)/checkout.o \
  $(OBJDIR)/clearsign.o \
@@ -740,9 +748,9 @@ EXTRAOBJ = \
  $(OBJDIR)/cson_amalgamation.o
 
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
+$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(EXTRAOBJ) $(OBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(EXTRAOBJ) $(OBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -779,6 +787,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/capabilities_.c:$(OBJDIR)/capabilities.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
+	$(OBJDIR)/chat_.c:$(OBJDIR)/chat.h \
 	$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
 	$(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h \
 	$(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h \
@@ -1057,6 +1066,14 @@ $(OBJDIR)/cgi.o:	$(OBJDIR)/cgi_.c $(OBJDIR)/cgi.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/cgi.o -c $(OBJDIR)/cgi_.c
 
 $(OBJDIR)/cgi.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/chat_.c:	$(SRCDIR)/chat.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/chat.c >$@
+
+$(OBJDIR)/chat.o:	$(OBJDIR)/chat_.c $(OBJDIR)/chat.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/chat.o -c $(OBJDIR)/chat_.c
+
+$(OBJDIR)/chat.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/checkin_.c:	$(SRCDIR)/checkin.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/checkin.c >$@

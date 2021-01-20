@@ -93,7 +93,7 @@ a continuous integration (CI) system.
 
   *  A push might not deliver all of the artifacts for a checkin.  If
      Fossil knows that a /xfer HTTP request is incomplete, it will defer
-     running the after-receive push for 60 seconds, or unti a complete
+     running the after-receive push for 60 seconds, or until a complete
      /xfer request is received.  This helps to prevent after-receive hooks
      from running when incomplete checkins exist in the repository, but
      it does not provide hard guarantees, as there is no way to do that

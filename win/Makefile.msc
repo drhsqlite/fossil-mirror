@@ -368,6 +368,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\capabilities_.c" \
         "$(OX)\captcha_.c" \
         "$(OX)\cgi_.c" \
+        "$(OX)\chat_.c" \
         "$(OX)\checkin_.c" \
         "$(OX)\checkout_.c" \
         "$(OX)\clearsign_.c" \
@@ -554,6 +555,11 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\xekri\footer.txt" \
         "$(SRCDIR)\..\skins\xekri\header.txt" \
         "$(SRCDIR)\accordion.js" \
+        "$(SRCDIR)\alerts\bflat2.wav" \
+        "$(SRCDIR)\alerts\bflat3.wav" \
+        "$(SRCDIR)\alerts\bloop.wav" \
+        "$(SRCDIR)\alerts\plunk.wav" \
+        "$(SRCDIR)\chat.js" \
         "$(SRCDIR)\ci_edit.js" \
         "$(SRCDIR)\copybtn.js" \
         "$(SRCDIR)\default.css" \
@@ -624,6 +630,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\capabilities$O" \
         "$(OX)\captcha$O" \
         "$(OX)\cgi$O" \
+        "$(OX)\chat$O" \
         "$(OX)\checkin$O" \
         "$(OX)\checkout$O" \
         "$(OX)\clearsign$O" \
@@ -853,6 +860,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\capabilities.obj" >> $@
 	echo "$(OX)\captcha.obj" >> $@
 	echo "$(OX)\cgi.obj" >> $@
+	echo "$(OX)\chat.obj" >> $@
 	echo "$(OX)\checkin.obj" >> $@
 	echo "$(OX)\checkout.obj" >> $@
 	echo "$(OX)\clearsign.obj" >> $@
@@ -1160,6 +1168,11 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/xekri/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/header.txt" >> $@
 	echo "$(SRCDIR)\accordion.js" >> $@
+	echo "$(SRCDIR)\alerts/bflat2.wav" >> $@
+	echo "$(SRCDIR)\alerts/bflat3.wav" >> $@
+	echo "$(SRCDIR)\alerts/bloop.wav" >> $@
+	echo "$(SRCDIR)\alerts/plunk.wav" >> $@
+	echo "$(SRCDIR)\chat.js" >> $@
 	echo "$(SRCDIR)\ci_edit.js" >> $@
 	echo "$(SRCDIR)\copybtn.js" >> $@
 	echo "$(SRCDIR)\default.css" >> $@
@@ -1318,6 +1331,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\cgi_.c"
 
 "$(OX)\cgi_.c" : "$(SRCDIR)\cgi.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\chat$O" : "$(OX)\chat_.c" "$(OX)\chat.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\chat_.c"
+
+"$(OX)\chat_.c" : "$(SRCDIR)\chat.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\checkin$O" : "$(OX)\checkin_.c" "$(OX)\checkin.h"
@@ -2110,6 +2129,7 @@ realclean: clean
 			"$(OX)\capabilities_.c":"$(OX)\capabilities.h" \
 			"$(OX)\captcha_.c":"$(OX)\captcha.h" \
 			"$(OX)\cgi_.c":"$(OX)\cgi.h" \
+			"$(OX)\chat_.c":"$(OX)\chat.h" \
 			"$(OX)\checkin_.c":"$(OX)\checkin.h" \
 			"$(OX)\checkout_.c":"$(OX)\checkout.h" \
 			"$(OX)\clearsign_.c":"$(OX)\clearsign.h" \

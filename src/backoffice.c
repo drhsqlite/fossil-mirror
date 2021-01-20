@@ -665,7 +665,7 @@ void backoffice_work(void){
 ** on a collection of repositories.
 **
 ** If only a single repository is named and --poll is omitted, then the
-** backoffice work is done in-process.  But if there are multiple respositories
+** backoffice work is done in-process.  But if there are multiple repositories
 ** or if --poll is used, a separate sub-process is started for each poll of 
 ** each repository.
 **

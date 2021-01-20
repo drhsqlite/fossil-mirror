@@ -543,7 +543,7 @@ void tag_cmd(void){
         );
         db_prepare(&q, "%s", blob_sql_text(&sql));
         blob_reset(&sql);
-        print_timeline(&q, nFindLimit, 79, 0);
+        print_timeline(&q, nFindLimit, 79, 0, 0);
         db_finalize(&q);
       }
     }
@@ -726,7 +726,7 @@ void taglist_page(void){
   }
   @ </ul>
   db_finalize(&q);
-  style_finish_page("taglist");
+  style_finish_page();
 }
 
 /*
@@ -783,5 +783,5 @@ void tagtimeline_page(void){
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  style_finish_page("tagtimeline");
+  style_finish_page();
 }

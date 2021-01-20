@@ -6,7 +6,7 @@ by Fossil.  Follow hyperlinks on the examples below to see many
 other examples.
 
   *  <a target='_blank' class='exbtn'
-     href='$ROOT/timeline?y=ci&n=100'>(Example)</a> &rarr;
+     href='$ROOT/timeline?y=ci&n1=100'>(Example)</a> &rarr;
      100 most recent check-ins.
 
   *  <a target='_blank' class='exbtn'
@@ -14,34 +14,38 @@ other examples.
      All changes to the <b>src/file.c</b> source file.
 
   *  <a target='_blank' class='exbtn'
-     href='$ROOT/timeline?n=200&uf=0c3c2d086a'>(Example)</a> &rarr;
+     href='$ROOT/timeline?n1=200&uf=0c3c2d086a'>(Example)</a> &rarr;
      All check-ins using a particular version of the <b>src/file.c</b>
      source file.
 
   *  <a target='_blank' class='exbtn'
-     href='$ROOT/timeline?n=11&y=ci&c=2014-01-01'>(Example)</a> &rarr;
+     href='$ROOT/timeline?n1=11&y=ci&c=2014-01-01'>(Example)</a> &rarr;
      Check-ins proximate to an historical point in time (2014-01-01).
 
   *  <a target='_blank' class='exbtn'
-     href='$ROOT/timeline?n=11&y=ci&c=2014-01-01&v=1'>(Example)</a> &rarr;
+     href='$ROOT/timeline?df=release&y=ci'>(Example)</a> &rarr;
+     All check-ins derived from the most recent release.
+
+  *  <a target='_blank' class='exbtn'
+     href='$ROOT/timeline?n1=11&y=ci&c=2014-01-01&v=1'>(Example)</a> &rarr;
      The previous example augmented with file changes.
 
   *  <a target='_blank' class='exbtn'
-     href='$ROOT/timeline?n=25&y=ci&a=1970-01-01'>(Example)</a> &rarr;
+     href='$ROOT/timeline?n1=25&y=ci&a=1970-01-01'>(Example)</a> &rarr;
      First 25 check-ins after 1970-01-01.  (The first 25 check-ins of
      the project.)
 
   *  <a target='_blank' class='exbtn'
-     href='$ROOT/timeline?n=200&r=svn-import'>(Example)</a> &rarr;
+     href='$ROOT/timeline?n1=200&r=svn-import'>(Example)</a> &rarr;
      All check-ins of the "svn-import" branch together with check-ins
      that merge with that branch.
 
   *  <a target='_blank' class='exbtn'
-     href='$ROOT/timeline?n=200&t=svn-import'>(Example)</a> &rarr;
+     href='$ROOT/timeline?n1=200&t=svn-import'>(Example)</a> &rarr;
      All check-ins of the "svn-import" branch only.
 
   *  <a target='_blank' class='exbtn'
-     href='$ROOT/timeline?n=100&y=ci&ubg'>(Example)</a> &rarr;
+     href='$ROOT/timeline?n1=100&y=ci&ubg'>(Example)</a> &rarr;
      100 most recent check-ins color coded by committer rather than by branch.
 
   *  <a target='_blank' class='exbtn'

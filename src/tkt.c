@@ -587,6 +587,7 @@ void tktview_page(void){
   }else{
     style_submenu_element("Plaintext", "%R/tktview/%s?plaintext", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("View Ticket");
   if( showTimeline ){
     int tagid = db_int(0,"SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
@@ -620,7 +621,7 @@ void tktview_page(void){
     attachment_list(zFullName, "<hr /><h2>Attachments:</h2><ul>");
   }
 
-  style_finish_page("tkt");
+  style_finish_page();
 }
 
 /*
@@ -817,6 +818,7 @@ void tktnew_page(void){
   if( P("cancel") ){
     cgi_redirect("home");
   }
+  style_set_current_feature("tkt");
   style_header("New Ticket");
   ticket_standard_submenu(T_ALL_BUT(T_NEW));
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
@@ -843,7 +845,7 @@ void tktnew_page(void){
   captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
-  style_finish_page("tkt");
+  style_finish_page();
 }
 
 /*
@@ -872,24 +874,25 @@ void tktedit_page(void){
   if( P("cancel") ){
     cgi_redirectf("tktview?name=%T", zName);
   }
+  style_set_current_feature("tkt");
   style_header("Edit Ticket");
   if( zName==0 || (nName = strlen(zName))<4 || nName>HNAME_LEN_SHA1
           || !validate16(zName,nName) ){
     @ <span class="tktError">Not a valid ticket id: "%h(zName)"</span>
-    style_finish_page("tkt");
+    style_finish_page();
     return;
   }
   nRec = db_int(0, "SELECT count(*) FROM ticket WHERE tkt_uuid GLOB '%q*'",
                 zName);
   if( nRec==0 ){
     @ <span class="tktError">No such ticket: "%h(zName)"</span>
-    style_finish_page("tkt");
+    style_finish_page();
     return;
   }
   if( nRec>1 ){
     @ <span class="tktError">%d(nRec) tickets begin with:
     @ "%h(zName)"</span>
-    style_finish_page("tkt");
+    style_finish_page();
     return;
   }
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
@@ -914,7 +917,7 @@ void tktedit_page(void){
   captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
-  style_finish_page("tkt");
+  style_finish_page();
 }
 
 /*
@@ -1037,6 +1040,7 @@ void tkttimeline_page(void){
   }else{
     zTitle = mprintf("Timeline Of Ticket %h", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("%z", zTitle);
 
   sqlite3_snprintf(6, zGlobPattern, "%s", zUuid);
@@ -1044,11 +1048,11 @@ void tkttimeline_page(void){
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
   if( tagid==0 ){
     @ No such ticket: %h(zUuid)
-    style_finish_page("tkt");
+    style_finish_page();
     return;
   }
   tkt_draw_timeline(tagid, zType);
-  style_finish_page("tkt");
+  style_finish_page();
 }
 
 /*
@@ -1061,7 +1065,7 @@ void tkttimeline_page(void){
 ** By default, the artifacts are decoded and formatted.  Text fields
 ** are formatted as text/plain, since in the general case Fossil does
 ** not have knowledge of the encoding.  If the "raw" query parameter
-** is present, then the* undecoded and unformatted text of each artifact
+** is present, then the undecoded and unformatted text of each artifact
 ** is displayed.
 */
 void tkthistory_page(void){
@@ -1086,12 +1090,13 @@ void tkthistory_page(void){
   }else if( g.perm.Admin ){
     style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("%z", zTitle);
 
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
   if( tagid==0 ){
     @ No such ticket: %h(zUuid)
-    style_finish_page("tkt");
+    style_finish_page();
     return;
   }
   if( P("raw")!=0 ){
@@ -1164,7 +1169,7 @@ void tkthistory_page(void){
   if( nChng ){
     @ </ol>
   }
-  style_finish_page("tkt");
+  style_finish_page();
 }
 
 /*
@@ -1492,7 +1497,7 @@ void ticket_cmd(void){
         fossil_fatal("empty %s command aborted!",g.argv[2]);
       }
       getAllTicketFields();
-      /* read commandline and assign fields in the aField[].zValue array */
+      /* read command-line and assign fields in the aField[].zValue array */
       while( i<g.argc ){
         char *zFName;
         char *zFValue;
@@ -1613,8 +1618,9 @@ void tkt_home_page(void){
 */
 void tkt_srchpage(void){
   login_check_credentials();
+  style_set_current_feature("tkt");
   style_header("Ticket Search");
   ticket_standard_submenu(T_ALL_BUT(T_SRCH));
   search_screen(SRCH_TKT, 0);
-  style_finish_page("tkt");
+  style_finish_page();
 }

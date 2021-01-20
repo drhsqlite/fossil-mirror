@@ -352,54 +352,56 @@ void sync_unversioned(unsigned syncFlags){
 **
 ** Usage: %fossil remote ?SUBCOMMAND ...?
 **
-** Use this command to view or modify the set of remote repositories
-** used as the default target for sync, push, and pull and for autosync.
+** View or modify the set of remote repository sync URLs used as the
+** target in any command that uses the sync protocol: "sync", "push",
+** and "pull", plus all other commands that trigger Fossil's autosync
+** feature.  (Collectively, "sync operations".)
 **
-** The default remote is set automatically by a "clone" command or by any
-** "sync", "push", or "pull" command that specifies an explicit URL
-** and omits the --once flag.  The default remote is used by
-** auto-syncing and by "sync", "push", and "pull" that omit the server URL.
-** Additional remotes can be added using the "add" command or deleted
-** using the "delete" command.  The name of any additional remote can be
-** used as an argument to the "sync", "push", and "pull" commands where
-** one would normally put a URL argument.
+** See "fossil help clone" for the format of these sync URLs.
 **
-** See "fossil help clone" for further information about URL formats.
+** Fossil implicitly sets the default remote sync URL from the initial
+** "clone" or "open URL" command for a repository, then may subsequently
+** change it when given a URL in commands that take a sync URL, except
+** when given the --once flag.  Fossil uses this new sync URL as its
+** default when not explicitly given one in subsequent sync operations.
 **
-** The official name of this command is "remote-url" but most people
-** use the shortened name "remote".
+** Named remotes added by "remote add" allow use of those names in place
+** of a sync URL in any command that takes one.
+**
+** The full name of this command is "remote-url", but we anticipate no
+** future collision from use of its shortened form "remote".
 **
 ** > fossil remote
 **
-**     With no arguments, this command shows the current default remote.
-**     Or if there is no default, it shows "off".  The default remote is
-**     used by autosync.  The default remote is whatever URL was specified
-**     for the most recent "sync", "push", or "pull" command that omitted
-**     the --once option.
+**     With no arguments, this command shows the current default remote
+**     URL.  If there is no default, it shows "off".
 **
 ** > fossil remote add NAME URL
 **
-**     Add a new URL to the set of remotes.  The new URL is assigned the
-**     symbolic identifier "NAME".  Subsequently, NAME can be used in place
-**     of the full URL on commands like "push" and "pull".
+**     Add a new named URL to the set of remote sync URLs for use in
+**     place of a sync URL in commands that take one.
 **
 ** > fossil remote delete NAME
 **
-**     Delete a URL previously added by the "add" subcommand.
+**     Delete a sync URL previously added by the "add" subcommand.
 **
 ** > fossil remote list
 **
-**     Show all remote URLs
+**     Show all remote repository sync URLs.
 **
 ** > fossil remote off
 **
-**     Disable the default URL.  Use this as a shorthand to prevent
-**     autosync while in airplane mode, for example.
+**     Forget the default sync URL, disabling autosync.  Combined with
+**     named sync URLs, it allows canceling this "airplane mode" with
+**     "fossil remote NAME" to select a previously-set named URL.
+**
+**     To disable use of the default remote without forgetting its URL,
+**     say "fossil set autosync 0" instead.
 **
 ** > fossil remote REF
 **
-**     Make REF the new default URL.  The prior default URL is replaced.
-**     REF can be either an explicit URL or a NAME from a prior "add".
+**     Make REF the new default URL, replacing the prior default.
+**     REF may be a URL or a NAME from a prior "add".
 */
 void remote_url_cmd(void){
   char *zUrl, *zArg;

@@ -114,7 +114,11 @@
   };
   dom.hr = dom.createElemFactory('hr');
   dom.br = dom.createElemFactory('br');
-  dom.text = (t)=>document.createTextNode(t||'');
+  /** Returns a new TEXT node which contains the text of all of the
+      arguments appended together. */
+  dom.text = function(/*...*/){
+    return document.createTextNode(argsToArray(arguments).join(''));
+  };
   dom.button = function(label){
     const b = this.create('button');
     if(label) b.appendChild(this.text(label));
@@ -248,9 +252,10 @@
 
   /**
      Creates and returns a FIELDSET element, optionaly with a LEGEND
-     element added to it. If legendText is an HTMLElement then it is
-     appended as-is, else it is assume (if truthy) to be a value
-     suitable for passing to dom.append(aLegendElement,...).
+     element added to it. If legendText is an HTMLElement then is is
+     assumed to be a LEGEND and is appended as-is, else it is assumed
+     (if truthy) to be a value suitable for passing to
+     dom.append(aLegendElement,...).
   */
   dom.fieldset = function(legendText){
     const fs = this.create('fieldset');
@@ -259,10 +264,20 @@
         fs,
         (legendText instanceof HTMLElement)
           ? legendText
-          : this.append(this.create('legend'),legendText)
+          : this.append(this.legend(legendText))
       );
     }
     return fs;
+  };
+  /**
+     Returns a new LEGEND legend element. The given argument, if
+     not falsy, is append()ed to the element (so it may be a string
+     or DOM element.
+  */
+  dom.legend = function(legendText){
+    const rc = this.create('legend');
+    if(legendText) this.append(rc, legendText);
+    return rc;
   };
 
   /**
@@ -291,7 +306,8 @@
       }
       if('string'===typeof e
          || 'number'===typeof e
-         || 'boolean'===typeof e) e = this.text(e);
+         || 'boolean'===typeof e
+         || e instanceof Error) e = this.text(e);
       parent.appendChild(e);
     }
     return parent;
@@ -483,7 +499,7 @@
     for( ; i < n; ++i ){
       e = arguments[i];
       if(!e){
-        console.warn("Achtung: dom.moveChildrenTo() passed a falsy value at argment",i,"of",
+        console.warn("Achtung: dom.moveChildrenTo() passed a falsy value at argument",i,"of",
                      arguments,arguments[i]);
         continue;
       }
@@ -616,8 +632,8 @@
      "Blinks" the given element a single time for the given number of
      milliseconds, defaulting (if the 2nd argument is falsy or not a
      number) to flashOnce.defaultTimeMs. If a 3rd argument is passed
-     in, it must be a function, and it gets callback back at the end
-     of the asynchronous flashing processes.
+     in, it must be a function, and it gets called at the end of the
+     asynchronous flashing processes.
 
      This will only activate once per element during that timeframe -
      further calls will become no-ops until the blink is
@@ -708,6 +724,41 @@
       }
     }
     return e;
+  };
+
+  /**
+     Given a DOM element, this routine measures its "effective
+     height", which is the bounding top/bottom range of this element
+     and all of its children, recursively. For some DOM structure
+     cases, a parent may have a reported height of 0 even though
+     children have non-0 sizes.
+
+     Returns 0 if !e or if the element really has no height.
+  */
+  dom.effectiveHeight = function f(e){
+    if(!e) return 0;
+    if(!f.measure){
+      f.measure = function callee(e, depth){
+        if(!e) return;
+        const m = e.getBoundingClientRect();
+        if(0===depth){
+          callee.top = m.top;
+          callee.bottom = m.bottom;
+        }else{
+          callee.top = m.top ? Math.min(callee.top, m.top) : callee.top;
+          callee.bottom = Math.max(callee.bottom, m.bottom);
+        }
+        Array.prototype.forEach.call(e.children,(e)=>callee(e,depth+1));
+        if(0===depth){
+          //console.debug("measure() height:",e.className, callee.top, callee.bottom, (callee.bottom - callee.top));
+          f.extra += callee.bottom - callee.top;
+        }
+        return f.extra;
+      };
+    }
+    f.extra = 0;
+    f.measure(e,0);
+    return f.extra;
   };
 
   /**

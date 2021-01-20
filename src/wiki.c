@@ -64,11 +64,12 @@ static void well_formed_wiki_name_rules(void){
 */
 static int check_name(const char *z){
   if( !wiki_name_is_wellformed((const unsigned char *)z) ){
+    style_set_current_feature("wiki");
     style_header("Wiki Page Name Error");
     @ The wiki name "<span class="wikiError">%h(z)</span>" is not well-formed.
     @ Rules for wiki page names:
     well_formed_wiki_name_rules();
-    style_finish_page("wiki");
+    style_finish_page();
     return 1;
   }
   return 0;
@@ -136,6 +137,7 @@ void home_page(void){
     wiki_page();
     return;
   }
+  style_set_current_feature("wiki");
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to
@@ -143,7 +145,7 @@ void home_page(void){
   @ and establish a "Project Name".  Then create a
   @ wiki page with that name.  The content of that wiki page
   @ will be displayed in place of this message.</p>
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -231,6 +233,7 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
 void markdown_rules_page(void){
   Blob x;
   int fTxt = P("txt")!=0;
+  style_set_current_feature("wiki");
   style_header("Markdown Formatting Rules");
   if( fTxt ){
     style_submenu_element("Formatted", "%R/md_rules");
@@ -244,7 +247,7 @@ void markdown_rules_page(void){
   safe_html_context(DOCSRC_TRUSTED);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
   blob_reset(&x);
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -255,6 +258,7 @@ void markdown_rules_page(void){
 void wiki_rules_page(void){
   Blob x;
   int fTxt = P("txt")!=0;
+  style_set_current_feature("wiki");
   style_header("Wiki Formatting Rules");
   if( fTxt ){
     style_submenu_element("Formatted", "%R/wiki_rules");
@@ -268,7 +272,7 @@ void wiki_rules_page(void){
   safe_html_context(DOCSRC_TRUSTED);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
   blob_reset(&x);
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -277,12 +281,13 @@ void wiki_rules_page(void){
 ** Show links to the md_rules and wiki_rules pages.
 */
 void markup_help_page(void){
+  style_set_current_feature("wiki");
   style_header("Fossil Markup Styles");
   @ <ul>
   @ <li><p>%z(href("%R/wiki_rules"))Fossil Wiki Formatting Rules</a></p></li>
   @ <li><p>%z(href("%R/md_rules"))Markdown Formatting Rules</a></p></li>
   @ </ul>
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -346,6 +351,7 @@ static void wiki_standard_submenu(unsigned int ok){
 void wiki_helppage(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
+  style_set_current_feature("wiki");
   style_header("Wiki Help");
   wiki_standard_submenu(W_ALL_BUT(W_HELP));
   @ <h2>Wiki Links</h2>
@@ -371,7 +377,7 @@ void wiki_helppage(void){
     @ words</li>
   }
   @ </ul>
-  style_finish_page("wiki");
+  style_finish_page();
   return;
 }
 
@@ -383,10 +389,11 @@ void wiki_helppage(void){
 */
 void wiki_srchpage(void){
   login_check_credentials();
+  style_set_current_feature("wiki");
   style_header("Wiki Search");
   wiki_standard_submenu(W_HELP|W_LIST|W_SANDBOX);
   search_screen(SRCH_WIKI, 0);
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /* Return values from wiki_page_type() */
@@ -448,6 +455,7 @@ static int wiki_page_header(
   const char *zPageName,    /* Name of the page */
   const char *zExtra        /* Extra prefix text on the page header */
 ){
+  style_set_current_feature("wiki");
   if( eType==WIKITYPE_UNKNOWN ) eType = wiki_page_type(zPageName);
   switch( eType ){
     case WIKITYPE_NORMAL: {
@@ -599,7 +607,7 @@ void wiki_page(void){
   attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
   manifest_destroy(pWiki);
   document_emit_js(/*for optional pikchr support*/);
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -1103,7 +1111,7 @@ void wiki_ajax_page(void){
 **
 ** When creating a new page, the mimetype URL parameter may optionally
 ** be used to set its mimetype to one of text/x-fossil-wiki,
-** text/x-markdown, or text/plain, defauling to the former.
+** text/x-markdown, or text/plain, defaulting to the former.
 */
 void wikiedit_page(void){
   const char *zPageName;
@@ -1140,6 +1148,7 @@ void wikiedit_page(void){
       return;
     }
   }
+  style_set_current_feature("wiki");
   style_header("Wiki Editor");
   style_emit_noscript_for_js_page();
 
@@ -1346,7 +1355,7 @@ void wikiedit_page(void){
      "}\n");
   CX("});\n"/*fossil.onPageLoad()*/);
   style_script_end();
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -1369,6 +1378,7 @@ void wikinew_page(void){
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
     cgi_redirectf("wikiedit?name=%T&mimetype=%s", zName, zMimetype);
   }
+  style_set_current_feature("wiki");
   style_header("Create A New Wiki Page");
   wiki_standard_submenu(W_ALL_BUT(W_NEW));
   @ <p>Rules for wiki page names:</p>
@@ -1384,7 +1394,7 @@ void wikinew_page(void){
     @ <p><span class="wikiError">
     @ "%h(zName)" is not a valid wiki page name!</span></p>
   }
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 
@@ -1515,6 +1525,7 @@ void wikiappend_page(void){
     return;
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
+  style_set_current_feature("wiki");
   style_header("Append Comment To: %s", zPageName);
   if( !goodCaptcha ){
     @ <p class="generalError">Error: Incorrect security code.</p>
@@ -1546,7 +1557,7 @@ void wikiappend_page(void){
   @ <input type="submit" name="cancel" value="Cancel" />
   captcha_generate(0);
   @ </form>
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -1567,6 +1578,7 @@ void whistory_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = PD("name","");
+  style_set_current_feature("wiki");
   style_header("History Of %s", zPageName);
   showRid = P("showid")!=0;
   db_prepare(&q,
@@ -1636,7 +1648,7 @@ void whistory_page(void){
   db_finalize(&q);
   builtin_request_js("fossil.page.whistory.js");
   /* style_table_sorter(); */
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -1699,6 +1711,7 @@ void wdiff_page(void){
   if( nextRid ){
     style_submenu_element("Next", "%R/wdiff?rid=%d", nextRid);
   }
+  style_set_current_feature("wiki");
   style_header("Changes To %s", pW1->zWikiTitle);
   blob_zero(&d);
   diffFlags = construct_diff_flags(1);
@@ -1708,7 +1721,7 @@ void wdiff_page(void){
   @ <pre>
   manifest_destroy(pW1);
   manifest_destroy(pW2);
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -1755,6 +1768,7 @@ void wcontent_page(void){
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
+  style_set_current_feature("wiki");
   style_header("Available Wiki Pages");
   if( showAll ){
     style_submenu_element("Active", "%R/wcontent");
@@ -1810,7 +1824,7 @@ void wcontent_page(void){
   @ </tbody></table></div>
   db_finalize(&q);
   style_table_sorter();
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*
@@ -1825,6 +1839,7 @@ void wfind_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zTitle = PD("title","*");
+  style_set_current_feature("wiki");
   style_header("Wiki Pages Found");
   @ <ul>
   db_prepare(&q,
@@ -1837,7 +1852,7 @@ void wfind_page(void){
   }
   db_finalize(&q);
   @ </ul>
-  style_finish_page("wiki");
+  style_finish_page();
 }
 
 /*

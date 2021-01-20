@@ -2139,7 +2139,7 @@ int cgi_http_server(
       }
     }else
 #endif
-    if( system(zBrowser)<0 ){
+    if( fossil_system(zBrowser)<0 ){
       fossil_warning("cannot start browser: %s\n", zBrowser);
     }
   }

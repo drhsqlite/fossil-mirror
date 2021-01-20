@@ -573,6 +573,14 @@ cc-check-functions strchrnul
 cc-check-functions pledge
 cc-check-functions backtrace
 
+# Termux on Android adds "getpass(char *)" to unistd.h, so check this so we
+# guard against including it again; use cctest as cc-check-functions and 
+# cctest_function check for "getpass()" with no args and fail
+if {[cctest -link 1 -includes {unistd.h} -code "getpass(0);"]} {
+    define FOSSIL_HAVE_GETPASS 1
+    msg-result "Found getpass() with unistd.h"
+}
+
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
 if {![cc-check-functions getloadavg]} {
   define FOSSIL_OMIT_LOAD_AVERAGE 1
@@ -588,7 +596,9 @@ cc-check-function-in-lib sin m
 
 # Check for the FuseFS library
 if {[opt-bool fusefs]} {
-  if {[cc-check-function-in-lib fuse_mount fuse]} {
+  if {[opt-bool static]} {
+     msg-result "FuseFS support disabled due to -static"
+  } elseif {[cc-check-function-in-lib fuse_mount fuse]} {
      define-append EXTRA_CFLAGS -DFOSSIL_HAVE_FUSEFS
      define FOSSIL_HAVE_FUSEFS 1
      define-append LIBS -lfuse
@@ -610,13 +620,19 @@ if {[string length $fsan]} {
     }
 }
 
-# Finally, append -ldl to make sure it's the last in the list.
-# The library order matters in case of static linking.
+# Finally, append libraries that must be last. This matters more on some
+# OSes than others, but is most broadly required for static linking.
 if {[check-function-in-lib dlopen dl]} {
     # Some platforms (*BSD) have the dl functions already in libc and no libdl.
     # In such case we can link directly without -ldl.
     define-append LIBS [get-define lib_dlopen]
 }
+if {[opt-bool static]} {
+    # Linux can only infer the dependency on pthread from OpenSSL when
+    # doing dynamic linkage.
+    define-append LIBS -lpthread
+}
+
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

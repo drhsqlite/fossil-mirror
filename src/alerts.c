@@ -118,7 +118,6 @@ void alert_schema(int bOnlyIfEnabled){
       return;  /* Don't create table for disabled email */
     }
     db_exec_sql(zAlertInit);
-    alert_triggers_enable();
   }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
     db_multi_exec(
       "ALTER TABLE repository.pending_alert"
@@ -131,11 +130,13 @@ void alert_schema(int bOnlyIfEnabled){
 ** Enable triggers that automatically populate the pending_alert
 ** table.
 */
-void alert_triggers_enable(void){
+void alert_create_trigger(void){
   if( !db_table_exists("repository","pending_alert") ) return;
   db_multi_exec(
-    "CREATE TRIGGER IF NOT EXISTS repository.alert_trigger1\n"
-    "AFTER INSERT ON event BEGIN\n"
+    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+    /* "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" Very old legacy */
+    "CREATE TRIGGER temp.alert_trigger1\n"
+    "AFTER INSERT ON repository.event BEGIN\n"
     "  INSERT INTO pending_alert(eventid)\n"
     "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
     "    ON CONFLICT(eventId) DO NOTHING;\n"
@@ -149,10 +150,10 @@ void alert_triggers_enable(void){
 ** This must be called before rebuilding the EVENT table, for example
 ** via the "fossil rebuild" command.
 */
-void alert_triggers_disable(void){
+void alert_drop_trigger(void){
   db_multi_exec(
-    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n"
-    "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" // Legacy
+    "DROP TRIGGER IF EXISTS temp.alert_trigger1;\n"
+    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
   );
 }
 
@@ -173,9 +174,10 @@ int alert_enabled(void){
 */
 static int alert_webpages_disabled(void){
   if( alert_tables_exist() ) return 0;
+  style_set_current_feature("alerts");
   style_header("Email Alerts Are Disabled");
   @ <p>Email alerts are disabled on this server</p>
-  style_finish_page("alerts");
+  style_finish_page();
   return 1;
 }
 
@@ -218,6 +220,7 @@ void setup_notification(void){
 
   alert_submenu_common();
   style_submenu_element("Send Announcement","%R/announce");
+  style_set_current_feature("alerts");
   style_header("Email Notification Setup");
   @ <h1>Status</h1>
   @ <table class="label-value">
@@ -310,7 +313,7 @@ void setup_notification(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_finish_page("alerts");
+  style_finish_page();
 }
 
 #if 0
@@ -1062,7 +1065,7 @@ void alert_cmd(void){
       blob_reset(&yn);
     }
     if( c=='y' ){
-      alert_triggers_disable();
+      alert_drop_trigger();
       db_multi_exec(
         "DROP TABLE IF EXISTS subscriber;\n"
         "DROP TABLE IF EXISTS pending_alert;\n"
@@ -1366,6 +1369,7 @@ void subscribe_page(void){
     register_page();
     return;
   }
+  style_set_current_feature("alerts");
   alert_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
@@ -1437,7 +1441,7 @@ void subscribe_page(void){
         @ subscription.</p>
       }
       alert_sender_free(pSender);
-      style_finish_page("alerts");
+      style_finish_page();
     }
     return;
   }
@@ -1554,7 +1558,7 @@ void subscribe_page(void){
   }
   @ </form>
   fossil_free(zErr);
-  style_finish_page("alerts");
+  style_finish_page();
 }
 
 /*
@@ -1574,6 +1578,7 @@ static void alert_unsubscribe(int sid){
     zLogin = db_column_text(&q, 1);
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
   }
+  style_set_current_feature("alerts");
   if( zEmail==0 ){
     style_header("Unsubscribe Fail");
     @ <p>Unable to locate a subscriber with the requested key</p>
@@ -1592,7 +1597,7 @@ static void alert_unsubscribe(int sid){
     }
   }
   db_finalize(&q);
-  style_finish_page("alerts");
+  style_finish_page();
   return;
 }
 
@@ -1739,6 +1744,7 @@ void alert_page(void){
       return; 
     }
   }
+  style_set_current_feature("alerts");
   style_header("Update Subscription");
   db_prepare(&q,
     "SELECT"
@@ -1916,7 +1922,7 @@ void alert_page(void){
   @ </form>
   fossil_free(zErr);
   db_finalize(&q);
-  style_finish_page("alerts");
+  style_finish_page();
   db_commit_transaction();
   return;
 }
@@ -1979,6 +1985,8 @@ void unsubscribe_page(void){
     return;
   }
 
+  style_set_current_feature("alerts");
+
   zEAddr = PD("e","");
   dx = atoi(PD("dx","0"));
   bSubmit = P("submit")!=0 && P("e")!=0 && cgi_csrf_safe(1);
@@ -2023,7 +2031,7 @@ void unsubscribe_page(void){
       @ unsubscribe and/or modify your subscription settings</p>
     }
     alert_sender_free(pSender);
-    style_finish_page("alerts");
+    style_finish_page();
     return;
   }  
 
@@ -2073,7 +2081,7 @@ void unsubscribe_page(void){
   @ </td></tr></table></div>
   @ </form>
   fossil_free(zErr);
-  style_finish_page("alerts");
+  style_finish_page();
 }
 
 /*
@@ -2100,6 +2108,7 @@ void subscriber_list_page(void){
   }
   alert_submenu_common();
   style_submenu_element("Users","setup_ulist");
+  style_set_current_feature("alerts");
   style_header("Subscriber List");
   nTotal = db_int(0, "SELECT count(*) FROM subscriber");
   nPending = db_int(0, "SELECT count(*) FROM subscriber WHERE NOT sverified");
@@ -2184,7 +2193,7 @@ void subscriber_list_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
-  style_finish_page("alerts");
+  style_finish_page();
 }
 
 #if LOCAL_INTERFACE
@@ -2801,10 +2810,11 @@ void contact_admin_page(void){
   char *zCaptcha = 0;
 
   login_check_credentials();
+  style_set_current_feature("alerts");
   if( zAdminEmail==0 || zAdminEmail[0]==0 ){
     style_header("Outbound Email Disabled");
     @ <p>Outbound email is disabled on this repository
-    style_finish_page("alerts");
+    style_finish_page();
     return;
   }
   if( P("submit")!=0 
@@ -2836,7 +2846,7 @@ void contact_admin_page(void){
       @ Thank you for your input.</p>
     }
     alert_sender_free(pSender);
-    style_finish_page("alerts");
+    style_finish_page();
     return;
   }
   if( captcha_needed() ){
@@ -2844,6 +2854,7 @@ void contact_admin_page(void){
     zDecoded = captcha_decode(uSeed);
     zCaptcha = captcha_render(zDecoded);
   }
+  style_set_current_feature("alerts");
   style_header("Message To Administrator");
   form_begin(0, "%R/contact_admin");
   @ <p>Enter a message to the repository administrator below:</p>
@@ -2883,7 +2894,7 @@ void contact_admin_page(void){
     @ </td></tr></table></div>
   }
   @ </form>
-  style_finish_page("alerts");
+  style_finish_page();
 }
 
 /*
@@ -2973,6 +2984,7 @@ void announce_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("alerts");
   if( fossil_strcmp(P("name"),"test1")==0 ){
     /* Visit the /announce/test1 page to see the CGI variables */
     @ <p style='border: 1px solid black; padding: 1ex;'>
@@ -2991,7 +3003,7 @@ void announce_page(void){
       @ <p>The announcement has been sent.
       @ <a href="%h(PD("REQUEST_URI","/"))">Send another</a></p>
     }
-    style_finish_page("alerts");
+    style_finish_page();
     return;
   } else if( !alert_enabled() ){
     style_header("Cannot Send Announcement");
@@ -3045,5 +3057,5 @@ void announce_page(void){
   @ </tr>
   @ </table>
   @ </form>
-  style_finish_page("alerts");
+  style_finish_page();
 }

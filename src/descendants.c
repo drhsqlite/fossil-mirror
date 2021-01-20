@@ -384,7 +384,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, 0, width, 0);
+  print_timeline(&q, 0, width, 0, 0);
   db_finalize(&q);
 }
 
@@ -563,6 +563,7 @@ void leaves_page(void){
     style_submenu_element("Open", "%s", url_render(&url, 0, 0, 0, 0));
   }
   url_reset(&url);
+  style_set_current_feature("leaves");
   style_header("Leaves");
   login_anonymous_available();
   timeline_ss_submenu();
@@ -615,7 +616,7 @@ void leaves_page(void){
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  style_finish_page("leaves");
+  style_finish_page();
 }
 
 #if INTERFACE

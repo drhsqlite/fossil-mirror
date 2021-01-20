@@ -813,7 +813,7 @@ void re_test_grep(void){
 **     -i|--ignore-case           Ignore case
 **     -l|--files-with-matches    List only hash for each match
 **     --once                     Stop searching after the first match
-**     -s|--no-messages           Suppress error messages about nonexistant
+**     -s|--no-messages           Suppress error messages about nonexistent
 **                                or unreadable files
 **     -v|--invert-match          Invert the sense of matching.  Show only
 **                                files that have no matches. Implies -l

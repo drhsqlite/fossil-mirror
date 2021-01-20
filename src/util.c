@@ -23,6 +23,7 @@
 # include <sys/mman.h>
 # include <unistd.h>
 #endif
+#include <math.h>
 
 /*
 ** For the fossil_timer_xxx() family of functions...
@@ -428,6 +429,20 @@ void fossil_cpu_times(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
 }
 
 /*
+** Return the resident set size for this process
+*/
+sqlite3_uint64 fossil_rss(void){
+#ifdef _WIN32
+  return 0;
+#else
+  struct rusage s;
+  getrusage(RUSAGE_SELF, &s);
+  return s.ru_maxrss*1024;
+#endif
+}
+
+
+/*
 ** Internal helper type for fossil_timer_xxx().
  */
 enum FossilTimerEnum {
@@ -699,8 +714,8 @@ char *fossil_random_password(int N){
               "23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
 
   if( N<8 ) N = 8;
-  else if( N>sizeof(zAlphabet)-2 ) N = sizeof(zAlphabet)-2;
   nSrc = sizeof(zAlphabet) - 1;
+  if( N>nSrc ) N = nSrc;
   memcpy(zSrc, zAlphabet, nSrc);
 
   for(i=0; i<N; i++){
@@ -717,18 +732,43 @@ char *fossil_random_password(int N){
 /*
 ** COMMAND: test-random-password
 **
-** Usage: %fossil test-random-password ?N?
+** Usage: %fossil test-random-password [N] [--entropy]
 **
 ** Generate a random password string of approximately N characters in length.
-** If N is omitted, use 10.  Values of N less than 8 are changed to 8
-** and greater than 55 and changed to 55.
+** If N is omitted, use 12.  Values of N less than 8 are changed to 8
+** and greater than 57 and changed to 57.
+**
+** If the --entropy flag is included, the number of bits of entropy in
+** the password is show as well.
 */
 void test_random_password(void){
-  int N = 10;
-  if( g.argc>=3 ){
-    N = atoi(g.argv[2]);
+  int N = 12;
+  int showEntropy = 0;
+  int i;
+  char *zPassword;
+  for(i=2; i<g.argc; i++){
+    const char *z = g.argv[i];
+    if( z[0]=='-' && z[1]=='-' ) z++;
+    if( strcmp(z,"-entropy")==0 ){
+      showEntropy = 1;
+    }else if( fossil_isdigit(z[0]) ){
+      N = atoi(z);
+      if( N<8 ) N = 8;
+      if( N>57 ) N = 57;
+    }else{
+      usage("[N] [--entropy]");
+    }
   }
-  fossil_print("%s\n", fossil_random_password(N));
+  zPassword = fossil_random_password(N);
+  if( showEntropy ){
+    double et = 57.0;
+    for(i=1; i<N; i++) et *= 57-i;
+    fossil_print("%s (%d bits of entropy)\n", zPassword,
+                 (int)(log(et)/log(2.0)));
+  }else{
+    fossil_print("%s\n", zPassword);
+  }
+  fossil_free(zPassword);
 }
 
 /*
@@ -739,4 +779,57 @@ int fossil_num_digits(int n){
   return n<      10 ? 1 : n<      100 ? 2 : n<      1000 ? 3
        : n<   10000 ? 4 : n<   100000 ? 5 : n<   1000000 ? 6
        : n<10000000 ? 7 : n<100000000 ? 8 : n<1000000000 ? 9 : 10;
+}
+
+#if !defined(_WIN32)
+#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
+/*
+** Search for an executable on the PATH environment variable.
+** Return true (1) if found and false (0) if not found.
+*/
+static int binaryOnPath(const char *zBinary){
+  const char *zPath = fossil_getenv("PATH");
+  char *zFull;
+  int i;
+  int bExists;
+  while( zPath && zPath[0] ){
+    while( zPath[0]==':' ) zPath++;
+    for(i=0; zPath[i] && zPath[i]!=':'; i++){}
+    zFull = mprintf("%.*s/%s", i, zPath, zBinary);
+    bExists = file_access(zFull, X_OK);
+    fossil_free(zFull);
+    if( bExists==0 ) return 1;
+    zPath += i;
+  }
+  return 0;
+}
+#endif
+#endif
+
+
+/*
+** Return the name of a command that will launch a web-browser.
+*/
+const char *fossil_web_browser(void){
+  const char *zBrowser = 0;
+#if defined(_WIN32)
+  zBrowser = db_get("web-browser", "start");
+#elif defined(__DARWIN__) || defined(__APPLE__) || defined(__HAIKU__)
+  zBrowser = db_get("web-browser", "open");
+#else
+  zBrowser = db_get("web-browser", 0);
+  if( zBrowser==0 ){
+    static const char *const azBrowserProg[] =
+        { "xdg-open", "gnome-open", "firefox", "google-chrome" };
+    int i;
+    zBrowser = "echo";
+    for(i=0; i<count(azBrowserProg); i++){
+      if( binaryOnPath(azBrowserProg[i]) ){
+        zBrowser = azBrowserProg[i];
+        break;
+      }
+    }
+  }
+#endif
+  return zBrowser;
 }

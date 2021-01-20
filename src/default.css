@@ -1263,13 +1263,18 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
   background-color: inherit;
   color: inherit;
 }
-
+.fossil-PopupWidget {
+  /* This class is ALWAYS set on every fossil.PopupWidget instance, in
+     addition to client/app-configured classes. It should not get any
+     style - it is only used for DOM element selecting/filtering
+     purposes. */
+}
 .fossil-toast-message {
   /* "toast"-style popup message.
      See fossil.popupwidget:toast() */
   position: absolute;
   display: block;
-  z-index: 101;
+  z-index: 1001;
   text-align: left;
   padding: 0.15em 0.5em;
   margin: 0;
@@ -1462,4 +1467,300 @@ div.pikchr-wrapper.source > div.pikchr-svg {
   opacity: 0 !important;
   pointer-events: none !important;
   display: none !important;
+}
+
+/* Chat-related */
+body.chat span.at-name { /* for @USERNAME references */
+  text-decoration: underline;
+  font-weight: bold;
+}
+/* A wrapper for a single single chat message (one row of the UI) */
+body.chat .message-widget {
+  margin-bottom: 0.75em;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  align-items: flex-start;
+}
+body.chat.my-messages-right .message-widget.mine {
+  /* Right-aligns a user's own chat messages, similar to how
+     most mobile messaging apps do it. */
+  align-items: flex-end;
+}
+body.chat.my-messages-right .message-widget.notification {
+  /* Center-aligns a system-level notification message. */
+  align-items: center;
+}
+/* The content area of a message. */
+body.chat .message-widget-content {
+  display: inline-block;
+  border-radius: 0.25em;
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 0.2em 0.2em 0.2em rgba(0, 0, 0, 0.29);
+  padding: 0.25em 0.5em;
+  margin-top: 0;
+  min-width: 9em /*avoid unsightly "underlap" with the neighboring
+                   .message-widget-tab element*/;
+  white-space: pre-wrap/*needed for multi-line edits*/;
+}
+body.chat.monospace-messages .message-widget-content,
+body.chat.monospace-messages textarea,
+body.chat.monospace-messages input[type=text]{
+  font-family: monospace;  
+}
+/* User name and timestamp (a LEGEND-like element) */
+body.chat .message-widget .message-widget-tab {
+  border-radius: 0.25em 0.25em 0 0;
+  margin: 0 0.25em 0em 0.15em;
+  padding: 0 0.5em 0.15em 0.5em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+body.chat .fossil-tooltip.help-buttonlet-content {
+  font-size: 80%;
+}
+/* The popup element for displaying message timestamps
+   and deletion controls. */
+body.chat .chat-message-popup {
+  font-family: monospace;
+  font-size: 0.8em;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.25em;
+  z-index: 200;
+}
+/* Full message timestamps. */
+body.chat .chat-message-popup > span { white-space: nowrap; }
+/* Container for the message deletion buttons. */
+body.chat .chat-message-popup > .toolbar {
+  padding: 0.2em;
+  margin: 0;
+  border: 2px inset rgba(0,0,0,0.3);
+  border-radius: 0.25em;
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: wrap;
+}
+body.chat .chat-message-popup > .toolbar > button {
+  flex: 1 1 auto;
+}
+/* The widget for loading more/older chat messages. */
+body.chat #load-msg-toolbar  {
+  border-radius: 0.25em;
+  padding: 0.1em 0.2em;
+  margin-bottom: 1em;
+}
+/* .all-done is set when chat has loaded all of the available
+   historical messages */
+body.chat #load-msg-toolbar.all-done {
+  opacity: 0.5;
+}
+body.chat #load-msg-toolbar > div {
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: wrap;
+}
+body.chat #load-msg-toolbar > div > button {
+  flex: 1 1 auto;
+}
+
+/* An icon element intended for use as a button/menu for
+   accessing app-specific settings. */
+.settings-icon {
+  /* Icon source: https://de.wikipedia.org/wiki/Datei:OOjs_UI_icon_settings.svg
+     MIT License. */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg \
+xmlns='http://www.w3.org/2000/svg' width='24' height='24' \
+viewBox='0, 0, 24, 24'%3e%3cg id='settings'%3e%3cpath id='gear' \
+d='M3 4h3v2h-3zM12 4h9v2h-9zM8 3h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 \
+0-1-.448-1-1v-2c0-.552.448-1 1-1zM3 11h9v2h-9zM18 11h3v2h-3zM14 10h2c.552 0 1 .448 \
+1 1v2c0 .552-.448 1-1 1h-2c-.552 0-1-.448-1-1v-2c0-.552.448-1 1-1zM3 18h6v2h-6zM15 \
+18h6v2h-6zM11 17h2c.552 0 1 .448 1 1v2c0 .552-.448 1-1 1h-2c-.552 \
+0-1-.448-1-1v-2c0-.552.448-1 1-1z'/%3e%3c/g%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  min-height: 1em;
+  max-height: 1em;
+  min-width: 1em;
+  max-width: 1em;
+  margin: 0;
+  padding: 0.2em/*needed to avoid image truncation*/;
+  border: 1px solid rgba(0,0,0,0.0)/*avoid resize when hover style kicks in*/;
+  cursor: pointer;
+  border-radius: 0.25em;
+}
+.settings-icon:hover {
+  border: 1px outset rgba(127,127,127,1);
+}
+body.fossil-dark-style .settings-icon {
+  filter: invert(100%);
+}
+/* "Chat-only mode" hides the site header/footer, showing only
+   the chat app. */
+body.chat.chat-only-mode{}
+body.chat #chat-settings-button {}
+/** Popup widget for the /chat settings. */
+body.chat .chat-settings-popup {
+  font-size: 0.8em;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.25em;
+  z-index: 200;
+}
+body.chat .chat-settings-popup > span {
+  vertical-align: middle;
+}
+body.chat .chat-settings-popup > span.menu-entry{
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid;
+  border-radius: 0.25em;
+  padding: 0.25em 0.5em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+body.chat .chat-settings-popup > span.menu-entry:hover {
+}
+body.chat .chat-settings-popup > span.menu-entry > .help-buttonlet {
+  vertical-align: middle;
+}
+body.chat .chat-settings-popup > span.menu-entry > span.button {
+  margin: 0.25em 0.2em;
+  padding: 0.25em;
+  flex: 1 1 auto/*eliminates dead no-click zones on the right*/;
+}
+body.chat .chat-settings-popup > span.menu-entry > input[type=checkbox] {
+  cursor: inherit;
+}
+body.chat .chat-settings-popup > select.menu-entry {
+  flex: 1 1 auto;
+  padding: 0;
+  cursor: pointer;
+  min-height: 2.5em;
+  border-radius: 0.25em;
+}
+body.chat .chat-settings-popup > select.menu-entry > option {
+  /*Recall that many browsers don't allow styling of OPTION
+    elements, or allow only very limited styling.*/
+}
+
+/** Container for the list of /chat messages. */
+body.chat #chat-messages-wrapper {
+  overflow: auto;
+  /*max-height: 800em*//*will be re-calc'd in JS*/;
+  flex: 2 1 auto;
+}
+body.chat #chat-messages-wrapper.loading > * {
+  /* An attempt at reducing flicker when loading lots of messages. */
+  visibility: hidden;
+}
+body.chat div.content {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  /* ^^^^ In order to get good automatic scrolling of new messages on
+     the BOTTOM in bottom-up chat mode, such that they scroll up
+     instead of down, we have to use column-reverse layout, which
+     changes #chat-messages-wrapper's "gravity" for purposes of
+     scrolling! If we instead use flex-direction:column then each new
+     message pushes #chat-input-area down further off the screen!
+ */
+  align-items: stretch;
+}
+/* Wrapper for /chat user input controls */
+body.chat #chat-input-area {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5em 1em;
+  border-bottom: none;
+  border-top: 1px solid black;
+  margin: 0.5em 1em 0 1em;
+  position: initial /*sticky currently disabled due to scrolling-related issues*/;
+  bottom: 0;
+}
+body.chat:not(.chat-only-mode) #chat-input-area{
+  /* Safari user reports that 2em is necessary to keep the file selection
+     widget from overlapping the page footer, whereas a margin of 0 is fine
+     for FF/Chrome (and 2em is a *huge* waste of space for those). */
+  margin-bottom: 0;
+}
+
+/* Widget holding the chat message input field, send button, and
+   settings button. */
+body.chat #chat-input-line {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.25em;
+  align-items: self-start;
+}
+body.chat #chat-input-line > input[type=submit],
+body.chat #chat-input-line > #chat-settings-button,
+body.chat #chat-input-line > button {
+  flex: 1 5 auto;
+  max-width: 6em;
+  margin: 0 0.25em;
+}
+body.chat #chat-input-line > button {
+  max-width: 4em;
+}
+body.chat #chat-input-line > #chat-settings-button{
+  margin: 0 0 0 0.25em;
+  max-width: 2em;
+}
+body.chat #chat-input-line > input[type=text],
+body.chat #chat-input-line > textarea {
+  flex: 5 1 auto;
+}
+/* Widget holding the file selection control and preview */
+body.chat #chat-input-file-area  {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+body.chat #chat-input-file-area > .file-selection-wrapper {
+  align-self: flex-start;
+  margin-right: 0.5em;
+  flex: 0 1 auto;
+  padding: 0.25em 0.25em 0.25em 0;
+}
+body.chat #chat-input-file-area .file-selection-wrapper > * {
+  vertical-align: middle;
+  margin: 0;
+}
+body.chat #chat-input-file {
+  border:1px solid rgba(0,0,0,0);/*avoid UI shift during drop-targeting*/
+  border-radius: 0.25em;
+  padding: 0.25em;
+}
+body.chat #chat-input-file > input {
+  flex: 1 0 auto;
+}
+/* Indicator when a drag/drop is in progress */
+body.chat #chat-input-file.dragover {
+  border: 1px dashed green;
+}
+/* Widget holding the details of a selected/dropped file/image. */
+body.chat #chat-drop-details {
+  flex: 0 1 auto;
+  padding: 0.5em 1em;
+  margin-left: 0.5em;
+  white-space: pre;
+  font-family: monospace;
+}
+
+body.chat #chat-drop-details img {
+  max-width: 45%;
+  max-height: 45%;
 }

@@ -369,6 +369,17 @@ char *blob_str(Blob *p){
 }
 
 /*
+** Compute the string length of a Blob.  If there are embedded
+** nul characters, truncate the to blob at the first nul.
+*/
+int blob_strlen(Blob *p){
+  char *z = blob_str(p);
+  if( z==0 ) return 0;
+  p->nUsed = (int)strlen(p->aData);
+  return p->nUsed;
+}
+
+/*
 ** Return a pointer to a null-terminated string for a blob that has
 ** been created using blob_append_sql() and not blob_appendf().  If
 ** text was ever added using blob_appendf() then throw an error.
@@ -1370,7 +1381,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
 **
 ** Usage %fossil ARG ...
 **
-** Run each argment through blob_append_escaped_arg() and show the
+** Run each argument through blob_append_escaped_arg() and show the
 ** result.  Append each argument to "fossil test-echo" and run that
 ** using fossil_system() to verify that it really does get escaped
 ** correctly.

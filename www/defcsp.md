@@ -104,7 +104,7 @@ As the "`unsafe-`" prefix on the name implies, the `'unsafe-inline'`
 feature is suboptimal for security.  However, there are
 a few places in the Fossil-generated HTML that benefit from this
 flexibility and the work-arounds are verbose and difficult to maintain.
-Futhermore, the harm that can be done with style injections is far
+Furthermore, the harm that can be done with style injections is far
 less than the harm possible with injected javascript.  And so the
 `'unsafe-inline'` compromise is accepted for now, though it might
 go away in some future release of Fossil.
@@ -175,7 +175,7 @@ content:
          <script src="/doc/trunk/bad.js"></script>
 
 That script can then do anything allowed in JavaScript to *any other*
-Chisel repository your browser can access.The possibilities for mischief
+Chisel repository your browser can access. The possibilities for mischief
 are *vast*. For just one example, if you have login cookies on four
 different Chisel repositories, your attacker could harvest the login
 cookies for all of them through this path if we allowed Fossil to serve
@@ -242,7 +242,7 @@ decreasing order of simplicity and preference:
 5.  Put Fossil behind a [front-end proxy server][svr] as a virtual
     subdirectory within the site, so that our default CSP’s “self” rules
     match static file routes on that same site. For instance, your repo
-    might be at `https://example.com/code`, allowing documentes in that
+    might be at `https://example.com/code`, allowing documents in that
     repo to refer to:
 
     *   images as `/image/foo.png`

@@ -369,7 +369,7 @@ void finfo_page(void){
   cookie_render();
   if( fnid==0 ){
     @ No such file: %h(zFilename)
-    style_finish_page("finfo");
+    style_finish_page();
     return;
   }
   if( g.perm.Admin ){
@@ -707,7 +707,7 @@ void finfo_page(void){
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=all&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
+      @ %z(href("%R/timeline?uf=%!S",zUuid))[check-ins&nbsp;using]</a>
       if( fpid>0 ){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
@@ -756,7 +756,7 @@ void finfo_page(void){
   }
   @ </table>
   timeline_output_graph_javascript(pGraph, TIMELINE_FILEDIFF, iTableId);
-  style_finish_page("finfo");
+  style_finish_page();
 }
 
 /*
@@ -781,6 +781,7 @@ void mlink_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
+  style_set_current_feature("finfo");
   style_header("MLINK Table");
   if( zFName==0 && zCI==0 ){
     @ <span class='generalError'>
@@ -936,5 +937,5 @@ void mlink_page(void){
     @ </table>
     @ </div>
   }
-  style_finish_page("finfo");
+  style_finish_page();
 }

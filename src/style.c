@@ -35,7 +35,7 @@
 **      style_submenu_multichoice()
 **      style_submenu_sql()
 **
-** prior to calling style_footer().  The style_footer() routine
+** prior to calling style_finish_page().  The style_finish_page() routine
 ** will generate the appropriate HTML text just below the main
 ** menu.
 */
@@ -85,6 +85,12 @@ static unsigned adUnitFlags = 0;
 ** Submenu disable flag
 */
 static int submenuEnable = 1;
+
+/*
+** Disable content-security-policy.
+** Warning:  Do not disable the CSP without careful consideration!
+*/
+static int disableCSP = 0;
 
 /*
 ** Flags for various javascript files needed prior to </body>
@@ -527,11 +533,13 @@ char *style_csp(int toHeader){
    "default-src 'self' data:; "
    "script-src 'self' 'nonce-$nonce'; "
    "style-src 'self' 'unsafe-inline'";
-  const char *zFormat = db_get("default-csp","");
+  const char *zFormat;
   Blob csp;
   char *zNonce;
   char *zCsp;
   int i;
+  if( disableCSP ) return fossil_strdup("");
+  zFormat = db_get("default-csp","");
   if( zFormat[0]==0 ){
     zFormat = zBackupCSP;
   }
@@ -553,6 +561,17 @@ char *style_csp(int toHeader){
 }
 
 /*
+** Disable content security policy for the current page.
+** WARNING:  Do not do this lightly!
+**
+** This routine must be called before the CSP is sued by 
+** style_header().
+*/
+void style_disable_csp(void){
+  disableCSP = 1;
+}
+
+/*
 ** Default HTML page header text through <body>.  If the repository-specific
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
@@ -561,6 +580,7 @@ static const char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
+@ <meta charset="UTF-8">
 @ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
@@ -568,7 +588,7 @@ static const char zDfltHeader[] =
 @  href="$home/timeline.rss" />
 @ <link rel="stylesheet" href="$stylesheet_url" type="text/css" />
 @ </head>
-@ <body>
+@ <body class="$current_feature">
 ;
 
 /*
@@ -576,6 +596,39 @@ static const char zDfltHeader[] =
 */
 const char *get_default_header(){
   return zDfltHeader;
+}
+
+/*
+** Given a URL path, extract the first element as a "feature" name,
+** used as the <body class="FEATURE"> value by default, though
+** later-running code may override this, typically to group multiple
+** Fossil UI URLs into a single "feature" so you can have per-feature
+** CSS rules.
+**
+** For example, "body.forum div.markdown blockquote" targets only
+** block quotes made in forum posts, leaving other Markdown quotes
+** alone.  Because feature class "forum" groups /forummain, /forumpost,
+** and /forume2, it works across all renderings of Markdown to HTML
+** within the Fossil forum feature.
+*/
+static const char* feature_from_page_path(const char *zPath){
+  const char* zSlash = strchr(zPath, '/');
+  if (zSlash) {
+    return fossil_strndup(zPath, zSlash - zPath);
+  } else {
+    return zPath;
+  }
+}
+
+/*
+** Override the value of the TH1 variable current_feature, its default
+** set by feature_from_page_path().  We do not call this from
+** style_init_th1_vars() because that uses Th_MaybeStore() instead to
+** allow webpage implementations to call this before style_header()
+** to override that "maybe" default with something better.
+*/
+void style_set_current_feature(const char* zFeature){
+  Th_Store("current_feature", zFeature);
 }
 
 /*
@@ -614,6 +667,7 @@ static void style_init_th1_vars(const char *zTitle){
   if( !login_is_nobody() ){
     Th_Store("login", g.zLogin);
   }
+  Th_MaybeStore("current_feature", feature_from_page_path(local_zCurrentPage) );
 }
 
 /*
@@ -750,12 +804,8 @@ static void style_load_all_js_files(void){
 **   *  Finalizes the page content.
 **
 **   *  Appends the footer.
-**
-** The zPageType argument is a class name inserted in the <div> that
-** surrounds the page content.  CSS can use this to have different styles
-** according to the page type.
 */
-void style_finish_page(const char* zPageType){
+void style_finish_page(){
   const char *zFooter;
   const char *zAd = 0;
   unsigned int mAdFlags = 0;
@@ -887,7 +937,7 @@ void style_finish_page(const char* zPageType){
     @ </div>
   }
 
-  @ <div class="content %s(zPageType)"><span id="debugMsg"></span>
+  @ <div class="content"><span id="debugMsg"></span>
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
@@ -1152,6 +1202,7 @@ void webpage_error(const char *zFormat, ...){
     isAuth = 1;
   }
   cgi_load_environment();
+  style_set_current_feature(zFormat[0]==0 ? "test" : "error");
   if( zFormat[0] ){
     va_list ap;
     va_start(ap, zFormat);
@@ -1194,6 +1245,9 @@ void webpage_error(const char *zFormat, ...){
     }
     @ g.zRepositoryName = %h(g.zRepositoryName)<br />
     @ load_average() = %f(load_average())<br />
+#ifndef _WIN32
+    @ RSS = %.2f(fossil_rss()/1000000.0) MB</br />
+#endif
     @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
     @ fossil_exe_id() = %h(fossil_exe_id())<br />
     @ <hr />
@@ -1207,11 +1261,11 @@ void webpage_error(const char *zFormat, ...){
     }
   }
   if( zErr && zErr[0] ){
-    style_finish_page("error");
+    style_finish_page();
     cgi_reply();
     fossil_exit(1);
   }else{
-    style_finish_page("test");
+    style_finish_page();
   }
 }
 
@@ -1244,10 +1298,11 @@ void webpage_notfound_error(const char *zFormat, ...){
   }else{
     zMsg = "Not Found";
   }
+  style_set_current_feature("enotfound");
   style_header("Not Found");
   @ <p>%h(zMsg)</p>
   cgi_set_status(404, "Not Found");
-  style_finish_page("enotfound");
+  style_finish_page();
 }
 
 #if INTERFACE

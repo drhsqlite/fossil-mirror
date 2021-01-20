@@ -2,8 +2,8 @@
 
 <h3>What Is Fossil?</h3>
 
-<div style='width:200px;float:right;border:2px solid #446979;padding:10px;margin:0px 10px;'>
-<ul>
+<div style='float:right;border:2px solid #446979;padding:0 15px 10px 0;margin:0 0 10px 10px;'>
+<ul style='margin-left: -10px;'>
 <li> [/uv/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
@@ -14,19 +14,19 @@
 <li> [./userlinks.wiki | User Links]
 <li> [./hacker-howto.wiki | Hacker How-To]
 <li> [./fossil-v-git.wiki | Fossil vs. Git]
-<li> [./permutedindex.html | Documentation Index]
+<li> [./permutedindex.html | Doc Index]
 </ul>
-<img src="fossil3.gif" align="center">
+<center><img src="fossil3.gif" align="center"></center>
 </div>
 
 <p>Fossil is a simple, high-reliability, distributed software configuration
 management system with these advanced features:
 
-  1.  <b>Integrated Bug Tracking, Wiki, Forum, and Technotes</b> -
+  1.  <b>Project Management</b> -
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
-      [./wikitheory.wiki | wiki], [./forum.wiki | forum], and
+      [./wikitheory.wiki | wiki], [./forum.wiki | forum], [./chat.md | chat], and
       [./event.wiki | technotes].
 
   2.  <b>Built-in Web Interface</b> -
@@ -46,28 +46,28 @@ management system with these advanced features:
       [./selfhost.wiki | self-hosting repositories],
       you get more than just source code - you get this entire website.
 
-  3.  <b>Self-Contained</b> -
-      Fossil is a single self-contained stand-alone executable.
+  3.  <b>All-in-one</b> -
+      Fossil is a single self-contained, stand-alone executable.
       To install, simply download a
       [/uv/download.html | precompiled binary]
       for Linux, Mac, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is also available.
 
-  4.  <b>Simple Networking</b> -
-      No custom protocols or TCP ports.
-      Fossil uses ordinary HTTP (or HTTPS or SSH)
+
+  4.  <b>Self-host Friendly</b> - Stand up a project website
+      in minutes using [./server/ | a variety of techniques].
+      Fossil is CPU and memory efficient. Most projects can be
+      hosted comfortably on a $5/month VPS or a Raspberry Pi.
+      You can also set up an automatic
+      [./mirrortogithub.md | GitHub mirror].
+
+  5.  <b>Simple Networking</b> -
+      Fossil uses ordinary HTTPS (or SSH if you prefer)
       for network communications, so it works fine from behind
-      restrictive firewalls, including [./quickstart.wiki#proxy|proxies].
+      firewalls and [./quickstart.wiki#proxy|proxies].
       The protocol is
       [./stats.wiki | bandwidth efficient] to the point that Fossil can be
-      used comfortably over dial-up or over the exceedingly slow Wifi on
-      airliners.
-
-  5.  <b>Simple Server Setup</b> -  No server is required, but if you want to
-      set one up, Fossil supports [./server/ | several different server
-      configurations] including CGI, SCGI, and direct HTTP.
-      You can also easily set up your Fossil repository to automatically
-      [./mirrortogithub.md | mirror content on GitHub].
+      used comfortably over dial-up, weak 3G, or airliner Wifi.
 
   6.  <b>Autosync</b> -
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]
@@ -83,15 +83,15 @@ management system with these advanced features:
       Automatic [./selfcheck.wiki | self-checks] verify that all aspects of
       the repository are consistent prior to each commit.
 
-  8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
+  8.  <b>Free and Open-Source</b> - [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
-<h3>Latest Release: 2.13 ([/timeline?c=version-2.13|2020-11-01])</h3>
+<h3>Latest Release: 2.14 ([/timeline?c=version-2.14|2021-01-20])</h3>
 
   *  [/uv/download.html|Download]
-  *  [./changes.wiki#v2_13|Change Summary]
-  *  [/timeline?p=version-2.13&bt=version-2.12&n=all|Check-ins in version 2.13]
-  *  [/timeline?d=version-2.13&n=all&nd|Check-ins derived from the 2.13 release]
+  *  [./changes.wiki#v2_14|Change Summary]
+  *  [/timeline?p=version-2.14&bt=version-2.13&y=ci|Check-ins in version 2.13]
+  *  [/timeline?df=version-2.14&y=ci|Check-ins derived from the 2.14 release]
   *  [/timeline?t=release|Timeline of all past releases]
 
 <hr>

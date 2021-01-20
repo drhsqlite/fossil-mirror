@@ -645,7 +645,7 @@ void search_cmd(void){
   blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
-  print_timeline(&q, nLimit, width, 0);
+  print_timeline(&q, nLimit, width, 0, 0);
   db_finalize(&q);
 }
 
@@ -1214,7 +1214,7 @@ void search_page(void){
   login_check_credentials();
   style_header("Search");
   search_screen(SRCH_ALL, 1);
-  style_finish_page("search");
+  style_finish_page();
 }
 
 
@@ -1981,9 +1981,10 @@ void search_data_page(void){
   int cnt1 = 0, cnt2 = 0, cnt3 = 0;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
+  style_set_current_feature("test");
   if( !search_index_exists() ){
     @ <p>Indexed search is disabled
-    style_finish_page("report");
+    style_finish_page();
     return;
   }
   search_sql_setup(g.db);
@@ -2027,7 +2028,7 @@ void search_data_page(void){
       style_submenu_element(zName,"%R/test-ftsdocs?y=%c&ixed=0",zDocId[0]);
     }
     db_finalize(&q);
-    style_finish_page("test");
+    style_finish_page();
     return;
   }
   if( zType!=0 && zType[0]!=0 && zType[1]==0 &&
@@ -2057,7 +2058,7 @@ void search_data_page(void){
     }
     @ </ul>
     db_finalize(&q);
-    style_finish_page("test");
+    style_finish_page();
     return;
   }
   style_header("Summary of ftsdocs");
@@ -2101,5 +2102,5 @@ void search_data_page(void){
   @ <th align="right">%d(cnt3)
   @ </tfooter>
   @ </table>
-  style_finish_page("test");
+  style_finish_page();
 }
