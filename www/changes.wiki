@@ -1,7 +1,7 @@
 <title>Change Log</title>
 
 <a name='v2_14'></a>
-<h2>Changes for Version 2.14 (pending)</h2>
+<h2>Changes for Version 2.14 (2021-01-20)</h2>
 
   *  <b>Schema Update Notice #1:</b>
      This release drops a trigger from the database schema (replacing
