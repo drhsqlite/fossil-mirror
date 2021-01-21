@@ -1,5 +1,5 @@
-C Version\s2.14
-D 2021-01-20T15:34:40.974
+C Add\sthe\s--list\soption\sto\sthe\s"tarball",\s"zip",\sand\s"sqlar"\scommands.\s\sAlso\nrig\sthose\scommands\sso\sthat\sif\sthe\soutput\sfilename\sis\san\sempty\sstring\sor\n"/dev/null"\sthen\sthey\sdo\snot\sactually\sform\sthe\soutput\sarchive.
+D 2021-01-21T23:33:25.681
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -628,7 +628,7 @@ F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 5db49b424b371cab52cc481a0d5e04229721480f074fd8af2e20e6f982aeaebf
 F src/tag.c 67bfd8aeaf70a9b1dfdfa3bfa71e6cd97ec3b527c03404047f28cddc0ec60673
-F src/tar.c 95037a85c57f8e3a97fa735c1fe4b8eb6669dcc728d805c986ae190760b4ea4b
+F src/tar.c 95e8c3d5dd1461d5f51ed40517c112cac8214ba18145113567a8e7acb51347f5
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
@@ -659,7 +659,7 @@ F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c b30ba807ffc837f7797efe6cf4569462967fe51bb7e2194cc348a2b7c59072e2
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
 F src/xfersetup.c 6ef44e93ea292bdf7fdaf695bb2c6c64131e81bd6ebb094e27dbb8b1ebe95a01
-F src/zip.c 3c21bc26abbf32aff303495c6f299ea5ede8d32a18f0780d8c5b43950f3144eb
+F src/zip.c ff770acf2a8723e6730b6bd6c3b69071fa038a04cfcb0e041e1ca4a775938e8f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
@@ -996,9 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc8452b13ff80e422e5d6e346a68a52a87609b8f686b822f1af1e9d0758ea676
-R 3beda19c705420f110a8f0c6d09568b2
-T +sym-release *
-T +sym-version-2.14 *
+P 487776dc454b2bb63ddda48d91a18bfb41bb101f91f3777c99dc44648719d2fd
+R b168e69dade3aa13bc24037acfad2240
 U drh
-Z 7b784c50235e1eb548d138acbdf3a12a
+Z 021cfb54a22c401278c5dbac7bfdab2a
