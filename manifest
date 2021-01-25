@@ -1,5 +1,5 @@
-C Get\sthe\shamburger\smenu\sworking\sfor\sthe\s"plain_gray"\sskin.
-D 2021-01-25T16:52:21.199
+C Fix\sa\sNULL\spointer\sdeference\sin\sthe\s"fossil\ssearch"\scommand,\sas\sreported\nby\s[forum\spost\s2825291cf4|forum:/forumpost/2825291cf4]
+D 2021-01-25T17:45:31.275
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -635,7 +635,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c a6ac9bccbc361c02cc2e9c3e77e89f2c6c2f6f3a9111448afe18d8dc5567ef30
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c a1a7b60e9ccf9f9a7edcc8dee5dd3053eed6fb97dcda4814f77f43fafa384907
+F src/timeline.c 52a91fe007f955e40ab5d37c3d27ef025b91d5da206c29b49bc96ed00151099f
 F src/tkt.c 63641b42cd6f4061b732649bbd5d5ddabe20acf2326310f9c6e4c48e7a7f748c
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81a2e63be31bf685e60e989c254b48daa639d96f523dbe12f1bc8347e8d3bdb4
-R 81a007a3030ce39215a496db34eeaa8b
+P fa8be1ace63433de66d7bb01087b0f9692921b671a3ca8b247c832074a8a6e6b
+R 73e4b4f3950840468deee7a790921ac9
 U drh
-Z 0a64f00415eab7d94760fb49da0868fa
+Z e402ac004f2711300828eece5061e39f

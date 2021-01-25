@@ -2970,7 +2970,9 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*UNPUBLISHED* ");
       n += strlen(zPrefix+n);
     }
-    if( zType[0]=='w' && (zCom[0]=='+' || zCom[0]=='-' || zCom[0]==':') ){
+    if( zType && zType[0]=='w'
+     && (zCom[0]=='+' || zCom[0]=='-' || zCom[0]==':')
+    ){
       /* Special processing for Wiki comments */
       if( zCom[0]=='+' ){
         zFree = mprintf("[%S] Add wiki page \"%s\"", zId, zCom+1);
