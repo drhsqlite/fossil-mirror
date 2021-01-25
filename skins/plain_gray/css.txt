@@ -9,19 +9,6 @@ body {
   -mx-text-size-adjust: none;
 }
 
-/* The project logo in the upper left-hand corner of each page */
-div.logo {
-  display: table-row;
-  text-align: center;
-  /* vertical-align: bottom;*/
-  font-size: 2em;
-  font-weight: bold;
-  background-color: #707070;
-  color: #ffffff;
-  min-width: 200px;
-  white-space: nowrap;
-}
-
 /* The page title centered at the top of each page */
 div.title {
   display: table-cell;
@@ -40,9 +27,7 @@ div.status {
   text-align: right;
   vertical-align: bottom;
   color: #404040;
-  font-size: 0.8em;
   font-weight: bold;
-  min-width: 200px;
   white-space: nowrap;
 }
 
@@ -62,7 +47,21 @@ div.mainmenu {
   letter-spacing: 1px;
   background-color: #404040;
   color: white;
+  z-index: 21;  /* just above hbdrop */
 }
+.hbdrop {
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 0.5em;
+  display: none;
+  width: 95%;
+  position: absolute;
+  z-index: 20;  /* just below mainmenu, but above timeline bubbles */
+}
+div.hbdrop a { color: #604000; }
+div.hbdrop a:link { color: #604000;}
+div.hbdrop a:visited { color: #600000; }
+
 
 /* The submenu bar that *sometimes* appears below the main menu */
 div.submenu, div.sectionmenu {
@@ -72,14 +71,20 @@ div.submenu, div.sectionmenu {
   background-color: #606060;
   color: white;
 }
-div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited,
-div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited,
+div.mainmenu a,
+div.mainmenu a:visited,
+div.submenu a,
+div.submenu a:visited,
+div.sectionmenu>a.button:link,
+div.sectionmenu>a.button:visited,
 div.submenu label {
   padding: 3px 10px 3px 10px;
   color: white;
   text-decoration: none;
 }
-div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover,
+div.mainmenu a:hover,
+div.submenu a:hover,
+div.sectionmenu>a.button:hover,
 div.submenu label:hover {
   color: #404040;
   background-color: white;

@@ -1,15 +1,9 @@
 <div class="header">
-  <div class="title"><small>$<project_name></small><br />$<title></div>
-  <div class="status"><th1>
-     if {[info exists login]} {
-       puts "Logged in as $login"
-     } else {
-       puts "Not logged in"
-     }
-  </th1></div>
+  <div class="title">$<project_name>: $<title></div>
 </div>
 <div class="mainmenu">
 <th1>
+html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
 html "<a href='$home$index_page'>Home</a>\n"
 if {[anycap jor]} {
   html "<a href='$home/timeline'>Timeline</a>\n"
@@ -17,23 +11,21 @@ if {[anycap jor]} {
 if {[anoncap oh]} {
   html "<a href='$home/tree?ci=tip'>Files</a>\n"
 }
-if {[anoncap o]} {
-  html "<a href='$home/brlist'>Branches</a>\n"
-  html "<a href='$home/taglist'>Tags</a>\n"
-}
-if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-  html "<a href='$home/forum'>Forum</a>\n"
-}
-if {[anoncap r]} {
-  html "<a href='$home/ticket'>Tickets</a>\n"
-}
-if {[anoncap j]} {
-  html "<a href='$home/wiki'>Wiki</a>\n"
-}
+#if {[anoncap o]} {
+#  html "<a href='$home/brlist'>Branches</a>\n"
+#  html "<a href='$home/taglist'>Tags</a>\n"
+#}
+#if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+#  html "<a href='$home/forum'>Forum</a>\n"
+#}
+#if {[anoncap r]} {
+#  html "<a href='$home/ticket'>Tickets</a>\n"
+#}
+#if {[anoncap j]} {
+#  html "<a href='$home/wiki'>Wiki</a>\n"
+#}
 if {[hascap s]} {
   html "<a href='$home/setup'>Admin</a>\n"
-} elseif {[hascap a]} {
-  html "<a href='$home/setup_ulist'>Users</a>\n"
 }
 if {[info exists login]} {
   html "<a href='$home/login'>Logout</a>\n"
@@ -41,3 +33,7 @@ if {[info exists login]} {
   html "<a href='$home/login'>Login</a>\n"
 }
 </th1></div>
+<div id='hbdrop' class='hbdrop'></div>
+<script nonce="$nonce">
+<th1>styleScript skins/default/js.txt</th1>
+</script>

@@ -1490,9 +1490,10 @@ static int styleFooterCmd(
 }
 
 /*
-** TH1 command: styleScript
+** TH1 command: styleScript ?BUILTIN-FILENAME?
 **
-** Render the configured JavaScript for the selected skin.
+** Render the js.txt file from the current skin.  Or, if an argument
+** is supplied, render the built-in filename given.
 */
 static int styleScriptCmd(
   Th_Interp *interp,
@@ -1501,11 +1502,16 @@ static int styleScriptCmd(
   const char **argv,
   int *argl
 ){
-  if( argc!=1 ){
-    return Th_WrongNumArgs(interp, "styleScript");
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "styleScript ?BUILTIN_NAME?");
   }
   if( Th_IsRepositoryOpen() ){
-    const char *zScript = skin_get("js");
+    const char *zScript;
+    if( argc==2 ){
+      zScript = (const char*)builtin_file(argv[1], 0);
+    }else{
+      zScript = skin_get("js");
+    }
     if( zScript==0 ) zScript = "";
     Th_Render(zScript);
     Th_SetResult(interp, 0, 0);
