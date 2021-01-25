@@ -659,9 +659,11 @@ ul {
   padding-left: 8px;
   padding-right: 8px
 }
+#hbdrop a,
 .content a {
   color: #8cf
 }
+#hbdrop a:hover,
 .content a:hover,
 .submenu a:hover,
 .submenu label:hover {
@@ -695,6 +697,7 @@ ul {
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
   clear: both
+  z-index: 21;
 }
 .mainmenu ul {
   list-style: none;
@@ -727,6 +730,14 @@ ul {
 }
 .mainmenu li:hover a {
   color: #000
+}
+div#hbdrop {
+  background-color: #161819;
+  border-radius: 15px;
+  display: none;
+  width: 100%;
+  position: absolute;
+  z-index: 20;
 }
 .submenu {
   padding: 4px 0;

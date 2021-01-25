@@ -1,5 +1,5 @@
-C Hamburger\smenu\senhancements:\n(1)\sRename\sthe\sJS\sto\ssrc/hbmenu.js\n(2)\sMake\sthe\sJS\sindependent\sof\sTH1\sso\sthat\sit\scan\sbe\sloaded\susing\nbuiltin_request_js().\n(3)\sAdd\sa\snew\sTH1\scommand\sthat\sinvokes\sbuiltin_request_js().\n(4)\sRevise\sthe\sdefault\sand\splain_gray\sskins\sto\smake\suse\sof\sthe\sprevious.
-D 2021-01-25T18:57:08.967
+C Add\sthe\shamburger\smenu\sto\sthe\sardoise\sskin.
+D 2021-01-25T19:11:39.504
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -328,10 +328,10 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 14bd1403c4f17758758dfffc95e5928bccb7843ecc540e0652c67052b6a781b4
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 78534f73afb8c0e4bbc603d3db6b6abbb008a83791fea3aec95213085bf96e65
+F skins/ardoise/css.txt 5201b1490a8e01e8f995abecd3b583239d58dd4c4af7c4463549a7369d35ed23
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
-F skins/ardoise/header.txt 47309feeacc1a9d4d65affb0174b914dcb96dcef1666356248039145c2feeb9e
+F skins/ardoise/header.txt 37cefa8ff0fef223432eed4b0fade8d4147ecda1e7f9d26655fe4f0fe1baf6e0
 F skins/ardoise/images/active.svg b568a0cf2e95b028f0bdeca14e954ae8c8553c0fd1f780c8c7ff927e698cb072
 F skins/ardoise/images/addindent.svg 5caa3367aa14e1a782756136a5cbf8ab4c081ad160223ac36ab3bd947ba0fcf0
 F skins/ardoise/images/addindent_h.svg 0be1d0c453d17ac69f74d04b489e9c7d15d4e4b48b99e7ff144d0c6b444503c7
@@ -513,7 +513,7 @@ F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c 9da0f3859017b29ed9bc51c72185656ec8a77b0dc53f2569828ae6f4f8a5a772
 F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
-F src/hbmenu.js 58a2ca62cfb7122daa3411364b74951d6cfa8a84f6a106dc234806fd633b33e1 w skins/default/js.txt
+F src/hbmenu.js 58a2ca62cfb7122daa3411364b74951d6cfa8a84f6a106dc234806fd633b33e1
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 3759207065467811d41e851cf15a63a342dfd6a57111785e658e7c4a27ad6e03
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
@@ -996,8 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 18e2f5337f112f607aa698fc90b3f6435d5dd1de15f732f2897570d3b5a4a37e 5fbc3b300b7ca849bc5c631e7033b1b4a43887519b365f21b94dde761be71049
-R 0fefafcd81e9108ce09ff7bc5a8172a1
-T +closed 5fbc3b300b7ca849bc5c631e7033b1b4a43887519b365f21b94dde761be71049
+P 9cd74289c0a76606becb4bf66cac55f637c00dd9421acfd428992ec0fc2ca661
+R 4f3d37e0deb14553b908d9444b8bd434
 U drh
-Z 90e0c97101ecc1fa1145a040135f5cc2
+Z 1ceab7231594fd0009493a1509ee4c97

@@ -33,6 +33,8 @@ proc menulink {url name} {
   }
   html "<a href='$home$url'>$name</a></li>\n"
 }
+html "<li><a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a></li>"
+builtin_request_js hbmenu.js
 menulink $index_page Home
 if {[anycap jor]} {
   menulink /timeline Timeline
@@ -40,30 +42,29 @@ if {[anycap jor]} {
 if {[hascap oh]} {
   menulink /dir?ci=tip Files
 }
-if {[hascap o]} {
-  menulink  /brlist Branches
-  menulink  /taglist Tags
-}
-if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-  menulink /forum Forum
-}
-if {[hascap r]} {
-  menulink /ticket Tickets
-}
-if {[hascap j]} {
-  menulink /wiki Wiki
-}
-if {[hascap o]} {
-  menulink /help Help
-  }
+# if {[hascap o]} {
+#   menulink  /brlist Branches
+#   menulink  /taglist Tags
+# }
+# if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+#   menulink /forum Forum
+# }
+# if {[hascap r]} {
+#   menulink /ticket Tickets
+# }
+# if {[hascap j]} {
+#   menulink /wiki Wiki
+# }
+# if {[hascap o]} {
+#   menulink /help Help
+# }
 if {[hascap s]} {
   menulink /setup Admin
-} elseif {[hascap a]} {
-  menulink /setup_ulist Users
 }
             </th1>
           </ul>
         </div> <!-- end div mainmenu -->
+        <div id="hbdrop"></div>
       </div> <!-- end div container -->
     </div> <!-- end div header -->
     <div class="middle max-full-width">
