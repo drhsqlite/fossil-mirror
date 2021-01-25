@@ -525,7 +525,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\default\details.txt" \
         "$(SRCDIR)\..\skins\default\footer.txt" \
         "$(SRCDIR)\..\skins\default\header.txt" \
-        "$(SRCDIR)\..\skins\default\js.txt" \
         "$(SRCDIR)\..\skins\eagle\css.txt" \
         "$(SRCDIR)\..\skins\eagle\details.txt" \
         "$(SRCDIR)\..\skins\eagle\footer.txt" \
@@ -581,6 +580,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\fossil.tabs.js" \
         "$(SRCDIR)\fossil.wikiedit-wysiwyg.js" \
         "$(SRCDIR)\graph.js" \
+        "$(SRCDIR)\hbmenu.js" \
         "$(SRCDIR)\href.js" \
         "$(SRCDIR)\login.js" \
         "$(SRCDIR)\markdown.md" \
@@ -1138,7 +1138,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/default/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/default/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/default/header.txt" >> $@
-	echo "$(SRCDIR)\../skins/default/js.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/footer.txt" >> $@
@@ -1194,6 +1193,7 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.tabs.js" >> $@
 	echo "$(SRCDIR)\fossil.wikiedit-wysiwyg.js" >> $@
 	echo "$(SRCDIR)\graph.js" >> $@
+	echo "$(SRCDIR)\hbmenu.js" >> $@
 	echo "$(SRCDIR)\href.js" >> $@
 	echo "$(SRCDIR)\login.js" >> $@
 	echo "$(SRCDIR)\markdown.md" >> $@

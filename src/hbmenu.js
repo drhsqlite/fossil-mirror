@@ -1,5 +1,5 @@
 /*
-** Copyright © 2018 Warren Young
+** Originally: Copyright © 2018 Warren Young
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -10,21 +10,41 @@
 ** merchantability or fitness for a particular purpose.
 **
 ** Contact: wyoung on the Fossil forum, https://fossil-scm.org/forum/
+** Modified by others.
 **
 *******************************************************************************
 **
-** This file contains the JS code specific to the Fossil default skin.
-** Currently, the only thing this does is handle clicks on its hamburger
-** menu button.
+** This file contains the JS code used to implement the expanding hamburger
+** menu on various skins.
+**
+** This was original the "js.txt" file for the default skin.  It was subsequently
+** moved into src/hbmenu.js so that it could be more easily reused by other skins
+** using the "builtin_request_js" TH1 command.
+**
+** Operation:
+**
+** This script request that the HTML contain two elements:
+**
+**      <a id="hbbtn">       <--- The hamburger menu button
+**      <div id="hbdrop">    <--- Container for the hamburger menu
+**      
+** Bindings are made on hbbtn so that when it is clicked, the following
+** happens:
+**
+**    1.  An XHR is made to /sitemap?popup to fetch the HTML for the
+**        popup menu.
+**
+**    2.  The HTML for the popup is inserted into hddrop.
+**
+**    3.  The hddrop container is made visible.
+**
+** CSS rules are also needed to cause the hddrop to be initially invisible,
+** and to correctly style and position the hddrop container.
 */
 (function() {
   var hbButton = document.getElementById("hbbtn");
   if (!hbButton) return;   // no hamburger button
-  if (!document.addEventListener) {
-    // Turn the button into a link to the sitemap for incompatible browsers.
-    hbButton.href = "$home/sitemap";
-    return;
-  }
+  if (!document.addEventListener) return; // Incompatible browser
   var panel = document.getElementById("hbdrop");
   if (!panel) return;   // site admin might've nuked it
   if (!panel.style) return;  // shouldn't happen, but be sure
@@ -222,7 +242,7 @@
           }
           // else, can't parse response as HTML or XML
         }
-        xhr.open("GET", "$home/sitemap?popup");   // note the TH1 substitution!
+        xhr.open("GET", hbButton.href + "?popup");
         xhr.responseType = "document";
         xhr.send();
       }
