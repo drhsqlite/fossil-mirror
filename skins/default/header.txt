@@ -20,6 +20,7 @@ proc menulink {url name cls} {
   }
 }
 html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
+builtin_request_js hbmenu.js
 menulink $index_page Home {}
 if {[anycap jor]} {
   menulink /timeline Timeline {}

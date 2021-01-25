@@ -1494,6 +1494,11 @@ static int styleFooterCmd(
 **
 ** Render the js.txt file from the current skin.  Or, if an argument
 ** is supplied, render the built-in filename given.
+**
+** By "rendering" we mean that the script is loaded and run through
+** TH1 to expand variables and process <th1>...</th1> script.  Contrast
+** with the "builtin_request_js BUILTIN-FILENAME" command which just
+** loads the file as-is without interpretation.
 */
 static int styleScriptCmd(
   Th_Interp *interp,
@@ -1522,6 +1527,27 @@ static int styleScriptCmd(
   }
 }
 
+/*
+** TH1 command: builtin_request_js NAME
+**
+** Request that the built-in javascript file called NAME be added to the
+** end of the generated page.
+**
+** See also:  styleScript
+*/
+static int builtinRequestJsCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "builtin_request_js NAME");
+  }
+  builtin_request_js(argv[1]);
+  return TH_OK;
+}
 
 /*
 ** TH1 command: artifact ID ?FILENAME?
@@ -2239,6 +2265,7 @@ void Th_FossilInit(u32 flags){
     {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
+    {"builtin_request_js", builtinRequestJsCmd, 0},
     {"captureTh1",    captureTh1Cmd,        0},
     {"cgiHeaderLine", cgiHeaderLineCmd,     0},
     {"checkout",      checkoutCmd,          0},

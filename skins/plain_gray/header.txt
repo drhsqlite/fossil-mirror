@@ -4,6 +4,7 @@
 <div class="mainmenu">
 <th1>
 html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
+builtin_request_js hbmenu.js
 html "<a href='$home$index_page'>Home</a>\n"
 if {[anycap jor]} {
   html "<a href='$home/timeline'>Timeline</a>\n"
@@ -34,6 +35,3 @@ if {[info exists login]} {
 }
 </th1></div>
 <div id='hbdrop' class='hbdrop'></div>
-<script nonce="$nonce">
-<th1>styleScript skins/default/js.txt</th1>
-</script>
