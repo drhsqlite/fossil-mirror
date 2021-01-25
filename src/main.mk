@@ -170,12 +170,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/ardoise/details.txt \
   $(SRCDIR)/../skins/ardoise/footer.txt \
   $(SRCDIR)/../skins/ardoise/header.txt \
-  $(SRCDIR)/../skins/ardoise/menu.txt \
   $(SRCDIR)/../skins/black_and_white/css.txt \
   $(SRCDIR)/../skins/black_and_white/details.txt \
   $(SRCDIR)/../skins/black_and_white/footer.txt \
   $(SRCDIR)/../skins/black_and_white/header.txt \
-  $(SRCDIR)/../skins/black_and_white/menu.txt \
   $(SRCDIR)/../skins/blitz/css.txt \
   $(SRCDIR)/../skins/blitz/details.txt \
   $(SRCDIR)/../skins/blitz/footer.txt \
@@ -194,12 +192,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
-  $(SRCDIR)/../skins/default/menu.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
   $(SRCDIR)/../skins/eagle/header.txt \
-  $(SRCDIR)/../skins/eagle/menu.txt \
   $(SRCDIR)/../skins/enhanced1/css.txt \
   $(SRCDIR)/../skins/enhanced1/details.txt \
   $(SRCDIR)/../skins/enhanced1/footer.txt \
