@@ -63,7 +63,7 @@ a:hover {
   color: #000;
   border-bottom: 2px solid #D26911;
 }
-.mainmenu div#hbdrop {
+div#hbdrop {
   background-color: white;
   border: 1px solid black;
   border-top: white;
