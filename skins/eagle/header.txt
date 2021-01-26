@@ -91,42 +91,15 @@ function updateClock(){
 }
 updateClock();
 </script>
-<div class="mainmenu">
-<th1>
-proc menulink {url name} {
-  upvar home home
-  html "<a href='$home$url'>$name</a>\n"
-}
-menulink $index_page Home
-menulink /help Help
-if {[anycap jor]} {
-  menulink /timeline Timeline
-}
-if {[anoncap oh]} {
-  menulink /dir?ci=tip Files
-}
-if {[anoncap o]} {
-  menulink /brlist Branches
-  menulink /taglist Tags
-}
-if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-  menulink /forum Forum
-}
-if {[anoncap r]} {
-  menulink /ticket Tickets
-}
-if {[anoncap j]} {
-  menulink /wiki Wiki
-}
-menulink /sitemap More...
-if {[hascap s]} {
-  menulink /setup Admin
-} elseif {[hascap a]} {
-  menulink /setup_ulist Users
+<div class="mainmenu"><th1>
+foreach {name url expr class} $mainmenu {
+  if {![capexpr $expr]} continue
+  if {[string match /* $url]} {set url $home$url}
+  html "<a href='$url'>$name</a>\n"
 }
 if {[info exists login]} {
-  menulink /login Logout
+  html "<a href='$home/logout'>Logout</a>\n"
 } else {
-  menulink /login Login
+  html "<a href='$home/login'>Login</a>\n"
 }
 </th1></div>

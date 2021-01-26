@@ -12,35 +12,14 @@
      }
   </th1></div>
 </div>
-<div class="mainmenu">
-<th1>
-html "<a href='$home$index_page'>Home</a>\n"
-if {[anycap jor]} {
-  html "<a href='$home/timeline'>Timeline</a>\n"
-}
-if {[anoncap oh]} {
-  html "<a href='$home/tree?ci=tip'>Files</a>\n"
-}
-if {[anoncap o]} {
-  html "<a href='$home/brlist'>Branches</a>\n"
-  html "<a href='$home/taglist'>Tags</a>\n"
-}
-if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-  html "<a href='$home/forum'>Forum</a>\n"
-}
-if {[anoncap r]} {
-  html "<a href='$home/ticket'>Tickets</a>\n"
-}
-if {[anoncap j]} {
-  html "<a href='$home/wiki'>Wiki</a>\n"
-}
-if {[hascap s]} {
-  html "<a href='$home/setup'>Admin</a>\n"
-} elseif {[hascap a]} {
-  html "<a href='$home/setup_ulist'>Users</a>\n"
+<div class="mainmenu"><th1>
+foreach {name url expr class} $mainmenu {
+  if {![capexpr $expr]} continue
+  if {[string match /* $url]} {set url $home$url}
+  html "<a href='$url'>$name</a>\n"
 }
 if {[info exists login]} {
-  html "<a href='$home/login'>Logout</a>\n"
+  html "<a href='$home/logout'>Logout</a>\n"
 } else {
   html "<a href='$home/login'>Login</a>\n"
 }

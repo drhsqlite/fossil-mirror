@@ -91,6 +91,7 @@ static struct {
 } aConfig[] = {
   { "css",                    CONFIGSET_CSS  },
   { "header",                 CONFIGSET_SKIN },
+  { "mainmenu",               CONFIGSET_SKIN },
   { "footer",                 CONFIGSET_SKIN },
   { "details",                CONFIGSET_SKIN },
   { "js",                     CONFIGSET_SKIN },

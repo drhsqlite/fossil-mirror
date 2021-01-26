@@ -41,75 +41,21 @@
             </th1></p>
             <ul class="nav navbar-nav">
               <th1>
-                set is_index [expr [string compare [string range $current_page 0 4] "index"]==0]
-                set is_home [expr [string compare [string range $current_page 0 [expr [string length $index_page]-1] ] $index_page]==0]
-                if {$is_index || $is_home} {
-                  html "<li class='active'><a href='$home$index_page'>Home</a></li>\n"
-                } else {
-                  html "<li><a href='$home$index_page'>Home</a></li>\n"
-                }
-                if {[hascap j]} {
-                  if {[string compare [string range $current_page 0 3] "wiki"] == 0} {
-                    html "<li class='active'><a href='$home/wiki'>Wiki</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/wiki'>Wiki</a></li>\n"
-                  }
-                }
-                if {[anycap jor]} {
-                  if {[string compare $current_page "timeline"] == 0} {
-                    html "<li class='active'><a href='$home/timeline'>Timeline</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/timeline'>Timeline</a></li>\n"
-                  }
-                }
-                if {[hascap oh]} {
-                  if {[string compare [string range $current_page 0 2] "dir"] == 0} {
-                    html "<li class='active'><a href='$home/dir?ci=tip'>Files</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/dir?ci=tip'>Files</a></li>\n"
-                  }
-                }
-                if {[hascap o]} {
-                  if {[string compare $current_page "brlist"] == 0} {
-                    html "<li class='active'><a href='$home/brlist'>Branches</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/brlist'>Branches</a></li>\n"
-                  }
-                  if {[string compare $current_page "taglist"] == 0} {
-                    html "<li class='active'><a href='$home/taglist'>Tags</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/taglist'>Tags</a></li>\n"
-                  }
-                }
-                if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-                  if {[string compare $current_page "forum"] == 0} {
-                    html "<li class='active'><a href='$home/forum'>Forum</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/forum'>Forum</a></li>\n"
-                  }
-                }
-                if {[hascap r]} {
-                  if {[string compare $current_page "reportlist"] == 0} {
-                    html "<li class='active'><a href='$home/reportlist'>Tickets</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/reportlist'>Tickets</a></li>\n"
-                  }
-                }
-                if {[hascap s]} {
-                  if {[string compare [string range $current_page 0 4] "setup"] == 0} {
-                    html "<li class='active'><a href='$home/setup'>Admin</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/setup'>Admin</a></li>\n"
-                  }
-                } elseif {[hascap a]} {
-                  if {[string compare [string range $current_page 0 4] "setup"] == 0} {
-                    html "<li class='active'><a href='$home/setup_ulist'>Users</a></li>\n"
-                  } else {
-                    html "<li><a href='$home/setup_ulist'>Users</a></li>\n"
-                  }
-                }
-              </th1>
-            </ul>
+set once 1
+set is_index [expr [string compare [string range $current_page 0 4] "index"]==0]
+set is_home [expr [string compare [string range $current_page 0 [expr [string length $index_page]-1] ] $index_page]==0]
+foreach {name url expr class} $mainmenu {
+  if {![capexpr $expr]} continue
+  if {$once && [string match /$current_page* $url]} {
+    html "<li class='active'>"
+    set once 0
+  } else {
+    html "<li>"
+  }
+  if {[string match /* $url]} {set url $home$url}
+  html "<a href='$url'>$name</a></li>\n"
+}
+</th1></ul>
           </div><!--/.nav-collapse -->
         </div>
       </div>

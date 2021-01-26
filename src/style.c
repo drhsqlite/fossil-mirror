@@ -599,6 +599,29 @@ const char *get_default_header(){
 }
 
 /*
+** The default TCL list that defines the main menu.
+*/
+static const char zDfltMainMenu[] = 
+@ Home      /home        *              {}
+@ Timeline  /timeline    {o r j}        {}
+@ Files     /dir?ci=tip  oh             desktoponly
+@ Branches  /brlist      o              wideonly
+@ Tags      /taglist     o              wideonly
+@ Forum     /forum       {@2 3 4 5 6}   wideonly
+@ Chat      /chat        C              wideonly
+@ Tickets   /ticket      r              wideonly
+@ Wiki      /wiki        j              wideonly
+@ Setup     /setup       s              {}
+;
+
+/*
+** Return the default menu
+*/
+const char *style_default_mainmenu(void){
+  return zDfltMainMenu;
+}
+
+/*
 ** Given a URL path, extract the first element as a "feature" name,
 ** used as the <body class="FEATURE"> value by default, though
 ** later-running code may override this, typically to group multiple
@@ -661,6 +684,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
+  Th_Store("mainmenu", db_get("mainmenu", style_default_mainmenu()));
   url_var("stylesheet", "css", "style.css");
   image_url_var("logo");
   image_url_var("background");
