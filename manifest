@@ -1,5 +1,5 @@
-C The\smain\smenu\sfor\sweb\sdisplay\sis\snot\sdetermined\sby\sthe\s"mainmenu"\ssetting,\nfor\sthe\sbuilt-in\sskins.\s\sCustomized\sskins\sthat\signore\sthe\smainmenu\ssetting\ncontinue\sto\soperate\sas\sbefore.\s\sAdded\sthe\s"string\smatch"\sTH1\scommand\sto\shelp.
-D 2021-01-26T21:53:07.146
+C Fix\sa\sharmless\scompiler\swarning.
+D 2021-01-26T23:05:53.069
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -632,7 +632,7 @@ F src/tar.c 95e8c3d5dd1461d5f51ed40517c112cac8214ba18145113567a8e7acb51347f5
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
-F src/th_lang.c 0effd60e429d3b6b0699881b59551a83f0418b3765156543464b6621af9aa9ca
+F src/th_lang.c e10427606b7245a660af606a7774c74869f866442fdeab2695b7f6a4280a4582
 F src/th_main.c 02d4beacb39ae0ca02a193d1d36bf0a6611f024febd5b4a492dee929c423fbc1
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 52a91fe007f955e40ab5d37c3d27ef025b91d5da206c29b49bc96ed00151099f
@@ -996,10 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa5beb8c297faf1fbd215337908d3d263ce7e8ba1a8d6c412c12498643b0ee9f
-R 8f515b040b81d75f1fa2bebb28294057
-T *branch * new-main-menu
-T *sym-new-main-menu *
-T -sym-trunk *
+P 923841b709092decda0308e39a34e9e1257be43857184785ccae136d0ea57067
+R 98fc2a7b1a88038ecc5f2517e947745c
 U drh
-Z 70fe9db4ee2d6d45a517a8b000ff4efb
+Z 05a1688ca543157495c624a1789bf4dc
