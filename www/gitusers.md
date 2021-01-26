@@ -713,7 +713,9 @@ color to distinguish insertions, deletions, and replacements, but unlike
 with `git diff` when the output is to an ANSI X3.64 capable terminal,
 `fossil diff` does not.
 
-There’s an easy way to add this feature to Fossil, though: install
+There are a few easy ways to add this feature to Fossil, though.
+
+One is to install
 [`colordiff`][cdiff], which is included in [many package systems][cdpkg],
 then say:
 
@@ -724,6 +726,13 @@ then have to remember to add the `-i` option to `fossil diff` commands
 when you want color disabled, such as when piping diff output to another
 command that doesn’t understand ANSI escape sequences. There’s an
 example of this [below](#dstat).
+
+Another way, which avoids this problem, is to say instead:
+
+        fossil set --global diff-command 'git diff --no-index'
+
+This delegates `fossil diff` to `git diff` by using the latter’s
+abiliity to run on files not inside any repository.
 
 [cdpkg]: https://repology.org/project/colordiff/versions
 
