@@ -1041,8 +1041,8 @@ void setup_config(void){
   @ <p>Some custom skins might not use this property.  Whether the property
   @ is used or a choice made by the skin designer.  Some skins add an extra
   @ choices (such as the hamburger button) to the menu that are not shown
-  @ on this list.
-  @ (Property: mainmenu)
+  @ on this list. (Property: mainmenu)
+  @ <p>
   textarea_attribute("Main Menu", 12, 80, 
       "mainmenu", "mmenu", style_default_mainmenu(), 0);
   @

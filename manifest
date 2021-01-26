@@ -1,5 +1,5 @@
-C Fix\sthe\sdefault\sheader\sfiles\sso\sthat\sthey\scorrectly\sapply\sthe\s$home\sprefix\sonly\nfor\sURLs\sthat\sbegin\swith\s/.
-D 2021-01-26T23:31:26.974
+C Minor\sformatting\sissue\son\sthe\s/Setup/Configure\spage.
+D 2021-01-26T23:38:21.867
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -586,7 +586,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 2ab213f593203d3f8f570fef19224bc2a13dbe7f667b94fea4f435c06900b978
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
-F src/setup.c 4bd42725fccbef80464ad5a988a122d619d1e075e798ec05b0c16a4fe27543a3
+F src/setup.c 1f643fa759d2abbe1e8f54804812601db2e9201a67195da05a4c79cf26093974
 F src/setupuser.c cff08bafee6e711ed0011dd2ac284c672ae35e1f4772516881ebfe8040559c64
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb8bf23205751345449cffe35aafe17bf264d844a44414da45f0af13c08509c9
-R 126847530510c1017e72f665110ef2a1
+P cc675c0a9aa04c83f279ae8a78ea4a1c2c5dd8fb1a4218bf2f9c70273a1e6ccd
+R db7fea61956d1fd6ba1e71175c54ac0b
 U drh
-Z 29519d96405d36aab847c4773c097954
+Z 28d746787afb0184501f903fbf533967
