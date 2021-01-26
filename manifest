@@ -1,5 +1,5 @@
-C Enhance\s'fossil\sbranch\slist'\sto\saccept\sa\sGLOB\sargument\sand\sshow\sonly\smatching\sbranches.
-D 2021-01-26T15:27:27.240
+C Add\sthe\s"capexpr"\sTH1\scommand.\s\sThis\smakes\s"hascap",\s"anoncap",\sand\s"anycap"\nall\sobsolete.\s\sWe'll\skeep\sthose\sold\scommands\saround,\sfor\slegacy\scompatibility.
+D 2021-01-26T16:57:52.611
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -633,7 +633,7 @@ F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 95ac492d2fa1804117960031448f5bbc6ab774412404f673695ba107b765e529
-F src/th_main.c 6eda3629ef4e9d9d4958ed7129729aab7d28a18752cb33d8c123901f7ded50de
+F src/th_main.c 36a346e09cafaceb31f3a933eea9ff4e4d6575505beb327a85be08e548e04d72
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 52a91fe007f955e40ab5d37c3d27ef025b91d5da206c29b49bc96ed00151099f
 F src/tkt.c 63641b42cd6f4061b732649bbd5d5ddabe20acf2326310f9c6e4c48e7a7f748c
@@ -996,7 +996,8 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3316b29225dc6048a8accf9a3466f47fbbb8260324edc415faee2469ce697e65
-R 9b8c8f8ffec594ae495989cd341c6239
-U danield
-Z db9a9276f92039389519f94fee9839ed
+P 6a5cdecddc6444410e084ace244854910b84819559cb6765b9963123bc7deb5b 6828565ebed4f2c795dcfe9bc83bb2cc179db3de9251d8ff62f58b6eb8dafa2a
+R 0f080a27693676a5863c2a6e419ce8fa
+T +closed 6828565ebed4f2c795dcfe9bc83bb2cc179db3de9251d8ff62f58b6eb8dafa2a
+U drh
+Z c26b7a4004916a9d47d5588dccf0a325
