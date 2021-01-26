@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sthe\s"pikchr-background"\sdetail.txt\sskin\ssetting\sused\sto\nspecify\san\salternative\sbackground\scolor\svalue\sfor\sPikchr\sdiagrams.\s\sSet\sthis\nvalue\sappropriately\sfor\sthe\seagle\sand\sardoise\sskins.
-D 2021-01-25T20:19:36.384
+C Update\sthe\scustomskin.md\sdocument\sto\sexplain\sthe\slatest\spractices.
+D 2021-01-26T00:40:49.284
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -853,7 +853,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f6ffb
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 8f9843968c74da5b6148b565dbcee8721ff6a1c72aaa3bb00d52484de80b0953
+F www/customskin.md bf530163fd43be0be2acd7952025d74cbd6bf662909b27514ceb7198f4e48977
 F www/defcsp.md 7f8e9746a0eeb241d524c2c86cf0b1f7b44dab8ab25354e4cd774df8510c65c8
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki 0e03b43ba0282cf6cd92fbcbb908e4006a66cd96a52ae97b6735427de1b462a7
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b20654662e4df0aecfdae30fb7f0a4e8f35780113207849e632d1a6bbf863a1b
-R b900fe1e591d3b1a4397584a0114b9a0
+P 557f51b34bc6cdde6b8cc5d1669e070ea2f1bfdef62beba2874297d772007029
+R af0224b7e453db5f33740a16bdcf385a
 U drh
-Z 03ef1dd221cae612e6126a9dfd08da19
+Z 14b1967b47a179b310bd3fce01ca8320
