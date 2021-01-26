@@ -165,6 +165,46 @@ static int for_command(
 /*
 ** TH Syntax:
 **
+**   foreach VARLIST LIST SCRIPT
+*/
+static int foreach_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  char **azVar = 0;
+  int *anVar;
+  int nVar;
+  char **azValue = 0;
+  int *anValue;
+  int nValue;
+  int ii, jj;
+
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "foreach varlist list script");
+  }
+  rc = Th_SplitList(interp, argv[1], argl[1], &azVar, &anVar, &nVar);
+  if( rc ) return rc;
+  rc = Th_SplitList(interp, argv[2], argl[2], &azValue, &anValue, &nValue);
+  for(ii=0; rc==TH_OK && ii<=nValue-nVar; ii+=nVar){
+    for(jj=0; jj<nVar; jj++){
+      Th_SetVar(interp, azVar[jj], anVar[jj], azValue[ii+jj], anValue[ii+jj]);
+    }
+    rc = eval_loopbody(interp, argv[3], argl[3]);
+  }
+  if( rc==TH_BREAK ) rc = TH_OK;
+  Th_Free(interp, azVar);
+  Th_Free(interp, azValue);
+  return rc;
+}
+
+
+/*
+** TH Syntax:
+**
 **   list ?arg1 ?arg2? ...?
 */
 static int list_command(
@@ -1288,6 +1328,7 @@ int th_register_language(Th_Interp *interp){
     {"catch",    catch_command,   0},
     {"expr",     expr_command,    0},
     {"for",      for_command,     0},
+    {"foreach",  foreach_command, 0},
     {"if",       if_command,      0},
     {"info",     info_command,    0},
     {"lindex",   lindex_command,  0},

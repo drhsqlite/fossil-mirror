@@ -125,6 +125,7 @@ summarize the commands available in TH1:
   *  error ?STRING?
   *  expr EXPR
   *  for INIT-SCRIPT TEST-EXPR NEXT-SCRIPT BODY-SCRIPT
+  *  foreach VARIABLE-LIST VALUE-LIST BODY-SCRIPT
   *  if EXPR SCRIPT (elseif EXPR SCRIPT)* ?else SCRIPT?
   *  info commands
   *  info exists VARNAME
