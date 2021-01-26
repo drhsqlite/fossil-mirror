@@ -32,7 +32,8 @@ foreach {name url expr class} $mainmenu {
   } else {
     html "<li>"
   }
-  html "<a href='$home$url'>$name</a></li>\n"
+  if {[string match /* $url]} {set url $home$url}
+  html "<a href='$url'>$name</a></li>\n"
 }
 </th1></ul>
         </div> <!-- end div mainmenu -->

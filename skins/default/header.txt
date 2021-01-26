@@ -14,11 +14,13 @@ html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
 builtin_request_js hbmenu.js
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
-  if {[string range $url 0 [string length $current_page]] eq "/$current_page"} {
-    html "<a href='$home$url' class='active $class'>$name</a>\n"
-  } else {
-    html "<a href='$home$url' class='$class'>$name</a>\n"
+  if {[string match /* $url]} {
+    if {[string match /$current_page* $url]} {
+      set class "active $class"
+    }
+    set url $home$url
   }
+  html "<a href='$url' class='$class'>$name</a>\n"
 }
 </th1></div>
 <div id='hbdrop'></div>

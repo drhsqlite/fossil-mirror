@@ -94,7 +94,8 @@ updateClock();
 <div class="mainmenu"><th1>
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
-  html "<a href='$home$url'>$name</a>\n"
+  if {[string match /* $url]} {set url $home$url}
+  html "<a href='$url'>$name</a>\n"
 }
 if {[info exists login]} {
   html "<a href='$home/logout'>Logout</a>\n"
