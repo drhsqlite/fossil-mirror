@@ -795,7 +795,8 @@ Fossil’s closest internal equivalent to commands like
         fossil diff -i --from 2020-04-01 --numstat
 
 The `--numstat` output is a bit cryptic, so we recommend delegating
-this task to [the widely-available `diffstat` tool][dst]:
+this task to [the widely-available `diffstat` tool][dst], which gives
+a histogram in its default output mode rather than bare integers:
 
         fossil diff -i -N --from 2020-04-01 | diffstat
 
