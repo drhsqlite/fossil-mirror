@@ -1,5 +1,5 @@
-C Add\sthe\s"capexpr"\sTH1\scommand.\s\sThis\smakes\s"hascap",\s"anoncap",\sand\s"anycap"\nall\sobsolete.\s\sWe'll\skeep\sthose\sold\scommands\saround,\sfor\slegacy\scompatibility.
-D 2021-01-26T16:57:52.611
+C th1\sdocs:\sadded\snew\scapexpr\sand\smarked\s(anycap,\shascap,\sanoncap)\sas\sdeprecated.
+D 2021-01-26T17:53:01.837
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -984,7 +984,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki bba015ac712977d7aeca604b4bff3951fa10113609a62ef30f01878107b43119
 F www/tech_overview.wiki 086ebcdc9ca9b019c4a3556691653fb49b05dd9b9ebd5aea89701cfaa46d387e
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md 20574650967c781b76b74dc3bec65d63ca36b8c7bd78c6520fbeb77aeb5de85e
+F www/th1.md ef93179ceab9c9e9b5b0ad8652df293e3ed3f0652b0e9043cde846f2feae070f
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md c94d41eb349702e444704a3f74cd3f38caf820ff3546ac71b749bbf80890698f
@@ -996,8 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a5cdecddc6444410e084ace244854910b84819559cb6765b9963123bc7deb5b 6828565ebed4f2c795dcfe9bc83bb2cc179db3de9251d8ff62f58b6eb8dafa2a
-R 0f080a27693676a5863c2a6e419ce8fa
-T +closed 6828565ebed4f2c795dcfe9bc83bb2cc179db3de9251d8ff62f58b6eb8dafa2a
-U drh
-Z c26b7a4004916a9d47d5588dccf0a325
+P f96de5abdf2229e4c3cf760de8be924447453736ae7ca4d5c7d2218c4671aaa7
+R d885825b6cf82629f758f0475c96d364
+U stephan
+Z a0c922fd2c7447abc1b934d69eb45eb3
