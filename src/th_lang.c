@@ -888,6 +888,29 @@ static int string_length_command(
 /*
 ** TH Syntax:
 **
+**   string match PATTERN STRING
+**
+*/
+static int string_match_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  extern char *fossil_strndup(const char*,int);
+  char *zPat, *zStr;
+  int rc;
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "string match pattern string");
+  }
+  zPat = fossil_strndup(argv[2],argl[2]);
+  zStr = fossil_strndup(argv[3],argl[3]);
+  rc = sqlite3_strglob(zPat,zStr);
+  fossil_free(zPat);
+  fossil_free(zStr);
+  return Th_SetResultInt(interp, !rc);
+}
+
+/*
+** TH Syntax:
+**
 **   string range STRING FIRST LAST
 */
 static int string_range_command(
@@ -1157,6 +1180,7 @@ static int string_command(
     { "is",        string_is_command },
     { "last",      string_last_command },
     { "length",    string_length_command },
+    { "match",     string_match_command },
     { "range",     string_range_command },
     { "repeat",    string_repeat_command },
     { "trim",      string_trim_command },

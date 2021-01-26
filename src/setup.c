@@ -1019,6 +1019,34 @@ void setup_config(void){
   @ leading "/".</p>
   @ <p>(Property: "index-page")
   @ <hr>
+  @ <p>The main menu for the web interface
+  @ <p>
+   @
+  @ <p>This setting should be a TCL list.  Each set of four consecutive
+  @ values defines a single main menu item:
+  @ <ol>
+  @ <li> The first term is text that appears on the menu.
+  @ <li> The second term is a hyperlink to take when a user clicks on the
+  @      entry.  Hyperlinks that start with "/" are relative to the
+  @      repository root.
+  @ <li> The third term is an argument to the TH1 "capexpr" command.
+  @      If capexpr evalutes to true, then the entry is shown.  If not,
+  @      the entry is omitted.  "*" is always true.  "{}" is never true.
+  @ <li> The fouth term is a list of extra class names to apply to the new
+  @      menu entry.  Some skins will classes "desktoponly" and "wideonly"
+  @      to only show the entries when the web browser screen is wide or
+  @      very wide, respectively.
+  @ </ol>
+  @
+  @ <p>Some custom skins might not use this property.  Whether the property
+  @ is used or a choice made by the skin designer.  Some skins add an extra
+  @ choices (such as the hamburger button) to the menu that are not shown
+  @ on this list.
+  @ (Property: mainmenu)
+  textarea_attribute("Main Menu", 12, 80, 
+      "mainmenu", "mmenu", style_default_mainmenu(), 0);
+  @
+  @ <hr>
   @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page,
   @ as sub-items of the "Home Page" entry, appearing before the
   @ "Documentation Search" entry (if any).  In skins that use the /sitemap

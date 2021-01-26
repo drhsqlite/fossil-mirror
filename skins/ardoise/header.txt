@@ -23,46 +23,20 @@
     <div class="mainmenu">
       <ul>
         <th1>
-proc menulink {url name} {
-  upvar current_page current
-  upvar home home
-  if {[string range $url 0 [string length $current]] eq "/$current"} {
+html "<li><a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a></li>\n"
+builtin_request_js hbmenu.js
+set once 1
+foreach {name url expr class} $mainmenu {
+  if {![capexpr $expr]} continue
+  if {$once && [string match /$current_page* $url]} {
     html "<li class='active'>"
+    set once 0
   } else {
     html "<li>"
   }
   html "<a href='$home$url'>$name</a></li>\n"
 }
-html "<li><a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a></li>"
-builtin_request_js hbmenu.js
-menulink $index_page Home
-if {[anycap jor]} {
-  menulink /timeline Timeline
-}
-if {[hascap oh]} {
-  menulink /dir?ci=tip Files
-}
-# if {[hascap o]} {
-#   menulink  /brlist Branches
-#   menulink  /taglist Tags
-# }
-# if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-#   menulink /forum Forum
-# }
-# if {[hascap r]} {
-#   menulink /ticket Tickets
-# }
-# if {[hascap j]} {
-#   menulink /wiki Wiki
-# }
-# if {[hascap o]} {
-#   menulink /help Help
-# }
-if {[hascap s]} {
-  menulink /setup Admin
-}
-            </th1>
-          </ul>
+</th1></ul>
         </div> <!-- end div mainmenu -->
         <div id="hbdrop"></div>
       </div> <!-- end div container -->
