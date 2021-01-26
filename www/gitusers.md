@@ -116,9 +116,10 @@ This makes `fossil up` dual-use:
     the current one.
 
 We think this is a more sensible command design than `git checkout` vs
-`git pull`.
+`git pull`. ([…vs `git checkout` vs `git checkout`!][gcokoan])
 
 [gpull]: https://git-scm.com/docs/git-pull
+[gcokoan]: https://stevelosh.com/blog/2013/04/git-koans/#s2-one-thing-well
 
 
 #### <a id="rname"></a> Naming Repositories
