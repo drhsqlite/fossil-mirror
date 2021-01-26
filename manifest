@@ -1,5 +1,5 @@
-C Add\s"foreach"\sloops\sto\sTH1.
-D 2021-01-26T13:50:48.794
+C Enhance\s'fossil\sbranch\slist'\sto\saccept\sa\sGLOB\sargument\sand\sshow\sonly\smatching\sbranches.
+D 2021-01-26T15:27:27.240
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -444,7 +444,7 @@ F src/backoffice.c b68cdb60d5ad5f6bd6e01af7b2d03ab86eea97ed1edbd45c3c9c2aecafbcb
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
 F src/blob.c f15bfa74f0dfd79f45f6b1eb3475986dbacf6d5b5aeb92b433953b13c74f711a
-F src/branch.c dd6bd065e74eabfc3b41e41d377739f374bedc69e729f84b13643b3b177271f4
+F src/branch.c 93e0dcfe4606d57e8885f20d7d5817a4753453540824941bb015064a9713d9e9
 F src/browse.c 0027247eafe39d20f7ba86f7a998691d4bc7e10faf430676d6c5b3513423cafb
 F src/builtin.c 8f2e1ff21582e0f0701c15ec4a6446eadb4cecc7c98c34bef8b242b7274f935a
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
@@ -526,7 +526,7 @@ F src/info.c 81f05021eef89aba186c5abd3f63decc686e57f2a5234b6fa36b62f940ae21b9
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
-F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
+F src/json_branch.c a9d9253802b1a861c3e25e05e00e1dbd9de1c3bbd333abfaf60da98308baf3a8
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57d9b020b82f23441dbfa266cedbb6b6d7c3ba4777fe5460ddb1737fc7de2231
-R d44fe9573762b2c4c12c76c599c899db
-U drh
-Z 303a5fe8da4b2b2d509b90b169551a45
+P 3316b29225dc6048a8accf9a3466f47fbbb8260324edc415faee2469ce697e65
+R 9b8c8f8ffec594ae495989cd341c6239
+U danield
+Z db9a9276f92039389519f94fee9839ed
