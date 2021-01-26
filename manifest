@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning.
-D 2021-01-26T23:05:53.069
+C Fix\sa\smistaken\sedit\sin\sthe\sCSS\sfor\sthe\sdefault\sskin.
+D 2021-01-26T23:14:01.563
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -393,7 +393,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt 5c3d602e4a53f8ac857abe27d4c0e3e58b9eebdd7e847cb2840143dc14c668ce
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 69ce06a4d91c622bd719934ec4d1b8953ff1d964b9d4be03912de8d258a82821
+F skins/default/css.txt cdbc05d20557d4484f40ec64dc015743a84f202a5f130fcc4c9bf0e4da19e676
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 7295bd36115ae49af107609dc856f8f92ef1bb7d479a1f74ed977e7091c6826e
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 923841b709092decda0308e39a34e9e1257be43857184785ccae136d0ea57067
-R 98fc2a7b1a88038ecc5f2517e947745c
+P 6dc53820acc8cbf584c3f4958007dd6e580b2913dcc93603f281b3fb219d97ff
+R 90e4b850de2077e7b04eee7f8566c8a1
 U drh
-Z 05a1688ca543157495c624a1789bf4dc
+Z 3440191d7f321275cef2fd896a6b3cc0
