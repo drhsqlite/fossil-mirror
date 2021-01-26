@@ -274,7 +274,7 @@ div.timelineDate {
   .mainmenu {
     padding: 10px;
   }
-  .desktoponly {
+  .not-mobile {
     display: none;
   }
 }
@@ -298,7 +298,7 @@ div.timelineDate {
 }
 @media screen and (max-width: 1200px) {
   /* Special declarations for narrow desktop or wide mobile */
-  .wideonly {
+  .wide-screen {
     display: none;
   }
 }

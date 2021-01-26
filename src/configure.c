@@ -114,10 +114,7 @@ static struct {
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
   { "default-csp",            CONFIGSET_SKIN },
-  { "sitemap-docidx",         CONFIGSET_SKIN },
-  { "sitemap-download",       CONFIGSET_SKIN },
-  { "sitemap-license",        CONFIGSET_SKIN },
-  { "sitemap-contact",        CONFIGSET_SKIN },
+  { "sitemap-extra",          CONFIGSET_SKIN },
   { "safe-html",              CONFIGSET_SKIN },
 
 #ifdef FOSSIL_ENABLE_TH1_DOCS

@@ -34,6 +34,9 @@ void sitemap_page(void){
   int inSublist = 0;
   int i;
   int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
+  const char *zExtra;
+
+#if 0  /* Removed 2021-01-26 */
   const struct {
     const char *zTitle;
     const char *zProperty;
@@ -43,6 +46,7 @@ void sitemap_page(void){
     { "License",        "sitemap-license" },
     { "Contact",        "sitemap-contact" },
   };
+#endif
 
   login_check_credentials();
   if( P("popup")!=0 && cgi_csrf_safe(0) ){
@@ -57,8 +61,11 @@ void sitemap_page(void){
     style_header("Site Map");
     style_adunit_config(ADUNIT_RIGHT_OK);
   }
+    
   @ <ul id="sitemap" class="columns" style="column-width:20em">
   @ <li>%z(href("%R/home"))Home Page</a>
+
+#if 0  /* Removed 2021-01-26  */
   for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
     char *z = db_get(aExtra[i].zProperty,0);
     if( z==0 || z[0]==0 ) continue;
@@ -71,6 +78,41 @@ void sitemap_page(void){
     }else{
       @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</a></li>
     }
+  }
+#endif
+
+  zExtra = db_get("sitemap-extra",0);
+  if( zExtra ){
+    int rc;
+    char **azExtra = 0;
+    int *anExtra;
+    int nExtra = 0;
+    if( isPopup ) Th_FossilInit(0);
+    rc = Th_SplitList(g.interp, zExtra, (int)strlen(zExtra),
+                      &azExtra, &anExtra, &nExtra);
+    if( rc==TH_OK && nExtra ){
+      for(i=0; i+2<nExtra; i+=3){
+        int nResult = 0;
+        const char *zResult;
+        int iCond = 0;
+        rc = capexprCmd(g.interp, 0, 2,
+                (const char**)&azExtra[i+1], (int*)&anExtra[i+1]);
+        if( rc!=TH_OK ) continue;
+        zResult = Th_GetResult(g.interp, &nResult);
+        Th_ToInt(g.interp, zResult, nResult, &iCond);
+        if( iCond==0 ) continue;
+        if( !inSublist ){
+          @ <ul>
+          inSublist = 1;
+        }
+        if( azExtra[i+1][0]=='/' ){
+          @ <li>%z(href("%R%s",azExtra[i+1]))%h(azExtra[i])</a></li>
+        }else{
+          @ <li>%z(href("%s",azExtra[i+1]))%s(azExtra[i])</a></li>
+        }
+      }
+    }
+    Th_Free(g.interp, azExtra);
   }
   if( srchFlags & SRCH_DOC ){
     if( !inSublist ){

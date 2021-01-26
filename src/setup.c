@@ -1019,25 +1019,29 @@ void setup_config(void){
   @ leading "/".</p>
   @ <p>(Property: "index-page")
   @ <hr>
-  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page.
-  @ Often these are filled in with links like
-  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to
-  @ embedded documentation, or like "/wiki/<i>pagename</i>" to refer
-  @ to wiki pages.
-  @ Leave blank to omit.
+  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page,
+  @ as sub-items of the "Home Page" entry, appearing before the
+  @ "Documentation Search" entry (if any).  In skins that use the /sitemap
+  @ page to construct a hamburger menu dropdown, new entries added here
+  @ will appear on the hamburger menu.
+  @
+  @ <p>This setting should be a TCL list divided into triples.  Each
+  @ triple defines a new entry:
+  @ <ol>
+  @ <li> The first term is the display name of the /sitemap entry
+  @ <li> The second term is a hyperlink to take when a user clicks on the
+  @      entry.  Hyperlinks that start with "/" are relative to the
+  @      repository root.
+  @ <li> The third term is an argument to the TH1 "capexpr" command.
+  @      If capexpr evalutes to true, then the entry is shown.  If not,
+  @      the entry is omitted.  "*" is always true.
+  @ </ol>
+  @
+  @ <p>The default value is blank, meaning no added entries.
+  @ (Property: sitemap-extra)
   @ <p>
-  entry_attribute("Documentation Index", 40, "sitemap-docidx", "smdocidx",
-                  "", 0);
-  @ (Property: sitemap-docidx)<br>
-  entry_attribute("Download", 40, "sitemap-download", "smdownload",
-                  "", 0);
-  @ (Property: sitemap-download)<br>
-  entry_attribute("License", 40, "sitemap-license", "smlicense",
-                  "", 0);
-  @ (Property: sitemap-license)<br>
-  entry_attribute("Contact", 40, "sitemap-contact", "smcontact",
-                  "", 0);
-  @ (Property: sitemap-contact)
+  textarea_attribute("Custom Sitemap Entries", 8, 80, 
+      "sitemap-extra", "smextra", "", 0);
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>

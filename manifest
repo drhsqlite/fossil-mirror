@@ -1,5 +1,5 @@
-C th1\sdocs:\sadded\snew\scapexpr\sand\smarked\s(anycap,\shascap,\sanoncap)\sas\sdeprecated.
-D 2021-01-26T17:53:01.837
+C Rework\sthe\s/sitemap\scustomization\ssettings.\s\sThere\sis\snow\sjust\sa\ssingle\nsetting\s"sitemap-extra"\sthat\sis\sa\sTCL\slist\sof\striples,\swhere\seach\striple\ndefines\sa\snew\sentry\sin\sthe\s/sitemap.\s\sLegacy\sentries\sare\signored.\nAdministrators\sthat\shave\sa\scustom\s/sitemap\sconfiguration\swill\sneed\sto\supdate\nthe\s"Custom\sSitemap\sEntries"\ssetting\son\sthe\s/Admin/Configuration\spage\nafter\supdating\sto\sthis\sversion\sof\sFossil\sor\slater.
+D 2021-01-26T19:37:39.269
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -393,7 +393,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt 9736a30437604c04609093c5a0e53a38e30a0303f5a6672b8670002038fd187a
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt cdbc05d20557d4484f40ec64dc015743a84f202a5f130fcc4c9bf0e4da19e676
+F skins/default/css.txt 69ce06a4d91c622bd719934ec4d1b8953ff1d964b9d4be03912de8d258a82821
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 26dc4b94a03d88c0a0e6b2b8e355c1452f46ab63cdc92ad62497f9493ca19c49
@@ -462,7 +462,7 @@ F src/clone.c 89471ef3cfdc6665f290155741d55b8a26ed41e74acd9c4e242cf84425901c2f
 F src/codecheck1.c 0ca97e0ad67ee180590b536c5f8cf1e3a7ce6da15e42d9380a8a61b804e4da8f
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
 F src/config.h 2f3715d5a624250ad8f5c211cf07235a8bcd32080f97103cbd24d0c713d79dd6
-F src/configure.c d63b502abef6da7c315cba07326320496ce64c8ba4d444ef870fc59bd137d045
+F src/configure.c 529a6dc00188198fec90cb162540d9775d24c6d47b240e2af89280a9c6f65045
 F src/content.c e5728cc81452be14a4fecb80fe52d0673009a61f2166821a6eeab5f8793171ce
 F src/cookies.c a2dd9a0a89a80e776a1143b6d5758b84f7178f0c54b66f46e87a98bd8778caa4
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
@@ -586,14 +586,14 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 2ab213f593203d3f8f570fef19224bc2a13dbe7f667b94fea4f435c06900b978
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
-F src/setup.c aff9ae8f764309507fb7c25cfe554689e55b36382a8566d73b87d735a21ab827
+F src/setup.c 59fe84cf89670aaf7f87e0d183153be94ad3a57b178673981412cf536364f201
 F src/setupuser.c cff08bafee6e711ed0011dd2ac284c672ae35e1f4772516881ebfe8040559c64
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
 F src/shell.c 6f4ddcf3c29ec1e1df4b0a95c5478ad6829b6dc31d8cbb031766e818e1f0788f
 F src/shun.c 011890daac7837ded87804ce576cfae317a72f447aaba5eb0e460e066e4465ff
-F src/sitemap.c 77716adaae53e3c4bf6e2826f9fe4365ee948fa8556f9eb7e5ea9d152ce97a98
+F src/sitemap.c 6167ed22fce3750111f3c8b13f51899e7cbdc3fe8a3ea7da7cdd77317c1bcbc8
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c be1b634eccf41c2e5ee689ae5a549060e43caae4c9e4a516198c21763b2c6338
 F src/smtp.c a0abde298e1ce1bea5cc9cebffad973adce8a7647bcac3b8530b60fd2529f77c
@@ -633,7 +633,7 @@ F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1
 F src/th.c 42e7ea66dc757d73a527091d33d23453f0ef78fdc4d90c74d4feae5443902e83
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 95ac492d2fa1804117960031448f5bbc6ab774412404f673695ba107b765e529
-F src/th_main.c 36a346e09cafaceb31f3a933eea9ff4e4d6575505beb327a85be08e548e04d72
+F src/th_main.c 02d4beacb39ae0ca02a193d1d36bf0a6611f024febd5b4a492dee929c423fbc1
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 52a91fe007f955e40ab5d37c3d27ef025b91d5da206c29b49bc96ed00151099f
 F src/tkt.c 63641b42cd6f4061b732649bbd5d5ddabe20acf2326310f9c6e4c48e7a7f748c
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f96de5abdf2229e4c3cf760de8be924447453736ae7ca4d5c7d2218c4671aaa7
-R d885825b6cf82629f758f0475c96d364
-U stephan
-Z a0c922fd2c7447abc1b934d69eb45eb3
+P 828821463aa630aab145d33addc6a351738cafa7652e0dfd6304ae441301b6fa
+R e154a88f139f463f5d53c1bd2bd77500
+U drh
+Z 3e7d32966f42ebb5512808a2d4ed132a

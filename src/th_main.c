@@ -814,7 +814,7 @@ static int hascapCmd(
 **   capexpr {@2 @3 4 5 6}         2 or 3 available for anonymous or one of
 **                                   4, 5 or 6 is available for the user
 */
-static int capexprCmd(
+int capexprCmd(
   Th_Interp *interp,
   void *p,
   int argc,
