@@ -1,5 +1,5 @@
-C If\sthe\sfirst\sterm\sof\sthe\sPATH_INFO\sis\s"skn_X"\swhere\sX\sis\sone\sof\sthe\sbuilt-in\nskin\snames,\sthen\suse\sthat\sbuilt-in\sskin\srather\sthan\swhatever\sis\sconfigured.
-D 2021-01-27T17:22:23.349
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.35\salpha\sfor\stesting.
+D 2021-01-27T19:50:18.908
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -617,8 +617,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c 8b267e173cd1173e093d21a94ce0e2594c336d0a10fd27b0f424814f9ab548b5
-F src/sqlite3.h bae9ad8d38f6300553be2ba3405cc8b67fb684a678e65675c98961d79a1fbed2
+F src/sqlite3.c 57992378d9f76d77c8fdb75dfd60516ac460f2ebdd499ac85d9d87ccf9c09f97
+F src/sqlite3.h cd7690bc50d8f09f6e5ccaa769be1ebc30a3c517fdd60d00a2d479c224116efc
 F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
 F src/stat.c 0f11070d181ea70b7931711d82523da23f4d2a277ac72db409b8a6434512b67b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0412039ef108fb6b6666eb8587e1d830be615cd9cb8816a5ab804114de92c221
-R 528d2f1e358d3e92409f0ead4b78db5a
+P 7b028d74a6acd6d5794d78ef00e280208b23cf4ebfa277702bd1eaaa6f23075f
+R 46ede132cfc1421ac2745cba127ac865
 U drh
-Z 85720487b89cc6f8877d30c3478f438a
+Z 23e0106ec89d393c3b71a71f35afa062
