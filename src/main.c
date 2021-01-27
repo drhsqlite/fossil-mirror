@@ -387,7 +387,6 @@ static void fossil_atexit(void) {
     if( g.interp ){
       Th_DeleteInterp(g.interp); g.interp = 0;
     }
-    assert( Th_GetOutstandingMalloc()==0 );
   }
 }
 

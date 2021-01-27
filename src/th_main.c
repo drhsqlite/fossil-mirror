@@ -70,37 +70,6 @@
 #define Th_IsRepositoryOpen()     (g.repositoryOpen)
 #define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
-/*
-** Global variable counting the number of outstanding calls to malloc()
-** made by the th1 implementation. This is used to catch memory leaks
-** in the interpreter. Obviously, it also means th1 is not threadsafe.
-*/
-static int nOutstandingMalloc = 0;
-
-/*
-** Implementations of malloc() and free() to pass to the interpreter.
-*/
-static void *xMalloc(unsigned int n){
-  void *p = fossil_malloc(n);
-  if( p ){
-    nOutstandingMalloc++;
-  }
-  return p;
-}
-static void xFree(void *p){
-  if( p ){
-    nOutstandingMalloc--;
-  }
-  free(p);
-}
-static Th_Vtab vtab = { xMalloc, xFree };
-
-/*
-** Returns the number of outstanding TH1 memory allocations.
-*/
-int Th_GetOutstandingMalloc(){
-  return nOutstandingMalloc;
-}
 
 /*
 ** Generate a TH1 trace message if debugging is enabled.
@@ -2389,7 +2358,7 @@ void Th_FossilInit(u32 flags){
     int created = 0;
     int i;
     if( g.interp==0 ){
-      g.interp = Th_CreateInterp(&vtab);
+      g.interp = Th_CreateInterp();
       created = 1;
     }
     if( forceReset || created ){

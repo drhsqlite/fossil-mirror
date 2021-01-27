@@ -223,13 +223,9 @@ static void thBufferWriteResize(
   const char *zAdd,
   int nAdd
 ){
-  char *zNew;
   int nNew = (pBuffer->nBuf+nAdd)*2+32;
-  zNew = (char *)Th_Malloc(interp, nNew);
-  th_memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
-  Th_Free(interp, pBuffer->zBuf);
+  pBuffer->zBuf = Th_Realloc(interp, pBuffer->zBuf, nNew);
   pBuffer->nBufAlloc = nNew;
-  pBuffer->zBuf = zNew;
   th_memcpy(&pBuffer->zBuf[pBuffer->nBuf], zAdd, nAdd);
   pBuffer->nBuf += nAdd;
 }
@@ -1541,23 +1537,6 @@ char *Th_TakeResult(Th_Interp *pInterp, int *pN){
   }
 }
 
-
-/*
-** Wrappers around the supplied malloc() and free()
-*/
-void *Th_Malloc(Th_Interp *pInterp, int nByte){
-  void *p = pInterp->pVtab->xMalloc(nByte);
-  if( p ){
-    memset(p, 0, nByte);
-  }
-  return p;
-}
-void Th_Free(Th_Interp *pInterp, void *z){
-  if( z ){
-    pInterp->pVtab->xFree(z);
-  }
-}
-
 /*
 ** Install a new th1 command.
 **
@@ -1844,13 +1823,12 @@ void Th_DeleteInterp(Th_Interp *interp){
 /*
 ** Create a new interpreter.
 */
-Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
+Th_Interp * Th_CreateInterp(void){
   Th_Interp *p;
 
   /* Allocate and initialise the interpreter and the global frame */
-  p = pVtab->xMalloc(sizeof(Th_Interp) + sizeof(Th_Frame));
+  p = Th_Malloc(0, sizeof(Th_Interp) + sizeof(Th_Frame));
   memset(p, 0, sizeof(Th_Interp));
-  p->pVtab = pVtab;
   p->paCmd = Th_HashNew(p);
   thPushFrame(p, (Th_Frame *)&p[1]);
   thInitialize(p);
