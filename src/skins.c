@@ -1158,6 +1158,7 @@ void skins_page(void){
   } 
   login_check_credentials();
   style_header("Skins");
+  @ <p>The following skins are available for this repository:</p>
   @ <ul>
   if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
     @ <li> Standard skin for this repository &larr; <i>Currently in use</i>

@@ -262,6 +262,7 @@ void sitemap_page(void){
     @   <li>%z(href("%R/cachestat"))Status of the web-page cache</a></li>
     @   </ul></li>
   }
+  @ <li>%z(href("%R/skins"))Skins</a></li>
   @ <li>%z(href("%R/sitemap-test"))Test Pages</a></li>
   if( isPopup ){
     @ <li>%z(href("%R/sitemap"))Site Map</a></li>
