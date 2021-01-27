@@ -1792,9 +1792,15 @@ static void process_one_web_page(
 
   /* At this point, the appropriate repository database file will have
   ** been opened.
-  **
-  ** Check to see if the PATH_INFO begins with "draft[1-9]" and if
-  ** so activate the special handling for draft skins
+  */
+
+
+  /*
+  ** Check to see if the first term of PATH_INFO specifies an alternative
+  ** skin.  This will be the case if the first term of PATH_INFO
+  ** begins with "draftN/" where N is an integer between 1 and 9 or
+  ** if it is "skn_X/" where X is one of the built-in skin names.
+  ** If either is true, then activate the alternative skin.
   */
   if( zPathInfo && strncmp(zPathInfo,"/draft",6)==0
    && zPathInfo[6]>='1' && zPathInfo[6]<='9'
@@ -1810,7 +1816,26 @@ static void process_one_web_page(
     cgi_replace_parameter("PATH_INFO", zPathInfo);
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     etag_cancel();
-  }
+  }else if( zPathInfo && strncmp(zPathInfo, "/skn_", 5)==0 ){
+    int i;
+    char *zAlt;
+    char *zErr;
+    for(i=5; zPathInfo[i] && zPathInfo[i]!='/'; i++){}
+    zAlt = mprintf("%.*s", i-5, zPathInfo+5);
+    zErr = skin_use_alternative(zAlt);
+    if( zErr ){
+      fossil_free(zErr);
+    }else{
+      char *zNewScript;
+      zNewScript = mprintf("%T/skn_%s", P("SCRIPT_NAME"), zAlt);
+      if( g.zTop ) g.zTop = mprintf("%R/skn_%s", zAlt);
+      if( g.zBaseURL ) g.zBaseURL = mprintf("%s/skn_%s", g.zBaseURL, zAlt);
+      zPathInfo += i;
+      cgi_replace_parameter("PATH_INFO", zPathInfo);
+      cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+    }
+    fossil_free(zAlt);
+  }  
 
   /* If the content type is application/x-fossil or 
   ** application/x-fossil-debug, then a sync/push/pull/clone is

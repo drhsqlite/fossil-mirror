@@ -1,5 +1,5 @@
-C Begin\sa\schange\slog\sfor\sversion\s2.15.
-D 2021-01-27T14:40:41.274
+C If\sthe\sfirst\sterm\sof\sthe\sPATH_INFO\sis\s"skn_X"\swhere\sX\sis\sone\sof\sthe\sbuilt-in\nskin\snames,\sthen\suse\sthat\sbuilt-in\sskin\srather\sthan\swhatever\sis\sconfigured.
+D 2021-01-27T17:22:23.349
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -547,7 +547,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 71bf3f7634e786c0d7889b3487eb4cfe1d627ae02169e425f8ced4981c744628
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 8a0dcfc4f80c300906f9a79987c4c19d8eeb6f49ec098d2dbb52f5dc17e18485
+F src/main.c edcf03080da9cec42f9efe4530cc434980f3880f0b7d78e9cf26c757904c4fb7
 F src/main.mk 0f5f50f0ad4b67f268a9b809046b4587096ae217f9f45e87db3ff1924f4fe079
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 43981c5d6234d830c4be4cf9fc4691e5a1e9a5544f13db9af80a25e80fe83dc7
-R a86b9c26a1f8ba8a237d42dc813c136d
+P 0412039ef108fb6b6666eb8587e1d830be615cd9cb8816a5ab804114de92c221
+R 528d2f1e358d3e92409f0ead4b78db5a
 U drh
-Z 6a7780b77d17a81268ec1600b0b186be
+Z 85720487b89cc6f8877d30c3478f438a
