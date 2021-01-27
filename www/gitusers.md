@@ -733,7 +733,7 @@ Another way, which avoids this problem, is to say instead:
         fossil set --global diff-command 'git diff --no-index'
 
 This delegates `fossil diff` to `git diff` by using the latter’s
-abiliity to run on files not inside any repository.
+ability to run on files not inside any repository.
 
 [cdpkg]: https://repology.org/project/colordiff/versions
 
