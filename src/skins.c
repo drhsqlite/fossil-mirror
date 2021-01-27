@@ -42,18 +42,18 @@ static struct BuiltinSkin {
   char *zSQL;           /* Filled in at run-time with SQL to insert this skin */
 } aBuiltinSkin[] = {
   { "Default",                           "default",           0 },
+  { "Ardoise",                           "ardoise",           0 },
+  { "Black & White, Menu on Left",       "black_and_white",   0 },
   { "Blitz",                             "blitz",             0 },
   { "Blitz, No Logo",                    "blitz_no_logo",     0 },
   { "Bootstrap",                         "bootstrap",         0 },
-  { "Xekri",                             "xekri",             0 },
-  { "Original",                          "original",          0 },
-  { "Enhanced Original",                 "enhanced1",         0 },
-  { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
   { "Eagle",                             "eagle",             0 },
-  { "Black & White, Menu on Left",       "black_and_white",   0 },
-  { "Plain Gray, No Logo",               "plain_gray",        0 },
+  { "Enhanced Original",                 "enhanced1",         0 },
   { "Khaki, No Logo",                    "khaki",             0 },
-  { "Ardoise",                           "ardoise",           0 },
+  { "Original",                          "original",          0 },
+  { "Plain Gray, No Logo",               "plain_gray",        0 },
+  { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
+  { "Xekri",                             "xekri",             0 },
 };
 
 /*
@@ -1133,4 +1133,46 @@ void setup_skin(void){
   }
   builtin_request_js("skin.js");
   style_finish_page();
+}
+
+/*
+** WEBPAGE: skins
+**
+** Show a list of all of the built-in skins, plus the responsitory skin,
+** and provide the user with an opportunity to change to any of them.
+*/
+void skins_page(void){
+  int i;
+  char *zBase = fossil_strdup(g.zTop);
+  size_t nBase = strlen(zBase);
+  if( iDraftSkin && sqlite3_strglob("*/draft?", zBase)==0 ){
+    nBase -= 7;
+    zBase[nBase] = 0;
+  }else if( pAltSkin ){
+    char *zPattern = mprintf("*/skn_%s", pAltSkin->zLabel);
+    if( sqlite3_strglob(zPattern, zBase)==0 ){
+      nBase -= strlen(zPattern)-1;
+      zBase[nBase] = 0;
+    }
+    fossil_free(zPattern);
+  } 
+  login_check_credentials();
+  style_header("Skins");
+  @ <ul>
+  if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
+    @ <li> Standard skin for this repository &larr; <i>Currently in use</i>
+  }else{
+    @ <li> %z(href("%s/skins",zBase))Standard skin for this repository</a>
+  }
+  for(i=0; i<count(aBuiltinSkin); i++){
+    if( pAltSkin==&aBuiltinSkin[i] ){
+      @ <li> %h(aBuiltinSkin[i].zDesc) &larr; <i>Currently in use</i>
+    }else{
+      char *zUrl = href("%s/skn_%s/skins", zBase, aBuiltinSkin[i].zLabel);
+      @ <li> %z(zUrl)%h(aBuiltinSkin[i].zDesc)</a>
+    }
+  }
+  @ </ul>
+  style_finish_page();
+  fossil_free(zBase);
 }
