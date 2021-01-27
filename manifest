@@ -1,5 +1,5 @@
-C More\sTH1\sperformance\soptimizations:\s\sGo\sdirectly\sto\smalloc()\srather\sthan\nthrough\sthe\sTh_Malloc()\sintermediary.
-D 2021-01-27T13:32:29.160
+C Remove\sredundant\slength\scheck\sfrom\scaptcha\sprocessing.\n[Forum\spost\sf406019983|forum:/forumpost/f406019983].
+D 2021-01-27T14:14:17.151
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -450,7 +450,7 @@ F src/builtin.c 8f2e1ff21582e0f0701c15ec4a6446eadb4cecc7c98c34bef8b242b7274f935a
 F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
-F src/captcha.c e414f9b0f47d28484005b2183904efbaa03a9f098fa820024b914e44cc205afa
+F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
 F src/chat.c d74ac16cc95ccaea98d4ed1cd2f7bd00becac19b61aa93bace77baf4c0a84148
 F src/chat.js dec74b08020230bd0f2bc0f81b0a2390532fd463a66687278dad5c8359f3bae9
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b26eea7ee0ffee30020e30f9cd103f46e405db873a00d520f9767f127f99a842
-R e683bc981d8f6b870e8fafff50c02a4c
+P 9b4f2d8e98d86d12cf220bc8e2561c27be4466f71be80a7baf8fc956cb31d7c3
+R a7969839d08895367bcef585df6e9964
 U drh
-Z 665284b6ddd59f697a4541f4b17abee7
+Z 71e713348344df9c12c950cf60fb1945
