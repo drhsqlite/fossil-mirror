@@ -267,6 +267,8 @@ be found.
 <a id="capexpr"></a>TH1 capexpr Command
 -----------------------------------------------------
 
+Added in Fossil 2.15.
+
   *  capexpr CAPABILITY-EXPR
 
 The capability expression is a list. Each term of the list is a
