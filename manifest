@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2021-01-28T01:08:07.877
+C Fix\sa\sproblem\sin\sthe\s"original"\sskin\sheader.txt\sfile.
+D 2021-01-28T02:04:08.844
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -413,7 +413,7 @@ F skins/khaki/header.txt c85874caf533e7e30b417eb118ed188dfd2fa3bb97e05e9a2b46a91
 F skins/original/css.txt e7c642d607fb6a1972e61b6c02e830f72af3c8b9
 F skins/original/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/original/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
-F skins/original/header.txt 85e43dc9cd33539d779895434dae23205001e1bee80e4c9378b48182e9897b07
+F skins/original/header.txt a7a784d1aed87622b1ef4b3f47d6da27e2a753503a7a60afd7fa876302b60e33
 F skins/plain_gray/css.txt aa45109f20f61f508ed208a50937bcafe992cad4eb90f3edc444ee3811ec2d41
 F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b4031f45aa745e
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5af8a1a937393c81f2b7d276fcc4264f050db69d97b95fe83910452ad3f40f6f
-R 8bdeb9a5c5807ef2464b9bf2bdb39b2e
+P 872eb4bc7c82d0e240f1b6e1df0fa197db079312659b082a8bc0b6496f190a7d
+R dce16ea6794b4fff887f613a8469f6f1
 U drh
-Z b0196e9eb89bb9c8fe01c953da4530fe
+Z bc3d2e56f9489ac4ffa129892035d56f
