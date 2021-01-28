@@ -69,6 +69,15 @@ changes may look fine in your whizzy GUI Markdown editor, but what
 actually matters is how <i>Fossil</i> will interpret your Markdown text.
 Therefore, you should always preview your edits before committing them.
 
+To help make "ckout" easier to use, the "[/help?cmd=ui|fossil ui]"
+command has the "--ckout-alias NAME" option that makes NAME an
+alias for "ckout".  If you are editing a collection of documents
+that have hardcoded links to one another in the form of
+"/doc/trunk/...", for example, you can test your changes by
+running "fossil ui --ckout-alias trunk" and all of the links will
+point to your uncommitted edits rather than to the latest trunk
+check-in.
+
 Finally, the <i>&lt;filename&gt;</i> element of the URL is the
 pathname of the documentation file relative to the root of the source
 tree.

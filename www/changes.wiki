@@ -12,6 +12,13 @@
      adjustments on servers that use /sitemap extensions.</b>
      The /Admin/Configuration page provides the ability to edit
      the new "sitemap-extra" setting.
+  *  Added the "--ckout-alias NAME" option to 
+     [/help?cmd=ui|fossil ui], [/help?cmd=server|fossil server], and
+     [/help?cmd=http|fossil http].  This option causes Fossil to
+     understand URIs of the form "/doc/NAME/..." as if they were
+     "[/help?cmd=/doc|/doc/ckout/...]", to facilitate testing of
+     [./embeddeddoc.wiki|embedded documentation] changes prior to
+     check-in.
   *  The "pikchr-background" settings is now available in 
      "detail.txt" skin files, for better control of Pikchr
      colors in inverted color schemes.

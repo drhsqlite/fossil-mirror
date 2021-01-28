@@ -1,5 +1,5 @@
-C Add\sthe\s--ckout-alias\soption\sto\s"fossil\sui",\s"fossil\sserver",\sand\n"fossil\shttp".\s\sThe\s"--ckout-alias\sNAME"\smeans\sthat\sURLs\sof\sthe\sform\n"/doc/NAME/..."\sare\sinterpreted\sas\sif\sthey\swere\s"/doc/ckout/...".\s\sThis\nhelps\sin\stesting\sembedded\sdocumentation\schanges\sprior\sto\scheck-in.
-D 2021-01-28T12:09:45.234
+C Document\sthe\snew\s--ckout-alias\soption.
+D 2021-01-28T12:26:21.953
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -836,7 +836,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
-F www/changes.wiki e6c13cc4207fce5ca84b0733ef467e56f626abeda8c6d3123afc82c2cfc6390d
+F www/changes.wiki 37969e5910a075e9a2525f24df51efb70f76e172b1d1d7ddf6fcea3385e31e0f
 F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
@@ -857,7 +857,7 @@ F www/customskin.md bf530163fd43be0be2acd7952025d74cbd6bf662909b27514ceb7198f4e4
 F www/defcsp.md 7f8e9746a0eeb241d524c2c86cf0b1f7b44dab8ab25354e4cd774df8510c65c8
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki 0e03b43ba0282cf6cd92fbcbb908e4006a66cd96a52ae97b6735427de1b462a7
-F www/embeddeddoc.wiki 76de10045c1c7e333538ba8c7281fdc2f4ed5354728d10b9c4981a584f9c6f04
+F www/embeddeddoc.wiki 3d8b3196cd8298dcaa4b6871643381022f1a0d4c0bdc59a963ba57600e2ff30a
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63437a752cc4b2888dd6b75314387d932e90b1df0fb76c235ecca454a52f710d
-R c8216cf919779f010afef541ce9a37a9
+P dc1121f6a7553982d35ea926931a908940618b3da8ba045d0c129efe8708e4c5
+R a86ea472c052655f5284cd076b7c3459
 U drh
-Z f1312825d8dc7a0449d861059d2fb586
+Z b4a00fe5b40f527b4fefc57b58081035
