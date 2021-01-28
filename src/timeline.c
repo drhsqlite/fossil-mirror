@@ -127,6 +127,11 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 **
 ** This value returned is in static space and is overwritten with
 ** each subsequent call.
+**
+** SETTING: color-hash-seed      width=16 default=0
+**
+** This is a seed value used for the hash that determines automatically
+** selected colors for branches and users.
 */
 char *hash_color(const char *z){
   int i;                       /* Loop counter */
@@ -135,7 +140,7 @@ char *hash_color(const char *z){
   int h1, h2, h3, h4;          /* Elements of the hash value */
   int mx, mn;                  /* Components of HSV */
   static char zColor[10];      /* The resulting color */
-  static int ix[2] = {0,0};    /* Color chooser parameters */
+  static int ix[3] = {0,0,0};  /* Color chooser parameters */
 
   if( ix[0]==0 ){
     if( skin_detail_boolean("white-foreground") ){
@@ -145,7 +150,9 @@ char *hash_color(const char *z){
       ix[0] = 0xf8;
       ix[1] = 0x20;
     }
+    ix[2] = db_get_int("color-hash-seed",0);
   }
+  h = ix[2];
   for(i=0; z[i]; i++ ){
     h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
   }

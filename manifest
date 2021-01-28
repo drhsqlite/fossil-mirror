@@ -1,5 +1,5 @@
-C Make\sthe\s/doc,\s/uv,\sand\s/wiki\swebpages\srespond\sto\sthe\s"popup"\squery\nparameter\sby\somitting\sthe\sheader\sand\sfooter\sboilerplate\sand\ssending\sjust\nthe\spage\scontent.
-D 2021-01-28T19:38:42.471
+C Add\sthe\scolor-hash-seed\ssetting.
+D 2021-01-28T20:21:08.224
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -635,7 +635,7 @@ F src/th.h 41356351a612a703dd2bbe08f98415f4295fd7ab84ae90bf8de75e2125d4c2df
 F src/th_lang.c e10427606b7245a660af606a7774c74869f866442fdeab2695b7f6a4280a4582
 F src/th_main.c 0789cfde7cec58452cc493563e322fd8d697234ab3888032d6f185ad7a87e70d
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 52a91fe007f955e40ab5d37c3d27ef025b91d5da206c29b49bc96ed00151099f
+F src/timeline.c 30a317aef99b2960c31aaebc1d4d3b47d062c1114bb7e2ce8f236ad01cc73089
 F src/tkt.c 63641b42cd6f4061b732649bbd5d5ddabe20acf2326310f9c6e4c48e7a7f748c
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 635a8b2bf0ebd77f5ab9bfda2a16016526d81240324adcdefd1af867b5b82fb4
-R e94a98cb94271796d5e8397664e1374d
+P 36a17f36b563c635a1738c3967df62e107e6fe961751354fd8d69703df6da2c8
+R e0196b7f22f9c3cba148137f5b644104
 U drh
-Z e475effdb502558c2b2c48f0d1d66cc5
+Z 69b9523c77b988b5705082f445d908c9
