@@ -242,6 +242,10 @@
           }
           // else, can't parse response as HTML or XML
         }
+        // The extra "popup" query parameter is a single to the server that the
+        // header and footer boiler-plate can be omitted.  The boiler-plate is
+        // ignored if it is included.  The popup query parameter is just an
+        // optimization.
         var url = hbButton.href + (hbButton.href.includes("?")?"&popup":"?popup")
         xhr.open("GET", url);
         xhr.responseType = "document";

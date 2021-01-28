@@ -1,5 +1,5 @@
-C Change\sof\splan:\s\sInstead\sof\sa\sseparate\s/sitemap-ex\spage,\sadd\sthe\se=\squery\nparameter\sto\s/sitemap.\s\sStandard\scontent\sis\somitted\swith\se=1.\s\sExtra\ncontent\sis\somitted\swith\se=2.
-D 2021-01-28T18:37:48.892
+C Make\sthe\s/doc,\s/uv,\sand\s/wiki\swebpages\srespond\sto\sthe\s"popup"\squery\nparameter\sby\somitting\sthe\sheader\sand\sfooter\sboilerplate\sand\ssending\sjust\nthe\spage\scontent.
+D 2021-01-28T19:38:42.471
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -479,7 +479,7 @@ F src/diff.c 33797a630604143d0526871810549fdd0656cf6ab2c29ec6f2bd10bfc2943d27
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 4c303869547276c03b1c92b4642fc808024dbeb9bcc44167ab98ca10bdb07cb3
 F src/dispatch.c 568c17e70f3eb0ac9128f8fd9d305375a7ab478f7a42cec2f52269e90c3478c0
-F src/doc.c 0ba869405e850a4aef84c67434643227adaf03e8b6d4e785bf0d80e1367ea18f
+F src/doc.c f04fab65744b0205ce82b0a668d4bc55460c7f47c03c16c64f3fc97dea21f44b
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 5faaf46b539770aac4b8d7687cd4b9dda7c9124e35e6294f1a675f9256d4dc93
@@ -513,7 +513,7 @@ F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c 9da0f3859017b29ed9bc51c72185656ec8a77b0dc53f2569828ae6f4f8a5a772
 F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
-F src/hbmenu.js 032765525877b20f6667ef4e89a15f11e35dec4c6c6e430062392ddb25fd79aa
+F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/hook.c 3759207065467811d41e851cf15a63a342dfd6a57111785e658e7c4a27ad6e03
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
@@ -652,7 +652,7 @@ F src/util.c 0ab500757ee25f4eafe3eb2c0de45a6e5bb0793eaa95526aac75e6682a8eccd1
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 65cf7f61a3cf9433dec6efcd5531dfcf8811e98d6c229b2fe3c691c86b085b58
-F src/wiki.c 396b3c0f3cb08381f6bec21a09a30e78e7345f584bb7c9bb156348e133502845
+F src/wiki.c 475e9ec0828886b924fcb3fe4d7d403e369d75fe160d97845dd43ddba6543611
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c 8de002293890d3c092ed339c2053f2ec4e6d2f800080b15e907496d017b23ca8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0b982b6f144abd3f085b9f3c963e6255d61778a37b8a4371390380ba7ce07c82
-R 8e2b42f12539287d05cf1b5eef43f0ef
+P 635a8b2bf0ebd77f5ab9bfda2a16016526d81240324adcdefd1af867b5b82fb4
+R e94a98cb94271796d5e8397664e1374d
 U drh
-Z bc234c4f08c9744f5f109182f4be540b
+Z e475effdb502558c2b2c48f0d1d66cc5
