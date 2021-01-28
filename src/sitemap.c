@@ -111,6 +111,7 @@ void sitemap_page(void){
     int *anExtra;
     int nExtra = 0;
     if( isPopup ) Th_FossilInit(0);
+    if( !bAllEntries ) inSublist = 1;
     rc = Th_SplitList(g.interp, zExtra, (int)strlen(zExtra),
                       &azExtra, &anExtra, &nExtra);
     if( rc==TH_OK && nExtra ){
