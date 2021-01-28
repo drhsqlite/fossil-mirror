@@ -116,6 +116,7 @@ static struct {
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
   { "default-csp",            CONFIGSET_SKIN },
   { "sitemap-extra",          CONFIGSET_SKIN },
+  { "color-hash-seed",        CONFIGSET_SKIN },
   { "safe-html",              CONFIGSET_SKIN },
 
 #ifdef FOSSIL_ENABLE_TH1_DOCS
