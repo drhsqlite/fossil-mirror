@@ -92,33 +92,44 @@ section.
 
 #### <a id="pullup"></a> Update vs Pull
 
-The closest equivalent to [`git pull`][gpull] is [`fossil up`][up],
-since Fossil tends to follow the CVS command design: `cvs up` pulls
-changes from the central CVS repository and merges them into the local
-working directory, so that’s what `fossil up` does, too.
+The closest equivalent to [`git pull`][gpull] is not
+[`fossil pull`][fpull], but in fact [`fossil up`][up].
 
-There is a `fossil pull` command, but it is simply the reverse of
+This is because
+Fossil tends to follow the CVS command design: `cvs up` pulls
+changes from the central CVS repository and merges them into the local
+working directory, so that’s what `fossil up` does, too. (This design
+choice also tends to make Fossil feel comfortable to Subversion
+expatriates.)
+
+The `fossil pull` command is simply the reverse of
 `fossil push`, so that `fossil sync` [is functionally equivalent
 to](./sync.wiki#sync):
 
         fossil push ; fossil pull
 
-There is no “and update the local working directory” step in Fossil’s
-push, pull, or sync commands, as with `git pull`.
+There is no implicit “and update the local working directory” step in Fossil’s
+push, pull, or sync commands, as there is with `git pull`.
 
-This makes `fossil up` dual-use:
+Someone coming from the Git perspective may perceive that `fossil up`
+has two purposes:
 
 *   Without the optional `VERSION` argument, it updates the working
-    checkout to the tip of the current branch.
+    checkout to the tip of the current branch, like `git pull`.
 
-*   With that argument, it updates to the named version. If that’s the
+*   Given a `VERSION` argument, it updates to the named version. If that’s the
     name of a branch, it updates to the tip of that branch rather than
-    the current one.
+    the current one, like `git checkout BRANCH`.
 
-We think this is a more sensible command design than `git checkout` vs
-`git pull`. ([…vs `git checkout` vs `git checkout`!][gcokoan])
+In fact, these are the same operation, so they’re the same command in
+Fossil. The first form simply allows the `VERSION` to be implicit: the
+current branch.
 
-[gpull]: https://git-scm.com/docs/git-pull
+We think this is a more sensible command design than `git pull` vs
+`git checkout`. ([…vs `git checkout` vs `git checkout`!][gcokoan])
+
+[fpull]:   /help?cmd=pull
+[gpull]:   https://git-scm.com/docs/git-pull
 [gcokoan]: https://stevelosh.com/blog/2013/04/git-koans/#s2-one-thing-well
 
 
