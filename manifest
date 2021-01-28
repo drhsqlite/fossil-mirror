@@ -1,5 +1,5 @@
-C Allow\smultiple\slayers\sof\s/skn_X\sskin\sspecifications\sat\sthe\sbeginning\sof\nthe\sPATH_INFO.\s\sUse\sthe\slast\sone.\s\sSkip\sover\sand\sdiscard\sall\sthe\sothers.
-D 2021-01-28T01:01:52.943
+C Updates\sto\sthe\schange\slog.
+D 2021-01-28T01:08:07.877
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -836,7 +836,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
 F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
-F www/changes.wiki 1e195e431fffb19178079d7b8561c8972f5a540ad4a4b610e944aee8a40268d8
+F www/changes.wiki e6c13cc4207fce5ca84b0733ef467e56f626abeda8c6d3123afc82c2cfc6390d
 F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki f0f6679996759579203538c993dcf00895e43f11cdb40ebb1ea66c862659c658
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 685c7d0581eff140ceccc8feb79a45a2ae1a77058418e26b46ff3577743fc238
-R 3e3fefd5a16460e654f39ddd421fc76f
+P 5af8a1a937393c81f2b7d276fcc4264f050db69d97b95fe83910452ad3f40f6f
+R 8bdeb9a5c5807ef2464b9bf2bdb39b2e
 U drh
-Z fad1656fac7255190e7e9f082b2d611c
+Z b0196e9eb89bb9c8fe01c953da4530fe
