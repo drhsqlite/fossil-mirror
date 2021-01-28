@@ -1,5 +1,5 @@
-C Add\sthe\s"color-hash-seed"\ssetting\sto\sthe\sskin\sconfiguration.
-D 2021-01-28T20:22:50.426
+C When\supdating\sa\sschema\sfrom\s1.x\sto\s2.x,\stemporarily\sdisable\sdefensive\smode\nso\sthat\swe\scan\sremove\sthe\slength\sconstraint\son\sthe\sBLOB.UUID\scolumn.
+D 2021-01-28T20:42:53.160
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -576,7 +576,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 6cd5926c38643edf5a9a90eba47fb960ee4865088185e196044129e6ba23675a
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c 4f2870b9c683c1e55084a5dc1160376597bc8122e5a0808f36c42c423e992b29
-F src/rebuild.c ca776d84a4d18997788e024c51e98f4936a7006dfa69783480ce3150e9cf15e6
+F src/rebuild.c ac392fe94ee777ddeae4ac3dba76fa724b229fd2cdb6f9bc0abd272569f46861
 F src/regexp.c 8c322e77e3af37d259d4af5c7d3d1c03888159c690ad2a4725bfd8c491aac17d
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
 F src/report.c ede461643122b96aa820fc4f0d69cac9e082c801e6b7d11ad1e923da67972de3
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8996fe0d6fef22ae876cfc08bf382e269f94d7f7f8df237b2dc9cdda13f7f2b8
-R 48b3736f7c43697244789881cb03d119
+P 198af5374f31eb6554f399808f6754cb72ceffa2473afc01353289ffb1994b63
+R fdb24f50c89005978b9b097094c07e53
 U drh
-Z e8313f8c31233ece82cd2c07c6090f26
+Z 2ac02057fe819884fe0873c23dc17dde

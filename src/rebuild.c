@@ -158,13 +158,16 @@ void rebuild_schema_update_2_0(void){
     int i;
     for(i=10; z[i]; i++){
       if( z[i]=='=' && strncmp(&z[i-6],"(uuid)==40",10)==0 ){
+        int rc = 0;
         z[i] = '>';
+        sqlite3_db_config(g.db, SQLITE_DBCONFIG_DEFENSIVE, 0, &rc);
         db_multi_exec(
            "PRAGMA writable_schema=ON;"
            "UPDATE repository.sqlite_schema SET sql=%Q WHERE name LIKE 'blob';"
            "PRAGMA writable_schema=OFF;",
            z
         );
+        sqlite3_db_config(g.db, SQLITE_DBCONFIG_DEFENSIVE, 1, &rc);
         break;
       }
     }
