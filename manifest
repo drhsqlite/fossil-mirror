@@ -1,5 +1,5 @@
-C Add\sa\sterse\sexplanation\sto\sthe\s/skins\spage,\sand\sa\slink\sto\s/skins\sfrom\nthe\s/sitemap.
-D 2021-01-27T21:12:02.275
+C Allow\smultiple\slayers\sof\s/skn_X\sskin\sspecifications\sat\sthe\sbeginning\sof\nthe\sPATH_INFO.\s\sUse\sthe\slast\sone.\s\sSkip\sover\sand\sdiscard\sall\sthe\sothers.
+D 2021-01-28T01:01:52.943
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -547,7 +547,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 71bf3f7634e786c0d7889b3487eb4cfe1d627ae02169e425f8ced4981c744628
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c edcf03080da9cec42f9efe4530cc434980f3880f0b7d78e9cf26c757904c4fb7
+F src/main.c 32aa2f8fa0fbc4a3c2217c3f99531a745e1f6562349d37d6adb60030c755f50a
 F src/main.mk 0f5f50f0ad4b67f268a9b809046b4587096ae217f9f45e87db3ff1924f4fe079
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8ad5a2ec7824d67dcce25e1f0154c4a53b1c101235c55ff068ac607ca93adba
-R 63899991f7b9814a18cb15174101c32d
+P 685c7d0581eff140ceccc8feb79a45a2ae1a77058418e26b46ff3577743fc238
+R 3e3fefd5a16460e654f39ddd421fc76f
 U drh
-Z 386518bc0660e978c73b5a951542c5c6
+Z fad1656fac7255190e7e9f082b2d611c
