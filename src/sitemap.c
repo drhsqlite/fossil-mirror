@@ -23,17 +23,38 @@
 
 /*
 ** WEBPAGE: sitemap
+** WEBPAGE: sitemap-ex
 **
 ** List some of the web pages offered by the Fossil web engine.  This
 ** page is intended as a supplement to the menu bar on the main screen.
 ** That is, this page is designed to hold links that are omitted from
 ** the main menu due to lack of space.
+**
+** Additional entries defined by the "sitemap-extra" setting are included
+** in the sitemap.  "sitemap-extra" should be a TCL script with three
+** values per entry:
+**
+**    *    The displayed text
+**
+**    *    The URL
+**
+**    *    A "capexpr" expression that determines whether or not to include
+**         the entry based on user capabilities.  "*" means always include
+**         the entry and "{}" means never.
+**
+** The /sitemap-ex page works /sitemap except that it includes only the
+** sitemap-extra content and omits the standard content.
+**
+** If the "popup" query parameter is present and this is a POST request
+** from the same origin, then the normal HTML header and footer information
+** is omitted and the HTML text returned is just a raw "<ul>...</ul>".
 */
 void sitemap_page(void){
   int srchFlags;
   int inSublist = 0;
   int i;
   int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
+  int bAllEntries = fossil_strcmp(g.zPath,"sitemap")==0;
   const char *zExtra;
 
 #if 0  /* Removed 2021-01-26 */
@@ -49,7 +70,7 @@ void sitemap_page(void){
 #endif
 
   login_check_credentials();
-  if( P("popup")!=0 && cgi_csrf_safe(0) ){
+  if( P("popup")!=0 && (g.perm.Setup || cgi_csrf_safe(0)) ){
     /* If this is a POST from the same origin with the popup=1 parameter,
     ** then disable anti-robot defenses */
     isPopup = 1;
@@ -63,7 +84,9 @@ void sitemap_page(void){
   }
     
   @ <ul id="sitemap" class="columns" style="column-width:20em">
-  @ <li>%z(href("%R/home"))Home Page</a>
+  if( bAllEntries ){
+    @ <li>%z(href("%R/home"))Home Page</a>
+  }
 
 #if 0  /* Removed 2021-01-26  */
   for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
@@ -114,6 +137,7 @@ void sitemap_page(void){
     }
     Th_Free(g.interp, azExtra);
   }
+  if( !bAllEntries ) goto end_of_sitemap;
   if( srchFlags & SRCH_DOC ){
     if( !inSublist ){
       @ <ul>
@@ -267,6 +291,8 @@ void sitemap_page(void){
   if( isPopup ){
     @ <li>%z(href("%R/sitemap"))Site Map</a></li>
   }
+
+end_of_sitemap:
   @ </ul>
   if( !isPopup ){
     style_finish_page();
