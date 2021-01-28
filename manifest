@@ -1,5 +1,5 @@
-C Fix\sa\sproblem\sin\sthe\s"original"\sskin\sheader.txt\sfile.
-D 2021-01-28T02:04:08.844
+C Add\sthe\s--ckout-alias\soption\sto\s"fossil\sui",\s"fossil\sserver",\sand\n"fossil\shttp".\s\sThe\s"--ckout-alias\sNAME"\smeans\sthat\sURLs\sof\sthe\sform\n"/doc/NAME/..."\sare\sinterpreted\sas\sif\sthey\swere\s"/doc/ckout/...".\s\sThis\nhelps\sin\stesting\sembedded\sdocumentation\schanges\sprior\sto\scheck-in.
+D 2021-01-28T12:09:45.234
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -479,7 +479,7 @@ F src/diff.c 33797a630604143d0526871810549fdd0656cf6ab2c29ec6f2bd10bfc2943d27
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 4c303869547276c03b1c92b4642fc808024dbeb9bcc44167ab98ca10bdb07cb3
 F src/dispatch.c 568c17e70f3eb0ac9128f8fd9d305375a7ab478f7a42cec2f52269e90c3478c0
-F src/doc.c b6f05cba72e50b9ed00bc7656abf0bc4185ad80719196f691d78cfce34f8258b
+F src/doc.c 0ba869405e850a4aef84c67434643227adaf03e8b6d4e785bf0d80e1367ea18f
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 5faaf46b539770aac4b8d7687cd4b9dda7c9124e35e6294f1a675f9256d4dc93
@@ -547,7 +547,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 71bf3f7634e786c0d7889b3487eb4cfe1d627ae02169e425f8ced4981c744628
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 32aa2f8fa0fbc4a3c2217c3f99531a745e1f6562349d37d6adb60030c755f50a
+F src/main.c 17cb8d72eba5da9875a1ca41b080362d9b8c48daa4ca1dedbdb5a74cac79ade1
 F src/main.mk 0f5f50f0ad4b67f268a9b809046b4587096ae217f9f45e87db3ff1924f4fe079
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -656,7 +656,7 @@ F src/wiki.c 396b3c0f3cb08381f6bec21a09a30e78e7345f584bb7c9bb156348e133502845
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c 8de002293890d3c092ed339c2053f2ec4e6d2f800080b15e907496d017b23ca8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c b30ba807ffc837f7797efe6cf4569462967fe51bb7e2194cc348a2b7c59072e2
+F src/winhttp.c fed9bcb8391dd7bd94a577f8b46776b84e1ff4bbb229d3769bf09ca3dc7aa683
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
 F src/xfersetup.c 6ef44e93ea292bdf7fdaf695bb2c6c64131e81bd6ebb094e27dbb8b1ebe95a01
 F src/zip.c ff770acf2a8723e6730b6bd6c3b69071fa038a04cfcb0e041e1ca4a775938e8f
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 872eb4bc7c82d0e240f1b6e1df0fa197db079312659b082a8bc0b6496f190a7d
-R dce16ea6794b4fff887f613a8469f6f1
+P 63437a752cc4b2888dd6b75314387d932e90b1df0fb76c235ecca454a52f710d
+R c8216cf919779f010afef541ce9a37a9
 U drh
-Z bc3d2e56f9489ac4ffa129892035d56f
+Z f1312825d8dc7a0449d861059d2fb586

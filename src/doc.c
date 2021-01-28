@@ -869,7 +869,12 @@ void document_render(
 **
 ** The "ckout" CHECKIN is intended for development - to provide a mechanism
 ** for looking at what a file will look like using the /doc webpage after
-** it gets checked in.
+** it gets checked in.  Some commands like "fossil ui", "fossil server",
+** and "fossil http" accept an argument "--ckout-alias NAME" when allows
+** NAME to be understood as an alias for "ckout".  On a site with many
+** embedded hyperlinks to /doc/trunk/... one can run with "--ckout-alias trunk"
+** to simulate what the pending changes will look like after they are
+** checked in.  The NAME alias is stored in g.zCkoutAlias.
 **
 ** The file extension is used to decide how to render the file.
 **
@@ -990,7 +995,9 @@ void doc_page(void){
         }
         zDfltTitle = zName;
       }
-    }else if( fossil_strcmp(zCheckin,"ckout")==0 ){
+    }else if( fossil_strcmp(zCheckin,"ckout")==0
+           || fossil_strcmp(zCheckin,g.zCkoutAlias)==0
+    ){
       /* Read from the local checkout */
       char *zFullpath;
       db_must_be_within_tree();

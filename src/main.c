@@ -211,6 +211,7 @@ struct Global {
   Blob httpHeader;        /* Complete text of the HTTP request header */
   UrlData url;            /* Information about current URL */
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
+  const char *zCkoutAlias;   /* doc/ uses this branch as an alias for "ckout" */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
 #if defined(_WIN32) && USE_SEE
@@ -2513,6 +2514,8 @@ void test_pid_page(void){
 **
 ** Options:
 **   --baseurl URL    base URL (useful with reverse proxies)
+**   --ckout-alias N  Treat URIs of the form /doc/N/... as if they were
+**                       /doc/ckout/...
 **   --extroot DIR    document root for the /ext extension mechanism
 **   --files GLOB     comma-separate glob patterns for static file to serve
 **   --host NAME      specify hostname of the server
@@ -2583,6 +2586,7 @@ void cmd_http(void){
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   g.zExtRoot = find_option("extroot",0,1);
+  g.zCkoutAlias = find_option("ckout-alias",0,1);
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2761,6 +2765,8 @@ void fossil_set_timeout(int N){
 **
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
+**                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
@@ -2863,6 +2869,7 @@ void cmd_webserver(void){
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
+  g.zCkoutAlias = find_option("ckout-alias",0,1);
 
   /* We should be done with options.. */
   verify_all_options();

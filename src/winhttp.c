@@ -548,6 +548,10 @@ void win32_http_server(
     blob_appendf(&options, " --notfound ");
     blob_append_escaped_arg(&options, zNotFound);
   }
+  if( g.zCkoutAlias ){
+    blob_appendf(&options, " --ckout-alias ");
+    blob_append_escaped_arg(&options, g.zCkoutAlias);
+  }
   if( zFileGlob ){
     blob_appendf(&options, " --files-urlenc %T", zFileGlob);
   }
