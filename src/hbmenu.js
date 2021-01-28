@@ -242,7 +242,8 @@
           }
           // else, can't parse response as HTML or XML
         }
-        xhr.open("GET", hbButton.href + "?popup");
+        var url = hbButton.href + (hbButton.href.includes("?")?"&popup":"?popup")
+        xhr.open("GET", url);
         xhr.responseType = "document";
         xhr.send();
       }

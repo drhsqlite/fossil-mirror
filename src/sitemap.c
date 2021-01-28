@@ -23,7 +23,6 @@
 
 /*
 ** WEBPAGE: sitemap
-** WEBPAGE: sitemap-ex
 **
 ** List some of the web pages offered by the Fossil web engine.  This
 ** page is intended as a supplement to the menu bar on the main screen.
@@ -42,8 +41,10 @@
 **         the entry based on user capabilities.  "*" means always include
 **         the entry and "{}" means never.
 **
-** The /sitemap-ex page works /sitemap except that it includes only the
-** sitemap-extra content and omits the standard content.
+** If the "e=1" query parameter is present, then the standard content
+** is omitted and only the sitemap-extra content is shown.  If "e=2" is
+** present, then only the standard content is shown and sitemap-extra
+** content is omitted.
 **
 ** If the "popup" query parameter is present and this is a POST request
 ** from the same origin, then the normal HTML header and footer information
@@ -54,7 +55,7 @@ void sitemap_page(void){
   int inSublist = 0;
   int i;
   int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
-  int bAllEntries = fossil_strcmp(g.zPath,"sitemap")==0;
+  int e = atoi(PD("e","0"));
   const char *zExtra;
 
 #if 0  /* Removed 2021-01-26 */
@@ -70,8 +71,8 @@ void sitemap_page(void){
 #endif
 
   login_check_credentials();
-  if( P("popup")!=0 && (g.perm.Setup || cgi_csrf_safe(0)) ){
-    /* If this is a POST from the same origin with the popup=1 parameter,
+  if( P("popup")!=0 ){
+    /* The "popup" query parameter
     ** then disable anti-robot defenses */
     isPopup = 1;
     g.perm.Hyperlink = 1;
@@ -84,7 +85,7 @@ void sitemap_page(void){
   }
     
   @ <ul id="sitemap" class="columns" style="column-width:20em">
-  if( bAllEntries ){
+  if( (e&1)==0 ){
     @ <li>%z(href("%R/home"))Home Page</a>
   }
 
@@ -105,13 +106,13 @@ void sitemap_page(void){
 #endif
 
   zExtra = db_get("sitemap-extra",0);
-  if( zExtra ){
+  if( zExtra && (e&2)==0 ){
     int rc;
     char **azExtra = 0;
     int *anExtra;
     int nExtra = 0;
     if( isPopup ) Th_FossilInit(0);
-    if( !bAllEntries ) inSublist = 1;
+    if( (e&1)!=0 ) inSublist = 1;
     rc = Th_SplitList(g.interp, zExtra, (int)strlen(zExtra),
                       &azExtra, &anExtra, &nExtra);
     if( rc==TH_OK && nExtra ){
@@ -138,7 +139,7 @@ void sitemap_page(void){
     }
     Th_Free(g.interp, azExtra);
   }
-  if( !bAllEntries ) goto end_of_sitemap;
+  if( (e&1)!=0 ) goto end_of_sitemap;
   if( srchFlags & SRCH_DOC ){
     if( !inSublist ){
       @ <ul>
