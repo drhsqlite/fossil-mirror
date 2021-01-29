@@ -1,5 +1,5 @@
-C When\supdating\sa\sschema\sfrom\s1.x\sto\s2.x,\stemporarily\sdisable\sdefensive\smode\nso\sthat\swe\scan\sremove\sthe\slength\sconstraint\son\sthe\sBLOB.UUID\scolumn.
-D 2021-01-28T20:42:53.160
+C Add\snew\s--verbose\soption\sto\s'fossil\scommit'\sto\sdisplay\sa\sunified\sdiff\sof\nall\schanges\sto\sbe\scommitted\sin\sthe\seditor.\sOnly\stested\son\sOpenBSD\s6.8\nand\spreliminary\stesting\son\smacOS\s10.15.7\s(Catalina);\sneeds\sto\sbe\stested\non\sLinux\sand\sWindows.
+D 2021-01-29T16:10:09.407
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -454,7 +454,7 @@ F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
 F src/chat.c d74ac16cc95ccaea98d4ed1cd2f7bd00becac19b61aa93bace77baf4c0a84148
 F src/chat.js dec74b08020230bd0f2bc0f81b0a2390532fd463a66687278dad5c8359f3bae9
-F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
+F src/checkin.c 063ace5fe96ac92b040c22b81f3ab73c623cd48f17d2c9c540c7f430403f2f44
 F src/checkout.c c43f81eb454b53327bb3de1f60b06b685c210b327e2d12c711a62805329245db
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -475,9 +475,9 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 52eac5576377e65024a5901b46a63d0fe828e8500cb1c2d0d355d63fc1e39966
-F src/diff.c 33797a630604143d0526871810549fdd0656cf6ab2c29ec6f2bd10bfc2943d27
+F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 4c303869547276c03b1c92b4642fc808024dbeb9bcc44167ab98ca10bdb07cb3
+F src/diffcmd.c 192e34c9d719e5c84c802ca5a96f45171e79a8e7a218839ebbc4d64feff862f1
 F src/dispatch.c 568c17e70f3eb0ac9128f8fd9d305375a7ab478f7a42cec2f52269e90c3478c0
 F src/doc.c f04fab65744b0205ce82b0a668d4bc55460c7f47c03c16c64f3fc97dea21f44b
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -619,7 +619,7 @@ F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
 F src/sqlite3.c 57992378d9f76d77c8fdb75dfd60516ac460f2ebdd499ac85d9d87ccf9c09f97
 F src/sqlite3.h cd7690bc50d8f09f6e5ccaa769be1ebc30a3c517fdd60d00a2d479c224116efc
-F src/stash.c 19d4a0990f9418597bfc1c8a211fe384cb442abce0777b29092596f146e994da
+F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c 0f11070d181ea70b7931711d82523da23f4d2a277ac72db409b8a6434512b67b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
@@ -996,7 +996,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 198af5374f31eb6554f399808f6754cb72ceffa2473afc01353289ffb1994b63
-R fdb24f50c89005978b9b097094c07e53
-U drh
-Z 2ac02057fe819884fe0873c23dc17dde
+P d4041437b6f40d0cc62f22d2973498d596af325b1d18fed2dd7584aef733df7a
+R 166842126f4f7b502642330aed9cb41b
+T *branch * dev-ci-verbose
+T *sym-dev-ci-verbose *
+T -sym-trunk *
+U jamsek
+Z a4420168cf2d2575f273c9f71b59a90e
