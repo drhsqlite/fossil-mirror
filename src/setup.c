@@ -1032,7 +1032,7 @@ void setup_config(void){
   @ <li> The third term is an argument to the TH1 "capexpr" command.
   @      If capexpr evalutes to true, then the entry is shown.  If not,
   @      the entry is omitted.  "*" is always true.  "{}" is never true.
-  @ <li> The fouth term is a list of extra class names to apply to the new
+  @ <li> The fourth term is a list of extra class names to apply to the new
   @      menu entry.  Some skins will classes "desktoponly" and "wideonly"
   @      to only show the entries when the web browser screen is wide or
   @      very wide, respectively.
