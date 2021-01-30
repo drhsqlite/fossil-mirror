@@ -111,10 +111,11 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
   if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT))==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
-    if (!diffBlob)
+    if( !diffBlob ){
       fossil_print("%s", z);
-    else
+    }else{
       blob_appendf(diffBlob, "%s", z);
+    }
     fossil_free(z);
   }
 }
@@ -148,10 +149,11 @@ void diff_print_filenames(const char *zLeft, const char *zRight,
   }else{
     z = mprintf("--- %s\n+++ %s\n", zLeft, zRight);
   }
-  if (!diffBlob)
+  if( !diffBlob ){
     fossil_print("%s", z);
-  else
+  }else{
     blob_appendf(diffBlob, "%s", z);
+  }
   fossil_free(z);
 }
 
@@ -211,15 +213,16 @@ void diff_file(
       }
       if( blob_size(&out) ){
         if( diffFlags & DIFF_NUMSTAT ){
-          if (!diffBlob)
+          if( !diffBlob ){
             fossil_print("%s %s\n", blob_str(&out), zName);
-          else
+          }else{
             blob_appendf(diffBlob, "%s %s\n", blob_str(&out), zName);
+          }
         }else{
-          if (!diffBlob) {
+          if( !diffBlob ){
             diff_print_filenames(zName, zName2, diffFlags, 0);
             fossil_print("%s\n", blob_str(&out));
-          } else {
+          }else{
             diff_print_filenames(zName, zName2, diffFlags, diffBlob);
             blob_appendf(diffBlob, "%s\n", blob_str(&out));
           }

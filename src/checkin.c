@@ -1239,10 +1239,11 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
     n = blob_size(&line);
     z = blob_buffer(&line);
     for(i=0; i<n && fossil_isspace(z[i]);  i++){}
-    if (!fossil_strncmp(
+    if( fossil_strncmp(
      "# NOTE: The below diff is not inserted into the commit message.\n",
-     z, n))
+     z, n)==0 ){
       break;
+    }
     if( i<n && z[i]=='#' ) continue;
     if( i<n || blob_size(pComment)>0 ){
       blob_appendf(pComment, "%b", &line);
@@ -1331,15 +1332,20 @@ static void prepare_commit_comment(
       "#\n", -1
     );
   }
-  if (p->verboseFlag) {
-    FileDirList *diffFiles;
+  if( p->verboseFlag ){
+    blob_append(&prompt,
+        "#\n"
+        "# NOTE: The below diff is not inserted into the commit message.\n\n",
+        -1
+    );
     if( g.aCommitFile ){
-      int i = 0;
-      diffFiles = fossil_malloc_zero((g.argc - 1) * sizeof(*diffFiles));
-      for (i = 0; g.aCommitFile[i] != 0; ++i) {
+      FileDirList *diffFiles;
+      int i;
+      diffFiles = fossil_malloc_zero((g.argc-1) * sizeof(*diffFiles));
+      for( i=0; g.aCommitFile[i]!=0; ++i ){
         diffFiles[i].zName  = db_text(0,
          "SELECT pathname FROM vfile WHERE id=%d", g.aCommitFile[i]);
-        if (!strcmp(diffFiles[i].zName , ".")) {
+        if( fossil_strcmp(diffFiles[i].zName, "." )==0 ){
           diffFiles[0].zName[0] = '.';
           diffFiles[0].zName[1] = 0;
           break;
@@ -1347,19 +1353,16 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-    }
-    blob_append_full(&prompt, "#\n"
-        "# NOTE: The below diff is not inserted into the commit message.\n\n",
-        -1);
-    diff_against_disk(0, 0, diff_get_binary_glob(),
-        db_get_boolean("diff-binary", 1), 0,
-        g.aCommitFile ? diffFiles : 0, &prompt
-      );
-    if (g.aCommitFile && diffFiles) {
-      int i;
-      for (i = 0; diffFiles[i].zName; ++i)
+      diff_against_disk(0, 0, diff_get_binary_glob(),
+                        db_get_boolean("diff-binary", 1),
+                        0, diffFiles, &prompt);
+      for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
+      }
       fossil_free(diffFiles);
+    }else{
+      diff_against_disk(0, 0, diff_get_binary_glob(),
+                        db_get_boolean("diff-binary", 1), 0, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);
@@ -2234,7 +2237,7 @@ void commit_cmd(void){
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
-  sCiInfo.verboseFlag = find_option("verbose", "v", 0) != 0;
+  sCiInfo.verboseFlag = find_option("verbose", "v", 0)!=0;
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
     sCiInfo.azTag = fossil_realloc((void*)sCiInfo.azTag,
