@@ -1,5 +1,5 @@
-C Typo\sfix\sreported\sin\sthe\sforum.
-D 2021-01-30T01:39:12.036
+C Added\scheckbox\sto\sreset\smainmenu\sto\sits\sdefault\svalue,\sper\sdiscussion\sat\s[forum:/forumpost/5ab3ce6c45\s|\sforumpost/5ab3ce6c45].
+D 2021-01-30T04:01:18.205
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -586,7 +586,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 2ab213f593203d3f8f570fef19224bc2a13dbe7f667b94fea4f435c06900b978
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
-F src/setup.c 5f4207ef9ace63e10b387ead614d71e22085141ab5070583e5c8e6ce93389a47
+F src/setup.c 8ccd00bf6f5180dd0873e0b4ab8108b6fa158b76ea9c5a660e4de47ee935857d
 F src/setupuser.c cff08bafee6e711ed0011dd2ac284c672ae35e1f4772516881ebfe8040559c64
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d4041437b6f40d0cc62f22d2973498d596af325b1d18fed2dd7584aef733df7a
-R f575900eaa583e5fcea6aa9eba5dc3af
+P f8c42abadcbe1bd893af6568980846f0f24c3dab727f966e07d3e8e193e8b453
+R 9744323c0814db29c49766613e26a1c9
 U stephan
-Z cbdc97497c38b7b5429aaa9abd74c733
+Z 8d2ccab29dd9b3cc9ba0dd86391c4f71

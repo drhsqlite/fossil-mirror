@@ -1043,9 +1043,16 @@ void setup_config(void){
   @ choices (such as the hamburger button) to the menu that are not shown
   @ on this list. (Property: mainmenu)
   @ <p>
+  if(P("resetMenu")!=0){
+    db_unset("mainmenu", 0);
+    cgi_delete_parameter("mmenu");
+  }
   textarea_attribute("Main Menu", 12, 80, 
       "mainmenu", "mmenu", style_default_mainmenu(), 0);
-  @
+  @ </p>
+  @ <p><input type='checkbox' id='cbResetMenu' name='resetMenu' value='1'>
+  @ <label for='cbResetMenu'>Reset menu to default value</label>
+  @ </p>
   @ <hr>
   @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page,
   @ as sub-items of the "Home Page" entry, appearing before the
