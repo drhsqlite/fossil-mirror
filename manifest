@@ -1,5 +1,5 @@
-C Add\sthe\s-v\s(and\s--verbose)\soption\sto\sthe\s"fossil\scommit"\scommand.
-D 2021-01-31T20:18:45.832
+C More\srobust\sexclusion\sof\sthe\s-v\sdiff\swhen\sextracting\sthe\scomment\smessage\nfrom\sthe\suser's\seditor\soutput.\s\sEnhance\sthe\s-n\s(--dryrun)\sflag\son\n"fossil\scommit"\sso\sthat\sit\sgoes\sthrough\sthe\scommit\sprompt\ssequence\sfor\ndebugging.
+D 2021-01-31T21:00:40.573
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -454,7 +454,7 @@ F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c e928be6ba89dd578a468c414bc06517a47e92cfb116f80ccb23df71fc9cfc0c2
 F src/chat.c d74ac16cc95ccaea98d4ed1cd2f7bd00becac19b61aa93bace77baf4c0a84148
 F src/chat.js dec74b08020230bd0f2bc0f81b0a2390532fd463a66687278dad5c8359f3bae9
-F src/checkin.c ba8ca607167ecc8be2d56328c5394a33eb36a6ed689d4225f0261a46b9f979ca
+F src/checkin.c f1ade39ece1f8f4d1ac77aea6fcd5eaaf813b4046d25d168183e579043b959eb
 F src/checkout.c c43f81eb454b53327bb3de1f60b06b685c210b327e2d12c711a62805329245db
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -996,8 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f36613647226986be79a3eeb32ef01bd895aa00b79c0803374448952566822c5 b1c2ef5221b847abec203d40ac07ba372fe5e53029ea8722baf57ccf999b0907
-R 5219ffb95479bf4322a9435c464268ac
-T +closed b1c2ef5221b847abec203d40ac07ba372fe5e53029ea8722baf57ccf999b0907
+P 7ee98fea2d2809082cc813f5144a63414fbe2e592395a0cf6df7c37649e8d99d
+R 466a3a6ddf3628aecf70461492a771cc
 U drh
-Z 56e995f211a1dfef1644b6a54b32de63
+Z bc438a55d8fd8d1351a4f2d2804b52af

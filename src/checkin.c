@@ -1211,13 +1211,20 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
 #endif
   if( blob_size(pPrompt)>0 ) blob_write_to_file(pPrompt, zFile);
   if( zEditor ){
+    char *z, *zEnd;
     zCmd = mprintf("%s %$", zEditor, zFile);
     fossil_print("%s\n", zCmd);
     if( fossil_system(zCmd) ){
       fossil_fatal("editor aborted: \"%s\"", zCmd);
     }
-
     blob_read_from_file(&reply, zFile, ExtFILE);
+    z = blob_str(&reply);
+    zEnd = strstr(z, "##########");
+    if( zEnd ){
+      /* Truncate the reply at any sequence of 10 or more # characters.
+      ** The diff for the -v option occurs after such a sequence. */
+      blob_resize(&reply, (int)(zEnd - z));
+    }
   }else{
     char zIn[300];
     blob_zero(&reply);
@@ -1239,11 +1246,6 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
     n = blob_size(&line);
     z = blob_buffer(&line);
     for(i=0; i<n && fossil_isspace(z[i]);  i++){}
-    if( fossil_strncmp(
-     "# NOTE: The below diff is not inserted into the commit message.\n",
-     z, n)==0 ){
-      break;
-    }
     if( i<n && z[i]=='#' ) continue;
     if( i<n || blob_size(pComment)>0 ){
       blob_appendf(pComment, "%b", &line);
@@ -1277,7 +1279,8 @@ static void prepare_commit_comment(
   Blob *pComment,
   char *zInit,
   CheckinInfo *p,
-  int parent_rid
+  int parent_rid,
+  int dryRunFlag
 ){
   Blob prompt;
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -1296,6 +1299,10 @@ static void prepare_commit_comment(
         " Lines beginning with # are ignored.\n"
     "#\n", -1
   );
+  if( dryRunFlag ){
+    blob_appendf(&prompt, "# DRY-RUN:  This is a test commit.  No changes "
+                          "will be made to the repository\n#\n");
+  }
   blob_appendf(&prompt, "# user: %s\n",
                p->zUserOvrd ? p->zUserOvrd : login_name());
   if( p->zBranch && p->zBranch[0] ){
@@ -1333,10 +1340,10 @@ static void prepare_commit_comment(
     );
   }
   if( p->verboseFlag ){
-    blob_append(&prompt,
-        "#\n"
-        "# NOTE: The below diff is not inserted into the commit message.\n\n",
-        -1
+    blob_appendf(&prompt,
+        "#\n%.78c\n"
+        "# The following diff is excluded from the commit message:\n#\n",
+        '#'
     );
     if( g.aCommitFile ){
       FileDirList *diffFiles;
@@ -2132,8 +2139,7 @@ static int tagCmp(const void *a, const void *b){
 **    -M|--message-file FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
-**    -v|--verbose               Display in the editor a unified diff of the
-**                               changes to be committed with this check-in
+**    -v|--verbose               Show a diff in the commit message prompt
 **    --no-prompt                This option disables prompting the user for
 **                               input and assumes an answer of 'No' for every
 **                               question.
@@ -2486,11 +2492,9 @@ void commit_cmd(void){
       blob_zero(&comment);
       blob_read_from_file(&comment, zComFile, ExtFILE);
       blob_to_utf8_no_bom(&comment, 1);
-    }else if( dryRunFlag ){
-      blob_zero(&comment);
     }else if( !noPrompt ){
       char *zInit = db_text(0,"SELECT value FROM vvar WHERE name='ci-comment'");
-      prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
+      prepare_commit_comment(&comment, zInit, &sCiInfo, vid, dryRunFlag);
       if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
         prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
         cReply = blob_str(&ans)[0];
