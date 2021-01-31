@@ -198,7 +198,7 @@ static int rangeEnd = 0;                     /* End of Range: plus 1 */
 ** Set the reply content type
 */
 void cgi_set_content_type(const char *zType){
-  zContentType = mprintf("%s", zType);
+  zContentType = fossil_strdup(zType);
 }
 
 /*
@@ -215,7 +215,7 @@ void cgi_set_content(Blob *pNewContent){
 ** Set the reply status code
 */
 void cgi_set_status(int iStat, const char *zStat){
-  zReplyStatus = mprintf("%s", zStat);
+  zReplyStatus = fossil_strdup(zStat);
   iReplyStatus = iStat;
 }
 
@@ -582,10 +582,10 @@ void cgi_set_parameter_nocopy_tolower(
 ** Copies are made of both the zName and zValue parameters.
 */
 void cgi_set_parameter(const char *zName, const char *zValue){
-  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 0);
+  cgi_set_parameter_nocopy(fossil_strdup(zName),fossil_strdup(zValue), 0);
 }
 void cgi_set_query_parameter(const char *zName, const char *zValue){
-  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 1);
+  cgi_set_parameter_nocopy(fossil_strdup(zName),fossil_strdup(zValue), 1);
 }
 
 /*
@@ -652,7 +652,7 @@ void cgi_delete_query_parameter(const char *zName){
 ** must be made of zValue.
 */
 void cgi_setenv(const char *zName, const char *zValue){
-  cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
+  cgi_set_parameter_nocopy(zName, fossil_strdup(zValue), 0);
 }
 
 /*
@@ -1053,6 +1053,11 @@ static NORETURN void malformed_request(const char *zMsg);
 ** assume that PATH_INFO is an empty string and set REQUEST_URI equal
 ** to PATH_INFO.
 **
+** Sometimes PATH_INFO is missing and SCRIPT_NAME is not a prefix of
+** REQUEST_URI.  (See https://fossil-scm.org/forum/forumpost/049e8650ed)
+** In that case, truncate SCRIPT_NAME so that it is a proper prefix
+** of REQUEST_URI.
+**
 ** SCGI typically omits PATH_INFO.  CGI sometimes omits REQUEST_URI and
 ** PATH_INFO when it is empty.
 **
@@ -1097,7 +1102,7 @@ void cgi_init(void){
     if( nRU<nPI ){
       malformed_request("PATH_INFO is longer than REQUEST_URI");
     }
-    zScriptName = mprintf("%.*s", (int)(nRU-nPI), zRequestUri);
+    zScriptName = fossil_strndup(zRequestUri,(int)(nRU-nPI));
     cgi_set_parameter("SCRIPT_NAME", zScriptName);
   }
 
@@ -1111,7 +1116,7 @@ void cgi_init(void){
     cgi_set_parameter("REQUEST_URI", zPathInfo);
     for(i=0; zPathInfo[i]==zScriptName[i] && zPathInfo[i]; i++){}
     for(j=i; zPathInfo[j] && zPathInfo[j]!='?'; j++){}
-    zPathInfo = mprintf("%.*s", j-i, zPathInfo+i);
+    zPathInfo = fossil_strndup(zPathInfo+i, j-i);
     cgi_replace_parameter("PATH_INFO", zPathInfo);
   }
 #endif
@@ -1128,8 +1133,15 @@ void cgi_init(void){
     int i, j;
     for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
     for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
-    zPathInfo = mprintf("%.*s", j-i, zRequestUri+i);
-    cgi_set_parameter("PATH_INFO", zPathInfo);
+    zPathInfo = fossil_strndup(zRequestUri+i, j-i);
+    cgi_set_parameter_nocopy("PATH_INFO", zPathInfo, 0);
+    if( j>i && zScriptName[i]!=0 ){
+      /* If SCRIPT_NAME is not a prefix of REQUEST_URI, truncate it so
+      ** that it is.  See https://fossil-scm.org/forum/forumpost/049e8650ed
+      */
+      char *zNew = fossil_strndup(zScriptName, i);
+      cgi_replace_parameter("SCRIPT_NAME", zNew);
+    }
   }
 #ifdef FOSSIL_ENABLE_JSON
   if(noJson==0 && json_request_is_json_api(zPathInfo)){
@@ -1147,26 +1159,26 @@ void cgi_init(void){
 #endif
   z = (char*)P("HTTP_COOKIE");
   if( z ){
-    z = mprintf("%s",z);
+    z = fossil_strdup(z);
     add_param_list(z, ';');
   }
 
   z = (char*)P("QUERY_STRING");
   if( z ){
-    z = mprintf("%s",z);
+    z = fossil_strdup(z);
     add_param_list(z, '&');
   }
 
   z = (char*)P("REMOTE_ADDR");
   if( z ){
-    g.zIpAddr = mprintf("%s", z);
+    g.zIpAddr = fossil_strdup(z);
   }
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
   zType = P("CONTENT_TYPE");
   zSemi = zType ? strchr(zType, ';') : 0;
   if( zSemi ){
-    g.zContentType = mprintf("%.*s", (int)(zSemi-zType), zType);
+    g.zContentType = fossil_strndup(zType, (int)(zSemi-zType));
     zType = g.zContentType;
   }else{
     g.zContentType = zType;
@@ -1697,7 +1709,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   }
   if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
-    g.zIpAddr = mprintf("%s", zIpAddr);
+    g.zIpAddr = fossil_strdup(zIpAddr);
   }
 
 
@@ -1748,7 +1760,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
       const char *zIpAddr = cgi_accept_forwarded_for(zVal);
       if( zIpAddr!=0 ){
-        g.zIpAddr = mprintf("%s", zIpAddr);
+        g.zIpAddr = fossil_strdup(zIpAddr);
         cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
       }
     }else if( fossil_strcmp(zFieldName,"range:")==0 ){
@@ -1788,7 +1800,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( zIpAddr ){
     if( nCycles==0 ){
       cgi_setenv("REMOTE_ADDR", zIpAddr);
-      g.zIpAddr = mprintf("%s", zIpAddr);
+      g.zIpAddr = fossil_strdup(zIpAddr);
     }
   }else{
     fossil_panic("missing SSH IP address");
@@ -1850,7 +1862,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( nCycles==0 ){
     cgi_setenv("PATH_INFO", zToken);
   }else{
-    cgi_replace_parameter("PATH_INFO", mprintf("%s",zToken));
+    cgi_replace_parameter("PATH_INFO", fossil_strdup(zToken));
   }
 
   /* Get all the optional fields that follow the first line.
@@ -1872,7 +1884,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       content_length = atoi(zVal);
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
-      g.zContentType = zType = mprintf("%s", zVal);
+      g.zContentType = zType = fossil_strdup(zVal);
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       if( nCycles==0 ){
         cgi_setenv("HTTP_HOST", zVal);
@@ -1949,7 +1961,7 @@ char *cgi_handle_ssh_probes(char *zLine, int zSize, char *z, char *zToken){
   ** so return the command that was requested
   */
   g.fSshClient |= CGI_SSH_COMPAT;
-  return mprintf("%s", zToken);
+  return fossil_strdup(zToken);
 }
 
 /*
@@ -2325,7 +2337,7 @@ const char *cgi_ssh_remote_addr(const char *zDefault){
   const char *zSshConn = fossil_getenv("SSH_CONNECTION");
 
   if( zSshConn && zSshConn[0] ){
-    char *zSshClient = mprintf("%s",zSshConn);
+    char *zSshClient = fossil_strdup(zSshConn);
     if( (zIndex = strchr(zSshClient,' '))!=0 ){
       zSshClient[zIndex-zSshClient] = '\0';
       return zSshClient;

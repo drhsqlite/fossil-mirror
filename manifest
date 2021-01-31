@@ -1,5 +1,5 @@
-C Added\scheckbox\sto\sreset\smainmenu\sto\sits\sdefault\svalue,\sper\sdiscussion\sat\s[forum:/forumpost/5ab3ce6c45\s|\sforumpost/5ab3ce6c45].
-D 2021-01-30T04:01:18.205
+C Enhancements\sto\sCGI\squery\sparameter\sprocessing\sin\san\sattempt\sto\sdeal\swith\nthe\sissue\sdescribed\sat\s[forum:/forumpost/049e8650ed|forum\spost\s049e8650ed].
+D 2021-01-31T00:31:51.801
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -451,7 +451,7 @@ F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 356f200317305673e43eeaa5ccb2b70b8a79a4290959500c3240edfc5e69956d
+F src/cgi.c e928be6ba89dd578a468c414bc06517a47e92cfb116f80ccb23df71fc9cfc0c2
 F src/chat.c d74ac16cc95ccaea98d4ed1cd2f7bd00becac19b61aa93bace77baf4c0a84148
 F src/chat.js dec74b08020230bd0f2bc0f81b0a2390532fd463a66687278dad5c8359f3bae9
 F src/checkin.c e8e180f21e624df9557423c84a640a7e2337da590d2d3e72c497c7ac665c6634
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8c42abadcbe1bd893af6568980846f0f24c3dab727f966e07d3e8e193e8b453
-R 9744323c0814db29c49766613e26a1c9
-U stephan
-Z 8d2ccab29dd9b3cc9ba0dd86391c4f71
+P 8af3d425d2862b72a2aaaf3184117f1f047ca38552ae3fee4e5c61138aeacad9
+R 0263b061963acf1b5eb057ec7ca68769
+U drh
+Z 8e80e13d2667c669706f5e2a7dcc6ed2
