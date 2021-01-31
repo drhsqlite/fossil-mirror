@@ -5030,9 +5030,19 @@ static void pik_error_context(Pik *p, PToken *pErr, int nContext){
   int iLineno;          /* Line number of the error */
   int iFirstLineno;     /* Line number of start of error context */
   int i;                /* Loop counter */
+  int iBump = 0;        /* Bump the location of the error cursor */
   char zLineno[20];     /* Buffer in which to generate line numbers */
 
   iErrPt = (int)(pErr->z - p->sIn.z);
+  if( iErrPt>=p->sIn.n ){
+    iErrPt = p->sIn.n-1;
+    iBump = 1;
+  }else{
+    while( iErrPt>0 && (p->sIn.z[iErrPt]=='\n' || p->sIn.z[iErrPt]=='\r') ){
+      iErrPt--;
+      iBump = 1;
+    }
+  }
   iLineno = 1;
   for(i=0; i<iErrPt; i++){
     if( p->sIn.z[i]=='\n' ){
@@ -5058,7 +5068,7 @@ static void pik_error_context(Pik *p, PToken *pErr, int nContext){
     pik_append(p, "\n", 1);
   }
   for(iErrCol=0, i=iErrPt; i>0 && p->sIn.z[i]!='\n'; iErrCol++, i--){}
-  for(i=0; i<iErrCol+11; i++){ pik_append(p, " ", 1); }
+  for(i=0; i<iErrCol+11+iBump; i++){ pik_append(p, " ", 1); }
   for(i=0; i<(int)pErr->n; i++) pik_append(p, "^", 1);
   pik_append(p, "\n", 1);
 }
@@ -7648,7 +7658,8 @@ char *pikchr(
   if( s.nErr==0 ){
     PToken token;
     memset(&token,0,sizeof(token));
-    token.z = zText;
+    token.z = zText + (s.sIn.n>0 ? s.sIn.n-1 : 0);
+    token.n = 1;
     pik_parser(&sParse, 0, token);
   }
   pik_parserFinalize(&sParse);
@@ -7931,4 +7942,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 7959 "pikchr.c"
+#line 7970 "pikchr.c"
