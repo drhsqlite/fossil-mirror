@@ -1355,14 +1355,15 @@ static void prepare_commit_comment(
       }
       diff_against_disk(0, 0, diff_get_binary_glob(),
                         db_get_boolean("diff-binary", 1),
-                        0, diffFiles, &prompt);
+                        DIFF_VERBOSE, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
       fossil_free(diffFiles);
     }else{
       diff_against_disk(0, 0, diff_get_binary_glob(),
-                        db_get_boolean("diff-binary", 1), 0, 0, &prompt);
+                        db_get_boolean("diff-binary", 1),
+                        DIFF_VERBOSE, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);
