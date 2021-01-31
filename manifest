@@ -1,5 +1,5 @@
-C Enhancements\sto\sCGI\squery\sparameter\sprocessing\sin\san\sattempt\sto\sdeal\swith\nthe\sissue\sdescribed\sat\s[forum:/forumpost/049e8650ed|forum\spost\s049e8650ed].
-D 2021-01-31T00:31:51.801
+C Update\sto\sthe\slatest\spikchr\swith\sa\sfix\sfor\srendering\sof\scylinders\swith\noversize\sradii.
+D 2021-01-31T15:27:26.772
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -568,7 +568,7 @@ F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef9
 F src/name.c a92cb0d100bfd911fb6daf3b71ef34f0c321af7324ad97f10fca15de82965d94
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
-F src/pikchr.c c0ca52f52d695aa479d5b8bdd4ee16b6b90f4a4310c75dd3e97ee879499381e9
+F src/pikchr.c 7ee64708f39eac6752ae01ba6de31782559d42d3b6654b277d361dcd62a6d031
 F src/pikchrshow.c 274299063c1513e70d8a2f417b14418239fba636a23c9b62b0dab6eac709ba1a
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8af3d425d2862b72a2aaaf3184117f1f047ca38552ae3fee4e5c61138aeacad9
-R 0263b061963acf1b5eb057ec7ca68769
+P 140cb312ca6e5c83fe0478ee2772d9d0f2695f2d55b5df4ee0c59e638b90db00
+R c5a748966ab5817459ca56f1de52d330
 U drh
-Z 8e80e13d2667c669706f5e2a7dcc6ed2
+Z 1abf3cf4fcd758c0186ef6c51f05bcaa
