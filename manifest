@@ -1,5 +1,5 @@
-C More\srobust\sexclusion\sof\sthe\s-v\sdiff\swhen\sextracting\sthe\scomment\smessage\nfrom\sthe\suser's\seditor\soutput.\s\sEnhance\sthe\s-n\s(--dryrun)\sflag\son\n"fossil\scommit"\sso\sthat\sit\sgoes\sthrough\sthe\scommit\sprompt\ssequence\sfor\ndebugging.
-D 2021-01-31T21:00:40.573
+C Fix\stypo:\sadded\smissing\sword\sto\s'fossil\shelp\sall'\soutput.
+D 2021-02-01T12:29:25.322
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -437,7 +437,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 9404ed2458e3115c439f9e8c489692aa1f66b67b2e403688b4e4fab8150b62a2
+F src/allrepo.c 6a35128d321a01601202c9b4074086286d07c5cee217e5ea5b269cfcd68ca5eb
 F src/attach.c 8ed9173b64b9751609ac2e78d608b7b1c473a072d5b1e1be2b1bc20ad0361796
 F src/backlink.c 2178b2d4a5c918c9b7f13e15a4d86119d32d0a74253d20b9b23530a7cc572487
 F src/backoffice.c b68cdb60d5ad5f6bd6e01af7b2d03ab86eea97ed1edbd45c3c9c2aecafbcbbc8
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ee98fea2d2809082cc813f5144a63414fbe2e592395a0cf6df7c37649e8d99d
-R 466a3a6ddf3628aecf70461492a771cc
-U drh
-Z bc438a55d8fd8d1351a4f2d2804b52af
+P 4eca7eb902b5576da1bb060712cde9d41fa6197030bbc78457ddcb4f98645088
+R 525c2ba88f39655bc1bb94c0d3fa5088
+U jamsek
+Z ae9fa53dc7731afc0323e3062cc38ce4

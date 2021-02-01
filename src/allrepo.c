@@ -64,7 +64,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
-**    backup      Backup all repositories.  The argument must the name of
+**    backup      Backup all repositories.  The argument must be the name of
 **                a directory into which all backup repositories are written.
 **
 **    cache       Manages the cache used for potentially expensive web
