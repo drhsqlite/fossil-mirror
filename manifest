@@ -1,11 +1,8 @@
 B bfa99a93995ed02fde16d51ee7cf1546ae9fc5949394fded4d091923c562eeb0
-C modified\shelp\scommand\sto\soutput\sdetailed\shelp\sinformation\swhen\sstdout\sis\snot\sa\stty
-D 2021-02-02T16:01:48.855
-F src/dispatch.c 75bee316f4d2b1de26734b0488d15d9135251edbcb78586ecc03da867a9dfadb
-P bfa99a93995ed02fde16d51ee7cf1546ae9fc5949394fded4d091923c562eeb0
-R c7a49d0377b76fb2f71a395e12933f22
-T *branch * help-no-tty
-T *sym-help-no-tty *
-T -sym-trunk *
+C modified\shelp-no-tty\sto\snot\schange\sbased\son\sdestination,\sbut\sto\sprovide\sa\shelp\s--full\soption\sto\sdisplayall\sthe\stext\sat\sonce\sfor\sthose\swho\swould\slike\sto\spipe\sit\sthrough\sgrep\s/\sless\s/\scapture\sto\sa\sfile
+D 2021-02-02T20:22:24.431
+F src/dispatch.c b3ab7b6a5bd34385ef391fe18eb4db8f941e315a009266780c104c09a64917f8
+P d7929436815ce79285779c5b77525968920762cfc122edeb75f72b56e28b3e2f
+R b9f67387bbcd1d4948349ff72d5a8356
 U scott
-Z f3cdb8f78648c078e81a2bf04dcfdaf5
+Z 2fef6647d3ed09d40dfe7b25dfe741e5

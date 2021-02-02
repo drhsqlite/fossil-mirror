@@ -1027,6 +1027,7 @@ static const char zOptions[] =
 **    -t|--test         List unsupported "test" commands
 **    -x|--aux          List only auxiliary commands
 **    -w|--www          List all web pages
+**    -f|--full         List full help text
 **
 ** These options can be used when TOPIC is present:
 **
@@ -1043,29 +1044,14 @@ void help_cmd(void){
   int useHtml = 0;
   Blob txt;
   if( g.argc<3 ){
-    if( isatty(1) ){
-      z = g.argv[0];
-      fossil_print(
-        "Usage: %s help TOPIC\n"
-        "Try \"%s help help\" or \"%s help -a\" for more options\n"
-        "Frequently used commands:\n",
-        z, z, z);
-      command_list(0, CMDFLAG_1ST_TIER);
-      version_cmd();
-    }
-    else {
-      fossil_print("fossil commands:\n\n");
-      command_list(0, CMDFLAG_1ST_TIER);
-      fossil_print("\nfossil auxiliary commands:\n\n");
-      command_list(0, CMDFLAG_2ND_TIER);
-      fossil_print("\n%s", zOptions);
-      fossil_print("\nfossil settings:\n\n");
-      command_list(0, CMDFLAG_SETTING);
-      fossil_print("\nfossil web pages:\n\n");
-      command_list(0, CMDFLAG_WEBPAGE);
-      fossil_print("\n");
-      version_cmd();
-    }
+    z = g.argv[0];
+    fossil_print(
+      "Usage: %s help TOPIC\n"
+      "Try \"%s help help\" or \"%s help -a\" for more options\n"
+      "Frequently used commands:\n",
+      z, z, z);
+    command_list(0, CMDFLAG_1ST_TIER);
+    version_cmd();
     return;
   }
   if( find_option("options","o",0) ){
@@ -1090,6 +1076,22 @@ void help_cmd(void){
   }
   else if( find_option("setting","s",0) ){
     command_list(0, CMDFLAG_SETTING);
+    return;
+  }
+  else if( find_option("full","f",0) ){
+    fossil_print("fossil commands:\n\n");
+    command_list(0, CMDFLAG_1ST_TIER);
+    fossil_print("\nfossil auxiliary commands:\n\n");
+    command_list(0, CMDFLAG_2ND_TIER);
+    fossil_print("\n%s", zOptions);
+    fossil_print("\nfossil settings:\n\n");
+    command_list(0, CMDFLAG_SETTING);
+    fossil_print("\nfossil web pages:\n\n");
+    command_list(0, CMDFLAG_WEBPAGE);
+    fossil_print("\nfossil test commands (unsupported):\n\n");
+    command_list(0, CMDFLAG_TEST);
+    fossil_print("\n");
+    version_cmd();
     return;
   }
   useHtml = find_option("html","h",0)!=0;
