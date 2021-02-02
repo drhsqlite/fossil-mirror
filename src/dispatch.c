@@ -1043,14 +1043,29 @@ void help_cmd(void){
   int useHtml = 0;
   Blob txt;
   if( g.argc<3 ){
-    z = g.argv[0];
-    fossil_print(
-      "Usage: %s help TOPIC\n"
-      "Try \"%s help help\" or \"%s help -a\" for more options\n"
-      "Frequently used commands:\n",
-      z, z, z);
-    command_list(0, CMDFLAG_1ST_TIER);
-    version_cmd();
+    if( isatty(1) ){
+      z = g.argv[0];
+      fossil_print(
+        "Usage: %s help TOPIC\n"
+        "Try \"%s help help\" or \"%s help -a\" for more options\n"
+        "Frequently used commands:\n",
+        z, z, z);
+      command_list(0, CMDFLAG_1ST_TIER);
+      version_cmd();
+    }
+    else {
+      fossil_print("fossil commands:\n\n");
+      command_list(0, CMDFLAG_1ST_TIER);
+      fossil_print("\nfossil auxiliary commands:\n\n");
+      command_list(0, CMDFLAG_2ND_TIER);
+      fossil_print("\n%s", zOptions);
+      fossil_print("\nfossil settings:\n\n");
+      command_list(0, CMDFLAG_SETTING);
+      fossil_print("\nfossil web pages:\n\n");
+      command_list(0, CMDFLAG_WEBPAGE);
+      fossil_print("\n");
+      version_cmd();
+    }
     return;
   }
   if( find_option("options","o",0) ){
