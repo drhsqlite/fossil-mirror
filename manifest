@@ -1,8 +1,8 @@
 B bfa99a93995ed02fde16d51ee7cf1546ae9fc5949394fded4d091923c562eeb0
-C improved\shelp\stext\sfor\sthe\shelp\s--full\soption
-D 2021-02-02T21:28:03.428
-F src/dispatch.c fe92c1b897757fd4d425497d781390627036a4a4c685e2e02d962ee4660d423f
-P 93fd6d3395a31c7d156381336acbd862c6a38bce0d503b10a16033817e7cc881
-R 6cfedc23bdbd8c426e643a9ec17287f8
+C added\shelp\s--everything\soption\sthat\sborrows\sfunctionality\srefactored\sfrom\stest-all-help
+D 2021-02-02T23:01:12.221
+F src/dispatch.c f59b65abbcc18ba80cb762b639963b4017ac40aebdd0f12efadd1c50389e0842
+P cf36fbb98f33361d3943f48b6cc4230ac070069c6a064ae0500bc669d27f78a1
+R ab390278ba6df7ca737da1d94d445b33
 U scott
-Z 3e4b0f524954fddd944d2677210dc539
+Z 002da9832d4c7b05a89b2fb1adee46b2
