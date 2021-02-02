@@ -1027,7 +1027,9 @@ static const char zOptions[] =
 **    -t|--test         List unsupported "test" commands
 **    -x|--aux          List only auxiliary commands
 **    -w|--www          List all web pages
-**    -f|--full         List full help text
+**    -f|--full         List full set of commands (including auxiliary
+**                      and unsupported "test" commands), options,
+**                      settings, and web pages
 **
 ** These options can be used when TOPIC is present:
 **

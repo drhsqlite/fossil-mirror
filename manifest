@@ -1,8 +1,8 @@
 B bfa99a93995ed02fde16d51ee7cf1546ae9fc5949394fded4d091923c562eeb0
-C modified\shelp-no-tty\sto\snot\schange\sbased\son\sdestination,\sbut\sto\sprovide\sa\shelp\s--full\soption\sto\sdisplayall\sthe\stext\sat\sonce\sfor\sthose\swho\swould\slike\sto\spipe\sit\sthrough\sgrep\s/\sless\s/\scapture\sto\sa\sfile
-D 2021-02-02T20:22:24.431
-F src/dispatch.c b3ab7b6a5bd34385ef391fe18eb4db8f941e315a009266780c104c09a64917f8
-P d7929436815ce79285779c5b77525968920762cfc122edeb75f72b56e28b3e2f
-R b9f67387bbcd1d4948349ff72d5a8356
+C improved\shelp\stext\sfor\sthe\shelp\s--full\soption
+D 2021-02-02T21:28:03.428
+F src/dispatch.c fe92c1b897757fd4d425497d781390627036a4a4c685e2e02d962ee4660d423f
+P 93fd6d3395a31c7d156381336acbd862c6a38bce0d503b10a16033817e7cc881
+R 6cfedc23bdbd8c426e643a9ec17287f8
 U scott
-Z 2fef6647d3ed09d40dfe7b25dfe741e5
+Z 3e4b0f524954fddd944d2677210dc539
