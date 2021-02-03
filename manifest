@@ -1,5 +1,5 @@
-C Disable\striggers\susing\sSQLITE_DBCONFIG_ENABLE_TRIGGERS\sfor\sdefense\sin\sdepth.\nSQLite\s3.35.0\sis\srequired\sdue\sto\sFossil's\suse\sof\sTEMP\striggers.\s\sAlso,\suse\nthe\snew\sRETURNING\sclause\sfor\squeries\swhere\sit\smakes\ssense,\sagain\srequiring\nSQLite\s3.35.0.
-D 2021-02-03T14:23:01.135
+C Paint\sbackgrounds\swith\sthe\shash_color\sfor\sthe\slogin\sname\swhen\sthe\s"ubg"\squery\nparameter\sis\sgiven\son\sthe\s/setup_ulist\spage.
+D 2021-02-03T23:51:45.386
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -587,7 +587,7 @@ F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 2ab213f593203d3f8f570fef19224bc2a13dbe7f667b94fea4f435c06900b978
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
 F src/setup.c 8ccd00bf6f5180dd0873e0b4ab8108b6fa158b76ea9c5a660e4de47ee935857d
-F src/setupuser.c cff08bafee6e711ed0011dd2ac284c672ae35e1f4772516881ebfe8040559c64
+F src/setupuser.c 5192d98bb0045b131322fcf1c7af8eb86b75f9fb764481c36efac14be19c70c9
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60b8c71b0070a7e842006416fcd4b41ca3ec021422bb77811ccb9f3794628c3c
-R c933cc69902e28aa0cefe6332724596b
+P 8a3dc1a9754e5fec28c9b52bbbca6e94fff980798fb9136abe793ed1739e3638
+R 3161eb9b425288fa2713579f58434570
 U drh
-Z bf7cfb6014fce64d74e00915bc3d00ab
+Z bf1a300a5f1e6a06d0752952a65c1800

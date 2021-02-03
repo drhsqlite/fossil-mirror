@@ -35,12 +35,14 @@
 ** Query parameters:
 **
 **   with=CAP         Only show users that have one or more capabilities in CAP.
+**   ubg              Color backgrounds by username hash
 */
 void setup_ulist(void){
   Stmt s;
   double rNow;
   const char *zWith = P("with");
   int bUnusedOnly = P("unused")!=0;
+  int bUbg = P("ubg")!=0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -183,7 +185,11 @@ void setup_ulist(void){
     if( rATime>0.0 ){
       zAge = human_readable_age(rNow - rATime);
     }
-    @ <tr>
+    if( bUbg ){
+      @ <tr style='background-color: %h(hash_color(zLogin));'>
+    }else{
+      @ <tr>
+    }
     @ <td data-sortkey='%h(zSortKey)'>\
     @ <a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
     @ <td>%h(zCap)
