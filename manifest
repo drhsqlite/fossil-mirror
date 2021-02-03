@@ -1,5 +1,5 @@
-C Fix\stypo:\sadded\smissing\sword\sto\s'fossil\shelp\sall'\soutput.
-D 2021-02-01T12:29:25.322
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.35.0\salpha\sthat\sincludes\nsupport\sfor\sRETURNING\sand\sthe\sability\sto\suse\sTEMP\striggers\seven\sif\nSQLITE_DBCONFIG_ENABLE_TRIGGER\sis\soff.
+D 2021-02-03T13:38:54.039
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -617,8 +617,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c 57992378d9f76d77c8fdb75dfd60516ac460f2ebdd499ac85d9d87ccf9c09f97
-F src/sqlite3.h cd7690bc50d8f09f6e5ccaa769be1ebc30a3c517fdd60d00a2d479c224116efc
+F src/sqlite3.c aae774e5b1aa63d248a3e028976240edc3e5960c33cd1ead307e6709d6704236
+F src/sqlite3.h d6444d76380719d2266bea8364c34f9490f3f1bf3030d3720e789ea399b009cb
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c 0f11070d181ea70b7931711d82523da23f4d2a277ac72db409b8a6434512b67b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4eca7eb902b5576da1bb060712cde9d41fa6197030bbc78457ddcb4f98645088
-R 525c2ba88f39655bc1bb94c0d3fa5088
-U jamsek
-Z ae9fa53dc7731afc0323e3062cc38ce4
+P bfa99a93995ed02fde16d51ee7cf1546ae9fc5949394fded4d091923c562eeb0
+R a28f88a31e4b1ee565923ff706e3f5b9
+U drh
+Z b75a80894b6557a2d6fc68f0ad859b56
