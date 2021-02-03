@@ -2327,7 +2327,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       parentid = manifest_add_checkin_linkages(rid,p,p->nParent,p->azParent);
       search_doc_touch('c', rid, 0);
       assert( manifest_event_triggers_are_enabled );
-      db_multi_exec(
+      zCom = db_text(0,
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment,omtime)"
         "VALUES('ci',"
@@ -2338,15 +2338,14 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         "  %d,%Q,%Q,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
-        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g);",
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g)"
+        "RETURNING coalesce(ecomment,comment);",
         TAG_DATE, rid, p->rDate,
         rid, p->zUser, p->zComment,
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
       );
-      zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
-                        " WHERE rowid=last_insert_rowid()");
       backlink_extract(zCom, 0, rid, BKLNK_COMMENT, p->rDate, 1);
       fossil_free(zCom);
 

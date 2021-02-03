@@ -1379,7 +1379,6 @@ void subscribe_page(void){
     /* A validated request for a new subscription has been received. */
     char ssub[20];
     const char *zEAddr = P("e");
-    sqlite3_int64 id;   /* New subscriber Id */
     const char *zCode;  /* New subscriber code (in hex) */
     int nsub = 0;
     const char *suname = PT("suname");
@@ -1392,10 +1391,11 @@ void subscribe_page(void){
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
     ssub[nsub] = 0;
-    db_multi_exec(
+    zCode = db_text(0,
       "INSERT INTO subscriber(semail,suname,"
       "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
-      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)",
+      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+      "RETURNING hex(subscriberCode);",
       /* semail */    zEAddr,
       /* suname */    suname,
       /* sverified */ needCaptcha==0,
@@ -1403,10 +1403,6 @@ void subscribe_page(void){
       /* ssub */      ssub,
       /* smip */      g.zIpAddr
     );
-    id = db_last_insert_rowid();
-    zCode = db_text(0,
-         "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
-         id);
     if( !needCaptcha ){
       /* The new subscription has been added on behalf of a logged-in user.
       ** No verification is required.  Jump immediately to /alerts page.

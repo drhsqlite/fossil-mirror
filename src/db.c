@@ -1620,6 +1620,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   }
   db_maybe_set_encryption_key(db, zDbName);
   sqlite3_db_config(db, SQLITE_DBCONFIG_ENABLE_FKEY, 0, &rc);
+  sqlite3_db_config(db, SQLITE_DBCONFIG_ENABLE_TRIGGER, 0, &rc);
   sqlite3_db_config(db, SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, &rc);
   sqlite3_db_config(db, SQLITE_DBCONFIG_DQS_DDL, 0, &rc);
   sqlite3_db_config(db, SQLITE_DBCONFIG_DQS_DML, 0, &rc);

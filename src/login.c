@@ -1669,7 +1669,6 @@ void register_page(void){
       /* Also make the new user a subscriber. */
       Blob hdr, body;
       AlertSender *pSender;
-      sqlite3_int64 id;   /* New subscriber Id */
       const char *zCode;  /* New subscriber code (in hex) */
       const char *zGoto = P("g");
       int nsub = 0;
@@ -1685,12 +1684,13 @@ void register_page(void){
       ssub[nsub] = 0;
       capability_free(pCap);
       /* Also add the user to the subscriber table. */
-      db_multi_exec(
+      zCode = db_text(0,
         "INSERT INTO subscriber(semail,suname,"
         "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
         " VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
         " ON CONFLICT(semail) DO UPDATE"
-        "   SET suname=excluded.suname",
+        "   SET suname=excluded.suname"
+        " RETURNING hex(subscriberCode);",
         /* semail */    zEAddr,
         /* suname */    zUserID,
         /* sverified */ 0,
@@ -1698,7 +1698,6 @@ void register_page(void){
         /* ssub */      ssub,
         /* smip */      g.zIpAddr
       );
-      id = db_last_insert_rowid();
       if( db_exists("SELECT 1 FROM subscriber WHERE semail=%Q"
                     "  AND sverified", zEAddr) ){
         /* This the case where the user was formerly a verified subscriber
@@ -1706,9 +1705,6 @@ void register_page(void){
         ** not necessary to repeat the verfication step */
         redirect_to_g();
       }
-      zCode = db_text(0,
-           "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
-           id);
       /* A verification email */
       pSender = alert_sender_new(0,0);
       blob_init(&hdr,0,0);
