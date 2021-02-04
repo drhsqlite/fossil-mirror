@@ -2517,6 +2517,8 @@ void commit_cmd(void){
         }
         bRecheck = 1;
       }
+    }else{
+      blob_zero(&comment);
     }
   }while( bRecheck );
 
