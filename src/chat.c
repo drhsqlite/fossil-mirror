@@ -600,7 +600,7 @@ void chat_poll_webpage(void){
         blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
       }
       blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
-      blob_appendf(&json, "\"uclr\":%!j,", hash_color(zFrom));
+      blob_appendf(&json, "\"uclr\":%!j,", user_color(zFrom));
 
       zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
       blob_appendf(&json, "\"xmsg\":%!j,", zMsg);

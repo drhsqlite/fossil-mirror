@@ -186,7 +186,7 @@ void setup_ulist(void){
       zAge = human_readable_age(rNow - rATime);
     }
     if( bUbg ){
-      @ <tr style='background-color: %h(hash_color(zLogin));'>
+      @ <tr style='background-color: %h(user_color(zLogin));'>
     }else{
       @ <tr>
     }

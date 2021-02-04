@@ -373,6 +373,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\checkout_.c" \
         "$(OX)\clearsign_.c" \
         "$(OX)\clone_.c" \
+        "$(OX)\color_.c" \
         "$(OX)\comformat_.c" \
         "$(OX)\configure_.c" \
         "$(OX)\content_.c" \
@@ -635,6 +636,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\checkout$O" \
         "$(OX)\clearsign$O" \
         "$(OX)\clone$O" \
+        "$(OX)\color$O" \
         "$(OX)\comformat$O" \
         "$(OX)\configure$O" \
         "$(OX)\content$O" \
@@ -865,6 +867,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\checkout.obj" >> $@
 	echo "$(OX)\clearsign.obj" >> $@
 	echo "$(OX)\clone.obj" >> $@
+	echo "$(OX)\color.obj" >> $@
 	echo "$(OX)\comformat.obj" >> $@
 	echo "$(OX)\configure.obj" >> $@
 	echo "$(OX)\content.obj" >> $@
@@ -1361,6 +1364,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\clone_.c"
 
 "$(OX)\clone_.c" : "$(SRCDIR)\clone.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\color$O" : "$(OX)\color_.c" "$(OX)\color.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\color_.c"
+
+"$(OX)\color_.c" : "$(SRCDIR)\color.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\comformat$O" : "$(OX)\comformat_.c" "$(OX)\comformat.h"
@@ -2134,6 +2143,7 @@ realclean: clean
 			"$(OX)\checkout_.c":"$(OX)\checkout.h" \
 			"$(OX)\clearsign_.c":"$(OX)\clearsign.h" \
 			"$(OX)\clone_.c":"$(OX)\clone.h" \
+			"$(OX)\color_.c":"$(OX)\color.h" \
 			"$(OX)\comformat_.c":"$(OX)\comformat.h" \
 			"$(OX)\configure_.c":"$(OX)\configure.h" \
 			"$(OX)\content_.c":"$(OX)\content.h" \
