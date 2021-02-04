@@ -123,114 +123,6 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #endif
 
 /*
-** Hash a string and use the hash to determine a background color.
-**
-** This value returned is in static space and is overwritten with
-** each subsequent call.
-**
-** SETTING: color-hash-seed      width=16 default=0
-**
-** This is a seed value used for the hash that determines automatically
-** selected colors for branches and users.
-*/
-char *hash_color(const char *z){
-  int i;                       /* Loop counter */
-  unsigned int h = 0;          /* Hash on the branch name */
-  int r, g, b;                 /* Values for red, green, and blue */
-  int h1, h2, h3, h4;          /* Elements of the hash value */
-  int mx, mn;                  /* Components of HSV */
-  static char zColor[10];      /* The resulting color */
-  static int ix[3] = {0,0,0};  /* Color chooser parameters */
-
-  if( ix[0]==0 ){
-    if( skin_detail_boolean("white-foreground") ){
-      ix[0] = 0x50;
-      ix[1] = 0x20;
-    }else{
-      ix[0] = 0xf8;
-      ix[1] = 0x20;
-    }
-    ix[2] = db_get_int("color-hash-seed",0);
-  }
-  h = ix[2];
-  for(i=0; z[i]; i++ ){
-    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
-  }
-  h1 = h % 6;  h /= 6;
-  h3 = h % 10; h /= 10;
-  h4 = h % 10; h /= 10;
-  mx = ix[0] - h3;
-  mn = mx - h4 - ix[1];
-  h2 = (h%(mx - mn)) + mn;
-  switch( h1 ){
-    case 0:  r = mx; g = h2, b = mn;  break;
-    case 1:  r = h2; g = mx, b = mn;  break;
-    case 2:  r = mn; g = mx, b = h2;  break;
-    case 3:  r = mn; g = h2, b = mx;  break;
-    case 4:  r = h2; g = mn, b = mx;  break;
-    default: r = mx; g = mn, b = h2;  break;
-  }
-  sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
-  return zColor;
-}
-
-/*
-** COMMAND: test-hash-color
-**
-** Usage: %fossil test-hash-color TAG ...
-**
-** Print out the color names associated with each tag.  Used for
-** testing the hash_color() function.
-*/
-void test_hash_color(void){
-  int i;
-  for(i=2; i<g.argc; i++){
-    fossil_print("%20s: %s\n", g.argv[i], hash_color(g.argv[i]));
-  }
-}
-
-/*
-** WEBPAGE: hash-color-test
-**
-** Print out the color names associated with each tag.  Used for
-** testing the hash_color() function.
-*/
-void test_hash_color_page(void){
-  const char *zBr;
-  char zNm[10];
-  int i, cnt;
-  login_check_credentials();
-
-  style_set_current_feature("test");
-  style_header("Hash Color Test");
-  for(i=cnt=0; i<10; i++){
-    sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
-    zBr = P(zNm);
-    if( zBr && zBr[0] ){
-      @ <p style='border:1px solid;background-color:%s(hash_color(zBr));'>
-      @ %h(zBr) - %s(hash_color(zBr)) -
-      @ Omnes nos quasi oves erravimus unusquisque in viam
-      @ suam declinavit.</p>
-      cnt++;
-    }
-  }
-  if( cnt ){
-    @ <hr />
-  }
-  @ <form method="post" action="%R/hash-color-test">
-  @ <p>Enter candidate branch names below and see them displayed in their
-  @ default background colors above.</p>
-  for(i=0; i<10; i++){
-    sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
-    zBr = P(zNm);
-    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br />
-  }
-  @ <input type="submit">
-  @ </form>
-  style_finish_page();
-}
-
-/*
 ** Return a new timelineTable id.
 */
 int timeline_tableid(void){
@@ -475,7 +367,7 @@ void www_print_timeline(
     @ <td class="timelineGraph">
     if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA) ){
       if( tmFlags & TIMELINE_UCOLOR ){
-        zBgClr = zUser ? hash_color(zUser) : 0;
+        zBgClr = zUser ? user_color(zUser) : 0;
       }else if( zType[0]=='c' ){
         static Stmt qdelta;
         db_static_prepare(&qdelta, "SELECT baseid IS NULL FROM plink"

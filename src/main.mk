@@ -39,6 +39,7 @@ SRC = \
   $(SRCDIR)/checkout.c \
   $(SRCDIR)/clearsign.c \
   $(SRCDIR)/clone.c \
+  $(SRCDIR)/color.c \
   $(SRCDIR)/comformat.c \
   $(SRCDIR)/configure.c \
   $(SRCDIR)/content.c \
@@ -303,6 +304,7 @@ TRANS_SRC = \
   $(OBJDIR)/checkout_.c \
   $(OBJDIR)/clearsign_.c \
   $(OBJDIR)/clone_.c \
+  $(OBJDIR)/color_.c \
   $(OBJDIR)/comformat_.c \
   $(OBJDIR)/configure_.c \
   $(OBJDIR)/content_.c \
@@ -452,6 +454,7 @@ OBJ = \
  $(OBJDIR)/checkout.o \
  $(OBJDIR)/clearsign.o \
  $(OBJDIR)/clone.o \
+ $(OBJDIR)/color.o \
  $(OBJDIR)/comformat.o \
  $(OBJDIR)/configure.o \
  $(OBJDIR)/content.o \
@@ -791,6 +794,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h \
 	$(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h \
 	$(OBJDIR)/clone_.c:$(OBJDIR)/clone.h \
+	$(OBJDIR)/color_.c:$(OBJDIR)/color.h \
 	$(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h \
 	$(OBJDIR)/configure_.c:$(OBJDIR)/configure.h \
 	$(OBJDIR)/content_.c:$(OBJDIR)/content.h \
@@ -1105,6 +1109,14 @@ $(OBJDIR)/clone.o:	$(OBJDIR)/clone_.c $(OBJDIR)/clone.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/clone.o -c $(OBJDIR)/clone_.c
 
 $(OBJDIR)/clone.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/color_.c:	$(SRCDIR)/color.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/color.c >$@
+
+$(OBJDIR)/color.o:	$(OBJDIR)/color_.c $(OBJDIR)/color.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/color.o -c $(OBJDIR)/color_.c
+
+$(OBJDIR)/color.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/comformat_.c:	$(SRCDIR)/comformat.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/comformat.c >$@

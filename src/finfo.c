@@ -592,7 +592,7 @@ void finfo_page(void){
     db_reset(&qparent);
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
-      zBgClr = hash_color(zUser);
+      zBgClr = user_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }

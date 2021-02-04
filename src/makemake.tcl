@@ -50,6 +50,7 @@ set src {
   checkout
   clearsign
   clone
+  color
   comformat
   configure
   content
