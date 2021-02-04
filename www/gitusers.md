@@ -810,7 +810,7 @@ The `--numstat` output is a bit cryptic, so we recommend delegating
 this task to [the widely-available `diffstat` tool][dst], which gives
 a histogram in its default output mode rather than bare integers:
 
-        fossil diff -i -N --from 2020-04-01 | diffstat
+        fossil diff -i -v --from 2020-04-01 | diffstat
 
 We gave the `-i` flag in both cases to force Fossil to use its internal
 diff implementation, bypassing [your local `diff-command` setting][dcset].
@@ -818,7 +818,7 @@ The `--numstat` option has no effect when you have an external diff
 command set, and some diff command alternatives like
 [`colordiff`][cdiff] (covered [above](#cdiff)) produce output that confuses `diffstat`.
 
-If you leave off the `-N` flag in the second example, the `diffstat`
+If you leave off the `-v` flag in the second example, the `diffstat`
 output won’t include info about any newly-added files.
 
 [cdiff]: https://www.colordiff.org/
