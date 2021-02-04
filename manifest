@@ -1,5 +1,5 @@
-C Split\soff\sthe\sautomatic\sbackground\scolor\schooser\sinto\sa\sseparate\ssource\nfile\s"color.c".\sAdd\sa\sseparate\sroutine\s"user_color()"\sto\schoose\sbackground\ncolors\sbased\son\suser\sname.\sAbandon\sthe\s"color-hash-seed"\ssetting.\sInstead,\nprovide\sthe\s"user-color-map"\ssetting\sfor\soverriding\sthe\sautomatic\scolor\nchoices\sfor\sa\sfew\susers,\swhich\scolor\scollisions\soccur\sbetween\skey\sproject\nmembers.
-D 2021-02-04T01:00:22.482
+C diff\shelp\stext:\snoted\sthat\s-N\sis\sjust\san\salias\sfor\s--verbose,\sto\shelp\savoid\sconfusion\sreported\sin\s[forum:/forumpost/e7311328be\s|\s/forumpost/e7311328be].
+D 2021-02-04T04:11:58.832
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -478,7 +478,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 52eac5576377e65024a5901b46a63d0fe828e8500cb1c2d0d355d63fc1e39966
 F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 09eee5e823cc6e92a060af3a9e36139212736c258aa71f3105fa031dcc7b87b5
+F src/diffcmd.c a68e4b40ff2a684e93c76852995b2017c49d6a88b27cda3ac345650f7c6230c4
 F src/dispatch.c 568c17e70f3eb0ac9128f8fd9d305375a7ab478f7a42cec2f52269e90c3478c0
 F src/doc.c f04fab65744b0205ce82b0a668d4bc55460c7f47c03c16c64f3fc97dea21f44b
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -997,8 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb1415d8c5ba4a3100e809a99a669f6c1cc398b06200cca6febbf5bbc9571306 54509f8bed66859634751edfe18ab16d99b98a125110c727e0801e3133f21e04
-R eb5f16cee2a63222e15eb66f960dd9d1
-T +closed 54509f8bed66859634751edfe18ab16d99b98a125110c727e0801e3133f21e04
-U drh
-Z f49edf8908fd3d02e6184e0ddb04fd1d
+P da0d7f7460d5cb472a7bec448457632f8dbe38662c5eb0d841c3862ef69ef0a4
+R ad2d96e278a34322e9d1cb3a6b6ecaf8
+U stephan
+Z d74d5fbac37ccab5b08b2c7beb532b6d
