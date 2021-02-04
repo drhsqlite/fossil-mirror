@@ -2500,7 +2500,7 @@ void commit_cmd(void){
         cReply = blob_str(&ans)[0];
         blob_reset(&ans);
         if( cReply!='y' && cReply!='Y' ){
-          fossil_exit(1);
+          fossil_fatal("Commit aborted.");
         }
       }
       free(zInit);
@@ -2513,7 +2513,7 @@ void commit_cmd(void){
         ** is still not against a closed branch and still won't fork. */
         int syncFlags = SYNC_PULL|SYNC_CKIN_LOCK;
         if( autosync_loop(syncFlags, db_get_int("autosync-tries", 1), 1) ){
-          fossil_exit(1);
+          fossil_fatal("Auto-pull failed. Commit aborted.");
         }
         bRecheck = 1;
       }
@@ -2531,7 +2531,7 @@ void commit_cmd(void){
         cReply = 'N';
       }
       if( cReply!='y' && cReply!='Y' ){
-        fossil_exit(1);
+        fossil_fatal("Commit aborted.");
       }
     }
   }
@@ -2684,7 +2684,7 @@ void commit_cmd(void){
       cReply = 'N';
     }
     if( cReply!='y' && cReply!='Y' ){
-      fossil_exit(1);
+      fossil_fatal("Commit aborted.");
     }
   }
 
