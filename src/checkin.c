@@ -2527,11 +2527,10 @@ void commit_cmd(void){
         cReply = blob_str(&ans)[0];
         blob_reset(&ans);
       }else{
-        fossil_print("Abandoning commit due to empty check-in comment\n");
         cReply = 'N';
       }
       if( cReply!='y' && cReply!='Y' ){
-        fossil_fatal("Commit aborted.");
+        fossil_fatal("Abandoning commit due to empty check-in comment\n");
       }
     }
   }
@@ -2680,11 +2679,10 @@ void commit_cmd(void){
       cReply = blob_str(&ans)[0];
       blob_reset(&ans);
     }else{
-      fossil_print("Abandoning commit due to manifest signing failure\n");
       cReply = 'N';
     }
     if( cReply!='y' && cReply!='Y' ){
-      fossil_fatal("Commit aborted.");
+      fossil_fatal("Abandoning commit due to manifest signing failure\n");
     }
   }
 
