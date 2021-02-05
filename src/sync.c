@@ -385,7 +385,7 @@ void sync_unversioned(unsigned syncFlags){
 **
 **     Delete a sync URL previously added by the "add" subcommand.
 **
-** > fossil remote list
+** > fossil remote list|ls
 **
 **     Show all remote repository sync URLs.
 **

@@ -1915,7 +1915,7 @@ int wiki_technote_to_rid(const char *zETime) {
 **       If PAGENAME is provided, the named wiki page will be output.
 **
 **       Options:
-**         --technote|-t DATETIME|TECHNOTE-ID
+**         -t|--technote DATETIME|TECHNOTE-ID
 **                    Specifies that a technote, rather than a wiki page,
 **                    will be exported. If DATETIME is used, the most
 **                    recently modified tech note with that DATETIME will

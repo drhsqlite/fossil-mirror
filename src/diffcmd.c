@@ -844,14 +844,14 @@ const char *diff_get_binary_glob(void){
 **   --brief                     Show filenames only
 **   --checkin VERSION           Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
-**   --context|-c N              Use N lines of context
+**   -c|--context N              Use N lines of context
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
-**   --from|-r VERSION           Select VERSION as source for the diff
-**   --internal|-i               Use internal diff logic
+**   -r|--from VERSION           Select VERSION as source for the diff
+**   -i|--internal               Use internal diff logic
 **   --numstat                   Show only the number of lines delete and added
-**   --side-by-side|-y           Side-by-side diff
+**   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
 **   --tclsh PATH                Tcl/Tk used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display

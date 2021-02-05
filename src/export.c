@@ -483,7 +483,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 **   --export-marks FILE          export rids of exported data to FILE
 **   --import-marks FILE          read rids of data to ignore from FILE
 **   --rename-trunk NAME          use NAME as name of exported trunk branch
-**   --repository|-R REPOSITORY   export the given REPOSITORY
+**   -R|--repository REPOSITORY   export the given REPOSITORY
 **
 ** See also: import
 */

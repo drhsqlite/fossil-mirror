@@ -314,7 +314,7 @@ void stat_page(void){
 **
 ** Options:
 **
-**   --brief|-b           Only show essential elements.
+**   -b|--brief           Only show essential elements.
 **   --db-check           Run "PRAGMA quick_check" on the repository database.
 **   --db-verify          Run a full verification of the repository integrity.
 **                        This involves decoding and reparsing all artifacts

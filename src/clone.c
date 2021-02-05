@@ -123,8 +123,8 @@ void delete_private_content(void){
 ** the -A|--admin-user parameter.
 **
 ** Options:
-**    --admin-user|-A USERNAME   Make USERNAME the administrator
-**    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
+**    -A|--admin-user USERNAME   Make USERNAME the administrator
+**    -B|--httpauth USER:PASS    Add HTTP Basic Authorization to requests
 **    --nested                   Allow opening a repository inside an opened
 **                               checkout
 **    --nocompress               Omit extra delta compression

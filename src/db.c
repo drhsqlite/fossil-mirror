@@ -2687,7 +2687,7 @@ void db_initial_setup(
 **
 ** Options:
 **    --template      FILE         Copy settings from repository file
-**    --admin-user|-A USERNAME     Select given USERNAME as admin user
+**    -A|--admin-user USERNAME     Select given USERNAME as admin user
 **    --date-override DATETIME     Use DATETIME as time of the initial check-in
 **    --sha1                       Use an initial hash policy of "sha1"
 **
