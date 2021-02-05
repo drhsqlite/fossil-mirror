@@ -412,6 +412,13 @@ static int determine_cwd_relative_option()
 **
 ** The "fossil changes --extra" command is equivalent to "fossil extras".
 **
+** The "fossil changes --scp REMOTE" invokes the "scp" command repeatedly
+** to move all changed files to a directory on another machine identified
+** by REMOTE.  If REMOTE begins with "dryrun:" then the scp commands that
+** would have been issued are printed, but no copying is actually done.
+** The --scp command causes most other options to be ignored, with the
+** notable exception of --extra.
+**
 ** General options:
 **    --abs-paths       Display absolute pathnames.
 **    --rel-paths       Display pathnames relative to the current working
@@ -423,10 +430,11 @@ static int determine_cwd_relative_option()
 **    --ignore <CSG>    Ignore unmanaged files matching CSG glob patterns.
 **
 ** Options specific to the changes command:
-**    --header          Identify the repository if report is non-empty.
-**    -v|--verbose      Say "(none)" if the change report is empty.
 **    --classify        Start each line with the file's change type.
+**    --header          Identify the repository if report is non-empty.
 **    --no-classify     Do not print file change types.
+**    --scp REMOTE      Used scp to move changed files to REMOTE
+**    -v|--verbose      Say "(none)" if the change report is empty.
 **
 ** Filter options:
 **    --edited          Display edited, merged, and conflicted files.
@@ -472,6 +480,7 @@ void status_cmd(void){
   int showHdr = command==CHANGES && find_option("header", 0, 0);
   int verboseFlag = command==CHANGES && find_option("verbose", "v", 0);
   const char *zIgnoreFlag = find_option("ignore", 0, 1);
+  const char *zScpRemote = find_option("scp",0,1);
   unsigned scanFlags = 0;
   unsigned flags = 0;
   int vid, i;
@@ -556,10 +565,43 @@ void status_cmd(void){
     db_record_repository_filename(0);
   }
 
+  /* If the --scp command is present override other options so that
+  ** we get only changes with --no-classify */
+  if( zScpRemote ){
+    flags &= ~(C_CLASSIFY|C_MISSING|C_DELETED|C_RENAMED|C_RELPATH|
+               C_MERGE|C_MTIME|C_SIZE|C_COMMENT);
+  }
+
   /* Find and print all requested changes. */
   blob_zero(&report);
   status_report(&report, flags);
-  if( blob_size(&report) ){
+  if( zScpRemote ){
+    Blob line;
+    int n = (int)strlen(zScpRemote);
+    while( n && zScpRemote[n-1]=='/' ){ n--; }
+    while( blob_line(&report, &line) ){
+      Blob cmd;
+      char *zArg;
+      const char *zFile;
+      blob_trim(&line);
+      zFile = blob_str(&line);
+      blob_init(&cmd, 0, 0);
+      blob_append(&cmd, "scp ", 4);
+      zArg = mprintf("%s%s", g.zLocalRoot, zFile);
+      blob_append_escaped_arg(&cmd, zArg);
+      fossil_free(zArg);
+      blob_append_char(&cmd, ' ');
+      zArg = mprintf("%.*s/%s", n, zScpRemote, zFile);
+      blob_append_escaped_arg(&cmd, zArg);
+      fossil_free(zArg);
+      fossil_print("%s\n", blob_str(&cmd));
+      if( strncmp(zScpRemote, "dryrun:", 7) ){
+        /* Run the command if it does NOT begin with "dryrun:" */
+        fossil_system(blob_str(&cmd));
+      }
+      blob_reset(&cmd);
+    }
+  }else if( blob_size(&report) ){
     if( showHdr ){
       fossil_print(
         "Changes for %s at %s:\n", db_get("project-name", "<unnamed>"),
