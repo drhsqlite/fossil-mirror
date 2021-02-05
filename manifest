@@ -1,5 +1,5 @@
-C Amend\s'fossil\shelp'\soutput\sfor\sall\scommands\sto\smake\soptions\sconform\sto\nGNU\s'short|long'\sconvention\s(e.g.,\s-v|--verbose).
-D 2021-02-05T09:32:29.066
+C Update\sthe\sbuilt-in\sSQLite\sto\sa\s3.35.0\salpha\sthat\sincludes\sthe\srevised\nRETURNING\sclause\sprototype\sthat\sembargoes\soutput\suntil\sall\schanges\shave\ncompleted.\s\sThis\sis\sfor\stesting\sof\sSQLite.\s\sThe\schange\sshould\snot\saffect\nFossil\sin\sany\sway.
+D 2021-02-05T18:27:03.074
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -618,8 +618,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c aae774e5b1aa63d248a3e028976240edc3e5960c33cd1ead307e6709d6704236
-F src/sqlite3.h d6444d76380719d2266bea8364c34f9490f3f1bf3030d3720e789ea399b009cb
+F src/sqlite3.c ceeb44d2c4ee4eec20ae5372e873aa10a8663c647b38017aed0bff43f934389d
+F src/sqlite3.h 59164973438b12ecb739371744ab49d7983cbd36800c06efc8458ccfe06c832a
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -997,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd13191359cd7e84954e3d4b185236652651f33d5988c3c66ff04bbc64cf2dc6
-R 4f0ffc63809d32dae4bb5e389213f716
-U jamsek
-Z cf41f5fab642d3909c9a4e9bf99978fb
+P 7f3c728db3da63a2090a2e5247292c3b539c93786a6197fa57c6ba0d7aada103
+R ee44b4688f7b92c1c1dff004e6687585
+U drh
+Z aee0811514dd6135056d806490f9aed2
