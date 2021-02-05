@@ -826,8 +826,9 @@ const char *diff_get_binary_glob(void){
 ** the "setting" command.  If no external diff program is configured, then
 ** the "-i" option is a no-op.  The "-i" option converts "gdiff" into "diff".
 **
-** The "-N" or "--new-file" option causes the complete text of added or
-** deleted files to be displayed.
+** The "-v" or "--verbose" option causes the complete text of added or
+** deleted files to be displayed. -N and --new-file are aliases for
+** verbose mode.
 **
 ** The "--diff-binary" option enables or disables the inclusion of binary files
 ** when using an external diff program.
@@ -849,7 +850,6 @@ const char *diff_get_binary_glob(void){
 **   --exec-rel-paths            Force relative path names on external commands
 **   --from|-r VERSION           Select VERSION as source for the diff
 **   --internal|-i               Use internal diff logic
-**   --new-file|-N               Alias for --verbose
 **   --numstat                   Show only the number of lines delete and added
 **   --side-by-side|-y           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
@@ -859,6 +859,7 @@ const char *diff_get_binary_glob(void){
 **   --undo                      Diff against the "undo" buffer
 **   --unified                   Unified diff
 **   -v|--verbose                Output complete text of added or deleted files
+**   -N|--new-file               Alias for --verbose
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -W|--width N                Width of lines in side-by-side diff
 **   -Z|--ignore-trailing-space  Ignore changes to end-of-line whitespace

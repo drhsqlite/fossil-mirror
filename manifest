@@ -1,5 +1,5 @@
-C Merged\sin\shelp-full\sbranch,\swhich\sadds\shelp\s--everything\sflag,\sand\sfixed\sanother\sbit\sof\ssafe-html\ssetting\sdocs\sso\sthat\sthey\swork\swith\sthe\sHTML\shelp\stext\sexport.
-D 2021-02-05T03:21:50.393
+C Minor\sreordering\sof\sdiff\scommand\shelp,\sper\sforum\ssuggestion.
+D 2021-02-05T03:51:21.028
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -478,7 +478,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 52eac5576377e65024a5901b46a63d0fe828e8500cb1c2d0d355d63fc1e39966
 F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c a68e4b40ff2a684e93c76852995b2017c49d6a88b27cda3ac345650f7c6230c4
+F src/diffcmd.c 9751970733d3e49731c42cc12bd5b1adc08b20548145bb4106d7574ce9141598
 F src/dispatch.c f59b65abbcc18ba80cb762b639963b4017ac40aebdd0f12efadd1c50389e0842
 F src/doc.c f04fab65744b0205ce82b0a668d4bc55460c7f47c03c16c64f3fc97dea21f44b
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -997,8 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad42dfee58660c10ca33b07fa7c918f81de7bfe619dde4c4c265a35bcc4ce770 0ac9052c38e94250d05a2ed894fdb09ee57118a5ea559b83f613dafa033f81dc
-R 3c6557e9b23e01cc6570c7c6b4c5d3fc
-T +closed 0ac9052c38e94250d05a2ed894fdb09ee57118a5ea559b83f613dafa033f81dc
+P 89e5ac196d0dfef46aa373629b6b1798bed0b0b5c51fa5e61e22ea83290a693b
+R 4b500fbcfa8eda0eec2eda8dfdfb1850
 U stephan
-Z 5279999cf12cfbf7f1621742da43ace6
+Z b8d8a37ee233291a8beb833cc3332bda
