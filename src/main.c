@@ -2146,6 +2146,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             files. See the help text for the --jsmode
 **                             flag of the http command.
 **
+**    mainmenu: FILE           Override the mainmenu config setting with the
+**                             contents of the given file.
+**
 ** Most CGI files contain only a "repository:" line.  It is uncommon to
 ** use any other option.
 **
@@ -2333,6 +2336,17 @@ void cmd_cgi(void){
       ** requirements of any given page.
       */
       builtin_set_js_delivery_mode(blob_str(&value),0);
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "mainmenu:") && blob_token(&line, &value) ){
+      /* mainmenu: FILENAME
+      **
+      ** Use the contents of FILENAME as the value of the site's
+      ** "mainmenu" setting, overriding the contents (for this
+      ** request) of the db-side setting or the hard-coded default.
+      */
+      style_default_mainmenu_override(blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2799,6 +2813,8 @@ void fossil_set_timeout(int N){
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
+**   --mainmenu FILE     Override the mainmenu config setting with the contents
+**                       of the given file.
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
@@ -2822,6 +2838,7 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
+  const char *zMainMenu = 0; /* --mainmenu option */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2870,7 +2887,12 @@ void cmd_webserver(void){
     flags |= HTTP_SERVER_LOCALHOST;
   }
   g.zCkoutAlias = find_option("ckout-alias",0,1);
-
+  zMainMenu = find_option("mainmenu",0,1);
+  if( zMainMenu!=0 ){
+    if(0!=style_default_mainmenu_override(zMainMenu)){
+      fossil_fatal("Cannot read --mainmenu file %s", zMainMenu);
+    }
+  }
   /* We should be done with options.. */
   verify_all_options();
 

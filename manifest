@@ -1,5 +1,5 @@
-C Minor\sreordering\sof\sdiff\scommand\shelp,\sper\sforum\ssuggestion.
-D 2021-02-05T03:51:21.028
+C Added\sui/server/cgi\s--mainmenu\sFILE\soption,\sand\sCGI\swrapper\sscript\smainmenu:\soption,\sto\soverride\sthe\smainmenu\ssetting,\ssimilar\sto\show\s--skin/skin:\soverrides\sthe\sskin.
+D 2021-02-05T10:36:05.551
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -548,7 +548,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 72ded13f00d3fb2d5c04f2d6221c8ddb9b29e900b530ee34b08b55f2025e4491
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 298cb6dea129d4e82c9ae8247cf0674f65080332325e8fbcfe13ac886f72dddb
+F src/main.c fe6952198f40ef149504d47738aa3e6a926429d7318c993be09165f661b05913
 F src/main.mk 38ba6327698d7498e00a6d444fba9ace1cbc76b956a8a4b8d1f7ec2be3672d2d
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -624,7 +624,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c 0f11070d181ea70b7931711d82523da23f4d2a277ac72db409b8a6434512b67b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 95b1c04631f3b11f531da3b9b988bab1b2ced0b9e134b40b07ea82b825846939
+F src/style.c 33e87838de3736d9a5a1f5c08a3092e3a87a79b308398b7db2ffd4c8e1a6e782
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 5db49b424b371cab52cc481a0d5e04229721480f074fd8af2e20e6f982aeaebf
@@ -836,7 +836,7 @@ F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede
 F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65862f
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 92bb8a93ffb10184559d4759e24757ee50d48eef48c2f26e9c30635b87a58d19
-F www/cgi.wiki 997d36c9ca2b3241e03c820e2a50c172fb96b5b2c8bf08d736703e7a7ff04d93
+F www/cgi.wiki 27fbf9d888a370167bebdedffb9f76ce1802f891eefa1f0b4a8ce300a6afb6c7
 F www/changes.wiki 37969e5910a075e9a2525f24df51efb70f76e172b1d1d7ddf6fcea3385e31e0f
 F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
@@ -997,7 +997,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89e5ac196d0dfef46aa373629b6b1798bed0b0b5c51fa5e61e22ea83290a693b
-R 4b500fbcfa8eda0eec2eda8dfdfb1850
+P dd13191359cd7e84954e3d4b185236652651f33d5988c3c66ff04bbc64cf2dc6
+R f5c6c399925384daf6c16ee2da1027ee
+T *branch * mainmenu-override
+T *sym-mainmenu-override *
+T -sym-trunk *
 U stephan
-Z b8d8a37ee233291a8beb833cc3332bda
+Z 889332e62bd6928638913f7779f2f076

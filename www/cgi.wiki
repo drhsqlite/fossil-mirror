@@ -138,6 +138,17 @@ This parameter can be repeated as many times as necessary.
 
 This parameter is a short-hand for "<b>setenv HOME <i>PATH</i></b>".
 
+<h2 id="mainmenu">mainmenu: <i>FILE</i></h2>
+
+This parameter causes the contents of the given file to override the
+site's <tt>mainmenu</tt> configuration setting, much in the same way
+that the <tt>skin</tt> setting overrides the skin. This can be used to
+apply a common main menu to a number of sites, and centrally maintain
+it, without having to copy its contents into each site. Note, however,
+that the contents of this setting are not stored in the repository and
+will not be cloned along with the repository.
+
+
 <h2 id="cgi-debug">cgi-debug: <i>FILE</i></h2>
 
 Cause CGI-related debugging information to be appended in <i>FILE</i>.  Use

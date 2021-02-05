@@ -622,6 +622,27 @@ const char *style_default_mainmenu(void){
 }
 
 /*
+** Main menu setting value overridden by the server/ui/cgi --mainmenu
+** CLI flag or the "mainmenu:" CGI wrapper script config option.
+*/
+static const char * zOverrideMainMenu = 0;
+/*
+** Sets the contents of the given filename (of type ExtFILE) to
+** override the "mainmenu" site config setting. Returns 0 on success,
+** non-0 if the file cannot be stat'd.
+*/
+int style_default_mainmenu_override(const char *zFilename){
+  if(file_size(zFilename, ExtFILE)<0){
+    return 1;
+  }else{
+    Blob content = empty_blob;
+    blob_read_from_file(&content, zFilename, ExtFILE);
+    zOverrideMainMenu = blob_str(&content);
+    return 0;
+  }
+}
+
+/*
 ** Given a URL path, extract the first element as a "feature" name,
 ** used as the <body class="FEATURE"> value by default, though
 ** later-running code may override this, typically to group multiple
@@ -684,7 +705,9 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
-  Th_Store("mainmenu", db_get("mainmenu", style_default_mainmenu()));
+  Th_Store("mainmenu", zOverrideMainMenu
+           ? zOverrideMainMenu
+           : db_get("mainmenu", style_default_mainmenu()));
   url_var("stylesheet", "css", "style.css");
   image_url_var("logo");
   image_url_var("background");
