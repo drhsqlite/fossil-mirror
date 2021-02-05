@@ -2747,15 +2747,15 @@ void safe_html_context(int eTrust){
 /*
 ** SETTING: safe-html        width=8
 ** This setting controls whether or not unsafe HTML elements
-** (such as <script> or <style>) are allowed in Markdown-formatted
+** (such as SCRIPT or STYLE tags) are allowed in Markdown-formatted
 ** documents.  Unsafe HTML is disabled by default.  If this setting
 ** exists and is a string, then letters in that string can enable
 ** unsafe HTML in various contexts:
 **
-**    b           Unsafe HTML allowed in embedded documentation
-**    f           Unsafe HTML allowed in forum posts
-**    t           Unsafe HTML allowed in tickets
-**    w           Unsafe HTML allowed on wiki pages
+**    - b         Unsafe HTML allowed in embedded documentation
+**    - f         Unsafe HTML allowed in forum posts
+**    - t         Unsafe HTML allowed in tickets
+**    - w         Unsafe HTML allowed on wiki pages
 */
 /*
 ** The input blob contains HTML.  If safe-html is enabled, then

@@ -1,5 +1,5 @@
-C Changed\sa\sfew\sdoc\sreferences\sfrom\s"fossil\sdiff\s-N"\sto\suse\s-v\sinstead,\sits\sanointed\nalternative.
-D 2021-02-04T17:29:26.847
+C Merged\sin\shelp-full\sbranch,\swhich\sadds\shelp\s--everything\sflag,\sand\sfixed\sanother\sbit\sof\ssafe-html\ssetting\sdocs\sso\sthat\sthey\swork\swith\sthe\sHTML\shelp\stext\sexport.
+D 2021-02-05T03:21:50.393
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -479,7 +479,7 @@ F src/descendants.c 52eac5576377e65024a5901b46a63d0fe828e8500cb1c2d0d355d63fc1e3
 F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c a68e4b40ff2a684e93c76852995b2017c49d6a88b27cda3ac345650f7c6230c4
-F src/dispatch.c 568c17e70f3eb0ac9128f8fd9d305375a7ab478f7a42cec2f52269e90c3478c0
+F src/dispatch.c f59b65abbcc18ba80cb762b639963b4017ac40aebdd0f12efadd1c50389e0842
 F src/doc.c f04fab65744b0205ce82b0a668d4bc55460c7f47c03c16c64f3fc97dea21f44b
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
@@ -655,7 +655,7 @@ F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 65cf7f61a3cf9433dec6efcd5531dfcf8811e98d6c229b2fe3c691c86b085b58
 F src/wiki.c 475e9ec0828886b924fcb3fe4d7d403e369d75fe160d97845dd43ddba6543611
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
-F src/wikiformat.c 8de002293890d3c092ed339c2053f2ec4e6d2f800080b15e907496d017b23ca8
+F src/wikiformat.c b116819935cb2cab1cf20e7b46e4bbef0e638c2a5df275650f1ab274b9a65791
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c fed9bcb8391dd7bd94a577f8b46776b84e1ff4bbb229d3769bf09ca3dc7aa683
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
@@ -997,7 +997,8 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d1f74a367c73d92bb5dc9e25a07b2d5a16bd066f82bf7474f2b33629d6cdaf6e
-R 380106bb1e310b94805d9322c0c8824f
-U wyoung
-Z 92c2efd3673f5c68a02a315a7ca69b87
+P ad42dfee58660c10ca33b07fa7c918f81de7bfe619dde4c4c265a35bcc4ce770 0ac9052c38e94250d05a2ed894fdb09ee57118a5ea559b83f613dafa033f81dc
+R 3c6557e9b23e01cc6570c7c6b4c5d3fc
+T +closed 0ac9052c38e94250d05a2ed894fdb09ee57118a5ea559b83f613dafa033f81dc
+U stephan
+Z 5279999cf12cfbf7f1621742da43ace6
