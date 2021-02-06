@@ -655,6 +655,26 @@ void style_set_current_feature(const char* zFeature){
 }
 
 /*
+** Returns the current mainmenu value from either the --mainmenu flag
+** (handled by the server/ui/cgi commands), the "mainmenu" config
+** setting, or style_default_mainmenu(), in that order, returning the
+** first of those which is defined.
+*/
+const char*style_get_mainmenu(){
+  static const char *zMenu = 0;
+  if(!zMenu){
+    if(g.zMainMenuFile){
+      Blob b = empty_blob;
+      blob_read_from_file(&b, g.zMainMenuFile, ExtFILE);
+      zMenu = blob_str(&b);
+    }else{
+      zMenu = db_get("mainmenu", style_default_mainmenu());
+    }
+  }
+  return zMenu;
+}
+
+/*
 ** Initialize all the default TH1 variables
 */
 static void style_init_th1_vars(const char *zTitle){
@@ -684,7 +704,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
-  Th_Store("mainmenu", db_get("mainmenu", style_default_mainmenu()));
+  Th_Store("mainmenu", style_get_mainmenu());
   url_var("stylesheet", "css", "style.css");
   image_url_var("logo");
   image_url_var("background");

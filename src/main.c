@@ -212,6 +212,7 @@ struct Global {
   UrlData url;            /* Information about current URL */
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zCkoutAlias;   /* doc/ uses this branch as an alias for "ckout" */
+  const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
 #if defined(_WIN32) && USE_SEE
@@ -2146,6 +2147,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             files. See the help text for the --jsmode
 **                             flag of the http command.
 **
+**    mainmenu: FILE           Override the mainmenu config setting with the
+**                             contents of the given file.
+**
 ** Most CGI files contain only a "repository:" line.  It is uncommon to
 ** use any other option.
 **
@@ -2333,6 +2337,17 @@ void cmd_cgi(void){
       ** requirements of any given page.
       */
       builtin_set_js_delivery_mode(blob_str(&value),0);
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "mainmenu:") && blob_token(&line, &value) ){
+      /* mainmenu: FILENAME
+      **
+      ** Use the contents of FILENAME as the value of the site's
+      ** "mainmenu" setting, overriding the contents (for this
+      ** request) of the db-side setting or the hard-coded default.
+      */
+      g.zMainMenuFile = mprintf("%s", blob_str(&value));
       blob_reset(&value);
       continue;
     }
@@ -2546,6 +2561,8 @@ void test_pid_page(void){
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
 **   --th-trace       trace TH1 execution (for debugging purposes)
+**   --mainmenu FILE  Override the mainmenu config setting with the contents
+**                    of the given file.
 **   --usepidkey      Use saved encryption key from parent process.  This is
 **                    only necessary when using SEE on Windows.
 **
@@ -2613,6 +2630,10 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
+  g.zMainMenuFile = find_option("mainmenu",0,1);
+  if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
+    fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
+  }
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2799,6 +2820,8 @@ void fossil_set_timeout(int N){
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
+**   --mainmenu FILE     Override the mainmenu config setting with the contents
+**                       of the given file.
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
@@ -2870,7 +2893,10 @@ void cmd_webserver(void){
     flags |= HTTP_SERVER_LOCALHOST;
   }
   g.zCkoutAlias = find_option("ckout-alias",0,1);
-
+  g.zMainMenuFile = find_option("mainmenu",0,1);
+  if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
+    fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
+  }
   /* We should be done with options.. */
   verify_all_options();
 
