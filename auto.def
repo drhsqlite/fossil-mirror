@@ -367,7 +367,8 @@ if {$ssldirs ne "none"} {
             } msg
             if {!$found} {
                 set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
-                             /usr/pkg /usr/local /usr /usr/local/opt/openssl"
+                             /usr/pkg /usr/local /usr /usr/local/opt/openssl \
+                             /opt/homebrew/opt/openssl"
             }
         }
         if {!$found} {

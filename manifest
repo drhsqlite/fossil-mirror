@@ -1,5 +1,5 @@
-C Minor\sskintxt2config\scleanups.
-D 2021-02-06T19:04:45.333
+C Add\s/opt/homebrew/opt/openssl\sto\sthe\slist\sof\sdirectories\schecked\sfor\nthe\sOpenSSL\slibrary\sby\sthe\sconfigure\sscript.\nSee\s[forum:/forumpost/9496e81a51|forum\spost\s9496e81a51].
+D 2021-02-06T23:35:11.530
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 4be7ff2ad1975b4f0bb898f44065987ce577349eb1027f25a4573020f16aff00
+F auto.def cd9e1d2f78472d78a5ccf415f09d4ef1720b44bb4d3f6b409b023daf47a5f740
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -997,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3d51b9706c5b5e5f90578a1dec632e2cdae90064259b85e525160347ba0e9d5
-R 612a30e6c941b470d3dfa104034d99d3
-U stephan
-Z 2dd371be5f0dac98efc0642eb561cf05
+P 324154e8214cd4f23f48b7eae921e6b1ba00658b7f319fbedf477edb34031968
+R b44289474c20b81251b4a625261b1346
+U drh
+Z e33dda53b79f89ee152fff8f9cea8930
