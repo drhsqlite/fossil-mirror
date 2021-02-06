@@ -1,5 +1,5 @@
-C Remove\sobsolete\schat\sscripts\sfrom\sthe\stools/\sfolder.
-D 2021-02-06T09:24:41.300
+C Doc\sformatting\sfixes\sfrom\s[forum:/forumpost/a924078381\s|\s/forumpost/a924078381].
+D 2021-02-06T11:50:09.308
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -891,7 +891,7 @@ F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe6
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
 F www/gitusers.md 5638b2c0ddf14d405ff5ac9dad370810baa3e6ca451c35ca52a34036033119b8
 F www/globs.md d8a0dc337f91751daf43464a6043ce2693e6e5561099cd988c54d50254fab741
-F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
+F www/grep.md c50868f95cce9b135240e8fc8d8998d01cf6a8f25c5c5d8ab56f48df1a4277f6
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 0387dfae77f1ff423f1b554055d9211317cfb58c42096c419aa3b049b0e1a342
 F www/hashpolicy.wiki 59b6a5175af49ec5cbec767321f4fdd9a27338c019fdbfc846fd51d59f570b67
@@ -996,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c33969bf4f87ceb0364b24d3445de719d4747adc713b48956cc6e188a5fbebd
-R bdafa051055e186838d61179e21888dc
-U drh
-Z 29c50efe10275740de472716192b1b7b
+P c2961945dfac0c7abb7e969690f14817a6b25c76626dabbb4f629bd00bff6e1b
+R 1fa9a2d5625921353501052a698d1d09
+U stephan
+Z 330a80653d0ed88c1c0cf691ceadb1ce
