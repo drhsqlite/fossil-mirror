@@ -37,7 +37,6 @@ static struct App_ {
 } App = {
 0, 0, 0
 };
-enum { F_CSS = 1, F_HEADER = 2, F_FOOTER = 3, F_DETAILS = 4};
 
 static void err(const char *zFmt, ...){
   va_list vargs;
@@ -187,14 +186,13 @@ int main(int argc, char const * const * argv){
         break;
       }else{
         const char *zOut = argv[i];
-        FILE * o;
         if(App.ostr != stdout){
           err("Cannot specify -o more than once.");
           rc = 1;
           break;
         }
-        if(0!=strcmp("-",argv[i])){
-          o = fopen(zOut, "wb");
+        if(0!=strcmp("-",zOut)){
+          FILE * o = fopen(zOut, "wb");
           if(!o){
             err("Could not open file %s for writing. Errno=%d",
                 zOut, errno);
@@ -205,7 +203,7 @@ int main(int argc, char const * const * argv){
         }
       }
     }else if('-' == zArg[0]){
-      fprintf(stderr, "Unhandled argument: %s\n", zArg);
+      err("Unhandled argument: %s", zArg);
       rc = 1;
       break;
     }else{
