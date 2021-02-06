@@ -1,5 +1,5 @@
-C Corrected\spotential\smishandling\sof\smemory\sownership\sin\sthe\sprevious\scommit.
-D 2021-02-06T04:48:42.172
+C Windows:\sescape\s--mainmenu's\sargument\sbefore\spassing\sit\son\sto\schild\sui\sprocess.
+D 2021-02-06T05:12:05.603
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -657,7 +657,7 @@ F src/wiki.c 475e9ec0828886b924fcb3fe4d7d403e369d75fe160d97845dd43ddba6543611
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c b116819935cb2cab1cf20e7b46e4bbef0e638c2a5df275650f1ab274b9a65791
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c bc01604ac077794c7f26a8fa483f9c511fdccccaf5e6ca9d71b5e9902798d621
+F src/winhttp.c e7ada3d95317685dc82d202a2c23ca27c0746d032ec62665fc86b52bcb687e7a
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
 F src/xfersetup.c 6ef44e93ea292bdf7fdaf695bb2c6c64131e81bd6ebb094e27dbb8b1ebe95a01
 F src/zip.c ff770acf2a8723e6730b6bd6c3b69071fa038a04cfcb0e041e1ca4a775938e8f
@@ -997,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 852be6d4200a0c0f2c930f012323b8d720b7915e239609ae6c2683a466832704
-R 32e5bd986b0bc88660fb006b2b43f6b0
+P d6e698c2657b41a975d8e29203ba8e92b91b41d4f30926644cdac641148c75f9
+R 7a22e8fd45cca04c2d2dc3fea219995b
 U stephan
-Z f7a54bfed314956f857d845b9771970c
+Z 350c122cb40a91373a2613092f1a3427

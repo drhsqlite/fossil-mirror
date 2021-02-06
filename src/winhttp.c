@@ -573,7 +573,8 @@ void win32_http_server(
     blob_appendf(&options, " --skin %s", zSkin);
   }
   if( g.zMainMenuFile ){
-    blob_appendf(&options, " --mainmenu %s", g.zMainMenuFile);
+    blob_appendf(&options, " --mainmenu ");
+    blob_append_escaped_arg(&options, g.zMainMenuFile);
   }
 #if USE_SEE
   zSavedKey = db_get_saved_encryption_key();
