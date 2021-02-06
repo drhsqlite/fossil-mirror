@@ -2347,8 +2347,8 @@ void cmd_cgi(void){
       ** "mainmenu" setting, overriding the contents (for this
       ** request) of the db-side setting or the hard-coded default.
       */
-      g.zMainMenuFile = blob_str(&value);
-      value = empty_blob/*take over ownership*/;
+      g.zMainMenuFile = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
       continue;
     }
     if( blob_eq(&key, "cgi-debug:") && blob_token(&line, &value) ){
