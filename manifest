@@ -1,5 +1,5 @@
-C Add\sthe\s"tools/co-rsync.tcl"\sscript\sfor\ssyncing\sone\scheckout\sdirectory\ninto\sanother.\s\sRequires\srsync\son\sboth\slocal\sand\sremote.
-D 2021-02-06T09:17:33.319
+C Remove\sobsolete\schat\sscripts\sfrom\sthe\stools/\sfolder.
+D 2021-02-06T09:24:41.300
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -734,7 +734,6 @@ F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
 F test/wiki.test 8a6977e1231c4ebcc8065e831db579eb624d4ad74458c987c00b5ebc8b3b0eb3
-F tools/chat.tcl ff6418ec63287816a2428f2b5b795c3a5dfd208a53165ba0075a69381e5acd88 x
 F tools/co-rsync.tcl bcc9d6d68374f0d03cb4db5a06b0680015df8ed1d185c235939e7a0b0b966e17 x
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -796,7 +795,6 @@ F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea
 F tools/fossil-autocomplete.zsh 838a7f1b39e81ee0c06cfa959e6e97f6152019b04e10aab719c6fb118b415253 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
 F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958d602c9a87d x
-F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
@@ -998,7 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e51531c15d0d5fa534e64cec628bbc90bf3a0276fde7d485524a276eacd264ff
-R dc02db4fd8891411511266a8f78c3e03
+P 1c33969bf4f87ceb0364b24d3445de719d4747adc713b48956cc6e188a5fbebd
+R bdafa051055e186838d61179e21888dc
 U drh
-Z 666bbdfe756b2a81d9bb98691211d857
+Z 29c50efe10275740de472716192b1b7b
