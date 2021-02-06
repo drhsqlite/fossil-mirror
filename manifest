@@ -1,5 +1,5 @@
-C Add\sthe\s--mainmenu\soption\sto\sthe\svarious\sweb\sinterface\scommands,\sto\soverride\nthe\smain\smenu\sfor\stesting\spurposes.
-D 2021-02-06T13:17:25.898
+C Added\stools/skintxt2config.c.
+D 2021-02-06T16:26:03.574
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -798,6 +798,7 @@ F tools/fossil-stress.tcl 99177f560b05372f2d2229c792f6224764633f825db949c7e03958
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
+F tools/skintxt2config.c e7e18831a5a8b19c6b16ddc06f11921531380d0ed518f24ec60aa24f679dd00b
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc f0bc480793df711921828ec807ecc913d4558f2b38ce916cf8f0da07e3620a34
 F win/Makefile.mingw 2fd53fbe4e0bb262ee80e55decd1ebdc7b40875d71db7210c61275067f1d38b0
@@ -996,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3c8831ec47cef55bd64955c671152a34039a6bdb991481ec3a92e2ae24b82f3a 32ab3d23ed799f5f818f6c87fdd231935bed2ecf18097fbca48fb6bee9f7545b
-R 71355c6a081d23a42eb4f3d8406cd4b9
-U drh
-Z b4f7fe29b45d4006fc17f86b2d3a8d64
+P 73ca280af9ec54ffd4f01b57de786bc9f8e0971e44e2b5f27c0c6cbc8ac86813
+R 9cd2bf5399c1ac2bb8abbce364402119
+U stephan
+Z f1bbcf8bab045b54c56ba2f0501ac47f
