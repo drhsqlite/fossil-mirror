@@ -176,7 +176,7 @@ int main(int argc, char const * const * argv){
        0==strcmp(zArg,"--help") ||
        0==strcmp(zArg,"-?")){
       app_usage(0);
-      rc = 1;
+      rc = 0;
       break;
     }else if(0==strcmp(zArg,"-o")){
       /* -o OUTFILE (- == stdout) */
