@@ -1274,7 +1274,7 @@ const char *get_user_agent(){
 /*
 ** COMMAND: version
 **
-** Usage: %fossil version ?-v|-verbose?
+** Usage: %fossil version ?-v|--verbose?
 **
 ** Print the source code version number for the fossil executable.
 ** If the verbose option is specified, additional details will

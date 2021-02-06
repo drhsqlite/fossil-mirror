@@ -1814,7 +1814,7 @@ void gitmirror_status_command(void){
 **                             auto-push mechanism is disabled
 **         --debug FILE        Write fast-export text to FILE rather than
 **                             piping it into "git fast-import".
-**         --force|-f          Do the export even if nothing has changed
+**         -f|--force          Do the export even if nothing has changed
 **         --if-mirrored       No-op if the mirror does not already exist.
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
@@ -1822,8 +1822,8 @@ void gitmirror_status_command(void){
 **                             The "trunk" branch of the Fossil repository is
 **                             mapped into this name.  "master" is used if
 **                             this option is omitted.
-**         --quiet|-q          Reduce output. Repeat for even less output.
-**         --verbose|-v        More output.
+**         -q|--quiet          Reduce output. Repeat for even less output.
+**         -v|--verbose        More output.
 **
 ** > fossil git import MIRROR
 **

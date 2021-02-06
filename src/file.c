@@ -2290,7 +2290,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **   -g GLOBLIST    Comma-separated list of glob patterns.
 **   -G GLOBFILE    Similar to -g but reads its globs from a
 **                  fossil-conventional glob list file.
-**   -v|-verbose    Outputs extra information about its globs
+**   -v|--verbose   Outputs extra information about its globs
 **                  and each file it touches.
 **   -n|--dry-run   Outputs which files would require touching,
 **                  but does not touch them.
