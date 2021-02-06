@@ -1,5 +1,5 @@
-C Help\stext:\sswapped\sa\sfew\smore\slong/short\sflags\sto\sshort/long\sfor\sconsistency.
-D 2021-02-06T06:58:53.258
+C I\sam\sconvinced\sby\sthe\s[forum:/forumpost/4f8e128413|forum\sdiscussion]\sto\sback\nout\sthe\s"fossil\schanges\s--scp"\schange\sand\sinstead\sadd\sa\sseparate\sTCL\sscript\nthat\saccomplishes\swhat\sis\sneeded.
+D 2021-02-06T08:01:51.593
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -454,7 +454,7 @@ F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c e928be6ba89dd578a468c414bc06517a47e92cfb116f80ccb23df71fc9cfc0c2
 F src/chat.c c46026d239fa921dcf80ceadf2ffd335176b201e49c73261f39747bdf0313662
 F src/chat.js dec74b08020230bd0f2bc0f81b0a2390532fd463a66687278dad5c8359f3bae9
-F src/checkin.c f4758d501bb3c48ceb443463d4c9bf3f2da69a9a9544d525fbca47c11bbb8800
+F src/checkin.c 33182219692b33f714a5a21641ee1de7820a6dd45b0cde7fe0e961e556e93a5c
 F src/checkout.c 5ad65b9d0a0fac559985b76e75c807ed830c07d25e44f5743bab55ada3e250ea
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -997,7 +997,8 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 90ae5bbf9466e29725446ec5a9255e9f820666832e7cfb45ca70484472878d86
-R a3a1debfa3d282e6ed227d11778edd98
-U stephan
-Z d6113da4422f375b8606904ce7e6632a
+P ba7b4317926cd7d4bc17d288a0a041dd19e542e48fdaf6b965c581b3ccc95682
+Q -90ae5bbf9466e29725446ec5a9255e9f820666832e7cfb45ca70484472878d86
+R 6c20b4cca04aa6b908fa2faf2ed948d0
+U drh
+Z f63e7ef0e8bc0ec33999e49f69b54b21
