@@ -1,5 +1,5 @@
-C Windows:\sescape\s--mainmenu's\sargument\sbefore\spassing\sit\son\sto\schild\sui\sprocess.
-D 2021-02-06T05:12:05.603
+C Added\s--mainmenu\sflag\sto\sthe\shttp\scommand,\sas\sthe\sWindows\simpl\spasses\son\sits\sflags\sto\sthat\scommand.
+D 2021-02-06T05:20:24.715
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -548,7 +548,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 72ded13f00d3fb2d5c04f2d6221c8ddb9b29e900b530ee34b08b55f2025e4491
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c a9db09d54ece2d9d7b37f3dd70bb24cec8fa0b223f95260d2f0b3df6d559bbb7
+F src/main.c 1bdae0ee18e3a4fbb1c64ffabe4231a12178a386a45ef77726d9428bcd3576c4
 F src/main.mk 38ba6327698d7498e00a6d444fba9ace1cbc76b956a8a4b8d1f7ec2be3672d2d
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -997,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6e698c2657b41a975d8e29203ba8e92b91b41d4f30926644cdac641148c75f9
-R 7a22e8fd45cca04c2d2dc3fea219995b
+P d059d620377137fe1ff173aa2370fa792a581b3246b03046a8f351d3b6400135
+R d31b8da99041e1f057558f4fd9accadd
 U stephan
-Z 350c122cb40a91373a2613092f1a3427
+Z bda0af407b3abc7151a3544112a0b6eb

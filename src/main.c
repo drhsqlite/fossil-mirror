@@ -2561,6 +2561,8 @@ void test_pid_page(void){
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
 **   --th-trace       trace TH1 execution (for debugging purposes)
+**   --mainmenu FILE  Override the mainmenu config setting with the contents
+**                    of the given file.
 **   --usepidkey      Use saved encryption key from parent process.  This is
 **                    only necessary when using SEE on Windows.
 **
@@ -2628,6 +2630,10 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
+  g.zMainMenuFile = find_option("mainmenu",0,1);
+  if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
+    fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
+  }
 
   /* We should be done with options.. */
   verify_all_options();
