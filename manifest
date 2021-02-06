@@ -1,5 +1,5 @@
-C Added\sui/server/cgi\s--mainmenu\sFILE\soption,\sand\sCGI\swrapper\sscript\smainmenu:\soption,\sto\soverride\sthe\smainmenu\ssetting,\ssimilar\sto\show\s--skin/skin:\soverrides\sthe\sskin.
-D 2021-02-05T10:36:05.551
+C Restructured\show\s--mainmenu\svalue\sis\ssaved.\sAdded\ssupport\sfor\sit\sto\sWindows\sserver,\sbut\sthat\sis\suntested.
+D 2021-02-06T04:40:19.052
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -548,7 +548,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 72ded13f00d3fb2d5c04f2d6221c8ddb9b29e900b530ee34b08b55f2025e4491
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c fe6952198f40ef149504d47738aa3e6a926429d7318c993be09165f661b05913
+F src/main.c b985f3a756dfea67c039d048daeb2352b8243096e2f7028d18ceefa067a4fbeb
 F src/main.mk 38ba6327698d7498e00a6d444fba9ace1cbc76b956a8a4b8d1f7ec2be3672d2d
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -624,7 +624,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c 0f11070d181ea70b7931711d82523da23f4d2a277ac72db409b8a6434512b67b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 33e87838de3736d9a5a1f5c08a3092e3a87a79b308398b7db2ffd4c8e1a6e782
+F src/style.c 8b690ea41036b6ef9d21caf518c2e30ed6d5d52e06b94224ce30fb680fccec43
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 5db49b424b371cab52cc481a0d5e04229721480f074fd8af2e20e6f982aeaebf
@@ -657,7 +657,7 @@ F src/wiki.c 475e9ec0828886b924fcb3fe4d7d403e369d75fe160d97845dd43ddba6543611
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c b116819935cb2cab1cf20e7b46e4bbef0e638c2a5df275650f1ab274b9a65791
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c fed9bcb8391dd7bd94a577f8b46776b84e1ff4bbb229d3769bf09ca3dc7aa683
+F src/winhttp.c bc01604ac077794c7f26a8fa483f9c511fdccccaf5e6ca9d71b5e9902798d621
 F src/xfer.c e8e28aed9fcd80f3d6b0d353610cbe47d8b5eb20205fbe534dae38b35de67e99
 F src/xfersetup.c 6ef44e93ea292bdf7fdaf695bb2c6c64131e81bd6ebb094e27dbb8b1ebe95a01
 F src/zip.c ff770acf2a8723e6730b6bd6c3b69071fa038a04cfcb0e041e1ca4a775938e8f
@@ -997,10 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd13191359cd7e84954e3d4b185236652651f33d5988c3c66ff04bbc64cf2dc6
-R f5c6c399925384daf6c16ee2da1027ee
-T *branch * mainmenu-override
-T *sym-mainmenu-override *
-T -sym-trunk *
+P bcca09106b2aa813fca1aa4691d6e06ec1b93ceb9376bd535beea7453da51bba
+R 5f94754dbbd4db067f611375d343a37c
 U stephan
-Z 889332e62bd6928638913f7779f2f076
+Z 5e0a1adb2f3af89ee4c48346432426c7

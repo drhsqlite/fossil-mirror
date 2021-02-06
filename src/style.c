@@ -622,27 +622,6 @@ const char *style_default_mainmenu(void){
 }
 
 /*
-** Main menu setting value overridden by the server/ui/cgi --mainmenu
-** CLI flag or the "mainmenu:" CGI wrapper script config option.
-*/
-static const char * zOverrideMainMenu = 0;
-/*
-** Sets the contents of the given filename (of type ExtFILE) to
-** override the "mainmenu" site config setting. Returns 0 on success,
-** non-0 if the file cannot be stat'd.
-*/
-int style_default_mainmenu_override(const char *zFilename){
-  if(file_size(zFilename, ExtFILE)<0){
-    return 1;
-  }else{
-    Blob content = empty_blob;
-    blob_read_from_file(&content, zFilename, ExtFILE);
-    zOverrideMainMenu = blob_str(&content);
-    return 0;
-  }
-}
-
-/*
 ** Given a URL path, extract the first element as a "feature" name,
 ** used as the <body class="FEATURE"> value by default, though
 ** later-running code may override this, typically to group multiple
@@ -676,6 +655,26 @@ void style_set_current_feature(const char* zFeature){
 }
 
 /*
+** Returns the current mainmenu value from either the --mainmenu flag
+** (handled by the server/ui/cgi commands), the "mainmenu" config
+** setting, or style_default_mainmenu(), in that order, returning the
+** first of those which is defined.
+*/
+const char*style_get_mainmenu(){
+  static const char *zMenu = 0;
+  if(!zMenu){
+    if(g.zMainMenuFile){
+      Blob b = empty_blob;
+      blob_read_from_file(&b, g.zMainMenuFile, ExtFILE);
+      zMenu = blob_str(&b);
+    }else{
+      zMenu = db_get("mainmenu", style_default_mainmenu());
+    }
+  }
+  return zMenu;
+}
+
+/*
 ** Initialize all the default TH1 variables
 */
 static void style_init_th1_vars(const char *zTitle){
@@ -705,9 +704,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
-  Th_Store("mainmenu", zOverrideMainMenu
-           ? zOverrideMainMenu
-           : db_get("mainmenu", style_default_mainmenu()));
+  Th_Store("mainmenu", style_get_mainmenu());
   url_var("stylesheet", "css", "style.css");
   image_url_var("logo");
   image_url_var("background");

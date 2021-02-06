@@ -212,6 +212,7 @@ struct Global {
   UrlData url;            /* Information about current URL */
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zCkoutAlias;   /* doc/ uses this branch as an alias for "ckout" */
+  const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
 #if defined(_WIN32) && USE_SEE
@@ -2346,8 +2347,8 @@ void cmd_cgi(void){
       ** "mainmenu" setting, overriding the contents (for this
       ** request) of the db-side setting or the hard-coded default.
       */
-      style_default_mainmenu_override(blob_str(&value));
-      blob_reset(&value);
+      g.zMainMenuFile = blob_str(&value);
+      value = empty_blob/*take over ownership*/;
       continue;
     }
     if( blob_eq(&key, "cgi-debug:") && blob_token(&line, &value) ){
@@ -2838,7 +2839,6 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
-  const char *zMainMenu = 0; /* --mainmenu option */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2887,11 +2887,9 @@ void cmd_webserver(void){
     flags |= HTTP_SERVER_LOCALHOST;
   }
   g.zCkoutAlias = find_option("ckout-alias",0,1);
-  zMainMenu = find_option("mainmenu",0,1);
-  if( zMainMenu!=0 ){
-    if(0!=style_default_mainmenu_override(zMainMenu)){
-      fossil_fatal("Cannot read --mainmenu file %s", zMainMenu);
-    }
+  g.zMainMenuFile = find_option("mainmenu",0,1);
+  if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
+    fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
   /* We should be done with options.. */
   verify_all_options();
