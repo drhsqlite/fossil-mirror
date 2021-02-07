@@ -290,7 +290,7 @@ void setup_notification(void){
 
   entry_attribute("Store Emails In This Database", 60, "email-send-db",
                    "esdb", "", 0);
-  @ <p>When the send method is "store in a databaes", each email message is
+  @ <p>When the send method is "store in a database", each email message is
   @ stored in an SQLite database file with the name given here.
   @ (Property: "email-send-db")</p>
 
