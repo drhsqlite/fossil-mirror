@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings\sin\sthe\sembedded\sSQLite.
-D 2021-02-07T13:08:13.600
+C Fix\sa\stypo\son\sthe\shomepage.
+D 2021-02-07T14:59:40.881
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -902,7 +902,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5bb0b31081dc00afe988c
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki f38926873e120a90e530812a5bad0b6ff1376dd58a026474a206a9478f2d0cb5
+F www/index.wiki 92df403b1e8aa10ac845a9b64f63563fa9d199c52cd07cc63bac73c87d8492f7
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 720c9bfe96e1c73901ad1260f1704968f634dd3250585944e61a7e59d4564d1f
@@ -997,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 391eb1cefb72a5126700396a1acb990af3e76937340db3b3523f7b6660acec5a
-R f89ad7f2f09b89c4e9b68874e24b1341
+P c577aae0a3d74d7ede3e2c86c81ee4549435933c02c227a1cab418fd99bdbc46
+R be403045bc43205c1ad9e63482d85436
 U drh
-Z ce56f78fe974e9191b6d95beb028000d
+Z aa8231ceca3e702a61c135a928127147

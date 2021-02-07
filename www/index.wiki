@@ -88,7 +88,7 @@ management system with these advanced features:
 
   *  [/uv/download.html|Download]
   *  [./changes.wiki#v2_14|Change Summary]
-  *  [/timeline?p=version-2.14&bt=version-2.13&y=ci|Check-ins in version 2.13]
+  *  [/timeline?p=version-2.14&bt=version-2.13&y=ci|Check-ins in version 2.14]
   *  [/timeline?df=version-2.14&y=ci|Check-ins derived from the 2.14 release]
   *  [/timeline?t=release|Timeline of all past releases]
 
