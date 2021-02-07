@@ -1,5 +1,5 @@
-C Add\s/opt/homebrew/opt/openssl\sto\sthe\slist\sof\sdirectories\schecked\sfor\nthe\sOpenSSL\slibrary\sby\sthe\sconfigure\sscript.\nSee\s[forum:/forumpost/9496e81a51|forum\spost\s9496e81a51].
-D 2021-02-06T23:35:11.530
+C /chat:\sadded\sclient-local\sday-of-week\sto\sthe\smessage\stime\sstrings.\sY-M-D\sseems\sawful\snoisy,\sper\schat\sroom\sconsensus,\sbut\swe\salso\shave\scode\sfor\sthat\sif\swe\sdecide\sotherwise.\sA\scouple\scode-adjacent\sinternal\scleanups.
+D 2021-02-07T09:56:41.715
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -453,7 +453,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c e928be6ba89dd578a468c414bc06517a47e92cfb116f80ccb23df71fc9cfc0c2
 F src/chat.c c46026d239fa921dcf80ceadf2ffd335176b201e49c73261f39747bdf0313662
-F src/chat.js dec74b08020230bd0f2bc0f81b0a2390532fd463a66687278dad5c8359f3bae9
+F src/chat.js beb5bf45ac957cbe9cadf96ac7f14c04ea316489af4f79ac1e7cc3567256d62b
 F src/checkin.c 33182219692b33f714a5a21641ee1de7820a6dd45b0cde7fe0e961e556e93a5c
 F src/checkout.c 5ad65b9d0a0fac559985b76e75c807ed830c07d25e44f5743bab55ada3e250ea
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -997,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 324154e8214cd4f23f48b7eae921e6b1ba00658b7f319fbedf477edb34031968
-R b44289474c20b81251b4a625261b1346
-U drh
-Z e33dda53b79f89ee152fff8f9cea8930
+P 17af40efffe0766f52f77c79989634730c3821c8bc56c987e313d06abe6ecd29
+R f0a824815694cbbd1a684af3fec40802
+U stephan
+Z 0e8bea0a7bf0d9f0f29b6c25837a55cb

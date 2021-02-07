@@ -586,10 +586,35 @@
         this.setMessage(arguments[0]);
       }
     };
+    /* Left-zero-pad a number to at least 2 digits */
+    const pad2 = (x)=>(''+x).length>1 ? x : '0'+x;
+    const dowMap = {
+      /* Map of Date.getDay() values to weekday names. */
+      0: "Sunday", 1: "Monday", 2: "Tuesday",
+      3: "Wednesday", 4: "Thursday", 5: "Friday",
+      6: "Saturday"
+    };
+    /* Given a Date, returns the timestamp string used in the
+       "tab" part of message widgets. */
     const theTime = function(d){
-      return [d.getHours(),":",
-              (d.getMinutes()+100).toString().slice(1,3)
-             ].join('');
+      return [
+        //d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
+        //'-',pad2(d.getDate()), ' ',
+        d.getHours(),":",
+        (d.getMinutes()+100).toString().slice(1,3),
+        ' ', dowMap[d.getDay()]
+      ].join('');
+    };
+    /** Returns the local time string of Date object d, defaulting
+        to the current time. */
+    const localTimeString = function ff(d){
+      d || (d = new Date());
+      return [
+        d.getFullYear(),'-',pad2(d.getMonth()+1/*sigh*/),
+        '-',pad2(d.getDate()),
+        ' ',pad2(d.getHours()),':',pad2(d.getMinutes()),
+        ':',pad2(d.getSeconds())
+      ].join('');
     };
     cf.prototype = {
       setLabel: function(label){
@@ -698,6 +723,11 @@
                            ).replace('T',' ')," ",xfrom," time"));
                 }
               }else{
+                /* This might not be necessary any more: it was
+                   initially caused by Safari being stricter than
+                   other browsers on its time string input, and that
+                   has since been resolved by emiting a stricter
+                   format. */
                 // Date doesn't work, so dumb it down...
                 D.append(this.e, D.append(D.span(), eMsg.dataset.timestamp," zulu"));
               }
@@ -893,21 +923,6 @@
     return false;
   });
 
-  /* Returns a new TEXT node with the given text content. */
-  /** Returns the local time string of Date object d, defaulting
-      to the current time. */
-  const localTimeString = function ff(d){
-    if(!ff.pad){
-      ff.pad = (x)=>(''+x).length>1 ? x : '0'+x;
-    }
-    d || (d = new Date());
-    return [
-      d.getFullYear(),'-',ff.pad(d.getMonth()+1/*sigh*/),
-      '-',ff.pad(d.getDate()),
-      ' ',ff.pad(d.getHours()),':',ff.pad(d.getMinutes()),
-      ':',ff.pad(d.getSeconds())
-    ].join('');
-  };
   /* Returns an almost-ISO8601 form of Date object d. */
   const iso8601ish = function(d){
     return d.toISOString()
