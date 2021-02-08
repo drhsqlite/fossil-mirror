@@ -1493,6 +1493,29 @@ void cgi_print_all(int showAll, unsigned int eDest){
 }
 
 /*
+** Put information about the N-th parameter into arguments.
+** Return non-zero on success, and return 0 if there is no N-th parameter.
+*/
+int cgi_param_info(
+  int N,
+  const char **pzName,
+  const char **pzValue,
+  int *pbIsQP
+){
+  if( N>=0 && N<nUsedQP ){
+    *pzName = aParamQP[N].zName;
+    *pzValue = aParamQP[N].zValue;
+    *pbIsQP = aParamQP[N].isQP;
+    return 1;
+  }else{
+    *pzName = 0;
+    *pzValue = 0;
+    *pbIsQP = 0;
+    return 0;
+  }
+}
+
+/*
 ** Export all untagged query parameters (but not cookies or environment
 ** variables) as hidden values of a form.
 */

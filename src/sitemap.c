@@ -223,34 +223,26 @@ void sitemap_page(void){
 
   if( !g.zLogin ){
     @ <li>%z(href("%R/login"))Login</a>
+    @ <ul>
     if( login_self_register_available(0) ){
-       @ <ul>
        @ <li>%z(href("%R/register"))Create a new account</a></li>
-       inSublist = 1;
     }
   }else {
     @ <li>%z(href("%R/logout"))Logout</a>
+    @ <ul>
     if( g.perm.Password ){
-      @ <ul>
       @ <li>%z(href("%R/logout"))Change Password</a></li>
-      inSublist = 1;
     }
   }
   if( alert_enabled() && g.perm.EmailAlert ){
-    if( !inSublist ){
-      inSublist = 1;
-      @ <ul>
-    }
     if( login_is_individual() ){
       @ <li>%z(href("%R/alerts"))Email Alerts</a></li>
     }else{
       @ <li>%z(href("%R/subscribe"))Subscribe to Email Alerts</a></li>
     }
   }
-  if( inSublist ){
-    @ </ul>
-    inSublist = 0;
-  }
+  @ <li>%z(href("%R/cookies"))Cookies</a></li>
+  @ </ul>
   @ </li>
 
   if( g.perm.Read ){
