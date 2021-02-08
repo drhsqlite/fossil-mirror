@@ -185,6 +185,7 @@ struct Global {
   char *zBaseURL;         /* Full text of the URL being served */
   char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
+  int nExtraURL;          /* Extra bytes added to SCRIPT_NAME */
   const char *zExtRoot;   /* Document root for the /ext sub-website */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
@@ -1384,17 +1385,23 @@ void set_base_url(const char *zAltBase){
     }
   }
   if( db_is_writeable("repository") ){
+    int nBase = (int)strlen(g.zBaseURL);
+    char *zBase = g.zBaseURL;
+    if( g.nExtraURL>0 && g.nExtraURL<nBase-6 ){
+      zBase = fossil_strndup(g.zBaseURL, nBase - g.nExtraURL);
+    }
     db_unprotect(PROTECT_CONFIG);
-    if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", g.zBaseURL)){
+    if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", zBase)){
       db_multi_exec("INSERT INTO config(name,value,mtime)"
-                    "VALUES('baseurl:%q',1,now())", g.zBaseURL);
+                    "VALUES('baseurl:%q',1,now())", zBase);
     }else{
       db_optional_sql("repository",
            "REPLACE INTO config(name,value,mtime)"
-           "VALUES('baseurl:%q',1,now())", g.zBaseURL
+           "VALUES('baseurl:%q',1,now())", zBase
       );
     }
     db_protect_pop();
+    if( zBase!=g.zBaseURL ) fossil_free(zBase);
   }
 }
 
@@ -1820,6 +1827,7 @@ static void process_one_web_page(
     if( g.zTop ) g.zTop = mprintf("%R/draft%d", iSkin);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
     zPathInfo += 7;
+    g.nExtraURL += 7;
     cgi_replace_parameter("PATH_INFO", zPathInfo);
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     etag_cancel();
@@ -1840,6 +1848,7 @@ static void process_one_web_page(
       if( g.zTop ) g.zTop = mprintf("%R/skn_%s", zAlt);
       if( g.zBaseURL ) g.zBaseURL = mprintf("%s/skn_%s", g.zBaseURL, zAlt);
       zPathInfo += i;
+      g.nExtraURL += i;
       cgi_replace_parameter("PATH_INFO", zPathInfo);
       cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     }
