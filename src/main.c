@@ -2050,7 +2050,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
   const char *zName = P("name");
   set_base_url(0);
   if( zName==0 ){
-    zName = P("SCRIPT_NAME");
+    zName = P("PATH_INFO");
     if( zName && zName[0]=='/' ) zName++;
   }
   if( zName && validate16(zName, strlen(zName)) ){

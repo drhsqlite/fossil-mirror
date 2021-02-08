@@ -1,5 +1,5 @@
-C When\saccessing\susing\s/draftN\sor\s/skn_X\sURL\sextensions,\somit\sthose\sextensions\nfrom\sthe\szBaseURL\sthat\sis\srecorded\sin\sthe\sconfig\stable.
-D 2021-02-08T18:51:56.340
+C Fix\sthe\s"redirect:\s*\sURL"\smechanism\sof\sCGI\sscripts.
+D 2021-02-08T21:02:54.109
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -548,7 +548,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 72ded13f00d3fb2d5c04f2d6221c8ddb9b29e900b530ee34b08b55f2025e4491
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c a3e42bc5617d9680ed19a13322ae000a0027fed8b241002ec41116d064624ef3
+F src/main.c 680e075e757e018a1a10639ba0540a907cd6c755a32e1d61df7e0f199c401457
 F src/main.mk 38ba6327698d7498e00a6d444fba9ace1cbc76b956a8a4b8d1f7ec2be3672d2d
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -997,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b00defa9d7dd323c98d82d126b9dd03dcedb15b72ba30c2d8394e7baf4a5396
-R 97b151bb5f3d9f3e638bda3745fb716d
+P acb4397ee5d5dabde81c5782436ab59ee184ec4dca5ebb50c5ba8199cdf41b54
+R 8baa073ae6fd0a7ddf7ebd3affb563fb
 U drh
-Z e0e90ceb74110d4bb60ad72f96362f5b
+Z ce681fc9ba63d4904cf75b111c1173fb
