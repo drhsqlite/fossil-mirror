@@ -1,5 +1,5 @@
-C Fix\sa\stypo\son\sthe\shomepage.
-D 2021-02-07T14:59:40.881
+C Added\s"contact"\sto\sthe\slist\sof\ssub-commands\sin\s"fossil\suser"\sshort\shelp\noutput.\s\s(It\swas\sonly\sdescribed\sin\sthe\sfull\shelp.)
+D 2021-02-08T06:54:27.851
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -646,7 +646,7 @@ F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c fd8f97057987f278e99f44638b7f1c1a361907a372ab71065b45cbb9810133b0
 F src/update.c d1daa93931016fb64026b8a9674a7292ff1f0887805788017ed32a4a15b08990
 F src/url.c 09059182407bf8881845e5b41383a2813676dd0aafa5fdfb67962ea6c20119b7
-F src/user.c 8cf1f359475f07c43b3ce5374effc82a8b63d512aa4279452d8b42be7fe48067
+F src/user.c b81921dfc089d121700e92f2b18f59be3d91f35da88a5b075d49da155221c91b
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c 0ab500757ee25f4eafe3eb2c0de45a6e5bb0793eaa95526aac75e6682a8eccd1
@@ -997,7 +997,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c577aae0a3d74d7ede3e2c86c81ee4549435933c02c227a1cab418fd99bdbc46
-R be403045bc43205c1ad9e63482d85436
-U drh
-Z aa8231ceca3e702a61c135a928127147
+P eb1a722f4e981b88ba4c266ae66ac3b930adcb37a6bb0e721ea0e398cf37124d
+R bde2c7b1ee6c45ba3f3e39dc40aeaa29
+U wyoung
+Z cf4cd7ec056cbb65494d1e4d8d8cdf72
