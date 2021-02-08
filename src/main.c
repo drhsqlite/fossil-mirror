@@ -2053,19 +2053,20 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
     zName = P("PATH_INFO");
     if( zName && zName[0]=='/' ) zName++;
   }
-  if( zName && validate16(zName, strlen(zName)) ){
+  if( zName ){
     for(i=0; i<nRedirect; i++){
       if( fossil_strcmp(azRedirect[i*2],"*")==0 ){
         zNotFound = azRedirect[i*2+1];
         continue;
+      }else if( validate16(zName, strlen(zName)) ){
+        db_open_repository(azRedirect[i*2]);
+        if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
+            db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'",zName) ){
+          cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
+          return;
+        }
+        db_close(1);
       }
-      db_open_repository(azRedirect[i*2]);
-      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
-          db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
-        cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
-        return;
-      }
-      db_close(1);
     }
   }
   if( zNotFound ){
