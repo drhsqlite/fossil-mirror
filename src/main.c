@@ -2033,16 +2033,43 @@ static void process_one_web_page(
 **    redirect:  repository-filename  http://hostname/path/%s
 **
 ** then control jumps here.  Search each repository for an artifact ID
-** or ticket ID that matches the "name" CGI parameter and for the
-** first match, redirect to the corresponding URL with the "name" CGI
-** parameter inserted.  Paint an error page if no match is found.
+** or ticket ID that matches the "name" query parameter.  If there is
+** no "name" query parameter, use PATH_INFO instead.  If a match is
+** found, redirect to the corresponding URL.  Substitute "%s" in the
+** URL with the value of the name query parameter before the redirect.
 **
 ** If there is a line of the form:
 **
 **    redirect: * URL
 **
-** Then a redirect is made to URL if no match is found.  Otherwise a
-** very primitive error message is returned.
+** Then a redirect is made to URL if no match is found.  If URL contains
+** "%s" then substitute the "name" query parameter.  If REPO is "*" and
+** URL does not contains "%s" and does not contain "?" then append
+** PATH_INFO and QUERY_STRING to the URL prior to the redirect.
+**
+** If no matches are found and if there is no "*" entry, then generate
+** a primitive error message.
+**
+** USE CASES:
+**
+** (1)  Suppose you have two related projects projA and projB.  You can
+**      use this feature to set up an /info page that covers both
+**      projects.
+**
+**          redirect: /fossils/projA.fossil /proj-a/info/%s
+**          redirect: /fossils/projB.fossil /proj-b/info/%s
+**
+**      Then visits to the /info/HASH page will redirect to the
+**      first project that contains that hash.
+**
+** (2)  Use the "*" form for to redirect legacy URLs.  On the Fossil
+**      website we have an CGI at http://fossil.com/index.html (note
+**      ".com" instead of ".org") that looks like this:
+**
+**          #!/usr/bin/fossil
+**          redirect: * https://fossil-scm.org/home
+**
+**      Thus requests to the .com website redirect to the .org website.
 */
 static void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
@@ -2070,7 +2097,20 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
     }
   }
   if( zNotFound ){
-    cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
+    Blob to;
+    const char *z;
+    if( strstr(zNotFound, "%s") ){
+      cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
+    }
+    if( strchr(zNotFound, '?') ){
+      cgi_redirect(zNotFound);
+    }
+    blob_init(&to, zNotFound, -1);
+    z = P("PATH_INFO");
+    if( z && z[0]=='/' ) blob_append(&to, z, -1);
+    z = P("QUERY_STRING");
+    if( z && z[0]!=0 ) blob_appendf(&to, "?%s", z);
+    cgi_redirect(blob_str(&to));
   }else{
     @ <html>
     @ <head><title>No Such Object</title></head>
