@@ -1369,20 +1369,29 @@ void set_base_url(const char *zAltBase){
     }
     if( g.zTop[1]==0 ) g.zTop++;
   }else{
+    char *z;
     zHost = PD("HTTP_HOST","");
+    z = fossil_strdup(zHost);
+    for(i=0; z[i]; i++){
+      if( z[i]<='Z' && z[i]>='A' ) z[i] += 'a' - 'A';
+    }
+    if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
+    if( i && z[i-1]=='.' ) i--;
+    z[i] = 0;
     zMode = PD("HTTPS","off");
     zCur = PD("SCRIPT_NAME","/");
     i = strlen(zCur);
     while( i>0 && zCur[i-1]=='/' ) i--;
     if( fossil_stricmp(zMode,"on")==0 ){
-      g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
-      g.zTop = &g.zBaseURL[8+strlen(zHost)];
+      g.zBaseURL = mprintf("https://%s%.*s", z, i, zCur);
+      g.zTop = &g.zBaseURL[8+strlen(z)];
       g.zHttpsURL = g.zBaseURL;
     }else{
-      g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
-      g.zTop = &g.zBaseURL[7+strlen(zHost)];
-      g.zHttpsURL = mprintf("https://%s%.*s", zHost, i, zCur);
+      g.zBaseURL = mprintf("http://%s%.*s", z, i, zCur);
+      g.zTop = &g.zBaseURL[7+strlen(z)];
+      g.zHttpsURL = mprintf("https://%s%.*s", z, i, zCur);
     }
+    fossil_free(z);
   }
   if( db_is_writeable("repository") ){
     int nBase = (int)strlen(g.zBaseURL);
