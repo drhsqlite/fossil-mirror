@@ -8,7 +8,7 @@ and painlessly.</p>
 
 <p>Fossil is a single self-contained C program.  You need to
 either download a
-[https://www.fossil-scm.org/fossil/uv/download.html|precompiled
+[https://fossil-scm.org/home/uv/download.html|precompiled
 binary]
 or <a href="build.wiki">compile it yourself</a> from sources.
 Install Fossil by putting the fossil binary
@@ -77,7 +77,7 @@ filename into which the cloned repository will be written.  For
 example, to clone the source code of Fossil itself:
 
 <blockquote>
-<b>fossil clone https://www.fossil-scm.org/ myclone.fossil</b>
+<b>fossil clone https://fossil-scm.org/ myclone.fossil</b>
 </blockquote>
 
 If your logged-in username is 'exampleuser', you should see output something like this:

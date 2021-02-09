@@ -1220,9 +1220,9 @@ static const char *wiki_is_overridden(const char *zTarget){
 ** on current rendering rules: specifically does the current user have
 ** "History" permission.
 **
-**    [http://www.fossil-scm.org/]
-**    [https://www.fossil-scm.org/]
-**    [ftp://www.fossil-scm.org/]
+**    [http://fossil-scm.org/]
+**    [https://fossil-scm.org/]
+**    [ftp://fossil-scm.org/]
 **    [mailto:fossil-users@lists.fossil-scm.org]
 **
 **    [/path]        ->  Refers to the root of the Fossil hierarchy, not

@@ -11,7 +11,7 @@ version of each unversioned file is retained and older versions are discarded.
 
 Unversioned files are useful for storing ephemeral content such as builds
 or frequently changing web pages.
-The [https://www.fossil-scm.org/fossil/uv/download.html|download] page of
+The [https://fossil-scm.org/home/uv/download.html|download] page of
 the self-hosting Fossil repository is stored as unversioned
 content, for example.
 

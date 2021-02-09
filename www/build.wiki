@@ -33,7 +33,7 @@ fossil are available from the [/uv/download.html|downloads page].
 To obtain a development version of fossil, follow these steps:</p>
 
 <ol>
-<li><p>Point your web browser to [https://www.fossil-scm.org/]</li>
+<li><p>Point your web browser to [https://fossil-scm.org/]</li>
 
 <li><p>Click on the [/timeline|Timeline]
 link at the top of the page.</p></li>
@@ -53,7 +53,7 @@ the Fossil source code?</h2>
 
 Yes!  Any check-in on the
 [/timeline?t=trunk | trunk branch] of the Fossil
-[http://fossil-scm.org/fossil/timeline | Fossil self-hosting repository]
+[http://fossil-scm.org/home/timeline | Fossil self-hosting repository]
 will work fine.  (Dodgy code is always on a branch.)  In the unlikely
 event that you pick a version with a serious bug, it still won't
 clobber your files.  Fossil uses several
@@ -61,7 +61,7 @@ clobber your files.  Fossil uses several
 repository change that prevent loss-of-work due to bugs.
 
 The Fossil [./selfhost.wiki | self-hosting repositories], especially
-the one at [http://www.fossil-scm.org/fossil], usually run a version
+the one at [http://fossil-scm.org/home], usually run a version
 of trunk that is less than a week or two old.  Look at the bottom
 left-hand corner of this screen (to the right of "This page was
 generated in...") to see exactly which version of Fossil is
@@ -151,7 +151,7 @@ not applicable on Windows may cause the configuration or compilation to fail
 
 <i>HINT</i>: Do <u>not</u> use MinGW-4.x, it may compile but the Fossil binary
 will not work correctly, see
-[https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c | ticket].
+[https://fossil-scm.org/home/tktview/18cff45a4e210430e24c | ticket].
 
 <li><p><i>MSVC</i> → Use the MSVC makefile.  First
 change to the "win/" subdirectory ("<b>cd win</b>") then run
@@ -260,7 +260,7 @@ RUN     apk update                                                              
         openssl-libs-static zlib-static                                                                 \
                                                                                                         \
         && curl                                                                                         \
-        "https://www.fossil-scm.org/index.html/tarball/fossil-src.tar.gz?name=fossil-src&uuid=trunk"    \
+        "https://fossil-scm.org/home/tarball/fossil-src.tar.gz?name=fossil-src&uuid=trunk"    \
         -o fossil-src.tar.gz                                                                            \
                                                                                                         \
         && tar xf fossil-src.tar.gz                                                                     \

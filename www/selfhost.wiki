@@ -3,7 +3,7 @@
 Fossil has self-hosted since 2007-07-21.  As of 2017-07-25
 there are three publicly accessible repositories for the Fossil source code:
 
-  1.  [https://www.fossil-scm.org/]
+  1.  [https://fossil-scm.org/]
   2.  [https://www2.fossil-scm.org/]
   3.  [https://www3.fossil-scm.org/site.cgi]
 

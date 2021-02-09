@@ -334,7 +334,7 @@ uses JavaScript where
 necessary]. The server-side
 UI scripting uses a custom minimal
 [https://en.wikipedia.org/wiki/Tcl|Tcl] dialect called
-[https://www.fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
+[https://fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
 embedded into Fossil itself. Fossil's build system and test suite are
 largely based on Tcl.⁵ All of this is quite portable.
 
@@ -946,7 +946,7 @@ for years now, so that the solution is now almost universally deployed.
     several parts, so that it is not strictly true that "everything" on
     it is in the self-hosting Fossil project repo. The web forum is
     hosted as [https://fossil-scm.org/forum/|a separate Fossil repo]
-    from the [https://fossil-scm.org/fossil/|main Fossil self-hosting
+    from the [https://fossil-scm.org/home/|main Fossil self-hosting
     repo] for administration reasons, and the Download page content
     isn't normally synchronized with a "<tt>fossil clone</tt>" command unless
     you add the "-u" option.  (See "[./aboutdownload.wiki|How the

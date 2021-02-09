@@ -448,13 +448,13 @@ accidental push.
 [capx]: ./ref.html#x
 [capy]: ./ref.html#y
 
-[fcp]:   https://fossil-scm.org/fossil/help?cmd=configuration
+[fcp]:   https://fossil-scm.org/home/help?cmd=configuration
 [fdp]:   ../fossil-v-git.wiki#devorg
 [forum]: https://fossil-scm.org/forum/
 [fui]:   /help?cmd=ui
 [lg]:    ./login-groups.md
-[rs]:    https://www.fossil-scm.org/index.html/doc/trunk/www/settings.wiki
-[sia]:   https://fossil-scm.org/fossil/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
+[rs]:    https://fossil-scm.org/home/doc/trunk/www/settings.wiki
+[sia]:   https://fossil-scm.org/home/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
 [snoy]:  https://fossil-scm.org/forum/forumpost/00e1c4ecff
 [th1]:   ../th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security

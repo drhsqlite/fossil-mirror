@@ -5,7 +5,7 @@
 The build process for Fossil is tricky in that the source code
 needs to be processed by three different preprocessor programs
 before it is compiled.  Most users will download a
-[https://www.fossil-scm.org/fossil/uv/download.html | precompiled binary]
+[https://fossil-scm.org/home/uv/download.html | precompiled binary]
 so this is of no consequence to them, and even those who
 want to compile the code themselves can use one of the
 [./build.wiki | existing makefiles].

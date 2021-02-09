@@ -159,7 +159,7 @@
      tickets and wiki.  The admin can adjust this behavior using
      the [/help?cmd=safe-html|safe-html setting] on the Admin/Wiki page.
      The default is to disallow unsafe HTML everywhere.
-     [https://www.fossil-scm.org/forum/forumpost/3714e6568f|Example].
+     [https://fossil-scm.org/forum/forumpost/3714e6568f|Example].
   *  Added the "collapse" and "expand" capability for long forum posts.
      [https://fossil-scm.org/forum/forumpost/9297029862|Example]
   *  The "[/help?cmd=remote-url|fossil remote]" command now has options for
@@ -406,7 +406,7 @@
   *  Use new "ci-lock" and "ci-lock-failed" pragmas in the
      [./sync.wiki|sync protocol] to try to prevent accident forks
      caused by concurrent commits when operating in auto-sync mode.
-  *  Fix a bug ([https://www.fossil-scm.org/forum/forumpost/c51b9a1169|details])
+  *  Fix a bug ([https://fossil-scm.org/forum/forumpost/c51b9a1169|details])
      that can cause repository databases to be overwritten with debugging
      output, thus corrupting the repository. This is only a factor when
      CGI debugging is enabled, and even then is a rare occurrence, but it is

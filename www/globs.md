@@ -580,8 +580,8 @@ The implementation of the Fossil-specific glob pattern handling is here:
 [`src/glob.c`][] | pattern list loading, parsing, and generic matching code
 [`src/file.c`][] | application of glob patterns to file names
 
-[`src/glob.c`]: https://www.fossil-scm.org/index.html/file/src/glob.c
-[`src/file.c`]: https://www.fossil-scm.org/index.html/file/src/file.c
+[`src/glob.c`]: https://fossil-scm.org/home/file/src/glob.c
+[`src/file.c`]: https://fossil-scm.org/home/file/src/file.c
 
 See the [Adding Features to Fossil][aff] document for broader details
 about finding and working with such code.

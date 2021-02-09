@@ -246,7 +246,7 @@ void ssl_disable_cert_verification(void){
 ** Open an SSL connection.  The identify of the server is determined
 ** as follows:
 **
-**    pUrlData->name  Name of the server.  Ex: www.fossil-scm.org
+**    pUrlData->name  Name of the server.  Ex: fossil-scm.org
 **    g.url.name      Name of the proxy server, if proxying.
 **    pUrlData->port  TCP/IP port to use.  Ex: 80
 **
