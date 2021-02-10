@@ -558,3 +558,16 @@ body.forum .forumPostBody > div blockquote {
     border: 1px inset;
     padding: 0 0.5em;
 }
+
+@media screen and (max-width: 600px) {
+  /* Spacing for mobile */
+  .desktoponly {
+    display: none;
+  }
+}
+@media screen and (max-width: 1200px) {
+  /* Special declarations for narrow desktop or wide mobile */
+  .wideonly {
+    display: none;
+  }
+}

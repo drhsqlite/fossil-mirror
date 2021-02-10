@@ -1406,3 +1406,13 @@ div.forumSel {
   background-color: #330;
   border: 2px solid #aa0;
 }
+
+.capsumOff {
+  background-color: #222;
+}
+.capsumRead {
+  background-color: #262;
+}
+.capsumWrite {
+  background-color: #662;
+}

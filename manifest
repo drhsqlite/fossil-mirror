@@ -1,5 +1,5 @@
-C Make\sthe\stimeline-default-length\ssetting\saccessible\son\sthe\stimeline\nconfiguration\spage.\s\sMake\sit\sdefault\sto\s50,\snot\s10.
-D 2021-02-10T12:02:03.097
+C ardoise\sskin:\supdated\ssecurity\saudit\stable\scolors.\sdarkmode\sskin:\sadded\s.wideonly/.desktoponly.
+D 2021-02-10T12:15:41.664
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -328,7 +328,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 14bd1403c4f17758758dfffc95e5928bccb7843ecc540e0652c67052b6a781b4
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 5201b1490a8e01e8f995abecd3b583239d58dd4c4af7c4463549a7369d35ed23
+F skins/ardoise/css.txt 072e528d311f1b5b697b52e63c3189d6af801a739fd1a73fa14d2bad073e2791
 F skins/ardoise/details.txt 576a91d4d8455fed2d25b3e06b020c000c37a61ac1d166f93697fb6e9d5a1e22
 F skins/ardoise/footer.txt 3158faf0fe96034417cac8a4e210aaa2d79094cf108db8a7546c6be4ba037e22
 F skins/ardoise/header.txt acba19844b82db1a6e6bd41459cb213a56ea0549d47a6cd8d5fd913994cdfc4f
@@ -392,7 +392,7 @@ F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2a
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt a791a51af61a1e33b22fed43deb50ab14142a5918de98e117fc33bf6820c98d5
-F skins/darkmode/css.txt 93d10aa392bd547888bc5f7964bb6c1176f6024a814745cdc2b4beb8b3931aef
+F skins/darkmode/css.txt 7bff30c42a41f81295b46f609f843378081e3a7576757f8a8e8802be995482c0
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt 7d2d3ed4b1673ade1392bfe4d0daab722bbb135b23ab82789ad30f913dab6c72
@@ -1001,7 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb8af11bf3054a49a4435777ad1b8f962bfead32fde521ee208080c353c986bf
-R aeddc7d81de7c2584feed1906f1ca933
-U drh
-Z 96ded71316a8ce3cc49606a316c22c13
+P 8efc4d548cd990bef4f0322a4c183fe9c0eaeeccf01641cce86dd4d65a6a7ac7
+R 1ed7efc41697ba8a97c138d7390af7b1
+U stephan
+Z 5905125a712c9c95e1d4636f2f4457af
