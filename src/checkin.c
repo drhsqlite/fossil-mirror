@@ -2806,7 +2806,7 @@ void commit_cmd(void){
   db_multi_exec("PRAGMA localdb.application_id=252006674;");
   if( dryRunFlag ){
     db_end_transaction(1);
-    exit(1);
+    return;
   }
   db_end_transaction(0);
 
