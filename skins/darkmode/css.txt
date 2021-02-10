@@ -475,9 +475,20 @@ span.snippet>mark {
   color: white;
   font-weight: bold;
 }
-input {
-  background-color: #c0c0c0;
+input, textarea {
+  background-color: #c8c8c8;
+  color: black;
 }
+.capsumOff {
+  background-color: #222;
+}
+.capsumRead {
+  background-color: #262;
+}
+.capsumWrite {
+  background-color: #662;
+}
+
 body.forum div.forumSel {
     background: inherit;
     border-left-width: 0.5em;
