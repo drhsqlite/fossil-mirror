@@ -287,7 +287,21 @@ Examples:
   capexpr {oh}                  True if both o and h are available
   capexpr {@2 @3 4 5 6}         2 or 3 available for anonymous or one of
                                   4, 5 or 6 is available for the user
+  capexpr L                     True if the user is logged in
+  capexpr !L                    True if the user is not logged in
 ```
+
+The `L` pseudo-capability is intended only to be used on its own or with
+the `!` prefix for implementing login/logout menus via the `mainmenu`
+site configuration option:
+
+```
+Login     /login        !L  {}
+Logout    /logout        L  {}
+```
+
+i.e. if the user is logged in, show the "Logout" link, else show the
+"Login" link.
 
 <a id="captureTh1"></a>TH1 captureTh1 Command
 -----------------------------------------------------

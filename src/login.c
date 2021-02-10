@@ -1332,6 +1332,9 @@ void login_replace_capabilities(const char *zCap, unsigned flags){
 ** If the current login lacks any of the capabilities listed in
 ** the input, then return 0.  If all capabilities are present, then
 ** return 1.
+**
+** As a special case, the 'L' pseudo-capability ID means "is logged
+** in" and will return true for any non-guest user.
 */
 int login_has_capability(const char *zCap, int nCap, u32 flgs){
   int i;
@@ -1375,6 +1378,10 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case 'A':  rc = p->Announce;  break;
       case 'C':  rc = p->Chat;      break;
       case 'D':  rc = p->Debug;     break;
+      case 'L':  rc = g.zLogin && *g.zLogin; break;
+      /* Mainenance reminder: '@' should not be used because
+         it would semantically collide with the @ in the
+         capexpr TH1 command. */
       default:   rc = 0;            break;
     }
   }

@@ -19,9 +19,4 @@ foreach {name url expr class} $mainmenu {
   if {[string match /* $url]} {set url $home$url}
   html "<a href='$url'>$name</a><br/>\n"
 }
-if {[info exists login]} {
-  html "<a href='$home/login'>Logout</a>\n"
-} else {
-  html "<a href='$home/login'>Login</a>\n"
-}
 </th1></div>
