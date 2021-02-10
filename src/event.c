@@ -273,13 +273,13 @@ int event_commit_common(
   zETime[10] = 'T';
   blob_appendf(&event, "E %s %s\n", zETime, zId);
   zETime[10] = ' ';
+  if( zMimetype && zMimetype[0] ){
+    blob_appendf(&event, "N %s\n", zMimetype);
+  }
   if( rid ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_appendf(&event, "P %s\n", zUuid);
     free(zUuid);
-  }
-  if( zMimetype && zMimetype[0] ){
-    blob_appendf(&event, "N %s\n", zMimetype);
   }
   if( zClr && zClr[0] ){
     blob_appendf(&event, "T +bgcolor * %F\n", zClr);
