@@ -189,6 +189,10 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/bootstrap/details.txt \
   $(SRCDIR)/../skins/bootstrap/footer.txt \
   $(SRCDIR)/../skins/bootstrap/header.txt \
+  $(SRCDIR)/../skins/darkmode/css.txt \
+  $(SRCDIR)/../skins/darkmode/details.txt \
+  $(SRCDIR)/../skins/darkmode/footer.txt \
+  $(SRCDIR)/../skins/darkmode/header.txt \
   $(SRCDIR)/../skins/default/css.txt \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
