@@ -1,5 +1,5 @@
-C Zero\sreturn\scode\son\sa\s"fossil\scommit\s--dry-run".\s\sPer\n[forum:/forumpost/74dfbfaf3e|request]\son\sthe\sforum.
-D 2021-02-10T13:51:33.418
+C Show\sthe\slogin\sname\son\s/sitemap\sfor\slogged\sin\susers.
+D 2021-02-10T14:00:30.282
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -598,7 +598,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
 F src/shell.c 6f4ddcf3c29ec1e1df4b0a95c5478ad6829b6dc31d8cbb031766e818e1f0788f
 F src/shun.c 011890daac7837ded87804ce576cfae317a72f447aaba5eb0e460e066e4465ff
-F src/sitemap.c 5ebcc79bdb792b418467fbd9273b0156be7ee19bb5af15caedbd8a587e6c815a
+F src/sitemap.c ed5df0a82bf59f7835bc2bdf031e845c35e35aa8228f92b5f0465cda7c73cc07
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c cee525763d8cfbca216184b3337ffa22ffb490d7657964068b9c44dfc55f8cc2
 F src/smtp.c a0abde298e1ce1bea5cc9cebffad973adce8a7647bcac3b8530b60fd2529f77c
@@ -1001,7 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d8e5eeba5701bb58e30d71f9412c9969af59dbfbec67686c5748fe30804083a
-R a52d63496c729ac62e67bb6ed5e547ed
+P 661bd949203c8922fa5c4c573e5547dddbdef1c2bcd9cbd11e3dc3206b77428f
+R 9153093a60766bcc4bd37dc95f2434e8
 U drh
-Z f59e52d5fcde72bbff1ee8f29e7decb3
+Z f7bf89057e9f110426eb696ebd5fc67d

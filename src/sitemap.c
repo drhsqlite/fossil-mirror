@@ -228,15 +228,15 @@ void sitemap_page(void){
        @ <li>%z(href("%R/register"))Create a new account</a></li>
     }
   }else {
-    @ <li>%z(href("%R/logout"))Logout</a>
+    @ <li>%z(href("%R/logout"))Logout from %h(g.zLogin)</a>
     @ <ul>
     if( g.perm.Password ){
-      @ <li>%z(href("%R/logout"))Change Password</a></li>
+      @ <li>%z(href("%R/logout"))Change Password for %h(g.zLogin)</a></li>
     }
   }
   if( alert_enabled() && g.perm.EmailAlert ){
     if( login_is_individual() ){
-      @ <li>%z(href("%R/alerts"))Email Alerts</a></li>
+      @ <li>%z(href("%R/alerts"))Email Alerts for %h(g.zLogin)</a></li>
     }else{
       @ <li>%z(href("%R/subscribe"))Subscribe to Email Alerts</a></li>
     }
