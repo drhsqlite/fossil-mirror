@@ -1,5 +1,5 @@
-C This\sseems\sto\sfix\sthe\smissing\sis-sorted\scheck\sin\smanifest_parse(),\sbut\s(A)\sit\sneeds\smore\stesting\sand\s(B)\scould\suse\sa\sbetter\serror\smessage\sthan\sthe\sone\sit\sends\sup\sgenerating.
-D 2021-02-10T22:13:51.064
+C Modify\sthe\sout-of-order\scard\sdetection\sin\sthe\sstructural\sartifact\sparser\nto\sallow\sN\sand\sP\scards\sof\sa\stechnote\sto\sbe\sin\sthe\swrong\sorder.\n[15d04de574383d61|Ticket\s15d04de574383d61].
+D 2021-02-10T23:34:09.068
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -557,7 +557,7 @@ F src/main.mk e458344115032b37e46658422bcd8c3a5950e0f2eaecff75a490af7a7dc0f682
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl 3fb0c2cc180ed96dc6c25346d44435f1c9d824b02dd765c0cdbe00d086726b56 x
-F src/manifest.c 9713ebd8e2456a642bcb1d4500fd416c4d2a795150c953ca8abcb48eda5b661e
+F src/manifest.c cbfef39a5d33ec3ef20a1788f31b7eab5d23bb5e120c9827aa581ea6c4d04835
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
@@ -878,7 +878,7 @@ F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f5
 F www/faq.tcl 4f8e2899730d4203e177c52c3bc3ca0230eadb1e108fa79f4154cf46dce9ae06
 F www/faq.wiki a1b6ad89f5b12102c2a52c4bed5168ea5a932a10811c3c824b1ff048c996146d
 F www/fileedit-page.md f485d94319b5577a42d2b873a39e4bb17f748bde81c3d733d29df913f5a235ac
-F www/fileformat.wiki 13210325a6bd101b0f92cc6207eb7b3662f406483a255571d61e07a082cfc845
+F www/fileformat.wiki 528555e1c75afe126af7cfd1b001262feabd0da721beed3f3630682f68daf8d0
 F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c29cb4b3
 F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d7
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
@@ -1001,10 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1cd6c545ca3a9c628a056df5f30c8a48818f9b341613c3f52ae25d222ad99795
-R 9c4bc8df8d1007fbf1a1452aaf7d9062
-T *branch * manifest-sort-check
-T *sym-manifest-sort-check *
-T -sym-trunk *
-U stephan
-Z fac4d9401cba16b56225290b2434934b
+P 2e7a0aacdb1ff31e1744665b4219ee1b8598ea7c8d279490c843e631bd1a95c1
+R 3954269d7b126990b321432e62715740
+U drh
+Z c5cf371c5892ec813264696984b40c16

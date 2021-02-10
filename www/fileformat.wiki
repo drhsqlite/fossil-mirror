@@ -88,7 +88,9 @@ and from the card-type character by a single space
 character.  There is no surplus white space between arguments
 and no leading or trailing whitespace except for the newline
 character that acts as the card separator.  All cards must be in strict
-lexicographical order.  There may not be any duplicate cards.
+lexicographical order (except for an
+[./fileformat.wiki#outofordercards|historical bug compatibility]).
+There may not be any duplicate cards.
 
 In the current implementation (as of 2017-02-27) the artifacts that
 make up a fossil repository are stored as delta- and zlib-compressed
@@ -875,7 +877,46 @@ or more such cards are required.
 This section contains additional information which may be useful when
 implementing algorithms described above.
 
-<h3>4.1 R-Card Hash Calculation</h3>
+<a name="outofordercards"></a>
+<h3>4.1 Relaxed Card Ordering Due To An Historical Bug</h3>
+
+All cards of a structural artifact should be in lexicographical order.
+The Fossil implementation verifies this and rejects any structural
+artifact which has out-of-order cards.  Futhermore, when Fossil is
+generating new structural artifacts, it runs the generated artifact
+through the parser to confirm that all cards really are in the correct
+order before committing the transaction.  In this way, Fossil prevents
+bugs in the code from accidentally inserting misformatted artifacts.
+The test parse of newly created artifacts is part of the
+[./selfcheck.wiki|self-check strategy] of Fossil.  It takes a
+few more CPU cycles to double check each artifact before inserting it.
+The developers consider those CPU cycles well-spent.
+
+However, the card-order safety check was accidentally disabled due to
+[15d04de574383d61|a bug].
+And while that bug was lurking undetected in the code,
+[5e67a7f4041a36ad|another bug] caused the N cards of Technical Notes
+to occur after the P card rather than before.
+Thus for a span of several years, Technical Note artifacts were being
+inserted into Fossil repositories that had their N and P cards in the
+wrong order.
+
+Both bugs have now been fixed.  However, to prevent historical
+Technical Note artifacts that were inserted by users in good faith
+from being rejected by newer Fossil builds, the card ordering
+requirement is relaxed slightly.  The actual implementation is this:
+
+<blockquote>
+"All cards must be in strict lexicographic order, except that the
+N and P cards of a Technical Note artifact are allowed to be
+interchanged."
+</blockquote>
+
+Future versions of Fossil might strengthen this slightly to only allow
+the out of order N and P cards for Technical Notes entered before
+a certain date.
+
+<h3>4.2 R-Card Hash Calculation</h3>
 
 Given a manifest file named <tt>MF</tt>, the following Bash shell code
 demonstrates how to compute the value of the <b>R</b> card in that manifest.
