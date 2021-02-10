@@ -536,10 +536,23 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   x.z = z;
   x.zEnd = &z[n];
   x.atEol = 1;
-  while( (cType = next_card(&x))!=0 && cType>=cPrevType ){
+  while( (cType = next_card(&x))!=0 ){
+    if( cType<cPrevType ){
+      /* Cards must be in increasing order.  However, out-of-order detection
+      ** was broken prior to 2021-02-10 due to a bug.  Furthermore, there
+      ** was a bug in technote generation (prior to 2021-02-10) that caused
+      ** the P card to occur before the N card.  Hence, for historical
+      ** compatibility, we do allow the N card of a technote to occur after
+      ** the P card.  See tickets 15d04de574383d61 and 5e67a7f4041a36ad.
+      */
+      if( cType!='N' || cPrevType!='P' || p->zEventId==0 ){
+        SYNTAX("cards not in lexicographical order");
+      }
+    }
     lineNo++;
     if( cType<'A' || cType>'Z' ) SYNTAX("bad card type");
     seenCard |= 1 << (cType-'A');
+    cPrevType = cType;
     switch( cType ){
       /*
       **     A <filename> <target> ?<source>?
