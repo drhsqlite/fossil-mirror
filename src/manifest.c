@@ -545,7 +545,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** compatibility, we do allow the N card of a technote to occur after
       ** the P card.  See tickets 15d04de574383d61 and 5e67a7f4041a36ad.
       */
-      if( cType!='N' || cPrevType!='P' || p->zEventId==0 ) break;
+      if( cType!='N' || cPrevType!='P' || p->zEventId==0 ){
+        SYNTAX("cards not in lexicographical order");
+      }
     }
     lineNo++;
     if( cType<'A' || cType>'Z' ) SYNTAX("bad card type");

@@ -1,5 +1,5 @@
-C Modify\sthe\sout-of-order\scard\sdetection\sin\sthe\sstructural\sartifact\sparser\nto\sallow\sN\sand\sP\scards\sof\sa\stechnote\sto\sbe\sin\sthe\swrong\sorder.\n[15d04de574383d61|Ticket\s15d04de574383d61].
-D 2021-02-10T23:34:09.068
+C Give\sa\sbetter\serror\smessage\sif\sstructural\sartifact\scards\sare\sout-of-order.
+D 2021-02-10T23:49:09.775
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -557,7 +557,7 @@ F src/main.mk e458344115032b37e46658422bcd8c3a5950e0f2eaecff75a490af7a7dc0f682
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl 3fb0c2cc180ed96dc6c25346d44435f1c9d824b02dd765c0cdbe00d086726b56 x
-F src/manifest.c cbfef39a5d33ec3ef20a1788f31b7eab5d23bb5e120c9827aa581ea6c4d04835
+F src/manifest.c 7dd0c71530fa8ea56a4dd33f1e79e814877d2e5fa6b1ac9040330d4b4fd83a45
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
@@ -1001,7 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e7a0aacdb1ff31e1744665b4219ee1b8598ea7c8d279490c843e631bd1a95c1
-R 3954269d7b126990b321432e62715740
+P 36620b74a46b2073122a0a1e17dca06d1de378e4303f5f900b3ab4ba72ec347a
+R 0f5434f920528e093a3d1c7075809192
 U drh
-Z c5cf371c5892ec813264696984b40c16
+Z 151bb3672c48bf5e9fe7401cfdeda900
