@@ -1,5 +1,5 @@
-C More\sCSS\stweaks\sto\sdarkmode.\s\sAdd\sthe\shamburger\smenu\sto\sthe\skhaki\sskin.\nMinor\sstyling\stweak\sto\splain_gray.
-D 2021-02-10T01:38:29.020
+C Make\sthe\stimeline-default-length\ssetting\saccessible\son\sthe\stimeline\nconfiguration\spage.\s\sMake\sit\sdefault\sto\s50,\snot\s10.
+D 2021-02-10T12:02:03.097
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -591,7 +591,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4b0965c1a31b6caa9d9ac4be5b68e780f2b49dd73c9fe1e47016b581c60f5507
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
-F src/setup.c 8ccd00bf6f5180dd0873e0b4ab8108b6fa158b76ea9c5a660e4de47ee935857d
+F src/setup.c 1936ef691fe0aef37541bc743004e4e9e5863aa9eaf17a3b019bec335c831922
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -640,7 +640,7 @@ F src/th.h 41356351a612a703dd2bbe08f98415f4295fd7ab84ae90bf8de75e2125d4c2df
 F src/th_lang.c e10427606b7245a660af606a7774c74869f866442fdeab2695b7f6a4280a4582
 F src/th_main.c 0789cfde7cec58452cc493563e322fd8d697234ab3888032d6f185ad7a87e70d
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 2eb9bfa769cc27a59bbfe9d50118c28894bfb46420eed67b36ba14b2e33dbb9d
+F src/timeline.c 5f3d941363ecf5caed8f01d2e9454771567067cb77eb284f246ccfddb0be78ec
 F src/tkt.c 63641b42cd6f4061b732649bbd5d5ddabe20acf2326310f9c6e4c48e7a7f748c
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -1001,7 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f43fca0eb7cf8ad8f1891f5c1420b451ceac47c9ac1ca8a9145c862ea870818
-R 216835774bab64a625eefa3b6a35699b
+P eb8af11bf3054a49a4435777ad1b8f962bfead32fde521ee208080c353c986bf
+R aeddc7d81de7c2584feed1906f1ca933
 U drh
-Z d401f5edbcd0c49ed93a8bcb0f87e0c9
+Z 96ded71316a8ce3cc49606a316c22c13

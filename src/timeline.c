@@ -1694,8 +1694,8 @@ void page_timeline(void){
     }else{
       nEntry = atoi(z);
       if( nEntry<=0 ){
-        z = "10";
-        nEntry = 10;
+        z = "50";
+        nEntry = 50;
       }
     }
   }else{

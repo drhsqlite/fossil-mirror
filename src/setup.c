@@ -800,6 +800,13 @@ void setup_timeline(void){
   @ specified an alternative.  (Property: "timeline-default-style")</p>
 
   @ <hr />
+  entry_attribute("Default Number Of Rows", 6, "timeline-default-length",
+                  "tldl", "50", 0);
+  @ <p>The maximum number of rows to show on a timeline in the absence
+  @ of a user display preference cookie setting or an explicit n= query
+  @ parameter.  (Property: "timeline-default-length")</p>
+
+  @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
