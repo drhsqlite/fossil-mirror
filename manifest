@@ -1,5 +1,5 @@
-C First\sattempt\sat\sa\snew\s"darkmode"\sskin.\s\sBased\son\sthe\sskin\sfound\sin\slibfossil,\nbut\swith\sthe\stitle\scentered\sand\sa\shamburger\smenu\sadded,\sas\swell\sas\sa\sfew\sother\ntweaks.\s\sMore\stweaking\sis\sneeded.
-D 2021-02-10T00:12:16.474
+C A\sfew\stweaks\sto\sthe\sdarkmode\sskin.
+D 2021-02-10T00:30:03.168
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -392,10 +392,10 @@ F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2a
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt a791a51af61a1e33b22fed43deb50ab14142a5918de98e117fc33bf6820c98d5
-F skins/darkmode/css.txt 0484e3c8b467acda88399966d8b73c8bb2757fd9cec027c4f5f49ce2c4ec389f
+F skins/darkmode/css.txt 80ab8bc156ff54acefafffe3164b49285c9fb3cb71fa4769f572e5362a565f81
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
-F skins/darkmode/header.txt 4d10f745baf119b66c068126e9695ef2c33bfabed455f90b96a7978267faaace
+F skins/darkmode/header.txt 7d2d3ed4b1673ade1392bfe4d0daab722bbb135b23ab82789ad30f913dab6c72
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt cdbc05d20557d4484f40ec64dc015743a84f202a5f130fcc4c9bf0e4da19e676
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
@@ -1001,7 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7e937012944ab989876d1b6c0181656f7f1114ebe858ba21426354ab2bdb02cc
-R 8234959c60789efb7fb78f61e5c322e8
+P 1e815c46d028cac70a858c01b1f8e7081965781b48e915281623591aa71058d8
+R 7aeb35178f6d453bfbd0c1e6ffb9c868
 U drh
-Z 9d097bc1e9e3c55969de7ddaf94cb2b8
+Z a2e56fef6ca3e9bafd3548ee8d129580

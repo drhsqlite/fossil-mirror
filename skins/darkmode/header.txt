@@ -1,20 +1,15 @@
 <div class="header">
-  <div class="status leftoftitle">
-  <th1>
+  <div class="status leftoftitle"><th1>
    if {[info exists login]} {
-     html "<a href='$home/login'>$login</a>\n"
+     set logintext "<a href='$home/login'>$login</a>\n"
    } else {
-     html "<a href='$home/login'>Login</a>\n"
+     set logintext "<a href='$home/login'>Login</a>\n"
    }
-  </th1>
-  </div>
+   html $logintext
+  </th1></div>
   <div class="title">$<title></div>
   <div class="status"><nobr><th1>
-   if {[info exists login]} {
-     html "<a href='$home/login'>$login</a>\n"
-   } else {
-     html "<a href='$home/login'>Login</a>\n"
-   }
+   html $logintext
   </th1></nobr></div>
 </div>
 <div class="mainmenu">

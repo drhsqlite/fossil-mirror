@@ -13,7 +13,6 @@ div.title {
   font-size: 2em;
   font-weight: bold;
   text-align: center;
-  padding: 0 0 0 1em;
   vertical-align: bottom;
   width: 100%;
 }
@@ -82,20 +81,19 @@ div.submenu, div.sectionmenu {
 a, a:visited {
    color: rgba(127, 201, 255, 0.9);
    display: inline;
+   text-decoration: none;
 }
 a:visited {opacity: 0.8}
 div.mainmenu a, div.submenu a,
 div.sectionmenu>a.button, div.submenu label,
 div.footer a {
   padding: 0.15em 0.5em;
-  text-decoration: none;
 }
 /* div.mainmenu a.active, FIXME: setting of .active is broken for some URIs */
 a:hover, a:visited:hover {
   background-color: #FF4500f0;
   color: rgba(24,24,24,0.8);
   border-radius: 0.1em;
-  text-decoration: none;
 }
 div.mainmenu a.active {
   opacity: 0.8;
@@ -473,7 +471,13 @@ svg.pikchr {
      obsolete. */
   /*filter: invert(1) hue-rotate(180deg);*/
 }
-
+span.snippet>mark {
+  color: white;
+  font-weight: bold;
+}
+input {
+  background-color: #c0c0c0;
+}
 body.forum div.forumSel {
     background: inherit;
     border-left-width: 0.5em;
