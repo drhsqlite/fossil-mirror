@@ -1,5 +1,5 @@
-C ardoise\sskin:\supdated\ssecurity\saudit\stable\scolors.\sdarkmode\sskin:\sadded\s.wideonly/.desktoponly.
-D 2021-02-10T12:15:41.664
+C Khaki\sskin:\sfixed\slogin/logout\slinks\sin\sthe\sheader\s(were\smissing\sthe\s$home\sURL\sprefix).
+D 2021-02-10T12:44:13.302
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -413,7 +413,7 @@ F skins/enhanced1/header.txt 9c6af01cb1810678e013faac6af95debd79803778533e54f735
 F skins/khaki/css.txt f051e598f8254e7ebf2a6475660803fda3bea65329378308ce077c7f412813a7
 F skins/khaki/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/khaki/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
-F skins/khaki/header.txt 5188b489fe9e6701ba1c79b4e6f3438145e26085af4989cee091d04d853cfd2a
+F skins/khaki/header.txt 80ea4ce7196d6f5f3150ee4c54e4e910ff6c61894edbc8b0d3d4ef2870ef691f
 F skins/original/css.txt e7c642d607fb6a1972e61b6c02e830f72af3c8b9
 F skins/original/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/original/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
@@ -1001,7 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8efc4d548cd990bef4f0322a4c183fe9c0eaeeccf01641cce86dd4d65a6a7ac7
-R 1ed7efc41697ba8a97c138d7390af7b1
+P 39ce70a11a15cf8618950105a082ab86b287904e47e483cf90a407c690343fc4
+R 81e093725cec24b307a941872b4442cb
 U stephan
-Z 5905125a712c9c95e1d4636f2f4457af
+Z 4ea62f2232db9355f6c983babaa32b6b
