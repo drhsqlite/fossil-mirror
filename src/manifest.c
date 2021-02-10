@@ -540,6 +540,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     lineNo++;
     if( cType<'A' || cType>'Z' ) SYNTAX("bad card type");
     seenCard |= 1 << (cType-'A');
+    cPrevType = cType;
     switch( cType ){
       /*
       **     A <filename> <target> ?<source>?
