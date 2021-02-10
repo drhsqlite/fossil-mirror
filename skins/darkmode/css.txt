@@ -90,11 +90,50 @@ div.footer a {
   padding: 0.15em 0.5em;
 }
 /* div.mainmenu a.active, FIXME: setting of .active is broken for some URIs */
-a:hover, a:visited:hover {
+a:hover,
+a:visited:hover {
   background-color: #FF4500f0;
   color: rgba(24,24,24,0.8);
   border-radius: 0.1em;
 }
+.button,
+button {
+  color: #aaa;
+  background-color: #444;
+  border-radius: 5px;
+  border: 0
+}
+.button:hover,
+button:hover {
+  background-color: #FF4500f0;
+  color: rgba(24,24,24,0.8);
+  outline: 0
+}
+input[type=button],
+input[type=reset],
+input[type=submit] {
+  color: #ddd;
+  background-color: #446979;
+  border: 0;
+  border-radius: 5px
+}
+input[type=button]:hover,
+input[type=reset]:hover,
+input[type=submit]:hover {
+  background-color: #FF4500f0;
+  color: rgba(24,24,24,0.8);
+  outline: 0
+}
+.button:focus,
+button:focus,
+input[type=button]:focus,
+input[type=reset]:focus,
+input[type=submit]:focus {
+  color: #333;
+  border-color: #888;
+  outline: 0
+}
+
 div.mainmenu a.active {
   opacity: 0.8;
 }
@@ -475,9 +514,19 @@ span.snippet>mark {
   color: white;
   font-weight: bold;
 }
-input, textarea {
-  background-color: #c8c8c8;
-  color: black;
+button,
+input,
+optgroup,
+select,
+textarea {
+  background-color: inherit;
+  color: inherit;
+  font: inherit;
+  margin: 0
+}
+input, textarea, select {
+  border: 1px solid rgba(127, 201, 255, 0.9);
+  padding: 1px;
 }
 .capsumOff {
   background-color: #222;
