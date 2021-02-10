@@ -1,5 +1,5 @@
-C Khaki\sskin:\sfixed\slogin/logout\slinks\sin\sthe\sheader\s(were\smissing\sthe\s$home\sURL\sprefix).
-D 2021-02-10T12:44:13.302
+C caps/ref.html:\smodified\sinlined\stable\sheader\sstyle\sto\sbe\sreadable\sin\sdark-mode\sskins\s(eagle,\sxekri,\sdarkmode).
+D 2021-02-10T13:02:31.689
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -839,7 +839,7 @@ F www/caps/admin-v-setup.md e5f90e7eca4927a293fdb437a461fdeccb4ad383edf2a3030de1
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
 F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65862f
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
-F www/caps/ref.html c094e5a9728ca2d73d0f3e437c3b8d84ce15de61f9529f24f0dd0d57dd95ec01
+F www/caps/ref.html c091919d87935214d871e6e81e31754156259b601c606a1dbb0fc63ca3718441
 F www/cgi.wiki 27fbf9d888a370167bebdedffb9f76ce1802f891eefa1f0b4a8ce300a6afb6c7
 F www/changes.wiki 2c5d5f2ac4cdd668db31fab3ffa8e496e4e3ca9e1ee10f97d0f30bec3cbb69fa
 F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
@@ -1001,7 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39ce70a11a15cf8618950105a082ab86b287904e47e483cf90a407c690343fc4
-R 81e093725cec24b307a941872b4442cb
+P 9a8361f6b2973b6a6d019ee0cbe857678b990e9a2c3b54e8b770a63180378dc7
+R 1b042515cdbdafe0dd0cd30568023cd3
 U stephan
-Z 4ea62f2232db9355f6c983babaa32b6b
+Z 1efe5b8bba1422d40546564ed0b47660
