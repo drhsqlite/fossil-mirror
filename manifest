@@ -1,5 +1,5 @@
-C Adjust\sthe\sdefault\smainmenu\ssetting\sso\sthat\sSetup\sis\sdesktoponly\sand\nLogin/Logout\sis\swideonly.\s\sThe\scurrent\sexpectation\sis\sthat\sadmins\swill\nedit\sthe\smainmenu\sby\sremoving\slines.
-D 2021-02-11T17:17:50.950
+C Update\sthe\swindows\smakefiles\sso\sthat\sthey\sexpect\sin-tree\sOpenSSL\sin\sthe\ndirectory\s"compat/openssl",\snot\sin\s"compat/openssl-$VERSION".
+D 2021-02-11T18:01:13.012
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -541,7 +541,7 @@ F src/main.c 7888c8a30ec9b7fbfa3b8587ab01fbca75adf0ba6651e1818b19e42708326253
 F src/main.mk 4231976fa5a83fa51c0632a99f495235e47e4d42e5ceaf87fa690f5849fffbc4
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
-F src/makemake.tcl 3fb0c2cc180ed96dc6c25346d44435f1c9d824b02dd765c0cdbe00d086726b56 x
+F src/makemake.tcl 85d5b3a6c9d0c79877da72d92031bafe9274142e7b38cac7eb91ac8ac7da8aa7 x
 F src/manifest.c 7dd0c71530fa8ea56a4dd33f1e79e814877d2e5fa6b1ac9040330d4b4fd83a45
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
@@ -790,9 +790,9 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd530edd3f3
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc f0bc480793df711921828ec807ecc913d4558f2b38ce916cf8f0da07e3620a34
-F win/Makefile.mingw a759dcbc1333156c0137d5ed97d527640005e9913ab66cd1232a8dc96b0e330d
+F win/Makefile.mingw dbc29e5fdb77d410a988a961bca77ba3ea115a9608505448da482e3849c1c3b2
 F win/Makefile.mingw.mistachkin 9cea9d49c8cde167a1973862e22177f81b7ac4e47ba46c78e22020034842caf9
-F win/Makefile.msc ecfb7d4163093fa9953e0ce43903b6b8b7d679db3c6a86ffd4d8ce374162ebdc
+F win/Makefile.msc 5e76610cfbb5fcdd0d47ebb4c851d80d9f2ebbd9163dd2618afa762f78c3b894
 F win/buildmsvc.bat 401f6d57cd024c5484fccf3ed07bd2f1d8bfd20b7487fe7f0282b335ac9f9b5b x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -986,7 +986,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0a7a86c42862615a57a63775947a2fb276a29c241576a8afecf9d6e950862c1c
-R 6cc88b6478e310f30af13f772f984053
+P d7e4b485ac2866b211bfac59d3aaebd996be009e5109c7bac20b2699a10e3f0d
+R d5672466e30ff0b6a5272b8711956c84
 U drh
-Z 4e9f03659c65a9f59753a05a2714c1bd
+Z 974dc1e0202e944c7f670c77c809da6c
