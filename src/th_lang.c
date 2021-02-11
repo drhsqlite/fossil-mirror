@@ -231,6 +231,44 @@ static int list_command(
 /*
 ** TH Syntax:
 **
+**    lappend var ?arg1? ?arg2? ...?
+**
+** Interpret the content of variable var as a list.  Create var if it
+** does not already exist.  Append each argument as a new list element.
+*/
+static int lappend_command(
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  char *zList = 0;
+  int nList = 0;
+  int i, rc;
+
+  if( argc<2 ){
+    return Th_WrongNumArgs(interp, "lappend var ...");
+  }
+  rc = Th_GetVar(interp, argv[1], argl[1]);
+  if( rc==TH_OK ){
+    zList = Th_TakeResult(interp, &nList);
+  }
+
+  for(i=2; i<argc; i++){
+    Th_ListAppend(interp, &zList, &nList, argv[i], argl[i]);
+  }
+
+  Th_SetResult(interp, zList, nList);
+  Th_Free(interp, zList);
+
+  return TH_OK;
+}
+
+
+/*
+** TH Syntax:
+**
 **   lindex list index
 */
 static int lindex_command(
@@ -1356,6 +1394,7 @@ int th_register_language(Th_Interp *interp){
     {"foreach",  foreach_command, 0},
     {"if",       if_command,      0},
     {"info",     info_command,    0},
+    {"lappend",  lappend_command, 0},
     {"lindex",   lindex_command,  0},
     {"list",     list_command,    0},
     {"llength",  llength_command, 0},

@@ -701,13 +701,11 @@ ul {
 }
 .mainmenu ul {
   list-style: none;
-  display: block;
   border-top: 1px solid transparent;
   padding: 0
 }
 .mainmenu li {
   outline: 0;
-  display: block;
   float: left;
   margin: 0
 }
@@ -718,7 +716,6 @@ ul {
 }
 .mainmenu li a {
   color: #66a8c7;
-  display: block;
   padding: 10px 15px
 }
 .mainmenu li.active a {

@@ -274,9 +274,6 @@ div.timelineDate {
   .mainmenu {
     padding: 10px;
   }
-  .desktoponly {
-    display: none;
-  }
 }
 @media screen and (min-width: 600px) {
   /* Spacing for desktop */
@@ -294,11 +291,5 @@ div.timelineDate {
   }
   .mainmenu {
     padding: 10px;
-  }
-}
-@media screen and (max-width: 1200px) {
-  /* Special declarations for narrow desktop or wide mobile */
-  .wideonly {
-    display: none;
   }
 }

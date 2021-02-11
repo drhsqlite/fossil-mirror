@@ -17,6 +17,6 @@
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
   if {[string match /* $url]} {set url $home$url}
-  html "<a href='$url'>$name</a><br/>\n"
+  html "<a href='$url' class='$class'>$name</a><br/>\n"
 }
 </th1></div>

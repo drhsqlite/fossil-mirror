@@ -850,7 +850,6 @@ td:last-child {
 
 .mainmenu ul {
   list-style: none outside;
-  display: block;
   position: relative;
   border-top: 1px solid #ccc;
   padding: 0;
@@ -858,7 +857,6 @@ td:last-child {
 
 .mainmenu li {
   outline: 0;
-  display: block;
   float: left;
   margin: 0;
 }
@@ -871,7 +869,6 @@ td:last-child {
 
 .mainmenu li a {
   color: #3b5c6b;
-  display: block;
   padding: 10px 15px;
 }
 

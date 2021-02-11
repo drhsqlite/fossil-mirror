@@ -29,11 +29,10 @@ set once 1
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
   if {$once && [string match /$current_page* $url]} {
-    html "<li class='active'>"
+    lappend class active
     set once 0
-  } else {
-    html "<li>"
   }
+  html "<li class='$class'>"
   if {[string match /* $url]} {set url $home$url}
   html "<a href='$url'>$name</a></li>\n"
 }
