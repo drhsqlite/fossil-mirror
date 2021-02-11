@@ -611,9 +611,9 @@ static const char zDfltMainMenu[] =
 @ Chat      /chat        C              wideonly
 @ Tickets   /ticket      r              wideonly
 @ Wiki      /wiki        j              wideonly
-@ Setup     /setup       s              {}
-@ Logout    /logout      L              {}
-@ Login     /login       !L              {}
+@ Setup     /setup       s              desktoponly
+@ Logout    /logout      L              wideonly
+@ Login     /login       !L             wideonly
 ;
 
 /*

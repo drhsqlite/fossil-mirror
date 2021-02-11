@@ -1,5 +1,5 @@
-C Refinements\sto\sbuilt-in\sskins\sto\stry\sto\sget\sthem\sall\sworking\sreasonably\son\nmobile.
-D 2021-02-11T14:57:25.641
+C Adjust\sthe\sdefault\smainmenu\ssetting\sso\sthat\sSetup\sis\sdesktoponly\sand\nLogin/Logout\sis\swideonly.\s\sThe\scurrent\sexpectation\sis\sthat\sadmins\swill\nedit\sthe\smainmenu\sby\sremoving\slines.
+D 2021-02-11T17:17:50.950
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -613,7 +613,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 8e3776cef27d43daab02eb5c245230eb9d3b8379c2f36c0f37ce9909f0ed23e7
+F src/style.c a3efeba99726ba34d332921aa86cb11010da776ba1962a5f0a0b0ec9351ac836
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
@@ -986,7 +986,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22fb2de45e3343d7f5b53953b4e53a05b767772c181853b2ef37fcf9f37100e1
-R c6ef5da4c434dcd6e2d3ec3b3bd496ba
+P 0a7a86c42862615a57a63775947a2fb276a29c241576a8afecf9d6e950862c1c
+R 6cc88b6478e310f30af13f772f984053
 U drh
-Z f3f6ee4eae1b033100df7589dcdbffac
+Z 4e9f03659c65a9f59753a05a2714c1bd
