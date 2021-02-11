@@ -96,6 +96,10 @@ a:visited:hover {
   color: rgba(24,24,24,0.8);
   border-radius: 0.1em;
 }
+.fileage tr:hover,
+div.filetreeline:hover {
+  background-color: #333;
+}
 .button,
 button {
   color: #aaa;
@@ -137,21 +141,11 @@ input[type=submit]:focus {
 div.mainmenu a.active {
   opacity: 0.8;
 }
-/*div.mainmenu a:hover, div.mainmenu a:visited:hover,
-div.submenu a:hover, div.submenu a:visited:hover,
-div.sectionmenu>a.button:hover, div.sectionmenu>a.button:visited:hover,
-div.submenu label,
-div.footer a:hover, div.footer a:visited:hover {
-  padding: 0.15em 0.5em;
-  color: rgba(24,24,24,0.8);
-  text-decoration: none;
-}*/
 
 /* All page content from the bottom of the menu or submenu down to
 ** the footer */
 div.content {
   padding: 0ex 1ex 1ex 1ex;
-  /*border: 1px solid rgba(170,170,170,0.5);*/
 }
 
 /* Some pages have section dividers */
@@ -550,7 +544,7 @@ body.forum .debug {
 }
 
 body.forum .fileage tr:hover {
-    background-color: #FF4500a0;
+    background-color: #333;
     color: rgba(24,24,24,0.8);
 }
 

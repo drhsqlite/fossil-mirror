@@ -1,5 +1,5 @@
-C Do\sa\sbetter\sjob\sof\sdetecting\smisformatted\sstructural\sartifacts\sand\sreporting\nthe\serror.\s\sTicket\s[15d04de574383d61].
-D 2021-02-10T23:53:08.603
+C Improved\shover\scolors\sfor\stree-view\sand\sfile-ages\sin\sthe\sdarkmode\sskin.
+D 2021-02-11T00:35:48.236
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -392,7 +392,7 @@ F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2a
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt a791a51af61a1e33b22fed43deb50ab14142a5918de98e117fc33bf6820c98d5
-F skins/darkmode/css.txt 7bff30c42a41f81295b46f609f843378081e3a7576757f8a8e8802be995482c0
+F skins/darkmode/css.txt c8e4ce3428f938aaedd0736694093f4b7613845a08b467860990fc07068bcd4f
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt 7d2d3ed4b1673ade1392bfe4d0daab722bbb135b23ab82789ad30f913dab6c72
@@ -1001,8 +1001,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1cd6c545ca3a9c628a056df5f30c8a48818f9b341613c3f52ae25d222ad99795 72f5101ef0ba008897643dc6e90acb645c995e3d4572e7825ba77f7fbb68f0b2
-R 0f5434f920528e093a3d1c7075809192
-T +closed 72f5101ef0ba008897643dc6e90acb645c995e3d4572e7825ba77f7fbb68f0b2
+P 023fddeec402930662a022c1e4bd2ea63027ed0c8384d9e8bfd1bd0540f47de3
+R 44477ffaf31de52472aca2c932311479
 U drh
-Z 5275aca2a0f8115418278cb795d14af2
+Z 05db785d23448039f88b2ceb11d7666e
