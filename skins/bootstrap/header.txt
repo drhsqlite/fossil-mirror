@@ -57,7 +57,7 @@ foreach {name url expr class} $mainmenu {
   html "<a href='$url'>$name</a></li>\n"
 }
 if {!$sitemap} {
-  html "<li><a href='$home/sitemap'>More...</a>\n"
+  html "<li><a href='$home/sitemap'>...</a>\n"
 }
 </th1></ul>
           </div><!--/.nav-collapse -->

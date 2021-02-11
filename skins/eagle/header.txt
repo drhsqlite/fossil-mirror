@@ -100,9 +100,9 @@ foreach {name url expr class} $mainmenu {
   html "<a href='$url' class='$class'>$name</a>\n"
 }
 if {[info exists login]} {
-  html "<a href='$home/logout'>Logout</a>\n"
+  html "<a href='$home/logout' class='desktoponly'>Logout</a>\n"
 } else {
-  html "<a href='$home/login'>Login</a>\n"
+  html "<a href='$home/login' class='desktoponly'>Login</a>\n"
 }
 </th1></div>
 <div id="hbdrop"></div>

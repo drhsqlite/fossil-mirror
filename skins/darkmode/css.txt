@@ -25,7 +25,6 @@ div.status {
   color: #ddddddc9;
   font-size: 0.8em;
   font-weight: bold;
-  min-width: 10em;
   white-space: nowrap;
 }
 /* The leftoftitle is a <div> to the left of the title <div>

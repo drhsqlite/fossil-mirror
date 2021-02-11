@@ -105,6 +105,6 @@ foreach {name url expr class} $mainmenu {
   if {[string match */sitemap $url]} {set sitemap 1}
 }
 if {!$sitemap} {
-  html "<a href='$home/sitemap'>More...</a>\n"
+  html "<a href='$home/sitemap'>...</a>\n"
 }
 </th1></div>
