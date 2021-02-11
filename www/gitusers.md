@@ -13,7 +13,7 @@ rather than provide a simple “translation dictionary,” since to
 understand the conversion, you need to know why the difference exists.
 
 We focus on practical command examples here, leaving discussions of the
-philosophical underpinnings drive these command differences to [another
+philosophical underpinnings that drive these command differences to [another
 document][fvg]. The [case studies](#cs1) do get a bit philosophical, but
 it is with the aim of illustrating how these Fossil design differences
 cause Fossil to behave materially differently from Git in everyday
