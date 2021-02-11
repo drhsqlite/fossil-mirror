@@ -43,17 +43,14 @@ static struct BuiltinSkin {
 } aBuiltinSkin[] = {
   { "Default",                           "default",           0 },
   { "Ardoise",                           "ardoise",           0 },
-  { "Black & White, Menu on Left",       "black_and_white",   0 },
+  { "Black & White",                     "black_and_white",   0 },
   { "Blitz",                             "blitz",             0 },
-  { "Blitz, No Logo",                    "blitz_no_logo",     0 },
   { "Bootstrap",                         "bootstrap",         0 },
   { "Dark Mode",                         "darkmode",          0 },
   { "Eagle",                             "eagle",             0 },
-  { "Enhanced Original",                 "enhanced1",         0 },
-  { "Khaki, No Logo",                    "khaki",             0 },
+  { "Khaki",                             "khaki",             0 },
   { "Original",                          "original",          0 },
-  { "Plain Gray, No Logo",               "plain_gray",        0 },
-  { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
+  { "Plain Gray",                        "plain_gray",        0 },
   { "Xekri",                             "xekri",             0 },
 };
 

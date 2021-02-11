@@ -499,8 +499,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\xfersetup_.c" \
         "$(OX)\zip_.c"
 
-EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
-        "$(SRCDIR)\..\skins\ardoise\css.txt" \
+EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\..\skins\ardoise\details.txt" \
         "$(SRCDIR)\..\skins\ardoise\footer.txt" \
         "$(SRCDIR)\..\skins\ardoise\header.txt" \
@@ -513,11 +512,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\blitz\footer.txt" \
         "$(SRCDIR)\..\skins\blitz\header.txt" \
         "$(SRCDIR)\..\skins\blitz\ticket.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\css.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\details.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\footer.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\header.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\ticket.txt" \
         "$(SRCDIR)\..\skins\bootstrap\css.txt" \
         "$(SRCDIR)\..\skins\bootstrap\details.txt" \
         "$(SRCDIR)\..\skins\bootstrap\footer.txt" \
@@ -534,10 +528,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\eagle\details.txt" \
         "$(SRCDIR)\..\skins\eagle\footer.txt" \
         "$(SRCDIR)\..\skins\eagle\header.txt" \
-        "$(SRCDIR)\..\skins\enhanced1\css.txt" \
-        "$(SRCDIR)\..\skins\enhanced1\details.txt" \
-        "$(SRCDIR)\..\skins\enhanced1\footer.txt" \
-        "$(SRCDIR)\..\skins\enhanced1\header.txt" \
         "$(SRCDIR)\..\skins\khaki\css.txt" \
         "$(SRCDIR)\..\skins\khaki\details.txt" \
         "$(SRCDIR)\..\skins\khaki\footer.txt" \
@@ -550,10 +540,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\plain_gray\details.txt" \
         "$(SRCDIR)\..\skins\plain_gray\footer.txt" \
         "$(SRCDIR)\..\skins\plain_gray\header.txt" \
-        "$(SRCDIR)\..\skins\rounded1\css.txt" \
-        "$(SRCDIR)\..\skins\rounded1\details.txt" \
-        "$(SRCDIR)\..\skins\rounded1\footer.txt" \
-        "$(SRCDIR)\..\skins\rounded1\header.txt" \
         "$(SRCDIR)\..\skins\xekri\css.txt" \
         "$(SRCDIR)\..\skins\xekri\details.txt" \
         "$(SRCDIR)\..\skins\xekri\footer.txt" \
@@ -1118,8 +1104,7 @@ realclean: clean
 "$(OBJDIR)\json_wiki$O" : "$(SRCDIR)\json_detail.h"
 
 "$(OX)\builtin_data.reslist": $(EXTRA_FILES) "$(B)\win\Makefile.msc"
-	echo "$(SRCDIR)\../skins/aht/details.txt" > $@
-	echo "$(SRCDIR)\../skins/ardoise/css.txt" >> $@
+	echo "$(SRCDIR)\../skins/ardoise/css.txt" > $@
 	echo "$(SRCDIR)\../skins/ardoise/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/header.txt" >> $@
@@ -1132,11 +1117,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/blitz/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/blitz/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/blitz/ticket.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/css.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/details.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/footer.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/header.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/ticket.txt" >> $@
 	echo "$(SRCDIR)\../skins/bootstrap/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/bootstrap/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/bootstrap/footer.txt" >> $@
@@ -1153,10 +1133,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/eagle/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/header.txt" >> $@
-	echo "$(SRCDIR)\../skins/enhanced1/css.txt" >> $@
-	echo "$(SRCDIR)\../skins/enhanced1/details.txt" >> $@
-	echo "$(SRCDIR)\../skins/enhanced1/footer.txt" >> $@
-	echo "$(SRCDIR)\../skins/enhanced1/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/footer.txt" >> $@
@@ -1169,10 +1145,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/plain_gray/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/plain_gray/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/plain_gray/header.txt" >> $@
-	echo "$(SRCDIR)\../skins/rounded1/css.txt" >> $@
-	echo "$(SRCDIR)\../skins/rounded1/details.txt" >> $@
-	echo "$(SRCDIR)\../skins/rounded1/footer.txt" >> $@
-	echo "$(SRCDIR)\../skins/rounded1/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/footer.txt" >> $@

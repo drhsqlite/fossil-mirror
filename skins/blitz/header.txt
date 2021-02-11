@@ -10,22 +10,22 @@
           html "<a class='button' href='$home/login'>Login</a>\n"
         }
       </th1>
-      <div>
-        <h2><small>$title</small></h2>
-      </div>
     </div>
     <div class='logo'>
-      <img src='$logo_image_url' />
+      <h1>$<project_name>
       <th1>
       if {[anycap jor]} {
         html "<a class='rss' href='$home/timeline.rss'></a>"
       }
       </th1>
+      <small> &nbsp;$<title></small></h1>
     </div>
 
     <!-- Main Menu -->
     <div class="mainmenu">
       <ul><th1>
+html "<li><a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a></li>\n"
+builtin_request_js hbmenu.js
 set once 1
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
@@ -39,6 +39,7 @@ foreach {name url expr class} $mainmenu {
 }
 </th1></ul>
         </div> <!-- end div mainmenu -->
+        <div id="hbdrop"></div>
       </div> <!-- end div container -->
     </div> <!-- end div header -->
     <div class="middle max-full-width">

@@ -42,18 +42,22 @@
             <ul class="nav navbar-nav">
               <th1>
 set once 1
+set sitemap 0
 set is_index [expr [string compare [string range $current_page 0 4] "index"]==0]
 set is_home [expr [string compare [string range $current_page 0 [expr [string length $index_page]-1] ] $index_page]==0]
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
   if {$once && [string match /$current_page* $url]} {
-    html "<li class='active'>"
+    lappend class active
     set once 0
-  } else {
-    html "<li>"
   }
+  html "<li class='$class'>"
   if {[string match /* $url]} {set url $home$url}
+  if {[string match *sitemap* $url]} {set sitemap 1}
   html "<a href='$url'>$name</a></li>\n"
+}
+if {!$sitemap} {
+  html "<li><a href='$home/sitemap'>More...</a>\n"
 }
 </th1></ul>
           </div><!--/.nav-collapse -->

@@ -92,6 +92,7 @@ function updateClock(){
 updateClock();
 </script>
 <div class="mainmenu"><th1>
+set sitemap 0
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
   if {[string match /* $url]} {
@@ -101,5 +102,9 @@ foreach {name url expr class} $mainmenu {
     set url $home$url
   }
   html "<a href='$url' class='$class'>$name</a>\n"
+  if {[string match */sitemap $url]} {set sitemap 1}
+}
+if {!$sitemap} {
+  html "<a href='$home/sitemap'>More...</a>\n"
 }
 </th1></div>

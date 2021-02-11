@@ -140,6 +140,9 @@ void sitemap_page(void){
     Th_Free(g.interp, azExtra);
   }
   if( (e&1)!=0 ) goto end_of_sitemap;
+
+#if 0  /* Removed on 2021-02-11.  Make a sitemap-extra entry if you */
+       /* really want this */
   if( srchFlags & SRCH_DOC ){
     if( !inSublist ){
       @ <ul>
@@ -147,6 +150,8 @@ void sitemap_page(void){
     }
     @ <li>%z(href("%R/docsrch"))Documentation Search</a></li>
   }
+#endif
+
   if( inSublist ){
     @ </ul>
     inSublist = 0;    
@@ -273,11 +278,10 @@ void sitemap_page(void){
   }
   @   </ul></li>
   if( g.perm.Admin ){
-    @ <li>%z(href("%R/setup"))Administration Pages</a>
+    @ <li><a href="%R/setup">Administration Pages</a>
     @   <ul>
-    @   <li>%z(href("%R/modreq"))Pending Moderation Requests</a></li>
-    @   <li>%z(href("%R/admin_log"))Admin log</a></li>
-    @   <li>%z(href("%R/cachestat"))Status of the web-page cache</a></li>
+    @   <li><a href="%R/secaudit0">Security Audit</a></li>
+    @   <li><a href="%R/modreq">Pending Moderation Requests</a></li>
     @   </ul></li>
   }
   @ <li>%z(href("%R/skins"))Skins</a></li>

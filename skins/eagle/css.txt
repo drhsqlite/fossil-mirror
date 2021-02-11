@@ -66,6 +66,18 @@ div.mainmenu {
   color: white;
 }
 
+div#hbdrop {
+  background-color: #485D7B;
+  border-radius: 0 0 15px 15px;
+  border-left: 0.5em solid #76869d;
+  border-bottom: 1.2em solid #76869d;
+  display: none;
+  width: 98%;
+  position: absolute;
+  z-index: 20;
+}
+
+
 /* The submenu bar that *sometimes* appears below the main menu */
 div.submenu, div.sectionmenu {
   padding: 3px 10px 3px 0px;
