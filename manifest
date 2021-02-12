@@ -1,5 +1,5 @@
-C Email\salerts\snow\sshow\sthe\stype\sof\swiki\soperation\s(add/edit/remove)\sfor\swiki\sedits\sand\sno\slonger\srender\sthe\smagic\sinternal\stimeline\scomment\sprefix\scharacter\sin\sthe\salert.
-D 2021-02-12T16:42:10.050
+C darkmode\sCSS:\sadded\shorizontal\sscrollbar\son\spre.udiff,\sneeded\sfor\sdiffs\sof\swiki\sedits.
+D 2021-02-12T18:17:36.683
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -385,7 +385,7 @@ F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2a
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt 8c52feacdb1818ff1fd2325a3a620b38b66a3ac57fc49cc4f92305d2d5ce95c9
-F skins/darkmode/css.txt 36eda1262d334d50359003c978f668fac0670b670da2268dc4973234a336ca9d
+F skins/darkmode/css.txt bcb50ac0b23318df2a2faf9f4f4fe7bf72dcff2062d772194f1031eef78937be
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt 7d2d3ed4b1673ade1392bfe4d0daab722bbb135b23ab82789ad30f913dab6c72
@@ -987,7 +987,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 336d83e3437e8d867bacaa4bb17f491714f26e69a56548411312b6863c9d6468
-R 9d8ab883403838443563013f439e00d4
+P 7fcfa93321c83700ca6cc3e6f4ee393fdd448c5b30a115e280c585136c00366e
+R 71f498b8c61758dba9edaa24333b137c
 U stephan
-Z 2b013fcc65f01d0ed64fa4cf82746a37
+Z 87b78a9d7c9efc0a69eba9e3f862604d

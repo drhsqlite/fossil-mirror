@@ -551,3 +551,7 @@ body.forum .forumPostBody > div blockquote {
     border: 1px inset;
     padding: 0 0.5em;
 }
+
+pre.udiff {
+  overflow-x: auto;
+}
