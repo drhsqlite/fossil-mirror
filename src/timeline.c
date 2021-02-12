@@ -2873,12 +2873,19 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
      && (zCom[0]=='+' || zCom[0]=='-' || zCom[0]==':')
     ){
       /* Special processing for Wiki comments */
+      if(!zComShort || !*zComShort){
+        /* Shouldn't be possible, but just in case... */
+        zComShort = " ";
+      }
       if( zCom[0]=='+' ){
-        zFree = mprintf("[%S] Add wiki page \"%s\"", zId, zCom+1);
+        zFree = mprintf("[%S] Add wiki page \"%s\" (user: %s)",
+                        zId, zComShort+1, zUserShort);
       }else if( zCom[0]=='-' ){
-        zFree = mprintf("[%S] Delete wiki page \"%s\"", zId, zCom+1);
+        zFree = mprintf("[%S] Delete wiki page \"%s\" (user: %s)",
+                        zId, zComShort+1, zUserShort);
       }else{
-        zFree = mprintf("[%S] Edit to wiki page \"%s\"", zId, zCom+1);
+        zFree = mprintf("[%S] Edit to wiki page \"%s\" (user: %s)",
+                        zId, zComShort+1, zUserShort);
       }
     }else{
       zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
