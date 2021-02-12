@@ -2276,6 +2276,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   *pnEvent = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zType = "";
+    const char *zComment = db_column_text(&q, 2);
     p = fossil_malloc( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
@@ -2287,14 +2288,22 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
       case 'c':  zType = "Check-In";        break;
       /* case 'f':  -- forum posts omitted from this loop.  See below */
       case 't':  zType = "Ticket Change";   break;
-      case 'w':  zType = "Wiki Edit";       break;
+      case 'w': {
+        zType = "Wiki Edit";
+        switch( zComment ? *zComment : 0 ){
+          case ':': ++zComment; break;
+          case '+': zType = "Wiki Added"; ++zComment; break;
+          case '-': zType = "Wiki Removed"; ++zComment; break;
+        }
+        break;
+      }
     }
     blob_init(&p->hdr, 0, 0);
     blob_init(&p->txt, 0, 0);
     blob_appendf(&p->txt,"== %s %s ==\n%s\n%s/info/%.20s\n",
       db_column_text(&q,1),
       zType,
-      db_column_text(&q, 2),
+      zComment,
       zUrl,
       db_column_text(&q,0)
     );
