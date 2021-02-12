@@ -1,5 +1,5 @@
-C Added\sfossil-is-not-relational.md.
-D 2021-02-12T03:45:27.560
+C Fixed\sa\sbroken\slink\sin\sfossil-is-not-relational.md.
+D 2021-02-12T12:59:56.687
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -868,7 +868,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d7
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-is-not-relational.md f9b2efbb6fb0bb406add6ad984299683f7eca2a865f10549fd825620a0b7835c
+F www/fossil-is-not-relational.md daf721a7e00fd432a601d22e55252ef9e36a0088435b69f6aec7fe67dcbb1a1f
 F www/fossil-v-git.wiki c59fa337abc643baa7a234b075d750fd46dcb1a849c0cc20fbe462ff2bd7be54
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -987,7 +987,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0e3bb0f823ae2147974355006dc0a40ccb1df0bba77cb128cca783de1489324
-R b27c68dda9f2a88c8a08d0134fcaa1f5
+P 8da2f2ae84cec51c19fdaac71e009fcdf77ea5e876ec848ae79ecfde26735e44
+R a8795e72daa45bf7f64c1bfd1136ac32
 U stephan
-Z 88dbbc9934c015d541879b8e92ce43f5
+Z 386bef61271663528e48793fe45dd3d1

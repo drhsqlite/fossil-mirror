@@ -382,7 +382,7 @@ hosting both opaque blobs and artifacts in the `blob` table.
 The complete SQL schemas for the core-most auxiliary tables can be found
 at:
 
-[](/src/schema.c?ci=trunk)
+[](/finfo/src/schema.c?ci=trunk)
 
 Noting, however, that all database tables are effectively internal
 APIs, with no API stability guarantees and subject to change at any
