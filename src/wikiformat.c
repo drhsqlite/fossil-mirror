@@ -35,6 +35,7 @@
 #define WIKI_MARKDOWNLINKS  0x080  /* Resolve hyperlinks as in markdown */
 #define WIKI_SAFE           0x100  /* Make the result safe for embedding */
 #define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
+#define WIKI_NOBRACKET      0x400  /* Omit extra [..] around hyperlinks */
 #endif
 
 
@@ -1281,6 +1282,7 @@ void wiki_resolve_hyperlink(
     blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
   }else if( is_valid_hname(zTarget) ){
     int isClosed = 0;
+    const char *zLB = (mFlags & WIKI_NOBRACKET)==0 ? "[" : "";
     if( strlen(zTarget)<=HNAME_MAX && is_ticket(zTarget, &isClosed) ){
       /* Special display processing for tickets.  Display the hyperlink
       ** as crossed out if the ticket is closed.
@@ -1288,20 +1290,20 @@ void wiki_resolve_hyperlink(
       if( isClosed ){
         if( g.perm.Hyperlink ){
           blob_appendf(pOut,
-             "%z<span class=\"wikiTagCancelled\">[",
-             xhref(zExtraNS,"%R/info/%s",zTarget)
+             "%z<span class=\"wikiTagCancelled\">%s",
+             xhref(zExtraNS,"%R/info/%s",zTarget), zLB
           );
           zTerm = "]</span></a>";
         }else{
-          blob_appendf(pOut,"<span class=\"wikiTagCancelled\">[");
+          blob_appendf(pOut,"<span class=\"wikiTagCancelled\">%s", zLB);
           zTerm = "]</span>";
         }
       }else{
         if( g.perm.Hyperlink ){
-          blob_appendf(pOut,"%z[", xhref(zExtraNS,"%R/info/%s", zTarget));
+          blob_appendf(pOut,"%z%s", xhref(zExtraNS,"%R/info/%s", zTarget),zLB);
           zTerm = "]</a>";
         }else{
-          blob_appendf(pOut, "[");
+          blob_appendf(pOut, "%s", zLB);
           zTerm = "]";
         }
       }
@@ -1309,15 +1311,16 @@ void wiki_resolve_hyperlink(
       if( (mFlags & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
         zTerm = "";
       }else{
-        blob_appendf(pOut, "<span class=\"brokenlink\">[");
+        blob_appendf(pOut, "<span class=\"brokenlink\">%s", zLB);
         zTerm = "]</span>";
       }
     }else if( g.perm.Hyperlink ){
-      blob_appendf(pOut, "%z[",xhref(zExtraNS, "%R/info/%s", zTarget));
+      blob_appendf(pOut, "%z%s",xhref(zExtraNS, "%R/info/%s", zTarget), zLB);
       zTerm = "]</a>";
     }else{
       zTerm = "";
     }
+    if( zTerm[0]==']' && (mFlags & WIKI_NOBRACKET)!=0 ) zTerm++;
   }else if( (zRemote = interwiki_url(zTarget))!=0 ){
     blob_appendf(pOut, "<a href=\"%z\"%s>", zRemote, zExtra);
     zTerm = "</a>";

@@ -373,12 +373,15 @@ static char *chat_format_to_html(const char *zMsg){
           blob_append(&out, zSafe + j, i-j);
           j = i;
         }
-        wiki_resolve_hyperlink(&out, WIKI_NOBADLINKS|WIKI_TARGET_BLANK,
+        blob_append_char(&out, '[');
+        wiki_resolve_hyperlink(&out,
+                               WIKI_NOBADLINKS|WIKI_TARGET_BLANK|WIKI_NOBRACKET,
                                zSafe+i+1, zClose, sizeof(zClose), zSafe, 0);
         zSafe[k] = ']';
         j++;
         blob_append(&out, zSafe + j, k - j);
         blob_append(&out, zClose, -1);
+        blob_append_char(&out, ']');
         i = k;
         j = k+1;
         continue;
