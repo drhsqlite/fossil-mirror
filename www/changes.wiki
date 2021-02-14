@@ -1,19 +1,223 @@
 <title>Change Log</title>
 
-<a name='v2_12'></a>
-<h2>Changes for Version 2.12 (pending)</h2>
+<a name='v2_15'></a>
+<h2>Changes for Version 2.15 (pending)</h2>
+  *  The built-in skins all use the "mainmenu" setting to determine
+     the content of the main menu.  The ability to edit the 
+     "mainmenu" setting is added on the /Admin/Configuration page.
+  *  The [/sitemap] extensions are now specified by a single new
+     setting "sitemap-extra", rather than a cluster of various
+     "sitemap-*" settings.  The older settings are no longer used.
+     <b>This change might require minor server configuration 
+     adjustments on servers that use /sitemap extensions.</b>
+     The /Admin/Configuration page provides the ability to edit
+     the new "sitemap-extra" setting.
+  *  Added the "--ckout-alias NAME" option to 
+     [/help?cmd=ui|fossil ui], [/help?cmd=server|fossil server], and
+     [/help?cmd=http|fossil http].  This option causes Fossil to
+     understand URIs of the form "/doc/NAME/..." as if they were
+     "[/help?cmd=/doc|/doc/ckout/...]", to facilitate testing of
+     [./embeddeddoc.wiki|embedded documentation] changes prior to
+     check-in.
+  *  The "pikchr-background" settings is now available in 
+     "detail.txt" skin files, for better control of Pikchr
+     colors in inverted color schemes.
+  *  The hamburger menu is now available on the built-in
+     "[/skn_ardoise/doc/trunk/www/changes.wiki#v2_15|ardoise]" and
+     "[/skn_plain_gray/doc/trunk/www/changes.wiki#v2_15|plain_gray]"
+     skins.
+  *  Add the --list option to the 
+     [/help?cmd=tarball|tarball],
+     [/help?cmd=zip|zip], and [/help?cmd=sqlar|sqlar]
+     commands.
+  *  The javascript used to implement the hamburger menu on the
+     default built-in skin has been made generic so that it is usable
+     by a variety of skins, and promoted to an ordinary built-in
+     javascript file.
+  *  Any built-in skin named "X" can be used instead of the standard
+     repository skin by including the term "skn_X" at the beginning
+     of the URL path.
+  *  New TH1 commands:  "builtin_request_js", "capexpr",
+     "foreach", "string match"
 
-  *  Added <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
+<a name='v2_14'></a>
+<h2>Changes for Version 2.14 (2021-01-20)</h2>
+
+  *  <b>Schema Update Notice #1:</b>
+     This release drops a trigger from the database schema (replacing
+     it with a TEMP trigger that is created as needed).  This
+     change happens automatically the first time you
+     add content to a repository using Fossil 2.14 or later.  No
+     action is needed on your part. However, if you upgrade to 
+     version 2.14 and then later downgrade or otherwise use an earlier
+     version of Fossil, the email notification mechanism may fail
+     to send out notifications for some events, due to the missing
+     trigger.  If you want to
+     permanently downgrade an installation, then you should run
+     "[/help?cmd=rebuild|fossil rebuild]" after the downgrade
+     to get email notifications working again.  If you are not using
+     email notification, then the schema change will not affect you in
+     any way.
+  *  <b>Schema Update Notice #2:</b>
+     This release changes how the descriptions of wiki edits are stored
+     in the EVENT table, for improved display on timelines.  You must
+     run "[/help?cmd=rebuild|fossil rebuild]" to take advantage of
+     this enhancement.  Everything will still work without
+     "fossil rebuild", except you will get goofy descriptions of
+     wiki updates in the timeline.
+  *  Add support for [./chat.md|Fossil chat].
+  *  The "[/help?cmd=clone|fossil clone]" command is enhanced so that
+     if the repository filename is omitted, an appropriate name is derived
+     from the remote URL and the newly cloned repo is opened.  This makes
+     the clone command work more like Git, thus making it easier for
+     people transitioning from Git.
+  *  Added the --mainbranch option to the [/help?cmd=git|fossil git export]
+     command.
+  *  Added the --format option to the 
+     "[/help?cmd=timeline|fossil timeline]" command.
+  *  Enhance the --numstat option on the
+     "[/help?cmd=diff|fossil diff]" command so that it shows a total
+     number of lines added and deleted and total number of files
+     modified.
+  *  Add the "contact" sub-command to [/help?cmd=user|fossil user].
+  *  Added commands "[/help?cmd=all|fossil all git export]" and
+     "[/help?cmd=all|fossil all git status]".
+  *  Added the "df=CHECKIN" query parameter to the
+     [/help?cmd=/timeline|/timeline page].
+  *  Improvements to the "[/sitemap]" page.  Add subpages
+     [/sitemap-timeline] and [/sitemap-test].
+  *  Better text position in cylinder objects of Pikchr diagrams.
+  *  New "details.txt" settings available to custom skins to better control
+     the rendering of Pikchr diagrams:
+     <ul>
+     <li> pikchr-foreground
+     <li> pikchr-scale
+     <li> pikchr-fontscale
+     </ul>
+  *  Allow the use of SQL functions inside the ticket table definition
+     for custom ticket configurations.
+  *  The built-in SQLite is updated to version 3.35.0 alpha containing
+     performance optimizations, especially performance associated with
+     startup, and minor improvements to the CLI.
+  *  Performance optimizations to Fossil itself.
+  *  Countless improvements and enhancements to the documentation
+
+<a name='v2_13'></a>
+<h2>Changes for Version 2.13 (2020-11-01)</h2>
+
+  *  Added support for [./interwiki.md|interwiki links].
+  *  Enable &lt;del&gt; and &lt;ins&gt; markup in  wiki.
+  *  Improvements to the Forum threading display.
+  *  Added support for embedding [./pikchr.md|pikchr]
+     markup in markdown and fossil-wiki content.
+  *  The new "[/help?cmd=pikchr|pikchr]" command can render
+     pikchr scripts, optionally pre-processed with
+     [/doc/trunk/www/th1.md|TH1] blocks and variables exactly like
+     site skins are.
+  *  The new [/help?cmd=/pikchrshow|pikchrshow] page provides an
+     editor and previewer for pikchr markup.
+  *  In [/help?cmd=/wikiedit|/wikiedit] and
+     [/help?cmd=/fileedit|/fileedit], Ctrl-Enter can now be used
+     initiate a preview and to toggle between the editor and preview
+     tabs.
+  *  The <tt>/artifact</tt> and <tt>/file</tt> views, when in
+     line-number mode, now support interactive selection of a range
+     of lines to hyperlink to.
+  *  Enhance the [/help?cmd=/finfo|/finfo] webpage so that when query
+     parameters identify both a filename and a checkin, the resulting
+     graph tracks the identified file across renames.
+  *  The built-in SQLite is updated to an alpha of version 3.34.0, and
+     the minimum SQLite version is increased to 3.34.0 because the
+     /finfo change in the previous bullet depends on enhancements to
+     recursive common table expressions that are only available in
+     SQLite 3.34.0 and later.
+  *  Countless other minor refinements and documentation improvements.
+
+<a name='v2_12'></a>
+<h2>Changes for Version 2.12.1 (2020-08-20)</h2>
+
+  *  (2.12.1): Fix client-side vulnerabilities discovered by Max Justicz.
+  *  Security fix in the "[/help?cmd=git|fossil git export]" command.
+     The same fix is also backported to version 2.10.1 and 2.11.1.
+     New "safety-net" features were added to prevent similar problems
+     in the future.
+  *  Enhancements to the graph display for cases when there are
+     many cherry-pick merges into a single check-in.
+     [/timeline?f=2d75e87b760c0a9|Example]
+  *  Enhance the [/help?cmd=open|fossil open] command with the new
+     --workdir option and the ability to accept a URL as the repository
+     name, causing the remote repository to be cloned automatically.
+     Do not allow "fossil open" to open in a non-empty working directory
+     unless the --keep option or the new --force option is used.
+  *  Enhance the markdown formatter to more closely follow the
+     [https://spec.commonmark.org/0.29/#emphasis-and-strong-emphasis|CommonMark specification]
+     with regard to text highlighting.
+     Underscores in the middle of identifiers (ex: fossil_printf())
+     no longer need to be escaped.
+  *  The markdown-to-html translator can prevent unsafe HTML
+     (for example: &lt;script&gt;) on user-contributed pages like forum and
+     tickets and wiki.  The admin can adjust this behavior using
+     the [/help?cmd=safe-html|safe-html setting] on the Admin/Wiki page.
+     The default is to disallow unsafe HTML everywhere.
+     [https://fossil-scm.org/forum/forumpost/3714e6568f|Example].
+  *  Added the "collapse" and "expand" capability for long forum posts.
+     [https://fossil-scm.org/forum/forumpost/9297029862|Example]
+  *  The "[/help?cmd=remote-url|fossil remote]" command now has options for
+     specifying multiple persistent remotes with symbolic names.  Currently
+     only one remote can be used at a time, but that might change in the
+     future.
+  *  Add the "Remember me?" checkbox on the login page.  Use a session
+     cookie for the login if it is not checked.
+  *  Added the experimental "[/help?cmd=hook|fossil hook]" command for
+     managing "hook scripts" that run before checkin or after a push.
+  *  Enhance the [/help?cmd=revert|fossil revert] command so that it
+     is able to revert all files beneath a directory.
+  *  Add the [/help?cmd=bisect|fossil bisect skip] command.
+  *  Add the [/help?cmd=backup|fossil backup] command.
+  *  Enhance [/help?cmd=bisect|fossil bisect ui] so that it shows all unchecked
+     check-ins in between the innermost "good" and "bad" check-ins.
+  *  Added the <tt>--reset</tt> flag to the "[/help?cmd=add|fossil add]",
      "[/help?cmd=rm|fossil rm]", and
      "[/help?cmd=addremove|fossil addremove]" commands.
-  *  Editing forum posts now applies delta compression to the edits.
+  *  Added the "<tt>--min</tt> <i>N</i>" and "<tt>--logfile</tt> <i>FILENAME</i>"
+     flags to the [/help?cmd=backoffice|backoffice] command, as well as other
+     enhancements to make the backoffice command a viable replacement for
+     automatic backoffice.  Other incremental backoffice improvements.
   *  Added the [/help?cmd=/fileedit|/fileedit page], which allows
      editing of text files online. Requires explicit activation by
      a setup user.
+  *  Translate built-in help text into HTML for display on web pages.
+     [/help?cmd=help|Example].
+  *  On the [/help?cmd=/timeline|/timeline] webpage, the combination
+     of query parameters "p=CHECKIN" and "bt=ANCESTOR" draws all
+     ancestors of CHECKIN going back to ANCESTOR.  For example,
+     [/timeline?p=202006271506&bt=version-2.11] shows all ancestors
+     of the checkin that occured on 2020-06-27 15:06 going back to
+     the 2.11 release.
+  *  Update the built-in SQLite so that the
+     "[/help?cmd=sql|fossil sql]" command supports new output
+     modes ".mode box" and ".mode json".
+  *  Add the "<tt>obscure()</tt>" SQL function to the 
+     "[/help?cmd=sql|fossil sql]" command.
+  *  Added virtual tables "<tt>helptext</tt>" and "<tt>builtin</tt>" to
+     the "[/help?cmd=sql|fossil sql]" command, providing access to the
+     dispatch table including all help text, and the builtin data files,
+     respectively.
+  *  [./delta_format.wiki|Delta compression] is now applied to forum edits.
+  *  The [/help?cmd=/wikiedit|wiki editor] has been modernized and is
+     now Ajax-based. The WYSIWYG editing option for Fossil-format wiki
+     pages was removed. (Please let us know, via the site's Support menu,
+     if that removal unduly impacts you.) This also changes the semantics
+     of the wiki "Sandbox": that pseudo-page may be freely edited but
+     no longer saved via the UI (the [/help?cmd=wiki|wiki CLI command]
+     can, though).
+  *  Countless documentation enhancements.
 
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (2020-05-25)</h2>
 
+  *  (2.11.2): Backport security fixes from 2.12.1
+  *  (2.11.1): Backport security fix for the "fossil git export" command.
   *  Support [/md_rules|Markdown] in the default ticket configuration.
   *  Timestamp strings in [./checkin_names.wiki|object names]
      can now omit punctation.  So, for example, "202004181942" and
@@ -103,6 +307,8 @@
 <a name='v2_10'></a>
 <h2>Changes for Version 2.10 (2019-10-04)</h2>
 
+  *  (2.10.2): backport security fixes from 2.12.1
+  *  (2.10.1): backport security fix for the "fossil git export" command.
   *  Added support for [./serverext.wiki|CGI-based Server Extensions].
   *  Added the [/help?cmd=repolist-skin|repolist-skin] setting used to
      add style to repository list pages.
@@ -200,7 +406,7 @@
   *  Use new "ci-lock" and "ci-lock-failed" pragmas in the
      [./sync.wiki|sync protocol] to try to prevent accident forks
      caused by concurrent commits when operating in auto-sync mode.
-  *  Fix a bug ([https://www.fossil-scm.org/forum/forumpost/c51b9a1169|details])
+  *  Fix a bug ([https://fossil-scm.org/forum/forumpost/c51b9a1169|details])
      that can cause repository databases to be overwritten with debugging
      output, thus corrupting the repository. This is only a factor when
      CGI debugging is enabled, and even then is a rare occurrence, but it is
@@ -475,7 +681,7 @@
 
   *  Use the
      [https://github.com/cr-marcstevens/sha1collisiondetection|hardened SHA1]
-     implemenation by Marc Stevens and Dan Shumow.
+     implementation by Marc Stevens and Dan Shumow.
   *  Add the ability to read and understand
      [./fileformat.wiki#names|artifact names] that are based on SHA3-256
      rather than SHA1, but do not actually generate any such names.
@@ -499,7 +705,7 @@
   *  Enhanced the [/help/sqlite3|fossil sql] command so that it opens the
      [./tech_overview.wiki#localdb|checkout database] and the
      [./tech_overview.wiki#configdb|configuration database] in addition to the
-     respository database.
+     repository database.
   *  TH1 enhancements:
      <ul><li>Add <nowiki>[unversioned content]</nowiki> command.</li>
      <li>Add <nowiki>[unversioned list]</nowiki> command.</li>
@@ -592,7 +798,7 @@
   *  If the FOSSIL_PWREADER environment variable is set, then use the program it
      names in place of getpass() to read passwords and passphrases
   *  Option --baseurl now works on Windows.
-  *  Numerious documentation improvements.
+  *  Numerous documentation improvements.
   *  Update the built-in SQLite to version 3.13.0.
 
 <a name='v1_34'></a>

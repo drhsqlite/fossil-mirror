@@ -460,10 +460,12 @@ const char *captcha_decode(unsigned int seed){
 
   zSecret = db_get("captcha-secret", 0);
   if( zSecret==0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('captcha-secret', lower(hex(randomblob(20))));"
     );
+    db_protect_pop();
     zSecret = db_get("captcha-secret", 0);
     assert( zSecret!=0 );
   }
@@ -514,7 +516,6 @@ int captcha_is_correct(int bAlwaysNeeded){
   if( zEntered==0 || strlen(zEntered)!=8 ) return 0;
   zDecode = captcha_decode((unsigned int)atoi(zSeed));
   assert( strlen(zDecode)==8 );
-  if( strlen(zEntered)!=8 ) return 0;
   for(i=0; i<8; i++){
     char c = zEntered[i];
     if( c>='A' && c<='F' ) c += 'a' - 'A';
@@ -562,7 +563,7 @@ void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
   if( zMsg==0 ) zMsg = "Speak the text";
   @ <input aria-label="%h(zMsg)" type="button" value="%h(zMsg)" \
   @ id="speakthetext">
-  @ <script nonce="%h(style_nonce())">
+  @ <script nonce="%h(style_nonce())">/* captcha_speakit_button() */
   @ document.getElementById("speakthetext").onclick = function(){
   @   var audio = window.fossilAudioCaptcha \
   @ || new Audio("%R/captcha-audio/%u(uSeed)");
@@ -586,11 +587,12 @@ void captcha_test(void){
     sqlite3_randomness(sizeof(x), &x);
     zPw = mprintf("%016llx", x);
   }
+  style_set_current_feature("test");
   style_header("Captcha Test");
   @ <pre>
   @ %s(captcha_render(zPw))
   @ </pre>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -621,13 +623,14 @@ int exclude_spiders(void){
   }
 
   /* This appears to be a spider.  Offer the captcha */
+  style_set_current_feature("captcha");
   style_header("Verification");
   @ <form method='POST' action='%s(g.zPath)'>
   cgi_query_parameters_to_hidden();
   @ <p>Please demonstrate that you are human, not a spider or robot</p>
   captcha_generate(1);
   @ </form>
-  style_footer();
+  style_finish_page();
   return 1;
 }
 

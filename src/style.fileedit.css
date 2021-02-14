@@ -13,14 +13,16 @@ body.fileedit textarea {
   font-family: monospace;
   flex: 10 1 auto;
   height: initial/*undo damage from some skins*/;
+  max-width: initial /* default.css pins it at 95% */;
 }
 body.fileedit textarea:focus,
 body.fileedit input:focus{
-  /* The sudden appearance of a border (as in the Ardoise skin)
-     shifts the layout in unsightly ways */
-  border: initial;
+  /* Depending on the skin, it might be useful to add one or both of
+     the following... */
+  /*border-width: 1px;*/
+  /*border: initial; */
 }
-body.fileedit fieldset {
+body.fileedit fieldset:not(.tab-wrapper) {
   margin: 0.5em 0 0.5em 0;
   padding: 0.25em 0;
   border-radius: 0.5em;
@@ -66,7 +68,7 @@ body.fileedit div.fileedit-preview {
   padding: 0;
 }
 body.fileedit #fileedit-tabs {
-  margin: 1em 0 0 0;
+  margin: 0.5em 0 0 0;
 }
 body.fileedit #fileedit-tab-preview-wrapper {
   overflow: auto;
@@ -115,10 +117,6 @@ body.fileedit #fileedit-file-selector {
   display: flex;
   flex-direction: column;
   align-content: flex-start;
-  border-color: inherit;
-  border-width: 1px;
-  border-style: inset;
-  border-radius: 0.5em;
   padding: 0 0.25em;
   margin: 0;
   min-height: 12em;
@@ -127,11 +125,16 @@ body.fileedit #fileedit-file-selector select {
   margin: 0 0 0.5em 0;
   height: initial;
   font-family: monospace;
+  border: initial;
 }
 body.fileedit select:focus {
-  border: none;
+  border: initial;
 }
-body.fileedit option:focus {
+body.fileedit #fileedit-file-selector select option {
+  margin: 0 0 0.5em 0.55em;
+}
+body.fileedit select option,
+body.fileedit select option:focus {
   border: none;
 }
 body.fileedit #fileedit-file-selector > div {
@@ -146,13 +149,13 @@ body.fileedit #fileedit-stash-selector {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
 }
 body.fileedit #fileedit-stash-selector select {
-  margin: 0;
+  margin: 0 1em;
   height: initial;
   font-family: monospace;
-  flex: 10 1 auto;
+  flex: 1 1 auto;
 }
 body.fileedit .tab-container > .tabs > .tab-panel {
   display: flex;
@@ -185,183 +188,47 @@ body.fileedit .sbsdiffcols div.difftxtcol pre {
   max-width: 44em;
 }
 
-/**
-  Styles for fossil.tabs.js. As of this writing, currently
-  only used by /fileedit, but it is anticipated that these
-  will eventually need to migrate to default_css.txt for use
-  in the wiki and/or forum pages when implementing tabbed
-  ajax-based previews.
-*/
-.tab-container {
+body.fileedit #fileedit-edit-status {
+  border-radius: 0.25em 0.25em 0 0;
+  margin: 0;
+  padding: 0;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-.tab-container > #fossil-status-bar {
-  margin-top: 0;
-}
-.tab-container > .tabs {
-  padding: 0.25em;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  border-width: 1px;
-  border-style: outset;
-  border-color: inherit;
-}
-.tab-container > .tabs > .tab-panel {
-  align-self: stretch;
-  flex: 10 1 auto;
-  display: block;
-}
-.tab-container > .tab-bar {
+  cursor: initial;
   display: flex;
   flex-direction: row;
-  flex: 1 10 auto;
-  align-self: stretch;
   flex-wrap: wrap;
-}
-.tab-container > .tab-bar > .tab-button {
-  display: inline-block;
-  border-radius: 0.5em 0.5em 0 0;
-  margin: 0 0.1em;
-  padding: 0.25em 0.75em;
-  align-self: baseline;
-  border-color: inherit;
-  border-width: 1px;
-  border-bottom: none;
-  border-top-style: inset;
-  border-left-style: inset;
-  border-right-style: inset;
-  cursor: pointer;
-  opacity: 0.6;
-}
-.tab-container > .tab-bar > .tab-button.selected {
-  text-decoration: underline;
-  opacity: 1.0;
-  border-top-style: outset;
-  border-left-style: outset;
-  border-right-style: outset;
-}
-
-/**
-   Styles developed for /fileedit but which have wider
-   applicability...
-
-   As of this writing, these are only used by /fileedit, but it is
-   anticipated that they will eventually need to be migrated over to
-   default_css.txt for use in other pages (specifically wiki and forum
-   page/post editors).
-*/
-.flex-container {
-    display: flex;
-}
-.flex-container.flex-row {
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-.flex-container .flex-grow {
-  flex-grow: 10;
-  flex-shrink: 0;
-}
-.flex-container .flex-shrink {
-  flex-grow: 0;
-  flex-shrink: 10;
-}
-.flex-container.flex-row.stretch {
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: stretch;
-  margin: 0;
-}
-.flex-container.flex-column {
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-.flex-container.flex-column.stretch {
-  align-items: stretch;
-  margin: 0;
-}
-.flex-container.child-gap-small > * {
-  margin: 0.25em;
-}
-#fossil-status-bar {
-  display: block;
+  justify-content: space-between;
   font-family: monospace;
-  border-width: 1px;
-  border-style: inset;
-  border-color: inherit;
-  min-height: 1.5em;
-  font-size: 1.2em;
-  padding: 0.2em;
-  margin: 0.25em 0;
-  flex: 0 0 auto;
 }
-.font-size-100 {
-  font-size: 100%;
+body.fileedit #fileedit-edit-status > span.name > a {
+  display: block;
+  word-break: break-word /* needed for long paths */;
 }
-.font-size-125 {
-  font-size: 125%;
+body.fileedit #fileedit-edit-status > span.links {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
 }
-.font-size-150 {
-  font-size: 150%;
+body.fileedit #fileedit-file-selector span.is-new,
+body.fileedit #fileedit-file-selector span.is-modified {
+  font-family: monospace;
 }
-.font-size-175 {
-  font-size: 175%;
+body.fileedit #fileedit-edit-status span.links > * {
+  margin: 0 0.25em;
+  white-space: nowrap;
 }
-.font-size-200 {
-  font-size: 200%;
+body.fileedit #fileedit-edit-status span.links > *::before {
+  content: "[";
 }
-
-/**
-   .input-with-label is intended to be a wrapper element which
-   contain both a LABEL tag and an INPUT or SELECT control.
-   The wrapper is "necessary", as opposed to placing the INPUT
-   in the LABEL, so that we can include multiple INPUT
-   elements (e.g. a set of radio buttons).
-*/
-.input-with-label {
-  border: 1px inset #808080;
-  border-radius: 0.5em;
-  padding: 0.25em 0.4em;
-  margin: 0 0.5em;
-  display: inline-block;
-  cursor: default;
+body.fileedit #fileedit-edit-status span.links > *::after {
+  content: "]";
 }
-.input-with-label > * {
-  vertical-align: middle;
+/* JS selection of line numbers cannot work in preview mode,
+   so disable the UI indications which imply that it does
+   something... */
+body.fileedit table.numbered-lines td.line-numbers > span {
+  cursor: unset;
 }
-.input-with-label > label {
-  display: inline; /* some skins set label display to block! */
-}
-.input-with-label > input {
-  margin: 0;
-}
-.input-with-label > button {
-  margin: 0;
-}
-.input-with-label > select {
-  margin: 0;
-}
-.input-with-label > input[type=text] {
-  margin: 0;
-}
-.input-with-label > textarea {
-  margin: 0;
-}
-.input-with-label > input[type=checkbox] {
-  vertical-align: sub;
-}
-.input-with-label > input[type=radio] {
-  vertical-align: sub;
-}
-.input-with-label > label {
-  font-weight: initial;
-  margin: 0 0.25em 0 0.25em;
-  vertical-align: middle;
+body.fileedit table.numbered-lines td.line-numbers > span:hover {
+  background-color: inherit;
 }

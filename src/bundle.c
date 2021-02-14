@@ -27,7 +27,7 @@
 ** The bblob.delta field can be an integer, a text string, or NULL.
 ** If an integer, then the corresponding blobid is the delta basis.
 ** If a text string, then that string is a SHA1 hash for the delta
-** basis, which is presumably in the master repository.  If NULL, then
+** basis, which is presumably in the main repository.  If NULL, then
 ** data contains content without delta compression.
 */
 static const char zBundleInit[] =
@@ -718,23 +718,23 @@ static void bundle_purge_cmd(void){
 }
 
 /*
-** COMMAND: bundle
+** COMMAND: bundle*
 **
 ** Usage: %fossil bundle SUBCOMMAND ARGS...
 **
-**   fossil bundle append BUNDLE FILE...
+** > fossil bundle append BUNDLE FILE...
 **
 **      Add files named on the command line to BUNDLE.  This subcommand has
 **      little practical use and is mostly intended for testing.
 **
-**   fossil bundle cat BUNDLE HASH...
+** > fossil bundle cat BUNDLE HASH...
 **
 **      Extract one or more artifacts from the bundle and write them
 **      consecutively on standard output.  This subcommand was designed
 **      for testing and introspection of bundles and is not something
 **      commonly used.
 **
-**   fossil bundle export BUNDLE ?OPTIONS?
+** > fossil bundle export BUNDLE ?OPTIONS?
 **
 **      Generate a new bundle, in the file named BUNDLE, that contains a
 **      subset of the check-ins in the repository (usually a single branch)
@@ -746,45 +746,31 @@ static void bundle_purge_cmd(void){
 **         --from TAG1 --to TAG2      Package check-ins between TAG1 and TAG2.
 **         --checkin TAG              Package the single check-in TAG
 **         --standalone               Do no use delta-encoding against
-**                                      artifacts not in the bundle
+**                                    artifacts not in the bundle
 **
-**   fossil bundle extend BUNDLE
+** > fossil bundle extend BUNDLE
 **
 **      The BUNDLE must already exist.  This subcommand adds to the bundle
 **      any check-ins that are descendants of check-ins already in the bundle,
 **      and any tags that apply to artifacts in the bundle.
 **
-**   fossil bundle import BUNDLE ?--publish?
+** > fossil bundle import BUNDLE ?--publish?
 **
 **      Import all content from BUNDLE into the repository.  By default, the
 **      imported files are private and will not sync.  Use the --publish
 **      option to make the import public.
 **
-**   fossil bundle ls BUNDLE
+** > fossil bundle ls BUNDLE
 **
 **      List the contents of BUNDLE on standard output
 **
-**   fossil bundle purge BUNDLE
+** > fossil bundle purge BUNDLE
 **
 **      Remove from the repository all files that are used exclusively
 **      by check-ins in BUNDLE.  This has the effect of undoing a
 **      "fossil bundle import".
 **
-** SUMMARY:
-**   fossil bundle append BUNDLE FILE...              Add files to BUNDLE
-**   fossil bundle cat BUNDLE HASH...                 Extract file from BUNDLE
-**   fossil bundle export BUNDLE ?OPTIONS?            Create a new BUNDLE
-**          --branch BRANCH --from TAG1 --to TAG2       Check-ins to include
-**          --checkin TAG                               Use only check-in TAG
-**          --standalone                                Omit dependencies
-**   fossil bundle extend BUNDLE                      Update with newer content
-**   fossil bundle import BUNDLE ?OPTIONS?            Import a bundle
-**          --publish                                   Publish the import
-**          --force                                     Cross-repo import
-**   fossil bundle ls BUNDLE                          List content of a bundle
-**   fossil bundle purge BUNDLE                       Undo an import
-**
-** See also: publish
+** See also: [[publish]]
 */
 void bundle_cmd(void){
   const char *zSubcmd;

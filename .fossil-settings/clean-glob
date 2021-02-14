@@ -9,7 +9,7 @@ Makefile
 autosetup/jimsh0
 autosetup/jimsh0.exe
 bld/*
-wbld/*
+msvcbld/*
 win/*.c
 win/*.h
 win/*.exe

@@ -58,7 +58,7 @@ prefer one of the terms above in public interfaces instead.
 
 Whether this short alias is correct is debateable.
 
-One argument is that since "UUID" is an acronym for “Univerially Unique
+One argument is that since "UUID" is an acronym for “Universally Unique
 Identifier,” and both SHA1 and SHA3-256 are larger and stronger than the
 128-bit algorithms used by “proper” UUIDs, Fossil artifact hashes are
 *more universally unique*. It is therefore quibbling to say that Fossil

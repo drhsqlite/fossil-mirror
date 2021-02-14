@@ -565,8 +565,9 @@ if {$::outside_fossil_repo} {
   set skip_anycap 0
 }
 
+# NOTE: The 'd' permission is no longer used.
 foreach perm [list \
-    a b c d e f g h i j k l m n o p q r s t u v w x y z \
+    a b c e f g h i j k l m n o p q r s t u v w x y z \
     A D \
     2 3 4 5 6 7 ] {
   if {$perm eq "u"} continue; # NOTE: Skip "reader" meta-permission.
@@ -772,6 +773,17 @@ this is a trace message.
 
 ###############################################################################
 
+fossil test-th-eval "defHeader {Page Title Here}"
+test th1-defHeader-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "defHeader"}}
+
+###############################################################################
+
+fossil test-th-eval "defHeader"
+test th1-defHeader-2 {[string match *<body> [normalize_result]]}
+
+###############################################################################
+
 fossil test-th-eval "styleHeader {Page Title Here}"
 test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
@@ -794,7 +806,7 @@ test th1-footer-2 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --open-config --cgi "styleHeader {}; styleFooter"
-test th1-footer-3 {[regexp -- {</body></html>} $RESULT]}
+test th1-footer-3 {[regexp -- {</body>\n</html>} $RESULT]}
 
 ###############################################################################
 
@@ -1037,14 +1049,14 @@ fossil test-th-eval "info commands"
 set sorted_result [lsort $RESULT]
 protOut "Sorted: $sorted_result"
 set base_commands {anoncap anycap array artifact break breakpoint catch\
-      cgiHeaderLine checkout combobox continue date decorate dir enable_output \
-      encode64 error expr for getParameter glob_match globalState hascap \
-      hasfeature html htmlize http httpize if info insertCsrf lindex linecount \
-      list llength lsearch markdown nonce proc puts query randhex redirect\
-      regexp reinitialize rename render repository return searchable set\
-      setParameter setting stime string styleFooter styleHeader styleScript\
-      tclReady trace unset unversioned uplevel upvar utime verifyCsrf\
-      verifyLogin wiki}
+      cgiHeaderLine checkout combobox continue copybtn date decorate \
+      defHeader dir enable_output encode64 error expr for getParameter \
+      glob_match globalState hascap hasfeature html htmlize http httpize if \
+      info insertCsrf lindex linecount list llength lsearch markdown nonce \
+      proc puts query randhex redirect regexp reinitialize rename render \
+      repository return searchable set setParameter setting stime string \
+      styleFooter styleHeader styleScript tclReady trace unset unversioned \
+      uplevel upvar utime verifyCsrf verifyLogin wiki}
 set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {
   test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}

@@ -374,6 +374,99 @@ int ticket_change(const char *zUuid){
 }
 
 /*
+** An authorizer function for the SQL used to initialize the
+** schema for the ticketing system.  Only allow
+**
+**     CREATE TABLE
+**     CREATE INDEX
+**     CREATE VIEW
+**
+** And for objects in "main" or "repository" whose names
+** begin with "ticket" or "fx_".  Also allow
+**
+**     INSERT
+**     UPDATE
+**     DELETE
+**
+** But only for tables in "main" or "repository" whose names
+** begin with "ticket", "sqlite_", or "fx_".
+**
+** Of particular importance for security is that this routine
+** disallows data changes on the "config" table, as that could
+** allow a malicious server to modify settings in such a way as
+** to cause a remote code execution.
+*/
+static int ticket_schema_auth(
+  void *pNErr,
+  int eCode,
+  const char *z0,
+  const char *z1,
+  const char *z2,
+  const char *z3
+){
+  switch( eCode ){
+    case SQLITE_CREATE_VIEW:
+    case SQLITE_CREATE_TABLE: {
+      if( sqlite3_stricmp(z2,"main")!=0
+       && sqlite3_stricmp(z2,"repository")!=0
+      ){
+        goto ticket_schema_error;
+      }
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0 
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
+      ){
+        goto ticket_schema_error;
+      }
+      break;
+    }
+    case SQLITE_CREATE_INDEX: {
+      if( sqlite3_stricmp(z2,"main")!=0
+       && sqlite3_stricmp(z2,"repository")!=0
+      ){
+        goto ticket_schema_error;
+      }
+      if( sqlite3_strnicmp(z1,"ticket",6)!=0
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
+      ){
+        goto ticket_schema_error;
+      }
+      break;
+    }
+    case SQLITE_INSERT:
+    case SQLITE_UPDATE:
+    case SQLITE_DELETE: {
+      if( sqlite3_stricmp(z2,"main")!=0
+       && sqlite3_stricmp(z2,"repository")!=0
+      ){
+        goto ticket_schema_error;
+      }
+      if( sqlite3_strnicmp(z0,"ticket",6)!=0
+       && sqlite3_strnicmp(z0,"sqlite_",7)!=0
+       && sqlite3_strnicmp(z0,"fx_",3)!=0
+      ){
+        goto ticket_schema_error;
+      }
+      break;
+    }
+    case SQLITE_FUNCTION:
+    case SQLITE_REINDEX:
+    case SQLITE_TRANSACTION:
+    case SQLITE_READ: {
+      break;
+    }
+    default: {
+      goto ticket_schema_error;
+    }
+  }
+  return SQLITE_OK;
+
+ticket_schema_error:
+  if( pNErr ) *(int*)pNErr  = 1;
+  return SQLITE_DENY;
+}
+
+
+/*
 ** Recreate the TICKET and TICKETCHNG tables.
 */
 void ticket_create_table(int separateConnection){
@@ -384,12 +477,14 @@ void ticket_create_table(int separateConnection){
     "DROP TABLE IF EXISTS ticketchng;"
   );
   zSql = ticket_table_schema();
+  db_set_authorizer(ticket_schema_auth,0,"Ticket-Schema");
   if( separateConnection ){
     if( db_transaction_nesting_depth() ) db_end_transaction(0);
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
     db_multi_exec("%s", zSql/*safe-for-%s*/);
   }
+  db_clear_authorizer();
   fossil_free(zSql);
 }
 
@@ -474,24 +569,25 @@ void tktview_page(void){
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   if( g.anon.WrTkt || g.anon.ApndTkt ){
-    style_submenu_element("Edit", "%s/tktedit?name=%T", g.zTop, PD("name",""));
+    style_submenu_element("Edit", "%R/tktedit?name=%T", PD("name",""));
   }
   if( g.perm.Hyperlink ){
-    style_submenu_element("History", "%s/tkthistory/%T", g.zTop, zUuid);
-    style_submenu_element("Check-ins", "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
+    style_submenu_element("History", "%R/tkthistory/%T", zUuid);
+    style_submenu_element("Check-ins", "%R/tkttimeline/%T?y=ci", zUuid);
   }
   if( g.anon.NewTkt ){
-    style_submenu_element("New Ticket", "%s/tktnew", g.zTop);
+    style_submenu_element("New Ticket", "%R/tktnew");
   }
   if( g.anon.ApndTkt && g.anon.Attach ){
-    style_submenu_element("Attach", "%s/attachadd?tkt=%T&from=%s/tktview/%t",
-        g.zTop, zUuid, g.zTop, zUuid);
+    style_submenu_element("Attach", "%R/attachadd?tkt=%T&from=%R/tktview/%t",
+        zUuid, zUuid);
   }
   if( P("plaintext") ){
     style_submenu_element("Formatted", "%R/tktview/%s", zUuid);
   }else{
     style_submenu_element("Plaintext", "%R/tktview/%s?plaintext", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("View Ticket");
   if( showTimeline ){
     int tagid = db_int(0,"SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
@@ -504,7 +600,7 @@ void tktview_page(void){
     }
   }
   if( !showTimeline && g.perm.Hyperlink ){
-    style_submenu_element("Timeline", "%s/info/%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "%R/info/%T", zUuid);
   }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
@@ -514,6 +610,7 @@ void tktview_page(void){
   zScript = ticket_viewpage_code();
   if( P("showfields")!=0 ) showAllFields();
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
+  safe_html_context(DOCSRC_TICKET);
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
 
@@ -524,7 +621,7 @@ void tktview_page(void){
     attachment_list(zFullName, "<hr /><h2>Attachments:</h2><ul>");
   }
 
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -721,6 +818,7 @@ void tktnew_page(void){
   if( P("cancel") ){
     cgi_redirect("home");
   }
+  style_set_current_feature("tkt");
   style_header("New Ticket");
   ticket_standard_submenu(T_ALL_BUT(T_NEW));
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
@@ -741,13 +839,13 @@ void tktnew_page(void){
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
+    cgi_redirect(mprintf("%R/tktview/%s", zNewUuid));
     return;
   }
   captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -776,24 +874,25 @@ void tktedit_page(void){
   if( P("cancel") ){
     cgi_redirectf("tktview?name=%T", zName);
   }
+  style_set_current_feature("tkt");
   style_header("Edit Ticket");
   if( zName==0 || (nName = strlen(zName))<4 || nName>HNAME_LEN_SHA1
           || !validate16(zName,nName) ){
     @ <span class="tktError">Not a valid ticket id: "%h(zName)"</span>
-    style_footer();
+    style_finish_page();
     return;
   }
   nRec = db_int(0, "SELECT count(*) FROM ticket WHERE tkt_uuid GLOB '%q*'",
                 zName);
   if( nRec==0 ){
     @ <span class="tktError">No such ticket: "%h(zName)"</span>
-    style_footer();
+    style_finish_page();
     return;
   }
   if( nRec>1 ){
     @ <span class="tktError">%d(nRec) tickets begin with:
     @ "%h(zName)"</span>
-    style_footer();
+    style_finish_page();
     return;
   }
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
@@ -812,13 +911,13 @@ void tktedit_page(void){
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
+    cgi_redirect(mprintf("%R/tktview/%s", zName));
     return;
   }
   captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -930,18 +1029,18 @@ void tkttimeline_page(void){
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
-    style_submenu_element("Check-ins", "%s/tkttimeline?name=%T&y=ci",
-       g.zTop, zUuid);
+    style_submenu_element("Check-ins", "%R/tkttimeline?name=%T&y=ci", zUuid);
   }else{
-    style_submenu_element("Timeline", "%s/tkttimeline?name=%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "%R/tkttimeline?name=%T", zUuid);
   }
-  style_submenu_element("History", "%s/tkthistory/%s", g.zTop, zUuid);
-  style_submenu_element("Status", "%s/info/%s", g.zTop, zUuid);
+  style_submenu_element("History", "%R/tkthistory/%s", zUuid);
+  style_submenu_element("Status", "%R/info/%s", zUuid);
   if( zType[0]=='c' ){
     zTitle = mprintf("Check-ins Associated With Ticket %h", zUuid);
   }else{
     zTitle = mprintf("Timeline Of Ticket %h", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("%z", zTitle);
 
   sqlite3_snprintf(6, zGlobPattern, "%s", zUuid);
@@ -949,11 +1048,11 @@ void tkttimeline_page(void){
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
   if( tagid==0 ){
     @ No such ticket: %h(zUuid)
-    style_footer();
+    style_finish_page();
     return;
   }
   tkt_draw_timeline(tagid, zType);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -966,7 +1065,7 @@ void tkttimeline_page(void){
 ** By default, the artifacts are decoded and formatted.  Text fields
 ** are formatted as text/plain, since in the general case Fossil does
 ** not have knowledge of the encoding.  If the "raw" query parameter
-** is present, then the* undecoded and unformatted text of each artifact
+** is present, then the undecoded and unformatted text of each artifact
 ** is displayed.
 */
 void tkthistory_page(void){
@@ -983,21 +1082,21 @@ void tkthistory_page(void){
   }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
-  style_submenu_element("Status", "%s/info/%s", g.zTop, zUuid);
-  style_submenu_element("Check-ins", "%s/tkttimeline?name=%s&y=ci",
-    g.zTop, zUuid);
-  style_submenu_element("Timeline", "%s/tkttimeline?name=%s", g.zTop, zUuid);
+  style_submenu_element("Status", "%R/info/%s", zUuid);
+  style_submenu_element("Check-ins", "%R/tkttimeline?name=%s&y=ci", zUuid);
+  style_submenu_element("Timeline", "%R/tkttimeline?name=%s", zUuid);
   if( P("raw")!=0 ){
     style_submenu_element("Decoded", "%R/tkthistory/%s", zUuid);
   }else if( g.perm.Admin ){
     style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
   }
+  style_set_current_feature("tkt");
   style_header("%z", zTitle);
 
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
   if( tagid==0 ){
     @ No such ticket: %h(zUuid)
-    style_footer();
+    style_finish_page();
     return;
   }
   if( P("raw")!=0 ){
@@ -1070,7 +1169,7 @@ void tkthistory_page(void){
   if( nChng ){
     @ </ol>
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -1137,7 +1236,7 @@ void ticket_output_change_artifact(
 **
 ** Run various subcommands to control tickets
 **
-**   %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?OPTIONS?
+** > fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?OPTIONS?
 **
 **     Options:
 **       -l|--limit LIMITCHAR
@@ -1166,18 +1265,18 @@ void ticket_output_change_artifact(
 **     number; the special report number 0 lists all columns defined in
 **     the ticket table.
 **
-**   %fossil ticket list fields
-**   %fossil ticket ls fields
+** > fossil ticket list fields
+** > fossil ticket ls fields
 **
 **     List all fields defined for ticket in the fossil repository.
 **
-**   %fossil ticket list reports
-**   %fossil ticket ls reports
+** > fossil ticket list reports
+** > fossil ticket ls reports
 **
 **     List all ticket reports defined in the fossil repository.
 **
-**   %fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
-**   %fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
+** > fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
+** > fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
 **
 **     Change ticket identified by TICKETUUID to set the values of
 **     each field FIELD to VALUE.
@@ -1193,11 +1292,11 @@ void ticket_output_change_artifact(
 **     show", which allows setting multiline text or text with special
 **     characters.
 **
-**   %fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+** > fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
 **
 **     Like set, but create a new ticket with the given values.
 **
-**   %fossil ticket history TICKETUUID
+** > fossil ticket history TICKETUUID
 **
 **     Show the complete change history for the ticket
 **
@@ -1398,7 +1497,7 @@ void ticket_cmd(void){
         fossil_fatal("empty %s command aborted!",g.argv[2]);
       }
       getAllTicketFields();
-      /* read commandline and assign fields in the aField[].zValue array */
+      /* read command-line and assign fields in the aField[].zValue array */
       while( i<g.argc ){
         char *zFName;
         char *zFValue;
@@ -1519,8 +1618,9 @@ void tkt_home_page(void){
 */
 void tkt_srchpage(void){
   login_check_credentials();
+  style_set_current_feature("tkt");
   style_header("Ticket Search");
   ticket_standard_submenu(T_ALL_BUT(T_SRCH));
   search_screen(SRCH_TKT, 0);
-  style_footer();
+  style_finish_page();
 }

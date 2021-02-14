@@ -3,10 +3,9 @@
 Fossil has self-hosted since 2007-07-21.  As of 2017-07-25
 there are three publicly accessible repositories for the Fossil source code:
 
-  1.  [https://www.fossil-scm.org/]
+  1.  [https://fossil-scm.org/]
   2.  [https://www2.fossil-scm.org/]
   3.  [https://www3.fossil-scm.org/site.cgi]
-
 
 The canonical repository is (1).  Repositories (2) and (3) automatically
 stay in synchronization with (1) via a
@@ -21,7 +20,7 @@ Changes (such as new tickets or wiki or check-ins) can be implemented
 on any of the three servers and those changes automatically propagate to the
 other two servers.
 
-Server (1) runs as a CGI script on a
+Server (1) runs as a [./aboutcgi.wiki|CGI script] on a
 <a href="http://www.linode.com/">Linode 8192</a> located in Dallas, TX
 - on the same virtual machine that
 hosts <a href="http://www.sqlite.org/">SQLite</a> and over a

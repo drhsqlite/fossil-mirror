@@ -388,7 +388,7 @@ or a how-to on [the Fossil forum][ff] would be appreciated.
 <a id="db"></a>
 ### Method 2: Store in a Database
 
-The self-hosting Fossil repository at <https://www.fossil-scm.org/>
+The self-hosting Fossil repository at <https://fossil-scm.org/>
 currently uses this method rather than [the pipe method](#pipe) because
 it is running inside of a restrictive [chroot jail][cj] which is unable
 to hand off messages to the local MTA directly.
@@ -532,18 +532,7 @@ on behalf of a subscriber which they could do themselves, such as to
 <a id="backup"></a>
 ## Cloning, Syncing, and Backups
 
-The Admin → Notification settings are not replicated using clone or
-sync, and it is not possible to push such settings from one repository
-to another.  In a network of peer repositories, you only want one
-repository sending email alerts.  If you were to replicate the email
-alert settings to a separate repository, then subscribers would get
-multiple alerts for each event, which would be bad.
-
-However, the subscriber list can be synced for backup purposes.  Use the
-[`fossil config pull subscriber`](/help?cmd=configuration) command to
-pull the latest subscriber list from a server into a backup repository.
-
-The `push`, `export`, and `import` commands all work similarly.
+That’s [covered elsewhere](./backup.md#alerts).
 
 
 <a id="pages" name="commands"></a>

@@ -5,6 +5,7 @@
 *.dia
 *.pdf
 *.png
+*.wav
 compat/zlib/contrib/blast/test.pk
 compat/zlib/contrib/dotzlib/DotZLib.chm
 compat/zlib/contrib/puff/zeros.raw

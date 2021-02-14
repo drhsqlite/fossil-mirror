@@ -161,6 +161,7 @@ void moderation_approve(char class, int rid){
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
   admin_log("Approved moderation of rid %c-%d.", class, rid);
   if( class!='a' ) search_doc_touch(class, rid, 0);
+  setup_incr_cfgcnt();
   db_end_transaction(0);
 }
 
@@ -190,7 +191,7 @@ void modreq_page(void){
     www_print_timeline(&q, 0, 0, 0, 0, 0, 0, 0);
     db_finalize(&q);
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -223,5 +224,6 @@ void moderation_disapprove_for_missing_users(){
     moderation_disapprove(objid);
   }
   db_finalize(&q);
+  setup_incr_cfgcnt();
   db_end_transaction(0);
 }

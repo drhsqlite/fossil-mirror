@@ -51,9 +51,9 @@ void uncheckout(int vid){
   if( vid<=0 ) return;
   sqlite3_create_function(g.db, "dirname",1,SQLITE_UTF8,0,
                           file_dirname_sql_function, 0, 0);
-  sqlite3_create_function(g.db, "unlink",1,SQLITE_UTF8,0,
+  sqlite3_create_function(g.db, "unlink",1,SQLITE_UTF8|SQLITE_DIRECTONLY,0,
                           file_delete_sql_function, 0, 0);
-  sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8, 0,
+  sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8|SQLITE_DIRECTONLY, 0,
                           file_rmdir_sql_function, 0, 0);
   db_multi_exec(
     "CREATE TEMP TABLE dir_to_delete(name TEXT %s PRIMARY KEY)WITHOUT ROWID",
@@ -182,7 +182,7 @@ void manifest_to_disk(int vid){
   if( flg & MFESTFLG_RAW ){
     blob_zero(&manifest);
     content_get(vid, &manifest);
-    sterilize_manifest(&manifest);
+    sterilize_manifest(&manifest, CFTYPE_MANIFEST);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManFile);
     free(zManFile);
@@ -264,9 +264,14 @@ void get_checkin_taglist(int rid, Blob *pOut){
 ** Usage: %fossil checkout ?VERSION | --latest? ?OPTIONS?
 **    or: %fossil co ?VERSION | --latest? ?OPTIONS?
 **
-** Check out a version specified on the command-line.  This command
-** will abort if there are edited files in the current checkout unless
-** the --force option appears on the command-line.  The --keep option
+** NOTE: Most people use "fossil update" instead of "fossil checkout" for
+** day-to-day operations.  If you are new to Fossil and trying to learn your
+** way around, it is recommended that you become familiar with the
+** "fossil update" command first.
+**
+** This command changes the current check-out to the version specified
+** as an argument.  The command aborts if there are edited files in the
+** current checkout unless the --force option is used.  The --keep option
 ** leaves files on disk unchanged, except the manifest and manifest.uuid
 ** files.
 **
@@ -281,7 +286,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
 **                      times (the timestamp of the last checkin which modified
 **                      them).
 **
-** See also: update
+** See also: [[update]]
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
@@ -389,14 +394,14 @@ static void unlink_local_database(int manifestOnly){
 **
 ** Usage: %fossil close ?OPTIONS?
 **
-** The opposite of "open".  Close the current database connection.
+** The opposite of "[[open]]".  Close the current database connection.
 ** Require a -f or --force flag if there are unsaved changes in the
 ** current check-out or if there is non-empty stash.
 **
 ** Options:
-**   --force|-f  necessary to close a check out with uncommitted changes
+**   -f|--force  necessary to close a check out with uncommitted changes
 **
-** See also: open
+** See also: [[open]]
 */
 void close_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;

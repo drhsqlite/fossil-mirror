@@ -142,59 +142,31 @@ Some of the potential client-side uses of this API include...
 A random list of considerations which need to be made and potential
 problem areas...
 
--   **Binary data:** HTML4 and JavaScript have no portable way of
-    handling binary data, so commands which could potentially deal with
-    binary data (e.g. committing a file) are ruled out for the time
-    being. HTML5 and accompanying JavaScript additions will binary
-    data usable client-side. That said, a JSON interface cannot natively
-    work with binary unless it is encoded (base64 or hex or whatever),
-    and such encoding would have to be understood on both the server and
-    client sides, which may rule out usage in some environments.\
-    **Status:** deferred until needed. My current thinking is to send
-    URLs instead of binary data, and the URLs would point to some path
-    which produces the raw artifact content. We could read POSTed binary
-    input, but this might require some re-tooling of fossil's innards
-    and it precludes the use of a JSON request envelope, so it would be
-    limited to requests which can be configured solely via GET arguments
-    (as opposed to POST envelope/payload options). i.e. configure the
-    JSON bits via GET and POST the binary data.
--   **64-bit integers:** JSON does not specify integer precision,
-    probably because it targets many different platforms and not all
-    of them can support more than 32 bits. JavaScript (from which JSON
-    derives) supports 53 bits of integer precision. That said, it's
-    "highly unlikely" that we'll have any range problems with "only"
-    53 bits of precision. The underlying JSON API supports *signed*
-    32- or 64-bit integers on both 32- and 64-bit builds, but only if
-    "long long" or `int64_t` are available (from the C99 header
-    `stdint.h`). Only multi-gig repositories are ever expected to use
-    large numbers, and even then only rarely (e.g. via the "stat"
-    command).
--   **Timestamps:** for portability this API uses GMT Unix Epoch
-    timestamps. They are the most portable time representation out
-    there, easily usable in most programming environments. (In hindsight,
-    this should have been Unix + Milliseconds, but the API already
-    pervasively uses seconds-precision.)
--   **Artifact vs. Artefact:** both are correct vis-a-vis the
-    english language but Fossil consistently uses the former, so we’ll
-    use that.
--   **Multiple logins per user:** fossil currently does not allow
-    multiple active logins for a given user except anonymous. For all
-    others, the most recent login wins. This is only a very minor
-    annoyance for the HTML interface but will be more problematic for
-    JSON clients. e.g. a user might have a ticket poller and a commit poller
-    running, and both would need to be logged in.\
-    **Status:** as of 20120315 (commit
-    [*73038baaa3*](http://www.fossil-scm.org/index.html/info/73038baaa3)),
-    fossil allows a user to be logged in multiple times (confirm: only
-    within the same network?). The only caveat is that if any one of
-    them logs out, it will invalidate the login session for the others.
-    This is good enough for the time being, however. It will likely only
-    become painful if we actually get enough apps in the wild that
-    someone might have some running on his mobile phone and some on his
-    PC and some on his server. The workarounds for now are (A) not to
-    log out and (B) program apps/applets/widgets to try to re-login
-    occasionally. Fossil will at some point expire the login, anyway.
-    FIXME: update the expiry time on each request? To do that right we'd
-    have to re-set the cookie on each request :/. We could optionally
-    add a new JSON request which simply updates the login cookie
-    lifetime (e.g. /json/keepalive or expand /json/whoami to do that).
+-   **Binary data:** JSON is a text serialization method, and it takes
+    up the “payload” area of each HTTP request, so there is no
+    reasonable way to include binary data in the JSON message without
+    some sort of codec like Base64, for which there is no provision in
+    the current JSON API. You will therefore find no JSON API for
+    committing changes to a file in the repository, for example. Other
+    Fossil APIs such as [`/raw`](/help?cmd=/raw) or
+    [`/fileedit`](../fileedit-page.md) may serve you better.
+-   **64-bit integers:** The JSON standard does not specify integer precision,
+    because it targets many different platforms, and not all of
+    them can support more than 32 bits. JavaScript (from which JSON
+    derives) supports 53 bits of integer precision, which may affect how
+    a given client-side JSON implementation sends large integers to Fossil’s JSON
+    API. Our JSON parser can cope with integers larger than 32 bits on input, and it
+    can emit them, but it requires platform support. If you’re running
+    Fossil on a 64-bit host, you should not run into problems in
+    this area, but if you’re on a legacy 32-bit only or a mixed 32/64-bit
+    system, it’s possible that some integers in the API could be
+    clipped. Realize however that this is a rare case: Fossil currently
+    cannot store files large enough to exceed a 32-bit `size_t` value,
+    and `time_t` won’t roll past 32-bit integers until 2038. We’re aware
+    of no other uses of integers in this API that could even in
+    principle exceed the range of a 32-bit integer.
+-   **Timestamps:** For portability, this API uses UTC Unix epoch
+    timestamps. (`time_t`) They are the most portable time representation out
+    there, easily usable in most programming environments. (In
+    hindsight, we might better have used a higher-precision time format,
+    but changing that now would break API compatibility.)

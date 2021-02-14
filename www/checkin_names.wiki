@@ -9,22 +9,22 @@
 <li> Tag name
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
-<li> <b>root :</b> <i>branchname</i>
-<li> <b>merge-in :</b> <i>branchname</i>
+<li> <b>root <big>:</big></b> <i>branchname</i>
+<li> <b>merge-in <big>:</big></b> <i>branchname</i>
 <li> Special names:
 <ul>
 <li> <b>tip</b>
 <li> <b>current</b>
 <li> <b>next</b>
 <li> <b>previous</b> or <b>prev</b>
-<li> <b>ckout</b> (<a href='./embeddeddocs.wiki'>embedded docs</a> only)
+<li> <b>ckout</b> (<a href='./embeddeddoc.wiki'>embedded docs</a> only)
 </ul>
 </ul>
 </td></tr>
 </table>
-Many Fossil [/help|commands] and [./webui.wiki | web-interface] URLs accept
+Many Fossil [/help|commands] and [./webui.wiki | web interface] URLs accept
 check-in names as an argument.  For example, the "[/help/info|info]" command
-accepts an optional check-in name to identify the specific checkout
+accepts an optional check-in name to identify the specific check-in
 about which information is desired:
 
 <blockquote>
@@ -34,7 +34,7 @@ about which information is desired:
 You are perhaps reading this page from the following URL:
 
 <blockquote>
-http://www.fossil-scm.org/fossil/doc/<b>trunk</b>/www/checkin_names.wiki
+http://fossil-scm.org/home/doc/<b>trunk</b>/www/checkin_names.wiki
 </blockquote>
 
 The URL above is an example of an [./embeddeddoc.wiki | embedded documentation]
@@ -47,14 +47,14 @@ document describes the various methods.
 <h2 id="canonical">Canonical Check-in Name</h2>
 
 The canonical name of a check-in is the hash of its
-[./fileformat.wiki#manifest | manifest] expressed as a 40-or-more character
-lowercase hexadecimal number.  For example:
+[./fileformat.wiki#manifest | manifest] expressed as a
+[./hashes.md | long lowercase hexadecimal number].  For example:
 
 <blockquote><pre>
 fossil info e5a734a19a9826973e1d073b49dc2a16aa2308f9
 </pre></blockquote>
 
-The full 40+ character hash is unwieldy to remember and type, though,
+The full 40 or 64 character hash is unwieldy to remember and type, though,
 so Fossil also accepts a unique prefix of the hash, using any combination
 of upper and lower case letters, as long as the prefix is at least 4
 characters long.  Hence the following commands all
@@ -66,46 +66,43 @@ fossil info E5a734A
 fossil info e5a7
 </blockquote>
 
-Many web-interface screens identify check-ins by 10- or 16-character
+Many web interface screens identify check-ins by 10- or 16-character
 prefix of canonical name.
 
 <h2 id="tags">Tags And Branch Names</h2>
 
 Using a tag or branch name where a check-in name is expected causes
 Fossil to choose the most recent check-in with that tag or branch name.
-So, for example, as of this writing the most recent check-in that
-is tagged with "release" is [d0753799e44].
-So the command:
+So for example, the most recent check-in that
+is tagged with "release" as of this writing is [b98ce23d4fc].
+The command:
 
 <blockquote><pre>
 fossil info release
 </pre></blockquote>
 
-Results in the following input:
+…results in the following output:
 
 <blockquote><pre>
-uuid:         d0753799e447b795933e9f266233767d84aa1d84 2010-11-01 14:23:35 UTC
-parent:       4e1241f3236236187ad2a8f205323c05b98c9895 2010-10-31 21:51:11 UTC
-child:        4a094f46ade70bd9d1e4ffa48cbe94b4d3750aef 2010-11-01 18:52:37 UTC
-child:        f4033ec09ee6bb2a73fa588c217527a1f311bd27 2010-11-01 23:38:34 UTC
-tags:         trunk, release
-comment:      Fix a typo in the file format documentation reported on the
-              Tcl/Tk chatroom. (user: drh)
+hash:         b98ce23d4fc3b734cdc058ee8a67e6dad675ca13 2020-08-20 13:27:04 UTC
+parent:       40feec329163103293d98dfcc2d119d1a16b227a 2020-08-20 13:01:51 UTC
+tags:         release, branch-2.12, version-2.12.1
+comment:      Version 2.12.1 (user: drh)
 </pre></blockquote>
 
 There are multiple check-ins that are tagged with "release" but
-(as of this writing) the [d0753799e44]
+(as of this writing) the [b98ce23d4fc]
 check-in is the most recent so it is the one that is selected.
 
-Note that unlike other command DVCSes, a "branch" in Fossil
-is not anything special; it is simply a sequence of check-ins that
-share a common tag.  So the same mechanism that resolves tag names
+Note that unlike some other version control systems, a "branch" in Fossil
+is not anything special: it is simply a sequence of check-ins that
+share a common tag, so the same mechanism that resolves tag names
 also resolves branch names.
 
 <a id="tagpfx"></a>
-Note also that there can (in theory) be an ambiguity between tag names
+Note also that there can — in theory, if rarely in practice — be an ambiguity between tag names
 and canonical names.  Suppose, for example, you had a check-in with
-the canonical name deed28aa99a835f01fa06d5b4a41ecc2121bf419 and you
+the canonical name deed28aa99… and you
 also happened to have tagged a different check-in with "deed2".  If
 you use the "deed2" name, does it choose the canonical name or the tag
 name?  In such cases, you can prefix the tag name with "tag:".
@@ -116,13 +113,13 @@ fossil info tag:deed2
 </tt></blockquote>
 
 The "tag:deed2" name will refer to the most recent check-in
-tagged with "deed2" not to the
+tagged with "deed2" rather than the
 check-in whose canonical name begins with "deed2".
 
 <h2 id="whole-branches">Whole Branches</h2>
 
 Usually when a branch name is specified, it means the latest check-in on
-that branch.  But for some commands (ex: [/help/purge|purge]) a branch name
+that branch, but for some commands (ex: [/help/purge|purge]) a branch name
 on the argument means the earliest connected check-in on the branch.  This
 seems confusing when being explained here, but it works out to be intuitive
 in practice.
@@ -155,7 +152,7 @@ check-in that occurs no later than the timestamp given:
 
 In the second through the fourth forms,
 the space between the day and the year can optionally be
-replaced by an uppercase <b>T</b> and the entire timestamp can
+replaced by an uppercase <b>T</b>, and the entire timestamp can
 optionally be followed by "<b>z</b>" or "<b>Z</b>".  In the fourth
 form with fractional seconds, any number of digits may follow the
 decimal point, though due to precision limits only the first three
@@ -166,7 +163,7 @@ not also the prefix of an artifact hash.
 In its default configuration, Fossil interprets and displays all dates
 in Universal Coordinated Time (UTC).  This tends to work the best for
 distributed projects where participants are scattered around the globe.
-But there is an option on the Admin/Timeline page of the web-interface to
+But there is an option on the Admin/Timeline page of the web interface to
 switch to local time.  The "<b>Z</b>" suffix on a timestamp check-in
 name is meaningless if Fossil is in the default mode of using UTC for
 everything, but if Fossil has been switched to local time mode, then the
@@ -185,16 +182,20 @@ For an example of how timestamps are useful,
 consider the homepage for the Fossil website itself:
 
 <blockquote>
-http://www.fossil-scm.org/fossil/doc/<b>trunk</b>/www/index.wiki
+http://fossil-scm.org/home/doc/<b>trunk</b>/www/index.wiki
 </blockquote>
 
-The bold component of that URL is a check-in name.  To see what the
-Fossil website looked like on January 1, 2009, one has merely to change
+The bold component of that URL is a check-in name.  To see the stored
+content of the Fossil website repository as of January 1, 2009, one has merely to change
 the URL to the following:
 
 <blockquote>
-http://www.fossil-scm.org/fossil/doc/<b>2009-01-01</b>/www/index.wiki
+http://fossil-scm.org/home/doc/<b>2009-01-01</b>/www/index.wiki
 </blockquote>
+
+(Note that this won't roll you back to the <i>skin</i> and other
+cosmetic configurations as of that date. It also won't change screens
+like the timeline, which has an independent date selector.)
 
 <h2 id="tag-ts">Tag And Timestamp</h2>
 
@@ -208,13 +209,13 @@ fossil update trunk:2010-07-01T14:30
 </blockquote>
 
 Would cause Fossil to update the working check-out to be the most recent
-check-in on the trunk that is not more recent that 14:30 (UTC) on
+check-in on the trunk that is not more recent than 14:30 (UTC) on
 July 1, 2010.
 
 <h2 id="root">Root Of A Branch</h2>
 
 A branch name that begins with the "<tt>root:</tt>" prefix refers to the
-last check-in in the parent branch prior to the beginning of the branch.
+last check-in on the parent branch prior to the beginning of the branch.
 Such a label is useful, for example, in computing all diffs for a single
 branch.  The following example will show all changes in the hypothetical
 branch "xyzzy":
@@ -224,19 +225,24 @@ fossil diff --from root:xyzzy --to xyzzy
 </blockquote>
 
 <a id="merge-in"></a>
-A branch name that begins with the "<tt>merge-in:</tt>" prefix refers not
-to the root of the branch, but to the most recent merge-in for that branch
-from its parent.  The most recent merge-in is the version to diff the branch
-against in order to see all changes in just the branch itself, omitting
+That doesn't do what you might expect after you merge the parent
+branch's changes into the child branch: the above command will include
+changes made on the parent branch as well.
+
+You can solve this by using the prefix "<tt>merge-in:</tt>" instead of
+"<tt>root:</tt>" to tell Fossil to find
+the most recent merge-in point for that branch.
+The resulting diff will then show only the changes in
+the branch itself, omitting
 any changes that have already been merged in from the parent branch.
 
 
 <h2 id="special">Special Tags</h2>
 
-The tag "tip" means the most recent check-in.  The "tip" tag is roughly
-equivalent to the timestamp tag "5000-01-01".
+The tag "tip" means the most recent check-in.  The "tip" tag is practically
+equivalent to the timestamp "9999-12-31".
 
-This special name works anywhere you can pass a "NAME", such as in in
+This special name works anywhere you can pass a "NAME", such as with
 <tt>/info</tt> URLs:
 
 <blockquote><pre>
@@ -287,9 +293,9 @@ following order:
   #  [#tagpfx | tag:TAGNAME]
   #  [#root | root:BRANCH]
   #  [#merge-in | merge-in:BRANCH]
-  #  [#tag-ts | TAG:timestamp]
+  #  [#tag-ts | TAGNAME:timestamp]
   #  Full artifact hash or hash prefix.
   #  Any other type of symbolic name that Fossil extracts from
-     blockchain artifacts.
+     artifacts.
 
-<div style="height:40em" id="this-space-intentionally-left-blank"></div>
+<div style="height:50em" id="this-space-intentionally-left-blank"></div>

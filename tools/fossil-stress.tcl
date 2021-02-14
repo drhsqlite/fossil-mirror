@@ -17,7 +17,7 @@ for {set i 0} {$i<[llength $argv]} {incr i} {
   } elseif {[string index $x 0]=="-"} {
     error "unknown option \"$x\""
   } elseif {[info exists url]} {
-    error "unknown argment \"$x\""
+    error "unknown argument \"$x\""
   } else {
     set url $x
   }

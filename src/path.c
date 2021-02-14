@@ -46,6 +46,7 @@ static struct {
   PathNode *pAll;       /* All nodes */
   Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
+  int nNotHidden;       /* Number of steps not counting hidden nodes */
   PathNode *pStart;     /* Earliest node */
   PathNode *pEnd;       /* Most recent */
 } path;
@@ -60,6 +61,11 @@ PathNode *path_last(void){ return path.pEnd; }
 ** Return the number of steps in the computed path.
 */
 int path_length(void){ return path.nStep; }
+
+/*
+** Return the number of non-hidden steps in the computed path.
+*/
+int path_length_not_hidden(void){ return path.nNotHidden; }
 
 /*
 ** Create a new node
@@ -123,7 +129,8 @@ PathNode *path_shortest(
   int iFrom,          /* Path starts here */
   int iTo,            /* Path ends here */
   int directOnly,     /* No merge links if true */
-  int oneWayOnly      /* Parent->child only if true */
+  int oneWayOnly,     /* Parent->child only if true */
+  Bag *pHidden        /* Hidden nodes */
 ){
   Stmt s;
   PathNode *pPrev;
@@ -167,10 +174,14 @@ PathNode *path_shortest(
         int isParent = db_column_int(&s, 1);
         if( bag_find(&path.seen, cid) ) continue;
         p = path_new_node(cid, pPrev, isParent);
+        if( pHidden && bag_find(pHidden,cid) ) p->isHidden = 1;
         if( cid==iTo ){
           db_finalize(&s);
           path.pEnd = p;
           path_reverse_path();
+          for(p=path.pStart->u.pTo; p; p=p->u.pTo ){
+            if( !p->isHidden ) path.nNotHidden++;
+          }
           return path.pStart;
         }
       }
@@ -190,8 +201,10 @@ PathNode *path_shortest(
 PathNode *path_midpoint(void){
   PathNode *p;
   int i;
-  if( path.nStep<2 ) return 0;
-  for(p=path.pEnd, i=0; p && i<path.nStep/2; p=p->pFrom, i++){}
+  if( path.nNotHidden<2 ) return 0;
+  for(p=path.pEnd, i=0; p && (p->isHidden || i<path.nNotHidden/2); p=p->pFrom){
+    if( !p->isHidden ) i++;
+  }
   return p;
 }
 
@@ -201,7 +214,7 @@ PathNode *path_midpoint(void){
 */
 int path_search_depth(void){
   int i, j;
-  for(i=0, j=1; j<path.nStep; i++, j+=j){}
+  for(i=0, j=1; j<path.nNotHidden; i++, j+=j){}
   return i;
 }
 
@@ -217,7 +230,7 @@ void path_shortest_stored_in_ancestor_table(
   PathNode *pPath;
   int gen = 0;
   Stmt ins;
-  pPath = path_shortest(cid, origid, 1, 0);
+  pPath = path_shortest(cid, origid, 1, 0, 0);
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS ancestor("
     "  rid INT UNIQUE,"
@@ -259,7 +272,7 @@ void shortest_path_test_cmd(void){
   if( g.argc!=4 ) usage("VERSION1 VERSION2");
   iFrom = name_to_rid(g.argv[2]);
   iTo = name_to_rid(g.argv[3]);
-  p = path_shortest(iFrom, iTo, directOnly, oneWay);
+  p = path_shortest(iFrom, iTo, directOnly, oneWay, 0);
   if( p==0 ){
     fossil_fatal("no path from %s to %s", g.argv[1], g.argv[2]);
   }
@@ -410,7 +423,7 @@ struct NameChange {
 void find_filename_changes(
   int iFrom,               /* Ancestor check-in */
   int iTo,                 /* Recent check-in */
-  int revOk,               /* Ok to move backwards (child->parent) if true */
+  int revOK,               /* OK to move backwards (child->parent) if true */
   int *pnChng,             /* Number of name changes along the path */
   int **aiChng,            /* Name changes */
   const char *zDebug       /* Generate trace output if no NULL */
@@ -432,7 +445,7 @@ void find_filename_changes(
   }
   if( iFrom==iTo ) return;
   path_reset();
-  p = path_shortest(iFrom, iTo, 1, revOk==0);
+  p = path_shortest(iFrom, iTo, 1, revOK==0, 0);
   if( p==0 ) return;
   path_reverse_path();
   db_prepare(&q1,
@@ -530,16 +543,16 @@ void test_name_change(void){
   int nChng;
   int i;
   const char *zDebug = 0;
-  int revOk = 0;
+  int revOK = 0;
 
   db_find_and_open_repository(0,0);
   zDebug = find_option("debug",0,0)!=0 ? "debug" : 0;
-  revOk = find_option("bidirectional",0,0)!=0;
+  revOK = find_option("bidirectional",0,0)!=0;
   if( g.argc<4 ) usage("VERSION1 VERSION2");
   while( g.argc>=4 ){
     iFrom = name_to_rid(g.argv[2]);
     iTo = name_to_rid(g.argv[3]);
-    find_filename_changes(iFrom, iTo, revOk, &nChng, &aChng, zDebug);
+    find_filename_changes(iFrom, iTo, revOK, &nChng, &aChng, zDebug);
     fossil_print("------ Changes for (%d) %s -> (%d) %s\n",
                  iFrom, g.argv[2], iTo, g.argv[3]);
     for(i=0; i<nChng; i++){
@@ -596,7 +609,7 @@ static const char zDistinctRenameQuery[] =
 ** WEBPAGE: test-rename-list
 **
 ** Print a list of all file rename operations throughout history.
-** This page is intended for for testing purposes only and may change
+** This page is intended for testing purposes only and may change
 ** or be discontinued without notice.
 */
 void test_rename_list_page(void){
@@ -606,6 +619,7 @@ void test_rename_list_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("test");
   if( P("all")!=0 ){
     style_header("List Of All Filename Changes");
     db_multi_exec("%s", zRenameQuery/*safe-for-%s*/);
@@ -640,5 +654,5 @@ void test_rename_list_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
-  style_footer();
+  style_finish_page();
 }

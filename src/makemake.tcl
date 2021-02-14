@@ -28,6 +28,7 @@
 #
 set src {
   add
+  ajax
   alerts
   allrepo
   attach
@@ -44,10 +45,12 @@ set src {
   capabilities
   captcha
   cgi
+  chat
   checkin
   checkout
   clearsign
   clone
+  color
   comformat
   configure
   content
@@ -78,11 +81,13 @@ set src {
   graph
   gzip
   hname
+  hook
   http
   http_socket
   http_transport
   import
   info
+  interwiki
   json
   json_artifact
   json_branch
@@ -113,6 +118,8 @@ set src {
   name
   path
   piechart
+  pikchr
+  pikchrshow
   pivot
   popen
   pqueue
@@ -164,7 +171,6 @@ set src {
   wikiformat
   winfile
   winhttp
-  wysiwyg
   xfer
   xfersetup
   zip
@@ -178,9 +184,11 @@ set extra_files {
   markdown.md
   wiki.wiki
   *.js
+  default.css
   style.*.css
   ../skins/*/*.txt
   sounds/*.wav
+  alerts/*.wav
 }
 
 # Options used to compile the included SQLite library.
@@ -350,9 +358,6 @@ $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
-$(OBJDIR)/mkcss:	$(SRCDIR)/mkcss.c
-	$(XBCC) -o $(OBJDIR)/mkcss $(SRCDIR)/mkcss.c
-
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
@@ -372,13 +377,13 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion $(OBJDIR)/phony.h
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
 		$(SRCDIR)/../manifest \
 		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
-$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
-	$(OBJDIR)/mkcss $(SRCDIR)/default_css.txt $(OBJDIR)/default_css.h
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time we run "make"
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = <<<SQLITE_OPTIONS>>>
@@ -445,9 +450,9 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 }]
 
 writeln {
-$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
+$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(EXTRAOBJ) $(OBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(EXTRAOBJ) $(OBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -476,15 +481,15 @@ writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >\$@\n"
 writeln "\$(OBJDIR)/builtin_data.h: \$(OBJDIR)/mkbuiltin \$(EXTRA_FILES)"
 writeln "\t\$(OBJDIR)/mkbuiltin --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
 
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/default_css.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
 writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/json_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
+
 writeln "Makefile:"
 set extra_h(dispatch) " \$(OBJDIR)/page_index.h "
 set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
-set extra_h(style) " \$(OBJDIR)/default_css.h "
 
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(OBJDIR)/translate"
@@ -613,10 +618,6 @@ BCC = $(BCCEXE)
 #
 # FOSSIL_ENABLE_EXEC_REL_PATHS = 1
 
-#### Enable legacy treatment of mv/rm (skip checkout files)
-#
-FOSSIL_ENABLE_LEGACY_MV_RM = 1
-
 #### Enable TH1 scripts in embedded documentation files
 #
 # FOSSIL_ENABLE_TH1_DOCS = 1
@@ -714,11 +715,8 @@ SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLI
 endif
 
 #### The directories where the OpenSSL include and library files are located.
-#    The recommended usage here is to use the Sysinternals junction tool
-#    to create a hard link between an "openssl-1.x" sub-directory of the
-#    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1g
+OPENSSLDIR = $(SRCDIR)/../compat/openssl
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -838,12 +836,6 @@ endif
 ifdef FOSSIL_ENABLE_EXEC_REL_PATHS
 TCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 RCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
-endif
-
-# With legacy treatment of mv/rm
-ifdef FOSSIL_ENABLE_LEGACY_MV_RM
-TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
-RCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 endif
 
 # With TH1 embedded docs support
@@ -1015,7 +1007,6 @@ MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
 MKVERSION   = $(subst /,\,$(OBJDIR)/mkversion.exe)
-MKCSS       = $(subst /,\,$(OBJDIR)/mkcss.exe)
 CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
@@ -1030,7 +1021,6 @@ MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
 MKVERSION   = $(OBJDIR)/mkversion.exe
-MKCSS       = $(OBJDIR)/mkcss.exe
 CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
@@ -1044,7 +1034,7 @@ endif}
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h $(OBJDIR)/default_css.h
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
 	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
@@ -1089,9 +1079,6 @@ $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
 $(MKVERSION): $(SRCDIR)/mkversion.c
 	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
-$(MKCSS): $(SRCDIR)/mkcss.c
-	$(XBCC) -o $@ $(SRCDIR)/mkcss.c
-
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
@@ -1101,11 +1088,11 @@ $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION) $(OBJDIR)/phony.h
 	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
 
-$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(MKCSS)
-	$(MKCSS) $(SRCDIR)/default_css.txt $@
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time "make" is run
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -1191,9 +1178,9 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(EXTRAOBJ) $(OBJ) $(OBJDIR)/fossil.o
 	$(CODECHECK1) $(TRANS_SRC)
-	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(LIB)
+	$(TCC) -o $@ $(EXTRAOBJ) $(OBJ) $(OBJDIR)/fossil.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -1232,14 +1219,13 @@ writeln "\t\$(MKINDEX) \$(TRANS_SRC) >\$@\n"
 writeln "\$(OBJDIR)/builtin_data.h:\t\$(MKBUILTIN) \$(EXTRA_FILES)"
 writeln "\t\$(MKBUILTIN) --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
 
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/default_css.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
 writeln "\techo Done >\$(OBJDIR)/headers\n"
 writeln "\$(OBJDIR)/headers: Makefile\n"
 writeln "Makefile:\n"
 set extra_h(main) " \$(OBJDIR)/page_index.h "
 set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
-set extra_h(style) " \$(OBJDIR)/default_css.h "
 
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(TRANSLATE)"
@@ -1389,9 +1375,6 @@ mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
 mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) -o$@ $**
 
-mkcss$E: $(SRCDIR)\mkcss.c
-	$(BCC) -o$@ $**
-
 codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) -o$@ $**
 
@@ -1413,9 +1396,6 @@ $(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
-default_css.h : mkcss$E $B\src\default_css.txt
-	+$** $B\src\default_css.txt $@
-
 page_index.h: mkindex$E $(SRC)
 	+$** > $@
 
@@ -1427,7 +1407,7 @@ clean:
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E mkbuiltin$E mkcss$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E mkbuiltin$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1445,7 +1425,6 @@ $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
 
-
 }
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)\\$s\$O : ${s}_.c ${s}.h"
@@ -1454,7 +1433,7 @@ foreach s [lsort $src] {
   writeln "\t+translate\$E \$** > \$@\n"
 }
 
-writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h default_css.h VERSION.h\n\t +makeheaders\$E "
+writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.h\n\t +makeheaders\$E "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
@@ -1478,35 +1457,48 @@ writeln {#
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
 ##############################################################################
 #
-# This Makefile will only function correctly if used from a sub-directory
-# that is a direct child of the top-level directory for this project.
-#
-!if !exist("..\.fossil-settings")
-!error "Please change the current directory to the one containing this file."
-!endif
-
 #
 # This file is automatically generated.  Instead of editing this
 # file, edit "makemake.tcl" then run "tclsh makemake.tcl"
 # to regenerate this file.
 #
 B       = ..
-SRCDIR  = $B\src
-OBJDIR  = .
-OX      = .
+SRCDIR  = $(B)\src
+T       = .
+OBJDIR  = $(T)
+OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
 P       = .pdb
 
-# Perl is only necessary if OpenSSL support is enabled and it must
-# be built from source code.  The PERLDIR variable should point to
-# the directory containing the main Perl binary (i.e. "perl.exe").
-PERLDIR = C:\Perl\bin
+INSTALLDIR = .
+!ifdef DESTDIR
+INSTALLDIR = $(DESTDIR)\$(INSTALLDIR)
+!endif
+
+# When building out of source, this Makefile needs to know the path to the base
+# top-level directory for this project. Pass it on NMAKE command line via make
+# variable B:
+#   NMAKE /f "path\to\this\Makefile" B="path/to/fossil/root"
+#
+# NOTE: Make sure B path has no trailing backslash, UNIX-style path is OK too.
+#
+!if !exist("$(B)\.fossil-settings")
+!error Please specify path to project base directory: B="path/to/fossil"
+!endif
+
+# Perl is only necessary if OpenSSL support is enabled and it is built from
+# source code.  The PERLDIR environment variable, if it exists, should point
+# to the directory containing the main Perl executable specified here (i.e.
+# "perl.exe").
 PERL    = perl.exe
 
 # Enable debugging symbols?
 !ifndef DEBUG
 DEBUG = 0
+!endif
+!ifdef FOSSIL_DEBUG
+DEBUG = 1
 !endif
 
 # Build the OpenSSL libraries?
@@ -1532,11 +1524,6 @@ FOSSIL_ENABLE_EXEC_REL_PATHS = 0
 # Enable the JSON API?
 !ifndef FOSSIL_ENABLE_JSON
 FOSSIL_ENABLE_JSON = 0
-!endif
-
-# Enable legacy treatment of the mv/rm commands?
-!ifndef FOSSIL_ENABLE_LEGACY_MV_RM
-FOSSIL_ENABLE_LEGACY_MV_RM = 1
 !endif
 
 # Enable use of miniz instead of zlib?
@@ -1575,7 +1562,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1g
+SSLDIR    = $(B)\compat\openssl
 SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)
@@ -1627,22 +1614,25 @@ ZLIB      = zdll.lib
 ZLIB      = zlib.lib
 !endif
 
-INCL      = /I. /I$(SRCDIR) /I$B\win\include
+INCL      = /I. /I"$(OX)" /I"$(SRCDIR)" /I"$(B)\win\include"
 
 !if $(FOSSIL_ENABLE_MINIZ)==0
-INCL      = $(INCL) /I$(ZINCDIR)
+INCL      = $(INCL) /I"$(ZINCDIR)"
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-INCL      = $(INCL) /I$(SSLINCDIR)
+INCL      = $(INCL) /I"$(SSLINCDIR)"
 !endif
 
 !if $(FOSSIL_ENABLE_TCL)!=0
-INCL      = $(INCL) /I$(TCLINCDIR)
+INCL      = $(INCL) /I"$(TCLINCDIR)"
 !endif
 
 CFLAGS    = /nologo
 LDFLAGS   =
+
+CFLAGS    = $(CFLAGS) /D_CRT_SECURE_NO_DEPRECATE /D_CRT_SECURE_NO_WARNINGS
+CFLAGS    = $(CFLAGS) /D_CRT_NONSTDC_NO_DEPRECATE /D_CRT_NONSTDC_NO_WARNINGS
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 LDFLAGS   = $(LDFLAGS) /MANIFEST
@@ -1676,10 +1666,10 @@ CRTFLAGS = /MT
 !endif
 
 !if $(DEBUG)!=0
-CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od
+CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od /DFOSSIL_DEBUG
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) $(CRTFLAGS) /O2
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) /Os
 !endif
 
 BCC       = $(CC) $(CFLAGS)
@@ -1696,7 +1686,7 @@ RCC       = $(RCC) /DFOSSIL_DYNAMIC_BUILD=1
 
 !if $(FOSSIL_ENABLE_MINIZ)==0
 LIBS      = $(LIBS) $(ZLIB)
-LIBDIR    = $(LIBDIR) /LIBPATH:$(ZLIBDIR)
+LIBDIR    = $(LIBDIR) /LIBPATH:"$(ZLIBDIR)"
 !endif
 
 !if $(FOSSIL_ENABLE_MINIZ)!=0
@@ -1713,17 +1703,12 @@ RCC       = $(RCC) /DFOSSIL_ENABLE_JSON=1
 TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
-LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+LIBDIR    = $(LIBDIR) /LIBPATH:"$(SSLLIBDIR)"
 !endif
 
 !if $(FOSSIL_ENABLE_EXEC_REL_PATHS)!=0
 TCC       = $(TCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_EXEC_REL_PATHS=1
-!endif
-
-!if $(FOSSIL_ENABLE_LEGACY_MV_RM)!=0
-TCC       = $(TCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
-RCC       = $(RCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
 !endif
 
 !if $(FOSSIL_ENABLE_TH1_DOCS)!=0
@@ -1771,7 +1756,7 @@ foreach s [lsort $src] {
     writeln " \\"
     writeln -nonewline "        "
   }
-  writeln -nonewline "${s}_.c"; incr i
+  writeln -nonewline "\"\$(OX)\\${s}_.c\""; incr i
 }
 writeln "\n"
 writeln -nonewline "EXTRA_FILES   = "
@@ -1782,7 +1767,7 @@ foreach s [lsort $extra_files] {
     writeln -nonewline "        "
   }
   set s [regsub -all / $s \\]
-  writeln -nonewline "\$(SRCDIR)\\${s}"; incr i
+  writeln -nonewline "\"\$(SRCDIR)\\${s}\""; incr i
 }
 writeln "\n"
 set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation]
@@ -1793,16 +1778,16 @@ foreach s [lsort [concat $src $AdditionalObj]] {
     writeln " \\"
     writeln -nonewline "        "
   }
-  writeln -nonewline "\$(OX)\\$s\$O"; incr i
+  writeln -nonewline "\"\$(OX)\\$s\$O\""; incr i
 }
 if {$i > 0} {
   writeln " \\"
 }
 writeln "!if \$(FOSSIL_ENABLE_MINIZ)!=0"
 writeln -nonewline "        "
-writeln "\$(OX)\\miniz\$O \\"; incr i
+writeln "\"\$(OX)\\miniz\$O\" \\"; incr i
 writeln "!endif"
-writeln -nonewline "        \$(OX)\\fossil.res\n\n"
+writeln -nonewline "        \"\$(OX)\\fossil.res\"\n\n"
 writeln [string map [list <<<NEXT_LINE>>> \\] {
 !ifndef BASEAPPNAME
 BASEAPPNAME = fossil
@@ -1812,7 +1797,20 @@ APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
 PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
 APPTARGETS  =
 
-all: $(OX) $(APPNAME)
+all: "$(OX)" "$(APPNAME)"
+
+$(BASEAPPNAME): "$(APPNAME)"
+
+$(BASEAPPNAME)$(E): "$(APPNAME)"
+
+install: "$(APPNAME)"
+	echo F | xcopy /Y "$(APPNAME)" "$(INSTALLDIR)"\*
+!if $(DEBUG)!=0
+	echo F | xcopy /Y "$(PDBNAME)" "$(INSTALLDIR)"\*
+!endif
+
+$(OX):
+	@-mkdir $@
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
@@ -1822,18 +1820,25 @@ zlib:
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
 !endif
 
+clean-zlib:
+	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc clean && popd
+
 !if $(FOSSIL_ENABLE_SSL)!=0
 openssl:
 	@echo Building OpenSSL from "$(SSLDIR)"...
-!if "$(PERLDIR)" != ""
-	@set PATH=$(PERLDIR);$(PATH)
+!ifdef PERLDIR
+	@pushd "$(SSLDIR)" && "$(PERLDIR)\$(PERL)" Configure $(SSLCONFIG) && popd
+!else
+	@pushd "$(SSLDIR)" && "$(PERL)" Configure $(SSLCONFIG) && popd
 !endif
-	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
 !if $(FOSSIL_ENABLE_WINXP)!=0
 	@pushd "$(SSLDIR)" && $(MAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
 !else
 	@pushd "$(SSLDIR)" && $(MAKE) && popd
 !endif
+
+clean-openssl:
+	@pushd "$(SSLDIR)" && $(MAKE) clean && popd
 !endif
 
 !if $(FOSSIL_ENABLE_MINIZ)==0
@@ -1848,48 +1853,41 @@ APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
 
-$(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(OX)\linkopts
-	cd $(OX)
-	codecheck1$E $(SRC)
-	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
-	if exist $@.manifest <<<NEXT_LINE>>>
-		$(MTC) -nologo -manifest $@.manifest -outputresource:$@;1
+"$(APPNAME)" : $(APPTARGETS) "$(OBJDIR)\translate$E" "$(OBJDIR)\mkindex$E" "$(OBJDIR)\codecheck1$E" "$(OX)\headers" $(OBJ) "$(OX)\linkopts"
+	"$(OBJDIR)\codecheck1$E" $(SRC)
+	link $(LDFLAGS) /OUT:$@ /PDB:$(@D)\ $(LIBDIR) Wsetargv.obj "$(OX)\fossil.res" @"$(OX)\linkopts"
+	if exist "$(B)\win\fossil.exe.manifest" <<<NEXT_LINE>>>
+		$(MTC) -nologo -manifest "$(B)\win\fossil.exe.manifest" -outputresource:$@;1
 
-$(OX)\linkopts: $B\win\Makefile.msc}]
+"$(OX)\linkopts": "$(B)\win\Makefile.msc"}]
 set redir {>}
 foreach s [lsort [concat $src $AdditionalObj]] {
-  writeln "\techo \$(OX)\\$s.obj $redir \$@"
+  writeln "\techo \"\$(OX)\\$s.obj\" $redir \$@"
   set redir {>>}
 }
 set redir {>>}
 writeln "!if \$(FOSSIL_ENABLE_MINIZ)!=0"
-writeln "\techo \$(OX)\\miniz.obj $redir \$@"
+writeln "\techo \"\$(OX)\\miniz.obj\" $redir \$@"
 writeln "!endif"
 writeln "\techo \$(LIBS) $redir \$@"
 writeln {
-$(OX):
-	@-mkdir $@
+"$(OBJDIR)\translate$E": "$(SRCDIR)\translate.c"
+	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-translate$E: $(SRCDIR)\translate.c
-	$(BCC) $**
+"$(OBJDIR)\makeheaders$E": "$(SRCDIR)\makeheaders.c"
+	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-makeheaders$E: $(SRCDIR)\makeheaders.c
-	$(BCC) $**
+"$(OBJDIR)\mkindex$E": "$(SRCDIR)\mkindex.c"
+	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-mkindex$E: $(SRCDIR)\mkindex.c
-	$(BCC) $**
+"$(OBJDIR)\mkbuiltin$E": "$(SRCDIR)\mkbuiltin.c"
+	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
-	$(BCC) $**
+"$(OBJDIR)\mkversion$E": "$(SRCDIR)\mkversion.c"
+	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
-mkversion$E: $(SRCDIR)\mkversion.c
-	$(BCC) $**
-
-mkcss$E: $(SRCDIR)\mkcss.c
-	$(BCC) $**
-
-codecheck1$E: $(SRCDIR)\codecheck1.c
-	$(BCC) $**
+"$(OBJDIR)\codecheck1$E": "$(SRCDIR)\codecheck1.c"
+	$(BCC) /Fe$@ /Fo$(@D)\ /Fd$(@D)\ $**
 
 !if $(USE_SEE)!=0
 SEE_FLAGS = /DSQLITE_HAS_CODEC=1 /DSQLITE_SHELL_DBKEY_PROC=fossil_key
@@ -1901,110 +1899,122 @@ SQLITE3_SHELL_SRC = $(SRCDIR)\shell.c
 SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 !endif
 
-$(OX)\shell$O : $(SQLITE3_SHELL_SRC) $B\win\Makefile.msc
-	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c $(SQLITE3_SHELL_SRC)
+"$(OX)\shell$O" : "$(SQLITE3_SHELL_SRC)" "$(B)\win\Makefile.msc"
+	$(TCC) /Fo$@ /Fd$(@D)\ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $(SEE_FLAGS) -c "$(SQLITE3_SHELL_SRC)"
 
-$(OX)\sqlite3$O : $(SQLITE3_SRC) $B\win\Makefile.msc
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) $(SQLITE3_SRC)
+"$(OX)\sqlite3$O" : "$(SQLITE3_SRC)" "$(B)\win\Makefile.msc"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SEE_FLAGS) "$(SQLITE3_SRC)"
 
-$(OX)\th$O : $(SRCDIR)\th.c
-	$(TCC) /Fo$@ -c $**
+"$(OX)\th$O" : "$(SRCDIR)\th.c"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-$(OX)\th_lang$O : $(SRCDIR)\th_lang.c
-	$(TCC) /Fo$@ -c $**
+"$(OX)\th_lang$O" : "$(SRCDIR)\th_lang.c"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-$(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
-	$(TCC) /Fo$@ -c $**
+"$(OX)\th_tcl$O" : "$(SRCDIR)\th_tcl.c"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
 
-$(OX)\miniz$O : $(SRCDIR)\miniz.c
-	$(TCC) /Fo$@ -c $(MINIZ_OPTIONS) $(SRCDIR)\miniz.c
+"$(OX)\miniz$O" : "$(SRCDIR)\miniz.c"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c $(MINIZ_OPTIONS) $**
 
-VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
+"$(OX)\VERSION.h" : "$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" "$(B)\phony.h"
+	"$(OBJDIR)\mkversion$E" "$(B)\manifest.uuid" "$(B)\manifest" "$(B)\VERSION" > $@
+
+"$(B)\phony.h" :
+	rem Force rebuild of VERSION.h whenever nmake is run
+
+"$(OX)\cson_amalgamation$O" : "$(SRCDIR)\cson_amalgamation.c"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c $**
+
+"$(OX)\page_index.h": "$(OBJDIR)\mkindex$E" $(SRC)
 	$** > $@
 
-$(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
-	$(TCC) /Fo$@ /c $**
+"$(OX)\builtin_data.h":	"$(OBJDIR)\mkbuiltin$E" "$(OX)\builtin_data.reslist"
+	"$(OBJDIR)\mkbuiltin$E" --prefix "$(SRCDIR)/" --reslist "$(OX)\builtin_data.reslist" > $@
 
-default_css.h: mkcss$E $(SRCDIR)\default_css.txt
-	$** $@
+cleanx:
+	-del "$(OX)\*.obj" 2>NUL
+	-del "$(OBJDIR)\*.obj" 2>NUL
+	-del "$(OX)\*_.c" 2>NUL
+	-del "$(OX)\*.h" 2>NUL
+	-del "$(OX)\*.ilk" 2>NUL
+	-del "$(OX)\*.map" 2>NUL
+	-del "$(OX)\*.res" 2>NUL
+	-del "$(OX)\*.reslist" 2>NUL
+	-del "$(OX)\headers" 2>NUL
+	-del "$(OX)\linkopts" 2>NUL
+	-del "$(OX)\vc*.pdb" 2>NUL
 
-page_index.h: mkindex$E $(SRC)
-	$** > $@
-
-builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
-
-clean:
-	-del $(OX)\*.obj 2>NUL
-	-del *.obj 2>NUL
-	-del *_.c 2>NUL
-	-del *.h 2>NUL
-	-del *.ilk 2>NUL
-	-del *.map 2>NUL
-	-del *.res 2>NUL
-	-del headers 2>NUL
-	-del linkopts 2>NUL
-	-del vc*.pdb 2>NUL
+clean: cleanx
+	-del "$(APPNAME)" 2>NUL
+	-del "$(PDBNAME)" 2>NUL
+	-del "$(OBJDIR)\translate$E" 2>NUL
+	-del "$(OBJDIR)\translate$P" 2>NUL
+	-del "$(OBJDIR)\mkindex$E" 2>NUL
+	-del "$(OBJDIR)\mkindex$P" 2>NUL
+	-del "$(OBJDIR)\makeheaders$E" 2>NUL
+	-del "$(OBJDIR)\makeheaders$P" 2>NUL
+	-del "$(OBJDIR)\mkversion$E" 2>NUL
+	-del "$(OBJDIR)\mkversion$P" 2>NUL
+	-del "$(OBJDIR)\mkcss$E" 2>NUL
+	-del "$(OBJDIR)\mkcss$P" 2>NUL
+	-del "$(OBJDIR)\codecheck1$E" 2>NUL
+	-del "$(OBJDIR)\codecheck1$P" 2>NUL
+	-del "$(OBJDIR)\mkbuiltin$E" 2>NUL
+	-del "$(OBJDIR)\mkbuiltin$P" 2>NUL
 
 realclean: clean
-	-del $(APPNAME) 2>NUL
-	-del $(PDBNAME) 2>NUL
-	-del translate$E 2>NUL
-	-del translate$P 2>NUL
-	-del mkindex$E 2>NUL
-	-del mkindex$P 2>NUL
-	-del makeheaders$E 2>NUL
-	-del makeheaders$P 2>NUL
-	-del mkversion$E 2>NUL
-	-del mkversion$P 2>NUL
-	-del mkcss$E 2>NUL
-	-del mkcss$P 2>NUL
-	-del codecheck1$E 2>NUL
-	-del codecheck1$P 2>NUL
-	-del mkbuiltin$E 2>NUL
-	-del mkbuiltin$P 2>NUL
 
-$(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_branch$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_config$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_diff$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_dir$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_finfo$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_status$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
-$(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
+"$(OBJDIR)\json$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_artifact$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_branch$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_config$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_diff$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_dir$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_finfo$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_login$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_query$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_report$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_status$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_tag$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_timeline$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_user$O" : "$(SRCDIR)\json_detail.h"
+"$(OBJDIR)\json_wiki$O" : "$(SRCDIR)\json_detail.h"
 }
+
+writeln {"$(OX)\builtin_data.reslist": $(EXTRA_FILES) "$(B)\win\Makefile.msc"}
+set redir {>}
+foreach s [lsort $extra_files] {
+  writeln "\techo \"\$(SRCDIR)\\${s}\" $redir \$@"
+  set redir {>>}
+}
+
+writeln ""
 foreach s [lsort $src] {
-  writeln "\$(OX)\\$s\$O : ${s}_.c ${s}.h"
-  writeln "\t\$(TCC) /Fo\$@ -c ${s}_.c\n"
-  writeln "${s}_.c : \$(SRCDIR)\\$s.c"
-  writeln "\ttranslate\$E \$** > \$@\n"
+  writeln "\"\$(OX)\\$s\$O\" : \"\$(OX)\\${s}_.c\" \"\$(OX)\\${s}.h\""
+  writeln "\t\$(TCC) /Fo\$@ /Fd\$(@D)\\ -c \"\$(OX)\\${s}_.c\"\n"
+  writeln "\"\$(OX)\\${s}_.c\" : \"\$(SRCDIR)\\$s.c\""
+  writeln "\t\"\$(OBJDIR)\\translate\$E\" \$** > \$@\n"
 }
 
-writeln "fossil.res : \$B\\win\\fossil.rc"
-writeln "\t\$(RCC)  /fo \$@ \$**\n"
+writeln "\"\$(OX)\\fossil.res\" : \"\$(B)\\win\\fossil.rc\""
+writeln "\t\$(RCC) /fo \$@ \$**\n"
 
-writeln "headers: makeheaders\$E page_index.h builtin_data.h default_css.h VERSION.h"
-writeln -nonewline "\tmakeheaders\$E "
+writeln "\"\$(OX)\\headers\": \"\$(OBJDIR)\\makeheaders\$E\" \"\$(OX)\\page_index.h\" \"\$(OX)\\builtin_data.h\" \"\$(OX)\\VERSION.h\""
+writeln -nonewline "\t\"\$(OBJDIR)\\makeheaders\$E\" "
 set i 0
 foreach s [lsort $src] {
   if {$i > 0} {
     writeln " \\"
     writeln -nonewline "\t\t\t"
   }
-  writeln -nonewline "${s}_.c:$s.h"; incr i
+  writeln -nonewline "\"\$(OX)\\${s}_.c\":\"\$(OX)\\$s.h\""; incr i
 }
-writeln " \\\n\t\t\t\$(SRCDIR)\\sqlite3.h \\"
-writeln "\t\t\t\$(SRCDIR)\\th.h \\"
-writeln "\t\t\tVERSION.h \\"
-writeln "\t\t\t\$(SRCDIR)\\cson_amalgamation.h"
-writeln "\t@copy /Y nul: headers"
+writeln " \\\n\t\t\t\"\$(SRCDIR)\\sqlite3.h\" \\"
+writeln "\t\t\t\"\$(SRCDIR)\\th.h\" \\"
+writeln "\t\t\t\"\$(OX)\\VERSION.h\" \\"
+writeln "\t\t\t\"\$(SRCDIR)\\cson_amalgamation.h\""
+writeln "\t@copy /Y nul: $@"
 
 
 close $output_file
@@ -2172,11 +2182,8 @@ builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
 	version.exe ..\manifest.uuid ..\manifest ..\VERSION  >$@
 
-default_css.h:	mkcss.exe default_css.txt
-	mkcss.exe default_css.txt $@
-
 # generate the simplified headers
-headers: makeheaders.exe page_index.h builtin_data.h default_css.h VERSION.h ../src/sqlite3.h ../src/th.h
+headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/sqlite3.h ../src/th.h
 	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
 	echo Done >$@
 

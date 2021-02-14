@@ -30,7 +30,8 @@ like this:
 repository: /home/www/fossils/myproject.fossil
 </verbatim></blockquote>
 
-Of course, pathnames will likely be different.  The first line (the "shebang")
+Of course, pathnames will likely be different.  The first line 
+(the "[wikipedia:/wiki/Shebang_(Unix)|shebang]")
 always gives the name of the Fossil executable.  Subsequent lines are of
 the form "<b>property:&nbsp;argument&nbsp;...</b>".
 The remainder of this document describes the available properties and
@@ -42,7 +43,7 @@ their arguments.
 This property defines the Fossil repository that the server will use.
 Every Fossil CGI requires either this property or the
 [#directory|<b>directory:</b>] property (but not both).
-Many Fossil repository sets have this one property and no other.
+Many Fossil CGI scripts have this one property and no other.
 
 <h2 id="directory">directory: <i>PATH</i></h2>
 
@@ -106,8 +107,6 @@ This is a Boolean property.
 If it is present, [./caps/ref.html#s | setup capability]
 is granted to any HTTP request that
 comes in over a loopback interface, such as 127.0.0.1.
-If the PATH_INFO string is empty, Fossil will show a list
-of available Fossil repositories.
 
 <h2 id="skin">skin: <i>NAME</i></h2>
 
@@ -138,6 +137,17 @@ This parameter can be repeated as many times as necessary.
 <h2 id="HOME">HOME: <i>PATH</i></h2>
 
 This parameter is a short-hand for "<b>setenv HOME <i>PATH</i></b>".
+
+<h2 id="mainmenu">mainmenu: <i>FILE</i></h2>
+
+This parameter causes the contents of the given file to override the
+site's <tt>mainmenu</tt> configuration setting, much in the same way
+that the <tt>skin</tt> setting overrides the skin. This can be used to
+apply a common main menu to a number of sites, and centrally maintain
+it, without having to copy its contents into each site. Note, however,
+that the contents of this setting are not stored in the repository and
+will not be cloned along with the repository.
+
 
 <h2 id="cgi-debug">cgi-debug: <i>FILE</i></h2>
 

@@ -18,10 +18,9 @@
 **
 ** Code for the JSON API.
 **
-** For notes regarding the public JSON interface, please see:
+** The JSON API's public interface is documented at:
 **
-** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view
-**
+** https://fossil-scm.org/fossil/doc/trunk/www/json-api/index.md
 **
 ** Notes for hackers...
 **
@@ -53,6 +52,42 @@ const FossilJsonKeys_ FossilJsonKeys = {
   "resultText" /*resultText*/,
   "timestamp" /*timestamp*/
 };
+
+/*
+** Given the current request path string, this function returns true
+** if it refers to a JSON API path. i.e. if (1) it starts with /json
+** or (2) g.zCmdName is "server" or "cgi" and the path starts with
+** /somereponame/json. Specifically, it returns 1 in the former case
+** and 2 for the latter.
+*/
+int json_request_is_json_api(const char * zPathInfo){
+  int rc = 0;
+  if(zPathInfo==0){
+    rc = 0;
+  }else if(0==strncmp("/json",zPathInfo,5)
+           && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+    rc = 1;
+  }else if(g.zCmdName!=0 && (0==strcmp("server",g.zCmdName)
+                             || 0==strcmp("ui",g.zCmdName)
+                             || 0==strcmp("cgi",g.zCmdName)
+                             || 0==strcmp("http",g.zCmdName)) ){
+    /* When running in server/cgi "directory" mode, zPathInfo is
+    ** prefixed with the repository's name, so in order to determine
+    ** whether or not we're really running in json mode we have to try
+    ** a bit harder. Problem reported here:
+    ** https://fossil-scm.org/forum/forumpost/e4953666d6
+    */
+    ReCompiled * pReg = 0;
+    const char * zErr = re_compile(&pReg, "^/[^/]+/json(/.*)?", 0);
+    assert(zErr==0 && "Regex compilation failed?");
+    if(zErr==0 &&
+         re_match(pReg, (const unsigned char *)zPathInfo, -1)){
+      rc = 2;
+    }
+    re_free(pReg);
+  }
+  return rc;
+}
 
 /*
 ** Returns true (non-0) if fossil appears to be running in JSON mode.
@@ -656,7 +691,7 @@ void json_send_response( cson_value const * pResponse ){
 ** authToken.
 */
 cson_value * json_auth_token(){
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
   if( g.json.authToken==0 && g.noPswd==0
       /* g.noPswd!=0 means the user was logged in via a local
          connection using --localauth. */
@@ -710,27 +745,44 @@ cson_value * json_req_payload_get(char const *pKey){
     : NULL;
 }
 
+
+/*
+** Returns non-zero if the json_bootstrap_early() function has already
+** been called.  In general, this function should be used sparingly,
+** e.g. from low-level support functions like fossil_warning() where
+** there is genuine uncertainty about whether (or not) the JSON setup
+** has already been called.
+*/
+int json_is_bootstrapped_early(){
+  return ((g.json.gc.v != NULL) && (g.json.gc.a != NULL));
+}
+
 /*
 ** Initializes some JSON bits which need to be initialized relatively
-** early on. It should only be called from cgi_init() or
-** json_cmd_top() (early on in those functions).
+** early on. It should be called by any routine which might need to
+** call into JSON relatively early on in the init process.
+** Specifically, early on in cgi_init() and json_cmd_top(), but also
+** from any error reporting routines which might be triggered (early
+** on in those functions).
 **
 ** Initializes g.json.gc and g.json.param. This code does not (and
 ** must not) rely on any of the fossil environment having been set
 ** up. e.g. it must not use cgi_parameter() and friends because this
 ** must be called before those data are initialized.
+**
+** If called multiple times, calls after the first are a no-op.
 */
-void json_main_bootstrap(){
+void json_bootstrap_early(){
   cson_value * v;
-  assert( (NULL == g.json.gc.v) &&
-          "json_main_bootstrap() was called twice!" );
 
+  if(g.json.gc.v!=NULL){
+    /* Avoid multiple bootstrappings. */
+    return;
+  }
   g.json.timerId = fossil_timer_start();
-
   /* g.json.gc is our "garbage collector" - where we put JSON values
      which need a long lifetime but don't have a logical parent to put
-     them in.
-  */
+     them in. */
   v = cson_value_new_array();
   g.json.gc.v = v;
   assert(0 != g.json.gc.v);
@@ -741,8 +793,7 @@ void json_main_bootstrap(){
        containers without transferring ownership to those containers.
        All other persistent g.json.XXX.v values get appended to
        g.json.gc.a, and therefore already have a live reference
-       for this purpose.
-    */
+       for this purpose. */
     ;
 
   /*
@@ -786,7 +837,7 @@ void json_warn( int code, char const * fmt, ... ){
   assert( (code>FSL_JSON_W_START)
           && (code<FSL_JSON_W_END)
           && "Invalid warning code.");
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
   if(!g.json.warnings){
     g.json.warnings = cson_new_array();
     assert((NULL != g.json.warnings) && "Alloc error.");
@@ -933,11 +984,11 @@ cson_value * json_string_split2( char const * zStr,
 **
 ** This must only be called once, or an assertion may be triggered.
 */
-static void json_mode_bootstrap(){
+void json_bootstrap_late(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
-  assert( (0==once) && "json_mode_bootstrap() called too many times!");
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
+  assert( (0==once) && "json_bootstrap_late() called too many times!");
   if( once ){
     return;
   }else{
@@ -1116,7 +1167,7 @@ static void json_mode_bootstrap(){
 */
 char const * json_command_arg(unsigned short ndx){
   cson_array * ar = g.json.cmd.a;
-  assert((NULL!=ar) && "Internal error. Was json_mode_bootstrap() called?");
+  assert((NULL!=ar) && "Internal error. Was json_bootstrap_late() called?");
   assert((g.argc>1) && "Internal error - we never should have gotten this far.");
   if( g.json.cmd.offset < 0 ){
     /* first-time setup. */
@@ -1930,6 +1981,7 @@ cson_value * json_page_cap(){
   ADD(EmailAlert,"emailAlert");
   ADD(Announce,"announce");
   ADD(Debug,"debug");
+  ADD(Chat,"chat");
 #undef ADD
   return payload;
 }
@@ -2263,8 +2315,8 @@ static int json_dispatch_root_command( char const * zCommand ){
 */
 void json_page_top(void){
   char const * zCommand;
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
-  json_mode_bootstrap();
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
+  assert(g.json.cmd.a && "json_bootstrap_late() was not called!");
   zCommand = json_command_arg(1);
   if(!zCommand || !*zCommand){
     json_dispatch_missing_args_err( JsonPageDefs,
@@ -2335,8 +2387,8 @@ void json_cmd_top(void){
        handling.
     */
     ;
-  json_main_bootstrap();
-  json_mode_bootstrap();
+  json_bootstrap_early();
+  json_bootstrap_late();
   if( 2 > cson_array_length_get(g.json.cmd.a) ){
     goto usage;
   }

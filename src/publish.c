@@ -23,7 +23,7 @@
 #include <assert.h>
 
 /*
-** COMMAND: unpublished
+** COMMAND: unpublished*
 **
 ** Usage: %fossil unpublished ?OPTIONS?
 **
@@ -52,7 +52,7 @@ void unpublished_cmd(void){
 }
 
 /*
-** COMMAND: publish
+** COMMAND: publish*
 **
 ** Usage: %fossil publish ?--only? TAGS...
 **

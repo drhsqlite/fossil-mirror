@@ -31,6 +31,15 @@ void markdown_to_html(
 
 #endif /* INTERFACE */
 
+/*
+** An instance of the following structure is passed through the
+** "opaque" pointer.
+*/
+typedef struct MarkdownToHtml MarkdownToHtml;
+struct MarkdownToHtml {
+  Blob *output_title;     /* Store the title here */
+};
+
 
 /* INTER_BLOCK -- skip a line between block level elements */
 #define INTER_BLOCK(ob) \
@@ -47,7 +56,7 @@ void markdown_to_html(
 
 /* BLOB_APPEND_BLOB -- append blob contents to another */
 #define BLOB_APPEND_BLOB(dest, src) \
-  safe_html_append((dest), blob_buffer(src), blob_size(src))
+  blob_append((dest), blob_buffer(src), blob_size(src))
 
 
 /* HTML escapes
@@ -134,7 +143,7 @@ static void html_epilog(struct Blob *ob, void *opaque){
 static void html_blockhtml(struct Blob *ob, struct Blob *text, void *opaque){
   char *data = blob_buffer(text);
   size_t size = blob_size(text);
-  Blob *title = (Blob*)opaque;
+  Blob *title = ((MarkdownToHtml*)opaque)->output_title;
   while( size>0 && fossil_isspace(data[0]) ){ data++; size--; }
   while( size>0 && fossil_isspace(data[size-1]) ){ size--; }
   /* If the first raw block is an <h1> element, then use it as the title. */
@@ -149,7 +158,7 @@ static void html_blockhtml(struct Blob *ob, struct Blob *text, void *opaque){
     return;
   }
   INTER_BLOCK(ob);
-  safe_html_append(ob, data, size);
+  blob_append(ob, data, size);
   BLOB_APPEND_LITERAL(ob, "\n");
 }
 
@@ -173,7 +182,7 @@ static void html_header(
   int level,
   void *opaque
 ){
-  struct Blob *title = opaque;
+  struct Blob *title = ((MarkdownToHtml*)opaque)->output_title;
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
   if( blob_size(ob)<=PROLOG_SIZE && title!=0 && blob_size(title)==0 ){
@@ -326,6 +335,76 @@ static int html_autolink(
   return 1;
 }
 
+/*
+** The nSrc bytes at zSrc[] are Pikchr input text (allegedly).  Process that
+** text and insert the result in place of the original.
+*/
+void pikchr_to_html(
+  Blob *ob,                     /* Write the generated SVG here */
+  const char *zSrc, int nSrc,   /* The Pikchr source text */
+  const char *zArg, int nArg    /* Addition arguments */
+){
+  int pikFlags = PIKCHR_PROCESS_NONCE
+    | PIKCHR_PROCESS_DIV
+    | PIKCHR_PROCESS_SRC
+    | PIKCHR_PROCESS_ERR_PRE;
+  Blob bSrc = empty_blob;
+  const char *zPikVar;
+  double rPikVar;
+
+  while( nArg>0 ){
+    int i;
+    for(i=0; i<nArg && !fossil_isspace(zArg[i]); i++){}
+    if( i==6 && strncmp(zArg, "center", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_CENTER;
+    }else if( i==6 && strncmp(zArg, "indent", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_INDENT;
+    }else if( i==10 && strncmp(zArg, "float-left", 10)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_LEFT;
+    }else if( i==11 && strncmp(zArg, "float-right", 11)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_FLOAT_RIGHT;
+    }else if( i==6 && strncmp(zArg, "toggle", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_TOGGLE;
+    }else if( i==6 && strncmp(zArg, "source", 6)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_SOURCE;
+    }else if( i==13 && strncmp(zArg, "source-inline", 13)==0 ){
+      pikFlags |= PIKCHR_PROCESS_DIV_SOURCE_INLINE;
+    }
+    while( i<nArg && fossil_isspace(zArg[i]) ){ i++; }
+    zArg += i;
+    nArg -= i;
+  }
+  if( skin_detail_boolean("white-foreground") ){
+    pikFlags |= 0x02;  /* PIKCHR_DARK_MODE */
+  }
+  zPikVar = skin_detail("pikchr-foreground");
+  if( zPikVar && zPikVar[0] ){
+    blob_appendf(&bSrc, "fgcolor = %s\n", zPikVar);
+  }
+  zPikVar = skin_detail("pikchr-background");
+  if( zPikVar && zPikVar[0] ){
+    blob_appendf(&bSrc, "bgcolor = %s\n", zPikVar);
+  }
+  zPikVar = skin_detail("pikchr-scale");
+  if( zPikVar
+   && (rPikVar = atof(zPikVar))>=0.1
+   && rPikVar<10.0
+  ){
+    blob_appendf(&bSrc, "scale = %.13g\n", rPikVar);
+  }
+  zPikVar = skin_detail("pikchr-fontscale");
+  if( zPikVar
+   && (rPikVar = atof(zPikVar))>=0.1
+   && rPikVar<10.0
+  ){
+    blob_appendf(&bSrc, "fontscale = %.13g\n", rPikVar);
+  }
+  blob_append(&bSrc, zSrc, nSrc)
+    /*have to dup input to ensure a NUL-terminated source string */;
+  pikchr_process(blob_str(&bSrc), pikFlags, 0, ob);
+  blob_reset(&bSrc);
+}
+
 /* Invoked for `...` blocks where there are nSep grave accents in a
 ** row that serve as the delimiter.  According to CommonMark:
 **
@@ -364,8 +443,13 @@ static int html_codespan(
         blob_appendf(ob, "<pre><code>%#h</code></pre>", n-i, z+i);
       }else{
         for(j=k+1; j<i && !fossil_isspace(z[j]); j++){}
-        blob_appendf(ob, "<pre><code class='language-%#h'>%#h</code></pre>",
-                          j-k, z+k, n-i, z+i);
+        if( j-k==6 && strncmp(z+k,"pikchr",6)==0 ){
+          while( j<i && fossil_isspace(z[j]) ){ j++; }
+          pikchr_to_html(ob, z+i, n-i, z+j, i-j);
+        }else{
+          blob_appendf(ob, "<pre><code class='language-%#h'>%#h</code></pre>",
+                            j-k, z+k, n-i, z+i);
+        }
       }
     }
   }
@@ -514,7 +598,10 @@ void markdown_to_html(
     "*_", /* emph_chars */
     0     /* opaque */
   };
-  html_renderer.opaque = output_title;
+  MarkdownToHtml context;
+  memset(&context, 0, sizeof(context));
+  context.output_title = output_title;
+  html_renderer.opaque = &context;
   if( output_title ) blob_reset(output_title);
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);

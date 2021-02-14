@@ -20,6 +20,13 @@
 ** them into ANSI-C static char array variables.  Output is written onto
 ** standard output.
 **
+** Additionally, the input files may be listed in a separate list file (one
+** resource name per line, optionally enclosed in double quotes). Pass the list
+** via '--reslist <the-list-file>' option. Both lists, from the command line and
+** the list file, are merged; duplicate file names skipped from processing.
+** This option is useful to get around the command line length limitations
+** under some OS, like Windows.
+**
 ** The makefiles use this utility to package various resources (large scripts,
 ** GIF images, etc) that are separate files in the source code as byte
 ** arrays in the resulting executable.
@@ -57,6 +64,7 @@ static unsigned char *read_file(const char *zFilename, int *pnByte){
   return z;
 }
 
+#ifndef FOSSIL_DEBUG
 /*
 ** Try to compress a javascript file by removing unnecessary whitespace.
 **
@@ -83,6 +91,7 @@ static void compressJavascript(unsigned char *z, int *pn){
       }
     }
     if( c=='\n' ){
+      if( j==0 ) continue;
       while( j>0 && isspace(z[j-1]) ) j--;
       z[j++] = '\n';
       while( i+1<n && isspace(z[i+1]) ) i++;
@@ -93,6 +102,7 @@ static void compressJavascript(unsigned char *z, int *pn){
   z[j] = 0;
   *pn = j;
 }
+#endif /* FOSSIL_DEBUG */
 
 /*
 ** There is an instance of the following for each file translated.
@@ -104,43 +114,229 @@ struct Resource {
   int idx;
 };
 
+typedef struct ResourceList ResourceList;
+struct ResourceList {
+    Resource *aRes;
+    int nRes;
+    char *buf;
+    long bufsize;
+};
+
+
+Resource *read_reslist(char *name, ResourceList *list){
+#define RESLIST_BUF_MAXBYTES (1L<<20)  /* 1 MB of text */
+  FILE *in;
+  long filesize = 0L;
+  long linecount = 0L;
+  char *p = 0;
+  char *pb = 0;
+
+  memset(list, 0, sizeof(*list));
+
+  if( (in = fopen(name, "rb"))==0 ){
+    return list->aRes;
+  }
+  fseek(in, 0L, SEEK_END);
+  filesize = ftell(in);
+  rewind(in);
+
+  if( filesize > RESLIST_BUF_MAXBYTES ){
+    fprintf(stderr, "List file [%s] must be smaller than %ld bytes\n", name,
+            RESLIST_BUF_MAXBYTES);
+    return list->aRes;
+  }
+  list->bufsize = filesize;
+  list->buf = (char *)calloc((list->bufsize + 2), sizeof(list->buf[0]));
+  if( list->buf==0 ){
+    fprintf(stderr, "failed to allocated %ld bytes\n", list->bufsize + 1);
+    list->bufsize = 0L;
+    return list->aRes;
+  }
+  filesize = fread(list->buf, sizeof(list->buf[0]),list->bufsize, in);
+  if ( filesize!=list->bufsize ){
+    fprintf(stderr, "failed to read [%s]\n", name);
+    return list->aRes;
+  }
+  fclose(in);
+
+  /*
+  ** append an extra newline (if missing) for a correct line count
+  */
+  if( list->buf[list->bufsize-1]!='\n' ) list->buf[list->bufsize]='\n';
+
+  linecount = 0L;
+  for( p = strchr(list->buf, '\n');
+       p && p <= &list->buf[list->bufsize-1];
+       p = strchr(++p, '\n') ){
+    ++linecount;
+  }
+
+  list->aRes = (Resource *)calloc(linecount+1, sizeof(list->aRes[0]));
+  for( pb = list->buf, p = strchr(pb, '\n');
+       p && p <= &list->buf[list->bufsize-1];
+       pb = ++p, p = strchr(pb, '\n') ){
+
+    char *path = pb;
+    char *pe = p - 1;
+
+    /* strip leading and trailing whitespace */
+    while( path < p && isspace(*path) ) ++path;
+    while( pe > path && isspace(*pe) ){
+      *pe = '\0';
+      --pe;
+    }
+
+    /* strip outer quotes */
+    while( path < p && *path=='\"') ++path;
+    while( pe > path && *pe=='\"' ){
+      *pe = '\0';
+      --pe;
+    }
+    *p = '\0';
+
+    /* skip empty path */
+    if( *path ){
+      list->aRes[list->nRes].zName = path;
+      ++(list->nRes);
+    }
+  }
+  return list->aRes;
+}
+
+void free_reslist(ResourceList *list){
+  if( list ){
+    if( list->buf ) free(list->buf);
+    if( list->aRes) free(list->aRes);
+    memset(list, 0, sizeof(*list));
+  }
+}
+
 /*
 ** Compare two Resource objects for sorting purposes.  They sort
 ** in zName order so that Fossil can search for resources using
 ** a binary search.
 */
-static int compareResource(const void *a, const void *b){
-  Resource *pA = (Resource*)a;
-  Resource *pB = (Resource*)b;
-  return strcmp(pA->zName, pB->zName);
+typedef int (*QsortCompareFunc)(const void *, const void*);
+
+static int compareResource(const Resource *a, const Resource *b){
+  return strcmp(a->zName, b->zName);
+}
+
+int remove_duplicates(ResourceList *list){
+  char dupNameAsc[64] = "\255";
+  char dupNameDesc[64] = "";
+  Resource dupResAsc;
+  Resource dupResDesc;
+  Resource *pDupRes;
+  int dupcount = 0;
+  int i;
+
+  if( list->nRes==0 ){
+    return list->nRes;
+  }
+
+  /*
+  ** scan for duplicates and assign their names to a string that would sort to
+  ** the bottom, then re-sort and truncate the duplicates
+  */
+  memset(dupNameAsc, dupNameAsc[0], sizeof(dupNameAsc)-2);
+  memset(dupNameDesc, dupNameDesc[0], sizeof(dupNameDesc)-2);
+  memset(&dupResAsc, 0, sizeof(dupResAsc));
+  dupResAsc.zName = dupNameAsc;
+  memset(&dupResDesc, 0, sizeof(dupResDesc));
+  dupResDesc.zName = dupNameDesc;
+  pDupRes = (compareResource(&dupResAsc, &dupResDesc) > 0
+             ? &dupResAsc : &dupResDesc);
+
+  qsort(list->aRes, list->nRes, sizeof(list->aRes[0]),
+       (QsortCompareFunc)compareResource);
+  for( i=0; i<list->nRes-1 ; ++i){
+    Resource *res = &list->aRes[i];
+
+    while( i<list->nRes-1
+           && compareResource(res, &list->aRes[i+1])==0 ){
+      fprintf(stderr, "Skipped a duplicate file [%s]\n", list->aRes[i+1].zName);
+      memcpy(&list->aRes[i+1], pDupRes, sizeof(list->aRes[0]));
+      ++dupcount;
+
+      ++i;
+    }
+  }
+  if( dupcount == 0){
+    return list->nRes;
+  }
+  qsort(list->aRes, list->nRes, sizeof(list->aRes[0]),
+       (QsortCompareFunc)compareResource);
+  list->nRes -= dupcount;
+  memset(&list->aRes[list->nRes], 0, sizeof(list->aRes[0]));
+
+  return list->nRes;
 }
 
 int main(int argc, char **argv){
   int i, sz;
   int j, n;
+  ResourceList resList;
   Resource *aRes;
   int nRes;
   unsigned char *pData;
   int nErr = 0;
   int nSkip;
   int nPrefix = 0;
+#ifndef FOSSIL_DEBUG
   int nName;
+#endif
 
+  if( argc==1 ){
+    fprintf(stderr, "usage\t:%s "
+      "[--prefix path] [--reslist file] [resource-file1 ...]\n",
+       argv[0]
+    );
+    return 1;
+  }
   if( argc>3 && strcmp(argv[1],"--prefix")==0 ){
     nPrefix = (int)strlen(argv[2]);
     argc -= 2;
     argv += 2;
   }
-  nRes = argc - 1;
-  aRes = malloc( nRes*sizeof(aRes[0]) );
-  if( aRes==0 ){
-    fprintf(stderr, "malloc failed\n");
-    return 1;
+
+  memset(&resList, 0, sizeof(resList));
+  if( argc>2 && strcmp(argv[1],"--reslist")==0 ){
+    if( read_reslist(argv[2], &resList)==0 ){
+      fprintf(stderr, "Failed to load resource list from [%s]", argv[2]);
+      free_reslist(&resList);
+      return 1;
+    }
+    argc -= 2;
+    argv += 2;
   }
-  for(i=0; i<argc-1; i++){
-    aRes[i].zName = argv[i+1];
+
+  if( argc>1 ){
+    aRes = realloc(resList.aRes, (resList.nRes+argc-1)*sizeof(resList.aRes[0]));
+    if( aRes==0 || aRes==resList.aRes ){
+      fprintf(stderr, "realloc failed\n");
+      free_reslist(&resList);
+      return 1;
+    }
+    resList.aRes = aRes;
+
+    for(i=0; i<argc-1; i++){
+      resList.aRes[resList.nRes].zName = argv[i+1];
+      ++resList.nRes;
+    }
   }
-  qsort(aRes, nRes, sizeof(aRes[0]), compareResource);
+
+  if( resList.nRes==0 ){
+      fprintf(stderr,"No resource files to process\n");
+      free_reslist(&resList);
+      return 1;
+  }
+  remove_duplicates(&resList);
+
+  nRes = resList.nRes;
+  aRes = resList.aRes;
+  qsort(aRes, nRes, sizeof(aRes[0]), (QsortCompareFunc)compareResource);
+
   printf("/* Automatically generated code:  Do not edit.\n**\n"
          "** Rerun the \"mkbuiltin.c\" program or rerun the Fossil\n"
          "** makefile to update this source file.\n"
@@ -160,6 +356,7 @@ int main(int argc, char **argv){
       if( pData[nSkip]=='\n' ) nSkip++;
     }
 
+#ifndef FOSSIL_DEBUG
     /* Compress javascript source files */
     nName = (int)strlen(aRes[i].zName);
     if( (nName>3 && strcmp(&aRes[i].zName[nName-3],".js")==0)
@@ -169,6 +366,7 @@ int main(int argc, char **argv){
       compressJavascript(pData+nSkip, &x);
       sz = x + nSkip;
     }
+#endif
 
     aRes[i].nByte = sz - nSkip;
     aRes[i].idx = i;
@@ -206,11 +404,12 @@ int main(int argc, char **argv){
       z++;
     }
   }
-  qsort(aRes, nRes, sizeof(aRes[0]), compareResource);
+  qsort(aRes, nRes, sizeof(aRes[0]), (QsortCompareFunc)compareResource);
   for(i=0; i<nRes; i++){
     printf("  { \"%s\", bidata%d, %d },\n",
            aRes[i].zName, aRes[i].idx, aRes[i].nByte);
   }
   printf("};\n");
+  free_reslist(&resList);
   return nErr;
 }

@@ -130,7 +130,7 @@ faq {
 } {
   Any of the following commands should work:
   <blockquote><pre>
-  fossil [/help/clone|clone]  http://www.fossil-scm.org/  fossil.fossil
+  fossil [/help/clone|clone]  http://fossil-scm.org/  fossil.fossil
   fossil [/help/clone|clone]  http://www2.fossil-scm.org/  fossil.fossil
   fossil [/help/clone|clone]  http://www3.fossil-scm.org/site.cgi  fossil.fossil
   </pre></blockquote>

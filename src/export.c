@@ -483,7 +483,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 **   --export-marks FILE          export rids of exported data to FILE
 **   --import-marks FILE          read rids of data to ignore from FILE
 **   --rename-trunk NAME          use NAME as name of exported trunk branch
-**   --repository|-R REPOSITORY   export the given REPOSITORY
+**   -R|--repository REPOSITORY   export the given REPOSITORY
 **
 ** See also: import
 */
@@ -864,6 +864,11 @@ void test_topological_sort(void){
 #define VERB_EXTRA  3
 static int gitmirror_verbosity = VERB_NORMAL;
 
+/* The main branch in the Git repository.  The "trunk" branch of
+** Fossil is renamed to be this branch name.
+*/
+static const char *gitmirror_mainbranch = 0;
+
 /*
 ** Output routine that depends on verbosity
 */
@@ -884,11 +889,11 @@ static void gitmirror_sanitize_name(char *z){
      /* x0 x1 x2 x3 x4 x5 x6 x7 x8  x9 xA xB xC xD xE xF */
          0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 0x */
          0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 1x */
-         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 2x */
-         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 0, 1, 1, 1, 1, 0,  /* 3x */
+         0, 1, 0, 1, 0, 1, 1, 0, 1,  1, 0, 1, 1, 1, 1, 1,  /* 2x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 0, 0, 1, 1, 1, 0,  /* 3x */
          0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 4x */
          1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 0, 1, 0, 1,  /* 5x */
-         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 6x */
+         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 6x */
          1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 0, 0,  /* 7x */
   };
   unsigned char *zu = (unsigned char*)z;
@@ -903,6 +908,32 @@ static void gitmirror_sanitize_name(char *z){
       zu[i] = '_';
     }
   }
+}
+
+/*
+** COMMAND: test-sanitize-name
+**
+** Usage: %fossil ARG...
+**
+** This sanitizes each argument and make it part of an "echo" command
+** run by the shell.
+*/
+void test_sanitize_name_cmd(void){
+  sqlite3_str *pStr;
+  int i;
+  char *zCmd;
+  pStr = sqlite3_str_new(0);
+  sqlite3_str_appendall(pStr, "echo");
+  for(i=2; i<g.argc; i++){
+    char *z = fossil_strdup(g.argv[i]);
+    gitmirror_sanitize_name(z);
+    sqlite3_str_appendf(pStr, " \"%s\"", z);
+    fossil_free(z);
+  }
+  zCmd = sqlite3_str_finish(pStr);
+  fossil_print("Command: %s\n", zCmd);
+  fossil_system(zCmd);
+  sqlite3_free(zCmd);
 }
 
 /*
@@ -1064,6 +1095,7 @@ static int gitmirror_send_checkin(
   int nErr = 0;         /* Number of errors */
   int bPhantomOk;       /* True if phantom files should be ignored */
   char buf[24];
+  char *zEmail;         /* Contact info for Git committer field */
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1114,6 +1146,7 @@ static int gitmirror_send_checkin(
     gitmirror_message(VERB_ERROR,
              "export of %s abandoned due to missing files\n", zUuid);
     *pnLimit = 0;
+    manifest_destroy(pMan);
     return 1;
   }
 
@@ -1123,8 +1156,9 @@ static int gitmirror_send_checkin(
     TAG_BRANCH, rid
   );
   if( fossil_strcmp(zBranch,"trunk")==0 ){
+    assert( gitmirror_mainbranch!=0 );
     fossil_free(zBranch);
-    zBranch = mprintf("master");
+    zBranch = mprintf("%s",gitmirror_mainbranch);
   }else if( zBranch==0 ){
     zBranch = mprintf("unknown");
   }else{
@@ -1140,15 +1174,49 @@ static int gitmirror_send_checkin(
   sqlite3_snprintf(sizeof(buf), buf, "%lld",
      (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
   );
-  fprintf(xCmd, "committer %s <%s@noemail.net> %s +0000\n",
-     pMan->zUser, pMan->zUser, buf
-  );
+
+  /*
+  ** Check for 'fx_' table from previous Git import, otherwise take contact info
+  ** from user table for <emailaddr> in committer field. If no emailaddr, check
+  ** if username is in email form, otherwise use generic 'username@noemail.net'.
+  */
+  if (db_table_exists("repository", "fx_git")) {
+    zEmail = db_text(0, "SELECT email FROM fx_git WHERE user=%Q", pMan->zUser);
+  } else {
+    zEmail = db_text(0, "SELECT info FROM user WHERE login=%Q", pMan->zUser);
+  }
+
+  /* Some repo 'info' fields return an empty string hence the second check */
+  if( zEmail==0 ){
+    /* If username is in emailaddr form, don't append '@noemail.net' */
+    if( pMan->zUser==0 || strchr(pMan->zUser, '@')==0 ){
+      zEmail = mprintf("%s@noemail.net", pMan->zUser);
+    } else {
+      zEmail = fossil_strdup(pMan->zUser);
+    }
+  }else{
+    char *zTmp = strchr(zEmail, '<');
+    if( zTmp ){
+      char *zTmpEnd = strchr(zTmp+1, '>');
+      char *zNew;
+      int i;
+      if( zTmpEnd ) *(zTmpEnd) = 0;
+      zNew = fossil_strdup(zTmp+1);
+      fossil_free(zEmail);
+      zEmail = zNew;
+      for(i=0; zEmail[i] && !fossil_isspace(zEmail[i]); i++){}
+      zEmail[i] = 0;
+    }
+  }
+  fprintf(xCmd, "# rid=%d\n", rid);
+  fprintf(xCmd, "committer %s <%s> %s +0000\n", pMan->zUser, zEmail, buf);
+  fossil_free(zEmail);
   blob_init(&comment, pMan->zComment, -1);
   if( blob_size(&comment)==0 ){
     blob_append(&comment, "(no comment)", -1);
   }
   blob_appendf(&comment, "\n\nFossilOrigin-Name: %s", zUuid);
-  fprintf(xCmd, "data %d\n%s\n", blob_size(&comment), blob_str(&comment));
+  fprintf(xCmd, "data %d\n%s\n", blob_strlen(&comment), blob_str(&comment));
   blob_reset(&comment);
   iParent = -1;  /* Which ancestor is the primary parent */
   for(i=0; i<pMan->nParent; i++){
@@ -1206,13 +1274,15 @@ static int gitmirror_send_checkin(
     fossil_free(zFNQuoted);
   }
   db_finalize(&q);
+  manifest_destroy(pMan);
+  pMan = 0;
 
   /* Include Fossil-generated auxiliary files in the check-in */
   if( fManifest & MFESTFLG_RAW ){
     Blob manifest;
     content_get(rid, &manifest);
     fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
-      blob_size(&manifest), blob_str(&manifest));
+      blob_strlen(&manifest), blob_str(&manifest));
     blob_reset(&manifest);
   }
   if( fManifest & MFESTFLG_UUID ){
@@ -1224,7 +1294,7 @@ static int gitmirror_send_checkin(
     blob_init(&tagslist, 0, 0);
     get_checkin_taglist(rid, &tagslist);
     fprintf(xCmd,"M 100644 inline manifest.tags\ndata %d\n%s\n",
-      blob_size(&tagslist), blob_str(&tagslist));
+      blob_strlen(&tagslist), blob_str(&tagslist));
     blob_reset(&tagslist);
   }
 
@@ -1232,6 +1302,74 @@ static int gitmirror_send_checkin(
   (*pnLimit)--;
   return 0;
 }
+
+/*
+** Create a new Git repository at zMirror to use as the mirror.
+** Try to make zMainBr be the main branch for the new repository.
+**
+** A side-effect of this routine is that current-working directory
+** is changed to zMirror.
+**
+** If zMainBr is initially NULL, then the return value will be the
+** name of the default branch to be used by Git.  If zMainBr is
+** initially non-NULL, then the return value will be a copy of zMainBr.
+*/
+static char *gitmirror_init(
+  const char *zMirror,
+  char *zMainBr
+){
+  char *zCmd;
+  int rc;
+
+  /* Create a new Git repository at zMirror */
+  zCmd = mprintf("git init %$", zMirror);
+  gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
+  rc = fossil_system(zCmd);
+  if( rc ){
+    fossil_fatal("cannot initialize git repository using: %s\n", zCmd);
+  }
+  fossil_free(zCmd);
+
+  /* Must be in the new Git repository directory for subsequent commands */
+  rc = file_chdir(zMirror, 0);
+  if( rc ){
+    fossil_fatal("cannot change to directory \"%s\"", zMirror);
+  }
+
+  if( zMainBr ){
+    /* Set the current branch to zMainBr */
+    zCmd = mprintf("git symbolic-ref HEAD refs/heads/%s", zMainBr);
+    gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
+    rc = fossil_system(zCmd);
+    if( rc ){
+      fossil_fatal("git command failed: %s", zCmd);
+    }
+    fossil_free(zCmd);
+  }else{
+    /* If zMainBr is not specified, then check to see what branch
+    ** name Git chose for itself */
+    char *z;
+    char zLine[1000];
+    FILE *xCmd;
+    int i;
+    zCmd = "git symbolic-ref --short HEAD";
+    gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
+    xCmd = popen(zCmd, "r");
+    if( xCmd==0 ){
+      fossil_fatal("git command failed: %s", zCmd);
+    }
+    
+    z = fgets(zLine, sizeof(zLine), xCmd);
+    pclose(xCmd);
+    if( z==0 ){
+      fossil_fatal("no output from \"%s\"", zCmd);
+    }
+    for(i=0; z[i] && !fossil_isspace(z[i]); i++){}
+    z[i] = 0;
+    zMainBr = fossil_strdup(z);
+  }
+  return zMainBr;
+} 
 
 /*
 ** Implementation of the "fossil git export" command.
@@ -1245,12 +1383,14 @@ void gitmirror_export_command(void){
   char *zCmd;                     /* git command to run as a subprocess */
   const char *zDebug = 0;         /* Value of the --debug flag */
   const char *zAutoPush = 0;      /* Value of the --autopush flag */
+  char *zMainBr = 0;              /* Value of the --mainbranch flag */
   char *zPushUrl;                 /* URL to sync the mirror to */
   double rEnd;                    /* time of most recent export */
   int rc;                         /* Result code */
   int bForce;                     /* Do the export and sync even if no changes*/
   int bNeedRepack = 0;            /* True if we should run repack at the end */
   int fManifest;                  /* Current "manifest" setting */
+  int bIfExists;                  /* The --if-mirrored flag */
   FILE *xCmd;                     /* Pipe to the "git fast-import" command */
   FILE *pMarks;                   /* Git mark files */
   Stmt q;                         /* Queries */
@@ -1264,7 +1404,9 @@ void gitmirror_export_command(void){
     if( nLimit<=0 ) fossil_fatal("--limit must be positive");
   }
   zAutoPush = find_option("autopush",0,1);
+  zMainBr = (char*)find_option("mainbranch",0,1);
   bForce = find_option("force","f",0)!=0;
+  bIfExists = find_option("if-mirrored",0,0)!=0;
   gitmirror_verbosity = VERB_NORMAL;
   while( find_option("quiet","q",0)!=0 ){ gitmirror_verbosity--; }
   while( find_option("verbose","v",0)!=0 ){ gitmirror_verbosity++; }
@@ -1278,7 +1420,17 @@ void gitmirror_export_command(void){
   }
   zMirror = db_get("last-git-export-repo", 0);
   if( zMirror==0 ){
+    if( bIfExists ) return;
     fossil_fatal("no Git repository specified");
+  }
+
+  if( zMainBr ){
+    z = fossil_strdup(zMainBr);
+    gitmirror_sanitize_name(z);
+    if( strcmp(z, zMainBr) ){
+      fossil_fatal("\"%s\" is not a legal branch name for Git", zMainBr);
+    }
+    fossil_free(z);
   }
 
   /* Make sure the GIT repository directory exists */
@@ -1288,13 +1440,7 @@ void gitmirror_export_command(void){
   /* Make sure GIT has been initialized */
   z = mprintf("%s/.git", zMirror);
   if( !file_isdir(z, ExtFILE) ){
-    zCmd = mprintf("git init \"%s\"",zMirror);
-    gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
-    rc = fossil_system(zCmd);
-    if( rc ){
-      fossil_fatal("cannot initialize the git repository using: \"%s\"", zCmd);
-    }
-    fossil_free(zCmd);
+    zMainBr = gitmirror_init(zMirror, zMainBr);
     bNeedRepack = 1;
   }
   fossil_free(z);
@@ -1354,6 +1500,21 @@ void gitmirror_export_command(void){
     }
   }
 
+  /* Change the mainbranch setting if the --mainbranch flag is present */
+  if( zMainBr && zMainBr[0] ){
+    db_multi_exec(
+       "REPLACE INTO mirror.mconfig(key,value)"
+       "VALUES('mainbranch',%Q)",
+       zMainBr
+    );
+    gitmirror_mainbranch = fossil_strdup(zMainBr);
+  }else{
+    /* Recover the saved name of the main branch */
+    gitmirror_mainbranch = db_text("master",
+                "SELECT value FROM mconfig WHERE key='mainbranch'");
+  }
+
+
   /* See if there is any work to be done.  Exit early if not, before starting
   ** the "git fast-import" command. */
   if( !bForce
@@ -1392,7 +1553,7 @@ void gitmirror_export_command(void){
 #else
     xCmd = popen(zCmd, "w");
 #endif
-    if( zCmd==0 ){
+    if( xCmd==0 ){
       fossil_fatal("cannot start the \"git fast-import\" command");
     }
     fossil_free(zCmd);
@@ -1486,7 +1647,7 @@ void gitmirror_export_command(void){
     const char *zObj = db_column_text(&q,1);
     char *zTagCmd;
     gitmirror_sanitize_name(zTagname);
-    zTagCmd = mprintf("git tag -f \"%s\" %s", zTagname, zObj);
+    zTagCmd = mprintf("git tag -f %$ %$", zTagname, zObj);
     fossil_free(zTagname);
     gitmirror_message(VERB_NORMAL, "%s\n", zTagCmd);
     fossil_system(zTagCmd);
@@ -1517,11 +1678,11 @@ void gitmirror_export_command(void){
     char *zRefCmd;
     if( fossil_strcmp(zBrname,"trunk")==0 ){
       fossil_free(zBrname);
-      zBrname = fossil_strdup("master");
+      zBrname = fossil_strdup(gitmirror_mainbranch);
     }else{
       gitmirror_sanitize_name(zBrname);
     }
-    zRefCmd = mprintf("git update-ref \"refs/heads/%s\" %s", zBrname, zObj);
+    zRefCmd = mprintf("git update-ref \"refs/heads/%s\" %$", zBrname, zObj);
     fossil_free(zBrname);
     gitmirror_message(VERB_NORMAL, "%s\n", zRefCmd);
     fossil_system(zRefCmd);
@@ -1558,7 +1719,7 @@ void gitmirror_export_command(void){
     }
     gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
-    zPushCmd = mprintf("git push --mirror %s", zPushUrl);
+    zPushCmd = mprintf("git push --mirror %$", zPushUrl);
     fossil_system(zPushCmd);
     fossil_free(zPushCmd);
   }
@@ -1599,6 +1760,7 @@ void gitmirror_status_command(void){
     UrlData url;
     url_parse_local(z, 0, &url);
     fossil_print("Autopush:    %s\n", url.canonical);
+    fossil_free(z);
   }
   n = db_int(0,
     "SELECT count(*) FROM event"
@@ -1606,6 +1768,8 @@ void gitmirror_status_command(void){
     "   AND mtime>coalesce((SELECT value FROM mconfig"
                           "  WHERE key='start'),0.0)"
   );
+  z = db_text("master", "SELECT value FROM mconfig WHERE key='mainbranch'");
+  fossil_print("Main-Branch: %s\n",z);
   if( n==0 ){
     fossil_print("Status:      up-to-date\n");
   }else{
@@ -1618,14 +1782,14 @@ void gitmirror_status_command(void){
 }
 
 /*
-** COMMAND: git
+** COMMAND: git*
 **
 ** Usage: %fossil git SUBCOMMAND
 **
 ** Do incremental import or export operations between Fossil and Git.
 ** Subcommands:
 **
-**   fossil git export [MIRROR] [OPTIONS]
+** > fossil git export [MIRROR] [OPTIONS]
 **
 **       Write content from the Fossil repository into the Git repository
 **       in directory MIRROR.  The Git repository is created if it does not
@@ -1650,17 +1814,22 @@ void gitmirror_status_command(void){
 **                             auto-push mechanism is disabled
 **         --debug FILE        Write fast-export text to FILE rather than
 **                             piping it into "git fast-import".
-**         --force|-f          Do the export even if nothing has changed
+**         -f|--force          Do the export even if nothing has changed
+**         --if-mirrored       No-op if the mirror does not already exist.
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
-**         --quiet|-q          Reduce output. Repeat for even less output.
-**         --verbose|-v        More output.
+**         --mainbranch NAME   Use NAME as the name of the main branch in Git.
+**                             The "trunk" branch of the Fossil repository is
+**                             mapped into this name.  "master" is used if
+**                             this option is omitted.
+**         -q|--quiet          Reduce output. Repeat for even less output.
+**         -v|--verbose        More output.
 **
-**   fossil git import MIRROR
+** > fossil git import MIRROR
 **
 **       TBD...   
 **
-**   fossil git status
+** > fossil git status
 **
 **       Show the status of the current Git mirror, if there is one.
 */

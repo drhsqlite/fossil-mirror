@@ -54,6 +54,7 @@ static void rebuild_update_schema(void){
   /* Add the user.mtime column if it is missing. (2011-04-27)
   */
   if( !db_table_has_column("repository", "user", "mtime") ){
+    db_unprotect(PROTECT_ALL);
     db_multi_exec(
       "CREATE TEMP TABLE temp_user AS SELECT * FROM user;"
       "DROP TABLE user;"
@@ -74,15 +75,18 @@ static void rebuild_update_schema(void){
                " ipaddr, cexpire, info, now(), photo FROM temp_user;"
       "DROP TABLE temp_user;"
     );
+    db_protect_pop();
   }
 
   /* Add the config.mtime column if it is missing.  (2011-04-27)
   */
   if( !db_table_has_column("repository", "config", "mtime") ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "ALTER TABLE config ADD COLUMN mtime INTEGER;"
       "UPDATE config SET mtime=now();"
     );
+    db_protect_pop();
   }
 
   /* Add the shun.mtime and shun.scom columns if they are missing.
@@ -146,7 +150,7 @@ static void rebuild_update_schema(void){
 **       is greater than or equal to 40, not exactly equal to 40.
 */
 void rebuild_schema_update_2_0(void){
-  char *z = db_text(0, "SELECT sql FROM repository.sqlite_master"
+  char *z = db_text(0, "SELECT sql FROM repository.sqlite_schema"
                        " WHERE name='blob'");
   if( z ){
     /* Search for:  length(uuid)==40
@@ -154,13 +158,16 @@ void rebuild_schema_update_2_0(void){
     int i;
     for(i=10; z[i]; i++){
       if( z[i]=='=' && strncmp(&z[i-6],"(uuid)==40",10)==0 ){
+        int rc = 0;
         z[i] = '>';
+        sqlite3_db_config(g.db, SQLITE_DBCONFIG_DEFENSIVE, 0, &rc);
         db_multi_exec(
            "PRAGMA writable_schema=ON;"
-           "UPDATE repository.sqlite_master SET sql=%Q WHERE name LIKE 'blob';"
+           "UPDATE repository.sqlite_schema SET sql=%Q WHERE name LIKE 'blob';"
            "PRAGMA writable_schema=OFF;",
            z
         );
+        sqlite3_db_config(g.db, SQLITE_DBCONFIG_DEFENSIVE, 1, &rc);
         break;
       }
     }
@@ -381,17 +388,18 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   if (ttyOutput && !g.fQuiet) {
     percent_complete(0);
   }
-  alert_triggers_disable();
+  manifest_disable_event_triggers();
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
+  db_unprotect(PROTECT_ALL);
   db_prepare(&q,
-     "SELECT name FROM sqlite_master /*scan*/"
+     "SELECT name FROM sqlite_schema /*scan*/"
      " WHERE type='table'"
      " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','alias',"
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
                        "'purgeevent','purgeitem','unversioned',"
-                       "'subscriber','pending_alert','alert_bounce')"
+                       "'subscriber','pending_alert','alert_bounce','chat')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
   );
@@ -472,11 +480,11 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
-  alert_triggers_enable();
   if(!g.fQuiet && ttyOutput ){
     percent_complete(1000);
     fossil_print("\n");
   }
+  db_protect_pop();
   return errCnt;
 }
 
@@ -603,8 +611,6 @@ static void reconstruct_private_table(void){
 **   --stats           Show artifact statistics after rebuilding
 **   --vacuum          Run VACUUM on the database after rebuilding
 **   --wal             Set Write-Ahead-Log journalling mode on the database
-**
-** See also: deconstruct, reconstruct
 */
 void rebuild_database(void){
   int forceFlag;
@@ -671,6 +677,7 @@ void rebuild_database(void){
   verify_all_options();
 
   db_begin_transaction();
+  db_unprotect(PROTECT_ALL);
   if( !compressOnlyFlag ){
     search_drop_index();
     ttyOutput = 1;
@@ -724,6 +731,7 @@ void rebuild_database(void){
     }
   }
   if( runReindex ) search_rebuild_index();
+  db_protect_pop();
   if( showStats ){
     static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
@@ -759,13 +767,16 @@ void rebuild_database(void){
 void test_detach_cmd(void){
   db_find_and_open_repository(0, 2);
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
-    "DELETE FROM config WHERE name='last-sync-url';"
+    "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+    "DELETE FROM config WHERE name GLOB 'sync-*:*';"
     "UPDATE config SET value=lower(hex(randomblob(20)))"
     " WHERE name='project-code';"
     "UPDATE config SET value='detached-' || value"
     " WHERE name='project-name' AND value NOT GLOB 'detached-*';"
   );
+  db_protect_pop();
   db_end_transaction(0);
 }
 
@@ -913,13 +924,17 @@ void scrub_cmd(void){
     delete_private_content();
   }
   if( !privateOnly ){
+    db_unprotect(PROTECT_ALL);
     db_multi_exec(
       "UPDATE user SET pw='';"
       "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+      "DELETE FROM config WHERE name GLOB 'sync-*:*';"
       "DELETE FROM config WHERE name GLOB 'peer-*';"
       "DELETE FROM config WHERE name GLOB 'login-group-*';"
       "DELETE FROM config WHERE name GLOB 'skin:*';"
       "DELETE FROM config WHERE name GLOB 'subrepo:*';"
+      "DELETE FROM config WHERE name GLOB 'http-auth:*';"
+      "DELETE FROM config WHERE name GLOB 'cert:*';"
     );
     if( bVerily ){
       db_multi_exec(
@@ -931,12 +946,16 @@ void scrub_cmd(void){
         "DROP TABLE IF EXISTS purgeitem;\n"
         "DROP TABLE IF EXISTS admin_log;\n"
         "DROP TABLE IF EXISTS vcache;\n"
+        "DROP TABLE IF EXISTS chat;\n"
       );
     }
+    db_protect_pop();
   }
   if( !bNeedRebuild ){
     db_end_transaction(0);
+    db_unprotect(PROTECT_ALL);
     db_multi_exec("VACUUM;");
+    db_protect_pop();
   }else{
     rebuild_db(0, 1, 0);
     db_end_transaction(0);
@@ -1203,8 +1222,6 @@ void private_import(char *zFileName)
 **                      file .rid in DIRECTORY.
 **   -P|--keep-private  Mark the artifacts listed in the file .private in
 **                      DIRECTORY as private in the new Fossil repository.
-**
-** See also: deconstruct, rebuild
 */
 void reconstruct_cmd(void) {
   char *zPassword;
@@ -1278,8 +1295,6 @@ void reconstruct_cmd(void) {
 **   -P|--keep-private           Save the list of private artifacts to the file
 **                               .private in the DESTINATION directory (implies
 **                               the --private option).
-**
-** See also: reconstruct, rebuild
 */
 void deconstruct_cmd(void){
   const char *zPrefixOpt;

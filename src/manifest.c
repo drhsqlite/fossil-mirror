@@ -171,6 +171,31 @@ static struct {
 static int manifest_crosslink_busy = 0;
 
 /*
+** There are some triggers that need to fire whenever new content
+** is added to the EVENT table, to make corresponding changes to the
+** PENDING_ALERT and CHAT tables.  These are done with TEMP triggers
+** which are created as needed.  The reasons for using TEMP triggers:
+**
+**    *  A small minority of invocations of Fossil need to use those triggers.
+**       So we save CPU cycles in the common case by not having to parse the
+**       trigger definition
+**
+**    *  We don't have to worry about dangling table references inside
+**       of triggers.  For example, we can create a trigger that adds
+**       to the CHAT table.  But an admin can still drop that CHAT table
+**       at any moment, since the trigger that refers to CHAT is a TEMP
+**       trigger and won't persist to cause problems.
+**
+**    *  Because TEMP triggers are defined by the specific version of the
+**       application that is running, we don't have to worry with legacy
+**       compatibility of the triggers.
+**
+** This boolean variable is set when the TEMP triggers for EVENT
+** have been created.
+*/
+static int manifest_event_triggers_are_enabled = 0;
+
+/*
 ** Clear the memory allocated in a manifest object
 */
 void manifest_destroy(Manifest *p){
@@ -291,8 +316,8 @@ static int after_blank_line(const char *z){
 /*
 ** Remove the PGP signature from the artifact, if there is one.
 */
-static void remove_pgp_signature(char **pz, int *pn){
-  char *z = *pz;
+static void remove_pgp_signature(const char **pz, int *pn){
+  const char *z = *pz;
   int n = *pn;
   int i;
   if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
@@ -471,7 +496,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
   /* Strip off the PGP signature if there is one.
   */
-  remove_pgp_signature(&z, &n);
+  remove_pgp_signature((const char**)&z, &n);
 
   /* Verify that the first few characters of the artifact look like
   ** a control artifact.
@@ -483,10 +508,19 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   /* Then verify the Z-card.
   */
+#if 1
+  /* Disable this ***ONLY*** (ONLY!) when testing hand-written inputs
+     for card-related syntax errors. */
   if( verify_z_card(z, n, pErr)==2 ){
     blob_reset(pContent);
     return 0;
   }
+#else
+#warning ACHTUNG - z-card check is disabled for testing purposes.
+  if(0 && verify_z_card(NULL, 0, NULL)){
+    /*avoid unused static func error*/
+  }
+#endif
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -502,10 +536,23 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   x.z = z;
   x.zEnd = &z[n];
   x.atEol = 1;
-  while( (cType = next_card(&x))!=0 && cType>=cPrevType ){
+  while( (cType = next_card(&x))!=0 ){
+    if( cType<cPrevType ){
+      /* Cards must be in increasing order.  However, out-of-order detection
+      ** was broken prior to 2021-02-10 due to a bug.  Furthermore, there
+      ** was a bug in technote generation (prior to 2021-02-10) that caused
+      ** the P card to occur before the N card.  Hence, for historical
+      ** compatibility, we do allow the N card of a technote to occur after
+      ** the P card.  See tickets 15d04de574383d61 and 5e67a7f4041a36ad.
+      */
+      if( cType!='N' || cPrevType!='P' || p->zEventId==0 ){
+        SYNTAX("cards not in lexicographical order");
+      }
+    }
     lineNo++;
     if( cType<'A' || cType>'Z' ) SYNTAX("bad card type");
     seenCard |= 1 << (cType-'A');
+    cPrevType = cType;
     switch( cType ){
       /*
       **     A <filename> <target> ?<source>?
@@ -603,6 +650,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->rEventDate = db_double(0.0,"SELECT julianday(%Q)", next_token(&x,0));
         if( p->rEventDate<=0.0 ) SYNTAX("malformed date on E-card");
         p->zEventId = next_token(&x, &sz);
+        if( p->zEventId==0 ) SYNTAX("missing hash on E-card");
         if( !hname_validate(p->zEventId, sz) ){
           SYNTAX("malformed hash on E-card");
         }
@@ -627,6 +675,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){
+          if( zUuid==0 ) SYNTAX("missing hash on F-card");
           if( !hname_validate(zUuid,sz) ){
             SYNTAX("F-card hash invalid");
           }
@@ -645,13 +694,20 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
                                     p->nFileAlloc*sizeof(p->aFile[0]) );
         }
         i = p->nFile++;
+        if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
+          SYNTAX("incorrect F-card sort order");
+        }
+        if( file_is_reserved_name(zName,-1) ){
+          /* If reserved names leaked into historical manifests due to
+          ** slack oversight by older versions of Fossil, simply ignore
+          ** those files */
+          p->nFile--;
+          break;
+        }
         p->aFile[i].zName = zName;
         p->aFile[i].zUuid = zUuid;
         p->aFile[i].zPerm = zPerm;
         p->aFile[i].zPrior = zPriorName;
-        if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
-          SYNTAX("incorrect F-card sort order");
-        }
         p->type = CFTYPE_MANIFEST;
         break;
       }
@@ -1128,6 +1184,47 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
 }
 
 /*
+** The input blob is text that may or may not be a valid Fossil
+** control artifact of some kind.  This routine returns true if
+** the input is a well-formed control artifact and false if it
+** is not.
+**
+** This routine is optimized to return false quickly and with minimal
+** work in the common case where the input is some random file.
+*/
+int manifest_is_well_formed(const char *zIn, int nIn){
+  int i;
+  int iRes;
+  Manifest *pManifest;
+  Blob copy, errmsg;
+  remove_pgp_signature(&zIn, &nIn);
+
+  /* Check to see that the file begins with a "card" */
+  if( nIn<3 ) return 0;
+  if( zIn[0]<'A' || zIn[0]>'M' || zIn[1]!=' ' ) return 0;
+
+  /* Check to see that the first card is followed by one more card */
+  for(i=2; i<nIn && zIn[i]!='\n'; i++){}
+  if( i>=nIn-3 ) return 0;
+  i++;
+  if( !fossil_isupper(zIn[i]) || zIn[i]<zIn[0] || zIn[i+1]!=' ' ) return 0;
+
+  /* The checks above will eliminate most random inputs.  If these
+  ** quick checks pass, then we could be dealing with a well-formed
+  ** control artifact.  Make a copy, and run it through the official
+  ** artifact parser.  This is the slow path, but it is rarely taken.
+  */
+  blob_init(&copy, 0, 0);
+  blob_init(&errmsg, 0, 0);
+  blob_append(&copy, zIn, nIn);
+  pManifest = manifest_parse(&copy, 0, &errmsg);
+  iRes = pManifest!=0;  
+  manifest_destroy(pManifest);
+  blob_reset(&errmsg);
+  return iRes;
+}
+
+/*
 ** COMMAND: test-parse-manifest
 **
 ** Usage: %fossil test-parse-manifest FILENAME ?N?
@@ -1140,20 +1237,34 @@ void manifest_test_parse_cmd(void){
   Blob b;
   int i;
   int n = 1;
-  db_find_and_open_repository(0,0);
+  int isWF;
+  db_find_and_open_repository(OPEN_SUBSTITUTE|OPEN_OK_NOT_FOUND,0);
   verify_all_options();
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
   blob_read_from_file(&b, g.argv[2], ExtFILE);
   if( g.argc>3 ) n = atoi(g.argv[3]);
+  isWF = manifest_is_well_formed(blob_buffer(&b), blob_size(&b));
+  fossil_print("manifest_is_well_formed() reports the input %s\n",
+       isWF ? "is ok" : "contains errors");
   for(i=0; i<n; i++){
     Blob b2;
     Blob err;
     blob_copy(&b2, &b);
     blob_zero(&err);
     p = manifest_parse(&b2, 0, &err);
-    if( p==0 ) fossil_print("ERROR: %s\n", blob_str(&err));
+    if( p==0 ){
+      fossil_print("ERROR: %s\n", blob_str(&err));
+    }else if( i==0 || (n==2 && i==1) ){
+      fossil_print("manifest_parse() worked\n");
+    }else if( i==n-1 ){
+      fossil_print("manifest_parse() worked %d more times\n", n-1);
+    }
+    if( (p==0 && isWF) || (p!=0 && !isWF) ){
+      fossil_print("ERROR: manifest_is_well_formed() and "
+                   "manifest_parse() disagree!\n");
+    }
     blob_reset(&err);
     manifest_destroy(p);
   }
@@ -1163,14 +1274,21 @@ void manifest_test_parse_cmd(void){
 /*
 ** COMMAND: test-parse-all-blobs
 **
-** Usage: %fossil test-parse-all-blobs [--limit N]
+** Usage: %fossil test-parse-all-blobs ?OPTIONS?
 **
 ** Parse all entries in the BLOB table that are believed to be non-data
 ** artifacts and report any errors.  Run this test command on historical
 ** repositories after making any changes to the manifest_parse()
 ** implementation to confirm that the changes did not break anything.
 **
-** If the --limit N argument is given, parse no more than N blobs
+** Options:
+**
+**   --limit N            Parse no more than N artifacts before stopping.
+**   --wellformed         Use all BLOB table entries as input, not just
+**                        those entries that are believed to be valid
+**                        artifacts, and verify that the result the
+**                        manifest_is_well_formed() agrees with the
+**                        result of manifest_parse().
 */
 void manifest_test_parse_all_blobs_cmd(void){
   Manifest *p;
@@ -1179,22 +1297,46 @@ void manifest_test_parse_all_blobs_cmd(void){
   int nTest = 0;
   int nErr = 0;
   int N = 1000000000;
+  int bWellFormed;
   const char *z;
   db_find_and_open_repository(0, 0);
   z = find_option("limit", 0, 1);
   if( z ) N = atoi(z);
+  bWellFormed = find_option("wellformed",0,0)!=0;
   verify_all_options();
-  db_prepare(&q, "SELECT DISTINCT objid FROM EVENT");
+  if( bWellFormed ){
+    db_prepare(&q, "SELECT rid FROM blob ORDER BY rid");
+  }else{
+    db_prepare(&q, "SELECT DISTINCT objid FROM EVENT ORDER BY objid");
+  }
   while( (N--)>0 && db_step(&q)==SQLITE_ROW ){
     int id = db_column_int(&q,0);
     fossil_print("Checking %d       \r", id);
     nTest++;
     fflush(stdout);
     blob_init(&err, 0, 0);
-    p = manifest_get(id, CFTYPE_ANY, &err);
-    if( p==0 ){
-      fossil_print("%d ERROR: %s\n", id, blob_str(&err));
-      nErr++;
+    if( bWellFormed ){
+      Blob content;
+      int isWF;
+      content_get(id, &content);
+      isWF = manifest_is_well_formed(blob_buffer(&content),blob_size(&content));
+      p = manifest_parse(&content, id, &err);
+      if( isWF && p==0 ){
+        fossil_print("%d ERROR: manifest_is_well_formed() reported true "
+                     "but manifest_parse() reports an error: %s\n",
+                     id, blob_str(&err));
+        nErr++;
+      }else if( !isWF && p!=0 ){
+        fossil_print("%d ERROR: manifest_is_well_formed() reported false "
+                     "but manifest_parse() found nothing wrong.\n", id);
+        nErr++;
+      }
+    }else{            
+      p = manifest_get(id, CFTYPE_ANY, &err);
+      if( p==0 ){
+        fossil_print("%d ERROR: %s\n", id, blob_str(&err));
+        nErr++;
+      }
     }
     blob_reset(&err);
     manifest_destroy(p);
@@ -1702,6 +1844,13 @@ static void add_mlink(
       if( pmid<=0 ) continue;
       add_mlink(pmid, 0, mid, pChild, 0);
     }
+    for(i=0; i<pChild->nCherrypick; i++){
+      if( pChild->aCherrypick[i].zCPTarget[0]=='+'
+       && (pmid = uuid_to_rid(pChild->aCherrypick[i].zCPTarget+1, 0))>0
+      ){
+        add_mlink(pmid, 0, mid, pChild, 0);
+      }
+    }
   }
 }
 
@@ -1724,6 +1873,7 @@ static int manifest_add_checkin_linkages(
   int parentid = 0;
   char zBaseId[30];    /* Baseline manifest RID for deltas.  "NULL" otherwise */
   Stmt q;
+  int nLink;
 
   if( p->zBaseline ){
      sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d",
@@ -1740,7 +1890,11 @@ static int manifest_add_checkin_linkages(
     if( i==0 ) parentid = pid;
   }
   add_mlink(parentid, 0, rid, p, 1);
-  if( nParent>1 ){
+  nLink = nParent;
+  for(i=0; i<p->nCherrypick; i++){
+    if( p->aCherrypick[i].zCPTarget[0]=='+' ) nLink++;
+  }
+  if( nLink>1 ){
     /* Change MLINK.PID from 0 to -1 for files that are added by merge. */
     db_multi_exec(
       "UPDATE mlink SET pid=-1"
@@ -1749,7 +1903,7 @@ static int manifest_add_checkin_linkages(
       "   AND fnid IN "
       "  (SELECT fnid FROM mlink WHERE mid=%d GROUP BY fnid"
       "    HAVING count(*)<%d)",
-      rid, rid, nParent
+      rid, rid, nLink
     );
   }
   db_prepare(&q, "SELECT cid, isprim FROM plink WHERE pid=%d", rid);
@@ -1798,11 +1952,7 @@ void manifest_reparent_checkin(int rid, const char *zValue){
     z[j] = 0;
     i += j;
   }
-  if( !db_exists("SELECT 1 FROM plink WHERE cid=%d AND pid=%d",
-                 rid, uuid_to_rid(azParent[0],0))
-  ){
-    p = manifest_get(rid, CFTYPE_MANIFEST, 0);
-  }
+  p = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( p!=0 ){
     db_multi_exec(
        "DELETE FROM plink WHERE cid=%d;"
@@ -1810,8 +1960,8 @@ void manifest_reparent_checkin(int rid, const char *zValue){
        rid, rid
     );
     manifest_add_checkin_linkages(rid,p,nParent,azParent);
+    manifest_destroy(p);
   }
-  manifest_destroy(p);
 reparent_abort:
   fossil_free(azParent);
   fossil_free(zCopy);
@@ -1828,6 +1978,7 @@ reparent_abort:
 void manifest_crosslink_begin(void){
   assert( manifest_crosslink_busy==0 );
   manifest_crosslink_busy = 1;
+  manifest_create_event_triggers();
   db_begin_transaction();
   db_multi_exec(
      "CREATE TEMP TABLE pending_xlink(id TEXT PRIMARY KEY)WITHOUT ROWID;"
@@ -1948,6 +2099,28 @@ int manifest_crosslink_end(int flags){
 }
 
 /*
+** Activate EVENT triggers if they do not already exist.
+*/
+void manifest_create_event_triggers(void){
+  if( manifest_event_triggers_are_enabled ){
+    return;  /* Triggers already exists.  No-op. */
+  }
+  alert_create_trigger();
+  manifest_event_triggers_are_enabled = 1;  
+}
+
+/*
+** Disable manifest event triggers.  Drop them if they exist, but mark
+** them has having been created so that they won't be recreated.  This
+** is used during "rebuild" to prevent triggers from firing then.
+*/
+void manifest_disable_event_triggers(void){
+  alert_drop_trigger();
+  manifest_event_triggers_are_enabled = 1;
+}
+
+
+/*
 ** Make an entry in the event table for a ticket change artifact.
 */
 void manifest_ticket_event(
@@ -2016,6 +2189,7 @@ void manifest_ticket_event(
         pManifest->zTicketUuid);
   }
   fossil_free(zTitle);
+  manifest_create_event_triggers();
   db_multi_exec(
     "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
     "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
@@ -2040,17 +2214,18 @@ void manifest_ticket_event(
 ** However, if the manifest is PGP signed then the extra line has to be
 ** inserted before the PGP signature (thus invalidating the signature).
 */
-void sterilize_manifest(Blob *p){
+void sterilize_manifest(Blob *p, int eType){
   char *z, *zOrig;
   int n, nOrig;
   static const char zExtraLine[] =
-      "# Remove this line to create a well-formed manifest.\n";
+      "# Remove this line to create a well-formed Fossil %s.\n";
+  const char *zType = eType==CFTYPE_MANIFEST ? "manifest" : "control artifact";
 
   z = zOrig = blob_materialize(p);
   n = nOrig = blob_size(p);
-  remove_pgp_signature(&z, &n);
+  remove_pgp_signature((const char **)&z, &n);
   if( z==zOrig ){
-    blob_append(p, zExtraLine, -1);
+    blob_appendf(p, zExtraLine/*works-like:"%s"*/, zType);
   }else{
     int iEnd;
     Blob copy;
@@ -2058,7 +2233,7 @@ void sterilize_manifest(Blob *p){
     blob_init(p, 0, 0);
     iEnd = (int)(&z[n] - zOrig);
     blob_append(p, zOrig, iEnd);
-    blob_append(p, zExtraLine, -1);
+    blob_appendf(p, zExtraLine/*works-like:"%s"*/, zType);
     blob_append(p, &zOrig[iEnd], -1);
     blob_zero(&copy);
   }
@@ -2116,6 +2291,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( g.fSqlTrace ){
     fossil_trace("-- manifest_crosslink(%d)\n", rid);
   }
+  manifest_create_event_triggers();
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
@@ -2163,7 +2339,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       char *zCom;
       parentid = manifest_add_checkin_linkages(rid,p,p->nParent,p->azParent);
       search_doc_touch('c', rid, 0);
-      db_multi_exec(
+      assert( manifest_event_triggers_are_enabled );
+      zCom = db_text(0,
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment,omtime)"
         "VALUES('ci',"
@@ -2174,15 +2351,14 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         "  %d,%Q,%Q,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
-        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g);",
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g)"
+        "RETURNING coalesce(ecomment,comment);",
         TAG_DATE, rid, p->rDate,
         rid, p->zUser, p->zComment,
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
       );
-      zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
-                        " WHERE rowid=last_insert_rowid()");
       backlink_extract(zCom, 0, rid, BKLNK_COMMENT, p->rDate, 1);
       fossil_free(zCom);
 
@@ -2247,10 +2423,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     char *zTag = mprintf("wiki-%s", p->zWikiTitle);
     int tagid = tag_findid(zTag, 1);
     int prior;
-    char *zComment;
-    const char *zPrefix;
+    char cPrefix;
     int nWiki;
     char zLength[40];
+
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
@@ -2266,32 +2442,11 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       content_deltify(prior, &rid, 1, 0);
     }
     if( nWiki<=0 ){
-      zPrefix = "Deleted";
+      cPrefix = '-';
     }else if( !prior ){
-      zPrefix = "Added";
+      cPrefix = '+';
     }else{
-      zPrefix = "Changes to";
-    }
-    switch( wiki_page_type(p->zWikiTitle) ){
-      case WIKITYPE_CHECKIN: {
-        zComment = mprintf("%s wiki for check-in [%S]", zPrefix,
-                           p->zWikiTitle+8);
-        break;
-      }
-      case WIKITYPE_BRANCH: {
-        zComment = mprintf("%s wiki for branch [/timeline?r=%t|%h]",
-                           zPrefix, p->zWikiTitle+7, p->zWikiTitle+7);
-        break;
-      }
-      case WIKITYPE_TAG: {
-        zComment = mprintf("%s wiki for tag [/timeline?t=%t|%h]",
-                           zPrefix, p->zWikiTitle+4, p->zWikiTitle+4);
-        break;
-      }
-      default: {
-        zComment = mprintf("%s wiki page [%h]", zPrefix, p->zWikiTitle);
-        break;
-      }
+      cPrefix = ':';
     }
     search_doc_touch('w',rid,p->zWikiTitle);
     if( manifest_crosslink_busy ){
@@ -2299,19 +2454,12 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }else{
       backlink_wiki_refresh(p->zWikiTitle);
     }
+    assert( manifest_event_triggers_are_enabled );
     db_multi_exec(
-      "REPLACE INTO event(type,mtime,objid,user,comment,"
-      "                  bgcolor,euser,ecomment)"
-      "VALUES('w',%.17g,%d,%Q,%Q,"
-      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>1),"
-      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
-      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-      p->rDate, rid, p->zUser, zComment,
-      TAG_BGCOLOR, rid,
-      TAG_USER, rid,
-      TAG_COMMENT, rid
+      "REPLACE INTO event(type,mtime,objid,user,comment)"
+      "VALUES('w',%.17g,%d,%Q,'%c%q');",
+      p->rDate, rid, p->zUser, cPrefix, p->zWikiTitle
     );
-    fossil_free(zComment);
   }
   if( p->type==CFTYPE_EVENT ){
     char *zTag = mprintf("event-%s", p->zEventId);
@@ -2353,6 +2501,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       content_deltify(rid, &subsequent, 1, 0);
     }else{
       search_doc_touch('e',rid,0);
+      assert( manifest_event_triggers_are_enabled );
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"
         "VALUES('e',%.17g,%d,%d,%Q,%Q,"
@@ -2493,6 +2642,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
              p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }
     }
+    assert( manifest_event_triggers_are_enabled );
     db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('%c',%.17g,%d,%Q,%Q)",
@@ -2596,6 +2746,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }
     /*blob_appendf(&comment, " &#91;[/info/%S | details]&#93;");*/
     if( blob_size(&comment)==0 ) blob_append(&comment, " ", 1);
+    assert( manifest_event_triggers_are_enabled );
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('g',%.17g,%d,%Q,%Q)",
@@ -2625,6 +2776,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         zTitle = "(Deleted)";
       }
       zFType = fprev ? "Edit" : "Post";
+      assert( manifest_event_triggers_are_enabled );
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('f',%.17g,%d,%Q,'%q: %q')",
@@ -2657,12 +2809,16 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }else{
         zFType = "Reply";
       }
+      assert( manifest_event_triggers_are_enabled );
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('f',%.17g,%d,%Q,'%q: %q')",
         p->rDate, rid, p->zUser, zFType, zTitle
       );
       fossil_free(zTitle);
+    }
+    if( p->zWiki[0] ){
+      backlink_extract(p->zWiki, p->zMimetype, rid, BKLNK_FORUM, p->rDate, 1);
     }
   }
   db_end_transaction(0);

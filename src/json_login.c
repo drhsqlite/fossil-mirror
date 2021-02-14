@@ -147,9 +147,9 @@ cson_value * json_page_login(){
     cson_object * po;
     char * cap = NULL;
     if(anonSeed){
-      login_set_anon_cookie(NULL, &cookie);
+      login_set_anon_cookie(NULL, &cookie, 0);
     }else{
-      login_set_user_cookie(name, uid, &cookie);
+      login_set_user_cookie(name, uid, &cookie, 0);
     }
     payload = cson_value_new_object();
     po = cson_value_get_object(payload);
@@ -185,7 +185,7 @@ cson_value * json_page_login(){
 */
 cson_value * json_page_logout(){
   cson_value const *token = g.json.authToken;
-    /* Remember that json_mode_bootstrap() replaces the login cookie
+    /* Remember that json_bootstrap_late() replaces the login cookie
        with the JSON auth token if the request contains it. If the
        request is missing the auth token then this will fetch fossil's
        original cookie. Either way, it's what we want :).

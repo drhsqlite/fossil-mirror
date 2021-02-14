@@ -56,7 +56,7 @@ void tktsetup_page(void){
   setup_menu_entry("Key Template", "tktsetup_keytplt",
     "The default color key for reports.");
   @ </table>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -125,6 +125,7 @@ static void tktsetup_generic(
     login_needed(0);
     return;
   }
+  style_set_current_feature("tktsetup");
   if( PB("setup") ){
     cgi_redirect("tktsetup");
   }
@@ -133,6 +134,7 @@ static void tktsetup_generic(
   if( z==0 ){
     z = db_get(zDbField, zDfltValue);
   }
+  style_set_current_feature("tktsetup");
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();
@@ -150,7 +152,7 @@ static void tktsetup_generic(
       cgi_redirect("tktsetup");
     }
   }
-  @ <form action="%s(g.zTop)/%s(g.zPath)" method="post"><div>
+  @ <form action="%R/%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
@@ -165,7 +167,7 @@ static void tktsetup_generic(
   @ <blockquote><pre>
   @ %h(zDfltValue)
   @ </pre></blockquote>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -366,7 +368,7 @@ static const char zDefaultNew[] =
 @ For code defects, be sure to provide details on exactly how
 @ the problem can be reproduced.  Provide as much detail as
 @ possible.  Format:
-@ <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki}} 1</th1>
+@ <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki} 1</th1>
 @ <br />
 @ <th1>set nline [linecount $comment 50 10]</th1>
 @ <textarea name="icomment" cols="80" rows="$nline"
@@ -903,9 +905,10 @@ void tktsetup_timeline_page(void){
   if( P("setup") ){
     cgi_redirect("tktsetup");
   }
+  style_set_current_feature("tktsetup");
   style_header("Ticket Display On Timelines");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/tktsetup_timeline" method="post"><div>
+  @ <form action="%R/tktsetup_timeline" method="post"><div>
   login_insert_csrf_secret();
 
   @ <hr />
@@ -936,6 +939,6 @@ void tktsetup_timeline_page(void){
   @ </p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 
 }

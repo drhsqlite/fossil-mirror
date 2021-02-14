@@ -32,11 +32,38 @@ To help illustrate this fact,
 consider the first rebase example from the 
 [Git documentation][gitrebase].  The merge looks like this:
 
-![merge case](./rebase01.svg)
+~~~ pikchr toggle
+scale = 0.8
+circle "C0" fit
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C3"
+arrow same
+circle same "C5"
+circle same "C4" at 1cm above C3
+arrow from C2 to C4 chop
+arrow from C4 to C5 chop
+~~~
 
 And the rebase looks like this:
 
-![rebase case](./rebase02.svg)
+~~~ pikchr toggle
+scale = 0.8
+circle "C0" fit
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C3"
+arrow same
+circle same "C4'"
+circle same "C4" at 1cm above C3
+arrow from C2 to C4 chop
+~~~
 
 As the [Git documentation][gitrebase] points out, check-ins C4\' and C5
 are identical.  The only difference between C4\' and C5 is that C5
@@ -70,7 +97,27 @@ allows one to see just the changes in the feature branch without
 the concurrent changes in the main line of development. 
 Consider a hypothetical case:
 
-![unmerged feature branch](./rebase03.svg)
+~~~ pikchr toggle
+scale = 0.8
+circle "C0" fit fill white
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C4"
+arrow same
+circle same "C6"
+circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
+arrow right 50%
+circle same "C5"
+arrow from C2 to C3 chop
+box ht C3.y-C2.y wid C6.e.x-C0.w.x+1.5*C1.rad at C2 behind C0 fill 0xc6e2ff color 0xaac5df
+box ht previous.ht wid previous.wid*0.55 with .se at previous.ne \
+   behind C0 fill 0x9accfc color 0xaac5df
+text "feature" with .s at previous.n
+text "main" with .n at first box.s
+~~~
 
 In the above, a feature branch consisting of check-ins C3 and C5 is
 run concurrently with the main line in check-ins C4 and C6.  Advocates
@@ -78,7 +125,33 @@ for rebase say that you should rebase the feature branch to the tip
 of main in order to remove main-line development differences from
 the feature branch's history:
 
-![rebased feature branch](./rebase04.svg)
+~~~ pikchr toggle
+# Duplicated below in section 5.0
+scale = 0.8
+circle "C0" fit fill white
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C4"
+arrow same
+circle same "C6"
+circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
+arrow right 50%
+circle same "C5"
+arrow from C2 to C3 chop
+C3P: circle same "C3'" at first arrow.width + C0.rad*2 heading 30 from C6
+arrow right 50% from C3P.e
+C5P: circle same "C5'"
+arrow from C6 to C3P chop
+
+box ht C3.y-C2.y wid C5P.e.x-C0.w.x+1.5*C1.rad with .w at 0.5*(first arrow.wid) west of C0.w \
+   behind C0 fill 0xc6e2ff color 0xaac5df
+box ht previous.ht wid previous.e.x - C2.w.x with .se at previous.ne \
+   behind C0 fill 0x9accfc color 0xaac5df
+~~~
+
 
 You could choose to collapse C3\' and C5\' into a single check-in
 as part of this rebase, but that's a side issue we'll deal with
@@ -87,7 +160,31 @@ as part of this rebase, but that's a side issue we'll deal with
 Because Fossil purposefully lacks rebase, the closest you can get to this same check-in
 history is the following merge:
 
-![merged feature branch](./rebase05.svg)
+~~~ pikchr toggle
+scale = 0.8
+circle "C0" fit fill white
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C4"
+arrow same
+circle same "C6"
+circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
+arrow right 50%
+circle same "C5"
+arrow same
+circle same "C7"
+arrow from C2 to C3 chop
+arrow from C6 to C7 chop
+
+box ht C3.y-C2.y wid C7.e.x-C0.w.x+1.5*C1.rad with .w at 0.5*(first arrow.wid) west of C0.w \
+   behind C0 fill 0xc6e2ff color 0xaac5df
+box ht previous.ht wid previous.e.x - C2.w.x with .se at previous.ne \
+   behind C0 fill 0x9accfc color 0xaac5df
+~~~
+
 
 Check-ins C5\' and C7 check-ins hold identical code.  The only
 difference is in their history.  
@@ -156,28 +253,36 @@ wait until you finally push a collapsed version of a private working
 branch to the parent repo? Will the many eyeballs even see those errors
 when they’re intermingled with code implementing some compelling new feature?
 
-## <a name="testing"></a>4.0 Rebase commits untested check-ins to the blockchain
-
-Rebase adds new check-ins to the blockchain without giving the operator
-an opportunity to test and verify those check-ins.  Just because the
-underlying three-way merge had no conflict does not mean that the resulting
-code actually works.  Thus, rebase runs the very real risk of adding
-non-functional check-ins to the permanent record.
-
-Of course, a user can also commit untested or broken check-ins without
-the help of rebase.  But at least with an ordinary commit or merge
-(in Fossil at least), the operator
-has the *opportunity* to test and verify the merge before it is committed,
-and a chance to back out or fix the change if it is broken without leaving
-busted check-ins on the blockchain to complicate future bisects.
-
-With rebase, pre-commit testing is not an option.
-
-## <a name="timestamps"></a>5.0 Rebase causes timestamp confusion
+## <a name="timestamps"></a>4.0 Rebase causes timestamp confusion
 
 Consider the earlier example of rebasing a feature branch:
 
-![rebased feature branch, again](./rebase04.svg)
+~~~ pikchr toggle
+# Copy of second diagram in section 2.2 above
+scale = 0.8
+circle "C0" fit fill white
+arrow right 50%
+circle same "C1"
+arrow same
+circle same "C2"
+arrow same
+circle same "C4"
+arrow same
+circle same "C6"
+circle same "C3" at last arrow.width + C0.rad*2 heading 30 from C2
+arrow right 50%
+circle same "C5"
+arrow from C2 to C3 chop
+C3P: circle same "C3'" at first arrow.width + C0.rad*2 heading 30 from C6
+arrow right 50% from C3P.e
+C5P: circle same "C5'"
+arrow from C6 to C3P chop
+
+box ht C3.y-C2.y wid C5P.e.x-C0.w.x+1.5*C1.rad with .w at 0.5*(first arrow.wid) west of C0.w \
+   behind C0 fill 0xc6e2ff color 0xaac5df
+box ht previous.ht wid previous.e.x - C2.w.x with .se at previous.ne \
+   behind C0 fill 0x9accfc color 0xaac5df
+~~~
 
 What timestamps go on the C3\' and C5\' check-ins?  If you choose
 the same timestamps as the original C3 and C5, then you have the
@@ -190,66 +295,49 @@ about when those check-ins were originally created, which can make
 historical analysis of changes more difficult. It might also
 complicate the legal defense of prior art claims.
 
-## <a name="lying"></a>6.0 Rebasing is lying about the project history
+## <a name="lying"></a>5.0 Rebasing is lying about the project history
 
 By discarding parentage information, rebase attempts to deceive the
 reader about how the code actually came together.
 
-The [Git rebase documentation][gitrebase] admits as much.  They acknowledge
-that when you view a repository as record of what actually happened,
-doing a rebase is "blasphemous" and "you're _lying_ about what
-actually happened", but then goes on to justify rebase as follows:
+You may be tempted to dismiss this as an anti-Git opinion on a Fossil
+web site, but it’s spelled out just like that [in the Git rebase
+documentation][gitrebase]. It speaks of “lying,” “telling stories,”
+and “blasphemy.”
 
->
-_"The opposing point of view is that the commit history is the **story of 
-how your project was made.** You wouldn't publish the first draft of a 
-book, and the manual for how to maintain your software deserves careful
-editing. This is the camp that uses tools like rebase and filter-branch 
-to tell the story in the way that's best for future readers."_
-
-This counter-argument assumes you must
-change history in order to enhance readability, which is not true.
-
-In fairness to the Git documentation authors, changing the
-project history appears to be the only way to make editorial
-changes in Git.
-But it does not have to be that way.
-Fossil demonstrates how "the story of your project"
-can be enhanced without changing the actual history
-by allowing users to:
+That section of the Git docs is contrasting rebase with merge, which we
+cover [above](#cap-loss), but Git’s rebase feature is more than just an
+alternative to merging: it also provides mechanisms for changing the
+project history in order to make editorial changes.  Fossil shows that
+you can get similar effects without modifying historical records,
+allowing users to:
 
   1.  Edit check-in comments to fix typos or enhance clarity
   2.  Attach supplemental notes to check-ins or whole branches
-  3.  Cross-reference check-ins with each other, or with
-      wiki, tickets, forum posts, and/or embedded documentation
-  4.  Cause mistaken or unused branches to be hidden from
-      routine display
-  5.  Fix faulty check-in date/times resulting from misconfigured
+  3.  Hide ill-conceived or now-unused branches from routine display
+  4.  Fix faulty check-in date/times resulting from misconfigured
       system clocks
-  6.  And so forth....
+  5.  Cross-reference check-ins with each other, or with
+      wiki, tickets, forum posts, and/or embedded documentation
+ 
+…and so forth.
 
-These changes are accomplished not by removing or modifying existing
+Fossil allows all of this not by removing or modifying existing
 repository entries, but rather by adding new supplemental records.
-The original incorrect or unclear inputs are preserved and are
-readily accessible.  The original history is preserved.
-But for routine display purposes, the more
-readable edited presentation is provided.
+Fossil keeps the original incorrect or unclear inputs and makes them
+readily accessible, preserving the original historical record. Fossil
+doesn’t make the user tell counter-factual “stories,” it only allows the
+user to provide annotations to provide a more readable edited
+presentation for routine display purposes.
 
-A repository can be a true and accurate
-representation of history even without getting everything perfect
-on the first draft.  Those are not contradictory goals, at least
-not in theory.
+Git needs rebase because it lacks these annotation facilities.  Rather
+than consider rebase a desirable feature missing in Fossil, ask instead
+why Git lacks support for making editorial changes to check-ins without
+modifying history?  Wouldn't it be better to fix the version control
+tool rather than requiring users to fabricate a fictitious project
+history?
 
-Unfortunately, Git does not currently provide the ability to add
-corrections or clarifications or supplimental notes to historical check-ins.
-Hence, once again,
-rebase can be seen as an attempt to work around limitations
-of Git.  Git could be enhanced to support editorial changes
-to check-ins. 
-Wouldn't it be better to fix the version control tool
-rather than requiring users to fabricate a fictitious project history?
-
-## <a name="collapsing"></a>7.0 Collapsing check-ins throws away valuable information
+## <a name="collapsing"></a>6.0 Collapsing check-ins throws away valuable information
 
 One of the oft-cited advantages of rebasing in Git is that it lets you
 collapse multiple check-ins down to a single check-in to make the
@@ -264,7 +352,7 @@ The common counterargument is that collapsed check-ins represent a
 better world, the ideal we're striving for. What that argument overlooks
 is that we must throw away valuable information to get there.
 
-### <a name="empathy"></a>7.1 Individual check-ins support developer empathy
+### <a name="empathy"></a>6.1 Individual check-ins support mutual understanding
 
 Ideally, future developers of our software can understand every feature
 in it using only context available in the version of the code they start
@@ -281,7 +369,7 @@ developer thinking?" you haven't been developing software for very long.
 
 When a developer can go back to the individual check-ins leading up to
 the current code, they can work out the answers to such questions using
-only the level of empathy necessary to be a good developer. To
+only the level of personal brilliance necessary to be a good developer. To
 understand such code using only the finished form, you are asking future
 developers to make intuitive leaps that the original developer was
 unable to make. In other words, you are asking your future maintenance
@@ -309,7 +397,7 @@ finished feature.
 
 [sdm]: ./fossil-v-git.wiki#durable
 
-### <a name="bisecting"></a>7.2 Bisecting works better on small check-ins
+### <a name="bisecting"></a>6.2 Bisecting works better on small check-ins
 
 Git lets a developer write a feature in ten check-ins but collapse it
 down to an eleventh check-in and then deliberately push only that final
@@ -324,7 +412,7 @@ repository so that a later investigator doing the same sort of bisect
 sees the complete check-in history. That bisect will point the
 investigator at the single original check-in that caused the problem.
 
-### <a name="comments"></a>7.3 Multiple check-ins require multiple check-in comments
+### <a name="comments"></a>6.3 Multiple check-ins require multiple check-in comments
 
 The more comments you have from a given developer on a given body of
 code, the more concise documentation you have of that developer's
@@ -336,7 +424,7 @@ accomplish than if they must work that out from the eleventh check-in's
 comment, which only explains the "clean" version of the collapsed
 feature.
 
-### <a name="cherrypicking"></a>7.4 Cherry-picks work better with small check-ins
+### <a name="cherrypicking"></a>6.4 Cherry-picks work better with small check-ins
 
 While working on a new feature in one branch, you may come across a bug
 in the pre-existing code that you need to fix in order for work on that
@@ -378,7 +466,7 @@ them more time to do the cherry-pick that way.
 
 [rh]: https://en.wikipedia.org/wiki/Red_Hat
 
-### <a name="backouts"></a>7.5 Back-outs also work better with small check-ins
+### <a name="backouts"></a>6.5 Back-outs also work better with small check-ins
 
 The inverse of the cherry-pick merge is the back-out merge. If you push
 only a collapsed version of a private working branch up to the parent
@@ -387,29 +475,41 @@ any of the individual check-ins that went into that private branch.
 Others must either manually disentangle the problematic part of your
 merge check-in or back out the entire feature.
 
-## <a name="better-plan"></a>8.0 Cherry-pick merges work better than rebase
+## <a name="better-plan"></a>7.0 Cherry-pick merges work better than rebase
 
 Perhaps there are some cases where a rebase-like transformation
 is actually helpful, but those cases are rare, and when they do
 come up, running a series of cherry-pick merges achieves the same
 topology with several advantages:
 
-  1.  Cherry-pick merges preserve an honest record of history.
-      (They do in Fossil at least.  Git's file format does not have
-      a slot to record cherry-pick merge history, unfortunately.)
+  1.  In Fossil, cherry-pick merges preserve an honest and clear record
+      of history.  Fossil remembers where a cherry-pick came from, and
+      it shows this in its timeline, so other developers can understand
+      how a cherry-pick based commit came together.
 
-  2.  Cherry-picks provide an opportunity to [test each new check-in
-      before it is committed][tbc] to the blockchain
+      Git lacks the ability to remember the source of a cherry-pick as
+      part of the commit. This fact has no direct bearing on this
+      document’s thesis, but we can make a few observations. First, Git
+      forgets history in more cases than in rebasing. Second, if Git
+      remembered the source of cherry-picks in commits, Git users might
+      have a better argument for avoiding rebase, because they’d have an
+      alternative that *didn’t* lose history.
 
-  3.  Cherry-pick merges are "safe" in the sense that they do not
-      cause problems for collaborators if you do them on public branches.
+  2.  Fossil’s [test before commit philosophy][tbc] means you can test a
+      cherry-pick before committing it. Because Fossil allows multiple
+      cherry-picks in a single commit and it remembers them all, you can
+      do this for a complicated merge in step-wise fashion.
 
-  4.  Cherry-picks keep both the original and the revised check-ins,
+      Git commits cherry-picks straight to the repository, so that if it
+      results in a bad state, you have to do something drastic like
+      `git reset --hard` to repair the damage.
+
+  3.  Cherry-picks keep both the original and the revised check-ins,
       so both timestamps are preserved.
 
 [tbc]: ./fossil-v-git.wiki#testing
 
-## <a name="conclusion"></a>9.0 Summary and conclusion
+## <a name="conclusion"></a>8.0 Summary and conclusion
 
 Rebasing is an anti-pattern.  It is dishonest.  It deliberately
 omits historical information.  It causes problems for collaboration.

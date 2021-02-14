@@ -104,7 +104,7 @@ As the "`unsafe-`" prefix on the name implies, the `'unsafe-inline'`
 feature is suboptimal for security.  However, there are
 a few places in the Fossil-generated HTML that benefit from this
 flexibility and the work-arounds are verbose and difficult to maintain.
-Futhermore, the harm that can be done with style injections is far
+Furthermore, the harm that can be done with style injections is far
 less than the harm possible with injected javascript.  And so the
 `'unsafe-inline'` compromise is accepted for now, though it might
 go away in some future release of Fossil.
@@ -175,7 +175,7 @@ content:
          <script src="/doc/trunk/bad.js"></script>
 
 That script can then do anything allowed in JavaScript to *any other*
-Chisel repository your browser can access.The possibilities for mischief
+Chisel repository your browser can access. The possibilities for mischief
 are *vast*. For just one example, if you have login cookies on four
 different Chisel repositories, your attacker could harvest the login
 cookies for all of them through this path if we allowed Fossil to serve
@@ -242,7 +242,7 @@ decreasing order of simplicity and preference:
 5.  Put Fossil behind a [front-end proxy server][svr] as a virtual
     subdirectory within the site, so that our default CSP’s “self” rules
     match static file routes on that same site. For instance, your repo
-    might be at `https://example.com/code`, allowing documentes in that
+    might be at `https://example.com/code`, allowing documents in that
     repo to refer to:
 
     *   images as `/image/foo.png`
@@ -306,65 +306,159 @@ Thus our recommendation that you refer to in-repo resources exclusively.
 ## <a name="override"></a>Overriding the Default CSP
 
 If you wish to relax the default CSP’s restrictions or to tighten them
-further, there are two ways to accomplish that:
+further, there are multiple ways to accomplish that.
+
+The following methods are listed in top-down order to give the simplest
+and most straightforward method first.  Further methods dig down deeper
+into the stack, which is helpful to understand even if you end up using
+a higher-level method.
+
+
+### <a name="cspsetting"></a>The `default-csp` Setting
+
+If the [`default-csp` setting](/help?cmd=default-csp) is defined and is
+not an empty string, its value is injected into the page using
+[TH1](./th1.md) via one or more of the methods below, depending on the
+skin you’re using and local configuration.
+
+Changing this setting is the easiest way to set a nonstandard CSP on
+your site.
+
+Because a blank setting tells Fossil to use its hard-coded default CSP,
+you have to say something like the following to get a repository without
+content security policy restrictions:
+
+        $ fossil set -R /path/to/served/repo.fossil default-csp 'default-src *'
+
+We recommend that instead of using the command line to change this
+setting that you do it via the repository’s web interface, in
+Admin → Settings.  Write your CSP rules in the edit box marked
+"`default-csp`". Do not add hard newlines in that box: the setting needs
+to be on a single long line. Beware that changes take effect
+immediately, so be careful with your edits: you could end up locking
+yourself out of the repository with certain CSP changes!
+
+There are a few reasons why changing this setting via the command line
+is inadvisable, except for very short settings like the example above:
+
+1.  You have to be sure to set it on the repository where you want the
+    CSP to apply.  Changing this setting on your local clone doesn’t
+    affect the remote repo you cloned from, which is most likely where
+    you want the CSP restrictions.
+
+2.  For more complicated CSPs, the quoting rules for your shell and the
+    CSP syntax may interact, making it difficult or impossible to set
+    your desired CSP via the command line.  Setting it via the web UI
+    doesn’t have this problem.
+
 
 
 ### <a name="th1"></a>TH1 Setup Hook
 
-The stock CSP text is hard-coded in the Fossil C source code, but it’s
-only used to set the default value of one of [the TH1 skinning
-variables](./customskin.md#vars), `$default_csp`. That means you can
-override the default CSP by giving this variable a value before Fossil
-sees that it’s undefined and uses this default.
+Fossil sets [the TH1 variable `$default_csp`][thvar] from the
+`default-csp` setting and uses *that* to inject the value into generated
+HTML pages in its stock configuration.
 
-The best place to do that is from the [`th1-setup`
-script](./th1-hooks.md), which runs before TH1 processing happens during
-skin processing:
+This means that another way you can override this value is to use
+the [`th1-setup` hook script](./th1-hooks.md), which runs before TH1
+processing happens during skin processing:
 
         $ fossil set th1-setup "set default_csp {default-src 'self'}"
 
-This is the cleanest method, allowing you to set a custom CSP without
-recompiling Fossil or providing a hand-written `<head>` section in the
-Header section of a custom skin.
+After [the above](#admin-ui), this is the cleanest method.
 
-You can’t remove the CSP entirely with this method, but you can get the
-same effect by telling the browser there are no content restrictions:
-
-        $ fossil set th1-setup 'set default_csp {default-src *}'
+[thvar]: ./customskin.md#vars
 
 
-### <a name="header"></a>Custom Skin Header
 
-Fossil only inserts a CSP into the HTML pages it generates when the
-[skin’s Header section](./customskin.md#headfoot) doesn’t contain a
-`<head>` tag. None of the stock skins include a `<head>` tag,² so if you
-haven’t [created a custom skin][cs], you should be getting Fossil’s
-default CSP.
+### <a name="csrc"></a>Fossil C Source Code
 
-We say “should” because long-time Fossil users may be hanging onto a
-legacy behavior from before Fossil 2.5, when Fossil added this automatic
-`<head>` insertion feature. Repositories created before that release
-where the admin either defined a custom skin *or chose one of the stock
-skins* (!) will effectively override this automatic HTML `<head>`
-insertion feature because the skins from before that time did include
-these elements. Unless the admin for such a repository updated the skin
-to track this switch to automatic `<head>` insertion, the default CSP
-added to the generated header text in Fossil 2.7 is probably being
-overridden by the skin.
+When you do neither of the above things, Fossil uses
+[a hard-coded default](/info?ln=527-530&name=65a555d0d4fb846b).
 
-If you want the protection of the default CSP in your custom skin, the
-simplest method is to leave the `<html><head>...` elements out of the
-skin’s Header section, starting it with the `<div class="head">` element
-instead as described in the custom skinning guide. Alternately, you can
-[make use of `$default_csp`](#th1).
+We tell you about this not to suggest that you hack the Fossil C source
+code to change the CSP but simply to document the next step before we
+move down-stack.
 
-This then tells you one way to override Fossil’s default CSP: provide
-your own HTML header in a custom skin.
 
-A useful combination is to entirely override the default CSP in the skin
-but then provide a new CSP [in the front-end proxy layer][svr]
-using any of the many reverse proxy servers that can define custom HTTP
-headers.
+
+### <a name="header"></a>Skin Header
+
+[In the normal case](./customskin.md#override), Fossil injects the CSP
+retrieved by one of the above methods into the header of all HTML
+documents it generates:
+
+```HTML
+<head>...
+  <meta http-equiv="Content-Security-Policy" content="...">
+  ...
+```
+
+Fossil skips this when you’re using a custom skin *and* its
+[Header section](./customskin.md#headfoot) includes a `<body>` tag. This
+is because prior to Fossil 2.5, the Header for a custom skin normally
+contained everything from the opening `<html>` tag through the leading
+`<body>` tag. From that version onward, Fossil now generates that header
+when possible, so that the skin’s Header normally provides only the
+opening tags of the document body, rather than the HTML header.
+
+When we added CSP support in Fossil 2.7, we made use of that mechanism
+to inject the CSP into the generated HTML document header.
+
+For backwards compatibility, Fossil skips this when the skin’s Header
+includes a `<body>` tag. Fossil takes that as a hint that it’s dealing
+with a skin made in the pre-Fossil-2.5 days and doesn’t try to blindly
+override it.
+
+The problem then is that you may be a Fossil user from the days before
+Fossil 2.5, and you may be using a custom skin. This includes users who
+selected one of the stock skins, since for the purposes of this section,
+there is no difference between the cases. If you go into Admin → Skins →
+Header and find a `<body>` tag, none of the above will apply to your
+repo since Fossil will not be injecting its CSP into your pages.
+
+If you selected one of the stock skins (e.g. Khaki) prior to upgrading
+to Fossil 2.5+ and didn’t make any changes to it since that time, you
+can take the simplest option, which is to simply revert to the stock
+version of the skin, so your pages will have the CSP injected, at which
+point this document will begin describing what Fossil does with that
+repo.
+
+If you’re using a customized version of one of the stock skins, the
+skinning mechanism has a diff feature to make it easier to fold your
+local changes into the stock version.
+
+If you’re using a fully customized skin, we recommend replicating the
+method that [the Bootstrap skin uses][dcinj].² Alone among the stock
+Fossil skins, Bootstrap still does old-style Header processing,
+providing the entire HTML header and the start of the document body.
+
+We do *not* recommend injecting an explicit `Content-Security-Policy`
+meta tag into a header to override Fossil’s default CSP. That means you
+have to edit the skin every time you want to change the CSP. Use the TH1
+`$default_csp` variable like the Bootstrap skin does so you can use one
+of the methods above with your custom skin, so the CSP can vary
+independently of the skin.
+
+[dcinj]: /info?ln=7&name=bef080a6929a3e6f
+
+
+### <a name="fep"></a>Front-End Proxy
+
+If your Fossil repo is behind some sort of HTTP [front-end proxy][svr],
+the [preferred method][pmcsp] for setting the CSP is via a custom HTTP
+header, which most HTTP reverse proxy programs allow.
+
+Beware that if you have a CSP set via both the HTTP and HTML headers
+that the two CSPs [merge](https://stackoverflow.com/a/51153816/142454),
+taking the most restrictive elements of each CSP. If you wish the proxy
+layer’s setting to completely override Fossil’s setting, you will need
+to combine that with one of the methods above to either remove the
+Fossil-provided CSP or to make Fossil provide a no-restrictions CSP
+which the front-end proxy can then tighten down.
+
+[pmcsp]: https://developers.google.com/web/fundamentals/security/csp/#the_meta_tag
+
 
 
 ------------
@@ -376,11 +470,14 @@ headers.
     custom skin as a virtual text file, allowing it to be cached by the
     browser, reducing page load times.
 
-2.  The stock Bootstrap skin does actually include a `<head>` tag, but
-    from Fossil 2.7 through Fossil 2.9, it just repeated the same CSP
-    text that Fossil’s C code inserts into the HTML header for all other
-    stock skins. With Fossil 2.10, the stock Bootstrap skin uses
-    `$default_csp` instead, so you can [override it as above](#th1).
+2.  The stock Bootstrap skin *did* provide redundant CSP text from
+    Fossil 2.7 through Fossil 2.9, so setting the CSP via the higher
+    level methods did not work with that skin. We fixed this in Fossil
+    2.10, but if you selected the Bootstrap skin prior to that, you’re
+    now running on a *copy* of it stored in your repo settings table, so
+    the change to the stock version of the skin won’t affect that repo
+    automatically. You will have to either merge the diffs in with your
+    local changes or revert to the stock version of the skin.
 
 
 [cs]:    ./customskin.md

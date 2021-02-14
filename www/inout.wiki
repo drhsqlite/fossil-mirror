@@ -26,6 +26,16 @@ future versions of Fossil might be enhanced to understand other VCS
 interchange formats, and so for compatibility, use of the
 --git option is recommended.
 
+<a name="fx_git"></a>
+Note that in new imports, Fossil defaults to using the email component of the
+Git <em>committer</em> (or <em>author</em> if <code>--use-author</code> is
+passed) to attribute check-ins in the imported repository. Alternatively, the
+[/help?cmd=import | <code>--attribute</code>] option can be passed to have all
+commits by a given committer attributed to a desired username. This will create
+and populate the new <code>fx_git</code> table in the repository database to
+maintain a record of correspondent usernames and email addresses that can be
+used in subsequent exports or incremental imports.
+
 <h2>Fossil → Git</h2>
 
 To convert a Fossil repository into a Git repository, run commands like

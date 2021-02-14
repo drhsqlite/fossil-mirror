@@ -118,7 +118,6 @@ void alert_schema(int bOnlyIfEnabled){
       return;  /* Don't create table for disabled email */
     }
     db_exec_sql(zAlertInit);
-    alert_triggers_enable();
   }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
     db_multi_exec(
       "ALTER TABLE repository.pending_alert"
@@ -131,11 +130,13 @@ void alert_schema(int bOnlyIfEnabled){
 ** Enable triggers that automatically populate the pending_alert
 ** table.
 */
-void alert_triggers_enable(void){
+void alert_create_trigger(void){
   if( !db_table_exists("repository","pending_alert") ) return;
   db_multi_exec(
-    "CREATE TRIGGER IF NOT EXISTS repository.alert_trigger1\n"
-    "AFTER INSERT ON event BEGIN\n"
+    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
+    /* "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" Very old legacy */
+    "CREATE TRIGGER temp.alert_trigger1\n"
+    "AFTER INSERT ON repository.event BEGIN\n"
     "  INSERT INTO pending_alert(eventid)\n"
     "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
     "    ON CONFLICT(eventId) DO NOTHING;\n"
@@ -149,10 +150,10 @@ void alert_triggers_enable(void){
 ** This must be called before rebuilding the EVENT table, for example
 ** via the "fossil rebuild" command.
 */
-void alert_triggers_disable(void){
+void alert_drop_trigger(void){
   db_multi_exec(
-    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n"
-    "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" // Legacy
+    "DROP TRIGGER IF EXISTS temp.alert_trigger1;\n"
+    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n" /* Purge legacy */
   );
 }
 
@@ -173,9 +174,10 @@ int alert_enabled(void){
 */
 static int alert_webpages_disabled(void){
   if( alert_tables_exist() ) return 0;
+  style_set_current_feature("alerts");
   style_header("Email Alerts Are Disabled");
   @ <p>Email alerts are disabled on this server</p>
-  style_footer();
+  style_finish_page();
   return 1;
 }
 
@@ -218,6 +220,7 @@ void setup_notification(void){
 
   alert_submenu_common();
   style_submenu_element("Send Announcement","%R/announce");
+  style_set_current_feature("alerts");
   style_header("Email Notification Setup");
   @ <h1>Status</h1>
   @ <table class="label-value">
@@ -287,7 +290,7 @@ void setup_notification(void){
 
   entry_attribute("Store Emails In This Database", 60, "email-send-db",
                    "esdb", "", 0);
-  @ <p>When the send method is "store in a databaes", each email message is
+  @ <p>When the send method is "store in a database", each email message is
   @ stored in an SQLite database file with the name given here.
   @ (Property: "email-send-db")</p>
 
@@ -310,7 +313,7 @@ void setup_notification(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }
 
 #if 0
@@ -938,7 +941,7 @@ void alert_send(
 ** brackets. Examples: "[fossil-src]", "[sqlite-src]".
 */
 /*
-** SETTING: email-send-method         width=5 default=off
+** SETTING: email-send-method         width=5 default=off sensitive
 ** Determine the method used to send email.  Allowed values are
 ** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
 ** means no email is ever sent.  The "relay" value means emails are sent
@@ -951,19 +954,19 @@ void alert_send(
 ** The "stdout" value writes email text to standard output, for debugging.
 */
 /*
-** SETTING: email-send-command       width=40
+** SETTING: email-send-command       width=40 sensitive
 ** This is a command to which outbound email content is piped when the
 ** email-send-method is set to "pipe".  The command must extract
 ** recipient, sender, subject, and all other relevant information
 ** from the email header.
 */
 /*
-** SETTING: email-send-dir           width=40
+** SETTING: email-send-dir           width=40 sensitive
 ** This is a directory into which outbound emails are written as individual
 ** files if the email-send-method is set to "dir".
 */
 /*
-** SETTING: email-send-db            width=40
+** SETTING: email-send-db            width=40 sensitive
 ** This is an SQLite database file into which outbound emails are written
 ** if the email-send-method is set to "db".
 */
@@ -973,7 +976,7 @@ void alert_send(
 ** this email address as the "From:" field.
 */
 /*
-** SETTING: email-send-relayhost      width=40
+** SETTING: email-send-relayhost      width=40 sensitive
 ** This is the hostname and TCP port to which output email messages
 ** are sent when email-send-method is "relay".  There should be an
 ** SMTP server configured as a Mail Submission Agent listening on the
@@ -1062,7 +1065,7 @@ void alert_cmd(void){
       blob_reset(&yn);
     }
     if( c=='y' ){
-      alert_triggers_disable();
+      alert_drop_trigger();
       db_multi_exec(
         "DROP TABLE IF EXISTS subscriber;\n"
         "DROP TABLE IF EXISTS pending_alert;\n"
@@ -1366,6 +1369,7 @@ void subscribe_page(void){
     register_page();
     return;
   }
+  style_set_current_feature("alerts");
   alert_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
@@ -1375,7 +1379,6 @@ void subscribe_page(void){
     /* A validated request for a new subscription has been received. */
     char ssub[20];
     const char *zEAddr = P("e");
-    sqlite3_int64 id;   /* New subscriber Id */
     const char *zCode;  /* New subscriber code (in hex) */
     int nsub = 0;
     const char *suname = PT("suname");
@@ -1388,10 +1391,11 @@ void subscribe_page(void){
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
     ssub[nsub] = 0;
-    db_multi_exec(
+    zCode = db_text(0,
       "INSERT INTO subscriber(semail,suname,"
       "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
-      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)",
+      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+      "RETURNING hex(subscriberCode);",
       /* semail */    zEAddr,
       /* suname */    suname,
       /* sverified */ needCaptcha==0,
@@ -1399,10 +1403,6 @@ void subscribe_page(void){
       /* ssub */      ssub,
       /* smip */      g.zIpAddr
     );
-    id = db_last_insert_rowid();
-    zCode = db_text(0,
-         "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
-         id);
     if( !needCaptcha ){
       /* The new subscription has been added on behalf of a logged-in user.
       ** No verification is required.  Jump immediately to /alerts page.
@@ -1437,7 +1437,7 @@ void subscribe_page(void){
         @ subscription.</p>
       }
       alert_sender_free(pSender);
-      style_footer();
+      style_finish_page();
     }
     return;
   }
@@ -1554,7 +1554,7 @@ void subscribe_page(void){
   }
   @ </form>
   fossil_free(zErr);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -1563,21 +1563,37 @@ void subscribe_page(void){
 ** the entry has been removed.
 */
 static void alert_unsubscribe(int sid){
-  char *zEmail;
-  zEmail = db_text(0, "SELECT semail FROM subscriber"
-                      " WHERE subscriberId=%d", sid);
+  const char *zEmail = 0;
+  const char *zLogin = 0;
+  int uid = 0;
+  Stmt q;
+  db_prepare(&q, "SELECT semail, suname FROM subscriber"
+                 " WHERE subscriberId=%d", sid);
+  if( db_step(&q)==SQLITE_ROW ){
+    zEmail = db_column_text(&q, 0);
+    zLogin = db_column_text(&q, 1);
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
+  }
+  style_set_current_feature("alerts");
   if( zEmail==0 ){
     style_header("Unsubscribe Fail");
     @ <p>Unable to locate a subscriber with the requested key</p>
   }else{
+    
     db_multi_exec(
       "DELETE FROM subscriber WHERE subscriberId=%d", sid
     );
     style_header("Unsubscribed");
-    @ <p>The "%h(zEmail)" email address has been delisted.
-    @ All traces of that email address have been removed</p>
+    @ <p>The "%h(zEmail)" email address has been unsubscribed and the
+    @ corresponding row in the subscriber table has been deleted.<p>
+    if( uid && g.perm.Admin ){
+       @ <p>You may also want to
+       @ <a href="%R/setup_uedit?id=%d(uid)">edit or delete
+       @ the corresponding user "%h(zLogin)"</a></p>
+    }
   }
-  style_footer();
+  db_finalize(&q);
+  style_finish_page();
   return;
 }
 
@@ -1588,22 +1604,22 @@ static void alert_unsubscribe(int sid){
 **
 ** The subscriber is identified in several ways:
 **
-**    (1)  The name= query parameter contains the complete subscriberCode.
+**    *    The name= query parameter contains the complete subscriberCode.
 **         This only happens when the user receives a verification
 **         email and clicks on the link in the email.  When a
 **         compilete subscriberCode is seen on the name= query parameter,
 **         that constitutes verification of the email address.
 **
-**    (2)  The sid= query parameter contains an integer subscriberId.
+**    *    The sid= query parameter contains an integer subscriberId.
 **         This only works for the administrator.  It allows the
 **         administrator to edit any subscription.
 **         
-**    (3)  The user is logged into an account other than "nobody" or
+**    *    The user is logged into an account other than "nobody" or
 **         "anonymous".  In that case the notification settings
 **         associated with that account can be edited without needing
 **         to know the subscriber code.
 **
-**    (4)  The name= query parameter contains a 32-digit prefix of
+**    *    The name= query parameter contains a 32-digit prefix of
 **         subscriber code.  (Subscriber codes are normally 64 hex digits
 **         in length.) This uniquely identifies the subscriber without
 **         revealing the complete subscriber code, and hence without
@@ -1724,6 +1740,7 @@ void alert_page(void){
       return; 
     }
   }
+  style_set_current_feature("alerts");
   style_header("Update Subscription");
   db_prepare(&q,
     "SELECT"
@@ -1771,6 +1788,7 @@ void alert_page(void){
         zName);
       if( db_get_boolean("selfreg-verify",0) ){
         char *zNewCap = db_get("default-perms","u");
+        db_unprotect(PROTECT_USER);
         db_multi_exec(
            "UPDATE user"
            "   SET cap=%Q"
@@ -1779,6 +1797,7 @@ void alert_page(void){
            "    WHERE subscriberCode=hextoblob(%Q))",
            zNewCap, zName
         );
+        db_protect_pop();
         login_set_capabilities(zNewCap, 0);
       }
       @ <h1>Your email alert subscription has been verified!</h1>
@@ -1899,7 +1918,7 @@ void alert_page(void){
   @ </form>
   fossil_free(zErr);
   db_finalize(&q);
-  style_footer();
+  style_finish_page();
   db_commit_transaction();
   return;
 }
@@ -1962,6 +1981,8 @@ void unsubscribe_page(void){
     return;
   }
 
+  style_set_current_feature("alerts");
+
   zEAddr = PD("e","");
   dx = atoi(PD("dx","0"));
   bSubmit = P("submit")!=0 && P("e")!=0 && cgi_csrf_safe(1);
@@ -2006,7 +2027,7 @@ void unsubscribe_page(void){
       @ unsubscribe and/or modify your subscription settings</p>
     }
     alert_sender_free(pSender);
-    style_footer();
+    style_finish_page();
     return;
   }  
 
@@ -2056,7 +2077,7 @@ void unsubscribe_page(void){
   @ </td></tr></table></div>
   @ </form>
   fossil_free(zErr);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -2083,6 +2104,7 @@ void subscriber_list_page(void){
   }
   alert_submenu_common();
   style_submenu_element("Users","setup_ulist");
+  style_set_current_feature("alerts");
   style_header("Subscriber List");
   nTotal = db_int(0, "SELECT count(*) FROM subscriber");
   nPending = db_int(0, "SELECT count(*) FROM subscriber WHERE NOT sverified");
@@ -2167,7 +2189,7 @@ void subscriber_list_page(void){
   @ </tbody></table>
   db_finalize(&q);
   style_table_sorter();
-  style_footer();
+  style_finish_page();
 }
 
 #if LOCAL_INTERFACE
@@ -2254,6 +2276,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   *pnEvent = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zType = "";
+    const char *zComment = db_column_text(&q, 2);
     p = fossil_malloc( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
@@ -2265,14 +2288,22 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
       case 'c':  zType = "Check-In";        break;
       /* case 'f':  -- forum posts omitted from this loop.  See below */
       case 't':  zType = "Ticket Change";   break;
-      case 'w':  zType = "Wiki Edit";       break;
+      case 'w': {
+        zType = "Wiki Edit";
+        switch( zComment ? *zComment : 0 ){
+          case ':': ++zComment; break;
+          case '+': zType = "Wiki Added"; ++zComment; break;
+          case '-': zType = "Wiki Removed"; ++zComment; break;
+        }
+        break;
+      }
     }
     blob_init(&p->hdr, 0, 0);
     blob_init(&p->txt, 0, 0);
     blob_appendf(&p->txt,"== %s %s ==\n%s\n%s/info/%.20s\n",
       db_column_text(&q,1),
       zType,
-      db_column_text(&q, 2),
+      zComment,
       zUrl,
       db_column_text(&q,0)
     );
@@ -2556,9 +2587,10 @@ void test_add_alert_cmd(void){
 ** subscribers to be flooded with repeated notifications every 60
 ** seconds!
 */
-void alert_send_alerts(u32 flags){
+int alert_send_alerts(u32 flags){
   EmailEvent *pEvents, *p;
   int nEvent = 0;
+  int nSent = 0;
   Stmt q;
   const char *zDigest = "false";
   Blob hdr, body;
@@ -2702,6 +2734,7 @@ void alert_send_alerts(u32 flags){
         blob_appendf(&fbody, "\n-- \nSubscription info: %s/alerts/%s\n",
            zUrl, zCode);
         alert_send(pSender,&fhdr,&fbody,p->zFromName);
+        nSent++;
         blob_reset(&fhdr);
         blob_reset(&fbody);
       }else{
@@ -2725,6 +2758,7 @@ void alert_send_alerts(u32 flags){
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
          zUrl, zCode);
     alert_send(pSender,&hdr,&body,0);
+    nSent++;
     blob_truncate(&hdr, 0);
     blob_truncate(&body, 0);
   }
@@ -2741,6 +2775,7 @@ void alert_send_alerts(u32 flags){
 send_alert_done:
   alert_sender_free(pSender);
   if( g.fSqlTrace ) fossil_trace("-- END alert_send_alerts(%u)\n", flags);
+  return nSent;
 }
 
 /*
@@ -2754,15 +2789,17 @@ send_alert_done:
 ** this flag is zero, but the test-set-alert command sets it to
 ** SENDALERT_TRACE.
 */
-void alert_backoffice(u32 mFlags){
+int alert_backoffice(u32 mFlags){
   int iJulianDay;
-  if( !alert_tables_exist() ) return;
-  alert_send_alerts(mFlags);
+  int nSent = 0;
+  if( !alert_tables_exist() ) return 0;
+  nSent = alert_send_alerts(mFlags);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
     db_set_int("email-last-digest",iJulianDay,0);
-    alert_send_alerts(SENDALERT_DIGEST|mFlags);
+    nSent += alert_send_alerts(SENDALERT_DIGEST|mFlags);
   }
+  return nSent;
 }
 
 /*
@@ -2778,10 +2815,11 @@ void contact_admin_page(void){
   char *zCaptcha = 0;
 
   login_check_credentials();
+  style_set_current_feature("alerts");
   if( zAdminEmail==0 || zAdminEmail[0]==0 ){
     style_header("Outbound Email Disabled");
     @ <p>Outbound email is disabled on this repository
-    style_footer();
+    style_finish_page();
     return;
   }
   if( P("submit")!=0 
@@ -2813,7 +2851,7 @@ void contact_admin_page(void){
       @ Thank you for your input.</p>
     }
     alert_sender_free(pSender);
-    style_footer();
+    style_finish_page();
     return;
   }
   if( captcha_needed() ){
@@ -2821,6 +2859,7 @@ void contact_admin_page(void){
     zDecoded = captcha_decode(uSeed);
     zCaptcha = captcha_render(zDecoded);
   }
+  style_set_current_feature("alerts");
   style_header("Message To Administrator");
   form_begin(0, "%R/contact_admin");
   @ <p>Enter a message to the repository administrator below:</p>
@@ -2860,7 +2899,7 @@ void contact_admin_page(void){
     @ </td></tr></table></div>
   }
   @ </form>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -2950,6 +2989,7 @@ void announce_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("alerts");
   if( fossil_strcmp(P("name"),"test1")==0 ){
     /* Visit the /announce/test1 page to see the CGI variables */
     @ <p style='border: 1px solid black; padding: 1ex;'>
@@ -2968,7 +3008,7 @@ void announce_page(void){
       @ <p>The announcement has been sent.
       @ <a href="%h(PD("REQUEST_URI","/"))">Send another</a></p>
     }
-    style_footer();    
+    style_finish_page();
     return;
   } else if( !alert_enabled() ){
     style_header("Cannot Send Announcement");
@@ -3022,5 +3062,5 @@ void announce_page(void){
   @ </tr>
   @ </table>
   @ </form>
-  style_footer();
+  style_finish_page();
 }

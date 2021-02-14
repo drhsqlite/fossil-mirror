@@ -226,31 +226,25 @@ void page_timeline_rss(void){
 ** The CLI variant of the /timeline.rss page, this produces an RSS
 ** feed of the timeline to stdout. Options:
 **
-** -type|y FLAG
-**    may be: all (default), ci (show check-ins only), t (show tickets only),
-**    w (show wiki only).
+**   -type|y FLAG    may be: all (default), ci (show check-ins only),
+**                   t (show tickets only),  w (show wiki only).
 **
-** -limit|n LIMIT
-**   The maximum number of items to show.
+**   -limit|n LIMIT  The maximum number of items to show.
 **
-** -tkt HASH
-**    Filters for only those events for the specified ticket.
+**   -tkt HASH       Filters for only those events for the specified ticket.
 **
-** -tag TAG
-**    filters for a tag
+**   -tag TAG        filters for a tag
 **
-** -wiki NAME
-**   Filters on a specific wiki page.
+**   -wiki NAME      Filters on a specific wiki page.
 **
 ** Only one of -tkt, -tag, or -wiki may be used.
 **
-** -name FILENAME
-**   filters for a specific file. This may be combined with one of the other
-**   filters (useful for looking at a specific branch).
+**   -name FILENAME  filters for a specific file. This may be combined
+**                   with one of the other filters (useful for looking
+**                   at a specific branch).
 **
-** -url STRING
-**   Sets the RSS feed's root URL to the given string. The default is
-** "URL-PLACEHOLDER" (without quotes).
+**   -url STRING     Sets the RSS feed's root URL to the given string.
+**                   The default is "URL-PLACEHOLDER" (without quotes).
 */
 void cmd_timeline_rss(void){
   Stmt q;

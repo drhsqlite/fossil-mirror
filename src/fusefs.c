@@ -287,7 +287,7 @@ static struct fuse_operations fusefs_methods = {
 };
 
 /*
-** COMMAND: fusefs
+** COMMAND: fusefs*
 **
 ** Usage: %fossil fusefs [--debug] DIRECTORY
 **

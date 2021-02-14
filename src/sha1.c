@@ -509,6 +509,8 @@ void sha1_shared_secret_sql_function(
 **                          on the object that the link points to.  Normally,
 **                          the hash is over the name of the object that
 **                          the link points to.
+**
+** See also: [[md5sum]], [[sha3sum]]
 */
 void sha1sum_test(void){
   int i;

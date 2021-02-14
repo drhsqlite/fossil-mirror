@@ -125,6 +125,7 @@ summarize the commands available in TH1:
   *  error ?STRING?
   *  expr EXPR
   *  for INIT-SCRIPT TEST-EXPR NEXT-SCRIPT BODY-SCRIPT
+  *  foreach VARIABLE-LIST VALUE-LIST BODY-SCRIPT
   *  if EXPR SCRIPT (elseif EXPR SCRIPT)* ?else SCRIPT?
   *  info commands
   *  info exists VARNAME
@@ -166,59 +167,63 @@ TH1 Extended Commands
 There are many new commands added to TH1 and used to access the special
 features of Fossil.  The following is a summary of the extended commands:
 
-  *  anoncap
-  *  anycap
-  *  artifact
-  *  cgiHeaderLine
-  *  checkout
-  *  combobox
-  *  copybtn
-  *  date
-  *  decorate
-  *  dir
-  *  enable\_output
-  *  encode64
-  *  getParameter
-  *  glob\_match
-  *  globalState
-  *  hascap
-  *  hasfeature
-  *  html
-  *  htmlize
-  *  http
-  *  httpize
-  *  insertCsrf
-  *  linecount
-  *  markdown
-  *  nonce
-  *  puts
-  *  query
-  *  randhex
-  *  redirect
-  *  regexp
-  *  reinitialize
-  *  render
-  *  repository
-  *  searchable
-  *  setParameter
-  *  setting
-  *  stime
-  *  styleHeader
-  *  styleFooter
-  *  styleScript
-  *  tclEval
-  *  tclExpr
-  *  tclInvoke
-  *  tclIsSafe
-  *  tclMakeSafe
-  *  tclReady
-  *  trace
-  *  unversioned content
-  *  unversioned list
-  *  utime
-  *  verifyCsrf
-  *  verifyLogin
-  *  wiki
+  *  [anoncap](#anoncap)
+  *  [anycap](#anycap)
+  *  [artifact](#artifact)
+  *  [capexpr](#capexpr)
+  *  [captureTh1](#captureTh1)
+  *  [cgiHeaderLine](#cgiHeaderLine)
+  *  [checkout](#checkout)
+  *  [combobox](#combobox)
+  *  [copybtn](#copybtn)
+  *  [date](#date)
+  *  [decorate](#decorate)
+  *  [defHeader](#defHeader)
+  *  [dir](#dir)
+  *  [enable\_htmlify](#enable_htmlify)
+  *  [enable\_output](#enable_output)
+  *  [encode64](#encode64)
+  *  [getParameter](#getParameter)
+  *  [glob\_match](#glob_match)
+  *  [globalState](#globalState)
+  *  [hascap](#hascap)
+  *  [hasfeature](#hasfeature)
+  *  [html](#html)
+  *  [htmlize](#htmlize)
+  *  [http](#http)
+  *  [httpize](#httpize)
+  *  [insertCsrf](#insertCsrf)
+  *  [linecount](#linecount)
+  *  [markdown](#markdown)
+  *  [nonce](#nonce)
+  *  [puts](#puts)
+  *  [query](#query)
+  *  [randhex](#randhex)
+  *  [redirect](#redirect)
+  *  [regexp](#regexp)
+  *  [reinitialize](#reinitialize)
+  *  [render](#render)
+  *  [repository](#repository)
+  *  [searchable](#searchable)
+  *  [setParameter](#setParameter)
+  *  [setting](#setting)
+  *  [stime](#stime)
+  *  [styleHeader](#styleHeader)
+  *  [styleFooter](#styleFooter)
+  *  [styleScript](#styleScript)
+  *  [tclEval](#tclEval)
+  *  [tclExpr](#tclExpr)
+  *  [tclInvoke](#tclInvoke)
+  *  [tclIsSafe](#tclIsSafe)
+  *  [tclMakeSafe](#tclMakeSafe)
+  *  [tclReady](#tclReady)
+  *  [trace](#trace)
+  *  [unversioned content](#unversioned_content)
+  *  [unversioned list](#unversioned_list)
+  *  [utime](#utime)
+  *  [verifyCsrf](#verifyCsrf)
+  *  [verifyLogin](#verifyLogin)
+  *  [wiki](#wiki)
 
 Each of the commands above is documented by a block comment above their
 implementation in the th\_main.c or th\_tcl.c source files.
@@ -228,23 +233,27 @@ require the Tcl integration subsystem be included at compile-time.
 Additionally, the "tcl" repository setting must be enabled at runtime
 in order to successfully make use of these commands.
 
-<a name="anoncap"></a>TH1 anoncap Command
+<a id="anoncap"></a>TH1 anoncap Command
 -----------------------------------------
+
+Deprecated: prefer [capexpr](#capexpr) instead.
 
   *  anoncap STRING...
 
 Returns true if the anonymous user has all of the capabilities listed
 in STRING.
 
-<a name="anycap"></a>TH1 anycap Command
+<a id="anycap"></a>TH1 anycap Command
 ---------------------------------------
+
+Deprecated: prefer [capexpr](#capexpr) instead.
 
   *  anycap STRING
 
 Returns true if the current user user has any one of the capabilities
 listed in STRING.
 
-<a name="artifact"></a>TH1 artifact Command
+<a id="artifact"></a>TH1 artifact Command
 -------------------------------------------
 
   *  artifact ID ?FILENAME?
@@ -253,14 +262,67 @@ Attempts to locate the specified artifact and return its contents.  An
 error is generated if the repository is not open or the artifact cannot
 be found.
 
-<a name="cgiHeaderLine"></a>TH1 cgiHeaderLine Command
+
+
+<a id="capexpr"></a>TH1 capexpr Command
+-----------------------------------------------------
+
+Added in Fossil 2.15.
+
+  *  capexpr CAPABILITY-EXPR
+
+The capability expression is a list. Each term of the list is a
+cluster of capability letters. The overall expression is true if any
+one term is true. A single term is true if all letters within that
+term are true. Or, if the term begins with "!", then the term is true
+if none of the terms or true. Or, if the term begins with "@" then
+the term is true if all of the capability letters in that term are
+available to the "anonymous" user. Or, if the term is "*" then it is
+always true.
+
+Examples:
+
+```
+  capexpr {j o r}               True if any one of j, o, or r are available
+  capexpr {oh}                  True if both o and h are available
+  capexpr {@2 @3 4 5 6}         2 or 3 available for anonymous or one of
+                                  4, 5 or 6 is available for the user
+  capexpr L                     True if the user is logged in
+  capexpr !L                    True if the user is not logged in
+```
+
+The `L` pseudo-capability is intended only to be used on its own or with
+the `!` prefix for implementing login/logout menus via the `mainmenu`
+site configuration option:
+
+```
+Login     /login        !L  {}
+Logout    /logout        L  {}
+```
+
+i.e. if the user is logged in, show the "Logout" link, else show the
+"Login" link.
+
+<a id="captureTh1"></a>TH1 captureTh1 Command
+-----------------------------------------------------
+
+  *  captureTh1 STRING
+
+Executes its single argument as TH1 code and captures any
+TH1-generated output as a string, which becomes the result of the
+function call. e.g. any `puts` calls made from that block will not
+generate any output, and instead their output will become part of the
+result string.
+
+
+<a id="cgiHeaderLine"></a>TH1 cgiHeaderLine Command
 -----------------------------------------------------
 
   *  cgiHeaderLine line
 
 Adds the specified line to the CGI header.
 
-<a name="checkout"></a>TH1 checkout Command
+<a id="checkout"></a>TH1 checkout Command
 -------------------------------------------
 
   *  checkout ?BOOLEAN?
@@ -270,7 +332,7 @@ empty string if it is not available.  Optionally, it will attempt to find
 the current checkout, opening the configuration ("user") database and the
 repository as necessary, if the boolean argument is non-zero.
 
-<a name="combobox"></a>TH1 combobox Command
+<a id="combobox"></a>TH1 combobox Command
 -------------------------------------------
 
   *  combobox NAME TEXT-LIST NUMLINES
@@ -281,7 +343,7 @@ selected value.  TEXT-LIST is a list of possible values for the
 combobox.  NUMLINES is 1 for a true combobox.  If NUMLINES is greater
 than one then the display is a listbox with the number of lines given.
 
-<a name="copybtn"></a>TH1 copybtn Command
+<a id="copybtn"></a>TH1 copybtn Command
 -----------------------------------------
 
   *  copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?
@@ -303,7 +365,7 @@ copied to clipboard:
   *     2:   Use the length appropriate for URLs as the limit (defined at
              compile-time by `FOSSIL_HASH_DIGITS_URL`, defaults to 16).
 
-<a name="date"></a>TH1 date Command
+<a id="date"></a>TH1 date Command
 -----------------------------------
 
   *  date ?-local?
@@ -311,7 +373,7 @@ copied to clipboard:
 Return a strings which is the current time and date.  If the -local
 option is used, the date appears using localtime instead of UTC.
 
-<a name="decorate"></a>TH1 decorate Command
+<a id="decorate"></a>TH1 decorate Command
 -------------------------------------------
 
   *  decorate STRING
@@ -319,7 +381,14 @@ option is used, the date appears using localtime instead of UTC.
 Renders STRING as wiki content; however, only links are handled.  No
 other markup is processed.
 
-<a name="dir"></a>TH1 dir Command
+<a id="defHeader"></a>TH1 defHeader Command
+---------------------------------------------
+
+  *  defHeader
+
+Returns the default page header.
+
+<a id="dir"></a>TH1 dir Command
 ---------------------------------
 
   * dir CHECKIN ?GLOB? ?DETAILS?
@@ -331,7 +400,25 @@ element containing at least three elements: the file name, the file
 size (in bytes), and the file last modification time (relative to the
 time zone configured for the repository).
 
-<a name="enable_output"></a>TH1 enable\_output Command
+<a id="enable_htmlify"></a>TH1 enable\_htmlify Command
+------------------------------------------------------
+
+  *  enable\_htmlify
+  *  enable\_htmlify ?TRACE-LABEL? BOOLEAN
+
+By default, certain output from `puts` and similar commands is escaped
+for HTML. The first call form returns the current state of that
+feature: `1` for on and `0` for off. The second call form enables
+(non-0) or disables (0) that feature and returns the *pre-call* state
+of that feature (so that a second call can pass that value to restore
+it to its previous state). The optional `TRACE-LABEL` argument causes
+the TH1 tracing output (if enabled) to add a marker when the second
+form of this command is invoked, and includes that label and the
+boolean argument's value in the trace. If tracing is disabled, that
+argument has no effect.
+
+
+<a id="enable_output"></a>TH1 enable\_output Command
 ------------------------------------------------------
 
   *  enable\_output BOOLEAN
@@ -339,14 +426,14 @@ time zone configured for the repository).
 Enable or disable sending output when the combobox, copybtn, puts, or wiki
 commands are used.
 
-<a name="encode64"></a>TH1 encode64 Command
+<a id="encode64"></a>TH1 encode64 Command
 -------------------------------------------
 
   *  encode64 STRING
 
 Encode the specified string using Base64 and return the result.
 
-<a name="getParameter"></a>TH1 getParameter Command
+<a id="getParameter"></a>TH1 getParameter Command
 ---------------------------------------------------
 
   *  getParameter NAME ?DEFAULT?
@@ -354,7 +441,7 @@ Encode the specified string using Base64 and return the result.
 Returns the value of the specified query parameter or the specified
 default value when there is no matching query parameter.
 
-<a name="glob_match"></a>TH1 glob\_match Command
+<a id="glob_match"></a>TH1 glob\_match Command
 ------------------------------------------------
 
   *  glob\_match ?-one? ?--? patternList string
@@ -362,7 +449,7 @@ default value when there is no matching query parameter.
 Checks the string against the specified glob pattern -OR- list of glob
 patterns and returns non-zero if there is a match.
 
-<a name="globalState"></a>TH1 globalState Command
+<a id="globalState"></a>TH1 globalState Command
 -------------------------------------------------
 
   *  globalState NAME ?DEFAULT?
@@ -384,15 +471,17 @@ Attempts to query for unsupported global state variables will result
 in a script error.  Additional global state variables may be exposed
 in the future.
 
-<a name="hascap"></a>TH1 hascap Command
+<a id="hascap"></a>TH1 hascap Command
 ---------------------------------------
+
+Deprecated: prefer [capexpr](#capexpr) instead.
 
   *  hascap STRING...
 
 Returns true if the current user has all of the capabilities listed
 in STRING.
 
-<a name="hasfeature"></a>TH1 hasfeature Command
+<a id="hasfeature"></a>TH1 hasfeature Command
 -----------------------------------------------
 
   *  hasfeature STRING
@@ -419,14 +508,14 @@ The possible features are:
 Specifying an unknown feature will return a value of false, it will not
 raise a script error.
 
-<a name="html"></a>TH1 html Command
+<a id="html"></a>TH1 html Command
 -----------------------------------
 
   *  html STRING
 
 Outputs the STRING escaped for HTML.
 
-<a name="htmlize"></a>TH1 htmlize Command
+<a id="htmlize"></a>TH1 htmlize Command
 -----------------------------------------
 
   *  htmlize STRING
@@ -434,7 +523,7 @@ Outputs the STRING escaped for HTML.
 Escape all characters of STRING which have special meaning in HTML.
 Returns the escaped string.
 
-<a name="http"></a>TH1 http Command
+<a id="http"></a>TH1 http Command
 -----------------------------------
 
   *  http ?-asynchronous? ?--? url ?payload?
@@ -447,7 +536,7 @@ empty string is returned as the result; otherwise, the response
 from the server is returned as the result.  Synchronous requests
 are not currently implemented.
 
-<a name="httpize"></a>TH1 httpize Command
+<a id="httpize"></a>TH1 httpize Command
 -----------------------------------------
 
   *  httpize STRING
@@ -455,7 +544,7 @@ are not currently implemented.
 Escape all characters of STRING which have special meaning in URI
 components.  Returns the escaped string.
 
-<a name="insertCsrf"></a>TH1 insertCsrf Command
+<a id="insertCsrf"></a>TH1 insertCsrf Command
 -----------------------------------------------
 
   *  insertCsrf
@@ -463,7 +552,7 @@ components.  Returns the escaped string.
 While rendering a form, call this command to add the Anti-CSRF token
 as a hidden element of the form.
 
-<a name="linecount"></a>TH1 linecount Command
+<a id="linecount"></a>TH1 linecount Command
 ---------------------------------------------
 
   *  linecount STRING MAX MIN
@@ -471,7 +560,7 @@ as a hidden element of the form.
 Returns one more than the number of \n characters in STRING.  But
 never returns less than MIN or more than MAX.
 
-<a name="markdown"></a>TH1 markdown Command
+<a id="markdown"></a>TH1 markdown Command
 -------------------------------------------
 
   *  markdown STRING
@@ -480,21 +569,22 @@ Renders the input string as markdown.  The result is a two-element list.
 The first element contains the body, rendered as HTML.  The second element
 is the text-only title string.
 
-<a name="nonce"></a>TH1 nonce Command
+<a id="nonce"></a>TH1 nonce Command
 -------------------------------------
 
   *  nonce
 
 Returns the value of the cryptographic nonce for the request being processed.
 
-<a name="puts"></a>TH1 puts Command
+<a id="puts"></a>TH1 puts Command
 -----------------------------------
 
   *  puts STRING
 
-Outputs the STRING unchanged.
+Outputs the STRING unchanged, where "unchanged" might, depending on
+the context, mean "with some characters escaped for HTML."
 
-<a name="query"></a>TH1 query Command
+<a id="query"></a>TH1 query Command
 -------------------------------------
 
   *  query ?-nocomplain? SQL CODE
@@ -506,7 +596,7 @@ In SQL, parameters such as $var are filled in using the value of variable
 "var".  Result values are stored in variables with the column name prior
 to each invocation of CODE.
 
-<a name="randhex"></a>TH1 randhex Command
+<a id="randhex"></a>TH1 randhex Command
 -----------------------------------------
 
   *  randhex N
@@ -514,7 +604,7 @@ to each invocation of CODE.
 Returns a string of N*2 random hexadecimal digits with N<50.  If N is
 omitted, use a value of 10.
 
-<a name="redirect"></a>TH1 redirect Command
+<a id="redirect"></a>TH1 redirect Command
 -------------------------------------------
 
   *  redirect URL ?withMethod?
@@ -526,7 +616,7 @@ should force the user agent to preserve the original method for the request
 (e.g. GET, POST) instead of (possibly) forcing the user agent to change the
 method to GET.
 
-<a name="regexp"></a>TH1 regexp Command
+<a id="regexp"></a>TH1 regexp Command
 ---------------------------------------
 
   *  regexp ?-nocase? ?--? exp string
@@ -535,21 +625,21 @@ Checks the string against the specified regular expression and returns
 non-zero if it matches.  If the regular expression is invalid or cannot
 be compiled, an error will be generated.
 
-<a name="reinitialize"></a>TH1 reinitialize Command
+<a id="reinitialize"></a>TH1 reinitialize Command
 ---------------------------------------------------
 
   *  reinitialize ?FLAGS?
 
 Reinitializes the TH1 interpreter using the specified flags.
 
-<a name="render"></a>TH1 render Command
+<a id="render"></a>TH1 render Command
 ---------------------------------------
 
   *  render STRING
 
 Renders the TH1 template and writes the results.
 
-<a name="repository"></a>TH1 repository Command
+<a id="repository"></a>TH1 repository Command
 -----------------------------------------------
 
   *  repository ?BOOLEAN?
@@ -558,7 +648,7 @@ Returns the fully qualified file name of the open repository or an empty
 string if one is not currently open.  Optionally, it will attempt to open
 the repository if the boolean argument is non-zero.
 
-<a name="searchable"></a>TH1 searchable Command
+<a id="searchable"></a>TH1 searchable Command
 -----------------------------------------------
 
   *  searchable STRING...
@@ -587,21 +677,21 @@ But to see if ANY document class is searchable:
 This command is useful for enabling or disabling a "Search" entry on the
 menu bar.
 
-<a name="setParameter"></a>TH1 setParameter Command
+<a id="setParameter"></a>TH1 setParameter Command
 ---------------------------------------------------
 
   *  setParameter NAME VALUE
 
 Sets the value of the specified query parameter.
 
-<a name="setting"></a>TH1 setting Command
+<a id="setting"></a>TH1 setting Command
 -----------------------------------------
 
   *  setting name
 
 Gets and returns the value of the specified setting.
 
-<a name="stime"></a>TH1 stime Command
+<a id="stime"></a>TH1 stime Command
 -------------------------------------
 
   *  stime
@@ -609,28 +699,28 @@ Gets and returns the value of the specified setting.
 Returns the number of microseconds of CPU time consumed by the current
 process in system space.
 
-<a name="styleHeader"></a>TH1 styleHeader Command
+<a id="styleHeader"></a>TH1 styleHeader Command
 -------------------------------------------------
 
   *  styleHeader TITLE
 
 Render the configured style header for the selected skin.
 
-<a name="styleFooter"></a>TH1 styleFooter Command
+<a id="styleFooter"></a>TH1 styleFooter Command
 -------------------------------------------------
 
   *  styleFooter
 
 Render the configured style footer for the selected skin.
 
-<a name="styleScript"></a>TH1 styleScript Command
+<a id="styleScript"></a>TH1 styleScript Command
 -------------------------------------------------
 
   *  styleScript
 
 Render the configured JavaScript for the selected skin.
 
-<a name="tclEval"></a>TH1 tclEval Command
+<a id="tclEval"></a>TH1 tclEval Command
 -----------------------------------------
 
 **This command requires the Tcl integration feature.**
@@ -641,7 +731,7 @@ Evaluates the Tcl script and returns its result verbatim.  If a Tcl script
 error is generated, it will be transformed into a TH1 script error.  The
 Tcl interpreter will be created automatically if it has not been already.
 
-<a name="tclExpr"></a>TH1 tclExpr Command
+<a id="tclExpr"></a>TH1 tclExpr Command
 -----------------------------------------
 
 **This command requires the Tcl integration feature.**
@@ -653,7 +743,7 @@ script error is generated, it will be transformed into a TH1 script
 error.  The Tcl interpreter will be created automatically if it has not
 been already.
 
-<a name="tclInvoke"></a>TH1 tclInvoke Command
+<a id="tclInvoke"></a>TH1 tclInvoke Command
 ---------------------------------------------
 
 **This command requires the Tcl integration feature.**
@@ -664,7 +754,7 @@ Invokes the Tcl command using the supplied arguments.  No additional
 substitutions are performed on the arguments.  The Tcl interpreter
 will be created automatically if it has not been already.
 
-<a name="tclIsSafe"></a>TH1 tclIsSafe Command
+<a id="tclIsSafe"></a>TH1 tclIsSafe Command
 ---------------------------------------------
 
 **This command requires the Tcl integration feature.**
@@ -674,7 +764,7 @@ will be created automatically if it has not been already.
 Returns non-zero if the Tcl interpreter is "safe".  The Tcl interpreter
 will be created automatically if it has not been already.
 
-<a name="tclMakeSafe"></a>TH1 tclMakeSafe Command
+<a id="tclMakeSafe"></a>TH1 tclMakeSafe Command
 -------------------------------------------------
 
 **This command requires the Tcl integration feature.**
@@ -686,7 +776,7 @@ commands and variables.  This operation cannot be undone.  The Tcl
 interpreter will remain "safe" until the process terminates.  The Tcl
 interpreter will be created automatically if it has not been already.
 
-<a name="tclReady"></a>TH1 tclReady Command
+<a id="tclReady"></a>TH1 tclReady Command
 -------------------------------------------
 
   *  tclReady
@@ -694,14 +784,14 @@ interpreter will be created automatically if it has not been already.
 Returns true if the binary has the Tcl integration feature enabled and it
 is currently available for use by TH1 scripts.
 
-<a name="trace"></a>TH1 trace Command
+<a id="trace"></a>TH1 trace Command
 -------------------------------------
 
   *  trace STRING
 
 Generates a TH1 trace message if TH1 tracing is enabled.
 
-<a name="unversioned_content"></a>TH1 unversioned content Command
+<a id="unversioned_content"></a>TH1 unversioned content Command
 -----------------------------------------------------------------
 
   *  unversioned content FILENAME
@@ -710,7 +800,7 @@ Attempts to locate the specified unversioned file and return its contents.
 An error is generated if the repository is not open or the unversioned file
 cannot be found.
 
-<a name="unversioned_list"></a>TH1 unversioned list Command
+<a id="unversioned_list"></a>TH1 unversioned list Command
 -----------------------------------------------------------
 
   *  unversioned list
@@ -718,7 +808,7 @@ cannot be found.
 Returns a list of the names of all unversioned files held in the local
 repository.  An error is generated if the repository is not open.
 
-<a name="utime"></a>TH1 utime Command
+<a id="utime"></a>TH1 utime Command
 -------------------------------------
 
   *  utime
@@ -726,7 +816,7 @@ repository.  An error is generated if the repository is not open.
 Returns the number of microseconds of CPU time consumed by the current
 process in user space.
 
-<a name="verifyCsrf"></a>TH1 verifyCsrf Command
+<a id="verifyCsrf"></a>TH1 verifyCsrf Command
 -----------------------------------------------
 
   *  verifyCsrf
@@ -737,7 +827,7 @@ is missing or is incorrect, that indicates a cross-site scripting attack.
 If the event of an attack is detected, an error message is generated and
 all further processing is aborted.
 
-<a name="verifyLogin"></a>TH1 verifyLogin Command
+<a id="verifyLogin"></a>TH1 verifyLogin Command
 -------------------------------------------------
 
   *  verifyLogin
@@ -745,7 +835,7 @@ all further processing is aborted.
 Returns non-zero if the specified user name and password represent a
 valid login for the repository.
 
-<a name="wiki"></a>TH1 wiki Command
+<a id="wiki"></a>TH1 wiki Command
 -----------------------------------
 
   *  wiki STRING
@@ -763,7 +853,7 @@ Tcl commands:
   *  th1Eval
   *  th1Expr
 
-<a name="th1Eval"></a>Tcl th1Eval Command
+<a id="th1Eval"></a>Tcl th1Eval Command
 -----------------------------------------
 
 **This command requires the Tcl integration feature.**
@@ -773,7 +863,7 @@ Tcl commands:
 Evaluates the TH1 script and returns its result verbatim.  If a TH1 script
 error is generated, it will be transformed into a Tcl script error.
 
-<a name="th1Expr"></a>Tcl th1Expr Command
+<a id="th1Expr"></a>Tcl th1Expr Command
 -----------------------------------------
 
 **This command requires the Tcl integration feature.**

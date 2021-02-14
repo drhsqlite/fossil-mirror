@@ -258,50 +258,72 @@ All of the above applies to [login groups][lg] as well.
 
 ## <a name="webonly"></a>Caps Affect Web Interfaces Only
 
-User caps only affect Fossil’s [UI pages][wp], remote operations over
-`http[s]://` URLs, and [the JSON API][japi].
+Fossil’s user capability system only affects accesses over `http[s]://`
+URLs. This includes clone, sync/push/pull, the [UI pages][wp], and [the
+JSON API][japi].  For everything else, the user caps aren’t consulted at
+all.
 
-User caps *do not* affect operations done on a local repo opened via a
-`file://` URL or a file system path. This should strike you as sensible:
-only local file permissions matter when operating on a local SQLite DB
-file. The same is true when working on a clone done over such a path,
-except that there are then two sets of file system permission checks:
-once to modify the working check-out’s repo clone DB file, then again on
-[sync][sync] with the parent DB file. The Fossil capability checks are
-effectively defeated because your user has [**Setup**][s] capability on
-both sides of the sync.
+The only checks made when working directly with a local repository are
+the operating system’s file system permissions.  This should strike you
+as sensible, since if you have local file access to the repository, you
+can do anything you want to that repo DB including adding a
+[**Setup**][s] user for yourself, after which Fossil’s user capability
+system is effectively bypassed. This is why the `fossil ui` command
+gives you Setup permissions within Fossil UI: it can’t usefully prevent
+you from doing anything through the UI since only the local file system
+permissions actually matter.
 
-What may surprise you is that user caps *also do not affect SSH!* When
-you make a change to such a repository, the change first goes to the
-local clone, where file system permissions are all that matter, but then
-upon sync, the situation is effectively the same as when the parent repo
-is on the local file system. If you can log into the remote system over
-SSH and that user has the necessary file system permissions on that
-remote repo DB file, it is the same situation as for `file://` URLs.
+What may be more surprising to you is that this is also true when
+working on a *clone* done over a local file path, except that there are
+then two sets of file system permission checks: once to modify the
+working check-out’s repo clone DB file, then again on [sync][sync] with
+the parent DB file. The Fossil capability checks are effectively
+defeated because your user has [**Setup**][s] capability on both sides
+of the sync. Be aware that those file checks do still matter, however:
+Fossil requires write access to a repo DB while cloning from it, so you
+can’t clone from a read-only repo DB file over a local file path.
 
-All Fossil syncs are done over HTTP, even for `file://` and `ssh://`
-URLs:
+Even more surprising may be the fact that user caps do not affect
+cloning and syncing over SSH! When you make a change to such a
+repository, the change first goes to the local clone where file system
+permissions are all that matter, but then upon sync, the situation is
+effectively the same as when the parent repo is on the local file
+system. The reason behind this is that if you can log into the remote
+system over SSH and that user has the necessary file system permissions
+on that remote repo DB file to allow clone and sync operations, then
+we’re back in the same situation as with local files: there’s no point
+trying to enforce the Fossil user capabilities when you can just modify
+the remote DB directly, so the operation proceeds unimpeded.
+
+Where this gets confusing is that *all* Fossil syncs are done over the
+HTTP protocol, including those done over `file://` and `ssh://` URLs,
+not just those done over `http[s]://` URLs:
 
 *   For `ssh://` URLs, Fossil pipes the HTTP conversation through a
     local SSH client to a remote instance of Fossil running the
-    [`test-http`](/help?name=test-http) command to recieve the tunneled
-    HTTP connection without cap checks. The SSH client defaults to “`ssh
-    -e none -T`” on most platforms, except on Windows where it defaults
-    to “`plink -ssh -T`”. You can override this with [the `ssh-command`
+    [`test-http`](/help?name=test-http) command to receive the tunneled
+    HTTP connection. The reason Fossil’s user capability system is
+    bypassed in this case is that [`test-http` gives full capabilities
+    to its users][sxcap].
+
+    The SSH client command defaults to “`ssh -e none -T`” on most
+    platforms except Windows where it defaults to “`plink -ssh -T`”.
+    You can override this with [the `ssh-command`
     setting](/help?name=ssh-command).
 
-*   For `file://` URLs, the “sending” Fossil instance writes its side of
+*   For `file://` URLs — as opposed to plain local file paths —
+    the “sending” Fossil instance writes its side of
     the HTTP conversation out to a temporary file in the same directory
     as the local repo clone and then calls itself on the “receiving”
     repository to read that same HTTP transcript file back in to apply
-    those changes to that repository. Presumably Fossil doesn’t do this
-    with a pipe to ease portability to Windows.
+    those changes to that repository. Presumably Fossil does this
+    instead of using a pipe to ease portability to Windows.
 
-Because both mechanisms work on local repos, the checks for capabilities
-like [**Read**][o] and [**Write**][i] within the HTTP conversation for
-such URLs can never return “false,” because you are the [**Setup**][s]
-user on both sides of the conversation. Such checks only have a useful
-effect when done over an `http[s]://` URL.
+Checks for capabilities like [**Read**][o] and [**Write**][i] within the
+HTTP conversation between two Fossil instances only have a useful effect
+when done over an `http[s]://` URL.
+
+[sxcap]: https://fossil-scm.org/home/file?ci=8813ae91a699ac73&name=src%2Fmain.c&ln=2632-2637
 
 
 ## <a name="pubpg"></a>Public Pages

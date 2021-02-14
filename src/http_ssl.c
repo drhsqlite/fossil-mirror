@@ -246,7 +246,7 @@ void ssl_disable_cert_verification(void){
 ** Open an SSL connection.  The identify of the server is determined
 ** as follows:
 **
-**    pUrlData->name  Name of the server.  Ex: www.fossil-scm.org
+**    pUrlData->name  Name of the server.  Ex: fossil-scm.org
 **    g.url.name      Name of the proxy server, if proxying.
 **    pUrlData->port  TCP/IP port to use.  Ex: 80
 **
@@ -330,13 +330,13 @@ int ssl_open(UrlData *pUrlData){
   }
 
   if( !sslNoCertVerify && SSL_get_verify_result(ssl)!=X509_V_OK ){
-    int x;
+    int x, desclen;
     char *desc, *prompt;
     Blob ans;
     char cReply;
     BIO *mem;
-    unsigned char md[32];
-    char zHash[32*2+1];
+    unsigned char md[EVP_MAX_MD_SIZE];
+    char zHash[EVP_MAX_MD_SIZE*2+1];
     unsigned int mdLength = (int)sizeof(md);
 
     memset(md, 0, sizeof(md));
@@ -367,11 +367,11 @@ int ssl_open(UrlData *pUrlData){
       BIO_puts(mem,   "\n  issuer:  ");
       X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 0, XN_FLAG_ONELINE);
       BIO_printf(mem, "\n  sha256:  %s", zHash);
-      BIO_get_mem_data(mem, &desc);
+      desclen = BIO_get_mem_data(mem, &desc);
   
-      prompt = mprintf("Unable to verify SSL cert from %s\n%s\n"
+      prompt = mprintf("Unable to verify SSL cert from %s\n%.*s\n"
           "accept this cert and continue (y/N)? ",
-          pUrlData->name, desc);
+          pUrlData->name, desclen, desc);
       BIO_free(mem);
   
       prompt_user(prompt, &ans);
@@ -549,12 +549,12 @@ void test_tlsconfig_info(void){
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
     nName = strlen(zName);
-    fossil_print("%s:%.*s%s\n", zName, 19-nName, "", zValue);
+    fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
     zName = X509_get_default_cert_dir_env();
     zValue = fossil_getenv(zName);
     if( zValue==0 ) zValue = "";
     nName = strlen(zName);
-    fossil_print("%s:%.*s%s\n", zName, 19-nName, "", zValue);
+    fossil_print("%s:%*s%s\n", zName, 18-nName, "", zValue);
     nHit++;
     fossil_print("ssl-ca-location:   %s\n", db_get("ssl-ca-location",""));
     fossil_print("ssl-identity:      %s\n", db_get("ssl-identity",""));
@@ -578,12 +578,14 @@ void test_tlsconfig_info(void){
     db_begin_transaction();
     blob_init(&sql, 0, 0);
     if( g.argc==4 && find_option("all",0,0)!=0 ){
+      db_unprotect(PROTECT_CONFIG);
       blob_append_sql(&sql,
         "DELETE FROM global_config WHERE name GLOB 'cert:*';\n"
         "DELETE FROM global_config WHERE name GLOB 'trusted:*';\n"
         "DELETE FROM config WHERE name GLOB 'cert:*';\n"
         "DELETE FROM config WHERE name GLOB 'trusted:*';\n"
       );
+      db_protect_pop();
     }else{
       if( g.argc<4 ){
         usage("remove-exception DOMAIN-NAME ...");

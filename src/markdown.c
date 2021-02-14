@@ -372,6 +372,10 @@ static size_t tag_length(char *data, size_t size, enum mkd_autolink *autolink){
   if( data[0]!='<' ) return 0;
   i = (data[1]=='/') ? 2 : 1;
   if( (data[i]<'a' || data[i]>'z') &&  (data[i]<'A' || data[i]>'Z') ){
+    if( data[1]=='!' && size>=7 && data[2]=='-' && data[3]=='-' ){
+      for(i=6; i<size && (data[i]!='>'||data[i-1]!='-'|| data[i-2]!='-');i++){}
+      if( i<size ) return i;
+    }
     return 0;
   }
 
@@ -512,7 +516,7 @@ static void skip_codespan(const char *data, size_t size, size_t *pI){
 
 /* find_emph_char -- looks for the next emph char, skipping other constructs */
 static size_t find_emph_char(char *data, size_t size, char c){
-  size_t i = 1;
+  size_t i = data[0]!='`';
 
   while( i<size ){
     while( i<size && data[i]!=c && data[i]!='`' && data[i]!='[' ){ i++; }
@@ -557,6 +561,39 @@ static size_t find_emph_char(char *data, size_t size, char c){
   return 0;
 }
 
+/* CommonMark defines separate "right-flanking" and "left-flanking"
+** deliminators for emphasis.  Whether a deliminator is left- or
+** right-flanking, or both, or neither depends on the characters
+** immediately before and after.
+**
+**   before   after   example    left-flanking   right-flanking
+**   ------   -----   -------    -------------   --------------
+**    space   space      *            no              no
+**    space   punct      *)          yes              no
+**    space   alnum      *x          yes              no
+**    punct   space     (*            no             yes
+**    punct   punct     (*)          yes             yes
+**    punct   alnum     (*x          yes              no
+**    alnum   space     a*            no             yes
+**    alnum   punct     a*(           no             yes
+**    alnum   alnum     a*x          yes             yes
+**
+** The following routines determine whether a delimitor is left
+** or right flanking.
+*/
+static int left_flanking(char before, char after){
+  if( fossil_isspace(after) ) return 0;
+  if( fossil_isalnum(after) ) return 1;
+  if( fossil_isalnum(before) ) return 0;
+  return 1;
+}
+static int right_flanking(char before, char after){
+  if( fossil_isspace(before) ) return 0;
+  if( fossil_isalnum(before) ) return 1;
+  if( fossil_isalnum(after) ) return 0;
+  return 1;
+}
+
 
 /* parse_emph1 -- parsing single emphasis */
 /* closed by a symbol not preceded by whitespace and not followed by symbol */
@@ -570,6 +607,7 @@ static size_t parse_emph1(
   size_t i = 0, len;
   struct Blob *work = 0;
   int r;
+  char after;
 
   if( !rndr->make.emphasis ) return 0;
 
@@ -586,10 +624,10 @@ static size_t parse_emph1(
       i++;
       continue;
     }
+    after = i+1<size ? data[i+1] : ' ';
     if( data[i]==c
-     && data[i-1]!=' '
-     && data[i-1]!='\t'
-     && data[i-1]!='\n'
+     && right_flanking(data[i-1],after)
+     && (c!='_' || !fossil_isalnum(after))
      && !too_deep(rndr)
     ){
       work = new_work_buffer(rndr);
@@ -614,6 +652,7 @@ static size_t parse_emph2(
   size_t i = 0, len;
   struct Blob *work = 0;
   int r;
+  char after;
 
   if( !rndr->make.double_emphasis ) return 0;
 
@@ -621,13 +660,12 @@ static size_t parse_emph2(
     len = find_emph_char(data+i, size-i, c);
     if( !len ) return 0;
     i += len;
+    after = i+2<size ? data[i+2] : ' ';
     if( i+1<size
      && data[i]==c
      && data[i+1]==c
-     && i
-     && data[i-1]!=' '
-     && data[i-1]!='\t'
-     && data[i-1]!='\n'
+     && right_flanking(data[i-1],after)
+     && (c!='_' || !fossil_isalnum(after))
      && !too_deep(rndr)
     ){
       work = new_work_buffer(rndr);
@@ -699,13 +737,12 @@ static size_t char_emphasis(
   size_t size
 ){
   char c = data[0];
+  char before = offset>0 ? data[-1] : ' ';
   size_t ret;
 
   if( size>2 && data[1]!=c ){
-    /* whitespace cannot follow an opening emphasis */
-    if( data[1]==' '
-     || data[1]=='\t'
-     || data[1]=='\n'
+    if( !left_flanking(before, data[1])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph1(ob, rndr, data+1, size-1, c))==0
     ){
       return 0;
@@ -714,9 +751,8 @@ static size_t char_emphasis(
   }
 
   if( size>3 && data[1]==c && data[2]!=c ){
-    if( data[2]==' '
-     || data[2]=='\t'
-     || data[2]=='\n'
+    if( !left_flanking(before, data[2])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph2(ob, rndr, data+2, size-2, c))==0
     ){
       return 0;
@@ -725,9 +761,8 @@ static size_t char_emphasis(
   }
 
   if( size>4 && data[1]==c && data[2]==c && data[3]!=c ){
-    if( data[3]==' '
-     || data[3]=='\t'
-     || data[3]=='\n'
+    if( !left_flanking(before, data[3])
+     || (c=='_' && fossil_isalnum(before))
      || (ret = parse_emph3(ob, rndr, data+3, size-3, c))==0
     ){
       return 0;
@@ -1890,7 +1925,7 @@ static size_t parse_table_row(
     if( align==0 && aligns && col<align_size ) align = aligns[col];
 
     /* render cells */
-    if( cells && end>beg ){
+    if( cells && end>=beg ){
       parse_table_cell(cells, rndr, data+beg, end-beg, align|flags);
     }
 

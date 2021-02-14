@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -451,57 +451,57 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 ** using the "fossil purge undo" command.  The "fossil purge obliterate"
 ** command empties the graveyard, making the content unrecoverable.
 **
-** ==== WARNING: This command can potentially destroy historical data and ====
-** ==== leave your repository in a goofy state. Know what you are doing!  ====
-** ==== Make a backup of your repository before using this command!       ====
+** WARNING: This command can potentially destroy historical data and
+** leave your repository in a goofy state. Know what you are doing!
+** Make a backup of your repository before using this command!
 **
-** ==== FURTHER WARNING: This command is a work-in-progress and may yet   ====
-** ==== contain bugs.                                                     ====
+** FURTHER WARNING: This command is a work-in-progress and may yet
+** contain bugs.
 **
-**   fossil purge artifacts HASH... ?OPTIONS?
+** > fossil purge artifacts HASH... ?OPTIONS?
 **
 **      Move arbitrary artifacts identified by the HASH list into the
 **      graveyard.
 **
-**   fossil purge cat HASH...
+** > fossil purge cat HASH...
 **
 **      Write the content of one or more artifacts in the graveyard onto
 **      standard output.
 **
-**   fossil purge checkins TAGS... ?OPTIONS?
+** > fossil purge checkins TAGS... ?OPTIONS?
 **
 **      Move the check-ins or branches identified by TAGS and all of
 **      their descendants out of the repository and into the graveyard.
 **      If TAGS includes a branch name then it means all the check-ins
 **      on the most recent occurrence of that branch.
 **
-**   fossil purge files NAME ... ?OPTIONS?
+** > fossil purge files NAME ... ?OPTIONS?
 **
 **      Move all instances of files called NAME into the graveyard.
 **      NAME should be the name of the file relative to the root of the
 **      repository.  If NAME is a directory, then all files within that
 **      directory are moved.
 **
-**   fossil purge list|ls ?-l?
+** > fossil purge list|ls ?-l?
 **
 **      Show the graveyard of prior purges.  The -l option gives more
 **      detail in the output.
 **
-**   fossil purge obliterate ID... ?--force?
+** > fossil purge obliterate ID... ?--force?
 **
 **      Remove one or more purge events from the graveyard.  Once a purge
 **      event is obliterated, it can no longer be undone.  The --force
 **      option suppresses the confirmation prompt.
 **
-**   fossil purge tickets NAME ... ?OPTIONS?
+** > fossil purge tickets NAME ... ?OPTIONS?
 **
 **      TBD...
 **
-**   fossil purge undo ID
+** > fossil purge undo ID
 **
 **      Restore the content previously removed by purge ID.
 **
-**   fossil purge wiki NAME ... ?OPTIONS?
+** > fossil purge wiki NAME ... ?OPTIONS?
 **
 **      TBD...
 **
@@ -509,17 +509,6 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **   --explain         Make no changes, but show what would happen.
 **   --dry-run         An alias for --explain
-**
-** SUMMARY:
-**   fossil purge artifacts HASH.. [OPTIONS]
-**   fossil purge cat HASH...
-**   fossil purge checkins TAGS... [OPTIONS]
-**   fossil purge files FILENAME... [OPTIONS]
-**   fossil purge list
-**   fossil purge obliterate ID...
-**   fossil purge tickets NAME... [OPTIONS]
-**   fossil purge undo ID
-**   fossil purge wiki NAME... [OPTIONS]
 */
 void purge_cmd(void){
   int purgeFlags = PURGE_MOVETO_GRAVEYARD | PURGE_PRINT_SUMMARY;

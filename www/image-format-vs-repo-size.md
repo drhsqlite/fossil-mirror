@@ -3,17 +3,15 @@
 ## The Problem
 
 Fossil has a [delta compression][dc] feature which removes redundant
-information from a file — with respect to the version checked in at the
-tip of the current working branch — when checking in a subsequent
-version.¹ That delta is then [zlib][zl]-compressed before being stored
+information from a file relative to its parent on check-in.¹
+That delta is then [zlib][zl]-compressed before being stored
 in the Fossil repository database file.
 
 Storing pre-compressed data files in a Fossil repository defeats both of
 these space-saving measures:
 
-1.  Binary data compression algorithms — whether lossless as with zlib
-    or lossy as with JPEG — turn the file data into [pseudorandom
-    noise][prn].² 
+1.  Binary data compression algorithms turn the file data into
+    [pseudorandom noise][prn].² 
     
     Typical data compression algorithms are not [hash functions][hf],
     where the goal is that a change to each bit in the input has a
@@ -30,7 +28,7 @@ these space-saving measures:
     compression.
 
 You might then ask, what does it matter if the space savings comes from
-the application file format (e.g. JPEG, Zip, etc.) or from Fossil
+the application file format (e.g. JPEG, DOCX, Zip, etc.) or from Fossil
 itself? It really doesn’t, as far as point 2 above goes, but point 1
 causes the Fossil repository to balloon out of proportion to the size of
 the input data change on each checkin. This article will illustrate that
@@ -52,8 +50,8 @@ few examples out of what must be thousands:
     Office 2003 onward (`.docx`, `.xlsx`, `.pptx`, etc.) are Zip files
     containing an XML document file and several collateral files.
 
-*   **Libre Office**: Its [ODF][odf] format is designed in more or less
-    the same way as OOXML.
+*   **Libre Office**: For the purposes of this article, its
+    [OpenDocument Format][odf] is designed the same basic way as OOXML.
 
 *   **Java**: A Java [`.jar` file][jcl] is a Zip file containing JVM
     `.class` files, manifest files, and more.
@@ -80,10 +78,10 @@ few examples out of what must be thousands:
 ## Demonstration
 
 The companion `image-format-vs-repo-size.ipynb` file ([download][nbd],
-[preview][nbp]) is a [Jupyter][jp] notebook implementing the following
+[preview][nbp]) is a [JupyterLab][jl] notebook implementing the following
 experiment:
 
-1.  Create an empty Fossil repository; save its initial size.
+1.  Create a new minimum-size Fossil repository. Save this initial size.
 
 2.  Use [ImageMagick][im] via [Wand][wp] to generate a JPEG file of a
     particular size — currently 256 px² — filled with Gaussian noise to
@@ -102,7 +100,7 @@ experiment:
 7.  Create a bar chart showing how the Fossil repository size changes
     with each checkin.
 
-We chose to use Jupyter for this because it makes it easy for you to
+We chose to use JupyterLab for this because it makes it easy for you to
 modify the notebook to try different things.  Want to see how the
 results change with a different image size?  Easy, change the `size`
 value in the second cell of the notebook.  Want to try more image
@@ -111,7 +109,7 @@ formats?  You can put anything ImageMagick can recognize into the
 in your own repository?  Easily done with a small amount of code.
 
 [im]:  https://www.imagemagick.org/
-[jp]:  https://jupyter.org/
+[jl]:  https://jupyter.org/
 [nbd]: ./image-format-vs-repo-size.ipynb
 [nbp]: https://nbviewer.jupyter.org/urls/fossil-scm.org/fossil/doc/trunk/www/image-format-vs-repo-size.ipynb
 [wp]:  http://wand-py.org/
@@ -127,19 +125,30 @@ There are a few key things we want to draw your attention to in that
 chart:
 
 *   BMP and uncompressed TIFF are nearly identical in size for all
-    checkins, and the repository growth rate is negligible.⁵ We owe this
-    economy to Fossil’s delta compression feature.
+    checkins, and the repository growth rate is negligible past the
+    first commit.⁵ We owe this economy to Fossil’s delta compression
+    feature: it is encoding each of those single-pixel changes in a very
+    small amount of repository space.
 
-*   The JPEG and TIFF bars increase by large amounts on most checkins
-    even though each checkin encodes only a *single-pixel change*!
+*   The JPEG and PNG bars increase by large amounts on most checkins
+    even though each checkin *also* encodes only a *single-pixel change*.
+
+*   The size of the first checkin in the BMP and TIFF cases is roughly
+    the same as that for the PNG case, because both PNG and Fossil use
+    the zlib binary data compression algorithm. This shows that for
+    repos where the image files are committed only once, there is
+    virtually no penalty to using BMP or TIFF over PNG. The file sizes
+    likely differ only because of differences in zlib settings between
+    the cases.
 
 *   Because JPEG’s lossy nature allows it to start smaller and have
-    smaller size increases than than PNG, the crossover point with
+    smaller size increases than PNG, the crossover point with
     BMP/TIFF isn’t until 7-9 checkins in typical runs of this [Monte
     Carlo experiment][mce].  Given a choice among these four file
     formats and a willingness to use lossy image compression, a rational
     tradeoff is to choose JPEG for repositories where each image will
     change fewer than that number of times.
+
 
 [mce]: https://en.wikipedia.org/wiki/Monte_Carlo_method
 
@@ -237,19 +246,23 @@ reason:
 
 ## Footnotes and Digressions
 
-1.  Several other programs also do delta compression, so they’ll also be
-    affected by this problem: [rsync][rs], [Unison][us], [Git][git],
-    etc. When using file copying and synchronization programs *without*
-    delta compression, it’s best to use the most highly-compressed file
-    format you can tolerate, since they copy the whole file any time any
-    bit of it changes.
+1.  This problem is not Fossil-specific.  Several other programs also do
+    delta compression, so they’ll also be affected by this problem:
+    [rsync][rs], [Unison][us], [Git][git], etc. You should take this
+    article’s advice when using all such programs, not just Fossil.
+
+    When using file copying and synchronization programs *without* delta
+    compression, on the other hand, it’s best to use the most
+    highly-compressed file format you can tolerate, since they copy the
+    whole file any time any bit of it changes.
 
 2.  In fact, a good way to gauge the effectiveness of a given
     compression scheme is to run its output through the same sort of
     tests we use to gauge how “random” a given [PRNG][prng] is.  Another
     way to look at it is that if there is a discernible pattern in the
-    output of a compression scheme, it’s information that could be
-    further compressed.
+    output of a compression scheme, that constitutes *information* (in
+    [the technical sense of that word][ith]) that could be further
+    compressed.
 
 3.  We're using *uncompressed* TIFF here, not [LZW][lzw]- or
     Zip-compressed TIFF, either of which would give similar results to
@@ -262,30 +275,29 @@ reason:
     the overall character of the results doesn’t change from one run to
     the next.
 
-    The code in the notebook’s third cell drops the first three columns
-    of data because the first column (the empty repository size) is
-    boring, and the subsequent two checkins show the SQLite DB file
-    format settling in with its first few checkins. There’s a single
-    line in the notebook you can comment out to get a bar chart with
-    these data included.
+5.  It’s not clear to me why there is a one-time jump in size for BMP
+    and TIFF past the first commit. I suspect it is due to the SQLite
+    indices being initialized for the first time.
 
-    If you do this, you’ll see a mildly interesting result: the size of
-    the first checkin in the BMP and TIFF cases is roughly the same as
-    that for the PNG case, because both PNG and Fossil use the zlib
-    binary data compression algorithm.
+    Page size inflation might have something to do with it as well,
+    though we tried to control that by rebuilding the initial DB with a
+    minimal page size. If you re-run the program often enough, you will
+    sometimes see the BMP or TIFF bar jump higher than the other, again
+    likely due to one of the repos crossing a page boundary.
 
-5.  A low-tech format like BMP will have a small edge in practice
+    Another curious artifact in the data is that the BMP is slightly
+    larger than for the TIFF. This goes against expectation because a
+    low-tech format like BMP should have a small edge in this test
     because TIFF metadata includes the option for multiple timestamps,
     UUIDs, etc., which bloat the checkin size by creating many small
-    deltas.  If you don't need the advantages of TIFF, a less capable
-    image file format will give smaller checkin sizes for a given amount
-    of change.
+    deltas.
 
 6.  The `Makefile` above is not battle-tested.  Please report bugs and
     needed extensions [on the forum][for].
 
 [for]:  https://fossil-scm.org/forum/forumpost/15e677f2c8
 [git]:  https://git-scm.com/
+[ith]:  https://en.wikipedia.org/wiki/Information_theory
 [lzw]:  https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Welch
 [prng]: https://en.wikipedia.org/wiki/Pseudorandom_number_generator
 [rs]:   https://rsync.samba.org/

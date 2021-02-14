@@ -21,7 +21,23 @@ See also:
   *  [./quickstart.wiki|Quick start guide]
 
 <h2>2.0 Composition Of A Project</h2>
-<img src="concept1.gif" align="right" hspace="10">
+
+<verbatim type="pikchr float-right">
+R1: cylinder "Remote" "Repository" fill 0xadd8e6 rad 70%
+R2: cylinder same "Remote" "Repository" at 2.5*R1.wid right of R1
+    spline <-> from R1.e to 0.6<R1.se,R2.sw> then to 0.4<R1.ne,R2.nw> then to R2.w
+    text "HTTP" at .5<R1.ne,R2.nw>
+R3: cylinder same "Local" "Repository" fill 0x90ee90 \
+    at dist(R1.e,R2.w) below .5<R1,R2>
+    spline <-> from .5<R1.s,R1.se> to 0.6<R1.s,R3.w> to 0.5<R1.se,R3.n> to .5<R3.nw,R3.n> "HTTP" \
+      behind R1
+    spline <-> from R2.sw to .6<R2.sw,R3.n> to .5<R2.s,R3.e> to R3.ne "HTTP" ljust
+T1: line from 1.0cm heading 200 from R3.sw go 2.2cm heading 150 then 2.2cm west close \
+       fill 0xffff00 "Local" below "Source Tree" below
+T2: line from 1.0cm heading 160 from R3.se same "Local" below "Source Tree" below
+    line <-> from R3.sw to T1.start
+    line <-> from R3.se to T2.start
+</verbatim>
 
 A software project normally consists of a "source tree".
 A source tree is a hierarchy of files that are used to generate
@@ -192,7 +208,7 @@ of a single executable named "fossil" (or "fossil.exe" on Windows).
 To install Fossil on your system,
 all you have to do is obtain a copy of this one executable file (either
 by downloading a
-<a href="https://www.fossil-scm.org/fossil/uv/download.html">pre-compiled version</a>
+<a href="https://fossil-scm.org/home/uv/download.html">pre-compiled version</a>
 or [./build.wiki | compiling it yourself]) and then
 putting that file somewhere on your PATH.
 
@@ -236,7 +252,24 @@ token after the name of the Fossil executable, as shown above.
 <a name="workflow"></a>
 <h2>4.0 Workflow</h2>
 
-<img src="concept2.gif" align="right" hspace="10">
+<verbatim type="pikchr float-right">
+    down
+R1: cylinder "Remote" "Repository" fill 0xadd8e6 rad 70%
+    move 150%
+R2: cylinder same "Local" "Repository" fill 0x90ee90
+    move 120%
+T1: line go 2.2cm heading 150 then 2.2cm west close \
+       fill 0xffff00 "Local" below "Source Tree" below
+    arrow from R2.n+(-0.25cm,+0.25cm) to R1.s+(-0.25cm,-0.25cm) \
+       "push " rjust
+    arrow from R1.s+(+0.25cm,-0.25cm) to R2.n+(+0.25cm,+0.25cm) \
+       " pull" ljust " clone" ljust
+    arrow from T1.start+(-0.25cm,+0cm) to R2.s+(-0.25cm,-0.25cm) \
+       "commit " rjust
+    arrow from R2.s+(+0.25cm,-0.25cm) to T1.start+(+0.25cm,+0cm) \
+       " open" ljust " update" ljust " merge" ljust
+</verbatim>
+
 
 Fossil has two modes of operation: <i>"autosync"</i> and
 <i>"manual-merge"</i>

@@ -32,7 +32,9 @@
 #define TH_INIT_FORCE_TCL   ((u32)0x00000002) /* Force Tcl to be enabled? */
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
-#define TH_INIT_MASK        ((u32)0x0000000F) /* All possible init flags. */
+#define TH_INIT_NO_REPO     ((u32)0x00000010) /* Skip opening repository. */
+#define TH_INIT_NO_ENCODE   ((u32)0x00000020) /* Do not html-encode sendText() output. */
+#define TH_INIT_MASK        ((u32)0x0000003F) /* All possible init flags. */
 
 /*
 ** Useful and/or "well-known" combinations of flag values.
@@ -46,9 +48,9 @@
 ** Flags set by functions in this file to keep track of integration state
 ** information.  These flags should not be used outside of this file.
 */
-#define TH_STATE_CONFIG     ((u32)0x00000010) /* We opened the config. */
-#define TH_STATE_REPOSITORY ((u32)0x00000020) /* We opened the repository. */
-#define TH_STATE_MASK       ((u32)0x00000030) /* All possible state flags. */
+#define TH_STATE_CONFIG     ((u32)0x00000020) /* We opened the config. */
+#define TH_STATE_REPOSITORY ((u32)0x00000040) /* We opened the repository. */
+#define TH_STATE_MASK       ((u32)0x00000060) /* All possible state flags. */
 
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
@@ -68,37 +70,6 @@
 #define Th_IsRepositoryOpen()     (g.repositoryOpen)
 #define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
-/*
-** Global variable counting the number of outstanding calls to malloc()
-** made by the th1 implementation. This is used to catch memory leaks
-** in the interpreter. Obviously, it also means th1 is not threadsafe.
-*/
-static int nOutstandingMalloc = 0;
-
-/*
-** Implementations of malloc() and free() to pass to the interpreter.
-*/
-static void *xMalloc(unsigned int n){
-  void *p = fossil_malloc(n);
-  if( p ){
-    nOutstandingMalloc++;
-  }
-  return p;
-}
-static void xFree(void *p){
-  if( p ){
-    nOutstandingMalloc--;
-  }
-  free(p);
-}
-static Th_Vtab vtab = { xMalloc, xFree };
-
-/*
-** Returns the number of outstanding TH1 memory allocations.
-*/
-int Th_GetOutstandingMalloc(){
-  return nOutstandingMalloc;
-}
 
 /*
 ** Generate a TH1 trace message if debugging is enabled.
@@ -129,6 +100,7 @@ void Th_ForceCgi(int fullHttpReply){
 void Th_InitTraceLog(){
   g.thTrace = find_option("th-trace", 0, 0)!=0;
   if( g.thTrace ){
+    g.fAnyTrace = 1;
     blob_zero(&g.thLog);
   }
 }
@@ -290,6 +262,46 @@ static int enableOutputCmd(
 }
 
 /*
+** TH1 command: enable_htmlify ?BOOLEAN?
+**
+** Enable or disable the HTML escaping done by all output which
+** originates from TH1 (via sendText()).
+**
+** If passed no arguments it instead returns 0 or 1 to indicate the
+** current state.
+*/
+static int enableHtmlifyCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc = 0, buul;
+  if( argc>3 ){
+    return Th_WrongNumArgs(interp,
+                           "enable_htmlify [TRACE_LABEL] ?BOOLEAN?");
+  }
+  buul = (TH_INIT_NO_ENCODE & g.th1Flags) ? 0 : 1;
+  Th_SetResultInt(g.interp, buul);
+  if(argc>1){
+    if( g.thTrace ){
+      Th_Trace("enable_htmlify {%.*s} -> %d<br />\n",
+               argl[1],argv[1],buul);
+    }
+    rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &buul);
+    if(!rc){
+      if(buul){
+        g.th1Flags &= ~TH_INIT_NO_ENCODE;
+      }else{
+        g.th1Flags |= TH_INIT_NO_ENCODE;
+      }
+    }
+  }
+  return rc;
+}
+
+/*
 ** Returns a name for a TH1 return code.
 */
 const char *Th_ReturnCodeName(int rc, int nullIfOk){
@@ -309,19 +321,47 @@ const char *Th_ReturnCodeName(int rc, int nullIfOk){
   return zRc;
 }
 
+/* See Th_SetOutputBlob() */
+static Blob * pThOut = 0;
 /*
-** Send text to the appropriate output:  Either to the console
-** or to the CGI reply buffer.  Escape all characters with special
-** meaning to HTML if the encode parameter is true.
+** Sets the th1-internal output-redirection blob and returns the
+** previous value. That blob is used by certain output-generation
+** routines to emit its output. It returns the previous value so that
+** a routing can temporarily replace the buffer with its own and
+** restore it when it's done.
 */
-static void sendText(const char *z, int n, int encode){
+Blob * Th_SetOutputBlob(Blob * pOut){
+  Blob * tmp = pThOut;
+  pThOut = pOut;
+  return tmp;
+}
+
+/*
+** Send text to the appropriate output: If pOut is not NULL, it is
+** appended there, else to the console or to the CGI reply buffer.
+** Escape all characters with special meaning to HTML if the encode
+** parameter is true, with the exception that that flag is ignored if
+** g.th1Flags has the TH_INIT_NO_ENCODE flag.
+**
+** If pOut is NULL and the global pThOut is not then that blob
+** is used for output.
+*/
+static void sendText(Blob * pOut, const char *z, int n, int encode){
+  if(0==pOut && pThOut!=0){
+    pOut = pThOut;
+  }
+  if(TH_INIT_NO_ENCODE & g.th1Flags){
+    encode = 0;
+  }     
   if( enableOutput && n ){
     if( n<0 ) n = strlen(z);
     if( encode ){
       z = htmlize(z, n);
       n = strlen(z);
     }
-    if( g.cgiOutput ){
+    if(pOut!=0){
+      blob_append(pOut, z, n);
+    }else if( g.cgiOutput ){
       cgi_append_content(z, n);
     }else{
       fwrite(z, 1, n, stdout);
@@ -331,15 +371,18 @@ static void sendText(const char *z, int n, int encode){
   }
 }
 
-static void sendError(const char *z, int n, int forceCgi){
+/*
+** error-reporting counterpart of sendText().
+*/
+static void sendError(Blob * pOut, const char *z, int n, int forceCgi){
   int savedEnable = enableOutput;
   enableOutput = 1;
   if( forceCgi || g.cgiOutput ){
-    sendText("<hr /><p class=\"thmainError\">", -1, 0);
+    sendText(pOut, "<hr /><p class=\"thmainError\">", -1, 0);
   }
-  sendText("ERROR: ", -1, 0);
-  sendText((char*)z, n, 1);
-  sendText(forceCgi || g.cgiOutput ? "</p>" : "\n", -1, 0);
+  sendText(pOut,"ERROR: ", -1, 0);
+  sendText(pOut,(char*)z, n, 1);
+  sendText(pOut,forceCgi || g.cgiOutput ? "</p>" : "\n", -1, 0);
   enableOutput = savedEnable;
 }
 
@@ -450,7 +493,7 @@ static int putsCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  sendText((char*)argv[1], argl[1], *(unsigned int*)pConvert);
+  sendText(0,(char*)argv[1], argl[1], *(unsigned int*)pConvert);
   return TH_OK;
 }
 
@@ -721,6 +764,63 @@ static int hascapCmd(
 }
 
 /*
+** TH1 command:   capexpr CAPABILITY-EXPR
+**
+** Nmemonic:  "CAPability EXPRression"
+**
+** The capability expression is a list.  Each term of the list is a cluster
+** of capability letters.  The overall expression is true if any one term
+** is true.  A single term is true if all letters within that term are true.
+** Or, if the term begins with "!", then the term is true if none of the
+** terms or true.  Or, if the term begins with "@" then the term is true
+** if all of the capability letters in that term are available to the
+** "anonymous" user.  Or, if the term is "*" then it is always true.
+**
+** Examples:
+**
+**   capexpr {j o r}               True if any one of j, o, or r are available
+**   capexpr {oh}                  True if both o and h are available
+**   capexpr {@2 @3 4 5 6}         2 or 3 available for anonymous or one of
+**                                   4, 5 or 6 is available for the user
+*/
+int capexprCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  char **azCap;
+  int *anCap;
+  int nCap;
+  int rc;
+  int i;
+
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "capexpr EXPR");
+  }
+  rc = Th_SplitList(interp, argv[1], argl[1], &azCap, &anCap, &nCap);
+  if( rc ) return rc;
+  rc = 0;
+  for(i=0; i<nCap; i++){
+    if( azCap[i][0]=='!' ){
+      rc = !login_has_capability(azCap[i]+1, anCap[i]-1, 0);
+    }else if( azCap[i][0]=='@' ){
+      rc = login_has_capability(azCap[i]+1, anCap[i]-1, LOGIN_ANON);
+    }else if( azCap[i][0]=='*' ){
+      rc = 1;
+    }else{
+      rc = login_has_capability(azCap[i], anCap[i], 0);
+    }
+    break;   
+  }
+  Th_Free(interp, azCap);
+  Th_SetResultInt(interp, rc);
+  return TH_OK; 
+}
+
+
+/*
 ** TH1 command: searchable STRING...
 **
 ** Return true if searching in any of the document classes identified
@@ -825,11 +925,9 @@ static int hasfeatureCmd(
     rc = 1;
   }
 #endif
-#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
   else if( 0 == fossil_strnicmp( zArg, "legacyMvRm\0", 11 ) ){
     rc = 1;
   }
-#endif
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
   else if( 0 == fossil_strnicmp( zArg, "execRelPaths\0", 13 ) ){
     rc = 1;
@@ -998,7 +1096,7 @@ static int comboboxCmd(
     zH = htmlize(blob_buffer(&name), blob_size(&name));
     z = mprintf("<select id=\"%s\" name=\"%s\" size=\"%d\">", zH, zH, height);
     free(zH);
-    sendText(z, -1, 0);
+    sendText(0,z, -1, 0);
     free(z);
     blob_reset(&name);
     for(i=0; i<nElem; i++){
@@ -1011,10 +1109,10 @@ static int comboboxCmd(
         z = mprintf("<option value=\"%s\">%s</option>", zH, zH);
       }
       free(zH);
-      sendText(z, -1, 0);
+      sendText(0,z, -1, 0);
       free(z);
     }
-    sendText("</select>", -1, 0);
+    sendText(0,"</select>", -1, 0);
     Th_Free(interp, azElem);
   }
   return TH_OK;
@@ -1062,7 +1160,7 @@ static int copybtnCmd(
     zResult = style_copy_button(
                 /*bOutputCGI==*/0, /*TARGETID==*/(char*)argv[1],
                 flipped, copylength, "%h", /*TEXT==*/(char*)argv[3]);
-    sendText(zResult, -1, 0);
+    sendText(0,zResult, -1, 0);
     free(zResult);
   }
   return TH_OK;
@@ -1349,6 +1447,25 @@ static int renderCmd(
 }
 
 /*
+** TH1 command: defHeader TITLE
+**
+** Returns the default page header.
+*/
+static int defHeaderCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "defHeader");
+  }
+  Th_SetResult(interp, get_default_header(), -1);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: styleHeader TITLE
 **
 ** Render the configured style header for the selected skin.
@@ -1389,7 +1506,7 @@ static int styleFooterCmd(
     return Th_WrongNumArgs(interp, "styleFooter");
   }
   if( Th_IsRepositoryOpen() ){
-    style_footer();
+    style_finish_page();
     Th_SetResult(interp, 0, 0);
     return TH_OK;
   }else{
@@ -1399,9 +1516,15 @@ static int styleFooterCmd(
 }
 
 /*
-** TH1 command: styleScript
+** TH1 command: styleScript ?BUILTIN-FILENAME?
 **
-** Render the configured JavaScript for the selected skin.
+** Render the js.txt file from the current skin.  Or, if an argument
+** is supplied, render the built-in filename given.
+**
+** By "rendering" we mean that the script is loaded and run through
+** TH1 to expand variables and process <th1>...</th1> script.  Contrast
+** with the "builtin_request_js BUILTIN-FILENAME" command which just
+** loads the file as-is without interpretation.
 */
 static int styleScriptCmd(
   Th_Interp *interp,
@@ -1410,11 +1533,16 @@ static int styleScriptCmd(
   const char **argv,
   int *argl
 ){
-  if( argc!=1 ){
-    return Th_WrongNumArgs(interp, "styleScript");
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "styleScript ?BUILTIN_NAME?");
   }
   if( Th_IsRepositoryOpen() ){
-    const char *zScript = skin_get("js");
+    const char *zScript;
+    if( argc==2 ){
+      zScript = (const char*)builtin_file(argv[1], 0);
+    }else{
+      zScript = skin_get("js");
+    }
     if( zScript==0 ) zScript = "";
     Th_Render(zScript);
     Th_SetResult(interp, 0, 0);
@@ -1425,6 +1553,27 @@ static int styleScriptCmd(
   }
 }
 
+/*
+** TH1 command: builtin_request_js NAME
+**
+** Request that the built-in javascript file called NAME be added to the
+** end of the generated page.
+**
+** See also:  styleScript
+*/
+static int builtinRequestJsCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "builtin_request_js NAME");
+  }
+  builtin_request_js(argv[1]);
+  return TH_OK;
+}
 
 /*
 ** TH1 command: artifact ID ?FILENAME?
@@ -1773,7 +1922,16 @@ static int queryCmd(
         int szVal = sqlite3_column_bytes(pStmt, i);
         Th_SetVar(interp, zCol, szCol, zVal, szVal);
       }
+      if( g.thTrace ){
+        Th_Trace("query_eval {<pre>%#h</pre>}<br />\n", argl[2], argv[2]);
+      }
       res = Th_Eval(interp, 0, argv[2], argl[2]);
+      if( g.thTrace ){
+        int nTrRes;
+        char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
+        Th_Trace("[query_eval] => %h {%#h}<br />\n",
+                 Th_ReturnCodeName(res, 0), nTrRes, zTrRes);
+      }
       if( res==TH_BREAK || res==TH_CONTINUE ) res = TH_OK;
     }
     rc = sqlite3_finalize(pStmt);
@@ -2034,6 +2192,40 @@ static int httpCmd(
 }
 
 /*
+** TH1 command: captureTh1 STRING
+**
+** Evaluates the given string as TH1 code and captures any of its
+** TH1-generated output as a string (instead of it being output),
+** which becomes the result of the function.
+*/
+static int captureTh1Cmd(
+  Th_Interp *interp,
+  void *pConvert,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Blob out = empty_blob;
+  Blob * pOrig;
+  const char * zStr;
+  int nStr, rc;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "captureTh1 STRING");
+  }
+  pOrig = Th_SetOutputBlob(&out);
+  zStr = argv[1];
+  nStr = argl[1];
+  rc = Th_Eval(g.interp, 0, zStr, nStr);
+  Th_SetOutputBlob(pOrig);
+  if(0==rc){
+    Th_SetResult(g.interp, blob_str(&out), blob_size(&out));
+  }
+  blob_reset(&out);
+  return rc;
+}
+
+
+/*
 ** Attempts to open the configuration ("user") database.  Optionally, also
 ** attempts to try to find the repository and open it.
 */
@@ -2087,7 +2279,8 @@ void Th_FossilInit(u32 flags){
   int forceReset = flags & TH_INIT_FORCE_RESET;
   int forceTcl = flags & TH_INIT_FORCE_TCL;
   int forceSetup = flags & TH_INIT_FORCE_SETUP;
-  static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
+  int noRepo = flags & TH_INIT_NO_REPO;
+  static unsigned int aFlags[] = {0, 1, WIKI_LINKSONLY};
   static int anonFlag = LOGIN_ANON;
   static int zeroInt = 0;
   static struct _Command {
@@ -2098,13 +2291,18 @@ void Th_FossilInit(u32 flags){
     {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
+    {"builtin_request_js", builtinRequestJsCmd, 0},
+    {"capexpr",       capexprCmd,           0},
+    {"captureTh1",    captureTh1Cmd,        0},
     {"cgiHeaderLine", cgiHeaderLineCmd,     0},
     {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
     {"copybtn",       copybtnCmd,           0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
+    {"defHeader",     defHeaderCmd,         0},
     {"dir",           dirCmd,               0},
+    {"enable_htmlify",enableHtmlifyCmd,     0},
     {"enable_output", enableOutputCmd,      0},
     {"encode64",      encode64Cmd,          0},
     {"getParameter",  getParameterCmd,      0},
@@ -2154,13 +2352,13 @@ void Th_FossilInit(u32 flags){
     ** passed a non-zero value for the needConfig parameter, make sure
     ** the necessary database connections are open prior to continuing.
     */
-    Th_OpenConfig(1);
+    Th_OpenConfig(!noRepo);
   }
   if( forceReset || forceTcl || g.interp==0 ){
     int created = 0;
     int i;
     if( g.interp==0 ){
-      g.interp = Th_CreateInterp(&vtab);
+      g.interp = Th_CreateInterp();
       created = 1;
     }
     if( forceReset || created ){
@@ -2193,7 +2391,7 @@ void Th_FossilInit(u32 flags){
       if( rc==TH_ERROR ){
         int nResult = 0;
         char *zResult = (char*)Th_GetResult(g.interp, &nResult);
-        sendError(zResult, nResult, 0);
+        sendError(0,zResult, nResult, 0);
       }
     }
     if( g.thTrace ){
@@ -2418,7 +2616,7 @@ int Th_CommandHook(
     ** command hook handler as that is not actually an error condition.
     */
     if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
-      sendError(zResult, nResult, 0);
+      sendError(0,zResult, nResult, 0);
     }else{
       /*
       ** There is no command hook handler "installed".  This situation
@@ -2505,7 +2703,7 @@ int Th_WebpageHook(
     ** webpage hook handler as that is not actually an error condition.
     */
     if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
-      sendError(zResult, nResult, 1);
+      sendError(0,zResult, nResult, 1);
     }else{
       /*
       ** There is no webpage hook handler "installed".  This situation
@@ -2582,28 +2780,40 @@ int Th_AreDocsEnabled(void){
 #endif
 
 
+#if INTERFACE
 /*
-** The z[] input contains text mixed with TH1 scripts.
-** The TH1 scripts are contained within <th1>...</th1>.
-** TH1 variables are $aaa or $<aaa>.  The first form of
-** variable is literal.  The second is run through htmlize
-** before being inserted.
-**
-** This routine processes the template and writes the results
-** on either stdout or into CGI.
+** Flags for use with Th_RenderToBlob. These must not overlap with
+** TH_INIT_MASK.
 */
-int Th_Render(const char *z){
+#define TH_R2B_MASK    ((u32)0x0f000)
+#define TH_R2B_NO_VARS ((u32)0x01000) /* Disables eval of $vars and $<vars> */
+#endif
+
+/*
+** If pOut is NULL, this works identically to Th_Render(), else it
+** works just like that function but appends any TH1-generated output
+** to the given blob. A bitmask of TH_R2B_xxx and/or TH_INIT_xxx flags
+** may be passed as the 3rd argument, or 0 for default options.  Note
+** that this function necessarily calls Th_FossilInit(), which may
+** unset flags used on previous calls unless mFlags is explicitly
+** passed in.
+*/
+int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   int i = 0;
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit(TH_INIT_DEFAULT);
+  Blob * const origOut = Th_SetOutputBlob(pOut);
+
+  assert(0==(TH_R2B_MASK & TH_INIT_MASK) && "init/r2b mask conflict");
+  Th_FossilInit(mFlags & TH_INIT_MASK);
   while( z[i] ){
-    if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
+    if( 0==(TH_R2B_NO_VARS & mFlags)
+        && z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
       int nVar;
       int encode = 1;
-      sendText(z, i, 0);
+      sendText(pOut,z, i, 0);
       if( z[i+1]=='<' ){
         /* Variables of the form $<aaa> are html escaped */
         zVar = &z[i+2];
@@ -2618,15 +2828,21 @@ int Th_Render(const char *z){
       z += i+1+n;
       i = 0;
       zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText((char*)zResult, n, encode);
+      sendText(pOut,(char*)zResult, n, encode);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
-      sendText(z, i, 0);
+      sendText(pOut,z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       if( g.thTrace ){
-        Th_Trace("eval {<pre>%#h</pre>}<br />", i, z);
+        Th_Trace("render_eval {<pre>%#h</pre>}<br />\n", i, z);
       }
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
+      if( g.thTrace ){
+        int nTrRes;
+        char *zTrRes = (char*)Th_GetResult(g.interp, &nTrRes);
+        Th_Trace("[render_eval] => %h {%#h}<br />\n",
+                 Th_ReturnCodeName(rc, 0), nTrRes, zTrRes);
+      }
       if( rc!=TH_OK ) break;
       z += i;
       if( z[0] ){ z += 6; }
@@ -2637,11 +2853,27 @@ int Th_Render(const char *z){
   }
   if( rc==TH_ERROR ){
     zResult = (char*)Th_GetResult(g.interp, &n);
-    sendError(zResult, n, 1);
+    sendError(pOut,zResult, n, 1);
   }else{
-    sendText(z, i, 0);
+    sendText(pOut,z, i, 0);
   }
+  Th_SetOutputBlob(origOut);
   return rc;
+}
+
+/*
+** The z[] input contains text mixed with TH1 scripts.
+** The TH1 scripts are contained within <th1>...</th1>.
+** TH1 variables are $aaa or $<aaa>.  The first form of
+** variable is literal.  The second is run through htmlize
+** before being inserted.
+**
+** This routine processes the template and writes the results to one
+** of stdout, CGI, or an internal blob which was set up via a prior
+** call to Th_SetOutputBlob().
+*/
+int Th_Render(const char *z){
+  return Th_RenderToBlob(z, 0, 0);
 }
 
 /*
@@ -2762,15 +2994,18 @@ void test_th_eval(void){
 **     --set-anon-caps      Set anonymous login capabilities
 **     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
+**     --no-print-result    Do not output the final result. Use if it
+**                          interferes with script output.
 */
 void test_th_source(void){
   int rc;
   const char *zRc;
-  int forceCgi, fullHttpReply;
+  int forceCgi, fullHttpReply, fNoPrintRc;
   Blob in;
   Th_InitTraceLog();
   forceCgi = find_option("cgi", 0, 0)!=0;
   fullHttpReply = find_option("http", 0, 0)!=0;
+  fNoPrintRc = find_option("no-print-result",0,0)!=0;
   if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("open-config", 0, 0)!=0 ){
@@ -2795,7 +3030,10 @@ void test_th_source(void){
   Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, blob_str(&in), -1);
   zRc = Th_ReturnCodeName(rc, 1);
-  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
+  if(0==fNoPrintRc){
+    fossil_print("%s%s%s\n", zRc, zRc ? ": " : "",
+                 Th_GetResult(g.interp, 0));
+  }
   Th_PrintTraceLog();
   if( forceCgi ) cgi_reply();
 }
@@ -2865,14 +3103,14 @@ void test_th_hook(void){
   if( g.interp ){
     zResult = (char*)Th_GetResult(g.interp, &nResult);
   }
-  sendText("RESULT (", -1, 0);
-  sendText(Th_ReturnCodeName(rc, 0), -1, 0);
-  sendText(")", -1, 0);
+  sendText(0,"RESULT (", -1, 0);
+  sendText(0,Th_ReturnCodeName(rc, 0), -1, 0);
+  sendText(0,")", -1, 0);
   if( zResult && nResult>0 ){
-    sendText(": ", -1, 0);
-    sendText(zResult, nResult, 0);
+    sendText(0,": ", -1, 0);
+    sendText(0,zResult, nResult, 0);
   }
-  sendText("\n", -1, 0);
+  sendText(0,"\n", -1, 0);
   Th_PrintTraceLog();
   if( forceCgi ) cgi_reply();
 }

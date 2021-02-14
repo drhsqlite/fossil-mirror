@@ -373,7 +373,7 @@ void tag_add_artifact(
 **
 ** Run various subcommands to control tags and properties.
 **
-**     %fossil tag add ?OPTIONS? TAGNAME CHECK-IN ?VALUE?
+** > fossil tag add ?OPTIONS? TAGNAME CHECK-IN ?VALUE?
 **
 **         Add a new tag or property to CHECK-IN. The tag will
 **         be usable instead of a CHECK-IN in commands such as
@@ -385,27 +385,27 @@ void tag_add_artifact(
 **           --propagate                 Propagating tag.
 **           --date-override DATETIME    Set date and time added.
 **           --user-override USER        Name USER when adding the tag.
-**           --dryrun|-n                 Display the tag text, but do not
+**           -n|--dryrun                 Display the tag text, but do not
 **                                       actually insert it into the database.
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
 **         the form 'YYYY-MMM-DD HH:MM:SS'.
 **
-**     %fossil tag cancel ?--raw? TAGNAME CHECK-IN
+** > fossil tag cancel ?--raw? TAGNAME CHECK-IN
 **
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.  Use the
-**         the --dryrun or -n options to see what would have happened.
+**         the -n|--dryrun option to see what would have happened.
 **
 **         Options:
 **           --raw                       Raw tag name.
 **           --date-override DATETIME    Set date and time deleted.
 **           --user-override USER        Name USER when deleting the tag.
-**           --dryrun|-n                 Display the control artifact, but do
+**           -n|--dryrun                 Display the control artifact, but do
 **                                       not insert it into the database.
 **
-**     %fossil tag find ?OPTIONS? TAGNAME
+** > fossil tag find ?OPTIONS? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
 **         check-ins or "e" for events. The limit option limits the number
@@ -416,7 +416,7 @@ void tag_add_artifact(
 **           -t|--type TYPE  One of "ci", or "e".
 **           -n|--limit N    Limit to N results.
 **
-**     %fossil tag list|ls ?OPTIONS? ?CHECK-IN?
+** > fossil tag list|ls ?OPTIONS? ?CHECK-IN?
 **
 **         List all tags, or if CHECK-IN is supplied, list
 **         all tags and their values for CHECK-IN.  The tagtype option
@@ -543,7 +543,7 @@ void tag_cmd(void){
         );
         db_prepare(&q, "%s", blob_sql_text(&sql));
         blob_reset(&sql);
-        print_timeline(&q, nFindLimit, 79, 0);
+        print_timeline(&q, nFindLimit, 79, 0, 0);
         db_finalize(&q);
       }
     }
@@ -646,7 +646,7 @@ tag_cmd_usage:
 **    --test           Make database entries but do not add the tag artifact.
 **                     So the reparent operation will be undone by the next
 **                     "fossil rebuild" command.
-**    --dryrun | -n    Print the tag that would have been created but do not
+**    -n|--dryrun      Print the tag that would have been created but do not
 **                     actually change the database in any way.
 **    --date-override DATETIME  Set the change time on the control artifact
 **    --user-override USER      Set the user name on the control artifact
@@ -726,7 +726,7 @@ void taglist_page(void){
   }
   @ </ul>
   db_finalize(&q);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -783,5 +783,5 @@ void tagtimeline_page(void){
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  style_footer();
+  style_finish_page();
 }

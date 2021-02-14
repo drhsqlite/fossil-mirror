@@ -315,6 +315,9 @@ void vfile_to_disk(
     rid = db_column_int(&q, 2);
     isExe = db_column_int(&q, 3);
     isLink = db_column_int(&q, 4);
+    if( file_unsafe_in_tree_path(zName) ){
+      continue;
+    }
     content_get(rid, &content);
     if( file_is_the_same(&content, zName) ){
       blob_reset(&content);

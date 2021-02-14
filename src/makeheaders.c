@@ -301,7 +301,7 @@ struct InFile {
 typedef struct String String;
 struct String {
   int nAlloc;      /* Number of bytes allocated */
-  int nUsed;       /* Number of bytes used (not counting null terminator) */
+  int nUsed;       /* Number of bytes used (not counting nul terminator) */
   char *zText;     /* Text of the string */
 };
 
@@ -1407,6 +1407,7 @@ static char *TokensToString(
         }
         if( skipOne ){
           pFirst = pFirst->pNext;
+          skipOne = 0;
           continue;
         }
         /* Fall thru to the next case */

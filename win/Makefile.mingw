@@ -71,10 +71,6 @@ BCC = $(BCCEXE)
 #
 # FOSSIL_ENABLE_EXEC_REL_PATHS = 1
 
-#### Enable legacy treatment of mv/rm (skip checkout files)
-#
-FOSSIL_ENABLE_LEGACY_MV_RM = 1
-
 #### Enable TH1 scripts in embedded documentation files
 #
 # FOSSIL_ENABLE_TH1_DOCS = 1
@@ -172,11 +168,8 @@ SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLI
 endif
 
 #### The directories where the OpenSSL include and library files are located.
-#    The recommended usage here is to use the Sysinternals junction tool
-#    to create a hard link between an "openssl-1.x" sub-directory of the
-#    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1g
+OPENSSLDIR = $(SRCDIR)/../compat/openssl
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -296,12 +289,6 @@ endif
 ifdef FOSSIL_ENABLE_EXEC_REL_PATHS
 TCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
 RCC += -DFOSSIL_ENABLE_EXEC_REL_PATHS=1
-endif
-
-# With legacy treatment of mv/rm
-ifdef FOSSIL_ENABLE_LEGACY_MV_RM
-TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
-RCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 endif
 
 # With TH1 embedded docs support
@@ -439,6 +426,7 @@ XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
 
 SRC = \
   $(SRCDIR)/add.c \
+  $(SRCDIR)/ajax.c \
   $(SRCDIR)/alerts.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
@@ -455,10 +443,12 @@ SRC = \
   $(SRCDIR)/capabilities.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
+  $(SRCDIR)/chat.c \
   $(SRCDIR)/checkin.c \
   $(SRCDIR)/checkout.c \
   $(SRCDIR)/clearsign.c \
   $(SRCDIR)/clone.c \
+  $(SRCDIR)/color.c \
   $(SRCDIR)/comformat.c \
   $(SRCDIR)/configure.c \
   $(SRCDIR)/content.c \
@@ -489,12 +479,14 @@ SRC = \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
   $(SRCDIR)/hname.c \
+  $(SRCDIR)/hook.c \
   $(SRCDIR)/http.c \
   $(SRCDIR)/http_socket.c \
   $(SRCDIR)/http_ssl.c \
   $(SRCDIR)/http_transport.c \
   $(SRCDIR)/import.c \
   $(SRCDIR)/info.c \
+  $(SRCDIR)/interwiki.c \
   $(SRCDIR)/json.c \
   $(SRCDIR)/json_artifact.c \
   $(SRCDIR)/json_branch.c \
@@ -525,6 +517,8 @@ SRC = \
   $(SRCDIR)/name.c \
   $(SRCDIR)/path.c \
   $(SRCDIR)/piechart.c \
+  $(SRCDIR)/pikchr.c \
+  $(SRCDIR)/pikchrshow.c \
   $(SRCDIR)/pivot.c \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
@@ -576,13 +570,11 @@ SRC = \
   $(SRCDIR)/wikiformat.c \
   $(SRCDIR)/winfile.c \
   $(SRCDIR)/winhttp.c \
-  $(SRCDIR)/wysiwyg.c \
   $(SRCDIR)/xfer.c \
   $(SRCDIR)/xfersetup.c \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
-  $(SRCDIR)/../skins/aht/details.txt \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \
   $(SRCDIR)/../skins/ardoise/footer.txt \
@@ -596,28 +588,22 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/blitz/footer.txt \
   $(SRCDIR)/../skins/blitz/header.txt \
   $(SRCDIR)/../skins/blitz/ticket.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/css.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/details.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/header.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
   $(SRCDIR)/../skins/bootstrap/css.txt \
   $(SRCDIR)/../skins/bootstrap/details.txt \
   $(SRCDIR)/../skins/bootstrap/footer.txt \
   $(SRCDIR)/../skins/bootstrap/header.txt \
+  $(SRCDIR)/../skins/darkmode/css.txt \
+  $(SRCDIR)/../skins/darkmode/details.txt \
+  $(SRCDIR)/../skins/darkmode/footer.txt \
+  $(SRCDIR)/../skins/darkmode/header.txt \
   $(SRCDIR)/../skins/default/css.txt \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
-  $(SRCDIR)/../skins/default/js.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
   $(SRCDIR)/../skins/eagle/header.txt \
-  $(SRCDIR)/../skins/enhanced1/css.txt \
-  $(SRCDIR)/../skins/enhanced1/details.txt \
-  $(SRCDIR)/../skins/enhanced1/footer.txt \
-  $(SRCDIR)/../skins/enhanced1/header.txt \
   $(SRCDIR)/../skins/khaki/css.txt \
   $(SRCDIR)/../skins/khaki/details.txt \
   $(SRCDIR)/../skins/khaki/footer.txt \
@@ -630,27 +616,38 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/plain_gray/details.txt \
   $(SRCDIR)/../skins/plain_gray/footer.txt \
   $(SRCDIR)/../skins/plain_gray/header.txt \
-  $(SRCDIR)/../skins/rounded1/css.txt \
-  $(SRCDIR)/../skins/rounded1/details.txt \
-  $(SRCDIR)/../skins/rounded1/footer.txt \
-  $(SRCDIR)/../skins/rounded1/header.txt \
   $(SRCDIR)/../skins/xekri/css.txt \
   $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/accordion.js \
+  $(SRCDIR)/alerts/bflat2.wav \
+  $(SRCDIR)/alerts/bflat3.wav \
+  $(SRCDIR)/alerts/bloop.wav \
+  $(SRCDIR)/alerts/plunk.wav \
+  $(SRCDIR)/chat.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
+  $(SRCDIR)/default.css \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
   $(SRCDIR)/fossil.confirmer.js \
+  $(SRCDIR)/fossil.copybutton.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
+  $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.fileedit.js \
+  $(SRCDIR)/fossil.page.forumpost.js \
+  $(SRCDIR)/fossil.page.pikchrshow.js \
+  $(SRCDIR)/fossil.page.wikiedit.js \
+  $(SRCDIR)/fossil.pikchr.js \
+  $(SRCDIR)/fossil.popupwidget.js \
   $(SRCDIR)/fossil.storage.js \
   $(SRCDIR)/fossil.tabs.js \
+  $(SRCDIR)/fossil.wikiedit-wysiwyg.js \
   $(SRCDIR)/graph.js \
+  $(SRCDIR)/hbmenu.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
@@ -677,12 +674,14 @@ EXTRA_FILES = \
   $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/style.admin_log.css \
   $(SRCDIR)/style.fileedit.css \
+  $(SRCDIR)/style.wikiedit.css \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
+  $(OBJDIR)/ajax_.c \
   $(OBJDIR)/alerts_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
@@ -699,10 +698,12 @@ TRANS_SRC = \
   $(OBJDIR)/capabilities_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
+  $(OBJDIR)/chat_.c \
   $(OBJDIR)/checkin_.c \
   $(OBJDIR)/checkout_.c \
   $(OBJDIR)/clearsign_.c \
   $(OBJDIR)/clone_.c \
+  $(OBJDIR)/color_.c \
   $(OBJDIR)/comformat_.c \
   $(OBJDIR)/configure_.c \
   $(OBJDIR)/content_.c \
@@ -733,12 +734,14 @@ TRANS_SRC = \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
   $(OBJDIR)/hname_.c \
+  $(OBJDIR)/hook_.c \
   $(OBJDIR)/http_.c \
   $(OBJDIR)/http_socket_.c \
   $(OBJDIR)/http_ssl_.c \
   $(OBJDIR)/http_transport_.c \
   $(OBJDIR)/import_.c \
   $(OBJDIR)/info_.c \
+  $(OBJDIR)/interwiki_.c \
   $(OBJDIR)/json_.c \
   $(OBJDIR)/json_artifact_.c \
   $(OBJDIR)/json_branch_.c \
@@ -769,6 +772,8 @@ TRANS_SRC = \
   $(OBJDIR)/name_.c \
   $(OBJDIR)/path_.c \
   $(OBJDIR)/piechart_.c \
+  $(OBJDIR)/pikchr_.c \
+  $(OBJDIR)/pikchrshow_.c \
   $(OBJDIR)/pivot_.c \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
@@ -820,13 +825,13 @@ TRANS_SRC = \
   $(OBJDIR)/wikiformat_.c \
   $(OBJDIR)/winfile_.c \
   $(OBJDIR)/winhttp_.c \
-  $(OBJDIR)/wysiwyg_.c \
   $(OBJDIR)/xfer_.c \
   $(OBJDIR)/xfersetup_.c \
   $(OBJDIR)/zip_.c
 
 OBJ = \
  $(OBJDIR)/add.o \
+ $(OBJDIR)/ajax.o \
  $(OBJDIR)/alerts.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
@@ -843,10 +848,12 @@ OBJ = \
  $(OBJDIR)/capabilities.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
+ $(OBJDIR)/chat.o \
  $(OBJDIR)/checkin.o \
  $(OBJDIR)/checkout.o \
  $(OBJDIR)/clearsign.o \
  $(OBJDIR)/clone.o \
+ $(OBJDIR)/color.o \
  $(OBJDIR)/comformat.o \
  $(OBJDIR)/configure.o \
  $(OBJDIR)/content.o \
@@ -877,12 +884,14 @@ OBJ = \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
  $(OBJDIR)/hname.o \
+ $(OBJDIR)/hook.o \
  $(OBJDIR)/http.o \
  $(OBJDIR)/http_socket.o \
  $(OBJDIR)/http_ssl.o \
  $(OBJDIR)/http_transport.o \
  $(OBJDIR)/import.o \
  $(OBJDIR)/info.o \
+ $(OBJDIR)/interwiki.o \
  $(OBJDIR)/json.o \
  $(OBJDIR)/json_artifact.o \
  $(OBJDIR)/json_branch.o \
@@ -913,6 +922,8 @@ OBJ = \
  $(OBJDIR)/name.o \
  $(OBJDIR)/path.o \
  $(OBJDIR)/piechart.o \
+ $(OBJDIR)/pikchr.o \
+ $(OBJDIR)/pikchrshow.o \
  $(OBJDIR)/pivot.o \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
@@ -964,7 +975,6 @@ OBJ = \
  $(OBJDIR)/wikiformat.o \
  $(OBJDIR)/winfile.o \
  $(OBJDIR)/winhttp.o \
- $(OBJDIR)/wysiwyg.o \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
  $(OBJDIR)/zip.o
@@ -985,7 +995,6 @@ MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
 MKVERSION   = $(subst /,\,$(OBJDIR)/mkversion.exe)
-MKCSS       = $(subst /,\,$(OBJDIR)/mkcss.exe)
 CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
@@ -1000,7 +1009,6 @@ MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
 MKVERSION   = $(OBJDIR)/mkversion.exe
-MKCSS       = $(OBJDIR)/mkcss.exe
 CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
@@ -1013,7 +1021,7 @@ endif
 
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h $(OBJDIR)/default_css.h
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
 	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
@@ -1058,9 +1066,6 @@ $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
 $(MKVERSION): $(SRCDIR)/mkversion.c
 	$(XBCC) -o $@ $(SRCDIR)/mkversion.c
 
-$(MKCSS): $(SRCDIR)/mkcss.c
-	$(XBCC) -o $@ $(SRCDIR)/mkcss.c
-
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $@ $(SRCDIR)/codecheck1.c
 
@@ -1070,11 +1075,11 @@ $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION) $(OBJDIR)/phony.h
 	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
 
-$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(MKCSS)
-	$(MKCSS) $(SRCDIR)/default_css.txt $@
+$(OBJDIR)/phony.h:
+	# Force rebuild of VERSION.h every time "make" is run
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -1158,9 +1163,9 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(EXTRAOBJ) $(OBJ) $(OBJDIR)/fossil.o
 	$(CODECHECK1) $(TRANS_SRC)
-	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(LIB)
+	$(TCC) -o $@ $(EXTRAOBJ) $(OBJ) $(OBJDIR)/fossil.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -1189,8 +1194,9 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(MKINDEX)
 $(OBJDIR)/builtin_data.h:	$(MKBUILTIN) $(EXTRA_FILES)
 	$(MKBUILTIN) --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
 	$(MAKEHEADERS) $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
+		$(OBJDIR)/ajax_.c:$(OBJDIR)/ajax.h \
 		$(OBJDIR)/alerts_.c:$(OBJDIR)/alerts.h \
 		$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 		$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -1207,10 +1213,12 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 		$(OBJDIR)/capabilities_.c:$(OBJDIR)/capabilities.h \
 		$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 		$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
+		$(OBJDIR)/chat_.c:$(OBJDIR)/chat.h \
 		$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
 		$(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h \
 		$(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h \
 		$(OBJDIR)/clone_.c:$(OBJDIR)/clone.h \
+		$(OBJDIR)/color_.c:$(OBJDIR)/color.h \
 		$(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h \
 		$(OBJDIR)/configure_.c:$(OBJDIR)/configure.h \
 		$(OBJDIR)/content_.c:$(OBJDIR)/content.h \
@@ -1241,12 +1249,14 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 		$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 		$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
 		$(OBJDIR)/hname_.c:$(OBJDIR)/hname.h \
+		$(OBJDIR)/hook_.c:$(OBJDIR)/hook.h \
 		$(OBJDIR)/http_.c:$(OBJDIR)/http.h \
 		$(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h \
 		$(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h \
 		$(OBJDIR)/http_transport_.c:$(OBJDIR)/http_transport.h \
 		$(OBJDIR)/import_.c:$(OBJDIR)/import.h \
 		$(OBJDIR)/info_.c:$(OBJDIR)/info.h \
+		$(OBJDIR)/interwiki_.c:$(OBJDIR)/interwiki.h \
 		$(OBJDIR)/json_.c:$(OBJDIR)/json.h \
 		$(OBJDIR)/json_artifact_.c:$(OBJDIR)/json_artifact.h \
 		$(OBJDIR)/json_branch_.c:$(OBJDIR)/json_branch.h \
@@ -1277,6 +1287,8 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 		$(OBJDIR)/name_.c:$(OBJDIR)/name.h \
 		$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
 		$(OBJDIR)/piechart_.c:$(OBJDIR)/piechart.h \
+		$(OBJDIR)/pikchr_.c:$(OBJDIR)/pikchr.h \
+		$(OBJDIR)/pikchrshow_.c:$(OBJDIR)/pikchrshow.h \
 		$(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h \
 		$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 		$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
@@ -1328,7 +1340,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 		$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
 		$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
 		$(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h \
-		$(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h \
 		$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
 		$(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h \
 		$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
@@ -1348,6 +1359,14 @@ $(OBJDIR)/add.o:	$(OBJDIR)/add_.c $(OBJDIR)/add.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/add.o -c $(OBJDIR)/add_.c
 
 $(OBJDIR)/add.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/ajax_.c:	$(SRCDIR)/ajax.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/ajax.c >$@
+
+$(OBJDIR)/ajax.o:	$(OBJDIR)/ajax_.c $(OBJDIR)/ajax.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/ajax.o -c $(OBJDIR)/ajax_.c
+
+$(OBJDIR)/ajax.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/alerts_.c:	$(SRCDIR)/alerts.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/alerts.c >$@
@@ -1477,6 +1496,14 @@ $(OBJDIR)/cgi.o:	$(OBJDIR)/cgi_.c $(OBJDIR)/cgi.h $(SRCDIR)/config.h
 
 $(OBJDIR)/cgi.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/chat_.c:	$(SRCDIR)/chat.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/chat.c >$@
+
+$(OBJDIR)/chat.o:	$(OBJDIR)/chat_.c $(OBJDIR)/chat.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/chat.o -c $(OBJDIR)/chat_.c
+
+$(OBJDIR)/chat.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/checkin_.c:	$(SRCDIR)/checkin.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/checkin.c >$@
 
@@ -1508,6 +1535,14 @@ $(OBJDIR)/clone.o:	$(OBJDIR)/clone_.c $(OBJDIR)/clone.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/clone.o -c $(OBJDIR)/clone_.c
 
 $(OBJDIR)/clone.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/color_.c:	$(SRCDIR)/color.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/color.c >$@
+
+$(OBJDIR)/color.o:	$(OBJDIR)/color_.c $(OBJDIR)/color.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/color.o -c $(OBJDIR)/color_.c
+
+$(OBJDIR)/color.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/comformat_.c:	$(SRCDIR)/comformat.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/comformat.c >$@
@@ -1749,6 +1784,14 @@ $(OBJDIR)/hname.o:	$(OBJDIR)/hname_.c $(OBJDIR)/hname.h $(SRCDIR)/config.h
 
 $(OBJDIR)/hname.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/hook_.c:	$(SRCDIR)/hook.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/hook.c >$@
+
+$(OBJDIR)/hook.o:	$(OBJDIR)/hook_.c $(OBJDIR)/hook.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/hook.o -c $(OBJDIR)/hook_.c
+
+$(OBJDIR)/hook.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/http.c >$@
 
@@ -1796,6 +1839,14 @@ $(OBJDIR)/info.o:	$(OBJDIR)/info_.c $(OBJDIR)/info.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/info.o -c $(OBJDIR)/info_.c
 
 $(OBJDIR)/info.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/interwiki_.c:	$(SRCDIR)/interwiki.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/interwiki.c >$@
+
+$(OBJDIR)/interwiki.o:	$(OBJDIR)/interwiki_.c $(OBJDIR)/interwiki.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/interwiki.o -c $(OBJDIR)/interwiki_.c
+
+$(OBJDIR)/interwiki.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/json_.c:	$(SRCDIR)/json.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json.c >$@
@@ -2037,6 +2088,22 @@ $(OBJDIR)/piechart.o:	$(OBJDIR)/piechart_.c $(OBJDIR)/piechart.h $(SRCDIR)/confi
 
 $(OBJDIR)/piechart.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/pikchr_.c:	$(SRCDIR)/pikchr.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/pikchr.c >$@
+
+$(OBJDIR)/pikchr.o:	$(OBJDIR)/pikchr_.c $(OBJDIR)/pikchr.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/pikchr.o -c $(OBJDIR)/pikchr_.c
+
+$(OBJDIR)/pikchr.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/pikchrshow_.c:	$(SRCDIR)/pikchrshow.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/pikchrshow.c >$@
+
+$(OBJDIR)/pikchrshow.o:	$(OBJDIR)/pikchrshow_.c $(OBJDIR)/pikchrshow.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/pikchrshow.o -c $(OBJDIR)/pikchrshow_.c
+
+$(OBJDIR)/pikchrshow.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/pivot.c >$@
 
@@ -2256,7 +2323,7 @@ $(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/style.c >$@
 
-$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(OBJDIR)/default_css.h $(SRCDIR)/config.h
+$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/style.o -c $(OBJDIR)/style_.c
 
 $(OBJDIR)/style.h:	$(OBJDIR)/headers
@@ -2444,14 +2511,6 @@ $(OBJDIR)/winhttp.o:	$(OBJDIR)/winhttp_.c $(OBJDIR)/winhttp.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/winhttp.o -c $(OBJDIR)/winhttp_.c
 
 $(OBJDIR)/winhttp.h:	$(OBJDIR)/headers
-
-$(OBJDIR)/wysiwyg_.c:	$(SRCDIR)/wysiwyg.c $(TRANSLATE)
-	$(TRANSLATE) $(SRCDIR)/wysiwyg.c >$@
-
-$(OBJDIR)/wysiwyg.o:	$(OBJDIR)/wysiwyg_.c $(OBJDIR)/wysiwyg.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/wysiwyg.o -c $(OBJDIR)/wysiwyg_.c
-
-$(OBJDIR)/wysiwyg.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/xfer_.c:	$(SRCDIR)/xfer.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/xfer.c >$@

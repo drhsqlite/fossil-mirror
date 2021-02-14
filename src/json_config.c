@@ -63,6 +63,8 @@ static const struct JsonConfigProperty {
 { "logo-image",             CONFIGSET_SKIN },
 { "background-mimetype",    CONFIGSET_SKIN },
 { "background-image",       CONFIGSET_SKIN },
+{ "icon-mimetype",          CONFIGSET_SKIN },
+{ "icon-image",             CONFIGSET_SKIN },
 { "timeline-block-markup",  CONFIGSET_SKIN },
 { "timeline-max-comment",   CONFIGSET_SKIN },
 { "timeline-plaintext",     CONFIGSET_SKIN },
@@ -83,7 +85,6 @@ static const struct JsonConfigProperty {
 { "crnl-glob",              CONFIGSET_PROJ },
 { "encoding-glob",          CONFIGSET_PROJ },
 { "empty-dirs",             CONFIGSET_PROJ },
-{ "allow-symlinks",         CONFIGSET_PROJ },
 { "dotfiles",               CONFIGSET_PROJ },
 
 { "ticket-table",           CONFIGSET_TKT  },

@@ -187,7 +187,7 @@ void shun_page(void){
   @ sight - set the "hidden" tag on such artifacts instead.</p>
   @
   @ <blockquote>
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+  @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
   @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid">
   if( zShun ){
@@ -214,7 +214,7 @@ void shun_page(void){
   @ operations.</p>
   @
   @ <blockquote>
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+  @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
   @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid">
   if( zAccept ){
@@ -239,7 +239,7 @@ void shun_page(void){
   @ two, so be patient after pressing the button.</p>
   @
   @ <blockquote>
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+  @ <form method="post" action="%R/%s(g.zPath)"><div>
   login_insert_csrf_secret();
   @ <input type="submit" name="rebuild" value="Rebuild" />
   @ </div></form>
@@ -265,7 +265,7 @@ void shun_page(void){
   }
   db_finalize(&q);
   @ </p></blockquote>
-  style_footer();
+  style_finish_page();
   fossil_free(zCanonical);
 }
 
@@ -405,7 +405,7 @@ void rcvfromlist_page(void){
   }
   db_finalize(&q);
   @ </table>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -551,5 +551,5 @@ void rcvfrom_page(void){
   }
   @ </table>
   db_finalize(&q);
-  style_footer();
+  style_finish_page();
 }

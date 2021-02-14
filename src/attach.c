@@ -47,6 +47,7 @@ void attachlist_page(void){
 
   if( zPage && zTkt ) zTkt = 0;
   login_check_credentials();
+  style_set_current_feature("attach");
   blob_zero(&sql);
   blob_append_sql(&sql,
      "SELECT datetime(mtime,toLocal()), src, target, filename,"
@@ -147,7 +148,7 @@ void attachlist_page(void){
   }
   db_finalize(&q);
   @ </ol>
-  style_footer();
+  style_finish_page();
   return;
 }
 
@@ -178,6 +179,7 @@ void attachview_page(void){
 
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
+  style_set_current_feature("attach");
   if( zPage ){
     if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
@@ -207,12 +209,12 @@ void attachview_page(void){
   if( zUUID==0 || zUUID[0]==0 ){
     style_header("No Such Attachment");
     @ No such attachment....
-    style_footer();
+    style_finish_page();
     return;
   }else if( zUUID[0]=='x' ){
     style_header("Missing");
     @ Attachment has been deleted
-    style_footer();
+    style_finish_page();
     return;
   }else{
     g.perm.Read = 1;
@@ -377,7 +379,7 @@ void attachadd_page(void){
     zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
                           zTkt, zTkt);
   }
-  if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
+  if( zFrom==0 ) zFrom = mprintf("%R/home");
   if( P("cancel") ){
     cgi_redirect(zFrom);
   }
@@ -388,6 +390,7 @@ void attachadd_page(void){
     attach_commit(zName, zTarget, aContent, szContent, needModerator, zComment);
     cgi_redirect(zFrom);
   }
+  style_set_current_feature("attach");
   style_header("Add Attachment");
   if( !goodCaptcha ){
     @ <p class="generalError">Error: Incorrect security code.</p>
@@ -412,7 +415,7 @@ void attachadd_page(void){
   @ </div>
   captcha_generate(0);
   @ </form>
-  style_footer();
+  style_finish_page();
   fossil_free(zTargetType);
 }
 
@@ -451,19 +454,6 @@ void ainfo_page(void){
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-#if 0
-  /* Shunning here needs to get both the attachment control artifact and
-  ** the object that is attached. */
-  if( g.perm.Admin ){
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%q'", zUuid) ){
-      style_submenu_element("Unshun", "%s/shun?uuid=%s&sub=1",
-            g.zTop, zUuid);
-    }else{
-      style_submenu_element("Shun", "%s/shun?shun=%s#addshun",
-            g.zTop, zUuid);
-    }
-  }
-#endif
   pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
   zTarget = pAttach->zAttachTarget;
@@ -554,6 +544,7 @@ void ainfo_page(void){
       moderation_approve('a', rid);
     }
   }
+  style_set_current_feature("attach");
   style_header("Attachment Details");
   style_submenu_element("Raw", "%R/artifact/%s", zUuid);
   if(fShowContent){
@@ -619,7 +610,7 @@ void ainfo_page(void){
     blob_to_utf8_no_bom(&attach, 0);
     z = blob_str(&attach);
     if( zLn ){
-      output_text_with_line_numbers(z, zLn);
+      output_text_with_line_numbers(z, blob_size(&attach), zName, zLn, 1);
     }else{
       @ <pre>
       @ %h(z)
@@ -637,7 +628,7 @@ void ainfo_page(void){
   @ </blockquote>
   manifest_destroy(pAttach);
   blob_reset(&attach);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -687,18 +678,19 @@ void attachment_list(
 **
 ** Usage: %fossil attachment add ?PAGENAME? FILENAME ?OPTIONS?
 **
-**       Add an attachment to an existing wiki page or tech note.
+** Add an attachment to an existing wiki page or tech note.
+** Options:
 **
-**       Options:
-**         -t|--technote DATETIME      Specifies the timestamp of
-**                                     the technote to which the attachment
-**                                     is to be made. The attachment will be
-**                                     to the most recently modified tech note
-**                                     with the specified timestamp.
-**         -t|--technote TECHNOTE-ID   Specifies the technote to be
-**                                     updated by its technote id.
+**    -t|--technote DATETIME      Specifies the timestamp of
+**                                the technote to which the attachment
+**                                is to be made. The attachment will be
+**                                to the most recently modified tech note
+**                                with the specified timestamp.
 **
-**       One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
+**    -t|--technote TECHNOTE-ID   Specifies the technote to be
+**                                updated by its technote id.
+**
+** One of PAGENAME, DATETIME or TECHNOTE-ID must be specified.
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by

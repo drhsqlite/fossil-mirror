@@ -14,7 +14,7 @@ artifacts are unordered, the order in which artifacts are received
 is unimportant.  It is assumed that the hash names
 of artifacts are unique - that every artifact has a different hash.
 To a first approximation, synchronization proceeds by sharing lists
-hash values for available artifacts, then sharing the content of artifacts
+of hashes for available artifacts, then sharing the content of artifacts
 whose names are missing from one side or the other of the connection.
 In practice, a repository might contain millions of artifacts.  The list of
 hash names for this many artifacts can be large.  So optimizations are
@@ -915,7 +915,7 @@ pull, the client attempts to keep the size of the request from
 growing too large by suppressing file cards once the
 size of the request reaches 1MB.</p>
 
-<h3>5.3 Sync</h3>
+<h3 id="sync">5.3 Sync</h3>
 
 <p>A sync is just a pull and a push that happen at the same time.
 The first three steps of a pull are combined with the first five steps

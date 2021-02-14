@@ -103,6 +103,8 @@ int length_of_S_display(void){
 #define etROOT       24 /* String value of g.zTop: %R */
 #define etJSONSTR    25 /* String encoded as a JSON string literal: %j
                            Use %!j to include double-quotes around it. */
+#define etSHELLESC   26 /* Escape a filename for use in a shell command: %$
+                           See blob_append_escaped_arg() for details */
 
 
 /*
@@ -134,9 +136,13 @@ typedef struct et_info {   /* Information about each format field */
 /*
 ** The following table is searched linearly, so it is good to put the
 ** most frequently used conversion types first.
+**
+** NB: When modifying this table is it vital that you also update the fmtchr[]
+** variable to match!!!
 */
 static const char aDigits[] = "0123456789ABCDEF0123456789abcdef";
 static const char aPrefix[] = "-x0\000X0";
+static const char fmtchr[] = "dsgzqQbBWhRtTwFSjcouxXfeEGin%p/$";
 static const et_info fmtinfo[] = {
   {  'd', 10, 1, etRADIX,      0,  0 },
   {  's',  0, 4, etSTRING,     0,  0 },
@@ -169,8 +175,23 @@ static const et_info fmtinfo[] = {
   {  '%',  0, 0, etPERCENT,    0,  0 },
   {  'p', 16, 0, etPOINTER,    0,  1 },
   {  '/',  0, 0, etPATH,       0,  0 },
+  {  '$',  0, 0, etSHELLESC,   0,  0 },
+  {  etERROR, 0,0,0,0,0}  /* Must be last */
 };
 #define etNINFO count(fmtinfo)
+
+/*
+** Verify that the fmtchr[] and fmtinfo[] arrays are in agreement.
+**
+** This routine is a defense against programming errors.
+*/
+void fossil_printf_selfcheck(void){
+  int i;
+  for(i=0; fmtchr[i]; i++){
+    assert( fmtchr[i]==fmtinfo[i].fmttype );
+  }
+}
+
 
 /*
 ** "*val" is a double such that 0.1 <= *val < 10.0
@@ -305,18 +326,20 @@ int vxprintf(
   etByte flag_rtz;           /* True if trailing zeros should be removed */
   etByte flag_exp;           /* True to force display of the exponent */
   int nsd;                   /* Number of significant digits returned */
+  char *zFmtLookup;
 
   count = length = 0;
   bufpt = 0;
   for(; (c=(*fmt))!=0; ++fmt){
     if( c!='%' ){
-      int amt;
       bufpt = (char *)fmt;
-      amt = 1;
-      while( (c=(*++fmt))!='%' && c!=0 ) amt++;
-      blob_append(pBlob,bufpt,amt);
-      count += amt;
-      if( c==0 ) break;
+#if HAVE_STRCHRNUL
+      fmt = strchrnul(fmt, '%');
+#else
+      do{ fmt++; }while( *fmt && *fmt != '%' );
+#endif
+      blob_append(pBlob, bufpt, (int)(fmt - bufpt));
+      if( *fmt==0 ) break;
     }
     if( (c=(*++fmt))==0 ){
       errorflag = 1;
@@ -389,14 +412,13 @@ int vxprintf(
       flag_long = flag_longlong = 0;
     }
     /* Fetch the info entry for the field */
-    infop = 0;
-    xtype = etERROR;
-    for(idx=0; idx<etNINFO; idx++){
-      if( c==fmtinfo[idx].fmttype ){
-        infop = &fmtinfo[idx];
-        xtype = infop->type;
-        break;
-      }
+    zFmtLookup = strchr(fmtchr,c);
+    if( zFmtLookup ){
+      infop = &fmtinfo[zFmtLookup-fmtchr];
+      xtype = infop->type;
+    }else{
+      infop = 0;
+      xtype = etERROR;
     }
     zExtra = 0;
 
@@ -816,6 +838,12 @@ int vxprintf(
         length = width = 0;
         break;
       }
+      case etSHELLESC: {
+        char *zArg = va_arg(ap, char*);
+        blob_append_escaped_arg(pBlob, zArg);
+        length = width = 0;
+        break;
+      }
       case etERROR:
         buf[0] = '%';
         buf[1] = c;
@@ -1068,10 +1096,20 @@ static int mainInFatalError = 0;
 */
 static int fossil_print_error(int rc, const char *z){
 #ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
+  if( g.json.isJsonMode!=0 ){
+    /*
+    ** Avoid calling into the JSON support subsystem if it
+    ** has not yet been initialized, e.g. early SQLite log
+    ** messages, etc.
+    */
+    assert(json_is_bootstrapped_early());
     json_err( 0, z, 1 );
-    if( g.isHTTP ){
+    if( g.isHTTP && !g.json.preserveRc ){
       rc = 0 /* avoid HTTP 500 */;
+    }
+    if( g.cgiOutput==1 ){
+      g.cgiOutput = 2;
+      cgi_reply();
     }
   }
   else
@@ -1080,10 +1118,12 @@ static int fossil_print_error(int rc, const char *z){
     g.cgiOutput = 2;
     cgi_reset_content();
     cgi_set_content_type("text/html");
+    style_set_current_feature("error");
     style_header("Bad Request");
+    etag_cancel();
     @ <p class="generalError">%h(z)</p>
     cgi_set_status(400, "Bad Request");
-    style_footer();
+    style_finish_page();
     cgi_reply();
   }else if( !g.fQuiet ){
     fossil_force_newline();
@@ -1130,9 +1170,12 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   exit(rc);
 }
 NORETURN void fossil_fatal(const char *zFormat, ...){
+  static int once = 0;
+  va_list ap;
   char *z;
   int rc = 1;
-  va_list ap;
+  if( once ) exit(1);
+  once = 1;
   mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
@@ -1183,12 +1226,19 @@ void fossil_warning(const char *zFormat, ...){
   va_end(ap);
   fossil_errorlog("warning: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
-  if(g.json.isJsonMode){
+  if( g.json.isJsonMode!=0 ){
+    /*
+    ** Avoid calling into the JSON support subsystem if it
+    ** has not yet been initialized, e.g. early SQLite log
+    ** messages, etc.
+    */
+    assert(json_is_bootstrapped_early());
     json_warn( FSL_JSON_W_UNKNOWN, "%s", z );
   }else
 #endif
   {
     if( g.cgiOutput==1 ){
+      etag_cancel();
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
     }else{
       fossil_force_newline();

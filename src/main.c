@@ -109,6 +109,7 @@ struct FossilUserPerms {
   char AdminForum;       /* 6: Grant capability 4 to other users */
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
+  char Chat;             /* C: read or write the chatroom */
   char Debug;            /* D: show extra Fossil debugging features */
   /* These last two are included to block infinite recursion */
   char XReader;          /* u: Inherit all privileges of "reader" */
@@ -184,6 +185,7 @@ struct Global {
   char *zBaseURL;         /* Full text of the URL being served */
   char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
+  int nExtraURL;          /* Extra bytes added to SCRIPT_NAME */
   const char *zExtRoot;   /* Document root for the /ext sub-website */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
@@ -210,8 +212,14 @@ struct Global {
   Blob httpHeader;        /* Complete text of the HTTP request header */
   UrlData url;            /* Information about current URL */
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
+  const char *zCkoutAlias;   /* doc/ uses this branch as an alias for "ckout" */
+  const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
+#if defined(_WIN32) && USE_SEE
+  const char *zPidKey;    /* Saved value of the --usepidkey option.  Only
+                           * applicable when using SEE on Windows. */
+#endif
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
@@ -262,6 +270,7 @@ struct Global {
   int mainTimerId;               /* Set to fossil_timer_start() */
   int nPendingRequest;           /* # of HTTP requests in "fossil server" */
   int nRequest;                  /* Total # of HTTP request */
+  int bAvoidDeltaManifests;      /* Avoid using delta manifests if true */
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -272,6 +281,9 @@ struct Global {
                                   exit() with code 0 to avoid an HTTP
                                   500 error.
                                */
+    int preserveRc;            /* Do not convert error codes into 0.
+                                * This is primarily intended for use
+                                * by the test suite. */
     int resultCode;            /* used for passing back specific codes
                                ** from /json callbacks. */
     int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
@@ -314,6 +326,7 @@ struct Global {
     int timerId;               /* fetched from fossil_timer_start() */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
+  int diffCnt[3];         /* Counts for DIFF_NUMSTAT: files, ins, del */
 };
 
 /*
@@ -338,7 +351,7 @@ static void fossil_atexit(void) {
   */
   db_unsave_encryption_key();
 #endif
-#if defined(_WIN32) || defined(__BIONIC__)
+#if defined(_WIN32) || defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS)
   /*
   ** Free the secure getpass() buffer now.
   */
@@ -377,7 +390,6 @@ static void fossil_atexit(void) {
     if( g.interp ){
       Th_DeleteInterp(g.interp); g.interp = 0;
     }
-    assert( Th_GetOutstandingMalloc()==0 );
   }
 }
 
@@ -632,7 +644,7 @@ static int fossilExeHasAppendedRepo(void){
   ** libFuzzer will supply main(). */
 #elif defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
   int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
-  int wmain(int argc, wchar_t **argv){ return fossil_main(argc, argv); }
+  int wmain(int argc, wchar_t **argv){ return fossil_main(argc,(char**)argv); }
 #elif defined(_WIN32)
   int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
   int main(int argc, char **argv){ return fossil_main(argc, argv); }
@@ -667,9 +679,10 @@ int fossil_main(int argc, char **argv){
   }
 #endif
 
+  fossil_printf_selfcheck();
   fossil_limit_memory(1);
-  if( sqlite3_libversion_number()<3014000 ){
-    fossil_panic("Unsuitable SQLite version %s, must be at least 3.14.0",
+  if( sqlite3_libversion_number()<3035000 ){
+    fossil_panic("Unsuitable SQLite version %s, must be at least 3.35.0",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -710,7 +723,7 @@ int fossil_main(int argc, char **argv){
       fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
     }
   }
-  if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
+  if( !find_option("nocgi", 0, 0) && fossil_getenv("GATEWAY_INTERFACE")!=0){
     zCmdName = "cgi";
     g.isHTTP = 1;
   }else if( g.argc<2 && !fossilExeHasAppendedRepo() ){
@@ -744,6 +757,9 @@ int fossil_main(int argc, char **argv){
     g.fSshClient = 0;
     g.zSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.preserveRc = find_option("json-preserve-rc", 0, 0)!=0;
+#endif
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
@@ -760,20 +776,41 @@ int fossil_main(int argc, char **argv){
     if( zChdir && file_chdir(zChdir, 0) ){
       fossil_fatal("unable to change directories to %s", zChdir);
     }
+#if defined(_WIN32) && USE_SEE
+    {
+      g.zPidKey = find_option("usepidkey",0,1);
+      if( g.zPidKey ){
+        DWORD processId = 0;
+        LPVOID pAddress = NULL;
+        SIZE_T nSize = 0;
+        parse_pid_key_value(g.zPidKey, &processId, &pAddress, &nSize);
+        db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+      }else{
+        const char *zSeeDbConfig = find_option("seedbcfg",0,1);
+        if( !zSeeDbConfig ){
+          zSeeDbConfig = fossil_getenv("FOSSIL_SEE_DB_CONFIG");
+        }
+        if( zSeeDbConfig ){
+          db_read_saved_encryption_key_from_process_via_th1(zSeeDbConfig);
+        }
+      }
+    }
+#endif
     if( find_option("help",0,0)!=0 ){
       /* If --help is found anywhere on the command line, translate the command
        * to "fossil help cmdname" where "cmdname" is the first argument that
        * does not begin with a "-" character.  If all arguments start with "-",
        * translate to "fossil help argv[1] argv[2]...". */
       int i, nNewArgc;
-      char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+2) );
+      char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+3) );
       zNewArgv[0] = g.argv[0];
       zNewArgv[1] = "help";
+      zNewArgv[2] = "-c";
       for(i=1; i<g.argc; i++){
         if( g.argv[i][0]!='-' ){
-          nNewArgc = 3;
-          zNewArgv[2] = g.argv[i];
-          zNewArgv[3] = 0;
+          nNewArgc = 4;
+          zNewArgv[3] = g.argv[i];
+          zNewArgv[4] = 0;
           break;
         }
       }
@@ -1158,9 +1195,7 @@ void fossil_version_blob(
 #if defined(FOSSIL_ENABLE_DELTA_CKSUM_TEST)
   blob_append(pOut, "FOSSIL_ENABLE_DELTA_CKSUM_TEST\n", -1);
 #endif
-#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
   blob_append(pOut, "FOSSIL_ENABLE_LEGACY_MV_RM\n", -1);
-#endif
 #if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
   blob_append(pOut, "FOSSIL_ENABLE_EXEC_REL_PATHS\n", -1);
 #endif
@@ -1190,6 +1225,7 @@ void fossil_version_blob(
 #if defined(FOSSIL_ENABLE_JSON)
   blob_appendf(pOut, "JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
+  blob_append(pOut, "MARKDOWN\n", -1);
 #if defined(BROKEN_MINGW_CMDLINE)
   blob_append(pOut, "MBCS_COMMAND_LINE\n", -1);
 #else
@@ -1240,7 +1276,7 @@ const char *get_user_agent(){
 /*
 ** COMMAND: version
 **
-** Usage: %fossil version ?-verbose|-v?
+** Usage: %fossil version ?-v|--verbose?
 **
 ** Print the source code version number for the fossil executable.
 ** If the verbose option is specified, additional details will
@@ -1280,7 +1316,7 @@ void test_version_page(void){
   @ <pre>
   @ %h(blob_str(&versionInfo))
   @ </pre>
-  style_footer();
+  style_finish_page();
 }
 
 
@@ -1304,6 +1340,9 @@ void set_base_url(const char *zAltBase){
   if( zAltBase ){
     int i, n, c;
     g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
+    i = (int)strlen(g.zBaseURL);
+    while( i>3 && g.zBaseURL[i-1]=='/' ){ i--; }
+    g.zBaseURL[i] = 0;
     if( strncmp(g.zTop, "http://", 7)==0 ){
       /* it is HTTP, replace prefix with HTTPS. */
       g.zHttpsURL = mprintf("https://%s", &g.zTop[7]);
@@ -1323,37 +1362,55 @@ void set_base_url(const char *zAltBase){
         }
       }
     }
+    if( n==2 ) g.zTop = "";
     if( g.zTop==g.zBaseURL ){
       fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
     }
     if( g.zTop[1]==0 ) g.zTop++;
   }else{
+    char *z;
     zHost = PD("HTTP_HOST","");
+    z = fossil_strdup(zHost);
+    for(i=0; z[i]; i++){
+      if( z[i]<='Z' && z[i]>='A' ) z[i] += 'a' - 'A';
+    }
+    if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
+    if( i && z[i-1]=='.' ) i--;
+    z[i] = 0;
     zMode = PD("HTTPS","off");
     zCur = PD("SCRIPT_NAME","/");
     i = strlen(zCur);
     while( i>0 && zCur[i-1]=='/' ) i--;
     if( fossil_stricmp(zMode,"on")==0 ){
-      g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
-      g.zTop = &g.zBaseURL[8+strlen(zHost)];
+      g.zBaseURL = mprintf("https://%s%.*s", z, i, zCur);
+      g.zTop = &g.zBaseURL[8+strlen(z)];
       g.zHttpsURL = g.zBaseURL;
     }else{
-      g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
-      g.zTop = &g.zBaseURL[7+strlen(zHost)];
-      g.zHttpsURL = mprintf("https://%s%.*s", zHost, i, zCur);
+      g.zBaseURL = mprintf("http://%s%.*s", z, i, zCur);
+      g.zTop = &g.zBaseURL[7+strlen(z)];
+      g.zHttpsURL = mprintf("https://%s%.*s", z, i, zCur);
     }
+    fossil_free(z);
   }
   if( db_is_writeable("repository") ){
-    if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", g.zBaseURL)){
+    int nBase = (int)strlen(g.zBaseURL);
+    char *zBase = g.zBaseURL;
+    if( g.nExtraURL>0 && g.nExtraURL<nBase-6 ){
+      zBase = fossil_strndup(g.zBaseURL, nBase - g.nExtraURL);
+    }
+    db_unprotect(PROTECT_CONFIG);
+    if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", zBase)){
       db_multi_exec("INSERT INTO config(name,value,mtime)"
-                    "VALUES('baseurl:%q',1,now())", g.zBaseURL);
+                    "VALUES('baseurl:%q',1,now())", zBase);
     }else{
       db_optional_sql("repository",
            "REPLACE INTO config(name,value,mtime)"
-           "VALUES('baseurl:%q',1,now())", g.zBaseURL
+           "VALUES('baseurl:%q',1,now())", zBase
       );
     }
+    db_protect_pop();
+    if( zBase!=g.zBaseURL ) fossil_free(zBase);
   }
 }
 
@@ -1361,7 +1418,7 @@ void set_base_url(const char *zAltBase){
 ** Send an HTTP redirect back to the designated Index Page.
 */
 NORETURN void fossil_redirect_home(void){
-  cgi_redirectf("%s%s", g.zTop, db_get("index-page", "/index"));
+  cgi_redirectf("%R%s", db_get("index-page", "/index"));
 }
 
 /*
@@ -1553,10 +1610,9 @@ static void process_one_web_page(
   ** it looks like the ssh_request_loop() approach to dispatching
   ** might bypass that.
   */
-  if( g.json.isJsonMode==0 && zPathInfo!=0
-      && 0==strncmp("/json",zPathInfo,5)
-      && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+  if( g.json.isJsonMode==0 && json_request_is_json_api(zPathInfo)!=0 ){
     g.json.isJsonMode = 1;
+    json_bootstrap_early();
   }
 #endif
   /* If the repository has not been opened already, then find the
@@ -1726,7 +1782,7 @@ static void process_one_web_page(
     ** name from the beginning of PATH_INFO.
     */
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
-    if( g.zTop ) g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+    if( g.zTop ) g.zTop = mprintf("%R%.*s", i, zPathInfo);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
     zPathInfo += i;
@@ -1754,9 +1810,20 @@ static void process_one_web_page(
 
   /* At this point, the appropriate repository database file will have
   ** been opened.
+  */
+
+
+  /*
+  ** Check to see if the first term of PATH_INFO specifies an alternative
+  ** skin.  This will be the case if the first term of PATH_INFO
+  ** begins with "draftN/" where N is an integer between 1 and 9 or
+  ** if it is "skn_X/" where X is one of the built-in skin names.
+  ** If either is true, then activate the alternative skin.a
   **
-  ** Check to see if the the PATH_INFO begins with "draft[1-9]" and if
-  ** so activate the special handling for draft skins
+  ** If there are multiple skn_X entries (ex: /skn_default/skn_ardoise/...)
+  ** then skip over all but the last.  This allows one to link to an
+  ** alternative skin in hyperlinks even if you are already in an alternative
+  ** skin.
   */
   if( zPathInfo && strncmp(zPathInfo,"/draft",6)==0
    && zPathInfo[6]>='1' && zPathInfo[6]<='9'
@@ -1766,12 +1833,36 @@ static void process_one_web_page(
     char *zNewScript;
     skin_use_draft(iSkin);
     zNewScript = mprintf("%T/draft%d", P("SCRIPT_NAME"), iSkin);
-    if( g.zTop ) g.zTop = mprintf("%s/draft%d", g.zTop, iSkin);
+    if( g.zTop ) g.zTop = mprintf("%R/draft%d", iSkin);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
     zPathInfo += 7;
+    g.nExtraURL += 7;
     cgi_replace_parameter("PATH_INFO", zPathInfo);
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
-  }
+    etag_cancel();
+  }else if( zPathInfo && strncmp(zPathInfo, "/skn_", 5)==0 ){
+    int i;
+    char *zAlt;
+    char *zErr;
+    char *z;
+    while( (z = strstr(zPathInfo+1,"/skn_"))!=0 ) zPathInfo = z;
+    for(i=5; zPathInfo[i] && zPathInfo[i]!='/'; i++){}
+    zAlt = mprintf("%.*s", i-5, zPathInfo+5);
+    zErr = skin_use_alternative(zAlt);
+    if( zErr ){
+      fossil_free(zErr);
+    }else{
+      char *zNewScript;
+      zNewScript = mprintf("%T/skn_%s", P("SCRIPT_NAME"), zAlt);
+      if( g.zTop ) g.zTop = mprintf("%R/skn_%s", zAlt);
+      if( g.zBaseURL ) g.zBaseURL = mprintf("%s/skn_%s", g.zBaseURL, zAlt);
+      zPathInfo += i;
+      g.nExtraURL += i;
+      cgi_replace_parameter("PATH_INFO", zPathInfo);
+      cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+    }
+    fossil_free(zAlt);
+  }  
 
   /* If the content type is application/x-fossil or 
   ** application/x-fossil-debug, then a sync/push/pull/clone is
@@ -1833,7 +1924,7 @@ static void process_one_web_page(
     ** lots of special-case handling in several JSON handlers.
     */
 #ifdef FOSSIL_ENABLE_JSON
-    if(!g.json.isJsonMode){
+    if(g.json.isJsonMode==0){
 #endif
       dehttpize(g.zExtra);
       cgi_set_parameter_nocopy("name", g.zExtra, 1);
@@ -1849,7 +1940,7 @@ static void process_one_web_page(
    && dispatch_alias(g.zPath-1, &pCmd)
   ){
 #ifdef FOSSIL_ENABLE_JSON
-    if(g.json.isJsonMode){
+    if(g.json.isJsonMode!=0){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
     }else
 #endif
@@ -1877,7 +1968,7 @@ static void process_one_web_page(
     }
   }else if( pCmd->xFunc!=page_xfer && db_schema_is_outofdate() ){
 #ifdef FOSSIL_ENABLE_JSON
-    if(g.json.isJsonMode){
+    if(g.json.isJsonMode!=0){
       json_err(FSL_JSON_E_DB_NEEDS_REBUILD,NULL,0);
     }else
 #endif
@@ -1887,6 +1978,14 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
+#ifdef FOSSIL_ENABLE_JSON
+    static int jsonOnce = 0;
+    if( jsonOnce==0 && g.json.isJsonMode!=0 ){
+      assert(json_is_bootstrapped_early());
+      json_bootstrap_late();
+      jsonOnce = 1;
+    }
+#endif
     if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
       cgi_decode_post_parameters();
     }
@@ -1943,16 +2042,43 @@ static void process_one_web_page(
 **    redirect:  repository-filename  http://hostname/path/%s
 **
 ** then control jumps here.  Search each repository for an artifact ID
-** or ticket ID that matches the "name" CGI parameter and for the
-** first match, redirect to the corresponding URL with the "name" CGI
-** parameter inserted.  Paint an error page if no match is found.
+** or ticket ID that matches the "name" query parameter.  If there is
+** no "name" query parameter, use PATH_INFO instead.  If a match is
+** found, redirect to the corresponding URL.  Substitute "%s" in the
+** URL with the value of the name query parameter before the redirect.
 **
 ** If there is a line of the form:
 **
 **    redirect: * URL
 **
-** Then a redirect is made to URL if no match is found.  Otherwise a
-** very primitive error message is returned.
+** Then a redirect is made to URL if no match is found.  If URL contains
+** "%s" then substitute the "name" query parameter.  If REPO is "*" and
+** URL does not contains "%s" and does not contain "?" then append
+** PATH_INFO and QUERY_STRING to the URL prior to the redirect.
+**
+** If no matches are found and if there is no "*" entry, then generate
+** a primitive error message.
+**
+** USE CASES:
+**
+** (1)  Suppose you have two related projects projA and projB.  You can
+**      use this feature to set up an /info page that covers both
+**      projects.
+**
+**          redirect: /fossils/projA.fossil /proj-a/info/%s
+**          redirect: /fossils/projB.fossil /proj-b/info/%s
+**
+**      Then visits to the /info/HASH page will redirect to the
+**      first project that contains that hash.
+**
+** (2)  Use the "*" form for to redirect legacy URLs.  On the Fossil
+**      website we have an CGI at http://fossil.com/index.html (note
+**      ".com" instead of ".org") that looks like this:
+**
+**          #!/usr/bin/fossil
+**          redirect: * https://fossil-scm.org/home
+**
+**      Thus requests to the .com website redirect to the .org website.
 */
 static void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
@@ -1960,26 +2086,40 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
   const char *zName = P("name");
   set_base_url(0);
   if( zName==0 ){
-    zName = P("SCRIPT_NAME");
+    zName = P("PATH_INFO");
     if( zName && zName[0]=='/' ) zName++;
   }
-  if( zName && validate16(zName, strlen(zName)) ){
+  if( zName ){
     for(i=0; i<nRedirect; i++){
       if( fossil_strcmp(azRedirect[i*2],"*")==0 ){
         zNotFound = azRedirect[i*2+1];
         continue;
+      }else if( validate16(zName, strlen(zName)) ){
+        db_open_repository(azRedirect[i*2]);
+        if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
+            db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'",zName) ){
+          cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
+          return;
+        }
+        db_close(1);
       }
-      db_open_repository(azRedirect[i*2]);
-      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
-          db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
-        cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
-        return;
-      }
-      db_close(1);
     }
   }
   if( zNotFound ){
-    cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
+    Blob to;
+    const char *z;
+    if( strstr(zNotFound, "%s") ){
+      cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
+    }
+    if( strchr(zNotFound, '?') ){
+      cgi_redirect(zNotFound);
+    }
+    blob_init(&to, zNotFound, -1);
+    z = P("PATH_INFO");
+    if( z && z[0]=='/' ) blob_append(&to, z, -1);
+    z = P("QUERY_STRING");
+    if( z && z[0]!=0 ) blob_appendf(&to, "?%s", z);
+    cgi_redirect(blob_str(&to));
   }else{
     @ <html>
     @ <head><title>No Such Object</title></head>
@@ -2062,10 +2202,17 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **                             processed in order.  If the REPO is "*", then
 **                             an unconditional redirect to URL is taken.
 **
+**    jsmode: VALUE            Specifies the delivery mode for JavaScript
+**                             files. See the help text for the --jsmode
+**                             flag of the http command.
+**
+**    mainmenu: FILE           Override the mainmenu config setting with the
+**                             contents of the given file.
+**
 ** Most CGI files contain only a "repository:" line.  It is uncommon to
 ** use any other option.
 **
-** See also: http, server, winsrv
+** See also: [[http]], [[server]], [[winsrv]]
 */
 void cmd_cgi(void){
   const char *zFile;
@@ -2237,6 +2384,32 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "jsmode:") && blob_token(&line, &value) ){
+      /* jsmode: MODE
+      **
+      ** Change how JavaScript resources are delivered with each HTML
+      ** page.  MODE is "inline" to put all JS inline, or "separate" to
+      ** cause each JS file to be requested using a separate HTTP request,
+      ** or "bundled" to have all JS files to be fetched with a single
+      ** auxiliary HTTP request. Noting, however, that "single" might
+      ** actually mean more than one, depending on the script-timing
+      ** requirements of any given page.
+      */
+      builtin_set_js_delivery_mode(blob_str(&value),0);
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "mainmenu:") && blob_token(&line, &value) ){
+      /* mainmenu: FILENAME
+      **
+      ** Use the contents of FILENAME as the value of the site's
+      ** "mainmenu" setting, overriding the contents (for this
+      ** request) of the db-side setting or the hard-coded default.
+      */
+      g.zMainMenuFile = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
     if( blob_eq(&key, "cgi-debug:") && blob_token(&line, &value) ){
       /* cgi-debug: FILENAME
       **
@@ -2349,6 +2522,39 @@ void parse_pid_key_value(
 #endif
 
 /*
+** WEBPAGE: test-pid
+**
+** Return the process identifier of the running Fossil server instance.
+**
+** Query parameters:
+**
+**   usepidkey           When present and available, also return the
+**                       address and size, within this server process,
+**                       of the saved database encryption key.  This
+**                       is only supported when using SEE on Windows.
+*/
+void test_pid_page(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){ login_needed(0); return; }
+#if defined(_WIN32) && USE_SEE
+  if( P("usepidkey")!=0 ){
+    if( g.zPidKey ){
+      @ %s(g.zPidKey)
+      return;
+    }else{
+      const char *zSavedKey = db_get_saved_encryption_key();
+      size_t savedKeySize = db_get_saved_encryption_key_size();
+      if( zSavedKey!=0 && savedKeySize>0 ){
+        @ %lu(GetCurrentProcessId()):%p(zSavedKey):%u(savedKeySize)
+        return;
+      }
+    }
+  }
+#endif
+  @ %d(GETPID())
+}
+
+/*
 ** COMMAND: http*
 **
 ** Usage: %fossil http ?REPOSITORY? ?OPTIONS?
@@ -2382,12 +2588,27 @@ void parse_pid_key_value(
 **
 ** Options:
 **   --baseurl URL    base URL (useful with reverse proxies)
+**   --ckout-alias N  Treat URIs of the form /doc/N/... as if they were
+**                       /doc/ckout/...
 **   --extroot DIR    document root for the /ext extension mechanism
 **   --files GLOB     comma-separate glob patterns for static file to serve
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --jsmode MODE       Determine how JavaScript is delivered with pages.
+**                       Mode can be one of:
+**                          inline       All JavaScript is inserted inline at
+**                                       one or more points in the HTML file.
+**                          separate     Separate HTTP requests are made for
+**                                       each JavaScript file.
+**                          bundled      Groups JavaScript files into one or
+**                                       more bundled requests which
+**                                       concatenate scripts together.
+**                       Depending on the needs of any given page, inline
+**                       and bundled modes might result in a single
+**                       amalgamated script or several, but both approaches
+**                       result in fewer HTTP requests than the separate mode.
 **   --localauth      enable automatic login for local connections
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
@@ -2399,10 +2620,12 @@ void parse_pid_key_value(
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
 **   --th-trace       trace TH1 execution (for debugging purposes)
+**   --mainmenu FILE  Override the mainmenu config setting with the contents
+**                    of the given file.
 **   --usepidkey      Use saved encryption key from parent process.  This is
 **                    only necessary when using SEE on Windows.
 **
-** See also: cgi, server, winsrv
+** See also: [[cgi]], [[server]], [[winsrv]]
 */
 void cmd_http(void){
   const char *zIpAddr = 0;
@@ -2415,11 +2638,9 @@ void cmd_http(void){
   int useSCGI;
   int noJail;
   int allowRepoList;
-#if defined(_WIN32) && USE_SEE
-  const char *zPidKey;
-#endif
 
   Th_InitTraceLog();
+  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -2441,6 +2662,7 @@ void cmd_http(void){
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   g.zExtRoot = find_option("extroot",0,1);
+  g.zCkoutAlias = find_option("ckout-alias",0,1);
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2467,17 +2689,10 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
-
-#if defined(_WIN32) && USE_SEE
-  zPidKey = find_option("usepidkey", 0, 1);
-  if( zPidKey ){
-    DWORD processId = 0;
-    LPVOID pAddress = NULL;
-    SIZE_T nSize = 0;
-    parse_pid_key_value(zPidKey, &processId, &pAddress, &nSize);
-    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+  g.zMainMenuFile = find_option("mainmenu",0,1);
+  if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
+    fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
-#endif
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2521,7 +2736,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** COMMAND: test-http
 **
-** Works like the http command but gives setup permission to all users.
+** Works like the [[http]] command but gives setup permission to all users.
 **
 ** Options:
 **   --th-trace          trace TH1 execution (for debugging purposes)
@@ -2548,6 +2763,7 @@ void cmd_test_http(void){
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
+  g.sslNotAvailable = 1;  /* Avoid attempts to redirect */
   zIpAddr = cgi_ssh_remote_addr(0);
   if( zIpAddr && zIpAddr[0] ){
     g.fSshClient |= CGI_SSH_CLIENT;
@@ -2558,31 +2774,6 @@ void cmd_test_http(void){
     process_one_web_page(0, 0, 1);
   }
 }
-
-#if !defined(_WIN32)
-#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
-/*
-** Search for an executable on the PATH environment variable.
-** Return true (1) if found and false (0) if not found.
-*/
-static int binaryOnPath(const char *zBinary){
-  const char *zPath = fossil_getenv("PATH");
-  char *zFull;
-  int i;
-  int bExists;
-  while( zPath && zPath[0] ){
-    while( zPath[0]==':' ) zPath++;
-    for(i=0; zPath[i] && zPath[i]!=':'; i++){}
-    zFull = mprintf("%.*s/%s", i, zPath, zBinary);
-    bExists = file_access(zFull, X_OK);
-    fossil_free(zFull);
-    if( bExists==0 ) return 1;
-    zPath += i;
-  }
-  return 0;
-}
-#endif
-#endif
 
 /*
 ** Respond to a SIGALRM by writing a message to the error log (if there
@@ -2654,6 +2845,8 @@ void fossil_set_timeout(int N){
 **
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
+**                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
@@ -2661,6 +2854,18 @@ void fossil_set_timeout(int N){
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
 **                       proxy that has already translated HTTPS into HTTP.
+**   --jsmode MODE       Determine how JavaScript is delivered with pages.
+**                       Mode can be one of:
+**                          inline       All JavaScript is inserted inline at
+**                                       the end of the HTML file.
+**                          separate     Separate HTTP requests are made for
+**                                       each JavaScript file.
+**                          bundled      One single separate HTTP fetches all
+**                                       JavaScript concatenated together.
+**                       Depending on the needs of any given page, inline
+**                       and bundled modes might result in a single
+**                       amalgamated script or several, but both approaches
+**                       result in fewer HTTP requests than the separate mode.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies
@@ -2674,10 +2879,12 @@ void fossil_set_timeout(int N){
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
+**   --mainmenu FILE     Override the mainmenu config setting with the contents
+**                       of the given file.
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
-** See also: cgi, http, winsrv
+** See also: [[cgi]], [[http]], [[winsrv]]
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
@@ -2697,9 +2904,6 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
-#if defined(_WIN32) && USE_SEE
-  const char *zPidKey;
-#endif
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2710,6 +2914,7 @@ void cmd_webserver(void){
     g.zErrlog = "-";
   }
   g.zExtRoot = find_option("extroot",0,1);
+  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
@@ -2746,18 +2951,11 @@ void cmd_webserver(void){
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
-
-#if defined(_WIN32) && USE_SEE
-  zPidKey = find_option("usepidkey", 0, 1);
-  if( zPidKey ){
-    DWORD processId = 0;
-    LPVOID pAddress = NULL;
-    SIZE_T nSize = 0;
-    parse_pid_key_value(zPidKey, &processId, &pAddress, &nSize);
-    db_read_saved_encryption_key_from_process(processId, pAddress, nSize);
+  g.zCkoutAlias = find_option("ckout-alias",0,1);
+  g.zMainMenuFile = find_option("mainmenu",0,1);
+  if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
+    fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
   }
-#endif
-
   /* We should be done with options.. */
   verify_all_options();
 
@@ -2796,23 +2994,7 @@ void cmd_webserver(void){
 #if !defined(_WIN32)
   /* Unix implementation */
   if( isUiCmd ){
-#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
-    zBrowser = db_get("web-browser", 0);
-    if( zBrowser==0 ){
-      static const char *const azBrowserProg[] =
-          { "xdg-open", "gnome-open", "firefox", "google-chrome" };
-      int i;
-      zBrowser = "echo";
-      for(i=0; i<count(azBrowserProg); i++){
-        if( binaryOnPath(azBrowserProg[i]) ){
-          zBrowser = azBrowserProg[i];
-          break;
-        }
-      }
-    }
-#else
-    zBrowser = db_get("web-browser", "open");
-#endif
+    zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s \"http://localhost:%%d/%s\" &",
                             zBrowser, zInitPage);
@@ -2875,7 +3057,7 @@ void cmd_webserver(void){
 #else
   /* Win32 implementation */
   if( isUiCmd ){
-    zBrowser = db_get("web-browser", "start");
+    zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
                             zBrowser, zInitPage);
@@ -2953,6 +3135,7 @@ void test_warning_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("test");
   style_header("Warning Test Page");
   style_submenu_element("Error Log","%R/errorlog");
   if( iCase<1 || iCase>4 ){
@@ -3001,5 +3184,5 @@ void test_warning_page(void){
   }
   @ </ol>
   @ <p>End of test</p>
-  style_footer();
+  style_finish_page();
 }

@@ -1,4 +1,4 @@
-# Differences Between Setup and Admin User
+# Differences Between Setup and Admin Users
 
 This document explains the distinction between [Setup users][caps] and
 [Admin users][capa]. For other information about use types, see:
@@ -48,8 +48,8 @@ choices.
 You can also look at the role of Admin from the other direction, up
 through the [user power hierarchy][ucap] rather than down from Setup. An
 Admin user is usually a “super-developer” role, given full control over
-the repository’s managed content: versioned artifacts in [the block
-chain][bc], [unversioned content][uv], forum posts, wiki articles,
+the repository’s managed content: versioned artifacts in [the hash tree][bc],
+[unversioned content][uv], forum posts, wiki articles,
 tickets, etc.
 
 We’ll explore these distinctions in the rest of this document.
@@ -160,18 +160,18 @@ Setup user:
 
     Coupled with the Rebuild button on the same page, an Admin user has
     the power to delete the repository's entire
-    [blockchain][bc]! This makes this feature a pretty good
+    [hash tree][bc]! This makes this feature a pretty good
     razor in deciding whether to grant someone Admin capability: do you
     trust that user to shun Fossil artifacts responsibly?
 
     Realize that shunning is cooperative in Fossil. As long as there are
     surviving repository clones, an Admin-only user who deletes the
-    whole blockchain has merely caused a nuisance. An Admin-only user
+    whole hash tree has merely caused a nuisance. An Admin-only user
     cannot permanently destroy the repository unless the Setup user has
     been so silly as to have no up-to-date clones.
 
-*   **Moderation**: According to the power hierarchy laid out at the top
-    of this article, Admins are greater than Moderators, so control over
+*   **Moderation**: According to [the user power hierarchy][ucap],
+    Admins are greater than Moderators, so control over
     what Moderators can do clearly belongs to both Admins and to the
     Setup user(s).
 
@@ -231,23 +231,23 @@ user with these powers, you should not grant that user Admin capability.
 
 ## <a name="clones"></a>Clones and Backups
 
-Keep in mind that Fossil is a *distributed* version control system,
-which means that a user known to Fossil might have Setup capability on
-one repository but be a mere "user" on one of its clones. The most
-common case is that when you clone a repository, even anonymously, you
-gain Setup power over the local clone.
+Fossil is a *distributed* version control system, which has direct
+effects on the “Setup user” concept in the face of clones. When you
+clone a repository, your local user becomes a Setup user on the local
+clone even if you are not one on the remote repository. This may be
+surprising to you, but it should also be sensible once you realize that
+your operating system will generally give you full control over the
+local repository file.  What use trying to apply remote restrictions on
+the local file, then?
 
 The distinctions above therefore are intransitive: they apply only
 within a single repository instance.
 
-The exception to this is when the clone is done as a Setup user, since
-this also copies the `user` table on the initial clone. A user with
-Setup capability can subsequently say [`fossil conf pull all`][fcp] to
-update that table and everything else not normally synchronized between
-Fossil repositories. In this way, a Setup user can create multiple
-interchangeable clones. This is useful not only to guard against rogue
-Admin-only users, it is a useful element of a load balancing and
-failover system.
+Fossil behaves differently when you do a clone as a user with Setup
+capability on the remote repository, which primarily has effects on the
+fidelity of clone-as-backup, which we cover [elsewhere](../backup.md).
+We strongly encourage you to read that document if you expect to use a
+clone as a complete replacement for the remote repository.
 
 
 ## <a name="apsu"></a>The All-Powerful Setup User
@@ -346,16 +346,16 @@ about half of its functions, but only Setup can use these pages:
 
 *   **SQL**: The Admin → SQL feature allows the Setup user to enter raw
     SQL queries against the Fossil repository via Fossil UI. This not
-    only allows arbitrary ability to modify the repository blockchain
+    only allows arbitrary ability to modify the repository hash tree
     and its backing data tables, it can probably also be used to damage
     the host such as via `PRAGMA temp_store = FILE`.
 
-*   **Tickets**: This section allows input of aribtrary TH1 code that
+*   **Tickets**: This section allows input of arbitrary TH1 code that
     runs on the server, affecting the way the Fossil ticketing system
     works. The justification in the **TH1** section below therefore
     applies.
 
-*   **TH1**: The [TH1 language][TH1] is quite restricted relative to the
+*   **TH1**: The [TH1 language][th1] is quite restricted relative to the
     Tcl language it descends from, so this author does not believe there
     is a way to damage the Fossil repository or its host via the Admin →
     TH1 feature, which allows execution of arbitrary TH1 code within the
@@ -396,9 +396,9 @@ deliberately, hopefully after careful consideration.
 
 ### <a name="y"></a>Write Unversioned
 
-Fossil currently doesn’t distinguish the sub-operations of [`fossil
-uv`](/help?cmd=uv); they’re all covered by [**WrUnver**][capy] (“y”)
-capability. Since some of these operations are unconditionally
+Fossil currently doesn’t distinguish the sub-operations of
+[`fossil uv`](/help?cmd=uv); they’re all covered by [**WrUnver**][capy]
+(“y”) capability. Since some of these operations are unconditionally
 destructive due to the nature of unversioned content, and since this
 goes against Fossil’s philosophy of immutable history, nobody gets cap
 “y” on a Fossil repo by default, not even the Setup or Admin users.  A
@@ -448,12 +448,14 @@ accidental push.
 [capx]: ./ref.html#x
 [capy]: ./ref.html#y
 
-[fcp]:   https://fossil-scm.org/fossil/help?cmd=configuration
+[fcp]:   https://fossil-scm.org/home/help?cmd=configuration
 [fdp]:   ../fossil-v-git.wiki#devorg
 [forum]: https://fossil-scm.org/forum/
 [fui]:   /help?cmd=ui
 [lg]:    ./login-groups.md
-[rs]:    https://www.fossil-scm.org/index.html/doc/trunk/www/settings.wiki
-[sia]:   https://fossil-scm.org/fossil/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
+[rs]:    https://fossil-scm.org/home/doc/trunk/www/settings.wiki
+[sia]:   https://fossil-scm.org/home/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
 [snoy]:  https://fossil-scm.org/forum/forumpost/00e1c4ecff
+[th1]:   ../th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
+[webo]:  ./#webonly

@@ -338,7 +338,7 @@ void page_dir(void){
   ** show the content of the README file.
   */
   if( P("noreadme")!=0 ){
-    style_footer();
+    style_finish_page();
     return;
   }
 
@@ -392,12 +392,14 @@ void page_dir(void){
         Blob content;
         const char *zMime = mimetype_from_name(zName);
         content_get(rid, &content);
+        safe_html_context(DOCSRC_FILE);
         wiki_render_by_mimetype(&content, zMime);
+        document_emit_js();
       }
     }
   }
   db_finalize(&q);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -786,12 +788,13 @@ void page_tree(void){
   }else{
     Stmt q;
     db_prepare(&q,
-      "SELECT filename.name, blob.uuid, max(event.mtime)\n"
-      "  FROM filename, mlink, blob, event\n"
-      " WHERE mlink.fnid=filename.fnid\n"
-      "   AND event.objid=mlink.mid\n"
-      "   AND blob.rid=mlink.fid\n"
-      " GROUP BY 1 ORDER BY 1 COLLATE nocase");
+      "SELECT\n"
+      "    (SELECT name FROM filename WHERE filename.fnid=mlink.fnid),\n"
+      "    (SELECT uuid FROM blob WHERE blob.rid=mlink.fid),\n"
+      "    max(event.mtime)\n"
+      "  FROM mlink JOIN event ON event.objid=mlink.mid\n"
+      " GROUP BY mlink.fnid\n"
+      " ORDER BY 1 COLLATE nocase;");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       const char *zUuid = db_column_text(&q,1);
@@ -912,8 +915,8 @@ void page_tree(void){
   }
   @ </ul>
   @ </ul></div>
-  style_load_one_js_file("tree.js");
-  style_footer();
+  builtin_request_js("tree.js");
+  style_finish_page();
 
   /* We could free memory used by sTree here if we needed to.  But
   ** the process is about to exit, so doing so would not really accomplish
@@ -956,12 +959,11 @@ static const char zComputeFileAgeSetup[] =
 
 static const char zComputeFileAgeRun[] =
 @ WITH RECURSIVE
-@   ckin(x,m) AS (SELECT objid, mtime FROM event WHERE objid=:ckin
-@                 UNION
-@                 SELECT plink.pid, event.mtime
-@                   FROM ckin, plink, event
-@                  WHERE plink.cid=ckin.x AND event.objid=plink.pid
-@                  ORDER BY 2 DESC)
+@  ckin(x) AS (VALUES(:ckin)
+@              UNION
+@              SELECT plink.pid
+@                FROM ckin, plink
+@               WHERE plink.cid=ckin.x)
 @ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
 @   SELECT filename.fnid, mlink.fid, mlink.mid, event.mtime, filename.name
 @     FROM foci, filename, blob, mlink, event
@@ -1167,5 +1169,5 @@ void fileage_page(void){
   @ </table></div>
   db_finalize(&q1);
   db_finalize(&q2);
-  style_footer();
+  style_finish_page();
 }

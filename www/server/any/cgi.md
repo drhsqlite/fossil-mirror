@@ -2,8 +2,10 @@
 
 A Fossil server can be run from most ordinary web servers as a CGI
 program.  This feature allows Fossil to seamlessly integrate into a
-larger website.  We use CGI for the [self-hosting Fossil repository web
-site](../../selfhost.wiki).
+larger website.  The [self-hosting Fossil repository web
+site](../../selfhost.wiki) is implemented using CGI.  See the
+[How CGI Works](../../aboutcgi.wiki) page for background information
+on the CGI protocol.
 
 To run Fossil as CGI, create a CGI script (here called "repo") in the
 CGI directory of your web server with content like this:

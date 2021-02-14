@@ -50,8 +50,8 @@ int main(int argc, char **argv){
   };
 
   /* Check minimum SQLite version number */
-  if( sqlite3_libversion_number()<3028000 ){
-    printf("found SQLite version %s but need 3.28.0 or later\n",
+  if( sqlite3_libversion_number()<3033000 ){
+    printf("found SQLite version %s but need 3.33.0 or later\n",
             sqlite3_libversion());
     return 1;
   }

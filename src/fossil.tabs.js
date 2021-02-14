@@ -5,17 +5,36 @@
         D = F.dom;
 
   /**
-     Creates a TabManager. If passed an argument, it is
-     passed to init().
+     Creates a TabManager. If passed a truthy first argument, it is
+     passed to init(). If passed a truthy second argument, it must be
+     an Object holding configuration options:
+
+     { 
+       tabAccessKeys: boolean (=true)
+          If true, tab buttons are assigned "accesskey" values
+          equal to their 1-based tab number.
+     }
   */
-  const TabManager = function(domElem){
+  const TabManager = function(domElem, options){
     this.e = {};
+    this.options = F.mergeLastWins(TabManager.defaultOptions , options);
     if(domElem) this.init(domElem);
   };
 
   /**
-     Internal helper to normalize a method argument
-     to a tab element.
+     Default values for the options object passed to the TabManager
+     constructor. Changing these affects the defaults of all
+     TabManager instances instantiated after that point.
+  */
+  TabManager.defaultOptions = {
+    tabAccessKeys: true
+  };
+
+  /**
+     Internal helper to normalize a method argument to a tab
+     element. arg may be a tab DOM element, a selector string, or an
+     index into tabMgr.e.tabs.childNodes. Returns the corresponding
+     tab element.
   */
   const tabArg = function(arg,tabMgr){
     if('string'===typeof arg) arg = E(arg);
@@ -25,6 +44,10 @@
     return arg;
   };
 
+  /**
+    Sets sets the visibility of tab element e to on or off. e MUST be
+    a TabManager tab element.
+  */
   const setVisible = function(e,yes){
     D[yes ? 'removeClass' : 'addClass'](e, 'hidden');
   };
@@ -35,12 +58,14 @@
        (DOM element or selector for a single element). This must be
        called once before using any other member functions of a given
        instance, noting that the constructor will call this if it is
-       passed an argument.       
+       passed an argument. 
 
        The tab container must have an 'id' attribute. This function
        looks through the DOM for all elements which have
        data-tab-parent=thatId. For each one it creates a button to
-       switch to that tab and moves the element into this.e.tabs.
+       switch to that tab and moves the element into this.e.tabs,
+       *possibly* injecting an intermediary element between
+       this.e.tabs and the element.
 
        The label for each tab is set by the data-tab-label attribute
        of each element, defaulting to something not terribly useful.
@@ -110,6 +135,14 @@
        Adds the given DOM element or unique selector as the next
        tab in the tab container, adding a button to switch to
        the tab. Returns this object.
+
+       If this object's options include a truthy tabAccessKeys then
+       each tab button gets assigned an accesskey attribute equal to
+       its 1-based index in the tab list. e.g. key 1 is the first tab
+       and key 5 is the 5th. Whether/how that accesskey is accessed is
+       dependent on the browser and its OS:
+
+       https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey
     */
     addTab: function f(tab){
       if(!f.click){
@@ -120,11 +153,15 @@
       tab = tabArg(tab);
       tab.remove();
       D.append(this.e.tabs, D.addClass(tab,'tab-panel'));
-      const lbl = tab.dataset.tabLabel || 'Tab #'+(this.e.tabs.childNodes.length-1);
+      const tabCount = this.e.tabBar.childNodes.length+1;
+      const lbl = tab.dataset.tabLabel || 'Tab #'+tabCount;
       const btn = D.addClass(D.append(D.span(), lbl), 'tab-button');
       D.append(this.e.tabBar,btn);
       btn.$manager = this;
       btn.$tab = tab;
+      if(this.options.tabAccessKeys){
+        D.attr(btn, 'accesskey', tabCount);
+      }
       btn.addEventListener('click', f.click, false);
       return this;
     },
@@ -167,6 +204,16 @@
     */
     addEventListener: function(eventName, callback){
       this.e.container.addEventListener(eventName, callback, false);
+      return this;
+    },
+
+    /**
+       Inserts the given DOM element immediately after the tab bar.
+       Intended for a status bar or similar always-visible component.
+       Returns this object.
+    */
+    addCustomWidget: function(e){
+      this.e.container.insertBefore(e, this.e.tabs);
       return this;
     },
 

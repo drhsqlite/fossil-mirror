@@ -37,7 +37,7 @@ Options:
   .ticktime.
 
   .onconfirm = function to call when clicked in confirm mode. Default
-  = undefined. The function's "this" is the the DOM element to which
+  = undefined. The function's "this" is the DOM element to which
   the countdown applies.
 
   .ontimeout = function to call when confirm is not issued. Default =
@@ -84,6 +84,17 @@ Options:
   then a default implementation is used which updates the element with
   the .confirmText, prepending a countdown to it.
 
+  .pinSize = if true AND confirmText is set, calculate the larger of
+  the element's original and confirmed size and pin it to the larger
+  of those sizes to avoid layout reflows when confirmation is
+  running. The pinning is implemented by setting its minWidth and
+  maxWidth style properties to the same value. This does not work if
+  the element text is updated dynamically via ontick(). This ONLY
+  works if the element is in the DOM and is not hidden (e.g. via
+  display:none) at the time this routine is called, otherwise we
+  cannot calculate its size. If the element needs to be hidden, hide
+  it after initializing the confirmer.
+
   .debug = boolean. If truthy, it sends some debug output to the dev
   console to track what it's doing.
 
@@ -101,12 +112,22 @@ Various notes:
   triggers the associated action at "just the right millisecond"
   before the timeout is triggered.
 
-TODO: add an invert option which activates if the timeout is reached
-and "times out" if the element is clicked again. e.g. a button which
-says "Saving..." and cancels the op if it's clicked again, else it
-saves after X time/ticks.
+TODO:
+
+- Add an invert option which activates if the timeout is reached and
+"times out" if the element is clicked again. e.g. a button which says
+"Saving..." and cancels the op if it's clicked again, else it saves
+after X time/ticks.
+
+- Internally we save/restore the initial text of non-INPUT elements
+using a relatively expensive bit of DOMParser hoop-jumping. We
+"should" instead move their child nodes aside (into an internal
+out-of-DOM element) and restore them as needed.
 
 Terse Change history:
+
+- 20200811
+  - Added pinSize option.
 
 - 20200507:
   - Add a tick-based countdown in order to more easily support
@@ -138,12 +159,34 @@ Terse Change history:
         const isInput = f.isInput(target);
         const updateText = function(msg){
           if(isInput) target.value = msg;
-          else target.innerHTML = msg;
+          else{
+            /* Jump through some hoops to avoid assigning to innerHTML... */
+            const newNode = new DOMParser().parseFromString(msg, 'text/html');
+            let childs = newNode.documentElement.querySelector('body');
+            childs = childs ? Array.prototype.slice.call(childs.childNodes, 0) : [];
+            target.innerText = '';
+            childs.forEach((e)=>target.appendChild(e));
+          }
+        }
+        const formatCountdown = (txt, number) => txt + " ["+number+"]";
+        if(opt.pinSize && opt.confirmText){
+          /* Try to pin the element's width the the greater of its
+             current width or its waiting-on-confirmation width
+             to avoid layout reflow when it's activated. */
+          const digits = (''+(opt.timeout/1000 || opt.ticks)).length;
+          const lblLong = formatCountdown(opt.confirmText, "00000000".substr(0,digits+1));
+          const w1 = parseInt(target.getBoundingClientRect().width);
+          updateText(lblLong);
+          const w2 = parseInt(target.getBoundingClientRect().width);
+          if(w1 || w2){
+            /* If target is not in visible part of the DOM, those values may be 0. */
+            target.style.minWidth = target.style.maxWidth = (w1>w2 ? w1 : w2)+"px";
+          }
         }
         updateText(this.opt.initialText);
         if(this.opt.ticks && !this.opt.ontick){
           this.opt.ontick = function(tick){
-            updateText("("+tick+") "+self.opt.confirmText);
+            updateText(formatCountdown(self.opt.confirmText,tick));
           };
         }
         this.setClasses(false);
@@ -270,11 +313,12 @@ Terse Change history:
      The default options for initConfirmer(). Tweak them to set the
      defaults. A couple of them (initialText and confirmText) are
      dynamically-generated, and can't reasonably be set in the
-     defaults.
+     defaults. Some, like ticks, cannot be set here because that would
+     end up indirectly replacing non-tick timeouts with ticks.
   */
   F.confirmer.defaultOpts = {
-    timeout:3000,
-    ticks: undefined,
+    timeout:undefined,
+    ticks: 3,
     ticktime: 998/*not *quite* 1000*/,
     onconfirm: undefined,
     ontimeout: undefined,

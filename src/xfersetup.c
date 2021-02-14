@@ -73,7 +73,7 @@ void xfersetup_page(void){
       free(zWarning);
     }
     @
-    @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+    @ <form method="post" action="%R/%s(g.zPath)"><div>
     login_insert_csrf_secret();
     @ <input type="submit" name="sync" value="%h(zButton)" />
     @ </div></form>
@@ -87,7 +87,7 @@ void xfersetup_page(void){
     }
   }
 
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -118,6 +118,7 @@ static void xfersetup_generic(
   if( z==0 ){
     z = db_get(zDbField, zDfltValue);
   }
+  style_set_current_feature("xfersetup");
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();
@@ -135,7 +136,7 @@ static void xfersetup_generic(
       cgi_redirect("xfersetup");
     }
   }
-  @ <form action="%s(g.zTop)/%s(g.zPath)" method="post"><div>
+  @ <form action="%R/%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
@@ -152,7 +153,7 @@ static void xfersetup_generic(
     @ %h(zDfltValue)
     @ </pre></blockquote>
   }
-  style_footer();
+  style_finish_page();
 }
 
 static const char *zDefaultXferCommon = 0;

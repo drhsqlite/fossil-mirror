@@ -123,7 +123,7 @@
   */
   const $stash = {
     keys: {
-      index: F.page.name+'/index'
+      index: F.page.name+'.index'
     },
     /**
        index: {
@@ -151,23 +151,8 @@
     getIndex: function(){
       if(!this.index){
         this.index = F.storage.getJSON(
-          this.keys.index, undefined
+          this.keys.index, {}
         );
-        if(!this.index){
-          /*check for and remove/replace older name. This whole block
-            can be removed once the test phase is done (don't want to
-            invalidate the testers' edits on the test server). When
-            doing so, be sure to replace undefined in the above
-            getJSON() call with {}. */
-          const oldName = F.page.name+':index';
-          this.index = F.storage.getJSON(oldName,undefined);
-          if(this.index){
-            F.storage.remove(oldName);
-            this.storeIndex();
-          }else{
-            this.index = {};
-          }
-        }
       }
       return this.index;
     },
@@ -302,26 +287,40 @@
       ),"Loading leaves...");
       D.disable(this.e.btnLoadFile, this.e.selectFiles, this.e.selectCi); 
       const self = this;
-      F.fetch('fileedit/filelist',{
-        urlParams:'leaves',
-        responseType: 'json',
-        onload: function(list){
-          D.append(D.clearElement(self.e.ciListLabel),
-                   "Open leaves (newest first):");
-          self.cache.checkins = list;
-          D.clearElement(D.enable(self.e.selectCi));
-          let loadThisOne;
-          list.forEach(function(o,n){
-            if(!n) loadThisOne = o;
-            self.cache.branchNames[F.hashDigits(o.checkin,true)] = o.branch;
-            D.option(self.e.selectCi, o.checkin,
-                     o.timestamp+' ['+o.branch+']: '
-                     +F.hashDigits(o.checkin));
-          });
-          F.storage.setJSON(self.cache.branchKey, self.cache.branchNames);
-          self.loadFiles(loadThisOne ? loadThisOne.checkin : false);
+      const onload = function(list){
+        D.append(D.clearElement(self.e.ciListLabel),
+                 "Open leaves (newest first):");
+        self.cache.checkins = list;
+        D.clearElement(D.enable(self.e.selectCi));
+        let loadThisOne = P.initialFiles/*possibly injected at page-load time*/;
+        if(loadThisOne){
+          self.cache.files[loadThisOne.checkin] = loadThisOne;
+          delete P.initialFiles;
         }
-      });
+        list.forEach(function(o,n){
+          if(!n && !loadThisOne) loadThisOne = o;
+          self.cache.branchNames[F.hashDigits(o.checkin,true)] = o.branch;
+          D.option(self.e.selectCi, o.checkin,
+                   o.timestamp+' ['+o.branch+']: '
+                   +F.hashDigits(o.checkin));
+        });
+        F.storage.setJSON(self.cache.branchKey, self.cache.branchNames);
+        if(loadThisOne){
+          self.e.selectCi.value = loadThisOne.checkin;
+        }
+        self.loadFiles(loadThisOne ? loadThisOne.checkin : false);
+      };
+      if(P.initialLeaves/*injected at page-load time.*/){
+        const lv = P.initialLeaves;
+        delete P.initialLeaves;
+        onload(lv);
+      }else{
+        F.fetch('fileedit/filelist',{
+          urlParams:'leaves',
+          responseType: 'json',
+          onload: onload
+        });
+      }
     },
     /**
        Loads the file list for the given checkin UUID. It uses a
@@ -389,7 +388,7 @@
     */
     init: function(){
       this.cache.branchNames = F.storage.getJSON(this.cache.branchKey, {});
-      const selCi = this.e.selectCi = D.select(),
+      const selCi = this.e.selectCi = D.addClass(D.select(), 'flex-grow'),
             selFiles = this.e.selectFiles
             = D.addClass(D.select(), 'file-list'),
             btnLoad = this.e.btnLoadFile =
@@ -398,7 +397,7 @@
             D.addClass(D.div(),'flex-shrink','file-list-label'),
             ciLabelWrapper = D.addClass(
               D.div(), 'flex-container','flex-row', 'flex-shrink',
-              'stretch'
+              'stretch', 'child-gap-small'
             ),
             btnReload = D.addClass(
               D.button('Reload'), 'flex-shrink'
@@ -412,28 +411,43 @@
       D.attr(btnLoad, 'title',
              "Load the selected file into the editor.");
       D.disable(selCi, selFiles, btnLoad);
-      D.attr(selFiles, 'size', 10);
+      D.attr(selFiles, 'size', 12);
       D.append(
         this.e.container,
+        ciLabel,
         D.append(ciLabelWrapper,
-                 btnReload, ciLabel),
-        selCi,
+                 selCi,
+                 btnReload),
         filesLabel,
         selFiles,
-        btnLoad
+        /* Use a wrapper for btnLoad so that the button itself does not
+          stretch to fill the parent width: */
+        D.append(D.addClass(D.div(), 'flex-shrink'), btnLoad)
       );
+      if(F.config['fileedit-glob']){
+        D.append(
+          this.e.container,
+          D.append(
+            D.span(),
+            D.append(D.code(),"fileedit-glob"),
+            " config setting = ",
+            D.append(D.code(), JSON.stringify(F.config['fileedit-glob']))
+          )
+        );
+      }
+
       this.loadLeaves();
       selCi.addEventListener(
         'change', (e)=>this.loadFiles(e.target.value), false
       );
-      btnLoad.addEventListener(
-        'click', (e)=>{
-          this.finfo.filename = selFiles.value;
-          if(this.finfo.filename){
-            P.loadFile(this.finfo.filename, this.finfo.checkin);
-          }
-        }, false
-      );
+      const doLoad = (e)=>{
+        this.finfo.filename = selFiles.value;
+        if(this.finfo.filename){
+          P.loadFile(this.finfo.filename, this.finfo.checkin);
+        }
+      };
+      btnLoad.addEventListener('click', doLoad, false);
+      selFiles.addEventListener('dblclick', doLoad, false);
       btnReload.addEventListener(
         'click', (e)=>this.loadLeaves(), false
       );
@@ -452,30 +466,28 @@
         'input-with-label'
       );
       const sel = this.e.select = D.select();
-      const btnClear = this.e.btnClear
-            = D.addClass(D.button("Clear"),'hidden');
+      const btnClear = this.e.btnClear = D.button("Discard Edits"),
+            btnHelp = D.append(
+              D.addClass(D.div(), "help-buttonlet"),
+              'Locally-edited files. Timestamps are the last local edit time. ',
+              'Only the ',P.config.defaultMaxStashSize,' most recent files ',
+              'are retained. Saving or reloading a file removes it from this list. ',
+              D.append(D.code(),F.storage.storageImplName()),
+              ' = ',F.storage.storageHelpDescription()
+            );
+
       D.append(wrapper, "Local edits (",
                D.append(D.code(),
                         F.storage.storageImplName()),
                "):",
-               sel, btnClear);
-      D.attr(wrapper, "title", [
-        'Locally-edited files. Timestamps are the last local edit time.',
-        'Only the',P.config.defaultMaxStashSize,'most recent checkin/file',
-        'combinations are retained.',
-        'Committing or reloading a file removes it from this list.'
-      ].join(' '));
-      D.option(D.disable(sel), "(empty)");
+               btnHelp, sel, btnClear);
+      F.helpButtonlets.setup(btnHelp);
+      D.option(D.disable(sel), undefined, "(empty)");
       F.page.addEventListener('fileedit-stash-updated',(e)=>this.updateList(e.detail));
       F.page.addEventListener('fileedit-file-loaded',(e)=>this.updateList($stash, e.detail));
       sel.addEventListener('change',function(e){
         const opt = this.selectedOptions[0];
         if(opt && opt._finfo) P.loadFile(opt._finfo);
-      });
-      F.confirmer(btnClear, {
-        confirmText: "REALLY delete ALL local edits?",
-        onconfirm: (e)=>P.clearStash().loadFile(/*in case P.finfo() was in the stash*/),
-        ticks: 3
       });
       if(F.storage.isTransient()){/*Warn if our storage is particularly transient...*/
         D.append(wrapper, D.append(
@@ -485,7 +497,25 @@
         ));
       }
       domInsertPoint.parentNode.insertBefore(wrapper, domInsertPoint);
+      P.tabs.switchToTab(1/*DOM visibility workaround*/);
+      F.confirmer(btnClear, {
+        /* must come after insertion into the DOM for the pinSize option to work. */
+        pinSize: true,
+        confirmText: "DISCARD all local edits?",
+        onconfirm: function(e){
+          if(P.finfo){
+            const stashed = P.getStashedFinfo(P.finfo);
+            P.clearStash();
+            if(stashed) P.loadFile(/*reload after discarding edits*/);
+          }else{
+            P.clearStash();
+          }
+        },
+        ticks: F.config.confirmerButtonTicks
+      });
+      D.addClass(this.e.btnClear,'hidden' /* must not be set until after confirmer is set up!*/);
       $stash._fireStashEvent(/*read the page-load-time stash*/);
+      P.tabs.switchToTab(0/*DOM visibility workaround*/);
       delete this.init;
     },
     /**
@@ -515,13 +545,13 @@
       D.clearElement(this.e.select);
       if(0===ilist.length){
         D.addClass(this.e.btnClear, 'hidden');
-        D.option(D.disable(this.e.select),"No local edits");
+        D.option(D.disable(this.e.select),undefined,"No local edits");
         return;
       }
       D.enable(this.e.select);
       D.removeClass(this.e.btnClear, 'hidden');
       D.disable(D.option(this.e.select,0,"Select a local edit..."));
-      const currentFinfo = theFinfo || P.finfo || {};
+      const currentFinfo = theFinfo || P.finfo || {filename:''};
       ilist.sort(f.compare).forEach(function(finfo,n){
         const key = stasher.indexKey(finfo),
               branch = finfo.branch
@@ -530,7 +560,7 @@
            which P.fileSelectWidget() has never seen/cached. */
         const opt = D.option(
           self.e.select, n+1/*value is (almost) irrelevant*/,
-          [F.hashDigits(finfo.checkin, 6), ' [',branch||'?branch?','] ',
+          [F.hashDigits(finfo.checkin), ' [',branch||'?branch?','] ',
            f.timestring(new Date(finfo.stashTime)),' ',
            false ? finfo.filename : F.shortenFilename(finfo.filename)
           ].join('')
@@ -615,7 +645,7 @@
   F.onPageLoad(function() {
     P.base = {tag: E('base')};
     P.base.originalHref = P.base.tag.href;
-    P.tabs = new fossil.TabManager('#fileedit-tabs');
+    P.tabs = new F.TabManager('#fileedit-tabs');
     P.e = { /* various DOM elements we work with... */
       taEditor: E('#fileedit-content-editor'),
       taCommentSmall: E('#fileedit-comment'),
@@ -631,13 +661,13 @@
       selectFontSizeWrap: E('#select-font-size'),
       selectDiffWS:  E('select[name=diff_ws]'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
-      cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
+      cbAutoPreview: E('#cb-preview-autorefresh'),
       previewTarget: E('#fileedit-tab-preview-wrapper'),
       manifestTarget: E('#fileedit-manifest'),
       diffTarget: E('#fileedit-tab-diff-wrapper'),
       cbIsExe: E('input[type=checkbox][name=exec_bit]'),
       cbManifest: E('input[type=checkbox][name=include_manifest]'),
-      fsFileVersionDetails: E('#file-version-details'),
+      editStatus: E('#fileedit-edit-status'),
       tabs:{
         content: E('#fileedit-tab-content'),
         preview: E('#fileedit-tab-preview'),
@@ -659,20 +689,15 @@
       D.addClass(P.e.taCommentBig, 'hidden');
     }
     D.removeClass(P.e.taComment, 'hidden');
-
-    P.tabs.e.container.insertBefore(
-      /* Move the status bar between the tab buttons and
-         tab panels. Seems to be the best fit in terms of
-         functionality and visibility. */
-      E('#fossil-status-bar'), P.tabs.e.tabs
-    );
-
+    P.tabs.addCustomWidget( E('#fossil-status-bar') ).addCustomWidget(P.e.editStatus);
+    let currentTab/*used for ctrl-enter switch between editor and preview*/;
     P.tabs.addEventListener(
       /* Set up auto-refresh of the preview tab... */
       'before-switch-to', function(ev){
+        currentTab = ev.detail;
         if(ev.detail===P.e.tabs.preview){
           P.baseHrefForFile();
-          if(P.e.cbAutoPreview.checked) P.preview();
+          if(P.previewNeedsUpdate && P.e.cbAutoPreview.checked) P.preview();
         }else if(ev.detail===P.e.tabs.diff){
           /* Work around a weird bug where the page gets wider than
              the window when the diff tab is NOT in view and the
@@ -697,6 +722,33 @@
         }
       }
     );
+    ////////////////////////////////////////////////////////////
+    // Trigger preview on Ctrl-Enter. This only works on the built-in
+    // editor widget, not a client-provided one.
+    P.e.taEditor.addEventListener('keydown',function(ev){
+      if(ev.ctrlKey && 13 === ev.keyCode){
+        ev.preventDefault();
+        ev.stopPropagation();
+        P.e.taEditor.blur(/*force change event, if needed*/);
+        P.tabs.switchToTab(P.e.tabs.preview);
+        if(!P.e.cbAutoPreview.checked){/* If NOT in auto-preview mode, trigger an update. */
+          P.preview();
+        }
+      }
+    }, false);
+    // If we're in the preview tab, have ctrl-enter switch back to the editor.
+    document.body.addEventListener('keydown',function(ev){
+      if(ev.ctrlKey && 13 === ev.keyCode){
+        if(currentTab === P.e.tabs.preview){
+          //ev.preventDefault();
+          //ev.stopPropagation();
+          P.tabs.switchToTab(P.e.tabs.content);
+          P.e.taEditor.focus(/*doesn't work for client-supplied editor widget!
+                              And it's slow as molasses for long docs, as focus()
+                              forces a document reflow.*/);
+        }
+      }
+    }, true);
 
     F.connectPagePreviewers(
       P.e.tabs.preview.querySelector(
@@ -714,18 +766,18 @@
     P.e.btnCommit.addEventListener(
       "click",(e)=>P.commit(), false
     );
+    P.tabs.switchToTab(1/*DOM visibility workaround*/);
     F.confirmer(P.e.btnReload, {
+      pinSize: true,
       confirmText: "Really reload, losing edits?",
       onconfirm: (e)=>P.unstashContent().loadFile(),
-      ticks: 3
+      ticks: F.config.confirmerButtonTicks
     });
     E('#comment-toggle').addEventListener(
       "click",(e)=>P.toggleCommentMode(), false
     );
 
-    P.e.taEditor.addEventListener(
-      'change', ()=>P.stashContentChange(), false
-    );
+    P.e.taEditor.addEventListener('change', ()=>P.notifyOfChange(), false);
     P.e.cbIsExe.addEventListener(
       'change', ()=>P.stashContentChange(true), false
     );
@@ -774,7 +826,10 @@
     P.addEventListener(
       // Clear certain views when new content is loaded/set
       'fileedit-content-replaced',
-      ()=>D.clearElement(P.e.diffTarget, P.e.previewTarget, P.e.manifestTarget)
+      ()=>{
+        P.previewNeedsUpdate = true;
+        D.clearElement(P.e.diffTarget, P.e.previewTarget, P.e.manifestTarget);
+      }
     );
     P.addEventListener(
       // Clear certain views after a non-dry-run commit
@@ -789,7 +844,6 @@
     P.fileSelectWidget.init();
     P.stashWidget.init(
       P.e.tabs.content.lastElementChild
-      //P.e.tabs.fileSelect.querySelector("h1")
     );
   }/*F.onPageLoad()*/);
 
@@ -819,10 +873,27 @@
      custom widget. They will be triggered via
      P.fileContent(). Returns this object.
   */
-  P.setFileContentMethods = function(getter, setter){
+  P.setContentMethods = function(getter, setter){
     this.fileContent.get = getter;
     this.fileContent.set = setter;
     return this;
+  };
+
+  /**
+     Alerts the editor app that a "change" has happened in the editor.
+     When connecting 3rd-party editor widgets to this app, it is (or
+     may be) necessary to call this for any "change" events the widget
+     emits.  Whether or not "change" means that there were "really"
+     edits is irrelevant.
+
+     This function may perform an arbitrary amount of work, so it
+     should not be called for every keypress within the editor
+     widget. Calling it for "blur" events is generally sufficient, and
+     calling it for each Enter keypress is generally reasonable but
+     also computationally costly.
+  */
+  P.notifyOfChange = function(){
+    P.stashContentChange();
   };
 
   /**
@@ -929,59 +1000,51 @@
 
      Returns this object.
   */
-  P.updateVersion = function(file,rev){
+  P.updateVersion = function f(file,rev){
+    if(!f.eLinks){
+      f.eName = P.e.editStatus.querySelector('span.name');
+      f.eLinks = P.e.editStatus.querySelector('span.links');
+    }
     if(1===arguments.length){/*assume object*/
       this.finfo = arguments[0];
       file = this.finfo.filename;
       rev = this.finfo.checkin;
     }else if(0===arguments.length){
-      if(!affirmHasFile()) return this;
-      file = this.finfo.filename;
-      rev = this.finfo.checkin;
+      if(affirmHasFile()){
+        file = this.finfo.filename;
+        rev = this.finfo.checkin;
+      }
     }else{
       this.finfo = {filename:file,checkin:rev};
     }
-    const eTgt = this.e.fsFileVersionDetails.querySelector('div'),
-          rHuman = F.hashDigits(rev),
+    const fi = this.finfo;
+    D.clearElement(f.eName, f.eLinks);
+    if(!fi){
+      D.append(f.eName, '(no file loaded)');
+      return this;
+    }
+    const rHuman = F.hashDigits(rev),
           rUrl = F.hashDigits(rev,true);
-    D.clearElement(eTgt);
+
+    //TODO? port over is-edited marker from /wikiedit
+    //var marker = getEditMarker(wi, false);
+    D.append(f.eName/*,marker*/,D.a(F.repoUrl('finfo',{name:file, m:rUrl}), file));
+
     D.append(
-      eTgt, "File: ",
-      D.append(D.code(),
-               D.a(F.repoUrl('finfo',{name:file, m:rUrl}), file)),
-      D.br()
-    );
-    D.append(
-      eTgt, "Checkin: ",
-      D.append(D.code(), D.a(F.repoUrl('info/'+rUrl), rHuman)),
-      " [",D.a(F.repoUrl('timeline',{m:rUrl}), "timeline"),"]",
-      D.br()
-    );
-    D.append(
-      eTgt, "Mimetype: ",
-      D.append(D.code(), this.finfo.mimetype||'???'),
-      D.br()
-    );
-    D.append(
-      eTgt,
-      D.append(D.code(), "[",
-               D.a(F.repoUrl('annotate',{filename:file, checkin:rUrl}),
-                   'annotate'), "]"),
-      D.append(D.code(), "[",
-               D.a(F.repoUrl('blame',{filename:file, checkin:rUrl}),
-                   'blame'), "]")
+      f.eLinks,
+      D.append(D.span(), fi.mimetype||'?mimetype?'),
+      D.a(F.repoUrl('info/'+rUrl), rHuman),
+      D.a(F.repoUrl('timeline',{m:rUrl}), "timeline"),
+      D.a(F.repoUrl('annotate',{filename:file, checkin:rUrl}),'annotate'),
+      D.a(F.repoUrl('blame',{filename:file, checkin:rUrl}),'blame')
     );
     const purlArgs = F.encodeUrlArgs({
       filename: this.finfo.filename,
       checkin: rUrl
     },false,true);
     const purl = F.repoUrl('fileedit',purlArgs);
-    D.append(
-      eTgt,
-      D.append(D.code(),
-               "[",D.a(purl,"Editor permalink"),"]")
-    );
-    this.setPageTitle("Edit: "+this.finfo.filename);
+    D.append( f.eLinks, D.a(purl,"editor permalink") );
+    this.setPageTitle("Edit: "+fi.filename);
     return this;
   };
 
@@ -1032,6 +1095,7 @@
       self.tabs.switchToTab(self.e.tabs.content);
       self.e.cbIsExe.checked = self.finfo.isExe;
       self.fileContent(r);
+      P.previewNeedsUpdate = true;
       self.dispatchEvent('fileedit-file-loaded', self.finfo);
     };
     const semiFinfo = {filename: file, checkin: rev};
@@ -1079,16 +1143,25 @@
   */
   P.preview = function f(switchToTab){
     if(!affirmHasFile()) return this;
-    const target = this.e.previewTarget,
-          self = this;
-    const updateView = function(c){
-      D.clearElement(target);
-      if('string'===typeof c) target.innerHTML = c;
+    return this._postPreview(this.fileContent(), function(c){
+      P._previewTo(c);
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
-    };
-    return this._postPreview(this.fileContent(), updateView);
+    });
   };
 
+    /**
+     Callback for use with F.connectPagePreviewers(). Gets passed
+     the preview content.
+  */
+  P._previewTo = function(c){
+    const target = this.e.previewTarget;
+    D.clearElement(target);
+    if('string'===typeof c) D.parseHtml(target,c);
+    if(F.pikchr){
+      F.pikchr.addSrcView(target.querySelectorAll('svg.pikchr'));
+    }
+  };
+  
   /**
      Callback for use with F.connectPagePreviewers()
   */
@@ -1106,15 +1179,16 @@
     fd.append('content',content || '');
     F.message(
       "Fetching preview..."
-    ).fetch('fileedit/preview',{
+    ).fetch('ajax/preview-text',{
       payload: fd,
-      responseHeaders: 'x-fileedit-render-mode',
+      responseHeaders: 'x-ajax-render-mode',
       onload: (r,header)=>{
         P.selectPreviewMode(P.previewModes[header]);
         if('wiki'===header) P.baseHrefForFile();
         else P.baseHrefRestore();
         callback(r);
         F.message('Updated preview.');
+        P.previewNeedsUpdate = false;
         P.dispatchEvent('fileedit-preview-updated',{
           previewMode: P.previewModes.current,
           mimetype: P.finfo.mimetype,
@@ -1122,7 +1196,7 @@
         });
       },
       onerror: (e)=>{
-        fossil.fetch.onerror(e);
+        F.fetch.onerror(e);
         callback("Error fetching preview: "+e);
       }
     });
@@ -1170,12 +1244,12 @@
     ).fetch('fileedit/diff',{
       payload: fd,
       onload: function(c){
-        target.innerHTML = [
+        D.parseHtml(D.clearElement(target),[
           "<div>Diff <code>[",
           self.finfo.checkin,
           "]</code> &rarr; Local Edits</div>",
           c||'No changes.'
-        ].join('');
+        ].join(''));
         if(sbs) P.tweakSbsDiffs2();
         F.message('Updated diff.');
         self.tabs.switchToTab(self.e.tabs.diff);
@@ -1202,14 +1276,17 @@
       f.onload = function(c){
         const oldFinfo = JSON.parse(JSON.stringify(self.finfo))
         if(c.manifest){
-          target.innerHTML = [
+          D.parseHtml(D.clearElement(target), [
             "<h3>Manifest",
             (c.dryRun?" (dry run)":""),
             ": ", F.hashDigits(c.checkin),"</h3>",
-            "<code class='fileedit-manifest'>",
-            c.manifest,
+            "<pre><code class='fileedit-manifest'>",
+            c.manifest.replace(/</g,'&lt;'),
+            /* ^^^ replace() necessary or this breaks if the manifest
+               comment contains an unclosed HTML tags,
+               e.g. <script> */
             "</code></pre>"
-          ].join('');
+          ].join(''));
           delete c.manifest/*so we don't stash this with finfo*/;
         }
         const msg = [
@@ -1290,6 +1367,7 @@
       }
       F.message("Stashed change to",F.hashDigits(fi.checkin),fi.filename);
       $stash.prune();
+      this.previewNeedsUpdate = true;
     }
     return this;
   };
@@ -1301,6 +1379,7 @@
   P.unstashContent = function(){
     const finfo = arguments[0] || this.finfo;
     if(finfo){
+      this.previewNeedsUpdate = true;
       $stash.unstash(finfo);
       //console.debug("Unstashed",finfo);
       F.message("Unstashed",F.hashDigits(finfo.checkin),finfo.filename);

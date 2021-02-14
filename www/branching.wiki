@@ -4,11 +4,16 @@
 In a simple and perfect world, the development of a project would proceed
 linearly, as shown in Figure 1.
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<img src="branch01.svg"><br>
-Figure 1
-</td></tr></table>
+<verbatim type="pikchr center toggle">
+ALL: [circle rad 40% thickness 1.5px "1"
+arrow right 40%
+circle same "2"
+arrow same
+circle same "3"
+arrow same
+circle same "4"]
+box invis "Figure 1" big fit with .n at .3cm below ALL.s
+</verbatim>
 
 Each circle represents a check-in.  For the sake of clarity, the check-ins
 are given small consecutive numbers.  In a real system, of course, the
@@ -29,7 +34,7 @@ and 2 are both <i>ancestors</i> of 3.
 <h2 id="dag">DAGs</h2>
 
 The graph of check-ins is a
-[http://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic graph]
+[http://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic graph],
 commonly shortened to <i>DAG</i>.  Check-in 1 is the <i>root</i> of the DAG
 since it has no ancestors.  Check-in 4 is a <i>leaf</i> of the DAG since
 it has no descendants.  (We will give a more precise definition later of
@@ -39,97 +44,126 @@ Alas, reality often interferes with the simple linear development of a
 project.  Suppose two programmers make independent modifications to check-in 2.
 After both changes are committed, the check-in graph looks like Figure 2:
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<img src="branch02.svg"><br>
-Figure 2
-</td></tr></table>
+<verbatim type="pikchr center toggle">
+ALL: [circle rad 40% thickness 1.5px "1"
+arrow right 40%
+circle same "2"
+circle same "3" at 2nd circle+(.4,.3)
+arrow from 2nd circle to 3rd circle chop
+circle same "4" at 2nd circle+(.4,-.3)
+arrow from 2nd circle to 4th circle chop]
+box invis "Figure 2" big fit with .n at .3cm below ALL.s
+</verbatim>
 
 The graph in Figure 2 has two leaves: check-ins 3 and 4.  Check-in 2 has
 two children, check-ins 3 and 4.  We call this state a <i>fork</i>.
 
-Fossil tries to prevent forks. Suppose two programmers named Alice and
+Fossil tries to prevent forks, primarily through its
+"[./concepts.wiki#workflow | autosync]" mechanism.
+
+Suppose two programmers named Alice and
 Bob are each editing check-in 2 separately. Alice finishes her edits
-first and commits her changes, resulting in check-in 3. Later, when Bob
+and commits her changes first, resulting in check-in 3. When Bob later
 attempts to commit his changes, Fossil verifies that check-in 2 is still
 a leaf. Fossil sees that check-in 3 has occurred and aborts Bob's commit
 attempt with a message "would fork." This allows Bob to do a "fossil
-update" which pulls in Alice's changes, merging them into his own
+update" to pull in Alice's changes, merging them into his own
 changes. After merging, Bob commits check-in 4 as a child of check-in 3.
 The result is a linear graph as shown in Figure 1. This is how CVS
-works. This is also how Fossil works in [./concepts.wiki#workflow |
-"autosync"] mode.
+works. This is also how Fossil works in autosync mode.
 
-But perhaps Bob is off-network when he does his commit, so he
-has no way of knowing that Alice has already committed her changes.
-Or, it could be that Bob has turned off "autosync" mode in Fossil.  Or,
-maybe Bob just doesn't want to merge in Alice's changes before he has
-saved his own, so he forces the commit to occur using the "--allow-fork"
-option to the <b>fossil commit</b> command.  For any of these reasons,
-two commits against check-in 2 have occurred and now the DAG has two leaves.
+But perhaps Bob is off-network when he does his commit, so he has no way
+of knowing that Alice has already committed her changes.  Or, it could
+be that Bob has turned off "autosync" mode in Fossil.  Or, maybe Bob
+just doesn't want to merge in Alice's changes before he has saved his
+own, so he forces the commit to occur using the "--allow-fork" option to
+the <b>[/help?cmd=commit | fossil commit]</b> command.  For any of these
+reasons, two commits against check-in 2 have occurred, so the DAG now
+has two leaves.
 
-So which version of the project is the "latest" in the sense of having
-the most features and the most bug fixes?  When there is more than
-one leaf in the graph, you don't really know, so we like to have
-check-in graphs with a single leaf.
+In such a condition, a person working with this repository has a
+dilemma: which version of the project is the "latest" in the sense of
+having the most features and the most bug fixes?  When there is more
+than one leaf in the graph, you don't really know, which is why we
+would ideally prefer to have linear check-in graphs.
 
 Fossil resolves such problems using the check-in time on the leaves to
 decide which leaf to use as the parent of new leaves.  When a branch is
 forked as in Figure 2, Fossil will choose check-in 4 as the parent for a
 later check-in 5, but <i>only</i> if it has sync'd that check-in down
 into the local repository. If autosync is disabled or the user is
-off-network when that fifth check-in occurs, so that check-in 3 is the
+off-network when that fifth check-in occurs so that check-in 3 is the
 latest on that branch at the time within that clone of the repository,
-Fossil will make check-in 3 the parent of check-in 5!
+Fossil will make check-in 3 the parent of check-in 5! We show practical
+consequences of this [#bad-fork | later in this article].
 
 Fossil also uses a forked branch's leaf check-in timestamps when
 checking out that branch: it gives you the fork with the latest
 check-in, which in turn selects which parent your next check-in will be
 a child of.  This situation means development on that branch can fork
 into two independent lines of development, based solely on which branch
-tip is newer at the time the next user starts his work on it.  Because
-of this, we strongly recommend that you do not intentionally create
-forks on long-lived shared working branches with "--allow-fork".  (Prime
-example: trunk.)
+tip is newer at the time the next user starts his work on it.
+
+Because of these potential problems, we strongly recommend that you do
+not intentionally create forks on long-lived shared working branches
+with "--allow-fork".  (Prime example: trunk.) The inverse case —
+intentional forks on short-lived single-developer branches — is far
+easier to justify, since presumably the lone developer is never confused
+about why there are two or more leaves on that branch. Further
+justifications for intentional forking are [#forking | given below].
 
 Let us return to Figure 2. To resolve such situations before they can
-become a real problem, Alice can use the <b>fossil merge</b> command to
-merge Bob's changes into her local copy of check-in 3.  Then she can
-commit the results as check-in 5.  This results in a DAG as shown in
+become a real problem, Alice can use the <b>[/help?cmd=merge | fossil
+merge]</b> command to merge Bob's changes into her local copy of
+check-in 3. Without arguments, that command merges all leaves on the
+current branch. Alice can then verify that the merge is sensible and if
+so, commit the results as check-in 5.  This results in a DAG as shown in
 Figure 3.
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<img src="branch03.svg"><br>
-Figure 3
-</td></tr></table>
+<verbatim type="pikchr center toggle">
+ALL: [circle rad 40% thickness 1.5px "1"
+arrow right 40%
+circle same "2"
+circle same "3" at 2nd circle+(.4,.3)
+arrow from 2nd circle to 3rd circle chop
+circle same "4" at 2nd circle+(.4,-.3)
+arrow from 2nd circle to 4th circle chop
+circle same "5" at 3rd circle+(.4,-.3)
+arrow from 3rd circle to 5th circle chop
+arrow dashed .03 from 4th circle to 5th circle chop]
+box invis "Figure 3" big fit with .n at .2cm below ALL.s
+</verbatim>
 
 Check-in 5 is a child of check-in 3 because it was created by editing
-check-in 3.  But check-in 5 also inherits the changes from check-in 4 by
-virtue of the merge.  So we say that check-in 5 is a <i>merge child</i>
+check-in 3, but since check-in 5 also inherits the changes from check-in 4 by
+virtue of the merge, we say that check-in 5 is a <i>merge child</i>
 of check-in 4 and that it is a <i>direct child</i> of check-in 3.
 The graph is now back to a single leaf, check-in 5.
 
 We have already seen that if Fossil is in autosync mode then Bob would
 have been warned about the potential fork the first time he tried to
 commit check-in 4.  If Bob had updated his local check-out to merge in
-Alice's check-in 3 changes, then committed, then the fork would have
+Alice's check-in 3 changes, then committed, the fork would have
 never occurred.  The resulting graph would have been linear, as shown
 in Figure 1.
 
-Realize that the graph of Figure 1 is a subset of Figure 3.  Hold your
-hand over the check-in 4 circle of Figure 3 and then Figure 3 looks
-exactly like Figure 1, except that the leaf has a different check-in
-number, but that is just a notational difference — the two check-ins
-have exactly the same content.  In other words, Figure 3 is really a
+Realize that the graph of Figure 1 is a subset of Figure 3. If you hold your
+hand over the ④ in Figure 3, it looks
+exactly like Figure 1 except that the leaf has a different check-in
+number. That is just a notational difference: the two check-ins
+have exactly the same content.
+
+Inversely, Figure 3 is a
 superset of Figure 1.  The check-in 4 of Figure 3 captures additional
 state which is omitted from Figure 1.  Check-in 4 of Figure 3 holds a
 copy of Bob's local checkout before he merged in Alice's changes.  That
 snapshot of Bob's changes, which is independent of Alice's changes, is
-omitted from Figure 1.  Some people say that the approach taken in
+omitted from Figure 1.
+
+Some people say that the development approach taken in
 Figure 3 is better because it preserves this extra intermediate state.
 Others say that the approach taken in Figure 1 is better because it is
-much easier to visualize a linear line of development and because the
+much easier to visualize linear development and because the
 merging happens automatically instead of as a separate manual step.  We
 will not take sides in that debate.  We will simply point out that
 Fossil enables you to do it either way.
@@ -146,22 +180,38 @@ tested.
 When multiple leaves are desirable, we call this <i>branching</i>
 instead of <i>forking</i>:
 
-<blockquote>
-<b>Key Distinction:</b> A branch is a <i>named, intentional</i> fork.
-</blockquote>
-
-Forks <i>may</i> be intentional, but most of the time, they're accidental.
-
 Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<img src="branch04.svg"><br>
-Figure 4
-</td></tr></table>
+<verbatim type="pikchr center toggle">
+ALL: [circle rad 40% thickness 1.5px fill white "1"
+arrow 40%
+C2: circle same "2"
+arrow same
+circle same "3"
+arrow same
+C5: circle same "5"
+arrow same
+C7: circle same "7"
+arrow same
+C8: circle same "8"
+arrow same
+C10: circle same "10"
+C4: circle same at 3rd circle-(0,.35) "4"
+C6: circle same at (1/2 way between C5 and C7,C4) "6"
+C9: circle same at (1/2 way between C8 and C10,C4) "9"
+arrow from C2 to C4 chop
+arrow from C4 to C6 chop
+arrow from C6 to C9 chop
+arrow dashed 0.03 from C6 to C7 chop
+arrow same from C9 to C10
+layer = 0
+box fill 0x9bcdfc color 0x9bcdfc wid (C10.e.x - C2.w.x) ht C6.height*1.5 at C6.c
+box invis "test" fit with .sw at last box.sw]
+box invis "Figure 4" big with .n at 0 below ALL.s
+</verbatim>
 
-The hypothetical scenario of Figure 4 is this:  The project starts and
+Figure 4 diagrams the following scenario: the project starts and
 progresses to a point where (at check-in 2)
 it is ready to enter testing for its first release.
 In a real project, of course, there might be hundreds or thousands of
@@ -169,11 +219,11 @@ check-ins before a project reaches this point, but for simplicity of
 presentation we will say that the project is ready after check-in 2.
 The project then splits into two branches that are used by separate
 teams.  The testing team, using the blue branch, finds and fixes a few
-bugs.  This is shown by check-ins 6 and 9.  Meanwhile the development
+bugs with check-ins 6 and 9.  Meanwhile, the development
 team, working on the top uncolored branch,
 is busy adding features for the second
 release.  Of course, the development team would like to take advantage of
-the bug fixes implemented by the testing team.  So periodically, the
+the bug fixes implemented by the testing team, so periodically the
 changes in the test branch are merged into the dev branch.  This is
 shown by the dashed merge arrows between check-ins 6 and 7 and between
 check-ins 9 and 10.
@@ -184,9 +234,26 @@ the difference?  As far as the internal Fossil data structures are
 concerned, there is no difference.  The distinction is in the intent.
 In Figure 2, the fact that check-in 2 has multiple children is an
 accident that stems from concurrent development.  In Figure 4, giving
-check-in 2 multiple children is a deliberate act.  So, to a good
+check-in 2 multiple children is a deliberate act.  To a good
 approximation, we define forking to be by accident and branching to
 be by intent.  Apart from that, they are the same.
+
+When the fork is intentional, it helps humans to understand what is
+going on if we <i>name</i> the forks. This is not essential to Fossil's
+internal data model, but humans have trouble working with long-lived
+branches identified only by the commit ID currently at its tip, being a
+long string of hex digits.  Therefore, Fossil conflates two concepts:
+branching as intentional forking and the naming of forks as branches.
+They are in fact separate concepts, but since Fossil is intended to be
+used primarily by humans, we combine them in Fossil's human user
+interfaces.
+
+<blockquote>
+<b>Key Distinction:</b> A branch is a <i>named, intentional</i> fork.
+</blockquote>
+
+Unnamed forks <i>may</i> be intentional, but most of the time, they're
+accidental and left unnamed.
 
 Fossil offers two primary ways to create named, intentional forks,
 a.k.a. branches. First:
@@ -196,13 +263,13 @@ a.k.a. branches. First:
 </pre>
 
 This is the method we recommend for most cases: it creates a branch as
-part of a checkin using the version in the current checkout directory
+part of a check-in using the version in the current checkout directory
 as its basis. (This is normally the tip of the current branch, though
-it doesn't have to be. You can create a branch from an ancestor checkin
+it doesn't have to be. You can create a branch from an ancestor check-in
 on a branch as well.) After making this branch-creating
-checkin, your local working directory is switched to that branch, so
-that further checkins occur on that branch as well, as children of the
-tip checkin on that branch.
+check-in, your local working directory is switched to that branch, so
+that further check-ins occur on that branch as well, as children of the
+tip check-in on that branch.
 
 The second, more complicated option is:
 
@@ -214,7 +281,7 @@ The second, more complicated option is:
 
 Not only is this three commands instead of one, the first of which is
 longer than the entire simpler command above, you must give the second command
-before creating any checkins, because until you do, your local working
+before creating any check-ins, because until you do, your local working
 directory remains on the same branch it was on at the time you issued
 the command, so that the commit would otherwise put the new material on
 the original branch instead of the new one.
@@ -222,12 +289,12 @@ the original branch instead of the new one.
 In addition to those problems, the second method is a violation of the
 [https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it|YAGNI
 Principle]. We recommend that you wait until you actually need the
-branch and create it using the first command above.
+branch before you create it using the first command above.
 
-(Keep in mind that trunk is just another branch in Fossil. It is simply
-the default branch name for the first checkin and every checkin made as
+The "trunk" is just another named branch in Fossil. It is simply
+the default branch name for the first check-in and every check-in made as
 one of its direct descendants. It is special only in that it is Fossil's
-default when it has no better idea of which branch you mean.)
+default when it has no better idea of which branch you mean.
 
 
 <h2 id="forking">Justifications For Forking</h2>
@@ -237,7 +304,9 @@ it is done purely in software in order to avoid losing information:
 
 <ol>
     <li><p id="offline">By Fossil itself when two users check in children to the same
-    leaf of a branch, as in Figure 2.  If the fork occurs because
+    leaf of a branch, as in Figure 2.
+    <br><br>
+    If the fork occurs because
     autosync is disabled on one or both of the repositories or because
     the user doing the check-in has no network connection at the moment
     of the commit, Fossil has no way of knowing that it is creating a
@@ -252,7 +321,7 @@ it is done purely in software in order to avoid losing information:
     Alice clones it, then Bobby clones from Alice's repository, a
     check-in by Bobby that autosyncs with Alice's repo will <i>not</i>
     also autosync with the master repo. The master doesn't get a copy of
-    Bobby's checkin until Alice <i>separately</i> syncs with the master.
+    Bobby's check-in until Alice <i>separately</i> syncs with the master.
     If Carol cloned from the master repo and checks something in that
     creates a fork relative to Bobby's check-in, the master repo won't
     know about that fork until Alice syncs her repo with the master.
@@ -264,9 +333,9 @@ it is done purely in software in order to avoid losing information:
     Version Control System] like Fossil.
     <br><br>
     Another option, which we recommend you consider carefully, is to
-    make it a local policy that checkins be made only against the master
+    make it a local policy that check-ins be made only directly against the master
     repo or one of its immediate child clones so that the autosync
-    algorithm can do its job most effectively; any clones deeper than
+    algorithm can do its job most effectively. Any clones deeper than
     that should be treated as read-only and thus get a copy of the new
     state of the world only once these central repos have negotiated
     that new state. This policy avoids a class of inadvertent fork you
@@ -275,25 +344,29 @@ it is done purely in software in order to avoid losing information:
     effort], a team may easily justify this restriction on distributed
     cloning.</p></li>
 
-    <li><p id="automation">You've automated Fossil (e.g. with a shell script) and
-    forking is a possibility, so you write <b>fossil commit
-    --allow-fork</b> commands to prevent Fossil from refusing the
-    check-in because it would create a fork.  It's better to write such
-    a script to detect this condition and cope with it (e.g. <b>fossil
-    update</b>) but if the alternative is losing information, you may
-    feel justified in creating forks that an interactive user must later
-    clean up with <b>fossil merge</b> commands.</p></li>
+    <li><p id="automation">You've automated Fossil, so you use
+    <b>fossil commit --allow-fork</b> commands to prevent Fossil from
+    refusing the check-in simply because it would create a fork.
+    <br><br>
+    If you are writing such a tool — e.g. a shell script to make
+    multiple manipulations on a Fossil repo — it's better to make it
+    smart enough to detect this condition and cope with it, such as
+    by making a call to <b>[/help?cmd=update | fossil update]</b>
+    and checking for a merge conflict. That said, if the alternative is
+    losing information, you may feel justified in creating forks that an
+    interactive user must later manually clean up with <b>fossil merge</b>
+    commands.</p></li>
 </ol>
 
 That leaves only one case where we can recommend use of "--allow-fork"
-by interactive users: when you're working on
-a personal branch so that creating a dual-tipped branch isn't going to
-cause any other user an inconvenience or risk forking the development.
-Only one developer is involved, and the fork may be short-lived, so
-there is no risk of [#bad-fork|inadvertently forking the overall development effort].
-This is a good alternative to branching when you just need to
-temporarily fork the branch's development. It avoids cluttering the
-global branch namespace with short-lived temporary named branches.
+by interactive users: when you're working on a personal branch so that
+creating a dual-tipped branch isn't going to cause any other user an
+inconvenience or risk [#bad-fork | inadvertently forking the development
+effort]. In such a case, the lone developer working on that branch is
+not confused, since the fork in development is intentional. Sometimes it
+simply makes no sense to bother creating a name, cluttering the global
+branch namespace, simply to convert an intentional fork into a "branch."
+This is especially the case when the fork is short-lived.
 
 There's a common generalization of that case: you're a solo developer,
 so that the problems with branching vs forking simply don't matter. In
@@ -320,11 +393,41 @@ Tags and properties are used in Fossil to help express the intent, and
 thus to distinguish between forks and branches.  Figure 5 shows the
 same scenario as Figure 4 but with tags and properties added:
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<img src="branch05.svg"><br>
-Figure 5
-</td></tr></table>
+<verbatim type="pikchr center toggle">
+ALL: [arrowht = 0.07
+C1: circle rad 40% thickness 1.5px fill white "1"
+arrow 40%
+C2: circle same "2"
+arrow same
+circle same "3"
+arrow same
+C5: circle same "5"
+arrow same
+C7: circle same "7"
+arrow same
+C8: circle same "8"
+arrow same
+C10: circle same "10"
+C4: circle same at 3rd circle-(0,.35) "4"
+C6: circle same at (1/2 way between C5 and C7,C4) "6"
+C9: circle same at (1/2 way between C8 and C10,C4) "9"
+arrow from C2 to C4 chop
+arrow from C4 to C6 chop
+arrow from C6 to C9 chop
+arrow dashed 0.03 from C6 to C7 chop
+arrow same from C9 to C10
+layer = 0
+box fill 0x9bcdfc color 0x9bcdfc wid (C10.e.x - C2.w.x) ht C6.height*1.5 at C6.c
+text " test" above ljust at last box.sw
+box fill lightgray "branch=trunk" "sym-trunk" fit with .ne at C1-(0.05,0.3);
+line color gray from last box.ne to C1 chop
+box same "branch=test" "sym-test" "bgcolor=blue" "cancel=sym-trunk" fit \
+   with .n at C4-(0,0.3)
+line color gray from last box.n to C4 chop
+box same "sym-release-1.0" "closed" fit with .n at C9-(0,0.3)
+line color gray from last box.n to C9 chop]
+box invis "Figure 5" bold fit with .n at 0.2cm below ALL.s
+</verbatim>
 
 A <i>tag</i> is a name that is attached to a check-in.  A
 <i>property</i> is a name/value pair.  Internally, Fossil implements
@@ -390,11 +493,74 @@ effort on a branch can be divided among the forks. It might not be
 immediately obvious why this is so. To see it, consider this swim lane
 diagram:
 
-<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
-<tr><td align="center">
-<img src="branch06.svg"><br>
-Figure 6
-</td></tr></table>
+<verbatim type="pikchr center toggle toggle">
+    $laneh = 0.75
+
+ALL: [
+    # Draw the lanes
+    down
+    box width 3.5in height $laneh fill 0xacc9e3
+    box same fill 0xc5d8ef
+    box same as first box
+    box same as 2nd box
+    line from 1st box.sw+(0.2,0) up until even with 1st box.n \
+      "Alan" above aligned
+    line from 2nd box.sw+(0.2,0) up until even with 2nd box.n \
+      "Betty" above aligned
+    line from 3rd box.sw+(0.2,0) up until even with 3rd box.n \
+      "Charlie" above aligned
+    line from 4th box.sw+(0.2,0) up until even with 4th box.n \
+       "Darlene" above aligned
+
+    # fill in content for the Alice lane
+    right
+A1: circle rad 0.1in at end of first line + (0.2,-0.2) \
+       fill white thickness 1.5px "1" 
+    arrow right 50%
+    circle same "2"
+    arrow right until even with first box.e - (0.65,0.0)
+    ellipse "future" fit fill white height 0.2 width 0.5 thickness 1.5px
+A3: circle same at A1+(0.8,-0.3) "3" fill 0xc0c0c0
+    arrow from A1 to last circle chop "fork!" below aligned
+
+    # content for the Betty lane
+B1: circle same as A1 at A1-(0,$laneh) "1"
+    arrow right 50%
+    circle same "2"
+    arrow right until even with first ellipse.w
+    ellipse same "future"
+B3: circle same at A3-(0,$laneh) "3"
+    arrow right 50%
+    circle same as A3 "4"
+    arrow from B1 to 2nd last circle chop
+
+    # content for the Charlie lane
+C1: circle same as A1 at B1-(0,$laneh) "1"
+    arrow 50%
+    circle same "2"
+    arrow right 0.8in "goes" "offline"
+C5: circle same as A3 "5"
+    arrow right until even with first ellipse.w \
+      "back online" above "pushes 5" below "pulls 3 &amp; 4" below 
+    ellipse same "future"
+
+    # content for the Darlene lane
+D1: circle same as A1 at C1-(0,$laneh) "1"
+    arrow 50%
+    circle same "2"
+    arrow right until even with C5.w
+    circle same "5"
+    arrow 50%
+    circle same as A3 "6"
+    arrow right until even with first ellipse.w
+    ellipse same "future"
+D3: circle same as B3 at B3-(0,2*$laneh) "3"
+    arrow 50%
+    circle same "4"
+    arrow from D1 to D3 chop
+]
+box invis "Figure 6" big fit with .n at 0.2cm below ALL.s
+</verbatim>
 
 This is a happy, cooperating team. That is an important restriction on
 our example, because you must understand that this sort of problem can
@@ -404,7 +570,7 @@ repository, cloned from the same master repo, and all of them are
 working toward their shared vision of a unified future.
 
 All users, except possibly Alan, start out with the same two initial
-checkins in their local working clones, 1 & 2. It might be that Alan
+check-ins in their local working clones, 1 & 2. It might be that Alan
 starts out with only check-in 1 in his local clone, but we'll deal with
 that detail later.
 
@@ -436,13 +602,13 @@ she can end up seeing Alan's check-in 3 as the latest on that branch:
     time of the update.)</p></li>
 
     <li><p>The same thing, only in a fresh checkout directory with a
-    <b>fossil open $REPO $BRANCH</b> command.</p></li>
+    <b>[/help?cmd=open | fossil open $REPO $BRANCH]</b> command.</p></li>
 
     <li><p>Alan makes his check-in 3 while Betty has check-in 1 or 2 as
     the tip in her local clone, but because she's working with an
     autosync'd connection to the same upstream repository as Alan, on
     attempting what will become check-in 4, she gets the "would fork"
-    message from <b>fossil ci</b>, so she dutifully updates her clone
+    message from <b>fossil commit</b>, so she dutifully updates her clone
     and tries again, moving her work to be a child of the new tip,
     check-in 3. (If she doesn't update, she creates a <i>second</i>
     fork, which simply complicates matters beyond what we need here for
@@ -577,24 +743,25 @@ Most other DVCSes maintain a separate DAG for each branch.
 Fossil does not require that branch names be unique, as in some VCSes,
 most notably Git. Just as with unnamed branches (which we call forks)
 Fossil resolves such ambiguities using the timestamps on the latest
-checkin in each branch. If you have two branches named "foo" and you say
-<b>fossil up foo</b>, you get the tip of the "foo" branch with the most
-recent checkin.
+check-in in each branch. If you have two branches named "foo" and you say
+<b>fossil update foo</b>, you get the tip of the "foo" branch with the most
+recent check-in.
 
 This fact is helpful because it means you can reuse branch names, which
 is especially useful with utility branches.  There are several of these
 in the SQLite and Fossil repositories: "broken-build," "declined,"
 "mistake," etc. As you might guess from these names, such branch names
 are used in renaming the tip of one branch to shunt it off away from the
-mainline of that branch due to some human error. (See <b>fossil
-amend</b> and the Fossil UI checkin amendment features.) This is a
+mainline of that branch due to some human error. (See
+<b>[/help?cmd=amend | fossil
+amend]</b> and the Fossil UI check-in amendment features.) This is a
 workaround for Fossil's [./shunning.wiki|normal inability to forget
 history]: we usually don't want to actually <i>remove</i> history, but
 would like to sometimes set some of it aside under a new label.
 
 Because some VCSes can't cope with duplicate branch names, Fossil
 collapses such names down on export using the same time stamp based
-arbitration logic, so that only the branch with the newest checkin gets
+arbitration logic, so that only the branch with the newest check-in gets
 the branch name in the export.
 
 All of the above is true of tags in general, not just branches.

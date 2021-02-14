@@ -366,10 +366,6 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
                  ? pCI->pParent->zBaseline
                  : pCI->zParentUuid);
   }
-  blob_reserve(pOut, 1024 *
-               (asDelta ? 2 : pCI->pParent->nFile/11+1
-                /* In the fossil core repo, each 12-ish F-cards (on
-                ** average) take up roughly 1kb */));
   if(blob_size(&pCI->comment)!=0){
     blob_appendf(pOut, "C %F\n", blob_str(&pCI->comment));
   }else{
@@ -705,14 +701,14 @@ ci_error:
 **
 ** Options:
 **
-**   --repository|-R REPO      The repository file to commit to.
+**   -R|--repository REPO      The repository file to commit to.
 **   --as FILENAME             The repository-side name of the input
 **                             file, relative to the top of the
 **                             repository. Default is the same as the
 **                             input file name.
-**   --comment|-m COMMENT      Required checkin comment.
-**   --comment-file|-M FILE    Reads checkin comment from the given file.
-**   --revision|-r VERSION     Commit from this version. Default is
+**   -m|--comment COMMENT      Required checkin comment.
+**   -M|--comment-file FILE    Reads checkin comment from the given file.
+**   -r|--revision VERSION     Commit from this version. Default is
 **                             the checkout version (if available) or
 **                             trunk (if used without a checkout).
 **   --allow-fork              Allows the commit to be made against a
@@ -741,7 +737,7 @@ ci_error:
 **                             sensitivity errors inadvertently lead to
 **                             adding a new file where an update is
 **                             intended.
-**   --dump-manifest|-d        Dumps the generated manifest to stdout
+**   -d|--dump-manifest        Dumps the generated manifest to stdout
 **                             immediately after it's generated.
 **   --save-manifest FILE      Saves the generated manifest to a file
 **                             after successfully processing it.
@@ -921,107 +917,6 @@ int fileedit_is_editable(const char *zFilename){
   }
 }
 
-enum fileedit_render_preview_flags {
-FE_PREVIEW_LINE_NUMBERS = 1
-};
-enum fileedit_render_modes {
-/* GUESS must be 0. All others have unspecified values. */
-FE_RENDER_GUESS = 0,
-FE_RENDER_PLAIN_TEXT,
-FE_RENDER_HTML_IFRAME,
-FE_RENDER_HTML_INLINE,
-FE_RENDER_WIKI
-};
-
-static int fileedit_render_mode_for_mimetype(const char * zMimetype){
-  int rc = FE_RENDER_PLAIN_TEXT;
-  if( zMimetype ){
-    if( fossil_strcmp(zMimetype, "text/html")==0 ){
-      rc = FE_RENDER_HTML_IFRAME;
-    }else if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0
-              || fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-      rc = FE_RENDER_WIKI;
-    }
-  }
-  return rc;
-}
-
-/*
-** Performs the PREVIEW mode for /filepage.
-**
-** If *renderMode==FE_RENDER_GUESS then *renderMode gets set to the
-** mode which is guessed at for the rendering.
-*/
-static void fileedit_render_preview(Blob * pContent,
-                                    const char *zFilename,
-                                    int flags, int * renderMode,
-                                    int nIframeHeightEm){
-  const char * zMime;
-  zMime = mimetype_from_name(zFilename);
-  if(FE_RENDER_GUESS==*renderMode){
-    *renderMode = fileedit_render_mode_for_mimetype(zMime);
-  }
-  switch(*renderMode){
-    case FE_RENDER_HTML_IFRAME:{
-      char * z64 = encode64(blob_str(pContent), blob_size(pContent));
-      CX("<iframe width='100%%' frameborder='0' "
-         "marginwidth='0' style='height:%dem' "
-         "marginheight='0' sandbox='allow-same-origin' "
-         "id='ifm1' src='data:text/html;base64,%z'"
-         "></iframe>",
-         nIframeHeightEm ? nIframeHeightEm : 40,
-         z64);
-      break;
-    }
-    case FE_RENDER_HTML_INLINE:{
-      CX("%b",pContent);
-      break;
-    }
-    case FE_RENDER_WIKI:
-      wiki_render_by_mimetype(pContent, zMime);
-      break;
-    default:{
-      const char *zExt = strrchr(zFilename,'.');
-      const char *zContent = blob_str(pContent);
-      if(FE_PREVIEW_LINE_NUMBERS & flags){
-        output_text_with_line_numbers(zContent, "on");
-      }else if(zExt && zExt[1]){
-        CX("<pre><code class='language-%s'>%h</code></pre>",
-           zExt+1, zContent);
-      }else{
-        CX("<pre>%h</pre>", zContent);
-      }
-      break;
-    }
-  }
-}
-
-/*
-** Renders diffs for the /fileedit page. pContent is the
-** locally-edited content.  frid is the RID of the file's blob entry
-** from which pContent is based. zManifestUuid is the checkin version
-** to which RID belongs - it is purely informational, for labeling the
-** diff view. isSbs is true for side-by-side diffs, false for unified.
-*/
-static void fileedit_render_diff(Blob * pContent, int frid,
-                                 const char * zManifestUuid,
-                                 u64 diffFlags){
-  Blob orig = empty_blob;
-  Blob out = empty_blob;
-
-  content_get(frid, &orig);
-  text_diff(&orig, pContent, &out, 0, diffFlags);
-  if(blob_size(&out)==0){
-    /* nothing to do */
-  }else if(DIFF_SIDEBYSIDE & diffFlags){
-    CX("%b",&out);
-  }else{
-    CX("<pre class='udiff'>%b</pre>",&out);
-  }
-  blob_reset(&orig);
-  blob_reset(&out);
-}
-
 /*
 ** Given a repo-relative filename and a manifest RID, returns the UUID
 ** of the corresponding file entry.  Returns NULL if no match is
@@ -1046,52 +941,6 @@ static char *fileedit_file_uuid(char const *zFilename,
 }
 
 /*
-** Helper for /fileedit_xyz routes. Clears the CGI content buffer,
-** sets an error status code, and queues up a JSON response in the
-** form of an object:
-**
-** {error: formatted message}
-**
-** After calling this, the caller should immediately return.
- */
-static void fileedit_ajax_error(int httpCode, const char * zFmt, ...){
-  Blob msg = empty_blob;
-  Blob content = empty_blob;
-  va_list vargs;
-  va_start(vargs,zFmt);
-  blob_vappendf(&msg, zFmt, vargs);
-  va_end(vargs);
-  blob_appendf(&content,"{\"error\":%!j}", blob_str(&msg));
-  blob_reset(&msg);
-  cgi_set_content(&content);
-  cgi_set_status(httpCode, "Error");
-  cgi_set_content_type("application/json");
-}
-
-/*
-** Performs bootstrapping common to the /fileedit_xyz AJAX routes.
-** Returns 0 if bootstrapping fails (wrong permissions), in which
-** case it has reported the error and the route should immediately
-** return. Returns true on success.
-**
-** Must be passed true if the request being set up requires POST,
-** else false.
-*/
-static int fileedit_ajax_boostrap(int requirePost){
-  login_check_credentials();
-  if( !g.perm.Write ){
-    fileedit_ajax_error(403,"Write permissions required.");
-    return 0;
-  }else if(0==cgi_csrf_safe(requirePost)){
-    fileedit_ajax_error(403,
-                        "CSRF violation (make sure sending of HTTP "
-                        "Referer headers is enabled for XHR "
-                        "connections).");
-    return 0;
-  }
-  return 1;
-}
-/*
 ** Returns true if the current user is allowed to edit the given
 ** filename, as determined by fileedit_is_editable(), else false,
 ** in which case it queues up an error response and the caller
@@ -1099,39 +948,11 @@ static int fileedit_ajax_boostrap(int requirePost){
 */
 static int fileedit_ajax_check_filename(const char * zFilename){
   if(0==fileedit_is_editable(zFilename)){
-    fileedit_ajax_error(403, "File is disallowed by the "
-                        "fileedit-glob setting.");
+    ajax_route_error(403, "File is disallowed by the "
+                     "fileedit-glob setting.");
     return 0;
   }
   return 1;
-}
-
-
-/*
-** If zFn is not NULL, it is assigned the value of the first one of
-** the "filename" or "fn" CGI parameters which is set.
-**
-** If zCi is not NULL, it is assigned the value of the first one of
-** the "checkin" or "ci" CGI parameters which is set.
-**
-** If a parameter is not NULL, it will be assigned NULL if the
-** corresponding parameter is not set.
-**
-** Returns the number of non-NULL values it assigns to arguments. Thus
-** if passed (&x, NULL), it returns 1 if it assigns non-NULL to *x and
-** 0 if it assigns NULL to *x.
-*/
-static int fileedit_get_fnci_args( const char **zFn, const char **zCi ){
-  int rc = 0;
-  if(zCi!=0){
-    *zCi = PD("checkin",P("ci"));
-    if( *zCi ) ++rc;
-  }
-  if(zFn!=0){
-    *zFn = PD("filename",P("fn"));
-    if (*zFn) ++rc;
-  }
-  return rc;
 }
 
 /*
@@ -1142,7 +963,8 @@ static int fileedit_get_fnci_args( const char **zFn, const char **zCi ){
 ** - *zRevUuid = the fully-expanded value of zRev (owned by the
 **    caller). zRevUuid may be NULL.
 **
-** - *vid = the RID of zRevUuid. May not be NULL.
+** - *pVid = the RID of zRevUuid. pVid May be NULL. If the vid
+**    cannot be resolved or is ambiguous, pVid is not assigned.
 **
 ** - *frid = the RID of zFilename's blob content. May not be NULL
 **   unless zFilename is also NULL. If BOTH of zFilename and frid are
@@ -1156,34 +978,37 @@ static int fileedit_get_fnci_args( const char **zFn, const char **zCi ){
 */
 static int fileedit_ajax_setup_filerev(const char * zRev,
                                        char ** zRevUuid,
-                                       int * vid,
+                                       int * pVid,
                                        const char * zFilename,
                                        int * frid){
-  char * zFileUuid;    /* file UUID */
+  char * zFileUuid = 0;             /* file content UUID */
   const int checkFile = zFilename!=0 || frid!=0;
+  int vid = 0;
   
   if(checkFile && !fileedit_ajax_check_filename(zFilename)){
     return 0;
   }
-  *vid = symbolic_name_to_rid(zRev, "ci");
-  if(0==*vid){
-    fileedit_ajax_error(404,"Cannot resolve name as a checkin: %s",
-                        zRev);
+  vid = symbolic_name_to_rid(zRev, "ci");
+  if(0==vid){
+    ajax_route_error(404,"Cannot resolve name as a checkin: %s",
+                     zRev);
     return 0;
-  }else if(*vid<0){
-    fileedit_ajax_error(400,"Checkin name is ambiguous: %s",
-                        zRev);
+  }else if(vid<0){
+    ajax_route_error(400,"Checkin name is ambiguous: %s",
+                     zRev);
     return 0;
+  }else if(pVid!=0){
+    *pVid = vid;
   }
   if(checkFile){
-    zFileUuid = fileedit_file_uuid(zFilename, *vid, 0);
+    zFileUuid = fileedit_file_uuid(zFilename, vid, 0);
     if(zFileUuid==0){
-      fileedit_ajax_error(404,"Checkin does not contain file.");
+      ajax_route_error(404, "Checkin does not contain file.");
       return 0;
     }
   }
   if(zRevUuid!=0){
-    *zRevUuid = rid_to_uuid(*vid);
+    *zRevUuid = rid_to_uuid(vid);
   }
   if(checkFile){
     assert(zFileUuid!=0);
@@ -1206,7 +1031,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 ** User must have Write access to use this page.
 **
 ** Responds with the raw content of the given page. On error it
-** produces a JSON response as documented for fileedit_ajax_error().
+** produces a JSON response as documented for ajax_route_error().
 **
 ** Extra response headers:
 **
@@ -1222,8 +1047,8 @@ static void fileedit_ajax_content(void){
   Blob content = empty_blob;
   const char * zMime;
 
-  fileedit_get_fnci_args( &zFilename, &zRev );
-  if(!fileedit_ajax_boostrap(0)
+  ajax_get_fnci_args( &zFilename, &zRev );
+  if(!ajax_route_bootstrap(1,0)
      || !fileedit_ajax_setup_filerev(zRev, 0, &vid,
                                      zFilename, &frid)){
     return;
@@ -1258,77 +1083,6 @@ static void fileedit_ajax_content(void){
 }
 
 /*
-** AJAX route /fileedit?ajax=preview
-**
-** Required query parameters:
-**
-** filename=FILENAME
-** content=text
-**
-** Optional query parameters:
-**
-** render_mode=integer (FE_RENDER_xxx) (default=FE_RENDER_GUESS)
-**
-** ln=0 or 1 to disable/enable line number mode in
-** FE_RENDER_PLAIN_TEXT mode.
-**
-** iframe_height=integer (default=40) Height, in EMs of HTML preview
-** iframe.
-**
-** User must have Write access to use this page.
-**
-** Responds with the HTML content of the preview. On error it produces
-** a JSON response as documented for fileedit_ajax_error().
-**
-** Extra response headers:
-**
-** x-fileedit-render-mode: string representing the rendering mode
-** which was really used (which will differ from the requested mode
-** only if mode 0 (guess) was requested). The names are documented
-** below in code and match those in the emitted JS object
-** fossil.page.previewModes.
-*/
-static void fileedit_ajax_preview(void){
-  const char * zFilename = 0;
-  const char * zContent = P("content");
-  int renderMode = atoi(PD("render_mode","0"));
-  int ln = atoi(PD("ln","0"));
-  int iframeHeight = atoi(PD("iframe_height","40"));
-  Blob content = empty_blob;
-  const char * zRenderMode = 0;
-  fileedit_get_fnci_args( &zFilename, 0 );
-  if(!fileedit_ajax_boostrap(1)
-     || !fileedit_ajax_check_filename(zFilename)){
-    return;
-  }
-  cgi_set_content_type("text/html");
-  blob_init(&content, zContent, -1);
-  fileedit_render_preview(&content, zFilename,
-                          ln ? FE_PREVIEW_LINE_NUMBERS : 0,
-                          &renderMode, iframeHeight);
-  /*
-  ** Now tell the caller if we did indeed use FE_RENDER_WIKI, so that
-  ** they can re-set the <base href> to an appropriate value (which
-  ** requires knowing the content's current checkin version, which we
-  ** don't have here).
-  */
-  switch(renderMode){
-    /* The strings used here MUST correspond to those used in the JS-side
-    ** fossil.page.previewModes map.
-    */
-    case FE_RENDER_WIKI: zRenderMode = "wiki"; break;
-    case FE_RENDER_HTML_INLINE: zRenderMode = "htmlInline"; break;
-    case FE_RENDER_HTML_IFRAME: zRenderMode = "htmlIframe"; break;
-    case FE_RENDER_PLAIN_TEXT: zRenderMode = "text"; break;
-    case FE_RENDER_GUESS:
-      assert(!"cannot happen");
-  }
-  if(zRenderMode!=0){
-    cgi_printf_header("x-fileedit-render-mode: %s\r\n", zRenderMode);
-  }
-}
-
-/*
 ** AJAX route /fileedit?ajax=diff
 **
 ** Required query parameters:
@@ -1349,7 +1103,7 @@ static void fileedit_ajax_preview(void){
 ** User must have Write access to use this page.
 **
 ** Responds with the HTML content of the diff. On error it produces a
-** JSON response as documented for fileedit_ajax_error().
+** JSON response as documented for ajax_route_error().
 */
 static void fileedit_ajax_diff(void){
   /*
@@ -1379,8 +1133,8 @@ static void fileedit_ajax_diff(void){
     diffFlags |= DIFF_IGNORE_EOLWS;
   }
   diffFlags |= DIFF_STRIP_EOLCR;
-  fileedit_get_fnci_args( &zFilename, &zRev );
-  if(!fileedit_ajax_boostrap(1)
+  ajax_get_fnci_args( &zFilename, &zRev );
+  if(!ajax_route_bootstrap(1,1)
      || !fileedit_ajax_setup_filerev(zRev, &zRevUuid, &vid,
                                      zFilename, &frid)){
     return;
@@ -1390,7 +1144,12 @@ static void fileedit_ajax_diff(void){
   }
   cgi_set_content_type("text/html");
   blob_init(&content, zContent, -1);
-  fileedit_render_diff(&content, frid, zRevUuid, diffFlags);
+  {
+    Blob orig = empty_blob;
+    content_get(frid, &orig);
+    ajax_render_diff(&orig, &content, diffFlags);
+    blob_reset(&orig);
+  }
   fossil_free(zRevUuid);
   blob_reset(&content);
 }
@@ -1535,6 +1294,88 @@ end_fail:
 }
 
 /*
+** Renders a list of all open leaves in JSON form:
+**
+** [
+**   {checkin: UUID, branch: branchName, timestamp: string}
+** ]
+**
+** The entries are ordered newest first.
+**
+** If zFirstUuid is not NULL then *zFirstUuid is set to a copy of the
+** full UUID of the first (most recent) leaf, which must be freed by
+** the caller. It is set to 0 if there are no leaves.
+*/
+static void fileedit_render_leaves_list(char ** zFirstUuid){
+  Blob sql = empty_blob;
+  Stmt q = empty_Stmt;
+  int i = 0;
+
+  if(zFirstUuid){
+    *zFirstUuid = 0;
+  }
+  blob_append(&sql, timeline_query_for_tty(), -1);
+  blob_append_sql(&sql, " AND blob.rid IN (SElECT rid FROM leaf "
+                  "WHERE NOT EXISTS("
+                  "SELECT 1 from tagxref WHERE tagid=%d AND "
+                  "tagtype>0 AND rid=leaf.rid"
+                  ")) "
+                  "ORDER BY mtime DESC", TAG_CLOSED);
+  db_prepare_blob(&q, &sql);
+  CX("[");
+  while( SQLITE_ROW==db_step(&q) ){
+    const char * zUuid = db_column_text(&q, 1);
+    if(i++){
+      CX(",");
+    }else if(zFirstUuid){
+      *zFirstUuid = fossil_strdup(zUuid);
+    }
+    CX("{");
+    CX("\"checkin\":%!j,", zUuid);
+    CX("\"branch\":%!j,", db_column_text(&q, 7));
+    CX("\"timestamp\":%!j", db_column_text(&q, 2));
+    CX("}");
+  }
+  CX("]");
+  db_finalize(&q);
+}
+
+/*
+** For the given fully resolved UUID, renders a JSON object containing
+** the fileeedit-editable files in that checkin:
+**
+** {
+**   checkin: UUID,
+**   editableFiles: [ filename1, ... filenameN ]
+** }
+**
+** They are sorted by name using filename_collation().
+*/
+static void fileedit_render_checkin_files(const char * zFullUuid){
+  Blob sql = empty_blob;
+  Stmt q = empty_Stmt;
+  int i = 0;
+
+  CX("{\"checkin\":%!j,"
+     "\"editableFiles\":[", zFullUuid);
+  blob_append_sql(&sql, "SELECT filename FROM files_of_checkin(%Q) "
+                  "ORDER BY filename %s",
+                  zFullUuid, filename_collation());
+  db_prepare_blob(&q, &sql);
+  while( SQLITE_ROW==db_step(&q) ){
+    const char * zFilename = db_column_text(&q, 0);
+    if(fileedit_is_editable(zFilename)){
+      if(i++){
+        CX(",");
+      }
+      CX("%!j", zFilename);
+    }
+  }
+  db_finalize(&q);
+  CX("]}");  
+}
+
+/*
 ** AJAX route /fileedit?ajax=filelist
 **
 ** Fetches a JSON-format list of leaves and/or filenames for use in
@@ -1559,66 +1400,27 @@ end_fail:
 ** }
 **
 ** On error it produces a JSON response as documented for
-** fileedit_ajax_error().
+** ajax_route_error().
 */
-static void fileedit_ajax_filelist(void){
+static void fileedit_ajax_filelist(){
   const char * zCi = PD("checkin",P("ci"));
-  Blob sql = empty_blob;
-  Stmt q = empty_Stmt;
-  int i = 0;
 
-  if(!fileedit_ajax_boostrap(0)){
+  if(!ajax_route_bootstrap(1,0)){
     return;
   }
   cgi_set_content_type("application/json");
   if(zCi!=0){
     char * zCiFull = 0;
-    int vid = 0;
-    if(0==fileedit_ajax_setup_filerev(zCi, &zCiFull, &vid, 0, 0)){
+    if(0==fileedit_ajax_setup_filerev(zCi, &zCiFull, 0, 0, 0)){
       /* Error already reported */
       return;
     }
-    CX("{\"checkin\":%!j,"
-       "\"editableFiles\":[", zCiFull);
-    blob_append_sql(&sql, "SELECT filename FROM files_of_checkin(%Q) "
-                    "ORDER BY filename %s",
-                    zCiFull, filename_collation());
-    db_prepare_blob(&q, &sql);
-    while( SQLITE_ROW==db_step(&q) ){
-      const char * zFilename = db_column_text(&q, 0);
-      if(fileedit_is_editable(zFilename)){
-        if(i++){
-          CX(",");
-        }
-        CX("%!j", zFilename);
-      }
-    }
-    db_finalize(&q);
-    CX("]}");
+    fileedit_render_checkin_files(zCiFull);
+    fossil_free(zCiFull);
   }else if(P("leaves")!=0){
-    blob_append(&sql, timeline_query_for_tty(), -1);
-    blob_append_sql(&sql, " AND blob.rid IN (SElECT rid FROM leaf "
-                    "WHERE NOT EXISTS("
-                    "SELECT 1 from tagxref WHERE tagid=%d AND "
-                    "tagtype>0 AND rid=leaf.rid"
-                    ")) "
-                    "ORDER BY mtime DESC", TAG_CLOSED);
-    db_prepare_blob(&q, &sql);
-    CX("[");
-    while( SQLITE_ROW==db_step(&q) ){
-      if(i++){
-        CX(",");
-      }
-      CX("{");
-      CX("\"checkin\":%!j,", db_column_text(&q, 1));
-      CX("\"branch\":%!j,", db_column_text(&q, 7));
-      CX("\"timestamp\":%!j", db_column_text(&q, 2));
-      CX("}");
-    }
-    CX("]");
-    db_finalize(&q);
+    fileedit_render_leaves_list(0);
   }else{
-    fileedit_ajax_error(500, "Unhandled URL argument.");
+    ajax_route_error(500, "Unhandled URL argument.");
   }
 }
 
@@ -1659,7 +1461,7 @@ static void fileedit_ajax_filelist(void){
 ** }
 **
 ** On error it produces a JSON response as documented for
-** fileedit_ajax_error().
+** ajax_route_error().
 */
 static void fileedit_ajax_commit(void){
   Blob err = empty_blob;      /* Error messages */
@@ -1671,18 +1473,18 @@ static void fileedit_ajax_commit(void){
   char const * zMimetype;
   char * zBranch = 0;
 
-  if(!fileedit_ajax_boostrap(1)){
+  if(!ajax_route_bootstrap(1,1)){
     return;
   }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
   rc = fileedit_setup_cimi_from_p(&cimi, &err, 0);
   if(0!=rc){
-    fileedit_ajax_error(rc,"%b",&err);
+    ajax_route_error(rc,"%b",&err);
     goto end_cleanup;
   }
   if(blob_size(&cimi.comment)==0){
-    fileedit_ajax_error(400,"Empty checkin comment is not permitted.");
+    ajax_route_error(400,"Empty checkin comment is not permitted.");
     goto end_cleanup;
   }
   if(0!=atoi(PD("include_manifest","0"))){
@@ -1690,7 +1492,7 @@ static void fileedit_ajax_commit(void){
   }
   checkin_mini(&cimi, &newVid, &err);
   if(blob_size(&err)){
-    fileedit_ajax_error(500,"%b",&err);
+    ajax_route_error(500,"%b",&err);
     goto end_cleanup;
   }
   assert(newVid>0);
@@ -1727,54 +1529,61 @@ end_cleanup:
 /*
 ** WEBPAGE: fileedit
 **
-** Enables the online editing and committing of individual text files.
-** Requires that the user have Write permissions.
+** Enables the online editing and committing of text files. Requires
+** that the user have Write permissions and that a user with setup
+** permissions has set the fileedit-glob setting to a list of glob
+** patterns matching files which may be edited (e.g. "*.wiki,*.md").
+** Note that fileedit-glob, by design, is a local-only setting.
+** It does not sync across repository clones, and must be explicitly
+** set on any repositories where this page should be activated.
 **
 ** Optional query parameters:
 **
 **    filename=FILENAME   Repo-relative path to the file.
 **    checkin=VERSION     Checkin version, using any unambiguous
-**                        supported symbolic version name.
+**                        symbolic version name.
 **
-** Internal-use parameters:
+** If passed a filename but no checkin then it will attempt to
+** load that file from the most recent leaf checkin.
 **
-**    name=string         The name of a page-specific AJAX operation.
-**
-** Noting that fossil internally stores all URL path components after
-** the first as the "name" value. Thus /fileedit?name=blah is
-** equivalent to /fileedit/blah. The latter is the preferred
-** form. This means, however, that no fileedit ajax routes may make
-** use of the name parameter.
-**
-** Which additional parameters are used by each distinct ajax value is
-** an internal implementation detail and may change with any given
-** build of this code. An unknown "name" value triggers an error, as
-** documented for fileedit_ajax_error().
+** Once the page is loaded, files may be selected from any open leaf
+** version. The only way to edit files from non-leaf checkins is to
+** pass both the filename and checkin as URL parameters to the page.
+** Users with the proper permissions will be presented with "Edit"
+** links in various file-specific contexts for files which match the
+** fileedit-glob, regardless of whether they refer to leaf versions or
+** not.
 */
 void fileedit_page(void){
-  const char * zFilename = 0;          /* filename. We'll accept 'name'
-                                           because that param is handled
-                                           specially by the core. */
-  const char * zRev = 0;                /* checkin version */
   const char * zFileMime = 0;           /* File mime type guess */
   CheckinMiniInfo cimi;                 /* Checkin state */
-  int previewHtmlHeight = 0;            /* iframe height (EMs) */
-  int previewRenderMode = FE_RENDER_GUESS; /* preview mode */
+  int previewRenderMode = AJAX_RENDER_GUESS; /* preview mode */
   Blob err = empty_blob;                /* Error report */
-  Blob endScript = empty_blob;          /* Script code to run at the
-                                           end. This content will be
-                                           combined into a single JS
-                                           function call, thus each
-                                           entry must end with a
-                                           semicolon. */
   const char *zAjax = P("name");        /* Name of AJAX route for
                                            sub-dispatching. */
 
+  /*
+  ** Internal-use URL parameters:
+  **
+  **    name=string         The name of a page-specific AJAX operation.
+  **
+  ** Noting that fossil internally stores all URL path components
+  ** after the first as the "name" value. Thus /fileedit?name=blah is
+  ** equivalent to /fileedit/blah. The latter is the preferred
+  ** form. This means, however, that no fileedit ajax routes may make
+  ** use of the name parameter.
+  **
+  ** Which additional parameters are used by each distinct ajax route
+  ** is an internal implementation detail and may change with any
+  ** given build of this code. An unknown "name" value triggers an
+  ** error, as documented for ajax_route_error().
+  */
+  
   /* Allow no access to this page without check-in privilege */
   login_check_credentials();
   if( !g.perm.Write ){
     if(zAjax!=0){
-      fileedit_ajax_error(403, "Write permissions required.");
+      ajax_route_error(403, "Write permissions required.");
     }else{
       login_needed(g.anon.Write);
     }
@@ -1783,8 +1592,8 @@ void fileedit_page(void){
   /* No access to anything on this page if the fileedit-glob is empty */
   if( fileedit_glob()==0 ){
     if(zAjax!=0){
-      fileedit_ajax_error(403, "Online editing is disabled for this "
-                          "repository.");
+      ajax_route_error(403, "Online editing is disabled for this "
+                       "repository.");
       return;
     }
     style_header("File Editor (disabled)");
@@ -1799,7 +1608,7 @@ void fileedit_page(void){
     }else{
       CX("<p>Online editing is disabled for this repository.</p>\n");
     }
-    style_footer();
+    style_finish_page();
     return;
   }
 
@@ -1808,10 +1617,9 @@ void fileedit_page(void){
   ** fail with a JSON-format response if needed.
   */
   if( 0!=zAjax ){
+    /* preview mode is handled via /ajax/preview-text */
     if(0==strcmp("content",zAjax)){
       fileedit_ajax_content();
-    }else if(0==strcmp("preview",zAjax)){
-      fileedit_ajax_preview();
     }else if(0==strcmp("filelist",zAjax)){
       fileedit_ajax_filelist();
     }else if(0==strcmp("diff",zAjax)){
@@ -1819,7 +1627,7 @@ void fileedit_page(void){
     }else if(0==strcmp("commit",zAjax)){
       fileedit_ajax_commit();
     }else{
-      fileedit_ajax_error(500, "Unhandled ajax route name.");
+      ajax_route_error(500, "Unhandled ajax route name.");
     }
     return;
   }
@@ -1827,6 +1635,7 @@ void fileedit_page(void){
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
   style_header("File Editor");
+  style_emit_noscript_for_js_page();
   /* As of this point, don't use return or fossil_fatal(). Write any
   ** error in (&err) and goto end_footer instead so that we can be
   ** sure to emit the error message, do any cleanup, and end the
@@ -1835,10 +1644,7 @@ void fileedit_page(void){
   {
     int isMissingArg = 0;
     if(fileedit_setup_cimi_from_p(&cimi, &err, &isMissingArg)==0){
-      zFilename = cimi.zFilename;
-      zRev = cimi.zParentUuid;
-      assert(zRev);
-      assert(zFilename);
+      assert(cimi.zFilename);
       zFileMime = mimetype_from_name(cimi.zFilename);
     }else if(isMissingArg!=0){
       /* Squelch these startup warnings - they're non-fatal now but
@@ -1856,17 +1662,15 @@ void fileedit_page(void){
   ** rendering the page, then output the error message at the end.
   ********************************************************************/
 
-  {
-    /* The CSS for this page lives in a common file but much of it we
-    ** don't want inadvertently being used by other pages. We don't
-    ** have a common, page-specific container we can filter our CSS
-    ** selectors, but we do have the BODY, which we can decorate with
-    ** whatever CSS we wish...
-    */
-    style_emit_script_tag(0,0);
-    CX("document.body.classList.add('fileedit');\n");
-    style_emit_script_tag(1,0);
-  }
+  /* The CSS for this page lives in a common file but much of it we
+  ** don't want inadvertently being used by other pages. We don't
+  ** have a common, page-specific container we can filter our CSS
+  ** selectors, but we do have the BODY, which we can decorate with
+  ** whatever CSS we wish...
+  */
+  style_script_begin(__FILE__,__LINE__);
+  CX("document.body.classList.add('fileedit');\n");
+  style_script_end();
   
   /* Status bar */
   CX("<div id='fossil-status-bar' "
@@ -1874,20 +1678,24 @@ void fileedit_page(void){
      "Status messages will go here.</div>\n"
      /* will be moved into the tab container via JS */);
 
+  CX("<div id='fileedit-edit-status'>"
+     "<span class='name'>(no file loaded)</span>"
+     "<span class='links'></span>"
+     "</div>");
+
   /* Main tab container... */
   CX("<div id='fileedit-tabs' class='tab-container'></div>");
+
+  /* The .hidden class on the following tab elements is to help lessen
+     the FOUC effect of the tabs before JS re-assembles them. */
 
   /***** File/version info tab *****/
   {
     CX("<div id='fileedit-tab-fileselect' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='File Info &amp; Selection'"
+       "data-tab-label='File Selection' "
+       "class='hidden'"
        ">");
-    CX("<fieldset id='file-version-details'>"
-       "<legend>File/Version</legend>"
-       "<div>No file loaded.</div>"
-       "</fieldset>");
-    CX("<h1>Select a file to edit:</h1>");
     CX("<div id='fileedit-file-selector'></div>");
     CX("</div>"/*#fileedit-tab-fileselect*/);
   }
@@ -1896,15 +1704,20 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-content' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='File Content'"
+       "data-tab-label='File Content' "
+       "class='hidden'"
        ">");
     CX("<div class='flex-container flex-row child-gap-small'>");
-    CX("<button class='fileedit-content-reload confirmer' "
-       "title='Reload the file from the server, discarding "
+    CX("<div class='input-with-label'>"
+       "<button class='fileedit-content-reload confirmer' "
+       ">Discard &amp; Reload</button>"
+       "<div class='help-buttonlet'>"
+       "Reload the file from the server, discarding "
        "any local edits. To help avoid accidental loss of "
        "edits, it requires confirmation (a second click) within "
-       "a few seconds or it will not reload.'"
-       ">Discard &amp; Reload</button>");
+       "a few seconds or it will not reload."
+       "</div>"
+       "</div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
                           NULL/*tooltip*/,
@@ -1915,8 +1728,7 @@ void fileedit_page(void){
     CX("</div>");
     CX("<div class='flex-container flex-column stretch'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
-       "class='fileedit' "
-       "rows='20' cols='80'>");
+       "class='fileedit' rows='25'>");
     CX("</textarea>");
     CX("</div>"/*textarea wrapper*/);
     CX("</div>"/*#tab-file-content*/);
@@ -1926,7 +1738,8 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-preview' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='Preview'"
+       "data-tab-label='Preview' "
+       "class='hidden'"
        ">");
     CX("<div class='fileedit-options flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
@@ -1936,55 +1749,42 @@ void fileedit_page(void){
       ** the text editor with their own. */
        "data-f-preview-via='_postPreview' "
        /* ^^^ fossil.page[methodName](content, callback) */
-       "data-f-preview-to='#fileedit-tab-preview-wrapper' "
+       "data-f-preview-to='_previewTo' "
        /* ^^^ dest elem ID */
        ">Refresh</button>");
     /* Toggle auto-update of preview when the Preview tab is selected. */
-    style_labeled_checkbox("cb-preview-autoupdate",
-                           NULL,
-                           "Auto-refresh?",
-                           "1", 1,
-                           "If on, the preview will automatically "
-                           "refresh when this tab is selected.");
+    CX("<div class='input-with-label'>"
+       "<input type='checkbox' value='1' "
+       "id='cb-preview-autorefresh' checked>"
+       "<label for='cb-preview-autorefresh'>Auto-refresh?</label>"
+       "<div class='help-buttonlet'>"
+       "If on, the preview will automatically "
+       "refresh (if needed) when this tab is selected."
+       "</div>"
+       "</div>");
 
     /* Default preview rendering mode selection... */
     previewRenderMode = zFileMime
-      ? fileedit_render_mode_for_mimetype(zFileMime)
-      : FE_RENDER_GUESS;
+      ? ajax_render_mode_for_mimetype(zFileMime)
+      : AJAX_RENDER_GUESS;
     style_select_list_int("select-preview-mode",
                           "preview_render_mode",
                           "Preview Mode",
                           "Preview mode format.",
                           previewRenderMode,
-                          "Guess", FE_RENDER_GUESS,
-                          "Wiki/Markdown", FE_RENDER_WIKI,
-                          "HTML (iframe)", FE_RENDER_HTML_IFRAME,
-                          "HTML (inline)", FE_RENDER_HTML_INLINE,
-                          "Plain Text", FE_RENDER_PLAIN_TEXT,
+                          "Guess", AJAX_RENDER_GUESS,
+                          "Wiki/Markdown", AJAX_RENDER_WIKI,
+                          "HTML (iframe)", AJAX_RENDER_HTML_IFRAME,
+                          "HTML (inline)", AJAX_RENDER_HTML_INLINE,
+                          "Plain Text", AJAX_RENDER_PLAIN_TEXT,
                           NULL);
-    /*
-    ** Set up a JS-side mapping of the FE_RENDER_xyz values. This is
-    ** used for dynamically toggling certain UI components on and off.
-    */
-    blob_appendf(&endScript, "fossil.page.previewModes={"
-                 "guess: %d, %d: 'guess', wiki: %d, %d: 'wiki',"
-                 "htmlIframe: %d, %d: 'htmlIframe', "
-                 "htmlInline: %d, %d: 'htmlInline', "
-                 "text: %d, %d: 'text'"
-                 "};\n",
-                 FE_RENDER_GUESS, FE_RENDER_GUESS,
-                 FE_RENDER_WIKI, FE_RENDER_WIKI,
-                 FE_RENDER_HTML_IFRAME, FE_RENDER_HTML_IFRAME,
-                 FE_RENDER_HTML_INLINE, FE_RENDER_HTML_INLINE,
-                 FE_RENDER_PLAIN_TEXT, FE_RENDER_PLAIN_TEXT);
     /* Allow selection of HTML preview iframe height */
-    previewHtmlHeight = 40;
     style_select_list_int("select-preview-html-ems",
                           "preview_html_ems",
                           "HTML Preview IFrame Height (EMs)",
                           "Height (in EMs) of the iframe used for "
                           "HTML preview",
-                          previewHtmlHeight,
+                          40 /*default*/,
                           "", 20, "", 40,
                           "", 60, "", 80,
                           "", 100, NULL);
@@ -2004,10 +1804,12 @@ void fileedit_page(void){
   {
     CX("<div id='fileedit-tab-diff' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='Diff'"
+       "data-tab-label='Diff' "
+       "class='hidden'"
        ">");
 
-    CX("<div class='fileedit-options flex-container flex-row' "
+    CX("<div class='fileedit-options flex-container "
+       "flex-row child-gap-small' "
        "id='fileedit-tab-diff-buttons'>");
     CX("<button class='sbs'>Side-by-side</button>"
        "<button class='unified'>Unified</button>");
@@ -2036,7 +1838,8 @@ void fileedit_page(void){
   /****** Commit ******/
   CX("<div id='fileedit-tab-commit' "
      "data-tab-parent='fileedit-tabs' "
-     "data-tab-label='Commit'"
+     "data-tab-label='Commit' "
+     "class='hidden'"
      ">");
   {
     /******* Commit flags/options *******/
@@ -2157,7 +1960,8 @@ void fileedit_page(void){
   /****** Help/Tips ******/
   CX("<div id='fileedit-tab-help' "
      "data-tab-parent='fileedit-tabs' "
-     "data-tab-label='Help'"
+     "data-tab-label='Help' "
+     "class='hidden'"
      ">");
   {
     CX("<h1>Help &amp; Tips</h1>");
@@ -2185,52 +1989,79 @@ void fileedit_page(void){
   }
   CX("</div>"/*#fileedit-tab-help*/);
 
+  builtin_fossil_js_bundle_or("fetch", "dom", "tabs", "confirmer",
+                              "storage", "popupwidget", "copybutton",
+                              "pikchr", NULL);
+  /*
+  ** Set up a JS-side mapping of the AJAX_RENDER_xyz values. This is
+  ** used for dynamically toggling certain UI components on and off.
+  ** Must come after window.fossil has been intialized and before
+  ** fossil.page.fileedit.js. Potential TODO: move this into the
+  ** window.fossil bootstrapping so that we don't have to "fulfill"
+  ** the JS multiple times.
+  */
+  ajax_emit_js_preview_modes(1);
+  builtin_request_js("sbsdiff.js");
+  builtin_request_js("fossil.page.fileedit.js");
+  builtin_fulfill_js_requests();
   {
     /* Dynamically populate the editor, display any error in the err
     ** blob, and/or switch to tab #0, where the file selector
-    ** lives... */
-    blob_appendf(&endScript,
-                 "window.addEventListener('load',");
-    if(zRev && zFilename){
-      assert(0==blob_size(&err));
-      blob_appendf(&endScript,
-                   "()=>fossil.page.loadFile(%!j,%!j)",
-                   zFilename, cimi.zParentUuid);
-    }else{
-      blob_appendf(&endScript,"function(){");
+    ** lives. The extra C scopes here correspond to JS-level scopes,
+    ** to improve grokability. */
+    style_script_begin(__FILE__,__LINE__);
+    CX("\n(function(){\n");
+    CX("try{\n");
+    {
+      char * zFirstLeafUuid = 0;
+      CX("fossil.config['fileedit-glob'] = ");
+      glob_render_json_to_cgi(fileedit_glob());
+      CX(";\n");
       if(blob_size(&err)>0){
-        blob_appendf(&endScript,
-                     "fossil.error(%!j);\n",
-                     blob_str(&err));
+        CX("fossil.error(%!j);\n", blob_str(&err));
       }
-      blob_appendf(&endScript,
-                   "fossil.page.tabs.switchToTab(0);\n");
-      blob_appendf(&endScript,"}");
+      /* Populate the page with the current leaves and, if available,
+         the selected checkin's file list, to save 1 or 2 XHR requests
+         at startup. That makes this page uncacheable, but compressed
+         delivery of this page is currently less than 6k. */
+      CX("fossil.page.initialLeaves = ");
+      fileedit_render_leaves_list(cimi.zParentUuid ? 0 : &zFirstLeafUuid);
+      CX(";\n");
+      if(zFirstLeafUuid){
+        assert(!cimi.zParentUuid);
+        cimi.zParentUuid = zFirstLeafUuid;
+        zFirstLeafUuid = 0;
+      }
+      if(cimi.zParentUuid){
+        CX("fossil.page.initialFiles = ");
+        fileedit_render_checkin_files(cimi.zParentUuid);
+        CX(";\n");
+      }
+      CX("fossil.onPageLoad(function(){\n");
+      {
+        if(blob_size(&err)>0){
+          CX("fossil.error(%!j);\n",
+             blob_str(&err));
+          CX("fossil.page.tabs.switchToTab(0);\n");
+        }
+        if(cimi.zParentUuid && cimi.zFilename){
+          CX("fossil.page.loadFile(%!j,%!j);\n",
+             cimi.zFilename, cimi.zParentUuid)
+            /* Reminder we cannot embed the JSON-format
+               content of the file here because if it contains
+               a SCRIPT tag then it will break the whole page. */;
+        }
+      }
+      CX("});\n")/*fossil.onPageLoad()*/;
     }
-    blob_appendf(&endScript,", false);\n");
+    CX("}catch(e){"
+       "fossil.error(e); console.error('Exception:',e);"
+       "}\n");
+    CX("})();")/*anonymous function*/;
+    style_script_end();
   }
-
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
-  style_emit_script_fossil_bootstrap(0);
-  append_diff_javascript(1);
-  style_emit_script_fetch(0);
-  style_emit_script_tabs(0)/*also emits fossil.dom*/;
-  style_emit_script_confirmer(0);
-  style_emit_script_builtin(0, "fossil.storage.js");
-  style_emit_script_builtin(0, "fossil.page.fileedit.js");
-  if(blob_size(&endScript)>0){
-    style_emit_script_tag(0,0);
-    CX("(function(){\n");
-    CX("try{\n%b\n}"
-       "catch(e){"
-       "fossil.error(e);\n"
-       "console.error('Exception:',e);\n"
-       "}\n",
-       &endScript);
-    CX("})();");
-    style_emit_script_tag(1,0);
-  }
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }

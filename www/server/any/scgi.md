@@ -65,6 +65,9 @@ We go into more detail on nginx service setup with Fossil in our
 article](../../tls-nginx.md) that builds upon that, we show how to add
 TLS encryption to this basic SCGI + nginx setup on Debian type OSes.
 
+Similarly, our [OpenBSD specific guide](../openbsd/fastcgi.md) details how
+to setup a Fossil server using httpd and FastCGI on OpenBSD.
+
 *[Return to the top-level Fossil server article.](../)*
 
 [404]: https://en.wikipedia.org/wiki/HTTP_404
