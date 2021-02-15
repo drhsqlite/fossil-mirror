@@ -3326,6 +3326,8 @@ void artifact_page(void){
     if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
       style_submenu_element("Check-ins Using", "%R/timeline?uf=%s", zUuid);
     }
+  } else {
+    zMime = mimetype_from_name(blob_str(&downloadName));
   }
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
