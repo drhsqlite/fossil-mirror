@@ -493,7 +493,9 @@ void leaves_cmd(void){
     const char *zDate = db_column_text(&q, 2);
     const char *zCom = db_column_text(&q, 3);
     const char *zBr = db_column_text(&q, 7);
-    char *z;
+    char *z = 0;
+    int ridOfRoot = 0;
+    char * zBranchPoint = 0;
 
     if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
       fossil_print("*** %s ***\n", zBr);
@@ -504,9 +506,17 @@ void leaves_cmd(void){
     n++;
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
     fossil_print("%6s ", zLineNo);
-    z = mprintf("%s [%S] %s", zDate, zId, zCom);
+    z = mprintf("root:%s", zId);
+    ridOfRoot = symbolic_name_to_rid(z, "ci");
+    if(ridOfRoot>0){
+      zBranchPoint = mprintf(" Branched from [%.*z]", hash_digits(0),
+                             rid_to_uuid(ridOfRoot));
+    }
+    z = mprintf("%s [%S] %s%.*s", zDate, zId, zCom,
+                zBranchPoint ? zBranchPoint : 0);
     comment_print(z, zCom, 7, width, get_comment_format());
     fossil_free(z);
+    fossil_free(zBranchPoint);
   }
   fossil_free(zLastBr);
   db_finalize(&q);

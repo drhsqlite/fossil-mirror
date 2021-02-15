@@ -1,5 +1,5 @@
-C Internal\sAPI\sadditions\sin\ssymbolic_name_to_rid().
-D 2021-02-15T15:50:51.326
+C Experimentally\sadded\sbranched-from\sinfo\sto\sthe\sleaves\soutput,\sas\sdiscussed\sin\s[forum:/forumpost/5e52d31d2e].
+D 2021-02-15T16:27:59.662
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -464,7 +464,7 @@ F src/default.css c04151178ec556f843a07fc6974c2232b07be4206a631f1660e97372c6c608
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
-F src/descendants.c 52eac5576377e65024a5901b46a63d0fe828e8500cb1c2d0d355d63fc1e39966
+F src/descendants.c 5d3c630db69c6b8009fc2d7a11ed778be45fb0a056664a58aaee0c5e515fa37c
 F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 3d52fe7c64d6a7be80595435dbd9d3a341934fe16413d918d4974599f6434a9f
@@ -987,7 +987,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f260b75fb931227b39f5a41f19983c148754cdf23c07ed49656128c8f1f9d4c4
-R a28c4ba19b4f114a6938933a6698dc93
+P 20391d1e58b6b7c8d2aa23ec27a9f090d4a0086e8e31bcafe811e855757aa55d
+R 6e782dfee32d944d8c6f5efe8bc73acd
+T *branch * leaves-command-branched-from
+T *sym-leaves-command-branched-from *
+T -sym-trunk *
 U stephan
-Z 27892774a1bf446576b2741310245c03
+Z 377666b2824d73e80a17056e06dd4b2f
