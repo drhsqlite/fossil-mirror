@@ -516,7 +516,7 @@ void leaves_cmd(void){
       fossil_free(z);
     }
     z = mprintf("%s [%S] %s%s", zDate, zId, zCom,
-                zBranchPoint ? zBranchPoint : 0);
+                zBranchPoint ? zBranchPoint : "");
     comment_print(z, zCom, 7, width, get_comment_format());
     fossil_free(z);
     fossil_free(zBranchPoint);
