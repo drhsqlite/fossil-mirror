@@ -44,27 +44,6 @@
 ** Options to control the "local changes" changes. At present, these are
 ** defines: if these changes are adopted, some may want to be made into
 ** configuration options.
-**
-** INTEGER: Controls how many unmanaged files will be shown before the "plus xxx
-** other matching files." line is shown (with an option to view all of them).*/
-#define LOCAL_DIFF_MAX_EXTRAS       (5)
-/*
-** STRING: Controls whether the "extras" report is initially shown or hidden. A
-** value of "0" hides the report; a value of "" (an empty string) will show it.
-*/
-#define LOCAL_DIFF_EXTRAS_MODE      ("")
-/*
-** BOOLEAN: Controls whether one or two passes are made through the list of
-** changed files. In two-pass mode, all single-line differences are displayed
-** ahead of all differences involving "diff-blocks", making them less likely to
-** be overlooked. If disabled, only one pass is made, listing all changes in the
-** order found. Possible TODO: Do the same for "normal" diffs. */
-#define LOCAL_DIFF_USE_TWO_PASSES   (1)
-/*
-** BOOLEAN: Controls whether dividers ("<hr/>") added after any "diff-blocks"
-** (except the last one)... IMHO doing so makes it easier to see where one block
-** ends and the next starts. Possible TODO: Do the same for "normal" diffs. */
-#define LOCAL_DIFF_ADD_DIVIDER      (1)
 /*---------------------------------------------------------------------------*/
 
 /*
@@ -550,20 +529,19 @@ static void append_local_file_change_line(
                         /* 0x02 - Display entries with "diff blocks" only */
                         /* 0x03 - Display both                            */
 ){
-#if LOCAL_DIFF_ADD_DIVIDER
   /* This remembers whether a side-by-side "diff-block" was shown the last
   ** time through. If it was, we will add "<hr/>" to better separate the
   ** blocks.
   */
   static int diffShownLastTime = 0;
-#endif
+
   char *zFullName = mprintf("%s%s", g.zLocalRoot, zName);
   int isFilePresent = !file_access(zFullName, F_OK);
+
   /* Determing up-front whether we would be showing a "diff-block" so we can
   ** filter them according to which pass we are on: the first pass will show
   ** only the "single-line" entries; the second will show only those with
-  ** diff-blocks. In single-pass mode (the original way), 'pass' will be "3",
-  ** so all entries are shown in their original order.
+  ** diff-blocks.
   */
   int showDiff = (  isDeleted && isFilePresent )
               || ( !isDeleted && !isNew && ( ( isChnged == 1 )
@@ -576,7 +554,7 @@ static void append_local_file_change_line(
   */
   if(  showDiff && (pass == 1) ){ return; } /* Don't do diff on pass 1 of 2 */
   if( !showDiff && (pass == 2) ){ return; } /* Don't do line on pass 2 of 2 */
-#if LOCAL_DIFF_ADD_DIVIDER
+
   /* If a SBS diff-block was shown by the previous entry, add a divider */
   if( diffShownLastTime && (diffFlags & DIFF_SIDEBYSIDE) ){
     @ <hr/>
@@ -585,7 +563,7 @@ static void append_local_file_change_line(
   ** 'diffFlags' here so that in "Hide diffs" mode, we don't get extra lines.
   */
   diffShownLastTime = showDiff && diffFlags;
-#endif
+
   @ <p>
   if( !g.perm.Hyperlink ){
     if( isDeleted ){
@@ -852,8 +830,8 @@ void ci_tags_page(void){
 }
 
 /*
-** Options for the "extras" report. The bit-mask versions are used for "&ef=.."
-** to select which category(ies) to show.
+** Options for the "extras" report in "local-diff" mode. The bit-mask versions
+** are used for "&ef=.." to select which category(ies) to show.
 */
 enum {
   EXB_PLAIN,  EXB_IGNORE, EXB_CLEAN,  EXB_KEEP,
@@ -906,8 +884,8 @@ static void append_extras_report(
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);      /* Length of root component */
   Stmt q;
-  Blob repo;                              /* TODO:LD May not be needed */
-  int maxExtrasToShow = LOCAL_DIFF_MAX_EXTRAS;
+  Blob repo;
+  int maxExtrasToShow = 5;                /* Before showing "+ xx others" */
   int extrasFlags = atoi(zExtra);         /* Which entries to show */
   int nExtras;
   int nMatch;
@@ -917,74 +895,19 @@ static void append_extras_report(
   int nClean;
   int nKeep;
 
-  /*TODO:LD?
-  ** It feels sensible to limit the number of "extra" entries shown by default
-  ** for cases where "ignore-glob" or "clean-glob" haven't been fully setup.
-  ** A minor irritation is that this can lead to "... plus 1 more file", on a
-  ** line that COULD have been used to display the omitted file. If we knew in
-  ** advance how many entries were going to match, we could temporarily "bump"
-  ** the limit by one show all entries would be shown. However, to know the
-  ** number of matches in advance we'd have to:
-  ** a) Pre-scan SFILE, testing and counting matches against each glob-list,
-  **    possibly bump the limit, then re-scan the table repeating the tests
-  **    against each glob-list to decide which to show.
-  ** b) SFILE could have an extra FLAGS field: during the pre-scan, this could
-  **    be updated to indicate which groups each file belong to. This would
-  **    save re-testing every file against each glob-list (the main pass could
-  **    select "WHERE flags & selector" to get only the matching entries), but
-  **    the updates (selecting by "pathname" each time) could be a bit much.
-  ** c) vfile_scan() -- where SFILE is populated -- COULD have an option to
-  **    do the testing at the time entries are added. This would be the "best"
-  **    way, but feels too much disruption to other code for what is only a
-  **    minor benefit.
-  ** For now, I'll stick with the minor annoyance of "plus 1 more file" :-)
-  **
-  ** Being able to determine the counts up-front would also allow us to hide
-  ** the whole "extras report" if there were no unmanaged files.
-  **
-  **TODO:LD?
-  ** Does it make sense (and/or is it practiable) to offer an "ADD" button
-  ** against files that are unmanaged?
-  **
-  **TODO:LD?
-  ** Does it make sense (and/or ...) to offer ediing of the various blob-lists
-  ** from the Extras report? Showing the existing configuration screen would
-  ** probably not be a problem (permissions permitting), but what happens if
-  ** those settings have been overriden by .fossil-settings/ignore-glob? As we
-  ** have access to the local checkout, is it feasible to edit it in the browser
-  ** (perhaps piggy-backing /fileedit)?
-  */
-
-  locate_unmanaged_files(0, NULL, 0, NULL);   /* Get all unmanaged */
+  locate_unmanaged_files(0, NULL, 0, NULL);   /* Get all unmanaged files */
   /*TODO:LD
   ** The first two of these exclusions come from clean_cmd() in checkin.c.
   ** Not sure exactly what they are intended to do (seem to have no effect on
-  ** my test repos). Last exclusion is an alternative to the WHERE clause above
-  ** so that COUNT(*) returns the correct value. TODO Even though, as noted
-  ** above, getting the count ahead of time is of little use (it was used to
-  ** bump the display limit if only one entry would be omitted), I'll probably
-  ** retain omitting the WHERE, and using DELETE FROM to exclude reserved
-  ** names, just in case (c) above were to be implemented.
+  ** my test repos).
   */
-  /*TODO:LD deletions from clean_cmd() */
   if( file_tree_name(g.zRepositoryName, &repo, 0, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE pathname=%B", &repo);
   }
   db_multi_exec("DELETE FROM sfile WHERE pathname IN"
                 " (SELECT pathname FROM vfile)");
-  /*TODO:LD Delete reserved names, rather than WHERE them out. */
   db_multi_exec("DELETE FROM sfile WHERE pathname IN (%s)",
                 fossil_all_reserved_names(0));
-
-  /*TODO:LD
-  ** If we had a count of matching entries before scanning, this is where
-  ** we'd bump the maximum to show so as to avoid "plus 1 file".
-  ** ...
-  ** If there's only one more than the maximum, let it through...
-  ** a line used to say "plus 1 more" may as well display that item!
-  if( nExtras == maxExtrasToShow+1 ){ maxExtrasToShow++; }
-  ** ...
-  */
 
   /* Handle the special case where zExtra was empty (and got converted to zero).
   ** If so, show "plain" files (those not matching any glob-list) but with an
@@ -1031,8 +954,6 @@ static void append_extras_report(
   );
   /*
   ** Put the file-list in one paragraph with line-breaks between.
-  **TODO:LD
-  ** Might a table (with columns for name, ignore/clean/keep) work?
   */
   @ <p>
   nExtras = nMatch = nShown = nPlain = nKeep = nClean = nIgnore = 0;
@@ -1198,12 +1119,11 @@ void ci_page(void){
   ** extras report. Other (numeric) values control what the report shows (e.g.
   ** "1" would list ALL unmanaged files without limiting their number).
   **
-  ** If the "ef=" isn't present (as when first navigating to "/local") then a
-  ** default setting is used. Set to "0" to initially hide the report.
+  ** If the "ef=" is absent then default to "" (show (some) unmanaged files).
   */
   zExtra = P("ef");
   if( zExtra==NULL ) {
-    zExtra = LOCAL_DIFF_EXTRAS_MODE;
+    zExtra = "";
   }
   showExtras = strcmp(zExtra,"0")!=0;
 
@@ -1213,19 +1133,11 @@ void ci_page(void){
   ** checkout have changed etc.). We then change the "name" parameter to "tip"
   ** so that the "header" section displays info about the check-in that the
   ** checkout came from.
-  **TODO:LD
-  ** It would probably make sense to limit "/local" (and other links that come
-  ** from it) to only be permitted when Fossil is running locally in "ui" mode.
-  ** It's probably not critical when all you can do is view files in the
-  ** checkout (they can already see the checked-in versions), but if a COMMIT
-  ** option WERE ever to be implemented, you wouldn't essentially random people
-  ** on the internet firing off commits!
   */
   bLocalMode = (g.zPath[0]=='l') || (fossil_strcmp(zName,"ckout")==0);
   if( bLocalMode ){
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
     if( vid==0 ){
-      /*TODO:LD Is this the right response? */
       style_header("No Local Checkout");
       @ No access to local checkout.
       style_finish_page();
@@ -1527,25 +1439,19 @@ void ci_page(void){
     }
   }
   if( bLocalMode ){
-      @ %z(chref("button","%R/localpatch")) Patch</a>
-  }else
+    @ %z(chref("button","%R/localpatch")) Patch</a>
+    if( showExtras ){
+      @ %z(chref("button","%R/local?diff=%d%s&ef=0",diffType,zW))Hide Extras</a>
+    }else{
+      @ %z(chref("button","%R/local?diff=%d%s&ef=",diffType,zW))Show Extras</a>
+    }
+  }else //TODO:LD Rejoin else-if?
   if( zParent ){
     @ %z(chref("button","%R/vpatch?from=%!S&to=%!S",zParent,zUuid))
     @ Patch</a>
   }
   if( g.perm.Admin ){
     @ %z(chref("button","%R/mlink?ci=%!S",zUuid))MLink Table</a>
-  }
-  if( bLocalMode ){
-    if( showExtras ){
-      @ %z(chref("button","%R/local?diff=%d%s&ef=0",diffType,zW))Hide Extras</a>
-    }else{
-      @ %z(chref("button","%R/local?diff=%d%s&ef=",diffType,zW))Show Extras</a>
-    }
-    /*TODO:LD
-    ** There would be a fair chunk of stuff to get right (not least appropriate
-    ** restrictions), but it MIGHT be nice to have a COMMIT button here...
-    */
   }
   @</div>
   if( pRe ){
@@ -1557,10 +1463,6 @@ void ci_page(void){
       append_extras_report(zExtra, diffType, zW);
     }
     /* Following SQL taken from diff_against_disk() in diffcmd.c */
-    /*TODO:LD
-    ** That code wrapped the query/processing in a transaction (but, from
-    ** memory, other similar uses did not). Is it neeeded?
-    */
     db_begin_transaction();
     db_prepare(&q3,
       "SELECT pathname, deleted, chnged , rid==0, rid, islink"
@@ -1572,20 +1474,13 @@ void ci_page(void){
     );
 
     /* To prevent single-line diff-entries (those without "diff-blocks") from
-    ** getting "lost", there's an optional "two-pass" mode for processing
-    ** differences. If enabled, the first pass will only show one-line entries
-    ** and the second pass will only show those with diff-blocks. This has the
-    ** side-effect of altering the order entries are shown in (but within each
-    ** group the original order is maintained).
-    **
-    ** If disabled, (pass gets set to 3), only one pass is made on which all
-    ** entries are shown in their "normal" order.
-    **TODO:LD
-    ** Add this to the original (non-local) loop?
+    ** getting "lost", the first pass will only show one-line entries and the
+    ** second pass will only show those with diff-blocks.
+    ** TODO:LD   Add this to the original (non-local) loop?
     */
-    int pass = LOCAL_DIFF_USE_TWO_PASSES?1:3;
+    int pass;
     int anyDifferences = 0;
-    do{
+    for(pass=1; pass<=2; pass++) {
       while( db_step(&q3)==SQLITE_ROW ){
         const char *zPathname = db_column_text(&q3,0);
         int isDeleted = db_column_int(&q3, 1);
@@ -1600,7 +1495,7 @@ void ci_page(void){
         anyDifferences = 1;
       }
       db_reset(&q3);
-    }while( ++pass < 3 ); /* Either "1, 2, stop" or "3, stop". */
+    }
     if( !anyDifferences ){
       @ <p>No changes in the local checkout.</p>
     }
@@ -1652,7 +1547,6 @@ void localpatch_page(void){
 
   vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
   if( vid==0 ){
-    /*TODO:LD Is this the right response? */
     style_header("No Local Checkout");
     @ No access to local checkout.
     style_finish_page();
@@ -2518,7 +2412,7 @@ void diff_page(void){
   style_set_current_feature("fdiff");
   style_header("Diff");
   style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
-  if( bLocalMode ){
+  if( bLocalMode ){//TODO:LD Merge these?
     if( diffType==2 ){
       style_submenu_element("Unified Diff", "%R/localdiff?name=%T&diff=1",
                             zLocalName);

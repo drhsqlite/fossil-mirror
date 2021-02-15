@@ -1,8 +1,8 @@
 B 0516f4d3c85d8e37f65aacca0db1e036791178e4d283310ee453ccd4ec9729dc
-C Restored\sa\scall\sto\s"mimetype_from_name()"\sin\slocal-diff\smode.
-D 2021-02-15T15:35:17.274
-F src/info.c cfd40c6b959c1664f79b1edfe626fce6f31b13b3c45052857094551a8eecd0f1
-P 0516f4d3c85d8e37f65aacca0db1e036791178e4d283310ee453ccd4ec9729dc
-R d509735619811bdcdd402734da750bd1
+C [WIP]\sRemoved\sthe\sconditional\scode\saround\ssome\soptions:\sup\sto\sfive\s"extras"\nWILL\sbe\sshown\sby\sdefault;\ssingle-line\sdifference\sreports\sWILL\sbe\sshown\sfirst\n(ahead\sof\sthose\swith\s"diff\sblocks")\sand\s"diff\sblocks"\sWILL\shave\sdividers.\nRemoved\sa\snumber\sof\smy\s"place\sholder"\scomments.
+D 2021-02-15T22:45:20.533
+F src/info.c a5f1b6815bc90e5aa8c033fefec22f1fbb13500e0ba7a7677f5928b276b06335
+P e494b979545c52bac782c6493d10fb47285f790a41300d74074a73fe59a3e401
+R be26d1cfabcb2a10148e8088fecfaa8c
 U graham
-Z 4825b6b0a4115b415b01135386c9b083
+Z 5eb0413b952b1c9f13226af43202d4f5
