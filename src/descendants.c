@@ -506,8 +506,6 @@ void leaves_cmd(void){
     n++;
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
     fossil_print("%6s ", zLineNo);
-    z = mprintf("root:%s", zId);
-    ridOfRoot = symbolic_name_to_rid(z, "ci");
     if(0!=fossil_strcmp(zBr,"trunk")){
       z = mprintf("root:%s", zId);
       ridOfRoot = symbolic_name_to_rid(z, "ci");
