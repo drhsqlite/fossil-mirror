@@ -508,11 +508,16 @@ void leaves_cmd(void){
     fossil_print("%6s ", zLineNo);
     z = mprintf("root:%s", zId);
     ridOfRoot = symbolic_name_to_rid(z, "ci");
-    if(ridOfRoot>0){
-      zBranchPoint = mprintf(" Branched from [%.*z]", hash_digits(0),
-                             rid_to_uuid(ridOfRoot));
+    if(0!=fossil_strcmp(zBr,"trunk")){
+      z = mprintf("root:%s", zId);
+      ridOfRoot = symbolic_name_to_rid(z, "ci");
+      if(ridOfRoot>0){
+        zBranchPoint = mprintf(" (branched from: [%.*z])", hash_digits(0),
+                               rid_to_uuid(ridOfRoot));
+      }
+      fossil_free(z);
     }
-    z = mprintf("%s [%S] %s%.*s", zDate, zId, zCom,
+    z = mprintf("%s [%S] %s%s", zDate, zId, zCom,
                 zBranchPoint ? zBranchPoint : 0);
     comment_print(z, zCom, 7, width, get_comment_format());
     fossil_free(z);
