@@ -5,7 +5,7 @@
 Upon hearing that Fossil is based on sqlite, it's natural for people
 unfamiliar with its internals to assume that Fossil stores its
 SCM-relevant data in a database-friendly way and that the SCM history
-could be modified via SQL. The truth, however, is *far stranger than
+can be modified via SQL. The truth, however, is *far stranger than
 that.*
 
 This presentation introduces, at a relatively high level:
@@ -20,27 +20,6 @@ This presentation introduces, at a relatively high level:
   *transient* database-friendly form.
 
 4) Some of the consequences of this model.
-
-<!--
-```pikchr center
-AllObjects: [
-A: file "Artifacts";
-down; move to A.s; move 50%;
-F: file "Client" "files";
-right; move 1; up; move 50%;
-B: cylinder "blob table"
-right;
-arrow from A.e to B.w;
-arrow from F.e to B.w;
-arrow from B.e;
-C: box rad 0.1 "Crosslink" "process";
-arrow
-AUX: cylinder "Auxiliary" "tables"
-arc -> cw dotted from AUX.s to B.s;
-] # end of AllObjects
-// text "Architecture Overview" big bold  at .1cm above north of AllObjects
-```
--->
 
 
 # Part 1: Artifacts
@@ -100,7 +79,7 @@ This format has the following major properties:
 
 - It <u>**holds all SCM-relevant data except for client-level file
   content**</u>, the latter instead being referenced by their unique
-  hash values. Storage of the client-side content as an implementation
+  hash values. Storage of the client-side content is an implementation
   detail delegated to higher-level applications.
  
 - <u>**Auditability**</u>. By following the hash references in
