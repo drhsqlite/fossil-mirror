@@ -1,5 +1,5 @@
-C darkmode\sskin:\scleaned\sup\scentering\sof\shamburger\smenu.
-D 2021-02-16T18:53:56.817
+C Fix\sthe\s"fossil\sgit\sexport"\scommand\sso\sthat\sit\sreturns\sa\snon-zero\sexit\scode\nif\sthe\s"git\spush"\scommand\sfails.
+D 2021-02-18T13:10:41.741
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -473,7 +473,7 @@ F src/doc.c f04fab65744b0205ce82b0a668d4bc55460c7f47c03c16c64f3fc97dea21f44b
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
-F src/export.c 0b510c4417c749ef3c9f4f31a625f29e607ac4156d98389ff3bf60895333359c
+F src/export.c ef1e00bd6aee46f3cfc93a2bc9a669a6dd9bbc78cf16b7441c5dfa9ba70c67a5
 F src/extcgi.c 481bd97b1a826d0766a808531ab6855de50dbf956bffee9c69e6f192b2e8a3c6
 F src/file.c eb5d8ecdafee9d7c850f70080f7becf70ec4657dbee9c6760223ac94492b5adf
 F src/fileedit.c fc24522347cd4d95e12d9ef1c47d7143f13c9793bd13ff4372eca9321b5c99d2
@@ -987,7 +987,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20391d1e58b6b7c8d2aa23ec27a9f090d4a0086e8e31bcafe811e855757aa55d
-R a4d7f8ac259cd1031137a4889875ef99
-U stephan
-Z 7e056a175426cadbbfccdbffc54104e8
+P daf8ab95cd19afb3eb992e710012c0b43eda57d3532c32511fad90069a57a674
+R 1eed30fa4a375af3ad091db3bf2f99ee
+U drh
+Z b6b6f22f2db22d4d29a76121bd593800

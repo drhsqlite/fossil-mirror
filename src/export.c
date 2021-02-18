@@ -1326,7 +1326,7 @@ static char *gitmirror_init(
   gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
   rc = fossil_system(zCmd);
   if( rc ){
-    fossil_fatal("cannot initialize git repository using: %s\n", zCmd);
+    fossil_fatal("cannot initialize git repository using: %s", zCmd);
   }
   fossil_free(zCmd);
 
@@ -1720,7 +1720,10 @@ void gitmirror_export_command(void){
     gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
     zPushCmd = mprintf("git push --mirror %$", zPushUrl);
-    fossil_system(zPushCmd);
+    rc = fossil_system(zPushCmd);
+    if( rc ){
+      fossil_fatal("cannot push content using: %s", zPushCmd);
+    }
     fossil_free(zPushCmd);
   }
 }
