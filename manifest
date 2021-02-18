@@ -1,5 +1,5 @@
-C API\sdoc\stypo\sfix.
-D 2021-02-18T13:54:42.159
+C Permuted\sindex:\sAdded\sthe\sword\srelational\sto\sthe\sfossil-is-not-relational.md\sdescription\sso\sthat\sthat\spage\scan\sbe\smore\seasily\sfound\sin\sthe\sindex.
+D 2021-02-18T23:11:15.784
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -924,10 +924,10 @@ F www/makefile.wiki 2e5f7b77ec7b47296a1eeaaa9d1d2222944bff739b395383199a7a17b878
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 4b196dcc6b67781b1923297e35c4bac25ac996d9b0ec6d03d9cd322169b6a845
-F www/mkindex.tcl dc39be1d91a245695dfcc8907cf5d834510f052d19b0e71b3cc8ac3a9bbbc827 x
+F www/mkindex.tcl 5b3ce9f5671a6183a2938e0d4a0da613a67c92db3dfe8577fb03f91f8f3e6989 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 6ae5b4b21a894e5e2e22d00c694d977d012a7ffdc7beeb22dacaaa429c4257cd
+F www/permutedindex.html bc4762133212c6634ad788e6d609b9e3930d0f493919d86e7794b695e07c97e8
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
@@ -987,7 +987,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P da5faf18c3699d5c521695aed2e6069568e374111a2228de231984d1b255c5fe
-R 67d2e2c78baa1975bcfe7596866a694e
+P 9eed26b0a048430fcb1dd755ea5f3e9b0df4f150c687ddcade0c2bc2e1398d72
+R d9212d93f1a42a6c226dbc48071ce13f
 U stephan
-Z 6c7ae6f9ceddaf7fc494130001451e53
+Z c6489993b795f538dbcd31665bfbd780
