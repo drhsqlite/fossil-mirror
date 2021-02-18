@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\sgit\sexport"\scommand\sso\sthat\sit\sreturns\sa\snon-zero\sexit\scode\nif\sthe\s"git\spush"\scommand\sfails.
-D 2021-02-18T13:10:41.741
+C API\sdoc\stypo\sfix.
+D 2021-02-18T13:54:42.159
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -441,7 +441,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c a4cb35885971e016331b2e028389e3f8d913b66d3be06fe61f4928243c12e5b8
-F src/chat.c b1189afa613bcd57b2f91821f8e1281134ec1aa69086c046f967de1c2c93ce10
+F src/chat.c 4732b8ac7d64be0b56f7cb8b4b6862149c3ce52d2c0dd1b90b54b30da1a94c53
 F src/chat.js beb5bf45ac957cbe9cadf96ac7f14c04ea316489af4f79ac1e7cc3567256d62b
 F src/checkin.c 0f441a8b02693f92da497772da39a1370770155af5d57067950f9920399146f1
 F src/checkout.c 5ad65b9d0a0fac559985b76e75c807ed830c07d25e44f5743bab55ada3e250ea
@@ -987,7 +987,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P daf8ab95cd19afb3eb992e710012c0b43eda57d3532c32511fad90069a57a674
-R 1eed30fa4a375af3ad091db3bf2f99ee
-U drh
-Z b6b6f22f2db22d4d29a76121bd593800
+P da5faf18c3699d5c521695aed2e6069568e374111a2228de231984d1b255c5fe
+R 67d2e2c78baa1975bcfe7596866a694e
+U stephan
+Z 6c7ae6f9ceddaf7fc494130001451e53

@@ -503,7 +503,7 @@ void chat_test_formatter_cmd(void){
 **
 ** The "mdel" will only exist if "xmsg" is an empty string and "fsize" is zero.
 **
-** The "lmtime" value might be known, in which case it is omitted.
+** The "lmtime" value might be unknown, in which case it is omitted.
 **
 ** The messages are ordered oldest first unless "before" is provided, in which
 ** case they are sorted newest first (to facilitate the client-side UI update).
