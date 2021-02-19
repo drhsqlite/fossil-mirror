@@ -1,4 +1,4 @@
-# Project Ideas for Google Summer of Code
+# Project Ideas for Google Summer of Code 2021
 
 This list was made for the Fossil project's application for [Google Summer of
 Code](https://summerofcode.withgoogle.com/) in 2021. GSoC pays students to
@@ -16,7 +16,7 @@ data access since they use the same SQL, and are 100% binary compatible in terms
 * Improve the documentation history-browsing page to enable selection of 2 arbitrary versions to diff, similar to the [Mediawiki history feature enabled on Wikipedia](https://en.wikipedia.org/w/index.php?title=Fossil_(software)&action=history)
 * Allow diffing of Forum posts
 * Develop a test suite for the draft JSON API in libfossil. This JSON API is a way of integrating many kinds of systems with Fossil
-* Re-implement the draft JSON API in libfossil to use the JSON capability in SQLite, now that SQLite has JSON. This is a large project and would start with analysis
+* Re-implement the draft JSON API in libfossil to use the JSON capability in SQLite, now that SQLite has JSON. This is a large project and would start with feasibility analysis
 * Fossil hooks for pipelines with CI/CD such as static analysis, Buildbot, Gerrit, Travis and Jenkins are not well-documented and may need some further development. Make this work better, with configuration examples
 * Create a [Pandoc](https://pandoc.org) filter that handles Fossil-style Markdown
 * Create a [Pandoc filter that handles Pikchr](https://groups.google.com/g/pandoc-discuss/c/zZSspnHHsg0?pli=1) (Pikchr can be used with many kinds of layout, not just Markdown)
@@ -45,7 +45,11 @@ is designed to [endure for centuries](./fileformat.wiki),
 be [easily accessible](./fossil-v-git.wiki#durable), and is [non-relational](./fossil-is-not-relational.md).
 You will need to understand the data model to work on the following tasks:
 
-* Add the ability tag non-checkin artifacts, something the CLI and UIs do not although the data model does. One suggestion is that this is how xattrs could apply to file blobs. This could also relate to the RBAC system.
+* Add the ability to tag non-checkin artifacts, something supported by
+  the data model but not the current CLI and UIs. This would open the
+  door to numerous new features, such as "sticky" forum posts and
+  per-file extended attributes. This could also relate to the RBAC
+  system.
 * Implement "merge" and "stash" in libfossil
 * Analyse the different kinds of [split/export/shallow clone](https://fossil-scm.org/forum/forumpost/1aa4f8ea8c6f96) use cases for Fossil including [complete bifurcation](https://fossil-scm.org/forum/forumpost/6434a06871). There are many proposals, relating to many different use cases, and a good analysis would help us to work out what should be implemented, and what should be implemented in Fossil and what is instead a libfossil wrapper
 
