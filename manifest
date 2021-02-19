@@ -1,5 +1,5 @@
-C Google\sSummer\sof\sCode\sproject\sideas\sfor\sprospective\sstudents
-D 2021-02-19T15:18:41.202
+C Cleanups
+D 2021-02-19T16:52:28.947
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -883,7 +883,7 @@ F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c81
 F www/gitusers.md 58faeb7a49202edb993c92e98affd356d310dee4a4a17b96b5588ed28c8e5fcf
 F www/globs.md 134961aace52790dc92fe2c8faa8c4affebc66e3643953b7c96c75cf5c4caef7
 F www/grep.md c50868f95cce9b135240e8fc8d8998d01cf6a8f25c5c5d8ab56f48df1a4277f6
-F www/gsoc-ideas.md 191851cb0045db43bcd696f8f7818cdb151ba51f7686883bc9cf248efc481d24
+F www/gsoc-ideas.md 4c39578100be4383eb3d0a56a9ccf3e02f20d1b390a95807434c57c12706e6b5
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashes.md 0387dfae77f1ff423f1b554055d9211317cfb58c42096c419aa3b049b0e1a342
 F www/hashpolicy.wiki 59b6a5175af49ec5cbec767321f4fdd9a27338c019fdbfc846fd51d59f570b67
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 736e5c892bb94c8c7ef9dbe8212d1137bf99e62fa7c7088ad02d1aa55ac502d9
-R 764be8e13b2c20f2549e49b1e01424be
+P 932f88cb55dc57809e60cd483ec0cbcb1c26cdb1207a857e18104c654e61fc6d
+R ded3b74a001f92202c425fe1f7e52b82
 U danshearer
-Z c49cf0b68e13897416bd830b7250880c
+Z ebc55e3729e7b66d4bcdfe79bf53a8a0

@@ -5,16 +5,22 @@ Code](https://summerofcode.withgoogle.com/) in 2021. GSoC pays students to
 contribute to free software projects during the Northern Hemiphere summer.  If
 you are a student, you will be able to apply for GSoC starting March 29th 2021.
 
+This page applies to the two implementations of Fossil: [the classic Fossil](https://fossil-scm.org)
+and [libfossil](https://fossil.wanderinghorse.net/r/libfossil). The two implementations 
+have an identical implementation of the Fossil data model, are 100% compatible in terms of
+data access since they use the same SQL, and are 100% binary compatible in terms of on-disk storage.
+
 ## General Features
 
 * Complete per-feature CSS facilities in [the Inskinerator](https://tangentsoft.com/inskinerator/dir) and add features to the Inskinerator
-* Improve the documentation history-browsing page to enable selection of 2 arbitrary versions to diff, similar to the Wikipedia (Mediawiki) history feature
+* Improve the documentation history-browsing page to enable selection of 2 arbitrary versions to diff, similar to the [Mediawiki history feature enabled on Wikipedia](https://en.wikipedia.org/w/index.php?title=Fossil_(software)&action=history)
 * Allow diffing of Forum posts
-* Re-implement the draft JSON API in libfossil to use the JSON capability in SQLite, now that SQLite has JSON. This is a large project
+* Develop a test suite for the draft JSON API in libfossil. This JSON API is a way of integrating many kinds of systems with Fossil
+* Re-implement the draft JSON API in libfossil to use the JSON capability in SQLite, now that SQLite has JSON. This is a large project and would start with analysis
 * Fossil hooks for pipelines with CI/CD such as static analysis, Buildbot, Gerrit, Travis and Jenkins are not well-documented and may need some further development. Make this work better, with configuration examples
 * Create a [Pandoc](https://pandoc.org) filter that handles Fossil-style Markdown
-* Create a Pandoc filter that handles Pikchr (Pikchr can be used with many kinds of layout, not just Markdown)
-* Editor integration: [improve VSCode](https://marketplace.visualstudio.com/items?itemName=koog1000.fossil) or [create a Fossil plugin for Eclipse](https://marketplace.eclipse.org/taxonomy/term/26%2C31)
+* Create a [Pandoc filter that handles Pikchr](https://groups.google.com/g/pandoc-discuss/c/zZSspnHHsg0?pli=1) (Pikchr can be used with many kinds of layout, not just Markdown)
+* Editor integration: [improve the Fossil VSCode plugin](https://marketplace.visualstudio.com/items?itemName=koog1000.fossil) or [create a Fossil plugin for Eclipse](https://marketplace.eclipse.org/taxonomy/term/26%2C31)
 
 ## Add code to handle email bounces
 
@@ -26,7 +32,7 @@ from invalid email addresses.
 A proposal for that is to implement a Fossil command such as:
 
 ```
-implement "fossil email -R repo receive_bounce"
+fossil email -R repo receive_bounce
 ```
 
 This is a non-network-aware Mail Delivery Agent, and would be called by an MTA such as Postfix, Courier or Exim.
