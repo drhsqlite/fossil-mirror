@@ -801,6 +801,8 @@ void content_make_private(int rid){
 ** conversion occurs and this is a no-op unless force==1.  If force==1,
 ** then nSrc must also be 1.
 **
+** If rid refers to a phantom, no delta is created.
+**
 ** Never generate a delta that carries a private artifact into a public
 ** artifact.  Otherwise, when we go to send the public artifact on a
 ** sync operation, the other end of the sync will never be able to receive
@@ -831,6 +833,9 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
   ** immediately if the force flags is false
   */
   if( !force && delta_source_rid(rid)>0 ) return 0;
+
+  /* If rid refers to a phantom, skip deltification. */
+  if( 0==content_is_available(rid) ) return 0;
 
   /* Get the complete content of the object to be delta-ed.  If the size
   ** is less than 50 bytes, then there really is no point in trying to do
