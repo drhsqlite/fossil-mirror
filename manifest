@@ -1,5 +1,5 @@
-C As\sa\ssafety\sprecaution\sagainst\schanges\smade\sin\s[ecb705359a]\sand\s[b8c1d429cb],\scontent_deltify()\snow\sexplicitly\schecks\swhether\sits\smain\sinput\sRID\srefers\sto\sa\sphantom\sand\sskips\sfurther\swork\sif\sit\sis.
-D 2021-02-22T04:35:50.154
+C Documented\sseveral\sspecial-case\srules\sfor\scertain\scards\sas\sfootnotes\sin\sthe\sfileformat.wiki\scard\ssummary\stable.
+D 2021-02-22T06:48:46.373
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -863,7 +863,7 @@ F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f5
 F www/faq.tcl 4f8e2899730d4203e177c52c3bc3ca0230eadb1e108fa79f4154cf46dce9ae06
 F www/faq.wiki a1b6ad89f5b12102c2a52c4bed5168ea5a932a10811c3c824b1ff048c996146d
 F www/fileedit-page.md f485d94319b5577a42d2b873a39e4bb17f748bde81c3d733d29df913f5a235ac
-F www/fileformat.wiki 528555e1c75afe126af7cfd1b001262feabd0da721beed3f3630682f68daf8d0
+F www/fileformat.wiki 0a637568060ed337bc90d5406c1197066e9843c082efc1dad447ec2057d4bc81
 F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c29cb4b3
 F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d7
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8c1d429cbc2209319576f200af4cae062edb94b7c4a9c7fc9c3bd439f64bb78
-R 3fc9d99bc12bb1b218be4cee52b6ddbc
+P 188ffef23db280478f6f2420531bd8c1c4fe9e71ff4f7310dec7621d89715002
+R f87323a1cc7ad23f9060248bcf82b07e
 U stephan
-Z 1379a6401485750860d78dde6fa541e9
+Z 5c085ba03be6719d3e7f0890d34f9a15
