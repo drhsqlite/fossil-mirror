@@ -1,5 +1,5 @@
-C Documented\sseveral\sspecial-case\srules\sfor\scertain\scards\sas\sfootnotes\sin\sthe\sfileformat.wiki\scard\ssummary\stable.
-D 2021-02-22T06:48:46.373
+C Added\sa\smissing\s'return\sthis'.
+D 2021-02-22T12:23:33.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -491,7 +491,7 @@ F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db503
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
-F src/fossil.pikchr.js 5fafa0c5ec48ef223047070960c78eac40876c846c1387ac7579485609adb2c2
+F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
 F src/fossil.popupwidget.js 726f605138cf039328e56b6b2d4f5f99dfb54675c0a87f560bf3cfc148bd3d83
 F src/fossil.storage.js ee846952cca6914fe98b82d9048725e81bc0ce2bf719e5f6bea1cf1c80abc8cb
 F src/fossil.tabs.js 3d052dce397ecbe40b7361b03b5509700d323b29c249cd1fdfabe52db2393ba7
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 188ffef23db280478f6f2420531bd8c1c4fe9e71ff4f7310dec7621d89715002
-R f87323a1cc7ad23f9060248bcf82b07e
+P a3bfeb85213895eb4b5f53b2af5e9e79bee2cf19e599ce4385fbf0230304dd39
+R f00fc3e5e0622a5066fbc381e4289e11
 U stephan
-Z 5c085ba03be6719d3e7f0890d34f9a15
+Z c5f4861330508855d240c514e9860154
