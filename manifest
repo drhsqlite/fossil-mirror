@@ -1,5 +1,5 @@
-C Corrected\swiki\scrosslinking's\scheck\sfor\san\solder\sversion\sof\sthe\spage,\sas\sdetailed\sin\s[forum:dfd85f0b00].\sRebuild\sis\srequired\sto\scorrect\swiki\stimeline\sentries.
-D 2021-02-22T03:09:02.820
+C Technote\scounterpart\sfix\sof\s[ecb705359a].
+D 2021-02-22T03:33:27.543
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -542,7 +542,7 @@ F src/main.mk 4231976fa5a83fa51c0632a99f495235e47e4d42e5ceaf87fa690f5849fffbc4
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl 38a8b4eb21c33d5371b0a29f8064137eb4cc0116f192c4b63d6b2a2d1d20cf07 x
-F src/manifest.c 2acad7b2a202c30624d860aa73485d1637a0eef0b276f3cea5680185263630de
+F src/manifest.c a267b6e64404ae7cab7e5212b6ffff96d75c4831b897206d93214a1134ab20f4
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c72edfd865b5f82e27fa8c31cde7d62869e271b6156bb87d73532376b61cd50e
-R cf20fda57ccca3696e61c56679f8ee4c
+P ecb705359a58ac322b53cfe1a9821a2644f9e22bda3a076b865d71352787057f
+R 02879b2d9a108d55a8ddc4bc91a0c5b7
 U stephan
-Z f7b1e68e35e9ab116f9e9d46a7fe4cd2
+Z 2f441c8270a18cef8854b502ee122b0a
