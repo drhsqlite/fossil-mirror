@@ -2421,8 +2421,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   if( p->type==CFTYPE_WIKI ){
     char *zTag = mprintf("wiki-%s", p->zWikiTitle);
-    int tagid = tag_findid(zTag, 1);
-    int prior;
+    int prior = 0;
     char cPrefix;
     int nWiki;
     char zLength[40];
@@ -2432,12 +2431,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     fossil_free(zTag);
-    prior = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime<%.17g"
-      " ORDER BY mtime DESC",
-      tagid, p->rDate
-    );
+    if(p->nParent){
+      prior = fast_uuid_to_rid(p->azParent[0]);
+    }
     if( prior ){
       content_deltify(prior, &rid, 1, 0);
     }
