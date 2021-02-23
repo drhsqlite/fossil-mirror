@@ -335,7 +335,7 @@ belongs to.  Symbolic tags begin with the "sym-" prefix.
 The <b>U</b> card is the name of the user that created the control
 artifact.  The <b>Z</b> card is the usual required artifact checksum.
 
-An example control artifacts can be seen [/info/9d302ccda8 | here].
+An example control artifact can be seen [/info/9d302ccda8 | here].
 
 
 <a id="wikichng"></a>
@@ -878,8 +878,10 @@ Footnotes:
 2) Tags in [#ctrl | Control Artifacts] may not be
    self-referential. i.e. they may not start with <tt>*</tt>.
 
-3) Tags in [#event | Technotes] must be self-referential. i.e. they
-   must start with <tt>*</tt>.
+3) Tags in [#event | Technotes] must be self-referential. i.e. their
+   target hash must be <tt>*</tt>. Similarly, technote tags may only
+   be non-propagating "add" tags. i.e. their name prefix must be
+   <tt>+</tt>.
 
 4) [#forum | Forum Posts] must have either one H-card or one
    I-card, not both.
