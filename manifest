@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.35.0\salpha\sthat\sincludes\ssupport\nfor\sthe\sMATERIALIZED\shints.
-D 2021-02-22T18:43:10.229
+C sha3sum\scommand\snow\sexits\swith\san\serror\sif\sit\scannot\sopen\sa\srequested\sfile,\sper\sdiscussion\sat\s[forum:9cc4028627].
+D 2021-02-23T02:48:16.935
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -580,7 +580,7 @@ F src/setup.c 1936ef691fe0aef37541bc743004e4e9e5863aa9eaf17a3b019bec335c831922
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
 F src/sha1.c b5d219c9fbfbc0e39e35b18f7bed07f3fe9ae323a65eeaf76145499373b7c50d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
-F src/sha3.c 53dc81c2f0c55f06f6d553ae3ca3beef5b352e5282b91e21f8f0f823264d1576
+F src/sha3.c c847a7d31562fd0e66e3df6cd935d25e21ae0fab4bdc749a3e76dc3b56c60a47
 F src/shell.c 8056568738bb15a4a506fbccf2c0da68426a7e1239d84fda92cd177d1caabf2e
 F src/shun.c 011890daac7837ded87804ce576cfae317a72f447aaba5eb0e460e066e4465ff
 F src/sitemap.c 7d1d409a80c19429f33660e1d167fc146fce4ecf5da9f3ed692534d7a535cb69
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ce90f01709019a381331df8887fa9fc6fd9473c9fe5329b5ef96cbe17170395
-R a4e3517fcdf12d50f27c0a1baf3bd402
-U drh
-Z 5f6abc2b64ac118eca8e5d2961bc8689
+P d07cbeda71c3efb1b734bfe1098e0f095834aa0c47787195b5fc767ea675a53c
+R d56a3bc0c181a07f98ced8b12217628b
+U stephan
+Z a56adffa1f506170bac92a8e010aa3d0
