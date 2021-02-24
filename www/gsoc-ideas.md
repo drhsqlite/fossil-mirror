@@ -38,6 +38,24 @@ fossil email -R repo receive_bounce
 This is a non-network-aware Mail Delivery Agent, and would be called by an MTA such as Postfix, Courier or Exim.
 This command would reject anything that doesn't look like a bounce it is expecting.
 
+## Work relating to the ticketing system in Fossil
+
+The Fossil SCM project uses tickets in a [somewhat unusual manner](https://fossil-scm.org/home/reportlist)
+because the social programming
+model has evolved to often use the Fosum instead.  Other Fossil-using projects
+use tickets in a more traditional report-a-bug manner. So this means that the
+Fossil ticketing system user interface is underdeveloped. On the other hand,
+pretty much every software developer uses a ticketing system at some point in
+their workflow, and Fossil is intended to be usable by most developers.  The
+underlying technology for the Fossil ticketing system is guaranteed, so to
+improve it requires only user interface changes.
+
+Projects relating to the ticketing system include:
+
+* Improving the [Fossil cli for tickets](https://fossil-scm.org/forum/forumpost/d8e8a1cf92) which is confusing, as pointed out in that ticket.
+* Alternatively, instead of improving Fossil's cli, implement a comprehensive ticket commandline with [libfossil's primitives](https://fossil.wanderinghorse.net/r/libfossil/wiki/home), look under the f-apps/ directory.
+* Improving the Fossil web UI for ticketing, which is clunky to say the least
+
 # Tasks Requiring Fossil Data Model Knowledge
 
 The Fossil data model concepts are simple, but the implications are quite subtle and impressive. The data model
