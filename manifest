@@ -1,5 +1,5 @@
-C Micro-touchups\sto\sthe\sis-not-relational\sdoc.\s(Its\sname\sreally\sshould\sbe\sshortened\sto\snot-relational.md,\sbut\swe\salready\shave\slinks\sto\sthe\slonger\sname\sout\sin\sthe\swild.)
-D 2021-02-24T00:24:33.741
+C Checkin\s[188ffef2]\sinadvertently\scaused\sone\sparticular\sgraceful\sfailure\sto\sdegrade\sto\sa\snon-graceful\sfailure\s(a\sfailed\sassert()).\sThis\scheckin\sresolves\sthat.
+D 2021-02-24T04:59:39.939
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -453,7 +453,7 @@ F src/color.c 629b0c03239db950ce90a5ed11ddd510ac821d80311177b4642bc2ba435e028d
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
 F src/config.h 2f3715d5a624250ad8f5c211cf07235a8bcd32080f97103cbd24d0c713d79dd6
 F src/configure.c c5113a06a8640376f73f0bb52156166d95ecd634bae033940bcbbb8b767564d7
-F src/content.c 0dacd70e88b299a8aea47dc8035e479e44eadab116ead368d416f6c2bc481d0a
+F src/content.c fd2314f05e3eacf743ed4f675bb8940a3105adc991eb382bf68a4f2002c33d47
 F src/cookies.c c6985657001a9a6921164365745e2955220f1a18772ea6c656abcb5617d540a8
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7ebe73ff9a74fcc5efa5c67220f38d63a614ef85ef7402dadb3120a60060ec2a
-R c152d441079ce5ecde3b679f3b5a420f
+P 213160c70c40124a1689fcc3bdc8867effed3de890a1b3c841f03a01c6caeb6b
+R cae3ad8ca182387d7e5f8c96e4ec7406
 U stephan
-Z ae8136eac204017a6c20873cf50fe7e5
+Z 05f215fbd9a907d551b4297d0ff55cb5

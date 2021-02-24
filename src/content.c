@@ -829,6 +829,15 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
   int rc = 0;          /* Value to return */
   int i;               /* Loop variable for aSrc[] */
 
+  /*
+  ** Historically this routine gracefully ignored the rid 0, but the
+  ** addition of a call to content_is_available() in [188ffef2] caused
+  ** rid 0 to trigger an assert via bag_find(). Rather than track down
+  ** all such calls (e.g. the one via /technoteedit), we'll continue
+  ** to gracefully ignore rid 0 here.
+  */
+  if( 0==rid ) return 0;
+
   /* If rid is already a child (a delta) of some other artifact, return
   ** immediately if the force flags is false
   */
