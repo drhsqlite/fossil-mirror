@@ -876,7 +876,7 @@ Footnotes:
    they would be indistinguishable from a hash prefix.
 
 2) Tags in [#ctrl | Control Artifacts] may not be
-   self-referential. i.e. they may not start with <tt>*</tt>.
+   self-referential. i.e. their target hash may not be <tt>*</tt>.
 
 3) Tags in [#event | Technotes] must be self-referential. i.e. their
    target hash must be <tt>*</tt>. Similarly, technote tags may only
@@ -886,7 +886,7 @@ Footnotes:
 4) [#forum | Forum Posts] must have either one H-card or one
    I-card, not both.
 
-5) [#forum | Forum Post] P-cards must have only a single parent
+5) [#forum | Forum Post] P-cards may have only a single parent
    hash. i.e. they may not have merge parents.
 
 <a id="addenda"></a>
