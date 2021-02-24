@@ -1,5 +1,5 @@
-C Minor\srewording/clarification\sin\sfileformat.wiki.
-D 2021-02-24T00:14:53.369
+C Micro-touchups\sto\sthe\sis-not-relational\sdoc.\s(Its\sname\sreally\sshould\sbe\sshortened\sto\snot-relational.md,\sbut\swe\salready\shave\slinks\sto\sthe\slonger\sname\sout\sin\sthe\swild.)
+D 2021-02-24T00:24:33.741
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -868,7 +868,7 @@ F www/fiveminutes.wiki 699794b9f102ac9d0378e00264335b8e424261125cfa06e802333354c
 F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d7
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-is-not-relational.md fa7c9ebd8e8b1b002649d41baef7423a24161da8d06a635a125939698f14a31b
+F www/fossil-is-not-relational.md d3c6746788ff42e46197729d9755e82affa5f1728b7d302aa9b41200e834e4a7
 F www/fossil-v-git.wiki c59fa337abc643baa7a234b075d750fd46dcb1a849c0cc20fbe462ff2bd7be54
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b1600a22d7281a6a0126f2781d6dfc4a6b357f8373e7b4f86dd9815e94d5c2b2
-R 9f58b031f69bed476f7b59f294d89880
+P 7ebe73ff9a74fcc5efa5c67220f38d63a614ef85ef7402dadb3120a60060ec2a
+R c152d441079ce5ecde3b679f3b5a420f
 U stephan
-Z ed38825a927ed52aec3dccb1cb1fff72
+Z ae8136eac204017a6c20873cf50fe7e5

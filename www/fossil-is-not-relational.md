@@ -8,7 +8,7 @@ SCM-relevant data in a database-friendly way and that the SCM history
 can be modified via SQL. The truth, however, is *far stranger than
 that.*
 
-This presentation introduces, at a relatively high level:
+This document introduces, at a relatively high level:
 
 1) The underlying enduring and immutable data format, which is
   independent of any specific storage engine.
@@ -182,7 +182,7 @@ U drh
 Z c9dcc06ecead312b1c310711cb360bc3
 ```
 
-Each line is a single data record called a "card". The first letter of
+Each line is a single data record called a "card." The first letter of
 each line tells us the type of data stored on that line and the
 following space-separated tokens contain the data for that
 line. Tokens which themselves contain spaces (notably the checkin
@@ -399,8 +399,8 @@ combined with the higher-level access via SQL include:
   implement the same underlying data model. So far there are none, but
   it's conceivably possible.
 
-- **Provides a solid basis for reporting.** Fossil's metrics and
-  reporting options are arguably the most powerful and flexible yet
-  seen in an SCM.
+- **Provides a solid basis for reporting.** Fossil's real-time metrics
+  and reporting options are arguably the most powerful and flexible
+  yet seen in an SCM.
 
 - Very probably several more things.
