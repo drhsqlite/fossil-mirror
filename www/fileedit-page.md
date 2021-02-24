@@ -46,7 +46,7 @@ interactive elements.
 - **Safari**: ???
 - **Other browsers**: ???
 
-If `/filepage` shows an error message saying "CSRF violation," the
+If `/fileedit` shows an error message saying "CSRF violation," the
 problem is that the browser is not sending a `Referer` header to XHR
 connections. Fossil does not offer a way to disable its CSRF
 protections.
@@ -139,7 +139,7 @@ Exactly how long `localStorage` will survive, and how much it or
 will survive until the current browser tab is closed, but it survives
 across reloads of the same tab.
 
-If `/filepage` determines that no persistent storage is available a
+If `/fileedit` determines that no persistent storage is available a
 warning is displayed on the editor page.
 
 [html5storage]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API
@@ -206,7 +206,7 @@ The first line of the script just ensures that the expected JS-level
 infrastructure is loaded. It's only loaded in the `/fileedit` page and
 possibly pages added or "upgraded" since `/fileedit`'s introduction.
 
-The part in the `if` block adds an event listener to the `/filepage`
+The part in the `if` block adds an event listener to the `/fileedit`
 app which gets called when the preview is refreshed. That event
 contains 3 properties:
 
@@ -227,10 +227,10 @@ the preview which explicitly have a CSS class named
 
 ## <a id="editor"></a> Integrating a Custom Editor Widget
 
-(These instructions also work for the `/wikiedit` page by eplacing
+(These instructions also work for the `/wikiedit` page by replacing
 "fileedit" with "wikiedit" in any strings or symbol names!)
 
-It is possible to replace `/filepage`'s basic text-editing widget (a
+It is possible to replace `/fileedit`'s basic text-editing widget (a
 `textarea` element) with a fancy 3rd-party editor widget by following
 these instructions...
 
