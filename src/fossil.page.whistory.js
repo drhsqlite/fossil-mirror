@@ -9,6 +9,8 @@
  * to avoid modern API and ECMAScript constructs. This makes it less
  * readable and may be reconsidered in the future.
 */
+window.addEventListener( 'load', function() {
+
 document.getElementById("wh-form").method = "GET";
 
 var wh_id  = document.getElementById("wh-id" );
@@ -20,7 +22,7 @@ var wh_radios   = [];  // user-visible controls for baseline selection
 var wh_hidden   =  0;  // current number of hidden (collapsed) rows
 var wh_selected = -1;  // index of the currently selected radio-button
 
-function wh_onRadio( event ){
+var wh_onRadio = function( event ){
 
   var indx = event.target.indx;
   if( wh_selected == indx ){
@@ -30,7 +32,7 @@ function wh_onRadio( event ){
   }
   else wh_selected = indx;
 }
-function wh_onDifflink( event ){
+var wh_onDifflink = function( event ){
 
   event.preventDefault();
   var indx = event.target.indx;
@@ -74,7 +76,7 @@ function wh_onDifflink( event ){
 
   document.getElementById("wh-form").submit();
 }
-function wh_onCleaner() {
+var wh_onCleaner = function() {
 
    if( wh_selected >= 0 ) {
 
@@ -82,7 +84,7 @@ function wh_onCleaner() {
       wh_selected = -1;
    }
 }
-function wh_onCollapser( event ) {
+var wh_onCollapser = function( event ){
 
   var collapsing = ( wh_hidden == 0 );
   for( var k = 0; k < wh_radios.length; k++ ){
@@ -110,13 +112,12 @@ function wh_onCollapser( event ) {
     wh_collapser.innerHTML = "&emsp;&#9842;"
   }
 }
-(function wh_Init(){
 
-  var inputs = document.getElementsByTagName("input");
-  for( var k = 0, indx = 0; k < inputs.length; k++ ) {
+var inputs = document.getElementsByTagName("input");
+for( var k = 0, indx = 0; k < inputs.length; k++ ) {
 
-    var r = inputs[k];
-    if( r.type == "radio" && r.name == "baseline" ) {
+   var r = inputs[k];
+   if( r.type == "radio" && r.name == "baseline" ) {
 
       wh_radios.push( r );
 	  r.indx = indx++;
@@ -124,36 +125,37 @@ function wh_onCollapser( event ) {
       r.disabled = false;
       var td = r.parentElement.nextElementSibling;
       r.iterspan = td.getElementsByTagName("span")[0];
-    }
-  }
-  for( var edits = 0, k = wh_radios.length - 1; k >= 0; k-- ) {
+   }
+}
+for( var edits = 0, k = wh_radios.length - 1; k >= 0; k-- ) {
 
-    var td = wh_radios[k].parentElement.nextElementSibling;
-    if( td.parentElement.className == "wh-intermediate" )
+   var td = wh_radios[k].parentElement.nextElementSibling;
+   if( td.parentElement.className == "wh-intermediate" )
 
       edits++;
 
-    else if( edits > 0 ){
+   else if( edits > 0 ){
 
       var span = td.getElementsByTagName("span")[0];
       span.innerHTML = "&ensp;&#9842;" + edits;
       wh_radios[k].iterspan = span;
       edits = 0;
       //   also:  &#8746; (union)   &#931; (sigma)   &#215; (times)
-	}
-  }
-  var links = document.getElementsByTagName("a");
-  for( var i = 0, indx = 0; i < links.length; i++ ) {
+   }
+}
+var links = document.getElementsByTagName("a");
+for( var i = 0, indx = 0; i < links.length; i++ ) {
 
-    var l = links[i];
-    if( l.className == "wh-difflink" ){
+   var l = links[i];
+   if( l.className == "wh-difflink" ){
 
       l.indx = indx++;
       l.addEventListener( "click", wh_onDifflink );
-    }
-  }
-  wh_cleaner.addEventListener( "click", wh_onCleaner );
-  wh_collapser.addEventListener( "click", wh_onCollapser );
-  wh_collapser.title="Hide intermediate edits";
-  wh_collapser.hidden = false;
-})();
+   }
+}
+wh_cleaner.addEventListener( "click", wh_onCleaner );
+wh_collapser.addEventListener( "click", wh_onCollapser );
+wh_collapser.title="Hide intermediate edits";
+wh_collapser.hidden = false;
+
+}); // window.addEventListener( 'load' ...
