@@ -557,10 +557,9 @@ int content_put_ex(
   db_prepare(&s1, "SELECT rid, size FROM blob WHERE uuid=%B", &hash);
   if( db_step(&s1)==SQLITE_ROW ){
     rid = db_column_int(&s1, 0);
-    if( db_column_int(&s1, 1)>=0 || pBlob==0 ){
-      /* Either the entry is not a phantom or it is a phantom but we
-      ** have no data with which to dephantomize it.  In either case,
-      ** there is nothing for us to do other than return the RID. */
+    if( db_column_int(&s1, 1)>=0 ){
+      /* The entry is not a phantom. There is nothing for us to do
+      ** other than return the RID. */
       db_finalize(&s1);
       db_end_transaction(0);
       return rid;
