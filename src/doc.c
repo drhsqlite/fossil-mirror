@@ -769,30 +769,37 @@ void document_render(
   const char *zFilename         /* Name of the file being rendered */
 ){
   Blob title;
+  int isPopup = P("popup")!=0;
   blob_init(&title,0,0);
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob tail;
     style_adunit_config(ADUNIT_RIGHT_OK);
     if( wiki_find_title(pBody, &title, &tail) ){
-      style_header("%s", blob_str(&title));
+      if( !isPopup ) style_header("%s", blob_str(&title));
       wiki_convert(&tail, 0, WIKI_BUTTONS);
     }else{
-      style_header("%s", zDefaultTitle);
+      if( !isPopup ) style_header("%s", zDefaultTitle);
       wiki_convert(pBody, 0, WIKI_BUTTONS);
     }
-    document_emit_js();
-    style_finish_page();
+    if( !isPopup ){
+      document_emit_js();
+      style_finish_page();
+    }
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pBody, &title, &tail);
-    if( blob_size(&title)>0 ){
-      style_header("%s", blob_str(&title));
-    }else{
-      style_header("%s", zDefaultTitle);
+    if( !isPopup ){
+      if( blob_size(&title)>0 ){
+        style_header("%s", blob_str(&title));
+      }else{
+        style_header("%s", zDefaultTitle);
+      }
     }
     convert_href_and_output(&tail);
-    document_emit_js();
-    style_finish_page();
+    if( !isPopup ){
+      document_emit_js();
+      style_finish_page();
+    }
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("%s", zDefaultTitle);
     @ <blockquote><pre>
@@ -803,10 +810,12 @@ void document_render(
   }else if( fossil_strcmp(zMime, "text/html")==0
             && doc_is_embedded_html(pBody, &title) ){
     if( blob_size(&title)==0 ) blob_append(&title,zFilename,-1);
-    style_header("%s", blob_str(&title));
+    if( !isPopup ) style_header("%s", blob_str(&title));
     convert_href_and_output(pBody);
-    document_emit_js();
-    style_finish_page();
+    if( !isPopup ){
+      document_emit_js();
+      style_finish_page();
+    }
   }else if( fossil_strcmp(zMime, "text/x-pikchr")==0 ){
     style_adunit_config(ADUNIT_RIGHT_OK);
     style_header("%s", zDefaultTitle);
@@ -869,7 +878,12 @@ void document_render(
 **
 ** The "ckout" CHECKIN is intended for development - to provide a mechanism
 ** for looking at what a file will look like using the /doc webpage after
-** it gets checked in.
+** it gets checked in.  Some commands like "fossil ui", "fossil server",
+** and "fossil http" accept an argument "--ckout-alias NAME" when allows
+** NAME to be understood as an alias for "ckout".  On a site with many
+** embedded hyperlinks to /doc/trunk/... one can run with "--ckout-alias trunk"
+** to simulate what the pending changes will look like after they are
+** checked in.  The NAME alias is stored in g.zCkoutAlias.
 **
 ** The file extension is used to decide how to render the file.
 **
@@ -990,7 +1004,9 @@ void doc_page(void){
         }
         zDfltTitle = zName;
       }
-    }else if( fossil_strcmp(zCheckin,"ckout")==0 ){
+    }else if( fossil_strcmp(zCheckin,"ckout")==0
+           || fossil_strcmp(zCheckin,g.zCkoutAlias)==0
+    ){
       /* Read from the local checkout */
       char *zFullpath;
       db_must_be_within_tree();

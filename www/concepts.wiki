@@ -208,7 +208,7 @@ of a single executable named "fossil" (or "fossil.exe" on Windows).
 To install Fossil on your system,
 all you have to do is obtain a copy of this one executable file (either
 by downloading a
-<a href="https://www.fossil-scm.org/fossil/uv/download.html">pre-compiled version</a>
+<a href="https://fossil-scm.org/home/uv/download.html">pre-compiled version</a>
 or [./build.wiki | compiling it yourself]) and then
 putting that file somewhere on your PATH.
 

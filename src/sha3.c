@@ -645,7 +645,7 @@ char *sha3sum(const char *zIn, int iSize){
 void sha3sum_test(void){
   int i;
   Blob in;
-  Blob cksum;
+  Blob cksum = empty_blob;
   int iSize = 256;
   int eFType = SymFILE;
 
@@ -667,12 +667,11 @@ void sha3sum_test(void){
   verify_all_options();
 
   for(i=2; i<g.argc; i++){
-    blob_init(&cksum, "************** not found ***************", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){
       blob_read_from_channel(&in, stdin, -1);
       sha3sum_blob(&in, iSize, &cksum);
-    }else{
-      sha3sum_file(g.argv[i], eFType, iSize, &cksum);
+    }else if( sha3sum_file(g.argv[i], eFType, iSize, &cksum) > 0 ){
+      fossil_fatal("Cannot read file: %s", g.argv[i]);
     }
     fossil_print("%s  %s\n", blob_str(&cksum), g.argv[i]);
     blob_reset(&cksum);

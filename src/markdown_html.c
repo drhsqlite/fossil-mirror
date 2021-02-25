@@ -381,6 +381,10 @@ void pikchr_to_html(
   if( zPikVar && zPikVar[0] ){
     blob_appendf(&bSrc, "fgcolor = %s\n", zPikVar);
   }
+  zPikVar = skin_detail("pikchr-background");
+  if( zPikVar && zPikVar[0] ){
+    blob_appendf(&bSrc, "bgcolor = %s\n", zPikVar);
+  }
   zPikVar = skin_detail("pikchr-scale");
   if( zPikVar
    && (rPikVar = atof(zPikVar))>=0.1

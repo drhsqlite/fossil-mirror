@@ -10,44 +10,17 @@
 </div>
 <div class="mainmenu">
 <th1>
-proc menulink {url name cls} {
-  upvar current_page current
-  upvar home home
-  if {[string range $url 0 [string length $current]] eq "/$current"} {
-    html "<a href='$home$url' class='active $cls'>$name</a>\n"
-  } else {
-    html "<a href='$home$url' class='$cls'>$name</a>\n"
-  }
-}
 html "<a id='hbbtn' href='$home/sitemap' aria-label='Site Map'>&#9776;</a>"
-menulink $index_page Home {}
-if {[anycap jor]} {
-  menulink /timeline Timeline {}
-}
-if {[hascap oh]} {
-  if {![info exists current_checkin]} {set current_checkin tip}
-  menulink /dir?ci=$current_checkin Files desktoponly
-}
-if {[hascap o]} {
-  menulink  /brlist Branches wideonly
-  menulink  /taglist Tags wideonly
-}
-if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-  menulink /forum Forum desktoponly
-}
-if {[hascap C]} {
-  menulink /chat Chat wideonly
-}
-if {[hascap r]} {
-  menulink /ticket Tickets wideonly
-}
-if {[hascap j]} {
-  menulink /wiki Wiki wideonly
-}
-if {[hascap s]} {
-  menulink /setup Admin {}
-} elseif {[hascap a]} {
-  menulink /setup_ulist Users {}
+builtin_request_js hbmenu.js
+foreach {name url expr class} $mainmenu {
+  if {![capexpr $expr]} continue
+  if {[string match /* $url]} {
+    if {[string match /$current_page* $url]} {
+      set class "active $class"
+    }
+    set url $home$url
+  }
+  html "<a href='$url' class='$class'>$name</a>\n"
 }
 </th1></div>
 <div id='hbdrop'></div>

@@ -548,6 +548,10 @@ void win32_http_server(
     blob_appendf(&options, " --notfound ");
     blob_append_escaped_arg(&options, zNotFound);
   }
+  if( g.zCkoutAlias ){
+    blob_appendf(&options, " --ckout-alias ");
+    blob_append_escaped_arg(&options, g.zCkoutAlias);
+  }
   if( zFileGlob ){
     blob_appendf(&options, " --files-urlenc %T", zFileGlob);
   }
@@ -567,6 +571,10 @@ void win32_http_server(
   zSkin = skin_in_use();
   if( zSkin ){
     blob_appendf(&options, " --skin %s", zSkin);
+  }
+  if( g.zMainMenuFile ){
+    blob_appendf(&options, " --mainmenu ");
+    blob_append_escaped_arg(&options, g.zMainMenuFile);
   }
 #if USE_SEE
   zSavedKey = db_get_saved_encryption_key();

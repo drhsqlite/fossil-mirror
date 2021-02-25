@@ -80,7 +80,7 @@ uninitialized value that occurs within zlib).
 
 <li><p>
 
-Inspect [http://www.fossil-scm.org/index.html/vdiff?from=release&to=trunk&sbs=1|all code changes since the previous release], paying particular
+Inspect [http://fossil-scm.org/home/vdiff?from=release&to=trunk&sbs=1|all code changes since the previous release], paying particular
 attention to the following details:
 <ol type="a">
 <li> Can a malicious HTTP request cause a buffer overrun.
@@ -91,7 +91,7 @@ attention to the following details:
 
 <li><p>
 Use the release candidate version of fossil in production on the
-[http://www.fossil-scm.org/] website for at least 48 hours (without
+[http://fossil-scm.org/] website for at least 48 hours (without
 incident) prior to making the release official.
 
 <li><p>

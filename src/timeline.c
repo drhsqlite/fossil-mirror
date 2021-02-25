@@ -104,7 +104,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FRENAMES 0x0000100 /* Detail only file name changes */
 #define TIMELINE_UNHIDE   0x0000200 /* Unhide check-ins with "hidden" tag */
 #define TIMELINE_SHOWRID  0x0000400 /* Show RID values in addition to hashes */
-#define TIMELINE_BISECT   0x0000800 /* Show supplimental bisect information */
+#define TIMELINE_BISECT   0x0000800 /* Show supplemental bisect information */
 #define TIMELINE_COMPACT  0x0001000 /* Use the "compact" view style */
 #define TIMELINE_VERBOSE  0x0002000 /* Use the "detailed" view style */
 #define TIMELINE_MODERN   0x0004000 /* Use the "modern" view style */
@@ -121,107 +121,6 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_REFS     0x8000000 /* Output intended for References tab */
 #define TIMELINE_DELTA   0x10000000 /* Background color shows delta manifests */
 #endif
-
-/*
-** Hash a string and use the hash to determine a background color.
-**
-** This value returned is in static space and is overwritten with
-** each subsequent call.
-*/
-char *hash_color(const char *z){
-  int i;                       /* Loop counter */
-  unsigned int h = 0;          /* Hash on the branch name */
-  int r, g, b;                 /* Values for red, green, and blue */
-  int h1, h2, h3, h4;          /* Elements of the hash value */
-  int mx, mn;                  /* Components of HSV */
-  static char zColor[10];      /* The resulting color */
-  static int ix[2] = {0,0};    /* Color chooser parameters */
-
-  if( ix[0]==0 ){
-    if( skin_detail_boolean("white-foreground") ){
-      ix[0] = 0x50;
-      ix[1] = 0x20;
-    }else{
-      ix[0] = 0xf8;
-      ix[1] = 0x20;
-    }
-  }
-  for(i=0; z[i]; i++ ){
-    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
-  }
-  h1 = h % 6;  h /= 6;
-  h3 = h % 10; h /= 10;
-  h4 = h % 10; h /= 10;
-  mx = ix[0] - h3;
-  mn = mx - h4 - ix[1];
-  h2 = (h%(mx - mn)) + mn;
-  switch( h1 ){
-    case 0:  r = mx; g = h2, b = mn;  break;
-    case 1:  r = h2; g = mx, b = mn;  break;
-    case 2:  r = mn; g = mx, b = h2;  break;
-    case 3:  r = mn; g = h2, b = mx;  break;
-    case 4:  r = h2; g = mn, b = mx;  break;
-    default: r = mx; g = mn, b = h2;  break;
-  }
-  sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
-  return zColor;
-}
-
-/*
-** COMMAND: test-hash-color
-**
-** Usage: %fossil test-hash-color TAG ...
-**
-** Print out the color names associated with each tag.  Used for
-** testing the hash_color() function.
-*/
-void test_hash_color(void){
-  int i;
-  for(i=2; i<g.argc; i++){
-    fossil_print("%20s: %s\n", g.argv[i], hash_color(g.argv[i]));
-  }
-}
-
-/*
-** WEBPAGE: hash-color-test
-**
-** Print out the color names associated with each tag.  Used for
-** testing the hash_color() function.
-*/
-void test_hash_color_page(void){
-  const char *zBr;
-  char zNm[10];
-  int i, cnt;
-  login_check_credentials();
-
-  style_set_current_feature("test");
-  style_header("Hash Color Test");
-  for(i=cnt=0; i<10; i++){
-    sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
-    zBr = P(zNm);
-    if( zBr && zBr[0] ){
-      @ <p style='border:1px solid;background-color:%s(hash_color(zBr));'>
-      @ %h(zBr) - %s(hash_color(zBr)) -
-      @ Omnes nos quasi oves erravimus unusquisque in viam
-      @ suam declinavit.</p>
-      cnt++;
-    }
-  }
-  if( cnt ){
-    @ <hr />
-  }
-  @ <form method="post" action="%R/hash-color-test">
-  @ <p>Enter candidate branch names below and see them displayed in their
-  @ default background colors above.</p>
-  for(i=0; i<10; i++){
-    sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
-    zBr = P(zNm);
-    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br />
-  }
-  @ <input type="submit">
-  @ </form>
-  style_finish_page();
-}
 
 /*
 ** Return a new timelineTable id.
@@ -468,7 +367,7 @@ void www_print_timeline(
     @ <td class="timelineGraph">
     if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA) ){
       if( tmFlags & TIMELINE_UCOLOR ){
-        zBgClr = zUser ? hash_color(zUser) : 0;
+        zBgClr = zUser ? user_color(zUser) : 0;
       }else if( zType[0]=='c' ){
         static Stmt qdelta;
         db_static_prepare(&qdelta, "SELECT baseid IS NULL FROM plink"
@@ -1795,8 +1694,8 @@ void page_timeline(void){
     }else{
       nEntry = atoi(z);
       if( nEntry<=0 ){
-        z = "10";
-        nEntry = 10;
+        z = "50";
+        nEntry = 50;
       }
     }
   }else{
@@ -2970,14 +2869,23 @@ void print_timeline(Stmt *q, int nLimit, int width, const char *zFormat, int ver
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*UNPUBLISHED* ");
       n += strlen(zPrefix+n);
     }
-    if( zType[0]=='w' && (zCom[0]=='+' || zCom[0]=='-' || zCom[0]==':') ){
+    if( zType && zType[0]=='w'
+     && (zCom[0]=='+' || zCom[0]=='-' || zCom[0]==':')
+    ){
       /* Special processing for Wiki comments */
+      if(!zComShort || !*zComShort){
+        /* Shouldn't be possible, but just in case... */
+        zComShort = " ";
+      }
       if( zCom[0]=='+' ){
-        zFree = mprintf("[%S] Add wiki page \"%s\"", zId, zCom+1);
+        zFree = mprintf("[%S] Add wiki page \"%s\" (user: %s)",
+                        zId, zComShort+1, zUserShort);
       }else if( zCom[0]=='-' ){
-        zFree = mprintf("[%S] Delete wiki page \"%s\"", zId, zCom+1);
+        zFree = mprintf("[%S] Delete wiki page \"%s\" (user: %s)",
+                        zId, zComShort+1, zUserShort);
       }else{
-        zFree = mprintf("[%S] Edit to wiki page \"%s\"", zId, zCom+1);
+        zFree = mprintf("[%S] Edit to wiki page \"%s\" (user: %s)",
+                        zId, zComShort+1, zUserShort);
       }
     }else{
       zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);

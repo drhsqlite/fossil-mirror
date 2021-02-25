@@ -16,7 +16,7 @@ div.logo {
   vertical-align: bottom;
   font-weight: bold;
   color: #558195;
-  min-width: 200px;
+  min-width: 50px;
   white-space: nowrap;
 }
 
@@ -40,7 +40,6 @@ div.status {
   color: #558195;
   font-size: 0.8em;
   font-weight: bold;
-  min-width: 200px;
   white-space: nowrap;
 }
 
@@ -53,7 +52,7 @@ div.header {
 /* The main menu bar that appears at the top of the page beneath
 ** the header */
 div.mainmenu {
-  padding: 5px 10px 5px 10px;
+  padding: 5px;
   font-size: 0.9em;
   font-weight: bold;
   text-align: center;

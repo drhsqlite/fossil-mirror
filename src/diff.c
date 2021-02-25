@@ -2092,7 +2092,7 @@ void test_diff_cmd(void){
   diffFlag = diff_options();
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
-  diff_print_filenames(g.argv[2], g.argv[3], diffFlag);
+  diff_print_filenames(g.argv[2], g.argv[3], diffFlag, 0);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
   blob_zero(&out);

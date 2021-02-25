@@ -12,6 +12,10 @@
     background-color: #e8e8e8;
     vertical-align: top;
   }
+  body.fossil-dark-style tr > th {
+    color: #000;
+    opacity: 0.85;
+  }
 
   tr.cols th {
     white-space: nowrap;
@@ -405,6 +409,14 @@ href="./impl.md#choices">some extent</a>, this is unavoidable.</p>
     </td>
   </tr> 
 
+  <tr id="C">
+    <th>C</th>
+    <th>Chat</th>
+    <td>
+      Allow access to the <tt>/chat</tt> room.
+    </td>
+  </tr> 
+
   <tr id="D">
     <th>D</th>
     <th>Debug</th>
@@ -412,6 +424,18 @@ href="./impl.md#choices">some extent</a>, this is unavoidable.</p>
       Enable debugging features. Mnemonic: <b>d</b>ebug.
     </td>
   </tr> 
+
+  <tr id="L">
+    <th>L</th>
+    <th>Is-logged-in</th>
+    <td>
+      This is not a real capability, but is used in certain capability
+      checks, e.g. via <a href="../th1.md#capexpr">capexpr</a>. It
+      resolves to true if the current user is logged in.
+      Mnemonic: <b>L</b>ogged in.
+    </td>
+  </tr> 
+
 </table>
 
 <hr/>

@@ -800,6 +800,13 @@ void setup_timeline(void){
   @ specified an alternative.  (Property: "timeline-default-style")</p>
 
   @ <hr />
+  entry_attribute("Default Number Of Rows", 6, "timeline-default-length",
+                  "tldl", "50", 0);
+  @ <p>The maximum number of rows to show on a timeline in the absence
+  @ of a user display preference cookie setting or an explicit n= query
+  @ parameter.  (Property: "timeline-default-length")</p>
+
+  @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
@@ -843,7 +850,7 @@ void setup_timeline(void){
   @ see an entry in context, and because that link is not otherwise
   @ accessible on the timeline.  The /info link is also accessible by
   @ double-clicking the timeline node or by clicking on the hash that
-  @ follows "check-in:" in the supplimental information section on the
+  @ follows "check-in:" in the supplemental information section on the
   @ right of the entry.
   @ <p>(Properties: "timeline-tslink-info")
 
@@ -1019,25 +1026,64 @@ void setup_config(void){
   @ leading "/".</p>
   @ <p>(Property: "index-page")
   @ <hr>
-  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page.
-  @ Often these are filled in with links like
-  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to
-  @ embedded documentation, or like "/wiki/<i>pagename</i>" to refer
-  @ to wiki pages.
-  @ Leave blank to omit.
+  @ <p>The main menu for the web interface
   @ <p>
-  entry_attribute("Documentation Index", 40, "sitemap-docidx", "smdocidx",
-                  "", 0);
-  @ (Property: sitemap-docidx)<br>
-  entry_attribute("Download", 40, "sitemap-download", "smdownload",
-                  "", 0);
-  @ (Property: sitemap-download)<br>
-  entry_attribute("License", 40, "sitemap-license", "smlicense",
-                  "", 0);
-  @ (Property: sitemap-license)<br>
-  entry_attribute("Contact", 40, "sitemap-contact", "smcontact",
-                  "", 0);
-  @ (Property: sitemap-contact)
+   @
+  @ <p>This setting should be a TCL list.  Each set of four consecutive
+  @ values defines a single main menu item:
+  @ <ol>
+  @ <li> The first term is text that appears on the menu.
+  @ <li> The second term is a hyperlink to take when a user clicks on the
+  @      entry.  Hyperlinks that start with "/" are relative to the
+  @      repository root.
+  @ <li> The third term is an argument to the TH1 "capexpr" command.
+  @      If capexpr evalutes to true, then the entry is shown.  If not,
+  @      the entry is omitted.  "*" is always true.  "{}" is never true.
+  @ <li> The fourth term is a list of extra class names to apply to the new
+  @      menu entry.  Some skins will classes "desktoponly" and "wideonly"
+  @      to only show the entries when the web browser screen is wide or
+  @      very wide, respectively.
+  @ </ol>
+  @
+  @ <p>Some custom skins might not use this property.  Whether the property
+  @ is used or a choice made by the skin designer.  Some skins add an extra
+  @ choices (such as the hamburger button) to the menu that are not shown
+  @ on this list. (Property: mainmenu)
+  @ <p>
+  if(P("resetMenu")!=0){
+    db_unset("mainmenu", 0);
+    cgi_delete_parameter("mmenu");
+  }
+  textarea_attribute("Main Menu", 12, 80, 
+      "mainmenu", "mmenu", style_default_mainmenu(), 0);
+  @ </p>
+  @ <p><input type='checkbox' id='cbResetMenu' name='resetMenu' value='1'>
+  @ <label for='cbResetMenu'>Reset menu to default value</label>
+  @ </p>
+  @ <hr>
+  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page,
+  @ as sub-items of the "Home Page" entry, appearing before the
+  @ "Documentation Search" entry (if any).  In skins that use the /sitemap
+  @ page to construct a hamburger menu dropdown, new entries added here
+  @ will appear on the hamburger menu.
+  @
+  @ <p>This setting should be a TCL list divided into triples.  Each
+  @ triple defines a new entry:
+  @ <ol>
+  @ <li> The first term is the display name of the /sitemap entry
+  @ <li> The second term is a hyperlink to take when a user clicks on the
+  @      entry.  Hyperlinks that start with "/" are relative to the
+  @      repository root.
+  @ <li> The third term is an argument to the TH1 "capexpr" command.
+  @      If capexpr evalutes to true, then the entry is shown.  If not,
+  @      the entry is omitted.  "*" is always true.
+  @ </ol>
+  @
+  @ <p>The default value is blank, meaning no added entries.
+  @ (Property: sitemap-extra)
+  @ <p>
+  textarea_attribute("Custom Sitemap Entries", 8, 80, 
+      "sitemap-extra", "smextra", "", 0);
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>

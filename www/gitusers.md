@@ -13,7 +13,7 @@ rather than provide a simple “translation dictionary,” since to
 understand the conversion, you need to know why the difference exists.
 
 We focus on practical command examples here, leaving discussions of the
-philosophical underpinnings drive these command differences to [another
+philosophical underpinnings that drive these command differences to [another
 document][fvg]. The [case studies](#cs1) do get a bit philosophical, but
 it is with the aim of illustrating how these Fossil design differences
 cause Fossil to behave materially differently from Git in everyday
@@ -92,33 +92,45 @@ section.
 
 #### <a id="pullup"></a> Update vs Pull
 
-The closest equivalent to [`git pull`][gpull] is [`fossil up`][up],
-since Fossil tends to follow the CVS command design: `cvs up` pulls
-changes from the central CVS repository and merges them into the local
-working directory, so that’s what `fossil up` does, too.
+The closest equivalent to [`git pull`][gpull] is not
+[`fossil pull`][fpull], but in fact [`fossil up`][up].
 
-There is a `fossil pull` command, but it is simply the reverse of
+This is because
+Fossil tends to follow the CVS command design: `cvs up` pulls
+changes from the central CVS repository and merges them into the local
+working directory, so that’s what `fossil up` does, too. (This design
+choice also tends to make Fossil feel comfortable to Subversion
+expatriates.)
+
+The `fossil pull` command is simply the reverse of
 `fossil push`, so that `fossil sync` [is functionally equivalent
 to](./sync.wiki#sync):
 
         fossil push ; fossil pull
 
-There is no “and update the local working directory” step in Fossil’s
-push, pull, or sync commands, as with `git pull`.
+There is no implicit “and update the local working directory” step in Fossil’s
+push, pull, or sync commands, as there is with `git pull`.
 
-This makes `fossil up` dual-use:
+Someone coming from the Git perspective may perceive that `fossil up`
+has two purposes:
 
 *   Without the optional `VERSION` argument, it updates the working
-    checkout to the tip of the current branch.
+    checkout to the tip of the current branch, like `git pull`.
 
-*   With that argument, it updates to the named version. If that’s the
+*   Given a `VERSION` argument, it updates to the named version. If that’s the
     name of a branch, it updates to the tip of that branch rather than
-    the current one.
+    the current one, like `git checkout BRANCH`.
 
-We think this is a more sensible command design than `git checkout` vs
-`git pull`.
+In fact, these are the same operation, so they’re the same command in
+Fossil. The first form simply allows the `VERSION` to be implicit: the
+current branch.
 
-[gpull]: https://git-scm.com/docs/git-pull
+We think this is a more sensible command design than `git pull` vs
+`git checkout`. ([…vs `git checkout` vs `git checkout`!][gcokoan])
+
+[fpull]:   /help?cmd=pull
+[gpull]:   https://git-scm.com/docs/git-pull
+[gcokoan]: https://stevelosh.com/blog/2013/04/git-koans/#s2-one-thing-well
 
 
 #### <a id="rname"></a> Naming Repositories
@@ -713,7 +725,9 @@ color to distinguish insertions, deletions, and replacements, but unlike
 with `git diff` when the output is to an ANSI X3.64 capable terminal,
 `fossil diff` does not.
 
-There’s an easy way to add this feature to Fossil, though: install
+There are a few easy ways to add this feature to Fossil, though.
+
+One is to install
 [`colordiff`][cdiff], which is included in [many package systems][cdpkg],
 then say:
 
@@ -724,6 +738,13 @@ then have to remember to add the `-i` option to `fossil diff` commands
 when you want color disabled, such as when piping diff output to another
 command that doesn’t understand ANSI escape sequences. There’s an
 example of this [below](#dstat).
+
+Another way, which avoids this problem, is to say instead:
+
+        fossil set --global diff-command 'git diff --no-index'
+
+This delegates `fossil diff` to `git diff` by using the latter’s
+ability to run on files not inside any repository.
 
 [cdpkg]: https://repology.org/project/colordiff/versions
 
@@ -786,9 +807,10 @@ Fossil’s closest internal equivalent to commands like
         fossil diff -i --from 2020-04-01 --numstat
 
 The `--numstat` output is a bit cryptic, so we recommend delegating
-this task to [the widely-available `diffstat` tool][dst]:
+this task to [the widely-available `diffstat` tool][dst], which gives
+a histogram in its default output mode rather than bare integers:
 
-        fossil diff -i -N --from 2020-04-01 | diffstat
+        fossil diff -i -v --from 2020-04-01 | diffstat
 
 We gave the `-i` flag in both cases to force Fossil to use its internal
 diff implementation, bypassing [your local `diff-command` setting][dcset].
@@ -796,7 +818,7 @@ The `--numstat` option has no effect when you have an external diff
 command set, and some diff command alternatives like
 [`colordiff`][cdiff] (covered [above](#cdiff)) produce output that confuses `diffstat`.
 
-If you leave off the `-N` flag in the second example, the `diffstat`
+If you leave off the `-v` flag in the second example, the `diffstat`
 output won’t include info about any newly-added files.
 
 [cdiff]: https://www.colordiff.org/

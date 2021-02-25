@@ -20,11 +20,11 @@ POSIX `grep`:
 
 That leaves many divergences at the option level from POSIX `grep`:
 
-*   There is no built-in way to get a count of matches, as with `grep
-    -c`.
+*   There is no built-in way to get a count of matches, as with
+    `grep -c`.
 
-*    You cannot give more than one pattern, as with `grep -e` or `grep
-     -f`.
+*    You cannot give more than one pattern, as with `grep -e` or
+     `grep -f`.
 
 *   There is no equivalent of `grep -F` to do literal fixed-string
     matches only.

@@ -536,10 +536,23 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   x.z = z;
   x.zEnd = &z[n];
   x.atEol = 1;
-  while( (cType = next_card(&x))!=0 && cType>=cPrevType ){
+  while( (cType = next_card(&x))!=0 ){
+    if( cType<cPrevType ){
+      /* Cards must be in increasing order.  However, out-of-order detection
+      ** was broken prior to 2021-02-10 due to a bug.  Furthermore, there
+      ** was a bug in technote generation (prior to 2021-02-10) that caused
+      ** the P card to occur before the N card.  Hence, for historical
+      ** compatibility, we do allow the N card of a technote to occur after
+      ** the P card.  See tickets 15d04de574383d61 and 5e67a7f4041a36ad.
+      */
+      if( cType!='N' || cPrevType!='P' || p->zEventId==0 ){
+        SYNTAX("cards not in lexicographical order");
+      }
+    }
     lineNo++;
     if( cType<'A' || cType>'Z' ) SYNTAX("bad card type");
     seenCard |= 1 << (cType-'A');
+    cPrevType = cType;
     switch( cType ){
       /*
       **     A <filename> <target> ?<source>?
@@ -2327,7 +2340,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       parentid = manifest_add_checkin_linkages(rid,p,p->nParent,p->azParent);
       search_doc_touch('c', rid, 0);
       assert( manifest_event_triggers_are_enabled );
-      db_multi_exec(
+      zCom = db_text(0,
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment,omtime)"
         "VALUES('ci',"
@@ -2338,15 +2351,14 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         "  %d,%Q,%Q,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
-        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g);",
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g)"
+        "RETURNING coalesce(ecomment,comment);",
         TAG_DATE, rid, p->rDate,
         rid, p->zUser, p->zComment,
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
       );
-      zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
-                        " WHERE rowid=last_insert_rowid()");
       backlink_extract(zCom, 0, rid, BKLNK_COMMENT, p->rDate, 1);
       fossil_free(zCom);
 
@@ -2409,8 +2421,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   if( p->type==CFTYPE_WIKI ){
     char *zTag = mprintf("wiki-%s", p->zWikiTitle);
-    int tagid = tag_findid(zTag, 1);
-    int prior;
+    int prior = 0;
     char cPrefix;
     int nWiki;
     char zLength[40];
@@ -2420,12 +2431,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     fossil_free(zTag);
-    prior = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime<%.17g"
-      " ORDER BY mtime DESC",
-      tagid, p->rDate
-    );
+    if(p->nParent){
+      prior = fast_uuid_to_rid(p->azParent[0]);
+    }
     if( prior ){
       content_deltify(prior, &rid, 1, 0);
     }
@@ -2452,7 +2460,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_EVENT ){
     char *zTag = mprintf("event-%s", p->zEventId);
     int tagid = tag_findid(zTag, 1);
-    int prior, subsequent;
+    int prior = 0, subsequent;
     int nWiki;
     char zLength[40];
     Stmt qatt;
@@ -2461,13 +2469,12 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     fossil_free(zTag);
-    prior = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime<%.17g AND rid!=%d"
-      " ORDER BY mtime DESC",
-      tagid, p->rDate, rid
-    );
+    if(p->nParent){
+      prior = fast_uuid_to_rid(p->azParent[0]);
+    }
     subsequent = db_int(0,
+      /* BUG: this check is only correct if subsequent
+         version has already been crosslinked. */
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime>=%.17g AND rid!=%d"
       " ORDER BY mtime",

@@ -54,6 +54,7 @@
 **    Look up the value of a cookie parameter zPName.  Return zDefault if
 **    there is no display preferences cookie or if zPName does not exist.
 */
+#include "config.h"
 #include "cookies.h"
 #include <assert.h>
 #include <string.h>
@@ -210,22 +211,40 @@ const char *cookie_value(const char *zPName, const char *zDefault){
 */
 void cookie_page(void){
   int i;
-  if( PB("clear") ){
-    cgi_set_cookie(DISPLAY_SETTINGS_COOKIE, "", 0, 1);
-    cgi_replace_parameter(DISPLAY_SETTINGS_COOKIE, "");
-  }
+  int nCookie = 0;
+  const char *zName = 0;
+  const char *zValue = 0;
+  int isQP = 0;
   cookie_parse();
-  style_header("User Preference Cookie Values");
-  if( cookies.nParam ){
-    style_submenu_element("Clear", "%R/cookies?clear");
+  style_header("Cookies");
+  @ <form method="POST">
+  @ <ol>
+  for(i=0; cgi_param_info(i, &zName, &zValue, &isQP); i++){
+    char *zDel;
+    if( isQP ) continue;
+    if( fossil_isupper(zName[0]) ) continue;
+    zDel = mprintf("del%s",zName);
+    if( P(zDel)!=0 ){
+      cgi_set_cookie(zName, "", 0, -1);
+      cgi_redirect("cookies");
+    }
+    nCookie++;
+    @ <li><p><b>%h(zName)</b>: %h(zValue)
+    @ <input type="submit" name="%h(zDel)" value="Delete"> 
+    if( fossil_strcmp(zName, DISPLAY_SETTINGS_COOKIE)==0  && cookies.nParam>0 ){
+      int j;
+      @ <ul>
+      for(j=0; j<cookies.nParam; j++){
+        @ <li>%h(cookies.aParam[j].zPName): "%h(cookies.aParam[j].zPValue)"
+      }
+      @ </ul>
+    }
+    fossil_free(zDel);
   }
-  @ <p>The following are user preference settings held in the
-  @ "fossil_display_settings" cookie.
-  @ <ul>
-  @ <li>Raw cookie value: "%h(PD("fossil_display_settings",""))"
-  for(i=0; i<cookies.nParam; i++){
-    @ <li>%h(cookies.aParam[i].zPName): "%h(cookies.aParam[i].zPValue)"
+  @ </ol>
+  @ </form>
+  if( nCookie==0 ){
+    @ <p><i>No cookies for this website</i></p>
   }
-  @ </ul>
   style_finish_page();
 }

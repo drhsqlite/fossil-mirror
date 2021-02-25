@@ -9,7 +9,7 @@ This document provides background information to aid you in that task.
 
 Fossil comes with multiple built-in skins.  If the default skin does not
 suite your tastes, perhaps one of the other built-in skins will work better.
-If nothing else, the built-in skins can serve as examples or baselines that
+If nothing else, the built-in skins can serve as examples or templates that
 you can use to develop your own custom skin.
 
 The sources to these built-ins can
@@ -127,9 +127,6 @@ follow this template:
         <div class="footer">
           ... skin-specific stuff here ...
         </div>
-        <script nonce="$nonce">
-          <th1>styleScript</th1>
-        </script>
 
 As with the Content Header, the template elements of the Content Footer
 should appear exactly as they are shown.
@@ -183,7 +180,10 @@ the look and feel, mostly of the timeline.  The default
 details.txt file looks like this:
 
 <blockquote><pre>
+pikchr-background:          ""
+pikchr-fontscale:           ""
 pikchr-foreground:          ""
+pikchr-scale:               ""
 timeline-arrowheads:        1
 timeline-circle-nodes:      1
 timeline-color-graph-lines: 1
@@ -201,7 +201,12 @@ If the "pikchr-foreground" setting (added in Fossil 2.14)
 is defined and is not an empty string then it specifies a
 foreground color to use for [pikchr diagrams](./pikchr.md).  The
 default pikchr foreground color is black, or white if the
-"white-foreground" boolean is set.
+"white-foreground" boolean is set.  The "pikchr-background"
+settings does the same for the pikchr diagram background color.
+If the "pikchr-fontscale" and "pikchr-scale" values are not
+empty strings, then they should be floating point values (close
+to 1.0) that specify relative scaling of the fonts in pikchr
+diagrams and other elements of the diagrams, respectively.
 </dd>
 
 <dt><b>footer.txt</b> and <b>header.txt</b></dt><dd>
@@ -217,9 +222,10 @@ part of the overall web page.</dd>
 
 <dt><b>js.txt</b></dt><dd>
 
-<p>The js.txt file is intended to be javascript.  The complete
-text of this javascript is typically inserted into the Content Footer
-by this part of the "footer.txt" file:
+<p>The js.txt file is optional.  It is intended to be javascript.
+The complete text of this javascript is might be inserted into
+the Content Footer, after being processed using TH1, using
+code like the following in the "footer.txt" file:
 
 <blockquote><pre>
 &lt;script nonce="$nonce"&gt;
@@ -227,10 +233,32 @@ by this part of the "footer.txt" file:
 &lt;/script&gt;
 </pre></blockquote>
 
-<p>The js.txt file was originally intended to insert javascript
-that controls the hamburger menu.
-The footer.txt file probably should contain lines like the
-above, even if js.txt is empty.</dd>
+<p>The js.txt file was originally used to insert javascript
+that controls the hamburger menu in the default skin.  More
+recently, the javascript for the hamburger menu was moved into
+a separate built-in file.  Skins that use the hamburger menu
+typically cause the javascript to be loaded by including the
+following TH1 code in the "header.txt" file:
+
+<blockquote><pre>
+&lt;th1&gt;builtin_request_js hbmenu.js&lt;/th1&gt;
+</pre></blockquote>
+
+The difference between styleScript and builtin_request_js
+is that the styleScript command interprets the file
+using TH1 and injects the content directly into the output
+stream, whereas the builtin_request_js command inserts the
+javascript verbatim and does so at some unspecified future time
+down inside the Fossil-generated footer.  The built-in skins
+of Fossil originally used the styleScript command to load
+the hamburger menu javascript, but as of version 2.15 switched
+to using the builtin_request_js method.  You can use either
+approach in custom skins that you right yourself.
+
+Note that the "js.txt" file is *not* automatically inserted into
+the generate HTML for a page.  You, the skin designer, must
+cause the javascript to be inserted by issuing appropriate
+TH1 commands in the "header.txt" or "footer.txt" files.</dd>
 </dl></blockquote>
 
 Developing a new skin is simply a matter of creating appropriate
@@ -261,6 +289,17 @@ option contains a "/" character, then the five control files are
 read out of the directory named.  You can then edit the control
 files in the ./newskin folder using you favorite text editor, and
 press "Reload" on your browser to see the effects.
+
+### Disabling The Web Browser Cache During Development
+
+Fossil is aggressive about asking the web browser to cache 
+resources.  While developing a new skin, it is often helpful to
+put your web browser into developer mode and disable the cache.
+If you fail to do this, then you might make some change to your skin
+under development and press "Reload" only to find that the display
+did not change.  After you have finished work your skin, the
+caches should synchronize with your new design and you can reactivate
+your web browser's cache and take it out of developer mode.
 
 ## <a name="headfoot"></a>Header and Footer Processing
 
@@ -299,27 +338,32 @@ TH1 variables that are set by the header are available to the footer.
 The menu bar of the default skin has an entry to open a drop-down menu with
 additional navigation links, represented by the ≡ button (hence the name
 "hamburger menu"). The Javascript logic to open and close the hamburger menu
-when the button is clicked is contained in the optional Javascript part (js.txt)
-of the default skin. Out of the box, the drop-down menu shows the [Site
-Map](../../../sitemap), loaded by an AJAX request prior to the first display.
+when the button is clicked is usually handled by a script named
+"hbmenu.js" that is one of the [built-in resource files](/test-builtin-list)
+that are part of Fossil.
 
 The ≡ button for the hamburger menu is added to the menu bar by the following
-TH1 command in the default skin header.txt, right before the menu bar links:
+TH1 commands in the `header.txt` file, right before the menu bar links:
 
-        html "<a id='hbbtn' href='#'>&#9776;</a>"
+        html "<a id='hbbtn' href='$home/sitemap'>&#9776;</a>"
+        builtin_request_js hbmenu.js
 
 The hamburger button can be repositioned between the other menu links (but the
 drop-down menu is always left-aligned with the menu bar), or it can be removed
-by deleting the above statement (the Javascript logic detects this case and
-remains idle, so it's not necessary to modify the default skin js.txt).
+by deleting the above statements.  The "html" statement inserts the appropriate
+`<a>` for the hamburger menu button (some skins require something slightly
+different - for example the ardoise skins wants "`<li><a>`").  The
+"builtin_request_js hbmenu.js" asks Fossil to include the "hbmenu.js" 
+resource files in the Fossil-generated footer.
 
-The following empty element at the bottom of the default skin header.txt serves
-as the panel to hold the drop-down menu elements:
+The hbmenu.js script requires
+the following `<div>` element somewhere in your header, in which to build
+the hamburger menu.
 
         <div id='hbdrop'></div>
 
 Out of the box, the contents of the panel is populated with the [Site
-Map](../../../sitemap), but only if the panel does not already contain any HTML
+Map](/sitemap), but only if the panel does not already contain any HTML
 elements (that is, not just comments, plain text or non-presentational white
 space). So the hamburger menu can be customized by replacing the empty `<div
 id='hbdrop'></div>` element with a menu structure knitted according to the
@@ -449,12 +493,12 @@ can serve as a starting point for future work:
        be named exactly "css.txt", "footer.txt", and "header.txt" and that
        they all be in the same directory.
 
-   2.  Run the [fossil ui](../../../help?cmd=ui) command with an extra
+   2.  Run the [fossil ui](/help?cmd=ui) command with an extra
        option "--skin SKINDIR" where SKINDIR is the name of the directory
        in which the three txt files were stored in step 1.   This will bring
        up the Fossil website using the tree files in SKINDIR.
 
-   3.  Edit the four txt files in SKINDIR.  After making each small change,
+   3.  Edit the *.txt files in SKINDIR.  After making each small change,
        press Reload on the web browser to see the effect of that change.
        Iterate until the desired look is achieved.
 

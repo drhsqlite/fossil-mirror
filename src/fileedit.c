@@ -701,14 +701,14 @@ ci_error:
 **
 ** Options:
 **
-**   --repository|-R REPO      The repository file to commit to.
+**   -R|--repository REPO      The repository file to commit to.
 **   --as FILENAME             The repository-side name of the input
 **                             file, relative to the top of the
 **                             repository. Default is the same as the
 **                             input file name.
-**   --comment|-m COMMENT      Required checkin comment.
-**   --comment-file|-M FILE    Reads checkin comment from the given file.
-**   --revision|-r VERSION     Commit from this version. Default is
+**   -m|--comment COMMENT      Required checkin comment.
+**   -M|--comment-file FILE    Reads checkin comment from the given file.
+**   -r|--revision VERSION     Commit from this version. Default is
 **                             the checkout version (if available) or
 **                             trunk (if used without a checkout).
 **   --allow-fork              Allows the commit to be made against a
@@ -737,7 +737,7 @@ ci_error:
 **                             sensitivity errors inadvertently lead to
 **                             adding a new file where an update is
 **                             intended.
-**   --dump-manifest|-d        Dumps the generated manifest to stdout
+**   -d|--dump-manifest        Dumps the generated manifest to stdout
 **                             immediately after it's generated.
 **   --save-manifest FILE      Saves the generated manifest to a file
 **                             after successfully processing it.

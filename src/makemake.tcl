@@ -50,6 +50,7 @@ set src {
   checkout
   clearsign
   clone
+  color
   comformat
   configure
   content
@@ -714,11 +715,8 @@ SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLI
 endif
 
 #### The directories where the OpenSSL include and library files are located.
-#    The recommended usage here is to use the Sysinternals junction tool
-#    to create a hard link between an "openssl-1.x" sub-directory of the
-#    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1g
+OPENSSLDIR = $(SRCDIR)/../compat/openssl
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1472,6 +1470,7 @@ OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
 P       = .pdb
+OPTLEVEL= /Os
 
 INSTALLDIR = .
 !ifdef DESTDIR
@@ -1564,7 +1563,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1g
+SSLDIR    = $(B)\compat\openssl
 SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)
@@ -1671,7 +1670,7 @@ CRTFLAGS = /MT
 CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od /DFOSSIL_DEBUG
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) $(CRTFLAGS) /O2
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(OPTLEVEL)
 !endif
 
 BCC       = $(CC) $(CFLAGS)

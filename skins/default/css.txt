@@ -63,7 +63,7 @@ a:hover {
   color: #000;
   border-bottom: 2px solid #D26911;
 }
-.mainmenu div#hbdrop {
+div#hbdrop {
   background-color: white;
   border: 1px solid black;
   border-top: white;
@@ -274,9 +274,6 @@ div.timelineDate {
   .mainmenu {
     padding: 10px;
   }
-  .desktoponly {
-    display: none;
-  }
 }
 @media screen and (min-width: 600px) {
   /* Spacing for desktop */
@@ -294,11 +291,5 @@ div.timelineDate {
   }
   .mainmenu {
     padding: 10px;
-  }
-}
-@media screen and (max-width: 1200px) {
-  /* Special declarations for narrow desktop or wide mobile */
-  .wideonly {
-    display: none;
   }
 }

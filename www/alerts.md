@@ -388,7 +388,7 @@ or a how-to on [the Fossil forum][ff] would be appreciated.
 <a id="db"></a>
 ### Method 2: Store in a Database
 
-The self-hosting Fossil repository at <https://www.fossil-scm.org/>
+The self-hosting Fossil repository at <https://fossil-scm.org/>
 currently uses this method rather than [the pipe method](#pipe) because
 it is running inside of a restrictive [chroot jail][cj] which is unable
 to hand off messages to the local MTA directly.

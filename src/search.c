@@ -567,7 +567,7 @@ void search_sql_setup(sqlite3 *db){
 **
 ** COMMAND: search*
 **
-** Usage: %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
+** Usage: %fossil search [-a|-all] [-n|-limit #] [-W|-width #] pattern...
 **
 ** Search for timeline entries matching all words provided on the
 ** command line. Whole-word matches scope more highly than partial

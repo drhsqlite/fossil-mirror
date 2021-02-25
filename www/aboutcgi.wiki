@@ -64,7 +64,7 @@ environment variables with information useful to the CGI script:
 <p>
 There are other CGI environment variables beyond those listed above.
 Many Fossil servers implement the
-[https://www.fossil-scm.org/fossil/test_env/two/three?abc=xyz|test_env]
+[https://fossil-scm.org/home/test_env/two/three?abc=xyz|test_env]
 webpage that shows some of the CGI environment
 variables that Fossil pays attention to.
 <p>
@@ -132,8 +132,8 @@ With Fossil, terms of PATH_INFO beyond the webpage name are converted into
 the "name" query parameter.  Hence, the following two URLs mean
 exactly the same thing to Fossil:
 <ol type='A'>
-<li> [https://www.fossil-scm.org/fossil/info/c14ecc43]
-<li> [https://www.fossil-scm.org/fossil/info?name=c14ecc43]
+<li> [https://fossil-scm.org/home/info/c14ecc43]
+<li> [https://fossil-scm.org/home/info?name=c14ecc43]
 </ol>
 In both cases, the CGI script is called "/fossil".  For case (A),
 the PATH_INFO variable will be "info/c14ecc43" and so the

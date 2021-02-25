@@ -599,6 +599,31 @@ const char *get_default_header(){
 }
 
 /*
+** The default TCL list that defines the main menu.
+*/
+static const char zDfltMainMenu[] = 
+@ Home      /home        *              {}
+@ Timeline  /timeline    {o r j}        {}
+@ Files     /dir?ci=tip  oh             desktoponly
+@ Branches  /brlist      o              wideonly
+@ Tags      /taglist     o              wideonly
+@ Forum     /forum       {@2 3 4 5 6}   wideonly
+@ Chat      /chat        C              wideonly
+@ Tickets   /ticket      r              wideonly
+@ Wiki      /wiki        j              wideonly
+@ Setup     /setup       s              desktoponly
+@ Logout    /logout      L              wideonly
+@ Login     /login       !L             wideonly
+;
+
+/*
+** Return the default menu
+*/
+const char *style_default_mainmenu(void){
+  return zDfltMainMenu;
+}
+
+/*
 ** Given a URL path, extract the first element as a "feature" name,
 ** used as the <body class="FEATURE"> value by default, though
 ** later-running code may override this, typically to group multiple
@@ -632,6 +657,26 @@ void style_set_current_feature(const char* zFeature){
 }
 
 /*
+** Returns the current mainmenu value from either the --mainmenu flag
+** (handled by the server/ui/cgi commands), the "mainmenu" config
+** setting, or style_default_mainmenu(), in that order, returning the
+** first of those which is defined.
+*/
+const char*style_get_mainmenu(){
+  static const char *zMenu = 0;
+  if(!zMenu){
+    if(g.zMainMenuFile){
+      Blob b = empty_blob;
+      blob_read_from_file(&b, g.zMainMenuFile, ExtFILE);
+      zMenu = blob_str(&b);
+    }else{
+      zMenu = db_get("mainmenu", style_default_mainmenu());
+    }
+  }
+  return zMenu;
+}
+
+/*
 ** Initialize all the default TH1 variables
 */
 static void style_init_th1_vars(const char *zTitle){
@@ -661,6 +706,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
+  Th_Store("mainmenu", style_get_mainmenu());
   url_var("stylesheet", "css", "style.css");
   image_url_var("logo");
   image_url_var("background");
@@ -1053,9 +1099,10 @@ void page_script_js(void){
 }
 
 /*
-** If one of the "name" or "page" URL parameters (in that order)
-** is set then this function looks for page/page group-specific
-** CSS and (if found) appends it to pOut, else it is a no-op.
+** Check for "name" or "page" query parameters on an /style.css
+** page request.  If present, then page-specific CSS is requested,
+** so add that CSS to pOut.  If the "name" and "page" query parameters
+** are omitted, then pOut is unchnaged.
 */
 static void page_style_css_append_page_style(Blob *pOut){
   const char *zPage = PD("name",P("page"));
@@ -1071,15 +1118,10 @@ static void page_style_css_append_page_style(Blob *pOut){
   if(nFile>0){
     blob_appendf(pOut,
       "\n/***********************************************************\n"
-      "** Start of page-specific CSS for page %s...\n"
+      "** Page-specific CSS for \"%s\"\n"
       "***********************************************************/\n",
       zPage);
     blob_append(pOut, zBuiltin, nFile);
-    blob_appendf(pOut,
-      "\n/***********************************************************\n"
-      "** End of page-specific CSS for page %s.\n"
-      "***********************************************************/\n",
-      zPage);
     fossil_free(zFile);
     return;
   }
@@ -1093,12 +1135,35 @@ static void page_style_css_append_page_style(Blob *pOut){
 /*
 ** WEBPAGE: style.css
 **
-** Return the style sheet.
+** Return the style sheet.   The style sheet is assemblied from
+** multiple sources, in order:
+**
+**    (1)   The built-in "default.css" style sheet containing basic defaults.
+**
+**    (2)   The page-specific style sheet taken from the built-in
+**          called "PAGENAME.css" where PAGENAME is the value of the name=
+**          or page= query parameters.  If neither name= nor page= exist,
+**          then this section is a no-op.
+**
+**    (3)   The skin-specific "css.txt" file, if there one.
+**
+** All of (1), (2), and (3) above (or as many as exist) are concatenated.
+** The result is then run through TH1 with the following variables set:
+**
+**    *   $basename
+**    *   $secureurl
+**    *   $home
+**    *   $logo
+**    *   $background
+**
+** The output from TH1 becomes the style sheet.  Fossil always reports
+** that the style sheet is cacheable.  
 */
 void page_style_css(void){
   Blob css = empty_blob;
   int i;
   const char * zDefaults;
+  const char *zSkin;
 
   cgi_set_content_type("text/css");
   etag_check(0, 0);
@@ -1107,11 +1172,13 @@ void page_style_css(void){
   blob_append(&css, zDefaults, i);
   /* Page-specific CSS, if any... */
   page_style_css_append_page_style(&css);
-  blob_append(&css,
+  zSkin = skin_in_use();
+  if( zSkin==0 ) zSkin = "this repository";
+  blob_appendf(&css,
      "\n/***********************************************************\n"
-     "** All CSS which follows is supplied by the repository \"skin\".\n"
+     "** Skin-specific CSS for %s\n"
      "***********************************************************/\n",
-     -1);
+     zSkin);
   blob_append(&css,skin_get("css"),-1);
   /* Process through TH1 in order to give an opportunity to substitute
   ** variables such as $baseurl.

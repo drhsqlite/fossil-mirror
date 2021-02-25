@@ -530,6 +530,9 @@ static int wiki_special_permission(const char *zPageName){
 **                     pages for check-ins, branches, or tags, there will
 **                     be a redirect to the associated /info page unless
 **                     this query parameter is present.
+**    popup            Suppress the header and footer and other page
+**                     boilerplate and only return the formatted content
+**                     of the wiki page.
 */
 void wiki_page(void){
   char *zTag;
@@ -540,6 +543,7 @@ void wiki_page(void){
   Manifest *pWiki = 0;
   const char *zPageName;
   const char *zMimetype = 0;
+  int isPopup = P("popup")!=0;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
   int noSubmenu = P("nsm")!=0;
 
@@ -591,10 +595,12 @@ void wiki_page(void){
       style_submenu_element("History", "%R/whistory?name=%T", zPageName);
     }
   }
-  style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "");
-  if( !noSubmenu ){
-    wiki_standard_submenu(submenuFlags);
+  if( !isPopup ){
+    style_set_current_page("%T?name=%T", g.zPath, zPageName);
+    wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "");
+    if( !noSubmenu ){
+      wiki_standard_submenu(submenuFlags);
+    }
   }
   if( zBody[0]==0 ){
     @ <i>This page has been deleted</i>
@@ -604,10 +610,12 @@ void wiki_page(void){
     wiki_render_by_mimetype(&wiki, zMimetype);
     blob_reset(&wiki);
   }
-  attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
   manifest_destroy(pWiki);
-  document_emit_js(/*for optional pikchr support*/);
-  style_finish_page();
+  if( !isPopup ){
+    attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
+    document_emit_js(/*for optional pikchr support*/);
+    style_finish_page();
+  }
 }
 
 /*
@@ -1959,7 +1967,7 @@ int wiki_technote_to_rid(const char *zETime) {
 **       If PAGENAME is provided, the named wiki page will be output.
 **
 **       Options:
-**         --technote|-t DATETIME|TECHNOTE-ID
+**         -t|--technote DATETIME|TECHNOTE-ID
 **                    Specifies that a technote, rather than a wiki page,
 **                    will be exported. If DATETIME is used, the most
 **                    recently modified tech note with that DATETIME will

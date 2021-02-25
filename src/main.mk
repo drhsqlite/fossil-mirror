@@ -39,6 +39,7 @@ SRC = \
   $(SRCDIR)/checkout.c \
   $(SRCDIR)/clearsign.c \
   $(SRCDIR)/clone.c \
+  $(SRCDIR)/color.c \
   $(SRCDIR)/comformat.c \
   $(SRCDIR)/configure.c \
   $(SRCDIR)/content.c \
@@ -165,7 +166,6 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
-  $(SRCDIR)/../skins/aht/details.txt \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \
   $(SRCDIR)/../skins/ardoise/footer.txt \
@@ -179,28 +179,22 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/blitz/footer.txt \
   $(SRCDIR)/../skins/blitz/header.txt \
   $(SRCDIR)/../skins/blitz/ticket.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/css.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/details.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/header.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
   $(SRCDIR)/../skins/bootstrap/css.txt \
   $(SRCDIR)/../skins/bootstrap/details.txt \
   $(SRCDIR)/../skins/bootstrap/footer.txt \
   $(SRCDIR)/../skins/bootstrap/header.txt \
+  $(SRCDIR)/../skins/darkmode/css.txt \
+  $(SRCDIR)/../skins/darkmode/details.txt \
+  $(SRCDIR)/../skins/darkmode/footer.txt \
+  $(SRCDIR)/../skins/darkmode/header.txt \
   $(SRCDIR)/../skins/default/css.txt \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
-  $(SRCDIR)/../skins/default/js.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
   $(SRCDIR)/../skins/eagle/header.txt \
-  $(SRCDIR)/../skins/enhanced1/css.txt \
-  $(SRCDIR)/../skins/enhanced1/details.txt \
-  $(SRCDIR)/../skins/enhanced1/footer.txt \
-  $(SRCDIR)/../skins/enhanced1/header.txt \
   $(SRCDIR)/../skins/khaki/css.txt \
   $(SRCDIR)/../skins/khaki/details.txt \
   $(SRCDIR)/../skins/khaki/footer.txt \
@@ -213,10 +207,6 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/plain_gray/details.txt \
   $(SRCDIR)/../skins/plain_gray/footer.txt \
   $(SRCDIR)/../skins/plain_gray/header.txt \
-  $(SRCDIR)/../skins/rounded1/css.txt \
-  $(SRCDIR)/../skins/rounded1/details.txt \
-  $(SRCDIR)/../skins/rounded1/footer.txt \
-  $(SRCDIR)/../skins/rounded1/header.txt \
   $(SRCDIR)/../skins/xekri/css.txt \
   $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
@@ -249,6 +239,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.tabs.js \
   $(SRCDIR)/fossil.wikiedit-wysiwyg.js \
   $(SRCDIR)/graph.js \
+  $(SRCDIR)/hbmenu.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
@@ -304,6 +295,7 @@ TRANS_SRC = \
   $(OBJDIR)/checkout_.c \
   $(OBJDIR)/clearsign_.c \
   $(OBJDIR)/clone_.c \
+  $(OBJDIR)/color_.c \
   $(OBJDIR)/comformat_.c \
   $(OBJDIR)/configure_.c \
   $(OBJDIR)/content_.c \
@@ -453,6 +445,7 @@ OBJ = \
  $(OBJDIR)/checkout.o \
  $(OBJDIR)/clearsign.o \
  $(OBJDIR)/clone.o \
+ $(OBJDIR)/color.o \
  $(OBJDIR)/comformat.o \
  $(OBJDIR)/configure.o \
  $(OBJDIR)/content.o \
@@ -792,6 +785,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h \
 	$(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h \
 	$(OBJDIR)/clone_.c:$(OBJDIR)/clone.h \
+	$(OBJDIR)/color_.c:$(OBJDIR)/color.h \
 	$(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h \
 	$(OBJDIR)/configure_.c:$(OBJDIR)/configure.h \
 	$(OBJDIR)/content_.c:$(OBJDIR)/content.h \
@@ -1106,6 +1100,14 @@ $(OBJDIR)/clone.o:	$(OBJDIR)/clone_.c $(OBJDIR)/clone.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/clone.o -c $(OBJDIR)/clone_.c
 
 $(OBJDIR)/clone.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/color_.c:	$(SRCDIR)/color.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/color.c >$@
+
+$(OBJDIR)/color.o:	$(OBJDIR)/color_.c $(OBJDIR)/color.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/color.o -c $(OBJDIR)/color_.c
+
+$(OBJDIR)/color.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/comformat_.c:	$(SRCDIR)/comformat.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/comformat.c >$@

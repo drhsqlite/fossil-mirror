@@ -483,7 +483,7 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 **   --export-marks FILE          export rids of exported data to FILE
 **   --import-marks FILE          read rids of data to ignore from FILE
 **   --rename-trunk NAME          use NAME as name of exported trunk branch
-**   --repository|-R REPOSITORY   export the given REPOSITORY
+**   -R|--repository REPOSITORY   export the given REPOSITORY
 **
 ** See also: import
 */
@@ -1326,7 +1326,7 @@ static char *gitmirror_init(
   gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
   rc = fossil_system(zCmd);
   if( rc ){
-    fossil_fatal("cannot initialize git repository using: %s\n", zCmd);
+    fossil_fatal("cannot initialize git repository using: %s", zCmd);
   }
   fossil_free(zCmd);
 
@@ -1720,7 +1720,10 @@ void gitmirror_export_command(void){
     gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
     zPushCmd = mprintf("git push --mirror %$", zPushUrl);
-    fossil_system(zPushCmd);
+    rc = fossil_system(zPushCmd);
+    if( rc ){
+      fossil_fatal("cannot push content using: %s", zPushCmd);
+    }
     fossil_free(zPushCmd);
   }
 }
@@ -1814,7 +1817,7 @@ void gitmirror_status_command(void){
 **                             auto-push mechanism is disabled
 **         --debug FILE        Write fast-export text to FILE rather than
 **                             piping it into "git fast-import".
-**         --force|-f          Do the export even if nothing has changed
+**         -f|--force          Do the export even if nothing has changed
 **         --if-mirrored       No-op if the mirror does not already exist.
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
@@ -1822,8 +1825,8 @@ void gitmirror_status_command(void){
 **                             The "trunk" branch of the Fossil repository is
 **                             mapped into this name.  "master" is used if
 **                             this option is omitted.
-**         --quiet|-q          Reduce output. Repeat for even less output.
-**         --verbose|-v        More output.
+**         -q|--quiet          Reduce output. Repeat for even less output.
+**         -v|--verbose        More output.
 **
 ** > fossil git import MIRROR
 **

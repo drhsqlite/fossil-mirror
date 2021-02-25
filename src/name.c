@@ -245,6 +245,16 @@ static int most_recent_event_with_tag(const char *zTag, const char *zType){
 **   *  "prev" or "previous"
 **   *  "next"
 **
+** The following modifier prefixes may be applied to the above forms:
+**
+**   *  "root:BR" = The origin of the branch named BR.
+**   *  "merge-in:BR" = The most recent merge-in for the branch named BR.
+**
+** In those forms, BR may be any symbolic form but is assumed to be a
+** checkin. Thus root:2021-02-01 would resolve to a checkin, possibly
+** in a branch and possibly in the trunk, but never a wiki edit or
+** forum post.
+**
 ** Return the RID of the matching artifact.  Or return 0 if the name does not
 ** match any known object.  Or return -1 if the name is ambiguous.
 **
@@ -355,7 +365,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     rid = symbolic_name_to_rid(zTag+5, zType);
     return start_of_branch(rid, 0);
   }
-  /* rootx:BR -> Most recent merge-in for the branch name BR */
+  /* merge-in:BR -> Most recent merge-in for the branch name BR */
   if( strncmp(zTag, "merge-in:", 9)==0 ){
     rid = symbolic_name_to_rid(zTag+9, zType);
     return start_of_branch(rid, 2);

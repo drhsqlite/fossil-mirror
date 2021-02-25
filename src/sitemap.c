@@ -28,12 +28,37 @@
 ** page is intended as a supplement to the menu bar on the main screen.
 ** That is, this page is designed to hold links that are omitted from
 ** the main menu due to lack of space.
+**
+** Additional entries defined by the "sitemap-extra" setting are included
+** in the sitemap.  "sitemap-extra" should be a TCL script with three
+** values per entry:
+**
+**    *    The displayed text
+**
+**    *    The URL
+**
+**    *    A "capexpr" expression that determines whether or not to include
+**         the entry based on user capabilities.  "*" means always include
+**         the entry and "{}" means never.
+**
+** If the "e=1" query parameter is present, then the standard content
+** is omitted and only the sitemap-extra content is shown.  If "e=2" is
+** present, then only the standard content is shown and sitemap-extra
+** content is omitted.
+**
+** If the "popup" query parameter is present and this is a POST request
+** from the same origin, then the normal HTML header and footer information
+** is omitted and the HTML text returned is just a raw "<ul>...</ul>".
 */
 void sitemap_page(void){
   int srchFlags;
   int inSublist = 0;
   int i;
   int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
+  int e = atoi(PD("e","0"));
+  const char *zExtra;
+
+#if 0  /* Removed 2021-01-26 */
   const struct {
     const char *zTitle;
     const char *zProperty;
@@ -43,10 +68,11 @@ void sitemap_page(void){
     { "License",        "sitemap-license" },
     { "Contact",        "sitemap-contact" },
   };
+#endif
 
   login_check_credentials();
-  if( P("popup")!=0 && cgi_csrf_safe(0) ){
-    /* If this is a POST from the same origin with the popup=1 parameter,
+  if( P("popup")!=0 ){
+    /* The "popup" query parameter
     ** then disable anti-robot defenses */
     isPopup = 1;
     g.perm.Hyperlink = 1;
@@ -57,8 +83,13 @@ void sitemap_page(void){
     style_header("Site Map");
     style_adunit_config(ADUNIT_RIGHT_OK);
   }
+    
   @ <ul id="sitemap" class="columns" style="column-width:20em">
-  @ <li>%z(href("%R/home"))Home Page</a>
+  if( (e&1)==0 ){
+    @ <li>%z(href("%R/home"))Home Page</a>
+  }
+
+#if 0  /* Removed 2021-01-26  */
   for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
     char *z = db_get(aExtra[i].zProperty,0);
     if( z==0 || z[0]==0 ) continue;
@@ -72,6 +103,46 @@ void sitemap_page(void){
       @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</a></li>
     }
   }
+#endif
+
+  zExtra = db_get("sitemap-extra",0);
+  if( zExtra && (e&2)==0 ){
+    int rc;
+    char **azExtra = 0;
+    int *anExtra;
+    int nExtra = 0;
+    if( isPopup ) Th_FossilInit(0);
+    if( (e&1)!=0 ) inSublist = 1;
+    rc = Th_SplitList(g.interp, zExtra, (int)strlen(zExtra),
+                      &azExtra, &anExtra, &nExtra);
+    if( rc==TH_OK && nExtra ){
+      for(i=0; i+2<nExtra; i+=3){
+        int nResult = 0;
+        const char *zResult;
+        int iCond = 0;
+        rc = capexprCmd(g.interp, 0, 2,
+                (const char**)&azExtra[i+1], (int*)&anExtra[i+1]);
+        if( rc!=TH_OK ) continue;
+        zResult = Th_GetResult(g.interp, &nResult);
+        Th_ToInt(g.interp, zResult, nResult, &iCond);
+        if( iCond==0 ) continue;
+        if( !inSublist ){
+          @ <ul>
+          inSublist = 1;
+        }
+        if( azExtra[i+1][0]=='/' ){
+          @ <li>%z(href("%R%s",azExtra[i+1]))%h(azExtra[i])</a></li>
+        }else{
+          @ <li>%z(href("%s",azExtra[i+1]))%s(azExtra[i])</a></li>
+        }
+      }
+    }
+    Th_Free(g.interp, azExtra);
+  }
+  if( (e&1)!=0 ) goto end_of_sitemap;
+
+#if 0  /* Removed on 2021-02-11.  Make a sitemap-extra entry if you */
+       /* really want this */
   if( srchFlags & SRCH_DOC ){
     if( !inSublist ){
       @ <ul>
@@ -79,6 +150,8 @@ void sitemap_page(void){
     }
     @ <li>%z(href("%R/docsrch"))Documentation Search</a></li>
   }
+#endif
+
   if( inSublist ){
     @ </ul>
     inSublist = 0;    
@@ -155,34 +228,26 @@ void sitemap_page(void){
 
   if( !g.zLogin ){
     @ <li>%z(href("%R/login"))Login</a>
+    @ <ul>
     if( login_self_register_available(0) ){
-       @ <ul>
        @ <li>%z(href("%R/register"))Create a new account</a></li>
-       inSublist = 1;
     }
   }else {
-    @ <li>%z(href("%R/logout"))Logout</a>
+    @ <li>%z(href("%R/logout"))Logout from %h(g.zLogin)</a>
+    @ <ul>
     if( g.perm.Password ){
-      @ <ul>
-      @ <li>%z(href("%R/logout"))Change Password</a></li>
-      inSublist = 1;
+      @ <li>%z(href("%R/logout"))Change Password for %h(g.zLogin)</a></li>
     }
   }
   if( alert_enabled() && g.perm.EmailAlert ){
-    if( !inSublist ){
-      inSublist = 1;
-      @ <ul>
-    }
     if( login_is_individual() ){
-      @ <li>%z(href("%R/alerts"))Email Alerts</a></li>
+      @ <li>%z(href("%R/alerts"))Email Alerts for %h(g.zLogin)</a></li>
     }else{
       @ <li>%z(href("%R/subscribe"))Subscribe to Email Alerts</a></li>
     }
   }
-  if( inSublist ){
-    @ </ul>
-    inSublist = 0;
-  }
+  @ <li>%z(href("%R/cookies"))Cookies</a></li>
+  @ </ul>
   @ </li>
 
   if( g.perm.Read ){
@@ -213,17 +278,19 @@ void sitemap_page(void){
   }
   @   </ul></li>
   if( g.perm.Admin ){
-    @ <li>%z(href("%R/setup"))Administration Pages</a>
+    @ <li><a href="%R/setup">Administration Pages</a>
     @   <ul>
-    @   <li>%z(href("%R/modreq"))Pending Moderation Requests</a></li>
-    @   <li>%z(href("%R/admin_log"))Admin log</a></li>
-    @   <li>%z(href("%R/cachestat"))Status of the web-page cache</a></li>
+    @   <li><a href="%R/secaudit0">Security Audit</a></li>
+    @   <li><a href="%R/modreq">Pending Moderation Requests</a></li>
     @   </ul></li>
   }
+  @ <li>%z(href("%R/skins"))Skins</a></li>
   @ <li>%z(href("%R/sitemap-test"))Test Pages</a></li>
   if( isPopup ){
     @ <li>%z(href("%R/sitemap"))Site Map</a></li>
   }
+
+end_of_sitemap:
   @ </ul>
   if( !isPopup ){
     style_finish_page();

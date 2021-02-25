@@ -185,6 +185,7 @@ struct Global {
   char *zBaseURL;         /* Full text of the URL being served */
   char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
+  int nExtraURL;          /* Extra bytes added to SCRIPT_NAME */
   const char *zExtRoot;   /* Document root for the /ext sub-website */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
@@ -211,6 +212,8 @@ struct Global {
   Blob httpHeader;        /* Complete text of the HTTP request header */
   UrlData url;            /* Information about current URL */
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
+  const char *zCkoutAlias;   /* doc/ uses this branch as an alias for "ckout" */
+  const char *zMainMenuFile; /* --mainmenu FILE from server/ui/cgi */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
 #if defined(_WIN32) && USE_SEE
@@ -387,7 +390,6 @@ static void fossil_atexit(void) {
     if( g.interp ){
       Th_DeleteInterp(g.interp); g.interp = 0;
     }
-    assert( Th_GetOutstandingMalloc()==0 );
   }
 }
 
@@ -679,8 +681,8 @@ int fossil_main(int argc, char **argv){
 
   fossil_printf_selfcheck();
   fossil_limit_memory(1);
-  if( sqlite3_libversion_number()<3034000 ){
-    fossil_panic("Unsuitable SQLite version %s, must be at least 3.34.0",
+  if( sqlite3_libversion_number()<3035000 ){
+    fossil_panic("Unsuitable SQLite version %s, must be at least 3.35.0",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -1274,7 +1276,7 @@ const char *get_user_agent(){
 /*
 ** COMMAND: version
 **
-** Usage: %fossil version ?-verbose|-v?
+** Usage: %fossil version ?-v|--verbose?
 **
 ** Print the source code version number for the fossil executable.
 ** If the verbose option is specified, additional details will
@@ -1367,33 +1369,48 @@ void set_base_url(const char *zAltBase){
     }
     if( g.zTop[1]==0 ) g.zTop++;
   }else{
+    char *z;
     zHost = PD("HTTP_HOST","");
+    z = fossil_strdup(zHost);
+    for(i=0; z[i]; i++){
+      if( z[i]<='Z' && z[i]>='A' ) z[i] += 'a' - 'A';
+    }
+    if( i>3 && z[i-1]=='0' && z[i-2]=='8' && z[i-3]==':' ) i -= 3;
+    if( i && z[i-1]=='.' ) i--;
+    z[i] = 0;
     zMode = PD("HTTPS","off");
     zCur = PD("SCRIPT_NAME","/");
     i = strlen(zCur);
     while( i>0 && zCur[i-1]=='/' ) i--;
     if( fossil_stricmp(zMode,"on")==0 ){
-      g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
-      g.zTop = &g.zBaseURL[8+strlen(zHost)];
+      g.zBaseURL = mprintf("https://%s%.*s", z, i, zCur);
+      g.zTop = &g.zBaseURL[8+strlen(z)];
       g.zHttpsURL = g.zBaseURL;
     }else{
-      g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
-      g.zTop = &g.zBaseURL[7+strlen(zHost)];
-      g.zHttpsURL = mprintf("https://%s%.*s", zHost, i, zCur);
+      g.zBaseURL = mprintf("http://%s%.*s", z, i, zCur);
+      g.zTop = &g.zBaseURL[7+strlen(z)];
+      g.zHttpsURL = mprintf("https://%s%.*s", z, i, zCur);
     }
+    fossil_free(z);
   }
   if( db_is_writeable("repository") ){
+    int nBase = (int)strlen(g.zBaseURL);
+    char *zBase = g.zBaseURL;
+    if( g.nExtraURL>0 && g.nExtraURL<nBase-6 ){
+      zBase = fossil_strndup(g.zBaseURL, nBase - g.nExtraURL);
+    }
     db_unprotect(PROTECT_CONFIG);
-    if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", g.zBaseURL)){
+    if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", zBase)){
       db_multi_exec("INSERT INTO config(name,value,mtime)"
-                    "VALUES('baseurl:%q',1,now())", g.zBaseURL);
+                    "VALUES('baseurl:%q',1,now())", zBase);
     }else{
       db_optional_sql("repository",
            "REPLACE INTO config(name,value,mtime)"
-           "VALUES('baseurl:%q',1,now())", g.zBaseURL
+           "VALUES('baseurl:%q',1,now())", zBase
       );
     }
     db_protect_pop();
+    if( zBase!=g.zBaseURL ) fossil_free(zBase);
   }
 }
 
@@ -1793,9 +1810,20 @@ static void process_one_web_page(
 
   /* At this point, the appropriate repository database file will have
   ** been opened.
+  */
+
+
+  /*
+  ** Check to see if the first term of PATH_INFO specifies an alternative
+  ** skin.  This will be the case if the first term of PATH_INFO
+  ** begins with "draftN/" where N is an integer between 1 and 9 or
+  ** if it is "skn_X/" where X is one of the built-in skin names.
+  ** If either is true, then activate the alternative skin.a
   **
-  ** Check to see if the PATH_INFO begins with "draft[1-9]" and if
-  ** so activate the special handling for draft skins
+  ** If there are multiple skn_X entries (ex: /skn_default/skn_ardoise/...)
+  ** then skip over all but the last.  This allows one to link to an
+  ** alternative skin in hyperlinks even if you are already in an alternative
+  ** skin.
   */
   if( zPathInfo && strncmp(zPathInfo,"/draft",6)==0
    && zPathInfo[6]>='1' && zPathInfo[6]<='9'
@@ -1808,10 +1836,33 @@ static void process_one_web_page(
     if( g.zTop ) g.zTop = mprintf("%R/draft%d", iSkin);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
     zPathInfo += 7;
+    g.nExtraURL += 7;
     cgi_replace_parameter("PATH_INFO", zPathInfo);
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     etag_cancel();
-  }
+  }else if( zPathInfo && strncmp(zPathInfo, "/skn_", 5)==0 ){
+    int i;
+    char *zAlt;
+    char *zErr;
+    char *z;
+    while( (z = strstr(zPathInfo+1,"/skn_"))!=0 ) zPathInfo = z;
+    for(i=5; zPathInfo[i] && zPathInfo[i]!='/'; i++){}
+    zAlt = mprintf("%.*s", i-5, zPathInfo+5);
+    zErr = skin_use_alternative(zAlt);
+    if( zErr ){
+      fossil_free(zErr);
+    }else{
+      char *zNewScript;
+      zNewScript = mprintf("%T/skn_%s", P("SCRIPT_NAME"), zAlt);
+      if( g.zTop ) g.zTop = mprintf("%R/skn_%s", zAlt);
+      if( g.zBaseURL ) g.zBaseURL = mprintf("%s/skn_%s", g.zBaseURL, zAlt);
+      zPathInfo += i;
+      g.nExtraURL += i;
+      cgi_replace_parameter("PATH_INFO", zPathInfo);
+      cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+    }
+    fossil_free(zAlt);
+  }  
 
   /* If the content type is application/x-fossil or 
   ** application/x-fossil-debug, then a sync/push/pull/clone is
@@ -1991,16 +2042,43 @@ static void process_one_web_page(
 **    redirect:  repository-filename  http://hostname/path/%s
 **
 ** then control jumps here.  Search each repository for an artifact ID
-** or ticket ID that matches the "name" CGI parameter and for the
-** first match, redirect to the corresponding URL with the "name" CGI
-** parameter inserted.  Paint an error page if no match is found.
+** or ticket ID that matches the "name" query parameter.  If there is
+** no "name" query parameter, use PATH_INFO instead.  If a match is
+** found, redirect to the corresponding URL.  Substitute "%s" in the
+** URL with the value of the name query parameter before the redirect.
 **
 ** If there is a line of the form:
 **
 **    redirect: * URL
 **
-** Then a redirect is made to URL if no match is found.  Otherwise a
-** very primitive error message is returned.
+** Then a redirect is made to URL if no match is found.  If URL contains
+** "%s" then substitute the "name" query parameter.  If REPO is "*" and
+** URL does not contains "%s" and does not contain "?" then append
+** PATH_INFO and QUERY_STRING to the URL prior to the redirect.
+**
+** If no matches are found and if there is no "*" entry, then generate
+** a primitive error message.
+**
+** USE CASES:
+**
+** (1)  Suppose you have two related projects projA and projB.  You can
+**      use this feature to set up an /info page that covers both
+**      projects.
+**
+**          redirect: /fossils/projA.fossil /proj-a/info/%s
+**          redirect: /fossils/projB.fossil /proj-b/info/%s
+**
+**      Then visits to the /info/HASH page will redirect to the
+**      first project that contains that hash.
+**
+** (2)  Use the "*" form for to redirect legacy URLs.  On the Fossil
+**      website we have an CGI at http://fossil.com/index.html (note
+**      ".com" instead of ".org") that looks like this:
+**
+**          #!/usr/bin/fossil
+**          redirect: * https://fossil-scm.org/home
+**
+**      Thus requests to the .com website redirect to the .org website.
 */
 static void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
@@ -2008,26 +2086,40 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
   const char *zName = P("name");
   set_base_url(0);
   if( zName==0 ){
-    zName = P("SCRIPT_NAME");
+    zName = P("PATH_INFO");
     if( zName && zName[0]=='/' ) zName++;
   }
-  if( zName && validate16(zName, strlen(zName)) ){
+  if( zName ){
     for(i=0; i<nRedirect; i++){
       if( fossil_strcmp(azRedirect[i*2],"*")==0 ){
         zNotFound = azRedirect[i*2+1];
         continue;
+      }else if( validate16(zName, strlen(zName)) ){
+        db_open_repository(azRedirect[i*2]);
+        if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
+            db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'",zName) ){
+          cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
+          return;
+        }
+        db_close(1);
       }
-      db_open_repository(azRedirect[i*2]);
-      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
-          db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
-        cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
-        return;
-      }
-      db_close(1);
     }
   }
   if( zNotFound ){
-    cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
+    Blob to;
+    const char *z;
+    if( strstr(zNotFound, "%s") ){
+      cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
+    }
+    if( strchr(zNotFound, '?') ){
+      cgi_redirect(zNotFound);
+    }
+    blob_init(&to, zNotFound, -1);
+    z = P("PATH_INFO");
+    if( z && z[0]=='/' ) blob_append(&to, z, -1);
+    z = P("QUERY_STRING");
+    if( z && z[0]!=0 ) blob_appendf(&to, "?%s", z);
+    cgi_redirect(blob_str(&to));
   }else{
     @ <html>
     @ <head><title>No Such Object</title></head>
@@ -2113,6 +2205,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    jsmode: VALUE            Specifies the delivery mode for JavaScript
 **                             files. See the help text for the --jsmode
 **                             flag of the http command.
+**
+**    mainmenu: FILE           Override the mainmenu config setting with the
+**                             contents of the given file.
 **
 ** Most CGI files contain only a "repository:" line.  It is uncommon to
 ** use any other option.
@@ -2304,6 +2399,17 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "mainmenu:") && blob_token(&line, &value) ){
+      /* mainmenu: FILENAME
+      **
+      ** Use the contents of FILENAME as the value of the site's
+      ** "mainmenu" setting, overriding the contents (for this
+      ** request) of the db-side setting or the hard-coded default.
+      */
+      g.zMainMenuFile = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
     if( blob_eq(&key, "cgi-debug:") && blob_token(&line, &value) ){
       /* cgi-debug: FILENAME
       **
@@ -2482,6 +2588,8 @@ void test_pid_page(void){
 **
 ** Options:
 **   --baseurl URL    base URL (useful with reverse proxies)
+**   --ckout-alias N  Treat URIs of the form /doc/N/... as if they were
+**                       /doc/ckout/...
 **   --extroot DIR    document root for the /ext extension mechanism
 **   --files GLOB     comma-separate glob patterns for static file to serve
 **   --host NAME      specify hostname of the server
@@ -2512,6 +2620,8 @@ void test_pid_page(void){
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
 **   --th-trace       trace TH1 execution (for debugging purposes)
+**   --mainmenu FILE  Override the mainmenu config setting with the contents
+**                    of the given file.
 **   --usepidkey      Use saved encryption key from parent process.  This is
 **                    only necessary when using SEE on Windows.
 **
@@ -2552,6 +2662,7 @@ void cmd_http(void){
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   g.zExtRoot = find_option("extroot",0,1);
+  g.zCkoutAlias = find_option("ckout-alias",0,1);
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2578,6 +2689,10 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
+  g.zMainMenuFile = find_option("mainmenu",0,1);
+  if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
+    fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
+  }
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2730,6 +2845,8 @@ void fossil_set_timeout(int N){
 **
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --ckout-alias NAME  Treat URIs of the form /doc/NAME/... as if they were
+**                       /doc/ckout/...
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
@@ -2762,6 +2879,8 @@ void fossil_set_timeout(int N){
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
+**   --mainmenu FILE     Override the mainmenu config setting with the contents
+**                       of the given file.
 **   --usepidkey         Use saved encryption key from parent process.  This is
 **                       only necessary when using SEE on Windows.
 **
@@ -2832,7 +2951,11 @@ void cmd_webserver(void){
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
-
+  g.zCkoutAlias = find_option("ckout-alias",0,1);
+  g.zMainMenuFile = find_option("mainmenu",0,1);
+  if( g.zMainMenuFile!=0 && file_size(g.zMainMenuFile,ExtFILE)<0 ){
+    fossil_fatal("Cannot read --mainmenu file %s", g.zMainMenuFile);
+  }
   /* We should be done with options.. */
   verify_all_options();
 

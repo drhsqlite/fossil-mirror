@@ -16,6 +16,7 @@ OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
 P       = .pdb
+OPTLEVEL= /Os
 
 INSTALLDIR = .
 !ifdef DESTDIR
@@ -108,7 +109,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1g
+SSLDIR    = $(B)\compat\openssl
 SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)
@@ -215,7 +216,7 @@ CRTFLAGS = /MT
 CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od /DFOSSIL_DEBUG
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) $(CRTFLAGS) /O2
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(OPTLEVEL)
 !endif
 
 BCC       = $(CC) $(CFLAGS)
@@ -373,6 +374,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\checkout_.c" \
         "$(OX)\clearsign_.c" \
         "$(OX)\clone_.c" \
+        "$(OX)\color_.c" \
         "$(OX)\comformat_.c" \
         "$(OX)\configure_.c" \
         "$(OX)\content_.c" \
@@ -498,8 +500,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\xfersetup_.c" \
         "$(OX)\zip_.c"
 
-EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
-        "$(SRCDIR)\..\skins\ardoise\css.txt" \
+EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\..\skins\ardoise\details.txt" \
         "$(SRCDIR)\..\skins\ardoise\footer.txt" \
         "$(SRCDIR)\..\skins\ardoise\header.txt" \
@@ -512,28 +513,22 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\blitz\footer.txt" \
         "$(SRCDIR)\..\skins\blitz\header.txt" \
         "$(SRCDIR)\..\skins\blitz\ticket.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\css.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\details.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\footer.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\header.txt" \
-        "$(SRCDIR)\..\skins\blitz_no_logo\ticket.txt" \
         "$(SRCDIR)\..\skins\bootstrap\css.txt" \
         "$(SRCDIR)\..\skins\bootstrap\details.txt" \
         "$(SRCDIR)\..\skins\bootstrap\footer.txt" \
         "$(SRCDIR)\..\skins\bootstrap\header.txt" \
+        "$(SRCDIR)\..\skins\darkmode\css.txt" \
+        "$(SRCDIR)\..\skins\darkmode\details.txt" \
+        "$(SRCDIR)\..\skins\darkmode\footer.txt" \
+        "$(SRCDIR)\..\skins\darkmode\header.txt" \
         "$(SRCDIR)\..\skins\default\css.txt" \
         "$(SRCDIR)\..\skins\default\details.txt" \
         "$(SRCDIR)\..\skins\default\footer.txt" \
         "$(SRCDIR)\..\skins\default\header.txt" \
-        "$(SRCDIR)\..\skins\default\js.txt" \
         "$(SRCDIR)\..\skins\eagle\css.txt" \
         "$(SRCDIR)\..\skins\eagle\details.txt" \
         "$(SRCDIR)\..\skins\eagle\footer.txt" \
         "$(SRCDIR)\..\skins\eagle\header.txt" \
-        "$(SRCDIR)\..\skins\enhanced1\css.txt" \
-        "$(SRCDIR)\..\skins\enhanced1\details.txt" \
-        "$(SRCDIR)\..\skins\enhanced1\footer.txt" \
-        "$(SRCDIR)\..\skins\enhanced1\header.txt" \
         "$(SRCDIR)\..\skins\khaki\css.txt" \
         "$(SRCDIR)\..\skins\khaki\details.txt" \
         "$(SRCDIR)\..\skins\khaki\footer.txt" \
@@ -546,10 +541,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\plain_gray\details.txt" \
         "$(SRCDIR)\..\skins\plain_gray\footer.txt" \
         "$(SRCDIR)\..\skins\plain_gray\header.txt" \
-        "$(SRCDIR)\..\skins\rounded1\css.txt" \
-        "$(SRCDIR)\..\skins\rounded1\details.txt" \
-        "$(SRCDIR)\..\skins\rounded1\footer.txt" \
-        "$(SRCDIR)\..\skins\rounded1\header.txt" \
         "$(SRCDIR)\..\skins\xekri\css.txt" \
         "$(SRCDIR)\..\skins\xekri\details.txt" \
         "$(SRCDIR)\..\skins\xekri\footer.txt" \
@@ -581,6 +572,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\fossil.tabs.js" \
         "$(SRCDIR)\fossil.wikiedit-wysiwyg.js" \
         "$(SRCDIR)\graph.js" \
+        "$(SRCDIR)\hbmenu.js" \
         "$(SRCDIR)\href.js" \
         "$(SRCDIR)\login.js" \
         "$(SRCDIR)\markdown.md" \
@@ -635,6 +627,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\checkout$O" \
         "$(OX)\clearsign$O" \
         "$(OX)\clone$O" \
+        "$(OX)\color$O" \
         "$(OX)\comformat$O" \
         "$(OX)\configure$O" \
         "$(OX)\content$O" \
@@ -865,6 +858,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\checkout.obj" >> $@
 	echo "$(OX)\clearsign.obj" >> $@
 	echo "$(OX)\clone.obj" >> $@
+	echo "$(OX)\color.obj" >> $@
 	echo "$(OX)\comformat.obj" >> $@
 	echo "$(OX)\configure.obj" >> $@
 	echo "$(OX)\content.obj" >> $@
@@ -1111,8 +1105,7 @@ realclean: clean
 "$(OBJDIR)\json_wiki$O" : "$(SRCDIR)\json_detail.h"
 
 "$(OX)\builtin_data.reslist": $(EXTRA_FILES) "$(B)\win\Makefile.msc"
-	echo "$(SRCDIR)\../skins/aht/details.txt" > $@
-	echo "$(SRCDIR)\../skins/ardoise/css.txt" >> $@
+	echo "$(SRCDIR)\../skins/ardoise/css.txt" > $@
 	echo "$(SRCDIR)\../skins/ardoise/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/ardoise/header.txt" >> $@
@@ -1125,28 +1118,22 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/blitz/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/blitz/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/blitz/ticket.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/css.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/details.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/footer.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/header.txt" >> $@
-	echo "$(SRCDIR)\../skins/blitz_no_logo/ticket.txt" >> $@
 	echo "$(SRCDIR)\../skins/bootstrap/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/bootstrap/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/bootstrap/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/bootstrap/header.txt" >> $@
+	echo "$(SRCDIR)\../skins/darkmode/css.txt" >> $@
+	echo "$(SRCDIR)\../skins/darkmode/details.txt" >> $@
+	echo "$(SRCDIR)\../skins/darkmode/footer.txt" >> $@
+	echo "$(SRCDIR)\../skins/darkmode/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/default/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/default/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/default/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/default/header.txt" >> $@
-	echo "$(SRCDIR)\../skins/default/js.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/header.txt" >> $@
-	echo "$(SRCDIR)\../skins/enhanced1/css.txt" >> $@
-	echo "$(SRCDIR)\../skins/enhanced1/details.txt" >> $@
-	echo "$(SRCDIR)\../skins/enhanced1/footer.txt" >> $@
-	echo "$(SRCDIR)\../skins/enhanced1/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/khaki/footer.txt" >> $@
@@ -1159,10 +1146,6 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/plain_gray/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/plain_gray/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/plain_gray/header.txt" >> $@
-	echo "$(SRCDIR)\../skins/rounded1/css.txt" >> $@
-	echo "$(SRCDIR)\../skins/rounded1/details.txt" >> $@
-	echo "$(SRCDIR)\../skins/rounded1/footer.txt" >> $@
-	echo "$(SRCDIR)\../skins/rounded1/header.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/footer.txt" >> $@
@@ -1194,6 +1177,7 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.tabs.js" >> $@
 	echo "$(SRCDIR)\fossil.wikiedit-wysiwyg.js" >> $@
 	echo "$(SRCDIR)\graph.js" >> $@
+	echo "$(SRCDIR)\hbmenu.js" >> $@
 	echo "$(SRCDIR)\href.js" >> $@
 	echo "$(SRCDIR)\login.js" >> $@
 	echo "$(SRCDIR)\markdown.md" >> $@
@@ -1361,6 +1345,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\clone_.c"
 
 "$(OX)\clone_.c" : "$(SRCDIR)\clone.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\color$O" : "$(OX)\color_.c" "$(OX)\color.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\color_.c"
+
+"$(OX)\color_.c" : "$(SRCDIR)\color.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\comformat$O" : "$(OX)\comformat_.c" "$(OX)\comformat.h"
@@ -2134,6 +2124,7 @@ realclean: clean
 			"$(OX)\checkout_.c":"$(OX)\checkout.h" \
 			"$(OX)\clearsign_.c":"$(OX)\clearsign.h" \
 			"$(OX)\clone_.c":"$(OX)\clone.h" \
+			"$(OX)\color_.c":"$(OX)\color.h" \
 			"$(OX)\comformat_.c":"$(OX)\comformat.h" \
 			"$(OX)\configure_.c":"$(OX)\configure.h" \
 			"$(OX)\content_.c":"$(OX)\content.h" \

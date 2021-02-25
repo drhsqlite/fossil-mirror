@@ -561,7 +561,7 @@ static void process_files_to_remove(
 **                           files are no longer removed. No flags other
 **                           than --verbose or --dry-run may be used with
 **                           --reset.
-**   --verbose|-v            Outputs information about each --reset file.
+**   -v|--verbose            Outputs information about each --reset file.
 **                           Only usable with --reset.
 **
 ** See also: [[addremove]], [[add]]
@@ -753,7 +753,7 @@ const char *filename_collation(void){
 **                           (but not yet committed) files are no longer
 **                           removed. No flags other than --verbose and
 **                           --dry-run may be used with --reset.
-**   --verbose|-v            Outputs information about each --reset file.
+**   -v|--verbose            Outputs information about each --reset file.
 **                           Only usable with --reset.
 **
 ** See also: [[add]], [[rm]]

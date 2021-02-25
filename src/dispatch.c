@@ -534,41 +534,10 @@ static void help_to_text(const char *zHelp, Blob *pText){
 }
 
 /*
-** COMMAND: test-all-help
-**
-** Usage: %fossil test-all-help ?OPTIONS?
-**
-** Show help text for commands and pages.  Useful for proof-reading.
-** Defaults to just the CLI commands.  Specify --www to see only the
-** web pages, or --everything to see both commands and pages.
-**
-** Options:
-**    -e|--everything   Show all commands and pages.
-**    -t|--test         Include test- commands
-**    -w|--www          Show WWW pages.
-**    -s|--settings     Show settings.
-**    -h|--html         Transform output to HTML.
-**    -r|--raw          No output formatting.
+** Display help for all commands based on provided flags.
 */
-void test_all_help_cmd(void){
+static void display_all_help(int mask, int useHtml, int rawOut){
   int i;
-  int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
-  int useHtml = find_option("html","h",0)!=0;
-  int rawOut = find_option("raw","r",0)!=0;
-
-  if( find_option("www","w",0) ){
-    mask = CMDFLAG_WEBPAGE;
-  }
-  if( find_option("everything","e",0) ){
-    mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE |
-              CMDFLAG_SETTING | CMDFLAG_TEST;
-  }
-  if( find_option("settings","s",0) ){
-    mask = CMDFLAG_SETTING;
-  }
-  if( find_option("test","t",0) ){
-    mask |= CMDFLAG_TEST;
-  }
   if( useHtml ) fossil_print("<!--\n");
   fossil_print("Help text for:\n");
   if( mask & CMDFLAG_1ST_TIER ) fossil_print(" * Commands\n");
@@ -609,6 +578,44 @@ void test_all_help_cmd(void){
     fossil_print("---\n");
   }
   version_cmd();
+}
+
+/*
+** COMMAND: test-all-help
+**
+** Usage: %fossil test-all-help ?OPTIONS?
+**
+** Show help text for commands and pages.  Useful for proof-reading.
+** Defaults to just the CLI commands.  Specify --www to see only the
+** web pages, or --everything to see both commands and pages.
+**
+** Options:
+**    -e|--everything   Show all commands and pages.
+**    -t|--test         Include test- commands
+**    -w|--www          Show WWW pages.
+**    -s|--settings     Show settings.
+**    -h|--html         Transform output to HTML.
+**    -r|--raw          No output formatting.
+*/
+void test_all_help_cmd(void){
+  int mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
+  int useHtml = find_option("html","h",0)!=0;
+  int rawOut = find_option("raw","r",0)!=0;
+
+  if( find_option("www","w",0) ){
+    mask = CMDFLAG_WEBPAGE;
+  }
+  if( find_option("everything","e",0) ){
+    mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE |
+              CMDFLAG_SETTING | CMDFLAG_TEST;
+  }
+  if( find_option("settings","s",0) ){
+    mask = CMDFLAG_SETTING;
+  }
+  if( find_option("test","t",0) ){
+    mask |= CMDFLAG_TEST;
+  }
+  display_all_help(mask, useHtml, rawOut);
 }
 
 /*
@@ -1027,6 +1034,10 @@ static const char zOptions[] =
 **    -t|--test         List unsupported "test" commands
 **    -x|--aux          List only auxiliary commands
 **    -w|--www          List all web pages
+**    -f|--full         List full set of commands (including auxiliary
+**                      and unsupported "test" commands), options,
+**                      settings, and web pages
+**    -e|--everything   List all help on all topics
 **
 ** These options can be used when TOPIC is present:
 **
@@ -1057,7 +1068,7 @@ void help_cmd(void){
     fossil_print("%s", zOptions);
     return;
   }
-  if( find_option("all","a",0) ){
+  else if( find_option("all","a",0) ){
     command_list(0, CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER);
     return;
   }
@@ -1075,6 +1086,27 @@ void help_cmd(void){
   }
   else if( find_option("setting","s",0) ){
     command_list(0, CMDFLAG_SETTING);
+    return;
+  }
+  else if( find_option("full","f",0) ){
+    fossil_print("fossil commands:\n\n");
+    command_list(0, CMDFLAG_1ST_TIER);
+    fossil_print("\nfossil auxiliary commands:\n\n");
+    command_list(0, CMDFLAG_2ND_TIER);
+    fossil_print("\n%s", zOptions);
+    fossil_print("\nfossil settings:\n\n");
+    command_list(0, CMDFLAG_SETTING);
+    fossil_print("\nfossil web pages:\n\n");
+    command_list(0, CMDFLAG_WEBPAGE);
+    fossil_print("\nfossil test commands (unsupported):\n\n");
+    command_list(0, CMDFLAG_TEST);
+    fossil_print("\n");
+    version_cmd();
+    return;
+  }
+  else if( find_option("everything","e",0) ){
+    display_all_help(CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE |
+                     CMDFLAG_SETTING | CMDFLAG_TEST, 0, 0);
     return;
   }
   useHtml = find_option("html","h",0)!=0;

@@ -659,9 +659,11 @@ ul {
   padding-left: 8px;
   padding-right: 8px
 }
+#hbdrop a,
 .content a {
   color: #8cf
 }
+#hbdrop a:hover,
 .content a:hover,
 .submenu a:hover,
 .submenu label:hover {
@@ -695,16 +697,15 @@ ul {
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
   clear: both
+  z-index: 21;
 }
 .mainmenu ul {
   list-style: none;
-  display: block;
   border-top: 1px solid transparent;
   padding: 0
 }
 .mainmenu li {
   outline: 0;
-  display: block;
   float: left;
   margin: 0
 }
@@ -715,7 +716,6 @@ ul {
 }
 .mainmenu li a {
   color: #66a8c7;
-  display: block;
   padding: 10px 15px
 }
 .mainmenu li.active a {
@@ -727,6 +727,14 @@ ul {
 }
 .mainmenu li:hover a {
   color: #000
+}
+div#hbdrop {
+  background-color: #161819;
+  border-radius: 15px;
+  display: none;
+  width: 100%;
+  position: absolute;
+  z-index: 20;
 }
 .submenu {
   padding: 4px 0;
@@ -1394,4 +1402,14 @@ div.forumSel {
 .debug {
   background-color: #330;
   border: 2px solid #aa0;
+}
+
+.capsumOff {
+  background-color: #222;
+}
+.capsumRead {
+  background-color: #262;
+}
+.capsumWrite {
+  background-color: #662;
 }

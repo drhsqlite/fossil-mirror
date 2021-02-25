@@ -56,6 +56,7 @@ set doclist {
   forum.wiki {Fossil Forums}
   foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
+  fossil-is-not-relational.md {Introduction to the (Non-relational) Fossil Data Model}
   fossil_prompt.wiki {Fossilized Bash Prompt}
   fossil-v-git.wiki {Fossil Versus Git}
   globs.md {File Name Glob Patterns}
@@ -157,7 +158,7 @@ puts $out {
 <li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
 <li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
 <li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
-<li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
+<li> <a href='http://fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
 </ul>
 <a name="pindex"></a>

@@ -34,7 +34,7 @@ bypass the jail part of this by passing <tt>--nojail</tt> to <tt>fossil server</
 but you cannot make it skip the dropping of root privileges, on purpose.
 
 
-[bld]: https://www.fossil-scm.org/fossil/doc/trunk/www/build.wiki
+[bld]: https://fossil-scm.org/home/doc/trunk/www/build.wiki
 [cj]:  https://en.wikipedia.org/wiki/Chroot
 [fls]: ./loadmgmt.md
 [mnl]: https://fossil-scm.org/forum/forumpost/90caff30cb

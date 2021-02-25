@@ -70,37 +70,6 @@
 #define Th_IsRepositoryOpen()     (g.repositoryOpen)
 #define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
-/*
-** Global variable counting the number of outstanding calls to malloc()
-** made by the th1 implementation. This is used to catch memory leaks
-** in the interpreter. Obviously, it also means th1 is not threadsafe.
-*/
-static int nOutstandingMalloc = 0;
-
-/*
-** Implementations of malloc() and free() to pass to the interpreter.
-*/
-static void *xMalloc(unsigned int n){
-  void *p = fossil_malloc(n);
-  if( p ){
-    nOutstandingMalloc++;
-  }
-  return p;
-}
-static void xFree(void *p){
-  if( p ){
-    nOutstandingMalloc--;
-  }
-  free(p);
-}
-static Th_Vtab vtab = { xMalloc, xFree };
-
-/*
-** Returns the number of outstanding TH1 memory allocations.
-*/
-int Th_GetOutstandingMalloc(){
-  return nOutstandingMalloc;
-}
 
 /*
 ** Generate a TH1 trace message if debugging is enabled.
@@ -793,6 +762,63 @@ static int hascapCmd(
   Th_SetResultInt(interp, rc);
   return TH_OK;
 }
+
+/*
+** TH1 command:   capexpr CAPABILITY-EXPR
+**
+** Nmemonic:  "CAPability EXPRression"
+**
+** The capability expression is a list.  Each term of the list is a cluster
+** of capability letters.  The overall expression is true if any one term
+** is true.  A single term is true if all letters within that term are true.
+** Or, if the term begins with "!", then the term is true if none of the
+** terms or true.  Or, if the term begins with "@" then the term is true
+** if all of the capability letters in that term are available to the
+** "anonymous" user.  Or, if the term is "*" then it is always true.
+**
+** Examples:
+**
+**   capexpr {j o r}               True if any one of j, o, or r are available
+**   capexpr {oh}                  True if both o and h are available
+**   capexpr {@2 @3 4 5 6}         2 or 3 available for anonymous or one of
+**                                   4, 5 or 6 is available for the user
+*/
+int capexprCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  char **azCap;
+  int *anCap;
+  int nCap;
+  int rc;
+  int i;
+
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "capexpr EXPR");
+  }
+  rc = Th_SplitList(interp, argv[1], argl[1], &azCap, &anCap, &nCap);
+  if( rc ) return rc;
+  rc = 0;
+  for(i=0; i<nCap; i++){
+    if( azCap[i][0]=='!' ){
+      rc = !login_has_capability(azCap[i]+1, anCap[i]-1, 0);
+    }else if( azCap[i][0]=='@' ){
+      rc = login_has_capability(azCap[i]+1, anCap[i]-1, LOGIN_ANON);
+    }else if( azCap[i][0]=='*' ){
+      rc = 1;
+    }else{
+      rc = login_has_capability(azCap[i], anCap[i], 0);
+    }
+    break;   
+  }
+  Th_Free(interp, azCap);
+  Th_SetResultInt(interp, rc);
+  return TH_OK; 
+}
+
 
 /*
 ** TH1 command: searchable STRING...
@@ -1490,9 +1516,15 @@ static int styleFooterCmd(
 }
 
 /*
-** TH1 command: styleScript
+** TH1 command: styleScript ?BUILTIN-FILENAME?
 **
-** Render the configured JavaScript for the selected skin.
+** Render the js.txt file from the current skin.  Or, if an argument
+** is supplied, render the built-in filename given.
+**
+** By "rendering" we mean that the script is loaded and run through
+** TH1 to expand variables and process <th1>...</th1> script.  Contrast
+** with the "builtin_request_js BUILTIN-FILENAME" command which just
+** loads the file as-is without interpretation.
 */
 static int styleScriptCmd(
   Th_Interp *interp,
@@ -1501,11 +1533,16 @@ static int styleScriptCmd(
   const char **argv,
   int *argl
 ){
-  if( argc!=1 ){
-    return Th_WrongNumArgs(interp, "styleScript");
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "styleScript ?BUILTIN_NAME?");
   }
   if( Th_IsRepositoryOpen() ){
-    const char *zScript = skin_get("js");
+    const char *zScript;
+    if( argc==2 ){
+      zScript = (const char*)builtin_file(argv[1], 0);
+    }else{
+      zScript = skin_get("js");
+    }
     if( zScript==0 ) zScript = "";
     Th_Render(zScript);
     Th_SetResult(interp, 0, 0);
@@ -1516,6 +1553,27 @@ static int styleScriptCmd(
   }
 }
 
+/*
+** TH1 command: builtin_request_js NAME
+**
+** Request that the built-in javascript file called NAME be added to the
+** end of the generated page.
+**
+** See also:  styleScript
+*/
+static int builtinRequestJsCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "builtin_request_js NAME");
+  }
+  builtin_request_js(argv[1]);
+  return TH_OK;
+}
 
 /*
 ** TH1 command: artifact ID ?FILENAME?
@@ -2233,6 +2291,8 @@ void Th_FossilInit(u32 flags){
     {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
+    {"builtin_request_js", builtinRequestJsCmd, 0},
+    {"capexpr",       capexprCmd,           0},
     {"captureTh1",    captureTh1Cmd,        0},
     {"cgiHeaderLine", cgiHeaderLineCmd,     0},
     {"checkout",      checkoutCmd,          0},
@@ -2298,7 +2358,7 @@ void Th_FossilInit(u32 flags){
     int created = 0;
     int i;
     if( g.interp==0 ){
-      g.interp = Th_CreateInterp(&vtab);
+      g.interp = Th_CreateInterp();
       created = 1;
     }
     if( forceReset || created ){

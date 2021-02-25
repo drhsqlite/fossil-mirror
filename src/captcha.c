@@ -516,7 +516,6 @@ int captcha_is_correct(int bAlwaysNeeded){
   if( zEntered==0 || strlen(zEntered)!=8 ) return 0;
   zDecode = captcha_decode((unsigned int)atoi(zSeed));
   assert( strlen(zDecode)==8 );
-  if( strlen(zEntered)!=8 ) return 0;
   for(i=0; i<8; i++){
     char c = zEntered[i];
     if( c>='A' && c<='F' ) c += 'a' - 'A';

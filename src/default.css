@@ -1764,3 +1764,16 @@ body.chat #chat-drop-details img {
   max-width: 45%;
   max-height: 45%;
 }
+
+/* Objects in the "desktoponly" class are invisible on mobile */
+@media screen and (max-width: 600px) {
+  .desktoponly {
+    display: none;
+  }
+}
+/* Objects in the "wideonly" class are invisible only on wide-screen desktops */
+@media screen and (max-width: 1200px) {
+  .wideonly {
+    display: none;
+  }
+}

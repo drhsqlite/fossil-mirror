@@ -373,12 +373,15 @@ static char *chat_format_to_html(const char *zMsg){
           blob_append(&out, zSafe + j, i-j);
           j = i;
         }
-        wiki_resolve_hyperlink(&out, WIKI_NOBADLINKS|WIKI_TARGET_BLANK,
+        blob_append_char(&out, '[');
+        wiki_resolve_hyperlink(&out,
+                               WIKI_NOBADLINKS|WIKI_TARGET_BLANK|WIKI_NOBRACKET,
                                zSafe+i+1, zClose, sizeof(zClose), zSafe, 0);
         zSafe[k] = ']';
         j++;
         blob_append(&out, zSafe + j, k - j);
         blob_append(&out, zClose, -1);
+        blob_append_char(&out, ']');
         i = k;
         j = k+1;
         continue;
@@ -500,7 +503,7 @@ void chat_test_formatter_cmd(void){
 **
 ** The "mdel" will only exist if "xmsg" is an empty string and "fsize" is zero.
 **
-** The "lmtime" value might be known, in which case it is omitted.
+** The "lmtime" value might be unknown, in which case it is omitted.
 **
 ** The messages are ordered oldest first unless "before" is provided, in which
 ** case they are sorted newest first (to facilitate the client-side UI update).
@@ -600,7 +603,7 @@ void chat_poll_webpage(void){
         blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
       }
       blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
-      blob_appendf(&json, "\"uclr\":%!j,", hash_color(zFrom));
+      blob_appendf(&json, "\"uclr\":%!j,", user_color(zFrom));
 
       zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
       blob_appendf(&json, "\"xmsg\":%!j,", zMsg);

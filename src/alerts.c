@@ -290,7 +290,7 @@ void setup_notification(void){
 
   entry_attribute("Store Emails In This Database", 60, "email-send-db",
                    "esdb", "", 0);
-  @ <p>When the send method is "store in a databaes", each email message is
+  @ <p>When the send method is "store in a database", each email message is
   @ stored in an SQLite database file with the name given here.
   @ (Property: "email-send-db")</p>
 
@@ -1379,7 +1379,6 @@ void subscribe_page(void){
     /* A validated request for a new subscription has been received. */
     char ssub[20];
     const char *zEAddr = P("e");
-    sqlite3_int64 id;   /* New subscriber Id */
     const char *zCode;  /* New subscriber code (in hex) */
     int nsub = 0;
     const char *suname = PT("suname");
@@ -1392,10 +1391,11 @@ void subscribe_page(void){
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
     ssub[nsub] = 0;
-    db_multi_exec(
+    zCode = db_text(0,
       "INSERT INTO subscriber(semail,suname,"
       "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
-      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)",
+      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+      "RETURNING hex(subscriberCode);",
       /* semail */    zEAddr,
       /* suname */    suname,
       /* sverified */ needCaptcha==0,
@@ -1403,10 +1403,6 @@ void subscribe_page(void){
       /* ssub */      ssub,
       /* smip */      g.zIpAddr
     );
-    id = db_last_insert_rowid();
-    zCode = db_text(0,
-         "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
-         id);
     if( !needCaptcha ){
       /* The new subscription has been added on behalf of a logged-in user.
       ** No verification is required.  Jump immediately to /alerts page.
@@ -2280,6 +2276,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   *pnEvent = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zType = "";
+    const char *zComment = db_column_text(&q, 2);
     p = fossil_malloc( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
@@ -2291,14 +2288,22 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
       case 'c':  zType = "Check-In";        break;
       /* case 'f':  -- forum posts omitted from this loop.  See below */
       case 't':  zType = "Ticket Change";   break;
-      case 'w':  zType = "Wiki Edit";       break;
+      case 'w': {
+        zType = "Wiki Edit";
+        switch( zComment ? *zComment : 0 ){
+          case ':': ++zComment; break;
+          case '+': zType = "Wiki Added"; ++zComment; break;
+          case '-': zType = "Wiki Removed"; ++zComment; break;
+        }
+        break;
+      }
     }
     blob_init(&p->hdr, 0, 0);
     blob_init(&p->txt, 0, 0);
     blob_appendf(&p->txt,"== %s %s ==\n%s\n%s/info/%.20s\n",
       db_column_text(&q,1),
       zType,
-      db_column_text(&q, 2),
+      zComment,
       zUrl,
       db_column_text(&q,0)
     );

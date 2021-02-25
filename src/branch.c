@@ -284,7 +284,7 @@ static void brlist_create_temp_table(void){
 ** (which>0) then the query pulls all (closed and opened)
 ** branches. Else the query pulls currently-opened branches.
 */
-void branch_prepare_list_query(Stmt *pQuery, int brFlags){
+void branch_prepare_list_query(Stmt *pQuery, int brFlags, const char *zBrNameGlob){
   Blob sql;
   blob_init(&sql, 0, 0);
   brlist_create_temp_table();
@@ -297,7 +297,7 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
     }
     case BRL_BOTH: {
       blob_append_sql(&sql,
-        "SELECT name FROM tmp_brlist"
+        "SELECT name FROM tmp_brlist WHERE 1"
       );
       break;
     }
@@ -308,6 +308,7 @@ void branch_prepare_list_query(Stmt *pQuery, int brFlags){
       break;
     }
   }
+  if(zBrNameGlob) blob_append_sql(&sql, " AND (name GLOB %Q)", zBrNameGlob);
   if( brFlags & BRL_ORDERBY_MTIME ){
     blob_append_sql(&sql, " ORDER BY -mtime");
   }else{
@@ -357,13 +358,15 @@ int branch_is_open(const char *zBrName){
 **
 **        Print information about a branch
 **
-** >  fossil branch list|ls ?OPTIONS?
+** >  fossil branch list|ls ?OPTIONS? ?GLOB?
 **
 **        List all branches. Options:
 **          -a|--all      List all branches.  Default show only open branches
 **          -c|--closed   List closed branches.
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
+**
+**        If GLOB is given, show only branches matching the pattern.
 **
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
@@ -420,18 +423,20 @@ void branch_cmd(void){
     Stmt q;
     int vid;
     char *zCurrent = 0;
+    const char *zBrNameGlob = 0;
     int brFlags = BRL_OPEN_ONLY;
     if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
     if( find_option("closed","c",0)!=0 ) brFlags = BRL_CLOSED_ONLY;
     if( find_option("t",0,0)!=0 ) brFlags |= BRL_ORDERBY_MTIME;
     if( find_option("r",0,0)!=0 ) brFlags |= BRL_REVERSE;
+    if( g.argc >= 4 ) zBrNameGlob = g.argv[3];
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    branch_prepare_list_query(&q, brFlags);
+    branch_prepare_list_query(&q, brFlags, zBrNameGlob);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
@@ -597,7 +602,7 @@ void brlist_page(void){
   style_sidebox_end();
 #endif
 
-  branch_prepare_list_query(&q, brFlags);
+  branch_prepare_list_query(&q, brFlags, 0);
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);

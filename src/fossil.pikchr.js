@@ -80,5 +80,6 @@
       return this;
     }
     parent.addEventListener('click', f.parentClick, false);
+    return this;
   };
 })(window.fossil);

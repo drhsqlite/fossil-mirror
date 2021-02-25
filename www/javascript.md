@@ -318,7 +318,7 @@ For example, you could click two of those checkboxes and then a button
 labeled “Diff Selected” to replicate the current “click two nodes to
 diff them” feature.
 
-[wt]: https://fossil-scm.org/fossil/timeline
+[wt]: https://fossil-scm.org/home/timeline
 
 
 ### <a id="wedit"></a>The New Wiki Editor
@@ -448,7 +448,7 @@ _Workaround:_ These interactive features would be difficult and
 expensive (in terms of network I/O) to implement without JavaScript.  A
 far simpler alternative is to manually edit the URL, per above.
 
-[mainc]: https://fossil-scm.org/fossil/artifact?ln&name=87d67e745
+[mainc]: https://fossil-scm.org/home/artifact?ln&name=87d67e745
 
 
 ### <a id="sxsdiff"></a>Side-by-Side Diff Mode
@@ -485,7 +485,7 @@ _Graceful Fallback:_ When JavaScript is disabled, clicks on folders
 reload the page showing the folder contents instead. You then have to
 use the browser’s Back button to return to the higher folder level.
 
-[tv]: https://www.fossil-scm.org/fossil/dir?type=tree
+[tv]: https://fossil-scm.org/home/dir?type=tree
 
 
 ### <a id="hash"></a>Version Hashes
@@ -608,7 +608,7 @@ developers, provided the developer(s) in question are in a position to
 expend the effort.
 
 3) Features end users and co-contributors can convince a developer into
-coding even when they really don't want to. 😉
+coding even when they really don't want to. ð˜˜‰
 
 In all of this, Fossil's project lead understandably has the final
 say-so in whether any given feature indeed gets merged into the mainline

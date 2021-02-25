@@ -1699,7 +1699,7 @@ static void svn_dump_import(FILE *pIn){
 **   --rename-trunk NAME  use NAME as name of imported trunk branch
 **   --rename-branch PAT  rename all branch names using PAT pattern
 **   --rename-tag PAT     rename all tag names using PAT pattern
-**   --admin-user|-A NAME use NAME for the admin user 
+**   -A|--admin-user NAME use NAME for the admin user 
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.  The --rename-* options may be useful to avoid name

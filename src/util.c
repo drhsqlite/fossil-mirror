@@ -61,6 +61,12 @@ void *fossil_malloc(size_t n){
   if( p==0 ) fossil_panic("out of memory");
   return p;
 }
+void *fossil_malloc_zero(size_t n){
+  void *p = malloc(n==0 ? 1 : n);
+  if( p==0 ) fossil_panic("out of memory");
+  memset(p, 0, n);
+  return p;
+}
 void fossil_free(void *p){
   free(p);
 }

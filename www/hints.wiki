@@ -33,7 +33,7 @@
       [./checkin_names.wiki | any valid check-in or version name], including
       tags, branch names, and dates.  For example, to see what was going
       on in the Fossil repository on 2008-01-01, visit
-      [http://www.fossil-scm.org/fossil/timeline?c=2008-01-01].
+      [http://fossil-scm.org/home/timeline?c=2008-01-01].
 
   7.  Further to the previous two hints, there are lots of query parameters
       that you can add to timeline pages.  The available query parameters
@@ -45,12 +45,12 @@
       this command is "test-diff", not "diff".
 
   9.  On web pages showing the content of a file (for example
-      [http://www.fossil-scm.org/fossil/artifact/c7dd1de9f]) you can manually
+      [http://fossil-scm.org/home/artifact/c7dd1de9f]) you can manually
       add a query parameter of the form "ln=FROM,TO" to the URL that
       will cause the range of lines indicated to be highlighted.  This
       is useful in pointing out a few lines of code using a hyperlink
       in an email or text message.  Example:
-      [http://www.fossil-scm.org/fossil/artifact/c7dd1de9f?ln=28,30].
+      [http://fossil-scm.org/home/artifact/c7dd1de9f?ln=28,30].
       Adding the "ln" query parameter without any argument simply turns
       on line numbers.   This feature only works right with files with
       a mimetype of text/plain, of course.

@@ -91,6 +91,7 @@ static struct {
 } aConfig[] = {
   { "css",                    CONFIGSET_CSS  },
   { "header",                 CONFIGSET_SKIN },
+  { "mainmenu",               CONFIGSET_SKIN },
   { "footer",                 CONFIGSET_SKIN },
   { "details",                CONFIGSET_SKIN },
   { "js",                     CONFIGSET_SKIN },
@@ -114,10 +115,7 @@ static struct {
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
   { "default-csp",            CONFIGSET_SKIN },
-  { "sitemap-docidx",         CONFIGSET_SKIN },
-  { "sitemap-download",       CONFIGSET_SKIN },
-  { "sitemap-license",        CONFIGSET_SKIN },
-  { "sitemap-contact",        CONFIGSET_SKIN },
+  { "sitemap-extra",          CONFIGSET_SKIN },
   { "safe-html",              CONFIGSET_SKIN },
 
 #ifdef FOSSIL_ENABLE_TH1_DOCS
@@ -169,6 +167,7 @@ static struct {
   { "@reportfmt",             CONFIGSET_TKT  },
 
   { "@user",                  CONFIGSET_USER },
+  { "user-color-map",         CONFIGSET_USER },
 
   { "@concealed",             CONFIGSET_ADDR },
 
