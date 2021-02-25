@@ -104,7 +104,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FRENAMES 0x0000100 /* Detail only file name changes */
 #define TIMELINE_UNHIDE   0x0000200 /* Unhide check-ins with "hidden" tag */
 #define TIMELINE_SHOWRID  0x0000400 /* Show RID values in addition to hashes */
-#define TIMELINE_BISECT   0x0000800 /* Show supplimental bisect information */
+#define TIMELINE_BISECT   0x0000800 /* Show supplemental bisect information */
 #define TIMELINE_COMPACT  0x0001000 /* Use the "compact" view style */
 #define TIMELINE_VERBOSE  0x0002000 /* Use the "detailed" view style */
 #define TIMELINE_MODERN   0x0004000 /* Use the "modern" view style */
