@@ -1,4 +1,4 @@
-<title>Benefits Of A Fossil Server</title>
+<title>Benefits of a Fossil Server</title>
 
 <h2>No Server Required</h2>
 
@@ -8,7 +8,7 @@ Fossil uses
 [https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|conflict-free replicated data types]
 to ensure that (in the limit) all participating peers see the same content.
 
-<h2>But, A Server Can Be Useful</h2>
+<h2>But, a Server Can Be Useful</h2>
 
 Fossil does not require a server, but a server can be very useful.
 Here are a few reasons to set up a Fossil server for your project:
@@ -46,3 +46,26 @@ Here are a few reasons to set up a Fossil server for your project:
       multiple sites, with automatic synchronization between them, for
       added redundancy.  Such a set up means that no work is lost due
       to a single machine failure.
+
+  5.  <b>A server consolidates [https://www.sqlite.org/howtocorrupt.html
+      | SQLite corruption risk mitigation] to a single point.</b><p>
+      The concerns in section 1 of that document assume you have direct
+      access to the central DB files, which isn't the case when the
+      server is remote and secure against tampering.<p>
+      Section 2 is about file locking, which concerns disappear when Fossil's
+      on the other side of an HTTP boundary and your server is set up
+      properly.<p>
+      Sections 3.1, 4 thru 6, and 8 apply to both server-based and
+      serverless Fossil configs, and they apply to the clients in
+      server-based setups, but with a server, you can address these
+      problems in a single place. This means that once a given commit is
+      sync'd to the server, you can be reasonably sure any client-side
+      corruption can be fixed with a fresh clone. Ultimately, this
+      is an argument for off-machine backups, which Fossil provides when
+      you set the clients up to sync with a server.<p>
+      Sections 3.2 and the entirety of section 7 are no concern with
+      Fossil at all, since it's primarily written by the creator and
+      primary maintainer of SQLite, so you can be certain Fossil doesn't
+      actively pursue coding strategies that risk database corruption.<p>
+
+     

@@ -1,5 +1,5 @@
-C Removed\san\sif()\scondition\sin\scontent_put_ex()\swhich\swas\spossible\sback\sin\s2007\sbut\sis\sno\slonger\spossible.\sUpdated\sthe\ssurrounding\scontent\sto\sreflect\scurrent\sreality.
-D 2021-02-25T10:12:44.521
+C Added\san\sanswer\sto\sSQLite's\s"how\sto\scorrupt"\sdocument\sto\sthe\s"Benefits\nof\sa\sFossil\sServer"\sdoc,\ssince\ssetting\sup\sa\sserver\sdoes\slargely\ssolve\nthose\sproblems.
+D 2021-02-26T06:14:21.008
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -956,7 +956,7 @@ F www/server/macos/index.md bffa54bee41c93af0514d288f6a18debbf70b5cc0ce7f87da5c4
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/openbsd/fastcgi.md dce76815e87c951e77ccb946a595509d3b0c69f25e0c91b315e56d702e80e150
 F www/server/openbsd/index.md 629c9dbd0c21f622c57a3f295eb83f078c994bd02c4743bf713f263606fc29db
-F www/server/whyuseaserver.wiki aa39fb7dd6451292e86f10003ca54f5c88b1e015580d3f02e9a759ffb2dc3428
+F www/server/whyuseaserver.wiki 2a7b3ce13c90a0aeb5a1d01057f7eb4bb52f999bbbc477c0a291145442613557
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
 F www/server/windows/cgi-install-iis.png c713f470dcc58ceb3b634e56944a08a691db097b25a42a91dcb8edf5917c182d
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c8021e99dfc5ab2fd62b17131b18b70941e961229e84488d0ed4e3525def741f
-R 5ef055e4ed63d79d526709184dcd4f99
-U stephan
-Z fe018ed2efa06987feca0e197f60e381
+P dad521bb06757a7fc3c5e07b5bf818df3e5cc7de544fe5c7f2d34142574bd540
+R 8f780abbfdac2622860b6c34eb4592af
+U wyoung
+Z dc1429ae6e7c329817411df23a89f884
