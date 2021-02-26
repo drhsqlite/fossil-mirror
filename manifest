@@ -1,5 +1,5 @@
-C Added\sa\ssection\sto\sthe\scustomskin.md\sdoc\sexplaining\swhere\sthe\smain\smenu\ncontents\swent\sand\show\sto\schange\sthem\sin\sthe\snew\s"mainmenu"\sworld.
-D 2021-02-26T13:01:29.869
+C The\snew\smainmenu\selement\spreviously\scalled\s"Setup"\sreverted\sa\syears-old\nchange\sto\suse\s"Admin"\sfor\sthis\smenu\sbecause\sabout\shalf\sof\sthe\sitems\son\nthe\s/setup\sscreen\sare\salso\susable\sby\speople\swith\sonly\sthe\sAdmin\scap.\nThis\salso\schanges\sthe\scapexpr\sto\sinclude\s"a"\sfor\sthe\ssame\sreason.
+D 2021-02-26T13:07:42.579
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -613,7 +613,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c a3efeba99726ba34d332921aa86cb11010da776ba1962a5f0a0b0ec9351ac836
+F src/style.c 14143b8304bd7e460173248df4ae71741cdaa565d6e08867a09881214def698f
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50a0e024fbf4d94ebd64e8f80ff5532cedc1e5ab4a2a5d0ec5093d4a336a44fe
-R 2646048fb875dc23a9845aa1dfc8cf15
+P da2291075b19da68a9c105d83731aed63bb81ca3719fe047fb82423d5e2130d6
+R 1b8216b685119a4204d401501009d4fa
 U wyoung
-Z 770f0b3bc5584ae2ad46e957096b78c3
+Z 5da3cf75640d6a20836411ebc32c62b3
