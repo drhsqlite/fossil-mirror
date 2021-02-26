@@ -29,9 +29,10 @@ Here are a few reasons to set up a Fossil server for your project:
       that requires the developers coordinate the sync, which in turn
       requires that the developers both want to sync at the same moment.
       A server alleviates this time dependency by allowing each developer
-      to sync whenever it is convenient (for example, automatically syncing
-      after each commit and before each update).  Developers all stay
-      in sync with each other, without having to interrupt each other
+      to sync whenever it is convenient. For example, a developer may
+      choose to automatically sync
+      after each commit and before each update.  Developers all stay
+      in sync with each other without having to interrupt each other
       constantly to set up a peer-to-peer sync.
 
   3.  <b>A server provides project leaders with up-to-date status.</b><p>
