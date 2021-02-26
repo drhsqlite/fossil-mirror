@@ -68,4 +68,8 @@ Here are a few reasons to set up a Fossil server for your project:
       primary maintainer of SQLite, so you can be certain Fossil doesn't
       actively pursue coding strategies that risk database corruption.<p>
 
-     
+  6.  <b>A server allows [./caps/ | Fossil's RBAC system] to work.</b><p>
+      The role-based access control (RBAC) system in Fossil only works
+      when the remote system is on the other side of an HTTP barrier.
+      ([./caps/#webonly | Details].) If you want its benefits, you need
+      a Fossil server setup of some kind.
