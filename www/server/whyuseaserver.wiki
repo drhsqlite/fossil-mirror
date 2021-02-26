@@ -37,15 +37,16 @@ Here are a few reasons to set up a Fossil server for your project:
 
   3.  <b>A server provides project leaders with up-to-date status.</b><p>
       Project coordinators and BDFLs can click on a link or two at the
-      central Fossil server for a project, and quickly tell what is
-      going on.  They can do this from anywhere, even from their phones,
-      without needing to actually sync to the device they are using.
+      central Fossil server for a project and quickly tell what is
+      going on.  They can do this from anywhere — even from their phones
+      — without needing to actually sync to the device they are using.
 
   4.  <b>A server provides automatic off-site backups.</b><p>
       A Fossil server is an automatic remote backup for all the work
-      going into a project.  You can even set up multiple servers, at
-      multiple sites, with automatic synchronization between them, for
-      added redundancy.  Such a set up means that no work is lost due
+      going into a project. ([../backup.md | Within limits].)
+      You can even set up multiple servers at
+      multiple sites with automatic synchronization between them for
+      added redundancy.  Such a setup means that no work is lost due
       to a single machine failure.
 
   5.  <b>A server consolidates [https://www.sqlite.org/howtocorrupt.html
@@ -69,8 +70,8 @@ Here are a few reasons to set up a Fossil server for your project:
       primary maintainer of SQLite, so you can be certain Fossil doesn't
       actively pursue coding strategies that risk database corruption.<p>
 
-  6.  <b>A server allows [./caps/ | Fossil's RBAC system] to work.</b><p>
+  6.  <b>A server allows [../caps/ | Fossil's RBAC system] to work.</b><p>
       The role-based access control (RBAC) system in Fossil only works
       when the remote system is on the other side of an HTTP barrier.
-      ([./caps/#webonly | Details].) If you want its benefits, you need
+      ([../caps/#webonly | Details].) If you want its benefits, you need
       a Fossil server setup of some kind.
