@@ -57,18 +57,17 @@ Here are a few reasons to set up a Fossil server for your project:
       Section 2 is about file locking, which concerns disappear when Fossil's
       on the other side of an HTTP boundary and your server is set up
       properly.<p>
-      Sections 3.1, 4 thru 6, and 8 apply to both server-based and
-      serverless Fossil configs, and they apply to the clients in
-      server-based setups, but with a server, you can address these
-      problems in a single place. This means that once a given commit is
+      Sections 3.1, 4 thru 6, and 8 apply to all Fossil configurations,
+      but setting up a server lets you address the risks
+      in a single place. Once a given commit is
       sync'd to the server, you can be reasonably sure any client-side
       corruption can be fixed with a fresh clone. Ultimately, this
-      is an argument for off-machine backups, which Fossil provides when
-      you set the clients up to sync with a server.<p>
+      is an argument for off-machine backups, which returns us to reason
+      #4 above.<p>
       Sections 3.2 and the entirety of section 7 are no concern with
       Fossil at all, since it's primarily written by the creator and
       primary maintainer of SQLite, so you can be certain Fossil doesn't
-      actively pursue coding strategies that risk database corruption.<p>
+      actively pursue coding strategies known to risk database corruption.<p>
 
   6.  <b>A server allows [../caps/ | Fossil's RBAC system] to work.</b><p>
       The role-based access control (RBAC) system in Fossil only works
