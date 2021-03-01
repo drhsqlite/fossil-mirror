@@ -1470,6 +1470,7 @@ OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
 P       = .pdb
+OPTLEVEL= /Os
 
 INSTALLDIR = .
 !ifdef DESTDIR
@@ -1669,7 +1670,7 @@ CRTFLAGS = /MT
 CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od /DFOSSIL_DEBUG
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) $(CRTFLAGS) /Os
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(OPTLEVEL)
 !endif
 
 BCC       = $(CC) $(CFLAGS)

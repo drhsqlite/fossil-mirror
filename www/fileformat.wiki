@@ -34,7 +34,7 @@ The local state is not composed of artifacts and is not intended to be enduring.
 This document is concerned with global state only.  Local state is only
 mentioned here in order to distinguish it from global state.
 
-<a name="names"></a>
+<a id="names"></a>
 <h2>1.0 Artifact Names</h2>
 
 Each artifact in the repository is named by a hash of its content.
@@ -56,7 +56,7 @@ Prior to Fossil version 2.0, all names were formed from the SHA1 hash of
 the artifact.  The key innovation in Fossil 2.0 was adding support for
 alternative hash algorithms.
 
-<a name="structural"></a>
+<a id="structural"></a>
 <h2>2.0 Structural Artifacts</h2>
 
 A structural artifact is an artifact with a particular format
@@ -102,7 +102,7 @@ is intended to be enduring.  The specifics of how artifacts are stored on
 disk, though stable, is not intended to live as long as the
 artifact format.
 
-<a name="manifest"></a>
+<a id="manifest"></a>
 <h3>2.1 The Manifest</h3>
 
 A manifest defines a check-in.
@@ -258,7 +258,7 @@ consistent.
 A sample manifest from Fossil itself can be seen
 [/artifact/28987096ac | here].
 
-<a name="cluster"></a>
+<a id="cluster"></a>
 <h3>2.2 Clusters</h3>
 
 A cluster is an artifact that declares the existence of other artifacts.
@@ -284,7 +284,7 @@ prior cards in the cluster.  The <b>Z</b> card is required.
 An example cluster from Fossil can be seen
 [/artifact/d03dbdd73a2a8 | here].
 
-<a name="ctrl"></a>
+<a id="ctrl"></a>
 <h3>2.3 Control Artifacts</h3>
 
 Control artifacts are used to assign properties to other artifacts
@@ -335,10 +335,10 @@ belongs to.  Symbolic tags begin with the "sym-" prefix.
 The <b>U</b> card is the name of the user that created the control
 artifact.  The <b>Z</b> card is the usual required artifact checksum.
 
-An example control artifacts can be seen [/info/9d302ccda8 | here].
+An example control artifact can be seen [/info/9d302ccda8 | here].
 
 
-<a name="wikichng"></a>
+<a id="wikichng"></a>
 <h3>2.4 Wiki Pages</h3>
 
 A wiki artifact defines a single version of a
@@ -382,7 +382,7 @@ artifact that includes a <b>C</b> card.
 An example wiki artifact can be seen
 [/artifact?name=7b2f5fd0e0&txt=1 | here].
 
-<a name="tktchng"></a>
+<a id="tktchng"></a>
 <h3>2.5 Ticket Changes</h3>
 
 A ticket-change artifact represents a change to a trouble ticket.
@@ -428,7 +428,7 @@ escapes defined for the <b>C</b> card of a manifest.
 An example ticket-change artifact can be seen
 [/artifact/91f1ec6af053 | here].
 
-<a name="attachment"></a>
+<a id="attachment"></a>
 <h3>2.6 Attachments</h3>
 
 An attachment artifact associates some other artifact that is the
@@ -470,7 +470,7 @@ The <b>Z</b> card is the usual checksum over the rest of the attachment artifact
 The <b>Z</b> card is required.
 
 
-<a name="event"></a>
+<a id="event"></a>
 <h3>2.7 Technical Notes</h3>
 
 A technical note or "technote" artifact (formerly known as an "event" artifact)
@@ -538,7 +538,7 @@ technote.  The format of the <b>W</b> card is exactly the same as for a
 
 The <b>Z</b> card is the required checksum over the rest of the artifact.
 
-<a name="forum"></a>
+<a id="forum"></a>
 <h3>2.8 Forum Posts</h3>
 
 Forum posts are intended as a mechanism for users and developers to
@@ -613,7 +613,7 @@ The format of the <b>W</b> card is exactly the same as for a
 The <b>Z</b> card is the required checksum over the rest of the artifact.
 
 
-<a name="summary"></a>
+<a id="summary"></a>
 <h2>3.0 Card Summary</h2>
 
 The following table summarizes the various kinds of cards that appear
@@ -724,7 +724,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b><sup><nowiki>[4]</nowiki></sup></td>
 </tr>
 <tr>
 <td><b>I</b> <i>in-reply-to</i></td>
@@ -735,7 +735,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b><sup><nowiki>[4]</nowiki></sup></td>
 </tr>
 <tr>
 <td><b>J</b> <i>name</i> ?<i>value</i>?</td>
@@ -801,7 +801,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
-<td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b><sup><nowiki>[5]</nowiki></sup></td>
 </tr>
 <tr>
 <td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid</i> ?<i>uuid</i>?</td>
@@ -825,14 +825,14 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <tr>
-<td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?</td>
+<td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?<sup><nowiki>[1]</nowiki></sup></td>
 <td align=center><b>0+</b></td>
 <td>&nbsp;</td>
-<td align=center><b>1+</b></td>
+<td align=center><b>1+</b><sup><nowiki>[2]</nowiki></sup></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td align=center><b>0+</b></td>
+<td align=center><b>0+</b><sup><nowiki>[3]</nowiki></sup></td>
 <td>&nbsp;</td>
 </tr>
 <tr>
@@ -870,14 +870,32 @@ or more such cards are required.
 </tr>
 </table>
 
+Footnotes:
 
-<a name="addenda"></a>
+1) T-card names may not be made up of only hexadecimal characters, as
+   they would be indistinguishable from a hash prefix.
+
+2) Tags in [#ctrl | Control Artifacts] may not be
+   self-referential. i.e. their target hash may not be <tt>*</tt>.
+
+3) Tags in [#event | Technotes] must be self-referential. i.e. their
+   target hash must be <tt>*</tt>. Similarly, technote tags may only
+   be non-propagating "add" tags. i.e. their name prefix must be
+   <tt>+</tt>.
+
+4) [#forum | Forum Posts] must have either one H-card or one
+   I-card, not both.
+
+5) [#forum | Forum Post] P-cards may have only a single parent
+   hash. i.e. they may not have merge parents.
+
+<a id="addenda"></a>
 <h2>4.0 Addenda</h2>
 
 This section contains additional information which may be useful when
 implementing algorithms described above.
 
-<a name="outofordercards"></a>
+<a id="outofordercards"></a>
 <h3>4.1 Relaxed Card Ordering Due To An Historical Bug</h3>
 
 All cards of a structural artifact should be in lexicographical order.

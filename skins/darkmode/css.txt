@@ -59,8 +59,7 @@ div#hbdrop {
   border-radius: 0 0 0.5em 0.5em;
   display: none;
   left: 2em;
-  width: 90%;
-  padding-right: 1em;
+  width: calc(100% - 4em);
   position: absolute;
   z-index: 20;  /* just below mainmenu, but above timeline bubbles */
 }

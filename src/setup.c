@@ -850,7 +850,7 @@ void setup_timeline(void){
   @ see an entry in context, and because that link is not otherwise
   @ accessible on the timeline.  The /info link is also accessible by
   @ double-clicking the timeline node or by clicking on the hash that
-  @ follows "check-in:" in the supplimental information section on the
+  @ follows "check-in:" in the supplemental information section on the
   @ right of the entry.
   @ <p>(Properties: "timeline-tslink-info")
 
