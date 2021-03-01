@@ -2184,7 +2184,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **
 **    HOME: PATH               Shorthand for "setenv: HOME PATH"
 **
-**    debug: FILE              Causing debugging information to be written
+**    cgi-debug: FILE          Causing debugging information to be written
 **                             into FILE.
 **
 **    errorlog: FILE           Warnings, errors, and panics written to FILE.

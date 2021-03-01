@@ -1,5 +1,5 @@
-C Disable\sthe\spermuted\sindex\sfrom\sthe\smain\sdocumentation\spage,\sas\smoderns\ndo\snot\sunderstand\sindexes.\s\sReplace\sit\swith\sa\ssimple\slist\sof\sdocuments.\nPeople\scan\suse\sCtrl-F\sor\sthe\s"Search"\sbox\sfor\ssearch.
-D 2021-02-26T13:27:16.281
+C Fixed\s"debug"\s->\s"cgi-debug"\sin\sthe\sbuilt-in\sdocs\sfor\s"fossil\scgi".
+D 2021-03-01T06:47:02.292
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -537,7 +537,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 775b7c2226df22e8ea0eb9a1593f8be889b41fb787260dbe6d2e338d63b840b0
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
-F src/main.c 7888c8a30ec9b7fbfa3b8587ab01fbca75adf0ba6651e1818b19e42708326253
+F src/main.c 826b80917be7ee150971bf604613582ee199d31ba53951a0dc8a97ca900c2ca6
 F src/main.mk 4231976fa5a83fa51c0632a99f495235e47e4d42e5ceaf87fa690f5849fffbc4
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7260ff21b3c77a45d46bd766461ad55a295133a07d7c0c626a31178d62a280b8
-R 6e745a6df0448f967e199ccaec237bbd
-U drh
-Z 60606e0af97b772f6539aa38ca56d10b
+P 47a4c4cba9914b5a015517af0af825e7a261dcfa57fcfae4ae6f4b4044d565ff
+R 715ad9f5057398e74d5a3f0e339bd0da
+U wyoung
+Z 7359cc86418dee9021774d33fa2e0917
