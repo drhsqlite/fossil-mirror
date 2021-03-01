@@ -28,12 +28,37 @@
 ** page is intended as a supplement to the menu bar on the main screen.
 ** That is, this page is designed to hold links that are omitted from
 ** the main menu due to lack of space.
+**
+** Additional entries defined by the "sitemap-extra" setting are included
+** in the sitemap.  "sitemap-extra" should be a TCL script with three
+** values per entry:
+**
+**    *    The displayed text
+**
+**    *    The URL
+**
+**    *    A "capexpr" expression that determines whether or not to include
+**         the entry based on user capabilities.  "*" means always include
+**         the entry and "{}" means never.
+**
+** If the "e=1" query parameter is present, then the standard content
+** is omitted and only the sitemap-extra content is shown.  If "e=2" is
+** present, then only the standard content is shown and sitemap-extra
+** content is omitted.
+**
+** If the "popup" query parameter is present and this is a POST request
+** from the same origin, then the normal HTML header and footer information
+** is omitted and the HTML text returned is just a raw "<ul>...</ul>".
 */
 void sitemap_page(void){
   int srchFlags;
   int inSublist = 0;
   int i;
   int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
+  int e = atoi(PD("e","0"));
+  const char *zExtra;
+
+#if 0  /* Removed 2021-01-26 */
   const struct {
     const char *zTitle;
     const char *zProperty;
@@ -43,10 +68,11 @@ void sitemap_page(void){
     { "License",        "sitemap-license" },
     { "Contact",        "sitemap-contact" },
   };
+#endif
 
   login_check_credentials();
-  if( P("popup")!=0 && cgi_csrf_safe(0) ){
-    /* If this is a POST from the same origin with the popup=1 parameter,
+  if( P("popup")!=0 ){
+    /* The "popup" query parameter
     ** then disable anti-robot defenses */
     isPopup = 1;
     g.perm.Hyperlink = 1;
@@ -57,8 +83,13 @@ void sitemap_page(void){
     style_header("Site Map");
     style_adunit_config(ADUNIT_RIGHT_OK);
   }
+    
   @ <ul id="sitemap" class="columns" style="column-width:20em">
-  @ <li>%z(href("%R/home"))Home Page</a>
+  if( (e&1)==0 ){
+    @ <li>%z(href("%R/home"))Home Page</a>
+  }
+
+#if 0  /* Removed 2021-01-26  */
   for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
     char *z = db_get(aExtra[i].zProperty,0);
     if( z==0 || z[0]==0 ) continue;
@@ -72,6 +103,46 @@ void sitemap_page(void){
       @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</a></li>
     }
   }
+#endif
+
+  zExtra = db_get("sitemap-extra",0);
+  if( zExtra && (e&2)==0 ){
+    int rc;
+    char **azExtra = 0;
+    int *anExtra;
+    int nExtra = 0;
+    if( isPopup ) Th_FossilInit(0);
+    if( (e&1)!=0 ) inSublist = 1;
+    rc = Th_SplitList(g.interp, zExtra, (int)strlen(zExtra),
+                      &azExtra, &anExtra, &nExtra);
+    if( rc==TH_OK && nExtra ){
+      for(i=0; i+2<nExtra; i+=3){
+        int nResult = 0;
+        const char *zResult;
+        int iCond = 0;
+        rc = capexprCmd(g.interp, 0, 2,
+                (const char**)&azExtra[i+1], (int*)&anExtra[i+1]);
+        if( rc!=TH_OK ) continue;
+        zResult = Th_GetResult(g.interp, &nResult);
+        Th_ToInt(g.interp, zResult, nResult, &iCond);
+        if( iCond==0 ) continue;
+        if( !inSublist ){
+          @ <ul>
+          inSublist = 1;
+        }
+        if( azExtra[i+1][0]=='/' ){
+          @ <li>%z(href("%R%s",azExtra[i+1]))%h(azExtra[i])</a></li>
+        }else{
+          @ <li>%z(href("%s",azExtra[i+1]))%s(azExtra[i])</a></li>
+        }
+      }
+    }
+    Th_Free(g.interp, azExtra);
+  }
+  if( (e&1)!=0 ) goto end_of_sitemap;
+
+#if 0  /* Removed on 2021-02-11.  Make a sitemap-extra entry if you */
+       /* really want this */
   if( srchFlags & SRCH_DOC ){
     if( !inSublist ){
       @ <ul>
@@ -79,12 +150,15 @@ void sitemap_page(void){
     }
     @ <li>%z(href("%R/docsrch"))Documentation Search</a></li>
   }
+#endif
+
   if( inSublist ){
     @ </ul>
     inSublist = 0;    
   }
   @ </li>
   if( g.perm.Read ){
+    const char *zEditGlob = db_get("fileedit-glob","");
     @ <li>%z(href("%R/tree"))File Browser</a>
     @   <ul>
     @   <li>%z(href("%R/tree?type=tree&ci=trunk"))Tree-view,
@@ -92,16 +166,16 @@ void sitemap_page(void){
     @   <li>%z(href("%R/tree?type=flat"))Flat-view</a></li>
     @   <li>%z(href("%R/fileage?name=trunk"))File ages for Trunk</a></li>
     @   <li>%z(href("%R/uvlist"))Unversioned Files</a>
+    if( g.perm.Write && zEditGlob[0]!=0 ){
+      @   <li>%z(href("%R/fileedit"))On-line File Editor</li>
+    }
     @ </ul>
   }
   if( g.perm.Read ){
     @ <li>%z(href("%R/timeline"))Project Timeline</a>
     @ <ul>
     @   <li>%z(href("%R/reports"))Activity Reports</a></li>
-    @   <li>%z(href("%R/timeline?n=all&namechng"))File name changes</a></li>
-    @   <li>%z(href("%R/timeline?n=all&forks"))Forks</a></li>
-    @   <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10
-    @       check-ins</a></li>
+    @   <li>%z(href("%R/sitemap-timeline"))Other timelines</a></li>
     @ </ul>
     @ </li>
   }
@@ -116,6 +190,9 @@ void sitemap_page(void){
   if( srchFlags ){
     @ <li>%z(href("%R/search"))Search</a></li>
   }
+  if( g.perm.Chat ){
+    @ <li>%z(href("%R/chat"))Chat</a></li>
+  }
   if( g.perm.RdForum ){
     @ <li>%z(href("%R/forum"))Forum</a>
     @ <ul>
@@ -124,7 +201,7 @@ void sitemap_page(void){
     @ </li>
   }
   if( g.perm.RdTkt ){
-    @ <li>%z(href("%R/reportlist"))Tickets</a>
+    @ <li>%z(href("%R/reportlist"))Tickets/Bug Reports</a>
     @   <ul>
     if( srchFlags & SRCH_TKT ){
       @   <li>%z(href("%R/tktsrch"))Ticket Search</a></li>
@@ -142,42 +219,35 @@ void sitemap_page(void){
     }
     @     <li>%z(href("%R/wcontent"))List of Wiki Pages</a></li>
     @     <li>%z(href("%R/timeline?y=w"))Recent activity</a></li>
-    @     <li>%z(href("%R/wiki?name=Sandbox"))Sandbox</a></li>
+    @     <li>%z(href("%R/wikiedit?name=Sandbox"))Wiki Sandbox</a></li>
     @     <li>%z(href("%R/attachlist"))List of Attachments</a></li>
+    @     <li>%z(href("%R/pikchrshow"))Pikchr Sandbox</a></li>
     @   </ul>
     @ </li>
   }
 
   if( !g.zLogin ){
     @ <li>%z(href("%R/login"))Login</a>
+    @ <ul>
     if( login_self_register_available(0) ){
-       @ <ul>
        @ <li>%z(href("%R/register"))Create a new account</a></li>
-       inSublist = 1;
     }
   }else {
-    @ <li>%z(href("%R/logout"))Logout</a>
+    @ <li>%z(href("%R/logout"))Logout from %h(g.zLogin)</a>
+    @ <ul>
     if( g.perm.Password ){
-      @ <ul>
-      @ <li>%z(href("%R/logout"))Change Password</a></li>
-      inSublist = 1;
+      @ <li>%z(href("%R/logout"))Change Password for %h(g.zLogin)</a></li>
     }
   }
   if( alert_enabled() && g.perm.EmailAlert ){
-    if( !inSublist ){
-      inSublist = 1;
-      @ <ul>
-    }
     if( login_is_individual() ){
-      @ <li>%z(href("%R/alerts"))Email Alerts</a></li>
+      @ <li>%z(href("%R/alerts"))Email Alerts for %h(g.zLogin)</a></li>
     }else{
       @ <li>%z(href("%R/subscribe"))Subscribe to Email Alerts</a></li>
     }
   }
-  if( inSublist ){
-    @ </ul>
-    inSublist = 0;
-  }
+  @ <li>%z(href("%R/cookies"))Cookies</a></li>
+  @ </ul>
   @ </li>
 
   if( g.perm.Read ){
@@ -189,11 +259,10 @@ void sitemap_page(void){
       @       this repository</a></li>
     }
     @   <li>%z(href("%R/bloblist"))List of Artifacts</a></li>
-    @   <li>%z(href("%R/timewarps"))List of "Timewarp" Check-ins</a></li>
     @   </ul>
     @ </li>
   }
-  @ <li>Help
+  @ <li>%z(href("%R/help"))Help</a>
   @   <ul>
   if( g.perm.Admin || g.perm.Write ||
       g.perm.WrForum || g.perm.WrTForum ||
@@ -202,34 +271,122 @@ void sitemap_page(void){
     @   <li>%z(href("%R/wiki_rules"))Wiki Formatting Rules</a></li>
     @   <li>%z(href("%R/md_rules"))Markdown Formatting Rules</a></li>
   }
-  @   <li>%z(href("%R/help"))List of All Commands and Web Pages</a></li>
   @   <li>%z(href("%R/test-all-help"))All "help" text on a single page</a></li>
   if( g.perm.Admin || g.perm.Write || g.perm.WrUnver ){
-    @   <li>%z(href("%R/mimetype_list"))Filename suffix to MIME type map</a></li>
+    @   <li>%z(href("%R/mimetype_list"))\
+    @ Filename suffix to MIME type map</a></li>
   }
   @   </ul></li>
   if( g.perm.Admin ){
-    @ <li>%z(href("%R/setup"))Administration Pages</a>
+    @ <li><a href="%R/setup">Administration Pages</a>
     @   <ul>
-    @   <li>%z(href("%R/modreq"))Pending Moderation Requests</a></li>
-    @   <li>%z(href("%R/admin_log"))Admin log</a></li>
-    @   <li>%z(href("%R/cachestat"))Status of the web-page cache</a></li>
+    @   <li><a href="%R/secaudit0">Security Audit</a></li>
+    @   <li><a href="%R/modreq">Pending Moderation Requests</a></li>
     @   </ul></li>
   }
-  @ <li>Test Pages
-  @   <ul>
-  if( g.perm.Admin || db_get_boolean("test_env_enable",0) ){
-    @   <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
+  @ <li>%z(href("%R/skins"))Skins</a></li>
+  @ <li>%z(href("%R/sitemap-test"))Test Pages</a></li>
+  if( isPopup ){
+    @ <li>%z(href("%R/sitemap"))Site Map</a></li>
   }
-  if( g.perm.Read ){
-    @   <li>%z(href("%R/test-rename-list"))List of file renames</a></li>
-  }
-  @   <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
-  @       colors assigned to branch names</a>
-  @   <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
-  @   </ul></li>
+
+end_of_sitemap:
   @ </ul>
   if( !isPopup ){
-    style_footer();
+    style_finish_page();
+  }
+}
+
+/*
+** WEBPAGE: sitemap-test
+**
+** List some of the web pages offered by the Fossil web engine for testing
+** purposes.  This is similar to /sitemap, but is focused only on showing
+** pages associated with testing.
+*/
+void sitemap_test_page(void){
+  int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
+
+  login_check_credentials();
+  style_set_current_feature("sitemap");
+  if( P("popup")!=0 && cgi_csrf_safe(0) ){
+    /* If this is a POST from the same origin with the popup=1 parameter,
+    ** then disable anti-robot defenses */
+    isPopup = 1;
+    g.perm.Hyperlink = 1;
+    g.javascriptHyperlink = 0;
+  }
+  if( !isPopup ){
+    style_header("Test Page Map");
+    style_adunit_config(ADUNIT_RIGHT_OK);
+  }
+  @ <ul id="sitemap" class="columns" style="column-width:20em">
+  if( g.perm.Admin || db_get_boolean("test_env_enable",0) ){
+    @ <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
+  }
+  if( g.perm.Read ){
+    @ <li>%z(href("%R/test-rename-list"))List of file renames</a></li>
+  }
+  @ <li>%z(href("%R/test-builtin-files"))List of built-in files</a></li>
+  @ <li>%z(href("%R/mimetype_list"))List of MIME types</a></li>
+  @ <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
+  @     colors assigned to branch names</a>
+  if( g.perm.Admin ){
+    @ <li>%z(href("%R/test-backlinks"))List of backlinks</a></li>
+    @ <li>%z(href("%R/test-backlink-timeline"))Backlink timeline</a></li>
+    @ <li>%z(href("%R/phantoms"))List of phantom artifacts</a></li>
+    @ <li>%z(href("%R/test-warning"))Error Log test page</a></li>
+    @ <li>%z(href("%R/repo_stat1"))Repository <tt>sqlite_stat1</tt> table</a>
+    @ <li>%z(href("%R/repo_schema"))Repository schema</a></li>
+  }
+  if( g.perm.Read && g.perm.Hyperlink ){
+    @ <li>%z(href("%R/timewarps"))Timeline of timewarps</a></li>
+  }
+  @ <li>%z(href("%R/cookies"))Content of display preference cookie</a></li>
+  @ <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
+  @ <li>%z(href("%R/test-piechart"))Pie-Chart generator test</a></li>
+  if( !isPopup ){
+    style_finish_page();
+  }
+}
+
+/*
+** WEBPAGE: sitemap-timeline
+**
+** Generate a list of hyperlinks to various (obscure) variations on
+** the /timeline page.
+*/
+void sitemap_timeline_page(void){
+  int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
+
+  login_check_credentials();
+  style_set_current_feature("sitemap");
+  if( P("popup")!=0 && cgi_csrf_safe(0) ){
+    /* If this is a POST from the same origin with the popup=1 parameter,
+    ** then disable anti-robot defenses */
+    isPopup = 1;
+    g.perm.Hyperlink = 1;
+    g.javascriptHyperlink = 0;
+  }
+  if( !isPopup ){
+    style_header("Timeline Examples");
+    style_adunit_config(ADUNIT_RIGHT_OK);
+  }
+  @ <ul id="sitemap" class="columns" style="column-width:20em">
+  @ <li>%z(href("%R/timeline?ymd"))Current day</a></li>
+  @ <li>%z(href("%R/timeline?yw"))Current week</a></li>
+  @ <li>%z(href("%R/timeline?ym"))Current month</a></li>
+  @ <li>%z(href("%R/thisdayinhistory"))Today in history</a></li>
+  @ <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10
+  @     check-ins</a></li>
+  @ <li>%z(href("%R/timeline?namechng"))File name changes</a></li>
+  @ <li>%z(href("%R/timeline?forks"))Forks</a></li>
+  @ <li>%z(href("%R/timeline?cherrypicks"))Cherrypick merges</a></li>
+  @ <li>%z(href("%R/timewarps"))Timewarps</a></li>
+  @ <li>%z(href("%R/timeline?ubg"))Color-coded by user</a></li>
+  @ <li>%z(href("%R/timeline?deltabg"))Delta vs. baseline manifests</a></li>
+  @ </ul>
+  if( !isPopup ){
+    style_finish_page();
   }
 }

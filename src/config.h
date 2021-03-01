@@ -247,16 +247,20 @@ typedef signed char i8;
 */
 #if defined(__GNUC__) || defined(__clang__)
 # define NORETURN __attribute__((__noreturn__))
+# define NULL_SENTINEL __attribute__((sentinel))
 #elif defined(_MSC_VER) && (_MSC_VER >= 1310)
 # define NORETURN __declspec(noreturn)
+# define NULL_SENTINEL
 #else
 # define NORETURN
+# define NULL_SENTINEL
 #endif
 
 /*
 ** Number of elements in an array
 */
-#define count(X) (sizeof(X)/sizeof(X[0]))
+#define count(X)      (int)(sizeof(X)/sizeof(X[0]))
+#define ArraySize(X)  (int)(sizeof(X)/sizeof(X[0]))
 
 /*
 ** The pledge() interface is currently only available on OpenBSD 5.9

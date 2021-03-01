@@ -28,7 +28,7 @@
 */
 struct ImportFile {
   char *zName;           /* Name of a file */
-  char *zUuid;           /* UUID of the file */
+  char *zUuid;           /* Hash of the file */
   char *zPrior;          /* Prior name if the name was changed */
   char isFrom;           /* True if obtained from the parent */
   char isExe;            /* True if executable */
@@ -61,7 +61,7 @@ static struct {
   char *zDate;                /* Date/time stamp */
   char *zUser;                /* User name */
   char *zComment;             /* Comment of a commit */
-  char *zFrom;                /* from value as a UUID */
+  char *zFrom;                /* from value as a hash */
   char *zPrevCheckin;         /* Name of the previous check-in */
   char *zFromMark;            /* The mark of the "from" field */
   int nMerge;                 /* Number of merge values */
@@ -70,6 +70,7 @@ static struct {
   int nFile;                  /* Number of aFile values */
   int nFileAlloc;             /* Number of slots in aFile[] */
   ImportFile *aFile;          /* Information about files in a commit */
+  ImportFile *pInlineFile;    /* File marked "inline" */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
   int tagCommit;              /* True if the commit adds a tag */
 } gg;
@@ -145,13 +146,14 @@ static void import_reset(int freeAll){
 ** If zMark is not zero, create a cross-reference from that mark back
 ** to the newly inserted artifact.
 **
-** If saveUuid is true, then pContent is a commit record.  Record its
-** UUID in gg.zPrevCheckin.
+** If saveHash is true, then pContent is a commit record.  Record its
+** artifact hash in gg.zPrevCheckin.
 */
 static int fast_insert_content(
   Blob *pContent,          /* Content to insert */
   const char *zMark,       /* Label using this mark, if not NULL */
-  int saveUuid,            /* Save artifact hash in gg.zPrevCheckin */
+  ImportFile *pFile,       /* Save hash on this file, if not NULL */
+  int saveHash,            /* Save artifact hash in gg.zPrevCheckin */
   int doParse              /* Invoke manifest_crosslink() */
 ){
   Blob hash;
@@ -162,8 +164,10 @@ static int fast_insert_content(
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &hash);
   if( rid==0 ){
     static Stmt ins;
+    assert( g.rcvid>0 );
     db_static_prepare(&ins,
-        "INSERT INTO blob(uuid, size, content) VALUES(:uuid, :size, :content)"
+        "INSERT INTO blob(uuid, size, rcvid, content)"
+        "VALUES(:uuid, :size, %d, :content)", g.rcvid
     );
     db_bind_text(&ins, ":uuid", blob_str(&hash));
     db_bind_int(&ins, ":size", gg.nData);
@@ -189,12 +193,30 @@ static int fast_insert_content(
         &hash, rid, &hash
     );
   }
-  if( saveUuid ){
+  if( saveHash ){
     fossil_free(gg.zPrevCheckin);
     gg.zPrevCheckin = fossil_strdup(blob_str(&hash));
   }
+  if( pFile ){
+    fossil_free(pFile->zUuid);
+    pFile->zUuid = fossil_strdup(blob_str(&hash));
+  }
   blob_reset(&hash);
   return rid;
+}
+
+/*
+** Check to ensure the file in gg.aData,gg.nData is not a control
+** artifact.  Then add the file to the repository.
+*/
+static void check_and_add_file(const char *zMark, ImportFile *pFile){
+  Blob content;
+  blob_init(&content, gg.aData, gg.nData);
+  if( gg.nData && manifest_is_well_formed(gg.aData, gg.nData) ){
+    sterilize_manifest(&content, -1);
+  }
+  fast_insert_content(&content, zMark, pFile, 0, 0);
+  blob_reset(&content);
 }
 
 /*
@@ -202,10 +224,7 @@ static int fast_insert_content(
 ** to the BLOB table.
 */
 static void finish_blob(void){
-  Blob content;
-  blob_init(&content, gg.aData, gg.nData);
-  fast_insert_content(&content, gg.zMark, 0, 0);
-  blob_reset(&content);
+  check_and_add_file(gg.zMark, 0);
   import_reset(0);
 }
 
@@ -226,7 +245,7 @@ static void finish_tag(void){
     blob_appendf(&record, "\nU %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
-    fast_insert_content(&record, 0, 0, 1);
+    fast_insert_content(&record, 0, 0, 0, 1);
     blob_reset(&cksum);
     blob_reset(&record);
   }
@@ -270,7 +289,10 @@ static void finish_commit(void){
   blob_zero(&record);
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
-  if( !g.fQuiet ) fossil_print("%.10s\r", gg.zDate);
+  if( !g.fQuiet ){
+    fossil_print("%.10s\r", gg.zDate);
+    fflush(stdout);
+  }
   for(i=0; i<gg.nFile; i++){
     const char *zUuid = gg.aFile[i].zUuid;
     if( zUuid==0 ) continue;
@@ -325,7 +347,7 @@ static void finish_commit(void){
   blob_appendf(&record, "U %F\n", gg.zUser);
   md5sum_blob(&record, &cksum);
   blob_appendf(&record, "Z %b\n", &cksum);
-  fast_insert_content(&record, gg.zMark, 1, 1);
+  fast_insert_content(&record, gg.zMark, 0, 1, 1);
   blob_reset(&cksum);
 
   /* The "git fast-export" command might output multiple "commit" lines
@@ -413,7 +435,7 @@ static char *rest_of_line(char **pzIn){
 }
 
 /*
-** Convert a "mark" or "committish" into the UUID.
+** Convert a "mark" or "committish" into the artifact hash.
 */
 static char *resolve_committish(const char *zCommittish){
   char *zRes;
@@ -523,6 +545,11 @@ static void dequote_git_filename(char *zName){
 static struct{
   const char *zMasterName;    /* Name of master branch */
   int authorFlag;             /* Use author as checkin committer */
+  int nGitAttr;               /* Number of Git --attribute entries */
+  struct {                    /* Git --attribute details */
+    char *zUser;
+    char *zEmail;
+  } *gitUserInfo;
 } ggit;
 
 /*
@@ -573,7 +600,7 @@ static void git_fast_import(FILE *pIn){
       ** documentation.  We had to figure it out via trial and error.
       */
       for(i=5; i<strlen(zRefName) && zRefName[i]!='/'; i++){}
-      gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0;  /* True for pattern B */
+      gg.tagCommit = strncmp(&zRefName[5], "tags", 4)==0; /* pattern B */
       if( zRefName[i+1]!=0 ) zRefName += i+1;
       if( fossil_strcmp(zRefName, "master")==0 ) zRefName = ggit.zMasterName;
       gg.zBranch = fossil_strdup(zRefName);
@@ -624,6 +651,10 @@ static void git_fast_import(FILE *pIn){
           gg.nData = 0;
         }
       }
+      if( gg.pInlineFile ){
+        check_and_add_file(0, gg.pInlineFile);
+        gg.pInlineFile = 0;
+      }
     }else
     if( (!ggit.authorFlag && strncmp(zLine, "author ", 7)==0)
         || (ggit.authorFlag && strncmp(zLine, "committer ",10)==0
@@ -643,7 +674,11 @@ static void git_fast_import(FILE *pIn){
       while( fossil_isspace(*z) ) z++;
       if( (zTo=strchr(z, '>'))==NULL ) goto malformed_line;
       *(++zTo) = '\0';
-      /* Lookup user by contact info. */
+      /*
+      ** If --attribute requested, lookup user in fx_ table by email address,
+      ** otherwise lookup Git {author,committer} contact info in user table. If
+      ** no matches, use email address as username for check-in attribution.
+      */
       fossil_free(gg.zUser);
       gg.zUser = db_text(0, "SELECT login FROM user WHERE info=%Q", z);
       if( gg.zUser==NULL ){
@@ -654,12 +689,16 @@ static void git_fast_import(FILE *pIn){
         *(zTo-1) = '\0';
         gg.zUser = fossil_strdup(z);
       }
+      if (ggit.nGitAttr > 0 || db_table_exists("repository", "fx_git")) {
+        gg.zUser = db_text(gg.zUser,
+         "SELECT user FROM fx_git WHERE email=%Q", z);
+      }
       secSince1970 = 0;
       for(zTo++; fossil_isdigit(*zTo); zTo++){
         secSince1970 = secSince1970*10 + *zTo - '0';
       }
       fossil_free(gg.zDate);
-      gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", secSince1970);
+      gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')",secSince1970);
       gg.zDate[10] = 'T';
     }else
     if( strncmp(zLine, "from ", 5)==0 ){
@@ -691,10 +730,15 @@ static void git_fast_import(FILE *pIn){
         pFile = import_add_file();
         pFile->zName = fossil_strdup(zName);
       }
-      pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
+      pFile->isExe = (sqlite3_strglob("*755",zPerm)==0);
       pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);
       fossil_free(pFile->zUuid);
-      pFile->zUuid = resolve_committish(zUuid);
+      if( strcmp(zUuid,"inline")==0 ){
+        pFile->zUuid = 0;
+        gg.pInlineFile = pFile;
+      }else{
+        pFile->zUuid = resolve_committish(zUuid);
+      }
       pFile->isFrom = 0;
     }else
     if( strncmp(zLine, "D ", 2)==0 ){
@@ -726,9 +770,9 @@ static void git_fast_import(FILE *pIn){
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
-          pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
+          pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
-          pNew->zName = fossil_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(zTo);
         }
         pNew->isExe = pFile->isExe;
         pNew->isLink = pFile->isLink;
@@ -749,9 +793,9 @@ static void git_fast_import(FILE *pIn){
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
-          pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
+          pNew->zName = mprintf("%s%s", zTo, pFile->zName+nFrom);
         }else{
-          pNew->zName = fossil_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(zTo);
         }
         pNew->zPrior = pFile->zName;
         pNew->isExe = pFile->isExe;
@@ -762,7 +806,6 @@ static void git_fast_import(FILE *pIn){
         *pFile = *pNew;
         memset(pNew, 0, sizeof(*pNew));
       }
-      fossil_fatal("cannot handle R records, use --full-tree");
     }else
     if( strncmp(zLine, "deleteall", 9)==0 ){
       gg.fromLoaded = 1;
@@ -770,7 +813,19 @@ static void git_fast_import(FILE *pIn){
     if( strncmp(zLine, "N ", 2)==0 ){
       /* No-op */
     }else
-
+    if( strncmp(zLine, "property branch-nick ", 21)==0 ){
+      /* Breezy uses this property to store the branch name.
+      ** It has two values. Integer branch number, then the 
+      ** user-readable branch name. */
+      z = &zLine[21];
+      next_token(&z);
+      fossil_free(gg.zBranch);
+      gg.zBranch = fossil_strdup(next_token(&z));
+    }else
+    if( strncmp(zLine, "property rebase-of ", 19)==0 ){
+      /* Breezy uses this property to record that a branch
+      ** was rebased.  Silently ignore it. */
+    }else
     {
       goto malformed_line;
     }
@@ -1351,7 +1406,8 @@ static void svn_dump_import(FILE *pIn){
   );
   db_prepare(&cpyPath,
     "INSERT INTO xfiles (tpath, tbranch, tuuid, tperm)"
-    " SELECT :path||:sep||substr(filename, length(:srcpath)+2), :branch, uuid, perm"
+    " SELECT :path||:sep||substr(filename,"
+          "  length(:srcpath)+2), :branch, uuid, perm"
     " FROM xfoci"
     " WHERE checkinID=:rid"
     "   AND filename>:srcpath||'/'"
@@ -1596,7 +1652,7 @@ static void svn_dump_import(FILE *pIn){
 }
 
 /*
-** COMMAND: import
+** COMMAND: import*
 **
 ** Usage: %fossil import ?--git? ?OPTIONS? NEW-REPOSITORY ?INPUT-FILE?
 **    or: %fossil import --svn ?OPTIONS? NEW-REPOSITORY ?INPUT-FILE?
@@ -1614,6 +1670,8 @@ static void svn_dump_import(FILE *pIn){
 **                  --export-marks  FILE Save marks table to FILE
 **                  --rename-master NAME Renames the master branch to NAME
 **                  --use-author    Uses author as the committer
+**                  --attribute     "EMAIL USER" Attribute commits to USER
+**                                  instead of Git committer EMAIL address
 **
 **   --svn        Import from the svnadmin-dump file format.  The default
 **                behaviour (unless overridden by --flat) is to treat 3
@@ -1641,7 +1699,7 @@ static void svn_dump_import(FILE *pIn){
 **   --rename-trunk NAME  use NAME as name of imported trunk branch
 **   --rename-branch PAT  rename all branch names using PAT pattern
 **   --rename-tag PAT     rename all tag names using PAT pattern
-**   --admin-user|-A NAME use NAME for the admin user 
+**   -A|--admin-user NAME use NAME for the admin user 
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.  The --rename-* options may be useful to avoid name
@@ -1655,6 +1713,11 @@ static void svn_dump_import(FILE *pIn){
 ** --ignore-tree is useful for importing Subversion repositories which
 ** move branches to subdirectories of "branches/deleted" instead of
 ** deleting them.  It can be supplied multiple times if necessary.
+**
+** The --attribute option takes a quoted string argument comprised of a
+** Git committer email and the username to be attributed to corresponding
+** check-ins in the Fossil repository. This option can be repeated. For
+** example, --attribute "drh@sqlite.org drh" --attribute "xyz@abc.net X"
 **
 ** See also: export
 */
@@ -1736,12 +1799,27 @@ void import_cmd(void){
     gsvn.revFlag = find_option("rev-tags", 0, 0)
                 || (incrFlag && !find_option("no-rev-tags", 0, 0));
   }else if( gitFlag ){
+    const char *zGitUser;
     markfile_in = find_option("import-marks", 0, 1);
     markfile_out = find_option("export-marks", 0, 1);
     if( !(ggit.zMasterName = find_option("rename-master", 0, 1)) ){
       ggit.zMasterName = "master";
     }
     ggit.authorFlag = find_option("use-author", 0, 0)!=0;
+    /*
+    ** Extract --attribute 'emailaddr username' args that will populate
+    ** new 'fx_' table to later match username for check-in attribution.
+    */
+    zGitUser = find_option("attribute", 0, 1);
+    while( zGitUser != 0 ){
+      char *currGitUser;
+      ggit.gitUserInfo = fossil_realloc(ggit.gitUserInfo, ++ggit.nGitAttr
+       * sizeof(ggit.gitUserInfo[0]));
+      currGitUser = fossil_strdup(zGitUser);
+      ggit.gitUserInfo[ggit.nGitAttr-1].zEmail = next_token(&currGitUser);
+      ggit.gitUserInfo[ggit.nGitAttr-1].zUser = rest_of_line(&currGitUser);
+      zGitUser = find_option("attribute", 0, 1);
+    }
   }
   verify_all_options();
 
@@ -1761,12 +1839,14 @@ void import_cmd(void){
   }
   db_open_repository(g.argv[2]);
   db_open_config(0, 0);
+  db_unprotect(PROTECT_ALL);
 
   db_begin_transaction();
   if( !incrFlag ){
     db_initial_setup(0, 0, zDefaultUser);
     db_set("main-branch", gimport.zTrunkName, 0);
   }
+  content_rcvid_init(svnFlag ? "svn-import" : "git-import");
 
   if( svnFlag ){
     db_multi_exec(
@@ -1830,9 +1910,10 @@ void import_cmd(void){
     ** the import.
     **
     ** The XMARK table provides a mapping from fast-import "marks" and symbols
-    ** into artifact ids (UUIDs - the 40-byte hex SHA1 hash of artifacts).
+    ** into artifact hashes.
+    **
     ** Given any valid fast-import symbol, the corresponding fossil rid and
-    ** uuid can found by searching against the xmark.tname field.
+    ** hash can found by searching against the xmark.tname field.
     **
     ** The XBRANCH table maps commit marks and symbols into the branch those
     ** commits belong to.  If xbranch.tname is a fast-import symbol for a
@@ -1864,12 +1945,31 @@ void import_cmd(void){
     }
 
     manifest_crosslink_begin();
+    /*
+    ** The following 'fx_' table is used to hold information needed for
+    ** importing and exporting to attribute Fossil check-ins or Git commits
+    ** to either a desired username or full contact information string.
+    */
+    if(ggit.nGitAttr > 0) {
+      int idx;
+      db_unprotect(PROTECT_ALL);
+      db_multi_exec(
+        "CREATE TABLE fx_git(user TEXT, email TEXT UNIQUE);"
+      );
+      for(idx = 0; idx < ggit.nGitAttr; ++idx ){
+        db_multi_exec(
+            "INSERT OR IGNORE INTO fx_git(user, email) VALUES(%Q, %Q)",
+            ggit.gitUserInfo[idx].zUser, ggit.gitUserInfo[idx].zEmail
+        );
+      }
+      db_protect_pop();
+    }
     git_fast_import(pIn);
     db_prepare(&q, "SELECT tcontent FROM xtag");
     while( db_step(&q)==SQLITE_ROW ){
       Blob record;
       db_ephemeral_blob(&q, 0, &record);
-      fast_insert_content(&record, 0, 0, 1);
+      fast_insert_content(&record, 0, 0, 0, 1);
       import_reset(0);
     }
     db_finalize(&q);

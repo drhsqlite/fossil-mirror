@@ -127,7 +127,7 @@ struct DContext {
 ** function, a string is considered empty if it contains no characters
 ** -OR- it contains only NUL characters.
 */
-static int count_lines(
+int count_lines(
   const char *z,
   int n,
   int *pnLine
@@ -1568,7 +1568,7 @@ static void longestCommonSequence(
       iEYp = iEY;
     }
   }
-  if( iSXb==iEXb && (iE1-iS1)*(iE2-iS2)<400 ){
+  if( iSXb==iEXb && (sqlite3_int64)(iE1-iS1)*(iE2-iS2)<400 ){
     /* If no common sequence is found using the hashing heuristic and
     ** the input is not too big, use the expensive exact solution */
     optimalLCS(p, iS1, iE1, iS2, iE2, piSX, piEX, piSY, piEY);
@@ -1957,7 +1957,12 @@ int *text_diff(
         nDel += c.aEdit[i+1];
         nIns += c.aEdit[i+2];
       }
-      blob_appendf(pOut, "%10d %10d", nIns, nDel);
+      g.diffCnt[1] += nIns;
+      g.diffCnt[2] += nDel;
+      if( nIns+nDel ){
+        g.diffCnt[0]++;
+        blob_appendf(pOut, "%10d %10d", nIns, nDel);
+      }
     }else if( diffFlags & DIFF_SIDEBYSIDE ){
       sbsDiff(&c, pOut, pRe, diffFlags);
     }else{
@@ -2087,7 +2092,7 @@ void test_diff_cmd(void){
   diffFlag = diff_options();
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
-  diff_print_filenames(g.argv[2], g.argv[3], diffFlag);
+  diff_print_filenames(g.argv[2], g.argv[3], diffFlag, 0);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
   blob_zero(&out);
@@ -2401,15 +2406,15 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **    checkin=ID          The check-in at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers=BOOLEAN    Show file versions rather than check-in versions
-**    limit=LIMIT         Limit the amount of analysis:
-**                           "none"  No limit
-**                           "Xs"    As much as can be computed in X seconds
-**                           "N"     N versions
+**    limit=LIMIT         Limit the amount of analysis.  LIMIT can be one of:
+**                           none   No limit
+**                           Xs     As much as can be computed in X seconds
+**                           N      N versions
 **    log=BOOLEAN         Show a log of versions analyzed
 **    origin=ID           The origin checkin.  If unspecified, the root
-**                           check-in over the entire repository is used.
-**                           Specify "origin=trunk" or similar for a reverse
-**                           annotation
+**                        check-in over the entire repository is used.
+**                        Specify "origin=trunk" or similar for a reverse
+**                        annotation
 **    w=BOOLEAN           Ignore whitespace
 */
 void annotation_page(void){
@@ -2450,6 +2455,7 @@ void annotation_page(void){
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
+  style_set_current_feature("annotate");
   style_header("Annotation For %h", zFilename);
   if( bBlame ){
     url_initialize(&url, "blame");
@@ -2485,9 +2491,9 @@ void annotation_page(void){
 
   @ <div id="annotation_log" style='display:%s(showLog?"block":"none");'>
   if( zOrigin ){
-    zLink = href("%R/finfo?name=%t&ci=%!S&orig=%!S",zFilename,zCI,zOrigin);
+    zLink = href("%R/finfo?name=%t&from=%!S&to=%!S",zFilename,zCI,zOrigin);
   }else{
-    zLink = href("%R/finfo?name=%t&ci=%!S",zFilename,zCI);
+    zLink = href("%R/finfo?name=%t&from=%!S",zFilename,zCI);
   }
   @ <h2>Versions of %z(zLink)%h(zFilename)</a> analyzed:</h2>
   @ <ol>
@@ -2504,17 +2510,17 @@ void annotation_page(void){
   if( !ann.bMoreToDo ){
     assert( ann.origId==0 );  /* bMoreToDo always set for a point-to-point */
     @ <h2>Origin for each line in
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }else if( ann.origId>0 ){
     @ <h2>Lines of
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>
     @ that are changed by the sequence of edits moving toward
     @ check-in %z(href("%R/info/%!S",zOrigin))%S(zOrigin)</a>:</h2>
   }else{
     @ <h2>Lines added by the %d(ann.nVers) most recent ancestors of
-    @ %z(href("%R/finfo?name=%h&ci=%!S", zFilename, zCI))%h(zFilename)</a>
+    @ %z(href("%R/finfo?name=%h&from=%!S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%!S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
@@ -2558,13 +2564,13 @@ void annotation_page(void){
 
   }
   @ </pre>
-  style_footer();
+  style_finish_page();
 }
 
 /*
 ** COMMAND: annotate
 ** COMMAND: blame
-** COMMAND: praise
+** COMMAND: praise*
 **
 ** Usage: %fossil annotate|blame|praise ?OPTIONS? FILENAME
 **
@@ -2588,17 +2594,17 @@ void annotation_page(void){
 **                               check-in versions
 **   -r|--revision VERSION       The specific check-in containing the file
 **   -l|--log                    List all versions analyzed
-**   -n|--limit LIMIT            Limit the amount of analysis:
+**   -n|--limit LIMIT            LIMIT can be one of:
 **                                 N      Up to N versions
 **                                 Xs     As much as possible in X seconds
 **                                 none   No limit
 **   -o|--origin VERSION         The origin check-in. By default this is the
-**                                 root of the repository. Set to "trunk" or
-**                                 similar for a reverse annotation.
+**                               root of the repository. Set to "trunk" or
+**                               similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
-** See also: info, finfo, timeline
+** See also: [[info]], [[finfo]], [[timeline]]
 */
 void annotate_cmd(void){
   const char *zRevision; /* Revision name, or NULL for current check-in */

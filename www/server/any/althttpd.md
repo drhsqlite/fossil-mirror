@@ -11,7 +11,7 @@ server, follow these steps.
 <li<p>Get the althttpd webserver running on the host.  This is easily
 done by following the [althttpd documentation][althttpd].
 
-<li><p>Create a CGI script for your Fossil respository.  The script will
+<li><p>Create a CGI script for your Fossil repository.  The script will
 be typically be two lines of code that look something like this:
 
 ~~~
@@ -38,5 +38,5 @@ you created to start using your Fossil server.
 *[Return to the top-level Fossil server article.](../)*
 
 
-[althttpd]:  https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md
+[althttpd]:  https://sqlite.org/althttpd/
 [cgi]:       ../../cgi.wiki

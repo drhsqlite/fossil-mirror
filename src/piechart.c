@@ -144,7 +144,10 @@ void piechart_render(int width, int height, unsigned int pieFlags){
   zFg = skin_detail_boolean("white-foreground") ? "white" : "black";
 
   db_prepare(&q, "SELECT sum(amt), count(*) FROM piechart");
-  if( db_step(&q)!=SQLITE_ROW ) return;
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_finalize(&q);
+    return;
+  }
   rTotal = db_column_double(&q, 0);
   nTotal = db_column_int(&q, 1);
   db_finalize(&q);
@@ -276,6 +279,7 @@ void piechart_test_page(void){
   int i, j;
 
   login_check_credentials();
+  style_set_current_feature("test");
   style_header("Pie Chart Test");
   db_multi_exec("CREATE TEMP TABLE piechart(amt REAL, label TEXT);");
   db_prepare(&ins, "INSERT INTO piechart(amt,label) VALUES(:amt,:label)");
@@ -327,5 +331,5 @@ void piechart_test_page(void){
   @ <li> <a href='test-piechart?data=80,2,2,2,2,2,2,2,2,2,2,20'>Case 4</a>
   @ <li> <a href='test-piechart?data=2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2'>Case 5</a>
   @ </ul>
-  style_footer();
+  style_finish_page();
 }

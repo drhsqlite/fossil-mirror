@@ -35,6 +35,11 @@
 #endif
 
 /*
+** True if the "fossil sql" command has the --test flag.  False otherwise.
+*/
+static int local_bSqlCmdTest = 0;
+
+/*
 ** Implementation of the "content(X)" SQL function.  Return the complete
 ** content of artifact identified by X as a blob.
 */
@@ -112,7 +117,9 @@ static void sqlcmd_decompress(
   int rc;
 
   pIn = sqlite3_value_blob(argv[0]);
+  if( pIn==0 ) return;
   nIn = sqlite3_value_bytes(argv[0]);
+  if( nIn<4 ) return;
   nOut = (pIn[0]<<24) + (pIn[1]<<16) + (pIn[2]<<8) + pIn[3];
   pOut = sqlite3_malloc( nOut+1 );
   rc = uncompress(pOut, &nOut, &pIn[4], nIn-4);
@@ -157,6 +164,53 @@ int add_content_sql_commands(sqlite3 *db){
 }
 
 /*
+** Undocumented test SQL functions:
+**
+**     db_protect(X)
+**     db_protect_pop(X)
+**
+** These invoke the corresponding C routines.
+**
+** WARNING:
+** Do not instantiate these functions for any Fossil webpage or command
+** method of than the "fossil sql" command.  If an attacker gains access
+** to these functions, he will be able to disable other defense mechanisms.
+**
+** This routines are for interactiving testing only.  They are experimental
+** and undocumented (apart from this comments) and might go away or change
+** in future releases.
+**
+** 2020-11-29:  This functions are now only available if the "fossil sql"
+** command is started with the --test option.
+*/
+static void sqlcmd_db_protect(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  unsigned mask = 0;
+  const char *z = (const char*)sqlite3_value_text(argv[0]);
+  if( z!=0 && local_bSqlCmdTest ){
+    if( sqlite3_stricmp(z,"user")==0 )      mask |= PROTECT_USER;
+    if( sqlite3_stricmp(z,"config")==0 )    mask |= PROTECT_CONFIG;
+    if( sqlite3_stricmp(z,"sensitive")==0 ) mask |= PROTECT_SENSITIVE;
+    if( sqlite3_stricmp(z,"readonly")==0 )  mask |= PROTECT_READONLY;
+    if( sqlite3_stricmp(z,"all")==0 )       mask |= PROTECT_ALL;
+    db_protect(mask);
+  }
+}
+static void sqlcmd_db_protect_pop(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( !local_bSqlCmdTest ) db_protect_pop();
+}
+
+
+
+
+/*
 ** This is the "automatic extension" initializer that runs right after
 ** the connection to the repository database is opened.  Set up the
 ** database connection to be more useful to the human operator.
@@ -173,6 +227,8 @@ static int sqlcmd_autoinit(
   search_sql_setup(db);
   foci_register(db);
   deltafunc_init(db);
+  helptext_vtab_register(db);
+  builtin_vtab_register(db);
   g.repositoryOpen = 1;
   g.db = db;
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
@@ -193,6 +249,14 @@ static int sqlcmd_autoinit(
   ** will get cleaned up when the shell closes the database connection */
   if( g.fSqlTrace ) mTrace |= SQLITE_TRACE_PROFILE;
   sqlite3_trace_v2(db, mTrace, db_sql_trace, 0);
+  db_protect_only(PROTECT_NONE);
+  sqlite3_set_authorizer(db, db_top_authorizer, db);
+  if( local_bSqlCmdTest ){
+    sqlite3_create_function(db, "db_protect", 1, SQLITE_UTF8, 0,
+                            sqlcmd_db_protect, 0, 0);
+    sqlite3_create_function(db, "db_protect_pop", 0, SQLITE_UTF8, 0,
+                            sqlcmd_db_protect_pop, 0, 0);
+  }
   return SQLITE_OK;
 }
 
@@ -267,27 +331,44 @@ static void fossil_close(int bDb, int noRepository){
 **
 ** Usage: %fossil sql ?OPTIONS?
 **
-** Run the standalone sqlite3 command-line shell on DATABASE with SHELL_OPTS.
-** If DATABASE is omitted, then the repository that serves the working
-** directory is opened.  See https://www.sqlite.org/cli.html for additional
-** information.
+** Run the sqlite3 command-line shell on the Fossil repository
+** identified by the -R option, or on the current repository.
+** See https://www.sqlite.org/cli.html for additional information about
+** the sqlite3 command-line shell.
+**
+** WARNING:  Careless use of this command can corrupt a Fossil repository
+** in ways that are unrecoverable.  Be sure you know what you are doing before
+** running any SQL commands that modify the repository database.  Use the
+** --readonly option to prevent accidental damage to the repository.
 **
 ** Options:
 **
 **    --no-repository           Skip opening the repository database.
 **
+**    --readonly                Open the repository read-only.  No changes
+**                              are allowed.  This is a recommended safety
+**                              precaution to prevent repository damage.
+**
 **    -R REPOSITORY             Use REPOSITORY as the repository database
 **
-** WARNING:  Careless use of this command can corrupt a Fossil repository
-** in ways that are unrecoverable.  Be sure you know what you are doing before
-** running any SQL commands that modify the repository database.
+**    --test                    Enable some testing and analysis features
+**                              that are normally disabled.
 **
-** The following extensions to the usual SQLite commands are provided:
+** All of the standard sqlite3 command-line shell options should also
+** work.
+**
+** The following SQL extensions are provided with this Fossil-enhanced
+** version of the sqlite3 command-line shell:
+**
+**    builtin                   A virtual table that contains one row for
+**                              each datafile that is built into the Fossil
+**                              binary.
 **
 **    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
 **                              found in check-in X (another BLOB.RID value).
 **
-**    compress(X)               Compress text X.
+**    compress(X)               Compress text X with the same algorithm used
+**                              to compress artifacts in the BLOB table.
 **
 **    content(X)                Return the content of artifact X. X can be an
 **                              artifact hash or hash prefix or a tag. Artifacts
@@ -312,11 +393,21 @@ static void fossil_close(int bDb, int noRepository){
 **
 **    files_of_checkin(X)       A table-valued function that returns info on
 **                              all files contained in check-in X.  Example:
-**                                SELECT * FROM files_of_checkin('trunk');
+**
+**                                  SELECT * FROM files_of_checkin('trunk');
+**
+**    helptext                  A virtual table with one row for each command,
+**                              webpage, and setting together with the built-in
+**                              help text.  
 **
 **    now()                     Return the number of seconds since 1970.
 **
-**    REGEXP                    The REGEXP operator works, unlike in
+**    obscure(T)                Obfuscate the text password T so that its
+**                              original value is not readily visible.  Fossil
+**                              uses this same algorithm when storing passwords
+**                              of remote URLs.
+**
+**    regexp                    The REGEXP operator works, unlike in
 **                              standard SQLite.
 **
 **    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
@@ -330,6 +421,7 @@ void cmd_sqlite3(void){
   g.fNoThHook = 1;
 #endif
   noRepository = find_option("no-repository", 0, 0)!=0;
+  local_bSqlCmdTest = find_option("test",0,0)!=0;
   if( !noRepository ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   }

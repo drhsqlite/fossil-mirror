@@ -25,24 +25,6 @@
 #include "cygsup.h"
 
 /*
-** WARNING: For Fossil version x.x this value was always zero.  For Fossil-NG
-**          it will probably always be one.  When this value is zero,
-**          files in the checkout will not be moved by the "mv" command and
-**          files in the checkout will not be removed by the "rm" command.
-**
-**          If the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option is used,
-**          the "mv-rm-files" setting will be consulted instead of using
-**          this value.
-**
-**          To retain the Fossil version 2.x behavior when using Fossil-NG
-**          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
-**          -AND- the "mv-rm-files" setting must be set to zero.
-*/
-#ifndef FOSSIL_MV_RM_FILE
-#define FOSSIL_MV_RM_FILE                        (0)
-#endif
-
-/*
 ** This routine returns the names of files in a working checkout that
 ** are created by Fossil itself, and hence should not be added, deleted,
 ** or merge, and should be omitted from "clean" and "extras" lists.
@@ -176,6 +158,7 @@ static int add_one_file(
   const char *zPath,   /* Tree-name of file to add. */
   int vid              /* Add to this VFILE */
 ){
+  int doSkip = 0;
   if( !file_is_simple_pathname(zPath, 1) ){
     fossil_warning("filename contains illegal characters: %s", zPath);
     return 0;
@@ -188,13 +171,19 @@ static int add_one_file(
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     int isExe = file_isexe(zFullname, RepoFILE);
-    db_multi_exec(
-      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
-      "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
-      vid, zPath, isExe, file_islink(0));
+    int isLink = file_islink(0);
+    if( file_nondir_objects_on_path(g.zLocalRoot, zFullname) ){
+      /* Do not add unsafe files to the vfile */
+      doSkip = 1;
+    }else{
+      db_multi_exec(
+        "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
+        "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
+        vid, zPath, isExe, isLink);
+    }
     fossil_free(zFullname);
   }
-  if( db_changes() ){
+  if( db_changes() && !doSkip ){
     fossil_print("ADDED  %s\n", zPath);
     return 1;
   }else{
@@ -206,7 +195,9 @@ static int add_one_file(
 /*
 ** Add all files in the sfile temp table.
 **
-** Automatically exclude the repository file.
+** Automatically exclude the repository file and any other files
+** with reserved names. Also exclude files that are beneath an
+** existing symlink.
 */
 static int add_files_in_sfile(int vid){
   const char *zRepo;        /* Name of the repository database file */
@@ -228,14 +219,26 @@ static int add_files_in_sfile(int vid){
   }else{
     xCmp = fossil_stricmp;
   }
-  db_prepare(&loop, "SELECT pathname FROM sfile ORDER BY pathname");
+  db_prepare(&loop,
+     "SELECT pathname FROM sfile"
+     " WHERE pathname NOT IN ("
+       "SELECT sfile.pathname FROM vfile, sfile"
+       " WHERE vfile.islink"
+       "   AND NOT vfile.deleted"
+       "   AND sfile.pathname>(vfile.pathname||'/')"
+       "   AND sfile.pathname<(vfile.pathname||'0'))"
+     " ORDER BY pathname");
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
-    for(i=0; (zReserved = fossil_reserved_name(i, 0))!=0; i++){
-      if( xCmp(zToAdd, zReserved)==0 ) break;
+    if( strchr(zToAdd,'/') ){
+      if( file_is_reserved_name(zToAdd, -1) ) continue;
+    }else{
+      for(i=0; (zReserved = fossil_reserved_name(i, 0))!=0; i++){
+        if( xCmp(zToAdd, zReserved)==0 ) break;
+      }
+      if( zReserved ) continue;
     }
-    if( zReserved ) continue;
     nAdd += add_one_file(zToAdd, vid);
   }
   db_finalize(&loop);
@@ -244,12 +247,103 @@ static int add_files_in_sfile(int vid){
 }
 
 /*
+** Resets the ADDED/DELETED state of a checkout, such that all
+** newly-added (but not yet committed) files are no longer added and
+** newly-removed (but not yet committed) files are no longer
+** removed. If bIsAdd is true, it operates on the "add" state, else it
+** operates on the "rm" state.
+**
+** If bDryRun is true it outputs what it would have done, but does not
+** actually do it. In this case it rolls back the transaction it
+** starts (so don't start a transaction before calling this).
+**
+** If bVerbose is true it outputs the name of each reset entry.
+**
+** This is intended to be called only in the context of the
+** add/rm/addremove commands, after a call to verify_all_options().
+**
+** Un-added files are not modified but any un-rm'd files which are
+** missing from the checkout are restored from the repo. un-rm'd files
+** which exist in the checkout are left as-is, rather than restoring
+** them using vfile_to_disk(), to avoid overwriting any local changes
+** made to those files.
+*/
+static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
+  int nReset = 0; /* # of entries which get reset */
+  Stmt stmt;      /* vfile loop query */
+
+  db_begin_transaction();
+  db_prepare(&stmt, "SELECT id, pathname FROM vfile "
+                    "WHERE %s ORDER BY pathname",
+                    bIsAdd==0 ? "deleted<>0" : "rid=0"/*safe-for-%s*/);
+  while( db_step(&stmt)==SQLITE_ROW ){
+    /* This loop exists only so we can restore the contents of un-rm'd
+    ** files and support verbose mode. All manipulation of vfile's
+    ** contents happens after the loop. For the ADD case in non-verbose
+    ** mode we "could" skip this loop entirely.
+    */
+    int const id = db_column_int(&stmt, 0);
+    char const * zPathname = db_column_text(&stmt, 1);
+    Blob relName = empty_blob;
+    if(bIsAdd==0 || bVerbose!=0){
+      /* Make filename relative... */
+      char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+      file_relative_name(zFullName, &relName, 0);
+      fossil_free(zFullName);
+    }
+    if(bIsAdd==0){
+      /* Restore contents of missing un-rm'd files. We don't do this
+      ** unconditionally because we might cause data loss if a file
+      ** is modified, rm'd, then un-rm'd.
+      */
+      ++nReset;
+      if(!file_isfile_or_link(blob_str(&relName))){
+        if(bDryRun==0){
+          vfile_to_disk(0, id, 0, 0);
+          if(bVerbose){
+            fossil_print("Restored missing file: %b\n", &relName);
+          }
+        }else{
+          fossil_print("Dry-run: not restoring missing file: %b\n", &relName);
+        }
+      }
+      if(bVerbose){
+        fossil_print("Un-removed: %b\n", &relName);
+      }
+    }else{
+      /* un-add... */
+      ++nReset;
+      if(bVerbose){
+        fossil_print("Un-added: %b\n", &relName);
+      }
+    }
+    blob_reset(&relName);
+  }
+  db_finalize(&stmt);
+  if(nReset>0){
+    if(bIsAdd==0){
+      if(bDryRun==0){
+        db_exec_sql("UPDATE vfile SET deleted=0 WHERE deleted<>0");
+      }
+      fossil_print("Un-removed %d file(s).\n", nReset);
+    }else{
+      if(bDryRun==0){
+        db_exec_sql("DELETE FROM vfile WHERE rid=0");
+      }
+      fossil_print("Un-added %d file(s).\n", nReset);
+    }
+  }
+  db_end_transaction(bDryRun ? 1 : 0);
+}
+
+
+/*
 ** COMMAND: add
 **
 ** Usage: %fossil add ?OPTIONS? FILE1 ?FILE2 ...?
 **
 ** Make arrangements to add one or more files or directories to the
-** current checkout at the next commit.
+** current checkout at the next [[commit]].
 **
 ** When adding files or directories recursively, filenames that begin
 ** with "." are excluded by default.  To include such files, add
@@ -271,15 +365,24 @@ static int add_files_in_sfile(int vid){
 **
 ** Options:
 **
-**    --case-sensitive <BOOL> Override the case-sensitive setting.
+**    --case-sensitive BOOL   Override the case-sensitive setting.
 **    --dotfiles              include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
-**    --ignore <CSG>          Ignore unmanaged files matching patterns from
-**                            the comma separated list of glob patterns.
-**    --clean <CSG>           Also ignore files matching patterns from
-**                            the comma separated list of glob patterns.
+**    --ignore CSG            Ignore unmanaged files matching patterns from
+**                            the Comma Separated Glob (CSG) pattern list
+**    --clean CSG             Also ignore files matching patterns from
+**                            the Comma Separated Glob (CSG) list
+**    --reset                 Reset the ADDED state of a checkout, such
+**                            that all newly-added (but not yet committed)
+**                            files are no longer added. No flags other
+**                            than --verbose and --dry-run may be used
+**                            with --reset.
 **
-** See also: addremove, rm
+** The following options are only valid with --reset:
+**    -v|--verbose            Outputs information about each --reset file.
+**    -n|--dry-run            Display instead of run actions.
+**
+** See also: [[addremove]], [[rm]]
 */
 void add_cmd(void){
   int i;                     /* Loop counter */
@@ -290,6 +393,15 @@ void add_cmd(void){
   Glob *pIgnore, *pClean;    /* Ignore everything matching the glob patterns */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
   int forceFlag;
+
+  if(0!=find_option("reset",0,0)){
+    int const verboseFlag = find_option("verbose","v",0)!=0;
+    int const dryRunFlag = find_option("dry-run","n",0)!=0;
+    db_must_be_within_tree();
+    verify_all_options();
+    addremove_reset(1, dryRunFlag, verboseFlag);
+    return;
+  }
 
   zCleanFlag = find_option("clean",0,1);
   zIgnoreFlag = find_option("ignore",0,1);
@@ -442,20 +554,34 @@ static void process_files_to_remove(
 **   --soft                  Skip removing files from the checkout.
 **                           This supersedes the --hard option.
 **   --hard                  Remove files from the checkout.
-**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   --case-sensitive BOOL   Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
+**   --reset                 Reset the DELETED state of a checkout, such
+**                           that all newly-rm'd (but not yet committed)
+**                           files are no longer removed. No flags other
+**                           than --verbose or --dry-run may be used with
+**                           --reset.
+**   -v|--verbose            Outputs information about each --reset file.
+**                           Only usable with --reset.
 **
-** See also: addremove, add
+** See also: [[addremove]], [[add]]
 */
 void delete_cmd(void){
   int i;
   int removeFiles;
-  int dryRunFlag;
+  int dryRunFlag = find_option("dry-run","n",0)!=0;
   int softFlag;
   int hardFlag;
   Stmt loop;
 
-  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if(0!=find_option("reset",0,0)){
+    int const verboseFlag = find_option("verbose","v",0)!=0;
+    db_must_be_within_tree();
+    verify_all_options();
+    addremove_reset(0, dryRunFlag, verboseFlag);
+    return;
+  }
+
   softFlag = find_option("soft",0,0)!=0;
   hardFlag = find_option("hard",0,0)!=0;
 
@@ -471,11 +597,7 @@ void delete_cmd(void){
   }else if( hardFlag ){
     removeFiles = 1;
   }else{
-#if FOSSIL_ENABLE_LEGACY_MV_RM
     removeFiles = db_get_boolean("mv-rm-files",0);
-#else
-    removeFiles = FOSSIL_MV_RM_FILE;
-#endif
   }
   db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -534,7 +656,7 @@ void capture_case_sensitive_option(void){
 ** If case-sensitivity is enabled in the windows kernel, the Cygwin port
 ** of fossil.exe can detect that, and modifies the default to 'on'.
 **
-** The --case-sensitive <BOOL> command-line option overrides any
+** The "--case-sensitive BOOL" command-line option overrides any
 ** setting.
 */
 int filenames_are_case_sensitive(void){
@@ -590,18 +712,18 @@ const char *filename_collation(void){
 **
 ** Usage: %fossil addremove ?OPTIONS?
 **
-** Do all necessary "add" and "rm" commands to synchronize the repository
-** with the content of the working checkout:
+** Do all necessary "[[add]]" and "[[rm]]" commands to synchronize the
+** repository with the content of the working checkout:
 **
 **  *  All files in the checkout but not in the repository (that is,
 **     all files displayed using the "extras" command) are added as
-**     if by the "add" command.
+**     if by the "[[add]]" command.
 **
 **  *  All files in the repository but missing from the checkout (that is,
 **     all files that show as MISSING with the "status" command) are
-**     removed as if by the "rm" command.
+**     removed as if by the "[[rm]]" command.
 **
-** The command does not "commit".  You must run the "commit" separately
+** The command does not "[[commit]]".  You must run the "[[commit]]" separately
 ** as a separate step.
 **
 ** Files and directories whose names begin with "." are ignored unless
@@ -618,21 +740,29 @@ const char *filename_collation(void){
 ** This command can be used to track third party software.
 **
 ** Options:
-**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   --case-sensitive BOOL   Override the case-sensitive setting.
 **   --dotfiles              Include files beginning with a dot (".")
-**   --ignore <CSG>          Ignore unmanaged files matching patterns from
-**                           the comma separated list of glob patterns.
-**   --clean <CSG>           Also ignore files matching patterns from
-**                           the comma separated list of glob patterns.
+**   --ignore CSG            Ignore unmanaged files matching patterns from
+**                           the Comma Separated Glob (CSG) list
+**   --clean CSG             Also ignore files matching patterns from
+**                           the Comma Separated Glob (CSG) list
 **   -n|--dry-run            If given, display instead of run actions.
+**   --reset                 Reset the ADDED/DELETED state of a checkout,
+**                           such that all newly-added (but not yet committed)
+**                           files are no longer added and all newly-removed
+**                           (but not yet committed) files are no longer
+**                           removed. No flags other than --verbose and
+**                           --dry-run may be used with --reset.
+**   -v|--verbose            Outputs information about each --reset file.
+**                           Only usable with --reset.
 **
-** See also: add, rm
+** See also: [[add]], [[rm]]
 */
 void addremove_cmd(void){
   Blob path;
-  const char *zCleanFlag = find_option("clean",0,1);
-  const char *zIgnoreFlag = find_option("ignore",0,1);
-  unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
+  const char *zCleanFlag;
+  const char *zIgnoreFlag;
+  unsigned scanFlags;
   int dryRunFlag = find_option("dry-run","n",0)!=0;
   int n;
   Stmt q;
@@ -644,6 +774,19 @@ void addremove_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+
+  if(0!=find_option("reset",0,0)){
+    int const verboseFlag = find_option("verbose","v",0)!=0;
+    db_must_be_within_tree();
+    verify_all_options();
+    addremove_reset(0, dryRunFlag, verboseFlag);
+    addremove_reset(1, dryRunFlag, verboseFlag);
+    return;
+  }
+
+  zCleanFlag = find_option("clean",0,1);
+  zIgnoreFlag = find_option("ignore",0,1);
+  scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -712,7 +855,6 @@ void addremove_cmd(void){
 
   db_end_transaction(dryRunFlag);
 }
-
 
 /*
 ** Rename a single file.
@@ -834,7 +976,7 @@ static void process_files_to_move(
 **
 ** The 'mv' command does NOT normally rename or move the files on disk.
 ** This command merely records the fact that file names have changed so
-** that appropriate notations can be made at the next commit/check-in.
+** that appropriate notations can be made at the next [[commit]].
 ** However, the default behavior of this command may be overridden via
 ** command line options listed below and/or the 'mv-rm-files' setting.
 **
@@ -847,13 +989,13 @@ static void process_files_to_move(
 **          as well.  This does NOT apply to the 'rename' command.
 **
 ** Options:
-**   --soft                  Skip moving files within the checkout.
-**                           This supersedes the --hard option.
-**   --hard                  Move files within the checkout.
-**   --case-sensitive <BOOL> Override the case-sensitive setting.
-**   -n|--dry-run            If given, display instead of run actions.
+**   --soft                    Skip moving files within the checkout.
+**                             This supersedes the --hard option.
+**   --hard                    Move files within the checkout.
+**   --case-sensitive BOOL     Override the case-sensitive setting.
+**   -n|--dry-run              If given, display instead of run actions.
 **
-** See also: changes, status
+** See also: [[changes]], [[status]]
 */
 void mv_cmd(void){
   int i;
@@ -892,11 +1034,7 @@ void mv_cmd(void){
   }else if( hardFlag ){
     moveFiles = 1;
   }else{
-#if FOSSIL_ENABLE_LEGACY_MV_RM
     moveFiles = db_get_boolean("mv-rm-files",0);
-#else
-    moveFiles = FOSSIL_MV_RM_FILE;
-#endif
   }
   file_tree_name(zDest, &dest, 0, 1);
   db_multi_exec(
@@ -949,7 +1087,7 @@ void mv_cmd(void){
         const char *zTail;
         if( nPath==nOrig ){
           zTail = file_tail(zPath);
-        }else if( destType==1 ){
+        }else if( origType!=0 && destType==1 ){
           zTail = &zPath[nOrig-strlen(file_tail(zOrig))];
         }else{
           zTail = &zPath[nOrig+1];

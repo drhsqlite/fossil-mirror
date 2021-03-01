@@ -157,15 +157,20 @@ static void trans(FILE *in, FILE *out){
         fprintf(out,"%*s\"%s%s\"\n",indent, "", zOut, zNewline);
       }
     }else{
-      /* Otherwise (if the last non-whitespace was not '=') then generate
-      ** a cgi_printf() statement whose format is the text following the '@'.
-      ** Substrings of the form "%C(...)" (where C is any sequence of
-      ** characters other than \000 and '(') will put "%C" in the
-      ** format and add the "(...)" as an argument to the cgi_printf call.
+      /* Otherwise (if the last non-whitespace was not '=') then generate a
+      ** cgi_printf() statement whose format is the text following the '@'.
+      ** Substrings of the form "%C(...)" (where C is any sequence of characters
+      ** other than \000 and '(') will put "%C" in the format and add the
+      ** "(...)" as an argument to the cgi_printf call.  Each '*' character
+      ** present in C (max two) causes one more "(...)" sequence to be consumed.
+      ** For example, "%*.*d(4)(2)(1)" converts to "%*.*d" with arguments "4",
+      ** "2", and "1", which will be used as the field width, precision, and
+      ** value, respectively, producing a final formatted result of "  01".
       */
       const char *zNewline = "\\n";
       int indent;
       int nC;
+      int nParam;
       char c;
       i++;
       if( isspace(zLine[i]) ){ i++; }
@@ -179,21 +184,27 @@ static void trans(FILE *in, FILE *out){
         if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
         zOut[j++] = zLine[i];
         if( zLine[i]!='%' || zLine[i+1]=='%' || zLine[i+1]==0 ) continue;
-        for(nC=1; zLine[i+nC] && zLine[i+nC]!='('; nC++){}
+        nParam=1;
+        for(nC=1; zLine[i+nC] && zLine[i+nC]!='('; nC++){
+          if( zLine[i+nC]=='*' && nParam < 3 ) nParam++;
+        }
         if( zLine[i+nC]!='(' || !isalpha(zLine[i+nC-1]) ) continue;
         while( --nC ) zOut[j++] = zLine[++i];
-        zArg[nArg++] = ',';
-        k = 0; i++;
-        while( (c = zLine[i])!=0 ){
-          zArg[nArg++] = c;
-          if( c==')' ){
-            k--;
-            if( k==0 ) break;
-          }else if( c=='(' ){
-            k++;
+        do{
+          zArg[nArg++] = ',';
+          k = 0; i++;
+          if( zLine[i]!='(' ) break;
+          while( (c = zLine[i])!=0 ){
+            zArg[nArg++] = c;
+            if( c==')' ){
+              k--;
+              if( k==0 ) break;
+            }else if( c=='(' ){
+              k++;
+            }
+            i++;
           }
-          i++;
-        }
+        }while( --nParam );
       }
       zOut[j] = 0;
       if( !inPrint ){

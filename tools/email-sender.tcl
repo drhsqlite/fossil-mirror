@@ -23,7 +23,11 @@ while {1} {
   db transaction immediate {
     set n 0
     db eval {SELECT msg FROM email} {
-      set out [open |$PIPE w]
+      set pipe $PIPE
+      if {[regexp {\nFrom:[^\n]*<([^>]+)>} $msg all addr]} {
+        append pipe " -f $addr"
+      }
+      set out [open |$pipe w]
       puts -nonewline $out $msg
       flush $out
       close $out

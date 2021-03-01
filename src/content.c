@@ -328,7 +328,7 @@ int content_get(int rid, Blob *pBlob){
 ** Options:
 **    -R|--repository FILE       Extract artifacts from repository FILE
 **
-** See also: finfo
+** See also: [[finfo]]
 */
 void artifact_cmd(void){
   int rid;
@@ -557,16 +557,15 @@ int content_put_ex(
   db_prepare(&s1, "SELECT rid, size FROM blob WHERE uuid=%B", &hash);
   if( db_step(&s1)==SQLITE_ROW ){
     rid = db_column_int(&s1, 0);
-    if( db_column_int(&s1, 1)>=0 || pBlob==0 ){
-      /* Either the entry is not a phantom or it is a phantom but we
-      ** have no data with which to dephantomize it.  In either case,
-      ** there is nothing for us to do other than return the RID. */
+    if( db_column_int(&s1, 1)>=0 ){
+      /* The entry is not a phantom. There is nothing for us to do
+      ** other than return the RID. */
       db_finalize(&s1);
       db_end_transaction(0);
       return rid;
     }
   }else{
-    rid = 0;  /* No entry with the same UUID currently exists */
+    rid = 0;  /* No entry with the same hash currently exists */
     markAsUnclustered = 1;
   }
   db_finalize(&s1);
@@ -661,7 +660,7 @@ int content_put(Blob *pBlob){
 
 
 /*
-** Create a new phantom with the given UUID and return its artifact ID.
+** Create a new phantom with the given hash and return its artifact ID.
 */
 int content_new(const char *zUuid, int isPrivate){
   int rid;
@@ -801,13 +800,15 @@ void content_make_private(int rid){
 ** conversion occurs and this is a no-op unless force==1.  If force==1,
 ** then nSrc must also be 1.
 **
+** If rid refers to a phantom, no delta is created.
+**
 ** Never generate a delta that carries a private artifact into a public
 ** artifact.  Otherwise, when we go to send the public artifact on a
 ** sync operation, the other end of the sync will never be able to receive
 ** the source of the delta.  It is OK to delta private->private and
 ** public->private and public->public.  Just no private->public delta.
 **
-** If aSrc[bestSrc] is already a dleta that depends on rid, then it is
+** If aSrc[bestSrc] is already a delta that depends on rid, then it is
 ** converted to undeltaed text before the aSrc[bestSrc]->rid delta is
 ** created, in order to prevent a delta loop.
 **
@@ -827,10 +828,22 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
   int rc = 0;          /* Value to return */
   int i;               /* Loop variable for aSrc[] */
 
+  /*
+  ** Historically this routine gracefully ignored the rid 0, but the
+  ** addition of a call to content_is_available() in [188ffef2] caused
+  ** rid 0 to trigger an assert via bag_find(). Rather than track down
+  ** all such calls (e.g. the one via /technoteedit), we'll continue
+  ** to gracefully ignore rid 0 here.
+  */
+  if( 0==rid ) return 0;
+
   /* If rid is already a child (a delta) of some other artifact, return
   ** immediately if the force flags is false
   */
   if( !force && delta_source_rid(rid)>0 ) return 0;
+
+  /* If rid refers to a phantom, skip deltification. */
+  if( 0==content_is_available(rid) ) return 0;
 
   /* Get the complete content of the object to be delta-ed.  If the size
   ** is less than 50 bytes, then there really is no point in trying to do
@@ -1112,11 +1125,12 @@ void test_orphans(void){
 
 /* This is a helper routine for test-artifacts.
 **
-** Check to see that artifact zUuid exists in the repository.  If it does,
-** return 0.  If it does not, generate an error message and return 1.
+** Check to see that the artifact hash referenced by zUuid exists in the
+** repository.  If it does, return 0.  If it does not, generate an error
+** message and return 1.
 */
 static int check_exists(
-  const char *zUuid,     /* The artifact we are checking for */
+  const char *zUuid,     /* Hash of the artifact we are checking for */
   unsigned flags,        /* Flags */
   Manifest *p,           /* The control artifact that references zUuid */
   const char *zRole,     /* Role of zUuid in p */

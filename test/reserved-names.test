@@ -1,0 +1,121 @@
+#
+# Copyright (c) 2020 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Tests for reserved names.
+#
+
+test_setup
+
+###############################################################################
+
+set reserved_names_tests [list \
+    {0 {}} \
+    {0 a.fslckout} \
+    {1 .fslckout} \
+    {1 .FSlckOUT} \
+    {2 a/.fslckout} \
+    {0 .fslckout/b} \
+    {0 fslckout} \
+    {0 .fslckoutx} \
+    {1 _FOSSIL_} \
+    {0 _FOSSIL} \
+    {0 FOSSIL_} \
+    {0 FOSSIL_} \
+    {0 a_FOSSIL_} \
+    {0 _FOSSIL__} \
+    {0 __FOSSIL__} \
+    {0 __FOssIL__} \
+    {0 _FOSSIL_/a} \
+    {2 a/_FOSSIL_} \
+    {2 _FOSSIL_/c/.fslckout} \
+    {2 _FOSSIL_/c/.fslckout/_FOSSIL_} \
+    {0 _FOSSIL_/c/.fslckout/._FOSSIL_t} \
+    {0 _FOSSIL_/c/.fslckout/t._FOSSIL_} \
+    {0 a} \
+    {0 a/b} \
+    {0 a/b/c} \
+    {0 a/b/c/} \
+    {0 a/_FOSSIL/} \
+    {0 a/fslckout/} \
+    {0 a/_fslckout/} \
+    {0 _FOSSIL-wal} \
+    {0 _FOSSIL-shm} \
+    {0 _FOSSIL-journal} \
+    {0 _FOSSIL_-wal/a} \
+    {0 _FOSSIL_-shm/a} \
+    {0 _FOSSIL_-journal/a} \
+    {1 _FOSSIL_-wal} \
+    {1 _FOSSIL_-shm} \
+    {1 _FOSSIL_-journal} \
+    {2 a/_FOSSIL_-wal} \
+    {2 a/_FOSSIL_-shm} \
+    {2 a/_FOSSIL_-journal} \
+    {0 .fslckout-wal/a} \
+    {0 .fslckout-shm/a} \
+    {0 .fslckout-journal/a} \
+    {1 .fslckout-wal} \
+    {1 .fslckout-shm} \
+    {1 .fslckout-journal} \
+    {2 a/.fslckout-wal} \
+    {2 a/.fslckout-shm} \
+    {2 a/.fslckout-journal} \
+]
+
+###############################################################################
+
+set testNo 0
+
+foreach reserved_names_test $reserved_names_tests {
+  incr testNo
+
+  set reserved_result [lindex $reserved_names_test 0]
+  set reserved_name [lindex $reserved_names_test 1]
+
+  fossil test-is-reserved-name $reserved_name
+
+  test reserved-result-$testNo {
+    [lindex [normalize_result] 0] eq $reserved_result
+  }
+
+  test reserved-name-$testNo {
+    [lindex [normalize_result] 1] eq $reserved_name
+  }
+
+  fossil test-is-reserved-name [string toupper $reserved_name]
+
+  test reserved-result-upper-$testNo {
+    [lindex [normalize_result] 0] eq $reserved_result
+  }
+
+  test reserved-name-upper-$testNo {
+    [lindex [normalize_result] 1] eq [string toupper $reserved_name]
+  }
+
+  fossil test-is-reserved-name [string tolower $reserved_name]
+
+  test reserved-result-lower-$testNo {
+    [lindex [normalize_result] 0] eq $reserved_result
+  }
+
+  test reserved-name-lower-$testNo {
+    [lindex [normalize_result] 1] eq [string tolower $reserved_name]
+  }
+}
+
+###############################################################################
+
+test_cleanup

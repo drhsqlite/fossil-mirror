@@ -345,44 +345,50 @@ static int never_safe(const char *z){
 /*
 ** Processing flags
 */
-#define FMT_SQL   0x00001     /* Generates SQL text */
-#define FMT_HTML  0x00002     /* Generates HTML text */
-#define FMT_URL   0x00004     /* Generates URLs */
-#define FMT_SAFE  0x00008     /* Always safe for %s */
+#define FMT_SQL   0x00001     /* Generator for SQL text */
+#define FMT_HTML  0x00002     /* Generator for HTML text */
+#define FMT_URL   0x00004     /* Generator for URLs */
+#define FMT_SAFE  0x00008     /* Generator for human-readable text */
 
 /*
 ** A list of internal Fossil interfaces that take a printf-style format
 ** string.
 */
-struct {
+struct FmtFunc {
   const char *zFName;    /* Name of the function */
   int iFmtArg;           /* Index of format argument.  Leftmost is 1. */
   unsigned fmtFlags;     /* Processing flags */
 } aFmtFunc[] = {
-  { "admin_log",               1, 0 },
+  { "admin_log",               1, FMT_SAFE },
+  { "audit_append",            3, FMT_SAFE },
+  { "backofficeTrace",         1, FMT_SAFE },
   { "blob_append_sql",         2, FMT_SQL },
-  { "blob_appendf",            2, 0 },
+  { "blob_appendf",            2, FMT_SAFE },
   { "cgi_debug",               1, FMT_SAFE },
   { "cgi_panic",               1, FMT_SAFE },
   { "cgi_printf",              1, FMT_HTML },
+  { "cgi_printf_header",       1, FMT_HTML },
   { "cgi_redirectf",           1, FMT_URL },
   { "chref",                   2, FMT_URL },
+  { "CX",                      1, FMT_HTML },
   { "db_blob",                 2, FMT_SQL },
   { "db_debug",                1, FMT_SQL },
   { "db_double",               2, FMT_SQL },
-  { "db_err",                  1, 0 },
+  { "db_err",                  1, FMT_SAFE },
   { "db_exists",               1, FMT_SQL },
-  { "db_get_mprintf",          2, 0 },
+  { "db_get_mprintf",          2, FMT_SAFE },
   { "db_int",                  2, FMT_SQL },
   { "db_int64",                2, FMT_SQL },
   { "db_multi_exec",           1, FMT_SQL },
   { "db_optional_sql",         2, FMT_SQL },
   { "db_prepare",              2, FMT_SQL },
   { "db_prepare_ignore_error", 2, FMT_SQL },
-  { "db_set_mprintf",          3, 0 },
+  { "db_set_mprintf",          3, FMT_SAFE },
   { "db_static_prepare",       2, FMT_SQL },
   { "db_text",                 2, FMT_SQL },
-  { "db_unset_mprintf",        2, 0 },
+  { "db_unset_mprintf",        2, FMT_SAFE },
+  { "emailerError",            2, FMT_SAFE },
+  { "fileedit_ajax_error",     2, FMT_SAFE },
   { "form_begin",              2, FMT_URL },
   { "fossil_error",            2, FMT_SAFE },
   { "fossil_errorlog",         1, FMT_SAFE },
@@ -393,20 +399,31 @@ struct {
   { "fossil_trace",            1, FMT_SAFE },
   { "fossil_warning",          1, FMT_SAFE },
   { "href",                    1, FMT_URL },
-  { "json_new_string_f",       1, 0 },
-  { "json_set_err",            2, 0 },
-  { "json_warn",               2, 0 },
-  { "mprintf",                 1, 0 },
-  { "socket_set_errmsg",       1, 0 },
-  { "ssl_set_errmsg",          1, 0 },
+  { "json_new_string_f",       1, FMT_SAFE },
+  { "json_set_err",            2, FMT_SAFE },
+  { "json_warn",               2, FMT_SAFE },
+  { "mprintf",                 1, FMT_SAFE },
+  { "pop3_print",              2, FMT_SAFE },
+  { "smtp_send_line",          2, FMT_SAFE },
+  { "smtp_server_send",        2, FMT_SAFE },
+  { "socket_set_errmsg",       1, FMT_SAFE },
+  { "ssl_set_errmsg",          1, FMT_SAFE },
   { "style_header",            1, FMT_HTML },
-  { "style_js_onload",         1, FMT_HTML },
   { "style_set_current_page",  1, FMT_URL },
   { "style_submenu_element",   2, FMT_URL },
   { "style_submenu_sql",       3, FMT_SQL },
   { "webpage_error",           1, FMT_SAFE },
   { "xhref",                   2, FMT_URL },
 };
+
+/*
+** Comparison function for two FmtFunc entries
+*/
+static int fmtfunc_cmp(const void *pAA, const void *pBB){
+  const struct FmtFunc *pA = (const struct FmtFunc*)pAA;
+  const struct FmtFunc *pB = (const struct FmtFunc*)pBB;
+  return strcmp(pA->zFName, pB->zFName);
+}
 
 /*
 ** Determine if the indentifier zIdent of length nIndent is a Fossil
@@ -627,6 +644,8 @@ static int scan_file(const char *zName, const char *zContent){
 int main(int argc, char **argv){
   int i;
   int nErr = 0;
+  qsort(aFmtFunc, sizeof(aFmtFunc)/sizeof(aFmtFunc[0]),
+        sizeof(aFmtFunc[0]), fmtfunc_cmp);
   for(i=1; i<argc; i++){
     char *zFile;
     if( strcmp(argv[i],"-v")==0 ){

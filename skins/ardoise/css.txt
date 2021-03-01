@@ -11,6 +11,7 @@ table.login_out td,
 tr.timelineCurrent,
 tr.timelineCurrent td.timelineTableCell,
 tr.timelineSelected {
+  background-color: initial;
   border: 0
 }
 ol,
@@ -59,8 +60,6 @@ span.modpending {
 }
 html {
   font-family: sans-serif;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%
 }
 audio,
 canvas,
@@ -164,7 +163,6 @@ button,
 html input[type=button],
 input[type=reset],
 input[type=submit] {
-  -webkit-appearance: button;
   cursor: pointer
 }
 button[disabled],
@@ -189,13 +187,7 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   height: auto
 }
-input[type=search] {
-  -webkit-appearance: textfield
-}
 input[type=search]::-webkit-search-cancel-button,
-input[type=search]::-webkit-search-decoration {
-  -webkit-appearance: none
-}
 fieldset {
   border: 1px solid silver;
   margin: 0 2px
@@ -489,9 +481,6 @@ input[type=text],
 input[type=url] {
   box-shadow: none;
   box-sizing: border-box;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none
 }
 input[type=email],
 input[type=number],
@@ -511,6 +500,9 @@ textarea {
   box-shadow: none;
   box-sizing: border-box
 }
+textarea, select {
+  height: initial;
+}
 input[type=email]:hover,
 input[type=number]:hover,
 input[type=password]:hover,
@@ -525,9 +517,6 @@ textarea:hover {
 }
 textarea {
   overflow: auto;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
   min-height: 65px;
   padding-top: 6px;
   padding-bottom: 6px
@@ -585,6 +574,9 @@ code {
   background: #000;
   border: 2px solid #bbb;
   border-radius: 5px
+}
+table.numbered-lines td.file-content > pre {
+  margin-top: -2px/*offset CODE tag border*/;
 }
 pre > code {
   padding: 1rem 1.5rem;
@@ -667,9 +659,11 @@ ul {
   padding-left: 8px;
   padding-right: 8px
 }
+#hbdrop a,
 .content a {
   color: #8cf
 }
+#hbdrop a:hover,
 .content a:hover,
 .submenu a:hover,
 .submenu label:hover {
@@ -703,16 +697,15 @@ ul {
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
   clear: both
+  z-index: 21;
 }
 .mainmenu ul {
   list-style: none;
-  display: block;
   border-top: 1px solid transparent;
   padding: 0
 }
 .mainmenu li {
   outline: 0;
-  display: block;
   float: left;
   margin: 0
 }
@@ -723,7 +716,6 @@ ul {
 }
 .mainmenu li a {
   color: #66a8c7;
-  display: block;
   padding: 10px 15px
 }
 .mainmenu li.active a {
@@ -735,6 +727,14 @@ ul {
 }
 .mainmenu li:hover a {
   color: #000
+}
+div#hbdrop {
+  background-color: #161819;
+  border-radius: 15px;
+  display: none;
+  width: 100%;
+  position: absolute;
+  z-index: 20;
 }
 .submenu {
   padding: 4px 0;
@@ -963,7 +963,9 @@ span.timelineSelected {
   text-align: left;
   background: #442800
 }
-.timelineSelected {}
+.timelineSelected {
+  box-shadow: none;
+}
 .timelineSecondary {}
 .timelineSecondary > .timelineColumnarCell,
 .timelineSecondary > .timelineCompactCell,
@@ -1393,4 +1395,21 @@ table.captcha {
   content: "";
   display: table;
   clear: both
+}
+div.forumSel {
+  background-color: #3a3a3a;
+}
+.debug {
+  background-color: #330;
+  border: 2px solid #aa0;
+}
+
+.capsumOff {
+  background-color: #222;
+}
+.capsumRead {
+  background-color: #262;
+}
+.capsumWrite {
+  background-color: #662;
 }

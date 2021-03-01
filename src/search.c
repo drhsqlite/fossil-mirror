@@ -567,7 +567,7 @@ void search_sql_setup(sqlite3 *db){
 **
 ** COMMAND: search*
 **
-** Usage: %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
+** Usage: %fossil search [-a|-all] [-n|-limit #] [-W|-width #] pattern...
 **
 ** Search for timeline entries matching all words provided on the
 ** command line. Whole-word matches scope more highly than partial
@@ -645,7 +645,7 @@ void search_cmd(void){
   blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
-  print_timeline(&q, nLimit, width, 0);
+  print_timeline(&q, nLimit, width, 0, 0);
   db_finalize(&q);
 }
 
@@ -923,9 +923,14 @@ static void search_indexed(
   unsigned int srchFlags      /* What to search over */
 ){
   Blob sql;
+  char *zPat = mprintf("%s",zPattern);
+  int i;
   if( srchFlags==0 ) return;
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
+  for(i=0; zPat[i]; i++){
+    if( zPat[i]=='-' || zPat[i]=='"' ) zPat[i] = ' ';
+  }
   blob_init(&sql, 0, 0);
   blob_appendf(&sql,
     "INSERT INTO x(label,url,score,id,date,snip) "
@@ -938,8 +943,9 @@ static void search_indexed(
     "   FROM ftsidx CROSS JOIN ftsdocs"
     "  WHERE ftsidx MATCH %Q"
     "    AND ftsdocs.rowid=ftsidx.docid",
-    zPattern
+    zPat
   );
+  fossil_free(zPat);
   if( srchFlags!=SRCH_ALL ){
     const char *zSep = " AND (";
     static const struct { unsigned m; char c; } aMask[] = {
@@ -1033,7 +1039,11 @@ int search_run_and_output(
 ){
   Stmt q;
   int nRow = 0;
+  int nLimit = db_get_int("search-limit", 100);
 
+  if( P("searchlimit")!=0 ){
+    nLimit = atoi(P("searchlimit"));
+  }
   srchFlags = search_restrict(srchFlags);
   if( srchFlags==0 ) return 0;
   search_sql_setup(g.db);
@@ -1047,13 +1057,14 @@ int search_run_and_output(
     search_update_index(srchFlags);        /* Update the index, if necessary */
     search_indexed(zPattern, srchFlags);   /* Indexed search */
   }
-  db_prepare(&q, "SELECT url, snip, label, score, id"
+  db_prepare(&q, "SELECT url, snip, label, score, id, substr(date,1,10)"
                  "  FROM x"
                  " ORDER BY score DESC, date DESC;");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUrl = db_column_text(&q, 0);
     const char *zSnippet = db_column_text(&q, 1);
     const char *zLabel = db_column_text(&q, 2);
+    const char *zDate = db_column_text(&q, 5);
     if( nRow==0 ){
       @ <ol>
     }
@@ -1062,7 +1073,12 @@ int search_run_and_output(
     if( fDebug ){
       @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4))
     }
-    @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
+    @ <br /><span class='snippet'>%z(cleanSnippet(zSnippet)) \
+    if( zDate && zDate[0] && strstr(zLabel,zDate)==0 ){
+      @ <small>(%h(zDate))</small>
+    }
+    @ </span></li>
+    if( nLimit && nRow>=nLimit ) break;
   }
   db_finalize(&q);
   if( nRow ){
@@ -1198,7 +1214,7 @@ void search_page(void){
   login_check_credentials();
   style_header("Search");
   search_screen(SRCH_ALL, 1);
-  style_footer();
+  style_finish_page();
 }
 
 
@@ -1965,9 +1981,10 @@ void search_data_page(void){
   int cnt1 = 0, cnt2 = 0, cnt3 = 0;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
+  style_set_current_feature("test");
   if( !search_index_exists() ){
     @ <p>Indexed search is disabled
-    style_footer();
+    style_finish_page();
     return;
   }
   search_sql_setup(g.db);
@@ -2011,7 +2028,7 @@ void search_data_page(void){
       style_submenu_element(zName,"%R/test-ftsdocs?y=%c&ixed=0",zDocId[0]);
     }
     db_finalize(&q);
-    style_footer();
+    style_finish_page();
     return;
   }
   if( zType!=0 && zType[0]!=0 && zType[1]==0 &&
@@ -2041,7 +2058,7 @@ void search_data_page(void){
     }
     @ </ul>
     db_finalize(&q);
-    style_footer();
+    style_finish_page();
     return;
   }
   style_header("Summary of ftsdocs");
@@ -2085,5 +2102,5 @@ void search_data_page(void){
   @ <th align="right">%d(cnt3)
   @ </tfooter>
   @ </table>
-  style_footer();
+  style_finish_page();
 }

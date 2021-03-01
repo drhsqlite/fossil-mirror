@@ -174,7 +174,7 @@ static void process_sync_args(
     usage("URL");
   }
   user_select();
-  if( g.argc==2 ){
+  if( g.url.isAlias ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
       fossil_print("Sync with %s\n", g.url.canonical);
     }else if( (*pSyncFlags) & SYNC_PUSH ){
@@ -199,7 +199,7 @@ static void process_sync_args(
 ** "configuration pull" command to pull website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
-** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
 ** Options:
@@ -219,7 +219,7 @@ static void process_sync_args(
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, config pull, push, remote-url, sync
+** See also: [[clone]], [[config]], [[push]], [[remote]], [[sync]]
 */
 void pull_cmd(void){
   unsigned configFlags = 0;
@@ -250,7 +250,7 @@ void pull_cmd(void){
 ** push" command to push website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
-** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
 ** Options:
@@ -268,7 +268,7 @@ void pull_cmd(void){
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, config push, pull, remote-url, sync
+** See also: [[clone]], [[config]], [[pull]], [[remote]], [[sync]]
 */
 void push_cmd(void){
   unsigned configFlags = 0;
@@ -295,7 +295,7 @@ void push_cmd(void){
 ** edits to wiki pages, tickets, and technical notes.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
-** pull, remote-url, or sync command is used.  See "fossil help clone" for
+** pull, remote, or sync command is used.  See "fossil help clone" for
 ** details on the URL formats.
 **
 ** Options:
@@ -314,7 +314,7 @@ void push_cmd(void){
 **   --verily                   Exchange extra information with the remote
 **                              to ensure no content is overlooked
 **
-** See also: clone, pull, push, remote-url
+** See also: [[clone]], [[pull]], [[push]], [[remote]]
 */
 void sync_cmd(void){
   unsigned configFlags = 0;
@@ -347,46 +347,209 @@ void sync_unversioned(unsigned syncFlags){
 }
 
 /*
-** COMMAND: remote-url
+** COMMAND: remote
+** COMMAND: remote-url*
 **
-** Usage: %fossil remote-url ?URL|off?
+** Usage: %fossil remote ?SUBCOMMAND ...?
 **
-** Query and/or change the default server URL used by the "pull", "push",
-** and "sync" commands.
+** View or modify the set of remote repository sync URLs used as the
+** target in any command that uses the sync protocol: "sync", "push",
+** and "pull", plus all other commands that trigger Fossil's autosync
+** feature.  (Collectively, "sync operations".)
 **
-** The remote-url is set automatically by a "clone" command or by any
-** "sync", "push", or "pull" command that specifies an explicit URL.
-** The default remote-url is used by auto-syncing and by "sync", "push",
-** "pull" that omit the server URL.
+** See "fossil help clone" for the format of these sync URLs.
 **
-** See "fossil help clone" for further information about URL formats
+** Fossil implicitly sets the default remote sync URL from the initial
+** "clone" or "open URL" command for a repository, then may subsequently
+** change it when given a URL in commands that take a sync URL, except
+** when given the --once flag.  Fossil uses this new sync URL as its
+** default when not explicitly given one in subsequent sync operations.
 **
-** See also: clone, push, pull, sync
+** Named remotes added by "remote add" allow use of those names in place
+** of a sync URL in any command that takes one.
+**
+** The full name of this command is "remote-url", but we anticipate no
+** future collision from use of its shortened form "remote".
+**
+** > fossil remote
+**
+**     With no arguments, this command shows the current default remote
+**     URL.  If there is no default, it shows "off".
+**
+** > fossil remote add NAME URL
+**
+**     Add a new named URL to the set of remote sync URLs for use in
+**     place of a sync URL in commands that take one.
+**
+** > fossil remote delete NAME
+**
+**     Delete a sync URL previously added by the "add" subcommand.
+**
+** > fossil remote list|ls
+**
+**     Show all remote repository sync URLs.
+**
+** > fossil remote off
+**
+**     Forget the default sync URL, disabling autosync.  Combined with
+**     named sync URLs, it allows canceling this "airplane mode" with
+**     "fossil remote NAME" to select a previously-set named URL.
+**
+**     To disable use of the default remote without forgetting its URL,
+**     say "fossil set autosync 0" instead.
+**
+** > fossil remote REF
+**
+**     Make REF the new default URL, replacing the prior default.
+**     REF may be a URL or a NAME from a prior "add".
 */
 void remote_url_cmd(void){
-  char *zUrl;
+  char *zUrl, *zArg;
+  int nArg;
   db_find_and_open_repository(0, 0);
 
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc!=2 && g.argc!=3 ){
-    usage("?URL|off?");
+  if( g.argc==2 ){
+    /* "fossil remote" with no arguments:  Show the last sync URL. */
+    zUrl = db_get("last-sync-url", 0);
+    if( zUrl==0 ){
+      fossil_print("off\n");
+    }else{
+      url_parse(zUrl, 0);
+      fossil_print("%s\n", g.url.canonical);
+    }
+    return;
   }
-  if( g.argc==3 ){
+  zArg = g.argv[2];
+  nArg = (int)strlen(zArg);
+  if( strcmp(zArg,"off")==0 ){
+    /* fossil remote off
+    ** Forget the last-sync-URL and its password
+    */
+    if( g.argc!=3 ) usage("off");
+remote_delete_default:
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+      "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+    );
+    db_protect_pop();
+    return;
+  }
+  if( strncmp(zArg, "list", nArg)==0 || strcmp(zArg,"ls")==0 ){
+    Stmt q;
+    if( g.argc!=3 ) usage("list");
+    db_prepare(&q,
+      "SELECT 'default', value FROM config WHERE name='last-sync-url'"
+      " UNION ALL "
+      "SELECT substr(name,10), value FROM config"
+      " WHERE name GLOB 'sync-url:*'"
+      " ORDER BY 1"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%-18s %s\n", db_column_text(&q,0), db_column_text(&q,1));
+    }
+    db_finalize(&q);
+    return;
+  }
+  if( strcmp(zArg, "add")==0 ){
+    char *zName;
+    char *zUrl;
+    UrlData x;
+    if( g.argc!=5 ) usage("add NAME URL");
+    memset(&x, 0, sizeof(x));
+    zName = g.argv[3];
+    zUrl = g.argv[4];
+    if( strcmp(zName,"default")==0 ) goto remote_add_default;
+    url_parse_local(zUrl, URL_PROMPT_PW, &x);
+    db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+       "REPLACE INTO config(name, value, mtime)"
+       " VALUES('sync-url:%q',%Q,now())",
+       zName, x.canonical
+    );
+    db_multi_exec(
+       "REPLACE INTO config(name, value, mtime)"
+       " VALUES('sync-pw:%q',obscure(%Q),now())",
+       zName, x.passwd
+    );
+    db_protect_pop();
+    db_commit_transaction();
+    return;
+  }
+  if( strncmp(zArg, "delete", nArg)==0 ){
+    char *zName;
+    if( g.argc!=4 ) usage("delete NAME");
+    zName = g.argv[3];
+    if( strcmp(zName,"default")==0 ) goto remote_delete_default;
+    db_begin_write();
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec("DELETE FROM config WHERE name glob 'sync-url:%q'", zName);
+    db_multi_exec("DELETE FROM config WHERE name glob 'sync-pw:%q'", zName);
+    db_protect_pop();
+    db_commit_transaction();
+    return;
+  }
+  if( sqlite3_strlike("http://%",zArg,0)==0
+   || sqlite3_strlike("https://%",zArg,0)==0
+   || sqlite3_strlike("ssh:%",zArg,0)==0
+   || sqlite3_strlike("file:%",zArg,0)==0
+   || db_exists("SELECT 1 FROM config WHERE name='sync-url:%q'",zArg)
+  ){
+remote_add_default:
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
-    db_unset("http-auth", 0);
-    if( is_false(g.argv[2]) ) return;
     url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
-  }
-  url_remember();
-  zUrl = db_get("last-sync-url", 0);
-  if( zUrl==0 ){
-    fossil_print("off\n");
+    url_remember();
     return;
-  }else{
-    url_parse(zUrl, 0);
-    fossil_print("%s\n", g.url.canonical);
   }
+  fossil_fatal("unknown command \"%s\" - should be a URL or one of: "
+               "add delete list off", zArg);
+}
+
+/*
+** COMMAND: backup*
+**
+** Usage: %fossil backup ?OPTIONS? FILE|DIRECTORY
+**
+** Make a backup of the repository into the named file or into the named
+** directory.  This backup is guaranteed to be consistent even if there are
+** concurrent changes taking place on the repository.  In other words, it
+** is safe to run "fossil backup" on a repository that is in active use.
+**
+** Only the main repository database is backed up by this command.  The
+** open checkout file (if any) is not saved.  Nor is the global configuration
+** database.
+**
+** Options:
+**
+**    --overwrite              OK to overwrite an existing file
+**    -R NAME                  Filename of the repository to backup
+*/
+void backup_cmd(void){
+  char *zDest;
+  int bOverwrite = 0;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  bOverwrite = find_option("overwrite",0,0)!=0;
+  verify_all_options();
+  if( g.argc!=3 ){
+    usage("FILE|DIRECTORY");
+  }
+  zDest = g.argv[2];
+  if( file_isdir(zDest, ExtFILE)==1 ){
+    zDest = mprintf("%s/%s", zDest, file_tail(g.zRepositoryName));
+  }
+  if( file_isfile(zDest, ExtFILE) ){
+    if( bOverwrite ){
+      if( file_delete(zDest) ){
+        fossil_fatal("unable to delete old copy of \"%s\"", zDest);
+      }
+    }else{
+      fossil_fatal("backup \"%s\" already exists", zDest);
+    }
+  }
+  db_unprotect(PROTECT_ALL);
+  db_multi_exec("VACUUM repository INTO %Q", zDest);
 }

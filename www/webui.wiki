@@ -9,6 +9,7 @@ development project:
   *  [./embeddeddoc.wiki | On-line documentation]
   *  [./event.wiki | Technical notes]
   *  [./forum.wiki | Forum]
+  *  [./chat.md | Chatroom]
   *  Timelines
   *  Full text search over all of the above
   *  Status information
@@ -46,7 +47,7 @@ co-workers after you reconnect.  When you clone a Fossil repository, you
 don't just get the project source code, you get the entire project
 management website.
 
-<h2>Drop-Dead Simple Startup</h2>
+<h2>Very Simple Startup</h2>
 
 To start using the built-in Fossil web interface on an existing Fossil
 repository, simply type this:
@@ -100,9 +101,9 @@ existing tickets.  Any changes you make will automatically merge with
 changes from your co-workers the next time your repository is synchronized.
 
 You can view and edit <b>wiki</b> by following the "Wiki" link on the
-menu bar.  Fossil uses simple and easy-to-remember
-[/wiki_rules | wiki formatting rules] so you won't have to spend a lot
-of time learning a new markup language.  And, as with tickets, all of
+menu bar.  Fossil has its own easy-to-remember
+[/wiki_rules | markup rules], or if you prefer,  it also
+supports [/md_rules | Markdown]. And, as with tickets, all of
 your edits will automatically merge with those of your co-workers when
 your repository synchronizes.
 
@@ -132,7 +133,16 @@ for the header and footer of each page can be edited, as can the CSS
 for the entire page.  You can even change around the main menu.
 Timeline display preferences can be edited.  The page that is brought
 up as the "Home" page can be changed.  It is often useful to set the
-"Home" page to be a wiki page or an embedded document.
+"Home" page to be a wiki page or an embedded document. The built-in
+pages <b>/home</b> and <b>/index</b> can be used as the "Home" page.
+They have identical effect, which is to instruct Fossil to find and
+display a wiki page with the same name as the project, or if that
+does not exist, <b>/README.md</b> or <b>/index.wiki</b>.
+
+An embedded document link such as <b>doc/trunk/README.md</b> can be
+used for the "Home" page. If you specify one of the built-in keywords
+<b>/home</b> or <b>/index</b>, the page will not be treated as an 
+embedded document.
 
 <h2>Installing On A Network Server</h2>
 

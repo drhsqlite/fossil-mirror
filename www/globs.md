@@ -62,7 +62,7 @@ between file name and directory name is “below” Fossil in this sense.
 
 [pg]: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_13
 
-The bracket expresssions above require some additional explanation:
+The bracket expressions above require some additional explanation:
 
  *  A range of characters may be specified with `-`, so `[a-f]` matches
     exactly the same characters as `[abcdef]`. Ranges reflect Unicode
@@ -486,7 +486,7 @@ directory downward and nothing else," which is of course equivalent to
 To preview the effects of command line glob pattern expansion for
 various glob patterns (unquoted, quoted, comma-terminated), for any
 combination of command shell, OS, C run time, and Fossil version,
-preceed the command you want to test with [`test-echo`][] like so:
+precede the command you want to test with [`test-echo`][] like so:
 
     $ fossil test-echo setting crlf-glob "*"
     C:\> echo * | fossil test-echo setting crlf-glob --args -
@@ -580,8 +580,8 @@ The implementation of the Fossil-specific glob pattern handling is here:
 [`src/glob.c`][] | pattern list loading, parsing, and generic matching code
 [`src/file.c`][] | application of glob patterns to file names
 
-[`src/glob.c`]: https://www.fossil-scm.org/index.html/file/src/glob.c
-[`src/file.c`]: https://www.fossil-scm.org/index.html/file/src/file.c
+[`src/glob.c`]: https://fossil-scm.org/home/file/src/glob.c
+[`src/file.c`]: https://fossil-scm.org/home/file/src/file.c
 
 See the [Adding Features to Fossil][aff] document for broader details
 about finding and working with such code.

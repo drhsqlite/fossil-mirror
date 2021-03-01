@@ -28,7 +28,7 @@
 **   (1)  Change CC to be "clang-6.0" or some other compiler that
 **        supports libFuzzer
 **
-**   (2)  Chagne APPNAME to "fossil-fuzz"
+**   (2)  Change APPNAME to "fossil-fuzz"
 **
 **   (3)  Add "-fsanitize=fuzzer" and "-DFOSSIL_FUZZ" to TCCFLAGS.  Perhaps
 **        make the first change "-fsanitize=fuzzer,undefined,address" for

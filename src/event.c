@@ -65,7 +65,7 @@ void hyperlink_to_event_tagid(int tagid){
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
-  char *zUuid;             /* UUID corresponding to rid */
+  char *zUuid;             /* artifact hash corresponding to rid */
   const char *zId;         /* Event identifier */
   const char *zVerbose;    /* Value of verbose option */
   char *zETime;            /* Time of the tech-note */
@@ -112,10 +112,11 @@ void event_page(void){
     }
   }
   db_finalize(&q1);
+  style_set_current_feature("event");
   if( rid==0 || (specRid!=0 && specRid!=rid) ){
     style_header("No Such Tech-Note");
     @ Cannot locate a technical note called <b>%h(zId)</b>.
-    style_footer();
+    style_finish_page();
     return;
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -230,7 +231,8 @@ void event_page(void){
                        " WHERE tagname GLOB 'event-%q*'",
                     zId);
   attachment_list(zFullId, "<hr /><h2>Attachments:</h2><ul>");
-  style_footer();
+  document_emit_js();
+  style_finish_page();
   manifest_destroy(pTNote);
 }
 
@@ -271,13 +273,13 @@ int event_commit_common(
   zETime[10] = 'T';
   blob_appendf(&event, "E %s %s\n", zETime, zId);
   zETime[10] = ' ';
+  if( zMimetype && zMimetype[0] ){
+    blob_appendf(&event, "N %s\n", zMimetype);
+  }
   if( rid ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_appendf(&event, "P %s\n", zUuid);
     free(zUuid);
-  }
-  if( zMimetype && zMimetype[0] ){
-    blob_appendf(&event, "N %s\n", zMimetype);
   }
   if( zClr && zClr[0] ){
     blob_appendf(&event, "T +bgcolor * %F\n", zClr);
@@ -416,6 +418,7 @@ void eventedit_page(void){
     login_needed(g.anon.Write && (rid ? g.anon.WrWiki : g.anon.NewWiki));
     return;
   }
+  style_set_current_feature("event");
 
   /* Figure out the color */
   if( rid ){
@@ -474,7 +477,7 @@ void eventedit_page(void){
       style_header("Error");
       @ Internal error:  Fossil tried to make an invalid artifact for
       @ the edited technote.
-      style_footer();
+      style_finish_page();
       return;
     }
     cgi_redirectf("%R/technote?name=%T", zId);
@@ -510,6 +513,7 @@ void eventedit_page(void){
     @ <blockquote>
     blob_init(&event, 0, 0);
     blob_append(&event, zBody, -1);
+    safe_html_context(DOCSRC_WIKI);
     wiki_render_by_mimetype(&event, zMimetype);
     @ </blockquote><hr />
     blob_reset(&event);
@@ -567,7 +571,7 @@ void eventedit_page(void){
   }
   @ </td></tr></table>
   @ </div></form>
-  style_footer();
+  style_finish_page();
 }
 
 /*

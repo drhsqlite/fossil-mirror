@@ -27,6 +27,9 @@ might be biased in favor of Fossil, if only because we spend most of our
 time using Fossil, not Git.  Ask around for second opinions from
 people who have used <em>both</em> Fossil and Git.
 
+If you want a more practical, less philosophical guide to moving from
+Git to Fossil, see our [./gitusers.md | Git to Fossil Translation Guide].
+
 
 <h2>2.0 Differences Between Fossil And Git</h2>
 
@@ -37,23 +40,23 @@ with further description in the text that follows.
 <tr><th width="49%">GIT</th><th width="49%">FOSSIL</th><th width="2%">more</th></tr>
 <tr>
     <td>File versioning only</td>
-    <td>VCS, tickets, wiki, docs, notes, forum, UI,
+    <td>VCS, tickets, wiki, docs, notes, forum, chat, UI,
     [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td>
     <td><a href="#features">2.1&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Sprawling, incoherent, and inefficient</td>
-    <td>Self-contained and efficient</td>
-    <td><a href="#efficient">2.2&nbsp;&darr;</a></td>
+    <td>A federation of many small programs</td>
+    <td>One self-contained, stand-alone executable</td>
+    <td><a href="#selfcontained">2.2&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Ad-hoc pile-of-files key/value database</td>
-    <td>[https://sqlite.org/famous.html|The most popular database in the world]</td>
+    <td>Custom key/value data store</td>
+    <td>[https://sqlite.org/mostdeployed.html|The most used SQL database in the world]</td>
     <td><a href="#durable">2.3&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>Portable to POSIX systems only</td>
-    <td>Runs just about anywhere</td>
+    <td>Runs natively on POSIX systems</td>
+    <td>Runs natively on both POSIX and Windows</td>
     <td><a href="#portable">2.4&nbsp;&darr;</a></td>
 </tr>
 <tr>
@@ -92,8 +95,8 @@ with further description in the text that follows.
     <td><a href="#testing">2.8&nbsp;&darr;</a></td>
 </tr>
 <tr>
-    <td>SHA-2</td>
-    <td>SHA-3</td>
+    <td>SHA-1 or SHA-2</td>
+    <td>SHA-1 and/or SHA-3, in the same repository</td>
     <td><a href="#hash">2.9&nbsp;&darr;</a></td>
 </tr>
 </table></blockquote>
@@ -104,7 +107,8 @@ Git provides file versioning services only, whereas Fossil adds
 an integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
 [./embeddeddoc.wiki | embedded documentation], 
-[./event.wiki | technical notes], and a [./forum.wiki | web forum],
+[./event.wiki | technical notes], a [./forum.wiki | web forum],
+and a [./chat.md | chat service],
 all within a single nicely-designed [./customskin.md|skinnable] web
 [/help?cmd=ui|UI],
 protected by [./caps/ | a fine-grained role-based
@@ -116,12 +120,12 @@ the design.  One way to describe Fossil is that it is
 
 Fossil can do operations over all local repo clones and check-out
 directories with a single command. For example, Fossil lets you say
-<tt>fossil all sync</tt> on a laptop prior to taking it off the network
+"<tt>fossil all sync</tt>" on a laptop prior to taking it off the network
 hosting those repos. You can sync up to all of the private repos on your
 company network plus those public Internet-hosted repos you use. Whether
 going out for a working lunch or on a transoceanic airplane trip, one
 command gets you in sync. This works with several other Fossil
-sub-commands, such as <tt>fossil all changes</tt> to get a list of files
+sub-commands, such as "<tt>fossil all changes</tt>" to get a list of files
 that you forgot to commit prior to the end of your working day, across
 all repos.
 
@@ -153,7 +157,7 @@ and all of its historical versions, plus the same for all of the other
 public content on this site.
 
 
-<h3 id="efficient" name="effective">2.2 Efficient</h3>
+<h3 id="selfcontained" name="selfcontained">2.2 Self Contained</h3>
 
 Git is actually a collection of many small tools, each doing one small
 part of the job, which can be recombined (by experts) to perform
@@ -164,24 +168,26 @@ best delegated to people skilled in their creation. Normal Git users are
 not expected to build Git from source and install it themselves.
 
 Fossil is a single self-contained stand-alone executable which by default
-depends only on common platform libraries. If your platform allows static
-linking &mdash; not all do these days! &mdash; you can even get it down to
-a single executable with no external dependencies at all. Most notably,
-we deliver the official Windows builds of Fossil this way: the Zip file
-contains only <tt>fossil.exe</tt>, a self-contained Fossil executable;
-it is not a <tt>setup.exe</tt> style installer, it is the whole enchilada.
+depends only on common platform libraries.  You can statically link
+to get an executable with no external dependencies at all &mdash; a useful
+feature for running inside a restrictive 
+[https://en.wikipedia.org/wiki/Chroot|chroot jail].
 
-A typical Fossil executable is about 5&nbsp;MiB, not counting system
-libraries it shares in common with Git such as OpenSSL and zlib, which
-we can factor out of the discussion.
+The precompiled Fossil binaries are delivered as just a single
+executable.  The precompiled Windows deliveries are just a ZIP archive
+containing only "<tt>fossil.exe</tt>".  There is no "<tt>setup.exe</tt>"
+to run.  Linux and Mac precompiled binaries are a tarball containing
+just the "<tt>fossil</tt>" executable.  To install, just put the
+executable on your PATH.  To uninstall, just delete the executable.
+To upgrade (or downgrade) simply replace the executable.
 
-These properties allow Fossil to easily run inside a minimally configured
-[https://en.wikipedia.org/wiki/Chroot|chroot jail], from a Windows memory
-stick, off a Raspberry Pi with a tiny SD card, etc. To install Fossil,
-one merely puts the executable somewhere in the <tt>$PATH</tt>. Fossil is
-[https://fossil-scm.org/fossil/doc/trunk/www/build.wiki|straightforward
-to build and install], so that many Fossil users do in fact build and
-install "trunk" versions to get new features between formal releases.
+A typical Fossil executable is between 5 and 7 megabytes uncompressed
+(as of 2020-12-12),
+assuming that the executable is statically linked against OpenSSL.  
+
+Fossil is easy to build from sources. Just run
+"<tt>./configure && make</tt>" on POSIX systems and
+"<tt>nmake /f Makefile.msc</tt>" on Windows.
 
 Contrast a basic installation of Git, which takes up about
 15&nbsp;MiB on Debian 10 across 230 files, not counting the contents of
@@ -215,84 +221,88 @@ Fossil setup. GitLab's basic requirements are easy to accept when you're dedicat
 a local rack server or blade to it, since its minimum requirements are
 more or less a description of the smallest
 thing you could call a "server" these days, but when you go to host that
-in the cloud, you can expect to pay about 8× as much to comfortably host
+in the cloud, you can expect to pay about 8 times as much to comfortably host
 GitLab as for Fossil.³ This difference is largely due to basic
 technology choices: Ruby and PostgreSQL vs C and SQLite.
 
-The Fossil project itself is [./selfhost.wiki|hosted on a very small
-VPS], and we've received many reports on the Fossil forum about people
-successfully hosting Fossil service on bare-bones $5/month VPS hosts,
-spare Raspberry Pi boards, and other small hosts.
+The Fossil project itself is [./selfhost.wiki|hosted on a small and
+inexpensive VPS].  A bare-bones $5/month VPS or a
+spare Raspberry Pi is sufficient to run a full-up project
+site, complete with tickets, wiki, chat, and forum, in addition to
+being a code repository.
 
-
-
-<h3 id="durable" name="database">2.3 Durable</h3>
+<h3 id="durable" name="database">2.3 Query Language</h3>
 
 The baseline data structures for Fossil and Git are the same, modulo
 formatting details. Both systems manage a
 [https://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic
 graph] (DAG) of [https://en.wikipedia.org/wiki/Merkle_tree | Merkle
-tree] / [./blockchain.md | block chain] structured check-in objects.
+tree] structured check-in objects.
 Check-ins are identified by a cryptographic hash of the check-in
-comment, and each check-in refers to its parent via <i>its</i> hash.
+contents, and each check-in refers to its parent via the parent's hash.
 
 The difference is that Git stores its objects as individual files in the
-<tt>.git</tt> folder or compressed into bespoke
+<tt>.git</tt> folder or compressed into bespoke key/value
 [https://git-scm.com/book/en/v2/Git-Internals-Packfiles|pack-files],
 whereas Fossil stores its objects in a [https://www.sqlite.org/|SQLite]
-database file using a hybrid NoSQL/relational data model of the check-in
-history. Git's data storage system is an ad-hoc pile-of-files key/value
-database, whereas Fossil uses a proven,
-[https://sqlite.org/testing.html|heavily-tested], general-purpose,
-[https://sqlite.org/transactional.html|durable] SQL database.  This
-difference is more than an implementation detail. It has important
+database file which provides ACID transactions and a high-level query
+language.
+This difference is more than an implementation detail. It has important
 practical consequences.
 
-With Git, one can easily locate the ancestors of a particular check-in
+One notable consequence is that it is difficult to find the descendents
+of check-ins in Git.
+One can easily locate the ancestors of a particular Git check-in
 by following the pointers embedded in the check-in object, but it is
 difficult to go the other direction and locate the descendants of a
 check-in.  It is so difficult, in fact, that neither native Git nor
-GitHub provide this capability short of
-[http://catb.org/jargon/html/G/grovel.html|groveling] the
-[https://www.git-scm.com/docs/git-log|commit log].  With Git, if you
-are looking at some historical check-in then you cannot ask "What came
-next?" or "What are the children of this check-in?"
-
-Fossil, on the other hand, parses essential information about check-ins
-(parents, children, committers, comments, files changed, etc.) into a
-relational database that can easily be queried using concise SQL
-statements to find both ancestors and descendants of a check-in. This is
-the hybrid data model mentioned above: Fossil manages your check-in and
-other data in a NoSQL block chain structured data store, but that's backed
-by a set of relational lookup tables for quick indexing into that
-artifact store.  (See "[./theory1.wiki|Thoughts On The Design Of The
-Fossil DVCS]" for more details.)
+GitHub provide this capability short of crawling the
+[https://www.git-scm.com/docs/git-log|commit log].  With Fossil,
+on the other hand, finding descendents is a simple SQL query.
+It is common in Fossil to ask to see
+[/timeline?df=release&y=ci|all check-ins since the last release].
+Git lets you see "what came before".  Fossil makes it just as
+easy to also see "what came after".
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
 [http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
-state] problem has caused untold grief for
-[https://www.google.com/search?q=git+detached+head+state | a huge number
+state] problem has caused grief for
+[https://www.google.com/search?q=git+detached+head+state | many
 of Git users]. With
 Fossil, detached heads are simply impossible because we can always find
-our way back into the block chain using one or more of the relational
-indices it automatically manages for you.
+our way back into the Merkle tree using one or more of the relations
+in the SQL database.
 
-This design difference shows up in several other places within each
-tool. It is why Fossil's [/help?cmd=timeline|timeline] is generally more
-detailed yet more clear than those available in Git front-ends.
-(Contrast [/timeline?c=6df7a853ec16865b|this Fossil timeline] with
+The SQL query capabilities of Fossil make it easier to track the
+changes for one particular file within a project.  For example,
+you can easily find
+[/finfo/www/fossil-v-git.wiki|the complete edit history of this one document],
+or even 
+[/finfo/www/fossil-v-git.wiki?ubg|the same history color-coded by committer],
+Both questions are simple SQL query in Fossil, with procedural code
+only being used to format the result for display.
+The same result could be obtained from Git, but because the data is
+in a key/value store, much more procedural code has to be written to
+walk the data and compute the result. And since that is a lot more
+work, the question is seldom asked.
+
+The ease of querying Fossil data using SQL means that status or
+history information about the project under management is easier
+to obtain.  And being easier means that it is more likely to happen.
+Fossil reports tend to be more detailed and useful.
+Consider the [/timeline?c=6df7a853ec16865b|this Fossil timeline] 
+compared to its
 [https://github.com/drhsqlite/fossil-mirror/commits/master?after=f720c106d297ca1f61bccb30c5c191b88a626d01+34|its
-closest equivalent in GitHub].) It's why there is no inverse of the
-cryptic <tt>@~</tt> notation in Git, meaning "the parent of HEAD," which
-Fossil simply calls "prev", but there <i>is</i> a "next"
-[./checkin_names.wiki|special check-in name] in Fossil. It is why Fossil
-has so many [./webpage-ex.md|built-in status reports] to help maintain
-situational awareness, aid comprehension, and avoid errors.
+closest equivalent in GitHub].  Judge for yourself: Which of those
+reports is more useful to a developer trying to understand what happened?
 
-These differences are due, in part, to Fossil's start a year later than
-Git: we were able to learn from its key design mistakes.
-
+The bottom line is that even though Fossil and Git are built around
+the same low-level data structure, the use of SQL
+to query this data makes the data more accessible in Fossil, resulting
+in more detailed information being available to the user.  This
+improves situational awareness and makes working on the project
+easier.
 
 <h3 id="portable">2.4 Portable</h3>
 
@@ -324,7 +334,7 @@ uses JavaScript where
 necessary]. The server-side
 UI scripting uses a custom minimal
 [https://en.wikipedia.org/wiki/Tcl|Tcl] dialect called
-[https://www.fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
+[https://fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
 embedded into Fossil itself. Fossil's build system and test suite are
 largely based on Tcl.⁵ All of this is quite portable.
 
@@ -394,6 +404,14 @@ all: it may have an arbitrary number of differences relative to the
 repository it originally cloned from. Git encourages siloed development.
 Select work in a developer's local repository may remain private
 indefinitely.
+
+The Git preference for siloed development has been strongly adopted by Github,
+who say
+"[https://guides.github.com/activities/forking|Forking is at the core of social coding at GitHub]".
+As a result, as of January 2021,
+[https://github.com/search?q=is:public|Github hosts 43 million distinct software projects],
+most of them created as a results of Git/Github forking and very many
+of them discontinued.
 
 All of this is exactly what one wants when doing bazaar-style
 development.
@@ -529,8 +547,8 @@ not the best way to hang a picture on the living room wall.
 
 <h4 id="contrib">2.5.3 Accepting Contributions</h4>
 
-As of this writing, Git has received about 4.5⨉ as many commits as
-Fossil resulting in about 2.5⨉ as many lines of source code. The line
+As of this writing, Git has received about 4.5 times as many commits as
+Fossil resulting in about 2.5 times as many lines of source code. The line
 count excludes tests and in-tree third-party dependencies. It does not
 exclude the default GUI for each, since it's integral for Fossil, so we
 count the size of <tt>gitk</tt> in this.
@@ -647,17 +665,16 @@ the disturbance from switching branches is small, and to use multiple
 checkouts when you have long-lived working branches that are different
 enough that switching in place is disruptive.
 
-You can use Git in the Fossil style, either by manually symlinking the
-<tt>.git</tt> directory from one working directory to another or by use
-of the <tt>[https://git-scm.com/docs/git-worktree|git-worktree]</tt>
-feature. Nevertheless, Git's default tie between working directory and
+While you can [./gitusers.md#worktree | use Git in the Fossil style],
+Git's default tie between working directory and
 repository means the standard method for working with a Git repo is to
 have one working directory only. Most Git tutorials teach this style, so
 it is how most people learn to use Git. Because relatively few people
 use Git with multiple working directories per repository, there are
 [https://duckduckgo.com/?q=git+worktree+problem | several known
 problems] with that way of working, problems which don't happen in Fossil because of
-the clear separation between repository and working directory.
+the clear [./ckout-workflows.md | separation] between a Fossil repository and
+each working directory.
 
 This distinction matters because switching branches inside a single working directory loses local context
 on each switch.
@@ -697,9 +714,12 @@ update</tt>.
 
 Git puts a lot of emphasis on maintaining
 a "clean" check-in history.  Extraneous and experimental branches by
-individual developers often never make it into the main repository.  And
-branches are often rebased before being pushed, to make
-it appear as if development had been linear.  Git strives to record what
+individual developers often never make it into the main repository.
+Branches may be rebased before being pushed to make
+it appear as if development had been linear, or "squashed" to make it
+appear that multiple commits were made as a single commit.
+There are [https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History |
+other history rewriting mechanisms in Git] as well. Git strives to record what
 the development of a project should have looked like had there been no
 mistakes.
 
@@ -716,15 +736,55 @@ prior commits, but unlike in Git, this works not by replacing data in
 the repository, but by adding a correction record to the repository that
 affects how later Fossil operations present the corrected data. The old
 information is still there in the repository, it is just overridden from
-the amendment point forward. For extreme situations, Fossil adds the
-[/doc/trunk/www/shunning.wiki|shunning mechanism], but it has strict
-limitations that prevent global history rewrites.
+the amendment point forward.
+
+Fossil lacks almost every other history rewriting mechanism listed on
+the Git documentation page linked above. [./rebaseharm.md | There is no
+rebase] in Fossil, on purpose, thus no way to reorder or copy commits
+around in the commit hash tree. There is no commit squashing, dropping,
+or interactive patch-based cherry-picking of commit elements in Fossil.
+There is nothing like Git's <tt>filter-branch</tt> in Fossil.
+
+The lone exception is deleting commits. Fossil has two methods for doing
+that, both of which have stringent limitations, on purpose.
+
+The first is [/doc/trunk/www/shunning.wiki | shunning]. See that
+document for details, but briefly, you only get mandatory compliance
+for shun requests within a single repository. Shun requests do not
+propagate automatically between repository clones. A Fossil repository
+administrator can <i>cooperatively</i> pull another repo's shun requests
+across a sync boundary, so that two admins can get together and agree to
+shun certain committed artifacts, but a person cannot force their local
+shun requests into another repo without having admin-level control over
+the receiving repo as well. Fossil's shun feature isn't for fixing up
+everyday bad commits, it's for dealing with extreme situations: public
+commits of secret material, ticket/wiki/forum spam, law enforcement
+takedown demands, etc.
+
+There is also the experimental [/help?cmd=purge | <tt>purge</tt>
+command], which differs from shunning in ways that aren't especially
+important in the context of this document. At a 30000 foot level, you
+can think of purging as useful only when you've turned off Fossil's
+autosync feature and want to pluck artifacts out of its hash tree before
+they get pushed. In that sense, it's approximately the same as
+<tt>git rebase -i, drop</tt>. However, given that Fossil defaults to
+having autosync enabled [#devorg | for good reason], the purge command
+isn't very useful in practice: once a commit has been pushed into
+another repo, shunning is more useful if you need to delete it from
+history.
+
+If these accommodations strike you as incoherent with respect to
+Fossil's philosophy of durable, unchanging commits, realize that if
+shunning and purging were removed from Fossil, you could still remove
+artifacts from the repository with SQL <tt>DELETE</tt> statements; the
+repository database file is, after all, directly modifiable, being
+writable by your user. Where the Fossil philosophy really takes hold is
+in making it difficult to violate the integrity of the hash tree.
+It's somewhat tangential, but the document [./blockchain.md | "Is Fossil
+a Blockchain?"] touches on this and related topics.
 
 One commentator characterized Git as recording history according to
 the victors, whereas Fossil records history as it actually happened.
-
-We go into more detail on this topic in a separate article,
-[./rebaseharm.md | Rebase Considered Harmful].
 
 
 <h3 id="testing">2.8 Test Before Commit</h3>
@@ -735,46 +795,54 @@ to the commit step before a change could possibly be tested. Fossil, by
 contrast, makes the equivalent change to the local working check-out
 only, requiring a separate check-in step to commit the change. This
 design difference falls naturally out of Fossil's default-enabled
-autosync feature.
+autosync feature and its philosophy of [#history | not offering history
+rewriting features].
 
 The prime example in Git is rebasing: the change happens to the local
 repository immediately if successful, even though you haven't tested the
 change yet. It's possible to argue for such a design in a tool like Git
-which doesn't automatically push the change up to its parent, because
-you can still test the change before pushing local changes to the parent
-repo, but in the meantime you've made a durable change to your local Git
-repository's blockchain. You must do something drastic like <tt>git
-reset --hard</tt> to revert that rebase if it causes a problem. If you
-push your rebased local repo up to the parent without testing first,
-you've now committed the error on a public branch, effectively a
-violation of
+since it lacks an autosync feature, because you can still test the
+change before pushing local changes to the parent repo, but in the
+meantime you've made a durable change to your local Git repository. You
+must do something drastic like <tt>git reset --hard</tt> to revert that
+rebase or rewrite history before pushing it if the rebase causes a
+problem. If you push your rebased local repo up to the parent without
+testing first, you cannot fix it without violating
 [https://www.atlassian.com/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing
 | the golden rule of rebasing].
 
 Lesser examples are the Git <tt>merge</tt>, <tt>cherry-pick</tt>, and
 <tt>revert</tt> commands, all of which apply work from one branch onto
-another, and all of which do their work immediately without giving you
-an opportunity to test the change first locally unless you give the
-<tt>--no-commit</tt> option.
+another, and all of which commit their change to the local repository
+immediately without giving you
+an opportunity to test the change first unless you give the
+<tt>--no-commit</tt> option. Otherwise, you're back in the same boat:
+reset the local repository or rewrite history to fix things, then maybe
+retry.
 
 Fossil cannot sensibly work that way because of its default-enabled
-autosync feature. Instead of jumping straight to the commit step, Fossil
+autosync feature and its purposeful paucity of commands for modifying
+commits, as discussed in [#history | the prior section].
+
+Instead of jumping straight to the commit step, Fossil
 applies the proposed merge to the local working directory only,
 requiring a separate check-in step before the change is committed to the
-repository blockchain. This gives you a chance to test the change first,
+repository. This gives you a chance to test the change first,
 either manually or by running your software's automatic tests. (Ideally,
-both!)
+both!) Thus, Fossil doesn't need rebase, squashing,
+<tt>reset --hard</tt>, or other Git commit mutating mechanisms.
 
-Another difference is that because Fossil requires an explicit commit
-for a merge, it makes you give an explicit commit <i>message</i> for
-each merge, whereas Git writes that commit message itself by default
+Because Fossil requires an explicit commit for a merge, it has the nice
+side benefit that it makes you give an explicit commit <i>message</i>
+for each merge, whereas Git writes that commit message itself by default
 unless you give the optional <tt>--edit</tt> flag to override it.
 
 We don't look at this difference as a workaround in Fossil for autosync,
-but instead as a test-first philosophical difference. When every commit
-is pushed to the parent repo by default, it encourages a working style
-in which every commit is tested first. We think this is an inherently
-good thing.
+but instead as a test-first philosophical difference:
+<tt>fossil commit</tt> is a <i>commitment</i>. When every commit is
+pushed to the parent repo by default, it encourages a working style in
+which every commit is tested first. It encourages thinking before
+acting. We believe this is an inherently good thing.
 
 Incidentally, this is a good example of Git's messy command design.
 These three commands:
@@ -855,7 +923,7 @@ Almost three years after Fossil solved this problem, the
 weakening the case for continuing to use SHA-1.
 
 The practical impact of attacks like SHAttered and SHAmbles on the
-Git and Fossil blockchains isn't clear, but you want to have your repositories
+Git and Fossil Merkle trees isn't clear, but you want to have your repositories
 moved over to a stronger hash algorithm before someone figures out how
 to make use of the weaknesses in the old one. Fossil has had this covered
 for years now, so that the solution is now almost universally deployed.
@@ -878,14 +946,17 @@ for years now, so that the solution is now almost universally deployed.
     several parts, so that it is not strictly true that "everything" on
     it is in the self-hosting Fossil project repo. The web forum is
     hosted as [https://fossil-scm.org/forum/|a separate Fossil repo]
-    from the [https://fossil-scm.org/fossil/|main Fossil self-hosting
+    from the [https://fossil-scm.org/home/|main Fossil self-hosting
     repo] for administration reasons, and the Download page content
     isn't normally synchronized with a "<tt>fossil clone</tt>" command unless
     you add the "-u" option.  (See "[./aboutdownload.wiki|How the
-    Download Page Works]" for details.) There may also be some purely
+    Download Page Works]" for details.)
+    Chat history is deliberately not synced as
+    chat messages are intended to be ephemeral.
+    There may also be some purely
     static elements of the web site served via D. Richard Hipp's own
     lightweight web server,
-    <tt>[https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md|althttpd]</tt>,
+    <tt>[https://sqlite.org/althttpd/|althttpd]</tt>,
     which is configured as a front end to Fossil running in CGI mode on
     these sites.
 

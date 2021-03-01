@@ -336,6 +336,8 @@ static void stash_apply(int stashid, int nConflict){
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
+    }else if( file_unsafe_in_tree_path(zNPath) ){
+      /* Ignore the unsafe path */
     }else{
       Blob a, b, out, disk;
       int isNewLink = file_islink(zOPath);
@@ -428,14 +430,14 @@ static void stash_diff(
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
       fossil_print("ADDED %s\n", zNew);
-      diff_print_index(zNew, diffFlags);
+      diff_print_index(zNew, diffFlags, 0);
       isBin1 = 0;
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
       diff_file_mem(&empty, &a, isBin1, isBin2, zNew, zDiffCmd,
                     zBinGlob, fIncludeBinary, diffFlags);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
-      diff_print_index(zNew, diffFlags);
+      diff_print_index(zNew, diffFlags, 0);
       isBin2 = 0;
       if( fBaseline ){
         content_get(rid, &a);
@@ -450,8 +452,8 @@ static void stash_diff(
       db_ephemeral_blob(&q, 6, &delta);
       fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
-        diff_print_index(zNew, diffFlags);
-        diff_print_filenames(zOrig, zNew, diffFlags);
+        diff_print_index(zNew, diffFlags, 0);
+        diff_print_filenames(zOrig, zNew, diffFlags, 0);
         printf(DIFF_CANNOT_COMPUTE_SYMLINK);
       }else{
         content_get(rid, &a);
@@ -465,7 +467,7 @@ static void stash_diff(
           /*Diff with file on disk using fSwapDiff=1 to show the diff in the
             same direction as if fBaseline=1.*/
           diff_file(&b, isBin2, zOPath, zNew, zDiffCmd,
-              zBinGlob, fIncludeBinary, diffFlags, 1);
+              zBinGlob, fIncludeBinary, diffFlags, 1, 0);
         }
         blob_reset(&a);
         blob_reset(&b);
@@ -512,68 +514,55 @@ static int stash_get_id(const char *zStashId){
 **
 ** Usage: %fossil stash SUBCOMMAND ARGS...
 **
-**  fossil stash
-**  fossil stash save ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
+** > fossil stash
+** > fossil stash save ?-m|--comment COMMENT? ?FILES...?
+** > fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 **
-**     Save the current changes in the working tree as a new stash.
-**     Then revert the changes back to the last check-in.  If FILES
-**     are listed, then only stash and revert the named files.  The
-**     "save" verb can be omitted if and only if there are no other
-**     arguments.  The "snapshot" verb works the same as "save" but
-**     omits the revert, keeping the checkout unchanged.
+**      Save the current changes in the working tree as a new stash.
+**      Then revert the changes back to the last check-in.  If FILES
+**      are listed, then only stash and revert the named files.  The
+**      "save" verb can be omitted if and only if there are no other
+**      arguments.  The "snapshot" verb works the same as "save" but
+**      omits the revert, keeping the checkout unchanged.
 **
-**  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
+** > fossil stash list|ls ?-v|--verbose? ?-W|--width NUM?
 **
-**     List all changes sets currently stashed.  Show information about
-**     individual files in each changeset if -v or --verbose is used.
+**      List all changes sets currently stashed.  Show information about
+**      individual files in each changeset if -v or --verbose is used.
 **
-**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
+** > fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
+** > fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
 **
-**     Show the contents of a stash as a diff against its baseline.
-**     With gshow and gcat, gdiff-command is used instead of internal
-**     diff logic.
+**      Show the contents of a stash as a diff against its baseline.
+**      With gshow and gcat, gdiff-command is used instead of internal
+**      diff logic.
 **
-**  fossil stash pop
-**  fossil stash apply ?STASHID?
+** > fossil stash pop
+** > fossil stash apply ?STASHID?
 **
-**     Apply STASHID or the most recently created stash to the current
-**     working checkout.  The "pop" command deletes that changeset from
-**     the stash after applying it but the "apply" command retains the
-**     changeset.
+**      Apply STASHID or the most recently created stash to the current
+**      working checkout.  The "pop" command deletes that changeset from
+**      the stash after applying it but the "apply" command retains the
+**      changeset.
 **
-**  fossil stash goto ?STASHID?
+** > fossil stash goto ?STASHID?
 **
-**     Update to the baseline checkout for STASHID then apply the
-**     changes of STASHID.  Keep STASHID so that it can be reused
-**     This command is undoable.
+**      Update to the baseline checkout for STASHID then apply the
+**      changes of STASHID.  Keep STASHID so that it can be reused
+**      This command is undoable.
 **
-**  fossil stash drop|rm ?STASHID? ?-a|--all?
+** > fossil stash drop|rm ?STASHID? ?-a|--all?
 **
-**     Forget everything about STASHID.  Forget the whole stash if the
-**     -a|--all flag is used.  Individual drops are undoable but -a|--all
-**     is not.
+**      Forget everything about STASHID.  Forget the whole stash if the
+**      -a|--all flag is used.  Individual drops are undoable but -a|--all
+**      is not.
 **
-**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
+** > fossil stash diff ?STASHID? ?DIFF-OPTIONS?
+** > fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
 **
-**     Show diffs of the current working directory and what that
-**     directory would be if STASHID were applied. With gdiff,
-**     gdiff-command is used instead of internal diff logic.
-**
-** SUMMARY:
-**  fossil stash
-**  fossil stash save ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
-**  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash pop
-**  fossil stash apply|goto ?STASHID?
-**  fossil stash drop|rm ?STASHID? ?-a|--all?
-**  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
-**  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
+**      Show diffs of the current working directory and what that
+**      directory would be if STASHID were applied. With gdiff,
+**      gdiff-command is used instead of internal diff logic.
 */
 void stash_cmd(void){
   const char *zCmd;

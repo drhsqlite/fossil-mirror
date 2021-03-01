@@ -39,13 +39,26 @@ void bisect_path(void){
   bisect.bad = db_lget_int("bisect-bad", 0);
   bisect.good = db_lget_int("bisect-good", 0);
   if( bisect.good>0 && bisect.bad==0 ){
-    path_shortest(bisect.good, bisect.good, 0, 0);
+    path_shortest(bisect.good, bisect.good, 0, 0, 0);
   }else if( bisect.bad>0 && bisect.good==0 ){
-    path_shortest(bisect.bad, bisect.bad, 0, 0);
+    path_shortest(bisect.bad, bisect.bad, 0, 0, 0);
   }else if( bisect.bad==0 && bisect.good==0 ){
     fossil_fatal("neither \"good\" nor \"bad\" versions have been identified");
   }else{
-    p = path_shortest(bisect.good, bisect.bad, bisect_option("direct-only"), 0);
+    Bag skip;
+    int bDirect = bisect_option("direct-only");
+    char *zLog = db_lget("bisect-log","");
+    Blob log, id;
+    bag_init(&skip);
+    blob_init(&log, zLog, -1);
+    while( blob_token(&log, &id) ){
+      if( blob_str(&id)[0]=='s' ){
+        bag_insert(&skip, atoi(blob_str(&id)+1));
+      }
+    }
+    blob_reset(&log);
+    p = path_shortest(bisect.good, bisect.bad, bDirect, 0, &skip);
+    bag_clear(&skip);
     if( p==0 ){
       char *zBad = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",bisect.bad);
       char *zGood = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",bisect.good);
@@ -64,7 +77,8 @@ static const struct {
   const char *zDesc;
 } aBisectOption[] = {
   { "auto-next",    "on",    "Automatically run \"bisect next\" after each "
-                             "\"bisect good\" or \"bisect bad\"" },
+                             "\"bisect good\", \"bisect bad\", or \"bisect "
+                             "skip\"" },
   { "direct-only",  "on",    "Follow only primary parent-child links, not "
                              "merges\n" },
   { "display",    "chart",   "Command to run after \"next\".  \"chart\", "
@@ -80,7 +94,12 @@ int bisect_option(const char *zName){
   for(i=0; i<count(aBisectOption); i++){
     if( fossil_strcmp(zName, aBisectOption[i].zName)==0 ){
       char *zLabel = mprintf("bisect-%s", zName);
-      char *z = db_lget(zLabel, (char*)aBisectOption[i].zDefault);
+      char *z;
+      if( g.localOpen ){
+        z = db_lget(zLabel, (char*)aBisectOption[i].zDefault);
+      }else{
+        z = (char*)aBisectOption[i].zDefault;
+      }
       if( is_truth(z) ) r = 1;
       if( is_false(z) ) r = 0;
       if( r<0 ) r = is_truth(aBisectOption[i].zDefault);
@@ -171,26 +190,48 @@ static void bisect_append_log(int rid){
 }
 
 /*
+** Append a new skip entry to the bisect log.
+*/
+static void bisect_append_skip(int rid){
+  db_multi_exec(
+     "UPDATE vvar SET value=value||' s%d' WHERE name='bisect-log'", rid
+  );
+}
+
+/*
 ** Create a TEMP table named "bilog" that contains the complete history
 ** of the current bisect.
+**
+** If iCurrent>0 then it is the RID of the current checkout and is included
+** in the history table.
+**
+** If zDesc is not NULL, then it is the bid= query parameter to /timeline
+** that describes a bisect.  Use the information in zDesc rather than in
+** the bisect-log variable.
+**
+** If bDetail is true, then also include information about every node
+** in between the inner-most GOOD and BAD nodes.
 */
-int bisect_create_bilog_table(int iCurrent, const char *zDesc){
+int bisect_create_bilog_table(int iCurrent, const char *zDesc, int bDetail){
   char *zLog;
   Blob log, id;
   Stmt q;
   int cnt = 0;
+  int lastGood = -1;
+  int lastBad = -1;
 
   if( zDesc!=0 ){
     blob_init(&log, 0, 0);
-    while( zDesc[0]=='y' || zDesc[0]=='n' ){
+    while( zDesc[0]=='y' || zDesc[0]=='n' || zDesc[0]=='s' ){
       int i;
       char c;
       int rid;
       if( blob_size(&log) ) blob_append(&log, " ", 1);
       if( zDesc[0]=='n' ) blob_append(&log, "-", 1);
+      if( zDesc[0]=='s' ) blob_append(&log, "s", 1);
       for(i=1; ((c = zDesc[i])>='0' && c<='9') || (c>='a' && c<='f'); i++){}
       if( i==1 ) break;
-      rid = db_int(0, 
+      rid = db_int(0,
         "SELECT rid FROM blob"
         " WHERE uuid LIKE '%.*q%%'"
         "   AND EXISTS(SELECT 1 FROM plink WHERE cid=rid)",
@@ -206,18 +247,32 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
   }
   db_multi_exec(
      "CREATE TEMP TABLE bilog("
-     "  seq INTEGER PRIMARY KEY,"  /* Sequence of events */
+     "  rid INTEGER PRIMARY KEY,"  /* Sequence of events */
      "  stat TEXT,"                /* Type of occurrence */
-     "  rid INTEGER UNIQUE"        /* Check-in number */
+     "  seq INTEGER UNIQUE"        /* Check-in number */
      ");"
   );
   db_prepare(&q, "INSERT OR IGNORE INTO bilog(seq,stat,rid)"
                  " VALUES(:seq,:stat,:rid)");
   while( blob_token(&log, &id) ){
-    int rid = atoi(blob_str(&id));
+    int rid;
     db_bind_int(&q, ":seq", ++cnt);
-    db_bind_text(&q, ":stat", rid>0 ? "GOOD" : "BAD");
-    db_bind_int(&q, ":rid", rid>=0 ? rid : -rid);
+    if( blob_str(&id)[0]=='s' ){
+      rid = atoi(blob_str(&id)+1);
+      db_bind_text(&q, ":stat", "SKIP");
+      db_bind_int(&q, ":rid", rid);
+    }else{
+      rid = atoi(blob_str(&id));
+      if( rid>0 ){
+        db_bind_text(&q, ":stat","GOOD");
+        db_bind_int(&q, ":rid", rid);
+        lastGood = rid;
+      }else{
+        db_bind_text(&q, ":stat", "BAD");
+        db_bind_int(&q, ":rid", -rid);
+        lastBad = -rid;
+      }
+    }
     db_step(&q);
     db_reset(&q);
   }
@@ -226,6 +281,20 @@ int bisect_create_bilog_table(int iCurrent, const char *zDesc){
     db_bind_text(&q, ":stat", "CURRENT");
     db_bind_int(&q, ":rid", iCurrent);
     db_step(&q);
+    db_reset(&q);
+  }
+  if( bDetail && lastGood>0 && lastBad>0 ){
+    PathNode *p;
+    p = path_shortest(lastGood, lastBad, bisect_option("direct-only"),0, 0);
+    while( p ){
+      db_bind_null(&q, ":seq");
+      db_bind_null(&q, ":stat");
+      db_bind_int(&q, ":rid", p->rid);
+      db_step(&q);
+      db_reset(&q);
+      p = p->u.pTo;
+    }
+    path_reset();
   }
   db_finalize(&q);
   return 1;
@@ -246,10 +315,21 @@ char *bisect_permalink(void){
   Blob id;
   blob_init(&log, zLog, -1);
   while( blob_token(&log, &id) ){
-    int rid = atoi(blob_str(&id));
-    char *zUuid = db_text(0,"SELECT lower(uuid) FROM blob WHERE rid=%d",
-                       rid<0 ? -rid : rid);
-    blob_appendf(&link, "%c%.10s", rid<0 ? 'n' : 'y', zUuid);
+    const char *zUuid;
+    int rid;
+    char cPrefix = 'y';
+    if( blob_str(&id)[0]=='s' ){
+      rid = atoi(blob_str(&id)+1);
+      cPrefix = 's';
+    }else{
+      rid = atoi(blob_str(&id));
+      if( rid<0 ){
+        cPrefix = 'n';
+        rid = -rid;
+      }
+    }
+    zUuid = db_text(0,"SELECT lower(uuid) FROM blob WHERE rid=%d", rid);
+    blob_appendf(&link, "%c%.10s", cPrefix, zUuid);
   }
   zResult = mprintf("%s", blob_str(&link));
   blob_reset(&link);
@@ -265,7 +345,7 @@ char *bisect_permalink(void){
 static void bisect_chart(int sortByCkinTime){
   Stmt q;
   int iCurrent = db_lget_int("checkout",0);
-  bisect_create_bilog_table(iCurrent, 0);
+  bisect_create_bilog_table(iCurrent, 0, 0);
   db_prepare(&q,
     "SELECT bilog.seq, bilog.stat,"
     "       substr(blob.uuid,1,16), datetime(event.mtime),"
@@ -304,65 +384,60 @@ void bisect_reset(void){
 **
 ** Usage: %fossil bisect SUBCOMMAND ...
 **
-** Run various subcommands useful for searching for bugs.
+** Run various subcommands useful for searching back through the change
+** history for a particular checkin that causes or fixes a problem.
 **
-**   fossil bisect bad ?VERSION?
+** > fossil bisect bad ?VERSION?
 **
-**     Identify version VERSION as non-working.  If VERSION is omitted,
-**     the current checkout is marked as non-working.
+**       Identify version VERSION as non-working.  If VERSION is omitted,
+**       the current checkout is marked as non-working.
 **
-**   fossil bisect good ?VERSION?
+** > fossil bisect good ?VERSION?
 **
-**     Identify version VERSION as working.  If VERSION is omitted,
-**     the current checkout is marked as working.
+**       Identify version VERSION as working.  If VERSION is omitted,
+**       the current checkout is marked as working.
 **
-**   fossil bisect log
-**   fossil bisect chart
+** > fossil bisect log
+** > fossil bisect chart
 **
-**     Show a log of "good" and "bad" versions.  "bisect log" shows the
-**     events in the order that they were tested.  "bisect chart" shows
-**     them in order of check-in.
+**       Show a log of "good", "bad", and "skip" versions.  "bisect log"
+**       shows the  events in the order that they were tested.
+**       "bisect chart" shows them in order of check-in.
 **
-**   fossil bisect next
+** > fossil bisect next
 **
-**     Update to the next version that is halfway between the working and
-**     non-working versions.
+**       Update to the next version that is halfway between the working and
+**       non-working versions.
 **
-**   fossil bisect options ?NAME? ?VALUE?
+** > fossil bisect options ?NAME? ?VALUE?
 **
-**     List all bisect options, or the value of a single option, or set the
-**     value of a bisect option.
+**       List all bisect options, or the value of a single option, or set the
+**       value of a bisect option.
 **
-**   fossil bisect reset
+** > fossil bisect reset
 **
-**     Reinitialize a bisect session.  This cancels prior bisect history
-**     and allows a bisect session to start over from the beginning.
+**       Reinitialize a bisect session.  This cancels prior bisect history
+**       and allows a bisect session to start over from the beginning.
 **
-**   fossil bisect vlist|ls|status ?-a|--all?
+** > fossil bisect skip ?VERSION?
 **
-**     List the versions in between "bad" and "good".
+**       Cause VERSION (or the current checkout if VERSION is omitted) to
+**       be ignored for the purpose of the current bisect.  This might
+**       be done, for example, because VERSION does not compile correctly
+**       or is otherwise unsuitable to participate in this bisect.
 **
-**   fossil bisect ui
+** > fossil bisect vlist|ls|status ?-a|--all?
 **
-**     Like "fossil ui" except start on a timeline that shows only the
-**     check-ins that are part of the current bisect.
+**       List the versions in between the inner-most "bad" and "good".
 **
-**   fossil bisect undo
+** > fossil bisect ui
 **
-**     Undo the most recent "good" or "bad" command.
+**       Like "fossil ui" except start on a timeline that shows only the
+**       check-ins that are part of the current bisect.
 **
-** Summary:
+** > fossil bisect undo
 **
-**   fossil bisect bad ?VERSION?
-**   fossil bisect good ?VERSION?
-**   fossil bisect log
-**   fossil bisect chart
-**   fossil bisect next
-**   fossil bisect options
-**   fossil bisect reset
-**   fossil bisect status
-**   fossil bisect ui
-**   fossil bisect undo
+**       Undo the most recent "good", "bad", or "skip" command.
 */
 void bisect_cmd(void){
   int n;
@@ -370,7 +445,7 @@ void bisect_cmd(void){
   int foundCmd = 0;
   db_must_be_within_tree();
   if( g.argc<3 ){
-    usage("bad|good|log|next|options|reset|status|undo");
+    goto usage;
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);
@@ -401,6 +476,24 @@ void bisect_cmd(void){
     if( ridGood>0 ){
       bisect_append_log(ridGood);
       if( bisect_option("auto-next") && db_lget_int("bisect-bad",0)>0 ){
+        zCmd = "next";
+        n = 4;
+      }
+    }
+  }else if( strncmp(zCmd, "skip", n)==0 ){
+    int ridSkip;
+    foundCmd = 1;
+    if( g.argc==3 ){
+      ridSkip = db_lget_int("checkout",0);
+    }else{
+      ridSkip = name_to_typed_rid(g.argv[3], "ci");
+    }
+    if( ridSkip>0 ){
+      bisect_append_skip(ridSkip);
+      if( bisect_option("auto-next")
+       && db_lget_int("bisect-bad",0)>0
+       && db_lget_int("bisect-good",0)>0
+      ){
         zCmd = "next";
         n = 4;
       }
@@ -450,7 +543,7 @@ void bisect_cmd(void){
     if( pMid==0 ){
       fossil_print("bisect complete\n");
     }else{
-      int nSpan = path_length();
+      int nSpan = path_length_not_hidden();
       int nStep = path_search_depth();
       g.argv[1] = "update";
       g.argv[2] = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pMid->rid);
@@ -520,6 +613,7 @@ void bisect_cmd(void){
     int fAll = find_option("all", "a", 0)!=0;
     bisect_list(!fAll);
   }else if( !foundCmd ){
-    usage("bad|good|log|next|options|reset|status|ui|undo");
+usage:
+    usage("bad|good|log|chart|next|options|reset|skip|status|ui|undo");
   }
 }

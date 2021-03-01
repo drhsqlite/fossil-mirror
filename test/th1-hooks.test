@@ -128,7 +128,8 @@ set dataFileName [file join $::testdir th1-hooks-input.txt]
 
 ###############################################################################
 
-saveTh1SetupFile; writeTh1SetupFile $testTh1Setup
+set savedTh1Setup [fossil settings th1-setup]
+fossil settings th1-setup $testTh1Setup
 
 ###############################################################################
 
@@ -229,7 +230,7 @@ test th1-custom-web-1b {[last_data_line] eq \
 
 ###############################################################################
 
-restoreTh1SetupFile
+fossil settings th1-setup $savedTh1Setup
 
 ###############################################################################
 

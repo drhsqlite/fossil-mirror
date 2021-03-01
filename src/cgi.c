@@ -66,6 +66,17 @@
 #define PCK(x)      cgi_parameter_checked(x,1)
 #define PIF(x,y)    cgi_parameter_checked(x,y)
 
+/*
+** Shortcut for the cgi_printf() routine.  Instead of using the
+**
+**    @ ...
+**
+** notation provided by the translate.c utility, you can also
+** optionally use:
+**
+**    CX(...)
+*/
+#define CX cgi_printf
 
 /*
 ** Destinations for output text.
@@ -187,7 +198,7 @@ static int rangeEnd = 0;                     /* End of Range: plus 1 */
 ** Set the reply content type
 */
 void cgi_set_content_type(const char *zType){
-  zContentType = mprintf("%s", zType);
+  zContentType = fossil_strdup(zType);
 }
 
 /*
@@ -204,7 +215,7 @@ void cgi_set_content(Blob *pNewContent){
 ** Set the reply status code
 */
 void cgi_set_status(int iStat, const char *zStat){
-  zReplyStatus = mprintf("%s", zStat);
+  zReplyStatus = fossil_strdup(zStat);
   iReplyStatus = iStat;
 }
 
@@ -225,7 +236,8 @@ void cgi_printf_header(const char *zLine, ...){
 ** Set a cookie by queuing up the appropriate HTTP header output. If
 ** !g.isHTTP, this is a no-op.
 **
-** Zero lifetime implies a session cookie.
+** Zero lifetime implies a session cookie. A negative one expires
+** the cookie immediately.
 */
 void cgi_set_cookie(
   const char *zName,    /* Name of the cookie */
@@ -242,13 +254,15 @@ void cgi_set_cookie(
   if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
     zSecure = " secure;";
   }
-  if( lifetime>0 ){
+  if( lifetime!=0 ){
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly;%s Version=1\r\n",
-        zName, zValue, zPath, lifetime, zSecure);
+       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly; "
+       "%s Version=1\r\n",
+       zName, lifetime>0 ? zValue : "null", zPath, lifetime, zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; HttpOnly;%s Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly; "
+       "%s Version=1\r\n",
        zName, zValue, zPath, zSecure);
   }
 }
@@ -291,19 +305,19 @@ void cgi_reply(void){
     assert( rangeEnd==0 );
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
-  if( g.isConst ){
+  if( etag_tag()[0]!=0 ){
+    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
+    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
+    if( etag_mtime()>0 ){
+      fprintf(g.httpOut, "Last-Modified: %s\r\n",
+              cgi_rfc822_datestamp(etag_mtime()));
+    }
+  }else if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
     fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
-  }else if( etag_tag()[0]!=0 ){
-    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
-    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
   }else{
     fprintf(g.httpOut, "Cache-control: no-cache\r\n");
-  }
-  if( etag_mtime()>0 ){
-    fprintf(g.httpOut, "Last-Modified: %s\r\n",
-            cgi_rfc822_datestamp(etag_mtime()));
   }
 
   if( blob_size(&extraHeader)>0 ){
@@ -568,10 +582,10 @@ void cgi_set_parameter_nocopy_tolower(
 ** Copies are made of both the zName and zValue parameters.
 */
 void cgi_set_parameter(const char *zName, const char *zValue){
-  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 0);
+  cgi_set_parameter_nocopy(fossil_strdup(zName),fossil_strdup(zValue), 0);
 }
 void cgi_set_query_parameter(const char *zName, const char *zValue){
-  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 1);
+  cgi_set_parameter_nocopy(fossil_strdup(zName),fossil_strdup(zValue), 1);
 }
 
 /*
@@ -638,7 +652,7 @@ void cgi_delete_query_parameter(const char *zName){
 ** must be made of zValue.
 */
 void cgi_setenv(const char *zName, const char *zValue){
-  cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
+  cgi_set_parameter_nocopy(zName, fossil_strdup(zValue), 0);
 }
 
 /*
@@ -949,7 +963,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   CgiPostReadState state;
   cson_parse_opt popt = cson_parse_opt_empty;
   cson_parse_info pinfo = cson_parse_info_empty;
-  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
+  assert(g.json.gc.a && "json_bootstrap_early() was not called!");
   popt.maxDepth = 15;
   state.fh = zIn;
   state.len = contentLen;
@@ -1039,8 +1053,24 @@ static NORETURN void malformed_request(const char *zMsg);
 ** assume that PATH_INFO is an empty string and set REQUEST_URI equal
 ** to PATH_INFO.
 **
+** Sometimes PATH_INFO is missing and SCRIPT_NAME is not a prefix of
+** REQUEST_URI.  (See https://fossil-scm.org/forum/forumpost/049e8650ed)
+** In that case, truncate SCRIPT_NAME so that it is a proper prefix
+** of REQUEST_URI.
+**
 ** SCGI typically omits PATH_INFO.  CGI sometimes omits REQUEST_URI and
 ** PATH_INFO when it is empty.
+**
+** CGI Parameter quick reference:
+**
+**                                      REQUEST_URI
+**                               _____________|____________
+**                              /                          \
+**    https://www.fossil-scm.org/forum/info/12736b30c072551a?t=c
+**            \________________/\____/\____________________/ \_/
+**                    |            |             |            |
+**               HTTP_HOST         |        PATH_INFO     QUERY_STRING
+**                            SCRIPT_NAME
 */
 void cgi_init(void){
   char *z;
@@ -1055,12 +1085,27 @@ void cgi_init(void){
 #endif
 
 #ifdef FOSSIL_ENABLE_JSON
-  int noJson = P("no_json")!=0;
-  if( noJson==0 ){ json_main_bootstrap(); }
+  const int noJson = P("no_json")!=0;
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
-  if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
+
+  /* We must have SCRIPT_NAME. If the web server did not supply it, try
+  ** to compute it from REQUEST_URI and PATH_INFO. */
+  if( zScriptName==0 ){
+    size_t nRU, nPI;
+    if( zRequestUri==0 || zPathInfo==0 ){
+      malformed_request("missing SCRIPT_NAME");  /* Does not return */
+    }
+    nRU = strlen(zRequestUri);
+    nPI = strlen(zPathInfo);
+    if( nRU<nPI ){
+      malformed_request("PATH_INFO is longer than REQUEST_URI");
+    }
+    zScriptName = fossil_strndup(zRequestUri,(int)(nRU-nPI));
+    cgi_set_parameter("SCRIPT_NAME", zScriptName);
+  }
+
 #ifdef _WIN32
   /* The Microsoft IIS web server does not define REQUEST_URI, instead it uses
   ** PATH_INFO for virtually the same purpose.  Define REQUEST_URI the same as
@@ -1071,7 +1116,7 @@ void cgi_init(void){
     cgi_set_parameter("REQUEST_URI", zPathInfo);
     for(i=0; zPathInfo[i]==zScriptName[i] && zPathInfo[i]; i++){}
     for(j=i; zPathInfo[j] && zPathInfo[j]!='?'; j++){}
-    zPathInfo = mprintf("%.*s", j-i, zPathInfo+i);
+    zPathInfo = fossil_strndup(zPathInfo+i, j-i);
     cgi_replace_parameter("PATH_INFO", zPathInfo);
   }
 #endif
@@ -1088,18 +1133,25 @@ void cgi_init(void){
     int i, j;
     for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
     for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
-    zPathInfo = mprintf("%.*s", j-i, zRequestUri+i);
-    cgi_set_parameter("PATH_INFO", zPathInfo);
+    zPathInfo = fossil_strndup(zRequestUri+i, j-i);
+    cgi_set_parameter_nocopy("PATH_INFO", zPathInfo, 0);
+    if( j>i && zScriptName[i]!=0 ){
+      /* If SCRIPT_NAME is not a prefix of REQUEST_URI, truncate it so
+      ** that it is.  See https://fossil-scm.org/forum/forumpost/049e8650ed
+      */
+      char *zNew = fossil_strndup(zScriptName, i);
+      cgi_replace_parameter("SCRIPT_NAME", zNew);
+    }
   }
 #ifdef FOSSIL_ENABLE_JSON
-  if(strncmp("/json",zPathInfo,5)==0
-     && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+  if(noJson==0 && json_request_is_json_api(zPathInfo)){
     /* We need to change some following behaviour depending on whether
     ** we are operating in JSON mode or not. We cannot, however, be
     ** certain whether we should/need to be in JSON mode until the
     ** PATH_INFO is set up.
     */
     g.json.isJsonMode = 1;
+    json_bootstrap_early();
   }else{
     assert(!g.json.isJsonMode &&
            "Internal misconfiguration of g.json.isJsonMode");
@@ -1107,26 +1159,26 @@ void cgi_init(void){
 #endif
   z = (char*)P("HTTP_COOKIE");
   if( z ){
-    z = mprintf("%s",z);
+    z = fossil_strdup(z);
     add_param_list(z, ';');
   }
 
   z = (char*)P("QUERY_STRING");
   if( z ){
-    z = mprintf("%s",z);
+    z = fossil_strdup(z);
     add_param_list(z, '&');
   }
 
   z = (char*)P("REMOTE_ADDR");
   if( z ){
-    g.zIpAddr = mprintf("%s", z);
+    g.zIpAddr = fossil_strdup(z);
   }
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
   zType = P("CONTENT_TYPE");
   zSemi = zType ? strchr(zType, ';') : 0;
   if( zSemi ){
-    g.zContentType = mprintf("%.*s", (int)(zSemi-zType), zType);
+    g.zContentType = fossil_strndup(zType, (int)(zSemi-zType));
     zType = g.zContentType;
   }else{
     g.zContentType = zType;
@@ -1246,12 +1298,11 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 
   /* If no match is found and the name begins with an upper-case
   ** letter, then check to see if there is an environment variable
-  ** with the given name. Handle environment variables with empty values
-  ** the same as non-existent environment variables.
+  ** with the given name.
   */
   if( fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
-    if( zValue && zValue[0] ){
+    if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue, 0);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));
       return zValue;
@@ -1390,10 +1441,10 @@ void cgi_load_environment(void){
     "HTTP_IF_NONE_MATCH", "HTTP_IF_MODIFIED_SINCE",
     "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
     "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
-    "REMOTE_USER", "REQUEST_METHOD",
-    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
-    "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
-    "SQLITE_TMPDIR", "TMPDIR",
+    "REMOTE_USER", "REQUEST_METHOD", "REQUEST_SCHEME",
+    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_NAME",
+    "SERVER_PROTOCOL", "HOME", "FOSSIL_HOME", "USERNAME", "USER",
+    "FOSSIL_USER", "SQLITE_TMPDIR", "TMPDIR",
     "TEMP", "TMP", "FOSSIL_VFS",
     "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
     "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
@@ -1438,6 +1489,29 @@ void cgi_print_all(int showAll, unsigned int eDest){
         break;
       }
     }
+  }
+}
+
+/*
+** Put information about the N-th parameter into arguments.
+** Return non-zero on success, and return 0 if there is no N-th parameter.
+*/
+int cgi_param_info(
+  int N,
+  const char **pzName,
+  const char **pzValue,
+  int *pbIsQP
+){
+  if( N>=0 && N<nUsedQP ){
+    *pzName = aParamQP[N].zName;
+    *pzValue = aParamQP[N].zValue;
+    *pbIsQP = aParamQP[N].isQP;
+    return 1;
+  }else{
+    *pzName = 0;
+    *pzValue = 0;
+    *pbIsQP = 0;
+    return 0;
   }
 }
 
@@ -1625,6 +1699,7 @@ char *cgi_remote_ip(int fd){
 void cgi_handle_http_request(const char *zIpAddr){
   char *z, *zToken;
   int i;
+  const char *zScheme = "http";
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
@@ -1657,7 +1732,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   }
   if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
-    g.zIpAddr = mprintf("%s", zIpAddr);
+    g.zIpAddr = fossil_strdup(zIpAddr);
   }
 
 
@@ -1688,8 +1763,13 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_COOKIE", zVal);
     }else if( fossil_strcmp(zFieldName,"https:")==0 ){
       cgi_setenv("HTTPS", zVal);
+      zScheme = "https";
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
+      char *z;
       cgi_setenv("HTTP_HOST", zVal);
+      z = strchr(zVal, ':');
+      if( z ) z[0] = 0;
+      cgi_setenv("SERVER_NAME", zVal);
     }else if( fossil_strcmp(zFieldName,"if-none-match:")==0 ){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( fossil_strcmp(zFieldName,"if-modified-since:")==0 ){
@@ -1703,7 +1783,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
       const char *zIpAddr = cgi_accept_forwarded_for(zVal);
       if( zIpAddr!=0 ){
-        g.zIpAddr = mprintf("%s", zIpAddr);
+        g.zIpAddr = fossil_strdup(zIpAddr);
         cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
       }
     }else if( fossil_strcmp(zFieldName,"range:")==0 ){
@@ -1715,6 +1795,7 @@ void cgi_handle_http_request(const char *zIpAddr){
       }
     }
   }
+  cgi_setenv("REQUEST_SCHEME",zScheme);
   cgi_init();
   cgi_trace(0);
 }
@@ -1736,10 +1817,13 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   int i, content_length = 0;
   char zLine[2000];     /* A single line of input. */
 
+#ifdef FOSSIL_ENABLE_JSON
+  if( nCycles==0 ){ json_bootstrap_early(); }
+#endif
   if( zIpAddr ){
     if( nCycles==0 ){
       cgi_setenv("REMOTE_ADDR", zIpAddr);
-      g.zIpAddr = mprintf("%s", zIpAddr);
+      g.zIpAddr = fossil_strdup(zIpAddr);
     }
   }else{
     fossil_panic("missing SSH IP address");
@@ -1801,7 +1885,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( nCycles==0 ){
     cgi_setenv("PATH_INFO", zToken);
   }else{
-    cgi_replace_parameter("PATH_INFO", mprintf("%s",zToken));
+    cgi_replace_parameter("PATH_INFO", fossil_strdup(zToken));
   }
 
   /* Get all the optional fields that follow the first line.
@@ -1823,7 +1907,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       content_length = atoi(zVal);
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
-      g.zContentType = zType = mprintf("%s", zVal);
+      g.zContentType = zType = fossil_strdup(zVal);
     }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       if( nCycles==0 ){
         cgi_setenv("HTTP_HOST", zVal);
@@ -1900,7 +1984,7 @@ char *cgi_handle_ssh_probes(char *zLine, int zSize, char *z, char *zToken){
   ** so return the command that was requested
   */
   g.fSshClient |= CGI_SSH_COMPAT;
-  return mprintf("%s", zToken);
+  return fossil_strdup(zToken);
 }
 
 /*
@@ -2090,7 +2174,7 @@ int cgi_http_server(
       }
     }else
 #endif
-    if( system(zBrowser)<0 ){
+    if( fossil_system(zBrowser)<0 ){
       fossil_warning("cannot start browser: %s\n", zBrowser);
     }
   }
@@ -2276,7 +2360,7 @@ const char *cgi_ssh_remote_addr(const char *zDefault){
   const char *zSshConn = fossil_getenv("SSH_CONNECTION");
 
   if( zSshConn && zSshConn[0] ){
-    char *zSshClient = mprintf("%s",zSshConn);
+    char *zSshClient = fossil_strdup(zSshConn);
     if( (zIndex = strchr(zSshClient,' '))!=0 ){
       zSshClient[zIndex-zSshClient] = '\0';
       return zSshClient;

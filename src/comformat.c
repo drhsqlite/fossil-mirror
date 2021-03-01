@@ -553,7 +553,7 @@ int get_comment_format(){
 **                    is detected.
 **   --indent         Number of spaces to indent (default (-1) is to
 **                    auto-detect).  Zero means no indent.
-**   -W|--width <num> Width of lines (default (-1) is to auto-detect).
+**   -W|--width NUM   Width of lines (default (-1) is to auto-detect).
 **                    Zero means no limit.
 */
 void test_comment_format(void){

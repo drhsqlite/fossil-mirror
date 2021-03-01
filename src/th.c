@@ -201,7 +201,6 @@ struct Buffer {
   int nBufAlloc;
 };
 typedef struct Buffer Buffer;
-static int  thBufferWrite(Th_Interp *interp, Buffer *, const char *, int);
 static void thBufferInit(Buffer *);
 static void thBufferFree(Th_Interp *interp, Buffer *);
 
@@ -209,8 +208,8 @@ static void thBufferFree(Th_Interp *interp, Buffer *);
 ** This version of memcpy() allows the first and second argument to
 ** be NULL as long as the number of bytes to copy is zero.
 */
-static void *th_memcpy(void *dest, const void *src, size_t n){
-  return n>0 ? memcpy(dest,src,n) : dest;
+static void th_memcpy(void *dest, const void *src, size_t n){
+  if( n>0 ) memcpy(dest,src,n);
 }
 
 /*
@@ -218,38 +217,48 @@ static void *th_memcpy(void *dest, const void *src, size_t n){
 ** pBuffer. If there is not enough space currently allocated, resize
 ** the allocation to make space.
 */
-static int thBufferWrite(
+static void thBufferWriteResize(
   Th_Interp *interp,
   Buffer *pBuffer,
   const char *zAdd,
   int nAdd
 ){
-  int nReq;
-
-  if( nAdd<0 ){
-    nAdd = th_strlen(zAdd);
-  }
-  nReq = pBuffer->nBuf+nAdd+1;
-
-  if( nReq>pBuffer->nBufAlloc ){
-    char *zNew;
-    int nNew;
-
-    nNew = nReq*2;
-    zNew = (char *)Th_Malloc(interp, nNew);
-    th_memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
-    Th_Free(interp, pBuffer->zBuf);
-    pBuffer->nBufAlloc = nNew;
-    pBuffer->zBuf = zNew;
-  }
-
+  int nNew = (pBuffer->nBuf+nAdd)*2+32;
+  pBuffer->zBuf = Th_Realloc(interp, pBuffer->zBuf, nNew);
+  pBuffer->nBufAlloc = nNew;
   th_memcpy(&pBuffer->zBuf[pBuffer->nBuf], zAdd, nAdd);
   pBuffer->nBuf += nAdd;
-  pBuffer->zBuf[pBuffer->nBuf] = '\0';
-
-  return TH_OK;
 }
-#define thBufferWrite(a,b,c,d) thBufferWrite(a,b,(const char *)c,d)
+static void thBufferWriteFast(
+  Th_Interp *interp,
+  Buffer *pBuffer,
+  const char *zAdd,
+  int nAdd
+){
+  if( pBuffer->nBuf+nAdd > pBuffer->nBufAlloc ){
+    thBufferWriteResize(interp, pBuffer, zAdd, nAdd);
+  }else{
+    char *z = pBuffer->zBuf + pBuffer->nBuf;
+    pBuffer->nBuf += nAdd;
+    memcpy(z, zAdd, nAdd);
+  }
+}
+#define thBufferWrite(a,b,c,d) thBufferWriteFast(a,b,(const char *)c,d)
+
+/*
+** Add a single character to a buffer
+*/
+static void thBufferAddChar(
+  Th_Interp *interp,
+  Buffer *pBuffer,
+  char c
+){
+  if( pBuffer->nBuf+1 > pBuffer->nBufAlloc ){
+    thBufferWriteResize(interp, pBuffer, &c, 1);
+  }else{
+    pBuffer->zBuf[pBuffer->nBuf++] = c;
+  }
+}
 
 /*
 ** Initialize the Buffer structure pointed to by pBuffer.
@@ -629,7 +638,7 @@ static int thSubstVarname(
       thBufferInit(&varname);
       thBufferWrite(interp, &varname, &zWord[1], i);
       thBufferWrite(interp, &varname, zInner, nInner);
-      thBufferWrite(interp, &varname, ")", 1);
+      thBufferAddChar(interp, &varname, ')');
       rc = Th_GetVar(interp, varname.zBuf, varname.nBuf);
       thBufferFree(interp, &varname);
       return rc;
@@ -691,7 +700,7 @@ static int thSubstWord(
   thBufferInit(&output);
 
   if( nWord>1 && (zWord[0]=='{' && zWord[nWord-1]=='}') ){
-    rc = thBufferWrite(interp, &output, &zWord[1], nWord-2);
+    thBufferWrite(interp, &output, &zWord[1], nWord-2);
   }else{
 
     /* If the word is surrounded by double-quotes strip these away. */
@@ -721,7 +730,7 @@ static int thSubstWord(
             break;
           }
         default: {
-          thBufferWrite(interp, &output, &zWord[i], 1);
+          thBufferAddChar(interp, &output, zWord[i]);
           continue; /* Go to the next iteration of the for(...) loop */
         }
       }
@@ -734,7 +743,7 @@ static int thSubstWord(
         const char *zRes;
         int nRes;
         zRes = Th_GetResult(interp, &nRes);
-        rc = thBufferWrite(interp, &output, zRes, nRes);
+        thBufferWrite(interp, &output, zRes, nRes);
         i += (nGet-1);
       }
     }
@@ -832,7 +841,7 @@ static int thSplitList(
     if( nWord>0 ){
       zWord = Th_GetResult(interp, &nWord);
       thBufferWrite(interp, &strbuf, zWord, nWord);
-      thBufferWrite(interp, &strbuf, "\0", 1);
+      thBufferAddChar(interp, &strbuf, 0);
       thBufferWrite(interp, &lenbuf, &nWord, sizeof(int));
       nCount++;
     }
@@ -1136,7 +1145,7 @@ typedef struct Find Find;
 **
 ** If the arrayok argument is false and the named variable is an array,
 ** an error is left in the interpreter result and NULL returned. If
-** arrayok is true an array name is Ok.
+** arrayok is true an array name is OK.
 */
 
 static Th_Variable *thFindValue(
@@ -1144,7 +1153,7 @@ static Th_Variable *thFindValue(
   const char *zVar,       /* Pointer to variable name */
   int nVar,               /* Number of bytes at nVar */
   int create,             /* If true, create the variable if not found */
-  int arrayok,            /* If true, an array is Ok. Otherwise array==error */
+  int arrayok,            /* If true, an array is OK. Otherwise array==error */
   int noerror,            /* If false, set interpreter result to error */
   Find *pFind             /* If non-zero, place output here */
 ){
@@ -1528,23 +1537,6 @@ char *Th_TakeResult(Th_Interp *pInterp, int *pN){
   }
 }
 
-
-/*
-** Wrappers around the supplied malloc() and free()
-*/
-void *Th_Malloc(Th_Interp *pInterp, int nByte){
-  void *p = pInterp->pVtab->xMalloc(nByte);
-  if( p ){
-    memset(p, 0, nByte);
-  }
-  return p;
-}
-void Th_Free(Th_Interp *pInterp, void *z){
-  if( z ){
-    pInterp->pVtab->xFree(z);
-  }
-}
-
 /*
 ** Install a new th1 command.
 **
@@ -1736,7 +1728,7 @@ int Th_ListAppend(
     nElem = th_strlen(zElem);
   }
   if( output.nBuf>0 ){
-    thBufferWrite(interp, &output, " ", 1);
+    thBufferAddChar(interp, &output, ' ');
   }
 
   for(i=0; i<nElem; i++){
@@ -1748,14 +1740,14 @@ int Th_ListAppend(
   }
 
   if( nElem==0 || (!hasEscapeChar && hasSpecialChar && nBrace==0) ){
-    thBufferWrite(interp, &output, "{", 1);
+    thBufferAddChar(interp, &output, '{');
     thBufferWrite(interp, &output, zElem, nElem);
-    thBufferWrite(interp, &output, "}", 1);
+    thBufferAddChar(interp, &output, '}');
   }else{
     for(i=0; i<nElem; i++){
       char c = zElem[i];
-      if( th_isspecial(c) ) thBufferWrite(interp, &output, "\\", 1);
-      thBufferWrite(interp, &output, &c, 1);
+      if( th_isspecial(c) ) thBufferAddChar(interp, &output, '\\');
+      thBufferAddChar(interp, &output, c);
     }
   }
 
@@ -1831,13 +1823,12 @@ void Th_DeleteInterp(Th_Interp *interp){
 /*
 ** Create a new interpreter.
 */
-Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
+Th_Interp * Th_CreateInterp(void){
   Th_Interp *p;
 
   /* Allocate and initialise the interpreter and the global frame */
-  p = pVtab->xMalloc(sizeof(Th_Interp) + sizeof(Th_Frame));
+  p = Th_Malloc(0, sizeof(Th_Interp) + sizeof(Th_Frame));
   memset(p, 0, sizeof(Th_Interp));
-  p->pVtab = pVtab;
   p->paCmd = Th_HashNew(p);
   thPushFrame(p, (Th_Frame *)&p[1]);
   thInitialize(p);

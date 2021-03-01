@@ -59,7 +59,7 @@ on ${PACKAGE_TIME}.
 
 The original sources for fossil can be downloaded for free from:
 
-http://www.fossil-scm.org/
+http://fossil-scm.org/
 
 fossil is released under the terms of the 2-clause BSD License.
 

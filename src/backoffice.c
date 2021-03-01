@@ -21,6 +21,7 @@
 **
 **    *  Sending alerts and notifications
 **    *  Processing the email queue
+**    *  Handling post-receive hooks
 **    *  Automatically syncing to peer repositories
 **
 ** Backoffice processing is automatically started whenever there are
@@ -79,6 +80,8 @@
 # include <sys/types.h>
 # include <signal.h>
 # include <errno.h>
+# include <sys/time.h>
+# include <sys/resource.h>
 # include <fcntl.h>
 # define GETPID getpid
 #endif
@@ -123,8 +126,32 @@ static int backofficeNoDelay = 0;
 ** file is open.  Later, after the database is closed, the
 ** backoffice_run_if_needed() will consult this variable to see if it
 ** should be a no-op.
+**
+** The magic string "x" in this variable means "do not run the backoffice".
 */
 static char *backofficeDb = 0;
+
+/*
+** Log backoffice activity to a file named here.  If not NULL, this
+** overrides the "backoffice-logfile" setting of the database.  If NULL,
+** the "backoffice-logfile" setting is used instead.
+*/
+static const char *backofficeLogfile = 0;
+
+/*
+** Write the log message into this open file.
+*/
+static FILE *backofficeFILE = 0;
+
+/*
+** Write backoffice log messages on this BLOB. to this connection:
+*/
+static Blob *backofficeBlob = 0;
+
+/*
+** Non-zero for extra logging detail.
+*/
+static int backofficeLogDetail = 0;
 
 /* End of state variables
 ****************************************************************************/
@@ -216,6 +243,7 @@ static const char *backofficeParseInt(const char *z, sqlite3_uint64 *pVal){
 static void backofficeReadLease(Lease *pLease){
   Stmt q;
   memset(pLease, 0, sizeof(*pLease));
+  db_unprotect(PROTECT_CONFIG);
   db_prepare(&q, "SELECT value FROM repository.config"
                  " WHERE name='backoffice'");
   if( db_step(&q)==SQLITE_ROW ){
@@ -226,6 +254,7 @@ static void backofficeReadLease(Lease *pLease){
     backofficeParseInt(z, &pLease->tmNext);
   }
   db_finalize(&q);
+  db_protect_pop();
 }
 
 /*
@@ -252,11 +281,13 @@ char *backoffice_last_run(void){
 ** Write a lease to the backoffice property
 */
 static void backofficeWriteLease(Lease *pLease){
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "REPLACE INTO repository.config(name,value,mtime)"
     " VALUES('backoffice','%lld %lld %lld %lld',now())",
     pLease->idCurrent, pLease->tmCurrent,
     pLease->idNext, pLease->tmNext);
+  db_protect_pop();
 }
 
 /*
@@ -279,7 +310,7 @@ static int backofficeWin32ProcessExists(DWORD dwProcessId){
 
 /*
 ** Check to see if the process identified by pid is alive.  If
-** we cannot prove the the process is dead, return true.
+** we cannot prove that the process is dead, return true.
 */
 static int backofficeProcessExists(sqlite3_uint64 pid){
 #if defined(_WIN32)
@@ -291,7 +322,7 @@ static int backofficeProcessExists(sqlite3_uint64 pid){
 
 /*
 ** Check to see if the process identified by pid has finished.  If
-** we cannot prove the the process is still running, return true.
+** we cannot prove that the process is still running, return true.
 */
 static int backofficeProcessDone(sqlite3_uint64 pid){
 #if defined(_WIN32)
@@ -432,7 +463,7 @@ static void backoffice_error_check_one(int *pOnce){
 ** the main backoffice.
 **
 ** If a primary backoffice is running, but a on-deck backoffice is
-** needed, this routine becomes that on-desk backoffice.
+** needed, this routine becomes that on-deck backoffice.
 */
 static void backoffice_thread(void){
   Lease x;
@@ -518,6 +549,49 @@ static void backoffice_thread(void){
 }
 
 /*
+** Append to a message to the backoffice log, if the log is open.
+*/
+void backoffice_log(const char *zFormat, ...){
+  va_list ap;
+  if( backofficeBlob==0 ) return;
+  blob_append_char(backofficeBlob, ' ');
+  va_start(ap, zFormat);
+  blob_vappendf(backofficeBlob, zFormat, ap);
+  va_end(ap);
+}
+
+#if !defined(_WIN32)
+/*
+** Capture routine for signals while running backoffice.
+*/
+static void backoffice_signal_handler(int sig){
+  const char *zSig = 0;
+  if( sig==SIGSEGV ) zSig = "SIGSEGV";
+  if( sig==SIGFPE )  zSig = "SIGFPE";
+  if( sig==SIGABRT ) zSig = "SIGABRT";
+  if( sig==SIGILL )  zSig = "SIGILL";
+  if( zSig==0 ){
+    backoffice_log("signal-%d", sig);
+  }else{
+    backoffice_log("%s", zSig);
+  }
+  fprintf(backofficeFILE, "%s\n", blob_str(backofficeBlob));
+  fflush(backofficeFILE);
+  exit(1);
+}
+#endif
+
+#if !defined(_WIN32)
+/*
+** Convert a struct timeval into an integer number of microseconds
+*/
+static long long int tvms(struct timeval *p){
+  return ((long long int)p->tv_sec)*1000000 + (long long int)p->tv_usec;
+}
+#endif
+
+
+/*
 ** This routine runs to do the backoffice processing.  When adding new
 ** backoffice processing tasks, add them here.
 */
@@ -525,25 +599,62 @@ void backoffice_work(void){
   /* Log the backoffice run for testing purposes.  For production deployments
   ** the "backoffice-logfile" property should be unset and the following code
   ** should be a no-op. */
-  char *zLog = db_get("backoffice-logfile",0);
-  if( zLog && zLog[0] ){
-    FILE *pLog = fossil_fopen(zLog, "a");
-    if( pLog ){
-      char *zDate = db_text(0, "SELECT datetime('now');");
-      fprintf(pLog, "%s (%d) backoffice running\n", zDate, GETPID());
-      fclose(pLog);
+  const char *zLog = backofficeLogfile;
+  Blob log;
+  int nThis;
+  int nTotal = 0;
+#if !defined(_WIN32)
+  struct timeval sStart, sEnd;
+#endif
+  if( zLog==0 ) zLog = db_get("backoffice-logfile",0);
+  if( zLog && zLog[0] && (backofficeFILE = fossil_fopen(zLog,"a"))!=0 ){
+    int i;
+    char *zName = db_get("project-name",0);
+#if !defined(_WIN32)
+    gettimeofday(&sStart, 0);
+    signal(SIGSEGV, backoffice_signal_handler);
+    signal(SIGABRT, backoffice_signal_handler);
+    signal(SIGFPE, backoffice_signal_handler);
+    signal(SIGILL, backoffice_signal_handler);
+#endif
+    if( zName==0 ){
+      zName = (char*)file_tail(g.zRepositoryName);
+      if( zName==0 ) zName = "(unnamed)";
+    }else{
+      /* Convert all spaces in the "project-name" into dashes */
+      for(i=0; zName[i]; i++){ if( zName[i]==' ' ) zName[i] = '-'; }
     }
+    blob_init(&log, 0, 0);
+    backofficeBlob = &log;
+    blob_appendf(&log, "%s %s", db_text(0, "SELECT datetime('now')"), zName);
   }
 
   /* Here is where the actual work of the backoffice happens */
-  alert_backoffice(0);
-  smtp_cleanup();
+  nThis = alert_backoffice(0);
+  if( nThis ){ backoffice_log("%d alerts", nThis); nTotal += nThis; }
+  nThis = smtp_cleanup();
+  if( nThis ){ backoffice_log("%d SMTPs", nThis); nTotal += nThis; }
+  nThis = hook_backoffice();
+  if( nThis ){ backoffice_log("%d hooks", nThis); nTotal += nThis; }
+
+  /* Close the log */
+  if( backofficeFILE ){
+    if( nTotal || backofficeLogDetail ){
+      if( nTotal==0 ) backoffice_log("no-op");
+#if !defined(_WIN32)
+      gettimeofday(&sEnd,0);
+      backoffice_log("elapse-time %d us", tvms(&sEnd) - tvms(&sStart));
+#endif
+      fprintf(backofficeFILE, "%s\n", blob_str(backofficeBlob));
+    }
+    fclose(backofficeFILE);
+  }
 }
 
 /*
 ** COMMAND: backoffice*
 **
-** Usage: backoffice [OPTIONS...] [REPOSITORIES...]
+** Usage: %fossil backoffice [OPTIONS...] [REPOSITORIES...]
 **
 ** Run backoffice processing on the repositories listed.  If no
 ** repository is specified, run it on the repository of the local checkout.
@@ -551,34 +662,59 @@ void backoffice_work(void){
 ** This might be done by a cron job or similar to make sure backoffice
 ** processing happens periodically.  Or, the --poll option can be used
 ** to run this command as a daemon that will periodically invoke backoffice
-** on collection of repositories.
+** on a collection of repositories.
 **
-** OPTIONS:
+** If only a single repository is named and --poll is omitted, then the
+** backoffice work is done in-process.  But if there are multiple repositories
+** or if --poll is used, a separate sub-process is started for each poll of 
+** each repository.
+**
+** Standard options:
 **
 **    --debug                 Show what this command is doing.
 **
-**    --nodelay               Do not queue up or wait for a backoffice job
-**                            to complete. If no work is available or if
-**                            backoffice has run recently, return immediately.
-**                            The --nodelay option is implied if more than
-**                            one repository is listed on the command-line.
+**    --logfile FILE          Append a log of backoffice actions onto FILE.
+**
+**    --min N                 When polling, invoke backoffice at least
+**                            once every N seconds even if the repository
+**                            never changes.  0 or negative means disable
+**                            this feature.  Default: 3600 (once per hour).
 **
 **    --poll N                Repeat backoffice calls for repositories that
 **                            change in appoximately N-second intervals.
 **                            N less than 1 turns polling off (the default).
+**                            Recommended polling interval: 60 seconds.
 **
 **    --trace                 Enable debugging output on stderr
+**
+** Options intended for internal use only which may change or be
+** discontinued in future releases:
+**
+**    --nodelay               Do not queue up or wait for a backoffice job
+**                            to complete. If no work is available or if
+**                            backoffice has run recently, return immediately.
+**
+**    --nolease               Always run backoffice, even if there is a lease
+**                            conflict.  This option implies --nodelay.  This
+**                            option is added to secondary backoffice commands
+**                            that are invoked by the --poll option.  
 */
 void backoffice_command(void){
   int nPoll;
+  int nMin;
   const char *zPoll;
   int bDebug = 0;
+  int bNoLease = 0;
   unsigned int nCmd = 0;
   if( find_option("trace",0,0)!=0 ) g.fAnyTrace = 1;
   if( find_option("nodelay",0,0)!=0 ) backofficeNoDelay = 1;
+  backofficeLogfile = find_option("logfile",0,1);
   zPoll = find_option("poll",0,1);
   nPoll = zPoll ? atoi(zPoll) : 0;
+  zPoll = find_option("min",0,1);
+  nMin = zPoll ? atoi(zPoll) : 3600;
   bDebug = find_option("debug",0,0)!=0;
+  bNoLease = find_option("nolease",0,0)!=0;
 
   /* Silently consume the -R or --repository flag, leaving behind its
   ** argument. This is for legacy compatibility. Older versions of the
@@ -594,17 +730,36 @@ void backoffice_command(void){
     int i;
     time_t iNow = 0;
     time_t ix;
+    i64 *aLastRun = fossil_malloc( sizeof(i64)*g.argc );
+    memset(aLastRun, 0, sizeof(i64)*g.argc );
     while( 1 /* exit via "break;" */){
       time_t iNext = time(0);
       for(i=2; i<g.argc; i++){
         Blob cmd;
-        if( !file_isfile(g.argv[i], ExtFILE) ) continue;
-        if( iNow && iNow>file_mtime(g.argv[i],ExtFILE) ) continue;
+        if( !file_isfile(g.argv[i], ExtFILE) ){
+          continue;  /* Repo no longer exists.  Ignore it. */
+        }
+        if( iNow
+         && iNow>file_mtime(g.argv[i], ExtFILE)
+         && (nMin<=0 || aLastRun[i]+nMin>iNow)
+        ){
+          continue;  /* Not yet time to run this one */
+        }
         blob_init(&cmd, 0, 0);
         blob_append_escaped_arg(&cmd, g.nameOfExe);
         blob_append(&cmd, " backoffice --nodelay", -1);
         if( g.fAnyTrace ){
           blob_append(&cmd, " --trace", -1);
+        }
+        if( bDebug ){
+          blob_append(&cmd, " --debug", -1);
+        }
+        if( nPoll>0 ){
+          blob_append(&cmd, " --nolease", -1);
+        }
+        if( backofficeLogfile ){
+          blob_append(&cmd, " --logfile", -1);
+          blob_append_escaped_arg(&cmd, backofficeLogfile);
         }
         blob_append_escaped_arg(&cmd, g.argv[i]);
         nCmd++;
@@ -612,6 +767,7 @@ void backoffice_command(void){
           fossil_print("COMMAND[%u]: %s\n", nCmd, blob_str(&cmd));
         }
         fossil_system(blob_str(&cmd));
+        aLastRun[i] = iNext;
         blob_reset(&cmd);
       }
       if( nPoll<1 ) break;
@@ -624,12 +780,21 @@ void backoffice_command(void){
       }
     }
   }else{
+    /* Not polling and only one repository named.  Backoffice is run
+    ** once by this process, which then exits */
     if( g.argc==3 ){
       g.zRepositoryOption = g.argv[2];
       g.argc--;
     }
     db_find_and_open_repository(0,0);
-    backoffice_thread();
+    if( bDebug ){
+      backofficeLogDetail = 1;
+    }
+    if( bNoLease ){
+      backoffice_work();
+    }else{
+      backoffice_thread();
+    }
   }
 }
 

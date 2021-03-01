@@ -46,17 +46,16 @@
 **                        boolean: "yes", "no", "true", "false", etc.
 **   -l|--log             select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
-**                        N<=0 means no limit.
+**                        N less than 0 means no limit.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
 **   -s|--status          select status mode (print a status indicator for FILE)
-**   -W|--width <num>     Width of lines (default is to auto-detect). Must be
-**                        >22 or 0 (= no limit, resulting in a single line per
-**                        entry).
+**   -W|--width N         Width of lines (default is to auto-detect). Must be
+**                        more than 22 or else 0 to indicate no limit.
 **
-** See also: artifact, cat, descendants, info, leaves
+** See also: [[artifact]], [[cat]], [[descendants]], [[info]], [[leaves]]
 */
 void finfo_cmd(void){
   db_must_be_within_tree();
@@ -247,7 +246,7 @@ void finfo_cmd(void){
 **    -R|--repository FILE       Extract artifacts from repository FILE
 **    -r VERSION                 The specific check-in containing the file
 **
-** See also: finfo
+** See also: [[finfo]]
 */
 void cat_cmd(void){
   int i;
@@ -274,27 +273,41 @@ void cat_cmd(void){
 
 /*
 ** WEBPAGE: finfo
-** URL: /finfo?name=FILENAME
+** Usage:
+**   *  /finfo?name=FILENAME
+**   *  /finfo?name=FILENAME&ci=HASH
 **
-** Show the change history for a single file.
+** Show the change history for a single file.  The name=FILENAME query
+** parameter gives the filename and is a required parameter.  If the
+** ci=HASH parameter is also supplied, then the FILENAME,HASH combination
+** identifies a particular version of a file, and in that case all changes
+** to that one file version are tracked across both edits and renames.
+** If only the name=FILENAME parameter is supplied (if ci=HASH is omitted)
+** then the graph shows all changes to any file while it happened
+** to be called FILENAME and changes are not tracked across renames.
 **
 ** Additional query parameters:
 **
-**    a=DATETIME Only show changes after DATETIME
-**    b=DATETIME Only show changes before DATETIME
-**    m=HASH     Mark this particular file version
-**    n=NUM      Show the first NUM changes only
-**    brbg       Background color by branch name
-**    ubg        Background color by user name
-**    ci=UUID    Ancestors of a particular check-in
-**    orig=UUID  If both ci and orig are supplied, only show those
-**                 changes on a direct path from orig to ci.
-**    showid     Show RID values for debugging
+**    a=DATETIME      Only show changes after DATETIME
+**    b=DATETIME      Only show changes before DATETIME
+**    ci=HASH         identify a particular version of a file and then
+**                    track changes to that file across renames
+**    m=HASH          Mark this particular file version.
+**    n=NUM           Show the first NUM changes only
+**    name=FILENAME   (Required) name of file whose history to show
+**    brbg            Background color by branch name
+**    ubg             Background color by user name
+**    from=HASH       Ancestors only (not descendents) of the version of
+**                    the file in this particular check-in.
+**    to=HASH         If both from= and to= are supplied, only show those
+**                    changes on the direct path between the two given
+**                    checkins.
+**    showid          Show RID values for debugging
+**    showsql         Show the SQL query used to gather the data for
+**                    the graph
 **
-** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
-** year-month-day form, it may be truncated, and it may also name a
-** timezone offset from UTC as "-HH:MM" (westward) or "+HH:MM"
-** (eastward). Either no timezone suffix or "Z" means UTC.
+** DATETIME may be in any of usual formats, including "now",
+** "YYYY-MM-DDTHH:MM:SS.SSS", "YYYYMMDDHHMM", and others.
 */
 void finfo_page(void){
   Stmt q;
@@ -303,8 +316,10 @@ void finfo_page(void){
   const char *zA;
   const char *zB;
   int n;
-  int baseCheckin;
-  int origCheckin = 0;
+  int ridFrom;
+  int ridTo = 0;
+  int ridCi = 0;
+  const char *zCI = P("ci");
   int fnid;
   Blob title;
   Blob sql;
@@ -320,14 +335,18 @@ void finfo_page(void){
   const char *zStyle;         /* Viewing mode name */
   const char *zMark;          /* Mark this version of the file */
   int selRid = 0;             /* RID of the marked file version */
+  int mxfnid;                 /* Maximum filename.fnid value */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  ridCi = zCI ? name_to_rid_www("ci") : 0;
   if( fnid==0 ){
     style_header("No such file");
+  }else if( ridCi==0 ){
+    style_header("All files named \"%s\"", zFilename);
   }else{
-    style_header("History for %s", zFilename);
+    style_header("History of %s of %s",zFilename, zCI);
   }
   login_anonymous_available();
   tmFlags = timeline_ss_submenu();
@@ -345,61 +364,112 @@ void finfo_page(void){
   url_initialize(&url, "finfo");
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
-  baseCheckin = name_to_rid_www("ci");
+  ridFrom = name_to_rid_www("from");
   zPrevDate[0] = 0;
   cookie_render();
   if( fnid==0 ){
     @ No such file: %h(zFilename)
-    style_footer();
+    style_finish_page();
     return;
   }
   if( g.perm.Admin ){
     style_submenu_element("MLink Table", "%R/mlink?name=%t", zFilename);
   }
-  if( baseCheckin ){
-    if( P("orig")!=0 ){
-      origCheckin = name_to_typed_rid(P("orig"),"ci");
-      path_shortest_stored_in_ancestor_table(origCheckin, baseCheckin);
+  if( ridFrom ){
+    if( P("to")!=0 ){
+      ridTo = name_to_typed_rid(P("to"),"ci");
+      path_shortest_stored_in_ancestor_table(ridFrom,ridTo);
     }else{
-      compute_direct_ancestors(baseCheckin);
+      compute_direct_ancestors(ridFrom);
     }
   }
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
+  if( ridCi ){
+    /* If we will be tracking changes across renames, some extra temp
+    ** tables (implemented as CTEs) are required */
+    blob_append_sql(&sql,
+      /* The clade(fid,fnid) table is the set of all (fid,fnid) pairs
+      ** that should participate in the output.  Clade is computed by
+      ** walking the graph of mlink edges.
+      */
+      "WITH RECURSIVE clade(fid,fnid) AS (\n"
+      "  SELECT blob.rid, %d FROM blob\n"         /* %d is fnid */
+      "   WHERE blob.uuid=(SELECT uuid FROM files_of_checkin(%Q)"
+                         " WHERE filename=%Q)\n"  /* %Q is the filename */
+      "   UNION\n"
+      "  SELECT mlink.fid, mlink.fnid\n"
+      "    FROM clade, mlink\n"
+      "   WHERE clade.fid=mlink.pid\n"
+      "     AND ((mlink.pfnid=0 AND mlink.fnid=clade.fnid)\n"
+      "          OR mlink.pfnid=clade.fnid)\n"
+      "     AND (mlink.fid>0 OR NOT EXISTS(SELECT 1 FROM mlink AS mx"
+                 " WHERE mx.mid=mlink.mid AND mx.pid=mlink.pid"
+                 "   AND mx.fid>0 AND mx.pfnid=mlink.fnid))\n"
+      "   UNION\n"
+      "  SELECT mlink.pid,"
+              " CASE WHEN mlink.pfnid>0 THEN mlink.pfnid ELSE mlink.fnid END\n"
+      "    FROM clade, mlink\n"
+      "   WHERE mlink.pid>0\n"
+      "     AND mlink.fid=clade.fid\n"
+      "     AND mlink.fnid=clade.fnid\n"
+      ")\n",
+      fnid, zCI, zFilename
+    );
+  }else{
+    /* This is the case for all files with a given name.  We will still
+    ** create a "clade(fid,fnid)" table that identifies all participates
+    ** in the output graph, so that subsequent queries can all be the same,
+    ** but in the case the clade table is much simplier, being just a
+    ** single direct query against the mlink table.
+    */
+    blob_append_sql(&sql,
+      "WITH clade(fid,fnid) AS (\n"
+      "  SELECT DISTINCT fid, %d\n"
+      "    FROM mlink\n"
+      "   WHERE fnid=%d)",
+      fnid, fnid
+    );
+  }
   blob_append_sql(&sql,
-    "SELECT"
-    " datetime(min(event.mtime),toLocal()),"         /* Date of change */
-    " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
-    " coalesce(event.euser, event.user),"            /* User who made chng */
-    " mlink.pid,"                                    /* Parent file rid */
-    " mlink.fid,"                                    /* File rid */
-    " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
-    " blob.uuid,"                                    /* Current file uuid */
-    " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
-    " event.bgcolor,"                                /* Background color */
-    " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)," /* Branchname */
-    " mlink.mid,"                                    /* check-in ID */
-    " mlink.pfnid,"                                  /* Previous filename */
-    " blob.size"                                     /* File size */
-    "  FROM mlink, event, blob"
-    " WHERE mlink.fnid=%d"
-    "   AND event.objid=mlink.mid"
-    "   AND mlink.fid=blob.rid",
-    TAG_BRANCH, fnid
+    "SELECT\n"
+    "  datetime(min(event.mtime),toLocal()),\n"         /* Date of change */
+    "  coalesce(event.ecomment, event.comment),\n"      /* Check-in comment */
+    "  coalesce(event.euser, event.user),\n"            /* User who made chng */
+    "  mlink.pid,\n"                                    /* Parent file rid */
+    "  mlink.fid,\n"                                    /* File rid */
+    "  (SELECT uuid FROM blob WHERE rid=mlink.pid),\n"  /* Parent file hash */
+    "  blob.uuid,\n"                                    /* Current file hash */
+    "  (SELECT uuid FROM blob WHERE rid=mlink.mid),\n"  /* Check-in hash */
+    "  event.bgcolor,\n"                                /* Background color */
+    "  (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
+                             " AND tagxref.rid=mlink.mid),\n" /* Branchname */
+    "  mlink.mid,\n"                                    /* check-in ID */
+    "  mlink.pfnid,\n"                                  /* Previous filename */
+    "  blob.size,\n"                                    /* File size */
+    "  mlink.fnid,\n"                                   /* Current filename */
+    "  filename.name\n"                                 /* Current filename */
+    "FROM clade CROSS JOIN mlink, event"
+    " LEFT JOIN blob ON blob.rid=clade.fid"
+    " LEFT JOIN filename ON filename.fnid=clade.fnid\n"
+    "WHERE mlink.fnid=clade.fnid AND mlink.fid=clade.fid\n"
+    "  AND event.objid=mlink.mid\n",
+    TAG_BRANCH
   );
   if( (zA = P("a"))!=0 ){
-    blob_append_sql(&sql, " AND event.mtime>=julianday('%q')", zA);
+    blob_append_sql(&sql, "  AND event.mtime>=%.16g\n",
+         symbolic_name_to_mtime(zA,0));
     url_add_parameter(&url, "a", zA);
   }
   if( (zB = P("b"))!=0 ){
-    blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
+    blob_append_sql(&sql, "  AND event.mtime<=%.16g\n",
+         symbolic_name_to_mtime(zB,0));
     url_add_parameter(&url, "b", zB);
   }
-  if( baseCheckin ){
+  if( ridFrom ){
     blob_append_sql(&sql,
-      " AND mlink.mid IN (SELECT rid FROM ancestor)"
-      " GROUP BY mlink.fid"
+      "  AND mlink.mid IN (SELECT rid FROM ancestor)\n"
+      "GROUP BY mlink.fid\n"
     );
   }else{
     /* We only want each version of a file to appear on the graph once,
@@ -411,18 +481,20 @@ void finfo_page(void){
     ** The same fake-fid must be used on the graph.
     */
     blob_append_sql(&sql,
-      " GROUP BY"
-      "   CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END"
+      "GROUP BY"
+      " CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END,"
+      " mlink.fnid\n"
     );
   }
-  blob_append_sql(&sql, " ORDER BY event.mtime DESC /*sort*/");
+  blob_append_sql(&sql, "ORDER BY event.mtime DESC");
   if( (n = atoi(PD("n","0")))>0 ){
     blob_append_sql(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
   }
+  blob_append_sql(&sql, " /*sort*/\n");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   if( P("showsql")!=0 ){
-    @ <p>SQL: %h(blob_str(&sql))</p>
+    @ <p>SQL: <blockquote><pre>%h(blob_str(&sql))</blockquote></pre>
   }
   zMark = P("m");
   if( zMark ){
@@ -430,10 +502,10 @@ void finfo_page(void){
   }
   blob_reset(&sql);
   blob_zero(&title);
-  if( baseCheckin ){
-    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
+  if( ridFrom ){
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ridFrom);
     char *zLink = href("%R/info/%!S", zUuid);
-    if( origCheckin ){
+    if( ridTo ){
       blob_appendf(&title, "Changes to file ");
     }else if( n>0 ){
       blob_appendf(&title, "First %d ancestors of file ", n);
@@ -444,16 +516,22 @@ void finfo_page(void){
                  href("%R/file?name=%T&ci=%!S", zFilename, zUuid),
                  zFilename);
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
-    blob_append(&title, origCheckin ? " between " : " from ", -1);
+    blob_append(&title, ridTo ? " between " : " from ", -1);
     blob_appendf(&title, "check-in %z%S</a>", zLink, zUuid);
-    if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
+    if( fShowId ) blob_appendf(&title, " (%d)", ridFrom);
     fossil_free(zUuid);
-    if( origCheckin ){
-      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", origCheckin);
+    if( ridTo ){
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ridTo);
       zLink = href("%R/info/%!S", zUuid);
       blob_appendf(&title, " and check-in %z%S</a>", zLink, zUuid);
       fossil_free(zUuid);
     }
+  }else if( ridCi ){
+    blob_appendf(&title, "History of the file that is called ");
+    hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
+    if( fShowId ) blob_appendf(&title, " (%d)", fnid);
+    blob_appendf(&title, " at checkin %z%h</a>",
+        href("%R/info?name=%t",zCI), zCI);
   }else{
     blob_appendf(&title, "History for ");
     hyperlinked_path(zFilename, &title, 0, "tree", "", LINKPATH_FILE);
@@ -466,18 +544,21 @@ void finfo_page(void){
   blob_reset(&title);
   pGraph = graph_init();
   @ <table id="timelineTable%d(iTableId)" class="timelineTable">
-  if( baseCheckin ){
+  mxfnid = db_int(0, "SELECT max(fnid) FROM filename");
+  if( ridFrom ){
     db_prepare(&qparent,
-      "SELECT DISTINCT pid FROM mlink"
+      "SELECT DISTINCT pid*%d+CASE WHEN pfnid>0 THEN pfnid ELSE fnid END"
+      "  FROM mlink"
       " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
       "   AND pmid IN (SELECT rid FROM ancestor)"
-      " ORDER BY isaux /*sort*/"
+      " ORDER BY isaux /*sort*/", mxfnid+1
     );
   }else{
     db_prepare(&qparent,
-      "SELECT DISTINCT pid FROM mlink"
+      "SELECT DISTINCT pid*%d+CASE WHEN pfnid>0 THEN pfnid ELSE fnid END"
+      "  FROM mlink"
       " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
-      " ORDER BY isaux /*sort*/"
+      " ORDER BY isaux /*sort*/", mxfnid+1
     );
   }
   while( db_step(&q)==SQLITE_ROW ){
@@ -494,28 +575,31 @@ void finfo_page(void){
     int fmid = db_column_int(&q, 10);
     int pfnid = db_column_int(&q, 11);
     int szFile = db_column_int(&q, 12);
+    int fnid = db_column_int(&q, 13);
+    const char *zFName = db_column_text(&q,14);
     int gidx;
     char zTime[10];
     int nParent = 0;
-    int aParent[GR_MAX_RAIL];
+    GraphRowId aParent[GR_MAX_RAIL];
 
     db_bind_int(&qparent, ":fid", frid);
     db_bind_int(&qparent, ":mid", fmid);
     db_bind_int(&qparent, ":fnid", fnid);
     while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
-      aParent[nParent] = db_column_int(&qparent, 0);
+      aParent[nParent] = db_column_int64(&qparent, 0);
       nParent++;
     }
     db_reset(&qparent);
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
-      zBgClr = hash_color(zUser);
+      zBgClr = user_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid>0 ? frid : fpid+1000000000,
-                         nParent, 0, aParent, zBr, zBgClr,
-                         zUuid, 0);
+    gidx = graph_add_row(pGraph,
+                   frid>0 ? (GraphRowId)frid*(mxfnid+1)+fnid : fpid+1000000000,
+                   nParent, 0, aParent, zBr, zBgClr,
+                   zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
@@ -530,7 +614,7 @@ void finfo_page(void){
       @ <tr>
     }
     @ <td class="timelineTime">\
-    @ %z(href("%R/file?name=%T&ci=%!S",zFilename,zCkin))%s(zTime)</a></td>
+    @ %z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))%s(zTime)</a></td>
     @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div>
     @ </td>
     if( zBgClr && zBgClr[0] ){
@@ -542,10 +626,35 @@ void finfo_page(void){
       @ <span class='timelineCompactComment' data-id='%d(frid)'>
     }else{
       @ <span class='timeline%s(zStyle)Comment'>
+      if( pfnid ){
+        char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
+                                   pfnid);
+        @ <b>Renamed</b> %h(zPrevName) &rarr; %h(zFName).
+        fossil_free(zPrevName);
+      }
+      if( zUuid && ridTo==0 && nParent==0 ){
+        @ <b>Added:</b>
+      }
+      if( zUuid==0 ){
+        char *zNewName;
+        zNewName = db_text(0,
+          "SELECT name FROM filename WHERE fnid = "
+          "   (SELECT fnid FROM mlink"
+          "     WHERE mid=%d"
+          "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
+          fmid, zFName);
+        if( zNewName ){
+          @ <b>Renamed</b> to
+          @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>.
+          fossil_free(zNewName);
+        }else{
+          @ <b>Deleted:</b>
+        }
+      }
       if( (tmFlags & TIMELINE_VERBOSE)!=0 && zUuid ){
-        hyperlink_to_uuid(zUuid);
+        hyperlink_to_version(zUuid);
         @ part of check-in \
-        hyperlink_to_uuid(zCkin);
+        hyperlink_to_version(zCkin);
       }
     }
     @ %W(zCom)</span>
@@ -567,7 +676,8 @@ void finfo_page(void){
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
     if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
-      @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFilename,zCkin))[%S(zUuid)]</a>
+      @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFName,zCkin))\
+      @ [%S(zUuid)]</a>
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
@@ -578,7 +688,7 @@ void finfo_page(void){
       }
     }
     @ check-in:&nbsp;\
-    hyperlink_to_uuid(zCkin);
+    hyperlink_to_version(zCkin);
     if( fShowId ){
       @ (%d(fmid))
     }
@@ -590,56 +700,37 @@ void finfo_page(void){
     }else{
       @ size:&nbsp;%d(szFile)
     }
-    if( zUuid && origCheckin==0 ){
-      if( nParent==0 ){
-        @ <b>Added</b>
-      }else if( pfnid ){
-        char *zPrevName = db_text(0,"SELECT name FROM filename WHERE fnid=%d",
-                                  pfnid);
-        @ <b>Renamed</b> from
-        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
-      }
-    }
-    if( zUuid==0 ){
-      char *zNewName;
-      zNewName = db_text(0,
-        "SELECT name FROM filename WHERE fnid = "
-        "   (SELECT fnid FROM mlink"
-        "     WHERE mid=%d"
-        "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
-        fmid, zFilename);
-      if( zNewName ){
-        @ <b>Renamed</b> to
-        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a>
-        fossil_free(zNewName);
-      }else{
-        @ <b>Deleted</b>
-      }
-    }
     if( g.perm.Hyperlink && zUuid ){
-      const char *z = zFilename;
+      const char *z = zFName;
       @ <span id='links-%d(frid)'><span class='timelineExtraLinks'>
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=all&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
+      @ %z(href("%R/timeline?uf=%!S",zUuid))[check-ins&nbsp;using]</a>
       if( fpid>0 ){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
+      }
+      if( fileedit_is_editable(zFName) ){
+        @ %z(href("%R/fileedit?filename=%T&checkin=%!S",zFName,zCkin))\
+        @ [edit]</a>
       }
       @ </span></span>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
       char *zAncLink;
-      @ <br />fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
+      @ <br />fid=%d(frid) \
+      @ graph-id=%lld(frid>0?(GraphRowId)frid*(mxfnid+1)+fnid:fpid+1000000000) \
+      @ pid=%d(fpid) mid=%d(fmid) fnid=%d(fnid) \
+      @ pfnid=%d(pfnid) mxfnid=%d(mxfnid)
       if( nParent>0 ){
-        @ parents=%d(aParent[0])
+        @ parents=%lld(aParent[0])
         for(ii=1; ii<nParent; ii++){
-          @ %d(aParent[ii])
+          @ %lld(aParent[ii])
         }
       }
-      zAncLink = href("%R/finfo?name=%T&ci=%!S&debug=1",zFilename,zCkin);
+      zAncLink = href("%R/finfo?name=%T&from=%!S&debug=1",zFName,zCkin);
       @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
@@ -665,7 +756,7 @@ void finfo_page(void){
   }
   @ </table>
   timeline_output_graph_javascript(pGraph, TIMELINE_FILEDIFF, iTableId);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -690,6 +781,7 @@ void mlink_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(g.anon.Admin); return; }
+  style_set_current_feature("finfo");
   style_header("MLINK Table");
   if( zFName==0 && zCI==0 ){
     @ <span class='generalError'>
@@ -845,5 +937,5 @@ void mlink_page(void){
     @ </table>
     @ </div>
   }
-  style_footer();
+  style_finish_page();
 }

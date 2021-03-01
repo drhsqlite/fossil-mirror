@@ -35,10 +35,10 @@
 
 TODOs:
 
--   Unlike the standard diff command, which apparently requires commit
-    UUID, this one diffs individual file versions. If a commit UUID is
+-   Unlike the standard diff command, which apparently requires a commit
+    hash, this one diffs individual file versions. If a commit hash is
     provided, a diff of the manifests is returned. (That should be
     considered a bug - we should return a combined diff in that case.)
--   If UUIDs from two different types of artifacts are given, results
+-   If hashes from two different types of artifacts are given, results
     are unspecified. Garbage in, garbage out, and all that.
 -   For file diffs, add the file name(s) to the response payload.

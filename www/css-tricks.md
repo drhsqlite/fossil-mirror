@@ -12,43 +12,10 @@ This document is *not* an introduction to CSS - the web is
 full of tutorials on that topic. It covers only the specifics
 of customizing certain CSS-based behaviors in a Fossil UI. That said...
 
-# Overriding Default Rules
-
-One behavior of the skinning system works considerably differently
-from the cascading nature of CSS: if a skin applies a CSS selector for
-which Fossil has a built-in default value, Fossil elides the entire
-default definition for that rule. i.e., the skin's definition is the
-only one which is applied, rather than cascading the definition from
-the default value.
-
-For example, if Fossil has a default CSS rule which looks like:
-
-```css
-div.foo {
-  font-size: 120%;
-  margin-left: 1em;
-}
-```
-
-And a skin has:
-
-```css
-div.foo {}
-```
-
-Then Fossil will *not* emit its default rule and the user's copy will
-become the only definition of that CSS rule. This is different from
-normal CSS cascading rules, in which the above sequence would result
-in, effectively, the top set of rules being applied because the second
-(empty) one does not override anything from the first.
-
-If a skin applies a given selector more than once, or imports external
-style sheets which do, those cascade following CSS's normal rules.
-
 ## Is it Really `!important`?
 
 By and large, CSS's `!important` qualifier is not needed when
-customzing Fossil's CSS. On occasion, however, particular styles may
+customizing Fossil's CSS. On occasion, however, particular styles may
 be set directly on DOM elements when Fossil generates its HTML, and
 such cases require the use of `!important` to override them.
 

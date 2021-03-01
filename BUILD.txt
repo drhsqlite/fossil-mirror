@@ -75,4 +75,4 @@ Here are some notes on what is happening behind the scenes:
   for details on what it does.
 
 Additional information on the build process is available from
-http://www.fossil-scm.org/fossil/doc/trunk/www/makefile.wiki
+http://fossil-scm.org/home/doc/trunk/www/makefile.wiki

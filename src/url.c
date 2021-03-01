@@ -49,9 +49,10 @@ struct UrlData {
   int isFile;      /* True if a "file:" url */
   int isHttps;     /* True if a "https:" url */
   int isSsh;       /* True if an "ssh:" url */
+  int isAlias;     /* Input URL was an alias */
   char *name;      /* Hostname for http: or filename for file: */
   char *hostname;  /* The HOST: parameter on http headers */
-  char *protocol;  /* "http" or "https" */
+  const char *protocol; /* "http" or "https" or "ssh" or "file" */
   int port;        /* TCP port number for http: or https: */
   int dfltPort;    /* The default port for the given protocol */
   char *path;      /* Pathname for http: */
@@ -69,13 +70,15 @@ struct UrlData {
 
 
 /*
-** Parse the given URL.  Populate members of the provided UrlData structure
+** Parse the given URL.  Or if zUrl is NULL, parse the URL in the
+** last-sync-url setting using last-sync-pw as the password.  Store
+** the parser results in the pUrlData object.  Populate members of pUrlData
 ** as follows:
 **
 **      isFile      True if FILE:
 **      isHttps     True if HTTPS:
 **      isSsh       True if SSH:
-**      protocol    "http" or "https" or "file"
+**      protocol    "http" or "https" or "file" or "ssh"
 **      name        Hostname for HTTP:, HTTPS:, SSH:.  Filename for FILE:
 **      port        TCP port number for HTTP or HTTPS.
 **      dfltPort    Default TCP port number (80 or 443).
@@ -85,6 +88,9 @@ struct UrlData {
 **      hostname    HOST:PORT or just HOST if port is the default.
 **      canonical   The URL in canonical form, omitting the password
 **
+** This routine differs from url_parse() in that this routine stores the
+** results in pUrlData and does not change the values of global variables.
+** The url_parse() routine puts its result in g.url.
 */
 void url_parse_local(
   const char *zUrl,
@@ -94,11 +100,26 @@ void url_parse_local(
   int i, j, c;
   char *zFile = 0;
 
-  if( zUrl==0 ){
+  if( zUrl==0 || strcmp(zUrl,"default")==0 ){
     zUrl = db_get("last-sync-url", 0);
     if( zUrl==0 ) return;
     if( pUrlData->passwd==0 ){
       pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
+    }
+    pUrlData->isAlias = 1;
+  }else{
+    char *zKey = sqlite3_mprintf("sync-url:%q", zUrl);
+    char *zAlt = db_get(zKey, 0);
+    sqlite3_free(zKey);
+    if( zAlt ){
+      pUrlData->passwd = unobscure(
+        db_text(0, "SELECT value FROM config WHERE name='sync-pw:%q'",zUrl)
+      );
+      zUrl = zAlt;
+      urlFlags |= URL_REMEMBER_PW;
+      pUrlData->isAlias = 1;
+    }else{
+      pUrlData->isAlias = 0;
     }
   }
 
@@ -263,7 +284,8 @@ void url_parse_local(
     pUrlData->name = mprintf("%b", &cfile);
     pUrlData->canonical = mprintf("file://%T", pUrlData->name);
     blob_reset(&cfile);
-  }else if( pUrlData->user!=0 && pUrlData->passwd==0 && (urlFlags & URL_PROMPT_PW) ){
+  }else if( pUrlData->user!=0 && pUrlData->passwd==0 
+         && (urlFlags & URL_PROMPT_PW)!=0 ){
     url_prompt_for_password_local(pUrlData);
   }else if( pUrlData->user!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
     if( isatty(fileno(stdin)) && ( urlFlags & URL_REMEMBER_PW )==0 ){
@@ -278,12 +300,14 @@ void url_parse_local(
 
 /*
 ** Parse the given URL, which describes a sync server.  Populate variables
-** in the global "g" structure as follows:
+** in the global "g.url" structure as shown below.  If zUrl is NULL, then
+** parse the URL given in the last-sync-url setting, taking the password
+** form last-sync-pw.
 **
 **      g.url.isFile      True if FILE:
 **      g.url.isHttps     True if HTTPS:
 **      g.url.isSsh       True if SSH:
-**      g.url.protocol    "http" or "https" or "file"
+**      g.url.protocol    "http" or "https" or "file" or "ssh"
 **      g.url.name        Hostname for HTTP:, HTTPS:, SSH:.  Filename for FILE:
 **      g.url.port        TCP port number for HTTP or HTTPS.
 **      g.url.dfltPort    Default TCP port number (80 or 443).
@@ -518,7 +542,7 @@ char *url_render(
   int i;
 
   blob_reset(&p->url);
-  blob_appendf(&p->url, "%s/%s", g.zTop, p->zBase);
+  blob_appendf(&p->url, "%R/%s", p->zBase);
   for(i=0; i<p->nParam; i++){
     const char *z = p->azValue[i];
     if( zName1 && fossil_strcmp(zName1,p->azName[i])==0 ){
@@ -604,5 +628,54 @@ void url_get_password_if_needed(void){
    && isatty(fileno(stdin))
   ){
     url_prompt_for_password();
+  }
+}
+
+/*
+** Given a URL for a remote repository clone point, try to come up with a
+** reasonable basename of a local clone of that repository.
+**
+**    *  If the URL has a path, use the tail of the path, with any suffix
+**       elided.
+**
+**    *  If the URL is just a domain name, without a path, then use the
+**       first element of the domain name, except skip over "www." if 
+**       present.
+**
+** The string returned is obtained from fossil_malloc().  NULL might be
+** returned if there is an error.
+*/
+char *url_to_repo_basename(const char *zUrl){
+  const char *zTail = 0;
+  int i;
+  if( zUrl==0 ) return 0;
+  for(i=0; zUrl[i]; i++){
+    if( zUrl[i]=='?' ) break;
+    if( (zUrl[i]=='/' || zUrl[i]=='@') && zUrl[i+1]!=0 ) zTail = &zUrl[i+1];
+  }
+  if( zTail==0 ) return 0;
+  if( sqlite3_strnicmp(zTail, "www.", 4)==0 ) zTail += 4;
+  if( zTail[0]==0 ) return 0;
+  for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?'; i++){}
+  if( i==0 ) return 0;
+  return mprintf("%.*s", i, zTail);
+}
+
+/*
+** COMMAND: test-url-basename
+** Usage: %fossil test-url-basenames URL ...
+**
+** This command is used for unit testing of the url_to_repo_basename()
+** routine.  The command-line arguments are URL, presumably for remote
+** Fossil repositories.  This command runs url_to_repo_basename() on each
+** of those inputs and displays the result.
+*/
+void cmd_test_url_basename(void){
+  int i;
+  char *z;
+  for(i=2; i<g.argc; i++){
+    z = url_to_repo_basename(g.argv[i]);
+    fossil_print("%s -> %s\n", g.argv[i], z);
+    fossil_free(z);
   }
 }

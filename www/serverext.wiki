@@ -3,7 +3,7 @@
 <h2>1.0 Introduction</h2>
 
 If you have a [./server/|Fossil server] for your project,
-you can add [https://en.wikipedia.org/wiki/Common_Gateway_Interface|CGI]
+you can add [./aboutcgi.wiki|CGI]
 extensions to that server.  These extensions work like
 any other CGI program, except that they also have access to the Fossil
 login information and can (optionally) leverage the "skins" of Fossil
@@ -88,7 +88,7 @@ this program can be seen at
 [https://www.sqlite.org/src/ext/checklist/3070700/self] and
 recent historical versions are available at
 [https://sqlite.org/docsrc/finfo/misc/checklist.tcl] with
-older legacy at [https://sqlite.org/checklistapp/timeline?n=all]
+older legacy at [https://sqlite.org/checklistapp/timeline?n1=all]
 
 There is a cascade of CGIs happening here.  The web server that receives
 the initial HTTP request runs Fossil as a CGI based on the
@@ -131,6 +131,7 @@ standard CGI environment variables are supported:
   *  CONTENT_TYPE
   *  DOCUMENT_ROOT
   *  GATEWAY_INTERFACE
+  *  HTTPS
   *  HTTP_ACCEPT
   *  HTTP_ACCEPT_ENCODING
   *  HTTP_COOKIE
@@ -144,6 +145,7 @@ standard CGI environment variables are supported:
   *  REMOTE_ADDR
   *  REMOTE_USER
   *  REQUEST_METHOD
+  *  REQUEST_SCHEME
   *  REQUEST_URI
   *  SCRIPT_DIRECTORY
   *  SCRIPT_FILENAME
@@ -212,6 +214,7 @@ If the HTTP request includes content (for example if this is a POST request)
 then the CONTENT_LENGTH value will be positive and the data for the content
 will be readable on standard input.
 
+
 <h2>4.0 CGI Outputs</h2>
 
 CGI programs construct a reply by writing to standard output.  The first
@@ -221,7 +224,7 @@ the CGI.  These are followed by a blank line and then the content.
 Typical parameter output looks like this:
 
 <blockquote><verbatim>
-Status: 200 Ok
+Status: 200 OK
 Content-Type: text/html
 </verbatim></blockquote>
 
@@ -257,6 +260,18 @@ Except for the three cases noted above, Fossil makes no changes or
 additions to the CGI-generated content.  Fossil just passes the verbatim
 content back up the stack towards the requester.
 
+<h3>4.1 <tt>GATEWAY_INTERFACE</tt> and Recursive Calls to fossil</h3>
+
+Like many CGI-aware applications, if fossil sees the environment
+variable <tt>GATEWAY_INTERFACE</tt> when it starts up, it assumes it
+is running in a CGI environment and behaves differently than when it
+is run in a non-CGI interactive session. If you intend to run fossil
+itself from within an extension CGI script, e.g. to run a query
+against the repository or simply fetch the fossil binary version, make
+sure to <em>unset</em> the <tt>GATEWAY_INTERFACE</tt> environment
+variable before doing so, otherwise the invocation will behave as if
+it's being run in CGI mode.
+
 <h2>5.0 Filename Restrictions</h2>
 
 For security reasons, Fossil places restrictions on the names of files
@@ -276,7 +291,27 @@ files in the same directory as the CGI program itself as long as the names
 of the data files contain special characters that cause them to be ignored
 by Fossil.
 
-<h2>6.0 Trouble-Shooting Hints</h2>
+<h2>6.0 Access Permissions</h2>
+
+CGI extension files and programs are accessible to everyone.
+
+When CGI extensions have been enabled (using either "extroot:" in the
+CGI file or the --extroot option for other server methods) all files
+in the extension root directory hierarchy, except special filenames
+identified previously, are accessible to all users.  Users do not
+have to have "Read" privilege, or any other privilege, in order to
+access the extensions.
+
+This is by design.  The CGI extension mechanism is intended to operate
+in the same way as a traditional web-server.
+
+CGI programs that want to restrict access 
+can examine the FOSSIL_CAPABILITIES and/or FOSSIL_USER environment variables.
+In other words, access control is the responsibility of the individual
+extension programs.
+
+
+<h2>7.0 Trouble-Shooting Hints</h2>
 
 Remember that the /ext will return any file in the extroot directory
 hierarchy as static content if the file is readable but not executable.

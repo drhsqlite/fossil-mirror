@@ -21,6 +21,13 @@ deleting content.  Such reasons include:
   *  A malformed control artifact was inserted and is disrupting the
      operation of Fossil.
 
+  *  A legitimate legal request was received requiring content to
+     be removed. This would most likely be related to the accidental 
+     intellectual property error or spam cases listed above. Some countries 
+     recognise software patents, and so allow legal claims targetting code 
+     commits. Some countries can require publicly-available encryption 
+     software to be taken down if it is committed to the DAG without 
+     the correct government authorisation.
 
 <h2>Alternatives</h2>
 
@@ -34,8 +41,8 @@ fossil record:
 
 <ul>
     <li><p>When a forum post or wiki article is "deleted," what actually
-    happens is that a new empty version is added to the Fossil
-    [./blockchain.md | block chain]. The web interface interprets this
+    happens is that a new empty version is added to the Fossil repository.
+    The web interface interprets this
     as "deleted," but the prior version remains available if you go
     digging for it.</p></li>
 
@@ -83,6 +90,16 @@ fossil record:
     check-in.</p></li>
 </ul>
 
+<h2>Exception: Non-versioned Content</h2>
+
+It is normal and expected to delete data which is not versioned, such as
+usernames and passwords in the user table. The [/help/scrub|fossil scrub]
+command will remove all sensitive non-versioned data from a repository.
+
+The scrub command will remove user 'bertina', along with their password,
+any supplied IP address, any concealed email address etc. However, in the 
+DAG, commits by 'bertina' will continue to be visible unchanged even though
+there is no longer any such user in Fossil.
 
 <h2>Shunning</h2>
 

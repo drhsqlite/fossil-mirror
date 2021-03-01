@@ -2,3 +2,4 @@ timeline-arrowheads:        1
 timeline-circle-nodes:      0
 timeline-color-graph-lines: 0
 white-foreground:           1
+pikchr-background:          0x485d7b

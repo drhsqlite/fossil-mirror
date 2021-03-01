@@ -80,9 +80,18 @@ https://github.com/username/project.git
 
 ## Notes:
 
+  *  Unless you specify --force, the mirroring only happens if the Fossil
+     repo has changed, with Fossil reporting "no changes", because Fossil 
+     does not care about the success or failure of the mirror run. If a mirror
+     run failed (for example, due to an incorrect password, or a transient
+     error at github.com), Fossil will not retry until there has been a repo
+     change or --force is supplied.
+
   *  The mirroring is one-way.  If you check in changes on GitHub, those
      changes will not be reabsorbed by Fossil.  There are technical problems
-     that make a two-way mirror all but impossible.
+     that make a two-way mirror all but impossible. (This is not to be 
+     confused with the ability to import a Fossil mirror from Github back
+     into a Fossil repository. That works, but it is not a mirror.)
 
      This also means that you cannot accept pull requests on GitHub.
 
@@ -100,7 +109,8 @@ https://github.com/username/project.git
      not edit or delete them.
 
   *  The name of the "trunk" branch is automatically translated into "master"
-     in the Git mirror.
+     in the Git mirror unless you give the `--mainbranch` option,
+     added in Fossil 2.14.
 
   *  Only check-ins and simple tags are translated to Git.  Git does not
      support wiki or tickets or unversioned content or any of the other
@@ -117,6 +127,23 @@ https://github.com/username/project.git
      violate these rules, then the names are translated prior to being exported
      to Git.  The translation usually involves converting the offending characters
      into underscores.
+  
+  *  If your Fossil user contact info is not set and this repository was not
+     initially [imported from Git](./inout.wiki), `fossil git export` will
+     construct a generic `user@noemail.net` for the Git *committer* and *author*
+     email fields of each commit. However, Fossil will first attempt to parse an
+     email address from your user contact info, which can be set through a
+     Fossil [UI][ui] browser window or with the [`user contact`][usercmd]
+     subcommand on the command line. Alternatively, if this repository was
+     previously imported from Git using the [`--attribute`][attr] option, the
+     [`fx_git`][fxgit] table will be queried for correspondent email addresses.
+     Only if neither of these methods produce a user specified email will the
+     abovementioned generic address be used.
+
+[attr]: /help?cmd=import
+[fxgit]: ./inout.wiki#fx_git
+[ui]: /help?cmd=ui
+[usercmd]: /help?cmd=user
 
 <a name='ex1'></a>
 ## Example GitHub Mirrors

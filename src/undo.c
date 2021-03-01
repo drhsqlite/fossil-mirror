@@ -54,7 +54,7 @@ static void undo_one(const char *zPathname, int redoFlag){
     int old_link;
     Blob current;
     Blob new;
-    zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
+    zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
     old_link = db_column_int(&q, 3);
     new_exists = file_size(zFullname, RepoFILE)>=0;
     new_link = file_islink(0);
@@ -71,7 +71,9 @@ static void undo_one(const char *zPathname, int redoFlag){
     if( old_exists ){
       db_ephemeral_blob(&q, 0, &new);
     }
-    if( old_exists ){
+    if( file_unsafe_in_tree_path(zFullname) ){
+      /* do nothign with this unsafe file */
+    }else if( old_exists ){
       if( new_exists ){
         fossil_print("%s   %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
       }else{
@@ -427,11 +429,14 @@ void undo_rollback(void){
 **
 ** The undo command reverts the changes caused by the previous command
 ** if the previous command is one of the following:
-**
-**    (1) fossil update             (5) fossil stash apply
-**    (2) fossil merge              (6) fossil stash drop
-**    (3) fossil revert             (7) fossil stash goto
-**    (4) fossil stash pop          (8) fossil clean  (*see note*)
+**  * fossil update
+**  * fossil merge
+**  * fossil revert
+**  * fossil stash pop
+**  * fossil stash apply
+**  * fossil stash drop
+**  * fossil stash goto
+**  * fossil clean (*see note below*)
 **
 ** Note: The "fossil clean" command only saves state for files less than
 ** 10MiB in size and so if fossil clean deleted files larger than that,
@@ -461,7 +466,7 @@ void undo_rollback(void){
 ** Options:
 **   -n|--dry-run   do not make changes but show what would be done
 **
-** See also: commit, status
+** See also: [[commit]], [[status]]
 */
 void undo_cmd(void){
   int isRedo = g.argv[1][0]=='r';

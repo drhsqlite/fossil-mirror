@@ -29,10 +29,12 @@ void setup_incr_cfgcnt(void){
   static int once = 1;
   if( once ){
     once = 0;
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("UPDATE config SET value=value+1 WHERE name='cfgcnt'");
     if( db_changes()==0 ){
       db_multi_exec("INSERT INTO config(name,value) VALUES('cfgcnt',1)");
     }
+    db_protect_pop();
   }
 }
 
@@ -73,6 +75,7 @@ void setup_page(void){
   }
   setup_user = g.perm.Setup;
 
+  style_set_current_feature("setup");
   style_header("Server Administration");
 
   /* Make sure the header contains <base href="...">.   Issue a warning
@@ -123,6 +126,8 @@ void setup_page(void){
       "Configure the trouble-ticketing system for this repository");
     setup_menu_entry("Wiki", "setup_wiki",
       "Configure the wiki for this repository");
+    setup_menu_entry("Chat", "setup_chat",
+      "Configure the chatroom");
   }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
@@ -175,7 +180,7 @@ void setup_page(void){
   }
   @ </table>
 
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -197,7 +202,10 @@ void onoff_attribute(
     int iQ = fossil_strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
       login_verify_csrf_secret();
+      db_protect_only(PROTECT_NONE);
       db_set(zVar, iQ ? "1" : "0", 0);
+      db_protect_pop();
+      setup_incr_cfgcnt();
       admin_log("Set option [%q] to [%q].",
                 zVar, iQ ? "on" : "off");
       iVal = iQ;
@@ -230,7 +238,10 @@ void entry_attribute(
   if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
+    setup_incr_cfgcnt();
+    db_protect_only(PROTECT_NONE);
     db_set(zVar, zQ, 0);
+    db_protect_pop();
     admin_log("Set entry_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
@@ -260,7 +271,10 @@ const char *textarea_attribute(
   if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
+    db_protect_only(PROTECT_NONE);
     db_set(zVar, zQ, 0);
+    db_protect_pop();
+    setup_incr_cfgcnt();
     admin_log("Set textarea_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
@@ -296,7 +310,10 @@ void multiple_choice_attribute(
   if( zQ && fossil_strcmp(zQ,z)!=0){
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
+    db_unprotect(PROTECT_ALL);
     db_set(zVar, zQ, 0);
+    setup_incr_cfgcnt();
+    db_protect_pop();
     admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
@@ -327,9 +344,10 @@ void setup_access(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Access Control Settings");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_access" method="post"><div>
+  @ <form action="%R/setup_access" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -564,7 +582,7 @@ void setup_access(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -596,6 +614,7 @@ void setup_login_group(void){
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
   }
+  style_set_current_feature("setup");
   style_header("Login Group Configuration");
   if( zErrMsg ){
     @ <p class="generalError">%s(zErrMsg)</p>
@@ -606,7 +625,7 @@ void setup_login_group(void){
     @ is not currently part of any login-group.
     @ To join a login group, fill out the form below.</p>
     @
-    @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    @ <form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
     @ <blockquote><table border="0">
     @
@@ -662,7 +681,7 @@ void setup_login_group(void){
     db_finalize(&q);
     @ </table>
     @
-    @ <p><form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    @ <p><form action="%R/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
@@ -692,7 +711,7 @@ void setup_login_group(void){
     @ </tbody></table>
     style_table_sorter();
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -717,9 +736,10 @@ void setup_timeline(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Timeline Display Preferences");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_timeline" method="post"><div>
+  @ <form action="%R/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
 
@@ -780,6 +800,13 @@ void setup_timeline(void){
   @ specified an alternative.  (Property: "timeline-default-style")</p>
 
   @ <hr />
+  entry_attribute("Default Number Of Rows", 6, "timeline-default-length",
+                  "tldl", "50", 0);
+  @ <p>The maximum number of rows to show on a timeline in the absence
+  @ of a user display preference cookie setting or an explicit n= query
+  @ parameter.  (Property: "timeline-default-length")</p>
+
+  @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
@@ -823,7 +850,7 @@ void setup_timeline(void){
   @ see an entry in context, and because that link is not otherwise
   @ accessible on the timeline.  The /info link is also accessible by
   @ double-clicking the timeline node or by clicking on the hash that
-  @ follows "check-in:" in the supplimental information section on the
+  @ follows "check-in:" in the supplemental information section on the
   @ right of the entry.
   @ <p>(Properties: "timeline-tslink-info")
 
@@ -831,7 +858,7 @@ void setup_timeline(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -852,6 +879,7 @@ void setup_settings(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Settings");
   if(!g.repositoryOpen){
     /* Provide read-only access to versioned settings,
@@ -865,7 +893,7 @@ void setup_settings(void){
   @ If the file for a versionable setting exists, the value cannot be
   @ changed on this screen.</p><hr /><p>
   @
-  @ <form action="%s(g.zTop)/setup_settings" method="post"><div>
+  @ <form action="%R/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
@@ -924,7 +952,7 @@ void setup_settings(void){
   @ </td></tr></table>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -939,9 +967,10 @@ void setup_config(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("WWW Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_config" method="post"><div>
+  @ <form action="%R/setup_config" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -989,7 +1018,7 @@ void setup_config(void){
   @
   @ <p>The default "/home" page displays a Wiki page with the same name
   @ as the Project Name specified above.  Some sites prefer to redirect
-  @ to a documentation page (ex: "/doc/tip/index.wiki") or to "/timeline".</p>
+  @ to a documentation page (ex: "/doc/trunk/index.wiki") or to "/timeline".</p>
   @
   @ <p>Note:  To avoid a redirect loop or other problems, this entry must
   @ begin with "/" and it must specify a valid page.  For example,
@@ -997,30 +1026,69 @@ void setup_config(void){
   @ leading "/".</p>
   @ <p>(Property: "index-page")
   @ <hr>
-  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page.
-  @ Often these are filled in with links like
-  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to
-  @ embedded documentation, or like "/wiki/<i>pagename</i>" to refer
-  @ to wiki pages.
-  @ Leave blank to omit.
+  @ <p>The main menu for the web interface
   @ <p>
-  entry_attribute("Documentation Index", 40, "sitemap-docidx", "smdocidx",
-                  "", 0);
-  @ (Property: sitemap-docidx)<br>
-  entry_attribute("Download", 40, "sitemap-download", "smdownload",
-                  "", 0);
-  @ (Property: sitemap-download)<br>
-  entry_attribute("License", 40, "sitemap-license", "smlicense",
-                  "", 0);
-  @ (Property: sitemap-license)<br>
-  entry_attribute("Contact", 40, "sitemap-contact", "smcontact",
-                  "", 0);
-  @ (Property: sitemap-contact)
+   @
+  @ <p>This setting should be a TCL list.  Each set of four consecutive
+  @ values defines a single main menu item:
+  @ <ol>
+  @ <li> The first term is text that appears on the menu.
+  @ <li> The second term is a hyperlink to take when a user clicks on the
+  @      entry.  Hyperlinks that start with "/" are relative to the
+  @      repository root.
+  @ <li> The third term is an argument to the TH1 "capexpr" command.
+  @      If capexpr evalutes to true, then the entry is shown.  If not,
+  @      the entry is omitted.  "*" is always true.  "{}" is never true.
+  @ <li> The fourth term is a list of extra class names to apply to the new
+  @      menu entry.  Some skins will classes "desktoponly" and "wideonly"
+  @      to only show the entries when the web browser screen is wide or
+  @      very wide, respectively.
+  @ </ol>
+  @
+  @ <p>Some custom skins might not use this property.  Whether the property
+  @ is used or a choice made by the skin designer.  Some skins add an extra
+  @ choices (such as the hamburger button) to the menu that are not shown
+  @ on this list. (Property: mainmenu)
+  @ <p>
+  if(P("resetMenu")!=0){
+    db_unset("mainmenu", 0);
+    cgi_delete_parameter("mmenu");
+  }
+  textarea_attribute("Main Menu", 12, 80, 
+      "mainmenu", "mmenu", style_default_mainmenu(), 0);
+  @ </p>
+  @ <p><input type='checkbox' id='cbResetMenu' name='resetMenu' value='1'>
+  @ <label for='cbResetMenu'>Reset menu to default value</label>
+  @ </p>
+  @ <hr>
+  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page,
+  @ as sub-items of the "Home Page" entry, appearing before the
+  @ "Documentation Search" entry (if any).  In skins that use the /sitemap
+  @ page to construct a hamburger menu dropdown, new entries added here
+  @ will appear on the hamburger menu.
+  @
+  @ <p>This setting should be a TCL list divided into triples.  Each
+  @ triple defines a new entry:
+  @ <ol>
+  @ <li> The first term is the display name of the /sitemap entry
+  @ <li> The second term is a hyperlink to take when a user clicks on the
+  @      entry.  Hyperlinks that start with "/" are relative to the
+  @      repository root.
+  @ <li> The third term is an argument to the TH1 "capexpr" command.
+  @      If capexpr evalutes to true, then the entry is shown.  If not,
+  @      the entry is omitted.  "*" is always true.
+  @ </ol>
+  @
+  @ <p>The default value is blank, meaning no added entries.
+  @ (Property: sitemap-extra)
+  @ <p>
+  textarea_attribute("Custom Sitemap Entries", 8, 80, 
+      "sitemap-extra", "smextra", "", 0);
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -1035,9 +1103,10 @@ void setup_wiki(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Wiki Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_wiki" method="post"><div>
+  @ <form action="%R/setup_wiki" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
@@ -1055,19 +1124,35 @@ void setup_wiki(void){
   @ </ul>
   @ (Property: "wiki-about")</p>
   @ <hr />
-  onoff_attribute("Enable WYSIWYG Wiki Editing",
-                  "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
-  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
-  @ The WYSIWYG editor generates HTML instead of markup, which makes
-  @ subsequent manual editing more difficult.
-  @ (Property: "wysiwyg-wiki")</p>
+  entry_attribute("Allow Unsafe HTML In Markdown", 6,
+                  "safe-html", "safe-html", "", 0);
+  @ <p>Allow "unsafe" HTML (ex: &lt;script&gt;, &lt;form&gt;, etc) to be
+  @ generated by <a href="%R/md_rules">Markdown-formatted</a> documents.
+  @ This setting is a string where each character indicates a "type" of
+  @ document in which to allow unsafe HTML:
+  @ <ul>
+  @ <li> <b>b</b> &rarr; checked-in files, embedded documentation
+  @ <li> <b>f</b> &rarr; forum posts
+  @ <li> <b>t</b> &rarr; tickets
+  @ <li> <b>w</b> &rarr; wiki pages
+  @ </ul>
+  @ Include letters for each type of document for which unsafe HTML should
+  @ be allowed.  For example, to allow unsafe HTML only for checked-in files,
+  @ make this setting be just "<b>b</b>".  To allow unsafe HTML anywhere except
+  @ in forum posts, make this setting be "<b>btw</b>".  The default is an
+  @ empty string which means that Fossil never allows Markdown documents
+  @ to generate unsafe HTML.
+  @ (Property: "safe-html")</p>
+  @ <hr />
+  @ The current interwiki tag map is as follows:
+  interwiki_append_map_table(cgi_output_blob());
+  @ <p>Visit <a href="./intermap">%R/intermap</a> for details or to
+  @ modify the interwiki tag map.
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
   @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
-  @ but all other wiki formatting will be ignored. This option is helpful
-  @ if you have chosen to use a rich HTML editor for wiki markup such as
-  @ TinyMCE.</p>
+  @ but all other wiki formatting will be ignored.</p>
   @ <p><strong>CAUTION:</strong> when
   @ enabling, <i>all</i> HTML tags and attributes are accepted in the wiki.
   @ No sanitization is done. This means that it is very possible for malicious
@@ -1080,7 +1165,90 @@ void setup_wiki(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: setup_chat
+**
+** The "Admin/Chat" page.  Requires Setup privilege.
+*/
+void setup_chat(void){
+  static const char *const azAlerts[] = {
+    "alerts/plunk.wav",  "Plunk",
+    "alerts/bflat3.wav", "Tone-1",
+    "alerts/bflat2.wav", "Tone-2",
+    "alerts/bloop.wav",  "Bloop",
+  };
+
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_set_current_feature("setup");
+  style_header("Chat Configuration");
+  db_begin_transaction();
+  @ <form action="%R/setup_chat" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  entry_attribute("Initial Chat History Size", 10,
+                  "chat-initial-history", "chatih", "50", 0);
+  @ <p>When /chat first starts up, it preloads up to this many historical
+  @ messages.
+  @ (Property: "chat-initial-history")</p>
+  @ <hr />
+  entry_attribute("Minimum Number Of Historical Messages To Retain", 10,
+                  "chat-keep-count", "chatkc", "50", 0);
+  @ <p>The chat subsystem purges older messages.  But it will always retain
+  @ the N most recent messages where N is the value of this setting.
+  @ (Property: "chat-keep-count")</p>
+  @ <hr />
+  entry_attribute("Maximum Message Age In Days", 10,
+                  "chat-keep-days", "chatkd", "7", 0);
+  @ <p>Chat message are removed after N days, where N is the value of
+  @ this setting.  N may be fractional.  So, for example, to only keep
+  @ an historical record of chat messages for 12 hours, set this value
+  @ to 0.5.
+  @ (Property: "chat-keep-days")</p>
+  @ <hr />
+  entry_attribute("Chat Polling Timeout", 10,
+                  "chat-poll-timeout", "chatpt", "420", 0);
+  @ <p>New chat content is downloaded using the "long poll" technique.
+  @ HTTP requests are made to /chat-poll which blocks waiting on new
+  @ content to arrive.  But the /chat-poll cannot block forever.  It
+  @ eventual must give up and return an empty message set.  This setting
+  @ determines how long /chat-poll will wait before giving up.  The
+  @ default setting of approximately 7 minutes works well on many systems.
+  @ Shorter delays might be required on installations that use proxies
+  @ or web-servers with short timeouts.  For best efficiency, this value
+  @ should be larger rather than smaller.
+  @ (Property: "chat-poll-timeout")</p>
+  @ <hr />
+
+  multiple_choice_attribute("Alert sound",
+     "chat-alert-sound", "snd", azAlerts[0],
+     count(azAlerts)/2, azAlerts);
+  @ <p>The sound used in the client-side chat to indicate that a new
+  @ chat message has arrived.
+  @ (Property: "chat-alert-sound")</p>
+  @ <hr/>
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  @ <script nonce="%h(style_nonce())">
+  @ (function(){
+  @   var w = document.getElementById('idsnd');
+  @   w.onchange = function(){
+  @     var audio = new Audio('%s(g.zBaseURL)/builtin/' + w.value);
+  @     audio.currentTime = 0;
+  @     audio.play();
+  @   }
+  @ })();
+  @ </script>
+  style_finish_page();
 }
 
 /*
@@ -1095,6 +1263,7 @@ void setup_modreq(void){
     return;
   }
 
+  style_set_current_feature("setup");
   style_header("Moderator For Wiki And Tickets");
   db_begin_transaction();
   @ <form action="%R/setup_modreq" method="post"><div>
@@ -1126,7 +1295,7 @@ void setup_modreq(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
-  style_footer();
+  style_finish_page();
 
 }
 
@@ -1144,13 +1313,17 @@ void setup_adunit(void){
   }
   db_begin_transaction();
   if( P("clear")!=0 && cgi_csrf_safe(1) ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
+    db_protect_pop();
     cgi_replace_parameter("adunit","");
     cgi_replace_parameter("adright","");
+    setup_incr_cfgcnt();
   }
 
+  style_set_current_feature("setup");
   style_header("Edit Ad Unit");
-  @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
+  @ <form action="%R/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
   @ <b>Banner Ad-Unit:</b><br />
  textarea_attribute("", 6, 80, "adunit", "adunit", "", 0);
@@ -1204,14 +1377,14 @@ void setup_adunit(void){
   @ '&gt;Demo Ad&lt;/div&gt;
   @ </pre></blockquote>
   @ </li>
-  style_footer();
+  style_finish_page();
   db_end_transaction(0);
 }
 
 /*
 ** WEBPAGE: setup_logo
 **
-** Administrative page for changing the logo image.
+** Administrative page for changing the logo, background, and icon images.
 */
 void setup_logo(void){
   const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
@@ -1222,11 +1395,18 @@ void setup_logo(void){
   const char *zBgMime = db_get("background-mimetype","image/gif");
   const char *aBgImg = P("bgim");
   int szBgImg = atoi(PD("bgim:bytes","0"));
+  const char *zIconMtime = db_get_mtime("icon-image", 0, 0);
+  const char *zIconMime = db_get("icon-mimetype","image/gif");
+  const char *aIconImg = P("iconim");
+  int szIconImg = atoi(PD("iconim:bytes","0"));
   if( szLogoImg>0 ){
     zLogoMime = PD("logoim:mimetype","image/gif");
   }
   if( szBgImg>0 ){
     zBgMime = PD("bgim:mimetype","image/gif");
+  }
+  if( szIconImg>0 ){
+    zIconMime = PD("iconim:mimetype","image/gif");
   }
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -1240,6 +1420,7 @@ void setup_logo(void){
     Blob img;
     Stmt ins;
     blob_init(&img, aLogoImg, szLogoImg);
+    db_unprotect(PROTECT_CONFIG);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('logo-image',:bytes,now())"
@@ -1251,19 +1432,23 @@ void setup_logo(void){
        "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
        zLogoMime
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrlogo")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('logo-image','logo-mimetype')"
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("setbg")!=0 && zBgMime && zBgMime[0] && szBgImg>0 ){
     Blob img;
     Stmt ins;
     blob_init(&img, aBgImg, szBgImg);
+    db_unprotect(PROTECT_CONFIG);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('background-image',:bytes,now())"
@@ -1276,24 +1461,57 @@ void setup_logo(void){
        " VALUES('background-mimetype',%Q,now())",
        zBgMime
     );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrbg")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
        "DELETE FROM config WHERE name IN "
            "('background-image','background-mimetype')"
     );
+    db_protect_pop();
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
+  }else if( P("seticon")!=0 && zIconMime && zIconMime[0] && szIconImg>0 ){
+    Blob img;
+    Stmt ins;
+    blob_init(&img, aIconImg, szIconImg);
+    db_unprotect(PROTECT_CONFIG);
+    db_prepare(&ins,
+        "REPLACE INTO config(name,value,mtime)"
+        " VALUES('icon-image',:bytes,now())"
+    );
+    db_bind_blob(&ins, ":bytes", &img);
+    db_step(&ins);
+    db_finalize(&ins);
+    db_multi_exec(
+       "REPLACE INTO config(name,value,mtime)"
+       " VALUES('icon-mimetype',%Q,now())",
+       zIconMime
+    );
+    db_protect_pop();
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
+  }else if( P("clricon")!=0 ){
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+       "DELETE FROM config WHERE name IN "
+           "('icon-image','icon-mimetype')"
+    );
+    db_protect_pop();
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }
+  style_set_current_feature("setup");
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" \
+  @ <blockquote><p><img src="%R/logo/%z(zLogoMtime)" \
   @ alt="logo" border="1" />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
@@ -1313,11 +1531,11 @@ void setup_logo(void){
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" \
+  @ <blockquote><p><img src="%R/background/%z(zBgMtime)" \
   @ alt="background" border=1 />
   @ </p></blockquote>
   @
-  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @ <form action="%R/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>The background image is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/background">%s(g.zBaseURL)/background</a>.
@@ -1335,10 +1553,34 @@ void setup_logo(void){
   @ <p>(Properties: "background-image" and "background-mimetype")
   @ <hr />
   @
+  @ <p>The current icon image has a MIME-Type of <b>%h(zIconMime)</b>
+  @ and looks like this:</p>
+  @ <blockquote><p><img src="%R/favicon.ico/%z(zIconMtime)" \
+  @ alt="icon" border=1 />
+  @ </p></blockquote>
+  @
+  @ <form action="%R/setup_logo" method="post"
+  @  enctype="multipart/form-data"><div>
+  @ <p>The icon image is accessible to all users at this URL:
+  @ <a href="%s(g.zBaseURL)/favicon.ico">%s(g.zBaseURL)/favicon.ico</a>.
+  @ The icon image may or may not appear on each
+  @ page depending on the web browser in use and the MIME-Types that it
+  @ supports for icon images.
+  @ To change the icon image, use the following form:</p>
+  login_insert_csrf_secret();
+  @ Icon image file:
+  @ <input type="file" name="iconim" size="60" accept="image/*" />
+  @ <p align="center">
+  @ <input type="submit" name="seticon" value="Change Icon" />
+  @ <input type="submit" name="clricon" value="Revert To Default" /></p>
+  @ </div></form>
+  @ <p>(Properties: "icon-image" and "icon-mimetype")
+  @ <hr />
+  @
   @ <p><span class="note">Note:</span>  Your browser has probably cached these
   @ images, so you may need to press the Reload button before changes will
   @ take effect. </p>
-  style_footer();
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -1382,6 +1624,7 @@ void sql_page(void){
   }
   add_content_sql_commands(g.db);
   zQ = cgi_csrf_safe(1) ? P("q") : 0;
+  style_set_current_feature("setup");
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
@@ -1415,7 +1658,7 @@ void sql_page(void){
      go = 1;
   }
   @
-  @ <form method="post" action="%s(g.zTop)/admin_sql">
+  @ <form method="post" action="%R/admin_sql">
   login_insert_csrf_secret();
   @ SQL:<br />
   @ <textarea name="q" rows="8" cols="80">%h(zQ)</textarea><br />
@@ -1426,12 +1669,12 @@ void sql_page(void){
   @ </form>
   if( P("schema") ){
     zQ = sqlite3_mprintf(
-            "SELECT sql FROM repository.sqlite_master"
+            "SELECT sql FROM repository.sqlite_schema"
             " WHERE sql IS NOT NULL ORDER BY name");
     go = 1;
   }else if( P("tablelist") ){
     zQ = sqlite3_mprintf(
-            "SELECT name FROM repository.sqlite_master WHERE type='table'"
+            "SELECT name FROM repository.sqlite_schema WHERE type='table'"
             " ORDER BY name");
     go = 1;
   }
@@ -1500,7 +1743,7 @@ void sql_page(void){
       @ </table>
     }
   }
-  style_footer();
+  style_finish_page();
 }
 
 
@@ -1519,12 +1762,13 @@ void th1_page(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Raw TH1 Commands");
   @ <p><b>Caution:</b> There are no restrictions on the TH1 that can be
   @ run by this page.  If Tcl integration was enabled at compile-time and
   @ the "tcl" setting is enabled, Tcl commands may be run as well.</p>
   @
-  @ <form method="post" action="%s(g.zTop)/admin_th1">
+  @ <form method="post" action="%R/admin_th1">
   login_insert_csrf_secret();
   @ TH1:<br />
   @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
@@ -1544,7 +1788,7 @@ void th1_page(void){
       @ <pre class="th1error">%h(zR)</pre>
     }
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -1565,6 +1809,7 @@ void page_admin_log(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Admin Log");
   create_admin_log_table();
   limit = atoi(PD("n","200"));
@@ -1611,7 +1856,7 @@ void page_admin_log(){
   if( counter>ofst+limit ){
     @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -1625,8 +1870,9 @@ void page_srchsetup(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("Search Configuration");
-  @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
+  @ <form action="%R/srchsetup" method="post"><div>
   login_insert_csrf_secret();
   @ <div style="text-align:center;font-weight:bold;">
   @ Server-specific settings that affect the
@@ -1691,7 +1937,7 @@ void page_srchsetup(){
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -1750,6 +1996,7 @@ void page_waliassetup(){
     login_needed(0);
     return;
   }
+  style_set_current_feature("setup");
   style_header("URL Alias Configuration");
   if( P("submit")!=0 ){
     Blob token;
@@ -1775,7 +2022,9 @@ void page_waliassetup(){
     sqlite3_snprintf(sizeof(zCnt), zCnt, "v%d", cnt);
     zValue = PD(zCnt,"");
     setup_update_url_alias(&sql, "", zNewName, zValue);
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec("%s", blob_sql_text(&sql));
+    db_protect_pop();
     blob_reset(&sql);
     blob_reset(&namelist);
     cnt = 0;
@@ -1784,7 +2033,7 @@ void page_waliassetup(){
       "SELECT substr(name,8), value FROM config WHERE name GLOB 'walias:/*'"
       " UNION ALL SELECT '', ''"
   );
-  @ <form action="%s(g.zTop)/waliassetup" method="post"><div>
+  @ <form action="%R/waliassetup" method="post"><div>
   login_insert_csrf_secret();
   @ <table border=0 cellpadding=5>
   @ <tr><th>Alias<th>URI That The Alias Maps Into
@@ -1847,5 +2096,5 @@ void page_waliassetup(){
   @
   @ <p>To add a new alias, fill in the name and value in the bottom row
   @ of the table above and press "Apply Changes".
-  style_footer();
+  style_finish_page();
 }

@@ -268,7 +268,7 @@ const char zRepositorySchema2[] =
 @   pmid INTEGER,                      -- Check-in that contains pid
 @   pid INTEGER,                       -- Prev file content. 0 if new. -1 merge
 @   fnid INTEGER REFERENCES filename,  -- Name of the file
-@   pfnid INTEGER REFERENCES filename, -- Previous name. 0 if unchanged
+@   pfnid INTEGER,                     -- Previous name. 0 if unchanged
 @   mperm INTEGER,                     -- File permissions.  1==exec
 @   isaux BOOLEAN DEFAULT 0            -- TRUE if pmid is the primary
 @ );
@@ -323,7 +323,7 @@ const char zRepositorySchema2[] =
 @ CREATE INDEX event_i1 ON event(mtime);
 @
 @ -- A record of phantoms.  A phantom is a record for which we know the
-@ -- UUID but we do not (yet) know the file content.
+@ -- file hash but we do not (yet) know the file content.
 @ --
 @ CREATE TABLE phantom(
 @   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
@@ -364,8 +364,8 @@ const char zRepositorySchema2[] =
 @ -- is defined by a row in the next table.
 @ --
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
-@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where
-@ -- UUID is the indentifier of the ticket.  Tags used to assign symbolic
+@ -- the wiki page.  Tickets changes are tagged with "ticket-HASH" where
+@ -- HASH is the indentifier of the ticket.  Tags used to assign symbolic
 @ -- names to baselines are branches are of the form "sym-NAME" where
 @ -- NAME is the symbolic name.
 @ --
@@ -423,8 +423,8 @@ const char zRepositorySchema2[] =
 @   attachid INTEGER PRIMARY KEY,   -- Local id for this attachment
 @   isLatest BOOLEAN DEFAULT 0,     -- True if this is the one to use
 @   mtime TIMESTAMP,                -- Last changed.  Julian day.
-@   src TEXT,                       -- UUID of the attachment.  NULL to delete
-@   target TEXT,                    -- Object attached to. Wikiname or Tkt UUID
+@   src TEXT,                       -- Hash of the attachment.  NULL to delete
+@   target TEXT,                    -- Object attached to. Wikiname or Tkt hash
 @   filename TEXT,                  -- Filename for the attachment
 @   comment TEXT,                   -- Comment associated with this attachment
 @   user TEXT                       -- Name of user adding attachment

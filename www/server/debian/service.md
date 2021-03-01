@@ -45,13 +45,19 @@ To do this, write the following in
 ```
 
 Unlike with `inetd` and `xinetd`, we don’t need to tell `systemd` which
-user and group to run this service as, because we’ve installed it as a
-user service under the account we’re logged into.
+user and group to run this service as, because we’ve installed it
+under the account we’re logged into, which `systemd` will use as the
+service’s owner.
 
 We’ve told `systemd` that we want automatic service restarts with
 back-off logic, making this much more robust than the by-hand launches
 of `fossil` in the platform-independent Fossil server instructions.  The
 service will stay up until we explicitly tell it to shut down.
+
+A simple and useful modification to the above scheme is to add the
+`--scgi` and `--localhost` flags to the `ExecStart` line to replace the
+use of `fslsrv` in [the generic SCGI instructions](../any/scgi.md),
+giving a much more robust configuration.
 
 Because we’ve set this up as a user service, the commands you give to
 manipulate the service vary somewhat from the sort you’re more likely to
@@ -71,10 +77,36 @@ This scheme isolates the permissions needed by the Fossil server, which
 reduces the amount of damage it can do if there is ever a
 remotely-triggerable security flaw found in Fossil.
 
-A simple and useful modification to the above scheme is to add the
-`--scgi` and `--localhost` flags to the `ExecStart` line to replace the
-use of `fslsrv` in [the generic SCGI instructions](../any/scgi.md),
-giving a much more robust configuration.
+On some `systemd` based OSes, user services only run while that user is
+logged in interactively. This is common on systems aiming to provide
+desktop environments, where this is the behavior you often want. To
+allow background services to continue to run after logout, say:
+
+       $ sudo loginctl enable-linger $USER
+
+You can paste the command just like that into your terminal, since
+`$USER` will expand to your login name.
+
+
+
+### System Service Alternative
+
+Another workaround for the problem with user services above is to
+install the service as a system service instead. This is a better path
+when you are proxying Fossil with a system-level service, such as
+[nginx](./nginx.md).
+
+There are just a small set of changes required:
+
+1.  Install the unit file to one of the persistent system-level unit
+    file directories. Typically, these are:
+
+        /etc/systemd/system
+        /lib/systemd/system
+
+2.  Add `User` and `Group` directives to the `[Service]` section so
+    Fossil runs as a normal user, preferably one with access only to
+    the Fossil repo files, rather than running as `root`.
 
 
 ## Socket Activation

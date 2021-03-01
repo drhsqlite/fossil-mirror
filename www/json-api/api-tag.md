@@ -49,8 +49,8 @@ specified via GET/`POST.envelope` parameters.
 }
 ```
 
-The appliedTo property is the UUID of the checkin to which the tag was
-applied. This is the "resolved" version of the checkin name provided by
+The `appliedTo` property is the hash of the check-in to which the tag was
+applied. This is the "resolved" version of the check-in name provided by
 the client.
 
 <a id="cancel"></a>
@@ -101,8 +101,9 @@ The response format differs somewhat depending on the options:
     will be returned.
 -   `type=string` (default=`*`) Searches only for the given type of
     artifact (using fossil's conventional type naming: ci, e, t, w.
--   `raw=bool` (=false) If enabled, the response is an array of UUID
-    strings, else it is an array of higher-level objects. If this is
+-   `raw=bool` (=false) If enabled, the response is an array of hashes
+    of the requested artifact type; otherwise,
+    it is an array of higher-level objects. If this is
     true, the "name" property is interpretted as-is. If it is false, the
     name is automatically prepended with "sym-" (meaning a branch).
     (FIXME: the current semantics are confusing and hard to remember.

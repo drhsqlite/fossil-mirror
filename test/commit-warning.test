@@ -52,12 +52,15 @@ set a9 $a8$a8
 set a10 $a9$a9
 write_file line-1024 "$a10\n"
 set a11 $a10$a10
+write_file line-2048 "$a11\n"
 set a12 $a11$a11
 write_file line-4096 "$a12\n"
 set a13 $a12$a12
 write_file line-8192 "$a13\n"
 set a14 $a13$a13
+write_file line-16K "$a14\n"
 set a15 $a14$a14
+write_file line-32K "$a15\n"
 set a16 $a15$a15
 write_file line-64K "$a16\n"
 
@@ -120,9 +123,12 @@ test pre-commit-warnings-1 {[normalize_result] eq \
 0\tempty\t
 0\tline-0064\t
 0\tline-1024\t
+0\tline-16K\t
+0\tline-2048\t
+1\tline-32K\tlong lines
 0\tline-4096\t
 1\tline-64K\tlong lines
-1\tline-8192\tlong lines
+0\tline-8192\t
 0\tplain.txt\t
 1\tutf-16be-bombe-hello\tUnicode
 1\tutf-16be-bomle-hello\tUnicode
@@ -255,17 +261,8 @@ test_block_in_checkout pre-commit-warnings-fossil-1 {
   1\twin/buildmsvc.bat\tCR/LF line endings
   1\twin/fossil.ico\tbinary data
   1\twin/fossil.rc\tinvalid UTF-8
-  1\twww/CollRev1.gif\tbinary data
-  1\twww/CollRev2.gif\tbinary data
-  1\twww/CollRev3.gif\tbinary data
-  1\twww/CollRev4.gif\tbinary data
   1\twww/apple-touch-icon.png\tbinary data
   1\twww/background.jpg\tbinary data
-  1\twww/branch01.gif\tbinary data
-  1\twww/branch02.gif\tbinary data
-  1\twww/branch03.gif\tbinary data
-  1\twww/branch04.gif\tbinary data
-  1\twww/branch05.gif\tbinary data
   1\twww/build-icons/linux.gif\tbinary data
   1\twww/build-icons/linux64.gif\tbinary data
   1\twww/build-icons/mac.gif\tbinary data
@@ -275,14 +272,7 @@ test_block_in_checkout pre-commit-warnings-fossil-1 {
   1\twww/concept1.gif\tbinary data
   1\twww/concept2.gif\tbinary data
   1\twww/copyright-release.pdf\tbinary data
-  1\twww/delta1.gif\tbinary data
-  1\twww/delta2.gif\tbinary data
-  1\twww/delta3.gif\tbinary data
-  1\twww/delta4.gif\tbinary data
-  1\twww/delta5.gif\tbinary data
-  1\twww/delta6.gif\tbinary data
   1\twww/encode1.gif\tbinary data
-  1\twww/encode10.gif\tbinary data
   1\twww/encode2.gif\tbinary data
   1\twww/encode3.gif\tbinary data
   1\twww/encode4.gif\tbinary data

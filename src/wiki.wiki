@@ -6,7 +6,8 @@
      spaces at the beginning of a line
   #  Indented paragraphs begin with a tab or two spaces
   #  Hyperlinks are contained within square brackets:
-     <nowiki>"[target]" or "[target|label]"</nowiki>
+     <nowiki>"<b>[</b><i>target</i><b>]</b>"
+     or "<b>[</b><i>target</i><b>|</b><i>label</i><b>]</b>"</nowiki>
   #  Most ordinary HTML works
   #  &lt;verbatim&gt; and &lt;nowiki&gt;
 
@@ -33,7 +34,7 @@ The last two rules are the HTML formatting rules.
       by two spaces or a tab.
       Only a single level of enumeration list is supported by wiki.
       For nested lists or for enumerations that count using letters or
-      roman numerials, use HTML.
+      roman numerals, use HTML.
 
   4.  <b>Indented Paragraphs.</b>
       Any paragraph that begins with two or more spaces or a tab and which
@@ -44,7 +45,9 @@ The last two rules are the HTML formatting rules.
   5.  <b>Hyperlinks.</b>
       Text within square brackets <nowiki>("[...]")</nowiki> becomes a
       hyperlink. The target can be a wiki page name, the artifact ID of
-      a check-in or ticket, the name of an image, or a URL.
+      a check-in or ticket, the name of an image, a URL, or an
+      [#intermap|interwiki link] of the form 
+      "<i>Tag</i><b>:</b><i>PageName</i>".
       By default, the target is displayed as the text of the hyperlink.
       But you can specify alternative text after the target name
       separated by a "|" character.
@@ -56,8 +59,10 @@ The last two rules are the HTML formatting rules.
       The following standard HTML elements may be used:
       &lt;a&gt; &lt;address&gt; &lt;article&gt; &lt;aside&gt; &lt;b&gt;
       &lt;big&gt; &lt;blockquote&gt; &lt;br&gt; &lt;center&gt; &lt;cite&gt;
-      &lt;code&gt; &lt;col&gt; &lt;colgroup&gt; &lt;dd&gt; &lt;dfn&gt;
+      &lt;code&gt; &lt;col&gt; &lt;colgroup&gt; &lt;dd&gt; 
+      &lt;del&gt; &lt;dfn&gt;
       &lt;div&gt; &lt;dl&gt; &lt;dt&gt; &lt;em&gt; &lt;font&gt; &lt;footer&gt;
+      &lt;ins&gt;
       &lt;h1&gt; &lt;h2&gt; &lt;h3&gt; &lt;h4&gt; &lt;h5&gt; &lt;h6&gt;
       &lt;header&gt; &lt;hr&gt; &lt;i&gt; &lt;img&gt; &lt;kbd&gt; &lt;li&gt;
       &lt;nav&gt; &lt;nobr&gt; &lt;nowiki&gt; &lt;ol&gt; &lt;p&gt; &lt;pre&gt;
@@ -76,3 +81,10 @@ The last two rules are the HTML formatting rules.
       the matching &lt;/nowiki&gt; element. The &lt;verbatim&gt; tag works
       like &lt;pre&gt; with the addition that it also disables all wiki
       and HTML markup through the matching &lt;/verbatim&gt;.
+      Text within 
+      <tt>&lt;verbatim&nbsp;type="pikchr"&gt;...&lt;/verbatim&gt;</tt>
+      is formatted using <a href="https://pikchr.org/home">Pikchr</a>.
+
+
+<a name="intermap"></a>
+<h2>Interwiki Tag Map</h2>

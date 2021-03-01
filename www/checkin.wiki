@@ -43,11 +43,11 @@ if you intend to make changes via a locally served web UI.
 
 Item 1 is the most important step.  Consider using <b>gdiff</b>
 instead of <b>diff</b> if you have a graphical differ configured.  Or
-use the command-line option <b>--tk</b>.  Also consider the <b>-N</b>
-command-line option to show the complete text newly added files.
+use the command-line option <b>--tk</b>.  Also consider the <b>-v</b>
+command-line option to show the complete text of newly added files.
 The recommended command for completing checklist item 1 is:
 
-   <b>fossil diff --tk -N</b>
+   <b>fossil diff --tk -v</b>
 
 Look carefully at every changed line in item 1.
 Make sure that you are not about to commit unrelated changes.

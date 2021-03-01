@@ -32,9 +32,9 @@ write_file [file join .fossil-settings binary-glob] "*"
 write_file file0.dat ""; # no content.
 write_file file1.dat "test file 1 (one line no term)."
 write_file file2.dat "test file 2 (NUL character).\0"
-write_file file3.dat "test file 3 (long line).[string repeat x 16384]"
-write_file file4.dat "test file 4 (long line).[string repeat y 16384]\ntwo"
-write_file file5.dat "[string repeat z 16384]\ntest file 5 (long line)."
+write_file file3.dat "test file 3 (long line).[string repeat x 32768]"
+write_file file4.dat "test file 4 (long line).[string repeat y 32768]\ntwo"
+write_file file5.dat "[string repeat z 32768]\ntest file 5 (long line)."
 
 fossil add $rootDir
 fossil commit -m "c1"
@@ -58,7 +58,7 @@ cannot compute difference between binary files}}
 
 ###############################################################################
 
-write_file file1.dat [string repeat z 16384]
+write_file file1.dat [string repeat z 32768]
 fossil diff file1.dat
 
 test diff-file1-1 {[normalize_result] eq {Index: file1.dat

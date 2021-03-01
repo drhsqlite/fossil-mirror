@@ -63,7 +63,12 @@ additional SQL functions are provided:
 
 
 <a name="structure"></a><h1>2.0 Structure</h1>
-<img src="delta1.gif" align="left" hspace="10">
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box height 50% "Header"
+    box same "Segments"
+    box same "Trailer"
+</verbatim>
 
 <p>A delta consists of three parts, a "header", a "trailer", and a
 "segment-list" between them.</p>
@@ -73,7 +78,11 @@ helping the decoder, and the segment-list describes how the target can
 be constructed from the original.</p>
 
 <a name="header"></a><h2>2.1 Header</h2>
-<img src="delta6.gif" align="left" hspace="10">
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box height 50% "Size"
+    box same "\"\\n\""
+</verbatim>
 
 <p>The header consists of a single number followed by a newline
 character (ASCII 0x0a). The number is the length of the target in
@@ -85,7 +94,11 @@ reading the first line of the delta and decoding the number found
 there. In other words, before it has to decode everything else.</p>
 
 <a name="trailer"></a><h2>2.2 Trailer</h2>
-<img src="delta5.gif" align="left" hspace="10">
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box height 50% "Checksum"
+    box same "\";\""
+</verbatim>
 
 <p>The trailer consists of a single number followed by a semicolon (ASCII
 0x3b). This number is a checksum of the target and can be used by a
@@ -102,7 +115,30 @@ it available immediately after the target has been reconstructed
 fully.</p>
 
 <a name="slist"></a><h2>2.3 Segment-List</h2>
-<img src="delta2.gif" align="left" hspace="10">
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    PART1: [
+        B1: box height 50% width 15% ""
+        B2: box same ""
+        B3: box same ""
+            "***"
+            box height 50% width 15% ""
+        I1: line down 50% from B2 .s
+            arrow right until even with B3.e
+            box "Insert Literal" height 50%
+            line down 75% from I1 .s
+            arrow right until even with B3.e
+            box "Copy Range" height 50%
+    ]
+    down
+    PART2: [
+        ""
+        box "Length" height 50%
+        right
+        box "\":\"" same
+        box "Bytes" same
+    ] with .nw at previous.sw
+</verbatim>
 
 <p>The segment-list of a delta describes how to create the target from
 the original by a combination of inserting literal byte-sequences and
@@ -119,7 +155,13 @@ instructions, with no gaps.</p>
 <p>A literal is specified by two elements, the size of the literal in
 bytes, and the bytes of the literal itself.</p>
 
-<img src="delta4.gif" align="left" hspace="10">
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box "Length" height 50%
+    box "\":\"" same
+    box "Bytes" same
+</verbatim>
+
 <p>The length is written first, followed by a colon character (ASCII
 0x3a), followed by the bytes of the literal.</p>
 
@@ -130,7 +172,15 @@ first byte in the original to copy, and the size of the range, in
 bytes. The size zero is special, its usage indicates that the range
 extends to the end of the original.</p>
 
-<img src="delta3.gif" align="left" hspace="10">
+<verbatim type="pikchr">
+    leftmargin = 0.1
+    box "Length" height 50%
+    box "\"@\"" same
+    box "Offset" same
+    box "\",\"" same
+</verbatim>
+
+
 <p>The length is written first, followed by an "at" character (ASCII
 0x40), then the offset, followed by a comma (ASCII 0x2c).</p>
 
@@ -143,8 +193,20 @@ written base-64 encoded, MSB first, and without leading
 </p>
 
 <p>
-The base-64 coding is described in
-<a href="http://www.ietf.org/rfc/rfc3548.txt">RFC 3548</a>.
+The base-64 encoding uses one character for each 6 bits of
+the integer to be encoded.  The encoding characters are:
+</p>
+
+<blockquote><pre>
+0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~
+</pre></blockquote>
+
+<p>The least significant 6 bits of the integer are encoded by
+the first character, followed by
+the next 6 bits, and so on until all non-zero bits of the integer
+are encoded.  The minimum number of encoding characters is used.
+Note that for integers less than 10, the base-64 coding is a
+ASCII decimal rendering of the number itself.
 </p>
 
 <a name="examples"></a><h1>4.0 Examples</h1>
@@ -183,16 +245,16 @@ The base-64 coding is described in
 
 <table border=1>
 <tr><th>What  </th> <th>Encoding         </th><th>Meaning </th><th>Details</th></tr>
-<tr><td>Header</td> <td>1Xb              </td><td>Size    </td><td> 6246	     </td></tr>
-<tr><td>S-List</td> <td>4E@0,	         </td><td>Copy    </td><td> 270 @ 0	     </td></tr>
-<tr><td>&nbsp;</td> <td>2:th	         </td><td>Literal </td><td> 2 'th'	     </td></tr>
-<tr><td>&nbsp;</td> <td>FN@4C,	         </td><td>Copy    </td><td> 983 @ 268	     </td></tr>
-<tr><td>&nbsp;</td> <td>6:scenda         </td><td>Literal </td><td> 6 'scenda'	     </td></tr>
-<tr><td>&nbsp;</td> <td>1B@Jd,	         </td><td>Copy    </td><td> 75 @ 1256	     </td></tr>
-<tr><td>&nbsp;</td> <td>6:scenda         </td><td>Literal </td><td> 6 'scenda'	     </td></tr>
-<tr><td>&nbsp;</td> <td>5x@Kt,	         </td><td>Copy    </td><td> 380 @ 1336	     </td></tr>
-<tr><td>&nbsp;</td> <td>6:pieces	 </td><td>Literal </td><td> 6 'pieces'	     </td></tr>
-<tr><td>&nbsp;</td> <td>79@Qt,	         </td><td>Copy    </td><td> 457 @ 1720     </td></tr>
+<tr><td>Header</td> <td>1Xb              </td><td>Size    </td><td> 6246         </td></tr>
+<tr><td>S-List</td> <td>4E@0,            </td><td>Copy    </td><td> 270 @ 0      </td></tr>
+<tr><td>&nbsp;</td> <td>2:th             </td><td>Literal </td><td> 2 'th'       </td></tr>
+<tr><td>&nbsp;</td> <td>FN@4C,           </td><td>Copy    </td><td> 983 @ 268        </td></tr>
+<tr><td>&nbsp;</td> <td>6:scenda         </td><td>Literal </td><td> 6 'scenda'       </td></tr>
+<tr><td>&nbsp;</td> <td>1B@Jd,           </td><td>Copy    </td><td> 75 @ 1256        </td></tr>
+<tr><td>&nbsp;</td> <td>6:scenda         </td><td>Literal </td><td> 6 'scenda'       </td></tr>
+<tr><td>&nbsp;</td> <td>5x@Kt,           </td><td>Copy    </td><td> 380 @ 1336       </td></tr>
+<tr><td>&nbsp;</td> <td>6:pieces     </td><td>Literal </td><td> 6 'pieces'       </td></tr>
+<tr><td>&nbsp;</td> <td>79@Qt,           </td><td>Copy    </td><td> 457 @ 1720     </td></tr>
 <tr><td>&nbsp;</td> <td>F: Example: eskil</td><td>Literal </td><td> 15 ' Example: eskil'</td></tr>
 <tr><td>&nbsp;</td> <td>~E@Y0,           </td><td>Copy    </td><td>  4046 @ 2176        </td></tr>
 <tr><td>Trailer</td><td>2zMM3E           </td><td>Checksum</td><td> -1101438770         </td></tr>

@@ -40,7 +40,7 @@ static void strip_string(Blob *pBlob, char *z){
   blob_append(pBlob, z, -1);
 }
 
-#if defined(_WIN32) || defined(__BIONIC__)
+#if defined(_WIN32) || defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS)
 #ifdef _WIN32
 #include <conio.h>
 #endif
@@ -333,27 +333,31 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 ** Run various subcommands on users of the open repository or of
 ** the repository identified by the -R or --repository option.
 **
-**    %fossil user capabilities USERNAME ?STRING?
+** > fossil user capabilities USERNAME ?STRING?
 **
 **        Query or set the capabilities for user USERNAME
 **
-**    %fossil user default ?USERNAME?
+** > fossil user contact USERNAME ?CONTACT-INFO?
+**
+**        Query or set contact information for user USERNAME
+**
+** > fossil user default ?USERNAME?
 **
 **        Query or set the default user.  The default user is the
 **        user for command-line interaction.
 **
-**    %fossil user list
-**    %fossil user ls
+** > fossil user list
+** > fossil user ls
 **
 **        List all users known to the repository
 **
-**    %fossil user new ?USERNAME? ?CONTACT-INFO? ?PASSWORD?
+** > fossil user new ?USERNAME? ?CONTACT-INFO? ?PASSWORD?
 **
 **        Create a new user in the repository.  Users can never be
 **        deleted.  They can be denied all access but they must continue
 **        to exist in the database.
 **
-**    %fossil user password USERNAME ?PASSWORD?
+** > fossil user password USERNAME ?PASSWORD?
 **
 **        Change the web access password for a user.
 */
@@ -361,7 +365,7 @@ void user_cmd(void){
   int n;
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
-    usage("capabilities|default|list|new|password ...");
+    usage("capabilities|contact|default|list|new|password ...");
   }
   n = strlen(g.argv[2]);
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
@@ -388,11 +392,13 @@ void user_cmd(void){
       prompt_for_password("password: ", &passwd, 1);
     }
     zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
+    db_unprotect(PROTECT_USER);
     db_multi_exec(
       "INSERT INTO user(login,pw,cap,info,mtime)"
       "VALUES(%B,%Q,%B,%B,now())",
       &login, zPw, &caps, &contact
     );
+    db_protect_pop();
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
     if( g.argc==3 ){
@@ -434,8 +440,10 @@ void user_cmd(void){
       fossil_print("password unchanged\n");
     }else{
       char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3], 0);
+      db_unprotect(PROTECT_USER);
       db_multi_exec("UPDATE user SET pw=%Q, mtime=now() WHERE uid=%d",
                     zSecret, uid);
+      db_protect_pop();
       free(zSecret);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
@@ -448,15 +456,35 @@ void user_cmd(void){
       fossil_fatal("no such user: %s", g.argv[3]);
     }
     if( g.argc==5 ){
+      db_unprotect(PROTECT_USER);
       db_multi_exec(
         "UPDATE user SET cap=%Q, mtime=now() WHERE uid=%d",
         g.argv[4], uid
       );
+      db_protect_pop();
     }
     fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
+  }else if( n>=2 && strncmp(g.argv[2], "contact", 2)==0 ){
+    int uid;
+    if( g.argc!=4 && g.argc!=5 ){
+      usage("contact USERNAME ?CONTACT-INFO?");
+    }
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
+    if( uid==0 ){
+      fossil_fatal("no such user: %s", g.argv[3]);
+    }
+    if( g.argc==5 ){
+      db_unprotect(PROTECT_USER);
+      db_multi_exec(
+        "UPDATE user SET info=%Q, mtime=now() WHERE uid=%d",
+        g.argv[4], uid
+      );
+      db_protect_pop();
+    }
+    fossil_print("%s\n", db_text(0, "SELECT info FROM user WHERE uid=%d", uid));
   }else{
     fossil_fatal("user subcommand should be one of: "
-                 "capabilities default list new password");
+                 "capabilities contact default list new password");
   }
 }
 
@@ -575,6 +603,7 @@ void user_hash_passwords_cmd(void){
   db_open_repository(g.argv[2]);
   sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
                           sha1_shared_secret_sql_function, 0, 0);
+  db_unprotect(PROTECT_ALL);
   db_multi_exec(
     "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
     " WHERE length(pw)>0 AND length(pw)!=40"
@@ -652,24 +681,24 @@ void access_log_page(void){
 
   if( P("delall") && P("delallbtn") ){
     db_multi_exec("DELETE FROM accesslog");
-    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delanon") && P("delanonbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE uname='anonymous'");
-    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delfail") && P("delfailbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE NOT success");
-    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    cgi_redirectf("%R/access_log?y=%d&n=%d&o=%o", y, n, skip);
     return;
   }
   if( P("delold") && P("deloldbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE rowid in"
                   "(SELECT rowid FROM accesslog ORDER BY rowid DESC"
                   " LIMIT -1 OFFSET 200)");
-    cgi_redirectf("%s/access_log?y=%d&n=%d", g.zTop, y, n);
+    cgi_redirectf("%R/access_log?y=%d&n=%d", y, n);
     return;
   }
   style_header("Access Log");
@@ -689,8 +718,8 @@ void access_log_page(void){
   }
   blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
-    style_submenu_element("Newer", "%s/access_log?o=%d&n=%d&y=%d",
-              g.zTop, skip>=n ? skip-n : 0, n, y);
+    style_submenu_element("Newer", "%R/access_log?o=%d&n=%d&y=%d",
+              skip>=n ? skip-n : 0, n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
   fLogEnabled = db_get_boolean("access-log", 0);
@@ -707,8 +736,8 @@ void access_log_page(void){
     int bSuccess = db_column_int(&q, 3);
     cnt++;
     if( cnt>n ){
-      style_submenu_element("Older", "%s/access_log?o=%d&n=%d&y=%d",
-                  g.zTop, skip+n, n, y);
+      style_submenu_element("Older", "%R/access_log?o=%d&n=%d&y=%d",
+                  skip+n, n, y);
       break;
     }
     if( bSuccess ){
@@ -719,31 +748,31 @@ void access_log_page(void){
     @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td></tr>
   }
   if( skip>0 || cnt>n ){
-    style_submenu_element("All", "%s/access_log?n=10000000", g.zTop);
+    style_submenu_element("All", "%R/access_log?n=10000000");
   }
   @ </tbody></table>
   db_finalize(&q);
   @ <hr />
-  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delold">
   @ Delete all but the most recent 200 entries</input></label>
   @ <input type="submit" name="deloldbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delanon">
   @ Delete all entries for user "anonymous"</input></label>
   @ <input type="submit" name="delanonbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delfail">
   @ Delete all failed login attempts</input></label>
   @ <input type="submit" name="delfailbtn" value="Delete"></input>
   @ </form>
-  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <form method="post" action="%R/access_log">
   @ <label><input type="checkbox" name="delall">
   @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
   style_table_sorter();
-  style_footer();
+  style_finish_page();
 }

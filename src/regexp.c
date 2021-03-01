@@ -797,8 +797,8 @@ void re_test_grep(void){
 **
 ** Usage: %fossil grep [OPTIONS] PATTERN FILENAME ...
 **
-** Attempt to match the given POSIX extended regular expression PATTERN
-** historic versions of FILENAME.  The search begins with the most recent
+** Attempt to match the given POSIX extended regular expression PATTERN over
+** all historic versions of FILENAME.  The search begins with the most recent
 ** version of the file and moves backwards in time.  Multiple FILENAMEs can
 ** be specified, in which case all named files are searched in reverse
 ** chronological order.
@@ -813,7 +813,7 @@ void re_test_grep(void){
 **     -i|--ignore-case           Ignore case
 **     -l|--files-with-matches    List only hash for each match
 **     --once                     Stop searching after the first match
-**     -s|--no-messages           Suppress error messages about nonexistant
+**     -s|--no-messages           Suppress error messages about nonexistent
 **                                or unreadable files
 **     -v|--invert-match          Invert the sense of matching.  Show only
 **                                files that have no matches. Implies -l

@@ -140,12 +140,43 @@ static int output_one_side(
 */
 static const char *const mergeMarker[] = {
  /*123456789 123456789 123456789 123456789 123456789 123456789 123456789*/
-  "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n",
-  "||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||\n",
-  "======= MERGED IN content follows ==================================\n",
-  ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
+  "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<",
+  "||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||",
+  "======= MERGED IN content follows ==================================",
+  ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 };
 
+/*
+** Return true if the input blob contains any CR/LF pairs on the first
+** ten lines. This should be enough to detect files that use mainly CR/LF
+** line endings without causing a performance impact for LF only files.
+*/
+int contains_crlf(Blob *p){
+  int i;
+  int j = 0;
+  const int maxL = 10;             /* Max lines to check */
+  const char *z = blob_buffer(p);
+  int n = blob_size(p)+1;
+  for(i=1; i<n; ){
+    if( z[i-1]=='\r' && z[i]=='\n' ) return 1;
+    while( i<n && z[i]!='\n' ){ i++; }
+    j++;
+    if( j>maxL ) return 0;
+  }
+  return 0;
+}
+
+/*
+** Ensure that the text in pBlob ends with a new line.
+** If useCrLf is true adds "\r\n" otherwise '\n'.
+*/
+void ensure_line_end(Blob *pBlob, int useCrLf){
+  if( pBlob->nUsed<=0 ) return;
+  if( pBlob->aData[pBlob->nUsed-1]!='\n' ){
+    if( useCrLf ) blob_append_char(pBlob, '\r');
+    blob_append_char(pBlob, '\n');
+  }
+}
 
 /*
 ** Do a three-way merge.  Initialize pOut to contain the result.
@@ -166,8 +197,26 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int nCpy, nDel, nIns;  /* Number of lines to copy, delete, or insert */
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
+  int useCrLf = 0;
 
   blob_zero(pOut);         /* Merge results stored in pOut */
+  
+  /* If both pV1 and pV2 start with a UTF-8 byte-order-mark (BOM),
+  ** keep it in the output. This should be secure enough not to cause
+  ** unintended changes to the merged file and consistent with what
+  ** users are using in their source files.
+  */
+  if( starts_with_utf8_bom(pV1, 0) && starts_with_utf8_bom(pV2, 0) ){
+    blob_append(pOut, (char*)get_utf8_bom(0), -1);
+  }
+
+  /* Check once to see if both pV1 and pV2 contains CR/LF endings.
+  ** If true, CR/LF pair will be used later to append the
+  ** boundary markers for merge conflicts.
+  */
+  if( contains_crlf(pV1) && contains_crlf(pV2) ){
+    useCrLf = 1;
+  }
 
   /* Compute the edits that occur from pPivot => pV1 (into aC1)
   ** and pPivot => pV2 (into aC2).  Each of the aC1 and aC2 arrays is
@@ -271,12 +320,19 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       }
       DEBUG( printf("CONFLICT %d\n", sz); )
       blob_append(pOut, mergeMarker[0], -1);
+      ensure_line_end(pOut, useCrLf);
       i1 = output_one_side(pOut, pV1, aC1, i1, sz);
+      ensure_line_end(pOut, useCrLf);
       blob_append(pOut, mergeMarker[1], -1);
+      ensure_line_end(pOut, useCrLf);
       blob_copy_lines(pOut, pPivot, sz);
+      ensure_line_end(pOut, useCrLf);
       blob_append(pOut, mergeMarker[2], -1);
+      ensure_line_end(pOut, useCrLf);
       i2 = output_one_side(pOut, pV2, aC2, i2, sz);
+      ensure_line_end(pOut, useCrLf);
       blob_append(pOut, mergeMarker[3], -1);
+      ensure_line_end(pOut, useCrLf);
    }
 
     /* If we are finished with an edit triple, advance to the next
@@ -321,10 +377,11 @@ int contains_merge_marker(Blob *p){
   assert( count(mergeMarker)==4 );
   for(i=0; i<n; ){
     for(j=0; j<4; j++){
-      if( memcmp(&z[i], mergeMarker[j], len)==0 ) return 1;
+      if( (memcmp(&z[i], mergeMarker[j], len)==0)
+          && (i+1==n || z[i+len]=='\n' || z[i+len]=='\r') ) return 1;
     }
     while( i<n && z[i]!='\n' ){ i++; }
-    while( i<n && z[i]=='\n' ){ i++; }
+    while( i<n && (z[i]=='\n' || z[i]=='\r') ){ i++; }
   }
   return 0;
 }

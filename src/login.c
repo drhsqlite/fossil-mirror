@@ -263,16 +263,23 @@ char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
 ** If zDest is not NULL then the generated cookie is copied to
 ** *zDdest and ownership is transfered to the caller (who should
 ** eventually pass it to free()).
+**
+** If bSessionCookie is true, the cookie will be a session cookie,
+** else a persistent cookie. If it's a session cookie, the
+** [user].[cexpire] and [user].[cookie] entries will be modified as if
+** it were a persistent cookie because doing so is necessary for
+** fossil's own "is this cookie still valid?" checks to work.
 */
 void login_set_user_cookie(
   const char *zUsername,  /* User's name */
   int uid,                /* User's ID */
-  char **zDest            /* Optional: store generated cookie value. */
+  char **zDest,           /* Optional: store generated cookie value. */
+  int bSessionCookie      /* True for session-only cookie */
 ){
   const char *zCookieName = login_cookie_name();
   const char *zExpire = db_get("cookie-expire","8766");
-  int expires = atoi(zExpire)*3600;
-  char *zHash;
+  const int expires = atoi(zExpire)*3600;
+  char *zHash = 0;
   char *zCookie;
   const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
 
@@ -285,14 +292,15 @@ void login_set_user_cookie(
       uid);
   if( zHash==0 ) zHash = db_text(0, "SELECT hex(randomblob(25))");
   zCookie = login_gen_user_cookie_value(zUsername, zHash);
-  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
+  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(),
+                 bSessionCookie ? 0 : expires);
   record_login_attempt(zUsername, zIpAddr, 1);
-  db_multi_exec(
-                "UPDATE user SET cookie=%Q,"
+  db_unprotect(PROTECT_USER);
+  db_multi_exec("UPDATE user SET cookie=%Q,"
                 "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-                zHash, expires, uid
-                );
-  free(zHash);
+                zHash, expires, uid);
+  db_protect_pop();
+  fossil_free(zHash);
   if( zDest ){
     *zDest = zCookie;
   }else{
@@ -308,12 +316,16 @@ void login_set_user_cookie(
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
+**
+** If bSessionCookie is true, the cookie will be a session cookie.
 */
-void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
+void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest,
+                           int bSessionCookie ){
   const char *zNow;            /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
+  int expires = bSessionCookie ? 0 : 6*3600;
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
   assert( zCookieName && zNow );
@@ -322,13 +334,12 @@ void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
-  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), 6*3600);
+  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
   if( zCookieDest ){
     *zCookieDest = zCookie;
   }else{
     free(zCookie);
   }
-
 }
 
 /*
@@ -349,10 +360,12 @@ void login_clear_login_data(){
     /* To logout, change the cookie value to an empty string */
     cgi_set_cookie(cookie, "",
                    login_cookie_path(), -86400);
+    db_unprotect(PROTECT_USER);
     db_multi_exec("UPDATE user SET cookie=NULL, ipaddr=NULL, "
                   "  cexpire=0 WHERE uid=%d"
                   "  AND login NOT IN ('anonymous','nobody',"
                   "  'developer','reader')", g.userUid);
+    db_protect_pop();
     cgi_replace_parameter(cookie, NULL);
     cgi_replace_parameter("anon", NULL);
   }
@@ -517,7 +530,10 @@ void login_page(void){
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
   const char *zReferer;
-  int noAnon = P("noanon")!=0;
+  const int noAnon = P("noanon")!=0;
+  int rememberMe;              /* If true, use persistent cookie, else
+                                  session cookie. Toggled per
+                                  checkbox. */
 
   login_check_credentials();
   fossil_redirect_to_https_if_needed(1);
@@ -526,7 +542,6 @@ void login_page(void){
   zUsername = P("u");
   zPasswd = P("p");
   anonFlag = g.zLogin==0 && PB("anon");
-
   /* Handle log-out requests */
   if( P("out") ){
     login_clear_login_data();
@@ -571,10 +586,12 @@ void login_page(void){
         char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
         char *zChngPw;
         char *zErr;
+        int rc;
+
+        db_unprotect(PROTECT_USER);
         db_multi_exec(
            "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
         );
-        fossil_free(zNewPw);
         zChngPw = mprintf(
            "UPDATE user"
            "   SET pw=shared_secret(%Q,%Q,"
@@ -582,7 +599,10 @@ void login_page(void){
            " WHERE login=%Q",
            zNew1, g.zLogin, g.zLogin
         );
-        if( login_group_sql(zChngPw, "<p>", "</p>\n", &zErr) ){
+        fossil_free(zNewPw);
+        rc = login_group_sql(zChngPw, "<p>", "</p>\n", &zErr);
+        db_protect_pop();
+        if( rc ){
           zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
           fossil_free(zErr);
         }else{
@@ -602,8 +622,14 @@ void login_page(void){
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
   zReferer = P("HTTP_REFERER");
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
+  if(zUsername==0){
+    /* Initial login page hit. */
+    rememberMe = 0;
+  }else{
+    rememberMe = P("remember")!=0;
+  }
   if( uid>0 ){
-    login_set_anon_cookie(zIpAddr, NULL);
+    login_set_anon_cookie(zIpAddr, NULL, rememberMe?0:1);
     record_login_attempt("anonymous", zIpAddr, 1);
     redirect_to_g();
   }
@@ -619,6 +645,7 @@ void login_page(void){
          @ </span></p>
       ;
       record_login_attempt(zUsername, zIpAddr, 0);
+      cgi_set_status(401, "Unauthorized");
     }else{
       /* Non-anonymous login is successful.  Set a cookie of the form:
       **
@@ -627,10 +654,11 @@ void login_page(void){
       ** where HASH is a random hex number, PROJECT is either project
       ** code prefix, and LOGIN is the user name.
       */
-      login_set_user_cookie(zUsername, uid, NULL);
+      login_set_user_cookie(zUsername, uid, NULL, rememberMe?0:1);
       redirect_to_g();
     }
   }
+  style_set_current_feature("login");
   style_header("Login/Logout");
   style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
@@ -648,6 +676,7 @@ void login_page(void){
     }else{
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
+    fossil_free(zAbbrev);
   }
   if( g.sslNotAvailable==0
    && strncmp(g.zBaseURL,"https:",6)!=0
@@ -679,6 +708,17 @@ void login_page(void){
       zAnonPw = 0;
     }
     @ <table class="login_out">
+    if( P("HTTPS")==0 ){
+      @ <tr><td class="form_label">Warning:</td>
+      @ <td><span class='securityWarning'>
+      @ Login information, including the password, 
+      @ will be sent in the clear over an unencrypted connection.
+      if( !g.sslNotAvailable ){
+        @ Consider logging in at
+        @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
+      }
+      @ </span></td></tr>
+    }
     @ <tr>
     @   <td class="form_label" id="userlabel1">User ID:</td>
     @   <td><input type="text" id="u" aria-labelledby="userlabel1" name="u" \
@@ -693,22 +733,15 @@ void login_page(void){
     }
     @ </td>
     @ </tr>
-    if( P("HTTPS")==0 ){
-      @ <tr><td class="form_label">Warning:</td>
-      @ <td><span class='securityWarning'>
-      @ Your password will be sent in the clear over an
-      @ unencrypted connection.
-      if( g.sslNotAvailable ){
-        @ No encrypted connection is available on this server.
-      }else{
-        @ Consider logging in at
-        @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
-      }
-      @ </span></td></tr>
-    }
     @ <tr>
     @   <td></td>
-    @   <td><input type="submit" name="in" value="Login"></td>
+    @   <td><input type="checkbox" name="remember" value="1" \
+    @ id="remember-me" %s(rememberMe ? "checked=\"checked\"" : "")>
+    @   <label for="remember-me">Remember me?</label></td>
+    @ </tr>
+    @ <tr>
+    @   <td></td>
+    @   <td><input type="submit" name="in" value="Login">
     @ </tr>
     if( !noAnon && login_self_register_available(0) ){
       @ <tr>
@@ -732,7 +765,7 @@ void login_page(void){
       if( bAutoCaptcha ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
          @ data-af='%s(zDecoded)' />
-         style_load_one_js_file("login.js");
+         builtin_request_js("login.js");
       }
       @ </div>
       free(zCaptcha);
@@ -746,6 +779,7 @@ void login_page(void){
       @ for user <b>%h(g.zLogin)</b></p>
     }
     if( g.perm.Password ){
+      char *zRPW = fossil_random_password(12);
       @ <hr>
       @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
       form_begin(0, "%R/login");
@@ -755,7 +789,7 @@ void login_page(void){
       @ size="30"/></td></tr>
       @ <tr><td class="form_label" id="newpw">New Password:</td>
       @ <td><input aria-labelledby="newpw" type="password" name="n1" \
-      @ size="30" /></td></tr>
+      @ size="30" /> Suggestion: %z(zRPW)</td></tr>
       @ <tr><td class="form_label" id="reppw">Repeat New Password:</td>
       @ <td><input aria-labledby="reppw" type="password" name="n2" \
       @ size="30" /></td></tr>
@@ -765,7 +799,7 @@ void login_page(void){
       @ </form>
     }
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -815,12 +849,14 @@ static int login_transfer_credentials(
     pStmt = 0;
     rc = sqlite3_prepare_v2(pOther, zSQL, -1, &pStmt, 0);
     if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+      db_unprotect(PROTECT_USER);
       db_multi_exec(
         "UPDATE user SET cookie=%Q, cexpire=%.17g"
         " WHERE login=%Q",
         zHash, 
         sqlite3_column_double(pStmt, 0), zLogin
       );
+      db_protect_pop();
       nXfer++;
     }
     sqlite3_finalize(pStmt);
@@ -1045,6 +1081,25 @@ void login_check_credentials(void){
     uid = login_basic_authentication(zIpAddr);
   }
 
+  /* Check for magic query parameters "resid" (for the username) and
+  ** "token" for the password.  Both values (if they exist) will be
+  ** obfuscated.
+  */
+  if( uid==0 ){
+    char *zUsr, *zPW;
+    if( (zUsr = unobscure(P("resid")))!=0
+     && (zPW = unobscure(P("token")))!=0
+    ){
+      char *zSha1Pw = sha1_shared_secret(zPW, zUsr, 0);
+      uid = db_int(0, "SELECT uid FROM user"
+                      " WHERE login=%Q"
+                      " AND (constant_time_cmp(pw,%Q)=0"
+                      "      OR constant_time_cmp(pw,%Q)=0)",
+                      zUsr, zSha1Pw, zPW);
+      fossil_free(zSha1Pw);
+    }
+  }
+
   /* If no user found yet, try to log in as "nobody" */
   if( uid==0 ){
     uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");
@@ -1197,7 +1252,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt =
                              p->RdForum = p->WrForum = p->ModForum =
-                             p->WrTForum = p->AdminForum =
+                             p->WrTForum = p->AdminForum = p->Chat = 
                              p->EmailAlert = p->Announce = p->Debug = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1234,6 +1289,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
 
       case '7':   p->EmailAlert = 1;                           break;
       case 'A':   p->Announce = 1;                             break;
+      case 'C':   p->Chat = 1;                                 break;
       case 'D':   p->Debug = 1;                                break;
 
       /* The "u" privilege recursively
@@ -1276,6 +1332,9 @@ void login_replace_capabilities(const char *zCap, unsigned flags){
 ** If the current login lacks any of the capabilities listed in
 ** the input, then return 0.  If all capabilities are present, then
 ** return 1.
+**
+** As a special case, the 'L' pseudo-capability ID means "is logged
+** in" and will return true for any non-guest user.
 */
 int login_has_capability(const char *zCap, int nCap, u32 flgs){
   int i;
@@ -1317,7 +1376,12 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case '6':  rc = p->AdminForum;break;
       case '7':  rc = p->EmailAlert;break;
       case 'A':  rc = p->Announce;  break;
+      case 'C':  rc = p->Chat;      break;
       case 'D':  rc = p->Debug;     break;
+      case 'L':  rc = g.zLogin && *g.zLogin; break;
+      /* Mainenance reminder: '@' should not be used because
+         it would semantically collide with the @ in the
+         capexpr TH1 command. */
       default:   rc = 0;            break;
     }
   }
@@ -1392,12 +1456,16 @@ void login_needed(int anonOk){
   {
     const char *zUrl = PD("REQUEST_URI", "index");
     const char *zQS = P("QUERY_STRING");
+    char *zUrlNoQS;
+    int i;
     Blob redir;
     blob_init(&redir, 0, 0);
+    for(i=0; zUrl[i] && zUrl[i]!='?'; i++){}
+    zUrlNoQS = fossil_strndup(zUrl, i);
     if( fossil_wants_https(1) ){
-      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
+      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrlNoQS);
     }else{
-      blob_appendf(&redir, "%R/login?g=%T", zUrl);
+      blob_appendf(&redir, "%R/login?g=%T", zUrlNoQS);
     }
     if( zQS && zQS[0] ){
       blob_appendf(&redir, "%%3f%T", zQS);
@@ -1513,7 +1581,7 @@ void register_page(void){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the
     @ project administrator to obtain an account.</p>
-    style_footer();
+    style_finish_page();
     return;
   }
   zPerms = db_get("default-perms", "u");
@@ -1571,9 +1639,10 @@ void register_page(void){
     ||
       /* Or if the email is a verify subscriber email with an associated
       ** user... */
-      db_exists(
-        "SELECT 1 FROM subscriber WHERE semail=%Q AND suname IS NOT NULL"
-        " AND sverified",zEAddr)
+      (alert_tables_exist() &&
+       db_exists(
+         "SELECT 1 FROM subscriber WHERE semail=%Q AND suname IS NOT NULL"
+         " AND sverified",zEAddr))
    ){
     iErrLine = 3;
     zErr = "This email address is already claimed by another user";
@@ -1598,14 +1667,15 @@ void register_page(void){
        "'%q <%q>\nself-register from ip %q on '||datetime('now'),now())",
        zUserID, zPass, zStartPerms, zDName, zEAddr, g.zIpAddr);
     fossil_free(zPass);
+    db_unprotect(PROTECT_USER);
     db_multi_exec("%s", blob_sql_text(&sql));
+    db_protect_pop();
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
-    login_set_user_cookie(zUserID, uid, NULL);
+    login_set_user_cookie(zUserID, uid, NULL, 0);
     if( doAlerts ){
       /* Also make the new user a subscriber. */
       Blob hdr, body;
       AlertSender *pSender;
-      sqlite3_int64 id;   /* New subscriber Id */
       const char *zCode;  /* New subscriber code (in hex) */
       const char *zGoto = P("g");
       int nsub = 0;
@@ -1621,12 +1691,13 @@ void register_page(void){
       ssub[nsub] = 0;
       capability_free(pCap);
       /* Also add the user to the subscriber table. */
-      db_multi_exec(
+      zCode = db_text(0,
         "INSERT INTO subscriber(semail,suname,"
         "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
         " VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
         " ON CONFLICT(semail) DO UPDATE"
-        "   SET suname=excluded.suname",
+        "   SET suname=excluded.suname"
+        " RETURNING hex(subscriberCode);",
         /* semail */    zEAddr,
         /* suname */    zUserID,
         /* sverified */ 0,
@@ -1634,7 +1705,6 @@ void register_page(void){
         /* ssub */      ssub,
         /* smip */      g.zIpAddr
       );
-      id = db_last_insert_rowid();
       if( db_exists("SELECT 1 FROM subscriber WHERE semail=%Q"
                     "  AND sverified", zEAddr) ){
         /* This the case where the user was formerly a verified subscriber
@@ -1642,9 +1712,6 @@ void register_page(void){
         ** not necessary to repeat the verfication step */
         redirect_to_g();
       }
-      zCode = db_text(0,
-           "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
-           id);
       /* A verification email */
       pSender = alert_sender_new(0,0);
       blob_init(&hdr,0,0);
@@ -1669,7 +1736,7 @@ void register_page(void){
       if( zGoto ){
         @ <p><a href='%h(zGoto)'>Continue</a>
       }
-      style_footer();
+      style_finish_page();
       return;
     }
     redirect_to_g();
@@ -1729,7 +1796,13 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right" id="pswd">Password:</td>
   @   <td><input aria-labelledby="pswd" type="password" name="p" \
-  @ value="%h(zPasswd)" size="30"></td>
+  @ value="%h(zPasswd)" size="30"> \
+  if( zPasswd[0]==0 ){
+    char *zRPW = fossil_random_password(12);
+    @ Password suggestion: %z(zRPW)</td>
+  }else{
+    @ </td>
+  }
   @ <tr>
   if( iErrLine==4 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
@@ -1761,7 +1834,7 @@ void register_page(void){
   @ Enter this 8-letter code in the "Captcha" box above.
   @ </td></tr></table></div>
   @ </form>
-  style_footer();
+  style_finish_page();
 
   free(zCaptcha);
 }
@@ -1811,10 +1884,12 @@ int login_group_sql(
     if( file_size(zRepoName, ExtFILE)<0 ){
       /* Silently remove non-existent repositories from the login group. */
       const char *zLabel = db_column_text(&q, 0);
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec(
          "DELETE FROM config WHERE name GLOB 'peer-*-%q'",
          &zLabel[10]
       );
+      db_protect_pop();
       continue;
     }
     rc = sqlite3_open_v2(
@@ -1949,6 +2024,7 @@ void login_group_join(
   zSelfProjCode = abbreviated_project_code(zSelfProjCode);
   zOtherProjCode = abbreviated_project_code(zOtherProjCode);
   db_begin_transaction();
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "DELETE FROM \"%w\".config WHERE name GLOB 'peer-*';"
     "INSERT INTO \"%w\".config(name,value) VALUES('peer-repo-%q',%Q);"
@@ -1972,6 +2048,7 @@ void login_group_join(
     "   WHERE name GLOB 'peer-*' OR name GLOB 'login-group-*'",
     zSelf
   );
+  db_protect_pop();
   db_end_transaction(0);
   db_multi_exec("DETACH other");
 
@@ -1983,7 +2060,9 @@ void login_group_join(
     "COMMIT;",
     zSelfProjCode, zSelfLabel, zSelfProjCode, zSelfRepo
   );
+  db_unprotect(PROTECT_CONFIG);
   login_group_sql(zSql, "<li> ", "</li>", pzErrMsg);
+  db_protect_pop();
   fossil_free(zSql);
 }
 
@@ -2004,6 +2083,7 @@ void login_group_leave(char **pzErrMsg){
     zProjCode
   );
   fossil_free(zProjCode);
+  db_unprotect(PROTECT_CONFIG);
   login_group_sql(zSql, "<li> ", "</li>", pzErrMsg);
   fossil_free(zSql);
   db_multi_exec(
@@ -2011,6 +2091,7 @@ void login_group_leave(char **pzErrMsg){
     " WHERE name GLOB 'peer-*'"
     "    OR name GLOB 'login-group-*';"
   );
+  db_protect_pop();
 }
 
 /*

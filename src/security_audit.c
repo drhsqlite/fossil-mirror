@@ -284,6 +284,14 @@ void secaudit0_page(void){
     @ on the <a href="setup_ulist">User Configuration</a> page.
   }
 
+  /* The strict-manifest-syntax setting should be on. */
+  if( db_get_boolean("strict-manifest-syntax",1)==0 ){
+    @ <li><p><b>WARNING:</b>
+    @ The "strict-manifest-syntax"  flag is off.  This is a security
+    @ risk.  Turn this setting on (its default) to protect the users
+    @ of this repository.
+  }
+
   /* Obsolete:  */
   if( hasAnyCap(zAnonCap, "d") ||
       hasAnyCap(zDevCap,  "d") ||
@@ -524,6 +532,13 @@ void secaudit0_page(void){
     @ %d(nCgi) CGIs and %d(nFile-nCgi) static content and data files.
   }
 
+  if( fileedit_glob()!=0 ){
+    @ <li><p><a href='%R/fileedit'>Online File Editing</a> is enabled
+    @ for this repository.  Clear the 
+    @ <a href='%R/setup_settings'>"fileedit-glob" setting</a> to
+    @ disable online editing.</p>
+  }
+
   @ <li><p> User capability summary:
   capability_summary();
 
@@ -566,13 +581,19 @@ void secaudit0_page(void){
     @ private and those are ignored.  But public phantoms cause unnecessary
     @ sync traffic and might represent malicious attempts to corrupt the
     @ repository structure.
+    @ </p><p>
+    @ To suppress unnecessary sync traffic caused by phantoms, add the RID
+    @ of each phantom to the "private" table.  Example:
+    @ <blockquote><pre>
+    @    INSERT INTO private SELECT rid FROM blob WHERE content IS NULL;
+    @ </pre></blockquote>
     @ </p>
     table_of_public_phantoms();
     @ </li>
   }
 
   @ </ol>
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -591,12 +612,14 @@ void takeitprivate_page(void){
     cgi_redirect("secaudit0");
   }
   if( P("apply") ){
+    db_unprotect(PROTECT_ALL);
     db_multi_exec(
       "UPDATE user SET cap=''"
       " WHERE login IN ('nobody','anonymous');"
       "DELETE FROM config WHERE name='public-pages';"
     );
     db_set("self-register","0",0);
+    db_protect_pop();
     cgi_redirect("secaudit0");
   }
   style_header("Make This Website Private");
@@ -612,7 +635,7 @@ void takeitprivate_page(void){
   @ <input type="submit" name="cancel" value="Cancel">
   @ </form>
 
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -653,7 +676,7 @@ void errorlog_page(void){
     @ a command-line option "--errorlog <i>FILENAME</i>" to that
     @ command.
     @ </ol>
-    style_footer();
+    style_finish_page();
     return;
   }
   if( P("truncate1") && cgi_csrf_safe(1) ){
@@ -673,7 +696,7 @@ void errorlog_page(void){
     @ <input type="submit" name="truncate1" value="Confirm">
     @ <input type="submit" name="cancel" value="Cancel">
     @ </form>
-    style_footer();
+    style_finish_page();
     return;
   }
   @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
@@ -681,8 +704,8 @@ void errorlog_page(void){
   style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
   if( in==0 ){
-    @ <p class='generalError'>Unable top open that file for reading!</p>
-    style_footer();
+    @ <p class='generalError'>Unable to open that file for reading!</p>
+    style_finish_page();
     return;
   }
   if( szFile>MXSHOWLOG && P("all")==0 ){
@@ -699,5 +722,5 @@ void errorlog_page(void){
   }
   fclose(in);
   @ </pre>
-  style_footer();
+  style_finish_page();
 }

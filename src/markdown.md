@@ -46,11 +46,12 @@
 > <ul>
 > <li>  A relative pathname.
 > <li>  A pathname starting with "/" in which case the Fossil server
->      URL prefix is prepended
+>       URL prefix is prepended
 > <li>  A wiki page name, or a wiki page name preceded by "wiki:"
-> <li> An artifact or ticket hash or hash prefix
+> <li>  An artifact or ticket hash or hash prefix
 > <li>  A date and time stamp: "YYYY-MM-DD HH:MM:SS" or a subset that
->      includes at least the day of the month.</ul>
+>       includes at least the day of the month.
+> <li>  An [interwiki link](#intermap) of the form "<i>Tag</i><b>:</b><i>PageName</i>"</ul>
 
 > In format 8, then the URL becomes the display text.  This is useful for
 > hyperlinks that refer to wiki pages and check-in and ticket hashes.
@@ -109,10 +110,12 @@
 > code syntax highlighters. Thus <tt>\`\`\`c</tt> would mark a block of code
 > in the C programming language. Text to be rendered inside the code block
 > should therefore start on the next line, not be cuddled up with the
-> backticks or tildes.
+> backticks or tildes.  See the "Diagrams" section below for the case where
+> "`language-WORD`" is "pikchr".
 
 > With the standard skins, verbatim text is rendered in a fixed-width font,
 > but that is purely a presentation matter, controlled by the skin’s CSS.
+
 
 ## Tables ##
 
@@ -132,6 +135,22 @@
 
 > The leftmost or rightmost **\|** is required only if the first or last column,
 > respectively, contains at least one blank cell.
+
+## Diagrams ##
+
+>
+~~~~~
+~~~ pikchr
+oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
+~~~
+~~~~~
+
+> Formatted using [Pikchr](https://pikchr.org/home), resulting in:
+
+>
+~~~ pikchr
+oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
+~~~
 
 ## Miscellaneous ##
 
@@ -154,3 +173,6 @@
 >    document title displayed at the top of the Fossil page.
 
 [daringfireball.net]: http://daringfireball.net/projects/markdown/syntax
+
+<a name="intermap"></a>
+## Interwiki Tag Map

@@ -306,6 +306,8 @@ static struct Caps {
     "Alerts", "Sign up for email alerts" },
   { 'A', CAPCLASS_ALERT|CAPCLASS_SUPER, 0,
     "Announce", "Send announcements to all subscribers" },
+  { 'C', CAPCLASS_FORUM, 0,
+    "Chat",  "Read and/or writes messages in the chatroom" },
   { 'D', CAPCLASS_OTHER, 0,
     "Debug", "Enable debugging features" },
 };
@@ -393,7 +395,7 @@ void capability_summary(void){
     zSelfCap, hasPubPages, zSelfCap
   );
   @ <table id='capabilitySummary' cellpadding="0" cellspacing="0" border="1">
-  @ <tr><th>&nbsp;<th>Code<th>Forum<th>Tickets<th>Wiki\
+  @ <tr><th>&nbsp;<th>Code<th>Forum<th>Tickets<th>Wiki<th>Chat\
   @ <th>Unversioned Content</th></tr>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zId = db_column_text(&q, 0);
@@ -448,6 +450,14 @@ void capability_summary(void){
       eType = 2;
     }else if( sqlite3_strglob("*j*",zCap)==0 ){
       eType = 1;
+    }else{
+      eType = 0;
+    }
+    @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
+
+    /* Chat */
+    if( sqlite3_strglob("*C*",zCap)==0 ){
+      eType = 2;
     }else{
       eType = 0;
     }

@@ -49,18 +49,17 @@
 ** a few special cases such as the "fossil test-tarball" command when we never
 ** want to follow symlinks.
 **
-** If RepoFILE is used and if the allow-symlinks setting is true and if
-** the object is a symbolic link, then the object is treated like an ordinary
-** file whose content is name of the object to which the symbolic link
-** points.
+**   ExtFILE      Symbolic links always refer to the object to which the
+**                link points.  Symlinks are never recognized as symlinks but
+**                instead always appear to the the target object.
 **
-** If ExtFILE is used or allow-symlinks is false, then operations on a
-** symbolic link are the same as operations on the object to which the
-** symbolic link points.
+**   SymFILE      Symbolic links always appear to be files whose name is
+**                the target pathname of the symbolic link.
 **
-** SymFILE is like RepoFILE except that it always uses the target filename of
-** a symbolic link as the content, instead of the content of the object
-** that the symlink points to.  SymFILE acts as if allow-symlinks is always ON.
+**   RepoFILE     Like SymFILE if allow-symlinks is true, or like
+**                ExtFILE if allow-symlinks is false.  In other words,
+**                symbolic links are only recognized as something different
+**                from files or directories if allow-symlinks is true.
 */
 #define ExtFILE    0  /* Always follow symlinks */
 #define RepoFILE   1  /* Follow symlinks if and only if allow-symlinks is OFF */
@@ -136,9 +135,12 @@ static int fossil_stat(
   int rc;
   void *zMbcs = fossil_utf8_to_path(zFilename, 0);
 #if !defined(_WIN32)
-  if( eFType>=RepoFILE && (eFType==SymFILE || db_allow_symlinks()) ){
+  if( (eFType==RepoFILE && db_allow_symlinks())
+   || eFType==SymFILE ){
+    /* Symlinks look like files whose content is the name of the target */
     rc = lstat(zMbcs, buf);
   }else{
+    /* Symlinks look like the object to which they point */
     rc = stat(zMbcs, buf);
   }
 #else
@@ -318,12 +320,85 @@ int file_isexe(const char *zFilename, int eFType){
 ** Return TRUE if the named file is a symlink and symlinks are allowed.
 ** Return false for all other cases.
 **
-** This routines RepoFILE - that zFilename is always a file under management.
+** This routines assumes RepoFILE - that zFilename is always a file
+** under management.
 **
 ** On Windows, always return False.
 */
 int file_islink(const char *zFilename){
   return file_perm(zFilename, RepoFILE)==PERM_LNK;
+}
+
+/*
+** Check every sub-directory of zRoot along the path to zFile.
+** If any sub-directory is really an ordinary file or a symbolic link,
+** return an integer which is the length of the prefix of zFile which
+** is the name of that object.  Return 0 if all no non-directory
+** objects are found along the path.
+**
+** Example:  Given inputs
+**
+**     zRoot = /home/alice/project1
+**     zFile = /home/alice/project1/main/src/js/fileA.js
+**
+** Look for objects in the following order:
+**
+**      /home/alice/project/main
+**      /home/alice/project/main/src
+**      /home/alice/project/main/src/js
+**
+** If any of those objects exist and are something other than a directory
+** then return the length of the name of the first non-directory object
+** seen.
+*/
+int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
+  int i = (int)strlen(zRoot);
+  char *z = fossil_strdup(zFile);
+  assert( fossil_strnicmp(zRoot, z, i)==0 );
+  if( i && zRoot[i-1]=='/' ) i--;
+  while( z[i]=='/' ){
+    int j, rc;
+    for(j=i+1; z[j] && z[j]!='/'; j++){}
+    if( z[j]!='/' ) break;
+    z[j] = 0;
+    rc = file_isdir(z, SymFILE);
+    if( rc!=1 ){
+      if( rc==2 ){
+        fossil_free(z);
+        return j;
+      }
+      break;
+    }
+    z[j] = '/';
+    i = j;
+  }
+  fossil_free(z);
+  return 0;
+}
+
+/*
+** The file named zFile is suppose to be an in-tree file.  Check to
+** ensure that it will be safe to write to this file by verifying that
+** there are no symlinks or other non-directory objects in between the
+** root of the checkout and zFile.
+**
+** If a problem is found, print a warning message (using fossil_warning())
+** and return non-zero.  If everything is ok, return zero.
+*/
+int file_unsafe_in_tree_path(const char *zFile){
+  int n;
+  if( !file_is_absolute_path(zFile) ){
+    fossil_panic("%s is not an absolute pathname",zFile);
+  }
+  if( fossil_strnicmp(g.zLocalRoot, zFile, (int)strlen(g.zLocalRoot)) ){
+    fossil_panic("%s is not a prefix of %s", g.zLocalRoot, zFile);
+  }
+  n = file_nondir_objects_on_path(g.zLocalRoot, zFile);
+  if( n ){
+    fossil_warning("cannot write to %s because non-directory object %.*s"
+                   " is in the way", zFile, n, zFile);
+  }
+  return n;
 }
 
 /*
@@ -366,7 +441,7 @@ int file_is_repository(const char *zFilename){
   sz = file_size(zFilename, ExtFILE);
   if( sz<35328 ) return 0;
   if( sz%512!=0 ) return 0;
-  rc = sqlite3_open_v2(zFilename, &db, 
+  rc = sqlite3_open_v2(zFilename, &db,
           SQLITE_OPEN_READWRITE, 0);
   if( rc!=0 ) goto not_a_repo;
   for(i=0; i<count(azReqTab); i++){
@@ -572,7 +647,10 @@ int file_setexe(const char *zFilename, int onoff){
   int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( fossil_stat(zFilename, &buf, RepoFILE)!=0 || S_ISLNK(buf.st_mode) ){
+  if( fossil_stat(zFilename, &buf, RepoFILE)!=0
+   || S_ISLNK(buf.st_mode)
+   || S_ISDIR(buf.st_mode)
+  ){
     return 0;
   }
   if( onoff ){
@@ -696,7 +774,7 @@ int file_mkdir(const char *zName, int eFType, int forceFlag){
     rc = _wmkdir(zMbcs);
 #else
     char *zMbcs = fossil_utf8_to_path(zName, 1);
-    rc = mkdir(zName, 0755);
+    rc = mkdir(zMbcs, 0755);
 #endif
     fossil_path_free(zMbcs);
     return rc;
@@ -724,7 +802,7 @@ int file_mkfolder(
   zName = mprintf("%s", zFilename);
   nName = file_simplify_name(zName, nName, 0);
   while( nName>0 && zName[nName-1]!='/' ){ nName--; }
-  if( nName ){
+  if( nName>1 ){
     zName[nName-1] = 0;
     if( file_isdir(zName, eFType)!=1 ){
       rc = file_mkfolder(zName, eFType, forceFlag, errorReturn);
@@ -969,6 +1047,7 @@ int file_simplify_name(char *z, int n, int slash){
   int i = 1, j;
   assert( z!=0 );
   if( n<0 ) n = strlen(z);
+  if( n==0 ) return 0;
 
   /* On windows and cygwin convert all \ characters to /
    * and remove extended path prefix if present */
@@ -1106,6 +1185,8 @@ int file_is_absolute_path(const char *zPath){
 ** Convert /A/../ to just /
 ** If the slash parameter is non-zero, the trailing slash, if any,
 ** is retained.
+**
+** See also: file_canonical_name_dup()
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
   blob_zero(pOut);
@@ -1140,6 +1221,21 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 #endif
   blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
                                        blob_size(pOut), slash));
+}
+
+/*
+** Compute the canonical name of a file.  Store that name in
+** memory obtained from fossil_malloc() and return a pointer to the
+** name.
+**
+** See also: file_canonical_name()
+*/
+char *file_canonical_name_dup(const char *zOrigName){
+  Blob x;
+  if( zOrigName==0 ) return 0;
+  blob_init(&x, 0, 0);
+  file_canonical_name(zOrigName, &x, 0);
+  return blob_str(&x);
 }
 
 /*
@@ -1214,14 +1310,15 @@ static void emitFileStat(
   char zBuf[200];
   char *z;
   Blob x;
+  char *zFull;
   int rc;
   sqlite3_int64 iMtime;
   struct fossilStat testFileStat;
   memset(zBuf, 0, sizeof(zBuf));
   blob_zero(&x);
   file_canonical_name(zPath, &x, slash);
-  fossil_print("[%s] -> [%s]\n", zPath, blob_buffer(&x));
-  blob_reset(&x);
+  zFull = blob_str(&x);
+  fossil_print("[%s] -> [%s]\n", zPath, zFull);
   memset(&testFileStat, 0, sizeof(struct fossilStat));
   rc = fossil_stat(zPath, &testFileStat, 0);
   fossil_print("  stat_rc                = %d\n", rc);
@@ -1269,6 +1366,9 @@ static void emitFileStat(
   fossil_print("  file_isexe(RepoFILE)   = %d\n", file_isexe(zPath,RepoFILE));
   fossil_print("  file_isdir(RepoFILE)   = %d\n", file_isdir(zPath,RepoFILE));
   fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
+  fossil_print("  file_is_reserved_name  = %d\n",
+                                             file_is_reserved_name(zFull,-1));
+  blob_reset(&x);
   if( reset ) resetStat();
 }
 
@@ -1284,13 +1384,15 @@ static void emitFileStat(
 **
 **     --allow-symlinks BOOLEAN     Temporarily turn allow-symlinks on/off
 **     --open-config                Open the configuration database first.
-**     --slash                      Trailing slashes, if any, are retained.
 **     --reset                      Reset cached stat() info for each file.
+**     --root ROOT                  Use ROOT as the root of the checkout
+**     --slash                      Trailing slashes, if any, are retained.
 */
 void cmd_test_file_environment(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
+  const char *zRoot = find_option("root",0,1);
   const char *zAllow = find_option("allow-symlinks",0,1);
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
@@ -1298,14 +1400,25 @@ void cmd_test_file_environment(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
-  fossil_print("db_allow_symlinks_by_default() = %d\n",
-               db_allow_symlinks_by_default());
   if( zAllow ){
     g.allowSymlinks = !is_false(zAllow);
   }
+  if( zRoot==0 ) zRoot = g.zLocalRoot;
   fossil_print("db_allow_symlinks() = %d\n", db_allow_symlinks());
+  fossil_print("local-root = [%s]\n", zRoot);
   for(i=2; i<g.argc; i++){
+    char *z;
     emitFileStat(g.argv[i], slashFlag, resetFlag);
+    z = file_canonical_name_dup(g.argv[i]);
+    fossil_print("  file_canonical_name    = %s\n", z);
+    fossil_print("  file_nondir_path       = ");
+    if( fossil_strnicmp(zRoot,z,(int)strlen(zRoot))!=0 ){
+      fossil_print("(--root is not a prefix of this file)\n");
+    }else{
+      int n = file_nondir_objects_on_path(zRoot, z);
+      fossil_print("%.*s\n", n, z);
+    }
+    fossil_free(z);
   }
 }
 
@@ -2177,7 +2290,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **   -g GLOBLIST    Comma-separated list of glob patterns.
 **   -G GLOBFILE    Similar to -g but reads its globs from a
 **                  fossil-conventional glob list file.
-**   -v|-verbose    Outputs extra information about its globs
+**   -v|--verbose   Outputs extra information about its globs
 **                  and each file it touches.
 **   -n|--dry-run   Outputs which files would require touching,
 **                  but does not touch them.
@@ -2379,5 +2492,78 @@ void touch_cmd(){
                  changeCount);
   }else{
     fossil_print("Touched %d file(s)\n", changeCount);
+  }
+}
+
+/*
+** If zFileName is not NULL and contains a '.', this returns a pointer
+** to the position after the final '.', else it returns NULL. As a
+** special case, if it ends with a period then a pointer to the
+** terminating NUL byte is returned.
+*/
+const char * file_extension(const char *zFileName){
+  const char * zExt = zFileName ? strrchr(zFileName, '.') : 0;
+  return zExt ? &zExt[1] : 0;
+}
+
+/*
+** Returns non-zero if the specified file name ends with any reserved name,
+** e.g.: _FOSSIL_ or .fslckout.  Specifically, it returns 1 for exact match
+** or 2 for a tail match on a longer file name.
+**
+** For the sake of efficiency, zFilename must be a canonical name, e.g. an
+** absolute path using only forward slash ('/') as a directory separator.
+**
+** nFilename must be the length of zFilename.  When negative, strlen() will
+** be used to calculate it.
+*/
+int file_is_reserved_name(const char *zFilename, int nFilename){
+  const char *zEnd;  /* one-after-the-end of zFilename */
+  int gotSuffix = 0; /* length of suffix (-wal, -shm, -journal) */
+
+  assert( zFilename && "API misuse" );
+  if( nFilename<0 ) nFilename = (int)strlen(zFilename);
+  if( nFilename<8 ) return 0; /* strlen("_FOSSIL_") */
+  zEnd = zFilename + nFilename;
+  if( nFilename>=12 ){ /* strlen("_FOSSIL_-(shm|wal)") */
+    /* Check for (-wal, -shm, -journal) suffixes, with an eye towards
+    ** runtime speed. */
+    if( zEnd[-4]=='-' ){
+      if( fossil_strnicmp("wal", &zEnd[-3], 3)
+       && fossil_strnicmp("shm", &zEnd[-3], 3) ){
+        return 0;
+      }
+      gotSuffix = 4;
+    }else if( nFilename>=16 && zEnd[-8]=='-' ){ /*strlen(_FOSSIL_-journal) */
+      if( fossil_strnicmp("journal", &zEnd[-7], 7) ) return 0;
+      gotSuffix = 8;
+    }
+    if( gotSuffix ){
+      assert( 4==gotSuffix || 8==gotSuffix );
+      zEnd -= gotSuffix;
+      nFilename -= gotSuffix;
+      gotSuffix = 1;
+    }
+    assert( nFilename>=8 && "strlen(_FOSSIL_)" );
+    assert( gotSuffix==0 || gotSuffix==1 );
+  }
+  switch( zEnd[-1] ){
+    case '_':{
+      if( fossil_strnicmp("_FOSSIL_", &zEnd[-8], 8) ) return 0;
+      if( 8==nFilename ) return 1;
+      return zEnd[-9]=='/' ? 2 : gotSuffix;
+    }
+    case 'T':
+    case 't':{
+      if( nFilename<9 || zEnd[-9]!='.'
+       || fossil_strnicmp(".fslckout", &zEnd[-9], 9) ){
+        return 0;
+      }
+      if( 9==nFilename ) return 1;
+      return zEnd[-10]=='/' ? 2 : gotSuffix;
+    }
+    default:{
+      return 0;
+    }
   }
 }

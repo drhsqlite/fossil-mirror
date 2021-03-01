@@ -81,7 +81,7 @@ of the common timeline options.
   "isLeaf":true,
   "bgColor":null, /* not quite sure why this is null? */
   "type":"ci",
-  "parents": ["primary parent UUID", "...other parent UUIDs"],
+  "parents": ["primary parent hash", "...other parent hashes"],
   "tags":["json"],
   "files":[{
     "name":"ajax/index.html",
@@ -103,8 +103,8 @@ which was not involved in a merge with the child.
 
 -   `files=bool` toggles the addition of a "files" array property which
     contains objects describing the files changed by the commit,
-    including their uuid, previous uuid, and state change type
-    (modified, added, or removed).\  
+    including their hash, previous hash, and state change type
+    (modified, added, or removed). ([“uuid” here means hash][uvh])\  
     CLI mode: `--show-files|-f`
 -   `tag|branch=string` selects only entries with the given tag or "close
     to" the given branch. Only one of these may be specified and if both
@@ -174,11 +174,11 @@ event content.
 }
 ```
 
-**Notice that there are two UUIDs for tickets** - `uuid` is the change
-UUID and `ticketUuid` is the actual ticket. This is an unfortunate
+**Notice that there are two [hashes][uvh] for tickets** - `uuid` is the change
+hash and `ticketUuid` is the actual ticket’s hash. This is an unfortunate
 discrepancy vis-a-vis the other timeline entries, which only have one
-uuid. We may want to swap uuid to mean the ticket uuid and change uuid
-to commitUuid.
+hash. We may want to swap `uuid` to mean the ticket hash and change `uuid`
+to `commitHash`.
 
 <a id="wiki"></a>
 # Wiki Timeline
@@ -208,6 +208,7 @@ to commitUuid.
 ```
 
 The `uuid` of each entry can be passed to `/json/artifact` or
-`/json/wiki/get?uuid=...` to fetch the raw page and the uuid of the
+`/json/wiki/get?uuid=...` to fetch the raw page and the hash of the
 parent version.
 
+[uvh]: ../hashes.md#uvh

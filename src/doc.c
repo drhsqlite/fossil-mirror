@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -40,15 +40,19 @@ const char *mimetype_from_content(Blob *pBlob){
   /* A table of mimetypes based on file content prefixes
   */
   static const struct {
-    const char *zPrefix;       /* The file prefix */
-    const int size;            /* Length of the prefix */
+    const char *z;             /* Identifying file text */
+    const unsigned char sz1;   /* Length of the prefix */
+    const unsigned char of2;   /* Offset to the second segment */
+    const unsigned char sz2;   /* Size of the second segment */
+    const unsigned char mn;    /* Minimum size of input */
     const char *zMimetype;     /* The corresponding mimetype */
   } aMime[] = {
-    { "GIF87a",                  6, "image/gif"  },
-    { "GIF89a",                  6, "image/gif"  },
-    { "\211PNG\r\n\032\n",       8, "image/png"  },
-    { "\377\332\377",            3, "image/jpeg" },
-    { "\377\330\377",            3, "image/jpeg" },
+    { "GIF87a",                  6, 0, 0, 6,  "image/gif"  },
+    { "GIF89a",                  6, 0, 0, 6,  "image/gif"  },
+    { "\211PNG\r\n\032\n",       8, 0, 0, 8,  "image/png"  },
+    { "\377\332\377",            3, 0, 0, 3,  "image/jpeg" },
+    { "\377\330\377",            3, 0, 0, 3,  "image/jpeg" },
+    { "RIFFWAVEfmt",             4, 8, 7, 15, "sound/wav"  },
   };
 
   if( !looks_like_binary(pBlob) ) {
@@ -57,9 +61,14 @@ const char *mimetype_from_content(Blob *pBlob){
   x = (const unsigned char*)blob_buffer(pBlob);
   n = blob_size(pBlob);
   for(i=0; i<count(aMime); i++){
-    if( n>=aMime[i].size && memcmp(x, aMime[i].zPrefix, aMime[i].size)==0 ){
-      return aMime[i].zMimetype;
+    if( n<aMime[i].mn ) continue;
+    if( memcmp(x, aMime[i].z, aMime[i].sz1)!=0 ) continue;
+    if( aMime[i].sz2
+     && memcmp(x+aMime[i].of2, aMime[i].z+aMime[i].sz1, aMime[i].sz2)!=0
+    ){
+      continue;
     }
+    return aMime[i].zMimetype;
   }
   return "unknown/unknown";
 }
@@ -149,7 +158,7 @@ static const struct {
   { "jpe",        3, "image/jpeg"                        },
   { "jpeg",       4, "image/jpeg"                        },
   { "jpg",        3, "image/jpeg"                        },
-  { "js",         2, "application/x-javascript"          },
+  { "js",         2, "application/javascript"            },
   { "kar",        3, "audio/midi"                        },
   { "latex",      5, "application/x-latex"               },
   { "lha",        3, "application/octet-stream"          },
@@ -192,6 +201,7 @@ static const struct {
   { "pgm",        3, "image/x-portable-graymap"          },
   { "pgn",        3, "application/x-chess-pgn"           },
   { "pgp",        3, "application/pgp"                   },
+  { "pikchr",     6, "text/x-pikchr"                     },
   { "pl",         2, "application/x-perl"                },
   { "pm",         2, "application/x-perl"                },
   { "png",        3, "image/png"                         },
@@ -401,6 +411,24 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
 }
 
 /*
+** Emit Javascript which applies (or optionally can apply) to both the
+** /doc and /wiki pages. None of this implements required
+** functionality, just nice-to-haves. Any calls after the first are
+** no-ops.
+*/
+void document_emit_js(void){
+  static int once = 0;
+  if(0==once++){
+    builtin_fossil_js_bundle_or("pikchr", NULL);
+    style_script_begin(__FILE__,__LINE__);
+    CX("window.addEventListener('load', "
+       "()=>window.fossil.pikchr.addSrcView(), "
+       "false);\n");
+    style_script_end();
+  }
+}
+
+/*
 ** Guess the mime-type of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
@@ -538,7 +566,7 @@ void mimetype_list_page(void){
   }
   @ </tbody></table>
   style_table_sorter();
-  style_footer();
+  style_finish_page();
 }
 
 /*
@@ -741,40 +769,58 @@ void document_render(
   const char *zFilename         /* Name of the file being rendered */
 ){
   Blob title;
+  int isPopup = P("popup")!=0;
   blob_init(&title,0,0);
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob tail;
     style_adunit_config(ADUNIT_RIGHT_OK);
     if( wiki_find_title(pBody, &title, &tail) ){
-      style_header("%s", blob_str(&title));
+      if( !isPopup ) style_header("%s", blob_str(&title));
       wiki_convert(&tail, 0, WIKI_BUTTONS);
     }else{
-      style_header("%s", zDefaultTitle);
+      if( !isPopup ) style_header("%s", zDefaultTitle);
       wiki_convert(pBody, 0, WIKI_BUTTONS);
     }
-    style_footer();
+    if( !isPopup ){
+      document_emit_js();
+      style_finish_page();
+    }
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pBody, &title, &tail);
-    if( blob_size(&title)>0 ){
-      style_header("%s", blob_str(&title));
-    }else{
-      style_header("%s", zDefaultTitle);
+    if( !isPopup ){
+      if( blob_size(&title)>0 ){
+        style_header("%s", blob_str(&title));
+      }else{
+        style_header("%s", zDefaultTitle);
+      }
     }
     convert_href_and_output(&tail);
-    style_footer();
+    if( !isPopup ){
+      document_emit_js();
+      style_finish_page();
+    }
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("%s", zDefaultTitle);
     @ <blockquote><pre>
     @ %h(blob_str(pBody))
     @ </pre></blockquote>
-    style_footer();
+    document_emit_js();
+    style_finish_page();
   }else if( fossil_strcmp(zMime, "text/html")==0
             && doc_is_embedded_html(pBody, &title) ){
     if( blob_size(&title)==0 ) blob_append(&title,zFilename,-1);
-    style_header("%s", blob_str(&title));
+    if( !isPopup ) style_header("%s", blob_str(&title));
     convert_href_and_output(pBody);
-    style_footer();
+    if( !isPopup ){
+      document_emit_js();
+      style_finish_page();
+    }
+  }else if( fossil_strcmp(zMime, "text/x-pikchr")==0 ){
+    style_adunit_config(ADUNIT_RIGHT_OK);
+    style_header("%s", zDefaultTitle);
+    wiki_render_by_mimetype(pBody, zMime);
+    style_finish_page();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
@@ -794,7 +840,8 @@ void document_render(
       Th_Render(blob_str(pBody));
     }
     if( !raw ){
-      style_footer();
+      document_emit_js();
+      style_finish_page();
     }
 #endif
   }else{
@@ -831,7 +878,12 @@ void document_render(
 **
 ** The "ckout" CHECKIN is intended for development - to provide a mechanism
 ** for looking at what a file will look like using the /doc webpage after
-** it gets checked in.
+** it gets checked in.  Some commands like "fossil ui", "fossil server",
+** and "fossil http" accept an argument "--ckout-alias NAME" when allows
+** NAME to be understood as an alias for "ckout".  On a site with many
+** embedded hyperlinks to /doc/trunk/... one can run with "--ckout-alias trunk"
+** to simulate what the pending changes will look like after they are
+** checked in.  The NAME alias is stored in g.zCkoutAlias.
 **
 ** The file extension is used to decide how to render the file.
 **
@@ -879,6 +931,7 @@ void doc_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_set_current_feature("doc");
   blob_init(&title, 0, 0);
   zDfltTitle = isUV ? "" : "Documentation";
   db_begin_transaction();
@@ -951,7 +1004,9 @@ void doc_page(void){
         }
         zDfltTitle = zName;
       }
-    }else if( fossil_strcmp(zCheckin,"ckout")==0 ){
+    }else if( fossil_strcmp(zCheckin,"ckout")==0
+           || fossil_strcmp(zCheckin,g.zCkoutAlias)==0
+    ){
       /* Read from the local checkout */
       char *zFullpath;
       db_must_be_within_tree();
@@ -1002,7 +1057,7 @@ doc_not_found:
   if( fossil_strcmp(zCheckin,"ckout")!=0 ){
     @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
   }
-  style_footer();
+  style_finish_page();
   return;
 }
 
@@ -1134,25 +1189,30 @@ void background_page(void){
 /*
 ** WEBPAGE: favicon.ico
 **
-** Return the default favicon.ico image.  The returned image is for the
-** Fossil lizard icon.
+** Return the configured "favicon.ico" image.  If no "favicon.ico" image
+** is defined, the returned image is for the Fossil lizard icon.
 **
-** The intended use case here is to supply a favicon for the "fossil ui"
+** The intended use case here is to supply an icon for the "fossil ui"
 ** command.  For a permanent website, the recommended process is for
-** the admin to set up a project-specific favicon and reference that
-** icon in the HTML header using a line like:
+** the admin to set up a project-specific icon and reference that icon
+** in the HTML header using a line like:
 **
 **   <link rel="icon" href="URL-FOR-YOUR-ICON" type="MIMETYPE"/>
 ** 
 */
 void favicon_page(void){
-  Blob favicon;
+  Blob icon;
+  char *zMime;
 
   etag_check(ETAG_CONFIG, 0);
-  blob_zero(&favicon);
-  blob_init(&favicon, (char*)aLogo, sizeof(aLogo));
-  cgi_set_content_type("image/gif");
-  cgi_set_content(&favicon);
+  zMime = db_get("icon-mimetype", "image/gif");
+  blob_zero(&icon);
+  db_blob(&icon, "SELECT value FROM config WHERE name='icon-image'");
+  if( blob_size(&icon)==0 ){
+    blob_init(&icon, (char*)aLogo, sizeof(aLogo));
+  }
+  cgi_set_content_type(zMime);
+  cgi_set_content(&icon);
 }
 
 /*
@@ -1170,5 +1230,5 @@ void doc_search_page(void){
   login_check_credentials();
   style_header("Document Search");
   search_screen(SRCH_DOC, 0);
-  style_footer();
+  style_finish_page();
 }

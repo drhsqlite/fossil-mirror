@@ -154,7 +154,7 @@ int transport_ssh_open(UrlData *pUrlData){
 ** Open a connection to the server.  The server is defined by the following
 ** variables:
 **
-**   pUrlData->name        Name of the server.  Ex: www.fossil-scm.org
+**   pUrlData->name        Name of the server.  Ex: fossil-scm.org
 **   pUrlData->port        TCP/IP port.  Ex: 80
 **   pUrlData->isHttps     Use TLS for the connection
 **
@@ -265,14 +265,14 @@ void transport_send(UrlData *pUrlData, Blob *toSend){
 
 /*
 ** This routine is called when the outbound message is complete and
-** it is time to being receiving a reply.
+** it is time to begin receiving a reply.
 */
 void transport_flip(UrlData *pUrlData){
   if( pUrlData->isFile ){
     char *zCmd;
     fclose(transport.pFile);
-    zCmd = mprintf("\"%s\" http --in \"%s\" --out \"%s\" --ipaddr 127.0.0.1"
-                   " \"%s\" --localauth",
+    zCmd = mprintf("%$ http --in %$ --out %$ --ipaddr 127.0.0.1"
+                   " %$ --localauth",
        g.nameOfExe, transport.zOutFile, transport.zInFile, pUrlData->name
     );
     fossil_system(zCmd);

@@ -10,7 +10,6 @@ options {
                          => {Look for zlib in the given path, automatically, or in the source tree}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
-    with-legacy-mv-rm=1  => {Enable legacy behavior for mv/rm (skip checkout files)}
     with-sanitizer:      => {Build with C compiler's -fsanitize=LIST; e.g. address,enum,null,undefined}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
@@ -35,6 +34,13 @@ cc-with {-includes {stdint.h inttypes.h}} {
 
 # Use pread/pwrite system calls in place of seek + read/write if possible
 define USE_PREAD [cc-check-functions pread]
+
+# If we have cscope here, we'll use it in the "tags" target
+if {[cc-check-progs cscope]} {
+    define COLLECT_CSCOPE_DATA "cscope -bR -s$::autosetup(srcdir)/src"
+} else {
+    define COLLECT_CSCOPE_DATA ""
+}
 
 # Find tclsh for the test suite.
 #
@@ -172,13 +178,16 @@ if {![opt-bool internal-sqlite]} {
       user-error "unable to compile SQLite compatibility test program"
     }
     set err [catch {exec-with-stderr ./conftest__} result errinfo]
-    if {$err} {
-      user-error $result
+    if {[get-define build] eq [get-define host]} {
+      set err [catch {exec-with-stderr ./conftest__} result errinfo]
+      if {$err} {
+        user-error $result
+      }
     }
     file delete ./conftest__
   }
   test_system_sqlite
-    
+
 }
 
 proc is_mingw {} {
@@ -231,12 +240,6 @@ if {[opt-bool json]} {
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
     define FOSSIL_ENABLE_JSON
     msg-result "JSON support enabled"
-}
-
-if {[opt-bool with-legacy-mv-rm]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_LEGACY_MV_RM=1
-    define FOSSIL_ENABLE_LEGACY_MV_RM
-    msg-result "Legacy mv/rm support enabled"
 }
 
 if {[opt-bool with-exec-rel-paths]} {
@@ -364,7 +367,8 @@ if {$ssldirs ne "none"} {
             } msg
             if {!$found} {
                 set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl \
-                             /usr/pkg /usr/local /usr /usr/local/opt/openssl"
+                             /usr/pkg /usr/local /usr /usr/local/opt/openssl \
+                             /opt/homebrew/opt/openssl"
             }
         }
         if {!$found} {
@@ -570,6 +574,14 @@ cc-check-functions strchrnul
 cc-check-functions pledge
 cc-check-functions backtrace
 
+# Termux on Android adds "getpass(char *)" to unistd.h, so check this so we
+# guard against including it again; use cctest as cc-check-functions and 
+# cctest_function check for "getpass()" with no args and fail
+if {[cctest -link 1 -includes {unistd.h} -code "getpass(0);"]} {
+    define FOSSIL_HAVE_GETPASS 1
+    msg-result "Found getpass() with unistd.h"
+}
+
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
 if {![cc-check-functions getloadavg]} {
   define FOSSIL_OMIT_LOAD_AVERAGE 1
@@ -585,7 +597,9 @@ cc-check-function-in-lib sin m
 
 # Check for the FuseFS library
 if {[opt-bool fusefs]} {
-  if {[cc-check-function-in-lib fuse_mount fuse]} {
+  if {[opt-bool static]} {
+     msg-result "FuseFS support disabled due to -static"
+  } elseif {[cc-check-function-in-lib fuse_mount fuse]} {
      define-append EXTRA_CFLAGS -DFOSSIL_HAVE_FUSEFS
      define FOSSIL_HAVE_FUSEFS 1
      define-append LIBS -lfuse
@@ -607,13 +621,19 @@ if {[string length $fsan]} {
     }
 }
 
-# Finally, append -ldl to make sure it's the last in the list.
-# The library order matters in case of static linking.
+# Finally, append libraries that must be last. This matters more on some
+# OSes than others, but is most broadly required for static linking.
 if {[check-function-in-lib dlopen dl]} {
     # Some platforms (*BSD) have the dl functions already in libc and no libdl.
     # In such case we can link directly without -ldl.
     define-append LIBS [get-define lib_dlopen]
 }
+if {[opt-bool static]} {
+    # Linux can only infer the dependency on pthread from OpenSSL when
+    # doing dynamic linkage.
+    define-append LIBS -lpthread
+}
+
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

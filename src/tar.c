@@ -468,7 +468,7 @@ void test_tarball_cmd(void){
 ** added to as part of the tarball. It may be 0 or an empty string, in
 ** which case it is ignored. The intention is to create a tarball which
 ** politely expands into a subdir instead of filling your current dir
-** with source files. For example, pass a UUID or "ProjectName".
+** with source files. For example, pass an artifact hash or "ProjectName".
 **
 */
 void tarball_of_checkin(
@@ -476,7 +476,8 @@ void tarball_of_checkin(
   Blob *pTar,          /* Write the tarball into this blob */
   const char *zDir,    /* Directory prefix for all file added to tarball */
   Glob *pInclude,      /* Only add files matching this pattern */
-  Glob *pExclude       /* Exclude files matching this pattern */
+  Glob *pExclude,      /* Exclude files matching this pattern */
+  int listFlag         /* Show filenames on stdout */
 ){
   Blob mfile, hash, file;
   Manifest *pManifest;
@@ -503,7 +504,7 @@ void tarball_of_checkin(
   if( pManifest ){
     int flg, eflg = 0;
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
-    tar_begin(mTime);
+    if( pTar ) tar_begin(mTime);
     flg = db_get_manifest_setting();
     if( flg ){
       /* eflg is the effective flags, taking include/exclude into account */
@@ -527,29 +528,36 @@ void tarball_of_checkin(
         if( eflg & MFESTFLG_RAW ){
           blob_append(&filename, "manifest", -1);
           zName = blob_str(&filename);
-        }
-        if( eflg & MFESTFLG_RAW ) {
-          sterilize_manifest(&mfile);
-          tar_add_file(zName, &mfile, 0, mTime);
+          if( listFlag ) fossil_print("%s\n", zName);
+          if( pTar ){
+            sterilize_manifest(&mfile, CFTYPE_MANIFEST);
+            tar_add_file(zName, &mfile, 0, mTime);
+          }
         }
       }
       blob_reset(&mfile);
       if( eflg & MFESTFLG_UUID ){
-        blob_append(&hash, "\n", 1);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, "manifest.uuid", -1);
         zName = blob_str(&filename);
-        tar_add_file(zName, &hash, 0, mTime);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pTar ){
+          blob_append(&hash, "\n", 1);
+          tar_add_file(zName, &hash, 0, mTime);
+        }
       }
       if( eflg & MFESTFLG_TAGS ){
-        Blob tagslist;
-        blob_zero(&tagslist);
-        get_checkin_taglist(rid, &tagslist);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, "manifest.tags", -1);
         zName = blob_str(&filename);
-        tar_add_file(zName, &tagslist, 0, mTime);
-        blob_reset(&tagslist);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pTar ){
+          Blob tagslist;
+          blob_zero(&tagslist);
+          get_checkin_taglist(rid, &tagslist);
+          tar_add_file(zName, &tagslist, 0, mTime);
+          blob_reset(&tagslist);
+        }
       }
     }
     manifest_file_rewind(pManifest);
@@ -559,26 +567,32 @@ void tarball_of_checkin(
       if( glob_match(pExclude, pFile->zName) ) continue;
       fid = uuid_to_rid(pFile->zUuid, 0);
       if( fid ){
-        content_get(fid, &file);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, pFile->zName, -1);
         zName = blob_str(&filename);
-        tar_add_file(zName, &file, manifest_file_mperm(pFile), mTime);
-        blob_reset(&file);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pTar ){
+          content_get(fid, &file);
+          tar_add_file(zName, &file, manifest_file_mperm(pFile), mTime);
+          blob_reset(&file);
+        }
       }
     }
   }else{
     blob_append(&filename, blob_str(&hash), 16);
     zName = blob_str(&filename);
-    mTime = db_int64(0, "SELECT (julianday('now') -  2440587.5)*86400.0;");
-    tar_begin(mTime);
-    tar_add_file(zName, &mfile, 0, mTime);
+    if( listFlag ) fossil_print("%s\n", zName);
+    if( pTar ){
+      mTime = db_int64(0, "SELECT (julianday('now') -  2440587.5)*86400.0;");
+      tar_begin(mTime);
+      tar_add_file(zName, &mfile, 0, mTime);
+    }
   }
   manifest_destroy(pManifest);
   blob_reset(&mfile);
   blob_reset(&hash);
   blob_reset(&filename);
-  tar_finish(pTar);
+  if( pTar ) tar_finish(pTar);
 }
 
 /*
@@ -597,9 +611,16 @@ void tarball_of_checkin(
 ** in "..." or '...' so that it may contain commas.  If a file matches both
 ** --include and --exclude then it is excluded.
 **
+** If OUTPUTFILE is an empty string or "/dev/null" then no tarball is
+** actually generated.  This feature can be used in combination with
+** the --list option to get a list of the filename that would be in the
+** tarball had it actually been generated.  Note that --list shows only
+** filenames.  "tar tzf" shows both filesnames and subdirectory names.
+**
 ** Options:
 **   -X|--exclude GLOBLIST   Comma-separated list of GLOBs of files to exclude
 **   --include GLOBLIST      Comma-separated list of GLOBs of files to include
+**   -l|--list               Show archive content on stdout
 **   --name DIRECTORYNAME    The name of the top-level directory in the archive
 **   -R REPOSITORY           Specify a Fossil repository
 */
@@ -611,12 +632,15 @@ void tarball_cmd(void){
   Glob *pExclude = 0;
   const char *zInclude;
   const char *zExclude;
+  int listFlag = 0;
+  const char *zOut;
   zName = find_option("name", 0, 1);
   zExclude = find_option("exclude", "X", 1);
   if( zExclude ) pExclude = glob_create(zExclude);
   zInclude = find_option("include", 0, 1);
   if( zInclude ) pInclude = glob_create(zInclude);
   db_find_and_open_repository(0, 0);
+  listFlag = find_option("list","l",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -630,6 +654,10 @@ void tarball_cmd(void){
     fossil_fatal("Check-in not found: %s", g.argv[2]);
     return;
   }
+  zOut = g.argv[3];
+  if( fossil_strcmp("/dev/null",zOut)==0 || fossil_strcmp("",zOut)==0 ){
+    zOut = 0;
+  }
 
   if( zName==0 ){
     zName = db_text("default-name",
@@ -642,11 +670,15 @@ void tarball_cmd(void){
        db_get("project-name", "unnamed"), rid, rid
     );
   }
-  tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude);
+  tarball_of_checkin(rid, zOut ? &tarball : 0,
+                     zName, pInclude, pExclude, listFlag);
   glob_free(pInclude);
   glob_free(pExclude);
-  blob_write_to_file(&tarball, g.argv[3]);
-  blob_reset(&tarball);
+  if( listFlag ) fflush(stdout);
+  if( zOut ){
+    blob_write_to_file(&tarball, zOut);
+    blob_reset(&tarball);
+  }
 }
 
 /*
@@ -787,7 +819,7 @@ void tarball_page(void){
       @ zExclude = "%h(zExclude)"<br />
     }
     @ zKey = "%h(zKey)"
-    style_footer();
+    style_finish_page();
     return;
   }
   if( referred_from_login() ){
@@ -798,12 +830,12 @@ void tarball_page(void){
     @ of check-in <b>%h(zRid)</b>:
     @ <input type="submit" value="Download" />
     @ </form>
-    style_footer();
+    style_finish_page();
     return;
   }
   blob_zero(&tarball);
   if( cache_read(&tarball, zKey)==0 ){
-    tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude);
+    tarball_of_checkin(rid, &tarball, zName, pInclude, pExclude, 0);
     cache_write(&tarball, zKey);
   }
   glob_free(pInclude);

@@ -5,6 +5,10 @@
 #
 #    tclsh mkindex.tcl
 #
+# 2021-02-26:  The permuted index feature has been removed because
+# moderns don't understand such things, and seeing so many entries
+# confuses them.
+#
 
 set doclist {
   aboutcgi.wiki {How CGI Works In Fossil}
@@ -14,21 +18,28 @@ set doclist {
   alerts.md {Email Alerts And Notifications}
   antibot.wiki {Defense against Spiders and Bots}
   backoffice.md {The "Backoffice" mechanism of Fossil}
+  backup.md {Backing Up a Remote Fossil Repository}
   blame.wiki {The Annotate/Blame Algorithm Of Fossil}
-  blockchain.md {Fossil As Blockchain}
+  blockchain.md {Is Fossil A Blockchain?}
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
+  cap-theorem.md {Fossil and the CAP Theorem}
   caps/ {Administering User Capabilities}
   caps/admin-v-setup.md {Differences Between Setup and Admin Users}
   caps/ref.html {User Capability Reference}
   cgi.wiki {CGI Script Configuration Options}
   changes.wiki {Fossil Changelog}
+  chat.md {Fossil Chat}
   checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
   childprojects.wiki {Child Projects}
+  chroot.md {Server Chroot Jail}
+  ckout-workflows.md {Check-Out Workflows}
+  co-vs-up.md {Checkout vs Update}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
+  contact.md {Developer Contact Information}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
   css-tricks.md {Fossil CSS Tips and Tricks}
   customgraph.md {Theming: Customizing the Timeline Graph}
@@ -43,32 +54,38 @@ set doclist {
   env-opts.md {Environment Variables and Global Options}
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
+  fileedit-page.md {The fileedit Page}
   fileformat.wiki {Fossil File Format}
   fiveminutes.wiki {Up and Running in 5 Minutes as a Single User}
   forum.wiki {Fossil Forums}
   foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
+  fossil-is-not-relational.md {Introduction to the (Non-relational) Fossil Data Model}
   fossil_prompt.wiki {Fossilized Bash Prompt}
   fossil-v-git.wiki {Fossil Versus Git}
   globs.md {File Name Glob Patterns}
-  gitusers.md {Hints For Users With Git Experience}
+  gitusers.md {Git to Fossil Translation Guide}
   grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
   hacker-howto.wiki {Fossil Developers Guide}
+  hashes.md {Hashes: Fossil Artifact Identification}
   hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
   history.md {The Purpose And History Of Fossil}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
+  interwiki.md {Interwiki Links}
   image-format-vs-repo-size.md {Image Format vs Fossil Repo Size}
   javascript.md {Use of JavaScript in Fossil}
+  loadmgmt.md {Managing Server Load}
   makefile.wiki {The Fossil Build Process}
   mirrorlimitations.md {Limitations On Git Mirrors}
   mirrortogithub.md {How To Mirror A Fossil Repository On GitHub}
   /md_rules {Markdown Formatting Rules}
   newrepo.wiki {How To Create A New Fossil Repository}
   password.wiki {Password Management And Authentication}
+  pikchr.md {The Pikchr Diagram Language}
   pop.wiki {Principles Of Operation}
   private.wiki {Creating, Syncing, and Deleting Private Branches}
   qandc.wiki {Questions And Criticisms}
@@ -94,9 +111,8 @@ set doclist {
                       Of Fossil}
   tech_overview.wiki {SQLite Databases Used By Fossil}
   th1.md {The TH1 Scripting Language}
-  tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
-  tls-nginx.md {Proxying Fossil via HTTPS with nginx}
+  tickets.wiki {The Fossil Ticket System}
   unvers.wiki {Unversioned Files}
   webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}
@@ -115,14 +131,16 @@ foreach {file title} $doclist {
   set n [llength $title]
   regsub -all {\s+} $title { } title
   lappend permindex [list $title $file 1]
-  for {set i 0} {$i<$n-1} {incr i} {
-    set prefix [lrange $title 0 $i]
-    set suffix [lrange $title [expr {$i+1}] end]
-    set firstword [string tolower [lindex $suffix 0]]
-    if {[lsearch $stopwords $firstword]<0} {
-      lappend permindex [list "$suffix &mdash; $prefix" $file 0]
-    }
-  }
+
+# Disable the permutations.
+#  for {set i 0} {$i<$n-1} {incr i} {
+#    set prefix [lrange $title 0 $i]
+#    set suffix [lrange $title [expr {$i+1}] end]
+#    set firstword [string tolower [lindex $suffix 0]]
+#    if {[lsearch $stopwords $firstword]<0} {
+#      lappend permindex [list "$suffix &mdash; $prefix" $file 0]
+#    }
+#  }
 }
 set permindex [lsort -dict -index 0 $permindex]
 set out [open permutedindex.html w]
@@ -139,21 +157,22 @@ puts $out {
 <h2>Primary Documents:</h2>
 <ul>
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
+<li> <a href='$ROOT/help'>Built-in help for commands and webpages</a>
 <li> <a href='history.md'>Purpose and History of Fossil</a>
 <li> <a href='build.wiki'>Compiling and installing Fossil</a>
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
-<li> <a href='$ROOT/help'>List of commands, web-pages, and settings</a>
 <li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
 <li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
-<li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
+<li> <a href='$ROOT/wiki?name=To+Do+List'>To Do List (Wiki)</a>
+<li> <a href='http://fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
 </ul>
 <a name="pindex"></a>
-<h2>Permuted Index:</h2>
+<h2>Other Documents:</h2>
 <ul>}
 foreach entry $permindex {
   foreach {title file bold} $entry break
-  if {$bold} {set title <b>$title</b>}
+#  if {$bold} {set title <b>$title</b>}
   if {[string match /* $file]} {set file ../../..$file}
   puts $out "<li><a href=\"$file\">$title</a></li>"
 }

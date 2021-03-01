@@ -123,8 +123,18 @@ server. Verify the certificate fingerprint is correct, then answer
 
 If you are cloning from or syncing to Fossil servers that use a
 certificate signed by a well-known CA or one of its delegates, Fossil
-still has to know which CA roots to trust. When this fails, you get a
-big long error message that starts with this text:
+still has to know which CA roots to trust. When this fails, you get an
+error message that looks like this in Fossil 2.11 and newer:
+
+<pre>
+    Unable to verify SSL cert from fossil-scm.org
+      subject: CN = sqlite.org
+      issuer:  C = US, O = Let's Encrypt, CN = Let's Encrypt Authority X3
+      sha256:  bf26092dd97df6e4f7bf1926072e7e8d200129e1ffb8ef5276c1e5dd9bc95d52
+    accept this cert and continue (y/N)?
+</pre>
+
+In older versions, the message was much longer and began with this line:
 
 <pre>
     SSL verification failed: unable to get local issuer certificate
@@ -149,7 +159,7 @@ CA's signing certificate in PEM format and pointing OpenSSL at it:
 </pre>
 
 The use of <tt>--global</tt> with this option is common, since you may
-have multiple reposotories served under certificates signed by that same
+have multiple repositories served under certificates signed by that same
 CA. However, if you have a mix of publicly-signed and locally-signed
 certificates, you might want to drop the <tt>--global</tt> flag and set
 this option on a per-repository basis instead.
@@ -227,7 +237,7 @@ elsewhere in this repository that cover your options for [./server/
 
   *  <a id="stunnel"  href="./server/any/stunnel.md">Serving via stunnel</a>
   *  <a id="althttpd" href="./server/any/althttpd.md">Serving via stunnel + althttpd</a>
-  *  <a id="nginx"    href="./server/any/scgi.md">Serving via SCGI (nginx)</a>
+  *  <a id="nginx"    href="./server/debian/nginx.md#tls">Serving via SCGI with nginx on Debian</a>
 
 
 <h2 id="enforcing">Enforcing TLS Access</h2>
@@ -237,6 +247,12 @@ repository, be sure to use the <tt>https:</tt> URI scheme in
 <tt>clone</tt> and <tt>sync</tt> commands.  If your server is configured
 to serve the repository via both HTTP and HTTPS, it's easy to
 accidentally use unencrypted HTTP if you forget the all-important 's'.
+
+As of Fossil 2.9, using an <tt>http://</tt> URI with <tt>fossil
+clone</tt> or <tt>sync</tt> on a site that forwards to HTTPS will cause
+Fossil to remember the secure URL. However, there's a
+[https://en.wikipedia.org/wiki/Trust_on_first_use | TOFU problem] with
+this: it's still better to use <tt>https://</tt> from the start.
 
 As of Fossil 2.8, there is a setting in the Fossil UI under Admin &rarr;
 Access called "Redirect to HTTPS," which is set to "Off" by default.
@@ -272,7 +288,7 @@ ways to fix it:
 
 It's best to enforce TLS-only access at the front-end proxy level
 anyway. It not only avoids the problem entirely, it can be significantly
-more secure.  The [./tls-nginx.md|nginx TLS proxy guide] shows one way
+more secure.  The [server/debian/nginx.md#tls | nginx-on-Debian proxy guide] shows one way
 to achieve this.</p>
 
 

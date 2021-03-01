@@ -50,13 +50,20 @@ USE_SEE = @USE_SEE@
 FOSSIL_ENABLE_MINIZ = @FOSSIL_ENABLE_MINIZ@
 APPNAME = fossil
 
+.PHONY: all tags
+
 include $(SRCDIR)/main.mk
 
 distclean: clean
 	-rm -f autoconfig.h config.log Makefile
+	-rm -f cscope.out tags
 
 reconfig:
 	@AUTOREMAKE@
+
+tags:
+	ctags -R @srcdir@/src
+	@COLLECT_CSCOPE_DATA@
 
 # Automatically reconfigure whenever an autosetup file or one of the
 # make source files change.

@@ -143,6 +143,8 @@ int repo_list_page(void){
   if( n==0 ){
     sqlite3_close(g.db);
     g.db = 0;
+    g.repositoryOpen = 0;
+    g.localOpen = 0;
     return 0;
   }else{
     Stmt q;
@@ -245,10 +247,11 @@ int repo_list_page(void){
     ** that repository open in g.db.  Use the skin of that repository
     ** for display. */
     login_check_credentials();
+    style_set_current_feature("repolist");
     style_header("Repository List");
     @ %s(blob_str(&html))
     style_table_sorter();
-    style_footer();
+    style_finish_page();
   }else{
     /* If no repositories were found that had the "repolist_skin"
     ** property set, then use a default skin */

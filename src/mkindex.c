@@ -92,6 +92,7 @@
 #define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
 #define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
 #define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret webpage content */
+#define CMDFLAG_SENSITIVE   0x0400      /* Security-sensitive setting */
 /**************************************************************************/
 
 /*
@@ -250,6 +251,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
       aEntry[nUsed].eType |= CMDFLAG_BLOCKTEXT;
     }else if( j==11 && strncmp(&zLine[i], "versionable", j)==0 ){
       aEntry[nUsed].eType |= CMDFLAG_VERSIONABLE;
+    }else if( j==9 && strncmp(&zLine[i], "sensitive", j)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_SENSITIVE;
     }else if( j>6 && strncmp(&zLine[i], "width=", 6)==0 ){
       aEntry[nUsed].iWidth = atoi(&zLine[i+6]);
     }else if( j>8 && strncmp(&zLine[i], "default=", 8)==0 ){
@@ -343,6 +346,8 @@ void scan_for_func(char *zLine){
     while( fossil_isspace(zLine[i]) ){ i++; }
     for(j=0; fossil_isident(zLine[i+j]); j++){}
     if( j==0 ) goto page_skip;
+  }else{
+    j = 0;
   }
   for(k=nHelp-1; k>=0 && fossil_isspace(zHelp[k]); k--){}
   nHelp = k+1;
@@ -392,6 +397,7 @@ int e_compare(const void *a, const void *b){
 void build_table(void){
   int i;
   int nWeb = 0;
+  int mxLen = 0;
 
   qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare);
 
@@ -437,6 +443,7 @@ void build_table(void){
   for(i=0; i<nFixed; i++){
     const char *z = aEntry[i].zPath;
     int n = strlen(z);
+    if( n>mxLen ) mxLen = n;
     if( aEntry[i].zIf ){
       printf("%s", aEntry[i].zIf);
     }else if( (aEntry[i].eType & CMDFLAG_WEBPAGE)!=0 ){
@@ -454,6 +461,8 @@ void build_table(void){
   }
   printf("};\n");
   printf("#define FOSSIL_FIRST_CMD %d\n", nWeb);
+  printf("#define FOSSIL_MX_CMDNAME %d /* max length of any command name */\n",
+         mxLen);
 
   /* Generate the aSetting[] table */
   printf("const Setting aSetting[] = {\n");
@@ -475,10 +484,11 @@ void build_table(void){
     }else{
       printf(" 0,%*s", 16, "");
     }
-    printf(" %3d, %d, %d, \"%s\"%*s },\n",
+    printf(" %3d, %d, %d, %d, \"%s\"%*s },\n",
       aEntry[i].iWidth,
       (aEntry[i].eType & CMDFLAG_VERSIONABLE)!=0,
       (aEntry[i].eType & CMDFLAG_BLOCKTEXT)!=0,
+      (aEntry[i].eType & CMDFLAG_SENSITIVE)!=0,
       zDef, (int)(10-strlen(zDef)), ""
     );
     if( aEntry[i].zIf ){

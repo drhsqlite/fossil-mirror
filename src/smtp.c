@@ -771,6 +771,7 @@ void setup_smtp(void){
     return;
   }
   db_begin_transaction();
+  style_set_current_feature("smtp");
   style_header("Email Server Setup");
   if( db_table_exists("repository","emailroute") ){
     style_submenu_element("emailblob table", "%R/emailblob");
@@ -807,7 +808,7 @@ void setup_smtp(void){
   @    &larr; Add a new email address
   @   </form>
   @ </table>
-  style_footer();
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -835,6 +836,7 @@ void setup_smtp_route(void){
     login_needed(0);
     return;
   }
+  style_set_current_feature("smtp");
   style_header("Email Route Editor");
 
   if( P("edit") && cgi_csrf_safe(1) && zEAddr!=0 && zEPolicy!=0 ){
@@ -926,7 +928,7 @@ smtp_route_edit:
   @
   @ <p>To delete a route &rarr; erase all text from the "Routing" field then
   @ press the "Apply" button.
-  style_footer();
+  style_finish_page();
 }
 
 #if LOCAL_INTERFACE
@@ -1238,15 +1240,18 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
 /*
 ** Remove stale content from the emailblob table.
 */
-void smtp_cleanup(void){
+int smtp_cleanup(void){
+  int nAction = 0;
   if( db_table_exists("repository","emailblob") ){
     db_begin_transaction();
     db_multi_exec(
       "UPDATE emailblob SET ets=NULL WHERE enref<=0;"
       "DELETE FROM emailblob WHERE enref<=0;"
     );
+    nAction = db_changes();
     db_end_transaction(0);
   }
+  return nAction;
 }
 
 /*
@@ -1530,7 +1535,7 @@ void pop3d_command(void){
       int i;
       pop3_print(pLog, "+OK");
       for(i=0; i<sizeof(azCap)/sizeof(azCap[0]); i++){
-        pop3_print(pLog, azCap[i]);
+        pop3_print(pLog, "%s", azCap[i]);
       }
       pop3_print(pLog, ".");
       continue;

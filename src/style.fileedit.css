@@ -1,0 +1,234 @@
+/** Styles specific to /fileedit... */
+body.fileedit.waiting * {
+  /* Triggered during AJAX requests. */
+  cursor: wait;
+}
+body.fileedit .error {
+  padding: 0.25em;
+}
+body.fileedit .warning {
+  padding: 0.25em;
+}
+body.fileedit textarea {
+  font-family: monospace;
+  flex: 10 1 auto;
+  height: initial/*undo damage from some skins*/;
+  max-width: initial /* default.css pins it at 95% */;
+}
+body.fileedit textarea:focus,
+body.fileedit input:focus{
+  /* Depending on the skin, it might be useful to add one or both of
+     the following... */
+  /*border-width: 1px;*/
+  /*border: initial; */
+}
+body.fileedit fieldset:not(.tab-wrapper) {
+  margin: 0.5em 0 0.5em 0;
+  padding: 0.25em 0;
+  border-radius: 0.5em;
+  border-color: inherit;
+  border-width: 1px;
+  font-size: 90%;
+  overflow: auto;
+}
+body.fileedit fieldset > legend {
+  margin: 0 0 0 1em;
+  padding: 0 0.5em 0 0.5em;
+}
+body.fileedit fieldset > div {
+  margin: 0 0.25em 0 0.25em;
+  padding: 0;
+  overflow: auto;
+}
+body.fileedit fieldset > div > .input-with-label {
+  margin: 0.25em 0.5em;
+}
+body.fileedit fieldset > div > button {
+  margin: 0.25em 0.5em;
+}
+body.fileedit .fileedit-hint {
+  font-size: 80%;
+  opacity: 0.75;
+}
+body.fileedit .fileedit-error-report {
+  background: yellow;
+  color: darkred;
+  margin: 1em 0;
+  padding: 0.5em;
+  border-radius: 0.5em;
+}
+body.fileedit code.fileedit-manifest {
+  display: block;
+  height: 16em;
+  overflow: auto;
+  white-space: pre;
+}
+body.fileedit div.fileedit-preview {
+  margin: 0;
+  padding: 0;
+}
+body.fileedit #fileedit-tabs {
+  margin: 0.5em 0 0 0;
+}
+body.fileedit #fileedit-tab-preview-wrapper {
+  overflow: auto;
+}
+body.fileedit #fileedit-tab-fileselect > h1 {
+  margin: 0;
+}
+body.fileedit .fileedit-options.commit-message > div {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  font-family: monospace;
+}
+body.fileedit .fileedit-options.commit-message > div > * {
+  margin: 0.25em;
+}
+body.fileedit #fileedit-commit-button-wrapper {
+  margin: 0.25em;
+}
+body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
+}
+body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options > button {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options > input {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.fileedit .tab-container > .tabs > .tab-panel > .fileedit-options > .input-with-label {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+body.fileedit .fileedit-options > div > * {
+  margin: 0.25em;
+}
+body.fileedit .fileedit-options.flex-container.flex-row {
+  align-items: first baseline;
+}
+body.fileedit #fileedit-file-selector {
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  padding: 0 0.25em;
+  margin: 0;
+  min-height: 12em;
+}
+body.fileedit #fileedit-file-selector select {
+  margin: 0 0 0.5em 0;
+  height: initial;
+  font-family: monospace;
+  border: initial;
+}
+body.fileedit select:focus {
+  border: initial;
+}
+body.fileedit #fileedit-file-selector select option {
+  margin: 0 0 0.5em 0.55em;
+}
+body.fileedit select option,
+body.fileedit select option:focus {
+  border: none;
+}
+body.fileedit #fileedit-file-selector > div {
+  padding: 0;
+  margin: 0;
+}
+body.fileedit #fileedit-file-selector > div > * {
+  margin: 0.25em 0.5em 0.25em 0;
+}
+body.fileedit #fileedit-stash-selector {
+  margin: 0.25em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+body.fileedit #fileedit-stash-selector select {
+  margin: 0 1em;
+  height: initial;
+  font-family: monospace;
+  flex: 1 1 auto;
+}
+body.fileedit .tab-container > .tabs > .tab-panel {
+  display: flex;
+  flex-direction: column;
+}
+body.fileedit #fileedit-tab-diff-wrapper {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+body.fileedit #fileedit-tab-diff-wrapper > div {
+  margin: 0.5em 0 0.5em 0;
+}
+body.fileedit table.sbsdiffcols {
+  /*width: initial;*/
+}
+body.fileedit #fileedit-tab-diff-wrapper  > pre.udiff {
+  margin-top: 0;
+}
+body.fileedit .sbsdiffcols div.difftxtcol {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: initial;
+}
+body.fileedit .sbsdiffcols div.difftxtcol pre {
+  max-width: 44em;
+}
+
+body.fileedit #fileedit-edit-status {
+  border-radius: 0.25em 0.25em 0 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  cursor: initial;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-family: monospace;
+}
+body.fileedit #fileedit-edit-status > span.name > a {
+  display: block;
+  word-break: break-word /* needed for long paths */;
+}
+body.fileedit #fileedit-edit-status > span.links {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+body.fileedit #fileedit-file-selector span.is-new,
+body.fileedit #fileedit-file-selector span.is-modified {
+  font-family: monospace;
+}
+body.fileedit #fileedit-edit-status span.links > * {
+  margin: 0 0.25em;
+  white-space: nowrap;
+}
+body.fileedit #fileedit-edit-status span.links > *::before {
+  content: "[";
+}
+body.fileedit #fileedit-edit-status span.links > *::after {
+  content: "]";
+}
+/* JS selection of line numbers cannot work in preview mode,
+   so disable the UI indications which imply that it does
+   something... */
+body.fileedit table.numbered-lines td.line-numbers > span {
+  cursor: unset;
+}
+body.fileedit table.numbered-lines td.line-numbers > span:hover {
+  background-color: inherit;
+}

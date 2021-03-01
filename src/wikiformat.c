@@ -33,6 +33,9 @@
 #define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
 #define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
 #define WIKI_MARKDOWNLINKS  0x080  /* Resolve hyperlinks as in markdown */
+#define WIKI_SAFE           0x100  /* Make the result safe for embedding */
+#define WIKI_TARGET_BLANK   0x200  /* Hyperlinks go to a new window */
+#define WIKI_NOBRACKET      0x400  /* Omit extra [..] around hyperlinks */
 #endif
 
 
@@ -64,6 +67,7 @@ enum allowed_attr_t {
   ATTR_START,
   ATTR_STYLE,
   ATTR_TARGET,
+  ATTR_TITLE,
   ATTR_TYPE,
   ATTR_VALIGN,
   ATTR_VALUE,
@@ -83,20 +87,20 @@ enum amsk_t {
   AMSK_COLOR        = 0x00000100,
   AMSK_COLSPAN      = 0x00000200,
   AMSK_COMPACT      = 0x00000400,
-  /* re-use         = 0x00000800, */
-  AMSK_FACE         = 0x00001000,
-  AMSK_HEIGHT       = 0x00002000,
-  AMSK_HREF         = 0x00004000,
-  AMSK_HSPACE       = 0x00008000,
-  AMSK_ID           = 0x00010000,
-  AMSK_LINKS        = 0x00020000,
-  AMSK_NAME         = 0x00040000,
-  AMSK_ROWSPAN      = 0x00080000,
-  AMSK_SIZE         = 0x00100000,
-  AMSK_SRC          = 0x00200000,
-  AMSK_START        = 0x00400000,
-  AMSK_STYLE        = 0x00800000,
-  AMSK_TARGET       = 0x01000000,
+  AMSK_FACE         = 0x00000800,
+  AMSK_HEIGHT       = 0x00001000,
+  AMSK_HREF         = 0x00002000,
+  AMSK_HSPACE       = 0x00004000,
+  AMSK_ID           = 0x00008000,
+  AMSK_LINKS        = 0x00010000,
+  AMSK_NAME         = 0x00020000,
+  AMSK_ROWSPAN      = 0x00040000,
+  AMSK_SIZE         = 0x00080000,
+  AMSK_SRC          = 0x00100000,
+  AMSK_START        = 0x00200000,
+  AMSK_STYLE        = 0x00400000,
+  AMSK_TARGET       = 0x00800000,
+  AMSK_TITLE        = 0x01000000,
   AMSK_TYPE         = 0x02000000,
   AMSK_VALIGN       = 0x04000000,
   AMSK_VALUE        = 0x08000000,
@@ -136,6 +140,7 @@ static const struct AllowedAttribute {
   { "start",         AMSK_START          },
   { "style",         AMSK_STYLE          },
   { "target",        AMSK_TARGET         },
+  { "title",         AMSK_TITLE          },
   { "type",          AMSK_TYPE           },
   { "valign",        AMSK_VALIGN         },
   { "value",         AMSK_VALUE          },
@@ -189,53 +194,55 @@ static int findAttr(const char *z){
 #define MARKUP_COL                12
 #define MARKUP_COLGROUP           13
 #define MARKUP_DD                 14
-#define MARKUP_DFN                15
-#define MARKUP_DIV                16
-#define MARKUP_DL                 17
-#define MARKUP_DT                 18
-#define MARKUP_EM                 19
-#define MARKUP_FONT               20
-#define MARKUP_HTML5_FOOTER       21
-#define MARKUP_H1                 22
-#define MARKUP_H2                 23
-#define MARKUP_H3                 24
-#define MARKUP_H4                 25
-#define MARKUP_H5                 26
-#define MARKUP_H6                 27
-#define MARKUP_HTML5_HEADER       28
-#define MARKUP_HR                 29
-#define MARKUP_I                  30
-#define MARKUP_IMG                31
-#define MARKUP_KBD                32
-#define MARKUP_LI                 33
-#define MARKUP_HTML5_NAV          34
-#define MARKUP_NOBR               35
-#define MARKUP_NOWIKI             36
-#define MARKUP_OL                 37
-#define MARKUP_P                  38
-#define MARKUP_PRE                39
-#define MARKUP_S                  40
-#define MARKUP_SAMP               41
-#define MARKUP_HTML5_SECTION      42
-#define MARKUP_SMALL              43
-#define MARKUP_SPAN               44
-#define MARKUP_STRIKE             45
-#define MARKUP_STRONG             46
-#define MARKUP_SUB                47
-#define MARKUP_SUP                48
-#define MARKUP_TABLE              49
-#define MARKUP_TBODY              50
-#define MARKUP_TD                 51
-#define MARKUP_TFOOT              52
-#define MARKUP_TH                 53
-#define MARKUP_THEAD              54
-#define MARKUP_TITLE              55
-#define MARKUP_TR                 56
-#define MARKUP_TT                 57
-#define MARKUP_U                  58
-#define MARKUP_UL                 59
-#define MARKUP_VAR                60
-#define MARKUP_VERBATIM           61
+#define MARKUP_DEL                15
+#define MARKUP_DFN                16
+#define MARKUP_DIV                17
+#define MARKUP_DL                 18
+#define MARKUP_DT                 19
+#define MARKUP_EM                 20
+#define MARKUP_FONT               21
+#define MARKUP_HTML5_FOOTER       22
+#define MARKUP_H1                 23
+#define MARKUP_H2                 24
+#define MARKUP_H3                 25
+#define MARKUP_H4                 26
+#define MARKUP_H5                 27
+#define MARKUP_H6                 28
+#define MARKUP_HTML5_HEADER       29
+#define MARKUP_HR                 30
+#define MARKUP_I                  31
+#define MARKUP_IMG                32
+#define MARKUP_INS                33
+#define MARKUP_KBD                34
+#define MARKUP_LI                 35
+#define MARKUP_HTML5_NAV          36
+#define MARKUP_NOBR               37
+#define MARKUP_NOWIKI             38
+#define MARKUP_OL                 39
+#define MARKUP_P                  40
+#define MARKUP_PRE                41
+#define MARKUP_S                  42
+#define MARKUP_SAMP               43
+#define MARKUP_HTML5_SECTION      44
+#define MARKUP_SMALL              45
+#define MARKUP_SPAN               46
+#define MARKUP_STRIKE             47
+#define MARKUP_STRONG             48
+#define MARKUP_SUB                49
+#define MARKUP_SUP                50
+#define MARKUP_TABLE              51
+#define MARKUP_TBODY              52
+#define MARKUP_TD                 53
+#define MARKUP_TFOOT              54
+#define MARKUP_TH                 55
+#define MARKUP_THEAD              56
+#define MARKUP_TITLE              57
+#define MARKUP_TR                 58
+#define MARKUP_TT                 59
+#define MARKUP_U                  60
+#define MARKUP_UL                 61
+#define MARKUP_VAR                62
+#define MARKUP_VERBATIM           63
 
 /*
 ** The various markup is divided into the following types:
@@ -250,6 +257,9 @@ static int findAttr(const char *z){
 #define MUTYPE_TD          0x0100   /* <td> or <th> */
 #define MUTYPE_SPECIAL     0x0200   /* <nowiki> or <verbatim> */
 #define MUTYPE_HYPERLINK   0x0400   /* <a> */
+
+/* MUTYPE values for elements that require strictly nested end-tags */
+#define MUTYPE_Nested      0x0656
 
 /*
 ** These markup types must have an end tag.
@@ -269,7 +279,8 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
-                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET|AMSK_STYLE },
+                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET|AMSK_STYLE|
+                    AMSK_TITLE},
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         AMSK_STYLE },
  { "article",       MARKUP_HTML5_ARTICLE, MUTYPE_BLOCK,
                                             AMSK_ID|AMSK_CLASS|AMSK_STYLE },
@@ -288,6 +299,7 @@ static const struct AllowedMarkup {
  { "colgroup",      MARKUP_COLGROUP,     MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH|AMSK_STYLE},
  { "dd",            MARKUP_DD,           MUTYPE_LI,            AMSK_STYLE },
+ { "del",           MARKUP_DEL,          MUTYPE_FONT,          AMSK_STYLE },
  { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          AMSK_STYLE },
  { "div",           MARKUP_DIV,          MUTYPE_BLOCK,
                     AMSK_ID|AMSK_CLASS|AMSK_STYLE },
@@ -323,6 +335,7 @@ static const struct AllowedMarkup {
  { "img",           MARKUP_IMG,          MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
                     AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH|AMSK_STYLE  },
+ { "ins",           MARKUP_INS,          MUTYPE_FONT,          AMSK_STYLE },
  { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          AMSK_STYLE },
  { "li",            MARKUP_LI,           MUTYPE_LI,
                     AMSK_TYPE|AMSK_VALUE|AMSK_STYLE  },
@@ -471,7 +484,7 @@ static int wikiUsesHtml(void){
 ** the markup including the initial "<" and the terminating ">".  If
 ** it is not well-formed markup, return 0.
 */
-int htmlTagLength(const char *z){
+int html_tag_length(const char *z){
   int n = 1;
   int inparen = 0;
   int c;
@@ -658,7 +671,7 @@ static int linkLength(const char *z){
 static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
-    n = htmlTagLength(z);
+    n = html_tag_length(z);
     if( n>0 ){
       *pTokenType = TOKEN_MARKUP;
       return n;
@@ -821,7 +834,10 @@ static int parseMarkup(ParsedMarkup *p, char *z){
         while( z[i] && z[i]!='\'' ){ i++; }
       }else{
         zValue = &z[i];
-        while( !fossil_isspace(z[i]) && z[i]!='>' ){ z++; }
+        while( !fossil_isspace(z[i]) && z[i]!='>' ){
+          if( z[i]=='\'' || z[i]=='"' ) attrOk = 0;
+          i++;
+        }
       }
       if( attrOk ){
         p->aAttr[p->nAttr].zValue = zValue;
@@ -858,7 +874,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
       if( p->aAttr[i].zValue ){
         const char *zVal = p->aAttr[i].zValue;
         if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
-          blob_appendf(pOut, "=\"%s%s\"", g.zTop, zVal);
+          blob_appendf(pOut, "=\"%R%s\"", zVal);
         }else{
           blob_appendf(pOut, "=\"%s\"", zVal);
         }
@@ -1205,9 +1221,9 @@ static const char *wiki_is_overridden(const char *zTarget){
 ** on current rendering rules: specifically does the current user have
 ** "History" permission.
 **
-**    [http://www.fossil-scm.org/]
-**    [https://www.fossil-scm.org/]
-**    [ftp://www.fossil-scm.org/]
+**    [http://fossil-scm.org/]
+**    [https://fossil-scm.org/]
+**    [ftp://fossil-scm.org/]
 **    [mailto:fossil-users@lists.fossil-scm.org]
 **
 **    [/path]        ->  Refers to the root of the Fossil hierarchy, not
@@ -1224,6 +1240,8 @@ static const char *wiki_is_overridden(const char *zTarget){
 **    [wiki:WikiPageName]
 **
 **    [2010-02-27 07:13]
+**
+**    [InterMap:Link]  ->  Interwiki link
 */
 void wiki_resolve_hyperlink(
   Blob *pOut,             /* Write the HTML output here */
@@ -1238,9 +1256,13 @@ void wiki_resolve_hyperlink(
   const char *z;
   char *zExtra = 0;
   const char *zExtraNS = 0;
+  char *zRemote = 0;
 
   if( zTitle ){
     zExtra = mprintf(" title='%h'", zTitle);
+    zExtraNS = zExtra+1;
+  }else if( mFlags & WIKI_TARGET_BLANK ){
+    zExtra = mprintf(" target='_blank'");
     zExtraNS = zExtra+1;
   }
   assert( nClose>=20 );
@@ -1260,6 +1282,7 @@ void wiki_resolve_hyperlink(
     blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
   }else if( is_valid_hname(zTarget) ){
     int isClosed = 0;
+    const char *zLB = (mFlags & WIKI_NOBRACKET)==0 ? "[" : "";
     if( strlen(zTarget)<=HNAME_MAX && is_ticket(zTarget, &isClosed) ){
       /* Special display processing for tickets.  Display the hyperlink
       ** as crossed out if the ticket is closed.
@@ -1267,20 +1290,20 @@ void wiki_resolve_hyperlink(
       if( isClosed ){
         if( g.perm.Hyperlink ){
           blob_appendf(pOut,
-             "%z<span class=\"wikiTagCancelled\">[",
-             xhref(zExtraNS,"%R/info/%s",zTarget)
+             "%z<span class=\"wikiTagCancelled\">%s",
+             xhref(zExtraNS,"%R/info/%s",zTarget), zLB
           );
           zTerm = "]</span></a>";
         }else{
-          blob_appendf(pOut,"<span class=\"wikiTagCancelled\">[");
+          blob_appendf(pOut,"<span class=\"wikiTagCancelled\">%s", zLB);
           zTerm = "]</span>";
         }
       }else{
         if( g.perm.Hyperlink ){
-          blob_appendf(pOut,"%z[", xhref(zExtraNS,"%R/info/%s", zTarget));
+          blob_appendf(pOut,"%z%s", xhref(zExtraNS,"%R/info/%s", zTarget),zLB);
           zTerm = "]</a>";
         }else{
-          blob_appendf(pOut, "[");
+          blob_appendf(pOut, "%s", zLB);
           zTerm = "]";
         }
       }
@@ -1288,15 +1311,19 @@ void wiki_resolve_hyperlink(
       if( (mFlags & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
         zTerm = "";
       }else{
-        blob_appendf(pOut, "<span class=\"brokenlink\">[");
+        blob_appendf(pOut, "<span class=\"brokenlink\">%s", zLB);
         zTerm = "]</span>";
       }
     }else if( g.perm.Hyperlink ){
-      blob_appendf(pOut, "%z[",xhref(zExtraNS, "%R/info/%s", zTarget));
+      blob_appendf(pOut, "%z%s",xhref(zExtraNS, "%R/info/%s", zTarget), zLB);
       zTerm = "]</a>";
     }else{
       zTerm = "";
     }
+    if( zTerm[0]==']' && (mFlags & WIKI_NOBRACKET)!=0 ) zTerm++;
+  }else if( (zRemote = interwiki_url(zTarget))!=0 ){
+    blob_appendf(pOut, "<a href=\"%z\"%s>", zRemote, zExtra);
+    zTerm = "</a>";
   }else if( (z = validWikiPageName(mFlags, zTarget))!=0 ){
     /* The link is to a valid wiki page name */
     const char *zOverride = wiki_is_overridden(zTarget);
@@ -1345,6 +1372,58 @@ static int endVerbatim(Renderer *p, ParsedMarkup *pMarkup){
   if( pMarkup->nAttr!=1 ) return 0;
   z = pMarkup->aAttr[0].zValue;
   return fossil_strcmp(z, p->zVerbatimId)==0;
+}
+
+/*
+** z[] points to the text that immediately follows markup of the form:
+**
+**      <verbatim type='pikchr ...'>
+**
+** zClass is the argument to "type".  This routine will process the
+** Pikchr text through the next matching </verbatim> (or until end-of-file)
+** and append the resulting SVG output onto p.  It then returns the
+** number of bytes of text processed, including the closing </verbatim>.
+*/
+static int wiki_process_pikchr(Renderer *p, char *z, const char *zClass){
+  ParsedMarkup m;         /* Parsed closing tag */
+  int i = 0;              /* For looping over z[] in search of </verbatim> */
+  int iRet = 0;           /* Value  to return */
+  int atEnd = 0;          /* True if se have found the </verbatim> */
+  int nMarkup = 0;        /* Length of a markup we are checking */
+
+  /* Search for the closing </verbatim> tag */
+  while( z[i]!=0 ){
+    char *zEnd = strchr(z+i, '<');
+    if( zEnd==0 ){
+      i += (int)strlen(z+i);
+      iRet = i;
+      break;
+    }
+    nMarkup = html_tag_length(zEnd);
+    if( nMarkup<11 || fossil_strnicmp(zEnd, "</verbatim", 10)!=0 ){
+      i = (int)(zEnd - z) + 1;
+      continue;
+    }
+    (void)parseMarkup(&m, z+i);
+    atEnd = endVerbatim(p, &m);
+    unparseMarkup(&m);
+    if( atEnd ){
+      iRet = i + nMarkup;
+      break;
+    }
+    i++;
+  }
+
+  /* The Pikchr source text should be i character in length and iRet is
+  ** i plus the number of bytes in the </verbatim>.  Generate the reply.
+  */
+  assert( strncmp(zClass,"pikchr",6)==0 );
+  zClass += 6;
+  while( fossil_isspace(zClass[0]) ) zClass++;
+  blob_append(p->pOut, "<p>", 3);
+  pikchr_to_html(p->pOut, z, i, zClass, (int)strlen(zClass));
+  blob_append(p->pOut, "</p>\n", 5);
+  return iRet;
 }
 
 /*
@@ -1508,7 +1587,7 @@ static void wiki_render(Renderer *p, char *z){
         }
         z[i] = 0;
         if( zDisplay==0 ){
-          zDisplay = zTarget;
+          zDisplay = zTarget + interwiki_removable_prefix(zTarget);
         }else{
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
@@ -1646,7 +1725,8 @@ static void wiki_render(Renderer *p, char *z){
         ** ignored.
         */
         if( markup.iCode==MARKUP_VERBATIM ){
-          int ii, vAttrDidAppend=0;
+          int ii; //, vAttrDidAppend=0;
+          const char *zClass = 0;
           p->zVerbatimId = 0;
           p->inVerbatim = 1;
           p->preVerbState = p->state;
@@ -1655,17 +1735,23 @@ static void wiki_render(Renderer *p, char *z){
             if( markup.aAttr[ii].iACode == ATTR_ID ){
               p->zVerbatimId = markup.aAttr[ii].zValue;
             }else if( markup.aAttr[ii].iACode==ATTR_TYPE ){
-              blob_appendf(p->pOut, "<pre name='code' class='%s'>",
-                markup.aAttr[ii].zValue);
-              vAttrDidAppend=1;
+              zClass = markup.aAttr[ii].zValue;
             }else if( markup.aAttr[ii].iACode==ATTR_LINKS
                    && !is_false(markup.aAttr[ii].zValue) ){
               p->state |= ALLOW_LINKS;
             }
           }
-          if( !vAttrDidAppend ) {
-            endAutoParagraph(p);
+          endAutoParagraph(p);
+          if( zClass==0 ){
             blob_append_string(p->pOut, "<pre class='verbatim'>");
+          }else if( strncmp(zClass,"pikchr",6)==0 &&
+                    (fossil_isspace(zClass[6]) || zClass[6]==0) ){
+            n += wiki_process_pikchr(p, z+n, zClass);
+            p->inVerbatim = 0;
+            p->state = p->preVerbState;
+          }else{
+            blob_appendf(p->pOut, "<pre name='code' class='%h'>",
+               zClass);
           }
           p->wantAutoParagraph = 0;
         }else
@@ -1743,9 +1829,6 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   memset(&renderer, 0, sizeof(renderer));
   renderer.renderFlags = flags;
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH|flags;
-  if( flags & WIKI_NOBLOCK ){
-    renderer.state |= INLINE_MARKUP_ONLY;
-  }
   if( flags & WIKI_INLINE ){
     renderer.wantAutoParagraph = 0;
   }else{
@@ -1807,21 +1890,33 @@ void test_wiki_render(void){
 /*
 ** COMMAND: test-markdown-render
 **
-** Usage: %fossil test-markdown-render FILE
+** Usage: %fossil test-markdown-render FILE ...
 **
 ** Render markdown in FILE as HTML on stdout.
+** Options:
+**
+**    --safe           Restrict the output to use only "safe" HTML
 */
 void test_markdown_render(void){
   Blob in, out;
+  int i;
+  int bSafe = 0;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
+  bSafe = find_option("safe",0,0)!=0;
   verify_all_options();
-  if( g.argc!=3 ) usage("FILE");
-  blob_zero(&out);
-  blob_read_from_file(&in, g.argv[2], ExtFILE);
-  markdown_to_html(&in, 0, &out);
-  blob_write_to_file(&out, "-");
-  blob_reset(&in);
-  blob_reset(&out);
+  for(i=2; i<g.argc; i++){
+    blob_zero(&out);
+    blob_read_from_file(&in, g.argv[i], ExtFILE);
+    if( g.argc>3 ){
+      fossil_print("<!------ %h ------->\n", g.argv[i]);
+    }
+    markdown_to_html(&in, 0, &out);
+    safe_html_context( bSafe ? DOCSRC_UNTRUSTED : DOCSRC_TRUSTED );
+    safe_html(&out);
+    blob_write_to_file(&out, "-");
+    blob_reset(&in);
+    blob_reset(&out);
+  }
 }
 
 /*
@@ -2028,7 +2123,7 @@ int html_token_length(const char *z){
   int n;
   char c;
   if( (c=z[0])=='<' ){
-    n = htmlTagLength(z);
+    n = html_tag_length(z);
     if( n<=0 ) n = 1;
   }else if( fossil_isspace(c) ){
     for(n=1; z[n] && fossil_isspace(z[n]); n++){}
@@ -2396,5 +2491,354 @@ void test_html_to_text(void){
     blob_reset(&in);
     fossil_puts(blob_str(&out), 0);
     blob_reset(&out);
+  }
+}
+
+/****************************************************************************
+** safe-html:
+**
+** An interface for preventing HTML constructs (ex: <style>, <form>, etc)
+** from being inserted into Wiki and Forum posts using Markdown.   See the
+** comment on safe_html_append() for additional information on what is meant
+** by "safe".
+**
+** The safe-html restrictions only apply to Markdown, as Fossil-Wiki only
+** allows safe-html by design - unsafe-HTML is never and has never been
+** allowed in Fossil-Wiki.
+**
+** This code is in the wikiformat.c file so that it can have access to the
+** white-list of acceptable HTML in the aMarkup[] array.
+*/
+
+/*
+** An instance of this object keeps track of the nesting of HTML
+** elements for safe_html_append().
+*/
+typedef struct HtmlTagStack HtmlTagStack;
+struct HtmlTagStack {
+  int n;                /* Current tag stack depth */
+  int nAlloc;           /* Space allocated for aStack[] */
+  int *aStack;          /* The stack of tags */
+  int aSpace[10];       /* Initial static space, to avoid malloc() */
+};
+
+/*
+** Initialize bulk memory to a valid empty tagstack.
+*/
+static void html_tagstack_init(HtmlTagStack *p){
+  p->n = 0;
+  p->nAlloc = 0;
+  p->aStack = p->aSpace;
+}
+
+/*
+** Push a new element onto the tag statk
+*/
+static void html_tagstack_push(HtmlTagStack *p, int e){
+  if( p->n>=ArraySize(p->aSpace) && p->n>=p->nAlloc ){
+    if( p->nAlloc==0 ){
+      int *aNew;
+      p->nAlloc = 50;
+      aNew = fossil_malloc( sizeof(p->aStack[0])*p->nAlloc );
+      memcpy(aNew, p->aStack, sizeof(p->aStack[0])*p->n );
+      p->aStack = aNew;
+    }else{
+      p->nAlloc *= 2;
+      p->aStack = fossil_realloc(p->aStack, sizeof(p->aStack[0])*p->nAlloc );
+    }
+  }
+  p->aStack[p->n++] = e;
+}
+
+/*
+** Clear a tag stack, reclaiming any memory allocations.
+*/
+static void html_tagstack_clear(HtmlTagStack *p){
+  if( p->nAlloc ){
+    fossil_free(p->aStack);
+    p->nAlloc = 0;
+    p->aStack = p->aSpace;
+  }
+  p->n = 0;
+}
+
+/*
+** The HTML end-tag eEnd wants to be added to pBlob.
+**
+** If an open-tag for eEnd exists anywhere on the stack, then
+** pop it and all prior elements from the task, issuing appropriate
+** end-tags as you go.
+**
+** If there is no open-tag for eEnd on the stack, then this
+** routine is a no-op.
+*/
+static void html_tagstack_pop(HtmlTagStack *p, Blob *pBlob, int eEnd){
+  int i, e;
+  if( eEnd!=0 ){
+    for(i=p->n-1; i>=0 && p->aStack[i]!=eEnd; i--){}
+    if( i<0 ){
+      blob_appendf(pBlob, "<span class='error'>&lt;/%s&gt;</span>",
+                   aMarkup[eEnd].zName);
+      return;
+    }
+  }else if( p->n==0 ){
+    return;
+  }
+  do{
+    e = p->aStack[--p->n];
+    if( e==eEnd || (aMarkup[e].iType & MUTYPE_Nested)!=0 ){
+      blob_appendf(pBlob, "</%s>", aMarkup[e].zName);
+    }
+  }while( e!=eEnd && p->n>0 );
+}
+
+/*
+** Return a nonce to indicate that safe_html() can allow code through
+** without censoring.
+**
+** When safe_html() is asked to sanitize some HTML, it will ignore
+** any text in between two consecutive instances of the nonce.  The
+** nonce itself is an HTML comment so it is harmless to keep the
+** nonce in the middle of the HTML stream.  A different nonce is
+** choosen each time Fossil is run, using a lot of randomness, so
+** an attacker will be unable to guess the nonce in advance.
+**
+** The original use-case for this mechanism is to allow Pikchr-generated
+** SVG in the middle of HTML generated from Markdown.  The Markdown
+** output will normally be processed by safe_html() to prevent accidental
+** or malicious introduction of harmful HTML (ex: <script>) in the
+** output stream.  The safe_html() only lets through HTML elements
+** that are on its allow-list and SVG is not on that list.  Hence, in order
+** to allow the Pikchr-generated SVG through, it must be surrounded by
+** the nonce.
+*/
+const char *safe_html_nonce(int bGenerate){
+  static char *zNonce = 0;
+  if( zNonce==0 && bGenerate ){
+    zNonce = db_text(0, "SELECT '<!--'||hex(randomblob(32))||'-->';");
+  }
+  return zNonce;
+}
+#define SAFE_NONCE_SIZE (4+64+3)
+
+/*
+** Append a safe translation of HTML text to a Blob object.
+**
+** Restriction: The input to this routine must be writable.
+*  Temporary changes may be made to the input, but the input is restored
+** to its original state prior to returning.  If zHtml[nHtml] is not a
+** zero character, then a zero might be written in that position
+** temporarily, but that slot will also be restored before this routine
+** returns.
+*/
+static void safe_html_append(Blob *pBlob, char *zHtml, int nHtml){
+  char cLast;
+  int i, j, n;
+  HtmlTagStack s;
+  ParsedMarkup markup;
+  const char *zNonce;
+  char *z;
+
+  if( nHtml<=0 ) return;
+  cLast = zHtml[nHtml];
+  zHtml[nHtml] = 0;
+  html_tagstack_init(&s);
+
+  i = 0;
+  while( i<nHtml ){
+    if( zHtml[i]=='<' ){
+      j = i;
+    }else{
+      z = strchr(zHtml+i, '<');
+      if( z==0 ){
+        blob_append(pBlob, zHtml+i, nHtml-i);
+        break;
+      }
+      j = (int)(z - zHtml);
+      blob_append(pBlob, zHtml+i, j-i);
+    }
+    if( zHtml[j+1]=='!'
+     && j+2*SAFE_NONCE_SIZE<nHtml
+     && (zNonce = safe_html_nonce(0))!=0
+     && strncmp(zHtml+j,zNonce,SAFE_NONCE_SIZE)==0
+     && (z = strstr(zHtml+j+SAFE_NONCE_SIZE,zNonce))!=0
+    ){
+      i = (int)(z - zHtml) + SAFE_NONCE_SIZE;
+      blob_append(pBlob, zHtml+j, i-j);
+      continue;
+    }
+    n = html_tag_length(zHtml+j);
+    if( n==0 ){
+      blob_append(pBlob, "&lt;", 4);
+      i = j+1;
+      continue;
+    }else{
+      i = j + n;
+    }
+    parseMarkup(&markup, zHtml+j);
+    if( markup.iCode==MARKUP_INVALID ){
+      unparseMarkup(&markup);
+      blob_appendf(pBlob, "<span class='error'>&lt;%.*s&gt;</span>",
+                   n-2, zHtml+j+1);
+      continue;
+    }
+    if( (markup.iType & MUTYPE_Nested)==0 || markup.iCode==MARKUP_P ){
+      renderMarkup(pBlob, &markup);
+    }else{
+      if( markup.endTag ){
+        html_tagstack_pop(&s, pBlob, markup.iCode);
+      }else{
+        renderMarkup(pBlob, &markup);
+        html_tagstack_push(&s, markup.iCode);
+      }
+    }
+    unparseMarkup(&markup);
+  }
+  html_tagstack_pop(&s, pBlob, 0);
+  html_tagstack_clear(&s);
+  zHtml[nHtml] = cLast;
+}
+
+/*
+** This local variable is true if the safe_html() function is enabled.
+** In other words, this is true if the output of Markdown should be
+** restricted to use only "safe" HTML.
+*/
+static int safeHtmlEnable = 1;
+
+
+#if INTERFACE
+/*
+** Allowed values for the eTrust parameter to safe_html_context().
+*/
+#define DOCSRC_FILE       1     /* Document is a checked-in file */
+#define DOCSRC_FORUM      2     /* Document is a forum post */
+#define DOCSRC_TICKET     3     /* Document is a ticket comment */
+#define DOCSRC_WIKI       4     /* Document is a wiki page */
+#define DOCSRC_TRUSTED    5     /* safe_html() is always a no-op */
+#define DOCSRC_UNTRUSTED  6     /* safe_html() is always enabled */
+#endif /* INTERFACE */
+
+
+/*
+** Specify the context in which a markdown document with potentially
+** unsafe HTML will be rendered.
+*/
+void safe_html_context(int eTrust){
+  static const char *zSafeHtmlSetting = 0;
+  char cPerm = 0;
+  if( eTrust==DOCSRC_TRUSTED ){
+    safeHtmlEnable = 0;
+    return;
+  }
+  if( eTrust==DOCSRC_UNTRUSTED ){
+    safeHtmlEnable = 1;
+    return;
+  }
+  if( zSafeHtmlSetting==0 ){
+    zSafeHtmlSetting = db_get("safe-html", "");
+  }
+  switch( eTrust ){
+    case DOCSRC_FILE:   cPerm = 'b';  break;
+    case DOCSRC_FORUM:  cPerm = 'f';  break;
+    case DOCSRC_TICKET: cPerm = 't';  break;
+    case DOCSRC_WIKI:   cPerm = 'w';  break;
+  }
+  safeHtmlEnable = (strchr(zSafeHtmlSetting,cPerm)==0);
+}
+
+/*
+** SETTING: safe-html        width=8
+** This setting controls whether or not unsafe HTML elements
+** (such as SCRIPT or STYLE tags) are allowed in Markdown-formatted
+** documents.  Unsafe HTML is disabled by default.  If this setting
+** exists and is a string, then letters in that string can enable
+** unsafe HTML in various contexts:
+**
+**    - b         Unsafe HTML allowed in embedded documentation
+**    - f         Unsafe HTML allowed in forum posts
+**    - t         Unsafe HTML allowed in tickets
+**    - w         Unsafe HTML allowed on wiki pages
+*/
+/*
+** The input blob contains HTML.  If safe-html is enabled, then
+** convert the input into "safe HTML".  The following modifications
+** are made:
+**
+**    1.  Remove any elements that are not on the AllowedMarkup list.
+**        (ex: <script>, <form>, etc.)
+**
+**    2.  Remove any attributes that are not on the AllowedMarkup list.
+**        (ex: onload=, id=, etc.)
+**
+**    3.  Omit any surplus close-tags.  This prevents the script from
+**        terminating an <div> or similar in the outer context.
+**
+**    4.  Insert additional close-tags as necessary so that any
+**        tag in the input that needs a close-tag has one.  This
+**        prevents tags in the embedded script from affecting the
+**        display of content that follows this script in the enclosing
+**        context.
+**
+** This modifications are intended to make the generated HTML safe
+** to be embedded in a larger HTML document, such that the embedded
+** HTML has no influence on the formatting and operation of the
+** larger document.
+**
+** If safe-html is disabled, then this routine is a no-op.
+*/
+void safe_html(Blob *in){
+  Blob out;      /* Holding area for the revised text during construction */
+  char *z;       /* Original input text */
+  int n;         /* Number of bytes in the original input text */
+  int k;
+
+  if( safeHtmlEnable==0 ) return;
+  z = blob_str(in);
+  n = blob_size(in);
+  blob_init(&out, 0, 0);
+  while( fossil_isspace(z[0]) ){ z++; n--; }
+  for(k=n-1; k>5 && fossil_isspace(z[k]); k--){}
+
+  if( fossil_strnicmp(z, "<div",4)==0 && !fossil_isalpha(z[4])
+   && fossil_strnicmp(z+k-5, "</div>",6)==0
+  ){
+    /* The input contains an outer <div>...</div>.  Preserve the
+    ** full scope of that <div>. */
+    int m = html_tag_length(z);
+    k -= 5;
+    blob_append(&out, z, m);
+    safe_html_append(&out, z+m, k-m);
+    blob_append(&out, z+k, n-k);
+  }else{
+    safe_html_append(&out, z, n);
+  }
+  blob_reset(in);
+  *in = out;
+}
+
+/*
+** COMMAND: test-safe-html
+**
+** Usage: %fossil test-safe-html FILE ...
+**
+** Read files named on the command-line.  Send the text of each file
+** through safe_html_append() and then write the result on
+** standard output.
+*/
+void test_safe_html_cmd(void){
+  int i;
+  Blob x;
+  for(i=2; i<g.argc; i++){
+    char *z;
+    int n;
+    blob_read_from_file(&x, g.argv[i], ExtFILE);
+    blob_terminate(&x);
+    safe_html(&x);
+    z = blob_str(&x);
+    n = blob_size(&x);
+    while( n>0 && (z[n-1]=='\n' || z[n-1]=='\r') ) n--;
+    fossil_print("%.*s\n", n, z);
+    blob_reset(&x);
   }
 }

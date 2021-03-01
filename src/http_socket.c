@@ -139,7 +139,7 @@ void socket_close(void){
 ** Open a socket connection.  The identify of the server is determined
 ** by pUrlData
 **
-**    pUrlData->name       Name of the server.  Ex: www.fossil-scm.org
+**    pUrlData->name       Name of the server.  Ex: fossil-scm.org
 **    pUrlData->port       TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.

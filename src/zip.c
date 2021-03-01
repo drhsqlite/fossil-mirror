@@ -616,7 +616,7 @@ void filezip_cmd(void){
 ** added to as part of the zip file. It may be 0 or an empty string,
 ** in which case it is ignored. The intention is to create a zip which
 ** politely expands into a subdir instead of filling your current dir
-** with source files. For example, pass a UUID or "ProjectName".
+** with source files. For example, pass a commit hash or "ProjectName".
 **
 */
 static void zip_of_checkin(
@@ -625,7 +625,8 @@ static void zip_of_checkin(
   Blob *pZip,         /* Write the archive content into this blob */
   const char *zDir,   /* Top-level directory of the archive */
   Glob *pInclude,     /* Only include files that match this pattern */
-  Glob *pExclude      /* Exclude files that match this pattern */
+  Glob *pExclude,     /* Exclude files that match this pattern */
+  int listFlag        /* Print each file on stdout */
 ){
   Blob mfile, hash, file;
   Manifest *pManifest;
@@ -638,7 +639,7 @@ static void zip_of_checkin(
   sArchive.eType = eType;
   sArchive.pBlob = pZip;
   blob_zero(&sArchive.tmp);
-  blob_zero(pZip);
+  if( pZip ) blob_zero(pZip);
 
   content_get(rid, &mfile);
   if( blob_size(&mfile)==0 ){
@@ -646,7 +647,7 @@ static void zip_of_checkin(
   }
   blob_set_dynamic(&hash, rid_to_uuid(rid));
   blob_zero(&filename);
-  zip_open();
+  if( pZip ) zip_open();
 
   if( zDir && zDir[0] ){
     blob_appendf(&filename, "%s/", zDir);
@@ -680,45 +681,57 @@ static void zip_of_checkin(
       if( eflg & MFESTFLG_RAW ){
         blob_append(&filename, "manifest", -1);
         zName = blob_str(&filename);
-        zip_add_folders(&sArchive, zName);
-        sterilize_manifest(&mfile);
-        zip_add_file(&sArchive, zName, &mfile, 0);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pZip ){
+          zip_add_folders(&sArchive, zName);
+          sterilize_manifest(&mfile, CFTYPE_MANIFEST);
+          zip_add_file(&sArchive, zName, &mfile, 0);
+        }
       }
       if( eflg & MFESTFLG_UUID ){
         blob_append(&hash, "\n", 1);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, "manifest.uuid", -1);
         zName = blob_str(&filename);
-        zip_add_folders(&sArchive, zName);
-        zip_add_file(&sArchive, zName, &hash, 0);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pZip ){
+          zip_add_folders(&sArchive, zName);
+          zip_add_file(&sArchive, zName, &hash, 0);
+        }
       }
       if( eflg & MFESTFLG_TAGS ){
-        Blob tagslist;
-        blob_zero(&tagslist);
-        get_checkin_taglist(rid, &tagslist);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, "manifest.tags", -1);
         zName = blob_str(&filename);
-        zip_add_folders(&sArchive, zName);
-        zip_add_file(&sArchive, zName, &tagslist, 0);
-        blob_reset(&tagslist);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pZip ){
+          Blob tagslist;
+          blob_zero(&tagslist);
+          get_checkin_taglist(rid, &tagslist);
+          zip_add_folders(&sArchive, zName);
+          zip_add_file(&sArchive, zName, &tagslist, 0);
+          blob_reset(&tagslist);
+        }
       }
     }
     manifest_file_rewind(pManifest);
-    zip_add_file(&sArchive, "", 0, 0);
+    if( pZip ) zip_add_file(&sArchive, "", 0, 0);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){
       int fid;
       if( pInclude!=0 && !glob_match(pInclude, pFile->zName) ) continue;
       if( glob_match(pExclude, pFile->zName) ) continue;
       fid = uuid_to_rid(pFile->zUuid, 0);
       if( fid ){
-        content_get(fid, &file);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, pFile->zName, -1);
         zName = blob_str(&filename);
-        zip_add_folders(&sArchive, zName);
-        zip_add_file(&sArchive, zName, &file, manifest_file_mperm(pFile));
-        blob_reset(&file);
+        if( listFlag ) fossil_print("%s\n", zName);
+        if( pZip ){
+          content_get(fid, &file);
+          zip_add_folders(&sArchive, zName);
+          zip_add_file(&sArchive, zName, &file, manifest_file_mperm(pFile));
+          blob_reset(&file);
+        }
       }
     }
   }
@@ -726,7 +739,9 @@ static void zip_of_checkin(
   manifest_destroy(pManifest);
   blob_reset(&filename);
   blob_reset(&hash);
-  zip_close(&sArchive);
+  if( pZip ){
+    zip_close(&sArchive);
+  }
 }
 
 /*
@@ -740,12 +755,15 @@ static void archive_cmd(int eType){
   Glob *pExclude = 0;
   const char *zInclude;
   const char *zExclude;
+  int listFlag = 0;
+  const char *zOut;
 
   zName = find_option("name", 0, 1);
   zExclude = find_option("exclude", "X", 1);
   if( zExclude ) pExclude = glob_create(zExclude);
   zInclude = find_option("include", 0, 1);
   if( zInclude ) pInclude = glob_create(zInclude);
+  listFlag = find_option("list","l",0)!=0;
   db_find_and_open_repository(0, 0);
 
   /* We should be done with options.. */
@@ -760,6 +778,10 @@ static void archive_cmd(int eType){
     fossil_fatal("Check-in not found: %s", g.argv[2]);
     return;
   }
+  zOut = g.argv[3];
+  if( fossil_strcmp(zOut,"")==0 || fossil_strcmp(zOut,"/dev/null")==0 ){
+    zOut = 0;
+  }
 
   if( zName==0 ){
     zName = db_text("default-name",
@@ -772,11 +794,14 @@ static void archive_cmd(int eType){
        db_get("project-name", "unnamed"), rid, rid
     );
   }
-  zip_of_checkin(eType, rid, &zip, zName, pInclude, pExclude);
+  zip_of_checkin(eType, rid, zOut ? &zip : 0, 
+                 zName, pInclude, pExclude, listFlag);
   glob_free(pInclude);
   glob_free(pExclude);
-  blob_write_to_file(&zip, g.argv[3]);
-  blob_reset(&zip);
+  if( zOut ){
+    blob_write_to_file(&zip, zOut);
+    blob_reset(&zip);
+  }
 }
 
 /*
@@ -795,9 +820,15 @@ static void archive_cmd(int eType){
 ** in "..." or '...' so that it may contain commas.  If a file matches both
 ** --include and --exclude then it is excluded.
 **
+** If OUTPUTFILE is an empty string or "/dev/null" then no ZIP archive is
+** actually generated.  This feature can be used in combination with
+** the --list option to get a list of the filename that would be in the
+** ZIP archive had it actually been generated.
+**
 ** Options:
 **   -X|--exclude GLOBLIST   Comma-separated list of GLOBs of files to exclude
 **   --include GLOBLIST      Comma-separated list of GLOBs of files to include
+**   -l|--list               Show archive content on stdout
 **   --name DIRECTORYNAME    The name of the top-level directory in the archive
 **   -R REPOSITORY           Specify a Fossil repository
 */
@@ -821,9 +852,15 @@ void zip_cmd(void){
 ** in "..." or '...' so that it may contain commas.  If a file matches both
 ** --include and --exclude then it is excluded.
 **
+** If OUTPUTFILE is an empty string or "/dev/null" then no SQLAR archive is
+** actually generated.  This feature can be used in combination with
+** the --list option to get a list of the filename that would be in the
+** SQLAR archive had it actually been generated.
+**
 ** Options:
 **   -X|--exclude GLOBLIST   Comma-separated list of GLOBs of files to exclude
 **   --include GLOBLIST      Comma-separated list of GLOBs of files to include
+**   -l|--list               Show archive content on stdout
 **   --name DIRECTORYNAME    The name of the top-level directory in the archive
 **   -R REPOSITORY           Specify a Fossil repository
 */
@@ -946,6 +983,7 @@ void baseline_zip_page(void){
   zKey = blob_str(&cacheKey);
   etag_check(ETAG_HASH, zKey);
 
+  style_set_current_feature("zip");
   if( P("debug")!=0 ){
     style_header("%s Archive Generator Debug Screen", zType);
     @ zName = "%h(zName)"<br />
@@ -957,7 +995,7 @@ void baseline_zip_page(void){
       @ zExclude = "%h(zExclude)"<br />
     }
     @ zKey = "%h(zKey)"
-    style_footer();
+    style_finish_page();
     return;
   }
   if( referred_from_login() ){
@@ -968,12 +1006,12 @@ void baseline_zip_page(void){
     @ holding the content of check-in <b>%h(zRid)</b>:
     @ <input type="submit" value="Download" />
     @ </form>
-    style_footer();
+    style_finish_page();
     return;
   }
   blob_zero(&zip);
   if( cache_read(&zip, zKey)==0 ){
-    zip_of_checkin(eType, rid, &zip, zName, pInclude, pExclude);
+    zip_of_checkin(eType, rid, &zip, zName, pInclude, pExclude, 0);
     cache_write(&zip, zKey);
   }
   glob_free(pInclude);

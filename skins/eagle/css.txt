@@ -5,9 +5,6 @@ body {
   background-color: #485D7B;
   font-family: sans-serif;
   color: white;
-  -moz-text-size-adjust: none;
-  -webkit-text-size-adjust: none;
-  -mx-text-size-adjust: none;
 }
 
 /* The project logo in the upper left-hand corner of each page */
@@ -17,6 +14,7 @@ div.logo {
   vertical-align: bottom;
   font-weight: bold;
   color: white;
+  min-width: 50px;
   padding: 5 0 5 0em;
   white-space: nowrap;
 }
@@ -41,7 +39,6 @@ div.status {
   color: white;
   font-size: 0.8em;
   font-weight: bold;
-  min-width: 200px;
   white-space: nowrap;
 }
 
@@ -64,6 +61,18 @@ div.mainmenu {
   border-top-right-radius: 8px;
   color: white;
 }
+
+div#hbdrop {
+  background-color: #485D7B;
+  border-radius: 0 0 15px 15px;
+  border-left: 0.5em solid #76869d;
+  border-bottom: 1.2em solid #76869d;
+  display: none;
+  width: 98%;
+  position: absolute;
+  z-index: 20;
+}
+
 
 /* The submenu bar that *sometimes* appears below the main menu */
 div.submenu, div.sectionmenu {
@@ -356,6 +365,42 @@ span.diffln {
   background-color: #7EA2D9;
 }
 
+span.modpending {
+  color: #c0c0c0;
+  font-style: italic;
+}
+span.forum_author {
+  color: white;
+  font-size: 75%;
+}
+span.forum_age {
+  color: white;
+  font-size: 85%;
+}
+span.forum_npost {
+  color: white;
+  font-size: 75%;
+}
+.debug {
+  background-color: #808080;
+  border: 2px solid white;
+}
+div.forumEdit {
+  border: 1px solid white;
+}
+div.forumTimeline {
+  border: 1px solid white;
+}
+div.forumTime {
+  border: 1px solid white;
+}
+div.forumSel {
+  background-color: #808080;
+}
+div.forumObs {
+  color: white;
+}
+
 .fileage td {
   font-family: "courier new";
 }
@@ -364,7 +409,7 @@ div.filetreeline:hover {
   background-color: #7EA2D9;
 }
 
-div.selectedText {
+table.numbered-lines td.line-numbers span.selected-line {
   background-color: #7EA2D9;
 }
 
@@ -374,4 +419,19 @@ div.selectedText {
 
 .timelineModernCell[id], .timelineColumnarCell[id], .timelineDetailCell[id] {
   background-color: #455978;
+}
+
+div.difflncol {
+  padding-right: 1em;
+  text-align: right;
+  color: white;
+}
+.capsumOff {
+  background-color: #bbbbbb;
+}
+.capsumRead {
+  background-color: #006d00;
+}
+.capsumWrite {
+  background-color: #e5e500;
 }

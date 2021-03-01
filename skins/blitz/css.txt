@@ -850,7 +850,6 @@ td:last-child {
 
 .mainmenu ul {
   list-style: none outside;
-  display: block;
   position: relative;
   border-top: 1px solid #ccc;
   padding: 0;
@@ -858,7 +857,6 @@ td:last-child {
 
 .mainmenu li {
   outline: 0;
-  display: block;
   float: left;
   margin: 0;
 }
@@ -869,9 +867,9 @@ td:last-child {
   background-position: center bottom;
 }
 
-.mainmenu li a {
+.mainmenu li a,
+div#hbdrop a {
   color: #3b5c6b;
-  display: block;
   padding: 10px 15px;
 }
 
@@ -879,9 +877,20 @@ td:last-child {
   font-weight: bold;
 }
 
-.mainmenu li:hover {
+.mainmenu li:hover
+div#hbdrop a:hover {
     background-color: #eee;
 }
+
+div#hbdrop {
+  background-color: white;
+  border: 2px solid #ccc;
+  display: none;
+  width: 100%;
+  position: absolute;
+  z-index: 20;
+}
+
 
 
 /* Submenu

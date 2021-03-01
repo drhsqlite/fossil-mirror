@@ -16,7 +16,7 @@ Returns information about checkin artifacts (commits).
 
 **Status:** implemented 201110xx
 
-**Request:** `/json/artifact/COMMIT_UUID`
+**Request:** `/json/artifact/COMMIT_HASH`
 
 **Required permissions:** "o" (was "h" prior to 20120408)
 
@@ -32,16 +32,16 @@ Returns information about checkin artifacts (commits).
 "comment":"Merge wideAnnotateUser and jsonWarnings into trunk.",
 "timestamp":1330090810,
 "parents":[
-  // 1st entry is primary parent UUID:
+  // 1st entry is primary parent hash:
   "3a44f95f40a193739aaafc2409f155df43e74a6f",
-  // Remaining entries are merged-in branch UUIDs:
+  // Remaining entries are merged-in branch hashes:
   "86f6e675eb3f8761d70d8b82b052ce2b297fffd2",\
   "dbf4ecf414881c9aad6f4f125dab9762589ef3d7"\
 ],
 "tags":["trunk"],
 "files":[{
     "name":"src/diff.c",
-    // BLOB uuids, NOT commit UUIDs:
+    // BLOB hashes, NOT commit hashes:
     "uuid":"78c74c3b37e266f8f7e570d5cf476854b7af9d76",
     "parent":"b1fa7e636cf4e7b6ed20bba2d2680397f80c096a",
     "state":"modified",
@@ -51,20 +51,21 @@ Returns information about checkin artifacts (commits).
 }
 ```
 
-The "parents" property lists the parent UUIDs of the checkin. The
-"parent" property of file entries refers to the parent UUID of that
+The "parents" property lists the parent hashes of the checkin. The
+"parent" property of file entries refers to the parent hash of that
 file. In the case of a merge there may be essentially an arbitrary
 number. The first entry in the list is the "primary" parent. The primary
 parent is the parent which was not pulled in via a merge operation. The
 ordering of remaining entries is unspecified and may even change between
 calls. For example: if, from branch C, we merge in A and B and then
-commit, then in the artifact response for that commit the UUID of branch
-C will be in the first (primary) position, with the UUIDs for branches A
+commit, then in the artifact response for that commit the hash of branch
+C will be in the first (primary) position, with the hashes for branches A
 and B in the following entries (in an unspecified, and possibly
 unstable, order).
 
 Note that the "uuid" and "parent" properties of the "files" entries
-refer to raw blob uuids, not commit uuids (i.e. not checkins).
+refer to raw blob hashes, not commit (a.k.a. check-in) hashes. See also
+[the UUID vs. Hash discussion][uvh].
 
 <a id="file"></a>
 # File Artifacts
@@ -79,7 +80,7 @@ binary. Fossil doesn't yet have a mechanism for mime-type mappings.
 
 **Required permissions:** "o"
 
-**Request:** `/json/artifact/FILE_UUID`
+**Request:** `/json/artifact/FILE_HASH`
 
 **Request options:**
 
@@ -100,9 +101,9 @@ binary. Fossil doesn't yet have a mechanism for mime-type mappings.
 ```json
 {
 "type":"file",
-"name":"same name specified as FILE_UUID argument",
+"name":"same name specified as FILE_HASH argument",
 "size": 12345, // in bytes, independent of format=...
-"parent": "uuid of parent file blob. Not set for first generation.",
+"parent": "hash of parent file blob. Not set for first generation.",
 "checkins":[{
   "name":"src/json_detail.h",
   "timestamp":1319058803,
@@ -123,7 +124,7 @@ binary. Fossil doesn't yet have a mechanism for mime-type mappings.
 
 The "checkins" array lists all checkins which include this file, and a
 file might have different names across different branches. The size and
-uuid, however, are the same across all checkins for a given blob.
+hash, however, are the same across all checkins for a given blob.
 
 <a id="wiki"></a>
 # Wiki Artifacts
@@ -133,7 +134,7 @@ Returns information about wiki artifacts.
 **Status:** implemented 20111020, fixed to return the requested version
 (instead of the latest) on 20120302.
 
-**Request:** `/json/artifact/WIKI_UUID`
+**Request:** `/json/artifact/WIKI_HASH`
 
 **Required permissions:** "j"
 
@@ -151,3 +152,4 @@ Returns information about wiki artifacts.
 
 Currently the same as [`/json/wiki/get`](api-wiki.md#get).
 
+[uvh]: ../hashes.md#uvh

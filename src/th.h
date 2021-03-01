@@ -23,7 +23,7 @@ typedef struct Th_Interp Th_Interp;
 /*
 ** Create and delete interpreters.
 */
-Th_Interp * Th_CreateInterp(Th_Vtab *pVtab);
+Th_Interp * Th_CreateInterp(void);
 void Th_DeleteInterp(Th_Interp *);
 
 /*
@@ -123,8 +123,12 @@ int Th_ErrorMessage(Th_Interp *, const char *, const char *, int);
 ** Access the memory management functions associated with the specified
 ** interpreter.
 */
-void *Th_Malloc(Th_Interp *, int);
-void Th_Free(Th_Interp *, void *);
+void *fossil_malloc_zero(size_t);
+void *fossil_realloc(void*,size_t);
+void fossil_free(void*);
+#define Th_Malloc(I,N)     fossil_malloc_zero(N)
+#define Th_Realloc(I,P,N)  fossil_realloc(P,N)
+#define Th_Free(I,P)       fossil_free(P)
 
 /*
 ** Functions for handling TH lists.

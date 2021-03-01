@@ -42,18 +42,16 @@ static struct BuiltinSkin {
   char *zSQL;           /* Filled in at run-time with SQL to insert this skin */
 } aBuiltinSkin[] = {
   { "Default",                           "default",           0 },
-  { "Blitz",                             "blitz",             0 },
-  { "Blitz, No Logo",                    "blitz_no_logo",     0 },
-  { "Bootstrap",                         "bootstrap",         0 },
-  { "Xekri",                             "xekri",             0 },
-  { "Original",                          "original",          0 },
-  { "Enhanced Original",                 "enhanced1",         0 },
-  { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
-  { "Eagle",                             "eagle",             0 },
-  { "Black & White, Menu on Left",       "black_and_white",   0 },
-  { "Plain Gray, No Logo",               "plain_gray",        0 },
-  { "Khaki, No Logo",                    "khaki",             0 },
   { "Ardoise",                           "ardoise",           0 },
+  { "Black & White",                     "black_and_white",   0 },
+  { "Blitz",                             "blitz",             0 },
+  { "Bootstrap",                         "bootstrap",         0 },
+  { "Dark Mode",                         "darkmode",          0 },
+  { "Eagle",                             "eagle",             0 },
+  { "Khaki",                             "khaki",             0 },
+  { "Original",                          "original",          0 },
+  { "Plain Gray",                        "plain_gray",        0 },
+  { "Xekri",                             "xekri",             0 },
 };
 
 /*
@@ -87,10 +85,14 @@ static struct SkinDetail {
   const char *zName;      /* Name of the detail */
   const char *zValue;     /* Value of the detail */
 } aSkinDetail[] = {
-  { "timeline-arrowheads",        "1"  },
-  { "timeline-circle-nodes",      "0"  },
-  { "timeline-color-graph-lines", "0"  },
-  { "white-foreground",           "0"  },
+  { "pikchr-background",          ""      },
+  { "pikchr-fontscale",           ""      },
+  { "pikchr-foreground",          ""      },
+  { "pikchr-scale",               ""      },
+  { "timeline-arrowheads",        "1"     },
+  { "timeline-circle-nodes",      "0"     },
+  { "timeline-color-graph-lines", "0"     },
+  { "white-foreground",           "0"     },
 };
 
 /*
@@ -362,10 +364,12 @@ static char *getSkin(const char *zName){
         fossil_free(zLabel);
       }
     }
+    db_unprotect(PROTECT_CONFIG);
     blob_appendf(&val,
        "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now());\n",
        azSkinFile[i], z
     );
+    db_protect_pop();
   }
   return blob_str(&val);
 }
@@ -384,12 +388,13 @@ static int skinRename(void){
   if( zOldName==0 ) return 0;
   if( zNewName==0 || zNewName[0]==0 || (ex = skinExists(zNewName))!=0 ){
     if( zNewName==0 ) zNewName = zOldName;
+    style_set_current_feature("skins");
     style_header("Rename A Skin");
     if( ex ){
       @ <p><span class="generalError">There is already another skin
       @ named "%h(zNewName)".  Choose a different name.</span></p>
     }
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
+    @ <form action="%R/setup_skin_admin" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Current name:<td align="left"><b>%h(zOldName)</b>
     @ <tr><td align="right">New name:<td align="left">
@@ -401,13 +406,15 @@ static int skinRename(void){
     @ </table>
     login_insert_csrf_secret();
     @ </div></form>
-    style_footer();
+    style_finish_page();
     return 1;
   }
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "UPDATE config SET name='skin:%q' WHERE name='skin:%q';",
     zNewName, zOldName
   );
+  db_protect_pop();
   return 0;
 }
 
@@ -424,12 +431,13 @@ static int skinSave(const char *zCurrent){
   }
   if( zNewName==0 || zNewName[0]==0 || (ex = skinExists(zNewName))!=0 ){
     if( zNewName==0 ) zNewName = "";
+    style_set_current_feature("skins");
     style_header("Save Current Skin");
     if( ex ){
       @ <p><span class="generalError">There is already another skin
       @ named "%h(zNewName)".  Choose a different name.</span></p>
     }
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
+    @ <form action="%R/setup_skin_admin" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Name for this skin:<td align="left">
     @ <input type="text" size="35" name="svname" value="%h(zNewName)">
@@ -439,14 +447,16 @@ static int skinSave(const char *zCurrent){
     @ </table>
     login_insert_csrf_secret();
     @ </div></form>
-    style_footer();
+    style_finish_page();
     return 1;
   }
+  db_unprotect(PROTECT_CONFIG);
   db_multi_exec(
     "INSERT OR IGNORE INTO config(name, value, mtime)"
     "VALUES('skin:%q',%Q,now())",
     zNewName, zCurrent
   );
+  db_protect_pop();
   return 0;
 }
 
@@ -476,11 +486,13 @@ void setup_skin_admin(void){
     aBuiltinSkin[i].zSQL = getSkin(aBuiltinSkin[i].zLabel);
   }
 
+  style_set_current_feature("skins");
+
   if( cgi_csrf_safe(1) ){
     /* Process requests to delete a user-defined skin */
     if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
       style_header("Confirm Custom Skin Delete");
-      @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
+      @ <form action="%R/setup_skin_admin" method="post"><div>
       @ <p>Deletion of a custom skin is a permanent action that cannot
       @ be undone.  Please confirm that this is what you want to do:</p>
       @ <input type="hidden" name="sn" value="%h(P("sn"))" />
@@ -488,17 +500,21 @@ void setup_skin_admin(void){
       @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
       login_insert_csrf_secret();
       @ </div></form>
-      style_footer();
+      style_finish_page();
       db_end_transaction(1);
       return;
     }
     if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
+      db_unprotect(PROTECT_CONFIG);
       db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+      db_protect_pop();
     }
     if( P("draftdel")!=0 ){
       const char *zDraft = P("name");
       if( sqlite3_strglob("draft[1-9]",zDraft)==0 ){
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
+        db_protect_pop();
       }
     }
     if( skinRename() || skinSave(zCurrent) ){
@@ -523,11 +539,13 @@ void setup_skin_admin(void){
         seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
                          " AND value=%Q", zCurrent);
         if( !seen ){
+          db_unprotect(PROTECT_CONFIG);
           db_multi_exec(
             "INSERT INTO config(name,value,mtime) VALUES("
             "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
             "  %Q,now())", zCurrent
           );
+          db_protect_pop();
         }
       }
       seen = 0;
@@ -535,14 +553,18 @@ void setup_skin_admin(void){
         if( fossil_strcmp(aBuiltinSkin[i].zDesc, z)==0 ){
           seen = 1;
           zCurrent = aBuiltinSkin[i].zSQL;
+          db_unprotect(PROTECT_CONFIG);
           db_multi_exec("%s", zCurrent/*safe-for-%s*/);
+          db_protect_pop();
           break;
         }
       }
       if( !seen ){
         zName = skinVarName(z,0);
         zCurrent = db_get(zName, 0);
+        db_unprotect(PROTECT_CONFIG);
         db_multi_exec("%s", zCurrent/*safe-for-%s*/);
+        db_protect_pop();
       }
     }
   }
@@ -560,7 +582,7 @@ void setup_skin_admin(void){
       @ (Currently In Use)
       seenCurrent = 1;
     }else{
-      @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+      @ <form action="%R/setup_skin_admin" method="post">
       @ <input type="hidden" name="sn" value="%h(z)" />
       @ <input type="submit" name="load" value="Install" />
       if( pAltSkin==&aBuiltinSkin[i] ){
@@ -586,7 +608,7 @@ void setup_skin_admin(void){
       @ in the CONFIG table:</h2></td></tr>
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+    @ <form action="%R/setup_skin_admin" method="post">
     if( fossil_strcmp(zV, zCurrent)==0 ){
       @ (Currently In Use)
       seenCurrent = 1;
@@ -604,7 +626,7 @@ void setup_skin_admin(void){
     @ <tr><td colspan=4><h2>Current skin in css/header/footer/details entries \
     @ in the CONFIG table:</h2></td></tr>
     @ <tr><td>%d(i).<td><i>Current</i><td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+    @ <form action="%R/setup_skin_admin" method="post">
     @ <input type="submit" name="save" value="Backup">
     @ </form>
   }
@@ -623,7 +645,7 @@ void setup_skin_admin(void){
       @ in the CONFIG table:</h2></td></tr>
     }
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post">
+    @ <form action="%R/setup_skin_admin" method="post">
     @ <input type="submit" name="draftdel" value="Delete">
     @ <input type="hidden" name="name" value="%h(zN)">
     @ </form></tr>
@@ -631,7 +653,7 @@ void setup_skin_admin(void){
   db_finalize(&q);
 
   @ </table>
-  style_footer();
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -679,7 +701,7 @@ static void skin_emit_skin_selector(
 static const char *skin_file_content(const char *zLabel, const char *zFile){
   const char *zResult;
   if( fossil_strcmp(zLabel, "current")==0 ){
-    zResult = db_get(zFile, "");
+    zResult = skin_get(zFile);
   }else if( sqlite3_strglob("draft[1-9]", zLabel)==0 ){
     zResult = db_get_mprintf("", "%s-%s", zLabel, zFile);
   }else{
@@ -702,51 +724,6 @@ extern const struct strctCssDefaults {
   const char *elementClass;  /* Name of element needed */
   const char *value;         /* CSS text */
 } cssDefaultList[];
-
-/*
-** Emits the list of built-in default CSS selectors. Intended
-** for use only from the /setup_skinedit page.
-*/
-static void skin_emit_css_defaults(){
-  struct strctCssDefaults const * pCss;
-  fossil_print("<h1>CSS Defaults</h1>");
-  fossil_print("If a skin defines any of the following CSS selectors, "
-               "that definition replaces the default, as opposed to "
-               "cascading from it. ");
-  fossil_print("See <a href=\"https://fossil-scm.org/fossil/"
-               "doc/trunk/www/css-tricks.md\">this "
-               "document</a> for more details.");
-  /* To discuss: do we want to list only the default selectors or
-  ** also their default values? The latter increases the size of the
-  ** page considerably, but is arguably more useful. We could, of
-  ** course, offer a URL param to toggle the view, but that currently
-  ** seems like overkill.
-  **
-  ** Be sure to adjust the default_css.txt #setup_skinedit_css entry
-  ** for whichever impl ends up being selected.
-  */
-#if 1
-  /* List impl which elides style values */
-  fossil_print("<div class=\"columns\" "
-               "id=\"setup_skinedit_css_defaults\"><ul>");
-  for(pCss = &cssDefaultList[0]; pCss->value!=0; ++pCss){
-    fossil_print("<li>%s</li>", pCss->elementClass);
-  }
-  fossil_print("</ul>");
-#else
-  /* Table impl which also includes style values. */
-  fossil_print("<table id=\"setup_skinedit_css_defaults\"><tbody>");
-  for(pCss = &cssDefaultList[0]; pCss->value!=0; ++pCss){
-    fossil_print("<tr><td>%s</td>", pCss->elementClass);
-    /* A TD element apparently cannot be told to scroll its contents,
-    ** so we require a DIV inside the value TD to scroll the long
-    ** url(data:...) entries. */
-    fossil_print("<td><div>%s</div></td>", pCss->value);
-    fossil_print("</td></tr>");
-  }
-  fossil_print("</tbody></table>");
-#endif
-}
 
 /*
 ** WEBPAGE: setup_skinedit
@@ -824,12 +801,13 @@ void setup_skinedit(void){
   }
 
   db_begin_transaction();
+  style_set_current_feature("skins");
   style_header("%s", zTitle);
   for(j=0; j<count(aSkinAttr); j++){
     style_submenu_element(aSkinAttr[j].zSubmenu,
           "%R/setup_skinedit?w=%d&basis=%h&sk=%d",j,zBasis,iSkin);
   }
-  @ <form action="%s(g.zTop)/setup_skinedit" method="post"><div>
+  @ <form action="%R/setup_skinedit" method="post"><div>
   login_insert_csrf_secret();
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
@@ -873,10 +851,7 @@ void setup_skinedit(void){
     blob_reset(&out);
   }
   @ </div></form>
-  if(ii==0/*CSS*/){
-    skin_emit_css_defaults();
-  }
-  style_footer();
+  style_finish_page();
   db_end_transaction(0);
 }
 
@@ -917,11 +892,13 @@ static void skin_publish(int iSkin){
                        " AND value=%Q", zCurrent);
   }
   if( !seen ){
+    db_unprotect(PROTECT_CONFIG);
     db_multi_exec(
       "INSERT INTO config(name,value,mtime) VALUES("
       "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
       "  %Q,now())", zCurrent
     );
+    db_protect_pop();
   }
 
   /* Publish draft iSkin */
@@ -991,6 +968,7 @@ void setup_skin(void){
     skin_publish(iSkin);
   }
 
+  style_set_current_feature("skins");
   style_header("Customize Skin");
 
   @ <p>Customize the look of this Fossil repository by making changes
@@ -1151,6 +1129,49 @@ void setup_skin(void){
     @ <p>Visit the <a href='%R/setup_skin_admin'>Skin Admin</a> page
     @ for cleanup and recovery actions.
   }
-  style_load_one_js_file("skin.js");
-  style_footer();
+  builtin_request_js("skin.js");
+  style_finish_page();
+}
+
+/*
+** WEBPAGE: skins
+**
+** Show a list of all of the built-in skins, plus the responsitory skin,
+** and provide the user with an opportunity to change to any of them.
+*/
+void skins_page(void){
+  int i;
+  char *zBase = fossil_strdup(g.zTop);
+  size_t nBase = strlen(zBase);
+  if( iDraftSkin && sqlite3_strglob("*/draft?", zBase)==0 ){
+    nBase -= 7;
+    zBase[nBase] = 0;
+  }else if( pAltSkin ){
+    char *zPattern = mprintf("*/skn_%s", pAltSkin->zLabel);
+    if( sqlite3_strglob(zPattern, zBase)==0 ){
+      nBase -= strlen(zPattern)-1;
+      zBase[nBase] = 0;
+    }
+    fossil_free(zPattern);
+  } 
+  login_check_credentials();
+  style_header("Skins");
+  @ <p>The following skins are available for this repository:</p>
+  @ <ul>
+  if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
+    @ <li> Standard skin for this repository &larr; <i>Currently in use</i>
+  }else{
+    @ <li> %z(href("%s/skins",zBase))Standard skin for this repository</a>
+  }
+  for(i=0; i<count(aBuiltinSkin); i++){
+    if( pAltSkin==&aBuiltinSkin[i] ){
+      @ <li> %h(aBuiltinSkin[i].zDesc) &larr; <i>Currently in use</i>
+    }else{
+      char *zUrl = href("%s/skn_%s/skins", zBase, aBuiltinSkin[i].zLabel);
+      @ <li> %z(zUrl)%h(aBuiltinSkin[i].zDesc)</a>
+    }
+  }
+  @ </ul>
+  style_finish_page();
+  fossil_free(zBase);
 }

@@ -91,46 +91,20 @@ function updateClock(){
 }
 updateClock();
 </script>
-<div class="mainmenu">
-<th1>
-proc menulink {url name} {
-  upvar current_page current
-  upvar home home
-  if {[string range $url 0 [string length $current]] eq "/$current"} {
-    html "<a href='$home$url' class='active'>$name</a>\n"
-  } else {
-    html "<a href='$home$url'>$name</a>\n"
+<div class="mainmenu"><th1>
+set sitemap 0
+foreach {name url expr class} $mainmenu {
+  if {![capexpr $expr]} continue
+  if {[string match /* $url]} {
+    if {[string match /$current_page* $url]} {
+      lappend class active
+    }
+    set url $home$url
   }
+  html "<a href='$url' class='$class'>$name</a>\n"
+  if {[string match */sitemap $url]} {set sitemap 1}
 }
-menulink $index_page Home
-if {[anycap jor]} {
-  menulink /timeline Timeline
-}
-if {[anoncap oh]} {
-  menulink /dir?ci=tip Files
-}
-if {[anoncap o]} {
-  menulink  /brlist Branches
-  menulink  /taglist Tags
-}
-if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-  menulink /forum Forum
-}
-if {[anoncap r]} {
-  menulink /ticket Tickets
-}
-if {[anoncap j]} {
-  menulink /wiki Wiki
-}
-  menulink /sitemap More...
-if {[hascap s]} {
-  menulink /setup Admin
-} elseif {[hascap a]} {
-  menulink /setup_ulist Users
-}
-if {[info exists login]} {
-  menulink /login Logout
-} else {
-  menulink /login Login
+if {!$sitemap} {
+  html "<a href='$home/sitemap'>...</a>\n"
 }
 </th1></div>

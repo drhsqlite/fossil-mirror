@@ -258,6 +258,9 @@ static int contains_whitespace(const char *zName){
 **
 **                              --glob PATTERN   Show only files that match
 **                              --like PATTERN   Show only files that match
+**                              -l               Show additional details for
+**                                               files that match. Implied
+**                                               when 'list' is used.
 **
 **    revert ?URL?           Restore the state of all unversioned files in the
 **                           local repository to match the remote repository
@@ -379,7 +382,7 @@ void unversioned_cmd(void){
     blob_add_cr(&content);
 #endif
     blob_write_to_file(&content, zTFile);
-    zCmd = mprintf("%s \"%s\"", zEditor, zTFile);
+    zCmd = mprintf("%s %$", zEditor, zTFile);
     if( fossil_system(zCmd) ){
       fossil_fatal("editor aborted: %Q", zCmd);
     }
@@ -545,7 +548,7 @@ void uvlist_page(void){
   style_header("Unversioned Files");
   if( !db_table_exists("repository","unversioned") ){
     @ No unversioned files on this server
-    style_footer();
+    style_finish_page();
     return;
   }
   if( PB("byage") ) zOrderBy = "mtime DESC";
@@ -621,7 +624,7 @@ void uvlist_page(void){
   if( n ){
     approxSizeName(sizeof(zSzName), zSzName, iTotalSz);
     @ </tbody>
-    @ <tfoot><tr><td><b>Total over %d(cnt) files</b><td><td>%s(zSzName)
+    @ <tfoot><tr><td><b>Total for %d(cnt) files</b><td><td>%s(zSzName)
     @ <td><td>
     if( g.perm.Admin ){
       @ <td>
@@ -631,7 +634,7 @@ void uvlist_page(void){
   }else{
     @ No unversioned files on this server.
   }
-  style_footer();
+  style_finish_page();
 }
 
 /*
