@@ -659,8 +659,7 @@ void ci_page(void){
   );
   zBrName = branch_of_rid(rid);
   
-  cookie_link_parameter("diff","diff","2");
-  diffType = atoi(PD("diff","2"));
+  diffType = preferred_diff_type();
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
     int nUuid = db_column_bytes(&q1, 0);
@@ -1187,8 +1186,7 @@ void vdiff_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
   load_control();
-  cookie_link_parameter("diff","diff","2");
-  diffType = atoi(PD("diff","2"));
+  diffType = preferred_diff_type();
   cookie_render();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
@@ -1636,6 +1634,40 @@ int object_description(
   return objType;
 }
 
+/*
+** SETTING: preferred-diff-type         width=16 default=0
+**
+** Determines the preferred diff format on web pages if the format is not
+** otherwise specified, for example by a query parameter or cookie.
+** The value may be 1 to mean unified diff, or 2 to mean side-by-side
+** diff.
+*/
+/*
+** Return the preferred diff type.
+**
+**    0 = No diff at all.
+**    1 = unified diff
+**    2 = side-by-side diff
+**
+** To determine the preferred diff type, the following values are
+** consulted in the order shown.  The first available source wins.
+**
+**    *  The "diff" query parameter
+**    *  The "diff" field of the user display cookie
+**    *  The "preferred-diff-type" setting
+**    *  1 for mobile and 2 for desktop, based on the UserAgent
+*/
+int preferred_diff_type(void){
+  int dflt;
+  char zDflt[2];
+  dflt = db_get_int("preferred-diff-type",-99);
+  if( dflt<=0 ) dflt = user_agent_is_likely_mobile() ? 1 : 2;
+  zDflt[0] = dflt + '0';
+  zDflt[1] = 0;
+  cookie_link_parameter("diff","diff", zDflt);
+  return atoi(PD("diff",zDflt));
+}
+
 
 /*
 ** WEBPAGE: fdiff
@@ -1675,8 +1707,7 @@ void diff_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  cookie_link_parameter("diff","diff","2");
-  diffType = atoi(PD("diff","2"));
+  diffType = preferred_diff_type();
   cookie_render();
   if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename("from");

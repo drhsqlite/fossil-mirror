@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.35.0\sbeta,\sfor\stesting\sof\sSQLite.
-D 2021-03-01T17:46:08.217
+C If\sthe\sdiff\stype\s(unified\svs.\sside-by-side)\sis\snot\sspecified\sby\sa\squery\nparameter\sor\scookie,\sthen\sdetermine\sthe\sdiff\stype\sbased\son\sthe\n"preferred-diff-type"\ssetting,\sif\sthere\sis\sone,\sor\son\sa\sguess\swhether\nor\snot\sthe\srequesting\sagent\sis\sa\smobile\sdevice\sbased\son\sthe\sUser-Agent\nparameter\sin\sthe\sHTTP\srequest.
+D 2021-03-01T20:37:45.452
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4
 F src/http_ssl.c 0ec4f86727386cf2a23ff6c3875839d096e8ddcf2a112825f8f0653b64ce3847
 F src/http_transport.c 99d2557a770abd92292de71ce65174cc9c24f048c6d2a317ac49219be7d2dc6b
 F src/import.c 33962edf9f5b72f91d7a919e64dbfa4b2bea889e42e4ea0f4238b792f63ef8c8
-F src/info.c 81f05021eef89aba186c5abd3f63decc686e57f2a5234b6fa36b62f940ae21b9
+F src/info.c 3f5f58648ae561dfa14949a7420f7db245756b03b003ddfe0a9e439302c62c5c
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -534,7 +534,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 4a4898e9e5708e494e7c27110832decf4675b3017e6f7713527bc1994582e8a3
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c 775b7c2226df22e8ea0eb9a1593f8be889b41fb787260dbe6d2e338d63b840b0
+F src/login.c 807ac33f8572761c29a260a4da9d20150b34f447ece4edf1562186cac8d4b385
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
 F src/main.c 826b80917be7ee150971bf604613582ee199d31ba53951a0dc8a97ca900c2ca6
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6fc730e0c76d4bd2845953bcf1b91c673fc2f5c484c93659548e33cf0c3b4ad7
-R 676a46efe79b577f946b73a0ef14ed85
+P 722073a15719cb21dcd65fd6e45db7ded029b3adf0fcede55cfc4509e36aac18
+R 1269769e909d5da88faa35bdb9324d83
 U drh
-Z 2757c668af141b58b92e30fc359fea0b
+Z efbc62e9383012f263ebc1cf367a004e

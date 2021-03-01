@@ -430,6 +430,23 @@ static int isHuman(const char *zAgent){
 }
 
 /*
+** Make a guess at whether or not the requestor is a mobile device or
+** a desktop device (narrow screen vs. wide screen) based the HTTP_USER_AGENT
+** parameter.  Return true for mobile and false for desktop.
+**
+** Caution:  This is only a guess.
+*/
+int user_agent_is_likely_mobile(void){
+  const char *zAgent = P("HTTP_USER_AGENT");
+  if( zAgent==0 ) return 0;
+  if( sqlite3_strglob("*droid*", zAgent)==0 ) return 1;
+  if( sqlite3_strglob("*mobile*", zAgent)==0 ) return 1;
+  if( sqlite3_strglob("*iOS*", zAgent)==0 ) return 1;
+  if( sqlite3_strglob("*iPhone*", zAgent)==0 ) return 1;
+  return 0;
+}
+
+/*
 ** COMMAND: test-ishuman
 **
 ** Read lines of text from standard input.  Interpret each line of text
