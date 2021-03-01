@@ -1,5 +1,5 @@
-C Fixed\s"debug"\s->\s"cgi-debug"\sin\sthe\sbuilt-in\sdocs\sfor\s"fossil\scgi".
-D 2021-03-01T06:47:02.292
+C Copied\sover\sdocumentation\sof\s2\srecently-added\s"fossil\scgi"\scontrol\sfile\nlines\sto\sthe\swww/cgi.wiki\sdoc\s(redirect\sand\sjsmode)\sand\sthen\sreordered\nit\sall\sto\smatch\sthe\sorder\sgiven\sin\s"fossil\scgi\s--help"\soutput\sto\smake\sit\neasier\sto\smaintain\sthese\sparallel\slists\sin\sthe\sfuture.
+D 2021-03-01T07:15:46.755
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -825,7 +825,7 @@ F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede
 F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65862f
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
-F www/cgi.wiki 27fbf9d888a370167bebdedffb9f76ce1802f891eefa1f0b4a8ce300a6afb6c7
+F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
 F www/changes.wiki 2c5d5f2ac4cdd668db31fab3ffa8e496e4e3ca9e1ee10f97d0f30bec3cbb69fa
 F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47a4c4cba9914b5a015517af0af825e7a261dcfa57fcfae4ae6f4b4044d565ff
-R 715ad9f5057398e74d5a3f0e339bd0da
+P e3dbb7d7d5aa80b29b2f505dde35de1429b02c0e74b21ff309221e36b9d76bff
+R ab708b4959db3d0076f8749064b2ae18
 U wyoung
-Z 7359cc86418dee9021774d33fa2e0917
+Z 282a052702cf69db26aa4918c41ed92a
