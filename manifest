@@ -1,5 +1,5 @@
-C Removed\sBLOB_SEEK_END\sfrom\sthe\sAPI,\sper\s/chat\sdiscussion,\sas\sit\swas\sunused\sand\sappeared\sto\shave\sa\ssemantic\sdiscrepancy\svis-a-vis\sfseek()\sand\sSEEK_END.
-D 2021-03-01T13:34:56.824
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.35.0\sbeta,\sfor\stesting\sof\sSQLite.
+D 2021-03-01T17:46:08.217
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -607,8 +607,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
-F src/sqlite3.c 015b4591de1a53a6a75cfa84bdfee33a62af836328338987c921aec0dfa66392
-F src/sqlite3.h c2f271c02ed00b65d12dbe33e84e1c878378826aa6c2130aaccff3fbd5c1e8e2
+F src/sqlite3.c de679bfc2a4d0337657934ea7444193a05aa33096a5450960f6349e687cac2be
+F src/sqlite3.h 6ab9d7947d0e31bfa082961c15e725c684d548590695c99ff42e3ef141252d9d
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 282402d82fb394c1854518fed475260f22fd27ec2a0a0930c9b7ef3b115766fa
-R 358feaf4f557717cbc92b1017a151d23
-U stephan
-Z 2cf4cef40d2f4de2bfc676c0161ab2c3
+P 6fc730e0c76d4bd2845953bcf1b91c673fc2f5c484c93659548e33cf0c3b4ad7
+R 676a46efe79b577f946b73a0ef14ed85
+U drh
+Z 2757c668af141b58b92e30fc359fea0b
