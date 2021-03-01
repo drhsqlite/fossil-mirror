@@ -1765,6 +1765,10 @@ body.chat #chat-drop-details img {
   max-height: 45%;
 }
 
+button.diff-toggle {
+  margin-bottom: 0.5em;
+  font-size: 85%;
+}
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
   .desktoponly {

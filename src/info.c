@@ -942,6 +942,7 @@ void ci_page(void){
   }
   db_finalize(&q3);
   append_diff_javascript(diffType==2);
+  builtin_fossil_js_bundle_or("info-diff",NULL);
   cookie_render();
   style_finish_page();
 }

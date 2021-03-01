@@ -227,6 +227,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.copybutton.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
+  $(SRCDIR)/fossil.info-diff.js \
   $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
