@@ -435,14 +435,15 @@ static int isHuman(const char *zAgent){
 ** parameter.  Return true for mobile and false for desktop.
 **
 ** Caution:  This is only a guess.
+**
+** Algorithm derived from https://developer.mozilla.org/en-US/docs/Web/
+** HTTP/Browser_detection_using_the_user_agent#mobile_device_detection on
+** 2021-03-01
 */
 int user_agent_is_likely_mobile(void){
   const char *zAgent = P("HTTP_USER_AGENT");
   if( zAgent==0 ) return 0;
-  if( sqlite3_strglob("*droid*", zAgent)==0 ) return 1;
-  if( sqlite3_strglob("*mobile*", zAgent)==0 ) return 1;
-  if( sqlite3_strglob("*iOS*", zAgent)==0 ) return 1;
-  if( sqlite3_strglob("*iPhone*", zAgent)==0 ) return 1;
+  if( strstr(zAgent,"Mobi")!=0 ) return 1;
   return 0;
 }
 

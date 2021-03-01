@@ -1,5 +1,5 @@
-C If\sthe\sdiff\stype\s(unified\svs.\sside-by-side)\sis\snot\sspecified\sby\sa\squery\nparameter\sor\scookie,\sthen\sdetermine\sthe\sdiff\stype\sbased\son\sthe\n"preferred-diff-type"\ssetting,\sif\sthere\sis\sone,\sor\son\sa\sguess\swhether\nor\snot\sthe\srequesting\sagent\sis\sa\smobile\sdevice\sbased\son\sthe\sUser-Agent\nparameter\sin\sthe\sHTTP\srequest.
-D 2021-03-01T20:37:45.452
+C Change\sthe\salgorithm\sfor\sdetecting\swhen\sa\suser\sagent\sis\sa\snarrow-screen\nmobile\sdevice\sto\sthe\salgorithm\srecommanded\sat\n[https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent#mobile_device_detection].
+D 2021-03-01T20:54:45.843
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -534,7 +534,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 4a4898e9e5708e494e7c27110832decf4675b3017e6f7713527bc1994582e8a3
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c 807ac33f8572761c29a260a4da9d20150b34f447ece4edf1562186cac8d4b385
+F src/login.c d1115a1a07875c4ba21c4f987bb7886b151fb67ba314612edb559b778d083df2
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 12371d1c8636889f723c17cacd44a9ebcd51a8fddeba5add4573a268d7a7514a
 F src/main.c 826b80917be7ee150971bf604613582ee199d31ba53951a0dc8a97ca900c2ca6
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 722073a15719cb21dcd65fd6e45db7ded029b3adf0fcede55cfc4509e36aac18
-R 1269769e909d5da88faa35bdb9324d83
+P 29bab2748bdb775fe85cf0e3f6935bc06a3f214cc6e495a2cbdac9f912673cad
+R 93c7ce1bb9eb33de9e53fe5142a2cf98
 U drh
-Z efbc62e9383012f263ebc1cf367a004e
+Z 4f821d7f505bb431f5f626dca98691be
