@@ -1,5 +1,5 @@
-C Copied\sover\sdocumentation\sof\s2\srecently-added\s"fossil\scgi"\scontrol\sfile\nlines\sto\sthe\swww/cgi.wiki\sdoc\s(redirect\sand\sjsmode)\sand\sthen\sreordered\nit\sall\sto\smatch\sthe\sorder\sgiven\sin\s"fossil\scgi\s--help"\soutput\sto\smake\sit\neasier\sto\smaintain\sthese\sparallel\slists\sin\sthe\sfuture.
-D 2021-03-01T07:15:46.755
+C Removed\sBLOB_SEEK_END\sfrom\sthe\sAPI,\sper\s/chat\sdiscussion,\sas\sit\swas\sunused\sand\sappeared\sto\shave\sa\ssemantic\sdiscrepancy\svis-a-vis\sfseek()\sand\sSEEK_END.
+D 2021-03-01T13:34:56.824
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 2178b2d4a5c918c9b7f13e15a4d86119d32d0a74253d20b9b23530a7cc57248
 F src/backoffice.c b68cdb60d5ad5f6bd6e01af7b2d03ab86eea97ed1edbd45c3c9c2aecafbcbbc8
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
-F src/blob.c f15bfa74f0dfd79f45f6b1eb3475986dbacf6d5b5aeb92b433953b13c74f711a
+F src/blob.c 45014b8ca48805c482bf73bdeaa51cf6c426d9698e35f18fb7bee6d599985ef8
 F src/branch.c 93e0dcfe4606d57e8885f20d7d5817a4753453540824941bb015064a9713d9e9
 F src/browse.c 0027247eafe39d20f7ba86f7a998691d4bc7e10faf430676d6c5b3513423cafb
 F src/builtin.c 8f2e1ff21582e0f0701c15ec4a6446eadb4cecc7c98c34bef8b242b7274f935a
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3dbb7d7d5aa80b29b2f505dde35de1429b02c0e74b21ff309221e36b9d76bff
-R ab708b4959db3d0076f8749064b2ae18
-U wyoung
-Z 282a052702cf69db26aa4918c41ed92a
+P 282402d82fb394c1854518fed475260f22fd27ec2a0a0930c9b7ef3b115766fa
+R 358feaf4f557717cbc92b1017a151d23
+U stephan
+Z 2cf4cef40d2f4de2bfc676c0161ab2c3

@@ -65,7 +65,6 @@ struct Blob {
 */
 #define BLOB_SEEK_SET 1
 #define BLOB_SEEK_CUR 2
-#define BLOB_SEEK_END 3
 
 #endif /* INTERFACE */
 
@@ -581,8 +580,6 @@ int blob_seek(Blob *p, int offset, int whence){
     p->iCursor = offset;
   }else if( whence==BLOB_SEEK_CUR ){
     p->iCursor += offset;
-  }else if( whence==BLOB_SEEK_END ){
-    p->iCursor = p->nUsed + offset - 1;
   }
   if( p->iCursor>p->nUsed ){
     p->iCursor = p->nUsed;
