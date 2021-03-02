@@ -685,7 +685,6 @@ void brtimeline_page(void){
   style_submenu_element("List", "brlist");
   login_anonymous_available();
   timeline_ss_submenu();
-  cookie_render();
   @ <h2>The initial check-in for each branch:</h2>
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql,

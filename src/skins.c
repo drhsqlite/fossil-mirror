@@ -106,11 +106,43 @@ static struct SkinDetail {
 ** it is assumed to be a directory on disk that holds override css.txt,
 ** footer.txt, and header.txt.  This mode can be used for interactive
 ** development of new skins.
+**
+** The 2nd parameter is a ranking of how important this alternative
+** skin declaration is, and lower values trump higher ones. If a call
+** to this function passes a higher-valued rank than a previous call,
+** the subsequent call becomes a no-op. Only calls with the same or
+** lower rank (i.e. higher priority) will overwrite a previous
+** setting. This approach is used because the CGI/server-time
+** initialization happens in an order which is incompatible with our
+** preferred ranking, making it otherwise more invasive to tell the
+** internals "the --skin flag ranks higher than a URL parameter" (the
+** former gets initialized before both URL parameters and the /draft
+** path determination).
+**
+** The rankings were initially defined in
+** https://fossil-scm.org/forum/forumpost/caf8c9a8bb
+** and are:
+**
+** 0) A URI starting with /draft1-9, linked to via /setup_skin, trumps
+** everything else. The rank argument is ignored if zName matches
+** draft[1-9].
+**
+** 1) The --skin flag or skin: CGI config setting.
+**
+** 2) The "skin" display setting cookie or URL argument, in that
+** order. If the URL argument is provided and refers to a legal
+** skin then that will update the display cookie.
+**
+** 3) Skin properties from the CONFIG db table
+**
+** 4) Default skin.
 */
-char *skin_use_alternative(const char *zName){
+char *skin_use_alternative(const char *zName, int rank){
+  static int currentRank = 5;
   int i;
   Blob err = BLOB_INITIALIZER;
-  if( strchr(zName, '/')!=0 ){
+  if(rank > currentRank) return 0;
+  if( 1==rank && strchr(zName, '/')!=0 ){
     zAltSkinDir = fossil_strdup(zName);
     return 0;
   }
@@ -139,7 +171,7 @@ char *skin_use_alternative(const char *zName){
 void skin_override(void){
   const char *zSkin = find_option("skin",0,1);
   if( zSkin ){
-    char *zErr = skin_use_alternative(zSkin);
+    char *zErr = skin_use_alternative(zSkin, 1);
     if( zErr ) fossil_fatal("%s", zErr);
   }
 }
@@ -1156,18 +1188,21 @@ void skins_page(void){
   } 
   login_check_credentials();
   style_header("Skins");
+  if(zAltSkinDir && zAltSkinDir[0]){
+    @ <p class="warning">Warning: this fossil instance was started with
+    @ a hard-coded skin value which trumps any option selected below.
+    @ A skins selected below will be recorded in your prefere cookie
+    @ but will not be used until/unless the site administrator
+    @ configures the site to run without a forced hard-coded skin.
+    @ </p>
+  }
   @ <p>The following skins are available for this repository:</p>
   @ <ul>
-  if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
-    @ <li> Standard skin for this repository &larr; <i>Currently in use</i>
-  }else{
-    @ <li> %z(href("%s/skins",zBase))Standard skin for this repository</a>
-  }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( pAltSkin==&aBuiltinSkin[i] ){
       @ <li> %h(aBuiltinSkin[i].zDesc) &larr; <i>Currently in use</i>
     }else{
-      char *zUrl = href("%s/skn_%s/skins", zBase, aBuiltinSkin[i].zLabel);
+      char *zUrl = href("%s/skins?skin=%T", zBase, aBuiltinSkin[i].zLabel);
       @ <li> %z(zUrl)%h(aBuiltinSkin[i].zDesc)</a>
     }
   }

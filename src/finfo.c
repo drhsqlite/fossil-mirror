@@ -366,7 +366,6 @@ void finfo_page(void){
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   ridFrom = name_to_rid_www("from");
   zPrevDate[0] = 0;
-  cookie_render();
   if( fnid==0 ){
     @ No such file: %h(zFilename)
     style_finish_page();

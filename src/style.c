@@ -1013,6 +1013,10 @@ void style_finish_page(){
     @ </body>
     @ </html>
   }
+  /* Update the user display prefs cookie if it was modified during
+  ** this request.
+  */
+  cookie_render();
 }
 
 /*

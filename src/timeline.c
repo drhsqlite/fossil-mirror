@@ -1756,7 +1756,6 @@ void page_timeline(void){
   if( zType[0]=='a' || zType[0]=='c' ){
     cookie_write_parameter("y","y",zType);
   }
-  cookie_render();
 
   /* Convert the cf=FILEHASH query parameter into a c=CHECKINHASH value */
   if( P("cf")!=0 ){

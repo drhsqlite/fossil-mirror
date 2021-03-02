@@ -941,7 +941,6 @@ void ci_page(void){
   }
   db_finalize(&q3);
   append_diff_javascript(diffType==2);
-  cookie_render();
   style_finish_page();
 }
 
@@ -1187,7 +1186,6 @@ void vdiff_page(void){
   login_anonymous_available();
   load_control();
   diffType = preferred_diff_type();
-  cookie_render();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
@@ -1708,7 +1706,6 @@ void diff_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   diffType = preferred_diff_type();
-  cookie_render();
   if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename("from");
     v2 = artifact_from_ci_and_filename("to");
