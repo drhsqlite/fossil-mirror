@@ -175,11 +175,12 @@ void cookie_link_parameter(
   cookie_readwrite(zQP, zPName, zDflt, COOKIE_READ|COOKIE_WRITE);
 }
 
-/* Update the user preferences cookie, if necessary, and shut down this
-** module
+/* Update the user preferences cookie, if necessary, and shut down
+** this module. The cookie is only emitted if its value has actually
+** changed since the request started.
 */
 void cookie_render(void){
-  if( cookies.bChanged && P("udc")!=0 ){
+  if( cookies.bChanged ){
     Blob new;
     int i;
     blob_init(&new, 0, 0);

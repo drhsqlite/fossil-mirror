@@ -23,10 +23,10 @@
      "detail.txt" skin files, for better control of Pikchr
      colors in inverted color schemes.
   *  The hamburger menu is now available on the built-in
-     "[/skn_ardoise/doc/trunk/www/changes.wiki#v2_15|ardoise]" and
-     "[/skn_plain_gray/doc/trunk/www/changes.wiki#v2_15|plain_gray]"
+     "[/doc/trunk/www/changes.wiki?skin=ardoise#v2_15|ardoise]" and
+     "[/doc/trunk/www/changes.wiki?skin=plain_gray#v2_15|plain_gray]"
      skins.
-  *  Add the --list option to the 
+  *  Add the <tt>--list</tt> option to the 
      [/help?cmd=tarball|tarball],
      [/help?cmd=zip|zip], and [/help?cmd=sqlar|sqlar]
      commands.
@@ -35,8 +35,9 @@
      by a variety of skins, and promoted to an ordinary built-in
      javascript file.
   *  Any built-in skin named "X" can be used instead of the standard
-     repository skin by including the term "skn_X" at the beginning
-     of the URL path.
+     repository skin by adding the URL parameter <tt>skin=X</tt> to the
+     request, and that selection is persistent using a cookie. The
+     [/skins] page may be used to select a skin.
   *  New TH1 commands:  "builtin_request_js", "capexpr",
      "foreach", "string match"
 
