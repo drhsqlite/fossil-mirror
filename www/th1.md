@@ -130,6 +130,7 @@ summarize the commands available in TH1:
   *  info commands
   *  info exists VARNAME
   *  info vars
+  *  lappend VARIABLE TERM ...
   *  lindex LIST INDEX
   *  list ARG ...
   *  llength LIST
@@ -143,6 +144,7 @@ summarize the commands available in TH1:
   *  string index STRING INDEX
   *  string is CLASS STRING
   *  string last NEEDLE HAYSTACK ?START-INDEX?
+  *  string match PATTERN STRING
   *  string length STRING
   *  string range STRING FIRST LAST
   *  string repeat STRING COUNT
@@ -170,6 +172,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  [anoncap](#anoncap)
   *  [anycap](#anycap)
   *  [artifact](#artifact)
+  *  [builtin_request_js](#bireqjs)
   *  [capexpr](#capexpr)
   *  [captureTh1](#captureTh1)
   *  [cgiHeaderLine](#cgiHeaderLine)
@@ -261,6 +264,17 @@ listed in STRING.
 Attempts to locate the specified artifact and return its contents.  An
 error is generated if the repository is not open or the artifact cannot
 be found.
+
+
+<a id="bireqjs"></a>TH1 builtin_request_js Command
+--------------------------------------------------
+
+  *  builtin_request_js NAME
+
+NAME must be the name of one of the 
+[built-in javascript source files](/dir?ci=trunk&type=flat&name=src&re=js$).
+This command causes that javascript file to be appended to the delivered
+document.
 
 
 

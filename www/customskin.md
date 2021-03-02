@@ -7,7 +7,7 @@ This document provides background information to aid you in that task.
 
 ## <a name="builtin"></a>Built-in Skins
 
-Fossil comes with multiple built-in skins.  If the default skin does not
+Fossil comes with [multiple built-in skins](/skins).  If the default skin does not
 suite your tastes, perhaps one of the other built-in skins will work better.
 If nothing else, the built-in skins can serve as examples or templates that
 you can use to develop your own custom skin.
