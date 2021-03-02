@@ -368,56 +368,75 @@ void style_set_current_page(const char *zFormat, ...){
 }
 
 /*
-** Create a TH1 variable containing the URL for the specified config
-** resource. The resulting variable name will be of the form
-** $[zVarPrefix]_url.
+** Create a TH1 variable containing the URL for the stylesheet.
+**
+** The name of the new variable will be "stylesheet_url".
+**
+** The value will be a URL for accessing the appropriate stylesheet.
+** This URL will include query parameters such as "id=" and "once&skin="
+** to cause the correct stylesheet to be loaded after a skin change
+** or after a change to the stylesheet.
 */
-static void url_var(
-  const char *zVarPrefix,
-  const char *zConfigName,
-  const char *zPageName
-){
-  char *zVarName = mprintf("%s_url", zVarPrefix);
-  char *zUrl = 0;              /* stylesheet URL */
-  int hasBuiltin = 0;          /* true for built-in page-specific CSS */
-  char const * zSkinName = P("once") ? skin_in_use() : 0
-    /* In order to avoid a delayed-load issue which results in the
-       page and CSS having different skin definitions, we need to
-       pass the skin name along to the CSS-load URL. */;
-  char * zExtra = 0;
-  if(0==strcmp("css",zConfigName)){
-    /* Account for page-specific CSS, appending a /{{g.zPath}} to the
-    ** url only if we have a corresponding built-in page-specific CSS
-    ** file. Do not append it to all pages because we would
-    ** effectively cache-bust all pages which do not have
-    ** page-specific CSS. */
-    char * zBuiltin = mprintf("style.%s.css", g.zPath);
-    hasBuiltin = builtin_file(zBuiltin,0)!=0;
-    fossil_free(zBuiltin);
+static void stylesheet_url_var(void){
+  char *zBuiltin;              /* Auxiliary page-specific CSS page */
+  Blob url;                    /* The URL */
+
+  /* Initialize the URL to its baseline */
+  url = empty_blob;
+  blob_appendf(&url, "%R/style.css");
+
+  /* If page-specific CSS exists for the current page, then append
+  ** the pathname for the page-specific CSS.  The default CSS is
+  **
+  **     /style.css
+  **
+  ** But for the "/wikiedit" page (to name but one example), we
+  ** append a path as follows:
+  **
+  **     /style.css/wikiedit
+  **
+  ** The /style.css page (implemented below) will detect this extra "wikiedit"
+  ** path information and include the page-specific CSS along with the
+  ** default CSS when it delivers the page.
+  */
+  zBuiltin = mprintf("style.%s.css", g.zPath);
+  if( builtin_file(zBuiltin,0)!=0 ){
+    blob_appendf(&url, "/%s", g.zPath);
   }
-  if(zSkinName && *zSkinName){
-    zExtra = mprintf("&skin=%T&once", zSkinName);
+  fossil_free(zBuiltin);
+
+  /* Add query parameters that will change whenever the skin changes
+  ** or after any updates to the CSS files
+  */
+  blob_appendf(&url, "?id=%x", skin_id("css"));
+  if( P("once")!=0 && P("skin")!=0 ){
+    blob_appendf(&url, "&skin=%s&once", skin_in_use());
   }
-  zUrl = mprintf("%R/%s%s%s?id=%x%s", zPageName,
-                 hasBuiltin ? "/" : "", hasBuiltin ? g.zPath : "",
-                 skin_id(zConfigName),
-                 zExtra ? zExtra : "");
-  Th_Store(zVarName, zUrl);
-  fossil_free(zExtra);
-  fossil_free(zUrl);
-  fossil_free(zVarName);
+
+  /* Generate the CSS URL variable */  
+  Th_Store("stylesheet_url", blob_str(&url));
+  blob_reset(&url);
 }
 
 /*
-** Create a TH1 variable containing the URL for the specified config image.
+** Create a TH1 variable containing the URL for the specified image.
 ** The resulting variable name will be of the form $[zImageName]_image_url.
+** The value will be a URL that includes an id= query parameter that
+** changes if the underlying resource changes or if a different skin
+** is selected.
 */
 static void image_url_var(const char *zImageName){
-  char *zVarPrefix = mprintf("%s_image", zImageName);
-  char *zConfigName = mprintf("%s-image", zImageName);
-  url_var(zVarPrefix, zConfigName, zImageName);
-  free(zVarPrefix);
-  free(zConfigName);
+  char *zVarName;   /* Name of the new TH1 variable */
+  char *zResource;  /* Name of CONFIG entry holding content */
+  char *zUrl;       /* The URL */
+
+  zResource = mprintf("%s-image", zImageName);
+  zUrl = mprintf("%R/%s?id=%x", zImageName, skin_id(zResource));
+  free(zResource);
+  zVarName = mprintf("%s_image_url", zImageName);  
+  Th_Store(zVarName, zUrl);
+  free(zVarName);
+  free(zUrl);
 }
 
 /*
@@ -716,7 +735,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
   Th_Store("mainmenu", style_get_mainmenu());
-  url_var("stylesheet", "css", "style.css");
+  stylesheet_url_var();
   image_url_var("logo");
   image_url_var("background");
   if( !login_is_nobody() ){

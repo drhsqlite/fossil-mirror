@@ -1,5 +1,5 @@
-C When\sa\spage\swith\sskin=X&once\sgenerates\sits\sstyle.css\slink,\sappend\sskin=X&once\sto\sthat\slnik\sso\sthat\sit\sgets\sthe\sproper\sskin\swhen\sstyle.css\sis\sloaded\s(asynchronously).\sRenamed\sthe\sskin=_repo\s(reset\sto\ssite-specific\sskin)\sto\sskin=\s(blank\sname),\sper\s/chat\sdiscussion.
-D 2021-03-02T15:33:31.714
+C Refactor\sthe\sroutines\sused\sto\sgenerate\sTH1\svariables\sthat\shold\sresource\nURLs.\s\sFunctionality\sshould\sbe\sunchanged.\s\sThe\spurpose\sis\sto\smake\sthe\scode\nsimplier,\seasier\sto\sread,\sand\seasier\sto\smaintain.
+D 2021-03-02T16:06:40.017
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -613,7 +613,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 2eca8d335edc645b836dab96d47a9ea823240ecdf39955c9d42a1f098feb530d
+F src/style.c c2b82606390ac0643e6070d241b0bdeba88de1deb7a84149c70c4f392e16f572
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7db18bfe960901a2a7e3b9a40b19d73bc5717960b64040ebdd8a64d19f5c4b21
-R e40df46dc26db04d1ce69dc160894806
-U stephan
-Z f329d97d4376b55b58826bfb4313b646
+P 10dfd9e51bebc8fd1b82bc1803be2d9881c4b333d7c44b18f1347326eba83133
+R 62973d660c5d243f2fc589a6c7fa1dab
+U drh
+Z 4b9bd7c3f03f017e362f444ca90a2321
