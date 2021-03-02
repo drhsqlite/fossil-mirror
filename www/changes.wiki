@@ -5,6 +5,15 @@
   *  The built-in skins all use the "mainmenu" setting to determine
      the content of the main menu.  The ability to edit the 
      "mainmenu" setting is added on the /Admin/Configuration page.
+  *  The hamburger menu is now available on most of the built-in skins.
+  *  Any built-in skin named "X" can be used instead of the standard
+     repository skin by adding the URL parameter <tt>skin=X</tt> to the
+     request.  The selection is persisted using the display
+     preferences cookie unless the "once" query parameter is also
+     included.  The [/skins] page may be used to select a skin.
+  *  The [/cookies] page now gives the user an opportunity to delete
+     individual cookies.  And the /cookies page is linked from the
+     /sitemap, so that it appears in hamburger menus.
   *  The [/sitemap] extensions are now specified by a single new
      setting "sitemap-extra", rather than a cluster of various
      "sitemap-*" settings.  The older settings are no longer used.
@@ -19,13 +28,17 @@
      "[/help?cmd=/doc|/doc/ckout/...]", to facilitate testing of
      [./embeddeddoc.wiki|embedded documentation] changes prior to
      check-in.
+  *  For diff web pages, if the diff type (unified versus side-by-side)
+     is not specified by a query parameter, and if the 
+     "[/help?cmd=preferred-diff-type|preferred-diff-type]"
+     setting is omitted or less than 1, then select the diff type based
+     on a guess of whether or not the request is coming from a mobile
+     device.  Mobile gets unified and desktop gets side-by-side.
+  *  Add the "[/help?cmd=preferred-diff-type|preferred-diff-type]"
+     setting to allow an admin to force a default diff type.
   *  The "pikchr-background" settings is now available in 
      "detail.txt" skin files, for better control of Pikchr
      colors in inverted color schemes.
-  *  The hamburger menu is now available on the built-in
-     "[/doc/trunk/www/changes.wiki?skin=ardoise#v2_15|ardoise]" and
-     "[/doc/trunk/www/changes.wiki?skin=plain_gray#v2_15|plain_gray]"
-     skins.
   *  Add the <tt>--list</tt> option to the 
      [/help?cmd=tarball|tarball],
      [/help?cmd=zip|zip], and [/help?cmd=sqlar|sqlar]
@@ -34,12 +47,8 @@
      default built-in skin has been made generic so that it is usable
      by a variety of skins, and promoted to an ordinary built-in
      javascript file.
-  *  Any built-in skin named "X" can be used instead of the standard
-     repository skin by adding the URL parameter <tt>skin=X</tt> to the
-     request, and that selection is persistent using a cookie. The
-     [/skins] page may be used to select a skin.
   *  New TH1 commands:  "builtin_request_js", "capexpr",
-     "foreach", "string match"
+     "foreach", "lappend", and "string match"
 
 <a name='v2_14'></a>
 <h2>Changes for Version 2.14 (2021-01-20)</h2>

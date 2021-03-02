@@ -1,5 +1,5 @@
-C Refactor\sthe\sroutines\sused\sto\sgenerate\sTH1\svariables\sthat\shold\sresource\nURLs.\s\sFunctionality\sshould\sbe\sunchanged.\s\sThe\spurpose\sis\sto\smake\sthe\scode\nsimplier,\seasier\sto\sread,\sand\seasier\sto\smaintain.
-D 2021-03-02T16:06:40.017
+C Update\sto\sthe\schange\slog.
+D 2021-03-02T16:44:37.778
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -826,7 +826,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki c3304462dd7870614887eb0c4ef16f87f5249d677b14686d39c0f1116fb9c010
+F www/changes.wiki 101108507ff602631173d60764623dbb23ced43bad3786ee3fd5081e085edc2b
 F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 10dfd9e51bebc8fd1b82bc1803be2d9881c4b333d7c44b18f1347326eba83133
-R 62973d660c5d243f2fc589a6c7fa1dab
+P 6acd87f2c16724f9fcbea6541d53f3b917b51c6d4c9091e02ac2764876fdc9ee
+R 6ef5b17180ca2a4c8711775f81b610b3
 U drh
-Z 4b9bd7c3f03f017e362f444ca90a2321
+Z 27c11ba25ad6f97687da45167d14fb99
