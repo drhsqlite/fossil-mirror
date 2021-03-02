@@ -380,7 +380,11 @@ static void url_var(
   char *zVarName = mprintf("%s_url", zVarPrefix);
   char *zUrl = 0;              /* stylesheet URL */
   int hasBuiltin = 0;          /* true for built-in page-specific CSS */
-
+  char const * zSkinName = P("once") ? skin_in_use() : 0
+    /* In order to avoid a delayed-load issue which results in the
+       page and CSS having different skin definitions, we need to
+       pass the skin name along to the CSS-load URL. */;
+  char * zExtra = 0;
   if(0==strcmp("css",zConfigName)){
     /* Account for page-specific CSS, appending a /{{g.zPath}} to the
     ** url only if we have a corresponding built-in page-specific CSS
@@ -391,10 +395,15 @@ static void url_var(
     hasBuiltin = builtin_file(zBuiltin,0)!=0;
     fossil_free(zBuiltin);
   }
-  zUrl = mprintf("%R/%s%s%s?id=%x", zPageName,
+  if(zSkinName && *zSkinName){
+    zExtra = mprintf("&skin=%T&once", zSkinName);
+  }
+  zUrl = mprintf("%R/%s%s%s?id=%x%s", zPageName,
                  hasBuiltin ? "/" : "", hasBuiltin ? g.zPath : "",
-                 skin_id(zConfigName));
+                 skin_id(zConfigName),
+                 zExtra ? zExtra : "");
   Th_Store(zVarName, zUrl);
+  fossil_free(zExtra);
   fossil_free(zUrl);
   fossil_free(zVarName);
 }

@@ -136,7 +136,7 @@ static struct SkinDetail {
 **
 ** 4) Default skin.
 **
-** As a special case, the name "_repo" resets zAltSkinDir and
+** As a special case, a NULL or empty name resets zAltSkinDir and
 ** pAltSkin to 0 to indicate that the current config-side skin should
 ** be used (rank 3, above), then returns 0.
 */
@@ -145,15 +145,15 @@ char *skin_use_alternative(const char *zName, int rank){
   int i;
   Blob err = BLOB_INITIALIZER;
   if(rank > currentRank) return 0;
-  if( 1==rank && strchr(zName, '/')!=0 ){
+  if( zName && 1==rank && strchr(zName, '/')!=0 ){
     zAltSkinDir = fossil_strdup(zName);
     return 0;
   }
-  if( sqlite3_strglob("draft[1-9]", zName)==0 ){
+  if( zName && sqlite3_strglob("draft[1-9]", zName)==0 ){
     skin_use_draft(zName[5] - '0');
     return 0;
   }
-  if(zName && 0==strcmp("_repo",zName)){
+  if(!zName || !*zName){
     pAltSkin = 0;
     zAltSkinDir = 0;
     return 0;
@@ -1209,7 +1209,7 @@ void skins_page(void){
   if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
     @ <li> Standard skin for this repository &larr; <i>Currently in use</i>
   }else{
-    @ <li> %z(href("%R/skins?skin=_repo"))Standard skin for this repository</a>
+    @ <li> %z(href("%R/skins?skin="))Standard skin for this repository</a>
   }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( pAltSkin==&aBuiltinSkin[i] ){
