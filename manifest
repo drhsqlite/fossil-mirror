@@ -1,5 +1,5 @@
-C Alternative\sskins\scan\sbe\sdetermined\sby\sthe\s"skin"\sfield\sof\sthe\sdisplay\npreferences\scookie.\s\sThe\s"skn_X"\smechanism\sis\sremoved.
-D 2021-03-02T13:55:26.192
+C When\sskin=X\squery\sparameter\sis\sprocessed,\sif\sa\sparam\snamed\s'once'\sis\salso\sset\sthen\sapply\sthe\sskin\schange\sbut\sdo\snot\ssave\sit\sto\sthe\scookie,\sas\sper\s/chat\sdiscussion.\sThe\sintent\sis\smainly\sto\sfacilitate\sthe\sdevelopment\sof\sdocs\susing\sboth\slight-\sand\sdark-mode\sskins\sat\sthe\ssame\stime,\swhich\sis\ssomewhat\spainful\swhen\sthe\scookie\sconstantly\sgets\soverwritten.
+D 2021-03-02T15:01:55.921
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -440,7 +440,7 @@ F src/bundle.c a97dd1c76d6c37becebca66c6fd7a3cc9beb69f635be7cf18489afacddc94272
 F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 8f5c6cb699276e4b5d2d3060f9ca2b7e2861b95ea39f129aded69b75f3ae575a
+F src/cgi.c c346671d253615ac33c3359621c549af02f71989dd8dd41363978f6ce424def8
 F src/chat.c 4732b8ac7d64be0b56f7cb8b4b6862149c3ce52d2c0dd1b90b54b30da1a94c53
 F src/chat.js beb5bf45ac957cbe9cadf96ac7f14c04ea316489af4f79ac1e7cc3567256d62b
 F src/checkin.c 0f441a8b02693f92da497772da39a1370770155af5d57067950f9920399146f1
@@ -988,8 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4de677dcc3e61228a1128759892d12998bdb300e4b169b80cd2fbd0fe3a281a3 7fed83c9b0840542ee2ea4c5e7da6a3ca0954b2a0c05be7def541527d551bbd9
-R c4d4caefa33a14f7afa8ed16308d0ea0
-T +closed 7fed83c9b0840542ee2ea4c5e7da6a3ca0954b2a0c05be7def541527d551bbd9
-U drh
-Z 0290153212218612bf9ece25a9685489
+P 3339420778776126eb80c9ef23d98e964dc5411d1d0ed920240d0bf418696eea
+R f310b329997103ab6cff51d94c9276da
+U stephan
+Z 1e76736cc6e9c91e158f24ced88ac2e0

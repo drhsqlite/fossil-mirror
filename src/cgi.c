@@ -1174,7 +1174,7 @@ void cgi_init(void){
     z = (char*)P("skin");
     if(z){
       char *zErr = skin_use_alternative(z, 2);
-      if(!zErr){
+      if(!zErr && !P("once")){
         cookie_write_parameter("skin","skin",z);
       }
       fossil_free(zErr);
