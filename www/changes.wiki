@@ -2,8 +2,9 @@
 
 <a name='v2_15'></a>
 <h2>Changes for Version 2.15 (pending)</h2>
-  *  The built-in skins all use the "mainmenu" setting to determine
-     the content of the main menu.  The ability to edit the 
+  *  The built-in skins all use the "[/help?cmd=mainmenu|mainmenu]"
+     setting to determine the content of the main menu.
+     The ability to edit the 
      "mainmenu" setting is added on the /Admin/Configuration page.
   *  The hamburger menu is now available on most of the built-in skins.
   *  Any built-in skin named "X" can be used instead of the standard
@@ -15,7 +16,8 @@
      individual cookies.  And the /cookies page is linked from the
      /sitemap, so that it appears in hamburger menus.
   *  The [/sitemap] extensions are now specified by a single new
-     setting "sitemap-extra", rather than a cluster of various
+     "[/help?cmd=sitemap-extra|sitemap-extra setting]",
+     rather than a cluster of various
      "sitemap-*" settings.  The older settings are no longer used.
      <b>This change might require minor server configuration 
      adjustments on servers that use /sitemap extensions.</b>

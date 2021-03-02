@@ -1635,10 +1635,15 @@ int object_description(
 /*
 ** SETTING: preferred-diff-type         width=16 default=0
 **
-** Determines the preferred diff format on web pages if the format is not
-** otherwise specified, for example by a query parameter or cookie.
-** The value may be 1 to mean unified diff, or 2 to mean side-by-side
-** diff.
+** The preferred-diff-type setting determines the preferred diff format
+** for web pages if the format is not otherwise specified, for example
+** by a query parameter or cookie.  Allowed values:
+**
+**    1    Unified diff
+**    2    Side-by-side diff
+**
+** If this setting is omitted or has a value of 0 or less, then it
+** is ignored.
 */
 /*
 ** Return the preferred diff type.
