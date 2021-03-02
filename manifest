@@ -1,5 +1,5 @@
-C Corrected\sability\sto\sbe\sable\sto\sselect\sthe\srepository's\sconfigured\sskin,\srather\sthan\sjust\sbuilt-ins.
-D 2021-03-02T08:09:01.506
+C Updated\schanges.wiki\sto\sreplace\sskn_X\sreferences\swith\sskin=X.
+D 2021-03-02T08:54:34.461
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -826,7 +826,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 2c5d5f2ac4cdd668db31fab3ffa8e496e4e3ca9e1ee10f97d0f30bec3cbb69fa
+F www/changes.wiki c3304462dd7870614887eb0c4ef16f87f5249d677b14686d39c0f1116fb9c010
 F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c05ec7d924dfe7809f3c4dc62854ae675cb7e8a41e9fc2e36a72360eea6cd2f7
-R f7cfb3930b20e608921d09da58cfd672
+P 5289ab2a458c60310fdfb5631a6529e89e40aef37cb2e3d6c0b24dd9cd61a084
+R c4d4caefa33a14f7afa8ed16308d0ea0
 U stephan
-Z ac1a4019770b6f5116335ec49c718085
+Z 25634f35d6ab48286ba47b325e0eaadd
