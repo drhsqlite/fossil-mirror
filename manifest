@@ -1,5 +1,5 @@
-C Moved\sthe\sdiff\stoggle\sbutton\sto\sthe\sright\sof\sthe\sdiff\sheader\sline,\sper\sforum\sfeedback.\sChanged\sthe\sbutton\sto\sa\scheckbox.\sRemoved\sthe\sarbitrary\sheuristics\sregarding\swhich\sdiffs\sto\sshow/hide\sby\sdefault\s-\sthey\sare\snow\sall\son\sby\sdefault.
-D 2021-03-02T03:51:47.562
+C Removed\sthe\smin/max\sheight\son\sthe\sdiff\stoggles\sto\sslightly\simprove\sthe\slayout\sflow.
+D 2021-03-02T04:04:56.598
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 767b7329ced0083afb188876095e331560c08055411011ba9e1d4f6b75455b20
-F src/default.css ae1d80179d1b6830a1f8d0397292b09f88c91aecd10f5bca0a48eae4fe807db4
+F src/default.css 5b00997a019df8433e306e9773961e5d40b19332f8b8375685005f3ea59e90de
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cfdd666533bec7e93891982955481f97097788efd6b478ad60d73993f33670d6
-R 4afe1ecf2f25f66a9b1e3068869e773b
+P f9d29b9702c8ec38429064bf37120df17e559fa4c9b9e90cbc9c9c71d138845d
+R 1039f213fc5a8a84b2dfc1d729dce623
 U stephan
-Z 7a18db94dd5b5b4bebf8043840600e58
+Z a087c99c4ca97430e8d4b3d377c5af83
