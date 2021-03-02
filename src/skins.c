@@ -135,6 +135,10 @@ static struct SkinDetail {
 ** 3) Skin properties from the CONFIG db table
 **
 ** 4) Default skin.
+**
+** As a special case, the name "_repo" resets zAltSkinDir and
+** pAltSkin to 0 to indicate that the current config-side skin should
+** be used (rank 3, above), then returns 0.
 */
 char *skin_use_alternative(const char *zName, int rank){
   static int currentRank = 5;
@@ -147,6 +151,11 @@ char *skin_use_alternative(const char *zName, int rank){
   }
   if( sqlite3_strglob("draft[1-9]", zName)==0 ){
     skin_use_draft(zName[5] - '0');
+    return 0;
+  }
+  if(zName && 0==strcmp("_repo",zName)){
+    pAltSkin = 0;
+    zAltSkinDir = 0;
     return 0;
   }
   for(i=0; i<count(aBuiltinSkin); i++){
@@ -1197,11 +1206,16 @@ void skins_page(void){
   }
   @ <p>The following skins are available for this repository:</p>
   @ <ul>
+  if( pAltSkin==0 && zAltSkinDir==0 && iDraftSkin==0 ){
+    @ <li> Standard skin for this repository &larr; <i>Currently in use</i>
+  }else{
+    @ <li> %z(href("%R/skins?skin=_repo"))Standard skin for this repository</a>
+  }
   for(i=0; i<count(aBuiltinSkin); i++){
     if( pAltSkin==&aBuiltinSkin[i] ){
       @ <li> %h(aBuiltinSkin[i].zDesc) &larr; <i>Currently in use</i>
     }else{
-      char *zUrl = href("%s/skins?skin=%T", zBase, aBuiltinSkin[i].zLabel);
+      char *zUrl = href("%R/skins?skin=%T", aBuiltinSkin[i].zLabel);
       @ <li> %z(zUrl)%h(aBuiltinSkin[i].zDesc)</a>
     }
   }
