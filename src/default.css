@@ -1765,9 +1765,10 @@ body.chat #chat-drop-details img {
   max-height: 45%;
 }
 
-button.diff-toggle {
-  margin-bottom: 0.5em;
-  font-size: 85%;
+input[type=checkbox].diff-toggle {
+  float: right;
+  min-height: 1.5em;
+  max-height: 1.5em;
 }
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
