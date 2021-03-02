@@ -123,14 +123,14 @@ static struct SkinDetail {
 ** https://fossil-scm.org/forum/forumpost/caf8c9a8bb
 ** and are:
 **
-** 0) A URI starting with draft1-9, linked to via /setup_skin, trumps
-** everything else.
+** 0) A skin name matching the glob draft[1-9] trumps everything else.
 **
 ** 1) The --skin flag or skin: CGI config setting.
 **
 ** 2) The "skin" display setting cookie or URL argument, in that
-** order. If the URL argument is provided and refers to a legal
-** skin then that will update the display cookie.
+** order. If the "skin" URL argument is provided and refers to a legal
+** skin then that will update the display cookie. If the skin name is
+** illegal it is silently ignored.
 **
 ** 3) Skin properties from the CONFIG db table
 **
