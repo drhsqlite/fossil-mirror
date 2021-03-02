@@ -123,9 +123,8 @@ static struct SkinDetail {
 ** https://fossil-scm.org/forum/forumpost/caf8c9a8bb
 ** and are:
 **
-** 0) A URI starting with /draft1-9, linked to via /setup_skin, trumps
-** everything else. The rank argument is ignored if zName matches
-** draft[1-9].
+** 0) A URI starting with draft1-9, linked to via /setup_skin, trumps
+** everything else.
 **
 ** 1) The --skin flag or skin: CGI config setting.
 **

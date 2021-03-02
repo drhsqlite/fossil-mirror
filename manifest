@@ -1,5 +1,5 @@
-C Skin\sselection\sis\snow\sstored\sin\sthe\suser\sdisplay\sprefs\scookie\sand\scan\sbe\smodified\sfrom\sany\spage\sby\spassing\sthe\sskin=xyz\sURL\sparameter.\sGets\strumped\sby\s/draftX\sURI\sor\s--skin\sCLI\sflag\sor\sskin:\sCGI\sconfig\ssetting.\sRemoved\s/skn_XYZ\sURI\shandling.\s/skins\spage\snow\suses\sthe\snew\smechanism\sfor\sskin\sselection.\sUDC\sis\snow\srendered\son\severy\spage\sif\sit\swas\smodified\sduring\sthat\srequest,\sregardless\sof\sthe\s'udc'\sURL\sparameter.\sSee\sdiscussion\sat\s[https://fossil-scm.org/forum/forumpost/4d3a10c72a|/forumpost/4d3a10c72a].
-D 2021-03-02T07:11:08.286
+C Minor\sdoc\scorrection.
+D 2021-03-02T07:21:08.853
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -585,7 +585,7 @@ F src/shell.c 8056568738bb15a4a506fbccf2c0da68426a7e1239d84fda92cd177d1caabf2e
 F src/shun.c 011890daac7837ded87804ce576cfae317a72f447aaba5eb0e460e066e4465ff
 F src/sitemap.c 7d1d409a80c19429f33660e1d167fc146fce4ecf5da9f3ed692534d7a535cb69
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 3fdabd100a7e3c4c75e8dc89707e087dc57109c3993767a19afe690a32ca569f
+F src/skins.c 5c7c5b3a80580f7bfea8a661df5f98c7d8834c68d086a4ae65a84f3c1ba25004
 F src/smtp.c a0abde298e1ce1bea5cc9cebffad973adce8a7647bcac3b8530b60fd2529f77c
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -988,10 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4de677dcc3e61228a1128759892d12998bdb300e4b169b80cd2fbd0fe3a281a3
-R e6985150e2649e4cdeee6031692eb374
-T *branch * skin-preference-cookie
-T *sym-skin-preference-cookie *
-T -sym-trunk *
+P 71a2d68a7a113e7cce3b33c2bc595f4d8b1e7b09b0e260860b3784475a1fe06c
+R c1b5d1645a171c5538f4872159398c22
 U stephan
-Z 3b7d0496e5732262b7cd9a87951e74a1
+Z b09983e28491ad89d8d04eb8b50d4d3f
