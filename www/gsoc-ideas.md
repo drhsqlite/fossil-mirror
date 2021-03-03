@@ -10,7 +10,7 @@ and [libfossil](https://fossil.wanderinghorse.net/r/libfossil). The two implemen
 have an identical implementation of the Fossil data model, are 100% compatible in terms of
 data access since they use the same SQL, and are 100% binary compatible in terms of on-disk storage.
 
-## General Features
+# General Features
 
 * Improve the documentation history-browsing page to enable selection of 2 arbitrary versions to diff, similar to the [Mediawiki history feature enabled on Wikipedia](https://en.wikipedia.org/w/index.php?title=Fossil_(software)&action=history)
 * Allow diffing of Forum posts
@@ -21,21 +21,49 @@ data access since they use the same SQL, and are 100% binary compatible in terms
 * Create a [Pandoc filter that handles Pikchr](https://groups.google.com/g/pandoc-discuss/c/zZSspnHHsg0?pli=1) (Pikchr can be used with many kinds of layout, not just Markdown)
 * Editor integration: [improve the Fossil VSCode plugin](https://marketplace.visualstudio.com/items?itemName=koog1000.fossil) or [create a Fossil plugin for Eclipse](https://marketplace.eclipse.org/taxonomy/term/26%2C31)
 
-## Add code to handle email bounces
+# Adding Inbound (Receiving) Email to Fossil
 
-Fossil can [send email alerts](./alerts.md), but cannot receive email at all. That is a good thing, because a 
-complete [SMTP MTA](https://en.wikipedia.org/wiki/MTA) is complicated and requires constant maintenance. There
-is one specific case where receiving mail in some fashion would help, and that is for handling bounce messages
-from invalid email addresses. 
+This task involves designing a new feature and working with Fossil developers to 
+see how it can be feasible in practice.
 
-A proposal for that is to implement a Fossil command such as:
+Fossil can [send email alerts](./alerts.md), but cannot receive email at all.
+That is a good thing, because a complete [SMTP
+MTA](https://en.wikipedia.org/wiki/MTA) is complicated and requires constant
+maintenance, so Fossil should not try to be an MTA or ever listen to mail ports
+on the Internet. 
+
+There is one specific type of email reception that make sense for Fossil to
+handle.  When there is inbound mail related to a message that Fossil has
+previously generated with a unique hash, Fossil already knows the context of
+that message.  An unknown sender cannot guess a valid hash although a malicious
+sender could of course find a way to receive a valid hash and then use that to
+gain access.  The risk of automatic and non-specific spam is very low. 
+
+A proposal to handle that would be to implement a Fossil command like this:
 
 ```
-fossil email -R repo receive_bounce
+fossil email -R repo receive -t TYPE-OF-EMAIL -h HASH
 ```
 
-This is a non-network-aware Mail Delivery Agent, and would be called by an MTA such as Postfix, Courier or Exim.
-This command would reject anything that doesn't look like a bounce it is expecting.
+Where the type of email would be one of a list something like this:
+
+* mail_bounce
+* ticket_reply
+* forum_reply
+
+This command is a non-network-aware [Mail Delivery
+Agent](https://en.wikipedia.org/wiki/Mail_delivery_agent), and would be called
+by an SMTP MTA such as Postfix, Courier or Exim. The MTA would need to be
+configured to recognise that this is an email intended for Fossil, and what
+type of email, and to extract its hash.  People who configure MTAs are used to
+doing this sort of thing, but no doubt Fossil would include a sample
+[Postfix mail filter](http://www.postfix.org/FILTER_README.html#simple_filter) and 
+an equivalent driver for Exim.
+
+The Fossil command would reject anything that doesn't look like a bounce it is expecting.
+
+It is not certain that this design is the best one to address the inbound mail
+problem. That is why the first part of this task is to find a workable design.
 
 ## Work relating to the ticketing system in Fossil
 
