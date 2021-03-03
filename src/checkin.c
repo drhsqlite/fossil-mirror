@@ -1741,7 +1741,7 @@ static void create_manifest(
       if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ){
         continue;
       }
-      zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+      zMergeUuid = rid_to_uuid(mid);
       if( zMergeUuid ){
         blob_appendf(pOut, " %s", zMergeUuid);
         if( p->verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);

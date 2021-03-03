@@ -53,6 +53,8 @@
      "[/doc/trunk/www/th1.md#bireqjs|builtin_request_js]",
      "[/doc/trunk/www/th1.md#capexpr|capexpr]",
      "foreach", "lappend", and "string match"
+  *  The [/help/leaves|leaves command] now shows the branch point
+     of each leaf.
 
 <a name='v2_14'></a>
 <h2>Changes for Version 2.14 (2021-01-20)</h2>
