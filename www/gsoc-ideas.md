@@ -65,23 +65,27 @@ The Fossil command would reject anything that doesn't look like a bounce it is e
 It is not certain that this design is the best one to address the inbound mail
 problem. That is why the first part of this task is to find a workable design.
 
-## Work relating to the ticketing system in Fossil
+# Work relating to the ticketing system in Fossil
 
 The Fossil SCM project uses tickets in a [somewhat unusual manner](https://fossil-scm.org/home/reportlist)
 because the social programming
-model has evolved to often use the Fosum instead.  Other Fossil-using projects
+model has evolved to often use the Forum instead of ticketing.  Other Fossil-using projects
 use tickets in a more traditional report-a-bug manner. So this means that the
-Fossil ticketing system user interface is underdeveloped. On the other hand,
-pretty much every software developer uses a ticketing system at some point in
-their workflow, and Fossil is intended to be usable by most developers.  The
-underlying technology for the Fossil ticketing system is guaranteed, so to
-improve it requires only user interface changes.
+Fossil ticketing system user interface is underdeveloped.
+
+On the other hand, pretty much every software developer uses a ticketing system
+at some point in their workflow, and Fossil is intended to be usable by most
+developers. That means the ticketing system really needs to be further
+developed. The underlying technology for the Fossil ticketing system is
+guaranteed, so to improve it requires only user interface changes.
 
 Projects relating to the ticketing system include:
 
-* Improving the [Fossil cli for tickets](https://fossil-scm.org/forum/forumpost/d8e8a1cf92) which is confusing, as pointed out in that ticket.
+* Improving the [Fossil cli for tickets](https://fossil-scm.org/forum/forumpost/d8e8a1cf92) which is confusing, as pointed out in that ticket. This is still classified as a "user interface" even though it isn't graphical.
 * Alternatively, instead of improving Fossil's cli, implement a comprehensive ticket commandline with [libfossil's primitives](https://fossil.wanderinghorse.net/r/libfossil/wiki/home), look under the f-apps/ directory.
-* Improving the Fossil web UI for ticketing, which is clunky to say the least
+* Improving the Fossil web UI for ticketing, which is clunky to say the least. Fossil tries not be a heavy user of Javascript and Javascript libraries, but the wikiedit, chat and Forum code are all more advanced than ticketing, 
+and have UI features that would improve ticketing
+* If there is an inbound email system as per the previous section "Adding Inbound (Receiving) Email to Fossil", then implement this system for ticketing
 
 # Look and Feel
 
