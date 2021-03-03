@@ -1,5 +1,5 @@
-C Improve\sexplanations\sfor\sprospective\sstudents\sin\sthe\sticketing\ssection
-D 2021-03-03T12:04:57.610
+C Change\sQuick\sStart\sto\sstore\sthe\srepository\sfile\soutside\sthe\sworking\sdirectory.
+D 2021-03-03T12:31:04.091
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -893,7 +893,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5bb0b31081dc00afe988c
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 92df403b1e8aa10ac845a9b64f63563fa9d199c52cd07cc63bac73c87d8492f7
+F www/index.wiki a1f5863a272ff2d1f0b7f34a85f11a3101b49bd15d745718e6fefa1f932c2548
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 9dd43581054e6de6fa75046e3f69a87c4dffa6f79a144bc18ff9bc77548b1dc0
@@ -988,7 +988,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 316b55a6a6edeee7fe8191366e9ed528788cde5ad57bdaebfd6727ad50c41e4d
-R 96f8bcc03dab20edb064ee24cb5dd925
-U danshearer
-Z 69e685d5534fa0ed110ef9db0a14663e
+P 0f90d0df757ab4ad8cda6db741fb7836561001832c14d2b384858a93d52ee6cb
+R ecf2fa11bf36c4e7cf94b3678ed2b57d
+U danield
+Z d62db13d9a92b404bdc54a707dad4080
