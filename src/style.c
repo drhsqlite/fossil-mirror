@@ -549,6 +549,7 @@ char *style_nonce(void){
 **     default-src 'self' data:;
 **     script-src 'self' 'nonce-$nonce';
 **     style-src 'self' 'unsafe-inline';
+**     img-src *;
 **
 ** The text '$nonce' is replaced by style_nonce() if and whereever it
 ** occurs in the input string.
@@ -560,7 +561,8 @@ char *style_csp(int toHeader){
   static const char zBackupCSP[] = 
    "default-src 'self' data:; "
    "script-src 'self' 'nonce-$nonce'; "
-   "style-src 'self' 'unsafe-inline'";
+   "style-src 'self' 'unsafe-inline'; "
+   "img-src *";
   const char *zFormat;
   Blob csp;
   char *zNonce;
