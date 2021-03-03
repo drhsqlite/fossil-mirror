@@ -56,6 +56,16 @@ Projects relating to the ticketing system include:
 * Alternatively, instead of improving Fossil's cli, implement a comprehensive ticket commandline with [libfossil's primitives](https://fossil.wanderinghorse.net/r/libfossil/wiki/home), look under the f-apps/ directory.
 * Improving the Fossil web UI for ticketing, which is clunky to say the least
 
+# Look and Feel
+
+Tasks for those interested in graphic/web design:
+
+* General touch-ups in the existing skins. This may, depending on how deep one
+  cares to dig, require digging into C code to find, and potentially modify, how
+  the HTML is generated.
+* Creation of one or more new skins. This does not specifically require any C
+  know-how.
+
 # Tasks Requiring Fossil Data Model Knowledge
 
 The Fossil data model concepts are simple, but the implications are quite subtle and impressive. The data model
