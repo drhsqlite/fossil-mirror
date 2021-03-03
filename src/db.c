@@ -4220,7 +4220,7 @@ struct Setting {
 **     default-src 'self' data:;
 **     script-src 'self' 'nonce-$nonce';
 **     style-src 'self' 'unsafe-inline';
-**     img-src *;
+**     img-src * data:;
 **
 ** The default CSP is recommended.  The main reason to change
 ** this setting would be to add CDNs from which it is safe to

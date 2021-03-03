@@ -28,7 +28,7 @@ The default CSP used by Fossil is as follows:
      default-src 'self' data:;
      script-src 'self' 'nonce-$nonce';
      style-src 'self' 'unsafe-inline';
-     img-src *;
+     img-src * data:;
 </pre>
 
 The default is recommended for most installations.  However,
