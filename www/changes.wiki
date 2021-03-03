@@ -36,6 +36,8 @@
      setting is omitted or less than 1, then select the diff type based
      on a guess of whether or not the request is coming from a mobile
      device.  Mobile gets unified and desktop gets side-by-side.
+  *  The various pages which show diffs now have toggles to show/hide
+     individual diffs.
   *  Add the "[/help?cmd=preferred-diff-type|preferred-diff-type]"
      setting to allow an admin to force a default diff type.
   *  The "pikchr-background" settings is now available in 
