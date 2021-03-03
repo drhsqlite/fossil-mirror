@@ -12,7 +12,6 @@ data access since they use the same SQL, and are 100% binary compatible in terms
 
 ## General Features
 
-* Complete per-feature CSS facilities in [the Inskinerator](https://tangentsoft.com/inskinerator/dir) and add features to the Inskinerator
 * Improve the documentation history-browsing page to enable selection of 2 arbitrary versions to diff, similar to the [Mediawiki history feature enabled on Wikipedia](https://en.wikipedia.org/w/index.php?title=Fossil_(software)&action=history)
 * Allow diffing of Forum posts
 * Develop a test suite for the draft JSON API in libfossil. This JSON API is a way of integrating many kinds of systems with Fossil
@@ -65,6 +64,7 @@ Tasks for those interested in graphic/web design:
   the HTML is generated.
 * Creation of one or more new skins. This does not specifically require any C
   know-how.
+* Complete per-feature CSS facilities in [the Inskinerator](https://tangentsoft.com/inskinerator/dir) and add features to the Inskinerator
 
 # Tasks Requiring Fossil Data Model Knowledge
 
