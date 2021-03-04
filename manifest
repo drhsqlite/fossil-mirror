@@ -1,5 +1,5 @@
-C This\sfile\shas\sto\sbe\sread\slocally\sfor\sthe\slinks\sto\swork.
-D 2021-03-04T15:10:38.716
+C Added\sa\ssection\sto\sthe\sdefault\sCSP\sdoc\sto\sdocument\sthe\schanges\smade\nrecently\sto\sthat\sdefault\sCSP.
+D 2021-03-04T16:40:32.917
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -845,7 +845,7 @@ F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md e58f4c457c124a35eed039c35d63bbca9d3ef72f4ce9cb1c3ee12be5693057f7
-F www/defcsp.md 9f8993c40b700a616a26fd28c29d9cc16b5f93afab8e87d2e4543c3270de55d0
+F www/defcsp.md adbd044f32c9b73efc75942b6469cf0078e277091d66fab0a6020650e7ff05a4
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki 0e03b43ba0282cf6cd92fbcbb908e4006a66cd96a52ae97b6735427de1b462a7
 F www/embeddeddoc.wiki aa4ca6612f13c2bde382ccf87c167bc627292ca64e7b4401ed722df42a591a2c
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0f30a58e705fd9e4774bc1218a7c1c4a10d553a87b5c09803f8d88b0bb64111
-R f1d903d02473c2cb75bf6f12016d6338
-U danshearer
-Z 305093dcf630ea49510f73f7c78ef3d8
+P a0788de83fcd55b285ae0c93b4330b5e4b6d9de23d89fc7bce123ea9efcb4c90
+R a3a2e05755a5041266f0775cd4322e03
+U wyoung
+Z afa7404117ca05094a6a46d80d742c9f

@@ -79,6 +79,19 @@ There are many other cases, [covered below](#serving).
 [svr]: ./server/
 
 
+### <a name="img"></a> img-src * data:
+
+As of Fossil 2.15, we don’t restrict the source of inline images at all.
+You can pull them in from remote systems as well as pull them from
+within the Fossil repository itself, or use `data:` URIs.
+
+If you are certain all images come from only within the repository, you
+can close off certain risks — tracking pixels, broken image format
+decoders, system dialog box spoofing, etc. — by changing this to
+“`img-src 'self'`” possibly followed by “`data:`” if you will also use
+`data:` URIs.
+
+
 ### <a name="style"></a> style-src 'self' 'unsafe-inline'
 
 This policy allows CSS information to come from separate files hosted
@@ -98,6 +111,7 @@ Furthermore, the harm that can be done with style injections is far
 less than the harm possible with injected javascript.  And so the
 `'unsafe-inline'` compromise is accepted for now, though it might
 go away in some future release of Fossil.
+
 
 ### <a name="script"></a> script-src 'self' 'nonce-%s'
 
