@@ -1,5 +1,5 @@
-C Removed\sthe\sreduced\sopacity\sfrom\sthe\s'active'\smenu\sitem\sin\sdarkmode\sskin.\sIt\sjust\slooks\sa\sbit\sodd.
-D 2021-03-04T11:18:16.375
+C This\sfile\shas\sto\sbe\sread\slocally\sfor\sthe\slinks\sto\swork.
+D 2021-03-04T15:10:38.716
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -685,7 +685,7 @@ F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
 F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
-F test/release-checklist.wiki c652da0cfd90588406b340b4b1eefee3f2600f4ef33a0e90f82fe17afd68d1c5
+F test/release-checklist.wiki 714a86f3e5021616787fb44f4679abfdb50c754d3b47fd3ee031269a4e1c66a9
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
 F test/set-manifest.test 46f4753240a2b344c694ea448ffbd5406ddfeac2a0c8c0e2a8b77ca06fabb35f
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ddb2124a348a70bc20dab9458f440f2b10171eec3e7c52d1a96e6d1df019dc53
-R 106b37183de1ad276754ca206e047cd0
-U stephan
-Z 87556b3ce177120dd249d10bf82ca52e
+P a0f30a58e705fd9e4774bc1218a7c1c4a10d553a87b5c09803f8d88b0bb64111
+R f1d903d02473c2cb75bf6f12016d6338
+U danshearer
+Z 305093dcf630ea49510f73f7c78ef3d8

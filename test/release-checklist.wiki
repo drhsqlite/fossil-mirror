@@ -5,6 +5,11 @@ official release.
 
 <ol>
 <li><p>
+From within a checkout of the Fossil tree, display this file with 
+the command "<b>fossil ui --page doc/ckout/test/release-checklist.wiki</b>".
+That is the only way the links below will work.
+
+<li><p>
 From a private directory (not the source tree) run
 "<b>tclsh $SRC/test/tester.tcl $FOSSIL</b>" where $FOSSIL is the
 name of the executable under test and $SRC is the source tree.
