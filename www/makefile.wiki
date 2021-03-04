@@ -96,7 +96,7 @@ In order to add a new source file to the Fossil implementation, simply
 edit makemake.tcl to add the new filename, then rerun the script, and
 all of the makefiles for all targets will be rebuild.
 
-There is an option code verification step implemented using
+There is an optional code verification step implemented using
 
   15.  [/file/src/codecheck1.c | codecheck1.c]
 

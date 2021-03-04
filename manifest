@@ -1,5 +1,5 @@
-C Added\sa\ssection\sto\sthe\sdefault\sCSP\sdoc\sto\sdocument\sthe\schanges\smade\nrecently\sto\sthat\sdefault\sCSP.
-D 2021-03-04T16:40:32.917
+C Minor\stypo\sfix\sin\sthe\s"makefile.wiki"\sdocument.
+D 2021-03-04T20:07:14.957
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -922,7 +922,7 @@ F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc
 F www/json-api/intro.md 334b17c7deac3c34bd55f02c039de1482a9eb805f88322b745323ee72c70ab8c
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
-F www/makefile.wiki 2e5f7b77ec7b47296a1eeaaa9d1d2222944bff739b395383199a7a17b8785da2
+F www/makefile.wiki 613474201cbfcba6cfb8de229200637843cc0f375f92ffb3054e54117b69edcf
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md fb0bd95ea322862b72a08161421a13dbe0d47009ec77ef797f0f669b5aef468b
 F www/mirrortogithub.md 4b196dcc6b67781b1923297e35c4bac25ac996d9b0ec6d03d9cd322169b6a845
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0788de83fcd55b285ae0c93b4330b5e4b6d9de23d89fc7bce123ea9efcb4c90
-R a3a2e05755a5041266f0775cd4322e03
-U wyoung
-Z afa7404117ca05094a6a46d80d742c9f
+P ab029e40ecfaf29eb1338e2468e0f4f0149bff61c9ce36ba3baf570469f49d80
+R 5ba77eb350f9944f8c17855ea1fd75be
+U drh
+Z 780974138270113fbdf4e61abefd532a
