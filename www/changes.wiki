@@ -2,6 +2,9 @@
 
 <a name='v2_15'></a>
 <h2>Changes for Version 2.15 (pending)</h2>
+  *  The [./defcsp.md|default CSP] has been relaxed slightly to allow
+     images to be loaded from any URL.  All other resources are still
+     locked down by default.
   *  The built-in skins all use the "[/help?cmd=mainmenu|mainmenu]"
      setting to determine the content of the main menu.
      The ability to edit the 
