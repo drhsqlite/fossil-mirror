@@ -1,5 +1,5 @@
-C Mention\sthe\srelaxation\sof\sthe\simg-src\srule\sin\sthe\sdefault\sCSP.
-D 2021-03-04T02:28:33.296
+C Added\sdiff\stoggles\sto\sthe\s/vinfo\spage,\sper\sforum\sfeedback.
+D 2021-03-04T03:53:56.393
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -513,7 +513,7 @@ F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4
 F src/http_ssl.c 0ec4f86727386cf2a23ff6c3875839d096e8ddcf2a112825f8f0653b64ce3847
 F src/http_transport.c 99d2557a770abd92292de71ce65174cc9c24f048c6d2a317ac49219be7d2dc6b
 F src/import.c 33962edf9f5b72f91d7a919e64dbfa4b2bea889e42e4ea0f4238b792f63ef8c8
-F src/info.c c041d6901cc7da733e7a2ed2363e9f76792b46b9890cb8474d26140a23c8c4a3
+F src/info.c 605f68adeb85aec853b928acdd6709199ae1f7d5cfb10da063eb56204ca57220
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 877246cf3d15f8d5774c8c868130d220560a917ca831475315cd67694d1e78d3
-R 4a0bd391719d4fcb4a4b8e621010f1ec
-U drh
-Z 5a1728291c3cc74a104882d8f6e3348a
+P 25667a5e73a3c12effe05deb4a8274d6f8c6945870d62d25dfd619f2a629c48c
+R 96d501689dfb8a4c4dc85407a490dd8e
+U stephan
+Z 475db3ae646857884fe0538f0712064b

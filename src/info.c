@@ -1329,6 +1329,7 @@ void vdiff_page(void){
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
   append_diff_javascript(diffType==2);
+  builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }
 
