@@ -100,6 +100,13 @@ Use the release candidate version of fossil in production on the
 incident) prior to making the release official.
 
 <li><p>
+Verify that the minimum SQLite version requirement is up-to-date:
+<ol type="a">
+<li> Check the version number in the line starting "define MINIMUM_SQLITE_VERSION" near the top of [/file?name=auto.def&ci=tip | auto.def]
+<li> Check the output of <b>./configure --print-minimum-sqlite-version</b>
+</ol>
+
+<li><p>
 Verify that the [../www/changes.wiki | Change Log] is correct and
 up-to-date.
 </ol>
