@@ -1,5 +1,5 @@
-C Reverted\spart\sof\scommit\s[b9a6e1a9c9c52edc]\swhich\smoved\san\sAutosetup\ninclude\sin\sauto.def,\sapparently\sbecause\sit\slooked\smore\scorrect.\sWhat\nit\sactually\sdoes\sis\sprevents\sdefault\sAutosetup\soptions\slike\s--prefix\nfrom\sbeing\sadded\sto\sthe\slist\sof\slegal\soptions.
-D 2021-03-05T15:36:02.831
+C configure\snow\schecks\ssystem\ssqlite\sversion\sagainst\sthe\sversion\sin\sauto.def
+D 2021-03-05T16:00:31.116
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 20beaf47119157d6256935e8ecf6baf99c01641e7308d095f546e21b88afe6ea
+F auto.def 3fe97d9db80eed4b77775b8baa6b35448a7a2d7a73e2b1f9a03713089ce0655f
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -607,7 +607,7 @@ F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616e
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
-F src/sqlcompattest.c 76afff434ccb54cb4703cf8ca37541377faa12ec65cdeca97585ae754822586f
+F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
 F src/sqlite3.c de679bfc2a4d0337657934ea7444193a05aa33096a5450960f6349e687cac2be
 F src/sqlite3.h 6ab9d7947d0e31bfa082961c15e725c684d548590695c99ff42e3ef141252d9d
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f09b0f1d63eff17f8066350af4eb5f715dd1dce60c686e97c2721c384fc76399
-R 192ee8efeb48d37432d7d74e2dcc5173
-U wyoung
-Z e7c74eae413f724145934b36a0d72f5e
+P 65c71961195d13598eb73ca1da6a58a858124fb83acb8bd32b4a4e3b5807c10e
+R dc1cb3442ec4294eda6bbaab561c7fb4
+U danshearer
+Z def8a7a55b53d71d74d3692a6151e892

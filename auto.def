@@ -34,6 +34,8 @@ options {
 # Update the minimum required SQLite version number here.
 define MINIMUM_SQLITE_VERSION "3.35.0"
 
+# This is useful for people wanting Fossil to use an external SQLite library
+# to compare the one they have against the minimum required
 if {[opt-bool print-minimum-sqlite-version]} {
     puts [get-define MINIMUM_SQLITE_VERSION]
     exit 0
@@ -168,6 +170,7 @@ if {![opt-bool internal-sqlite]} {
   proc test_system_sqlite {} {
     # Check compatibility of the system SQLite library by running the sqlcompttest.c
     # program in the source tree
+    # passes MINIMUM_SQLITE_VERSION set at the top of this file to sqlcompttest.c
     #
     set cmdline {}
     lappend cmdline {*}[get-define CCACHE]
@@ -175,6 +178,8 @@ if {![opt-bool internal-sqlite]} {
     lappend cmdline $::autosetup(dir)/../src/sqlcompattest.c -o conftest__
     lappend cmdline {*}[get-define LDFLAGS]
     lappend cmdline {*}[get-define LIBS]
+    set sqlite-version [string cat "-D MINIMUM_SQLITE_VERSION=" [get-define MINIMUM_SQLITE_VERSION]]
+    lappend cmdline {*}[set sqlite-version]
     set ok 1
     set err [catch {exec-with-stderr {*}$cmdline} result errinfo]
     if {$err} {
