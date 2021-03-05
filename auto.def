@@ -1,7 +1,5 @@
 # System autoconfiguration. Try: ./configure --help
 
-use cc cc-lib
-
 options {
     with-openssl:path|auto|tree|none
                          => {Look for OpenSSL in the given path, automatically, in the source tree, or none}
@@ -19,6 +17,8 @@ options {
                          => {Enable Tcl integration via private stubs mechanism}
     with-mman=0          => {Enable use of POSIX memory APIs from "sys/mman.h"}
     with-see=0           => {Enable the SQLite Encryption Extension (SEE)}
+    print-minimum-sqlite-version=0
+                         => {print the minimum SQLite version number required, and exit}
     internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
     fusefs=1             => {Disable the Fuse Filesystem}
@@ -26,6 +26,16 @@ options {
     no-opt=0             => {Build without optimization}
     json=0               => {Build with fossil JSON API enabled}
 }
+
+# Update the minimum required SQLite version number here.
+define MINIMUM_SQLITE_VERSION "3.35.0"
+
+if {[opt-bool print-minimum-sqlite-version]} {
+    puts [get-define MINIMUM_SQLITE_VERSION]
+    exit 0
+}
+
+use cc cc-lib
 
 # sqlite wants these types if possible
 cc-with {-includes {stdint.h inttypes.h}} {
