@@ -1,5 +1,9 @@
 # System autoconfiguration. Try: ./configure --help
 
+# This must be above "options" below because it implicitly brings in the
+# default Autosetup options, things like --prefix.
+use cc cc-lib
+
 options {
     with-openssl:path|auto|tree|none
                          => {Look for OpenSSL in the given path, automatically, in the source tree, or none}
@@ -34,8 +38,6 @@ if {[opt-bool print-minimum-sqlite-version]} {
     puts [get-define MINIMUM_SQLITE_VERSION]
     exit 0
 }
-
-use cc cc-lib
 
 # sqlite wants these types if possible
 cc-with {-includes {stdint.h inttypes.h}} {
