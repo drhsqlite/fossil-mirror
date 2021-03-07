@@ -30,7 +30,7 @@ body {
 }
 
 a {
-  color: #07e;
+  color: #40a0ff;
 }
 
 a:hover {
@@ -117,7 +117,7 @@ div.logo nobr {
 }
 
 div.title {
-  color: #07e;
+  color: #3297f9;
   font-family: Verdana, sans-serif;
   font-weight: bold;
   font-size: 2.5rem;

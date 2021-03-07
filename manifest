@@ -1,5 +1,5 @@
-C Khaki\sskin:\sadded\sa\sborder\sto\sblockquotes\sin\sforum\sposts.
-D 2021-03-07T13:05:52.676
+C xekri\sskin:\sadded\sa\sbit\sof\scontrast\sto\sthe\sdark-blue-on-white\sbits\sby\slightening\sthe\sblue\sa\stad.
+D 2021-03-07T13:16:50.808
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -412,7 +412,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 19b9521d212e17ad97f19f19678bb03340329398555eb8573b2cddae690f2e61
+F skins/xekri/css.txt ef818b01627d73d293b21a1d45b0ce28532de23fee1f8a2a7bf3fe49d54f05eb
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 2785b857a2354cb8076ea941a059da76c573a41fe8822b61402eede868dab9a1
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0d3f53c4d228fdcf0cf770a4a734737eacb419c7e2e14dc92ea1d30bc33e933
-R 5a2990599b1c24c2e23b56cfd6f11da0
+P 06f2192c2ae0175a108b560db23cb6e27c9a330844eefc48f3d69ad8babebaf4
+R c52c6e518359012e1837f4ea2810f947
 U stephan
-Z 3d67dcac9a249739e63fcbafbadf3c5e
+Z ce3ba48f28e7604297f95aca79782de7
