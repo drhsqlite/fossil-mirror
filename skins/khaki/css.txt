@@ -165,3 +165,10 @@ table.label-value th {
   text-align: right;
   padding: 0.2ex 2ex;
 }
+
+div.forumPostBody blockquote {
+  border-width: 1pt;
+  border-radius: 0.25em;
+  border-style: solid;
+  padding: 0 0.5em;
+}
