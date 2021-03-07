@@ -1,5 +1,5 @@
-C configure\snow\schecks\ssystem\ssqlite\sversion\sagainst\sthe\sversion\sin\sauto.def
-D 2021-03-05T16:00:31.116
+C /chat\sdoc:\sdocumented\sthat\sa\smessage's\sposter\smay\sdelete\sit\sglobally,\sthe\ssame\sas\san\sadmin\scan.
+D 2021-03-07T09:50:14.860
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -828,7 +828,7 @@ F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c82
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
 F www/changes.wiki cc520ee93f113ce533d8e643212fc5acb205bc9d56110b06bdd0834aaa5e15cf
-F www/chat.md e0907d1fce702bf51feae2a154488f100e22393c6ffcb485ce157cecd62c3436
+F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 65c71961195d13598eb73ca1da6a58a858124fb83acb8bd32b4a4e3b5807c10e
-R dc1cb3442ec4294eda6bbaab561c7fb4
-U danshearer
-Z def8a7a55b53d71d74d3692a6151e892
+P 834f6515a77420dce8f02bc823a1e0684d190e19a450fa287bc8d04d5a723193
+R effd14688660cd542315574a7c8ff7c5
+U stephan
+Z 6fb678aea8bc5209d6a4e9e60d5e7f67
