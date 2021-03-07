@@ -1,5 +1,5 @@
-C xekri\sskin:\sAdded\smissing\scolor\scustomization\sfor\sselected\sforum\spost\s(was\sillegible).\sAdded\sborders\sto\sblockquotes.
-D 2021-03-07T13:27:55.694
+C Avoid\sNULL\spointer\sdeference\sin\sthe\s"hook\stest"\scommand\swhen\san\sinvalid\nhook\snumber\sis\ssupplied.
+D 2021-03-07T21:21:39.409
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -506,7 +506,7 @@ F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
-F src/hook.c 3759207065467811d41e851cf15a63a342dfd6a57111785e658e7c4a27ad6e03
+F src/hook.c e1a759e54877800dd86b17355a8f07f2caebb325c0f2d014473b47a5b4099d28
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 104b0a1858e3d925e636f7e55b1b693c6af86427352488a0dc8f831c67181218
-R 6d4031561f3d01b2b2cf9ec53cb76eec
-U stephan
-Z 77992815fbab88f830bed5d5d5822954
+P c070a27f5dfcb74ca157407ab2380187c1545e0904a7d2eb8a959240495653cb
+R 940e827742dfc5d3fd527cb512ed9699
+U drh
+Z bba17bfdfddd71edc6b66e3d132bb229

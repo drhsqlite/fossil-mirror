@@ -106,6 +106,7 @@ static char *hook_subst(
   Blob r;
   int i;
   blob_init(&r, 0, 0);
+  if( zCmd==0 ) return 0;
   while( zCmd[0] ){
     for(i=0; zCmd[i] && zCmd[i]!='%'; i++){}
     blob_append(&r, zCmd, i);
@@ -405,6 +406,7 @@ void hook_cmd(void){
       char *zCmd2 = hook_subst(zCmd, zAuxFilename);
       int needOut = db_column_int(&q,1);
       Blob out;
+      if( zCmd2==0 ) continue;
       blob_init(&out,0,0);
       if( needOut ) hook_changes(&out, zOrigRcvid, zNewRcvid);
       if( bDryRun ){
