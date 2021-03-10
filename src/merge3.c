@@ -319,6 +319,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
         sz++;
       }
       DEBUG( printf("CONFLICT %d\n", sz); )
+      ensure_line_end(pOut, useCrLf);
       blob_append(pOut, mergeMarker[0], -1);
       ensure_line_end(pOut, useCrLf);
       i1 = output_one_side(pOut, pV1, aC1, i1, sz);

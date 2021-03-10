@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\s3.35.0\sbeta,\sfor\stesting.
-D 2021-03-09T21:24:06.149
+C Ensure\sthat\sthere\sis\salways\sa\snewline\sbefore\sa\sconflict\smark\sin\smerge\noutput.
+D 2021-03-10T12:34:45.830
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -550,7 +550,7 @@ F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c d0ce79b0a7876b82a011162a5a6fe850cef1297cd2c59e59eae17f87afae05d5
-F src/merge3.c 5a99a8534e3ebf4d7cb3e4fb936cf19e8e6ae6e220df2b234859c408b0a060c9
+F src/merge3.c 748bc1e38f57b42a8521bc3ec0c077cef037b44c010aeb0346ac22f1574cb3cb
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
 F src/mkindex.c 971441257ae3452150daa6f70c08db56e2d18cd1073472cf9d3e92b8b7d18d62
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9527034f49dd42a808c78ba75da8556123e6d11977e877da0caac5529107a802
-R acf67911151e10deb475a2022f1fa4d2
+P b46872985550604f02225faf66f6ec8ffe1275bd233165b0edadfa288acef1da
+R 770bb2f664a815150ca956d8969feb85
 U drh
-Z bd3ce8e379b065615a467b27f5f4e8b0
+Z 1d5017d9b7140255dd452526cf0cfc8c
