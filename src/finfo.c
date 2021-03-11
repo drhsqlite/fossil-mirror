@@ -243,7 +243,7 @@ void finfo_cmd(void){
 ** Other versions may be specified using the -r option.
 **
 ** Options:
-**    -R|--repository FILE       Extract artifacts from repository FILE
+**    -R|--repository REPO       Extract artifacts from repository FILE
 **    -r VERSION                 The specific check-in containing the file
 **
 ** See also: [[finfo]]

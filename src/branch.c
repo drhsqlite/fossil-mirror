@@ -386,7 +386,7 @@ int branch_is_open(const char *zBrName){
 **
 ** Options valid for all subcommands:
 **
-**    -R|--repository FILE       Run commands on repository FILE
+**    -R|--repository REPO       Run commands on repository FILE
 */
 void branch_cmd(void){
   int n;

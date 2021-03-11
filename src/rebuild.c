@@ -1286,7 +1286,7 @@ void reconstruct_cmd(void) {
 ** can be set to 0,1,..,9 characters.
 **
 ** Options:
-**   -R|--repository REPOSITORY  Deconstruct given REPOSITORY.
+**   -R|--repository REPO        Deconstruct given REPOSITORY.
 **   -K|--keep-rid1              Save the filename of the artifact with RID=1 to
 **                               the file .rid1 in the DESTINATION directory.
 **   -L|--prefixlength N         Set the length of the names of the DESTINATION

@@ -293,7 +293,7 @@ static int contains_whitespace(const char *zName){
 **
 **   --mtime TIMESTAMP       Use TIMESTAMP instead of "now" for the "add",
 **                           "edit", "remove", and "touch" subcommands.
-**   -R|--repository FILE    Use FILE as the repository
+**   -R|--repository REPO    Use FILE as the repository
 */
 void unversioned_cmd(void){
   const char *zCmd;

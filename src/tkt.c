@@ -1241,7 +1241,7 @@ void ticket_output_change_artifact(
 **     Options:
 **       -l|--limit LIMITCHAR
 **       -q|--quote
-**       -R|--repository FILE
+**       -R|--repository REPO
 **
 **     Run the ticket report, identified by the report format title
 **     used in the GUI. The data is written as flat file on stdout,

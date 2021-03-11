@@ -480,10 +480,10 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 ** blobs written on exit for use with "--import-marks" on the next run.
 **
 ** Options:
-**   --export-marks FILE          export rids of exported data to FILE
-**   --import-marks FILE          read rids of data to ignore from FILE
-**   --rename-trunk NAME          use NAME as name of exported trunk branch
-**   -R|--repository REPOSITORY   export the given REPOSITORY
+**   --export-marks FILE          Export rids of exported data to FILE
+**   --import-marks FILE          Read rids of data to ignore from FILE
+**   --rename-trunk NAME          Use NAME as name of exported trunk branch
+**   -R|--repository REPO         Export the given REPOSITORY
 **
 ** See also: import
 */
