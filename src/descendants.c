@@ -345,7 +345,7 @@ void compute_descendants(int rid, int N){
 ** is omitted, of the check-in currently checked out.
 **
 ** Options:
-**    -R|--repository REPO       Extract info from repository FILE
+**    -R|--repository REPO       Extract info from repository REPO
 **    -W|--width N               Width of lines (default is to auto-detect).
 **                               Must be greater than 20 or else 0 for no
 **                               limit, resulting in a one line per entry.

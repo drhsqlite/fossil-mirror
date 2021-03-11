@@ -679,7 +679,7 @@ static void ls_cmd_rev(
 **   -v|--verbose          Provide extra information about each file.
 **   -t                    Sort output in time order.
 **   -r VERSION            The specific check-in to list.
-**   -R|--repository REPO  Extract info from repository FILE.
+**   -R|--repository REPO  Extract info from repository REPO.
 **   --hash                With -v, verify file status using hashing
 **                         rather than relying on file sizes and mtimes.
 **

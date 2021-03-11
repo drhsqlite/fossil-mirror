@@ -190,7 +190,7 @@ static void showParentProject(void){
 **
 ** Options:
 **
-**    -R|--repository REPO       Extract info from repository FILE
+**    -R|--repository REPO       Extract info from repository REPO
 **    -v|--verbose               Show extra information about repositories
 **
 ** See also: [[annotate]], [[artifact]], [[finfo]], [[timeline]]
