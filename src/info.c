@@ -1869,8 +1869,8 @@ void secure_rawartifact_page(void){
 
 /*
 ** Generate a verbatim artifact as the result of an HTTP request.
-** If zMime is not NULL, use it as the MIME-type.  If zMime is
-** NULL, guess at the MIME-type based on the filename
+** If zMime is not NULL, use it as the mimetype.  If zMime is
+** NULL, guess at the mimetype based on the filename
 ** associated with the artifact.
 */
 void deliver_artifact(int rid, const char *zMime){

@@ -391,25 +391,25 @@ void pikchrshow_page(void){
 **
 ** Options:
 **
-**    -div       On success, adds a DIV wrapper around the
+**    -div       On success, add a DIV wrapper around the
 **               resulting SVG output which limits its max-width to
 **               its computed maximum ideal size.
 **
-**    -div-indent  Like -div but indents the div.
+**    -div-indent  Like -div but indent the div.
 **
-**    -div-center  Like -div but centers the div.
+**    -div-center  Like -div but center the div.
 **
-**    -div-left    Like -div but floats the div left.
+**    -div-left    Like -div but float the div left.
 **
-**    -div-right   Like -div but floats the div right.
+**    -div-right   Like -div but float the div right.
 **
-**    -div-toggle  Sets the 'toggle' CSS class on the div (used by the
+**    -div-toggle  Set the 'toggle' CSS class on the div (used by the
 **                 JavaScript-side post-processor).
 **
-**    -div-source  Sets the 'source' CSS class on the div, which tells
+**    -div-source  Set the 'source' CSS class on the div, which tells
 **                 CSS to hide the SVG and reveal the source by default.
 **
-**    -src       Stores the input pikchr's source code in the output as
+**    -src       Store the input pikchr's source code in the output as
 **               a separate element adjacent to the SVG one. Implied
 **               by -div-source.
 **                

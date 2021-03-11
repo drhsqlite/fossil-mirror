@@ -1283,7 +1283,7 @@ void manifest_test_parse_cmd(void){
 **
 ** Options:
 **
-**   --limit N            Parse no more than N artifacts before stopping.
+**   --limit N            Parse no more than N artifacts before stopping
 **   --wellformed         Use all BLOB table entries as input, not just
 **                        those entries that are believed to be valid
 **                        artifacts, and verify that the result the

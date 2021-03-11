@@ -401,11 +401,11 @@ void descendants_cmd(void){
 ** repository database to be recomputed.
 **
 ** Options:
-**   -a|--all         show ALL leaves
-**   --bybranch       order output by branch name
-**   -c|--closed      show only closed leaves
-**   -m|--multiple    show only cases with multiple leaves on a single branch
-**   --recompute      recompute the "leaf" table in the repository DB
+**   -a|--all         Show ALL leaves
+**   --bybranch       Order output by branch name
+**   -c|--closed      Show only closed leaves
+**   -m|--multiple    Show only cases with multiple leaves on a single branch
+**   --recompute      Recompute the "leaf" table in the repository DB
 **   -W|--width N     Width of lines (default is to auto-detect). Must be
 **                    more than 39 or else 0 no limit, resulting in a single
 **                    line per entry.

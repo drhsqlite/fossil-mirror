@@ -507,7 +507,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 ** COMMON OPTIONS:
 **
-**   --explain         Make no changes, but show what would happen.
+**   --explain         Make no changes, but show what would happen
 **   --dry-run         An alias for --explain
 */
 void purge_cmd(void){

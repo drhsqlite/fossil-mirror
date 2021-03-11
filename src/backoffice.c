@@ -697,7 +697,7 @@ void backoffice_work(void){
 **    --nolease               Always run backoffice, even if there is a lease
 **                            conflict.  This option implies --nodelay.  This
 **                            option is added to secondary backoffice commands
-**                            that are invoked by the --poll option.  
+**                            that are invoked by the --poll option.
 */
 void backoffice_command(void){
   int nPoll;

@@ -891,9 +891,9 @@ void test_clusters_cmd(void){
 ** is used.
 **
 ** Options:
-**   --force     do not prompt for confirmation
-**   --private   only private branches are removed from the repository
-**   --verily    scrub real thoroughly (see above)
+**   --force     Do not prompt for confirmation
+**   --private   Only private branches are removed from the repository
+**   --verily    Scrub real thoroughly (see above)
 */
 void scrub_cmd(void){
   int bVerily = find_option("verily",0,0)!=0;
@@ -1116,7 +1116,7 @@ void recon_restore_hash_policy(){
 **
 ** Options:
 **   -L|--prefixlength N     Set the length of the names of the DESTINATION
-**                           subdirectories to N.
+**                           subdirectories to N
 */
 void test_hash_from_path_cmd(void) {
   char *zDest;

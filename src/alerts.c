@@ -1022,7 +1022,7 @@ void alert_send(
 **                              --body FILENAME
 **                              --smtp-trace
 **                              --stdout
-**                              --subject|-S SUBJECT
+**                              -S|--subject SUBJECT
 **
 **    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */

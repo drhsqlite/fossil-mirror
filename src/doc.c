@@ -75,7 +75,7 @@ const char *mimetype_from_content(Blob *pBlob){
 
 /* A table of mimetypes based on file suffixes.
 ** Suffixes must be in sorted order so that we can do a binary
-** search to find the mime-type
+** search to find the mimetype.
 */
 static const struct {
   const char *zSuffix;       /* The file suffix */
@@ -429,7 +429,7 @@ void document_emit_js(void){
 }
 
 /*
-** Guess the mime-type of a document based on its name.
+** Guess the mimetype of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
   const char *z;

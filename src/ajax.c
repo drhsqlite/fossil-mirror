@@ -68,7 +68,7 @@ void ajax_emit_js_preview_modes(int addScriptTag){
 
 /*
 ** Returns a value from the ajax_render_modes enum, based on the
-** given mime type string (which may be NULL), defaulting to
+** given mimetype string (which may be NULL), defaulting to
 ** AJAX_RENDER_PLAIN_TEXT.
  */
 int ajax_render_mode_for_mimetype(const char * zMimetype){

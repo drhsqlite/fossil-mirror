@@ -365,8 +365,8 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 **
 ** Options:
 **
-**    --case-sensitive BOOL   Override the case-sensitive setting.
-**    --dotfiles              include files beginning with a dot (".")
+**    --case-sensitive BOOL   Override the case-sensitive setting
+**    --dotfiles              Include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
 **    --ignore CSG            Ignore unmanaged files matching patterns from
 **                            the Comma Separated Glob (CSG) pattern list
@@ -379,8 +379,8 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 **                            with --reset.
 **
 ** The following options are only valid with --reset:
-**    -v|--verbose            Outputs information about each --reset file.
-**    -n|--dry-run            Display instead of run actions.
+**    -v|--verbose            Output information about each --reset file
+**    -n|--dry-run            Display instead of run actions
 **
 ** See also: [[addremove]], [[rm]]
 */
@@ -991,9 +991,9 @@ static void process_files_to_move(
 ** Options:
 **   --soft                    Skip moving files within the checkout.
 **                             This supersedes the --hard option.
-**   --hard                    Move files within the checkout.
-**   --case-sensitive BOOL     Override the case-sensitive setting.
-**   -n|--dry-run              If given, display instead of run actions.
+**   --hard                    Move files within the checkout
+**   --case-sensitive BOOL     Override the case-sensitive setting
+**   -n|--dry-run              If given, display instead of run actions
 **
 ** See also: [[changes]], [[status]]
 */

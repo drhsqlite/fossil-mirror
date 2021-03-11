@@ -2717,8 +2717,8 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** Works like the [[http]] command but gives setup permission to all users.
 **
 ** Options:
-**   --th-trace          trace TH1 execution (for debugging purposes)
-**   --usercap   CAP     user capability string.  (Default: "sx")
+**   --th-trace          Trace TH1 execution (for debugging purposes)
+**   --usercap   CAP     User capability string (Default: "sx")
 **
 */
 void cmd_test_http(void){

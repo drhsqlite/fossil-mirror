@@ -911,7 +911,7 @@ void whatis_rid(int rid, int verboseFlag){
 ** Options:
 **
 **    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
-**                         'w', 'g', or 'e').
+**                         'w', 'g', or 'e')
 **    -v|--verbose         Provide extra information (such as the RID)
 */
 void whatis_cmd(void){

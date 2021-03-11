@@ -833,13 +833,13 @@ void ls_cmd(void){
 ** unless overridden by the --abs-paths or --rel-paths options.
 **
 ** Options:
-**    --abs-paths             Display absolute pathnames.
+**    --abs-paths             Display absolute pathnames
 **    --case-sensitive BOOL   Override case-sensitive setting
 **    --dotfiles              Include files beginning with a dot (".")
 **    --header                Identify the repository if there are extras
 **    --ignore CSG            Ignore files matching patterns from the argument
 **    --rel-paths             Display pathnames relative to the current working
-**                            directory.
+**                            directory
 **
 ** See also: [[changes]], [[clean]], [[status]]
 */
@@ -930,7 +930,7 @@ void extras_cmd(void){
 **    --disable-undo         WARNING: This option disables use of the undo
 **                           mechanism for this clean operation and should be
 **                           used with extreme caution.
-**    --dotfiles             Include files beginning with a dot (".").
+**    --dotfiles             Include files beginning with a dot (".")
 **    --emptydirs            Remove any empty directories that are not
 **                           explicitly exempted via the empty-dirs setting
 **                           or another applicable setting or command line
@@ -938,7 +938,7 @@ void extras_cmd(void){
 **                           prior to checking for any empty directories;
 **                           therefore, directories that contain only files
 **                           that were removed will be removed as well.
-**    -f|--force             Remove files without prompting.
+**    -f|--force             Remove files without prompting
 **    -i|--prompt            Prompt before removing each file.  This option
 **                           implies the --disable-undo option.
 **    -x|--verily            WARNING: Removes everything that is not a managed
@@ -953,15 +953,15 @@ void extras_cmd(void){
 **                           deletions of any files matching this pattern list
 **                           cannot be undone.
 **    --ignore CSG           Ignore files matching patterns from the
-**                           comma separated list of glob patterns.
+**                           comma separated list of glob patterns
 **    --keep <CSG>           Keep files matching this comma separated
-**                           list of glob patterns.
+**                           list of glob patterns
 **    -n|--dry-run           Delete nothing, but display what would have been
-**                           deleted.
-**    --no-prompt            This option disables prompting the user for input
-**                           and assumes an answer of 'No' for every question.
-**    --temp                 Remove only Fossil-generated temporary files.
-**    -v|--verbose           Show all files as they are removed.
+**                           deleted
+**    --no-prompt            Do not prompt the user for input and assume an
+**                           answer of 'No' for every question
+**    --temp                 Remove only Fossil-generated temporary files
+**    -v|--verbose           Show all files as they are removed
 **
 ** See also: [[addremove]], [[extras]], [[status]]
 */
