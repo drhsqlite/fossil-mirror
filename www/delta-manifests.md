@@ -11,7 +11,7 @@ with Fossil's [artifact file format](./fileformat.wiki), in particular
 the structure of checkin manifests, and it won't make much sense to
 readers unfamiliar with that topic.
 
-Sidebar: delta manifests are not to be confused with the core [fossil
+Sidebar: delta manifests are not to be confused with the core [Fossil
 delta format](./delta_format.wiki). The former is a special-case form
 of delta which applies *only* to checkin manifests whereas the latter
 is a general-purpose delta compression which can apply to any
@@ -22,7 +22,7 @@ Fossil-stored data (including delta manifests).
 A checkin manifest includes a list of every file in that checkin.  A
 moderately-sized project can easily have a thousand files, and every
 checkin manifest will include those thousand files. As of this writing
-fossil's own checkins contain 989 files and the manifests are 80kb
+Fossil's own checkins contain 989 files and the manifests are 80kb
 each. Thus a checkin which changes only 2 bytes of sourse code
 ostensibly costs another 80kb of storage for the manifest for that
 change.
@@ -91,7 +91,7 @@ have to record deletions. They do this by including F-cards which have
 only a file name and no hash.
 
 Iterating over F-cards in a manifest is something several important
-internal parts of fossil have to do. Iterating over a baseline
+internal parts of Fossil have to do. Iterating over a baseline
 manifest, e.g. when performing a checkout, is straightforward: simply
 walk through the list in the order the cards are listed. A delta,
 however, introduces a significant wrinkle to that process. In short,
@@ -110,34 +110,34 @@ concern itself with. If higher-level iteration code were shown file
 deletions, they would effectively be dealing with a leaky abstraction
 and special-case handling which only applies to delta manifests. The
 F-card iteration API hides such details from its users (other
-fossil-internal APIs).
+Fossil-internal APIs).
 
 
 # When does Fossil Create Deltas?
 
-By default, fossil never creates delta manifests. It can be told to do
+By default, Fossil never creates delta manifests. It can be told to do
 so using the `--delta` flag to the [`commit`
 command](/help/commit). (Before doing so in your own repositories,
 please read the section below about the caveats!) When a given
-repository gets a delta manifest for the first time, fossil records
+repository gets a delta manifest for the first time, Fossil records
 that fact in the repository's `config` table with an entry named
-`seen-delta-manifest`. If, in later sessions, fossil sees that that
+`seen-delta-manifest`. If, in later sessions, Fossil sees that that
 setting has a true value, it will *consider* creating delta manifests
 by default.
 
 Conversely, the [`forbid-delta-manifests` repository config
-setting](/help/forbid-delta-manifests) may be used to force fossil to
+setting](/help/forbid-delta-manifests) may be used to force Fossil to
 *never* create deltas. That setting will propagate to other repository
 clones via the sync process, to try to ensure that no clone introduces
 a delta manifests. We'll cover reasons why one might want to use that
 setting later on.
 
-After creating a delta manifest during the commit process, fossil
-examines the size of the delta. If, in fossil's opinion, the space
+After creating a delta manifest during the commit process, Fossil
+examines the size of the delta. If, in Fossil's opinion, the space
 savings are not significant enough to warrant the delta's own
 overhead, it will discard the delta and create a new baseline manifest
 instead. (The heuristic it uses for that purpose is tucked away in
-fossil's checkin algorithm.)
+Fossil's checkin algorithm.)
 
 
 # Caveats
@@ -150,33 +150,33 @@ a few bytes of repository space. There are, however, caveats...
 Though deltas were conceived as a way to save storage space, that
 benefit is *not truly achieved* because...
 
-When a manifest is created, fossil stores its parent version as a
+When a manifest is created, Fossil stores its parent version as a
 [fossil delta](./delta_format.wiki) (as opposed to a delta manifest)
 which succinctly descibes the differences between the parent and its
 new child. This form of compression is extremely space-efficient and
 can reduce the real storage space requirements of a manifest from tens
 or hundreds of kilobytes down to a kilobyte or less for checkins which
-modify only a few files. As an example, as of this writing, fossil's
+modify only a few files. As an example, as of this writing, Fossil's
 [tip checkin baseline manifest](/artifact/decd537016bf) is 80252 bytes
 (uncompressed), and the delta-compressed baseline manifest of the
 [previous checkin](/artifact/2f7c93f49c0e) is stored as a mere 726
-bytes of fossil-delta'd data (not counting the z-lib compression which
+bytes of Fossil-delta'd data (not counting the z-lib compression which
 gets applied on top of that). In this case, the tip version modified 7
 files compared to its parent version.
 
 Thus delta manifests do not *actually* save much storage space. They
-save *some*, in particular in the tip checkin version: fossil
+save *some*, in particular in the tip checkin version: Fossil
 delta-compresses *older* versions of checkins against the child
 versions, as opposed to delta-compressing the children against the
 parents. The reason is to speed up access for the most common case -
 the latest version. Thus tip-version delta manifests are more
 storage-space efficient than tip-version baseline manifests. Once the
-next version is committed, though, and fossil deltification is applied
+next version is committed, though, and Fossil deltification is applied
 to those manifests, that difference in space efficiency shrinks
 tremendously, often to the point of insignificance.
 
-We can observe the fossil-delta compression savings using a bit of
-3rd-party code which can extract fossil-format blobs both with and
+We can observe the Fossil-delta compression savings using a bit of
+3rd-party code which can extract Fossil-format blobs both with and
 without applying their deltas:
 
 ```
@@ -201,7 +201,7 @@ In terms of RAM costs, deltas usually cost more memory than baseline
 manifests. The reason is because traversing a delta requires having
 not only that delta in memory, but also its baseline version. Delta
 manifests are seldom used in ways which do not require also loading
-their baselines. Thus fossil internally requires two manifest objects
+their baselines. Thus Fossil internally requires two manifest objects
 for most operations with a delta manifest, whereas a baseline has but
 one. The difference in RAM cost is directly proportional to the size
 of the delta manifest.
@@ -213,21 +213,21 @@ arguably more significant than an apparent lack of space savings:
 they're useless for purposes of publishing a manifest which downstream
 clients can use to verify the integrity of their copy of the software.
 
-Consider this use case: [the sqlite3 project](https://sqlite.org)
+Consider this use case: [the SQLite project](https://sqlite.org)
 publishes source code to many thousands of downstream consumers, many
 of whom would like to be able to verify that the copy they have
 downloaded is actually the copy published by the project. This is
 easily achieved by providing a copy of the downloaded version's
 manifest, as it contains a hash of every single file the project
 published and the manifest itself has a well-known hash and is
-cryptographically tamper-proof. It's mathematically impossible for a
+cryptographically tamper-proof. It's mathematically extremely improbable for a
 malicious party to modify such a manifest and re-publish it as an
 "official" one, as the various hashes (F-cards, R-card, Z-card, *and*
 the hash of the manifest itself) would not line up. A collision-based
 attack would have to defeat *all four of those hashes*, which is
-literally impossible to do. Thus a fossil checkin manifest can be used
+practically impossible to do. Thus a Fossil checkin manifest can be used
 to provide strong assurances that a given copy of the software has not
-been tampered with since being exported by fossil.
+been tampered with since being exported by Fossil.
 
 *However*, that use case is *only possible with baseline manifests*.
 A delta manifest is *essentially useless* for that purpose. The
@@ -239,7 +239,7 @@ downstream consumers and would not be without risks of having bugs
 which invalidate the strong guarantees provided by the manifest.
 
 It's worth noting that the core Fossil project repository does not use
-delta manifests, at least in part for the same reason the sqlite
+delta manifests, at least in part for the same reason the SQLite
 project does not: the ability to provide a manifest which clients can
 easily use to verify the integrity of the code they've downloaded. The
 [`forbid-delta-manifests` config
