@@ -1,5 +1,5 @@
-C Added\swww/delta-manifests.md,\sa\sdiscussion\sabout\sthe\spros\sand\scons\sof\sdelta\smanifests.
-D 2021-03-12T07:08:22.551
+C xekri\sskin:\sset\s.debug\sforeground\scolor\sto\ssomething\slegible\sagainst\sthe\syellowish\sbackground.
+D 2021-03-12T07:15:42.383
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -412,7 +412,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 9db5d8b07f74903b9b40404eb81a79f6e9df920351b2cc0708989143ef57c53d
+F skins/xekri/css.txt 49296318ce614d9d97b6299e9b7a620f0f4ffb4d3e7536d53c0ba2f9e75587c6
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 2785b857a2354cb8076ea941a059da76c573a41fe8822b61402eede868dab9a1
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P decd537016bf5129cb7f66020d3a917f60c553aca1449289e55f40b61ed579c1
-R 8bf3e526b452bc34e170751c79e0e3e7
+P fbd16f3fff363f3a3eabd7daf5f811428232e3052b4a2fa7d7ddf693cf967bb8
+R b2e4d0e50c405536cd421a018d593abd
 U stephan
-Z 077ac4da8c0d9d25f55164d283d553e8
+Z fd1daa9861d011504e3745678d5c8ce9
