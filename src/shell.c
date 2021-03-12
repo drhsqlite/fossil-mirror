@@ -3973,6 +3973,7 @@ static int apndFileControl(sqlite3_file *pFile, int op, void *pArg){
   ApndFile *paf = (ApndFile *)pFile;
   int rc;
   pFile = ORIGFILE(pFile);
+  if( op==SQLITE_FCNTL_SIZE_HINT ) *(sqlite3_int64*)pArg += paf->iPgOne;
   rc = pFile->pMethods->xFileControl(pFile, op, pArg);
   if( rc==SQLITE_OK && op==SQLITE_FCNTL_VFSNAME ){
     *(char**)pArg = sqlite3_mprintf("apnd(%lld)/%z", paf->iPgOne,*(char**)pArg);
@@ -19183,6 +19184,11 @@ static int do_meta_command(char *zLine, ShellState *p){
       goto meta_command_exit;
     }
     if( azArg[1][0]=='|' ){
+#ifdef SQLITE_OMIT_POPEN
+      raw_printf(stderr, "Error: pipes are not supported in this OS\n");
+      rc = 1;
+      p->out = stdout;
+#else
       p->in = popen(azArg[1]+1, "r");
       if( p->in==0 ){
         utf8_printf(stderr, "Error: cannot open \"%s\"\n", azArg[1]);
@@ -19191,6 +19197,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         rc = process_input(p);
         pclose(p->in);
       }
+#endif
     }else if( notNormalFile(azArg[1]) || (p->in = fopen(azArg[1], "rb"))==0 ){
       utf8_printf(stderr,"Error: cannot open \"%s\"\n", azArg[1]);
       rc = 1;
