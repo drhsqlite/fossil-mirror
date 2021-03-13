@@ -2061,7 +2061,7 @@ FILE *fossil_fopen_for_output(const char *zFilename){
     file_mkfolder(zFilename, ExtFILE, 1, 0);
     p = fossil_fopen(zFilename, "wb");
     if( p==0 ){
-#if _WIN32
+#if defined(_WIN32)
       const char *zReserved = file_is_win_reserved(zFilename);
       if( zReserved ){
         fossil_fatal("cannot open \"%s\" because \"%s\" is "
