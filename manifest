@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk
-D 2021-03-13T21:39:13.890
+C Avoid\ssegfault\swhile\sserving\s[/help?cmd=/wdiff|/wdiff]\spage\swith\sempty\s"pid"\sparameter\sin\sthe\squaery\sstring.\sSegfault\soccurs\sdue\sto\sdereferencing\sof\sNULL\spointer\sin\spW2,\swhich\shappens\sbecause\sboth\sname_to_typed_rid("","w")\sand\smanifest_get(0,...)\sreturn\s0.
+D 2021-03-13T22:15:42.951
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -644,7 +644,7 @@ F src/util.c 0ab500757ee25f4eafe3eb2c0de45a6e5bb0793eaa95526aac75e6682a8eccd1
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/webmail.c 65cf7f61a3cf9433dec6efcd5531dfcf8811e98d6c229b2fe3c691c86b085b58
-F src/wiki.c 32262895b0368128820d1eef250fe86b9df5e2ecf94acb1587d9cd9e49a12418
+F src/wiki.c 24562d8d4ed9d25bac7624fd49fde25eff11f6a4802273544149cd35745b20a0
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -991,7 +991,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7e755346a56adb150dd7aaaf6e8689d73ab12b6470ff673f364df90b2d38159b 7018d7c158f425cbd42acb6a5eaa3365ddfd872e3c57caa5dbf63f8d6c6cf817
-R 53e566f8210640600cb84792e8052af1
+P 1a403a7a0c142074a3d63884bbd0d12d9efcb0f74ce383616850449b3043d18f
+R 92073b3df7f902f8db95ad6c71f1b4b1
 U george
-Z 6cccdf35b72ca864a1641874fbbac4ce
+Z ab9c5f496464ceb0f118994f3cfa6e98

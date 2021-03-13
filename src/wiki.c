@@ -1694,10 +1694,10 @@ void wdiff_page(void){
   if( pW1==0 ) fossil_redirect_home();
   blob_init(&w1, pW1->zWiki, -1);
   zPid = P("pid");
-  if( zPid==0 && pW1->nParent ){
+  if( ( zPid==0 || zPid[0] == 0 ) && pW1->nParent ){
     zPid = pW1->azParent[0];
   }
-  if( zPid ){
+  if( zPid && zPid[0] != 0 ){
     char *zDate;
     rid2 = name_to_typed_rid(zPid, "w");
     pW2 = manifest_get(rid2, CFTYPE_WIKI, 0);
