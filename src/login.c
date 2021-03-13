@@ -430,6 +430,24 @@ static int isHuman(const char *zAgent){
 }
 
 /*
+** Make a guess at whether or not the requestor is a mobile device or
+** a desktop device (narrow screen vs. wide screen) based the HTTP_USER_AGENT
+** parameter.  Return true for mobile and false for desktop.
+**
+** Caution:  This is only a guess.
+**
+** Algorithm derived from https://developer.mozilla.org/en-US/docs/Web/
+** HTTP/Browser_detection_using_the_user_agent#mobile_device_detection on
+** 2021-03-01
+*/
+int user_agent_is_likely_mobile(void){
+  const char *zAgent = P("HTTP_USER_AGENT");
+  if( zAgent==0 ) return 0;
+  if( strstr(zAgent,"Mobi")!=0 ) return 1;
+  return 0;
+}
+
+/*
 ** COMMAND: test-ishuman
 **
 ** Read lines of text from standard input.  Interpret each line of text

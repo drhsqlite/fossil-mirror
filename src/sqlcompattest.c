@@ -15,11 +15,14 @@
 **
 *******************************************************************************
 **
-** This file is NOT part of the Fossil executable
+** This file is NOT part of the Fossil executable. It is called from
+** auto.def in the autosetup system.
 **
 ** This file contains a test program used by ../configure with the
 ** the --disable-internal-sqlite option to determine whether or
 ** not the system SQLite library is sufficient to support Fossil.
+**
+** This must be compiled with -D MINIMUM_SQLITE_VERSION set in auto.def.
 **
 ** It is preferred to statically link Fossil with the sqlite3.c source
 ** file that is part of the source tree and not use any SQLite shared
@@ -40,8 +43,24 @@
 */
 #include "sqlite3.h"
 #include <stdio.h>
+#include <string.h>
 
 int main(int argc, char **argv){
+
+#if !defined(MINIMUM_SQLITE_VERSION)
+#error "Must set -DMINIMUM_SQLITE_VERSION=nn.nn.nn in auto.def"
+#endif
+
+#define QUOTE(VAL) #VAL
+#define STR(MACRO_VAL) QUOTE(MACRO_VAL)
+
+  char zMinimumVersionNumber[8]="nn.nn.nn";
+  strncpy((char *)&zMinimumVersionNumber,STR(MINIMUM_SQLITE_VERSION),sizeof(zMinimumVersionNumber));
+
+  long major, minor, release, version;
+  sscanf(zMinimumVersionNumber, "%li.%li.%li", &major, &minor, &release);
+  version=(major*1000000)+(minor*1000)+release;
+
   int i;
   static const char *zRequiredOpts[] = {
     "ENABLE_FTS4",        /* Required for repository search */
@@ -50,9 +69,9 @@ int main(int argc, char **argv){
   };
 
   /* Check minimum SQLite version number */
-  if( sqlite3_libversion_number()<3033000 ){
-    printf("found SQLite version %s but need 3.33.0 or later\n",
-            sqlite3_libversion());
+  if( sqlite3_libversion_number()<version ){
+    printf("found system SQLite version %s but need %s or later, consider removing --disable-internal-sqlite\n",
+            sqlite3_libversion(),STR(MINIMUM_SQLITE_VERSION));
     return 1;
   }
 

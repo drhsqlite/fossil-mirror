@@ -52,8 +52,8 @@ cson_value * json_page_branch(){
 **
 ** CLI mode options:
 **
-**  --range X | -r X, where X is one of (open,closed,all)
-**    (only the first letter is significant, default=open).
+**  -r|--range X, where X is one of (open,closed,all)
+**    (only the first letter is significant, default=open)
 **  -a (same as --range a)
 **  -c (same as --range c)
 **

@@ -7,7 +7,7 @@ This document provides background information to aid you in that task.
 
 ## <a name="builtin"></a>Built-in Skins
 
-Fossil comes with multiple built-in skins.  If the default skin does not
+Fossil comes with [multiple built-in skins](/skins).  If the default skin does not
 suite your tastes, perhaps one of the other built-in skins will work better.
 If nothing else, the built-in skins can serve as examples or templates that
 you can use to develop your own custom skin.
@@ -136,6 +136,23 @@ to close out the generated HTML:
 
         </body>
         </html>
+
+## <a name="mainmenu"></a>Changing the Main Menu Contents
+
+As of Fossil 2.15, the actual text content of the skin’s main menu is no
+longer part of the skin proper if you’re using one of the stock skins.
+If you look at the Header section of the skin, you’ll find a
+`<div class="mainmenu">` element whose contents are set by a short
+[TH1](./th1.md) script from the contents of the **Main Menu** section of
+the Setup → Configuration screen.
+
+This feature allows the main menu contents to stay the same across
+different skins, so you no longer have to reapply menu customizations
+when trying different skins.
+
+See the [`capexpr`](./th1.md#capexpr) section of the TH1 docs for help
+on interpreting the default contents of this block.
+
 
 ## <a name="override"></a>Overriding the HTML Header and Footer
 

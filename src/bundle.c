@@ -742,8 +742,8 @@ static void bundle_purge_cmd(void){
 **      at least one of which is required.  If BUNDLE already exists, the
 **      specified content is added to the bundle.
 **
-**         --branch BRANCH            Package all check-ins on BRANCH.
-**         --from TAG1 --to TAG2      Package check-ins between TAG1 and TAG2.
+**         --branch BRANCH            Package all check-ins on BRANCH
+**         --from TAG1 --to TAG2      Package check-ins between TAG1 and TAG2
 **         --checkin TAG              Package the single check-in TAG
 **         --standalone               Do no use delta-encoding against
 **                                    artifacts not in the bundle

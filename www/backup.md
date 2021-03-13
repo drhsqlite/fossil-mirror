@@ -233,13 +233,21 @@ This requires OpenSSL 1.1 or higher. If you’re on 1.0 or older, you
 won’t have the `-pbkdf2` and `-iter` options, and you may have to choose
 a different cipher algorithm; both changes are likely to weaken the
 encryption significantly, so you should install a newer version rather
-than work around the lack of these features. If you’re on macOS, which
-still ships 1.0 as of the time of this writing, [Homebrew][hb] offers
-the current version of OpenSSL, but to avoid a conflict with the platform
-version, it’s [unlinked][hbul] by default, so you have to give an explicit
-path to its “cellar” directory:
+than work around the lack of these features.
 
-       /usr/local/Cellar/openssl\@1.1/1.1.1g/bin/openssl ...
+At the time of this writing — 2021.02.26 — macOS 11 (BigSur) ships an
+outdated fork of OpenSSL 1.0 called [LibreSSL][lssl] that lacks this
+capability. Until Apple redresses this lack, we recommend use of the
+[Homebrew][hb] OpenSSL package rather than give up on the security
+afforded by use of configurable-iteration PBKDF2 in OpenSSL 1.1 and up,
+later backported to LibreSSL 2.9.1 and up. To avoid a conflict with the
+platform version, Homebrew’s installation is [unlinked][hbul] by
+default, so you have to give an explicit path to it, one of:
+
+       /usr/local/opt/openssl/bin/openssl ...     # Intel x86 Macs
+       /opt/homebrew/opt/openssl/bin/openssl ...  # ARM Macs (“Apple silicon”)
+
+[lssl]: https://www.libressl.org/
 
 
 ## <a id="rest"></a> Restoring From An Encrypted Backup

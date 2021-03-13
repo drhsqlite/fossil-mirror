@@ -974,7 +974,7 @@ int win32_http_service(
 **              Specifies the TCP port (default port is 8080) on which the
 **              server should listen.
 **
-**         -R|--repository REPOSITORY
+**         -R|--repository REPO
 **
 **              Specifies the name of the repository to be served.
 **              The repository option may be omitted if the working directory

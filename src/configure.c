@@ -771,7 +771,7 @@ static void export_config(
 **         the remote repository at URL.
 **
 ** Options:
-**    -R|--repository FILE       Extract info from repository FILE
+**    -R|--repository REPO       Extract info from repository REPO
 **
 ** See also: [[settings]], [[unset]]
 */

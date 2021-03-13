@@ -637,7 +637,7 @@ char *sha3sum(const char *zIn, int iSize){
 **    --512               Compute a SHA3-512 hash
 **    --size N            An N-bit hash.  N must be a multiple of 32 between
 **                        128 and 512.
-**    -h, --dereference   If FILE is a symbolic link, compute the hash on
+**    -h|--dereference    If FILE is a symbolic link, compute the hash on
 **                        the object pointed to, not on the link itself.
 **
 ** See also: [[md5sum]], [[sha1sum]]

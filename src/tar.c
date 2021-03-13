@@ -427,7 +427,7 @@ static void tar_finish(Blob *pOut){
 ** Generate a GZIP-compressed tarball in the file given by the first argument
 ** that contains files given in the second and subsequent arguments.
 **
-**   -h, --dereference   Follow symlinks; archive the files they point to.
+**   -h|--dereference   Follow symlinks and archive the files they point to
 */
 void test_tarball_cmd(void){
   int i;

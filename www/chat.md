@@ -96,10 +96,11 @@ Non-image files always appear in messages as download links.
 Any user may *locally* delete a given message by clicking on the "tab"
 at the top of the message and clicking the button which appears. Such
 deletions are local-only, and the messages will reappear if the page
-is reloaded. Admin users may additionally choose to globally
-delete a message from the chat record, which deletes it not only from
-their own browser but also propagates the removal to all connected
-clients the next time they poll for new messages.
+is reloaded. The user who posted a given message, or any Admin users,
+may additionally choose to globally delete a message from the chat
+record, which deletes it not only from their own browser but also
+propagates the removal to all connected clients the next time they
+poll for new messages.
 
 ## Implementation Details
 

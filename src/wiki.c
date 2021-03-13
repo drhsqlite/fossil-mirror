@@ -770,7 +770,7 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 **
 ** { name: "page name",
 **   type: "normal" | "tag" | "checkin" | "branch" | "sandbox",
-**   mimetype: "mime type",
+**   mimetype: "mimetype",
 **   version: UUID string or null for a sandbox page,
 **   parent: "parent uuid" or null if no parent,
 **   isDeleted: true if the page has no content (is "deleted")
@@ -838,7 +838,7 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
 ** URL params:
 **
 **  page = the wiki page name.
-**  mimetype = content mime type.
+**  mimetype = content mimetype.
 **  content = page content. Fossil considers an empty page to
 **            be "deleted".
 **  isnew = 1 if the page is to be newly-created, else 0 or
@@ -2182,7 +2182,7 @@ void wiki_cmd(void){
       }
     }
     if( !zMimeType || !*zMimeType ){
-      /* Try to deduce the mime type based on the prior version. */
+      /* Try to deduce the mimetype based on the prior version. */
       if(isSandbox){
         zMimeType =
           wiki_filter_mimetypes(db_get("sandbox-mimetype",

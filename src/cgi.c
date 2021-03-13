@@ -1161,12 +1161,24 @@ void cgi_init(void){
   if( z ){
     z = fossil_strdup(z);
     add_param_list(z, ';');
+    z = (char*)cookie_value("skin",0);
+    if(z){
+      skin_use_alternative(z, 2);
+    }
   }
 
   z = (char*)P("QUERY_STRING");
   if( z ){
     z = fossil_strdup(z);
     add_param_list(z, '&');
+    z = (char*)P("skin");
+    if(z){
+      char *zErr = skin_use_alternative(z, 2);
+      if(!zErr && !P("once")){
+        cookie_write_parameter("skin","skin",z);
+      }
+      fossil_free(zErr);
+    }
   }
 
   z = (char*)P("REMOTE_ADDR");

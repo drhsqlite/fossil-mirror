@@ -32,7 +32,8 @@ To add a new skin:
 
    5.   Type "make" to rebuild.
 
-See the [custom skin documentation](../www/customskin.md) for more information.
+See the [custom skin documentation](/doc/$CURRENT/www/customskin.md) for
+more information.
 
 Development Hints
 -----------------

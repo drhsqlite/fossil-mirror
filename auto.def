@@ -1,5 +1,7 @@
 # System autoconfiguration. Try: ./configure --help
 
+# This must be above "options" below because it implicitly brings in the
+# default Autosetup options, things like --prefix.
 use cc cc-lib
 
 options {
@@ -19,12 +21,26 @@ options {
                          => {Enable Tcl integration via private stubs mechanism}
     with-mman=0          => {Enable use of POSIX memory APIs from "sys/mman.h"}
     with-see=0           => {Enable the SQLite Encryption Extension (SEE)}
+    print-minimum-sqlite-version=0
+                         => {print the minimum SQLite version number required, and exit}
     internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
     fusefs=1             => {Disable the Fuse Filesystem}
     fossil-debug=0       => {Build with fossil debugging enabled}
     no-opt=0             => {Build without optimization}
     json=0               => {Build with fossil JSON API enabled}
+}
+
+# Update the minimum required SQLite version number here, and also
+# in src/main.c near the sqlite3_libversion_number() call.  Take care
+# that both places agree!
+define MINIMUM_SQLITE_VERSION "3.35.0"
+
+# This is useful for people wanting Fossil to use an external SQLite library
+# to compare the one they have against the minimum required
+if {[opt-bool print-minimum-sqlite-version]} {
+    puts [get-define MINIMUM_SQLITE_VERSION]
+    exit 0
 }
 
 # sqlite wants these types if possible
@@ -156,6 +172,7 @@ if {![opt-bool internal-sqlite]} {
   proc test_system_sqlite {} {
     # Check compatibility of the system SQLite library by running the sqlcompttest.c
     # program in the source tree
+    # passes MINIMUM_SQLITE_VERSION set at the top of this file to sqlcompttest.c
     #
     set cmdline {}
     lappend cmdline {*}[get-define CCACHE]
@@ -163,6 +180,8 @@ if {![opt-bool internal-sqlite]} {
     lappend cmdline $::autosetup(dir)/../src/sqlcompattest.c -o conftest__
     lappend cmdline {*}[get-define LDFLAGS]
     lappend cmdline {*}[get-define LIBS]
+    set sqlite-version [string cat "-D MINIMUM_SQLITE_VERSION=" [get-define MINIMUM_SQLITE_VERSION]]
+    lappend cmdline {*}[set sqlite-version]
     set ok 1
     set err [catch {exec-with-stderr {*}$cmdline} result errinfo]
     if {$err} {

@@ -190,7 +190,7 @@ static void showParentProject(void){
 **
 ** Options:
 **
-**    -R|--repository FILE       Extract info from repository FILE
+**    -R|--repository REPO       Extract info from repository REPO
 **    -v|--verbose               Show extra information about repositories
 **
 ** See also: [[annotate]], [[artifact]], [[finfo]], [[timeline]]
@@ -659,8 +659,7 @@ void ci_page(void){
   );
   zBrName = branch_of_rid(rid);
   
-  cookie_link_parameter("diff","diff","2");
-  diffType = atoi(PD("diff","2"));
+  diffType = preferred_diff_type();
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
     int nUuid = db_column_bytes(&q1, 0);
@@ -942,7 +941,7 @@ void ci_page(void){
   }
   db_finalize(&q3);
   append_diff_javascript(diffType==2);
-  cookie_render();
+  builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }
 
@@ -1187,9 +1186,7 @@ void vdiff_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
   load_control();
-  cookie_link_parameter("diff","diff","2");
-  diffType = atoi(PD("diff","2"));
-  cookie_render();
+  diffType = preferred_diff_type();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
@@ -1332,6 +1329,7 @@ void vdiff_page(void){
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
   append_diff_javascript(diffType==2);
+  builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }
 
@@ -1636,6 +1634,45 @@ int object_description(
   return objType;
 }
 
+/*
+** SETTING: preferred-diff-type         width=16 default=0
+**
+** The preferred-diff-type setting determines the preferred diff format
+** for web pages if the format is not otherwise specified, for example
+** by a query parameter or cookie.  Allowed values:
+**
+**    1    Unified diff
+**    2    Side-by-side diff
+**
+** If this setting is omitted or has a value of 0 or less, then it
+** is ignored.
+*/
+/*
+** Return the preferred diff type.
+**
+**    0 = No diff at all.
+**    1 = unified diff
+**    2 = side-by-side diff
+**
+** To determine the preferred diff type, the following values are
+** consulted in the order shown.  The first available source wins.
+**
+**    *  The "diff" query parameter
+**    *  The "diff" field of the user display cookie
+**    *  The "preferred-diff-type" setting
+**    *  1 for mobile and 2 for desktop, based on the UserAgent
+*/
+int preferred_diff_type(void){
+  int dflt;
+  char zDflt[2];
+  dflt = db_get_int("preferred-diff-type",-99);
+  if( dflt<=0 ) dflt = user_agent_is_likely_mobile() ? 1 : 2;
+  zDflt[0] = dflt + '0';
+  zDflt[1] = 0;
+  cookie_link_parameter("diff","diff", zDflt);
+  return atoi(PD("diff",zDflt));
+}
+
 
 /*
 ** WEBPAGE: fdiff
@@ -1675,9 +1712,7 @@ void diff_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  cookie_link_parameter("diff","diff","2");
-  diffType = atoi(PD("diff","2"));
-  cookie_render();
+  diffType = preferred_diff_type();
   if( P("from") && P("to") ){
     v1 = artifact_from_ci_and_filename("from");
     v2 = artifact_from_ci_and_filename("to");
@@ -1834,8 +1869,8 @@ void secure_rawartifact_page(void){
 
 /*
 ** Generate a verbatim artifact as the result of an HTTP request.
-** If zMime is not NULL, use it as the MIME-type.  If zMime is
-** NULL, guess at the MIME-type based on the filename
+** If zMime is not NULL, use it as the mimetype.  If zMime is
+** NULL, guess at the mimetype based on the filename
 ** associated with the artifact.
 */
 void deliver_artifact(int rid, const char *zMime){

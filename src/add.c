@@ -365,8 +365,8 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 **
 ** Options:
 **
-**    --case-sensitive BOOL   Override the case-sensitive setting.
-**    --dotfiles              include files beginning with a dot (".")
+**    --case-sensitive BOOL   Override the case-sensitive setting
+**    --dotfiles              Include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
 **    --ignore CSG            Ignore unmanaged files matching patterns from
 **                            the Comma Separated Glob (CSG) pattern list
@@ -377,10 +377,13 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 **                            files are no longer added. No flags other
 **                            than --verbose and --dry-run may be used
 **                            with --reset.
+**    --allow-reserved        Permit filenames which are reserved on
+**                            Windows platforms. Such files cannot be
+**                            checked out on Windows, so use with care.
 **
 ** The following options are only valid with --reset:
-**    -v|--verbose            Outputs information about each --reset file.
-**    -n|--dry-run            Display instead of run actions.
+**    -v|--verbose            Output information about each --reset file
+**    -n|--dry-run            Display instead of run actions
 **
 ** See also: [[addremove]], [[rm]]
 */
@@ -393,6 +396,7 @@ void add_cmd(void){
   Glob *pIgnore, *pClean;    /* Ignore everything matching the glob patterns */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
   int forceFlag;
+  int allowReservedFlag = 0; /* --allow-reserved flag */
 
   if(0!=find_option("reset",0,0)){
     int const verboseFlag = find_option("verbose","v",0)!=0;
@@ -407,6 +411,7 @@ void add_cmd(void){
   zIgnoreFlag = find_option("ignore",0,1);
   forceFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
+  allowReservedFlag = find_option("allow-reserved",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -431,13 +436,23 @@ void add_cmd(void){
   for(i=2; i<g.argc; i++){
     char *zName;
     int isDir;
-    Blob fullName;
+    Blob fullName = empty_blob;
 
     /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
     ** checkout. */
     file_tree_name(g.argv[i], &fullName, 0, 1);
+    if(0==allowReservedFlag
+       && 0!=file_is_win_reserved(blob_str(&fullName))){
+      /* Note that the 'add' internal machinery already _silently_
+      ** skips over any names for which file_is_reserved_name()
+      ** returns true or which is in the fossil_reserved_name()
+      ** list. We do not need to warn for those, as they're outright
+      ** verboten. */
+      fossil_fatal("Filename is reserved: %b\n"
+                   "Use --allow-reserved to permit "
+                   "reserved filenames.", &fullName);
+    }
     blob_reset(&fullName);
-
     file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
     isDir = file_isdir(zName, RepoFILE);
@@ -991,9 +1006,9 @@ static void process_files_to_move(
 ** Options:
 **   --soft                    Skip moving files within the checkout.
 **                             This supersedes the --hard option.
-**   --hard                    Move files within the checkout.
-**   --case-sensitive BOOL     Override the case-sensitive setting.
-**   -n|--dry-run              If given, display instead of run actions.
+**   --hard                    Move files within the checkout
+**   --case-sensitive BOOL     Override the case-sensitive setting
+**   -n|--dry-run              If given, display instead of run actions
 **
 ** See also: [[changes]], [[status]]
 */

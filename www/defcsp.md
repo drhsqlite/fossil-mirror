@@ -1,56 +1,46 @@
 # The Default Content Security Policy (CSP)
 
 When Fossil’s web interface generates an HTML page, it normally includes
-a [Content Security Policy][csp] (CSP) in the `<head>`.  The CSP defines
-a “white list” to tell the browser what types of content (HTML, images,
-CSS, JavaScript...) the document may reference and the sources the
-browser is allowed to pull and interpret such content from. The aim is to prevent
-certain classes of [cross-site scripting][xss] (XSS) and code injection
-attacks.  The browser will not pull content types disallowed by the CSP;
-the CSP also adds restrictions on the types of inline content the
-browser is allowed to interpret.
+a [Content Security Policy][csp] (CSP) in the `<head>`.  The CSP specifies
+allowed sources for external resources such as images,
+CSS, javascript, and so froth.
+The purpose of CSP is to provide an extra layer of protection against
+[cross-site scripting][xss] (XSS) and code injection
+attacks.  Compatible web browsers will not use external resources unless
+they are specifically allowed by the CSP, which dramatically reduces
+the attack surface of the application.
 
-Fossil has built-in server-side content filtering logic. For example, it
-purposely breaks `<script>` tags when it finds them in Markdown and
-Fossil Wiki documents. (But not in [HTML-formatted embedded
-docs][hfed]!) We also back that with multiple levels of analysis and
-checks to find and fix content security problems: compile-time static
-analysis, run-time dynamic analysis, and manual code inspection. Fossil
-is open source software, so it benefits from the “[many
-eyeballs][llaw],” limited by the size of its developer community.
-
-However, there is a practical limit to the power of server-side
-filtering and code quality practices.
-
-First, there is an endless battle between those looking for clever paths
-around such barriers and those erecting the barriers. The developers of
-Fossil are committed to holding up our end of that fight, but this is,
-to some extent, a reactive posture. It is cold comfort if Fossil’s
-developers react quickly to a report of code injection — as we do! — if
-the bad guys learn of it and start exploiting it first.
-
-Second, Fossil has purposefully powerful features that are inherently
-difficult to police from the server side: HTML tags [in wiki](/wiki_rules)
-and [in Markdown](/md_rules) docs, [TH1 docs](./th1.md), the Admin →
-Wiki → “Use HTML as wiki markup language” mode, etc.
-
-Fossil’s strong default CSP adds client-side filtering as a backstop for
-all of this.
-
-Fossil site administrators can [modify the default CSP](#override), perhaps
-to add trusted external sources for auxiliary content.  But for maximum
-safety, site developers are encouraged to work within the restrictions
-imposed by the default CSP and avoid the temptation to relax the CSP
-unless they fully understand the security implications of what they are
-doing.
-
-[llaw]: https://en.wikipedia.org/wiki/Linus%27s_Law
-
+Fossil does not rely on CSP for security.
+A Fossil server should be secure from attack even with out CSP.
+Fossil includes built-in server-side content filtering logic.
+For example, Fossil purposely breaks `<script>` tags when it finds
+them in Markdown and Fossil Wiki documents.  And the Fossil build
+process scans the source code for potential injection vulnerabilities
+and refuses to compile if any problems are found.
+However, CSP provides an additional layer of defense against undetected
+bugs that might lead to a vulnerability.
 
 ## The Default Restrictions
 
-The Fossil default CSP declares the following content restrictions:
+The default CSP used by Fossil is as follows:
 
+<pre>
+     default-src 'self' data:;
+     script-src 'self' 'nonce-$nonce';
+     style-src 'self' 'unsafe-inline';
+     img-src * data:;
+</pre>
+
+The default is recommended for most installations.  However,
+the site administrators can overwrite this default DSP using the
+[default-csp setting](/help?cmd=default-csp).  For example,
+CSP restrictions can be completely disabled by setting the default-csp to:
+
+<pre>
+     default-src *;
+</pre>
+
+The following sections detail the maining of the default CSP setting.
 
 ### <a name="base"></a> default-src 'self' data:
 
@@ -89,6 +79,19 @@ There are many other cases, [covered below](#serving).
 [svr]: ./server/
 
 
+### <a name="img"></a> img-src * data:
+
+As of Fossil 2.15, we don’t restrict the source of inline images at all.
+You can pull them in from remote systems as well as pull them from
+within the Fossil repository itself, or use `data:` URIs.
+
+If you are certain all images come from only within the repository, you
+can close off certain risks — tracking pixels, broken image format
+decoders, system dialog box spoofing, etc. — by changing this to
+“`img-src 'self'`” possibly followed by “`data:`” if you will also use
+`data:` URIs.
+
+
 ### <a name="style"></a> style-src 'self' 'unsafe-inline'
 
 This policy allows CSS information to come from separate files hosted
@@ -108,6 +111,7 @@ Furthermore, the harm that can be done with style injections is far
 less than the harm possible with injected javascript.  And so the
 `'unsafe-inline'` compromise is accepted for now, though it might
 go away in some future release of Fossil.
+
 
 ### <a name="script"></a> script-src 'self' 'nonce-%s'
 

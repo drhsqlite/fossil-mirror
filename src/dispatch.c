@@ -1012,7 +1012,7 @@ static const char zOptions[] =
 @   --sshtrace              Trace SSH activity
 @   --ssl-identity NAME     Set the SSL identity to NAME
 @   --systemtrace           Trace calls to system()
-@   --user|-U USER          Make the default user be USER
+@   -U|--user USER          Make the default user be USER
 @   --utc                   Display times using UTC
 @   --vfs NAME              Cause SQLite to use the NAME VFS
 ;

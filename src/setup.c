@@ -956,6 +956,58 @@ void setup_settings(void){
 }
 
 /*
+** SETTING:  mainmenu          width=70 block-text
+**
+** The mainmenu setting specifies the entries on the main menu
+** for many skins.  The mainmenu should be a TCL list.  Each set
+** of four consecutive values defines a single main menu item:
+**
+**   *   The first term is text that appears on the menu.
+**
+**   *   The second term is a hyperlink to take when a user clicks on the
+**       entry.  Hyperlinks that start with "/" are relative to the
+**       repository root.
+**
+**   *   The third term is an argument to the TH1 "capexpr" command.
+**       If capexpr evalutes to true, then the entry is shown.  If not,
+**       the entry is omitted.  "*" is always true.  "{}" is never true.
+**
+**   *   The fourth term is a list of extra class names to apply to the new
+**       menu entry.  Some skins will classes "desktoponly" and "wideonly"
+**       to only show the entries when the web browser screen is wide or
+**       very wide, respectively.
+**
+** Some custom skins might not use this property.  Whether the property
+** is used or not a choice made by the skin designer.  Some skins may add
+** extra choices (such as the hamburger button) to the menu.
+*/
+/*
+** SETTING: sitemap-extra      width=70 block-text
+**
+** The sitemap-extra setting defines extra links to appear on the
+** /sitemap web page as sub-items of the "Home Page" entry before the
+** "Documentation Search" entry (if any).  For skins that use the /sitemap
+** page to construct a hamburger menu dropdown, new entries added here
+** will appear on the hamburger menu.
+**
+** This setting should be a TCL list divided into triples.  Each
+** triple defines a new entry:
+**
+**   *   The first term is the display name of the /sitemap entry
+**
+**   *   The second term is a hyperlink to take when a user clicks on the
+**       entry.  Hyperlinks that start with "/" are relative to the
+**       repository root.
+**
+**   *   The third term is an argument to the TH1 "capexpr" command.
+**       If capexpr evalutes to true, then the entry is shown.  If not,
+**       the entry is omitted.  "*" is always true.
+**
+** The default value is blank, meaning no added entries.
+*/
+
+
+/*
 ** WEBPAGE: setup_config
 **
 ** The "Admin/Configuration" page.  Requires Setup privilege.
@@ -1028,7 +1080,7 @@ void setup_config(void){
   @ <hr>
   @ <p>The main menu for the web interface
   @ <p>
-   @
+  @
   @ <p>This setting should be a TCL list.  Each set of four consecutive
   @ values defines a single main menu item:
   @ <ol>
@@ -1045,8 +1097,8 @@ void setup_config(void){
   @      very wide, respectively.
   @ </ol>
   @
-  @ <p>Some custom skins might not use this property.  Whether the property
-  @ is used or a choice made by the skin designer.  Some skins add an extra
+  @ <p>Some custom skins might not use this property. Whether the property
+  @ is used or not a choice made by the skin designer. Some skins may add extra
   @ choices (such as the hamburger button) to the menu that are not shown
   @ on this list. (Property: mainmenu)
   @ <p>

@@ -328,7 +328,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 /*
 ** COMMAND: user*
 **
-** Usage: %fossil user SUBCOMMAND ...  ?-R|--repository FILE?
+** Usage: %fossil user SUBCOMMAND ...  ?-R|--repository REPO?
 **
 ** Run various subcommands on users of the open repository or of
 ** the repository identified by the -R or --repository option.

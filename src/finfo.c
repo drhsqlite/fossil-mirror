@@ -41,17 +41,17 @@
 ** to stdout.  The -p mode is another form of the "cat" command.
 **
 ** Options:
-**   -b|--brief           display a brief (one line / revision) summary
+**   -b|--brief           Display a brief (one line / revision) summary
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
-**   -l|--log             select log mode (the default)
+**   -l|--log             Select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
 **                        N less than 0 means no limit.
-**   --offset P           skip P changes
-**   -p|--print           select print mode
-**   -r|--revision R      print the given revision (or ckout, if none is given)
+**   --offset P           Skip P changes
+**   -p|--print           Select print mode
+**   -r|--revision R      Print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
-**   -s|--status          select status mode (print a status indicator for FILE)
+**   -s|--status          Select status mode (print a status indicator for FILE)
 **   -W|--width N         Width of lines (default is to auto-detect). Must be
 **                        more than 22 or else 0 to indicate no limit.
 **
@@ -243,7 +243,7 @@ void finfo_cmd(void){
 ** Other versions may be specified using the -r option.
 **
 ** Options:
-**    -R|--repository FILE       Extract artifacts from repository FILE
+**    -R|--repository REPO       Extract artifacts from repository REPO
 **    -r VERSION                 The specific check-in containing the file
 **
 ** See also: [[finfo]]
@@ -366,7 +366,6 @@ void finfo_page(void){
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   ridFrom = name_to_rid_www("from");
   zPrevDate[0] = 0;
-  cookie_render();
   if( fnid==0 ){
     @ No such file: %h(zFilename)
     style_finish_page();

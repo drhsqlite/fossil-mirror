@@ -136,10 +136,6 @@ input[type=submit]:focus {
   outline: 0
 }
 
-div.mainmenu a.active {
-  opacity: 0.8;
-}
-
 /* All page content from the bottom of the menu or submenu down to
 ** the footer */
 div.content {

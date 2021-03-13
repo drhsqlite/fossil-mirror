@@ -345,7 +345,7 @@ void compute_descendants(int rid, int N){
 ** is omitted, of the check-in currently checked out.
 **
 ** Options:
-**    -R|--repository FILE       Extract info from repository FILE
+**    -R|--repository REPO       Extract info from repository REPO
 **    -W|--width N               Width of lines (default is to auto-detect).
 **                               Must be greater than 20 or else 0 for no
 **                               limit, resulting in a one line per entry.
@@ -401,11 +401,11 @@ void descendants_cmd(void){
 ** repository database to be recomputed.
 **
 ** Options:
-**   -a|--all         show ALL leaves
-**   --bybranch       order output by branch name
-**   -c|--closed      show only closed leaves
-**   -m|--multiple    show only cases with multiple leaves on a single branch
-**   --recompute      recompute the "leaf" table in the repository DB
+**   -a|--all         Show ALL leaves
+**   --bybranch       Order output by branch name
+**   -c|--closed      Show only closed leaves
+**   -m|--multiple    Show only cases with multiple leaves on a single branch
+**   --recompute      Recompute the "leaf" table in the repository DB
 **   -W|--width N     Width of lines (default is to auto-detect). Must be
 **                    more than 39 or else 0 no limit, resulting in a single
 **                    line per entry.
@@ -424,6 +424,7 @@ void leaves_cmd(void){
   char *zLastBr = 0;
   int n, width;
   char zLineNo[10];
+  char * const zMainBranch = db_get("main-branch","trunk");
 
   if( multipleFlag ) byBranch = 1;
   if( zWidth ){
@@ -493,7 +494,8 @@ void leaves_cmd(void){
     const char *zDate = db_column_text(&q, 2);
     const char *zCom = db_column_text(&q, 3);
     const char *zBr = db_column_text(&q, 7);
-    char *z;
+    char *z = 0;
+    char * zBranchPoint = 0;
 
     if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
       fossil_print("*** %s ***\n", zBr);
@@ -504,10 +506,23 @@ void leaves_cmd(void){
     n++;
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
     fossil_print("%6s ", zLineNo);
-    z = mprintf("%s [%S] %s", zDate, zId, zCom);
+    if(0!=fossil_strcmp(zBr,zMainBranch)){
+      int ridOfRoot;
+      z = mprintf("root:%s", zId);
+      ridOfRoot = symbolic_name_to_rid(z, "ci");
+      if(ridOfRoot>0){
+        zBranchPoint = mprintf(" (branched from: [%.*z])", hash_digits(0),
+                               rid_to_uuid(ridOfRoot));
+      }
+      fossil_free(z);
+    }
+    z = mprintf("%s [%S] %s%s", zDate, zId, zCom,
+                zBranchPoint ? zBranchPoint : "");
     comment_print(z, zCom, 7, width, get_comment_format());
     fossil_free(z);
+    fossil_free(zBranchPoint);
   }
+  fossil_free(zMainBranch);
   fossil_free(zLastBr);
   db_finalize(&q);
 }
@@ -567,7 +582,6 @@ void leaves_page(void){
   style_header("Leaves");
   login_anonymous_available();
   timeline_ss_submenu();
-  cookie_render();
 #if 0
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>

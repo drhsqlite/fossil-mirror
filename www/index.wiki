@@ -97,8 +97,8 @@ management system with these advanced features:
 
   1.  [/uv/download.html|Download] or install using a package manager or
       [./build.wiki|compile from sources].
-  2.  <tt>fossil init</tt> <i>new-repository</i>
-  3.  <tt>fossil open</tt> <i>new-repository</i>
+  2.  <tt>fossil init</tt> <i>REPOSTORE-DIR/new-repository</i>
+  3.  <tt>fossil open</tt> <i>REPOSTORE-DIR/new-repository</i>
   4.  <tt>fossil add</tt> <i>files-or-directories</i>
   5.  <tt>fossil commit -m</tt> "<i>commit message</i>"
   6.  <tt>fossil ui</tt>

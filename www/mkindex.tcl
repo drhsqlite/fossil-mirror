@@ -5,6 +5,10 @@
 #
 #    tclsh mkindex.tcl
 #
+# 2021-02-26:  The permuted index feature has been removed because
+# moderns don't understand such things, and seeing so many entries
+# confuses them.
+#
 
 set doclist {
   aboutcgi.wiki {How CGI Works In Fossil}
@@ -43,6 +47,7 @@ set doclist {
   customskin.md {Custom Skins}
   custom_ticket.wiki {Customizing The Ticket System}
   defcsp.md {The Default Content Security Policy}
+  delta-manifests.md {Delta Manifests}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
   embeddeddoc.wiki {Embedded Project Documentation}
@@ -127,14 +132,16 @@ foreach {file title} $doclist {
   set n [llength $title]
   regsub -all {\s+} $title { } title
   lappend permindex [list $title $file 1]
-  for {set i 0} {$i<$n-1} {incr i} {
-    set prefix [lrange $title 0 $i]
-    set suffix [lrange $title [expr {$i+1}] end]
-    set firstword [string tolower [lindex $suffix 0]]
-    if {[lsearch $stopwords $firstword]<0} {
-      lappend permindex [list "$suffix &mdash; $prefix" $file 0]
-    }
-  }
+
+# Disable the permutations.
+#  for {set i 0} {$i<$n-1} {incr i} {
+#    set prefix [lrange $title 0 $i]
+#    set suffix [lrange $title [expr {$i+1}] end]
+#    set firstword [string tolower [lindex $suffix 0]]
+#    if {[lsearch $stopwords $firstword]<0} {
+#      lappend permindex [list "$suffix &mdash; $prefix" $file 0]
+#    }
+#  }
 }
 set permindex [lsort -dict -index 0 $permindex]
 set out [open permutedindex.html w]
@@ -162,11 +169,11 @@ puts $out {
 book</a>
 </ul>
 <a name="pindex"></a>
-<h2>Permuted Index:</h2>
+<h2>Other Documents:</h2>
 <ul>}
 foreach entry $permindex {
   foreach {title file bold} $entry break
-  if {$bold} {set title <b>$title</b>}
+#  if {$bold} {set title <b>$title</b>}
   if {[string match /* $file]} {set file ../../..$file}
   puts $out "<li><a href=\"$file\">$title</a></li>"
 }

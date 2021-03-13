@@ -681,10 +681,15 @@ int fossil_main(int argc, char **argv){
 
   fossil_printf_selfcheck();
   fossil_limit_memory(1);
+
+  /* When updating the minimum SQLite version, change the number here,
+  ** and also MINIMUM_SQLITE_VERSION value set in ../auto.def.  Take
+  ** care that both places agree! */
   if( sqlite3_libversion_number()<3035000 ){
     fossil_panic("Unsuitable SQLite version %s, must be at least 3.35.0",
                  sqlite3_libversion());
   }
+
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
@@ -1840,29 +1845,7 @@ static void process_one_web_page(
     cgi_replace_parameter("PATH_INFO", zPathInfo);
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     etag_cancel();
-  }else if( zPathInfo && strncmp(zPathInfo, "/skn_", 5)==0 ){
-    int i;
-    char *zAlt;
-    char *zErr;
-    char *z;
-    while( (z = strstr(zPathInfo+1,"/skn_"))!=0 ) zPathInfo = z;
-    for(i=5; zPathInfo[i] && zPathInfo[i]!='/'; i++){}
-    zAlt = mprintf("%.*s", i-5, zPathInfo+5);
-    zErr = skin_use_alternative(zAlt);
-    if( zErr ){
-      fossil_free(zErr);
-    }else{
-      char *zNewScript;
-      zNewScript = mprintf("%T/skn_%s", P("SCRIPT_NAME"), zAlt);
-      if( g.zTop ) g.zTop = mprintf("%R/skn_%s", zAlt);
-      if( g.zBaseURL ) g.zBaseURL = mprintf("%s/skn_%s", g.zBaseURL, zAlt);
-      zPathInfo += i;
-      g.nExtraURL += i;
-      cgi_replace_parameter("PATH_INFO", zPathInfo);
-      cgi_replace_parameter("SCRIPT_NAME", zNewScript);
-    }
-    fossil_free(zAlt);
-  }  
+  }
 
   /* If the content type is application/x-fossil or 
   ** application/x-fossil-debug, then a sync/push/pull/clone is
@@ -2184,7 +2167,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **
 **    HOME: PATH               Shorthand for "setenv: HOME PATH"
 **
-**    debug: FILE              Causing debugging information to be written
+**    cgi-debug: FILE          Causing debugging information to be written
 **                             into FILE.
 **
 **    errorlog: FILE           Warnings, errors, and panics written to FILE.
@@ -2380,7 +2363,7 @@ void cmd_cgi(void){
       ** the elements of the built-in skin.  If LABEL does not match,
       ** this directive is a silent no-op.
       */
-      skin_use_alternative(blob_str(&value));
+      fossil_free(skin_use_alternative(blob_str(&value), 1));
       blob_reset(&value);
       continue;
     }
@@ -2739,8 +2722,8 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** Works like the [[http]] command but gives setup permission to all users.
 **
 ** Options:
-**   --th-trace          trace TH1 execution (for debugging purposes)
-**   --usercap   CAP     user capability string.  (Default: "sx")
+**   --th-trace          Trace TH1 execution (for debugging purposes)
+**   --usercap   CAP     User capability string (Default: "sx")
 **
 */
 void cmd_test_http(void){

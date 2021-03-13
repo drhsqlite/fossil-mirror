@@ -755,7 +755,7 @@ void test_ci_mini_cmd(void){
   const char * zComment;         /* -m comment */
   const char * zCommentFile;     /* -M FILE */
   const char * zAsFilename;      /* --as filename */
-  const char * zRevision;        /* --revision|-r [=trunk|checkout] */
+  const char * zRevision;        /* -r|--revision [=trunk|checkout] */
   const char * zUser;            /* --user-override */
   const char * zDate;            /* --date-override */
   char const * zManifestFile = 0;/* --save-manifest FILE */

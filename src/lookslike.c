@@ -403,7 +403,7 @@ int could_be_utf16(const Blob *pContent, int *pbReverse){
 **
 ** Options:
 **    -n|--limit N     Repeat looks-like function N times, for
-**                     performance measurement. Default = 1;
+**                     performance measurement. Default = 1
 **    --utf8           Ignoring BOM and file size, force UTF-8 checking
 **    --utf16          Ignoring BOM and file size, force UTF-16 checking
 **

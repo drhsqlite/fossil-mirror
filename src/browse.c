@@ -129,8 +129,9 @@ void hyperlinked_path(
 **
 ** Query parameters:
 **
-**    name=PATH        Directory to display.  Optional.  Top-level if missing
 **    ci=LABEL         Show only files in this check-in.  Optional.
+**    name=PATH        Directory to display.  Optional.  Top-level if missing
+**    re=REGEXP        Show only files matching REGEXP
 **    type=TYPE        TYPE=flat: use this display
 **                     TYPE=tree: use the /tree display instead
 **    noreadme         Do not attempt to display the README file.
@@ -152,6 +153,8 @@ void page_dir(void){
   int isSymbolicCI = 0;   /* ci= is symbolic name, not a hash prefix */
   int isBranchCI = 0;     /* True if ci= refers to a branch name */
   char *zHeader = 0;
+  const char *zRegexp;    /* The re= query parameter */
+  char *zMatch;           /* Extra title text describing the match */
 
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
@@ -195,6 +198,13 @@ void page_dir(void){
       zHeader = mprintf("All File in %s/", zD);
     }
   }
+  zRegexp = P("re");
+  if( zRegexp ){
+    zHeader = mprintf("%z matching \"%s\"", zHeader, zRegexp);
+    zMatch = mprintf(" matching \"%h\"", zRegexp);
+  }else{
+    zMatch = "";
+  }
   style_header("%s", zHeader);
   fossil_free(zHeader);
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -219,12 +229,15 @@ void page_dir(void){
   }
   if( zCI ){
     if( fossil_strcmp(zCI,"tip")==0 ){
-      @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a></h2>
+      @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a>\
+      @ %s(zMatch)</h2>
     }else if( isBranchCI ){
       @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a> \
-      @ of branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a></h2>
+      @ of branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a>\
+      @ %s(zMatch)</h2>
     }else {
-      @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a></h2>
+      @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a>\
+      @ %s(zMatch)</h2>
     }
     zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
     if( nD==0 ){
@@ -302,6 +315,14 @@ void page_dir(void){
     db_multi_exec(
       "INSERT OR IGNORE INTO localfiles"
       " SELECT pathelement(name,0), NULL FROM filename"
+    );
+  }
+
+  /* If the re=REGEXP query parameter is present, filter out names that
+  ** do not match the pattern */
+  if( zRegexp ){
+    db_multi_exec(
+      "DELETE FROM localfiles WHERE x NOT REGEXP %Q", zRegexp
     );
   }
 

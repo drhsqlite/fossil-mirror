@@ -284,7 +284,7 @@ void get_checkin_taglist(int rid, Blob *pOut){
 **    --force-missing   Force checkout even if content is missing
 **    --setmtime        Set timestamps of all files to match their SCM-side
 **                      times (the timestamp of the last checkin which modified
-**                      them).
+**                      them)
 **
 ** See also: [[update]]
 */
