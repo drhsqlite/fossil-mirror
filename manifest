@@ -1,5 +1,5 @@
-C More\senhancements\sto\sthe\schange\slog\sfor\sversion\s2.15.
-D 2021-03-13T13:26:41.264
+C Mention\sthe\s./configure\s--print-minimum-sqlite-version\sfeature\sin\sthe\nchange\slog.\s\sImproved\scomments\son\sthe\stwo\splaces\sin\sthe\scode\sthat\scheck\nthe\sminimum\sSQLite\sversion,\sso\sthat\sthey\srefer\sto\sone\sanother,\sto\sremind\ndevelopers\sto\schange\sboth\splaces\sif\sthey\schange\seither.
+D 2021-03-13T17:11:18.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 3fe97d9db80eed4b77775b8baa6b35448a7a2d7a73e2b1f9a03713089ce0655f
+F auto.def 31a23f5674223fee3a28e380823b32eb58eb775096a769efdb5aee2245463a5a
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -538,7 +538,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c d1115a1a07875c4ba21c4f987bb7886b151fb67ba314612edb559b778d083df2
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 33416f68f4e2e8aeb69700583a567fe274a0787e74bfbeae4095037bb4465ae4
+F src/main.c eee14cba2d00a0dfac0c4d5ae0710d3ddfe1385cdf040a6fffd6590130474447
 F src/main.mk 9f12fa169911c73f94cd8ea442fe70a96e886833a0d9b00cc9e43389d7a2c05e
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -827,7 +827,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 2697947099ee3f1dc204b8395f91916b463d587e0117687c80e0bfbf0cf0089a
+F www/changes.wiki 2ea3f4288f0f327c38f9eda9006c0462ae2ea4c0492c3da49cc85e832cf380e3
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5add4656b6ade47bf0b93a7cdc4bfbd5b42fb4c67d61481a2511b61c878d335c
-R d4680e011ca3dab0ee2dff1e0be2e46c
+P c561e051eb3b4875afc35c6fdb31d2b37177aeba3b252df943298a46d30c1366
+R 7e92449c2a9cc610b05132a1ebe74dc5
 U drh
-Z 12de564b0a64e9444480551a860cf2ec
+Z 6a8ff8a54b56cc443fda857b8604d9b6

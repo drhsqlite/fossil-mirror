@@ -67,6 +67,12 @@
   *  Add the "re=" query parameter to the [/help?cmd=/dir|/dir] webpage,
      for symetry with the [/help?cmd=/tree|/tree] page.
   *  Update the built-in SQLite to version 3.35.0.
+  *  The ./configure script now has the --print-minimum-sqlite-version option
+     that prints the minimum SQLite version required by the current version
+     of Fossil.  This might be used by integrators who insist on building
+     Fossil to link against the system SQLite library rather than the
+     built-in copy of SQLite, to verify that their system SQLite library
+     is recent enough.
 
 <a name='v2_14'></a>
 <h2>Changes for Version 2.14 (2021-01-20)</h2>
