@@ -60,6 +60,10 @@
      "foreach", "lappend", and "string match"
   *  The [/help/leaves|leaves command] now shows the branch point
      of each leaf.
+  *  The [/help?cmd=add|fossil add] command refuses to add files whose
+     names are reserved by Windows (ex: "aux") unless the --allow-reserved
+     option is included.  This helps prevent unix users from accidentally
+     creating check-ins that are unreadable by Windows users.
 
 <a name='v2_14'></a>
 <h2>Changes for Version 2.14 (2021-01-20)</h2>

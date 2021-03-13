@@ -1,5 +1,5 @@
-C delta-manifests.md:\sminor\stypos\sand\sphrasing\simprovements.
-D 2021-03-13T10:28:25.453
+C Add\sthe\s"fossil\sadd"\sWindows\sreserved\sfilename\srestriction\sto\sthe\schange\slog.
+D 2021-03-13T12:54:20.581
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -827,7 +827,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki cc520ee93f113ce533d8e643212fc5acb205bc9d56110b06bdd0834aaa5e15cf
+F www/changes.wiki 2e35ba5bbf5f47d8455e3587ec254b427611feca676a7a85c702b445723d4c35
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 922b5c4d1521994b2f79bffbb8183841558d74c2b76e5a860331d01a7f338091
-R 03e11bf0dbb9120db5031a7602776a1d
-U stephan
-Z a8023065651033ccedf3113cb5504176
+P 25e93b7075c35d3fb74b3a7d4c1985f4b4cac457d3f5b0577d7329deebf9c8ea
+R bd059d12b902bd95291bdac563d8147c
+U drh
+Z c37bc3c871a912267860ef57fb502b63
