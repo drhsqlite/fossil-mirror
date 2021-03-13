@@ -44,7 +44,7 @@
 ** Options to control the "local changes" changes. At present, these are
 ** defines: if these changes are adopted, some may want to be made into
 ** configuration options.
-/*---------------------------------------------------------------------------*/
+-----------------------------------------------------------------------------*/
 
 /*
 ** Return a string (in memory obtained from malloc) holding a
