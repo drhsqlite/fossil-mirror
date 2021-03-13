@@ -1,6 +1,6 @@
 # Delta Manifests
 
-This article describes "delta manifests," a special case form of
+This article describes "delta manifests," a special-case form of
 checkin manifest which is intended to take up far less space than
 a normal checkin manifest, in particular for repositories with
 many files. We'll see, however, that the space savings, if indeed
@@ -23,7 +23,7 @@ A checkin manifest includes a list of every file in that checkin.  A
 moderately-sized project can easily have a thousand files, and every
 checkin manifest will include those thousand files. As of this writing
 Fossil's own checkins contain 989 files and the manifests are 80kb
-each. Thus a checkin which changes only 2 bytes of sourse code
+each. Thus a checkin which changes only 2 bytes of source code
 ostensibly costs another 80kb of storage for the manifest for that
 change.
 
@@ -60,15 +60,14 @@ and subsequent ones denoting merge parents) but B-cards always refer
 to exactly one parent.
 
 What unambiguously distinguishes this as a delta is the existence of
-the B-card. All deltas have a B-card and no other type of artifact
-has one. What also, but not unambiguously, distinguishes it as
-a delta is that it has only 17 F-cards, whereas a baseline manifest in
-that same repository has (as of this writing) 291 F-cards. In this
-particular case, the delta manifest is 1363 bytes, compared to 20627
-bytes for the next checkin - a baseline manifest. That's a significant
-saving in F-cards, especially once a repository grows to a size of
-thousands of files. That savings, however, comes with caveats which
-we'll address below.
+the B-card. All deltas have a B-card and no other type of artifact has
+one. What also, but not unambiguously, distinguishes it as a delta is
+that it has only 17 F-cards, whereas a baseline manifest in that same
+repository has (as of this writing) 291 F-cards. In this particular
+case, the delta manifest is 1363 bytes, compared to 20627 bytes for
+the next checkin - a baseline manifest. That's a significant saving in
+F-cards, especially if a repository contains thousands of files. That
+savings, however, comes with caveats which we'll address below.
 
 Trivia regarding the B-card:
 
@@ -181,8 +180,8 @@ without applying their deltas:
 
 ```
 $ f-acat tip > A        # tip version's manifest
-$ f-acat prev --raw > B # previous manifest in its raw deltified form
-$ f-acat prev > C       # previous manifest undelta'd
+$ f-acat prev --raw > B # previous manifest in its raw fossil-deltified form
+$ f-acat prev > C       # previous manifest fossil-undelta'd
 $ ls -la A B C
 -rw-rw-r-- 1 user user 80252 Mar 12 07:09 A  # tip
 -rw-rw-r-- 1 user user   726 Mar 12 07:09 B  # previous: delta'd
@@ -194,8 +193,8 @@ uses delta manifests, a delta-compressed delta manifest takes up
 approximately the same space as a delta-compressed baseline manifest
 (to within 10 bytes for the test samples).
 
-i.e. delta manifests do not typically save any storage space except
-for the tip version! (*Surprise!*)
+i.e. delta manifests may not save any storage space except for the tip
+version! (*Surprise!*)
 
 In terms of RAM costs, deltas usually cost more memory than baseline
 manifests. The reason is because traversing a delta requires having

@@ -1,5 +1,5 @@
-C The\s'add'\scommand\snow\sfails\sfor\sfilenames\sthat\sare\sreserved\son\sWindows\nunless\sthe\s--allow-reserved\sflag\sis\sused.\nSee\s[forum:5116485456|forum\sdiscussion\s5116485456]\sfor\smore\sdetails.
-D 2021-03-13T00:35:05.028
+C delta-manifests.md:\sminor\stypos\sand\sphrasing\simprovements.
+D 2021-03-13T10:28:25.453
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -846,7 +846,7 @@ F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md e58f4c457c124a35eed039c35d63bbca9d3ef72f4ce9cb1c3ee12be5693057f7
 F www/defcsp.md adbd044f32c9b73efc75942b6469cf0078e277091d66fab0a6020650e7ff05a4
-F www/delta-manifests.md dfc3e7718602d3bfa9fa020ecfacf04fb123810d3e6fe983caaecc3133e6553e
+F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki 0e03b43ba0282cf6cd92fbcbb908e4006a66cd96a52ae97b6735427de1b462a7
 F www/embeddeddoc.wiki aa4ca6612f13c2bde382ccf87c167bc627292ca64e7b4401ed722df42a591a2c
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b06953e15e93b4cb86dd3a48fe0d7a879bd8c7ac829817f22e237f123c5f1ab0 7135111ad47b8dd0d9f4a6557d8ad6ec5f2e3bfa17f301bfa70c7be95b10473a
-R a46284d731c03bc050b05e35d362585d
-U drh
-Z 2e31fa492e6da9ec4cccbb0e6046e9b7
+P 922b5c4d1521994b2f79bffbb8183841558d74c2b76e5a860331d01a7f338091
+R 03e11bf0dbb9120db5031a7602776a1d
+U stephan
+Z a8023065651033ccedf3113cb5504176
