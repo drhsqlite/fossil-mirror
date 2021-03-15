@@ -66,6 +66,19 @@ There is a hyperlink under the /wikihelp menu that can be used to create
 new technotes.  And there is a submenu hyperlink on technote displays for
 editing existing technotes.
 
+Technotes can also be created using the <b>wiki create</b> command:
+
+<blockquote>
+<b>
+fossil wiki create TestTechnote -t now --technote-bgcolor lightgreen technote.md<br>
+<tt>Created new tech note 2021-03-15 13:05:56</tt><br>
+</b>
+</blockquote>
+
+This command inserts a light green technote in the timeline at 2021-03-15 13:05:56, with 
+the contents of file <b>technote.md</b> and comment "TestTechnote". Specifying a different time using
+<b>-t DATETIME</b> will insert the technote at the specified place in the timeline.
+
 Users must have check-in privileges (permission "i") in order to
 create or edit technotes.  In addition, users must have create-wiki
 privilege (permission "f") to create new technotes and edit-wiki
