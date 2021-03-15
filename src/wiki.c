@@ -369,6 +369,8 @@ void wiki_helppage(void){
   }
   @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
   @      available on this server.</li>
+  @ <li> %z(href("%R/timeline?y=e"))List of All Tech-notes</a>
+  @      available on this server.</li>
   if( g.perm.ModWiki ){
     @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
   }
