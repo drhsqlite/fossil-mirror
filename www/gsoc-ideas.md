@@ -1,10 +1,10 @@
 # List of Projects and Tasks
 
 This list was made for the Fossil project's application for [Google Summer of Code](https://summerofcode.withgoogle.com/) in 2021. That application was
-unsuccessful, but still this list is a useful starting point for anyone looking
-for a place to start. We welcome newcomers, and provided you can follow the simple
-[procedures for contributing to Fossil](https://fossil-scm.org/home/doc/trunk/www/contribute.wiki) then 
-you might be interested in the following.
+unsuccessful, but still this list is a starting point for anyone looking
+for a place to start. We welcome newcomers, and invite developers to follow the simple
+[procedures for contributing to Fossil](./contribute.wiki). The
+[hacker how-to](./hacker-howto.wiki) is recommended reading.
 
 There are two implementations of the Fossil data model:
 
