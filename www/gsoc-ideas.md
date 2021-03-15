@@ -1,25 +1,47 @@
-# Project Ideas for Google Summer of Code 2021
+# List of Projects and Tasks
 
-This list was made for the Fossil project's application for [Google Summer of
-Code](https://summerofcode.withgoogle.com/) in 2021. GSoC pays students to
-contribute to free software projects during the Northern Hemiphere summer.  If
-you are a student, you will be able to apply for GSoC starting March 29th 2021.
+This list was made for the Fossil project's application for [Google Summer of Code](https://summerofcode.withgoogle.com/) in 2021. That application was
+unsuccessful, but still this list is a useful starting point for anyone looking
+for a place to start. We welcome newcomers, and provided you can follow the simple
+[procedures for contributing to Fossil](https://fossil-scm.org/home/doc/trunk/www/contribute.wiki) then 
+you might be interested in the following.
 
-This page applies to the two implementations of Fossil: [the classic Fossil](https://fossil-scm.org)
-and [libfossil](https://fossil.wanderinghorse.net/r/libfossil). The two implementations 
-have an identical implementation of the Fossil data model, are 100% compatible in terms of
-data access since they use the same SQL, and are 100% binary compatible in terms of on-disk storage.
+There are two implementations of the Fossil data model:
 
-# General Features
+* [the classic Fossil project](https://fossil-scm.org) , which is where this file is maintained and 
+  which is as of 2021 how everyone interacts with Fossil objects 
+* [libfossil](https://fossil.wanderinghorse.net/r/libfossil), which is an independent project to manipulate Fossil objects from a library, or using commandline tools which are thin wrappers to the library
+
+As of 2021 the two implementations have an identical implementation of the
+Fossil data model, are 100% compatible in terms of data access since they use
+the same SQL, and are 100% binary compatible in terms of on-disk storage.
+
+The projects listed here are grouped by functionality - User Interface, Integration, Email,
+etc. If you are looking for something easy to start with, then depending where
+your interests lie, there are some small libfossil tasks and small
+features to work on in the UI.
+
+# UI, Look and Feel
+
+Tasks for those interested in graphic/web design:
 
 * Improve the documentation history-browsing page to enable selection of 2 arbitrary versions to diff, similar to the [Mediawiki history feature enabled on Wikipedia](https://en.wikipedia.org/w/index.php?title=Fossil_(software)&action=history)
 * Allow diffing of Forum posts
-* Develop a test suite for the draft JSON API in libfossil. This JSON API is a way of integrating many kinds of systems with Fossil
-* Re-implement the draft JSON API in libfossil to use the JSON capability in SQLite, now that SQLite has JSON. This is a large project and would start with feasibility analysis
+* General touch-ups in the existing skins. This may, depending on how deep one
+  cares to dig, require digging into C code to find, and potentially modify, how
+  the HTML is generated.
+* Creation of one or more new skins. This does not specifically require any C
+  know-how.
+* Complete per-feature CSS facilities in [the Inskinerator](https://tangentsoft.com/inskinerator/dir) and add features to the Inskinerator
+
+# Projects Relating to Fossil Integration
+
 * Fossil hooks for pipelines with CI/CD such as static analysis, Buildbot, Gerrit, Travis and Jenkins are not well-documented and may need some further development. Make this work better, with configuration examples
 * Create a [Pandoc](https://pandoc.org) filter that handles Fossil-style Markdown
 * Create a [Pandoc filter that handles Pikchr](https://groups.google.com/g/pandoc-discuss/c/zZSspnHHsg0?pli=1) (Pikchr can be used with many kinds of layout, not just Markdown)
 * Editor integration: [improve the Fossil VSCode plugin](https://marketplace.visualstudio.com/items?itemName=koog1000.fossil) or [create a Fossil plugin for Eclipse](https://marketplace.eclipse.org/taxonomy/term/26%2C31)
+* Develop a test suite for the draft JSON API in libfossil. This JSON API is a way of integrating many kinds of systems with Fossil
+* Re-implement the draft JSON API in libfossil to use the JSON capability in SQLite, now that SQLite has JSON. This is a large project and would start with feasibility analysis
 
 # Adding Inbound (Receiving) Email to Fossil
 
@@ -86,17 +108,6 @@ Projects relating to the ticketing system include:
 * Improving the Fossil web UI for ticketing, which is clunky to say the least. Fossil tries not be a heavy user of Javascript and Javascript libraries, but the wikiedit, chat and Forum code are all more advanced than ticketing, 
 and have UI features that would improve ticketing
 * If there is an inbound email system as per the previous section "Adding Inbound (Receiving) Email to Fossil", then implement this system for ticketing
-
-# Look and Feel
-
-Tasks for those interested in graphic/web design:
-
-* General touch-ups in the existing skins. This may, depending on how deep one
-  cares to dig, require digging into C code to find, and potentially modify, how
-  the HTML is generated.
-* Creation of one or more new skins. This does not specifically require any C
-  know-how.
-* Complete per-feature CSS facilities in [the Inskinerator](https://tangentsoft.com/inskinerator/dir) and add features to the Inskinerator
 
 # Tasks Requiring Fossil Data Model Knowledge
 
