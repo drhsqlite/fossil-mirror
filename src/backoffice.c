@@ -632,8 +632,6 @@ void backoffice_work(void){
   /* Here is where the actual work of the backoffice happens */
   nThis = alert_backoffice(0);
   if( nThis ){ backoffice_log("%d alerts", nThis); nTotal += nThis; }
-  nThis = smtp_cleanup();
-  if( nThis ){ backoffice_log("%d SMTPs", nThis); nTotal += nThis; }
   nThis = hook_backoffice();
   if( nThis ){ backoffice_log("%d hooks", nThis); nTotal += nThis; }
 
