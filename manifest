@@ -1,5 +1,5 @@
-C Add\sexample\sof\screating\stechnote\sfrom\sthe\scommandline
-D 2021-03-15T13:14:22.522
+C Detect\sand\suse\sVisual\sStudio\s2017\sand\slater\sin\sbuildmsvc.bat.
+D 2021-03-16T16:13:48.065
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -794,7 +794,7 @@ F win/Makefile.dmc f0bc480793df711921828ec807ecc913d4558f2b38ce916cf8f0da07e3620
 F win/Makefile.mingw bd947f11ef36c766ad9e44a10581ed0b05427a2b67f663011f2caab34a3a4d33
 F win/Makefile.mingw.mistachkin 9cea9d49c8cde167a1973862e22177f81b7ac4e47ba46c78e22020034842caf9
 F win/Makefile.msc f6542c6f6eb976992a4caf0420adcfba7134cb8850ef2cfa57cfb488770db28d
-F win/buildmsvc.bat 401f6d57cd024c5484fccf3ed07bd2f1d8bfd20b7487fe7f0282b335ac9f9b5b x
+F win/buildmsvc.bat f8ecc7a98fc4a9aae34aa24ea2492429f62a180bda6838f572f58994f3d001ec x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc d86e2b5468fbfdcfa244432defe4029d39071fa92bf3f81f10d7ee7869ada19b
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 620c8175c2be3c08760fbe739e02da72727192afcc10f34adaa291d477648ac5
-R 42a5f2db1a806a06a269b7736d0deadd
-U danshearer
-Z 92d6101f844bef78cf05186e1274fa18
+P a498b132b25ca7f95d4d75fc0f6a4dab660df06b11cc23db17da6cffbbfc07d9
+R 2c95e77170e855d11ccb97a4f59fceec
+U danield
+Z 23276288ede209c0af7387356d86ea10

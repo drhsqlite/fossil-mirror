@@ -35,7 +35,7 @@ REM
 REM Visual C++ ????
 REM
 IF DEFINED VCINSTALLDIR IF EXIST "%VCINSTALLDIR%" (
-  %_AECHO% Build environment appears to be setup.
+  %_AECHO% Build environment appears to be set up.
   GOTO skip_setupVisualStudio
 )
 
@@ -46,6 +46,18 @@ IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
   %_AECHO% Build environment batch file manually overridden to "%VSVARS32%"...
   GOTO skip_detectVisualStudio
 )
+
+REM
+REM Visual Studio at least 2017
+REM
+SET VSWHERE=%programfiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
+IF NOT EXIST "%VSWHERE%" GOTO skip_detectVisualStudioAtLeast2017
+FOR /f "usebackq delims=#" %%a IN (`"%VSWHERE%" -latest -property installationPath`) DO SET VSDEVCMD_PATH=%%a\Common7\Tools\VsDevCmd.bat
+FOR /f "usebackq delims=#" %%a IN (`"%VSWHERE%" -latest -property catalog_productLineVersion`) DO SET VS_LINEVER=%%a
+call :fn_SetVsAtLeast2017
+%_AECHO% Using Visual Studio %VS_LINEVER%...
+GOTO skip_detectVisualStudio
+:skip_detectVisualStudioAtLeast2017
 
 REM
 REM Visual Studio 2015
@@ -167,10 +179,18 @@ REM
 REM NOTE: Attempt to call the selected batch file to setup the environment
 REM       variables for building with MSVC.
 REM
-%__ECHO3% CALL "%VSVARS32%"
+IF DEFINED VS_ATLEAST_2017 (
+  %__ECHO3% CALL "%VSDEVCMD_PATH%"
+) ELSE (
+  %__ECHO3% CALL "%VSVARS32%"
+)
 
 IF ERRORLEVEL 1 (
-  ECHO Visual Studio build environment batch file "%VSVARS32%" failed.
+  IF DEFINED VS_ATLEAST_2017 (
+    ECHO Visual Studio build environment batch file "%VSDEVCMD_PATH%" failed.
+  ) ELSE (
+    ECHO Visual Studio build environment batch file "%VSVARS32%" failed.
+  )
   GOTO errors
 )
 
@@ -342,6 +362,10 @@ GOTO no_errors
 
 :fn_SetErrorLevel
   VERIFY MAYBE 2> NUL
+  GOTO :EOF
+
+:fn_SetVsAtLeast2017
+  SET VS_ATLEAST_2017=1
   GOTO :EOF
 
 :usage
