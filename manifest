@@ -1,5 +1,5 @@
-C Add\sexplanation\sof\show\sto\suse\sthis\sscript\s(and\show\snot\sto\sbreak\sthe\sbuild)
-D 2021-03-17T12:38:58.607
+C Improve\sdescription\sof\stechnotes\sas\sper\shttps://fossil-scm.org/forum/forumpost/225b049220
+D 2021-03-17T15:27:28.871
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -642,7 +642,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c 0ab500757ee25f4eafe3eb2c0de45a6e5bb0793eaa95526aac75e6682a8eccd1
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 3d282eda2b6c30f25c99240a3d5303c2afdd14bd495855b415079b486db16950
+F src/wiki.c a77bb96ebbb2a35ffa552c844c5e027a318184b976bfc74cff7d29a9e9f2d934
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8228ed34ea060b2835ea7e7f635f6c1999feb98416fa3cb2d469f93c0bad4a30
-R 384897724a2c935adae146d88aec4d28
+P e11efff8e4de0aefcfb2a78b7c985374114e5439014aefee09c073e469d27cf3
+R 28b604bf8a06ff4a0bdbce415044a265
 U danshearer
-Z 56e4b388b50c0e932587c4db2c62c460
+Z 8949293bd57d0256a1ae57b8a976436f

@@ -1930,7 +1930,7 @@ int wiki_technote_to_rid(const char *zETime) {
 **                    the text/plain mimetype, its HTML-escaped output
 **                    will be wrapped in <pre>...</pre>.
 **
-** > fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
+** > fossil wiki (create|commit) (PAGENAME | TECHNOTE-NAME) ?FILE? ?OPTIONS?
 **
 **       Create a new or commit changes to an existing wiki page or
 **       technote from FILE or from standard input. PAGENAME is the
@@ -1948,12 +1948,16 @@ int wiki_technote_to_rid(const char *zETime) {
 **                                     synonyms of these values.
 **         -t|--technote DATETIME      Specifies the timestamp of
 **                                     the technote to be created or
-**                                     updated. When updating a tech note
-**                                     the most recently modified tech note
-**                                     with the specified timestamp will be
-**                                     updated.
+**                                     updated. The timestamp specifies when
+**                                     this technote appears in the timeline
+**                                     and is its permanent handle although
+**                                     it may not be unique. When updating
+**                                     a technote the most recently modified
+**                                     tech note with the specified timestamp
+**                                     will be updated.
 **         -t|--technote TECHNOTE-ID   Specifies the technote to be
-**                                     updated by its technote id.
+**                                     updated by its technote id, which is
+**                                     its UUID.
 **         --technote-tags TAGS        The set of tags for a technote.
 **         --technote-bgcolor COLOR    The color used for the technote
 **                                     on the timeline.
