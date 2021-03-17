@@ -1930,12 +1930,12 @@ int wiki_technote_to_rid(const char *zETime) {
 **                    the text/plain mimetype, its HTML-escaped output
 **                    will be wrapped in <pre>...</pre>.
 **
-** > fossil wiki (create|commit) (PAGENAME | TECHNOTE-NAME) ?FILE? ?OPTIONS?
+** > fossil wiki (create|commit) (PAGENAME | TECHNOTE-COMMENT) ?FILE? ?OPTIONS?
 **
 **       Create a new or commit changes to an existing wiki page or
 **       technote from FILE or from standard input. PAGENAME is the
-**       name of the wiki entry or the timeline comment of the
-**       technote.
+**       name of the wiki entry. TECHNOTE-COMMENT is the timeline comment of
+**       the technote.
 **
 **       Options:
 **         -M|--mimetype TEXT-FORMAT   The mime type of the update.

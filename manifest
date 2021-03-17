@@ -1,5 +1,5 @@
-C Improve\sdescription\sof\stechnotes\sas\sper\shttps://fossil-scm.org/forum/forumpost/225b049220
-D 2021-03-17T15:27:28.871
+C Be\sclearer\sabout\sthe\sdefinition\sof\stechnote\scomment\s&\sid.\sImprove\stechnote\sdoc.
+D 2021-03-17T15:50:13.870
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -642,7 +642,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c 0ab500757ee25f4eafe3eb2c0de45a6e5bb0793eaa95526aac75e6682a8eccd1
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c a77bb96ebbb2a35ffa552c844c5e027a318184b976bfc74cff7d29a9e9f2d934
+F src/wiki.c 84d7933dc3856b3bcdce0546ba33830f3af214125966d950326242051064de0b
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -860,7 +860,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf63028e6bfe
 F www/env-opts.md bb63dff3391ff3da56f9a8d0236020a4a8a09ed920cc79d4e2021817e8045af9
-F www/event.wiki 458b207432d64ea626845819e136291378fcc1ed3ea540ae5604856e1d37fc1a
+F www/event.wiki dcd29f441158f42028af484b38393be23aed1f8ef69a25686313050047897951
 F www/faq.tcl 4f8e2899730d4203e177c52c3bc3ca0230eadb1e108fa79f4154cf46dce9ae06
 F www/faq.wiki a1b6ad89f5b12102c2a52c4bed5168ea5a932a10811c3c824b1ff048c996146d
 F www/fileedit-page.md 15412fa30b211b4d9bcf1b13cf9a293f46728dedbf8a9126f4d990170267bcb4
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e11efff8e4de0aefcfb2a78b7c985374114e5439014aefee09c073e469d27cf3
-R 28b604bf8a06ff4a0bdbce415044a265
+P ae70df75505e0ccd5ceef50fcf0b0912667b47c15081004742ac99f1575795cc
+R c784e44401213ef7d4cb07b6369929b6
 U danshearer
-Z 8949293bd57d0256a1ae57b8a976436f
+Z eebf83edbb5956852223cce776dba356
