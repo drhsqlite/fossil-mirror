@@ -1,5 +1,5 @@
-C Regenerated\smakefiles\sto\saccount\sfor\swebmail.c\sremoval\sin\s[274df1cad42f].
-D 2021-03-16T21:08:42.215
+C Add\sexplanation\sof\show\sto\suse\sthis\sscript\s(and\show\snot\sto\sbreak\sthe\sbuild)
+D 2021-03-17T12:38:58.607
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -542,7 +542,7 @@ F src/main.c eee14cba2d00a0dfac0c4d5ae0710d3ddfe1385cdf040a6fffd6590130474447
 F src/main.mk 98345d725e66e71e22b7b97869bdebf30a782499f8a55e9a6bf5c47106f048a0
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
-F src/makemake.tcl 5b1a9cbe92572169ea54e7dfd6dae67893240c2ecccf5a9404bcf82195382885 x
+F src/makemake.tcl d366626c241a534490dac5254ec26248df862319001bebe217e2611b609bdf53 x
 F src/manifest.c 5092cd257115646080369099deea4712af3bfeb85c55cbcbbf9f782f1767b12f
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 274df1cad42f304befd5a0926c937c2e2bb322af54a985e397f180b37ad13ff3
-R ce6aae28e186430a157f74a82f50e31d
-U stephan
-Z aa93d7497dc59c72392964fdedd84bd2
+P 8228ed34ea060b2835ea7e7f635f6c1999feb98416fa3cb2d469f93c0bad4a30
+R 384897724a2c935adae146d88aec4d28
+U danshearer
+Z 56e4b388b50c0e932587c4db2c62c460

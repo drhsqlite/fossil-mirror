@@ -1,21 +1,32 @@
 #!/usr/bin/tclsh
 #
-# Run this Tcl script to generate the various makefiles for a variety
-# of platforms.  Files generated include:
+#    ### Run this Tcl script EVERY time you modify it in any way! ###
+#
+# This Tcl script generates make files for various platforms. The makefiles
+# then need to be committed.
+#
+# If you modify this file then:
+#
+#     1. cd src; tclsh makemake.tcl
+#
+#     2. if errors are reported, fix them and go to step 1
+#
+#     3. if "fossil diff" reports changes in any of the generated
+#        files, commit the changed files to the repo
+#
+# Files generated include:
 #
 #     src/main.mk           # makefile for all unix systems
 #     win/Makefile.mingw    # makefile for mingw on windows
 #     win/Makefile.*        # makefiles for other windows compilers
 #
-# Run this script while in the "src" subdirectory.  Like this:
-#
-#      tclsh makemake.tcl
-#
 # Add new source files by listing the files (without their .c suffix)
 # in the "src" variable.  Add new resource files to the "extra_files"
 # variable.  There are other variables that you can alter, down to
 # the "STOP HERE" comment.  The stuff below "STOP HERE" should rarely need
-# to change.
+# to change. After modification, go to step 1 above.
+#
+# Delete unused source files in the "src" variable, then go to step 1 above.
 #
 #############################################################################
 
