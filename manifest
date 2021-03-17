@@ -1,5 +1,5 @@
-C Be\sclearer\sabout\sthe\sdefinition\sof\stechnote\scomment\s&\sid.\sImprove\stechnote\sdoc.
-D 2021-03-17T15:50:13.870
+C Update\sbuild\sinfos\sfor\sWindows.
+D 2021-03-17T18:24:26.052
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -818,7 +818,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 3f371ffa555483fe689f792265138166d628c48a8562f268416aea875a4909d8
+F www/build.wiki 29390e0301453f9529d5bba83ab389533df2061e9d8c871175fa52933e041681
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md e5f90e7eca4927a293fdb437a461fdeccb4ad383edf2a3030de1fb36737c11bf
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae70df75505e0ccd5ceef50fcf0b0912667b47c15081004742ac99f1575795cc
-R c784e44401213ef7d4cb07b6369929b6
-U danshearer
-Z eebf83edbb5956852223cce776dba356
+P 51292810f8c2a8db4bbe0aace28bd7d916476c93986e0ab54df6c38d743c60cf
+R dab51ec3a54caac22b2e418335205415
+U danield
+Z 59b6ecf0ec445f5d7b7bb17c892ca378
