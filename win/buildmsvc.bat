@@ -365,7 +365,7 @@ GOTO no_errors
     %_AECHO% The "VsWhere" tool does not appear to be installed.
     GOTO :EOF
   )
-  SET VS_WHEREIS_CMD="%VSWHERE_EXE%" -products * -requires Microsoft.Component.MSBuild -property installationPath -latest
+  SET VS_WHEREIS_CMD="%VSWHERE_EXE%" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath -latest
   IF DEFINED __ECHO (
     %__ECHO% %VS_WHEREIS_CMD%
     REM

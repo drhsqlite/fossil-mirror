@@ -1,5 +1,5 @@
-C Fix\sfor\sthe\s'reserved-names'\stest.
-D 2021-03-18T03:21:38.156
+C When\susing\sthe\sVsWhere\stool,\srequire\sthe\sMSVC\stoolset,\snot\sMSBuild.
+D 2021-03-18T03:22:48.218
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -793,7 +793,7 @@ F win/Makefile.dmc 8dc0144a5f2c4e86ab6e6bad74ab101208f137d8b3116d057ec7bd46fe413
 F win/Makefile.mingw f829cec1ddc2f0c46e726277aa17ffea5c36c124bac67ce2007d85f44ccac108
 F win/Makefile.mingw.mistachkin c702fab0694869e5bfadf178e87ae12e472f0b3484c0bebd2289ff87af230b56
 F win/Makefile.msc bed09dbfa58aed7189485fb60db0ab27c84cf81d79060c1d453acdf175761351
-F win/buildmsvc.bat 3d79a256628734da784b93b42921cdb65911efe76b6b2d79db864cf3cb1e5ab9 x
+F win/buildmsvc.bat bbad349c63e1750f7e71ed6063ac15e9ab0490e4dccd34d87e40be942d269505 x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc d86e2b5468fbfdcfa244432defe4029d39071fa92bf3f81f10d7ee7869ada19b
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2dbc71549647541c2df249841924e509efb4416183b9bfc38a3d86a8118ab29f
-R ff299aabdf591ff4db476f9810fccef6
+P 84e2abea1c0a07fe2f0c063b914b04ad44e27819f87bc4db29c0605a3d7180a9
+R 9347def967fd65e74f083b7a8033d5c9
 U mistachkin
-Z bbe13142761af80c65bff29a5898bae1
+Z 69dbbfe1a4f72a4a852093668ee2b3a3
