@@ -18,7 +18,9 @@
 **
 */
 
+#if !defined(_RC_COMPILE_)
 #include "cson_amalgamation.h"
+#endif /* !defined(_RC_COMPILE_) */
 
 /**
    FOSSIL_JSON_API_VERSION holds the date (YYYYMMDD) of the latest
@@ -55,6 +57,7 @@
 ** json.c)!
 **
 */
+#if !defined(_RC_COMPILE_)
 enum FossilJsonCodes {
 FSL_JSON_W_START = 0,
 FSL_JSON_W_UNKNOWN /*+1*/,
@@ -265,5 +268,6 @@ enum json_get_changed_files_flags {
     json_get_changed_files_ELIDE_PARENT = 1 << 0
 };
 
+#endif /* !defined(_RC_COMPILE_) */
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
 #endif /* FOSSIL_ENABLE_JSON */
