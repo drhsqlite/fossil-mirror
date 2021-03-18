@@ -1,5 +1,5 @@
-C Object\sfiles\sbased\son\schecked-out\ssource\sfiles\sshould\snot\sbe\signored.\s\sThe\sfinal\sbuild\sproducts\s(e.g.\s'fossil',\s'fossil.exe')\sare\sexempt\sfrom\sthis\srule.
-D 2021-03-18T01:40:59.412
+C Fixes\sfor\sthe\s'th1'\stests.
+D 2021-03-18T02:01:29.468
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -698,7 +698,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 41c891130f3b065b69b2f369f83814abbd3422d194e2d7199ced2ade4b502837
+F test/tester.tcl f1d2bf4a3dd5570e4ee58938a3f1c1c4643e2b54aa3cdc419aa132b196cb563f
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -714,7 +714,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test f1b9bd7e0ca5cf6d982d69827a6a138f70cd4bccffad0c9fb212c042ec54fc7d
+F test/th1.test ad2a7bb3ed636c7d53c776c6097de112cbe9b47de311d96b0d47d255d8fc53ba
 F test/unversioned.test 0162745841cd4d32646b74f5630721cb4f6f94ad70ba3114b4e06a52eb5bfe35
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab168a89bc6ee2a8d0bf5c7055ef2b0a49a86ac08ff75fa635feede313bb4bb7
-R e85fdd029c24436e3e1a284dbf3cd3ad
+P 0d21459e354d72db9576a660c1a516dc20c526e1495bcabeea5f412e6ca0cd88
+R 3b5d918e65c6b5770208a2c08e5d3507
 U mistachkin
-Z 5256a34b6fce2af2789d8b7ee9507f31
+Z c56e101c95a9c96ef467fcf249ba831f

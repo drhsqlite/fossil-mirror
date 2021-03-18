@@ -604,7 +604,7 @@ proc test_block_in_checkout { name rscript {tscript ""} } {
     set $::CODE 0
     set $::RESULT ""
   } else {
-    run_in_checkout $rscript
+    uplevel 1 [list run_in_checkout $rscript]
     if {[string length $tscript] == 0} {
       return ""
     } else {

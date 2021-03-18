@@ -780,7 +780,8 @@ test th1-defHeader-1 {$RESULT eq \
 ###############################################################################
 
 fossil test-th-eval "defHeader"
-test th1-defHeader-2 {[string match *<body> [normalize_result]]}
+test th1-defHeader-2 {[string match *<body> [normalize_result]] || \
+    [string match "*<body class=\"\$current_feature\">" [normalize_result]]}
 
 ###############################################################################
 
@@ -1048,15 +1049,16 @@ test th1-reinitialize-2 {$RESULT ne ""}
 fossil test-th-eval "info commands"
 set sorted_result [lsort $RESULT]
 protOut "Sorted: $sorted_result"
-set base_commands {anoncap anycap array artifact break breakpoint catch\
-      cgiHeaderLine checkout combobox continue copybtn date decorate \
-      defHeader dir enable_output encode64 error expr for getParameter \
-      glob_match globalState hascap hasfeature html htmlize http httpize if \
-      info insertCsrf lindex linecount list llength lsearch markdown nonce \
-      proc puts query randhex redirect regexp reinitialize rename render \
-      repository return searchable set setParameter setting stime string \
-      styleFooter styleHeader styleScript tclReady trace unset unversioned \
-      uplevel upvar utime verifyCsrf verifyLogin wiki}
+set base_commands {anoncap anycap array artifact break breakpoint \
+      builtin_request_js capexpr captureTh1 catch cgiHeaderLine checkout \
+      combobox continue copybtn date decorate defHeader dir enable_htmlify \
+      enable_output encode64 error expr for foreach getParameter glob_match \
+      globalState hascap hasfeature html htmlize http httpize if info \
+      insertCsrf lappend lindex linecount list llength lsearch markdown \
+      nonce proc puts query randhex redirect regexp reinitialize rename \
+      render repository return searchable set setParameter setting stime \
+      string styleFooter styleHeader styleScript tclReady trace unset \
+      unversioned uplevel upvar utime verifyCsrf verifyLogin wiki}
 set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {
   test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}
