@@ -1,5 +1,5 @@
-C When\sconfiguring\swith\s--no-opt\sin\saddition\sto\s--fossil-debug,\sdo\snot\sswallow\s-DFOSSIL_DEBUG.
-D 2021-03-18T10:55:07.214
+C Add\sinformation\son\show\sto\sremove\sa\sWindows\sservice,\sper\sforum\spost\shttps://fossil-scm.org/forum/forumpost/0bcffc517f
+D 2021-03-18T15:20:28.791
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -966,8 +966,8 @@ F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed
 F www/server/windows/iis.md fb8614ab24ddc1e538cbc3f230379e367bfdde58fe4b11d200115e971d26f04d
 F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3090199a5050f5e
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
-F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
-F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
+F www/server/windows/service.md 83ad0dd06e4163f370fc4b4795b0a1daf835dc1c4d3b93db6c8b0c9326646b02
+F www/server/windows/stunnel.md 7beeb5ad51cd9b352b60b7e82e4db1b234e33d9d1b48aff1aa6df9cf57c31dd3
 F www/serverext.wiki 1d91eca0075419a839d77d9a9742213459191f2aa4199f4bac0280fda42a69da
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 435c5f6a45beb9bd28f55e40e69418d67cd263d95e4b515133592e3722c3bbf1
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a517a2feeaa2107d6667a3b2c1991d963024983858b2f0d24d9d99860b45c87d
-R 7a72283773488007f4f4fab2f7d78c96
+P 72983897b0c2aa4472139da47d921508c65906d72c830c682ebe612512c37541
+R 7d64348a0767e182385f59c9ae0af24d
 U danield
-Z e250d3a08641df8670317a293b10e06b
+Z 88183856d0c875b1b980d025956085a8
