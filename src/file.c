@@ -2567,3 +2567,24 @@ int file_is_reserved_name(const char *zFilename, int nFilename){
     }
   }
 }
+
+/*
+** COMMAND: test-is-reserved-name
+**
+** Usage: %fossil test-is-reserved-name FILENAMES...
+**
+** Passes each given name to file_is_reserved_name() and outputs one
+** line per file: the result value of that function followed by the
+** name.
+*/
+void test_is_reserved_name_cmd(void){
+  int i;
+
+  if(g.argc<3){
+    usage("FILENAME_1 [...FILENAME_N]");
+  }
+  for( i = 2; i < g.argc; ++i ){
+    const int check = file_is_reserved_name(g.argv[i], -1);
+    fossil_print("%d %s\n", check, g.argv[i]);
+  }
+}
