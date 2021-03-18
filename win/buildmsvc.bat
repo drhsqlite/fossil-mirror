@@ -48,16 +48,16 @@ IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
 )
 
 REM
-REM Visual Studio at least 2017
+REM Visual Studio 2017 / 2019
 REM
-SET VSWHERE=%programfiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
-IF NOT EXIST "%VSWHERE%" GOTO skip_detectVisualStudioAtLeast2017
-FOR /f "usebackq delims=#" %%a IN (`"%VSWHERE%" -latest -property installationPath`) DO SET VSDEVCMD_PATH=%%a\Common7\Tools\VsDevCmd.bat
-FOR /f "usebackq delims=#" %%a IN (`"%VSWHERE%" -latest -property catalog_productLineVersion`) DO SET VS_LINEVER=%%a
-call :fn_SetVsAtLeast2017
-%_AECHO% Using Visual Studio %VS_LINEVER%...
-GOTO skip_detectVisualStudio
-:skip_detectVisualStudioAtLeast2017
+CALL :fn_TryUseVsWhereExe
+IF NOT DEFINED VSWHEREINSTALLDIR GOTO skip_detectVisualStudio2017
+SET VSVARS32=%VSWHEREINSTALLDIR%\Common7\Tools\VsDevCmd.bat
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2017 / 2019...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2017
 
 REM
 REM Visual Studio 2015
@@ -179,18 +179,10 @@ REM
 REM NOTE: Attempt to call the selected batch file to setup the environment
 REM       variables for building with MSVC.
 REM
-IF DEFINED VS_ATLEAST_2017 (
-  %__ECHO3% CALL "%VSDEVCMD_PATH%"
-) ELSE (
-  %__ECHO3% CALL "%VSVARS32%"
-)
+%__ECHO3% CALL "%VSVARS32%"
 
 IF ERRORLEVEL 1 (
-  IF DEFINED VS_ATLEAST_2017 (
-    ECHO Visual Studio build environment batch file "%VSDEVCMD_PATH%" failed.
-  ) ELSE (
-    ECHO Visual Studio build environment batch file "%VSVARS32%" failed.
-  )
+  ECHO Visual Studio build environment batch file "%VSVARS32%" failed.
   GOTO errors
 )
 
@@ -364,8 +356,32 @@ GOTO no_errors
   VERIFY MAYBE 2> NUL
   GOTO :EOF
 
-:fn_SetVsAtLeast2017
-  SET VS_ATLEAST_2017=1
+:fn_TryUseVsWhereExe
+  IF DEFINED VSWHERE_EXE GOTO skip_setVsWhereExe
+  SET VSWHERE_EXE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
+  IF NOT EXIST "%VSWHERE_EXE%" SET VSWHERE_EXE=%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe
+  :skip_setVsWhereExe
+  IF NOT EXIST "%VSWHERE_EXE%" (
+    %_AECHO% The "VsWhere" tool does not appear to be installed.
+    GOTO :EOF
+  )
+  SET VS_WHEREIS_CMD="%VSWHERE_EXE%" -products * -requires Microsoft.Component.MSBuild -property installationPath -latest
+  IF DEFINED __ECHO (
+    %__ECHO% %VS_WHEREIS_CMD%
+    REM
+    REM NOTE: This will not be executed, any reasonable fake path will work.
+    REM
+    SET VSWHEREINSTALLDIR=C:\Program Files\Microsoft Visual Studio\2017\Community
+    GOTO skip_setVsWhereInstallDir
+  )
+  FOR /F "delims=" %%D IN ('%VS_WHEREIS_CMD%') DO (SET VSWHEREINSTALLDIR=%%D)
+  :skip_setVsWhereInstallDir
+  %_VECHO% VsWhereInstallDir = '%VSWHEREINSTALLDIR%'
+  IF NOT DEFINED VSWHEREINSTALLDIR (
+    %_AECHO% Visual Studio 2017 / 2019 is not installed.
+    GOTO :EOF
+  )
+  %_AECHO% Visual Studio 2017 / 2019 is installed.
   GOTO :EOF
 
 :usage
