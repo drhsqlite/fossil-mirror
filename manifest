@@ -1,5 +1,5 @@
-C Add\sinformation\son\show\sto\sremove\sa\sWindows\sservice,\sper\sforum\spost\shttps://fossil-scm.org/forum/forumpost/0bcffc517f
-D 2021-03-18T15:20:28.791
+C Add\sthe\s--reset\soption\sto\sthe\s"fossil\stest-backoffice-lease"\scommand.
+D 2021-03-18T22:09:15.492
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -429,7 +429,7 @@ F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3
 F src/allrepo.c 6a35128d321a01601202c9b4074086286d07c5cee217e5ea5b269cfcd68ca5eb
 F src/attach.c 8ed9173b64b9751609ac2e78d608b7b1c473a072d5b1e1be2b1bc20ad0361796
 F src/backlink.c 2178b2d4a5c918c9b7f13e15a4d86119d32d0a74253d20b9b23530a7cc572487
-F src/backoffice.c c727a2b3360985ce12bc4254ce3498a16d71e806901cdc7c411913f6ffee95f9
+F src/backoffice.c 4db70d65ea7b5851ee27ae2a62dcae293fcb7698bc23e41c9427cdfa65e3600d
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
 F src/blob.c 195dc7c92f2e2ce06e9e172cccc98f41e6418a469aeeb19c05852dbbeb46891b
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72983897b0c2aa4472139da47d921508c65906d72c830c682ebe612512c37541
-R 7d64348a0767e182385f59c9ae0af24d
-U danield
-Z 88183856d0c875b1b980d025956085a8
+P 366fda0c5110c9d75155a2e4772f0a0d40a85db39b85c1ae8a0fbe92c5977fa3
+R 8e74cb84937a23ca8189cecac0d651c3
+U drh
+Z 411bd965774e686bd131da18cf0f15d8
