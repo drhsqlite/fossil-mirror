@@ -1,12 +1,12 @@
-C For\sconsistency,\sadd\s'msvcbld'\sto\sthe\sDocker\signore\sfile.
-D 2021-03-18T01:36:44.688
+C Object\sfiles\sbased\son\schecked-out\ssource\sfiles\sshould\snot\sbe\signored.\s\sThe\sfinal\sbuild\sproducts\s(e.g.\s'fossil',\s'fossil.exe')\sare\sexempt\sfrom\sthis\srule.
+D 2021-03-18T01:40:59.412
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
 F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
-F .fossil-settings/ignore-glob 43e8943d493f3655e240b3e8c00c7460767644a3e0e6ed933ce667ba77b43f7c
+F .fossil-settings/ignore-glob 026da23219df1dd81be87fee8252eecd9188ef73
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb86eb6291a9fe750916a5c91f971148e3db4e089c8560c76792781b12526ac5
-R defe2a188a8f0c46d1795a353ddc3513
+P ab168a89bc6ee2a8d0bf5c7055ef2b0a49a86ac08ff75fa635feede313bb4bb7
+R e85fdd029c24436e3e1a284dbf3cd3ad
 U mistachkin
-Z e4c907e821ca64e30128c3ba1e89d074
+Z 5256a34b6fce2af2789d8b7ee9507f31
