@@ -1,6 +1,6 @@
-C Re-add\sthe\s'wbld'\sdirectory\sto\s'clean-glob'\sas\sit\sis\sused\sby\sMinGW.
-D 2021-03-18T01:34:13.997
-F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
+C For\sconsistency,\sadd\s'msvcbld'\sto\sthe\sDocker\signore\sfile.
+D 2021-03-18T01:36:44.688
+F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
 F .fossil-settings/clean-glob 3efaf2f54ed450047dea396ef7197ab4a7596654d844ce25c419cc442e2f493f
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d425ea6b4c02640975336536ce61d5bf605376f1eeb155ce6e97485e17ef792a
-R b608ac027f391c57e4ec9e97227b29ad
+P bb86eb6291a9fe750916a5c91f971148e3db4e089c8560c76792781b12526ac5
+R defe2a188a8f0c46d1795a353ddc3513
 U mistachkin
-Z 7624b8bf3022f61f2fd819f261d9f514
+Z e4c907e821ca64e30128c3ba1e89d074
