@@ -16,7 +16,7 @@ OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
 P       = .pdb
-OPTLEVEL= /Os
+DBGOPTS = /Od
 
 INSTALLDIR = .
 !ifdef DESTDIR
@@ -212,11 +212,23 @@ CRTFLAGS = /MT
 !endif
 !endif
 
+!if $(OPTIMIZATIONS)>3
+RELOPTS = /Os
+!elseif $(OPTIMIZATIONS)>2
+RELOPTS = /Ox
+!elseif $(OPTIMIZATIONS)>1
+RELOPTS = /O2
+!elseif $(OPTIMIZATIONS)>0
+RELOPTS = /O1
+!else
+RELOPTS =
+!endif
+
 !if $(DEBUG)!=0
-CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od /DFOSSIL_DEBUG
+CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) $(DBGOPTS) /DFOSSIL_DEBUG /DTH_MEMDEBUG
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(OPTLEVEL)
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(RELOPTS)
 !endif
 
 BCC       = $(CC) $(CFLAGS)
