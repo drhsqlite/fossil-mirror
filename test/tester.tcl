@@ -253,7 +253,6 @@ proc get_versionable_settings {} {
   #       this list (and procedure) most likely needs to be modified as well.
   #
   set result [list \
-      allow-symlinks \
       binary-glob \
       clean-glob \
       crlf-glob \
