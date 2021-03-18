@@ -1,5 +1,5 @@
-C Fix\sthe\s'unversioned'\stest.
-D 2021-03-18T03:46:54.237
+C When\sconfiguring\swith\s--no-opt\sin\saddition\sto\s--fossil-debug,\sdo\snot\sswallow\s-DFOSSIL_DEBUG.
+D 2021-03-18T10:55:07.214
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 31a23f5674223fee3a28e380823b32eb58eb775096a769efdb5aee2245463a5a
+F auto.def c4efdb464c8416cafb5a60b069ad82479ea480931127750c38643f0610e9b943
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f4932404a1d0fd0c7d34864fd368aaefcea014455dd0318e1e55702992969d8
-R 4a81fe9d082e51387f6affb733732cd9
-U mistachkin
-Z 52377c33cdbbbf973f9713954f9eb0f0
+P a517a2feeaa2107d6667a3b2c1991d963024983858b2f0d24d9d99860b45c87d
+R 7a72283773488007f4f4fab2f7d78c96
+U danield
+Z e250d3a08641df8670317a293b10e06b
