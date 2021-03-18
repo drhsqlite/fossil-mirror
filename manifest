@@ -1,5 +1,5 @@
-C Add\scompile-time\soption\sto\senable\sTH1\smemory\sleak\stracking.\s\sAlso,\sfix\sa\sTH1\smemory\sleak\sand\simprove\sa\scouple\s#ifdef's.
-D 2021-03-18T22:57:07.478
+C Fix\sJSON\sassert\sin\sfossil_print_error()\sseen\swhen\san\sinvalid\srepository\sis\sspecified.
+D 2021-03-18T23:31:09.712
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -564,7 +564,7 @@ F src/pikchrshow.c a66bef9c5be91ed17e2ec3e509c5c2b49e2175bb6a62269ca80deacaba9d0
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 6cd5926c38643edf5a9a90eba47fb960ee4865088185e196044129e6ba23675a
+F src/printf.c b60175d829e2df9f34a98c940efd00c7af86c320683fa3723326586855f1a159
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c bcc6893a6ddfe18c06ebabc4e6357b3dfb7879cd5744d349e002a11f7341da56
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2e83470ea1f152147d55b659721e0ee41c8b828ce7e23f19769e99d1e0b3b06
-R abc58bbae4b3a94648e056d42f6d11a2
+P e5293dc281b5a140e17c2ba228fd40b43fdf691a80941cdbf67075cecb116a72
+R 33de19d1de49b245f0d2deb5cd851765
 U mistachkin
-Z c684d968ffcd0ce868394d43ea66e555
+Z e5a820e7f927a327974f697dd673ebf3
