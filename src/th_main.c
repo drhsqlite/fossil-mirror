@@ -70,6 +70,42 @@
 #define Th_IsRepositoryOpen()     (g.repositoryOpen)
 #define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
+/*
+** When memory debugging is enabled, use our custom memory allocator.
+*/
+#if defined(TH_MEMDEBUG)
+/*
+** Global variable counting the number of outstanding calls to malloc()
+** made by the th1 implementation. This is used to catch memory leaks
+** in the interpreter. Obviously, it also means th1 is not threadsafe.
+*/
+static int nOutstandingMalloc = 0;
+
+/*
+** Implementations of malloc() and free() to pass to the interpreter.
+*/
+static void *xMalloc(unsigned int n){
+  void *p = fossil_malloc(n);
+  if( p ){
+    nOutstandingMalloc++;
+  }
+  return p;
+}
+static void xFree(void *p){
+  if( p ){
+    nOutstandingMalloc--;
+  }
+  free(p);
+}
+static Th_Vtab vtab = { xMalloc, xFree };
+
+/*
+** Returns the number of outstanding TH1 memory allocations.
+*/
+int Th_GetOutstandingMalloc(){
+  return nOutstandingMalloc;
+}
+#endif
 
 /*
 ** Generate a TH1 trace message if debugging is enabled.
@@ -352,7 +388,7 @@ static void sendText(Blob * pOut, const char *z, int n, int encode){
   }
   if(TH_INIT_NO_ENCODE & g.th1Flags){
     encode = 0;
-  }     
+  }
   if( enableOutput && n ){
     if( n<0 ) n = strlen(z);
     if( encode ){
@@ -629,6 +665,7 @@ static int markdownCmd(
   Th_ListAppend(interp, &zValue, &nValue, blob_str(&title), blob_size(&title));
   Th_ListAppend(interp, &zValue, &nValue, blob_str(&body), blob_size(&body));
   Th_SetResult(interp, zValue, nValue);
+  Th_Free(interp, zValue);
   return TH_OK;
 }
 
@@ -812,11 +849,11 @@ int capexprCmd(
     }else{
       rc = login_has_capability(azCap[i], anCap[i], 0);
     }
-    break;   
+    break;
   }
   Th_Free(interp, azCap);
   Th_SetResultInt(interp, rc);
-  return TH_OK; 
+  return TH_OK;
 }
 
 
@@ -2358,7 +2395,16 @@ void Th_FossilInit(u32 flags){
     int created = 0;
     int i;
     if( g.interp==0 ){
-      g.interp = Th_CreateInterp();
+      Th_Vtab *pVtab = 0;
+#if defined(TH_MEMDEBUG)
+      if( fossil_getenv("TH1_DELETE_INTERP")!=0 ){
+        pVtab = &vtab;
+        if( g.thTrace ){
+          Th_Trace("th1-init MEMDEBUG ENABLED<br />\n");
+        }
+      }
+#endif
+      g.interp = Th_CreateInterp(pVtab);
       created = 1;
     }
     if( forceReset || created ){
