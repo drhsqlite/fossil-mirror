@@ -1,5 +1,5 @@
-C Add\scompile-time\soption\sto\senable\sTH1\smemory\sleak\stracking.\s\sAlso,\sfix\sTH1\smemory\sleak,\simprove\sa\scouple\s#ifdef's,\sand\sfix\sJSON\sassert\sin\sfossil_print_error()\sseen\swhen\san\sinvalid\srepository\sis\sspecified.
-D 2021-03-19T03:10:32.742
+C Resolved\sdisplay\scookie\sdiff\ssetting\sinconsistency\sreported\sin\s[forum:/forumpost/f7e18f946b\s|\sforum\spost\sf7e18f946b].
+D 2021-03-19T16:01:43.159
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -513,7 +513,7 @@ F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4
 F src/http_ssl.c 0ec4f86727386cf2a23ff6c3875839d096e8ddcf2a112825f8f0653b64ce3847
 F src/http_transport.c 99d2557a770abd92292de71ce65174cc9c24f048c6d2a317ac49219be7d2dc6b
 F src/import.c 33962edf9f5b72f91d7a919e64dbfa4b2bea889e42e4ea0f4238b792f63ef8c8
-F src/info.c 3529cbaef708ac5e08d1625c6b12e87bb417e90cc8871a53ab0017a49bc33649
+F src/info.c efafeb2989ba88120b5df7c8e49a31200c4d158a6e39dc27fa2074763684da7b
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -989,8 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2e83470ea1f152147d55b659721e0ee41c8b828ce7e23f19769e99d1e0b3b06 9c36e6335fc64789b24fe2ed7765c3959a96517772783e817bc05221213e7df4
-R 7ebbc46c7ea915bf14da1f8cc7f9eb95
-T +closed 9c36e6335fc64789b24fe2ed7765c3959a96517772783e817bc05221213e7df4
-U mistachkin
-Z 2a853310881e87f01b09ee36f2001d07
+P 999e33cc7a55116b9e2aecfd5b267c3bc89be406a0ead3bcc5f9432e2121646e
+R 03a16d388344b44472d590f784d8dfc3
+U stephan
+Z 07df56299ed51320c3899533b939f96a
