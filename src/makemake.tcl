@@ -1504,6 +1504,11 @@ INSTALLDIR = $(DESTDIR)\$(INSTALLDIR)
 # "perl.exe").
 PERL    = perl.exe
 
+# Enable use of available compiler optimizations?
+!ifndef OPTIMIZATIONS
+OPTIMIZATIONS = 2
+!endif
+
 # Enable debugging symbols?
 !ifndef DEBUG
 DEBUG = 0

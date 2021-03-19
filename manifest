@@ -1,5 +1,5 @@
-C Fix\sJSON\sassert\sin\sfossil_print_error()\sseen\swhen\san\sinvalid\srepository\sis\sspecified.
-D 2021-03-18T23:31:09.712
+C Be\ssure\sto\sset\sthe\sdefault\svalue\sfor\sthe\sOPTIMIZATIONS\snmake\smacro,\si.e.\sto\savoid\san\sexpression\ssyntax\serror.
+D 2021-03-19T02:49:58.777
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -542,7 +542,7 @@ F src/main.c 6f3e668853a58733003137083504a5110b6d766edb760e162c8757ce39761104
 F src/main.mk 98345d725e66e71e22b7b97869bdebf30a782499f8a55e9a6bf5c47106f048a0
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
-F src/makemake.tcl ee99e3f7c22e164611dc08e6daaaccd8fcc23551d06b01be024de21263981af5 x
+F src/makemake.tcl 74c08ae6c576cc0d38cd9caaee011386bddf3d465ac9422a08235e29bbd774a3 x
 F src/manifest.c 5092cd257115646080369099deea4712af3bfeb85c55cbcbbf9f782f1767b12f
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
 F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
@@ -792,7 +792,7 @@ F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd577
 F win/Makefile.dmc 8dc0144a5f2c4e86ab6e6bad74ab101208f137d8b3116d057ec7bd46fe41312c
 F win/Makefile.mingw f829cec1ddc2f0c46e726277aa17ffea5c36c124bac67ce2007d85f44ccac108
 F win/Makefile.mingw.mistachkin c702fab0694869e5bfadf178e87ae12e472f0b3484c0bebd2289ff87af230b56
-F win/Makefile.msc 45b160810b03239936346548069c65428f0109a11798e864d74bdb971863af6f
+F win/Makefile.msc 51fb510aab3fe1e67c1baf4f89ae8beebe63f25099d87f61e9cece6c4da9748f
 F win/buildmsvc.bat bbad349c63e1750f7e71ed6063ac15e9ab0490e4dccd34d87e40be942d269505 x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -989,7 +989,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5293dc281b5a140e17c2ba228fd40b43fdf691a80941cdbf67075cecb116a72
-R 33de19d1de49b245f0d2deb5cd851765
+P 44cf2e91906e34faa429305a91908cd455b51aee1d39bb602f174fb7cefb6afc
+R 7ebbc46c7ea915bf14da1f8cc7f9eb95
 U mistachkin
-Z e5a820e7f927a327974f697dd673ebf3
+Z 7530bca0711b2a06e080dd6871d3aa4b
