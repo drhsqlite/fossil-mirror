@@ -1,5 +1,5 @@
-C Resolved\sdisplay\scookie\sdiff\ssetting\sinconsistency\sreported\sin\s[forum:/forumpost/f7e18f946b\s|\sforum\spost\sf7e18f946b].
-D 2021-03-19T16:01:43.159
+C Ported\s/chat\sfrom\swindow.fetch\sto\sfossil.fetch,\sas\sFF\sversions\sas\srecently\sas\s2017\sfail\swith\swindow.fetch.\sNeeds\smore\stesting\sbefore\smerge\sbut\sseems\sto\swork.
+D 2021-03-21T18:25:47.066
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -441,8 +441,8 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c c346671d253615ac33c3359621c549af02f71989dd8dd41363978f6ce424def8
-F src/chat.c 4732b8ac7d64be0b56f7cb8b4b6862149c3ce52d2c0dd1b90b54b30da1a94c53
-F src/chat.js beb5bf45ac957cbe9cadf96ac7f14c04ea316489af4f79ac1e7cc3567256d62b
+F src/chat.c 556d42654586b9f7a5452d9b9879496d108e6c1acfdd8ca3091e3c20dd7db3e3
+F src/chat.js 6206625643a3c438ebbc7b637cd4ebcf7271fcf13ab3a8682004df2d6220891d
 F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -485,7 +485,7 @@ F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 989b241395ef4331ea373bbaf292df7fd029d74ca9d06807f72b637be4b81043
 F src/fossil.dom.js 7f4148a303a3df07378bedf5d918631ac4056b385e36f0befa01010b59f6f7db
-F src/fossil.fetch.js 2df4ea7ec9063d45697adbf0077dd18be1e17d79773630df94fdf3b79b97648b
+F src/fossil.fetch.js 4ce07ea50e49603e5d67b6b7c83ce0e192f0909977f66f9add7f8048f9a821eb
 F src/fossil.info-diff.js 7db676b32eb1324bcd8a9be6591ca6174081ecfe83e5506db678a068c9b2a888
 F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd342652d9c5e4e7e0
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
@@ -989,7 +989,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 999e33cc7a55116b9e2aecfd5b267c3bc89be406a0ead3bcc5f9432e2121646e
-R 03a16d388344b44472d590f784d8dfc3
+P e378f9300e9da364546556107f4c2ad13944d165492c82e6384bd2302bc094a4
+R d74e45846c880965505e4e92f4ee6aef
+T *branch * chat-fetch-port
+T *sym-chat-fetch-port *
+T -sym-trunk *
 U stephan
-Z 07df56299ed51320c3899533b939f96a
+Z bf87270167e978654fd82b562e4306c9

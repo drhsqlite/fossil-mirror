@@ -88,7 +88,7 @@ const fossil = namespace;
 
    When an options object does not provide
    onload/onerror/beforesend/aftersend handlers of its own, this
-   function falls to defaults which are member properties of this
+   function falls back to defaults which are member properties of this
    function with the same name, e.g. fossil.fetch.onload(). The
    default onload/onerror implementations route the data through the
    dev console and (for onerror()) through fossil.error(). The default
