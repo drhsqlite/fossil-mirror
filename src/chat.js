@@ -1218,8 +1218,9 @@
     toolbar.disabled = true /*will be enabled when msg load finishes */;
   })()/*end history loading widget setup*/;
 
-  const afterFetch = function(isFirstCall){
-    if(isFirstCall){
+  const afterFetch = function f(){
+    if(true===f.isFirstCall){
+      f.isFirstCall = false;
       Chat.ajaxEnd();
       Chat.e.messagesWrapper.classList.remove('loading');
       setTimeout(function(){
@@ -1235,14 +1236,16 @@
     }
     poll.running = false;
   };
-  const poll = async function(){
-    if(poll.running) return;
-    poll.running = true;
-    if(0===poll.runCount++){
+  afterFetch.isFirstCall = true;
+  const poll = async function f(){
+    if(f.running) return;
+    f.running = true;
+    Chat._isBatchLoading = f.isFirstCall;
+    if(true===f.isFirstCall){
+      f.isFirstCall = false;
       Chat.ajaxStart();
       Chat.e.messagesWrapper.classList.add('loading');
     }
-    Chat._isBatchLoading = (1===poll.runCount);
     F.fetch("chat-poll",{
       timeout: 420 * 1000/*FIXME: get the value from the server*/,
       urlParams:{
@@ -1258,21 +1261,20 @@
         /* ^^^ we don't use Chat.reportError() here b/c the polling
            fails exepectedly when it times out, but is then immediately
            resumed, and reportError() produces a loud error message. */
-        afterFetch(1===poll.runCount);
+        afterFetch();
       },
       onload:function(y){
         newcontent(y);
         Chat._isBatchLoading = false;
-        afterFetch(1===poll.runCount);
+        afterFetch();
       }
     });
   };
-  poll.runCount = 0;
+  poll.isFirstCall = true;
   Chat._gotServerError = poll.running = false;
-  Chat.intervalTimer = setInterval(poll, 1000);
   if( window.fossil.config.chat.fromcli ){
     Chat.chatOnlyMode(true);
   }
-
+  Chat.intervalTimer = setInterval(poll, 1000);
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 })();
