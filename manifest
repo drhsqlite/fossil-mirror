@@ -1,5 +1,5 @@
-C Update\sto\sSQLite\s3.35.3\spreview\sfor\stesting.
-D 2021-03-22T12:43:31.178
+C Implement\sselection\sof\stwo\sarbitrary\sversions\sof\sa\swiki\sfor\scomparison\s(radio-button\sselects\sa\sbaseline,\sanchor\ssign\sclears\sthis\sselection).\sAlso\slet\sseveral\ssequential\sedits\sby\sthe\ssame\suser\sbe\s"recycled"\sinto\sa\ssingle\srow.\sEffectively\sthis\sbackouts\s[cef8425cf4a482a3].\sSee\salso\sa\s[forum:4a67bd1c5d354e75|forum\sthread]
+D 2021-03-23T14:50:08.194
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -491,6 +491,7 @@ F src/fossil.numbered-lines.js b6eddfcddaa03ed957c856045015cec10427ff20206f67dd3
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
+F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
 F src/fossil.popupwidget.js 726f605138cf039328e56b6b2d4f5f99dfb54675c0a87f560bf3cfc148bd3d83
@@ -539,7 +540,7 @@ F src/login.c d1115a1a07875c4ba21c4f987bb7886b151fb67ba314612edb559b778d083df2
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c 6f3e668853a58733003137083504a5110b6d766edb760e162c8757ce39761104
-F src/main.mk 98345d725e66e71e22b7b97869bdebf30a782499f8a55e9a6bf5c47106f048a0
+F src/main.mk 43142ca9fca6379667af0b548a4d4605de9836f0e264c60927e696a7138a7180
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl 74c08ae6c576cc0d38cd9caaee011386bddf3d465ac9422a08235e29bbd774a3 x
@@ -642,7 +643,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c 0ab500757ee25f4eafe3eb2c0de45a6e5bb0793eaa95526aac75e6682a8eccd1
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 84d7933dc3856b3bcdce0546ba33830f3af214125966d950326242051064de0b
+F src/wiki.c 47024db0d9228a22e32e7649dc3805ec14404ade2f7e2e1bc1f3f778ed1a8a8b
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -989,7 +990,8 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e9ed315866a4d5c5cfccce4f0221d99cf419ede2fd2fe78f53318bb197058827
-R 04a3011e8d059aa1a60f3471b74ec585
-U drh
-Z da57dcadffd61a27fc8019c5f33e016d
+P 8ec00b975b601b47d281215ede679d21b50048248f518e2d90ffc1c3fd8771fa 9ff7d9e5e3b75658f6d7d19a00b0f27da3a94dd3d1d4d9ab68300253733149cd
+R d8054a52bb007d09ffb0fde2412bea44
+T +closed 9ff7d9e5e3b75658f6d7d19a00b0f27da3a94dd3d1d4d9ab68300253733149cd
+U george
+Z 32aba545321aa75ffd865a2d7764600d
