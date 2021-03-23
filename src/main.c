@@ -351,7 +351,7 @@ static void fossil_atexit(void) {
   */
   db_unsave_encryption_key();
 #endif
-#if defined(_WIN32) || defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS)
+#if defined(_WIN32) || (defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS))
   /*
   ** Free the secure getpass() buffer now.
   */
@@ -390,6 +390,13 @@ static void fossil_atexit(void) {
     if( g.interp ){
       Th_DeleteInterp(g.interp); g.interp = 0;
     }
+#if defined(TH_MEMDEBUG)
+    if( Th_GetOutstandingMalloc()!=0 ){
+      fossil_print("Th_GetOutstandingMalloc() => %d\n",
+                   Th_GetOutstandingMalloc());
+    }
+    assert( Th_GetOutstandingMalloc()==0 );
+#endif
   }
 }
 

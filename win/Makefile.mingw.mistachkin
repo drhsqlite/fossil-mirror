@@ -168,11 +168,8 @@ SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLI
 endif
 
 #### The directories where the OpenSSL include and library files are located.
-#    The recommended usage here is to use the Sysinternals junction tool
-#    to create a hard link between an "openssl-1.x" sub-directory of the
-#    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1g
+OPENSSLDIR = $(SRCDIR)/../compat/openssl
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -446,10 +443,12 @@ SRC = \
   $(SRCDIR)/capabilities.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
+  $(SRCDIR)/chat.c \
   $(SRCDIR)/checkin.c \
   $(SRCDIR)/checkout.c \
   $(SRCDIR)/clearsign.c \
   $(SRCDIR)/clone.c \
+  $(SRCDIR)/color.c \
   $(SRCDIR)/comformat.c \
   $(SRCDIR)/configure.c \
   $(SRCDIR)/content.c \
@@ -566,7 +565,6 @@ SRC = \
   $(SRCDIR)/util.c \
   $(SRCDIR)/verify.c \
   $(SRCDIR)/vfile.c \
-  $(SRCDIR)/webmail.c \
   $(SRCDIR)/wiki.c \
   $(SRCDIR)/wikiformat.c \
   $(SRCDIR)/winfile.c \
@@ -576,7 +574,6 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
-  $(SRCDIR)/../skins/aht/details.txt \
   $(SRCDIR)/../skins/ardoise/css.txt \
   $(SRCDIR)/../skins/ardoise/details.txt \
   $(SRCDIR)/../skins/ardoise/footer.txt \
@@ -590,28 +587,22 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/blitz/footer.txt \
   $(SRCDIR)/../skins/blitz/header.txt \
   $(SRCDIR)/../skins/blitz/ticket.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/css.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/details.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/footer.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/header.txt \
-  $(SRCDIR)/../skins/blitz_no_logo/ticket.txt \
   $(SRCDIR)/../skins/bootstrap/css.txt \
   $(SRCDIR)/../skins/bootstrap/details.txt \
   $(SRCDIR)/../skins/bootstrap/footer.txt \
   $(SRCDIR)/../skins/bootstrap/header.txt \
+  $(SRCDIR)/../skins/darkmode/css.txt \
+  $(SRCDIR)/../skins/darkmode/details.txt \
+  $(SRCDIR)/../skins/darkmode/footer.txt \
+  $(SRCDIR)/../skins/darkmode/header.txt \
   $(SRCDIR)/../skins/default/css.txt \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
-  $(SRCDIR)/../skins/default/js.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
   $(SRCDIR)/../skins/eagle/header.txt \
-  $(SRCDIR)/../skins/enhanced1/css.txt \
-  $(SRCDIR)/../skins/enhanced1/details.txt \
-  $(SRCDIR)/../skins/enhanced1/footer.txt \
-  $(SRCDIR)/../skins/enhanced1/header.txt \
   $(SRCDIR)/../skins/khaki/css.txt \
   $(SRCDIR)/../skins/khaki/details.txt \
   $(SRCDIR)/../skins/khaki/footer.txt \
@@ -624,15 +615,16 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/plain_gray/details.txt \
   $(SRCDIR)/../skins/plain_gray/footer.txt \
   $(SRCDIR)/../skins/plain_gray/header.txt \
-  $(SRCDIR)/../skins/rounded1/css.txt \
-  $(SRCDIR)/../skins/rounded1/details.txt \
-  $(SRCDIR)/../skins/rounded1/footer.txt \
-  $(SRCDIR)/../skins/rounded1/header.txt \
   $(SRCDIR)/../skins/xekri/css.txt \
   $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/accordion.js \
+  $(SRCDIR)/alerts/bflat2.wav \
+  $(SRCDIR)/alerts/bflat3.wav \
+  $(SRCDIR)/alerts/bloop.wav \
+  $(SRCDIR)/alerts/plunk.wav \
+  $(SRCDIR)/chat.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
   $(SRCDIR)/default.css \
@@ -643,6 +635,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.copybutton.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
+  $(SRCDIR)/fossil.info-diff.js \
   $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
@@ -654,6 +647,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.tabs.js \
   $(SRCDIR)/fossil.wikiedit-wysiwyg.js \
   $(SRCDIR)/graph.js \
+  $(SRCDIR)/hbmenu.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
@@ -704,10 +698,12 @@ TRANS_SRC = \
   $(OBJDIR)/capabilities_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
+  $(OBJDIR)/chat_.c \
   $(OBJDIR)/checkin_.c \
   $(OBJDIR)/checkout_.c \
   $(OBJDIR)/clearsign_.c \
   $(OBJDIR)/clone_.c \
+  $(OBJDIR)/color_.c \
   $(OBJDIR)/comformat_.c \
   $(OBJDIR)/configure_.c \
   $(OBJDIR)/content_.c \
@@ -824,7 +820,6 @@ TRANS_SRC = \
   $(OBJDIR)/util_.c \
   $(OBJDIR)/verify_.c \
   $(OBJDIR)/vfile_.c \
-  $(OBJDIR)/webmail_.c \
   $(OBJDIR)/wiki_.c \
   $(OBJDIR)/wikiformat_.c \
   $(OBJDIR)/winfile_.c \
@@ -852,10 +847,12 @@ OBJ = \
  $(OBJDIR)/capabilities.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
+ $(OBJDIR)/chat.o \
  $(OBJDIR)/checkin.o \
  $(OBJDIR)/checkout.o \
  $(OBJDIR)/clearsign.o \
  $(OBJDIR)/clone.o \
+ $(OBJDIR)/color.o \
  $(OBJDIR)/comformat.o \
  $(OBJDIR)/configure.o \
  $(OBJDIR)/content.o \
@@ -972,7 +969,6 @@ OBJ = \
  $(OBJDIR)/util.o \
  $(OBJDIR)/verify.o \
  $(OBJDIR)/vfile.o \
- $(OBJDIR)/webmail.o \
  $(OBJDIR)/wiki.o \
  $(OBJDIR)/wikiformat.o \
  $(OBJDIR)/winfile.o \
@@ -1165,9 +1161,9 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(EXTRAOBJ) $(OBJ) $(OBJDIR)/fossil.o
 	$(CODECHECK1) $(TRANS_SRC)
-	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(LIB)
+	$(TCC) -o $@ $(EXTRAOBJ) $(OBJ) $(OBJDIR)/fossil.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -1215,10 +1211,12 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/capabilities_.c:$(OBJDIR)/capabilities.h \
 		$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 		$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
+		$(OBJDIR)/chat_.c:$(OBJDIR)/chat.h \
 		$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
 		$(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h \
 		$(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h \
 		$(OBJDIR)/clone_.c:$(OBJDIR)/clone.h \
+		$(OBJDIR)/color_.c:$(OBJDIR)/color.h \
 		$(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h \
 		$(OBJDIR)/configure_.c:$(OBJDIR)/configure.h \
 		$(OBJDIR)/content_.c:$(OBJDIR)/content.h \
@@ -1335,7 +1333,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/util_.c:$(OBJDIR)/util.h \
 		$(OBJDIR)/verify_.c:$(OBJDIR)/verify.h \
 		$(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h \
-		$(OBJDIR)/webmail_.c:$(OBJDIR)/webmail.h \
 		$(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h \
 		$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
 		$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
@@ -1496,6 +1493,14 @@ $(OBJDIR)/cgi.o:	$(OBJDIR)/cgi_.c $(OBJDIR)/cgi.h $(SRCDIR)/config.h
 
 $(OBJDIR)/cgi.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/chat_.c:	$(SRCDIR)/chat.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/chat.c >$@
+
+$(OBJDIR)/chat.o:	$(OBJDIR)/chat_.c $(OBJDIR)/chat.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/chat.o -c $(OBJDIR)/chat_.c
+
+$(OBJDIR)/chat.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/checkin_.c:	$(SRCDIR)/checkin.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/checkin.c >$@
 
@@ -1527,6 +1532,14 @@ $(OBJDIR)/clone.o:	$(OBJDIR)/clone_.c $(OBJDIR)/clone.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/clone.o -c $(OBJDIR)/clone_.c
 
 $(OBJDIR)/clone.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/color_.c:	$(SRCDIR)/color.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/color.c >$@
+
+$(OBJDIR)/color.o:	$(OBJDIR)/color_.c $(OBJDIR)/color.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/color.o -c $(OBJDIR)/color_.c
+
+$(OBJDIR)/color.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/comformat_.c:	$(SRCDIR)/comformat.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/comformat.c >$@
@@ -2455,14 +2468,6 @@ $(OBJDIR)/vfile.o:	$(OBJDIR)/vfile_.c $(OBJDIR)/vfile.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/vfile.o -c $(OBJDIR)/vfile_.c
 
 $(OBJDIR)/vfile.h:	$(OBJDIR)/headers
-
-$(OBJDIR)/webmail_.c:	$(SRCDIR)/webmail.c $(TRANSLATE)
-	$(TRANSLATE) $(SRCDIR)/webmail.c >$@
-
-$(OBJDIR)/webmail.o:	$(OBJDIR)/webmail_.c $(OBJDIR)/webmail.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/webmail.o -c $(OBJDIR)/webmail_.c
-
-$(OBJDIR)/webmail.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/wiki_.c:	$(SRCDIR)/wiki.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/wiki.c >$@

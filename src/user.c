@@ -40,7 +40,7 @@ static void strip_string(Blob *pBlob, char *z){
   blob_append(pBlob, z, -1);
 }
 
-#if defined(_WIN32) || defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS)
+#if defined(_WIN32) || (defined(__BIONIC__) && !defined(FOSSIL_HAVE_GETPASS))
 #ifdef _WIN32
 #include <conio.h>
 #endif

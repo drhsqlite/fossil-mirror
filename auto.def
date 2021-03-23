@@ -237,6 +237,9 @@ if {[opt-bool fossil-debug]} {
 if {[opt-bool no-opt]} {
     define CFLAGS {-g -O0 -Wall}
     msg-result "Builting without compiler optimization"
+    if {[opt-bool fossil-debug]} {
+        define-append CFLAGS -DFOSSIL_DEBUG
+    }
 }
 
 if {[opt-bool with-mman]} {

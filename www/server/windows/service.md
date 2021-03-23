@@ -88,4 +88,21 @@ in the PowerShell console.
 Congratulations, you now have a base http accessible Fossil server running on
 Windows.
 
+### Removing the Windows Service
+
+If you want to remove the Fossil service, execute the following from an
+Administrative PowerShell or Command Prompt console:
+
+```
+sc.exe delete fossil
+```
+
+If you have Powershell version 6.0 or later, you can use:
+
+```PowerShell
+Remove-Service -Name fossil
+```
+
+with the same effect.
+
 *[Return to the top-level Fossil server article.](../)*

@@ -483,12 +483,12 @@ static void forum_display_post(
     **    *  The post was last edited by a different person
     */
     if( p->pEditHead ){
-      zDate = db_text(0, "SELECT datetime(%.17g)", p->pEditHead->rDate);
+      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", p->pEditHead->rDate);
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
       zEditorName = zPosterName;
     }
-    zDate = db_text(0, "SELECT datetime(%.17g)", p->rDate);
+    zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", p->rDate);
     if( p->pEditPrev ){
       zPosterName = forum_post_display_name(p->pEditHead, 0);
       zEditorName = forum_post_display_name(p, pManifest);
@@ -1289,7 +1289,7 @@ void forumedit_page(void){
       @ <h1>Thread: %h(pRootPost->zThreadTitle)</h1>
     }
     @ <h2>Replying To:</h2>
-    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
+    zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
     @ <h3 class='forumPostHdr'>By %h(zDisplayName) on %h(zDate)</h3>
     fossil_free(zDisplayName);

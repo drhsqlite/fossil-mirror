@@ -8,6 +8,7 @@ compat
 debian
 fossil
 fossil.exe
+msvcbld
 setup
 src
 test

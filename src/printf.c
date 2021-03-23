@@ -1102,7 +1102,7 @@ static int fossil_print_error(int rc, const char *z){
     ** has not yet been initialized, e.g. early SQLite log
     ** messages, etc.
     */
-    assert(json_is_bootstrapped_early());
+    if( !json_is_bootstrapped_early() ) json_bootstrap_early();
     json_err( 0, z, 1 );
     if( g.isHTTP && !g.json.preserveRc ){
       rc = 0 /* avoid HTTP 500 */;
@@ -1232,7 +1232,7 @@ void fossil_warning(const char *zFormat, ...){
     ** has not yet been initialized, e.g. early SQLite log
     ** messages, etc.
     */
-    assert(json_is_bootstrapped_early());
+    if( !json_is_bootstrapped_early() ) json_bootstrap_early();
     json_warn( FSL_JSON_W_UNKNOWN, "%s", z );
   }else
 #endif

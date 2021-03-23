@@ -366,16 +366,28 @@ void test_process_id_command(void){
 /*
 ** COMMAND: test-backoffice-lease
 **
-** Usage: %fossil test-backoffice-lease
+** Usage: %fossil test-backoffice-lease ?--reset?
 **
 ** Print out information about the backoffice "lease" entry in the
 ** config table that controls whether or not backoffice should run.
+**
+** If the --reset option is given, the backoffice lease is reset.
+** The use of the --reset option can be disruptive.  It can cause two
+** or more backoffice processes to be run simultaneously.  Use it with
+** caution.
 */
 void test_backoffice_lease(void){
   sqlite3_int64 tmNow = time(0);
   Lease x;
   const char *zLease;
   db_find_and_open_repository(0,0);
+  if( find_option("reset",0,0)!=0 ){
+    db_unprotect(PROTECT_CONFIG);
+    db_multi_exec(
+      "DELETE FROM repository.config WHERE name='backoffice'"
+    );
+    db_protect_pop();
+  }
   verify_all_options();
   zLease = db_get("backoffice","");
   fossil_print("now:        %lld\n", tmNow);
@@ -632,8 +644,6 @@ void backoffice_work(void){
   /* Here is where the actual work of the backoffice happens */
   nThis = alert_backoffice(0);
   if( nThis ){ backoffice_log("%d alerts", nThis); nTotal += nThis; }
-  nThis = smtp_cleanup();
-  if( nThis ){ backoffice_log("%d SMTPs", nThis); nTotal += nThis; }
   nThis = hook_backoffice();
   if( nThis ){ backoffice_log("%d hooks", nThis); nTotal += nThis; }
 

@@ -42,6 +42,20 @@ need to enter the following to avoid rebooting the server:
 Start-Service -Name fossil-secure
 ```
 
+To remove the service, run the following in a Powershell or cmd console:
+
+```
+sc.exe delete fossil
+```
+
+or (in a Powershell console)
+
+```PowerShell
+Remove-Service -Name fossil
+```
+
+if your version of Powershell is 6.0 or above.
+
 ## Install stunnel 5.55
 
 Download stunnel from the [downloads](https://www.stunnel.org/downloads.html)

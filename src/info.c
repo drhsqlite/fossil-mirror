@@ -1664,7 +1664,8 @@ int object_description(
 */
 int preferred_diff_type(void){
   int dflt;
-  char zDflt[2];
+  static char zDflt[2]
+    /*static b/c cookie_link_parameter() does not copy it!*/;
   dflt = db_get_int("preferred-diff-type",-99);
   if( dflt<=0 ) dflt = user_agent_is_likely_mobile() ? 1 : 2;
   zDflt[0] = dflt + '0';

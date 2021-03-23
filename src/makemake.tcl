@@ -1,21 +1,32 @@
 #!/usr/bin/tclsh
 #
-# Run this Tcl script to generate the various makefiles for a variety
-# of platforms.  Files generated include:
+#    ### Run this Tcl script EVERY time you modify it in any way! ###
+#
+# This Tcl script generates make files for various platforms. The makefiles
+# then need to be committed.
+#
+# If you modify this file then:
+#
+#     1. cd src; tclsh makemake.tcl
+#
+#     2. if errors are reported, fix them and go to step 1
+#
+#     3. if "fossil diff" reports changes in any of the generated
+#        files, commit the changed files to the repo
+#
+# Files generated include:
 #
 #     src/main.mk           # makefile for all unix systems
 #     win/Makefile.mingw    # makefile for mingw on windows
 #     win/Makefile.*        # makefiles for other windows compilers
 #
-# Run this script while in the "src" subdirectory.  Like this:
-#
-#      tclsh makemake.tcl
-#
 # Add new source files by listing the files (without their .c suffix)
 # in the "src" variable.  Add new resource files to the "extra_files"
 # variable.  There are other variables that you can alter, down to
 # the "STOP HERE" comment.  The stuff below "STOP HERE" should rarely need
-# to change.
+# to change. After modification, go to step 1 above.
+#
+# Delete unused source files in the "src" variable, then go to step 1 above.
 #
 #############################################################################
 
@@ -166,7 +177,6 @@ set src {
   util
   verify
   vfile
-  webmail
   wiki
   wikiformat
   winfile
@@ -1470,7 +1480,7 @@ OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
 P       = .pdb
-OPTLEVEL= /Os
+DBGOPTS = /Od
 
 INSTALLDIR = .
 !ifdef DESTDIR
@@ -1493,6 +1503,11 @@ INSTALLDIR = $(DESTDIR)\$(INSTALLDIR)
 # to the directory containing the main Perl executable specified here (i.e.
 # "perl.exe").
 PERL    = perl.exe
+
+# Enable use of available compiler optimizations?
+!ifndef OPTIMIZATIONS
+OPTIMIZATIONS = 2
+!endif
 
 # Enable debugging symbols?
 !ifndef DEBUG
@@ -1666,11 +1681,23 @@ CRTFLAGS = /MT
 !endif
 !endif
 
+!if $(OPTIMIZATIONS)>3
+RELOPTS = /Os
+!elseif $(OPTIMIZATIONS)>2
+RELOPTS = /Ox
+!elseif $(OPTIMIZATIONS)>1
+RELOPTS = /O2
+!elseif $(OPTIMIZATIONS)>0
+RELOPTS = /O1
+!else
+RELOPTS =
+!endif
+
 !if $(DEBUG)!=0
-CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od /DFOSSIL_DEBUG
+CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) $(DBGOPTS) /DFOSSIL_DEBUG /DTH_MEMDEBUG
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(OPTLEVEL)
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(RELOPTS)
 !endif
 
 BCC       = $(CC) $(CFLAGS)

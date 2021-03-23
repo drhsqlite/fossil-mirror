@@ -16,7 +16,7 @@ OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
 P       = .pdb
-OPTLEVEL= /Os
+DBGOPTS = /Od
 
 INSTALLDIR = .
 !ifdef DESTDIR
@@ -39,6 +39,11 @@ INSTALLDIR = $(DESTDIR)\$(INSTALLDIR)
 # to the directory containing the main Perl executable specified here (i.e.
 # "perl.exe").
 PERL    = perl.exe
+
+# Enable use of available compiler optimizations?
+!ifndef OPTIMIZATIONS
+OPTIMIZATIONS = 2
+!endif
 
 # Enable debugging symbols?
 !ifndef DEBUG
@@ -212,11 +217,23 @@ CRTFLAGS = /MT
 !endif
 !endif
 
+!if $(OPTIMIZATIONS)>3
+RELOPTS = /Os
+!elseif $(OPTIMIZATIONS)>2
+RELOPTS = /Ox
+!elseif $(OPTIMIZATIONS)>1
+RELOPTS = /O2
+!elseif $(OPTIMIZATIONS)>0
+RELOPTS = /O1
+!else
+RELOPTS =
+!endif
+
 !if $(DEBUG)!=0
-CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) /Od /DFOSSIL_DEBUG
+CFLAGS    = $(CFLAGS) /Zi $(CRTFLAGS) $(DBGOPTS) /DFOSSIL_DEBUG /DTH_MEMDEBUG
 LDFLAGS   = $(LDFLAGS) /DEBUG
 !else
-CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(OPTLEVEL)
+CFLAGS    = $(CFLAGS) $(CRTFLAGS) $(RELOPTS)
 !endif
 
 BCC       = $(CC) $(CFLAGS)
@@ -491,7 +508,6 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\util_.c" \
         "$(OX)\verify_.c" \
         "$(OX)\vfile_.c" \
-        "$(OX)\webmail_.c" \
         "$(OX)\wiki_.c" \
         "$(OX)\wikiformat_.c" \
         "$(OX)\winfile_.c" \
@@ -751,7 +767,6 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\util$O" \
         "$(OX)\verify$O" \
         "$(OX)\vfile$O" \
-        "$(OX)\webmail$O" \
         "$(OX)\wiki$O" \
         "$(OX)\wikiformat$O" \
         "$(OX)\winfile$O" \
@@ -982,7 +997,6 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\util.obj" >> $@
 	echo "$(OX)\verify.obj" >> $@
 	echo "$(OX)\vfile.obj" >> $@
-	echo "$(OX)\webmail.obj" >> $@
 	echo "$(OX)\wiki.obj" >> $@
 	echo "$(OX)\wikiformat.obj" >> $@
 	echo "$(OX)\winfile.obj" >> $@
@@ -2051,12 +2065,6 @@ realclean: clean
 "$(OX)\vfile_.c" : "$(SRCDIR)\vfile.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
-"$(OX)\webmail$O" : "$(OX)\webmail_.c" "$(OX)\webmail.h"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\webmail_.c"
-
-"$(OX)\webmail_.c" : "$(SRCDIR)\webmail.c"
-	"$(OBJDIR)\translate$E" $** > $@
-
 "$(OX)\wiki$O" : "$(OX)\wiki_.c" "$(OX)\wiki.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\wiki_.c"
 
@@ -2243,7 +2251,6 @@ realclean: clean
 			"$(OX)\util_.c":"$(OX)\util.h" \
 			"$(OX)\verify_.c":"$(OX)\verify.h" \
 			"$(OX)\vfile_.c":"$(OX)\vfile.h" \
-			"$(OX)\webmail_.c":"$(OX)\webmail.h" \
 			"$(OX)\wiki_.c":"$(OX)\wiki.h" \
 			"$(OX)\wikiformat_.c":"$(OX)\wikiformat.h" \
 			"$(OX)\winfile_.c":"$(OX)\winfile.h" \
