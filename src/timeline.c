@@ -3039,26 +3039,6 @@ static int fossil_is_julianday(const char *zDate){
 **
 **
 ** Options:
-**   -n|--limit N         If N is positive, output the first N entries.  If
-**                        N is negative, output the first -N lines.  If N is
-**                        zero, no limit.  Default is -20 meaning 20 lines.
-**   -p|--path PATH       Output items affecting PATH only.
-**                        PATH can be a file or a sub directory.
-**   --offset P           skip P changes
-**   --sql                Show the SQL used to generate the timeline
-**   -t|--type TYPE       Output items from the given types only, such as:
-**                            ci = file commits only
-**                            e  = technical notes only
-**                            f  = forum posts only
-**                            t  = tickets only
-**                            w  = wiki commits only
-**   -v|--verbose         Output the list of files changed by each commit
-**                        and the type of each change (edited, deleted,
-**                        etc.) after the check-in comment.
-**   -W|--width N         Width of lines (default is to auto-detect). N must be
-**                        either greater than 20 or it ust be zero 0 to
-**                        indicate no limit, resulting in a single line per
-**                        entry.
 **   -F|--format          Entry format. Values "oneline", "medium", and "full"
 **                        get mapped to the full options below. Otherwise a 
 **                        string which can contain these placeholders:
@@ -3076,8 +3056,30 @@ static int fossil_is_julianday(const char *zDate){
 **   --oneline            Show only short hash and comment for each entry
 **   --medium             Medium-verbose entry formatting
 **   --full               Extra verbose entry formatting
+**
+**   -n|--limit N         If N is positive, output the first N entries.  If
+**                        N is negative, output the first -N lines.  If N is
+**                        zero, no limit.  Default is -20 meaning 20 lines.
+**   --offset P           skip P changes
+**   -p|--path PATH       Output items affecting PATH only.
+**                        PATH can be a file or a sub directory.
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current checkout's repository.
+
+**   --sql                Show the SQL used to generate the timeline
+**   -t|--type TYPE       Output items from the given types only, such as:
+**                            ci = file commits only
+**                            e  = technical notes only
+**                            f  = forum posts only
+**                            t  = tickets only
+**                            w  = wiki commits only
+**   -v|--verbose         Output the list of files changed by each commit
+**                        and the type of each change (edited, deleted,
+**                        etc.) after the check-in comment.
+**   -W|--width N         Width of lines (default is to auto-detect). N must be
+**                        either greater than 20 or it ust be zero 0 to
+**                        indicate no limit, resulting in a single line per
+**                        entry.
 */
 void timeline_cmd(void){
   Stmt q;
@@ -3156,7 +3158,7 @@ void timeline_cmd(void){
       mode = TIMELINE_MODE_PARENTS;
     }else if(!zType && !zLimit){
       usage("?WHEN? ?CHECKIN|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
-            "?-W|--width WIDTH? ?-p|--path PATH");
+            "?-W|--width WIDTH? ?-p|--path PATH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];

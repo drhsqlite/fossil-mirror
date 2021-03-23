@@ -1,5 +1,5 @@
-C Implement\sselection\sof\stwo\sarbitrary\sversions\sof\sa\swiki\sfor\scomparison\s(radio-button\sselects\sa\sbaseline,\sanchor\ssign\sclears\sthis\sselection).\sAlso\slet\sseveral\ssequential\sedits\sby\sthe\ssame\suser\sbe\s"recycled"\sinto\sa\ssingle\srow.\sEffectively\sthis\sbackouts\s[cef8425cf4a482a3].\sSee\salso\sa\s[forum:4a67bd1c5d354e75|forum\sthread]
-D 2021-03-23T14:50:08.194
+C Fix\sminor\stypo\sand\ssort\soptions\sin\scommand-line\stimeline.
+D 2021-03-23T15:53:41.932
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -627,7 +627,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
 F src/th_main.c a304904b257c7a9514961725ebb76e9822ffdd4ec5006f84fa14cfbc43c408e8
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c a87cf59128773f53ca90146c2a8cc7ab4a7f906b4a76403f47eaca6198ee2b3e
+F src/timeline.c 08a8810e665b578f0d5a4251053dca949c870934ec7e73b33e3ee425ad399839
 F src/tkt.c 589d4f59658157b82a526681852fd0b666392c2a0cbf2f858bc636fee27155bd
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -990,8 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ec00b975b601b47d281215ede679d21b50048248f518e2d90ffc1c3fd8771fa 9ff7d9e5e3b75658f6d7d19a00b0f27da3a94dd3d1d4d9ab68300253733149cd
-R d8054a52bb007d09ffb0fde2412bea44
-T +closed 9ff7d9e5e3b75658f6d7d19a00b0f27da3a94dd3d1d4d9ab68300253733149cd
-U george
-Z 32aba545321aa75ffd865a2d7764600d
+P 6ebf5c7c9f1b1d1636ea3c95d12ea8a50e0b716dbaba5d98f16af100a5f72699
+R 64349f774f98b4af26103d304e0f8afc
+U danield
+Z e20b885680abfdb3dcd2970e7df36e62
