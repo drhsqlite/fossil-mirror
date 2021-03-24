@@ -1,5 +1,5 @@
-C Always\sinclude\sa\sreport\snumber\sparameter\sinto\sthe\sreport's\s"Raw"\slink\s(at\sthe\stop\sof\sthe\s/rptview\spage).\sThis\sfixes\sthe\sglitch\sfor\sthe\scase\swhen\sthe\sreport\snumber\sis\s"hidden"\swithin\s[/waliassetup|URL\salias].
-D 2021-03-24T04:25:28.837
+C Update\sthe\sform\sspider\sprotections\sso\sthat\slinks\sto\s/register\sgo\sthrough\neven\sif\sspider\sprotection\sis\sfully\senabled.\s\sThis\sallows\sself-registration\neven\sif\suser\s"nobody"\shas\sno\spermissions.
+D 2021-03-24T15:40:49.511
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -615,7 +615,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c ebee9197c7900c7c5129fe7203719fe6a2988068e4861401e741427d8cd55911
+F src/style.c d752f8b64589d3a6f6da0756d4c405880fe34cf3a0cbe8b277e84bc3afd425a6
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f4af604aa56c0ed7ff7d15e2bee7d1de7cb225a4ab96bf020159b31532dfd520
-R feff0c47f2f869e78e43f93feb76a1c2
-U george
-Z 6bdbd23ea36f20a482a90f7451441fbf
+P bed4b0f7fc586f993e9abacbb11ddc10190531f74929f345b87487d3040f4fd5
+R 2f0f005146b17084bc485293dc31dc09
+U drh
+Z 278a0bae8e15a09cc811702e130df20a
