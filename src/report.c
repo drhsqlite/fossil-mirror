@@ -1034,7 +1034,7 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
-    style_submenu_element("Raw", "rptview?tablist=1&%h", PD("QUERY_STRING",""));
+    style_submenu_element("Raw", "rptview?tablist=1&rn=%d&%h", rn, PD("QUERY_STRING","") );
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "rptedit?rn=%d", rn);
