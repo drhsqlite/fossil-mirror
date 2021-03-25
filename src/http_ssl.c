@@ -118,7 +118,7 @@ void ssl_global_init(void){
       /* User has specified a CA location, make sure it exists and use it */
       switch( file_isdir(zCaSetting, ExtFILE) ){
         case 0: { /* doesn't exist */
-          fossil_panic("ssl-ca-location is set to '%s', "
+          fossil_fatal("ssl-ca-location is set to '%s', "
               "but is not a file or directory", zCaSetting);
           break;
         }
@@ -132,7 +132,7 @@ void ssl_global_init(void){
         }
       }
       if( SSL_CTX_load_verify_locations(sslCtx, zCaFile, zCaDirectory)==0 ){
-        fossil_panic("Failed to use CA root certificates from "
+        fossil_fatal("Failed to use CA root certificates from "
           "ssl-ca-location '%s'", zCaSetting);
       }
     }
@@ -148,7 +148,7 @@ void ssl_global_init(void){
       if( SSL_CTX_use_certificate_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
        || SSL_CTX_use_PrivateKey_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
       ){
-        fossil_panic("Could not load SSL identity from %s", identityFile);
+        fossil_fatal("Could not load SSL identity from %s", identityFile);
       }
     }
     /* Register a callback to tell the user what to do when the server asks

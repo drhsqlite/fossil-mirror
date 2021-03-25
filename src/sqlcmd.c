@@ -308,7 +308,7 @@ void fossil_key(const char **pzKey, int *pnKey){
       *pnKey = -1;
     }
   }else{
-    fossil_panic("failed to allocate %u bytes for key", nByte);
+    fossil_fatal("failed to allocate %u bytes for key", nByte);
   }
 }
 #endif

@@ -271,7 +271,7 @@ static int undoNeedRollback = 0;
 void undo_save(const char *zPathname){
   if( undoDisable ) return;
   if( undo_maybe_save(zPathname, -1)!=UNDO_SAVED_OK ){
-    fossil_panic("failed to save undo information for path: %s",
+    fossil_fatal("failed to save undo information for path: %s",
                  zPathname);
   }
 }

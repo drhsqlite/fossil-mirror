@@ -169,7 +169,7 @@ cson_value * json_page_status(){
   }
   db_finalize(&q);
   if( nErr ){
-    fossil_panic("aborting due to prior errors");
+    fossil_fatal("aborting due to prior errors");
   }
 #endif
   return cson_object_value( oPay );

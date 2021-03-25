@@ -388,10 +388,10 @@ int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
 int file_unsafe_in_tree_path(const char *zFile){
   int n;
   if( !file_is_absolute_path(zFile) ){
-    fossil_panic("%s is not an absolute pathname",zFile);
+    fossil_fatal("%s is not an absolute pathname",zFile);
   }
   if( fossil_strnicmp(g.zLocalRoot, zFile, (int)strlen(g.zLocalRoot)) ){
-    fossil_panic("%s is not a prefix of %s", g.zLocalRoot, zFile);
+    fossil_fatal("%s is not a prefix of %s", g.zLocalRoot, zFile);
   }
   n = file_nondir_objects_on_path(g.zLocalRoot, zFile);
   if( n ){
@@ -1150,9 +1150,9 @@ char *file_getcwd(char *zBuf, int nBuf){
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
     if( errno==ERANGE ){
-      fossil_panic("pwd too big: max %d", nBuf-1);
+      fossil_fatal("pwd too big: max %d", nBuf-1);
     }else{
-      fossil_panic("cannot find current working directory; %s",
+      fossil_fatal("cannot find current working directory; %s",
                    strerror(errno));
     }
   }
@@ -1825,7 +1825,7 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
   }
   do{
     blob_zero(pBuf);
-    if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
+    if( cnt++>20 ) fossil_fatal("cannot generate a temporary filename");
     if( zTag==0 ){
       sqlite3_randomness(15, zRand);
       for(i=0; i<15; i++){
