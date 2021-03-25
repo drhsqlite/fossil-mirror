@@ -214,7 +214,9 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
   va_start(ap, zAction);
   zLink = vmprintf(zAction, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+  if( fossil_strcmp(zLink,"/register")==0
+   || (g.perm.Hyperlink && !g.javascriptHyperlink)
+  ){
     @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
   }else{
     needHrefJs = 1;

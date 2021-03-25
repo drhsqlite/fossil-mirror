@@ -399,6 +399,8 @@
         return this;
       }
     };
+    F.fetch.beforesend = ()=>cs.ajaxStart();
+    F.fetch.aftersend = ()=>cs.ajaxEnd();
     cs.e.inputCurrent = cs.e.inputSingle;
     /* Install default settings... */
     Object.keys(cs.settings.defaults).forEach(function(k){
@@ -540,14 +542,11 @@
       if(!(e instanceof HTMLElement)) return;
       if(this.userMayDelete(e)){
         this.ajaxStart();
-        fetch("chat-delete/" + id)
-          .then(function(response){
-            if(!response.ok) throw cs._newResponseError(response);
-            return response;
-          })
-          .then(()=>this.deleteMessageElem(e))
-          .catch(err=>this.reportErrorAsMessage(err))
-          .finally(()=>this.ajaxEnd());
+        F.fetch("chat-delete/" + id, {
+          responseType: 'json',
+          onload:(r)=>this.deleteMessageElem(r),
+          onerror:(err)=>this.reportErrorAsMessage(err)
+        });
       }else{
         this.deleteMessageElem(id);
       }
@@ -880,13 +879,11 @@
     if( !msg && !file ) return;
     const self = this;
     fd.set("lmtime", localTime8601(new Date()));
-    fetch("chat-send",{
-      method: 'POST',
-      body: fd
-    }).then((x)=>{
-      if(x.ok) return x.text();
-      else throw Chat._newResponseError(x);
-    }).then(function(txt){
+    F.fetch("chat-send",{
+      payload: fd,
+      responseType: 'text',
+      onerror:(err)=>this.reportErrorAsMessage(err),
+      onload:function(txt){
         if(!txt) return/*success response*/;
         try{
           const json = JSON.parse(txt);
@@ -895,8 +892,8 @@
           self.reportError(e);
           return;
         }
-      })
-      .catch((e)=>this.reportErrorAsMessage(e));
+      }
+    });
     BlobXferState.clear();
     Chat.inputValue("").inputFocus();
   };
@@ -1157,31 +1154,32 @@
     Chat.disableDuringAjax.push(toolbar);
     /* Loads the next n oldest messages, or all previous history if n is negative. */
     const loadOldMessages = function(n){
-      Chat.ajaxStart();
       Chat.e.messagesWrapper.classList.add('loading');
       Chat._isBatchLoading = true;
-      var gotMessages = false;
       const scrollHt = Chat.e.messagesWrapper.scrollHeight,
             scrollTop = Chat.e.messagesWrapper.scrollTop;
-      fetch("chat-poll?before="+Chat.mnMsg+"&n="+n)
-        .then(Chat._fetchJsonOrError)
-        .then(function(x){
-          gotMessages = x.msgs.length;
-          newcontent(x,true);
-        })
-        .catch(e=>Chat.reportErrorAsMessage(e))
-        .finally(function(){
+      F.fetch("chat-poll",{
+        urlParams:{
+          before: Chat.mnMsg,
+          n: n
+        },
+        responseType: 'json',
+        onerror:function(err){
+          Chat.reportErrorAsMessage(err);
           Chat._isBatchLoading = false;
-          Chat.e.messagesWrapper.classList.remove('loading');
-          Chat.ajaxEnd();
+        },
+        onload:function(x){
+          let gotMessages = x.msgs.length;
+          newcontent(x,true);
+          Chat._isBatchLoading = false;
           if(Chat._gotServerError){
-            F.toast.error("Got an error response from the server. ",
-                          "See message for details.");
+            Chat._gotServerError = false;
             return;
-          }else if(n<0/*we asked for all history*/
+          }
+          if(n<0/*we asked for all history*/
              || 0===gotMessages/*we found no history*/
              || (n>0 && gotMessages<n /*we got fewer history entries than requested*/)
-             || (false!==gotMessages && n===0 && gotMessages<Chat.loadMessageCount
+             || (n===0 && gotMessages<Chat.loadMessageCount
                  /*we asked for default amount and got fewer than that.*/)){
             /* We've loaded all history. Permanently disable the
                history-load toolbar and keep it from being re-enabled
@@ -1201,7 +1199,12 @@
               0, Chat.e.messagesWrapper.scrollHeight - scrollHt + scrollTop
             );
           }
-        });
+        },
+        aftersend:function(){
+          Chat.e.messagesWrapper.classList.remove('loading');
+          Chat.ajaxEnd();
+        }
+      });
     };
     const wrapper = D.div(); /* browsers don't all properly handle >1 child in a fieldset */;
     D.append(toolbar, wrapper);
@@ -1215,45 +1218,63 @@
     toolbar.disabled = true /*will be enabled when msg load finishes */;
   })()/*end history loading widget setup*/;
 
-  async function poll(isFirstCall){
-    if(poll.running) return;
-    poll.running = true;
-    if(isFirstCall){
+  const afterFetch = function f(){
+    if(true===f.isFirstCall){
+      f.isFirstCall = false;
+      Chat.ajaxEnd();
+      Chat.e.messagesWrapper.classList.remove('loading');
+      setTimeout(function(){
+        Chat.scrollMessagesTo(1);
+      }, 250);
+    }
+    if(Chat._gotServerError && Chat.intervalTimer){
+      clearInterval(Chat.intervalTimer);
+      Chat.reportErrorAsMessage(
+        "Shutting down chat poller due to server-side error. ",
+        "Reload this page to reactivate it.");
+      delete Chat.intervalTimer;
+    }
+    poll.running = false;
+  };
+  afterFetch.isFirstCall = true;
+  const poll = async function f(){
+    if(f.running) return;
+    f.running = true;
+    Chat._isBatchLoading = f.isFirstCall;
+    if(true===f.isFirstCall){
+      f.isFirstCall = false;
       Chat.ajaxStart();
       Chat.e.messagesWrapper.classList.add('loading');
     }
-    Chat._isBatchLoading = isFirstCall;
-    var p = fetch("chat-poll?name=" + Chat.mxMsg);
-    p.then(Chat._fetchJsonOrError)
-      .then(y=>newcontent(y))
-      .catch(e=>console.error(e))
-    /* ^^^ we don't use Chat.reportError(e) here b/c the polling
-       fails exepectedly when it times out, but is then immediately
-       resumed, and reportError() produces a loud error message. */
-      .finally(function(){
-        if(isFirstCall){
-          Chat._isBatchLoading = false;
-          Chat.ajaxEnd();
-          Chat.e.messagesWrapper.classList.remove('loading');
-          setTimeout(function(){
-            Chat.scrollMessagesTo(1);
-          }, 250);
-        }
-        if(Chat._gotServerError && Chat.intervalTimer){
-          clearInterval(Chat.intervalTimer);
-          delete Chat.intervalTimer;
-        }
-        poll.running=false;
-      });
-  }
+    F.fetch("chat-poll",{
+      timeout: 420 * 1000/*FIXME: get the value from the server*/,
+      urlParams:{
+        name: Chat.mxMsg
+      },
+      responseType: "json",
+      // Disable the ajax start/end handling for this long-polling op:
+      beforesend: function(){},
+      aftersend: function(){},
+      onerror:function(err){
+        Chat._isBatchLoading = false;
+        console.error(err);
+        /* ^^^ we don't use Chat.reportError() here b/c the polling
+           fails exepectedly when it times out, but is then immediately
+           resumed, and reportError() produces a loud error message. */
+        afterFetch();
+      },
+      onload:function(y){
+        newcontent(y);
+        Chat._isBatchLoading = false;
+        afterFetch();
+      }
+    });
+  };
+  poll.isFirstCall = true;
   Chat._gotServerError = poll.running = false;
-  poll(true);
-  if(!Chat._gotServerError){
-    Chat.intervalTimer = setInterval(poll, 1000);
-  }
   if( window.fossil.config.chat.fromcli ){
     Chat.chatOnlyMode(true);
   }
-
+  Chat.intervalTimer = setInterval(poll, 1000);
   F.page.chat = Chat/* enables testing the APIs via the dev tools */;
 })();
