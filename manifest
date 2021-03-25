@@ -1,5 +1,5 @@
-C Update\sthe\sform\sspider\sprotections\sso\sthat\slinks\sto\s/register\sgo\sthrough\neven\sif\sspider\sprotection\sis\sfully\senabled.\s\sThis\sallows\sself-registration\neven\sif\suser\s"nobody"\shas\sno\spermissions.
-D 2021-03-24T15:40:49.511
+C At\s/rptview\spage\sshow\slink\sto\s/reportslist.\sIf\srequest's\squery\sstring\scontains\s[<b>rvsmpl</b>]\sparameter\sthen\salso\sshow\san\sauxiliary\slink\sto\sthe\spage\sdefined\sby\sthe\svalue\sof\sthis\sparameter.\sLabels\sand\slinks\srendered\svia\s%s\sformat\sspecifier\sbecause\s%h\sand\s%T\sdid\snot\swork\sproperly.\sIn\sthis\sparticular\scase\sthis\sseems\sfine\sbecause\sthe\svalues\sare\srendered\svia\s%href().\sCode\sreview\sis\svery\swelcome\sthough.
+D 2021-03-25T04:11:31.070
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -571,7 +571,7 @@ F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c bcc6893a6ddfe18c06ebabc4e6357b3dfb7879cd5744d349e002a11f7341da56
 F src/regexp.c 8c322e77e3af37d259d4af5c7d3d1c03888159c690ad2a4725bfd8c491aac17d
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
-F src/report.c 28c7da3e70e5136f67bb8bc22747bf8f845e2191d74d7f9aabff11bf28cc5077
+F src/report.c 83da98c90dabebba974e9d280f834e18be60d134e36d0fb8b3a00ed8df6ffc43
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -615,7 +615,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c d752f8b64589d3a6f6da0756d4c405880fe34cf3a0cbe8b277e84bc3afd425a6
+F src/style.c 9c368b5d212768c9f94b1fa0f1fdb8fcb1fcdb9ba778c24c09c11b5c05c5d52b
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
@@ -990,7 +990,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bed4b0f7fc586f993e9abacbb11ddc10190531f74929f345b87487d3040f4fd5
-R 2f0f005146b17084bc485293dc31dc09
-U drh
-Z 278a0bae8e15a09cc811702e130df20a
+P 89b724dcfae8a6c59f409241c9622184b0505352c64f1d39e5ad99704c41ad5e
+R 6706e9081ec16f52fcc98fd3cae747ce
+T *branch * rptview-submenu-paralink
+T *sym-rptview-submenu-paralink *
+T -sym-trunk *
+U george
+Z 9188339d33471520b7a6d5879d268899

@@ -332,6 +332,26 @@ void style_submenu_sql(
   }
 }
 
+/*  Add submenu hyperlink based on the value of arbitrary parameter
+ *  in the request's query string.
+ */
+void style_submenu_parametric(
+  const char *zName      /*  Query parameter name */
+){
+  const char *zV;   /* value of the corresponding parameter   */
+  if( zName == 0 || zName[0] == 0 || !fossil_islower(zName[0]) ||
+     !fossil_no_strange_characters(zName)) {
+    return;
+  }
+  zV = PD(zName,"");
+  if( zV[0] && fossil_no_strange_characters( zV )){
+    assert( nSubmenu < count(aSubmenu) );
+    aSubmenu[nSubmenu].zLabel = mprintf("[ %s ]",zV);  /* memory leak? */
+    aSubmenu[nSubmenu].zLink  = mprintf("%R/%s?%s",zV,PD("QUERY_STRING",""));
+    nSubmenu++;
+  }
+}
+
 /*
 ** Disable or enable the submenu
 */

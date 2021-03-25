@@ -970,10 +970,15 @@ static int db_exec_readonly(
 /*
 ** WEBPAGE: rptview
 **
-** Generate a report.  The rn query parameter is the report number
-** corresponding to REPORTFMT.RN.  If the tablist query parameter exists,
+** Generate a report.  The "rn" query parameter is the report number
+** corresponding to REPORTFMT.RN.  If the "tablist" query parameter exists,
 ** then the output consists of lines of tab-separated fields instead of
-** an HTML table.
+** an HTML table.  If the "rvsmpl" query parameter is set to an ordinary
+** unfuncy ASCII string (alphanumerics, '_' and '-') then report's
+** submenu will contain an extra hyperlink that have a value-driven
+** label and target.
+**
+** "rvsmpl" stands for Report View SubMenu's Parametric Link.
 */
 void rptview_page(void){
   int count = 0;
@@ -986,6 +991,7 @@ void rptview_page(void){
   Stmt q;
   char *zErr1 = 0;
   char *zErr2 = 0;
+  const char *zQS;   /* QUERY_STRING  */
 
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
@@ -1034,7 +1040,11 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
-    style_submenu_element("Raw", "rptview?tablist=1&rn=%d&%h", rn, PD("QUERY_STRING","") );
+    zQS = PD("QUERY_STRING","");
+    style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+    style_submenu_element("Reports","%R/reportlist?&%s",zQS);
+    style_submenu_parametric("rvsmpl");
+
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "rptedit?rn=%d", rn);
