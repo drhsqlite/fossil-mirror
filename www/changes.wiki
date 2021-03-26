@@ -73,6 +73,11 @@
      Fossil to link against the system SQLite library rather than the
      built-in copy of SQLite, to verify that their system SQLite library
      is recent enough.
+  *  Webpage that shows [/help?cmd=/whistory|history of a wiki page]
+     gained client-side UI to help with comparison between two arbitrary
+     versions of a wiki (by the means of anchoring a "baseline" version)
+     and the ability to squeeze several sequential edits made by the same
+     user into a single "recycled" row (the latest edit in that sequence).
 
 <a name='v2_14'></a>
 <h2>Changes for Version 2.14 (2021-01-20)</h2>

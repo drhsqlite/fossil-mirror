@@ -1,5 +1,5 @@
-C Fixed\sthe\s'add'\sWindows-reserved\sfilename\scheck\sto\swork\swith\sboth\sfilename\sand\sdirectory\sname\sinput.\sIt\snow\salways\swarns\sfor\ssuch\snamed\ss\sbut\spermits\sthem\sif\s--allow-reserved\sis\sused.
-D 2021-03-26T19:32:36.449
+C Append\sto\sthe\slist\sof\s[/doc/www/changes.wiki#v2_15|changes\sin\sv2.15]\san\sitem\sabout\s/whistory.
+D 2021-03-26T20:16:26.383
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -827,7 +827,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki e01f4c3a66b8014943bbc80bb8ecdf25a571f7aa331e0cbe670183e4557902b3
+F www/changes.wiki dbf01b7e79be16e93e153cdcf69bce8bdcc478a220433e4655708d146a4fe950
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c5aa19cc5098ac2e15aa9a525158a8d302e3ece6318aec196381d5c8a0a2c26
-R 51ba7e591c72b57fc5d4f8c3be192b69
-U stephan
-Z b8c4361498017696d9a7c29dd080e5bf
+P d0a8582e014d0a9fe749a58f90a6325eb8572a4686d35e6e0100f8d84e1fc110
+R 7153d3572333c9ce8c2107c53cd00f64
+U george
+Z 322714074bebb55c9810485a9e4d1c8e
