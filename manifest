@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.35.3.\s\sThere\sare\sno\schanges\sother\nthan\sthe\sversion\sstring.
-D 2021-03-26T13:33:31.930
+C Version\s2.15
+D 2021-03-26T17:24:55.797
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -990,7 +990,9 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89b724dcfae8a6c59f409241c9622184b0505352c64f1d39e5ad99704c41ad5e
+P 8e5bdcebd561956689bb475cffd0a234dae72fe7957768c63c91f84bbc9128ba
 R b0780abe9643dfe636f95b69068e8524
+T +sym-release *
+T +sym-version-2.15 *
 U drh
-Z 641474392dfaa73ca5f5c4109dceca06
+Z 8105f1faaf63d50ab061722840d765bb
