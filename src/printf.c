@@ -1138,20 +1138,21 @@ static int fossil_print_error(int rc, const char *z){
 **
 ** The main difference between fossil_fatal() and fossil_panic() is that
 ** fossil_panic() makes an entry in the error log whereas fossil_fatal()
-** does not. On POSIX platforms, if there is not error log, then both
+** does not. On POSIX platforms, if there is not an error log, then both
 ** routines work similarly with respect to user-visible effects.  Hence,
 ** the routines are interchangable for commands and only act differently
 ** when processing web pages. On the Windows platform, fossil_panic()
 ** also displays a pop-up stating that an error has occured and allowing
 ** just-in-time debugging to commence. On all platforms, fossil_panic()
 ** ends execution with a SIGABRT signal, bypassing atexit processing.
+** This signal can also produce a core dump on POSIX platforms.
 **
 ** Use fossil_fatal() for malformed inputs that should be reported back
 ** to the user, but which do not represent a configuration problem or bug.
 **
 ** Use fossil_panic() for any kind of error that should be brought to the
-** attention of the system administrator or Fossil developers. It is to
-** be avoided for ordinary errors of usage, data entry, or I/O errors.
+** attention of the system administrator or Fossil developers. It should
+** be avoided for ordinary usage, parameter, OOM and I/O errors.
 */
 NORETURN void fossil_panic(const char *zFormat, ...){
   va_list ap;
