@@ -1,5 +1,5 @@
-C Update\sthe\sform\sspider\sprotections\sso\sthat\slinks\sto\s/register\sgo\sthrough\neven\sif\sspider\sprotection\sis\sfully\senabled.\s\sThis\sallows\sself-registration\neven\sif\suser\s"nobody"\shas\sno\spermissions.
-D 2021-03-24T15:40:49.511
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.35.3.\s\sThere\sare\sno\schanges\sother\nthan\sthe\sversion\sstring.
+D 2021-03-26T13:33:31.930
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -609,8 +609,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c f9ba3279c9b0cfa3035f2b7de99a2198991e073d63219003c8f6f3168e2b3a72
-F src/sqlite3.h bbdba2756ab30b30da38eef6bf0921e1c8cd5003ce3255d5d9899a62d36adb36
+F src/sqlite3.c 91ca6c0a30ebfdba4420bb35f4fd9149d13e45fc853d86ad7527db363e282683
+F src/sqlite3.h fe91f028af4a34a3ce753fe4bb86b4acd6f472a325d74afce203313b24319684
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bed4b0f7fc586f993e9abacbb11ddc10190531f74929f345b87487d3040f4fd5
-R 2f0f005146b17084bc485293dc31dc09
+P 89b724dcfae8a6c59f409241c9622184b0505352c64f1d39e5ad99704c41ad5e
+R b0780abe9643dfe636f95b69068e8524
 U drh
-Z 278a0bae8e15a09cc811702e130df20a
+Z 641474392dfaa73ca5f5c4109dceca06
