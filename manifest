@@ -1,5 +1,5 @@
-C Integrate\srptview-submenu-paralinks\sbrach.\sFor\sthis\scheck-in\sparametric\slinks\sin\ssubmenus\sare\senabled\son\s[/rptview?rn=6&wikismpl=rptview&rvsmpl=wiki/To+Do+List|/rptview]\spage\s(may\sbe\striggered\sby\srvsmpl,rvsmplX,rptview_smpl,rptview_smplX\sparameter\snames)\sand\salso\sfor\s[/rptview?rn=6&wikismpl=rptview&rvsmpl=wiki/To+Do+List|/wiki]\spage\s(may\sbe\striggered\sby\swikismpl,wikismplX\sparameter\snames).
-D 2021-03-26T18:25:04.403
+C Fixed\sthe\s'add'\sWindows-reserved\sfilename\scheck\sto\swork\swith\sboth\sfilename\sand\sdirectory\sname\sinput.\sIt\snow\salways\swarns\sfor\ssuch\snamed\ss\sbut\spermits\sthem\sif\s--allow-reserved\sis\sused.
+D 2021-03-26T19:32:36.449
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -418,7 +418,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 2785b857a2354cb8076ea941a059da76c573a41fe8822b61402eede868dab9a1
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
-F src/add.c 286178a32f0f3ab9703a4304159f3ba6f047452ec9ac98bec2baae439d3aebaf
+F src/add.c 21e75599eee7e3e44daad02846906343ac0c596b427625c10d9b7166a9184fcd
 F src/ajax.c b819cd519531ac8fa6521ac9cbbc54554a3d2a4005e29508b9a8a709d868e87f
 F src/alerts.c 96a2a08aba2f7fe3a756f9b2f2349a4e4dacbf4b4b0298acd53121de74bcabe7
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
@@ -459,7 +459,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 0d2f9a544a37627872afaf43a237019b0e0b6a470d2e8628add85aecd58e01f8
+F src/db.c 8e8ef58a5638c6e538a3892914e00e96c234229b98ce495aba2a8793fec6cc44
 F src/default.css 5b00997a019df8433e306e9773961e5d40b19332f8b8375685005f3ea59e90de
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -607,7 +607,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
+F src/sqlcmd.c bca45c9eae99089b02f3bdfa58170bfeaab9b9851cf715f230955c4203df88f9
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
 F src/sqlite3.c 91ca6c0a30ebfdba4420bb35f4fd9149d13e45fc853d86ad7527db363e282683
 F src/sqlite3.h fe91f028af4a34a3ce753fe4bb86b4acd6f472a325d74afce203313b24319684
@@ -990,8 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19d0a94a7b2434154c79fb24b7da95160e8b5b2ff93b0741f977da9081f5f1f0 290671078c3270c70c55fe9a5bd3bd2b0e59c59adca036918b7cdb9133b27c8a
-R 6f10b40e76e08e2498a9358207b93de8
-T +closed 290671078c3270c70c55fe9a5bd3bd2b0e59c59adca036918b7cdb9133b27c8a
-U george
-Z 342a82b7c3a0f7f015bc0ef45bf6aec1
+P 5c5aa19cc5098ac2e15aa9a525158a8d302e3ece6318aec196381d5c8a0a2c26
+R 51ba7e591c72b57fc5d4f8c3be192b69
+U stephan
+Z b8c4361498017696d9a7c29dd080e5bf

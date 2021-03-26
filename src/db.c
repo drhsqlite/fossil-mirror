@@ -1378,6 +1378,9 @@ void db_add_aux_functions(sqlite3 *db){
                           db_obscure, 0, 0);
   sqlite3_create_function(db, "protected_setting", 1, SQLITE_UTF8, 0,
                           db_protected_setting_func, 0, 0);
+  sqlite3_create_function(db, "win_reserved", 1, SQLITE_UTF8, 0,
+                          db_win_reserved_func,0,0
+  );
 }
 
 #if USE_SEE
@@ -2876,6 +2879,22 @@ LOCAL void file_is_selected(
     assert( rc==0 || rc==1 );
     if( sqlite3_value_type(argv[2-rc])==SQLITE_NULL ) rc = 1-rc;
     sqlite3_result_value(context, argv[2-rc]);
+  }
+}
+
+/*
+** Implementation of the "win_reserved(X)" SQL function, a wrapper
+** for file_is_win_reserved(X) which returns true if X is
+** a Windows-reserved filename.
+*/
+LOCAL void db_win_reserved_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char * zName = (const char *)sqlite3_value_text(argv[0]);
+  if( zName!=0 ){
+    sqlite3_result_int(context, file_is_win_reserved(zName)!=0);
   }
 }
 

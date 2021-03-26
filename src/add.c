@@ -441,17 +441,6 @@ void add_cmd(void){
     /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
     ** checkout. */
     file_tree_name(g.argv[i], &fullName, 0, 1);
-    if(0==allowReservedFlag
-       && 0!=file_is_win_reserved(blob_str(&fullName))){
-      /* Note that the 'add' internal machinery already _silently_
-      ** skips over any names for which file_is_reserved_name()
-      ** returns true or which is in the fossil_reserved_name()
-      ** list. We do not need to warn for those, as they're outright
-      ** verboten. */
-      fossil_fatal("Filename is reserved: %b\n"
-                   "Use --allow-reserved to permit "
-                   "reserved filenames.", &fullName);
-    }
     blob_reset(&fullName);
     file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
@@ -488,6 +477,34 @@ void add_cmd(void){
   glob_free(pIgnore);
   glob_free(pClean);
 
+  /** Check for Windows-reserved names and warn or exit, as
+   ** appopriate. Note that the 'add' internal machinery already
+   ** _silently_ skips over any names for which
+   ** file_is_reserved_name() returns true or which is in the
+   ** fossil_reserved_name() list. We do not need to warn for those,
+   ** as they're outright verboten. */
+  if(db_exists("SELECT 1 FROM sfile WHERE win_reserved(pathname)")){
+    Stmt q = empty_Stmt;
+    db_prepare(&q,"SELECT pathname FROM sfile "
+                  "WHERE win_reserved(pathname)");
+    int reservedCount = 0;
+    while( db_step(&q)==SQLITE_ROW ){
+      const char * zName = db_column_text(&q, 0);
+      ++reservedCount;
+      if(allowReservedFlag){
+        fossil_warning("WARNING: Windows-reserved "
+                       "filename: %s", zName);
+      }else{
+        fossil_warning("ERROR: Windows-reserved filename: %s", zName);
+      }
+    }
+    db_finalize(&q);
+    if(allowReservedFlag==0){
+      fossil_fatal("ERROR: %d Windows-reserved filename(s) added. "
+                   "Use --allow-reserved to permit such names.",
+                   reservedCount);
+    }
+  }
   add_files_in_sfile(vid);
   db_end_transaction(0);
 }
