@@ -973,8 +973,7 @@ static int db_exec_readonly(
 ** Generate a report.  The "rn" query parameter is the report number
 ** corresponding to REPORTFMT.RN.  If the "tablist" query parameter exists,
 ** then the output consists of lines of tab-separated fields instead of
-** an HTML table.  If the "rvsmpl" query parameter is set to an ordinary
-** unfuncy ASCII string (alphanumerics, '_' and '-') then report's
+** an HTML table.  If the "rvsmpl" query parameter is set then report's
 ** submenu will contain an extra hyperlink that have a value-driven
 ** label and target.
 **

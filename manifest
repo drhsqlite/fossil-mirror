@@ -1,5 +1,5 @@
-C Allow\sa\spage's\ssubmenu\sto\shave\smultiple\sparametric\shyperlinks\sinduced\sby\sseveral\sdifferent\squery\sstring\sparameters.\sUse\sa\scommon\ssuffixes\s(smpl,smpl1,...smpl9)\sto\sprobe\sfor\sdefined\sparameters.\sRelax\sconstraints\son\shyperlink\svalues\sto\sallow\slinking\sto\swiki\spages\s(for\sexample).\sAs\sa\sproof\sof\sconcept\sadd\ssupport\sof\sparalinks\sto\sthe\s/wiki\spage.\sGet\srid\sof\sdangling\s'&'\sat\sthe\sendings.
-D 2021-03-26T17:20:39.932
+C Merge-in\schanges\sfrom\strunk\s(~\sversion\s2.15)
+D 2021-03-26T17:59:59.119
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -571,7 +571,7 @@ F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c bcc6893a6ddfe18c06ebabc4e6357b3dfb7879cd5744d349e002a11f7341da56
 F src/regexp.c 8c322e77e3af37d259d4af5c7d3d1c03888159c690ad2a4725bfd8c491aac17d
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
-F src/report.c 4ed4ba5a83ad88f41e078eef329021e012bbdb7b8524ed77e9bbec3de55ce25b
+F src/report.c 49433f969433a2b2eb8a4bfe958d6824d4c055724439e41d8aec06004711f3a5
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -609,8 +609,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c bed77f75c03449c40d60539b2fc080a620c75b90ef18b90336e34a1410685fb0
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c f9ba3279c9b0cfa3035f2b7de99a2198991e073d63219003c8f6f3168e2b3a72
-F src/sqlite3.h bbdba2756ab30b30da38eef6bf0921e1c8cd5003ce3255d5d9899a62d36adb36
+F src/sqlite3.c 91ca6c0a30ebfdba4420bb35f4fd9149d13e45fc853d86ad7527db363e282683
+F src/sqlite3.h fe91f028af4a34a3ce753fe4bb86b4acd6f472a325d74afce203313b24319684
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -827,7 +827,7 @@ F www/caps/index.md 61a3501c7d75453f326f575c3c188e2bbcd3b1814d9d31f6c0646450ef65
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 2ea3f4288f0f327c38f9eda9006c0462ae2ea4c0492c3da49cc85e832cf380e3
+F www/changes.wiki e01f4c3a66b8014943bbc80bb8ecdf25a571f7aa331e0cbe670183e4557902b3
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -895,7 +895,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5bb0b31081dc00afe988c
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki a1f5863a272ff2d1f0b7f34a85f11a3101b49bd15d745718e6fefa1f932c2548
+F www/index.wiki 1a77f0c7f4bb47dc0ae7f0870b85f7668636ebdd8f5553e2b8abb2a1c5062c02
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 9dd43581054e6de6fa75046e3f69a87c4dffa6f79a144bc18ff9bc77548b1dc0
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b982c00150e828b578c62880b5573985e0832b5f6089b65ca4a7ae938d1a91c7
-R f5c9de2bd471fdff693ea78fc6b31f97
+P d075801aa8629e2492133e6e4d6087d1a893d024435acd7062398a56ac64894f 97610f82f90ac91514f42048542ba82c6fc07f2ca1dc57412f8e5dc5e66ddab5
+R 911b73602f90cbce9c12a40125d38557
 U george
-Z 7856be854593125cb185f357daf9417c
+Z 3f7582910ea189dd2ed9194ffe3413ad
