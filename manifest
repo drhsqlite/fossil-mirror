@@ -1,5 +1,5 @@
-C Append\sto\sthe\slist\sof\s[/doc/www/changes.wiki#v2_15|changes\sin\sv2.15]\san\sitem\sabout\s/whistory.
-D 2021-03-26T20:16:26.383
+C Darkmode\sskin\sticket\spage\sstyle\simprovements\sfrom\s[forum:/forumpost/f7f89e2cdb\s|\sforum\spost\sf7f89e2cdb].
+D 2021-03-26T20:28:25.290
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -385,7 +385,7 @@ F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2a
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
 F skins/bootstrap/header.txt 8c52feacdb1818ff1fd2325a3a620b38b66a3ac57fc49cc4f92305d2d5ce95c9
-F skins/darkmode/css.txt dbada494b48578a54158a6ed9c9ff18cb8e372869bd9fa503e4998f25415bb16
+F skins/darkmode/css.txt ba2569517b1068af0380739825bb226bc390f8800d4672b032e1035d772f96f3
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt 7d2d3ed4b1673ade1392bfe4d0daab722bbb135b23ab82789ad30f913dab6c72
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0a8582e014d0a9fe749a58f90a6325eb8572a4686d35e6e0100f8d84e1fc110
-R 7153d3572333c9ce8c2107c53cd00f64
-U george
-Z 322714074bebb55c9810485a9e4d1c8e
+P 920b7079f267c3723b730efa77c6e993c269f957d7e795db80920c19975f1843
+R 5d7668a5da88c5655d825e2a759570e3
+U stephan
+Z 65be3cba66c324bd4ddf95926ae0333c
