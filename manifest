@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sand\sindex\spage\swith\sthe\snew\srelease\sinformation.
-D 2021-03-26T17:28:35.871
+C Remove\sinflammatory\slanguage\sabout\s"lying"\sfrom\sthe\s"rebase\sconsidered\sharmful"\sarticle.
+D 2021-03-26T17:54:51.142
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -937,7 +937,7 @@ F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0c
 F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2d
 F www/quickstart.wiki ebcb38fc4c07831c64f78354ae96405f0aac389e4c139c56d739e6fc7d186976
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
-F www/rebaseharm.md 69fe5c22b9d14c620a502e6f37cb27b8495e40418a18f34a34c02f252138fcc8
+F www/rebaseharm.md 62b958d3a8b09a50823534f10f3275a287f088c320be5a71a96fd955490cf7db
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c6012c4aa49d6901fdf9379adcfe6fa133284d404ba569766c7479b6266dd24
-R 561040985a622d4e8fe4fdf5696e8d6c
+P 97610f82f90ac91514f42048542ba82c6fc07f2ca1dc57412f8e5dc5e66ddab5
+R bc03a4629d6c0baf97a0efff631f9bf2
 U drh
-Z 64be121bebb8c083397b9c339b0249f7
+Z 1174af7ee441bdb4b5e91c286ac33800

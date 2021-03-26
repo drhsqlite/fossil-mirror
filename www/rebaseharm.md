@@ -295,18 +295,12 @@ about when those check-ins were originally created, which can make
 historical analysis of changes more difficult. It might also
 complicate the legal defense of prior art claims.
 
-## <a name="lying"></a>5.0 Rebasing is lying about the project history
+## <a name="lying"></a>5.0 Rebase misrepresents the project history
 
 By discarding parentage information, rebase attempts to deceive the
 reader about how the code actually came together.
 
-You may be tempted to dismiss this as an anti-Git opinion on a Fossil
-web site, but it’s spelled out just like that [in the Git rebase
-documentation][gitrebase]. It speaks of “lying,” “telling stories,”
-and “blasphemy.”
-
-That section of the Git docs is contrasting rebase with merge, which we
-cover [above](#cap-loss), but Git’s rebase feature is more than just an
+Git’s rebase feature is more than just an
 alternative to merging: it also provides mechanisms for changing the
 project history in order to make editorial changes.  Fossil shows that
 you can get similar effects without modifying historical records,
