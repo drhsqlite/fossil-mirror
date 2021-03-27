@@ -109,9 +109,7 @@
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file'),
-        contentDiv: E1('div.content'),
-        btnMsgHome: E1('#chat-scroll-top'),
-        btnMsgEnd: E1('#chat-scroll-bottom')
+        contentDiv: E1('div.content')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -340,14 +338,6 @@
       },
       toggleChatOnlyMode: function(){
         return this.chatOnlyMode(!this.isChatOnlyMode());
-      },
-      /* Turn the message area top/bottom buttons on (yes===true), off
-         (yes==false), or toggle them (no arguments). Returns this. */
-      toggleNavButtons: function(yes){
-        const e = [this.e.btnMsgHome, this.e.btnMsgEnd], c = 'hidden';
-        if(0===arguments.length) D.toggleClass(e, c);
-        else if(!arguments[0]) D.addClass(e, c);
-        else D.removeClass(e, c);
       },
       messageIsInView: function(e){
         return e ? overlapsElemView(e, this.e.messagesWrapper) : false;
@@ -967,10 +957,6 @@
         const v = Chat.settings.toggle('images-inline');
         F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
       }
-    },{
-      label: "Message home/end buttons",
-      boolValue: ()=>!Chat.e.btnMsgHome.classList.contains('hidden'),
-      callback: ()=>Chat.toggleNavButtons()
     }];
 
     /** Set up selection list of notification sounds. */
@@ -1085,19 +1071,6 @@
       return rect.top - popupSize.height -2;
     };
   })()/*#chat-settings-button setup*/;
-
-  (function(){ /* buttons to scroll to the begin/end of the messages. */
-    Chat.e.btnMsgEnd.addEventListener('click',function(ev){
-      ev.preventDefault();
-      Chat.scrollMessagesTo(1);
-      return false;
-    });
-    Chat.e.btnMsgHome.addEventListener('click',function(ev){
-      ev.preventDefault();
-      Chat.scrollMessagesTo(-1);
-      return false;
-    });
-  })();
   
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is
