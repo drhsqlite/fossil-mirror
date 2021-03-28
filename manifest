@@ -1,5 +1,5 @@
-C /chat:\sremoved\sthe\sunused/unnecessary\sjump-to-top/bottom\sbuttons.
-D 2021-03-27T16:04:04.527
+C Add\sexample\sof\sfossil\stimeline\s+\sdiff\sto\sget\schanges\sbetween\sspecific\sversions
+D 2021-03-28T05:14:24.432
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -935,7 +935,7 @@ F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2d
-F www/quickstart.wiki ebcb38fc4c07831c64f78354ae96405f0aac389e4c139c56d739e6fc7d186976
+F www/quickstart.wiki d5c312d194deb46e30223e6c870d66c698d11755ed5cb4646d215b30d9890ee9
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
 F www/rebaseharm.md 62b958d3a8b09a50823534f10f3275a287f088c320be5a71a96fd955490cf7db
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fb39f02b774f455477a76abc020fd6e414c0a5900a52f0e6a062e2e184db73c0
-R df383a239cd5615f8222ea6d492022cb
-U stephan
-Z fd71ae81ab565b78fa868117837400f2
+P a044fea7850b8372c40dda7884025c83034be33ea6989792c8383aa7ce35387a
+R aaf95d959ea9fa344787eb672a369faf
+U danshearer
+Z ab63b319e76d968ba35c8bbd924b74a0
