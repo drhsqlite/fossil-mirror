@@ -323,7 +323,7 @@ Checks for capabilities like [**Read**][o] and [**Write**][i] within the
 HTTP conversation between two Fossil instances only have a useful effect
 when done over an `http[s]://` URL.
 
-[sxcap]: https://fossil-scm.org/home/file?ci=8813ae91a699ac73&name=src%2Fmain.c&ln=2632-2637
+[sxcap]: /file?ci=8813ae91a699ac73&name=src/main.c&ln=2632-2637
 
 
 ## <a name="pubpg"></a>Public Pages

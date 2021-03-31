@@ -268,7 +268,7 @@ current tree: </p>
 </tt></b>
 </blockquote>
 
-"current" is an alias for the most recent version, so the command
+"current" is an alias for the checkout version, so the command
 "fossil diff --from ad75dfa4a0 --to ab975c6632" gives identical results.
 
 <p>To commit your changes to a local-only repository:</p>
