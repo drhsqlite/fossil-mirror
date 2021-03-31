@@ -458,12 +458,12 @@ void db_protect_pop(void){
 }
 
 /*
-** Verify that the desired database write pertections are in place.
+** Verify that the desired database write protections are in place.
 ** Throw a fatal error if not.
 */
 void db_assert_protected(unsigned flags){
   if( (flags & db.protectMask)!=flags ){
-    fossil_panic("missing database write protection bits: %02x",
+    fossil_fatal("missing database write protection bits: %02x",
                  flags & ~db.protectMask);
   }
 }
@@ -1836,7 +1836,7 @@ static char *db_configdb_name(int isOptional){
   */
   if( zHome==0 ){
     if( isOptional ) return 0;
-    fossil_panic("cannot locate home directory - please set one of the "
+    fossil_fatal("cannot locate home directory - please set one of the "
                  "FOSSIL_HOME, XDG_CONFIG_HOME, or HOME environment "
                  "variables");
   }
@@ -1886,13 +1886,13 @@ int db_open_config(int useAttach, int isOptional){
     fossil_free(zHome);
     if( rc ){
       if( isOptional ) return 0;
-      fossil_panic("home directory \"%s\" must be writeable", zHome);
+      fossil_fatal("home directory \"%s\" must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
   if( file_access(zDbName, W_OK) ){
     if( isOptional ) return 0;
-    fossil_panic("configuration file %s must be writeable", zDbName);
+    fossil_fatal("configuration file %s must be writeable", zDbName);
   }
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb");

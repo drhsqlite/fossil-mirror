@@ -1470,11 +1470,11 @@ char *enter_chroot_jail(char *zRepo, int noJail){
         zRepo = "/";
       }else{
         for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-        if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
+        if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
         if( i>0 ){
           zDir[i] = 0;
           if( file_chdir(zDir, 1) ){
-            fossil_panic("unable to chroot into %s", zDir);
+            fossil_fatal("unable to chroot into %s", zDir);
           }
           zDir[i] = '/';
         }

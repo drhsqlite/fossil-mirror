@@ -58,12 +58,12 @@ NORETURN void fossil_exit(int rc){
 */
 void *fossil_malloc(size_t n){
   void *p = malloc(n==0 ? 1 : n);
-  if( p==0 ) fossil_panic("out of memory");
+  if( p==0 ) fossil_fatal("out of memory");
   return p;
 }
 void *fossil_malloc_zero(size_t n){
   void *p = malloc(n==0 ? 1 : n);
-  if( p==0 ) fossil_panic("out of memory");
+  if( p==0 ) fossil_fatal("out of memory");
   memset(p, 0, n);
   return p;
 }
@@ -72,7 +72,7 @@ void fossil_free(void *p){
 }
 void *fossil_realloc(void *p, size_t n){
   p = realloc(p, n);
-  if( p==0 ) fossil_panic("out of memory");
+  if( p==0 ) fossil_fatal("out of memory");
   return p;
 }
 void fossil_secure_zero(void *p, size_t n){
@@ -107,18 +107,18 @@ void *fossil_secure_alloc_page(size_t *pN){
 #if defined(_WIN32)
   p = VirtualAlloc(NULL, pageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
   if( p==NULL ){
-    fossil_panic("VirtualAlloc failed: %lu\n", GetLastError());
+    fossil_fatal("VirtualAlloc failed: %lu\n", GetLastError());
   }
   if( !VirtualLock(p, pageSize) ){
-    fossil_panic("VirtualLock failed: %lu\n", GetLastError());
+    fossil_fatal("VirtualLock failed: %lu\n", GetLastError());
   }
 #elif defined(USE_MMAN_H)
   p = mmap(0, pageSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
   if( p==MAP_FAILED ){
-    fossil_panic("mmap failed: %d\n", errno);
+    fossil_fatal("mmap failed: %d\n", errno);
   }
   if( mlock(p, pageSize) ){
-    fossil_panic("mlock failed: %d\n", errno);
+    fossil_fatal("mlock failed: %d\n", errno);
   }
 #else
   p = fossil_malloc(pageSize);

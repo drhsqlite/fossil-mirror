@@ -1838,7 +1838,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
       g.zIpAddr = fossil_strdup(zIpAddr);
     }
   }else{
-    fossil_panic("missing SSH IP address");
+    fossil_fatal("missing SSH IP address");
   }
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request("missing HTTP header");
