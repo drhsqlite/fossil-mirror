@@ -595,6 +595,7 @@ void wiki_page(void){
     }
     if( g.perm.Hyperlink ){
       style_submenu_element("History", "%R/whistory?name=%T", zPageName);
+      style_submenu_parametric("wiki",7);
     }
   }
   if( !isPopup ){

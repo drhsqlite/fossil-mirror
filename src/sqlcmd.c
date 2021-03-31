@@ -148,8 +148,8 @@ static void sqlcmd_gather_artifact_stats(
 }
 
 /*
-** Add the content(), compress(), and decompress() SQL functions to
-** database connection db.
+** Add the content(), compress(), decompress(), and
+** gather_artifact_stats() SQL functions to database connection db.
 */
 int add_content_sql_commands(sqlite3 *db){
   sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
@@ -173,14 +173,14 @@ int add_content_sql_commands(sqlite3 *db){
 **
 ** WARNING:
 ** Do not instantiate these functions for any Fossil webpage or command
-** method of than the "fossil sql" command.  If an attacker gains access
+** method other than the "fossil sql" command.  If an attacker gains access
 ** to these functions, he will be able to disable other defense mechanisms.
 **
 ** This routines are for interactiving testing only.  They are experimental
 ** and undocumented (apart from this comments) and might go away or change
 ** in future releases.
 **
-** 2020-11-29:  This functions are now only available if the "fossil sql"
+** 2020-11-29:  These functions are now only available if the "fossil sql"
 ** command is started with the --test option.
 */
 static void sqlcmd_db_protect(
@@ -206,9 +206,6 @@ static void sqlcmd_db_protect_pop(
 ){
   if( !local_bSqlCmdTest ) db_protect_pop();
 }
-
-
-
 
 /*
 ** This is the "automatic extension" initializer that runs right after

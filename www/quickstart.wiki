@@ -245,6 +245,32 @@ example, if you edit the file "README.md":</p>
 when you did "fossil open". An open is the first checkout from a repository 
 into a new directory. </p>
 
+<p>To see the most recent changes made to the repository by other users, use "fossil timeline" to
+find out the most recent commit, and then "fossil diff" between that commit and the
+current tree: </p>
+<blockquote>
+<b>
+        fossil timeline <br><tt>
+        === 2021-03-28 === <br>
+        03:18:54 [ad75dfa4a0] *CURRENT* Added details to frobnicate command (user: user-one tags: trunk) <br>
+        === 2021-03-27 === <br>
+        23:58:05 [ab975c6632] Update README.md. (user: user-two tags: trunk) <br>
+             ⋮ <br>
+        </tt><br>
+        fossil diff --from current --to ab975c6632 <br><tt>
+        Index: frobnicate.c<br>
+        ============================================================<br>
+        --- frobnicate.c<br>
+        +++ frobnicate.c<br>
+        @@ -1,10 +1,11 @@<br>
+        +/* made a change to the source file */<br>
+        # Original text<br>
+</tt></b>
+</blockquote>
+
+"current" is an alias for the most recent version, so the command
+"fossil diff --from ad75dfa4a0 --to ab975c6632" gives identical results.
+
 <p>To commit your changes to a local-only repository:</p>
 <blockquote>
 <b>
