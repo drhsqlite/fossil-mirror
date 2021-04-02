@@ -1,5 +1,5 @@
-C Fix\s(URL-decode)\sa\shyperlink\sthat\sgets\sinto\sclipboard\swhen\suser\sselects\sa\sline\sof\scode\s(or\sa\srange\sof\slines)\sand\sclicks\s"copy-to-clipboard".\sThis\saffects\s/file,\s/artifact\sand\s/whatis\spages.\sThis\sfix\smay\sbe\ssomewhat\ssuboptimal\sor\sincomplete:\sit\smay\sbe\sworth\sinvestigating\swhy\ssome\ssubmenu's\slinks\sare\smangled\son\sa\sserver's\sside\sand\sfix\sit\sthere\s(hint:\sperhaps\s%T\sand\s%h\sformatting\sdoes\snot\splay\swell\swith\sstyle_submenu_*()\sfamily\sof\sfunctions,\ssee\salso\scheck-in\s[b982c00150]\sand\spost\s[forum:b8ea664a57]).
-D 2021-03-31T22:53:17.996
+C Fixes\sto\sthe\s'th1'\stest\sto\saccount\sfor\sa\strace\soutput\sdifference\son\snon-Windows\splatforms.
+D 2021-04-02T02:57:02.715
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -697,7 +697,7 @@ F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121eca09ab71b55
 F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec641e374496bcb0
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
-F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
+F test/symlinks.test b8018b7041d7f41f075a9ccb796b80293a059833d6bfbed519dbb0ab3f0753f4
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
 F test/tester.tcl d2abb6ee6a788c99628298d64b354a236abcf12a1f79b7fad98ee0ab2a82153c
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -715,7 +715,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test ad2a7bb3ed636c7d53c776c6097de112cbe9b47de311d96b0d47d255d8fc53ba
+F test/th1.test d24b7738f32bb3d9a443178895d191330807f80b384cd4acb8dfdd8efa6615a5
 F test/unversioned.test 739f312d48a3063ed5931433e85f7b49c35b87ee6add5383c44fea5c4104a879
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 68344d628ceb33fb0f73146a5556387b22481416ecfc24c7042dc548a8102b9f
-R a9d654ba20170c55d725ce7e64423301
-U george
-Z f57979fba0217aeb43d3dd71f1ba6cc6
+P 898151877f9281100047ef891b53fadb8d88021de94921aa4e6907ff75e8534c
+R 450861e2e1c4c03530667484694cdae7
+U mistachkin
+Z bbe79961267b68f24dd77a609d6ad0b8
