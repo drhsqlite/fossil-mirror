@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\s'json'\stest\sfile.
-D 2021-04-02T03:38:51.370
+C Fixes\sto\sthe\s'commit-warning'\stest\sfile.
+D 2021-04-02T03:39:22.853
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -657,7 +657,7 @@ F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test 33a700e4741378445f8543a68b93ea1e3ca8b0008f5eb308b1f06077b2b0abfa
+F test/commit-warning.test becab1ef4d53b9d41ff1b1b9d6f46abaac87a95f362f3ae17589036f4bab5a2d
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/csp1.html ed027b1032cccad2f2a2bcae4364922ba11f4b5ed648dbe71493c6de9de0ffb6
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 739dd489f1fc094abcf77051183a6d83180386cfb58efc82dd2a55a1d85d985f
-R c8f68043ba9c33414b419f24f6e05686
+P e9def3b785a4d4f06e95b01fbe32762a83864a0dc5954e3882e53622981fca24
+R 74610d2a6cdbeb84e0f01ba5c830e654
 U mistachkin
-Z fbc84d1af82ec62c7f29f42158e6ad44
+Z ab98a292c31fc89a014c55bfafdb692a
