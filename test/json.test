@@ -57,7 +57,7 @@ if {$JR eq ""} {
   test_cleanup_then_return
 }
 test json-1 {[dict exists $JR resultCode]
-             && [dict get $JR resultCode] eq "FOSSIL-4102"}
+             && [dict get $JR resultCode] in "FOSSIL-3002 FOSSIL-4102"}
 
 # Use the CLI interface to execute a JSON command. Sets the global
 # RESULT to the response text, and JR to a Tcl dict conversion of the
