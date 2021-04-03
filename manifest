@@ -1,5 +1,5 @@
-C Improve\san\serror\smessage\sin\sthe\s'json'\stest\sfile.
-D 2021-04-02T03:56:49.543
+C build.wiki:\sdockerfile\sexample\snow\suses\salpine\sv3.13\sinstead\sof\salpine\sedge\sbecause\s3.14+\sunduly\sbreaks\sstuff\son\smany\scurrently-common\shost\sOSes.
+D 2021-04-03T10:56:33.411
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -819,7 +819,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 29390e0301453f9529d5bba83ab389533df2061e9d8c871175fa52933e041681
+F www/build.wiki 14429f3c3d1ce16b131bbf747cd88098768366f88a82bbdf6368993cf06b504d
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md e5f90e7eca4927a293fdb437a461fdeccb4ad383edf2a3030de1fb36737c11bf
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 953bb36cbcfc715584fe90dec8d1294c91998446c0004e45d9bb7db7a5305583
-R a4f66f7ed7930781aa8f2df993597673
-U mistachkin
-Z 8d60eb02756c4840a6a69ac5fd9ead9c
+P e4f854db78fa435ea6b96f3aad6fb558fa6f8fa15b1d5ca88b67aeaf790a8428
+R 73fabd0bb6f439f5e4cee48677de1c8d
+U stephan
+Z d10895b3f504e7a3c93b7a320fea3902
