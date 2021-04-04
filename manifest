@@ -1,5 +1,5 @@
-C build.wiki:\sdockerfile\sexample\snow\suses\salpine\sv3.13\sinstead\sof\salpine\sedge\sbecause\s3.14+\sunduly\sbreaks\sstuff\son\smany\scurrently-common\shost\sOSes.
-D 2021-04-03T10:56:33.411
+C Allow\sto\sDROP\ssome\sspecific\stables,\sviews\sand\sindices\sthat\scould\sbe\sintroduced\sinto\sthe\sdatabase\sschema\sof\sa\srepository\sthrough\scustomization\sof\sticketing\ssubsystem.\sFor\sexample,\sDROP\smay\sbe\srequired\sdue\sto\sthe\sneed\sto\supdate\stickets\sconfiguration\sof\sthe\salready\sdeployed\srepository.\sSee\sthe\sforum\sthread\s[forum:/forumthread/c9b8322fdedc8fa9|c9b8322fde]\sfor\sdiscussion.
+D 2021-04-04T15:42:01.374
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -628,7 +628,7 @@ F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
 F src/th_main.c a304904b257c7a9514961725ebb76e9822ffdd4ec5006f84fa14cfbc43c408e8
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 08a8810e665b578f0d5a4251053dca949c870934ec7e73b33e3ee425ad399839
-F src/tkt.c 589d4f59658157b82a526681852fd0b666392c2a0cbf2f858bc636fee27155bd
+F src/tkt.c cdd43bf0bc17c2b0625f54c92bff52f02392fcab57d2e0306ccd80e13b116a2a
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -990,7 +990,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e4f854db78fa435ea6b96f3aad6fb558fa6f8fa15b1d5ca88b67aeaf790a8428
-R 73fabd0bb6f439f5e4cee48677de1c8d
-U stephan
-Z d10895b3f504e7a3c93b7a320fea3902
+P 63ed857ad86ad0f914f36286339e8cb00f8e701dec4db31db6d9652aa23f05a3
+R 792114dd1233cbb67026484b29671120
+T *branch * tktschema-allow-drop
+T *sym-tktschema-allow-drop *
+T -sym-trunk *
+U george
+Z f410dfd3d64981bd3948a222ca167ff3

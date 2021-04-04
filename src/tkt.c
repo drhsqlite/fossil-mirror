@@ -380,6 +380,9 @@ int ticket_change(const char *zUuid){
 **     CREATE TABLE
 **     CREATE INDEX
 **     CREATE VIEW
+**     DROP TABLE
+**     DROP INDEX
+**     DROP VIEW
 **
 ** And for objects in "main" or "repository" whose names
 ** begin with "ticket" or "fx_".  Also allow
@@ -405,6 +408,8 @@ static int ticket_schema_auth(
   const char *z3
 ){
   switch( eCode ){
+    case SQLITE_DROP_VIEW:
+    case SQLITE_DROP_TABLE:
     case SQLITE_CREATE_VIEW:
     case SQLITE_CREATE_TABLE: {
       if( sqlite3_stricmp(z2,"main")!=0
@@ -419,6 +424,7 @@ static int ticket_schema_auth(
       }
       break;
     }
+    case SQLITE_DROP_INDEX:
     case SQLITE_CREATE_INDEX: {
       if( sqlite3_stricmp(z2,"main")!=0
        && sqlite3_stricmp(z2,"repository")!=0
