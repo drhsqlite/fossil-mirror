@@ -1368,6 +1368,7 @@ static void emitFileStat(
   fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
   fossil_print("  file_is_reserved_name  = %d\n",
                                              file_is_reserved_name(zFull,-1));
+  fossil_print("  file_in_cwd            = %d\n", file_in_cwd(zPath));
   blob_reset(&x);
   if( reset ) resetStat();
 }
@@ -1696,6 +1697,39 @@ void cmd_test_tree_name(void){
       blob_reset(&x);
     }
   }
+}
+
+/*
+** zFile is the name of a file.  Return true if that file is in the
+** current working directory (the "pwd" or file_getcwd() directory).
+** Return false if the file is someplace else.
+*/
+int file_in_cwd(const char *zFile){
+  char *zFull = file_canonical_name_dup(zFile);
+  char *zCwd = file_getcwd(0,0);
+  size_t nCwd = strlen(zCwd);
+  size_t nFull = strlen(zFull);
+  int rc = 1;
+  int (*xCmp)(const char*,const char*,int);
+
+  if( filenames_are_case_sensitive() ){
+    xCmp = fossil_strncmp;
+  }else{
+    xCmp = fossil_strnicmp;
+  }
+
+  if( nFull>nCwd+1
+   && xCmp(zFull,zCwd,nCwd)==0
+   && zFull[nCwd]=='/'
+   && strchr(zFull+nCwd+1, '/')==0
+  ){
+    rc = 1;
+  }else{
+    rc = 0;
+  }
+  fossil_free(zFull);
+  fossil_free(zCwd);
+  return rc;
 }
 
 /*
