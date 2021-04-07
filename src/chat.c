@@ -600,8 +600,15 @@ void chat_poll_webpage(void){
       if( zLMtime && zLMtime[0] ){
         blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
       }
-      blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
-      blob_appendf(&json, "\"uclr\":%!j,", user_color(zFrom));
+      blob_append(&json, "\"xfrom\":", -1);
+      if(zFrom){
+        blob_appendf(&json, "%!j,", zFrom);
+      }else{
+        /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
+        blob_appendf(&json, "null,");
+      }
+      blob_appendf(&json, "\"uclr\":%!j,",
+                   user_color(zFrom ? zFrom : "nobody"));
 
       zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
       blob_appendf(&json, "\"xmsg\":%!j,", zMsg);
