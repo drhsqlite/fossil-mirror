@@ -1520,6 +1520,12 @@ body.chat .message-widget .message-widget-tab {
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
 }
+body.chat .message-widget .message-widget-tab .xfrom {
+  /* Element which holds the "this message is from user X" part
+     of the message banner. */
+  font-style: italic;
+  font-weight: bold;
+}
 /* The popup element for displaying message timestamps
    and deletion controls. */
 body.chat .chat-message-popup {

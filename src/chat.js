@@ -606,9 +606,6 @@
       ].join('');
     };
     cf.prototype = {
-      setLabel: function(label){
-        return this;
-      },
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
       },
@@ -628,10 +625,12 @@
         const d = new Date(m.mtime);
         D.clearElement(this.e.tab);
         var contentTarget = this.e.content;
+        var eXFrom /* element holding xfrom name */;
         if(m.xfrom){
+          eXFrom = D.append(D.addClass(D.span(), 'xfrom'), m.xfrom);
           D.append(
-            this.e.tab,
-            D.text(m.xfrom," #",(m.msgid||'???'),' @ ',theTime(d))
+            this.e.tab, eXFrom,
+            D.text(" #",(m.msgid||'???'),' @ ',theTime(d))
           );
         }else{/*notification*/
           D.addClass(this.e.body, 'notification');
@@ -685,6 +684,9 @@
           }
         }
         this.e.tab.addEventListener('click', this._handleLegendClicked, false);
+        if(eXFrom){
+          eXFrom.addEventListener('click', ()=>this.e.tab.click(), false);
+        }
         return this;
       },
       /* Event handler for clicking .message-user elements to show their
