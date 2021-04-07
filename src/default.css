@@ -1520,6 +1520,23 @@ body.chat .message-widget .message-widget-tab {
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
 }
+body.chat .message-widget.subsequent {
+  /* When a single user posts multiple messages in a row,
+     the 2nd and subsequent ones get the 'subsequent' class
+     added to them. */
+  margin-left: 2.5em;
+  margin-right: 2.5em;
+}
+body.chat .message-widget.subsequent .message-widget-tab:before {
+  content: "↳ ";
+}
+body.chat.my-messages-right .message-widget.subsequent.mine .message-widget-tab:before {
+  content: revert;
+}
+body.chat.my-messages-right .message-widget.subsequent.mine .message-widget-tab:after {
+  content: " ↲";
+}
+
 /* The popup element for displaying message timestamps
    and deletion controls. */
 body.chat .chat-message-popup {

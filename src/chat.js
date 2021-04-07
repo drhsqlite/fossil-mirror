@@ -228,13 +228,50 @@
         }
         return this;
       },
-      /* Injects element e as a new row in the chat, at the top of the
-         list if atEnd is falsy, else at the end of the list, before
-         the load-history widget. */
+      /**
+         Recalculates the ".subsequent" CSS class tag for all
+         messages.  When a user posts multiple messages in a row, the
+         2nd and subsequent ones get the "subsequent" tag added to
+         them for additional styling. We cannot do this easily as
+         messages arrive in batch mode because they can arrive out of
+         order (they arrive, and are processed, in reverse order for
+         the "load older messages" buttons). We do this handling in
+         injectMessageElem() for "interactive" use but have to
+         recalculate them en mass after receiving a batch of messages
+         right after this app loads or via the "load older messages"
+         buttons.
+      */
+      recalcMessageIndents: function(){
+        var prevXFrom;
+        this.e.messagesWrapper.querySelectorAll('.message-widget').forEach(function(e,ndx){
+          if(e.classList.contains('notification')){
+            // Obligatory special case.
+            prevXFrom = undefined;
+            D.removeClass(e, 'subsequent');
+            return;
+          }
+          const xfrom = e.dataset.xfrom;
+          if(ndx && xfrom === prevXFrom){
+              D.addClass(e,'subsequent');
+          }else{
+            D.removeClass(e, 'subsequent');
+          }
+          prevXFrom = xfrom;
+        });
+      },
+      /* Injects element e as a new row in the chat, at the oldest end
+         of the list if atEnd is truthy, else at the newest end of the
+         list. */
       injectMessageElem: function f(e, atEnd){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.messagesWrapper,
               prevMessage = this.e.newestMessage;
+        if(!atEnd && !this._isBatchLoading
+           && e.dataset.xfrom && !e.classList.contains('notification')){
+          if(prevMessage && prevMessage.dataset.xfrom===e.dataset.xfrom){
+            D.addClass(e, 'subsequent');
+          }
+        }
         if(atEnd){
           const fe = mip.nextElementSibling;
           if(fe) mip.parentNode.insertBefore(e, fe);
@@ -1149,6 +1186,7 @@
             Chat._gotServerError = false;
             return;
           }
+          Chat.recalcMessageIndents();
           if(n<0/*we asked for all history*/
              || 0===gotMessages/*we found no history*/
              || (n>0 && gotMessages<n /*we got fewer history entries than requested*/)
@@ -1196,6 +1234,7 @@
       f.isFirstCall = false;
       Chat.ajaxEnd();
       Chat.e.messagesWrapper.classList.remove('loading');
+      Chat.recalcMessageIndents();
       setTimeout(function(){
         Chat.scrollMessagesTo(1);
       }, 250);
@@ -1237,7 +1276,7 @@
         afterFetch();
       },
       onload:function(y){
-        newcontent(y);
+        newcontent(y); 
         Chat._isBatchLoading = false;
         afterFetch();
       }
