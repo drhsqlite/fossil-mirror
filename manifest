@@ -1,5 +1,5 @@
-C In\sthe\sforum,\sprovide\sa\shyperlink\sfrom\sthe\sname\sof\sthe\sauthor\sof\seach\spost\nto\sa\stimeline\sof\stheir\smost\srecent\sposts.
-D 2021-04-07T18:47:14.244
+C Bug\sfix:\s\sRestore\saccess\sto\stables\swhose\snames\sstart\swith\s"fx_"\sin\sticket\nreports.\s\sBroken\sby\scheck-in\s[5e7dc8a6f51818e6].
+D 2021-04-07T23:32:41.973
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -571,7 +571,7 @@ F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c bcc6893a6ddfe18c06ebabc4e6357b3dfb7879cd5744d349e002a11f7341da56
 F src/regexp.c 8c322e77e3af37d259d4af5c7d3d1c03888159c690ad2a4725bfd8c491aac17d
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
-F src/report.c 49433f969433a2b2eb8a4bfe958d6824d4c055724439e41d8aec06004711f3a5
+F src/report.c 1e4e598fdca5730828d5f7f3b3e71b54e333cf657034ce78884e6e938da5a8e4
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1464e18add639018a57d8f28e6d7490db32e5146d2b6f8e1fa5a58f35bdacbdf
-R b9b53845002d755d88d8f10b14b0d7ae
+P 46d7ccd45e66a8b467ad3c10ae3b7871094015f53246f192675e25ec6c749fd4
+R fcd2aa0752bd224770e5cba4efa3a936
 U drh
-Z 01742551bc8172b0d7bae090d2ace67c
+Z 161110173f1aa685742140b8c2897bc5
