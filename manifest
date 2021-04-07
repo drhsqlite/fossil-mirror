@@ -1,5 +1,5 @@
-C Resolved\s/chat-poll\scrash\swhen\sxfrom\sis\snull,\sas\sdescribed\sin\s[forum:/forumpost/e0be0eeb4c\s|\sforum\spost\se0be0eeb4c].
-D 2021-04-07T02:35:38.925
+C /chat-send\snow\suses\sthe\suser\sname\s'nobody'\sfor\sguest-user\sposts.\sSee\s[forum:/forumpost/e0be0eeb4c\s|\sforum\spost\se0be0eeb4c]\sfor\sdetails.
+D 2021-04-07T07:35:32.375
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -441,7 +441,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 275c601c28715fe0cabb4ea112bb5ed44eb95218c9c492996c92c112a91dbc24
-F src/chat.c b26f701127ad8dea37613d6bd0cb4eac355d9cea1d9c7a1b62692ec7bdd88e53
+F src/chat.c 8ecfc0c70f85c24faf29719730e2b6fe1ac1657adf1145baad5b41f7fbe8d0ad
 F src/chat.js e1a7462101516fc36384a8a22fa4b88f6cc37884dac25d024d5b24565e76771c
 F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 61132cefacba2ea1396ba782f3e2d2385e2a1bee9cdcc889f7f78510a5ce9214
-R 59646f794a4ad5fba987e12cd31d962f
+P 92b5cc21ce90053f4272c2e3a23e1fa459dfee36093079fb28540a54731d3903
+R daace88d00a042058ee448efa5c21afb
 U stephan
-Z a3275477b0e01dfb6140e882860afeda
+Z e7b8030f15a67cbd94c73ad806920e3a

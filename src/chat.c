@@ -307,12 +307,14 @@ static void chat_emit_permissions_error(int fAsMessageList){
 void chat_send_webpage(void){
   int nByte;
   const char *zMsg;
+  const char *zUserName;
   login_check_credentials();
   if( !g.perm.Chat ) {
     chat_emit_permissions_error(0);
     return;
   }
   chat_create_tables();
+  zUserName = (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
   nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");
   db_begin_write();
@@ -322,7 +324,7 @@ void chat_send_webpage(void){
       db_multi_exec(
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
         "VALUES(julianday('now'),%Q,%Q,%Q)",
-        P("lmtime"), g.zLogin, zMsg
+        P("lmtime"), zUserName, zMsg
       );
     }
   }else{
@@ -331,7 +333,7 @@ void chat_send_webpage(void){
     db_prepare(&q,
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg,file,fname,fmime)"
         "VALUES(julianday('now'),%Q,%Q,%Q,:file,%Q,%Q)",
-        P("lmtime"), g.zLogin, zMsg, PD("file:filename",""),
+        P("lmtime"), zUserName, zMsg, PD("file:filename",""),
         PD("file:mimetype","application/octet-stream"));
     blob_init(&b, P("file"), nByte);
     db_bind_blob(&q, ":file", &b);
