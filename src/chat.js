@@ -228,9 +228,9 @@
         }
         return this;
       },
-      /* Injects element e as a new row in the chat, at the top of the
-         list if atEnd is falsy, else at the end of the list, before
-         the load-history widget. */
+      /* Injects element e as a new row in the chat, at the oldest end
+         of the list if atEnd is truthy, else at the newest end of the
+         list. */
       injectMessageElem: function f(e, atEnd){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.messagesWrapper,

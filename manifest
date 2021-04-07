@@ -1,5 +1,5 @@
-C The\s'placeholder'\sattribute\sof\sthe\stwo\s/chat\stext\sinput\sfields\show\sincludes\sthe\sproject\sname\sto\shelp\savoid\sconfusion\sabout\swhich\s/chat\sone\sis\styping\sinto\swithout\srequiring\snew\sscreen\sreal\sestate\sfor\sa\sproject-name\slabel.
-D 2021-04-07T10:09:30.353
+C Minor\sinternal\sJS\sAPI\sdoc\sclarification.
+D 2021-04-07T15:10:06.526
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -442,7 +442,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 275c601c28715fe0cabb4ea112bb5ed44eb95218c9c492996c92c112a91dbc24
 F src/chat.c 30c382eebd660f1351ef696041a69c5a3c3f9749abe3707e36b0bfb4637bf708
-F src/chat.js e1a7462101516fc36384a8a22fa4b88f6cc37884dac25d024d5b24565e76771c
+F src/chat.js 403824dc06a9e5052249aeb20ec20e823b95852b326099ab3be96c8423a08239
 F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5312f3738e713608a0b5a91e2537e80a175a6d7f0d24029c9af17adc0a3f88cb
-R 78f6f17df54f4f605edecfe040efd447
+P 69135e4f61bddb40529f5943254732e5b17425b79b5727f959c82b1095439979
+R 9a725f39b2ab8d2c46b29691eba37c27
 U stephan
-Z 6301dc6408318a4a3a37ccb667c653fc
+Z ec1e83e31abf127aec0c2c0551481134
