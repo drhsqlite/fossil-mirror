@@ -1,5 +1,5 @@
-C The\s"fossil\sopen"\scommand\snow\stolerates\sthe\srepository\sfile\sbeing\sin\sthe\ncheck-out\sdirectory\swithout\srequiring\sthe\s-f\sflag.\nSee\s[forum:/forumpost/bc5f8f6e59|forum\spost\sbc5f8f6e59]\sfor\sthe\sdiscussion.
-D 2021-04-06T10:47:43.373
+C Make\ssome\sauxiliary\sTh1\svariables\savailable\swithin\sskins'\sheader/footer.\sFor\s/doc,\s/uv\sand\s/wiki\spages\sput\sinto\s"artifact_hashsum"\svariable\s(and\salso\sinto\sits\spage-specific\svariant)\sa\sfull\sidentifier\sof\sthe\srequested\sfile\sor\swiki.\sFor\s/wiki\spages\salso\sprovide\s"wiki_editor"\sand\s"wiki_timestamp"\svariables.\sThere\sis\san\sold\sforum\s[forum:/forumtread/436c618d309917|thread\son\sthe\stopic]\sand\sanother\sthread\son\s[forum:/forumthread/48e2ae955f09|a\slittle\sbit\srelated]\sissue.
+D 2021-04-07T03:10:17.967
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -469,7 +469,7 @@ F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 3d52fe7c64d6a7be80595435dbd9d3a341934fe16413d918d4974599f6434a9f
 F src/dispatch.c 6f416461a0c7e4eb704f564dca8fe47015cf61eb20b3a143ee624546e4a99405
-F src/doc.c 17e711cb39953153c43b31a578793208c3350ae796f416aacba9ea95c80949f2
+F src/doc.c d87a251ec533c728a126664951285cd2f6b00e17a89b8538b49a580d14e1c517
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
@@ -643,7 +643,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c cc4ade164c7279d559b09c1c446b4ff52e22ae8081de6388f9b90aa7cecaf162
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 21b109d1f141a967a7bb7fad33226e7d0e8d69453927b5a4bf364fb400dcdd93
+F src/wiki.c b8b88f9be1d03e6058e388cf7dd3484fcab3e9983c750386cbf79f45b9b3eb21
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -990,7 +990,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63ed857ad86ad0f914f36286339e8cb00f8e701dec4db31db6d9652aa23f05a3
-R 12efdfcadae07ee2b171a97ba215680c
-U drh
-Z 6164afa89541e709deac74773352d9fe
+P 61132cefacba2ea1396ba782f3e2d2385e2a1bee9cdcc889f7f78510a5ce9214
+R 34ba240f5daadef5700544b3ae4dd61d
+T *branch * th1-doc-vars
+T *sym-th1-doc-vars *
+T -sym-trunk *
+U george
+Z 725f6276fd817bd5a1fce0971484a8dc

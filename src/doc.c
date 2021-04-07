@@ -912,15 +912,16 @@ void doc_page(void){
   const char *zName = 0;            /* Argument to the /doc page */
   const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
-  char *zCheckin = "tip";           /* The check-in holding the document */
-  char *zPathSuffix = "";           /* Text to append to g.zPath */
+  const char *zCheckin = "tip";     /* The check-in holding the document */
+  const char *zPathSuffix = "";     /* Text to append to g.zPath */
   int vid = 0;                      /* Artifact of check-in */
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
   Blob filebody;                    /* Content of the documentation file */
   Blob title;                       /* Document title */
+  Blob filehash = empty_blob;       /* Hashsum of the document's source */
   int nMiss = (-1);                 /* Failed attempts to find the document */
-  int isUV = g.zPath[0]=='u';       /* True for /uv.  False for /doc */
+  const int isUV = g.zPath[0]=='u'; /* True for /uv.  False for /doc */
   const char *zDfltTitle;
   static const char *const azSuffix[] = {
      "index.html", "index.wiki", "index.md"
@@ -988,16 +989,19 @@ void doc_page(void){
     if( isUV ){
       if( db_table_exists("repository","unversioned") ){
         rid = unversioned_content(zName, &filebody);
-        if( rid==1 ){
+        if( rid==1 ){ /* found by name */
           Stmt q;
           db_prepare(&q, "SELECT hash, mtime FROM unversioned"
                          " WHERE name=%Q", zName);
           if( db_step(&q)==SQLITE_ROW ){
-            etag_check(ETAG_HASH, db_column_text(&q,0));
+            const char* hash = db_column_text(&q,0);
+            blob_set_dynamic( &filehash, fossil_strdup( hash ));
+            etag_check(ETAG_HASH,hash);
             etag_last_modified(db_column_int64(&q,1));
           }
           db_finalize(&q);
-        }else if( rid==2 ){
+        }else if( rid==2 ){ /* found by hash */
+          blob_set_dynamic( &filehash, fossil_strdup( zName ));
           zName = db_text(zName,
              "SELECT name FROM unversioned WHERE hash=%Q", zName);
           g.isConst = 1;
@@ -1014,11 +1018,17 @@ void doc_page(void){
       if( file_isfile(zFullpath, RepoFILE)
        && blob_read_from_file(&filebody, zFullpath, RepoFILE)>0 ){
         rid = 1;  /* Fake RID just to get the loop to end */
+        if(filebody.nUsed <= 256*1024){/* don't hash big files */
+          hname_hash( &filebody, 0, &filehash );
+        }
       }
       fossil_free(zFullpath);
     }else{
       vid = symbolic_name_to_rid(zCheckin, "ci");
       rid = vid>0 ? doc_load_content(vid, zName, &filebody) : 0;
+      if( rid ){
+        blob_set_dynamic( &filehash, rid_to_uuid(rid) );
+      }
     }
   }
   g.zPath = mprintf("%s/%s", g.zPath, zPathSuffix);
@@ -1033,7 +1043,19 @@ void doc_page(void){
     zMime = mimetype_from_name(zName);
   }
   Th_Store("doc_name", zName);
+  if( !blob_is_reset(&filehash) ){
+    Th_Store(  "artifact_hashsum", blob_str(&filehash));
+    Th_Store( isUV ? "uv_hashsum" : "doc_hashsum", blob_str(&filehash));
+    blob_reset( &filehash );
+  }
   if( vid ){
+    /* FIXME: the following two Th1 variables seem misleading because
+    **   1) variables' names imply a document while their
+    **      values correspond to a check-in that is being served,
+    **   2) truncation and mangling of `uuid` seems very unhelpful,
+    **   3) the date's meaning seems ambiguous
+    **      (expecially if check-in has been amended)
+    */
     Th_Store("doc_version", db_text(0, "SELECT '[' || substr(uuid,1,10) || ']'"
                                        "  FROM blob WHERE rid=%d", vid));
     Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"

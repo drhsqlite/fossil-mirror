@@ -545,6 +545,7 @@ void wiki_page(void){
   Manifest *pWiki = 0;
   const char *zPageName;
   const char *zMimetype = 0;
+  const char *zHashsum  = 0; /* of the wiki's corresponding artifact */
   int isPopup = P("popup")!=0;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
   int noSubmenu = P("nsm")!=0;
@@ -582,6 +583,7 @@ void wiki_page(void){
     if( pWiki ){
       zBody = pWiki->zWiki;
       zMimetype = pWiki->zMimetype;
+      zHashsum  = rid_to_uuid(rid);
     }
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
@@ -599,6 +601,16 @@ void wiki_page(void){
     }
   }
   if( !isPopup ){
+    char *zDate = db_text(0,"SELECT strftime('%%Y-%%m-%%d %%H:%%M',"
+                                 "'%.17g',toLocal())",pWiki->rDate);
+    Th_Store("wiki_timestamp",zDate);
+    fossil_free( zDate );
+    Th_Store("wiki_editor",pWiki->zUser);
+    if( zHashsum ){
+      Th_Store("artifact_hashsum",zHashsum);
+      Th_Store("wiki_hashsum",zHashsum);
+      fossil_free( (char*)zHashsum );
+    }
     style_set_current_page("%T?name=%T", g.zPath, zPageName);
     wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "");
     if( !noSubmenu ){
