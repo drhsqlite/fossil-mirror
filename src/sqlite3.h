@@ -123,9 +123,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.35.4"
-#define SQLITE_VERSION_NUMBER 3035004
-#define SQLITE_SOURCE_ID      "2021-03-31 17:49:52 3b916924cef383f3d395e1f10aed6584d22d39a26f3b3c9919bd1afc0db635aa"
+#define SQLITE_VERSION        "3.36.0"
+#define SQLITE_VERSION_NUMBER 3036000
+#define SQLITE_SOURCE_ID      "2021-04-07 18:17:53 a2ddb89b206c13876d34c5f9e3db41cda72d6eb3fea31ffa8cc6daa1e1580e16"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1128,6 +1128,19 @@ struct sqlite3_io_methods {
 ** file to the database file, but before the *-shm file is updated to
 ** record the fact that the pages have been checkpointed.
 ** </ul>
+**
+** <li>[[SQLITE_FCNTL_EXTERNAL_READER]]
+** The EXPERIMENTAL [SQLITE_FCNTL_EXTERNAL_READER] opcode is used to detect
+** whether or not there is a database client in another process with a wal-mode
+** transaction open on the database or not. It is only available on unix.The
+** (void*) argument passed with this file-control should be a pointer to a
+** value of type (int). The integer value is set to 1 if the database is a wal
+** mode database and there exists at least one client in another process that
+** currently has an SQL transaction open on the database. It is set to 0 if
+** the database is not a wal-mode db, or if there is no such connection in any
+** other process. This opcode cannot be used to detect transactions opened
+** by clients within the current process, only within other processes.
+** </ul>
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
 #define SQLITE_FCNTL_GET_LOCKPROXYFILE       2
@@ -1167,6 +1180,8 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_CKPT_DONE              37
 #define SQLITE_FCNTL_RESERVE_BYTES          38
 #define SQLITE_FCNTL_CKPT_START             39
+
+#define SQLITE_FCNTL_EXTERNAL_READER        40
 
 /* deprecated names */
 #define SQLITE_GET_LOCKPROXYFILE      SQLITE_FCNTL_GET_LOCKPROXYFILE

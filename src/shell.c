@@ -4156,9 +4156,11 @@ static int apndOpen(
   rc = pBaseVfs->xOpen(pBaseVfs, zName, pBaseFile, flags, pOutFlags);
   if( rc==SQLITE_OK ){
     rc = pBaseFile->pMethods->xFileSize(pBaseFile, &sz);
+    if( rc ){
+      pBaseFile->pMethods->xClose(pBaseFile);
+    }
   }
   if( rc ){
-    pBaseFile->pMethods->xClose(pBaseFile);
     pFile->pMethods = 0;
     return rc;
   }
@@ -13071,7 +13073,7 @@ static void bind_table_init(ShellState *p){
   sqlite3_exec(p->db,
     "CREATE TABLE IF NOT EXISTS temp.sqlite_parameters(\n"
     "  key TEXT PRIMARY KEY,\n"
-    "  value ANY\n"
+    "  value\n"
     ") WITHOUT ROWID;",
     0, 0, 0);
   sqlite3_db_config(p->db, SQLITE_DBCONFIG_WRITABLE_SCHEMA, wrSchema, 0);
@@ -15935,7 +15937,7 @@ static int lintFkeyIndexes(
     "  || fkey_collate_clause("
     "       f.[table], COALESCE(f.[to], p.[name]), s.name, f.[from]),' AND ')"
     ", "
-    "     'SEARCH TABLE ' || s.name || ' USING COVERING INDEX*('"
+    "     'SEARCH ' || s.name || ' USING COVERING INDEX*('"
     "  || group_concat('*=?', ' AND ') || ')'"
     ", "
     "     s.name  || '(' || group_concat(f.[from],  ', ') || ')'"
@@ -15955,7 +15957,7 @@ static int lintFkeyIndexes(
     "GROUP BY s.name, f.id "
     "ORDER BY (CASE WHEN ? THEN f.[table] ELSE s.name END)"
   ;
-  const char *zGlobIPK = "SEARCH TABLE * USING INTEGER PRIMARY KEY (rowid=?)";
+  const char *zGlobIPK = "SEARCH * USING INTEGER PRIMARY KEY (rowid=?)";
 
   for(i=2; i<nArg; i++){
     int n = strlen30(azArg[i]);
