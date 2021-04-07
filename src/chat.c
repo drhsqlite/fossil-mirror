@@ -147,6 +147,7 @@ static void chat_emit_alert_list(void){
 */
 void chat_webpage(void){
   char *zAlert;
+  char *zProjectName;
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
@@ -154,15 +155,16 @@ void chat_webpage(void){
   }
   zAlert = mprintf("%s/builtin/%s", g.zBaseURL,
                 db_get("chat-alert-sound","alerts/plunk.wav"));
+  zProjectName = db_get("project-name","Unnamed project");
   style_set_current_feature("chat");
   style_header("Chat");
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @ <div id='chat-input-area'>
   @   <div id='chat-input-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
-  @      placeholder="Type message here." autocomplete="off">
+  @      placeholder="Type message for %h(zProjectName)." autocomplete="off">
   @     <textarea rows="8" id="chat-input-multi" \
-  @      placeholder="Type message here. Ctrl-Enter sends it." \
+  @      placeholder="Type message for %h(zProjectName). Ctrl-Enter sends it." \
   @      class="hidden"></textarea>
   @     <input type="submit" value="Send" id="chat-message-submit">
   @     <span id="chat-settings-button" class="settings-icon" \
@@ -185,7 +187,7 @@ void chat_webpage(void){
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
-
+  fossil_free(zProjectName);
   builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
