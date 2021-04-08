@@ -1,5 +1,5 @@
-C But,\sdo\snot\sallow\saccess\sto\sprivate\scolumns\sof\sfx_\stables\sunless\sthe\suser\nhas\s"Email"\sprivilege\s(letter\s"e").
-D 2021-04-08T00:47:17.429
+C Backout\s[5c5aa19cc5098ac2]\s-\swe\swant\swords\sfor\sthe\smenu\sitems,\snot\nobscure\sunicode\ssymbols.\s\sI'm\snot\ssure\swhat\sthat\scheck-in\swas\sall\sabout.
+D 2021-04-08T00:55:18.332
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -571,7 +571,7 @@ F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c bcc6893a6ddfe18c06ebabc4e6357b3dfb7879cd5744d349e002a11f7341da56
 F src/regexp.c 8c322e77e3af37d259d4af5c7d3d1c03888159c690ad2a4725bfd8c491aac17d
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
-F src/report.c 31460acbbe9744dc241833d7a87a6de491737364ebfa598d030a8f548a7007e3
+F src/report.c 32a5ddf1481cba01ce213369b30884e01787737f990d95d6736aa1ab6dc9a112
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -615,7 +615,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 705c6b6df8a060ea18475a10cca4e46eb7ff675fa31146f2c3d372f4cdecbdb7
+F src/style.c d752f8b64589d3a6f6da0756d4c405880fe34cf3a0cbe8b277e84bc3afd425a6
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
@@ -643,7 +643,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c cc4ade164c7279d559b09c1c446b4ff52e22ae8081de6388f9b90aa7cecaf162
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 21b109d1f141a967a7bb7fad33226e7d0e8d69453927b5a4bf364fb400dcdd93
+F src/wiki.c 47024db0d9228a22e32e7649dc3805ec14404ade2f7e2e1bc1f3f778ed1a8a8b
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -990,7 +990,8 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cfb6e5eae34a00d24caeff3b087696bdb33f91c9ddcb039ff6054284f6a8dda4
-R d4329b8d9e7e5cfa9d40f50b1d291447
+P 719dfbb95d3e545e43d6153bcadb2b024dccd9264564562df4255b34c84c686d
+Q -5c5aa19cc5098ac2e15aa9a525158a8d302e3ece6318aec196381d5c8a0a2c26
+R dd1c7d41e89fd954ebcb11e8d95cd740
 U drh
-Z ad0c060c7aa2ef74627cedae16560600
+Z af4a10afd181d8a24db6943503ad1e58
