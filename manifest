@@ -1,5 +1,5 @@
-C Bug\sfix:\s\sRestore\saccess\sto\stables\swhose\snames\sstart\swith\s"fx_"\sin\sticket\nreports.
-D 2021-04-08T00:24:56.836
+C Version\s2.15.1
+D 2021-04-08T00:26:42.839
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -17,7 +17,7 @@ F Makefile.classic f7ab827cf2c75b8580e6d5f09fe7a3a09a5b580131870924c0c72259328a4
 F Makefile.in 45eba548fec261c3800734ba8ca3802a2b23cd7654941422d45b7576d2ccbf17 x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 6cebb78c2ebd96b0f1bdebb6b412be84fcc96e128879f4e4aa769e8b8f348ea9
+F VERSION 22ff2dc579ea1190844c6599a53f3d32efbe01b03658e4f10c31c82a2f441f22
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -990,11 +990,9 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c6012c4aa49d6901fdf9379adcfe6fa133284d404ba569766c7479b6266dd24
-Q +cfb6e5eae34a00d24caeff3b087696bdb33f91c9ddcb039ff6054284f6a8dda4
-R a8d917154c454079831a927d4ceb57dc
-T *branch * branch-2.15
-T *sym-branch-2.15 *
-T -sym-trunk *
+P a80b2eae4a57dad9632ab112a1b612bdc002b3e12fbbdaa0211dfbda0c7e3d8d
+R fa2135cbb91be3a3fd1d1fe5095cc1b6
+T +sym-release *
+T +sym-version-2.15.1 *
 U drh
-Z 210d8b05511b535462a9f755a30a8bfb
+Z fb1d64c7ec430ffa765a034e2602e710
