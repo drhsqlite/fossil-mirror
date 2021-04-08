@@ -209,11 +209,6 @@ static int report_query_authorizer(
         rc = SQLITE_IGNORE;
         break;
       }
-      if( sqlite3_strnicmp(zArg1, "fx_", 3)==0 ){
-        /* Ok to read any table whose name begins with "fx_" */
-        rc = SQLITE_OK;
-        break;
-      }
       while( lwr<=upr ){
         int i = (lwr+upr)/2;
         cmp = fossil_stricmp(zArg1, azAllowed[i]);
@@ -224,6 +219,10 @@ static int report_query_authorizer(
         }else{
           break;
         }
+      }
+      if( cmp ){
+        /* Always ok to access tables whose names begin with "fx_" */
+        cmp = sqlite3_strnicmp(zArg1, "fx_", 3);
       }
       if( cmp ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
