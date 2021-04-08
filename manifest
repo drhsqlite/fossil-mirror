@@ -1,5 +1,5 @@
-C But,\sdo\snot\sallow\saccess\sto\sprivate\scolumns\sof\sfx_\stables\sunless\sthe\suser\nhas\s"Email"\sprivilege\s(letter\s"e").
-D 2021-04-08T01:07:23.385
+C Version\s2.14.1
+D 2021-04-08T01:07:43.215
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -996,8 +996,9 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b39338dcb1036084b215517b72bb6849586d2adb426131a4c3090a124519c9ef
-Q +719dfbb95d3e545e43d6153bcadb2b024dccd9264564562df4255b34c84c686d
+P 96b0c1ffac491333e0eb4a18084990322182df13b3a8d899ba8213c51f25174c
 R 448cc550242dd9d181b9a01f2dc566da
+T +sym-release *
+T +sym-version-2.14.1 *
 U drh
-Z 02c2fc3287211841a0860d762af09b13
+Z 168cd9871749cef9d30e87a89b1ac948
