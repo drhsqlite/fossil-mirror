@@ -201,7 +201,7 @@ static int report_query_authorizer(
       };
       int lwr = 0;
       int upr = count(azAllowed) - 1;
-      int rc = 0;
+      int cmp = 0;
       if( zArg1==0 ){
         /* Some legacy versions of SQLite will sometimes send spurious
         ** READ authorizations that have no table name.  These can be
@@ -209,21 +209,26 @@ static int report_query_authorizer(
         rc = SQLITE_IGNORE;
         break;
       }
-      while( lwr<upr ){
+      if( sqlite3_strnicmp(zArg1, "fx_", 3)==0 ){
+        /* Ok to read any table whose name begins with "fx_" */
+        rc = SQLITE_OK;
+        break;
+      }
+      while( lwr<=upr ){
         int i = (lwr+upr)/2;
-        int rc = fossil_stricmp(zArg1, azAllowed[i]);
-        if( rc<0 ){
+        cmp = fossil_stricmp(zArg1, azAllowed[i]);
+        if( cmp<0 ){
           upr = i - 1;
-        }else if( rc>0 ){
+        }else if( cmp>0 ){
           lwr = i + 1;
         }else{
           break;
         }
       }
-      if( rc ){
+      if( cmp ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
         rc = SQLITE_DENY;
-      }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
+      }else if( !g.perm.RdAddr && sqlite3_strnicmp(zArg2, "private_", 8)==0 ){
         rc = SQLITE_IGNORE;
       }
       break;

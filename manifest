@@ -1,5 +1,5 @@
-C Version\s2.14
-D 2021-01-20T15:34:40.974
+C Bug\sfix:\s\sRestore\saccess\sto\stables\swhose\snames\sstart\swith\s"fx_"\sin\sticket\nreports.
+D 2021-04-08T00:22:37.604
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -579,7 +579,7 @@ F src/purge.c 4f2870b9c683c1e55084a5dc1160376597bc8122e5a0808f36c42c423e992b29
 F src/rebuild.c ca776d84a4d18997788e024c51e98f4936a7006dfa69783480ce3150e9cf15e6
 F src/regexp.c 9798359b870ea589f0aa385f542d502bd1e4062f62c5860ae494e8cc1f430d0b
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
-F src/report.c ede461643122b96aa820fc4f0d69cac9e082c801e6b7d11ad1e923da67972de3
+F src/report.c f59943c7d0d3875f5f185bb4452e643e51dd657790d4b5689716164502a61c7c
 F src/rss.c a27ae6f0c83b99022fbf385337e3a13a4cde786a2d0a15de557386ec0c75e9cb
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -996,9 +996,11 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc8452b13ff80e422e5d6e346a68a52a87609b8f686b822f1af1e9d0758ea676
-R 3beda19c705420f110a8f0c6d09568b2
-T +sym-release *
-T +sym-version-2.14 *
+P 487776dc454b2bb63ddda48d91a18bfb41bb101f91f3777c99dc44648719d2fd
+Q +cfb6e5eae34a00d24caeff3b087696bdb33f91c9ddcb039ff6054284f6a8dda4
+R a283c8914d84481f3f65dc0cfd193b02
+T *branch * branch-2.14
+T *sym-branch-2.14 *
+T -sym-trunk *
 U drh
-Z 7b784c50235e1eb548d138acbdf3a12a
+Z 592391f1a74119ee83afbd159a00024b
