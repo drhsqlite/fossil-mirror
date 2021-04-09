@@ -348,10 +348,10 @@ void style_submenu_parametric(
   const char *zPrefix,   /* common prefix of the query parameters names */
   const int  nMaxDigit   /* maximal digit on the end of param names     */
 ){
-  const char *zQS;             /* QUERY_STRING */
-  const char *suffix = "smpl"; /* common suffix for all parameters      */
-  const short sfxlen =  4;     /* length of the above suffix            */
-  char  zN[32];                /* short names => no dynamic allocations */
+  static const char *suffix = "smpl"; /* common suffix for param names */
+  static const short sfxlen =  4;     /* length of the above suffix    */
+  const char *zQS;     /* QUERY_STRING */
+  char  zN[32];        /* buffer for parameter names to probe */
   short i,l;
 
   /* zPrefix must be tidy and short; also filter out ENV/CGI variables  */
@@ -380,10 +380,20 @@ void style_submenu_parametric(
     if( z[0] != 0 && z[0] != '/' )
       continue;
     assert( nSubmenu < count(aSubmenu) );
-    if(fossil_islower(zV[0])){
+    if(fossil_islower(zV[0]) && z[0]=='/'){
       aSubmenu[nSubmenu].zLabel = mprintf( "%s",zV); /* memory leak?  */
     }else{
-      aSubmenu[nSubmenu].zLabel = mprintf("✧%s",zV); /* maybe: ◦✧⸰⸎ ✨ */
+      /* prepend a label with an unobtrusive symbol that "sorts-last";
+      ** this clearly distincts it from the built-in elements */
+      static const char *mark = "✧";
+      char *z = mprintf("%s%s",mark,zV);
+      aSubmenu[nSubmenu].zLabel = z;
+      /* also prettify the first segment */
+      z += strlen(mark);
+      z[0] = fossil_toupper(z[0]);
+      for(; z[0]!=0 && z[0]!='/'; z++ ){
+        if( z[0]=='_' ) z[0] = ' ';
+      }
     }
     if( zQS[0] ){
       aSubmenu[nSubmenu].zLink  = mprintf("%R/%s?%s",zV,zQS);

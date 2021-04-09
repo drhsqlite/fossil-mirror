@@ -1039,19 +1039,12 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
-    /*
-    ** Lets use a funcy button for /reportlist since that page may be
-    ** heavily customized by the user. Some variants: ⊚ ⦾  ❊ ⊛ ⚛ ⸎  💠
-    ** Enclosing it inside of square brackets makes its  position
-    ** determenistic and clearly distincts regular submenu links from
-    ** those that are induced by the query string parameters.
-    */
     if( zQS[0] ){
       style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
-      style_submenu_element("[⊚]","%R/reportlist?%s",zQS);
+      style_submenu_element("Reports","%R/reportlist?%s",zQS);
     } else {
       style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
-      style_submenu_element("[⊚]","%R/reportlist");
+      style_submenu_element("Reports","%R/reportlist");
     }
     style_submenu_parametric("rptview_",5);
     style_submenu_parametric("rv",5);
