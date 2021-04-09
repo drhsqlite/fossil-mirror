@@ -380,7 +380,7 @@
          Sets the current new-message audio alert URI (must be a
          repository-relative path which responds with an audio
          file). Pass a falsy value to disable audio alerts. Returns
-         this. This setting is persistent. Returns this.
+         this.
       */
       setNewMessageSound: function f(uri){
         delete this.playNewMessageSound.audio;
@@ -411,7 +411,6 @@
     cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
     cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
-
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
       return Array.prototype.slice.call(args,0);
@@ -435,14 +434,14 @@
       const args = argsToArray(arguments);
       console.error("chat error:",args);
       const d = new Date().toISOString(),
-            msg = {
+            mw = new this.MessageWidget({
               isError: true,
               xfrom: null,
               msgid: -1,
               mtime: d,
               lmtime: d,
               xmsg: args
-            }, mw = new this.MessageWidget(msg);
+            });
       this.injectMessageElem(mw.e.body);
       mw.scrollIntoView();
     };
