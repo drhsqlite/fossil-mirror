@@ -58,6 +58,8 @@
 ** See also: [[artifact]], [[cat]], [[descendants]], [[info]], [[leaves]]
 */
 void finfo_cmd(void){
+  const char *zRevision = find_option("revision", "r", 1);
+
   db_must_be_within_tree();
   if( find_option("status","s",0) ){
     Stmt q;
@@ -118,7 +120,6 @@ void finfo_cmd(void){
   }else if( find_option("print","p",0) ){
     Blob record;
     Blob fname;
-    const char *zRevision = find_option("revision", "r", 1);
 
     /* We should be done with options.. */
     verify_all_options();
@@ -136,6 +137,23 @@ void finfo_cmd(void){
     }
     blob_write_to_file(&record, "-");
     blob_reset(&record);
+    blob_reset(&fname);
+  }else if( zRevision && zRevision[0] ){
+    Blob fname;
+
+    verify_all_options();
+
+    if( g.argc!=3 ) usage("-r|--revision REVISION FILENAME");
+    file_tree_name(g.argv[2], &fname, 0, 1);
+    int rid = db_int(0, "SELECT rid FROM blob WHERE uuid ="
+                         "  (SELECT uuid FROM files_of_checkin(%Q)"
+                         "   WHERE filename=%B %s)",
+                     zRevision, &fname, filename_collation());
+    if( rid==0 ) {
+      fossil_fatal("file not found for revision %s: %s",
+                   zRevision, blob_str(&fname));
+    }
+    whatis_rid(rid,0);
     blob_reset(&fname);
   }else{
     Blob line;
