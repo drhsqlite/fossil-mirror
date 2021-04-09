@@ -1046,8 +1046,8 @@ void rptview_page(void){
       style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
       style_submenu_element("Reports","%R/reportlist");
     }
-    style_submenu_parametric("rptview_",5);
-    style_submenu_parametric("rv",5);
+    style_submenu_parametric("rptview_");
+    style_submenu_parametric("rv");
 
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){

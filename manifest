@@ -1,5 +1,5 @@
-C Use\s"Reports"\sfor\sthe\s/reportlist\selement,\sas\sper\s[1a1c0ebe3cf9].\sAlso\sbe\smore\spedantic\swhen\scomposing\suser-visible\slabels\sfor\sthe\sparameter-induced\shyperlinks.
-D 2021-04-09T02:58:23.856
+C Remove\s[forum:/forumpost/2f375863dbc6|useless]\s'nMaxDigit'\sparameter\sfrom\sthe\ssignature\sof\sthe\s<tt>style_submenu_parametric()</tt>.\sAlso\sedit\sa\scorresponding\scomment.
+D 2021-04-09T04:21:14.943
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -571,7 +571,7 @@ F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c bcc6893a6ddfe18c06ebabc4e6357b3dfb7879cd5744d349e002a11f7341da56
 F src/regexp.c 8c322e77e3af37d259d4af5c7d3d1c03888159c690ad2a4725bfd8c491aac17d
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
-F src/report.c 1dfe5f12fe31c68d016b8aa13eb79568eafcc4d13f6149d8847a4de48410a831
+F src/report.c 9a17a54b1da975fca2711eadbf1c7853e6085975630099609cdc37f19f01aa89
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
@@ -615,7 +615,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 26c061cb255bb8b923e03a1e74b14dd51cb809cfdb3ff1eab69fa533f144306e
+F src/style.c 852a72cc730aba1c4ee75b07bc8aeb1ca384724376536a67f98be248ff41018c
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
@@ -643,7 +643,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c 0ab500757ee25f4eafe3eb2c0de45a6e5bb0793eaa95526aac75e6682a8eccd1
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 21b109d1f141a967a7bb7fad33226e7d0e8d69453927b5a4bf364fb400dcdd93
+F src/wiki.c c4e7e94103c12f6e4509517003f0c34d9479c874b2a02b1c8b5ef6360dd0542b
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 290671078c3270c70c55fe9a5bd3bd2b0e59c59adca036918b7cdb9133b27c8a
-R 45af85e4d7ad7231a43ab3d2346f3736
+P 8861a68e2c3a232a3a80df6a274706a6d4ea1f0bc39cb5a17732a081562ee011
+R cff66cd611810f3f31fcdba16b1b0d08
 U george
-Z f855050592304f9574636d8cb2abb52a
+Z 080ff06a9b089498f40dbd95837fef26

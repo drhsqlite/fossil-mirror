@@ -333,20 +333,22 @@ void style_submenu_sql(
 }
 
 /* Add hyperlinks depending on the existence and values of special
-** parameters in the request's query string. The names of these
-** parameters that are investigated are obtainted by concatenation
-** of zPrefix with suffix "smplX", where X is either nothing or
-** a positive digit <= nMaxDigit. zPrefix must start with a lowercase
-** letter, be short and have no strange characters. A value is
-** well-formed if its first filepath segment (separated by '/')
-** has no strange characters. The labels of the resulting submenu items
-** are equal to the well-formed values that are prepended by "✧"
-** unless a value starts with a lowercase letter.
-** Malformed values are silently ignored.
+** parameters in the request's query string. The names of a query's
+** parameters that are investigated are obtainted by concatenation of
+** the caller-provided zPrefix with suffix "smplX", where X is either
+** nothing or a positive digit. zPrefix must start with a lowercase
+** letter, be short and have no strange characters. Parameter's value
+** is well-formed if its first filepath segment (separated by '/')
+** has no strange characters. Malformed values are silently ignored.
+**
+** The text for the resulting submenu item equals to the value of the
+** parameter modulus some prettification for better UX:
+** "✧" symbol is prepended unless parameter's value starts with a
+** lowercase letter or contains '/', also underscores in the first
+** path segment are replaced with spaces.
 */
 void style_submenu_parametric(
-  const char *zPrefix,   /* common prefix of the query parameters names */
-  const int  nMaxDigit   /* maximal digit on the end of param names     */
+  const char *zPrefix   /* common prefix of the query parameters names */
 ){
   static const char *suffix = "smpl"; /* common suffix for param names */
   static const short sfxlen =  4;     /* length of the above suffix    */
@@ -365,7 +367,7 @@ void style_submenu_parametric(
   l += sfxlen;
   zN[l+1] = 0; /* nul-terminator after digit's placeholder (if any) */
   zQS = PD("QUERY_STRING","");
-  for( i = 0; i <= 9 && i <= nMaxDigit; i++ ){
+  for( i = 0; i <= 9; i++ ){
     const char *zV, *z;
     zN[l] = ( i == 0 ?  0 : '0' + i ); /* ...smpl instead of ...smpl0 */
     zV = PD(zN,"");
