@@ -601,12 +601,13 @@ void wiki_page(void){
     }
   }
   if( !isPopup ){
-    char *zDate = db_text(0,"SELECT strftime('%%Y-%%m-%%d %%H:%%M',"
-                                 "'%.17g',toLocal())",pWiki->rDate);
-    Th_Store("wiki_timestamp",zDate);
-    fossil_free( zDate );
-    Th_Store("wiki_editor",pWiki->zUser);
     if( zHashsum ){
+      char *zDate = db_text(0,"SELECT strftime('%%Y-%%m-%%d %%H:%%M',"
+                                   "'%.17g',toLocal())",pWiki->rDate);
+      Th_Store("wiki_timestamp",zDate);
+      fossil_free( zDate );
+      Th_Store("wiki_editor",pWiki->zUser);
+
       Th_Store("artifact_hashsum",zHashsum);
       Th_Store("wiki_hashsum",zHashsum);
       fossil_free( (char*)zHashsum );
