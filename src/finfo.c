@@ -33,6 +33,9 @@
 ** and "--offset P" options limits the output to the first N changes
 ** after skipping P changes.
 **
+** The -i mode will print the artifact ID of FILENAME given the REVISION
+** provided by the -r flag (which is required).
+
 ** In the -s mode prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
@@ -44,6 +47,7 @@
 **   -b|--brief           Display a brief (one line / revision) summary
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
+**   -i|--id              Print the artifact ID (requires -r)
 **   -l|--log             Select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
 **                        N less than 0 means no limit.
@@ -58,8 +62,6 @@
 ** See also: [[artifact]], [[cat]], [[descendants]], [[info]], [[leaves]]
 */
 void finfo_cmd(void){
-  const char *zRevision = find_option("revision", "r", 1);
-
   db_must_be_within_tree();
   if( find_option("status","s",0) ){
     Stmt q;
@@ -120,6 +122,7 @@ void finfo_cmd(void){
   }else if( find_option("print","p",0) ){
     Blob record;
     Blob fname;
+    const char *zRevision = find_option("revision", "r", 1);
 
     /* We should be done with options.. */
     verify_all_options();
@@ -138,11 +141,13 @@ void finfo_cmd(void){
     blob_write_to_file(&record, "-");
     blob_reset(&record);
     blob_reset(&fname);
-  }else if( zRevision && zRevision[0] ){
+  }else if( find_option("id","i",0) ){
     Blob fname;
+    const char *zRevision = find_option("revision", "r", 1);
 
     verify_all_options();
 
+    if( zRevision==0 ) usage("-i|--id also requires -r|--revision");
     if( g.argc!=3 ) usage("-r|--revision REVISION FILENAME");
     file_tree_name(g.argv[2], &fname, 0, 1);
     int rid = db_int(0, "SELECT rid FROM blob WHERE uuid ="
