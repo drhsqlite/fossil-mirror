@@ -1039,6 +1039,7 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
+    /* style_finish_page() should provide escaping via %h formatting */
     if( zQS[0] ){
       style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
       style_submenu_element("Reports","%R/reportlist?%s",zQS);

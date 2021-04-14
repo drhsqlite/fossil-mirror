@@ -341,11 +341,21 @@ void style_submenu_sql(
 ** is well-formed if its first filepath segment (separated by '/')
 ** has no strange characters. Malformed values are silently ignored.
 **
-** The text for the resulting submenu item equals to the value of the
+** The text for the resulting submenu label equals to the value of the
 ** parameter modulus some prettification for better UX:
-** "✧" symbol is prepended unless parameter's value starts with a
-** lowercase letter or contains '/', also underscores in the first
-** path segment are replaced with spaces.
+**  1)  If a parameter's value starts with a lowercase letter and
+**      contains '/' then it goes unchanged into the user-visible label.
+**  2a) If the first letter is uppercase then the label is
+**      truncated at the first '/' (if any),
+**  2b) otherwise the first letter is capitalized.
+**  3)  Underscores in the first path segment are replaced with spaces.
+**  4)  If the resulting label starts with an uppercase letter
+**      then it is prepended with "✧" symbol for explicit distinction
+**      from the built-in labels
+**
+** Important security-related note:
+**   zLabel and zLink are formatted using %s because it is expected that
+**   style_finish_page() provides propper escaping via %h format.
 */
 void style_submenu_parametric(
   const char *zPrefix   /* common prefix of the query parameters names */
@@ -371,7 +381,7 @@ void style_submenu_parametric(
     const char *zV, *z;
     zN[l] = ( i == 0 ?  0 : '0' + i ); /* ...smpl instead of ...smpl0 */
     zV = PD(zN,"");
-    if( zV[0] == 0 || zV[0] == '/' ){
+    if( zV[0] == 0 || zV[0] == '/' || zV[0] == '_' || zV[0] == '-' ){
       continue;
     }
     /* require the first path segment to be unfancy ASCII string */
@@ -393,8 +403,12 @@ void style_submenu_parametric(
       /* also prettify the first segment */
       z += strlen(mark);
       z[0] = fossil_toupper(z[0]);
-      for(; z[0]!=0 && z[0]!='/'; z++ ){
+      for(; z[0]!=0; z++ ){
         if( z[0]=='_' ) z[0] = ' ';
+        else if( z[0] == '/' ){     /* show just the first segment */
+          z[0] = 0;
+          break;
+        }
       }
     }
     if( zQS[0] ){
@@ -981,6 +995,10 @@ void style_finish_page(){
       qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
       for(i=0; i<nSubmenu; i++){
         struct Submenu *p = &aSubmenu[i];
+        /* switching away from the %h formatting below might be dangerous
+        ** because some places use %s to compose zLabel and zLink;
+        ** e.g. /rptview page and the style_submenu_parametic() function
+        */
         if( p->zLink==0 ){
           @ <span class="label">%h(p->zLabel)</span>
         }else{
