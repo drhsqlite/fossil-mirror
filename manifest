@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\s--debug\soption\son\s"fossil\smerge".
-D 2021-04-15T15:03:31.737
+C Add\sthe\s"fossil\stest-show-vfile"\scommand,\sand\sthe\s\n(undocumented)\s--show-vfile\soption\son\s"fossil\smerge".\s\sBoth\sadditions\sare\sfor\ndebugging\suse\sonly\sand\sare\sunsupported.
+D 2021-04-15T15:48:56.260
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -550,7 +550,7 @@ F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 28d53a7f83297408dfa318780d0bae20d7ac0b3ef581b01409cf5a3c43f73464
+F src/merge.c b53058c5e8af070045b9f62dde287b6b61b9e18cafc0abf759250f7f76c50b01
 F src/merge3.c 748bc1e38f57b42a8521bc3ec0c077cef037b44c010aeb0346ac22f1574cb3cb
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32778cc06121812053e286e8a0c5b02f8d9ff413745404bb2d8eb5c204fdccd1
-R df697deb4f7db7abcc2468311243d419
+P 0d4d85b05d45a032ca28c9a82bd1e1a95f801a4eb7f8e153cbed6de13bd9bd54
+R 7069f8dd62826ccf5ae9b875b6272bd8
 U drh
-Z 565f56c986d31c1f823ef53c6958e64c
+Z 04a3dcc8f3fc14cc138d7119bf2e3ad6
