@@ -178,6 +178,36 @@ static void vmerge_insert(int id, int rid){
 }
 
 /*
+** Print the contents of the "fv" table on standard output, for debugging
+** purposes.
+*/
+static void debug_fv_dump(void){
+  Stmt q;
+  db_prepare(&q,
+     "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
+     "       isexe, islinkv, islinkm, fnn FROM fv"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+     fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d "
+                  " islinkv=%d islinkm=%d\n",
+        db_column_int(&q, 0),
+        db_column_int(&q, 5),
+        db_column_int(&q, 6),
+        db_column_int(&q, 7),
+        db_column_int(&q, 4),
+        db_column_int(&q, 8),
+        db_column_int(&q, 9),
+        db_column_int(&q, 10));
+     fossil_print("     fn  = [%s]\n", db_column_text(&q, 1));
+     fossil_print("     fnp = [%s]\n", db_column_text(&q, 2));
+     fossil_print("     fnm = [%s]\n", db_column_text(&q, 3));
+     fossil_print("     fnn = [%s]\n", db_column_text(&q, 11));
+  }
+  db_finalize(&q);
+}
+
+
+/*
 ** COMMAND: merge
 **
 ** Usage: %fossil merge ?OPTIONS? ?VERSION?
@@ -443,13 +473,13 @@ void merge_cmd(void){
   if( debugFlag ){
     char *z;
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nid);
-    fossil_print("N=%d %z\n", nid, z);
+    fossil_print("N=%-4d %z (file rename pivot)\n", nid, z);
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pid);
-    fossil_print("P=%d %z\n", pid, z);
+    fossil_print("P=%-4d %z (file content pivot)\n", pid, z);
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
-    fossil_print("M=%d %z\n", mid, z);
+    fossil_print("M=%-4d %z (merged-in version)\n", mid, z);
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
-    fossil_print("V=%d %z\n", vid, z);
+    fossil_print("V=%-4d %z (current version)\n", vid, z);
   }
 
   /*
@@ -459,21 +489,21 @@ void merge_cmd(void){
   */
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
-    "CREATE TEMP TABLE fv("
-    "  fn TEXT UNIQUE %s,"        /* The filename */
-    "  idv INTEGER DEFAULT 0,"    /* VFILE entry for current version */
-    "  idp INTEGER DEFAULT 0,"    /* VFILE entry for the pivot */
-    "  idm INTEGER DEFAULT 0,"    /* VFILE entry for version merging in */
-    "  chnged BOOLEAN,"           /* True if current version has been edited */
-    "  ridv INTEGER DEFAULT 0,"   /* Record ID for current version */
-    "  ridp INTEGER DEFAULT 0,"   /* Record ID for pivot */
-    "  ridm INTEGER DEFAULT 0,"   /* Record ID for merge */
-    "  isexe BOOLEAN,"            /* Execute permission enabled */
-    "  fnp TEXT UNIQUE %s,"       /* The filename in the pivot */
-    "  fnm TEXT UNIQUE %s,"       /* The filename in the merged version */
-    "  fnn TEXT UNIQUE %s,"       /* The filename in the name pivot */
-    "  islinkv BOOLEAN,"          /* True if current version is a symlink */
-    "  islinkm BOOLEAN"           /* True if merged version in is a symlink */
+    "CREATE TEMP TABLE fv(\n"
+    "  fn TEXT UNIQUE %s,\n"       /* The filename */
+    "  idv INTEGER DEFAULT 0,\n"   /* VFILE entry for current version */
+    "  idp INTEGER DEFAULT 0,\n"   /* VFILE entry for the pivot */
+    "  idm INTEGER DEFAULT 0,\n"   /* VFILE entry for version merging in */
+    "  chnged BOOLEAN,\n"          /* True if current version has been edited */
+    "  ridv INTEGER DEFAULT 0,\n"  /* Record ID for current version */
+    "  ridp INTEGER DEFAULT 0,\n"  /* Record ID for pivot */
+    "  ridm INTEGER DEFAULT 0,\n"  /* Record ID for merge */
+    "  isexe BOOLEAN,\n"           /* Execute permission enabled */
+    "  fnp TEXT UNIQUE %s,\n"      /* The filename in the pivot */
+    "  fnm TEXT UNIQUE %s,\n"      /* The filename in the merged version */
+    "  fnn TEXT UNIQUE %s,\n"      /* The filename in the name pivot */
+    "  islinkv BOOLEAN,\n"         /* True if current version is a symlink */
+    "  islinkm BOOLEAN\n"          /* True if merged version in is a symlink */
     ");",
     filename_collation(), filename_collation(), filename_collation(),
     filename_collation()
@@ -485,6 +515,10 @@ void merge_cmd(void){
   add_renames("fn", vid, nid, 0, debugFlag ? "N->V" : 0);
   add_renames("fnp", pid, nid, 0, debugFlag ? "N->P" : 0);
   add_renames("fnm", mid, nid, backoutFlag, debugFlag ? "N->M" : 0);
+  if( debugFlag ){
+    fossil_print("******** FV after name change search *******\n");
+    debug_fv_dump();
+  }
 
   /*
   ** Add files found in V
@@ -499,6 +533,10 @@ void merge_cmd(void){
     "  WHERE vid=%d;",
     vAncestor, vid
   );
+  if( debugFlag ){
+    fossil_print("******** FV after adding files in current version *******\n");
+    debug_fv_dump();
+  }
 
   /*
   ** Add files found in P
@@ -521,6 +559,10 @@ void merge_cmd(void){
     " SELECT pathname FROM vfile WHERE vid=%d;",
     mid
   );
+  if( debugFlag ){
+    fossil_print("******** FV after adding pivot and merge-in files *******\n");
+    debug_fv_dump();
+  }
 
   /*
   ** Compute the file version ids for P and M
@@ -547,29 +589,9 @@ void merge_cmd(void){
     "   isexe)",
     mid, mid, mid, mid
   );
-
   if( debugFlag ){
-    db_prepare(&q,
-       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
-       "       isexe, islinkv, islinkm, fnn FROM fv"
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-       fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d "
-                    " islinkv=%d islinkm=%d\n",
-          db_column_int(&q, 0),
-          db_column_int(&q, 5),
-          db_column_int(&q, 6),
-          db_column_int(&q, 7),
-          db_column_int(&q, 4),
-          db_column_int(&q, 8),
-          db_column_int(&q, 9),
-          db_column_int(&q, 10));
-       fossil_print("     fn  = [%s]\n", db_column_text(&q, 1));
-       fossil_print("     fnp = [%s]\n", db_column_text(&q, 2));
-       fossil_print("     fnm = [%s]\n", db_column_text(&q, 3));
-       fossil_print("     fnn = [%s]\n", db_column_text(&q, 11));
-    }
-    db_finalize(&q);
+    fossil_print("******** FV Final *******\n");
+    debug_fv_dump();
   }
 
   /*
