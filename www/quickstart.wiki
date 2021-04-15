@@ -540,7 +540,7 @@ CGI.
 
 <p>You might <i>need</i> to set up a server, whether you know it yet or
 not.  See the [./server/whyuseaserver.wiki | Benefits of a Fossil Server]
-article details.</p>
+article for details.</p>
 
 <h2 id="proxy">HTTP Proxies</h2>
 
