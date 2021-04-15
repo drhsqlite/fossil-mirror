@@ -180,13 +180,23 @@ static void vmerge_insert(int id, int rid){
 /*
 ** Print the contents of the "fv" table on standard output, for debugging
 ** purposes.
+**
+** Only show entries where a file has changed, unless showAll is true.
 */
-static void debug_fv_dump(void){
+static void debug_fv_dump(int showAll){
   Stmt q;
-  db_prepare(&q,
-     "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
-     "       isexe, islinkv, islinkm, fnn FROM fv"
-  );
+  if( showAll ){
+    db_prepare(&q,
+       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
+       "       isexe, islinkv, islinkm, fnn FROM fv"
+    );
+  }else{
+    db_prepare(&q,
+       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
+       "       isexe, islinkv, islinkm, fnn FROM fv"
+       " WHERE chnged OR (ridv!=ridm AND ridm!=ridp)"
+    );
+  }
   while( db_step(&q)==SQLITE_ROW ){
      fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d "
                   " islinkv=%d islinkm=%d\n",
@@ -304,7 +314,6 @@ void merge_cmd(void){
   pickFlag = find_option("cherrypick",0,0)!=0;
   integrateFlag = find_option("integrate",0,0)!=0;
   backoutFlag = find_option("backout",0,0)!=0;
-  debugFlag = find_option("debug",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -313,6 +322,19 @@ void merge_cmd(void){
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
   keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
+
+  /* Undocumented --debug option:
+  **
+  ** When included on the command-line, --debug causes lots of state
+  ** information to be displayed.  This option is undocumented as it
+  ** might change or be eliminated in future releases.
+  **
+  ** Hints:
+  **   *  Combine --debug and --verbose for still more output.
+  **   *  The --dry-run option is also useful in combination with --debug.
+  */
+  debugFlag = find_option("debug",0,0)!=0;
+  if( debugFlag && verboseFlag ) debugFlag = 2;
 
   verify_all_options();
   db_must_be_within_tree();
@@ -480,6 +502,7 @@ void merge_cmd(void){
     fossil_print("M=%-4d %z (merged-in version)\n", mid, z);
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
     fossil_print("V=%-4d %z (current version)\n", vid, z);
+    fossil_print("vAncestor = '%c'\n", vAncestor);
   }
 
   /*
@@ -517,7 +540,7 @@ void merge_cmd(void){
   add_renames("fnm", mid, nid, backoutFlag, debugFlag ? "N->M" : 0);
   if( debugFlag ){
     fossil_print("******** FV after name change search *******\n");
-    debug_fv_dump();
+    debug_fv_dump(1);
   }
 
   /*
@@ -533,9 +556,9 @@ void merge_cmd(void){
     "  WHERE vid=%d;",
     vAncestor, vid
   );
-  if( debugFlag ){
+  if( debugFlag>=2 ){
     fossil_print("******** FV after adding files in current version *******\n");
-    debug_fv_dump();
+    debug_fv_dump(1);
   }
 
   /*
@@ -549,6 +572,10 @@ void merge_cmd(void){
     " SELECT coalesce(origname,pathname) FROM vfile WHERE vid=%d;",
     pid
   );
+  if( debugFlag>=2 ){
+    fossil_print("******** FV after adding pivot files *******\n");
+    debug_fv_dump(1);
+  }
 
   /*
   ** Add files found in M
@@ -559,9 +586,9 @@ void merge_cmd(void){
     " SELECT pathname FROM vfile WHERE vid=%d;",
     mid
   );
-  if( debugFlag ){
-    fossil_print("******** FV after adding pivot and merge-in files *******\n");
-    debug_fv_dump();
+  if( debugFlag>=2 ){
+    fossil_print("******** FV after adding merge-in files *******\n");
+    debug_fv_dump(1);
   }
 
   /*
@@ -589,10 +616,6 @@ void merge_cmd(void){
     "   isexe)",
     mid, mid, mid, mid
   );
-  if( debugFlag ){
-    fossil_print("******** FV Final *******\n");
-    debug_fv_dump();
-  }
 
   /*
   ** Update the execute bit on files where it's changed from P->M but not P->V
@@ -614,9 +637,16 @@ void merge_cmd(void){
     }
   }
   db_finalize(&q);
+  if( debugFlag ){
+    fossil_print("******** FV final *******\n");
+    debug_fv_dump( debugFlag>=2 );
+  }
 
-  /*
-  ** Find files in M and V but not in P and report conflicts.
+  /************************************************************************
+  ** All of the information needed to do the merge is now contained in the
+  ** FV table.  Starting here, we begin to actually carry out the merge.
+  **
+  ** First, find files in M and V but not in P and report conflicts.
   ** The file in M will be ignored.  It will be treated as if it
   ** does not exist.
   */
@@ -713,7 +743,8 @@ void merge_cmd(void){
         }
         db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
         if( rc>0 ){
-          fossil_print("***** %d merge conflicts in %s\n", rc, zName);
+          fossil_print("***** %d merge conflict%s in %s\n",
+                       rc, rc>1 ? "s" : "", zName);
           nConflict++;
         }
       }else{
@@ -834,7 +865,7 @@ void merge_cmd(void){
   );
 
   /*
-  ** Add to V files that are not in V or P but are in M
+  ** Insert into V any files that are not in V or P but are in M.
   */
   db_prepare(&q,
     "SELECT idm, fnm FROM fv"
