@@ -259,9 +259,9 @@ grant to themselves or to others.
 In addition, Setup users can use every feature of the Fossil UI. If Fossil can do a
 thing, a Setup user on that repo can make Fossil do it.
 
-Setup users can do many things that Admin users cannot:
+Setup users can do many things that Admin users cannot. They may not
+only use all of the Admin UI features, they may also:
 
-*   Use all of the Admin UI features
 *   See record IDs (RIDs) on screens that show them
 *   See the MIME type of attachments on [`/ainfo` pages](/help?cmd=/ainfo)
 *   See a remote repo’s HTTP [cache status](/help?cmd=/cachestat)

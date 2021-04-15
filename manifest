@@ -1,5 +1,5 @@
-C Grammar\sfix\sfor\sprevious
-D 2021-04-15T03:29:43.839
+C Small\stweak\sto\sthe\sadmin\svs\ssetup\sdoc,\samounting\sto\sa\sgrammar\sfix.
+D 2021-04-15T06:06:32.909
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -821,7 +821,7 @@ F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 14429f3c3d1ce16b131bbf747cd88098768366f88a82bbdf6368993cf06b504d
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
-F www/caps/admin-v-setup.md e5f90e7eca4927a293fdb437a461fdeccb4ad383edf2a3030de1fb36737c11bf
+F www/caps/admin-v-setup.md aae4ee41aef7c1ae4e000bd7fa9c403c23314d107812bd6e39af155353a6971c
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
 F www/caps/index.md 91e865df2c0e4b6b2cf6314a85229c12e62350706920ecddbbbb93a3a89e9544
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 130abdcec218ad48058e8a747147dd3f84cde82c8eae20a74aed7c69f290f975
-R f56acabeb330088dc7d81e5be462b437
+P 23de894765d351ffbf14228173d78d375e4f1d783c8c0a7acaf6d759422be6a5
+R a72f6d7b0845c92e1ca72214dd194db0
 U tangent
-Z 0fa3e07d7403f4ee96638a6ecb96300f
+Z 3c75b0fbe16a1cafe3e69074d2406bbd
