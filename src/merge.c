@@ -137,8 +137,8 @@ int fossil_any_has_fork(int rcvid){
 */
 static void add_renames(
   const char *zFnCol, /* The FV column for the filename in vid */
-  int vid,            /* The desired version's RID */
-  int nid,            /* Version N's RID */
+  int vid,            /* The desired version's checkin RID */
+  int nid,            /* The	checkin rid for the name pivot */
   int revOK,          /* OK to move backwards (child->parent) if true */
   const char *zDebug  /* Generate trace output if not NULL */
 ){
@@ -600,6 +600,44 @@ void merge_cmd(void){
   add_renames("fn", vid, nid, 0, debugFlag ? "N->V" : 0);
   add_renames("fnp", pid, nid, 0, debugFlag ? "N->P" : 0);
   add_renames("fnm", mid, nid, backoutFlag, debugFlag ? "N->M" : 0);
+  if( nid!=pid ){
+    /* See forum thread https://fossil-scm.org/forum/forumpost/549700437b
+    **
+    ** If a filename changes between nid and one of the other check-ins
+    ** pid, vid, or mid, then it might not have changed for all of them.
+    ** try to fill in the appropriate filename in all slots where the
+    ** name is missing.
+    **
+    ** This does not work if
+    **   (1) The filename changes more than once in between nid and vid/mid
+    **   (2) Two or more filenames swap places - for example if A is renamed
+    **       to B and B is renamed to A.
+    ** The Fossil merge algorithm breaks down in those cases.  It will need
+    ** to be completely rewritten to handle such complex cases.  Such cases
+    ** appear to be rare, and also confusing to humans.
+    */
+    db_multi_exec(
+      "UPDATE fv SET fn=vfile.pathname FROM vfile"
+      " WHERE fn IS NULL"
+      " AND vfile.pathname IN (fv.fnm,fv.fnp,fv.fnn)"
+      " AND vfile.vid=%d;",
+      vid
+    );
+    db_multi_exec(
+      "UPDATE fv SET fnp=vfile.pathname FROM vfile"
+      " WHERE fnp IS NULL"
+      " AND vfile.pathname IN (fv.fn,fv.fnm,fv.fnn)"
+      " AND vfile.vid=%d;",
+      pid
+    );
+    db_multi_exec(
+      "UPDATE fv SET fnm=vfile.pathname FROM vfile"
+      " WHERE fnm IS NULL"
+      " AND vfile.pathname IN (fv.fn,fv.fnp,fv.fnn)"
+      " AND vfile.vid=%d;",
+      mid
+    );
+  }
   if( debugFlag ){
     fossil_print("******** FV after name change search *******\n");
     debug_fv_dump(1);
