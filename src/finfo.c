@@ -35,7 +35,7 @@
 **
 ** The -i mode will print the artifact ID of FILENAME given the REVISION
 ** provided by the -r flag (which is required).
-
+**
 ** In the -s mode prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
