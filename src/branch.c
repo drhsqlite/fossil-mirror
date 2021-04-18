@@ -469,6 +469,7 @@ static void new_brlist_page(void){
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
+  style_submenu_element("Timeline", "%R/timeline");
   login_anonymous_available();
 
   brlist_create_temp_table();
@@ -506,7 +507,8 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a></td>
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a>
+    @     <input type="checkbox" disabled="disabled"/></td>
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);
@@ -521,6 +523,7 @@ static void new_brlist_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
+  builtin_request_js("fossil.page.brlist.js");
   style_table_sorter();
   style_finish_page();
 }
