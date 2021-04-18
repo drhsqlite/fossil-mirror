@@ -507,8 +507,8 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a>
-    @     <input type="checkbox" disabled="disabled"/></td>
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input 
+    @  type="checkbox" disabled="disabled"/></td>
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);

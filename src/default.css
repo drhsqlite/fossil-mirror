@@ -1774,6 +1774,16 @@ body.chat #chat-drop-details img {
 input[type="checkbox"].diff-toggle {
   float: right;
 }
+
+body.branch .brlist > table > tbody > tr > td:nth-child(1) {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+body.branch a.label.timeline-link.selected {
+  font-weight: bold;
+}
+
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
   .desktoponly {
