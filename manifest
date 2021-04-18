@@ -1,5 +1,5 @@
-C Improve\s/brlist\spage\sso\sthat\sseveral\sbranches\scan\sbe\seasily\sselected\sfor\sthe\sdedicated\sstudy\svia\s/timeline\spage.\sThis\sis\simplemented\susing\ssimple\sJavaScript\sthat\sinteractively\schanges\sa\sspecial\shyperlink\sin\sthe\ssubmenu\sof\s/brlist\spage.\sSee\s[forum:/fomumthread/07c94e4d7c202e|forum\sthread\s07c94e4d7c].
-D 2021-04-18T19:59:21.062
+C Fix\sthe\sprevious:\sadd\sthe\s<tt>fossil.page.brlist.js</tt>\sscript\swhich\swas\sforgotten.
+D 2021-04-18T20:11:26.614
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -488,6 +488,7 @@ F src/fossil.dom.js 7f4148a303a3df07378bedf5d918631ac4056b385e36f0befa01010b59f6
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.info-diff.js 7db676b32eb1324bcd8a9be6591ca6174081ecfe83e5506db678a068c9b2a888
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
+F src/fossil.page.brlist.js c2360498d9c7dc7fbe6d6c237844c5d795afc8410f08fe2ff81619e6c6c2165d
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
@@ -990,7 +991,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8913402d10260172dc5dc89126bce6fb273365a57e31bf88fbaa99add69c18d6
-R dfdbeee59371a42fd42042e2d6081570
+P 08433ff8c9f6b035dcdf5b282bd704af0f438d01ecc4d9da95321b2362754b91
+R 1ab098384744525c5b7a62f82b4b461e
 U george
-Z 029257a4b5646c44e2d1faada10acb3b
+Z e963a879754f9999209d9a356f84ce9d
