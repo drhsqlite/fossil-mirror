@@ -33,13 +33,14 @@ var onChange = function( event ){
       if( selected[i] == tag )
         selected.splice(i,1);
   }
-  if( selected.length >= 2 )
+  if( selected.length >= 1 )
     anchor.classList.add('selected');
   else
     anchor.classList.remove('selected');
 
   anchor.href = prefix + selected.join("|");
-  anchor.innerHTML = "View " + selected.length + " branches";
+  anchor.innerHTML = "View " + selected.length +
+                     ( selected.length > 1 ? " branches" : " branch" );
   // console.log("Link:",anchor.href);
 }
 
@@ -56,8 +57,9 @@ document.querySelectorAll("div.brlist > table td:first-child > input")
 
 if( stags.length != 0 ){
   anchor.href =  prefix + stags.join("|");
-  if( stags.length >= 2 ) {
-    anchor.innerHTML = "View " + stags.length + " branches";
+  if( stags.length >= 1 ) {
+    anchor.innerHTML = "View " + stags.length +
+                       ( stags.length > 1 ? " branches" : " branch" );
     anchor.classList.add('selected');
   }
 }

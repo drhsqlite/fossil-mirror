@@ -1779,17 +1779,20 @@ body.branch .brlist > table > tbody > tr:hover > td:first-child,
 body.branch .brlist > table > tbody > tr.selected {
   font-weight: bold;
 }
+body.branch .brlist > table > tbody td:first-child > input {
+  cursor: pointer;
+}
 body.branch .brlist > table > tbody > tr > td:nth-child(1) {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
-body.branch a.label.timeline-link {
+body.branch .submenu > a.label.timeline-link {
   display: none;
 }
-body.branch a.label.timeline-link.selected {
+body.branch .submenu > a.label.timeline-link.selected {
   display: inline;
-  font-weight: bold;
+  font-weight: bold;  /* <-- usefulness is questionable */
 }
 
 /* Objects in the "desktoponly" class are invisible on mobile */

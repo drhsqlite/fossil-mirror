@@ -1,5 +1,5 @@
-C Rename\s'Timeline'\ssubmenu\slink\sinto\s'View\sX\sbranches'\sthat\sis\sshown\sonly\sif\stwo\sor\smore\sbranches\sare\sselected.\sAlso\ssome\sminor\scode\srefactoring\sfor\sbetter\scompatability\swith\sold\sversions\sof\sWebView.
-D 2021-04-19T01:01:04.147
+C Display\s"View\s1\sbranch"\shyperlink\sif\sjust\sone\sbranch\sis\sselected.\sAdd\sdocumentation\sto\sthe\s<tt>www/javascript.md</tt>\sand\sto\sthe\schangelog.\sAlso\sminor\sCSS\stweaks.
+D 2021-04-19T16:08:31.379
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c c17854b3003ae56244235b3dea7e4976177fd48c6736064d3d3a3b71698de689
-F src/default.css 8487081d6e7bcdf1b3c13a69d49db2ee90f1585020761ea7a4b98ad1cfd73c36
+F src/default.css c19bbc86b457e1b1c862696be1e5bc4b1ed870f8e26b9946d0292e84978dc655
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -488,7 +488,7 @@ F src/fossil.dom.js 7f4148a303a3df07378bedf5d918631ac4056b385e36f0befa01010b59f6
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.info-diff.js 7db676b32eb1324bcd8a9be6591ca6174081ecfe83e5506db678a068c9b2a888
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
-F src/fossil.page.brlist.js a2ff92931b889a791adce73159fca72c5fda914077223635e180653a03d65438
+F src/fossil.page.brlist.js 86adbfa5a8da7d9c2240b7a1b8273d2c701620498c475d914f6aef5461201ecf
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
@@ -828,7 +828,7 @@ F www/caps/index.md 91e865df2c0e4b6b2cf6314a85229c12e62350706920ecddbbbb93a3a89e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki dd837e704bfdbbc1dc654f511db7241f52b6d837c69a75cf371946f1ca30f9e9
+F www/changes.wiki f4c03fd16e21d4014ceada1086f249b2a3ee5463c3897a41da5c9901c2c8e70e
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -899,7 +899,7 @@ F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c21
 F www/index.wiki 1a77f0c7f4bb47dc0ae7f0870b85f7668636ebdd8f5553e2b8abb2a1c5062c02
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
-F www/javascript.md 9dd43581054e6de6fa75046e3f69a87c4dffa6f79a144bc18ff9bc77548b1dc0
+F www/javascript.md e4c380071953a94611de5263574e6ff905a4070af0b4953399c49adb42497a35
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -991,7 +991,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 73ebf81b9331ee89690a8fff72ac48b1892b09d12a0e5d68048106e7fa3864ee
-R 9476734361c1456c5705fb8f58d903c1
+P 00891cba00a6987cfb6d589670d7e01a273bdfda5bc7f78f4eb5dbae01e659c7
+R fe3cfdb59c9ec1349990f5981044651d
 U george
-Z 0594597cd2c8090c38e268790498a24e
+Z 8d4ef1442ba2ecc8daca536e2ad74a0f
