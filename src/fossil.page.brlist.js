@@ -1,55 +1,65 @@
 /*
  * This script adds multiselect facility for the list of branches.
+ *
+ * Some info on 'const':
+ *   https://caniuse.com/const
+ *   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const#browser_compatibility
+ *
+ * According to MDN 'const' requires Android's WebView 37,
+ * which may not be available.
+ * For the time being, continueing without 'const' and 'indexOf'
+ * (but that may be reconsidered later).
 */
 window.addEventListener( 'load', function() {
 
 var anchor = document.querySelector("div.submenu > a.label" );
 if( !anchor || anchor.innerText != "Timeline" ) return;
-var prefix = anchor.href.toString() + "?ms=regexp&rel&t=";
+var prefix   = anchor.href.toString() + "?ms=regexp&rel&t=";
 anchor.classList.add('timeline-link');
-const selectedCheckboxes = []/*currently-selected checkboxes*/;
+
 var onChange = function( event ){
-  const cbx = event.target;
-  const tag = cbx.parentElement.children[0].innerText;
-  var re = anchor.href.substr(prefix.length);
+  var cbx = event.target;
+  var tr  = cbx.parentElement.parentElement;
+  var tag = cbx.parentElement.children[0].innerText;
+  var re  = anchor.href.substr(prefix.length);
+  var selected = ( re != "" ? re.split("|") : [] );
   if( cbx.checked ){
-    if( re != "" ){
-      re += "|";
-    }
-    re += tag;
-    selectedCheckboxes.push(cbx);
-    anchor.classList.add('selected'); 
-  }else{
-    const ndx = selectedCheckboxes.indexOf(cbx);
-    if(ndx>=0){
-      selectedCheckboxes.splice(ndx,1);
-      if(!selectedCheckboxes.length){
-        anchor.classList.remove('selected');
-      }
-    }
-    if( re == tag ){
-      re = "";
-      removeSelected(cbx);
-    }else {
-      var a = re.split("|");
-      var i = a.length;
-      while( --i >= 0 ){
-        if( a[i] == tag )
-          a.splice(i,1);
-      }
-      re = a.join("|");
-    }
+    selected.push(tag);
+    tr.classList.add('selected');
   }
-  anchor.href = prefix + re;
+  else {
+    tr.classList.remove('selected');
+    for( var i = selected.length; --i >= 0 ;)
+      if( selected[i] == tag )
+        selected.splice(i,1);
+  }
+  if( selected.length >= 2 )
+    anchor.classList.add('selected');
+  else
+    anchor.classList.remove('selected');
+
+  anchor.href = prefix + selected.join("|");
+  anchor.innerHTML = "View " + selected.length + " branches";
+  // console.log("Link:",anchor.href);
 }
 
-var selected = [];
+var stags = []; /* initially selected tags, not used above */
 document.querySelectorAll("div.brlist > table td:first-child > input")
   .forEach( function( cbx ){
     cbx.onchange = onChange;
     cbx.disabled = false;
-    if( cbx.checked )
-      selected.push(cbx.parentElement.children[0].innerText);
+    if( cbx.checked ){
+      stags.push(cbx.parentElement.children[0].innerText);
+      cbx.parentElement.parentElement.classList.add('selected');
+    }
   });
-anchor.href = selected.length != 0 ? prefix + selected.join("|") : "#";
+
+if( stags.length != 0 ){
+  anchor.href =  prefix + stags.join("|");
+  if( stags.length >= 2 ) {
+    anchor.innerHTML = "View " + stags.length + " branches";
+    anchor.classList.add('selected');
+  }
+}
+
 }); // window.addEventListener( 'load' ...
