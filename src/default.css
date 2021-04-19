@@ -1792,7 +1792,6 @@ body.branch .submenu > a.label.timeline-link {
 }
 body.branch .submenu > a.label.timeline-link.selected {
   display: inline;
-  font-weight: bold;  /* <-- usefulness is questionable */
 }
 
 /* Objects in the "desktoponly" class are invisible on mobile */

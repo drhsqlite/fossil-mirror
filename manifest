@@ -1,5 +1,5 @@
-C Display\s"View\s1\sbranch"\shyperlink\sif\sjust\sone\sbranch\sis\sselected.\sAdd\sdocumentation\sto\sthe\s<tt>www/javascript.md</tt>\sand\sto\sthe\schangelog.\sAlso\sminor\sCSS\stweaks.
-D 2021-04-19T16:08:31.379
+C Do\snot\suse\sbold\sfont\sfor\sthe\s"View\sX\sbranch(es)"\shyperlink.
+D 2021-04-19T16:45:12.393
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c c17854b3003ae56244235b3dea7e4976177fd48c6736064d3d3a3b71698de689
-F src/default.css c19bbc86b457e1b1c862696be1e5bc4b1ed870f8e26b9946d0292e84978dc655
+F src/default.css 085d60b95e96db1498e6837f392e3b1fcb51136b15c84f30276a5c51aa805652
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -991,7 +991,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00891cba00a6987cfb6d589670d7e01a273bdfda5bc7f78f4eb5dbae01e659c7
-R fe3cfdb59c9ec1349990f5981044651d
+P c6a061f2a0744230b70df6841cdaf94964280ca0dd3179816b8934010a0b31f0
+R 28eeb8992a4ce39ff3a5b13ebfba0c8f
 U george
-Z 8d4ef1442ba2ecc8daca536e2ad74a0f
+Z c4573e09dce2ad75d1c20f23d6d91bea
