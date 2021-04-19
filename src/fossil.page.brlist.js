@@ -12,7 +12,7 @@
 */
 window.addEventListener( 'load', function() {
 
-var anchor = document.querySelector("div.submenu > a.label" );
+var anchor = document.querySelector("div.submenu > a:first-of-type" );
 if( !anchor || anchor.innerText != "Timeline" ) return;
 var prefix   = anchor.href.toString() + "?ms=regexp&rel&t=";
 anchor.classList.add('timeline-link');

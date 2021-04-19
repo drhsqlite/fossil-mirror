@@ -1787,10 +1787,10 @@ body.branch .brlist > table > tbody > tr > td:nth-child(1) {
   flex-direction: row;
   justify-content: space-between;
 }
-body.branch .submenu > a.label.timeline-link {
+body.branch .submenu > a.timeline-link {
   display: none;
 }
-body.branch .submenu > a.label.timeline-link.selected {
+body.branch .submenu > a.timeline-link.selected {
   display: inline;
 }
 

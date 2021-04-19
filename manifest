@@ -1,5 +1,5 @@
-C Do\snot\suse\sbold\sfont\sfor\sthe\s"View\sX\sbranch(es)"\shyperlink.
-D 2021-04-19T16:45:12.393
+C Fixed\smisinteraction\sbetween\sbootstrap\sskin\sand\snew\s/brlist\sselection\sfeature\scaused\sby\sboth\susing\sthe\s.label\sclass\sfor\stheir\sown\spurposes.
+D 2021-04-19T18:18:18.759
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -381,9 +381,9 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt bce457abc13c1b82c773d8966de448387c8f2211f49d37aafdade4e92374d1c5
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2ac0ae3b2c31
+F skins/bootstrap/css.txt 278f063df8c90760e075d70c990e0211a649bf7b07ded38b22f000d031dd4b46
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
-F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
+F skins/bootstrap/footer.txt 7e02dfdcc09bf622744011d460d2422b8cead4687b66f753519e9a75b93db8ca
 F skins/bootstrap/header.txt 8c52feacdb1818ff1fd2325a3a620b38b66a3ac57fc49cc4f92305d2d5ce95c9
 F skins/darkmode/css.txt ba2569517b1068af0380739825bb226bc390f8800d4672b032e1035d772f96f3
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c c17854b3003ae56244235b3dea7e4976177fd48c6736064d3d3a3b71698de689
-F src/default.css 085d60b95e96db1498e6837f392e3b1fcb51136b15c84f30276a5c51aa805652
+F src/default.css 43b71d30066d277c49b8bc737facc01faa9bea98ea2a95705dccedc69014d806
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -488,7 +488,7 @@ F src/fossil.dom.js 7f4148a303a3df07378bedf5d918631ac4056b385e36f0befa01010b59f6
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.info-diff.js 7db676b32eb1324bcd8a9be6591ca6174081ecfe83e5506db678a068c9b2a888
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
-F src/fossil.page.brlist.js 86adbfa5a8da7d9c2240b7a1b8273d2c701620498c475d914f6aef5461201ecf
+F src/fossil.page.brlist.js db8b6bba45dff634138303933a5fb84e70226d2c48d152bf44187fbd74d837f2
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
@@ -991,7 +991,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6a061f2a0744230b70df6841cdaf94964280ca0dd3179816b8934010a0b31f0
-R 28eeb8992a4ce39ff3a5b13ebfba0c8f
-U george
-Z c4573e09dce2ad75d1c20f23d6d91bea
+P 08b90535e825e75e2e4b493fc6ef36258c4f3adbd2e63890c668e1c051862954
+R b404fb0277823cde7124f6c8de8a94a8
+U stephan
+Z d73c55838616538099c216ab236711be
