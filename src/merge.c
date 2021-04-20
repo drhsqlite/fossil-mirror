@@ -600,6 +600,10 @@ void merge_cmd(void){
   add_renames("fn", vid, nid, 0, debugFlag ? "N->V" : 0);
   add_renames("fnp", pid, nid, 0, debugFlag ? "N->P" : 0);
   add_renames("fnm", mid, nid, backoutFlag, debugFlag ? "N->M" : 0);
+  if( debugFlag ){
+    fossil_print("******** FV after name change search *******\n");
+    debug_fv_dump(1);
+  }
   if( nid!=pid ){
     /* See forum thread https://fossil-scm.org/forum/forumpost/549700437b
     **
@@ -617,21 +621,21 @@ void merge_cmd(void){
     ** appear to be rare, and also confusing to humans.
     */
     db_multi_exec(
-      "UPDATE fv SET fn=vfile.pathname FROM vfile"
+      "UPDATE OR IGNORE fv SET fn=vfile.pathname FROM vfile"
       " WHERE fn IS NULL"
       " AND vfile.pathname IN (fv.fnm,fv.fnp,fv.fnn)"
       " AND vfile.vid=%d;",
       vid
     );
     db_multi_exec(
-      "UPDATE fv SET fnp=vfile.pathname FROM vfile"
+      "UPDATE OR IGNORE fv SET fnp=vfile.pathname FROM vfile"
       " WHERE fnp IS NULL"
       " AND vfile.pathname IN (fv.fn,fv.fnm,fv.fnn)"
       " AND vfile.vid=%d;",
       pid
     );
     db_multi_exec(
-      "UPDATE fv SET fnm=vfile.pathname FROM vfile"
+      "UPDATE OR IGNORE fv SET fnm=vfile.pathname FROM vfile"
       " WHERE fnm IS NULL"
       " AND vfile.pathname IN (fv.fn,fv.fnp,fv.fnn)"
       " AND vfile.vid=%d;",
@@ -639,7 +643,7 @@ void merge_cmd(void){
     );
   }
   if( debugFlag ){
-    fossil_print("******** FV after name change search *******\n");
+    fossil_print("******** FV after name change fill-in *******\n");
     debug_fv_dump(1);
   }
 
