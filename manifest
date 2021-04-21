@@ -1,5 +1,5 @@
-C Improved\srobustness\sof\sthe\smerge\salgorithm\swhen\smerging\slong-running\sbranches\nwith\smany\sname\schanges.
-D 2021-04-20T14:16:30.467
+C Remove\sextraneous\sand\sincomplete\s&lt;span&gt;\stag\sfrom\sthe\s/finfo\soutput.
+D 2021-04-21T16:48:12.594
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -477,7 +477,7 @@ F src/export.c 8665936fc4d1cba3c2427fbb88ac5874c3462d1d8e9c9b015e40eb889726d835
 F src/extcgi.c 481bd97b1a826d0766a808531ab6855de50dbf956bffee9c69e6f192b2e8a3c6
 F src/file.c 9e8c3a8ebb3c7b5f9b6277326c0784b47cd84c5e48ed295943b685d3fade5ca8
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
-F src/finfo.c e6bde751733b9afb31ddee3d4f03d4358452ae0e2de63680c2de53d141f91d71
+F src/finfo.c 1e793176e9ee325616ce5bf4c1746df772907cd4211c497de21c47d908d6fd49
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 7f8db60520ac1d1c473d426871f2384bc7b8d59755671c2eddcda727a7f61ba5
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -990,7 +990,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8913402d10260172dc5dc89126bce6fb273365a57e31bf88fbaa99add69c18d6
-R 98ca99913c4967b3e977b0fd804b17dc
+P dc850c9b3b2d7e9e49413cb1a3759ad73faec86db552e4297809d8dd927abca6
+R c88f024e90f34fe3eac519a4b5d3a2b3
 U drh
-Z d213e9841a11e3675a3ab9ed864bf3c1
+Z 160c6e6b424fa41039899a6e1b192ae1

@@ -683,7 +683,6 @@ void finfo_page(void){
     if( (tmFlags & TIMELINE_COMPACT)!=0 ){
       @ <span class='timelineEllipsis' data-id='%d(frid)' \
       @ id='ellipsis-%d(frid)'>...</span>
-      @ <span class='clutter timelineCompactDetail'
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] ){
