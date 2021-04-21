@@ -1,5 +1,5 @@
-C Remove\sextraneous\sand\sincomplete\s&lt;span&gt;\stag\sfrom\sthe\s/finfo\soutput.
-D 2021-04-21T16:48:12.594
+C Enable\sinteractive\sadjustment\sof\sthe\sset\sof\swiki\spages\sthat\sare\slisted\son\sthe\s[/wcontent]\spage.\sCorresponding\ssubmenu\scontrols\scan\sbe\sconfigured\sby\sthe\sadministrator\sto\sfulfill\slocal\sneeds\sand\sconstraints.
+D 2021-04-21T20:53:05.736
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -459,7 +459,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c17854b3003ae56244235b3dea7e4976177fd48c6736064d3d3a3b71698de689
+F src/db.c eef0154668fedd8583efe04ee70be3c21186302fb08e1eec340e7a5a38fbbeef
 F src/default.css 628ada14176c20bd5e4eb0100948625bcbc64cb600fb780a4c0a130ea7656b92
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -491,6 +491,7 @@ F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e0
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
+F src/fossil.page.wcontent.js daef37a7e83c241f229885143c697c58713e9c689533a42d601868db109f6fa3
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
 F src/fossil.page.wikiedit.js ec95d7337b7c9a6fd16a13f396eadac0ddc225983580bb0f38844c99ea8d0c62
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
@@ -540,7 +541,7 @@ F src/login.c d1115a1a07875c4ba21c4f987bb7886b151fb67ba314612edb559b778d083df2
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c eaa3f667bf07386b610b59a90adaa30c039d8cf256f451e8ac8ff696ae37dd83
-F src/main.mk 43142ca9fca6379667af0b548a4d4605de9836f0e264c60927e696a7138a7180
+F src/main.mk 30ca1a3fd9f8fea8444ac9aca72dd542dfe636ebea2f9bead78158c6e8713e74
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl 74c08ae6c576cc0d38cd9caaee011386bddf3d465ac9422a08235e29bbd774a3 x
@@ -643,7 +644,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c cc4ade164c7279d559b09c1c446b4ff52e22ae8081de6388f9b90aa7cecaf162
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 47024db0d9228a22e32e7649dc3805ec14404ade2f7e2e1bc1f3f778ed1a8a8b
+F src/wiki.c 6431aad7c02291a8b865612cca5890f6862adddd75cfbb5b41ff118208d95d35
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -827,7 +828,7 @@ F www/caps/index.md 91e865df2c0e4b6b2cf6314a85229c12e62350706920ecddbbbb93a3a89e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki dd837e704bfdbbc1dc654f511db7241f52b6d837c69a75cf371946f1ca30f9e9
+F www/changes.wiki 0e51bc4a4765c190e3c9926f785a1810971777401e84e0f0dd7627b40d1d7d20
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -898,7 +899,7 @@ F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c21
 F www/index.wiki 1a77f0c7f4bb47dc0ae7f0870b85f7668636ebdd8f5553e2b8abb2a1c5062c02
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
-F www/javascript.md 9dd43581054e6de6fa75046e3f69a87c4dffa6f79a144bc18ff9bc77548b1dc0
+F www/javascript.md 829b7fa3a1124100969ba0ec37e75d297d5635f0e4e0c9e55f1c477e76afe508
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md 129abbad580060a822a42adb63ff0acf0ef0ed96af2583187f6c6228459509a2
 F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
@@ -990,7 +991,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc850c9b3b2d7e9e49413cb1a3759ad73faec86db552e4297809d8dd927abca6
-R c88f024e90f34fe3eac519a4b5d3a2b3
-U drh
-Z 160c6e6b424fa41039899a6e1b192ae1
+P d115594b2faaded7c29f4be79b5558ff2592bbd4c6135d620b7959244804030f
+R 868b49e932327fb99e9b004e7dcd0d43
+T *branch * wcontent-subsets
+T *sym-wcontent-subsets *
+T -sym-trunk *
+U george
+Z 6060e374fe850298bc5611b50883de3d

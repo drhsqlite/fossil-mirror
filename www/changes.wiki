@@ -1,5 +1,14 @@
 <title>Change Log</title>
 
+<a name='v2_16'></a>
+<h2>Changes for Version 2.16 (pending)</h2>
+  *  [/wcontent|Listing] of the available wiki pages
+     [/timeline?r=wcontent-subsets|gained] the ability to
+     [./javascript.md#wcontent|interactively] adjust a subset of
+     wiki pages that are shown; this is based on the
+     classification of wiki page names according to the
+     [/help?cmd=wiki-classes|configurable] glob patterns.
+
 <a name='v2_15'></a>
 <h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)</h2>
   *  <b>Patch 2.15.1:</b> Fix a data exfiltration bug in the server.  <b>Upgrading to

@@ -23,6 +23,24 @@
 #include <ctype.h>
 #include "wiki.h"
 
+#if INTERFACE
+
+/*
+** WikiClass struct holds information for matching a wiki page name.
+** It is constructed by load_wiki_classes() function and represents a
+** single well-formed line obtained from the 'wiki-classes' setting.
+*/
+struct WikiClass {
+  const char * zPattern; /* pattern to match against                    */
+  int   isCaseIns;       /* syntax flag: 0 for GLOB, 1 for LIKE         */
+  short isAltPat;        /* indicates an additional pattern for a class */
+
+  const char * zVisblty; /* visibility flag, one of: "s" "h" "d" "x"    */
+  const char * zLabel;   /* user-visible class name, same in HTML attrs */
+  const char * zParam;   /* checkbox attr, like in <input name="..." /> */
+};
+#endif
+
 /*
 ** Return true if the input string is a well-formed wiki page name.
 **
@@ -440,6 +458,122 @@ const char * wiki_page_type_name(const char *zPageName){
     case WIKITYPE_NORMAL:
     default: return "normal";
   }
+}
+
+/*
+** load_wiki_classes() loads and parses the value of the 'wiki-classes'
+** setting. Retrurns either NULL or a dynamically allocated array of
+** WikiClasses (thus fossil_free() for the returned value is advised).
+*/
+WikiClass* load_wiki_classes(
+  int *nWC,  /* number of well-formed elements in the returned array    */
+  Blob *wcs  /* holds a buffer for strings in the returned WikiClass'es */
+){
+
+  static const char *zPN[] = { /* no malloc() for the common cases */
+     "wc0", "wc1", "wc2", "wc3", "wc4", "wc5", "wc6", "wc7",
+     "wc8", "wc9","wc10","wc11","wc12","wc13","wc14","wc15",
+    "wc16","wc17","wc18","wc19","wc20","wc21","wc22","wc23"
+  };
+  WikiClass* aWC = 0;
+  int n = 0;
+  char *zWCS = db_get("wiki-classes",0);
+  if( zWCS && strlen(zWCS) >= 5 ){
+    Blob line  = empty_blob;
+    int nAlloc = 0;
+    blob_set_dynamic(wcs,zWCS);
+    while( blob_line(wcs,&line) > 0 ){
+      Blob vis = empty_blob;
+      Blob lbl = empty_blob;
+      Blob pat = empty_blob;
+      WikiClass * wc;
+      const char *z;
+      int cins = 0;
+      char v;
+      if( blob_token(&line,&vis) != 1 ){
+        continue;
+      }
+      v = vis.aData[0];
+      switch( v ){
+        case 'D':
+        case 'H':
+        case 'S':
+        case 'X':
+          cins = 1;
+          vis.aData[0] = (char)tolower(v);
+        case 'd':
+        case 'h':
+        case 's':
+        case 'x':
+          break;
+        default:
+          v = 0;
+      }
+      if( v == 0 ) continue;
+      if( blob_token(&line,&lbl) <= 0 ){
+        continue;
+      }
+      blob_tail(&line,&pat);
+      /* blob_to_lf_only(&pre); <-- this is redundant, isn't it ? */
+      blob_trim(&pat);
+      z = blob_terminate(&pat);
+      while(fossil_isspace(z[0])) z++;
+      if( z[0] == 0 ){
+        continue;
+      }
+      if( n >= nAlloc ){
+        nAlloc += count(zPN);
+        aWC = (WikiClass*)( aWC ?
+             fossil_realloc(aWC,sizeof(WikiClass)*nAlloc)  :
+             fossil_malloc_zero(sizeof(WikiClass)*nAlloc) );
+      }
+      wc = aWC + n;
+      wc->zPattern  = z;
+      wc->isCaseIns = cins;
+      wc->zVisblty  = blob_terminate(&vis);
+      wc->zLabel    = blob_terminate(&lbl);
+      wc->zParam    = ( n < count(zPN) ? zPN[n] : mprintf("wc%d",n) );
+      if( n > 0 && strcmp( wc->zLabel, wc[-1].zLabel ) == 0 ){
+        if( wc->zVisblty[0] != wc[-1].zVisblty[0] ||
+            strcmp( wc->zPattern, wc[-1].zPattern ) == 0 ){
+          continue;
+        }
+        wc->isAltPat = 1;
+      }else{
+        wc->isAltPat = 0;
+      }
+      n++;
+    }
+  }
+  if( nWC ) *nWC = n;
+  return aWC;
+}
+/*
+** Find and return a WikiClass that matches a name of a wiki page.
+** Returns 0 if "fallback" pattern was not provisioned.
+*/
+const WikiClass* resolve_wiki_class(
+  const char *zName,    /* name of a wiki page that should be classified */
+  const WikiClass *aWC, /* pointer to the array of WikiClass'es          */
+  int nWC               /* number of elements in the above array         */
+){
+  const WikiClass* fallback = 0;
+  if( aWC && zName ){
+    int i;
+    for( i=0; i<nWC; i++ ){
+      const WikiClass* wc = aWC + i;
+      if( wc->zPattern[0] == '*' && wc->zPattern[1] == 0 ){
+        if( !fallback ) fallback = wc;
+      }else if( wc->isCaseIns ){
+        if( sqlite3_strlike( wc->zPattern, zName, 0 ) == 0 )
+          return wc;
+      }else{
+        if( sqlite3_strglob( wc->zPattern, zName ) == 0 )
+          return wc;
+      }
+    }
+  }
+  return fallback;
 }
 
 /*
@@ -1775,6 +1909,9 @@ void wcontent_page(void){
   double rNow;
   int showAll = P("all")!=0;
   int showRid = P("showid")!=0;
+  Blob wcs = empty_blob;
+  int i, nWC = 0;
+  WikiClass* aWC;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1785,8 +1922,16 @@ void wcontent_page(void){
   }else{
     style_submenu_element("All", "%R/wcontent?all=1");
   }
+  aWC = load_wiki_classes(&nWC,&wcs);
+  for( i=0; i<nWC; i++ ){
+    const WikiClass * c = aWC + i;
+    if( c->isAltPat || c->zVisblty[0] == 'x' ) continue;
+    style_submenu_checkbox( c->zParam, c->zLabel,
+      c->zVisblty[0]=='d' ? STYLE_DISABLED : STYLE_NORMAL, c->zVisblty);
+  }
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
   db_prepare(&q, listAllWikiPages/*works-like:""*/);
+  @ <input hidden="hidden" id="page-reload-canary" type="checkbox"/>
   @ <div class="brlist">
   @ <table class='sortable' data-column-types='tKN' data-init-sort='1'>
   @ <thead><tr>
@@ -1807,18 +1952,33 @@ void wcontent_page(void){
     char *zAge;
     int wcnt = db_column_int(&q, 4);
     char *zWDisplayName;
+    const WikiClass * wc = resolve_wiki_class(zWName,aWC,nWC);
+    if( wc && (wc->zVisblty[0] == 'x' || wc->zVisblty[0] == 'd') ){
+      continue;
+    }
 
-    if( sqlite3_strglob("checkin/*", zWName)==0 ){
+    if( sqlite3_strglob("checkin/*", zWName)==0 ){ /* --?--> strncmp() */
       zWDisplayName = mprintf("%.25s...", zWName);
     }else{
-      zWDisplayName = mprintf("%s", zWName);
+      zWDisplayName = mprintf("%s", zWName); /* --?--> fossil_strdup() */
     }
+
     if( wrid==0 ){
       if( !showAll ) continue;
-      @ <tr><td data-sortkey="%h(zSort)">\
+      if(wc){
+        @ <tr class="%h(wc->zLabel)">
+      }else{
+        @ <tr>
+      }
+      @ <td data-sortkey="%h(zSort)">\
       @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWDisplayName)</s></a></td>
     }else{
-      @ <tr><td data-sortkey="%h(zSort)">\
+      if(wc){
+        @ <tr class="%h(wc->zLabel)">
+      }else{
+        @ <tr>
+      }
+      @ <td data-sortkey="%h(zSort)">\
       @ %z(href("%R/wiki?name=%T&p",zWName))%h(zWDisplayName)</a></td>
     }
     zAge = human_readable_age(rNow - rWmtime);
@@ -1833,8 +1993,11 @@ void wcontent_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
+  builtin_request_js("fossil.page.wcontent.js");
   style_table_sorter();
   style_finish_page();
+  if(aWC) fossil_free(aWC);
+  blob_reset(&wcs); /* FIXME: it's an analog of fossil_free(), isn't it? */
 }
 
 /*

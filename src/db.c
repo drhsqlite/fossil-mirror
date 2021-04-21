@@ -4264,6 +4264,46 @@ struct Setting {
 ** Defaults to "start" on windows, "open" on Mac,
 ** and "firefox" on Unix.
 */
+/*
+** SETTING: wiki-classes     width=40 block-text
+** Defines classes for wiki pages that are recognized by the list
+** of available wiki pages (displayed by /wcontent web page).
+**
+** Each line defines a single rule for a class using a triplet:
+** Visibility   Label   Pattern
+**
+** Visibility is one of the following letters:
+**
+**     s  show on load, may be toggled afterwards
+**     h  hide on load, may be toggled afterwards
+**     d  hide permanently, checkbox disabled
+**     x  exclude completely, no control in the submenu
+**
+** Label is a spaces-free name of the class shown in the submenu.
+** This very same string is used as a value for HTML's class=""
+** atributes on the corresponding rows (thus beware of mangling).
+**
+** Pattern is a GLOB pattern against which wiki page names are
+** matched to distinguish a class. Case-sensitive pattern matching
+** is performed if the Visibility is specified by a lowercase letter,
+** otherwise pattern matching is case-insensitive (in which case
+** the syntax of SQLite's LIKE operator applies).
+** Pattern that consists of just a single * is a special case for
+** catching all wiki pages that do not fall into any other class
+** (this fallback does not depend on the case of the Visibility letter).
+**
+** If several consequtive lines share the same Label then this defines
+** a single class that spans accross several patterns. In that case
+** all Visibilities must also be equal (modulus upper/lower cases).
+**
+** Patterns are matched in the order of their appearance in the list.
+** If a repository manages thousands of wiki pages and the /wcontent
+** page is requested very frequently then server's CPU load may become
+** a concern. In that case an administrator is advised to rearrange
+** classes in the list in such a way that more patterns are matched
+** earlier. In all cases it is advised to keep a special "catch-all"
+** class in the bottom of the list.
+*/
 
 /*
 ** Look up a control setting by its name.  Return a pointer to the Setting

@@ -572,6 +572,15 @@ like
 gateway bidirectional should be possible as well, as long as it properly
 uses SQLite transactions.
 
+### <a id="wcontent"></a>Wiki content listing
+
+[Since](/timeline?r=wcontent-subsets) version 2.16 it is possible to
+add [configurable](/help?cmd=wiki-classes) checkbox controls to the
+submenu of [available wiki pages](/wcontent) for the interactive
+adjustment of a subset of wiki pages that are shown.
+Client-side script is used to toggle visibility of the corresponding
+rows according to the state of these checkboxes.
+
 ----
 
 ## <a id="future"></a>Future Plans for JavaScript in Fossil

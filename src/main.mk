@@ -231,6 +231,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \
+  $(SRCDIR)/fossil.page.wcontent.js \
   $(SRCDIR)/fossil.page.whistory.js \
   $(SRCDIR)/fossil.page.wikiedit.js \
   $(SRCDIR)/fossil.pikchr.js \
