@@ -22,6 +22,8 @@ var onChange = function( event ){
   var tr  = cbx.parentElement.parentElement;
   var tag = cbx.parentElement.children[0].innerText;
   var re  = anchor.href.substr(prefix.length);
+  try{re  = decodeURIComponent(re);}
+  catch{console.log("decodeURIComponent() failed for ",re);}
   var selected = ( re != "" ? re.split("|") : [] );
   if( cbx.checked ){
     selected.push(tag);
@@ -38,7 +40,10 @@ var onChange = function( event ){
   else
     anchor.classList.remove('selected');
 
-  anchor.href = prefix + selected.join("|");
+  re = selected.join("|");
+  try{re = encodeURIComponent(re);}
+  catch{console.log("encodeURIComponent() failed for ",re);}
+  anchor.href = prefix + re;
   anchor.innerHTML = "View " + selected.length +
                      ( selected.length > 1 ? " branches" : " branch" );
   // console.log("Link:",anchor.href);
@@ -56,7 +61,10 @@ document.querySelectorAll("div.brlist > table td:first-child > input")
   });
 
 if( stags.length != 0 ){
-  anchor.href =  prefix + stags.join("|");
+  var re = stags.join("|");
+  try{re = encodeURIComponent(re);}
+  catch{console.log("encodeURIComponent() failed for ",re);}
+  anchor.href =  prefix + re;
   if( stags.length >= 1 ) {
     anchor.innerHTML = "View " + stags.length +
                        ( stags.length > 1 ? " branches" : " branch" );
