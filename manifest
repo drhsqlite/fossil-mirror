@@ -1,5 +1,5 @@
-C Apply\s<code>encodeURIComponent()</code>\sfunction\sto\sthe\sgenerated\sregular\sexpression\sbefore\sappending\sit\sto\sthe\shyperlink's\sprefix.\sThis\sshould\shandle\ssome\sawkward\scharacters\swithin\sbranch\snames.\sSpaces\sand\scommas\sare\sa\snoteworthy\sexamples\sof\scharacters\sthat\sstill\sshould\sbe\savoided\swithin\sbranch\snames.
-D 2021-04-22T00:26:34.090
+C Minor\srefactoring:\sunite\stwo\ssimilar\scode\sfragments\susing\snew\sauxiliary\sfunction\s<code>amendAnchor()</code>.
+D 2021-04-22T01:09:14.699
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -488,7 +488,7 @@ F src/fossil.dom.js 7f4148a303a3df07378bedf5d918631ac4056b385e36f0befa01010b59f6
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.info-diff.js 7db676b32eb1324bcd8a9be6591ca6174081ecfe83e5506db678a068c9b2a888
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
-F src/fossil.page.brlist.js 2819133165bd27f161e19762a6030d27005754a8ac63f47d364f0fbef47a1007
+F src/fossil.page.brlist.js 3225baf8a264dad0c7bd966db6a4a7449be624ee67e0d36357ac74a726607018
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
@@ -991,7 +991,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5bcff6cbd2a2b327b2bda571060b181f59a1838e91a678ae5e995d63a2e690f
-R 1c36fd8b0e99cb087c7471f44e130020
+P 6281f24edb982bde829531dc7a51c033c9a5c888b0edb822917e4aedab457cc0
+R 0ebc9fa46c014296e3617ce3eb049dab
 U george
-Z 2295b5a3b89039a8752573e589af67ef
+Z edb114549f7fa8b4e3890306b3e7d97b

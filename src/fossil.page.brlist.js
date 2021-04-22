@@ -17,6 +17,22 @@ if( !anchor || anchor.innerText != "Timeline" ) return;
 var prefix   = anchor.href.toString() + "?ms=regexp&rel&t=";
 anchor.classList.add('timeline-link');
 
+var amendAnchor = function( selected ){
+  if( selected.length == 0 ){
+    anchor.classList.remove('selected');
+    anchor.href = prefix;
+    return;
+  }
+  re = selected.join("|");
+  try{re = encodeURIComponent(re);}
+  catch{console.log("encodeURIComponent() failed for ",re);}
+  anchor.href = prefix + re;
+  anchor.innerHTML = "View " + selected.length +
+                     ( selected.length > 1 ? " branches" : " branch" );
+  anchor.classList.add('selected');
+  // console.log("Link:",anchor.href);
+}
+
 var onChange = function( event ){
   var cbx = event.target;
   var tr  = cbx.parentElement.parentElement;
@@ -35,18 +51,7 @@ var onChange = function( event ){
       if( selected[i] == tag )
         selected.splice(i,1);
   }
-  if( selected.length >= 1 )
-    anchor.classList.add('selected');
-  else
-    anchor.classList.remove('selected');
-
-  re = selected.join("|");
-  try{re = encodeURIComponent(re);}
-  catch{console.log("encodeURIComponent() failed for ",re);}
-  anchor.href = prefix + re;
-  anchor.innerHTML = "View " + selected.length +
-                     ( selected.length > 1 ? " branches" : " branch" );
-  // console.log("Link:",anchor.href);
+  amendAnchor( selected );
 }
 
 var stags = []; /* initially selected tags, not used above */
@@ -59,17 +64,6 @@ document.querySelectorAll("div.brlist > table td:first-child > input")
       cbx.parentElement.parentElement.classList.add('selected');
     }
   });
-
-if( stags.length != 0 ){
-  var re = stags.join("|");
-  try{re = encodeURIComponent(re);}
-  catch{console.log("encodeURIComponent() failed for ",re);}
-  anchor.href =  prefix + re;
-  if( stags.length >= 1 ) {
-    anchor.innerHTML = "View " + stags.length +
-                       ( stags.length > 1 ? " branches" : " branch" );
-    anchor.classList.add('selected');
-  }
-}
+amendAnchor( stags );
 
 }); // window.addEventListener( 'load' ...
