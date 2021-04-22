@@ -1,5 +1,13 @@
 <title>Change Log</title>
 
+<a name='v2_16'></a>
+<h2>Changes for Version 2.16 (pending)</h2>
+  *  [/brlist|List of branches] gained
+     [/timeline?r=brlist-timeline|the facility] to select several
+     branches and [./javascript.md#brlist|point a user] to the
+     <tt>/timeline</tt> view that shows just these selected branches
+     and the related check-ins.
+
 <a name='v2_15'></a>
 <h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)</h2>
   *  <b>Patch 2.15.1:</b> Fix a data exfiltration bug in the server.  <b>Upgrading to

@@ -267,3 +267,8 @@ textarea[name="w"], textarea[name="r"], textarea[name="css"], textarea[name="hea
   height: 4px;
   background: #000;
 }
+
+body.branch .submenu > a.timeline-link {
+  color: black;
+}
+

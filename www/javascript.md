@@ -572,6 +572,19 @@ like
 gateway bidirectional should be possible as well, as long as it properly
 uses SQLite transactions.
 
+### <a id="brlist"></a>List of branches
+
+Since Fossil 2.16 [`/brlist`](/brlist) page uses JavaScript to enable
+selection of several branches for further study via `/timeline`.
+Client-side script interactively responds to checkboxes' events
+and constructs a special hyperlink in the submenu.
+Clicking this hyperlink loads a `/timeline` page that shows
+only these selected branches (and the related check-ins).
+
+_Potential Workaround:_ A user can manually construct an appropriate
+regular expession and put it into the "Tag Filter" entry of the
+`/timeline` page (in its advanced mode).
+
 ----
 
 ## <a id="future"></a>Future Plans for JavaScript in Fossil
