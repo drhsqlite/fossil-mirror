@@ -1,5 +1,5 @@
-C Merge\sfrom\s'<tt>brlist-timeline</tt>'\swhich\senables\seasy\sselection\sof\sseveral\sbranches\son\sthe\s[/brlist]\spage.\sA\sspecial\shyperlink\sin\sthe\ssubmenu\sof\s[/brlist]\spage\sinteractively\stracks\swhich\sbranches\sare\schecked\sand\spoints\sto\sthe\s<tt>/timeline</tt>\sview\sof\sjust\sthese\sselected\sbranches.
-D 2021-04-22T01:40:52.885
+C Automatically\sadd\s"glob=<str>"\sto\sthe\squery\sstring\sof\sthe\s/vdiff\spage\swhen\nlooking\sat\ssubdirectory\shistory.
+D 2021-04-23T20:03:16.513
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -504,7 +504,7 @@ F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c 9da0f3859017b29ed9bc51c72185656ec8a77b0dc53f2569828ae6f4f8a5a772
-F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
+F src/graph.js 52ede3904879d317e27f2b3ddf571dd07bfa7e3d4a1cc461c3bf676451698d98
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -991,7 +991,10 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d115594b2faaded7c29f4be79b5558ff2592bbd4c6135d620b7959244804030f f2348f2740949c951cf087f5fa7553fbf87a8aab5cb69efd21435b805cc3437d
-R da7bf3de8da83f788cd3088f5a48e6e5
-U george
-Z ca912e6ae5517bb73bdc3c0f7cb82744
+P 5df47469a174421e545708e73ff41eaf2536a04c3aac52a7218eb538d1c7d425
+R a3d9fe3da3e5aa42825c1795348d04c9
+T *branch * vdiff-context-glob
+T *sym-vdiff-context-glob *
+T -sym-trunk *
+U mgagnon
+Z 35cc379494b10fcf80e678fe79574869
