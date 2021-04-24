@@ -1,5 +1,5 @@
-C Resolved\swhatis\scommand's\stags\sreporting\sto\sleave\sout\scancelled\stags,\sas\sreported\sin\s[forum:/forumpost/c0be2ea60a\s|\sforum\spost\sc0be2ea60a].
-D 2021-04-24T00:03:06.038
+C More\swork\son\smerge\swith\srenames.\s\sAdded\sa\stest\scase\sfor\sthe\schanges\nin\scheck-in\s[cb4f38ee6733dccc].\s\sFix\stest\s6\sin\smerge_renames.test.
+D 2021-04-24T00:54:11.445
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -551,7 +551,7 @@ F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c a598ef1fb151dded43ab5d4944d441008016a4d8137a0b2aa6969db28cd4cd6a
+F src/merge.c 9da92da6f27e07b34b267db4d0e2cb718ea6cb0fe1c196c0389a9349933f9806
 F src/merge3.c 748bc1e38f57b42a8521bc3ec0c077cef037b44c010aeb0346ac22f1574cb3cb
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
@@ -684,6 +684,7 @@ F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
 F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
+F test/merge_renames_2.test f734dda9962b9be916e9c65624ac474be812f27693c318de72a615df94db78d7
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
 F test/release-checklist.wiki 8519aade5654135a9f1b2d3bea863c979a69d1baa0c85c166bcd5319b9ed886f
@@ -991,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5df47469a174421e545708e73ff41eaf2536a04c3aac52a7218eb538d1c7d425
-R 2f2581bee714ca91211fcbfafd691fd0
-U stephan
-Z de88a2819d3294a3b44a4e4381586266
+P cf6bb0781f8049a3ee443c2d6fb8816ee39ee14918a9f00fdde9ce78d36739b3
+R e85b381bc530b51b9ba728df809d3676
+U drh
+Z 6a3052a5b667abe9bcf355c64b77eb9e
