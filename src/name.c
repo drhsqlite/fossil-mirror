@@ -773,6 +773,7 @@ void whatis_rid(int rid, int verboseFlag){
     "SELECT substr(tagname,5)"
     "  FROM tag JOIN tagxref ON tag.tagid=tagxref.tagid"
     " WHERE tagxref.rid=%d"
+    "   AND tagxref.tagtype<>0"
     "   AND tagname GLOB 'sym-*'"
     " ORDER BY 1",
     rid

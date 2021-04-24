@@ -1,5 +1,5 @@
-C Merge\sfrom\s'<tt>brlist-timeline</tt>'\swhich\senables\seasy\sselection\sof\sseveral\sbranches\son\sthe\s[/brlist]\spage.\sA\sspecial\shyperlink\sin\sthe\ssubmenu\sof\s[/brlist]\spage\sinteractively\stracks\swhich\sbranches\sare\schecked\sand\spoints\sto\sthe\s<tt>/timeline</tt>\sview\sof\sjust\sthese\sselected\sbranches.
-D 2021-04-22T01:40:52.885
+C Resolved\swhatis\scommand's\stags\sreporting\sto\sleave\sout\scancelled\stags,\sas\sreported\sin\s[forum:/forumpost/c0be2ea60a\s|\sforum\spost\sc0be2ea60a].
+D 2021-04-24T00:03:06.038
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -558,7 +558,7 @@ F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf
 F src/mkindex.c 971441257ae3452150daa6f70c08db56e2d18cd1073472cf9d3e92b8b7d18d62
 F src/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d2691
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
-F src/name.c 5737d4a400fb7b9601f563891ce82477dba2c85ace0b744e7cf6236642cc6981
+F src/name.c d31b8c6e0cd491c929bcbff0a29b4104ccc5ea921b2a9f033750d1d3dad57aeb
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
 F src/pikchr.c fb13a52cd17532aed44f69365b72d11f6ce865c0b69cb62da8f89c55184b780c
@@ -991,7 +991,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d115594b2faaded7c29f4be79b5558ff2592bbd4c6135d620b7959244804030f f2348f2740949c951cf087f5fa7553fbf87a8aab5cb69efd21435b805cc3437d
-R da7bf3de8da83f788cd3088f5a48e6e5
-U george
-Z ca912e6ae5517bb73bdc3c0f7cb82744
+P 5df47469a174421e545708e73ff41eaf2536a04c3aac52a7218eb538d1c7d425
+R 2f2581bee714ca91211fcbfafd691fd0
+U stephan
+Z de88a2819d3294a3b44a4e4381586266
