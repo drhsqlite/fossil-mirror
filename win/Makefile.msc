@@ -579,9 +579,11 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\fossil.fetch.js" \
         "$(SRCDIR)\fossil.info-diff.js" \
         "$(SRCDIR)\fossil.numbered-lines.js" \
+        "$(SRCDIR)\fossil.page.brlist.js" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
         "$(SRCDIR)\fossil.page.forumpost.js" \
         "$(SRCDIR)\fossil.page.pikchrshow.js" \
+        "$(SRCDIR)\fossil.page.whistory.js" \
         "$(SRCDIR)\fossil.page.wikiedit.js" \
         "$(SRCDIR)\fossil.pikchr.js" \
         "$(SRCDIR)\fossil.popupwidget.js" \
@@ -1183,9 +1185,11 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.fetch.js" >> $@
 	echo "$(SRCDIR)\fossil.info-diff.js" >> $@
 	echo "$(SRCDIR)\fossil.numbered-lines.js" >> $@
+	echo "$(SRCDIR)\fossil.page.brlist.js" >> $@
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
 	echo "$(SRCDIR)\fossil.page.forumpost.js" >> $@
 	echo "$(SRCDIR)\fossil.page.pikchrshow.js" >> $@
+	echo "$(SRCDIR)\fossil.page.whistory.js" >> $@
 	echo "$(SRCDIR)\fossil.page.wikiedit.js" >> $@
 	echo "$(SRCDIR)\fossil.pikchr.js" >> $@
 	echo "$(SRCDIR)\fossil.popupwidget.js" >> $@
