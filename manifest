@@ -1,5 +1,5 @@
-C More\swork\son\smerge\swith\srenames.\s\sAdded\sa\stest\scase\sfor\sthe\schanges\nin\scheck-in\s[cb4f38ee6733dccc].\s\sFix\stest\s6\sin\smerge_renames.test.
-D 2021-04-24T00:54:11.445
+C Fix\stest\s13\sin\smerge_renames.test.
+D 2021-04-24T01:02:13.300
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -683,7 +683,7 @@ F test/merge5.test 00a16dbff1c3ffb981b7bb7ede93dcf03e77a42c8fddff1fd632a49119d2d
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test 50b1c16adce0050bc946e3d64b14df9ab82f37e0
 F test/merge_exe.test f888647a3305bf2a4ddd77f947e486ae72fced09
-F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
+F test/merge_renames.test de45f6c4806d859549c5f12ac6ec7c24f2e84891bb5b08d44ba286b52c4e58eb
 F test/merge_renames_2.test f734dda9962b9be916e9c65624ac474be812f27693c318de72a615df94db78d7
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf6bb0781f8049a3ee443c2d6fb8816ee39ee14918a9f00fdde9ce78d36739b3
-R e85b381bc530b51b9ba728df809d3676
+P 33e518b1e2e534e87f1b2f57d7ea1a420bd88f3f2beb6715037b69ac70cb8e9d
+R d08f15f8c9ed06930526fc0edf2c96fa
 U drh
-Z 6a3052a5b667abe9bcf355c64b77eb9e
+Z 269f1e517d4ee418f534656f52312d49
