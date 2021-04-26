@@ -84,18 +84,6 @@ function amendCss(circleNodes,showArrowheads){
   }
   amendCssOnce = 0;
 }
-  
-/* Legacy function to get a single key in the QueryString. */
-function getQueryStringValue (key) {  
-  return decodeURIComponent(
-    window.location.search.replace(
-      new RegExp(
-        "^(?:.*[&\\?]" + encodeURIComponent(key).replace(
-          /[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"
-      ), "$1"
-    )
-  );  
-}  
 
 /* The <span> object that holds the tooltip */
 var tooltipObj = document.createElement("span");
@@ -585,14 +573,14 @@ function TimelineGraph(tx){
         location.href=tx.baseUrl + "/fdiff?v1="+selRow.h+"&v2="+p.h;
       }else{
         var href = tx.baseUrl + "/vdiff?from="+selRow.h+"&to="+p.h;
- 
+        let params = (new URL(document.location)).searchParams;
         /* When called from /timeline page, If chng=str was specified in the
         ** QueryString, specify glob=str on the /vdiff page */
-        var glob = getQueryStringValue("chng");
+        let glob = params.get("chng");
         if( !glob ){
           /* When called from /vdiff page, keep the glob= QueryString if
           ** present. */
-          glob = getQueryStringValue("glob");
+          glob = params.get("glob");
         }
         if( glob ){
           href += "&glob=" + glob;
