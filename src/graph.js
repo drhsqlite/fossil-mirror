@@ -570,9 +570,23 @@ function TimelineGraph(tx){
       canvasDiv.className = canvasDiv.className.replace(" sel", "");
     }else{
       if( tx.fileDiff ){
-        location.href=tx.baseUrl + "/fdiff?v1="+selRow.h+"&v2="+p.h
+        location.href=tx.baseUrl + "/fdiff?v1="+selRow.h+"&v2="+p.h;
       }else{
-        location.href=tx.baseUrl + "/vdiff?from="+selRow.h+"&to="+p.h
+        var href = tx.baseUrl + "/vdiff?from="+selRow.h+"&to="+p.h;
+        let params = (new URL(document.location)).searchParams;
+        /* When called from /timeline page, If chng=str was specified in the
+        ** QueryString, specify glob=str on the /vdiff page */
+        let glob = params.get("chng");
+        if( !glob ){
+          /* When called from /vdiff page, keep the glob= QueryString if
+          ** present. */
+          glob = params.get("glob");
+        }
+        if( glob ){
+          href += "&glob=" + glob;
+        }
+
+        location.href = href;
       }
     }
     e.stopPropagation()

@@ -1,5 +1,5 @@
-C Update\sthe\sMakefiles\sto\sinclude\snew\sJS\sfiles\sadded\sby\ncheck-ins\s[6f5a5643ae3b5d14]\sand\s[6ebf5c7c9f1b1d16].\s\sServer-side\swon't\nwork\son\sbuilds\swithout\sthis\schange.
-D 2021-04-24T17:04:43.869
+C Automatically\sadd\s"glob=<str>"\sto\sthe\squery\sstring\sof\sthe\s/vdiff\spage\swhen\nlooking\sat\ssubdirectory\shistory.
+D 2021-04-26T17:57:25.115
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -504,7 +504,7 @@ F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c 9da0f3859017b29ed9bc51c72185656ec8a77b0dc53f2569828ae6f4f8a5a772
-F src/graph.js c858a74087b2159d1f1b5fa73f54fc20fa5b26deffef01dee6ca721d01701de3
+F src/graph.js 11441e184495d16df28d3aac79830ce388ff3b2de9bf518c69887214ee200434
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ad918d6612e88d375061baa1b57a80ab5ef11c424e01032467fdc9b61ea35904
-R 3dfab0573ac846944d7faa6e08e86e0d
-U drh
-Z 51b16a7288407ff4f73fdb00add5af25
+P ffd0999374d4c3bb057a9494bd47975267360fd760b4deb4f632ca75240814d6 700ae1075bb42ac7c13e1d0f70e007fe6e86787eaa3e4b2dff6b07c1b046e22b
+R efd73d743c3f81f1eacc403ef0cdcf81
+U mgagnon
+Z e29ac5e052378233c185ea158c2acb55
