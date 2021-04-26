@@ -1,5 +1,5 @@
-C Gracefully\sdegrade\sto\sthe\sold\sbehaviour\sif\sa\suser's\sbrowser\sdoes\snot\ssupport\s<code>searchParams()</code>\smethod\sfor\sURLs.
-D 2021-04-26T19:12:16.063
+C Reinforce\sthe\sprevious\sfor\sthe\scase\swhen\saccess\sto\snon-existent\sfield\sresolves\sto\snull\s(instead\sof\sundefined).
+D 2021-04-26T19:26:30.427
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -504,7 +504,7 @@ F src/fusefs.c 5b522be6265507fb589a3d61ad8e061dfac39d9ced0fcbc03205e4c33d94dc6f
 F src/fuzz.c 866728b1ade5844835b77cace39349d2e8172a95df6efe38ba3a2521d290866e
 F src/glob.c 89eec9cdb260b8cf0b87e36921baad7887abe364dfb61f70cec9dafac0138f30
 F src/graph.c 9da0f3859017b29ed9bc51c72185656ec8a77b0dc53f2569828ae6f4f8a5a772
-F src/graph.js 158d552365440af8f31d2754ecea8a4daea0760f9443ead6ac7dd8c8814d0a4b
+F src/graph.js 64969f41d5da8334630a7ddb81385b6fc6c3a9c81b58fc02376caf2137d38348
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hbmenu.js dea53f33aadc00f145d45787c800310eec95e287b014d44f7ccbd9f9bad739df
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 700ae1075bb42ac7c13e1d0f70e007fe6e86787eaa3e4b2dff6b07c1b046e22b
-R de28c5cc7d99d34db69a415c3ecc5a0a
+P 9ec88b5771186fdffe3a57972d62d9db7bba1c3d4001c03d8cfb0f59654fb675
+R 9660adb599e01c1cb524e8e66db701fc
 U george
-Z 8d7303ca2b655175c5875abbeee544ff
+Z 1992d8e10b3d2d3eec1a022bdfae8c80

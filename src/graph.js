@@ -574,7 +574,7 @@ function TimelineGraph(tx){
       }else{
         var href = tx.baseUrl + "/vdiff?from="+selRow.h+"&to="+p.h;
         let params = (new URL(document.location)).searchParams;
-        if(typeof params === "object"){
+        if(params && typeof params === "object"){
           /* When called from /timeline page, If chng=str was specified in the
           ** QueryString, specify glob=str on the /vdiff page */
           let glob = params.get("chng");
