@@ -14,7 +14,7 @@ window.addEventListener( 'load', function() {
 
 var anchor = document.querySelector("div.submenu > a:first-of-type" );
 if( !anchor || anchor.innerText != "Timeline" ) return;
-var prefix   = anchor.href.toString() + "?ms=regexp&rel&t=";
+var prefix   = anchor.href.toString() + "?ms=brlist&t=";
 anchor.classList.add('timeline-link');
 
 var amendAnchor = function( selected ){
@@ -23,7 +23,7 @@ var amendAnchor = function( selected ){
     anchor.href = prefix;
     return;
   }
-  re = selected.join("|");
+  re = selected.join(",");
   try{re = encodeURIComponent(re);}
   catch{console.log("encodeURIComponent() failed for ",re);}
   anchor.href = prefix + re;
@@ -40,7 +40,7 @@ var onChange = function( event ){
   var re  = anchor.href.substr(prefix.length);
   try{re  = decodeURIComponent(re);}
   catch{console.log("decodeURIComponent() failed for ",re);}
-  var selected = ( re != "" ? re.split("|") : [] );
+  var selected = ( re != "" ? re.split(",") : [] );
   if( cbx.checked ){
     selected.push(tag);
     tr.classList.add('selected');

@@ -1277,7 +1277,9 @@ typedef enum {
   MS_EXACT,   /* Matches a single tag by exact string comparison. */
   MS_GLOB,    /* Matches tags against a list of GLOB patterns. */
   MS_LIKE,    /* Matches tags against a list of LIKE patterns. */
-  MS_REGEXP   /* Matches tags against a list of regular expressions. */
+  MS_REGEXP,  /* Matches tags against a list of regular expressions. */
+  MS_BRLIST,  /* Same as REGEXP, except the regular expression is a list
+              ** of branch names */
 } MatchStyle;
 
 /*
@@ -1312,7 +1314,9 @@ static const char *tagQuote(
 ** Construct the tag match SQL expression.
 **
 ** This function is adapted from glob_expr() to support the MS_EXACT, MS_GLOB,
-** MS_LIKE, and MS_REGEXP match styles.  For MS_EXACT, the returned expression
+** MS_LIKE, MS_REGEXP, and MS_BRLIST match styles.
+**
+** For MS_EXACT, the returned expression
 ** checks for integer match against the tag ID which is looked up directly by
 ** this function.  For the other modes, the returned SQL expression performs
 ** string comparisons against the tag names, so it is necessary to join against
@@ -1374,13 +1378,20 @@ static const char *tagMatchExpression(
     zPrefix = "tagname LIKE 'sym-";
     zSuffix = "'";
     zIntro = "SQL LIKE pattern ";
-  }else/* if( matchStyle==MS_REGEXP )*/{
+  }else if( matchStyle==MS_REGEXP ){
     zStart = "(tagname REGEXP '^sym-(";
     zDelimiter = "|";
     zEnd = ")$')";
     zPrefix = "";
     zSuffix = "";
     zIntro = "regular expression ";
+  }else/* if( matchStyle==MS_BRLIST )*/{
+    zStart = "tagname IN ('sym-";
+    zDelimiter = "','sym-";
+    zEnd = "')";
+    zPrefix = "";
+    zSuffix = "";
+    zIntro = "any of ";
   }
 
   /* Convert the list of matches into an SQL expression and text description. */
@@ -1794,6 +1805,8 @@ void page_timeline(void){
       matchStyle = MS_LIKE;
     }else if( fossil_stricmp(zMatchStyle, "regexp")==0 ){
       matchStyle = MS_REGEXP;
+    }else if( fossil_stricmp(zMatchStyle, "brlist")==0 ){
+      matchStyle = MS_BRLIST;
     }else{
       /* For exact maching, inhibit links to the selected tag. */
       zThisTag = zTagName;

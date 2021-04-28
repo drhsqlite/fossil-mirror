@@ -1,5 +1,5 @@
-C Gracefully\sdegrade\sto\sthe\sold\sbehaviour\sif\sa\suser's\sbrowser\sdoes\snot\ssupport\s<code>URLSearchParams</code>.
-D 2021-04-26T19:45:10.997
+C Add\sthe\snew\s"ms=brlist"\sversion\sof\sthe\s"ms"\squery\sparameter\son\s/timeline.\nUse\sit\swith\sthe\smulti-branch\sselector\son\sthe\s/brlist\spage.
+D 2021-04-28T17:08:03.092
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -488,7 +488,7 @@ F src/fossil.dom.js 7f4148a303a3df07378bedf5d918631ac4056b385e36f0befa01010b59f6
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.info-diff.js 7db676b32eb1324bcd8a9be6591ca6174081ecfe83e5506db678a068c9b2a888
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
-F src/fossil.page.brlist.js 3225baf8a264dad0c7bd966db6a4a7449be624ee67e0d36357ac74a726607018
+F src/fossil.page.brlist.js 1d54291228bf78a0f5c6a9add3638d94168f488d54d17e3761b575209e3deb9b
 F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db50346c5da2ea7a894
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
@@ -628,7 +628,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
 F src/th_main.c a304904b257c7a9514961725ebb76e9822ffdd4ec5006f84fa14cfbc43c408e8
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 08a8810e665b578f0d5a4251053dca949c870934ec7e73b33e3ee425ad399839
+F src/timeline.c 433fdfda3898f0f2c3fdabe3032a63511627e0df6aa74f0d02350006afc60fbc
 F src/tkt.c 589d4f59658157b82a526681852fd0b666392c2a0cbf2f858bc636fee27155bd
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -992,8 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d96982fba6989ab2c59e87738170dab86df69b99eb3f04f964cb4415512deab1 8a7620e4a305f02822ab439b6d20ed9db6453e44d49ad12d81b26bc97e2892b3
-R 9660adb599e01c1cb524e8e66db701fc
-T +closed 8a7620e4a305f02822ab439b6d20ed9db6453e44d49ad12d81b26bc97e2892b3
-U george
-Z 229db9c7ca926e56483ea88812a9485d
+P 262c0fb675bd63308955344349e616405b055517e0a16ea0939c8f6aa54c87a9
+R 1f4e37d9884d1ce3b596f50c9be75e06
+U drh
+Z d3df3892072f5f66a60cbb4de8af3650
