@@ -1,5 +1,5 @@
-C Add\sthe\snew\s"ms=brlist"\sversion\sof\sthe\s"ms"\squery\sparameter\son\s/timeline.\nUse\sit\swith\sthe\smulti-branch\sselector\son\sthe\s/brlist\spage.
-D 2021-04-28T17:08:03.092
+C Add\sthe\s"brlist"\smatch-style\soption\sto\sthe\stimeline\ssubmenu.
+D 2021-04-28T18:09:35.168
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -628,7 +628,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
 F src/th_main.c a304904b257c7a9514961725ebb76e9822ffdd4ec5006f84fa14cfbc43c408e8
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 433fdfda3898f0f2c3fdabe3032a63511627e0df6aa74f0d02350006afc60fbc
+F src/timeline.c 8f4bfb700a75e067f617535e02f55d18a55ae7db9a0c1b040e8d0d66d9612952
 F src/tkt.c 589d4f59658157b82a526681852fd0b666392c2a0cbf2f858bc636fee27155bd
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 262c0fb675bd63308955344349e616405b055517e0a16ea0939c8f6aa54c87a9
-R 1f4e37d9884d1ce3b596f50c9be75e06
+P 2e9520a2b7cddc67e0dd49cece448e01fd480d80781bb8f71298dceaf67998d4
+R f3f64c819e53d17058e1e4621cc74ca4
 U drh
-Z d3df3892072f5f66a60cbb4de8af3650
+Z ebc5f1331116862cb53cbc8e04ca5a43

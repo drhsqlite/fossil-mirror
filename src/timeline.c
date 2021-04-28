@@ -2572,7 +2572,8 @@ void page_timeline(void){
     }
     if( g.perm.Hyperlink ){
       static const char *const azMatchStyles[] = {
-        "exact", "Exact", "glob", "Glob", "like", "Like", "regexp", "Regexp"
+        "exact", "Exact", "glob", "Glob", "like", "Like", "regexp", "Regexp",
+        "brlist", "List"
       };
       double rDate;
       zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
