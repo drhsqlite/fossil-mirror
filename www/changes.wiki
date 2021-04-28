@@ -2,11 +2,16 @@
 
 <a name='v2_16'></a>
 <h2>Changes for Version 2.16 (pending)</h2>
-  *  [/brlist|List of branches] gained
-     [/timeline?r=brlist-timeline|the facility] to select several
-     branches and [./javascript.md#brlist|point a user] to the
-     <tt>/timeline</tt> view that shows just these selected branches
-     and the related check-ins.
+  *  The [/brlist|/brlist web page] allows the user to
+     select multiple branches to be displayed together in a single
+     timeline.
+  *  The [./forum.wiki|Forum] provides a hyperlink on the author of each
+     post that goes to a timeline of recent posts by that same author.
+  *  The [/help?cmd=merge|fossil merge] command now does a better job merging
+     branches where files have been renamed between the current branch and the
+     branch being merged.
+  *  The [/help?cmd=open|fossil open] command allows the repository file
+     to be inside the working directory without requiring the --force flag.
 
 <a name='v2_15'></a>
 <h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)</h2>
