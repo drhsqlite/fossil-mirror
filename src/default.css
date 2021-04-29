@@ -1775,9 +1775,9 @@ input[type="checkbox"].diff-toggle {
   float: right;
 }
 
-body.branch .brlist > table > tbody > tr:hover > td:first-child,
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
 body.branch .brlist > table > tbody > tr.selected {
-  font-weight: bold;
+  background-color: #ffc;
 }
 body.branch .brlist > table > tbody td:first-child > input {
   cursor: pointer;

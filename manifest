@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2021-04-28T20:23:19.211
+C /brlist:\suse\sbackground\scolor\schange,\sinstead\sof\sbold,\sfor\sselected\sbranches\sto\savoid\slayout\schanges\sfrom\sthe\stext\schanging\ssize,\sas\sdiscussed\sin\sand\saround\s[forum:/forumpost/606cbfdff6\s|\sforum\spost\s606cbfdff6].\sBackground\scolor\sis\sthe\ssame\sas\stimelineSelected\sfor\sall\sskins\sexcept\sxekri,\swhich\sneeds\sa\sbit\smore\scontrast.
+D 2021-04-29T12:52:16.280
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -327,7 +327,7 @@ F setup/fossil.iss b3a33fb693933cd55cb36761ef3f6634a3daab6b8697a9cd316e64de11dec
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md 6b83527a4bc17ad7f855dbdfb7d5d1e456fb77e9b0c8f9b63bdf2c4faa74003c
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 32a6078148034bb11e552e4a1e82bc1ecd8bc1a3a259045986c6eb4aef0cdbfd
+F skins/ardoise/css.txt aa778242977cce5947079a0588ba73b754cb77b44cdeee5fe78513e63e720603
 F skins/ardoise/details.txt 576a91d4d8455fed2d25b3e06b020c000c37a61ac1d166f93697fb6e9d5a1e22
 F skins/ardoise/footer.txt 3158faf0fe96034417cac8a4e210aaa2d79094cf108db8a7546c6be4ba037e22
 F skins/ardoise/header.txt f4a64681a32934fccc1efed0f50880b2fd87a2b59b934b7b66749eae82c8d346
@@ -385,7 +385,7 @@ F skins/bootstrap/css.txt 278f063df8c90760e075d70c990e0211a649bf7b07ded38b22f000
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 7e02dfdcc09bf622744011d460d2422b8cead4687b66f753519e9a75b93db8ca
 F skins/bootstrap/header.txt 8c52feacdb1818ff1fd2325a3a620b38b66a3ac57fc49cc4f92305d2d5ce95c9
-F skins/darkmode/css.txt ba2569517b1068af0380739825bb226bc390f8800d4672b032e1035d772f96f3
+F skins/darkmode/css.txt f95a2238d9bbfe7844c8d6afe2377fe8cd529ba4c9a22aaceac29f0fb4d8595f
 F skins/darkmode/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/darkmode/footer.txt 1474136de1287dc76a0d82110d778c74a95410c75d8b59c273f8b30d34e35db3
 F skins/darkmode/header.txt 7d2d3ed4b1673ade1392bfe4d0daab722bbb135b23ab82789ad30f913dab6c72
@@ -395,7 +395,7 @@ F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt e36d5b05dcb649dd908897a0d9578f11e9e78f3b7afce194c50a6245d53f410b
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt cffe48d9e9b0916ebbc3b1abcb768a4a98a00c6f878f6f42f94cfe07f59449bf
+F skins/eagle/css.txt 406a9160de800d9d3c33ae09247c38b7b029efb835ca6e319ff22f37a1d1ec3c
 F skins/eagle/details.txt a8c0f5e2241004045378a5f0ef484c58c0f66436e766000f8c62db2b74c5befe
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 60f7552c0d6932f7c217767d8de8a80b71925e63c059b1a5510f4718bec69196
@@ -412,7 +412,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 49296318ce614d9d97b6299e9b7a620f0f4ffb4d3e7536d53c0ba2f9e75587c6
+F skins/xekri/css.txt ce0c6e803e33ef441babc317e9ed1fec6d3dfe0d6e9919537cfbaa841a362fa2
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 2785b857a2354cb8076ea941a059da76c573a41fe8822b61402eede868dab9a1
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c c17854b3003ae56244235b3dea7e4976177fd48c6736064d3d3a3b71698de689
-F src/default.css 43b71d30066d277c49b8bc737facc01faa9bea98ea2a95705dccedc69014d806
+F src/default.css 198b71b37e02a22d2035a9dd2e1919e6175b27d1fb4b99c82cfb0c7067998664
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3d7a78fe384522e5a67f07e1a1dbcc043f5b7961a9720748f918cf0d94311af
-R 9c29cedfe09c0f6c2c6ef5fd8b714a91
-U drh
-Z c8eb866f686b33f1e37a2e23571e3c1d
+P 64edf41afe3e83fa15001cee0045016997cc0b1d02cb1963d8d49882236cb378
+R bb575605b69ce12aa34f5fc467805802
+U stephan
+Z 747ba818faccf94f4d359ecca3ad46ff
