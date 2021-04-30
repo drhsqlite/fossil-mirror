@@ -1,5 +1,5 @@
-C /brlist:\suse\sbackground\scolor\schange,\sinstead\sof\sbold,\sfor\sselected\sbranches\sto\savoid\slayout\schanges\sfrom\sthe\stext\schanging\ssize,\sas\sdiscussed\sin\sand\saround\s[forum:/forumpost/606cbfdff6\s|\sforum\spost\s606cbfdff6].\sBackground\scolor\sis\sthe\ssame\sas\stimelineSelected\sfor\sall\sskins\sexcept\sxekri,\swhich\sneeds\sa\sbit\smore\scontrast.
-D 2021-04-29T12:52:16.280
+C de-minify\sthe\scustom\sCSS\sfor\sthe\sbootstrap\sskin,\sso\sthat\sit\sis\sreadable\nand\seditable.
+D 2021-04-30T15:13:57.456
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -381,7 +381,7 @@ F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f
 F skins/blitz/header.txt bce457abc13c1b82c773d8966de448387c8f2211f49d37aafdade4e92374d1c5
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt f917613ec7b4db1892f86346299a9492ddabee264d24401d7fdd60446d9a13db
-F skins/bootstrap/css.txt 278f063df8c90760e075d70c990e0211a649bf7b07ded38b22f000d031dd4b46
+F skins/bootstrap/css.txt a3131d0ef99b914b696d4c5e1cfdf050797d1c59682e26254590416651d830ae
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 7e02dfdcc09bf622744011d460d2422b8cead4687b66f753519e9a75b93db8ca
 F skins/bootstrap/header.txt 8c52feacdb1818ff1fd2325a3a620b38b66a3ac57fc49cc4f92305d2d5ce95c9
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 64edf41afe3e83fa15001cee0045016997cc0b1d02cb1963d8d49882236cb378
-R bb575605b69ce12aa34f5fc467805802
-U stephan
-Z 747ba818faccf94f4d359ecca3ad46ff
+P 9322a0bc2042ccfe0a288af2cc2f2572899ddf05488de4a039e155607c7605db
+R 1e38ece0f978660af4e80a6e3f1b3fe9
+U drh
+Z 8ec91674f4430e41a8e06ea18bb45758
