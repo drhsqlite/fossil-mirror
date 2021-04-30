@@ -1,5 +1,5 @@
-C On\sthe\s/brlist\spage,\stry\sto\sprevent\sflicker\sof\sthe\s"View\sN\sbranches"\slabel\nby\screating\sthe\slabel\susing\sJS\sinstead\sof\sas\spart\sof\sthe\soriginal\sdocument.
-D 2021-04-30T18:07:33.659
+C Fix\ssmall\stypo\sin\scomments\s(no\sfunctional\schanges)
+D 2021-04-30T20:44:35.806
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -475,7 +475,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 8665936fc4d1cba3c2427fbb88ac5874c3462d1d8e9c9b015e40eb889726d835
 F src/extcgi.c 481bd97b1a826d0766a808531ab6855de50dbf956bffee9c69e6f192b2e8a3c6
-F src/file.c 9e8c3a8ebb3c7b5f9b6277326c0784b47cd84c5e48ed295943b685d3fade5ca8
+F src/file.c 4222ac087f820f46694aafcbb28856aed7b45f7f3d8b940379d4b6aa670e5ce5
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
 F src/finfo.c 1e793176e9ee325616ce5bf4c1746df772907cd4211c497de21c47d908d6fd49
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 95a726914208dba22df7889ebbfac1326fe451517e3cc920bdb0efebeac963b6
-R 4ad6b5100dd2fc9e66d465e7b13073f4
-U drh
-Z ee219b5e02097e1e8a681a901bed8446
+P 668f0e71e63c4343c08f53a4626ddba1d9d11b4eff08ba71ba31e3e9637a61e7
+R cff490bbd43b315cdef3679c554cb97e
+U mgagnon
+Z 172a37a85818147c6b64ed0aba3045d3
