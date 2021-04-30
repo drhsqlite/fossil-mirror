@@ -12,10 +12,16 @@
 */
 window.addEventListener( 'load', function() {
 
-var anchor = document.querySelector("div.submenu > a:first-of-type" );
-if( !anchor || anchor.innerText != "Timeline" ) return;
+var submenu = document.querySelector("div.submenu");
+var anchor = document.createElement("A");
+var brlistDataObj = document.getElementById("brlist-data");
+var brlistDataTxt = brlistDataObj.textContent || brlistDataObj.innerText;
+var brlistData = JSON.parse(brlistDataTxt);
+anchor.classList.add("label");
+anchor.classList.add("timeline-link");
+anchor.href = brlistData.timelineUrl;
 var prefix   = anchor.href.toString() + "?ms=brlist&t=";
-anchor.classList.add('timeline-link');
+submenu.insertBefore(anchor,submenu.childNodes[0]);
 
 var amendAnchor = function( selected ){
   if( selected.length == 0 ){
@@ -30,7 +36,6 @@ var amendAnchor = function( selected ){
   anchor.innerHTML = "View " + selected.length +
                      ( selected.length > 1 ? " branches" : " branch" );
   anchor.classList.add('selected');
-  // console.log("Link:",anchor.href);
 }
 
 var onChange = function( event ){

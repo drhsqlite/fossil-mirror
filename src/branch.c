@@ -469,12 +469,13 @@ static void new_brlist_page(void){
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
-  style_submenu_element("Timeline", "%R/timeline");
   login_anonymous_available();
 
   brlist_create_temp_table();
   db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");
   rNow = db_double(0.0, "SELECT julianday('now')");
+  @ <script id="brlist-data" type="application/json">\
+  @ {"timelineUrl":"%R/timeline"}</script>
   @ <div class="brlist">
   @ <table class='sortable' data-column-types='tkNtt' data-init-sort='2'>
   @ <thead><tr>
