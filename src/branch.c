@@ -366,6 +366,8 @@ int branch_is_open(const char *zBrName){
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
 **
+**        The current branch is marked with an asterisk.
+**
 **        If GLOB is given, show only branches matching the pattern.
 **
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
