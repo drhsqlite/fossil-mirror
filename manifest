@@ -1,5 +1,5 @@
-C Tweak\sto\s"fossil\shelp\sbranch"\soutput\sper\s[forum:/forumpost/11b53d2407\s|\sa\sforum\spost].
-D 2021-05-06T10:27:53.651
+C Changed\s/wikiedit\sand\s/wikinew\sdefault\smimetype\sto\smarkdown,\sas\sdiscussed\sin\s[forum:/forumpost/af11465f66\s|\sforum\spost\saf11465f66].
+D 2021-05-08T04:30:56.019
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -644,7 +644,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c cc4ade164c7279d559b09c1c446b4ff52e22ae8081de6388f9b90aa7cecaf162
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 47024db0d9228a22e32e7649dc3805ec14404ade2f7e2e1bc1f3f778ed1a8a8b
+F src/wiki.c a150e736afe9de36315d53c0976bbcd7bb1404fe8a77068027e9c4aab135cbaf
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d4aad592ebef6a57b1ac4d2f96560248715501d73975471def92c2830e1a53c
-R d249bf049142e9fee9006d30c95e974c
-U wyoung
-Z 97f74f566bfc7801ae3e8f000c692d38
+P f50dccc476625b6df228317b23d11de4116869afc12048d6ae3ded1b175cff8d
+R fce23a024cc0c67b66c8c7b3daca7976
+U stephan
+Z 00107a30d2d240943381aecb22072791

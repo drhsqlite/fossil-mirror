@@ -1200,7 +1200,7 @@ void wikiedit_page(void){
        "wikiedit-options flex-container flex-row child-gap-small'>");
     CX("<div class='input-with-label'>"
        "<label>Mime type</label>");
-    mimetype_option_menu(0);
+    mimetype_option_menu("text/x-markdown");
     CX("</div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
@@ -1397,7 +1397,7 @@ void wikinew_page(void){
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
   @ %z(href("%R/markup_help"))Markup style</a>:
-  mimetype_option_menu("text/x-fossil-wiki");
+  mimetype_option_menu("text/x-markdown");
   @ <br /><input type="submit" value="Create" />
   @ </p></form>
   if( zName[0] ){
