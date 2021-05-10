@@ -796,6 +796,11 @@ void login_page(void){
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
       @ for user <b>%h(g.zLogin)</b></p>
     }
+    if( db_table_exists("repository","forumpost") ){
+      @ <hr><p>
+      @ <a href="%R/timeline?ss=v&y=f&vfx&u=%t(g.zLogin)">Forum
+      @ post timeline</a> for user <b>%h(g.zLogin)</b></p>
+    }
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
       @ <hr>

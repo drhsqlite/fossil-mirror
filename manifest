@@ -1,5 +1,5 @@
-C Changed\s/wikiedit\sand\s/wikinew\sdefault\smimetype\sto\smarkdown,\sas\sdiscussed\sin\s[forum:/forumpost/af11465f66\s|\sforum\spost\saf11465f66].
-D 2021-05-08T04:30:56.019
+C On\sthe\s/login\spage,\sadd\sa\slink\sto\sthe\suser's\sforumpost\stimeline,\sper\srequest\sin\s[forum:/forumpost/c268b857d6\s|\sforum\spost\sc268b857d6].
+D 2021-05-10T01:56:58.513
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -537,7 +537,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 4a4898e9e5708e494e7c27110832decf4675b3017e6f7713527bc1994582e8a3
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c d1115a1a07875c4ba21c4f987bb7886b151fb67ba314612edb559b778d083df2
+F src/login.c 581e135fc747d2d2796909faf2940394ac9b6e435e3dc1de26bb2f62099d2c55
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c eaa3f667bf07386b610b59a90adaa30c039d8cf256f451e8ac8ff696ae37dd83
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f50dccc476625b6df228317b23d11de4116869afc12048d6ae3ded1b175cff8d
-R fce23a024cc0c67b66c8c7b3daca7976
+P 4b01359fdb97daaa3900bf0a9ee74ddf39c212c5ad50f4092eae6ef05504f646
+R 2fb44ea590c9660300ec180dcac01101
 U stephan
-Z 00107a30d2d240943381aecb22072791
+Z 8b29163dce9f56ec58623fc002d63d00
