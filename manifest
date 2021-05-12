@@ -1,5 +1,5 @@
-C On\sthe\s/login\spage,\sadd\sa\slink\sto\sthe\suser's\sforumpost\stimeline,\sper\srequest\sin\s[forum:/forumpost/c268b857d6\s|\sforum\spost\sc268b857d6].
-D 2021-05-10T01:56:58.513
+C Change\slog\supdates.
+D 2021-05-12T02:14:48.985
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -829,7 +829,7 @@ F www/caps/index.md 91e865df2c0e4b6b2cf6314a85229c12e62350706920ecddbbbb93a3a89e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 9dc32e7569ed1175ae19ee876a3e37e527efd5635c6f1db648a40d3f1e8bee9d
+F www/changes.wiki 116968241143cffae426213d4fdfbfa32f51d241e2c447ce7ca6a38a0f94212a
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4b01359fdb97daaa3900bf0a9ee74ddf39c212c5ad50f4092eae6ef05504f646
-R 2fb44ea590c9660300ec180dcac01101
+P 2d59385d35e4b7b027b88443407afc516f2f73fe616987c221b5258b0bf7616f
+R 370029d3446e23ad2ce95e86ded3a323
 U stephan
-Z 8b29163dce9f56ec58623fc002d63d00
+Z 24b28871b657bc153fc38a8dc0e97590
