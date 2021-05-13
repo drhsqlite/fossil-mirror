@@ -1,5 +1,5 @@
-C Change\slog\supdates.
-D 2021-05-12T02:14:48.985
+C Refinement\sto\sthe\sURL-to-basename\salgorithm\sused\sto\sconstruct\sa\srepository\nfilename\sfrom\sa\sclone\sURL\sso\sthat\sthe\s"www."\sprefix\sis\snot\somitted\sif\sit\sis\nimmediately\sfollowed\sby\sthe\ssuffix.\n[forum/forumpost/74e111a2ee|forum\spost\s74e111a2ee].
+D 2021-05-13T19:38:51.489
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -637,7 +637,7 @@ F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 28473c31fe9c27eda74836b85a955405ae5504cf720796f169204a8c4958ff20
 F src/update.c d1daa93931016fb64026b8a9674a7292ff1f0887805788017ed32a4a15b08990
-F src/url.c 09059182407bf8881845e5b41383a2813676dd0aafa5fdfb67962ea6c20119b7
+F src/url.c 68ea150d8554de9f48c836553203d2ca189fcd90c619acfe6e0843add2fa1739
 F src/user.c ab5935542e97ad3a9f6e411528e6d060da0a711442a03fa82a604e7c161363bd
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d59385d35e4b7b027b88443407afc516f2f73fe616987c221b5258b0bf7616f
-R 370029d3446e23ad2ce95e86ded3a323
-U stephan
-Z 24b28871b657bc153fc38a8dc0e97590
+P 705d519fff2a49cc7acb4865e8e14c98627449a2b55f792487949fd957e234b0
+R b90f0b149e59103601893126c4255c38
+U drh
+Z ecba92cdbc6b905e9b0d18342aa9aea4
