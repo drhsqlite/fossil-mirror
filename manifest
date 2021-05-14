@@ -1,5 +1,5 @@
-C Refinement\sto\sthe\sURL-to-basename\salgorithm\sused\sto\sconstruct\sa\srepository\nfilename\sfrom\sa\sclone\sURL\sso\sthat\sthe\s"www."\sprefix\sis\snot\somitted\sif\sit\sis\nimmediately\sfollowed\sby\sthe\ssuffix.\n[forum/forumpost/74e111a2ee|forum\spost\s74e111a2ee].
-D 2021-05-13T19:38:51.489
+C When\sdoing\sa\sclone\sthat\sautomatically\sdoes\san\sopen,\srun\sthe\s"fossil\sopen"\ncommand\sas\sa\ssubprocess\s(usingn\sfossil_system())\sto\savoid\sproblems\swith\nmisconfigured\sdatabase\sconnections\sin\sthe\sevent\sthat\sthe\sclone\suses\sthe\n"file:"\sscheme.\s\sSee\s[forum:/forumpost/b1da662b00|forum\spost\sb1da662b00]\nfor\sthe\sbug\sreport.
+D 2021-05-14T18:52:37.803
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -447,7 +447,7 @@ F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c d9eb654dfd8485062867477f366313be78c7fc9074728047014489dd38a583c3
+F src/clone.c 65244086041fdcd92acb1bd0729e90a8cdfe1ede868ca688afa86bc0c251fab7
 F src/codecheck1.c 0ca97e0ad67ee180590b536c5f8cf1e3a7ce6da15e42d9380a8a61b804e4da8f
 F src/color.c 629b0c03239db950ce90a5ed11ddd510ac821d80311177b4642bc2ba435e028d
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 705d519fff2a49cc7acb4865e8e14c98627449a2b55f792487949fd957e234b0
-R b90f0b149e59103601893126c4255c38
+P 380aa578a8ecbc952672b9dad5b4d8a90a09a93be1948c6602d097183d6eb756
+R b80f6ddcb94d931cf5ff9e6e0ccedf62
 U drh
-Z ecba92cdbc6b905e9b0d18342aa9aea4
+Z 0ff68f2dfe97bb2fb1f86f1723286fad
