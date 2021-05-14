@@ -1,5 +1,5 @@
-C When\sdoing\sa\sclone\sthat\sautomatically\sdoes\san\sopen,\srun\sthe\s"fossil\sopen"\ncommand\sas\sa\ssubprocess\s(usingn\sfossil_system())\sto\savoid\sproblems\swith\nmisconfigured\sdatabase\sconnections\sin\sthe\sevent\sthat\sthe\sclone\suses\sthe\n"file:"\sscheme.\s\sSee\s[forum:/forumpost/b1da662b00|forum\spost\sb1da662b00]\nfor\sthe\sbug\sreport.
-D 2021-05-14T18:52:37.803
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.36.0\salpha\sfor\stesting.
+D 2021-05-14T19:38:32.663
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -584,7 +584,7 @@ F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e6
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c a1e041a06978302366ec83775424cab69f3a427aec56d455d9d7a2fdb27fda94
-F src/shell.c 0cb96a4215038ca00b79e8e2aa7c6356cb7b08e14f701899e6e2be545b6a936e
+F src/shell.c 430c673464e2ad53ccd01aae63ea6899ec7fb934ab55133348f292a5682eada7
 F src/shun.c 011890daac7837ded87804ce576cfae317a72f447aaba5eb0e460e066e4465ff
 F src/sitemap.c 7d1d409a80c19429f33660e1d167fc146fce4ecf5da9f3ed692534d7a535cb69
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -610,8 +610,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 6e4fd1d842d1a48d347df6b15e1fe65fef7fab599acd1d13559b3a8ce9cce2df
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c 0d87ee73092ac7baba70cf807c43027e9476675fd0959472eec970f17b2e10ef
-F src/sqlite3.h 0f701c94642b2bcd5de0d453569d8b1c399ebdbcb17b693d744685f6e681324e
+F src/sqlite3.c 148315ffd8ec3ed8d8b9693d264aba0114f3e985d68f2c8e85b0123df56ed826
+F src/sqlite3.h 4866dd1341b7df44f27c19edfc23d6f928253868d9b11a9555645677656ecfdd
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 380aa578a8ecbc952672b9dad5b4d8a90a09a93be1948c6602d097183d6eb756
-R b80f6ddcb94d931cf5ff9e6e0ccedf62
+P ebd604f8c7c57e773a0a7370727b57e56278ec4bae874acb151914461fe5080e
+R d7ed54e8c50218e4521b51e0953bd071
 U drh
-Z 0ff68f2dfe97bb2fb1f86f1723286fad
+Z 587acec97ba81a3aa6db458f4b64189e
