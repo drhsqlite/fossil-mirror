@@ -1,5 +1,5 @@
-C In\sthe\sfossil-v-git.wiki\sdocument,\sremove\sthe\ssection\stitled\n"Accepting\sContributions"\sas\sit\sdoes\snot\sseem\sto\smove\sthe\sargument\sforward\n(as\sfar\sas\sI\scan\ssee)\sbut\sit\shas\sprovoked\sunnecessary\spushback\sfrom\sGit\nenthusiasts.
-D 2021-05-17T14:14:01.274
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.36.0\salpha\sfor\stesting.
+D 2021-05-17T18:00:34.383
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -610,8 +610,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 6e4fd1d842d1a48d347df6b15e1fe65fef7fab599acd1d13559b3a8ce9cce2df
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c 148315ffd8ec3ed8d8b9693d264aba0114f3e985d68f2c8e85b0123df56ed826
-F src/sqlite3.h 4866dd1341b7df44f27c19edfc23d6f928253868d9b11a9555645677656ecfdd
+F src/sqlite3.c ac52c7a605d90b3a2ec011b848d6a35f88a96b585edc504fcc15fdae3aac2675
+F src/sqlite3.h 8d3412bbd1df07705c35c464a9f87fb7bd3e6279ad811a00d0a12034591970da
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c34b644eda0a37a73e192b9234d27b445c66361e19ebfea16ed5f7a02f2059a6
-R a2e5cd8fe1fb9f65af56ef11ba612140
+P b3080a2286d701f5b18779f85d6179358aed8f77d5aae2d861019b8b2d7912e6
+R 345308cc0acfd8b96252a9b09561716b
 U drh
-Z 76aa088e059b80c958f21ed925f5a587
+Z 0e68ddb9ec21cfb9fa7f200af8de21c2
