@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.36.0\salpha\sfor\stesting.
-D 2021-05-14T19:38:32.663
+C Improved\sdisplay\sof\sforum\sand\stechnote\starges\sin\sthe\s/test-backlinks\spage.
+D 2021-05-17T11:40:36.331
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 6a35128d321a01601202c9b4074086286d07c5cee217e5ea5b269cfcd68ca5eb
 F src/attach.c 8ed9173b64b9751609ac2e78d608b7b1c473a072d5b1e1be2b1bc20ad0361796
-F src/backlink.c 2178b2d4a5c918c9b7f13e15a4d86119d32d0a74253d20b9b23530a7cc572487
+F src/backlink.c 5f49dc67c10ec4de17ae9e4aacc2ff4e6a6313387e584ee3f18e5f655a791ab9
 F src/backoffice.c 4db70d65ea7b5851ee27ae2a62dcae293fcb7698bc23e41c9427cdfa65e3600d
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 68d0a44df47ea7facc72d3230729217dbfd3cbb55d8df8db36305ece2966019c
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ebd604f8c7c57e773a0a7370727b57e56278ec4bae874acb151914461fe5080e
-R d7ed54e8c50218e4521b51e0953bd071
+P 8b44988df1ce1ead7f96d65a7bc5315c2e74ef69c4c7e814ed6c6549214d0c1a
+R 92a8d784c6628e6dd50f81cf2e2028f4
 U drh
-Z 587acec97ba81a3aa6db458f4b64189e
+Z 83e34f39387a5e32bd011ad02969ed7c
