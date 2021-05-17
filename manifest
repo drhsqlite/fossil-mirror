@@ -1,5 +1,5 @@
-C Improved\sdisplay\sof\sforum\sand\stechnote\starges\sin\sthe\s/test-backlinks\spage.
-D 2021-05-17T11:40:36.331
+C In\sthe\sfossil-v-git.wiki\sdocument,\sremove\sthe\ssection\stitled\n"Accepting\sContributions"\sas\sit\sdoes\snot\sseem\sto\smove\sthe\sargument\sforward\n(as\sfar\sas\sI\scan\ssee)\sbut\sit\shas\sprovoked\sunnecessary\spushback\sfrom\sGit\nenthusiasts.
+D 2021-05-17T14:14:01.274
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -873,7 +873,7 @@ F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md d3c6746788ff42e46197729d9755e82affa5f1728b7d302aa9b41200e834e4a7
-F www/fossil-v-git.wiki c59fa337abc643baa7a234b075d750fd46dcb1a849c0cc20fbe462ff2bd7be54
+F www/fossil-v-git.wiki 855c18458b73e72bdce29be2fa7a64d633f8369f9369d7987828378dfadfc60a
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b44988df1ce1ead7f96d65a7bc5315c2e74ef69c4c7e814ed6c6549214d0c1a
-R 92a8d784c6628e6dd50f81cf2e2028f4
+P c34b644eda0a37a73e192b9234d27b445c66361e19ebfea16ed5f7a02f2059a6
+R a2e5cd8fe1fb9f65af56ef11ba612140
 U drh
-Z 83e34f39387a5e32bd011ad02969ed7c
+Z 76aa088e059b80c958f21ed925f5a587
