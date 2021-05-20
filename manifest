@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.36.0\salpha\sfor\stesting.
-D 2021-05-17T18:00:34.383
+C Minor\stypo\sfix\sin\sthe\smainmenu\ssetting\shelp\stext\sand\s/setup_config\spage\ssection.
+D 2021-05-20T22:00:14.164
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -579,7 +579,7 @@ F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4b0965c1a31b6caa9d9ac4be5b68e780f2b49dd73c9fe1e47016b581c60f5507
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
-F src/setup.c 556396b30efee629dca05f91eeb31c1320641b98d2941b0049def62a3d85af59
+F src/setup.c a9d8879220fde5cffdfe49f7985703edb228b726e9663e4dcbe16185f2c8f770
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3080a2286d701f5b18779f85d6179358aed8f77d5aae2d861019b8b2d7912e6
-R 345308cc0acfd8b96252a9b09561716b
-U drh
-Z 0e68ddb9ec21cfb9fa7f200af8de21c2
+P 1d54782957e4b7f0134a2a8c360fb35e62bb3cee04521715724a407addedf9e4
+R a79ff9bb1dd506c997d13e940a9d970a
+U stephan
+Z 257c2c6f254865dc30e4ee5632578c3b
