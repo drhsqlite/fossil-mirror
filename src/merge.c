@@ -404,6 +404,9 @@ void merge_cmd(void){
   if( vid==0 ){
     fossil_fatal("nothing is checked out");
   }
+  if( forceFlag==0 && leaf_is_closed(vid) ){
+    fossil_fatal("cannot merge into a closed leaf. Use --force to override");
+  }
   if( !dryRunFlag ){
     if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
                       db_get_int("autosync-tries", 1), 1) ){

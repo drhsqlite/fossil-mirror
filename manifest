@@ -1,5 +1,5 @@
-C Minor\stypo\sfix\sin\sthe\smainmenu\ssetting\shelp\stext\sand\s/setup_config\spage\ssection.
-D 2021-05-20T22:00:14.164
+C Do\snot\sallow\sa\smerge\sinto\sa\sclosed\sleaf\sunless\sthe\s--force\soption\sis\sused.
+D 2021-05-21T17:58:28.434
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -551,7 +551,7 @@ F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 9da92da6f27e07b34b267db4d0e2cb718ea6cb0fe1c196c0389a9349933f9806
+F src/merge.c 198021b2831021563ba6ae220d50a5dcbd48f73b0996711b93f2ce5ba8dd9ce2
 F src/merge3.c 748bc1e38f57b42a8521bc3ec0c077cef037b44c010aeb0346ac22f1574cb3cb
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 2dfa4d5d9d33da2ac881f81880ccc7299fa90e6940e643507713e368ab19cf3b
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d54782957e4b7f0134a2a8c360fb35e62bb3cee04521715724a407addedf9e4
-R a79ff9bb1dd506c997d13e940a9d970a
-U stephan
-Z 257c2c6f254865dc30e4ee5632578c3b
+P 2a88f7b3206ebb5622a5a398a5e46d2e39e3f4543c3ceefa842648cb052ebfd2
+R 5be4358ff74b980d0fd6dca9d38ea1fc
+U drh
+Z ff821c435cd43036b31e398a73381d8c
