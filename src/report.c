@@ -1035,10 +1035,18 @@ void rptview_page(void){
   count = 0;
   if( !tabs ){
     struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    const char *zQS = PD("QUERY_STRING","");
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
-    style_submenu_element("Raw", "rptview?tablist=1&rn=%d&%h", rn, PD("QUERY_STRING","") );
+    /* style_finish_page() should provide escaping via %h formatting */
+    if( zQS[0] ){
+      style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+      style_submenu_element("Reports","%R/reportlist?%s",zQS);
+    } else {
+      style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
+      style_submenu_element("Reports","%R/reportlist");
+    }
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "rptedit?rn=%d", rn);
