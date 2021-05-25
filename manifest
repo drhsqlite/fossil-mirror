@@ -1,5 +1,5 @@
-C In\sthe\ssubmenu\sof\sthe\s/rptview\spage:\s1)\sadd\s"Reports"\sthat\slinks\sto\s/reportlist\spage\s(see\s[forum:/forumpost/612170e31007|forumpost\s612170e3]);\s2)\sfix\sa\s"Raw"\slink,\sthat\swas\sincorrect\sfor\sthe\scase\swhen\s/rptview\sis\saccessed\sthrough\san\salias.\sThe\slater\swas\saddressed\sin\s[bed4b0f7fc58],\sbut\sthe\sbugfix\swas\sincomplete.\sBoth\sof\sthese\samendments\sused\sto\slive\son\s'rptview-submenu-paralink'\sbranch\s-\sthis\scheck-in\splaces\sthem\son\strunk.
-D 2021-05-22T12:40:20.229
+C In\sdb_database_slow(),\smake\ssure\sthe\sprepared\sstatement\sgets\sfinalized\seven\nif\sthe\sdb_prepare_ignore_error()\scall\sfails.\nSee\s[forum:/forumpost/89b5aad9aa|forum\spost\s89b5aad9aa]\sfor\sa\sdescription\nof\sthe\sproblem\sthat\sthis\sfixes.
+D 2021-05-25T20:58:55.689
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -459,7 +459,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c17854b3003ae56244235b3dea7e4976177fd48c6736064d3d3a3b71698de689
+F src/db.c cf0d4740d7574755cefda5545a3665fba6e6948e7ad80cfd463c2e078b04836d
 F src/default.css 198b71b37e02a22d2035a9dd2e1919e6175b27d1fb4b99c82cfb0c7067998664
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2cc7031dde4ed0896169094b142fc2657b784166cd2b247964190bb19764c2e3
-R d0534dcbae1c95b664d531850e83daf1
-U george
-Z b4ad96d315d45b6821059f8d43a9a4b8
+P 3e350682607068a76405dd8ee67306686e9ce0bdabca9d50baf73e818483b2e4
+R 8b0b0fb4871862211d3ae986ff3b79c6
+U drh
+Z 7e2049e348a6b95d061c9dff62572b77

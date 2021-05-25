@@ -1713,11 +1713,12 @@ int db_database_slot(const char *zLabel){
   Stmt q;
   if( g.db==0 ) return iSlot;
   rc = db_prepare_ignore_error(&q, "PRAGMA database_list");
-  if( rc!=SQLITE_OK ) return iSlot;
-  while( db_step(&q)==SQLITE_ROW ){
-    if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
-      iSlot = db_column_int(&q, 0);
-      break;
+  if( rc==SQLITE_OK ){
+    while( db_step(&q)==SQLITE_ROW ){
+      if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
+        iSlot = db_column_int(&q, 0);
+        break;
+      }
     }
   }
   db_finalize(&q);
