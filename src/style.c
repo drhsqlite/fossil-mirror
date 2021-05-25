@@ -335,9 +335,11 @@ void style_submenu_sql(
 /* Add hyperlinks depending on the existence and values of special
 ** parameters in the request's query string. The names of a query's
 ** parameters that are investigated are obtainted by concatenation of
-** the caller-provided zPrefix with suffix "smplX", where X is either
-** nothing or a positive digit. zPrefix must start with a lowercase
-** letter, be short and have no strange characters. Parameter's value
+** the caller-provided zPrefix with suffix "smplXY", where optional
+** ending XY consists of a digit X from the set {1,2,3,4,5} and an
+** optional letter Y which (if present) must be either 'a' or 's'.
+** zPrefix must start with a lowercase letter,
+** be short and have no strange characters. Parameter's value
 ** is well-formed if its first filepath segment (separated by '/')
 ** has no strange characters. Malformed values are silently ignored.
 **
@@ -362,61 +364,65 @@ void style_submenu_parametric(
 ){
   static const char *suffix = "smpl"; /* common suffix for param names */
   static const short sfxlen =  4;     /* length of the above suffix    */
+  static const char  sfxext[3] = {'a','s',0};  /* extra suffix ending  */
   const char *zQS;     /* QUERY_STRING */
   char  zN[32];        /* buffer for parameter names to probe */
-  short i,l;
+  short i,j,l;
 
   /* zPrefix must be tidy and short; also filter out ENV/CGI variables  */
   assert( zPrefix != 0 && fossil_islower(zPrefix[0]) );
   l = strnlen( zPrefix, sizeof(zN) );
-  assert( l+sfxlen+2 <= sizeof(zN) );
+  assert( l+sfxlen+3 <= sizeof(zN) );
   assert( fossil_no_strange_characters(zPrefix) );
   /* concatenate zPrefix and suffix */
   strcpy( zN, zPrefix );
   strcpy( zN + l, suffix );
   l += sfxlen;
-  zN[l+1] = 0; /* nul-terminator after digit's placeholder (if any) */
+  zN[l+2] = 0; /* nul-terminator after ...smplXY suffix */
   zQS = PD("QUERY_STRING","");
-  for( i = 0; i <= 9; i++ ){
-    const char *zV, *z;
+  for( i = 0; i <= 5; i++ ){
     zN[l] = ( i == 0 ?  0 : '0' + i ); /* ...smpl instead of ...smpl0 */
-    zV = PD(zN,"");
-    if( zV[0] == 0 || zV[0] == '/' || zV[0] == '_' || zV[0] == '-' ){
-      continue;
-    }
-    /* require the first path segment to be unfancy ASCII string */
-    for( z = zV; z[0] && z[0] != '/' ;){
-      if( fossil_isalnum(z[0]) || z[0]=='_' || z[0]=='-' ) z++;
-      else break;
-    }
-    if( z[0] != 0 && z[0] != '/' )
-      continue;
-    assert( nSubmenu < count(aSubmenu) );
-    if(fossil_islower(zV[0]) && z[0]=='/'){
-      aSubmenu[nSubmenu].zLabel = mprintf( "%s",zV); /* memory leak?  */
-    }else{
-      /* prepend a label with an unobtrusive symbol that "sorts-last";
-      ** this clearly distincts it from the built-in elements */
-      static const char *mark = "✧";
-      char *z = mprintf("%s%s",mark,zV);
-      aSubmenu[nSubmenu].zLabel = z;
-      /* also prettify the first segment */
-      z += strlen(mark);
-      z[0] = fossil_toupper(z[0]);
-      for(; z[0]!=0; z++ ){
-        if( z[0]=='_' ) z[0] = ' ';
-        else if( z[0] == '/' ){     /* show just the first segment */
-          z[0] = 0;
-          break;
+    for( j = (i ? 0 : sizeof(sfxext)-1); j < sizeof(sfxext); j++ ){
+      const char *zV, *z;
+      zN[l+1] = sfxext[j];
+      zV = PD(zN,"");
+      if( zV[0] == 0 || zV[0] == '/' || zV[0] == '_' || zV[0] == '-' ){
+        continue;
+      }
+      /* require the first path segment to be unfancy ASCII string */
+      for( z = zV; z[0] && z[0] != '/' ;){
+        if( fossil_isalnum(z[0]) || z[0]=='_' || z[0]=='-' ) z++;
+        else break;
+      }
+      if( z[0] != 0 && z[0] != '/' )
+        continue;
+      assert( nSubmenu < count(aSubmenu) );
+      if(fossil_islower(zV[0]) && z[0]=='/'){
+        aSubmenu[nSubmenu].zLabel = mprintf( "%s",zV); /* memory leak?  */
+      }else{
+        /* prepend a label with an unobtrusive symbol that "sorts-last";
+        ** this clearly distincts it from the built-in elements */
+        static const char *mark = "✧";
+        char *z = mprintf("%s%s",mark,zV);
+        aSubmenu[nSubmenu].zLabel = z;
+        /* also prettify the first segment */
+        z += strlen(mark);
+        z[0] = fossil_toupper(z[0]);
+        for(; z[0]!=0; z++ ){
+          if( z[0]=='_' ) z[0] = ' ';
+          else if( z[0] == '/' ){     /* show just the first segment */
+            z[0] = 0;
+            break;
+          }
         }
       }
+      if( zQS[0] ){
+        aSubmenu[nSubmenu].zLink  = mprintf("%R/%s?%s",zV,zQS);
+      }else{
+        aSubmenu[nSubmenu].zLink  = mprintf("%R/%s",zV);
+      }
+      nSubmenu++;
     }
-    if( zQS[0] ){
-      aSubmenu[nSubmenu].zLink  = mprintf("%R/%s?%s",zV,zQS);
-    }else{
-      aSubmenu[nSubmenu].zLink  = mprintf("%R/%s",zV);
-    }
-    nSubmenu++;
   }
 }
 

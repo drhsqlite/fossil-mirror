@@ -973,11 +973,16 @@ static int db_exec_readonly(
 ** Generate a report.  The "rn" query parameter is the report number
 ** corresponding to REPORTFMT.RN.  If the "tablist" query parameter exists,
 ** then the output consists of lines of tab-separated fields instead of
-** an HTML table.  If the "rvsmpl" query parameter is set then report's
-** submenu will contain an extra hyperlink that have a value-driven
-** label and target.
+** an HTML table.
 **
-** "rvsmpl" stands for Report View SubMenu's Parametric Link.
+** Submenu of the /rptview page can be extended with additional
+** hyperlinks by providing query parameter(s) of the form rvsmplXY=Z.
+** Optional ending XY consists of a digit X from the set {1,2,3,4,5}
+** and an optional letter Y that (if present) must be either 'a' or 's'.
+** Mandatory Z is a repo-local hyperlink's target (wihout leading '/').
+**
+** For details see function style_submenu_parametric() in src/style.c
+** on branch "rptview-submenu-paralink".
 */
 void rptview_page(void){
   int count = 0;
@@ -1047,7 +1052,6 @@ void rptview_page(void){
       style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
       style_submenu_element("Reports","%R/reportlist");
     }
-    style_submenu_parametric("rptview_");
     style_submenu_parametric("rv");
 
     if( g.perm.Admin
