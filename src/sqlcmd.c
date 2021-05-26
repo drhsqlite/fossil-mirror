@@ -228,6 +228,7 @@ static int sqlcmd_autoinit(
   builtin_vtab_register(db);
   g.repositoryOpen = 1;
   g.db = db;
+  sqlite3_busy_timeout(db, 10000);
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
   db_maybe_set_encryption_key(db, g.zRepositoryName);
   if( g.zLocalDbName ){

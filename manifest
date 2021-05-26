@@ -1,5 +1,5 @@
-C In\sdb_database_slow(),\smake\ssure\sthe\sprepared\sstatement\sgets\sfinalized\seven\nif\sthe\sdb_prepare_ignore_error()\scall\sfails.\nSee\s[forum:/forumpost/89b5aad9aa|forum\spost\s89b5aad9aa]\sfor\sa\sdescription\nof\sthe\sproblem\sthat\sthis\sfixes.
-D 2021-05-25T20:58:55.689
+C Set\sa\sdefault\sbusy-timeout\sof\s10\sseconds\sin\sthe\s"fossil\ssql"\scommand,\sbefore\ncalling\ssqlite3_exec()\sto\sATTACH\sauxiliary\sdatabase\sfiles.
+D 2021-05-26T01:05:57.955
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -608,7 +608,7 @@ F src/sounds/c.wav 1b1a761a678c265cec670b003b810c62485b6fb78686d8fbbe23871d37df3
 F src/sounds/d.wav f0a35dc901d536a8a4e1b4809e302614a4be9a04c8b41802fc10af382616eeaa
 F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca95061929d1
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
-F src/sqlcmd.c 6e4fd1d842d1a48d347df6b15e1fe65fef7fab599acd1d13559b3a8ce9cce2df
+F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
 F src/sqlite3.c ac52c7a605d90b3a2ec011b848d6a35f88a96b585edc504fcc15fdae3aac2675
 F src/sqlite3.h 8d3412bbd1df07705c35c464a9f87fb7bd3e6279ad811a00d0a12034591970da
@@ -992,7 +992,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e350682607068a76405dd8ee67306686e9ce0bdabca9d50baf73e818483b2e4
-R 8b0b0fb4871862211d3ae986ff3b79c6
+P eddfa8dfbe830c271b5f5a7046bbba866def20bbaf7855289817df6a235f1616
+R ade3eb7fd199238c28b2ecabd950bb87
 U drh
-Z 7e2049e348a6b95d061c9dff62572b77
+Z e06506319d5532c4b36c56afbf2a386c
