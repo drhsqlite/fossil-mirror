@@ -290,6 +290,19 @@ void setup_notification(void){
   @ (Property: "email-subname")</p>
   @ <hr>
 
+  entry_attribute("Subscription Renewal Interval In Days", 8,
+                  "email-renew-interval", "eri", "", 0);
+  @ <p>
+  @ If this value is a positive integer N, then email notification
+  @ subscriptions will be suspended N days after the last known
+  @ interaction with the user.  This prevents sending notifications
+  @ to abandoned accounts.  If a subscription gets close to expiring
+  @ a separate email goes out with the daily digest that prompts the
+  @ subscriber to click on a link to the "/renew" webpage in order to
+  @ extend their subscription.
+  @ (Property: "email-renew-interval")</p>
+  @ <hr>
+
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
        "off", count(azSendMethods)/2, azSendMethods);
   @ <p>How to send email.  Requires auxiliary information from the fields
@@ -1948,6 +1961,55 @@ void alert_page(void){
   db_commit_transaction();
   return;
 }
+
+/*
+** WEBPAGE: renew
+**
+** Users visit this page to update the lastContact date on their
+** subscription.  This prevents their subscriptions from expiring.
+**
+** A valid subscriber code is supplied in the name= query parameter.
+*/
+void renewal_page(void){
+  const char *zName = P("name");
+  int iInterval = db_get_int("email-renew-interval", 0);
+  Stmt s;
+  int rc;
+
+  style_header("Subscription Renewal");
+  if( zName==0 || strlen(zName)<4 ){
+    @ <p>No subscription specified</p>
+    style_finish_page();
+    return;
+  }
+
+  if( !db_table_has_column("repository","subscriber","lastContact")
+   || iInterval<1
+  ){
+    @ <p>This repository does not expire email notification subscriptions.
+    @ No renewals are necessary.</p>
+    style_finish_page();
+    return;
+  }
+
+  db_prepare(&s,
+    "UPDATE subscriber"
+    "   SET lastContact=now()/86400"
+    " WHERE subscriberCode=hextoblob(%Q)"
+    " RETURNING semail, date('now','+%d days');",
+    zName, iInterval+1
+  );
+  rc = db_step(&s);
+  if( rc==SQLITE_ROW ){
+    @ <p>The email notification subscription for %h(db_column_text(&s,0))
+    @ has been extended until %h(db_column_text(&s,1)) UTC.
+  }else{
+    @ <p>No such subscriber-id: %h(zName)</p>
+  }
+  db_finalize(&s);
+  style_finish_page();
+}
+
 
 /* This is the message that gets sent to describe how to change
 ** or modify a subscription
