@@ -1584,8 +1584,9 @@ static void alert_unsubscribe(int sid){
       "DELETE FROM subscriber WHERE subscriberId=%d", sid
     );
     style_header("Unsubscribed");
-    @ <p>The "%h(zEmail)" email address has been unsubscribed and the
-    @ corresponding row in the subscriber table has been deleted.<p>
+    @ <p>The "%h(zEmail)" email address has been unsubscribed from all
+    @ notifications.  All subscription records for "%h(zEmail)" have
+    @ been purged.  No further emails will be sent to "%h(zEmail)".</p>
     if( uid && g.perm.Admin ){
        @ <p>You may also want to
        @ <a href="%R/setup_uedit?id=%d(uid)">edit or delete
@@ -2603,7 +2604,7 @@ int alert_send_alerts(u32 flags){
 
   if( g.fSqlTrace ) fossil_trace("-- BEGIN alert_send_alerts(%u)\n", flags);
   alert_schema(0);
-  if( !alert_enabled() ) goto send_alert_done;
+  if( !alert_enabled() && (flags & SENDALERT_STDOUT)==0 ) goto send_alert_done;
   zUrl = db_get("email-url",0);
   if( zUrl==0 ) goto send_alert_done;
   zRepoName = db_get("email-subname",0);
@@ -2755,6 +2756,8 @@ int alert_send_alerts(u32 flags){
       }
     }
     if( nHit==0 ) continue;
+    blob_appendf(&hdr, "List-Unsubscribe: <%s/unsubscribe/%s>\r\n",
+         zUrl, zCode);
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
          zUrl, zCode);
     alert_send(pSender,&hdr,&body,0);
