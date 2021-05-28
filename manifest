@@ -1,5 +1,5 @@
-C Add\sa\sList-Unsubscribe:\sheader\sto\sall\snotification\semails.
-D 2021-05-28T15:01:02.872
+C Further\sreading\sof\sRFC-8058\sshows\sthat\sI\smust\salso\sinclude\sa\nList-Unsubscribe-Post\sheader.
+D 2021-05-28T15:13:01.464
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -420,7 +420,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c 21e75599eee7e3e44daad02846906343ac0c596b427625c10d9b7166a9184fcd
 F src/ajax.c b819cd519531ac8fa6521ac9cbbc54554a3d2a4005e29508b9a8a709d868e87f
-F src/alerts.c 85eb00286d3def8ebc8ebecb8285e9cabdf4d176a2c75358c3c2035d175fd5f7
+F src/alerts.c 6cf04dacc9e770f00fdf55807ba7c5e6aee1a88ea9e2a47676a0014f96ff3a1e
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62073f6dbb4b691087a2be42c156cf307ed0191804e067fc8ec8bad842e44a0a
-R 1fc0495c453dcf8227f19aa16b58573b
+P 4a3909afc8f9f3e1c450b68fbb47e1a0fac69064852ed2e1017ee1e0cbc2a35a
+R 85cb0e2b215545dbd9c7f1582ca5a92a
 U drh
-Z 27e7ed2e61ffc4e70e5c094f98624f9d
+Z 0b40fb1c9e22c8dacc82d27889a2747c

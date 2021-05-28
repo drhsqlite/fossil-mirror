@@ -2758,6 +2758,7 @@ int alert_send_alerts(u32 flags){
     if( nHit==0 ) continue;
     blob_appendf(&hdr, "List-Unsubscribe: <%s/unsubscribe/%s>\r\n",
          zUrl, zCode);
+    blob_appendf(&hdr, "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
          zUrl, zCode);
     alert_send(pSender,&hdr,&body,0);
