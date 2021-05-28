@@ -1,5 +1,5 @@
-C Added\sa\slink\sto\sthe\snew\sfossil-as-OpenBSD-service\sdoc\sto\sthe\sserver/openbsd/\sindex\spage,\sper\sforum\ssuggestion.
-D 2021-05-28T16:56:30.182
+C Add\sthe\ssubscriber.lastContact\sfield\sfor\stracking\sthe\slast\scontact\stime\sfor\neach\ssubscriber.\s\sKeep\sthis\sfield\sup-to-day.\s\sThe\sfield\sis\scurrently\sused\nbut\sthe\splan\sis\sto\suse\sit\sto\soptionally\sask\sinactive\ssubscribers\sto\srenew\nperiodically.
+D 2021-05-28T18:02:01.076
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -420,7 +420,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c 21e75599eee7e3e44daad02846906343ac0c596b427625c10d9b7166a9184fcd
 F src/ajax.c b819cd519531ac8fa6521ac9cbbc54554a3d2a4005e29508b9a8a709d868e87f
-F src/alerts.c 6cf04dacc9e770f00fdf55807ba7c5e6aee1a88ea9e2a47676a0014f96ff3a1e
+F src/alerts.c cc2d7242e2dd359e1d7b55a00a225db47ca7389a8f240efecc480f1d75c11cd3
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -537,7 +537,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 4a4898e9e5708e494e7c27110832decf4675b3017e6f7713527bc1994582e8a3
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c 581e135fc747d2d2796909faf2940394ac9b6e435e3dc1de26bb2f62099d2c55
+F src/login.c b7c4e7604c3b819bdc0fe6624a2afd1a8324e04d4c5e9bdc9d9048213064be32
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c eaa3f667bf07386b610b59a90adaa30c039d8cf256f451e8ac8ff696ae37dd83
@@ -569,7 +569,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 5fd10d70e9fba2c5cad3cd3e30d895396a33f32e4be90dcae5eb17624ab5b2db
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
-F src/rebuild.c bcc6893a6ddfe18c06ebabc4e6357b3dfb7879cd5744d349e002a11f7341da56
+F src/rebuild.c 1f16f6ff99f5fea2538c06fa8bc938dc2e86361a79d8093dfef8643de6ce062b
 F src/regexp.c 8c322e77e3af37d259d4af5c7d3d1c03888159c690ad2a4725bfd8c491aac17d
 F src/repolist.c 5189afc88446c7f0ff8777747affd3233a5a7a02d507d49e8c8edeb86cb4c343
 F src/report.c 2cbbac4ce1bad714c3ca01ce9588f37637a510463a573c08511b79f4a46ad9a7
@@ -644,7 +644,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c cc4ade164c7279d559b09c1c446b4ff52e22ae8081de6388f9b90aa7cecaf162
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c a150e736afe9de36315d53c0976bbcd7bb1404fe8a77068027e9c4aab135cbaf
+F src/wiki.c b705759d0a39696bc11914e7c1480ef4c7af30c8e02fe75694f32505ae5b8c3f
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 733fcecaca6f45878e7a58ece286ff06ccb652c7c087164e84f4d2ffc214f666
-R 2499db976f23ab5482f7b725be9a3eae
-U stephan
-Z dab5408b0e8ca0139c340b723eef8eb6
+P 1df20b222bab06fa20edb9ffc4992ba31f4b68e2c662059e19c751ee9a83c0b8
+R 285d8aa67b8f629e7f844efea3dc770e
+U drh
+Z 189d6561014f6e50c5f89b825d6fe320

@@ -172,13 +172,17 @@ static void record_login_attempt(
   const char *zIpAddr,       /* IP address from which they logged in */
   int bSuccess               /* True if the attempt was a success */
 ){
-  if( !db_get_boolean("access-log", 0) ) return;
-  create_accesslog_table();
-  db_multi_exec(
-    "INSERT INTO accesslog(uname,ipaddr,success,mtime)"
-    "VALUES(%Q,%Q,%d,julianday('now'));",
-    zUsername, zIpAddr, bSuccess
-  );
+  if( db_get_boolean("access-log", 0) ){
+    create_accesslog_table();
+    db_multi_exec(
+      "INSERT INTO accesslog(uname,ipaddr,success,mtime)"
+      "VALUES(%Q,%Q,%d,julianday('now'));",
+      zUsername, zIpAddr, bSuccess
+    );
+  }
+  if( bSuccess ){
+    alert_user_contact(zUsername);
+  }
 }
 
 /*
@@ -1716,8 +1720,8 @@ void register_page(void){
       /* Also add the user to the subscriber table. */
       zCode = db_text(0,
         "INSERT INTO subscriber(semail,suname,"
-        "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
-        " VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+        "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip,lastContact)"
+        " VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q,now()/86400)"
         " ON CONFLICT(semail) DO UPDATE"
         "   SET suname=excluded.suname"
         " RETURNING hex(subscriberCode);",
