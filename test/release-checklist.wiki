@@ -77,11 +77,15 @@ platform:
 <li><p>
 Run the following commands on Linux and verify no major memory leaks
 and no run-time errors or warnings (except for the well-known jump on an
-uninitialized value that occurs within zlib).
+uninitialized value that occurs within zlib).</p>
 <ol type="a">
 <li> <b>valgrind fossil rebuild</b>
 <li> <b>valgrind fossil sync</b>
 </ol>
+
+<p>Achtung: make sure to point valgrind to the proper fossil binary
+so that it does not pick up another from the PATH.</p>
+
 
 <li><p>
 

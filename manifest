@@ -1,5 +1,5 @@
-C More\sinfrastructure\sfor\sexpiring\ssubscriptions\sfor\sinactive\saccounts.\nBut\sthe\sfunctionality\sis\snot\scomplete\sand\sdoes\snot\sactually\sdo\sanything,\syet.
-D 2021-05-28T21:12:20.351
+C Added\sa\snote\sto\srelease-checklist.wiki\sreminding\sthe\suser\sto\spass\sthe\sproper\sbinary\sname\sto\svalgrind\sso\sthat\sit\sdoes\snot\spick\sup\sanother\scopy\s(or\sa\swrapper\sscript)\sfrom\sthe\sPATH.
+D 2021-05-30T03:46:39.411
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -687,7 +687,7 @@ F test/merge_renames.test de45f6c4806d859549c5f12ac6ec7c24f2e84891bb5b08d44ba286
 F test/merge_renames_2.test f734dda9962b9be916e9c65624ac474be812f27693c318de72a615df94db78d7
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test f7a24674617b1d001812a29f9250c62268497dbf8b4bd70b6cd10b352e732e4a
-F test/release-checklist.wiki 8519aade5654135a9f1b2d3bea863c979a69d1baa0c85c166bcd5319b9ed886f
+F test/release-checklist.wiki d3d3d277176238bbd517e267fa37fbc11b99c39b3cd0fbd59920ffd5c754069d
 F test/reserved-names.test df65768408b881eed35fe276dce13a49b637ed0d11fd46a63c1a9bdb9faaabd2
 F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
 F test/set-manifest.test 46f4753240a2b344c694ea448ffbd5406ddfeac2a0c8c0e2a8b77ca06fabb35f
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7e10ce4da9d9ec639bf52b3c6fe2b901f526a12049e8e30cb8fef893fbce8bc
-R 2f2abbbc311c0d426ace186b38c91c02
-U drh
-Z d2640d7d9016615702716f91998dec46
+P 7b8be208bc9b6370c1c4fecd1ef86bca309740a9d4d1e2b0fb0d27e5b8d1598c
+R 72311561ca984e9290772f3de8487ec6
+U stephan
+Z 21ac71b51d2d9be7d428f7d8f86f232f
