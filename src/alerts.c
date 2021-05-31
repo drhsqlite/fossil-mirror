@@ -293,13 +293,14 @@ void setup_notification(void){
   entry_attribute("Subscription Renewal Interval In Days", 8,
                   "email-renew-interval", "eri", "", 0);
   @ <p>
-  @ If this value is a positive integer N, then email notification
-  @ subscriptions will be suspended N days after the last known
+  @ If this value is a integer N greater than or equal to 14, then email
+  @ notification subscriptions will be suspended N days after the last known
   @ interaction with the user.  This prevents sending notifications
-  @ to abandoned accounts.  If a subscription gets close to expiring
+  @ to abandoned accounts.  If a subscription comes within 7 days of expiring,
   @ a separate email goes out with the daily digest that prompts the
   @ subscriber to click on a link to the "/renew" webpage in order to
-  @ extend their subscription.
+  @ extend their subscription.  Subscriptions never expire if this setting
+  @ is less than 14 or is an empty string.
   @ (Property: "email-renew-interval")</p>
   @ <hr>
 
@@ -971,6 +972,34 @@ void alert_send(
 ** brackets. Examples: "[fossil-src]", "[sqlite-src]".
 */
 /*
+** SETTING: email-renew-interval      width=16
+** If this setting as an integer N that is 14 or greater then email
+** notification is suspected for subscriptions that have a "last contact
+** time" of more than N days ago.  The "last contact time" is recorded
+** in the SUBSCRIBER.LASTCONTACT entry of the database.  Logging in,
+** sending a forum post, editing a wiki page, changing subscription settings
+** at /alerts, or visiting /renew all update the last contact time.
+** If this setting is not an integer value or is less than 14 or undefined,
+** then subscriptions never expire.
+*/
+/* X-VARIABLE:  email-renew-warning
+** X-VARIABLE:  email-renew-cutoff
+**
+** These CONFIG table entries are not considered "settings" since their
+** values are computed and updated automatically.
+**
+** email-renew-cutoff is the lastContact cutoff for subscription.  It
+** is measured in days since 1970-01-01.  If The lastContact time for
+** a subscription is less than email-renew-cutoff, then now new emails
+** are sent to the subscriber.
+**
+** email-renew-warning is the time (in days since 1970-01-01) when the
+** last batch of "your subscription is about to expire" emails were
+** sent out.
+**
+** email-renew-cutoff is normally 7 days behind email-renew-warning.  
+*/
+/*
 ** SETTING: email-send-method         width=5 default=off sensitive
 ** Determine the method used to send email.  Allowed values are
 ** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
@@ -1042,17 +1071,18 @@ void alert_send(
 **    status                  Report on the status of the email alert
 **                            subsystem
 **
-**    subscribers [PATTERN]   List all subscribers matching PATTERN.
+**    subscribers [PATTERN]   List all subscribers matching PATTERN.  Either
+**                            LIKE or GLOB wildcards can be used in PATTERN.
 **
 **    test-message TO [OPTS]  Send a single email message using whatever
 **                            email sending mechanism is currently configured.
 **                            Use this for testing the email notification
 **                            configuration.  Options:
 **
-**                              --body FILENAME
-**                              --smtp-trace
-**                              --stdout
-**                              -S|--subject SUBJECT
+**                              --body FILENAME         Content from FILENAME
+**                              --smtp-trace            Trace SMTP processing
+**                              --stdout                Send msg to stdout
+**                              -S|--subject SUBJECT    Message "subject:"
 **
 **    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */
@@ -1965,10 +1995,12 @@ void alert_page(void){
 /*
 ** WEBPAGE: renew
 **
-** Users visit this page to update the lastContact date on their
-** subscription.  This prevents their subscriptions from expiring.
-**
-** A valid subscriber code is supplied in the name= query parameter.
+** Users visit this page to update the last-contact date on their
+** subscription.  The last-contact date is the day that the subscriber
+** last interacted with the repository.  If the name= query parameter
+** (or POST parameter) contains a valid subscriber code, then the last-contact
+** subscription associated with that subscriber code is updated to be the
+** current date.
 */
 void renewal_page(void){
   const char *zName = P("name");
@@ -2184,6 +2216,10 @@ void subscriber_list_page(void){
   int nTotal;
   int nPending;
   int nDel = 0;
+  int iCutoff = db_get_int("email-renew-cutoff",0);
+  int iWarning = db_get_int("email-renew-warning",0);
+  char zCutoffClr[8];
+  char zWarnClr[8];
   if( alert_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -2242,6 +2278,8 @@ void subscriber_list_page(void){
   blob_append_sql(&sql," ORDER BY mtime DESC");
   db_prepare_blob(&q, &sql);
   iNow = time(0);
+  memcpy(zCutoffClr, hash_color("A"), sizeof(zCutoffClr));
+  memcpy(zWarnClr, hash_color("HIJ"), sizeof(zWarnClr));
   @ <table border='1' class='sortable' \
   @ data-init-sort='6' data-column-types='tttttKKt'>
   @ <thead>
@@ -2275,7 +2313,15 @@ void subscriber_list_page(void){
     }
     @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
     @ <td data-sortkey='%010llx(iMtime)'>%z(human_readable_age(rAge))</td>
-    @ <td data-sortkey='%010llx(iContact)'>%z(human_readable_age(rContact))</td>
+    @ <td data-sortkey='%010llx(iContact)'>\
+    if( iContact>iWarning ){
+      @ <span>\
+    }else if( iContact>iCutoff ){
+      @ <span style='background-color:%s(zWarnClr);'>\
+    }else{
+      @ <span style='background-color:%s(zCutoffClr);'>\
+    }
+    @ %z(human_readable_age(rContact))</td>
     @ <td>%h(db_column_text(&q,7))</td>
     @ </tr>
   }
@@ -2532,10 +2578,18 @@ void alert_footer(Blob *pOut){
 ** Generate the text of an email alert for all of the EVENTIDs
 ** listed on the command-line.  Or if no events are listed on the
 ** command line, generate text for all events named in the
-** pending_alert table.
+** pending_alert table.  The text of the email alerts appears on
+** standard output.
 **
-** This command is intended for testing and debugging the logic
-** that generates email alert text.
+** This command is intended for testing and debugging Fossil itself,
+** for example when enhancing the email alert system or fixing bugs
+** in the email alert system.  If you are not making changes to the
+** Fossil source code, this command is probably not useful to you.
+**
+** EVENTIDs are text.  The first character is 'c', 'f', 't', or 'w'
+** for check-in, forum, ticket, or wiki.  The remaining text is a
+** integer that references the EVENT.OBJID value for the event.
+** Run /timeline?showid to see these OBJID values.
 **
 ** Options:
 **
@@ -2777,9 +2831,12 @@ int alert_send_alerts(u32 flags){
      " ssub,"                 /* 2 */
      " fullcap(user.cap)"     /* 3 */
      " FROM subscriber LEFT JOIN user ON (login=suname)"
-     " WHERE sverified AND NOT sdonotcall"
-     "  AND sdigest IS %s",
-     zDigest/*safe-for-%s*/
+     " WHERE sverified"
+     "   AND NOT sdonotcall"
+     "   AND sdigest IS %s"
+     "   AND coalesce(subscriber.lastContact,subscriber.mtime)>=%d",
+     zDigest/*safe-for-%s*/,
+     db_get_int("email-renew-cutoff",0)
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCode = db_column_text(&q, 0);
