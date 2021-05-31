@@ -1,5 +1,5 @@
-C Show\sthe\slast\scontact\stime\sin\sthe\sadministrator\sview\sof\sthe\ssubscriber\ninformation\spage.
-D 2021-05-31T12:35:02.571
+C Automatic\smessages\srequesting\suser\srenewal\sare\snow\sgenerated,\sabout\sonce\nevery\s7\sdays.\s\sThis\sneeds\smore\stesting\sbefore\sgoing\slive.
+D 2021-05-31T18:58:58.373
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -420,7 +420,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
 F src/add.c 21e75599eee7e3e44daad02846906343ac0c596b427625c10d9b7166a9184fcd
 F src/ajax.c b819cd519531ac8fa6521ac9cbbc54554a3d2a4005e29508b9a8a709d868e87f
-F src/alerts.c e36f15722751e35a2fe89215fe13be4c5e83cee42770ac1f16dd6ffa195fec9c
+F src/alerts.c 773eab9149ec837793755c00db411cb263507d102a8b6b342bd645c30b0557fb
 F src/alerts/bflat2.wav 79fa9b74167fbc7f70309879a36c9cb11e188644ea2ad9bdeaaef07a2dfb36c4
 F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e833137b6d
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4bba2ef605cf2a5fc6398d7d022422611f1b6c4a81c14cece388e0278a065f1
-R c9418b98c2b6b6c75c8660249a7e0466
+P 11b7c7699f89b8ac47cf76c60ad6d840fba2cae271533448ecca5b6002f4d0fa
+R 903348cd9f100a6310f2403fb54532d6
 U drh
-Z 8402faed09d121edd231996d9b497cc1
+Z f411d31844b9f4191afc9565e3748ab5
