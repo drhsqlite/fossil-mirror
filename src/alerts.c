@@ -1822,7 +1822,9 @@ void alert_page(void){
     "  suname,"                       /* 6 */
     "  datetime(mtime,'unixepoch'),"  /* 7 */
     "  datetime(sctime,'unixepoch')," /* 8 */
-    "  hex(subscriberCode)"           /* 9 */
+    "  hex(subscriberCode),"          /* 9 */
+    "  date(coalesce(lastContact*86400,mtime),'unixepoch'),"  /* 10 */
+    "  now()/86400 - coalesce(lastContact,mtime/86400)"       /* 11 */
     " FROM subscriber WHERE subscriberId=%d", sid);
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
@@ -1921,6 +1923,11 @@ void alert_page(void){
     @  <td class='form_label'>Subscriber&nbsp;Code:</td>
     @  <td>%h(db_column_text(&q,9))</td>
     @ <tr>
+    @ <tr>
+    @  <td class='form_label'>Last Contact:</td>
+    @  <td>%h(db_column_text(&q,10)) &larr; \
+    @      %,d(db_column_int(&q,11)) days ago</td>
+    @ </tr>
     @  <td class="form_label">User:</td>
     @  <td><input type="text" name="suname" value="%h(suname?suname:"")" \
     @  size="30">\
