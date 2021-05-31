@@ -498,6 +498,7 @@ void ci_tags_page(void){
   Stmt q;
   int cnt = 0;
   Blob sql;
+  char const *zType;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -510,7 +511,9 @@ void ci_tags_page(void){
   }
   zHash = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   style_header("Tags and Properties");
-  @ <h1>Tags and Properties for Check-In \
+  zType = whatis_rid_type(rid);
+  if(!zType) zType = "Artifact";
+  @ <h1>Tags and Properties for %s(zType)  \
   @ %z(href("%R/ci/%!S",zHash))%S(zHash)</a></h1>
   db_prepare(&q,
     "SELECT tag.tagid, tagname, "

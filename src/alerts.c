@@ -66,7 +66,8 @@ static const char zAlertInit[] =
 @   ssub TEXT,                        -- baseline subscriptions
 @   sctime INTDATE,                   -- When this entry was created. unixtime
 @   mtime INTDATE,                    -- Last change.  unixtime
-@   smip TEXT                         -- IP address of last change
+@   smip TEXT,                        -- IP address of last change
+@   lastContact INT                   -- Last contact. days since 1970
 @ );
 @ CREATE INDEX repository.subscriberUname
 @   ON subscriber(suname) WHERE suname IS NOT NULL;
@@ -85,16 +86,8 @@ static const char zAlertInit[] =
 @   sentMod BOOLEAN DEFAULT false     -- pending moderation alert sent
 @ ) WITHOUT ROWID;
 @ 
+@ -- Obsolete table.  No longer used.
 @ DROP TABLE IF EXISTS repository.alert_bounce;
-@ -- Record bounced emails.  If too many bounces are received within
-@ -- some defined time range, then cancel the subscription.  Older
-@ -- entries are periodically purged.
-@ --
-@ CREATE TABLE repository.alert_bounce(
-@   subscriberId INTEGER, -- to whom the email was sent.
-@   sendTime INTEGER,     -- seconds since 1970 when email was sent
-@   rcvdTime INTEGER      -- seconds since 1970 when bounce was received
-@ );
 ;
 
 /*
@@ -102,6 +95,19 @@ static const char zAlertInit[] =
 */
 int alert_tables_exist(void){
   return db_table_exists("repository", "subscriber");
+}
+
+/*
+** Record the fact that user zUser has made contact with the repository.
+** This resets the subscription timeout on that user.
+*/
+void alert_user_contact(const char *zUser){
+  if( db_table_has_column("repository","subscriber","lastContact") ){
+    db_multi_exec(
+      "UPDATE subscriber SET lastContact=now()/86400 WHERE suname=%Q",
+      zUser
+    );
+  }
 }
 
 /*
@@ -118,12 +124,23 @@ void alert_schema(int bOnlyIfEnabled){
       return;  /* Don't create table for disabled email */
     }
     db_exec_sql(zAlertInit);
-  }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
-    db_multi_exec(
-      "ALTER TABLE repository.pending_alert"
-      " ADD COLUMN sentMod BOOLEAN DEFAULT false;"
-    );
+    return;
   }
+  if( db_table_has_column("repository","subscriber","lastContact") ){
+    return;
+  }
+  db_multi_exec(
+    "DROP TABLE IF EXISTS repository.alert_bounde;\n"
+    "ALTER TABLE repository.subscriber ADD COLUMN lastContact INT;\n"
+    "UPDATE subscriber SET lastContact=mtime/86400;"
+  );
+  if( db_table_has_column("repository","pending_alert","sentMod") ){
+    return;
+  }
+  db_multi_exec(
+    "ALTER TABLE repository.pending_alert"
+    " ADD COLUMN sentMod BOOLEAN DEFAULT false;"
+  );
 }
 
 /*
@@ -271,6 +288,19 @@ void setup_notification(void){
   @ Subject: line of email alerts.  Traditionally this name is
   @ included in square brackets.  Examples: "[fossil-src]", "[sqlite-src]".
   @ (Property: "email-subname")</p>
+  @ <hr>
+
+  entry_attribute("Subscription Renewal Interval In Days", 8,
+                  "email-renew-interval", "eri", "", 0);
+  @ <p>
+  @ If this value is a positive integer N, then email notification
+  @ subscriptions will be suspended N days after the last known
+  @ interaction with the user.  This prevents sending notifications
+  @ to abandoned accounts.  If a subscription gets close to expiring
+  @ a separate email goes out with the daily digest that prompts the
+  @ subscriber to click on a link to the "/renew" webpage in order to
+  @ extend their subscription.
+  @ (Property: "email-renew-interval")</p>
   @ <hr>
 
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
@@ -1393,8 +1423,8 @@ void subscribe_page(void){
     ssub[nsub] = 0;
     zCode = db_text(0,
       "INSERT INTO subscriber(semail,suname,"
-      "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
-      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+      "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip,lastContact)"
+      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q,now()/86400)"
       "RETURNING hex(subscriberCode);",
       /* semail */    zEAddr,
       /* suname */    suname,
@@ -1643,6 +1673,7 @@ void alert_page(void){
   int sid = 0;                  /* Subscriber ID */
   int nName;                    /* Length of zName in bytes */
   char *zHalfCode;              /* prefix of subscriberCode */
+  int keepAlive = 0;            /* True to update the last contact time */
 
   db_begin_transaction();
   if( alert_webpages_disabled() ){
@@ -1667,6 +1698,7 @@ void alert_page(void){
        "            THEN subscriberId ELSE 0 END"
        "  FROM subscriber WHERE subscriberCode>=hextoblob(%Q)"
        " LIMIT 1", zName, zName);
+    if( sid ) keepAlive = 1;
   }
   if( sid==0 && isLogin ){
     sid = db_int(0, "SELECT subscriberId FROM subscriber"
@@ -1699,7 +1731,8 @@ void alert_page(void){
         " sdonotcall=%d,"
         " sdigest=%d,"
         " ssub=%Q,"
-        " mtime=strftime('%%s','now'),"
+        " mtime=now(),"
+        " lastContact=now()/86400,"
         " smip=%Q",
         sdonotcall,
         sdigest,
@@ -1729,6 +1762,11 @@ void alert_page(void){
       ssub = 0;
     }
     blob_reset(&update);
+  }else if( keepAlive ){
+    db_multi_exec(
+      "UPDATE subscriber SET lastContact=now()/86400"
+      " WHERE subscriberId=%d", sid
+    );
   }
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
     if( !PB("dodelete") ){
@@ -1924,6 +1962,55 @@ void alert_page(void){
   return;
 }
 
+/*
+** WEBPAGE: renew
+**
+** Users visit this page to update the lastContact date on their
+** subscription.  This prevents their subscriptions from expiring.
+**
+** A valid subscriber code is supplied in the name= query parameter.
+*/
+void renewal_page(void){
+  const char *zName = P("name");
+  int iInterval = db_get_int("email-renew-interval", 0);
+  Stmt s;
+  int rc;
+
+  style_header("Subscription Renewal");
+  if( zName==0 || strlen(zName)<4 ){
+    @ <p>No subscription specified</p>
+    style_finish_page();
+    return;
+  }
+
+  if( !db_table_has_column("repository","subscriber","lastContact")
+   || iInterval<1
+  ){
+    @ <p>This repository does not expire email notification subscriptions.
+    @ No renewals are necessary.</p>
+    style_finish_page();
+    return;
+  }
+
+  db_prepare(&s,
+    "UPDATE subscriber"
+    "   SET lastContact=now()/86400"
+    " WHERE subscriberCode=hextoblob(%Q)"
+    " RETURNING semail, date('now','+%d days');",
+    zName, iInterval+1
+  );
+  rc = db_step(&s);
+  if( rc==SQLITE_ROW ){
+    @ <p>The email notification subscription for %h(db_column_text(&s,0))
+    @ has been extended until %h(db_column_text(&s,1)) UTC.
+  }else{
+    @ <p>No such subscriber-id: %h(zName)</p>
+  }
+  db_finalize(&s);
+  style_finish_page();
+}
+
+
 /* This is the message that gets sent to describe how to change
 ** or modify a subscription
 */
@@ -2113,7 +2200,7 @@ void subscriber_list_page(void){
     int nNewPending;
     db_multi_exec(
        "DELETE FROM subscriber"
-       " WHERE NOT sverified AND mtime<0+strftime('%%s','now','-1 day')"
+       " WHERE NOT sverified AND mtime<now()-86400"
     );
     nNewPending = db_int(0, "SELECT count(*) FROM subscriber"
                             " WHERE NOT sverified");
@@ -2124,7 +2211,7 @@ void subscriber_list_page(void){
   if( nPending>0 ){
     @ <h1>%,d(nTotal) Subscribers, %,d(nPending) Pending</h1>
     if( nDel==0 && 0<db_int(0,"SELECT count(*) FROM subscriber"
-            " WHERE NOT sverified AND mtime<0+strftime('%%s','now','-1 day')")
+            " WHERE NOT sverified AND mtime<now()-86400")
     ){
       style_submenu_element("Purge Pending","subscribers?purge");
     }
@@ -2144,7 +2231,8 @@ void subscriber_list_page(void){
     "       sdigest,"                      /* 5 */
     "       mtime,"                        /* 6 */
     "       date(sctime,'unixepoch'),"     /* 7 */
-    "       (SELECT uid FROM user WHERE login=subscriber.suname)" /* 8 */
+    "       (SELECT uid FROM user WHERE login=subscriber.suname)," /* 8 */
+    "       coalesce(lastContact,mtime/86400)"                     /* 9 */
     " FROM subscriber"
   );
   if( P("only")!=0 ){
@@ -2155,7 +2243,7 @@ void subscriber_list_page(void){
   db_prepare_blob(&q, &sql);
   iNow = time(0);
   @ <table border='1' class='sortable' \
-  @ data-init-sort='6' data-column-types='tttttKt'>
+  @ data-init-sort='6' data-column-types='tttttKKt'>
   @ <thead>
   @ <tr>
   @ <th>Email
@@ -2164,6 +2252,7 @@ void subscriber_list_page(void){
   @ <th>User
   @ <th>Verified?
   @ <th>Last change
+  @ <th>Last contact
   @ <th>Created
   @ </tr>
   @ </thead><tbody>
@@ -2172,6 +2261,8 @@ void subscriber_list_page(void){
     double rAge = (iNow - iMtime)/86400.0;
     int uid = db_column_int(&q, 8);
     const char *zUname = db_column_text(&q, 3);
+    sqlite3_int64 iContact = db_column_int64(&q, 9);
+    double rContact = (iNow/86400) - iContact;
     @ <tr>
     @ <td><a href='%R/alerts?sid=%d(db_column_int(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>
@@ -2184,6 +2275,7 @@ void subscriber_list_page(void){
     }
     @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
     @ <td data-sortkey='%010llx(iMtime)'>%z(human_readable_age(rAge))</td>
+    @ <td data-sortkey='%010llx(iContact)'>%z(human_readable_age(rContact))</td>
     @ <td>%h(db_column_text(&q,7))</td>
     @ </tr>
   }
