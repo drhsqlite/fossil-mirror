@@ -1,5 +1,5 @@
-C Automatic\smessages\srequesting\suser\srenewal\sare\snow\sgenerated,\sabout\sonce\nevery\s7\sdays.\s\sThis\sneeds\smore\stesting\sbefore\sgoing\slive.
-D 2021-05-31T18:58:58.373
+C Take\sthe\semail-renew-cutoff\sinto\saccount\swhen\scomputing\sthe\snumber\sof\nactive\ssubscribers.
+D 2021-05-31T23:31:26.415
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -613,7 +613,7 @@ F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece
 F src/sqlite3.c ac52c7a605d90b3a2ec011b848d6a35f88a96b585edc504fcc15fdae3aac2675
 F src/sqlite3.h 8d3412bbd1df07705c35c464a9f87fb7bd3e6279ad811a00d0a12034591970da
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
-F src/stat.c eadcd0b76d1ef5c3c1ce43c4290ba85953793210a990f8cb699a189a97c061c6
+F src/stat.c 0ddb3663f24da6e0c407633417c165780c65190ed2be477b03e886dca2adec4d
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c dcaff8d262b7dc80d0f7d3ba32ca44e1bf4a92a525ba8af2c4b6941d72bcee9f
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11b7c7699f89b8ac47cf76c60ad6d840fba2cae271533448ecca5b6002f4d0fa
-R 903348cd9f100a6310f2403fb54532d6
+P 01ee25cf58aa6076eb74b8a0a159c73b71287b65df2283654115a949b4028ced
+R 0c220b714b22a6a2d0a660eda14176bd
 U drh
-Z f411d31844b9f4191afc9565e3748ab5
+Z 7689ee5df30aaadbba64726107b52f0e
