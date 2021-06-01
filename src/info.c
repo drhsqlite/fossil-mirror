@@ -511,7 +511,7 @@ void ci_tags_page(void){
   }
   zHash = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   style_header("Tags and Properties");
-  zType = whatis_rid_type(rid);
+  zType = whatis_rid_type_label(rid);
   if(!zType) zType = "Artifact";
   @ <h1>Tags and Properties for %s(zType)  \
   @ %z(href("%R/ci/%!S",zHash))%S(zHash)</a></h1>
