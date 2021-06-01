@@ -1,5 +1,5 @@
-C Minor\srefactoring\sof\s[41f0838cbeac]\sin\sprep\sfor\sexpanding\sthe\stag\scommand\sto\shandle\snon-checkin\sartifacts.
-D 2021-06-01T00:02:11.016
+C The\stag\sadd/cancel\ssubcommands\snow\saccept\sany\sartifact\stype\swhich\sis\srecorded\sin\sthe\stimeline:\scheck-in,\swiki,\stechnote,\sforum,\sticket,\scontrol.\sThey\salso\snow\sexplicitly\sreject\sany\stags\sbeginning\swith\sthe\sinternal-use\sprefixes\s(wiki-,\stkt-,\sevent-).\sThe\stag\sfind/list\ssubcommands\shave\snot\syet\sbeen\supdated\sto\ssupport\sthe\snew\stypes.
+D 2021-06-01T02:51:24.169
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -620,7 +620,7 @@ F src/style.c dcaff8d262b7dc80d0f7d3ba32ca44e1bf4a92a525ba8af2c4b6941d72bcee9f
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
-F src/tag.c 2f2b839b231c63684fa82aa38df938de5901726ae390451e15abcf61f943e421
+F src/tag.c b968574c9d34cb449322d0efd4894fa2b4af16ed8030b5619fef343356f668b7
 F src/tar.c e7e3c2133feaad2a52a2b4bd3eb41226aa0ad2e395ad85ca3302a2b85adf4907
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c 57a908f2f980541428d8a66518bdcb7c6b89b1564481127b362f486062bdcc3c
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 24ccc48160bdc45206412ae4c1d0df9b04cc2f0a15041c5e562932030eefc4c7
-R 301b929dfab672d7fe89b93acb132da5
+P b051ada90d4a6694c2d76cade4b691bac5fa96ff48861ecd6d7e6faa4c707498
+R efcb97afddeceaf664c036a896db0ead
 U stephan
-Z 8ecd79ff402d738b918c6caf8e06a9be
+Z a5aa8dee009c2bf0898e8f728609b625
