@@ -367,39 +367,65 @@ void tag_add_artifact(
 }
 
 /*
+** If zTag is NULL or valid for use as a tag for the `tag add` and
+** `tag cancel` commands, returns without side effects, else emits a
+** fatal error message. We reject certain prefixes to avoid that
+** clients cause undue grief by improperly tagging artifacts as being,
+** e.g., wiki pages or tickets.
+*/
+static void tag_cmd_tagname_check(const char *zTag){
+  if(zTag && *zTag &&
+     (strncmp(zTag,"wiki-",5)==0
+      || strncmp(zTag,"tkt-",4)==0
+      || strncmp(zTag,"event-",6)==0)){
+    fossil_fatal("Invalid prefix for tag name: %s", zTag);
+  }
+}
+
+/*
 ** COMMAND: tag
 **
 ** Usage: %fossil tag SUBCOMMAND ...
 **
 ** Run various subcommands to control tags and properties.
 **
-** > fossil tag add ?OPTIONS? TAGNAME CHECK-IN ?VALUE?
+** > fossil tag add ?OPTIONS? TAGNAME ARTIFACT-ID ?VALUE?
 **
-**         Add a new tag or property to CHECK-IN. The tag will
-**         be usable instead of a CHECK-IN in commands such as
-**         update and merge.  If the --propagate flag is present,
-**         the tag value propagates to all descendants of CHECK-IN
+**         Add a new tag or property to an artifact referenced by
+**         ARTIFACT-ID. For checkins, the tag will be usable instead
+**         of a CHECK-IN in commands such as update and merge. If the
+**         --propagate flag is present and ARTIFACT-ID refers to a
+**         wiki page, forum post, tech-note, or check-in, the tag
+**         propagates to all descendants of that artifact.
 **
 **         Options:
-**           --raw                       Raw tag name.
-**           --propagate                 Propagating tag.
-**           --date-override DATETIME    Set date and time added.
-**           --user-override USER        Name USER when adding the tag.
-**           -n|--dryrun                 Display the tag text, but do not
-**                                       actually insert it into the database.
+**           --raw                      Raw tag name. Ignored for
+**                                      non-CHECK-IN artifacts.
+**           --propagate                Propagating tag.
+**           --date-override DATETIME   Set date and time added.
+**           --user-override USER       Name USER when adding the tag.
+**           -n|--dryrun                Display the tag text, but do not
+**                                      actually insert it into the database.
 **
 **         The --date-override and --user-override options support
 **         importing history from other SCM systems. DATETIME has
 **         the form 'YYYY-MMM-DD HH:MM:SS'.
 **
-** > fossil tag cancel ?--raw? TAGNAME CHECK-IN
+**         Note that fossil uses some tag prefixes internally and this
+**         command will reject tags with these prefixes to avoid
+**         causing problems or confusion: "wiki-", "tkt-", "event-".
 **
-**         Remove the tag TAGNAME from CHECK-IN, and also remove
-**         the propagation of the tag to any descendants.  Use the
-**         the -n|--dryrun option to see what would have happened.
+** > fossil tag cancel ?--raw? TAGNAME ARTIFACT-ID
+**
+**         Remove the tag TAGNAME from the artifact referenced by
+**         ARTIFACT-ID, and also remove the propagation of the tag to
+**         any descendants.  Use the the -n|--dryrun option to see
+**         what would have happened. Certain tag name prefixes are
+**         forbidden, as documented for the 'add' subcommand.
 **
 **         Options:
-**           --raw                       Raw tag name.
+**           --raw                       Raw tag name. Ignored for
+**                                       non-CHECK-IN artifacts.
 **           --date-override DATETIME    Set date and time deleted.
 **           --user-override USER        Name USER when deleting the tag.
 **           -n|--dryrun                 Display the control artifact, but do
@@ -463,17 +489,33 @@ void tag_cmd(void){
     char *zValue;
     int dryRun = 0;
     int fRaw = find_option("raw","",0)!=0;
-    const char *zPrefix = fRaw ? "" : "sym-";
+    const char *zPrefix = "";
     int fPropagate = find_option("propagate","",0)!=0;
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
+    const char *zTag;
+    const char *zObjId;
+    int objType;
     if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("add ?options? TAGNAME CHECK-IN ?VALUE?");
+      usage("add ?options? TAGNAME ARTIFACT-ID ?VALUE?");
     }
+    zTag = g.argv[3];
+    tag_cmd_tagname_check(zTag);
+    zObjId = g.argv[4];
     zValue = g.argc==6 ? g.argv[5] : 0;
+    objType = whatis_rid_type(symbolic_name_to_rid(zObjId, 0));
+    switch(objType){
+      case 0:
+        fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
+        break;
+      case CFTYPE_MANIFEST:
+        zPrefix = fRaw ? "" : "sym-";
+        break;
+      default: break;
+    }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue,
+    tag_add_artifact(zPrefix, zTag, zObjId, zValue,
                      1+fPropagate+dryRun,zDateOvrd,zUserOvrd);
     db_end_transaction(0);
   }else
@@ -486,15 +528,31 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"cancel",n)==0 ){
     int dryRun = 0;
     int fRaw = find_option("raw","",0)!=0;
-    const char *zPrefix = fRaw ? "" : "sym-";
+    const char *zPrefix = "";
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
+    const char *zTag;
+    const char *zObjId;
+    int objType;
     if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 ){
-      usage("cancel ?options? TAGNAME CHECK-IN");
+      usage("cancel ?options? TAGNAME ARTIFACT-ID");
+    }
+    zTag = g.argv[3];
+    tag_cmd_tagname_check(zTag);
+    zObjId = g.argv[4];
+    objType = whatis_rid_type(symbolic_name_to_rid(zObjId, 0));
+    switch(objType){
+      case 0:
+        fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
+        break;
+      case CFTYPE_MANIFEST:
+        zPrefix = fRaw ? "" : "sym-";
+        break;
+      default: break;
     }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun,
+    tag_add_artifact(zPrefix, zTag, zObjId, 0, dryRun,
                      zDateOvrd, zUserOvrd);
     db_end_transaction(0);
   }else
