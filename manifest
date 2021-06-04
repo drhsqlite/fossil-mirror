@@ -1,5 +1,5 @@
-C Updated\stag\slist\ssubcommand\sto\sbe\sable\sto\sdeal\swith\spropagated\stags\son\swiki,\sforum\spost,\sand\stechnote\sartifacts,\swith\san\seye\stowards\snot\sbreaking\sany\shistorical\sscripting\suses.
-D 2021-06-04T11:39:00.853
+C Tweaked\sthe\svarious\swiki\spage\slist\squeries\sto\sensure\sthat\sthey\sdo\snot\sinclude\stags\snamed\swiki-*\sunless\sthose\stags\sappear\sto\srefer\sto\sa\swiki\spage.\sHistorically,\sthe\stag\scommand\shas\sallowed\sentry\sof\ssuch\stags\sand\sat\sleast\sone\sis\sknown\sto\sexist\sin\sanother\stree.
+D 2021-06-04T12:32:05.756
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -532,7 +532,7 @@ F src/json_status.c 91593f5f65d4c146ebbcde800979b8e9a2623ae2e331ecb6d5aee4c3ff8f
 F src/json_tag.c e5831408c4967d13d949c6296d0f6c3bde69ecb2d1d67285128d04112ab94d70
 F src/json_timeline.c 25f5da14306f30a3ce31a8e2448708affddb0ba7f13be29fb7cdaae5383df762
 F src/json_user.c 00121f3de127f20603d276f8c0cfe4ce0290085220cb9976e3b55a6dbbfdecf9
-F src/json_wiki.c 287d1628a7b3295112eb8edfc7541ae6ac6c248c680f26d324e20f097847a22d
+F src/json_wiki.c 99f6a7d8bd2299465920a3edbb66741dd1921e33baa141a895057bc276193e96
 F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 4a4898e9e5708e494e7c27110832decf4675b3017e6f7713527bc1994582e8a3
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
@@ -644,7 +644,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c cc4ade164c7279d559b09c1c446b4ff52e22ae8081de6388f9b90aa7cecaf162
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c b705759d0a39696bc11914e7c1480ef4c7af30c8e02fe75694f32505ae5b8c3f
+F src/wiki.c 115a5e2f5c8f3a3d5772a3e9b172ac2942bf9948eecce3c02ddb65582e845efd
 F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c64fe0b677344e0209731b04925a7aa8a84648d4b2c9482649c5dfbc6a2116f
-R dc4e92a00d789c0fb4521df89c75122d
+P c797abe4c377d14f3c642d038d6e8f7f1cec914aac012d03966c22ab541c3474
+R 68fd3b652e9f7d5a8e78d30be33470bd
 U stephan
-Z d47ab99478084124518d80f2d140eaf4
+Z f0c85e884e322b8757f821a901f1e94f

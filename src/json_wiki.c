@@ -462,7 +462,9 @@ static cson_value * json_wiki_list(){
   blob_append(&sql,"SELECT"
               " DISTINCT substr(tagname,6) as name"
               " FROM tag JOIN tagxref USING('tagid')"
-              " WHERE tagname GLOB 'wiki-*'",
+              " WHERE tagname GLOB 'wiki-*'"
+              " AND TYPEOF(tagxref.value+0)='integer'",
+              /* ^^^ elide wiki- tags which are not wiki pages */
               -1);
   zGlob = json_find_option_cstr("glob",NULL,"g");
   if(zGlob && *zGlob){

@@ -1018,6 +1018,8 @@ static void wiki_render_page_list_json(int verbose, int includeContent){
              " substr(tagname,6) AS name"
              " FROM tag JOIN tagxref USING('tagid')"
              " WHERE tagname GLOB 'wiki-*'"
+             " AND TYPEOF(tagxref.value+0)='integer'"
+             /* ^^^ elide wiki- tags which are not wiki pages */
              " UNION SELECT 'Sandbox' AS name"
              " ORDER BY name COLLATE NOCASE");
   CX("[");
@@ -1761,6 +1763,7 @@ static const char listAllWikiPages[] =
 @ WHERE
 @   tag.tagname GLOB 'wiki-*'
 @   AND tagxref.tagid=tag.tagid
+@   AND TYPEOF(wrid)='integer' -- only wiki- tags which are wiki pages
 @ GROUP BY 1
 @ ORDER BY 2;
 ;
