@@ -746,10 +746,14 @@ int name_to_rid_www(const char *zParamName){
 ** describing the record type, or 0 if the RID does not refer to an
 ** artifact record (as determined by reading the event table).
 **
-** Note that this function neve returns CFTYPE_ATTACHMENT or
+** Note that this function never returns CFTYPE_ATTACHMENT or
 ** CFTYPE_CLUSTER because those are not used in the event table. Thus
 ** it cannot be used to distinguish those artifact types from
 ** non-artifact file content.
+**
+** Potential TODO: if the rid is not found in the timeline, try to
+** match it to a client file and return a hypothetical new
+** CFTYPE_OPAQUE or CFTYPE_NONARTIFACT if a match is found.
 */
 int whatis_rid_type(int rid){
   Stmt q = empty_Stmt;

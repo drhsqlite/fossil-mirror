@@ -372,6 +372,11 @@ void tag_add_artifact(
 ** fatal error message. We reject certain prefixes to avoid that
 ** clients cause undue grief by improperly tagging artifacts as being,
 ** e.g., wiki pages or tickets.
+**
+** Note that we intentionally allow the "sym-" prefix, partly for
+** historical compatibility and partly because it can be applied
+** properly, whereas the other reserved name types have special
+** meanings for fossil and cannot be sensibly manually manipulated.
 */
 static void tag_cmd_tagname_check(const char *zTag){
   if(zTag && *zTag &&
@@ -395,7 +400,7 @@ static void tag_cmd_tagname_check(const char *zTag){
 **         ARTIFACT-ID. For checkins, the tag will be usable instead
 **         of a CHECK-IN in commands such as update and merge. If the
 **         --propagate flag is present and ARTIFACT-ID refers to a
-**         wiki page, forum post, tech-note, or check-in, the tag
+**         wiki page, forum post, technote, or check-in, the tag
 **         propagates to all descendants of that artifact.
 **
 **         Options:
@@ -442,16 +447,27 @@ static void tag_cmd_tagname_check(const char *zTag){
 **           -t|--type TYPE  One of "ci", or "e".
 **           -n|--limit N    Limit to N results.
 **
-** > fossil tag list|ls ?OPTIONS? ?CHECK-IN?
+** > fossil tag list|ls ?OPTIONS? ?ARTIFACT-ID?
 **
-**         List all tags, or if CHECK-IN is supplied, list
-**         all tags and their values for CHECK-IN.  The tagtype option
-**         takes one of: propagated, singleton, cancel.
+**         List all tags or, if ARTIFACT-ID is supplied, all tags and
+**         their values for that artifact. The tagtype option accepts
+**         one of: propagated, singleton, cancel.  For historical
+**         scripting compatibility, the internal tag types "wiki-",
+**         "tkt-", and "event-" (technote) are elided by default
+**         unless the --raw or --prefix options are used.
 **
 **         Options:
-**           --raw           List tags raw names of tags
-**           --tagtype TYPE  List only tags of type TYPE
+**           --raw           List raw names of tags
+**           --tagtype TYPE  List only tags of type TYPE, which must
+**                           be one of: cancel, singleton, propagated
 **           -v|--inverse    Inverse the meaning of --tagtype TYPE.
+**           --prefix        List only tags with the given prefix.
+**                           Fossil-internal prefixes include "sym-"
+**                           (branch name), "wiki-", "event-"
+**                           (technote), and "tkt-" (ticket). The
+**                           prefix is stripped from the resulting
+**                           list unless --raw is provided. Ignored if
+**                           ARTIFACT-ID is provided.
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
@@ -612,7 +628,9 @@ void tag_cmd(void){
     const int fRaw = find_option("raw","",0)!=0;
     const char *zTagType = find_option("tagtype","t",1);
     const int fInverse = find_option("inverse","v",0)!=0;
+    const char *zTagPrefix = find_option("prefix","",1);
     int nTagType = fRaw ? -1 : 0;
+
     if( zTagType!=0 ){
       int l = strlen(zTagType);
       if( strncmp(zTagType,"cancel",l)==0 ){
@@ -626,26 +644,51 @@ void tag_cmd(void){
       }
     }
     if( g.argc==3 ){
+      const int nTagPrefix = zTagPrefix ? (int)strlen(zTagPrefix) : 0;
       db_prepare(&q,
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
         "                 AND tagtype%s%d)"
-        " ORDER BY tagname",
+        " AND CASE WHEN %Q IS NULL THEN 1 ELSE tagname GLOB %Q||'*' "
+        " END ORDER BY tagname",
         zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
-        nTagType
+        nTagType, zTagPrefix, zTagPrefix
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
         if( fRaw ){
           fossil_print("%s\n", zName);
+        }else if( nTagPrefix>0 ){
+          assert(db_column_bytes(&q,0)>=nTagPrefix);
+          fossil_print("%s\n", &zName[nTagPrefix]);
         }else if( strncmp(zName, "sym-", 4)==0 ){
           fossil_print("%s\n", &zName[4]);
         }
       }
       db_finalize(&q);
     }else if( g.argc==4 ){
-      int rid = name_to_rid(g.argv[3]);
+      char const *zObjId = g.argv[3];
+      const int rid = name_to_rid(zObjId);
+      const int objType = whatis_rid_type(rid);
+      int nTagOffset = 0;
+
+      zTagPrefix = 0;
+      if(objType<=0){
+        fossil_fatal("Cannot resolve artifact ID: %s", zObjId);
+      }else if(fRaw==0){
+        /* Figure out the tag prefix to strip */
+        switch(objType){
+          case CFTYPE_MANIFEST: zTagPrefix = "sym-"; break;
+          case CFTYPE_WIKI: zTagPrefix = "wiki-"; break;
+          case CFTYPE_TICKET: zTagPrefix = "tkt-"; break;
+          case CFTYPE_EVENT: zTagPrefix = "event-"; break;
+          default: break;
+        }
+        if(zTagPrefix!=0){
+          nTagOffset = (int)strlen(zTagPrefix);
+        }
+      }
       db_prepare(&q,
         "SELECT tagname, value FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
@@ -658,9 +701,8 @@ void tag_cmd(void){
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
         const char *zValue = db_column_text(&q, 1);
-        if( fRaw==0 ){
-          if( strncmp(zName, "sym-", 4)!=0 ) continue;
-          zName += 4;
+        if( zTagPrefix && strncmp(zName, zTagPrefix, nTagOffset)==0 ){
+          zName += nTagOffset;
         }
         if( zValue && zValue[0] ){
           fossil_print("%s=%s\n", zName, zValue);
