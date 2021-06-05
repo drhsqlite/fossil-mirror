@@ -438,13 +438,17 @@ static void tag_cmd_tagname_check(const char *zTag){
 **
 ** > fossil tag find ?OPTIONS? TAGNAME
 **
-**         List all objects that use TAGNAME.  TYPE can be "ci" for
-**         check-ins or "e" for events. The limit option limits the number
-**         of results to the given value.
+**         List all objects that use TAGNAME.
 **
 **         Options:
-**           --raw           Raw tag name.
-**           -t|--type TYPE  One of "ci", or "e".
+**           --raw           Interprets tag as a raw name instead of a
+**                           branch name and matches any type of artifact.
+**                           Changes the output to include only the
+**                           hashes of matching objects.
+**           -t|--type TYPE  One of: ci (check-in), w (wiki),
+**                           e (event/technote), f (forum post),
+**                           t (ticket). Default is all types. Ignored
+**                           if --raw is used.
 **           -n|--limit N    Limit to N results.
 **
 ** > fossil tag list|ls ?OPTIONS? ?ARTIFACT-ID?
@@ -602,7 +606,10 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      int tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
+      int tagid = db_int(0, "SELECT tagid FROM tag "
+                         "WHERE tagname='%s%q'",
+                         (zType && 'c'==zType[0])
+                         ? "sym-" : ""/*safe-for-%s*/,
                          g.argv[3]);
       if( tagid>0 ){
         blob_append_sql(&sql,

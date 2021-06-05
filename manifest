@@ -1,5 +1,5 @@
-C Tweaked\sthe\svarious\swiki\spage\slist\squeries\sto\sensure\sthat\sthey\sdo\snot\sinclude\stags\snamed\swiki-*\sunless\sthose\stags\sappear\sto\srefer\sto\sa\swiki\spage.\sHistorically,\sthe\stag\scommand\shas\sallowed\sentry\sof\ssuch\stags\sand\sat\sleast\sone\sis\sknown\sto\sexist\sin\sanother\stree.
-D 2021-06-04T12:32:05.756
+C Update\stag\sfind\ssubcommand\sto\sbe\sable\sto\shandle\smore\sartifact\stypes.\sThis\sconcludes(?)\sthe\senhancements\srequired\sfor\sthe\stag\scommand\sto\sbe\sable\sto\smake\suse\sof\sthe\srecent\stag\spropagation\sfeatures.
+D 2021-06-05T11:50:58.877
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -620,7 +620,7 @@ F src/style.c dcaff8d262b7dc80d0f7d3ba32ca44e1bf4a92a525ba8af2c4b6941d72bcee9f
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c 866292dc7a90ff202838256df9df894584da28f8815df9759cde0d6131826e51
-F src/tag.c 4d037176cee7673000c8a5e5b8b54cd44acbf7ae90e7a8a632cab099bed3220f
+F src/tag.c e12980cb95176c104a420ef9aa7f780c17484901497c80f7a84fd926beef408f
 F src/tar.c e7e3c2133feaad2a52a2b4bd3eb41226aa0ad2e395ad85ca3302a2b85adf4907
 F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1a
 F src/th.c 57a908f2f980541428d8a66518bdcb7c6b89b1564481127b362f486062bdcc3c
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c797abe4c377d14f3c642d038d6e8f7f1cec914aac012d03966c22ab541c3474
-R 68fd3b652e9f7d5a8e78d30be33470bd
+P 4218b200312f4203f2672adc6f1970ac08c564e896f64c966f30451e59b6f304
+R bdc480951e23019cec40a8d27ec2a224
 U stephan
-Z f0c85e884e322b8757f821a901f1e94f
+Z 9c121178e442c249eb46f4a4121a06ad
