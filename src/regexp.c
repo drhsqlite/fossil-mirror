@@ -13,12 +13,48 @@
 **   drh@hwaci.com
 **   http://www.hwaci.com/drh/
 **
-*******************************************************************************
+******************************************************************************
 **
 ** This file was adapted from the ext/misc/regexp.c file in SQLite3.  That
 ** file is in the public domain.
 **
 ** See ../www/grep.md for details of the algorithm and RE dialect.
+**
+**
+**  The following regular expression syntax is supported:
+**
+**     X*      zero or more occurrences of X
+**     X+      one or more occurrences of X
+**     X?      zero or one occurrences of X
+**     X{p,q}  between p and q occurrences of X
+**     (X)     match X
+**     X|Y     X or Y
+**     ^X      X occurring at the beginning of the string
+**     X$      X occurring at the end of the string
+**     .       Match any single character
+**     \c      Character c where c is one of \{}()[]|*+?.
+**     \c      C-language escapes for c in afnrtv.  ex: \t or \n
+**     \uXXXX  Where XXXX is exactly 4 hex digits, unicode value XXXX
+**     \xXX    Where XX is exactly 2 hex digits, unicode value XX
+**     [abc]   Any single character from the set abc
+**     [^abc]  Any single character not in the set abc
+**     [a-z]   Any single character in the range a-z
+**     [^a-z]  Any single character not in the range a-z
+**     \b      Word boundary
+**     \w      Word character.  [A-Za-z0-9_]
+**     \W      Non-word character
+**     \d      Digit
+**     \D      Non-digit
+**     \s      Whitespace character
+**     \S      Non-whitespace character
+**
+** A nondeterministic finite automaton (NFA) is used for matching, so the
+** performance is bounded by O(N*M) where N is the size of the regular
+** expression and M is the size of the input string.  The matcher never
+** exhibits exponential behavior.  Note that the X{p,q} operator expands
+** to p copies of X following by q-p copies of X? and that the size of the
+** regular expression in the O(N*M) performance bound is computed after
+** this expansion.
 */
 #include "config.h"
 #include "regexp.h"
@@ -207,7 +243,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           break;
         }
         case RE_OP_NOTWORD: {
-          if( !re_word_char(c) ) re_add_state(pNext, x+1);
+          if( !re_word_char(c) && c!=0 ) re_add_state(pNext, x+1);
           break;
         }
         case RE_OP_DIGIT: {
@@ -215,7 +251,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           break;
         }
         case RE_OP_NOTDIGIT: {
-          if( !re_digit_char(c) ) re_add_state(pNext, x+1);
+          if( !re_digit_char(c) && c!=0 ) re_add_state(pNext, x+1);
           break;
         }
         case RE_OP_SPACE: {
@@ -223,7 +259,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           break;
         }
         case RE_OP_NOTSPACE: {
-          if( !re_space_char(c) ) re_add_state(pNext, x+1);
+          if( !re_space_char(c) && c!=0 ) re_add_state(pNext, x+1);
           break;
         }
         case RE_OP_BOUNDARY: {
@@ -248,8 +284,11 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           rc = 1;
           goto re_match_end;
         }
-        case RE_OP_CC_INC:
         case RE_OP_CC_EXC: {
+          if( c==0 ) break;
+          /* fall-through */
+        }
+        case RE_OP_CC_INC: {
           int j = 1;
           int n = pRe->aArg[x];
           int hit = 0;
@@ -625,7 +664,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   ** unicode characters beyond plane 0 - those are very rare and this is
   ** just an optimization. */
   if( pRe->aOp[0]==RE_OP_ANYSTAR && !noCase ){
-    for(j=0, i=1; j<sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
+    for(j=0, i=1; j<(int)sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
       unsigned x = pRe->aArg[i];
       if( x<=127 ){
         pRe->zInit[j++] = (unsigned char)x;
@@ -666,6 +705,7 @@ static void re_sql_func(
   const char *zErr;         /* Compile error message */
   int setAux = 0;           /* True to invoke sqlite3_set_auxdata() */
 
+  (void)argc;  /* Unused */
   pRe = sqlite3_get_auxdata(context, 0);
   if( pRe==0 ){
     zPattern = (const char*)sqlite3_value_text(argv[0]);
