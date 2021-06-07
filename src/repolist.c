@@ -33,6 +33,7 @@ struct RepoInfo {
                         ** for the repository list.  2 means do use this
                         ** repository but do not display it in the list. */
   char *zProjName;      /* Project Name.  Memory from fossil_malloc() */
+  char *zLoginGroup;    /* Name of login group, or NULL.  Malloced() */
   double rMTime;        /* Last update.  Julian day number */
 };
 #endif
@@ -50,6 +51,7 @@ static void remote_repo_info(RepoInfo *pRepo){
   pRepo->isRepolistSkin = 0;
   pRepo->isValid = 0;
   pRepo->zProjName = 0;
+  pRepo->zLoginGroup = 0;
   pRepo->rMTime = 0.0;
 
   g.dbIgnoreErrors++;
@@ -70,6 +72,13 @@ static void remote_repo_info(RepoInfo *pRepo){
   if( rc ) goto finish_repo_list;
   if( sqlite3_step(pStmt)==SQLITE_ROW ){
     pRepo->zProjName = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
+  }
+  sqlite3_finalize(pStmt);
+  rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
+                              " WHERE name='login-group-name'",
+                          -1, &pStmt, 0);
+  if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+    pRepo->zLoginGroup = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
   }
   sqlite3_finalize(pStmt);
   rc = sqlite3_prepare_v2(db, "SELECT max(mtime) FROM event", -1, &pStmt, 0);
@@ -151,10 +160,11 @@ int repo_list_page(void){
     double rNow;
     blob_append_sql(&html,
       "<table border='0' class='sortable' data-init-sort='1'"
-      " data-column-types='txtxk'><thead>\n"
+      " data-column-types='txtxkxt'><thead>\n"
       "<tr><th>Filename<th width='20'>"
       "<th>Project Name<th width='20'>"
-      "<th>Last Modified</tr>\n"
+      "<th>Last Modified<th width='20'>"
+      "<th>Login Group</tr>\n"
       "</thead><tbody>\n");
     db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
@@ -225,9 +235,15 @@ int repo_list_page(void){
         blob_append_sql(&html, "<td></td><td></td>\n");
       }
       blob_append_sql(&html,
-        "<td></td><td data-sortkey='%08x'>%h</tr>\n",
+        "<td></td><td data-sortkey='%08x'>%h</td>\n",
         iAge, zAge);
       fossil_free(zAge);
+      if( x.zLoginGroup ){
+        blob_append_sql(&html, "<td></td><td>%h</td></tr>\n", x.zLoginGroup);
+        fossil_free(x.zLoginGroup);
+      }else{
+        blob_append_sql(&html, "<td></td><td></td></tr>\n");
+      }
       sqlite3_free(zUrl);
     }
     db_finalize(&q);
