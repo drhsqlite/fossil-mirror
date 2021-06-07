@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** Logic for email notification, also known as "alerts".
+** Logic for email notification, also known as "alerts" or "subscriptions".
 **
 ** Are you looking for the code that reads and writes the internet
 ** email protocol?  That is not here.  See the "smtp.c" file instead.
@@ -2592,15 +2592,6 @@ void email_header(Blob *pOut){
 }
 
 /*
-** Append the "unsubscribe" notification and other footer text to
-** the end of an email alert being assemblied in pOut.
-*/
-void alert_footer(Blob *pOut){
-  blob_appendf(pOut, "\n-- \nTo unsubscribe: %s/unsubscribe\n",
-     db_get("email-url","http://localhost:8080"));
-}
-
-/*
 ** COMMAND:  test-alert
 **
 ** Usage: %fossil test-alert EVENTID ...
@@ -2663,7 +2654,6 @@ void test_alert_cmd(void){
     blob_append(&out, blob_buffer(&p->txt), blob_size(&p->txt));
   }
   alert_free_eventlist(pEvent);
-  alert_footer(&out);
   fossil_print("%s", blob_str(&out));
   blob_reset(&out);
   db_end_transaction(0);
