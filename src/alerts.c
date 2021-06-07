@@ -2710,6 +2710,11 @@ void test_add_alert_cmd(void){
 }
 
 /*
+** Minimum number of days between renewal messages
+*/
+#define ALERT_RENEWAL_MSG_FREQUENCY  7   /* Do renewals at most once/week */
+
+/*
 ** Construct the header and body for an email message that will alert
 ** a subscriber that their subscriptions are about to expire.
 */
@@ -2727,8 +2732,13 @@ static void alert_renewal_msg(
   blob_appendf(pHdr,"Subject: %s Subscription to %s expires soon\r\n",
     zRepoName, zUrl);
   blob_appendf(pBody,
-    "You are currently receiving email notification of the following kinds\n"
-    "of changes to the %s Fossil repository at %s:\n\n",
+    "\nTo renew your subscription, click the following link:\n"
+    "\n  %s/renew/%s\n\n",
+    zUrl, zCode
+  );
+  blob_appendf(pBody,
+    "You are currently receiving email notification for the following events\n"
+    "on the %s Fossil repository at %s:\n\n",
     zRepoName, zUrl
   );
   if( strchr(zSub, 'a') )  blob_appendf(pBody, "  *  Announcements\n");
@@ -2736,17 +2746,12 @@ static void alert_renewal_msg(
   if( strchr(zSub, 'f') )  blob_appendf(pBody, "  *  Forum posts\n");
   if( strchr(zSub, 't') )  blob_appendf(pBody, "  *  Ticket changes\n");
   if( strchr(zSub, 'w') )  blob_appendf(pBody, "  *  Wiki changes\n");
-  blob_appendf(pBody,
-    "\nTo continue receiving email notifications, click the following link\n"
-    "\n  %s/renew/%s\n\n",
-    zUrl, zCode
-  );
-  blob_appendf(pBody,
+  blob_appendf(pBody, "\n"
     "If you take no action, your subscription will expire and you will be\n"
-    "unsubscribed in about a week.  To make other changes or to unsubscribe\n"
+    "unsubscribed in about %d days.  To make other changes or to unsubscribe\n"
     "immediately, visit the following webpage:\n\n"
     "  %s/alerts/%s\n\n",
-    zUrl, zCode
+    ALERT_RENEWAL_MSG_FREQUENCY, zUrl, zCode
   );
 }
 
@@ -2761,11 +2766,6 @@ static void alert_renewal_msg(
 #define SENDALERT_RENEWAL     0x0010    /* Send renewal notices */
 
 #endif /* INTERFACE */
-
-/*
-** Minimum number of days between renewal messages
-*/
-#define ALERT_RENEWAL_MSG_FREQUENCY  7   /* Do renewals at most once/week */
 
 /*
 ** Send alert emails to subscribers.
