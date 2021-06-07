@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\ssubscription-about-to-expire\semail\smessage.
-D 2021-06-07T15:30:25.793
+C Fix\sthe\s"fossil\sbisect\sui"\scommand\sso\sthat\sit\sworks\seven\sif\sthe\shost\smachine\nis\susing\sIPv6\sfor\sloopback.\n[forum:/forumpost/a71dbc08d7|Forum\spost\sa71dbc08d7].
+D 2021-06-07T16:47:47.621
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -628,7 +628,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
 F src/th_main.c a304904b257c7a9514961725ebb76e9822ffdd4ec5006f84fa14cfbc43c408e8
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 8f4bfb700a75e067f617535e02f55d18a55ae7db9a0c1b040e8d0d66d9612952
+F src/timeline.c 59d7bdc25c39d990d96b16f231767e3df2b19044ef8f279c39d1d47e2c50eb48
 F src/tkt.c 589d4f59658157b82a526681852fd0b666392c2a0cbf2f858bc636fee27155bd
 F src/tktsetup.c de356833b4b7e4d02c90092434392d197380258205527a8afed2b31c540dc42c
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d28db4da1217e35aee5bb73d570cbb6ff8fc8e3aff2023259b08b27a6397d07
-R 6d290a99b8398fab35c5ed38e35b59fe
+P 15081699987ae6a3e9a864a24a9dfb0f7722bf8dc2b83233f44ff768c0f8d91a
+R d0d0d85334f2c235294e6b52d932eb3f
 U drh
-Z 9e16b7e57f8116de0143dd57b437f27b
+Z f5a8eaf92847aa5b09f11aad05dff593

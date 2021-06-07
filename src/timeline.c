@@ -1918,10 +1918,7 @@ void page_timeline(void){
     zType = "ci";
     disableY = 1;
   }
-  if( bisectLocal
-   && fossil_strcmp(g.zIpAddr,"127.0.0.1")==0
-   && db_open_local(0)
-  ){
+  if( bisectLocal && cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     int iCurrent = db_lget_int("checkout",0);
     char *zPerm = bisect_permalink();
     bisect_create_bilog_table(iCurrent, 0, 1);
