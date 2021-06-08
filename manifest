@@ -1,5 +1,5 @@
-C Include\sthe\slogin-group\sin\sthe\srepository\slist\sof\s"fossil\sall\sui".
-D 2021-06-07T17:48:18.264
+C Show\sthe\stime\sof\sthe\smost\srecent\sdigest\son\sthe\semail\snotification\sstatus.
+D 2021-06-08T18:20:14.441
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -613,7 +613,7 @@ F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece
 F src/sqlite3.c 02cd987a39ba8f9322dcc9c2520f5b39c6f7552c5a1a79f1b0b66223e1c507b2
 F src/sqlite3.h cdf7b236447a84595f40b420b714db4bcf32d952210236a1e57e87606b551ef7
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
-F src/stat.c 0ddb3663f24da6e0c407633417c165780c65190ed2be477b03e886dca2adec4d
+F src/stat.c 7654ac3439fb00ad01943af0f9b568214169e19a04471ab7746898e498bdd58b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c dcaff8d262b7dc80d0f7d3ba32ca44e1bf4a92a525ba8af2c4b6941d72bcee9f
@@ -993,7 +993,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d79135b764968b9befeb44d73f494556ddb2aaa99925c268cff6609b43e0d37
-R 47f82320a8a1f30aa358046671dca363
+P fe178faa44f3f97ef609ca6f9bb6ba57d9db9b4f73217bc97eb5a13192b0b4b3
+R 0baa1c5558889b75d88639296d529991
 U drh
-Z 4fc69fa4122626119a4d0405cfaf4136
+Z bbbc11f4b8ae83aaab5454b5514aa6dd

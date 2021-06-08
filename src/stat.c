@@ -62,6 +62,7 @@ void stats_for_email(void){
   int nSub, nASub, nPend, nDPend;
   const char *zDir, *zDb, *zCmd, *zRelay;
   int iCutoff;
+  double rDigest;
   @ <tr><th>Outgoing&nbsp;Email:</th><td>
   if( fossil_strcmp(zDest,"pipe")==0
    && (zCmd = db_get("email-send-command",0))!=0
@@ -119,6 +120,16 @@ void stats_for_email(void){
                    " AND lastContact>=%d;", iCutoff);
   @ %,d(nASub) active, %,d(nSub) total
   @ </td></tr>
+  rDigest = db_double(-1.0, "SELECT (julianday('now') - value)*24.0"
+                            " FROM config WHERE name='email-last-digest'");
+  if( rDigest>0.0 ){
+    @ <tr><th>Last Digest:</th><td>Approximately \
+    if( rDigest>48.0 ){
+      @ %.1f(rDigest/24.0) days ago</td>
+    }else{
+      @ %.1f(rDigest) hours ago</td>
+    }
+  }
 }
 
 /*
