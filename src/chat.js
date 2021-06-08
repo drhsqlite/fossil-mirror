@@ -109,9 +109,7 @@
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file'),
-        contentDiv: E1('div.content'),
-        btnMsgHome: E1('#chat-scroll-top'),
-        btnMsgEnd: E1('#chat-scroll-bottom')
+        contentDiv: E1('div.content')
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -230,9 +228,9 @@
         }
         return this;
       },
-      /* Injects element e as a new row in the chat, at the top of the
-         list if atEnd is falsy, else at the end of the list, before
-         the load-history widget. */
+      /* Injects element e as a new row in the chat, at the oldest end
+         of the list if atEnd is truthy, else at the newest end of the
+         list. */
       injectMessageElem: function f(e, atEnd){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.messagesWrapper,
@@ -341,14 +339,6 @@
       toggleChatOnlyMode: function(){
         return this.chatOnlyMode(!this.isChatOnlyMode());
       },
-      /* Turn the message area top/bottom buttons on (yes===true), off
-         (yes==false), or toggle them (no arguments). Returns this. */
-      toggleNavButtons: function(yes){
-        const e = [this.e.btnMsgHome, this.e.btnMsgEnd], c = 'hidden';
-        if(0===arguments.length) D.toggleClass(e, c);
-        else if(!arguments[0]) D.addClass(e, c);
-        else D.removeClass(e, c);
-      },
       messageIsInView: function(e){
         return e ? overlapsElemView(e, this.e.messagesWrapper) : false;
       },
@@ -390,7 +380,7 @@
          Sets the current new-message audio alert URI (must be a
          repository-relative path which responds with an audio
          file). Pass a falsy value to disable audio alerts. Returns
-         this. This setting is persistent. Returns this.
+         this.
       */
       setNewMessageSound: function f(uri){
         delete this.playNewMessageSound.audio;
@@ -421,7 +411,6 @@
     cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
     cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
-
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
       return Array.prototype.slice.call(args,0);
@@ -445,14 +434,14 @@
       const args = argsToArray(arguments);
       console.error("chat error:",args);
       const d = new Date().toISOString(),
-            msg = {
+            mw = new this.MessageWidget({
               isError: true,
               xfrom: null,
               msgid: -1,
               mtime: d,
               lmtime: d,
               xmsg: args
-            }, mw = new this.MessageWidget(msg);
+            });
       this.injectMessageElem(mw.e.body);
       mw.scrollIntoView();
     };
@@ -616,9 +605,6 @@
       ].join('');
     };
     cf.prototype = {
-      setLabel: function(label){
-        return this;
-      },
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
       },
@@ -638,10 +624,12 @@
         const d = new Date(m.mtime);
         D.clearElement(this.e.tab);
         var contentTarget = this.e.content;
+        var eXFrom /* element holding xfrom name */;
         if(m.xfrom){
+          eXFrom = D.append(D.addClass(D.span(), 'xfrom'), m.xfrom);
           D.append(
-            this.e.tab,
-            D.text(m.xfrom," #",(m.msgid||'???'),' @ ',theTime(d))
+            this.e.tab, eXFrom,
+            D.text(" #",(m.msgid||'???'),' @ ',theTime(d))
           );
         }else{/*notification*/
           D.addClass(this.e.body, 'notification');
@@ -695,6 +683,9 @@
           }
         }
         this.e.tab.addEventListener('click', this._handleLegendClicked, false);
+        if(eXFrom){
+          eXFrom.addEventListener('click', ()=>this.e.tab.click(), false);
+        }
         return this;
       },
       /* Event handler for clicking .message-user elements to show their
@@ -967,10 +958,6 @@
         const v = Chat.settings.toggle('images-inline');
         F.toast.message("Image mode set to "+(v ? "inline" : "hyperlink")+".");
       }
-    },{
-      label: "Message home/end buttons",
-      boolValue: ()=>!Chat.e.btnMsgHome.classList.contains('hidden'),
-      callback: ()=>Chat.toggleNavButtons()
     }];
 
     /** Set up selection list of notification sounds. */
@@ -1085,19 +1072,6 @@
       return rect.top - popupSize.height -2;
     };
   })()/*#chat-settings-button setup*/;
-
-  (function(){ /* buttons to scroll to the begin/end of the messages. */
-    Chat.e.btnMsgEnd.addEventListener('click',function(ev){
-      ev.preventDefault();
-      Chat.scrollMessagesTo(1);
-      return false;
-    });
-    Chat.e.btnMsgHome.addEventListener('click',function(ev){
-      ev.preventDefault();
-      Chat.scrollMessagesTo(-1);
-      return false;
-    });
-  })();
   
   /** Callback for poll() to inject new content into the page.  jx ==
       the response from /chat-poll. If atEnd is true, the message is

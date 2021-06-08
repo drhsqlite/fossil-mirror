@@ -388,10 +388,10 @@ int file_nondir_objects_on_path(const char *zRoot, const char *zFile){
 int file_unsafe_in_tree_path(const char *zFile){
   int n;
   if( !file_is_absolute_path(zFile) ){
-    fossil_panic("%s is not an absolute pathname",zFile);
+    fossil_fatal("%s is not an absolute pathname",zFile);
   }
   if( fossil_strnicmp(g.zLocalRoot, zFile, (int)strlen(g.zLocalRoot)) ){
-    fossil_panic("%s is not a prefix of %s", g.zLocalRoot, zFile);
+    fossil_fatal("%s is not a prefix of %s", g.zLocalRoot, zFile);
   }
   n = file_nondir_objects_on_path(g.zLocalRoot, zFile);
   if( n ){
@@ -1150,9 +1150,9 @@ char *file_getcwd(char *zBuf, int nBuf){
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
     if( errno==ERANGE ){
-      fossil_panic("pwd too big: max %d", nBuf-1);
+      fossil_fatal("pwd too big: max %d", nBuf-1);
     }else{
-      fossil_panic("cannot find current working directory; %s",
+      fossil_fatal("cannot find current working directory; %s",
                    strerror(errno));
     }
   }
@@ -1368,6 +1368,7 @@ static void emitFileStat(
   fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
   fossil_print("  file_is_reserved_name  = %d\n",
                                              file_is_reserved_name(zFull,-1));
+  fossil_print("  file_in_cwd            = %d\n", file_in_cwd(zPath));
   blob_reset(&x);
   if( reset ) resetStat();
 }
@@ -1699,6 +1700,39 @@ void cmd_test_tree_name(void){
 }
 
 /*
+** zFile is the name of a file.  Return true if that file is in the
+** current working directory (the "pwd" or file_getcwd() directory).
+** Return false if the file is someplace else.
+*/
+int file_in_cwd(const char *zFile){
+  char *zFull = file_canonical_name_dup(zFile);
+  char *zCwd = file_getcwd(0,0);
+  size_t nCwd = strlen(zCwd);
+  size_t nFull = strlen(zFull);
+  int rc = 1;
+  int (*xCmp)(const char*,const char*,int);
+
+  if( filenames_are_case_sensitive() ){
+    xCmp = fossil_strncmp;
+  }else{
+    xCmp = fossil_strnicmp;
+  }
+
+  if( nFull>nCwd+1
+   && xCmp(zFull,zCwd,nCwd)==0
+   && zFull[nCwd]=='/'
+   && strchr(zFull+nCwd+1, '/')==0
+  ){
+    rc = 1;
+  }else{
+    rc = 0;
+  }
+  fossil_free(zFull);
+  fossil_free(zCwd);
+  return rc;
+}
+
+/*
 ** Parse a URI into scheme, host, port, and path.
 */
 void file_parse_uri(
@@ -1825,7 +1859,7 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
   }
   do{
     blob_zero(pBuf);
-    if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
+    if( cnt++>20 ) fossil_fatal("cannot generate a temporary filename");
     if( zTag==0 ){
       sqlite3_randomness(15, zRand);
       for(i=0; i<15; i++){
@@ -2132,8 +2166,8 @@ const char *file_cleanup_fullpath(const char *z){
 }
 
 /*
-** Count the number of objects (files and subdirectores) in a given
-** directory.  Return the count.  Return -1 of the object is not a
+** Count the number of objects (files and subdirectories) in a given
+** directory.  Return the count.  Return -1 if the object is not a
 ** directory.
 */
 int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){

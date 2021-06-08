@@ -550,3 +550,13 @@ body.forum .forumPostBody > div blockquote {
 pre.udiff {
   overflow-x: auto;
 }
+
+body.report table.report tr td { color: black }
+body.report table.report a { color: blue }
+body.tkt td.tktDspValue { color: black }
+body.tkt td.tktDspValue a { color: blue }
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #442800;
+}

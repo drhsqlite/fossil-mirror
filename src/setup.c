@@ -972,10 +972,10 @@ void setup_settings(void){
 **       If capexpr evalutes to true, then the entry is shown.  If not,
 **       the entry is omitted.  "*" is always true.  "{}" is never true.
 **
-**   *   The fourth term is a list of extra class names to apply to the new
-**       menu entry.  Some skins will classes "desktoponly" and "wideonly"
-**       to only show the entries when the web browser screen is wide or
-**       very wide, respectively.
+**   *   The fourth term is a list of extra class names to apply to the
+**       new menu entry.  Some skins use classes "desktoponly" and
+**       "wideonly" to only show the entries when the web browser
+**       screen is wide or very wide, respectively.
 **
 ** Some custom skins might not use this property.  Whether the property
 ** is used or not a choice made by the skin designer.  Some skins may add
@@ -1092,7 +1092,7 @@ void setup_config(void){
   @      If capexpr evalutes to true, then the entry is shown.  If not,
   @      the entry is omitted.  "*" is always true.  "{}" is never true.
   @ <li> The fourth term is a list of extra class names to apply to the new
-  @      menu entry.  Some skins will classes "desktoponly" and "wideonly"
+  @      menu entry.  Some skins use classes "desktoponly" and "wideonly"
   @      to only show the entries when the web browser screen is wide or
   @      very wide, respectively.
   @ </ol>

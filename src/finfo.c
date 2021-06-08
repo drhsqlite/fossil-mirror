@@ -33,6 +33,9 @@
 ** and "--offset P" options limits the output to the first N changes
 ** after skipping P changes.
 **
+** The -i mode will print the artifact ID of FILENAME given the REVISION
+** provided by the -r flag (which is required).
+**
 ** In the -s mode prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
@@ -44,6 +47,7 @@
 **   -b|--brief           Display a brief (one line / revision) summary
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
+**   -i|--id              Print the artifact ID (requires -r)
 **   -l|--log             Select log mode (the default)
 **   -n|--limit N         Display the first N changes (default unlimited).
 **                        N less than 0 means no limit.
@@ -136,6 +140,25 @@ void finfo_cmd(void){
     }
     blob_write_to_file(&record, "-");
     blob_reset(&record);
+    blob_reset(&fname);
+  }else if( find_option("id","i",0) ){
+    Blob fname;
+    const char *zRevision = find_option("revision", "r", 1);
+
+    verify_all_options();
+
+    if( zRevision==0 ) usage("-i|--id also requires -r|--revision");
+    if( g.argc!=3 ) usage("-r|--revision REVISION FILENAME");
+    file_tree_name(g.argv[2], &fname, 0, 1);
+    int rid = db_int(0, "SELECT rid FROM blob WHERE uuid ="
+                         "  (SELECT uuid FROM files_of_checkin(%Q)"
+                         "   WHERE filename=%B %s)",
+                     zRevision, &fname, filename_collation());
+    if( rid==0 ) {
+      fossil_fatal("file not found for revision %s: %s",
+                   zRevision, blob_str(&fname));
+    }
+    whatis_rid(rid,0);
     blob_reset(&fname);
   }else{
     Blob line;
@@ -660,7 +683,6 @@ void finfo_page(void){
     if( (tmFlags & TIMELINE_COMPACT)!=0 ){
       @ <span class='timelineEllipsis' data-id='%d(frid)' \
       @ id='ellipsis-%d(frid)'>...</span>
-      @ <span class='clutter timelineCompactDetail'
     }
     if( tmFlags & TIMELINE_COLUMNAR ){
       if( zBgClr && zBgClr[0] ){

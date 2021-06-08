@@ -137,8 +137,8 @@ int fossil_any_has_fork(int rcvid){
 */
 static void add_renames(
   const char *zFnCol, /* The FV column for the filename in vid */
-  int vid,            /* The desired version's RID */
-  int nid,            /* Version N's RID */
+  int vid,            /* The desired version's checkin RID */
+  int nid,            /* The	checkin rid for the name pivot */
   int revOK,          /* OK to move backwards (child->parent) if true */
   const char *zDebug  /* Generate trace output if not NULL */
 ){
@@ -176,6 +176,103 @@ static void vmerge_insert(int id, int rid){
     id, rid, rid
   );
 }
+
+/*
+** Print the contents of the "fv" table on standard output, for debugging
+** purposes.
+**
+** Only show entries where a file has changed, unless showAll is true.
+*/
+static void debug_fv_dump(int showAll){
+  Stmt q;
+  if( showAll ){
+    db_prepare(&q,
+       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
+       "       isexe, islinkv, islinkm, fnn FROM fv"
+    );
+  }else{
+    db_prepare(&q,
+       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
+       "       isexe, islinkv, islinkm, fnn FROM fv"
+       " WHERE chnged OR (ridv!=ridm AND ridm!=ridp)"
+    );
+  }
+  while( db_step(&q)==SQLITE_ROW ){
+     fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d "
+                  " islinkv=%d islinkm=%d\n",
+        db_column_int(&q, 0),
+        db_column_int(&q, 5),
+        db_column_int(&q, 6),
+        db_column_int(&q, 7),
+        db_column_int(&q, 4),
+        db_column_int(&q, 8),
+        db_column_int(&q, 9),
+        db_column_int(&q, 10));
+     fossil_print("     fn  = [%s]\n", db_column_text(&q, 1));
+     fossil_print("     fnp = [%s]\n", db_column_text(&q, 2));
+     fossil_print("     fnm = [%s]\n", db_column_text(&q, 3));
+     fossil_print("     fnn = [%s]\n", db_column_text(&q, 11));
+  }
+  db_finalize(&q);
+}
+
+/*
+** Print the content of the VFILE table on standard output, for
+** debugging purposes.
+*/
+static void debug_show_vfile(void){
+  Stmt q;
+  int pvid = -1;
+  db_prepare(&q,
+    "SELECT vid, id, chnged, deleted, isexe, islink, rid, mrid, mtime,"
+          " pathname, origname, mhash FROM vfile"
+    " ORDER BY vid, pathname"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int vid = db_column_int(&q, 0);
+    int chnged = db_column_int(&q, 2);
+    int dltd = db_column_int(&q, 3);
+    int isexe = db_column_int(&q, 4);
+    int islnk = db_column_int(&q, 5);
+    int rid = db_column_int(&q, 6);
+    int mrid = db_column_int(&q, 7);
+    const char *zPath = db_column_text(&q, 9);
+    const char *zOrig = db_column_text(&q, 10);
+    if( vid!=pvid ){
+      fossil_print("VFILE vid=%d (%z):\n", vid,
+         db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid));
+      pvid = vid;
+    }
+    fossil_print("   rid %-6d mrid %-6d %4s %3s %3s %3s %s",
+       rid, mrid,
+       chnged ? "chng" : "",
+       dltd   ? "del" : "",
+       isexe  ? "exe" : "",
+       islnk  ? "lnk" : "", zPath);
+    if( zOrig && zOrig[0] ){
+      fossil_print(" <- %s\n", zOrig);
+    }else{
+      fossil_print("\n");
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** COMMAND: test-show-vfile
+** Usage:  %fossil test-show-vfile
+**
+** Show the content of the VFILE table in a local check-out.
+*/
+void test_show_vfile_cmd(void){
+  if( g.argc!=2 ){
+    fossil_fatal("unknown arguments to the %s command\n", g.argv[1]);
+  }
+  verify_all_options();
+  db_must_be_within_tree();
+  debug_show_vfile();  
+}
+
 
 /*
 ** COMMAND: merge
@@ -250,6 +347,7 @@ void merge_cmd(void){
   const char *zBinGlob; /* The value of --binary */
   const char *zPivot;   /* The value of --baseline */
   int debugFlag;        /* True if --debug is present */
+  int showVfileFlag;    /* True if the --show-vfile flag is present */
   int keepMergeFlag;    /* True if --keep-merge-files is present */
   int nConflict = 0;    /* Number of conflicts seen */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
@@ -274,7 +372,6 @@ void merge_cmd(void){
   pickFlag = find_option("cherrypick",0,0)!=0;
   integrateFlag = find_option("integrate",0,0)!=0;
   backoutFlag = find_option("backout",0,0)!=0;
-  debugFlag = find_option("debug",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -284,12 +381,31 @@ void merge_cmd(void){
   zPivot = find_option("baseline",0,1);
   keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
 
+  /* Undocumented --debug and --show-vfile options:
+  **
+  ** When included on the command-line, --debug causes lots of state
+  ** information to be displayed.  This option is undocumented as it
+  ** might change or be eliminated in future releases.
+  **
+  ** The --show-vfile flag does a dump of the VFILE table for reference. 
+  **
+  ** Hints:
+  **   *  Combine --debug and --verbose for still more output.
+  **   *  The --dry-run option is also useful in combination with --debug.
+  */
+  debugFlag = find_option("debug",0,0)!=0;
+  if( debugFlag && verboseFlag ) debugFlag = 2;
+  showVfileFlag = find_option("show-vfile",0,0)!=0;
+
   verify_all_options();
   db_must_be_within_tree();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("nothing is checked out");
+  }
+  if( forceFlag==0 && leaf_is_closed(vid) ){
+    fossil_fatal("cannot merge into a closed leaf. Use --force to override");
   }
   if( !dryRunFlag ){
     if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
@@ -443,14 +559,16 @@ void merge_cmd(void){
   if( debugFlag ){
     char *z;
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nid);
-    fossil_print("N=%d %z\n", nid, z);
+    fossil_print("N=%-4d %z (file rename pivot)\n", nid, z);
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pid);
-    fossil_print("P=%d %z\n", pid, z);
+    fossil_print("P=%-4d %z (file content pivot)\n", pid, z);
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
-    fossil_print("M=%d %z\n", mid, z);
+    fossil_print("M=%-4d %z (merged-in version)\n", mid, z);
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
-    fossil_print("V=%d %z\n", vid, z);
+    fossil_print("V=%-4d %z (current version)\n", vid, z);
+    fossil_print("vAncestor = '%c'\n", vAncestor);
   }
+  if( showVfileFlag ) debug_show_vfile();
 
   /*
   ** The vfile.pathname field is used to match files against each other.  The
@@ -459,21 +577,21 @@ void merge_cmd(void){
   */
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
-    "CREATE TEMP TABLE fv("
-    "  fn TEXT UNIQUE %s,"        /* The filename */
-    "  idv INTEGER DEFAULT 0,"    /* VFILE entry for current version */
-    "  idp INTEGER DEFAULT 0,"    /* VFILE entry for the pivot */
-    "  idm INTEGER DEFAULT 0,"    /* VFILE entry for version merging in */
-    "  chnged BOOLEAN,"           /* True if current version has been edited */
-    "  ridv INTEGER DEFAULT 0,"   /* Record ID for current version */
-    "  ridp INTEGER DEFAULT 0,"   /* Record ID for pivot */
-    "  ridm INTEGER DEFAULT 0,"   /* Record ID for merge */
-    "  isexe BOOLEAN,"            /* Execute permission enabled */
-    "  fnp TEXT UNIQUE %s,"       /* The filename in the pivot */
-    "  fnm TEXT UNIQUE %s,"       /* The filename in the merged version */
-    "  fnn TEXT UNIQUE %s,"       /* The filename in the name pivot */
-    "  islinkv BOOLEAN,"          /* True if current version is a symlink */
-    "  islinkm BOOLEAN"           /* True if merged version in is a symlink */
+    "CREATE TEMP TABLE fv(\n"
+    "  fn TEXT UNIQUE %s,\n"       /* The filename */
+    "  idv INTEGER DEFAULT 0,\n"   /* VFILE entry for current version */
+    "  idp INTEGER DEFAULT 0,\n"   /* VFILE entry for the pivot */
+    "  idm INTEGER DEFAULT 0,\n"   /* VFILE entry for version merging in */
+    "  chnged BOOLEAN,\n"          /* True if current version has been edited */
+    "  ridv INTEGER DEFAULT 0,\n"  /* Record ID for current version */
+    "  ridp INTEGER DEFAULT 0,\n"  /* Record ID for pivot */
+    "  ridm INTEGER DEFAULT 0,\n"  /* Record ID for merge */
+    "  isexe BOOLEAN,\n"           /* Execute permission enabled */
+    "  fnp TEXT UNIQUE %s,\n"      /* The filename in the pivot */
+    "  fnm TEXT UNIQUE %s,\n"      /* The filename in the merged version */
+    "  fnn TEXT UNIQUE %s,\n"      /* The filename in the name pivot */
+    "  islinkv BOOLEAN,\n"         /* True if current version is a symlink */
+    "  islinkm BOOLEAN\n"          /* True if merged version in is a symlink */
     ");",
     filename_collation(), filename_collation(), filename_collation(),
     filename_collation()
@@ -485,6 +603,73 @@ void merge_cmd(void){
   add_renames("fn", vid, nid, 0, debugFlag ? "N->V" : 0);
   add_renames("fnp", pid, nid, 0, debugFlag ? "N->P" : 0);
   add_renames("fnm", mid, nid, backoutFlag, debugFlag ? "N->M" : 0);
+  if( debugFlag ){
+    fossil_print("******** FV after name change search *******\n");
+    debug_fv_dump(1);
+  }
+  if( nid!=pid ){
+    /* See forum thread https://fossil-scm.org/forum/forumpost/549700437b
+    **
+    ** If a filename changes between nid and one of the other check-ins
+    ** pid, vid, or mid, then it might not have changed for all of them.
+    ** try to fill in the appropriate filename in all slots where the
+    ** name is missing.
+    **
+    ** This does not work if
+    **   (1) The filename changes more than once in between nid and vid/mid
+    **   (2) Two or more filenames swap places - for example if A is renamed
+    **       to B and B is renamed to A.
+    ** The Fossil merge algorithm breaks down in those cases.  It will need
+    ** to be completely rewritten to handle such complex cases.  Such cases
+    ** appear to be rare, and also confusing to humans.
+    */
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fnp=vfile.pathname FROM vfile"
+      " WHERE fnp IS NULL"
+      " AND vfile.pathname = fv.fnn"
+      " AND vfile.vid=%d;",
+      pid
+    );
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fn=vfile.pathname FROM vfile"
+      " WHERE fn IS NULL"
+      " AND vfile.pathname = coalesce(fv.fnp,fv.fnn)"
+      " AND vfile.vid=%d;",
+      vid
+    );
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fnm=vfile.pathname FROM vfile"
+      " WHERE fnm IS NULL"
+      " AND vfile.pathname = coalesce(fv.fnp,fv.fnn)"
+      " AND vfile.vid=%d;",
+      mid
+    );
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fnp=vfile.pathname FROM vfile"
+      " WHERE fnp IS NULL"
+      " AND vfile.pathname IN (fv.fnm,fv.fn)"
+      " AND vfile.vid=%d;",
+      pid
+    );
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fn=vfile.pathname FROM vfile"
+      " WHERE fn IS NULL"
+      " AND vfile.pathname = fv.fnm"
+      " AND vfile.vid=%d;",
+      vid
+    );
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fnm=vfile.pathname FROM vfile"
+      " WHERE fnm IS NULL"
+      " AND vfile.pathname = fv.fn"
+      " AND vfile.vid=%d;",
+      mid
+    );
+  }
+  if( debugFlag ){
+    fossil_print("******** FV after name change fill-in *******\n");
+    debug_fv_dump(1);
+  }
 
   /*
   ** Add files found in V
@@ -499,6 +684,10 @@ void merge_cmd(void){
     "  WHERE vid=%d;",
     vAncestor, vid
   );
+  if( debugFlag>=2 ){
+    fossil_print("******** FV after adding files in current version *******\n");
+    debug_fv_dump(1);
+  }
 
   /*
   ** Add files found in P
@@ -511,6 +700,10 @@ void merge_cmd(void){
     " SELECT coalesce(origname,pathname) FROM vfile WHERE vid=%d;",
     pid
   );
+  if( debugFlag>=2 ){
+    fossil_print("******** FV after adding pivot files *******\n");
+    debug_fv_dump(1);
+  }
 
   /*
   ** Add files found in M
@@ -521,6 +714,10 @@ void merge_cmd(void){
     " SELECT pathname FROM vfile WHERE vid=%d;",
     mid
   );
+  if( debugFlag>=2 ){
+    fossil_print("******** FV after adding merge-in files *******\n");
+    debug_fv_dump(1);
+  }
 
   /*
   ** Compute the file version ids for P and M
@@ -531,46 +728,22 @@ void merge_cmd(void){
     );
   }else{
     db_multi_exec(
-      "UPDATE fv SET"
-      " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnp=pathname),0),"
-      " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnp=pathname),0)",
-      pid, pid
+      "UPDATE fv SET idp=coalesce(vfile.id,0), ridp=coalesce(vfile.rid,0)"
+      "  FROM vfile"
+      " WHERE vfile.vid=%d AND fv.fnp=vfile.pathname",
+      pid
     );
   }
   db_multi_exec(
     "UPDATE fv SET"
-    " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnm=pathname),0),"
-    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnm=pathname),0),"
-    " islinkm=coalesce((SELECT islink FROM vfile"
-                    " WHERE vid=%d AND fnm=pathname),0),"
-    " isexe=coalesce((SELECT isexe FROM vfile WHERE vid=%d AND fnm=pathname),"
-    "   isexe)",
-    mid, mid, mid, mid
+    " idm=coalesce(vfile.id,0),"
+    " ridm=coalesce(vfile.rid,0),"
+    " islinkm=coalesce(vfile.islink,0),"
+    " isexe=coalesce(vfile.isexe,fv.isexe)"
+    " FROM vfile"
+    " WHERE vid=%d AND fnm=pathname",
+    mid
   );
-
-  if( debugFlag ){
-    db_prepare(&q,
-       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
-       "       isexe, islinkv, islinkm, fnn FROM fv"
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-       fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d "
-                    " islinkv=%d islinkm=%d\n",
-          db_column_int(&q, 0),
-          db_column_int(&q, 5),
-          db_column_int(&q, 6),
-          db_column_int(&q, 7),
-          db_column_int(&q, 4),
-          db_column_int(&q, 8),
-          db_column_int(&q, 9),
-          db_column_int(&q, 10));
-       fossil_print("     fn  = [%s]\n", db_column_text(&q, 1));
-       fossil_print("     fnp = [%s]\n", db_column_text(&q, 2));
-       fossil_print("     fnm = [%s]\n", db_column_text(&q, 3));
-       fossil_print("     fnn = [%s]\n", db_column_text(&q, 11));
-    }
-    db_finalize(&q);
-  }
 
   /*
   ** Update the execute bit on files where it's changed from P->M but not P->V
@@ -592,9 +765,16 @@ void merge_cmd(void){
     }
   }
   db_finalize(&q);
+  if( debugFlag ){
+    fossil_print("******** FV final *******\n");
+    debug_fv_dump( debugFlag>=2 );
+  }
 
-  /*
-  ** Find files in M and V but not in P and report conflicts.
+  /************************************************************************
+  ** All of the information needed to do the merge is now contained in the
+  ** FV table.  Starting here, we begin to actually carry out the merge.
+  **
+  ** First, find files in M and V but not in P and report conflicts.
   ** The file in M will be ignored.  It will be treated as if it
   ** does not exist.
   */
@@ -691,7 +871,8 @@ void merge_cmd(void){
         }
         db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
         if( rc>0 ){
-          fossil_print("***** %d merge conflicts in %s\n", rc, zName);
+          fossil_print("***** %d merge conflict%s in %s\n",
+                       rc, rc>1 ? "s" : "", zName);
           nConflict++;
         }
       }else{
@@ -812,7 +993,7 @@ void merge_cmd(void){
   );
 
   /*
-  ** Add to V files that are not in V or P but are in M
+  ** Insert into V any files that are not in V or P but are in M.
   */
   db_prepare(&q,
     "SELECT idm, fnm FROM fv"

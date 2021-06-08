@@ -148,8 +148,8 @@ static void sqlcmd_gather_artifact_stats(
 }
 
 /*
-** Add the content(), compress(), and decompress() SQL functions to
-** database connection db.
+** Add the content(), compress(), decompress(), and
+** gather_artifact_stats() SQL functions to database connection db.
 */
 int add_content_sql_commands(sqlite3 *db){
   sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
@@ -173,14 +173,14 @@ int add_content_sql_commands(sqlite3 *db){
 **
 ** WARNING:
 ** Do not instantiate these functions for any Fossil webpage or command
-** method of than the "fossil sql" command.  If an attacker gains access
+** method other than the "fossil sql" command.  If an attacker gains access
 ** to these functions, he will be able to disable other defense mechanisms.
 **
 ** This routines are for interactiving testing only.  They are experimental
 ** and undocumented (apart from this comments) and might go away or change
 ** in future releases.
 **
-** 2020-11-29:  This functions are now only available if the "fossil sql"
+** 2020-11-29:  These functions are now only available if the "fossil sql"
 ** command is started with the --test option.
 */
 static void sqlcmd_db_protect(
@@ -207,9 +207,6 @@ static void sqlcmd_db_protect_pop(
   if( !local_bSqlCmdTest ) db_protect_pop();
 }
 
-
-
-
 /*
 ** This is the "automatic extension" initializer that runs right after
 ** the connection to the repository database is opened.  Set up the
@@ -231,6 +228,7 @@ static int sqlcmd_autoinit(
   builtin_vtab_register(db);
   g.repositoryOpen = 1;
   g.db = db;
+  sqlite3_busy_timeout(db, 10000);
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
   db_maybe_set_encryption_key(db, g.zRepositoryName);
   if( g.zLocalDbName ){
@@ -308,7 +306,7 @@ void fossil_key(const char **pzKey, int *pnKey){
       *pnKey = -1;
     }
   }else{
-    fossil_panic("failed to allocate %u bytes for key", nByte);
+    fossil_fatal("failed to allocate %u bytes for key", nByte);
   }
 }
 #endif

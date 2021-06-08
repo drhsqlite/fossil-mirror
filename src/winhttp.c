@@ -290,7 +290,7 @@ static NORETURN void winhttp_fatal(
   const char *zService,
   const char *zErr
 ){
-  fossil_panic("unable to %s service '%s': %s", zOp, zService, zErr);
+  fossil_fatal("unable to %s service '%s': %s", zOp, zService, zErr);
 }
 
 /*
@@ -606,10 +606,11 @@ void win32_http_server(
     break;
   }
   if( iPort>mxPort ){
+    /* These exits are merely fatal because firewall settings can cause them. */
     if( mnPort==mxPort ){
-      fossil_panic("unable to open listening socket on port %d", mnPort);
+      fossil_fatal("unable to open listening socket on port %d", mnPort);
     }else{
-      fossil_panic("unable to open listening socket on any"
+      fossil_fatal("unable to open listening socket on any"
                    " port in the range %d..%d", mnPort, mxPort);
     }
   }
@@ -910,7 +911,7 @@ int win32_http_service(
     if( GetLastError()==ERROR_FAILED_SERVICE_CONTROLLER_CONNECT ){
       return 1;
     }else{
-      fossil_panic("error from StartServiceCtrlDispatcher()");
+      fossil_fatal("error from StartServiceCtrlDispatcher()");
     }
   }
   return 0;

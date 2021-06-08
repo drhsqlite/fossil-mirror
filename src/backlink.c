@@ -146,6 +146,14 @@ void backlink_table_page(void){
         @ <td><a href="%R/wiki?name=%h(zName)&p">wiki-%d(srcid)</a>
         break;
       }
+      case BKLNK_EVENT: {
+        @ <td><a href="%R/info?name=rid:%d(srcid)">tecknote-%d(srcid)</a>
+        break;
+      }
+      case BKLNK_FORUM: {
+        @ <td><a href="%R/info?name=rid:%d(srcid)">forum-%d(srcid)</a>
+        break;
+      }
       default: {
         @ <td>unknown(%d(srctype)) - %d(srcid)
         break;

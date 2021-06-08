@@ -2254,6 +2254,34 @@ static int tag_compare(const void *a, const void *b){
 }
 
 /*
+** Inserts plink entries for FORUM, WIKI, and TECHNOTE manifests. May
+** assert for other manifest types. If a parent entry exists, it also
+** propagates any tags for that parent. This is a no-op if
+** p->nParent==0.
+*/
+static void manifest_add_fwt_plink(int rid, Manifest *p){
+  int i;
+  int parentId = 0;
+  assert(p->type==CFTYPE_WIKI ||
+         p->type==CFTYPE_FORUM ||
+         p->type==CFTYPE_EVENT);
+  for(i=0; i<p->nParent; ++i){
+    int const pid = uuid_to_rid(p->azParent[i], 1);
+    if(0==i){
+      parentId = pid;
+    }
+    db_multi_exec(
+                  "INSERT OR IGNORE INTO plink"
+                  "(pid, cid, isprim, mtime, baseid)"
+                  "VALUES(%d, %d, %d, %.17g, NULL)",
+                  pid, rid, i==0, p->rDate);
+  }
+  if(parentId){
+    tag_propagate_all(parentId);
+  }
+}
+
+/*
 ** Scan artifact rid/pContent to see if it is a control artifact of
 ** any type:
 **
@@ -2418,6 +2446,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     if( parentid ){
       tag_propagate_all(parentid);
     }
+  }
+  if(p->type==CFTYPE_WIKI || p->type==CFTYPE_FORUM
+     || p->type==CFTYPE_EVENT){
+    manifest_add_fwt_plink(rid, p);
   }
   if( p->type==CFTYPE_WIKI ){
     char *zTag = mprintf("wiki-%s", p->zWikiTitle);
@@ -2816,6 +2848,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       backlink_extract(p->zWiki, p->zMimetype, rid, BKLNK_FORUM, p->rDate, 1);
     }
   }
+
   db_end_transaction(0);
   if( permitHooks ){
     rc = xfer_run_common_script();

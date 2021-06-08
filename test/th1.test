@@ -733,14 +733,19 @@ test th1-trace-1 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --th-trace "trace {}"
+set normalized_result [normalize_result]
+
+regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
+    $normalized_result {} normalized_result
+
 if {$th1Hooks} {
-  test th1-trace-2 {[normalize_result] eq \
+  test th1-trace-2 {$normalized_result eq \
 {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-2 {[normalize_result] eq \
+  test th1-trace-2 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -756,14 +761,19 @@ test th1-trace-3 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --th-trace "trace {this is a trace message.}"
+set normalized_result [normalize_result]
+
+regsub -- {\n/\*\*\*\*\* Subprocess \d+ exit\(\d+\) \*\*\*\*\*/} \
+    $normalized_result {} normalized_result
+
 if {$th1Hooks} {
-  test th1-trace-4 {[normalize_result] eq \
+  test th1-trace-4 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
 } else {
-  test th1-trace-4 {[normalize_result] eq \
+  test th1-trace-4 {$normalized_result eq \
       {------------------ BEGIN TRACE LOG ------------------
 th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
@@ -1013,7 +1023,7 @@ test th1-globalState-14 {[string length $RESULT] == 0}
 
 ###############################################################################
 
-if {$tcl_platform(platform) eq "windows"} {
+if {$is_windows} {
   set altVfs win32-longpath
 } else {
   set altVfs unix-dotfile

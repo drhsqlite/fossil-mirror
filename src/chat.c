@@ -147,6 +147,7 @@ static void chat_emit_alert_list(void){
 */
 void chat_webpage(void){
   char *zAlert;
+  char *zProjectName;
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
@@ -154,19 +155,18 @@ void chat_webpage(void){
   }
   zAlert = mprintf("%s/builtin/%s", g.zBaseURL,
                 db_get("chat-alert-sound","alerts/plunk.wav"));
+  zProjectName = db_get("project-name","Unnamed project");
   style_set_current_feature("chat");
   style_header("Chat");
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @ <div id='chat-input-area'>
   @   <div id='chat-input-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
-  @      placeholder="Type message here." autocomplete="off">
+  @      placeholder="Type message for %h(zProjectName)." autocomplete="off">
   @     <textarea rows="8" id="chat-input-multi" \
-  @      placeholder="Type message here. Ctrl-Enter sends it." \
+  @      placeholder="Type message for %h(zProjectName). Ctrl-Enter sends it." \
   @      class="hidden"></textarea>
   @     <input type="submit" value="Send" id="chat-message-submit">
-  @     <button id="chat-scroll-top" class="hidden">&uarr;</button>
-  @     <button id="chat-scroll-bottom" class="hidden">&darr;</button>
   @     <span id="chat-settings-button" class="settings-icon" \
   @       aria-label="Settings..." aria-haspopup="true" ></span>
   @   </div>
@@ -187,7 +187,7 @@ void chat_webpage(void){
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
-
+  fossil_free(zProjectName);
   builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
@@ -309,12 +309,14 @@ static void chat_emit_permissions_error(int fAsMessageList){
 void chat_send_webpage(void){
   int nByte;
   const char *zMsg;
+  const char *zUserName;
   login_check_credentials();
   if( !g.perm.Chat ) {
     chat_emit_permissions_error(0);
     return;
   }
   chat_create_tables();
+  zUserName = (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
   nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");
   db_begin_write();
@@ -324,7 +326,7 @@ void chat_send_webpage(void){
       db_multi_exec(
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
         "VALUES(julianday('now'),%Q,%Q,%Q)",
-        P("lmtime"), g.zLogin, zMsg
+        P("lmtime"), zUserName, zMsg
       );
     }
   }else{
@@ -333,7 +335,7 @@ void chat_send_webpage(void){
     db_prepare(&q,
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg,file,fname,fmime)"
         "VALUES(julianday('now'),%Q,%Q,%Q,:file,%Q,%Q)",
-        P("lmtime"), g.zLogin, zMsg, PD("file:filename",""),
+        P("lmtime"), zUserName, zMsg, PD("file:filename",""),
         PD("file:mimetype","application/octet-stream"));
     blob_init(&b, P("file"), nByte);
     db_bind_blob(&q, ":file", &b);
@@ -602,8 +604,15 @@ void chat_poll_webpage(void){
       if( zLMtime && zLMtime[0] ){
         blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
       }
-      blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
-      blob_appendf(&json, "\"uclr\":%!j,", user_color(zFrom));
+      blob_append(&json, "\"xfrom\":", -1);
+      if(zFrom){
+        blob_appendf(&json, "%!j,", zFrom);
+      }else{
+        /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
+        blob_appendf(&json, "null,");
+      }
+      blob_appendf(&json, "\"uclr\":%!j,",
+                   user_color(zFrom ? zFrom : "nobody"));
 
       zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
       blob_appendf(&json, "\"xmsg\":%!j,", zMsg);

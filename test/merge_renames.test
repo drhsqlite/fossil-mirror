@@ -525,29 +525,23 @@ fossil update m1
 fossil merge b
 test_status_list merge_renames-13-6 $RESULT {
   UPDATE f1
-  DELETE f2n
-  ADDED f2n
 }
 test_file_contents merge_renames-13-7 f2n "line1"
 
 fossil revert
 test_status_list merge_renames-13-8 $RESULT {
   REVERT f1
-  REVERT f2n
 }
 fossil update trunk
 fossil merge --integrate b
 test_status_list merge_renames-13-9 $RESULT {
   UPDATE f1
-  DELETE f2n
-  ADDED f2n
 }
 test_file_contents merge_renames-13-10 f2n "line1"
 
 fossil revert
 test_status_list merge_renames-13-11 $RESULT {
   REVERT f1
-  REVERT f2n
 }
 
 ######################################

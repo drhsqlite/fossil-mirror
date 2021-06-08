@@ -61,6 +61,7 @@ void stats_for_email(void){
   const char *zDest = db_get("email-send-method",0);
   int nSub, nASub, nPend, nDPend;
   const char *zDir, *zDb, *zCmd, *zRelay;
+  int iCutoff;
   @ <tr><th>Outgoing&nbsp;Email:</th><td>
   if( fossil_strcmp(zDest,"pipe")==0
    && (zCmd = db_get("email-send-command",0))!=0
@@ -112,8 +113,10 @@ void stats_for_email(void){
     @ <tr><th>Subscribers:</th><td>
   }
   nSub = db_int(0, "SELECT count(*) FROM subscriber");
+  iCutoff = db_get_int("email-renew-cutoff",0);
   nASub = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
-                   " AND NOT sdonotcall AND length(ssub)>1");
+                   " AND NOT sdonotcall AND length(ssub)>1"
+                   " AND lastContact>=%d;", iCutoff);
   @ %,d(nASub) active, %,d(nSub) total
   @ </td></tr>
 }
