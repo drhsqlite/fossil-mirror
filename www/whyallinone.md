@@ -19,7 +19,7 @@ This commenter may hold whatever opinions he wishes, of course.
 However, there are many good reasons why bundling other project management
 features with the DVCS might be useful for a given project:
 
-  1.  There is single software package to install and manage for the
+  1.  There is a single software package to install and manage for the
       project website.
       The alternative is to select, install, configure, learn about,
       manage, and maintain separate DVCS, wiki,
@@ -37,7 +37,7 @@ features with the DVCS might be useful for a given project:
       developer to do anything that resulted in an autosync has a
       functional and up-to-date backup.
 
-      There are [limitations to using Fossil’s autosync feature for
+      There are [limitations to relying on Fossil’s autosync feature for
       backup purposes](./backup.md), but that document gives two methods
       for more complete backups, both of which are easily automated. The
       Fossil project itself is distributed across three data centers in
