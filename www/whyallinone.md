@@ -148,7 +148,7 @@ features with the DVCS might be useful for a given project:
       features and their concomitant complexity?
 
       Considerations such as these push many into centralized hosting
-      servides such as GitHub, GitLab, Bitbucket, and so forth, but that
+      services such as GitHub, GitLab, Bitbucket, and so forth, but that
       just takes you back to point 3 above.
 
   8.  Hosting all of these elements within a single service gives a
