@@ -15,9 +15,9 @@ takes exception to this idea, writing:
 >  *I don't want forum/web software built into my dvcs.*
 >  *I don't see how this improves over git.*
 
-The commenter hold whatever opinions he wants, of course. However, here
-are a few reasons why bundling other project management software with
-the DVCS might be useful:
+The commenter may hold whatever opinions they want, of course.
+However, here are a few reasons why bundling other project management
+features with the DVCS might be useful for a given project:
 
   1.  There is single software package to install and manage for the
       project website.

@@ -331,7 +331,7 @@ const char zRepositorySchema2[] =
 @
 @ -- A record of orphaned delta-manifests.  An orphan is a delta-manifest
 @ -- for which we have content, but its baseline-manifest is a phantom.
-@ -- We have to track all orphan maniftests so that when the baseline arrives,
+@ -- We have to track all orphan manifests so that when the baseline arrives,
 @ -- we know to process the orphaned deltas.
 @ CREATE TABLE orphan(
 @   rid INTEGER PRIMARY KEY,        -- Delta manifest with a phantom baseline

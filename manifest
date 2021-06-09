@@ -1,5 +1,5 @@
-C Tweaks\sto\sthe\s"[/doc/trunk/www/whyallinone.md|Why\sAll\sIn\sOne]"\sdocument.
-D 2021-06-09T11:35:19.774
+C Trivial\sinternal\sdoc\stypo\sfix.\sMinor\sunsolicited\stouchups\sin\swhyallinone.md.
+D 2021-06-09T12:23:23.392
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -575,7 +575,7 @@ F src/repolist.c 740456c8e79f7953a084df739bdd6e457a6a253292b3c022b19382940b40780
 F src/report.c 2cbbac4ce1bad714c3ca01ce9588f37637a510463a573c08511b79f4a46ad9a7
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
-F src/schema.c 538096c4e5ace38c1c5bb52880cf92defbdf328f7fb323caab3305ce9bb2c0f5
+F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 4b0965c1a31b6caa9d9ac4be5b68e780f2b49dd73c9fe1e47016b581c60f5507
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
@@ -990,11 +990,11 @@ F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d92596
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
-F www/whyallinone.md 847b7f1bf5772bc46856d557fbac3bc9328afff9279784222902e9585de88872
+F www/whyallinone.md 915d544c404931236228fdd2bfbe0119f502824e0c893096b63ae3358c40f378
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a204e322668828b2f680635e1e17c74db0da03413bd585ed6013c655744b6a71
-R 30c57af79b8b46b7cd6b053d2928d409
-U drh
-Z 578add62d056a4b00781b9107c6144b2
+P e1361f12decb7a14ea5877884391f070a82472ee7f07ee546712405e95fc79c9
+R aa7da165384aa7adf2c38f407e7bcf39
+U stephan
+Z 5a4f2d3d0650d2f1b7f28fc753833fdb
