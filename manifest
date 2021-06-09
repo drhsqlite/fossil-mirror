@@ -1,5 +1,5 @@
-C Trivial\sinternal\sdoc\stypo\sfix.\sMinor\sunsolicited\stouchups\sin\swhyallinone.md.
-D 2021-06-09T12:23:23.392
+C Considerably\sfleshed-out\sthe\snew\swhyallinone\sdoc,\smainly\sexpanding\son\sits\npoints\sbut\salso\sadding\sa\sfew\snew\sones.
+D 2021-06-09T13:37:49.799
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -990,11 +990,11 @@ F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d92596
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
-F www/whyallinone.md 915d544c404931236228fdd2bfbe0119f502824e0c893096b63ae3358c40f378
+F www/whyallinone.md 3549f7653d4bb0210cc63bce28a97783641490842aa39d2a23d7a2c99cc0b70a
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e1361f12decb7a14ea5877884391f070a82472ee7f07ee546712405e95fc79c9
-R aa7da165384aa7adf2c38f407e7bcf39
-U stephan
-Z 5a4f2d3d0650d2f1b7f28fc753833fdb
+P 36ea3963fd11d94f1ad0f75841ef1afd1f51d3a7e66c3a2c8b6eb9e11acb0e36
+R a350d30c4456ac8b8fe1348104ff7d01
+U wyoung
+Z 2935addfbaea37883b5da1ac4a1f1590
