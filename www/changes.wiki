@@ -18,6 +18,12 @@
      timeline if the repository has forum posts.
   *  Tags may now be propagated for forum posts, wiki pages, and technotes.
      The [/help?cmd=tag|tag command] can now manipulate and list such tags.
+  *  [./caps/login-groups.md|Login-Groups] are now show on the repository
+     list of the "[/help?cmd=all|fossil all ui]" command.
+  *  Administrators can configure [./alerts|email alerts] to expire
+     a specific number of days (ex: 365) after the last user contact with
+     the Fossil server  This can prevents alert emails being sent to 
+     abandoned email accounts forever.
 
 <a name='v2_15'></a>
 <h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)</h2>
