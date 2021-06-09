@@ -16,7 +16,7 @@ takes exception to this idea, writing:
 >  *I don't see how this improves over git.*
 
 This commenter may hold whatever opinions he wishes, of course.
-However, here are a few reasons why bundling other project management
+However, there are many good reasons why bundling other project management
 features with the DVCS might be useful for a given project:
 
   1.  There is single software package to install and manage for the
@@ -28,7 +28,7 @@ features with the DVCS might be useful for a given project:
       Less time spent on project administration details means more
       time available to spend on the project itself.
 
-  2.  Because of Fossil’s autosync feature, you get a backup of the
+  2.  Fossil’s autosync feature gives you an implicit backup of the
       wiki, tickets, forum, and so forth simply by cloning the
       repository to another machine and using that clone regularly.
       Since the typical Fossil usage pattern is to stand the repo up on a
@@ -109,7 +109,7 @@ features with the DVCS might be useful for a given project:
       you can disable the ticket-tracking and wiki features with a quick
       configuration change to its [role-based access control
       system](./caps/), allowing you to treat Fossil as a more direct
-      drop-in for Git. When you’re ready to turn these features on, you
+      drop-in for Git. When you’re ready to turn these additional features on, you
       can do so with a few mouse clicks.
 
       Because Fossil is web-native out of the box, if you’ve delegated
@@ -137,11 +137,15 @@ features with the DVCS might be useful for a given project:
       server and [configuring its stock HTTP server to point at the
       backup repository via CGI](./server/any/cgi.md).
 
-      Consider: if you had good backups for all of the elements in a
+      Consider: If you had good backups for all of the elements in a
       Git + [Jira] + [Discord] + [MediaWiki] + [Sphinx] lash-up, how long
       would it take you to stand up a replacement? That lash-up
-      certianly has more features combined than Fossil alone, but are
+      certainly has more features combined than Fossil alone, but are
       they worth the administration and hosting costs they impose?
+      Fossil’s feature set suffices for the SQLite project it was
+      created to serve, as well as for many others; is your project
+      sufficiently more complex, such that it *needs* all of those extra
+      features and their concomitant complexity?
 
       Considerations such as these push many into centralized hosting
       servides such as GitHub, GitLab, Bitbucket, and so forth, but that
@@ -150,18 +154,20 @@ features with the DVCS might be useful for a given project:
   8.  Hosting all of these elements within a single service gives a
       consistent look-and-feel across all aspects of the project.
 
-      This goes deeper than simply skinning independent software
-      elements, though that’s a big enough problem by itself. If you use
-      a separate DVCS front end, chat system, forum manager,
-      documentation system, ticket tracker, and so on, you are likely to
-      be relegated to simply matching colors and fonts; you might also
-      be able to add a common logo to the header of all of these
-      independent pieces. Without heroic levels of local customization,
-      the pieces won’t look unified, because they weren’t developed that
-      way.
+      Skinning independent software packages’ web interfaces to make
+      them appear unified is more work than skinning everything once, as
+      in Fossil, and even then, you can’t make independently-developed
+      software look like it was produced by a single entity without
+      resorting to heroic levels of customization. If you use a separate
+      DVCS web front end, chat system, forum manager, documentation
+      system, ticket tracker, and so on, you are likely to be relegated
+      to simply matching colors and fonts; you *might* also get the
+      ability to add a common logo to the header of all of these
+      independent pieces. The pieces won’t look unified, because they
+      weren’t developed that way.
 
-      The Fossil project not only has a single central development focus
-      resulting in a unified web UI design, it gives you a common
+      The Fossil project, being a unified software development effort,
+      not only offers a unified web UI design, it gives you a common
       skinning system for all of its elements so that if you want to
       customize its appearance, your improvements affect all elements of
       Fossil.
@@ -170,14 +176,25 @@ features with the DVCS might be useful for a given project:
       apply to only *some* Fossil features. The initial impetus behind
       this feature was that one of our users wanted Markdown to be
       rendered with different indentation in forum posts than in
-      embedded documentation owing to the inherent differences between
-      the two presentation modalities. Yet, when a user taking advantage
-      of this feature wishes to change a UI element common to all Fossil
-      features — say, to change the font for literal code blocks — they
-      can still make that sort of global change, the per-feature CSS
-      inheriting all skin changes it doesn’t explicitly override.
+      [embedded documentation][edoc] owing to the inherent differences between
+      the two presentation modalities.
 
-      Speaking of Markdown, unifying all of these features within Fossil
+      A user taking advantage of this per-feature CSS capability who
+      wishes to change a UI element common to all Fossil features — say,
+      to change the font for literal code blocks — may still make such a
+      change globally. Opting into this per-feature CSS doesn’t fork all
+      skinning efforts: UI elements not explicitly reskinned on a
+      per-feature basis inherit the global skinning.
+
+      But it goes futher. Fossil has a feature for [project-specific
+      extensions](./serverext.wiki), which backs the [SQLite Release
+      Checklist][srckl], for instance. You wouldn’t know by looking at
+      that page that it’s produced by software that isn’t actually part
+      of Fossil: the extension only delivers the core of the page,
+      and Fossil’s skining wraps it in a way that lets it inherit all of
+      the project-level skinning customizations.
+
+  9.  Unifying all of these features within Fossil
       means we have a single Markdown interpreter common to all
       elements. If you lash multiple software systems together, even if
       they can all agree on Markdown as a common document markup
@@ -186,25 +203,21 @@ features with the DVCS might be useful for a given project:
       using different — possibly even incompatibly-different — Markdown
       dialects.
 
-      In Fossil, a developer might write a forum post that later gets
+      This costs you in mental gear-switching when moving from the code
+      repository to the documentation system to the forums to the ticket
+      tracker.
+
+      More than that, though, a developer might write a forum post that later gets
       promoted to a wiki article or to an embedded version-controlled
-      project document. The developer simply copy-pastes the forum post
-      text into the new document and saves it, not needing to carefully
+      project document. A developer on a Fossil-backed project may simply copy-paste the forum post
+      text into the new document and save it, not needing to carefully
       check that it still renders properly under the second Markdown
       rendering engine. Similarly, if a user reports a potential bug via
       the forum, the developer can copy interesting pieces of the
       Markdown from the post into a ticket comment, again without
       needing to fiddle with dialect incompatibilities.
 
-      But it goes futher. Fossil has a feature for [project-specific
-      extensions](./serverext.wiki), which backs the [SQLite Release
-      Checklist][srckl], for instance. You wouldn’t know by looking at
-      that page that the software backing that page isn’t actually part
-      of Fossil: the extension delivers up just the core of the page,
-      and Fossil’s skining wraps it in a way that lets it inherit all of
-      the per-project skinning customizations.
-
-  9.  Fossil is [free, open-source software](../COPYRIGHT-BSD2.txt),
+  10. Fossil is [free, open-source software](../COPYRIGHT-BSD2.txt),
       through and through. Git-backed lash-ups tend to incorporate
       either proprietary add-ons or proprietary hosting systems that
       produce vendor lock-in. Fossil gives you the freedom to take your
@@ -213,6 +226,7 @@ features with the DVCS might be useful for a given project:
       commodity hardware and software stacks.
 
 [Discord]:   https://discord.com/
+[edoc]:      ./embeddeddoc.wiki
 [Jira]:      https://www.atlassian.com/software/jira
 [MediaWiki]: https://www.mediawiki.org/
 [Sphinx]:    https://www.sphinx-doc.org/en/master/

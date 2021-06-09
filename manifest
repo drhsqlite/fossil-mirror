@@ -1,5 +1,5 @@
-C Update\sthe\s"sync"\scommand\sdocumentation\sto\spoint\sout\sthat\sit\salso\ssyncs\nforum\sposts.
-D 2021-06-09T14:35:15.837
+C Edit\spass\son\sthe\swhyallinone.md\sdoc.
+D 2021-06-09T15:04:55.763
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -990,11 +990,11 @@ F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d92596
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
-F www/whyallinone.md 133aedc16e2060fc03ab50f2c2fa8571c8be35f1d51d118ecef49da5098fa403
+F www/whyallinone.md 23d7e1937604fa124565cd06e15d1066538c194013b30ff32ae89786bfa258a8
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eeb2852ea838a3b10e213422b47371785560e52f6e03e38779fe495d79cd0fdd
-R 96d47df4997ea4a128e03fd8e504a182
-U drh
-Z 44c1dbb17b4e511dbbaa65f7af5326a9
+P 5289bf4a315c2148df52efc01496cf9eba6538c36d5d6eb49f95f3eda83bcbe4
+R 0b2878c1c341e45dbf75a7d30941303e
+U wyoung
+Z f49cd4fb8fc616e4ab983c5e71f92658
