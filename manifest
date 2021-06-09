@@ -1,5 +1,5 @@
-C Expanded\spoint\s8\sin\sthe\swhyallinone.md\sdoc\sto\scover\sthe\sbenefits\sof\sa\ncommon\sskinning\sand\sMarkdown\srendering\ssystem.\s\sIt\salso\simplicitly\nrefers\sto\sthe\s$current_feature\sbody\sclass\sfeature\sto\sshow\sthat\sthere's\nan\sescape\shatch\sfrom\sall\sthis\sfine\suniformity.
-D 2021-06-09T14:18:15.021
+C Changed\sa\svague\s"they"\sto\s"he"\ssince\sthe\sreferred-to\sperson's\sgender\sis\sknown.
+D 2021-06-09T14:24:34.562
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -990,11 +990,11 @@ F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d92596
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
-F www/whyallinone.md 7711ad9d5fbeb037ec034b43a09057c8c6d917c836bd5ae9f76bef3a404e0431
+F www/whyallinone.md 133aedc16e2060fc03ab50f2c2fa8571c8be35f1d51d118ecef49da5098fa403
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6975de4033116063cc8275e20690f1673f27227ceb8d5bfe522ee9ec997e01c3
-R 89c49f125f6e76ac1543aac6bc13a9e6
+P 894967492a4ec66f9fd9613a96809e23d63db5ae83a234812850da64bba55f36
+R a96d6f4e3a475c2c83a01e70cad285b7
 U wyoung
-Z 13f464fe39a01c7b227ea9203ad50e4e
+Z 58ffb3778410db3bbdb1f0cd811c64f4

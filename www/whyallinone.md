@@ -15,7 +15,7 @@ takes exception to this idea, writing:
 >  *I don't want forum/web software built into my dvcs.*
 >  *I don't see how this improves over git.*
 
-The commenter may hold whatever opinions they want, of course.
+This commenter may hold whatever opinions he wishes, of course.
 However, here are a few reasons why bundling other project management
 features with the DVCS might be useful for a given project:
 
