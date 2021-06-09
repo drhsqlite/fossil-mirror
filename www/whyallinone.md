@@ -15,7 +15,7 @@ takes exception to this idea, writing:
 >  *I don't want forum/web software built into my dvcs.*
 >  *I don't see how this improves over git.*
 
-The commenter is, of course, entitled to his opinion.  However, here
+The commenter hold whatever opinions he wants, of course. However, here
 are a few reasons why bundling other project management software with
 the DVCS might be useful:
 
@@ -48,3 +48,9 @@ the DVCS might be useful:
       username/password works for code, wiki, forum, tickets, and chat.
 
   7.  Reduce the number of external dependencies for the project.
+
+  8.  Consistent look-and-feel across all aspects of the project, including
+      [project-specific extensions](./serverext.wiki).
+      The [SQLite Release Checklist][8] is a noteworthy example of this.
+
+[8]: https://www.sqlite.org/src/ext/checklist/top/index

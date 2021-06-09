@@ -1,5 +1,5 @@
-C Add\sthe\sfirst\sprototype\sof\sthe\s"Why\sBundle\sWeb\sSoftware\sWith\sYour\sDVCS"\ndocument.
-D 2021-06-09T11:22:03.574
+C Tweaks\sto\sthe\s"[/doc/trunk/www/whyallinone.md|Why\sAll\sIn\sOne]"\sdocument.
+D 2021-06-09T11:35:19.774
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -990,11 +990,11 @@ F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d92596
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
-F www/whyallinone.md 390c2f0c5ff3b0f67bdd6cd71c3966d37158e8b7023cd47fdf11b3eee0c3de15
+F www/whyallinone.md 847b7f1bf5772bc46856d557fbac3bc9328afff9279784222902e9585de88872
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b46d90474284c574728201553fd7e8680992bb1348e0cf4beaf4ed19c85e371c
-R 63f7162133ee93364da24d7466924602
+P a204e322668828b2f680635e1e17c74db0da03413bd585ed6013c655744b6a71
+R 30c57af79b8b46b7cd6b053d2928d409
 U drh
-Z 1416816c6d5953643000fe8a814140af
+Z 578add62d056a4b00781b9107c6144b2
