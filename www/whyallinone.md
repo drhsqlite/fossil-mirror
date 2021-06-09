@@ -148,9 +148,61 @@ features with the DVCS might be useful for a given project:
       just takes you back to point 3 above.
 
   8.  Hosting all of these elements within a single service gives a
-      consistent look-and-feel across all aspects of the project, including
-      [project-specific extensions](./serverext.wiki).
-      The [SQLite Release Checklist][srckl] is a noteworthy example of this.
+      consistent look-and-feel across all aspects of the project.
+
+      This goes deeper than simply skinning independent software
+      elements, though that’s a big enough problem by itself. If you use
+      a separate DVCS front end, chat system, forum manager,
+      documentation system, ticket tracker, and so on, you are likely to
+      be relegated to simply matching colors and fonts; you might also
+      be able to add a common logo to the header of all of these
+      independent pieces. Without heroic levels of local customization,
+      the pieces won’t look unified, because they weren’t developed that
+      way.
+
+      The Fossil project not only has a single central development focus
+      resulting in a unified web UI design, it gives you a common
+      skinning system for all of its elements so that if you want to
+      customize its appearance, your improvements affect all elements of
+      Fossil.
+
+      Or not: there’s a feature in Fossil that lets skin customizations
+      apply to only *some* Fossil features. The initial impetus behind
+      this feature was that one of our users wanted Markdown to be
+      rendered with different indentation in forum posts than in
+      embedded documentation owing to the inherent differences between
+      the two presentation modalities. Yet, when a user taking advantage
+      of this feature wishes to change a UI element common to all Fossil
+      features — say, to change the font for literal code blocks — they
+      can still make that sort of global change, the per-feature CSS
+      inheriting all skin changes it doesn’t explicitly override.
+
+      Speaking of Markdown, unifying all of these features within Fossil
+      means we have a single Markdown interpreter common to all
+      elements. If you lash multiple software systems together, even if
+      they can all agree on Markdown as a common document markup
+      language — hardly a given, as shown by the MediaWiki and Sphinx
+      elements in point 7 above — they’re likely to render your text
+      using different — possibly even incompatibly-different — Markdown
+      dialects.
+
+      In Fossil, a developer might write a forum post that later gets
+      promoted to a wiki article or to an embedded version-controlled
+      project document. The developer simply copy-pastes the forum post
+      text into the new document and saves it, not needing to carefully
+      check that it still renders properly under the second Markdown
+      rendering engine. Similarly, if a user reports a potential bug via
+      the forum, the developer can copy interesting pieces of the
+      Markdown from the post into a ticket comment, again without
+      needing to fiddle with dialect incompatibilities.
+
+      But it goes futher. Fossil has a feature for [project-specific
+      extensions](./serverext.wiki), which backs the [SQLite Release
+      Checklist][srckl], for instance. You wouldn’t know by looking at
+      that page that the software backing that page isn’t actually part
+      of Fossil: the extension delivers up just the core of the page,
+      and Fossil’s skining wraps it in a way that lets it inherit all of
+      the per-project skinning customizations.
 
   9.  Fossil is [free, open-source software](../COPYRIGHT-BSD2.txt),
       through and through. Git-backed lash-ups tend to incorporate
