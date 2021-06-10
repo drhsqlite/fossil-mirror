@@ -105,19 +105,7 @@ features with the DVCS might be useful for a given project:
       simply by adjusting the interwiki map to match the remote clone’s
       network configuration.
 
-  5.  The forum and chat features of Fossil are disabled by default, and
-      you can disable the ticket-tracking and wiki features with a quick
-      configuration change to its [role-based access control
-      system](./caps/), allowing you to treat Fossil as a more direct
-      drop-in for Git. When you’re ready to turn these additional features on, you
-      can do so with a few mouse clicks.
-
-      Because Fossil is web-native out of the box, if you’ve delegated
-      these features to outside systems to flesh out Git’s DVCS-only
-      nature, Fossil can link out to these systems, and they back into
-      Fossil.
-
-  6.  Bundling all of these services gives [single sign-on][SSO] (SSO) for all
+  5.  Bundling all of these services gives [single sign-on][SSO] (SSO) for all
       aspects of the project.  The same username/password works for code,
       wiki, forum, tickets, and chat.
 
@@ -129,7 +117,7 @@ features with the DVCS might be useful for a given project:
       repository login, but self-registered forum users don’t
       automatically get the ability to commit to the code repo.
 
-  7.  Bundling all of these features reduces the number of external
+  6.  Bundling all of these features reduces the number of external
       dependencies for the project.
 
       Take the first two points above: standing up a Fossil repo backup
@@ -151,7 +139,7 @@ features with the DVCS might be useful for a given project:
       services such as GitHub, GitLab, Bitbucket, and so forth, but that
       just takes you back to point 3 above.
 
-  8.  Hosting all of these elements within a single service gives a
+  7.  Hosting all of these elements within a single service gives a
       consistent look-and-feel across all aspects of the project.
 
       Skinning independent software packages’ web interfaces to make
@@ -192,12 +180,12 @@ features with the DVCS might be useful for a given project:
       and Fossil’s skining wraps it in a way that lets it inherit all of
       the project-level skinning customizations.
 
-  9.  Unifying all of these features within Fossil
+  8.  Unifying all of these features within Fossil
       means we have a single Markdown interpreter common to all
       elements. If you lash multiple software systems together, even if
       they can all agree on Markdown as a common document markup
       language — hardly a given, as shown by the MediaWiki and Sphinx
-      elements in point 7 above — they’re likely to render your text
+      elements in point 6’s example above — they’re likely to render your text
       using different — possibly even incompatibly-different — Markdown
       dialects.
 
@@ -215,13 +203,25 @@ features with the DVCS might be useful for a given project:
       Markdown from the post into a ticket comment, again without
       needing to fiddle with dialect incompatibilities.
 
-  10. Fossil is [free, open-source software](../COPYRIGHT-BSD2.txt),
+  9.  Fossil is [free, open-source software](../COPYRIGHT-BSD2.txt),
       through and through. Git-backed lash-ups tend to incorporate
       either proprietary add-ons or proprietary hosting systems that
       produce vendor lock-in. Fossil gives you the freedom to take your
       complete backup (point 2) of the project including its
       idiosyncratic customizations and stand it up elsewhere on
       commodity hardware and software stacks.
+
+All of this having been said, the non-DVCS features of Fossil are
+optional. Its forum and chat features are disabled by default, and you
+can disable the ticket-tracking and wiki features with a quick
+configuration change to its [role-based access control system](./caps/).
+When you’re ready to turn these additional features on, you can do so
+with a few mouse clicks.
+
+Because Fossil is web-native out of the box, if you’ve delegated these
+features to outside systems to flesh out Git’s DVCS-only nature, Fossil
+can link out to these systems, and they back into Fossil, letting you
+use Fossil in the same DVCS-only mode.
 
 [Discord]:   https://discord.com/
 [edoc]:      ./embeddeddoc.wiki

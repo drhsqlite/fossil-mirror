@@ -1,5 +1,5 @@
-C Tightened\sup\sa\sparagraph\sin\spoint\s8\sof\sthe\snew\swhyallinone\sdoc\sto\sbe\nless\sredundant,\sboth\swithin\sitself\sand\swith\srespect\sto\sthe\ssurrounding\nmaterial.
-D 2021-06-10T12:10:23.036
+C Extracted\spoint\s5\sof\sthe\swhyallinone\sdoc,\smoving\sit\sout\sof\sthe\slist\sof\n"good\sreasons\swhy\sbundling\sother\sproject\smanagement\sfeatures\swith\sthe\nDVCS\smight\sbe\suseful"\sto\sthe\send\sof\sthe\sdoc,\ssince\sit\sis\snot\sone\sof\nthose\s"good\sreasons".\sIt\sjust\sexplains\sthat\sno\sone's\sforcing\syou\sto\naccept\sall\sof\sthese\sbenefits.
+D 2021-06-10T12:17:10.278
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -990,11 +990,11 @@ F www/unvers.wiki fef7cfd457c0799c4bdee44f6748ca7e290ccdbeb150f70a5f6fb308d92596
 F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md deed4d0f41a924dea18626e462268736c642c668dc3a0e1a1ade743e692c4041
 F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad567
-F www/whyallinone.md 1dd87bbc12899c17e480ebf19cd33d1046f8a9f3754bd1e62f526e1bcb77b224
+F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb2ef1b
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e12c6251658ba1aa0e8a7caf24036a40d24d609bdf9b2c92c686b1d861fe620
-R cc6c48a61fbcf29e88f1112536b0e7db
+P 216ef76e701e22a7fa78836de0499689137cc9baa2c194ace1aaa03e6fcc042b
+R d6030098703ac10a66c754c6eef46e3c
 U wyoung
-Z 3c646ba474d6a864a3aee43934c72e50
+Z 995bde8a2f25f7da9eef2f4850b854a2
