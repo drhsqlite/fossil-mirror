@@ -166,11 +166,9 @@ features with the DVCS might be useful for a given project:
       independent pieces. The pieces won’t look unified, because they
       weren’t developed that way.
 
-      The Fossil project, being a unified software development effort,
-      not only offers a unified web UI design, it gives you a common
-      skinning system for all of its elements so that if you want to
-      customize its appearance, your improvements affect all elements of
-      Fossil.
+      The Fossil project’s
+      skinning system lets you affect all of its elements globally from the
+      single skin editor.
 
       Or not: there’s a feature in Fossil that lets skin customizations
       apply to only *some* Fossil features. The initial impetus behind
