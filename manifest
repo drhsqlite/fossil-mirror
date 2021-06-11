@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\spikchr.c\sto\sthe\slatest\sversion\sthat\ssupports\salternative\nspellings\sfor\s"<-",\s"->",\sand\s"<->"\stokens.
-D 2021-06-11T15:32:57.477
+C Up\sthe\sversion\snumber\sto\s2.16,\sas\swe\sare\sgetting\sclose\sto\swanting\sto\sdo\sa\nrelease.
+D 2021-06-11T18:28:56.228
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -17,7 +17,7 @@ F Makefile.classic f7ab827cf2c75b8580e6d5f09fe7a3a09a5b580131870924c0c72259328a4
 F Makefile.in 45eba548fec261c3800734ba8ca3802a2b23cd7654941422d45b7576d2ccbf17 x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 6cebb78c2ebd96b0f1bdebb6b412be84fcc96e128879f4e4aa769e8b8f348ea9
+F VERSION 1a30a52847c2aaf73fe6407fc8c5522d4e5f9a5740cfd14c923c5056019d7c5b
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62f0ce8374f8a0b254ceab2f1c2700d31aeabe392c9d9a48fd8a7b5092a5bc5b
-R b669ce652c9de41cb545790be3832957
+P 76e421bbd5bb4cdaf5be126ae88c2d538f2c89cf3dd1243fe4cb7e28f6a42d67
+R e2b196e3311d671cda0dec8bdeeda2f8
 U drh
-Z 805891f7b141e4a9f3ba2f3db0a2dc83
+Z 8f7d7330d6f4f7bdcddeb456dc88334f
