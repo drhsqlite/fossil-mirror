@@ -1,5 +1,5 @@
-C Extracted\spoint\s5\sof\sthe\swhyallinone\sdoc,\smoving\sit\sout\sof\sthe\slist\sof\n"good\sreasons\swhy\sbundling\sother\sproject\smanagement\sfeatures\swith\sthe\nDVCS\smight\sbe\suseful"\sto\sthe\send\sof\sthe\sdoc,\ssince\sit\sis\snot\sone\sof\nthose\s"good\sreasons".\sIt\sjust\sexplains\sthat\sno\sone's\sforcing\syou\sto\naccept\sall\sof\sthese\sbenefits.
-D 2021-06-10T12:17:10.278
+C On\sthe\sforum\spost\sreply\spage,\sadd\sa\slink\sback\sto\sthe\soriginal\spost\sand\sits\ssource\sview,\sas\sdiscussed\sin\s[forum:/forumpost/cf716a7ff8\s|\sforum\spost\scf716a7ff8].\sChanged\sthe\sforum\spost\slink/source\slinks\sto\suse\s%!S\sinstead\sof\s%S\sto\sdetermine\sthe\slinks'\shash\slengths.\n
+D 2021-06-11T09:27:21.148
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -479,7 +479,7 @@ F src/file.c 4222ac087f820f46694aafcbb28856aed7b45f7f3d8b940379d4b6aa670e5ce5
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
 F src/finfo.c 1e793176e9ee325616ce5bf4c1746df772907cd4211c497de21c47d908d6fd49
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 7f8db60520ac1d1c473d426871f2384bc7b8d59755671c2eddcda727a7f61ba5
+F src/forum.c d5d77b65db38ee0670230ef51cfa7f0969117303bb43f1c7ff70bbc0637bef24
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 216ef76e701e22a7fa78836de0499689137cc9baa2c194ace1aaa03e6fcc042b
-R d6030098703ac10a66c754c6eef46e3c
-U wyoung
-Z 995bde8a2f25f7da9eef2f4850b854a2
+P ba9e50de58b64e982869008273baca2c566d83ead8e2902397fca34e547261ee
+R 12f52b6e83ba53fa8d4337c22928ba3a
+U stephan
+Z 8c1796aee3d6bc2d5b14110348911d2b
