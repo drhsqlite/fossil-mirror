@@ -1,5 +1,5 @@
-C On\sthe\sforum\spost\sreply\spage,\sadd\sa\slink\sback\sto\sthe\soriginal\spost\sand\sits\ssource\sview,\sas\sdiscussed\sin\s[forum:/forumpost/cf716a7ff8\s|\sforum\spost\scf716a7ff8].\sChanged\sthe\sforum\spost\slink/source\slinks\sto\suse\s%!S\sinstead\sof\s%S\sto\sdetermine\sthe\slinks'\shash\slengths.\n
-D 2021-06-11T09:27:21.148
+C Update\sthe\sbuilt-in\spikchr.c\sto\sthe\slatest\sversion\sthat\ssupports\salternative\nspellings\sfor\s"<-",\s"->",\sand\s"<->"\stokens.
+D 2021-06-11T15:32:57.477
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -561,7 +561,7 @@ F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef9
 F src/name.c 274aa2b22e665627369da0e16748dace3618301f326662e02a67a6d7006c66e2
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
-F src/pikchr.c fb13a52cd17532aed44f69365b72d11f6ce865c0b69cb62da8f89c55184b780c
+F src/pikchr.c a5a771ace33072c53c3346770a87254cbea3d86bdcfd3198cb8fd6cde4d53c87
 F src/pikchrshow.c a66bef9c5be91ed17e2ec3e509c5c2b49e2175bb6a62269ca80deacaba9d0a2b
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba9e50de58b64e982869008273baca2c566d83ead8e2902397fca34e547261ee
-R 12f52b6e83ba53fa8d4337c22928ba3a
-U stephan
-Z 8c1796aee3d6bc2d5b14110348911d2b
+P 62f0ce8374f8a0b254ceab2f1c2700d31aeabe392c9d9a48fd8a7b5092a5bc5b
+R b669ce652c9de41cb545790be3832957
+U drh
+Z 805891f7b141e4a9f3ba2f3db0a2dc83
