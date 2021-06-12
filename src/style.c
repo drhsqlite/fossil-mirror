@@ -34,6 +34,7 @@
 **      style_submenu_binary()
 **      style_submenu_multichoice()
 **      style_submenu_sql()
+**      style_submenu_parametric()
 **
 ** prior to calling style_finish_page().  The style_finish_page() routine
 ** will generate the appropriate HTML text just below the main
