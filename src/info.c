@@ -2797,6 +2797,11 @@ void info_page(void){
                 " WHERE rid=%d AND tagname LIKE 'tkt-%%'", rid) ){
     tinfo_page();
   }else
+  if( db_table_exists("repository","forumpost")
+   && db_exists("SELECT 1 FROM forumpost WHERE fpid=%d", rid)
+  ){
+    forumthread_page();
+  }else
   if( db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
     ci_page();
   }else
@@ -2805,11 +2810,6 @@ void info_page(void){
   }else
   if( db_exists("SELECT 1 FROM attachment WHERE attachid=%d", rid) ){
     ainfo_page();
-  }else
-  if( db_table_exists("repository","forumpost")
-   && db_exists("SELECT 1 FROM forumpost WHERE fpid=%d", rid)
-  ){
-    forumthread_page();
   }else
   {
     artifact_page();
