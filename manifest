@@ -1,5 +1,5 @@
-C Minor\s/chat-internal\sdoc\stweaks.
-D 2021-06-14T10:48:34.625
+C /chat\snow\sexperimentally\skeeps\strack\sof\sthe\stimestamp\sof\sthe\smost\srecent\smessage\sreceived\sfrom\seach\suser\sso\sthat\swe\scan\seventually\sintegrate\sthat\sinformation\sinto\sthe\sUI\sto\sprovide\sa\slist\sof\scurrently-active\susers\s(noting\sthat\swe\shave\sno\sway\sof\stracking\sthe\sexistence\sof\slurkers).
+D 2021-06-14T10:52:41.470
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -442,7 +442,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 275c601c28715fe0cabb4ea112bb5ed44eb95218c9c492996c92c112a91dbc24
 F src/chat.c 16c8a4153109c86055dda4df7ca5d112355195d56cb98a3bb590e4640b414e92
-F src/chat.js 152a05c697e13106e8a23d873a3c654cdea473259d0023b5c2659ad8d373a4fe
+F src/chat.js b7730b4e2f7d2c3695935a9ff08fba045aea494471f27e23474075363c56ccd5
 F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -994,7 +994,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1eddedeaecdfb0f0f4b0287bc26fe32c9fad183c653fb3cb09a91f1f87fa7879
-R a71e309157376d68fea39c613abb0800
+P 994bec3637acb12a5a851f309149a3da390a4146bcb61267584b2f7abf28d174
+R a06625e0bfe27fc7081ecb5bec70c765
+T *branch * chat-user-last-seen
+T *sym-chat-user-last-seen *
+T -sym-trunk *
 U stephan
-Z 8b0ca7e2634765df76e676f869eff6bc
+Z cb5d3e4965a0c25574b4cea2d1366d13

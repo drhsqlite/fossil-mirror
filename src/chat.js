@@ -123,6 +123,13 @@
       //! Number of messages to load for the history buttons
       loadMessageCount: Math.abs(F.config.chat.initSize || 20),
       ajaxInflight: 0,
+      usersLastSeen:{
+        /* Map of user names to their most recent message time
+           (JS Date object). Only messages received by the chat client
+           are considered. */
+        /* Reminder: to convert a Julian time J to JS:
+           new Date((J - 2440587.5) * 86400000) */
+      },
       /** Gets (no args) or sets (1 arg) the current input text field value,
           taking into account single- vs multi-line input. The getter returns
           a string and the setter returns this object. */
@@ -1081,13 +1088,29 @@
       messages), else the beginning (the default). */
   const newcontent = function f(jx,atEnd){
     if(!f.processPost){
-      /** Processes chat message m, placing it either the start (if atEnd
-          is falsy) or end (if atEnd is truthy) of the chat history. atEnd
-          should only be true when loading older messages. */
+      /** Array.sort() callback. Expects an array of user names and
+          sorts them in last-received message order (newest first). */
+      f.sortUsersSeen = function(l,r){
+        l = Chat.usersLastSeen[l];
+        r = Chat.usersLastSeen[r];
+        if(l && r) return r - l;
+        else if(l) return -1;
+        else if(r) return 1;
+        else return 0;
+      };
+      /** Processes chat message m, placing it either at the start (if
+          atEnd is falsy) or end (if atEnd is truthy) of the chat
+          history. atEnd should only be true when loading older
+          messages. */
       f.processPost = function(m,atEnd){
         ++Chat.totalMessageCount;
         if( m.msgid>Chat.mxMsg ) Chat.mxMsg = m.msgid;
         if( !Chat.mnMsg || m.msgid<Chat.mnMsg) Chat.mnMsg = m.msgid;
+        if(m.xfrom && m.mtime){
+          const d = new Date(m.mtime);
+          const uls = Chat.usersLastSeen[m.xfrom];
+          if(!uls || uls<d) Chat.usersLastSeen[m.xfrom] = d;
+        }
         if( m.mdel ){
           /* A record deletion notice. */
           Chat.deleteMessageElem(m.mdel);
@@ -1100,6 +1123,12 @@
         Chat.injectMessageElem(row.e.body,atEnd);
         if(m.isError){
           Chat._gotServerError = m;
+        }else if(false){
+          const users = Object.keys(Chat.usersLastSeen).sort(f.sortUsersSeen);
+          console.debug("Users sorted by most recent activity (newest first):", users);
+          users.forEach(function(u){
+            console.debug(u, Chat.usersLastSeen[u].toISOString());
+          });
         }
       }/*processPost()*/;
     }/*end static init*/
