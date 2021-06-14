@@ -1,5 +1,5 @@
-C Indentation\slevel\sfix\son\sthe\sprevious\spatch\s(style\schange\sonly).
-D 2021-06-14T19:54:30.783
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.36.0\sbeta,\sincluding\sthe\nbug\sfix\sto\sthe\sauthorizer\scallback\ssuch\sthat\sit\suses\sSQLITE_DROP_INDEX,\nnot\sSQLITE_DROP_TEMP_INDEX,\sfor\sattached\sindexes.
+D 2021-06-14T20:43:04.171
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -610,8 +610,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
-F src/sqlite3.c d84ff3a561341afa0e8cfa73153e55745e31945e855741a8e7c6de18352b4d4b
-F src/sqlite3.h f690a55db9895df17c81d675445e45822b3838524ed44010310b7d1f6ffc1898
+F src/sqlite3.c a0288e36525fafcf6e34e835d6063f0f75d6f16d7e31fc0cdecc7eb5a13ca79a
+F src/sqlite3.h c1905f7ce76f32be1e7ce4cec21b4d241b28d15f18465fda197ce95316ccc3ce
 F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c 7654ac3439fb00ad01943af0f9b568214169e19a04471ab7746898e498bdd58b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c717f1ef9a1a4c91d1f3ea589ee4e5fb358a41f2a151297420c8d0eea85faa19
-R 8677bbc98e0f2897adf2ba9dfa3af32a
-U stephan
-Z d458350446f2f852554ce0a32b19b525
+P b18c06e87a49718707441951ca89e42d5c3f3f1d054dbc1458e082cb85b29efa
+R 281df8bccd81d8a6a534b4a37f93a623
+U drh
+Z dfcc015d9f2fb8c44bf251631fef4aec
