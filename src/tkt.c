@@ -397,6 +397,9 @@ int ticket_change(const char *zUuid){
 ** disallows data changes on the "config" table, as that could
 ** allow a malicious server to modify settings in such a way as
 ** to cause a remote code execution.
+**
+** Use the "fossil test-db-prepare --auth-ticket SQL" command to perform
+** manual testing of this authorizer.
 */
 static int ticket_schema_auth(
   void *pNErr,
