@@ -215,14 +215,14 @@ void chat_webpage(void){
 static const char zChatSchema1[] =
 @ CREATE TABLE repository.chat(
 @   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
-@   mtime JULIANDAY,       -- Time for this entry - Julianday Zulu
-@   lmtime TEXT,           -- Localtime when message originally sent
-@   xfrom TEXT,            -- Login of the sender
-@   xmsg  TEXT,            -- Raw, unformatted text of the message
-@   fname TEXT,            -- Filename of the uploaded file, or NULL
-@   fmime TEXT,            -- MIMEType of the upload file, or NULL
-@   mdel INT,              -- msgid of another message to delete
-@   file  BLOB             -- Text of the uploaded file, or NULL
+@   mtime JULIANDAY,  -- Time for this entry - Julianday Zulu
+@   lmtime TEXT,      -- Client YYYY-MM-DDZHH:MM:SS when message originally sent
+@   xfrom TEXT,       -- Login of the sender
+@   xmsg  TEXT,       -- Raw, unformatted text of the message
+@   fname TEXT,       -- Filename of the uploaded file, or NULL
+@   fmime TEXT,       -- MIMEType of the upload file, or NULL
+@   mdel INT,         -- msgid of another message to delete
+@   file  BLOB        -- Text of the uploaded file, or NULL
 @ );
 ;
 
@@ -485,8 +485,8 @@ void chat_test_formatter_cmd(void){
 ** |      "msgs":[
 ** |        {
 ** |           "msgid": integer // message id
-** |           "mtime": text    // When sent:  YYYY-MM-DD HH:MM:SS UTC
-** |           "lmtime: text    // Localtime where the message was sent from
+** |           "mtime": text    // When sent: YYYY-MM-DDTHH:MM:SSZ
+** |           "lmtime: text    // Sender's client-side YYYY-MM-DDTHH:MM:SS
 ** |           "xfrom": text    // Login name of sender
 ** |           "uclr":  text    // Color string associated with the user
 ** |           "xmsg":  text    // HTML text of the message

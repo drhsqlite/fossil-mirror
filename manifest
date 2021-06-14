@@ -1,5 +1,5 @@
-C Squelch\s/chat\spoll\stimeout\serrors\sin\sthe\sdev\sconsole\sunless\san\sinternal\sdebugging\sflag\sis\senabled.\sThey're\san\sexpected\serror\scase\sand\sgenerate\slots\sof\sconsole\slog\sentries.
-D 2021-06-14T09:41:46.763
+C Minor\s/chat-internal\sdoc\stweaks.
+D 2021-06-14T10:48:34.625
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -441,7 +441,7 @@ F src/cache.c b9a2341043db5b01783f419233281645d02ff0759092b4187914e36447dd7ad3
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 275c601c28715fe0cabb4ea112bb5ed44eb95218c9c492996c92c112a91dbc24
-F src/chat.c 30c382eebd660f1351ef696041a69c5a3c3f9749abe3707e36b0bfb4637bf708
+F src/chat.c 16c8a4153109c86055dda4df7ca5d112355195d56cb98a3bb590e4640b414e92
 F src/chat.js 152a05c697e13106e8a23d873a3c654cdea473259d0023b5c2659ad8d373a4fe
 F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 641a02c8f3f89f4af89f81a09f1969aa57eae4ac0d3ee444ae27bf067d2166e8
-R cefebca06016d76ba5983af825005082
+P 1eddedeaecdfb0f0f4b0287bc26fe32c9fad183c653fb3cb09a91f1f87fa7879
+R a71e309157376d68fea39c613abb0800
 U stephan
-Z 8fc70635d5175e367e5ff7a40cee16d1
+Z 8b0ca7e2634765df76e676f869eff6bc
