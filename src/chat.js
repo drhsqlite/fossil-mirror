@@ -96,6 +96,8 @@
   fossil.FRK = ForceResizeKludge/*for debugging*/;
   const Chat = (function(){
     const cs = {
+      verboseErrors: false /* if true then certain, mostly extraneous,
+                              error messages may be sent to the console. */,
       e:{/*map of certain DOM elements.*/
         messageInjectPoint: E1('#message-inject-point'),
         pageTitle: E1('head title'),
@@ -228,9 +230,9 @@
         }
         return this;
       },
-      /* Injects element e as a new row in the chat, at the oldest end
-         of the list if atEnd is truthy, else at the newest end of the
-         list. */
+      /* Injects DOM element e as a new row in the chat, at the oldest
+         end of the list if atEnd is truthy, else at the newest end of
+         the list. */
       injectMessageElem: function f(e, atEnd){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.messagesWrapper,
@@ -1231,7 +1233,7 @@
       aftersend: function(){},
       onerror:function(err){
         Chat._isBatchLoading = false;
-        console.error(err);
+        if(Chat.verboseErrors) console.error(err);
         /* ^^^ we don't use Chat.reportError() here b/c the polling
            fails exepectedly when it times out, but is then immediately
            resumed, and reportError() produces a loud error message. */
