@@ -469,6 +469,20 @@ ticket_schema_error:
   return SQLITE_DENY;
 }
 
+/*
+** Activate the ticket schema authorizer. Must be followed by
+** an eventual call to ticket_unrestrict_sql().
+*/
+void ticket_restrict_sql(int * pNErr){
+  db_set_authorizer(ticket_schema_auth,(void*)pNErr,"Ticket-Schema");
+}
+/*
+** Deactivate the ticket schema authorizer.
+*/
+void ticket_unrestrict_sql(void){
+  db_clear_authorizer();
+}
+
 
 /*
 ** Recreate the TICKET and TICKETCHNG tables.
@@ -481,14 +495,14 @@ void ticket_create_table(int separateConnection){
     "DROP TABLE IF EXISTS ticketchng;"
   );
   zSql = ticket_table_schema();
-  db_set_authorizer(ticket_schema_auth,0,"Ticket-Schema");
+  ticket_restrict_sql(0);
   if( separateConnection ){
     if( db_transaction_nesting_depth() ) db_end_transaction(0);
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
     db_multi_exec("%s", zSql/*safe-for-%s*/);
   }
-  db_clear_authorizer();
+  ticket_unrestrict_sql();
   fossil_free(zSql);
 }
 

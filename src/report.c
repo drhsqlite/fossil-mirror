@@ -242,7 +242,8 @@ static int report_query_authorizer(
 }
 
 /*
-** Activate the query authorizer
+** Activate the ticket report query authorizer. Must be followed by an
+** eventual call to ticket_unrestrict_sql().
 */
 void report_restrict_sql(char **pzErr){
   db_set_authorizer(report_query_authorizer,(void*)pzErr,"Ticket-Report");
