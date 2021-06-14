@@ -741,6 +741,65 @@ int name_to_rid_www(const char *zParamName){
 }
 
 /*
+** Given an RID of a structural artifact, which is assumed to be
+** valid, this function returns one of the CFTYPE_xxx values
+** describing the record type, or 0 if the RID does not refer to an
+** artifact record (as determined by reading the event table).
+**
+** Note that this function never returns CFTYPE_ATTACHMENT or
+** CFTYPE_CLUSTER because those are not used in the event table. Thus
+** it cannot be used to distinguish those artifact types from
+** non-artifact file content.
+**
+** Potential TODO: if the rid is not found in the timeline, try to
+** match it to a client file and return a hypothetical new
+** CFTYPE_OPAQUE or CFTYPE_NONARTIFACT if a match is found.
+*/
+int whatis_rid_type(int rid){
+  Stmt q = empty_Stmt;
+  int type = 0;
+    /* Check for entries on the timeline that reference this object */
+  db_prepare(&q,
+     "SELECT type FROM event WHERE objid=%d", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    switch( db_column_text(&q,0)[0] ){
+      case 'c':  type = CFTYPE_MANIFEST; break;
+      case 'w':  type = CFTYPE_WIKI;     break;
+      case 'e':  type = CFTYPE_EVENT;    break;
+      case 'f':  type = CFTYPE_FORUM;    break;
+      case 't':  type = CFTYPE_TICKET;   break;
+      case 'g':  type = CFTYPE_CONTROL;  break;
+      default:   break;
+    }
+  }
+  db_finalize(&q);
+  return type;
+}
+
+/*
+** A proxy for whatis_rid_type() which returns a brief string (in
+** static memory) describing the record type. Returns NULL if rid does
+** not refer to an artifact record (as determined by reading the event
+** table). The returned string is intended to be used in headers which
+** can refer to different artifact types. It is not "definitive," in
+** that it does not distinguish between closely-related types like
+** wiki creation, edit, and removal.
+*/
+char const * whatis_rid_type_label(int rid){
+  char const * zType = 0;
+  switch( whatis_rid_type(rid) ){
+    case CFTYPE_MANIFEST: zType = "Check-in";      break;
+    case CFTYPE_WIKI:     zType = "Wiki-edit";     break;
+    case CFTYPE_EVENT:    zType = "Technote";      break;
+    case CFTYPE_FORUM:    zType = "Forum-post";    break;
+    case CFTYPE_TICKET:   zType = "Ticket-change"; break;
+    case CFTYPE_CONTROL:  zType = "Tag-change";    break;
+    default:   break;
+  }
+  return zType;
+}
+
+/*
 ** Generate a description of artifact "rid"
 */
 void whatis_rid(int rid, int verboseFlag){
@@ -773,6 +832,7 @@ void whatis_rid(int rid, int verboseFlag){
     "SELECT substr(tagname,5)"
     "  FROM tag JOIN tagxref ON tag.tagid=tagxref.tagid"
     " WHERE tagxref.rid=%d"
+    "   AND tagxref.tagtype<>0"
     "   AND tagname GLOB 'sym-*'"
     " ORDER BY 1",
     rid

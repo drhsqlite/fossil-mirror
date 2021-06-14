@@ -1713,11 +1713,12 @@ int db_database_slot(const char *zLabel){
   Stmt q;
   if( g.db==0 ) return iSlot;
   rc = db_prepare_ignore_error(&q, "PRAGMA database_list");
-  if( rc!=SQLITE_OK ) return iSlot;
-  while( db_step(&q)==SQLITE_ROW ){
-    if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
-      iSlot = db_column_int(&q, 0);
-      break;
+  if( rc==SQLITE_OK ){
+    while( db_step(&q)==SQLITE_ROW ){
+      if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
+        iSlot = db_column_int(&q, 0);
+        break;
+      }
     }
   }
   db_finalize(&q);
@@ -3490,6 +3491,7 @@ void cmd_open(void){
   const char *zRepoDir = 0;      /* --repodir value */
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
+  int nLocal;                    /* Number of preexisting files in cwd */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3536,7 +3538,11 @@ void cmd_open(void){
       fossil_fatal("unable to make %s the working directory", zWorkDir);
     }
   }
-  if( keepFlag==0 && bForce==0 && file_directory_size(".", 0, 1)>0 ){
+  if( keepFlag==0
+   && bForce==0
+   && (nLocal = file_directory_size(".", 0, 1))>0
+   && (nLocal>1 || isUri || !file_in_cwd(zRepo))
+  ){
     fossil_fatal("directory %s is not empty\n"
                  "use the -f or --force option to override", file_getcwd(0,0));
   }

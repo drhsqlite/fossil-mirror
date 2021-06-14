@@ -366,6 +366,8 @@ int branch_is_open(const char *zBrName){
 **          -r            Reverse the sort order
 **          -t            Show recently changed branches first
 **
+**        The current branch is marked with an asterisk.
+**
 **        If GLOB is given, show only branches matching the pattern.
 **
 ** >  fossil branch new BRANCH-NAME BASIS ?OPTIONS?
@@ -474,6 +476,8 @@ static void new_brlist_page(void){
   brlist_create_temp_table();
   db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");
   rNow = db_double(0.0, "SELECT julianday('now')");
+  @ <script id="brlist-data" type="application/json">\
+  @ {"timelineUrl":"%R/timeline"}</script>
   @ <div class="brlist">
   @ <table class='sortable' data-column-types='tkNtt' data-init-sort='2'>
   @ <thead><tr>
@@ -506,7 +510,8 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a></td>
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a><input 
+    @  type="checkbox" disabled="disabled"/></td>
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);
@@ -521,6 +526,7 @@ static void new_brlist_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
+  builtin_request_js("fossil.page.brlist.js");
   style_table_sorter();
   style_finish_page();
 }

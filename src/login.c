@@ -172,13 +172,17 @@ static void record_login_attempt(
   const char *zIpAddr,       /* IP address from which they logged in */
   int bSuccess               /* True if the attempt was a success */
 ){
-  if( !db_get_boolean("access-log", 0) ) return;
-  create_accesslog_table();
-  db_multi_exec(
-    "INSERT INTO accesslog(uname,ipaddr,success,mtime)"
-    "VALUES(%Q,%Q,%d,julianday('now'));",
-    zUsername, zIpAddr, bSuccess
-  );
+  if( db_get_boolean("access-log", 0) ){
+    create_accesslog_table();
+    db_multi_exec(
+      "INSERT INTO accesslog(uname,ipaddr,success,mtime)"
+      "VALUES(%Q,%Q,%d,julianday('now'));",
+      zUsername, zIpAddr, bSuccess
+    );
+  }
+  if( bSuccess ){
+    alert_user_contact(zUsername);
+  }
 }
 
 /*
@@ -795,6 +799,11 @@ void login_page(void){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
       @ for user <b>%h(g.zLogin)</b></p>
+    }
+    if( db_table_exists("repository","forumpost") ){
+      @ <hr><p>
+      @ <a href="%R/timeline?ss=v&y=f&vfx&u=%t(g.zLogin)">Forum
+      @ post timeline</a> for user <b>%h(g.zLogin)</b></p>
     }
     if( g.perm.Password ){
       char *zRPW = fossil_random_password(12);
@@ -1711,8 +1720,8 @@ void register_page(void){
       /* Also add the user to the subscriber table. */
       zCode = db_text(0,
         "INSERT INTO subscriber(semail,suname,"
-        "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
-        " VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+        "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip,lastContact)"
+        " VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q,now()/86400)"
         " ON CONFLICT(semail) DO UPDATE"
         "   SET suname=excluded.suname"
         " RETURNING hex(subscriberCode);",

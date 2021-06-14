@@ -1,0 +1,59 @@
+#
+# Tests for merging with renames
+#
+#
+
+proc commit_id {version} {
+  regexp -line {^artifact:\s+(\S+)} [fossil whatis $version] - id
+  return $id
+}
+
+require_no_open_checkout
+
+#################################################################
+#  Test 1                                                       #
+#  https://fossil-scm.org/forum/forumpost/549700437b            #
+#################################################################
+
+test_setup
+
+write_file file1 "file1\n"
+fossil add file1
+fossil commit -m "added file1"
+
+write_file file2 "file2\n"
+fossil add file2
+fossil commit -m "added file2" --branch added
+
+write_file file2 "edit file2 on added\n"
+fossil commit -m "edited file2"
+
+fossil mv --hard file2 file2.renamed
+fossil commit -m "renamed file2" --branch renamed
+
+fossil branch new branched current
+
+write_file file2.renamed "edit file2.renamed on renamed\n"
+fossil commit -m "edited file2.renamed"
+
+fossil update trunk
+fossil merge renamed
+fossil commit -m "merged from renamed"
+
+write_file file2.renamed "edit file2.renamed on trunk (1)\n"
+fossil commit -m "edited file2.renamed on trunk (1)"
+
+fossil update branched
+fossil merge trunk
+test_status_list merge_renames_2-1.1 $RESULT {UPDATE file2.renamed}
+fossil commit -m "merged edit from trunk (1:this merge succeeded)"
+
+fossil update trunk
+write_file file2.renamed "edit2 file2.renamed on trunk (2)\n"
+fossil commit -m "edited file2.renamed on trunk (2)"
+
+fossil update branched
+fossil merge trunk
+test_status_list merge_renames_2-1.2 $RESULT {UPDATE file2.renamed}
+
+test_cleanup

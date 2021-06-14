@@ -194,7 +194,7 @@ static void process_sync_args(
 **
 ** Pull all sharable changes from a remote repository into the local
 ** repository.  Sharable changes include public check-ins, edits to
-** wiki pages, tickets, and tech-notes, as well as forum content.  Add
+** wiki pages, tickets, tech-notes, and forum posts.  Add
 ** the --private option to pull private branches.  Use the
 ** "configuration pull" command to pull website configuration details.
 **
@@ -245,7 +245,7 @@ void pull_cmd(void){
 **
 ** Push all sharable changes from the local repository to a remote
 ** repository.  Sharable changes include public check-ins, edits to
-** wiki pages, tickets, and tech-notes, as well as forum content.  Use
+** wiki pages, tickets, tech-notes, and forum posts.  Use
 ** --private to also push private branches.  Use the "configuration
 ** push" command to push website configuration details.
 **
@@ -292,7 +292,7 @@ void push_cmd(void){
 **
 ** Synchronize all sharable changes between the local repository and a
 ** remote repository.  Sharable changes include public check-ins and
-** edits to wiki pages, tickets, and technical notes.
+** edits to wiki pages, tickets, forum posts, and technical notes.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
 ** pull, remote, or sync command is used.  See "fossil help clone" for

@@ -380,7 +380,6 @@ int ticket_change(const char *zUuid){
 **     CREATE TABLE
 **     CREATE INDEX
 **     CREATE VIEW
-**     DROP TABLE
 **     DROP INDEX
 **     DROP VIEW
 **
@@ -409,7 +408,6 @@ static int ticket_schema_auth(
 ){
   switch( eCode ){
     case SQLITE_DROP_VIEW:
-    case SQLITE_DROP_TABLE:
     case SQLITE_CREATE_VIEW:
     case SQLITE_CREATE_TABLE: {
       if( sqlite3_stricmp(z2,"main")!=0

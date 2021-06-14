@@ -595,7 +595,6 @@ void wiki_page(void){
     }
     if( g.perm.Hyperlink ){
       style_submenu_element("History", "%R/whistory?name=%T", zPageName);
-      style_submenu_parametric("wiki",7);
     }
   }
   if( !isPopup ){
@@ -637,6 +636,9 @@ int wiki_put(Blob *pWiki, int parent, int needMod){
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
   manifest_crosslink(nrid, pWiki, MC_NONE);
+  if( login_is_individual() ){
+    alert_user_contact(login_name());
+  }
   return nrid;
 }
 
@@ -1016,6 +1018,8 @@ static void wiki_render_page_list_json(int verbose, int includeContent){
              " substr(tagname,6) AS name"
              " FROM tag JOIN tagxref USING('tagid')"
              " WHERE tagname GLOB 'wiki-*'"
+             " AND TYPEOF(tagxref.value+0)='integer'"
+             /* ^^^ elide wiki- tags which are not wiki pages */
              " UNION SELECT 'Sandbox' AS name"
              " ORDER BY name COLLATE NOCASE");
   CX("[");
@@ -1201,7 +1205,7 @@ void wikiedit_page(void){
        "wikiedit-options flex-container flex-row child-gap-small'>");
     CX("<div class='input-with-label'>"
        "<label>Mime type</label>");
-    mimetype_option_menu(0);
+    mimetype_option_menu("text/x-markdown");
     CX("</div>");
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor font size",
@@ -1398,7 +1402,7 @@ void wikinew_page(void){
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
   @ %z(href("%R/markup_help"))Markup style</a>:
-  mimetype_option_menu("text/x-fossil-wiki");
+  mimetype_option_menu("text/x-markdown");
   @ <br /><input type="submit" value="Create" />
   @ </p></form>
   if( zName[0] ){
@@ -1759,6 +1763,7 @@ static const char listAllWikiPages[] =
 @ WHERE
 @   tag.tagname GLOB 'wiki-*'
 @   AND tagxref.tagid=tag.tagid
+@   AND TYPEOF(wrid)='integer' -- only wiki- tags which are wiki pages
 @ GROUP BY 1
 @ ORDER BY 2;
 ;

@@ -332,68 +332,6 @@ void style_submenu_sql(
   }
 }
 
-/* Add hyperlinks depending on the existence and values of special
-** parameters in the request's query string. The names of these
-** parameters that are investigated are obtainted by concatenation
-** of zPrefix with suffix "smplX", where X is either nothing or
-** a positive digit <= nMaxDigit. zPrefix must start with a lowercase
-** letter, be short and have no strange characters. A value is
-** well-formed if its first filepath segment (separated by '/')
-** has no strange characters. The labels of the resulting submenu items
-** are equal to the well-formed values that are prepended by "✧"
-** unless a value starts with a lowercase letter.
-** Malformed values are silently ignored.
-*/
-void style_submenu_parametric(
-  const char *zPrefix,   /* common prefix of the query parameters names */
-  const int  nMaxDigit   /* maximal digit on the end of param names     */
-){
-  const char *zQS;             /* QUERY_STRING */
-  const char *suffix = "smpl"; /* common suffix for all parameters      */
-  const short sfxlen =  4;     /* length of the above suffix            */
-  char  zN[32];                /* short names => no dynamic allocations */
-  short i,l;
-
-  /* zPrefix must be tidy and short; also filter out ENV/CGI variables  */
-  assert( zPrefix != 0 && fossil_islower(zPrefix[0]) );
-  l = strnlen( zPrefix, sizeof(zN) );
-  assert( l+sfxlen+2 <= sizeof(zN) );
-  assert( fossil_no_strange_characters(zPrefix) );
-  /* concatenate zPrefix and suffix */
-  strcpy( zN, zPrefix );
-  strcpy( zN + l, suffix );
-  l += sfxlen;
-  zN[l+1] = 0; /* nul-terminator after digit's placeholder (if any) */
-  zQS = PD("QUERY_STRING","");
-  for( i = 0; i <= 9 && i <= nMaxDigit; i++ ){
-    const char *zV, *z;
-    zN[l] = ( i == 0 ?  0 : '0' + i ); /* ...smpl instead of ...smpl0 */
-    zV = PD(zN,"");
-    if( zV[0] == 0 || zV[0] == '/' ){
-      continue;
-    }
-    /* require the first path segment to be unfancy ASCII string */
-    for( z = zV; z[0] && z[0] != '/' ;){
-      if( fossil_isalnum(z[0]) || z[0]=='_' || z[0]=='-' ) z++;
-      else break;
-    }
-    if( z[0] != 0 && z[0] != '/' )
-      continue;
-    assert( nSubmenu < count(aSubmenu) );
-    if(fossil_islower(zV[0])){
-      aSubmenu[nSubmenu].zLabel = mprintf( "%s",zV); /* memory leak?  */
-    }else{
-      aSubmenu[nSubmenu].zLabel = mprintf("✧%s",zV); /* maybe: ◦✧⸰⸎ ✨ */
-    }
-    if( zQS[0] ){
-      aSubmenu[nSubmenu].zLink  = mprintf("%R/%s?%s",zV,zQS);
-    }else{
-      aSubmenu[nSubmenu].zLink  = mprintf("%R/%s",zV);
-    }
-    nSubmenu++;
-  }
-}
-
 /*
 ** Disable or enable the submenu
 */
@@ -969,6 +907,10 @@ void style_finish_page(){
       qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
       for(i=0; i<nSubmenu; i++){
         struct Submenu *p = &aSubmenu[i];
+        /* switching away from the %h formatting below might be dangerous
+        ** because some places use %s to compose zLabel and zLink;
+        ** e.g. /rptview page
+        */
         if( p->zLink==0 ){
           @ <span class="label">%h(p->zLabel)</span>
         }else{

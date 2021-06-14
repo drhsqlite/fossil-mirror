@@ -961,7 +961,7 @@ span.timelineSelected {
   border: solid #ff8000;
   vertical-align: top;
   text-align: left;
-  background: #442800
+  background-color: #442800;
 }
 .timelineSelected {
   box-shadow: none;
@@ -1412,4 +1412,8 @@ div.forumSel {
 }
 .capsumWrite {
   background-color: #662;
+}
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #442800;
 }

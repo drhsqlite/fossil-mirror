@@ -435,3 +435,8 @@ div.difflncol {
 .capsumWrite {
   background-color: #e5e500;
 }
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #7EA2D9;
+}
