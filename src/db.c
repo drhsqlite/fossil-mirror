@@ -900,17 +900,17 @@ void db_test_db_prepare(void){
   db_prepare(&err, "%s", g.argv[2]/*safe-for-%s*/);
   db_finalize(&err);
   if(fAuthReport){
-      report_unrestrict_sql();
-      if(zReportErr){
-        fossil_warning("Report authorizer error: %s\n", zReportErr);
-        fossil_free(zReportErr);
-      }
+    report_unrestrict_sql();
+    if(zReportErr){
+      fossil_warning("Report authorizer error: %s\n", zReportErr);
+      fossil_free(zReportErr);
+    }
   }else if(fAuthSchema){
-      ticket_unrestrict_sql();
-      if(nSchemaErr){
-        fossil_warning("Ticket schema authorizer error count: %d\n",
-                       nSchemaErr);
-      }
+    ticket_unrestrict_sql();
+    if(nSchemaErr){
+      fossil_warning("Ticket schema authorizer error count: %d\n",
+                     nSchemaErr);
+    }
   }
 }
 

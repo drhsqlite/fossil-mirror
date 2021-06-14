@@ -1,5 +1,5 @@
-C Allow\sDROP\sINDEX\sand\sDROP\sVIEW\sthrough\sthe\sticket-schema\sauthorizer.\nEnhance\sthe\stest-db-prepare\scommand\sso\sthat\sit\scan\suse\sthe\sticket-schema\nor\sreport\sauthorizers\sfor\stesting\spurposes.
-D 2021-06-14T19:51:04.572
+C Indentation\slevel\sfix\son\sthe\sprevious\spatch\s(style\schange\sonly).
+D 2021-06-14T19:54:30.783
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -459,7 +459,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c f70f7024bfa225088923a5fc5c359bb56bc9f0557ca7ebd13f55ce168ae19968
+F src/db.c 958135e80567574dc5f8fb6bdc7cbae75ab75d75954d7ff8d7963eac04092d21
 F src/default.css 198b71b37e02a22d2035a9dd2e1919e6175b27d1fb4b99c82cfb0c7067998664
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -994,8 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bb3c516f18122fe75b3d62cfe6290193b985c91cfe07d67bad1f8376c410f06 b594f486efdf61b8aa65f73e55ee3e8283a24760ffba01ea1662b2ef0856761c
-R 40a46531f435b2ca175c9d9b839f55b7
-T +closed b594f486efdf61b8aa65f73e55ee3e8283a24760ffba01ea1662b2ef0856761c
-U drh
-Z de557ce714e5c8116a8b1962d95812cd
+P c717f1ef9a1a4c91d1f3ea589ee4e5fb358a41f2a151297420c8d0eea85faa19
+R 8677bbc98e0f2897adf2ba9dfa3af32a
+U stephan
+Z d458350446f2f852554ce0a32b19b525
