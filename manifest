@@ -1,5 +1,5 @@
-C /chat\snow\sexperimentally\skeeps\strack\sof\sthe\stimestamp\sof\sthe\smost\srecent\smessage\sreceived\sfrom\seach\suser\sso\sthat\swe\scan\seventually\sintegrate\sthat\sinformation\sinto\sthe\sUI\sto\sprovide\sa\slist\sof\scurrently-active\susers\s(noting\sthat\swe\shave\sno\sway\sof\stracking\sthe\sexistence\sof\slurkers).
-D 2021-06-14T10:52:41.470
+C /chat:\sexperimentally\srender\sa\slist\sof\susers\sordered\sby\smost\srecent\sactivity.\sUntil/unless\swe\scan\sfind\sa\suseful\sfunction\sfor\sthe\slist,\sthough,\sit's\sreally\sjust\sa\ssomewhat\spretty\sscreen\sspace\shog.
+D 2021-06-14T13:48:08.910
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -442,7 +442,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 275c601c28715fe0cabb4ea112bb5ed44eb95218c9c492996c92c112a91dbc24
 F src/chat.c 16c8a4153109c86055dda4df7ca5d112355195d56cb98a3bb590e4640b414e92
-F src/chat.js b7730b4e2f7d2c3695935a9ff08fba045aea494471f27e23474075363c56ccd5
+F src/chat.js 99d65b2e865a641af6c6ed77787f84dbaff7571e434aa61e149d3779f366059c
 F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cf0d4740d7574755cefda5545a3665fba6e6948e7ad80cfd463c2e078b04836d
-F src/default.css 198b71b37e02a22d2035a9dd2e1919e6175b27d1fb4b99c82cfb0c7067998664
+F src/default.css febc6a5ec24e6f846bbf061f4f14a87682b8c35864de23300fbf6ed2a916ce54
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -994,10 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 994bec3637acb12a5a851f309149a3da390a4146bcb61267584b2f7abf28d174
-R a06625e0bfe27fc7081ecb5bec70c765
-T *branch * chat-user-last-seen
-T *sym-chat-user-last-seen *
-T -sym-trunk *
+P be07b8d1373071d6af457eaa084fde43a4feef7176deab81a0e936bbe239e65d
+R 05de8228a4aabe62cdc80cbc2644cf9b
 U stephan
-Z cb5d3e4965a0c25574b4cea2d1366d13
+Z 947a8cdb8bbeae6a03471fe0c0e1ac61

@@ -1770,6 +1770,24 @@ body.chat #chat-drop-details img {
   max-width: 45%;
   max-height: 45%;
 }
+body.chat #active-user-list {
+  border: 1px inset;
+  padding: 0.1em 0.2em;
+  border-radius: 0.25em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 80%;
+}
+body.chat #active-user-list::before {
+  content: "Most recently active:";
+}
+body.chat #active-user-list span.chat-user {
+  margin: 0.2em;
+  padding: 0.15em;
+  border-radius: 0.25em;
+}
 
 input[type="checkbox"].diff-toggle {
   float: right;

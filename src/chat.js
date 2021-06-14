@@ -111,7 +111,8 @@
         inputMulti: E1('#chat-input-multi'),
         inputCurrent: undefined/*one of inputSingle or inputMulti*/,
         inputFile: E1('#chat-input-file'),
-        contentDiv: E1('div.content')
+        contentDiv: E1('div.content'),
+        activeUserList: undefined/*active user list (dynamically created later on)*/
       },
       me: F.user.name,
       mxMsg: F.config.chat.initSize ? -F.config.chat.initSize : -50,
@@ -396,6 +397,45 @@
         this.playNewMessageSound.uri = uri;
         this.settings.set('audible-alert', !!uri);
         return this;
+      },
+
+      /**
+         Updates the "active user list" view.
+      */
+      updateActiveUserList: function callee(){
+        if(!this.e.activeUserList){
+          /** Array.sort() callback. Expects an array of user names and
+              sorts them in last-received message order (newest first). */
+          const usersLastSeen = this.usersLastSeen;
+          callee.sortUsersSeen = function(l,r){
+            l = usersLastSeen[l];
+            r = usersLastSeen[r];
+            if(l && r) return r - l;
+            else if(l) return -1;
+            else if(r) return 1;
+            else return 0;
+          };
+          const content = document.querySelector('body > div.content');
+          const ael = this.e.activeUserList =
+                D.attr(D.div(),'id','active-user-list');
+          D.append(ael, "user list placeholder");
+          content.insertBefore(ael, content.firstElementChild)
+          /*remember: layout is reversed!*/;
+        }
+        const self = this,
+              users = Object.keys(this.usersLastSeen).sort(callee.sortUsersSeen);
+        if(!users.length) return this;
+        const ael = this.e.activeUserList;
+        D.clearElement(ael);
+        users.forEach(function(u){
+          const uSpan = D.addClass(D.span(), 'chat-user');
+          const uDate = self.usersLastSeen[u];
+          D.append(uSpan, u);
+          if(uDate.$uColor){
+            uSpan.style.backgroundColor = uDate.$uColor;
+          }
+          D.append(ael, uSpan);
+        });
       }
     };
     F.fetch.beforesend = ()=>cs.ajaxStart();
@@ -1088,16 +1128,6 @@
       messages), else the beginning (the default). */
   const newcontent = function f(jx,atEnd){
     if(!f.processPost){
-      /** Array.sort() callback. Expects an array of user names and
-          sorts them in last-received message order (newest first). */
-      f.sortUsersSeen = function(l,r){
-        l = Chat.usersLastSeen[l];
-        r = Chat.usersLastSeen[r];
-        if(l && r) return r - l;
-        else if(l) return -1;
-        else if(r) return 1;
-        else return 0;
-      };
       /** Processes chat message m, placing it either at the start (if
           atEnd is falsy) or end (if atEnd is truthy) of the chat
           history. atEnd should only be true when loading older
@@ -1109,7 +1139,10 @@
         if(m.xfrom && m.mtime){
           const d = new Date(m.mtime);
           const uls = Chat.usersLastSeen[m.xfrom];
-          if(!uls || uls<d) Chat.usersLastSeen[m.xfrom] = d;
+          if(!uls || uls<d){
+            d.$uColor = m.uclr;
+            Chat.usersLastSeen[m.xfrom] = d;
+          }
         }
         if( m.mdel ){
           /* A record deletion notice. */
@@ -1123,12 +1156,8 @@
         Chat.injectMessageElem(row.e.body,atEnd);
         if(m.isError){
           Chat._gotServerError = m;
-        }else if(false){
-          const users = Object.keys(Chat.usersLastSeen).sort(f.sortUsersSeen);
-          console.debug("Users sorted by most recent activity (newest first):", users);
-          users.forEach(function(u){
-            console.debug(u, Chat.usersLastSeen[u].toISOString());
-          });
+        }else{
+          Chat.updateActiveUserList();
         }
       }/*processPost()*/;
     }/*end static init*/
