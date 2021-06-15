@@ -1290,6 +1290,10 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
      color we must also set the fg color. */;
   color: rgba(235, 235, 235, 0.9);
 }
+.fossil-PopupWidget a,
+.fossil-PopupWidget a:visited {
+  color: initial;
+}
 .fossil-toast-message.error,
 .fossil-toast-message.warning {
   background: yellow;
