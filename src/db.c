@@ -866,19 +866,51 @@ void db_test_db_exec_cmd(void){
 
 /*
 ** COMMAND: test-db-prepare
-** Usage: %fossil test-db-prepare ?OPTIONS? SQL
+** Usage: %fossil test-db-prepare ?OPTIONS? SQL-STATEMENT
+**
+** Options:
+**
+**   --auth-report   Enable the ticket report query authorizer.
+**   --auth-ticket   Enable the ticket schema query authorizer.
 **
 ** Invoke db_prepare() on the SQL input.  Report any errors encountered.
 ** This command is used to verify error detection logic in the db_prepare()
 ** utility routine.
 */
 void db_test_db_prepare(void){
+  const int fAuthReport = find_option("auth-report",0,0)!=0;
+  const int fAuthSchema = find_option("auth-ticket",0,0)!=0;
+  char * zReportErr = 0; /* auth-report error string. */
+  int nSchemaErr = 0;    /* Number of auth-ticket errors. */
   Stmt err;
+
+  if(fAuthReport + fAuthSchema > 1){
+    fossil_fatal("Only one of --auth-report or --auth-ticket "
+                 "may be used.");
+  }
   db_find_and_open_repository(0,0);
   verify_all_options();
   if( g.argc!=3 ) usage("?OPTIONS? SQL");
+  if(fAuthReport){
+    report_restrict_sql(&zReportErr);
+  }else if(fAuthSchema){
+    ticket_restrict_sql(&nSchemaErr);
+  }
   db_prepare(&err, "%s", g.argv[2]/*safe-for-%s*/);
   db_finalize(&err);
+  if(fAuthReport){
+    report_unrestrict_sql();
+    if(zReportErr){
+      fossil_warning("Report authorizer error: %s\n", zReportErr);
+      fossil_free(zReportErr);
+    }
+  }else if(fAuthSchema){
+    ticket_unrestrict_sql();
+    if(nSchemaErr){
+      fossil_warning("Ticket schema authorizer error count: %d\n",
+                     nSchemaErr);
+    }
+  }
 }
 
 /*
@@ -1713,11 +1745,12 @@ int db_database_slot(const char *zLabel){
   Stmt q;
   if( g.db==0 ) return iSlot;
   rc = db_prepare_ignore_error(&q, "PRAGMA database_list");
-  if( rc!=SQLITE_OK ) return iSlot;
-  while( db_step(&q)==SQLITE_ROW ){
-    if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
-      iSlot = db_column_int(&q, 0);
-      break;
+  if( rc==SQLITE_OK ){
+    while( db_step(&q)==SQLITE_ROW ){
+      if( fossil_strcmp(db_column_text(&q,1),zLabel)==0 ){
+        iSlot = db_column_int(&q, 0);
+        break;
+      }
     }
   }
   db_finalize(&q);

@@ -1290,6 +1290,10 @@ table.numbered-lines td.line-numbers span.selected-line.start.end {
      color we must also set the fg color. */;
   color: rgba(235, 235, 235, 0.9);
 }
+.fossil-PopupWidget a,
+.fossil-PopupWidget a:visited {
+  color: initial;
+}
 .fossil-toast-message.error,
 .fossil-toast-message.warning {
   background: yellow;
@@ -1519,6 +1523,12 @@ body.chat .message-widget .message-widget-tab {
 }
 body.chat .fossil-tooltip.help-buttonlet-content {
   font-size: 80%;
+}
+body.chat .message-widget .message-widget-tab .xfrom {
+  /* Element which holds the "this message is from user X" part
+     of the message banner. */
+  font-style: italic;
+  font-weight: bold;
 }
 /* The popup element for displaying message timestamps
    and deletion controls. */
@@ -1768,6 +1778,26 @@ body.chat #chat-drop-details img {
 input[type="checkbox"].diff-toggle {
   float: right;
 }
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #ffc;
+}
+body.branch .brlist > table > tbody td:first-child > input {
+  cursor: pointer;
+}
+body.branch .brlist > table > tbody > tr > td:nth-child(1) {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+body.branch .submenu > a.timeline-link {
+  display: none;
+}
+body.branch .submenu > a.timeline-link.selected {
+  display: inline;
+}
+
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
   .desktoponly {

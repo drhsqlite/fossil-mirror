@@ -385,6 +385,9 @@ void forum_render(
 **
 ** Space to hold the returned name is obtained from fossil_strdup() or
 ** mprintf() and should be freed by the caller.
+**
+** HTML markup within the reply has been property escaped.  Hyperlinks
+** may have been added.  The result is safe for use with %s.
 */
 static char *display_name_from_login(const char *zLogin){
   static Stmt q;
@@ -396,12 +399,15 @@ static char *display_name_from_login(const char *zLogin){
   if( db_step(&q)==SQLITE_ROW && db_column_type(&q,0)==SQLITE_TEXT ){
     const char *zDisplay = db_column_text(&q,0);
     if( fossil_strcmp(zDisplay,zLogin)==0 ){
-      zResult = fossil_strdup(zLogin);
+      zResult = mprintf("%z%h</a>",
+                  href("%R/timeline?ss=v&y=f&vfx&u=%t",zLogin),zLogin);
     }else{
-      zResult = mprintf("%s (%s)", zDisplay, zLogin);
+      zResult = mprintf("%s (%z%h</a>)", zDisplay,
+                  href("%R/timeline?ss=v&y=f&vfx&u=%t",zLogin),zLogin);
     }
   }else{
-    zResult = fossil_strdup(zLogin);
+    zResult = mprintf("%z%h</a>",
+                href("%R/timeline?ss=v&y=f&vfx&u=%t",zLogin),zLogin);
   }
   db_reset(&q);
   return zResult;
@@ -416,6 +422,9 @@ static char *display_name_from_login(const char *zLogin){
 ** Memory to hold the display name is attached to p->zDisplayName
 ** and will be freed together with the ForumPost object p when it
 ** is freed.
+**
+** The returned text has had all HTML markup escaped and is safe for
+** use within %s.
 */
 static char *forum_post_display_name(ForumPost *p, Manifest *pManifest){
   Manifest *pToFree = 0;
@@ -483,7 +492,8 @@ static void forum_display_post(
     **    *  The post was last edited by a different person
     */
     if( p->pEditHead ){
-      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", p->pEditHead->rDate);
+      zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", 
+                      p->pEditHead->rDate);
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
       zEditorName = zPosterName;
@@ -496,19 +506,19 @@ static void forum_display_post(
       @ <h3 class='forumPostHdr'>(%d(p->sid)\
       @ .%0*d(fossil_num_digits(p->nEdit))(p->rev)) \
       if( fossil_strcmp(zPosterName, zEditorName)==0 ){
-        @ By %h(zPosterName) on %h(zDate) edited from \
+        @ By %s(zPosterName) on %h(zDate) edited from \
         @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }else{
-        @ Originally by %h(zPosterName) \
-        @ with edits by %h(zEditorName) on %h(zDate) from \
+        @ Originally by %s(zPosterName) \
+        @ with edits by %s(zEditorName) on %h(zDate) from \
         @ %z(href("%R/forumpost/%S?%s%s",p->pEditPrev->zUuid,zQuery,zHist))\
         @ %d(p->sid).%0*d(fossil_num_digits(p->nEdit))(p->pEditPrev->rev)</a>
       }
     }else{
       zPosterName = forum_post_display_name(p, pManifest);
       @ <h3 class='forumPostHdr'>(%d(p->sid)) \
-      @ By %h(zPosterName) on %h(zDate)
+      @ By %s(zPosterName) on %h(zDate)
     }
     fossil_free(zDate);
 
@@ -538,12 +548,12 @@ static void forum_display_post(
 
     /* Provide a link to select the individual post. */
     if( !bSelect ){
-      @ %z(href("%R/forumpost/%S?%s",p->zUuid,zQuery))[link]</a>
+      @ %z(href("%R/forumpost/%!S?%s",p->zUuid,zQuery))[link]</a>
     }
 
     /* Provide a link to the raw source code. */
     if( !bUnf ){
-      @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
+      @ %z(href("%R/forumpost/%!S?raw",p->zUuid))[source]</a>
     }
     @ </h3>
   }
@@ -1165,6 +1175,7 @@ void forumedit_page(void){
   const char *zContent = 0;
   const char *zTitle = 0;
   char *zDate = 0;
+  const char *zFpid = PD("fpid","");
   int isCsrfSafe;
   int isDelete = 0;
 
@@ -1173,7 +1184,7 @@ void forumedit_page(void){
     login_needed(g.anon.WrForum);
     return;
   }
-  fpid = symbolic_name_to_rid(PD("fpid",""), "f");
+  fpid = symbolic_name_to_rid(zFpid, "f");
   if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
     webpage_error("Missing or invalid fpid query parameter");
   }
@@ -1288,10 +1299,13 @@ void forumedit_page(void){
     if( pRootPost->zThreadTitle ){
       @ <h1>Thread: %h(pRootPost->zThreadTitle)</h1>
     }
-    @ <h2>Replying To:</h2>
+    @ <h2>Replying To:
+    @ <a href="%R/forumpost/%!S(zFpid)" target="_blank">%S(zFpid)</a>
+    @ <a href="%R/forumpost/%!S(zFpid)?raw" target="_blank">[source]</a>
+    @ </h2>
     zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
-    @ <h3 class='forumPostHdr'>By %h(zDisplayName) on %h(zDate)</h3>
+    @ <h3 class='forumPostHdr'>By %s(zDisplayName) on %h(zDate)</h3>
     fossil_free(zDisplayName);
     fossil_free(zDate);
     forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit", 1);

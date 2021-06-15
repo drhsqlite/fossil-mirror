@@ -572,6 +572,19 @@ like
 gateway bidirectional should be possible as well, as long as it properly
 uses SQLite transactions.
 
+### <a id="brlist"></a>List of branches
+
+Since Fossil 2.16 the [`/brlist`](/brlist) page uses JavaScript to enable
+selection of several branches for further study via `/timeline`.
+Client-side script interactively responds to checkboxes' events
+and constructs a special hyperlink in the submenu.
+Clicking this hyperlink loads a `/timeline` page that shows
+only these selected branches (and the related check-ins).
+
+_Potential Workaround:_ A user can manually construct an appropriate
+regular expession and put it into the "Tag Filter" entry of the
+`/timeline` page (in its advanced mode).
+
 ----
 
 ## <a id="future"></a>Future Plans for JavaScript in Fossil
@@ -608,7 +621,7 @@ developers, provided the developer(s) in question are in a position to
 expend the effort.
 
 3) Features end users and co-contributors can convince a developer into
-coding even when they really don't want to. ð˜˜‰
+coding even when they really don't want to.
 
 In all of this, Fossil's project lead understandably has the final
 say-so in whether any given feature indeed gets merged into the mainline

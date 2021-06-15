@@ -288,25 +288,20 @@ void clone_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   if( zWorkDir!=0 && zWorkDir[0]!=0 && !noOpen ){
-    char *azNew[7];
-    int nargs = 5;
+    Blob cmd;
     fossil_print("opening the new %s repository in directory %s...\n",
        zRepo, zWorkDir);
-    azNew[0] = g.argv[0];
-    azNew[1] = "open";
-    azNew[2] = (char*)zRepo;
-    azNew[3] = "--workdir";
-    azNew[4] = (char*)zWorkDir;
+    blob_init(&cmd, 0, 0);
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append(&cmd, " open ", -1);
+    blob_append_escaped_arg(&cmd, zRepo);
+    blob_append(&cmd, " --workdir ", -1);
+    blob_append_escaped_arg(&cmd, zWorkDir);
     if( allowNested ){
-      azNew[5] = "--nested";
-      nargs++;
-    }else{
-      azNew[5] = 0;
+      blob_append(&cmd, " --nested", -1);
     }
-    azNew[6] = 0;
-    g.argv = azNew;
-    g.argc = nargs;
-    cmd_open();
+    fossil_system(blob_str(&cmd));
+    blob_reset(&cmd);
   }
 }
 

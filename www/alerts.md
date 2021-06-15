@@ -553,6 +553,7 @@ Web pages available to users and subscribers:
    *  The [`/subscribe`](/help?cmd=/subscribe) page
    *  The [`/alerts`](/help?cmd=/alerts) page
    *  The [`/unsubscribe`](/help?cmd=/unsubscribe) page
+   *  The [`/renew`](/help?cmd=/renew) page
    *  The [`/contact_admin`](/help?cmd=/contact_admin) page
 
 Administrator-only web pages:
@@ -576,7 +577,7 @@ runs to the end of this document.
 <a id="datades"></a>
 ### Data Design
 
-There are three new tables in the repository database, starting with
+There are two new tables in the repository database, starting with
 Fossil 2.7.  These tables are not created in new repositories by
 default.  The tables only come into existence as needed when email
 alerts are configured and used.
@@ -601,11 +602,10 @@ alerts are configured and used.
      PENDING\_ALERT table refers to EVENT table entries for which
      we might need to send alert emails.
 
-  *  <b>EMAIL\_BOUNCE</b> →
-     This table is intended to record email bounce history so that
-     subscribers with excessive bounces can be turned off.  That
-     logic has not yet been implemented so the EMAIL\_BOUNCE table
-     is currently unused.
+There was a third table "EMAIL_BOUNCE" in Fossil versions 2.7 through 2.14.
+That table was intended to record email bounce history so that
+subscribers with excessive bounces can be turned off.  But that feature
+was never implemented and the table was removed in Fossil 2.15.
 
 As pointed out above, ["subscribers" are distinct from "users"](#uvs).
 The SUBSCRIBER.SUNAME field is the optional linkage between users and

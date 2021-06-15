@@ -399,7 +399,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
                        "'purgeevent','purgeitem','unversioned',"
-                       "'subscriber','pending_alert','alert_bounce','chat')"
+                       "'subscriber','pending_alert','chat')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
   );

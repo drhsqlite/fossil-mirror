@@ -96,6 +96,8 @@
   fossil.FRK = ForceResizeKludge/*for debugging*/;
   const Chat = (function(){
     const cs = {
+      verboseErrors: false /* if true then certain, mostly extraneous,
+                              error messages may be sent to the console. */,
       e:{/*map of certain DOM elements.*/
         messageInjectPoint: E1('#message-inject-point'),
         pageTitle: E1('head title'),
@@ -228,9 +230,9 @@
         }
         return this;
       },
-      /* Injects element e as a new row in the chat, at the top of the
-         list if atEnd is falsy, else at the end of the list, before
-         the load-history widget. */
+      /* Injects DOM element e as a new row in the chat, at the oldest
+         end of the list if atEnd is truthy, else at the newest end of
+         the list. */
       injectMessageElem: function f(e, atEnd){
         const mip = atEnd ? this.e.loadOlderToolbar : this.e.messageInjectPoint,
               holder = this.e.messagesWrapper,
@@ -380,7 +382,7 @@
          Sets the current new-message audio alert URI (must be a
          repository-relative path which responds with an audio
          file). Pass a falsy value to disable audio alerts. Returns
-         this. This setting is persistent. Returns this.
+         this.
       */
       setNewMessageSound: function f(uri){
         delete this.playNewMessageSound.audio;
@@ -411,7 +413,6 @@
     cs.inputMultilineMode(cs.settings.getBool('edit-multiline',false));
     cs.chatOnlyMode(cs.settings.getBool('chat-only-mode'));
     cs.pageTitleOrig = cs.e.pageTitle.innerText;
-
     const qs = (e)=>document.querySelector(e);
     const argsToArray = function(args){
       return Array.prototype.slice.call(args,0);
@@ -435,14 +436,14 @@
       const args = argsToArray(arguments);
       console.error("chat error:",args);
       const d = new Date().toISOString(),
-            msg = {
+            mw = new this.MessageWidget({
               isError: true,
               xfrom: null,
               msgid: -1,
               mtime: d,
               lmtime: d,
               xmsg: args
-            }, mw = new this.MessageWidget(msg);
+            });
       this.injectMessageElem(mw.e.body);
       mw.scrollIntoView();
     };
@@ -606,9 +607,6 @@
       ].join('');
     };
     cf.prototype = {
-      setLabel: function(label){
-        return this;
-      },
       scrollIntoView: function(){
         this.e.content.scrollIntoView();
       },
@@ -628,10 +626,12 @@
         const d = new Date(m.mtime);
         D.clearElement(this.e.tab);
         var contentTarget = this.e.content;
+        var eXFrom /* element holding xfrom name */;
         if(m.xfrom){
+          eXFrom = D.append(D.addClass(D.span(), 'xfrom'), m.xfrom);
           D.append(
-            this.e.tab,
-            D.text(m.xfrom," #",(m.msgid||'???'),' @ ',theTime(d))
+            this.e.tab, eXFrom,
+            D.text(" #",(m.msgid||'???'),' @ ',theTime(d))
           );
         }else{/*notification*/
           D.addClass(this.e.body, 'notification');
@@ -685,6 +685,9 @@
           }
         }
         this.e.tab.addEventListener('click', this._handleLegendClicked, false);
+        if(eXFrom){
+          eXFrom.addEventListener('click', ()=>this.e.tab.click(), false);
+        }
         return this;
       },
       /* Event handler for clicking .message-user elements to show their
@@ -736,6 +739,19 @@
                   self.hide();
                   Chat.deleteMessage(eMsg);
                 });
+              }
+              if(eMsg.dataset.xfrom){
+                /* Add a link to the /timeline filtered on this user. */
+                const toolbar2 = D.addClass(D.div(), 'toolbar');
+                D.append(this.e, toolbar2);
+                const timelineLink = D.attr(
+                  D.a(F.repoUrl('timeline',{
+                    u: eMsg.dataset.xfrom,
+                    y: 'a'
+                  }), "User's Timeline"),
+                  'target', '_blank'
+                );
+                D.append(toolbar2, timelineLink);
               }
             }/*refresh()*/
           });
@@ -1230,7 +1246,7 @@
       aftersend: function(){},
       onerror:function(err){
         Chat._isBatchLoading = false;
-        console.error(err);
+        if(Chat.verboseErrors) console.error(err);
         /* ^^^ we don't use Chat.reportError() here b/c the polling
            fails exepectedly when it times out, but is then immediately
            resumed, and reportError() produces a loud error message. */

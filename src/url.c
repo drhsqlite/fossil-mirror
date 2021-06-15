@@ -640,7 +640,7 @@ void url_get_password_if_needed(void){
 **
 **    *  If the URL is just a domain name, without a path, then use the
 **       first element of the domain name, except skip over "www." if 
-**       present.
+**       present and if there is a ".com" or ".org" or similar suffix.
 **
 ** The string returned is obtained from fossil_malloc().  NULL might be
 ** returned if there is an error.
@@ -654,7 +654,12 @@ char *url_to_repo_basename(const char *zUrl){
     if( (zUrl[i]=='/' || zUrl[i]=='@') && zUrl[i+1]!=0 ) zTail = &zUrl[i+1];
   }
   if( zTail==0 ) return 0;
-  if( sqlite3_strnicmp(zTail, "www.", 4)==0 ) zTail += 4;
+  if( sqlite3_strnicmp(zTail, "www.", 4)==0 && strchr(zTail+4,'.')!=0 ){
+    /* Remove the "www." prefix if there are more "." characters later.
+    ** But don't remove the "www." prefix if what follows is the suffix.
+    ** forum:/forumpost/74e111a2ee */
+    zTail += 4;
+  }
   if( zTail[0]==0 ) return 0;
   for(i=0; zTail[i] && zTail[i]!='.' && zTail[i]!='?'; i++){}
   if( i==0 ) return 0;

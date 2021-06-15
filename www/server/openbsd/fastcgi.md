@@ -60,6 +60,7 @@ the script executable.
     $ doas mkdir /var/www/htdocs/fsl.domain.tld
     $ doas touch /var/www/logs/fossil.log
     $ doas chown www /var/www/logs/fossil.log
+    $ doas chmod 660 /var/www/logs/fossil.log
     $ doas chmod 755 /var/www/cgi-bin/scm
 ```
 
@@ -106,7 +107,7 @@ user who will push to, pull from, and create repositories.
 
 ```console
    $ doas chown -R user:www /var/www/htdocs/fsl.domain.tld
-   $ doas chmod 775 /var/www/htdocs/fsl.domain.tld
+   $ doas chmod 770 /var/www/htdocs/fsl.domain.tld
 ```
 
 ## <a name="httpdconfig"></a>Configure httpd

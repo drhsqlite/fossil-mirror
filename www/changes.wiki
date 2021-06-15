@@ -1,7 +1,41 @@
 <title>Change Log</title>
 
+<a name='v2_16'></a>
+<h2>Changes for Version 2.16 (pending)</h2>
+  *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
+     server hostname matches its certificate. <b>Upgrading to
+     the patch is recommended.</b>
+  *  The [/brlist|/brlist web page] allows the user to
+     select multiple branches to be displayed together in a single
+     timeline.
+  *  The [./forum.wiki|Forum] provides a hyperlink on the author of each
+     post that goes to a timeline of recent posts by that same author.
+  *  The [/help?cmd=merge|fossil merge] command now does a better job merging
+     branches where files have been renamed between the current branch and the
+     branch being merged.
+  *  The [/help?cmd=open|fossil open] command allows the repository file
+     to be inside the working directory without requiring the --force flag.
+  *  The [/help?cmd=/wikiedit|/wikiedit] and [/help?cmd=/wikinew|/wikinew]
+     pages now default to markdown format.
+  *  The [/help?cmd=/login|/login] page now links to a user's forum post
+     timeline if the repository has forum posts.
+  *  Tags may now be propagated for forum posts, wiki pages, and technotes.
+     The [/help?cmd=tag|tag command] can now manipulate and list such tags.
+  *  [./caps/login-groups.md|Login-Groups] are now show on the repository
+     list of the "[/help?cmd=all|fossil all ui]" command.
+  *  Administrators can configure [./alerts|email alerts] to expire
+     a specific number of days (ex: 365) after the last user contact with
+     the Fossil server  This can prevents alert emails being sent to 
+     abandoned email accounts forever.
+
 <a name='v2_15'></a>
-<h2>Changes for Version 2.15 (2021-03-26)</h2>
+<h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)
+    and 2.15.2 on (2021-06-15)</h2>
+  *  <b>Patch 2.15.2:</b> Fix the client-side TLS so that it verifies that the
+     server hostname matches its certificate. <b>Upgrading to
+     the patch is recommended.</b>
+  *  <b>Patch 2.15.1:</b> Fix a data exfiltration bug in the server.  <b>Upgrading to
+     the patch is recommended.</b>
   *  The [./defcsp.md|default CSP] has been relaxed slightly to allow
      images to be loaded from any URL.  All other resources are still
      locked down by default.
@@ -80,8 +114,13 @@
      user into a single "recycled" row (the latest edit in that sequence).
 
 <a name='v2_14'></a>
-<h2>Changes for Version 2.14 (2021-01-20)</h2>
-
+<h2>Changes for Version 2.14 (2021-01-20) and Patch 2.14.1 on (2021-04-07)
+    and 2.14.2 on (2021-06-15)</h2>
+  *  <b>Patch 2.14.2:</b> Fix the client-side TLS so that it verifies that the
+     server hostname matches its certificate. <b>Upgrading to
+     the patch is recommended.</b><
+  *  <b>Patch 2.14.1:</b> Fix a data exfiltration bug in the server.
+     <b>Upgrading to the patch is recommended.</b>
   *  <b>Schema Update Notice #1:</b>
      This release drops a trigger from the database schema (replacing
      it with a TEMP trigger that is created as needed).  This

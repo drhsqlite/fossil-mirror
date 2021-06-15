@@ -498,6 +498,7 @@ void ci_tags_page(void){
   Stmt q;
   int cnt = 0;
   Blob sql;
+  char const *zType;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -510,7 +511,9 @@ void ci_tags_page(void){
   }
   zHash = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   style_header("Tags and Properties");
-  @ <h1>Tags and Properties for Check-In \
+  zType = whatis_rid_type_label(rid);
+  if(!zType) zType = "Artifact";
+  @ <h1>Tags and Properties for %s(zType)  \
   @ %z(href("%R/ci/%!S",zHash))%S(zHash)</a></h1>
   db_prepare(&q,
     "SELECT tag.tagid, tagname, "
@@ -2794,6 +2797,11 @@ void info_page(void){
                 " WHERE rid=%d AND tagname LIKE 'tkt-%%'", rid) ){
     tinfo_page();
   }else
+  if( db_table_exists("repository","forumpost")
+   && db_exists("SELECT 1 FROM forumpost WHERE fpid=%d", rid)
+  ){
+    forumthread_page();
+  }else
   if( db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
     ci_page();
   }else
@@ -2802,11 +2810,6 @@ void info_page(void){
   }else
   if( db_exists("SELECT 1 FROM attachment WHERE attachid=%d", rid) ){
     ainfo_page();
-  }else
-  if( db_table_exists("repository","forumpost")
-   && db_exists("SELECT 1 FROM forumpost WHERE fpid=%d", rid)
-  ){
-    forumthread_page();
   }else
   {
     artifact_page();

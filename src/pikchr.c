@@ -7310,6 +7310,24 @@ static int pik_token_length(PToken *pToken, int bAllowCodeBlock){
         return 1;
       }
     }
+    case 0xe2: {
+      if( z[1]==0x86 ){
+        if( z[2]==0x90 ){
+          pToken->eType = T_LARROW;   /* <- */
+          return 3;
+        }
+        if( z[2]==0x92 ){
+          pToken->eType = T_RARROW;   /* -> */
+          return 3;
+        }
+        if( z[2]==0x94 ){
+          pToken->eType = T_LRARROW;  /* <-> */
+          return 3;
+        }
+      }
+      pToken->eType = T_ERROR;
+      return 1;
+    }
     case '{': {
       int len, depth;
       i = 1;
@@ -7334,6 +7352,29 @@ static int pik_token_length(PToken *pToken, int bAllowCodeBlock){
       }
       pToken->eType = T_CODEBLOCK;
       return i;
+    }
+    case '&': {
+      static const struct {
+         int nByte;            /* Number of bytes in zEntity */
+         int eCode;            /* Corresponding token code */
+         const char *zEntity;  /* Name of the HTML entity */
+      } aEntity[] = {
+                      /*   123456789 1234567 */
+         { 6,  T_RARROW,  "&rarr;"           },   /* Same as -> */
+         { 12, T_RARROW,  "&rightarrow;"     },   /* Same as -> */
+         { 6,  T_LARROW,  "&larr;"           },   /* Same as <- */
+         { 11, T_LARROW,  "&leftarrow;"      },   /* Same as <- */
+         { 16, T_LRARROW, "&leftrightarrow;" },   /* Same as <-> */
+      };
+      unsigned int i;
+      for(i=0; i<sizeof(aEntity)/sizeof(aEntity[0]); i++){
+        if( strncmp((const char*)z,aEntity[i].zEntity,aEntity[i].nByte)==0 ){
+          pToken->eType = aEntity[i].eCode;
+          return aEntity[i].nByte;
+        }
+      }
+      pToken->eType = T_ERROR;
+      return 1;
     }
     default: {
       c = z[0];
@@ -7962,4 +8003,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 7990 "pikchr.c"
+#line 8031 "pikchr.c"

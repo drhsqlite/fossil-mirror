@@ -117,6 +117,7 @@ set doclist {
   unvers.wiki {Unversioned Files}
   webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}
+  whyallinone.md {Why Bundle Forum, Wiki, and other Web Software With Your DVCS?}
   whyusefossil.wiki {Why You Should Use Fossil}
   whyusefossil.wiki {Benefits Of Version Control}
   wikitheory.wiki {Wiki In Fossil}

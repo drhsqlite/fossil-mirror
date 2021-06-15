@@ -163,6 +163,9 @@ char *remove_blank_lines(const char *zOrig){
 ** SQL statements entered by users do not try to do anything untoward.
 ** If anything suspicious is tried, set *(char**)pError to an error
 ** message obtained from malloc.
+**
+** Use the "fossil test-db-prepare --auth-report SQL" command to perform
+** manual testing of this authorizer.
 */
 static int report_query_authorizer(
   void *pError,
@@ -201,7 +204,7 @@ static int report_query_authorizer(
       };
       int lwr = 0;
       int upr = count(azAllowed) - 1;
-      int rc = 0;
+      int cmp = 0;
       if( zArg1==0 ){
         /* Some legacy versions of SQLite will sometimes send spurious
         ** READ authorizations that have no table name.  These can be
@@ -209,21 +212,25 @@ static int report_query_authorizer(
         rc = SQLITE_IGNORE;
         break;
       }
-      while( lwr<upr ){
+      while( lwr<=upr ){
         int i = (lwr+upr)/2;
-        int rc = fossil_stricmp(zArg1, azAllowed[i]);
-        if( rc<0 ){
+        cmp = fossil_stricmp(zArg1, azAllowed[i]);
+        if( cmp<0 ){
           upr = i - 1;
-        }else if( rc>0 ){
+        }else if( cmp>0 ){
           lwr = i + 1;
         }else{
           break;
         }
       }
-      if( rc ){
+      if( cmp ){
+        /* Always ok to access tables whose names begin with "fx_" */
+        cmp = sqlite3_strnicmp(zArg1, "fx_", 3);
+      }
+      if( cmp ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
         rc = SQLITE_DENY;
-      }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
+      }else if( !g.perm.RdAddr && sqlite3_strnicmp(zArg2, "private_", 8)==0 ){
         rc = SQLITE_IGNORE;
       }
       break;
@@ -238,7 +245,8 @@ static int report_query_authorizer(
 }
 
 /*
-** Activate the query authorizer
+** Activate the ticket report query authorizer. Must be followed by an
+** eventual call to report_unrestrict_sql().
 */
 void report_restrict_sql(char **pzErr){
   db_set_authorizer(report_query_authorizer,(void*)pzErr,"Ticket-Report");
@@ -970,14 +978,10 @@ static int db_exec_readonly(
 /*
 ** WEBPAGE: rptview
 **
-** Generate a report.  The "rn" query parameter is the report number
-** corresponding to REPORTFMT.RN.  If the "tablist" query parameter exists,
+** Generate a report.  The rn query parameter is the report number
+** corresponding to REPORTFMT.RN.  If the tablist query parameter exists,
 ** then the output consists of lines of tab-separated fields instead of
-** an HTML table.  If the "rvsmpl" query parameter is set then report's
-** submenu will contain an extra hyperlink that have a value-driven
-** label and target.
-**
-** "rvsmpl" stands for Report View SubMenu's Parametric Link.
+** an HTML table.
 */
 void rptview_page(void){
   int count = 0;
@@ -1039,23 +1043,14 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
-    /*
-    ** Lets use a funcy button for /reportlist since that page may be
-    ** heavily customized by the user. Some variants: ⊚ ⦾  ❊ ⊛ ⚛ ⸎  💠
-    ** Enclosing it inside of square brackets makes its  position
-    ** determenistic and clearly distincts regular submenu links from
-    ** those that are induced by the query string parameters.
-    */
+    /* style_finish_page() should provide escaping via %h formatting */
     if( zQS[0] ){
       style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
-      style_submenu_element("[⊚]","%R/reportlist?%s",zQS);
+      style_submenu_element("Reports","%R/reportlist?%s",zQS);
     } else {
       style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
-      style_submenu_element("[⊚]","%R/reportlist");
+      style_submenu_element("Reports","%R/reportlist");
     }
-    style_submenu_parametric("rptview_",5);
-    style_submenu_parametric("rv",5);
-
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "rptedit?rn=%d", rn);

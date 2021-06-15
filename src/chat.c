@@ -147,6 +147,7 @@ static void chat_emit_alert_list(void){
 */
 void chat_webpage(void){
   char *zAlert;
+  char *zProjectName;
   login_check_credentials();
   if( !g.perm.Chat ){
     login_needed(g.anon.Chat);
@@ -154,15 +155,16 @@ void chat_webpage(void){
   }
   zAlert = mprintf("%s/builtin/%s", g.zBaseURL,
                 db_get("chat-alert-sound","alerts/plunk.wav"));
+  zProjectName = db_get("project-name","Unnamed project");
   style_set_current_feature("chat");
   style_header("Chat");
   @ <form accept-encoding="utf-8" id="chat-form" autocomplete="off">
   @ <div id='chat-input-area'>
   @   <div id='chat-input-line'>
   @     <input type="text" name="msg" id="chat-input-single" \
-  @      placeholder="Type message here." autocomplete="off">
+  @      placeholder="Type message for %h(zProjectName)." autocomplete="off">
   @     <textarea rows="8" id="chat-input-multi" \
-  @      placeholder="Type message here. Ctrl-Enter sends it." \
+  @      placeholder="Type message for %h(zProjectName). Ctrl-Enter sends it." \
   @      class="hidden"></textarea>
   @     <input type="submit" value="Send" id="chat-message-submit">
   @     <span id="chat-settings-button" class="settings-icon" \
@@ -185,7 +187,7 @@ void chat_webpage(void){
   /* New chat messages get inserted immediately after this element */
   @ <span id='message-inject-point'></span>
   @ </div>
-
+  fossil_free(zProjectName);
   builtin_fossil_js_bundle_or("popupwidget", "storage", "fetch", NULL);
   /* Always in-line the javascript for the chat page */
   @ <script nonce="%h(style_nonce())">/* chat.c:%d(__LINE__) */
@@ -213,14 +215,14 @@ void chat_webpage(void){
 static const char zChatSchema1[] =
 @ CREATE TABLE repository.chat(
 @   msgid INTEGER PRIMARY KEY AUTOINCREMENT,
-@   mtime JULIANDAY,       -- Time for this entry - Julianday Zulu
-@   lmtime TEXT,           -- Localtime when message originally sent
-@   xfrom TEXT,            -- Login of the sender
-@   xmsg  TEXT,            -- Raw, unformatted text of the message
-@   fname TEXT,            -- Filename of the uploaded file, or NULL
-@   fmime TEXT,            -- MIMEType of the upload file, or NULL
-@   mdel INT,              -- msgid of another message to delete
-@   file  BLOB             -- Text of the uploaded file, or NULL
+@   mtime JULIANDAY,  -- Time for this entry - Julianday Zulu
+@   lmtime TEXT,      -- Client YYYY-MM-DDZHH:MM:SS when message originally sent
+@   xfrom TEXT,       -- Login of the sender
+@   xmsg  TEXT,       -- Raw, unformatted text of the message
+@   fname TEXT,       -- Filename of the uploaded file, or NULL
+@   fmime TEXT,       -- MIMEType of the upload file, or NULL
+@   mdel INT,         -- msgid of another message to delete
+@   file  BLOB        -- Text of the uploaded file, or NULL
 @ );
 ;
 
@@ -307,12 +309,14 @@ static void chat_emit_permissions_error(int fAsMessageList){
 void chat_send_webpage(void){
   int nByte;
   const char *zMsg;
+  const char *zUserName;
   login_check_credentials();
   if( !g.perm.Chat ) {
     chat_emit_permissions_error(0);
     return;
   }
   chat_create_tables();
+  zUserName = (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
   nByte = atoi(PD("file:bytes","0"));
   zMsg = PD("msg","");
   db_begin_write();
@@ -322,7 +326,7 @@ void chat_send_webpage(void){
       db_multi_exec(
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg)"
         "VALUES(julianday('now'),%Q,%Q,%Q)",
-        P("lmtime"), g.zLogin, zMsg
+        P("lmtime"), zUserName, zMsg
       );
     }
   }else{
@@ -331,7 +335,7 @@ void chat_send_webpage(void){
     db_prepare(&q,
         "INSERT INTO chat(mtime,lmtime,xfrom,xmsg,file,fname,fmime)"
         "VALUES(julianday('now'),%Q,%Q,%Q,:file,%Q,%Q)",
-        P("lmtime"), g.zLogin, zMsg, PD("file:filename",""),
+        P("lmtime"), zUserName, zMsg, PD("file:filename",""),
         PD("file:mimetype","application/octet-stream"));
     blob_init(&b, P("file"), nByte);
     db_bind_blob(&q, ":file", &b);
@@ -481,8 +485,8 @@ void chat_test_formatter_cmd(void){
 ** |      "msgs":[
 ** |        {
 ** |           "msgid": integer // message id
-** |           "mtime": text    // When sent:  YYYY-MM-DD HH:MM:SS UTC
-** |           "lmtime: text    // Localtime where the message was sent from
+** |           "mtime": text    // When sent: YYYY-MM-DDTHH:MM:SSZ
+** |           "lmtime: text    // Sender's client-side YYYY-MM-DDTHH:MM:SS
 ** |           "xfrom": text    // Login name of sender
 ** |           "uclr":  text    // Color string associated with the user
 ** |           "xmsg":  text    // HTML text of the message
@@ -600,8 +604,15 @@ void chat_poll_webpage(void){
       if( zLMtime && zLMtime[0] ){
         blob_appendf(&json, "\"lmtime\":%!j,", zLMtime);
       }
-      blob_appendf(&json, "\"xfrom\":%!j,", zFrom);
-      blob_appendf(&json, "\"uclr\":%!j,", user_color(zFrom));
+      blob_append(&json, "\"xfrom\":", -1);
+      if(zFrom){
+        blob_appendf(&json, "%!j,", zFrom);
+      }else{
+        /* see https://fossil-scm.org/forum/forumpost/e0be0eeb4c */
+        blob_appendf(&json, "null,");
+      }
+      blob_appendf(&json, "\"uclr\":%!j,",
+                   user_color(zFrom ? zFrom : "nobody"));
 
       zMsg = chat_format_to_html(zRawMsg ? zRawMsg : "");
       blob_appendf(&json, "\"xmsg\":%!j,", zMsg);

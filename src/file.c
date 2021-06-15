@@ -2166,8 +2166,8 @@ const char *file_cleanup_fullpath(const char *z){
 }
 
 /*
-** Count the number of objects (files and subdirectores) in a given
-** directory.  Return the count.  Return -1 of the object is not a
+** Count the number of objects (files and subdirectories) in a given
+** directory.  Return the count.  Return -1 if the object is not a
 ** directory.
 */
 int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){

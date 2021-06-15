@@ -1126,7 +1126,10 @@ tr.row1 {
   background-color: #111;
   border: 1px solid rgba(255,255,255,0.5);
 }
-
+.fossil-PopupWidget a,
+.fossil-PopupWidget a:visited {
+  color: white;
+}
 div.forumSel {
   background-color: #663399;
 }
@@ -1139,4 +1142,9 @@ div.forumPostBody blockquote {
 
 .debug {
   color: black;
+}
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #444;
 }
