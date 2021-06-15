@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sfor\sthe\sTLS\ssecurity\spatch.
-D 2021-06-15T01:30:47.541
+C /chat:\sin\sthe\spopup\swhich\sis\striggered\sby\stapping\sa\suser's\sname\sadd\sa\slink\sto\sthe\s/timeline\sfiltered\son\sthat\suser,\sper\ssuggestion\sby\sSean\sin\sthe\sforum.
+D 2021-06-15T02:29:20.551
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -442,7 +442,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 275c601c28715fe0cabb4ea112bb5ed44eb95218c9c492996c92c112a91dbc24
 F src/chat.c 16c8a4153109c86055dda4df7ca5d112355195d56cb98a3bb590e4640b414e92
-F src/chat.js 152a05c697e13106e8a23d873a3c654cdea473259d0023b5c2659ad8d373a4fe
+F src/chat.js 1fb9f7cd1b14b2cf750466ebba7d33edd0f6c6d5c87dd9e17d127b8a9e216239
 F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 958135e80567574dc5f8fb6bdc7cbae75ab75d75954d7ff8d7963eac04092d21
-F src/default.css 198b71b37e02a22d2035a9dd2e1919e6175b27d1fb4b99c82cfb0c7067998664
+F src/default.css b6ae1a78d07373b42115ce7da9aec815d6f9363c675e0afa82d7c90ab116e742
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aaab2a15d1dfc22f5453c2bad8f25ecf518ed3eef9a7fa6f4c5bd69ab4e4b075
-R e79c31c4e7428e197d649e352280998e
-U drh
-Z 8ab50aca9eaf3c0d09e3a66b5d483725
+P 3c1a27646cc64edeff298daac3f9771208fd77503e9231d0e5e5831d73bcaa14
+R 5c8fafe0f486fea31c8b5011e0b0dd15
+U stephan
+Z 10311381b8b2785f3a159e9e7c60a915
