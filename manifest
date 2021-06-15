@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.36.0\sbeta,\sincluding\sthe\nbug\sfix\sto\sthe\sauthorizer\scallback\ssuch\sthat\sit\suses\sSQLITE_DROP_INDEX,\nnot\sSQLITE_DROP_TEMP_INDEX,\sfor\sattached\sindexes.
-D 2021-06-14T20:43:04.171
+C Fix\sthe\sclient-side\sSSL\sconnection\ssetup\sso\sthat\sit\sactually\sverifies\nthe\shostname\son\sthe\scertification\sfrom\sthe\sserver.
+D 2021-06-15T00:39:17.004
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/hook.c e1a759e54877800dd86b17355a8f07f2caebb325c0f2d014473b47a5b4099d28
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
-F src/http_ssl.c 0906e22ac4bd3f2904f667246c85741dda91e2b280b24ccab161a0be0498c979
+F src/http_ssl.c e41634a8e4486041dbe70162bb8a80f88aea38bd3a5446f948b711fa2a3c89dc
 F src/http_transport.c 9c01a70f3952470d6d3526041dab7354d781281606855961abbc70bbe3089048
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c 5606e55f7c54ea5e32c6595bc645a33d50ce1d474d03edcfb41a9e1cdd5def8a
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b18c06e87a49718707441951ca89e42d5c3f3f1d054dbc1458e082cb85b29efa
-R 281df8bccd81d8a6a534b4a37f93a623
+P a9917d4fc7da32d3479fe949bdf2f7aeb3f1aa9cf3e93b168c204e3dad7625c4
+R 1b9ac904fbaa6d61cc78b4ac5bc282e4
 U drh
-Z dfcc015d9f2fb8c44bf251631fef4aec
+Z 04dcc43623f2200aa201fc23c505e7b9
