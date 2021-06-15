@@ -1,5 +1,5 @@
-C /chat:\sin\sthe\spopup\swhich\sis\striggered\sby\stapping\sa\suser's\sname\sadd\sa\slink\sto\sthe\s/timeline\sfiltered\son\sthat\suser,\sper\ssuggestion\sby\sSean\sin\sthe\sforum.
-D 2021-06-15T02:29:20.551
+C xekri\sskin:\srecolor\slinks\sin\sfossil-PopupWidget\selements\sso\sthat\sthe\slinks\sare\svisible.
+D 2021-06-15T02:44:12.960
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -412,7 +412,7 @@ F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 46bf3585caf6c22a1036a073cc3d33838e20d2876efcd17d06e4fbe8944a418a
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt ce0c6e803e33ef441babc317e9ed1fec6d3dfe0d6e9919537cfbaa841a362fa2
+F skins/xekri/css.txt cead2f4e86a830e3cc50044b55f400b411641edd25f609cd6edd1355892f90da
 F skins/xekri/details.txt 5887db2373b6b7ccfd274e8f8a2388ca0491bd472e5fe607963dae7f40280526
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 2785b857a2354cb8076ea941a059da76c573a41fe8822b61402eede868dab9a1
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3c1a27646cc64edeff298daac3f9771208fd77503e9231d0e5e5831d73bcaa14
-R 5c8fafe0f486fea31c8b5011e0b0dd15
+P b71be5ef366b39cd89f98e55a0e7345f00119c88efac55cac7948cbf5e4759c9
+R 04b489c51ff4171cf4b096b4691ade11
 U stephan
-Z 10311381b8b2785f3a159e9e7c60a915
+Z 5232e147a874883e48063ec5b8863e97
