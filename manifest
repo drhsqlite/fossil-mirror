@@ -1,5 +1,5 @@
-C Version\s2.15.1
-D 2021-04-08T01:05:44.311
+C Fix\sthe\sclient-side\sSSL\sconnection\ssetup\sso\sthat\sit\sactually\sverifies\nthe\shostname\son\sthe\scertification\sfrom\sthe\sserver.
+D 2021-06-15T00:58:17.782
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -511,7 +511,7 @@ F src/hook.c e1a759e54877800dd86b17355a8f07f2caebb325c0f2d014473b47a5b4099d28
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
-F src/http_ssl.c 0ec4f86727386cf2a23ff6c3875839d096e8ddcf2a112825f8f0653b64ce3847
+F src/http_ssl.c 1b21d27b5b23b0070f3aa015baf7506faee8e0eafe4b1155a2f66539d262aeae
 F src/http_transport.c 99d2557a770abd92292de71ce65174cc9c24f048c6d2a317ac49219be7d2dc6b
 F src/import.c 33962edf9f5b72f91d7a919e64dbfa4b2bea889e42e4ea0f4238b792f63ef8c8
 F src/info.c efafeb2989ba88120b5df7c8e49a31200c4d158a6e39dc27fa2074763684da7b
@@ -990,9 +990,8 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0986dabb16e37c74e261c9c7ca675f697291f305267dceb9e2f441f1b9cd03ea
-R a31dad810ad007bd70d8be4c56708fac
-T +sym-release *
-T +sym-version-2.15.1 *
+P 2f901f98b32718c41cca021d2f2dc531a39cdd54a205000a1d0cd77ea6275b50
+Q +aaab2a15d1dfc22f5453c2bad8f25ecf518ed3eef9a7fa6f4c5bd69ab4e4b075
+R 2f6ed56b5dc2ec523e41e1b08a24e526
 U drh
-Z 474249b94237539634a83bac6c657b43
+Z 984a7ff9ee8570e47408e02cd22d165f
