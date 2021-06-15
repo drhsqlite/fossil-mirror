@@ -880,12 +880,11 @@ void db_test_db_exec_cmd(void){
 void db_test_db_prepare(void){
   const int fAuthReport = find_option("auth-report",0,0)!=0;
   const int fAuthSchema = find_option("auth-ticket",0,0)!=0;
-  const int fAuth = fAuthReport + fAuthSchema;
   char * zReportErr = 0; /* auth-report error string. */
   int nSchemaErr = 0;    /* Number of auth-ticket errors. */
   Stmt err;
 
-  if(fAuth>1){
+  if(fAuthReport + fAuthSchema > 1){
     fossil_fatal("Only one of --auth-report or --auth-ticket "
                  "may be used.");
   }

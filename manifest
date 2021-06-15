@@ -1,5 +1,5 @@
-C An\simproved\smatcher\salgo\sfor\s[76916757]\sand\sa\sslight\spadding\sadjustment\sof\s(.mainmenu\sa)\selements\sin\sthe\sdefault\sskin\sto\swork\saround\sa\sFirefox-specific\squirk\swhere\sthe\sactive\slink\sunderlining\sdid\snot\sappear.
-D 2021-06-15T17:11:11.533
+C Factored\sout\san\sextraneous\svar\sfrom\s[1bb06c94].\sNo\sfunctional\schanges.
+D 2021-06-15T17:20:06.442
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -459,7 +459,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 958135e80567574dc5f8fb6bdc7cbae75ab75d75954d7ff8d7963eac04092d21
+F src/db.c bbd90d1b5a46d2339ee7f3c6c8fdcff8440cf135d133cc87b94023df7268fb46
 F src/default.css b6ae1a78d07373b42115ce7da9aec815d6f9363c675e0afa82d7c90ab116e742
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 769167578b47fcb2ae62720bff7ee3574edf29cdd57785d8b98e1a79864f5deb
-R 57e1012255560604167136f5a4a817b0
+P 6d9ac907e550e85cdd6f8721862851640a1491380bbe824f605102720a9320d3
+R 98a9774e1bb83acdc0eac17d8a320a22
 U stephan
-Z ac708982252a533cbf5c7afd7064bffb
+Z 7f15388017f7d08f939ced0acd00d948
