@@ -1,5 +1,5 @@
-C xekri\sskin:\srecolor\slinks\sin\sfossil-PopupWidget\selements\sso\sthat\sthe\slinks\sare\svisible.
-D 2021-06-15T02:44:12.960
+C Update\sthe\s"Latest\sRelease"\sinformation\son\sthe\shomepage.
+D 2021-06-15T11:13:19.065
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -897,7 +897,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5bb0b31081dc00afe988c
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki 1a77f0c7f4bb47dc0ae7f0870b85f7668636ebdd8f5553e2b8abb2a1c5062c02
+F www/index.wiki 3c20126c55a5f9f58bec66b72d07197dbba49d14ae50d62bc69f2561364db936
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 4d80f9949ffc666440a690da0772aa54a7e78ae4cbbf40a4065b4df2647d3bbf
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b71be5ef366b39cd89f98e55a0e7345f00119c88efac55cac7948cbf5e4759c9
-R 04b489c51ff4171cf4b096b4691ade11
-U stephan
-Z 5232e147a874883e48063ec5b8863e97
+P d2c8ba0f66fd724a82f50f2755b53e92bc6014ca7889f897a38a51cfd8289352
+R e6ecf948c03e23f9cbce555aac7bf695
+U drh
+Z f383333a6dbc0ebcfffd3c9957773d47
