@@ -163,6 +163,9 @@ char *remove_blank_lines(const char *zOrig){
 ** SQL statements entered by users do not try to do anything untoward.
 ** If anything suspicious is tried, set *(char**)pError to an error
 ** message obtained from malloc.
+**
+** Use the "fossil test-db-prepare --auth-report SQL" command to perform
+** manual testing of this authorizer.
 */
 static int report_query_authorizer(
   void *pError,
@@ -242,7 +245,8 @@ static int report_query_authorizer(
 }
 
 /*
-** Activate the query authorizer
+** Activate the ticket report query authorizer. Must be followed by an
+** eventual call to report_unrestrict_sql().
 */
 void report_restrict_sql(char **pzErr){
   db_set_authorizer(report_query_authorizer,(void*)pzErr,"Ticket-Report");
@@ -1035,10 +1039,18 @@ void rptview_page(void){
   count = 0;
   if( !tabs ){
     struct GenerateHTML sState = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    const char *zQS = PD("QUERY_STRING","");
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
-    style_submenu_element("Raw", "rptview?tablist=1&rn=%d&%h", rn, PD("QUERY_STRING","") );
+    /* style_finish_page() should provide escaping via %h formatting */
+    if( zQS[0] ){
+      style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+      style_submenu_element("Reports","%R/reportlist?%s",zQS);
+    } else {
+      style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
+      style_submenu_element("Reports","%R/reportlist");
+    }
     if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "rptedit?rn=%d", rn);

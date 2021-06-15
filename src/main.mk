@@ -228,6 +228,7 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.fetch.js \
   $(SRCDIR)/fossil.info-diff.js \
   $(SRCDIR)/fossil.numbered-lines.js \
+  $(SRCDIR)/fossil.page.brlist.js \
   $(SRCDIR)/fossil.page.fileedit.js \
   $(SRCDIR)/fossil.page.forumpost.js \
   $(SRCDIR)/fossil.page.pikchrshow.js \

@@ -2978,7 +2978,8 @@ void test_th_render(void){
 ** Usage: %fossil test-th-eval SCRIPT
 **
 ** Evaluate SCRIPT as if it were a header or footer or ticket rendering
-** script and show the results on standard output.
+** script and show the results on standard output. SCRIPT may be either
+** a filename or a string of th1 script code.
 **
 ** Options:
 **
@@ -2992,7 +2993,9 @@ void test_th_render(void){
 void test_th_eval(void){
   int rc;
   const char *zRc;
+  const char *zCode = 0;
   int forceCgi, fullHttpReply;
+  Blob code = empty_blob;
   Th_InitTraceLog();
   forceCgi = find_option("cgi", 0, 0)!=0;
   fullHttpReply = find_option("http", 0, 0)!=0;
@@ -3015,11 +3018,18 @@ void test_th_eval(void){
   if( g.argc!=3 ){
     usage("script");
   }
+  if(file_isfile(g.argv[2], ExtFILE)){
+    blob_read_from_file(&code, g.argv[2], ExtFILE);
+    zCode = blob_str(&code);
+  }else{
+    zCode = g.argv[2];
+  }
   Th_FossilInit(TH_INIT_DEFAULT);
-  rc = Th_Eval(g.interp, 0, g.argv[2], -1);
+  rc = Th_Eval(g.interp, 0, zCode, -1);
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
   Th_PrintTraceLog();
+  blob_reset(&code);
   if( forceCgi ) cgi_reply();
 }
 

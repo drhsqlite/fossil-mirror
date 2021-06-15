@@ -907,6 +907,10 @@ void style_finish_page(){
       qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
       for(i=0; i<nSubmenu; i++){
         struct Submenu *p = &aSubmenu[i];
+        /* switching away from the %h formatting below might be dangerous
+        ** because some places use %s to compose zLabel and zLink;
+        ** e.g. /rptview page
+        */
         if( p->zLink==0 ){
           @ <span class="label">%h(p->zLabel)</span>
         }else{

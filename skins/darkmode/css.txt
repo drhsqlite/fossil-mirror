@@ -87,7 +87,9 @@ div.sectionmenu>a.button, div.submenu label,
 div.footer a {
   padding: 0.15em 0.5em;
 }
-/* div.mainmenu a.active, FIXME: setting of .active is broken for some URIs */
+div.mainmenu a.active {
+  border-bottom: 1px solid #FF4500f0;
+}
 a:hover,
 a:visited:hover {
   background-color: #FF4500f0;
@@ -555,3 +557,8 @@ body.report table.report tr td { color: black }
 body.report table.report a { color: blue }
 body.tkt td.tktDspValue { color: black }
 body.tkt td.tktDspValue a { color: blue }
+
+body.branch .brlist > table > tbody > tr:hover:not(.selected),
+body.branch .brlist > table > tbody > tr.selected {
+  background-color: #442800;
+}

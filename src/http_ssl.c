@@ -254,6 +254,7 @@ void ssl_disable_cert_verification(void){
 */
 int ssl_open(UrlData *pUrlData){
   X509 *cert;
+  const char *zRemoteHost;
 
   ssl_global_init();
   if( pUrlData->useProxy ){
@@ -278,8 +279,10 @@ int ssl_open(UrlData *pUrlData){
 
     iBio = BIO_new_ssl(sslCtx, 1);
     BIO_push(iBio, sBio);
+    zRemoteHost = pUrlData->hostname;
   }else{
     iBio = BIO_new_ssl_connect(sslCtx);
+    zRemoteHost = pUrlData->name;
   }
   if( iBio==NULL ) {
     ssl_set_errmsg("SSL: cannot open SSL (%s)",
@@ -289,15 +292,23 @@ int ssl_open(UrlData *pUrlData){
   BIO_get_ssl(iBio, &ssl);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
-  if( !SSL_set_tlsext_host_name(ssl, 
-           (pUrlData->useProxy?pUrlData->hostname:pUrlData->name))
-  ){
+  if( !SSL_set_tlsext_host_name(ssl, zRemoteHost)){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
   }
 #endif
 
   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
+#if OPENSSL_VERSION_NUMBER >= 0x010002000
+  if( !sslNoCertVerify ){
+    X509_VERIFY_PARAM *param = 0;
+    param = SSL_get0_param(ssl);
+    if( !X509_VERIFY_PARAM_set1_host(param, zRemoteHost, strlen(zRemoteHost)) ){
+      fossil_fatal("failed to set hostname.");
+    }
+    /* SSL_set_verify(ssl, SSL_VERIFY_PEER, 0); */
+  }
+#endif
 
   if( !pUrlData->useProxy ){
     char *connStr = mprintf("%s:%d", pUrlData->name, pUrlData->port);

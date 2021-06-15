@@ -548,12 +548,12 @@ static void forum_display_post(
 
     /* Provide a link to select the individual post. */
     if( !bSelect ){
-      @ %z(href("%R/forumpost/%S?%s",p->zUuid,zQuery))[link]</a>
+      @ %z(href("%R/forumpost/%!S?%s",p->zUuid,zQuery))[link]</a>
     }
 
     /* Provide a link to the raw source code. */
     if( !bUnf ){
-      @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
+      @ %z(href("%R/forumpost/%!S?raw",p->zUuid))[source]</a>
     }
     @ </h3>
   }
@@ -1175,6 +1175,7 @@ void forumedit_page(void){
   const char *zContent = 0;
   const char *zTitle = 0;
   char *zDate = 0;
+  const char *zFpid = PD("fpid","");
   int isCsrfSafe;
   int isDelete = 0;
 
@@ -1183,7 +1184,7 @@ void forumedit_page(void){
     login_needed(g.anon.WrForum);
     return;
   }
-  fpid = symbolic_name_to_rid(PD("fpid",""), "f");
+  fpid = symbolic_name_to_rid(zFpid, "f");
   if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
     webpage_error("Missing or invalid fpid query parameter");
   }
@@ -1298,7 +1299,10 @@ void forumedit_page(void){
     if( pRootPost->zThreadTitle ){
       @ <h1>Thread: %h(pRootPost->zThreadTitle)</h1>
     }
-    @ <h2>Replying To:</h2>
+    @ <h2>Replying To:
+    @ <a href="%R/forumpost/%!S(zFpid)" target="_blank">%S(zFpid)</a>
+    @ <a href="%R/forumpost/%!S(zFpid)?raw" target="_blank">[source]</a>
+    @ </h2>
     zDate = db_text(0, "SELECT datetime(%.17g,toLocal())", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
     @ <h3 class='forumPostHdr'>By %s(zDisplayName) on %h(zDate)</h3>

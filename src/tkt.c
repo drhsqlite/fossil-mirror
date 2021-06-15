@@ -380,6 +380,8 @@ int ticket_change(const char *zUuid){
 **     CREATE TABLE
 **     CREATE INDEX
 **     CREATE VIEW
+**     DROP INDEX
+**     DROP VIEW
 **
 ** And for objects in "main" or "repository" whose names
 ** begin with "ticket" or "fx_".  Also allow
@@ -395,6 +397,9 @@ int ticket_change(const char *zUuid){
 ** disallows data changes on the "config" table, as that could
 ** allow a malicious server to modify settings in such a way as
 ** to cause a remote code execution.
+**
+** Use the "fossil test-db-prepare --auth-ticket SQL" command to perform
+** manual testing of this authorizer.
 */
 static int ticket_schema_auth(
   void *pNErr,
@@ -405,6 +410,7 @@ static int ticket_schema_auth(
   const char *z3
 ){
   switch( eCode ){
+    case SQLITE_DROP_VIEW:
     case SQLITE_CREATE_VIEW:
     case SQLITE_CREATE_TABLE: {
       if( sqlite3_stricmp(z2,"main")!=0
@@ -419,6 +425,7 @@ static int ticket_schema_auth(
       }
       break;
     }
+    case SQLITE_DROP_INDEX:
     case SQLITE_CREATE_INDEX: {
       if( sqlite3_stricmp(z2,"main")!=0
        && sqlite3_stricmp(z2,"repository")!=0
@@ -465,6 +472,20 @@ ticket_schema_error:
   return SQLITE_DENY;
 }
 
+/*
+** Activate the ticket schema authorizer. Must be followed by
+** an eventual call to ticket_unrestrict_sql().
+*/
+void ticket_restrict_sql(int * pNErr){
+  db_set_authorizer(ticket_schema_auth,(void*)pNErr,"Ticket-Schema");
+}
+/*
+** Deactivate the ticket schema authorizer.
+*/
+void ticket_unrestrict_sql(void){
+  db_clear_authorizer();
+}
+
 
 /*
 ** Recreate the TICKET and TICKETCHNG tables.
@@ -477,14 +498,14 @@ void ticket_create_table(int separateConnection){
     "DROP TABLE IF EXISTS ticketchng;"
   );
   zSql = ticket_table_schema();
-  db_set_authorizer(ticket_schema_auth,0,"Ticket-Schema");
+  ticket_restrict_sql(0);
   if( separateConnection ){
     if( db_transaction_nesting_depth() ) db_end_transaction(0);
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
     db_multi_exec("%s", zSql/*safe-for-%s*/);
   }
-  db_clear_authorizer();
+  ticket_unrestrict_sql();
   fossil_free(zSql);
 }
 

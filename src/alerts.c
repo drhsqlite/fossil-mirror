@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** Logic for email notification, also known as "alerts".
+** Logic for email notification, also known as "alerts" or "subscriptions".
 **
 ** Are you looking for the code that reads and writes the internet
 ** email protocol?  That is not here.  See the "smtp.c" file instead.
@@ -66,7 +66,8 @@ static const char zAlertInit[] =
 @   ssub TEXT,                        -- baseline subscriptions
 @   sctime INTDATE,                   -- When this entry was created. unixtime
 @   mtime INTDATE,                    -- Last change.  unixtime
-@   smip TEXT                         -- IP address of last change
+@   smip TEXT,                        -- IP address of last change
+@   lastContact INT                   -- Last contact. days since 1970
 @ );
 @ CREATE INDEX repository.subscriberUname
 @   ON subscriber(suname) WHERE suname IS NOT NULL;
@@ -85,16 +86,8 @@ static const char zAlertInit[] =
 @   sentMod BOOLEAN DEFAULT false     -- pending moderation alert sent
 @ ) WITHOUT ROWID;
 @ 
+@ -- Obsolete table.  No longer used.
 @ DROP TABLE IF EXISTS repository.alert_bounce;
-@ -- Record bounced emails.  If too many bounces are received within
-@ -- some defined time range, then cancel the subscription.  Older
-@ -- entries are periodically purged.
-@ --
-@ CREATE TABLE repository.alert_bounce(
-@   subscriberId INTEGER, -- to whom the email was sent.
-@   sendTime INTEGER,     -- seconds since 1970 when email was sent
-@   rcvdTime INTEGER      -- seconds since 1970 when bounce was received
-@ );
 ;
 
 /*
@@ -102,6 +95,19 @@ static const char zAlertInit[] =
 */
 int alert_tables_exist(void){
   return db_table_exists("repository", "subscriber");
+}
+
+/*
+** Record the fact that user zUser has made contact with the repository.
+** This resets the subscription timeout on that user.
+*/
+void alert_user_contact(const char *zUser){
+  if( db_table_has_column("repository","subscriber","lastContact") ){
+    db_multi_exec(
+      "UPDATE subscriber SET lastContact=now()/86400 WHERE suname=%Q",
+      zUser
+    );
+  }
 }
 
 /*
@@ -118,12 +124,23 @@ void alert_schema(int bOnlyIfEnabled){
       return;  /* Don't create table for disabled email */
     }
     db_exec_sql(zAlertInit);
-  }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
-    db_multi_exec(
-      "ALTER TABLE repository.pending_alert"
-      " ADD COLUMN sentMod BOOLEAN DEFAULT false;"
-    );
+    return;
   }
+  if( db_table_has_column("repository","subscriber","lastContact") ){
+    return;
+  }
+  db_multi_exec(
+    "DROP TABLE IF EXISTS repository.alert_bounde;\n"
+    "ALTER TABLE repository.subscriber ADD COLUMN lastContact INT;\n"
+    "UPDATE subscriber SET lastContact=mtime/86400;"
+  );
+  if( db_table_has_column("repository","pending_alert","sentMod") ){
+    return;
+  }
+  db_multi_exec(
+    "ALTER TABLE repository.pending_alert"
+    " ADD COLUMN sentMod BOOLEAN DEFAULT false;"
+  );
 }
 
 /*
@@ -271,6 +288,20 @@ void setup_notification(void){
   @ Subject: line of email alerts.  Traditionally this name is
   @ included in square brackets.  Examples: "[fossil-src]", "[sqlite-src]".
   @ (Property: "email-subname")</p>
+  @ <hr>
+
+  entry_attribute("Subscription Renewal Interval In Days", 8,
+                  "email-renew-interval", "eri", "", 0);
+  @ <p>
+  @ If this value is a integer N greater than or equal to 14, then email
+  @ notification subscriptions will be suspended N days after the last known
+  @ interaction with the user.  This prevents sending notifications
+  @ to abandoned accounts.  If a subscription comes within 7 days of expiring,
+  @ a separate email goes out with the daily digest that prompts the
+  @ subscriber to click on a link to the "/renew" webpage in order to
+  @ extend their subscription.  Subscriptions never expire if this setting
+  @ is less than 14 or is an empty string.
+  @ (Property: "email-renew-interval")</p>
   @ <hr>
 
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
@@ -941,6 +972,34 @@ void alert_send(
 ** brackets. Examples: "[fossil-src]", "[sqlite-src]".
 */
 /*
+** SETTING: email-renew-interval      width=16
+** If this setting as an integer N that is 14 or greater then email
+** notification is suspected for subscriptions that have a "last contact
+** time" of more than N days ago.  The "last contact time" is recorded
+** in the SUBSCRIBER.LASTCONTACT entry of the database.  Logging in,
+** sending a forum post, editing a wiki page, changing subscription settings
+** at /alerts, or visiting /renew all update the last contact time.
+** If this setting is not an integer value or is less than 14 or undefined,
+** then subscriptions never expire.
+*/
+/* X-VARIABLE:  email-renew-warning
+** X-VARIABLE:  email-renew-cutoff
+**
+** These CONFIG table entries are not considered "settings" since their
+** values are computed and updated automatically.
+**
+** email-renew-cutoff is the lastContact cutoff for subscription.  It
+** is measured in days since 1970-01-01.  If The lastContact time for
+** a subscription is less than email-renew-cutoff, then now new emails
+** are sent to the subscriber.
+**
+** email-renew-warning is the time (in days since 1970-01-01) when the
+** last batch of "your subscription is about to expire" emails were
+** sent out.
+**
+** email-renew-cutoff is normally 7 days behind email-renew-warning.  
+*/
+/*
 ** SETTING: email-send-method         width=5 default=off sensitive
 ** Determine the method used to send email.  Allowed values are
 ** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
@@ -1004,6 +1063,8 @@ void alert_send(
 **                            Options:
 **
 **                               --digest     Send digests
+**                               --renewal    Send subscription renewal
+**                                            notices
 **                               --test       Write to standard output
 **
 **    settings [NAME VALUE]   With no arguments, list all email settings.
@@ -1012,17 +1073,18 @@ void alert_send(
 **    status                  Report on the status of the email alert
 **                            subsystem
 **
-**    subscribers [PATTERN]   List all subscribers matching PATTERN.
+**    subscribers [PATTERN]   List all subscribers matching PATTERN.  Either
+**                            LIKE or GLOB wildcards can be used in PATTERN.
 **
 **    test-message TO [OPTS]  Send a single email message using whatever
 **                            email sending mechanism is currently configured.
 **                            Use this for testing the email notification
 **                            configuration.  Options:
 **
-**                              --body FILENAME
-**                              --smtp-trace
-**                              --stdout
-**                              -S|--subject SUBJECT
+**                              --body FILENAME         Content from FILENAME
+**                              --smtp-trace            Trace SMTP processing
+**                              --stdout                Send msg to stdout
+**                              -S|--subject SUBJECT    Message "subject:"
 **
 **    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */
@@ -1080,6 +1142,7 @@ void alert_cmd(void){
   if( strncmp(zCmd, "send", nCmd)==0 ){
     u32 eFlags = 0;
     if( find_option("digest",0,0)!=0 ) eFlags |= SENDALERT_DIGEST;
+    if( find_option("renewal",0,0)!=0 ) eFlags |= SENDALERT_RENEWAL;
     if( find_option("test",0,0)!=0 ){
       eFlags |= SENDALERT_PRESERVE|SENDALERT_STDOUT;
     }
@@ -1109,6 +1172,8 @@ void alert_cmd(void){
     }
   }else
   if( strncmp(zCmd, "status", nCmd)==0 ){
+    Stmt q;
+    int iCutoff;
     int nSetting, n;
     static const char *zFmt = "%-29s %d\n";
     const Setting *pSetting = setting_info(&nSetting);
@@ -1124,10 +1189,28 @@ void alert_cmd(void){
     fossil_print(zFmt/*works-like:"%s%d"*/, "pending-alerts", n);
     n = db_int(0,"SELECT count(*) FROM pending_alert WHERE NOT sentDigest");
     fossil_print(zFmt/*works-like:"%s%d"*/, "pending-digest-alerts", n);
+    db_prepare(&q,
+       "SELECT"
+       " name,"
+       " value,"
+       " now()/86400-value,"
+       " date(value*86400,'unixepoch')"
+       " FROM repository.config"
+       " WHERE name in ('email-renew-warning','email-renew-cutoff');");
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%-29s %-6d (%d days ago on %s)\n",
+         db_column_text(&q, 0),
+         db_column_int(&q, 1),
+         db_column_int(&q, 2),
+         db_column_text(&q, 3));
+    }
+    db_finalize(&q);
     n = db_int(0,"SELECT count(*) FROM subscriber");
     fossil_print(zFmt/*works-like:"%s%d"*/, "total-subscribers", n);
+    iCutoff = db_get_int("email-renew-cutoff", 0);
     n = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
-                   " AND NOT sdonotcall AND length(ssub)>1");
+                  " AND NOT sdonotcall AND length(ssub)>1"
+                  " AND lastContact>=%d", iCutoff);
     fossil_print(zFmt/*works-like:"%s%d"*/, "active-subscribers", n);
   }else
   if( strncmp(zCmd, "subscribers", nCmd)==0 ){
@@ -1393,8 +1476,8 @@ void subscribe_page(void){
     ssub[nsub] = 0;
     zCode = db_text(0,
       "INSERT INTO subscriber(semail,suname,"
-      "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
-      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+      "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip,lastContact)"
+      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q,now()/86400)"
       "RETURNING hex(subscriberCode);",
       /* semail */    zEAddr,
       /* suname */    suname,
@@ -1584,8 +1667,9 @@ static void alert_unsubscribe(int sid){
       "DELETE FROM subscriber WHERE subscriberId=%d", sid
     );
     style_header("Unsubscribed");
-    @ <p>The "%h(zEmail)" email address has been unsubscribed and the
-    @ corresponding row in the subscriber table has been deleted.<p>
+    @ <p>The "%h(zEmail)" email address has been unsubscribed from all
+    @ notifications.  All subscription records for "%h(zEmail)" have
+    @ been purged.  No further emails will be sent to "%h(zEmail)".</p>
     if( uid && g.perm.Admin ){
        @ <p>You may also want to
        @ <a href="%R/setup_uedit?id=%d(uid)">edit or delete
@@ -1642,6 +1726,7 @@ void alert_page(void){
   int sid = 0;                  /* Subscriber ID */
   int nName;                    /* Length of zName in bytes */
   char *zHalfCode;              /* prefix of subscriberCode */
+  int keepAlive = 0;            /* True to update the last contact time */
 
   db_begin_transaction();
   if( alert_webpages_disabled() ){
@@ -1666,6 +1751,7 @@ void alert_page(void){
        "            THEN subscriberId ELSE 0 END"
        "  FROM subscriber WHERE subscriberCode>=hextoblob(%Q)"
        " LIMIT 1", zName, zName);
+    if( sid ) keepAlive = 1;
   }
   if( sid==0 && isLogin ){
     sid = db_int(0, "SELECT subscriberId FROM subscriber"
@@ -1698,7 +1784,8 @@ void alert_page(void){
         " sdonotcall=%d,"
         " sdigest=%d,"
         " ssub=%Q,"
-        " mtime=strftime('%%s','now'),"
+        " mtime=now(),"
+        " lastContact=now()/86400,"
         " smip=%Q",
         sdonotcall,
         sdigest,
@@ -1728,6 +1815,11 @@ void alert_page(void){
       ssub = 0;
     }
     blob_reset(&update);
+  }else if( keepAlive ){
+    db_multi_exec(
+      "UPDATE subscriber SET lastContact=now()/86400"
+      " WHERE subscriberId=%d", sid
+    );
   }
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
     if( !PB("dodelete") ){
@@ -1753,7 +1845,9 @@ void alert_page(void){
     "  suname,"                       /* 6 */
     "  datetime(mtime,'unixepoch'),"  /* 7 */
     "  datetime(sctime,'unixepoch')," /* 8 */
-    "  hex(subscriberCode)"           /* 9 */
+    "  hex(subscriberCode),"          /* 9 */
+    "  date(coalesce(lastContact*86400,mtime),'unixepoch'),"  /* 10 */
+    "  now()/86400 - coalesce(lastContact,mtime/86400)"       /* 11 */
     " FROM subscriber WHERE subscriberId=%d", sid);
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
@@ -1852,6 +1946,11 @@ void alert_page(void){
     @  <td class='form_label'>Subscriber&nbsp;Code:</td>
     @  <td>%h(db_column_text(&q,9))</td>
     @ <tr>
+    @ <tr>
+    @  <td class='form_label'>Last Contact:</td>
+    @  <td>%h(db_column_text(&q,10)) &larr; \
+    @      %,d(db_column_int(&q,11)) days ago</td>
+    @ </tr>
     @  <td class="form_label">User:</td>
     @  <td><input type="text" name="suname" value="%h(suname?suname:"")" \
     @  size="30">\
@@ -1922,6 +2021,57 @@ void alert_page(void){
   db_commit_transaction();
   return;
 }
+
+/*
+** WEBPAGE: renew
+**
+** Users visit this page to update the last-contact date on their
+** subscription.  The last-contact date is the day that the subscriber
+** last interacted with the repository.  If the name= query parameter
+** (or POST parameter) contains a valid subscriber code, then the last-contact
+** subscription associated with that subscriber code is updated to be the
+** current date.
+*/
+void renewal_page(void){
+  const char *zName = P("name");
+  int iInterval = db_get_int("email-renew-interval", 0);
+  Stmt s;
+  int rc;
+
+  style_header("Subscription Renewal");
+  if( zName==0 || strlen(zName)<4 ){
+    @ <p>No subscription specified</p>
+    style_finish_page();
+    return;
+  }
+
+  if( !db_table_has_column("repository","subscriber","lastContact")
+   || iInterval<1
+  ){
+    @ <p>This repository does not expire email notification subscriptions.
+    @ No renewals are necessary.</p>
+    style_finish_page();
+    return;
+  }
+
+  db_prepare(&s,
+    "UPDATE subscriber"
+    "   SET lastContact=now()/86400"
+    " WHERE subscriberCode=hextoblob(%Q)"
+    " RETURNING semail, date('now','+%d days');",
+    zName, iInterval+1
+  );
+  rc = db_step(&s);
+  if( rc==SQLITE_ROW ){
+    @ <p>The email notification subscription for %h(db_column_text(&s,0))
+    @ has been extended until %h(db_column_text(&s,1)) UTC.
+  }else{
+    @ <p>No such subscriber-id: %h(zName)</p>
+  }
+  db_finalize(&s);
+  style_finish_page();
+}
+
 
 /* This is the message that gets sent to describe how to change
 ** or modify a subscription
@@ -2096,6 +2246,10 @@ void subscriber_list_page(void){
   int nTotal;
   int nPending;
   int nDel = 0;
+  int iCutoff = db_get_int("email-renew-cutoff",0);
+  int iWarning = db_get_int("email-renew-warning",0);
+  char zCutoffClr[8];
+  char zWarnClr[8];
   if( alert_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -2112,7 +2266,7 @@ void subscriber_list_page(void){
     int nNewPending;
     db_multi_exec(
        "DELETE FROM subscriber"
-       " WHERE NOT sverified AND mtime<0+strftime('%%s','now','-1 day')"
+       " WHERE NOT sverified AND mtime<now()-86400"
     );
     nNewPending = db_int(0, "SELECT count(*) FROM subscriber"
                             " WHERE NOT sverified");
@@ -2123,7 +2277,7 @@ void subscriber_list_page(void){
   if( nPending>0 ){
     @ <h1>%,d(nTotal) Subscribers, %,d(nPending) Pending</h1>
     if( nDel==0 && 0<db_int(0,"SELECT count(*) FROM subscriber"
-            " WHERE NOT sverified AND mtime<0+strftime('%%s','now','-1 day')")
+            " WHERE NOT sverified AND mtime<now()-86400")
     ){
       style_submenu_element("Purge Pending","subscribers?purge");
     }
@@ -2143,7 +2297,8 @@ void subscriber_list_page(void){
     "       sdigest,"                      /* 5 */
     "       mtime,"                        /* 6 */
     "       date(sctime,'unixepoch'),"     /* 7 */
-    "       (SELECT uid FROM user WHERE login=subscriber.suname)" /* 8 */
+    "       (SELECT uid FROM user WHERE login=subscriber.suname)," /* 8 */
+    "       coalesce(lastContact,mtime/86400)"                     /* 9 */
     " FROM subscriber"
   );
   if( P("only")!=0 ){
@@ -2153,8 +2308,10 @@ void subscriber_list_page(void){
   blob_append_sql(&sql," ORDER BY mtime DESC");
   db_prepare_blob(&q, &sql);
   iNow = time(0);
+  memcpy(zCutoffClr, hash_color("A"), sizeof(zCutoffClr));
+  memcpy(zWarnClr, hash_color("HIJ"), sizeof(zWarnClr));
   @ <table border='1' class='sortable' \
-  @ data-init-sort='6' data-column-types='tttttKt'>
+  @ data-init-sort='6' data-column-types='tttttKKt'>
   @ <thead>
   @ <tr>
   @ <th>Email
@@ -2163,6 +2320,7 @@ void subscriber_list_page(void){
   @ <th>User
   @ <th>Verified?
   @ <th>Last change
+  @ <th>Last contact
   @ <th>Created
   @ </tr>
   @ </thead><tbody>
@@ -2171,6 +2329,8 @@ void subscriber_list_page(void){
     double rAge = (iNow - iMtime)/86400.0;
     int uid = db_column_int(&q, 8);
     const char *zUname = db_column_text(&q, 3);
+    sqlite3_int64 iContact = db_column_int64(&q, 9);
+    double rContact = (iNow/86400) - iContact;
     @ <tr>
     @ <td><a href='%R/alerts?sid=%d(db_column_int(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>
@@ -2183,6 +2343,15 @@ void subscriber_list_page(void){
     }
     @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
     @ <td data-sortkey='%010llx(iMtime)'>%z(human_readable_age(rAge))</td>
+    @ <td data-sortkey='%010llx(iContact)'>\
+    if( iContact>iWarning ){
+      @ <span>\
+    }else if( iContact>iCutoff ){
+      @ <span style='background-color:%s(zWarnClr);'>\
+    }else{
+      @ <span style='background-color:%s(zCutoffClr);'>\
+    }
+    @ %z(human_readable_age(rContact))</td>
     @ <td>%h(db_column_text(&q,7))</td>
     @ </tr>
   }
@@ -2423,15 +2592,6 @@ void email_header(Blob *pOut){
 }
 
 /*
-** Append the "unsubscribe" notification and other footer text to
-** the end of an email alert being assemblied in pOut.
-*/
-void alert_footer(Blob *pOut){
-  blob_appendf(pOut, "\n-- \nTo unsubscribe: %s/unsubscribe\n",
-     db_get("email-url","http://localhost:8080"));
-}
-
-/*
 ** COMMAND:  test-alert
 **
 ** Usage: %fossil test-alert EVENTID ...
@@ -2439,10 +2599,18 @@ void alert_footer(Blob *pOut){
 ** Generate the text of an email alert for all of the EVENTIDs
 ** listed on the command-line.  Or if no events are listed on the
 ** command line, generate text for all events named in the
-** pending_alert table.
+** pending_alert table.  The text of the email alerts appears on
+** standard output.
 **
-** This command is intended for testing and debugging the logic
-** that generates email alert text.
+** This command is intended for testing and debugging Fossil itself,
+** for example when enhancing the email alert system or fixing bugs
+** in the email alert system.  If you are not making changes to the
+** Fossil source code, this command is probably not useful to you.
+**
+** EVENTIDs are text.  The first character is 'c', 'f', 't', or 'w'
+** for check-in, forum, ticket, or wiki.  The remaining text is a
+** integer that references the EVENT.OBJID value for the event.
+** Run /timeline?showid to see these OBJID values.
 **
 ** Options:
 **
@@ -2486,7 +2654,6 @@ void test_alert_cmd(void){
     blob_append(&out, blob_buffer(&p->txt), blob_size(&p->txt));
   }
   alert_free_eventlist(pEvent);
-  alert_footer(&out);
   fossil_print("%s", blob_str(&out));
   blob_reset(&out);
   db_end_transaction(0);
@@ -2542,6 +2709,52 @@ void test_add_alert_cmd(void){
   }
 }
 
+/*
+** Minimum number of days between renewal messages
+*/
+#define ALERT_RENEWAL_MSG_FREQUENCY  7   /* Do renewals at most once/week */
+
+/*
+** Construct the header and body for an email message that will alert
+** a subscriber that their subscriptions are about to expire.
+*/
+static void alert_renewal_msg(
+  Blob *pHdr,            /* Write email header here */
+  Blob *pBody,           /* Write email body here */
+  const char *zCode,     /* The subscriber code */
+  int lastContact,       /* Last contact (days since 1970) */
+  const char *zEAddr,    /* Subscriber email address.  Send to this. */
+  const char *zSub,      /* Subscription codes */
+  const char *zRepoName, /* Name of the sending Fossil repostory */
+  const char *zUrl       /* URL for the sending Fossil repostory */
+){
+  blob_appendf(pHdr,"To: <%s>\r\n", zEAddr);
+  blob_appendf(pHdr,"Subject: %s Subscription to %s expires soon\r\n",
+    zRepoName, zUrl);
+  blob_appendf(pBody,
+    "\nTo renew your subscription, click the following link:\n"
+    "\n  %s/renew/%s\n\n",
+    zUrl, zCode
+  );
+  blob_appendf(pBody,
+    "You are currently receiving email notification for the following events\n"
+    "on the %s Fossil repository at %s:\n\n",
+    zRepoName, zUrl
+  );
+  if( strchr(zSub, 'a') )  blob_appendf(pBody, "  *  Announcements\n");
+  if( strchr(zSub, 'c') )  blob_appendf(pBody, "  *  Check-ins\n");
+  if( strchr(zSub, 'f') )  blob_appendf(pBody, "  *  Forum posts\n");
+  if( strchr(zSub, 't') )  blob_appendf(pBody, "  *  Ticket changes\n");
+  if( strchr(zSub, 'w') )  blob_appendf(pBody, "  *  Wiki changes\n");
+  blob_appendf(pBody, "\n"
+    "If you take no action, your subscription will expire and you will be\n"
+    "unsubscribed in about %d days.  To make other changes or to unsubscribe\n"
+    "immediately, visit the following webpage:\n\n"
+    "  %s/alerts/%s\n\n",
+    ALERT_RENEWAL_MSG_FREQUENCY, zUrl, zCode
+  );
+}
+
 #if INTERFACE
 /*
 ** Flags for alert_send_alerts()
@@ -2550,6 +2763,7 @@ void test_add_alert_cmd(void){
 #define SENDALERT_PRESERVE    0x0002    /* Do not mark the task as done */
 #define SENDALERT_STDOUT      0x0004    /* Print emails instead of sending */
 #define SENDALERT_TRACE       0x0008    /* Trace operation for debugging */
+#define SENDALERT_RENEWAL     0x0010    /* Send renewal notices */
 
 #endif /* INTERFACE */
 
@@ -2600,10 +2814,11 @@ int alert_send_alerts(u32 flags){
   const char *zDest = (flags & SENDALERT_STDOUT) ? "stdout" : 0;
   AlertSender *pSender = 0;
   u32 senderFlags = 0;
+  int iInterval = 0;              /* Subscription renewal interval */
 
   if( g.fSqlTrace ) fossil_trace("-- BEGIN alert_send_alerts(%u)\n", flags);
   alert_schema(0);
-  if( !alert_enabled() ) goto send_alert_done;
+  if( !alert_enabled() && (flags & SENDALERT_STDOUT)==0 ) goto send_alert_done;
   zUrl = db_get("email-url",0);
   if( zUrl==0 ) goto send_alert_done;
   zRepoName = db_get("email-subname",0);
@@ -2649,7 +2864,7 @@ int alert_send_alerts(u32 flags){
   ** needs sending.
   */
   pEvents = alert_compute_event_text(&nEvent, (flags & SENDALERT_DIGEST)!=0);
-  if( nEvent==0 ) goto send_alert_done;
+  if( nEvent==0 ) goto send_alert_expiration_warnings;
 
   /* Step 4a: Update the pending_alerts table to designate the
   ** alerts as having all been sent.  This is done *before* step (3)
@@ -2684,9 +2899,12 @@ int alert_send_alerts(u32 flags){
      " ssub,"                 /* 2 */
      " fullcap(user.cap)"     /* 3 */
      " FROM subscriber LEFT JOIN user ON (login=suname)"
-     " WHERE sverified AND NOT sdonotcall"
-     "  AND sdigest IS %s",
-     zDigest/*safe-for-%s*/
+     " WHERE sverified"
+     "   AND NOT sdonotcall"
+     "   AND sdigest IS %s"
+     "   AND coalesce(subscriber.lastContact,subscriber.mtime)>=%d",
+     zDigest/*safe-for-%s*/,
+     db_get_int("email-renew-cutoff",0)
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCode = db_column_text(&q, 0);
@@ -2755,6 +2973,9 @@ int alert_send_alerts(u32 flags){
       }
     }
     if( nHit==0 ) continue;
+    blob_appendf(&hdr, "List-Unsubscribe: <%s/unsubscribe/%s>\r\n",
+         zUrl, zCode);
+    blob_appendf(&hdr, "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n");
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
          zUrl, zCode);
     alert_send(pSender,&hdr,&body,0);
@@ -2771,6 +2992,58 @@ int alert_send_alerts(u32 flags){
   ** alerts that have been completely sent.
   */
   db_multi_exec("DELETE FROM pending_alert WHERE sentDigest AND sentSep;");
+
+  /* Send renewal messages to subscribers whose subscriptions are about
+  ** to expire.  Only do this if:
+  **
+  **  (1)  email-renew-interval is 14 or greater (or in other words if 
+  **       subscription expiration is enabled).
+  **
+  **  (2)  The SENDALERT_RENEWAL flag is set
+  */
+send_alert_expiration_warnings:
+  if( (flags & SENDALERT_RENEWAL)!=0
+   && (iInterval = db_get_int("email-renew-interval",0))>=14
+  ){
+    int iNow = (int)(time(0)/86400);
+    int iOldWarn = db_get_int("email-renew-warning",0);
+    int iNewWarn = iNow - iInterval + ALERT_RENEWAL_MSG_FREQUENCY;
+    if( iNewWarn >= iOldWarn + ALERT_RENEWAL_MSG_FREQUENCY ){
+      db_prepare(&q,
+         "SELECT"
+         "  hex(subscriberCode),"     /* 0 */
+         "  lastContact,"             /* 1 */
+         "  semail,"                  /* 2 */
+         "  ssub"                     /* 3 */
+         " FROM subscriber"
+         " WHERE lastContact<=%d AND lastContact>%d"
+         "   AND NOT sdonotcall"
+         "   AND length(sdigest)>0",
+         iNewWarn, iOldWarn
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        Blob hdr, body;
+        blob_init(&hdr, 0, 0);
+        blob_init(&body, 0, 0);
+        alert_renewal_msg(&hdr, &body, 
+           db_column_text(&q,0),
+           db_column_int(&q,1),
+           db_column_text(&q,2),
+           db_column_text(&q,3),
+           zRepoName, zUrl);
+        alert_send(pSender,&hdr,&body,0);
+        blob_reset(&hdr);
+        blob_reset(&body);
+      }
+      db_finalize(&q);
+      if( (flags & SENDALERT_PRESERVE)==0 ){
+        if( iOldWarn>0 ){
+          db_set_int("email-renew-cutoff", iOldWarn, 0);
+        }
+        db_set_int("email-renew-warning", iNewWarn, 0);
+      }
+    }
+  }
 
 send_alert_done:
   alert_sender_free(pSender);
@@ -2797,7 +3070,7 @@ int alert_backoffice(u32 mFlags){
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
     db_set_int("email-last-digest",iJulianDay,0);
-    nSent += alert_send_alerts(SENDALERT_DIGEST|mFlags);
+    nSent += alert_send_alerts(SENDALERT_DIGEST|SENDALERT_RENEWAL|mFlags);
   }
   return nSent;
 }

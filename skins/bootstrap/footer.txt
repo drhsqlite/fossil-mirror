@@ -10,16 +10,20 @@
   <p>&#169; Copyright $<project_name>. All right reserved. Fossil $release_version &#183; <a href="$home/timeline.rss">RSS</a></p>
 </footer>
 <script nonce="$<nonce>">
+window.addEventListener( 'load', function() {
+var i;
 var tables = document.querySelectorAll('table');
-for (var i = 0; i < tables.length; i++) {
-  if (tables[i].id !== "timelineTable")
-  tables[i].classList.add('table');
+for(i = 0; i < tables.length; i++) {
+  if (tables[i].id !== "timelineTable"){
+    tables[i].classList.add('table');
+  }
 };
 var submenus = document.querySelectorAll('.submenu');
-for (var i = 0; i < submenus.length; i++) {
+var labels, j;
+for (i = 0; i < submenus.length; i++) {
   submenus[i].classList.add('btn-group');
-  var labels = submenus[i].querySelectorAll('.label');
-  for (var j = 0; j < labels.length; j++) {
+  labels = submenus[i].querySelectorAll('.label');
+  for (j = 0; j < labels.length; j++) {
     labels[j].classList.remove('label');
     labels[j].classList.add('btn');
     labels[j].classList.add('btn-default');
@@ -35,4 +39,4 @@ collapse.onclick = function(){
   target.classList.toggle('collapse');
   target.classList.toggle('collapsed');
 };
-</script>
+});</script>

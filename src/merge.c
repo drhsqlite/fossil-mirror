@@ -404,6 +404,9 @@ void merge_cmd(void){
   if( vid==0 ){
     fossil_fatal("nothing is checked out");
   }
+  if( forceFlag==0 && leaf_is_closed(vid) ){
+    fossil_fatal("cannot merge into a closed leaf. Use --force to override");
+  }
   if( !dryRunFlag ){
     if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
                       db_get_int("autosync-tries", 1), 1) ){
@@ -621,23 +624,44 @@ void merge_cmd(void){
     ** appear to be rare, and also confusing to humans.
     */
     db_multi_exec(
-      "UPDATE OR IGNORE fv SET fn=vfile.pathname FROM vfile"
-      " WHERE fn IS NULL"
-      " AND vfile.pathname IN (fv.fnm,fv.fnp,fv.fnn)"
-      " AND vfile.vid=%d;",
-      vid
-    );
-    db_multi_exec(
       "UPDATE OR IGNORE fv SET fnp=vfile.pathname FROM vfile"
       " WHERE fnp IS NULL"
-      " AND vfile.pathname IN (fv.fn,fv.fnm,fv.fnn)"
+      " AND vfile.pathname = fv.fnn"
       " AND vfile.vid=%d;",
       pid
     );
     db_multi_exec(
+      "UPDATE OR IGNORE fv SET fn=vfile.pathname FROM vfile"
+      " WHERE fn IS NULL"
+      " AND vfile.pathname = coalesce(fv.fnp,fv.fnn)"
+      " AND vfile.vid=%d;",
+      vid
+    );
+    db_multi_exec(
       "UPDATE OR IGNORE fv SET fnm=vfile.pathname FROM vfile"
       " WHERE fnm IS NULL"
-      " AND vfile.pathname IN (fv.fn,fv.fnp,fv.fnn)"
+      " AND vfile.pathname = coalesce(fv.fnp,fv.fnn)"
+      " AND vfile.vid=%d;",
+      mid
+    );
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fnp=vfile.pathname FROM vfile"
+      " WHERE fnp IS NULL"
+      " AND vfile.pathname IN (fv.fnm,fv.fn)"
+      " AND vfile.vid=%d;",
+      pid
+    );
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fn=vfile.pathname FROM vfile"
+      " WHERE fn IS NULL"
+      " AND vfile.pathname = fv.fnm"
+      " AND vfile.vid=%d;",
+      vid
+    );
+    db_multi_exec(
+      "UPDATE OR IGNORE fv SET fnm=vfile.pathname FROM vfile"
+      " WHERE fnm IS NULL"
+      " AND vfile.pathname = fv.fn"
       " AND vfile.vid=%d;",
       mid
     );
@@ -704,21 +728,21 @@ void merge_cmd(void){
     );
   }else{
     db_multi_exec(
-      "UPDATE fv SET"
-      " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnp=pathname),0),"
-      " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnp=pathname),0)",
-      pid, pid
+      "UPDATE fv SET idp=coalesce(vfile.id,0), ridp=coalesce(vfile.rid,0)"
+      "  FROM vfile"
+      " WHERE vfile.vid=%d AND fv.fnp=vfile.pathname",
+      pid
     );
   }
   db_multi_exec(
     "UPDATE fv SET"
-    " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnm=pathname),0),"
-    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnm=pathname),0),"
-    " islinkm=coalesce((SELECT islink FROM vfile"
-                    " WHERE vid=%d AND fnm=pathname),0),"
-    " isexe=coalesce((SELECT isexe FROM vfile WHERE vid=%d AND fnm=pathname),"
-    "   isexe)",
-    mid, mid, mid, mid
+    " idm=coalesce(vfile.id,0),"
+    " ridm=coalesce(vfile.rid,0),"
+    " islinkm=coalesce(vfile.islink,0),"
+    " isexe=coalesce(vfile.isexe,fv.isexe)"
+    " FROM vfile"
+    " WHERE vid=%d AND fnm=pathname",
+    mid
   );
 
   /*

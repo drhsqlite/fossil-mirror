@@ -1,0 +1,111 @@
+<title>Serving via rc on OpenBSD</title>
+
+OpenBSD provides [https://man.openbsd.org/rc.subr.8|rc.subr(8)],
+a framework for writing [https://man.openbsd.org/rc.8|rc(8)] scripts.
+
+<h2>Creating the daemon</h2>
+Create the file /etc/rc.d/fossil with contents like the following.
+
+<blockquote><pre>
+#!/bin/ksh
+daemon="/usr/local/bin/fossil" # fossil executable
+daemon_user="_fossil" # user to run fossil as
+daemon_flags="server /home/_fossil/example --repolist --port 8888" # fossil command
+
+. /etc/rc.d/rc.subr
+# pexp="$daemon server .*" # See below.
+rc_bg=YES # Run in the background, since fossil serve does not daemonize itself
+rc_cmd $1
+</pre></blockquote>
+
+<h3>pexp</h3>
+You may need to uncomment the "pexp=". rc.subr typically
+finds the daemon process based by matching the process name and argument list.
+Without the "pexp=" line, rc.subr would look for this exact command:
+
+<blockquote><pre>
+/usr/local/bin/fossil server /home/_fossil/example --repolist --port 8888
+</pre></blockquote>
+
+Depending on the arguments and their order, fossil may rewrite the arguments
+for display in the process listing ([https://man.openbsd.org/ps.1|ps(1)]),
+so rc.subr may fail to find the process through the default match. The example
+above does not get rewritten, but the same commands in a different order can
+be rewritten.
+For example, when I switch the order of the arguments in "daemon_flags",
+
+<blockquote><pre>
+/usr/local/bin/fossil server --repolist --port 8888 /home/_fossil/example
+</pre></blockquote>
+
+the process command is changed to this.
+
+<blockquote><pre>
+/usr/local/bin/fossil server /home/_fossil/example /home/_fossil/example 8888 /home/_fossil/example
+</pre></blockquote>
+
+The commented "pexp=" line instructs rc.subr to choose the process whose
+command and arguments text starts with this:
+
+<blockquote><pre>
+/usr/local/bin/fossil server 
+</pre></blockquote>
+
+<h2>Enabling the daemon</h2>
+Once you have created /etc/rc.d/fossil, run these commands.
+
+<blockquote><pre>
+rcctl enable fossil # add fossil to pkg_scripts in /etc/rc.conf.local
+rcctl start fossil # start the daemon now
+</pre></blockquote>
+
+The daemon should now be running and set to start at boot.
+
+<h2>Multiple daemons</h2>
+You may want to serve multiple fossil instances with different options.
+For example,
+
+  *  If different users own different repositories, you may want different users
+     to serve different repositories.
+  *  You may want to serve different repositories on different ports so you can
+     control them differently with, for example, HTTP reverse proxies or
+     [https://man.openbsd.org/pf.4|pf(4)].
+
+To run multiple fossil daemons, create multiple files in /etc/rc.d, and
+enable each of them. Here are two approaches for creating
+the files in /etc/rc.d: Symbolic links and copies.
+
+<h3>Symbolic links</h3>
+Suppose you want to run one fossil daemon as user "user1" on port 8881
+and another as user "user2" on port 8882. Create the files with
+[https://man.openbsd.org/ln.1|ln(1)], and configure them to run different
+fossil commands.
+
+<blockquote><pre>
+cd /etc/rc.d
+ln -s fossil fossil1
+ln -s fossil fossil2
+rcctl enable fossil1 fossil2
+rcctl set fossil1 user user1
+rcctl set fossil2 user user2
+rcctl set fossil1 flags 'server /home/user1/repo1.fossil --port 8881'
+rcctl set fossil2 flags 'server /home/user2/repo2.fossil --port 8882'
+rcctl start fossil1 fossil2
+</pre></blockquote>
+
+<h3>Copies</h3>
+You may want to run fossil daemons that are too different to configure
+just with [https://man.openbsd.org/rcctl.8|rcctl(8)].
+In particular, you can't change the "pexp" with rcctl.
+
+If you want to run fossil commands that are more different,
+you may prefer to create separate files in /etc/rc.d.
+Replace "ln -s" above with "cp" to accomplish this.
+
+<blockquote><pre>
+cp /etc/rc.d/fossil /etc/rc.d/fossil-user1
+cp /etc/rc.d/fossil /etc/rc.d/fossil-user2
+</pre></blockquote>
+
+You can still use commands like "rcctl set fossil-user1 flags", but you
+can also edit the "/etc/rc.d/fossil-user1" file.
