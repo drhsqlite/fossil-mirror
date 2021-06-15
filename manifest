@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk
-D 2021-06-15T21:45:39.257
+C Do\snot\sallow\slinks\swith\s"../"\ssubstring\sor\s<tt>'<'</tt>\scharacter.\sThe\sformer\senforces\sthat\sthe\slink\smaps\sinto\sa\srepo-local\spage;\sthe\slater\senforces\sdefense\sagainst\sinjection\sof\smalicious\sHTML\selements.
+D 2021-06-15T22:31:55.447
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -616,7 +616,7 @@ F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
 F src/stat.c 7654ac3439fb00ad01943af0f9b568214169e19a04471ab7746898e498bdd58b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
-F src/style.c 2ac6bd85934abd1c866d0c527d342198c3ecd87d0c0e46fcdbc9b9d1914b0eee
+F src/style.c 25865df14ca2c9f3e77d4a65daa67ea4e34ccb5477afc8bdb008c29a40dd98dd
 F src/style.fileedit.css 9b4cb4ebd78c55f341009bf6bcce8b5a0d2d5bf2141312a60b44fda4cda7cc55
 F src/style.wikiedit.css 1acf588d76d6ef55d12f0550b89ded152ff740f6ed6655e0253d95f9cb8f20ed
 F src/sync.c e1236106220a8262ea872e314e92345cf45f27dc0c32de7566160521e8f6b373
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 528d62894782127bc697c3a57d067e47a81f781dd9b80b8ce13db20f46acaa6e e0686dda41b9990731fdb68c835c7973573f9b0aa8c6027fe1e5ff5423c82e60
-R c0913517bcba112982037c5c1a7eeef9
+P f445855917422ecaef494af93c839fd6e0f8f237fc836a53b461543552828751
+R 69b0fa7012057b95249a0f4ecdea18df
 U george
-Z 9ad7125c201763857484ba5b9a146204
+Z c76e94c3a275ca650dd0c6a9fe755108

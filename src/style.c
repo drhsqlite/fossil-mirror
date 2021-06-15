@@ -395,8 +395,15 @@ void style_submenu_parametric(
         if( fossil_isalnum(z[0]) || z[0]=='_' || z[0]=='-' ) z++;
         else break;
       }
-      if( z[0] != 0 && z[0] != '/' )
+      if( z[0] == '/' ){
+        /* values may not contain "../" or "<"  */
+        if( strstr(z,"../")!=NULL || strstr(z,"<")!=NULL ){
+          continue;
+        }
+      }
+      else if( z[0] != 0 )
         continue;
+
       assert( nSubmenu < count(aSubmenu) );
       if(fossil_islower(zV[0]) && z[0]=='/'){
         aSubmenu[nSubmenu].zLabel = mprintf( "%s",zV); /* memory leak?  */
