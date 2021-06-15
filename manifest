@@ -1,5 +1,5 @@
-C Fix\sthe\sclient-side\sSSL\sconnection\ssetup\sso\sthat\sit\sactually\sverifies\nthe\shostname\son\sthe\scertification\sfrom\sthe\sserver.
-D 2021-06-15T01:00:11.791
+C Increase\sthe\sversion\snumber\sto\s2.14.2
+D 2021-06-15T01:00:33.547
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -17,7 +17,7 @@ F Makefile.classic f7ab827cf2c75b8580e6d5f09fe7a3a09a5b580131870924c0c72259328a4
 F Makefile.in 45eba548fec261c3800734ba8ca3802a2b23cd7654941422d45b7576d2ccbf17 x
 F Makefile.osx-jaguar 456cfd7714d65c0c48f71dfeac47c8b93a88118a00e66c795068d3000b660146
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 5198713ad30a4ef73dc834327ee60ce40eeebe36f2a5dc9aec7aff1cc0ac1116
+F VERSION 6b5e49a42a6fe56d0d7aac82223e2e7810c96fffbb7dbe7b8520e7c185f029cb
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -996,8 +996,7 @@ F www/webui.wiki 68303fce3cafe259d25923d1ed7e4a60d6b9f2bfe2e80f3013f00765227ad56
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4de59089c2777f6b90fbcb19ecf461c3aa64709ac7978fcd42b1db3ccc3a031d
-Q +aaab2a15d1dfc22f5453c2bad8f25ecf518ed3eef9a7fa6f4c5bd69ab4e4b075
-R af72488404762aaef3f92f88cc84e0b7
+P 8126093ee9cf1d5485e64c8c655169bc7a81f9b1cadb08d69c9703c7cf9c98d3
+R 58ae67ddc3efd15af20bc2a0dd1b4d2e
 U drh
-Z fc802995e2d00bf69da51bd07767584a
+Z 64d345669d84dfabe39234e25df8306e
