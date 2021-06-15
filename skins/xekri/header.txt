@@ -96,8 +96,8 @@ set sitemap 0
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
   if {[string match /* $url]} {
-    if {[string match /$current_page* $url]} {
-      lappend class active
+    if {[string match /$current_page/* $url/]} {
+      set class "active $class"
     }
     set url $home$url
   }

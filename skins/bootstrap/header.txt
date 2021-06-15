@@ -47,8 +47,8 @@ set is_index [expr [string compare [string range $current_page 0 4] "index"]==0]
 set is_home [expr [string compare [string range $current_page 0 [expr [string length $index_page]-1] ] $index_page]==0]
 foreach {name url expr class} $mainmenu {
   if {![capexpr $expr]} continue
-  if {$once && [string match /$current_page* $url]} {
-    lappend class active
+  if {$once && [string match /$current_page/* $url/]} {
+    set class "active $class"
     set once 0
   }
   html "<li class='$class'>"
