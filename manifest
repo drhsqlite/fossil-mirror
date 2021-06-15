@@ -1,5 +1,5 @@
-C Fix\sthe\sclient-side\sSSL\sconnection\ssetup\sso\sthat\sit\sactually\sverifies\nthe\shostname\son\sthe\scertification\sfrom\sthe\sserver.
-D 2021-06-15T00:39:17.004
+C Update\sthe\schange\slog\sfor\sthe\sTLS\ssecurity\spatch.
+D 2021-06-15T01:30:47.541
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -829,7 +829,7 @@ F www/caps/index.md 91e865df2c0e4b6b2cf6314a85229c12e62350706920ecddbbbb93a3a89e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 4f814b280ea66725f8c024b97fbbce7ca919a5ccac54315fcb5c77d3eb698900
+F www/changes.wiki 8e037aed4411d8c11b83c70a8f11830ce6adebd5149b1d0ec0d1b3d82f83dacb
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9917d4fc7da32d3479fe949bdf2f7aeb3f1aa9cf3e93b168c204e3dad7625c4
-R 1b9ac904fbaa6d61cc78b4ac5bc282e4
+P aaab2a15d1dfc22f5453c2bad8f25ecf518ed3eef9a7fa6f4c5bd69ab4e4b075
+R e79c31c4e7428e197d649e352280998e
 U drh
-Z 04dcc43623f2200aa201fc23c505e7b9
+Z 8ab50aca9eaf3c0d09e3a66b5d483725
