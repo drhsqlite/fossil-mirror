@@ -163,6 +163,9 @@ char *remove_blank_lines(const char *zOrig){
 ** SQL statements entered by users do not try to do anything untoward.
 ** If anything suspicious is tried, set *(char**)pError to an error
 ** message obtained from malloc.
+**
+** Use the "fossil test-db-prepare --auth-report SQL" command to perform
+** manual testing of this authorizer.
 */
 static int report_query_authorizer(
   void *pError,
@@ -242,7 +245,8 @@ static int report_query_authorizer(
 }
 
 /*
-** Activate the query authorizer
+** Activate the ticket report query authorizer. Must be followed by an
+** eventual call to report_unrestrict_sql().
 */
 void report_restrict_sql(char **pzErr){
   db_set_authorizer(report_query_authorizer,(void*)pzErr,"Ticket-Report");

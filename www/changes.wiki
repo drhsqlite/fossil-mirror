@@ -2,6 +2,9 @@
 
 <a name='v2_16'></a>
 <h2>Changes for Version 2.16 (pending)</h2>
+  *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
+     server hostname matches its certificate. <b>Upgrading to
+     the patch is recommended.</b>
   *  The [/brlist|/brlist web page] allows the user to
      select multiple branches to be displayed together in a single
      timeline.
@@ -26,9 +29,13 @@
      abandoned email accounts forever.
 
 <a name='v2_15'></a>
-<h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)</h2>
+<h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)
+    and 2.15.2 on (2021-06-15)</h2>
+  *  <b>Patch 2.15.2:</b> Fix the client-side TLS so that it verifies that the
+     server hostname matches its certificate. <b>Upgrading to
+     the patch is recommended.</b>
   *  <b>Patch 2.15.1:</b> Fix a data exfiltration bug in the server.  <b>Upgrading to
-     the patch is recommended.</b><p>
+     the patch is recommended.</b>
   *  The [./defcsp.md|default CSP] has been relaxed slightly to allow
      images to be loaded from any URL.  All other resources are still
      locked down by default.
@@ -107,9 +114,13 @@
      user into a single "recycled" row (the latest edit in that sequence).
 
 <a name='v2_14'></a>
-<h2>Changes for Version 2.14 (2021-01-20) and Patch 2.14.1 on (2021-04-07)</h2>
+<h2>Changes for Version 2.14 (2021-01-20) and Patch 2.14.1 on (2021-04-07)
+    and 2.14.2 on (2021-06-15)</h2>
+  *  <b>Patch 2.14.2:</b> Fix the client-side TLS so that it verifies that the
+     server hostname matches its certificate. <b>Upgrading to
+     the patch is recommended.</b><
   *  <b>Patch 2.14.1:</b> Fix a data exfiltration bug in the server.
-     <b>Upgrading to the patch is recommended.</b><p>
+     <b>Upgrading to the patch is recommended.</b>
   *  <b>Schema Update Notice #1:</b>
      This release drops a trigger from the database schema (replacing
      it with a TEMP trigger that is created as needed).  This

@@ -787,6 +787,19 @@
                   Chat.deleteMessage(eMsg);
                 });
               }
+              if(eMsg.dataset.xfrom){
+                /* Add a link to the /timeline filtered on this user. */
+                const toolbar2 = D.addClass(D.div(), 'toolbar');
+                D.append(this.e, toolbar2);
+                const timelineLink = D.attr(
+                  D.a(F.repoUrl('timeline',{
+                    u: eMsg.dataset.xfrom,
+                    y: 'a'
+                  }), "User's Timeline"),
+                  'target', '_blank'
+                );
+                D.append(toolbar2, timelineLink);
+              }
             }/*refresh()*/
           });
           f.popup.installHideHandlers();
