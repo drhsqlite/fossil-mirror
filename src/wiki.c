@@ -1590,6 +1590,7 @@ void whistory_page(void){
   const char *zPageName;
   double rNow;
   int showRid;
+  char zAuthor[64];
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = PD("name","");
@@ -1631,7 +1632,7 @@ void whistory_page(void){
   @ <th>&nbsp;</th>
   @ </tr></thead><tbody>
   rNow = db_double(0.0, "SELECT julianday('now')");
-  char zAuthor[64]; memset( zAuthor, 0, sizeof(zAuthor) );
+  memset( zAuthor, 0, sizeof(zAuthor) );
   while( db_step(&q)==SQLITE_ROW ){
     double rMtime = db_column_double(&q, 0);
     const char *zUuid = db_column_text(&q, 1);

@@ -104,6 +104,14 @@ define FOSSIL_ENABLE_MINIZ 0
 define USE_MMAN_H 0
 define USE_SEE 0
 
+
+# Maintain the C89/C90-style order of variable declarations before statements.
+# Check if the compiler supports the respective warning flag.
+if {[cctest -cflags -Wdeclaration-after-statement]} {
+    define-append EXTRA_CFLAGS -Wdeclaration-after-statement
+}
+
+
 # This procedure is a customized version of "cc-check-function-in-lib",
 # that does not modify the LIBS variable.  Its use prevents prematurely
 # pulling in libraries that will be added later anyhow (e.g. "-ldl").
