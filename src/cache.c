@@ -389,7 +389,7 @@ void cache_page(void){
     char *zDbName = cacheName();
     cache_register_sizename(db);
     pStmt = cacheStmt(db,
-         "SELECT key, sizename(sz), nRef, datetime(tm,'unixepoch')"
+         "SELECT key, sz, nRef, datetime(tm,'unixepoch')"
          "  FROM cache"
          " ORDER BY (tm + 3600*min(nRef,48)) DESC"
     );
@@ -398,7 +398,7 @@ void cache_page(void){
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         const unsigned char *zName = sqlite3_column_text(pStmt,0);
         @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br />
-        @ size: %s(sqlite3_column_text(pStmt,1))
+        @ size: %,lld(sqlite3_column_int64(pStmt,1))
         @ hit-count: %d(sqlite3_column_int(pStmt,2))
         @ last-access: %s(sqlite3_column_text(pStmt,3))</p></li>
       }
