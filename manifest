@@ -1,12 +1,16 @@
 B 8f4fd8c1d8b27574e4be76fef2aa423a6152ccf80bb1946b34de8bdb4353be4b
-C Fix\sthe\sC89-style\srelated\sdeclarations;\sadd\sa\sgcc\swarning\sto\sflag\ssuch\sissues,\sin\scase\sthese\sslip\sthrough\sagain
-D 2021-06-16T20:24:31.867
+C Add\sa\stest\sprogram\sfor\sMSVC\sC89\simplementations\sof\srint()\sand\ssnprintf()
+D 2021-06-16T20:24:56.977
 F auto.def a084976d3aa51991a5863adb14fb8e5924bd9efc2c67cbe7e09176a9251994c3
 F src/add.c feca4f3e28189e2ece07ee5260ff0ed7fb4c1125f39c3e30f5c7d916745eb62a
 F src/finfo.c 9daa47421c214f41c74ed084fa755702cc4de389df9cec66acb8ca88294e952d
 F src/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F src/wiki.c 579a1bef246987e2bb7193a10ee38d82ae6b07bb55cd89fe8c6f9bbde78423e0
-P 8f4fd8c1d8b27574e4be76fef2aa423a6152ccf80bb1946b34de8bdb4353be4b
-R ee8be1f061b00b031392252790e7f04e
+F test/test-msc89-rint-snprintf.c 5a72353faa67334d2ca35de23d140a59104c9cdeb1666d018b0efde365a1821b
+P da9f362015a3f7766f9dca2259cd8043cdcea9f37c9b2abc5a0d4d1ada2b18ba
+R 72439a6ccb830b3de77352af656011b7
+T *branch * test-msc89
+T *sym-test-msc89 *
+T -sym-trunk *
 U developer
-Z 267823dce5d03725a63f1e5cea0d84e0
+Z 004923133ba38117e8b4613d959ed229
