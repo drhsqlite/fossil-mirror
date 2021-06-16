@@ -1826,16 +1826,10 @@ static void process_one_web_page(
 
 
   /*
-  ** Check to see if the first term of PATH_INFO specifies an alternative
-  ** skin.  This will be the case if the first term of PATH_INFO
-  ** begins with "draftN/" where N is an integer between 1 and 9 or
-  ** if it is "skn_X/" where X is one of the built-in skin names.
-  ** If either is true, then activate the alternative skin.a
-  **
-  ** If there are multiple skn_X entries (ex: /skn_default/skn_ardoise/...)
-  ** then skip over all but the last.  This allows one to link to an
-  ** alternative skin in hyperlinks even if you are already in an alternative
-  ** skin.
+  ** Check to see if the first term of PATH_INFO specifies an
+  ** alternative skin.  This will be the case if the first term of
+  ** PATH_INFO begins with "draftN/" where N is an integer between 1
+  ** and 9. If so, activate the skin associated with that draft.
   */
   if( zPathInfo && strncmp(zPathInfo,"/draft",6)==0
    && zPathInfo[6]>='1' && zPathInfo[6]<='9'

@@ -1,5 +1,5 @@
-C Show\sthe\sexact\ssize\sof\seach\scache\sentry\sin\sthe\sweb\scache\sstatus\spage.
-D 2021-06-16T03:12:57.467
+C Internal\sdocs:\sremoved\soutdated\sreferences\sto\sskn_NAME\spaths.
+D 2021-06-16T05:23:31.274
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -540,7 +540,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c b7c4e7604c3b819bdc0fe6624a2afd1a8324e04d4c5e9bdc9d9048213064be32
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c eaa3f667bf07386b610b59a90adaa30c039d8cf256f451e8ac8ff696ae37dd83
+F src/main.c 992562b227401bdb323ef7a0183a876bab4da46dbab92469873a5746aa40ca87
 F src/main.mk 73b2e62b5006ace175fec6d59c313bbd1a18b38ddab6a940e3b82f09ff4bd208
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0ebe6f0338825affb13e19d3f9c2af96c292ca73308a5d7dc38d7e9ec03cfbd
-R e43e12a0bb1c9580f8f041a7696e2ada
-U drh
-Z 66bb97f3ddf0c4525d5c5fdcdff12ac9
+P 45e11fe4c539a704bb3b589531518934577f7fe6f8ce0439063d77812fbd2fa7
+R fd73ce1bb3bf3e2228ca36ead1fb2d2e
+U stephan
+Z 2ce35996ba4312f962c423343566063d
