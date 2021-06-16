@@ -200,6 +200,13 @@ cache_write_end:
 }
 
 /*
+** SETTING: max-cache-entry                 width=10 default=10
+**
+** This is the maximum number of entries to allow in the web-cache
+** for tarballs, ZIP-archives, and SQL-archives.
+*/
+
+/*
 ** Attempt to read content out of the cache with the given zKey.  Return
 ** non-zero on success and zero if unable to locate the content.
 **
@@ -264,6 +271,8 @@ void cache_initialize(void){
 **    list|ls      List the keys and content sizes and other stats for
 **                 all entries currently in the cache.
 **
+**    size ?N?     Query or set the maximum number of entries in the cache.
+**
 **    status       Show a summary of the cache status.
 **
 ** The cache is stored in a file that is distinct from the repository
@@ -305,8 +314,10 @@ void cache_cmd(void){
     }else{
       fossil_print("nothing to clear; cache does not exist\n");
     }
-  }else if(( strncmp(zCmd, "list", nCmd)==0 )
-             || ( strncmp(zCmd, "ls", nCmd)==0 )){
+  }else if( strncmp(zCmd, "list", nCmd)==0
+        ||  strncmp(zCmd, "ls", nCmd)==0 
+        ||  strncmp(zCmd, "status", nCmd)==0
+  ){
     db = cacheOpen(0);
     if( db==0 ){
       fossil_print("cache does not exist\n");
@@ -321,25 +332,39 @@ void cache_cmd(void){
       );
       if( pStmt ){
         while( sqlite3_step(pStmt)==SQLITE_ROW ){
-          fossil_print("%s %4d %8s %s\n",
-             sqlite3_column_text(pStmt, 3),
-             sqlite3_column_int(pStmt, 2),
-             sqlite3_column_text(pStmt, 1),
-             sqlite3_column_text(pStmt, 0));
+          if( zCmd[0]=='l' ){
+            fossil_print("%s %4d %8s %s\n",
+               sqlite3_column_text(pStmt, 3),
+               sqlite3_column_int(pStmt, 2),
+               sqlite3_column_text(pStmt, 1),
+               sqlite3_column_text(pStmt, 0));
+          }
           nEntry++;
         }
         sqlite3_finalize(pStmt);
       }
       sqlite3_close(db);
-      fossil_print("Entries: %d  Cache-file Size: %lld\n",
-                   nEntry, file_size(zDbName, ExtFILE));
+      fossil_print(
+         "Filename:        %s\n"
+         "Entries:         %d\n"
+         "max-cache-entry: %d\n"
+         "Cache-file Size: %,lld\n",
+         zDbName,
+         nEntry,
+         db_get_int("max-cache-entry",10),
+         file_size(zDbName, ExtFILE)
+      );
       fossil_free(zDbName);
     }
-  }else if( strncmp(zCmd, "status", nCmd)==0 ){
-    fossil_print("TBD...\n");
+  }else if( strncmp(zCmd, "size", nCmd)==0 ){
+    if( g.argc>=4 ){
+      int n = atoi(g.argv[3]);
+      if( n>=5 ) db_set_int("max-cache-entry",n,0);
+    }
+    fossil_print("max-cache-entry: %d\n", db_get_int("max-cache-entry",10));
   }else{
     fossil_fatal("Unknown subcommand \"%s\"."
-                 " Should be one of: clear init list status", zCmd);
+                 " Should be one of: clear init list size status", zCmd);
   }
 }
 
@@ -382,8 +407,15 @@ void cache_page(void){
     }
     zDbName = cacheName();
     bigSizeName(sizeof(zBuf), zBuf, file_size(zDbName, ExtFILE));
-    @ <p>cache-file name: %h(zDbName)</p>
-    @ <p>cache-file size: %s(zBuf)</p>
+    @ <p>
+    @ cache-file name: %h(zDbName)<br>
+    @ cache-file size: %s(zBuf)<br>
+    @ max-cache-entry: %d(db_get_int("max-cache-entry",10))
+    @ </p>
+    @ <p>
+    @ Use the "<a href="%R/help?cmd=cache">fossil cache</a>" command
+    @ on the command-line to create and configure the web-cache.
+    @ </p>
     fossil_free(zDbName);
     sqlite3_close(db);
   }
