@@ -131,6 +131,60 @@
 ** compiler warnings with -Wextra */
 #define UNUSED_PARAMETER(X)  (void)(X)
 
+#if defined(_MSC_VER) && (_MSC_VER < 1900) /* before MSVC 2015 */
+#include <stdarg.h>
+
+/* NOTE: On truncation, this version of snprintf returns the input count, not
+** the expected number of chars to fully output the requested format (as
+** done in the C99 standard implementation). However the truncation test should
+** still be applicable (nret >= count).
+*/
+static __forceinline
+int c89_snprintf(char *buf, size_t count, const char *fmt, ...){
+  va_list argptr;
+  int n;
+  if( count==0 ) return 0;
+  va_start(argptr, fmt);
+  n = _vsprintf_p(buf, count, fmt, argptr);
+  va_end(argptr);
+
+  /* force zero-termination to avoid some known MSVC bugs */
+  if( count>0 ){
+    buf[count - 1] = '\0';
+    if( n<0 ) n = count;
+  }
+  return n;
+}
+
+#if defined(_WIN64)
+#include <emmintrin.h>
+#include <limits.h>
+
+static __forceinline
+double c89_rint(double v){
+  return ( v<0.0 && v>=-0.5 ? -0.0
+           : ( v!=0 && v>LLONG_MIN && v<LLONG_MAX
+               ? _mm_cvtsd_si64(_mm_load_sd(&v)) : v ) );  /* SSE2 */
+}
+#else
+static __forceinline
+double c89_rint(double v){
+  double rn;
+  __asm
+  {
+    FLD      v
+    FRNDINT
+    FSTP     rn
+    FWAIT
+  };
+  return rn;
+}
+#endif    /* _WIN64 */
+
+#define snprintf c89_snprintf
+#define rint c89_rint
+#endif
+
 typedef struct Pik Pik;          /* Complete parsing context */
 typedef struct PToken PToken;    /* A single token */
 typedef struct PObj PObj;        /* A single diagram object */

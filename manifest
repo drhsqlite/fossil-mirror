@@ -1,16 +1,14 @@
 B 8f4fd8c1d8b27574e4be76fef2aa423a6152ccf80bb1946b34de8bdb4353be4b
-C Add\sa\stest\sprogram\sfor\sMSVC\sC89\simplementations\sof\srint()\sand\ssnprintf()
-D 2021-06-16T20:24:56.977
+C Preserve\sthe\sC89\scompatibility\sof\spikchr.c\sby\susing\sMSVC\sC89\simplementations\sof\srint()\sand\ssnprintf()\swith\solder\sMSVC\sversions
+D 2021-06-16T20:26:15.628
 F auto.def a084976d3aa51991a5863adb14fb8e5924bd9efc2c67cbe7e09176a9251994c3
 F src/add.c feca4f3e28189e2ece07ee5260ff0ed7fb4c1125f39c3e30f5c7d916745eb62a
 F src/finfo.c 9daa47421c214f41c74ed084fa755702cc4de389df9cec66acb8ca88294e952d
 F src/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
+F src/pikchr.c 4ceb3ddfb30acc0197d5ca0b58149e8ecce998cd7caf2ed0db8962111a3f9e29
 F src/wiki.c 579a1bef246987e2bb7193a10ee38d82ae6b07bb55cd89fe8c6f9bbde78423e0
 F test/test-msc89-rint-snprintf.c 5a72353faa67334d2ca35de23d140a59104c9cdeb1666d018b0efde365a1821b
-P da9f362015a3f7766f9dca2259cd8043cdcea9f37c9b2abc5a0d4d1ada2b18ba
-R 72439a6ccb830b3de77352af656011b7
-T *branch * test-msc89
-T *sym-test-msc89 *
-T -sym-trunk *
+P c945679735b0c973499021e6ae772c2e8423484928d7c5f8a39e1bcf519fefd2
+R 4e540d7daea006337ca5add223d25d0a
 U developer
-Z 004923133ba38117e8b4613d959ed229
+Z 5a231244b1dc2aedcbed199ca42dc106
