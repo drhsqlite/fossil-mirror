@@ -1,5 +1,5 @@
-C On\sthe\s/cachestat\spage,\sprovide\sa\slink\sto\sthe\stimeline\scheck-in\scontext\sfor\nthe\sorigin\sof\seach\sitem\sin\sthe\scache.
-D 2021-06-16T12:44:24.155
+C Update\sto\sthe\s"how\sthe\sdownload\spage\sworks"\sdocument\sto\stalk\sabout\show\nSource\sTarball\slinks\sare\snow\scomputed\son-the-fly.
+D 2021-06-16T13:10:33.584
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -803,7 +803,7 @@ F win/fossil.rc d86e2b5468fbfdcfa244432defe4029d39071fa92bf3f81f10d7ee7869ada19b
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/aboutcgi.wiki a552b4aa75847b83eaf5f6132a06f297f3fe2ffdffc5a8922a15e3c09b2f1c14
-F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
+F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
 F www/adding_code.wiki 0c6c3aa15c2f2d9b89607d39738aa5dbbea312553f859563d22848a476906acf
 F www/alerts.md c8df6d21ba00b6c27c414ee091bb040fbcbc45930a9df454c5a830b3d9ad5fdb
 F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0c45
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d845ebb001e853d2c4a642dfc751d92a468c172fdc98c3a29b2bcf174045cba
-R e293f4b74abcccbd701776b298136bea
+P 61c33f67b3b7d840cee8dc700924f4f6f3fc875e12049200c0b7cc72bda3602a
+R 8c93e19b383502ad4d50976cd0345c76
 U drh
-Z fc4b41cab2760d15a2df26a7459d7fd8
+Z b1b3e9c42a9588ea95d13b3e9d2f0cec
