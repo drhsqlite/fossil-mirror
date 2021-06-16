@@ -369,6 +369,33 @@ void cache_cmd(void){
 }
 
 /*
+** Given a cache key, find the check-in hash and return it as a separate
+** string.  The returned string is obtained from fossil_malloc() and must
+** be freed by the caller.
+**
+** Return NULL if not found.
+**
+** The key is usually in a format like these:
+**
+**    /tarball/HASH/NAME
+**    /zip/HASH/NAME
+**    /sqlar/HASH/NAME
+*/
+static char *cache_hash_of_key(const char *zKey){
+  int i;
+  if( zKey==0 ) return 0;
+  if( zKey[0]!='/' ) return 0;
+  zKey++;
+  while( zKey[0] && zKey[0]!='/' ) zKey++;
+  if( zKey[0]==0 ) return 0;
+  zKey++;
+  for(i=0; zKey[i] && zKey[i]!='/'; i++){}
+  if( !validate16(zKey, i) ) return 0;
+  return fossil_strndup(zKey, i);
+}
+
+
+/*
 ** WEBPAGE: cachestat
 **
 ** Show information about the webpage cache.  Requires Setup privilege.
@@ -397,10 +424,17 @@ void cache_page(void){
       @ <ol>
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
         const unsigned char *zName = sqlite3_column_text(pStmt,0);
+        char *zHash = cache_hash_of_key((const char*)zName);
         @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br />
         @ size: %,lld(sqlite3_column_int64(pStmt,1))
         @ hit-count: %d(sqlite3_column_int(pStmt,2))
-        @ last-access: %s(sqlite3_column_text(pStmt,3))</p></li>
+        @ last-access: %s(sqlite3_column_text(pStmt,3)) \
+        if( zHash ){
+          @ %z(href("%R/timeline?c=%S",zHash))check-in</a>\
+          fossil_free(zHash);
+        }
+        @ </p></li>
+        
       }
       sqlite3_finalize(pStmt);
       @ </ol>
