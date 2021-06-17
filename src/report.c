@@ -354,7 +354,7 @@ void view_see_sql(void){
   @ <td colspan="3">%h(zOwner)</td></tr>
   @ <tr><td valign="top" align="right">SQL:</td><td></td>
   @ <td valign="top"><pre>
-  @ %h(zSQL)
+  @ <code class="language-sql">%h(zSQL)</code>
   @ </pre></td>
   @ <td width=15></td><td valign="top">
   output_color_key(zClrKey, 0, "border=0 cellspacing=0 cellpadding=3");
@@ -539,7 +539,7 @@ static void report_format_hints(void){
   }
   @ <hr /><h3>TICKET Schema</h3>
   @ <blockquote><pre>
-  @ %h(zSchema)
+  @ <code class="language-sql">%h(zSchema)</code>
   @ </pre></blockquote>
   @ <h3>Notes</h3>
   @ <ul>

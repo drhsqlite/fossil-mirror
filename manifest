@@ -1,5 +1,5 @@
-C /announce\spage:\sadd\san\sexplicit\sACTION\svalue\sfor\sthe\sform\sso\sthat\sa\s'to=...'\sURL\sparameter\sdoes\snot\send\sup\sshadowing\sthe\s'to'\sfield\sof\sthe\sform\sand\scausing\sthe\sannouncement\sto\sbe\ssent\sto\sthe\sURL-provided\saddress\seven\sif\sthat\sform\sfield\sis\sedited.
-D 2021-06-17T02:20:55.556
+C On\sthe\s<tt>/rptsql</tt>\spage\swrap\sa\sreport's\ssource\scode\sand\sthe\stickets\sschema\swith\sCODE\selements\shaving\sclass="language-sql".
+D 2021-06-17T22:51:51.077
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -572,7 +572,7 @@ F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c 1f16f6ff99f5fea2538c06fa8bc938dc2e86361a79d8093dfef8643de6ce062b
 F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c 740456c8e79f7953a084df739bdd6e457a6a253292b3c022b19382940b407807
-F src/report.c 3d1cea3ed3f645cf9ec05aed91e285ed044d642b1624a30dc0bb97ad1dcd53d6
+F src/report.c 8f578a7f9a5a15ddc03a8eab9578565afdb3a19e1c8db23ad5fdfdf81854bffb
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P da9f362015a3f7766f9dca2259cd8043cdcea9f37c9b2abc5a0d4d1ada2b18ba
-R f0227d7d9fbbb695906d259eac98f5ba
-U stephan
-Z f6bcf8fe705352f542c762568f1b7e7b
+P 2fa43ef4fb5adaf4053229470c5c4eaf1c01f716c9424ae070cde54f09ffe09d
+R 0d493378f301ee1d04a702c0d1d18e8b
+U george
+Z 75b3b0fa0a4a35745ced231bc95aafaa
