@@ -1,5 +1,5 @@
-C On\sthe\s<tt>/rptsql</tt>\spage\swrap\sa\sreport's\ssource\scode\sand\sthe\stickets\sschema\swith\sCODE\selements\shaving\sclass="language-sql".
-D 2021-06-17T22:51:51.077
+C Amend\s"Interwiki\sTag\sMap"\sheading\sat\sthe\sbottom\sof\s[/md_rules]\sand\s[/wiki_rules]\spages:\sturn\sthe\sword\s"Map"\sinto\sa\slink\sto\sthe\s[/intermap]\spage.
+D 2021-06-17T23:34:17.054
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -547,7 +547,7 @@ F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34
 F src/makemake.tcl 74c08ae6c576cc0d38cd9caaee011386bddf3d465ac9422a08235e29bbd774a3 x
 F src/manifest.c 0dc30286942fbadd9ed86713be0e1be5c50278da6f0d0756614dd6e16ca07dff
 F src/markdown.c ef2fd91cee497a0eff2ff2d123ec4ddfb97dfabb9a48e91fb8426314fc61dc3e
-F src/markdown.md 72c1b8f619316fd9af2b5d6e5793058b9a50ad41d196686058b5701e60942c16
+F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -645,7 +645,7 @@ F src/util.c cc4ade164c7279d559b09c1c446b4ff52e22ae8081de6388f9b90aa7cecaf162
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 579a1bef246987e2bb7193a10ee38d82ae6b07bb55cd89fe8c6f9bbde78423e0
-F src/wiki.wiki 8c737b43ec6eb8a388f5052bfd13dd3a157996338870365909fbf317c3293ba2
+F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 3b02608f65fa81f6402c49b2af93c6c372d26e4c2b432115f4499094d095cbbd
@@ -994,7 +994,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2fa43ef4fb5adaf4053229470c5c4eaf1c01f716c9424ae070cde54f09ffe09d
-R 0d493378f301ee1d04a702c0d1d18e8b
+P d3ca01a81e5778b1ffa5b7a850ea43e4c9daef4744b71b9d6185c9580a4f0aed
+R 59ab409845b5ddf453e2881f6706174c
 U george
-Z 75b3b0fa0a4a35745ced231bc95aafaa
+Z 58047bd48446ea0c77cbb7134402f905
