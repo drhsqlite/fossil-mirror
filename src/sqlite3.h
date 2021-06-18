@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.36.0"
 #define SQLITE_VERSION_NUMBER 3036000
-#define SQLITE_SOURCE_ID      "2021-06-14 20:41:20 e5a5acd6006133c5da4a7dd79726dbaa41c0d60ebeda890f848a6aafe5f9ef70"
+#define SQLITE_SOURCE_ID      "2021-06-18 18:36:39 5c9a6c06871cb9fe42814af9c039eb6da5427a6ec28f187af7ebfb62eafa66e5"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4378,17 +4378,17 @@ typedef struct sqlite3_context sqlite3_context;
 **
 ** ^The fifth argument to the BLOB and string binding interfaces controls
 ** or indicates the lifetime of the object referenced by the third parameter.
-** ^These three options exist:
-** ^(1) A destructor to dispose of the BLOB or string after SQLite has finished
+** These three options exist:
+** ^ (1) A destructor to dispose of the BLOB or string after SQLite has finished
 ** with it may be passed. ^It is called to dispose of the BLOB or string even
 ** if the call to the bind API fails, except the destructor is not called if
 ** the third parameter is a NULL pointer or the fourth parameter is negative.
-** ^(2) The special constant, [SQLITE_STATIC], may be passsed to indicate that
+** ^ (2) The special constant, [SQLITE_STATIC], may be passsed to indicate that
 ** the application remains responsible for disposing of the object. ^In this
 ** case, the object and the provided pointer to it must remain valid until
 ** either the prepared statement is finalized or the same SQL parameter is
 ** bound to something else, whichever occurs sooner.
-** ^(3) The constant, [SQLITE_TRANSIENT], may be passed to indicate that the
+** ^ (3) The constant, [SQLITE_TRANSIENT], may be passed to indicate that the
 ** object is to be copied prior to the return from sqlite3_bind_*(). ^The
 ** object and pointer to it must remain valid until then. ^SQLite will then
 ** manage the lifetime of its private copy.

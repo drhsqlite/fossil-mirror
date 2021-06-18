@@ -244,6 +244,7 @@ static sqlite3_int64 timeOfDay(void){
   static sqlite3_vfs *clockVfs = 0;
   sqlite3_int64 t;
   if( clockVfs==0 ) clockVfs = sqlite3_vfs_find(0);
+  if( clockVfs==0 ) return 0;  /* Never actually happens */
   if( clockVfs->iVersion>=2 && clockVfs->xCurrentTimeInt64!=0 ){
     clockVfs->xCurrentTimeInt64(clockVfs, &t);
   }else{
@@ -4283,6 +4284,7 @@ int sqlite3_appendvfs_init(
   (void)pzErrMsg;
   (void)db;
   pOrig = sqlite3_vfs_find(0);
+  if( pOrig==0 ) return SQLITE_ERROR;
   apnd_vfs.iVersion = pOrig->iVersion;
   apnd_vfs.pAppData = pOrig;
   apnd_vfs.szOsFile = pOrig->szOsFile + sizeof(ApndFile);
@@ -8145,6 +8147,7 @@ static int zipfileBegin(sqlite3_vtab *pVtab){
 static u32 zipfileTime(void){
   sqlite3_vfs *pVfs = sqlite3_vfs_find(0);
   u32 ret;
+  if( pVfs==0 ) return 0;
   if( pVfs->iVersion>=2 && pVfs->xCurrentTimeInt64 ){
     i64 ms;
     pVfs->xCurrentTimeInt64(pVfs, &ms);
