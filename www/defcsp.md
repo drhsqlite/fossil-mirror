@@ -20,6 +20,13 @@ and refuses to compile if any problems are found.
 However, CSP provides an additional layer of defense against undetected
 bugs that might lead to a vulnerability.
 
+<style>
+  div.content pre {
+    background: #cccccc;
+    padding: 0.25em;
+  }
+</style>
+
 ## The Default Restrictions
 
 The default CSP used by Fossil is as follows:

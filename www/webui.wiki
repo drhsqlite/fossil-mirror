@@ -34,6 +34,14 @@ including the document you are now reading,
 is rendered using the Fossil web interface, with no enhancements,
 and little customization.
 
+<style>
+  div.content pre {
+    background: #cccccc;
+    padding: 0.25em;
+  }
+</style>
+
+
 <blockquote>
 <b>Key point:</b> <i>The Fossil website is just a running instance
 of Fossil!
