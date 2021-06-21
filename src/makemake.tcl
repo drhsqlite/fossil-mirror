@@ -127,6 +127,7 @@ set src {
   merge3
   moderate
   name
+  patch
   path
   piechart
   pikchr
