@@ -110,6 +110,7 @@ static void mkdeltaFunc(
 */
 void patch_create(const char *zOut){
   int vid;
+
   if( file_isdir(zOut, ExtFILE)!=0 ){
     fossil_fatal("patch file already exists: %s", zOut);
   }
@@ -162,13 +163,24 @@ void patch_create(const char *zOut){
   /* Changed files */
   db_multi_exec(
     "INSERT INTO patch.chng(pathname,origname,hash,isexe,islink,delta)"
-    "  SELECT pathname, origname, blob.uuid, isexe, islink,"
+    "  SELECT pathname, nullif(origname,pathname), blob.uuid, isexe, islink,"
             " mkdelta(blob.rid, %Q||pathname)"
     "    FROM vfile, blob"
     "   WHERE blob.rid=vfile.rid"
     "     AND NOT deleted AND (chnged OR origname<>pathname);",
     g.zLocalRoot
   );
+
+  if( db_exists("SELECT 1 FROM localdb.vmerge WHERE id<=0") ){
+    db_multi_exec(
+      "CREATE TABLE patch.patchmerge(type TEXT,mhash TEXT);\n"
+      "WITH tmap(id,type) AS (VALUES(0,'merge'),(-1,'cherrypick'),"
+                                   "(-2,'backout'),(-4,'integrate'))"
+      "INSERT INTO patch.patchmerge(type,mhash)"
+      " SELECT tmap.type,vmerge.mhash FROM vmerge, tmap"
+      "  WHERE tmap.id=vmerge.id;"
+    );
+  }
 }
 
 /*
@@ -200,11 +212,20 @@ void patch_view(void){
   Stmt q;
   db_prepare(&q, "SELECT value FROM patch.cfg WHERE key='baseline'");
   if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("Patch against check-in %S\n", db_column_text(&q,0));
+    fossil_print("%-10s %s\n", "BASELINE", db_column_text(&q,0));
   }else{
     fossil_fatal("ERROR: Missing patch baseline");
   }
   db_finalize(&q);
+  if( db_table_exists("patch","patchmerge") ){
+    db_prepare(&q, "SELECT upper(type),mhash FROM patchmerge");
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%-10s %s\n",
+        db_column_text(&q,0),
+        db_column_text(&q,1));
+    }
+    db_finalize(&q);
+  }
   db_prepare(&q,
     "SELECT pathname,"
           " hash IS NULL AND delta IS NOT NULL,"
@@ -212,13 +233,13 @@ void patch_view(void){
           " origname"
     "  FROM patch.chng ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zClass = "CHANGED";
+    const char *zClass = "EDIT";
     const char *zName = db_column_text(&q,0);
     const char *zOrigName = db_column_text(&q, 3);
     if( db_column_int(&q, 1) && zOrigName==0 ){
       zClass = "NEW";
     }else if( db_column_int(&q, 2) ){
-      zClass = zOrigName==0 ? "DELETED" : 0;
+      zClass = zOrigName==0 ? "DELETE" : 0;
     }
     if( zOrigName!=0 && zOrigName[0]!=0 ){
       fossil_print("%-10s %s -> %s\n", "RENAME",zOrigName,zName);
