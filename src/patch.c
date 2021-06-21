@@ -41,6 +41,68 @@ static void readfileFunc(
   blob_reset(&x);
 }
 
+/*
+** mkdelta(X,Y)
+**
+** X is an numeric artifact id.  Y is a filename.
+**
+** Compute a compressed delta that carries X into Y.  Or return NULL
+** if X is equal to Y.
+*/
+static void mkdeltaFunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zFile;
+  Blob x, y;
+  int rid;
+  char *aOut;
+  int nOut;
+  sqlite3_int64 sz;
+
+  rid = sqlite3_value_int(argv[0]);
+  if( !content_get(rid, &x) ){
+    sqlite3_result_error(context, "mkdelta(X,Y): no content for X", -1);
+    return;
+  }
+  zFile = (const char*)sqlite3_value_text(argv[1]);
+  if( zFile==0 ){
+    sqlite3_result_error(context, "mkdelta(X,Y): NULL Y argument", -1);
+    blob_reset(&x);
+    return;
+  }
+  sz = blob_read_from_file(&y, zFile, RepoFILE);
+  if( sz<0 ){
+    sqlite3_result_error(context, "mkdelta(X,Y): cannot read file Y", -1);
+    blob_reset(&x);
+    return;
+  }
+  aOut = sqlite3_malloc64(sz+70);
+  if( aOut==0 ){
+    sqlite3_result_error_nomem(context);
+    blob_reset(&y);
+    blob_reset(&x);
+    return;
+  }
+  if( blob_size(&x)==blob_size(&y)
+   && memcmp(blob_buffer(&x), blob_buffer(&y), blob_size(&x))==0
+  ){
+    blob_reset(&y);
+    blob_reset(&x);
+    return;
+  }
+  nOut = delta_create(blob_buffer(&x),blob_size(&x),
+                      blob_buffer(&y),blob_size(&y), aOut);
+  blob_reset(&x);
+  blob_reset(&y);
+  blob_init(&x, aOut, nOut);
+  blob_compress(&x, &x);
+  sqlite3_result_blob64(context, blob_buffer(&x), blob_size(&x),
+                        SQLITE_TRANSIENT);
+  blob_reset(&x);
+}
+
 
 /*
 ** Generate a binary patch file and store it into the file
@@ -55,16 +117,19 @@ void patch_create(const char *zOut){
   deltafunc_init(g.db);
   sqlite3_create_function(g.db, "read_co_file", 1, SQLITE_UTF8, 0,
                           readfileFunc, 0, 0);
+  sqlite3_create_function(g.db, "mkdelta", 2, SQLITE_UTF8, 0,
+                          mkdeltaFunc, 0, 0);
   db_multi_exec("ATTACH %Q AS patch;", zOut);
   db_multi_exec(
     "PRAGMA patch.journal_mode=OFF;\n"
     "PRAGMA patch.page_size=512;\n"
     "CREATE TABLE patch.chng(\n"
-    "  fname TEXT,\n"   /* Filename */
-    "  hash TEXT,\n"    /* Baseline hash.  NULL for new files. */
-    "  isexe BOOL,\n"   /* True if executable */
-    "  islink BOOL,\n"  /* True if is a symbolic link */
-    "  delta BLOB\n"    /* Delta.  NULL if file deleted */
+    "  pathname TEXT,\n" /* Filename */
+    "  origname TEXT,\n" /* Name before rename.  NULL if not renamed */
+    "  hash TEXT,\n"     /* Baseline hash.  NULL for new files. */
+    "  isexe BOOL,\n"    /* True if executable */
+    "  islink BOOL,\n"   /* True if is a symbolic link */
+    "  delta BLOB\n"     /* Delta.  NULL if file deleted or unchanged */
     ");"
     "CREATE TABLE patch.cfg(\n"
     "  key TEXT,\n"
@@ -82,7 +147,7 @@ void patch_create(const char *zOut){
   
   /* New files */
   db_multi_exec(
-    "INSERT INTO patch.chng(fname,hash,isexe,islink,delta)"
+    "INSERT INTO patch.chng(pathname,hash,isexe,islink,delta)"
     "  SELECT pathname, NULL, isexe, islink,"
     "         compress(read_co_file(%Q||pathname))"
     "    FROM vfile WHERE rid==0;",
@@ -90,18 +155,18 @@ void patch_create(const char *zOut){
   );
   /* Deleted files */
   db_multi_exec(
-    "INSERT INTO patch.chng(fname,hash,isexe,islink,delta)"
+    "INSERT INTO patch.chng(pathname,hash,isexe,islink,delta)"
     "  SELECT pathname, NULL, 0, 0, NULL"
     "    FROM vfile WHERE deleted;"
   );
   /* Changed files */
   db_multi_exec(
-    "INSERT INTO patch.chng(fname,hash,isexe,islink,delta)"
-    "  SELECT pathname, blob.uuid, isexe, islink,"
-    "         compress(delta_create(content(blob.uuid),"
-                          "read_co_file(%Q||pathname)))"
+    "INSERT INTO patch.chng(pathname,origname,hash,isexe,islink,delta)"
+    "  SELECT pathname, origname, blob.uuid, isexe, islink,"
+            " mkdelta(blob.rid, %Q||pathname)"
     "    FROM vfile, blob"
-    "   WHERE blob.rid=vfile.rid AND NOT deleted AND chnged;",
+    "   WHERE blob.rid=vfile.rid"
+    "     AND NOT deleted AND (chnged OR origname<>pathname);",
     g.zLocalRoot
   );
 }
@@ -112,7 +177,7 @@ void patch_create(const char *zOut){
 */
 void patch_attach(const char *zIn){
   Stmt q;
-  if( !file_isfile(zIn, zIn) ){
+  if( !file_isfile(zIn, ExtFILE) ){
     fossil_fatal("no such file: %s", zIn);
   }
   if( g.db==0 ){
@@ -140,18 +205,62 @@ void patch_view(void){
     fossil_fatal("ERROR: Missing patch baseline");
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT fname, hash IS NULL AS isnew, delta IS NULL AS isdel"
-                 "  FROM patch.chng ORDER BY 1");
+  db_prepare(&q,
+    "SELECT pathname,"
+          " hash IS NULL AND delta IS NOT NULL,"
+          " delta IS NULL,"
+          " origname"
+    "  FROM patch.chng ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zClass = "CHANGED";
-    if( db_column_int(&q, 1) ){
+    const char *zName = db_column_text(&q,0);
+    const char *zOrigName = db_column_text(&q, 3);
+    if( db_column_int(&q, 1) && zOrigName==0 ){
       zClass = "NEW";
     }else if( db_column_int(&q, 2) ){
-      zClass = "DELETED";
+      zClass = zOrigName==0 ? "DELETED" : 0;
     }
-    fossil_print("%-10s %s\n", zClass, db_column_text(&q,0));
+    if( zOrigName!=0 && zOrigName[0]!=0 ){
+      fossil_print("%-10s %s -> %s\n", "RENAME",zOrigName,zName);
+    }
+    if( zClass ){
+      fossil_print("%-10s %s\n", zClass, zName);
+    }
   }
   db_finalize(&q);
+}
+
+/*
+** Apply the patch currently attached as database "patch".
+**
+** First update the check-out to be at "baseline".  Then loop through
+** and update all files.
+*/
+void patch_apply(void){
+  Stmt q;
+  Blob cmd;
+  blob_init(&cmd, 0, 0);
+  db_prepare(&q,
+    "SELECT patch.cfg.value"
+    "  FROM patch.cfg, localdb.vvar"
+    " WHERE patch.cfg.key='baseline'"
+    "   AND localdb.vvar.name='checkout-hash'"
+    "   AND patch.cfg.key<>localdb.vvar.name"
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_appendf(&cmd, " update %s", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+  if( blob_size(&cmd)>0 ){
+    int rc = fossil_system(blob_str(&cmd));
+    if( rc ){
+      fossil_fatal("unable to update to the baseline check-out: %s",
+                   blob_str(&cmd));
+    }
+  }
+  blob_reset(&cmd);
+  
 }
 
 
@@ -172,7 +281,10 @@ void patch_view(void){
 **
 ** > fossil patch apply FILENAME
 **
-**       Apply the changes in FILENAME to the current check-out.
+**       Apply the changes in FILENAME to the current check-out. Options:
+**
+**           -f|--force     Apply the patch even though there are unsaved
+**                          changes in the current check-out.
 **
 ** > fossil patch diff [DIFF-FLAGS] FILENAME
 **
@@ -188,6 +300,11 @@ void patch_view(void){
 **
 **       Create a patch on a remote check-out, transfer that patch to the
 **       local machine (using ssh) and apply the patch in the local checkout.
+**
+** > fossil patch view FILENAME
+**
+**       View a summary of the the changes in the binary patch FILENAME.
+**
 */
 void patch_cmd(void){
   const char *zCmd;
@@ -199,11 +316,17 @@ void patch_cmd(void){
   zCmd = g.argv[2];
   n = strlen(zCmd);
   if( strncmp(zCmd, "apply", n)==0 ){
+    int forceFlag = find_option("force","f",0)!=0;
     db_must_be_within_tree();
     verify_all_options();
     if( g.argc!=4 ){
       usage("apply FILENAME");
     }
+    if( !forceFlag && unsaved_changes(0) ){
+      fossil_fatal("there are unsaved changes in the current checkout");
+    }
+    patch_attach(g.argv[3]);
+    patch_apply();
   }else
   if( strncmp(zCmd, "create", n)==0 ){
     db_must_be_within_tree();
