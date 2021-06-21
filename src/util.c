@@ -330,6 +330,7 @@ void test_fossil_system_cmd(void){
   safeCmdStrTest = 1;
   while(1){
     size_t n;
+    int rc;
     printf("system-test> ");
     fflush(stdout);
     if( !fgets(zLine, sizeof(zLine), stdin) ) break;
@@ -338,7 +339,8 @@ void test_fossil_system_cmd(void){
     zLine[n] = 0;
     printf("cmd: [%s]\n", zLine);
     fflush(stdout);
-    fossil_system(zLine);
+    rc = fossil_system(zLine);
+    printf("result: %d\n", rc);
   }
 }
 
