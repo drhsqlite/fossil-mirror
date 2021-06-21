@@ -56,16 +56,23 @@ cmd-line $is_windows 101 * * *.* *.*
 # not in fact get double-interpreted.
 
 proc spawn {args} {
-  set i 1
-  foreach arg $args {
+  foreach {arg testname} $args {
     fossil test-fossil-spawn $arg
-    test spawn-echo.$i \
+    test spawn-echo-$testname \
         {[lrange [split $::RESULT \n] 3 end]=="\{argv\[2\] = \[$arg\]\}"}
-    incr i
   }
 }
 
-spawn "a" "bx" {$SHELL} {$(ls)} "%COMSPEC%" "Jörg's “Development” Job Offer"
+spawn \
+    "a"                              single-char \
+    "b x"                            space-separated-single-chars \
+    "b ; c & x"                      chained-commands \
+    {* ? [a-z]*}                     wildcards \
+    {$SHELL}                         posix-shell-variable \
+    "%COMSPEC%"                      cmd-exe-shell-variable \
+    {$(ls)}                          subshell-invocation \
+    {"Bill's Birthday"}              quotes-and-spaces \
+    "Jörg's “Development” Job Offer" spaces-and-unicode
 
 
 ###############################################################################
