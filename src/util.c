@@ -166,9 +166,17 @@ char *fossil_strtolwr(char *zIn){
 }
 
 /*
-** If this local variable is set, fossil_assert_safe_command_string()
-** returns false on an unsafe command-string rather than abort.  Set
-** this variable for testing.
+** This local variable determines the behavior of
+** fossil_assert_safe_command_string():
+**
+**    0 (default)       fossil_panic() on an unsafe command string
+**
+**    1                 Print an error but continue process.  Used for
+**                      testing of fossil_assert_safe_command_string().
+**
+**    2                 No-op.  Used to allow any arbitrary command string
+**                      through fossil_system(), such as when invoking
+**                      COMMAND in "fossil bisect run COMMAND".
 */
 static int safeCmdStrTest = 0;
 
@@ -268,11 +276,12 @@ static void fossil_assert_safe_command_string(const char *z){
   }
   if( inQuote ) unsafe = i;
 #endif
-  if( unsafe ){
+  if( unsafe && safeCmdStrTest<2 ){
     char *zMsg = mprintf("Unsafe command string: %s\n%*shere ----^",
                    z, unsafe+13, "");
     if( safeCmdStrTest ){
       fossil_print("%z\n", zMsg);
+      fossil_free(zMsg);
     }else{
       fossil_panic("%s", zMsg);
     }
@@ -315,6 +324,18 @@ int fossil_system(const char *zOrigCmd){
   rc = system(zOrigCmd);
   fossil_limit_memory(1);
 #endif
+  return rc;
+}
+
+/*
+** Like "fossil_system()" but does not check the command-string for
+** potential security problems.
+*/
+int fossil_unsafe_system(const char *zOrigCmd){
+  int rc;
+  safeCmdStrTest = 2;
+  rc = fossil_system(zOrigCmd);
+  safeCmdStrTest = 0;
   return rc;
 }
 
