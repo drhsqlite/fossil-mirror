@@ -49,6 +49,25 @@ cmd-line false 100 abc abc a\"bc a\"bc \"abc\" \"abc\"
 #
 cmd-line $is_windows 101 * * *.* *.*
 
+
+###############################################################################
+# Now do similar things with the new "spawn" mechanism, checking whether
+# args passed through a potential double interpretation call sequence do
+# not in fact get double-interpreted.
+
+proc spawn {args} {
+  set i 1
+  foreach arg $args {
+    fossil test-fossil-spawn $arg
+    test spawn-echo.$i \
+        {[lrange [split $::RESULT \n] 3 end]=="\{argv\[2\] = \[$arg\]\}"}
+    incr i
+  }
+}
+
+spawn "a" "bx" {$SHELL} {$(ls)} "%COMSPEC%" "Jörg's “Development” Job Offer"
+
+
 ###############################################################################
 
 test_cleanup

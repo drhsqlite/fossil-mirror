@@ -36,6 +36,7 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <errno.h>
+# include <spawn.h>
 #endif
 
 
@@ -363,6 +364,52 @@ void test_fossil_system_cmd(void){
     rc = fossil_system(zLine);
     printf("result: %d\n", rc);
   }
+}
+
+/*
+** A cross-platform "spawn" type function: search for zProgram in PATH,
+** passing the given argument list through without interpretation.  Due
+** to Windows platform limitations — see the definition of WinMain() —
+** this is an ideal we can achieve only on POSIX platforms.
+*/
+int fossil_spawn(const char* zProgram, char* const azArgv[])
+{
+  extern char **environ;
+  int status = -1;
+  pid_t pid;
+  if(posix_spawnp(&pid, zProgram, NULL, NULL, azArgv, environ)==0){
+    waitpid(pid, &status, 0);
+  }else{
+    fossil_fatal("posix_spawn(%s, ...) failed: %s", zProgram, sys_errlist[errno]);
+  }
+  return status;
+}
+
+/*
+** COMMAND: test-fossil-spawn
+**
+** Calls test-echo, passing each argument as-given.  Used by the test
+** suite to verify that this platform can pass problematic arguments
+** (quotes, spaces, shell-specific escaping characters...) through
+** fossil_spawn() without mangling or reinterpretation.
+**
+** To an outsider, this function has the same effect as test-echo,
+** but the way it achieves that exercises a different subset of
+** Fossil's functionality.
+*/
+void test_fossil_spawn_cmd(void){
+  int i, j=0;
+  char** azArgv = fossil_malloc(sizeof(char*) * (g.argc + 1));
+  azArgv[j++] = g.nameOfExe;
+  azArgv[j++] = "test-echo";
+  if( find_option("hex",0,0) ){
+    azArgv[j++] = "--hex";
+  }
+  for( i=2; i<g.argc; ++i ){
+    azArgv[j++] = g.argv[i];
+  }
+  azArgv[j] = 0;
+  fossil_spawn(g.nameOfExe, azArgv);
 }
 
 /*

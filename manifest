@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sbisect\srun"\scommand\sto\sthe\schange\slog.
-D 2021-06-21T14:14:52.031
+C Created\sfossil_spawn()\sas\sa\sdumb-as-rocks\swrapper\sfor\sposix_spawnp(2)\nand\screated\stests\sto\sprove\sthat\sit\sdoesn't\sdouble-interpret\sits\sargs\sas\nfossil_system()\sdoes.\s\sThis\sisn't\sportable\syet;\sit's\sjust\sa\sseed\swe\scan\nuse\sto\sbring\sthis\sbranch\sto\sa\sPoC\sstate.
+D 2021-06-21T22:37:05.924
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -641,7 +641,7 @@ F src/url.c 68ea150d8554de9f48c836553203d2ca189fcd90c619acfe6e0843add2fa1739
 F src/user.c ab5935542e97ad3a9f6e411528e6d060da0a711442a03fa82a604e7c161363bd
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c 1fbe5a057ce349156fa071d91c254aae5186ae65ca04cbe27f6f601fcc5d18d2
+F src/util.c 15f68d2a6a28b0e7422a81ba45b4572adeefee648808453503ccb99d6a90d65e
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 579a1bef246987e2bb7193a10ee38d82ae6b07bb55cd89fe8c6f9bbde78423e0
@@ -656,7 +656,7 @@ F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 461830be92ebc34f96d51a194c53d354b0a47a8522ab4a3882b9021dfacc98e4
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
-F test/cmdline.test 19bc9570d2d43264f80111d877fb20e8236dd7346777cc8b9b3b6d5c1d9a0ed2
+F test/cmdline.test 2d983e9bde2269b4cf3b6658ff22b29f2efc12ec418764ab55cbe9d645b3abaa
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
 F test/commit-warning.test becab1ef4d53b9d41ff1b1b9d6f46abaac87a95f362f3ae17589036f4bab5a2d
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
@@ -994,7 +994,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7d4cf0ed6989c410f0d6bb8f40a6d8d50c3093f21a395a6346f6544ea775e3c0
-R f68384dc126050517b88841b90abe770
-U drh
-Z fe286dcae50d4df8561e865bd4a91ded
+P 162625e212f1e56cc53579e768efbd02205fcb5fd6448025a9057a6863f8542d
+R 13905fc86abfc939388884bfdc367cd9
+T *branch * fossil-spawn
+T *sym-fossil-spawn *
+T -sym-trunk *
+U wyoung
+Z 65fca3170667210dcd6e7d110df6d037
