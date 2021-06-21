@@ -106,6 +106,54 @@ void patch_create(const char *zOut){
   );
 }
 
+/*
+** Attempt to load and validate a patchfile identified by the first
+** argument.
+*/
+void patch_attach(const char *zIn){
+  Stmt q;
+  if( !file_isfile(zIn, zIn) ){
+    fossil_fatal("no such file: %s", zIn);
+  }
+  if( g.db==0 ){
+    sqlite3_open(":memory:", &g.db);
+  }
+  db_multi_exec("ATTACH %Q AS patch", zIn);
+  db_prepare(&q, "PRAGMA patch.quick_check");
+  while( db_step(&q)==SQLITE_ROW ){
+    if( fossil_strcmp(db_column_text(&q,0),"ok")!=0 ){
+      fossil_fatal("file %s is not a well-formed Fossil patchfile", zIn);
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** Show a summary of the content of a patch on standard output
+*/
+void patch_view(void){
+  Stmt q;
+  db_prepare(&q, "SELECT value FROM patch.cfg WHERE key='baseline'");
+  if( db_step(&q)==SQLITE_ROW ){
+    fossil_print("Patch against check-in %S\n", db_column_text(&q,0));
+  }else{
+    fossil_fatal("ERROR: Missing patch baseline");
+  }
+  db_finalize(&q);
+  db_prepare(&q, "SELECT fname, hash IS NULL AS isnew, delta IS NULL AS isdel"
+                 "  FROM patch.chng ORDER BY 1");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zClass = "CHANGED";
+    if( db_column_int(&q, 1) ){
+      zClass = "NEW";
+    }else if( db_column_int(&q, 2) ){
+      zClass = "DELETED";
+    }
+    fossil_print("%-10s %s\n", zClass, db_column_text(&q,0));
+  }
+  db_finalize(&q);
+}
+
 
 /*
 ** COMMAND: patch
@@ -187,7 +235,8 @@ void patch_cmd(void){
     if( g.argc!=4 ){
       usage("view FILENAME");
     }
-    fossil_print("TBD...\n");
+    patch_attach(g.argv[3]);
+    patch_view();
   }else
   {
     goto patch_usage;
