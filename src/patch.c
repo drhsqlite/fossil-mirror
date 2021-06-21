@@ -21,6 +21,91 @@
 #include "patch.h"
 #include <assert.h>
 
+/*
+** Implementation of the "readfile(X)" SQL function.  The entire content
+** of the checkout file named X is read and returned as a BLOB.
+*/
+static void readfileFunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zName;
+  Blob x;
+  sqlite3_int64 sz;
+  (void)(argc);  /* Unused parameter */
+  zName = (const char*)sqlite3_value_text(argv[0]);
+  if( zName==0 || (zName[0]=='-' && zName[1]==0) ) return;
+  sz = blob_read_from_file(&x, zName, RepoFILE);
+  sqlite3_result_blob64(context, x.aData, sz, SQLITE_TRANSIENT);
+  blob_reset(&x);
+}
+
+
+/*
+** Generate a binary patch file and store it into the file
+** named zOut.
+*/
+void patch_create(const char *zOut){
+  int vid;
+  if( file_isdir(zOut, ExtFILE)!=0 ){
+    fossil_fatal("patch file already exists: %s", zOut);
+  }
+  add_content_sql_commands(g.db);
+  deltafunc_init(g.db);
+  sqlite3_create_function(g.db, "read_co_file", 1, SQLITE_UTF8, 0,
+                          readfileFunc, 0, 0);
+  db_multi_exec("ATTACH %Q AS patch;", zOut);
+  db_multi_exec(
+    "PRAGMA patch.journal_mode=OFF;\n"
+    "PRAGMA patch.page_size=512;\n"
+    "CREATE TABLE patch.chng(\n"
+    "  fname TEXT,\n"   /* Filename */
+    "  hash TEXT,\n"    /* Baseline hash.  NULL for new files. */
+    "  isexe BOOL,\n"   /* True if executable */
+    "  islink BOOL,\n"  /* True if is a symbolic link */
+    "  delta BLOB\n"    /* Delta.  NULL if file deleted */
+    ");"
+    "CREATE TABLE patch.cfg(\n"
+    "  key TEXT,\n"
+    "  value ANY\n"
+    ");"
+  );
+  vid = db_lget_int("checkout", 0);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
+  db_multi_exec(
+    "INSERT INTO patch.cfg(key,value)"
+    "SELECT 'baseline',uuid FROM blob WHERE rid=%d", vid);
+  if( db_exists("SELECT 1 FROM vmerge") ){
+    db_multi_exec("INSERT INTO patch.cfg(key,value)VALUES('merged',1);");
+  }
+  
+  /* New files */
+  db_multi_exec(
+    "INSERT INTO patch.chng(fname,hash,isexe,islink,delta)"
+    "  SELECT pathname, NULL, isexe, islink,"
+    "         compress(read_co_file(%Q||pathname))"
+    "    FROM vfile WHERE rid==0;",
+    g.zLocalRoot
+  );
+  /* Deleted files */
+  db_multi_exec(
+    "INSERT INTO patch.chng(fname,hash,isexe,islink,delta)"
+    "  SELECT pathname, NULL, 0, 0, NULL"
+    "    FROM vfile WHERE deleted;"
+  );
+  /* Changed files */
+  db_multi_exec(
+    "INSERT INTO patch.chng(fname,hash,isexe,islink,delta)"
+    "  SELECT pathname, blob.uuid, isexe, islink,"
+    "         compress(delta_create(content(blob.uuid),"
+                          "read_co_file(%Q||pathname)))"
+    "    FROM vfile, blob"
+    "   WHERE blob.rid=vfile.rid AND NOT deleted AND chnged;",
+    g.zLocalRoot
+  );
+}
+
 
 /*
 ** COMMAND: patch
@@ -71,7 +156,6 @@ void patch_cmd(void){
     if( g.argc!=4 ){
       usage("apply FILENAME");
     }
-    fossil_print("TBD...\n");
   }else
   if( strncmp(zCmd, "create", n)==0 ){
     db_must_be_within_tree();
@@ -79,6 +163,7 @@ void patch_cmd(void){
     if( g.argc!=4 ){
       usage("create FILENAME");
     }
+    patch_create(g.argv[3]);
   }else
   if( strncmp(zCmd, "pull", n)==0 ){
     db_must_be_within_tree();
