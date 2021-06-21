@@ -10,6 +10,8 @@
      timeline.
   *  The [./forum.wiki|Forum] provides a hyperlink on the author of each
      post that goes to a timeline of recent posts by that same author.
+  *  Added the "[/help?cmd=bisect|fossil bisect run]" command for improved
+     automation of bisects.
   *  The [/help?cmd=merge|fossil merge] command now does a better job merging
      branches where files have been renamed between the current branch and the
      branch being merged.
