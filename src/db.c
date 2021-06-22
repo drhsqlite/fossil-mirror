@@ -4495,12 +4495,12 @@ void test_timespan_cmd(void){
 }
 
 /*
-** COMMAND: test-json-carray
+** COMMAND: test-json-serialize-array
 **
 ** Serializes the passed arguments as a JSON array of strings, proving that
 ** the JSON1 and Carray SQLite extensions are cooperating.
 */
-void test_json_carray_cmd(void){
+void test_json_serialize_array_cmd(void){
   fossil_print("%s\n", json_serialize_array(g.argv+2, g.argc-2));
 }
 
