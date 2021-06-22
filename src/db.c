@@ -4529,6 +4529,48 @@ const char* json_serialize_array(char* const azValues[], size_t nValues){
 }
 
 /*
+** COMMAND: test-json-deserialize-array
+**
+** Given the name of a file containing a JSON-encoded array of strings,
+** parses it and prints one element per line.  The file name can be
+** "-" to read from stdin.
+*/
+void test_json_deserialize_array_cmd(void){
+  Blob json;
+  if( g.argc!=3 ) usage("FILE");
+  blob_zero(&json);
+  sqlite3_open(":memory:", &g.db);
+  if( blob_read_from_file(&json, g.argv[2], ExtFILE)>=0 ) {
+    size_t nValues;
+    char** azValues = json_deserialize_array(&nValues, blob_str(&json));
+    int i;
+    for( i=0; i<nValues; ++i ){
+      fossil_print("JSON[%d] = \"%s\"\n", i, azValues[i]);
+    }
+  }
+  sqlite3_close(g.db);
+  g.db = 0;
+}
+
+/*
+** Deserializes the passed JSON array of strings as a C array of C strings.
+*/
+char** json_deserialize_array(size_t* pnValues, const char* zJSON){
+  char** azValues;
+  size_t i=0, n;
+  Stmt q;
+  n = *pnValues = db_int(0, "SELECT COUNT(*) FROM json_each(%Q)", zJSON);
+  azValues = fossil_malloc(sizeof(char*) * (n+1));
+  db_prepare(&q, "SELECT json_each.value FROM json_each(%Q)", zJSON);
+  while( (i<n) && (db_step(&q)==SQLITE_ROW) ){
+    azValues[i++] = fossil_strdup(db_column_text(&q, 0));
+  }
+  azValues[i] = 0;
+  db_finalize(&q);
+  return azValues;
+}
+
+/*
 ** COMMAND: test-without-rowid
 **
 ** Usage: %fossil test-without-rowid FILENAME...
