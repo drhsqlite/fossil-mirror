@@ -3190,6 +3190,17 @@ char *db_get(const char *zName, const char *zDefault){
   }
   return z;
 }
+const char ** db_get_array(size_t *pnValues, const char *zName, const char* zDefault){
+  const char *value = db_get(zName, zDefault ? zDefault : "[]");
+  if( value[0]=='[' && value[strlen(value)-1]==']' ){
+    return json_deserialize_array(pnValues, value);
+  }else{
+    const char** azValues = fossil_malloc(sizeof(char*)*2);
+    azValues[0] = value;
+    azValues[1] = 0;
+    return azValues;
+  }
+}
 char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){

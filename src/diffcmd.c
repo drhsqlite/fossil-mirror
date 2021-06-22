@@ -166,8 +166,9 @@ void diff_print_filenames(const char *zLeft, const char *zRight,
 ** If fSwapDiff is 1, show the set of edits to transform zFile2 into pFile1
 ** instead of the opposite.
 **
-** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
-** command zDiffCmd to do the diffing.
+** Use the internal diff logic if nDiffCmdValues is 0.  Otherwise pass the
+** command and args in azDiffCmd along with a pair of file names to
+** fossil_spawn() to do the diffing externally.
 **
 ** When using an external diff program, zBinGlob contains the GLOB patterns
 ** for file names to treat as binary.  If fIncludeBinary is zero, these files
@@ -178,14 +179,15 @@ void diff_file(
   int isBin1,               /* Does the 'from' content appear to be binary */
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
-  const char *zDiffCmd,     /* Command for comparison */
+  const char *azDiffCmd[],  /* External diff cmd and optional args */
+  size_t nDiffCmdValues,    /* Elements in azDiffCmd; 0 for internal */
   const char *zBinGlob,     /* Treat file names matching this as binary */
   int fIncludeBinary,       /* Include binary files for external diff */
   u64 diffFlags,            /* Flags to control the diff */
   int fSwapDiff,            /* Diff from Zfile2 to Pfile1 */
   Blob *diffBlob            /* Blob to store diff output */
 ){
-  if( zDiffCmd==0 ){
+  if( nDiffCmdValues==0 ){
     Blob out;                 /* Diff output text */
     Blob file2;               /* Content of zFile2 */
     const char *zName2;       /* Name of zFile2 for display */
@@ -234,8 +236,9 @@ void diff_file(
     /* Release memory resources */
     blob_reset(&file2);
   }else{
+    size_t n;
+    const char **azFullDiffCmd;
     Blob nameFile1;    /* Name of temporary file to old pFile1 content */
-    Blob cmd;          /* Text of command to run */
 
     if( !fIncludeBinary ){
       Blob file2;
@@ -269,24 +272,74 @@ void diff_file(
     file_tempname(&nameFile1, zFile2, "orig");
     blob_write_to_file(pFile1, blob_str(&nameFile1));
 
-    /* Construct the external diff command */
-    blob_zero(&cmd);
-    blob_append(&cmd, zDiffCmd, -1);
-    if( fSwapDiff ){
-      blob_append_escaped_arg(&cmd, zFile2);
-      blob_append_escaped_arg(&cmd, blob_str(&nameFile1));
-    }else{
-      blob_append_escaped_arg(&cmd, blob_str(&nameFile1));
-      blob_append_escaped_arg(&cmd, zFile2);
-    }
+    if( nDiffCmdValues==1 ) {
+      /* With only one element in the command array, take the legacy
+       * path, constructing a shell command string to do the external
+       * diff.  This works for many cases, but because of the risk
+       * of double shell interpretation of quotes, spaces, escape
+       * characters, and such, we have to run this command string
+       * through a number of prophylactic wrappers around system(3)
+       * which can cause problems, as when doing diffs on file names
+       * that legitimately contain spaces, quotes, etc.
+       */
+      Blob cmd;          /* Text of command to run */
+      blob_zero(&cmd);
+      blob_append(&cmd, azDiffCmd[0], -1);
+      if( fSwapDiff ){
+        blob_append_escaped_arg(&cmd, zFile2);
+        blob_append_escaped_arg(&cmd, blob_str(&nameFile1));
+      }else{
+        blob_append_escaped_arg(&cmd, blob_str(&nameFile1));
+        blob_append_escaped_arg(&cmd, zFile2);
+      }
 
-    /* Run the external diff command */
-    fossil_system(blob_str(&cmd));
+      /* Run the external diff command */
+      fossil_system(blob_str(&cmd));
+    }else{
+      /* Construct an argv style array to do the external diff.
+       *
+       * This may look more complex, but it bypasses all of the
+       * stuff we have to wrap around system(3) because we get a
+       * direct binding of our argv[] to the callee's main(argv)
+       * on POSIX systems, entirely avoiding the class of double
+       * shell interpretation risks.  (Windows's API flattens argv,
+       * neutering some of this mechanism's benefits, but not all.)
+       *
+       * Due to the legacy of existing settings, we can't assume
+       * it's safe to take this path when the setting is a single
+       * string value, since that gets converted to a 1-element
+       * array by db_get_array().  Fortunately, most diff type
+       * programs offer and benefit from option flags, so you
+       * should be able to upgrade to this method by re-applying
+       * your settings, making use of the new array storage option:
+       *
+       *     $ fossil set diff-command colordiff -wu
+       *
+       * as opposed to the legacy method:
+       *
+       *     $ fossil set diff-command 'colordiff -wu'
+       *
+       * The lack of quoting around those two setting values causes
+       * Fossil to store them as an array, which lands you in here.
+       */
+      azFullDiffCmd = fossil_malloc((nDiffCmdValues+3)*sizeof(char*));
+      for( n=0; n<nDiffCmdValues; ++n ) azFullDiffCmd[n] = azDiffCmd[n];
+      if( fSwapDiff ){
+        azFullDiffCmd[n++] = zFile2;
+        azFullDiffCmd[n++] = blob_str(&nameFile1);
+      }else{
+        azFullDiffCmd[n++] = blob_str(&nameFile1);
+        azFullDiffCmd[n++] = zFile2;
+      }
+      azFullDiffCmd[n] = 0;
+
+      /* Run the external diff command */
+      fossil_spawn(azFullDiffCmd[0], (char*const*)azFullDiffCmd);
+    }
 
     /* Delete the temporary file and clean up memory used */
     file_delete(blob_str(&nameFile1));
     blob_reset(&nameFile1);
-    blob_reset(&cmd);
   }
 }
 
@@ -296,8 +349,9 @@ void diff_file(
 ** The difference is the set of edits needed to transform pFile1 into
 ** pFile2.
 **
-** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
-** command zDiffCmd to do the diffing.
+** Use the internal diff logic if nDiffCmdValues is 0.  Otherwise pass the
+** command and args in azDiffCmd along with a pair of file names to
+** fossil_spawn() to do the diffing externally.
 **
 ** When using an external diff program, zBinGlob contains the GLOB patterns
 ** for file names to treat as binary.  If fIncludeBinary is zero, these files
@@ -309,13 +363,14 @@ void diff_file_mem(
   int isBin1,               /* Does the 'from' content appear to be binary */
   int isBin2,               /* Does the 'to' content appear to be binary */
   const char *zName,        /* Display name of the file */
-  const char *zDiffCmd,     /* Command for comparison */
+  const char *azDiffCmd[],  /* External diff cmd and optional args */
+  size_t nDiffCmdValues,    /* Elements in azDiffCmd; 0 for internal */
   const char *zBinGlob,     /* Treat file names matching this as binary */
   int fIncludeBinary,       /* Include binary files for external diff */
   u64 diffFlags             /* Diff flags */
 ){
   if( diffFlags & DIFF_BRIEF ) return;
-  if( zDiffCmd==0 ){
+  if( nDiffCmdValues==0 ){
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
@@ -330,7 +385,8 @@ void diff_file_mem(
     /* Release memory resources */
     blob_reset(&out);
   }else{
-    Blob cmd;
+    size_t n;
+    const char** azFullDiffCmd;
     Blob temp1;
     Blob temp2;
 
@@ -356,14 +412,27 @@ void diff_file_mem(
     blob_write_to_file(pFile1, blob_str(&temp1));
     blob_write_to_file(pFile2, blob_str(&temp2));
 
-    /* Construct the external diff command */
-    blob_zero(&cmd);
-    blob_append(&cmd, zDiffCmd, -1);
-    blob_append_escaped_arg(&cmd, blob_str(&temp1));
-    blob_append_escaped_arg(&cmd, blob_str(&temp2));
+    if( nDiffCmdValues==1 ) {
+      /* Legacy system(3) wrapper method; see diff_file for details. */
+      Blob cmd;          /* Text of command to run */
+      blob_zero(&cmd);
+      blob_append(&cmd, azDiffCmd[0], -1);
+      blob_append_escaped_arg(&cmd, blob_str(&temp1));
+      blob_append_escaped_arg(&cmd, blob_str(&temp2));
 
-    /* Run the external diff command */
-    fossil_system(blob_str(&cmd));
+      /* Run the external diff command */
+      fossil_system(blob_str(&cmd));
+    }else{
+      /* Safer argv[] passing method; see diff_file for details. */
+      azFullDiffCmd = fossil_malloc((nDiffCmdValues+3)*sizeof(char*));
+      for( n=0; n<nDiffCmdValues; ++n ) azFullDiffCmd[n] = azDiffCmd[n];
+      azFullDiffCmd[n++] = blob_str(&temp1);
+      azFullDiffCmd[n++] = blob_str(&temp2);
+      azFullDiffCmd[n] = 0;
+
+      /* Run the external diff command */
+      fossil_spawn(azFullDiffCmd[0], (char*const*)azFullDiffCmd);
+    }
 
     /* Delete the temporary file and clean up memory used */
     file_delete(blob_str(&temp1));
@@ -371,7 +440,6 @@ void diff_file_mem(
 
     blob_reset(&temp1);
     blob_reset(&temp2);
-    blob_reset(&cmd);
   }
 }
 
@@ -380,8 +448,9 @@ void diff_file_mem(
 ** be NULL which means to simply show the difference between the edited
 ** files on disk and the check-out on which they are based.
 **
-** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
-** command zDiffCmd to do the diffing.
+** Use the internal diff logic if nDiffCmdValues is 0.  Otherwise pass the
+** command and args in azDiffCmd along with a pair of file names to
+** fossil_spawn() to do the diffing externally.
 **
 ** When using an external diff program, zBinGlob contains the GLOB patterns
 ** for file names to treat as binary.  If fIncludeBinary is zero, these files
@@ -389,7 +458,8 @@ void diff_file_mem(
 */
 void diff_against_disk(
   const char *zFrom,        /* Version to difference from */
-  const char *zDiffCmd,     /* Use this diff command.  NULL for built-in */
+  const char *azDiffCmd[],  /* External diff cmd and optional args */
+  size_t nDiffCmdValues,    /* Elements in azDiffCmd; 0 for internal */
   const char *zBinGlob,     /* Treat file names matching this as binary */
   int fIncludeBinary,       /* Treat file names matching this as binary */
   u64 diffFlags,            /* Flags controlling diff output */
@@ -501,7 +571,7 @@ void diff_against_disk(
       }
       isBin = fIncludeBinary ? 0 : looks_like_binary(&content);
       diff_print_index(zPathname, diffFlags, diffBlob);
-      diff_file(&content, isBin, zFullName, zPathname, zDiffCmd,
+      diff_file(&content, isBin, zFullName, zPathname, azDiffCmd, nDiffCmdValues,
                 zBinGlob, fIncludeBinary, diffFlags, 0, diffBlob);
       blob_reset(&content);
     }
@@ -514,15 +584,17 @@ void diff_against_disk(
 /*
 ** Run a diff between the undo buffer and files on disk.
 **
-** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
-** command zDiffCmd to do the diffing.
+** Use the internal diff logic if nDiffCmdValues is 0.  Otherwise pass the
+** command and args in azDiffCmd along with a pair of file names to
+** fossil_spawn() to do the diffing externally.
 **
 ** When using an external diff program, zBinGlob contains the GLOB patterns
 ** for file names to treat as binary.  If fIncludeBinary is zero, these files
 ** will be skipped in addition to files that may contain binary content.
 */
 static void diff_against_undo(
-  const char *zDiffCmd,     /* Use this diff command.  NULL for built-in */
+  const char *azDiffCmd[],  /* External diff cmd and optional args */
+  size_t nDiffCmdValues,    /* Elements in azDiffCmd; 0 for internal */
   const char *zBinGlob,     /* Treat file names matching this as binary */
   int fIncludeBinary,       /* Treat file names matching this as binary */
   u64 diffFlags,            /* Flags controlling diff output */
@@ -539,7 +611,7 @@ static void diff_against_undo(
     zFullName = mprintf("%s%s", g.zLocalRoot, zFile);
     db_column_blob(&q, 1, &content);
     diff_file(&content, 0, zFullName, zFile,
-              zDiffCmd, zBinGlob, fIncludeBinary, diffFlags, 0, 0);
+              azDiffCmd, nDiffCmdValues, zBinGlob, fIncludeBinary, diffFlags, 0, 0);
     fossil_free(zFullName);
     blob_reset(&content);
   }
@@ -550,8 +622,9 @@ static void diff_against_undo(
 ** Show the difference between two files identified by ManifestFile
 ** entries.
 **
-** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
-** command zDiffCmd to do the diffing.
+** Use the internal diff logic if nDiffCmdValues is 0.  Otherwise pass the
+** command and args in azDiffCmd along with a pair of file names to
+** fossil_spawn() to do the diffing externally.
 **
 ** When using an external diff program, zBinGlob contains the GLOB patterns
 ** for file names to treat as binary.  If fIncludeBinary is zero, these files
@@ -560,7 +633,8 @@ static void diff_against_undo(
 static void diff_manifest_entry(
   struct ManifestFile *pFrom,
   struct ManifestFile *pTo,
-  const char *zDiffCmd,
+  const char * azDiffCmd[],
+  size_t nDiffCmdValues,
   const char *zBinGlob,
   int fIncludeBinary,
   u64 diffFlags
@@ -592,7 +666,7 @@ static void diff_manifest_entry(
   }
   isBin1 = fIncludeBinary ? 0 : looks_like_binary(&f1);
   isBin2 = fIncludeBinary ? 0 : looks_like_binary(&f2);
-  diff_file_mem(&f1, &f2, isBin1, isBin2, zName, zDiffCmd,
+  diff_file_mem(&f1, &f2, isBin1, isBin2, zName, azDiffCmd, nDiffCmdValues,
                 zBinGlob, fIncludeBinary, diffFlags);
   blob_reset(&f1);
   blob_reset(&f2);
@@ -601,8 +675,9 @@ static void diff_manifest_entry(
 /*
 ** Output the differences between two check-ins.
 **
-** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
-** command zDiffCmd to do the diffing.
+** Use the internal diff logic if nDiffCmdValues is 0.  Otherwise pass the
+** command and args in azDiffCmd along with a pair of file names to
+** fossil_spawn() to do the diffing externally.
 **
 ** When using an external diff program, zBinGlob contains the GLOB patterns
 ** for file names to treat as binary.  If fIncludeBinary is zero, these files
@@ -611,7 +686,8 @@ static void diff_manifest_entry(
 static void diff_two_versions(
   const char *zFrom,
   const char *zTo,
-  const char *zDiffCmd,
+  const char *azDiffCmd[],
+  size_t nDiffCmdValues,
   const char *zBinGlob,
   int fIncludeBinary,
   u64 diffFlags,
@@ -643,7 +719,7 @@ static void diff_two_versions(
           fossil_print("DELETED %s\n", pFromFile->zName);
         }
         if( asNewFlag ){
-          diff_manifest_entry(pFromFile, 0, zDiffCmd, zBinGlob,
+          diff_manifest_entry(pFromFile, 0, azDiffCmd, nDiffCmdValues, zBinGlob,
                               fIncludeBinary, diffFlags);
         }
       }
@@ -654,7 +730,7 @@ static void diff_two_versions(
           fossil_print("ADDED   %s\n", pToFile->zName);
         }
         if( asNewFlag ){
-          diff_manifest_entry(0, pToFile, zDiffCmd, zBinGlob,
+          diff_manifest_entry(0, pToFile, azDiffCmd, nDiffCmdValues, zBinGlob,
                               fIncludeBinary, diffFlags);
         }
       }
@@ -669,7 +745,7 @@ static void diff_two_versions(
         if( diffFlags & DIFF_BRIEF ){
           fossil_print("CHANGED %s\n", pFromFile->zName);
         }else{
-          diff_manifest_entry(pFromFile, pToFile, zDiffCmd, zBinGlob,
+          diff_manifest_entry(pFromFile, pToFile, azDiffCmd, nDiffCmdValues, zBinGlob,
                               fIncludeBinary, diffFlags);
         }
       }
@@ -685,13 +761,13 @@ static void diff_two_versions(
 ** Return the name of the external diff command, or return NULL if
 ** no external diff command is defined.
 */
-const char *diff_command_external(int guiDiff){
+const char ** diff_command_external(size_t *pnValues, int guiDiff){
   const char *zDefault;
   const char *zName;
 
   if( guiDiff ){
 #if defined(_WIN32)
-    zDefault = "WinDiff.exe";
+    zDefault = "[\"WinDiff.exe\"]";
 #else
     zDefault = 0;
 #endif
@@ -700,7 +776,7 @@ const char *diff_command_external(int guiDiff){
     zDefault = 0;
     zName = "diff-command";
   }
-  return db_get(zName, zDefault);
+  return db_get_array(pnValues, zName, zDefault);
 }
 
 /*
@@ -872,7 +948,8 @@ void diff_cmd(void){
   const char *zTo;           /* Target version number */
   const char *zCheckin;      /* Check-in version number */
   const char *zBranch;       /* Branch to diff */
-  const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
+  const char **azDiffCmd;    /* External diff cmd and optional args */
+  size_t nDiffCmdValues = 0; /* Number of elements in azDiffCmd; 0 for internal */
   const char *zBinGlob = 0;  /* Treat file names matching this as binary */
   int fIncludeBinary = 0;    /* Include binary files for external diff */
   int againstUndo = 0;       /* Diff against files in the undo buffer */
@@ -919,8 +996,15 @@ void diff_cmd(void){
     db_find_and_open_repository(0, 0);
   }
   if( !isInternDiff ){
-    zDiffCmd = find_option("command", 0, 1);
-    if( zDiffCmd==0 ) zDiffCmd = diff_command_external(isGDiff);
+    const char *zDiffCmd = find_option("command", 0, 1);
+    if( zDiffCmd ){
+      azDiffCmd = malloc(2*sizeof(char*));
+      azDiffCmd[0] = zDiffCmd;
+      azDiffCmd[1] = 0;
+      nDiffCmdValues = 1;
+    }else{
+      azDiffCmd = diff_command_external(&nDiffCmdValues, isGDiff);
+    }
   }
   zBinGlob = diff_get_binary_glob();
   fIncludeBinary = diff_include_binary_files();
@@ -960,13 +1044,13 @@ void diff_cmd(void){
       fossil_print("No undo or redo is available\n");
       return;
     }
-    diff_against_undo(zDiffCmd, zBinGlob, fIncludeBinary,
+    diff_against_undo(azDiffCmd, nDiffCmdValues, zBinGlob, fIncludeBinary,
                       diffFlags, pFileDir);
   }else if( zTo==0 ){
-    diff_against_disk(zFrom, zDiffCmd, zBinGlob, fIncludeBinary,
+    diff_against_disk(zFrom, azDiffCmd, nDiffCmdValues, zBinGlob, fIncludeBinary,
                       diffFlags, pFileDir, 0);
   }else{
-    diff_two_versions(zFrom, zTo, zDiffCmd, zBinGlob, fIncludeBinary,
+    diff_two_versions(zFrom, zTo, azDiffCmd, nDiffCmdValues, zBinGlob, fIncludeBinary,
                       diffFlags, pFileDir);
   }
   if( pFileDir ){
@@ -1002,5 +1086,5 @@ void vpatch_page(void){
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();
 
   cgi_set_content_type("text/plain");
-  diff_two_versions(zFrom, zTo, 0, 0, 0, DIFF_VERBOSE, 0);
+  diff_two_versions(zFrom, zTo, 0, 0, 0, 0, DIFF_VERBOSE, 0);
 }

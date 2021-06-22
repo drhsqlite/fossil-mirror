@@ -1,5 +1,5 @@
-C Constness\sfix\sto\sthe\snew\sfossil_spawn()\sfunction\sto\savoid\scompiler\ncomplaints\son\scurrent\smacOS.
-D 2021-06-22T07:56:13.835
+C Converted\s"fossil\sdiff"\sand\s"fossil\sgdiff"\sto\sthe\snew\sarray-based\nsetting\smechanism.\s\sThe\slegacy\ssystem(3)\sstyle\sshell\scommand\sstring\nmethods\sare\sstill\savailable\sfor\suse\swith\s--command\sand\slegacy\nsingle-string\ssettings,\sbut\sif\syou\spass\s2+\svalues\sto\s"fossil\ssetting\ndiff-command\sVALUES..."\s(ditto\sgdiff-command)\sit's\snow\sstored\sas\san\narray,\striggering\sthis\snew\smechanism.\s\sThis\spermits\sold\ssettings\sto\ncontinue\sworking,\sletting\syou\supgrade\sto\sthe\snew\smechanism\sat\swill.
+D 2021-06-22T08:34:17.780
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -444,7 +444,7 @@ F src/carray.c 6f1b301692ffa0c20be274fbf68bc46c6f154d3606d0bd334976f4f8dcd9f987
 F src/cgi.c 275c601c28715fe0cabb4ea112bb5ed44eb95218c9c492996c92c112a91dbc24
 F src/chat.c 16c8a4153109c86055dda4df7ca5d112355195d56cb98a3bb590e4640b414e92
 F src/chat.js 1fb9f7cd1b14b2cf750466ebba7d33edd0f6c6d5c87dd9e17d127b8a9e216239
-F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
+F src/checkin.c a2d7b8ac83f7edf756cfaeaa8a811c3847b185ff70245e34eea0d3b878c70e57
 F src/checkout.c 59f7dd99c811ca6ab766fedcc7d950c027581c79619f320b63540fd927ca9fb8
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -460,7 +460,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 439b11e466bc2a0be6cf5d4583390b0ebb6ec94ab4d77ca5183c55249669e6ac
+F src/db.c 841d3c9a6e73da8576a1e2025d84bc546ad236da6bfd010edbb155063b9f46b4
 F src/default.css b6ae1a78d07373b42115ce7da9aec815d6f9363c675e0afa82d7c90ab116e742
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -468,7 +468,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
 F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 3d52fe7c64d6a7be80595435dbd9d3a341934fe16413d918d4974599f6434a9f
+F src/diffcmd.c ef267f909204bdf3b887e3398a9a6d963c4bc47d1982cef3601556099cbe1fcc
 F src/dispatch.c 6f416461a0c7e4eb704f564dca8fe47015cf61eb20b3a143ee624546e4a99405
 F src/doc.c 17e711cb39953153c43b31a578793208c3350ae796f416aacba9ea95c80949f2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -613,7 +613,7 @@ F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
 F src/sqlite3.c 2a8e87aaa414ac2d45ace8eb74e710935423607a8de0fafcb36bbde5b952d157
 F src/sqlite3.h e1177dfd1f7752dcbf826f2826e9fcf6f4733c760890ef4be82522b2073c11a9
-F src/stash.c ecadfa624364d2f3d453da57e55d2bfb7699d586c432cae477e13b78e41283b3
+F src/stash.c 5b457f01f4c862c699ed6f3802f3c0f53e5856216c4999a170b31d49e5cbe8ed
 F src/stat.c 7654ac3439fb00ad01943af0f9b568214169e19a04471ab7746898e498bdd58b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
@@ -995,7 +995,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 765acbc080804aa61066b9c15a7bb355b883053784258a1d4f477ad545f592f1
-R e25262778805c6c3172a7d553ed7ac5c
+P eefb8e64ed9b0e99e44a8ae30997167b6ca045d0a951ff732a75617e840ad864
+R 1d9f7c7ccdef53569ac96feae5dc5821
 U wyoung
-Z e03c8fc14f1a40a6f2d7de063417d8cd
+Z ba9b71ea8546df9bc10dabac1a007426

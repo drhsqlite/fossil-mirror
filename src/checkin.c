@@ -1360,7 +1360,7 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-      diff_against_disk(0, 0, diff_get_binary_glob(),
+      diff_against_disk(0, 0, 0, diff_get_binary_glob(),
                         db_get_boolean("diff-binary", 1),
                         DIFF_VERBOSE, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
@@ -1368,7 +1368,7 @@ static void prepare_commit_comment(
       }
       fossil_free(diffFiles);
     }else{
-      diff_against_disk(0, 0, diff_get_binary_glob(),
+      diff_against_disk(0, 0, 0, diff_get_binary_glob(),
                         db_get_boolean("diff-binary", 1),
                         DIFF_VERBOSE, 0, &prompt);
     }

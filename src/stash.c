@@ -404,7 +404,8 @@ static void stash_apply(int stashid, int nConflict){
 */
 static void stash_diff(
   int stashid,             /* The stash entry to diff */
-  const char *zDiffCmd,    /* Command used for diffing */
+  const char *azDiffCmd[],  /* External diff cmd and optional args */
+  size_t nDiffCmdValues,   /* Elements in azDiffCmd; 0 for internal */
   const char *zBinGlob,    /* GLOB pattern to determine binary files */
   int fBaseline,           /* Diff against original baseline check-in if true */
   int fIncludeBinary,      /* Do diffs against binary files */
@@ -433,7 +434,7 @@ static void stash_diff(
       diff_print_index(zNew, diffFlags, 0);
       isBin1 = 0;
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      diff_file_mem(&empty, &a, isBin1, isBin2, zNew, zDiffCmd,
+      diff_file_mem(&empty, &a, isBin1, isBin2, zNew, azDiffCmd, nDiffCmdValues,
                     zBinGlob, fIncludeBinary, diffFlags);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
@@ -442,7 +443,7 @@ static void stash_diff(
       if( fBaseline ){
         content_get(rid, &a);
         isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
-        diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
+        diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, azDiffCmd, nDiffCmdValues,
                       zBinGlob, fIncludeBinary, diffFlags);
       }else{
       }
@@ -462,11 +463,11 @@ static void stash_diff(
         isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
         if( fBaseline ){
           diff_file_mem(&a, &b, isBin1, isBin2, zNew,
-                        zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+                        azDiffCmd, nDiffCmdValues, zBinGlob, fIncludeBinary, diffFlags);
         }else{
           /*Diff with file on disk using fSwapDiff=1 to show the diff in the
             same direction as if fBaseline=1.*/
-          diff_file(&b, isBin2, zOPath, zNew, zDiffCmd,
+          diff_file(&b, isBin2, zOPath, zNew, azDiffCmd, nDiffCmdValues,
               zBinGlob, fIncludeBinary, diffFlags, 1, 0);
         }
         blob_reset(&a);
@@ -740,7 +741,8 @@ void stash_cmd(void){
    || memcmp(zCmd, "cat", nCmd)==0
    || memcmp(zCmd, "gcat", nCmd)==0
   ){
-    const char *zDiffCmd = 0;
+    const char **azDiffCmd = 0;
+    size_t nDiffCmdValues = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
     int fBaseline = 0;
@@ -755,17 +757,17 @@ void stash_cmd(void){
       return;
     }
     if( find_option("internal","i",0)==0 ){
-      zDiffCmd = diff_command_external(zCmd[0]=='g');
+      azDiffCmd = diff_command_external(&nDiffCmdValues, zCmd[0]=='g');
     }
     diffFlags = diff_options();
     if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
     if( g.argc>4 ) usage(mprintf("%s ?STASHID? ?DIFF-OPTIONS?", zCmd));
-    if( zDiffCmd ){
+    if( nDiffCmdValues==0 ){
       zBinGlob = diff_get_binary_glob();
       fIncludeBinary = diff_include_binary_files();
     }
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    stash_diff(stashid, zDiffCmd, zBinGlob, fBaseline, fIncludeBinary,
+    stash_diff(stashid, azDiffCmd, nDiffCmdValues, zBinGlob, fBaseline, fIncludeBinary,
                diffFlags);
   }else
   if( memcmp(zCmd, "help", nCmd)==0 ){
