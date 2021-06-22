@@ -1,5 +1,5 @@
-C Minor\sfixes\sto\sthe\scleanup\sof\sthe\s"patchcmd.md"\sdocument.
-D 2021-06-22T15:18:04.009
+C The\sdefault\s"ssh"\scomand\sis\snow\salways\s"ssh".\s\sOmit\sthe\slegacy\s"plink"\nalternative\son\sWindows\sas\sWindows\smachines\snow\sgenerally\sall\ssupport\sssh.
+D 2021-06-22T15:37:00.079
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -513,7 +513,7 @@ F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
 F src/http_ssl.c e41634a8e4486041dbe70162bb8a80f88aea38bd3a5446f948b711fa2a3c89dc
-F src/http_transport.c b6a727772180df77b90c1c26ae3f06512854a6c73a165cbacc6a53716291affc
+F src/http_transport.c 2fec79d9e3718c97a0fd6f8d82533c57125abdd115e03f66f0216a99d1a3e1a8
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c 2b1cfb724e719db74dc7451594b1d78cc4bfa073219aa66dcc5eda685d8a45a2
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0d61109e114511acd69b965a72cb4169fb2f6ff58ba67e805d5771bbbbd393f
-R 5c01a16a123cfcd562060aa9ef955a03
+P 990019346ea1588d73757cabd067ce11bbe547e94bf98d327fec17e711ae0907
+R 1b61899600a59b0eedfe59950ca7f885
 U drh
-Z af032651956fbc485c1d92c7a3126b76
+Z 2c9c76d8d049ff43a8335d451797f119

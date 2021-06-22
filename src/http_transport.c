@@ -94,7 +94,7 @@ static int is_safe_fossil_command(const char *zFossil){
 /*
 ** Default SSH command
 */
-#ifdef _WIN32
+#if 0 /* was: defined(_WIN32).  Windows generally has ssh now. */
 static const char zDefaultSshCmd[] = "plink -ssh -T";
 #else
 static const char zDefaultSshCmd[] = "ssh -e none -T";
