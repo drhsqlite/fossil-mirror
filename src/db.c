@@ -4520,19 +4520,20 @@ void test_json_serialize_array_cmd(void){
 */
 const char* json_serialize_array(char* const azValues[], size_t nValues){
   Stmt q;
-  sqlite3* db;
-  sqlite3_open(":memory:", &db);
-  sqlite3_carray_init(db, 0, 0);
+  sqlite3 *old_g_db = g.db;
+  sqlite3_open(":memory:", &g.db);
+  sqlite3_carray_init(g.db, 0, 0);
   db_prepare(&q, "SELECT json_group_array(value) FROM carray(?1)");
   if( sqlite3_carray_bind(q.pStmt, 1, (void*)azValues, nValues, CARRAY_TEXT,
         SQLITE_STATIC)!= SQLITE_OK){
     fossil_fatal("Could not bind argv array for JSON: %s\n",
-        sqlite3_errmsg(db));
+        sqlite3_errmsg(g.db));
   }
   if( db_step(&q)==SQLITE_ROW ){
     const char* ret = fossil_strdup(db_column_text(&q, 0));
     db_finalize(&q);
-    sqlite3_close(db);
+    sqlite3_close(g.db);
+    g.db = old_g_db;
     return ret;
   }else{ 
     fossil_fatal("SQLite error: %s", sqlite3_errmsg(g.db));
