@@ -30,7 +30,7 @@ it as an email attachment.
 
 ## Setup
 
-The "fossil push" and "fossil pull" commands will only work if you have
+The "fossil patch push" and "fossil patch pull" commands will only work if you have
 "ssh" available on the local machine and if "fossil" is on the default
 PATH on the remote machine.
 

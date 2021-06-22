@@ -1,5 +1,5 @@
-C Add\sthe\sfact\sthat\s"ssh"\sis\snow\sused\sby\sWindows\sto\sthe\schange\slog.
-D 2021-06-22T15:43:42.985
+C Minor\sdoc\scorrection.
+D 2021-06-22T15:51:22.985
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -933,7 +933,7 @@ F www/mirrortogithub.md 4b196dcc6b67781b1923297e35c4bac25ac996d9b0ec6d03d9cd3221
 F www/mkindex.tcl 7bf909acda7ff59f71a4b0385867af7c505e86a0906ebc50bb6d1f6c28fe041c x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/patchcmd.md 408e1e00d7f7cb6630ef915737a05bc6e6212c7e78fa83d4ea0a3cf1aadbc6df
+F www/patchcmd.md 21b6c82aae6a9c1f2d487aa2a28638183a6129f486de631b87676d7b19273e53
 F www/permutedindex.html 3e1ae6c1a27a1c93293783b9525b363d1ec9b0b0e28efec7cbbc9da26efd067d
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
@@ -996,7 +996,6 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 38567237d7ffd5585f02c0e8ce045849a7026bd4dbde2944d0c14910e2eea472
-R 0d1e991cce00b3fdadc2c7bbb879d79f
-U drh
-Z 6118ae801be3baffc62055c799e62117
+P 775860ad2e5fab79022f6bc763e7541e0577d05b8f4e9b39c23259706d509534
+U stephan
+Z 3fac1c2aa62bcc043dba499e92f8c54f
