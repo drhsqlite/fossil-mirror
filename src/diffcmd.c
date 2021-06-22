@@ -952,7 +952,7 @@ void diff_cmd(void){
   const char *zTo;           /* Target version number */
   const char *zCheckin;      /* Check-in version number */
   const char *zBranch;       /* Branch to diff */
-  const char **azDiffCmd;    /* External diff cmd and optional args */
+  const char **azDiffCmd = 0;/* External diff cmd and optional args */
   size_t nDiffCmdValues = 0; /* Number of elements in azDiffCmd; 0 for internal */
   const char *zBinGlob = 0;  /* Treat file names matching this as binary */
   int fIncludeBinary = 0;    /* Include binary files for external diff */

@@ -1,5 +1,5 @@
-C Removed\sa\sfew\sbits\sof\ssrc/carray.c\sthat\sare\sonly\sneeded\sto\sallow\nbuilding\sthe\smodule\sas\sa\sloadable\sextension.\s\sThis\sgoes\sbeyond\scode\nminimalism,\sbecause\sone\sof\sthe\slines\sreferenced\sa\sheader\swe\sdon't\nprovide\swithin\sFossil,\ssqlite3ext.h,\swhich\smeans\sthe\sonly\sreason\sthis\nbranch\scompiled\sbefore\sis\sthat\sit\swas\spicking\sup\sthje\ssystem\sversion,\nrisking\sa\sversion\smismatch\swhen\sbuilding\sagainst\sthe\sinternal\sSQLite.\nBuild\sbug\scaught\sby\sinitial\swork\son\sthe\sMinGW\sport,\swhich\sdoesn't\nprovide\sthat\sheader.
-D 2021-06-22T16:29:06.776
+C Initialized\sa\spointer\sto\s0\sto\ssquish\sa\sbogus\scomplaint\sfrom\sGCC\s11\son\nMinGW\s9.\s\sThe\scode\spasses\sASAN\son\smacOS\sClang\swithout\sthis,\sso\sI\sbelieve\nGCC\sis\sjust\sdoing\sover-eager\sstatic\sanalysis\sacross\sfunction\scalls,\snot\nrealizing\sthat\sthe\spointer\s*will*\sbe\sinitialized\sbefore\sit's\sused.
+D 2021-06-22T16:36:38.374
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -468,7 +468,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
 F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 9fbcf080d3cf0b5e7813c8550620bfed4ee30af85090bb5282aecc2e63902491
+F src/diffcmd.c 979f5af04121cf75e0cab664fd401c29d7d80ac476482446f26d6e8141c8c11d
 F src/dispatch.c 6f416461a0c7e4eb704f564dca8fe47015cf61eb20b3a143ee624546e4a99405
 F src/doc.c 17e711cb39953153c43b31a578793208c3350ae796f416aacba9ea95c80949f2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -995,7 +995,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bcf3abd56df7e0ddd00aee06fe5d2299d9752e5fc4ffb18337b2abe18f53bd2
-R 7b03386f4b869ea12d36b6cca0d45e88
+P 202ea753e48cd2f3a2167e573542f6a63cda794c7200a6862e86f78768237a3f
+R 4953ec73fe806732f09fb86e1c7ddd5b
 U wyoung
-Z 3cf992851f738e18de8a77cf91f67325
+Z 2b743e675cc7c1dec946fbe77c280678
