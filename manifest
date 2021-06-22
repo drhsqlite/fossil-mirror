@@ -1,5 +1,5 @@
-C Earlier\srefactoring\sbroke\sthe\snew\sarray-based\ssetting\smethod:\sgot\sa\nlittle\stoo\sclever\swith\smy\suse\sof\sDB\shandles.
-D 2021-06-22T08:46:03.583
+C Removed\sa\sfew\sbits\sof\ssrc/carray.c\sthat\sare\sonly\sneeded\sto\sallow\nbuilding\sthe\smodule\sas\sa\sloadable\sextension.\s\sThis\sgoes\sbeyond\scode\nminimalism,\sbecause\sone\sof\sthe\slines\sreferenced\sa\sheader\swe\sdon't\nprovide\swithin\sFossil,\ssqlite3ext.h,\swhich\smeans\sthe\sonly\sreason\sthis\nbranch\scompiled\sbefore\sis\sthat\sit\swas\spicking\sup\sthje\ssystem\sversion,\nrisking\sa\sversion\smismatch\swhen\sbuilding\sagainst\sthe\sinternal\sSQLite.\nBuild\sbug\scaught\sby\sinitial\swork\son\sthe\sMinGW\sport,\swhich\sdoesn't\nprovide\sthat\sheader.
+D 2021-06-22T16:29:06.776
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -440,7 +440,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/carray.c 6f1b301692ffa0c20be274fbf68bc46c6f154d3606d0bd334976f4f8dcd9f987
+F src/carray.c 2d5cc1afde431f8da083dc7210dca93c1cb91bbd48f1ee342038818e0ce8a376
 F src/cgi.c 275c601c28715fe0cabb4ea112bb5ed44eb95218c9c492996c92c112a91dbc24
 F src/chat.c 16c8a4153109c86055dda4df7ca5d112355195d56cb98a3bb590e4640b414e92
 F src/chat.js 1fb9f7cd1b14b2cf750466ebba7d33edd0f6c6d5c87dd9e17d127b8a9e216239
@@ -995,7 +995,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c625c259a13b9b7619d80b91bcd973c33eb41d3aec53889d2f14dde7da6e6ad3
-R 0a75c18d193de6205dff3a5c759d68a2
+P 3bcf3abd56df7e0ddd00aee06fe5d2299d9752e5fc4ffb18337b2abe18f53bd2
+R 7b03386f4b869ea12d36b6cca0d45e88
 U wyoung
-Z 7ae98f61ac2b752e7e2e2f1b754d1047
+Z 3cf992851f738e18de8a77cf91f67325

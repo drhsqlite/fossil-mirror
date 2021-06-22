@@ -53,8 +53,7 @@
 ** the array, element by element.
 */
 #define SQLITE_CORE
-#include "sqlite3ext.h"
-SQLITE_EXTENSION_INIT1
+#include "sqlite3.h"
 #include <assert.h>
 #include <string.h>
 #include "carray.h"
@@ -511,7 +510,6 @@ int sqlite3_carray_init(
   const sqlite3_api_routines *pApi
 ){
   int rc = SQLITE_OK;
-  SQLITE_EXTENSION_INIT2(pApi);
 #ifndef SQLITE_OMIT_VIRTUALTABLE
   rc = sqlite3_create_module(db, "carray", &carrayModule, 0);
 #ifdef SQLITE_TEST
