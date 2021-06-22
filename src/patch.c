@@ -22,11 +22,21 @@
 #include <assert.h>
 
 /*
+** Additional windows configuration for popen */
+#if defined(_WIN32)
+#  include <io.h>
+#  include <fcntl.h>
+#  undef popen
+#  define popen _popen
+#endif
+
+/*
 ** Flags passed from the main patch_cmd() routine into subfunctions used
 ** to implement the various subcommands.
 */
 #define PATCH_DRYRUN   0x0001
 #define PATCH_VERBOSE  0x0002
+#define PATCH_FORCE    0x0004
 
 /*
 ** Implementation of the "readfile(X)" SQL function.  The entire content
@@ -115,7 +125,7 @@ static void mkdeltaFunc(
 ** Generate a binary patch file and store it into the file
 ** named zOut.
 */
-void patch_create(const char *zOut){
+void patch_create(const char *zOut, FILE *out){
   int vid;
 
   if( zOut && file_isdir(zOut, ExtFILE)!=0 ){
@@ -149,9 +159,6 @@ void patch_create(const char *zOut){
   db_multi_exec(
     "INSERT INTO patch.cfg(key,value)"
     "SELECT 'baseline',uuid FROM blob WHERE rid=%d", vid);
-  if( db_exists("SELECT 1 FROM vmerge") ){
-    db_multi_exec("INSERT INTO patch.cfg(key,value)VALUES('merged',1);");
-  }
   
   /* New files */
   db_multi_exec(
@@ -200,10 +207,9 @@ void patch_create(const char *zOut){
     if( pData==0 ){
       fossil_fatal("out of memory");
     }
-    fossil_print("%025lld\n", sz);
-    fwrite(pData, sz, 1, stdout);
+    fwrite(pData, sz, 1, out);
     sqlite3_free(pData); 
-    fflush(stdout);
+    fflush(out);
   }
 }
 
@@ -211,38 +217,24 @@ void patch_create(const char *zOut){
 ** Attempt to load and validate a patchfile identified by the first
 ** argument.
 */
-void patch_attach(const char *zIn){
+void patch_attach(const char *zIn, FILE *in){
   Stmt q;
   if( g.db==0 ){
     sqlite3_open(":memory:", &g.db);
   }
   if( zIn==0 ){
-    char zBuf[26];
-    size_t n;
-    sqlite3_int64 sz;
-    unsigned char *aIn;
-
-    n = fread(zBuf, sizeof(zBuf), 1, stdin);
-    if( n!=1 ){
-      fossil_fatal("unable to read size of input\n");
-    }
-    zBuf[sizeof(zBuf)-1] = 0;
-    sz = atoll(zBuf);
-    if( sz<512 || (sz%512)!=0 ){
-      fossil_fatal("bad size for input: %lld", sz);
-    }
-    aIn = sqlite3_malloc64( sz );
-    if( aIn==0 ){
-      fossil_fatal("out of memory");
-    }
-    n = fread(aIn, 1, sz, stdin);
-    if( n!=sz ){
-      fossil_fatal("got only %lld of %lld input bytes",
-              (sqlite3_int64)n, sz);
-    }
+    Blob buf;
+    int rc;
+    int sz;
+    const unsigned char *pData;
+    blob_init(&buf, 0, 0);
+    sz = blob_read_from_channel(&buf, in, -1);
+    pData = (const unsigned char*)blob_buffer(&buf);
     db_multi_exec("ATTACH ':memory:' AS patch");
-    sqlite3_deserialize(g.db, "patch", aIn, sz, sz,
-                        SQLITE_DESERIALIZE_FREEONCLOSE);
+    rc = sqlite3_deserialize(g.db, "patch", pData, sz, sz, 0);
+    if( rc ){
+      fossil_fatal("cannot open patch database: %s", sqlite3_errmsg(g.db));
+    }
   }else if( !file_isfile(zIn, ExtFILE) ){
     fossil_fatal("no such file: %s", zIn);
   }else{
@@ -312,6 +304,10 @@ void patch_view(void){
 void patch_apply(unsigned mFlags){
   Stmt q;
   Blob cmd;
+
+  if( (mFlags & PATCH_FORCE)==0 && unsaved_changes(0) ){
+    fossil_fatal("there are unsaved changes in the current checkout");
+  }
   blob_init(&cmd, 0, 0);
   file_chdir(g.zLocalRoot, 0);
   db_prepare(&q,
@@ -505,6 +501,103 @@ void patch_apply(unsigned mFlags){
   }
 }
 
+/*
+** Find the filename of the patch file to be used by
+** "fossil patch apply" or "fossil patch create".
+**
+** If the name is "-" return NULL.
+**
+** Otherwise, if there is a prior DIRECTORY argument, or if
+** the --dir64 option is present, first chdir to the specified
+** directory, and translate the name in the argument accordingly.
+**
+**
+** The returned name is obtained from fossil_malloc() and should
+** be freed by the caller.
+*/
+static char *patch_find_patch_filename(const char *zCmdName){
+  const char *zDir64 = find_option("dir64",0,1);
+  const char *zDir = 0;
+  const char *zBaseName;
+  char *zToFree = 0;
+  char *zPatchFile = 0;
+  if( zDir64 ){
+    zToFree = decode64(zDir64, 0);
+    zDir = zToFree;
+  }
+  verify_all_options();
+  if( g.argc!=4 && g.argc!=5 ){
+    usage(mprintf("%s [DIRECTORY] FILENAME", zCmdName));
+  }
+  if( g.argc==5 ){
+    zDir = g.argv[3];
+    zBaseName = g.argv[4];
+  }else{
+    zBaseName = g.argv[3];
+  }
+  if( fossil_strcmp(zBaseName, "-")==0 ){
+    zPatchFile = 0;
+  }else if( zDir ){
+    zPatchFile = file_canonical_name_dup(g.argv[4]);
+  }else{
+    zPatchFile = fossil_strdup(g.argv[3]);
+  }
+  if( zDir && file_chdir(zDir,0) ){
+    fossil_fatal("cannot change to directory \"%s\"", zDir);
+  }
+  fossil_free(zToFree);
+  return zPatchFile;
+}
+
+/*
+** Create a FILE* that will execute the remote side of a push or pull
+** using ssh (probably) or fossil for local pushes and pulls.  Return
+*/
+static FILE *patch_remote_command(
+  unsigned mFlags,             /* flags */
+  const char *zThisCmd,        /* "push" or "pull" */
+  const char *zRemoteCmd,      /* "apply" or "create" */
+  const char *zRW              /* "w" or "r" */
+){
+  char *zRemote;
+  char *zDir;
+  Blob cmd;
+  FILE *f;
+  const char *zForce = (mFlags & PATCH_FORCE)!=0 ? " -f" : "";
+  if( g.argc!=4 ){
+    usage(mprintf("%s [USER@]HOST:DIRECTORY", zThisCmd));
+  }
+  zRemote = fossil_strdup(g.argv[3]);
+  zDir = strchr(zRemote,':');
+  if( zDir==0 ){
+    zDir = zRemote;
+    blob_init(&cmd, 0, 0);
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_appendf(&cmd, " patch %s%s %$ -", zRemoteCmd, zForce, zDir);
+  }else{
+    Blob remote;
+    zDir[0] = 0;
+    zDir++;
+    transport_ssh_command(&cmd);
+    blob_append_escaped_arg(&cmd, zRemote);
+    blob_init(&remote, 0, 0);
+    blob_appendf(&remote, "fossil patch %s%s --dir64 %z -", 
+                 zRemoteCmd, zForce, encode64(zDir, -1));
+    blob_append_escaped_arg(&cmd, blob_str(&remote));
+    blob_reset(&remote);
+  }
+  if( mFlags & PATCH_VERBOSE ){
+    fossil_print("# %s\n", blob_str(&cmd));
+    fflush(stdout);
+  }
+  f = popen(blob_str(&cmd), zRW);
+  if( f==0 ){
+    fossil_fatal("cannot run command: %s", blob_str(&cmd));
+  }
+  blob_reset(&cmd);
+  return f;
+}
+
 
 /*
 ** COMMAND: patch
@@ -547,6 +640,11 @@ void patch_apply(unsigned mFlags){
 **       Create a patch on a remote check-out, transfer that patch to the
 **       local machine (using ssh) and apply the patch in the local checkout.
 **
+**           -f|--force     Apply the patch even though there are unsaved
+**                          changes in the current check-out.
+**           -n|--dryrun    Do nothing, but print what would have happened.
+**           -v|--verbose   Extra output explaining what happens.
+**
 ** > fossil patch view FILENAME
 **
 **       View a summary of the the changes in the binary patch FILENAME.
@@ -562,60 +660,52 @@ void patch_cmd(void){
   zCmd = g.argv[2];
   n = strlen(zCmd);
   if( strncmp(zCmd, "apply", n)==0 ){
-    int forceFlag = find_option("force","f",0)!=0;
+    char *zIn;
     unsigned flags = 0;
-    const char *zIn;
     if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
-    verify_all_options();
-    if( g.argc!=4 && g.argc!=5 ){
-      usage("apply [DIRECTORY] FILENAME");
-    }
-    if( g.argc==5 ){
-      file_chdir(g.argv[3], 0);
-      zIn = g.argv[4];
-    }else{
-      zIn = g.argv[3];
-    }
+    if( find_option("force","f",0) )    flags |= PATCH_FORCE;
+    zIn = patch_find_patch_filename("apply");
     db_must_be_within_tree();
-    if( !forceFlag && unsaved_changes(0) ){
-      fossil_fatal("there are unsaved changes in the current checkout");
-    }
-    if( fossil_strcmp(zIn,"-")==0 ) zIn = 0;
-    patch_attach(zIn);
+    patch_attach(zIn, stdin);
     patch_apply(flags);
+    fossil_free(zIn);
   }else
   if( strncmp(zCmd, "create", n)==0 ){
-    const char *zOut;
-    verify_all_options();
-    if( g.argc!=4 && g.argc!=5 ){
-      usage("create [DIRECTORY] FILENAME");
-    }
-    if( g.argc==5 ){
-      file_chdir(g.argv[3], 0);
-      zOut = g.argv[4];
-    }else{
-      zOut = g.argv[3];
-    }
-    if( fossil_strcmp(zOut, "-")==0 ) zOut = 0;
+    char *zOut;
+    zOut = patch_find_patch_filename("create");
     db_must_be_within_tree();
-    patch_create(zOut);
+    patch_create(zOut, stdout);
+    fossil_free(zOut);
   }else
   if( strncmp(zCmd, "pull", n)==0 ){
+    FILE *pIn = 0;
+    unsigned flags = 0;
+    if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
+    if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
+    if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();
     verify_all_options();
-    if( g.argc!=4 ){
-      usage("pull REMOTE-CHECKOUT");
+    pIn = patch_remote_command(flags & (~PATCH_FORCE), "pull", "create", "r");
+    if( pIn ){
+      patch_attach(0, pIn);
+      pclose(pIn);
+      patch_apply(flags);
     }
-    fossil_print("TBD...\n");
   }else
   if( strncmp(zCmd, "push", n)==0 ){
+    FILE *pOut = 0;
+    unsigned flags = 0;
+    if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
+    if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
+    if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();
     verify_all_options();
-    if( g.argc!=4 ){
-      usage("push REMOTE-CHECKOUT");
+    pOut = patch_remote_command(flags, "push", "apply", "w");
+    if( pOut ){
+      patch_create(0, pOut);
+      pclose(pOut);
     }
-    fossil_print("TBD...\n");
   }else
   if( strncmp(zCmd, "view", n)==0 ){
     const char *zIn;
@@ -625,7 +715,7 @@ void patch_cmd(void){
     }
     zIn = g.argv[3];
     if( fossil_strcmp(zIn, "-")==0 ) zIn = 0;
-    patch_attach(zIn);
+    patch_attach(zIn, stdin);
     patch_view();
   }else
   {
