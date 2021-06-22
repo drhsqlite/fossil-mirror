@@ -28,6 +28,8 @@
 #  include <fcntl.h>
 #  undef popen
 #  define popen _popen
+#  undef pclose
+#  define pclose _pclose
 #endif
 
 /*
@@ -207,6 +209,10 @@ void patch_create(const char *zOut, FILE *out){
     if( pData==0 ){
       fossil_fatal("out of memory");
     }
+#ifdef _WIN32
+    fflush(out);
+    _setmode(_fileno(out), _O_BINARY);
+#endif
     fwrite(pData, sz, 1, out);
     sqlite3_free(pData); 
     fflush(out);
@@ -228,6 +234,9 @@ void patch_attach(const char *zIn, FILE *in){
     int sz;
     unsigned char *pData;
     blob_init(&buf, 0, 0);
+#ifdef _WIN32
+    _setmode(_fileno(in), _O_BINARY);
+#endif
     sz = blob_read_from_channel(&buf, in, -1);
     pData = (unsigned char*)blob_buffer(&buf);
     db_multi_exec("ATTACH ':memory:' AS patch");
