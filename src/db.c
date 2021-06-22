@@ -4487,6 +4487,33 @@ void test_timespan_cmd(void){
 }
 
 /*
+** COMMAND: test-json-carray
+**
+** Serializes the passed arguments as a JSON array of strings, proving that
+** the JSON1 and Carray SQLite extensions are cooperating.
+*/
+void test_json_carray_cmd(void){
+  Stmt q;
+  sqlite3_open(":memory:", &g.db);
+  sqlite3_carray_init(g.db, 0, 0);
+  db_prepare(&q, "SELECT json_group_array(value) FROM carray(?1)");
+  if( sqlite3_carray_bind(q.pStmt, 1, g.argv+2, g.argc-2, CARRAY_TEXT,
+        SQLITE_STATIC)!= SQLITE_OK){
+    fossil_fatal("Could not bind argv array: %s\n", sqlite3_errmsg(g.db));
+  }
+  if( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%s\n", db_column_text(&q, 0));
+  }else{ 
+    fossil_fatal("SQLite error: %s", sqlite3_errmsg(g.db));
+  }
+  db_finalize(&q);
+  sqlite3_close(g.db);
+  g.db = 0;
+  g.repositoryOpen = 0;
+  g.localOpen = 0;
+}
+
+/*
 ** COMMAND: test-without-rowid
 **
 ** Usage: %fossil test-without-rowid FILENAME...

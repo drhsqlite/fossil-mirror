@@ -385,6 +385,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\cache_.c" \
         "$(OX)\capabilities_.c" \
         "$(OX)\captcha_.c" \
+        "$(OX)\carray_.c" \
         "$(OX)\cgi_.c" \
         "$(OX)\chat_.c" \
         "$(OX)\checkin_.c" \
@@ -640,6 +641,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\cache$O" \
         "$(OX)\capabilities$O" \
         "$(OX)\captcha$O" \
+        "$(OX)\carray$O" \
         "$(OX)\cgi$O" \
         "$(OX)\chat$O" \
         "$(OX)\checkin$O" \
@@ -870,6 +872,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\cache.obj" >> $@
 	echo "$(OX)\capabilities.obj" >> $@
 	echo "$(OX)\captcha.obj" >> $@
+	echo "$(OX)\carray.obj" >> $@
 	echo "$(OX)\cgi.obj" >> $@
 	echo "$(OX)\chat.obj" >> $@
 	echo "$(OX)\checkin.obj" >> $@
@@ -1329,6 +1332,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\captcha_.c"
 
 "$(OX)\captcha_.c" : "$(SRCDIR)\captcha.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\carray$O" : "$(OX)\carray_.c" "$(OX)\carray.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\carray_.c"
+
+"$(OX)\carray_.c" : "$(SRCDIR)\carray.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\cgi$O" : "$(OX)\cgi_.c" "$(OX)\cgi.h"
@@ -2132,6 +2141,7 @@ realclean: clean
 			"$(OX)\cache_.c":"$(OX)\cache.h" \
 			"$(OX)\capabilities_.c":"$(OX)\capabilities.h" \
 			"$(OX)\captcha_.c":"$(OX)\captcha.h" \
+			"$(OX)\carray_.c":"$(OX)\carray.h" \
 			"$(OX)\cgi_.c":"$(OX)\cgi.h" \
 			"$(OX)\chat_.c":"$(OX)\chat.h" \
 			"$(OX)\checkin_.c":"$(OX)\checkin.h" \

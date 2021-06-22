@@ -55,6 +55,7 @@ set src {
   cache
   capabilities
   captcha
+  carray
   cgi
   chat
   checkin

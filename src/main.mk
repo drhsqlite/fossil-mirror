@@ -33,6 +33,7 @@ SRC = \
   $(SRCDIR)/cache.c \
   $(SRCDIR)/capabilities.c \
   $(SRCDIR)/captcha.c \
+  $(SRCDIR)/carray.c \
   $(SRCDIR)/cgi.c \
   $(SRCDIR)/chat.c \
   $(SRCDIR)/checkin.c \
@@ -290,6 +291,7 @@ TRANS_SRC = \
   $(OBJDIR)/cache_.c \
   $(OBJDIR)/capabilities_.c \
   $(OBJDIR)/captcha_.c \
+  $(OBJDIR)/carray_.c \
   $(OBJDIR)/cgi_.c \
   $(OBJDIR)/chat_.c \
   $(OBJDIR)/checkin_.c \
@@ -439,6 +441,7 @@ OBJ = \
  $(OBJDIR)/cache.o \
  $(OBJDIR)/capabilities.o \
  $(OBJDIR)/captcha.o \
+ $(OBJDIR)/carray.o \
  $(OBJDIR)/cgi.o \
  $(OBJDIR)/chat.o \
  $(OBJDIR)/checkin.o \
@@ -778,6 +781,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 	$(OBJDIR)/capabilities_.c:$(OBJDIR)/capabilities.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
+	$(OBJDIR)/carray_.c:$(OBJDIR)/carray.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
 	$(OBJDIR)/chat_.c:$(OBJDIR)/chat.h \
 	$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
@@ -1050,6 +1054,14 @@ $(OBJDIR)/captcha.o:	$(OBJDIR)/captcha_.c $(OBJDIR)/captcha.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/captcha.o -c $(OBJDIR)/captcha_.c
 
 $(OBJDIR)/captcha.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/carray_.c:	$(SRCDIR)/carray.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/carray.c >$@
+
+$(OBJDIR)/carray.o:	$(OBJDIR)/carray_.c $(OBJDIR)/carray.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/carray.o -c $(OBJDIR)/carray_.c
+
+$(OBJDIR)/carray.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/cgi_.c:	$(SRCDIR)/cgi.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/cgi.c >$@
