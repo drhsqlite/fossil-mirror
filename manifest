@@ -1,5 +1,5 @@
-C The\sdefault\s"ssh"\scomand\sis\snow\salways\s"ssh".\s\sOmit\sthe\slegacy\s"plink"\nalternative\son\sWindows\sas\sWindows\smachines\snow\sgenerally\sall\ssupport\sssh.
-D 2021-06-22T15:37:00.079
+C Add\sthe\sfact\sthat\s"ssh"\sis\snow\sused\sby\sWindows\sto\sthe\schange\slog.
+D 2021-06-22T15:43:42.985
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -830,7 +830,7 @@ F www/caps/index.md 91e865df2c0e4b6b2cf6314a85229c12e62350706920ecddbbbb93a3a89e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki dbb85c1c9e34cf0894cd1024dbad9098e3473ef3fb1a6b1dc2ea2265dfc537f5
+F www/changes.wiki 800518d0a2eae1d1d47de0a669b3ad222da9364f5c1cdbf5f5ddfc47ff854e70
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 990019346ea1588d73757cabd067ce11bbe547e94bf98d327fec17e711ae0907
-R 1b61899600a59b0eedfe59950ca7f885
+P 38567237d7ffd5585f02c0e8ce045849a7026bd4dbde2944d0c14910e2eea472
+R 0d1e991cce00b3fdadc2c7bbb879d79f
 U drh
-Z 2c9c76d8d049ff43a8335d451797f119
+Z 6118ae801be3baffc62055c799e62117
