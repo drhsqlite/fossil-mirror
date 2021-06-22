@@ -118,7 +118,7 @@ static void mkdeltaFunc(
 void patch_create(const char *zOut){
   int vid;
 
-  if( file_isdir(zOut, ExtFILE)!=0 ){
+  if( zOut && file_isdir(zOut, ExtFILE)!=0 ){
     fossil_fatal("patch file already exists: %s", zOut);
   }
   add_content_sql_commands(g.db);
@@ -127,7 +127,7 @@ void patch_create(const char *zOut){
                           readfileFunc, 0, 0);
   sqlite3_create_function(g.db, "mkdelta", 2, SQLITE_UTF8, 0,
                           mkdeltaFunc, 0, 0);
-  db_multi_exec("ATTACH %Q AS patch;", zOut);
+  db_multi_exec("ATTACH %Q AS patch;", zOut ? zOut : ":memory:");
   db_multi_exec(
     "PRAGMA patch.journal_mode=OFF;\n"
     "PRAGMA patch.page_size=512;\n"
@@ -191,6 +191,20 @@ void patch_create(const char *zOut){
       "  WHERE tmap.id=vmerge.id;"
     );
   }
+
+  /* Write the database to standard output if zOut==0 */
+  if( zOut==0 ){
+    sqlite3_int64 sz;
+    unsigned char *pData;
+    pData = sqlite3_serialize(g.db, "patch", &sz, 0);
+    if( pData==0 ){
+      fossil_fatal("out of memory");
+    }
+    fossil_print("%025lld\n", sz);
+    fwrite(pData, sz, 1, stdout);
+    sqlite3_free(pData); 
+    fflush(stdout);
+  }
 }
 
 /*
@@ -199,13 +213,41 @@ void patch_create(const char *zOut){
 */
 void patch_attach(const char *zIn){
   Stmt q;
-  if( !file_isfile(zIn, ExtFILE) ){
-    fossil_fatal("no such file: %s", zIn);
-  }
   if( g.db==0 ){
     sqlite3_open(":memory:", &g.db);
   }
-  db_multi_exec("ATTACH %Q AS patch", zIn);
+  if( zIn==0 ){
+    char zBuf[26];
+    size_t n;
+    sqlite3_int64 sz;
+    unsigned char *aIn;
+
+    n = fread(zBuf, sizeof(zBuf), 1, stdin);
+    if( n!=1 ){
+      fossil_fatal("unable to read size of input\n");
+    }
+    zBuf[sizeof(zBuf)-1] = 0;
+    sz = atoll(zBuf);
+    if( sz<512 || (sz%512)!=0 ){
+      fossil_fatal("bad size for input: %lld", sz);
+    }
+    aIn = sqlite3_malloc64( sz );
+    if( aIn==0 ){
+      fossil_fatal("out of memory");
+    }
+    n = fread(aIn, 1, sz, stdin);
+    if( n!=sz ){
+      fossil_fatal("got only %lld of %lld input bytes",
+              (sqlite3_int64)n, sz);
+    }
+    db_multi_exec("ATTACH ':memory:' AS patch");
+    sqlite3_deserialize(g.db, "patch", aIn, sz, sz,
+                        SQLITE_DESERIALIZE_FREEONCLOSE);
+  }else if( !file_isfile(zIn, ExtFILE) ){
+    fossil_fatal("no such file: %s", zIn);
+  }else{
+    db_multi_exec("ATTACH %Q AS patch", zIn);
+  }
   db_prepare(&q, "PRAGMA patch.quick_check");
   while( db_step(&q)==SQLITE_ROW ){
     if( fossil_strcmp(db_column_text(&q,0),"ok")!=0 ){
@@ -474,24 +516,26 @@ void patch_apply(unsigned mFlags){
 ** uncommitted changes of a check-out.  Use Fossil binary patches to transfer
 ** proposed or incomplete changes between machines for testing or analysis.
 **
-** > fossil patch create FILENAME
+** > fossil patch create [DIRECTORY] FILENAME
 **
 **       Create a new binary patch in FILENAME that captures all uncommitted
-**       changes in the current check-out.
+**       changes in the check-out at DIRECTORY, or the current directory if
+**       DIRECTORY is omitted.
 **
-** > fossil patch apply FILENAME
+**       If FILENAME is "-" then the binary patch is written to standard
+**       output, preceeded by 26 bytes of header that is an ASCII
+**       representation of the number of bytes in the patch followed by a
+**       newline.
 **
-**       Apply the changes in FILENAME to the current check-out. Options:
+** > fossil patch apply [DIRECTORY] FILENAME
+**
+**       Apply the changes in FILENAME to the check-out a DIRECTORY, or
+**       in the current directory if DIRECTORY is omitted. Options:
 **
 **           -f|--force     Apply the patch even though there are unsaved
 **                          changes in the current check-out.
 **           -n|--dryrun    Do nothing, but print what would have happened.
 **           -v|--verbose   Extra output explaining what happens.
-**
-** > fossil patch diff [DIFF-FLAGS] FILENAME
-**
-**       View the changes specified by the binary patch FILENAME in a
-**       human-readable format.  The usual diff flags apply.
 **
 ** > fossil patch push REMOTE-CHECKOUT
 **
@@ -520,26 +564,42 @@ void patch_cmd(void){
   if( strncmp(zCmd, "apply", n)==0 ){
     int forceFlag = find_option("force","f",0)!=0;
     unsigned flags = 0;
+    const char *zIn;
     if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
-    db_must_be_within_tree();
     verify_all_options();
-    if( g.argc!=4 ){
-      usage("apply FILENAME");
+    if( g.argc!=4 && g.argc!=5 ){
+      usage("apply [DIRECTORY] FILENAME");
     }
+    if( g.argc==5 ){
+      file_chdir(g.argv[3], 0);
+      zIn = g.argv[4];
+    }else{
+      zIn = g.argv[3];
+    }
+    db_must_be_within_tree();
     if( !forceFlag && unsaved_changes(0) ){
       fossil_fatal("there are unsaved changes in the current checkout");
     }
-    patch_attach(g.argv[3]);
+    if( fossil_strcmp(zIn,"-")==0 ) zIn = 0;
+    patch_attach(zIn);
     patch_apply(flags);
   }else
   if( strncmp(zCmd, "create", n)==0 ){
-    db_must_be_within_tree();
+    const char *zOut;
     verify_all_options();
-    if( g.argc!=4 ){
-      usage("create FILENAME");
+    if( g.argc!=4 && g.argc!=5 ){
+      usage("create [DIRECTORY] FILENAME");
     }
-    patch_create(g.argv[3]);
+    if( g.argc==5 ){
+      file_chdir(g.argv[3], 0);
+      zOut = g.argv[4];
+    }else{
+      zOut = g.argv[3];
+    }
+    if( fossil_strcmp(zOut, "-")==0 ) zOut = 0;
+    db_must_be_within_tree();
+    patch_create(zOut);
   }else
   if( strncmp(zCmd, "pull", n)==0 ){
     db_must_be_within_tree();
@@ -558,12 +618,14 @@ void patch_cmd(void){
     fossil_print("TBD...\n");
   }else
   if( strncmp(zCmd, "view", n)==0 ){
-    /* u64 diffFlags = diff_options(); */
+    const char *zIn;
     verify_all_options();
     if( g.argc!=4 ){
       usage("view FILENAME");
     }
-    patch_attach(g.argv[3]);
+    zIn = g.argv[3];
+    if( fossil_strcmp(zIn, "-")==0 ) zIn = 0;
+    patch_attach(zIn);
     patch_view();
   }else
   {
