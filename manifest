@@ -1,5 +1,5 @@
-C Removed\sa\sparagraph\sfrom\swww/caps/index.md\sreferencing\sthe\snow-removed\n"plink\s-ssh\s-T"\salternative\sto\s"ssh\s-e\snone\s-T"\son\sWindows.\s\sThis\nparagraph\sbordered\son\s"TMI"\sbefore,\sso\snow\sthat\sit's\sgoing\sto\sbe\nincreasingly\scorrect\sas\sFossil\s2.16+\sfilters\sout,\sit\sneeds\sto\sgo.
-D 2021-06-22T16:57:53.407
+C Reworked\sthe\sMinGW\soutdated\sinstructions\sin\swww/build.wiki.\s\sIt\swas\nstill\swarning\sabout\sa\sMinGW\sbug\sfrom\s2014,\sand\sit\sdidn't\scover\sthe\ncross-compilation\sdetails\sat\sall.\s\sThat\sin\sturn\sgives\sus\sa\sbasis\sfor\nexplaining\swhy\scross-compilation\smay\smatter\seven\sto\sthose\swho\sdon't\nrealize\sthey're\sdoing\sso,\sas\sin\sthe\sCygwin\sand\sWSL\scases,\swhich\sthen\nexplains\swhy\swe\srecommend\sagainst\susing\sMinGW\sMake\sand\sthe\sUSE_WINDOWS=1\nmode.
+D 2021-06-22T18:19:21.090
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -822,7 +822,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 14429f3c3d1ce16b131bbf747cd88098768366f88a82bbdf6368993cf06b504d
+F www/build.wiki 29ee98605a70bf264dfe58f7a0708a7fc76185a9d06755ba52a8d6e7fb4c9eeb
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md aae4ee41aef7c1ae4e000bd7fa9c403c23314d107812bd6e39af155353a6971c
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8f1d035ed546958dd428e4c6653e672bcae3db232ce30253df40f3d50bc6e93
-R 0b6bac809a7c7e8585c3e9cdb77634d1
+P f48a9f71f3f865159f3859672da0a6dcfbd1ecdffd87ba8dde3411f9637665a8
+R 32ef4e6888cb79301549db55d6c7eb4b
 U wyoung
-Z a566ad89386037c808dd0116c64c1943
+Z 53388801a18afd52c05486bb099b4704

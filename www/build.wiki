@@ -133,25 +133,36 @@ running configure, you can also use: <b>make -f Makefile.classic</b>.  You may
 want to make minor edits to Makefile.classic to configure the build for your
 system.
 
-<li><p><i>MinGW 3.x (<u>not</u> 4.x) / MinGW-w64</i> → Use the MinGW makefile:
-"<b>make -f win/Makefile.mingw</b>".  On a Windows box you will need either
-Cygwin or MSYS as build environment. On Cygwin, Linux or Darwin you may want
-to make minor edits to win/Makefile.mingw to configure the cross-compile
-environment.
+<li><p><i>MinGW / MinGW-w64</i> → The best-supported path is to build
+via the MinGW specific Makefile under a POSIX build of GNU make:
+"<b>make -f win/Makefile.mingw</b>".
+
+There is limited support for building under MinGW's native Windows port
+of GNU Make instead by defining the <tt>USE_WINDOWS=1</tt> variable, but
+it's better to build under MSYS, Cygwin, or WSL on Windows since this
+mode doesn't take care of cases such as the "openssl" target, which
+depends on <tt>sed</tt>. We've gone as far down this path as is
+practical short of breaking cross-compilation under Linux, macOS, and so
+forth, as we'd have to do to make everything work under
+<tt>cmd.exe</tt>.
+
+Unless you're building under MSYS where commands like "<tt>gcc</tt>"
+give MinGW's GCC and not some other version, you will need to make minor
+edits to win/Makefile.mingw to configure the cross-compilation
+environment. It should suffice to switch to one of the predefined
+<tt>PREFIX</tt> values, causing the build to be done using
+"<tt>x86_64-w64-mingw32-gcc</tt>" for example, yielding a 64-bit native
+Windows binary.
 
 To enable the native [./th1.md#tclEval | Tcl integration feature], use a
 command line like the following (all on one line):
 
 <b>make -f win/Makefile.mingw FOSSIL_ENABLE_TCL=1 FOSSIL_ENABLE_TCL_STUBS=1 FOSSIL_ENABLE_TCL_PRIVATE_STUBS=1</b>
 
-Alternatively, <b>./configure</b> may now be used to create a Makefile
-suitable for use with MinGW; however, options passed to configure that are
+Alternatively, running <b>./configure</b> under MSYS should give a
+suitable top-level Makefile. However, options passed to configure that are
 not applicable on Windows may cause the configuration or compilation to fail
 (e.g. fusefs, internal-sqlite, etc).
-
-<i>HINT</i>: Do <u>not</u> use MinGW-4.x, it may compile but the Fossil binary
-will not work correctly, see
-[https://fossil-scm.org/home/tktview/18cff45a4e210430e24c | ticket].
 
 <li><p><i>MSVC</i> → Use the MSVC makefile.  
 
