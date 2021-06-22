@@ -30,12 +30,17 @@
 */
 #ifdef _WIN32
 # include <windows.h>
+# include <wchar.h>
+# include <process.h>
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
 # include <unistd.h>
 # include <fcntl.h>
 # include <errno.h>
+# include <spawn.h>
+# include <sys/types.h>
+# include <wait.h>
 #endif
 
 
@@ -363,6 +368,75 @@ void test_fossil_system_cmd(void){
     rc = fossil_system(zLine);
     printf("result: %d\n", rc);
   }
+}
+
+/*
+** A cross-platform "spawn" type function: search for zProgram in PATH,
+** passing the given argument list through without interpretation.  Due
+** to Windows platform limitations — see the definition of WinMain() —
+** this is an ideal we can achieve only on POSIX platforms.
+*/
+int fossil_spawn(const char* zProgram, char *const*azArgv){
+  extern char **environ;
+  int status = -1;
+#ifdef _WIN32
+  int nArg, i;
+  wchar_t **azWide;
+  for(nArg=0; azArgv[nArg]; nArg++){}
+  azWide = fossil_malloc( sizeof(azWide[0])+(nArg+1) );
+  for(i=0; i<nArg; i++){
+    azWide[i] = fossil_utf8_to_unicode(azArgv[i]);
+  }
+  azWide[i] = 0;
+  status = (int)_wspawnvp(_P_WAIT, azWide[0], azWide);
+  for(i=0; i<nArg; i++){
+    fossil_unicode_free(azWide[i]);
+  }
+  fossil_free(azWide);
+#else
+  pid_t pid;
+  if( posix_spawnp(&pid, zProgram, NULL, NULL, azArgv, environ)==0 ){
+    waitpid(pid, &status, 0);
+  }else{
+    fossil_fatal("posix_spawn(%s, ...) failed: %s",
+         zProgram, strerror(errno));
+  }
+#endif
+  return status;
+}
+
+/*
+** COMMAND: test-fossil-spawn
+**
+** Calls test-echo, passing each argument as-given.  Used by the test
+** suite to verify that this platform can pass problematic arguments
+** (quotes, spaces, shell-specific escaping characters...) through
+** fossil_spawn() without mangling or reinterpretation.
+**
+** To an outsider, this function has the same effect as test-echo,
+** but the way it achieves that exercises a different subset of
+** Fossil's functionality.
+*/
+void test_fossil_spawn_cmd(void){
+  int i, j=0, rc;
+  char **azArgv = fossil_malloc(sizeof(char*) * (g.argc + 1));
+  azArgv[j++] = g.nameOfExe;
+  azArgv[j++] = "test-echo";
+  if( find_option("hex",0,0) ){
+    azArgv[j++] = "--hex";
+  }
+  for( i=2; i<g.argc; ++i ){
+    azArgv[j++] = g.argv[i];
+  }
+  azArgv[j] = 0;
+  fossil_print("Calling with %d arguments\n", j);
+  for(i=0; i<j; i++){
+     fossil_print("calling-argv[%d] = [%s]\n", i, azArgv[i]);
+  }
+  fossil_print("vvvvv------- the call -------vvvvv\n");
+  rc = fossil_spawn(g.nameOfExe, azArgv);
+  fossil_print("^^^^^------- finished -------^^^^^\n");
+  fossil_print("result code: %d\n", rc);
 }
 
 /*
