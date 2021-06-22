@@ -306,9 +306,13 @@ void patch_apply(unsigned mFlags){
       "   AND mhash NOT GLOB '*[^a-fA-F0-9]*';"
     );
     while( db_step(&q)==SQLITE_ROW ){
+      const char *zType = db_column_text(&q,0);
       blob_append_escaped_arg(&cmd, g.nameOfExe);
-      blob_appendf(&cmd, " --%s %s\n", db_column_text(&q,0),
-                    db_column_text(&q,1));
+      if( strcmp(zType,"merge")==0 ){
+        blob_appendf(&cmd, " merge %s\n", db_column_text(&q,1));
+      }else{
+        blob_appendf(&cmd, " merge --%s %s\n", zType, db_column_text(&q,1));
+      }
       if( mFlags & PATCH_VERBOSE ){
         fossil_print("%-10s %s\n", db_column_text(&q,2), 
                     db_column_text(&q,0));
@@ -318,7 +322,7 @@ void patch_apply(unsigned mFlags){
     if( mFlags & PATCH_DRYRUN ){
       fossil_print("%s", blob_str(&cmd));
     }else{
-      int rc = fossil_system(blob_str(&cmd));
+      int rc = fossil_unsafe_system(blob_str(&cmd));
       if( rc ){
         fossil_fatal("unable to do merges:\n%s",
                      blob_str(&cmd));
@@ -342,7 +346,7 @@ void patch_apply(unsigned mFlags){
     if( mFlags & PATCH_DRYRUN ){
       fossil_print("%s", blob_str(&cmd));
     }else{
-      int rc = fossil_system(blob_str(&cmd));
+      int rc = fossil_unsafe_system(blob_str(&cmd));
       if( rc ){
         fossil_fatal("unable to do merges:\n%s",
                      blob_str(&cmd));
@@ -371,7 +375,7 @@ void patch_apply(unsigned mFlags){
     if( mFlags & PATCH_DRYRUN ){
       fossil_print("%s", blob_str(&cmd));
     }else{
-      int rc = fossil_system(blob_str(&cmd));
+      int rc = fossil_unsafe_system(blob_str(&cmd));
       if( rc ){
         fossil_fatal("unable to rename files:\n%s",
                      blob_str(&cmd));
