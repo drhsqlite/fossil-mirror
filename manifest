@@ -1,5 +1,5 @@
-C Added\sthe\scarray()\svirtual\stable\sextension\sfrom\sSQLite\sand\sadded\sthe\ntest-json-carray\scommand\sto\stest\sit.\s\sThis\sis\sneeded\sfor\sthe\snext\sstep\non\sthis\sbranch.
-D 2021-06-22T01:38:42.527
+C Taught\s"fossil\ssettings"\show\sto\saccept\smultiple\s?VALUES?\sparameters,\nstoring\sthe\sresult\sas\sa\sJSON-encoded\sarray\sin\sthe\sconfig\stable.\s\sNothing\nuses\sthis\syet,\sbut\sthe\sresulting\sSQL\sDB\smanipulation\sappears\sto\swork\ncorrectly.
+D 2021-06-22T02:37:16.858
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,7 +460,7 @@ F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c efaf1eef1a7cc1b95b569c9a890b15149a93a29f290f39a0db661a06f4041d66
+F src/db.c c0a24c5b2dff807d58e8a7dcbacc12b53e91f13aa42390ec224dbc0e1e83b429
 F src/default.css b6ae1a78d07373b42115ce7da9aec815d6f9363c675e0afa82d7c90ab116e742
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -995,7 +995,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27cdcbbb497dc36964884b09d6c62a8c5a94f78a295785882c92c155c3168ed4
-R 234b5a7593776455978c434d52d0039d
+P 4223fe8cb521331179bfc598d60ead0a161afab60d60bb3c3258af97fd116a89
+R 7aefb827db825f3b6d87956dc0ce494f
 U wyoung
-Z fc08e2af13b3e1ab1f42aabe9ee8d2e0
+Z 387bad808b575c0c1abf3ec430b8a464

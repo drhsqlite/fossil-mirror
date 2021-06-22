@@ -3221,6 +3221,34 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
   db_end_transaction(0);
   db_protect_pop();
 }
+void db_set_array(const char *zName, char* azValues[], size_t nValues, int globalFlag){
+  Stmt q;
+  db_assert_protection_off_or_not_sensitive(zName);
+  db_unprotect(PROTECT_CONFIG);
+  db_begin_transaction();
+  if( globalFlag ){
+    db_swap_connections();
+    sqlite3_carray_init(g.db, 0, 0);      /* not registered globally on purpose */
+    db_prepare(&q, "REPLACE INTO global_config(name,value) VALUES(%Q,"
+                     "(SELECT json_group_array(value) FROM carray(?1)))",
+                    zName);
+    sqlite3_carray_bind(q.pStmt, 1, azValues, nValues, CARRAY_TEXT, SQLITE_STATIC);
+    db_exec(&q);
+    db_swap_connections();
+  }else{
+    sqlite3_carray_init(g.db, 0, 0);      /* ditto */
+    db_prepare(&q, "REPLACE INTO config(name,value,mtime) VALUES(%Q,"
+                     "(SELECT json_group_array(value) FROM carray(?1)),now())",
+                    zName);
+    sqlite3_carray_bind(q.pStmt, 1, azValues, nValues, CARRAY_TEXT, SQLITE_STATIC);
+    db_exec(&q);
+  }
+  if( globalFlag && g.repositoryOpen ){
+    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+  }
+  db_end_transaction(0);
+  db_protect_pop();
+}
 void db_unset(const char *zName, int globalFlag){
   db_begin_transaction();
   db_unprotect(PROTECT_CONFIG);
@@ -4387,7 +4415,7 @@ void setting_cmd(void){
     for(i=0; i<nSetting; i++){
       print_setting(&aSetting[i]);
     }
-  }else if( g.argc==3 || g.argc==4 ){
+  }else if( g.argc>=3 ){
     const char *zName = g.argv[2];
     int n = (int)strlen(zName);
     const Setting *pSetting = db_find_setting(zName, !exactFlag);
@@ -4397,7 +4425,7 @@ void setting_cmd(void){
     if( globalFlag && fossil_strcmp(pSetting->name, "manifest")==0 ){
       fossil_fatal("cannot set 'manifest' globally");
     }
-    if( unsetFlag || g.argc==4 ){
+    if( unsetFlag || g.argc>=4 ){
       int isManifest = fossil_strcmp(pSetting->name, "manifest")==0;
       if( n!=strlen(pSetting[0].name) && pSetting[1].name &&
           fossil_strncmp(pSetting[1].name, zName, n)==0 ){
@@ -4418,7 +4446,12 @@ void setting_cmd(void){
         db_unset(pSetting->name, globalFlag);
       }else{
         db_protect_only(PROTECT_NONE);
-        db_set(pSetting->name, g.argv[3], globalFlag);
+        if( g.argc==4 ){
+          db_set(pSetting->name, g.argv[3], globalFlag);
+        }
+        else {
+          db_set_array(pSetting->name, g.argv+3, g.argc-3, globalFlag);
+        }
         db_protect_pop();
       }
       if( isManifest && g.localOpen ){
