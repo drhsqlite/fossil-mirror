@@ -106,6 +106,7 @@ SRC = \
   $(SRCDIR)/merge3.c \
   $(SRCDIR)/moderate.c \
   $(SRCDIR)/name.c \
+  $(SRCDIR)/patch.c \
   $(SRCDIR)/path.c \
   $(SRCDIR)/piechart.c \
   $(SRCDIR)/pikchr.c \
@@ -363,6 +364,7 @@ TRANS_SRC = \
   $(OBJDIR)/merge3_.c \
   $(OBJDIR)/moderate_.c \
   $(OBJDIR)/name_.c \
+  $(OBJDIR)/patch_.c \
   $(OBJDIR)/path_.c \
   $(OBJDIR)/piechart_.c \
   $(OBJDIR)/pikchr_.c \
@@ -512,6 +514,7 @@ OBJ = \
  $(OBJDIR)/merge3.o \
  $(OBJDIR)/moderate.o \
  $(OBJDIR)/name.o \
+ $(OBJDIR)/patch.o \
  $(OBJDIR)/path.o \
  $(OBJDIR)/piechart.o \
  $(OBJDIR)/pikchr.o \
@@ -851,6 +854,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h \
 	$(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h \
 	$(OBJDIR)/name_.c:$(OBJDIR)/name.h \
+	$(OBJDIR)/patch_.c:$(OBJDIR)/patch.h \
 	$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
 	$(OBJDIR)/piechart_.c:$(OBJDIR)/piechart.h \
 	$(OBJDIR)/pikchr_.c:$(OBJDIR)/pikchr.h \
@@ -1634,6 +1638,14 @@ $(OBJDIR)/name.o:	$(OBJDIR)/name_.c $(OBJDIR)/name.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/name.o -c $(OBJDIR)/name_.c
 
 $(OBJDIR)/name.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/patch_.c:	$(SRCDIR)/patch.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/patch.c >$@
+
+$(OBJDIR)/patch.o:	$(OBJDIR)/patch_.c $(OBJDIR)/patch.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/patch.o -c $(OBJDIR)/patch_.c
+
+$(OBJDIR)/patch.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/path_.c:	$(SRCDIR)/path.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/path.c >$@
