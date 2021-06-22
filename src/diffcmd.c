@@ -313,7 +313,7 @@ void diff_file(
        * should be able to upgrade to this method by re-applying
        * your settings, making use of the new array storage option:
        *
-       *     $ fossil set diff-command colordiff -wu
+       *     $ fossil set diff-command -- colordiff -wu
        *
        * as opposed to the legacy method:
        *
@@ -321,6 +321,10 @@ void diff_file(
        *
        * The lack of quoting around those two setting values causes
        * Fossil to store them as an array, which lands you in here.
+       * 
+       * (Also note the need for -- in the new method, to prevent
+       * Fossil's non-positional option flag parser from trying to
+       * interpret -wu as flags for the "fossil setting" command.)
        */
       azFullDiffCmd = fossil_malloc((nDiffCmdValues+3)*sizeof(char*));
       for( n=0; n<nDiffCmdValues; ++n ) azFullDiffCmd[n] = azDiffCmd[n];

@@ -1,5 +1,5 @@
-C Converted\s"fossil\sdiff"\sand\s"fossil\sgdiff"\sto\sthe\snew\sarray-based\nsetting\smechanism.\s\sThe\slegacy\ssystem(3)\sstyle\sshell\scommand\sstring\nmethods\sare\sstill\savailable\sfor\suse\swith\s--command\sand\slegacy\nsingle-string\ssettings,\sbut\sif\syou\spass\s2+\svalues\sto\s"fossil\ssetting\ndiff-command\sVALUES..."\s(ditto\sgdiff-command)\sit's\snow\sstored\sas\san\narray,\striggering\sthis\snew\smechanism.\s\sThis\spermits\sold\ssettings\sto\ncontinue\sworking,\sletting\syou\supgrade\sto\sthe\snew\smechanism\sat\swill.
-D 2021-06-22T08:34:17.780
+C Comment\sclarification
+D 2021-06-22T08:45:14.718
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -468,7 +468,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
 F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c ef267f909204bdf3b887e3398a9a6d963c4bc47d1982cef3601556099cbe1fcc
+F src/diffcmd.c 9fbcf080d3cf0b5e7813c8550620bfed4ee30af85090bb5282aecc2e63902491
 F src/dispatch.c 6f416461a0c7e4eb704f564dca8fe47015cf61eb20b3a143ee624546e4a99405
 F src/doc.c 17e711cb39953153c43b31a578793208c3350ae796f416aacba9ea95c80949f2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -995,7 +995,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eefb8e64ed9b0e99e44a8ae30997167b6ca045d0a951ff732a75617e840ad864
-R 1d9f7c7ccdef53569ac96feae5dc5821
+P 68055fd3edc7c6447e44fad2a70d7ef3109ebec28ac21acda617517774c94056
+R 64cef7911fd1e981e61fd9e2aec27c19
 U wyoung
-Z ba9b71ea8546df9bc10dabac1a007426
+Z 9b0ad5602d50325cfa051777e938ae32
