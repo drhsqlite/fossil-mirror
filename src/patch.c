@@ -22,6 +22,13 @@
 #include <assert.h>
 
 /*
+** Flags passed from the main patch_cmd() routine into subfunctions used
+** to implement the various subcommands.
+*/
+#define PATCH_DRYRUN   0x0001
+#define PATCH_VERBOSE  0x0002
+
+/*
 ** Implementation of the "readfile(X)" SQL function.  The entire content
 ** of the checkout file named X is read and returned as a BLOB.
 */
@@ -154,12 +161,14 @@ void patch_create(const char *zOut){
     "    FROM vfile WHERE rid==0;",
     g.zLocalRoot
   );
+
   /* Deleted files */
   db_multi_exec(
     "INSERT INTO patch.chng(pathname,hash,isexe,islink,delta)"
     "  SELECT pathname, NULL, 0, 0, NULL"
     "    FROM vfile WHERE deleted;"
   );
+
   /* Changed files */
   db_multi_exec(
     "INSERT INTO patch.chng(pathname,origname,hash,isexe,islink,delta)"
@@ -171,6 +180,7 @@ void patch_create(const char *zOut){
     g.zLocalRoot
   );
 
+  /* Merges */
   if( db_exists("SELECT 1 FROM localdb.vmerge WHERE id<=0") ){
     db_multi_exec(
       "CREATE TABLE patch.patchmerge(type TEXT,mhash TEXT);\n"
@@ -228,8 +238,8 @@ void patch_view(void){
   }
   db_prepare(&q,
     "SELECT pathname,"
-          " hash IS NULL AND delta IS NOT NULL,"
-          " delta IS NULL,"
+          " hash IS NULL AND delta IS NOT NULL,"  /* isNew */
+          " delta IS NULL,"                       /* delete if origname NULL */
           " origname"
     "  FROM patch.chng ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
@@ -257,10 +267,11 @@ void patch_view(void){
 ** First update the check-out to be at "baseline".  Then loop through
 ** and update all files.
 */
-void patch_apply(void){
+void patch_apply(unsigned mFlags){
   Stmt q;
   Blob cmd;
   blob_init(&cmd, 0, 0);
+  file_chdir(g.zLocalRoot, 0);
   db_prepare(&q,
     "SELECT patch.cfg.value"
     "  FROM patch.cfg, localdb.vvar"
@@ -271,17 +282,181 @@ void patch_apply(void){
   if( db_step(&q)==SQLITE_ROW ){
     blob_append_escaped_arg(&cmd, g.nameOfExe);
     blob_appendf(&cmd, " update %s", db_column_text(&q, 0));
+    if( mFlags & PATCH_VERBOSE ){
+      fossil_print("%-10s %s\n", "BASELINE", db_column_text(&q,0));
+    }
   }
   db_finalize(&q);
   if( blob_size(&cmd)>0 ){
-    int rc = fossil_system(blob_str(&cmd));
-    if( rc ){
-      fossil_fatal("unable to update to the baseline check-out: %s",
-                   blob_str(&cmd));
+    if( mFlags & PATCH_DRYRUN ){
+      fossil_print("%s\n", blob_str(&cmd));
+    }else{
+      int rc = fossil_system(blob_str(&cmd));
+      if( rc ){
+        fossil_fatal("unable to update to the baseline check-out: %s",
+                     blob_str(&cmd));
+      }
     }
   }
   blob_reset(&cmd);
-  
+  if( db_table_exists("patch","patchmerge") ){
+    db_prepare(&q,
+      "SELECT type, mhash, upper(type) FROM patch.patchmerge"
+      " WHERE type IN ('merge','cherrypick','backout','integrate')"
+      "   AND mhash NOT GLOB '*[^a-fA-F0-9]*';"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_append_escaped_arg(&cmd, g.nameOfExe);
+      blob_appendf(&cmd, " --%s %s\n", db_column_text(&q,0),
+                    db_column_text(&q,1));
+      if( mFlags & PATCH_VERBOSE ){
+        fossil_print("%-10s %s\n", db_column_text(&q,2), 
+                    db_column_text(&q,0));
+      }
+    }
+    db_finalize(&q);
+    if( mFlags & PATCH_DRYRUN ){
+      fossil_print("%s", blob_str(&cmd));
+    }else{
+      int rc = fossil_system(blob_str(&cmd));
+      if( rc ){
+        fossil_fatal("unable to do merges:\n%s",
+                     blob_str(&cmd));
+      }
+    }
+    blob_reset(&cmd);
+  }
+
+  /* Deletions */
+  db_prepare(&q, "SELECT pathname FROM patch.chng"
+                 " WHERE origname IS NULL AND delta IS NULL");
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_appendf(&cmd, " rm --hard %$\n", db_column_text(&q,0));
+    if( mFlags & PATCH_VERBOSE ){
+      fossil_print("%-10s %s\n", "DELETE", db_column_text(&q,0));
+    }
+  }
+  db_finalize(&q);
+  if( blob_size(&cmd)>0 ){
+    if( mFlags & PATCH_DRYRUN ){
+      fossil_print("%s", blob_str(&cmd));
+    }else{
+      int rc = fossil_system(blob_str(&cmd));
+      if( rc ){
+        fossil_fatal("unable to do merges:\n%s",
+                     blob_str(&cmd));
+      }
+    }
+    blob_reset(&cmd);
+  }
+
+  /* Renames */
+  db_prepare(&q,
+    "SELECT origname, pathname FROM patch.chng"
+    " WHERE origname IS NOT NULL"
+    "   AND origname<>pathname"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_appendf(&cmd, " mv --hard %$ %$\n",
+        db_column_text(&q,0), db_column_text(&q,1));
+    if( mFlags & PATCH_VERBOSE ){
+      fossil_print("%-10s %s -> %s\n", "RENAME",
+         db_column_text(&q,0), db_column_text(&q,1));
+    }
+  }
+  db_finalize(&q);
+  if( blob_size(&cmd)>0 ){
+    if( mFlags & PATCH_DRYRUN ){
+      fossil_print("%s", blob_str(&cmd));
+    }else{
+      int rc = fossil_system(blob_str(&cmd));
+      if( rc ){
+        fossil_fatal("unable to rename files:\n%s",
+                     blob_str(&cmd));
+      }
+    }
+    blob_reset(&cmd);
+  }
+
+  /* Edits and new files */
+  db_prepare(&q,
+    "SELECT pathname, hash, isexe, islink, delta FROM patch.chng"
+    " WHERE delta IS NOT NULL"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zPathname = db_column_text(&q,0);
+    const char *zHash = db_column_text(&q,1);
+    int isExe = db_column_int(&q,2);
+    int isLink = db_column_int(&q,3);
+    Blob data;
+
+    blob_init(&data, 0, 0);
+    db_column_blob(&q, 4, &data);
+    blob_uncompress(&data, &data);
+    if( zHash ){
+      Blob basis;
+      int rid = fast_uuid_to_rid(zHash);
+      int outSize, sz;
+      char *aOut;
+      if( rid==0 ){
+        fossil_fatal("cannot locate basis artifact %s for %s",
+                     zHash, zPathname);
+      }
+      if( !content_get(rid, &basis) ){
+        fossil_fatal("cannot load basis artifact %d for %s", rid, zPathname);
+      }
+      outSize = delta_output_size(blob_buffer(&data),blob_size(&data));
+      if( outSize<=0 ){
+        fossil_fatal("malformed delta for %s", zPathname);
+      }
+      aOut = sqlite3_malloc64( outSize+1 );
+      if( aOut==0 ){
+        fossil_fatal("out of memory");
+      }
+      sz = delta_apply(blob_buffer(&basis), blob_size(&basis),
+                       blob_buffer(&data), blob_size(&data), aOut);
+      if( sz<0 ){
+        fossil_fatal("malformed delta for %s", zPathname);
+      }
+      blob_reset(&basis);
+      blob_reset(&data);
+      blob_append(&data, aOut, sz);
+      sqlite3_free(aOut);
+      if( mFlags & PATCH_VERBOSE ){
+        fossil_print("%-10s %s\n", "EDIT", zPathname);
+      }
+    }else{
+      blob_append_escaped_arg(&cmd, g.nameOfExe);
+      blob_appendf(&cmd, " add %$\n", zPathname);
+      if( mFlags & PATCH_VERBOSE ){
+        fossil_print("%-10s %s\n", "NEW", zPathname);
+      }
+    }
+    if( (mFlags & PATCH_DRYRUN)==0 ){   
+      if( isLink ){
+        symlink_create(blob_str(&data), zPathname);
+      }else{
+        blob_write_to_file(&data, zPathname);
+      }
+      file_setexe(zPathname, isExe);
+      blob_reset(&data);
+    }
+  }
+  db_finalize(&q);
+  if( blob_size(&cmd)>0 ){
+    if( mFlags & PATCH_DRYRUN ){
+      fossil_print("%s", blob_str(&cmd));
+    }else{
+      int rc = fossil_system(blob_str(&cmd));
+      if( rc ){
+        fossil_fatal("unable to add new files:\n%s",
+                     blob_str(&cmd));
+      }
+    }
+    blob_reset(&cmd);
+  }
 }
 
 
@@ -306,6 +481,8 @@ void patch_apply(void){
 **
 **           -f|--force     Apply the patch even though there are unsaved
 **                          changes in the current check-out.
+**           -n|--dryrun    Do nothing, but print what would have happened.
+**           -v|--verbose   Extra output explaining what happens.
 **
 ** > fossil patch diff [DIFF-FLAGS] FILENAME
 **
@@ -338,6 +515,9 @@ void patch_cmd(void){
   n = strlen(zCmd);
   if( strncmp(zCmd, "apply", n)==0 ){
     int forceFlag = find_option("force","f",0)!=0;
+    unsigned flags = 0;
+    if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
+    if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     db_must_be_within_tree();
     verify_all_options();
     if( g.argc!=4 ){
@@ -347,7 +527,7 @@ void patch_cmd(void){
       fossil_fatal("there are unsaved changes in the current checkout");
     }
     patch_attach(g.argv[3]);
-    patch_apply();
+    patch_apply(flags);
   }else
   if( strncmp(zCmd, "create", n)==0 ){
     db_must_be_within_tree();
