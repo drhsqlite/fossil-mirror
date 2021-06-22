@@ -5,6 +5,7 @@
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
      server hostname matches its certificate. <b>Upgrading to
      the patch is recommended.</b>
+  *  Added the [./patchcmd.md|fossil patch] command.
   *  The [/brlist|/brlist web page] allows the user to
      select multiple branches to be displayed together in a single
      timeline.

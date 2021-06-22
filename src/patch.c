@@ -649,6 +649,9 @@ static FILE *patch_remote_command(
 **           *   HOST:DIRECTORY
 **           *   USER@HOST:DIRECTORY
 **
+**       This command will only work if "fossil" is on the default PATH
+**       of the remote machine.
+**
 ** > fossil patch pull REMOTE-CHECKOUT
 **
 **       Create a patch on a remote check-out, transfer that patch to the
