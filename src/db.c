@@ -4542,7 +4542,7 @@ void test_json_deserialize_array_cmd(void){
   sqlite3_open(":memory:", &g.db);
   if( blob_read_from_file(&json, g.argv[2], ExtFILE)>=0 ) {
     size_t nValues;
-    char** azValues = json_deserialize_array(&nValues, blob_str(&json));
+    const char** azValues = json_deserialize_array(&nValues, blob_str(&json));
     int i;
     for( i=0; i<nValues; ++i ){
       fossil_print("JSON[%d] = \"%s\"\n", i, azValues[i]);
@@ -4555,11 +4555,11 @@ void test_json_deserialize_array_cmd(void){
 /*
 ** Deserializes the passed JSON array of strings as a C array of C strings.
 */
-char** json_deserialize_array(size_t* pnValues, const char* zJSON){
-  char** azValues;
-  size_t i=0, n;
+const char** json_deserialize_array(size_t* pnValues, const char* zJSON){
+  const char** azValues;
+  size_t i = 0, n = db_int(0, "SELECT COUNT(*) FROM json_each(%Q)", zJSON);
   Stmt q;
-  n = *pnValues = db_int(0, "SELECT COUNT(*) FROM json_each(%Q)", zJSON);
+  if(pnValues) *pnValues = n;
   azValues = fossil_malloc(sizeof(char*) * (n+1));
   db_prepare(&q, "SELECT json_each.value FROM json_each(%Q)", zJSON);
   while( (i<n) && (db_step(&q)==SQLITE_ROW) ){
