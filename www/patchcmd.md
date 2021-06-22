@@ -7,7 +7,7 @@ those changes to other machines.
 For example, if you are working on a Windows desktop and you want to
 test your changes on a Linux server before you commit, you can use the
 "fossil patch push" command to make a copy of all your changes on the
-remote Linux server, where they can be tested.
+remote Linux server:
 
 >  fossil patch push linuxserver:/path/to/checkout
 
@@ -23,6 +23,10 @@ steps apart as follows:
   1.  On the local machine: `fossil patch create mypatch.patch`
   2.  Move "mypatch.patch" to the remote machine.
   3.  On the remote machine: `fossil patch apply mypatch.patch`
+
+Step 2 can be accomplished by a variety of means including
+posting the mypatch.patch file on [chat](./chat.md) or sending
+it as an email attachment.
 
 ## Setup
 
@@ -64,7 +68,7 @@ Is equivalent to:
 
 Likewise, a command like this:
 
-> `fossil patch pull remote:projB
+> `fossil patch pull remote:projB`
 
 Could be entered like this:
 

@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\spatch"\scommand.
-D 2021-06-22T13:33:13.957
+C Minor\sfixes\sto\sthe\scleanup\sof\sthe\s"patchcmd.md"\sdocument.
+D 2021-06-22T15:18:04.009
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -933,7 +933,7 @@ F www/mirrortogithub.md 4b196dcc6b67781b1923297e35c4bac25ac996d9b0ec6d03d9cd3221
 F www/mkindex.tcl 7bf909acda7ff59f71a4b0385867af7c505e86a0906ebc50bb6d1f6c28fe041c x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/patchcmd.md e9c8a4d0663b4033b7480f70baae9bbda87a9bdf53d2d99b595704fbb09621af
+F www/patchcmd.md 408e1e00d7f7cb6630ef915737a05bc6e6212c7e78fa83d4ea0a3cf1aadbc6df
 F www/permutedindex.html 3e1ae6c1a27a1c93293783b9525b363d1ec9b0b0e28efec7cbbc9da26efd067d
 F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
@@ -996,8 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b073cc3c1d7d586d45fd68123327c25ecf8e8e0d0a9dc3ca4e26f3b15077a28 169346a1aa0aa624165091c25a0765a6df30f62ae7a88d2c9729e96da0b21b0e
-R dead7a708cc980c13fa5e5f06029ec9e
-T +closed 169346a1aa0aa624165091c25a0765a6df30f62ae7a88d2c9729e96da0b21b0e
+P e0d61109e114511acd69b965a72cb4169fb2f6ff58ba67e805d5771bbbbd393f
+R 5c01a16a123cfcd562060aa9ef955a03
 U drh
-Z 0817207949843fef9ac8f1c989869d20
+Z af032651956fbc485c1d92c7a3126b76
