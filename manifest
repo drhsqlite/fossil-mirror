@@ -1,5 +1,5 @@
-C Reworked\sthe\sMinGW\soutdated\sinstructions\sin\swww/build.wiki.\s\sIt\swas\nstill\swarning\sabout\sa\sMinGW\sbug\sfrom\s2014,\sand\sit\sdidn't\scover\sthe\ncross-compilation\sdetails\sat\sall.\s\sThat\sin\sturn\sgives\sus\sa\sbasis\sfor\nexplaining\swhy\scross-compilation\smay\smatter\seven\sto\sthose\swho\sdon't\nrealize\sthey're\sdoing\sso,\sas\sin\sthe\sCygwin\sand\sWSL\scases,\swhich\sthen\nexplains\swhy\swe\srecommend\sagainst\susing\sMinGW\sMake\sand\sthe\sUSE_WINDOWS=1\nmode.
-D 2021-06-22T18:19:21.090
+C Improved\squoting\sfor\sfilenames\son\sconstructed\scommand-lines.
+D 2021-06-22T18:57:00.154
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 5f49dc67c10ec4de17ae9e4aacc2ff4e6a6313387e584ee3f18e5f655a791ab
 F src/backoffice.c 4db70d65ea7b5851ee27ae2a62dcae293fcb7698bc23e41c9427cdfa65e3600d
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 0a2d77a146c073fd30217ace281e5aaf56d20e3906ddb704db7521c34f4f3ca0
-F src/blob.c 195dc7c92f2e2ce06e9e172cccc98f41e6418a469aeeb19c05852dbbeb46891b
+F src/blob.c 3725c0b5f4ba97fc605cef8aeef4457c6f575f42ad1caadceb27d00eeba9156b
 F src/branch.c 1c0d2c9d91574250ccaf15c53bdf4548a4201681cda6f085b799ec351780b8aa
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
@@ -475,7 +475,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 8665936fc4d1cba3c2427fbb88ac5874c3462d1d8e9c9b015e40eb889726d835
 F src/extcgi.c 481bd97b1a826d0766a808531ab6855de50dbf956bffee9c69e6f192b2e8a3c6
-F src/file.c 4222ac087f820f46694aafcbb28856aed7b45f7f3d8b940379d4b6aa670e5ce5
+F src/file.c 572eec528553c32ad4b76fd4ba186457fc0b91343feae150ef12bf5c34c37cb5
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
 F src/finfo.c 9daa47421c214f41c74ed084fa755702cc4de389df9cec66acb8ca88294e952d
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f48a9f71f3f865159f3859672da0a6dcfbd1ecdffd87ba8dde3411f9637665a8
-R 32ef4e6888cb79301549db55d6c7eb4b
-U wyoung
-Z 53388801a18afd52c05486bb099b4704
+P 2c66a5395ab5b834b9d73762d407fbe735cc670a82622646e0ad107782b01f27
+R b82a28720f24f9a84e2d19249a12b764
+U drh
+Z a5c48582202a823f27425f8c3a3f7402

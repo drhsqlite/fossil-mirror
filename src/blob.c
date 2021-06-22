@@ -1296,6 +1296,48 @@ void blob_cp1252_to_utf8(Blob *p){
 }
 
 /*
+** ASCII (for reference):
+**    x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf 
+** 0x ^`  ^a  ^b  ^c  ^d  ^e  ^f  ^g  \b  \t  \n  ()  \f  \r  ^n  ^o 
+** 1x ^p  ^q  ^r  ^s  ^t  ^u  ^v  ^w  ^x  ^y  ^z  ^{  ^|  ^}  ^~  ^ 
+** 2x ()  !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /  
+** 3x 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?  
+** 4x @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O  
+** 5x P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _  
+** 6x `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o  
+** 7x p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   ^_ 
+*/
+
+/*
+** Characters that need to be escaped are marked with 1.
+** Illegal characters are marked with 2.
+*/
+static const char aSafeChar[256] = {
+#ifdef _WIN32
+/*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 1x */
+     1,  0,  1,  1,  1,  1,  1,  1,  0,  0,  1,  0,  0,  0,  0,  0, /* 2x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  1,  1,  0, /* 5x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, /* 7x */
+#else
+/*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 1x */
+     1,  0,  1,  1,  1,  1,  1,  1,  0,  0,  1,  0,  0,  0,  0,  0, /* 2x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  0, /* 5x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, /* 7x */
+#endif
+    /* All the rest are zeros */
+};
+
+/*
 ** pBlob is a shell command under construction.  This routine safely
 ** appends argument zIn.
 **
@@ -1311,65 +1353,67 @@ void blob_cp1252_to_utf8(Blob *p){
 */
 void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
   int i;
-  char c;
+  unsigned char c;
   int needEscape = 0;
+  int hasIllegal = 0;
   int n = blob_size(pBlob);
   char *z = blob_buffer(pBlob);
 #if defined(_WIN32)
-  const char cDirSep = '\\';  /* Use \ as directory separator */
-  const char cQuote = '"';    /* Use "..." quoting on windows */
-  const char cEscape = '^';   /* Use ^X escaping on windows */
+  const char *zNeedQuote = "\"^[];*? ";
 #else
-  const char cDirSep = '/';   /* Use / as directory separator */
-  const char cQuote = '\'';   /* Use '...' quoting on unix */
-  const char cEscape = '\\';  /* Use \X escaping on unix */
+  const char *zNeedQuote = "\"'\\*?$&|` ";
 #endif
 
-  for(i=0; (c = zIn[i])!=0; i++){
-    if( c==cQuote || (unsigned char)c<' ' ||
-        c==cEscape || c==';' || c=='*' || c=='?' || c=='[' ){
-      Blob bad;
-      blob_token(pBlob, &bad);
-      fossil_fatal("the [%s] argument to the \"%s\" command contains "
-                   "a character (ascii 0x%02x) that is a security risk",
-                   zIn, blob_str(&bad), c);
-    }
-    if( !needEscape && !fossil_isalnum(c) && c!=cDirSep && c!='.' && c!='_' ){
-      needEscape = 1;
-    }
+  /* Any control character is illegal.  This prevents \n and \r in an
+  ** argument. */
+  for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+    if( aSafeChar[c] ){
+      if( aSafeChar[c]==2 ){
+        Blob bad;
+        blob_token(pBlob, &bad);
+        fossil_fatal("the [%s] argument to the \"%s\" command contains "
+                     "a character (ascii 0x%02x) that is a security risk",
+                     zIn, blob_str(&bad), c);
+      }else{
+        needEscape = 1;
+      }
+      break;
+    } 
   }
+
+  /* Separate from the previous argument by a space */
   if( n>0 && !fossil_isspace(z[n-1]) ){
     blob_append_char(pBlob, ' ');
   }
-  if( needEscape ) blob_append_char(pBlob, cQuote);
-  if( zIn[0]=='-' ){
-    blob_append_char(pBlob, '.');
-    blob_append_char(pBlob, cDirSep);
-#if defined(_WIN32)
-  }else if( zIn[0]=='/' ){
-    blob_append_char(pBlob, '.');
-#endif
-  }
-#if defined(_WIN32)
-  if( needEscape ){
-    for(i=0; (c = zIn[i])!=0; i++){
-      if( c==cQuote ) blob_append_char(pBlob, cDirSep);
-      blob_append_char(pBlob, c);
-    }
-  }else{
+
+  /* Check for characters that need quoting */
+  needEscape = strpbrk(zIn, zNeedQuote)!=0;
+  if( !needEscape ){
     blob_append(pBlob, zIn, -1);
-  }
-#else
-  blob_append(pBlob, zIn, -1);
-#endif
-  if( needEscape ){
+  }else{
 #if defined(_WIN32)
-    /* NOTE: Trailing backslash must be doubled before final double quote. */
-    if( pBlob->aData[pBlob->nUsed-1]==cDirSep ){
-      blob_append_char(pBlob, cDirSep);
+    blob_append_char(pBlob, '"');
+    if( zIn[0]=='-' ){
+      blob_append_char(pBlob, '.');
+      blob_append_char(pBlob, '\\');
+    }else if( zIn[0]=='/' ){
+      blob_append_char(pBlob, '.');
+    }
+    for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+      blob_append_char(pBlob, (char)c);
+      if( c=='"' ) blob_append_char(pBlob, '"');
+    }
+    blob_append_char(pBlob, '"');
+#else
+    if( zIn[0]=='-' ){
+      blob_append_char(pBlob, '.');
+      blob_append_char(pBlob, '/');
+    }
+    for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+      if( aSafeChar[c] ) blob_append_char(pBlob, '\\');
+      blob_append_char(pBlob, (char)c);
     }
 #endif
-    blob_append_char(pBlob, cQuote);
   }
 }
 

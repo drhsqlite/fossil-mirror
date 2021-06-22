@@ -1782,6 +1782,8 @@ void file_parse_uri(
 ** If zTag is not NULL, then try to create the temp-file using zTag
 ** as a differentiator.  If that fails, or if zTag is NULL, then use
 ** a bunch of random characters as the tag.
+**
+** Dangerous characters in zBasis are changed.
 */
 void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
 #if defined(_WIN32)
@@ -1791,7 +1793,6 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
      0, /* TMP */
      ".",
   };
-  char *z;
 #else
   static const char *azDirs[] = {
      0, /* TMPDIR */
@@ -1812,6 +1813,7 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
   char zRand[16];
   int nBasis;
   const char *zSuffix;
+  char *z;
 
 #if defined(_WIN32)
   wchar_t zTmpPath[MAX_PATH];
@@ -1870,6 +1872,9 @@ void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
     }
     blob_appendf(pBuf, "%s/%.*s~%s%s", zDir, nBasis, zBasis, zTag, zSuffix);
     zTag = 0;
+    for(z=blob_str(pBuf); z!=0 && (z=strpbrk(z,"'\"`;|$&"))!=0; z++){
+      z[0] = '_';
+    }
   }while( file_size(blob_str(pBuf), ExtFILE)>=0 );
 
 #if defined(_WIN32)
