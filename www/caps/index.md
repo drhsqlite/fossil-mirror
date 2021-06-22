@@ -306,11 +306,6 @@ not just those done over `http[s]://` URLs:
     bypassed in this case is that [`test-http` gives full capabilities
     to its users][sxcap].
 
-    The SSH client command defaults to “`ssh -e none -T`” on most
-    platforms except Windows where it defaults to “`plink -ssh -T`”.
-    You can override this with [the `ssh-command`
-    setting](/help?name=ssh-command).
-
 *   For `file://` URLs — as opposed to plain local file paths —
     the “sending” Fossil instance writes its side of
     the HTTP conversation out to a temporary file in the same directory

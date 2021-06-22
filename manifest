@@ -1,5 +1,5 @@
-C Minor\sdoc\scorrection.
-D 2021-06-22T15:51:22.985
+C Removed\sa\sparagraph\sfrom\swww/caps/index.md\sreferencing\sthe\snow-removed\n"plink\s-ssh\s-T"\salternative\sto\s"ssh\s-e\snone\s-T"\son\sWindows.\s\sThis\nparagraph\sbordered\son\s"TMI"\sbefore,\sso\snow\sthat\sit's\sgoing\sto\sbe\nincreasingly\scorrect\sas\sFossil\s2.16+\sfilters\sout,\sit\sneeds\sto\sgo.
+D 2021-06-22T16:57:53.407
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -826,7 +826,7 @@ F www/build.wiki 14429f3c3d1ce16b131bbf747cd88098768366f88a82bbdf6368993cf06b504
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md aae4ee41aef7c1ae4e000bd7fa9c403c23314d107812bd6e39af155353a6971c
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
-F www/caps/index.md 91e865df2c0e4b6b2cf6314a85229c12e62350706920ecddbbbb93a3a89e9544
+F www/caps/index.md 4b744fd6673b88e62a008e45e3cd27b12a978ce7b9ddcd977feec572f83e6e89
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
@@ -996,6 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 775860ad2e5fab79022f6bc763e7541e0577d05b8f4e9b39c23259706d509534
-U stephan
-Z 3fac1c2aa62bcc043dba499e92f8c54f
+P f8f1d035ed546958dd428e4c6653e672bcae3db232ce30253df40f3d50bc6e93
+R 0b6bac809a7c7e8585c3e9cdb77634d1
+U wyoung
+Z a566ad89386037c808dd0116c64c1943
