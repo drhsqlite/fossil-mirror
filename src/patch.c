@@ -226,11 +226,14 @@ void patch_attach(const char *zIn, FILE *in){
     Blob buf;
     int rc;
     int sz;
-    const unsigned char *pData;
+    unsigned char *pData;
     blob_init(&buf, 0, 0);
     sz = blob_read_from_channel(&buf, in, -1);
-    pData = (const unsigned char*)blob_buffer(&buf);
+    pData = (unsigned char*)blob_buffer(&buf);
     db_multi_exec("ATTACH ':memory:' AS patch");
+    if( g.fSqlTrace ){
+      fossil_trace("-- deserialize(\"patch\", pData, %lld);\n", sz);
+    }
     rc = sqlite3_deserialize(g.db, "patch", pData, sz, sz, 0);
     if( rc ){
       fossil_fatal("cannot open patch database: %s", sqlite3_errmsg(g.db));
@@ -522,7 +525,8 @@ static char *patch_find_patch_filename(const char *zCmdName){
   char *zToFree = 0;
   char *zPatchFile = 0;
   if( zDir64 ){
-    zToFree = decode64(zDir64, 0);
+    int n = 0;
+    zToFree = decode64(zDir64, &n);
     zDir = zToFree;
   }
   verify_all_options();
