@@ -617,12 +617,8 @@ static FILE *patch_remote_command(
 **
 **       Create a new binary patch in FILENAME that captures all uncommitted
 **       changes in the check-out at DIRECTORY, or the current directory if
-**       DIRECTORY is omitted.
-**
-**       If FILENAME is "-" then the binary patch is written to standard
-**       output, preceeded by 26 bytes of header that is an ASCII
-**       representation of the number of bytes in the patch followed by a
-**       newline.
+**       DIRECTORY is omitted.  If FILENAME is "-" then the binary patch
+**       is written to standard output.
 **
 ** > fossil patch apply [DIRECTORY] FILENAME
 **
@@ -637,7 +633,12 @@ static FILE *patch_remote_command(
 ** > fossil patch push REMOTE-CHECKOUT
 **
 **       Create a patch for the current check-out, transfer that patch to
-**       a remote machine (using ssh) and apply the patch there.
+**       a remote machine (using ssh) and apply the patch there.  The
+**       REMOTE-CHECKOUT is in one of the following formats:
+**
+**           *   DIRECTORY
+**           *   HOST:DIRECTORY
+**           *   USER@HOST:DIRECTORY
 **
 ** > fossil patch pull REMOTE-CHECKOUT
 **
