@@ -1318,7 +1318,7 @@ static const char aSafeChar[256] = {
      2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
      2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 1x */
      1,  0,  1,  1,  1,  1,  1,  1,  0,  0,  1,  0,  0,  0,  0,  0, /* 2x */
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
+     0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
      1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  1,  1,  0, /* 5x */
      1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6x */
@@ -1327,7 +1327,7 @@ static const char aSafeChar[256] = {
 /*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
      2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
      2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 1x */
-     1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, /* 2x */
+     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, /* 2x */
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
      1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  0, /* 5x */
@@ -1388,6 +1388,14 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
   /* Check for characters that need quoting */
   needEscape = strpbrk(zIn, zNeedQuote)!=0;
   if( !needEscape ){
+    if( zIn[0]=='-' ){
+      blob_append_char(pBlob, '.');
+#if defined(_WIN32)
+      blob_append_char(pBlob, '\\');
+#else
+      blob_append_char(pBlob, '/');
+#endif
+    }
     blob_append(pBlob, zIn, -1);
   }else{
 #if defined(_WIN32)
@@ -1414,11 +1422,11 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
         blob_append_char(pBlob, (char)c);
       }
     }else{
+      blob_append_char(pBlob, '\'');
       if( zIn[0]=='-' ){
         blob_append_char(pBlob, '.');
         blob_append_char(pBlob, '/');
       }
-      blob_append_char(pBlob, '\'');
       blob_append(pBlob, zIn, -1);
       blob_append_char(pBlob, '\'');
     }
