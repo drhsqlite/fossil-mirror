@@ -3222,32 +3222,7 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
   db_protect_pop();
 }
 void db_set_array(const char *zName, char* azValues[], size_t nValues, int globalFlag){
-  Stmt q;
-  db_assert_protection_off_or_not_sensitive(zName);
-  db_unprotect(PROTECT_CONFIG);
-  db_begin_transaction();
-  if( globalFlag ){
-    db_swap_connections();
-    sqlite3_carray_init(g.db, 0, 0);      /* not registered globally on purpose */
-    db_prepare(&q, "REPLACE INTO global_config(name,value) VALUES(%Q,"
-                     "(SELECT json_group_array(value) FROM carray(?1)))",
-                    zName);
-    sqlite3_carray_bind(q.pStmt, 1, azValues, nValues, CARRAY_TEXT, SQLITE_STATIC);
-    db_exec(&q);
-    db_swap_connections();
-  }else{
-    sqlite3_carray_init(g.db, 0, 0);      /* ditto */
-    db_prepare(&q, "REPLACE INTO config(name,value,mtime) VALUES(%Q,"
-                     "(SELECT json_group_array(value) FROM carray(?1)),now())",
-                    zName);
-    sqlite3_carray_bind(q.pStmt, 1, azValues, nValues, CARRAY_TEXT, SQLITE_STATIC);
-    db_exec(&q);
-  }
-  if( globalFlag && g.repositoryOpen ){
-    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
-  }
-  db_end_transaction(0);
-  db_protect_pop();
+  db_set(zName, json_serialize_array(azValues, nValues), globalFlag);
 }
 void db_unset(const char *zName, int globalFlag){
   db_begin_transaction();
@@ -4526,24 +4501,31 @@ void test_timespan_cmd(void){
 ** the JSON1 and Carray SQLite extensions are cooperating.
 */
 void test_json_carray_cmd(void){
+  fossil_print("%s\n", json_serialize_array(g.argv+2, g.argc-2));
+}
+
+/*
+** Serializes the passed array as a JSON array of strings.
+*/
+const char* json_serialize_array(char* const azValues[], size_t nValues){
   Stmt q;
-  sqlite3_open(":memory:", &g.db);
-  sqlite3_carray_init(g.db, 0, 0);
+  sqlite3* db;
+  sqlite3_open(":memory:", &db);
+  sqlite3_carray_init(db, 0, 0);
   db_prepare(&q, "SELECT json_group_array(value) FROM carray(?1)");
-  if( sqlite3_carray_bind(q.pStmt, 1, g.argv+2, g.argc-2, CARRAY_TEXT,
+  if( sqlite3_carray_bind(q.pStmt, 1, (void*)azValues, nValues, CARRAY_TEXT,
         SQLITE_STATIC)!= SQLITE_OK){
-    fossil_fatal("Could not bind argv array: %s\n", sqlite3_errmsg(g.db));
+    fossil_fatal("Could not bind argv array for JSON: %s\n",
+        sqlite3_errmsg(db));
   }
   if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%s\n", db_column_text(&q, 0));
+    const char* ret = fossil_strdup(db_column_text(&q, 0));
+    db_finalize(&q);
+    sqlite3_close(db);
+    return ret;
   }else{ 
     fossil_fatal("SQLite error: %s", sqlite3_errmsg(g.db));
   }
-  db_finalize(&q);
-  sqlite3_close(g.db);
-  g.db = 0;
-  g.repositoryOpen = 0;
-  g.localOpen = 0;
 }
 
 /*
