@@ -372,7 +372,7 @@ void test_fossil_system_cmd(void){
 ** to Windows platform limitations — see the definition of WinMain() —
 ** this is an ideal we can achieve only on POSIX platforms.
 */
-int fossil_spawn(const char* zProgram, char* const azArgv[])
+int fossil_spawn(const char* zProgram, char * const azArgv[])
 {
   extern char **environ;
   int status = -1;
@@ -399,7 +399,7 @@ int fossil_spawn(const char* zProgram, char* const azArgv[])
 */
 void test_fossil_spawn_cmd(void){
   int i, j=0;
-  char** azArgv = fossil_malloc(sizeof(char*) * (g.argc + 1));
+  char **azArgv = fossil_malloc(sizeof(char*) * (g.argc + 1));
   azArgv[j++] = g.nameOfExe;
   azArgv[j++] = "test-echo";
   if( find_option("hex",0,0) ){
