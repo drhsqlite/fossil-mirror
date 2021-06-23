@@ -193,8 +193,8 @@ void patch_create(const char *zOut, FILE *out){
     "UNION ALL"
     " SELECT 'date',julianday('now')"
     "UNION ALL"
-    " SELECT 'project-code',value FROM repository.config"
-    "  WHERE name='project-code' "
+    " SELECT name,value FROM repository.config"
+    "  WHERE name IN ('project-code','project-name') "
     "UNION ALL"
     " SELECT 'fossil-date',julianday('" MANIFEST_DATE "')"
     ";", vid, g.zLocalRoot, g.zRepositoryName, g.zLogin);
@@ -307,19 +307,39 @@ void patch_attach(const char *zIn, FILE *in){
 /*
 ** Show a summary of the content of a patch on standard output
 */
-void patch_view(void){
+void patch_view(unsigned mFlags){
   Stmt q;
-  db_prepare(&q, "SELECT value FROM patch.cfg WHERE key='baseline'");
-  if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%-10s %s\n", "BASELINE", db_column_text(&q,0));
-  }else{
-    fossil_fatal("ERROR: Missing patch baseline");
+  db_prepare(&q, 
+    "WITH nmap(nkey,nm) AS (VALUES"
+       "('baseline','BASELINE'),"
+       "('project-name','PROJECT-NAME'))"
+    "SELECT nm, value FROM nmap, patch.cfg WHERE nkey=key;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%-12s %s\n", db_column_text(&q,0), db_column_text(&q,1));
   }
   db_finalize(&q);
+  if( mFlags & PATCH_VERBOSE ){
+    db_prepare(&q, 
+      "WITH nmap(nkey,nm,isDate) AS (VALUES"
+         "('project-code','PROJECT-CODE',0),"
+         "('date','TIMESTAMP',1),"
+         "('user','USER',0),"
+         "('hostname','HOSTNAME',0),"
+         "('ckout','CHECKOUT',0),"
+         "('repo','REPOSITORY',0))"
+      "SELECT nm, CASE WHEN isDate THEN datetime(value) ELSE value END"
+      "  FROM nmap, patch.cfg WHERE nkey=key;"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%-12s %s\n", db_column_text(&q,0), db_column_text(&q,1));
+    }
+    db_finalize(&q);
+  }
   if( db_table_exists("patch","patchmerge") ){
     db_prepare(&q, "SELECT upper(type),mhash FROM patchmerge");
     while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("%-10s %s\n",
+      fossil_print("%-12s %s\n",
         db_column_text(&q,0),
         db_column_text(&q,1));
     }
@@ -341,10 +361,10 @@ void patch_view(void){
       zClass = zOrigName==0 ? "DELETE" : 0;
     }
     if( zOrigName!=0 && zOrigName[0]!=0 ){
-      fossil_print("%-10s %s -> %s\n", "RENAME",zOrigName,zName);
+      fossil_print("%-12s %s -> %s\n", "RENAME",zOrigName,zName);
     }
     if( zClass ){
-      fossil_print("%-10s %s\n", zClass, zName);
+      fossil_print("%-12s %s\n", zClass, zName);
     }
   }
   db_finalize(&q);
@@ -887,6 +907,8 @@ void patch_cmd(void){
   }else
   if( strncmp(zCmd, "view", n)==0 ){
     const char *zIn;
+    unsigned int flags = 0;
+    if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     verify_all_options();
     if( g.argc!=4 ){
       usage("view FILENAME");
@@ -894,7 +916,7 @@ void patch_cmd(void){
     zIn = g.argv[3];
     if( fossil_strcmp(zIn, "-")==0 ) zIn = 0;
     patch_attach(zIn, stdin);
-    patch_view();
+    patch_view(flags);
   }else
   {
     goto patch_usage;

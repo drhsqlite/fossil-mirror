@@ -1,5 +1,5 @@
-C In\sthe\s"fossil\spatch"\scommand,\smiscellaneous\scode\sclean-up.\s\sDo\snot\srequire\nan\soption\scheck-out\sto\srun\s"fossil\spatch\sdiff",\sthough\sa\s-R\sREPO\soption\sis\nrequired\sif\snot\sin\san\sopen\scheck-out.\s\sNo\serror\sis\sgiven\sif\sthe\srepository\nand\sthe\spatch\sdo\snot\smatch\s-\sthat\sneeds\sto\sbe\sfixed.
-D 2021-06-23T18:43:13.167
+C Enhance\s"fossil\spatch"\sto\srecord\sthe\sproject\sname\sas\spart\sof\sthe\spatch.\nShow\sthe\sproject\sname\sin\s"fossil\spatch\sview"\soutput,\sif\sit\sexists.\s\sShow\nlots\sof\smetadata\sin\s"fossil\sproject\sview"\swith\sthe\s-v\sflag.
+D 2021-06-23T19:06:11.585
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -559,7 +559,7 @@ F src/mkindex.c 971441257ae3452150daa6f70c08db56e2d18cd1073472cf9d3e92b8b7d18d62
 F src/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d2691
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 274aa2b22e665627369da0e16748dace3618301f326662e02a67a6d7006c66e2
-F src/patch.c 3936c27387119d18bbecad44a6b08b547bbee9cb43bf8e023f1b5368c24e093f
+F src/patch.c e711c927eef3c3b6b5cd1439674ec3d6c51ad39e8c34fecc096e46d7518b6e85
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
 F src/pikchr.c a5a771ace33072c53c3346770a87254cbea3d86bdcfd3198cb8fd6cde4d53c87
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72d07a52c36c196f45335c633a26f5c2551f87ec329665c66037b48b6f7253fc
-R 22f5e7039983080f4c9f27eeefd543d4
+P 2e8c5da0ab17f9e8ccad4b4fb34294687bd1b54e5aeec9fdbea89ff9c76d97fb
+R 6f841257f07d9b632bbf80e11aa5c062
 U drh
-Z e63c1558c73776f46b073a9d9bd5dc2e
+Z 6fba3bc0aa26bb25c2b293860b273090
