@@ -713,21 +713,68 @@ static void patch_diff(
   Stmt q;
   Blob empty;
   blob_zero(&empty);
+
+  /* Check to ensure that the patch against the repository that we
+  ** have opened.
+  **
+  ** To do: If there is a mismatch, should we scan all of the repositories
+  ** listed in the global_config table looking for a match?
+  */
+  if( db_exists(
+      "SELECT 1 FROM patch.cfg"
+      " WHERE cfg.key='baseline'"
+      "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=cfg.value)"
+  )){
+    char *zBaseline;
+    db_prepare(&q,
+       "SELECT config.value, cfg.value FROM config, cfg"
+       " WHERE config.name='project-name'"
+       "   AND cfg.key='project-name'"
+       "   AND config.value<>cfg.value"
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      char *zRepo = fossil_strdup(db_column_text(&q,0));
+      char *zPatch = fossil_strdup(db_column_text(&q,1));
+      db_finalize(&q);
+      fossil_fatal("the patch is against project \"%z\" but you are using "
+                   "project \"%z\"", zPatch, zRepo);
+    }
+    db_finalize(&q);
+    zBaseline = db_text(0, "SELECT value FROM patch.cfg"
+                           " WHERE key='baseline'");
+    if( zBaseline ){
+      fossil_fatal("the baseline of the patch (check-in %S) is not found "
+                   "in the %s repository", zBaseline, g.zRepositoryName);
+    }
+  }
+  
   db_prepare(&q,
      "SELECT"
-       " blob.rid,"    /* 0: rid of the baseline */
+       " (SELECT blob.rid FROM blob WHERE blob.uuid=chng.hash),"
        " pathname,"    /* 1: new pathname */
        " origname,"    /* 2: original pathname.  Null if not renamed */
-       " delta"        /* 3: delta.  NULL if deleted.  empty is no change */
-     " FROM patch.chng, blob WHERE blob.uuid=patch.chng.hash"
+       " delta,"       /* 3: delta.  NULL if deleted.  empty is no change */
+       " hash"         /* 4: baseline hash */
+     " FROM patch.chng"
      " ORDER BY pathname"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
-    /* const char *zOrig = db_column_text(&q, 2); */
-    const char *zName = db_column_text(&q, 1);
+    int rid;
+    const char *zName;
     int isBin1, isBin2;
     Blob a, b;
+ 
+    if( db_column_type(&q,0)!=SQLITE_INTEGER
+     && db_column_type(&q,4)==SQLITE_TEXT
+    ){
+      char *zUuid = fossil_strdup(db_column_text(&q,4));
+      char *zName = fossil_strdup(db_column_text(&q,1));
+      db_finalize(&q);
+      fossil_fatal("base artifact %S for file \"%s\" not found", zUuid, zName);
+    }
+    zName = db_column_text(&q, 1);
+    rid = db_column_int(&q, 0);
+
     if( db_column_type(&q,3)==SQLITE_NULL ){
       fossil_print("DELETE %s\n", zName);
       diff_print_index(zName, diffFlags, 0);
