@@ -33,6 +33,25 @@
 #endif
 
 /*
+** Try to compute the name of the computer on which this process
+** is running.
+*/
+char *fossil_hostname(void){
+  FILE *in;
+  char zBuf[200];
+  in = popen("hostname","r");
+  if( in ){
+    size_t n = fread(zBuf, 1, sizeof(zBuf)-1, in);
+    while( n>0 && fossil_isspace(zBuf[n-1]) ){ n--; }
+    if( n<0 ) n = 0;
+    zBuf[n] = 0;
+    pclose(in);
+    return fossil_strdup(zBuf);
+  }
+  return 0;
+}
+
+/*
 ** Flags passed from the main patch_cmd() routine into subfunctions used
 ** to implement the various subcommands.
 */
@@ -129,6 +148,7 @@ static void mkdeltaFunc(
 */
 void patch_create(const char *zOut, FILE *out){
   int vid;
+  char *z;
 
   if( zOut && file_isdir(zOut, ExtFILE)!=0 ){
     fossil_fatal("patch file already exists: %s", zOut);
@@ -158,9 +178,30 @@ void patch_create(const char *zOut, FILE *out){
   );
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, CKSIG_ENOTFILE);
+  user_select();
   db_multi_exec(
     "INSERT INTO patch.cfg(key,value)"
-    "SELECT 'baseline',uuid FROM blob WHERE rid=%d", vid);
+    "SELECT 'baseline',uuid FROM blob WHERE rid=%d "
+    "UNION ALL"
+    " SELECT 'ckout',rtrim(%Q,'/')"
+    "UNION ALL"
+    " SELECT 'repo',%Q "
+    "UNION ALL"
+    " SELECT 'user',%Q "
+    "UNION ALL"
+    " SELECT 'date',julianday('now')"
+    "UNION ALL"
+    " SELECT 'project-code',value FROM repository.config"
+    "  WHERE name='project-code' "
+    "UNION ALL"
+    " SELECT 'fossil-date',julianday('" MANIFEST_DATE "')"
+    ";", vid, g.zLocalRoot, g.zRepositoryName, g.zLogin);
+  z = fossil_hostname();
+  if( z ){
+    db_multi_exec(
+       "INSERT INTO patch.cfg(key,value)VALUES('hostname',%Q)", z);
+    fossil_free(z);
+  }
   
   /* New files */
   db_multi_exec(
