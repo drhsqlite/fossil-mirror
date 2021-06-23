@@ -699,7 +699,7 @@ static void patch_diff(
   );
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
-//    const char *zOrig = db_column_text(&q, 2);
+    /* const char *zOrig = db_column_text(&q, 2); */
     const char *zName = db_column_text(&q, 1);
     int isBin1, isBin2;
     Blob a, b;
@@ -805,7 +805,7 @@ void patch_cmd(void){
   size_t n;
   if( g.argc<3 ){
     patch_usage:
-    usage("apply|create|pull|push|view");
+    usage("apply|create|diff|pull|push|view");
   }
   zCmd = g.argv[2];
   n = strlen(zCmd);
@@ -849,9 +849,9 @@ void patch_cmd(void){
       zBinGlob = diff_get_binary_glob();
       fIncludeBinary = diff_include_binary_files();
     }
-    zIn = patch_find_patch_filename("apply");
-    db_must_be_within_tree();
+    db_find_and_open_repository(0, 0);
     verify_all_options();
+    zIn = patch_find_patch_filename("apply");
     patch_attach(zIn, stdin);
     patch_diff( zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
     fossil_free(zIn);
