@@ -84,8 +84,8 @@ static void readfileFunc(
 **
 ** X is an numeric artifact id.  Y is a filename.
 **
-** Compute a compressed delta that carries X into Y.  Or return NULL
-** if X is equal to Y.
+** Compute a compressed delta that carries X into Y.  Or return 
+** and zero-length blob if X is equal to Y.
 */
 static void mkdeltaFunc(
   sqlite3_context *context,
@@ -128,6 +128,7 @@ static void mkdeltaFunc(
   ){
     blob_reset(&y);
     blob_reset(&x);
+    sqlite3_result_blob64(context, "", 0, SQLITE_STATIC);
     return;
   }
   nOut = delta_create(blob_buffer(&x),blob_size(&x),
@@ -169,7 +170,8 @@ void patch_create(const char *zOut, FILE *out){
     "  hash TEXT,\n"     /* Baseline hash.  NULL for new files. */
     "  isexe BOOL,\n"    /* True if executable */
     "  islink BOOL,\n"   /* True if is a symbolic link */
-    "  delta BLOB\n"     /* Delta.  NULL if file deleted or unchanged */
+    "  delta BLOB\n"     /* compressed delta. NULL if deleted. 
+                         **    length 0 if unchanged */
     ");"
     "CREATE TABLE patch.cfg(\n"
     "  key TEXT,\n"
@@ -324,10 +326,10 @@ void patch_view(void){
     db_finalize(&q);
   }
   db_prepare(&q,
-    "SELECT pathname,"
-          " hash IS NULL AND delta IS NOT NULL,"  /* isNew */
-          " delta IS NULL,"                       /* delete if origname NULL */
-          " origname"
+    "SELECT pathname,"                            /* 0: new name */
+          " hash IS NULL AND delta IS NOT NULL,"  /* 1: isNew */
+          " delta IS NULL,"                       /* 2: isDeleted */
+          " origname"                             /* 3: old name or NULL */
     "  FROM patch.chng ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zClass = "EDIT";
@@ -488,9 +490,13 @@ void patch_apply(unsigned mFlags){
     Blob data;
 
     blob_init(&data, 0, 0);
-    db_column_blob(&q, 4, &data);
-    blob_uncompress(&data, &data);
-    if( zHash ){
+    db_ephemeral_blob(&q, 4, &data);
+    if( blob_size(&data) ){
+      blob_uncompress(&data, &data);
+    }
+    if( blob_size(&data)==0 ){
+      /* No changes to the file */
+    }else if( zHash ){
       Blob basis;
       int rid = fast_uuid_to_rid(zHash);
       int outSize, sz;
@@ -555,15 +561,31 @@ void patch_apply(unsigned mFlags){
 }
 
 /*
-** Find the filename of the patch file to be used by
-** "fossil patch apply" or "fossil patch create".
+** This routine processes the
 **
-** If the name is "-" return NULL.
+**   ...  [--dir64 DIR64] [DIRECTORY] FILENAME
 **
-** Otherwise, if there is a prior DIRECTORY argument, or if
+** part of various "fossil patch" subcommands.
+**
+** Find and return the filename of the patch file to be used by
+** "fossil patch apply" or "fossil patch create".  Space to hold
+** the returned name is obtained from fossil_malloc() and should
+** be freed by the caller.
+**
+** If the name is "-" return NULL.  The caller will interpret this
+** to mean the patch is coming in over stdin or going out over
+** stdout.
+**
+** If there is a prior DIRECTORY argument, or if
 ** the --dir64 option is present, first chdir to the specified
-** directory, and translate the name in the argument accordingly.
+** directory, and adjust the path of FILENAME as appropriate so
+** that it still points to the same file.
 **
+** The --dir64 option is undocumented.  The argument to --dir64
+** is a base64-encoded directory name.  The --dir64 option is used
+** to transmit the directory as part of the command argument to
+** a "ssh" command without having to worry about quoting
+** any special characters in the filename.
 **
 ** The returned name is obtained from fossil_malloc() and should
 ** be freed by the caller.
@@ -606,6 +628,8 @@ static char *patch_find_patch_filename(const char *zCmdName){
 /*
 ** Create a FILE* that will execute the remote side of a push or pull
 ** using ssh (probably) or fossil for local pushes and pulls.  Return
+** a FILE* obtained from popen() into which we write the patch, or from
+** which we read the patch, depending on whether this is a push or pull.
 */
 static FILE *patch_remote_command(
   unsigned mFlags,             /* flags */
@@ -652,6 +676,69 @@ static FILE *patch_remote_command(
   return f;
 }
 
+/*
+** Show a diff for the patch currently loaded into database "patch".
+*/
+static void patch_diff(
+  const char *zDiffCmd,    /* Command used for diffing */
+  const char *zBinGlob,    /* GLOB pattern to determine binary files */
+  int fIncludeBinary,      /* Do diffs against binary files */
+  u64 diffFlags            /* Other diff flags */
+){
+  Stmt q;
+  Blob empty;
+  blob_zero(&empty);
+  db_prepare(&q,
+     "SELECT"
+       " blob.rid,"    /* 0: rid of the baseline */
+       " pathname,"    /* 1: new pathname */
+       " origname,"    /* 2: original pathname.  Null if not renamed */
+       " delta"        /* 3: delta.  NULL if deleted.  empty is no change */
+     " FROM patch.chng, blob WHERE blob.uuid=patch.chng.hash"
+     " ORDER BY pathname"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+//    const char *zOrig = db_column_text(&q, 2);
+    const char *zName = db_column_text(&q, 1);
+    int isBin1, isBin2;
+    Blob a, b;
+    if( db_column_type(&q,3)==SQLITE_NULL ){
+      fossil_print("DELETE %s\n", zName);
+      diff_print_index(zName, diffFlags, 0);
+      isBin2 = 0;
+      content_get(rid, &a);
+      isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
+      diff_file_mem(&a, &empty, isBin1, isBin2, zName, zDiffCmd,
+                    zBinGlob, fIncludeBinary, diffFlags);
+    }else if( rid==0 ){
+      db_ephemeral_blob(&q, 3, &a);
+      blob_uncompress(&a, &a);
+      fossil_print("ADDED %s\n", zName);
+      diff_print_index(zName, diffFlags, 0);
+      isBin1 = 0;
+      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
+      diff_file_mem(&empty, &a, isBin1, isBin2, zName, zDiffCmd,
+                    zBinGlob, fIncludeBinary, diffFlags);
+      blob_reset(&a);
+    }else if( db_column_bytes(&q, 3)>0 ){
+      Blob delta;
+      db_ephemeral_blob(&q, 3, &delta);
+      blob_uncompress(&delta, &delta);
+      content_get(rid, &a);
+      blob_delta_apply(&a, &delta, &b);
+      isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
+      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
+      diff_file_mem(&a, &b, isBin1, isBin2, zName,
+                    zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+      blob_reset(&a);
+      blob_reset(&b);
+      blob_reset(&delta);
+    }
+  }
+  db_finalize(&q);
+}
+
 
 /*
 ** COMMAND: patch
@@ -679,6 +766,11 @@ static FILE *patch_remote_command(
 **                          changes in the current check-out.
 **           -n|--dryrun    Do nothing, but print what would have happened.
 **           -v|--verbose   Extra output explaining what happens.
+**
+** > fossil patch diff [DIRECTORY] FILENAME
+**
+**       Show a human-readable diff for the patch.  All the usual
+**       diff flags apply.  (See help for "fossil diff").
 **
 ** > fossil patch push REMOTE-CHECKOUT
 **
@@ -735,6 +827,34 @@ void patch_cmd(void){
     db_must_be_within_tree();
     patch_create(zOut, stdout);
     fossil_free(zOut);
+  }else
+  if( strncmp(zCmd, "diff", n)==0 ){
+    const char *zDiffCmd = 0;
+    const char *zBinGlob = 0;
+    int fIncludeBinary = 0;
+    u64 diffFlags;
+    char *zIn;
+
+    if( find_option("tk",0,0)!=0 ){
+      db_close(0);
+      diff_tk("patch diff", 3);
+      return;
+    }
+    if( find_option("internal","i",0)==0 ){
+      zDiffCmd = diff_command_external(zCmd[0]=='g');
+    }
+    diffFlags = diff_options();
+    if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
+    if( zDiffCmd ){
+      zBinGlob = diff_get_binary_glob();
+      fIncludeBinary = diff_include_binary_files();
+    }
+    zIn = patch_find_patch_filename("apply");
+    db_must_be_within_tree();
+    verify_all_options();
+    patch_attach(zIn, stdin);
+    patch_diff( zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+    fossil_free(zIn);
   }else
   if( strncmp(zCmd, "pull", n)==0 ){
     FILE *pIn = 0;
