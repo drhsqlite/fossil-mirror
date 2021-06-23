@@ -147,12 +147,17 @@ static void mkdeltaFunc(
 ** Generate a binary patch file and store it into the file
 ** named zOut.
 */
-void patch_create(const char *zOut, FILE *out){
+void patch_create(unsigned mFlags, const char *zOut, FILE *out){
   int vid;
   char *z;
 
   if( zOut && file_isdir(zOut, ExtFILE)!=0 ){
-    fossil_fatal("patch file already exists: %s", zOut);
+    if( mFlags & PATCH_FORCE ){
+      file_delete(zOut);
+    }
+    if( file_isdir(zOut, ExtFILE)!=0 ){
+      fossil_fatal("patch file already exists: %s", zOut);
+    }
   }
   add_content_sql_commands(g.db);
   deltafunc_init(g.db);
@@ -777,6 +782,8 @@ static void patch_diff(
 **       DIRECTORY is omitted.  If FILENAME is "-" then the binary patch
 **       is written to standard output.
 **
+**           -f|--force     Overwrite an existing patch with the same name.
+**
 ** > fossil patch apply [DIRECTORY] FILENAME
 **
 **       Apply the changes in FILENAME to the check-out a DIRECTORY, or
@@ -818,6 +825,9 @@ static void patch_diff(
 ** > fossil patch view FILENAME
 **
 **       View a summary of the the changes in the binary patch FILENAME.
+**       Use "fossil patch diff" for detailed patch content.
+**
+**           -v|--verbose   Show extra detail about the patch.
 **
 */
 void patch_cmd(void){
@@ -843,9 +853,12 @@ void patch_cmd(void){
   }else
   if( strncmp(zCmd, "create", n)==0 ){
     char *zOut;
+    unsigned flags = 0;
+    if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     zOut = patch_find_patch_filename("create");
+    verify_all_options();
     db_must_be_within_tree();
-    patch_create(zOut, stdout);
+    patch_create(flags, zOut, stdout);
     fossil_free(zOut);
   }else
   if( strncmp(zCmd, "diff", n)==0 ){
@@ -901,7 +914,7 @@ void patch_cmd(void){
     verify_all_options();
     pOut = patch_remote_command(flags, "push", "apply", "w");
     if( pOut ){
-      patch_create(0, pOut);
+      patch_create(0, 0, pOut);
       pclose(pOut);
     }
   }else
