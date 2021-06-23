@@ -705,46 +705,50 @@ static FILE *patch_remote_command(
 ** Show a diff for the patch currently loaded into database "patch".
 */
 static void patch_diff(
+  unsigned mFlags,         /* Patch flags.  only -f is allowed */
   const char *zDiffCmd,    /* Command used for diffing */
   const char *zBinGlob,    /* GLOB pattern to determine binary files */
   int fIncludeBinary,      /* Do diffs against binary files */
   u64 diffFlags            /* Other diff flags */
 ){
+  int nErr = 0;
   Stmt q;
   Blob empty;
   blob_zero(&empty);
 
-  /* Check to ensure that the patch against the repository that we
-  ** have opened.
-  **
-  ** To do: If there is a mismatch, should we scan all of the repositories
-  ** listed in the global_config table looking for a match?
-  */
-  if( db_exists(
-      "SELECT 1 FROM patch.cfg"
-      " WHERE cfg.key='baseline'"
-      "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=cfg.value)"
-  )){
-    char *zBaseline;
-    db_prepare(&q,
-       "SELECT config.value, cfg.value FROM config, cfg"
-       " WHERE config.name='project-name'"
-       "   AND cfg.key='project-name'"
-       "   AND config.value<>cfg.value"
-    );
-    if( db_step(&q)==SQLITE_ROW ){
-      char *zRepo = fossil_strdup(db_column_text(&q,0));
-      char *zPatch = fossil_strdup(db_column_text(&q,1));
+  if( (mFlags & PATCH_FORCE)==0 ){
+    /* Check to ensure that the patch against the repository that we
+    ** have opened.
+    **
+    ** To do: If there is a mismatch, should we scan all of the repositories
+    ** listed in the global_config table looking for a match?
+    */
+    if( db_exists(
+        "SELECT 1 FROM patch.cfg"
+        " WHERE cfg.key='baseline'"
+        "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=cfg.value)"
+    )){
+      char *zBaseline;
+      db_prepare(&q,
+         "SELECT config.value, cfg.value FROM config, cfg"
+         " WHERE config.name='project-name'"
+         "   AND cfg.key='project-name'"
+         "   AND config.value<>cfg.value"
+      );
+      if( db_step(&q)==SQLITE_ROW ){
+        char *zRepo = fossil_strdup(db_column_text(&q,0));
+        char *zPatch = fossil_strdup(db_column_text(&q,1));
+        db_finalize(&q);
+        fossil_fatal("the patch is against project \"%z\" but you are using "
+                     "project \"%z\"", zPatch, zRepo);
+      }
       db_finalize(&q);
-      fossil_fatal("the patch is against project \"%z\" but you are using "
-                   "project \"%z\"", zPatch, zRepo);
-    }
-    db_finalize(&q);
-    zBaseline = db_text(0, "SELECT value FROM patch.cfg"
-                           " WHERE key='baseline'");
-    if( zBaseline ){
-      fossil_fatal("the baseline of the patch (check-in %S) is not found "
-                   "in the %s repository", zBaseline, g.zRepositoryName);
+      zBaseline = db_text(0, "SELECT value FROM patch.cfg"
+                             " WHERE key='baseline'");
+      if( zBaseline ){
+        fossil_fatal("the baseline of the patch (check-in %S) is not found "
+                     "in the %s repository", zBaseline, g.zRepositoryName);
+      }
     }
   }
   
@@ -769,8 +773,18 @@ static void patch_diff(
     ){
       char *zUuid = fossil_strdup(db_column_text(&q,4));
       char *zName = fossil_strdup(db_column_text(&q,1));
-      db_finalize(&q);
-      fossil_fatal("base artifact %S for file \"%s\" not found", zUuid, zName);
+      if( mFlags && PATCH_FORCE ){
+        fossil_print("ERROR cannot find base artifact %S for file \"%s\"\n",
+                      zUuid, zName);
+        nErr++;
+        fossil_free(zUuid);
+        fossil_free(zName);
+        continue;
+      }else{
+        db_finalize(&q);
+        fossil_fatal("base artifact %S for file \"%s\" not found",
+                     zUuid, zName);
+      }
     }
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 0);
@@ -809,6 +823,7 @@ static void patch_diff(
     }
   }
   db_finalize(&q);
+  if( nErr ) fossil_fatal("abort due to prior errors");
 }
 
 
@@ -844,7 +859,11 @@ static void patch_diff(
 ** > fossil patch diff [DIRECTORY] FILENAME
 **
 **       Show a human-readable diff for the patch.  All the usual
-**       diff flags apply.  (See help for "fossil diff").
+**       diff flags described at "fossil help diff" apply.  In addition:
+**
+**           -f|--force     Continue trying to perform the diff even if
+**                          baseline information is missing from the current
+**                          repository
 **
 ** > fossil patch push REMOTE-CHECKOUT
 **
@@ -914,6 +933,7 @@ void patch_cmd(void){
     int fIncludeBinary = 0;
     u64 diffFlags;
     char *zIn;
+    unsigned flags = 0;
 
     if( find_option("tk",0,0)!=0 ){
       db_close(0);
@@ -930,10 +950,11 @@ void patch_cmd(void){
       fIncludeBinary = diff_include_binary_files();
     }
     db_find_and_open_repository(0, 0);
+    if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     verify_all_options();
     zIn = patch_find_patch_filename("apply");
     patch_attach(zIn, stdin);
-    patch_diff( zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+    patch_diff(flags, zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
     fossil_free(zIn);
   }else
   if( strncmp(zCmd, "pull", n)==0 ){
