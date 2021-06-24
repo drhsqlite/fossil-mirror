@@ -1545,17 +1545,38 @@ void test_escaped_arg_command(void){
         int rc;
         unsigned char zWord[100];
         sqlite3_randomness(sizeof(m), &m);
-        m %= 50;
-        m += 2;
+        m = (m%40)+5;
         sqlite3_randomness(m, zWord);
         for(k=0; k<m; k++){
           unsigned char cx = zWord[k];
           if( cx<0x20 || cx>=0x7f ){
-            zWord[k] = "abcdefghijklmnopqrstuvwxyz_"[cx%27];
+            unsigned int u;
+            if( cx>=0x7f ){
+              u = cx;
+            }else if( cx>=0x08 ){
+              u = 0x800 + cx;
+            }else{
+              u = 0x10000 + cx;
+            }
+            if( u<0x00080 ){
+              zWord[k] = u & 0xFF;
+            }else if( u<0x00800 ){
+              zWord[k++] = 0xC0 + (u8)((u>>6)&0x1F);
+              zWord[k] =   0x80 + (u8)(u & 0x3F);
+            }else if( u<0x10000 ){
+              zWord[k++] = 0xE0 + (u8)((u>>12)&0x0F);
+              zWord[k++] = 0x80 + (u8)((u>>6) & 0x3F);
+              zWord[k] =   0x80 + (u8)(u & 0x3F);
+            }else{
+              zWord[k++] = 0xF0 + (u8)((u>>18) & 0x07);
+              zWord[k++] = 0x80 + (u8)((u>>12) & 0x3F);
+              zWord[k++] = 0x80 + (u8)((u>>6) & 0x3F);
+              zWord[k]   = 0x80 + (u8)(u & 0x3F);
+            }
           }
         }
         zWord[k] = 0;
-        encode16(zWord, (unsigned char*)zBuf, (int)m);
+        encode16(zWord, (unsigned char*)zBuf, (int)k);
         blob_appendf(&x, "%$ test-escaped-arg --compare %s %$",
                          g.nameOfExe, zBuf,zWord);
         rc = fossil_system(blob_str(&x));

@@ -252,10 +252,6 @@ static void fossil_assert_safe_command_string(const char *z){
         if( inQuote==0 && z[i+1]!=0 ) unsafe = i+1;
         break;
       }
-      case '\\': {
-        if( z[i+1]=='"' ){ i++; }
-        break;
-      }
       case '"': {
         if( inQuote==c ){
           inQuote = 0;
@@ -265,9 +261,7 @@ static void fossil_assert_safe_command_string(const char *z){
         break;
       }
       case '^': {
-        if( z[i+1]=='"' ){
-          unsafe = i+2;
-        }else if( z[i+1]!=0 ){
+        if( !inQuote && z[i+1]!=0 ){
           i++;
         }
         break;
