@@ -832,7 +832,7 @@ static void patch_diff(
 **
 ** Usage: %fossil patch SUBCOMMAND ?ARGS ..?
 **
-** This command is used to creates, view, and apply Fossil binary patches.
+** This command is used to create, view, and apply Fossil binary patches.
 ** A Fossil binary patch is a single (binary) file that captures all of the
 ** uncommitted changes of a check-out.  Use Fossil binary patches to transfer
 ** proposed or incomplete changes between machines for testing or analysis.
@@ -848,7 +848,7 @@ static void patch_diff(
 **
 ** > fossil patch apply [DIRECTORY] FILENAME
 **
-**       Apply the changes in FILENAME to the check-out a DIRECTORY, or
+**       Apply the changes in FILENAME to the check-out at DIRECTORY, or
 **       in the current directory if DIRECTORY is omitted. Options:
 **
 **           -f|--force     Apply the patch even though there are unsaved
@@ -890,7 +890,7 @@ static void patch_diff(
 **
 ** > fossil patch view FILENAME
 **
-**       View a summary of the the changes in the binary patch FILENAME.
+**       View a summary of the changes in the binary patch FILENAME.
 **       Use "fossil patch diff" for detailed patch content.
 **
 **           -v|--verbose   Show extra detail about the patch.
