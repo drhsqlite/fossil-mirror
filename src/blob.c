@@ -1369,11 +1369,11 @@ static const char aSafeChar[256] = {
 ** that need to be escaped for the shell.  If zIn contains characters
 ** that cannot be safely escaped, then throw a fatal error.
 **
-** The argument is expected to a filename of some kinds.  As shell commands
+** The argument is expected to be a filename.  As shell commands
 ** commonly have command-line options that begin with "-" and since we
 ** do not want an attacker to be able to invoke these switches using
 ** filenames that begin with "-", if zIn begins with "-", prepend
-** an additional "./".
+** an additional "./" (or ".\\" on Windows).
 */
 void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
   int i;
@@ -1382,8 +1382,10 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
   int n = blob_size(pBlob);
   char *z = blob_buffer(pBlob);
 
-  /* Any control character is illegal.  This prevents \n and \r in an
-  ** argument. */
+  /* Look for illegal byte-sequences and byte-sequences that require
+  ** escaping.  No control-characters are allowed.  All spaces and
+  ** non-ASCII unicode characters and some punctuation characters require
+  ** escaping. */
   for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
     if( aSafeChar[c] ){
       unsigned char x = aSafeChar[c];
@@ -1546,10 +1548,12 @@ void test_escaped_arg_command(void){
         unsigned char zWord[100];
         sqlite3_randomness(sizeof(m), &m);
         m = (m%40)+5;
-        sqlite3_randomness(m, zWord);
+        sqlite3_randomness(m, zWord); /* Between 5 and 45 bytes of randomness */
         for(k=0; k<m; k++){
           unsigned char cx = zWord[k];
           if( cx<0x20 || cx>=0x7f ){
+            /* Translate illegal bytes into various non-ASCII unicode
+            ** characters in order to exercise those code paths */
             unsigned int u;
             if( cx>=0x7f ){
               u = cx;

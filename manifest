@@ -1,5 +1,5 @@
-C Improvements\sto\scommand-line\ssafety\schecks\sfor\sWindows.\s\sEnhance\sthe\ncommand-line\sargument\squoting\sfuzzer\sto\sinject\sall\skinds\sof\smulti-byte\nUTF-8\scharacters.
-D 2021-06-24T16:31:42.351
+C Improvements\sto\scomments\son\sthe\sfilename\sshell\squoting\slogic\sand\stest\slogic.\nNo\schanges\sto\scode.
+D 2021-06-24T16:40:48.149
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 5f49dc67c10ec4de17ae9e4aacc2ff4e6a6313387e584ee3f18e5f655a791ab
 F src/backoffice.c 4db70d65ea7b5851ee27ae2a62dcae293fcb7698bc23e41c9427cdfa65e3600d
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 0a2d77a146c073fd30217ace281e5aaf56d20e3906ddb704db7521c34f4f3ca0
-F src/blob.c ef08060737e0c15bfce7f60bed28d350eae984dbb2818d7304e068f322b0f012
+F src/blob.c a4ce8c736d5bd8ec593ebc30a62559a237340b418f9e7bc62914ec150474ce10
 F src/branch.c 1c0d2c9d91574250ccaf15c53bdf4548a4201681cda6f085b799ec351780b8aa
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
@@ -642,7 +642,7 @@ F src/url.c 68ea150d8554de9f48c836553203d2ca189fcd90c619acfe6e0843add2fa1739
 F src/user.c ab5935542e97ad3a9f6e411528e6d060da0a711442a03fa82a604e7c161363bd
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c 63b4f26bf655c8c4abccdf5c579ea3549bed27db91c5cd31a5a79b19663fdc67
+F src/util.c 333d90cb480c6fb574608f65cc7e0f1be85df6665143a31d8da8646c7a6ba8ac
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c 579a1bef246987e2bb7193a10ee38d82ae6b07bb55cd89fe8c6f9bbde78423e0
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19f195a838ba539c35e581e42d67144a72aca218e00388cdd241a4608a6f5b9b
-R 3594fc706fc6e260d1ecaa7b254838e4
+P 6d2e48b4cd38e0283863b88c0b5b96091c642fea3d61d2a5b4f131f86ad476a8
+R dd7c7df084580c75f42f2493cbd0be1b
 U drh
-Z eb3a4343b46b2894d4c77d952ed7a3fb
+Z 74b25b54fe469c5ccff81e014ecc2119
