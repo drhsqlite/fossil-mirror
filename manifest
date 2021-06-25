@@ -1,5 +1,5 @@
-C Improvements\sto\scomments\son\sthe\sfilename\sshell\squoting\slogic\sand\stest\slogic.\nNo\schanges\sto\scode.
-D 2021-06-24T16:40:48.149
+C Integrated\sa\sdoc\ssuggestion\sfrom\s[forum:/forumpost/3e52a5ca12\s|\sforum\spost\s3e52a5ca12].
+D 2021-06-25T07:41:07.494
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -947,7 +947,7 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 4582f79cab5caf588c0eddfac65e2a24f1a81706f7c727200f7e15e3210cf123
 F www/selfhost.wiki 7aba225ad4871ae7de38fc3aa080e5fea00a5c87e59681cfa392c21578a24972
 F www/server/any/althttpd.md fe4538a33990079b84d585ee8ba26df1b2c43cd147bc7aee18fa11ebfb2b6a20
-F www/server/any/cgi.md 3ee9338cbcac68b1dad69c21202f7af2b98886990916e872d9141a82af54a38c
+F www/server/any/cgi.md 56a20818656ab26eb2640671c869baffc20741153962557e3945c05c6b12ed98
 F www/server/any/index.md 362cf7a4991592606ef26bd684b4e89681c60558ff94a96f96651659ff62a86a
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d2e48b4cd38e0283863b88c0b5b96091c642fea3d61d2a5b4f131f86ad476a8
-R dd7c7df084580c75f42f2493cbd0be1b
-U drh
-Z 74b25b54fe469c5ccff81e014ecc2119
+P 255a28b37a2241300b708b457f577bfcafe4bda7b3cd5a21318c3475f99ff672
+R a58f962d473113e2e1ae5fa56d85b077
+U stephan
+Z aa217b4cbff21eed76835c83e5d41dbc
