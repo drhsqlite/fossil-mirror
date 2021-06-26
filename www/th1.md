@@ -112,7 +112,7 @@ lines as a single command.
 Summary of Core TH1 Commands
 ----------------------------
 
-The original Tcl language after when TH1 is modeled has a very rich
+The original Tcl language (after which TH1 is modeled) has a very rich
 repertoire of commands.  TH1, as it is designed to be minimalist and
 embedded has a greatly reduced command set.  The following bullets
 summarize the commands available in TH1:
@@ -286,7 +286,8 @@ Added in Fossil 2.15.
   *  capexpr CAPABILITY-EXPR
 
 The capability expression is a list. Each term of the list is a
-cluster of capability letters. The overall expression is true if any
+cluster of [capability letters](./caps/ref.html). 
+The overall expression is true if any
 one term is true. A single term is true if all letters within that
 term are true. Or, if the term begins with "!", then the term is true
 if none of the terms or true. Or, if the term begins with "@" then

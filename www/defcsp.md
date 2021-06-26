@@ -3,7 +3,7 @@
 When Fossil’s web interface generates an HTML page, it normally includes
 a [Content Security Policy][csp] (CSP) in the `<head>`.  The CSP specifies
 allowed sources for external resources such as images,
-CSS, javascript, and so froth.
+CSS, javascript, and so forth.
 The purpose of CSP is to provide an extra layer of protection against
 [cross-site scripting][xss] (XSS) and code injection
 attacks.  Compatible web browsers will not use external resources unless
@@ -11,7 +11,7 @@ they are specifically allowed by the CSP, which dramatically reduces
 the attack surface of the application.
 
 Fossil does not rely on CSP for security.
-A Fossil server should be secure from attack even with out CSP.
+A Fossil server should be secure from attack even without CSP.
 Fossil includes built-in server-side content filtering logic.
 For example, Fossil purposely breaks `<script>` tags when it finds
 them in Markdown and Fossil Wiki documents.  And the Fossil build

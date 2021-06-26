@@ -34,6 +34,7 @@
      a specific number of days (ex: 365) after the last user contact with
      the Fossil server. This prevents alert emails being sent to
      abandoned email accounts forever.
+  *  Update the built-in SQLite to version 3.36.0.
 
 <a name='v2_15'></a>
 <h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)

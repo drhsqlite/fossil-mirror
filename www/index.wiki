@@ -26,7 +26,8 @@ management system with these advanced features:
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
-      [./wikitheory.wiki | wiki], [./forum.wiki | forum], [./chat.md | chat], and
+      [./wikitheory.wiki | wiki], [./forum.wiki | forum],
+      [./alerts.md|email alerts], [./chat.md | chat], and
       [./event.wiki | technotes].
 
   2.  <b>Built-in Web Interface</b> -
@@ -97,8 +98,8 @@ management system with these advanced features:
 
   1.  [/uv/download.html|Download] or install using a package manager or
       [./build.wiki|compile from sources].
-  2.  <tt>fossil init</tt> <i>REPOSTORE-DIR/new-repository</i>
-  3.  <tt>fossil open</tt> <i>REPOSTORE-DIR/new-repository</i>
+  2.  <tt>fossil init</tt> <i>REPOSITORY-DIR/new-repository</i>
+  3.  <tt>fossil open</tt> <i>REPOSITORY-DIR/new-repository</i>
   4.  <tt>fossil add</tt> <i>files-or-directories</i>
   5.  <tt>fossil commit -m</tt> "<i>commit message</i>"
   6.  <tt>fossil ui</tt>
