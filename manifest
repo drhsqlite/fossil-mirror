@@ -1,5 +1,5 @@
-C Fixed\sa\s&&\swhich\swas\ssupposed\sto\sbe\sa\s&\sin\sthe\snew\spatch\scode.\sCaught\sby\sgcc.
-D 2021-06-29T05:05:38.715
+C Per\s/chat\s#6763:\sif\sthe\sui\scommand\sis\spassed\sthe\sroot\sdir\sof\sa\scheckout,\schdir\sto\sthat\scheckout\sto\sshow\sthe\scurrent\scheckout\sin\sthe\stimeline\sby\sdefault.\sThere\smay\sbe\sa\sbetter/simpler\sway\sto\simplement\sthis,\sthus\sthis\simpl\sis\sin\sa\sbranch.
+D 2021-06-29T05:44:10.483
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -540,7 +540,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c b7c4e7604c3b819bdc0fe6624a2afd1a8324e04d4c5e9bdc9d9048213064be32
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 992562b227401bdb323ef7a0183a876bab4da46dbab92469873a5746aa40ca87
+F src/main.c be79b4853aeafb1b069baef1bbfad3883f5a0bd98804490abb0aef5bd1a3e4a0
 F src/main.mk ed7d916e869f8806bb0b5aaf9426a471bf6cec259dcb406afb0d5bbbc1a817a9
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -996,7 +996,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3fec387cc3a0fff810321673f6e1f5a06718e36af95bba1ea8ba38c31a4e01d2
-R 518c8cd804a73c020b13e5d5beffa030
+P 1fd69610056205ca9b6265bb5c82bb17616b6c5b317ff560a088ebb0be20f041
+R d1baac95ef2aeafb05d391ad5915fc82
+T *branch * ui-checkout-chdir
+T *sym-ui-checkout-chdir *
+T -sym-trunk *
 U stephan
-Z f8036858113aaf495047ddd886349440
+Z 2bcccffa0ad0503c5bf67d0a01138f41
