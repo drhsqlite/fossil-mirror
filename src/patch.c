@@ -717,8 +717,8 @@ static void patch_diff(
   blob_zero(&empty);
 
   if( (mFlags & PATCH_FORCE)==0 ){
-    /* Check to ensure that the patch against the repository that we
-    ** have opened.
+    /* Check to ensure that the patch is against the repository that
+    ** we have opened.
     **
     ** To do: If there is a mismatch, should we scan all of the repositories
     ** listed in the global_config table looking for a match?
@@ -773,9 +773,9 @@ static void patch_diff(
     ){
       char *zUuid = fossil_strdup(db_column_text(&q,4));
       char *zName = fossil_strdup(db_column_text(&q,1));
-      if( mFlags && PATCH_FORCE ){
+      if( mFlags & PATCH_FORCE ){
         fossil_print("ERROR cannot find base artifact %S for file \"%s\"\n",
-                      zUuid, zName);
+                     zUuid, zName);
         nErr++;
         fossil_free(zUuid);
         fossil_free(zName);
