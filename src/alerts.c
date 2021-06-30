@@ -399,13 +399,6 @@ static void append_quoted(Blob *pOut, Blob *pMsg){
   }
 }
 
-#if defined(_WIN32) || defined(WIN32)
-# undef popen
-# define popen _popen
-# undef pclose
-# define pclose _pclose
-#endif
-
 #if INTERFACE
 /*
 ** An instance of the following object is used to send emails.

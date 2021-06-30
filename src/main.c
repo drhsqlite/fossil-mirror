@@ -2818,9 +2818,15 @@ void fossil_set_timeout(int N){
 ** If the REPOSITORY is a directory name which is the root of a
 ** checkout, it will chdir to that directory and, unless overridden by
 ** the --page option, select the current checkout version in the
-** timeline by default.
+** timeline by default.  This only works for the "fossil ui" command,
+** not the "fossil server" command.
 **
-** For the special case REPOSITORY name of "/", the list global configuration
+** If the REPOSITORY argument has a "HOST:" or "USER@HOST:" prefix, then
+** the command is run on the remote host specified and the results are
+** tunneled back to the localhost via SSH.  This feature only works for
+** the "fossil ui" command, not the "fossil server" command.
+**
+** For the special case REPOSITORY name of "/", the global configuration
 ** database is consulted for a list of all known repositories.  The --repolist
 ** option is implied by this special case.  See also the "fossil all ui"
 ** command.
@@ -2894,6 +2900,8 @@ void cmd_webserver(void){
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
   int findServerArg = 2;     /* argv index for find_server_repository() */
+  char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
+  
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2975,12 +2983,26 @@ void cmd_webserver(void){
       --g.argc;
     }
   }
+  if( isUiCmd && 3==g.argc
+   && (zRemote = (char*)file_skip_userhost(g.argv[2]))!=0
+  ){
+    const char *zRepoTail = file_skip_userhost(g.argv[2]);
+    unsigned x;
+    int n;
+    sqlite3_randomness(2,&x);
+    zPort = mprintf("%d", 8100+(x%32000));
+    n = (int)(zRepoTail - g.argv[2]) - 1;
+    zRemote = mprintf("%.*s", n, g.argv[2]);
+    g.argv[2] = (char*)zRepoTail;
+  }
   if( isUiCmd ){
     flags |= HTTP_SERVER_LOCALHOST|HTTP_SERVER_REPOLIST;
     g.useLocalauth = 1;
     allowRepoList = 1;
   }
-  find_server_repository(findServerArg, fCreate);
+  if( !zRemote ){
+    find_server_repository(findServerArg, fCreate);
+  }
   if( zInitPage==0 ){
     if( isUiCmd && g.localOpen ){
       zInitPage = "timeline?c=current";
@@ -3006,21 +3028,55 @@ void cmd_webserver(void){
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;
   }
-#if !defined(_WIN32)
-  /* Unix implementation */
   if( isUiCmd ){
+    char *zBrowserArg;
     zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
-      zBrowserCmd = mprintf("%s \"http://localhost:%%d/%s\" &",
-                            zBrowser, zInitPage);
+      zBrowserArg = mprintf("http://localhost:%%d/%s", zInitPage);
     }else if( strchr(zIpAddr,':') ){
-      zBrowserCmd = mprintf("%s \"http://[%s]:%%d/%s\" &",
-                            zBrowser, zIpAddr, zInitPage);
+      zBrowserArg = mprintf("http://[%s]:%%d/%s", zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s \"http://%s:%%d/%s\" &",
-                            zBrowser, zIpAddr, zInitPage);
+      zBrowserArg = mprintf("http://%s:%%d/%s", zIpAddr, zInitPage);
     }
+#ifdef _WIN32
+    zBrowserCmd = mprintf("%s %s &", zBrowser, zBrowserArg);
+#else
+    zBrowserCmd = mprintf("%s %!$ &", zBrowser, zBrowserArg);
+#endif
+    fossil_free(zBrowserArg);
   }
+  if( zRemote && zBrowserCmd ){
+    FILE *sshIn;
+    Blob ssh;
+    char zLine[1000];
+    blob_init(&ssh, 0, 0);
+    transport_ssh_command(&ssh);
+    blob_appendf(&ssh, 
+       " -t -L127.0.0.1:%d:127.0.0.1:%d -- %!$"
+       " fossil server --nossl --port %d %!$",
+       iPort, iPort, zRemote, iPort, g.argv[2]);
+    fossil_print("%s\n", blob_str(&ssh));
+    sshIn = popen(blob_str(&ssh), "r");
+    if( sshIn==0 ){
+      fossil_fatal("unable to %s", blob_str(&ssh));
+    }
+    while( fgets(zLine, sizeof(zLine), sshIn) ){
+      fossil_print("%s", zLine);
+      fflush(stdout);
+      if( zBrowserCmd ){
+        char *zCmd = mprintf(zBrowserCmd/*works-like:"%d"*/,iPort);
+        fossil_system(zCmd);
+        fossil_free(zCmd);
+        fossil_free(zBrowserCmd);
+        zBrowserCmd = 0;
+      }
+    }
+    pclose(sshIn);
+    fossil_free(zBrowserCmd);
+    return;
+  }
+#if !defined(_WIN32)
+  /* Unix implementation */
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
@@ -3071,19 +3127,6 @@ void cmd_webserver(void){
   }
 #else
   /* Win32 implementation */
-  if( isUiCmd ){
-    zBrowser = fossil_web_browser();
-    if( zIpAddr==0 ){
-      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
-                            zBrowser, zInitPage);
-    }else if( strchr(zIpAddr,':') ){
-      zBrowserCmd = mprintf("%s http://[%s]:%%d/%s &",
-                            zBrowser, zIpAddr, zInitPage);
-    }else{
-      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
-                            zBrowser, zIpAddr, zInitPage);
-    }
-  }
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);

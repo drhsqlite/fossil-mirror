@@ -114,15 +114,6 @@ void freepass(){
 }
 #endif
 
-#if defined(_WIN32) || defined(WIN32)
-# include <io.h>
-# include <fcntl.h>
-# undef popen
-# define popen _popen
-# undef pclose
-# define pclose _pclose
-#endif
-
 /*
 ** Scramble substitution matrix:
 */
