@@ -1,5 +1,5 @@
-C Improvements\sto\s"fossil\sui\sHOST:PATH".
-D 2021-06-30T20:15:58.550
+C Update\sthe\schange\slog\sto\stalk\sabout\sthe\senhancements\sto\s"fossil\sui".
+D 2021-06-30T20:31:34.836
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -830,7 +830,7 @@ F www/caps/index.md 4b744fd6673b88e62a008e45e3cd27b12a978ce7b9ddcd977feec572f83e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki f6101bd59d7171dc84ae78cca6b547d74a66e5cae32baffc4ae3ccbe9be38cb9
+F www/changes.wiki b3566693e64f5a2a1367f5b01093dcd39ab4d9f133bffe2d35d71eab63bf94ce
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb34f1a8ac57ea78b397a70d3cdadfb562b1cabd056265aba714a64b151607d4
-R f2394785fa87215da1ad6d833b7772a1
+P cff1f785e1000c5aaca270ddb21fc69d5de00ba042ebb7d4d632773b6196c63c
+R cd8d3dad3369e3607bff27fa6ad9b0bd
 U drh
-Z 1b8f986244b59fe7aa67ae0e026615c4
+Z dd6c4f2f6c08b8c5082c7bcc43053038
