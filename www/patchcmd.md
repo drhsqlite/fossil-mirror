@@ -46,6 +46,40 @@ can be shown using:
 
 >  `ssh -T remote 'echo $PATH'`
 
+### Custom PATH Caveat
+
+On Unix-like systems, the init script for the user's login shell
+(e.g. `~/.profile` or `~/.bash_profile`) may be configured to *not do
+anything* when running under a non-interactive shell. Thus a fossil
+binary installed to a custom directory might not be found. To allow
+the patch command to use a fossil binary installed in a directory
+which is normally added to the PATH via the interactive shell's init
+script, it may be useful to disable that check. For example,
+Ubuntu-derived systems sometimes start their default `.bashrc` with
+something like:
+
+```
+# If not running interactively, don't do anything:
+[ -z "$PS1" ] && return
+# Or:
+case $- in
+    *i*) ;;
+    *) return;;
+esac
+```
+
+Commenting out that check will allow the patch command to run, for
+example, `~/bin/fossil` if `~/bin` is added to the PATH via the init
+script. To disable that check *only* when the shell is *not* running
+over an SSH connection, something like the following should suffice:
+
+```
+if [ -z "$SSH_CONNECTION" ]; then
+  # ... the is-interactive check goes here ...
+fi
+```
+
+
 ## Implementation Details
 
 The "fossil patch create" command records all of the local, uncommitted
