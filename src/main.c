@@ -2815,6 +2815,11 @@ void fossil_set_timeout(int N){
 ** the REPOSITORY can only be a directory if the --notfound option is
 ** also present.
 **
+** If the REPOSITORY is a directory name which is the root of a
+** checkout, it will chdir to that directory and, unless overridden by
+** the --page option, select the current checkout version in the
+** timeline by default.
+**
 ** For the special case REPOSITORY name of "/", the list global configuration
 ** database is consulted for a list of all known repositories.  The --repolist
 ** option is implied by this special case.  See also the "fossil all ui"
@@ -2888,6 +2893,7 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
+  int findServerArg = 2;     /* argv index for find_server_repository() */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2944,12 +2950,37 @@ void cmd_webserver(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
+  if( isUiCmd && 3==g.argc && file_isdir(g.argv[2], ExtFILE)>0 ){
+    /* If REPOSITORY arg is the root of a checkout,
+    ** chdir to that checkout so that the current version
+    ** gets highlighted in the timeline by default. */
+    const char * zArg = g.argv[2];
+    char * zCkoutDb = mprintf("%//.fslckout", zArg);
+    if(file_size(zCkoutDb, ExtFILE)<=0){
+      fossil_free(zCkoutDb);
+      zCkoutDb = mprintf("%//_FOSSIL_", zArg);
+      if(file_size(zCkoutDb, ExtFILE)<=0){
+        fossil_free(zCkoutDb);
+        zCkoutDb = 0;
+      }
+    }
+    if(zCkoutDb!=0){
+      fossil_free(zCkoutDb);
+      if(0!=file_chdir(zArg, 0)){
+        fossil_fatal("Cannot chdir to %s", zArg);
+      }
+      findServerArg = 99;
+      fCreate = 0;
+      g.argv[2] = 0;
+      --g.argc;
+    }
+  }
   if( isUiCmd ){
     flags |= HTTP_SERVER_LOCALHOST|HTTP_SERVER_REPOLIST;
     g.useLocalauth = 1;
     allowRepoList = 1;
   }
-  find_server_repository(2, fCreate);
+  find_server_repository(findServerArg, fCreate);
   if( zInitPage==0 ){
     if( isUiCmd && g.localOpen ){
       zInitPage = "timeline?c=current";
