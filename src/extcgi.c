@@ -32,13 +32,6 @@
 #include "extcgi.h"
 #include <assert.h>
 
-#if defined(_WIN32) || defined(WIN32)
-# undef popen
-# define popen _popen
-# undef pclose
-# define pclose _pclose
-#endif
-
 /*
 ** These are the environment variables that should be set for CGI
 ** extension programs:

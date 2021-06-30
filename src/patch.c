@@ -22,17 +22,6 @@
 #include <assert.h>
 
 /*
-** Additional windows configuration for popen */
-#if defined(_WIN32)
-#  include <io.h>
-#  include <fcntl.h>
-#  undef popen
-#  define popen _popen
-#  undef pclose
-#  define pclose _pclose
-#endif
-
-/*
 ** Try to compute the name of the computer on which this process
 ** is running.
 */
@@ -681,6 +670,7 @@ static FILE *patch_remote_command(
     Blob remote;
     *(char*)(zDir-1) = 0;
     transport_ssh_command(&cmd);
+    blob_appendf(&cmd, " -T");
     blob_append_escaped_arg(&cmd, zRemote, 0);
     blob_init(&remote, 0, 0);
     blob_appendf(&remote, "fossil patch %s%s --dir64 %z -", 

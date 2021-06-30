@@ -8,8 +8,16 @@
   *  The default "ssh" command on Windows is changed to "ssh" instead of the
      legacy "plink", as ssh is now generally available on Windows systems.
      Installations that still need to use the legacy "plink" can make that
-     happen by running: '<tt>fossil set ssh-command "plink -ssh -T" --global</tt>'.
+     happen by running: '<tt>fossil set ssh-command "plink -ssh" --global</tt>'.
   *  Added the [./patchcmd.md|fossil patch] command.
+  *  The [/help?cmd=ui|fossil ui] command is enhanced in multiple ways:<ol>
+     <li> The REPOSITORY argument can be the name of a check-out directory.
+     <li> If the REPOSITORY argument is prefixed by "HOST:" or "USER@HOST:"
+          then the ui is run on the remote machine and tunnelled back to the local
+          machine using ssh.  (The latest version of fossil must be installed on
+          both the local and the remote for this to work correctly.)
+     <li> The new --nobrowser option is provided.  (This is needed by item 2 above.)
+     </ol>
   *  The [/brlist|/brlist web page] allows the user to
      select multiple branches to be displayed together in a single
      timeline.
