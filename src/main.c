@@ -2823,7 +2823,7 @@ void fossil_set_timeout(int N){
 **
 ** If the REPOSITORY argument has a "HOST:" or "USER@HOST:" prefix, then
 ** the command is run on the remote host specified and the results are
-** tunneled back to the localhost via SSH.  This feature only works for
+** tunneled back to the local host via SSH.  This feature only works for
 ** the "fossil ui" command, not the "fossil server" command.
 **
 ** For the special case REPOSITORY name of "/", the global configuration
@@ -2863,6 +2863,8 @@ void fossil_set_timeout(int N){
 **                       result in fewer HTTP requests than the separate mode.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
+**   --nobrowser         Do not automatically launch a web-browser for the
+**                       "fossil ui" command.
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
 **   --nossl             signal that no SSL connections are available (Always
@@ -2898,6 +2900,7 @@ void cmd_webserver(void){
   const char *zFileGlob;     /* Static content must match this */
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
+  int fNoBrowser = 0;        /* Do not auto-launch web-browser */
   const char *zInitPage = 0; /* Start on this page.  --page option */
   int findServerArg = 2;     /* argv index for find_server_repository() */
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
@@ -2943,6 +2946,7 @@ void cmd_webserver(void){
     set_base_url(zAltBase);
   }
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
+  fNoBrowser = find_option("nobrowser", 0, 0)!=0;
   if( find_option("https",0,0)!=0 ){
     cgi_replace_parameter("HTTPS","on");
   }
@@ -2986,6 +2990,7 @@ void cmd_webserver(void){
   if( isUiCmd && 3==g.argc
    && (zRemote = (char*)file_skip_userhost(g.argv[2]))!=0
   ){
+    /* The REPOSITORY argument has a USER@HOST: or HOST: prefix */
     const char *zRepoTail = file_skip_userhost(g.argv[2]);
     unsigned x;
     int n;
@@ -3028,7 +3033,7 @@ void cmd_webserver(void){
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;
   }
-  if( isUiCmd ){
+  if( isUiCmd && !fNoBrowser ){
     char *zBrowserArg;
     zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
@@ -3045,7 +3050,10 @@ void cmd_webserver(void){
 #endif
     fossil_free(zBrowserArg);
   }
-  if( zRemote && zBrowserCmd ){
+  if( zRemote ){
+    /* If a USER@HOST:REPO argument is supplied, then use SSH to run
+    ** "fossil ui --nobrowser" on the remote system and to set up a
+    ** tunnel from the local machine to the remote. */
     FILE *sshIn;
     Blob ssh;
     char zLine[1000];
@@ -3053,7 +3061,7 @@ void cmd_webserver(void){
     transport_ssh_command(&ssh);
     blob_appendf(&ssh, 
        " -t -L127.0.0.1:%d:127.0.0.1:%d -- %!$"
-       " fossil server --nossl --port %d %!$",
+       " fossil ui --nobrowser --localauth --port %d %$",
        iPort, iPort, zRemote, iPort, g.argv[2]);
     fossil_print("%s\n", blob_str(&ssh));
     sshIn = popen(blob_str(&ssh), "r");
@@ -3061,7 +3069,7 @@ void cmd_webserver(void){
       fossil_fatal("unable to %s", blob_str(&ssh));
     }
     while( fgets(zLine, sizeof(zLine), sshIn) ){
-      fossil_print("%s", zLine);
+      fputs(zLine, stdout);
       fflush(stdout);
       if( zBrowserCmd ){
         char *zCmd = mprintf(zBrowserCmd/*works-like:"%d"*/,iPort);
