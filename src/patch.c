@@ -671,7 +671,7 @@ static FILE *patch_remote_command(
     usage(mprintf("%s [USER@]HOST:DIRECTORY", zThisCmd));
   }
   zRemote = fossil_strdup(g.argv[3]);
-  zDir = strchr(zRemote,':');
+  zDir = (char*)file_skip_userhost(zRemote);
   if( zDir==0 ){
     zDir = zRemote;
     blob_init(&cmd, 0, 0);
@@ -679,8 +679,7 @@ static FILE *patch_remote_command(
     blob_appendf(&cmd, " patch %s%s %$ -", zRemoteCmd, zForce, zDir);
   }else{
     Blob remote;
-    zDir[0] = 0;
-    zDir++;
+    *(char*)(zDir-1) = 0;
     transport_ssh_command(&cmd);
     blob_append_escaped_arg(&cmd, zRemote, 0);
     blob_init(&remote, 0, 0);

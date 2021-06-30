@@ -1,5 +1,5 @@
-C The\sargument\sto\sthe\s"fossil\sui"\scommand\sis\sallowed\sto\sbe\sa\sdirectory\sname\ninstead\sof\sa\srepository\sfilename.\s\sIf\sa\sdirectory,\srepository\sassociated\swith\nthe\scheckout\sat\sthat\sdirectory\sis\sused.
-D 2021-06-30T13:56:26.778
+C Add\sthe\snew\sfile_skip_userhost()\sfunction\sthat\swill\sfind\san\sskip\sover\na\s"USER@HOST:"\sprefix\son\sa\sfilename,\sif\sit\sexists.\s\sUse\sthis\sto\sextract\nthe\sUSER@HOST\sprefix\sfrom\snames\sin\sthe\s"fossil\spatch\spush/pull"\scommands.
+D 2021-06-30T17:39:47.716
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -475,7 +475,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 8665936fc4d1cba3c2427fbb88ac5874c3462d1d8e9c9b015e40eb889726d835
 F src/extcgi.c 481bd97b1a826d0766a808531ab6855de50dbf956bffee9c69e6f192b2e8a3c6
-F src/file.c 572eec528553c32ad4b76fd4ba186457fc0b91343feae150ef12bf5c34c37cb5
+F src/file.c b4f21631b7904ab500c37ad3313926265cae2cf5fe2458fd1f45c34f09a11ba4
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
 F src/finfo.c 9daa47421c214f41c74ed084fa755702cc4de389df9cec66acb8ca88294e952d
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -559,7 +559,7 @@ F src/mkindex.c 971441257ae3452150daa6f70c08db56e2d18cd1073472cf9d3e92b8b7d18d62
 F src/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d2691
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 274aa2b22e665627369da0e16748dace3618301f326662e02a67a6d7006c66e2
-F src/patch.c d0c96e93a9056aaa58c59016abba4c04d2076a6003992c36e4aa5e01fb5b36eb
+F src/patch.c ea0e1c5a8faee1fa97d78ff4449af455bd505b18ffdb26c9ae05ecf44fd9d4e7
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
 F src/pikchr.c a5a771ace33072c53c3346770a87254cbea3d86bdcfd3198cb8fd6cde4d53c87
@@ -996,8 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4f83d06275804a8320e79fd90df1cc990fb4fd23a2b54b85927609f5f9c4efbc bf66d61582e040827c853bac2b62b5fbe8fb97dc9d107e95aa1f32339166154e
-R 3d03e50174bdd097294409348b5c6a36
-T +closed bf66d61582e040827c853bac2b62b5fbe8fb97dc9d107e95aa1f32339166154e
+P 9ec744ed79ab5134dc7f215423ca3036226843bcc9703a1917bd59bea8b36454
+R ed740d7cec3f8e65b6a88b293e2a8824
 U drh
-Z bb91fb9811169cf722fb07c08679acd3
+Z 669f0a796262526fe43d7090c81de7e9

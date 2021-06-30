@@ -913,6 +913,45 @@ void file_rmdir_sql_function(
 }
 
 /*
+** Check the input argument to see if it looks like it has an prefix that
+** indicates a remote file.  If so, return the tail of the specification,
+** which is the name of the file on the remote system.
+**
+** If the input argument does not have a prefix that makes it look like
+** a remote file reference, then return NULL.
+**
+** Remote files look like:  "HOST:PATH" or "USER@HOST:PATH".  Host must
+** be a valid hostname, meaning it must follow these rules:
+**
+**   *  Only characters [-.a-zA-Z0-9].  No spaces or other punctuation
+**   *  Does not begin or end with -
+**
+** The USER section, it it exists, must not contain the '@' character.
+*/
+const char *file_skip_userhost(const char *zIn){
+  const char *zTail;
+  int n, i;
+  if( zIn[0]==':' ) return 0;
+  zTail = strchr(zIn, ':');
+  if( zTail==0 ) return 0;
+  if( zTail - zIn > 10000 ) return 0;
+  n = (int)(zTail - zIn);
+  if( zIn[n-1]=='-' || zIn[n-1]=='.' ) return 0;
+  for(i=n-1; i>0 && zIn[i-1]!='@'; i--){
+    if( !fossil_isalnum(zIn[i]) && zIn[i]!='-' && zIn[i]!='.' ) return 0;
+  }
+  if( zIn[i]=='-' || zIn[i]=='.' || i==1 ) return 0;
+  if( i>1 ){
+    i -= 2;
+    while( i>=0 ){
+      if( zIn[i]=='@' ) return 0;
+      i--;
+    }
+  }
+  return zTail+1;
+}
+
+/*
 ** Return true if the filename given is a valid filename for
 ** a file in a repository.  Valid filenames follow all of the
 ** following rules:
@@ -1115,13 +1154,25 @@ int file_simplify_name(char *z, int n, int slash){
 **
 ** Usage: %fossil test-simplify-name FILENAME...
 **
-** Print the simplified versions of each FILENAME.
+** Print the simplified versions of each FILENAME.  This is used to test
+** the file_simplify_name() routine.
+**
+** If FILENAME is of the form "HOST:PATH" or "USER@HOST:PATH", then remove
+** and print the remote host prefix first.  This is used to test the
+** file_skip_userhost() interface.
 */
 void cmd_test_simplify_name(void){
   int i;
   char *z;
+  const char *zTail;
   for(i=2; i<g.argc; i++){
-    z = mprintf("%s", g.argv[i]);
+    zTail = file_skip_userhost(g.argv[i]);
+    if( zTail ){
+      fossil_print("... ON REMOTE: %.*s\n", (int)(zTail-g.argv[i]), g.argv[i]);
+      z = mprintf("%s", zTail);
+    }else{
+      z = mprintf("%s", g.argv[i]);
+    }
     fossil_print("[%s] -> ", z);
     file_simplify_name(z, -1, 0);
     fossil_print("[%s]\n", z);
