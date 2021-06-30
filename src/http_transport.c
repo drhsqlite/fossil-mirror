@@ -122,11 +122,7 @@ int transport_ssh_open(UrlData *pUrlData){
   socket_ssh_resolve_addr(pUrlData);
   transport_ssh_command(&zCmd);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
-#ifdef _WIN32
-    blob_appendf(&zCmd, " -P %d", pUrlData->port);
-#else
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
-#endif
   }
   if( pUrlData->user && pUrlData->user[0] ){
     zHost = mprintf("%s@%s", pUrlData->user, pUrlData->name);

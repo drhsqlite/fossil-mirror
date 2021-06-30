@@ -1,5 +1,5 @@
-C Fixed\sa\s&&\swhich\swas\ssupposed\sto\sbe\sa\s&\sin\sthe\snew\spatch\scode.\sCaught\sby\sgcc.
-D 2021-06-29T05:05:38.715
+C Remove\slegacy\scode\sthat\sattempted\sto\suse\s-P\sinstead\sof\s-p\son\s"plink"\sfor\nthe\sport\snumber\sof\sSSH.
+D 2021-06-30T13:07:41.775
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -513,7 +513,7 @@ F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
 F src/http_ssl.c e41634a8e4486041dbe70162bb8a80f88aea38bd3a5446f948b711fa2a3c89dc
-F src/http_transport.c 2fec79d9e3718c97a0fd6f8d82533c57125abdd115e03f66f0216a99d1a3e1a8
+F src/http_transport.c c8aa34119f6d64f8eb001a9c3a865cea8c29e00f7e2c1d9e3c393d5eef685183
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c 2b1cfb724e719db74dc7451594b1d78cc4bfa073219aa66dcc5eda685d8a45a2
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3fec387cc3a0fff810321673f6e1f5a06718e36af95bba1ea8ba38c31a4e01d2
-R 518c8cd804a73c020b13e5d5beffa030
-U stephan
-Z f8036858113aaf495047ddd886349440
+P 1fd69610056205ca9b6265bb5c82bb17616b6c5b317ff560a088ebb0be20f041
+R 822ae5b169a56e4f940c60dcfbb0202d
+U drh
+Z 4a77d8b453c63fd2091c9650329e069b
