@@ -2966,20 +2966,10 @@ void cmd_webserver(void){
     /* If REPOSITORY arg is the root of a checkout,
     ** chdir to that checkout so that the current version
     ** gets highlighted in the timeline by default. */
-    const char * zArg = g.argv[2];
-    char * zCkoutDb = mprintf("%//.fslckout", zArg);
-    if(file_size(zCkoutDb, ExtFILE)<=0){
-      fossil_free(zCkoutDb);
-      zCkoutDb = mprintf("%//_FOSSIL_", zArg);
-      if(file_size(zCkoutDb, ExtFILE)<=0){
-        fossil_free(zCkoutDb);
-        zCkoutDb = 0;
-      }
-    }
-    if(zCkoutDb!=0){
-      fossil_free(zCkoutDb);
-      if(0!=file_chdir(zArg, 0)){
-        fossil_fatal("Cannot chdir to %s", zArg);
+    const char * zDir = g.argv[2];
+    if(dir_has_ckout_db(zDir)){
+      if(0!=file_chdir(zDir, 0)){
+        fossil_fatal("Cannot chdir to %s", zDir);
       }
       findServerArg = 99;
       fCreate = 0;
@@ -3055,7 +3045,6 @@ void cmd_webserver(void){
     ** "fossil ui --nobrowser" on the remote system and to set up a
     ** tunnel from the local machine to the remote. */
     FILE *sshIn;
-    const char *zSkin;
     Blob ssh;
     char zLine[1000];
     blob_init(&ssh, 0, 0);
