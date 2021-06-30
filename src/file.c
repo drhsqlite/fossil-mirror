@@ -2678,3 +2678,24 @@ void test_is_reserved_name_cmd(void){
     fossil_print("%d %s\n", check, g.argv[i]);
   }
 }
+
+
+/*
+** Returns 1 if the given directory contains a file named .fslckout, 2
+** if it contains a file named _FOSSIL_, else returns 0.
+*/
+int dir_has_ckout_db(const char *zDir){
+  int rc = 0;
+  char * zCkoutDb = mprintf("%//.fslckout", zDir);
+  if(file_isfile(zCkoutDb, ExtFILE)){
+    rc = 1;
+  }else{
+    fossil_free(zCkoutDb);
+    zCkoutDb = mprintf("%//_FOSSIL_", zDir);
+    if(file_isfile(zCkoutDb, ExtFILE)){
+      rc = 2;
+    }
+  }
+  fossil_free(zCkoutDb);
+  return rc;
+}
