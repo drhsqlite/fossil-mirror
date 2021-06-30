@@ -292,11 +292,14 @@
   *  [./delta_format.wiki|Delta compression] is now applied to forum edits.
   *  The [/help?cmd=/wikiedit|wiki editor] has been modernized and is
      now Ajax-based. The WYSIWYG editing option for Fossil-format wiki
-     pages was removed. (Please let us know, via the site's Support menu,
+     pages was removed. (Please let us know, via the site's Forum menu,
      if that removal unduly impacts you.) This also changes the semantics
      of the wiki "Sandbox": that pseudo-page may be freely edited but
      no longer saved via the UI (the [/help?cmd=wiki|wiki CLI command]
      can, though).
+  *  The [/help?cmd=allow-symlinks|allow-symlinks setting] no longer
+     syncs. It must be activated individually on any clones which require
+     symlinks.
   *  Countless documentation enhancements.
 
 <a name='v2_11'></a>
