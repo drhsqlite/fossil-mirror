@@ -3601,10 +3601,10 @@ void cmd_open(void){
     zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
     fossil_free(zNewBase);
     blob_init(&cmd, 0, 0);
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " clone", -1);
-    blob_append_escaped_arg(&cmd, zUri);
-    blob_append_escaped_arg(&cmd, zRepo);
+    blob_append_escaped_arg(&cmd, zUri, 1);
+    blob_append_escaped_arg(&cmd, zRepo, 1);
     zCmd = blob_str(&cmd);
     fossil_print("%s\n", zCmd);
     if( zWorkDir ) file_chdir(zPwd, 0);

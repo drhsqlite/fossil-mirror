@@ -398,7 +398,7 @@ void patch_apply(unsigned mFlags){
     "   AND patch.cfg.key<>localdb.vvar.name"
   );
   if( db_step(&q)==SQLITE_ROW ){
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_appendf(&cmd, " update %s", db_column_text(&q, 0));
     if( mFlags & PATCH_VERBOSE ){
       fossil_print("%-10s %s\n", "BASELINE", db_column_text(&q,0));
@@ -425,7 +425,7 @@ void patch_apply(unsigned mFlags){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zType = db_column_text(&q,0);
-      blob_append_escaped_arg(&cmd, g.nameOfExe);
+      blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
       if( strcmp(zType,"merge")==0 ){
         blob_appendf(&cmd, " merge %s\n", db_column_text(&q,1));
       }else{
@@ -453,7 +453,7 @@ void patch_apply(unsigned mFlags){
   db_prepare(&q, "SELECT pathname FROM patch.chng"
                  " WHERE origname IS NULL AND delta IS NULL");
   while( db_step(&q)==SQLITE_ROW ){
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_appendf(&cmd, " rm --hard %$\n", db_column_text(&q,0));
     if( mFlags & PATCH_VERBOSE ){
       fossil_print("%-10s %s\n", "DELETE", db_column_text(&q,0));
@@ -480,7 +480,7 @@ void patch_apply(unsigned mFlags){
     "   AND origname<>pathname"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_appendf(&cmd, " mv --hard %$ %$\n",
         db_column_text(&q,0), db_column_text(&q,1));
     if( mFlags & PATCH_VERBOSE ){
@@ -554,7 +554,7 @@ void patch_apply(unsigned mFlags){
         fossil_print("%-10s %s\n", "EDIT", zPathname);
       }
     }else{
-      blob_append_escaped_arg(&cmd, g.nameOfExe);
+      blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
       blob_appendf(&cmd, " add %$\n", zPathname);
       if( mFlags & PATCH_VERBOSE ){
         fossil_print("%-10s %s\n", "NEW", zPathname);
@@ -675,18 +675,18 @@ static FILE *patch_remote_command(
   if( zDir==0 ){
     zDir = zRemote;
     blob_init(&cmd, 0, 0);
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_appendf(&cmd, " patch %s%s %$ -", zRemoteCmd, zForce, zDir);
   }else{
     Blob remote;
     zDir[0] = 0;
     zDir++;
     transport_ssh_command(&cmd);
-    blob_append_escaped_arg(&cmd, zRemote);
+    blob_append_escaped_arg(&cmd, zRemote, 0);
     blob_init(&remote, 0, 0);
     blob_appendf(&remote, "fossil patch %s%s --dir64 %z -", 
                  zRemoteCmd, zForce, encode64(zDir, -1));
-    blob_append_escaped_arg(&cmd, blob_str(&remote));
+    blob_append_escaped_arg(&cmd, blob_str(&remote), 0);
     blob_reset(&remote);
   }
   if( mFlags & PATCH_VERBOSE ){

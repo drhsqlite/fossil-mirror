@@ -124,21 +124,22 @@ int transport_ssh_open(UrlData *pUrlData){
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
   }
+  blob_appendf(&zCmd, " --");  /* End of switches */
   if( pUrlData->user && pUrlData->user[0] ){
     zHost = mprintf("%s@%s", pUrlData->user, pUrlData->name);
-    blob_append_escaped_arg(&zCmd, zHost);
+    blob_append_escaped_arg(&zCmd, zHost, 0);
     fossil_free(zHost);
   }else{
-    blob_append_escaped_arg(&zCmd, pUrlData->name);
+    blob_append_escaped_arg(&zCmd, pUrlData->name, 0);
   }
   if( !is_safe_fossil_command(pUrlData->fossil) ){
     fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
                  "the server.", pUrlData->fossil);
   }
-  blob_append_escaped_arg(&zCmd, pUrlData->fossil);
+  blob_append_escaped_arg(&zCmd, pUrlData->fossil, 1);
   blob_append(&zCmd, " test-http", 10);
   if( pUrlData->path && pUrlData->path[0] ){
-    blob_append_escaped_arg(&zCmd, pUrlData->path);
+    blob_append_escaped_arg(&zCmd, pUrlData->path, 1);
   }else{
     fossil_fatal("ssh:// URI does not specify a path to the repository");
   }

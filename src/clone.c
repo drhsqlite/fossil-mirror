@@ -292,11 +292,11 @@ void clone_cmd(void){
     fossil_print("opening the new %s repository in directory %s...\n",
        zRepo, zWorkDir);
     blob_init(&cmd, 0, 0);
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " open ", -1);
-    blob_append_escaped_arg(&cmd, zRepo);
+    blob_append_escaped_arg(&cmd, zRepo, 1);
     blob_append(&cmd, " --workdir ", -1);
-    blob_append_escaped_arg(&cmd, zWorkDir);
+    blob_append_escaped_arg(&cmd, zWorkDir, 1);
     if( allowNested ){
       blob_append(&cmd, " --nested", -1);
     }

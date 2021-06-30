@@ -756,7 +756,7 @@ void backoffice_command(void){
           continue;  /* Not yet time to run this one */
         }
         blob_init(&cmd, 0, 0);
-        blob_append_escaped_arg(&cmd, g.nameOfExe);
+        blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
         blob_append(&cmd, " backoffice --nodelay", -1);
         if( g.fAnyTrace ){
           blob_append(&cmd, " --trace", -1);
@@ -769,9 +769,9 @@ void backoffice_command(void){
         }
         if( backofficeLogfile ){
           blob_append(&cmd, " --logfile", -1);
-          blob_append_escaped_arg(&cmd, backofficeLogfile);
+          blob_append_escaped_arg(&cmd, backofficeLogfile, 1);
         }
-        blob_append_escaped_arg(&cmd, g.argv[i]);
+        blob_append_escaped_arg(&cmd, g.argv[i], 1);
         nCmd++;
         if( bDebug ){
           fossil_print("COMMAND[%u]: %s\n", nCmd, blob_str(&cmd));

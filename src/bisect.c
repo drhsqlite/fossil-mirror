@@ -413,7 +413,7 @@ static void bisect_run(void){
     int rc;
     Blob cmd;
     blob_init(&cmd, 0, 0);
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     rc = fossil_unsafe_system(zCmd);
     if( isInteractive ){
       Blob in;

@@ -1369,13 +1369,14 @@ static const char aSafeChar[256] = {
 ** that need to be escaped for the shell.  If zIn contains characters
 ** that cannot be safely escaped, then throw a fatal error.
 **
-** The argument is expected to be a filename.  As shell commands
-** commonly have command-line options that begin with "-" and since we
-** do not want an attacker to be able to invoke these switches using
-** filenames that begin with "-", if zIn begins with "-", prepend
-** an additional "./" (or ".\\" on Windows).
+** If the isFilename argument is true, then the argument is expected
+** to be a filename.  As shell commands commonly have command-line
+** options that begin with "-" and since we do not want an attacker
+** to be able to invoke these switches using filenames that begin
+** with "-", if zIn begins with "-", prepend an additional "./"
+** (or ".\\" on Windows).
 */
-void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
+void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
   int i;
   unsigned char c;
   int needEscape = 0;
@@ -1420,7 +1421,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
 
   /* Check for characters that need quoting */
   if( !needEscape ){
-    if( zIn[0]=='-' ){
+    if( isFilename && zIn[0]=='-' ){
       blob_append_char(pBlob, '.');
 #if defined(_WIN32)
       blob_append_char(pBlob, '\\');
@@ -1436,7 +1437,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
     ** the name get doubled.
     */
     blob_append_char(pBlob, '"');
-    if( zIn[0]=='-' ){
+    if( isFilename && zIn[0]=='-' ){
       blob_append_char(pBlob, '.');
       blob_append_char(pBlob, '\\');
     }else if( zIn[0]=='/' ){
@@ -1454,7 +1455,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
     ** name, then put \ before each special character.
     */
     if( strchr(zIn,'\'') ){
-      if( zIn[0]=='-' ){
+      if( isFilename && zIn[0]=='-' ){
         blob_append_char(pBlob, '.');
         blob_append_char(pBlob, '/');
       }
@@ -1464,7 +1465,7 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
       }
     }else{
       blob_append_char(pBlob, '\'');
-      if( zIn[0]=='-' ){
+      if( isFilename && zIn[0]=='-' ){
         blob_append_char(pBlob, '.');
         blob_append_char(pBlob, '/');
       }
@@ -1487,6 +1488,10 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
 **
 ** Other options:
 **
+**    --filename-args BOOL      Subsequent arguments are assumed to be
+**                              filenames if BOOL is true, or not if BOOL
+**                              is false.  Defaults on.
+**
 **    --hex HEX                 Skip the --hex flag and instead decode HEX
 **                              into ascii.  This provides a way to insert
 **                              unusual characters as an argument for testing.
@@ -1503,6 +1508,7 @@ void test_escaped_arg_command(void){
   int i;
   Blob x;
   const char *zArg;
+  int isFilename = 1;
   char zBuf[100];
   blob_init(&x, 0, 0);
   for(i=2; i<g.argc; i++){
@@ -1588,9 +1594,19 @@ void test_escaped_arg_command(void){
         blob_reset(&x);
       }
       continue;
+    }else if( fossil_strcmp(zArg, "--filename-args")==0 ){
+       if( i+1<g.argc ){
+         i++;
+         isFilename = is_truth(g.argv[i]);
+       }
+       continue;
     }
     fossil_print("%3d [%s]: ", i, zArg);
-    blob_appendf(&x, "%$ test-echo %$", g.nameOfExe, zArg);
+    if( isFilename ){
+      blob_appendf(&x, "%$ test-echo %$", g.nameOfExe, zArg);
+    }else{
+      blob_appendf(&x, "%$ test-echo %!$", g.nameOfExe, zArg);
+    }
     fossil_print("%s\n", blob_str(&x));
     fossil_system(blob_str(&x));
     blob_reset(&x);
