@@ -1,5 +1,5 @@
-C Refactored\s[bf66d61582]\sto\smove\sthe\sdir-has-a-checkout-db\scheck\sinto\sthe\snew\sdir_has_ckout_db()\sroutine.
-D 2021-06-30T18:46:11.245
+C Change\slog\stypo\sfix\sand\sadded\san\sall-encompassing\s'numerous\sother\sminor\senhancements'\sto\s2.16.
+D 2021-06-30T18:55:21.587
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -830,7 +830,7 @@ F www/caps/index.md 4b744fd6673b88e62a008e45e3cd27b12a978ce7b9ddcd977feec572f83e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki fc53272c1cee1176053193ea6183ccf23d17e0150acd357c63ddfb21ae82c04e
+F www/changes.wiki 939542efc7e6dac5955fdc044eea01f127031b86eac9b0a656a8980124fa478c
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5dc24d4ebfa3553a76aab839161dda0a06fa4d9adfa76131a76ebb2b61bd40d
-R 41172bab53e6f5b74db9e36a6f3ed577
+P 3946ff81b038c5db4f14bd9eaf4e648518ab6624c41bb0a53e1667e7533d2d23
+R 128ebbb0932f728f0a95807d5ea1c38d
 U stephan
-Z 6f03475dab464d4c821f7ca740637cbf
+Z 720090f467265dfa0cf7a340b7f9e9a5
