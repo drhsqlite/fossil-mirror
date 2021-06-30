@@ -1,5 +1,5 @@
-C patchcmd.md:\sadded\sa\sdescription\sof\show\sto\senable,\sif\sneeded,\sa\scustom\sPATH\svia\sthe\sremote\sbashrc.
-D 2021-06-30T21:24:02.404
+C Mirror\smany\s"fossil\sui"\soptions\sto\sthe\sremote\sside\swhen\susing\sa\sremote\nrepository.
+D 2021-06-30T22:49:14.388
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -540,7 +540,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c b7c4e7604c3b819bdc0fe6624a2afd1a8324e04d4c5e9bdc9d9048213064be32
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 559ad256f88a6f29b2eb8510b9ea4c7251bf3c5a9918b4381b66e91b8390b20e
+F src/main.c b92926552cfd6e03c523a0e10b82a90dd4d1b312abe6a0a1e4cddb8745047439
 F src/main.mk ed7d916e869f8806bb0b5aaf9426a471bf6cec259dcb406afb0d5bbbc1a817a9
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3acbe429aa460c82591029efa4f37fb560ba8df58580d7f4e87904572e94eb7
-R 44bfb3b5e333d2a03a66aeeef9f9526a
-U stephan
-Z 3b949854038e5c93a80dbc59dd664179
+P 9a931a16aca2a7150198c61dd3e00fe09e62e0affde2389b73cf51c7367d34fd
+R d9e9f97858e6eac708840e3c85cd911a
+U drh
+Z 96c290f3b4ed226e1d1d128455561452

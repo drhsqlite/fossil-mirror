@@ -2966,10 +2966,20 @@ void cmd_webserver(void){
     /* If REPOSITORY arg is the root of a checkout,
     ** chdir to that checkout so that the current version
     ** gets highlighted in the timeline by default. */
-    const char * zDir = g.argv[2];
-    if(dir_has_ckout_db(zDir)){
-      if(0!=file_chdir(zDir, 0)){
-        fossil_fatal("Cannot chdir to %s", zDir);
+    const char * zArg = g.argv[2];
+    char * zCkoutDb = mprintf("%//.fslckout", zArg);
+    if(file_size(zCkoutDb, ExtFILE)<=0){
+      fossil_free(zCkoutDb);
+      zCkoutDb = mprintf("%//_FOSSIL_", zArg);
+      if(file_size(zCkoutDb, ExtFILE)<=0){
+        fossil_free(zCkoutDb);
+        zCkoutDb = 0;
+      }
+    }
+    if(zCkoutDb!=0){
+      fossil_free(zCkoutDb);
+      if(0!=file_chdir(zArg, 0)){
+        fossil_fatal("Cannot chdir to %s", zArg);
       }
       findServerArg = 99;
       fCreate = 0;
@@ -3045,14 +3055,21 @@ void cmd_webserver(void){
     ** "fossil ui --nobrowser" on the remote system and to set up a
     ** tunnel from the local machine to the remote. */
     FILE *sshIn;
+    const char *zSkin;
     Blob ssh;
     char zLine[1000];
     blob_init(&ssh, 0, 0);
     transport_ssh_command(&ssh);
     blob_appendf(&ssh, 
        " -t -L127.0.0.1:%d:127.0.0.1:%d -- %!$"
-       " fossil ui --nobrowser --localauth --port %d %$",
-       iPort, iPort, zRemote, iPort, g.argv[2]);
+       " fossil ui --nobrowser --localauth --port %d",
+       iPort, iPort, zRemote, iPort);
+    if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
+    if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
+    if( g.zCkoutAlias ) blob_appendf(&ssh, " --ckout-alias %!$",g.zCkoutAlias);
+    if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+    if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
+    blob_appendf(&ssh, " %$", g.argv[2]);
     fossil_print("%s\n", blob_str(&ssh));
     sshIn = popen(blob_str(&ssh), "r");
     if( sshIn==0 ){
