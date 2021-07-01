@@ -112,13 +112,20 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    sync        Run a "sync" on all repositories.  Only the --verbose
 **                and --unversioned options are supported.
 **
-**    set|unset   Run the "setting", "set", or "unset" commands on all
+**    set         Run the "setting" or "set" commands on all
 **                repositories.  These command are particularly useful in
 **                conjunction with the "max-loadavg" setting which cannot
 **                otherwise be set globally.
 **
-**    server      Run the "ui" or "server" commands on all repositories.
-**    ui          The root URI gives a listing of all repos.
+**    unset       Run the "unset" command on all repositories
+**
+**    server      Run the "server" commands on all repositories.
+**                The root URI gives a listing of all repos.
+**
+**    ui          Run the "ui" command on all repositories.  Like "server"
+**                but bind to the loopback TCP address only, enable
+**                the --localauth option and automatically launch a
+**                web-browser
 **
 **
 ** In addition, the following maintenance operations are supported:

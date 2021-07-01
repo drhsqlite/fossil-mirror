@@ -3,8 +3,7 @@
 <a name='v2_16'></a>
 <h2>Changes for Version 2.16 (pending)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
-     server hostname matches its certificate. <b>Upgrading to
-     the patch is recommended.</b>
+     server hostname matches its certificate.
   *  The default "ssh" command on Windows is changed to "ssh" instead of the
      legacy "plink", as ssh is now generally available on Windows systems.
      Installations that still need to use the legacy "plink" can make that
@@ -16,7 +15,7 @@
           then the ui is run on the remote machine and tunnelled back to the local
           machine using ssh.  (The latest version of fossil must be installed on
           both the local and the remote for this to work correctly.)
-     <li> The new --nobrowser option is provided.  (This is needed by item 2 above.)
+     <li> The new --nobrowser and --fossilcmd options is provided.
      </ol>
   *  The [/brlist|/brlist web page] allows the user to
      select multiple branches to be displayed together in a single

@@ -1,5 +1,5 @@
-C Enhanced\shelp\stext\sfor\sthe\s"fossil\sui"\scommand.\s\sNo\schanges\sto\scode.
-D 2021-07-01T18:12:21.223
+C Improvements\sto\sthe\son-line\shelp\sfor\sthe\s"fossil\sall"\scommand,\sand\s\nimprovements\sto\sthe\schange\slog.\s\sNo\schanges\sto\scode.
+D 2021-07-01T18:54:48.951
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -426,7 +426,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c 6a35128d321a01601202c9b4074086286d07c5cee217e5ea5b269cfcd68ca5eb
+F src/allrepo.c eae9524885781fcd488f1ae6bf4929dfbc087375e1709bd059096db9e262fae1
 F src/attach.c 8ed9173b64b9751609ac2e78d608b7b1c473a072d5b1e1be2b1bc20ad0361796
 F src/backlink.c 5f49dc67c10ec4de17ae9e4aacc2ff4e6a6313387e584ee3f18e5f655a791ab9
 F src/backoffice.c ab2ae240feb704851e0eb61519006b5facabaa147219a564a6105d374dd9848c
@@ -830,7 +830,7 @@ F www/caps/index.md 4b744fd6673b88e62a008e45e3cd27b12a978ce7b9ddcd977feec572f83e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki e66912535d0c80ae23898b8b718c2eb31f8e87a628fbe857d6448ec18776ca06
+F www/changes.wiki 0f688b74c877f57c3cdf887ef7c2a7911050078084ca981d179ed131ffe11fbd
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a7aa779b2b16e0dd89de924b3ae019c8953bd1ed64525247d944c478ce763683
-R b9657fc9ee34a6183644e1f3b2641569
+P 301bc21791f13e6abd8b2b4ff0f819d59cd4e2c629e80d9d1781a7dc4c4ee92c
+R 6ad700eba53da04d3893d9cf18944ef7
 U drh
-Z f9cb01f31c102be5ca12f51574dc408e
+Z dc77801520a2ec083d70a794b001ada5
