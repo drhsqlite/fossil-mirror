@@ -2907,7 +2907,7 @@ void cmd_webserver(void){
   int findServerArg = 2;     /* argv index for find_server_repository() */
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
   const char *zJsMode;       /* The --jsmode parameter */
-  const char *zFossilCmd;    /* Name of "fossil" binary on remote system */
+  const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
   
 
 #if defined(_WIN32)

@@ -1,5 +1,5 @@
-C Add\sthe\s--fossilcmd\soption\sto\s"fossil\sui".\s\sCarry\sthe\s--jsmode\sand\s--create\noptions\sthrough\sto\sthe\sremote\sfossil.
-D 2021-07-01T13:58:03.589
+C Fix\suninitialized\slocal\svariable\sin\sthe\s"fossil\sui"\simplementation.
+D 2021-07-01T14:53:41.896
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -540,7 +540,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c b7c4e7604c3b819bdc0fe6624a2afd1a8324e04d4c5e9bdc9d9048213064be32
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 940cf3c50aa96c175dd5e1407e2f00b7758bd89b566b419fe99a520449775fea
+F src/main.c 8986e95688d6c818865dea3bad9b275d76d6d2398e92070ef4c66f78a03b13a5
 F src/main.mk ed7d916e869f8806bb0b5aaf9426a471bf6cec259dcb406afb0d5bbbc1a817a9
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12b5eed944b70f7c3a8009a065509c33bfbaf70d98883356c6e6d3277c0f7100
-R e32421e065d350d4c817639f6089b888
+P c359589ef6371bf3a2c5eccbbb3ba9e5bc272b13a7c9424dba6dc20d0a4affad
+R 941c4ec7a76aeef105f8bbf457c7b89b
 U drh
-Z 38d1dfe00ed83f100f78a2b871264f12
+Z e492c273ad30cc238024eb3f0e409f43
