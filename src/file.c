@@ -1300,6 +1300,50 @@ char *file_canonical_name_dup(const char *zOrigName){
 */
 char *file_fullexename(const char *zCmd){
 #ifdef _WIN32
+  char *zPath;
+  char *z = 0;
+  const char *zExe = "";
+  if( sqlite3_strlike("%.exe",zCmd,0)!=0 ) zExe = ".exe";
+  if( file_is_absolute_path(zCmd) ){
+    return mprintf("%s%s", zCmd, zExe);
+  }
+  if( strchr(zCmd,'\\')!=0 && strchr(zCmd,'/')!=0 ){
+    int i;
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    blob_append(&out, zExe, -1);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    for(i=0; z[i]; i++){ if( z[i]=='/' ) z[i] = '\\'; }
+    return z;
+  }
+  z = mprintf(".\\%s%s", zCmd, zExe);
+  if( file_isfile(z, ExtFILE) ){
+    int i;
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    blob_append(&out, zExe, -1);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    for(i=0; z[i]; i++){ if( z[i]=='/' ) z[i] = '\\'; }
+    return z;
+  }
+  fossil_free(z);
+  zPath = fossil_getenv("PATH");
+  while( zPath && zPath[0] ){
+    int n;
+    char *zColon;
+    zColon = strchr(zPath, ';');
+    n = zColon ? (int)(zColon-zPath) : (int)strlen(zPath);
+    while( n>0 && zPath[n-1]=='\\' ){ n--; }
+    z = mprintf("%.*s\\%s%s", n, zPath, zCmd, zExe);
+    if( file_isfile(z, ExtFILE) ){
+      return z;
+    }
+    fossil_free(z);
+    if( zColon==0 ) break;
+    zPath = zColon+1;
+  }
   return fossil_strdup(zCmd);
 #else
   char *zPath;

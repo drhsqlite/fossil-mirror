@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\son-line\shelp\sfor\sthe\s"fossil\sall"\scommand,\sand\s\nimprovements\sto\sthe\schange\slog.\s\sNo\schanges\sto\scode.
-D 2021-07-01T18:54:48.951
+C Fix\sthe\sfile_fullexename()\sfunction\s(used\sby\sthe\s"info"\sand\s"test-which"\ncommands)\sso\sthat\sit\sworks\scorrectly\son\sWindows.
+D 2021-07-01T19:27:46.831
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -475,7 +475,7 @@ F src/etag.c bfd088bf4c2914289ffa3f13e3d5bf25b98188b7284cd2c7dd7f7f379b0de038
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 148294216a7d9f6b1b9e2d1b31db0c159b883c42bb48e249a64359853415ef8e
 F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
-F src/file.c 506094fade0a8b26d81b7297c00b158b81e743a4ccbe5ac35350b44f0f61a3f0
+F src/file.c 882007970318ee2245537cddfcac9c483fc4f73c0d562103a335f92e9a9b1272
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
 F src/finfo.c 9daa47421c214f41c74ed084fa755702cc4de389df9cec66acb8ca88294e952d
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 301bc21791f13e6abd8b2b4ff0f819d59cd4e2c629e80d9d1781a7dc4c4ee92c
-R 6ad700eba53da04d3893d9cf18944ef7
+P e39854ae510570a207058b8df686b007b6059c58ca0ad0f6cc90f730629cbbd1
+R 09d1b75748ce97b9d618e4486221e82d
 U drh
-Z dc77801520a2ec083d70a794b001ada5
+Z 1784be82d2be8805bf9a3b67efc21c7c
