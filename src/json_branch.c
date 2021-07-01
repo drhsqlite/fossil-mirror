@@ -156,7 +156,7 @@ typedef struct BranchCreateOptions{
   char const * zName;
   char const * zBasis;
   char const * zColor;
-  char isPrivate;
+  int isPrivate;
   /**
      Might be set to an error string by
      json_branch_new().

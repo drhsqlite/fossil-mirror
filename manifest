@@ -1,5 +1,5 @@
-C Add\sa\snote\sto\sthe\schangelog\sabout\sDROP\ssupport\swithin\stickets\sschema\sdefinition.
-D 2021-07-01T20:32:27.720
+C Replaced\sa\schar\swith\san\sint\sto\sfix\sincorrect\s/json/branch/create\shandling\son\splatforms\swhere\schar\sis\sunsigned\sby\sdefault.\sProblem\sdiscovered\sby\sDaniel\sDumitriu.
+D 2021-07-01T22:00:37.497
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -519,7 +519,7 @@ F src/info.c 2b1cfb724e719db74dc7451594b1d78cc4bfa073219aa66dcc5eda685d8a45a2
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
-F src/json_branch.c b82e475ccab7221d8823e90c4ecd668d9cbc9227f4a8608669e837ba3c43add7
+F src/json_branch.c f697352a2b3c8ff0f925dd313b8c56c45d5a85d1dae38b244dc4a28e04888a7b
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
 F src/json_detail.h 327749d70dbbe785dbcc03d63c6c7372db920d28382d8992a06b42aaa31399a9
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8c32ebdffcef75b0a9e5831da1c18f92021b09d8072594134a8857dd0690068
-R 828124adc2bd5126a45b6f74f48f50f9
-U george
-Z f0c709745133c4b0580ab49ee2c1d3a6
+P f5b5991ee559f56f3c5398509fb38d3276612eef3df88fb93425c971a14add24
+R 97f5193e89f8220d8e71dee4bf2005f0
+U stephan
+Z 8bfb60fc3e67049156d6eaae6b24acaf
