@@ -363,7 +363,7 @@ static Blob * pThOut = 0;
 ** Sets the th1-internal output-redirection blob and returns the
 ** previous value. That blob is used by certain output-generation
 ** routines to emit its output. It returns the previous value so that
-** a routing can temporarily replace the buffer with its own and
+** a routine can temporarily replace the buffer with its own and
 ** restore it when it's done.
 */
 Blob * Th_SetOutputBlob(Blob * pOut){
@@ -2836,13 +2836,14 @@ int Th_AreDocsEnabled(void){
 #endif
 
 /*
-** If pOut is NULL, this works identically to Th_Render(), else it
-** works just like that function but appends any TH1-generated output
-** to the given blob. A bitmask of TH_R2B_xxx and/or TH_INIT_xxx flags
-** may be passed as the 3rd argument, or 0 for default options.  Note
-** that this function necessarily calls Th_FossilInit(), which may
-** unset flags used on previous calls unless mFlags is explicitly
-** passed in.
+** If pOut is NULL, this works identically to Th_Render() and sends
+** any TH1-generated output to stdin (in CLI mode) or the CGI buffer
+** (in CGI mode), else it works just like that function but appends
+** any TH1-generated output to the given blob. A bitmask of TH_R2B_xxx
+** and/or TH_INIT_xxx flags may be passed as the 3rd argument, or 0
+** for default options.  Note that this function necessarily calls
+** Th_FossilInit(), which may unset flags used on previous calls
+** unless mFlags is explicitly passed in.
 */
 int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   int i = 0;
@@ -2919,7 +2920,17 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
 ** call to Th_SetOutputBlob().
 */
 int Th_Render(const char *z){
-  return Th_RenderToBlob(z, 0, 0);
+  return Th_RenderToBlob(z, pThOut, 0)
+    /* Maintenance reminder: on most calls to Th_Render(), e.g. for
+    ** outputing the site skin, pThOut will be 0, which means that
+    ** Th_RenderToBlob() will output directly to the CGI buffer (in
+    ** CGI mode) or stdout (in CLI mode). Recursive calls, however,
+    ** e.g. via the "render" script function binding, need to use the
+    ** pThOut blob in order to avoid out-of-order output if
+    ** Th_SetOutputBlob() has been called. If it has not been called,
+    ** pThOut will be 0, which will redirect the output to CGI/stdout,
+    ** as appropriate.
+    */;
 }
 
 /*
