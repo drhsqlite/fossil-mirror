@@ -2793,15 +2793,26 @@ void fossil_set_timeout(int N){
 **
 ** Open a socket and begin listening and responding to HTTP requests on
 ** TCP port 8080, or on any other TCP port defined by the -P or
-** --port option.  The optional argument is the name of the repository.
-** The repository argument may be omitted if the working directory is
-** within an open checkout.
+** --port option.  The optional REPOSITORY argument is the name of the
+** Fossil repository to be served.  The REPOSITORY argument may be omitted
+** if the working directory is within an open checkout, in which case the
+** repository associated with that checkout is used.
 **
 ** The "ui" command automatically starts a web browser after initializing
 ** the web server.  The "ui" command also binds to 127.0.0.1 and so will
 ** only process HTTP traffic from the local machine.
 **
-** The REPOSITORY can be a directory (aka folder) that contains one or
+** If REPOSITORY is a directory name which is the root of a
+** checkout, then use the repository associated with that checkout.
+** This only works for the "fossil ui" command, not the "fossil server"
+** command.
+**
+** If REPOSITORY begins with a "HOST:" or "USER@HOST:" prefix, then
+** the command is run on the remote host specified and the results are
+** tunneled back to the local machine via SSH.  This feature only works for
+** the "fossil ui" command, not the "fossil server" command.
+**
+** REPOSITORY may also be a directory (aka folder) that contains one or
 ** more repositories with names ending in ".fossil".  In this case, a
 ** prefix of the URL pathname is used to search the directory for an
 ** appropriate repository.  To thwart mischief, the pathname in the URL must
@@ -2814,17 +2825,6 @@ void fossil_set_timeout(int N){
 ** "*.fossil*" will be served as static content.  With the "ui" command,
 ** the REPOSITORY can only be a directory if the --notfound option is
 ** also present.
-**
-** If the REPOSITORY is a directory name which is the root of a
-** checkout, it will chdir to that directory and, unless overridden by
-** the --page option, select the current checkout version in the
-** timeline by default.  This only works for the "fossil ui" command,
-** not the "fossil server" command.
-**
-** If the REPOSITORY argument has a "HOST:" or "USER@HOST:" prefix, then
-** the command is run on the remote host specified and the results are
-** tunneled back to the local host via SSH.  This feature only works for
-** the "fossil ui" command, not the "fossil server" command.
 **
 ** For the special case REPOSITORY name of "/", the global configuration
 ** database is consulted for a list of all known repositories.  The --repolist

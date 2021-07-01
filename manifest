@@ -1,5 +1,5 @@
-C Fix\suninitialized\slocal\svariable\sin\sthe\s"fossil\sui"\simplementation.
-D 2021-07-01T14:53:41.896
+C Enhanced\shelp\stext\sfor\sthe\s"fossil\sui"\scommand.\s\sNo\schanges\sto\scode.
+D 2021-07-01T18:12:21.223
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -540,7 +540,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c b7c4e7604c3b819bdc0fe6624a2afd1a8324e04d4c5e9bdc9d9048213064be32
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 8986e95688d6c818865dea3bad9b275d76d6d2398e92070ef4c66f78a03b13a5
+F src/main.c b17e44071e2807143abb42f7ba0b4ce3177e93f233f88e535c6b0c83c5bac9fb
 F src/main.mk ed7d916e869f8806bb0b5aaf9426a471bf6cec259dcb406afb0d5bbbc1a817a9
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c359589ef6371bf3a2c5eccbbb3ba9e5bc272b13a7c9424dba6dc20d0a4affad
-R 941c4ec7a76aeef105f8bbf457c7b89b
+P a7aa779b2b16e0dd89de924b3ae019c8953bd1ed64525247d944c478ce763683
+R b9657fc9ee34a6183644e1f3b2641569
 U drh
-Z e492c273ad30cc238024eb3f0e409f43
+Z f9cb01f31c102be5ca12f51574dc408e
