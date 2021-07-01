@@ -41,6 +41,9 @@
      a specific number of days (ex: 365) after the last user contact with
      the Fossil server. This prevents alert emails being sent to
      abandoned email accounts forever.
+  *  SQL that defines [/tktsetup_tab|database objects for tickets] now
+     [/timeline?c=c717f1ef9a1a4c91|can DROP] a VIEW or an INDEX provided
+     that its name starts with '<code>ticket</code>' or '<code>fx_</code>'.
   *  Update the built-in SQLite to version 3.36.0.
   *  Numerous other minor enhancements.
 
