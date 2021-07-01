@@ -66,7 +66,7 @@ of the command, is `if`.
 The second token is `$current eq "dev"` - an expression.  (The outer {...}
 are removed from each token by the command parser.)  The third token
 is the `puts "hello"`, with its whitespace and newlines.  The fourth token
-is `else"`  And the fifth and last token is `puts "world"`.
+is `else` and the fifth and last token is `puts "world"`.
 
 The `if` command evaluates its first argument (the second token)
 as an expression, and if that expression is true, evaluates its
