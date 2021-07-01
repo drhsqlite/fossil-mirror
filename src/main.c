@@ -2845,6 +2845,8 @@ void fossil_set_timeout(int N){
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
+**   --fossilcmd PATH    Full pathname of the "fossil" executable on the remote
+**                       system when REPOSITORY is remote.  Default: "fossil"
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
@@ -2904,6 +2906,8 @@ void cmd_webserver(void){
   const char *zInitPage = 0; /* Start on this page.  --page option */
   int findServerArg = 2;     /* argv index for find_server_repository() */
   char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
+  const char *zJsMode;       /* The --jsmode parameter */
+  const char *zFossilCmd;    /* Name of "fossil" binary on remote system */
   
 
 #if defined(_WIN32)
@@ -2915,7 +2919,8 @@ void cmd_webserver(void){
     g.zErrlog = "-";
   }
   g.zExtRoot = find_option("extroot",0,1);
-  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
+  zJsMode = find_option("jsmode",0,1);
+  builtin_set_js_delivery_mode(zJsMode,0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
@@ -2935,6 +2940,7 @@ void cmd_webserver(void){
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     zInitPage = find_option("page", 0, 1);
+    zFossilCmd = find_option("fossilcmd", 0, 1);
   }
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
@@ -3049,15 +3055,18 @@ void cmd_webserver(void){
     char zLine[1000];
     blob_init(&ssh, 0, 0);
     transport_ssh_command(&ssh);
+    if( zFossilCmd==0 ) zFossilCmd = "fossil";
     blob_appendf(&ssh, 
        " -t -L127.0.0.1:%d:127.0.0.1:%d -- %!$"
-       " fossil ui --nobrowser --localauth --port %d",
-       iPort, iPort, zRemote, iPort);
+       " %$ ui --nobrowser --localauth --port %d",
+       iPort, iPort, zRemote, zFossilCmd, iPort);
     if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
     if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
     if( g.zCkoutAlias ) blob_appendf(&ssh, " --ckout-alias %!$",g.zCkoutAlias);
     if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
     if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
+    if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
+    if( fCreate ) blob_appendf(&ssh, " --create");
     blob_appendf(&ssh, " %$", g.argv[2]);
     fossil_print("%s\n", blob_str(&ssh));
     sshIn = popen(blob_str(&ssh), "r");
@@ -3067,7 +3076,7 @@ void cmd_webserver(void){
     while( fgets(zLine, sizeof(zLine), sshIn) ){
       fputs(zLine, stdout);
       fflush(stdout);
-      if( zBrowserCmd ){
+      if( zBrowserCmd && sqlite3_strglob("*Listening for HTTP*",zLine)==0 ){
         char *zCmd = mprintf(zBrowserCmd/*works-like:"%d"*/,iPort);
         fossil_system(zCmd);
         fossil_free(zCmd);
