@@ -1,7 +1,7 @@
 <title>Change Log</title>
 
 <a name='v2_16'></a>
-<h2>Changes for Version 2.16 (pending)</h2>
+<h2>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
      server hostname matches its certificate.
   *  The default "ssh" command on Windows is changed to "ssh" instead of the

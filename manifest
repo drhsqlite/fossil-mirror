@@ -1,5 +1,5 @@
-C Replaced\sa\schar\swith\san\sint\sto\sfix\sincorrect\s/json/branch/create\shandling\son\splatforms\swhere\schar\sis\sunsigned\sby\sdefault.\sProblem\sdiscovered\sby\sDaniel\sDumitriu.
-D 2021-07-01T22:00:37.497
+C Version\s2.16
+D 2021-07-02T12:46:01.367
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -830,7 +830,7 @@ F www/caps/index.md 4b744fd6673b88e62a008e45e3cd27b12a978ce7b9ddcd977feec572f83e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 7c3d1c7e7033d3c71573786a28e3344856f6d3619a337e28492a1e07c4dd6111
+F www/changes.wiki 19b4139ef71619be4be199605b31fb54c11621fb0986eda2c95cbda254b35e16
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -898,7 +898,7 @@ F www/hooks.md c5454618775197eeeac60d46e00b1eea84a4c73c1332137fa07b2a4db8fb3a77
 F www/image-format-vs-repo-size.ipynb 2ee9c47dfdcaaf360878b6f17e06781a095430a984648472b5c61fedc38ef5d2
 F www/image-format-vs-repo-size.md 1f595b60587d4d7f6af758b0ad6d36044c115327c6b5bb0b31081dc00afe988c
 F www/image-format-vs-repo-size.svg 3f678d0adc459421e7b6a815f435afb0d937f0377c2182a5a1ca314491015ff3
-F www/index.wiki b671b4eb94f7be5be26745e45c86f374ef6b06366faaff9ada594c6dae8d7c80
+F www/index.wiki 7dd2176c54f2b29de1cbae6743160d26d11862c28400127d2a4212c1f7b643dc
 F www/inout.wiki 133cd460e62293f467a30a41ce21e67b4f7450b73d81dfeff7c174369d0eb7b5
 F www/interwiki.md d59e7911f8d43a6cbc4fc7d14419255f90ac837b9d6fa206dece2edbfc7a2920
 F www/javascript.md 4d80f9949ffc666440a690da0772aa54a7e78ae4cbbf40a4065b4df2647d3bbf
@@ -996,7 +996,9 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5b5991ee559f56f3c5398509fb38d3276612eef3df88fb93425c971a14add24
-R 97f5193e89f8220d8e71dee4bf2005f0
-U stephan
-Z 8bfb60fc3e67049156d6eaae6b24acaf
+P 8cb972e7dafbe5718a91d239590e7f70bc5e8f5629f775ec7cf9551d3411fa1c
+R 0bd558b780d2124e2cbcc863d311814a
+T +sym-release *
+T +sym-version-2.16 *
+U drh
+Z bfd96cccc8e54445ac03469456a11c41
