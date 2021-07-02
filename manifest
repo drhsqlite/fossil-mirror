@@ -1,5 +1,5 @@
-C Proposed\sfix\sfor\sout-of-order\soutput\swhen\scalling\sth1\srender\sfunction\sfrom\sa\sth-doc\spage\sbody.\sDO\sNOT\sMERGE:\sthis\sis\sbeing\schecked\sin\sso\sthat\sit\scan\sbe\sdeployed\son\sa\stest\sserver.
-D 2021-07-01T04:03:02.592
+C When\scalling\sTh_Render()\srecursively,\spass\son\sg.th1Flags\sso\sthat\srecursive\scalls\sdo\snot\sinadvertently\stoggle\sflags\slike\sTH_INIT_NO_ENCODE.
+D 2021-07-02T04:16:16.060
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -627,7 +627,7 @@ F src/terminal.c e330a05e850b657c882ac89e11d1035d29ca91aa339ce36677118d617db72f1
 F src/th.c 57a908f2f980541428d8a66518bdcb7c6b89b1564481127b362f486062bdcc3c
 F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
-F src/th_main.c 4f2e4ae1e6b97f382c7a04a70e9c74e5dc6d609e0721cb245358fd3861e21615
+F src/th_main.c 610136898e610da8d90cff34c02d62d820e710ae634bdba4fdd0e1c78cec4220
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 59d7bdc25c39d990d96b16f231767e3df2b19044ef8f279c39d1d47e2c50eb48
 F src/tkt.c d1ab410c3aad92a30e1035286399b051d3202cb545ab3ebe2f717da91b90c045
@@ -996,10 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12b5eed944b70f7c3a8009a065509c33bfbaf70d98883356c6e6d3277c0f7100
-R f2848610d002405f4dc50bbc0a1a90a7
-T *branch * th1-recursive-render
-T *sym-th1-recursive-render *
-T -sym-trunk *
+P a381a8102b6819b965b79e4981a1b8e3a6f97334cd18eef172a57368d7548cf6
+R 235382166c03d983d6b636884883b05f
 U stephan
-Z 25a463aec8f892aef8e9cc0602bc4866
+Z b82f0a2eb4c6814338f632e1784f67e7

@@ -2920,7 +2920,7 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
 ** call to Th_SetOutputBlob().
 */
 int Th_Render(const char *z){
-  return Th_RenderToBlob(z, pThOut, 0)
+  return Th_RenderToBlob(z, pThOut, g.th1Flags)
     /* Maintenance reminder: on most calls to Th_Render(), e.g. for
     ** outputing the site skin, pThOut will be 0, which means that
     ** Th_RenderToBlob() will output directly to the CGI buffer (in
@@ -2929,7 +2929,9 @@ int Th_Render(const char *z){
     ** pThOut blob in order to avoid out-of-order output if
     ** Th_SetOutputBlob() has been called. If it has not been called,
     ** pThOut will be 0, which will redirect the output to CGI/stdout,
-    ** as appropriate.
+    ** as appropriate. We need to pass on g.th1Flags for the case of
+    ** recursive calls, so that, e.g., TH_INIT_NO_ENCODE does not get
+    ** inadvertently toggled off by a recursive call.
     */;
 }
 
