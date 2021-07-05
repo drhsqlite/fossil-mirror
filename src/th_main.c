@@ -48,9 +48,9 @@
 ** Flags set by functions in this file to keep track of integration state
 ** information.  These flags should not be used outside of this file.
 */
-#define TH_STATE_CONFIG     ((u32)0x00000020) /* We opened the config. */
-#define TH_STATE_REPOSITORY ((u32)0x00000040) /* We opened the repository. */
-#define TH_STATE_MASK       ((u32)0x00000060) /* All possible state flags. */
+#define TH_STATE_CONFIG     ((u32)0x00000200) /* We opened the config. */
+#define TH_STATE_REPOSITORY ((u32)0x00000400) /* We opened the repository. */
+#define TH_STATE_MASK       ((u32)0x00000600) /* All possible state flags. */
 
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
