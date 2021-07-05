@@ -3031,6 +3031,7 @@ void cmd_webserver(void){
   }
   if( isUiCmd && !fNoBrowser ){
     char *zBrowserArg;
+    if( zRemote ) db_open_config(0,0);
     zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
       zBrowserArg = mprintf("http://localhost:%%d/%s", zInitPage);
@@ -3055,6 +3056,7 @@ void cmd_webserver(void){
     char zLine[1000];
     blob_init(&ssh, 0, 0);
     transport_ssh_command(&ssh);
+    db_close_config();
     if( zFossilCmd==0 ) zFossilCmd = "fossil";
     blob_appendf(&ssh, 
        " -t -L127.0.0.1:%d:127.0.0.1:%d -- %!$"
