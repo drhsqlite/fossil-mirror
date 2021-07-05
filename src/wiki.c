@@ -547,7 +547,7 @@ void wiki_page(void){
   const char *zMimetype = 0;
   int isPopup = P("popup")!=0;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
-  int noSubmenu = P("nsm")!=0;
+  int noSubmenu = P("nsm")!=0 || g.isHome;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -585,7 +585,7 @@ void wiki_page(void){
     }
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
-  if( !g.isHome && !noSubmenu ){
+  if( !noSubmenu ){
     if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
      && wiki_special_permission(zPageName)
     ){
