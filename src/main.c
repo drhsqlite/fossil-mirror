@@ -3059,7 +3059,7 @@ void cmd_webserver(void){
     db_close_config();
     if( zFossilCmd==0 ) zFossilCmd = "fossil";
     blob_appendf(&ssh, 
-       " -t -L127.0.0.1:%d:127.0.0.1:%d %!$"
+       " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$"
        " %$ ui --nobrowser --localauth --port %d",
        iPort, iPort, zRemote, zFossilCmd, iPort);
     if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
