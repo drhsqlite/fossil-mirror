@@ -476,7 +476,7 @@ int blob_eq_str(Blob *pBlob, const char *z, int n){
 */
 #if INTERFACE
 # define blob_eq(B,S) \
-     ((B)->nUsed==sizeof(S)-1 && memcmp((B)->aData,S,sizeof(S)-1)==0)
+     ((B)->nUsed==sizeof(S"")-1 && memcmp((B)->aData,S,sizeof(S)-1)==0)
 #endif
 
 

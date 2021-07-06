@@ -1,5 +1,5 @@
-C Only\sissue\sthe\swarning\sabout\sunable\sto\spush\sUV\scontent\sdue\sto\sinsufficient\nprivilege\sif\sthe\sclient\shas\snew\sUV\scontent\sthat\sotherwise\smight\spush.
-D 2021-07-06T13:46:40.017
+C Enhance\sthe\sblob_eq()\smacro\sto\shelp\sensure\sthat\sits\ssecond\sargument\sis\sa\nstring\sliteral,\snot\sa\spointer.
+D 2021-07-06T15:46:40.878
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 5f49dc67c10ec4de17ae9e4aacc2ff4e6a6313387e584ee3f18e5f655a791ab
 F src/backoffice.c ab2ae240feb704851e0eb61519006b5facabaa147219a564a6105d374dd9848c
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c b6be7d4bac3d9a6384c65003717b75e7447f5f4e41dbeb7c177e18479af5621a
-F src/blob.c e396a55796eb4f724a5c875391bdcca4ab16316b5e4b94d35afaa9ddec7424aa
+F src/blob.c 575803d6a32ed83cad61333cc782a7a29a3b04274a635d4dc4a9058c5f0ec2bc
 F src/branch.c 1c0d2c9d91574250ccaf15c53bdf4548a4201681cda6f085b799ec351780b8aa
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d015a269e63fe4c34bc16e41cd26695850e8a196381351d8494298d9f3f36d66
-R 77d2226f3083bfab6fd4290d1271bc3d
+P 22005dfcf13df25114f1cca5ff6e674f2f6248fd0a1f5e75ca0084c9e1a47578
+R cfeb1ad346ff504a76938aeaa38a589f
 U drh
-Z 87c9f46362efb4d60da93633c9934a12
+Z 53db348c9b044e442f3eb791b48aed3f
