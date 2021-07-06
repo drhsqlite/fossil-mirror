@@ -1815,8 +1815,7 @@ static const char zBriefFormat[] =
 #define SYNC_PRIVATE        0x0008    /* Also transfer private content */
 #define SYNC_VERBOSE        0x0010    /* Extra diagnostics */
 #define SYNC_RESYNC         0x0020    /* --verily */
-#define SYNC_UVPULL         0x0040    /* Unversioned pull */
-#define SYNC_FROMPARENT     0x0080    /* Pull from the parent project */
+#define SYNC_FROMPARENT     0x0040    /* Pull from the parent project */
 #define SYNC_UNVERSIONED    0x0100    /* Sync unversioned content */
 #define SYNC_UV_REVERT      0x0200    /* Copy server unversioned to client */
 #define SYNC_UV_TRACE       0x0400    /* Describe UV activities */
@@ -1873,6 +1872,7 @@ int client_sync(
   double rSkew = 0.0;     /* Maximum time skew */
   int uvHashSent = 0;     /* The "pragma uv-hash" message has been sent */
   int uvDoPush = 0;       /* Generate uvfile messages to send to server */
+  int uvPullOnly = 0;     /* 1: pull-only.  2: pull-only warning issued */
   int nUvGimmeSent = 0;   /* Number of uvgimme cards sent on this cycle */
   int nUvFileRcvd = 0;    /* Number of uvfile cards received on this cycle */
   sqlite3_int64 mtime;    /* Modification time on a UV file */
@@ -1882,8 +1882,7 @@ int client_sync(
   unsigned int mHttpFlags;/* Flags for the http_exchange() subsystem */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
-  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|
-                    SYNC_UNVERSIONED|SYNC_UVPULL))==0
+  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
      && configRcvMask==0 && configSendMask==0 ) return 0;
   if( syncFlags & SYNC_FROMPARENT ){
     configRcvMask = 0;
@@ -2040,7 +2039,7 @@ int client_sync(
     ** On a clone, delay sending this until the second cycle since
     ** the login card might fail on the first cycle.
     */
-    if( (syncFlags & (SYNC_UNVERSIONED|SYNC_UVPULL))!=0
+    if( (syncFlags & SYNC_UNVERSIONED)!=0
      && ((syncFlags & SYNC_CLONE)==0 || nCycle>0)
      && !uvHashSent
     ){
@@ -2360,7 +2359,15 @@ int client_sync(
           );
           db_unset("uv-hash", 0);
         }
-        if( iStatus<=3 ){
+        if( iStatus>=4 && uvPullOnly==1 ){
+          fossil_warning(
+            "Warning: uv-pull-only                                       \n"
+            "         Unable to push unversioned content because you lack\n"
+            "         sufficient permission on the server\n"
+          );
+          uvPullOnly = 2;
+        }          
+        if( iStatus<=3 || uvPullOnly ){
           db_multi_exec("DELETE FROM uv_tosend WHERE name=%Q", zName);
         }else if( iStatus==4 ){
           db_multi_exec("UPDATE uv_tosend SET mtimeOnly=1 WHERE name=%Q",zName);
@@ -2489,6 +2496,7 @@ int client_sync(
         }
 
         /*   pragma uv-pull-only
+        **   pragma uv-push-ok
         **
         ** If the server is unwill to accept new unversioned content (because
         ** this client lacks the necessary permissions) then it sends a
@@ -2498,11 +2506,7 @@ int client_sync(
         */
         if( syncFlags & SYNC_UNVERSIONED ){
           if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
-            fossil_print(
-              "Warning: uv-pull-only                                       \n"
-              "         Unable to push unversioned content because you lack\n"
-              "         sufficient permission on the server\n"
-            );
+            uvPullOnly = 1;
             if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
           }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
             uvDoPush = 1;

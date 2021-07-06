@@ -1,5 +1,5 @@
-C Fix\san\sinefficiency\sin\suv-sync\sin\swhich\sthe\suv-catalog\sis\salways\ssent\seven\sif\nthe\suv-hash\smatches.\s\sAlso\sadd\spreliminary\schange\sto\ssupport\suv-push.
-D 2021-07-06T13:15:33.465
+C Only\sissue\sthe\swarning\sabout\sunable\sto\spush\sUV\scontent\sdue\sto\sinsufficient\nprivilege\sif\sthe\sclient\shas\snew\sUV\scontent\sthat\sotherwise\smight\spush.
+D 2021-07-06T13:46:40.017
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -650,7 +650,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 9703d2be8cb500839e5027626abdb0e6c7263deb264ba0a753ebd2ed2598c31b
-F src/xfer.c f06e44f43d9bcd99435024db1b51e1a37013dd4bc5c24e56efaaf82d86e339c4
+F src/xfer.c dcdd18295de47a2fd7eedc0ac83cf620f385e4b8d4ed95a406bd905d8643fe3c
 F src/xfersetup.c 6ef44e93ea292bdf7fdaf695bb2c6c64131e81bd6ebb094e27dbb8b1ebe95a01
 F src/zip.c ff770acf2a8723e6730b6bd6c3b69071fa038a04cfcb0e041e1ca4a775938e8f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3fd84de3f42728b50f4024d1fee3bfce41d3c3154159945caca2dc27a4e84d9c
-R b93d82d41d91c1b0f71ef954f653a74a
+P d015a269e63fe4c34bc16e41cd26695850e8a196381351d8494298d9f3f36d66
+R 77d2226f3083bfab6fd4290d1271bc3d
 U drh
-Z 1a892653417d5483b1f3e8ff2b909987
+Z 87c9f46362efb4d60da93633c9934a12
