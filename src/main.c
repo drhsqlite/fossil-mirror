@@ -2940,6 +2940,7 @@ void cmd_webserver(void){
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     zInitPage = find_option("page", 0, 1);
+    if( zInitPage[0]=='/' ) zInitPage++;
     zFossilCmd = find_option("fossilcmd", 0, 1);
   }
   zNotFound = find_option("notfound", 0, 1);
