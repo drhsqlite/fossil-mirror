@@ -462,7 +462,7 @@ int blob_constant_time_cmp(Blob *pA, Blob *pB){
 int blob_eq_str(Blob *pBlob, const char *z, int n){
   Blob t;
   blob_is_init(pBlob);
-  if( n<=0 ) n = strlen(z);
+  if( n<=0 ) n = (int)strlen(z);
   t.aData = (char*)z;
   t.nUsed = n;
   t.xRealloc = blobReallocStatic;

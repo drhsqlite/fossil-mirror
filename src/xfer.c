@@ -1063,25 +1063,23 @@ static void send_all(Xfer *pXfer){
 ** on this server.
 */
 static void send_unversioned_catalog(Xfer *pXfer){
+  int nUvIgot = 0;
+  Stmt uvq;
   unversioned_schema();
-  if( !blob_eq(&pXfer->aToken[2], unversioned_content_hash(0)) ){
-    int nUvIgot = 0;
-    Stmt uvq;
-    db_prepare(&uvq,
-       "SELECT name, mtime, hash, sz FROM unversioned"
-    );
-    while( db_step(&uvq)==SQLITE_ROW ){
-      const char *zName = db_column_text(&uvq,0);
-      sqlite3_int64 mtime = db_column_int64(&uvq,1);
-      const char *zHash = db_column_text(&uvq,2);
-      int sz = db_column_int(&uvq,3);
-      nUvIgot++;
-      if( zHash==0 ){ sz = 0; zHash = "-"; }
-      blob_appendf(pXfer->pOut, "uvigot %s %lld %s %d\n",
-                   zName, mtime, zHash, sz);
-    }
-    db_finalize(&uvq);
+  db_prepare(&uvq,
+     "SELECT name, mtime, hash, sz FROM unversioned"
+  );
+  while( db_step(&uvq)==SQLITE_ROW ){
+    const char *zName = db_column_text(&uvq,0);
+    sqlite3_int64 mtime = db_column_int64(&uvq,1);
+    const char *zHash = db_column_text(&uvq,2);
+    int sz = db_column_int(&uvq,3);
+    nUvIgot++;
+    if( zHash==0 ){ sz = 0; zHash = "-"; }
+    blob_appendf(pXfer->pOut, "uvigot %s %lld %s %d\n",
+                 zName, mtime, zHash, sz);
   }
+  db_finalize(&uvq);
 }
 
 /*
@@ -1618,14 +1616,16 @@ void page_xfer(void){
       if( blob_eq(&xfer.aToken[1], "uv-hash")
        && blob_is_hname(&xfer.aToken[2])
       ){
-        if( !uvCatalogSent ){
-          if( g.perm.Read && g.perm.WrUnver ){
+        if( !uvCatalogSent
+         && g.perm.Read
+         && !blob_eq_str(&xfer.aToken[2], unversioned_content_hash(0),-1)
+        ){
+          if( g.perm.WrUnver ){
             @ pragma uv-push-ok
-            send_unversioned_catalog(&xfer);
           }else if( g.perm.Read ){
             @ pragma uv-pull-only
-            send_unversioned_catalog(&xfer);
           }
+          send_unversioned_catalog(&xfer);
         }
         uvCatalogSent = 1;
       }
@@ -1815,13 +1815,14 @@ static const char zBriefFormat[] =
 #define SYNC_PRIVATE        0x0008    /* Also transfer private content */
 #define SYNC_VERBOSE        0x0010    /* Extra diagnostics */
 #define SYNC_RESYNC         0x0020    /* --verily */
-#define SYNC_UNVERSIONED    0x0040    /* Sync unversioned content */
-#define SYNC_UV_REVERT      0x0080    /* Copy server unversioned to client */
-#define SYNC_FROMPARENT     0x0100    /* Pull from the parent project */
-#define SYNC_UV_TRACE       0x0200    /* Describe UV activities */
-#define SYNC_UV_DRYRUN      0x0400    /* Do not actually exchange files */
-#define SYNC_IFABLE         0x0800    /* Inability to sync is not fatal */
-#define SYNC_CKIN_LOCK      0x1000    /* Lock the current check-in */
+#define SYNC_UVPULL         0x0040    /* Unversioned pull */
+#define SYNC_FROMPARENT     0x0080    /* Pull from the parent project */
+#define SYNC_UNVERSIONED    0x0100    /* Sync unversioned content */
+#define SYNC_UV_REVERT      0x0200    /* Copy server unversioned to client */
+#define SYNC_UV_TRACE       0x0400    /* Describe UV activities */
+#define SYNC_UV_DRYRUN      0x0800    /* Do not actually exchange files */
+#define SYNC_IFABLE         0x1000    /* Inability to sync is not fatal */
+#define SYNC_CKIN_LOCK      0x2000    /* Lock the current check-in */
 #endif
 
 /*
@@ -1881,7 +1882,8 @@ int client_sync(
   unsigned int mHttpFlags;/* Flags for the http_exchange() subsystem */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
-  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
+  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|
+                    SYNC_UNVERSIONED|SYNC_UVPULL))==0
      && configRcvMask==0 && configSendMask==0 ) return 0;
   if( syncFlags & SYNC_FROMPARENT ){
     configRcvMask = 0;
@@ -2038,7 +2040,7 @@ int client_sync(
     ** On a clone, delay sending this until the second cycle since
     ** the login card might fail on the first cycle.
     */
-    if( (syncFlags & SYNC_UNVERSIONED)!=0
+    if( (syncFlags & (SYNC_UNVERSIONED|SYNC_UVPULL))!=0
      && ((syncFlags & SYNC_CLONE)==0 || nCycle>0)
      && !uvHashSent
     ){
@@ -2494,15 +2496,17 @@ int client_sync(
         ** bandwidth trying to upload unversioned content.  If the server
         ** does accept new unversioned content, it sends "uv-push-ok".
         */
-        if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
-          fossil_print(
-            "Warning: uv-pull-only                                       \n"
-            "         Unable to push unversioned content because you lack\n"
-            "         sufficient permission on the server\n"
-          );
-          if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
-        }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
-          uvDoPush = 1;
+        if( syncFlags & SYNC_UNVERSIONED ){
+          if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
+            fossil_print(
+              "Warning: uv-pull-only                                       \n"
+              "         Unable to push unversioned content because you lack\n"
+              "         sufficient permission on the server\n"
+            );
+            if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
+          }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
+            uvDoPush = 1;
+          }
         }
 
         /*    pragma ci-lock-fail  USER-HOLDING-LOCK  LOCK-TIME
