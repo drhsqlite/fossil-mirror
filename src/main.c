@@ -1405,7 +1405,20 @@ void set_base_url(const char *zAltBase){
     }
     fossil_free(z);
   }
-  if( db_is_writeable("repository") ){
+
+  /* Try to record the base URL as a CONFIG table entry with a name
+  ** of the form:  "baseurl:BASE".  This keeps a record of how the
+  ** the repository is used as a server, to help in answering questions
+  ** like "where is the CGI script that references this repository?"
+  **
+  ** This is just a logging hint.  So don't worry if it cannot be done.
+  ** Don't try this if the repository database is not writable, for
+  ** example.
+  **
+  ** If g.useLocalauth is set, that (probably) means that we are running
+  ** "fossil ui" and there is no point in logging those cases either.
+  */
+  if( db_is_writeable("repository") && !g.useLocalauth ){
     int nBase = (int)strlen(g.zBaseURL);
     char *zBase = g.zBaseURL;
     if( g.nExtraURL>0 && g.nExtraURL<nBase-6 ){
