@@ -1,5 +1,5 @@
-C Do\snot\slog\sthe\sbase\sURL\sin\sthe\sCONFIG\stable\swhen\srunning\s"fossil\sui".
-D 2021-07-07T13:12:18.161
+C Fix\sthe\sunversioned_content_hash()\sfunction\sso\sthat\sit\sreturns\sthe\nSHA1\sof\sa\szero-length\sbuffer\sif\sthe\s"unversioned"\stable\sdoes\snot\sexist.
+D 2021-07-07T18:14:35.708
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -636,7 +636,7 @@ F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1b
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c b395662fee34e4037c0657d20015c8f0adf8f119e6958564648de9a204dd620c
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
-F src/unversioned.c 28473c31fe9c27eda74836b85a955405ae5504cf720796f169204a8c4958ff20
+F src/unversioned.c 2900b0a8eff959f1753a8af6c754a6c80e53069521cf307b1272b10c87f9c901
 F src/update.c d1daa93931016fb64026b8a9674a7292ff1f0887805788017ed32a4a15b08990
 F src/url.c 68ea150d8554de9f48c836553203d2ca189fcd90c619acfe6e0843add2fa1739
 F src/user.c 14eb8bbf710d57bf440e46a70a016d65b3acb20bb7dd9ba37c9b258480006ccf
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 71499f138612c096019a5978a9533123433a77d37f0042f1af1aaa5bad1471e2
-R 422aa1b40e2132deee1874e0d1efbe1f
+P a965221ab24876b0a91da0f78e9abce3bb7737c1cd4d385ca7d7c170a76b8098
+R ab81a83b22d3e5af99f08409163653c8
 U drh
-Z 87b2180df8064e906fb4342a6e46db44
+Z ff832a5a6de5106a7f99bcdb018d4f58
