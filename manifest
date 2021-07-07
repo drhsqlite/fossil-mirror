@@ -1,5 +1,5 @@
-C Fix\sthe\sprevious\scheck-in\sso\sthat\sit\sworks\seven\swhen\sthe\s--page\soption\sis\nomitted.
-D 2021-07-06T16:31:06.232
+C Minor\sfixes\sto\sthe\sembeddeddoc.wiki\sdocument.
+D 2021-07-07T11:12:03.306
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -852,7 +852,7 @@ F www/defcsp.md e86627fc1e8f55bbf1ed89c0870be35812554b10414bd5f8509d79b3456835ee
 F www/delta-manifests.md ba56b7b206cae3b4bb9c55137343d5b8fa08832109c92e331e36c947ab677e41
 F www/delta_encoder_algorithm.wiki 47438cf64d97a6a03cda720ffaabb88992c48133480c8e8c4a1e4431ff1786f9
 F www/delta_format.wiki 0e03b43ba0282cf6cd92fbcbb908e4006a66cd96a52ae97b6735427de1b462a7
-F www/embeddeddoc.wiki aa4ca6612f13c2bde382ccf87c167bc627292ca64e7b4401ed722df42a591a2c
+F www/embeddeddoc.wiki e5b5722cedd372f27e60b0bbc5ac6983213660be1f3f105e0a2e0c93cf1aab63
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 10f962420717ccb91c2970a589689f9f3f5559579b5797d03bf52d36fbd179b9
-R 7c6696c5c44a47ff9d3d48b7e6d3364a
+P 6d178fa90f832c31f0a261210de6ccd887eb60fbaddaddda10cad3973ae9f3b5
+R 1a2c88ce845277ed07160a9686cc4bb1
 U drh
-Z f1b78d5d88054906c62211a1cce7f76e
+Z 18cb5312a9f550cc3f3c87da6ae55611
