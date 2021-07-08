@@ -466,13 +466,9 @@ proc searchStep {direction incr start stop} {
   set ::search $w
 }
 
+set wrapMode 0
 proc toggleWrap {} {
-  upvar wrapMode w
-  if {$w eq {none}} {
-    set w word
-  } else {
-    set w none
-  }
+  set w [lindex {none word} $::wrapMode]
   foreach t {txtCol0 txtCol1} {
     upvar $t tt
     $tt tag config - -wrap $w
@@ -482,7 +478,7 @@ proc toggleWrap {} {
 ::ttk::button .bb.invert -text {Invert} -command invertDiff
 ::ttk::button .bb.save -text {Save As...} -command saveDiff
 ::ttk::button .bb.search -text {Search} -command searchOnOff
-::ttk::button .bb.wrap -text {Wrap} -command toggleWrap
+::ttk::checkbutton .bb.wrap -text {Wrap} -command toggleWrap -variable wrapMode
 pack .bb.quit .bb.invert -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
 pack .bb.files .bb.search .bb.wrap -side left
