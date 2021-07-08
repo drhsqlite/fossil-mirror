@@ -675,7 +675,7 @@ void bisect_cmd(void){
         if( strncmp(g.argv[3], aBisectOption[i].zName, n)==0 ){
           char *z = mprintf("bisect-%s", aBisectOption[i].zName);
           if( g.argc==5 ){
-            db_lset(z, g.argv[4]);
+            db_lset(z/*works-like:"bisect-%s"*/, g.argv[4]);
           }
           fossil_print("%s\n", db_lget(z, (char*)aBisectOption[i].zDefault));
           fossil_free(z);

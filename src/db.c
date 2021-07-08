@@ -3323,6 +3323,11 @@ void db_lset_int(const char *zName, int value){
 }
 
 /* Va-args versions of db_get(), db_set(), and db_unset()
+**
+** codecheck1.c verifies that the format string for db_set_mprintf()
+** and db_unset_mprintf() begins with an ASCII character prefix.  We
+** don't want that format string to begin with %s or %d as that might
+** allow an injection attack to set or overwrite arbitrary settings.
 */
 char *db_get_mprintf(const char *zDefault, const char *zFormat, ...){
   va_list ap;
@@ -3341,7 +3346,7 @@ void db_set_mprintf(const char *zNew, int iGlobal, const char *zFormat, ...){
   va_start(ap, zFormat);
   zName = vmprintf(zFormat, ap);
   va_end(ap);
-  db_set(zName, zNew, iGlobal);
+  db_set(zName/*works-like:"x"*/, zNew, iGlobal);
   fossil_free(zName);
 }
 void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
@@ -3350,7 +3355,7 @@ void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
   va_start(ap, zFormat);
   zName = vmprintf(zFormat, ap);
   va_end(ap);
-  db_unset(zName, iGlobal);
+  db_unset(zName/*works-like:"x"*/, iGlobal);
   fossil_free(zName);
 }
 
@@ -4415,10 +4420,10 @@ void setting_cmd(void){
         fossil_fatal("cannot set 'manifest' globally");
       }
       if( unsetFlag ){
-        db_unset(pSetting->name, globalFlag);
+        db_unset(pSetting->name/*works-like:"x"*/, globalFlag);
       }else{
         db_protect_only(PROTECT_NONE);
-        db_set(pSetting->name, g.argv[3], globalFlag);
+        db_set(pSetting->name/*works-like:"x"*/, g.argv[3], globalFlag);
         db_protect_pop();
       }
       if( isManifest && g.localOpen ){

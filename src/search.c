@@ -1932,7 +1932,7 @@ void fts_config_cmd(void){
     zCtrl = g.argv[3];
     for(j=0; j<count(aSetng); j++){
       if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
-        db_set_int(aSetng[j].zSetting, iCmd-3, 0);
+        db_set_int(aSetng[j].zSetting/*works-like:"x"*/, iCmd-3, 0);
       }
     }
   }

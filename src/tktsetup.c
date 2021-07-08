@@ -138,7 +138,7 @@ static void tktsetup_generic(
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     login_verify_csrf_secret();
-    db_unset(zDbField, 0);
+    db_unset(zDbField/*works-like:"x"*/, 0);
     if( xRebuild ) xRebuild();
     cgi_redirect("tktsetup");
   }else if( isSubmit ){
@@ -147,7 +147,7 @@ static void tktsetup_generic(
     if( xText && (zErr = xText(z))!=0 ){
       @ <p class="tktsetupError">ERROR: %h(zErr)</p>
     }else{
-      db_set(zDbField, z, 0);
+      db_set(zDbField/*works-like:"x"*/, z, 0);
       if( xRebuild ) xRebuild();
       cgi_redirect("tktsetup");
     }
