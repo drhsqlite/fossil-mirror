@@ -308,13 +308,19 @@ bind .wfiles.lb <Motion> {
   %W selection set @%x,%y
 }
 
+set wrapMode none
+set txtCol0 ""
+set txtCol1 ""
+set i 0
 foreach {side syncCol} {A .txtB B .txtA} {
   set ln .ln$side
   text $ln
   $ln tag config - -justify right
 
   set txt .txt$side
-  text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
+  set txtCol$i $txt
+  set i [expr $i + 1]
+  text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap $wrapMode \
     -xscroll "sync-x $syncCol"
   catch {$txt config -tabstyle wordprocessor} ;# Required for Tk>=8.5
   foreach tag {add rm chng} {
@@ -326,6 +332,7 @@ foreach {side syncCol} {A .txtB B .txtA} {
   $txt tag config err -foreground $CFG(ERR_FG)
 }
 text .mkr
+unset i
 
 foreach c [cols] {
   set keyPrefix [string toupper [colType $c]]_COL_
@@ -458,13 +465,27 @@ proc searchStep {direction incr start stop} {
   }
   set ::search $w
 }
+
+proc toggleWrap {} {
+  upvar wrapMode w
+  if {$w eq {none}} {
+    set w word
+  } else {
+    set w none
+  }
+  foreach t {txtCol0 txtCol1} {
+    upvar $t tt
+    $tt tag config - -wrap $w
+  }
+}
 ::ttk::button .bb.quit -text {Quit} -command exit
 ::ttk::button .bb.invert -text {Invert} -command invertDiff
 ::ttk::button .bb.save -text {Save As...} -command saveDiff
 ::ttk::button .bb.search -text {Search} -command searchOnOff
+::ttk::button .bb.wrap -text {Wrap} -command toggleWrap
 pack .bb.quit .bb.invert -side left
 if {$fossilcmd!=""} {pack .bb.save -side left}
-pack .bb.files .bb.search -side left
+pack .bb.files .bb.search .bb.wrap -side left
 grid rowconfigure . 1 -weight 1
 grid columnconfigure . 1 -weight 1
 grid columnconfigure . 4 -weight 1
