@@ -3505,6 +3505,7 @@ void db_record_repository_filename(const char *zName){
 **   --force-missing   Force opening a repository with missing content
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
+**   --nosync          Do not auto-sync the repository prior to opening
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
@@ -3529,6 +3530,7 @@ void cmd_open(void){
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
+  int bNosync = 0;               /* --nosync.  Omit auto-sync */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3539,6 +3541,7 @@ void cmd_open(void){
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
   bForce = find_option("force","f",0)!=0;  
+  bNosync = find_option("nosync",0,0)!=0;
   zPwd = file_getcwd(0,0);
   
 
@@ -3633,6 +3636,12 @@ void cmd_open(void){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
       g.zOpenRevision = db_get("main-branch", 0);
+    }
+    if( !bNosync
+     && autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1)
+     && !bForce
+    ){
+      fossil_fatal("unable to auto-sync the repository");
     }
   }
 
