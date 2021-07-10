@@ -29,6 +29,15 @@ static void report_format_hints(void);
 #  define SQLITE_RECURSIVE            33
 #endif
 
+/* Settings that can be used to control ticket reports */
+/*
+** SETTING: ticket-search-empty-report-number    width=10 default=0
+**
+** If this setting has an integer value of N, then when the ticket
+** search page query is blank, the report with rn=N is shown.
+** If N is zero, then no report is shown.
+*/
+
 /*
 ** WEBPAGE: reportlist
 **
@@ -984,8 +993,19 @@ static int db_exec_readonly(
 ** an HTML table.
 */
 void rptview_page(void){
+  rptview_page_content(0, 1, 1);
+}
+
+/*
+** Render a report.
+*/
+void rptview_page_content(
+  int rn, /* Report number. If 0, retrieve from rn query parameter. */
+  int pageWrap, /* If true, render full page; otherwise, just the report */
+  int redirectMissing /* If true and report not found, go to reportlist */
+){
   int count = 0;
-  int rn, rc;
+  int rc;
   char *zSql;
   char *zTitle;
   char *zOwner;
@@ -998,9 +1018,12 @@ void rptview_page(void){
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   tabs = P("tablist")!=0;
+  if ( rn==0 ) {
+    rn = atoi(PD("rn","0"));
+  }
   db_prepare(&q,
     "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE rn=%d",
-     atoi(PD("rn","0")));
+     rn);
   rc = db_step(&q);
   if( rc!=SQLITE_ROW ){
     db_finalize(&q);
@@ -1011,7 +1034,9 @@ void rptview_page(void){
   }
   if( rc!=SQLITE_ROW ){
     db_finalize(&q);
-    cgi_redirect("reportlist");
+    if (redirectMissing) {
+      cgi_redirect("reportlist");
+    }
     return;
   }
   zTitle = db_column_malloc(&q, 0);
@@ -1043,25 +1068,27 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
-    /* style_finish_page() should provide escaping via %h formatting */
-    if( zQS[0] ){
-      style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
-      style_submenu_element("Reports","%R/reportlist?%s",zQS);
-    } else {
-      style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
-      style_submenu_element("Reports","%R/reportlist");
+    if ( pageWrap ) {
+      /* style_finish_page() should provide escaping via %h formatting */
+      if( zQS[0] ){
+        style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
+        style_submenu_element("Reports","%R/reportlist?%s",zQS);
+      } else {
+        style_submenu_element("Raw","%R/%s?tablist=1",g.zPath);
+        style_submenu_element("Reports","%R/reportlist");
+      }
+      if( g.perm.Admin
+        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
+        style_submenu_element("Edit", "rptedit?rn=%d", rn);
+      }
+      if( g.perm.TktFmt ){
+        style_submenu_element("SQL", "rptsql?rn=%d",rn);
+      }
+      if( g.perm.NewTkt ){
+        style_submenu_element("New Ticket", "%R/tktnew");
+      }
+      style_header("%s", zTitle);
     }
-    if( g.perm.Admin
-       || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
-      style_submenu_element("Edit", "rptedit?rn=%d", rn);
-    }
-    if( g.perm.TktFmt ){
-      style_submenu_element("SQL", "rptsql?rn=%d",rn);
-    }
-    if( g.perm.NewTkt ){
-      style_submenu_element("New Ticket", "%R/tktnew");
-    }
-    style_header("%s", zTitle);
     output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
     @ <table border="1" cellpadding="2" cellspacing="0" class="report sortable"
@@ -1078,7 +1105,9 @@ void rptview_page(void){
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
     style_table_sorter();
-    style_finish_page();
+    if ( pageWrap ) {
+      style_finish_page();
+    }
   }else{
     report_restrict_sql(&zErr1);
     db_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);

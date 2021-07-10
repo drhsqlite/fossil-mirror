@@ -1,5 +1,5 @@
-C Auto-sync\sprior\sto\srunning\s"fossil\sopen".\s\sAdd\sthe\s--nosync\sflags\sto\n"fossil\sopen"\sand\s"fossil\sup"\sto\sdisable\sthe\sauto-sync.
-D 2021-07-09T16:15:43.736
+C Add\sticket-search-empty-report-number\ssetting\sto\soptionally\sshow\sa\sreport\sif\sthe\sticket\ssearch\spage\squery\sis\sblank
+D 2021-07-10T05:47:38.231
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -573,7 +573,7 @@ F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c 1f16f6ff99f5fea2538c06fa8bc938dc2e86361a79d8093dfef8643de6ce062b
 F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c 740456c8e79f7953a084df739bdd6e457a6a253292b3c022b19382940b407807
-F src/report.c 8f578a7f9a5a15ddc03a8eab9578565afdb3a19e1c8db23ad5fdfdf81854bffb
+F src/report.c 3fc0f684d6345db783532d4bae12e89885f3dc2393ab431eeba4a2097bba2521
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
@@ -630,7 +630,7 @@ F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
 F src/th_main.c e73a4bf73760a0ff4c8c06795dd66ce72b8166a5f7fd48b4aaa2a3025c1f482f
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 59d7bdc25c39d990d96b16f231767e3df2b19044ef8f279c39d1d47e2c50eb48
-F src/tkt.c d1ab410c3aad92a30e1035286399b051d3202cb545ab3ebe2f717da91b90c045
+F src/tkt.c 3d1a63bb7c1d5922bf1dd93317601e097db04d23f47b7939f44f14cd0361697f
 F src/tktsetup.c 7ca5bc4b484da48925461bbf5195e1111c52dcb79a4dd785d34cf506b2069922
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -702,7 +702,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test b8018b7041d7f41f075a9ccb796b80293a059833d6bfbed519dbb0ab3f0753f4
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl d2abb6ee6a788c99628298d64b354a236abcf12a1f79b7fad98ee0ab2a82153c
+F test/tester.tcl 51027c50a9f0d8d89867e557728aa40eb892d712a4cb4b100ec4a7ef2148f13c
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -996,7 +996,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f0b08d071a6d3595533865d669845ec180e527d961b0c20233b4f14771e17447
-R cdfe229091fe77df08b9fa5b874965a5
-U drh
-Z c6b749144f0787d43c94a80b4edb1697
+P dc97155ec768992c5e2c566c7985b412eb2c379ab84618288d1bf3da24cc7dc0
+R 8cdbf680010f8e8629c73ccbf295e257
+T *branch * ticket-search-empty-report-number
+T *sym-ticket-search-empty-report-number *
+T -sym-trunk *
+U kevgrig
+Z 820313e002442b621bbe062c26668f99

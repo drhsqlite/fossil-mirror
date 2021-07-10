@@ -1638,10 +1638,16 @@ void tkt_home_page(void){
 ** Full-text search of all current tickets
 */
 void tkt_srchpage(void){
+  int rn;
   login_check_credentials();
   style_set_current_feature("tkt");
   style_header("Ticket Search");
   ticket_standard_submenu(T_ALL_BUT(T_SRCH));
-  search_screen(SRCH_TKT, 0);
+  if ( !search_screen(SRCH_TKT, 0) ) {
+    rn = db_get_int("ticket-search-empty-report-number",0);
+    if ( rn ) {
+      rptview_page_content(rn, 0, 0);
+    }
+  }
   style_finish_page();
 }
