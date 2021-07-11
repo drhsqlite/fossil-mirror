@@ -315,7 +315,7 @@ void cgi_reply(void){
   }else if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
-    fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
+    fprintf(g.httpOut, "Cache-Control: max-age=315360000, immutable\r\n");
   }else{
     fprintf(g.httpOut, "Cache-control: no-cache\r\n");
   }
