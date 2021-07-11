@@ -31,11 +31,10 @@ static void report_format_hints(void);
 
 /* Settings that can be used to control ticket reports */
 /*
-** SETTING: ticket-search-empty-report-number    width=10 default=0
-**
-** If this setting has an integer value of N, then when the ticket
-** search page query is blank, the report with rn=N is shown.
-** If N is zero, then no report is shown.
+** SETTING: ticket-default-report   width=80
+** If this setting has a string value, then when the ticket
+** search page query is blank, the report with this title is shown.
+** If the setting is blank (default), then no report is shown.
 */
 
 /*
@@ -49,6 +48,7 @@ void view_list(void){
   Stmt q;
   int rn = 0;
   int cnt = 0;
+  char *defaultReport = db_get("ticket-default-report", 0);
 
   login_check_credentials();
   if( !g.perm.RdTkt && !g.perm.NewTkt ){
@@ -96,6 +96,9 @@ void view_list(void){
     if( g.perm.TktFmt ){
       blob_appendf(&ril, "[%zsql</a>]",
                          href("%R/rptsql?rn=%d", rn));
+    }
+    if( fossil_strcmp(zTitle, defaultReport)==0 ){
+      blob_appendf(&ril, "&nbsp;← default");
     }
     blob_appendf(&ril, "</li>\n");
   }
@@ -395,6 +398,7 @@ void view_edit(void){
   const char *zClrKey;
   char *zSQL;
   char *zErr = 0;
+  int dflt = P("dflt") ? 1 : 0;
 
   login_check_credentials();
   if( !g.perm.TktFmt ){
@@ -464,6 +468,14 @@ void view_edit(void){
            zTitle, zSQL, zOwner, zClrKey);
         rn = db_last_insert_rowid();
       }
+      if( dflt ){
+        db_set("ticket-default-report", zTitle, 0);
+      }else{
+        char *defaultReport = db_get("ticket-default-report", 0);
+        if( fossil_strcmp(zTitle, defaultReport)==0 ){
+          db_set("ticket-default-report", "", 0);
+        }
+      }
       cgi_redirect(mprintf("rptview?rn=%d", rn));
       return;
     }
@@ -476,10 +488,12 @@ void view_edit(void){
     db_prepare(&q, "SELECT title, sqlcode, owner, cols "
                      "FROM reportfmt WHERE rn=%d",rn);
     if( db_step(&q)==SQLITE_ROW ){
+      char *defaultReport = db_get("ticket-default-report", 0);
       zTitle = db_column_malloc(&q, 0);
       zSQL = db_column_malloc(&q, 1);
       zOwner = db_column_malloc(&q, 2);
       zClrKey = db_column_malloc(&q, 3);
+      dflt = fossil_strcmp(zTitle, defaultReport)==0;
     }
     db_finalize(&q);
     if( P("copy") ){
@@ -518,6 +532,8 @@ void view_edit(void){
   @ color for that line.<br />
   @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
+  @ <p><label><input type="checkbox" name="dflt" %s(dflt?"checked":"")> \
+  @ Make this the default report</label></p>
   if( !g.perm.Admin && fossil_strcmp(zOwner,g.zLogin)!=0 ){
     @ <p>This report format is owned by %h(zOwner).  You are not allowed
     @ to change it.</p>
@@ -1000,12 +1016,13 @@ void rptview_page(void){
 ** Render a report.
 */
 void rptview_page_content(
-  int rn, /* Report number. If 0, retrieve from rn query parameter. */
+  const char *defaultTitleSearch, /* If rn and title query parameters are
+                                     blank, search reports by this title. */
   int pageWrap, /* If true, render full page; otherwise, just the report */
   int redirectMissing /* If true and report not found, go to reportlist */
 ){
   int count = 0;
-  int rc;
+  int rn, rc;
   char *zSql;
   char *zTitle;
   char *zOwner;
@@ -1018,23 +1035,23 @@ void rptview_page_content(
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   tabs = P("tablist")!=0;
-  if ( rn==0 ) {
-    rn = atoi(PD("rn","0"));
-  }
   db_prepare(&q,
     "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE rn=%d",
-     rn);
+     atoi(PD("rn","0")));
   rc = db_step(&q);
   if( rc!=SQLITE_ROW ){
+    const char *titleSearch =
+      defaultTitleSearch==0 || trim_string(defaultTitleSearch)[0]==0 ?
+        P("title") : defaultTitleSearch;
     db_finalize(&q);
     db_prepare(&q,
       "SELECT title, sqlcode, owner, cols, rn FROM reportfmt WHERE title GLOB %Q",
-      P("title"));
+      titleSearch);
     rc = db_step(&q);
   }
   if( rc!=SQLITE_ROW ){
     db_finalize(&q);
-    if (redirectMissing) {
+    if( redirectMissing ) {
       cgi_redirect("reportlist");
     }
     return;
@@ -1068,7 +1085,7 @@ void rptview_page_content(
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_set_current_feature("report");
-    if ( pageWrap ) {
+    if( pageWrap ) {
       /* style_finish_page() should provide escaping via %h formatting */
       if( zQS[0] ){
         style_submenu_element("Raw","%R/%s?tablist=1&%s",g.zPath,zQS);
@@ -1105,7 +1122,7 @@ void rptview_page_content(
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
     style_table_sorter();
-    if ( pageWrap ) {
+    if( pageWrap ) {
       style_finish_page();
     }
   }else{

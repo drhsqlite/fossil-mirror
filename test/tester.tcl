@@ -353,7 +353,7 @@ proc get_all_settings {} {
       tclsh \
       th1-setup \
       th1-uri-regexp \
-      ticket-search-empty-report-number \
+      ticket-default-report \
       user-color-map \
       uv-sync \
       web-browser]
