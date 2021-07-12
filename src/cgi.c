@@ -1325,6 +1325,25 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 }
 
 /*
+** Return the value of the first defined query parameter or cookie whose
+** name appears in the list of arguments.  Or if no parameter is found,
+** return NULL.
+*/
+const char *cgi_coalesce(const char *zName, ...){
+  va_list ap;
+  const char *z;
+  const char *zX;
+  if( zName==0 ) return 0;
+  z = cgi_parameter(zName, 0);
+  va_start(ap, zName);
+  while( z==0 && (zX = va_arg(ap,const char*))!=0 ){
+    z = cgi_parameter(zX, 0);
+  }
+  va_end(ap);
+  return z;
+}
+
+/*
 ** Return the value of a CGI parameter with leading and trailing
 ** spaces removed and with internal \r\n changed to just \n
 */

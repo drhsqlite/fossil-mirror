@@ -1,5 +1,5 @@
-C Add\sthe\sticket-default-report\ssetting,\swhich\sif\sset\sto\sthe\stitle\sof\sa\sticket\nreport\scauses\sthat\sticket\sreport\sto\sbe\sdisplayed\sbelow\sthe\ssearch\sbox\sin\nthe\s/ticket\spage.
-D 2021-07-11T23:43:34.093
+C Timeline\senhancements:\s\s(1)\sAdd\sthe\s"nc"\squery\sparameter\swhich\smeans\sto\somit\nall\sgraph\scolorations\sother\sthan\shighlights\sfrom\s"m"\sor\s"m2".\s\s(2)\sAdd\sthe\n"m2="\squery\sparameter\sfor\ssecondary\shighlight.\s\s(3)\sUndocumented\nsel1=\sand\ssel2=\squery\sparameters\sremain\sundocumented\sbut\sare\snow\saliases\sfor\nthe\sdocumented\s"m="\sand\s"m2="\squery\sparameters.
+D 2021-07-12T13:26:38.517
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -440,7 +440,7 @@ F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
 F src/cache.c 6b48b3e8d9caba50156db7119d736a5585387b0bd9353f312f14481d07cd2f6c
 F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb59780f73c
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
-F src/cgi.c 22a68291e5c515e9f7ace18a3316371792240d85474588d85235b3db4a628795
+F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c 16c8a4153109c86055dda4df7ca5d112355195d56cb98a3bb590e4640b414e92
 F src/chat.js 1fb9f7cd1b14b2cf750466ebba7d33edd0f6c6d5c87dd9e17d127b8a9e216239
 F src/checkin.c 8a34bde17c6e698cc46e96f27af8978bf0e62bda21f07716840a8db994f67910
@@ -629,7 +629,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
 F src/th_main.c e73a4bf73760a0ff4c8c06795dd66ce72b8166a5f7fd48b4aaa2a3025c1f482f
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 59d7bdc25c39d990d96b16f231767e3df2b19044ef8f279c39d1d47e2c50eb48
+F src/timeline.c d179f9579b419bae074dc9a6e715d28975769ecf30f34353769acf7f964f5cbd
 F src/tkt.c 5e67539aadbf8084b712e1543c06b31cc8a8a870cf477ae0e329362d1ad747ed
 F src/tktsetup.c 7ca5bc4b484da48925461bbf5195e1111c52dcb79a4dd785d34cf506b2069922
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -996,8 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44339d537869206a9a935a55dc327d75524eda8605b4d707a83ef546f55b742c eaa7f6bb5cf0342d48e057be3a1aaddf4f8a73fff36de8ce4b8a9b70d0643a00
-R bfe98f0c3954f9321d00f7b12b2a89e7
-T +closed eaa7f6bb5cf0342d48e057be3a1aaddf4f8a73fff36de8ce4b8a9b70d0643a00
+P c51ace6bc8bd0e16a66c53d11cb9ac16617469984ee1505a8501d1d4c3dd4e9f
+R 935258a46c89bf02c38d697ee4b605b4
 U drh
-Z f8186e2b7f8b2a0d043c10269482914e
+Z 7c7e3883c4297f77b67159064674c6d1

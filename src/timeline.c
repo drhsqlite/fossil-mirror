@@ -120,6 +120,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FORUMTXT 0x4000000 /* Render all forum messages */
 #define TIMELINE_REFS     0x8000000 /* Output intended for References tab */
 #define TIMELINE_DELTA   0x10000000 /* Background color shows delta manifests */
+#define TIMELINE_NOCOLOR 0x20000000 /* No colors except for highlights */
 #endif
 
 /*
@@ -365,9 +366,11 @@ void www_print_timeline(
     }
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
-    if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA) ){
+    if( tmFlags & (TIMELINE_UCOLOR|TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
       if( tmFlags & TIMELINE_UCOLOR ){
         zBgClr = zUser ? user_color(zUser) : 0;
+      }else if( tmFlags & TIMELINE_NOCOLOR ){
+        zBgClr = 0;
       }else if( zType[0]=='c' ){
         static Stmt qdelta;
         db_static_prepare(&qdelta, "SELECT baseid IS NULL FROM plink"
@@ -394,7 +397,7 @@ void www_print_timeline(
         zBr = "trunk";
       }
       if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
-        if( tmFlags & TIMELINE_DELTA ){
+        if( tmFlags & (TIMELINE_DELTA|TIMELINE_NOCOLOR) ){
         }else if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
         }else{
@@ -1547,6 +1550,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    cf=FILEHASH     Show events around the time of the first use of
 **                    the file with FILEHASH
 **    m=TIMEORTAG     Highlight the event at TIMEORTAG
+**    m2=TIMEORTAG    Secondary highlight
 **    n=COUNT         Maximum number of events. "all" for no limit
 **    n1=COUNT        Same as "n" but doesn't set the display-preference cookie
 **                       Use "n1=COUNT" for a one-time display change
@@ -1574,6 +1578,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    ncp             Omit cherrypick merges
 **    nd              Do not highlight the focus check-in
 **    nsm             Omit the submenu
+**    nc              Omit all graph colors other than highlights
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
@@ -1730,8 +1735,8 @@ void page_timeline(void){
   /* Undocumented query parameter to set JS mode */
   builtin_set_js_delivery_mode(P("jsmode"),1);
 
-  secondaryRid = name_to_typed_rid(P("sel2"),"ci");
-  selectedRid = name_to_typed_rid(P("sel1"),"ci");
+  secondaryRid = name_to_typed_rid(cgi_coalesce("sel2","m2",NULL),"ci");
+  selectedRid = name_to_typed_rid(cgi_coalesce("m","sel1",NULL),"ci");
   tmFlags |= timeline_ss_submenu();
   cookie_link_parameter("advm","advm","0");
   advancedMenu = atoi(PD("advm","0"));
@@ -1862,6 +1867,10 @@ void page_timeline(void){
   }
   if( PB("deltabg") ){
     tmFlags |= TIMELINE_DELTA;
+  }
+  if( PB("nc") ){
+    tmFlags &= ~(TIMELINE_DELTA|TIMELINE_BRCOLOR|TIMELINE_UCOLOR);
+    tmFlags |= TIMELINE_NOCOLOR;
   }
   if( zUses!=0 ){
     int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
