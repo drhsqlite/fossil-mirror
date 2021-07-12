@@ -1,5 +1,5 @@
-C Timeline\senhancements:\s\s(1)\sAdd\sthe\s"nc"\squery\sparameter\swhich\smeans\sto\somit\nall\sgraph\scolorations\sother\sthan\shighlights\sfrom\s"m"\sor\s"m2".\s\s(2)\sAdd\sthe\n"m2="\squery\sparameter\sfor\ssecondary\shighlight.\s\s(3)\sUndocumented\nsel1=\sand\ssel2=\squery\sparameters\sremain\sundocumented\sbut\sare\snow\saliases\sfor\nthe\sdocumented\s"m="\sand\s"m2="\squery\sparameters.
-D 2021-07-12T13:26:38.517
+C Hostname\sprefix\son\sthe\srepository\sname\sfor\sthe\s"fossil\sui"\scommand\smust\sbe\nat\sleast\stwo\scharacters\sin\slength,\sto\savoid\sconfusing\sit\swith\sa\sdrive\sletter\non\swindows.
+D 2021-07-12T15:13:46.334
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -475,7 +475,7 @@ F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
 F src/export.c 148294216a7d9f6b1b9e2d1b31db0c159b883c42bb48e249a64359853415ef8e
 F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
-F src/file.c 882007970318ee2245537cddfcac9c483fc4f73c0d562103a335f92e9a9b1272
+F src/file.c f72f172e4f763f423b834c3a24fefe1494acad1e70a1ab127bd09c6cf7232dee
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
 F src/finfo.c 9daa47421c214f41c74ed084fa755702cc4de389df9cec66acb8ca88294e952d
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c51ace6bc8bd0e16a66c53d11cb9ac16617469984ee1505a8501d1d4c3dd4e9f
-R 935258a46c89bf02c38d697ee4b605b4
+P a3392298c341e5120dd25a76711a3bcde41dd974cb357f7982efadab912ad7c0
+R 1ddb9c75caa942d2747ca5dd0ca03591
 U drh
-Z 7c7e3883c4297f77b67159064674c6d1
+Z 18a98a9ffeb96d472e5e88dca7435535
