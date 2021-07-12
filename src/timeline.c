@@ -1549,8 +1549,14 @@ const char *timeline_expand_datetime(const char *zIn){
 **    c=TIMEORTAG     Show events that happen "circa" TIMEORTAG
 **    cf=FILEHASH     Show events around the time of the first use of
 **                    the file with FILEHASH
-**    m=TIMEORTAG     Highlight the event at TIMEORTAG
-**    m2=TIMEORTAG    Secondary highlight
+**    m=TIMEORTAG     Highlight the event at TIMEORTAG, or the closest available
+**                    event if TIMEORTAG is not part of the timeline.  If
+**                    the t= or r= is used, the m event is added to the timeline
+**                    if it isn't there already.
+**    sel1=TIMEORTAG  Highlight the check-in at TIMEORTAG if it is part of
+**                    the timeline.  Similar to m= except TIMEORTAG must
+**                    match a check-in that is already in the timeline.
+**    sel2=TIMEORTAG  Like sel1= but use the secondary highlight.
 **    n=COUNT         Maximum number of events. "all" for no limit
 **    n1=COUNT        Same as "n" but doesn't set the display-preference cookie
 **                       Use "n1=COUNT" for a one-time display change
@@ -1735,8 +1741,8 @@ void page_timeline(void){
   /* Undocumented query parameter to set JS mode */
   builtin_set_js_delivery_mode(P("jsmode"),1);
 
-  secondaryRid = name_to_typed_rid(cgi_coalesce("sel2","m2",NULL),"ci");
-  selectedRid = name_to_typed_rid(cgi_coalesce("m","sel1",NULL),"ci");
+  secondaryRid = name_to_typed_rid(P("sel2"),"ci");
+  selectedRid = name_to_typed_rid(P("sel1"),"ci");
   tmFlags |= timeline_ss_submenu();
   cookie_link_parameter("advm","advm","0");
   advancedMenu = atoi(PD("advm","0"));
@@ -2088,7 +2094,7 @@ void page_timeline(void){
       if( nd>0 || p_rid==0 ){
         blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       }
-      if( useDividers ) selectedRid = d_rid;
+      if( useDividers && !selectedRid ) selectedRid = d_rid;
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
@@ -2102,7 +2108,7 @@ void page_timeline(void){
         blob_appendf(&desc, "%d ancestor%s", np, (1==np)?"":"s");
         db_multi_exec("%s", blob_sql_text(&sql));
       }
-      if( useDividers ) selectedRid = p_rid;
+      if( useDividers && !selectedRid ) selectedRid = p_rid;
     }
 
     blob_appendf(&desc, " of %z%h</a>",
@@ -2151,7 +2157,7 @@ void page_timeline(void){
     }
     blob_append_sql(&sql, " AND event.objid IN ok");
     db_multi_exec("%s", blob_sql_text(&sql));
-    if( useDividers ) selectedRid = f_rid;
+    if( useDividers && !selectedRid ) selectedRid = f_rid;
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
@@ -2645,7 +2651,7 @@ void page_timeline(void){
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
     double r = symbolic_name_to_mtime(zMark, 0);
-    if( r>0.0 ) selectedRid = timeline_add_divider(r);
+    if( r>0.0 && !selectedRid ) selectedRid = timeline_add_divider(r);
   }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");

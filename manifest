@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sPikchr\sto\sthe\slatest\strunk\sversion.
-D 2021-07-12T18:14:17.818
+C Back\sout\sthe\sm2=\squery\sparameter\sfor\s/timeline.\s\sInstead\sgo\sback\sin\sand\ndocument\sthe\ssel1=\sand\ssel2=\squery\sparameters.\s\sNote\sthe\ssubtle\sdifferences\nbetween\sm=\sand\ssel1=.\s\sDo\snot\sallow\sm=,\sor\sc=,\sor\sany\sother\sparameter\sto\noverride\ssel1=.
+D 2021-07-12T18:37:23.902
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -629,7 +629,7 @@ F src/th.h 7e47343d8731dc947ac815bc8296367a81edd881ad1d7ed658bec756a01ae697
 F src/th_lang.c 10ea27ac227d7d03293447f11cb9f74ce12b29ccaf27178d436e5b4fbb99f1f9
 F src/th_main.c e73a4bf73760a0ff4c8c06795dd66ce72b8166a5f7fd48b4aaa2a3025c1f482f
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c d179f9579b419bae074dc9a6e715d28975769ecf30f34353769acf7f964f5cbd
+F src/timeline.c 8bd2534e8daa490f7c380406c6a3cddd5d0a93436234e761497d7e40a0d375b0
 F src/tkt.c 5e67539aadbf8084b712e1543c06b31cc8a8a870cf477ae0e329362d1ad747ed
 F src/tktsetup.c 7ca5bc4b484da48925461bbf5195e1111c52dcb79a4dd785d34cf506b2069922
 F src/translate.c 745a23f3d53c056e02eed21eac9edea11f719fe10162ead9d2cb6a256f4e1bc6
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 385344eff7b03638c70cd940b9d2323b01654caf3565fd145e616c616dca805b
-R c719b1bb6ab52b0d1137295e8b1f37a0
+P 3fa951bb45c506eaefba0d195ec8d44c3333df69a6ed948e598426de81b2e6bf
+R f4d76792381e1857c32d3af8a07ca504
 U drh
-Z 1f4a4343bd3f7e80191ac0ecd7ab9401
+Z 098465aa95bb7394405acefb5287d877
