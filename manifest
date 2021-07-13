@@ -1,5 +1,5 @@
-C Back\sout\sthe\sm2=\squery\sparameter\sfor\s/timeline.\s\sInstead\sgo\sback\sin\sand\ndocument\sthe\ssel1=\sand\ssel2=\squery\sparameters.\s\sNote\sthe\ssubtle\sdifferences\nbetween\sm=\sand\ssel1=.\s\sDo\snot\sallow\sm=,\sor\sc=,\sor\sany\sother\sparameter\sto\noverride\ssel1=.
-D 2021-07-12T18:37:23.902
+C When\sdoing\sa\sverbose\ssync/pull/push,\salso\sprint\stotal\suncompressed\sbytes\ssent/received,\sto\smatch\sdisplayed\sstatistics\sfor\seach\sround\strip.
+D 2021-07-13T15:21:45.616
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -650,7 +650,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c f60c1b4a224142e96d59399cb94974fafcb1e21fbbb165e49934b84ff6fd4d79
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 9703d2be8cb500839e5027626abdb0e6c7263deb264ba0a753ebd2ed2598c31b
-F src/xfer.c dcdd18295de47a2fd7eedc0ac83cf620f385e4b8d4ed95a406bd905d8643fe3c
+F src/xfer.c a87679b3ccec406ab5acc79378149b024a5f1d4931d9b1c1545541a20bd62ff6
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3fa951bb45c506eaefba0d195ec8d44c3333df69a6ed948e598426de81b2e6bf
-R f4d76792381e1857c32d3af8a07ca504
-U drh
-Z 098465aa95bb7394405acefb5287d877
+P ee07556688c6c9383417e8402fa4f2be4d96afe9bff92ea1fd2849f74df3e8cc
+R 3f807320b503023f54e507d4bf0be2a8
+U danield
+Z 5e59b17abbcf01396122f192afe27b07

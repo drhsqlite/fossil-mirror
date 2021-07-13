@@ -1854,6 +1854,7 @@ int client_sync(
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
+  i64 nUncSent, nUncRcvd; /* Bytes sent and received (before compression) */
   i64 nSent, nRcvd;       /* Bytes sent and received (after compression) */
   int cloneSeqno = 1;     /* Sequence number for clones */
   Blob send;              /* Text we are sending to the server */
@@ -1915,6 +1916,7 @@ int client_sync(
   blob_zero(&xfer.err);
   blob_zero(&xfer.line);
   origConfigRcvMask = 0;
+  nUncSent = nUncRcvd = 0;
 
   /* Send the send-private pragma if we are trying to sync private data */
   if( syncFlags & SYNC_PRIVATE ){
@@ -2154,6 +2156,7 @@ int client_sync(
     xfer.nPrivIGot = 0;
 
     lastPctDone = -1;
+    nUncSent += blob_size(&send);
     blob_reset(&send);
     blob_appendf(&send, "pragma client-version %d %d %d\n",
                  RELEASE_VERSION_NUMBER, MANIFEST_NUMERIC_DATE,
@@ -2608,6 +2611,7 @@ int client_sync(
       fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
                    nRoundtrip, nArtifactSent, nArtifactRcvd);
     }
+    nUncRcvd += blob_size(&recv);
     blob_reset(&recv);
     nCycle++;
 
@@ -2673,6 +2677,10 @@ int client_sync(
   fossil_print(
      "%s done, sent: %lld  received: %lld  ip: %s\n",
      zOpType, nSent, nRcvd, g.zIpAddr);
+  if( syncFlags & SYNC_VERBOSE ){
+    fossil_print(
+      "Uncompressed sent: %lld  received: %lld\n", nUncSent, nUncRcvd);
+  }
   transport_close(&g.url);
   transport_global_shutdown(&g.url);
   if( nErr && go==2 ){
