@@ -1822,6 +1822,7 @@ static const char zBriefFormat[] =
 #define SYNC_UV_DRYRUN      0x0800    /* Do not actually exchange files */
 #define SYNC_IFABLE         0x1000    /* Inability to sync is not fatal */
 #define SYNC_CKIN_LOCK      0x2000    /* Lock the current check-in */
+#define SYNC_NOHTTPCOMPRESS 0x4000    /* Do not compression HTTP messages */
 #endif
 
 /*
@@ -2129,6 +2130,9 @@ int client_sync(
       mHttpFlags = 0;
     }else{
       mHttpFlags = HTTP_USE_LOGIN;
+    }
+    if( syncFlags & SYNC_NOHTTPCOMPRESS ){
+      mHttpFlags |= HTTP_NOCOMPRESS;
     }
     if( http_exchange(&send, &recv, mHttpFlags, MAX_REDIRECTS, 0) ){
       nErr++;
@@ -2675,11 +2679,11 @@ int client_sync(
 
   fossil_force_newline();
   fossil_print(
-     "%s done, sent: %lld  received: %lld  ip: %s\n",
+     "%s done, wire bytes sent: %lld  received: %lld  ip: %s\n",
      zOpType, nSent, nRcvd, g.zIpAddr);
   if( syncFlags & SYNC_VERBOSE ){
     fossil_print(
-      "Uncompressed sent: %lld  received: %lld\n", nUncSent, nUncRcvd);
+      "Uncompressed payload sent: %lld  received: %lld\n", nUncSent, nUncRcvd);
   }
   transport_close(&g.url);
   transport_global_shutdown(&g.url);

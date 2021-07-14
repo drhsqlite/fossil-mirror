@@ -148,6 +148,9 @@ static void process_sync_args(
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
   }
+  if( find_option("no-http-compression",0,0)!=0 ){
+    *pSyncFlags |= SYNC_NOHTTPCOMPRESS;
+  }
   url_proxy_options();
   clone_ssh_find_options();
   if( !uvOnly ) db_find_and_open_repository(0, 0);
@@ -208,6 +211,7 @@ static void process_sync_args(
 **                              if required by the remote website
 **   --from-parent-project      Pull content from the parent project
 **   --ipv4                     Use only IPv4, not IPv6
+**   --no-http-compression      Do not compress HTTP traffic
 **   --once                     Do not remember URL for subsequent syncs
 **   --private                  Pull private branches too
 **   --project-code CODE        Use CODE as the project code
@@ -258,6 +262,7 @@ void pull_cmd(void){
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
 **   --ipv4                     Use only IPv4, not IPv6
+**   --no-http-compression      Do not compress HTTP traffic
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Push private branches too
@@ -303,6 +308,7 @@ void push_cmd(void){
 **   -B|--httpauth USER:PASS    Credentials for the simple HTTP auth protocol,
 **                              if required by the remote website
 **   --ipv4                     Use only IPv4, not IPv6
+**   --no-http-compression      Do not compress HTTP traffic
 **   --once                     Do not remember URL for subsequent syncs
 **   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Sync private branches too
