@@ -1,5 +1,5 @@
-C A\svalue\sof\s"auto"\sfor\s--branchcolor\s(commit)\sor\s--bgcolor\s(branch\snew)\sinstructs\sFossil\sto\schoose\sthe\scolor\sautomatically.\sThis\smakes\sit\spossible\sto\shave\sprivate\sbranches\sthat\sare\snot\scolored\sorange\sby\sdefault.
-D 2021-07-15T02:21:36.697
+C Fix\sa\sminor\stypo\sin\sa\scomment.
+D 2021-07-15T16:32:29.318
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -428,7 +428,7 @@ F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c eae9524885781fcd488f1ae6bf4929dfbc087375e1709bd059096db9e262fae1
 F src/attach.c 8ed9173b64b9751609ac2e78d608b7b1c473a072d5b1e1be2b1bc20ad0361796
-F src/backlink.c 5f49dc67c10ec4de17ae9e4aacc2ff4e6a6313387e584ee3f18e5f655a791ab9
+F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c67
 F src/backoffice.c ab2ae240feb704851e0eb61519006b5facabaa147219a564a6105d374dd9848c
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
@@ -996,8 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 66c309537b13fa3aa614b1bad5a4fe83d68e7928a1091dc65875073f95266d3b ac421602412a1137cfd165e005768dd527c61ff0111f539a8f256629895b92eb
-R 775709bfdbc5689c0845ebfa4de7ee7d
-T +closed ac421602412a1137cfd165e005768dd527c61ff0111f539a8f256629895b92eb
+P b910219a4f4e6c5e08592bcb4392f2472223845dbd7ec2cff02e4b97a2472bf8
+R 743ff99da4f015997e7cdcee3a404b3b
 U drh
-Z 7df8f657fd213ee6c3ed54e976f6488e
+Z ff910ccf3e3477af76f5109ab5b3a35f
