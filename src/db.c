@@ -4000,7 +4000,7 @@ struct Setting {
 **
 **     kdiff3 "%baseline" "%original" "%merge" -o "%output"
 **     xxdiff "%original" "%baseline" "%merge" -M "%output"
-**     meld "%baseline" "%original" "%merge" "%output"
+**     meld "%baseline" "%original" "%merge" --output "%output"
 */
 /*
 ** SETTING: hash-digits      width=5 default=10
