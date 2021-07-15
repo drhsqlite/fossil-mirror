@@ -4076,7 +4076,7 @@ struct Setting {
 **
 ** Check-in locks are an advisory mechanism designed to help prevent
 ** accidental forks due to a check-in race in installations where many
-** user are  committing to the same branch and auto-sync is enabled.
+** users are  committing to the same branch and auto-sync is enabled.
 ** As forks are harmless, there is no danger in disabling this mechanism.
 ** However, keeping check-in locks turned on can help prevent unnecessary
 ** confusion.
