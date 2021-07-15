@@ -31,7 +31,7 @@ To do this, write the following in
 ```dosini
     [Unit]
     Description=Fossil user server
-    After=network.target
+    After=network-online.target
 
     [Service]
     WorkingDirectory=/home/fossil/museum
@@ -40,7 +40,6 @@ To do this, write the following in
     RestartSec=3
 
     [Install]
-    WantedBy=sockets.target
     WantedBy=multi-user.target
 ```
 
@@ -66,7 +65,7 @@ find online:
         $ systemctl --user daemon-reload
         $ systemctl --user enable fossil
         $ systemctl --user start fossil
-        $ systemctl --user status -l fossil
+        $ systemctl --user status fossil -l
         $ systemctl --user stop fossil
 
 That is, we don’t need to talk to `systemd` with `sudo` privileges, but
@@ -91,10 +90,17 @@ You can paste the command just like that into your terminal, since
 
 ### System Service Alternative
 
-Another workaround for the problem with user services above is to
-install the service as a system service instead. This is a better path
-when you are proxying Fossil with a system-level service, such as
-[nginx](./nginx.md).
+There are a couple of common reasons that you’d have cause to install
+Fossil as a system-level service rather than the prior user-level one:
+
+*   You need Fossil to listen on a TCP port under 1024, such as because
+    you’re running it on a private LAN, and the server has no other HTTP
+    service, so you want Fossil to handle the web traffic directly.
+
+*   You’re proxying Fossil with a system-level service such as
+    [nginx](./nginx.md), so you need to put Fossil into the system-level
+    service dependency chain to make sure things start up and shut down
+    in the proper order.
 
 There are just a small set of changes required:
 
@@ -148,7 +154,7 @@ Next, create the service definition file in that same directory as
 ```dosini
     [Unit]
     Description=Fossil socket server
-    After=network.target
+    After=network-online.target
 
     [Service]
     WorkingDirectory=/home/fossil/museum
@@ -156,7 +162,6 @@ Next, create the service definition file in that same directory as
     StandardInput=socket
 
     [Install]
-    WantedBy=sockets.target
     WantedBy=multi-user.target
 ```
 
