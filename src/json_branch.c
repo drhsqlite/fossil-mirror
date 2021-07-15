@@ -267,7 +267,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
   if( content_is_private(rootid) ) zOpt->isPrivate = 1;
-  if( zOpt->isPrivate && zColor==0 && !bColor) zColor = "#fec084";
+  if( zOpt->isPrivate && zColor==0 && !bAutoColor) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }

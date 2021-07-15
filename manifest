@@ -1,5 +1,5 @@
-C Updated\sthe\ssystemd\sservice\sarticle\sto\saccount\sfor\smy\sexperience\nfollowing\sthe\sinstructions\son\sa\sCentOS\s8\sbox.\s\s(It\swas\soriginally\nwritten\sfor\san\solder\sDebian\stype\splatform.)
-D 2021-07-15T20:25:11.057
+C Fix\sa\stypo\sin\sa\svariable\sname\sthat\sbroke\sthe\sbuild
+D 2021-07-15T21:43:36.842
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -519,7 +519,7 @@ F src/info.c 2b1cfb724e719db74dc7451594b1d78cc4bfa073219aa66dcc5eda685d8a45a2
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
-F src/json_branch.c 1d0374b6947f18131cc6ba7f2b800214dfc738267c1b326a03bd4973425e76ef
+F src/json_branch.c ade71599eeb430bac4b055ceee73b06e7499f6a63a1bfb9bb5787dc213c0fac5
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
 F src/json_detail.h 327749d70dbbe785dbcc03d63c6c7372db920d28382d8992a06b42aaa31399a9
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 375589e50ec65422dc4afb864e430ed350ffcefc5e2e6bb667f079993bb65d71
-R 192c5f2a70651bbf7806cf20747e5e56
-U wyoung
-Z aac02ac15d3a931a1ef1d1fcd926b4d6
+P 74670ab1fff5e2fcb9bbbb3a141b7b9baf2bef5e6a5ce69b2f03bc8a73f9add6
+R e8783d3ca3ccbc5d9c8ec0f5f34d3be0
+U danield
+Z f73f527eeee5ce64f33df6eb48282adc
