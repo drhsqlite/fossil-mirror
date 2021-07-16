@@ -831,10 +831,11 @@ static void wiki_ajax_emit_page_attachments(Manifest * pWiki,
 }
 
 /*
- ** Proxy for wiki_ajax_emit_page_attachments2() which attempts to
- ** load the given wiki page artifact and fails if it cannot.
- ** Returns true if it loads the page, else false.
- */
+** Proxy for wiki_ajax_emit_page_attachments() which attempts to
+** load the given wiki page artifact. Returns true if it loads the
+** page, else false. If it returns false then it queues up a 404 ajax
+** error response.
+*/
 static int wiki_ajax_emit_page_attachments2(const char *zPageName,
                                             int latestOnly,
                                             int nullIfEmpty){
@@ -868,7 +869,7 @@ static int wiki_ajax_emit_page_attachments2(const char *zPageName,
 **   parent: "parent uuid" or null if no parent,
 **   isDeleted: true if the page has no content (is "deleted")
 **              else not set (making it "falsy" in JS),
-**   attachments: see wiki_ajax_emit_page_attachments()
+**   attachments: see wiki_ajax_emit_page_attachments(),
 **   content: "page content" (only if includeContent is true)
 ** }
 **
