@@ -23,7 +23,7 @@
      may optionally be provided via e.dataset.copyFromId.
 
      .extractText: optional callback which is triggered when the copy
-     button is clicked. I tmust return the text to copy to the
+     button is clicked. It must return the text to copy to the
      clipboard. The default is to extract it from the copy-from
      element, using its [value] member, if it has one, else its
      [innerText]. A client-provided callback may use any data source
@@ -83,7 +83,7 @@
   F.copyButton = function f(e, opt){
     if('string'===typeof e){
       e = document.querySelector(e);
-    }    
+    }
     opt = F.mergeLastWins(f.defaultOptions, opt);
     if(opt.cssClass){
       D.addClass(e, opt.cssClass);
