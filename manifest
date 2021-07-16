@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sa\svariable\sname\sthat\sbroke\sthe\sbuild
-D 2021-07-15T21:43:36.842
+C Added\stest-list-attachments\scommand\sas\sa\spreliminary\sstep\stowards\sadding\sthe\sability\sto\slist\swiki\spage\sattachments\sfrom\swithin\s/wikiedit.
+D 2021-07-16T02:45:56.223
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -427,7 +427,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c eae9524885781fcd488f1ae6bf4929dfbc087375e1709bd059096db9e262fae1
-F src/attach.c 8ed9173b64b9751609ac2e78d608b7b1c473a072d5b1e1be2b1bc20ad0361796
+F src/attach.c b267288bfa844e96b6226d053fb30da02f0e98e4a6f23ba9f5477f9104e2a8de
 F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c67
 F src/backoffice.c ab2ae240feb704851e0eb61519006b5facabaa147219a564a6105d374dd9848c
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74670ab1fff5e2fcb9bbbb3a141b7b9baf2bef5e6a5ce69b2f03bc8a73f9add6
-R e8783d3ca3ccbc5d9c8ec0f5f34d3be0
-U danield
-Z f73f527eeee5ce64f33df6eb48282adc
+P f31b5a838bbbf297e9ada6ed5523b223baf7402ae1e77ae58ba3a1e2a2471ebd
+R a3e15712a76307c2c723994152c0b23d
+U stephan
+Z 06531d7cad6a9962d9a8c6aba93e0ab7
