@@ -1,5 +1,5 @@
-C Initial\swork\son\sattachment\slist\sfor\s/wikiedit.\sStill\srequires\sthe\sability\sto\supdate\sthe\slist\sto\ssee\sattachments\smade\ssince\sedits\swere\slast\slocally\sloaded\sand\sstashed.
-D 2021-07-16T16:51:14.456
+C Added\sreload\scapability\sto\s/wikiedit\sattachment\slist.
+D 2021-07-16T18:15:40.995
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -493,7 +493,7 @@ F src/fossil.page.fileedit.js 293662d4b159274a59ea27fa1e36e5c196b78fbc91e01db503
 F src/fossil.page.forumpost.js cb380f433a73f77431cd3f44e13f71e8824f73c8fee5c10351efa6f0ac15fcb3
 F src/fossil.page.pikchrshow.js 1c8e598efad741ebbcf804d56166414bd770c5ce7d14eefd6101f91aa68ea695
 F src/fossil.page.whistory.js 3de9f4628be76b364320f3c92c83f8abaefddc98301fbfe75396b5ac30939d97
-F src/fossil.page.wikiedit.js 7886c849ee54eb46a3006feff8f0a48ec7b28d9c2f16a0b17fdca30a48f2d731
+F src/fossil.page.wikiedit.js 3756921dcf999aefe0eb6d532b2f4067c82cb013d6f910e80e701011923f1641
 F src/fossil.pikchr.js 158c2a880b0df04323753b684d1152134eca4ce757b6125f21c252195bda28e0
 F src/fossil.popupwidget.js 726f605138cf039328e56b6b2d4f5f99dfb54675c0a87f560bf3cfc148bd3d83
 F src/fossil.storage.js ee846952cca6914fe98b82d9048725e81bc0ce2bf719e5f6bea1cf1c80abc8cb
@@ -996,10 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a0577666f4c0ed3d02c3c3defe17c17eefcaed504db7c4bf99a27dc5a61af14b
-R 927d01b0a8ad499c166c34e9d164c619
-T *branch * wikiedit-attachment-list
-T *sym-wikiedit-attachment-list *
-T -sym-trunk * Cancelled\sby\sbranch.
+P 74c6b9c5be2c104807953603dbff9958f40c831fad7b21f61539c69db79fa812
+R 84420a907ac0183398708deb9f814a14
 U stephan
-Z 9e53e7c09ee237dc48d624317703116d
+Z c70ac2afe052df078d831c02c722c67d

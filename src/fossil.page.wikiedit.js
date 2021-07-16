@@ -1140,15 +1140,46 @@
     if(!wi){
       D.append(f.eAttach,"No page loaded.");
       return;
-    }else if(!wi.attachments || !wi.attachments.length){
-      D.append(f.eAttach,"No attachments found for the current page.");
+    }
+
+    const btnReload = D.button("Reload list");
+    const self = this;
+    btnReload.addEventListener('click', function(){
+      const isStashed = $stash.hasStashedContent(wi);
+      F.fetch('wikiajax/attachments',{
+        responseType: 'json',
+        urlParams: {page: wi.name},
+        onload: function(r){
+          wi.attachments = r;
+          if(isStashed) self.stashContentChange(true);
+          F.message("Reloaded attachment list for ["+wi.name+"].");
+          self.updateAttachmentsView();
+        }
+      });
+    });
+    if(!wi.attachments || !wi.attachments.length){
+      D.append(f.eAttach,
+               btnReload,
+               " No attachments found for page ["+wi.name+"]. ",
+               D.a(F.repoUrl('attachadd',{
+                 page: wi.name,
+                 from: F.repoUrl('wikiedit',{name: wi.name})}),
+                   "Add attachments..." )
+              );
       return;
     }
     D.append(
       f.eAttach,
       D.append(D.p(),
+               btnReload," ",
                D.a(F.repoUrl('attachlist',{page:wi.name}),
-                   "Attachments for page ["+wi.name+"]"))
+                   "Attachments for page ["+wi.name+"]."),
+               " ",
+               D.a(F.repoUrl('attachadd',{
+                 page:wi.name,
+                 from: F.repoUrl('wikiedit',{name: wi.name})}),
+                   "Add attachments..." )
+              )
     );
     wi.attachments.forEach(function(a){
       const wrap = D.div();
