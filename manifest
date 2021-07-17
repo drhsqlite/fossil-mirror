@@ -1,5 +1,5 @@
-C Added\stest-list-attachments\scommand\sas\sa\spreliminary\sstep\stowards\sadding\sthe\sability\sto\slist\swiki\spage\sattachments\sfrom\swithin\s/wikiedit.
-D 2021-07-16T02:45:56.223
+C Update\sthe\sbuilt-in\spikchr.c\sfile\sto\sthe\slatest\sversion\swith\sthe\spreliminary\nfix\sfor\sthe\schop\sbug.
+D 2021-07-17T17:29:26.116
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -562,7 +562,7 @@ F src/name.c 274aa2b22e665627369da0e16748dace3618301f326662e02a67a6d7006c66e2
 F src/patch.c dae52e9260a5be385991cf20ed8fa74f2569d8b4f22f7f637d00af91fc7c30a4
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
-F src/pikchr.c 6ae80b3f8fdd5ca453d14b9562b5d7efc79bd74e3591fa30be4d1de523ccd7cf
+F src/pikchr.c 7453f7af9b9ee8406ccba52c29d7c7782ba6bcdadb1166ef3b91a48438a89a5c
 F src/pikchrshow.c a66bef9c5be91ed17e2ec3e509c5c2b49e2175bb6a62269ca80deacaba9d0a2b
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f31b5a838bbbf297e9ada6ed5523b223baf7402ae1e77ae58ba3a1e2a2471ebd
-R a3e15712a76307c2c723994152c0b23d
-U stephan
-Z 06531d7cad6a9962d9a8c6aba93e0ab7
+P a0577666f4c0ed3d02c3c3defe17c17eefcaed504db7c4bf99a27dc5a61af14b
+R 7a483dff295bec9616e40677974cf0d8
+U drh
+Z 1d5f7dd2e16f8df4fb3711eef3964d6c
