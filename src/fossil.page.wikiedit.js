@@ -529,7 +529,7 @@
       /* ^^^ note that we're not validating that, e.g., checkin/XYZ
          has a full artifact ID after "checkin/". */
       const winfo = {
-        name: name, type: wtype, mimetype: 'text/x-fossil-wiki',
+        name: name, type: wtype, mimetype: 'text/x-markdown',
         version: null, parent: null
       };
       this.cache.pageList.push(
@@ -1139,9 +1139,14 @@
     const wi = this.winfo;
     if(!wi){
       D.append(f.eAttach,"No page loaded.");
-      return;
+      return this;
     }
-
+    else if(!wi.version){
+      D.append(f.eAttach,
+               "Page ["+wi.name+"] cannot have ",
+               "attachments until it is saved once.");
+      return this;
+    }
     const btnReload = D.button("Reload list");
     const self = this;
     btnReload.addEventListener('click', function(){
@@ -1166,7 +1171,7 @@
                  from: F.repoUrl('wikiedit',{name: wi.name})}),
                    "Add attachments..." )
               );
-      return;
+      return this;
     }
     D.append(
       f.eAttach,
@@ -1215,6 +1220,7 @@
         F.copyButton(urlCopy, {copyFromElement: imgUrl});
       });
     });
+    return this;
   };
 
   /** Updates the in-tab title/edit status information */
@@ -1228,10 +1234,11 @@
     if(!wi){
       D.append(f.eName, '(no page loaded)');
       this.updateAttachmentsView();
-      return;
+      return this;
     }
     D.append(f.eName,getEditMarker(wi, false),wi.name);
-    if(!wi.version) return;
+    this.updateAttachmentsView();
+    if(!wi.version) return this;
     D.append(
       f.eLinks,
       D.a(F.repoUrl('wiki',{name:wi.name}),"viewer"),
@@ -1240,7 +1247,7 @@
       D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "attach"),
       D.a(F.repoUrl('wikiedit',{name:wi.name}),"editor permalink")
     );
-    this.updateAttachmentsView();
+    return this;
   };
 
   /**
