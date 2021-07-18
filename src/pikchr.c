@@ -350,7 +350,7 @@ struct Pik {
   unsigned char eDir;      /* Current direction */
   unsigned int mFlags;     /* Flags passed to pikchr() */
   PObj *cur;               /* Object under construction */
-  PObj *lastRef;           /* Last object references by "place" */
+  PObj *lastRef;           /* Last object references by name */
   PList *list;             /* Object list under construction */
   PMacro *pMacros;         /* List of all defined macros */
   PVar *pVar;              /* Application-defined variables */
@@ -3818,7 +3818,7 @@ static PPoint circleChop(Pik *p, PObj *pObj, PPoint *pPt){
   PNum dx = pPt->x - pObj->ptAt.x;
   PNum dy = pPt->y - pObj->ptAt.y;
   PNum dist = hypot(dx,dy);
-  if( dist<pObj->rad ) return pObj->ptAt;
+  if( dist<pObj->rad || dist<=0 ) return pObj->ptAt;
   chop.x = pObj->ptAt.x + dx*pObj->rad/dist;
   chop.y = pObj->ptAt.y + dy*pObj->rad/dist;
   UNUSED_PARAMETER(p);
@@ -6710,9 +6710,13 @@ static PObj *pik_find_chopper(PList *pList, PPoint *pCenter, PPoint *pOther){
 /*
 ** There is a line traveling from pFrom to pTo.
 **
-** If point pTo is the exact enter of a choppable object,
-** then adjust pTo by the appropriate amount in the direction
-** of pFrom.
+** If pObj is not null and is a choppable object, then chop at
+** the boundary of pObj - where the line crosses the boundary
+** of pObj.
+**
+** If pObj is NULL or has no xChop method, then search for some
+** other object centered at pTo that is choppable and use it
+** instead.
 */
 static void pik_autochop(Pik *p, PPoint *pFrom, PPoint *pTo, PObj *pObj){
   if( pObj==0 || pObj->type->xChop==0 ){
@@ -8079,4 +8083,4 @@ int Pikchr_Init(Tcl_Interp *interp){
 #endif /* PIKCHR_TCL */
 
 
-#line 8107 "pikchr.c"
+#line 8111 "pikchr.c"

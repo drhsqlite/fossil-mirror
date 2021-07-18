@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\s"chop"\smechanism\sof\sPikchr.
-D 2021-07-17T19:26:28.637
+C Fix\sa\spotential\sdivision-by-zero\sin\sPikchr.
+D 2021-07-18T00:00:07.851
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -562,7 +562,7 @@ F src/name.c 274aa2b22e665627369da0e16748dace3618301f326662e02a67a6d7006c66e2
 F src/patch.c dae52e9260a5be385991cf20ed8fa74f2569d8b4f22f7f637d00af91fc7c30a4
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
-F src/pikchr.c f7cf385af8aefab2601e9d5cd5876b9e7eb1c18da91f4d109fb95553f1b7a143
+F src/pikchr.c eff4cb60244a616647394abf359663e4cc0ef5c9a81627047b34f552c5a56dd3
 F src/pikchrshow.c a66bef9c5be91ed17e2ec3e509c5c2b49e2175bb6a62269ca80deacaba9d0a2b
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60c9dc9f5f96d6f296a51e8290db3def220d10d7b6fd9709b9ede1cf388401e8
-R c5d31a0ea2cfa52abb9dfc7146117804
+P 58fb007eb8deed55a3b3971c40c275e29fd1421f144e7760f4a2b38d04f09174
+R b4b5855ae8c08cfe418cbd11de270d89
 U drh
-Z b75ba0f2095fe7e26bf14c149fd95c19
+Z 14d4557100c90c13dde344d5affe4e2c
