@@ -1,5 +1,5 @@
-C Improved\scomments\son\sanchor-generation\sroutines\slike\shref().\s\sSimplify\nthe\slogic.\s\sFix\sa\sbug\sin\sthe\sgeneration\sof\sform\selements\sfor\sthe\s/register\npage.
-D 2021-07-19T13:27:20.834
+C Start\sthe\slist\sof\schanges\sfor\sversion\s2.17.
+D 2021-07-19T18:20:29.542
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -830,7 +830,7 @@ F www/caps/index.md 4b744fd6673b88e62a008e45e3cd27b12a978ce7b9ddcd977feec572f83e
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki 19b4139ef71619be4be199605b31fb54c11621fb0986eda2c95cbda254b35e16
+F www/changes.wiki e434ad12aa94be4923aa0b03a7f72dc6a892815a0bfc1e8ecf676509f871f147
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce15e35e4729ffad3dc993a03fe8c9d340d11c613aabe26b2223aa8841412d95
-R 1ec224522e061fb65347ec8d9bd5ea86
+P 8dd75428928cb4a5383d27f160758e9c6aa3036906845af5ee1d85271d467807
+R 44f62f3ead7ac1566cb4a0ea935e1a87
 U drh
-Z 0d2ebffca1eb8376dda83c4ef378db2a
+Z 4d7c0652fd36a5512fa463d1efe49112

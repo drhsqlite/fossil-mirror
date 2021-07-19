@@ -1,5 +1,26 @@
 <title>Change Log</title>
 
+<a name='v2_17'></a>
+<h2>Changes for version 2.17 (pending)</h2>
+  *  The --branchcolor option on [/help?cmd=commit|fossil commit] and
+     [/help?cmd=amend|fossil amend] can now take the value "auto" to
+     force Fossil to use its built-in automatic color choosing algorithm.
+  *  Fossil now [./concepts.wiki#workflow|autosyncs] prior to running 
+     [/help?cmd=open|fossil open].
+  *  Add the [/help?cmd=ticket-default-report|ticket-default-report setting],
+     which if set to the title of a ticket report causes that ticket report
+     to be displayed below the search box in the /ticket page.
+  *  The "nc" query parameter to the [/help?cmd=/timeline|/timeline] page
+     causes all graph coloring to be omitted.
+  *  Improvements and bug fixes to the new "fossil ui REMOTE" feature so
+     that it works better on a wider variety of platforms.
+  *  In [/help?cmd=/wikiedit|/wikiedit], show the list of attachments for 
+     the current page and list URLs suitable for pasting them into the page.
+  *  Add the --no-http-compression option to [/help?cmd=sync|fossil sync]
+     and similar.
+  *  Print total payload bytes on a [/help?cmd=sync|fossil sync] when using
+     the --verbose option.
+
 <a name='v2_16'></a>
 <h2>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
