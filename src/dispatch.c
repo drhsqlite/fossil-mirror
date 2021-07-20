@@ -567,7 +567,9 @@ static void display_all_help(int mask, int useHtml, int rawOut){
       Blob txt;
       blob_init(&txt, 0, 0);
       help_to_text(aCommand[i].zHelp, &txt);
-      fossil_print("# %s\n", aCommand[i].zName);
+      fossil_print("# %s%s\n", aCommand[i].zName,
+        (aCommand[i].eCmdFlags & CMDFLAG_VERSIONABLE)!=0 ?
+        " (versionable)" : "");
       fossil_print("%s\n\n", blob_str(&txt));
       blob_reset(&txt);
     }
@@ -1032,6 +1034,7 @@ static const char zOptions[] =
 **    -o|--options      List command-line options common to all commands
 **    -s|--setting      List setting names
 **    -t|--test         List unsupported "test" commands
+**    -v|--verbose      List both names and verbose details where possible
 **    -x|--aux          List only auxiliary commands
 **    -w|--www          List all web pages
 **    -f|--full         List full set of commands (including auxiliary
@@ -1048,6 +1051,7 @@ void help_cmd(void){
   int rc;
   int mask = CMDFLAG_ANY;
   int isPage = 0;
+  int verboseFlag = 0;
   const char *z;
   const char *zCmdOrPage;
   const CmdOrPage *pCmd = 0;
@@ -1064,6 +1068,7 @@ void help_cmd(void){
     version_cmd();
     return;
   }
+  verboseFlag = find_option("verbose","v",0)!=0;
   if( find_option("options","o",0) ){
     fossil_print("%s", zOptions);
     return;
@@ -1085,7 +1090,11 @@ void help_cmd(void){
     return;
   }
   else if( find_option("setting","s",0) ){
-    command_list(0, CMDFLAG_SETTING);
+    if( verboseFlag ){
+      display_all_help(CMDFLAG_SETTING, 0, 0);
+    }else{
+      command_list(0, CMDFLAG_SETTING);
+    }
     return;
   }
   else if( find_option("full","f",0) ){
