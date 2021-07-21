@@ -36,6 +36,18 @@
 #endif
 
 /*
+** Optionally #include a user-defined header, whereby compilation options
+** may be set prior to where they take effect, but after platform setup. 
+** If SQLITE_CUSTOM_INCLUDE=? is defined, its value names the #include
+** file. Note that this macro has a like effect on sqlite3.c compilation.
+*/
+#ifdef SQLITE_CUSTOM_INCLUDE
+# define INC_STRINGIFY_(f) #f
+# define INC_STRINGIFY(f) INC_STRINGIFY_(f)
+# include INC_STRINGIFY(SQLITE_CUSTOM_INCLUDE)
+#endif
+
+/*
 ** Determine if we are dealing with WinRT, which provides only a subset of
 ** the full Win32 API.
 */
@@ -5761,11 +5773,12 @@ static int seriesFilter(
 **  (8)  output in descending order
 */
 static int seriesBestIndex(
-  sqlite3_vtab *tabUnused,
+  sqlite3_vtab *pVTab,
   sqlite3_index_info *pIdxInfo
 ){
   int i, j;              /* Loop over constraints */
   int idxNum = 0;        /* The query plan bitmask */
+  int bStartSeen = 0;    /* EQ constraint seen on the START column */
   int unusableMask = 0;  /* Mask of unusable constraints */
   int nArg = 0;          /* Number of arguments that seriesFilter() expects */
   int aIdx[3];           /* Constraints on start, stop, and step */
@@ -5775,7 +5788,7 @@ static int seriesBestIndex(
   ** are the last three columns in the virtual table. */
   assert( SERIES_COLUMN_STOP == SERIES_COLUMN_START+1 );
   assert( SERIES_COLUMN_STEP == SERIES_COLUMN_START+2 );
-  (void)tabUnused;
+
   aIdx[0] = aIdx[1] = aIdx[2] = -1;
   pConstraint = pIdxInfo->aConstraint;
   for(i=0; i<pIdxInfo->nConstraint; i++, pConstraint++){
@@ -5785,6 +5798,7 @@ static int seriesBestIndex(
     iCol = pConstraint->iColumn - SERIES_COLUMN_START;
     assert( iCol>=0 && iCol<=2 );
     iMask = 1 << iCol;
+    if( iCol==0 ) bStartSeen = 1;
     if( pConstraint->usable==0 ){
       unusableMask |=  iMask;
       continue;
@@ -5799,6 +5813,18 @@ static int seriesBestIndex(
       pIdxInfo->aConstraintUsage[j].omit = !SQLITE_SERIES_CONSTRAINT_VERIFY;
     }
   }
+  /* The current generate_column() implementation requires at least one
+  ** argument (the START value).  Legacy versions assumed START=0 if the
+  ** first argument was omitted.  Compile with -DZERO_ARGUMENT_GENERATE_SERIES
+  ** to obtain the legacy behavior */
+#ifndef ZERO_ARGUMENT_GENERATE_SERIES
+  if( !bStartSeen ){
+    sqlite3_free(pVTab->zErrMsg);
+    pVTab->zErrMsg = sqlite3_mprintf(
+        "first argument to \"generate_series()\" missing or unusable");
+    return SQLITE_ERROR;
+  }
+#endif
   if( (unusableMask & ~idxNum)!=0 ){
     /* The start, stop, and step columns are inputs.  Therefore if there
     ** are unusable constraints on any of start, stop, or step then
@@ -9852,11 +9878,13 @@ static int idxGetTableInfo(
   rc = idxPrintfPrepareStmt(db, &p1, pzErrmsg, "PRAGMA table_xinfo=%Q", zTab);
   while( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(p1) ){
     const char *zCol = (const char*)sqlite3_column_text(p1, 1);
+    const char *zColSeq = 0;
     nByte += 1 + STRLEN(zCol);
     rc = sqlite3_table_column_metadata(
-        db, "main", zTab, zCol, 0, &zCol, 0, 0, 0
+        db, "main", zTab, zCol, 0, &zColSeq, 0, 0, 0
     );
-    nByte += 1 + STRLEN(zCol);
+    if( zColSeq==0 ) zColSeq = "binary";
+    nByte += 1 + STRLEN(zColSeq);
     nCol++;
     nPk += (sqlite3_column_int(p1, 5)>0);
   }
@@ -9876,6 +9904,7 @@ static int idxGetTableInfo(
   nCol = 0;
   while( rc==SQLITE_OK && SQLITE_ROW==sqlite3_step(p1) ){
     const char *zCol = (const char*)sqlite3_column_text(p1, 1);
+    const char *zColSeq = 0;
     int nCopy = STRLEN(zCol) + 1;
     pNew->aCol[nCol].zName = pCsr;
     pNew->aCol[nCol].iPk = (sqlite3_column_int(p1, 5)==1 && nPk==1);
@@ -9883,12 +9912,13 @@ static int idxGetTableInfo(
     pCsr += nCopy;
 
     rc = sqlite3_table_column_metadata(
-        db, "main", zTab, zCol, 0, &zCol, 0, 0, 0
+        db, "main", zTab, zCol, 0, &zColSeq, 0, 0, 0
     );
     if( rc==SQLITE_OK ){
-      nCopy = STRLEN(zCol) + 1;
+      if( zColSeq==0 ) zColSeq = "binary";
+      nCopy = STRLEN(zColSeq) + 1;
       pNew->aCol[nCol].zColl = pCsr;
-      memcpy(pCsr, zCol, nCopy);
+      memcpy(pCsr, zColSeq, nCopy);
       pCsr += nCopy;
     }
 
@@ -19002,7 +19032,7 @@ static int do_meta_command(char *zLine, ShellState *p){
        "     FROM sqlite_schema UNION ALL"
        "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_schema) "
        "WHERE type!='meta' AND sql NOTNULL AND name NOT LIKE 'sqlite_%' "
-       "ORDER BY rowid",
+       "ORDER BY x",
        callback, &data, 0
     );
     if( rc==SQLITE_OK ){
@@ -19018,8 +19048,6 @@ static int do_meta_command(char *zLine, ShellState *p){
       raw_printf(p->out, "/* No STAT tables available */\n");
     }else{
       raw_printf(p->out, "ANALYZE sqlite_schema;\n");
-      sqlite3_exec(p->db, "SELECT 'ANALYZE sqlite_schema'",
-                   callback, &data, 0);
       data.cMode = data.mode = MODE_Insert;
       data.zDestTable = "sqlite_stat1";
       shell_exec(&data, "SELECT * FROM sqlite_stat1", 0);
@@ -19672,6 +19700,8 @@ static int do_meta_command(char *zLine, ShellState *p){
         p->openMode = SHELL_OPEN_READONLY;
       }else if( optionMatch(z, "nofollow") ){
         p->openFlags |= SQLITE_OPEN_NOFOLLOW;
+      }else if( optionMatch(z, "excl") ){
+        p->openFlags |= SQLITE_OPEN_EXCLUSIVE;
 #ifndef SQLITE_OMIT_DESERIALIZE
       }else if( optionMatch(z, "deserialize") ){
         p->openMode = SHELL_OPEN_DESERIALIZE;
@@ -21465,8 +21495,8 @@ static int runOneSqlLine(ShellState *p, char *zSql, FILE *in, int startline){
     }
     return 1;
   }else if( ShellHasFlag(p, SHFLG_CountChanges) ){
-    raw_printf(p->out, "changes: %3d   total_changes: %d\n",
-            sqlite3_changes(p->db), sqlite3_total_changes(p->db));
+    raw_printf(p->out, "changes: %3lld   total_changes: %lld\n",
+            sqlite3_changes64(p->db), sqlite3_total_changes64(p->db));
   }
   return 0;
 }
