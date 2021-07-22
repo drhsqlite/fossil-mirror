@@ -347,66 +347,72 @@ int branch_is_open(const char *zBrName){
 }
 
 /*
-** Implementation of (branch close) subcommand. nStartAtArg is the
-** g.argv index to start reading branch names. Fails fatally on error.
+** Internal helper for branch_cmd_close() and friends. Adds a row to
+** the to the brcmdtag TEMP table, initializing that table if needed,
+** holding a pending tag for the given blob.rid (which is assumed to
+** be valid). zTag must be a fully-formed tag name, including the
+** (+,-,*) prefix character.
+**
 */
-static void branch_cmd_close(int nStartAtArg){
-  int argPos = nStartAtArg;    /* g.argv pos with first branch name */
-  Blob manifest = empty_blob;  /* Control artifact */
-  Stmt q = empty_Stmt;
-  int nQueued = 0;             /* # of branches queued for closing */
-  char * zUuid = 0;            /* Resolved branch UUID. */
-  const int fVerbose = find_option("verbose","v",0)!=0;
-  const int fDryRun = find_option("dry-run","n",0)!=0;
-  const char *zDateOvrd = find_option("date-override",0,1);
-  const char *zUserOvrd = find_option("user-override",0,1);
-  int doRollback = fDryRun!=0; /* Roll back transaction if true */
+static void branch_cmd_tag_add(int rid, const char *zTag){
+  static int once = 0;
+  assert(zTag && ('+'==zTag[0] || '-'==zTag[0] || '*'==zTag[0]));
+  if(0==once++){
+    db_multi_exec("CREATE TEMP TABLE brcmdtag("
+                  "rid INTEGER UNIQUE ON CONFLICT IGNORE,"
+                  "tag TEXT NOT NULL"
+                  ")");
+  }
+  db_multi_exec("INSERT INTO brcmdtag(rid,tag) VALUES(%d,%Q)",
+                rid, zTag);
+}
 
-  verify_all_options();
-  db_begin_transaction();
-  db_multi_exec("CREATE TEMP TABLE brclose("
-                "rid INTEGER UNIQUE ON CONFLICT IGNORE"
-                ")");
-  db_prepare(&q, "INSERT INTO brclose(rid) VALUES(:rid)");
-  for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
-    const char * zBranch = g.argv[argPos];
-    const int rid = name_to_uuid2(zBranch, "ci", &zUuid);
-    if(0==rid){
-      fossil_fatal("Cannot resolve branch name: %s", zBranch);
-    }else if(rid<0){
-      fossil_fatal("Ambiguous branch name: %s", zBranch);
-    }else if(!is_a_leaf(rid)){
-      fossil_warning("Skipping non-leaf [%s] %s", zBranch, zUuid);
-      continue;
-    }else if(leaf_is_closed(rid)){
-      fossil_warning("Skipping closed [%s] %s", zBranch, zUuid);
-      continue;
-    }
-    ++nQueued;
-    db_bind_int(&q, ":rid", rid);
-    db_step(&q);
-    db_reset(&q);
-    if(fVerbose!=0){
-      fossil_print("Closing branch [%s] %s\n", zBranch, zUuid);
-    }
+/*
+** Internal helper for branch_cmd_close() and friends. Creates and
+** saves a control artifact of tag changes stored via
+** branch_cmd_tag_add(). Fails fatally on error, returns 0 if it saves
+** an artifact, and a negative value if it does not save anything
+** because no tags were queued up. A positive return value is reserved
+** for potential future semantics.
+**
+** This function asserts that a transaction is underway and it ends
+** the transaction, committing or rolling back, as appropriate.
+*/
+static int branch_cmd_tag_finalize(int fDryRun /* roll back if true */,
+                                   int fVerbose /* output extra info */,
+                                   const char *zDateOvrd /* --date-override */,
+                                   const char *zUserOvrd /* --user-override */){
+  int nTags = 0;
+  Stmt q = empty_Stmt;
+  Blob manifest = empty_blob;
+  int doRollback = fDryRun!=0;
+
+  assert(db_transaction_nesting_depth() > 0);
+  if(!db_table_exists("temp","brcmdtag")){
+    fossil_warning("No tags added - nothing to do.");
+    db_end_transaction(1);
+    return -1;
   }
-  db_finalize(&q);
-  if(!nQueued){
-    fossil_warning("No branches queued for closing. Nothing to do.");
-    doRollback = 1;
-    goto br_close_end;
-  }
+  db_prepare(&q, "SELECT b.uuid, t.tag "
+             "FROM blob b, brcmdtag t "
+             "WHERE b.rid=t.rid "
+             "ORDER BY t.tag, b.uuid");
   blob_appendf(&manifest, "D %z\n",
                date_in_standard_format( zDateOvrd ? zDateOvrd : "now"));
-  db_prepare(&q, "SELECT uuid FROM blob WHERE rid IN brclose");
   while(SQLITE_ROW==db_step(&q)){
     const char * zHash = db_column_text(&q, 0);
-    blob_appendf(&manifest, "T +closed %s\n", zHash);
+    const char * zTag = db_column_text(&q, 1);
+    blob_appendf(&manifest, "T %s %s\n", zTag, zHash);
+    ++nTags;
   }
-  db_finalize(&q);
+  if(!nTags){
+    fossil_warning("No tags added - nothing to do.");
+    db_end_transaction(1);
+    blob_reset(&manifest);
+    return -1;
+  }
   user_select();
-  blob_appendf(&manifest, "U %F\n",
-               zUserOvrd ? zUserOvrd : login_name());
+  blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
   { /* Z-card and save artifact */
     int newRid;
     Blob cksum = empty_blob;
@@ -429,15 +435,52 @@ static void branch_cmd_close(int nStartAtArg){
     }
     fossil_print("Saved new control artifact %z (RID %d).\n",
                  rid_to_uuid(newRid), newRid);
+    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", newRid);
     if(fDryRun){
       fossil_print("Dry-run mode: rolling back new artifact.\n");
-      assert(doRollback!=0);
+      assert(0!=doRollback);
     }
   }
+  db_multi_exec("DROP TABLE brcmdtag");
   blob_reset(&manifest);
-  br_close_end:
-  db_multi_exec("DROP TABLE brclose");
   db_end_transaction(doRollback);
+  return 0;
+}
+
+/*
+** Implementation of (branch close) subcommand. nStartAtArg is the
+** g.argv index to start reading branch names. Fails fatally on error.
+*/
+static void branch_cmd_close(int nStartAtArg){
+  int argPos = nStartAtArg;    /* g.argv pos with first branch name */
+  char * zUuid = 0;            /* Resolved branch UUID. */
+  const int fVerbose = find_option("verbose","v",0)!=0;
+  const int fDryRun = find_option("dry-run","n",0)!=0;
+  const char *zDateOvrd = find_option("date-override",0,1);
+  const char *zUserOvrd = find_option("user-override",0,1);
+
+  verify_all_options();
+  db_begin_transaction();
+  for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
+    const char * zBranch = g.argv[argPos];
+    const int rid = name_to_uuid2(zBranch, "ci", &zUuid);
+    if(0==rid){
+      fossil_fatal("Cannot resolve branch name: %s", zBranch);
+    }else if(rid<0){
+      fossil_fatal("Ambiguous branch name: %s", zBranch);
+    }else if(!is_a_leaf(rid)){
+      fossil_warning("Skipping non-leaf [%s] %s", zBranch, zUuid);
+      continue;
+    }else if(leaf_is_closed(rid)){
+      fossil_warning("Skipping closed [%s] %s", zBranch, zUuid);
+      continue;
+    }
+    branch_cmd_tag_add(rid, "+closed");
+    if(fVerbose!=0){
+      fossil_print("Closing branch [%s] %s\n", zBranch, zUuid);
+    }
+  }
+  branch_cmd_tag_finalize(fDryRun, fVerbose, zDateOvrd, zUserOvrd);
 }
 
 /*
