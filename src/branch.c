@@ -346,6 +346,88 @@ int branch_is_open(const char *zBrName){
   );
 }
 
+/*
+** Implementation of (branch close) subcommand. nStartAtArg is the
+** g.argv index to start reading branch names. If fDryRun is true then
+** the change is run in dry-run mode. Fails fatally on error.
+*/
+static void branch_cmd_close(int nStartAtArg, int fVerbose, int fDryRun){
+  int argPos = nStartAtArg; 
+  Blob manifest = empty_blob;  /* Control artifact */
+  Stmt q = empty_Stmt;
+  int nQueued = 0;             /* # of branches queued for closing */
+  char * zUuid = 0;
+  int doRollback = fDryRun!=0;
+  db_begin_transaction();
+  db_multi_exec("create temp table brclose("
+                "rid INTEGER UNIQUE ON CONFLICT IGNORE"
+                ")");
+  db_prepare(&q, "INSERT INTO brclose(rid) "
+             "VALUES(:rid)");
+  for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
+    const char * zBranch = g.argv[argPos];
+    const int rid = name_to_uuid2(zBranch, "ci", &zUuid);
+    if(0==rid){
+      fossil_fatal("Cannot resolve branch name: %s", zBranch);
+    }else if(rid<0){
+      fossil_fatal("Ambiguous branch name: %s", zBranch);
+    }else if(!is_a_leaf(rid)){
+      fossil_warning("Skipping non-leaf [%s] %s", zBranch, zUuid);
+      continue;
+    }else if(leaf_is_closed(rid)){
+      fossil_warning("Skipping closed [%s] %s", zBranch, zUuid);
+      continue;
+    }
+    ++nQueued;
+    db_bind_int(&q, ":rid", rid);
+    db_step(&q);
+    db_reset(&q);
+    if(fVerbose!=0){
+      fossil_print("Closing branch [%s] %s\n", zBranch, zUuid);
+    }
+  }
+  db_finalize(&q);
+  if(!nQueued){
+    fossil_warning("No branches queued for closing. Nothing to do.");
+    doRollback = 1;
+    goto br_close_end;
+  }
+  blob_appendf(&manifest, "D %z\n", date_in_standard_format("now"));
+  db_prepare(&q, "SELECT b.uuid "
+             "FROM brclose c, blob b "
+             "WHERE c.rid=b.rid "
+             "ORDER BY b.uuid");
+  while(SQLITE_ROW==db_step(&q)){
+    const char * zHash = db_column_text(&q, 0);
+    blob_appendf(&manifest, "T +closed %s\n", zHash);
+  }
+  user_select();
+  blob_appendf(&manifest, "U %F\n", login_name());
+  db_finalize(&q);
+  {
+    Blob cksum = empty_blob;
+    md5sum_blob(&manifest, &cksum);
+    blob_appendf(&manifest, "Z %b\n", &cksum);
+    blob_reset(&cksum);
+  }
+  if(fDryRun){
+    fossil_print("Dry-run mode. Not saving control artifact:\n%b",
+                 &manifest);
+  }else{
+    const int newRid = content_put(&manifest);
+    if(0==newRid){
+      fossil_fatal("Problem saving new manifest: %s\n%b",
+                   g.zErrMsg, &manifest);
+    }else if(manifest_crosslink(newRid, &manifest, 0)==0){
+      fossil_fatal("Crosslinking error: %s", g.zErrMsg);
+    }
+    fossil_print("Saved new control artifact (RID %d)\n", newRid);
+  }
+  blob_reset(&manifest);
+  br_close_end:
+  db_multi_exec("DROP TABLE brclose");
+  db_end_transaction(doRollback);
+}
 
 /*
 ** COMMAND: branch
@@ -392,6 +474,16 @@ int branch_is_open(const char *zBrName){
 **        replaced by a space, and it may also name a timezone offset
 **        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
 **        Either no timezone suffix or "Z" means UTC.
+**
+** >  fossil branch close ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+**
+**       Close one or more branches by adding the "closed" tag
+**       to them. It accepts arbitrary unambiguous symbolic names but
+**       will only resolve checkin names and skips any which resolve
+**       to non-leaf or closed checkins. Options:
+**       -n|--dry-run          do not commit changes and dump artifact
+**                             to stdout
+**       -v|--verbose          output more information
 **
 ** Options valid for all subcommands:
 **
@@ -454,9 +546,17 @@ void branch_cmd(void){
     db_finalize(&q);
   }else if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
+  }else if( strncmp(zCmd,"close",5)==0 ){
+    const int fDryRun = find_option("dry-run","n",0)!=0;
+    const int fVerbose = find_option("verbose","v",0)!=0;
+    verify_all_options();
+    if(g.argc<4){
+      usage("branch close branch-name(s)...");
+    }
+    branch_cmd_close(3, fVerbose, fDryRun);
   }else{
     fossil_fatal("branch subcommand should be one of: "
-                 "current info list ls new");
+                 "close current info list ls new");
   }
 }
 
