@@ -351,19 +351,19 @@ int branch_is_open(const char *zBrName){
 ** g.argv index to start reading branch names. If fDryRun is true then
 ** the change is run in dry-run mode. Fails fatally on error.
 */
-static void branch_cmd_close(int nStartAtArg, int fVerbose, int fDryRun){
-  int argPos = nStartAtArg; 
+static void branch_cmd_close(int nStartAtArg, int fVerbose,
+                             int fDryRun){
+  int argPos = nStartAtArg;    /* g.argv pos with first branch name */
   Blob manifest = empty_blob;  /* Control artifact */
   Stmt q = empty_Stmt;
   int nQueued = 0;             /* # of branches queued for closing */
-  char * zUuid = 0;
-  int doRollback = fDryRun!=0;
+  char * zUuid = 0;            /* Resolved branch UUID. */
+  int doRollback = fDryRun!=0; /* Roll back transaction if true */
   db_begin_transaction();
-  db_multi_exec("create temp table brclose("
+  db_multi_exec("CREATE TEMP TABLE brclose("
                 "rid INTEGER UNIQUE ON CONFLICT IGNORE"
                 ")");
-  db_prepare(&q, "INSERT INTO brclose(rid) "
-             "VALUES(:rid)");
+  db_prepare(&q, "INSERT INTO brclose(rid) VALUES(:rid)");
   for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
     const char * zBranch = g.argv[argPos];
     const int rid = name_to_uuid2(zBranch, "ci", &zUuid);
@@ -393,29 +393,27 @@ static void branch_cmd_close(int nStartAtArg, int fVerbose, int fDryRun){
     goto br_close_end;
   }
   blob_appendf(&manifest, "D %z\n", date_in_standard_format("now"));
-  db_prepare(&q, "SELECT b.uuid "
-             "FROM brclose c, blob b "
-             "WHERE c.rid=b.rid "
-             "ORDER BY b.uuid");
+  db_prepare(&q, "SELECT uuid FROM blob WHERE rid IN brclose");
   while(SQLITE_ROW==db_step(&q)){
     const char * zHash = db_column_text(&q, 0);
     blob_appendf(&manifest, "T +closed %s\n", zHash);
   }
+  db_finalize(&q);
   user_select();
   blob_appendf(&manifest, "U %F\n", login_name());
-  db_finalize(&q);
-  if(fDryRun){
-    fossil_print("Dry-run mode: will roll back new artifact:\n%b",
-                 &manifest);
-    /* Run through the saving steps, though, noting that doing so
-    ** will clear out &manifest. */
-  }
-  {
+  { /* Z-card and save artifact */
     int newRid;
     Blob cksum = empty_blob;
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
     blob_reset(&cksum);
+    if(fDryRun && fVerbose){
+      fossil_print("Dry-run mode: will roll back new artifact:\n%b",
+                   &manifest);
+      /* Run through the saving steps, though, noting that doing so
+      ** will clear out &manifest, which is why we output it here
+      ** instead of after saving. */
+    }
     newRid = content_put(&manifest);
     if(0==newRid){
       fossil_fatal("Problem saving new artifact: %s\n%b",
