@@ -1,5 +1,5 @@
-C Initial\simpl\sof\s(branch\sclose)\ssubcommand.
-D 2021-07-22T05:59:06.612
+C branch\sclose:\sdry-run\smode\sno\slonger\sskips\sthe\ssaving\ssteps.
+D 2021-07-22T06:16:29.940
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -433,7 +433,7 @@ F src/backoffice.c ab2ae240feb704851e0eb61519006b5facabaa147219a564a6105d374dd98
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
 F src/blob.c 575803d6a32ed83cad61333cc782a7a29a3b04274a635d4dc4a9058c5f0ec2bc
-F src/branch.c 07389cdb455a0b34a74e4a45e37ffe36a66597c4ea59cb51cfab7386866392ae
+F src/branch.c b868b7aefd93dc657218dd7746b19b262439d41358986d4d143d7840bd412d14
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
@@ -996,10 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a231a7990198d2b0dbd0129e7b040d68f03c56f306ccab4d08476d3a0c04add
-R 53e99b3cd77cd19d53f21832d31fd46b
-T *branch * branch-close-subcommand
-T *sym-branch-close-subcommand *
-T -sym-trunk *
+P 0bdb19f3d333268866bab9a30e221b6489df70fedc5d38be909bdd56c9a61660
+R 4515229c773321f44fdbfbb2a8d8690d
 U stephan
-Z 4fceb6d33543243c3b11201403cb3318
+Z 635a4e1da185c8c83c039b76c8dc849e

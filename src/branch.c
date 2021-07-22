@@ -404,24 +404,31 @@ static void branch_cmd_close(int nStartAtArg, int fVerbose, int fDryRun){
   user_select();
   blob_appendf(&manifest, "U %F\n", login_name());
   db_finalize(&q);
+  if(fDryRun){
+    fossil_print("Dry-run mode: will roll back new artifact:\n%b",
+                 &manifest);
+    /* Run through the saving steps, though, noting that doing so
+    ** will clear out &manifest. */
+  }
   {
+    int newRid;
     Blob cksum = empty_blob;
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
     blob_reset(&cksum);
-  }
-  if(fDryRun){
-    fossil_print("Dry-run mode. Not saving control artifact:\n%b",
-                 &manifest);
-  }else{
-    const int newRid = content_put(&manifest);
+    newRid = content_put(&manifest);
     if(0==newRid){
-      fossil_fatal("Problem saving new manifest: %s\n%b",
+      fossil_fatal("Problem saving new artifact: %s\n%b",
                    g.zErrMsg, &manifest);
     }else if(manifest_crosslink(newRid, &manifest, 0)==0){
       fossil_fatal("Crosslinking error: %s", g.zErrMsg);
     }
-    fossil_print("Saved new control artifact (RID %d)\n", newRid);
+    fossil_print("Saved new control artifact %z (RID %d).\n",
+                 rid_to_uuid(newRid), newRid);
+    if(fDryRun){
+      fossil_print("Dry-run mode: rolling back new artifact.\n");
+      assert(doRollback!=0);
+    }
   }
   blob_reset(&manifest);
   br_close_end:
