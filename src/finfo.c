@@ -903,7 +903,7 @@ void mlink_page(void){
        mid
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
-    render_checkin_context(mid, 0, 1);
+    render_checkin_context(mid, 0, 1, 0);
     style_table_sorter();
     @ <hr />
     @ <div class='brlist'>

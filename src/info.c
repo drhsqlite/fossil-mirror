@@ -272,9 +272,9 @@ void info_cmd(void){
 
 /*
 ** Show the context graph (immediate parents and children) for
-** check-in rid.
+** check-in rid and rid2
 */
-void render_checkin_context(int rid, int rid2, int parentsOnly){
+void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
   Blob sql;
   Stmt q;
   int rx[2];
@@ -315,7 +315,8 @@ void render_checkin_context(int rid, int rid2, int parentsOnly){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q,
-          TIMELINE_GRAPH
+         mFlags
+         |TIMELINE_GRAPH
          |TIMELINE_FILLGAPS
          |TIMELINE_NOSCROLL
          |TIMELINE_XMERGE
@@ -882,7 +883,7 @@ void ci_page(void){
   }
   render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
   @ <div class="section">Context</div>
-  render_checkin_context(rid, 0, 0);
+  render_checkin_context(rid, 0, 0, 0);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
   diffFlags = construct_diff_flags(diffType);
@@ -1166,7 +1167,8 @@ static void checkin_description(int rid){
 **   dc=N            show N lines of context around each diff
 **   w=BOOLEAN       ignore whitespace when computing diffs
 **   nohdr           omit the description at the top of the page
-**
+**   nc              omit branch coloration from the header graph
+**   inv             "Invert".  Exchange the roles of from= and to=
 **
 ** Show all differences between two check-ins.
 */
@@ -1180,27 +1182,34 @@ void vdiff_page(void){
   const char *zFrom;
   const char *zTo;
   const char *zRe;
-  const char *zW;
   const char *zGlob;
-  char *zQuery;
   char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
+  int graphFlags = 0;
+  Blob qp;
+  int bInvert = PB("inv");
+
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
   load_control();
+  blob_init(&qp, 0, 0);
   diffType = preferred_diff_type();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
   if( zBranch && zBranch[0]==0 ) zBranch = 0;
   if( zBranch ){
-    zQuery = mprintf("branch=%T", zBranch);
+    blob_appendf(&qp, "branch=%T", zBranch);
     zMergeOrigin = mprintf("merge-in:%s", zBranch);
     cgi_replace_parameter("from", zMergeOrigin);
     cgi_replace_parameter("to", zBranch);
   }else{
-    zQuery = mprintf("from=%T&to=%T",PD("from",""),PD("to",""));
+    if( bInvert ){
+      blob_appendf(&qp, "to=%T&from=%T",PD("from",""),PD("to",""));
+    }else{
+      blob_appendf(&qp, "from=%T&to=%T",PD("from",""),PD("to",""));
+    }
   }
   pTo = vdiff_parse_manifest("to", &ridTo);
   if( pTo==0 ) return;
@@ -1209,42 +1218,50 @@ void vdiff_page(void){
   zGlob = P("glob");
   zFrom = P("from");
   zTo = P("to");
-  if(zGlob && !*zGlob){
-    zGlob = NULL;
+  if( bInvert ){
+    Manifest *pTemp = pTo;
+    const char *zTemp = zTo;
+    pTo = pFrom;
+    pFrom = pTemp;
+    zTo = zFrom;
+    zFrom = zTemp;
+  }
+  if( zGlob ){
+    if( !*zGlob ){
+      zGlob = NULL;
+    }else{
+      blob_appendf(&qp, "&glob=%T", zGlob);
+    }
+  }
+  if( PB("nc") ){
+    graphFlags |= TIMELINE_NOCOLOR;
+    blob_appendf(&qp, "&nc");
   }
   diffFlags = construct_diff_flags(diffType);
-  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  if( diffFlags & DIFF_IGNORE_ALLWS ){
+    blob_appendf(&qp, "&w");
+  }
   style_set_current_feature("vdiff");
   if( zBranch==0 ){
     style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
   }
   if( diffType!=0 ){
-    style_submenu_element("Hide Diff", "%R/vdiff?%s&diff=0%s%T%s",
-                          zQuery,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+    style_submenu_element("Hide Diff", "%R/vdiff?diff=0&%b", &qp);
   }
   if( diffType!=2 ){
-    style_submenu_element("Side-by-Side Diff",
-                          "%R/vdiff?%s&diff=2%s%T%s",
-                          zQuery,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+    style_submenu_element("Side-by-Side Diff", "%R/vdiff?diff=2&%b", &qp);
   }
   if( diffType!=1 ) {
-    style_submenu_element("Unified Diff",
-                          "%R/vdiff?%s&diff=1%s%T%s",
-                          zQuery,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+    style_submenu_element("Unified Diff", "%R/vdiff?diff=1&%b", &qp);
   }
   if( zBranch==0 ){
-    style_submenu_element("Invert",
-                          "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+    style_submenu_element("Invert","%R/vdiff?diff=%d&inv&%b", diffType, &qp);
   }
   if( zGlob ){
-    style_submenu_element("Clear glob",
-                          "%R/vdiff?%s&%s", zQuery, zW);
+    style_submenu_element("Clear glob", "%R/vdiff?diff=%d&%b", diffType, &qp);
   }else{
-    style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
+    style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo,
+           (diffFlags & DIFF_IGNORE_ALLWS)?"&w":"");
   }
   if( diffType!=0 ){
     style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
@@ -1276,7 +1293,7 @@ void vdiff_page(void){
       @ To <span class='timelineSelected timelineSecondary'>\
       @ %z(href("%R/info/%h",zTo))%h(zTo)</a></span></h2>
     }
-    render_checkin_context(ridFrom, ridTo, 0);
+    render_checkin_context(ridFrom, ridTo, 0, graphFlags);
     if( pRe ){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
       @ are shown.</b></p>
@@ -1286,7 +1303,7 @@ void vdiff_page(void){
     }
     @<hr /><p>
   }
-  fossil_free(zQuery);
+  blob_reset(&qp);
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);
