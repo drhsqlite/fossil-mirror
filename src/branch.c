@@ -348,17 +348,21 @@ int branch_is_open(const char *zBrName){
 
 /*
 ** Implementation of (branch close) subcommand. nStartAtArg is the
-** g.argv index to start reading branch names. If fDryRun is true then
-** the change is run in dry-run mode. Fails fatally on error.
+** g.argv index to start reading branch names. Fails fatally on error.
 */
-static void branch_cmd_close(int nStartAtArg, int fVerbose,
-                             int fDryRun){
+static void branch_cmd_close(int nStartAtArg){
   int argPos = nStartAtArg;    /* g.argv pos with first branch name */
   Blob manifest = empty_blob;  /* Control artifact */
   Stmt q = empty_Stmt;
   int nQueued = 0;             /* # of branches queued for closing */
   char * zUuid = 0;            /* Resolved branch UUID. */
+  const int fVerbose = find_option("verbose","v",0)!=0;
+  const int fDryRun = find_option("dry-run","n",0)!=0;
+  const char *zDateOvrd = find_option("date-override",0,1);
+  const char *zUserOvrd = find_option("user-override",0,1);
   int doRollback = fDryRun!=0; /* Roll back transaction if true */
+
+  verify_all_options();
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE brclose("
                 "rid INTEGER UNIQUE ON CONFLICT IGNORE"
@@ -392,7 +396,8 @@ static void branch_cmd_close(int nStartAtArg, int fVerbose,
     doRollback = 1;
     goto br_close_end;
   }
-  blob_appendf(&manifest, "D %z\n", date_in_standard_format("now"));
+  blob_appendf(&manifest, "D %z\n",
+               date_in_standard_format( zDateOvrd ? zDateOvrd : "now"));
   db_prepare(&q, "SELECT uuid FROM blob WHERE rid IN brclose");
   while(SQLITE_ROW==db_step(&q)){
     const char * zHash = db_column_text(&q, 0);
@@ -400,7 +405,8 @@ static void branch_cmd_close(int nStartAtArg, int fVerbose,
   }
   db_finalize(&q);
   user_select();
-  blob_appendf(&manifest, "U %F\n", login_name());
+  blob_appendf(&manifest, "U %F\n",
+               zUserOvrd ? zUserOvrd : login_name());
   { /* Z-card and save artifact */
     int newRid;
     Blob cksum = empty_blob;
@@ -489,6 +495,8 @@ static void branch_cmd_close(int nStartAtArg, int fVerbose,
 **       -n|--dry-run          do not commit changes and dump artifact
 **                             to stdout
 **       -v|--verbose          output more information
+**       --date-override DATE  DATE to use instead of 'now'
+**       --user-override USER  USER to use instead of the current default
 **
 ** Options valid for all subcommands:
 **
@@ -552,13 +560,10 @@ void branch_cmd(void){
   }else if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
   }else if( strncmp(zCmd,"close",5)==0 ){
-    const int fDryRun = find_option("dry-run","n",0)!=0;
-    const int fVerbose = find_option("verbose","v",0)!=0;
-    verify_all_options();
     if(g.argc<4){
       usage("branch close branch-name(s)...");
     }
-    branch_cmd_close(3, fVerbose, fDryRun);
+    branch_cmd_close(3);
   }else{
     fossil_fatal("branch subcommand should be one of: "
                  "close current info list ls new");
