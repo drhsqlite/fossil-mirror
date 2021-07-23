@@ -504,11 +504,12 @@ static void branch_cmd_hide(int nStartAtArg, int fHide){
 }
 
 /*
-** Implementation of (branch close) subcommand. nStartAtArg is the
-** g.argv index to start reading branch/checkin names. Fails fatally
-** on error.
+** Implementation of (branch close|reopen) subcommands. nStartAtArg is
+** the g.argv index to start reading branch/checkin names. The given
+** checkins are closed if fClose is true, else their "closed" tag (if
+** any) is cancelled. Fails fatally on error.
 */
-static void branch_cmd_close(int nStartAtArg){
+static void branch_cmd_close(int nStartAtArg, int fClose){
   int argPos = nStartAtArg;    /* g.argv pos with first branch name */
   char * zUuid = 0;            /* Resolved branch UUID. */
   const int fVerbose = find_option("verbose","v",0)!=0;
@@ -521,20 +522,27 @@ static void branch_cmd_close(int nStartAtArg){
   for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
     const char * zName = g.argv[argPos];
     const int rid = branch_resolve_name(zName, &zUuid);
+    const int isClosed = leaf_is_closed(rid);
     if(!is_a_leaf(rid)){
       /* This behaviour is different from /ci_edit closing, where
       ** is_a_leaf() adds a "+" tag and !is_a_leaf() adds a "*"
       ** tag. We might want to change this to match for consistency's
-      ** sake. */
+      ** sake, but it currently seems unnecessary to close/re-open a
+      ** non-leaf. */
       fossil_warning("Skipping non-leaf [%s] %s", zName, zUuid);
       continue;
-    }else if(leaf_is_closed(rid)){
-      fossil_warning("Skipping closed [%s] %s", zName, zUuid);
+    }else if(fClose && isClosed){
+      fossil_warning("Skipping closed leaf [%s] %s", zName, zUuid);
+      continue;
+    }else if(!fClose && !isClosed){
+      fossil_warning("Skipping non-closed leaf [%s] %s", zName, zUuid);
       continue;
     }
-    branch_cmd_tag_add(rid, "+closed");
+    branch_cmd_tag_add(rid, fClose ? "+closed" : "-closed");
     if(fVerbose!=0){
-      fossil_print("Closing branch [%s] %s\n", zName, zUuid);
+      fossil_print("%s branch [%s] %s\n",
+                   fClose ? "Closing" : "Re-opening",
+                   zName, zUuid);
     }
   }
   branch_cmd_tag_finalize(fDryRun, fVerbose, zDateOvrd, zUserOvrd);
@@ -548,12 +556,12 @@ static void branch_cmd_close(int nStartAtArg){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-** >  fossil branch close ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+** >  fossil branch close|reopen ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
 **
-**       Close one or more branches by adding the "closed" tag
-**       to them. It accepts arbitrary unambiguous symbolic names but
+**       Adds or cancels the "closed" tag to one or more branches.
+**       It accepts arbitrary unambiguous symbolic names but
 **       will only resolve checkin names and skips any which resolve
-**       to non-leaf or closed checkins. Options:
+**       to non-leaf checkins. Options:
 **       -n|--dry-run          do not commit changes and dump artifact
 **                             to stdout
 **       -v|--verbose          output more information
@@ -669,7 +677,12 @@ void branch_cmd(void){
     if(g.argc<4){
       usage("branch close branch-name(s)...");
     }
-    branch_cmd_close(3);
+    branch_cmd_close(3, 1);
+  }else if( strncmp(zCmd,"reopen",6)==0 ){
+    if(g.argc<4){
+      usage("branch reopen branch-name(s)...");
+    }
+    branch_cmd_close(3, 0);
   }else if( strncmp(zCmd,"hide",4)==0 ){
     if(g.argc<4){
       usage("branch hide branch-name(s)...");
@@ -682,7 +695,7 @@ void branch_cmd(void){
     branch_cmd_hide(3,0);
   }else{
     fossil_fatal("branch subcommand should be one of: "
-                 "close current info list ls new");
+                 "close current hide info list ls new reopen unhide");
   }
 }
 

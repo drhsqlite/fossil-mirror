@@ -1,5 +1,5 @@
-C branch\shide/unhide\ssubcommands\snow\sskip\sover\scheckins\swhich\shave\sresp.\sdon't\shave\sthe\shidden\stag.
-D 2021-07-23T02:44:32.135
+C Added\s(branch\sreopen)\ssubcommand,\sthe\sinverse\sof\s(branch\sclose),\sper\sforum\sfeedback.
+D 2021-07-23T06:12:19.740
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -433,7 +433,7 @@ F src/backoffice.c ab2ae240feb704851e0eb61519006b5facabaa147219a564a6105d374dd98
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
 F src/blob.c 575803d6a32ed83cad61333cc782a7a29a3b04274a635d4dc4a9058c5f0ec2bc
-F src/branch.c e76f289166a0627952fa5d0aac0d34d907577581f0be5000c97464255459a7e0
+F src/branch.c 3bba9b693b7f7784e8ca144f144e157aa6e18587741dc77104cd8db6d5377cb0
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
 F src/bundle.c 10278fa9db8452a5428c9c54addc0f84d7c6025d2f237f0527adc747b09c2b49
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 05b42e6aa680bf48851a936a524d66562f66a2d52bfe15807defde3edc98dee5
-R cdac74fd074338a41394685634a03c76
+P 768f30ffb7b22674b02ad020bc12ed38b549b102ffc4429a8206f75f9c5336a4
+R ddbf8d820301d7c0984ad84132b0f04c
 U stephan
-Z 68fce468267e3bbc0d122ac6ff9e8733
+Z c20669f83fe5f79ef8195c09a29ccaa3
