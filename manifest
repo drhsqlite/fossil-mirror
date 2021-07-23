@@ -1,5 +1,5 @@
-C Comment\stypo\sfix\sin\sprevious
-D 2021-07-23T19:48:54.834
+C Updated\sthe\scaps/index.md\sdoc\sto\sreflect\sthe\srecent\s"sxy"\schange
+D 2021-07-23T21:47:50.233
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -826,7 +826,7 @@ F www/build.wiki 29ee98605a70bf264dfe58f7a0708a7fc76185a9d06755ba52a8d6e7fb4c9ee
 F www/cap-theorem.md a6a4765e4b8e4d7c7913e99c8ab01cf8831d2f65f01ef298e3dacb3b476a3d34
 F www/caps/admin-v-setup.md aae4ee41aef7c1ae4e000bd7fa9c403c23314d107812bd6e39af155353a6971c
 F www/caps/impl.md 9f73e4708a00ddb8e529458c97d9d8e98e24877b24bff0e17c58fa3146ede1d5
-F www/caps/index.md 4b744fd6673b88e62a008e45e3cd27b12a978ce7b9ddcd977feec572f83e6e89
+F www/caps/index.md 467e09ce01dac6ee2462780cb11cfb2b43ceb7e1228b62f4f2ff23291d1979d3
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 129e39587803da00f6bd23427b341ac7e13eb61caa97d860eeb5ae0c32c46f63
-R e28da233eda2f103160984881a2664fc
+P ec5efceb8aac6cb45cfe392204aea8ec94b8aa621226f252b3a94e62ce8cfc8b
+R 15d06866f4ddc824d5e547c23b8ab03b
 U wyoung
-Z aa2dbd94ab6fb11b1efa8cda1934f601
+Z 579f59e289cc30d4eb4258e7f4b26cf7
