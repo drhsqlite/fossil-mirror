@@ -2737,7 +2737,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** Options:
 **   --th-trace          Trace TH1 execution (for debugging purposes)
-**   --usercap   CAP     User capability string (Default: "sxy`")
+**   --usercap   CAP     User capability string (Default: "sxy")
 **
 */
 void cmd_test_http(void){
