@@ -448,8 +448,57 @@ static int branch_cmd_tag_finalize(int fDryRun /* roll back if true */,
 }
 
 /*
+** Internal helper for branch_cmd_close() and friends. zName is a
+** symbolic checkin name. Returns the blob.rid of the checkin or fails
+** fatally if the name does not resolve unambiguously.  If zUuid is
+** not NULL, *zUuid is set to the resolved blob.uuid and must be freed
+** by the caller via fossil_free().
+*/
+static int branch_resolve_name(char const *zName, char **zUuid){
+  const int rid = name_to_uuid2(zName, "ci", zUuid);
+  if(0==rid){
+    fossil_fatal("Cannot resolve name: %s", zName);
+  }else if(rid<0){
+    fossil_fatal("Ambiguous name: %s", zName);
+  }
+  return rid;
+}
+
+/*
+** Implementation of (branch hide/unhide) subcommands. nStartAtArg is
+** the g.argv index to start reading branch/checkin names. fHide is
+** true for hiding, false for unhiding. Fails fatally on error.
+*/
+static void branch_cmd_hide(int nStartAtArg, int fHide){
+  int argPos = nStartAtArg;    /* g.argv pos with first branch/ci name */
+  char * zUuid = 0;            /* Resolved branch UUID. */
+  const int fVerbose = find_option("verbose","v",0)!=0;
+  const int fDryRun = find_option("dry-run","n",0)!=0;
+  const char *zDateOvrd = find_option("date-override",0,1);
+  const char *zUserOvrd = find_option("user-override",0,1);
+
+  verify_all_options();
+  db_begin_transaction();
+  for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
+    const char * zName = g.argv[argPos];
+    const int rid = branch_resolve_name(zName, &zUuid);
+    /* Potential TODO: check for existing 'hidden' flag and skip this
+    ** entry if it already has (if fHide) or does not have (if !fHide)
+    ** that tag. FWIW, /ci_edit does not do so. */
+    branch_cmd_tag_add(rid, fHide ? "*hidden" : "-hidden");
+    if(fVerbose!=0){
+      fossil_print("%s checkin [%s] %s\n",
+                   fHide ? "Hiding" : "Unhiding",
+                   zName, zUuid);
+    }
+  }
+  branch_cmd_tag_finalize(fDryRun, fVerbose, zDateOvrd, zUserOvrd);
+}
+
+/*
 ** Implementation of (branch close) subcommand. nStartAtArg is the
-** g.argv index to start reading branch names. Fails fatally on error.
+** g.argv index to start reading branch/checkin names. Fails fatally
+** on error.
 */
 static void branch_cmd_close(int nStartAtArg){
   int argPos = nStartAtArg;    /* g.argv pos with first branch name */
@@ -462,22 +511,22 @@ static void branch_cmd_close(int nStartAtArg){
   verify_all_options();
   db_begin_transaction();
   for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
-    const char * zBranch = g.argv[argPos];
-    const int rid = name_to_uuid2(zBranch, "ci", &zUuid);
-    if(0==rid){
-      fossil_fatal("Cannot resolve branch name: %s", zBranch);
-    }else if(rid<0){
-      fossil_fatal("Ambiguous branch name: %s", zBranch);
-    }else if(!is_a_leaf(rid)){
-      fossil_warning("Skipping non-leaf [%s] %s", zBranch, zUuid);
+    const char * zName = g.argv[argPos];
+    const int rid = branch_resolve_name(zName, &zUuid);
+    if(!is_a_leaf(rid)){
+      /* This behaviour is different from /ci_edit closing, where
+      ** is_a_leaf() adds a "+" tag and !is_a_leaf() adds a "*"
+      ** tag. We might want to change this to match for consistency's
+      ** sake. */
+      fossil_warning("Skipping non-leaf [%s] %s", zName, zUuid);
       continue;
     }else if(leaf_is_closed(rid)){
-      fossil_warning("Skipping closed [%s] %s", zBranch, zUuid);
+      fossil_warning("Skipping closed [%s] %s", zName, zUuid);
       continue;
     }
     branch_cmd_tag_add(rid, "+closed");
     if(fVerbose!=0){
-      fossil_print("Closing branch [%s] %s\n", zBranch, zUuid);
+      fossil_print("Closing branch [%s] %s\n", zName, zUuid);
     }
   }
   branch_cmd_tag_finalize(fDryRun, fVerbose, zDateOvrd, zUserOvrd);
@@ -491,9 +540,27 @@ static void branch_cmd_close(int nStartAtArg){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
+** >  fossil branch close ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+**
+**       Close one or more branches by adding the "closed" tag
+**       to them. It accepts arbitrary unambiguous symbolic names but
+**       will only resolve checkin names and skips any which resolve
+**       to non-leaf or closed checkins. Options:
+**       -n|--dry-run          do not commit changes and dump artifact
+**                             to stdout
+**       -v|--verbose          output more information
+**       --date-override DATE  DATE to use instead of 'now'
+**       --user-override USER  USER to use instead of the current default
+**
 ** >  fossil branch current
 **
 **        Print the name of the branch for the current check-out
+**
+** >  fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+**
+**       Adds or cancels the "hidden" tag for the specified branches or
+**       or checkin IDs. Accepts the same options as the close
+**       subcommand.
 **
 ** >  fossil branch info BRANCH-NAME
 **
@@ -528,18 +595,6 @@ static void branch_cmd_close(int nStartAtArg){
 **        replaced by a space, and it may also name a timezone offset
 **        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
 **        Either no timezone suffix or "Z" means UTC.
-**
-** >  fossil branch close ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
-**
-**       Close one or more branches by adding the "closed" tag
-**       to them. It accepts arbitrary unambiguous symbolic names but
-**       will only resolve checkin names and skips any which resolve
-**       to non-leaf or closed checkins. Options:
-**       -n|--dry-run          do not commit changes and dump artifact
-**                             to stdout
-**       -v|--verbose          output more information
-**       --date-override DATE  DATE to use instead of 'now'
-**       --user-override USER  USER to use instead of the current default
 **
 ** Options valid for all subcommands:
 **
@@ -607,6 +662,16 @@ void branch_cmd(void){
       usage("branch close branch-name(s)...");
     }
     branch_cmd_close(3);
+  }else if( strncmp(zCmd,"hide",4)==0 ){
+    if(g.argc<4){
+      usage("branch hide branch-name(s)...");
+    }
+    branch_cmd_hide(3,1);
+  }else if( strncmp(zCmd,"unhide",6)==0 ){
+    if(g.argc<4){
+      usage("branch unhide branch-name(s)...");
+    }
+    branch_cmd_hide(3,0);
   }else{
     fossil_fatal("branch subcommand should be one of: "
                  "close current info list ls new");
