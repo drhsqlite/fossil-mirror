@@ -891,3 +891,17 @@ void tagtimeline_page(void){
   @ <br />
   style_finish_page();
 }
+
+/*
+** Returns true if the given blob.rid value has the given tag ID
+** applied to it, else false.
+*/
+int tag_has(int rid, int tagId){
+  return db_exists(
+     "SELECT tag.tagid FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 "
+     " AND tag.tagid=%d"
+     " AND tagxref.tagid=tag.tagid",
+     rid, tagId
+  );
+}

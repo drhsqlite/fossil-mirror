@@ -482,9 +482,17 @@ static void branch_cmd_hide(int nStartAtArg, int fHide){
   for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
     const char * zName = g.argv[argPos];
     const int rid = branch_resolve_name(zName, &zUuid);
+    const int isHidden = tag_has(rid, TAG_HIDDEN);
     /* Potential TODO: check for existing 'hidden' flag and skip this
     ** entry if it already has (if fHide) or does not have (if !fHide)
     ** that tag. FWIW, /ci_edit does not do so. */
+    if(fHide && isHidden){
+      fossil_warning("Skipping hidden checkin %s: %s.", zName, zUuid);
+      continue;
+    }else if(!fHide && !isHidden){
+      fossil_warning("Skipping non-hidden checkin %s: %s.", zName, zUuid);
+      continue;
+    }
     branch_cmd_tag_add(rid, fHide ? "*hidden" : "-hidden");
     if(fVerbose!=0){
       fossil_print("%s checkin [%s] %s\n",
