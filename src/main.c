@@ -2737,7 +2737,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** Options:
 **   --th-trace          Trace TH1 execution (for debugging purposes)
-**   --usercap   CAP     User capability string (Default: "sx")
+**   --usercap   CAP     User capability string (Default: "sxy`")
 **
 */
 void cmd_test_http(void){
@@ -2748,7 +2748,7 @@ void cmd_test_http(void){
   zUserCap = find_option("usercap",0,1);
   if( zUserCap==0 ){
     g.useLocalauth = 1;
-    zUserCap = "sx";
+    zUserCap = "sxy";
   }
   login_set_capabilities(zUserCap, 0);
   g.httpIn = stdin;

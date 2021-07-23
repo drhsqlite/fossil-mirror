@@ -1,5 +1,5 @@
-C Enhance\sthe\s/vdiff\spage\sto\sunderstand\sthe\snc\s(no-color)\squery\sparameter\sand\sto\ndo\sa\sbetter\sjob\sof\spreserving\squery\sparameter\schoices\swhen\sclicking\son\nother\sdisplay\soptions.
-D 2021-07-22T23:08:38.885
+C The\sdefault\suser\scapability\sstring\sfor\sthe\stest-http\scommand\s—\sused\sby\nssh://\sURLs\sdespite\sthe\s"test-"\sprefix!\s—\sis\snow\s"sxy"\sto\sgrant\sall\npermissions\sas\sclaimed\s[/doc/trunk/www/caps/#webonly\s|\sin\sthe\sdocs].\nWhile\sthis\sis\sobjectively\scorrect,\sit\sdoesn't\ssolve\sthe\sactual\sproblem\nI\swas\schasing,\sbeing\sUV\ssync\sfailure\sover\sSSH\sper\n[forum:/forumpost/b121db582ee1ed2c\s|\sa\srecent\sforum\spost].
+D 2021-07-23T19:35:21.533
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -540,7 +540,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c fca93e751577410392befba510ba36f22ac5e9695507a7a5a0011fd125141576
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 2bed6a6853295becc0104f439dc85cd5110f952f4ed60fa2db005bdb063658bb
+F src/main.c ed0fc42a01edad5348ddbeda999069dbb1a1b9a1e112cadfe0cd4604f72f10ad
 F src/main.mk ed7d916e869f8806bb0b5aaf9426a471bf6cec259dcb406afb0d5bbbc1a817a9
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a231a7990198d2b0dbd0129e7b040d68f03c56f306ccab4d08476d3a0c04add
-R 2bec84079f3c52435b0b95ffeaf12243
-U drh
-Z 6a0d417702543b6072cd2caf57894f93
+P 2e51bb9b03d6be85db8a49c2e8baf2ace436ba79c40d6b8fe2a2290c0ebb167d
+R 785ef69b0a741916db2759e72135ad3a
+U wyoung
+Z d4d12b52f977c5b55611c7455c41d22a
