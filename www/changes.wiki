@@ -20,6 +20,8 @@
      and similar.
   *  Print total payload bytes on a [/help?cmd=sync|fossil sync] when using
      the --verbose option.
+  *  Add the <tt>close</tt>, <tt>reopen</tt>, <tt>hide</tt>, and
+     </tt>unhide</tt> subcommands to [/help?cmd=branch|the branch command].
 
 <a name='v2_16'></a>
 <h2>Changes for Version 2.16 (2021-07-02)</h2>
