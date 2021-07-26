@@ -171,7 +171,7 @@ void stat_page(void){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
     n = db_int(0, "SELECT count(*) FROM blob WHERE content IS NOT NULL");
     m = db_int(0, "SELECT count(*) FROM delta");
-    @ %.d(n) (%,d(n-m) fulltext and %,d(m) deltas)
+    @ %,d(n) (%,d(n-m) fulltext and %,d(m) deltas)
     if( g.perm.Write ){
       @ <a href='%R/artifact_stats'>Details</a>
     }
