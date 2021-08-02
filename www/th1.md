@@ -42,9 +42,10 @@ name and subsequent tokens are the arguments.  In this sense, TH1 syntax
 is similar to the familiar command-line shell syntax.
 
 A token is any sequence of characters other than whitespace and semicolons.
-Or, all text without double-quotes is a single token even if it includes
-whitespace and semicolons.  Or, all text within nested {...} pairs is a
-single token.
+Text inside double-quotes is a single token even if it includes
+whitespace and semicolons. Text within {...} pairs is also a
+single token, which is useful because curly braces are easier to “pair”
+and nest properly than doubloe-quotes.
 
 The nested {...} form of tokens is important because it allows TH1 commands
 to have an appearance similar to C/C++.  It is important to remember, though,
