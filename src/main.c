@@ -475,7 +475,13 @@ void expand_args_option(int argc, void *argv){
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
 
   blob_rewind(&file);
-  while( (n = blob_line(&file, &line))>0 ){
+  while( nLine-->0 && (n = blob_line(&file, &line))>0 ){
+    /* Reminder: ^^^ nLine check avoids that embedded NUL bytes in the
+    ** --args file causes nLine to be less than blob_line() will end
+    ** up reporting in that case, which leads to an memory illegal
+    ** write. See forum post
+    ** https://fossil-scm.org/forum/forumpost/7b34eecc1b8c for
+    ** details */
     if( n<1 ){
       /* Reminder: corner-case: a line with 1 byte and no newline. */
       continue;
