@@ -1,5 +1,5 @@
-C Resolved\sinvalid\smemory\swrite\sin\s--args\sFILE\shandling\swhen\sFILE\scontains\sembedded\sNULs,\sas\sreported\sin\s[forum:/forumpost/7b34eecc1b8cf5d2|forum\spost\s7b34eecc1b8cf5d2].\sCause:\smismatch\sbetween\s--args\sexpansion's\sown\sline\scounting\svs\sblob_line()\scounting.\sAll\sbytes\safter\sthe\sfirst\sembedded\sNUL\sare\snow\seffectively\signored.
-D 2021-08-05T11:55:07.141
+C Minor\sdoc\sfix\sfor\sprevious\scommit.\sNo\scode\schanges.
+D 2021-08-05T17:06:13.801
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -540,7 +540,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c fca93e751577410392befba510ba36f22ac5e9695507a7a5a0011fd125141576
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c a156e3c06282faa2c9dd1ec81947c1b56be0a425c5d1b13a253186b57b1bb0ba
+F src/main.c b9eb72eed76b9a9116376ec93c257cf8dcf98cfaa182a2a572f4d27954b6e696
 F src/main.mk ed7d916e869f8806bb0b5aaf9426a471bf6cec259dcb406afb0d5bbbc1a817a9
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3066edea3d0cef2cff8baaddf2cb7008c3367e27cab209dddec4db99eb692fc
-R 71ec1aca51a0e7c5a6bb8aa7adabb33f
+P e120c2a9a7278cbc48be7f20110799c954770149755c7b6eee3815d2304224f5
+R 852f6b0a2ba31a441c7288a9f95b3184
 U stephan
-Z 3e93000d380c2996471a96108d67d752
+Z 19d8ea33b613c7373125ffc4e168f697

@@ -478,7 +478,7 @@ void expand_args_option(int argc, void *argv){
   while( nLine-->0 && (n = blob_line(&file, &line))>0 ){
     /* Reminder: ^^^ nLine check avoids that embedded NUL bytes in the
     ** --args file causes nLine to be less than blob_line() will end
-    ** up reporting in that case, which leads to an memory illegal
+    ** up reporting, as such a miscount leads to an illegal memory
     ** write. See forum post
     ** https://fossil-scm.org/forum/forumpost/7b34eecc1b8c for
     ** details */
