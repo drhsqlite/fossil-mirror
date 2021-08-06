@@ -173,35 +173,16 @@ struct html_tag {
  * GLOBAL VARIABLES *
  ********************/
 
-/* block_tags -- recognised block tags, sorted by cmp_html_tag */
+/* block_tags -- recognised block tags, sorted by cmp_html_tag.
+**
+** When these HTML tags are separated from other text by newlines
+** then they are rendered verbatim.  Their content is not interpreted
+** in any way.
+*/
 static const struct html_tag block_tags[] = {
-  { "p",            1 },
-  { "dl",           2 },
-  { "h1",           2 },
-  { "h2",           2 },
-  { "h3",           2 },
-  { "h4",           2 },
-  { "h5",           2 },
-  { "h6",           2 },
-  { "ol",           2 },
-  { "ul",           2 },
-  { "del",          3 },
-  { "div",          3 },
-  { "ins",          3 },
   { "pre",          3 },
-  { "form",         4 },
-  { "math",         4 },
-  { "table",        5 },
-  { "iframe",       6 },
   { "script",       6 },
-  { "fieldset",     8 },
-  { "noscript",     8 },
-  { "blockquote",  10 }
 };
-
-#define INS_TAG (block_tags + 12)
-#define DEL_TAG (block_tags + 10)
-
 
 
 /***************************
@@ -1799,16 +1780,12 @@ static size_t parse_htmlblock(
     return 0;
   }
 
-  /* looking for an unindented matching closing tag */
-  /*  followed by a blank line */
+  /* looking for an matching closing tag */
+  /* followed by a blank line */
   i = 1;
-  found = 0;
-#if 0
   while( i<size ){
     i++;
-    while( i<size && !(data[i-2]=='\n' && data[i-1]=='<' && data[i]=='/') ){
-      i++;
-    }
+    while( i<size && !(data[i-1]=='<' && data[i]=='/') ){ i++; }
     if( (i+2+curtag->size)>=size ) break;
     j = htmlblock_end(curtag, data+i-1, size-i+1);
     if (j) {
@@ -1817,25 +1794,6 @@ static size_t parse_htmlblock(
       break;
     }
   }
-#endif
-
-  /* if not found, trying a second pass looking for indented match */
-  /* but not if tag is "ins" or "del" (following original Markdown.pl) */
-  if( !found && curtag!=INS_TAG && curtag!=DEL_TAG ){
-    i = 1;
-    while( i<size ){
-      i++;
-      while( i<size && !(data[i-1]=='<' && data[i]=='/') ){ i++; }
-      if( (i+2+curtag->size)>=size ) break;
-      j = htmlblock_end(curtag, data+i-1, size-i+1);
-      if (j) {
-        i += j-1;
-        found = 1;
-        break;
-      }
-    }
-  }
-
   if( !found ) return 0;
 
   /* the end of the block has been found */
