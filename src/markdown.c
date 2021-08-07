@@ -1783,6 +1783,7 @@ static size_t parse_htmlblock(
   /* looking for an matching closing tag */
   /* followed by a blank line */
   i = 1;
+  found = 0;
   while( i<size ){
     i++;
     while( i<size && !(data[i-1]=='<' && data[i]=='/') ){ i++; }

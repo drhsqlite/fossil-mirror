@@ -1,5 +1,5 @@
-C Update\schange\slong\sto\smention\sthe\srecent\sMarkdown\sformatter\schange.
-D 2021-08-07T10:18:37.457
+C Fix\san\suninitialized\svariable\sresulting\sfrom\scheck-in\s[cdbf0bf179989a2d].
+D 2021-08-07T10:33:18.240
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -546,7 +546,7 @@ F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d4
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl dcfafb1ac4d823af55ac01e5f6f7c541284026497cd1286d5d0a8a2061bd8d29 x
 F src/manifest.c 0dc30286942fbadd9ed86713be0e1be5c50278da6f0d0756614dd6e16ca07dff
-F src/markdown.c 7f9a95575260d313bec1dad8d6aa9db07be62d9cb9bf088013aa1c1f40e1b697
+F src/markdown.c 176762091a249b7e43ff3e7fdc22f25ba2188d98065542280059e9d5c40b07c9
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b473ba079b71661a0bd48f82e94d208bab624d7acd7c3a29957212a1de2d867c
-R 499b950c878d0590336ce6dbece822ec
+P 2125ddb964d109f580ba5491861fa523da088d65f962b75db987c2e7c55af0dc
+R d5f3fc18b55b35e6c9a8a3fcdbe92935
 U drh
-Z 4ec439d7b74477184263cc21cbef171a
+Z b9f30bb0362ae2b7ff16757b50dfd148
