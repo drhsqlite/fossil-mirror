@@ -22,6 +22,9 @@
      the --verbose option.
   *  Add the <tt>close</tt>, <tt>reopen</tt>, <tt>hide</tt>, and
      </tt>unhide</tt> subcommands to [/help?cmd=branch|the branch command].
+  *  The [/mdrules|Markdown formatter] now interprets the content of
+     block HTML markup (such as &lt;table&gt;) in most cases.  Only content
+     of &lt;pre&gt; and &lt;script&gt; is passed through verbatim.
 
 <a name='v2_16'></a>
 <h2>Changes for Version 2.16 (2021-07-02)</h2>
