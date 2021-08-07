@@ -38,7 +38,6 @@
 # include <errno.h>
 #endif
 
-
 /*
 ** Exit.  Take care to close the database first.
 */

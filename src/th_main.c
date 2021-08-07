@@ -1751,43 +1751,6 @@ static int unversionedCmd(
   return Th_CallSubCommand(interp, p, argc, argv, argl, aSub);
 }
 
-#ifdef _WIN32
-# include <windows.h>
-#else
-# include <sys/time.h>
-# include <sys/resource.h>
-#endif
-
-/*
-** Get user and kernel times in microseconds.
-*/
-static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
-#ifdef _WIN32
-  FILETIME not_used;
-  FILETIME kernel_time;
-  FILETIME user_time;
-  GetProcessTimes(GetCurrentProcess(), &not_used, &not_used,
-                  &kernel_time, &user_time);
-  if( piUser ){
-     *piUser = ((((sqlite3_uint64)user_time.dwHighDateTime)<<32) +
-                         (sqlite3_uint64)user_time.dwLowDateTime + 5)/10;
-  }
-  if( piKernel ){
-     *piKernel = ((((sqlite3_uint64)kernel_time.dwHighDateTime)<<32) +
-                         (sqlite3_uint64)kernel_time.dwLowDateTime + 5)/10;
-  }
-#else
-  struct rusage s;
-  getrusage(RUSAGE_SELF, &s);
-  if( piUser ){
-    *piUser = ((sqlite3_uint64)s.ru_utime.tv_sec)*1000000 + s.ru_utime.tv_usec;
-  }
-  if( piKernel ){
-    *piKernel =
-              ((sqlite3_uint64)s.ru_stime.tv_sec)*1000000 + s.ru_stime.tv_usec;
-  }
-#endif
-}
 
 /*
 ** TH1 command: utime
@@ -1804,7 +1767,7 @@ static int utimeCmd(
 ){
   sqlite3_uint64 x;
   char zUTime[50];
-  getCpuTimes(&x, 0);
+  fossil_cpu_times(&x, 0);
   sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
   Th_SetResult(interp, zUTime, -1);
   return TH_OK;
@@ -1825,7 +1788,7 @@ static int stimeCmd(
 ){
   sqlite3_uint64 x;
   char zUTime[50];
-  getCpuTimes(0, &x);
+  fossil_cpu_times(0, &x);
   sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
   Th_SetResult(interp, zUTime, -1);
   return TH_OK;

@@ -2783,8 +2783,12 @@ void cmd_test_http(void){
 ** is one) and exiting.
 */
 #ifndef _WIN32
+static int nAlarmSeconds = 0;
 static void sigalrm_handler(int x){
-  fossil_panic("TIMEOUT");
+  sqlite3_uint64 tmUser = 0, tmKernel = 0;
+  fossil_cpu_times(&tmUser, &tmKernel);
+  fossil_panic("Timeout after %d seconds - user %,llu µs, sys %,llu µs",
+               nAlarmSeconds, tmUser, tmKernel);
 }
 #endif
 
@@ -2800,6 +2804,7 @@ void fossil_set_timeout(int N){
 #ifndef _WIN32
   signal(SIGALRM, sigalrm_handler);
   alarm(N);
+  nAlarmSeconds = N;
 #endif
 }
 
