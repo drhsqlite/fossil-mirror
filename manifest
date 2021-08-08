@@ -1,5 +1,5 @@
-C Improved\serror\smessage\supon\stimeout.\s\sCombine\sredundant\simplementations\nof\sthe\sfunction\sthat\sfinds\suser\sand\skernel\sCPU\susage.
-D 2021-08-07T17:28:43.603
+C More\sinformation\sin\sthe\slog\sfile\sfor\ssignal\shandlers.\s\sInclude\sthe\sphase\sof\noperation\sas\spart\sof\sthe\slog\smessage.
+D 2021-08-08T18:20:36.358
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -429,7 +429,7 @@ F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3
 F src/allrepo.c eae9524885781fcd488f1ae6bf4929dfbc087375e1709bd059096db9e262fae1
 F src/attach.c b267288bfa844e96b6226d053fb30da02f0e98e4a6f23ba9f5477f9104e2a8de
 F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c67
-F src/backoffice.c ab2ae240feb704851e0eb61519006b5facabaa147219a564a6105d374dd9848c
+F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
 F src/blob.c 575803d6a32ed83cad61333cc782a7a29a3b04274a635d4dc4a9058c5f0ec2bc
@@ -540,7 +540,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c fca93e751577410392befba510ba36f22ac5e9695507a7a5a0011fd125141576
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c dc8174d366ebf56bc15d251d402f8628364d0cfd467aac0c7fe36745dbe4df95
+F src/main.c 0cbe1c9dbbd7fce35ff16eaede8d269843c7ab5b30c840c871d082e5a18da557
 F src/main.mk ed7d916e869f8806bb0b5aaf9426a471bf6cec259dcb406afb0d5bbbc1a817a9
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5570a6aae9dec02cb58e9248d544ee2af581cdb4ebddf6534c787ab8ea7703fb
-R e80727864fd1cf29ed44e1a28dd88012
+P 6c3d370496dfb7c91d2ef20e0523cfcb35663d160fce0d3ca3ea9710fb6e7efd
+R b2ac3b935703c199b6b7deac179077f4
 U drh
-Z cdb305b1a91c83b2ca9e96a7e8bce68f
+Z e140e5e668c1d0659f793a69acbb66f0

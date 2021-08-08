@@ -145,6 +145,7 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
+  const char *zPhase;     /* Phase of operation, for use by the error log */
   int isConst;            /* True if the output is unchanging & cacheable */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
@@ -675,6 +676,7 @@ int fossil_main(int argc, char **argv){
   const CmdOrPage *pCmd = 0;
   int rc;
 
+  g.zPhase = "init";
 #if !defined(_WIN32_WCE)
   if( fossil_getenv("FOSSIL_BREAK") ){
     if( isatty(0) && isatty(2) ){
@@ -959,7 +961,9 @@ int fossil_main(int argc, char **argv){
   if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
     if( rc==TH_OK || rc==TH_RETURN ){
 #endif
+      g.zPhase = pCmd->zName;
       pCmd->xFunc();
+      g.zPhase = "shutdown";
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     }
     if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
@@ -1529,13 +1533,13 @@ void sigsegv_handler(int x){
   size = backtrace(array, sizeof(array)/sizeof(array[0]));
   strings = backtrace_symbols(array, size);
   blob_init(&out, 0, 0);
-  blob_appendf(&out, "Segfault");
+  blob_appendf(&out, "Segfault during %s", g.zPhase);
   for(i=0; i<size; i++){
     blob_appendf(&out, "\n(%d) %s", i, strings[i]);
   }
   fossil_panic("%s", blob_str(&out));
 #else
-  fossil_panic("Segfault");
+  fossil_panic("Segfault during %s", g.zPhase);
 #endif
   exit(1);
 }
@@ -1550,6 +1554,7 @@ void sigpipe_handler(int x){
     fprintf(stderr,"/***** sigpipe received by subprocess %d ****\n", getpid());
   }
 #endif
+  g.zPhase = "sigpipe shutdown";
   db_panic_close();
   exit(1);
 }
@@ -1622,6 +1627,7 @@ static void process_one_web_page(
   const CmdOrPage *pCmd = 0;
   const char *zBase = g.zRepositoryName;
 
+  g.zPhase = "process_one_web_page";
 #if !defined(_WIN32)
   signal(SIGSEGV, sigsegv_handler);
 #endif
@@ -2024,6 +2030,7 @@ static void process_one_web_page(
       if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
         if( rc==TH_OK || rc==TH_RETURN ){
 #endif
+          g.zPhase = pCmd->zName;
           pCmd->xFunc();
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
         }
@@ -2037,6 +2044,7 @@ static void process_one_web_page(
 
   /* Return the result.
   */
+  g.zPhase = "web-page reply";
   cgi_reply();
 }
 
@@ -2787,8 +2795,9 @@ static int nAlarmSeconds = 0;
 static void sigalrm_handler(int x){
   sqlite3_uint64 tmUser = 0, tmKernel = 0;
   fossil_cpu_times(&tmUser, &tmKernel);
-  fossil_panic("Timeout after %d seconds - user %,llu µs, sys %,llu µs",
-               nAlarmSeconds, tmUser, tmKernel);
+  fossil_panic("Timeout after %d seconds during %s"
+               " - user %,llu µs, sys %,llu µs",
+               nAlarmSeconds, g.zPhase, tmUser, tmKernel);
 }
 #endif
 
@@ -3242,7 +3251,7 @@ void test_warning_page(void){
   }else{
     @ <p>This is the test page for case=%d(iCase).  All possible cases:
   }
-  for(i=1; i<=7; i++){
+  for(i=1; i<=8; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }
   @ </p>
@@ -3279,6 +3288,12 @@ void test_warning_page(void){
   if( iCase==7 ){
     cgi_reset_content();
     webpage_error("Case 7 from /test-warning");
+  }
+  @ <li value='8'> simulated timeout"
+  if( iCase==8 ){
+    fossil_set_timeout(1);
+    cgi_reset_content();
+    sqlite3_sleep(1100);
   }
   @ </ol>
   @ <p>End of test</p>
