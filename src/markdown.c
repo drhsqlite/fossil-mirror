@@ -180,6 +180,7 @@ struct html_tag {
 ** in any way.
 */
 static const struct html_tag block_tags[] = {
+  { "html",         4 },
   { "pre",          3 },
   { "script",       6 },
 };
@@ -253,8 +254,12 @@ static int cmp_link_ref_sort(const void *a, const void *b){
 static int cmp_html_tag(const void *a, const void *b){
   const struct html_tag *hta = a;
   const struct html_tag *htb = b;
-  if( hta->size!=htb->size ) return hta->size-htb->size;
-  return fossil_strnicmp(hta->text, htb->text, hta->size);
+  int sz = hta->size;
+  int c;
+  if( htb->size<sz ) sz = htb->size;
+  c = fossil_strnicmp(hta->text, htb->text, sz);
+  if( c==0 ) c = hta->size - htb->size;
+  return c;
 }
 
 
@@ -1798,7 +1803,14 @@ static size_t parse_htmlblock(
   if( !found ) return 0;
 
   /* the end of the block has been found */
-  blob_init(&work, data, i);
+  if( strcmp(curtag->text,"html")==0 ){
+    /* Omit <html> tags */
+    enum mkd_autolink dummy;
+    int k = tag_length(data, size, &dummy);
+    blob_init(&work, data+k, i-(j+k));
+  }else{
+    blob_init(&work, data, i);
+  }
   if( rndr->make.blockhtml ){
     rndr->make.blockhtml(ob, &work, rndr->make.opaque);
   }

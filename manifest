@@ -1,5 +1,5 @@
-C More\sinformation\sin\sthe\slog\sfile\sfor\ssignal\shandlers.\s\sInclude\sthe\sphase\sof\noperation\sas\spart\sof\sthe\slog\smessage.
-D 2021-08-08T18:20:36.358
+C Markdown\senhancement\s(after\n[forum:\s/forumpost/938896d37da30394|forum\spost\s938896d37da30394]\sand\nfollow-ups)\sin\swhich\s&lt;html&gt;...&lt;/html&gt;\sthat\sis\spreceded\sand\sfollowed\nby\sblank\slines\sdisables\sall\smarkdown\sprocessing\sand\sjust\sreturns\sraw\sHTML\ntext.\s\sThe\s&lt;html&gt;\sand\sits\send-tag\sare\sremoved.\s\sRemoval\sof\n"dangerous"\sHTML\sis\shandled\sin\sa\slater\spass,\sso\sthe\sresults\sshould\sstill\nbe\ssafe.
+D 2021-08-09T01:11:11.484
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -546,7 +546,7 @@ F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d4
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl dcfafb1ac4d823af55ac01e5f6f7c541284026497cd1286d5d0a8a2061bd8d29 x
 F src/manifest.c 0dc30286942fbadd9ed86713be0e1be5c50278da6f0d0756614dd6e16ca07dff
-F src/markdown.c 176762091a249b7e43ff3e7fdc22f25ba2188d98065542280059e9d5c40b07c9
+F src/markdown.c 15f2ba17d173eb55a3747619be700fa68f5a125936e7d8a7f7e11b7b3a84ffce
 F src/markdown.md 95ed20a5d801665ea956c222396e8d35fb1ec0a5681105110e0b927bc7d8642c
 F src/markdown_html.c 5e50c756c5a3f83577ecb7ae95183494cd16a8edbb44eb69f908bed0b79aa1b7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c3d370496dfb7c91d2ef20e0523cfcb35663d160fce0d3ca3ea9710fb6e7efd
-R b2ac3b935703c199b6b7deac179077f4
+P 48c06b0a134b4b3188eac410b50a8173386cbcb9b390381c663be1ad23282d4c
+R 0381b3de7fc87873a23c228480a1f5c6
 U drh
-Z e140e5e668c1d0659f793a69acbb66f0
+Z 1dc21e39bfb64ac7e375a4c127334234
