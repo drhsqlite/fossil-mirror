@@ -1,5 +1,5 @@
-C Markdown\senhancement\s(after\n[forum:\s/forumpost/938896d37da30394|forum\spost\s938896d37da30394]\sand\nfollow-ups)\sin\swhich\s&lt;html&gt;...&lt;/html&gt;\sthat\sis\spreceded\sand\sfollowed\nby\sblank\slines\sdisables\sall\smarkdown\sprocessing\sand\sjust\sreturns\sraw\sHTML\ntext.\s\sThe\s&lt;html&gt;\sand\sits\send-tag\sare\sremoved.\s\sRemoval\sof\n"dangerous"\sHTML\sis\shandled\sin\sa\slater\spass,\sso\sthe\sresults\sshould\sstill\nbe\ssafe.
-D 2021-08-09T01:11:11.484
+C /forum\spage\snow\schanges\sits\stitle\sto\s'Forum\sSearch\sResults'\swhen\sshowing\ssearch\sresults,\sper\srequest\sin\s[forum:291f9af918\s|\sforum\spost\s291f9af918].
+D 2021-08-11T18:54:49.001
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -479,7 +479,7 @@ F src/file.c f72f172e4f763f423b834c3a24fefe1494acad1e70a1ab127bd09c6cf7232dee
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
 F src/finfo.c 7ba533fbfaec6a69a9a36b809d36c8ebf4a6a19a4a3449ad9f1ec1746993456d
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c d5d77b65db38ee0670230ef51cfa7f0969117303bb43f1c7ff70bbc0637bef24
+F src/forum.c d02654dedc82073bda65b15806bd2b630305cd5a155e7d7a0916b1cc6d376db7
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48c06b0a134b4b3188eac410b50a8173386cbcb9b390381c663be1ad23282d4c
-R 0381b3de7fc87873a23c228480a1f5c6
-U drh
-Z 1dc21e39bfb64ac7e375a4c127334234
+P 1e919d601f774fdbf3ac4ddcd8658429480396824210dfdc2d5585eb8521e5f2
+R 6cfa57dcf8dcdce17287b1aac93316c8
+U stephan
+Z 194a504ea82cbb74087ab58c8e4fc7a8
