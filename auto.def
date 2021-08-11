@@ -53,7 +53,7 @@ define USE_PREAD [cc-check-functions pread]
 
 # If we have cscope here, we'll use it in the "tags" target
 if {[cc-check-progs cscope]} {
-    define COLLECT_CSCOPE_DATA "cscope -bR -s$::autosetup(srcdir)/src"
+    define COLLECT_CSCOPE_DATA "cscope -bR $::autosetup(srcdir)/src/*.\[ch\]"
 } else {
     define COLLECT_CSCOPE_DATA ""
 }
