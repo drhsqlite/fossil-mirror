@@ -1699,7 +1699,7 @@ static size_t htmlblock_end(
   /* assuming data[0]=='<' && data[1]=='/' already tested */
 
   /* checking tag is a match */
-  if( (tag->size+3)>=size
+  if( (tag->size+3)>size
     || fossil_strnicmp(data+2, tag->text, tag->size)
     || data[tag->size+2]!='>'
   ){
@@ -1792,7 +1792,7 @@ static size_t parse_htmlblock(
   while( i<size ){
     i++;
     while( i<size && !(data[i-1]=='<' && data[i]=='/') ){ i++; }
-    if( (i+2+curtag->size)>=size ) break;
+    if( (i+2+curtag->size)>size ) break;
     j = htmlblock_end(curtag, data+i-1, size-i+1);
     if (j) {
       i += j-1;
