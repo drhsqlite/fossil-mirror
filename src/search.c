@@ -1211,8 +1211,9 @@ int search_screen(unsigned srchFlags, int mFlags){
 **                    all -> everything
 */
 void search_page(void){
+  const int isSearch = P("s")!=0;
   login_check_credentials();
-  style_header("Search");
+  style_header("Search%s", isSearch ? " Results" : "");
   search_screen(SRCH_ALL, 1);
   style_finish_page();
 }

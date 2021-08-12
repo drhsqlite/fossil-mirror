@@ -1,5 +1,5 @@
-C Correctly\shandle\sblock\sHTML\sin\smarkdown\sif\sthe\send\stag\soccurs\sat\sthe\nvery\send\sof\sthe\sinput\swithout\seven\sa\snew-line.
-D 2021-08-12T14:38:58.754
+C Added\s'Results'\sto\sthe\stitle\sfor\s/docsrch\sand\s/search\spages\swhen\ss=...\sparam\sis\spassed\sin,\sanalog\sto\scheckin\s[b0862611cc],\sper\srequest\sin\s[forum:61bd27b76f4b8ae2\s|\sforum\spost\s61bd27b76f4b8ae2].
+D 2021-08-12T15:41:32.233
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -469,7 +469,7 @@ F src/diff.c 3173b3c716a94a10ec58977d06a4ae3b698778ef898c40324777e362256a8a33
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 14b462910345e2bf35908193acea33e87d38e71d618e9f86f369deae77785809
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
-F src/doc.c 17e711cb39953153c43b31a578793208c3350ae796f416aacba9ea95c80949f2
+F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
@@ -578,7 +578,7 @@ F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c eeb374fc081e9576ee9c7cd18d591cb0afc53dfef5d09d1be24ba342320678ab
+F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
 F src/setup.c 8d304d4fc56e8b5e4437d94bd12d712ce989764ace6dd27e4f3a30abe69005a6
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b6cc6f680f49bdd3d650b86ac74e52ffc77e0836d1d2838db1eb88b14f30f08b
-R fe8cf5a5d877f32cb6d80810d27a7920
-U drh
-Z 68429398c65e7e873e9c8dd4fbffa5d7
+P a06f3379f0e324038e28a94d9f6356c4c41bfd284b369e7b800fc0a2819b2655
+R 8f5ce972f5d0d47d42c3d9ad679acd72
+U stephan
+Z 28d803c6dc98ae25a56380f1eabfc1d3
