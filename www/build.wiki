@@ -10,6 +10,10 @@ To uninstall, simply delete the executable.
 To upgrade from an older release, just overwrite the older binary with
 the newer one.</p>
 
+<p>For details about how those binaries are built, see
+[/wiki?name=Release+Build+How-To | the Release Build How-To wiki page].</p>
+
+
 <h2>0.1 Executive Summary</h2>
 
 <p>Building and installing is very simple.  Three steps:</p>
