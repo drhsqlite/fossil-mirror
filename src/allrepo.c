@@ -256,7 +256,8 @@ void all_cmd(void){
       if( strncmp(g.argv[3], "export", n3)==0 ){
         zCmd = "git export --if-mirrored -R";
       }else if( strncmp(g.argv[3], "status", n3)==0 ){
-        zCmd = "git status -R";
+        zCmd = "git status --by-all -R";
+        quiet = 1;
       }else{
         usage("git (export|status)");
       }

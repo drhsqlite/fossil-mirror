@@ -1,5 +1,5 @@
-C Added\sa\slink\sfrom\sbuild.wiki\sto\sthe\sRelease\sBuild\sHow-to\swiki\spage,\sper\sforum\srequest.
-D 2021-08-12T16:07:04.193
+C Improved\soutput\s(less\sclutter)\sfrom\sthe\s"fossil\sall\sgit\sstatus"\scommand.\nResults\sare\sonly\sshown\sfrom\srepositories\sthat\sactually\shave\sa\sGit\smirror.
+D 2021-08-14T18:00:00.341
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -426,7 +426,7 @@ F src/alerts/bflat3.wav 592aef32fdebdde8d960d1d41e78d23f57087b6b8449aa1008fa39e8
 F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49be6c9643
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
-F src/allrepo.c eae9524885781fcd488f1ae6bf4929dfbc087375e1709bd059096db9e262fae1
+F src/allrepo.c 9fec6759f310cf5330a767f4372a22597b1907b0ced540bf14801f597c512191
 F src/attach.c b267288bfa844e96b6226d053fb30da02f0e98e4a6f23ba9f5477f9104e2a8de
 F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c67
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
@@ -473,7 +473,7 @@ F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
-F src/export.c 148294216a7d9f6b1b9e2d1b31db0c159b883c42bb48e249a64359853415ef8e
+F src/export.c d4c571b04045360c13e1577289fee86ccf9c9ead1b6691613812285ad7ab1dbe
 F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
 F src/file.c f72f172e4f763f423b834c3a24fefe1494acad1e70a1ab127bd09c6cf7232dee
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 809c010db27574bc59ed3a5b08531d099e0b9052d9bd5d7c493b4324260a59c7
-R cf93b092f09dfcad967e5e9968b4ceeb
-U stephan
-Z 525c4c7f0cd9ecb95ec706f510b0069b
+P c763040b9d23c6dcaabfe6d78594c386033935af043bcadc7dc486d21b7894af
+R faf4a74f4d47d47781e1f891fa73dc75
+U drh
+Z a915662c853916880cfc37e8bb2c9f27

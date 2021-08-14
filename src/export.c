@@ -1730,12 +1730,27 @@ void gitmirror_status_command(void){
   char *zMirror;
   char *z;
   int n, k;
+  int bQuiet = 0;
+  int bByAll = 0;   /* Undocumented option meaning this command was invoked
+                    ** from "fossil all" and should modify output accordingly */
+
   db_find_and_open_repository(0, 0);
+  bQuiet = find_option("quiet","q",0)!=0;
+  bByAll = find_option("by-all",0,0)!=0; 
   verify_all_options();
   zMirror = db_get("last-git-export-repo", 0);
   if( zMirror==0 ){
-    fossil_print("Git mirror:  none\n");
+    if( !bQuiet && !bByAll ){
+      fossil_print("Git mirror:  none\n");
+    }
     return;
+  }
+  if( bByAll ){
+    size_t len = strlen(g.zRepositoryName);
+    int n;
+    if( len>60 ) len = 60;
+    n = (int)(65 - len);
+    fossil_print("%.12c %s %.*c\n", '*', g.zRepositoryName, n, '*');
   }
   fossil_print("Git mirror:  %s\n", zMirror);
   db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
@@ -1828,6 +1843,8 @@ void gitmirror_status_command(void){
 ** > fossil git status
 **
 **       Show the status of the current Git mirror, if there is one.
+**
+**         -q|--quiet         No output if there is nothing to report
 */
 void gitmirror_command(void){
   char *zCmd;
