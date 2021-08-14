@@ -1730,6 +1730,8 @@ void gitmirror_status_command(void){
   char *zMirror;
   char *z;
   int n, k;
+  int rc;
+  char *zSql;
   int bQuiet = 0;
   int bByAll = 0;   /* Undocumented option meaning this command was invoked
                     ** from "fossil all" and should modify output accordingly */
@@ -1740,9 +1742,21 @@ void gitmirror_status_command(void){
   verify_all_options();
   zMirror = db_get("last-git-export-repo", 0);
   if( zMirror==0 ){
-    if( !bQuiet && !bByAll ){
-      fossil_print("Git mirror:  none\n");
-    }
+    if( bQuiet ) return;
+    if( bByAll ) return;
+    fossil_print("Git mirror:  none\n");
+    return;
+  }
+  zSql = sqlite3_mprintf("ATTACH '%q/.mirror_state/db' AS mirror", zMirror);
+  if( zSql==0 ) fossil_fatal("out of memory");
+  g.dbIgnoreErrors++;
+  rc = sqlite3_exec(g.db, zSql, 0, 0, 0);
+  g.dbIgnoreErrors--;
+  sqlite3_free(zSql);
+  if( rc ){
+    if( bQuiet ) return;
+    if( bByAll ) return;
+    fossil_print("Git mirror:  %s  (Inactive)\n", zMirror);
     return;
   }
   if( bByAll ){
@@ -1753,7 +1767,6 @@ void gitmirror_status_command(void){
     fossil_print("%.12c %s %.*c\n", '*', g.zRepositoryName, n, '*');
   }
   fossil_print("Git mirror:  %s\n", zMirror);
-  db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
   z = db_text(0, "SELECT datetime(value) FROM mconfig WHERE key='start'");
   if( z ){
     double rAge = db_double(0.0, "SELECT julianday('now') - value"
@@ -1788,7 +1801,7 @@ void gitmirror_status_command(void){
                  n, n==1 ? "" : "s");
   }
   n = db_int(0, "SELECT count(*) FROM mmark WHERE isfile");
-  k = db_int(0, "SELECT count(*) FROm mmark WHERE NOT isfile");
+  k = db_int(0, "SELECT count(*) FROM mmark WHERE NOT isfile");
   fossil_print("Exported:    %d check-ins and %d file blobs\n", k, n);
 }
 
