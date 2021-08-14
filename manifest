@@ -1,5 +1,5 @@
-C Further\simprovements\sto\s"fossil\sall\sgit\sstatus"\soutput.\s\sDo\snot\sshow\nrepositories\sfor\swhich\sthe\sgit\sexport\srepository\sdoes\snot\sexist\sor\sis\ninactive.
-D 2021-08-14T18:25:27.312
+C Remember\sthe\sURLs\sfor\sGit-mirror\ssyncs.\s\sShow\sthem\son\sthe\s/urllist\spage.
+D 2021-08-14T22:06:42.425
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -473,7 +473,7 @@ F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
 F src/etag.c 7be9ae5ec48ed4238829a98a7613b9954fac22e95114c1637fb37aaf2934e653
 F src/event.c 8fa5bd3acd896caea0654fa924a39a13a40bbb6ed400e75303a3c30085b65d95
-F src/export.c cb580de728793d8beed5a0856fa5810b06757f080b45a271a26f423decb0c9e3
+F src/export.c fdd2a3ade2983635187915ad753dadfbd106c8422ec41bdd6e8cfbd30fc7669e
 F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
 F src/file.c f72f172e4f763f423b834c3a24fefe1494acad1e70a1ab127bd09c6cf7232dee
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
@@ -614,7 +614,7 @@ F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece
 F src/sqlite3.c 4a9194e9caf9c5548efd3e809f7dfab3fc33af56fa1de3a0af84613ddd8dde2e
 F src/sqlite3.h 8627e0120e85d5add3d67d3556b0fb01bced1c7708dcbfbcd8357f4ce48ab653
 F src/stash.c 46c32865c3529ab656bd4d9a1eaa4107ffa9d2ff2ae1307ce51865120ee1984f
-F src/stat.c ee63d55df0eb8a1484af35011d4a2adbee02939dbd79b471575a5ce8b8a617bd
+F src/stat.c ea8bd6e18126bb93ac2e84d0fa47d19e97cd066467877af9d380a2edea482178
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9179663d8c0efc0c767972b7d36fe6b68a7ffdb02cb05e1faaeb67b587b4bcff
-R 9ea9d5519bd9cfddae777bd6696e567c
+P 999d838de2a2c57af3cad89e00a08e09ea67665521aa2a69f194b357d4b17eb7
+R 963192ba1fcc542c6f2d2142516f3be4
 U drh
-Z f62e9c1e79cf19ba30ebdc20fa4240cb
+Z e97c4009e6e75474dfe4d0f7bb4b11f7

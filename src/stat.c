@@ -483,6 +483,7 @@ void urllist_page(void){
   int nOmitted;
   sqlite3_int64 iNow;
   char *zRemote;
+
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
@@ -542,7 +543,25 @@ void urllist_page(void){
     }else{
       @ <p>%h(zRemote)</p>
     }
-    @ </div>
+  }
+  cnt = 0;
+  db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
+                 "  FROM config WHERE name GLOB 'gitpush:*' ORDER BY 2 DESC");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zURL = db_column_text(&q,0);
+    UrlData x;
+    if( cnt==0 ){
+      @ <div class="section">Git Mirrors</div>
+      @ <table border='0' width='100%%'>
+    }
+    url_parse_local(zURL, URL_OMIT_USER, &x);
+    @ <tr><td width='100%%'><a href='%h(x.canonical)'>%h(x.canonical)</a>
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+    cnt++;
+  }
+  db_finalize(&q);
+  if( cnt ){
+    @ </table>
   }
   style_finish_page();
 }

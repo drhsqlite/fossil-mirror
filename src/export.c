@@ -1716,6 +1716,11 @@ void gitmirror_export_command(void){
     rc = fossil_system(zPushCmd);
     if( rc ){
       fossil_fatal("cannot push content using: %s", zPushCmd);
+    }else if( db_is_writeable("repository") ){
+      db_unprotect(PROTECT_CONFIG);
+      db_multi_exec("REPLACE INTO config(name,value,mtime)"
+                    "VALUES('gitpush:%q',1,now())", zPushUrl);
+      db_protect_pop();
     }
     fossil_free(zPushCmd);
   }
