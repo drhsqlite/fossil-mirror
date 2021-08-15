@@ -184,6 +184,7 @@
       record.version = winfo.version;      
       record.stashTime = new Date().getTime();
       record.isEmpty = !!winfo.isEmpty;
+      record.attachments = winfo.attachments;
       this.storeIndex();
       if(arguments.length>1){
         if(content) delete record.isEmpty;
@@ -528,7 +529,7 @@
       /* ^^^ note that we're not validating that, e.g., checkin/XYZ
          has a full artifact ID after "checkin/". */
       const winfo = {
-        name: name, type: wtype, mimetype: 'text/x-fossil-wiki',
+        name: name, type: wtype, mimetype: 'text/x-markdown',
         version: null, parent: null
       };
       this.cache.pageList.push(
@@ -820,7 +821,8 @@
         ['button:not([disabled])',
          'input:not([disabled])',
          'select:not([disabled])',
-         'textarea:not([disabled])'
+         'textarea:not([disabled])',
+         'fieldset:not([disabled])'
         ].join(',')
       );
     }
@@ -855,6 +857,7 @@
       diffTarget: E('#wikiedit-tab-diff-wrapper'),
       editStatus: E('#wikiedit-edit-status'),
       tabContainer: E('#wikiedit-tabs'),
+      attachmentContainer: E("#attachment-wrapper"),
       tabs:{
         pageList: E('#wikiedit-tab-pages'),
         content: E('#wikiedit-tab-content'),
@@ -1125,6 +1128,101 @@
     return !!P.winfo;
   };
 
+  /**
+     Updates the attachments list from this.winfo.
+  */
+  P.updateAttachmentsView = function f(){
+    if(!f.eAttach){
+      f.eAttach = P.e.attachmentContainer.querySelector('div');
+    }
+    D.clearElement(f.eAttach);
+    const wi = this.winfo;
+    if(!wi){
+      D.append(f.eAttach,"No page loaded.");
+      return this;
+    }
+    else if(!wi.version){
+      D.append(f.eAttach,
+               "Page ["+wi.name+"] cannot have ",
+               "attachments until it is saved once.");
+      return this;
+    }
+    const btnReload = D.button("Reload list");
+    const self = this;
+    btnReload.addEventListener('click', function(){
+      const isStashed = $stash.hasStashedContent(wi);
+      F.fetch('wikiajax/attachments',{
+        responseType: 'json',
+        urlParams: {page: wi.name},
+        onload: function(r){
+          wi.attachments = r;
+          if(isStashed) self.stashContentChange(true);
+          F.message("Reloaded attachment list for ["+wi.name+"].");
+          self.updateAttachmentsView();
+        }
+      });
+    });
+    if(!wi.attachments || !wi.attachments.length){
+      D.append(f.eAttach,
+               btnReload,
+               " No attachments found for page ["+wi.name+"]. ",
+               D.a(F.repoUrl('attachadd',{
+                 page: wi.name,
+                 from: F.repoUrl('wikiedit',{name: wi.name})}),
+                   "Add attachments..." )
+              );
+      return this;
+    }
+    D.append(
+      f.eAttach,
+      D.append(D.p(),
+               btnReload," ",
+               D.a(F.repoUrl('attachlist',{page:wi.name}),
+                   "Attachments for page ["+wi.name+"]."),
+               " ",
+               D.a(F.repoUrl('attachadd',{
+                 page:wi.name,
+                 from: F.repoUrl('wikiedit',{name: wi.name})}),
+                   "Add attachments..." )
+              )
+    );
+    wi.attachments.forEach(function(a){
+      const wrap = D.div();
+      D.append(f.eAttach, wrap);
+      D.append(wrap,
+               D.append(D.div(),
+                        "Attachment ",
+                        D.addClass(
+                          D.a(F.repoUrl('ainfo',{name:a.uuid}),
+                              F.hashDigits(a.uuid,true)),
+                          'monospace'),
+                        " ",
+                        a.filename,
+                        (a.isLatest ? " (latest)" : "")
+                       )
+              );
+      //D.append(wrap,D.append(D.div(), "URLs:"));
+      const ul = D.ul();
+      D.append(wrap, ul);
+      [ // List download URL variants for each attachment:
+        [
+          "attachdownload?page=",
+          encodeURIComponent(wi.name),
+          "&file=",
+          encodeURIComponent(a.filename)
+        ].join(''),
+        "raw/"+a.src
+      ].forEach(function(url){
+        const imgUrl = D.append(D.addClass(D.span(), 'monospace'), url);
+        const urlCopy = D.span();
+        const li = D.li(ul);
+        D.append(li, urlCopy, " ", imgUrl);
+        F.copyButton(urlCopy, {copyFromElement: imgUrl});
+      });
+    });
+    return this;
+  };
+
   /** Updates the in-tab title/edit status information */
   P.updateEditStatus = function f(){
     if(!f.eLinks){
@@ -1135,20 +1233,21 @@
     D.clearElement(f.eName, f.eLinks);
     if(!wi){
       D.append(f.eName, '(no page loaded)');
-      return;
+      this.updateAttachmentsView();
+      return this;
     }
-    var marker = getEditMarker(wi, false);
-    D.append(f.eName,marker,wi.name);
-    if(wi.version){
-      D.append(
-        f.eLinks,
-        D.a(F.repoUrl('wiki',{name:wi.name}),"viewer"),
-        D.a(F.repoUrl('whistory',{name:wi.name}),'history'),
-        D.a(F.repoUrl('attachlist',{page:wi.name}),"attachments"),
-        D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "attach"),
-        D.a(F.repoUrl('wikiedit',{name:wi.name}),"editor permalink")
-      );
-    }
+    D.append(f.eName,getEditMarker(wi, false),wi.name);
+    this.updateAttachmentsView();
+    if(!wi.version) return this;
+    D.append(
+      f.eLinks,
+      D.a(F.repoUrl('wiki',{name:wi.name}),"viewer"),
+      D.a(F.repoUrl('whistory',{name:wi.name}),'history'),
+      D.a(F.repoUrl('attachlist',{page:wi.name}),"attachments"),
+      D.a(F.repoUrl('attachadd',{page:wi.name,from: F.repoUrl('wikiedit',{name: wi.name})}), "attach"),
+      D.a(F.repoUrl('wikiedit',{name:wi.name}),"editor permalink")
+    );
+    return this;
   };
 
   /**
@@ -1315,7 +1414,8 @@
         version: stashWinfo.version,
         parent: stashWinfo.parent,
         isEmpty: !!stashWinfo.isEmpty,
-        content: $stash.stashedContent(stashWinfo)
+        content: $stash.stashedContent(stashWinfo),
+        attachments: stashWinfo.attachments
       });
       this._isDirty = true/*b/c loading normally clears that flag*/;
       return this;

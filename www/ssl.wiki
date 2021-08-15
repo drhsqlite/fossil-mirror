@@ -179,7 +179,7 @@ certificate set, but it's not in a format that OpenSSL understands how
 to use.  Rather than try to find a way to convert the data format, you
 may find it acceptable to use the same Mozilla NSS cert set.  I do not
 know of a way to easily get this from Mozilla themselves, but I did find
-a [https://curl.haxx.se/docs/caextract.html|third party source] for the
+a [https://curl.se/docs/caextract.html | third party source] for the
 <tt>cacert.pem</tt> file. I suggest placing the file into your Windows
 user home directory so that you can then point Fossil at it like so:
 

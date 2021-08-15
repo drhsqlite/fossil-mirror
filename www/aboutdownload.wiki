@@ -14,6 +14,10 @@ sourced by "download.html") then figures out which unversioned files are
 build products and paints appropriate icons on the displayed
 download page.
 
+Except, the "Source Tarball" download products are not stored as
+unversioned files.  They are computed on-demand by the
+[/help?cmd=/tarball|/tarball web page].
+
 When a new version is generated, the developers use the
 [/help?cmd=uv|fossil uv edit] command to make minor changes
 to the "[/uv/download.js?mimetype=text/plain|download.js]"

@@ -48,9 +48,9 @@
 ** Flags set by functions in this file to keep track of integration state
 ** information.  These flags should not be used outside of this file.
 */
-#define TH_STATE_CONFIG     ((u32)0x00000020) /* We opened the config. */
-#define TH_STATE_REPOSITORY ((u32)0x00000040) /* We opened the repository. */
-#define TH_STATE_MASK       ((u32)0x00000060) /* All possible state flags. */
+#define TH_STATE_CONFIG     ((u32)0x00000200) /* We opened the config. */
+#define TH_STATE_REPOSITORY ((u32)0x00000400) /* We opened the repository. */
+#define TH_STATE_MASK       ((u32)0x00000600) /* All possible state flags. */
 
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
@@ -363,7 +363,7 @@ static Blob * pThOut = 0;
 ** Sets the th1-internal output-redirection blob and returns the
 ** previous value. That blob is used by certain output-generation
 ** routines to emit its output. It returns the previous value so that
-** a routing can temporarily replace the buffer with its own and
+** a routine can temporarily replace the buffer with its own and
 ** restore it when it's done.
 */
 Blob * Th_SetOutputBlob(Blob * pOut){
@@ -1751,43 +1751,6 @@ static int unversionedCmd(
   return Th_CallSubCommand(interp, p, argc, argv, argl, aSub);
 }
 
-#ifdef _WIN32
-# include <windows.h>
-#else
-# include <sys/time.h>
-# include <sys/resource.h>
-#endif
-
-/*
-** Get user and kernel times in microseconds.
-*/
-static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
-#ifdef _WIN32
-  FILETIME not_used;
-  FILETIME kernel_time;
-  FILETIME user_time;
-  GetProcessTimes(GetCurrentProcess(), &not_used, &not_used,
-                  &kernel_time, &user_time);
-  if( piUser ){
-     *piUser = ((((sqlite3_uint64)user_time.dwHighDateTime)<<32) +
-                         (sqlite3_uint64)user_time.dwLowDateTime + 5)/10;
-  }
-  if( piKernel ){
-     *piKernel = ((((sqlite3_uint64)kernel_time.dwHighDateTime)<<32) +
-                         (sqlite3_uint64)kernel_time.dwLowDateTime + 5)/10;
-  }
-#else
-  struct rusage s;
-  getrusage(RUSAGE_SELF, &s);
-  if( piUser ){
-    *piUser = ((sqlite3_uint64)s.ru_utime.tv_sec)*1000000 + s.ru_utime.tv_usec;
-  }
-  if( piKernel ){
-    *piKernel =
-              ((sqlite3_uint64)s.ru_stime.tv_sec)*1000000 + s.ru_stime.tv_usec;
-  }
-#endif
-}
 
 /*
 ** TH1 command: utime
@@ -1804,7 +1767,7 @@ static int utimeCmd(
 ){
   sqlite3_uint64 x;
   char zUTime[50];
-  getCpuTimes(&x, 0);
+  fossil_cpu_times(&x, 0);
   sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
   Th_SetResult(interp, zUTime, -1);
   return TH_OK;
@@ -1825,7 +1788,7 @@ static int stimeCmd(
 ){
   sqlite3_uint64 x;
   char zUTime[50];
-  getCpuTimes(0, &x);
+  fossil_cpu_times(0, &x);
   sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
   Th_SetResult(interp, zUTime, -1);
   return TH_OK;
@@ -2836,13 +2799,14 @@ int Th_AreDocsEnabled(void){
 #endif
 
 /*
-** If pOut is NULL, this works identically to Th_Render(), else it
-** works just like that function but appends any TH1-generated output
-** to the given blob. A bitmask of TH_R2B_xxx and/or TH_INIT_xxx flags
-** may be passed as the 3rd argument, or 0 for default options.  Note
-** that this function necessarily calls Th_FossilInit(), which may
-** unset flags used on previous calls unless mFlags is explicitly
-** passed in.
+** If pOut is NULL, this works identically to Th_Render() and sends
+** any TH1-generated output to stdin (in CLI mode) or the CGI buffer
+** (in CGI mode), else it works just like that function but appends
+** any TH1-generated output to the given blob. A bitmask of TH_R2B_xxx
+** and/or TH_INIT_xxx flags may be passed as the 3rd argument, or 0
+** for default options.  Note that this function necessarily calls
+** Th_FossilInit(), which may unset flags used on previous calls
+** unless mFlags is explicitly passed in.
 */
 int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
   int i = 0;
@@ -2919,7 +2883,19 @@ int Th_RenderToBlob(const char *z, Blob * pOut, u32 mFlags){
 ** call to Th_SetOutputBlob().
 */
 int Th_Render(const char *z){
-  return Th_RenderToBlob(z, 0, 0);
+  return Th_RenderToBlob(z, pThOut, g.th1Flags)
+    /* Maintenance reminder: on most calls to Th_Render(), e.g. for
+    ** outputing the site skin, pThOut will be 0, which means that
+    ** Th_RenderToBlob() will output directly to the CGI buffer (in
+    ** CGI mode) or stdout (in CLI mode). Recursive calls, however,
+    ** e.g. via the "render" script function binding, need to use the
+    ** pThOut blob in order to avoid out-of-order output if
+    ** Th_SetOutputBlob() has been called. If it has not been called,
+    ** pThOut will be 0, which will redirect the output to CGI/stdout,
+    ** as appropriate. We need to pass on g.th1Flags for the case of
+    ** recursive calls, so that, e.g., TH_INIT_NO_ENCODE does not get
+    ** inadvertently toggled off by a recursive call.
+    */;
 }
 
 /*

@@ -776,6 +776,9 @@ void tarball_page(void){
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
+  if( zInclude==0 && zExclude==0 ){
+    etag_check_for_invariant_name(z);
+  }
   nName = strlen(zName);
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */

@@ -1355,11 +1355,13 @@ void forumedit_page(void){
 **
 **    n=N             The number of threads to show on each page
 **    x=X             Skip the first X threads
+**    s=Y             Search for term Y.
 */
 void forum_main_page(void){
   Stmt q;
   int iLimit, iOfst, iCnt;
   int srchFlags;
+  const int isSearch = P("s")!=0;
   login_check_credentials();
   srchFlags = search_restrict(SRCH_FORUM);
   if( !g.perm.RdForum ){
@@ -1367,7 +1369,7 @@ void forum_main_page(void){
     return;
   }
   style_set_current_feature("forum");
-  style_header("Forum");
+  style_header( "%s", isSearch ? "Forum Search Results" : "Forum" );
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");
   }else{

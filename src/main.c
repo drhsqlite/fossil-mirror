@@ -145,6 +145,7 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
+  const char *zPhase;     /* Phase of operation, for use by the error log */
   int isConst;            /* True if the output is unchanging & cacheable */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
@@ -475,7 +476,13 @@ void expand_args_option(int argc, void *argv){
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
 
   blob_rewind(&file);
-  while( (n = blob_line(&file, &line))>0 ){
+  while( nLine-->0 && (n = blob_line(&file, &line))>0 ){
+    /* Reminder: ^^^ nLine check avoids that embedded NUL bytes in the
+    ** --args file causes nLine to be less than blob_line() will end
+    ** up reporting, as such a miscount leads to an illegal memory
+    ** write. See forum post
+    ** https://fossil-scm.org/forum/forumpost/7b34eecc1b8c for
+    ** details */
     if( n<1 ){
       /* Reminder: corner-case: a line with 1 byte and no newline. */
       continue;
@@ -669,6 +676,7 @@ int fossil_main(int argc, char **argv){
   const CmdOrPage *pCmd = 0;
   int rc;
 
+  g.zPhase = "init";
 #if !defined(_WIN32_WCE)
   if( fossil_getenv("FOSSIL_BREAK") ){
     if( isatty(0) && isatty(2) ){
@@ -953,7 +961,9 @@ int fossil_main(int argc, char **argv){
   if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
     if( rc==TH_OK || rc==TH_RETURN ){
 #endif
+      g.zPhase = pCmd->zName;
       pCmd->xFunc();
+      g.zPhase = "shutdown";
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     }
     if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
@@ -1405,7 +1415,20 @@ void set_base_url(const char *zAltBase){
     }
     fossil_free(z);
   }
-  if( db_is_writeable("repository") ){
+
+  /* Try to record the base URL as a CONFIG table entry with a name
+  ** of the form:  "baseurl:BASE".  This keeps a record of how the
+  ** the repository is used as a server, to help in answering questions
+  ** like "where is the CGI script that references this repository?"
+  **
+  ** This is just a logging hint.  So don't worry if it cannot be done.
+  ** Don't try this if the repository database is not writable, for
+  ** example.
+  **
+  ** If g.useLocalauth is set, that (probably) means that we are running
+  ** "fossil ui" and there is no point in logging those cases either.
+  */
+  if( db_is_writeable("repository") && !g.useLocalauth ){
     int nBase = (int)strlen(g.zBaseURL);
     char *zBase = g.zBaseURL;
     if( g.nExtraURL>0 && g.nExtraURL<nBase-6 ){
@@ -1510,13 +1533,13 @@ void sigsegv_handler(int x){
   size = backtrace(array, sizeof(array)/sizeof(array[0]));
   strings = backtrace_symbols(array, size);
   blob_init(&out, 0, 0);
-  blob_appendf(&out, "Segfault");
+  blob_appendf(&out, "Segfault during %s", g.zPhase);
   for(i=0; i<size; i++){
     blob_appendf(&out, "\n(%d) %s", i, strings[i]);
   }
   fossil_panic("%s", blob_str(&out));
 #else
-  fossil_panic("Segfault");
+  fossil_panic("Segfault during %s", g.zPhase);
 #endif
   exit(1);
 }
@@ -1531,6 +1554,7 @@ void sigpipe_handler(int x){
     fprintf(stderr,"/***** sigpipe received by subprocess %d ****\n", getpid());
   }
 #endif
+  g.zPhase = "sigpipe shutdown";
   db_panic_close();
   exit(1);
 }
@@ -1603,6 +1627,7 @@ static void process_one_web_page(
   const CmdOrPage *pCmd = 0;
   const char *zBase = g.zRepositoryName;
 
+  g.zPhase = "process_one_web_page";
 #if !defined(_WIN32)
   signal(SIGSEGV, sigsegv_handler);
 #endif
@@ -1826,16 +1851,10 @@ static void process_one_web_page(
 
 
   /*
-  ** Check to see if the first term of PATH_INFO specifies an alternative
-  ** skin.  This will be the case if the first term of PATH_INFO
-  ** begins with "draftN/" where N is an integer between 1 and 9 or
-  ** if it is "skn_X/" where X is one of the built-in skin names.
-  ** If either is true, then activate the alternative skin.a
-  **
-  ** If there are multiple skn_X entries (ex: /skn_default/skn_ardoise/...)
-  ** then skip over all but the last.  This allows one to link to an
-  ** alternative skin in hyperlinks even if you are already in an alternative
-  ** skin.
+  ** Check to see if the first term of PATH_INFO specifies an
+  ** alternative skin.  This will be the case if the first term of
+  ** PATH_INFO begins with "draftN/" where N is an integer between 1
+  ** and 9. If so, activate the skin associated with that draft.
   */
   if( zPathInfo && strncmp(zPathInfo,"/draft",6)==0
    && zPathInfo[6]>='1' && zPathInfo[6]<='9'
@@ -2011,6 +2030,7 @@ static void process_one_web_page(
       if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
         if( rc==TH_OK || rc==TH_RETURN ){
 #endif
+          g.zPhase = pCmd->zName;
           pCmd->xFunc();
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
         }
@@ -2024,6 +2044,7 @@ static void process_one_web_page(
 
   /* Return the result.
   */
+  g.zPhase = "web-page reply";
   cgi_reply();
 }
 
@@ -2730,7 +2751,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** Options:
 **   --th-trace          Trace TH1 execution (for debugging purposes)
-**   --usercap   CAP     User capability string (Default: "sx")
+**   --usercap   CAP     User capability string (Default: "sxy")
 **
 */
 void cmd_test_http(void){
@@ -2741,7 +2762,7 @@ void cmd_test_http(void){
   zUserCap = find_option("usercap",0,1);
   if( zUserCap==0 ){
     g.useLocalauth = 1;
-    zUserCap = "sx";
+    zUserCap = "sxy";
   }
   login_set_capabilities(zUserCap, 0);
   g.httpIn = stdin;
@@ -2770,8 +2791,13 @@ void cmd_test_http(void){
 ** is one) and exiting.
 */
 #ifndef _WIN32
+static int nAlarmSeconds = 0;
 static void sigalrm_handler(int x){
-  fossil_panic("TIMEOUT");
+  sqlite3_uint64 tmUser = 0, tmKernel = 0;
+  fossil_cpu_times(&tmUser, &tmKernel);
+  fossil_panic("Timeout after %d seconds during %s"
+               " - user %,llu µs, sys %,llu µs",
+               nAlarmSeconds, g.zPhase, tmUser, tmKernel);
 }
 #endif
 
@@ -2787,6 +2813,7 @@ void fossil_set_timeout(int N){
 #ifndef _WIN32
   signal(SIGALRM, sigalrm_handler);
   alarm(N);
+  nAlarmSeconds = N;
 #endif
 }
 
@@ -2799,15 +2826,26 @@ void fossil_set_timeout(int N){
 **
 ** Open a socket and begin listening and responding to HTTP requests on
 ** TCP port 8080, or on any other TCP port defined by the -P or
-** --port option.  The optional argument is the name of the repository.
-** The repository argument may be omitted if the working directory is
-** within an open checkout.
+** --port option.  The optional REPOSITORY argument is the name of the
+** Fossil repository to be served.  The REPOSITORY argument may be omitted
+** if the working directory is within an open checkout, in which case the
+** repository associated with that checkout is used.
 **
 ** The "ui" command automatically starts a web browser after initializing
 ** the web server.  The "ui" command also binds to 127.0.0.1 and so will
 ** only process HTTP traffic from the local machine.
 **
-** The REPOSITORY can be a directory (aka folder) that contains one or
+** If REPOSITORY is a directory name which is the root of a
+** checkout, then use the repository associated with that checkout.
+** This only works for the "fossil ui" command, not the "fossil server"
+** command.
+**
+** If REPOSITORY begins with a "HOST:" or "USER@HOST:" prefix, then
+** the command is run on the remote host specified and the results are
+** tunneled back to the local machine via SSH.  This feature only works for
+** the "fossil ui" command, not the "fossil server" command.
+**
+** REPOSITORY may also be a directory (aka folder) that contains one or
 ** more repositories with names ending in ".fossil".  In this case, a
 ** prefix of the URL pathname is used to search the directory for an
 ** appropriate repository.  To thwart mischief, the pathname in the URL must
@@ -2821,7 +2859,7 @@ void fossil_set_timeout(int N){
 ** the REPOSITORY can only be a directory if the --notfound option is
 ** also present.
 **
-** For the special case REPOSITORY name of "/", the list global configuration
+** For the special case REPOSITORY name of "/", the global configuration
 ** database is consulted for a list of all known repositories.  The --repolist
 ** option is implied by this special case.  See also the "fossil all ui"
 ** command.
@@ -2840,6 +2878,8 @@ void fossil_set_timeout(int N){
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
+**   --fossilcmd PATH    Full pathname of the "fossil" executable on the remote
+**                       system when REPOSITORY is remote.  Default: "fossil"
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
@@ -2858,6 +2898,8 @@ void fossil_set_timeout(int N){
 **                       result in fewer HTTP requests than the separate mode.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
+**   --nobrowser         Do not automatically launch a web-browser for the
+**                       "fossil ui" command.
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
 **   --nossl             signal that no SSL connections are available (Always
@@ -2893,7 +2935,13 @@ void cmd_webserver(void){
   const char *zFileGlob;     /* Static content must match this */
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
+  int fNoBrowser = 0;        /* Do not auto-launch web-browser */
   const char *zInitPage = 0; /* Start on this page.  --page option */
+  int findServerArg = 2;     /* argv index for find_server_repository() */
+  char *zRemote = 0;         /* Remote host on which to run "fossil ui" */
+  const char *zJsMode;       /* The --jsmode parameter */
+  const char *zFossilCmd =0; /* Name of "fossil" binary on remote system */
+  
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2904,7 +2952,8 @@ void cmd_webserver(void){
     g.zErrlog = "-";
   }
   g.zExtRoot = find_option("extroot",0,1);
-  builtin_set_js_delivery_mode(find_option("jsmode",0,1),0);
+  zJsMode = find_option("jsmode",0,1);
+  builtin_set_js_delivery_mode(zJsMode,0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
@@ -2924,6 +2973,8 @@ void cmd_webserver(void){
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     zInitPage = find_option("page", 0, 1);
+    if( zInitPage && zInitPage[0]=='/' ) zInitPage++;
+    zFossilCmd = find_option("fossilcmd", 0, 1);
   }
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
@@ -2935,6 +2986,7 @@ void cmd_webserver(void){
     set_base_url(zAltBase);
   }
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
+  fNoBrowser = find_option("nobrowser", 0, 0)!=0;
   if( find_option("https",0,0)!=0 ){
     cgi_replace_parameter("HTTPS","on");
   }
@@ -2950,12 +3002,42 @@ void cmd_webserver(void){
   verify_all_options();
 
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
+  if( isUiCmd && 3==g.argc && file_isdir(g.argv[2], ExtFILE)>0 ){
+    /* If REPOSITORY arg is the root of a checkout,
+    ** chdir to that checkout so that the current version
+    ** gets highlighted in the timeline by default. */
+    const char * zDir = g.argv[2];
+    if(dir_has_ckout_db(zDir)){
+      if(0!=file_chdir(zDir, 0)){
+        fossil_fatal("Cannot chdir to %s", zDir);
+      }
+      findServerArg = 99;
+      fCreate = 0;
+      g.argv[2] = 0;
+      --g.argc;
+    }
+  }
+  if( isUiCmd && 3==g.argc
+   && (zRemote = (char*)file_skip_userhost(g.argv[2]))!=0
+  ){
+    /* The REPOSITORY argument has a USER@HOST: or HOST: prefix */
+    const char *zRepoTail = file_skip_userhost(g.argv[2]);
+    unsigned x;
+    int n;
+    sqlite3_randomness(2,&x);
+    zPort = mprintf("%d", 8100+(x%32000));
+    n = (int)(zRepoTail - g.argv[2]) - 1;
+    zRemote = mprintf("%.*s", n, g.argv[2]);
+    g.argv[2] = (char*)zRepoTail;
+  }
   if( isUiCmd ){
     flags |= HTTP_SERVER_LOCALHOST|HTTP_SERVER_REPOLIST;
     g.useLocalauth = 1;
     allowRepoList = 1;
   }
-  find_server_repository(2, fCreate);
+  if( !zRemote ){
+    find_server_repository(findServerArg, fCreate);
+  }
   if( zInitPage==0 ){
     if( isUiCmd && g.localOpen ){
       zInitPage = "timeline?c=current";
@@ -2981,21 +3063,69 @@ void cmd_webserver(void){
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;
   }
-#if !defined(_WIN32)
-  /* Unix implementation */
-  if( isUiCmd ){
+  if( isUiCmd && !fNoBrowser ){
+    char *zBrowserArg;
+    if( zRemote ) db_open_config(0,0);
     zBrowser = fossil_web_browser();
     if( zIpAddr==0 ){
-      zBrowserCmd = mprintf("%s \"http://localhost:%%d/%s\" &",
-                            zBrowser, zInitPage);
+      zBrowserArg = mprintf("http://localhost:%%d/%s", zInitPage);
     }else if( strchr(zIpAddr,':') ){
-      zBrowserCmd = mprintf("%s \"http://[%s]:%%d/%s\" &",
-                            zBrowser, zIpAddr, zInitPage);
+      zBrowserArg = mprintf("http://[%s]:%%d/%s", zIpAddr, zInitPage);
     }else{
-      zBrowserCmd = mprintf("%s \"http://%s:%%d/%s\" &",
-                            zBrowser, zIpAddr, zInitPage);
+      zBrowserArg = mprintf("http://%s:%%d/%s", zIpAddr, zInitPage);
     }
+#ifdef _WIN32
+    zBrowserCmd = mprintf("%s %s &", zBrowser, zBrowserArg);
+#else
+    zBrowserCmd = mprintf("%s %!$ &", zBrowser, zBrowserArg);
+#endif
+    fossil_free(zBrowserArg);
   }
+  if( zRemote ){
+    /* If a USER@HOST:REPO argument is supplied, then use SSH to run
+    ** "fossil ui --nobrowser" on the remote system and to set up a
+    ** tunnel from the local machine to the remote. */
+    FILE *sshIn;
+    Blob ssh;
+    char zLine[1000];
+    blob_init(&ssh, 0, 0);
+    transport_ssh_command(&ssh);
+    db_close_config();
+    if( zFossilCmd==0 ) zFossilCmd = "fossil";
+    blob_appendf(&ssh, 
+       " -t -L 127.0.0.1:%d:127.0.0.1:%d %!$"
+       " %$ ui --nobrowser --localauth --port %d",
+       iPort, iPort, zRemote, zFossilCmd, iPort);
+    if( zNotFound ) blob_appendf(&ssh, " --notfound %!$", zNotFound);
+    if( zFileGlob ) blob_appendf(&ssh, " --files-urlenc %T", zFileGlob);
+    if( g.zCkoutAlias ) blob_appendf(&ssh, " --ckout-alias %!$",g.zCkoutAlias);
+    if( g.zExtRoot ) blob_appendf(&ssh, " --extroot %$", g.zExtRoot);
+    if( skin_in_use() ) blob_appendf(&ssh, " --skin %s", skin_in_use());
+    if( zJsMode ) blob_appendf(&ssh, " --jsmode %s", zJsMode);
+    if( fCreate ) blob_appendf(&ssh, " --create");
+    blob_appendf(&ssh, " %$", g.argv[2]);
+    fossil_print("%s\n", blob_str(&ssh));
+    sshIn = popen(blob_str(&ssh), "r");
+    if( sshIn==0 ){
+      fossil_fatal("unable to %s", blob_str(&ssh));
+    }
+    while( fgets(zLine, sizeof(zLine), sshIn) ){
+      fputs(zLine, stdout);
+      fflush(stdout);
+      if( zBrowserCmd && sqlite3_strglob("*Listening for HTTP*",zLine)==0 ){
+        char *zCmd = mprintf(zBrowserCmd/*works-like:"%d"*/,iPort);
+        fossil_system(zCmd);
+        fossil_free(zCmd);
+        fossil_free(zBrowserCmd);
+        zBrowserCmd = 0;
+      }
+    }
+    pclose(sshIn);
+    fossil_free(zBrowserCmd);
+    return;
+  }
+#if !defined(_WIN32)
+  /* Unix implementation */
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
@@ -3046,19 +3176,6 @@ void cmd_webserver(void){
   }
 #else
   /* Win32 implementation */
-  if( isUiCmd ){
-    zBrowser = fossil_web_browser();
-    if( zIpAddr==0 ){
-      zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
-                            zBrowser, zInitPage);
-    }else if( strchr(zIpAddr,':') ){
-      zBrowserCmd = mprintf("%s http://[%s]:%%d/%s &",
-                            zBrowser, zIpAddr, zInitPage);
-    }else{
-      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
-                            zBrowser, zIpAddr, zInitPage);
-    }
-  }
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
@@ -3134,7 +3251,7 @@ void test_warning_page(void){
   }else{
     @ <p>This is the test page for case=%d(iCase).  All possible cases:
   }
-  for(i=1; i<=7; i++){
+  for(i=1; i<=8; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }
   @ </p>
@@ -3171,6 +3288,12 @@ void test_warning_page(void){
   if( iCase==7 ){
     cgi_reset_content();
     webpage_error("Case 7 from /test-warning");
+  }
+  @ <li value='8'> simulated timeout"
+  if( iCase==8 ){
+    fossil_set_timeout(1);
+    cgi_reset_content();
+    sqlite3_sleep(1100);
   }
   @ </ol>
   @ <p>End of test</p>

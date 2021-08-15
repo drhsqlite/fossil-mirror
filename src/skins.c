@@ -791,7 +791,6 @@ void setup_skinedit(void){
   const char *zContent;       /* Content after editing */
   const char *zDflt;          /* Default content */
   char *zDraft;               /* Which draft:  "draft%d" */
-  char *zKey;                 /* CONFIG table key name: "draft%d-%s" */
   char *zTitle;               /* Title of this page */
   const char *zFile;          /* One of "css", "footer", "header", "details" */
   int iSkin;                  /* draft number.  1..9 */
@@ -829,11 +828,10 @@ void setup_skinedit(void){
   if( ii<0 || ii>count(aSkinAttr) ) ii = 0;
   zFile = aSkinAttr[ii].zFile;
   zDraft = mprintf("draft%d", iSkin);
-  zKey = mprintf("draft%d-%s", iSkin, zFile);
   zTitle = mprintf("%s for Draft%d", aSkinAttr[ii].zTitle, iSkin);
   zBasis = PD("basis","current");
   zDflt = skin_file_content(zBasis, zFile);
-  zOrig = db_get(zKey, zDflt);
+  zOrig = db_get_mprintf(zDflt, "draft%d-%s",iSkin,zFile);
   zContent = PD(zFile,zOrig);
   if( P("revert")!=0 && cgi_csrf_safe(0) ){
     zContent = zDflt;
@@ -853,7 +851,7 @@ void setup_skinedit(void){
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
   @ <h2>Edit %s(zTitle):</h2>
   if( P("submit") && cgi_csrf_safe(0) && strcmp(zOrig,zContent)!=0 ){
-    db_set(zKey, zContent, 0);
+    db_set_mprintf(zContent, 0, "draft%d-%s",iSkin,zFile);
   }
   @ <textarea name="%s(zFile)" rows="10" cols="80">\
   @ %h(zContent)</textarea>
@@ -944,7 +942,7 @@ static void skin_publish(int iSkin){
   /* Publish draft iSkin */
   for(i=0; i<count(azSkinFile); i++){
     char *zNew = db_get_mprintf("", "draft%d-%s", iSkin, azSkinFile[i]);
-    db_set(azSkinFile[i], zNew, 0);
+    db_set(azSkinFile[i]/*works-like:"x"*/, zNew, 0);
   }
 }
 

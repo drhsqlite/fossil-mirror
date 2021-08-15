@@ -484,10 +484,10 @@ void add_cmd(void){
    ** fossil_reserved_name() list. We do not need to warn for those,
    ** as they're outright verboten. */
   if(db_exists("SELECT 1 FROM sfile WHERE win_reserved(pathname)")){
+    int reservedCount = 0;
     Stmt q = empty_Stmt;
     db_prepare(&q,"SELECT pathname FROM sfile "
                   "WHERE win_reserved(pathname)");
-    int reservedCount = 0;
     while( db_step(&q)==SQLITE_ROW ){
       const char * zName = db_column_text(&q, 0);
       ++reservedCount;

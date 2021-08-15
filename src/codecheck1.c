@@ -349,6 +349,8 @@ static int never_safe(const char *z){
 #define FMT_HTML  0x00002     /* Generator for HTML text */
 #define FMT_URL   0x00004     /* Generator for URLs */
 #define FMT_SAFE  0x00008     /* Generator for human-readable text */
+#define FMT_LIT   0x00010     /* Just verify that a string literal */
+#define FMT_PX    0x00020     /* Must have a literal prefix in format string */
 
 /*
 ** A list of internal Fossil interfaces that take a printf-style format
@@ -359,61 +361,72 @@ struct FmtFunc {
   int iFmtArg;           /* Index of format argument.  Leftmost is 1. */
   unsigned fmtFlags;     /* Processing flags */
 } aFmtFunc[] = {
-  { "admin_log",               1, FMT_SAFE },
-  { "audit_append",            3, FMT_SAFE },
-  { "backofficeTrace",         1, FMT_SAFE },
-  { "blob_append_sql",         2, FMT_SQL },
-  { "blob_appendf",            2, FMT_SAFE },
-  { "cgi_debug",               1, FMT_SAFE },
-  { "cgi_panic",               1, FMT_SAFE },
-  { "cgi_printf",              1, FMT_HTML },
-  { "cgi_printf_header",       1, FMT_HTML },
-  { "cgi_redirectf",           1, FMT_URL },
-  { "chref",                   2, FMT_URL },
-  { "CX",                      1, FMT_HTML },
-  { "db_blob",                 2, FMT_SQL },
-  { "db_debug",                1, FMT_SQL },
-  { "db_double",               2, FMT_SQL },
-  { "db_err",                  1, FMT_SAFE },
-  { "db_exists",               1, FMT_SQL },
-  { "db_get_mprintf",          2, FMT_SAFE },
-  { "db_int",                  2, FMT_SQL },
-  { "db_int64",                2, FMT_SQL },
-  { "db_multi_exec",           1, FMT_SQL },
-  { "db_optional_sql",         2, FMT_SQL },
-  { "db_prepare",              2, FMT_SQL },
-  { "db_prepare_ignore_error", 2, FMT_SQL },
-  { "db_set_mprintf",          3, FMT_SAFE },
-  { "db_static_prepare",       2, FMT_SQL },
-  { "db_text",                 2, FMT_SQL },
-  { "db_unset_mprintf",        2, FMT_SAFE },
-  { "emailerError",            2, FMT_SAFE },
-  { "fileedit_ajax_error",     2, FMT_SAFE },
-  { "form_begin",              2, FMT_URL },
-  { "fossil_error",            2, FMT_SAFE },
-  { "fossil_errorlog",         1, FMT_SAFE },
-  { "fossil_fatal",            1, FMT_SAFE },
-  { "fossil_fatal_recursive",  1, FMT_SAFE },
-  { "fossil_panic",            1, FMT_SAFE },
-  { "fossil_print",            1, FMT_SAFE },
-  { "fossil_trace",            1, FMT_SAFE },
-  { "fossil_warning",          1, FMT_SAFE },
-  { "href",                    1, FMT_URL },
-  { "json_new_string_f",       1, FMT_SAFE },
-  { "json_set_err",            2, FMT_SAFE },
-  { "json_warn",               2, FMT_SAFE },
-  { "mprintf",                 1, FMT_SAFE },
-  { "pop3_print",              2, FMT_SAFE },
-  { "smtp_send_line",          2, FMT_SAFE },
-  { "smtp_server_send",        2, FMT_SAFE },
-  { "socket_set_errmsg",       1, FMT_SAFE },
-  { "ssl_set_errmsg",          1, FMT_SAFE },
-  { "style_header",            1, FMT_HTML },
-  { "style_set_current_page",  1, FMT_URL },
-  { "style_submenu_element",   2, FMT_URL },
-  { "style_submenu_sql",       3, FMT_SQL },
-  { "webpage_error",           1, FMT_SAFE },
-  { "xhref",                   2, FMT_URL },
+  { "admin_log",                  1, FMT_SAFE },
+  { "audit_append",               3, FMT_SAFE },
+  { "backofficeTrace",            1, FMT_SAFE },
+  { "blob_append_sql",            2, FMT_SQL },
+  { "blob_appendf",               2, FMT_SAFE },
+  { "cgi_debug",                  1, FMT_SAFE },
+  { "cgi_panic",                  1, FMT_SAFE },
+  { "cgi_printf",                 1, FMT_HTML },
+  { "cgi_printf_header",          1, FMT_HTML },
+  { "cgi_redirectf",              1, FMT_URL },
+  { "chref",                      2, FMT_URL },
+  { "CX",                         1, FMT_HTML },
+  { "db_blob",                    2, FMT_SQL },
+  { "db_debug",                   1, FMT_SQL },
+  { "db_double",                  2, FMT_SQL },
+  { "db_err",                     1, FMT_SAFE },
+  { "db_exists",                  1, FMT_SQL },
+  { "db_get_mprintf",             2, FMT_SAFE },
+  { "db_int",                     2, FMT_SQL },
+  { "db_int64",                   2, FMT_SQL },
+  { "db_lset",                    1, FMT_LIT },
+  { "db_lset_int",                1, FMT_LIT },
+  { "db_multi_exec",              1, FMT_SQL },
+  { "db_optional_sql",            2, FMT_SQL },
+  { "db_prepare",                 2, FMT_SQL },
+  { "db_prepare_ignore_error",    2, FMT_SQL },
+  { "db_set",                     1, FMT_LIT },
+  { "db_set_int",                 1, FMT_LIT },
+  { "db_set_mprintf",             3, FMT_PX },
+  { "db_static_prepare",          2, FMT_SQL },
+  { "db_text",                    2, FMT_SQL },
+  { "db_unset",                   1, FMT_LIT },
+  { "db_unset_mprintf",           2, FMT_PX },
+  { "emailerError",               2, FMT_SAFE },
+  { "entry_attribute",            4, FMT_LIT },
+  { "fileedit_ajax_error",        2, FMT_SAFE },
+  { "form_begin",                 2, FMT_URL },
+  { "fossil_error",               2, FMT_SAFE },
+  { "fossil_errorlog",            1, FMT_SAFE },
+  { "fossil_fatal",               1, FMT_SAFE },
+  { "fossil_fatal_recursive",     1, FMT_SAFE },
+  { "fossil_panic",               1, FMT_SAFE },
+  { "fossil_print",               1, FMT_SAFE },
+  { "fossil_trace",               1, FMT_SAFE },
+  { "fossil_warning",             1, FMT_SAFE },
+  { "href",                       1, FMT_URL },
+  { "json_new_string_f",          1, FMT_SAFE },
+  { "json_set_err",               2, FMT_SAFE },
+  { "json_warn",                  2, FMT_SAFE },
+  { "mprintf",                    1, FMT_SAFE },
+  { "multiple_choice_attribute",  3, FMT_LIT },
+  { "onoff_attribute",            3, FMT_LIT },
+  { "pop3_print",                 2, FMT_SAFE },
+  { "smtp_send_line",             2, FMT_SAFE },
+  { "smtp_server_send",           2, FMT_SAFE },
+  { "socket_set_errmsg",          1, FMT_SAFE },
+  { "ssl_set_errmsg",             1, FMT_SAFE },
+  { "style_header",               1, FMT_HTML },
+  { "style_set_current_page",     1, FMT_URL },
+  { "style_submenu_element",      2, FMT_URL },
+  { "style_submenu_sql",          3, FMT_SQL },
+  { "textarea_attribute",         5, FMT_LIT },
+  { "tktsetup_generic",           1, FMT_LIT },
+  { "webpage_error",              1, FMT_SAFE },
+  { "xfersetup_generic",          1, FMT_LIT },
+  { "xhref",                      2, FMT_URL },
 };
 
 /*
@@ -461,16 +474,22 @@ static int isFormatFunc(const char *zIdent, int nIdent, unsigned *pFlags){
 **
 ** For each argument less than nType, store the conversion character
 ** for that argument in cType[i].
+**
+** Store the number of initial literal characters of the format string
+** in *pInit.
 */
-static int formatArgCount(const char *z, int nType, char *cType){
+static int formatArgCount(const char *z, int nType, char *cType, int *pInit){
   int nArg = 0;
   int i, k;
   int len;
   int eType;
   int ln = 0;
+  *pInit = 0;
   while( z[0] ){
     len = token_length(z, &eType, &ln);
     if( eType==TK_STR ){
+      for(i=1; i<len-1 && isalpha(z[i]); i++){}
+      *pInit = i-1;
       for(i=1; i<len-1; i++){
         if( z[i]!='%' ) continue;
         if( z[i+1]=='%' ){ i++; continue; }
@@ -517,6 +536,7 @@ static int checkFormatFunc(
   int i, k;
   int nErr = 0;
   char *acType;
+  int nInit = 0;
 
   szFName = token_length(zFCall, &eToken, &ln);
   zStart = next_non_whitespace(zFCall+szFName, &len, &eToken);
@@ -547,17 +567,30 @@ static int checkFormatFunc(
     const char *zFmt = azArg[fmtArg-1];
     const char *zOverride = strstr(zFmt, "/*works-like:");
     if( zOverride ) zFmt = zOverride + sizeof("/*works-like:")-1;
-    if( !is_string_lit(zFmt) ){
+    if( fmtFlags & FMT_LIT ){
+      if( !is_string_lit(zFmt) ){
+        printf("%s:%d: argument %d to %.*s() should be a string literal\n",
+               zFilename, lnFCall, fmtArg, szFName, zFCall);
+        nErr++;
+      }
+    }else if( !is_string_lit(zFmt) ){
       printf("%s:%d: %.*s() has non-constant format on arg[%d]\n",
              zFilename, lnFCall, szFName, zFCall, fmtArg-1);
       nErr++;
-    }else if( (k = formatArgCount(zFmt, nArg, acType))>=0
+    }else if( (k = formatArgCount(zFmt, nArg, acType, &nInit))>=0
              && nArg!=fmtArg+k ){
       printf("%s:%d: too %s arguments to %.*s() "
              "- got %d and expected %d\n",
              zFilename, lnFCall, (nArg<fmtArg+k ? "few" : "many"),
              szFName, zFCall, nArg, fmtArg+k);
       nErr++;
+    }else if( (fmtFlags & FMT_PX)!=0 ){
+      if( nInit==0 ){
+        printf("%s:%d: format string on %.*s() should have"
+               " an ASCII character prefix\n",
+          zFilename, lnFCall, szFName, zFCall);
+        nErr++;
+      }
     }else if( (fmtFlags & FMT_SAFE)==0 ){
       for(i=0; i<nArg && i<k; i++){
         if( (acType[i]=='s' || acType[i]=='z' || acType[i]=='b') ){

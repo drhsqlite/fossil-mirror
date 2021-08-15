@@ -42,9 +42,10 @@ name and subsequent tokens are the arguments.  In this sense, TH1 syntax
 is similar to the familiar command-line shell syntax.
 
 A token is any sequence of characters other than whitespace and semicolons.
-Or, all text without double-quotes is a single token even if it includes
-whitespace and semicolons.  Or, all text within nested {...} pairs is a
-single token.
+Text inside double-quotes is a single token even if it includes
+whitespace and semicolons. Text within {...} pairs is also a
+single token, which is useful because curly braces are easier to “pair”
+and nest properly than double-quotes.
 
 The nested {...} form of tokens is important because it allows TH1 commands
 to have an appearance similar to C/C++.  It is important to remember, though,
@@ -66,7 +67,7 @@ of the command, is `if`.
 The second token is `$current eq "dev"` - an expression.  (The outer {...}
 are removed from each token by the command parser.)  The third token
 is the `puts "hello"`, with its whitespace and newlines.  The fourth token
-is `else"`  And the fifth and last token is `puts "world"`.
+is `else` and the fifth and last token is `puts "world"`.
 
 The `if` command evaluates its first argument (the second token)
 as an expression, and if that expression is true, evaluates its
@@ -112,7 +113,7 @@ lines as a single command.
 Summary of Core TH1 Commands
 ----------------------------
 
-The original Tcl language after when TH1 is modeled has a very rich
+The original Tcl language (after which TH1 is modeled) has a very rich
 repertoire of commands.  TH1, as it is designed to be minimalist and
 embedded has a greatly reduced command set.  The following bullets
 summarize the commands available in TH1:
@@ -286,7 +287,8 @@ Added in Fossil 2.15.
   *  capexpr CAPABILITY-EXPR
 
 The capability expression is a list. Each term of the list is a
-cluster of capability letters. The overall expression is true if any
+cluster of [capability letters](./caps/ref.html). 
+The overall expression is true if any
 one term is true. A single term is true if all letters within that
 term are true. Or, if the term begins with "!", then the term is true
 if none of the terms or true. Or, if the term begins with "@" then

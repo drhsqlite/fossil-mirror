@@ -68,6 +68,12 @@
 #  ifndef _WIN32
 #    define _WIN32
 #  endif
+# include <io.h>
+# include <fcntl.h>
+# undef popen
+# define popen _popen
+# undef pclose
+# define pclose _pclose
 #else
 # include <sys/types.h>
 # include <signal.h>

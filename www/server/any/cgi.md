@@ -37,7 +37,10 @@ again, may be different for a particular configuration:
     writable by the same account which executes the Fossil binary.
     (This might differ from the user the web server normally runs
     under.) The directory holding the repository file(s) needs to be
-    writable so that SQLite can write its journal files.
+    writable so that SQLite can write its journal files. When using
+    another access control system, such as AppArmor or SELinux, it may
+    be necessary to explicitly permit that account to read and write
+    the necessary files.
 
 *   Fossil must be able to create temporary files in a
     [directory that varies by host OS](../../env-opts.md#temp). When the
