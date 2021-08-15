@@ -110,23 +110,45 @@ static Blob blobOnLoad = BLOB_INITIALIZER;
 **  or    <a id="ID">
 **
 ** The form of the anchor tag is determined by the g.javascriptHyperlink
-** variable.  The href="URL" form is used if g.javascriptHyperlink is false.
-** If g.javascriptHyperlink is true then the
-** id="ID" form is used and javascript is generated in the footer to cause
-** href values to be inserted after the page has loaded.  If
-** g.perm.History is false, then the <a id="ID"> form is still
-** generated but the javascript is not generated so the links never
-** activate.
+** and g.perm.Hyperlink variables.
+**
+**   g.perm.Hyperlink  g.javascriptHyperlink        Returned anchor format
+**   ----------------  ---------------------        ------------------------
+**          0                    0                  (empty string)
+**          0                    1                  (empty string)
+**          1                    0                  <a href="URL">
+**          1                    1                  <a id="ID">
+**
+** No anchor tag is generated if g.perm.Hyperlink is false.
+** The href="URL" form is used if g.javascriptHyperlink is false.
+** If g.javascriptHyperlink is true then the id="ID" form is used and
+** javascript is generated in the footer to cause href values to be
+** inserted after the page has loaded. The use of the id="ID" form
+** instead of href="URL" is a defense against bots.
 **
 ** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
 ** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
-** g.javascriptHyperlink is set to 1.  The g.javascriptHyperlink defaults
-** to 0 and only changes to one if the user lacks the Hyperlink (h) property
-** and the "auto-hyperlink" setting is enabled.
+** g.javascriptHyperlink is set to 1 by login_check_credentials().  Thus
+** the g.perm.Hyperlink property will be true even if the user does not
+** have the "h" privilege if the "auto-hyperlink" setting is true.
 **
-** Filling in the href="URL" using javascript is a defense against bots.
+**  User has "h"  auto-hyperlink      g.perm.Hyperlink  g.javascriptHyperlink
+**  ------------  --------------      ----------------  ---------------------
+**        0             0                    0                    0
+**        1             0                    1                    0
+**        0             1                    1                    1
+**        1             1                    1                    0
 **
-** The name of this routine is deliberately kept short so that can be
+** So, in other words, tracing input configuration to final actions we have:
+**
+**  User has "h"  auto-hyperlink      Returned anchor format
+**  ------------  --------------      ----------------------
+**        0             0             (empty string)
+**        1             0             <a href="URL">
+**        0             1             <a id="ID">
+**        1             1             (can't happen)
+**
+** The name of these routines are deliberately kept short so that can be
 ** easily used within @-lines.  Example:
 **
 **      @ %z(href("%R/artifact/%s",zUuid))%h(zFN)</a>
@@ -153,7 +175,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+  if( !g.javascriptHyperlink ){
     char *zHUrl;
     if( zExtra ){
       zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
@@ -178,7 +200,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+  if( !g.javascriptHyperlink ){
     char *zHUrl = mprintf("<a class=\"%s\" href=\"%h\">", zExtra, zUrl);
     fossil_free(zUrl);
     return zHUrl;
@@ -194,7 +216,7 @@ char *href(const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+  if( !g.javascriptHyperlink ){
     char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
     fossil_free(zUrl);
     return zHUrl;
@@ -205,8 +227,25 @@ char *href(const char *zFormat, ...){
 }
 
 /*
-** Generate <form method="post" action=ARG>.  The ARG value is inserted
-** by javascript.
+** Generate <form method="post" action=ARG>.  The ARG value is determined
+** by the arguments.
+**
+** As a defense against robots, the action=ARG might instead by data-action=ARG
+** and javascript (href.js) added to the page so that the data-action= is
+** changed into action= after the page loads.  Whether or not this happens
+** depends on if the user has the "h" privilege and whether or not the
+** auto-hyperlink setting is on.  These setings determine the values of
+** variables g.perm.Hyperlink and g.javascriptHyperlink.
+**
+**    User has "h"  auto-hyperlink      g.perm.Hyperlink  g.javascriptHyperlink
+**    ------------  --------------      ----------------  ---------------------
+**  1:      0             0                    0                    0
+**  2:      1             0                    1                    0
+**  3:      0             1                    1                    1
+**  4:      1             1                    1                    0
+**
+** The data-action=ARG form is used for cases 1 and 3.  In case 1, the href.js
+** javascript is omitted and so the form is effectively disabled.
 */
 void form_begin(const char *zOtherArgs, const char *zAction, ...){
   char *zLink;
@@ -215,9 +254,7 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
   va_start(ap, zAction);
   zLink = vmprintf(zAction, ap);
   va_end(ap);
-  if( fossil_strcmp(zLink,"/register")==0
-   || (g.perm.Hyperlink && !g.javascriptHyperlink)
-  ){
+  if( g.perm.Hyperlink ){
     @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
   }else{
     needHrefJs = 1;

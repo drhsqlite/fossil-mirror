@@ -177,6 +177,22 @@ void etag_check(unsigned eFlags, const char *zHash){
 }
 
 /*
+** If the output is determined purely by hash parameter and the hash
+** is long enough to be invariant, then set the g.isConst flag, indicating
+** that the output will never change.
+*/
+void etag_check_for_invariant_name(const char *zHash){
+  size_t nHash = strlen(zHash);
+  if( nHash<HNAME_MIN ){
+    return;  /* Name is too short */
+  }
+  if( !validate16(zHash, (int)nHash) ){
+    return;  /* Name is not pure hex */
+  }
+  g.isConst = 1;  /* A long hex identifier must be a unique hash */
+}
+
+/*
 ** Accept a new Last-Modified time.  This routine should be called by
 ** page generators that know a valid last-modified time.  This routine
 ** might generate a 304 Not Modified reply and exit(), never returning.
@@ -214,7 +230,7 @@ void etag_last_modified(sqlite3_int64 mtime){
 /* Return the ETag, if there is one.
 */
 const char *etag_tag(void){
-  return zETag;
+  return g.isConst ? "" : zETag;
 }
 
 /* Return the recommended max-age

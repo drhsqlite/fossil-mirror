@@ -94,11 +94,20 @@ static int is_safe_fossil_command(const char *zFossil){
 /*
 ** Default SSH command
 */
-#ifdef _WIN32
-static const char zDefaultSshCmd[] = "plink -ssh -T";
+#if 0 /* was: defined(_WIN32).  Windows generally has ssh now. */
+static const char zDefaultSshCmd[] = "plink -ssh";
 #else
-static const char zDefaultSshCmd[] = "ssh -e none -T";
+static const char zDefaultSshCmd[] = "ssh -e none";
 #endif
+
+/*
+** Initialize a Blob to the name of the configured SSH command.
+*/
+void transport_ssh_command(Blob *p){
+  char *zSsh;        /* The base SSH command */
+  zSsh = db_get("ssh-command", zDefaultSshCmd);
+  blob_init(p, zSsh, -1);
+}
 
 /*
 ** SSH initialization of the transport layer
@@ -107,35 +116,30 @@ int transport_ssh_open(UrlData *pUrlData){
   /* For SSH we need to create and run SSH fossil http
   ** to talk to the remote machine.
   */
-  char *zSsh;        /* The base SSH command */
   Blob zCmd;         /* The SSH command */
   char *zHost;       /* The host name to contact */
 
   socket_ssh_resolve_addr(pUrlData);
-  zSsh = db_get("ssh-command", zDefaultSshCmd);
-  blob_init(&zCmd, zSsh, -1);
+  transport_ssh_command(&zCmd);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
-#ifdef _WIN32
-    blob_appendf(&zCmd, " -P %d", pUrlData->port);
-#else
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
-#endif
   }
+  blob_appendf(&zCmd, " -T --");  /* End of switches */
   if( pUrlData->user && pUrlData->user[0] ){
     zHost = mprintf("%s@%s", pUrlData->user, pUrlData->name);
-    blob_append_escaped_arg(&zCmd, zHost);
+    blob_append_escaped_arg(&zCmd, zHost, 0);
     fossil_free(zHost);
   }else{
-    blob_append_escaped_arg(&zCmd, pUrlData->name);
+    blob_append_escaped_arg(&zCmd, pUrlData->name, 0);
   }
   if( !is_safe_fossil_command(pUrlData->fossil) ){
     fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
                  "the server.", pUrlData->fossil);
   }
-  blob_append_escaped_arg(&zCmd, pUrlData->fossil);
+  blob_append_escaped_arg(&zCmd, pUrlData->fossil, 1);
   blob_append(&zCmd, " test-http", 10);
   if( pUrlData->path && pUrlData->path[0] ){
-    blob_append_escaped_arg(&zCmd, pUrlData->path);
+    blob_append_escaped_arg(&zCmd, pUrlData->path, 1);
   }else{
     fossil_fatal("ssh:// URI does not specify a path to the repository");
   }

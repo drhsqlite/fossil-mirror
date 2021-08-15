@@ -40,13 +40,6 @@ struct mark_t {
 };
 #endif
 
-#if defined(_WIN32) || defined(WIN32)
-# undef popen
-# define popen _popen
-# undef pclose
-# define pclose _pclose
-#endif
-
 /*
 ** Output a "committer" record for the given user.
 ** NOTE: the given user name may be an email itself.
@@ -1723,6 +1716,11 @@ void gitmirror_export_command(void){
     rc = fossil_system(zPushCmd);
     if( rc ){
       fossil_fatal("cannot push content using: %s", zPushCmd);
+    }else if( db_is_writeable("repository") ){
+      db_unprotect(PROTECT_CONFIG);
+      db_multi_exec("REPLACE INTO config(name,value,mtime)"
+                    "VALUES('gitpush:%q',1,now())", zPushUrl);
+      db_protect_pop();
     }
     fossil_free(zPushCmd);
   }
@@ -1737,15 +1735,43 @@ void gitmirror_status_command(void){
   char *zMirror;
   char *z;
   int n, k;
+  int rc;
+  char *zSql;
+  int bQuiet = 0;
+  int bByAll = 0;   /* Undocumented option meaning this command was invoked
+                    ** from "fossil all" and should modify output accordingly */
+
   db_find_and_open_repository(0, 0);
+  bQuiet = find_option("quiet","q",0)!=0;
+  bByAll = find_option("by-all",0,0)!=0; 
   verify_all_options();
   zMirror = db_get("last-git-export-repo", 0);
   if( zMirror==0 ){
+    if( bQuiet ) return;
+    if( bByAll ) return;
     fossil_print("Git mirror:  none\n");
     return;
   }
+  zSql = sqlite3_mprintf("ATTACH '%q/.mirror_state/db' AS mirror", zMirror);
+  if( zSql==0 ) fossil_fatal("out of memory");
+  g.dbIgnoreErrors++;
+  rc = sqlite3_exec(g.db, zSql, 0, 0, 0);
+  g.dbIgnoreErrors--;
+  sqlite3_free(zSql);
+  if( rc ){
+    if( bQuiet ) return;
+    if( bByAll ) return;
+    fossil_print("Git mirror:  %s  (Inactive)\n", zMirror);
+    return;
+  }
+  if( bByAll ){
+    size_t len = strlen(g.zRepositoryName);
+    int n;
+    if( len>60 ) len = 60;
+    n = (int)(65 - len);
+    fossil_print("%.12c %s %.*c\n", '*', g.zRepositoryName, n, '*');
+  }
   fossil_print("Git mirror:  %s\n", zMirror);
-  db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
   z = db_text(0, "SELECT datetime(value) FROM mconfig WHERE key='start'");
   if( z ){
     double rAge = db_double(0.0, "SELECT julianday('now') - value"
@@ -1780,7 +1806,7 @@ void gitmirror_status_command(void){
                  n, n==1 ? "" : "s");
   }
   n = db_int(0, "SELECT count(*) FROM mmark WHERE isfile");
-  k = db_int(0, "SELECT count(*) FROm mmark WHERE NOT isfile");
+  k = db_int(0, "SELECT count(*) FROM mmark WHERE NOT isfile");
   fossil_print("Exported:    %d check-ins and %d file blobs\n", k, n);
 }
 
@@ -1835,6 +1861,8 @@ void gitmirror_status_command(void){
 ** > fossil git status
 **
 **       Show the status of the current Git mirror, if there is one.
+**
+**         -q|--quiet         No output if there is nothing to report
 */
 void gitmirror_command(void){
   char *zCmd;

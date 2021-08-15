@@ -780,3 +780,55 @@ void attachment_cmd(void){
 attachment_cmd_usage:
   usage("add ?PAGENAME? FILENAME [-t|--technote DATETIME ]");
 }
+
+
+/*
+** COMMAND: test-list-attachments
+**
+** Usage: %fossil test-list-attachments ?-latest? ?TargetName(s)...?
+**
+** List attachments for one or more attachment targets. The target
+** name arguments are glob prefixes for the attachment.target
+** field. If no names are provided then a prefix of [a-zA-Z] is used,
+** which will match most wiki page names and some ticket hashes.
+**
+** Options:
+**
+**    -latest    List only the latest version of a given attachment.
+**
+*/
+void test_list_attachments(void){
+  Stmt q;
+  int i;
+  const int fLatest = find_option("latest", 0, 0) != 0;
+
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  db_prepare(&q,
+     "SELECT datetime(mtime,toLocal()), src, target, filename,"
+     "       comment, user "
+     "  FROM attachment"
+     "  WHERE target GLOB :tgtname ||'*'"
+     "  AND (isLatest OR %d)"
+     "  ORDER BY target, isLatest DESC, mtime DESC",
+     !fLatest
+  );
+  if(g.argc<3){
+    static char * argv[3] = {0,0,"[a-zA-Z]"};
+    g.argc = 3;
+    g.argv = argv;
+  }
+  for(i = 2; i < g.argc; ++i){
+    const char *zPage = g.argv[i];
+    db_bind_text(&q, ":tgtname", zPage);
+    while(SQLITE_ROW == db_step(&q)){
+      const char * zTime = db_column_text(&q, 0);
+      const char * zSrc = db_column_text(&q, 1);
+      const char * zTarget = db_column_text(&q, 2);
+      const char * zName = db_column_text(&q, 3);
+      printf("%-20s %s %.12s %s\n", zTarget, zTime, zSrc, zName);
+    }
+    db_reset(&q);
+  }
+  db_finalize(&q);
+}

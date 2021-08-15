@@ -104,7 +104,9 @@ int length_of_S_display(void){
 #define etJSONSTR    25 /* String encoded as a JSON string literal: %j
                            Use %!j to include double-quotes around it. */
 #define etSHELLESC   26 /* Escape a filename for use in a shell command: %$
-                           See blob_append_escaped_arg() for details */
+                           See blob_append_escaped_arg() for details
+                           "%$"  -> adds "./" prefix if necessary.
+                           "%!$" -> omits the "./" prefix. */
 
 
 /*
@@ -840,7 +842,7 @@ int vxprintf(
       }
       case etSHELLESC: {
         char *zArg = va_arg(ap, char*);
-        blob_append_escaped_arg(pBlob, zArg);
+        blob_append_escaped_arg(pBlob, zArg, !flag_altform2);
         length = width = 0;
         break;
       }

@@ -27,7 +27,7 @@
 
 
 /*
-** Show a graph all wiki, tickets, and check-ins that refer to object zUuid.
+** Show a graph of all wiki, tickets, and check-ins that refer to object zUuid.
 **
 ** If zLabel is not NULL and the graph is not empty, then output zLabel as
 ** a prefix to the graph.

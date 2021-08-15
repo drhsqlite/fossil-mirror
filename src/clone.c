@@ -292,11 +292,11 @@ void clone_cmd(void){
     fossil_print("opening the new %s repository in directory %s...\n",
        zRepo, zWorkDir);
     blob_init(&cmd, 0, 0);
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " open ", -1);
-    blob_append_escaped_arg(&cmd, zRepo);
+    blob_append_escaped_arg(&cmd, zRepo, 1);
     blob_append(&cmd, " --workdir ", -1);
-    blob_append_escaped_arg(&cmd, zWorkDir);
+    blob_append_escaped_arg(&cmd, zWorkDir, 1);
     if( allowNested ){
       blob_append(&cmd, " --nested", -1);
     }
@@ -316,7 +316,6 @@ void remember_or_get_http_auth(
   int fRemember,          /* True to remember credentials for later reuse */
   const char *zUrl        /* URL for which these credentials apply */
 ){
-  char *zKey = mprintf("http-auth:%s", g.url.canonical);
   if( zHttpAuth && zHttpAuth[0] ){
     g.zHttpAuth = mprintf("%s", zHttpAuth);
   }
@@ -324,14 +323,13 @@ void remember_or_get_http_auth(
     if( g.zHttpAuth && g.zHttpAuth[0] ){
       set_httpauth(g.zHttpAuth);
     }else if( zUrl && zUrl[0] ){
-      db_unset(zKey, 0);
+      db_unset_mprintf(0, "http-auth:%s", g.url.canonical);
     }else{
       g.zHttpAuth = get_httpauth();
     }
   }else if( g.zHttpAuth==0 && zUrl==0 ){
     g.zHttpAuth = get_httpauth();
   }
-  free(zKey);
 }
 
 /*
@@ -348,9 +346,7 @@ char *get_httpauth(void){
 ** Set the HTTP Authorization preference in db.
 */
 void set_httpauth(const char *zHttpAuth){
-  char *zKey = mprintf("http-auth:%s", g.url.canonical);
-  db_set(zKey, obscure(zHttpAuth), 0);
-  free(zKey);
+  db_set_mprintf(obscure(zHttpAuth), 0, "http-auth:%s", g.url.canonical);
 }
 
 /*

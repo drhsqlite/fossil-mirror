@@ -462,7 +462,7 @@ int blob_constant_time_cmp(Blob *pA, Blob *pB){
 int blob_eq_str(Blob *pBlob, const char *z, int n){
   Blob t;
   blob_is_init(pBlob);
-  if( n<=0 ) n = strlen(z);
+  if( n<=0 ) n = (int)strlen(z);
   t.aData = (char*)z;
   t.nUsed = n;
   t.xRealloc = blobReallocStatic;
@@ -476,7 +476,7 @@ int blob_eq_str(Blob *pBlob, const char *z, int n){
 */
 #if INTERFACE
 # define blob_eq(B,S) \
-     ((B)->nUsed==sizeof(S)-1 && memcmp((B)->aData,S,sizeof(S)-1)==0)
+     ((B)->nUsed==sizeof(S"")-1 && memcmp((B)->aData,S,sizeof(S)-1)==0)
 #endif
 
 
@@ -1296,100 +1296,317 @@ void blob_cp1252_to_utf8(Blob *p){
 }
 
 /*
+** ASCII (for reference):
+**    x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf 
+** 0x ^`  ^a  ^b  ^c  ^d  ^e  ^f  ^g  \b  \t  \n  ()  \f  \r  ^n  ^o 
+** 1x ^p  ^q  ^r  ^s  ^t  ^u  ^v  ^w  ^x  ^y  ^z  ^{  ^|  ^}  ^~  ^ 
+** 2x ()  !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /  
+** 3x 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?  
+** 4x @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O  
+** 5x P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _  
+** 6x `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o  
+** 7x p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   ^_ 
+*/
+
+/*
+** Meanings for bytes in a filename:
+**
+**    0      Ordinary character.  No encoding required
+**    1      Needs to be escaped
+**    2      Illegal character.  Do not allow in a filename
+**    3      First byte of a 2-byte UTF-8
+**    4      First byte of a 3-byte UTF-8
+**    5      First byte of a 4-byte UTF-8
+*/
+static const char aSafeChar[256] = {
+#ifdef _WIN32
+/* Windows
+** Prohibit:  all control characters, including tab, \r and \n
+** Escape:    (space) " # $ % & ' ( ) * ; < > ? [ ] ^ ` { | }
+*/
+/*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 1x */
+     1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, /* 2x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  1,  1,  0, /* 5x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, /* 7x */
+#else
+/* Unix
+** Prohibit:  all control characters, including tab, \r and \n
+** Escape:    (space) ! " # $ % & ' ( ) * ; < > ? [ \ ] ^ ` { | }
+*/
+/*  x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xa  xb  xc  xd  xe  xf  */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 0x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 1x */
+     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0, /* 2x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  1, /* 3x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  0, /* 5x */
+     1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6x */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  1, /* 7x */
+#endif
+    /* all bytes 0x80 through 0xbf are unescaped, being secondary
+    ** bytes to UTF8 characters.  Bytes 0xc0 through 0xff are the
+    ** first byte of a UTF8 character and do get escaped */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 8x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* 9x */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* ax */
+     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, /* bx */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* cx */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* dx */
+     4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4, /* ex */
+     5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5  /* fx */
+};
+
+/*
 ** pBlob is a shell command under construction.  This routine safely
-** appends argument zIn.
+** appends filename argument zIn.
 **
 ** The argument is escaped if it contains white space or other characters
 ** that need to be escaped for the shell.  If zIn contains characters
 ** that cannot be safely escaped, then throw a fatal error.
 **
-** The argument is expected to a filename of some kinds.  As shell commands
-** commonly have command-line options that begin with "-" and since we
-** do not want an attacker to be able to invoke these switches using
-** filenames that begin with "-", if zIn begins with "-", prepend
-** an additional "./".
+** If the isFilename argument is true, then the argument is expected
+** to be a filename.  As shell commands commonly have command-line
+** options that begin with "-" and since we do not want an attacker
+** to be able to invoke these switches using filenames that begin
+** with "-", if zIn begins with "-", prepend an additional "./"
+** (or ".\\" on Windows).
 */
-void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
+void blob_append_escaped_arg(Blob *pBlob, const char *zIn, int isFilename){
   int i;
-  char c;
+  unsigned char c;
   int needEscape = 0;
   int n = blob_size(pBlob);
   char *z = blob_buffer(pBlob);
-#if defined(_WIN32)
-  const char cDirSep = '\\';  /* Use \ as directory separator */
-  const char cQuote = '"';    /* Use "..." quoting on windows */
-  const char cEscape = '^';   /* Use ^X escaping on windows */
-#else
-  const char cDirSep = '/';   /* Use / as directory separator */
-  const char cQuote = '\'';   /* Use '...' quoting on unix */
-  const char cEscape = '\\';  /* Use \X escaping on unix */
-#endif
 
-  for(i=0; (c = zIn[i])!=0; i++){
-    if( c==cQuote || (unsigned char)c<' ' ||
-        c==cEscape || c==';' || c=='*' || c=='?' || c=='[' ){
-      Blob bad;
-      blob_token(pBlob, &bad);
-      fossil_fatal("the [%s] argument to the \"%s\" command contains "
-                   "a character (ascii 0x%02x) that is a security risk",
-                   zIn, blob_str(&bad), c);
-    }
-    if( !needEscape && !fossil_isalnum(c) && c!=cDirSep && c!='.' && c!='_' ){
+  /* Look for illegal byte-sequences and byte-sequences that require
+  ** escaping.  No control-characters are allowed.  All spaces and
+  ** non-ASCII unicode characters and some punctuation characters require
+  ** escaping. */
+  for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+    if( aSafeChar[c] ){
+      unsigned char x = aSafeChar[c];
       needEscape = 1;
-    }
+      if( x==2 ){
+        Blob bad;
+        blob_token(pBlob, &bad);
+        fossil_fatal("the [%s] argument to the \"%s\" command contains "
+                     "a character (ascii 0x%02x) that is not allowed in "
+                     "filename arguments",
+                     zIn, blob_str(&bad), c);
+      }else if( x>2 ){
+        if( (zIn[i+1]&0xc0)!=0x80
+         || (x>=4 && (zIn[i+2]&0xc0)!=0x80)
+         || (x==5 && (zIn[i+3]&0xc0)!=0x80)
+        ){
+          Blob bad;
+          blob_token(pBlob, &bad);
+          fossil_fatal("the [%s] argument to the \"%s\" command contains "
+                       "an illegal UTF-8 character",
+                       zIn, blob_str(&bad));
+        }
+        i += x-2;
+      }
+    } 
   }
+
+  /* Separate from the previous argument by a space */
   if( n>0 && !fossil_isspace(z[n-1]) ){
     blob_append_char(pBlob, ' ');
   }
-  if( needEscape ) blob_append_char(pBlob, cQuote);
-  if( zIn[0]=='-' ){
-    blob_append_char(pBlob, '.');
-    blob_append_char(pBlob, cDirSep);
+
+  /* Check for characters that need quoting */
+  if( !needEscape ){
+    if( isFilename && zIn[0]=='-' ){
+      blob_append_char(pBlob, '.');
 #if defined(_WIN32)
-  }else if( zIn[0]=='/' ){
-    blob_append_char(pBlob, '.');
-#endif
-  }
-#if defined(_WIN32)
-  if( needEscape ){
-    for(i=0; (c = zIn[i])!=0; i++){
-      if( c==cQuote ) blob_append_char(pBlob, cDirSep);
-      blob_append_char(pBlob, c);
-    }
-  }else{
-    blob_append(pBlob, zIn, -1);
-  }
+      blob_append_char(pBlob, '\\');
 #else
-  blob_append(pBlob, zIn, -1);
+      blob_append_char(pBlob, '/');
 #endif
-  if( needEscape ){
+    }
+    blob_append(pBlob, zIn, -1);
+  }else{
 #if defined(_WIN32)
-    /* NOTE: Trailing backslash must be doubled before final double quote. */
-    if( pBlob->aData[pBlob->nUsed-1]==cDirSep ){
-      blob_append_char(pBlob, cDirSep);
+    /* Quoting strategy for windows:
+    ** Put the entire name inside of "...".  Any " characters within
+    ** the name get doubled.
+    */
+    blob_append_char(pBlob, '"');
+    if( isFilename && zIn[0]=='-' ){
+      blob_append_char(pBlob, '.');
+      blob_append_char(pBlob, '\\');
+    }else if( zIn[0]=='/' ){
+      blob_append_char(pBlob, '.');
+    }
+    for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+      blob_append_char(pBlob, (char)c);
+      if( c=='"' ) blob_append_char(pBlob, '"');
+    }
+    blob_append_char(pBlob, '"');
+#else
+    /* Quoting strategy for unix:
+    ** If the name does not contain ', then surround the whole thing
+    ** with '...'.   If there is one or more ' characters within the
+    ** name, then put \ before each special character.
+    */
+    if( strchr(zIn,'\'') ){
+      if( isFilename && zIn[0]=='-' ){
+        blob_append_char(pBlob, '.');
+        blob_append_char(pBlob, '/');
+      }
+      for(i=0; (c = (unsigned char)zIn[i])!=0; i++){
+        if( aSafeChar[c] && aSafeChar[c]!=2 ) blob_append_char(pBlob, '\\');
+        blob_append_char(pBlob, (char)c);
+      }
+    }else{
+      blob_append_char(pBlob, '\'');
+      if( isFilename && zIn[0]=='-' ){
+        blob_append_char(pBlob, '.');
+        blob_append_char(pBlob, '/');
+      }
+      blob_append(pBlob, zIn, -1);
+      blob_append_char(pBlob, '\'');
     }
 #endif
-    blob_append_char(pBlob, cQuote);
   }
 }
 
 /*
 ** COMMAND: test-escaped-arg
 **
-** Usage %fossil ARG ...
+** Usage %fossil ARGS ...
 **
 ** Run each argument through blob_append_escaped_arg() and show the
 ** result.  Append each argument to "fossil test-echo" and run that
 ** using fossil_system() to verify that it really does get escaped
 ** correctly.
+**
+** Other options:
+**
+**    --filename-args BOOL      Subsequent arguments are assumed to be
+**                              filenames if BOOL is true, or not if BOOL
+**                              is false.  Defaults on.
+**
+**    --hex HEX                 Skip the --hex flag and instead decode HEX
+**                              into ascii.  This provides a way to insert
+**                              unusual characters as an argument for testing.
+**
+**    --compare HEX ASCII       Verify that argument ASCII is identical to
+**                              to decoded HEX.
+**
+**    --fuzz N                  Run N fuzz cases.  Each cases is a call
+**                              to "fossil test-escaped-arg --compare HEX ARG"
+**                              where HEX and ARG are the same argument.
+**                              The argument is chosen at random.
 */
-void test_escaped_arg__cmd(void){
+void test_escaped_arg_command(void){
   int i;
   Blob x;
+  const char *zArg;
+  int isFilename = 1;
+  char zBuf[100];
   blob_init(&x, 0, 0);
   for(i=2; i<g.argc; i++){
-    fossil_print("%3d [%s]: ", i, g.argv[i]);
-    blob_appendf(&x, "fossil test-echo %$", g.argv[i]);
+    zArg = g.argv[i];
+    if( fossil_strcmp(zArg, "--hex")==0 && i+1<g.argc ){
+      size_t n = strlen(g.argv[++i]);
+      if( n>=(sizeof(zBuf)-1)*2 ){
+        fossil_fatal("Argument to --hex is too big");
+      }
+      memset(zBuf, 0, sizeof(zBuf));
+      decode16((const unsigned char*)g.argv[i], (unsigned char*)zBuf, (int)n);
+      zArg = zBuf;
+    }else if( fossil_strcmp(zArg, "--compare")==0 && i+2<g.argc ){
+      size_t n = strlen(g.argv[++i]);
+      if( n>=(sizeof(zBuf)-1)*2 ){
+        fossil_fatal("HEX argument to --compare is too big");
+      }
+      memset(zBuf, 0, sizeof(zBuf));
+      if( decode16((const unsigned char*)g.argv[i], (unsigned char*)zBuf,
+                   (int)n) ){
+        fossil_fatal("HEX decode of %s failed", g.argv[i]);
+      }
+      zArg = g.argv[++i];
+      if( zArg[0]=='-' ){
+        fossil_fatal("filename argument \"%s\" begins with \"-\"", zArg);
+      }
+#ifdef _WIN32
+      if( zBuf[0]=='-' && zArg[0]=='.' && zArg[1]=='\\' ) zArg += 2;
+#else
+      if( zBuf[0]=='-' && zArg[0]=='.' && zArg[1]=='/' ) zArg += 2;
+#endif
+      if( strcmp(zBuf, zArg)!=0 ){
+        fossil_fatal("argument disagree: \"%s\" (%s) versus \"%s\"", 
+                     zBuf, g.argv[i-1], zArg);
+      }
+      continue;
+    }else if( fossil_strcmp(zArg, "--fuzz")==0 && i+1<g.argc ){
+      int n = atoi(g.argv[++i]);
+      int j;
+      for(j=0; j<n; j++){
+        unsigned char m, k;
+        int rc;
+        unsigned char zWord[100];
+        sqlite3_randomness(sizeof(m), &m);
+        m = (m%40)+5;
+        sqlite3_randomness(m, zWord); /* Between 5 and 45 bytes of randomness */
+        for(k=0; k<m; k++){
+          unsigned char cx = zWord[k];
+          if( cx<0x20 || cx>=0x7f ){
+            /* Translate illegal bytes into various non-ASCII unicode
+            ** characters in order to exercise those code paths */
+            unsigned int u;
+            if( cx>=0x7f ){
+              u = cx;
+            }else if( cx>=0x08 ){
+              u = 0x800 + cx;
+            }else{
+              u = 0x10000 + cx;
+            }
+            if( u<0x00080 ){
+              zWord[k] = u & 0xFF;
+            }else if( u<0x00800 ){
+              zWord[k++] = 0xC0 + (u8)((u>>6)&0x1F);
+              zWord[k] =   0x80 + (u8)(u & 0x3F);
+            }else if( u<0x10000 ){
+              zWord[k++] = 0xE0 + (u8)((u>>12)&0x0F);
+              zWord[k++] = 0x80 + (u8)((u>>6) & 0x3F);
+              zWord[k] =   0x80 + (u8)(u & 0x3F);
+            }else{
+              zWord[k++] = 0xF0 + (u8)((u>>18) & 0x07);
+              zWord[k++] = 0x80 + (u8)((u>>12) & 0x3F);
+              zWord[k++] = 0x80 + (u8)((u>>6) & 0x3F);
+              zWord[k]   = 0x80 + (u8)(u & 0x3F);
+            }
+          }
+        }
+        zWord[k] = 0;
+        encode16(zWord, (unsigned char*)zBuf, (int)k);
+        blob_appendf(&x, "%$ test-escaped-arg --compare %s %$",
+                         g.nameOfExe, zBuf,zWord);
+        rc = fossil_system(blob_str(&x));
+        if( rc ) fossil_fatal("failed test (%d): %s\n", rc, blob_str(&x));
+        blob_reset(&x);
+      }
+      continue;
+    }else if( fossil_strcmp(zArg, "--filename-args")==0 ){
+       if( i+1<g.argc ){
+         i++;
+         isFilename = is_truth(g.argv[i]);
+       }
+       continue;
+    }
+    fossil_print("%3d [%s]: ", i, zArg);
+    if( isFilename ){
+      blob_appendf(&x, "%$ test-echo %$", g.nameOfExe, zArg);
+    }else{
+      blob_appendf(&x, "%$ test-echo %!$", g.nameOfExe, zArg);
+    }
     fossil_print("%s\n", blob_str(&x));
     fossil_system(blob_str(&x));
     blob_reset(&x);

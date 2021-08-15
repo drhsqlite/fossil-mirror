@@ -93,22 +93,23 @@ int update_to(int vid){
 ** unchanged files in addition to those file that actually do change.
 **
 ** Options:
-**   --case-sensitive BOOL  Override case-sensitive setting
-**   --debug                Print debug information on stdout
-**   --latest               Acceptable in place of VERSION, update to
-**                          latest version
-**   --force-missing        Force update if missing content after sync
-**   -n|--dry-run           If given, display instead of run actions
-**   -v|--verbose           Print status information about all files
-**   -W|--width WIDTH       Width of lines (default is to auto-detect).
-**                          Must be more than 20 or 0 (= no limit,
-**                          resulting in a single line per entry).
-**   --setmtime             Set timestamps of all files to match their
-**                          SCM-side times (the timestamp of the last
-**                          checkin which modified them).
-**  -K|--keep-merge-files   On merge conflict, retain the temporary files
-**                          used for merging, named *-baseline, *-original,
-**                          and *-merge.
+**   --case-sensitive BOOL   Override case-sensitive setting
+**   --debug                 Print debug information on stdout
+**   -n|--dry-run            If given, display instead of run actions
+**   --force-missing         Force update if missing content after sync
+**   -K|--keep-merge-files   On merge conflict, retain the temporary files
+**                           used for merging, named *-baseline, *-original,
+**                           and *-merge.
+**   --latest                Acceptable in place of VERSION, update to
+**                           latest version
+**   --nosync                Do not auto-sync prior to update
+**   --setmtime              Set timestamps of all files to match their
+**                           SCM-side times (the timestamp of the last
+**                           checkin which modified them).
+**   -v|--verbose            Print status information about all files
+**   -W|--width WIDTH        Width of lines (default is to auto-detect).
+**                           Must be more than 20 or 0 (= no limit,
+**                           resulting in a single line per entry).
 **
 ** See also: [[revert]]
 */
@@ -129,6 +130,7 @@ void update_cmd(void){
   int nConflict = 0;    /* Number of merge conflicts */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   int nUpdate = 0;      /* Number of changes of any kind */
+  int bNosync = 0;      /* --nosync.  Omit the auto-sync */
   int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
   const char *zWidth;   /* Width option string value */
@@ -156,6 +158,7 @@ void update_cmd(void){
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
+  bNosync = find_option("nosync",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -163,7 +166,7 @@ void update_cmd(void){
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   user_select();
-  if( !dryRunFlag && !internalUpdate ){
+  if( !dryRunFlag && !internalUpdate && !bNosync ){
     if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
                       db_get_int("autosync-tries", 1), 1) ){
       fossil_fatal("update abandoned due to sync failure");

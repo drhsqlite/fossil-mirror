@@ -175,4 +175,4 @@ oval "Start" fit; arrow; box "Hello, World!" fit; arrow; oval "Done" fit
 [daringfireball.net]: http://daringfireball.net/projects/markdown/syntax
 
 <a name="intermap"></a>
-## Interwiki Tag Map
+## Interwiki Tag [Map](/intermap)

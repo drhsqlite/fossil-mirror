@@ -942,6 +942,9 @@ void baseline_zip_page(void){
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
+  if( zInclude==0 && zExclude==0 ){
+    etag_check_for_invariant_name(z);
+  }
   if( eType==ARCHIVE_ZIP 
    && nName>4
    && fossil_strcmp(&zName[nName-4], ".zip")==0

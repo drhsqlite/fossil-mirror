@@ -38,7 +38,6 @@
 # include <errno.h>
 #endif
 
-
 /*
 ** Exit.  Take care to close the database first.
 */
@@ -166,9 +165,17 @@ char *fossil_strtolwr(char *zIn){
 }
 
 /*
-** If this local variable is set, fossil_assert_safe_command_string()
-** returns false on an unsafe command-string rather than abort.  Set
-** this variable for testing.
+** This local variable determines the behavior of
+** fossil_assert_safe_command_string():
+**
+**    0 (default)       fossil_panic() on an unsafe command string
+**
+**    1                 Print an error but continue process.  Used for
+**                      testing of fossil_assert_safe_command_string().
+**
+**    2                 No-op.  Used to allow any arbitrary command string
+**                      through fossil_system(), such as when invoking
+**                      COMMAND in "fossil bisect run COMMAND".
 */
 static int safeCmdStrTest = 0;
 
@@ -176,7 +183,7 @@ static int safeCmdStrTest = 0;
 ** Check the input string to ensure that it is safe to pass into system().
 ** A string is unsafe for system() on unix if it contains any of the following:
 **
-**   *  Any occurrance of '$' or '`' except after \
+**   *  Any occurrance of '$' or '`' except single-quoted or after \
 **   *  Any of the following characters, unquoted:  ;|& or \n except
 **      these characters are allowed as the very last character in the
 **      string.
@@ -244,10 +251,6 @@ static void fossil_assert_safe_command_string(const char *z){
         if( inQuote==0 && z[i+1]!=0 ) unsafe = i+1;
         break;
       }
-      case '\\': {
-        if( z[i+1]=='"' ){ i++; }
-        break;
-      }
       case '"': {
         if( inQuote==c ){
           inQuote = 0;
@@ -257,9 +260,7 @@ static void fossil_assert_safe_command_string(const char *z){
         break;
       }
       case '^': {
-        if( z[i+1]=='"' ){
-          unsafe = i+2;
-        }else if( z[i+1]!=0 ){
+        if( !inQuote && z[i+1]!=0 ){
           i++;
         }
         break;
@@ -268,11 +269,12 @@ static void fossil_assert_safe_command_string(const char *z){
   }
   if( inQuote ) unsafe = i;
 #endif
-  if( unsafe ){
+  if( unsafe && safeCmdStrTest<2 ){
     char *zMsg = mprintf("Unsafe command string: %s\n%*shere ----^",
                    z, unsafe+13, "");
     if( safeCmdStrTest ){
       fossil_print("%z\n", zMsg);
+      fossil_free(zMsg);
     }else{
       fossil_panic("%s", zMsg);
     }
@@ -319,6 +321,18 @@ int fossil_system(const char *zOrigCmd){
 }
 
 /*
+** Like "fossil_system()" but does not check the command-string for
+** potential security problems.
+*/
+int fossil_unsafe_system(const char *zOrigCmd){
+  int rc;
+  safeCmdStrTest = 2;
+  rc = fossil_system(zOrigCmd);
+  safeCmdStrTest = 0;
+  return rc;
+}
+
+/*
 ** COMMAND: test-fossil-system
 **
 ** Read lines of input and send them to fossil_system() for evaluation.
@@ -330,6 +344,7 @@ void test_fossil_system_cmd(void){
   safeCmdStrTest = 1;
   while(1){
     size_t n;
+    int rc;
     printf("system-test> ");
     fflush(stdout);
     if( !fgets(zLine, sizeof(zLine), stdin) ) break;
@@ -338,7 +353,8 @@ void test_fossil_system_cmd(void){
     zLine[n] = 0;
     printf("cmd: [%s]\n", zLine);
     fflush(stdout);
-    fossil_system(zLine);
+    rc = fossil_system(zLine);
+    printf("result: %d\n", rc);
   }
 }
 

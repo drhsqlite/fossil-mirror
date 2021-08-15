@@ -1227,8 +1227,9 @@ void favicon_page(void){
 **     s=PATTERN             Search for PATTERN
 */
 void doc_search_page(void){
+  const int isSearch = P("s")!=0;
   login_check_credentials();
-  style_header("Document Search");
+  style_header("Document Search%s", isSearch ? " Results" : "");
   search_screen(SRCH_DOC, 0);
   style_finish_page();
 }

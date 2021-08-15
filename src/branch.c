@@ -83,9 +83,14 @@ void branch_new(void){
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   int isPrivate = 0;     /* True if the branch should be private */
+  int bAutoColor = 0;    /* Value of "--bgcolor" is "auto" */
 
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
+  if( fossil_strncmp(zColor, "auto", 4)==0 ) {
+    bAutoColor = 1;
+    zColor = 0;
+  }
   isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
@@ -153,7 +158,7 @@ void branch_new(void){
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
   if( content_is_private(rootid) ) isPrivate = 1;
-  if( isPrivate && zColor==0 ) zColor = "#fec084";
+  if( isPrivate && zColor==0 && !bAutoColor) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
@@ -341,6 +346,207 @@ int branch_is_open(const char *zBrName){
   );
 }
 
+/*
+** Internal helper for branch_cmd_close() and friends. Adds a row to
+** the to the brcmdtag TEMP table, initializing that table if needed,
+** holding a pending tag for the given blob.rid (which is assumed to
+** be valid). zTag must be a fully-formed tag name, including the
+** (+,-,*) prefix character.
+**
+*/
+static void branch_cmd_tag_add(int rid, const char *zTag){
+  static int once = 0;
+  assert(zTag && ('+'==zTag[0] || '-'==zTag[0] || '*'==zTag[0]));
+  if(0==once++){
+    db_multi_exec("CREATE TEMP TABLE brcmdtag("
+                  "rid INTEGER UNIQUE ON CONFLICT IGNORE,"
+                  "tag TEXT NOT NULL"
+                  ")");
+  }
+  db_multi_exec("INSERT INTO brcmdtag(rid,tag) VALUES(%d,%Q)",
+                rid, zTag);
+}
+
+/*
+** Internal helper for branch_cmd_close() and friends. Creates and
+** saves a control artifact of tag changes stored via
+** branch_cmd_tag_add(). Fails fatally on error, returns 0 if it saves
+** an artifact, and a negative value if it does not save anything
+** because no tags were queued up. A positive return value is reserved
+** for potential future semantics.
+**
+** This function asserts that a transaction is underway and it ends
+** the transaction, committing or rolling back, as appropriate.
+*/
+static int branch_cmd_tag_finalize(int fDryRun /* roll back if true */,
+                                   int fVerbose /* output extra info */,
+                                   const char *zDateOvrd /* --date-override */,
+                                   const char *zUserOvrd /* --user-override */){
+  int nTags = 0;
+  Stmt q = empty_Stmt;
+  Blob manifest = empty_blob;
+  int doRollback = fDryRun!=0;
+
+  assert(db_transaction_nesting_depth() > 0);
+  if(!db_table_exists("temp","brcmdtag")){
+    fossil_warning("No tags added - nothing to do.");
+    db_end_transaction(1);
+    return -1;
+  }
+  db_prepare(&q, "SELECT b.uuid, t.tag "
+             "FROM blob b, brcmdtag t "
+             "WHERE b.rid=t.rid "
+             "ORDER BY t.tag, b.uuid");
+  blob_appendf(&manifest, "D %z\n",
+               date_in_standard_format( zDateOvrd ? zDateOvrd : "now"));
+  while(SQLITE_ROW==db_step(&q)){
+    const char * zHash = db_column_text(&q, 0);
+    const char * zTag = db_column_text(&q, 1);
+    blob_appendf(&manifest, "T %s %s\n", zTag, zHash);
+    ++nTags;
+  }
+  if(!nTags){
+    fossil_warning("No tags added - nothing to do.");
+    db_end_transaction(1);
+    blob_reset(&manifest);
+    return -1;
+  }
+  user_select();
+  blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
+  { /* Z-card and save artifact */
+    int newRid;
+    Blob cksum = empty_blob;
+    md5sum_blob(&manifest, &cksum);
+    blob_appendf(&manifest, "Z %b\n", &cksum);
+    blob_reset(&cksum);
+    if(fDryRun && fVerbose){
+      fossil_print("Dry-run mode: will roll back new artifact:\n%b",
+                   &manifest);
+      /* Run through the saving steps, though, noting that doing so
+      ** will clear out &manifest, which is why we output it here
+      ** instead of after saving. */
+    }
+    newRid = content_put(&manifest);
+    if(0==newRid){
+      fossil_fatal("Problem saving new artifact: %s\n%b",
+                   g.zErrMsg, &manifest);
+    }else if(manifest_crosslink(newRid, &manifest, 0)==0){
+      fossil_fatal("Crosslinking error: %s", g.zErrMsg);
+    }
+    fossil_print("Saved new control artifact %z (RID %d).\n",
+                 rid_to_uuid(newRid), newRid);
+    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", newRid);
+    if(fDryRun){
+      fossil_print("Dry-run mode: rolling back new artifact.\n");
+      assert(0!=doRollback);
+    }
+  }
+  db_multi_exec("DROP TABLE brcmdtag");
+  blob_reset(&manifest);
+  db_end_transaction(doRollback);
+  return 0;
+}
+
+/*
+** Internal helper for branch_cmd_close() and friends. zName is a
+** symbolic checkin name. Returns the blob.rid of the checkin or fails
+** fatally if the name does not resolve unambiguously.  If zUuid is
+** not NULL, *zUuid is set to the resolved blob.uuid and must be freed
+** by the caller via fossil_free().
+*/
+static int branch_resolve_name(char const *zName, char **zUuid){
+  const int rid = name_to_uuid2(zName, "ci", zUuid);
+  if(0==rid){
+    fossil_fatal("Cannot resolve name: %s", zName);
+  }else if(rid<0){
+    fossil_fatal("Ambiguous name: %s", zName);
+  }
+  return rid;
+}
+
+/*
+** Implementation of (branch hide/unhide) subcommands. nStartAtArg is
+** the g.argv index to start reading branch/checkin names. fHide is
+** true for hiding, false for unhiding. Fails fatally on error.
+*/
+static void branch_cmd_hide(int nStartAtArg, int fHide){
+  int argPos = nStartAtArg;    /* g.argv pos with first branch/ci name */
+  char * zUuid = 0;            /* Resolved branch UUID. */
+  const int fVerbose = find_option("verbose","v",0)!=0;
+  const int fDryRun = find_option("dry-run","n",0)!=0;
+  const char *zDateOvrd = find_option("date-override",0,1);
+  const char *zUserOvrd = find_option("user-override",0,1);
+
+  verify_all_options();
+  db_begin_transaction();
+  for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
+    const char * zName = g.argv[argPos];
+    const int rid = branch_resolve_name(zName, &zUuid);
+    const int isHidden = rid_has_tag(rid, TAG_HIDDEN);
+    /* Potential TODO: check for existing 'hidden' flag and skip this
+    ** entry if it already has (if fHide) or does not have (if !fHide)
+    ** that tag. FWIW, /ci_edit does not do so. */
+    if(fHide && isHidden){
+      fossil_warning("Skipping hidden checkin %s: %s.", zName, zUuid);
+      continue;
+    }else if(!fHide && !isHidden){
+      fossil_warning("Skipping non-hidden checkin %s: %s.", zName, zUuid);
+      continue;
+    }
+    branch_cmd_tag_add(rid, fHide ? "*hidden" : "-hidden");
+    if(fVerbose!=0){
+      fossil_print("%s checkin [%s] %s\n",
+                   fHide ? "Hiding" : "Unhiding",
+                   zName, zUuid);
+    }
+  }
+  branch_cmd_tag_finalize(fDryRun, fVerbose, zDateOvrd, zUserOvrd);
+}
+
+/*
+** Implementation of (branch close|reopen) subcommands. nStartAtArg is
+** the g.argv index to start reading branch/checkin names. The given
+** checkins are closed if fClose is true, else their "closed" tag (if
+** any) is cancelled. Fails fatally on error.
+*/
+static void branch_cmd_close(int nStartAtArg, int fClose){
+  int argPos = nStartAtArg;    /* g.argv pos with first branch name */
+  char * zUuid = 0;            /* Resolved branch UUID. */
+  const int fVerbose = find_option("verbose","v",0)!=0;
+  const int fDryRun = find_option("dry-run","n",0)!=0;
+  const char *zDateOvrd = find_option("date-override",0,1);
+  const char *zUserOvrd = find_option("user-override",0,1);
+
+  verify_all_options();
+  db_begin_transaction();
+  for( ; argPos < g.argc; fossil_free(zUuid), ++argPos ){
+    const char * zName = g.argv[argPos];
+    const int rid = branch_resolve_name(zName, &zUuid);
+    const int isClosed = leaf_is_closed(rid);
+    if(!is_a_leaf(rid)){
+      /* This behaviour is different from /ci_edit closing, where
+      ** is_a_leaf() adds a "+" tag and !is_a_leaf() adds a "*"
+      ** tag. We might want to change this to match for consistency's
+      ** sake, but it currently seems unnecessary to close/re-open a
+      ** non-leaf. */
+      fossil_warning("Skipping non-leaf [%s] %s", zName, zUuid);
+      continue;
+    }else if(fClose && isClosed){
+      fossil_warning("Skipping closed leaf [%s] %s", zName, zUuid);
+      continue;
+    }else if(!fClose && !isClosed){
+      fossil_warning("Skipping non-closed leaf [%s] %s", zName, zUuid);
+      continue;
+    }
+    branch_cmd_tag_add(rid, fClose ? "+closed" : "-closed");
+    if(fVerbose!=0){
+      fossil_print("%s branch [%s] %s\n",
+                   fClose ? "Closing" : "Re-opening",
+                   zName, zUuid);
+    }
+  }
+  branch_cmd_tag_finalize(fDryRun, fVerbose, zDateOvrd, zUserOvrd);
+}
 
 /*
 ** COMMAND: branch
@@ -350,9 +556,27 @@ int branch_is_open(const char *zBrName){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
+** >  fossil branch close|reopen ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+**
+**       Adds or cancels the "closed" tag to one or more branches.
+**       It accepts arbitrary unambiguous symbolic names but
+**       will only resolve checkin names and skips any which resolve
+**       to non-leaf checkins. Options:
+**         -n|--dry-run          do not commit changes and dump artifact
+**                               to stdout
+**         -v|--verbose          output more information
+**         --date-override DATE  DATE to use instead of 'now'
+**         --user-override USER  USER to use instead of the current default
+**
 ** >  fossil branch current
 **
 **        Print the name of the branch for the current check-out
+**
+** >  fossil branch hide|unhide ?OPTIONS? BRANCH-NAME ?...BRANCH-NAMES?
+**
+**       Adds or cancels the "hidden" tag for the specified branches or
+**       or checkin IDs. Accepts the same options as the close
+**       subcommand.
 **
 ** >  fossil branch info BRANCH-NAME
 **
@@ -374,11 +598,13 @@ int branch_is_open(const char *zBrName){
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
 **        Supported options for this subcommand include:
-**        --private             branch is private (i.e., remains local)
-**        --bgcolor COLOR       use COLOR instead of automatic background
-**        --nosign              do not sign contents on this branch
-**        --date-override DATE  DATE to use instead of 'now'
-**        --user-override USER  USER to use instead of the current default
+**          --private             branch is private (i.e., remains local)
+**          --bgcolor COLOR       use COLOR instead of automatic background
+**                                ("auto" lets Fossil choose it automatically,
+**                                even for private branches)
+**          --nosign              do not sign contents on this branch
+**          --date-override DATE  DATE to use instead of 'now'
+**          --user-override USER  USER to use instead of the current default
 **
 **        DATE may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 **        year-month-day form, it may be truncated, the "T" may be
@@ -447,9 +673,29 @@ void branch_cmd(void){
     db_finalize(&q);
   }else if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
+  }else if( strncmp(zCmd,"close",5)==0 ){
+    if(g.argc<4){
+      usage("branch close branch-name(s)...");
+    }
+    branch_cmd_close(3, 1);
+  }else if( strncmp(zCmd,"reopen",6)==0 ){
+    if(g.argc<4){
+      usage("branch reopen branch-name(s)...");
+    }
+    branch_cmd_close(3, 0);
+  }else if( strncmp(zCmd,"hide",4)==0 ){
+    if(g.argc<4){
+      usage("branch hide branch-name(s)...");
+    }
+    branch_cmd_hide(3,1);
+  }else if( strncmp(zCmd,"unhide",6)==0 ){
+    if(g.argc<4){
+      usage("branch unhide branch-name(s)...");
+    }
+    branch_cmd_hide(3,0);
   }else{
     fossil_fatal("branch subcommand should be one of: "
-                 "current info list ls new");
+                 "close current hide info list ls new reopen unhide");
   }
 }
 

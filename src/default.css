@@ -1798,6 +1798,10 @@ body.branch .submenu > a.timeline-link.selected {
   display: inline;
 }
 
+.monospace {
+  font-family: monospace;
+}
+
 /* Objects in the "desktoponly" class are invisible on mobile */
 @media screen and (max-width: 600px) {
   .desktoponly {

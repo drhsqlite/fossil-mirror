@@ -444,7 +444,6 @@ static void stash_diff(
         isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
         diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
                       zBinGlob, fIncludeBinary, diffFlags);
-      }else{
       }
     }else{
       Blob delta;
@@ -474,7 +473,7 @@ static void stash_diff(
       }
       blob_reset(&delta);
     }
- }
+  }
   db_finalize(&q);
 }
 

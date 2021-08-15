@@ -6,8 +6,8 @@ If you have a [./server/|Fossil server] for your project,
 you can add [./aboutcgi.wiki|CGI]
 extensions to that server.  These extensions work like
 any other CGI program, except that they also have access to the Fossil
-login information and can (optionally) leverage the "skins" of Fossil
-so that they appear to be more tightly integrated into the project.
+login information and can (optionally) leverage the "[./customskin.md|skins]"
+of Fossil so that they appear to be more tightly integrated into the project.
 
 An example of where this is useful is the 
 [https://sqlite.org/src/ext/checklist|checklist application] on
@@ -27,7 +27,8 @@ the checklist.
 
 CGI Extensions are disabled by default.
 An administrator activates the CGI extension mechanism by specifying
-an "Extension Root Directory" or "extroot" as part of the server setup.
+an "Extension Root Directory" or "extroot" as part of the 
+[./server/index.html|server setup].
 If the Fossil server is itself run as 
 [./server/any/cgi.md|CGI], then add a line to the 
 [./cgi.wiki#extroot|CGI script file] that says:

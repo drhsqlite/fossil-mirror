@@ -171,7 +171,7 @@ void stat_page(void){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
     n = db_int(0, "SELECT count(*) FROM blob WHERE content IS NOT NULL");
     m = db_int(0, "SELECT count(*) FROM delta");
-    @ %.d(n) (%,d(n-m) fulltext and %,d(m) deltas)
+    @ %,d(n) (%,d(n-m) fulltext and %,d(m) deltas)
     if( g.perm.Write ){
       @ <a href='%R/artifact_stats'>Details</a>
     }
@@ -482,7 +482,7 @@ void urllist_page(void){
   int showAll = P("all")!=0;
   int nOmitted;
   sqlite3_int64 iNow;
-  char *zRemote;
+
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
 
@@ -492,7 +492,7 @@ void urllist_page(void){
   style_submenu_element("Stat", "stat");
   style_submenu_element("Schema", "repo_schema");
   iNow = db_int64(0, "SELECT strftime('%%s','now')");
-  @ <div class="section">URLs</div>
+  @ <div class="section">URLs used to access</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch'), mtime"
                  "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 3 DESC");
@@ -514,35 +514,60 @@ void urllist_page(void){
     @ <tr><td><a href="urllist?all"><i>Show %d(nOmitted) more...</i></a>
   }
   @ </table>
-  @ <div class="section">Checkouts</div>
-  @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
                  "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPath = db_column_text(&q,0);
     if( vfile_top_of_checkout(zPath) ){
+      if( cnt==0 ){
+        @ <div class="section">Checkouts</div>
+        @ <table border="0" width='100%%'>
+      }
       @ <tr><td width='100%%'>%h(zPath)</td>
       @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+      cnt++;
     }
+  }
+  db_finalize(&q);
+  if( cnt ){
+    @ </table>
+  }
+  cnt = 0;
+  db_prepare(&q, "SELECT substr(name,10), datetime(mtime,'unixepoch')"
+                 "  FROM config WHERE name GLOB 'syncwith:*' ORDER BY 2 DESC");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zURL = db_column_text(&q,0);
+    if( cnt==0 ){
+      @ <div class="section">Sync to these URLs</div>
+      @ <table border='0' width='100%%'>
+    }
+    @ <tr><td width='100%%'><a href='%h(zURL)'>%h(zURL)</a>
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
     cnt++;
   }
   db_finalize(&q);
-  if( cnt==0 ){
-    @ <tr><td>(none)</td>
+  if( cnt ){
+    @ </table>
   }
-  @ </table>
-  zRemote = db_text(0, "SELECT value FROM config WHERE name='last-sync-url'");
-  if( zRemote ){
-    @ <div class="section">Last Sync URL</div>
-    if( sqlite3_strlike("http%", zRemote, 0)==0 ){
-      UrlData x;
-      url_parse_local(zRemote, URL_OMIT_USER, &x);
-      @ <p><a href='%h(x.canonical)'>%h(zRemote)</a>
-    }else{
-      @ <p>%h(zRemote)</p>
+  cnt = 0;
+  db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
+                 "  FROM config WHERE name GLOB 'gitpush:*' ORDER BY 2 DESC");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zURL = db_column_text(&q,0);
+    UrlData x;
+    if( cnt==0 ){
+      @ <div class="section">Git Mirrors</div>
+      @ <table border='0' width='100%%'>
     }
-    @ </div>
+    url_parse_local(zURL, URL_OMIT_USER, &x);
+    @ <tr><td width='100%%'><a href='%h(x.canonical)'>%h(x.canonical)</a>
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+    cnt++;
+  }
+  db_finalize(&q);
+  if( cnt ){
+    @ </table>
   }
   style_finish_page();
 }
