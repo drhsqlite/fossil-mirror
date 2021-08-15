@@ -1,5 +1,5 @@
-C Improve\sthe\s/urllist\spage\sso\sthat\sit\sshows\sall\sservers\swith\swhich\sthe\nrepository\shas\ssynced.
-D 2021-08-15T00:43:27.316
+C Remove\sa\sharmless\sunused\svariable.
+D 2021-08-15T18:38:16.917
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -614,7 +614,7 @@ F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece
 F src/sqlite3.c 4a9194e9caf9c5548efd3e809f7dfab3fc33af56fa1de3a0af84613ddd8dde2e
 F src/sqlite3.h 8627e0120e85d5add3d67d3556b0fb01bced1c7708dcbfbcd8357f4ce48ab653
 F src/stash.c 46c32865c3529ab656bd4d9a1eaa4107ffa9d2ff2ae1307ce51865120ee1984f
-F src/stat.c 1273b0e9b84a725f738e11fe8cf92b347fd74fd47d1fa1fc2f64cb566466ed44
+F src/stat.c 3fe7018cd9aa9a2198565ab2aaac1968e7e5daa18c34f4843417e7039207343a
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 458b35a50717c1b663d90033b21bf9b56c4354044ffb22aca19d59fb51b48356
-R 537bfd6e314e2e6eb90268d8beae116e
+P 89e5c03a326933dd5ba93cdcf1ef4c29a00b1dc3243cd96b359659fd14f575f1
+R ee2f866253ac209f03509a83f18b9d5d
 U drh
-Z 541b274826e2d5f1c3153516068bdca3
+Z e388359a21237c45120762b19c0ec304

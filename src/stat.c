@@ -482,7 +482,6 @@ void urllist_page(void){
   int showAll = P("all")!=0;
   int nOmitted;
   sqlite3_int64 iNow;
-  char *zRemote;
 
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
