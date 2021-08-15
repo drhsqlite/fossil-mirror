@@ -188,9 +188,9 @@ void setup_page(void){
 */
 void onoff_attribute(
   const char *zLabel,   /* The text label on the checkbox */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQParm,   /* The query parameter */
-  int dfltVal,          /* Default value if VAR table entry does not exist */
+  int dfltVal,          /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if disabled */
 ){
   const char *zQ = P(zQParm);
@@ -203,7 +203,7 @@ void onoff_attribute(
     if( iQ!=iVal ){
       login_verify_csrf_secret();
       db_protect_only(PROTECT_NONE);
-      db_set(zVar, iQ ? "1" : "0", 0);
+      db_set(zVar/*works-like:"x"*/, iQ ? "1" : "0", 0);
       db_protect_pop();
       setup_incr_cfgcnt();
       admin_log("Set option [%q] to [%q].",
@@ -228,9 +228,9 @@ void onoff_attribute(
 void entry_attribute(
   const char *zLabel,   /* The text label on the entry box */
   int width,            /* Width of the entry box */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQParm,   /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if disabled */
 ){
   const char *zVal = db_get(zVar, zDflt);
@@ -240,7 +240,7 @@ void entry_attribute(
     login_verify_csrf_secret();
     setup_incr_cfgcnt();
     db_protect_only(PROTECT_NONE);
-    db_set(zVar, zQ, 0);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
     db_protect_pop();
     admin_log("Set entry_attribute %Q to: %.*s%s",
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
@@ -261,9 +261,9 @@ const char *textarea_attribute(
   const char *zLabel,   /* The text label on the textarea */
   int rows,             /* Rows in the textarea */
   int cols,             /* Columns in the textarea */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQP,      /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int disabled          /* 1 if the textarea should  not be editable */
 ){
   const char *z = db_get(zVar, zDflt);
@@ -272,7 +272,7 @@ const char *textarea_attribute(
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_protect_only(PROTECT_NONE);
-    db_set(zVar, zQ, 0);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
     db_protect_pop();
     setup_incr_cfgcnt();
     admin_log("Set textarea_attribute %Q to: %.*s%s",
@@ -298,9 +298,9 @@ const char *textarea_attribute(
 */
 void multiple_choice_attribute(
   const char *zLabel,   /* The text label on the menu */
-  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zVar,     /* The corresponding row in the CONFIG table */
   const char *zQP,      /* The query parameter */
-  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if CONFIG table entry does not exist */
   int nChoice,          /* Number of choices */
   const char *const *azChoice /* Choices in pairs (VAR value, Display) */
 ){
@@ -311,7 +311,7 @@ void multiple_choice_attribute(
     const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_unprotect(PROTECT_ALL);
-    db_set(zVar, zQ, 0);
+    db_set(zVar/*works-like:"x"*/, zQ, 0);
     setup_incr_cfgcnt();
     db_protect_pop();
     admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
@@ -901,7 +901,7 @@ void setup_settings(void){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
       onoff_attribute("", pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       is_truth(pSet->def), hasVersionableValue);
       @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
       if( pSet->versionable ){
@@ -927,7 +927,7 @@ void setup_settings(void){
       }
       @</td><td>
       entry_attribute("", /*pSet->width*/ 25, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       (char*)pSet->def, hasVersionableValue);
       @</td></tr>
     }
@@ -944,7 +944,7 @@ void setup_settings(void){
         @ <br />
       }
       textarea_attribute("", /*rows*/ 2, /*cols*/ 35, pSet->name,
-                      pSet->var!=0 ? pSet->var : pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name /*works-like:"x"*/,
                       (char*)pSet->def, hasVersionableValue);
       @<br />
     }

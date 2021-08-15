@@ -187,7 +187,7 @@ configured it with the <tt>--with-th1-docs</tt> option, which is
 disabled by default.
 
 Since TH1 is a full scripting language, this feature essential grants
-the ability to execute code on the server to any with check-in 
+the ability to execute code on the server to anyone with check-in 
 privilege for the project.
 This is a security risk that needs to be carefully managed.
 The feature is off by default.
@@ -208,10 +208,10 @@ file using the URL:
 The first part of this path, the "[http://fossil-scm.org/home]",
 is the base URL.  You might have originally typed:
 [http://fossil-scm.org/].  The web server at the fossil-scm.org
-site automatically redirects such links by appending "fossil".  The
-"fossil" file on fossil-scm.org is really a CGI script
+site automatically redirects such links by appending "home".  The
+"home" file on fossil-scm.org is really a [./server/any/cgi.md|CGI script]
 which runs the fossil web service in CGI mode.
-The "fossil" CGI script looks like this:
+The "home" CGI script looks like this:
 
 <blockquote><pre>
 #!/usr/bin/fossil

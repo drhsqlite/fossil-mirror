@@ -85,6 +85,7 @@ set doclist {
   mirrortogithub.md {How To Mirror A Fossil Repository On GitHub}
   /md_rules {Markdown Formatting Rules}
   newrepo.wiki {How To Create A New Fossil Repository}
+  patchcmd.md {The "fossil patch" Command}
   password.wiki {Password Management And Authentication}
   pikchr.md {The Pikchr Diagram Language}
   pop.wiki {Principles Of Operation}

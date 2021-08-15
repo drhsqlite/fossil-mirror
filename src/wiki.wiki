@@ -87,4 +87,4 @@ The last two rules are the HTML formatting rules.
 
 
 <a name="intermap"></a>
-<h2>Interwiki Tag Map</h2>
+<h2>Interwiki Tag [/intermap|Map]</h2>

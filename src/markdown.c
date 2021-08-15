@@ -173,35 +173,17 @@ struct html_tag {
  * GLOBAL VARIABLES *
  ********************/
 
-/* block_tags -- recognised block tags, sorted by cmp_html_tag */
+/* block_tags -- recognised block tags, sorted by cmp_html_tag.
+**
+** When these HTML tags are separated from other text by newlines
+** then they are rendered verbatim.  Their content is not interpreted
+** in any way.
+*/
 static const struct html_tag block_tags[] = {
-  { "p",            1 },
-  { "dl",           2 },
-  { "h1",           2 },
-  { "h2",           2 },
-  { "h3",           2 },
-  { "h4",           2 },
-  { "h5",           2 },
-  { "h6",           2 },
-  { "ol",           2 },
-  { "ul",           2 },
-  { "del",          3 },
-  { "div",          3 },
-  { "ins",          3 },
+  { "html",         4 },
   { "pre",          3 },
-  { "form",         4 },
-  { "math",         4 },
-  { "table",        5 },
-  { "iframe",       6 },
   { "script",       6 },
-  { "fieldset",     8 },
-  { "noscript",     8 },
-  { "blockquote",  10 }
 };
-
-#define INS_TAG (block_tags + 12)
-#define DEL_TAG (block_tags + 10)
-
 
 
 /***************************
@@ -272,8 +254,12 @@ static int cmp_link_ref_sort(const void *a, const void *b){
 static int cmp_html_tag(const void *a, const void *b){
   const struct html_tag *hta = a;
   const struct html_tag *htb = b;
-  if( hta->size!=htb->size ) return hta->size-htb->size;
-  return fossil_strnicmp(hta->text, htb->text, hta->size);
+  int sz = hta->size;
+  int c;
+  if( htb->size<sz ) sz = htb->size;
+  c = fossil_strnicmp(hta->text, htb->text, sz);
+  if( c==0 ) c = hta->size - htb->size;
+  return c;
 }
 
 
@@ -1713,7 +1699,7 @@ static size_t htmlblock_end(
   /* assuming data[0]=='<' && data[1]=='/' already tested */
 
   /* checking tag is a match */
-  if( (tag->size+3)>=size
+  if( (tag->size+3)>size
     || fossil_strnicmp(data+2, tag->text, tag->size)
     || data[tag->size+2]!='>'
   ){
@@ -1799,17 +1785,14 @@ static size_t parse_htmlblock(
     return 0;
   }
 
-  /* looking for an unindented matching closing tag */
-  /*  followed by a blank line */
+  /* looking for an matching closing tag */
+  /* followed by a blank line */
   i = 1;
   found = 0;
-#if 0
   while( i<size ){
     i++;
-    while( i<size && !(data[i-2]=='\n' && data[i-1]=='<' && data[i]=='/') ){
-      i++;
-    }
-    if( (i+2+curtag->size)>=size ) break;
+    while( i<size && !(data[i-1]=='<' && data[i]=='/') ){ i++; }
+    if( (i+2+curtag->size)>size ) break;
     j = htmlblock_end(curtag, data+i-1, size-i+1);
     if (j) {
       i += j-1;
@@ -1817,29 +1800,17 @@ static size_t parse_htmlblock(
       break;
     }
   }
-#endif
-
-  /* if not found, trying a second pass looking for indented match */
-  /* but not if tag is "ins" or "del" (following original Markdown.pl) */
-  if( !found && curtag!=INS_TAG && curtag!=DEL_TAG ){
-    i = 1;
-    while( i<size ){
-      i++;
-      while( i<size && !(data[i-1]=='<' && data[i]=='/') ){ i++; }
-      if( (i+2+curtag->size)>=size ) break;
-      j = htmlblock_end(curtag, data+i-1, size-i+1);
-      if (j) {
-        i += j-1;
-        found = 1;
-        break;
-      }
-    }
-  }
-
   if( !found ) return 0;
 
   /* the end of the block has been found */
-  blob_init(&work, data, i);
+  if( strcmp(curtag->text,"html")==0 ){
+    /* Omit <html> tags */
+    enum mkd_autolink dummy;
+    int k = tag_length(data, size, &dummy);
+    blob_init(&work, data+k, i-(j+k));
+  }else{
+    blob_init(&work, data, i);
+  }
   if( rndr->make.blockhtml ){
     rndr->make.blockhtml(ob, &work, rndr->make.opaque);
   }

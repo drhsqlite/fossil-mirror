@@ -439,9 +439,7 @@ LOCAL void ssl_remember_certificate_exception(
   UrlData *pUrlData,
   const char *zHash
 ){
-  char *zName = mprintf("cert:%s", pUrlData->name);
-  db_set(zName, zHash, 1);
-  fossil_free(zName);
+  db_set_mprintf(zHash, 1, "cert:%s", pUrlData->name);
 }
 
 /*

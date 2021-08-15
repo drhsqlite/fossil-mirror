@@ -1,15 +1,61 @@
 <title>Change Log</title>
 
+<a name='v2_17'></a>
+<h2>Changes for version 2.17 (pending)</h2>
+  *  The --branchcolor option on [/help?cmd=commit|fossil commit] and
+     [/help?cmd=amend|fossil amend] can now take the value "auto" to
+     force Fossil to use its built-in automatic color choosing algorithm.
+  *  Fossil now [./concepts.wiki#workflow|autosyncs] prior to running 
+     [/help?cmd=open|fossil open].
+  *  Add the [/help?cmd=ticket-default-report|ticket-default-report setting],
+     which if set to the title of a ticket report causes that ticket report
+     to be displayed below the search box in the /ticket page.
+  *  The "nc" query parameter to the [/help?cmd=/timeline|/timeline] page
+     causes all graph coloring to be omitted.
+  *  Improvements and bug fixes to the new "fossil ui REMOTE" feature so
+     that it works better on a wider variety of platforms.
+  *  In [/help?cmd=/wikiedit|/wikiedit], show the list of attachments for 
+     the current page and list URLs suitable for pasting them into the page.
+  *  Add the --no-http-compression option to [/help?cmd=sync|fossil sync]
+     and similar.
+  *  Print total payload bytes on a [/help?cmd=sync|fossil sync] when using
+     the --verbose option.
+  *  Add the <tt>close</tt>, <tt>reopen</tt>, <tt>hide</tt>, and
+     </tt>unhide</tt> subcommands to [/help?cmd=branch|the branch command].
+  *  The [/mdrules|Markdown formatter] now interprets the content of
+     block HTML markup (such as &lt;table&gt;) in most cases.  Only content
+     of &lt;pre&gt; and &lt;script&gt; is passed through verbatim.
+  *  [/wcontent|Listing] of the available wiki pages
+     [/timeline?r=wcontent-subsets|gained] the ability to
+     [./javascript.md#wcontent|interactively] adjust a subset of
+     wiki pages that are shown; this is based on the
+     classification of wiki page names according to the
+     [/help?cmd=wiki-classes|configurable] glob patterns.
+
 <a name='v2_16'></a>
-<h2>Changes for Version 2.16 (pending)</h2>
+<h2>Changes for Version 2.16 (2021-07-02)</h2>
   *  <b>Security:</b> Fix the client-side TLS so that it verifies that the
-     server hostname matches its certificate. <b>Upgrading to
-     the patch is recommended.</b>
+     server hostname matches its certificate.
+  *  The default "ssh" command on Windows is changed to "ssh" instead of the
+     legacy "plink", as ssh is now generally available on Windows systems.
+     Installations that still need to use the legacy "plink" can make that
+     happen by running: '<tt>fossil set ssh-command "plink -ssh" --global</tt>'.
+  *  Added the [./patchcmd.md|fossil patch] command.
+  *  The [/help?cmd=ui|fossil ui] command is enhanced in multiple ways:<ol>
+     <li> The REPOSITORY argument can be the name of a check-out directory.
+     <li> If the REPOSITORY argument is prefixed by "HOST:" or "USER@HOST:"
+          then the ui is run on the remote machine and tunnelled back to the local
+          machine using ssh.  (The latest version of fossil must be installed on
+          both the local and the remote for this to work correctly.)
+     <li> The new --nobrowser and --fossilcmd options is provided.
+     </ol>
   *  The [/brlist|/brlist web page] allows the user to
      select multiple branches to be displayed together in a single
      timeline.
   *  The [./forum.wiki|Forum] provides a hyperlink on the author of each
      post that goes to a timeline of recent posts by that same author.
+  *  Added the "[/help?cmd=bisect|fossil bisect run]" command for improved
+     automation of bisects.
   *  The [/help?cmd=merge|fossil merge] command now does a better job merging
      branches where files have been renamed between the current branch and the
      branch being merged.
@@ -21,18 +67,17 @@
      timeline if the repository has forum posts.
   *  Tags may now be propagated for forum posts, wiki pages, and technotes.
      The [/help?cmd=tag|tag command] can now manipulate and list such tags.
-  *  [./caps/login-groups.md|Login-Groups] are now show on the repository
+  *  [./caps/login-groups.md|Login-Groups] are now shown on the repository
      list of the "[/help?cmd=all|fossil all ui]" command.
-  *  Administrators can configure [./alerts|email alerts] to expire
+  *  Administrators can configure [./alerts.md|email alerts] to expire
      a specific number of days (ex: 365) after the last user contact with
-     the Fossil server. This can prevents alert emails being sent to
+     the Fossil server. This prevents alert emails being sent to
      abandoned email accounts forever.
-  *  [/wcontent|Listing] of the available wiki pages
-     [/timeline?r=wcontent-subsets|gained] the ability to
-     [./javascript.md#wcontent|interactively] adjust a subset of
-     wiki pages that are shown; this is based on the
-     classification of wiki page names according to the
-     [/help?cmd=wiki-classes|configurable] glob patterns.
+  *  SQL that defines [/tktsetup_tab|database objects for tickets] now
+     [/timeline?c=c717f1ef9a1a4c91|can DROP] a VIEW or an INDEX provided
+     that its name starts with '<code>ticket</code>' or '<code>fx_</code>'.
+  *  Update the built-in SQLite to version 3.36.0.
+  *  Numerous other minor enhancements.
 
 <a name='v2_15'></a>
 <h2>Changes for Version 2.15 (2021-03-26) and Patch 2.15.1 on (2021-04-07)
@@ -295,6 +340,9 @@
      of the wiki "Sandbox": that pseudo-page may be freely edited but
      no longer saved via the UI (the [/help?cmd=wiki|wiki CLI command]
      can, though).
+  *  The [/help?cmd=allow-symlinks|allow-symlinks setting] no longer
+     syncs. It must be activated individually on any clones which require
+     symlinks.
   *  Countless documentation enhancements.
 
 <a name='v2_11'></a>

@@ -1780,6 +1780,7 @@ void register_page(void){
 
   style_header("Register");
   /* Print out the registration form. */
+  g.perm.Hyperlink = 1;  /* Artificially enable hyperlinks */
   form_begin(0, "%R/register");
   if( P("g") ){
     @ <input type="hidden" name="g" value="%h(P("g"))" />

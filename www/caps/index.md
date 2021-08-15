@@ -304,12 +304,7 @@ not just those done over `http[s]://` URLs:
     [`test-http`](/help?name=test-http) command to receive the tunneled
     HTTP connection. The reason Fossil’s user capability system is
     bypassed in this case is that [`test-http` gives full capabilities
-    to its users][sxcap].
-
-    The SSH client command defaults to “`ssh -e none -T`” on most
-    platforms except Windows where it defaults to “`plink -ssh -T`”.
-    You can override this with [the `ssh-command`
-    setting](/help?name=ssh-command).
+    to its users][sxycap].
 
 *   For `file://` URLs — as opposed to plain local file paths —
     the “sending” Fossil instance writes its side of
@@ -323,7 +318,7 @@ Checks for capabilities like [**Read**][o] and [**Write**][i] within the
 HTTP conversation between two Fossil instances only have a useful effect
 when done over an `http[s]://` URL.
 
-[sxcap]: /file?ci=8813ae91a699ac73&name=src/main.c&ln=2632-2637
+[sxycap]: /file?ci=ec5efceb8aac6cb4&name=src/main.c&ln=2748-2752
 
 
 ## <a name="pubpg"></a>Public Pages

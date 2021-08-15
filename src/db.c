@@ -3323,6 +3323,11 @@ void db_lset_int(const char *zName, int value){
 }
 
 /* Va-args versions of db_get(), db_set(), and db_unset()
+**
+** codecheck1.c verifies that the format string for db_set_mprintf()
+** and db_unset_mprintf() begins with an ASCII character prefix.  We
+** don't want that format string to begin with %s or %d as that might
+** allow an injection attack to set or overwrite arbitrary settings.
 */
 char *db_get_mprintf(const char *zDefault, const char *zFormat, ...){
   va_list ap;
@@ -3341,7 +3346,7 @@ void db_set_mprintf(const char *zNew, int iGlobal, const char *zFormat, ...){
   va_start(ap, zFormat);
   zName = vmprintf(zFormat, ap);
   va_end(ap);
-  db_set(zName, zNew, iGlobal);
+  db_set(zName/*works-like:"x"*/, zNew, iGlobal);
   fossil_free(zName);
 }
 void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
@@ -3350,7 +3355,7 @@ void db_unset_mprintf(int iGlobal, const char *zFormat, ...){
   va_start(ap, zFormat);
   zName = vmprintf(zFormat, ap);
   va_end(ap);
-  db_unset(zName, iGlobal);
+  db_unset(zName/*works-like:"x"*/, iGlobal);
   fossil_free(zName);
 }
 
@@ -3500,6 +3505,7 @@ void db_record_repository_filename(const char *zName){
 **   --force-missing   Force opening a repository with missing content
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
+**   --nosync          Do not auto-sync the repository prior to opening
 **   --repodir DIR     If REPOSITORY is a URI that will be cloned, store
 **                     the clone in DIR rather than in "."
 **   --setmtime        Set timestamps of all files to match their SCM-side
@@ -3524,6 +3530,7 @@ void cmd_open(void){
   char *zPwd;                    /* Initial working directory */
   int isUri = 0;                 /* True if REPOSITORY is a URI */
   int nLocal;                    /* Number of preexisting files in cwd */
+  int bNosync = 0;               /* --nosync.  Omit auto-sync */
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
@@ -3534,6 +3541,7 @@ void cmd_open(void){
   zWorkDir = find_option("workdir",0,1);
   zRepoDir = find_option("repodir",0,1);
   bForce = find_option("force","f",0)!=0;  
+  bNosync = find_option("nosync",0,0)!=0;
   zPwd = file_getcwd(0,0);
   
 
@@ -3601,10 +3609,10 @@ void cmd_open(void){
     zRepo = mprintf("%s/%s.fossil", zRepoDir, zNewBase);
     fossil_free(zNewBase);
     blob_init(&cmd, 0, 0);
-    blob_append_escaped_arg(&cmd, g.nameOfExe);
+    blob_append_escaped_arg(&cmd, g.nameOfExe, 1);
     blob_append(&cmd, " clone", -1);
-    blob_append_escaped_arg(&cmd, zUri);
-    blob_append_escaped_arg(&cmd, zRepo);
+    blob_append_escaped_arg(&cmd, zUri, 1);
+    blob_append_escaped_arg(&cmd, zRepo, 1);
     zCmd = blob_str(&cmd);
     fossil_print("%s\n", zCmd);
     if( zWorkDir ) file_chdir(zPwd, 0);
@@ -3628,6 +3636,12 @@ void cmd_open(void){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
       g.zOpenRevision = db_get("main-branch", 0);
+    }
+    if( !bNosync
+     && autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1)
+     && !bForce
+    ){
+      fossil_fatal("unable to auto-sync the repository");
     }
   }
 
@@ -3986,7 +4000,7 @@ struct Setting {
 **
 **     kdiff3 "%baseline" "%original" "%merge" -o "%output"
 **     xxdiff "%original" "%baseline" "%merge" -M "%output"
-**     meld "%baseline" "%original" "%merge" "%output"
+**     meld "%baseline" "%original" "%merge" --output "%output"
 */
 /*
 ** SETTING: hash-digits      width=5 default=10
@@ -4062,7 +4076,7 @@ struct Setting {
 **
 ** Check-in locks are an advisory mechanism designed to help prevent
 ** accidental forks due to a check-in race in installations where many
-** user are  committing to the same branch and auto-sync is enabled.
+** users are  committing to the same branch and auto-sync is enabled.
 ** As forks are harmless, there is no danger in disabling this mechanism.
 ** However, keeping check-in locks turned on can help prevent unnecessary
 ** confusion.
@@ -4455,10 +4469,10 @@ void setting_cmd(void){
         fossil_fatal("cannot set 'manifest' globally");
       }
       if( unsetFlag ){
-        db_unset(pSetting->name, globalFlag);
+        db_unset(pSetting->name/*works-like:"x"*/, globalFlag);
       }else{
         db_protect_only(PROTECT_NONE);
-        db_set(pSetting->name, g.argv[3], globalFlag);
+        db_set(pSetting->name/*works-like:"x"*/, g.argv[3], globalFlag);
         db_protect_pop();
       }
       if( isManifest && g.localOpen ){

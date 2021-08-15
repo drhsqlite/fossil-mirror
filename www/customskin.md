@@ -240,7 +240,7 @@ part of the overall web page.</dd>
 <dt><b>js.txt</b></dt><dd>
 
 <p>The js.txt file is optional.  It is intended to be javascript.
-The complete text of this javascript is might be inserted into
+The complete text of this javascript might be inserted into
 the Content Footer, after being processed using TH1, using
 code like the following in the "footer.txt" file:
 
@@ -356,7 +356,7 @@ The menu bar of the default skin has an entry to open a drop-down menu with
 additional navigation links, represented by the ≡ button (hence the name
 "hamburger menu"). The Javascript logic to open and close the hamburger menu
 when the button is clicked is usually handled by a script named
-"hbmenu.js" that is one of the [built-in resource files](/test-builtin-list)
+"hbmenu.js" that is one of the [built-in resource files](/test-builtin-files)
 that are part of Fossil.
 
 The ≡ button for the hamburger menu is added to the menu bar by the following

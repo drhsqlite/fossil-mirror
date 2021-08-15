@@ -64,7 +64,10 @@ void unversioned_schema(void){
 */
 const char *unversioned_content_hash(int debugFlag){
   const char *zHash = debugFlag ? 0 : db_get("uv-hash", 0);
-  if( zHash==0 ){
+  if( zHash ) return zHash;
+  if( !db_table_exists("repository","unversioned") ){
+    return "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+  }else{
     Stmt q;
     db_prepare(&q,
       "SELECT printf('%%s %%s %%s\n',name,datetime(mtime,'unixepoch'),hash)"

@@ -542,15 +542,15 @@ void win32_http_server(
   }
   if( zBaseUrl ){
     blob_appendf(&options, " --baseurl ");
-    blob_append_escaped_arg(&options, zBaseUrl);
+    blob_append_escaped_arg(&options, zBaseUrl, 0);
   }
   if( zNotFound ){
     blob_appendf(&options, " --notfound ");
-    blob_append_escaped_arg(&options, zNotFound);
+    blob_append_escaped_arg(&options, zNotFound, 1);
   }
   if( g.zCkoutAlias ){
     blob_appendf(&options, " --ckout-alias ");
-    blob_append_escaped_arg(&options, g.zCkoutAlias);
+    blob_append_escaped_arg(&options, g.zCkoutAlias, 0);
   }
   if( zFileGlob ){
     blob_appendf(&options, " --files-urlenc %T", zFileGlob);
@@ -566,7 +566,7 @@ void win32_http_server(
   }
   if( g.zExtRoot && g.zExtRoot[0] ){
     blob_appendf(&options, " --extroot");
-    blob_append_escaped_arg(&options, g.zExtRoot);
+    blob_append_escaped_arg(&options, g.zExtRoot, 1);
   }
   zSkin = skin_in_use();
   if( zSkin ){
@@ -574,7 +574,7 @@ void win32_http_server(
   }
   if( g.zMainMenuFile ){
     blob_appendf(&options, " --mainmenu ");
-    blob_append_escaped_arg(&options, g.zMainMenuFile);
+    blob_append_escaped_arg(&options, g.zMainMenuFile, 1);
   }
 #if USE_SEE
   zSavedKey = db_get_saved_encryption_key();

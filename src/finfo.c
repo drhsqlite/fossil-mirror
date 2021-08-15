@@ -143,6 +143,7 @@ void finfo_cmd(void){
     blob_reset(&fname);
   }else if( find_option("id","i",0) ){
     Blob fname;
+    int rid;
     const char *zRevision = find_option("revision", "r", 1);
 
     verify_all_options();
@@ -150,10 +151,10 @@ void finfo_cmd(void){
     if( zRevision==0 ) usage("-i|--id also requires -r|--revision");
     if( g.argc!=3 ) usage("-r|--revision REVISION FILENAME");
     file_tree_name(g.argv[2], &fname, 0, 1);
-    int rid = db_int(0, "SELECT rid FROM blob WHERE uuid ="
-                         "  (SELECT uuid FROM files_of_checkin(%Q)"
-                         "   WHERE filename=%B %s)",
-                     zRevision, &fname, filename_collation());
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid ="
+                    "  (SELECT uuid FROM files_of_checkin(%Q)"
+                    "   WHERE filename=%B %s)",
+                 zRevision, &fname, filename_collation());
     if( rid==0 ) {
       fossil_fatal("file not found for revision %s: %s",
                    zRevision, blob_str(&fname));
@@ -902,7 +903,7 @@ void mlink_page(void){
        mid
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
-    render_checkin_context(mid, 0, 1);
+    render_checkin_context(mid, 0, 1, 0);
     style_table_sorter();
     @ <hr />
     @ <div class='brlist'>

@@ -399,13 +399,6 @@ static void append_quoted(Blob *pOut, Blob *pMsg){
   }
 }
 
-#if defined(_WIN32) || defined(WIN32)
-# undef popen
-# define popen _popen
-# undef pclose
-# define pclose _pclose
-#endif
-
 #if INTERFACE
 /*
 ** An instance of the following object is used to send emails.
@@ -1162,7 +1155,7 @@ void alert_cmd(void){
        || (pSetting = db_find_setting(zLabel, 1))==0 ){
         fossil_fatal("not a valid email setting: \"%s\"", zLabel);
       }
-      db_set(pSetting->name, g.argv[4], isGlobal);
+      db_set(pSetting->name/*works-like:""*/, g.argv[4], isGlobal);
       g.argc = 3;
     }
     pSetting = setting_info(&nSetting);
@@ -3257,6 +3250,13 @@ static char *alert_send_announcement(void){
 ** receive announcements.
 */
 void announce_page(void){
+  const char *zAction = "announce"
+    /* Maintenance reminder: we need an explicit action=THIS_PAGE on the
+    ** form element to avoid that a URL arg of to=... passed to this
+    ** page ends up overwriting the form-posted "to" value. This
+    ** action value differs for the test1 request path.
+    */;
+
   login_check_credentials();
   if( !g.perm.Announce ){
     login_needed(0);
@@ -3265,6 +3265,7 @@ void announce_page(void){
   style_set_current_feature("alerts");
   if( fossil_strcmp(P("name"),"test1")==0 ){
     /* Visit the /announce/test1 page to see the CGI variables */
+    zAction = "announce/test1";
     @ <p style='border: 1px solid black; padding: 1ex;'>
     cgi_print_all(0, 0);
     @ </p>
@@ -3292,7 +3293,7 @@ void announce_page(void){
   }
 
   style_header("Send Announcement");
-  @ <form method="POST">
+  @ <form method="POST" action="%R/%s(zAction)">
   @ <table class="subscribe">
   if( g.perm.Admin ){
     int aa = PB("aa");

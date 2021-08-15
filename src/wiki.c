@@ -681,7 +681,7 @@ void wiki_page(void){
   const char *zMimetype = 0;
   int isPopup = P("popup")!=0;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
-  int noSubmenu = P("nsm")!=0;
+  int noSubmenu = P("nsm")!=0 || g.isHome;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -719,7 +719,7 @@ void wiki_page(void){
     }
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
-  if( !g.isHome && !noSubmenu ){
+  if( !noSubmenu ){
     if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
      && wiki_special_permission(zPageName)
     ){
@@ -896,6 +896,95 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
   return 0;  
 }
 
+
+/*
+** Emits an array of attachment info records for the given wiki page
+** artifact.
+**
+** Output format:
+**
+** [{
+**   "uuid": attachment artifact hash,
+**   "src": hash of the attachment blob,
+**   "target": wiki page name or ticket/event ID,
+**   "filename": filename of attachment,
+**   "mtime": ISO-8601 timestamp UTC,
+**   "isLatest": true this is the latest version of this file
+**               else false,
+** }, ...once per attachment]
+**
+** If there are no matching attachments then it will emit a JSON
+** null (if nullIfEmpty) or an empty JSON array.
+**
+** If latestOnly is true then only the most recent entry for a given
+** attachment is emitted, else all versions are emitted in descending
+** mtime order.
+*/
+static void wiki_ajax_emit_page_attachments(Manifest * pWiki,
+                                            int latestOnly,
+                                            int nullIfEmpty){
+  int i = 0;
+  Stmt q = empty_Stmt;
+  db_prepare(&q,
+     "SELECT datetime(mtime), src, target, filename, isLatest,"
+     "  (SELECT uuid FROM blob WHERE rid=attachid) uuid"
+     "  FROM attachment"
+     "  WHERE target=%Q"
+     "  AND (isLatest OR %d)"
+     "  ORDER BY target, isLatest DESC, mtime DESC",
+     pWiki->zWikiTitle, !latestOnly
+  );
+  while(SQLITE_ROW == db_step(&q)){
+    const char * zTime = db_column_text(&q, 0);
+    const char * zSrc = db_column_text(&q, 1);
+    const char * zTarget = db_column_text(&q, 2);
+    const char * zName = db_column_text(&q, 3);
+    const int isLatest = db_column_int(&q, 4);
+    const char * zUuid = db_column_text(&q, 5);
+    if(!i++){
+      CX("[");
+    }else{
+      CX(",");
+    }
+    CX("{");
+    CX("\"uuid\": %!j, \"src\": %!j, \"target\": %!j, "
+       "\"filename\": %!j, \"mtime\": %!j, \"isLatest\": %s}",
+       zUuid, zSrc, zTarget,
+       zName, zTime, isLatest ? "true" : "false");
+  }
+  db_finalize(&q);
+  if(!i){
+    if(nullIfEmpty){
+      CX("null");
+    }else{
+      CX("[]");
+    }
+  }else{
+    CX("]");
+  }
+}
+
+/*
+** Proxy for wiki_ajax_emit_page_attachments() which attempts to load
+** the given wiki page artifact. Returns true if it can load the given
+** page, else false. If it returns false then it queues up a 404 ajax
+** error response.
+*/
+static int wiki_ajax_emit_page_attachments2(const char *zPageName,
+                                            int latestOnly,
+                                            int nullIfEmpty){
+  Manifest * pWiki = 0;
+  if( !wiki_fetch_by_name(zPageName, 0, 0, &pWiki) ){
+    ajax_route_error(404, "Wiki page could not be loaded: %s",
+                     zPageName);
+    return 0;
+  }
+  wiki_ajax_emit_page_attachments(pWiki, latestOnly, nullIfEmpty);
+  manifest_destroy(pWiki);
+  return 1;
+}
+
+
 /*
 ** Loads the given wiki page, sets the response type to
 ** application/json, and emits it as a JSON object.  If zPageName is a
@@ -914,6 +1003,7 @@ static int wiki_ajax_can_write(const char *zPageName, int * pRid){
 **   parent: "parent uuid" or null if no parent,
 **   isDeleted: true if the page has no content (is "deleted")
 **              else not set (making it "falsy" in JS),
+**   attachments: see wiki_ajax_emit_page_attachments(),
 **   content: "page content" (only if includeContent is true)
 ** }
 **
@@ -964,6 +1054,8 @@ static int wiki_ajax_emit_page_object(const char *zPageName,
     if(includeContent){
       CX(", \"content\": %!j", pWiki->zWiki);
     }
+    CX(", \"attachments\": ");
+    wiki_ajax_emit_page_attachments(pWiki, 0, 1);
     CX("}");
     fossil_free(zUuid);
     manifest_destroy(pWiki);
@@ -1054,6 +1146,35 @@ static void wiki_ajax_route_fetch(void){
   }
   cgi_set_content_type("application/json");
   wiki_ajax_emit_page_object(zPageName, 1);
+}
+
+/*
+** Ajax route handler for /wikiajax/attachments.
+**
+** URL params:
+**
+**  page = the wiki page name
+**  latestOnly = if set, only latest version of each attachment
+**               is emitted.
+**
+** Responds with JSON: see wiki_ajax_emit_page_attachments()
+**
+** If there are no attachments it emits an empty array instead of null
+** so that the output can be used as a top-level JSON response.
+**
+** On error, an object in the form documented by
+** ajax_route_error(). On success, an object in the form documented
+** for wiki_ajax_emit_page_attachments().
+*/
+static void wiki_ajax_route_attachments(void){
+  const char * zPageName = P("page");
+  const int fLatestOnly = P("latestOnly")!=0;
+  if( zPageName==0 || zPageName[0]==0 ){
+    ajax_route_error(400,"Missing page name.");
+    return;
+  }
+  cgi_set_content_type("application/json");
+  wiki_ajax_emit_page_attachments2(zPageName, fLatestOnly, 0);
 }
 
 /*
@@ -1212,6 +1333,7 @@ void wiki_ajax_page(void){
   const AjaxRoute * pRoute = 0;
   const AjaxRoute routes[] = {
   /* Keep these sorted by zName (for bsearch()) */
+  {"attachments", wiki_ajax_route_attachments, 0, 0},
   {"diff", wiki_ajax_route_diff, 1, 1},
   {"fetch", wiki_ajax_route_fetch, 0, 0},
   {"list", wiki_ajax_route_list, 0, 0},
@@ -1438,9 +1560,13 @@ void wikiedit_page(void){
   {
     CX("<div id='wikiedit-tab-misc' "
        "data-tab-parent='wikiedit-tabs' "
-       "data-tab-label='Help' "
+       "data-tab-label='Misc.' "
        "class='hidden'"
        ">");
+    CX("<fieldset id='attachment-wrapper'>");
+    CX("<legend>Attachments</legend>");
+    CX("<div>No attachments for the current page.</div>");
+    CX("</fieldset>");
     CX("<h2>Wiki formatting rules</h2>");
     CX("<ul>");
     CX("<li><a href='%R/wiki_rules'>Fossil wiki format</a></li>");
@@ -1724,6 +1850,7 @@ void whistory_page(void){
   const char *zPageName;
   double rNow;
   int showRid;
+  char zAuthor[64];
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = PD("name","");
@@ -1765,7 +1892,7 @@ void whistory_page(void){
   @ <th>&nbsp;</th>
   @ </tr></thead><tbody>
   rNow = db_double(0.0, "SELECT julianday('now')");
-  char zAuthor[64]; memset( zAuthor, 0, sizeof(zAuthor) );
+  memset( zAuthor, 0, sizeof(zAuthor) );
   while( db_step(&q)==SQLITE_ROW ){
     double rMtime = db_column_double(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
