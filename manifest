@@ -1,5 +1,5 @@
-C Remember\sthe\sURLs\sfor\sGit-mirror\ssyncs.\s\sShow\sthem\son\sthe\s/urllist\spage.
-D 2021-08-14T22:06:42.425
+C Improve\sthe\s/urllist\spage\sso\sthat\sit\sshows\sall\sservers\swith\swhich\sthe\nrepository\shas\ssynced.
+D 2021-08-15T00:43:27.316
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -614,7 +614,7 @@ F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece
 F src/sqlite3.c 4a9194e9caf9c5548efd3e809f7dfab3fc33af56fa1de3a0af84613ddd8dde2e
 F src/sqlite3.h 8627e0120e85d5add3d67d3556b0fb01bced1c7708dcbfbcd8357f4ce48ab653
 F src/stash.c 46c32865c3529ab656bd4d9a1eaa4107ffa9d2ff2ae1307ce51865120ee1984f
-F src/stat.c ea8bd6e18126bb93ac2e84d0fa47d19e97cd066467877af9d380a2edea482178
+F src/stat.c 1273b0e9b84a725f738e11fe8cf92b347fd74fd47d1fa1fc2f64cb566466ed44
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
 F src/style.c d6d8e8d96de530cddb4d1a53f22649dcf7b018754d1c06bd08b8626452c697e0
@@ -650,7 +650,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 8149a84fe21e83b9fd7416c4084e5fa80e425a4e4c70bacf4568696e8246ef19
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 9703d2be8cb500839e5027626abdb0e6c7263deb264ba0a753ebd2ed2598c31b
-F src/xfer.c 0914febde7a70c790636b981b49f088c325380e9c64a90228f3da0c5ba25c019
+F src/xfer.c 0c1e7baf407a8040473f3d93f82d59de5b4cd5e394759484e4d66469feaad851
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 999d838de2a2c57af3cad89e00a08e09ea67665521aa2a69f194b357d4b17eb7
-R 963192ba1fcc542c6f2d2142516f3be4
+P 458b35a50717c1b663d90033b21bf9b56c4354044ffb22aca19d59fb51b48356
+R 537bfd6e314e2e6eb90268d8beae116e
 U drh
-Z e97c4009e6e75474dfe4d0f7bb4b11f7
+Z 541b274826e2d5f1c3153516068bdca3

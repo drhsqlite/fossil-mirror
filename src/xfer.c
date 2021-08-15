@@ -2134,10 +2134,21 @@ int client_sync(
     if( syncFlags & SYNC_NOHTTPCOMPRESS ){
       mHttpFlags |= HTTP_NOCOMPRESS;
     }
+
+    /* Do the round-trip to the server */
     if( http_exchange(&send, &recv, mHttpFlags, MAX_REDIRECTS, 0) ){
       nErr++;
       go = 2;
       break;
+    }
+
+    /* Remember the URL of the sync target in the config file on the
+    ** first successful round-trip */
+    if( nCycle==0 && db_is_writeable("repository") ){
+      db_unprotect(PROTECT_CONFIG);
+      db_multi_exec("REPLACE INTO config(name,value,mtime)"
+                    "VALUES('syncwith:%q',1,now())", g.url.canonical);
+      db_protect_pop();
     }
 
     /* Output current stats */
