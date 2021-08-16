@@ -1,5 +1,5 @@
-C Remove\sa\sharmless\sunused\svariable.
-D 2021-08-15T18:38:16.917
+C Relax\s<tt>isSnippetMark()</tt>\sso\sthat\salmost\sarbitrary\ssearch\sterms\sare\shighlighted.\sThis\schange\sis\spreliminary\sand\s[forum:/forumpost/042e179e0c25b8|needs\sfurther\sanalysis].
+D 2021-08-16T00:11:20.381
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -578,7 +578,7 @@ F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
 F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
-F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
+F src/search.c 0a07971e0445491105a5df1b69929db65cec41e90b708055048f475625d85eb9
 F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
 F src/setup.c 8d304d4fc56e8b5e4437d94bd12d712ce989764ace6dd27e4f3a30abe69005a6
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
@@ -996,7 +996,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89e5c03a326933dd5ba93cdcf1ef4c29a00b1dc3243cd96b359659fd14f575f1
-R ee2f866253ac209f03509a83f18b9d5d
-U drh
-Z e388359a21237c45120762b19c0ec304
+P a004b1729c419c4f323f61718e05ab5e3812a64ddaf1a0ceaacd17fd2f301f93
+R 4d1dc20563484421cc0937bd1aed09d8
+T *branch * search-terms-highlighting
+T *sym-search-terms-highlighting *
+T -sym-trunk *
+U george
+Z 4f6759b70ef91beb8d7b4a993ffad64f

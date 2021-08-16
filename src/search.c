@@ -979,7 +979,7 @@ static int isSnippetMark(const char *z){
   int n;
   if( strncmp(z,"<mark>",6)!=0 ) return 0;
   n = 6;
-  while( fossil_isalnum(z[n]) ) n++;
+  while( z[n]!=0 && z[n]!='<' ) n++;
   if( strncmp(&z[n],"</mark>",7)!=0 ) return 0;
   return n+7;
 }
