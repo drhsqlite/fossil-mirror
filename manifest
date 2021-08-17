@@ -1,5 +1,5 @@
-C Provide\sa\swarning\son\sthe\ssecurity-audit\spage\sif\sany\sof\sthe\sTH1\sscripts\sthat\nrun\sduring\sa\ssyncm,\spush,\spull,\sor\sclone\sare\sconfigured.
-D 2021-08-17T17:32:38.761
+C Back\sout\sthe\smain-url\spatch.\s\sOn\ssecond\sthought,\sthis\sdoes\snot\sadd\sa\slot\nof\svalue\sbut\sdoes\sintroduce\scomplication.\s\sMaybe\sit\swill\sget\sadded\sback\sin\nlater.
+D 2021-08-17T19:44:31.555
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -580,7 +580,7 @@ F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
 F src/security_audit.c 11e895c3060231df2db1b742be76179c647603190ee43b3fc6badf1c5804519f
-F src/setup.c e44eed8909f38ed9610cabb62b5f6990789179f9df3dc1ed7e343a12d7b8488a
+F src/setup.c 8d304d4fc56e8b5e4437d94bd12d712ce989764ace6dd27e4f3a30abe69005a6
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -650,7 +650,7 @@ F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 8149a84fe21e83b9fd7416c4084e5fa80e425a4e4c70bacf4568696e8246ef19
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 9703d2be8cb500839e5027626abdb0e6c7263deb264ba0a753ebd2ed2598c31b
-F src/xfer.c d60b5b78a0f4af5adb037728734690c0e7b953e98a692fd677ff096a80cd1984
+F src/xfer.c 0c1e7baf407a8040473f3d93f82d59de5b4cd5e394759484e4d66469feaad851
 F src/xfersetup.c 4213e18fb00228e8182661d22caf7ffb66eb82729766ffac854b400dd1a84823
 F src/zip.c 5eeeec9efbe1560c3a8a07cb9457586160bdf6d0def0e7ea616489ad1e31f6a1
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -996,7 +996,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ae7a5160ffde01945e5326c97a82a5c240986359ad103fab1e55c82cc6bf126
-R 7ab23020fbe9af3a650f94e3e1088153
+P cfb5be41896928643dd108d79d9fcb0df383a10ac6495cef0e613bcfd26bd41d
+Q -2ae7a5160ffde01945e5326c97a82a5c240986359ad103fab1e55c82cc6bf126
+R 5fa3925f4299610dd543494033f64534
 U drh
-Z d9af283702839638cf8cb70297f01c56
+Z 1ad3d2c1a8db17237dff21658bc88332
