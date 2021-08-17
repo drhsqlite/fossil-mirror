@@ -1,5 +1,5 @@
-C Add\sthe\s"main-url"\ssetting.\s\sUse\sit\sto\ssend\sthe\s"pragma\sfrom-url"\son\sa\nsync.\sThe\sserver\suses\sthis\sto\sadd\snew\ssyncwith:\sentries\sfor\sthe\sclient.
-D 2021-08-17T17:13:44.918
+C Provide\sa\swarning\son\sthe\ssecurity-audit\spage\sif\sany\sof\sthe\sTH1\sscripts\sthat\nrun\sduring\sa\ssyncm,\spush,\spull,\sor\sclone\sare\sconfigured.
+D 2021-08-17T17:32:38.761
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -579,7 +579,7 @@ F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
-F src/security_audit.c b23421f33b20017305588ebceb10fa83ce2920eedcf9ae6e634e6549095bce01
+F src/security_audit.c 11e895c3060231df2db1b742be76179c647603190ee43b3fc6badf1c5804519f
 F src/setup.c e44eed8909f38ed9610cabb62b5f6990789179f9df3dc1ed7e343a12d7b8488a
 F src/setupuser.c 66d1c85ebb7d43f24b97a4fef0850e6760e6ed934bcd8fdc3a4c360474a9e689
 F src/sha1.c a0b572370cf68fa813c55f983de9e4db527401f466d1d80e4e363e255c0e6d66
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9bdbcd39cb71ce9df1d28f69d22414f088c5467c0d03e40408bf40a998d9da2e
-R 0c282d6824037e316b11390fd7608503
+P 2ae7a5160ffde01945e5326c97a82a5c240986359ad103fab1e55c82cc6bf126
+R 7ab23020fbe9af3a650f94e3e1088153
 U drh
-Z fb7ce9554d80064f93b551f2d3e2da8f
+Z d9af283702839638cf8cb70297f01c56
