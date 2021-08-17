@@ -1579,7 +1579,7 @@ void page_xfer(void){
         }else{
           xfer.syncPrivate = 1;
         }
-      }
+      }else
 
       /*   pragma send-catalog
       **
@@ -1589,7 +1589,7 @@ void page_xfer(void){
       */
       if( blob_eq(&xfer.aToken[1], "send-catalog") ){
         xfer.resync = 0x7fffffff;
-      }
+      }else
 
       /*   pragma client-version VERSION ?DATE? ?TIME?
       **
@@ -1605,7 +1605,7 @@ void page_xfer(void){
           @ pragma server-version %d(RELEASE_VERSION_NUMBER) \
           @ %d(MANIFEST_NUMERIC_DATE) %d(MANIFEST_NUMERIC_TIME)
         }
-      }
+      }else
 
       /*   pragma uv-hash HASH
       **
@@ -1628,7 +1628,7 @@ void page_xfer(void){
           send_unversioned_catalog(&xfer);
         }
         uvCatalogSent = 1;
-      }
+      }else
 
       /*   pragma ci-lock CHECKIN-HASH CLIENT-ID
       **
@@ -1688,7 +1688,7 @@ void page_xfer(void){
         if( db_get_boolean("forbid-delta-manifests",0) ){
           @ pragma avoid-delta-manifests
         }
-      }
+      }else
 
       /*   pragma ci-unlock CLIENT-ID
       **
@@ -1708,8 +1708,30 @@ void page_xfer(void){
           blob_str(&xfer.aToken[2])
         );
         db_protect_pop();
-      }
+      }else
 
+      /*   pragma from-url URL
+      **
+      ** By this pragma, the client proclaims that it can be reached
+      ** as a server located at URL.
+      **
+      ** If the user has write permission, then record the URL as a sync
+      ** partner so that it shows up in /urllist pages.
+      */
+      if( blob_eq(&xfer.aToken[1], "from-url") ){
+        if( xfer.nToken==3
+         && blob_size(&xfer.aToken[2])>4
+         && g.perm.Write
+        ){
+          db_unprotect(PROTECT_CONFIG);
+          db_multi_exec(
+            "REPLACE INTO config(name,value,mtime)"
+            "VALUES('syncwith:%q',1,now())",
+            blob_str(&xfer.aToken[2])
+          );
+          db_protect_pop();
+        }
+      }
     }else
 
     /* Unknown message
@@ -2110,6 +2132,16 @@ int client_sync(
       zCkinLock = 0;
     }else if( zClientId ){
       blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
+    }
+
+    /* If this repository has a main-url, let the other side know about
+    ** it.
+    */
+    if( (syncFlags && SYNC_PUSH)!=0  && nCycle==0 ){
+      const char *zSelfUrl = db_get("main-url",0);
+      if( zSelfUrl && zSelfUrl[0]!=0 ){
+        blob_appendf(&send, "pragma from-url %s\n", zSelfUrl);
+      }
     }
 
     /* Append randomness to the end of the uplink message.  This makes all

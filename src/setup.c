@@ -1056,6 +1056,16 @@ void setup_config(void){
   @ (Property: "download-tag")
   @ </p>
   @ <hr />
+  entry_attribute("Main URL", 60, "main-url", "exturl", "", 0);
+  @ <p>Enter the canonical URL used to access this repository from the
+  @ internet.  If this repository is not set up as a server, leave this
+  @ entry blank.
+  @
+  @ <p>This entry is not required. It is informational only. Inaccurate
+  @ entries here will cause goofy URLs to appear under the /urllist page
+  @ of sync partners, but are otherwise harmless.
+  @ (Property: "main-url")
+  @ <hr />
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
   @ option is selected and when no pathname is
