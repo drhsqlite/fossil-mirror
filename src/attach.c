@@ -661,6 +661,7 @@ void attachment_list(
     cnt++;
     @ <li>
     @ %z(href("%R/artifact/%!S",zSrc))%h(zFile)</a>
+    @ [<a href="%R/attachdownload/%t(zFile)?page=%t(zTarget)&file=%t(zFile)">download</a>]
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     @ [%z(href("%R/ainfo/%!S",zUuid))details</a>]

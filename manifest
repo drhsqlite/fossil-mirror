@@ -1,5 +1,5 @@
-C In\sthe\sattachment\slist\sof\s/wiki,\slink\sthe\sword\sAttachments\sto\sthe\s/attachlist\spage\sas\sa\sworkaround\sfor\sdownloading\sthe\sattachments\susing\stheir\sexpected\snames\s(rather\sthan\schange\sthe\shistorical\sbehaviour\sof\sthe\sin-page\slinks,\swhich\sdownload\susing\sartifact\sIDs).\sDiscussed\sin\s[forum:6566f665a3685c4f\s|\sforum\spost\s6566f665a3685c4f].
-D 2021-08-18T18:18:44.234
+C attachment_list(),\sused\sby\swiki,\stech-note,\sand\sticket\sattachment\slists,\snow\sincludes\sa\sdownload\slink\swhich\sattempts\sto\sdownload\susing\sthe\sfile's\sname\sinstead\sof\sartifact\sID.\sDiscussed\sin\s[forum:6566f665a3685c4f\s|\sforum\spost\s6566f665a3685c4f].
+D 2021-08-18T19:13:50.734
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -427,7 +427,7 @@ F src/alerts/bloop.wav 765ed2eb421bb140bcb49061399d94fb4293d62213a9a81c54ecfd49b
 F src/alerts/mkwav.c 20c525ede301b5bf5025cb451ba23a957ef68655df8dac990b4c06b7844f352a
 F src/alerts/plunk.wav 8c78b234304a265bc4948e3c923593f1b3194f4ff998babeeb743ecc3fe1c1e4
 F src/allrepo.c 719f9c30f4b43896e06a6594ad0cd1bfd520c112b79c6aa44f58b2cf104480d6
-F src/attach.c b267288bfa844e96b6226d053fb30da02f0e98e4a6f23ba9f5477f9104e2a8de
+F src/attach.c 53a49ac8721c79ad98a7bbe6d0cb848f7271c0d0501e63b863df377c491bbabf
 F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c67
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5bb4f12a8fedd4f47cba5f54bab00bd88e64650b31c0a1b82df4848c973a1e48
-R a0b4f68c3ad83c84a6bfb8f661d0fcd1
+P 6e442303146cbcc2cf85b3a0f147f706589b31f2eaf01bed238a2b2ddb1006c1
+R c5b2d6f331ad2d3b1317ba967da1a9df
 U stephan
-Z b67211c0edc3d3e59619defd072486aa
+Z 00e9dc00313f766f2cad0bffcbf92eb2
