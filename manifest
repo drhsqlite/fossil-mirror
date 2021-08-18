@@ -1,5 +1,5 @@
-C Back\sout\sthe\smain-url\spatch.\s\sOn\ssecond\sthought,\sthis\sdoes\snot\sadd\sa\slot\nof\svalue\sbut\sdoes\sintroduce\scomplication.\s\sMaybe\sit\swill\sget\sadded\sback\sin\nlater.
-D 2021-08-17T19:44:31.555
+C In\sthe\sattachment\slist\sof\s/wiki,\slink\sthe\sword\sAttachments\sto\sthe\s/attachlist\spage\sas\sa\sworkaround\sfor\sdownloading\sthe\sattachments\susing\stheir\sexpected\snames\s(rather\sthan\schange\sthe\shistorical\sbehaviour\sof\sthe\sin-page\slinks,\swhich\sdownload\susing\sartifact\sIDs).\sDiscussed\sin\s[forum:6566f665a3685c4f\s|\sforum\spost\s6566f665a3685c4f].
+D 2021-08-18T18:18:44.234
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -645,7 +645,7 @@ F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
 F src/util.c b395caf6be490abc61b219a276069888a97b6ecba886224af851fbbf78539ffe
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 66e3b6704108c13a38912ad781ddfb5514ae5e4b3f57383df040875766808a98
+F src/wiki.c 9bfaeea0e5df2bd6b7a8eec36a49487fe28b0b83e8eeb1c0eb55e09d2c0d4cb3
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 8149a84fe21e83b9fd7416c4084e5fa80e425a4e4c70bacf4568696e8246ef19
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -996,8 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cfb5be41896928643dd108d79d9fcb0df383a10ac6495cef0e613bcfd26bd41d
-Q -2ae7a5160ffde01945e5326c97a82a5c240986359ad103fab1e55c82cc6bf126
-R 5fa3925f4299610dd543494033f64534
-U drh
-Z 1ad3d2c1a8db17237dff21658bc88332
+P 5bb4f12a8fedd4f47cba5f54bab00bd88e64650b31c0a1b82df4848c973a1e48
+R a0b4f68c3ad83c84a6bfb8f661d0fcd1
+U stephan
+Z b67211c0edc3d3e59619defd072486aa

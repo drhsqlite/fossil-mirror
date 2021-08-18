@@ -614,7 +614,11 @@ void wiki_page(void){
   }
   manifest_destroy(pWiki);
   if( !isPopup ){
-    attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
+    char * zLabel = mprintf("<hr /><h2><a href='%R/attachlist?name=%T'>"
+                            "Attachments</a>:</h2><ul>",
+                            zPageName);
+    attachment_list(zPageName, zLabel);
+    fossil_free(zLabel);
     document_emit_js(/*for optional pikchr support*/);
     style_finish_page();
   }
