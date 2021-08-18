@@ -145,6 +145,7 @@ char *skin_use_alternative(const char *zName, int rank){
   int i;
   Blob err = BLOB_INITIALIZER;
   if(rank > currentRank) return 0;
+  currentRank = rank;
   if( zName && 1==rank && strchr(zName, '/')!=0 ){
     zAltSkinDir = fossil_strdup(zName);
     return 0;

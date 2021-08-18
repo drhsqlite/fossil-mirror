@@ -1,5 +1,5 @@
-C attachment_list(),\sused\sby\swiki,\stech-note,\sand\sticket\sattachment\slists,\snow\sincludes\sa\sdownload\slink\swhich\sattempts\sto\sdownload\susing\sthe\sfile's\sname\sinstead\sof\sartifact\sID.\sDiscussed\sin\s[forum:6566f665a3685c4f\s|\sforum\spost\s6566f665a3685c4f].
-D 2021-08-18T19:13:50.734
+C Resolved,\sit\sseems,\sskin\scookie/query\sparam/--skin\sflag\spriority\sbug\swhich\sallowed\san\sempty\sskin=\squery\sparam\sto\stake\seffect\seven\swhen\s--skin\swas\sused.\sReported\sin\s[forum:745cbb55268aff37\s|\sforum\spost\s745cbb55268aff37].
+D 2021-08-18T21:37:30.414
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -589,7 +589,7 @@ F src/shell.c 88ba2780da184e9b98f731e5af49349f0fe662b6f08e53d6d3a061cbd31ef22a
 F src/shun.c 011890daac7837ded87804ce576cfae317a72f447aaba5eb0e460e066e4465ff
 F src/sitemap.c 7d1d409a80c19429f33660e1d167fc146fce4ecf5da9f3ed692534d7a535cb69
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 0cd9b2405246c948aae680f34f37c5d6fa37689b15479086f2c3e4f13bda1685
+F src/skins.c 7171c2d31025b46c54ba5b0923017ee7240fa18988cd5bf7710c4ad499f95214
 F src/smtp.c 2da5334b00b731089c847d10de3f4c1c564b52f7c24245f8f729f119c464043c
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sounds/0.wav f458e4f43f17c0d7b17325f8623aa481596dd7d9f9b44fa26c479c03a467940a
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e442303146cbcc2cf85b3a0f147f706589b31f2eaf01bed238a2b2ddb1006c1
-R c5b2d6f331ad2d3b1317ba967da1a9df
+P 648bb4c1b58364e65ab229051956eae651a395b97818295c60954e9c339f9a83
+R a2e791251429a840f6a84cc20d949fc7
 U stephan
-Z 00e9dc00313f766f2cad0bffcbf92eb2
+Z 863306806cb8c8947481a9fdf6f449e7
