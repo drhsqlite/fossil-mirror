@@ -55,7 +55,7 @@ this way: ([/help/init | more info]) </p>
 
 You can name the database anything you like, and you can place it anywhere in the filesystem.
 The <tt>.fossil</tt> extension is traditional but only required if you are going to use the 
-<tt>[./help?cmd=server | fossil server DIRECTORY]</tt> feature.”
+<tt>[/help/server | fossil server DIRECTORY]</tt> feature.”
 
 <h2 id="clone">Cloning An Existing Repository</h2>
 
