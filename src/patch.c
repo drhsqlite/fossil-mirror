@@ -564,7 +564,7 @@ void patch_apply(unsigned mFlags){
     if( mFlags & PATCH_DRYRUN ){
       fossil_print("%s", blob_str(&cmd));
     }else{
-      int rc = fossil_system(blob_str(&cmd));
+      int rc = fossil_unsafe_system(blob_str(&cmd));
       if( rc ){
         fossil_fatal("unable to add new files:\n%s",
                      blob_str(&cmd));
