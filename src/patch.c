@@ -374,10 +374,24 @@ void patch_apply(unsigned mFlags){
   Stmt q;
   Blob cmd;
 
-  if( (mFlags & PATCH_FORCE)==0 && unsaved_changes(0) ){
-    fossil_fatal("there are unsaved changes in the current checkout");
-  }
   blob_init(&cmd, 0, 0);
+  if( unsaved_changes(0) ){
+    if( (mFlags & PATCH_FORCE)==0 ){
+      fossil_fatal("there are unsaved changes in the current checkout");
+    }else{
+      blob_appendf(&cmd, "%$ revert", g.nameOfExe);
+      if( mFlags & PATCH_DRYRUN ){
+        fossil_print("%s\n", blob_str(&cmd));
+      }else{
+        int rc = fossil_system(blob_str(&cmd));
+        if( rc ){
+          fossil_fatal("unable to revert preexisting changes: %s",
+                       blob_str(&cmd));
+        }
+      }
+      blob_reset(&cmd);
+    }
+  }
   file_chdir(g.zLocalRoot, 0);
   db_prepare(&q,
     "SELECT patch.cfg.value"
@@ -655,7 +669,14 @@ static FILE *patch_remote_command(
   char *zDir;
   Blob cmd;
   FILE *f;
-  const char *zForce = (mFlags & PATCH_FORCE)!=0 ? " -f" : "";
+  Blob flgs;
+  char *zForce;
+
+  blob_init(&flgs, 0, 0);
+  if( mFlags & PATCH_FORCE )  blob_appendf(&flgs, " -f");
+  if( mFlags & PATCH_VERBOSE )  blob_appendf(&flgs, " -v");
+  if( mFlags & PATCH_DRYRUN )  blob_appendf(&flgs, " -n");
+  zForce = blob_size(&flgs)>0 ? blob_str(&flgs) : "";
   if( g.argc!=4 ){
     usage(mprintf("%s [USER@]HOST:DIRECTORY", zThisCmd));
   }
@@ -687,6 +708,7 @@ static FILE *patch_remote_command(
     fossil_fatal("cannot run command: %s", blob_str(&cmd));
   }
   blob_reset(&cmd);
+  blob_reset(&flgs);
   return f;
 }
 
@@ -841,7 +863,8 @@ static void patch_diff(
 **       in the current directory if DIRECTORY is omitted. Options:
 **
 **           -f|--force     Apply the patch even though there are unsaved
-**                          changes in the current check-out.
+**                          changes in the current check-out.  Unsaved changes
+**                          are reverted and permanently lost.
 **           -n|--dryrun    Do nothing, but print what would have happened.
 **           -v|--verbose   Extra output explaining what happens.
 **
@@ -873,7 +896,8 @@ static void patch_diff(
 **       local machine (using ssh) and apply the patch in the local checkout.
 **
 **           -f|--force     Apply the patch even though there are unsaved
-**                          changes in the current check-out.
+**                          changes in the current check-out.  Unsaved changes
+**                          will be reverted and then the patch is applied.
 **           -n|--dryrun    Do nothing, but print what would have happened.
 **           -v|--verbose   Extra output explaining what happens.
 **

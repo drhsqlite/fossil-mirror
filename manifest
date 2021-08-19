@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\spatch\spull"\scommand\sso\sthat\sit\sworks\seven\sif\sthe\sremote\nhas\sadded\stwo\sor\smore\sfiles.
-D 2021-08-19T19:01:59.114
+C Enhancements\sto\s"fossil\spatch".\s\sThe\s-f\sflag\snow\scauses\sa\srevert\sprior\sto\napplying\sthe\spatch.\s\sThe\s-f,\s-v\sand\s-n\sflags\swork\swith\s"patch\spush".
+D 2021-08-19T19:21:07.522
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -559,7 +559,7 @@ F src/mkindex.c 971441257ae3452150daa6f70c08db56e2d18cd1073472cf9d3e92b8b7d18d62
 F src/mkversion.c a2b7770e72894b7ecaa6f24b7b70ef83b672d272d6e9657649716a24dd4d2691
 F src/moderate.c 4ed60b71898395e9cc0e0bcb0698a43fa5b1f6cb07574593a45058f0cce2ef92
 F src/name.c 274aa2b22e665627369da0e16748dace3618301f326662e02a67a6d7006c66e2
-F src/patch.c 9318fc93b310d733303e04f1161dedb236239eebf71b185d1dcb62a4efa45a84
+F src/patch.c ab9e55bc93aa125b4935853075e86f741a4f0dd5c9e5d024960fe24494027a3b
 F src/path.c f70e2a2e59977ef5dfe9f2ce294faccb75d6dd0f3ec44f4f48e9f18315e2bfda
 F src/piechart.c c22f122ac46fc5d1eb64f88696a76dd0bc9ba72ecbc5a98826d3f9b410e274b1
 F src/pikchr.c eff4cb60244a616647394abf359663e4cc0ef5c9a81627047b34f552c5a56dd3
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6b608a0ccbe3c531b3b006df5fb616b4d63aa35563235835615a7f5d8780631b
-R 9419f949fbb3d0818fdbf8a9a03c4c6b
+P 08be0c75b9be066145efce159d4ea242a9b289d0326ddfcd988a292a5c5584f9
+R 6e018fb0b2718647c2d35dd35264fc14
 U drh
-Z afa40ed3f79d49c65c62e460608b83a8
+Z 0866a6ae4aa17cf853eb5d37f21f7112
