@@ -663,6 +663,7 @@ static FILE *patch_remote_command(
   unsigned mFlags,             /* flags */
   const char *zThisCmd,        /* "push" or "pull" */
   const char *zRemoteCmd,      /* "apply" or "create" */
+  const char *zFossilCmd,      /* Name of "fossil" on remote system */
   const char *zRW              /* "w" or "r" */
 ){
   char *zRemote;
@@ -694,8 +695,9 @@ static FILE *patch_remote_command(
     blob_appendf(&cmd, " -T");
     blob_append_escaped_arg(&cmd, zRemote, 0);
     blob_init(&remote, 0, 0);
-    blob_appendf(&remote, "fossil patch %s%s --dir64 %z -", 
-                 zRemoteCmd, zForce, encode64(zDir, -1));
+    if( zFossilCmd==0 ) zFossilCmd = "fossil";
+    blob_appendf(&remote, "%$ patch %s%s --dir64 %z -", 
+                 zFossilCmd, zRemoteCmd, zForce, encode64(zDir, -1));
     blob_append_escaped_arg(&cmd, blob_str(&remote), 0);
     blob_reset(&remote);
   }
@@ -887,26 +889,28 @@ static void patch_diff(
 **           *   HOST:DIRECTORY
 **           *   USER@HOST:DIRECTORY
 **
-**       This command will only work if "fossil" is on the default PATH
-**       of the remote machine.
+**       Command-line options:
+**
+**           -f|--force         Apply the patch even though there are unsaved
+**                              changes in the current check-out.  Unsaved
+**                              changes will be reverted and then the patch is
+**                              applied.
+**           --fossilcmd EXE    Name of the "fossil" executable on the remote  
+**           -n|--dryrun        Do nothing, but print what would have happened.
+**           -v|--verbose       Extra output explaining what happens.
+**
 **
 ** > fossil patch pull REMOTE-CHECKOUT
 **
-**       Create a patch on a remote check-out, transfer that patch to the
-**       local machine (using ssh) and apply the patch in the local checkout.
-**
-**           -f|--force     Apply the patch even though there are unsaved
-**                          changes in the current check-out.  Unsaved changes
-**                          will be reverted and then the patch is applied.
-**           -n|--dryrun    Do nothing, but print what would have happened.
-**           -v|--verbose   Extra output explaining what happens.
+**       Like "fossil patch push" except that the transfer is from remote
+**       to local.  All the same command-line options apply.
 **
 ** > fossil patch view FILENAME
 **
 **       View a summary of the changes in the binary patch FILENAME.
 **       Use "fossil patch diff" for detailed patch content.
 **
-**           -v|--verbose   Show extra detail about the patch.
+**           -v|--verbose       Show extra detail about the patch.
 **
 */
 void patch_cmd(void){
@@ -973,12 +977,14 @@ void patch_cmd(void){
   if( strncmp(zCmd, "pull", n)==0 ){
     FILE *pIn = 0;
     unsigned flags = 0;
+    const char *zFossilCmd = find_option("fossilcmd",0,1);
     if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();
     verify_all_options();
-    pIn = patch_remote_command(flags & (~PATCH_FORCE), "pull", "create", "r");
+    pIn = patch_remote_command(flags & (~PATCH_FORCE), 
+                 "pull", "create", zFossilCmd, "r");
     if( pIn ){
       patch_attach(0, pIn);
       pclose(pIn);
@@ -988,12 +994,13 @@ void patch_cmd(void){
   if( strncmp(zCmd, "push", n)==0 ){
     FILE *pOut = 0;
     unsigned flags = 0;
+    const char *zFossilCmd = find_option("fossilcmd",0,1);
     if( find_option("dryrun","n",0) )   flags |= PATCH_DRYRUN;
     if( find_option("verbose","v",0) )  flags |= PATCH_VERBOSE;
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     db_must_be_within_tree();
     verify_all_options();
-    pOut = patch_remote_command(flags, "push", "apply", "w");
+    pOut = patch_remote_command(flags, "push", "apply", zFossilCmd, "w");
     if( pOut ){
       patch_create(0, 0, pOut);
       pclose(pOut);
