@@ -1,5 +1,5 @@
-C Resolved,\sit\sseems,\sskin\scookie/query\sparam/--skin\sflag\spriority\sbug\swhich\sallowed\san\sempty\sskin=\squery\sparam\sto\stake\seffect\seven\swhen\s--skin\swas\sused.\sReported\sin\s[forum:745cbb55268aff37\s|\sforum\spost\s745cbb55268aff37].
-D 2021-08-18T21:37:30.414
+C URL\sfix\saddressing\s[forum:/forumpost/d35232eda0\s|\sa\sreport\son\sthe\sforum].
+D 2021-08-19T10:37:36.425
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -939,7 +939,7 @@ F www/pikchr.md 6cbf3f3173165b871cfb268ed85498430fb341caf7fdc6eeb471e07aea01f8dc
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki 0eac0141dc6029185b504a8aac8e0ca907ad3ecb30143cfdd172eb034e0dbf2d
-F www/quickstart.wiki 38832b5e21c9b7999525bfc243a2a3e479f38ea06c9b17add7542704c3ec678e
+F www/quickstart.wiki 80cadd399a5e483e1e70a9b97ddda81e7f26aee989a338f3c42a697b541e3174
 F www/quotes.wiki 084f5f936d9b12e61df24190a37a7a51c9aed1e2178671f02cb85c5c77ae53d0
 F www/rebaseharm.md 62b958d3a8b09a50823534f10f3275a287f088c320be5a71a96fd955490cf7db
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 648bb4c1b58364e65ab229051956eae651a395b97818295c60954e9c339f9a83
-R a2e791251429a840f6a84cc20d949fc7
-U stephan
-Z 863306806cb8c8947481a9fdf6f449e7
+P a9995c561be17dda11f3e6410b1375d9b57ffd2fca02e5befd469cadec8b90dc
+R aaf2c9dc93ae2320b1f83133d9a28add
+U wyoung
+Z 8bc864c2d18e3dbe5f81b9a47552fbb2
