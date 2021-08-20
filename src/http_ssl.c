@@ -399,6 +399,7 @@ int ssl_open(UrlData *pUrlData){
       prompt_user("remember this exception (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='y' || cReply=='Y') {
+        db_open_config(0,0);
         ssl_remember_certificate_exception(pUrlData, zHash);
       }
       blob_reset(&ans);

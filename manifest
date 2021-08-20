@@ -1,5 +1,5 @@
-C Add\sthe\s--fossilcmd\soption\sto\sthe\s"patch\spush"\sand\s"patch\spull"\scommands.\nAlso\simprove\sthe\s"patch"\sdocumentation\sslightly.
-D 2021-08-19T19:38:02.909
+C After\sprompting\sto\ssave\san\sSSL\scert\sverification,\sensure\sthat\sthe\sconfig\sdb\sis\sopened\sto\savoid\sa\sfatal\serror\swhen\ssaving.\sSee\sforum\sposts\s[forum:c53d1915a4e0a051|c53d1915a4e0a051]\sand\s[forum:4dcd2f16c289848c|4dcd2f16c289848c].
+D 2021-08-20T22:41:28.615
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/hook.c e1a759e54877800dd86b17355a8f07f2caebb325c0f2d014473b47a5b4099d28
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
-F src/http_ssl.c 09e56d0f97f5f7034d42d6c0412aad7ae4aa64d2d389198a16ed52d96588755b
+F src/http_ssl.c 1b352f7ae0595dacfa2a96e439693acb4fcceec9b6fb383538da40c82b8b1b23
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c 4ce48074a515116058a525be2f80f309ca047e4c2e48d72631ef2ea3e6143bf4
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 136d2004084130180da22cf6368c50fbf1b785dca6f554869fd21d0455d5f97a
-R d1abcae10d30fa3f5d4b7bd331d071e4
-U drh
-Z 426dc17594b3c253940d150dfe3cc57e
+P 280e12a35685a8679451a1a76f072120450f17577a11ff547a87943f116ac30d
+R b081a58549e8a4092545034c6b8cdf6a
+U stephan
+Z 80e87a4ebb5f714c43241504377c908b
