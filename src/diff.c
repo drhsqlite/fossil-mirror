@@ -126,6 +126,10 @@ struct DContext {
 ** is specified, the number of lines is zero.  For the purposes of this
 ** function, a string is considered empty if it contains no characters
 ** -OR- it contains only NUL characters.
+**
+** Returns true if the input seems to be plain text input, else false.
+** If it returns false, pnLine is not modified, else it is set to the
+** number of lines in z.
 */
 int count_lines(
   const char *z,

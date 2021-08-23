@@ -2363,7 +2363,7 @@ void artifact_page(void){
   if( zCI==0 && !isFile ){
     /* If there is no ci= query parameter, then prefer to interpret
     ** name= as a hash for /artifact and /whatis.  But for not for /file.
-    ** For /file, a name= without a ci= while prefer to use the default
+    ** For /file, a name= without a ci= will prefer to use the default
     ** "tip" value for ci=. */
     rid = name_to_rid(zName);
   }
