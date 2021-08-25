@@ -726,6 +726,7 @@ static void patch_diff(
 ){
   int nErr = 0;
   Stmt q;
+  int bWebpage = (diffFlags && DIFF_WEBPAGE)!=0;
   Blob empty;
   blob_zero(&empty);
 
@@ -764,7 +765,8 @@ static void patch_diff(
       }
     }
   }
-  
+
+  diff_header(diffFlags);  
   db_prepare(&q,
      "SELECT"
        " (SELECT blob.rid FROM blob WHERE blob.uuid=chng.hash),"
@@ -803,7 +805,7 @@ static void patch_diff(
     rid = db_column_int(&q, 0);
 
     if( db_column_type(&q,3)==SQLITE_NULL ){
-      fossil_print("DELETE %s\n", zName);
+      if( !bWebpage ) fossil_print("DELETE %s\n", zName);
       diff_print_index(zName, diffFlags, 0);
       isBin2 = 0;
       content_get(rid, &a);
@@ -813,7 +815,7 @@ static void patch_diff(
     }else if( rid==0 ){
       db_ephemeral_blob(&q, 3, &a);
       blob_uncompress(&a, &a);
-      fossil_print("ADDED %s\n", zName);
+      if( !bWebpage ) fossil_print("ADDED %s\n", zName);
       diff_print_index(zName, diffFlags, 0);
       isBin1 = 0;
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
@@ -836,6 +838,7 @@ static void patch_diff(
     }
   }
   db_finalize(&q);
+  diff_footer(diffFlags);
   if( nErr ) fossil_fatal("abort due to prior errors");
 }
 

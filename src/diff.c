@@ -44,6 +44,7 @@
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
+#define DIFF_WEBPAGE      (((u64)0x40)<<32) /* Complete webpage */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -367,6 +368,7 @@ static void contextDiff(
   nContext = diff_context_lines(diffFlags);
   showLn = (diffFlags & DIFF_LINENO)!=0;
   html = (diffFlags & DIFF_HTML)!=0;
+  if( html ) blob_append(pOut, "<pre class=\"udiff\">\n", -1);
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -502,6 +504,7 @@ static void contextDiff(
       appendDiffLine(pOut, ' ', &A[a+j], html, 0);
     }
   }
+  if( html ) blob_append(pOut, "</pre>\n", -1);
 }
 
 /*
@@ -2037,6 +2040,9 @@ u64 diff_options(void){
   if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
+  if( find_option("webpage",0,0)!=0 ){
+    diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO;
+  }
   return diffFlags;
 }
 
@@ -2096,11 +2102,13 @@ void test_diff_cmd(void){
   diffFlag = diff_options();
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
+  diff_header(diffFlag);
   diff_print_filenames(g.argv[2], g.argv[3], diffFlag, 0);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
   blob_zero(&out);
   text_diff(&a, &b, &out, pRe, diffFlag);
+  diff_footer(diffFlag);
   blob_write_to_file(&out, "-");
   re_free(pRe);
 }

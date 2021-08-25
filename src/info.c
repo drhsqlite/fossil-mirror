@@ -337,7 +337,7 @@ static void append_diff(
 ){
   int fromid;
   int toid;
-  Blob from, to, out;
+  Blob from, to;
   if( zFrom ){
     fromid = uuid_to_rid(zFrom, 0);
     content_get(fromid, &from);
@@ -350,20 +350,14 @@ static void append_diff(
   }else{
     blob_zero(&to);
   }
-  blob_zero(&out);
   if( diffFlags & DIFF_SIDEBYSIDE ){
-    text_diff(&from, &to, &out, pRe, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
-    @ %s(blob_str(&out))
+    diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
   }else{
-    text_diff(&from, &to, &out, pRe,
-           diffFlags | DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG);
-    @ <pre class="udiff">
-    @ %s(blob_str(&out))
-    @ </pre>
+    diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
+  text_diff(&from, &to, cgi_output_blob(), pRe, diffFlags);
   blob_reset(&from);
   blob_reset(&to);
-  blob_reset(&out);
 }
 
 /*

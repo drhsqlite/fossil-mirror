@@ -109,7 +109,7 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
-  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT))==0 ){
+  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|DIFF_WEBPAGE))==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
     if( !diffBlob ){
       fossil_print("%s", z);
@@ -128,6 +128,12 @@ void diff_print_filenames(const char *zLeft, const char *zRight,
   char *z = 0;
   if( diffFlags & DIFF_BRIEF ){
     /* no-op */
+  }else if( diffFlags & DIFF_WEBPAGE ){
+    if( fossil_strcmp(zLeft,zRight)==0 ){
+      z = mprintf("<h1>%h</h1>\n", zLeft);
+    }else{
+      z = mprintf("<h1>%h &lrarr; %h</h1>\n", zLeft, zRight);
+    }
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
@@ -155,6 +161,83 @@ void diff_print_filenames(const char *zLeft, const char *zRight,
     blob_appendf(diffBlob, "%s", z);
   }
   fossil_free(z);
+}
+
+/*
+** Default header text for diff with --webpage
+*/
+static const char zWebpageHdr[] = 
+@ <!DOCTYPE html>
+@ <html>
+@ <head>
+@ <style>
+@ table.sbsdiffcols {
+@   width: 90%;
+@   border-spacing: 0;
+@   font-size: xx-small;
+@ }
+@ table.sbsdiffcols td {
+@   padding: 0;
+@   vertical-align: top;
+@ }
+@ table.sbsdiffcols pre {
+@   margin: 0;
+@   padding: 0;
+@   border: 0;
+@   font-size: inherit;
+@   background: inherit;
+@   color: inherit;
+@ }
+@ div.difflncol {
+@   padding-right: 1em;
+@   text-align: right;
+@   color: #a0a0a0;
+@ }
+@ div.difftxtcol {
+@   width: 45em;
+@   overflow-x: auto;
+@ }
+@ div.diffmkrcol {
+@   padding: 0 1em;
+@ }
+@ span.diffchng {
+@   background-color: #c0c0ff;
+@ }
+@ span.diffadd {
+@   background-color: #c0ffc0;
+@ }
+@ span.diffrm {
+@   background-color: #ffc8c8;
+@ }
+@ span.diffhr {
+@   display: inline-block;
+@   margin: .5em 0 1em;
+@   color: #0000ff;
+@ }
+@ span.diffln {
+@   color: #a0a0a0;
+@ }
+@ </style>
+@ </head>
+@ <body>
+;
+
+/*
+** Print a header or footer on the overall diff output.
+**
+** This is only a factor for --webpage, in which case the header
+** is the HTML header CSS definitions and the footer is the HTML
+** close tags.
+*/
+void diff_header(u64 diffFlags){
+  if( (diffFlags & DIFF_WEBPAGE)!=0 ){
+    fossil_print("%s", zWebpageHdr);
+  }
+}
+void diff_footer(u64 diffFlags){
+  if( (diffFlags & DIFF_WEBPAGE)!=0 ){
+    fossil_print("</body></html>\n");
+  }
 }
 
 /*
@@ -849,7 +932,9 @@ const char *diff_get_binary_glob(void){
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
 **   -r|--from VERSION           Select VERSION as source for the diff
+**   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -i|--internal               Use internal diff logic
+**   -N|--new-file               Alias for --verbose
 **   --numstat                   Show only the number of lines delete and added
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
@@ -859,8 +944,7 @@ const char *diff_get_binary_glob(void){
 **   --undo                      Diff against the "undo" buffer
 **   --unified                   Unified diff
 **   -v|--verbose                Output complete text of added or deleted files
-**   -N|--new-file               Alias for --verbose
-**   -w|--ignore-all-space       Ignore white space when comparing lines
+**   --webpage                   Format output as a stand-alone HTML webpage
 **   -W|--width N                Width of lines in side-by-side diff
 **   -Z|--ignore-trailing-space  Ignore changes to end-of-line whitespace
 */
@@ -955,6 +1039,7 @@ void diff_cmd(void){
       fossil_fatal("check-in %s has no parent", zTo);
     }
   }
+  diff_header(diffFlags);
   if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
       fossil_print("No undo or redo is available\n");
@@ -982,6 +1067,7 @@ void diff_cmd(void){
     }
     fossil_free(pFileDir);
   }
+  diff_footer(diffFlags);
   if ( diffFlags & DIFF_NUMSTAT ){
     fossil_print("%10d %10d TOTAL over %d changed files\n", 
                  g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);
