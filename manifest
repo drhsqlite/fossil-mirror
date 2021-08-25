@@ -1,5 +1,5 @@
-C Fix\sa\sproblem\sin\sthe\s"fossil\spatch\sdiff"\scommand\sintroduced\sby\sthe\s\nprevious\s--webpage\scheck-in.
-D 2021-08-25T16:22:36.671
+C Fix\sa\sbad\sredirect\sassociated\swith\sLogout.\sProblem\scaused\sby\s[3571c8715d512a28]
+D 2021-08-25T16:48:24.865
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -537,7 +537,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c 94443245022289ea2a664465d112ca513e8f45a2f95ebdcfea23462f553a3e40
+F src/login.c 378e8b4e3290a286531d2a07e5b0c389a68a1f1c53220be9f79c65b8e0988b04
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c 0cbe1c9dbbd7fce35ff16eaede8d269843c7ab5b30c840c871d082e5a18da557
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea52b7d06cf7c0493c7e5c74b8925173e2d8689e5d81b964ab54bdbeb7b64f28
-R 32b320a2ae9eba963699c9d20d6a8900
+P 874e7fa7bbf60a372047261f775cd545f5967c7b5a2189a1433d01f7527486e4
+R 71034952e5787cdd67c55f3a36461979
 U drh
-Z a3bef78dba37d8dafa9746d9a5a368aa
+Z 68d09d43ead966ab4e4088a22b029ba3

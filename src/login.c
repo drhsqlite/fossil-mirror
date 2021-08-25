@@ -551,7 +551,6 @@ void login_page(void){
   int uid;                     /* User id logged in user */
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
-  const char *zReferer;
   const int noAnon = P("noanon")!=0;
   int rememberMe;              /* If true, use persistent cookie, else
                                   session cookie. Toggled per
@@ -642,7 +641,6 @@ void login_page(void){
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
-  zReferer = P("HTTP_REFERER");
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
   if(zUsername==0){
     /* Initial login page hit. */
@@ -710,8 +708,6 @@ void login_page(void){
   }
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
-  }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
-    @ <input type="hidden" name="g" value="%h(zReferer)" />
   }
   if( anonFlag ){
     @ <input type="hidden" name="anon" value="1" />
@@ -1508,7 +1504,7 @@ void login_needed(int anonOk){
 */
 void login_anonymous_available(void){
   if( !g.perm.Hyperlink && g.anon.Hyperlink ){
-    const char *zUrl = PD("REQUEST_URI", "index");
+    const char *zUrl = PD("PATH_INFO", "");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
     @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
