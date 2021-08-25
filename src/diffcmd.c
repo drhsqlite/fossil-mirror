@@ -164,14 +164,9 @@ void diff_print_filenames(const char *zLeft, const char *zRight,
 }
 
 /*
-** Default header text for diff with --webpage
+** Extra CSS for side-by-side diffs
 */
-static const char zWebpageHdr[] = 
-@ <!DOCTYPE html>
-@ <html>
-@ <head>
-@ <meta charset="UTF-8">
-@ <style>
+static const char zSbsCss[] = 
 @ table.sbsdiffcols {
 @   width: 90%;
 @   border-spacing: 0;
@@ -201,7 +196,18 @@ static const char zWebpageHdr[] =
 @ div.diffmkrcol {
 @   padding: 0 1em;
 @ }
-@ span.diffchng {
+;
+
+/*
+** Default header text for diff with --webpage
+*/
+static const char zWebpageHdr[] = 
+@ <!DOCTYPE html>
+@ <html>
+@ <head>
+@ <meta charset="UTF-8">
+@ <style>
+@ %sspan.diffchng {
 @   background-color: #c0c0ff;
 @ }
 @ span.diffadd {
@@ -228,36 +234,30 @@ const char zWebpageEnd[] =
 ;
 
 /*
-** Print a header or footer on the overall diff output.
-**
-** This is only a factor for --webpage, in which case the header
-** is the HTML header CSS definitions and the footer is the HTML
-** close tags.
+** Do preliminary output before computing a diff.
 */
-void diff_header(u64 diffFlags, Blob *pOut){
+void diff_begin(u64 diffFlags){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
-    if( pOut ){
-      blob_append(pOut, zWebpageHdr, -1);
+    const char *zExtra;
+    if( diffFlags & DIFF_SIDEBYSIDE ){
+      zExtra = zSbsCss;
     }else{
-      fossil_print("%s", zWebpageHdr);
+      zExtra = "";
     }
+    fossil_print(zWebpageHdr/*works-like:"%s"*/, zExtra);
   }
 }
-void diff_footer(u64 diffFlags, Blob *pOut){
+
+/* Do any final output required by a diff and complete the diff
+** process.
+*/
+void diff_end(u64 diffFlags, int nErr){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
     if( diffFlags & DIFF_SIDEBYSIDE ){
       const unsigned char *zJs = builtin_file("sbsdiff.js", 0);
-      if( pOut ){
-        blob_appendf(pOut, "<script>\n%s</script>\n", zJs);
-      }else{
-        fossil_print("<script>\n%s</script>\n", zJs);
-      }
+      fossil_print("<script>\n%s</script>\n", zJs);
     }
-    if( pOut ){
-      blob_append(pOut, zWebpageEnd, -1);
-    }else{
-      fossil_print("%s", zWebpageEnd);
-    }
+    fossil_print("%s", zWebpageEnd);
   }
 }
 
@@ -1060,7 +1060,7 @@ void diff_cmd(void){
       fossil_fatal("check-in %s has no parent", zTo);
     }
   }
-  diff_header(diffFlags, 0);
+  diff_begin(diffFlags);
   if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
       fossil_print("No undo or redo is available\n");
@@ -1088,7 +1088,7 @@ void diff_cmd(void){
     }
     fossil_free(pFileDir);
   }
-  diff_footer(diffFlags, 0);
+  diff_end(diffFlags, 0);
   if ( diffFlags & DIFF_NUMSTAT ){
     fossil_print("%10d %10d TOTAL over %d changed files\n", 
                  g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);

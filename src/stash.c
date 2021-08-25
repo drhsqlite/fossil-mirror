@@ -414,7 +414,7 @@ static void stash_diff(
   Blob empty;
   int bWebpage = (diffFlags & DIFF_WEBPAGE)!=0;
   blob_zero(&empty);
-  diff_header(diffFlags, 0);
+  diff_begin(diffFlags);
   db_prepare(&q,
      "SELECT blob.rid, isRemoved, isExec, isLink, origname, newname, delta"
      "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash",
@@ -477,7 +477,7 @@ static void stash_diff(
     }
   }
   db_finalize(&q);
-  diff_footer(diffFlags, 0);
+  diff_end(diffFlags, 0);
 }
 
 /*
