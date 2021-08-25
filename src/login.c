@@ -107,7 +107,7 @@ char *login_cookie_name(void){
 static void redirect_to_g(void){
   const char *zGoto = P("g");
   if( zGoto ){
-    cgi_redirect(zGoto);
+    cgi_redirectf("%R/%s",zGoto);
   }else{
     fossil_redirect_home();
   }
@@ -1481,18 +1481,14 @@ void login_needed(int anonOk){
   }else
 #endif /* FOSSIL_ENABLE_JSON */
   {
-    const char *zUrl = PD("REQUEST_URI", "index");
     const char *zQS = P("QUERY_STRING");
-    char *zUrlNoQS;
-    int i;
+    const char *zPathInfo = PD("PATH_INFO","");
     Blob redir;
     blob_init(&redir, 0, 0);
-    for(i=0; zUrl[i] && zUrl[i]!='?'; i++){}
-    zUrlNoQS = fossil_strndup(zUrl, i);
     if( fossil_wants_https(1) ){
-      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrlNoQS);
+      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zPathInfo);
     }else{
-      blob_appendf(&redir, "%R/login?g=%T", zUrlNoQS);
+      blob_appendf(&redir, "%R/login?g=%T", zPathInfo);
     }
     if( zQS && zQS[0] ){
       blob_appendf(&redir, "%%3f%T", zQS);

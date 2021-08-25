@@ -1,5 +1,5 @@
-C Minor\sinternal\sdoc\stweaks.\sNo\scode\schanges.
-D 2021-08-23T02:40:23.678
+C Improvements\sto\sthe\sg=\squery\sparameter\son\slogin\sredirects.\s\sThis\sis\san\nattempt\sto\sfix\sthe\sproblem\sdescribed\sby\n[forum:/forumpost/f81625500d|forum\spost\sforum\sf81625500d].
+D 2021-08-25T13:10:20.717
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -537,7 +537,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c fca93e751577410392befba510ba36f22ac5e9695507a7a5a0011fd125141576
+F src/login.c 94443245022289ea2a664465d112ca513e8f45a2f95ebdcfea23462f553a3e40
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c 0cbe1c9dbbd7fce35ff16eaede8d269843c7ab5b30c840c871d082e5a18da557
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P edd280c3b6f216b4ff35482ca585ed0a2644b6d6b645d99373ea0a02ebe64f55
-R 258a5c068f6d5ba98285143b7905cc0b
-U stephan
-Z d739bec836bda1a807f92fa41fc921df
+P 49071226680eae694d77b5b92de64ec3f5abaf66fb29dc72d13bfa4edf2097df
+R 66f769832ff85d41286b40c28c2efbe0
+U drh
+Z 59d760c425e6d5958a638206dff27839
