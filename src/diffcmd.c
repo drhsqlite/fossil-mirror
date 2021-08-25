@@ -221,6 +221,10 @@ static const char zWebpageHdr[] =
 @ </head>
 @ <body>
 ;
+const char zWebpageEnd[] = 
+@ </body>
+@ </html>
+;
 
 /*
 ** Print a header or footer on the overall diff output.
@@ -229,14 +233,22 @@ static const char zWebpageHdr[] =
 ** is the HTML header CSS definitions and the footer is the HTML
 ** close tags.
 */
-void diff_header(u64 diffFlags){
+void diff_header(u64 diffFlags, Blob *pOut){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
-    fossil_print("%s", zWebpageHdr);
+    if( pOut ){
+      blob_append(pOut, zWebpageHdr, -1);
+    }else{
+      fossil_print("%s", zWebpageHdr);
+    }
   }
 }
-void diff_footer(u64 diffFlags){
+void diff_footer(u64 diffFlags, Blob *pOut){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
-    fossil_print("</body></html>\n");
+    if( pOut ){
+      blob_append(pOut, zWebpageEnd, -1);
+    }else{
+      fossil_print("%s", zWebpageEnd);
+    }
   }
 }
 
@@ -1039,7 +1051,7 @@ void diff_cmd(void){
       fossil_fatal("check-in %s has no parent", zTo);
     }
   }
-  diff_header(diffFlags);
+  diff_header(diffFlags, 0);
   if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
       fossil_print("No undo or redo is available\n");
@@ -1067,7 +1079,7 @@ void diff_cmd(void){
     }
     fossil_free(pFileDir);
   }
-  diff_footer(diffFlags);
+  diff_footer(diffFlags, 0);
   if ( diffFlags & DIFF_NUMSTAT ){
     fossil_print("%10d %10d TOTAL over %d changed files\n", 
                  g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);

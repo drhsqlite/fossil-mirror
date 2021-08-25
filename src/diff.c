@@ -2102,13 +2102,13 @@ void test_diff_cmd(void){
   diffFlag = diff_options();
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
-  diff_header(diffFlag);
-  diff_print_filenames(g.argv[2], g.argv[3], diffFlag, 0);
+  blob_zero(&out);
+  diff_header(diffFlag, &out);
+  diff_print_filenames(g.argv[2], g.argv[3], diffFlag, &out);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
-  blob_zero(&out);
   text_diff(&a, &b, &out, pRe, diffFlag);
-  diff_footer(diffFlag);
+  diff_footer(diffFlag, &out);
   blob_write_to_file(&out, "-");
   re_free(pRe);
 }

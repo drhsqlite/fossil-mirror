@@ -766,7 +766,7 @@ static void patch_diff(
     }
   }
 
-  diff_header(diffFlags);  
+  diff_header(diffFlags, 0);  
   db_prepare(&q,
      "SELECT"
        " (SELECT blob.rid FROM blob WHERE blob.uuid=chng.hash),"
@@ -838,7 +838,7 @@ static void patch_diff(
     }
   }
   db_finalize(&q);
-  diff_footer(diffFlags);
+  diff_footer(diffFlags, 0);
   if( nErr ) fossil_fatal("abort due to prior errors");
 }
 
