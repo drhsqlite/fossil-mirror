@@ -1,6 +1,6 @@
 /* The javascript in this file was added by Joel Bruick on 2013-07-06,
-** originally as in-line javascript.  It does some kind of setup for
-** side-by-side diff display, but I'm not really sure what.
+** originally as in-line javascript.  It keeps the horizontal scrollbars
+** in sync on side-by-side diffs.
 */
 (function(){
   var SCROLL_LEN = 25;
@@ -38,4 +38,26 @@
       document.querySelectorAll('.sbsdiffcols').forEach(initSbsDiff);
     };
   }
+  /* This part added by DRH on 2021-08-25 to adjust the width of the
+  ** diff columns so that they fill the screen. */
+  var lastWidth = 0;
+  function checkWidth(){
+    if( document.body.clientWidth!=lastWidth ){
+      lastWidth = document.body.clientWidth;
+      var w = lastWidth*0.5 - 100;
+      var allCols = document.getElementsByClassName('difftxtcol');
+      for(let i=0; i<allCols.length; i++){
+        allCols[i].style.width = w + "px";
+        allCols[i].style.maxWidth = w + "px";
+      }
+      var allDiffs = document.getElementsByClassName('sbsdiffcols');
+      w = lastWidth;
+      for(let i=0; i<allDiffs.length; i++){
+        allDiffs[i].style.width = w + "px";
+        allDiffs[i].style.maxWidth = w + "px";
+      }
+    }
+    setTimeout(checkWidth, 100)
+  }
+  checkWidth();
 })();

@@ -223,30 +223,6 @@ static const char zWebpageHdr[] =
 @ <body>
 ;
 const char zWebpageEnd[] = 
-@ <script>
-@ (function(){
-@   var lastWidth = 0;
-@   function checkWidth(){
-@     if( document.body.clientWidth!=lastWidth ){
-@       lastWidth = document.body.clientWidth;
-@       var w = lastWidth*0.5 - 100;
-@       var allCols = document.getElementsByClassName('difftxtcol');
-@       for(let i=0; i<allCols.length; i++){
-@         allCols[i].style.width = w + "px";
-@         allCols[i].style.maxWidth = w + "px";
-@       }
-@       var allDiffs = document.getElementsByClassName('sbsdiffcols');
-@       w = lastWidth;
-@       for(let i=0; i<allDiffs.length; i++){
-@         allDiffs[i].style.width = w + "px";
-@         allDiffs[i].style.maxWidth = w + "px";
-@       }
-@     }
-@     setTimeout(checkWidth, 100)
-@   }
-@   checkWidth();
-@ }());
-@ </script>
 @ </body>
 @ </html>
 ;
@@ -269,6 +245,14 @@ void diff_header(u64 diffFlags, Blob *pOut){
 }
 void diff_footer(u64 diffFlags, Blob *pOut){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
+    if( diffFlags & DIFF_SIDEBYSIDE ){
+      const unsigned char *zJs = builtin_file("sbsdiff.js", 0);
+      if( pOut ){
+        blob_appendf(pOut, "<script>\n%s</script>\n", zJs);
+      }else{
+        fossil_print("<script>\n%s</script>\n", zJs);
+      }
+    }
     if( pOut ){
       blob_append(pOut, zWebpageEnd, -1);
     }else{

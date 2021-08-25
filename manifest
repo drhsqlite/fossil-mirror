@@ -1,5 +1,5 @@
-C For\sthe\s--webpage\soutput,\suse\sjavascript\sto\sresize\sall\sside-by-side\sdiff\ncolumns\sso\sthat\sthey\scompletely\sfill\sthe\savailable\sscreen\swidth.
-D 2021-08-25T18:00:05.596
+C Enhance\sthe\ssbsdiff.js\sscript\sto\sdo\sthe\sdiff-column\swidth\sexpansion\sand\nconstraction\sas\sthe\sbrowser\swidth\schagnes.\s\sAdd\sthe\scomplete\ssbsdiff.js\nscript\stext\sto\sthe\send\sof\s--webpage\sdiff\soutput,\sbut\sonly\swhen\sthe\s-y\noption\sis\salso\sused.
+D 2021-08-25T18:26:31.156
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -467,7 +467,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
 F src/diff.c 3af4813dfcf44c07939a89f46b56aea27daae0b2a5610e600b9ecc4ecf46265c
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 82212cc9a21bec887bee6ac78b228da1bb303f05edbeffe5962750289fa5f6a4
+F src/diffcmd.c 075cedb8238a5ca23ce22968a26538a021cf846a0ad4b05516b0dc3251a171fb
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -575,7 +575,7 @@ F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c 740456c8e79f7953a084df739bdd6e457a6a253292b3c022b19382940b407807
 F src/report.c 2b2d382ddf430365a85f7344ade874ea3e99dde3bfc26046e7cd63472107d3ae
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
-F src/sbsdiff.js 93d2845c213a28e7e2a7f07f6a3f9f33f3a8c8abd3694a2d640da2aeceb7ec8e
+F src/sbsdiff.js 7fde64aa864d853e348d78e1b1b234db12f1e8ffb9f4df7dbcd847f2f4db0829
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7e37ae9549c1a1764a215fbd198a646d499164d7558aae8d85171d463c9549fd
-R b5bb9774440a4221119f1fa52e8cf5e2
+P 571dd613ac47cf75cbc3c23fbbbb47588ae883fe9b67b7c3bec5e48b45c0b559
+R 5f1977e11c4c6bc97636f74dd55b7aa3
 U drh
-Z a66c5eb37e440ff76fae732c3341cb53
+Z 9fcd63841c5f879ea15e95f37bc44442
