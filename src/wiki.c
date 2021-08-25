@@ -127,7 +127,7 @@ void home_page(void){
     cgi_redirectf("%R/%s", zIndexPage);
   }
   if( !g.perm.RdWiki ){
-    cgi_redirectf("%R/login?g=%R/home");
+    cgi_redirectf("%R/login?g=home");
   }
   if( zPageName ){
     login_check_credentials();

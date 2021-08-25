@@ -285,7 +285,7 @@ static void chat_emit_permissions_error(int fAsMessageList){
   CX("\"isError\": true, \"xfrom\": null,");
   CX("\"mtime\": %!j, \"lmtime\": %!j,", zTime, zTime);
   CX("\"xmsg\": \"Missing permissions or not logged in. "
-     "Try <a href='%R/login?g=%R/chat'>logging in</a>.\"");
+     "Try <a href='%R/login?g=chat'>logging in</a>.\"");
   if(fAsMessageList){
     CX("}]}");
   }else{

@@ -251,7 +251,7 @@ void pikchrshow_page(void){
 
   login_check_credentials();
   if( !g.perm.RdWiki && !g.perm.Read && !g.perm.RdForum ){
-    cgi_redirectf("%R/login?g=%R/pikchrshow");
+    cgi_redirectf("%R/login?g=pikchrshow");
   }
   zContent = PD("content",P("p"));
   if(P("ajax")!=0){
