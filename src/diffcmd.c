@@ -21,6 +21,11 @@
 #include "diffcmd.h"
 #include <assert.h>
 
+/* Need to catch the interrupt signal on unix */
+#ifndef _WIN32
+# include <signal.h>
+#endif
+
 /*
 ** Use the right null device for the platform.
 */
@@ -234,9 +239,60 @@ const char zWebpageEnd[] =
 ;
 
 /*
-** Do preliminary output before computing a diff.
+** State variables used by the --www option for diff
+*/
+static char *tempDiffFilename;  /* File holding the diff HTML */
+static FILE *diffOut;           /* Open to write into tempDiffFilename */
+
+/* Amount of delay (in milliseconds) between launching the
+** web browser and deleting the temporary file used by --www
+*/
+#ifndef FOSSIL_WWW_DIFF_DELAY
+# define FOSSIL_WWW_DIFF_DELAY 5000  /* 5 seconds by default */
+#endif
+
+/*
+** If we catch a single while writing the temporary file for the --www
+** diff output, then delete the temporary file and exit.
+*/
+static void diff_www_interrupt(int NotUsed){
+  (void)NotUsed;
+  if( diffOut ) fclose(diffOut);
+  if( tempDiffFilename ) file_delete(tempDiffFilename);
+  exit(1);
+}
+#ifdef _WIN32
+static BOOL WINAPI diff_console_ctrl_handler(DWORD dwCtrlType){
+  if( dwCtrlType==CTRL_C_EVENT ) diff_www_interrupt(0);
+  return FALSE;
+}
+#endif
+
+
+/*
+** Do preliminary setup and output before computing a diff.
+**
+** For --www, redirect stdout to a temporary file that will
+** hold the result.  Make arrangements to delete that temporary
+** file if the diff is interrupted.
+**
+** For --www and --webpage, output the HTML header.
 */
 void diff_begin(u64 diffFlags){
+  if( (diffFlags & DIFF_WWW)!=0 ){
+    tempDiffFilename = fossil_temp_filename();
+    tempDiffFilename = sqlite3_mprintf("%z.html", tempDiffFilename);
+    diffOut = freopen(tempDiffFilename,"wb",stdout);
+    if( diffOut==0 ){
+      fossil_fatal("unable to create temporary file \"%s\"", 
+                   tempDiffFilename);
+    }
+#ifndef _WIN32
+    signal(SIGINT, diff_www_interrupt);
+#else
+    SetConsoleCtrlHandler(diff_console_ctrl_handler, TRUE);
+#endif
+  }
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
     const char *zExtra;
     if( diffFlags & DIFF_SIDEBYSIDE ){
@@ -250,6 +306,13 @@ void diff_begin(u64 diffFlags){
 
 /* Do any final output required by a diff and complete the diff
 ** process.
+**
+** For --www and --webpage, output any javascript required by 
+** the diff.  (Currently JS is only needed for side-by-side diffs).
+**
+** For --www, close the connection to the temporary file, then
+** launch a web browser to view the file.  After a delay
+** of FOSSIL_WWW_DIFF_DELAY milliseconds, delete the temp file.
 */
 void diff_end(u64 diffFlags, int nErr){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
@@ -258,6 +321,17 @@ void diff_end(u64 diffFlags, int nErr){
       fossil_print("<script>\n%s</script>\n", zJs);
     }
     fossil_print("%s", zWebpageEnd);
+  }
+  if( (diffFlags & DIFF_WWW)!=0 && nErr==0 ){
+    char *zCmd = mprintf("%$ %$", fossil_web_browser(), tempDiffFilename);
+    fclose(diffOut);
+    freopen(NULL_DEVICE, "wb", stdout);
+    fossil_system(zCmd);
+    fossil_free(zCmd);
+    sqlite3_sleep(FOSSIL_WWW_DIFF_DELAY);
+    file_delete(tempDiffFilename);
+    sqlite3_free(tempDiffFilename);
+    tempDiffFilename = 0;
   }
 }
 
@@ -967,6 +1041,7 @@ const char *diff_get_binary_glob(void){
 **   -v|--verbose                Output complete text of added or deleted files
 **   --webpage                   Format output as a stand-alone HTML webpage
 **   -W|--width N                Width of lines in side-by-side diff
+**   --www                       Show the diff output in a web-browser
 **   -Z|--ignore-trailing-space  Ignore changes to end-of-line whitespace
 */
 void diff_cmd(void){

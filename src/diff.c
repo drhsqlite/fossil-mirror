@@ -45,6 +45,7 @@
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
 #define DIFF_WEBPAGE      (((u64)0x40)<<32) /* Complete webpage */
+#define DIFF_WWW          (((u64)0x80)<<32) /* The --www option */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -2042,6 +2043,9 @@ u64 diff_options(void){
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   if( find_option("webpage",0,0)!=0 ){
     diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO;
+  }
+  if( find_option("www",0,0)!=0 ){
+    diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_WWW;
   }
   return diffFlags;
 }
