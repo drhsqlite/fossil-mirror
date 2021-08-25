@@ -726,7 +726,7 @@ static void patch_diff(
 ){
   int nErr = 0;
   Stmt q;
-  int bWebpage = (diffFlags && DIFF_WEBPAGE)!=0;
+  int bWebpage = (diffFlags & DIFF_WEBPAGE)!=0;
   Blob empty;
   blob_zero(&empty);
 
