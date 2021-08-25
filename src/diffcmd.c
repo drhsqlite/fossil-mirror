@@ -325,9 +325,10 @@ void diff_end(u64 diffFlags, int nErr){
   if( (diffFlags & DIFF_WWW)!=0 && nErr==0 ){
     char *zCmd = mprintf("%$ %$", fossil_web_browser(), tempDiffFilename);
     fclose(diffOut);
-    freopen(NULL_DEVICE, "wb", stdout);
+    diffOut = freopen(NULL_DEVICE, "wb", stdout);
     fossil_system(zCmd);
     fossil_free(zCmd);
+    diffOut = 0;
     sqlite3_sleep(FOSSIL_WWW_DIFF_DELAY);
     file_delete(tempDiffFilename);
     sqlite3_free(tempDiffFilename);
