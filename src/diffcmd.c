@@ -170,6 +170,7 @@ static const char zWebpageHdr[] =
 @ <!DOCTYPE html>
 @ <html>
 @ <head>
+@ <meta charset="UTF-8">
 @ <style>
 @ table.sbsdiffcols {
 @   width: 90%;
@@ -222,6 +223,30 @@ static const char zWebpageHdr[] =
 @ <body>
 ;
 const char zWebpageEnd[] = 
+@ <script>
+@ (function(){
+@   var lastWidth = 0;
+@   function checkWidth(){
+@     if( document.body.clientWidth!=lastWidth ){
+@       lastWidth = document.body.clientWidth;
+@       var w = lastWidth*0.5 - 100;
+@       var allCols = document.getElementsByClassName('difftxtcol');
+@       for(let i=0; i<allCols.length; i++){
+@         allCols[i].style.width = w + "px";
+@         allCols[i].style.maxWidth = w + "px";
+@       }
+@       var allDiffs = document.getElementsByClassName('sbsdiffcols');
+@       w = lastWidth;
+@       for(let i=0; i<allDiffs.length; i++){
+@         allDiffs[i].style.width = w + "px";
+@         allDiffs[i].style.maxWidth = w + "px";
+@       }
+@     }
+@     setTimeout(checkWidth, 100)
+@   }
+@   checkWidth();
+@ }());
+@ </script>
 @ </body>
 @ </html>
 ;
