@@ -239,20 +239,20 @@ const char zWebpageEnd[] =
 ;
 
 /*
-** State variables used by the --www option for diff
+** State variables used by the --browser option for diff
 */
 static char *tempDiffFilename;  /* File holding the diff HTML */
 static FILE *diffOut;           /* Open to write into tempDiffFilename */
 
 /* Amount of delay (in milliseconds) between launching the
-** web browser and deleting the temporary file used by --www
+** web browser and deleting the temporary file used by --browser
 */
-#ifndef FOSSIL_WWW_DIFF_DELAY
-# define FOSSIL_WWW_DIFF_DELAY 5000  /* 5 seconds by default */
+#ifndef FOSSIL_BROWSER_DIFF_DELAY
+# define FOSSIL_BROWSER_DIFF_DELAY 5000  /* 5 seconds by default */
 #endif
 
 /*
-** If we catch a single while writing the temporary file for the --www
+** If we catch a single while writing the temporary file for the --browser
 ** diff output, then delete the temporary file and exit.
 */
 static void diff_www_interrupt(int NotUsed){
@@ -272,14 +272,14 @@ static BOOL WINAPI diff_console_ctrl_handler(DWORD dwCtrlType){
 /*
 ** Do preliminary setup and output before computing a diff.
 **
-** For --www, redirect stdout to a temporary file that will
+** For --browser, redirect stdout to a temporary file that will
 ** hold the result.  Make arrangements to delete that temporary
 ** file if the diff is interrupted.
 **
-** For --www and --webpage, output the HTML header.
+** For --browser and --webpage, output the HTML header.
 */
 void diff_begin(u64 diffFlags){
-  if( (diffFlags & DIFF_WWW)!=0 ){
+  if( (diffFlags & DIFF_BROWSER)!=0 ){
     tempDiffFilename = fossil_temp_filename();
     tempDiffFilename = sqlite3_mprintf("%z.html", tempDiffFilename);
     diffOut = freopen(tempDiffFilename,"wb",stdout);
@@ -307,12 +307,12 @@ void diff_begin(u64 diffFlags){
 /* Do any final output required by a diff and complete the diff
 ** process.
 **
-** For --www and --webpage, output any javascript required by 
+** For --browser and --webpage, output any javascript required by 
 ** the diff.  (Currently JS is only needed for side-by-side diffs).
 **
-** For --www, close the connection to the temporary file, then
+** For --browser, close the connection to the temporary file, then
 ** launch a web browser to view the file.  After a delay
-** of FOSSIL_WWW_DIFF_DELAY milliseconds, delete the temp file.
+** of FOSSIL_BROWSER_DIFF_DELAY milliseconds, delete the temp file.
 */
 void diff_end(u64 diffFlags, int nErr){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
@@ -322,14 +322,14 @@ void diff_end(u64 diffFlags, int nErr){
     }
     fossil_print("%s", zWebpageEnd);
   }
-  if( (diffFlags & DIFF_WWW)!=0 && nErr==0 ){
+  if( (diffFlags & DIFF_BROWSER)!=0 && nErr==0 ){
     char *zCmd = mprintf("%$ %$", fossil_web_browser(), tempDiffFilename);
     fclose(diffOut);
     diffOut = freopen(NULL_DEVICE, "wb", stdout);
     fossil_system(zCmd);
     fossil_free(zCmd);
     diffOut = 0;
-    sqlite3_sleep(FOSSIL_WWW_DIFF_DELAY);
+    sqlite3_sleep(FOSSIL_BROWSER_DIFF_DELAY);
     file_delete(tempDiffFilename);
     sqlite3_free(tempDiffFilename);
     tempDiffFilename = 0;
@@ -1021,6 +1021,8 @@ const char *diff_get_binary_glob(void){
 **                               as binary
 **   --branch BRANCH             Show diff of all changes on BRANCH
 **   --brief                     Show filenames only
+**   -b|--browser                Show the diff output in a web-browser
+**   --by                        Shorthand for "--browser -y"
 **   --checkin VERSION           Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
 **   -c|--context N              Use N lines of context
@@ -1042,7 +1044,6 @@ const char *diff_get_binary_glob(void){
 **   -v|--verbose                Output complete text of added or deleted files
 **   --webpage                   Format output as a stand-alone HTML webpage
 **   -W|--width N                Width of lines in side-by-side diff
-**   --www                       Show the diff output in a web-browser
 **   -Z|--ignore-trailing-space  Ignore changes to end-of-line whitespace
 */
 void diff_cmd(void){

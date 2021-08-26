@@ -1,5 +1,5 @@
-C Minor\scode\ssimplification\sand\scleanup\sfor\sthe\sHTTP\sserver\slaunch\sin\sthe\n"fossil\sui"\sand\ssimilar\scommands.
-D 2021-08-26T13:41:49.333
+C Rename\sthe\snew\s--www\soption\s(check-in\s[f3961f453aee1ef5])\sto\s--browser\sand\s-b.\nAdd\sthe\s--by\soption\sas\sshorthand\sfor\s--browser\s--sidebyside,\sas\sthat\sis\nexpected\sto\sbe\sa\scommon\susage\spattern.
+D 2021-08-26T14:01:29.534
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,9 +465,9 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 857f3512b4ee37a1cea14a0e5d228fdb64d2ee16ae7fcf2540ca0469bf469278
+F src/diff.c e8b48e077608bc15a871c305b9ad17179ba89e9200e4e15198cb28904e9ed8eb
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 04153c826eb0e0ae1936167a42658e4aae9a12d873f3c09d7a67982e59bad56d
+F src/diffcmd.c 61a74c1fcb76f652ae76db52714545d55e11ad20443c75913dc30705ddf71234
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a49582b3436044407c32fcc18b704ec4bf890593dd90da0d611cbd4edc99062b
-R 3155fc40cb3fe3b6589a8f5dfd90fa62
+P 2f122aac73f6b628be41489c01bb6c7ec454868cf941efd48cd3aca8a92ea837
+R 342873d386269fec58cd90cb2268a5e8
 U drh
-Z deb22dd2067e40c9aeb542e4f4b04a68
+Z 8be1c6061cdf133d3e439c0ff5c4165d
