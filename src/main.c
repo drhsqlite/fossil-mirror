@@ -3124,11 +3124,14 @@ void cmd_webserver(void){
     fossil_free(zBrowserCmd);
     return;
   }
-#if !defined(_WIN32)
-  /* Unix implementation */
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
+
+  /* Start up an HTTP server
+  */
+#if !defined(_WIN32)
+  /* Unix implementation */
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
@@ -3148,12 +3151,8 @@ void cmd_webserver(void){
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
-
-#if !defined(_WIN32)
   signal(SIGSEGV, sigsegv_handler);
   signal(SIGPIPE, sigpipe_handler);
-#endif
-
   if( g.fAnyTrace ){
     fprintf(stderr, "/***** Subprocess %d *****/\n", getpid());
   }
@@ -3176,9 +3175,6 @@ void cmd_webserver(void){
   }
 #else
   /* Win32 implementation */
-  if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
-  if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
-  db_close(1);
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }
