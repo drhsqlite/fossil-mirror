@@ -175,7 +175,7 @@ static const char zSbsCss[] =
 @ table.sbsdiffcols {
 @   width: 90%;
 @   border-spacing: 0;
-@   font-size: xx-small;
+@   font-size: small;
 @ }
 @ table.sbsdiffcols td {
 @   padding: 0;
@@ -185,9 +185,6 @@ static const char zSbsCss[] =
 @   margin: 0;
 @   padding: 0;
 @   border: 0;
-@   font-size: inherit;
-@   background: inherit;
-@   color: inherit;
 @ }
 @ div.difflncol {
 @   padding-right: 1em;
@@ -195,7 +192,7 @@ static const char zSbsCss[] =
 @   color: #a0a0a0;
 @ }
 @ div.difftxtcol {
-@   width: 45em;
+@   width: 10em;
 @   overflow-x: auto;
 @ }
 @ div.diffmkrcol {
@@ -228,6 +225,9 @@ static const char zWebpageHdr[] =
 @ }
 @ span.diffln {
 @   color: #a0a0a0;
+@ }
+@ h1 {
+@   font-size: 150%%;
 @ }
 @ </style>
 @ </head>
