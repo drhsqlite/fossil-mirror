@@ -2,6 +2,7 @@
 
 <a name='v2_17'></a>
 <h2>Changes for version 2.17 (pending)</h2>
+  *  Added the --webpage and --www options to the various diff commands.
   *  The --branchcolor option on [/help?cmd=commit|fossil commit] and
      [/help?cmd=amend|fossil amend] can now take the value "auto" to
      force Fossil to use its built-in automatic color choosing algorithm.

@@ -1,5 +1,5 @@
-C More\simprovements\sto\slogin\sredirects.\s\sSee\sthe\sdiscussion\son\sthe\n[forum:/forumpost/f81625500d96cc0f|forum\sthread\sf81625500d96cc0f].
-D 2021-08-25T23:47:11.252
+C Update\sthe\schange\slog.
+D 2021-08-26T00:16:51.548
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -830,7 +830,7 @@ F www/caps/index.md 467e09ce01dac6ee2462780cb11cfb2b43ceb7e1228b62f4f2ff23291d19
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html bb3b59a3fa80a6d485bb9bf5952f440be8da57258f967677155148584d818924
 F www/cgi.wiki ca65086068a103af18a6511f51d4b021b52255f401c8b1be52aa0b45d77abeec
-F www/changes.wiki ec57f1a83c810be152ba472c424b43a706ae63b1aa669700d08b0506a032c2a4
+F www/changes.wiki 58a39192ae7fb1c1cee1270da1754e4aee67ad8f205021d03542b2715680f8db
 F www/chat.md 3c5c4f127571e808895db6fe56885cce447653c061f4f310db6ba7e7218c6c9b
 F www/checkin.wiki e14a50300e2effe2f580562b6304dbd2f93fde8e0f286210ae705eb4d923f6a2
 F www/checkin_names.wiki be01780cb6ab8a198f80ef1bcf1d079448b7c850acffc3b4012425bd3f62c230
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4291b9c87f2508fd676cfc1a563b33ceb416846cc4a1d34ee61577aee2f2f510
-R f3c7ce7c6d8cdcc1ed9a8b7ec225c027
+P e5c16594b3e2f8662b895c75311d03e286c55acb274b96dce8cfa06de304774f
+R 2806a90a29c16e63f9135958e1f4c654
 U drh
-Z 73046b261690549beb23614ad63dff1d
+Z 1a02858a8311b3e111a717a2a67f40d2
