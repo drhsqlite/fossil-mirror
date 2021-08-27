@@ -3074,14 +3074,7 @@ void cmd_webserver(void){
     }else{
       zBrowserArg = mprintf("http://%s:%%d/%s", zIpAddr, zInitPage);
     }
-#ifdef _WIN32
-    /* The "start" command on windows does not allow a URL to be quoted.
-    ** So we have to depend on the fact that the URL is contructed in such
-    ** a way that no quoting is needed. */
-    zBrowserCmd = mprintf("%s %s &", zBrowser, zBrowserArg);
-#else
     zBrowserCmd = mprintf("%s %!$ &", zBrowser, zBrowserArg);
-#endif
     fossil_free(zBrowserArg);
   }
   if( zRemote ){

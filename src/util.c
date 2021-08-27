@@ -835,7 +835,7 @@ static int binaryOnPath(const char *zBinary){
 const char *fossil_web_browser(void){
   const char *zBrowser = 0;
 #if defined(_WIN32)
-  zBrowser = db_get("web-browser", "start");
+  zBrowser = db_get("web-browser", "start \"\"");
 #elif defined(__DARWIN__) || defined(__APPLE__) || defined(__HAIKU__)
   zBrowser = db_get("web-browser", "open");
 #else
