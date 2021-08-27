@@ -324,7 +324,7 @@ void diff_end(u64 diffFlags, int nErr){
     fossil_print("%s", zWebpageEnd);
   }
   if( (diffFlags & DIFF_BROWSER)!=0 && nErr==0 ){
-    char *zCmd = mprintf("%$ %$", fossil_web_browser(), tempDiffFilename);
+    char *zCmd = mprintf("%s %$", fossil_web_browser(), tempDiffFilename);
     fclose(diffOut);
     diffOut = freopen(NULL_DEVICE, "wb", stdout);
     fossil_system(zCmd);
