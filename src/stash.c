@@ -756,10 +756,12 @@ void stash_cmd(void){
       diff_tk(fBaseline ? "stash show" : "stash diff", 3);
       return;
     }
-    if( find_option("internal","i",0)==0 ){
+    diffFlags = diff_options();
+    if( find_option("internal","i",0)==0
+     && (diffFlags & DIFF_HTML)==0
+    ){
       zDiffCmd = diff_command_external(zCmd[0]=='g');
     }
-    diffFlags = diff_options();
     if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
     if( g.argc>4 ) usage(mprintf("%s ?STASHID? ?DIFF-OPTIONS?", zCmd));
     if( zDiffCmd ){

@@ -301,6 +301,7 @@ void diff_begin(u64 diffFlags){
       zExtra = "";
     }
     fossil_print(zWebpageHdr/*works-like:"%s"*/, zExtra);
+    fflush(stdout);
   }
 }
 
@@ -1100,7 +1101,9 @@ void diff_cmd(void){
   }else{
     db_find_and_open_repository(0, 0);
   }
-  if( !isInternDiff ){
+  if( !isInternDiff
+   && (diffFlags & DIFF_HTML)==0 /* External diff can't generate HTML */
+  ){
     zDiffCmd = find_option("command", 0, 1);
     if( zDiffCmd==0 ) zDiffCmd = diff_command_external(isGDiff);
   }
