@@ -872,13 +872,31 @@
       'T', pad2(d.getHours()),':', pad2(d.getMinutes()),':',pad2(d.getSeconds())
     ].join('');
   };
-    
-  Chat.submitMessage = function(){
+
+  /**
+     Submits the contents of the message input field (if not empty)
+     and/or the file attachment field to the server. If both are
+     empty, this is a no-op.
+  */
+  Chat.submitMessage = function f(){
+    if(!f.spaces){
+      f.spaces = /\s+$/;
+    }
     const fd = new FormData(this.e.inputForm)
     /* ^^^^ we don't really want/need the FORM element, but when
        FormData() is default-constructed here then the server
        segfaults, and i have no clue why! */;
-    const msg = this.inputValue().trim();
+    var msg = this.inputValue().trim();
+    if(msg && (msg.indexOf('\n')>0 || f.spaces.test(msg))){
+      /* Cosmetic: trim whitespace from the ends of lines to try to
+         keep copy/paste from terminals, especially wide ones, from
+         forcing a horizontal scrollbar on all clients. */
+      const xmsg = msg.split('\n');
+      xmsg.forEach(function(line,ndx){
+        xmsg[ndx] = line.trimRight();
+      });
+      msg = xmsg.join('\n');
+    }
     if(msg) fd.set('msg',msg);
     const file = BlobXferState.blob || this.e.inputFile.files[0];
     if(file) fd.set("file", file);

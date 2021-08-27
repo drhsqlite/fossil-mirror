@@ -1,5 +1,5 @@
-C Fixed\sincorrect\s/hash-color-test\sURI\sin\sthe\suser-color-map\ssetting's\shelp\stext.
-D 2021-08-27T03:17:23.514
+C /chat:\swhen\ssubmitting\sa\smessage,\strim\strailing\swhitespace\sfrom\sall\sinput\slines\sin\sorder\sto\skeep\spasted-in\stext\sfrom\sconsoles,\sespecially\swide\sones,\sfrom\sforcing\shorizontal\sscrollbars\son\sall\sclients\sto\sdue\slong\sruns\sof\sblanks\sat\sthe\send\sof\seach\sline.\sSidebar:\sthis\sis\sincompatible\swith\smarkdown-formatted\stext\swhich\smakes\suse\sof\slines\sending\swith\swhitespace\sfor\scontinuation\sof\smulti-paragraph\slist\sentries.
+D 2021-08-27T05:57:25.751
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -442,7 +442,7 @@ F src/capabilities.c bd7c9b025602cdbe9a866dcf6ba14195551dac1ffe38c2eabdf86bb5978
 F src/captcha.c 508b596af187db92ab12cfe68ce31bce2ac62cd3633841c246e65a1e85e946ec
 F src/cgi.c 2329afc83afab02ec65a497af9d6d088a30b8ca38f7a303b132ef0dc27a6e1e9
 F src/chat.c 75238318fd67b3de87e53a0091481569d59f2f62db5ef3f4b9801bcea70c48ed
-F src/chat.js 1fb9f7cd1b14b2cf750466ebba7d33edd0f6c6d5c87dd9e17d127b8a9e216239
+F src/chat.js 247e10e06c2497778a769eb9a4b21d40a75ce9895c01c14c93a35b849ded1bf5
 F src/checkin.c 97dd59209804bee81c497472117a2653383d6e416ffb3cba338983b30ad5da90
 F src/checkout.c 71f024b48bab1dbb75036e1fb1e3ddf85c565c90ac4cc6d1bda3606fcb3155ca
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83feccc291acc6e6937da5e06ea294c7fa6be512bb63c94ccb2dce3b7c822b2e
-R 800ae150c6eba2e15074390c93da6064
+P 966305b2648907272e4dd1c11a69bde053dee18ecb26541f8af4a88da260fbbd
+R 78a2a8c81eb976309753f34a1688b29d
 U stephan
-Z ae9e04b376f0d2e3a5f7ce0cc6254db5
+Z 2a474710b3f5436b3bf8ee6e4a85655e
