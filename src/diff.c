@@ -515,9 +515,10 @@ static void contextDiff(
 }
 
 /*
-** Maximum number of change regions per line
+** Limits for the intra-line diffing.
 */
-#define SBS_MXN  4
+#define SBS_MXN  8  /* Maximum number of change regions per line of text */
+#define SBS_CSN  8  /* Maximum number of change spans across a change region */
 
 /*
 ** Status of a single output line
@@ -529,13 +530,28 @@ struct SbsLine {
   unsigned char escHtml;   /* True to escape html characters */
   struct SbsMark {
     int iStart;              /* Write zTag prior to character iStart */
-    const char *zTag;        /* A <span> tag for coloration */
     int iEnd;                /* Write </span> prior to character iEnd */
+    const char *zTag;        /* A <span> tag for coloration */
   } a[SBS_MXN];            /* Change regions */
   int n;                   /* Number of change regions used */
   ReCompiled *pRe;         /* Only colorize matching lines, if not NULL */
 };
 
+/*
+** A description of zero or more (up to SBS_CSN) areas of commonality
+** between two lines of text.
+*/
+typedef struct ChangeSpan ChangeSpan;
+struct ChangeSpan {
+  int n;            /* Number of change spans */
+  struct Span {
+    int iStart1;    /* Byte offset to start of change on the left */
+    int iLen1;      /* Length of left change span in bytes */
+    int iStart2;    /* Byte offset to start of change span on the right */
+    int iLen2;      /* Length of right change span in bytes */
+    int isMin;      /* True if this span is known to have no useful subdivs */
+  } a[SBS_CSN];     /* Array of change spans, sorted order */
+};
 
 /*
 ** Column indices for SbsLine.apCols[]
@@ -751,6 +767,60 @@ static int textLCS(
 }
 
 /*
+** Find the smallest spans that different between two text strings that
+** are known to be different on both ends.
+*/
+static int textChangeSpans(
+  const char *zLeft,  int nA,       /* String on the left */
+  const char *zRight,  int nB,      /* String on the right */
+  ChangeSpan *p                     /* Write results here */
+){
+  p->n = 1;
+  p->a[0].iStart1 = 0;
+  p->a[0].iLen1 = nA;
+  p->a[0].iStart2 = 0;
+  p->a[0].iLen2 = nB;
+  p->a[0].isMin = 0;
+  while( p->n<SBS_CSN ){
+    int mxi = -1;
+    int mxLen = -1;
+    int x, i;
+    int aLCS[4];
+    struct Span *a, *b;
+    for(i=0; i<p->n; i++){
+      if( p->a[i].isMin ) continue;
+      x = p->a[i].iLen1;
+      if( p->a[i].iLen2<x ) x = p->a[i].iLen2;
+      if( x>mxLen ){
+        mxLen = x;
+        mxi = i;
+      }
+    }
+    if( mxLen<6 ) break;
+    x = textLCS(zLeft + p->a[mxi].iStart1, p->a[mxi].iLen1,
+                zRight + p->a[mxi].iStart2, p->a[mxi].iLen2, aLCS);
+    if( x==0 ){
+      p->a[mxi].isMin = 1;
+      continue;
+    }
+    a = p->a+mxi;
+    b = a+1;
+    if( mxi<p->n-1 ){
+      memmove(b+1, b, sizeof(*b)*(p->n-mxi-1));
+    }
+    p->n++;
+    b->iStart1 = a->iStart1 + aLCS[1];
+    b->iLen1 = a->iLen1 - aLCS[1];
+    a->iLen1 = aLCS[0];
+    b->iStart2 = a->iStart2 + aLCS[3];
+    b->iLen2 = a->iLen2 - aLCS[3];
+    a->iLen2 = aLCS[2];
+    b->isMin = 0;
+  }
+  return p->n;
+}
+
+/*
 ** Try to shift a[0].iStart as far as possible to the left.
 */
 static void sbsShiftLeft(SbsLine *p, const char *z){
@@ -764,10 +834,9 @@ static void sbsShiftLeft(SbsLine *p, const char *z){
 }
 
 /*
-** Simplify iStart and iStart2:
+** Simplify the diff-marks in a single line.
 **
-**    *  If iStart is a null-change then move iStart2 into iStart
-**    *  Make sure any null-changes are in canonoical form.
+**    *  Remove any null (zero-length) diff marks.
 **    *  Make sure all changes are at character boundaries for
 **       multi-byte characters.
 */
@@ -811,7 +880,7 @@ static void sbsWriteLineChange(
   const char *zRight;  /* Text of the right line */
   int nLeftDiff;       /* nLeft - nPrefix - nSuffix */
   int nRightDiff;      /* nRight - nPrefix - nSuffix */
-  int aLCS[4];         /* Bounds of common middle segment */
+  ChangeSpan CSpan;    /* Set of changes on a line */
 
   nLeft = pLeft->n;
   zLeft = pLeft->z;
@@ -917,37 +986,41 @@ static void sbsWriteLineChange(
   if( p->escHtml
    && nLeftDiff >= 6
    && nRightDiff >= 6
-   && textLCS(&zLeft[nPrefix], nLeftDiff, &zRight[nPrefix], nRightDiff, aLCS)
+   && textChangeSpans(&zLeft[nPrefix], nLeftDiff,
+                      &zRight[nPrefix], nRightDiff, &CSpan)>1
   ){
+    int i, j;
     sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->a[0].iStart = nPrefix;
-    p->a[0].iEnd = nPrefix + aLCS[0];
-    if( aLCS[2]==0 ){
-      sbsShiftLeft(p, pLeft->z);
-      p->a[0].zTag = zClassRm;
-    }else{
-      p->a[0].zTag = zClassChng;
+    for(i=j=0; i<CSpan.n; i++){
+      if( CSpan.a[i].iLen1==0 ) continue;
+      p->a[j].iStart = nPrefix + CSpan.a[i].iStart1;
+      p->a[j].iEnd = p->a[i].iStart + CSpan.a[i].iLen1;
+      if( CSpan.a[i].iLen2==0 ){
+        if( i==0 ) sbsShiftLeft(p, zLeft);
+        p->a[j].zTag = zClassRm;
+      }else{
+        p->a[j].zTag = zClassChng;
+      }
+      j++;
     }
-    p->a[1].iStart = nPrefix + aLCS[1];
-    p->a[1].iEnd = nLeft - nSuffix;
-    p->a[1].zTag = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    p->n = 2;
+    p->n = j;
     sbsSimplifyLine(p, zLeft);
     sbsWriteText(p, pLeft, SBS_TXTA);
     sbsWriteMarker(p, " | ", "|");
     sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->a[0].iStart = nPrefix;
-    p->a[0].iEnd = nPrefix + aLCS[2];
-    if( aLCS[0]==0 ){
-      sbsShiftLeft(p, pRight->z);
-      p->a[0].zTag = zClassAdd;
-    }else{
-      p->a[0].zTag = zClassChng;
+    for(i=j=0; i<CSpan.n; i++){
+      if( CSpan.a[i].iLen2==0 ) continue;
+      p->a[j].iStart = nPrefix + CSpan.a[i].iStart2;
+      p->a[j].iEnd = p->a[i].iStart + CSpan.a[i].iLen2;
+      if( CSpan.a[i].iLen1==0 ){
+        if( i==0 ) sbsShiftLeft(p, zRight);
+        p->a[j].zTag = zClassAdd;
+      }else{
+        p->a[j].zTag = zClassChng;
+      }
+      j++;
     }
-    p->a[1].iStart = nPrefix + aLCS[3];
-    p->a[1].iEnd = nRight - nSuffix;
-    p->a[1].zTag = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    p->n = 2;
+    p->n = j;
     sbsSimplifyLine(p, zRight);
     sbsWriteText(p, pRight, SBS_TXTB);
     return;
