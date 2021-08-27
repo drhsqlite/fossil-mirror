@@ -720,50 +720,43 @@ static int textLCS(
 ){
   const unsigned char *zA = (const unsigned char*)zLeft;    /* left string */
   const unsigned char *zB = (const unsigned char*)zRight;   /* right string */
-  int nt;                    /* Number of target points */
-  int ti[3];                 /* Index for start of each 4-byte target */
-  unsigned int target[3];    /* 4-byte alignment targets */
-  unsigned int probe;        /* probe to compare against target */
-  int iAS, iAE, iBS, iBE;    /* Range of common segment */
-  int i, j;                  /* Loop counters */
-  int rc = 0;                /* Result code.  1 for success */
+  int i, j, k;               /* Loop counters */
+  int lenBest = 0;           /* Match length to beat */
 
-  if( nA<6 || nB<6 ) return 0;
-  memset(aLCS, 0, sizeof(int)*4);
-  ti[0] = i = nB/2-2;
-  target[0] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-  probe = 0;
-  if( nB<16 ){
-    nt = 1;
-  }else{
-    ti[1] = i = nB/4-2;
-    target[1] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-    ti[2] = i = (nB*3)/4-2;
-    target[2] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-    nt = 3;
-  }
-  probe = (zA[0]<<16) | (zA[1]<<8) | zA[2];
-  for(i=3; i<nA; i++){
-    probe = (probe<<8) | zA[i];
-    for(j=0; j<nt; j++){
-      if( probe==target[j] ){
-        iAS = i-3;
-        iAE = i+1;
-        iBS = ti[j];
-        iBE = ti[j]+4;
-        while( iAE<nA && iBE<nB && zA[iAE]==zB[iBE] ){ iAE++; iBE++; }
-        while( iAS>0 && iBS>0 && zA[iAS-1]==zB[iBS-1] ){ iAS--; iBS--; }
-        if( iAE-iAS > aLCS[1] - aLCS[0] ){
-          aLCS[0] = iAS;
-          aLCS[1] = iAE;
-          aLCS[2] = iBS;
-          aLCS[3] = iBE;
-          rc = 1;
+#if 0
+  printf("testLCS(\"%.*s\",\"%.*s\") = ",
+         nA, zLeft, nB, zRight);
+#endif
+
+  for(i=0; i<nA-lenBest; i++){
+    unsigned char cA = zA[i];
+    for(j=0; j<nB-lenBest; j++ ){
+      if( zB[j]==cA ){
+        for(k=1; j+k<nB && zB[j+k]==zA[i+k]; k++){}
+        if( k>lenBest ){
+          lenBest = k;
+          aLCS[0] = i;
+          aLCS[1] = i+k;
+          aLCS[2] = j;
+          aLCS[3] = j+k;
         }
       }
     }
   }
-  return rc;
+#if 0
+  if( lenBest<=0 ){
+    printf("no-match\n");
+  }else{
+    printf(" %d,%d,%d,%d\n", aLCS[0], aLCS[1], aLCS[2], aLCS[3]);
+    printf("%*s%.*s", 9+aLCS[0], "", aLCS[1]-aLCS[0],
+ "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    printf("%*s%.*s\n", nA-aLCS[1]+3+aLCS[2], "", aLCS[3]-aLCS[2],
+ "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+  }
+  fflush(stdout);
+#endif
+
+  return lenBest>0;
 }
 
 /*
