@@ -21,8 +21,10 @@
 #include "diffcmd.h"
 #include <assert.h>
 
-/* Need to catch the interrupt signal on unix */
-#ifndef _WIN32
+/* includes needed to catch interrupts */
+#ifdef _WIN32
+# include <windows.h>
+#else
 # include <signal.h>
 #endif
 
