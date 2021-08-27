@@ -122,6 +122,12 @@ struct DContext {
   int (*xDiffer)(const DLine*,const DLine*); /* comparison function */
 };
 
+/* <span> text for change coloration
+*/
+static const char zClassRm[]   = "<span class=\"diffrm\">";
+static const char zClassAdd[]  = "<span class=\"diffadd\">";
+static const char zClassChng[] = "<span class=\"diffchng\">";
+
 /*
 ** Count the number of lines in the input string.  Include the last line
 ** in the count even if it lacks the \n terminator.  If an empty string
@@ -303,9 +309,9 @@ static void appendDiffLine(
     if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
       cPrefix = ' ';
     }else if( cPrefix=='+' ){
-      blob_append(pOut, "<span class=\"diffadd\">", -1);
+      blob_append(pOut, zClassAdd, -1);
     }else if( cPrefix=='-' ){
-      blob_append(pOut, "<span class=\"diffrm\">", -1);
+      blob_append(pOut, zClassRm, -1);
     }
     htmlize_to_blob(pOut, pLine->z, pLine->n);
     if( cPrefix!=' ' ){
@@ -509,6 +515,11 @@ static void contextDiff(
 }
 
 /*
+** Maximum number of change regions per line
+*/
+#define SBS_MXN  4
+
+/*
 ** Status of a single output line
 */
 typedef struct SbsLine SbsLine;
@@ -516,14 +527,15 @@ struct SbsLine {
   Blob *apCols[5];         /* Array of pointers to output columns */
   int width;               /* Maximum width of a column in the output */
   unsigned char escHtml;   /* True to escape html characters */
-  int iStart;              /* Write zStart prior to character iStart */
-  const char *zStart;      /* A <span> tag */
-  int iEnd;                /* Write </span> prior to character iEnd */
-  int iStart2;             /* Write zStart2 prior to character iStart2 */
-  const char *zStart2;     /* A <span> tag */
-  int iEnd2;               /* Write </span> prior to character iEnd2 */
+  struct SbsMark {
+    int iStart;              /* Write zTag prior to character iStart */
+    const char *zTag;        /* A <span> tag for coloration */
+    int iEnd;                /* Write </span> prior to character iEnd */
+  } a[SBS_MXN];            /* Change regions */
+  int n;                   /* Number of change regions used */
   ReCompiled *pRe;         /* Only colorize matching lines, if not NULL */
 };
+
 
 /*
 ** Column indices for SbsLine.apCols[]
@@ -577,21 +589,19 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
   for(i=k=0; (p->escHtml || k<w) && i<n; i++, k++){
     char c = zIn[i];
     if( colorize ){
-      if( i==p->iStart ){
-        int x = strlen(p->zStart);
-        blob_append(pCol, p->zStart, x);
+      if( i==p->a[0].iStart ){
+        int x = strlen(p->a[0].zTag);
+        blob_append(pCol, p->a[0].zTag, x);
         needEndSpan = 1;
-        if( p->iStart2 ){
-          p->iStart = p->iStart2;
-          p->zStart = p->zStart2;
-          p->iStart2 = 0;
-        }
-      }else if( i==p->iEnd ){
+      }else if( i==p->a[0].iEnd ){
         blob_append(pCol, "</span>", 7);
         needEndSpan = 0;
-        if( p->iEnd2 ){
-          p->iEnd = p->iEnd2;
-          p->iEnd2 = 0;
+        if( p->n>1 ){
+          p->n--;
+          memmove(p->a, p->a+1, sizeof(p->a[0])*p->n);
+        }else{
+          p->a[0].iStart = -1;
+          p->a[0].iEnd = -1;
         }
       }
     }
@@ -741,15 +751,15 @@ static int textLCS(
 }
 
 /*
-** Try to shift iStart as far as possible to the left.
+** Try to shift a[0].iStart as far as possible to the left.
 */
 static void sbsShiftLeft(SbsLine *p, const char *z){
   int i, j;
-  while( (i=p->iStart)>0 && z[i-1]==z[i] ){
-    for(j=i+1; j<p->iEnd && z[j-1]==z[j]; j++){}
-    if( j<p->iEnd ) break;
-    p->iStart--;
-    p->iEnd--;
+  while( (i=p->a[0].iStart)>0 && z[i-1]==z[i] ){
+    for(j=i+1; j<p->a[0].iEnd && z[j-1]==z[j]; j++){}
+    if( j<p->a[0].iEnd ) break;
+    p->a[0].iStart--;
+    p->a[0].iEnd--;
   }
 }
 
@@ -762,24 +772,22 @@ static void sbsShiftLeft(SbsLine *p, const char *z){
 **       multi-byte characters.
 */
 static void sbsSimplifyLine(SbsLine *p, const char *z){
-  if( p->iStart2==p->iEnd2 ){
-    p->iStart2 = p->iEnd2 = 0;
-  }else if( p->iStart2 ){
-    while( p->iStart2>0 && (z[p->iStart2]&0xc0)==0x80 ) p->iStart2--;
-    while( (z[p->iEnd2]&0xc0)==0x80 ) p->iEnd2++;
+  int i, j;
+
+  /* Remove zero-length spans */
+  for(i=j=0; i<p->n; i++){
+    if( p->a[i].iStart<p->a[i].iEnd ){
+      if( j<i ) memcpy(p->a+j, p->a+i, sizeof(p->a[0]));
+      j++;
+    }
   }
-  if( p->iStart==p->iEnd ){
-    p->iStart = p->iStart2;
-    p->iEnd = p->iEnd2;
-    p->zStart = p->zStart2;
-    p->iStart2 = 0;
-    p->iEnd2 = 0;
-  }
-  if( p->iStart==p->iEnd ){
-    p->iStart = p->iEnd = -1;
-  }else if( p->iStart>0 ){
-    while( p->iStart>0 && (z[p->iStart]&0xc0)==0x80 ) p->iStart--;
-    while( (z[p->iEnd]&0xc0)==0x80 ) p->iEnd++;
+  p->n = j;
+
+  /* Align all spans to a character boundary */
+  for(i=0; i<p->n; i++){
+    struct SbsMark *a = p->a+i;
+    while( a->iStart>0 && (z[a->iStart]&0xc0)==0x80 ) a->iStart--;
+    while( (z[a->iEnd]&0xc0)==0x80 ) a->iEnd++;
   }
 }
 
@@ -804,9 +812,6 @@ static void sbsWriteLineChange(
   int nLeftDiff;       /* nLeft - nPrefix - nSuffix */
   int nRightDiff;      /* nRight - nPrefix - nSuffix */
   int aLCS[4];         /* Bounds of common middle segment */
-  static const char zClassRm[]   = "<span class=\"diffrm\">";
-  static const char zClassAdd[]  = "<span class=\"diffadd\">";
-  static const char zClassChng[] = "<span class=\"diffchng\">";
 
   nLeft = pLeft->n;
   zLeft = pLeft->z;
@@ -869,8 +874,8 @@ static void sbsWriteLineChange(
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
     sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart2 = p->iEnd2 = 0;
-    p->iStart = p->iEnd = -1;
+    p->a[0].iStart = p->a[0].iEnd = -1;
+    p->n = 0;
     sbsWriteText(p, pLeft, SBS_TXTA);
     if( nLeft==nRight && zLeft[nLeft]==zRight[nRight] ){
       sbsWriteMarker(p, "   ", "");
@@ -878,9 +883,10 @@ static void sbsWriteLineChange(
       sbsWriteMarker(p, " | ", "|");
     }
     sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = nPrefix;
-    p->iEnd = nRight - nSuffix;
-    p->zStart = zClassAdd;
+    p->a[0].iStart = nPrefix;
+    p->a[0].iEnd = nRight - nSuffix;
+    p->n = 1;
+    p->a[0].zTag = zClassAdd;
     sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
@@ -889,14 +895,15 @@ static void sbsWriteLineChange(
   if( nPrefix+nSuffix==nRight ){
     /* Text deleted from the left */
     sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart2 = p->iEnd2 = 0;
-    p->iStart = nPrefix;
-    p->iEnd = nLeft - nSuffix;
-    p->zStart = zClassRm;
+    p->a[0].iStart = nPrefix;
+    p->a[0].iEnd = nLeft - nSuffix;
+    p->a[0].zTag = zClassRm;
+    p->n = 1;
     sbsWriteText(p, pLeft, SBS_TXTA);
     sbsWriteMarker(p, " | ", "|");
     sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = p->iEnd = -1;
+    p->a[0].iStart = p->a[0].iEnd = -1;
+    p->n = 0;
     sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
@@ -913,32 +920,34 @@ static void sbsWriteLineChange(
    && textLCS(&zLeft[nPrefix], nLeftDiff, &zRight[nPrefix], nRightDiff, aLCS)
   ){
     sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart = nPrefix;
-    p->iEnd = nPrefix + aLCS[0];
+    p->a[0].iStart = nPrefix;
+    p->a[0].iEnd = nPrefix + aLCS[0];
     if( aLCS[2]==0 ){
       sbsShiftLeft(p, pLeft->z);
-      p->zStart = zClassRm;
+      p->a[0].zTag = zClassRm;
     }else{
-      p->zStart = zClassChng;
+      p->a[0].zTag = zClassChng;
     }
-    p->iStart2 = nPrefix + aLCS[1];
-    p->iEnd2 = nLeft - nSuffix;
-    p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
+    p->a[1].iStart = nPrefix + aLCS[1];
+    p->a[1].iEnd = nLeft - nSuffix;
+    p->a[1].zTag = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
+    p->n = 2;
     sbsSimplifyLine(p, zLeft);
     sbsWriteText(p, pLeft, SBS_TXTA);
     sbsWriteMarker(p, " | ", "|");
     sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = nPrefix;
-    p->iEnd = nPrefix + aLCS[2];
+    p->a[0].iStart = nPrefix;
+    p->a[0].iEnd = nPrefix + aLCS[2];
     if( aLCS[0]==0 ){
       sbsShiftLeft(p, pRight->z);
-      p->zStart = zClassAdd;
+      p->a[0].zTag = zClassAdd;
     }else{
-      p->zStart = zClassChng;
+      p->a[0].zTag = zClassChng;
     }
-    p->iStart2 = nPrefix + aLCS[3];
-    p->iEnd2 = nRight - nSuffix;
-    p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
+    p->a[1].iStart = nPrefix + aLCS[3];
+    p->a[1].iEnd = nRight - nSuffix;
+    p->a[1].zTag = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
+    p->n = 2;
     sbsSimplifyLine(p, zRight);
     sbsWriteText(p, pRight, SBS_TXTB);
     return;
@@ -946,14 +955,14 @@ static void sbsWriteLineChange(
 
   /* If all else fails, show a single big change between left and right */
   sbsWriteLineno(p, lnLeft, SBS_LNA);
-  p->iStart2 = p->iEnd2 = 0;
-  p->iStart = nPrefix;
-  p->iEnd = nLeft - nSuffix;
-  p->zStart = zClassChng;
+  p->a[0].iStart = nPrefix;
+  p->a[0].iEnd = nLeft - nSuffix;
+  p->a[0].zTag = zClassChng;
+  p->n = 1;
   sbsWriteText(p, pLeft, SBS_TXTA);
   sbsWriteMarker(p, " | ", "|");
   sbsWriteLineno(p, lnRight, SBS_LNB);
-  p->iEnd = nRight - nSuffix;
+  p->a[0].iEnd = nRight - nSuffix;
   sbsWriteText(p, pRight, SBS_TXTB);
 }
 
@@ -1226,9 +1235,9 @@ static void sbsDiff(
     }
   }
   s.pRe = pRe;
-  s.iStart = -1;
-  s.iStart2 = 0;
-  s.iEnd = -1;
+  s.a[0].iStart = -1;
+  s.a[1].iStart = 0;
+  s.a[0].iEnd = -1;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -1318,7 +1327,8 @@ static void sbsDiff(
     m = R[r] - skip;
     for(j=0; j<m; j++){
       sbsWriteLineno(&s, a+j, SBS_LNA);
-      s.iStart = s.iEnd = -1;
+      s.a[0].iStart = s.a[0].iEnd = -1;
+      s.n = 1;
       sbsWriteText(&s, &A[a+j], SBS_TXTA);
       sbsWriteMarker(&s, "   ", "");
       sbsWriteLineno(&s, b+j, SBS_LNB);
@@ -1348,9 +1358,10 @@ static void sbsDiff(
         if( alignment[j]==1 ){
           /* Delete one line from the left */
           sbsWriteLineno(&s, a, SBS_LNA);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = LENGTH(&A[a]);
+          s.a[0].iStart = 0;
+          s.a[0].zTag = zClassRm;
+          s.a[0].iEnd = LENGTH(&A[a]);
+          s.n = 1;
           sbsWriteText(&s, &A[a], SBS_TXTA);
           sbsWriteMarker(&s, " <", "&lt;");
           sbsWriteNewlines(&s);
@@ -1372,9 +1383,10 @@ static void sbsDiff(
           }
           sbsWriteMarker(&s, " > ", "&gt;");
           sbsWriteLineno(&s, b, SBS_LNB);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = LENGTH(&B[b]);
+          s.a[0].iStart = 0;
+          s.a[0].zTag = zClassAdd;
+          s.a[0].iEnd = LENGTH(&B[b]);
+          s.n = 1;
           sbsWriteText(&s, &B[b], SBS_TXTB);
           assert( mb>0 );
           mb--;
@@ -1382,15 +1394,17 @@ static void sbsDiff(
         }else{
           /* Delete from the left and insert on the right */
           sbsWriteLineno(&s, a, SBS_LNA);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = LENGTH(&A[a]);
+          s.a[0].iStart = 0;
+          s.a[0].zTag = zClassRm;
+          s.a[0].iEnd = LENGTH(&A[a]);
+          s.n = 1;
           sbsWriteText(&s, &A[a], SBS_TXTA);
           sbsWriteMarker(&s, " | ", "|");
           sbsWriteLineno(&s, b, SBS_LNB);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = LENGTH(&B[b]);
+          s.a[0].iStart = 0;
+          s.a[0].zTag = zClassAdd;
+          s.a[0].iEnd = LENGTH(&B[b]);
+          s.n = 1;
           sbsWriteText(&s, &B[b], SBS_TXTB);
           ma--;
           mb--;
@@ -1403,7 +1417,8 @@ static void sbsDiff(
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
           sbsWriteLineno(&s, a+j, SBS_LNA);
-          s.iStart = s.iEnd = -1;
+          s.a[0].iStart = s.a[0].iEnd = -1;
+          s.n = 0;
           sbsWriteText(&s, &A[a+j], SBS_TXTA);
           sbsWriteMarker(&s, "   ", "");
           sbsWriteLineno(&s, b+j, SBS_LNB);
@@ -1420,7 +1435,8 @@ static void sbsDiff(
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
       sbsWriteLineno(&s, a+j, SBS_LNA);
-      s.iStart = s.iEnd = -1;
+      s.a[0].iStart = s.a[0].iEnd = -1;
+      s.n = 0;
       sbsWriteText(&s, &A[a+j], SBS_TXTA);
       sbsWriteMarker(&s, "   ", "");
       sbsWriteLineno(&s, b+j, SBS_LNB);
