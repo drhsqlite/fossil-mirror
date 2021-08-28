@@ -33,6 +33,8 @@
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
+# include <sys/types.h>
+# include <sys/stat.h>
 # include <unistd.h>
 # include <fcntl.h>
 # include <errno.h>
@@ -648,15 +650,39 @@ const char *fossil_text_editor(void){
 */
 char *fossil_temp_filename(void){
   char *zTFile = 0;
-  sqlite3 *db;
+  const char *zDir;
+  u64 r[2];
+  int i;
+#ifdef _WIN32
+  char zTempDir[1000];
+#else
+  static const char *azTmp[] = {"/var/tmp","/usr/tmp","/tmp"};
+#endif
   if( g.db ){
-    db = g.db;
-  }else{
-    sqlite3_open("",&db);
+    sqlite3_file_control(g.db, 0, SQLITE_FCNTL_TEMPFILENAME, (void*)&zTFile);
+    if( zTFile ) return zTFile;
   }
-  sqlite3_file_control(db, 0, SQLITE_FCNTL_TEMPFILENAME, (void*)&zTFile);
-  if( g.db==0 ) sqlite3_close(db);
-  return zTFile;
+  sqlite3_randomness(sizeof(r), &r);
+#if _WIN32
+  zTempDir[0] = 0;
+  GetTempPathA(sizeof(zTempDir), zTempDir);
+  if( zTempDir[0] ){
+    zDir = zTempDir;
+  }else{
+    zDir = fossil_getenv("LOCALAPPDATA");
+    if( zDir==0 ) zDir = ".";
+  }
+#else
+  for(i=0; i<sizeof(azTmp)/sizeof(azTmp[0]); i++){
+    struct stat buf;
+    zDir = azTmp[i];
+    if( stat(zDir,&buf)==0 && S_ISDIR(buf.st_mode) && access(zDir,03)==0 ){
+      break;
+    }
+  }
+  if( i>=sizeof(azTmp)/sizeof(azTmp[0]) ) zDir = ".";
+#endif
+  return sqlite3_mprintf("%s/fossil%016llx%016llx", zDir, r[0], r[1]);
 }
 
 /*
