@@ -598,7 +598,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
   int needEndSpan = 0;
   const char *zIn = pLine->z;
   int w = p->width;
-  int colorize = p->escHtml;
+  int colorize = p->escHtml && p->n>0;
   if( colorize && p->pRe && re_dline_match(p->pRe, pLine, 1)==0 ){
     colorize = 0;
   }
@@ -616,8 +616,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
           p->n--;
           memmove(p->a, p->a+1, sizeof(p->a[0])*p->n);
         }else{
-          p->a[0].iStart = -1;
-          p->a[0].iEnd = -1;
+          colorize = 0;
         }
       }
     }
@@ -723,16 +722,11 @@ static int textLCS(
   int i, j, k;               /* Loop counters */
   int lenBest = 0;           /* Match length to beat */
 
-#if 0
-  printf("testLCS(\"%.*s\",\"%.*s\") = ",
-         nA, zLeft, nB, zRight);
-#endif
-
   for(i=0; i<nA-lenBest; i++){
     unsigned char cA = zA[i];
     for(j=0; j<nB-lenBest; j++ ){
       if( zB[j]==cA ){
-        for(k=1; j+k<nB && zB[j+k]==zA[i+k]; k++){}
+        for(k=1; j+k<nB && i+k<nA && zB[j+k]==zA[i+k]; k++){}
         if( k>lenBest ){
           lenBest = k;
           aLCS[0] = i;
@@ -743,19 +737,6 @@ static int textLCS(
       }
     }
   }
-#if 0
-  if( lenBest<=0 ){
-    printf("no-match\n");
-  }else{
-    printf(" %d,%d,%d,%d\n", aLCS[0], aLCS[1], aLCS[2], aLCS[3]);
-    printf("%*s%.*s", 9+aLCS[0], "", aLCS[1]-aLCS[0],
- "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    printf("%*s%.*s\n", nA-aLCS[1]+3+aLCS[2], "", aLCS[3]-aLCS[2],
- "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-  }
-  fflush(stdout);
-#endif
-
   return lenBest>0;
 }
 
@@ -987,7 +968,7 @@ static void sbsWriteLineChange(
     for(i=j=0; i<CSpan.n; i++){
       if( CSpan.a[i].iLen1==0 ) continue;
       p->a[j].iStart = nPrefix + CSpan.a[i].iStart1;
-      p->a[j].iEnd = p->a[i].iStart + CSpan.a[i].iLen1;
+      p->a[j].iEnd = p->a[j].iStart + CSpan.a[i].iLen1;
       if( CSpan.a[i].iLen2==0 ){
         if( i==0 ) sbsShiftLeft(p, zLeft);
         p->a[j].zTag = zClassRm;
@@ -1004,7 +985,7 @@ static void sbsWriteLineChange(
     for(i=j=0; i<CSpan.n; i++){
       if( CSpan.a[i].iLen2==0 ) continue;
       p->a[j].iStart = nPrefix + CSpan.a[i].iStart2;
-      p->a[j].iEnd = p->a[i].iStart + CSpan.a[i].iLen2;
+      p->a[j].iEnd = p->a[j].iStart + CSpan.a[i].iLen2;
       if( CSpan.a[i].iLen1==0 ){
         if( i==0 ) sbsShiftLeft(p, zRight);
         p->a[j].zTag = zClassAdd;
@@ -1028,7 +1009,10 @@ static void sbsWriteLineChange(
   sbsWriteText(p, pLeft, SBS_TXTA);
   sbsWriteMarker(p, " | ", "|");
   sbsWriteLineno(p, lnRight, SBS_LNB);
+  p->a[0].iStart = nPrefix;
   p->a[0].iEnd = nRight - nSuffix;
+  p->a[0].zTag = zClassChng;
+  p->n = 1;
   sbsWriteText(p, pRight, SBS_TXTB);
 }
 
@@ -1304,6 +1288,7 @@ static void sbsDiff(
   s.a[0].iStart = -1;
   s.a[1].iStart = 0;
   s.a[0].iEnd = -1;
+  s.n = 0;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
