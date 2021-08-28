@@ -1,5 +1,5 @@
-C Added\smissing\sdb_protect()\swhen\simporting\s(config\sexport\suser)\sdata\svia\s(config\simport),\sas\sreported\sin\s[forum:dea06dd696359a59\s|\sforum\spost\sdea06dd696359a59].
-D 2021-08-28T15:11:10.991
+C Minor\slegibility\simprovement\sfor\sthe\sprevious\scommit\s[8ad6aa53a4].
+D 2021-08-28T15:19:03.739
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -452,7 +452,7 @@ F src/codecheck1.c a8331266f3851f7f01bd2777de07d954a721d698e432c79fe3c2d753b0c98
 F src/color.c a4b2df032eac5212a79749785e6a8e90679419981be88ea010ba2d07e9d257f3
 F src/comformat.c 649d55a2d826f50003cb44067a5b0172d66c8d33c89c6f6ae529cddfc6637b7e
 F src/config.h a4bd53862386acd303bdd7ad0b4d38edfcfc1e59aef29f17280a8626e33c0b66
-F src/configure.c bdb83dcbb6d9f6b2e382bca98711d5f5c93e352fbcb5c75c68cdd5926e7b1068
+F src/configure.c 23be10395e97e9b58e71b62b9bbff4e5a60872c449b8f85d0e65271ec515983e
 F src/content.c cc0d926058485776644b5592172c03b1a6321ee1186698d3f83d6883cb9fca54
 F src/cookies.c 06b7eef581dd035185ee094ad1d66114ea301a522bcf2b24c419bb2aa652a737
 F src/copybtn.js d0763b44562b09c3b5c20e123a32d83b99035574852e05f1935e5b46bf8bd78f
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c717d2803e19a120dfc0790dc2914831950328183b47c816f8bd2aed11717e5a
-R bf129c21c357f4c3ff5c79abb546a065
+P 8ad6aa53a41adf1b57c3af942bb79fce604109774dab55fec798fea4e0fc7955
+R 20bbfbebac7b79d35a94af0a738d1d16
 U stephan
-Z a4e9c2fa03382e65adecfe5d4b97c850
+Z ea91e8ea3c670f6ad0679e5dcda1ffb2
