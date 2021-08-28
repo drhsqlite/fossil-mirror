@@ -620,7 +620,10 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
         }
       }
     }
-    if( c=='\t' && !p->escHtml ){
+    if( c>'>' ){
+      blob_append_char(pCol, c);
+      if( (c&0xc0)==0x80 ) k--;
+    }else if( c=='\t' && !p->escHtml ){
       blob_append(pCol, " ", 1);
       while( (k&7)!=7 && (p->escHtml || k<w) ){
         blob_append(pCol, " ", 1);
@@ -637,7 +640,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
     }else if( c=='"' && p->escHtml ){
       blob_append(pCol, "&quot;", 6);
     }else{
-      blob_append(pCol, &zIn[i], 1);
+      blob_append_char(pCol, c);
       if( (c&0xc0)==0x80 ) k--;
     }
   }
