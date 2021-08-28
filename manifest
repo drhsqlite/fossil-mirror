@@ -1,5 +1,5 @@
-C More\srobust\simplementation\sof\sfossil_temp_filename\sthat\sdoes\snot\srequire\nan\sopen\sconnection\sto\sa\sreal\sdatabase.
-D 2021-08-28T15:46:39.359
+C Further\simprovements\sto\sfossil_temp_filename()\sto\shelp\sensure\sthat\sthe\ncorrect\sdirectory\sseparators\sare\sused\son\sboth\sunix\sand\swindows.
+D 2021-08-28T16:36:38.785
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -642,7 +642,7 @@ F src/url.c 0e2006b69cecd4eca7eaffeb7710b8bfb89df5bb3fcedfce6f4a1b5306716b84
 F src/user.c 14eb8bbf710d57bf440e46a70a016d65b3acb20bb7dd9ba37c9b258480006ccf
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c 12e1e2904f4e754b8df00c0463c9b98ed07c0833d96d9266108b78eb4e522cc2
+F src/util.c 5d3a4d946c0dd9a60e23ab93d8fd8df7e1506e4c6bc80b6840c844a3f1746f49
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c b9974613a70e679925132c6fbd5255273781cad0081c4c667eb0d2d54457f96e
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db8c5a929639eae4b054d984ab6cecf6df0593d00297513f948447e91cb6262f
-R 53d84f796bd38c1d1aa4bec598ddd79f
+P 939696667aacc235615c3e08aaf0e5a4f669bf421b957a77513bc9e894b19296
+R 2b907c27178f02b6aec6a05bf325eaed
 U drh
-Z e2f98b7b39d20d81111af4966ad5474c
+Z a2369c060d9ac31a6842b9eeea86b7ba

@@ -651,6 +651,9 @@ const char *fossil_text_editor(void){
 char *fossil_temp_filename(void){
   char *zTFile = 0;
   const char *zDir;
+  char cDirSep;
+  char zSep[2];
+  size_t nDir;
   u64 r[2];
   int i;
 #ifdef _WIN32
@@ -665,6 +668,7 @@ char *fossil_temp_filename(void){
   sqlite3_randomness(sizeof(r), &r);
 #if _WIN32
   zTempDir[0] = 0;
+  cDirSep = '\\';
   GetTempPathA(sizeof(zTempDir), zTempDir);
   if( zTempDir[0] ){
     zDir = zTempDir;
@@ -681,8 +685,12 @@ char *fossil_temp_filename(void){
     }
   }
   if( i>=sizeof(azTmp)/sizeof(azTmp[0]) ) zDir = ".";
+  cDirSep = '/';
 #endif
-  return sqlite3_mprintf("%s/fossil%016llx%016llx", zDir, r[0], r[1]);
+  nDir = strlen(zDir);
+  zSep[1] = 0;
+  zSep[0] = (nDir && zDir[nDir-1]==cDirSep) ? 0 : cDirSep;
+  return sqlite3_mprintf("%s%sfossil%016llx%016llx", zDir,zSep,r[0],r[1]);
 }
 
 /*
