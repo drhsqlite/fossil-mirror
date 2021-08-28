@@ -810,12 +810,14 @@ void configuration_cmd(void){
     if( g.argc!=4 ) usage(mprintf("%s FILENAME",zMethod));
     blob_read_from_file(&in, g.argv[3], ExtFILE);
     db_begin_transaction();
+    db_unprotect(PROTECT_USER);
     if( zMethod[0]=='i' ){
       groupMask = CONFIGSET_ALL | CONFIGSET_OVERWRITE;
     }else{
       groupMask = CONFIGSET_ALL;
     }
     configure_receive_all(&in, groupMask);
+    db_protect_pop();
     db_end_transaction(0);
   }else
   if( strncmp(zMethod, "pull", n)==0
