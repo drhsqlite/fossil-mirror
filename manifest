@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sfossil_temp_filename()\sto\shelp\sensure\sthat\sthe\ncorrect\sdirectory\sseparators\sare\sused\son\sboth\sunix\sand\swindows.
-D 2021-08-28T16:36:38.785
+C Minor\ssbsdiff.js\stweak\sto\stry\sto\savoid\sunsightly\spage-level\shorizontal\sscrollbars,\sas\sreported\sin\s[forum:96e40f90db\s|\sforum\spost\s96e40f90db].
+D 2021-08-29T12:58:19.421
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -575,7 +575,7 @@ F src/regexp.c db7ac9a5ca33855430ded11a179303e181977be15616ee8bb4c61f146ac620df
 F src/repolist.c 740456c8e79f7953a084df739bdd6e457a6a253292b3c022b19382940b407807
 F src/report.c 2b2d382ddf430365a85f7344ade874ea3e99dde3bfc26046e7cd63472107d3ae
 F src/rss.c 25bce3b3c670c02e032c6c5070f46a497b6bc972f9b336e46151eaee852fb03b
-F src/sbsdiff.js 7fde64aa864d853e348d78e1b1b234db12f1e8ffb9f4df7dbcd847f2f4db0829
+F src/sbsdiff.js b31023e67137af13a7e24a0def6863b534b170e9b14becdb119ad333857512a4
 F src/schema.c 07f674a17d00b8992be34d2a42e2dd45aef5790aa8f0fc2fcac5cd556dbc8d78
 F src/scroll.js 1f711eb8059a6baffcce9ed440d3e27c46201d38c929214965536f08453b6e23
 F src/search.c 835fca879dd9ef31b17b004c9cea96ae1ee559f77610c99f48558585befd18ad
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 939696667aacc235615c3e08aaf0e5a4f669bf421b957a77513bc9e894b19296
-R 2b907c27178f02b6aec6a05bf325eaed
-U drh
-Z a2369c060d9ac31a6842b9eeea86b7ba
+P 5434d2e32ce5f19cbca8980dc6d5fb012074f7f6a21904f2a92b59291d9cf471
+R 0ae816c6f34892a07558fe96e9f6db58
+U stephan
+Z 20014936ab121c665e45d737086e97e5
