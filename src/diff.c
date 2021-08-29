@@ -46,6 +46,7 @@
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
 #define DIFF_WEBPAGE      (((u64)0x40)<<32) /* Complete webpage */
 #define DIFF_BROWSER      (((u64)0x80)<<32) /* The --browser option */
+#define DIFF_DEBUG1   (((u64)0x100000)<<32) /* Debugging diff output */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -281,9 +282,9 @@ static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
 ** N dlines
 */
 static int re_dline_match(
-  ReCompiled *pRe,    /* The regular expression to be matched */
-  DLine *aDLine,      /* First of N DLines to compare against */
-  int N               /* Number of DLines to check */
+  ReCompiled *pRe,      /* The regular expression to be matched */
+  const DLine *aDLine,  /* First of N DLines to compare against */
+  int N                 /* Number of DLines to check */
 ){
   while( N-- ){
     if( re_match(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
@@ -1036,7 +1037,7 @@ static int minInt(int a, int b){ return a<b ? a : b; }
 ** (3) Find the length of the longest common subsequence
 ** (4) Longer common subsequences yield lower scores.
 */
-static int match_dline(DLine *pA, DLine *pB){
+static int match_dline(const DLine *pA, const DLine *pB){
   const char *zA;            /* Left string */
   const char *zB;            /* right string */
   int nA;                    /* Bytes in zA[] */
@@ -1115,9 +1116,9 @@ static int match_dline(DLine *pA, DLine *pB){
 ** mismatch.
 */
 static unsigned char *sbsAlignment(
-   DLine *aLeft, int nLeft,       /* Text on the left */
-   DLine *aRight, int nRight,     /* Text on the right */
-   u64 diffFlags                  /* Flags passed into the original diff */
+   const DLine *aLeft, int nLeft,     /* Text on the left */
+   const DLine *aRight, int nRight,   /* Text on the right */
+   u64 diffFlags                      /* Flags passed into the original diff */
 ){
   int i, j, k;                 /* Loop counters */
   int *a;                      /* One row of the Wagner matrix */
@@ -1235,6 +1236,7 @@ static unsigned char *sbsAlignment(
   return aM;
 }
 
+#if 0 /* not used */
 /*
 ** R[] is an array of six integer, two COPY/DELETE/INSERT triples for a
 ** pair of adjacent differences.  Return true if the gap between these
@@ -1244,6 +1246,7 @@ static unsigned char *sbsAlignment(
 static int smallGap(int *R){
   return R[3]<=2 || R[3]<=(R[1]+R[2]+R[4]+R[5])/8;
 }
+#endif
 
 /*
 ** Given a diff context in which the aEdit[] array has been filled
@@ -1397,6 +1400,7 @@ static void sbsDiff(
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
+#if 0 /* not used */
       /* If the gap between the current diff and then next diff within the
       ** same block is not too great, then render them as if they are a
       ** single diff. */
@@ -1406,6 +1410,7 @@ static void sbsDiff(
         ma += R[r+i*3+1] + m;
         mb += R[r+i*3+2] + m;
       }
+#endif
 
       alignment = sbsAlignment(&A[a], ma, &B[b], mb, diffFlags);
       for(j=0; ma+mb>0; j++){
@@ -1507,6 +1512,223 @@ static void sbsDiff(
     blob_append(pOut, "</tr></table>\n", -1);
   }
 }
+
+/*
+** This is an abstract superclass for an object that accepts difference
+** lines and formats them for display.  Subclasses of this object format
+** the diff output in different ways.
+*/ 
+typedef struct DiffBuilder DiffBuilder;
+struct DiffBuilder {
+  void (*xSkip)(DiffBuilder*, unsigned int);
+  void (*xCommon)(DiffBuilder*,const DLine*);
+  void (*xInsert)(DiffBuilder*,const DLine*);
+  void (*xDelete)(DiffBuilder*,const DLine*);
+  void (*xEdit)(DiffBuilder*,const DLine*,const DLine*);
+  void (*xEnd)(DiffBuilder*);
+  unsigned int lnLeft;           /* Lines seen on the left (delete) side */
+  unsigned int lnRight;          /* Lines seen on the right (insert) side */
+  Blob *pOut;                    /* Output blob */
+  /* Subclass add additional fields */
+};
+
+/************************* DiffBuilderDebug ********************************/
+static void dfdebugSkip(DiffBuilder *p, unsigned int n){
+  fossil_print("SKIP %d (%d..%d left and %d..%d right)\n",
+                n, p->lnLeft+1, p->lnLeft+n, p->lnRight+1, p->lnRight+n);
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfdebugCommon(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  p->lnRight++;
+  fossil_print("COMMON %8u %8u %.*s\n",
+      p->lnLeft, p->lnRight, (int)pLine->n, pLine->z);
+}
+static void dfdebugInsert(DiffBuilder *p, const DLine *pLine){
+  p->lnRight++;
+  fossil_print("RIGHT           %8d %.*s\n",
+      p->lnRight, (int)pLine->n, pLine->z);
+}
+static void dfdebugDelete(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  fossil_print("LEFT   %8u          %.*s\n",
+      p->lnLeft, (int)pLine->n, pLine->z);
+}
+static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  p->lnLeft++;
+  p->lnRight++;
+  fossil_print("EDIT   %8u          %.*s\n                %8u %.*s\n",
+      p->lnLeft, (int)pX->n, pX->z, p->lnRight, (int)pY->n, pY->z);
+}
+static void dfdebugEnd(DiffBuilder *p){
+  fossil_print("END with %u lines left and %u lines right\n",
+     p->lnLeft, p->lnRight);
+  fossil_free(p);
+}
+static DiffBuilder *dfdebugNew(void){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfdebugSkip;
+  p->xCommon = dfdebugCommon;
+  p->xInsert = dfdebugInsert;
+  p->xDelete = dfdebugDelete;
+  p->xEdit = dfdebugEdit;
+  p->xEnd = dfdebugEnd;
+  p->lnLeft = p->lnRight = 0;
+  return p;
+}
+/****************************************************************************/
+
+/*
+** Format a diff using a DiffBuilder object
+*/
+static void formatDiff(
+  DContext *p,           /* The computed diff */
+  ReCompiled *pRe,       /* Only show changes that match this regex */
+  u64 diffFlags,         /* Flags controlling the diff */
+  DiffBuilder *pBuilder  /* The formatter object */
+){
+  const DLine *A;        /* Left side of the diff */
+  const DLine *B;        /* Right side of the diff */
+  unsigned int a = 0;    /* Index of next line in A[] */
+  unsigned int b = 0;    /* Index of next line in B[] */
+  const int *R;          /* Array of COPY/DELETE/INSERT triples */
+  unsigned int r;        /* Index into R[] */
+  unsigned int nr;       /* Number of COPY/DELETE/INSERT triples to process */
+  unsigned int mxr;      /* Maximum value for r */
+  unsigned int na, nb;   /* Number of lines shown from A and B */
+  unsigned int i, j;     /* Loop counters */
+  unsigned int m, ma, mb;/* Number of lines to output */
+  unsigned int skip;     /* Number of lines to skip */
+  unsigned int nContext; /* Lines of context above and below each change */
+
+  nContext = diff_context_lines(diffFlags);
+  A = p->aFrom;
+  B = p->aTo;
+  R = p->aEdit;
+  mxr = p->nEdit;
+  while( mxr>2 && R[mxr-1]==0 && R[mxr-2]==0 ){ mxr -= 3; }
+
+  for(r=0; r<mxr; r += 3*nr){
+    /* Figure out how many triples to show in a single block */
+    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+
+    /* If there is a regex, skip this block (generate no diff output)
+    ** if the regex matches or does not match both insert and delete.
+    ** Only display the block if one side matches but the other side does
+    ** not.
+    */
+    if( pRe ){
+      int hideBlock = 1;
+      int xa = a, xb = b;
+      for(i=0; hideBlock && i<nr; i++){
+        int c1, c2;
+        xa += R[r+i*3];
+        xb += R[r+i*3];
+        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
+        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
+        hideBlock = c1==c2;
+        xa += R[r+i*3+1];
+        xb += R[r+i*3+2];
+      }
+      if( hideBlock ){
+        a = xa;
+        b = xb;
+        continue;
+      }
+    }
+
+    /* For the current block comprising nr triples, figure out
+    ** how many lines of A and B are to be displayed
+    */
+    if( R[r]>nContext ){
+      na = nb = nContext;
+      skip = R[r] - nContext;
+    }else{
+      na = nb = R[r];
+      skip = 0;
+    }
+    for(i=0; i<nr; i++){
+      na += R[r+i*3+1];
+      nb += R[r+i*3+2];
+    }
+    if( R[r+nr*3]>nContext ){
+      na += nContext;
+      nb += nContext;
+    }else{
+      na += R[r+nr*3];
+      nb += R[r+nr*3];
+    }
+    for(i=1; i<nr; i++){
+      na += R[r+i*3];
+      nb += R[r+i*3];
+    }
+
+    if( skip>0 ){
+      pBuilder->xSkip(pBuilder, skip);
+    }
+
+    /* Show the initial common area */
+    a += skip;
+    b += skip;
+    m = R[r] - skip;
+    for(j=0; j<m; j++){
+      pBuilder->xCommon(pBuilder, &A[a+j]);
+    }
+    a += m;
+    b += m;
+
+    /* Show the differences */
+    for(i=0; i<nr; i++){
+      unsigned char *alignment;
+      ma = R[r+i*3+1];   /* Lines on left but not on right */
+      mb = R[r+i*3+2];   /* Lines on right but not on left */
+
+      alignment = sbsAlignment(&A[a], ma, &B[b], mb, diffFlags);
+      for(j=0; ma+mb>0; j++){
+        if( alignment[j]==1 ){
+          /* Delete one line from the left */
+          pBuilder->xDelete(pBuilder, &A[a]);
+          ma--;
+          a++;
+        }else if( alignment[j]==2 ){
+          /* Insert one line on the right */
+          pBuilder->xInsert(pBuilder, &B[b]);
+          assert( mb>0 );
+          mb--;
+          b++;
+        }else{
+          /* The left line is changed into the right line */
+          pBuilder->xEdit(pBuilder, &A[a], &B[b]);
+          assert( ma>0 && mb>0 );
+          ma--;
+          mb--;
+          a++;
+          b++;
+        }
+      }
+      fossil_free(alignment);
+      if( i<nr-1 ){
+        m = R[r+i*3+3];
+        for(j=0; j<m; j++){
+          pBuilder->xCommon(pBuilder, &A[a+j]);
+        }
+        b += m;
+        a += m;
+      }
+    }
+
+    /* Show the final common area */
+    assert( nr==i );
+    m = R[r+nr*3];
+    if( m>nContext ) m = nContext;
+    for(j=0; j<m; j++){
+      pBuilder->xCommon(pBuilder, &A[a+j]);
+    }
+  }
+  pBuilder->xEnd(pBuilder);
+}
+
 
 /*
 ** Compute the optimal longest common subsequence (LCS) using an
@@ -2043,6 +2265,9 @@ int *text_diff(
       }
     }else if( diffFlags & DIFF_SIDEBYSIDE ){
       sbsDiff(&c, pOut, pRe, diffFlags);
+    }else if( diffFlags & DIFF_DEBUG1 ){
+      DiffBuilder *pBuilder = dfdebugNew();
+      formatDiff(&c, pRe, diffFlags, pBuilder);
     }else{
       contextDiff(&c, pOut, pRe, diffFlags);
     }
@@ -2178,6 +2403,7 @@ void test_diff_cmd(void){
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
   diffFlag = diff_options();
+  if( find_option("debug",0,0)!=0 ) diffFlag |= DIFF_DEBUG1;
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_zero(&out);

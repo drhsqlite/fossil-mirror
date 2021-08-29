@@ -130,10 +130,14 @@ void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
 /*
 ** Print the +++/--- filename lines for a diff operation.
 */
-void diff_print_filenames(const char *zLeft, const char *zRight,
- u64 diffFlags, Blob *diffBlob){
+void diff_print_filenames(
+  const char *zLeft,
+  const char *zRight,
+  u64 diffFlags,
+  Blob *diffBlob
+){
   char *z = 0;
-  if( diffFlags & DIFF_BRIEF ){
+  if( diffFlags & (DIFF_BRIEF|DIFF_DEBUG1) ){
     /* no-op */
   }else if( diffFlags & DIFF_WEBPAGE ){
     if( fossil_strcmp(zLeft,zRight)==0 ){
