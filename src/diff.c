@@ -1105,18 +1105,13 @@ static int match_dline(const DLine *pA, const DLine *pB){
 **    3.  The next line of pLeft changes into the next line of pRight.
 **    4.  Delete one line from pLeft and add one line to pRight.
 **
-** Values larger than three indicate better matches.
-**
-** The length of the returned array will be just large enough to cause
-** all elements of pLeft and pRight to be consumed.
-**
 ** Algorithm:  Wagner's minimum edit-distance algorithm, modified by
 ** adding a cost to each match based on how well the two rows match
 ** each other.  Insertion and deletion costs are 50.  Match costs
 ** are between 0 and 100 where 0 is a perfect match 100 is a complete
 ** mismatch.
 */
-static unsigned char *sbsAlignment(
+static unsigned char *diffBlockAlignment(
    const DLine *aLeft, int nLeft,     /* Text on the left */
    const DLine *aRight, int nRight,   /* Text on the right */
    u64 diffFlags                      /* Flags passed into the original diff */
@@ -1130,12 +1125,13 @@ static unsigned char *sbsAlignment(
   int mxLen;                   /* MAX(nLeft, nRight) */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
-  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
   if( nLeft==0 ){
+    aM = fossil_malloc( nLeft + nRight + 2 );
     memset(aM, 2, nRight);
     return aM;
   }
   if( nRight==0 ){
+    aM = fossil_malloc( nLeft + nRight + 2 );
     memset(aM, 1, nLeft);
     return aM;
   }
@@ -1144,6 +1140,7 @@ static unsigned char *sbsAlignment(
   ** simple (but stupid and ugly) result that doesn't take too long. */
   mnLen = nLeft<nRight ? nLeft : nRight;
   if( nLeft*nRight>100000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
+    aM = fossil_malloc( nLeft + nRight + 2 );
     memset(aM, 4, mnLen);
     if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
     if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
@@ -1156,6 +1153,8 @@ static unsigned char *sbsAlignment(
   }else{
     a = pToFree = fossil_malloc( sizeof(a[0])*(nRight+1) );
   }
+  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
+
 
   /* Compute the best alignment */
   for(i=0; i<=nRight; i++){
@@ -1236,18 +1235,6 @@ static unsigned char *sbsAlignment(
   fossil_free(pToFree);
   return aM;
 }
-
-#if 0 /* not used */
-/*
-** R[] is an array of six integer, two COPY/DELETE/INSERT triples for a
-** pair of adjacent differences.  Return true if the gap between these
-** two differences is so small that they should be rendered as a single
-** edit.
-*/
-static int smallGap(int *R){
-  return R[3]<=2 || R[3]<=(R[1]+R[2]+R[4]+R[5])/8;
-}
-#endif
 
 /*
 ** Given a diff context in which the aEdit[] array has been filled
@@ -1401,19 +1388,7 @@ static void sbsDiff(
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
-#if 0 /* not used */
-      /* If the gap between the current diff and then next diff within the
-      ** same block is not too great, then render them as if they are a
-      ** single diff. */
-      while( i<nr-1 && smallGap(&R[r+i*3]) ){
-        i++;
-        m = R[r+i*3];
-        ma += R[r+i*3+1] + m;
-        mb += R[r+i*3+2] + m;
-      }
-#endif
-
-      alignment = sbsAlignment(&A[a], ma, &B[b], mb, diffFlags);
+      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags);
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
           /* Delete one line from the left */
@@ -1686,27 +1661,45 @@ static void formatDiff(
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
-      alignment = sbsAlignment(&A[a], ma, &B[b], mb, diffFlags);
+      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags);
       for(j=0; ma+mb>0; j++){
-        if( alignment[j]==1 ){
-          /* Delete one line from the left */
-          pBuilder->xDelete(pBuilder, &A[a]);
-          ma--;
-          a++;
-        }else if( alignment[j]==2 ){
-          /* Insert one line on the right */
-          pBuilder->xInsert(pBuilder, &B[b]);
-          assert( mb>0 );
-          mb--;
-          b++;
-        }else{
-          /* The left line is changed into the right line */
-          pBuilder->xEdit(pBuilder, &A[a], &B[b]);
-          assert( ma>0 && mb>0 );
-          ma--;
-          mb--;
-          a++;
-          b++;
+        switch( alignment[j] ){
+          case 1: {
+            /* Delete one line from the left */
+            pBuilder->xDelete(pBuilder, &A[a]);
+            ma--;
+            a++;
+            break;
+          }
+          case 2: {
+            /* Insert one line on the right */
+            pBuilder->xInsert(pBuilder, &B[b]);
+            assert( mb>0 );
+            mb--;
+            b++;
+            break;
+          }
+          case 3: {
+            /* The left line is changed into the right line */
+            pBuilder->xEdit(pBuilder, &A[a], &B[b]);
+            assert( ma>0 && mb>0 );
+            ma--;
+            mb--;
+            a++;
+            b++;
+            break;
+          }
+          case 4: {
+            /* Delete from left then separately insert on the right */
+            pBuilder->xDelete(pBuilder, &A[a]);
+            ma--;
+            a++;
+            pBuilder->xInsert(pBuilder, &B[b]);
+            assert( mb>0 );
+            mb--;
+            b++;
+            break;
+          }
         }
       }
       fossil_free(alignment);
