@@ -1724,58 +1724,122 @@ static DiffBuilder *dfdebugNew(Blob *pOut){
 }
 
 /************************* DiffBuilderJson ********************************/
+
+/* Convert raw text into content suitable for a JSON string.  Escape
+** charaters that are special to HTML and to JSON:
+**
+**     <   ->   &lt;
+**     >   ->   &gt;
+**     &   ->   &amp;
+**     "   ->   &quot;
+**     '   ->   &#39;
+**     \   ->   &#92;
+**
+** In addition, TAB characters are converted into an appropriate number
+** of spaces.  The *piCol value is the number of prior columns in the
+** current line.  Update the column count before returning, so that
+** subsequent invocations can figure out the right number of spaces to
+** insert for each tab.
+*/
+static void jsonize_to_blob(Blob *p, const char *zIn, int n, int *piCol){
+  int c, i, x;
+  int iCol = *piCol;
+  for(i=0; i<n; i++){
+    c = zIn[i];
+    switch( c ){
+      case '<':
+        blob_append(p, "&lt;", 4);
+        iCol++;
+        break;
+      case '>':
+        blob_append(p, "&gt;", 4);
+        iCol++;
+        break;
+      case '&':
+        blob_append(p, "&amp;", 5);
+        iCol++;
+        break;
+      case '"':
+        blob_append(p, "&quot;", 6);
+        iCol++;
+        break;
+      case '\'':
+        blob_append(p, "&#39;", 5);
+        iCol++;
+        break;
+      case '\\':
+        blob_append(p, "&#92;", 5);
+        iCol++;
+        break;
+      case '\t':
+        x = 1 + (iCol+7)%8;
+        blob_appendf(p, "%*s", x, "");
+        iCol += x;
+        break;
+      default:
+        blob_append_char(p, c);
+        if( (c&0xc0)!=0x80 ) iCol++;
+        break;
+    }
+  }
+  *piCol = iCol;
+}
 static void dfjsonSkip(DiffBuilder *p, unsigned int n){
   blob_appendf(p->pOut, "1,%u,\n", n);
 }
 static void dfjsonCommon(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
   blob_append(p->pOut, "2,\"",3);
-  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  jsonize_to_blob(p->pOut, pLine->z, (int)pLine->n, &iCol);
   blob_append(p->pOut, "\",\n",3);
 }
 static void dfjsonInsert(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
   blob_append(p->pOut, "3,\"",3);
-  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  jsonize_to_blob(p->pOut, pLine->z, (int)pLine->n, &iCol);
   blob_append(p->pOut, "\",\n",3);
 }
 static void dfjsonDelete(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
   blob_append(p->pOut, "4,\"",3);
-  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  jsonize_to_blob(p->pOut, pLine->z, (int)pLine->n, &iCol);
   blob_append(p->pOut, "\",\n",3);
 }
 static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
+  int iCol;
   ChangeSpan span;
   oneLineChange(pX, pY, &span);
   blob_appendf(p->pOut, "5,\"");
-  for(i=x=0; i<span.n; i++){
+  for(i=x=iCol=0; i<span.n; i++){
     int ofst = span.a[i].iStart1;
     int len = span.a[i].iLen1;
     if( len ){
-      htmlize_to_blob(p->pOut, pX->z+x, ofst - x);
+      jsonize_to_blob(p->pOut, pX->z+x, ofst - x, &iCol);
       x += ofst;
       blob_append(p->pOut, "<mark>", 6);
-      htmlize_to_blob(p->pOut, pX->z+x, len);
+      jsonize_to_blob(p->pOut, pX->z+x, len, &iCol);
       x += len;
       blob_append(p->pOut, "</mark>", 7);
     }
   }
-  if( x<pX->n ) htmlize_to_blob(p->pOut, pX->z+x,  pX->n - x);
+  if( x<pX->n ) jsonize_to_blob(p->pOut, pX->z+x,  pX->n - x, &iCol);
   blob_append(p->pOut, "\",\n  \"", -1);
-  for(i=x=0; i<span.n; i++){
+  for(i=x=iCol=0; i<span.n; i++){
     int ofst = span.a[i].iStart2;
     int len = span.a[i].iLen2;
     if( len ){
-      htmlize_to_blob(p->pOut, pY->z+x, ofst - x);
+      jsonize_to_blob(p->pOut, pY->z+x, ofst - x, &iCol);
       x += ofst;
       blob_append(p->pOut, "<mark>", 6);
-      htmlize_to_blob(p->pOut, pY->z+x, len);
+      jsonize_to_blob(p->pOut, pY->z+x, len, &iCol);
       x += len;
       blob_append(p->pOut, "</mark>", 7);
     }
   }
-  if( x<pY->n ) htmlize_to_blob(p->pOut, pY->z+x,  pY->n - x);
-  blob_append(p->pOut, "\"\n,", -1);
+  if( x<pY->n ) jsonize_to_blob(p->pOut, pY->z+x,  pY->n - x, &iCol);
+  blob_append(p->pOut, "\",\n", -1);
 }
 static void dfjsonEnd(DiffBuilder *p){
   blob_append(p->pOut, "0]", 2);
