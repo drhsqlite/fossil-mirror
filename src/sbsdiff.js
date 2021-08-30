@@ -53,7 +53,7 @@
       var allDiffs = document.getElementsByClassName('sbsdiffcols');
       w = lastWidth;
       for(let i=0; i<allDiffs.length; i++){
-        allDiffs[i].style.width = w + "px";
+        allDiffs[i].style.width = '98%'; // setting to w causes unsightly horiz. scrollbar
         allDiffs[i].style.maxWidth = w + "px";
       }
     }
