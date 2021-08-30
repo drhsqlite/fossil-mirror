@@ -44,9 +44,10 @@
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
-#define DIFF_WEBPAGE      (((u64)0x40)<<32) /* Complete webpage */
-#define DIFF_BROWSER      (((u64)0x80)<<32) /* The --browser option */
-#define DIFF_DEBUG1   (((u64)0x100000)<<32) /* Debugging diff output */
+#define DIFF_WEBPAGE   (((u64)0x00040)<<32) /* Complete webpage */
+#define DIFF_BROWSER   (((u64)0x00080)<<32) /* The --browser option */
+#define DIFF_DEBUG     (((u64)0x00100)<<32) /* Debugging diff output */
+#define DIFF_RAW       (((u64)0x00200)<<32) /* Raw triples - for debugging */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -1534,7 +1535,7 @@ struct DiffBuilder {
 
 /************************* DiffBuilderDebug ********************************/
 static void dfdebugSkip(DiffBuilder *p, unsigned int n){
-  fossil_print("SKIP %d (%d..%d left and %d..%d right)\n",
+  blob_appendf(p->pOut, "SKIP %d (%d..%d left and %d..%d right)\n",
                 n, p->lnLeft+1, p->lnLeft+n, p->lnRight+1, p->lnRight+n);
   p->lnLeft += n;
   p->lnRight += n;
@@ -1542,31 +1543,31 @@ static void dfdebugSkip(DiffBuilder *p, unsigned int n){
 static void dfdebugCommon(DiffBuilder *p, const DLine *pLine){
   p->lnLeft++;
   p->lnRight++;
-  fossil_print("COMMON %8u %8u %.*s\n",
+  blob_appendf(p->pOut, "COMMON %8u %8u %.*s\n",
       p->lnLeft, p->lnRight, (int)pLine->n, pLine->z);
 }
 static void dfdebugInsert(DiffBuilder *p, const DLine *pLine){
   p->lnRight++;
-  fossil_print("RIGHT           %8d %.*s\n",
+  blob_appendf(p->pOut, "RIGHT           %8d %.*s\n",
       p->lnRight, (int)pLine->n, pLine->z);
 }
 static void dfdebugDelete(DiffBuilder *p, const DLine *pLine){
   p->lnLeft++;
-  fossil_print("LEFT   %8u          %.*s\n",
+  blob_appendf(p->pOut, "LEFT   %8u          %.*s\n",
       p->lnLeft, (int)pLine->n, pLine->z);
 }
 static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   p->lnLeft++;
   p->lnRight++;
-  fossil_print("EDIT   %8u          %.*s\n                %8u %.*s\n",
+  blob_appendf(p->pOut, "EDIT   %8u          %.*s\n                %8u %.*s\n",
       p->lnLeft, (int)pX->n, pX->z, p->lnRight, (int)pY->n, pY->z);
 }
 static void dfdebugEnd(DiffBuilder *p){
-  fossil_print("END with %u lines left and %u lines right\n",
+  blob_appendf(p->pOut, "END with %u lines left and %u lines right\n",
      p->lnLeft, p->lnRight);
   fossil_free(p);
 }
-static DiffBuilder *dfdebugNew(void){
+static DiffBuilder *dfdebugNew(Blob *pOut){
   DiffBuilder *p = fossil_malloc(sizeof(*p));
   p->xSkip = dfdebugSkip;
   p->xCommon = dfdebugCommon;
@@ -1575,6 +1576,7 @@ static DiffBuilder *dfdebugNew(void){
   p->xEdit = dfdebugEdit;
   p->xEnd = dfdebugEnd;
   p->lnLeft = p->lnRight = 0;
+  p->pOut = pOut;
   return p;
 }
 /****************************************************************************/
@@ -1599,7 +1601,7 @@ static void formatDiff(
   unsigned int na, nb;   /* Number of lines shown from A and B */
   unsigned int i, j;     /* Loop counters */
   unsigned int m, ma, mb;/* Number of lines to output */
-  unsigned int skip;     /* Number of lines to skip */
+  signed int skip = 0;   /* Number of lines to skip */
   unsigned int nContext; /* Lines of context above and below each change */
 
   nContext = diff_context_lines(diffFlags);
@@ -1638,8 +1640,8 @@ static void formatDiff(
       }
     }
 
-    /* For the current block comprising nr triples, figure out
-    ** how many lines of A and B are to be displayed
+    /* Figure out how many lines of A and B are to be displayed
+    ** for this change block.
     */
     if( R[r]>nContext ){
       na = nb = nContext;
@@ -1664,14 +1666,14 @@ static void formatDiff(
       nb += R[r+i*3];
     }
 
-    if( skip>0 ){
-      pBuilder->xSkip(pBuilder, skip);
-    }
-
     /* Show the initial common area */
     a += skip;
     b += skip;
     m = R[r] - skip;
+    if( r ) skip -= nContext;
+    if( skip>0 ){
+      pBuilder->xSkip(pBuilder, skip);
+    }
     for(j=0; j<m; j++){
       pBuilder->xCommon(pBuilder, &A[a+j]);
     }
@@ -1722,9 +1724,12 @@ static void formatDiff(
     assert( nr==i );
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
-    for(j=0; j<m; j++){
+    for(j=0; j<m && j<nContext; j++){
       pBuilder->xCommon(pBuilder, &A[a+j]);
     }
+  }
+  if( R[r]>nContext ){
+    pBuilder->xSkip(pBuilder, R[r] - nContext);
   }
   pBuilder->xEnd(pBuilder);
 }
@@ -2172,14 +2177,22 @@ void diff_errmsg(Blob *pOut, const char *msg, int diffFlags){
 }
 
 /*
-** Generate a report of the differences between files pA and pB.
-** If pOut is not NULL then a unified diff is appended there.  It
-** is assumed that pOut has already been initialized.  If pOut is
-** NULL, then a pointer to an array of integers is returned.
-** The integers come in triples.  For each triple,
-** the elements are the number of lines copied, the number of
-** lines deleted, and the number of lines inserted.  The vector
-** is terminated by a triple of all zeros.
+** Generate a report of the differences between files pA_Blob and pB_Blob.
+**
+** If pOut!=NULL then append text to pOut that will be the difference,
+** formatted according to flags in diffFlags.  The pOut Blob must have
+** already been initialized.
+**
+** If pOut==NULL then no formatting occurs.  Instead, this routine
+** returns a pointer to an array of integers.  The integers come in
+** triples.  The elements of each triple are:
+**
+**   1.  The number of lines to copy
+**   2.  The number of lines to delete
+**   3.  The number of lines to insert
+**
+** The return vector is terminated bin a triple of all zeros.  The caller
+** should free the returned vector using fossil_free().
 **
 ** This diff utility does not work on binary files.  If a binary
 ** file is encountered, 0 is returned and pOut is written with
@@ -2263,10 +2276,17 @@ int *text_diff(
         g.diffCnt[0]++;
         blob_appendf(pOut, "%10d %10d", nIns, nDel);
       }
+    }else if( diffFlags & DIFF_RAW ){
+      const int *R = c.aEdit;
+      unsigned int r;
+      for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
+        blob_appendf(pOut, " copy %6d  delete %6d  insert %6d\n",
+                     R[r], R[r+1], R[r+2]);
+      }
     }else if( diffFlags & DIFF_SIDEBYSIDE ){
       sbsDiff(&c, pOut, pRe, diffFlags);
-    }else if( diffFlags & DIFF_DEBUG1 ){
-      DiffBuilder *pBuilder = dfdebugNew();
+    }else if( diffFlags & DIFF_DEBUG ){
+      DiffBuilder *pBuilder = dfdebugNew(pOut);
       formatDiff(&c, pRe, diffFlags, pBuilder);
     }else{
       contextDiff(&c, pOut, pRe, diffFlags);
@@ -2346,36 +2366,12 @@ u64 diff_options(void){
     diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
                    |DIFF_SIDEBYSIDE;
   }
-  return diffFlags;
-}
 
-/*
-** COMMAND: test-rawdiff
-**
-** Usage: %fossil test-rawdiff FILE1 FILE2
-**
-** Show a minimal sequence of Copy/Delete/Insert operations needed to convert
-** FILE1 into FILE2.  This command is intended for use in testing and debugging
-** the built-in difference engine of Fossil.
-*/
-void test_rawdiff_cmd(void){
-  Blob a, b;
-  int r;
-  int i;
-  int *R;
-  u64 diffFlags = diff_options();
-  if( g.argc<4 ) usage("FILE1 FILE2 ...");
-  blob_read_from_file(&a, g.argv[2], ExtFILE);
-  for(i=3; i<g.argc; i++){
-    if( i>3 ) fossil_print("-------------------------------\n");
-    blob_read_from_file(&b, g.argv[i], ExtFILE);
-    R = text_diff(&a, &b, 0, 0, diffFlags);
-    for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
-      fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
-    }
-    /* free(R); */
-    blob_reset(&b);
-  }
+  /* Undocumented and unsupported flags used for development
+  ** debugging and analysis: */
+  if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
+  if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
+  return diffFlags;
 }
 
 /*
@@ -2403,7 +2399,6 @@ void test_diff_cmd(void){
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
   diffFlag = diff_options();
-  if( find_option("debug",0,0)!=0 ) diffFlag |= DIFF_DEBUG1;
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_zero(&out);

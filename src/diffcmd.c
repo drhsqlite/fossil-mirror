@@ -137,8 +137,11 @@ void diff_print_filenames(
   Blob *diffBlob
 ){
   char *z = 0;
-  if( diffFlags & (DIFF_BRIEF|DIFF_DEBUG1) ){
+  if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
     /* no-op */
+  }else if( diffFlags & DIFF_DEBUG ){
+    fossil_print("FILE-LEFT   %s\nFILE-RIGHT  %s\n",
+       zLeft, zRight);
   }else if( diffFlags & DIFF_WEBPAGE ){
     if( fossil_strcmp(zLeft,zRight)==0 ){
       z = mprintf("<h1>%h</h1>\n", zLeft);
