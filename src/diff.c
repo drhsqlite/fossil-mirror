@@ -46,8 +46,9 @@
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
 #define DIFF_WEBPAGE   (((u64)0x00040)<<32) /* Complete webpage */
 #define DIFF_BROWSER   (((u64)0x00080)<<32) /* The --browser option */
-#define DIFF_DEBUG     (((u64)0x00100)<<32) /* Debugging diff output */
-#define DIFF_RAW       (((u64)0x00200)<<32) /* Raw triples - for debugging */
+#define DIFF_JSON      (((u64)0x00100)<<32) /* JSON output */
+#define DIFF_DEBUG     (((u64)0x00200)<<32) /* Debugging diff output */
+#define DIFF_RAW       (((u64)0x00400)<<32) /* Raw triples - for debugging */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -1721,6 +1722,78 @@ static DiffBuilder *dfdebugNew(Blob *pOut){
   p->pOut = pOut;
   return p;
 }
+
+/************************* DiffBuilderJson ********************************/
+static void dfjsonSkip(DiffBuilder *p, unsigned int n){
+  blob_appendf(p->pOut, "1,%u,\n", n);
+}
+static void dfjsonCommon(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "2,\"",3);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, "\",\n",3);
+}
+static void dfjsonInsert(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "3,\"",3);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, "\",\n",3);
+}
+static void dfjsonDelete(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "4,\"",3);
+  htmlize_to_blob(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, "\",\n",3);
+}
+static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i;
+  int x;
+  ChangeSpan span;
+  oneLineChange(pX, pY, &span);
+  blob_appendf(p->pOut, "5,\"");
+  for(i=x=0; i<span.n; i++){
+    int ofst = span.a[i].iStart1;
+    int len = span.a[i].iLen1;
+    if( len ){
+      htmlize_to_blob(p->pOut, pX->z+x, ofst - x);
+      x += ofst;
+      blob_append(p->pOut, "<mark>", 6);
+      htmlize_to_blob(p->pOut, pX->z+x, len);
+      x += len;
+      blob_append(p->pOut, "</mark>", 7);
+    }
+  }
+  if( x<pX->n ) htmlize_to_blob(p->pOut, pX->z+x,  pX->n - x);
+  blob_append(p->pOut, "\",\n  \"", -1);
+  for(i=x=0; i<span.n; i++){
+    int ofst = span.a[i].iStart2;
+    int len = span.a[i].iLen2;
+    if( len ){
+      htmlize_to_blob(p->pOut, pY->z+x, ofst - x);
+      x += ofst;
+      blob_append(p->pOut, "<mark>", 6);
+      htmlize_to_blob(p->pOut, pY->z+x, len);
+      x += len;
+      blob_append(p->pOut, "</mark>", 7);
+    }
+  }
+  if( x<pY->n ) htmlize_to_blob(p->pOut, pY->z+x,  pY->n - x);
+  blob_append(p->pOut, "\"\n,", -1);
+}
+static void dfjsonEnd(DiffBuilder *p){
+  blob_append(p->pOut, "0]", 2);
+  fossil_free(p);
+}
+static DiffBuilder *dfjsonNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfjsonSkip;
+  p->xCommon = dfjsonCommon;
+  p->xInsert = dfjsonInsert;
+  p->xDelete = dfjsonDelete;
+  p->xEdit = dfjsonEdit;
+  p->xEnd = dfjsonEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->pOut = pOut;
+  blob_append_char(pOut, '[');
+  return p;
+}
 /****************************************************************************/
 
 /*
@@ -2443,6 +2516,10 @@ int *text_diff(
         blob_appendf(pOut, " copy %6d  delete %6d  insert %6d\n",
                      R[r], R[r+1], R[r+2]);
       }
+    }else if( diffFlags & DIFF_JSON ){
+      DiffBuilder *pBuilder = dfjsonNew(pOut);
+      formatDiff(&c, pRe, diffFlags, pBuilder);
+      blob_append_char(pOut, '\n');
     }else if( diffFlags & DIFF_SIDEBYSIDE ){
       sbsDiff(&c, pOut, pRe, diffFlags);
     }else if( diffFlags & DIFF_DEBUG ){
@@ -2525,6 +2602,9 @@ u64 diff_options(void){
   if( find_option("by",0,0)!=0 ){
     diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
                    |DIFF_SIDEBYSIDE;
+  }
+  if( find_option("json",0,0)!=0 ){
+    diffFlags |= DIFF_JSON;
   }
 
   /* Undocumented and unsupported flags used for development
