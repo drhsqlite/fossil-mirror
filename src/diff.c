@@ -746,7 +746,7 @@ static int textLCS(
 }
 
 /*
-** Find the smallest spans that different between two text strings that
+** Find the smallest spans that are different between two text strings that
 ** are known to be different on both ends.
 */
 static int textChangeSpans(
@@ -1019,6 +1019,136 @@ static void sbsWriteLineChange(
   p->a[0].zTag = zClassChng;
   p->n = 1;
   sbsWriteText(p, pRight, SBS_TXTB);
+}
+
+/*
+** Given two lines of text, pFrom and pTo, compute a set of changes
+** between those two lines, for enhanced display purposes.
+**
+** The result is written into the ChangeSpan object given by the
+** third parameter.
+*/
+static void oneLineChange(
+  const DLine *pLeft,  /* Left line of the change */
+  const DLine *pRight, /* Right line of the change */
+  ChangeSpan *p        /* OUTPUT: Write the results here */
+){
+  int nLeft;           /* Length of left line in bytes */
+  int nRight;          /* Length of right line in bytes */
+  int nShort;          /* Shortest of left and right */
+  int nPrefix;         /* Length of common prefix */
+  int nSuffix;         /* Length of common suffix */
+  int nCommon;         /* Total byte length of suffix and prefix */
+  const char *zLeft;   /* Text of the left line */
+  const char *zRight;  /* Text of the right line */
+  int nLeftDiff;       /* nLeft - nPrefix - nSuffix */
+  int nRightDiff;      /* nRight - nPrefix - nSuffix */
+
+  nLeft = pLeft->n;
+  zLeft = pLeft->z;
+  nRight = pRight->n;
+  zRight = pRight->z;
+  nShort = nLeft<nRight ? nLeft : nRight;
+
+  nPrefix = 0;
+  while( nPrefix<nShort && zLeft[nPrefix]==zRight[nPrefix] ){
+    nPrefix++;
+  }
+  if( nPrefix<nShort ){
+    while( nPrefix>0 && (zLeft[nPrefix]&0xc0)==0x80 ) nPrefix--;
+  }
+  nSuffix = 0;
+  if( nPrefix<nShort ){
+    while( nSuffix<nShort && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+      nSuffix++;
+    }
+    if( nSuffix<nShort ){
+      while( nSuffix>0 && (zLeft[nLeft-nSuffix]&0xc0)==0x80 ) nSuffix--;
+    }
+    if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
+  }
+  nCommon = nPrefix + nSuffix;
+
+  /* If the prefix and suffix overlap, that means that we are dealing with
+  ** a pure insertion or deletion of text that can have multiple alignments.
+  ** Try to find an alignment to begins and ends on whitespace, or on
+  ** punctuation, rather than in the middle of a name or number.
+  */
+  if( nCommon > nShort ){
+    int iBest = -1;
+    int iBestVal = -1;
+    int i;
+    int nLong = nLeft<nRight ? nRight : nLeft;
+    int nGap = nLong - nShort;
+    for(i=nShort-nSuffix; i<=nPrefix; i++){
+       int iVal = 0;
+       char c = zLeft[i];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       c = zLeft[i+nGap-1];
+       if( fossil_isspace(c) ){
+         iVal += 5;
+       }else if( !fossil_isalnum(c) ){
+         iVal += 2;
+       }
+       if( iVal>iBestVal ){
+         iBestVal = iVal;
+         iBest = i;
+       }
+    }
+    nPrefix = iBest;
+    nSuffix = nShort - nPrefix;
+    nCommon = nPrefix + nSuffix;
+  }
+
+  /* A single chunk of text inserted */
+  if( nCommon==nLeft ){
+    p->n = 1;
+    p->a[0].iStart1 = 0;
+    p->a[0].iLen1 = 0;
+    p->a[0].iStart2 = nPrefix;
+    p->a[0].iLen2 = nRight - nCommon;
+    return;
+  }
+
+  /* A single chunk of text deleted */
+  if( nCommon==nRight ){
+    p->n = 1;
+    p->a[0].iStart1 = nPrefix;
+    p->a[0].iLen1 = nLeft - nCommon;
+    p->a[0].iStart2 = 0;
+    p->a[0].iLen2 = 0;
+    return;
+  }
+
+  /* At this point we know that there is a chunk of text that has
+  ** changed between the left and the right.  Check to see if there
+  ** is a large unchanged section in the middle of that changed block.
+  */
+  nLeftDiff = nLeft - nCommon;
+  nRightDiff = nRight - nCommon;
+  if( nLeftDiff >= 4
+   && nRightDiff >= 4
+   && textChangeSpans(&zLeft[nPrefix], nLeftDiff,
+                      &zRight[nPrefix], nRightDiff, p)>1
+  ){
+    int i;
+    for(i=0; i<p->n; i++){
+      p->a[i].iStart1 += nPrefix;
+      p->a[i].iStart2 += nPrefix;
+    }
+    return;
+  }
+
+  /* If all else fails, show a single big change between left and right */
+  p->n = 1;
+  p->a[0].iStart1 = nPrefix;
+  p->a[0].iLen1 = nLeft - nCommon;
+  p->a[0].iStart2 = nPrefix;
+  p->a[0].iLen2 = nRight - nCommon;
 }
 
 /*
@@ -1502,10 +1632,9 @@ struct DiffBuilder {
   void (*xDelete)(DiffBuilder*,const DLine*);
   void (*xEdit)(DiffBuilder*,const DLine*,const DLine*);
   void (*xEnd)(DiffBuilder*);
-  unsigned int lnLeft;           /* Lines seen on the left (delete) side */
-  unsigned int lnRight;          /* Lines seen on the right (insert) side */
-  Blob *pOut;                    /* Output blob */
-  /* Subclass add additional fields */
+  unsigned int lnLeft;              /* Lines seen on the left (delete) side */
+  unsigned int lnRight;             /* Lines seen on the right (insert) side */
+  Blob *pOut;                       /* Output blob */
 };
 
 /************************* DiffBuilderDebug ********************************/
@@ -1532,10 +1661,36 @@ static void dfdebugDelete(DiffBuilder *p, const DLine *pLine){
       p->lnLeft, (int)pLine->n, pLine->z);
 }
 static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i, j;
+  int x;
+  ChangeSpan span;
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut, "EDIT   %8u          %.*s\n                %8u %.*s\n",
-      p->lnLeft, (int)pX->n, pX->z, p->lnRight, (int)pY->n, pY->z);
+  blob_appendf(p->pOut, "EDIT   %8u          %.*s\n",
+               p->lnLeft, (int)pX->n, pX->z);
+  oneLineChange(pX, pY, &span);
+  for(i=x=0; i<span.n; i++){
+    int ofst = span.a[i].iStart1;
+    int len = span.a[i].iLen1;
+    if( len ){
+      blob_appendf(p->pOut, "%*s", ofst+25 - x, "");
+      for(j=0; j<len; j++) blob_append_char(p->pOut, '^');
+      x = ofst+len+25;
+    }
+  }
+  if( x ) blob_append_char(p->pOut, '\n');
+  blob_appendf(p->pOut, "                %8u %.*s\n",
+               p->lnRight, (int)pY->n, pY->z);
+  for(i=x=0; i<span.n; i++){
+    int ofst = span.a[i].iStart2;
+    int len = span.a[i].iLen2;
+    if( len ){
+      blob_appendf(p->pOut, "%*s", ofst+25 - x, "");
+      for(j=0; j<len; j++) blob_append_char(p->pOut, '^');
+      x = ofst+len+25;
+    }
+  }
+  if( x ) blob_append_char(p->pOut, '\n');
 }
 static void dfdebugEnd(DiffBuilder *p){
   blob_appendf(p->pOut, "END with %u lines left and %u lines right\n",
