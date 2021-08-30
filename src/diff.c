@@ -729,9 +729,11 @@ static int textLCS(
 
   for(i=0; i<nA-lenBest; i++){
     unsigned char cA = zA[i];
+    if( (cA&0xc0)==0x80 ) continue;
     for(j=0; j<nB-lenBest; j++ ){
       if( zB[j]==cA ){
         for(k=1; j+k<nB && i+k<nA && zB[j+k]==zA[i+k]; k++){}
+        while( (zB[j+k]&0xc0)==0x80 ){ k--; }
         if( k>lenBest ){
           lenBest = k;
           aLCS[0] = i;
@@ -1673,9 +1675,14 @@ static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     int ofst = span.a[i].iStart1;
     int len = span.a[i].iLen1;
     if( len ){
-      blob_appendf(p->pOut, "%*s", ofst+25 - x, "");
-      for(j=0; j<len; j++) blob_append_char(p->pOut, '^');
-      x = ofst+len+25;
+      if( x==0 ){ blob_appendf(p->pOut, "%*s", 25, ""); }
+      while( ofst > x ){
+        if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, ' ');
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, '^');
+      }
     }
   }
   if( x ) blob_append_char(p->pOut, '\n');
@@ -1685,9 +1692,14 @@ static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     int ofst = span.a[i].iStart2;
     int len = span.a[i].iLen2;
     if( len ){
-      blob_appendf(p->pOut, "%*s", ofst+25 - x, "");
-      for(j=0; j<len; j++) blob_append_char(p->pOut, '^');
-      x = ofst+len+25;
+      if( x==0 ){ blob_appendf(p->pOut, "%*s", 25, ""); }
+      while( ofst > x ){
+        if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, ' ');
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, '^');
+      }
     }
   }
   if( x ) blob_append_char(p->pOut, '\n');
