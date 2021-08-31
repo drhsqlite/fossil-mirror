@@ -408,7 +408,7 @@ indefinitely.
 The Git preference for siloed development has been strongly adopted by GitHub,
 who say
 "[https://guides.github.com/activities/forking|Forking is at the core of social coding at GitHub]".
-As a result, as of September 2021,
+As of September 2021,
 [https://github.com/search?q=is:public|Github hosts 46 million distinct software projects],
 most of them created by forking a previously-existing project. Since
 this is [https://evansdata.com/reports/viewRelease.php?reportID=9 |
@@ -445,7 +445,7 @@ development model:
     [https://www.git-scm.com/docs/git-request-pull|pull requests] offer
     a low-friction path to accepting
     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
-    contributions]. Fossil's closest equivalent is its unique
+    contributions]. Fossil's closest equivalents are its unique
     [/help?cmd=bundle|bundle] and [/help?cmd=patch|patch] features, which require higher engagement
     than firing off a PR.⁷ This difference comes directly from the
     initial designed purpose for each tool: the SQLite project doesn't
