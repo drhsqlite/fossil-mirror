@@ -177,12 +177,18 @@ void diff_print_filenames(
   fossil_free(z);
 }
 
+
 /*
-** Extra CSS for side-by-side diffs
+** Default header text for diff with --webpage
 */
-static const char zSbsCss[] = 
+static const char zWebpageHdr[] = 
+@ <!DOCTYPE html>
+@ <html>
+@ <head>
+@ <meta charset="UTF-8">
+@ <style>
 @ table.sbsdiffcols {
-@   width: 90%;
+@   width: 90%%;
 @   border-spacing: 0;
 @   font-size: small;
 @ }
@@ -207,18 +213,7 @@ static const char zSbsCss[] =
 @ div.diffmkrcol {
 @   padding: 0 1em;
 @ }
-;
-
-/*
-** Default header text for diff with --webpage
-*/
-static const char zWebpageHdr[] = 
-@ <!DOCTYPE html>
-@ <html>
-@ <head>
-@ <meta charset="UTF-8">
-@ <style>
-@ %sspan.diffchng {
+@ span.diffchng {
 @   background-color: #c0c0ff;
 @ }
 @ span.diffadd {
@@ -234,6 +229,37 @@ static const char zWebpageHdr[] =
 @ }
 @ span.diffln {
 @   color: #a0a0a0;
+@ }
+@ table.udiff {
+@   width: 90%%;
+@   border-spacing: 0;
+@ }
+@ pre.udiffln {
+@   color: #a0a0a0;
+@ }
+@ pre.udiffln ins {
+@   background-color: #a0e4b2;
+@   text-decoration: none;
+@ }
+@ pre.udiffln del {
+@   background-color: #ffc0c0;
+@   text-decoration: none;
+@ }
+@ pre.udifftxt ins {
+@   background-color: #dafbe1;
+@   text-decoration: none;
+@ }
+@ pre.udifftxt del {
+@   background-color: #ffe8e8;
+@   text-decoration: none;
+@ }
+@ pre.udifftxt ins mark {
+@   background-color: #a0e4b2;
+@   text-decoration: none;
+@ }
+@ pre.udifftxt del mark {
+@   background-color: #ffc0c0;
+@   text-decoration: none;
 @ }
 @ h1 {
 @   font-size: 150%%;
@@ -303,13 +329,7 @@ void diff_begin(u64 diffFlags){
 #endif
   }
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
-    const char *zExtra;
-    if( diffFlags & DIFF_SIDEBYSIDE ){
-      zExtra = zSbsCss;
-    }else{
-      zExtra = "";
-    }
-    fossil_print(zWebpageHdr/*works-like:"%s"*/, zExtra);
+    fossil_print(zWebpageHdr/*works-like:""*/);
     fflush(stdout);
   }
 }

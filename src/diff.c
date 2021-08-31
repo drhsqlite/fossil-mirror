@@ -1629,7 +1629,7 @@ static void sbsDiff(
 */ 
 typedef struct DiffBuilder DiffBuilder;
 struct DiffBuilder {
-  void (*xSkip)(DiffBuilder*, unsigned int);
+  void (*xSkip)(DiffBuilder*, unsigned int, int);
   void (*xCommon)(DiffBuilder*,const DLine*);
   void (*xInsert)(DiffBuilder*,const DLine*);
   void (*xDelete)(DiffBuilder*,const DLine*);
@@ -1638,12 +1638,14 @@ struct DiffBuilder {
   unsigned int lnLeft;              /* Lines seen on the left (delete) side */
   unsigned int lnRight;             /* Lines seen on the right (insert) side */
   Blob *pOut;                       /* Output blob */
+  Blob aCol[5];                     /* Holding blobs */
 };
 
 /************************* DiffBuilderDebug ********************************/
-static void dfdebugSkip(DiffBuilder *p, unsigned int n){
-  blob_appendf(p->pOut, "SKIP %d (%d..%d left and %d..%d right)\n",
-                n, p->lnLeft+1, p->lnLeft+n, p->lnRight+1, p->lnRight+n);
+static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  blob_appendf(p->pOut, "SKIP %d (%d..%d left and %d..%d right)%s\n",
+                n, p->lnLeft+1, p->lnLeft+n, p->lnRight+1, p->lnRight+n,
+                isFinal ? " FINAL" : "");
   p->lnLeft += n;
   p->lnRight += n;
 }
@@ -1784,7 +1786,7 @@ static void jsonize_to_blob(Blob *p, const char *zIn, int n, int *piCol){
   }
   *piCol = iCol;
 }
-static void dfjsonSkip(DiffBuilder *p, unsigned int n){
+static void dfjsonSkip(DiffBuilder *p, unsigned int n, int isFinal){
   blob_appendf(p->pOut, "1,%u,\n", n);
 }
 static void dfjsonCommon(DiffBuilder *p, const DLine *pLine){
@@ -1817,7 +1819,7 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     int len = span.a[i].iLen1;
     if( len ){
       jsonize_to_blob(p->pOut, pX->z+x, ofst - x, &iCol);
-      x += ofst;
+      x = ofst;
       blob_append(p->pOut, "<mark>", 6);
       jsonize_to_blob(p->pOut, pX->z+x, len, &iCol);
       x += len;
@@ -1831,7 +1833,7 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     int len = span.a[i].iLen2;
     if( len ){
       jsonize_to_blob(p->pOut, pY->z+x, ofst - x, &iCol);
-      x += ofst;
+      x = ofst;
       blob_append(p->pOut, "<mark>", 6);
       jsonize_to_blob(p->pOut, pY->z+x, len, &iCol);
       x += len;
@@ -1856,6 +1858,136 @@ static DiffBuilder *dfjsonNew(Blob *pOut){
   p->lnLeft = p->lnRight = 0;
   p->pOut = pOut;
   blob_append_char(pOut, '[');
+  return p;
+}
+
+/************************* DiffBuilderUnified********************************/
+
+/* Accumulator strategy:
+**
+**    *   Common and Delete line numbers are output directly to p->pOut
+**    *   Common and Delete text accumulates in p->aCol[0].
+**    *   Pending insert lines numbers go into p->aCol[1].
+**    *   Pending insert text goes into p->aCol[2].
+*/
+static void dfunifiedEmitInsert(DiffBuilder *p){
+  if( blob_size(&p->aCol[1])==0 ) return;
+  blob_append(p->pOut, blob_buffer(&p->aCol[1]), blob_size(&p->aCol[1]));
+  blob_reset(&p->aCol[1]);
+  blob_append(&p->aCol[0], blob_buffer(&p->aCol[2]), blob_size(&p->aCol[2]));
+  blob_reset(&p->aCol[2]);
+}
+static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  dfunifiedEmitInsert(p);
+  if( (p->lnLeft || p->lnRight) && !isFinal ){
+    blob_append(p->pOut,
+       "<span class=\"diffhr\">"
+       ".................."
+       "</span>\n",
+       -1);
+    blob_append(&p->aCol[0],
+       "<span class=\"diffhr\">"
+       "..............................................................."
+       "</span>\n",
+       -1);
+  }
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
+  dfunifiedEmitInsert(p);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%6d  %6d\n", p->lnLeft, p->lnRight);
+  jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
+  blob_append_char(&p->aCol[0], '\n');
+}
+static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
+  p->lnRight++;
+  blob_appendf(&p->aCol[1],"        <ins>%6d</ins>\n", p->lnRight);
+  blob_append(&p->aCol[2],"<ins>",-1);
+  jsonize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n, &iCol);
+  blob_append(&p->aCol[2], "</ins>\n", -1);
+}
+static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
+  p->lnLeft++;
+  blob_appendf(p->pOut,"<del>%6d</del>        \n", p->lnLeft);
+  blob_append(&p->aCol[0],"<del>",-1);
+  jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
+  blob_append(&p->aCol[0], "</del>\n", -1);
+}
+static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i;
+  int x;
+  int iCol;
+  ChangeSpan span;
+  oneLineChange(pX, pY, &span);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"<del>%6d</del>        \n", p->lnLeft);
+  blob_append(&p->aCol[0], "<del>", -1);
+  for(i=x=iCol=0; i<span.n; i++){
+    int ofst = span.a[i].iStart1;
+    int len = span.a[i].iLen1;
+    if( len ){
+      jsonize_to_blob(&p->aCol[0], pX->z+x, ofst - x, &iCol);
+      x = ofst;
+      blob_append(&p->aCol[0], "<mark>", 6);
+      jsonize_to_blob(&p->aCol[0], pX->z+x, len, &iCol);
+      x += len;
+      blob_append(&p->aCol[0], "</mark>", 7);
+    }
+  }
+  if( x<pX->n ) jsonize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x, &iCol);
+  blob_append(&p->aCol[0], "</del>\n", -1);
+  blob_appendf(&p->aCol[1],"        <ins>%6d</ins>\n", p->lnRight);
+  blob_append(&p->aCol[2], "<ins>", -1);
+  for(i=x=iCol=0; i<span.n; i++){
+    int ofst = span.a[i].iStart2;
+    int len = span.a[i].iLen2;
+    if( len ){
+      jsonize_to_blob(&p->aCol[2], pY->z+x, ofst - x, &iCol);
+      x = ofst;
+      blob_append(&p->aCol[2], "<mark>", 6);
+      jsonize_to_blob(&p->aCol[2], pY->z+x, len, &iCol);
+      x += len;
+      blob_append(&p->aCol[2], "</mark>", 7);
+    }
+  }
+  if( x<pY->n ) jsonize_to_blob(&p->aCol[2], pY->z+x,  pY->n - x, &iCol);
+  blob_append(&p->aCol[2], "</ins>\n", -1);
+}
+static void dfunifiedEnd(DiffBuilder *p){
+  dfunifiedEmitInsert(p);
+  blob_append(p->pOut,
+     "</pre></td>\n"
+     "<td class=\"udifftxt\" width=\"100%\"><pre class=\"udifftxt\">\n",
+     -1);
+  blob_append(p->pOut, blob_buffer(&p->aCol[0]), blob_size(&p->aCol[0]));
+  blob_reset(&p->aCol[0]);
+  blob_append(p->pOut, "</pre></td></tr>\n</table>\n", -1);
+  fossil_free(p);
+}
+static DiffBuilder *dfunifiedNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfunifiedSkip;
+  p->xCommon = dfunifiedCommon;
+  p->xInsert = dfunifiedInsert;
+  p->xDelete = dfunifiedDelete;
+  p->xEdit = dfunifiedEdit;
+  p->xEnd = dfunifiedEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->pOut = pOut;
+  blob_append(pOut,
+    "<table class=\"sbsdiffcols\">\n"
+    "<tr><td class=\"udiffln\"><pre class=\"udiffln\">\n",
+    -1);
+  blob_init(&p->aCol[0], 0, 0);
+  blob_init(&p->aCol[1], 0, 0);
+  blob_init(&p->aCol[2], 0, 0);
   return p;
 }
 /****************************************************************************/
@@ -1951,7 +2083,7 @@ static void formatDiff(
     m = R[r] - skip;
     if( r ) skip -= nContext;
     if( skip>0 ){
-      pBuilder->xSkip(pBuilder, skip);
+      pBuilder->xSkip(pBuilder, skip, 0);
     }
     for(j=0; j<m; j++){
       pBuilder->xCommon(pBuilder, &A[a+j]);
@@ -2026,7 +2158,7 @@ static void formatDiff(
     }
   }
   if( R[r]>nContext ){
-    pBuilder->xSkip(pBuilder, R[r] - nContext);
+    pBuilder->xSkip(pBuilder, R[r] - nContext, 1);
   }
   pBuilder->xEnd(pBuilder);
 }
@@ -2588,6 +2720,9 @@ int *text_diff(
       sbsDiff(&c, pOut, pRe, diffFlags);
     }else if( diffFlags & DIFF_DEBUG ){
       DiffBuilder *pBuilder = dfdebugNew(pOut);
+      formatDiff(&c, pRe, diffFlags, pBuilder);
+    }else if( diffFlags & DIFF_HTML ){
+      DiffBuilder *pBuilder = dfunifiedNew(pOut);
       formatDiff(&c, pRe, diffFlags, pBuilder);
     }else{
       contextDiff(&c, pOut, pRe, diffFlags);
