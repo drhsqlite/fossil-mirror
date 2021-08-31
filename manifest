@@ -1,5 +1,5 @@
-C Small\sgrammar\stweaks\sto\sprevious
-D 2021-08-31T13:44:25.452
+C Fixed\sseveral\s"descendents"\stypos.\s(It's\s"descendants".)\sThere's\sstill\none\sremaining\sin\ssqlite3.c,\sbut\sof\scourse\sfixing\sthat\shere\swon't\shelp.
+D 2021-08-31T14:03:52.249
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -477,7 +477,7 @@ F src/export.c fdd2a3ade2983635187915ad753dadfbd106c8422ec41bdd6e8cfbd30fc7669e
 F src/extcgi.c 03801ba4a44b656fb09fc303ce7f7fce37733ef9aa4fe78106171977ac8763d0
 F src/file.c f72f172e4f763f423b834c3a24fefe1494acad1e70a1ab127bd09c6cf7232dee
 F src/fileedit.c 985a7c80474dd0e514c3fc4455b8df7071a108049d38e3336176c8cb89b7d601
-F src/finfo.c 7ba533fbfaec6a69a9a36b809d36c8ebf4a6a19a4a3449ad9f1ec1746993456d
+F src/finfo.c f449e45004ee197e59a0ec38792310b18c01db6eb459c12eef69620b581ee456
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c d32fbf091ddeaba3c47239f44dce1cb66b3a75e4503b5538a1c99c447f48fabf
 F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
@@ -874,7 +874,7 @@ F www/forum.wiki df1700a549b0576818bd69f4289263f2c0b4a2ac7eb508dd1aeaa255b73b63d
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-is-not-relational.md d3c6746788ff42e46197729d9755e82affa5f1728b7d302aa9b41200e834e4a7
-F www/fossil-v-git.wiki 74e2a46ee5cebf9de89d772a7155b164bd6900183f76ea21d1d056b6a4734e42
+F www/fossil-v-git.wiki f22f3a05093df31a9a6355f4e10c85cb74356a9c008d5165f24f82993165fd56
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c00b6a4844fb1405fb298a364a6ad5c9a23c11ce5466d73bf13ade610dc1c0de
-R 69f4dcd6e23e261535d0f51751ecaf02
+P c2f0063f1e4fe86f41305200a486094694c9f8df5c2c20e84d3e73544e9fc200
+R 16f33cdbac973f9198fdba2d5dcd93d1
 U wyoung
-Z 33d6ab4d9e862439c118b9f8f7c3002b
+Z 41d3dbf2813950ab412fc65a3941de2f

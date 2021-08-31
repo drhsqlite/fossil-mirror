@@ -250,7 +250,7 @@ language.
 This difference is more than an implementation detail. It has important
 practical consequences.
 
-One notable consequence is that it is difficult to find the descendents
+One notable consequence is that it is difficult to find the descendants
 of check-ins in Git.
 One can easily locate the ancestors of a particular Git check-in
 by following the pointers embedded in the check-in object, but it is
@@ -258,7 +258,7 @@ difficult to go the other direction and locate the descendants of a
 check-in.  It is so difficult, in fact, that neither native Git nor
 GitHub provide this capability short of crawling the
 [https://www.git-scm.com/docs/git-log|commit log].  With Fossil,
-on the other hand, finding descendents is a simple SQL query.
+on the other hand, finding descendants is a simple SQL query.
 It is common in Fossil to ask to see
 [/timeline?df=release&y=ci|all check-ins since the last release].
 Git lets you see "what came before".  Fossil makes it just as
