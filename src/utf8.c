@@ -90,7 +90,7 @@ void *fossil_utf8_to_unicode(const char *zUtf8){
 
 /*
 ** Deallocate any memory that was previously allocated by
-** fossil_unicode_to_utf8().
+** fossil_unicode_to_utf8() or fossil_utf8_to_unicode().
 */
 void fossil_unicode_free(void *pOld){
   fossil_free(pOld);

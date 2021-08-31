@@ -657,7 +657,10 @@ char *fossil_temp_filename(void){
   u64 r[2];
   int i;
 #ifdef _WIN32
-  char zTempDir[1000];
+  char *zTempDirA = NULL;
+  WCHAR zTempDirW[MAX_PATH+1];
+  const DWORD dwTempSizeW = sizeof(zTempDirW)/sizeof(zTempDirW[0]);
+  DWORD dwTempLenW;
 #else
   static const char *azTmp[] = {"/var/tmp","/usr/tmp","/tmp"};
 #endif
@@ -667,11 +670,11 @@ char *fossil_temp_filename(void){
   }
   sqlite3_randomness(sizeof(r), &r);
 #if _WIN32
-  zTempDir[0] = 0;
   cDirSep = '\\';
-  GetTempPathA(sizeof(zTempDir), zTempDir);
-  if( zTempDir[0] ){
-    zDir = zTempDir;
+  dwTempLenW = GetTempPathW(dwTempSizeW, zTempDirW);
+  if( dwTempLenW>0 && dwTempLenW<dwTempSizeW
+      && ( zTempDirA = fossil_unicode_to_utf8(zTempDirW) )){
+    zDir = zTempDirA;
   }else{
     zDir = fossil_getenv("LOCALAPPDATA");
     if( zDir==0 ) zDir = ".";
@@ -690,7 +693,11 @@ char *fossil_temp_filename(void){
   nDir = strlen(zDir);
   zSep[1] = 0;
   zSep[0] = (nDir && zDir[nDir-1]==cDirSep) ? 0 : cDirSep;
-  return sqlite3_mprintf("%s%sfossil%016llx%016llx", zDir,zSep,r[0],r[1]);
+  zTFile = sqlite3_mprintf("%s%sfossil%016llx%016llx", zDir,zSep,r[0],r[1]);
+#ifdef _WIN32
+  if( zTempDirA ) fossil_unicode_free(zTempDirA);
+#endif
+  return zTFile;
 }
 
 /*

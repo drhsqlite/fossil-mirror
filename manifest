@@ -1,5 +1,5 @@
-C Fixed\sa\scopy/paste\stypo\sfrom\s[ae28ae82]\swhich\sbroke\ssome\sJS-using\spages.
-D 2021-08-31T02:56:28.288
+C On\sWindows,\smake\ssure\stemporary\spath\snames\scontaining\snon-ASCII\scharacters\sare\saccessible,\sfor\sexample\sif\sthe\sdefault\stemporary\spath\s"C:\\Users\\«Username»\\AppData\\Local\\Temp"\scontains\sa\suser\sname\swith\sextended\scharacters,\sof\sif\sthe\s%TEMP%\senvironment\svariable\spoints\sto\sa\sdirectory\sname\swith\sextended\scharacters.
+D 2021-08-31T07:01:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -467,7 +467,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
 F src/diff.c e8b48e077608bc15a871c305b9ad17179ba89e9200e4e15198cb28904e9ed8eb
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c f8f64fa1833340456995d26c3ce5d1795e3c34ddbb357bd868280187b5e83ad9
+F src/diffcmd.c 1bac3a47fcffc688e2d94ca4b85e27bd4dd60b88aacc3206615383cfc4666040
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -641,8 +641,8 @@ F src/update.c 86d89109d9527d64712b198c3a2f23627c13c909ec6a1b1f2626c4e33b0b35a1
 F src/url.c 0e2006b69cecd4eca7eaffeb7710b8bfb89df5bb3fcedfce6f4a1b5306716b84
 F src/user.c 14eb8bbf710d57bf440e46a70a016d65b3acb20bb7dd9ba37c9b258480006ccf
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
-F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c 5d3a4d946c0dd9a60e23ab93d8fd8df7e1506e4c6bc80b6840c844a3f1746f49
+F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
+F src/util.c 673d1b545ac0703979df9bddc4e6f953588dda64b38deb1b198937f3de1f4640
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c b9974613a70e679925132c6fbd5255273781cad0081c4c667eb0d2d54457f96e
@@ -996,7 +996,10 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fa667a9308726315401263e741ef03800ce300d148444a4d6faa74a572bcc803
-R 7b4f024463367f4f6ef5e858a41eff4d
-U stephan
-Z 575b9984139bdf4683df452132c4f0cd
+P b22bf1c9548abe8b5143fcd0079c2dd006a815db2da0ab11783151817853c25c
+R 0ebc5c1e1d9573636c752e46e723a11e
+T *branch * win32-temppath-mojibake
+T *sym-win32-temppath-mojibake *
+T -sym-trunk *
+U florian
+Z 422b402822236697bf7ec26909edafd7
