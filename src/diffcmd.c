@@ -282,18 +282,9 @@ static BOOL WINAPI diff_console_ctrl_handler(DWORD dwCtrlType){
 */
 void diff_begin(u64 diffFlags){
   if( (diffFlags & DIFF_BROWSER)!=0 ){
-#ifdef _WIN32
-    LPWSTR tempDiffFilenameW;
-#endif
     tempDiffFilename = fossil_temp_filename();
     tempDiffFilename = sqlite3_mprintf("%z.html", tempDiffFilename);
-#ifndef _WIN32
-    diffOut = freopen(tempDiffFilename,"wb",stdout);
-#else
-    tempDiffFilenameW = fossil_utf8_to_unicode(tempDiffFilename);
-    diffOut = _wfreopen(tempDiffFilenameW,L"wb",stdout);
-    fossil_unicode_free(tempDiffFilenameW);
-#endif
+    diffOut = fossil_freopen(tempDiffFilename,"wb",stdout);
     if( diffOut==0 ){
       fossil_fatal("unable to create temporary file \"%s\"", 
                    tempDiffFilename);
@@ -337,7 +328,7 @@ void diff_end(u64 diffFlags, int nErr){
   if( (diffFlags & DIFF_BROWSER)!=0 && nErr==0 ){
     char *zCmd = mprintf("%s %$", fossil_web_browser(), tempDiffFilename);
     fclose(diffOut);
-    diffOut = freopen(NULL_DEVICE, "wb", stdout);
+    diffOut = fossil_freopen(NULL_DEVICE, "wb", stdout);
     fossil_system(zCmd);
     fossil_free(zCmd);
     diffOut = 0;

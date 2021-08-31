@@ -673,7 +673,7 @@ char *fossil_temp_filename(void){
   cDirSep = '\\';
   dwTempLenW = GetTempPathW(dwTempSizeW, zTempDirW);
   if( dwTempLenW>0 && dwTempLenW<dwTempSizeW
-      && ( zTempDirA = fossil_unicode_to_utf8(zTempDirW) )){
+      && ( zTempDirA = fossil_path_to_utf8(zTempDirW) )){
     zDir = zTempDirA;
   }else{
     zDir = fossil_getenv("LOCALAPPDATA");
@@ -695,7 +695,7 @@ char *fossil_temp_filename(void){
   zSep[0] = (nDir && zDir[nDir-1]==cDirSep) ? 0 : cDirSep;
   zTFile = sqlite3_mprintf("%s%sfossil%016llx%016llx", zDir,zSep,r[0],r[1]);
 #ifdef _WIN32
-  if( zTempDirA ) fossil_unicode_free(zTempDirA);
+  if( zTempDirA ) fossil_path_free(zTempDirA);
 #endif
   return zTFile;
 }

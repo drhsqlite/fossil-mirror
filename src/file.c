@@ -2164,6 +2164,22 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
 }
 
 /*
+** Wrapper for freopen() that understands UTF8 arguments.
+*/
+FILE *fossil_freopen(const char *zName, const char *zMode, FILE *stream){
+#ifdef _WIN32
+  wchar_t *uMode = fossil_utf8_to_unicode(zMode);
+  wchar_t *uName = fossil_utf8_to_path(zName, 0);
+  FILE *f = _wfreopen(uName, uMode, stream);
+  fossil_path_free(uName);
+  fossil_unicode_free(uMode);
+#else
+  FILE *f = freopen(zName, zMode, stream);
+#endif
+  return f;
+}
+
+/*
 ** Works like fclose() except that:
 **
 ** 1) is a no-op if f is 0 or if it is stdin.
