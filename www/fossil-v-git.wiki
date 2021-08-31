@@ -443,7 +443,7 @@ development model:
     a low-friction path to accepting
     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
     contributions]. Fossil's closest equivalent is its unique
-    [/help?cmd=bundle|bundle] feature, which requires higher engagement
+    [/help?cmd=bundle|bundle] and [/help?cmd=patch|patch] features, which require higher engagement
     than firing off a PR.⁷ This difference comes directly from the
     initial designed purpose for each tool: the SQLite project doesn't
     accept outside contributions from previously-unknown developers, but
@@ -926,10 +926,15 @@ for years now, so that the solution is now almost universally deployed.
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>
-    files], a common way to allow drive-by contributions, but it's a
+    files] — unified diff formatted output — for accepting drive-by contributions, but it's a
     lossy contribution path for both systems. Unlike Git PRs and Fossil
     bundles, patch files collapse multiple checkins together, they don't
     include check-in comments, and they cannot encode changes made above
     the individual file content layer: you lose branching decisions,
-    tag changes, file renames, and more when using patch files.</p></li>
+    tag changes, file renames, and more when using patch files. Fossil
+    2.16 adds [./patchcmd.md | a <tt>fossil patch</tt> command] that
+    also solves these problems, but it is because it works like a Fossil
+    bundle, only for uncommitted changes; it doesn't use Larry Wall's
+    <tt>patch</tt> tool to apply unified diff output to the receiving
+    Fossil checkout.</p></li>
 </ol></i></small>
