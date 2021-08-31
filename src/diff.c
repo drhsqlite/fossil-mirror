@@ -1899,25 +1899,25 @@ static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
   dfunifiedEmitInsert(p);
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut,"%6d  %6d\n", p->lnLeft, p->lnRight);
+  blob_appendf(p->pOut,"%6d  %6d  \n", p->lnLeft, p->lnRight);
   jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
   blob_append_char(&p->aCol[0], '\n');
 }
 static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
   int iCol = 0;
   p->lnRight++;
-  blob_appendf(&p->aCol[1],"        <ins>%6d</ins>\n", p->lnRight);
-  blob_append(&p->aCol[2],"<ins>",-1);
+  blob_appendf(&p->aCol[1],"<ins>        %6d  </ins>\n", p->lnRight);
+  blob_append(&p->aCol[2],"<ins><mark>",-1);
   jsonize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n, &iCol);
-  blob_append(&p->aCol[2], "</ins>\n", -1);
+  blob_append(&p->aCol[2], "</mark></ins>\n", -1);
 }
 static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
   int iCol = 0;
   p->lnLeft++;
-  blob_appendf(p->pOut,"<del>%6d</del>        \n", p->lnLeft);
-  blob_append(&p->aCol[0],"<del>",-1);
+  blob_appendf(p->pOut,"<del>%6d          </del>\n", p->lnLeft);
+  blob_append(&p->aCol[0],"<del><mark>",-1);
   jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
-  blob_append(&p->aCol[0], "</del>\n", -1);
+  blob_append(&p->aCol[0], "</mark></del>\n", -1);
 }
 static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
@@ -1927,7 +1927,7 @@ static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   oneLineChange(pX, pY, &span);
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut,"<del>%6d</del>        \n", p->lnLeft);
+  blob_appendf(p->pOut,"<del>%6d          </del>\n", p->lnLeft);
   blob_append(&p->aCol[0], "<del>", -1);
   for(i=x=iCol=0; i<span.n; i++){
     int ofst = span.a[i].iStart1;
@@ -1943,7 +1943,7 @@ static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   }
   if( x<pX->n ) jsonize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x, &iCol);
   blob_append(&p->aCol[0], "</del>\n", -1);
-  blob_appendf(&p->aCol[1],"        <ins>%6d</ins>\n", p->lnRight);
+  blob_appendf(&p->aCol[1],"<ins>        %6d  </ins>\n", p->lnRight);
   blob_append(&p->aCol[2], "<ins>", -1);
   for(i=x=iCol=0; i<span.n; i++){
     int ofst = span.a[i].iStart2;

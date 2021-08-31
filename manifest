@@ -1,5 +1,5 @@
-C An\sattempt\sto\srework\sHTML\sunified\sdiff\sto\sshow\spartial\sline\smatches.\s\sStill\nneeds\sCSS\swork.
-D 2021-08-31T03:00:50.831
+C Improvements\sto\sthe\snew\sunified\sdiff\salgorithm.
+D 2021-08-31T13:33:34.446
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,7 +465,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c be84af6028eefb660dce0fc3916c8503cfa3d677955f9b6a27d3c515c1b4490e
+F src/diff.c ab8b6b7bb61278083b585abe0c0afc2051e2a12c47a21b7c995b1d6ed3b6ca1a
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 3ac6478abc63c4dc3d31a960a2c80a6d85e52b11026389b367dad25926c81110
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 06a4494e01270a14e33da798418018446e7f9cd7ea05a71056a1fb5ce0d905a3
-R a5e82b5c7629112b8dcec98d46518c88
+P a01e46d85e8788a1109a9efbb0e425ac00606fd9a2445f99d9859ba175efe57c
+R 51256b887161adf836be13cb44e8085a
 U drh
-Z 48130e4cd284c84a65fd134243e09ec8
+Z ed62dedbc0b5cabb34331f9226fbe5b4
