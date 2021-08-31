@@ -1,5 +1,5 @@
-C Minor\ssbsdiff.js\stweak\sto\stry\sto\savoid\sunsightly\spage-level\shorizontal\sscrollbars,\sas\sreported\sin\s[forum:96e40f90db\s|\sforum\spost\s96e40f90db].
-D 2021-08-29T12:58:19.421
+C Fixed\sa\scopy/paste\stypo\sfrom\s[ae28ae82]\swhich\sbroke\ssome\sJS-using\spages.
+D 2021-08-31T02:56:28.288
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -484,7 +484,7 @@ F src/forum.js 853fa1422e07fd4a60bea2338d5a30c8ff45a48c346d61542c33b28353412b99
 F src/fossil.bootstrap.js 36c309f18111899e1588a7836958496645cda407b6fa586729dca9f45402942b
 F src/fossil.confirmer.js 39f4b991e8f3b6a4875b804ea0017bea63c5af08e8bb775165c0a34c21211915
 F src/fossil.copybutton.js 492a022f2dc1a0b52e909b0c56ba78b1a6461f0f2c20bc6af67155c5c0a612e9
-F src/fossil.dom.js 7f4148a303a3df07378bedf5d918631ac4056b385e36f0befa01010b59f6f7db
+F src/fossil.dom.js a7923f5e0a11aa0a471577088aa8cbbd0de58a33afde43452863838c0de3ceb1
 F src/fossil.fetch.js 36cb8a2202940214e4b00d3a43abcc582c4261008f4b40c8a067eedc330c4a88
 F src/fossil.info-diff.js 7db676b32eb1324bcd8a9be6591ca6174081ecfe83e5506db678a068c9b2a888
 F src/fossil.numbered-lines.js dabbe56842078762656b5c5d69ca3b11694f2437bb87816e012657c878a61324
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5434d2e32ce5f19cbca8980dc6d5fb012074f7f6a21904f2a92b59291d9cf471
-R 0ae816c6f34892a07558fe96e9f6db58
+P fa667a9308726315401263e741ef03800ce300d148444a4d6faa74a572bcc803
+R 7b4f024463367f4f6ef5e858a41eff4d
 U stephan
-Z 20014936ab121c665e45d737086e97e5
+Z 575b9984139bdf4683df452132c4f0cd
