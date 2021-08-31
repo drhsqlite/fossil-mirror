@@ -1,5 +1,5 @@
-C Fixed\sseveral\s"descendents"\stypos.\s(It's\s"descendants".)\sThere's\sstill\none\sremaining\sin\ssqlite3.c,\sbut\sof\scourse\sfixing\sthat\shere\swon't\shelp.
-D 2021-08-31T14:03:52.249
+C Markdown\stweak\sin\swww/alerts.md\sto\savoid\ssemi-redundant\sconstructs\slike\n"[MTA][mta]".
+D 2021-08-31T14:10:27.542
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -806,7 +806,7 @@ F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d
 F www/aboutcgi.wiki a552b4aa75847b83eaf5f6132a06f297f3fe2ffdffc5a8922a15e3c09b2f1c14
 F www/aboutdownload.wiki cfd5422b709a64475b77652a385399a705321ec6063302f91cf47fb75dec9e94
 F www/adding_code.wiki 0c6c3aa15c2f2d9b89607d39738aa5dbbea312553f859563d22848a476906acf
-F www/alerts.md c8df6d21ba00b6c27c414ee091bb040fbcbc45930a9df454c5a830b3d9ad5fdb
+F www/alerts.md 15f2758b9b922c5c1ff835e82e939ca0034f0ac87cf4931eac79fc3284c272c2
 F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0c45
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2f0063f1e4fe86f41305200a486094694c9f8df5c2c20e84d3e73544e9fc200
-R 16f33cdbac973f9198fdba2d5dcd93d1
+P 85f119dc7d3c732217b3cee19bed876df552ea54e6abe651cb99a526dddfbfc3
+R 65f40b58ec9d84ee2a49a6f5c7c54df6
 U wyoung
-Z 41d3dbf2813950ab412fc65a3941de2f
+Z 6ab9a24932777fba2a50d85f762001b7
