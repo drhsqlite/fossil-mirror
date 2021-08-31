@@ -190,7 +190,6 @@ static const char zWebpageHdr[] =
 @ table.sbsdiffcols {
 @   width: 90%%;
 @   border-spacing: 0;
-@   font-size: small;
 @ }
 @ table.sbsdiffcols td {
 @   padding: 0;
@@ -215,12 +214,15 @@ static const char zWebpageHdr[] =
 @ }
 @ span.diffchng {
 @   background-color: #c0c0ff;
+@   text-weight: bold;
 @ }
 @ span.diffadd {
 @   background-color: #c0ffc0;
+@   text-weight: bold;
 @ }
 @ span.diffrm {
 @   background-color: #ffc8c8;
+@   text-weight: bold;
 @ }
 @ span.diffhr {
 @   display: inline-block;
@@ -256,10 +258,12 @@ static const char zWebpageHdr[] =
 @ pre.udifftxt ins mark {
 @   background-color: #a0e4b2;
 @   text-decoration: none;
+@   text-weight: bold;
 @ }
 @ pre.udifftxt del mark {
 @   background-color: #ffc0c0;
 @   text-decoration: none;
+@   text-weight: bold;
 @ }
 @ h1 {
 @   font-size: 150%%;

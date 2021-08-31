@@ -534,7 +534,6 @@ ul.filelist li {
 table.sbsdiffcols {
   width: 90%;
   border-spacing: 0;
-  font-size: small;
 }
 table.sbsdiffcols td {
   padding: 0;
@@ -562,12 +561,15 @@ div.diffmkrcol {
 }
 span.diffchng {
   background-color: #c0c0ff;
+  font-weight: bold;
 }
 span.diffadd {
   background-color: #c0ffc0;
+  font-weight: bold;
 }
 span.diffrm {
   background-color: #ffc8c8;
+  font-weight: bold;
 }
 span.diffhr {
   display: inline-block;
@@ -599,10 +601,12 @@ pre.udifftxt del {
 pre.udifftxt ins mark {
   background-color: #a0e4b2;
   text-decoration: none;
+  font-weight: bold;
 }
 pre.udifftxt del mark {
   background-color: #ffc0c0;
   text-decoration: none;
+  font-weight: bold;
 }
 
 span.modpending {
