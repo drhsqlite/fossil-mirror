@@ -187,101 +187,34 @@ static const char zWebpageHdr[] =
 @ <head>
 @ <meta charset="UTF-8">
 @ <style>
-@ table.sbsdiffcols {
-@   width: 90%;
-@   border-spacing: 0;
-@ }
-@ table.sbsdiffcols td {
-@   padding: 0;
-@   vertical-align: top;
-@ }
-@ table.sbsdiffcols pre {
-@   margin: 0;
-@   padding: 0;
-@   border: 0;
-@ }
-@ div.difflncol {
-@   padding-right: 1em;
-@   text-align: right;
-@   color: #a0a0a0;
-@ }
-@ div.difftxtcol {
-@   width: 10em;
-@   overflow-x: auto;
-@ }
-@ div.diffmkrcol {
-@   padding: 0 1em;
-@ }
-@ span.diffchng {
-@   background-color: #c0c0ff;
-@   font-weight: bold;
-@ }
-@ span.diffadd {
-@   background-color: #c0ffc0;
-@   font-weight: bold;
-@ }
-@ span.diffrm {
-@   background-color: #ffc8c8;
-@   font-weight: bold;
-@ }
-@ span.diffhr {
-@   display: inline-block;
-@   margin: .5em 0 1em;
-@   color: #0000ff;
-@ }
-@ span.diffln {
-@   color: #a0a0a0;
-@ }
-@ table.udiff {
-@   width: 90%;
-@   border-spacing: 0;
-@ }
-@ pre.udiffln {
-@   color: #a0a0a0;
-@ }
-@ pre.udiffln ins {
-@   background-color: #a0e4b2;
-@   text-decoration: none;
-@ }
-@ pre.udiffln del {
-@   background-color: #ffc0c0;
-@   text-decoration: none;
-@ }
-@ pre.udifftxt ins {
-@   background-color: #dafbe1;
-@   text-decoration: none;
-@ }
-@ pre.udifftxt del {
-@   background-color: #ffe8e8;
-@   text-decoration: none;
-@ }
-@ pre.udifftxt ins mark {
-@   background-color: #a0e4b2;
-@   text-decoration: none;
-@   font-weight: bold;
-@ }
-@ pre.udifftxt del mark {
-@   background-color: #ffc0c0;
-@   text-decoration: none;
-@   font-weight: bold;
-@ }
 @ h1 {
 @   font-size: 150%;
 @ }
 @
 @ table.diff {
-@   width: 90%;
+@   width: 98%;
 @   border-spacing: 0;
 @ }
+@ table.diff td {
+@   vertical-align: top;
+@ }
+@ table.diff pre {
+@   margin: 0 0 0 0;
+@ }
 @ td.diffln {
+@   width: 1px;
 @   text-align: right;
-@   padding: 0 0 0 1em;
+@   padding: 0 1em 0 0;
+@ }
+@ td.difflne {
+@   padding-bottom: 0.4em;
 @ }
 @ td.diffsep {
-@   padding: 0 0.5em 0 0.5em;
+@   width: 1px;
+@   padding: 0 0.3em 0 1em;
 @ }
-@ td.difftxt {
-@   width: 100%;
+@ td.difftxt pre {
+@   overflow-x: auto;
 @ }
 @ td.diffln ins {
 @   background-color: #a0e4b2;
@@ -403,7 +336,7 @@ void diff_begin(u64 diffFlags){
 void diff_end(u64 diffFlags, int nErr){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
     if( diffFlags & DIFF_SIDEBYSIDE ){
-      const unsigned char *zJs = builtin_file("sbsdiff.js", 0);
+      const unsigned char *zJs = builtin_file("diff.js", 0);
       fossil_print("<script>\n%s</script>\n", zJs);
     }
     fossil_print("%s", zWebpageEnd);
@@ -904,7 +837,7 @@ static void diff_two_versions(
     }
     if( cmp<0 ){
       if( file_dir_match(pFileDir, pFromFile->zName) ){
-        if( (diffFlags & DIFF_NUMSTAT)==0 ){
+        if( (diffFlags & (DIFF_NUMSTAT|DIFF_HTML))==0 ){
           fossil_print("DELETED %s\n", pFromFile->zName);
         }
         if( asNewFlag ){
@@ -915,7 +848,7 @@ static void diff_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
     }else if( cmp>0 ){
       if( file_dir_match(pFileDir, pToFile->zName) ){
-        if( (diffFlags & DIFF_NUMSTAT)==0 ){
+        if( (diffFlags & (DIFF_NUMSTAT|DIFF_HTML))==0 ){
           fossil_print("ADDED   %s\n", pToFile->zName);
         }
         if( asNewFlag ){

@@ -571,6 +571,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\ci_edit.js" \
         "$(SRCDIR)\copybtn.js" \
         "$(SRCDIR)\default.css" \
+        "$(SRCDIR)\diff.js" \
         "$(SRCDIR)\diff.tcl" \
         "$(SRCDIR)\forum.js" \
         "$(SRCDIR)\fossil.bootstrap.js" \
@@ -1179,6 +1180,7 @@ realclean: clean
 	echo "$(SRCDIR)\ci_edit.js" >> $@
 	echo "$(SRCDIR)\copybtn.js" >> $@
 	echo "$(SRCDIR)\default.css" >> $@
+	echo "$(SRCDIR)\diff.js" >> $@
 	echo "$(SRCDIR)\diff.tcl" >> $@
 	echo "$(SRCDIR)\forum.js" >> $@
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@

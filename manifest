@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sunified\sdiff.\s\sSimplified\sCSS\sthat\scan\sbe\sused\sin\ncommon\swith\ssplit\sdiff.\s\sSeparate\scolumns\sfor\seach\sline\snumber\sand\sthe\nchange\smark.
-D 2021-09-01T15:38:48.850
+C First\sattempt\sto\sgenerate\sside-by-side\sdiffs\susing\sthe\snew\sformatter.\nThis\sbreaks\sthe\s--tk\soption.\s\sThe\s"fossil\sdiff\s-b"\sand\s"--by"\swork,\sbut\nside-by-side\sdiff\son\s/info\spages\sand\ssimilar\sis\scurrently\sbusted.\nCSS\sis\ssimplified,\swhich\smeans\sthat\sskins\swill\sneed\sto\sbe\smodified.\nThis\sis\san\sincremental\scheck-in.
+D 2021-09-01T19:53:18.177
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,14 +460,15 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cc2a782c856ffa3bfa59f7d497ceee9671bbfb6532e0e9b8d0c7e77b822d71c2
-F src/default.css 8a3c88733380a19ced7c05ade438ba225274f8da0e027ca13a1035c5e6b85e68
+F src/default.css f3fa5bc5a322a3393b354a9c7fe865456edb813956a8279988ac117fc90e5432
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c cda92a83e33de208e45fd14b3f3335ec401f87ef2dd08f91e502acbbf20932b4
+F src/diff.c 79207dca3eb14dda5794d89a81db75ae1e1775f673cdb4a0c8b0554b4328ec07
+F src/diff.js be6f7a890b204d5453fbfe760f4e8e32a64ac4a8e6aeb26a3108096d2ea90c90
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 227acb34cfacf85f1464da263b937237054865896c6d4562c678a48862c1f4f8
+F src/diffcmd.c ee11ba8f4a8022fd773f8705da2c9ae588354a3675044f33548f458f3af38b9c
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -541,7 +542,7 @@ F src/login.c 378e8b4e3290a286531d2a07e5b0c389a68a1f1c53220be9f79c65b8e0988b04
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c 077d574ff2f5d2ce2b051090b160f28c51f7bcbde4f179aa85c95d90ec1f55d7
-F src/main.mk ed7d916e869f8806bb0b5aaf9426a471bf6cec259dcb406afb0d5bbbc1a817a9
+F src/main.mk 768a555daae49b60856e06ba5353e5b4dba5d2b55a2a4e5651c9c0fa2f922746
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
 F src/makemake.tcl dcfafb1ac4d823af55ac01e5f6f7c541284026497cd1286d5d0a8a2061bd8d29 x
@@ -794,9 +795,9 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F tools/skintxt2config.c 90e3f7937cc17c06fcbb8be0fd012b831db432c86806027718f9ebd530edd3f3
 F win/Makefile.PellesCGMake 5f0ecd3542e6c93c0b83c7c14b3b081acb59a0e571e0352fd57770491d1ab97f
 F win/Makefile.dmc c95e9640bd533628b6d2257dd655c450643f39530d015a7523b6f809abe3dab0
-F win/Makefile.mingw 046b77f1a7e27a52b76ff14443be40b578e019b33f14bd3391afdebcc86134bc
+F win/Makefile.mingw 8f8db4e8fc72a194ba364921234358951989ccd7947be89e89a1bc71a21dcfc2
 F win/Makefile.mingw.mistachkin 46440a39377d968291d2ca4cb2289797780f5db142007c7a8d3fe0b002a5024c
-F win/Makefile.msc 5b06ea0b528224eb32d6af12dae669863d8383a603fe5d62dda3591bb3b4a15c
+F win/Makefile.msc 0468e44e2797fb97ac82ee09ca8f1813f50c73a76f8be3b5835eb2a4f771995b
 F win/buildmsvc.bat bbad349c63e1750f7e71ed6063ac15e9ab0490e4dccd34d87e40be942d269505 x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -996,7 +997,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 598d7736e75b438b6d1471f301107677b9cd7fbbf3f84b6b1ab2f73ff90f4eb0
-R d7dd61f23268303f213065c5cb75ba38
+P ce856a86148b45befe6275c5f686460c60b232f0e95ca4906b7bbce8c3478721
+R f02982a75f2bac1f8a8d30657f5d3f6b
 U drh
-Z 2d63cc06416527aa2c8082bb9f6c35c1
+Z 80a4d4e0915911afe5ae13c79dd108ea

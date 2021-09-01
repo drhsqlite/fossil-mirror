@@ -531,97 +531,32 @@ ul.filelist {
 ul.filelist li {
   padding-top: 1px;
 }
-table.sbsdiffcols {
-  width: 90%;
+
+/* Rules governing diff layout and colors */
+table.diff {
+  width: 98%;
   border-spacing: 0;
 }
-table.sbsdiffcols td {
-  padding: 0;
+table.diff td {
   vertical-align: top;
 }
-table.sbsdiffcols pre {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-size: inherit;
-  background: inherit;
-  color: inherit;
-}
-div.difflncol {
-  padding-right: 1em;
-  text-align: right;
-  color: #a0a0a0;
-}
-div.difftxtcol {
-  width: 45em;
-  overflow-x: auto;
-}
-div.diffmkrcol {
-  padding: 0 1em;
-}
-span.diffchng {
-  background-color: #c0c0ff;
-  font-weight: bold;
-}
-span.diffadd {
-  background-color: #c0ffc0;
-  font-weight: bold;
-}
-span.diffrm {
-  background-color: #ffc8c8;
-  font-weight: bold;
-}
-span.diffhr {
-  display: inline-block;
-  margin: .5em 0 1em;
-  color: #0000ff;
-}
-span.diffln {
-  color: #a0a0a0;
-}
-pre.udiffln {
-  color: #a0a0a0;
-}
-pre.udiffln ins {
-  background-color: #a0e4b2;
-  text-decoration: none;
-}
-pre.udiffln del {
-  background-color: #ffc0c0;
-  text-decoration: none;
-}
-pre.udifftxt ins {
-  background-color: #dafbe1;
-  text-decoration: none;
-}
-pre.udifftxt del {
-  background-color: #ffe8e8;
-  text-decoration: none;
-}
-pre.udifftxt ins mark {
-  background-color: #a0e4b2;
-  text-decoration: none;
-  font-weight: bold;
-}
-pre.udifftxt del mark {
-  background-color: #ffc0c0;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-table.diff {
-  width: 90%;
-  border-spacing: 0;
+table.diff pre {
+  margin: 0 0 0 0;
 }
 td.diffln {
+  width: 1px;
   text-align: right;
-  padding: 0 0 0 1em;
+  padding: 0 1em 0 0;
+}
+td.difflne {
+  padding-bottom: 0.4em;
 }
 td.diffsep {
-  padding: 0 0.5em 0 0.5em;
+  width: 1px;
+  padding: 0 0.3em 0 1em;
 }
-td.difftxt {
-  width: 100%;
+td.difftxt pre {
+  overflow-x: auto;
 }
 td.diffln ins {
   background-color: #a0e4b2;
@@ -649,12 +584,12 @@ td.difftxt ins {
   background-color: #dafbe1;
   text-decoration: none;
 }
-td.udifftxt ins > ins {
+td.difftxt ins > ins {
   background-color: #a0e4b2;
   text-decoration: none;
   font-weight: bold;
 }
-td.udifftxt ins mark {
+td.difftxt ins mark {
   background-color: #c0c0ff;
   text-decoration: none;
   font-weight: bold;

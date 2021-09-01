@@ -1926,8 +1926,8 @@ static void dfunifiedStartRow(DiffBuilder *p){
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
   dfunifiedFinishRow(p);
   if( (p->lnLeft || p->lnRight) && !isFinal ){
-    blob_append(p->pOut, "<tr><td class=\"diffskip\" colspan=\"2\">"
-                         "<hr></td><td></td><td></td></tr>\n", -1);
+    blob_append(p->pOut, "<tr><td class=\"diffln difflne\">"
+                         "&#xfe19;</td><td></td><td></td></tr>\n", -1);
   }
   p->lnLeft += n;
   p->lnRight += n;
@@ -2041,7 +2041,183 @@ static DiffBuilder *dfunifiedNew(Blob *pOut){
   p->eState = 0;
   p->nPending = 0;
   p->pOut = pOut;
-  blob_append(pOut, "<table class=\"diff\">\n", -1);
+  blob_append(pOut, "<table class=\"diff udiff\">\n", -1);
+  blob_init(&p->aCol[0], 0, 0);
+  blob_init(&p->aCol[1], 0, 0);
+  blob_init(&p->aCol[2], 0, 0);
+  blob_init(&p->aCol[3], 0, 0);
+  blob_init(&p->aCol[4], 0, 0);
+  return p;
+}
+
+/************************* DiffBuilderSplit  ******************************/
+
+/* Accumulator strategy:
+**
+**    *   Left line numbers are output directly to p->pOut
+**    *   Left text accumulates in p->aCol[0].
+**    *   Edit marks accumulates in p->aCol[1].
+**    *   Right line numbers accumulate in p->aCol[2].
+**    *   Right text accumulates in p->aCol[3].
+**
+** eState:
+**    0   In common block
+**    1   Have <del> on the left
+**    2   Have <ins> on the right
+**    3   Have <del> on left and <ins> on the right
+*/
+static void dfsplitChangeState(DiffBuilder *p, int newState){
+  if( p->eState == newState ) return;
+  if( (p->eState&1)==0 && (newState & 1)!=0 ){
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[0], "<del>", 5);
+    p->eState |= 1;
+  }else if( (p->eState&1)!=0 && (newState & 1)==0 ){
+    blob_append(p->pOut, "</del>", 6);
+    blob_append(&p->aCol[0], "</del>", 6);
+    p->eState &= ~1;
+  }
+  if( (p->eState&2)==0 && (newState & 2)!=0 ){
+    blob_append(&p->aCol[2], "<ins>", 5);
+    blob_append(&p->aCol[3], "<ins>", 5);
+    p->eState |= 2;
+  }else if( (p->eState&2)!=0 && (newState & 2)==0 ){
+    blob_append(&p->aCol[2], "</ins>", 6);
+    blob_append(&p->aCol[3], "</ins>", 6);
+    p->eState &= ~2;
+  }
+}
+static void dfsplitFinishRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])==0 ) return;
+  dfsplitChangeState(p, 0);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtl\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[0]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffsep\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[1]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffln difflnr\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[2]);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtr\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[3]);
+  blob_append(p->pOut, "</pre></td></tr>\n", -1);
+}
+static void dfsplitStartRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])>0 ) return;
+  blob_append(p->pOut,"<tr><td class=\"diffln difflnl\"><pre>\n", -1);
+  p->eState = 0;
+}
+static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  dfsplitFinishRow(p);
+  if( (p->lnLeft || p->lnRight) && !isFinal ){
+    blob_append(p->pOut, 
+       "<tr><td class=\"diffln difflnl difflne\">&#xfe19;</td>"
+       "<td></td><td></td>"
+       "<td class=\"diffln difflnr difflne\">&#xfe19;</td>"
+       "<td/td></tr>\n", -1);
+  }
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfsplitCommon(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 0);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append_char(&p->aCol[1], '\n');
+  blob_appendf(&p->aCol[2],"%d\n",p->lnRight);
+  jsonize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n, &iCol);
+  blob_append_char(&p->aCol[3], '\n');
+}
+static void dfsplitInsert(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 2);
+  p->lnRight++;
+  blob_append_char(p->pOut, '\n');
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "&gt;\n", -1);
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+  blob_append(&p->aCol[3], "<ins>", 5);
+  jsonize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n, &iCol);
+  blob_append(&p->aCol[3], "</ins>\n", 7);
+}
+static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
+  int iCol = 0;
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 1);
+  p->lnLeft++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append(&p->aCol[0], "<del>", 5);
+  jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
+  blob_append(&p->aCol[0], "</del>\n", 7);
+  blob_append(&p->aCol[1], "&lt;\n", -1);
+  blob_append_char(&p->aCol[2],'\n');
+  blob_append_char(&p->aCol[3],'\n');
+}
+static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i;
+  int x;
+  int iCol;
+  ChangeSpan span;
+  oneLineChange(pX, pY, &span);
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 3);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  for(i=x=iCol=0; i<span.n; i++){
+    int ofst = span.a[i].iStart1;
+    int len = span.a[i].iLen1;
+    if( len ){
+      jsonize_to_blob(&p->aCol[0], pX->z+x, ofst - x, &iCol);
+      x = ofst;
+      blob_append(&p->aCol[0], "<del>", 5);
+      jsonize_to_blob(&p->aCol[0], pX->z+x, len, &iCol);
+      x += len;
+      blob_append(&p->aCol[0], "</del>", 6);
+    }
+  }
+  if( x<pX->n ) jsonize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x, &iCol);
+  blob_append_char(&p->aCol[0], '\n');
+
+  blob_append(&p->aCol[1], "|\n", 2);
+
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+  for(i=x=iCol=0; i<span.n; i++){
+    int ofst = span.a[i].iStart2;
+    int len = span.a[i].iLen2;
+    if( len ){
+      jsonize_to_blob(&p->aCol[3], pY->z+x, ofst - x, &iCol);
+      x = ofst;
+      blob_append(&p->aCol[3], "<ins>", 5);
+      jsonize_to_blob(&p->aCol[3], pY->z+x, len, &iCol);
+      x += len;
+      blob_append(&p->aCol[3], "</ins>", 6);
+    }
+  }
+  if( x<pY->n ) jsonize_to_blob(&p->aCol[3], pY->z+x,  pY->n - x, &iCol);
+  blob_append_char(&p->aCol[3], '\n');
+}
+static void dfsplitEnd(DiffBuilder *p){
+  dfsplitFinishRow(p);
+  blob_append(p->pOut, "</table>\n",-1);
+  fossil_free(p);
+}
+static DiffBuilder *dfsplitNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfsplitSkip;
+  p->xCommon = dfsplitCommon;
+  p->xInsert = dfsplitInsert;
+  p->xDelete = dfsplitDelete;
+  p->xEdit = dfsplitEdit;
+  p->xEnd = dfsplitEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->eState = 0;
+  p->pOut = pOut;
+  blob_append(pOut, "<table class=\"diff splitdiff\">\n", -1);
   blob_init(&p->aCol[0], 0, 0);
   blob_init(&p->aCol[1], 0, 0);
   blob_init(&p->aCol[2], 0, 0);
@@ -2776,7 +2952,12 @@ int *text_diff(
       formatDiff(&c, pRe, diffFlags, pBuilder);
       blob_append_char(pOut, '\n');
     }else if( diffFlags & DIFF_SIDEBYSIDE ){
-      sbsDiff(&c, pOut, pRe, diffFlags);
+      if( diffFlags & DIFF_HTML ){
+        DiffBuilder *pBuilder = dfsplitNew(pOut);
+        formatDiff(&c, pRe, diffFlags, pBuilder);
+      }else{
+        sbsDiff(&c, pOut, pRe, diffFlags);
+      }
     }else if( diffFlags & DIFF_DEBUG ){
       DiffBuilder *pBuilder = dfdebugNew(pOut);
       formatDiff(&c, pRe, diffFlags, pBuilder);
