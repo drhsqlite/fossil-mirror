@@ -188,7 +188,7 @@ static const char zWebpageHdr[] =
 @ <meta charset="UTF-8">
 @ <style>
 @ table.sbsdiffcols {
-@   width: 90%%;
+@   width: 90%;
 @   border-spacing: 0;
 @ }
 @ table.sbsdiffcols td {
@@ -214,15 +214,15 @@ static const char zWebpageHdr[] =
 @ }
 @ span.diffchng {
 @   background-color: #c0c0ff;
-@   text-weight: bold;
+@   font-weight: bold;
 @ }
 @ span.diffadd {
 @   background-color: #c0ffc0;
-@   text-weight: bold;
+@   font-weight: bold;
 @ }
 @ span.diffrm {
 @   background-color: #ffc8c8;
-@   text-weight: bold;
+@   font-weight: bold;
 @ }
 @ span.diffhr {
 @   display: inline-block;
@@ -233,7 +233,7 @@ static const char zWebpageHdr[] =
 @   color: #a0a0a0;
 @ }
 @ table.udiff {
-@   width: 90%%;
+@   width: 90%;
 @   border-spacing: 0;
 @ }
 @ pre.udiffln {
@@ -258,16 +258,68 @@ static const char zWebpageHdr[] =
 @ pre.udifftxt ins mark {
 @   background-color: #a0e4b2;
 @   text-decoration: none;
-@   text-weight: bold;
+@   font-weight: bold;
 @ }
 @ pre.udifftxt del mark {
 @   background-color: #ffc0c0;
 @   text-decoration: none;
-@   text-weight: bold;
+@   font-weight: bold;
 @ }
 @ h1 {
-@   font-size: 150%%;
+@   font-size: 150%;
 @ }
+@
+@ table.diff {
+@   width: 90%;
+@   border-spacing: 0;
+@ }
+@ td.diffln {
+@   text-align: right;
+@   padding: 0 0 0 1em;
+@ }
+@ td.diffsep {
+@   padding: 0 0.5em 0 0.5em;
+@ }
+@ td.difftxt {
+@   width: 100%;
+@ }
+@ td.diffln ins {
+@   background-color: #a0e4b2;
+@   text-decoration: none;
+@ }
+@ td.diffln del {
+@   background-color: #ffc0c0;
+@   text-decoration: none;
+@ }
+@ td.difftxt del {
+@   background-color: #ffe8e8;
+@   text-decoration: none;
+@ }
+@ td.difftxt del > del {
+@   background-color: #ffc0c0;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt del mark {
+@   background-color: #c0c0ff;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt ins {
+@   background-color: #dafbe1;
+@   text-decoration: none;
+@ }
+@ td.difftxt ins > ins {
+@   background-color: #a0e4b2;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt ins mark {
+@   background-color: #c0c0ff;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ 
 @ </style>
 @ </head>
 @ <body>
@@ -333,7 +385,7 @@ void diff_begin(u64 diffFlags){
 #endif
   }
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
-    fossil_print(zWebpageHdr/*works-like:""*/);
+    fossil_print("%s",zWebpageHdr);
     fflush(stdout);
   }
 }

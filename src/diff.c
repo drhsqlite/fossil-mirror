@@ -1637,6 +1637,8 @@ struct DiffBuilder {
   void (*xEnd)(DiffBuilder*);
   unsigned int lnLeft;              /* Lines seen on the left (delete) side */
   unsigned int lnRight;             /* Lines seen on the right (insert) side */
+  unsigned int nPending;            /* Number of pending lines */
+  int eState;                       /* State of the output */
   Blob *pOut;                       /* Output blob */
   Blob aCol[5];                     /* Holding blobs */
 };
@@ -1865,60 +1867,111 @@ static DiffBuilder *dfjsonNew(Blob *pOut){
 
 /* Accumulator strategy:
 **
-**    *   Common and Delete line numbers are output directly to p->pOut
-**    *   Common and Delete text accumulates in p->aCol[0].
-**    *   Pending insert lines numbers go into p->aCol[1].
-**    *   Pending insert text goes into p->aCol[2].
+**    *   Delete line numbers are output directly to p->pOut
+**    *   Insert line numbers accumulate in p->aCol[0].
+**    *   Separator marks accumulate in p->aCol[1].
+**    *   Change text accumulates in p->aCol[2].
+**    *   Pending insert line numbers go into p->aCol[3].
+**    *   Pending insert text goes into p->aCol[4].
+**
+** eState is 1 if text has an open <del>
 */
-static void dfunifiedEmitInsert(DiffBuilder *p){
-  if( blob_size(&p->aCol[1])==0 ) return;
-  blob_append(p->pOut, blob_buffer(&p->aCol[1]), blob_size(&p->aCol[1]));
-  blob_reset(&p->aCol[1]);
-  blob_append(&p->aCol[0], blob_buffer(&p->aCol[2]), blob_size(&p->aCol[2]));
-  blob_reset(&p->aCol[2]);
+static void dfunifiedFinishDelete(DiffBuilder *p){
+  if( p->eState==0 ) return;
+  blob_append(p->pOut, "</del>", 6);
+  blob_append(&p->aCol[2], "</del>", 6);
+  p->eState = 0;
+}
+static void dfunifiedFinishInsert(DiffBuilder *p){
+  unsigned int i;
+  if( p->nPending==0 ) return;
+  dfunifiedFinishDelete(p);
+
+  /* Blank lines for delete line numbers for each inserted line */
+  for(i=0; i<p->nPending; i++) blob_append_char(p->pOut, '\n');
+
+  /* Insert line numbers */
+  blob_append(&p->aCol[0], "<ins>", 5);
+  blob_append_xfer(&p->aCol[0], &p->aCol[3]);
+  blob_append(&p->aCol[0], "</ins>", 6);
+
+  /* "+" marks for the separator on inserted lines */
+  for(i=0; i<p->nPending; i++) blob_append(&p->aCol[1], "+\n", 2);
+
+  /* Text of the inserted lines */
+  blob_append(&p->aCol[2], "<ins>", 5);
+  blob_append_xfer(&p->aCol[2], &p->aCol[4]);
+  blob_append(&p->aCol[2], "</ins>", 6);
+  
+  p->nPending = 0;
+}
+static void dfunifiedFinishRow(DiffBuilder *p){
+  dfunifiedFinishDelete(p);
+  dfunifiedFinishInsert(p);
+  if( blob_size(&p->aCol[0])==0 ) return;
+  blob_append(p->pOut, "</pre></td><td class=\"diffln difflnr\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[0]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffsep\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[1]);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtu\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[2]);
+  blob_append(p->pOut, "</pre></td></tr>\n", -1);
+}
+static void dfunifiedStartRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])>0 ) return;
+  blob_append(p->pOut,"<tr><td class=\"diffln difflnl\"><pre>\n", -1);
+  p->eState = 0;
+  p->nPending = 0;
 }
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
-  dfunifiedEmitInsert(p);
+  dfunifiedFinishRow(p);
   if( (p->lnLeft || p->lnRight) && !isFinal ){
-    blob_append(p->pOut,
-       "<span class=\"diffhr\">"
-       ".................."
-       "</span>\n",
-       -1);
-    blob_append(&p->aCol[0],
-       "<span class=\"diffhr\">"
-       "..............................................................."
-       "</span>\n",
-       -1);
+    blob_append(p->pOut, "<tr><td class=\"diffskip\" colspan=\"2\">"
+                         "<hr></td><td></td><td></td></tr>\n", -1);
   }
   p->lnLeft += n;
   p->lnRight += n;
 }
 static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
   int iCol = 0;
-  dfunifiedEmitInsert(p);
+  dfunifiedStartRow(p);
+  dfunifiedFinishDelete(p);
+  dfunifiedFinishInsert(p);
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut,"%6d  %6d  \n", p->lnLeft, p->lnRight);
-  blob_append(&p->aCol[0], "  ", 2);
-  jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
-  blob_append_char(&p->aCol[0], '\n');
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_appendf(&p->aCol[0],"%d\n",p->lnRight);
+  blob_append_char(&p->aCol[1], '\n');
+  jsonize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n, &iCol);
+  blob_append_char(&p->aCol[2], '\n');
 }
 static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
   int iCol = 0;
+  dfunifiedStartRow(p);
   p->lnRight++;
-  blob_appendf(&p->aCol[1],"<ins>        %6d  </ins>\n", p->lnRight);
-  blob_append(&p->aCol[2],"<ins>+ <mark>",-1);
-  jsonize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n, &iCol);
-  blob_append(&p->aCol[2], "</mark></ins>\n", -1);
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
+  blob_append(&p->aCol[4], "<ins>", 5);
+  jsonize_to_blob(&p->aCol[4], pLine->z, (int)pLine->n, &iCol);
+  blob_append(&p->aCol[4], "</ins>\n", 7);
+  p->nPending++;
 }
 static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
   int iCol = 0;
+  dfunifiedStartRow(p);
+  dfunifiedFinishInsert(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
   p->lnLeft++;
-  blob_appendf(p->pOut,"<del>%6d          </del>\n", p->lnLeft);
-  blob_append(&p->aCol[0],"<del>- <mark>",-1);
-  jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
-  blob_append(&p->aCol[0], "</mark></del>\n", -1);
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0],'\n');
+  blob_append(&p->aCol[1],"-\n",2);
+  blob_append(&p->aCol[2], "<del>", 5);
+  jsonize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n, &iCol);
+  blob_append(&p->aCol[2], "</del>\n", 7);
 }
 static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
@@ -1926,50 +1979,54 @@ static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int iCol;
   ChangeSpan span;
   oneLineChange(pX, pY, &span);
+  dfunifiedStartRow(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut,"<del>%6d          </del>\n", p->lnLeft);
-  blob_append(&p->aCol[0], "<del>- ", -1);
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "-\n", 2);
+
   for(i=x=iCol=0; i<span.n; i++){
     int ofst = span.a[i].iStart1;
     int len = span.a[i].iLen1;
     if( len ){
-      jsonize_to_blob(&p->aCol[0], pX->z+x, ofst - x, &iCol);
+      jsonize_to_blob(&p->aCol[2], pX->z+x, ofst - x, &iCol);
       x = ofst;
-      blob_append(&p->aCol[0], "<mark>", 6);
-      jsonize_to_blob(&p->aCol[0], pX->z+x, len, &iCol);
+      blob_append(&p->aCol[2], "<del>", 5);
+      jsonize_to_blob(&p->aCol[2], pX->z+x, len, &iCol);
       x += len;
-      blob_append(&p->aCol[0], "</mark>", 7);
+      blob_append(&p->aCol[2], "</del>", 6);
     }
   }
-  if( x<pX->n ) jsonize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x, &iCol);
-  blob_append(&p->aCol[0], "</del>\n", -1);
-  blob_appendf(&p->aCol[1],"<ins>        %6d  </ins>\n", p->lnRight);
-  blob_append(&p->aCol[2], "<ins>+ ", -1);
+  if( x<pX->n ) jsonize_to_blob(&p->aCol[2], pX->z+x,  pX->n - x, &iCol);
+  blob_append_char(&p->aCol[2], '\n');
+
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
   for(i=x=iCol=0; i<span.n; i++){
     int ofst = span.a[i].iStart2;
     int len = span.a[i].iLen2;
     if( len ){
-      jsonize_to_blob(&p->aCol[2], pY->z+x, ofst - x, &iCol);
+      jsonize_to_blob(&p->aCol[4], pY->z+x, ofst - x, &iCol);
       x = ofst;
-      blob_append(&p->aCol[2], "<mark>", 6);
-      jsonize_to_blob(&p->aCol[2], pY->z+x, len, &iCol);
+      blob_append(&p->aCol[4], "<ins>", 5);
+      jsonize_to_blob(&p->aCol[4], pY->z+x, len, &iCol);
       x += len;
-      blob_append(&p->aCol[2], "</mark>", 7);
+      blob_append(&p->aCol[4], "</ins>", 6);
     }
   }
-  if( x<pY->n ) jsonize_to_blob(&p->aCol[2], pY->z+x,  pY->n - x, &iCol);
-  blob_append(&p->aCol[2], "</ins>\n", -1);
+  if( x<pY->n ) jsonize_to_blob(&p->aCol[4], pY->z+x,  pY->n - x, &iCol);
+  blob_append_char(&p->aCol[4], '\n');
+  p->nPending++;
 }
 static void dfunifiedEnd(DiffBuilder *p){
-  dfunifiedEmitInsert(p);
-  blob_append(p->pOut,
-     "</pre></td>\n"
-     "<td class=\"udifftxt\" width=\"100%\"><pre class=\"udifftxt\">\n",
-     -1);
-  blob_append(p->pOut, blob_buffer(&p->aCol[0]), blob_size(&p->aCol[0]));
-  blob_reset(&p->aCol[0]);
-  blob_append(p->pOut, "</pre></td></tr>\n</table>\n", -1);
+  dfunifiedFinishRow(p);
+  blob_append(p->pOut, "</table>\n",-1);
   fossil_free(p);
 }
 static DiffBuilder *dfunifiedNew(Blob *pOut){
@@ -1981,14 +2038,15 @@ static DiffBuilder *dfunifiedNew(Blob *pOut){
   p->xEdit = dfunifiedEdit;
   p->xEnd = dfunifiedEnd;
   p->lnLeft = p->lnRight = 0;
+  p->eState = 0;
+  p->nPending = 0;
   p->pOut = pOut;
-  blob_append(pOut,
-    "<table class=\"sbsdiffcols\">\n"
-    "<tr><td class=\"udiffln\"><pre class=\"udiffln\">\n",
-    -1);
+  blob_append(pOut, "<table class=\"diff\">\n", -1);
   blob_init(&p->aCol[0], 0, 0);
   blob_init(&p->aCol[1], 0, 0);
   blob_init(&p->aCol[2], 0, 0);
+  blob_init(&p->aCol[3], 0, 0);
+  blob_init(&p->aCol[4], 0, 0);
   return p;
 }
 /****************************************************************************/

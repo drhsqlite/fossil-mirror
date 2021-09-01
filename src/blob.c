@@ -351,6 +351,15 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 }
 
 /*
+** Append the second blob onto the end of the first blob and reset the
+** second blob.
+*/
+void blob_append_xfer(Blob *pTo, Blob *pFrom){
+  blob_append(pTo, blob_buffer(pFrom), blob_size(pFrom));
+  blob_reset(pFrom);
+}
+
+/*
 ** Return a pointer to a null-terminated string for a blob.
 */
 char *blob_str(Blob *p){
