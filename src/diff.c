@@ -1063,7 +1063,8 @@ static void oneLineChange(
   }
   nSuffix = 0;
   if( nPrefix<nShort ){
-    while( nSuffix<nShort && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+    while( nSuffix<nShort
+           && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
       nSuffix++;
     }
     if( nSuffix<nShort ){
@@ -1111,7 +1112,7 @@ static void oneLineChange(
   /* A single chunk of text inserted */
   if( nCommon==nLeft ){
     p->n = 1;
-    p->a[0].iStart1 = 0;
+    p->a[0].iStart1 = nPrefix;
     p->a[0].iLen1 = 0;
     p->a[0].iStart2 = nPrefix;
     p->a[0].iLen2 = nRight - nCommon;
@@ -1123,7 +1124,7 @@ static void oneLineChange(
     p->n = 1;
     p->a[0].iStart1 = nPrefix;
     p->a[0].iLen1 = nLeft - nCommon;
-    p->a[0].iStart2 = 0;
+    p->a[0].iStart2 = nPrefix;
     p->a[0].iLen2 = 0;
     return;
   }
@@ -1634,6 +1635,7 @@ struct DiffBuilder {
   void (*xCommon)(DiffBuilder*,const DLine*);
   void (*xInsert)(DiffBuilder*,const DLine*);
   void (*xDelete)(DiffBuilder*,const DLine*);
+  void (*xReplace)(DiffBuilder*,const DLine*, const DLine*);
   void (*xEdit)(DiffBuilder*,const DLine*,const DLine*);
   void (*xEnd)(DiffBuilder*);
   unsigned int lnLeft;              /* Lines seen on the left (delete) side */
@@ -1655,18 +1657,26 @@ static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){
 static void dfdebugCommon(DiffBuilder *p, const DLine *pLine){
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut, "COMMON %8u %8u %.*s\n",
+  blob_appendf(p->pOut, "COMMON  %8u %8u %.*s\n",
       p->lnLeft, p->lnRight, (int)pLine->n, pLine->z);
 }
 static void dfdebugInsert(DiffBuilder *p, const DLine *pLine){
   p->lnRight++;
-  blob_appendf(p->pOut, "RIGHT           %8d %.*s\n",
+  blob_appendf(p->pOut, "INSERT           %8d %.*s\n",
       p->lnRight, (int)pLine->n, pLine->z);
 }
 static void dfdebugDelete(DiffBuilder *p, const DLine *pLine){
   p->lnLeft++;
-  blob_appendf(p->pOut, "LEFT   %8u          %.*s\n",
+  blob_appendf(p->pOut, "DELETE   %8u          %.*s\n",
       p->lnLeft, (int)pLine->n, pLine->z);
+}
+static void dfdebugReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut, "REPLACE %8u          %.*s\n",
+      p->lnLeft, (int)pX->n, pX->z);
+  blob_appendf(p->pOut, "            %8u %.*s\n",
+      p->lnRight, (int)pY->n, pY->z);
 }
 static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i, j;
@@ -1674,7 +1684,7 @@ static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   ChangeSpan span;
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut, "EDIT   %8u          %.*s\n",
+  blob_appendf(p->pOut, "EDIT     %8u          %.*s\n",
                p->lnLeft, (int)pX->n, pX->z);
   oneLineChange(pX, pY, &span);
   for(i=x=0; i<span.n; i++){
@@ -1721,6 +1731,7 @@ static DiffBuilder *dfdebugNew(Blob *pOut){
   p->xCommon = dfdebugCommon;
   p->xInsert = dfdebugInsert;
   p->xDelete = dfdebugDelete;
+  p->xReplace = dfdebugReplace;
   p->xEdit = dfdebugEdit;
   p->xEnd = dfdebugEnd;
   p->lnLeft = p->lnRight = 0;
@@ -1771,6 +1782,13 @@ static void dftclDelete(DiffBuilder *p, const DLine *pLine){
   blob_append_tcl_string(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
+static void dftclReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  blob_append(p->pOut, "EDIT ", -1);
+  blob_append_tcl_string(p->pOut, pX->z, pX->n);
+  blob_append_char(p->pOut, ' ');
+  blob_append_tcl_string(p->pOut, pY->z, pY->n);
+  blob_append_char(p->pOut, '\n');
+}
 static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i, x;
   ChangeSpan span;
@@ -1801,6 +1819,7 @@ static DiffBuilder *dftclNew(Blob *pOut){
   p->xCommon = dftclCommon;
   p->xInsert = dftclInsert;
   p->xDelete = dftclDelete;
+  p->xReplace = dftclReplace;
   p->xEdit = dftclEdit;
   p->xEnd = dftclEnd;
   p->pOut = pOut;
@@ -1889,6 +1908,14 @@ static void dfjsonDelete(DiffBuilder *p, const DLine *pLine){
   jsonize_to_blob(p->pOut, pLine->z, (int)pLine->n, &iCol);
   blob_append(p->pOut, "\",\n",3);
 }
+static void dfjsonReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int iCol = 0;
+  blob_append(p->pOut, "5,\"",3);
+  jsonize_to_blob(p->pOut, pX->z, (int)pX->n, &iCol);
+  blob_append(p->pOut, "\",\"",3);
+  jsonize_to_blob(p->pOut, pY->z, (int)pY->n, &iCol);
+  blob_append(p->pOut, "\",\n",3);
+}
 static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
@@ -1935,6 +1962,7 @@ static DiffBuilder *dfjsonNew(Blob *pOut){
   p->xCommon = dfjsonCommon;
   p->xInsert = dfjsonInsert;
   p->xDelete = dfjsonDelete;
+  p->xReplace = dfjsonReplace;
   p->xEdit = dfjsonEdit;
   p->xEnd = dfjsonEnd;
   p->lnLeft = p->lnRight = 0;
@@ -2053,6 +2081,32 @@ static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
   jsonize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n, &iCol);
   blob_append(&p->aCol[2], "</del>\n", 7);
 }
+static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int iCol;
+  dfunifiedStartRow(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "-\n", 2);
+
+  iCol = 0;
+  jsonize_to_blob(&p->aCol[2], pX->z,  pX->n, &iCol);
+  blob_append_char(&p->aCol[2], '\n');
+
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
+
+  iCol = 0;
+  jsonize_to_blob(&p->aCol[4], pY->z,  pY->n, &iCol);
+  blob_append_char(&p->aCol[4], '\n');
+  p->nPending++;
+}
 static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
@@ -2115,6 +2169,7 @@ static DiffBuilder *dfunifiedNew(Blob *pOut){
   p->xCommon = dfunifiedCommon;
   p->xInsert = dfunifiedInsert;
   p->xDelete = dfunifiedDelete;
+  p->xReplace = dfunifiedReplace;
   p->xEdit = dfunifiedEdit;
   p->xEnd = dfunifiedEnd;
   p->lnLeft = p->lnRight = 0;
@@ -2237,6 +2292,25 @@ static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
   blob_append_char(&p->aCol[2],'\n');
   blob_append_char(&p->aCol[3],'\n');
 }
+static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int iCol;
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 3);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  iCol = 0;
+  jsonize_to_blob(&p->aCol[0], pX->z,  pX->n, &iCol);
+  blob_append_char(&p->aCol[0], '\n');
+
+  blob_append(&p->aCol[1], "|\n", 2);
+
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+
+  iCol = 0;
+  jsonize_to_blob(&p->aCol[3], pY->z,  pY->n, &iCol);
+  blob_append_char(&p->aCol[3], '\n');
+}
 static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
@@ -2292,6 +2366,7 @@ static DiffBuilder *dfsplitNew(Blob *pOut){
   p->xCommon = dfsplitCommon;
   p->xInsert = dfsplitInsert;
   p->xDelete = dfsplitDelete;
+  p->xReplace = dfsplitReplace;
   p->xEdit = dfsplitEdit;
   p->xEnd = dfsplitEnd;
   p->lnLeft = p->lnRight = 0;
@@ -2442,11 +2517,9 @@ static void formatDiff(
           }
           case 4: {
             /* Delete from left then separately insert on the right */
-            pBuilder->xDelete(pBuilder, &A[a]);
+            pBuilder->xReplace(pBuilder, &A[a], &B[b]);
             ma--;
             a++;
-            pBuilder->xInsert(pBuilder, &B[b]);
-            assert( mb>0 );
             mb--;
             b++;
             break;

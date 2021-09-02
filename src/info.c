@@ -443,7 +443,7 @@ static void append_file_change_line(
 */
 void append_diff_javascript(int sideBySide){
   if( !sideBySide ) return;
-  builtin_request_js("sbsdiff.js");
+  builtin_request_js("diff.js");
 }
 
 /*

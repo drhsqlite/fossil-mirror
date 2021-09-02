@@ -247,7 +247,6 @@ EXTRA_FILES = \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
-  $(SRCDIR)/sbsdiff.js \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \

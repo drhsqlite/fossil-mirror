@@ -598,7 +598,6 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\login.js" \
         "$(SRCDIR)\markdown.md" \
         "$(SRCDIR)\menu.js" \
-        "$(SRCDIR)\sbsdiff.js" \
         "$(SRCDIR)\scroll.js" \
         "$(SRCDIR)\skin.js" \
         "$(SRCDIR)\sorttable.js" \
@@ -1207,7 +1206,6 @@ realclean: clean
 	echo "$(SRCDIR)\login.js" >> $@
 	echo "$(SRCDIR)\markdown.md" >> $@
 	echo "$(SRCDIR)\menu.js" >> $@
-	echo "$(SRCDIR)\sbsdiff.js" >> $@
 	echo "$(SRCDIR)\scroll.js" >> $@
 	echo "$(SRCDIR)\skin.js" >> $@
 	echo "$(SRCDIR)\sorttable.js" >> $@

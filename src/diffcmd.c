@@ -620,8 +620,8 @@ void diff_against_disk(
   int asNewFile;            /* Treat non-existant files as empty files */
   int isNumStat;            /* True for --numstat */
 
-  asNewFile = (diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT))!=0;
-  isNumStat = (diffFlags & DIFF_NUMSTAT)!=0;
+  asNewFile = (diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT|DIFF_HTML))!=0;
+  isNumStat = (diffFlags & (DIFF_NUMSTAT|DIFF_TCL|DIFF_HTML))!=0;
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   blob_zero(&sql);
@@ -868,7 +868,7 @@ static void diff_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
     }else if( cmp>0 ){
       if( file_dir_match(pFileDir, pToFile->zName) ){
-        if( (diffFlags & (DIFF_NUMSTAT|DIFF_HTML))==0 ){
+        if( (diffFlags & (DIFF_NUMSTAT|DIFF_HTML|DIFF_TCL|DIFF_JSON))==0 ){
           fossil_print("ADDED   %s\n", pToFile->zName);
         }
         if( asNewFlag ){

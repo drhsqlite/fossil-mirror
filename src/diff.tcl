@@ -74,16 +74,20 @@ proc readDiffs {fossilcmd} {
   set nDiffs 0
   set n1 0
   set n2 0  
-  array set widths {txt 0 ln 0 mkr 0}
+  array set widths {txt 0 ln 0 mkr 1}
   while {[set line [getLine $difftxt $N ii]] != -1} {
-    incr nDiffs
     switch -- [lindex $line 0] {
       FILE {
+        incr nDiffs
+        foreach wx [list [string length $n1] [string length $n2]] {
+          if {$wx>$widths(ln)} {set widths(ln) $wx}
+        }
         .lnA insert end \n fn \n -
-        .txtA insert end [lindex $line 1] fn \n -
+        .txtA insert end [lindex $line 1]\n fn
         .mkr insert end \n fn \n -
         .lnB insert end \n fn \n -
-        .txtB insert end [lindex $line 2] fn \n -
+        .txtB insert end [lindex $line 2]\n fn
+        .wfiles.lb insert end [lindex $line 2]
         set n1 0
         set n2 0
       }
@@ -142,7 +146,9 @@ proc readDiffs {fossilcmd} {
         .txtB insert end \n -
       }
       "" {
-        incr nDiffs -1
+        foreach wx [list [string length $n1] [string length $n2]] {
+          if {$wx>$widths(ln)} {set widths(ln) $wx}
+        }
       }
       default {
         error "bad diff source line: $line"
