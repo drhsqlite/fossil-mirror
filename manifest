@@ -1,5 +1,5 @@
-C First\sattempt\sto\sgenerate\sside-by-side\sdiffs\susing\sthe\snew\sformatter.\nThis\sbreaks\sthe\s--tk\soption.\s\sThe\s"fossil\sdiff\s-b"\sand\s"--by"\swork,\sbut\nside-by-side\sdiff\son\s/info\spages\sand\ssimilar\sis\scurrently\sbusted.\nCSS\sis\ssimplified,\swhich\smeans\sthat\sskins\swill\sneed\sto\sbe\smodified.\nThis\sis\san\sincremental\scheck-in.
-D 2021-09-01T19:53:18.177
+C Add\sthe\s--tcl\sformat\soption\sto\sthe\sdiff\scommands.\s\sThe\splan\sis\sto\suse\sthis\nto\simplement\s--tk\s(in\splace\sof\s--html\s-y)\sbut\sthat\spart\sis\snot\syet\simplemented.
+D 2021-09-02T09:19:31.241
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,10 +465,10 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 79207dca3eb14dda5794d89a81db75ae1e1775f673cdb4a0c8b0554b4328ec07
+F src/diff.c 331f9e386d41a3540ae0ab8d391aa77596792a5caec32ae4695c0132d4c7b224
 F src/diff.js be6f7a890b204d5453fbfe760f4e8e32a64ac4a8e6aeb26a3108096d2ea90c90
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c ee11ba8f4a8022fd773f8705da2c9ae588354a3675044f33548f458f3af38b9c
+F src/diffcmd.c 98c71fad8804ec780564d859598225a3c2726517b393611da3497625f7ffcf11
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -997,7 +997,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce856a86148b45befe6275c5f686460c60b232f0e95ca4906b7bbce8c3478721
-R f02982a75f2bac1f8a8d30657f5d3f6b
+P 4cd8a743cd0c1f9614917370486310890cb2133b60a7e104572baca713970235
+R e3d84f34fddad5143067ce97772b4768
 U drh
-Z 80a4d4e0915911afe5ae13c79dd108ea
+Z 87f6840b9a9a25ec489208a304e75e60

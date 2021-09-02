@@ -49,6 +49,7 @@
 #define DIFF_JSON      (((u64)0x00100)<<32) /* JSON output */
 #define DIFF_DEBUG     (((u64)0x00200)<<32) /* Debugging diff output */
 #define DIFF_RAW       (((u64)0x00400)<<32) /* Raw triples - for debugging */
+#define DIFF_TCL       (((u64)0x00800)<<32) /* For the --tk option */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -1727,6 +1728,85 @@ static DiffBuilder *dfdebugNew(Blob *pOut){
   return p;
 }
 
+/************************* DiffBuilderTcl ********************************/
+/*
+** This variant outputs a description of the diff formatted as TCL, for
+** use by the --tk option to "diff".
+*/
+
+/*
+** Write out a quoted TCL string
+*/
+void blob_append_tcl_string(Blob *pOut, const char *z, int n){
+  int i;
+  blob_append_char(pOut, '"');
+  for(i=0; i<n; i++){
+    switch( z[i] ){
+      case '"':
+      case '\\':
+        blob_append_char(pOut, '\\');
+        /* Fall thru */
+      default:
+        blob_append_char(pOut, z[i]);
+    }
+  }
+  blob_append_char(pOut, '"');
+}
+
+static void dftclSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  blob_appendf(p->pOut, "SKIP %u\n", n);
+}
+static void dftclCommon(DiffBuilder *p, const DLine *pLine){
+  blob_appendf(p->pOut, "COM ");
+  blob_append_tcl_string(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclInsert(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "INS ", -1);
+  blob_append_tcl_string(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclDelete(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "DEL ", -1);
+  blob_append_tcl_string(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i, x;
+  ChangeSpan span;
+  blob_append(p->pOut, "EDIT", 4);
+  oneLineChange(pX, pY, &span);
+  for(i=x=0; i<span.n; i++){
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_string(p->pOut, pX->z + x, span.a[i].iStart1 - x);
+    x = span.a[i].iStart1;
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_string(p->pOut, pX->z + x, span.a[i].iLen1);
+    x += span.a[i].iLen1;
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_string(p->pOut, pY->z + span.a[i].iStart2,span.a[i].iLen2);
+  }
+  if( x<pX->n ){
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_string(p->pOut, pX->z + x, pX->n - x);
+  }
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclEnd(DiffBuilder *p){
+  fossil_free(p);
+}
+static DiffBuilder *dftclNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dftclSkip;
+  p->xCommon = dftclCommon;
+  p->xInsert = dftclInsert;
+  p->xDelete = dftclDelete;
+  p->xEdit = dftclEdit;
+  p->xEnd = dftclEnd;
+  p->pOut = pOut;
+  return p;
+}
+
 /************************* DiffBuilderJson ********************************/
 
 /* Convert raw text into content suitable for a JSON string.  Escape
@@ -2951,6 +3031,9 @@ int *text_diff(
       DiffBuilder *pBuilder = dfjsonNew(pOut);
       formatDiff(&c, pRe, diffFlags, pBuilder);
       blob_append_char(pOut, '\n');
+    }else if( diffFlags & DIFF_TCL ){
+      DiffBuilder *pBuilder = dftclNew(pOut);
+      formatDiff(&c, pRe, diffFlags, pBuilder);
     }else if( diffFlags & DIFF_SIDEBYSIDE ){
       if( diffFlags & DIFF_HTML ){
         DiffBuilder *pBuilder = dfsplitNew(pOut);
@@ -3044,6 +3127,9 @@ u64 diff_options(void){
   }
   if( find_option("json",0,0)!=0 ){
     diffFlags |= DIFF_JSON;
+  }
+  if( find_option("tcl",0,0)!=0 ){
+    diffFlags |= DIFF_TCL;
   }
 
   /* Undocumented and unsupported flags used for development

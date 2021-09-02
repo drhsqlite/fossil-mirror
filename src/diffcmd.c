@@ -116,7 +116,8 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
-  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|DIFF_WEBPAGE))==0 ){
+  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|
+                    DIFF_WEBPAGE|DIFF_TCL))==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
     if( !diffBlob ){
       fossil_print("%s", z);
@@ -148,6 +149,25 @@ void diff_print_filenames(
     }else{
       z = mprintf("<h1>%h &lrarr; %h</h1>\n", zLeft, zRight);
     }
+  }else if( diffFlags & DIFF_TCL ){
+    Blob *pOut;
+    Blob x;
+    if( diffBlob ){
+      pOut = diffBlob;
+    }else{
+      blob_init(&x, 0, 0);
+      pOut = &x;
+    }
+    blob_append(pOut, "FILE ", 5);
+    blob_append_tcl_string(pOut, zLeft, (int)strlen(zLeft));
+    blob_append_char(pOut, ' ');
+    blob_append_tcl_string(pOut, zRight, (int)strlen(zRight));
+    blob_append_char(pOut, '\n');
+    if( !diffBlob ){
+      fossil_print("%s", blob_str(pOut));
+      blob_reset(&x);
+    }
+    return;
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
