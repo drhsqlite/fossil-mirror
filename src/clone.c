@@ -355,7 +355,9 @@ void set_httpauth(const char *zHttpAuth){
 void clone_ssh_find_options(void){
   const char *zSshCmd;        /* SSH command string */
 
+  db_unprotect(PROTECT_ALL);
   zSshCmd = find_option("ssh-command","c",1);
+  db_protect_pop();
   if( zSshCmd && zSshCmd[0] ){
     g.zSshCmd = mprintf("%s", zSshCmd);
   }
@@ -367,7 +369,9 @@ void clone_ssh_find_options(void){
 */
 void clone_ssh_db_set_options(void){
   if( g.zSshCmd && g.zSshCmd[0] ){
+    db_unprotect(PROTECT_ALL);
     db_set("ssh-command", g.zSshCmd, 0);
+    db_protect_pop();
   }
 }
 
