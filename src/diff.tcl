@@ -83,10 +83,10 @@ proc readDiffs {fossilcmd} {
           if {$wx>$widths(ln)} {set widths(ln) $wx}
         }
         .lnA insert end \n fn \n -
-        .txtA insert end [lindex $line 1]\n fn
+        .txtA insert end [lindex $line 1]\n fn \n -
         .mkr insert end \n fn \n -
         .lnB insert end \n fn \n -
-        .txtB insert end [lindex $line 2]\n fn
+        .txtB insert end [lindex $line 2]\n fn \n -
         .wfiles.lb insert end [lindex $line 2]
         set n1 0
         set n2 0
