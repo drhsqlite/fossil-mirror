@@ -304,37 +304,19 @@ static int re_dline_match(
 static void appendDiffLine(
   Blob *pOut,         /* Where to write the line of output */
   char cPrefix,       /* One of " ", "+",  or "-" */
-  DLine *pLine,       /* The line to be output */
-  int html,           /* True if generating HTML.  False for plain text */
-  ReCompiled *pRe     /* Colorize only if line matches this Regex */
+  DLine *pLine        /* The line to be output */
 ){
-  blob_append(pOut, &cPrefix, 1);
-  if( html ){
-    if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
-      cPrefix = ' ';
-    }else if( cPrefix=='+' ){
-      blob_append(pOut, zClassAdd, -1);
-    }else if( cPrefix=='-' ){
-      blob_append(pOut, zClassRm, -1);
-    }
-    htmlize_to_blob(pOut, pLine->z, pLine->n);
-    if( cPrefix!=' ' ){
-      blob_append(pOut, "</span>", -1);
-    }
-  }else{
-    blob_append(pOut, pLine->z, pLine->n);
-  }
-  blob_append(pOut, "\n", 1);
+  blob_append_char(pOut, cPrefix);
+  blob_append(pOut, pLine->z, pLine->n);
+  blob_append_char(pOut, '\n');
 }
 
 /*
 ** Add two line numbers to the beginning of an output line for a context
 ** diff.  One or the other of the two numbers might be zero, which means
-** to leave that number field blank.  The "html" parameter means to format
-** the output for HTML.
+** to leave that number field blank.
 */
-static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
-  if( html ) blob_append(pOut, "<span class=\"diffln\">", -1);
+static void appendDiffLineno(Blob *pOut, int lnA, int lnB){
   if( lnA>0 ){
     blob_appendf(pOut, "%6d ", lnA);
   }else{
@@ -345,17 +327,14 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
   }else{
     blob_append(pOut, "        ", 8);
   }
-  if( html ) blob_append(pOut, "</span>", -1);
 }
 
 /*
-** Given a raw diff p[] in which the p->aEdit[] array has been filled
-** in, compute a context diff into pOut.
+** Output a patch-style text diff.
 */
 static void contextDiff(
   DContext *p,      /* The difference */
   Blob *pOut,       /* Output a context diff to here */
-  ReCompiled *pRe,  /* Only show changes that match this regex */
   u64 diffFlags     /* Flags controlling the diff format */
 ){
   DLine *A;     /* Left side of the diff */
@@ -373,13 +352,10 @@ static void contextDiff(
   static int nChunk = 0;  /* Number of diff chunks seen so far */
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
-  int html;        /* Render as HTML */
   int showDivider = 0;  /* True to show the divider between diff blocks */
 
   nContext = diff_context_lines(diffFlags);
   showLn = (diffFlags & DIFF_LINENO)!=0;
-  html = (diffFlags & DIFF_HTML)!=0;
-  if( html ) blob_append(pOut, "<pre class=\"udiff\">\n", -1);
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -389,31 +365,6 @@ static void contextDiff(
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
-
-    /* If there is a regex, skip this block (generate no diff output)
-    ** if the regex matches or does not match both insert and delete.
-    ** Only display the block if one side matches but the other side does
-    ** not.
-    */
-    if( pRe ){
-      int hideBlock = 1;
-      int xa = a, xb = b;
-      for(i=0; hideBlock && i<nr; i++){
-        int c1, c2;
-        xa += R[r+i*3];
-        xb += R[r+i*3];
-        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
-        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
-        hideBlock = c1==c2;
-        xa += R[r+i*3+1];
-        xb += R[r+i*3+2];
-      }
-      if( hideBlock ){
-        a = xa;
-        b = xb;
-        continue;
-      }
-    }
 
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
@@ -450,14 +401,10 @@ static void contextDiff(
       if( !showDivider ){
         /* Do not show a top divider */
         showDivider = 1;
-      }else if( html ){
-        blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
       }else{
         blob_appendf(pOut, "%.80c\n", '.');
       }
-      if( html ) blob_appendf(pOut, "<span id=\"chunk%d\"></span>", nChunk);
     }else{
-      if( html ) blob_appendf(pOut, "<span class=\"diffln\">");
       /*
        * If the patch changes an empty file or results in an empty file,
        * the block header must use 0,0 as position indicator and not 1,0.
@@ -466,7 +413,6 @@ static void contextDiff(
       blob_appendf(pOut,"@@ -%d,%d +%d,%d @@",
         na ? a+skip+1 : a+skip, na,
         nb ? b+skip+1 : b+skip, nb);
-      if( html ) blob_appendf(pOut, "</span>");
       blob_append(pOut, "\n", 1);
     }
 
@@ -475,8 +421,8 @@ static void contextDiff(
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+      appendDiffLine(pOut, ' ', &A[a+j]);
     }
     a += m;
     b += m;
@@ -485,21 +431,21 @@ static void contextDiff(
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
-        if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
-        appendDiffLine(pOut, '-', &A[a+j], html, pRe);
+        if( showLn ) appendDiffLineno(pOut, a+j+1, 0);
+        appendDiffLine(pOut, '-', &A[a+j]);
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
-        if( showLn ) appendDiffLineno(pOut, 0, b+j+1, html);
-        appendDiffLine(pOut, '+', &B[b+j], html, pRe);
+        if( showLn ) appendDiffLineno(pOut, 0, b+j+1);
+        appendDiffLine(pOut, '+', &B[b+j]);
       }
       b += m;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-          appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+          if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+          appendDiffLine(pOut, ' ', &A[a+j]);
         }
         b += m;
         a += m;
@@ -511,11 +457,10 @@ static void contextDiff(
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+      appendDiffLine(pOut, ' ', &A[a+j]);
     }
   }
-  if( html ) blob_append(pOut, "</pre>\n", -1);
 }
 
 /*
@@ -3085,7 +3030,7 @@ int *text_diff(
       DiffBuilder *pBuilder = dfunifiedNew(pOut);
       formatDiff(&c, pRe, diffFlags, pBuilder);
     }else{
-      contextDiff(&c, pOut, pRe, diffFlags);
+      contextDiff(&c, pOut, diffFlags);
     }
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
