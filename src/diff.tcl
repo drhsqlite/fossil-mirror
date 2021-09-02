@@ -72,64 +72,81 @@ proc readDiffs {fossilcmd} {
   set N [llength $difftxt]
   set ii 0
   set nDiffs 0
+  set n1 0
+  set n2 0  
   array set widths {txt 0 ln 0 mkr 0}
   while {[set line [getLine $difftxt $N ii]] != -1} {
-    set fn2 {}
-    if {![regexp {^=+ (.*?) =+ versus =+ (.*?) =+$} $line all fn fn2]
-     && ![regexp {^=+ (.*?) =+$} $line all fn]
-    } {
-      continue
-    }
-    set errMsg ""
-    set line [getLine $difftxt $N ii]
-    if {[string compare -length 6 $line "<table"]
-     && ![regexp {<p[^>]*>(.+)} $line - errMsg]} {
-      continue
-    }
     incr nDiffs
-    set idx [expr {$nDiffs > 1 ? [.txtA index end] : "1.0"}]
-    .wfiles.lb insert end $fn
-
-    foreach c [cols] {
-      if {$nDiffs > 1} {
-        $c insert end \n -
+    switch -- [lindex $line 0] {
+      FILE {
+        .lnA insert end \n fn \n -
+        .txtA insert end [lindex $line 1] fn \n -
+        .mkr insert end \n fn \n -
+        .lnB insert end \n fn \n -
+        .txtB insert end [lindex $line 2] fn \n -
+        set n1 0
+        set n2 0
       }
-      if {[colType $c] eq "txt"} {
-        $c insert end $fn\n fn
-        if {$fn2!=""} {set fn $fn2}
-      } else {
-        $c insert end \n fn
+      SKIP {
+        set n [lindex $line 1]
+        incr n1 $n
+        incr n2 $n
       }
-      $c insert end \n -
-
-      if {$errMsg ne ""} continue
-      while {[getLine $difftxt $N ii] ne "<pre>"} continue
-      set type [colType $c]
-      set str {}
-      while {[set line [getLine $difftxt $N ii]] ne "</pre>"} {
-        set len [string length [dehtml $line]]
-        if {$len > $widths($type)} {
-          set widths($type) $len
+      COM {
+        set x [lindex $line 1]
+        incr n1
+        incr n2
+        .lnA insert end $n1\n -
+        .txtA insert end $x\n -
+        .mkr insert end \n -
+        .lnB insert end $n2\n -
+        .txtB insert end $x\n -
+      }
+      INS {
+        set x [lindex $line 1]
+        incr n2
+        .lnA insert end \n -
+        .txtA insert end \n -
+        .mkr insert end >\n -
+        .lnB insert end $n2\n -
+        .txtB insert end $x add \n -
+      }
+      DEL {
+        set x [lindex $line 1]
+        incr n1
+        .lnA insert end $n1\n -
+        .txtA insert end $x rm \n -
+        .mkr insert end <\n -
+        .lnB insert end \n -
+        .txtB insert end \n -
+      }
+      EDIT {
+        incr n1
+        incr n2
+        .lnA insert end $n1\n -
+        .lnB insert end $n2\n -
+        .mkr insert end |\n -
+        set nn [llength $line]
+        for {set i 1} {$i<$nn} {incr i 3} {
+          set x [lindex $line $i]
+          if {$x ne ""} {
+            .txtA insert end $x -
+            .txtB insert end $x -
+          }
+          if {$i+2<$nn} {
+            .txtA insert end [lindex $line [expr {$i+1}]] chng
+            .txtB insert end [lindex $line [expr {$i+2}]] chng
+          }
         }
-        append str $line\n
+        .txtA insert end \n -
+        .txtB insert end \n -
       }
-
-      set re {<span class="diff([a-z]+)">([^<]*)</span>}
-      # Use \r as separator since it can't appear in the diff output (it gets
-      # converted to a space).
-      set str [regsub -all $re $str "\r\\1\r\\2\r"]
-      foreach {pre class mid} [split $str \r] {
-        if {$class ne ""} {
-          $c insert end [dehtml $pre] - [dehtml $mid] [list $class -]
-        } else {
-          $c insert end [dehtml $pre] -
-        }
+      "" {
+        incr nDiffs -1
       }
-    }
-
-    if {$errMsg ne ""} {
-      foreach c {.txtA .txtB} {$c insert end [string trim $errMsg] err}
-      foreach c [cols] {$c insert end \n -}
+      default {
+        error "bad diff source line: $line"
+      }
     }
   }
 

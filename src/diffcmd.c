@@ -939,8 +939,9 @@ void diff_tk(const char *zSubCmd, int firstArg){
   char *zCmd;
   const char *zTclsh;
   blob_zero(&script);
-  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl -i -v",
                g.nameOfExe, zSubCmd);
+  find_option("tcl",0,0);
   find_option("html",0,0);
   find_option("side-by-side","y",0);
   find_option("internal","i",0);
