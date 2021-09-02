@@ -1,4 +1,11 @@
-/* Keeps the horizontal scrollbars* in sync on side-by-side diffs.
+/* Refinements to the display of unified and side-by-side diffs.
+**
+** In all cases, the table columns tagged with "difftxt" are expanded,
+** where possible, to fill the width of the screen.
+**
+** For a side-by-side diff, if either column is two wide to fit on the
+** display, scrollbars are added.  The scrollbars are linked, so that
+** both sides scroll together.  Left and right arrows also scroll.
 */
 (function(){
   var SCROLL_LEN = 25;

@@ -1,5 +1,5 @@
-C New\sformat\sfor\sJSON\sdiff\soutput.\s\sPromote\sthe\s"test-diff"\scommand\sto\s"xdiff",\nretaining\sthe\solder\sspelling\sas\sa\sbackup\sfor\scompatibility.
-D 2021-09-02T19:38:26.389
+C Improved\scomments\son\sthe\sdiff\sformatter\sand\srelated\slogic.
+D 2021-09-02T22:28:09.898
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,8 +465,8 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 6bcc258ea6a9dc1bb618b5ac94274496591da8ddd8f32974381220b89a676fa0
-F src/diff.js be6f7a890b204d5453fbfe760f4e8e32a64ac4a8e6aeb26a3108096d2ea90c90
+F src/diff.c ffefa1d3e62484e2ca0e4a3cef10b6d314199f5503707dff97844ba9e2c724bd
+F src/diff.js 6e83aedecef02061e3fd87e0fc3947795aa6cdd09b6dbc40279fbd9b5b07d2c2
 F src/diff.tcl 8acd5ecf414432ab535cfb595e04406d1f17e34b31d398ac24a704dbec760103
 F src/diffcmd.c 9a9e9d7809a3e5f92efab970d2fefe499fddcfe75ff3763705e3c60eb40941ab
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1df8b9d773b850b45fb14292a12efe2fa20466447c7d2c1bf17f66d0d8a61d46
-R f0005e95f9a85eb1b66e3e4ce5d558ad
+P b0511022724d7bf02169a54ae9e2c846f7b32a35f402ce262f155c82f5560901
+R 0c2666566f2a01b09f376a6fb535a998
 U drh
-Z fd78fe6867f1de8d0ba8b4c5631f9bec
+Z a02394ad2df313054d437e86e520a884

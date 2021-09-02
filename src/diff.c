@@ -1628,6 +1628,9 @@ static void sbsDiff(
 ** This is an abstract superclass for an object that accepts difference
 ** lines and formats them for display.  Subclasses of this object format
 ** the diff output in different ways.
+**
+** To subclass, create an instance of the DiffBuilder object and fill
+** in appropriate method implementations.
 */ 
 typedef struct DiffBuilder DiffBuilder;
 struct DiffBuilder {
@@ -1647,6 +1650,12 @@ struct DiffBuilder {
 };
 
 /************************* DiffBuilderDebug ********************************/
+/* This version of DiffBuilder is used for debugging the diff and diff
+** diff formatter logic.  It is accessed using the (undocumented) --debug
+** option to the diff command.  The output is human-readable text that
+** describes the various method calls that are invoked agains the DiffBuilder
+** object.
+*/
 static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){
   blob_appendf(p->pOut, "SKIP %d (%d..%d left and %d..%d right)%s\n",
                 n, p->lnLeft+1, p->lnLeft+n, p->lnRight+1, p->lnRight+n,
@@ -1741,8 +1750,29 @@ static DiffBuilder *dfdebugNew(Blob *pOut){
 
 /************************* DiffBuilderTcl ********************************/
 /*
-** This variant outputs a description of the diff formatted as TCL, for
-** use by the --tk option to "diff".
+** This formatter outputs a description of the diff formatted as TCL, for
+** use by the --tk option to "diff".   See also the "diff.tcl" file.  The
+** output can be viewed directly using the --tcl option.
+**
+** There is one line per method call:
+**
+**     SKIP n                      -- Skip "n" lines of input
+**     COM string                  -- "string" is an unchanged context line
+**     INS string                  -- "string" is in the right file only
+**     DEL string                  -- "string" is in the left file only
+**     EDIT string ....            -- Complex edit between left and right
+**
+** The EDIT verb will be followed by 3*N or 3*N+1 strings.  The triples
+** each show:
+**
+**     1.  Common text
+**     2.  Text from the left side
+**     3.  Text on the right that replaces (2) from the left
+**
+** For inserted text (2) will be an empty string.  For deleted text, (3)
+** will be an empty string.  (1) might be empty for the first triple if
+** the line begins with an edit.  After all triples, there might be one
+** additional string which is a common suffix.
 */
 static void dftclSkip(DiffBuilder *p, unsigned int n, int isFinal){
   blob_appendf(p->pOut, "SKIP %u\n", n);
@@ -1809,7 +1839,7 @@ static DiffBuilder *dftclNew(Blob *pOut){
 
 /************************* DiffBuilderJson ********************************/
 /*
-** This module generates a JSON array that describes the difference.
+** This formatter generates a JSON array that describes the difference.
 **
 ** The Json array consists of integer opcodes with each opcode followed
 ** by zero or more arguments:
@@ -1892,7 +1922,23 @@ static DiffBuilder *dfjsonNew(Blob *pOut){
 }
 
 /************************* DiffBuilderUnified********************************/
-/* This module generates a unified diff for HTML
+/* This formatter generates a unified diff for HTML.
+**
+** The result is a <table> with four columns.  The four columns hold:
+**
+**     1.   The line numbers for the first file.
+**     2.   The line numbers for the second file.
+**     3.   The "diff mark":  "+" or "-" or just a space
+**     4.   Text of the line
+**
+** Inserted lines are marked with <ins> and deleted lines are marked
+** with <del>.  The whole line is marked this way, not just the part that
+** changed.  The part that change has an additional nested <ins> or <del>.
+** The CSS needs to be set up such that a single <ins> or <del> gives a
+** light background and a nested <ins> or <del> gives a darker background.
+** Additional attributes (like bold font) might also be added to nested
+** <ins> and <del> since those are the characters that have actually
+** changed.
 **
 ** Accumulator strategy:
 **
@@ -2100,7 +2146,17 @@ static DiffBuilder *dfunifiedNew(Blob *pOut){
 }
 
 /************************* DiffBuilderSplit  ******************************/
-/* This module generates a side-by-side diff for HTML.
+/* This formatter creates a side-by-side diff in HTML.  The output is a
+** <table> with 5 columns:
+**
+**    1.  Line numbers for the first file.
+**    2.  Text for the first file.
+**    3.  The difference mark.  "<", ">", "|" or blank
+**    4.  Line numbers for the second file.
+**    5.  Text for the second file.
+**
+** The <ins> and <del> strategy is the same as for unified diff above.
+** In fact, the same CSS can be used for both.
 **
 ** Accumulator strategy:
 **
