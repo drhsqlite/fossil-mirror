@@ -116,7 +116,7 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
-  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|
+  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|DIFF_JSON|
                     DIFF_WEBPAGE|DIFF_TCL))==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
     if( !diffBlob ){
@@ -138,7 +138,7 @@ void diff_print_filenames(
   Blob *diffBlob
 ){
   char *z = 0;
-  if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
+  if( diffFlags & (DIFF_BRIEF|DIFF_RAW|DIFF_JSON) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
     fossil_print("FILE-LEFT   %s\nFILE-RIGHT  %s\n",
@@ -159,9 +159,9 @@ void diff_print_filenames(
       pOut = &x;
     }
     blob_append(pOut, "FILE ", 5);
-    blob_append_tcl_string(pOut, zLeft, (int)strlen(zLeft));
+    blob_append_string_literal(pOut, zLeft, (int)strlen(zLeft));
     blob_append_char(pOut, ' ');
-    blob_append_tcl_string(pOut, zRight, (int)strlen(zRight));
+    blob_append_string_literal(pOut, zRight, (int)strlen(zRight));
     blob_append_char(pOut, '\n');
     if( !diffBlob ){
       fossil_print("%s", blob_str(pOut));

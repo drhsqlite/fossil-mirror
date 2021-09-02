@@ -1,5 +1,5 @@
-C Better\scontrol\sover\sthe\sblue/red/green\scolors\sin\sthe\s--tk\sTCL\scode.
-D 2021-09-02T18:44:19.847
+C New\sformat\sfor\sJSON\sdiff\soutput.\s\sPromote\sthe\s"test-diff"\scommand\sto\s"xdiff",\nretaining\sthe\solder\sspelling\sas\sa\sbackup\sfor\scompatibility.
+D 2021-09-02T19:38:26.389
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c6
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
-F src/blob.c ed0063ab5d79b40aa2eba918325c7942c95b0d71b5e2d32e45719d723f2f0bf7
+F src/blob.c 50c7a6723d18585067dde07bef2d09c7380c6e4440f5539a0320d991c3d48897
 F src/branch.c a9f79af28fba52a5243d269205a888057ad51707853b3f2d72a3ab1df3f32a18
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
@@ -465,10 +465,10 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c e76098c2f49224028188cfade09005d106f04cbdd46e07b640356304982f44c9
+F src/diff.c 6bcc258ea6a9dc1bb618b5ac94274496591da8ddd8f32974381220b89a676fa0
 F src/diff.js be6f7a890b204d5453fbfe760f4e8e32a64ac4a8e6aeb26a3108096d2ea90c90
 F src/diff.tcl 8acd5ecf414432ab535cfb595e04406d1f17e34b31d398ac24a704dbec760103
-F src/diffcmd.c 69cb9c8df6681b1dbbf86bfc6b7950bae1736d3ce5ac4ab7cf96c0bafc14d527
+F src/diffcmd.c 9a9e9d7809a3e5f92efab970d2fefe499fddcfe75ff3763705e3c60eb40941ab
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -996,7 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3e1fd9ff44e3743975219e09ae14d0d0712eefcea33ecd6cfcb2d2252b305de
-R 5a44f717a86e079e885efc6f6cc754bc
+P 1df8b9d773b850b45fb14292a12efe2fa20466447c7d2c1bf17f66d0d8a61d46
+R f0005e95f9a85eb1b66e3e4ce5d558ad
 U drh
-Z 750ed60e19cb01bad09822907149c4e4
+Z fd78fe6867f1de8d0ba8b4c5631f9bec

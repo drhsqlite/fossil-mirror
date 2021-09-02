@@ -1744,49 +1744,29 @@ static DiffBuilder *dfdebugNew(Blob *pOut){
 ** This variant outputs a description of the diff formatted as TCL, for
 ** use by the --tk option to "diff".
 */
-
-/*
-** Write out a quoted TCL string
-*/
-void blob_append_tcl_string(Blob *pOut, const char *z, int n){
-  int i;
-  blob_append_char(pOut, '"');
-  for(i=0; i<n; i++){
-    switch( z[i] ){
-      case '"':
-      case '\\':
-        blob_append_char(pOut, '\\');
-        /* Fall thru */
-      default:
-        blob_append_char(pOut, z[i]);
-    }
-  }
-  blob_append_char(pOut, '"');
-}
-
 static void dftclSkip(DiffBuilder *p, unsigned int n, int isFinal){
   blob_appendf(p->pOut, "SKIP %u\n", n);
 }
 static void dftclCommon(DiffBuilder *p, const DLine *pLine){
   blob_appendf(p->pOut, "COM ");
-  blob_append_tcl_string(p->pOut, pLine->z, pLine->n);
+  blob_append_string_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
 static void dftclInsert(DiffBuilder *p, const DLine *pLine){
   blob_append(p->pOut, "INS ", -1);
-  blob_append_tcl_string(p->pOut, pLine->z, pLine->n);
+  blob_append_string_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
 static void dftclDelete(DiffBuilder *p, const DLine *pLine){
   blob_append(p->pOut, "DEL ", -1);
-  blob_append_tcl_string(p->pOut, pLine->z, pLine->n);
+  blob_append_string_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
 static void dftclReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append(p->pOut, "EDIT ", -1);
-  blob_append_tcl_string(p->pOut, pX->z, pX->n);
+  blob_append_string_literal(p->pOut, pX->z, pX->n);
   blob_append_char(p->pOut, ' ');
-  blob_append_tcl_string(p->pOut, pY->z, pY->n);
+  blob_append_string_literal(p->pOut, pY->z, pY->n);
   blob_append_char(p->pOut, '\n');
 }
 static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
@@ -1796,17 +1776,18 @@ static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   oneLineChange(pX, pY, &span);
   for(i=x=0; i<span.n; i++){
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_string(p->pOut, pX->z + x, span.a[i].iStart1 - x);
+    blob_append_string_literal(p->pOut, pX->z + x, span.a[i].iStart1 - x);
     x = span.a[i].iStart1;
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_string(p->pOut, pX->z + x, span.a[i].iLen1);
+    blob_append_string_literal(p->pOut, pX->z + x, span.a[i].iLen1);
     x += span.a[i].iLen1;
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_string(p->pOut, pY->z + span.a[i].iStart2,span.a[i].iLen2);
+    blob_append_string_literal(p->pOut, 
+                         pY->z + span.a[i].iStart2, span.a[i].iLen2);
   }
   if( x<pX->n ){
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_string(p->pOut, pX->z + x, pX->n - x);
+    blob_append_string_literal(p->pOut, pX->z + x, pX->n - x);
   }
   blob_append_char(p->pOut, '\n');
 }
@@ -1827,130 +1808,69 @@ static DiffBuilder *dftclNew(Blob *pOut){
 }
 
 /************************* DiffBuilderJson ********************************/
-
-/* Convert raw text into content suitable for a JSON string.  Escape
-** charaters that are special to HTML and to JSON:
+/*
+** This module generates a JSON array that describes the difference.
 **
-**     <   ->   &lt;
-**     >   ->   &gt;
-**     &   ->   &amp;
-**     "   ->   &quot;
-**     '   ->   &#39;
-**     \   ->   &#92;
+** The Json array consists of integer opcodes with each opcode followed
+** by zero or more arguments:
 **
-** In addition, TAB characters are converted into an appropriate number
-** of spaces.  The *piCol value is the number of prior columns in the
-** current line.  Update the column count before returning, so that
-** subsequent invocations can figure out the right number of spaces to
-** insert for each tab.
+**   Syntax        Mnemonic    Description
+**   -----------   --------    --------------------------
+**   0             END         This is the end of the diff
+**   1  INTEGER    SKIP        Skip N lines from both files
+**   2  STRING     COMMON      The line show by STRING is in both files
+**   3  STRING     INSERT      The line STRING is in only the right file
+**   4  STRING     DELETE      The STRING line is in only the left file
+**   5  SUBARRAY   EDIT        One line is different on left and right.
+**
+** The SUBARRAY is an array of 3*N+1 strings with N>=0.  The triples
+** represent common-text, left-text, and right-text.  The last string
+** in SUBARRAY is the common-suffix.  Any string can be empty if it does
+** not apply.
 */
-static void jsonize_to_blob(Blob *p, const char *zIn, int n, int *piCol){
-  int c, i, x;
-  int iCol = *piCol;
-  for(i=0; i<n; i++){
-    c = zIn[i];
-    switch( c ){
-      case '<':
-        blob_append(p, "&lt;", 4);
-        iCol++;
-        break;
-      case '>':
-        blob_append(p, "&gt;", 4);
-        iCol++;
-        break;
-      case '&':
-        blob_append(p, "&amp;", 5);
-        iCol++;
-        break;
-      case '"':
-        blob_append(p, "&quot;", 6);
-        iCol++;
-        break;
-      case '\'':
-        blob_append(p, "&#39;", 5);
-        iCol++;
-        break;
-      case '\\':
-        blob_append(p, "&#92;", 5);
-        iCol++;
-        break;
-      case '\t':
-        x = 1 + (iCol+7)%8;
-        blob_appendf(p, "%*s", x, "");
-        iCol += x;
-        break;
-      default:
-        blob_append_char(p, c);
-        if( (c&0xc0)!=0x80 ) iCol++;
-        break;
-    }
-  }
-  *piCol = iCol;
-}
 static void dfjsonSkip(DiffBuilder *p, unsigned int n, int isFinal){
   blob_appendf(p->pOut, "1,%u,\n", n);
 }
 static void dfjsonCommon(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
-  blob_append(p->pOut, "2,\"",3);
-  jsonize_to_blob(p->pOut, pLine->z, (int)pLine->n, &iCol);
-  blob_append(p->pOut, "\",\n",3);
+  blob_append(p->pOut, "2,",2);
+  blob_append_string_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
 }
 static void dfjsonInsert(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
-  blob_append(p->pOut, "3,\"",3);
-  jsonize_to_blob(p->pOut, pLine->z, (int)pLine->n, &iCol);
-  blob_append(p->pOut, "\",\n",3);
+  blob_append(p->pOut, "3,",2);
+  blob_append_string_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
 }
 static void dfjsonDelete(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
-  blob_append(p->pOut, "4,\"",3);
-  jsonize_to_blob(p->pOut, pLine->z, (int)pLine->n, &iCol);
-  blob_append(p->pOut, "\",\n",3);
+  blob_append(p->pOut, "4,",2);
+  blob_append_string_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
 }
 static void dfjsonReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  int iCol = 0;
-  blob_append(p->pOut, "5,\"",3);
-  jsonize_to_blob(p->pOut, pX->z, (int)pX->n, &iCol);
-  blob_append(p->pOut, "\",\"",3);
-  jsonize_to_blob(p->pOut, pY->z, (int)pY->n, &iCol);
-  blob_append(p->pOut, "\",\n",3);
+  blob_append(p->pOut, "5,[\"\",",-1);
+  blob_append_string_literal(p->pOut, pX->z, (int)pX->n);
+  blob_append(p->pOut, ",",1);
+  blob_append_string_literal(p->pOut, pY->z, (int)pY->n);
+  blob_append(p->pOut, ",\"\"],\n",-1);
 }
 static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  int i;
-  int x;
-  int iCol;
+  int i, x;
   ChangeSpan span;
+  blob_append(p->pOut, "5,[", 3);
   oneLineChange(pX, pY, &span);
-  blob_appendf(p->pOut, "5,\"");
-  for(i=x=iCol=0; i<span.n; i++){
-    int ofst = span.a[i].iStart1;
-    int len = span.a[i].iLen1;
-    if( len ){
-      jsonize_to_blob(p->pOut, pX->z+x, ofst - x, &iCol);
-      x = ofst;
-      blob_append(p->pOut, "<mark>", 6);
-      jsonize_to_blob(p->pOut, pX->z+x, len, &iCol);
-      x += len;
-      blob_append(p->pOut, "</mark>", 7);
-    }
+  for(i=x=0; i<span.n; i++){
+    blob_append_string_literal(p->pOut, pX->z + x, span.a[i].iStart1 - x);
+    x = span.a[i].iStart1;
+    blob_append_char(p->pOut, ',');
+    blob_append_string_literal(p->pOut, pX->z + x, span.a[i].iLen1);
+    x += span.a[i].iLen1;
+    blob_append_char(p->pOut, ',');
+    blob_append_string_literal(p->pOut, 
+                         pY->z + span.a[i].iStart2, span.a[i].iLen2);
   }
-  if( x<pX->n ) jsonize_to_blob(p->pOut, pX->z+x,  pX->n - x, &iCol);
-  blob_append(p->pOut, "\",\n  \"", -1);
-  for(i=x=iCol=0; i<span.n; i++){
-    int ofst = span.a[i].iStart2;
-    int len = span.a[i].iLen2;
-    if( len ){
-      jsonize_to_blob(p->pOut, pY->z+x, ofst - x, &iCol);
-      x = ofst;
-      blob_append(p->pOut, "<mark>", 6);
-      jsonize_to_blob(p->pOut, pY->z+x, len, &iCol);
-      x += len;
-      blob_append(p->pOut, "</mark>", 7);
-    }
-  }
-  if( x<pY->n ) jsonize_to_blob(p->pOut, pY->z+x,  pY->n - x, &iCol);
-  blob_append(p->pOut, "\",\n", -1);
+  blob_append_char(p->pOut, ',');
+  blob_append_string_literal(p->pOut, pX->z + x, pX->n - x);
+  blob_append(p->pOut, "],\n",3);
 }
 static void dfjsonEnd(DiffBuilder *p){
   blob_append(p->pOut, "0]", 2);
@@ -1972,8 +1892,9 @@ static DiffBuilder *dfjsonNew(Blob *pOut){
 }
 
 /************************* DiffBuilderUnified********************************/
-
-/* Accumulator strategy:
+/* This module generates a unified diff for HTML
+**
+** Accumulator strategy:
 **
 **    *   Delete line numbers are output directly to p->pOut
 **    *   Insert line numbers accumulate in p->aCol[0].
@@ -2041,7 +1962,6 @@ static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
   p->lnRight += n;
 }
 static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
   dfunifiedStartRow(p);
   dfunifiedFinishDelete(p);
   dfunifiedFinishInsert(p);
@@ -2050,21 +1970,19 @@ static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
   blob_appendf(p->pOut,"%d\n", p->lnLeft);
   blob_appendf(&p->aCol[0],"%d\n",p->lnRight);
   blob_append_char(&p->aCol[1], '\n');
-  jsonize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n, &iCol);
+  htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
   blob_append_char(&p->aCol[2], '\n');
 }
 static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
   dfunifiedStartRow(p);
   p->lnRight++;
   blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
   blob_append(&p->aCol[4], "<ins>", 5);
-  jsonize_to_blob(&p->aCol[4], pLine->z, (int)pLine->n, &iCol);
+  htmlize_to_blob(&p->aCol[4], pLine->z, (int)pLine->n);
   blob_append(&p->aCol[4], "</ins>\n", 7);
   p->nPending++;
 }
 static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
   dfunifiedStartRow(p);
   dfunifiedFinishInsert(p);
   if( p->eState==0 ){
@@ -2078,11 +1996,10 @@ static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
   blob_append_char(&p->aCol[0],'\n');
   blob_append(&p->aCol[1],"-\n",2);
   blob_append(&p->aCol[2], "<del>", 5);
-  jsonize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n, &iCol);
+  htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
   blob_append(&p->aCol[2], "</del>\n", 7);
 }
 static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  int iCol;
   dfunifiedStartRow(p);
   if( p->eState==0 ){
     dfunifiedFinishInsert(p);
@@ -2096,21 +2013,18 @@ static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append_char(&p->aCol[0], '\n');
   blob_append(&p->aCol[1], "-\n", 2);
 
-  iCol = 0;
-  jsonize_to_blob(&p->aCol[2], pX->z,  pX->n, &iCol);
+  htmlize_to_blob(&p->aCol[2], pX->z,  pX->n);
   blob_append_char(&p->aCol[2], '\n');
 
   blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
 
-  iCol = 0;
-  jsonize_to_blob(&p->aCol[4], pY->z,  pY->n, &iCol);
+  htmlize_to_blob(&p->aCol[4], pY->z,  pY->n);
   blob_append_char(&p->aCol[4], '\n');
   p->nPending++;
 }
 static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
-  int iCol;
   ChangeSpan span;
   oneLineChange(pX, pY, &span);
   dfunifiedStartRow(p);
@@ -2126,35 +2040,35 @@ static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append_char(&p->aCol[0], '\n');
   blob_append(&p->aCol[1], "-\n", 2);
 
-  for(i=x=iCol=0; i<span.n; i++){
+  for(i=x=0; i<span.n; i++){
     int ofst = span.a[i].iStart1;
     int len = span.a[i].iLen1;
     if( len ){
-      jsonize_to_blob(&p->aCol[2], pX->z+x, ofst - x, &iCol);
+      htmlize_to_blob(&p->aCol[2], pX->z+x, ofst - x);
       x = ofst;
       blob_append(&p->aCol[2], "<del>", 5);
-      jsonize_to_blob(&p->aCol[2], pX->z+x, len, &iCol);
+      htmlize_to_blob(&p->aCol[2], pX->z+x, len);
       x += len;
       blob_append(&p->aCol[2], "</del>", 6);
     }
   }
-  if( x<pX->n ) jsonize_to_blob(&p->aCol[2], pX->z+x,  pX->n - x, &iCol);
+  htmlize_to_blob(&p->aCol[2], pX->z+x,  pX->n - x);
   blob_append_char(&p->aCol[2], '\n');
 
   blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
-  for(i=x=iCol=0; i<span.n; i++){
+  for(i=x=0; i<span.n; i++){
     int ofst = span.a[i].iStart2;
     int len = span.a[i].iLen2;
     if( len ){
-      jsonize_to_blob(&p->aCol[4], pY->z+x, ofst - x, &iCol);
+      htmlize_to_blob(&p->aCol[4], pY->z+x, ofst - x);
       x = ofst;
       blob_append(&p->aCol[4], "<ins>", 5);
-      jsonize_to_blob(&p->aCol[4], pY->z+x, len, &iCol);
+      htmlize_to_blob(&p->aCol[4], pY->z+x, len);
       x += len;
       blob_append(&p->aCol[4], "</ins>", 6);
     }
   }
-  if( x<pY->n ) jsonize_to_blob(&p->aCol[4], pY->z+x,  pY->n - x, &iCol);
+  htmlize_to_blob(&p->aCol[4], pY->z+x,  pY->n - x);
   blob_append_char(&p->aCol[4], '\n');
   p->nPending++;
 }
@@ -2186,8 +2100,9 @@ static DiffBuilder *dfunifiedNew(Blob *pOut){
 }
 
 /************************* DiffBuilderSplit  ******************************/
-
-/* Accumulator strategy:
+/* This module generates a side-by-side diff for HTML.
+**
+** Accumulator strategy:
 **
 **    *   Left line numbers are output directly to p->pOut
 **    *   Left text accumulates in p->aCol[0].
@@ -2253,21 +2168,19 @@ static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
   p->lnRight += n;
 }
 static void dfsplitCommon(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
   dfsplitStartRow(p);
   dfsplitChangeState(p, 0);
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
+  htmlize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n);
   blob_append_char(&p->aCol[0], '\n');
   blob_append_char(&p->aCol[1], '\n');
   blob_appendf(&p->aCol[2],"%d\n",p->lnRight);
-  jsonize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n, &iCol);
+  htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
   blob_append_char(&p->aCol[3], '\n');
 }
 static void dfsplitInsert(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
   dfsplitStartRow(p);
   dfsplitChangeState(p, 2);
   p->lnRight++;
@@ -2276,83 +2189,78 @@ static void dfsplitInsert(DiffBuilder *p, const DLine *pLine){
   blob_append(&p->aCol[1], "&gt;\n", -1);
   blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
   blob_append(&p->aCol[3], "<ins>", 5);
-  jsonize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n, &iCol);
+  htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
   blob_append(&p->aCol[3], "</ins>\n", 7);
 }
 static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
-  int iCol = 0;
   dfsplitStartRow(p);
   dfsplitChangeState(p, 1);
   p->lnLeft++;
   blob_appendf(p->pOut,"%d\n", p->lnLeft);
   blob_append(&p->aCol[0], "<del>", 5);
-  jsonize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n, &iCol);
+  htmlize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n);
   blob_append(&p->aCol[0], "</del>\n", 7);
   blob_append(&p->aCol[1], "&lt;\n", -1);
   blob_append_char(&p->aCol[2],'\n');
   blob_append_char(&p->aCol[3],'\n');
 }
 static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  int iCol;
   dfsplitStartRow(p);
   dfsplitChangeState(p, 3);
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  iCol = 0;
-  jsonize_to_blob(&p->aCol[0], pX->z,  pX->n, &iCol);
+  htmlize_to_blob(&p->aCol[0], pX->z,  pX->n);
   blob_append_char(&p->aCol[0], '\n');
 
   blob_append(&p->aCol[1], "|\n", 2);
 
   blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
 
-  iCol = 0;
-  jsonize_to_blob(&p->aCol[3], pY->z,  pY->n, &iCol);
+  htmlize_to_blob(&p->aCol[3], pY->z,  pY->n);
   blob_append_char(&p->aCol[3], '\n');
 }
 static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
-  int iCol;
-  ChangeSpan span;
+   ChangeSpan span;
   oneLineChange(pX, pY, &span);
   dfsplitStartRow(p);
   dfsplitChangeState(p, 3);
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  for(i=x=iCol=0; i<span.n; i++){
+  for(i=x=0; i<span.n; i++){
     int ofst = span.a[i].iStart1;
     int len = span.a[i].iLen1;
     if( len ){
-      jsonize_to_blob(&p->aCol[0], pX->z+x, ofst - x, &iCol);
+      htmlize_to_blob(&p->aCol[0], pX->z+x, ofst - x);
       x = ofst;
       blob_append(&p->aCol[0], "<del>", 5);
-      jsonize_to_blob(&p->aCol[0], pX->z+x, len, &iCol);
+      htmlize_to_blob(&p->aCol[0], pX->z+x, len);
       x += len;
       blob_append(&p->aCol[0], "</del>", 6);
     }
   }
-  if( x<pX->n ) jsonize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x, &iCol);
+  htmlize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x);
   blob_append_char(&p->aCol[0], '\n');
 
   blob_append(&p->aCol[1], "|\n", 2);
 
   blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
-  for(i=x=iCol=0; i<span.n; i++){
+  for(i=x=0; i<span.n; i++){
     int ofst = span.a[i].iStart2;
     int len = span.a[i].iLen2;
     if( len ){
-      jsonize_to_blob(&p->aCol[3], pY->z+x, ofst - x, &iCol);
+      htmlize_to_blob(&p->aCol[3], pY->z+x, ofst - x);
       x = ofst;
       blob_append(&p->aCol[3], "<ins>", 5);
-      jsonize_to_blob(&p->aCol[3], pY->z+x, len, &iCol);
+      htmlize_to_blob(&p->aCol[3], pY->z+x, len);
       x += len;
       blob_append(&p->aCol[3], "</ins>", 6);
     }
   }
-  if( x<pY->n ) jsonize_to_blob(&p->aCol[3], pY->z+x,  pY->n - x, &iCol);
+  htmlize_to_blob(&p->aCol[3], pY->z+x,  pY->n - x);
   blob_append_char(&p->aCol[3], '\n');
 }
 static void dfsplitEnd(DiffBuilder *p){
@@ -3214,10 +3122,20 @@ u64 diff_options(void){
 
 /*
 ** COMMAND: test-diff
+** COMMAND: xdiff
 **
-** Usage: %fossil [options] FILE1 FILE2
+** Usage: %fossil xdiff [options] FILE1 FILE2
 **
-** Print the difference between two files.  The usual diff options apply.
+** This is the "external diff" feature.  By "external" here we mean a diff
+** applied to files that are not under version control.  See the "diff"
+** command for computing differences between files that are under control.
+**
+** This command prints the differences between the two files FILE1 and FILE2.
+** all of the usual diff command-line options apply.  See the "diff" command
+** for a full list of command-line options.
+**
+** This command used to be called "test-diff".  The older "test-diff" spelling
+** still works, for compatibility.
 */
 void test_diff_cmd(void){
   Blob a, b, out;
