@@ -138,8 +138,16 @@ proc readDiffs {fossilcmd} {
             .txtB insert end $x -
           }
           if {$i+2<$nn} {
-            .txtA insert end [lindex $line [expr {$i+1}]] chng
-            .txtB insert end [lindex $line [expr {$i+2}]] chng
+            set x1 [lindex $line [expr {$i+1}]]
+            set x2 [lindex $line [expr {$i+2}]]
+            if {"$x1" eq ""} {
+              .txtB insert end $x2 add
+            } elseif {"$x2" eq ""} {
+              .txtA insert end $x1 rm
+            } else {
+              .txtA insert end $x1 chng
+              .txtB insert end $x2 chng
+            }
           }
         }
         .txtA insert end \n -
