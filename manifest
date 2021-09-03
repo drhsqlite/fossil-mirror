@@ -1,5 +1,5 @@
-C On\swindows,\smake\ssure\stemporary\spathnames\scontaining\snon-ASCII\scharacters\sare\nhandled\scorrectly.\s\sAdd\sthe\sfossil_freopen()\swrapper\saround\sfreopen()\sfor\nportability.
-D 2021-09-03T12:07:18.789
+C Fix\sto\sthe\s--ssl-identity\sissue\sdescribed\sat\n[forum:/forumpost/6e2b2ee5316b7aef|forum\spost\s6e2b2ee5316b7aef].
+D 2021-09-03T12:21:55.816
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -512,7 +512,7 @@ F src/hook.c e1a759e54877800dd86b17355a8f07f2caebb325c0f2d014473b47a5b4099d28
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c 2a94ef830482f340d298b9482fa89c7aaff2e2b754b1ecbbc708fba8da6d2c7f
 F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4424c
-F src/http_ssl.c 1b352f7ae0595dacfa2a96e439693acb4fcceec9b6fb383538da40c82b8b1b23
+F src/http_ssl.c e414dce084c13bf35da951f45dc5ffdaed195f06ec6cfeb0fc22a83bee5bbbee
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
 F src/info.c 03a86b2705038d7747b7a8c51b8e5d6b96a674aa8aba2c9de5e3481a54c1e5ab
@@ -996,8 +996,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a4e87a3b6cd7b9e3234c78d1e4aa6882c6ffbbfab3eb5e7d36ebdfba5b6f21c 963de841f2e2dfd54d977f745eba44c4df9d6b9f1c3b50740d2f7714ed10b6e1
-R 3df0810b6679ece5a128c6de9fa344d3
-T +closed 963de841f2e2dfd54d977f745eba44c4df9d6b9f1c3b50740d2f7714ed10b6e1
+P f48e48f664de9bbf2a06550b9746fddf29320632efc70d42a5b69f5aff9487c0
+R 2af4f3e863aad8ff1689ef96e6b43648
 U drh
-Z 00fc6e7e36ae2e7082fb66b6583c182a
+Z 016fe55ee16c0deabec8bb417067f6bf
