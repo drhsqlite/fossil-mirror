@@ -1,5 +1,5 @@
-C First\sattempt\sat\sdocumenting\sthe\snew\sdiff\sweb\slayout.
-D 2021-09-03T13:39:30.736
+C Adjust\sCSS\sto\sshow\sblue\schange\stext\sfor\sthe\s--by\soption.
+D 2021-09-03T14:05:22.022
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -468,7 +468,7 @@ F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00
 F src/diff.c 914365b40de1814718aa93494ab8abe7d776140779edaddbca5b0b31bfd955f7
 F src/diff.js e3e9028a24d074936417770834e90ebd82d59a8967cdba70195da89eba0c1cfd
 F src/diff.tcl 8acd5ecf414432ab535cfb595e04406d1f17e34b31d398ac24a704dbec760103
-F src/diffcmd.c 2cfa86731ce054f8224f0aa185aa62725d09bc989acf44afcd26862ef85a488c
+F src/diffcmd.c 6576131d8f6c49ae45fcd6d29536776bb90f611286e4b123bed604ee12d06443
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00b5e02ab2fdc4c13cbe0fa075fdf655f2b0ab0eb746d19bb121a54281198bfc
-R 5117f7e6d7090810a1462bf9e2a9580f
+P 07d28ec886cdee51d47f43f663d15eb02735cca8446907392220eb016500014d
+R a2e49f4b8cbb8cd5934a79bd9880e6b8
 U drh
-Z 029224609e60e574f5f0bf3b08c075cb
+Z 513707ca703fb38cd4bb6db87c909dd1

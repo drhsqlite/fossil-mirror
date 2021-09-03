@@ -253,7 +253,7 @@ static const char zWebpageHdr[] =
 @   text-decoration: none;
 @   font-weight: bold;
 @ }
-@ td.difftxt del mark {
+@ td.difftxt del > del.edit {
 @   background-color: #c0c0ff;
 @   text-decoration: none;
 @   font-weight: bold;
@@ -267,7 +267,7 @@ static const char zWebpageHdr[] =
 @   text-decoration: none;
 @   font-weight: bold;
 @ }
-@ td.difftxt ins mark {
+@ td.difftxt ins > ins.edit {
 @   background-color: #c0c0ff;
 @   text-decoration: none;
 @   font-weight: bold;
