@@ -1595,7 +1595,11 @@ static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     if( len ){
       htmlize_to_blob(&p->aCol[0], pX->z+x, ofst - x);
       x = ofst;
-      blob_append(&p->aCol[0], "<del>", 5);
+      if( span.a[i].iLen2 ){
+        blob_append(&p->aCol[0], "<del class='edit'>", -1);
+      }else{
+        blob_append(&p->aCol[0], "<del>", 5);
+      }
       htmlize_to_blob(&p->aCol[0], pX->z+x, len);
       x += len;
       blob_append(&p->aCol[0], "</del>", 6);
@@ -1613,7 +1617,11 @@ static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
     if( len ){
       htmlize_to_blob(&p->aCol[3], pY->z+x, ofst - x);
       x = ofst;
-      blob_append(&p->aCol[3], "<ins>", 5);
+      if( span.a[i].iLen1 ){
+        blob_append(&p->aCol[3], "<ins class='edit'>", -1);
+      }else{
+        blob_append(&p->aCol[3], "<ins>", 5);
+      }
       htmlize_to_blob(&p->aCol[3], pY->z+x, len);
       x += len;
       blob_append(&p->aCol[3], "</ins>", 6);

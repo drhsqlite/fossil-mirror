@@ -575,12 +575,22 @@ td.difftxt del > del {
   text-decoration: none;
   font-weight: bold;
 }
+td.difftxt del > del.edit {
+  background-color: #c0c0ff;
+  text-decoration: none;
+  font-weight: bold;
+}
 td.difftxt ins {
   background-color: #dafbe1;
   text-decoration: none;
 }
 td.difftxt ins > ins {
   background-color: #a0e4b2;
+  text-decoration: none;
+  font-weight: bold;
+}
+td.difftxt ins > ins.edit {
+  background-color: #c0c0ff;
   text-decoration: none;
   font-weight: bold;
 }
