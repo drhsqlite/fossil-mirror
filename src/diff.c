@@ -102,6 +102,11 @@ struct DLine {
 #define LENGTH(X)   ((X)->n)
 
 /*
+** Number of diff chunks generated
+*/
+static int nChunk = 0;
+
+/*
 ** A context for running a raw diff.
 **
 ** The aEdit[] array describes the raw diff.  Each triple of integers in
@@ -1414,7 +1419,8 @@ static void dfunifiedFinishRow(DiffBuilder *p){
 }
 static void dfunifiedStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
-  blob_append(p->pOut,"<tr><td class=\"diffln difflnl\"><pre>\n", -1);
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+                       "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
   p->eState = 0;
   p->nPending = 0;
 }
@@ -1626,7 +1632,8 @@ static void dfsplitFinishRow(DiffBuilder *p){
 }
 static void dfsplitStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
-  blob_append(p->pOut,"<tr><td class=\"diffln difflnl\"><pre>\n", -1);
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+                       "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
   p->eState = 0;
 }
 static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
