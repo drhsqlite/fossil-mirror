@@ -1,5 +1,5 @@
-C Restore\sthe\sblue\scolor\sfor\schanged\stext\sin\sside-by-side\sdiffs.
-D 2021-09-03T12:33:13.414
+C First\sattempt\sat\sdocumenting\sthe\snew\sdiff\sweb\slayout.
+D 2021-09-03T13:39:30.736
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -845,6 +845,8 @@ F www/contribute.wiki c71a5a680b2b99926037cbf3b82122a5adc44063892dc4bc050495f90a
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f6ffb
+F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272bf3
+F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md fee4be72cd5a131f2db2a1dc0ba5eb5fd1a7bab2a46b7c7253200b2916c64dc0
@@ -996,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17dde4c75b81ad77762f915c8f9fd43dfc018f5ca60ad74eec8198d35adeafb7
-R f3630e7ff187987b707fcb91aac434fe
+P 00b5e02ab2fdc4c13cbe0fa075fdf655f2b0ab0eb746d19bb121a54281198bfc
+R 5117f7e6d7090810a1462bf9e2a9580f
 U drh
-Z 92495ba82ec495272429c92ba92997d8
+Z 029224609e60e574f5f0bf3b08c075cb
