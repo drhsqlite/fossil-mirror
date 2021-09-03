@@ -85,10 +85,6 @@ a {
 }
 a:active,
 a:hover,
-pre.udiff:focus,
-table.sbsdiffcols:focus {
-  outline: 0
-}
 abbr[title] {
   border-bottom: 1px dotted
 }
@@ -1121,51 +1117,53 @@ table.login_out .login_out_label {
   font-weight: 700;
   text-align: right
 }
-pre.udiff,
-table.sbsdiffcols {
+table.diff {
   width: 100%;
   overflow: auto;
   padding: 0 5px;
   font-size: 1rem;
   background: #000;
-  border-radius: 5px
+  border-radius: 5px;
 }
-pre.udiff,
-pre.udiff pre,
-table.sbsdiffcols pre {
-  font-size: 1.15rem
+table.diff pre {
+  font-size: 1.15rem;
+  scrollbar-color: black #999;
 }
-pre.udiff {
+table.udiff pre {
   padding: 10px 0
 }
-div.difftxtcol {
+td.difftxt {
   width: 52rem;
-  overflow-x: auto
 }
-span.diffchng {
-  background-color: #8080e8;
-  color: #000
-}
-span.diffadd {
+td.diffln ins {
   background-color: #559855;
-  color: #000
+  color: #000;
+  text-decoration: none;
 }
-span.diffrm {
+td.diffln del {
   background-color: #c55;
-  color: #000
+  color: #000;
+  text-decoration: none;
 }
-div.diffmkrcol {
-  padding: 0 1em;
-  background: #111
+td.difftxt del {
+  background-color: inherit;
+  text-decoration: none;
 }
-span.diffhr {
-  display: inline-block;
-  margin: .5em 0 1em;
-  color: #555
+td.difftxt del > del {
+  background-color: #c55;
+  color: #000;
+  text-decoration: none;
 }
-span.diffln {
-  color: #666
+td.difftxt ins {
+  background-color: inherit;
+  text-decoration: none;
 }
+td.difftxt ins > ins {
+  background-color: #559855;
+  color: #000;
+  text-decoration: none;
+}
+
 table.report {
   width: 100%;
   cursor: auto;

@@ -18,8 +18,8 @@
       txtCols[i].style.width = width + 'px';
       txtPres[i].style.maxWidth = width + 'px';
       txtPres[i].style.width = width + 'px';
-      txtCols[i].onscroll = function(e){
-        txtCols[0].scrollLeft = txtCols[1].scrollLeft = this.scrollLeft;
+      txtPres[i].onscroll = function(e){
+        txtPres[0].scrollLeft = txtPres[1].scrollLeft = this.scrollLeft;
       };
     }
     diff.tabIndex = 0;
