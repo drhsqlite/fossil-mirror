@@ -365,7 +365,24 @@ void blob_append_xfer(Blob *pTo, Blob *pFrom){
 ** and JSON.  Double-quotes are added to both ends.  Double-quote and
 ** backslash characters are escaped.
 */
-void blob_append_string_literal(Blob *pOut, const char *z, int n){
+void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
+  int i;
+  blob_append_char(pOut, '"');
+  for(i=0; i<n; i++){
+    switch( z[i] ){
+      case '[':
+      case ']':
+      case '$':
+      case '"':
+      case '\\':
+        blob_append_char(pOut, '\\');
+      default:
+        blob_append_char(pOut, z[i]);
+    }
+  }
+  blob_append_char(pOut, '"');
+}
+void blob_append_json_literal(Blob *pOut, const char *z, int n){
   int i;
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
@@ -373,7 +390,6 @@ void blob_append_string_literal(Blob *pOut, const char *z, int n){
       case '"':
       case '\\':
         blob_append_char(pOut, '\\');
-        /* Fall thru */
       default:
         blob_append_char(pOut, z[i]);
     }

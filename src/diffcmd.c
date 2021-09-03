@@ -159,9 +159,9 @@ void diff_print_filenames(
       pOut = &x;
     }
     blob_append(pOut, "FILE ", 5);
-    blob_append_string_literal(pOut, zLeft, (int)strlen(zLeft));
+    blob_append_tcl_literal(pOut, zLeft, (int)strlen(zLeft));
     blob_append_char(pOut, ' ');
-    blob_append_string_literal(pOut, zRight, (int)strlen(zRight));
+    blob_append_tcl_literal(pOut, zRight, (int)strlen(zRight));
     blob_append_char(pOut, '\n');
     if( !diffBlob ){
       fossil_print("%s", blob_str(pOut));

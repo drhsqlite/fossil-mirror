@@ -1133,24 +1133,24 @@ static void dftclSkip(DiffBuilder *p, unsigned int n, int isFinal){
 }
 static void dftclCommon(DiffBuilder *p, const DLine *pLine){
   blob_appendf(p->pOut, "COM ");
-  blob_append_string_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
 static void dftclInsert(DiffBuilder *p, const DLine *pLine){
   blob_append(p->pOut, "INS ", -1);
-  blob_append_string_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
 static void dftclDelete(DiffBuilder *p, const DLine *pLine){
   blob_append(p->pOut, "DEL ", -1);
-  blob_append_string_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
   blob_append_char(p->pOut, '\n');
 }
 static void dftclReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append(p->pOut, "EDIT ", -1);
-  blob_append_string_literal(p->pOut, pX->z, pX->n);
+  blob_append_tcl_literal(p->pOut, pX->z, pX->n);
   blob_append_char(p->pOut, ' ');
-  blob_append_string_literal(p->pOut, pY->z, pY->n);
+  blob_append_tcl_literal(p->pOut, pY->z, pY->n);
   blob_append_char(p->pOut, '\n');
 }
 static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
@@ -1160,18 +1160,18 @@ static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   oneLineChange(pX, pY, &span);
   for(i=x=0; i<span.n; i++){
     blob_append_char(p->pOut, ' ');
-    blob_append_string_literal(p->pOut, pX->z + x, span.a[i].iStart1 - x);
+    blob_append_tcl_literal(p->pOut, pX->z + x, span.a[i].iStart1 - x);
     x = span.a[i].iStart1;
     blob_append_char(p->pOut, ' ');
-    blob_append_string_literal(p->pOut, pX->z + x, span.a[i].iLen1);
+    blob_append_tcl_literal(p->pOut, pX->z + x, span.a[i].iLen1);
     x += span.a[i].iLen1;
     blob_append_char(p->pOut, ' ');
-    blob_append_string_literal(p->pOut, 
+    blob_append_tcl_literal(p->pOut, 
                          pY->z + span.a[i].iStart2, span.a[i].iLen2);
   }
   if( x<pX->n ){
     blob_append_char(p->pOut, ' ');
-    blob_append_string_literal(p->pOut, pX->z + x, pX->n - x);
+    blob_append_tcl_literal(p->pOut, pX->z + x, pX->n - x);
   }
   blob_append_char(p->pOut, '\n');
 }
@@ -1217,24 +1217,24 @@ static void dfjsonSkip(DiffBuilder *p, unsigned int n, int isFinal){
 }
 static void dfjsonCommon(DiffBuilder *p, const DLine *pLine){
   blob_append(p->pOut, "2,",2);
-  blob_append_string_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
   blob_append(p->pOut, ",\n",2);
 }
 static void dfjsonInsert(DiffBuilder *p, const DLine *pLine){
   blob_append(p->pOut, "3,",2);
-  blob_append_string_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
   blob_append(p->pOut, ",\n",2);
 }
 static void dfjsonDelete(DiffBuilder *p, const DLine *pLine){
   blob_append(p->pOut, "4,",2);
-  blob_append_string_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
   blob_append(p->pOut, ",\n",2);
 }
 static void dfjsonReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append(p->pOut, "5,[\"\",",-1);
-  blob_append_string_literal(p->pOut, pX->z, (int)pX->n);
+  blob_append_json_literal(p->pOut, pX->z, (int)pX->n);
   blob_append(p->pOut, ",",1);
-  blob_append_string_literal(p->pOut, pY->z, (int)pY->n);
+  blob_append_json_literal(p->pOut, pY->z, (int)pY->n);
   blob_append(p->pOut, ",\"\"],\n",-1);
 }
 static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
@@ -1243,17 +1243,17 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append(p->pOut, "5,[", 3);
   oneLineChange(pX, pY, &span);
   for(i=x=0; i<span.n; i++){
-    blob_append_string_literal(p->pOut, pX->z + x, span.a[i].iStart1 - x);
+    blob_append_json_literal(p->pOut, pX->z + x, span.a[i].iStart1 - x);
     x = span.a[i].iStart1;
     blob_append_char(p->pOut, ',');
-    blob_append_string_literal(p->pOut, pX->z + x, span.a[i].iLen1);
+    blob_append_json_literal(p->pOut, pX->z + x, span.a[i].iLen1);
     x += span.a[i].iLen1;
     blob_append_char(p->pOut, ',');
-    blob_append_string_literal(p->pOut, 
+    blob_append_json_literal(p->pOut, 
                          pY->z + span.a[i].iStart2, span.a[i].iLen2);
   }
   blob_append_char(p->pOut, ',');
-  blob_append_string_literal(p->pOut, pX->z + x, pX->n - x);
+  blob_append_json_literal(p->pOut, pX->z + x, pX->n - x);
   blob_append(p->pOut, "],\n",3);
 }
 static void dfjsonEnd(DiffBuilder *p){
