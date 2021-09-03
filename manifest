@@ -1,5 +1,5 @@
-C Adjust\sCSS\sto\sshow\sblue\schange\stext\sfor\sthe\s--by\soption.
-D 2021-09-03T14:05:22.022
+C Add\sthe\stest-line-diff\scommand\sfor\stesting\sthe\soneLineChange()\sroutine\nof\sthe\sdiff\slogic.
+D 2021-09-03T14:33:58.663
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,7 +465,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 914365b40de1814718aa93494ab8abe7d776140779edaddbca5b0b31bfd955f7
+F src/diff.c 819ae13cd9ca6a5fc92a23ef9f9e000826fa4cbd864dcf893faa12a81bf7c926
 F src/diff.js e3e9028a24d074936417770834e90ebd82d59a8967cdba70195da89eba0c1cfd
 F src/diff.tcl 8acd5ecf414432ab535cfb595e04406d1f17e34b31d398ac24a704dbec760103
 F src/diffcmd.c 6576131d8f6c49ae45fcd6d29536776bb90f611286e4b123bed604ee12d06443
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07d28ec886cdee51d47f43f663d15eb02735cca8446907392220eb016500014d
-R a2e49f4b8cbb8cd5934a79bd9880e6b8
+P 4381c7ea8c9873d3158fb96ac0f5d051061bbe2ea652a2a33457b85f63505e9d
+R ced5a3544340f4114b393e48d41c2176
 U drh
-Z 513707ca703fb38cd4bb6db87c909dd1
+Z 2eedaaa2e7f67e7284128a29377ed10c

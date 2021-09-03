@@ -711,6 +711,57 @@ static void oneLineChange(
 }
 
 /*
+** COMMAND: test-line-diff
+** Usage: %fossil% test-line-diff STRING1 STRING2
+**
+** Show the differences between the two strings.  Used for testing
+** the oneLineChange() routine in the diff logic.
+*/
+void test_line_diff(void){
+  DLine a, b;
+  ChangeSpan span;
+  int i, j, x;
+  if( g.argc!=4 ) usage("STRING1 STRING2");
+  a.z = g.argv[2];
+  a.n = (int)strlen(a.z);
+  b.z = g.argv[3];
+  b.n = (int)strlen(b.z);
+  oneLineChange(&a, &b, &span);
+  fossil_print("left:  [%s]\n", a.z);
+  for(i=x=0; i<span.n; i++){
+    int ofst = span.a[i].iStart1;
+    int len = span.a[i].iLen1;
+    if( len ){
+      if( x==0 ){ fossil_print("%*s", 8, ""); }
+      while( ofst > x ){
+        if( (a.z[x]&0xc0)!=0x80 ) fossil_print(" ");
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (a.z[x]&0xc0)!=0x80 ) fossil_print("%d",i);
+      }
+    }
+  }
+  if( x ) fossil_print("\n");
+  fossil_print("right: [%s]\n", b.z);
+  for(i=x=0; i<span.n; i++){
+    int ofst = span.a[i].iStart2;
+    int len = span.a[i].iLen2;
+    if( len ){
+      if( x==0 ){ fossil_print("%*s", 8, ""); }
+      while( ofst > x ){
+        if( (b.z[x]&0xc0)!=0x80 ) fossil_print(" ");
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (b.z[x]&0xc0)!=0x80 ) fossil_print("%d",i);
+      }
+    }
+  }
+  if( x ) fossil_print("\n");
+}
+
+/*
 ** Minimum of two values
 */
 static int minInt(int a, int b){ return a<b ? a : b; }
