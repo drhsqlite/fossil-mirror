@@ -74,6 +74,8 @@
   dom.span = dom.createElemFactory('span');
   dom.strong = dom.createElemFactory('strong');
   dom.em = dom.createElemFactory('em');
+  dom.ins = dom.createElemFactory('ins');
+  dom.del = dom.createElemFactory('del');
   /**
      Returns a LABEL element. If passed an argument,
      it must be an id or an HTMLElement with an id,

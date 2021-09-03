@@ -367,7 +367,9 @@ void clone_ssh_find_options(void){
 */
 void clone_ssh_db_set_options(void){
   if( g.zSshCmd && g.zSshCmd[0] ){
+    db_unprotect(PROTECT_ALL);
     db_set("ssh-command", g.zSshCmd, 0);
+    db_protect_pop();
   }
 }
 

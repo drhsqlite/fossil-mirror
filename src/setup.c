@@ -136,8 +136,6 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Notification", "setup_notification",
       "Automatic notifications of changes via outbound email");
-    setup_menu_entry("Email-Server", "setup_smtp",
-      "Activate and configure the built-in email server");
     setup_menu_entry("Transfers", "xfersetup",
       "Configure the transfer system for this repository");
   }
