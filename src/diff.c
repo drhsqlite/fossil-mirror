@@ -1420,10 +1420,8 @@ static void dfunifiedStartRow(DiffBuilder *p){
 }
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
   dfunifiedFinishRow(p);
-  if( (p->lnLeft || p->lnRight) && !isFinal ){
-    blob_append(p->pOut, "<tr><td class=\"diffln difflne\">"
-                         "&#xfe19;</td><td></td><td></td></tr>\n", -1);
-  }
+  blob_append(p->pOut, "<tr><td class=\"diffln difflne\">"
+                       "&#xfe19;</td><td></td><td></td></tr>\n", -1);
   p->lnLeft += n;
   p->lnRight += n;
 }
@@ -1633,13 +1631,11 @@ static void dfsplitStartRow(DiffBuilder *p){
 }
 static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
   dfsplitFinishRow(p);
-  if( (p->lnLeft || p->lnRight) && !isFinal ){
-    blob_append(p->pOut, 
-       "<tr><td class=\"diffln difflnl difflne\">&#xfe19;</td>"
-       "<td></td><td></td>"
-       "<td class=\"diffln difflnr difflne\">&#xfe19;</td>"
-       "<td/td></tr>\n", -1);
-  }
+  blob_append(p->pOut, 
+     "<tr><td class=\"diffln difflnl difflne\">&#xfe19;</td>"
+     "<td></td><td></td>"
+     "<td class=\"diffln difflnr difflne\">&#xfe19;</td>"
+     "<td/td></tr>\n", -1);
   p->lnLeft += n;
   p->lnRight += n;
 }

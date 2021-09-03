@@ -214,6 +214,7 @@ static const char zWebpageHdr[] =
 @ table.diff {
 @   width: 98%;
 @   border-spacing: 0;
+@   border: 1px solid black;
 @ }
 @ table.diff td {
 @   vertical-align: top;
