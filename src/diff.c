@@ -460,7 +460,7 @@ static void contextDiff(
 #define MX_CSN  8  /* Maximum number of change spans across a change region */
 
 /*
-** A description of zero or more (up to SBS_CSN) areas of commonality
+** A description of zero or more (up to MX_CSN) areas of difference
 ** between two lines of text.
 */
 typedef struct LineChange LineChange;
@@ -534,7 +534,7 @@ static int textLineChanges(
   p->a[0].iStart2 = 0;
   p->a[0].iLen2 = nB;
   p->a[0].isMin = 0;
-  while( p->n<MX_CSN ){
+  while( p->n<MX_CSN-1 ){
     int mxi = -1;
     int mxLen = -1;
     int x, i;
@@ -572,6 +572,74 @@ static int textLineChanges(
   }
   return p->n;
 }
+
+/*
+** Return true if the string starts with n spaces
+*/
+static int allSpaces(const char *z, int n){
+  int i;
+  for(i=0; i<n && fossil_isspace(z[i]); i++){}
+  return i==n;
+}
+
+/*
+** Try to improve the human-readability of the LineChange p.
+**
+** (1)  If the first change span shows a change of indentation, try to
+**      move that indentation change to the left margin.
+**
+** (2)  Try to shift changes so that they begin or end with a space.
+*/
+static void improveReadability(
+  const char *zA,  /* Left line of the change */
+  const char *zB,  /* Right line of the change */
+  LineChange *p    /* The LineChange to be adjusted */
+){
+  int j, n, len;
+  if( p->n<1 ) return;
+
+  /* (1) Attempt to move indentation changes to the left margin */
+  if( p->a[0].iLen1==0
+   && (len = p->a[0].iLen2)>0
+   && (j = p->a[0].iStart2)>0
+   && zB[0]==zB[j]
+   && allSpaces(zB, j)
+  ){
+    for(n=1; n<len && n<j && zB[j]==zB[j+n]; n++){}
+    if( n<len ){
+      memmove(&p->a[1], &p->a[0], sizeof(p->a[0])*p->n);
+      p->n++;
+      p->a[0] = p->a[1];
+      p->a[1].iStart2 += n;
+      p->a[1].iLen2 -= n;
+      p->a[0].iLen2 = n;
+    }
+    p->a[0].iStart1 = 0;
+    p->a[0].iStart2 = 0;
+  }else
+  if( p->a[0].iLen2==0
+   && (len = p->a[0].iLen1)>0
+   && (j = p->a[0].iStart1)>0
+   && zA[0]==zA[j]
+   && allSpaces(zA, j)
+  ){
+    for(n=1; n<len && n<j && zA[j]==zA[j+n]; n++){}
+    if( n<len ){
+      memmove(&p->a[1], &p->a[0], sizeof(p->a[0])*p->n);
+      p->n++;
+      p->a[0] = p->a[1];
+      p->a[1].iStart1 += n;
+      p->a[1].iLen1 -= n;
+      p->a[0].iLen1 = n;
+    }
+    p->a[0].iStart1 = 0;
+    p->a[0].iStart2 = 0;
+  }
+
+  /* (2) Try to shift changes so that they begin or end with a
+  ** space.  (TBD) */
+}
+
 
 /*
 ** Given two lines of text, pFrom and pTo, compute a set of changes
@@ -664,6 +732,7 @@ static void oneLineChange(
     p->a[0].iLen1 = 0;
     p->a[0].iStart2 = nPrefix;
     p->a[0].iLen2 = nRight - nCommon;
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
@@ -674,6 +743,7 @@ static void oneLineChange(
     p->a[0].iLen1 = nLeft - nCommon;
     p->a[0].iStart2 = nPrefix;
     p->a[0].iLen2 = 0;
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
@@ -693,6 +763,7 @@ static void oneLineChange(
       p->a[i].iStart1 += nPrefix;
       p->a[i].iStart2 += nPrefix;
     }
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
@@ -702,6 +773,7 @@ static void oneLineChange(
   p->a[0].iLen1 = nLeft - nCommon;
   p->a[0].iStart2 = nPrefix;
   p->a[0].iLen2 = nRight - nCommon;
+  improveReadability(zLeft, zRight, p);
 }
 
 /*
@@ -1627,7 +1699,7 @@ static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
 static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
-   LineChange chng;
+  LineChange chng;
   oneLineChange(pX, pY, &chng);
   dfsplitStartRow(p);
   dfsplitChangeState(p, 3);

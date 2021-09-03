@@ -12,7 +12,8 @@
   function initDiff(diff){
     var txtCols = diff.querySelectorAll('td.difftxt');
     var txtPres = diff.querySelectorAll('td.difftxt pre');
-    var width = Math.max(txtPres[0].scrollWidth, txtPres[1].scrollWidth);
+    var width = 0;
+    if(txtPres.length>=2)Math.max(txtPres[0].scrollWidth, txtPres[1].scrollWidth);
     var i;
     for(i=0; i<txtCols.length; i++){
       txtCols[i].style.width = width + 'px';

@@ -1,5 +1,5 @@
-C Refactor\sthe\sname\sof\sthe\ssub-line\schange\sdetection\sobject.
-D 2021-09-03T18:45:22.356
+C Improved\salignment\sof\spartial\sline\sdiffs.\s\sMore\swork\sto\sbe\sdone\sin\sthis\sarea.\nAlso\sfix\sa\sproblem\sin\sdiff.js\sthat\swas\scausing\sproblems\swhen\scomparing\stwo\nempty\sfiles.
+D 2021-09-03T22:49:09.239
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,8 +465,8 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 992e6f179f041e48090e8253ea85047fc4ef079a57c449e51519064b0b9087a7
-F src/diff.js e3e9028a24d074936417770834e90ebd82d59a8967cdba70195da89eba0c1cfd
+F src/diff.c adafbb6e689d8281429d553e209591b8148f81abbac25bf84ce1f5be7018fc5a
+F src/diff.js ecf55157cb61aac69951705c8b4119ff03b5068fad64c48cf9d2279ab22950ec
 F src/diff.tcl 8acd5ecf414432ab535cfb595e04406d1f17e34b31d398ac24a704dbec760103
 F src/diffcmd.c fb610b4c947fc536dedb8a0bab92c8a473a61970dc2da9f5e6452ce73cda2275
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd2d27f01b6c80eee591be8d0b447c080136c06f8d2f593f9ea690d2ddcb5d5f
-R 6f17a23373f58a9b6c957113eee0503c
+P 3e08b15858b770fff871b60b60ae4ca66cf34aa04da58b01b3d0b2a308cfb72c
+R 3198bb4308827781a8ee882c9868a113
 U drh
-Z 95978ac648f10c0d7a41aade88084d17
+Z e28b67d758b43754a6b4d6c2ebc127e2
