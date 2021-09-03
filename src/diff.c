@@ -126,12 +126,6 @@ struct DContext {
   int (*xDiffer)(const DLine*,const DLine*); /* comparison function */
 };
 
-/* <span> text for change coloration
-*/
-static const char zClassRm[]   = "<span class=\"diffrm\">";
-static const char zClassAdd[]  = "<span class=\"diffadd\">";
-static const char zClassChng[] = "<span class=\"diffchng\">";
-
 /*
 ** Count the number of lines in the input string.  Include the last line
 ** in the count even if it lacks the \n terminator.  If an empty string
@@ -463,22 +457,22 @@ static void contextDiff(
   }
 }
 
-#define SBS_CSN  8  /* Maximum number of change spans across a change region */
+#define MX_CSN  8  /* Maximum number of change spans across a change region */
 
 /*
 ** A description of zero or more (up to SBS_CSN) areas of commonality
 ** between two lines of text.
 */
-typedef struct ChangeSpan ChangeSpan;
-struct ChangeSpan {
+typedef struct LineChange LineChange;
+struct LineChange {
   int n;            /* Number of change spans */
   struct Span {
-    int iStart1;    /* Byte offset to start of change on the left */
-    int iLen1;      /* Length of left change span in bytes */
-    int iStart2;    /* Byte offset to start of change span on the right */
-    int iLen2;      /* Length of right change span in bytes */
-    int isMin;      /* True if this span is known to have no useful subdivs */
-  } a[SBS_CSN];     /* Array of change spans, sorted order */
+    int iStart1;    /* Byte offset to start of a change on the left */
+    int iLen1;      /* Length of the left change in bytes */
+    int iStart2;    /* Byte offset to start of a change on the right */
+    int iLen2;      /* Length of the change on the right in bytes */
+    int isMin;      /* True if this change is known to have no useful subdivs */
+  } a[MX_CSN];     /* Array of change spans, sorted order */
 };
 
 /*
@@ -529,10 +523,10 @@ static int textLCS(
 ** Find the smallest spans that are different between two text strings that
 ** are known to be different on both ends.
 */
-static int textChangeSpans(
+static int textLineChanges(
   const char *zLeft,  int nA,       /* String on the left */
   const char *zRight,  int nB,      /* String on the right */
-  ChangeSpan *p                     /* Write results here */
+  LineChange *p                     /* Write results here */
 ){
   p->n = 1;
   p->a[0].iStart1 = 0;
@@ -540,7 +534,7 @@ static int textChangeSpans(
   p->a[0].iStart2 = 0;
   p->a[0].iLen2 = nB;
   p->a[0].isMin = 0;
-  while( p->n<SBS_CSN ){
+  while( p->n<MX_CSN ){
     int mxi = -1;
     int mxLen = -1;
     int x, i;
@@ -583,13 +577,13 @@ static int textChangeSpans(
 ** Given two lines of text, pFrom and pTo, compute a set of changes
 ** between those two lines, for enhanced display purposes.
 **
-** The result is written into the ChangeSpan object given by the
+** The result is written into the LineChange object given by the
 ** third parameter.
 */
 static void oneLineChange(
   const DLine *pLeft,  /* Left line of the change */
   const DLine *pRight, /* Right line of the change */
-  ChangeSpan *p        /* OUTPUT: Write the results here */
+  LineChange *p        /* OUTPUT: Write the results here */
 ){
   int nLeft;           /* Length of left line in bytes */
   int nRight;          /* Length of right line in bytes */
@@ -691,7 +685,7 @@ static void oneLineChange(
   nRightDiff = nRight - nCommon;
   if( nLeftDiff >= 4
    && nRightDiff >= 4
-   && textChangeSpans(&zLeft[nPrefix], nLeftDiff,
+   && textLineChanges(&zLeft[nPrefix], nLeftDiff,
                       &zRight[nPrefix], nRightDiff, p)>1
   ){
     int i;
@@ -719,18 +713,18 @@ static void oneLineChange(
 */
 void test_line_diff(void){
   DLine a, b;
-  ChangeSpan span;
+  LineChange chng;
   int i, j, x;
   if( g.argc!=4 ) usage("STRING1 STRING2");
   a.z = g.argv[2];
   a.n = (int)strlen(a.z);
   b.z = g.argv[3];
   b.n = (int)strlen(b.z);
-  oneLineChange(&a, &b, &span);
+  oneLineChange(&a, &b, &chng);
   fossil_print("left:  [%s]\n", a.z);
-  for(i=x=0; i<span.n; i++){
-    int ofst = span.a[i].iStart1;
-    int len = span.a[i].iLen1;
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
     if( len ){
       if( x==0 ){ fossil_print("%*s", 8, ""); }
       while( ofst > x ){
@@ -744,9 +738,9 @@ void test_line_diff(void){
   }
   if( x ) fossil_print("\n");
   fossil_print("right: [%s]\n", b.z);
-  for(i=x=0; i<span.n; i++){
-    int ofst = span.a[i].iStart2;
-    int len = span.a[i].iLen2;
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
     if( len ){
       if( x==0 ){ fossil_print("%*s", 8, ""); }
       while( ofst > x ){
@@ -1044,15 +1038,15 @@ static void dfdebugReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
 static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i, j;
   int x;
-  ChangeSpan span;
+  LineChange chng;
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut, "EDIT     %8u          %.*s\n",
                p->lnLeft, (int)pX->n, pX->z);
-  oneLineChange(pX, pY, &span);
-  for(i=x=0; i<span.n; i++){
-    int ofst = span.a[i].iStart1;
-    int len = span.a[i].iLen1;
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
     if( len ){
       if( x==0 ){ blob_appendf(p->pOut, "%*s", 25, ""); }
       while( ofst > x ){
@@ -1067,9 +1061,9 @@ static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   if( x ) blob_append_char(p->pOut, '\n');
   blob_appendf(p->pOut, "                %8u %.*s\n",
                p->lnRight, (int)pY->n, pY->z);
-  for(i=x=0; i<span.n; i++){
-    int ofst = span.a[i].iStart2;
-    int len = span.a[i].iLen2;
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
     if( len ){
       if( x==0 ){ blob_appendf(p->pOut, "%*s", 25, ""); }
       while( ofst > x ){
@@ -1155,19 +1149,19 @@ static void dftclReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
 }
 static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i, x;
-  ChangeSpan span;
+  LineChange chng;
   blob_append(p->pOut, "EDIT", 4);
-  oneLineChange(pX, pY, &span);
-  for(i=x=0; i<span.n; i++){
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_literal(p->pOut, pX->z + x, span.a[i].iStart1 - x);
-    x = span.a[i].iStart1;
+    blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iStart1 - x);
+    x = chng.a[i].iStart1;
     blob_append_char(p->pOut, ' ');
-    blob_append_tcl_literal(p->pOut, pX->z + x, span.a[i].iLen1);
-    x += span.a[i].iLen1;
+    blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
+    x += chng.a[i].iLen1;
     blob_append_char(p->pOut, ' ');
     blob_append_tcl_literal(p->pOut, 
-                         pY->z + span.a[i].iStart2, span.a[i].iLen2);
+                         pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
   }
   if( x<pX->n ){
     blob_append_char(p->pOut, ' ');
@@ -1239,18 +1233,18 @@ static void dfjsonReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
 }
 static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i, x;
-  ChangeSpan span;
+  LineChange chng;
   blob_append(p->pOut, "5,[", 3);
-  oneLineChange(pX, pY, &span);
-  for(i=x=0; i<span.n; i++){
-    blob_append_json_literal(p->pOut, pX->z + x, span.a[i].iStart1 - x);
-    x = span.a[i].iStart1;
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
+    blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iStart1 - x);
+    x = chng.a[i].iStart1;
     blob_append_char(p->pOut, ',');
-    blob_append_json_literal(p->pOut, pX->z + x, span.a[i].iLen1);
-    x += span.a[i].iLen1;
+    blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
+    x += chng.a[i].iLen1;
     blob_append_char(p->pOut, ',');
     blob_append_json_literal(p->pOut, 
-                         pY->z + span.a[i].iStart2, span.a[i].iLen2);
+                         pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
   }
   blob_append_char(p->pOut, ',');
   blob_append_json_literal(p->pOut, pX->z + x, pX->n - x);
@@ -1425,8 +1419,8 @@ static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
 static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
-  ChangeSpan span;
-  oneLineChange(pX, pY, &span);
+  LineChange chng;
+  oneLineChange(pX, pY, &chng);
   dfunifiedStartRow(p);
   if( p->eState==0 ){
     dfunifiedFinishInsert(p);
@@ -1440,9 +1434,9 @@ static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append_char(&p->aCol[0], '\n');
   blob_append(&p->aCol[1], "-\n", 2);
 
-  for(i=x=0; i<span.n; i++){
-    int ofst = span.a[i].iStart1;
-    int len = span.a[i].iLen1;
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
     if( len ){
       htmlize_to_blob(&p->aCol[2], pX->z+x, ofst - x);
       x = ofst;
@@ -1456,9 +1450,9 @@ static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append_char(&p->aCol[2], '\n');
 
   blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
-  for(i=x=0; i<span.n; i++){
-    int ofst = span.a[i].iStart2;
-    int len = span.a[i].iLen2;
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
     if( len ){
       htmlize_to_blob(&p->aCol[4], pY->z+x, ofst - x);
       x = ofst;
@@ -1633,20 +1627,20 @@ static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
 static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   int i;
   int x;
-   ChangeSpan span;
-  oneLineChange(pX, pY, &span);
+   LineChange chng;
+  oneLineChange(pX, pY, &chng);
   dfsplitStartRow(p);
   dfsplitChangeState(p, 3);
   p->lnLeft++;
   p->lnRight++;
   blob_appendf(p->pOut,"%d\n", p->lnLeft);
-  for(i=x=0; i<span.n; i++){
-    int ofst = span.a[i].iStart1;
-    int len = span.a[i].iLen1;
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
     if( len ){
       htmlize_to_blob(&p->aCol[0], pX->z+x, ofst - x);
       x = ofst;
-      if( span.a[i].iLen2 ){
+      if( chng.a[i].iLen2 ){
         blob_append(&p->aCol[0], "<del class='edit'>", -1);
       }else{
         blob_append(&p->aCol[0], "<del>", 5);
@@ -1662,13 +1656,13 @@ static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append(&p->aCol[1], "|\n", 2);
 
   blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
-  for(i=x=0; i<span.n; i++){
-    int ofst = span.a[i].iStart2;
-    int len = span.a[i].iLen2;
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
     if( len ){
       htmlize_to_blob(&p->aCol[3], pY->z+x, ofst - x);
       x = ofst;
-      if( span.a[i].iLen1 ){
+      if( chng.a[i].iLen1 ){
         blob_append(&p->aCol[3], "<ins class='edit'>", -1);
       }else{
         blob_append(&p->aCol[3], "<ins>", 5);
@@ -2032,7 +2026,7 @@ static void longestCommonSequence(
   int iSX, iSY, iEX, iEY;    /* Current match */
   int skew = 0;              /* How lopsided is the match */
   int dist = 0;              /* Distance of match from center */
-  int mid;                   /* Center of the span */
+  int mid;                   /* Center of the chng */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
   sqlite3_int64 bestScore;      /* Best score so far */
