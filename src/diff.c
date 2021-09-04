@@ -903,6 +903,28 @@ static int match_dline(const DLine *pA, const DLine *pB){
 }
 
 /*
+** COMMAND:  test-line-match
+** Usage: %fossil test-line-match STRING1 STRING2
+**
+** Return a score from 0 to 100 that is how similar STRING1 is to
+** STRING2.  Smaller numbers mean more similar.  0 is an exact match.
+**
+** This command is used to test to match_dline() function in the
+** internal Fossil diff logic.
+*/
+void test_dline_match(void){
+  DLine a, b;
+  int x;
+  if( g.argc!=4 ) usage("STRING1 STRING2");
+  a.z = g.argv[2];
+  a.n = (int)strlen(a.z);
+  b.z = g.argv[3];
+  b.n = (int)strlen(b.z);
+  x = match_dline(&a, &b);
+  fossil_print("%d\n", x);
+}
+
+/*
 ** There is a change block in which nLeft lines of text on the left are
 ** converted into nRight lines of text on the right.  This routine computes
 ** how the lines on the left line up with the lines on the right.
