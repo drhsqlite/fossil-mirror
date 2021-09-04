@@ -369,7 +369,9 @@ void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
   int i;
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
-    switch( z[i] ){
+    char c = z[i];
+    switch( c ){
+      case '\r':  c = 'r';
       case '[':
       case ']':
       case '$':
@@ -377,7 +379,7 @@ void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
       case '\\':
         blob_append_char(pOut, '\\');
       default:
-        blob_append_char(pOut, z[i]);
+        blob_append_char(pOut, c);
     }
   }
   blob_append_char(pOut, '"');
@@ -386,12 +388,13 @@ void blob_append_json_literal(Blob *pOut, const char *z, int n){
   int i;
   blob_append_char(pOut, '"');
   for(i=0; i<n; i++){
-    switch( z[i] ){
+    char c = z[i];
+    switch( c ){
       case '"':
       case '\\':
         blob_append_char(pOut, '\\');
       default:
-        blob_append_char(pOut, z[i]);
+        blob_append_char(pOut, c);
     }
   }
   blob_append_char(pOut, '"');

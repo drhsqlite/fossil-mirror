@@ -1,5 +1,5 @@
-C Add\schunk\snumbers\sto\seach\srow\sof\sthe\sdiff\soutput\sfor\sHTML\sdiffs.
-D 2021-09-03T23:39:08.803
+C Fix\sthe\sblob_append_tcl_literal()\sroutine\sto\sescape\scarriage-return\ncharacters\s(U+000d).\s\sPossible\sfix\sfor\sthe\sproblem\sreported\nat\s[forum:/forumpost/390440e9793bfef7|forum\spost\s390440e9793bfef7].
+D 2021-09-04T10:27:13.061
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c6
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
-F src/blob.c c2992d23f382a7702328a4546b1934e92894d3b90129ee8de8b88b872917fd82
+F src/blob.c c4e56f968375b55df6f496c452504842043de4bff4a3ef1715451bd946f52ba8
 F src/branch.c a9f79af28fba52a5243d269205a888057ad51707853b3f2d72a3ab1df3f32a18
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63a5c754fd8d3437e20f7ef0a815ab31aecadc191ed54e5aa64b6be02f238d4f
-R cae57b0abdf76bf138ee13ffef7b7ed7
+P 8caab6155eb40cfb2516f3eddf80cbe117705006f40f040e6c885775af8d8224
+R 7c2652d6d20c77992c5bc29e97123936
 U drh
-Z e69d55adfd485c266f4506c5f4a06478
+Z d1cb21ef84a2644a0f0a7da2f673dbad
