@@ -46,7 +46,12 @@
     if( document.body.clientWidth!=lastWidth ){
       lastWidth = document.body.clientWidth;
       var w = lastWidth*0.5 - 100;
-      var allCols = document.querySelectorAll('td.difftxt pre');
+      var allCols = document.querySelectorAll('td.difftxtl pre');
+      for(let i=0; i<allCols.length; i++){
+        allCols[i].style.width = w + "px";
+        allCols[i].style.maxWidth = w + "px";
+      }
+      allCols = document.querySelectorAll('td.difftxtr pre');
       for(let i=0; i<allCols.length; i++){
         allCols[i].style.width = w + "px";
         allCols[i].style.maxWidth = w + "px";
