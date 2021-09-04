@@ -1218,7 +1218,7 @@ static void dftclDelete(DiffBuilder *p, const DLine *pLine){
   blob_append_char(p->pOut, '\n');
 }
 static void dftclReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
-  blob_append(p->pOut, "EDIT ", -1);
+  blob_append(p->pOut, "EDIT \"\" ", -1);
   blob_append_tcl_literal(p->pOut, pX->z, pX->n);
   blob_append_char(p->pOut, ' ');
   blob_append_tcl_literal(p->pOut, pY->z, pY->n);
