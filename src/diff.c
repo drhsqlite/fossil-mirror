@@ -916,6 +916,10 @@ static int match_dline(const DLine *pA, const DLine *pB){
 **    3.  The next line of pLeft changes into the next line of pRight.
 **    4.  Delete one line from pLeft and add one line to pRight.
 **
+** The (4) case only happens when we cannot get a reasonable alignment between
+** the two blocks.  If any return value is (4), then all return values will
+** be (4).
+**
 ** Algorithm:  Wagner's minimum edit-distance algorithm, modified by
 ** adding a cost to each match based on how well the two rows match
 ** each other.  Insertion and deletion costs are 50.  Match costs
@@ -1859,6 +1863,16 @@ static DiffBuilder *dfsbsNew(Blob *pOut, u64 diffFlags){
 /****************************************************************************/
 
 /*
+** R[] is an array of six integer, two COPY/DELETE/INSERT triples for a
+** pair of adjacent differences.  Return true if the gap between these
+** two differences is so small that they should be rendered as a single
+** edit.
+*/
+static int smallGap(const int *R){
+  return R[3]<=2 || R[3]<=(R[1]+R[2]+R[4]+R[5])/8;
+}
+
+/*
 ** Format a diff using a DiffBuilder object
 */
 static void formatDiff(
@@ -1963,7 +1977,21 @@ static void formatDiff(
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
+      /* Try to find an alignment for the lines within this one block */
       alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags);
+
+      /* If we could not get a good alignment, try merging the current
+      ** block with subsequent blocks, if the subsequent blocks are
+      ** nearby */
+      while( alignment[0]==4 && i<nr-1 && smallGap(&R[r+i*3]) ){
+        i++;
+        m = R[r+i*3];
+        ma += R[r+i*3+1] + m;
+        mb += R[r+i*3+2] + m;
+        fossil_free(alignment);
+        alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags);
+      }
+
       for(j=0; ma+mb>0; j++){
         switch( alignment[j] ){
           case 1: {
