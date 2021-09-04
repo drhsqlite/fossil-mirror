@@ -21,7 +21,7 @@ array set CFG {
   CHNG_BG    #d0d0ff
   ADD_BG     #c0ffc0
   RM_BG      #ffc0c0
-  HR_FG      #888888
+  HR_FG      #444444
   HR_PAD_TOP 4
   HR_PAD_BTM 8
   FN_BG      #444444
@@ -95,6 +95,11 @@ proc readDiffs {fossilcmd} {
         set n [lindex $line 1]
         incr n1 $n
         incr n2 $n
+        .lnA insert end ...\n hrln
+        .txtA insert end [string repeat . 30]\n hrtxt
+        .mkr insert end \n hrln
+        .lnB insert end ...\n hrln
+        .txtB insert end [string repeat . 30]\n hrtxt
       }
       COM {
         set x [lindex $line 1]
@@ -363,8 +368,10 @@ foreach c [cols] {
   if {[tk windowingsystem] eq "win32"} {$c config -font {courier 9}}
   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
     -padx $CFG(PADX) -yscroll sync-y
-  $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
-     -foreground $CFG(HR_FG)
+  $c tag config hrln -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
+     -foreground $CFG(HR_FG) -justify right
+  $c tag config hrtxt  -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
+     -foreground $CFG(HR_FG) -justify center
   $c tag config fn -spacing1 $CFG(FN_PAD) -spacing3 $CFG(FN_PAD)
   bindtags $c ". $c Text all"
   bind $c <1> {focus %W}
