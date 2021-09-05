@@ -537,6 +537,7 @@ table.diff {
   width: 98%;
   border-spacing: 0;
   border: 1px solid black;
+  padding: 0 0.5em;
 }
 table.diff td {
   vertical-align: top;

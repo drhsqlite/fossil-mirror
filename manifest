@@ -1,5 +1,5 @@
-C Add\sa\s#define\sfor\sthe\sdiff\sblock\salignment\salgorithm\sthreshold.
-D 2021-09-05T19:16:23.451
+C Added\sjust\sa\stiny\sbit\sof\sleft/right\spadding\son\sthe\snew\sdiff\stables\sso\sthat\sthe\sline\snumbers\sdon't\srun\sright\sup\sto\sthe\sedge\sof\sthe\sborder.
+D 2021-09-05T19:31:42.735
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cc2a782c856ffa3bfa59f7d497ceee9671bbfb6532e0e9b8d0c7e77b822d71c2
-F src/default.css 4983d9bc4dd2e52497c441848fb9502432b571b4854a6f2879b48e8cdb83278c
+F src/default.css c787f818326fafa6aa7a81c983011f30a408b09eeffd107490ead02f65e8463a
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9e330740ccfc62862b02b7bce69fb65631ac8771beaeec454bd0f4ebc1656416
-R 0e16a6b1f247f35271ba978ccc865358
-U drh
-Z e20a9af1a38aeb659a28d49e4db5e991
+P 0a4ae4408efc839a4e61b9ca9f252e6dd33fab979ca6cc8b6f9e7a025ae3b086
+R dafa3bfb689e3f72e39063aad47754c9
+U stephan
+Z 23baa972214befe7994e2e30c937c1e1
