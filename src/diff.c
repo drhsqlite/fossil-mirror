@@ -1777,8 +1777,6 @@ static unsigned char *diffBlockAlignment(
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
   int nMatch, iMatch;          /* Number of matching lines and match score */
-  int mnLen;                   /* minInt(nLeft, nRight) */
-  int mxLen;                   /* MAX(nLeft, nRight) */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
   if( nLeft==0 ){
@@ -1799,7 +1797,6 @@ static unsigned char *diffBlockAlignment(
   ** approximation anyhow, and the faster response time is an acceptable
   ** trade-off for reduced precision.
   */
-  mnLen = nLeft<nRight ? nLeft : nRight;
   if( nLeft*nRight>DIFF_ALIGN_MX && (diffFlags & DIFF_SLOW_SBS)==0 ){
     const DLine *aSmall;   /* The smaller of aLeft and aRight */
     const DLine *aBig;     /* The larger of aLeft and aRight */
@@ -1919,23 +1916,6 @@ static unsigned char *diffBlockAlignment(
   memmove(aM, &aM[k], i);
   *pNResult = i;
 
-  /* If:
-  **   (1) the alignment is more than 25% longer than the longest side, and
-  **   (2) the average match cost exceeds 15
-  ** Then this is probably an alignment that will be difficult for humans
-  ** to read.  So instead, just show all of the right side inserted followed
-  ** by all of the left side deleted.
-  **
-  ** The coefficients for conditions (1) and (2) above are determined by
-  ** experimentation.
-  */
-  mxLen = nLeft>nRight ? nLeft : nRight;
-  if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
-    memset(aM, 4, mnLen); *pNResult = mnLen;
-    if( nLeft>mnLen ){  memset(aM+mnLen, 1, nLeft-mnLen); *pNResult = nLeft;   }
-    if( nRight>mnLen ){ memset(aM+mnLen, 2, nRight-mnLen); *pNResult = nRight; }
-  }
-
   /* Return the result */
   fossil_free(pToFree);
   return aM;
@@ -1947,8 +1927,12 @@ static unsigned char *diffBlockAlignment(
 ** two differences is so small that they should be rendered as a single
 ** edit.
 */
-static int smallGap(const int *R){
-  return R[3]<=2 || R[3]<=(R[1]+R[2]+R[4]+R[5])/8;
+static int smallGap(const int *R, int ma, int mb){
+  int m = R[3];
+  ma += R[4] + m;
+  mb += R[5] + m;
+  if( ma*mb>DIFF_ALIGN_MX ) return 0;
+  return m<=2 || m<=(R[1]+R[2]+R[4]+R[5])/8;
 }
 
 /*
@@ -2057,20 +2041,18 @@ static void formatDiff(
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
-      /* Try to find an alignment for the lines within this one block */
-      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags, &nAlign);
-
-      /* If we could not get a good alignment, try merging the current
-      ** block with subsequent blocks, if the subsequent blocks are
-      ** nearby */
-      while( alignment[0]==4 && i<nr-1 && smallGap(&R[r+i*3]) ){
+      /* Try merging the current block with subsequent blocks, if the
+      ** subsequent blocks are nearby and there result isn't too big.
+      */
+      while( i<nr-1 && smallGap(&R[r+i*3],ma,mb) ){
         i++;
         m = R[r+i*3];
         ma += R[r+i*3+1] + m;
         mb += R[r+i*3+2] + m;
-        fossil_free(alignment);
-        alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags,&nAlign);
       }
+
+      /* Try to find an alignment for the lines within this one block */
+      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags, &nAlign);
 
       for(j=0; ma+mb>0; j++){
         assert( j<nAlign );
