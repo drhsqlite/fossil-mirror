@@ -255,7 +255,7 @@ static DLine *break_into_lines(
 /*
 ** Return zero if two DLine elements are identical.
 */
-static int same_dline(const DLine *pA, const DLine *pB){
+static int compare_dline(const DLine *pA, const DLine *pB){
   if( pA->h!=pB->h ) return 1;
   return memcmp(pA->z,pB->z, pA->h&LENGTH_MASK);
 }
@@ -266,7 +266,7 @@ static int same_dline(const DLine *pA, const DLine *pB){
 ** to the first non-space character in the string.
 */
 
-static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
+static int compare_dline_ignore_allws(const DLine *pA, const DLine *pB){
   int a = pA->indent, b = pB->indent;
   if( pA->h==pB->h ){
     while( a<pA->n || b<pB->n ){
@@ -892,7 +892,7 @@ static void dfdebugInsert(DiffBuilder *p, const DLine *pLine){
 }
 static void dfdebugDelete(DiffBuilder *p, const DLine *pLine){
   p->lnLeft++;
-  blob_appendf(p->pOut, "DELETE   %8u          %.*s\n",
+  blob_appendf(p->pOut, "DELETE  %8u          %.*s\n",
       p->lnLeft, (int)pLine->n, pLine->z);
 }
 static void dfdebugReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
@@ -909,37 +909,39 @@ static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   LineChange chng;
   p->lnLeft++;
   p->lnRight++;
-  blob_appendf(p->pOut, "EDIT     %8u          %.*s\n",
+  blob_appendf(p->pOut, "EDIT    %8u          %.*s\n",
                p->lnLeft, (int)pX->n, pX->z);
   oneLineChange(pX, pY, &chng);
   for(i=x=0; i<chng.n; i++){
     int ofst = chng.a[i].iStart1;
     int len = chng.a[i].iLen1;
     if( len ){
-      if( x==0 ){ blob_appendf(p->pOut, "%*s", 25, ""); }
+      char c = '0' + i;
+      if( x==0 ){ blob_appendf(p->pOut, "%*s", 26, ""); }
       while( ofst > x ){
         if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, ' ');
         x++;
       }
       for(j=0; j<len; j++, x++){
-        if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, '^');
+        if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, c);
       }
     }
   }
   if( x ) blob_append_char(p->pOut, '\n');
-  blob_appendf(p->pOut, "                %8u %.*s\n",
+  blob_appendf(p->pOut, "                 %8u %.*s\n",
                p->lnRight, (int)pY->n, pY->z);
   for(i=x=0; i<chng.n; i++){
     int ofst = chng.a[i].iStart2;
     int len = chng.a[i].iLen2;
     if( len ){
-      if( x==0 ){ blob_appendf(p->pOut, "%*s", 25, ""); }
+      char c = '0' + i;
+      if( x==0 ){ blob_appendf(p->pOut, "%*s", 26, ""); }
       while( ofst > x ){
         if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, ' ');
         x++;
       }
       for(j=0; j<len; j++, x++){
-        if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, '^');
+        if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, c);
       }
     }
   }
@@ -1212,8 +1214,6 @@ static void dfunifiedStartRow(DiffBuilder *p){
   if( blob_size(&p->aCol[0])>0 ) return;
   blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
                        "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
-  p->eState = 0;
-  p->nPending = 0;
 }
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
   dfunifiedFinishRow(p);
@@ -2074,7 +2074,11 @@ static void formatDiff(
           }
           case 3: {
             /* The left line is changed into the right line */
-            pBuilder->xEdit(pBuilder, &A[a], &B[b]);
+            if( compare_dline(&A[a], &B[b])==0 ){
+              pBuilder->xCommon(pBuilder, &A[a]);
+            }else{
+              pBuilder->xEdit(pBuilder, &A[a], &B[b]);
+            }
             assert( ma>0 && mb>0 );
             ma--;
             mb--;
@@ -2605,9 +2609,9 @@ int *text_diff(
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
   if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-    c.xDiffer = same_dline_ignore_allws;
+    c.xDiffer = compare_dline_ignore_allws;
   }else{
-    c.xDiffer = same_dline;
+    c.xDiffer = compare_dline;
   }
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
                              &c.nFrom, diffFlags);
@@ -2872,9 +2876,9 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 
   memset(p, 0, sizeof(*p));
   if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-    p->c.xDiffer = same_dline_ignore_allws;
+    p->c.xDiffer = compare_dline_ignore_allws;
   }else{
-    p->c.xDiffer = same_dline;
+    p->c.xDiffer = compare_dline;
   }
   p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
                               diffFlags);
