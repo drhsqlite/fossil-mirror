@@ -837,241 +837,6 @@ void test_line_diff(void){
 */
 static int minInt(int a, int b){ return a<b ? a : b; }
 
-/*
-** Return the number between 0 and 100 that is smaller the closer pA and
-** pB match.  Return 0 for a perfect match.  Return 100 if pA and pB are
-** completely different.
-**
-** The current algorithm is as follows:
-**
-** (1) Remove leading and trailing whitespace.
-** (2) Truncate both strings to at most 250 characters
-** (3) Find the length of the longest common subsequence
-** (4) Longer common subsequences yield lower scores.
-*/
-static int match_dline(const DLine *pA, const DLine *pB){
-  const char *zA;            /* Left string */
-  const char *zB;            /* right string */
-  int nA;                    /* Bytes in zA[] */
-  int nB;                    /* Bytes in zB[] */
-  int avg;                   /* Average length of A and B */
-  int i, j, k;               /* Loop counters */
-  int best = 0;              /* Longest match found so far */
-  int score;                 /* Final score.  0..100 */
-  unsigned char c;           /* Character being examined */
-  unsigned char aFirst[256]; /* aFirst[X] = index in zB[] of first char X */
-  unsigned char aNext[252];  /* aNext[i] = index in zB[] of next zB[i] char */
-
-  zA = pA->z;
-  zB = pB->z;
-  nA = pA->n;
-  nB = pB->n;
-  while( nA>0 && fossil_isspace(zA[0]) ){ nA--; zA++; }
-  while( nA>0 && fossil_isspace(zA[nA-1]) ){ nA--; }
-  while( nB>0 && fossil_isspace(zB[0]) ){ nB--; zB++; }
-  while( nB>0 && fossil_isspace(zB[nB-1]) ){ nB--; }
-  if( nA>250 ) nA = 250;
-  if( nB>250 ) nB = 250;
-  avg = (nA+nB)/2;
-  if( avg==0 ) return 0;
-  if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
-  memset(aFirst, 0xff, sizeof(aFirst));
-  zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
-  for(i=nB; i>0; i--){
-    c = (unsigned char)zB[i];
-    aNext[i] = aFirst[c];
-    aFirst[c] = i;
-  }
-  best = 0;
-  for(i=1; i<=nA-best; i++){
-    c = (unsigned char)zA[i];
-    for(j=aFirst[c]; j<nB-best && memcmp(&zA[i],&zB[j],best)==0; j = aNext[j]){
-      int limit = minInt(nA-i, nB-j);
-      for(k=best; k<=limit && zA[k+i]==zB[k+j]; k++){}
-      if( k>best ) best = k;
-    }
-  }
-  score = (best>avg) ? 0 : (avg - best)*100/avg;
-
-#if 0
-  fprintf(stderr, "A: [%.*s]\nB: [%.*s]\nbest=%d avg=%d score=%d\n",
-  nA, zA+1, nB, zB+1, best, avg, score);
-#endif
-
-  /* Return the result */
-  return score;
-}
-
-/*
-** COMMAND:  test-line-match
-** Usage: %fossil test-line-match STRING1 STRING2
-**
-** Return a score from 0 to 100 that is how similar STRING1 is to
-** STRING2.  Smaller numbers mean more similar.  0 is an exact match.
-**
-** This command is used to test to match_dline() function in the
-** internal Fossil diff logic.
-*/
-void test_dline_match(void){
-  DLine a, b;
-  int x;
-  if( g.argc!=4 ) usage("STRING1 STRING2");
-  a.z = g.argv[2];
-  a.n = (int)strlen(a.z);
-  b.z = g.argv[3];
-  b.n = (int)strlen(b.z);
-  x = match_dline(&a, &b);
-  fossil_print("%d\n", x);
-}
-
-/*
-** There is a change block in which nLeft lines of text on the left are
-** converted into nRight lines of text on the right.  This routine computes
-** how the lines on the left line up with the lines on the right.
-**
-** The return value is a buffer of unsigned characters, obtained from
-** fossil_malloc().  (The caller needs to free the return value using
-** fossil_free().)  Entries in the returned array have values as follows:
-**
-**    1.  Delete the next line of pLeft.
-**    2.  Insert the next line of pRight.
-**    3.  The next line of pLeft changes into the next line of pRight.
-**    4.  Delete one line from pLeft and add one line to pRight.
-**
-** The (4) case only happens when we cannot get a reasonable alignment between
-** the two blocks.  If any return value is (4), then all return values will
-** be (4).
-**
-** Algorithm:  Wagner's minimum edit-distance algorithm, modified by
-** adding a cost to each match based on how well the two rows match
-** each other.  Insertion and deletion costs are 50.  Match costs
-** are between 0 and 100 where 0 is a perfect match 100 is a complete
-** mismatch.
-*/
-static unsigned char *diffBlockAlignment(
-   const DLine *aLeft, int nLeft,     /* Text on the left */
-   const DLine *aRight, int nRight,   /* Text on the right */
-   u64 diffFlags                      /* Flags passed into the original diff */
-){
-  int i, j, k;                 /* Loop counters */
-  int *a;                      /* One row of the Wagner matrix */
-  int *pToFree;                /* Space that needs to be freed */
-  unsigned char *aM;           /* Wagner result matrix */
-  int nMatch, iMatch;          /* Number of matching lines and match score */
-  int mnLen;                   /* minInt(nLeft, nRight) */
-  int mxLen;                   /* MAX(nLeft, nRight) */
-  int aBuf[100];               /* Stack space for a[] if nRight not to big */
-
-  if( nLeft==0 ){
-    aM = fossil_malloc( nLeft + nRight + 2 );
-    memset(aM, 2, nRight);
-    return aM;
-  }
-  if( nRight==0 ){
-    aM = fossil_malloc( nLeft + nRight + 2 );
-    memset(aM, 1, nLeft);
-    return aM;
-  }
-
-  /* This algorithm is O(N**2).  So if N is too big, bail out with a
-  ** simple (but stupid and ugly) result that doesn't take too long. */
-  mnLen = nLeft<nRight ? nLeft : nRight;
-  if( nLeft*nRight>100000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
-    aM = fossil_malloc( nLeft + nRight + 2 );
-    memset(aM, 4, mnLen);
-    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
-    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
-    return aM;
-  }
-
-  if( nRight < count(aBuf)-1 ){
-    pToFree = 0;
-    a = aBuf;
-  }else{
-    a = pToFree = fossil_malloc( sizeof(a[0])*(nRight+1) );
-  }
-  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
-
-
-  /* Compute the best alignment */
-  for(i=0; i<=nRight; i++){
-    aM[i] = 2;
-    a[i] = i*50;
-  }
-  aM[0] = 0;
-  for(j=1; j<=nLeft; j++){
-    int p = a[0];
-    a[0] = p+50;
-    aM[j*(nRight+1)] = 1;
-    for(i=1; i<=nRight; i++){
-      int m = a[i-1]+50;
-      int d = 2;
-      if( m>a[i]+50 ){
-        m = a[i]+50;
-        d = 1;
-      }
-      if( m>p ){
-        int score = match_dline(&aLeft[j-1], &aRight[i-1]);
-        if( (score<=63 || (i<j+1 && i>j-1)) && m>p+score ){
-          m = p+score;
-          d = 3 | score*4;
-        }
-      }
-      p = a[i];
-      a[i] = m;
-      aM[j*(nRight+1)+i] = d;
-    }
-  }
-
-  /* Compute the lowest-cost path back through the matrix */
-  i = nRight;
-  j = nLeft;
-  k = (nRight+1)*(nLeft+1)-1;
-  nMatch = iMatch = 0;
-  while( i+j>0 ){
-    unsigned char c = aM[k];
-    if( c>=3 ){
-      assert( i>0 && j>0 );
-      i--;
-      j--;
-      nMatch++;
-      iMatch += (c>>2);
-      aM[k] = 3;
-    }else if( c==2 ){
-      assert( i>0 );
-      i--;
-    }else{
-      assert( j>0 );
-      j--;
-    }
-    k--;
-    aM[k] = aM[j*(nRight+1)+i];
-  }
-  k++;
-  i = (nRight+1)*(nLeft+1) - k;
-  memmove(aM, &aM[k], i);
-
-  /* If:
-  **   (1) the alignment is more than 25% longer than the longest side, and
-  **   (2) the average match cost exceeds 15
-  ** Then this is probably an alignment that will be difficult for humans
-  ** to read.  So instead, just show all of the right side inserted followed
-  ** by all of the left side deleted.
-  **
-  ** The coefficients for conditions (1) and (2) above are determined by
-  ** experimentation.
-  */
-  mxLen = nLeft>nRight ? nLeft : nRight;
-  if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
-    memset(aM, 4, mnLen);
-    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
-    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
-  }
-
-  /* Return the result */
-  fossil_free(pToFree);
-  return aM;
-}
 
 
 /*
@@ -1883,6 +1648,290 @@ static DiffBuilder *dfsbsNew(Blob *pOut, u64 diffFlags){
   return p;
 }
 /****************************************************************************/
+/*
+** Return the number between 0 and 100 that is smaller the closer pA and
+** pB match.  Return 0 for a perfect match.  Return 100 if pA and pB are
+** completely different.
+**
+** The current algorithm is as follows:
+**
+** (1) Remove leading and trailing whitespace.
+** (2) Truncate both strings to at most 250 characters
+** (3) Find the length of the longest common subsequence
+** (4) Longer common subsequences yield lower scores.
+*/
+static int match_dline(const DLine *pA, const DLine *pB){
+  const char *zA;            /* Left string */
+  const char *zB;            /* right string */
+  int nA;                    /* Bytes in zA[] */
+  int nB;                    /* Bytes in zB[] */
+  int avg;                   /* Average length of A and B */
+  int i, j, k;               /* Loop counters */
+  int best = 0;              /* Longest match found so far */
+  int score;                 /* Final score.  0..100 */
+  unsigned char c;           /* Character being examined */
+  unsigned char aFirst[256]; /* aFirst[X] = index in zB[] of first char X */
+  unsigned char aNext[252];  /* aNext[i] = index in zB[] of next zB[i] char */
+
+  zA = pA->z;
+  zB = pB->z;
+  nA = pA->n;
+  nB = pB->n;
+  while( nA>0 && fossil_isspace(zA[0]) ){ nA--; zA++; }
+  while( nA>0 && fossil_isspace(zA[nA-1]) ){ nA--; }
+  while( nB>0 && fossil_isspace(zB[0]) ){ nB--; zB++; }
+  while( nB>0 && fossil_isspace(zB[nB-1]) ){ nB--; }
+  if( nA>250 ) nA = 250;
+  if( nB>250 ) nB = 250;
+  avg = (nA+nB)/2;
+  if( avg==0 ) return 0;
+  if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
+  memset(aFirst, 0xff, sizeof(aFirst));
+  zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
+  for(i=nB; i>0; i--){
+    c = (unsigned char)zB[i];
+    aNext[i] = aFirst[c];
+    aFirst[c] = i;
+  }
+  best = 0;
+  for(i=1; i<=nA-best; i++){
+    c = (unsigned char)zA[i];
+    for(j=aFirst[c]; j<nB-best && memcmp(&zA[i],&zB[j],best)==0; j = aNext[j]){
+      int limit = minInt(nA-i, nB-j);
+      for(k=best; k<=limit && zA[k+i]==zB[k+j]; k++){}
+      if( k>best ) best = k;
+    }
+  }
+  score = (best>avg) ? 0 : (avg - best)*100/avg;
+
+#if 0
+  fprintf(stderr, "A: [%.*s]\nB: [%.*s]\nbest=%d avg=%d score=%d\n",
+  nA, zA+1, nB, zB+1, best, avg, score);
+#endif
+
+  /* Return the result */
+  return score;
+}
+
+/*
+** COMMAND:  test-line-match
+** Usage: %fossil test-line-match STRING1 STRING2
+**
+** Return a score from 0 to 100 that is how similar STRING1 is to
+** STRING2.  Smaller numbers mean more similar.  0 is an exact match.
+**
+** This command is used to test to match_dline() function in the
+** internal Fossil diff logic.
+*/
+void test_dline_match(void){
+  DLine a, b;
+  int x;
+  if( g.argc!=4 ) usage("STRING1 STRING2");
+  a.z = g.argv[2];
+  a.n = (int)strlen(a.z);
+  b.z = g.argv[3];
+  b.n = (int)strlen(b.z);
+  x = match_dline(&a, &b);
+  fossil_print("%d\n", x);
+}
+
+/*
+** There is a change block in which nLeft lines of text on the left are
+** converted into nRight lines of text on the right.  This routine computes
+** how the lines on the left line up with the lines on the right.
+**
+** The return value is a buffer of unsigned characters, obtained from
+** fossil_malloc().  (The caller needs to free the return value using
+** fossil_free().)  Entries in the returned array have values as follows:
+**
+**    1.  Delete the next line of pLeft.
+**    2.  Insert the next line of pRight.
+**    3.  The next line of pLeft changes into the next line of pRight.
+**    4.  Delete one line from pLeft and add one line to pRight.
+**
+** The length of the returned array will be at most nLeft+nRight bytes.
+** If the first bytes is 4,  that means we could not compute reasonable
+** alignment between the two blocks.
+**
+** Algorithm:  Wagner's minimum edit-distance algorithm, modified by
+** adding a cost to each match based on how well the two rows match
+** each other.  Insertion and deletion costs are 50.  Match costs
+** are between 0 and 100 where 0 is a perfect match 100 is a complete
+** mismatch.
+*/
+static unsigned char *diffBlockAlignment(
+  const DLine *aLeft, int nLeft,     /* Text on the left */
+  const DLine *aRight, int nRight,   /* Text on the right */
+  u64 diffFlags,                     /* Flags passed into the original diff */
+  int *pNResult                      /* OUTPUT: Bytes of result */
+){
+  int i, j, k;                 /* Loop counters */
+  int *a;                      /* One row of the Wagner matrix */
+  int *pToFree;                /* Space that needs to be freed */
+  unsigned char *aM;           /* Wagner result matrix */
+  int nMatch, iMatch;          /* Number of matching lines and match score */
+  int mnLen;                   /* minInt(nLeft, nRight) */
+  int mxLen;                   /* MAX(nLeft, nRight) */
+  int aBuf[100];               /* Stack space for a[] if nRight not to big */
+
+  if( nLeft==0 ){
+    aM = fossil_malloc( nRight + 2 );
+    memset(aM, 2, nRight);
+    *pNResult = nRight;
+    return aM;
+  }
+  if( nRight==0 ){
+    aM = fossil_malloc( nLeft + 2 );
+    memset(aM, 1, nLeft);
+    *pNResult = nLeft;
+    return aM;
+  }
+
+  /* For large alignments, use a divide and conquer algorithm that is
+  ** O(NlogN).  The result is not as precise, but this whole thing is an
+  ** approximation anyhow, and the faster response time is an acceptable
+  ** trade-off for reduced precision.
+  */
+  mnLen = nLeft<nRight ? nLeft : nRight;
+  if( nLeft*nRight>1000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
+    const DLine *aSmall;   /* The smaller of aLeft and aRight */
+    const DLine *aBig;     /* The larger of aLeft and aRight */
+    int nSmall, nBig;      /* Size of aSmall and aBig.  nSmall<=nBig */
+    int iDivSmall, iDivBig;  /* Divider point for aSmall and aBig */
+    int iDivLeft, iDivRight; /* Divider point for aLeft and aRight */
+    unsigned char *a1, *a2;  /* Results of the alignments on two halves */
+    int n1, n2;              /* Number of entries in a1 and a2 */
+    int score, bestScore;    /* Score and best score seen so far */
+    if( nLeft>nRight ){
+      aSmall = aRight;
+      nSmall = nRight;
+      aBig = aLeft;
+      nBig = nLeft;
+    }else{
+      aSmall = aLeft;
+      nSmall = nLeft;
+      aBig = aRight;
+      nBig = nRight;
+    }
+    iDivBig = nBig/2;
+    bestScore = 10000;
+    for(i=0; i<nSmall; i++){
+      score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
+      if( score<bestScore ){
+        bestScore = score;
+        iDivSmall = i;
+      }
+    }
+    if( aSmall==aRight ){
+      iDivRight = iDivSmall;
+      iDivLeft = iDivBig;
+    }else{
+      iDivRight = iDivBig;
+      iDivLeft = iDivSmall;
+    }
+    a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,diffFlags,&n1);
+    a2 = diffBlockAlignment(aLeft+iDivLeft, nLeft-iDivLeft,
+                            aRight+iDivRight, nRight-iDivRight,
+                            diffFlags, &n2);
+    a1 = fossil_realloc(a1, n1+n2 );
+    memcpy(a1+n1,a2,n2);
+    fossil_free(a2);
+    *pNResult = n1+n2;
+    return a1;
+  }
+
+  /* If we reach this point, we will be doing an O(N*N) Wagner minimum
+  ** edit distance to compute the alignment.
+  */
+  if( nRight < count(aBuf)-1 ){
+    pToFree = 0;
+    a = aBuf;
+  }else{
+    a = pToFree = fossil_malloc( sizeof(a[0])*(nRight+1) );
+  }
+  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
+
+
+  /* Compute the best alignment */
+  for(i=0; i<=nRight; i++){
+    aM[i] = 2;
+    a[i] = i*50;
+  }
+  aM[0] = 0;
+  for(j=1; j<=nLeft; j++){
+    int p = a[0];
+    a[0] = p+50;
+    aM[j*(nRight+1)] = 1;
+    for(i=1; i<=nRight; i++){
+      int m = a[i-1]+50;
+      int d = 2;
+      if( m>a[i]+50 ){
+        m = a[i]+50;
+        d = 1;
+      }
+      if( m>p ){
+        int score = match_dline(&aLeft[j-1], &aRight[i-1]);
+        if( (score<=63 || (i<j+1 && i>j-1)) && m>p+score ){
+          m = p+score;
+          d = 3 | score*4;
+        }
+      }
+      p = a[i];
+      a[i] = m;
+      aM[j*(nRight+1)+i] = d;
+    }
+  }
+
+  /* Compute the lowest-cost path back through the matrix */
+  i = nRight;
+  j = nLeft;
+  k = (nRight+1)*(nLeft+1)-1;
+  nMatch = iMatch = 0;
+  while( i+j>0 ){
+    unsigned char c = aM[k];
+    if( c>=3 ){
+      assert( i>0 && j>0 );
+      i--;
+      j--;
+      nMatch++;
+      iMatch += (c>>2);
+      aM[k] = 3;
+    }else if( c==2 ){
+      assert( i>0 );
+      i--;
+    }else{
+      assert( j>0 );
+      j--;
+    }
+    k--;
+    aM[k] = aM[j*(nRight+1)+i];
+  }
+  k++;
+  i = (nRight+1)*(nLeft+1) - k;
+  memmove(aM, &aM[k], i);
+  *pNResult = i;
+
+  /* If:
+  **   (1) the alignment is more than 25% longer than the longest side, and
+  **   (2) the average match cost exceeds 15
+  ** Then this is probably an alignment that will be difficult for humans
+  ** to read.  So instead, just show all of the right side inserted followed
+  ** by all of the left side deleted.
+  **
+  ** The coefficients for conditions (1) and (2) above are determined by
+  ** experimentation.
+  */
+  mxLen = nLeft>nRight ? nLeft : nRight;
+  if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
+    memset(aM, 4, mnLen); *pNResult = mnLen;
+    if( nLeft>mnLen ){  memset(aM+mnLen, 1, nLeft-mnLen); *pNResult = nLeft;   }
+    if( nRight>mnLen ){ memset(aM+mnLen, 2, nRight-mnLen); *pNResult = nRight; }
+  }
+
+  /* Return the result */
+  fossil_free(pToFree);
+  return aM;
+}
 
 /*
 ** R[] is an array of six integer, two COPY/DELETE/INSERT triples for a
@@ -1995,12 +2044,13 @@ static void formatDiff(
 
     /* Show the differences */
     for(i=0; i<nr; i++){
+      int nAlign;
       unsigned char *alignment;
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
       /* Try to find an alignment for the lines within this one block */
-      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags);
+      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags, &nAlign);
 
       /* If we could not get a good alignment, try merging the current
       ** block with subsequent blocks, if the subsequent blocks are
@@ -2011,10 +2061,11 @@ static void formatDiff(
         ma += R[r+i*3+1] + m;
         mb += R[r+i*3+2] + m;
         fossil_free(alignment);
-        alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags);
+        alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags,&nAlign);
       }
 
       for(j=0; ma+mb>0; j++){
+        assert( j<nAlign );
         switch( alignment[j] ){
           case 1: {
             /* Delete one line from the left */
@@ -2052,6 +2103,7 @@ static void formatDiff(
           }
         }
       }
+      assert( nAlign==j );
       fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
