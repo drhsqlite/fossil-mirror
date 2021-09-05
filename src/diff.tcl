@@ -74,7 +74,7 @@ proc readDiffs {fossilcmd} {
   set nDiffs 0
   set n1 0
   set n2 0  
-  array set widths {txt 0 ln 0 mkr 1}
+  array set widths {txt 3 ln 3 mkr 1}
   while {[set line [getLine $difftxt $N ii]] != -1} {
     switch -- [lindex $line 0] {
       FILE {

@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sdiff\salignment.
-D 2021-09-05T20:54:47.457
+C Minimum\sline-number\swidth\sin\s--tk\soutput\sis\s3,\sto\saccommodate\sellipses.
+D 2021-09-05T20:59:22.654
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -467,7 +467,7 @@ F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb07
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
 F src/diff.c cfa1af5f4156af18c1dfcbf3b161d1c1c8967f09837b72a398caaaf08e0a16ae
 F src/diff.js 3fe31f5122109afdd64440529d983d0d2e29d9cc2973042447cdcabe2caa2c5c
-F src/diff.tcl 079028fb9cc2b88de3a89b2bb54455ccb0c04784a2832030d4803248a80b389c
+F src/diff.tcl 20024ef9ac644287305daf08bfd241c2a5170722096815a85529315d8cd5077f
 F src/diffcmd.c 5cc2ba3e3cc769e6c0fd8451f1a4078171b3d40ecd45a32ebb1bc39c84641010
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f25a987bae16900be7f17858c7e2e62296b454aaf48f86dcc08c16e78559f18e
-R cdedc2ebaa8702086dd611691bf173d5
+P e5b1c70e2a6e0434eff9caa76cc8b268b8fb698b1a34efc15c2b2116aef1261a
+R c62dab75672071c177c78365bca4f23a
 U drh
-Z 500e0dc5ffe53f25094523dd5fca4466
+Z 768296751ad65bb579a570eda1b507bc
