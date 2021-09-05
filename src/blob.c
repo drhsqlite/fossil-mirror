@@ -351,6 +351,57 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 }
 
 /*
+** Append the second blob onto the end of the first blob and reset the
+** second blob.
+*/
+void blob_append_xfer(Blob *pTo, Blob *pFrom){
+  blob_append(pTo, blob_buffer(pFrom), blob_size(pFrom));
+  blob_reset(pFrom);
+}
+
+/*
+** Write into pOut, a string literal representation for the first n bytes
+** of z[].  The string literal representation is compatible with C, TCL,
+** and JSON.  Double-quotes are added to both ends.  Double-quote and
+** backslash characters are escaped.
+*/
+void blob_append_tcl_literal(Blob *pOut, const char *z, int n){
+  int i;
+  blob_append_char(pOut, '"');
+  for(i=0; i<n; i++){
+    char c = z[i];
+    switch( c ){
+      case '\r':  c = 'r';
+      case '[':
+      case ']':
+      case '$':
+      case '"':
+      case '\\':
+        blob_append_char(pOut, '\\');
+      default:
+        blob_append_char(pOut, c);
+    }
+  }
+  blob_append_char(pOut, '"');
+}
+void blob_append_json_literal(Blob *pOut, const char *z, int n){
+  int i;
+  blob_append_char(pOut, '"');
+  for(i=0; i<n; i++){
+    char c = z[i];
+    switch( c ){
+      case '"':
+      case '\\':
+        blob_append_char(pOut, '\\');
+      default:
+        blob_append_char(pOut, c);
+    }
+  }
+  blob_append_char(pOut, '"');
+}
+
+
+/*
 ** Return a pointer to a null-terminated string for a blob.
 */
 char *blob_str(Blob *p){

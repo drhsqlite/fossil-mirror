@@ -220,6 +220,7 @@ EXTRA_FILES = \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
   $(SRCDIR)/default.css \
+  $(SRCDIR)/diff.js \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
@@ -246,7 +247,6 @@ EXTRA_FILES = \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
-  $(SRCDIR)/sbsdiff.js \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \

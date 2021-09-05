@@ -44,8 +44,12 @@
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
-#define DIFF_WEBPAGE      (((u64)0x40)<<32) /* Complete webpage */
-#define DIFF_BROWSER      (((u64)0x80)<<32) /* The --browser option */
+#define DIFF_WEBPAGE   (((u64)0x00040)<<32) /* Complete webpage */
+#define DIFF_BROWSER   (((u64)0x00080)<<32) /* The --browser option */
+#define DIFF_JSON      (((u64)0x00100)<<32) /* JSON output */
+#define DIFF_DEBUG     (((u64)0x00200)<<32) /* Debugging diff output */
+#define DIFF_RAW       (((u64)0x00400)<<32) /* Raw triples - for debugging */
+#define DIFF_TCL       (((u64)0x00800)<<32) /* For the --tk option */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -96,6 +100,11 @@ struct DLine {
 ** Length of a dline
 */
 #define LENGTH(X)   ((X)->n)
+
+/*
+** Number of diff chunks generated
+*/
+static int nChunk = 0;
 
 /*
 ** A context for running a raw diff.
@@ -275,9 +284,9 @@ static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
 ** N dlines
 */
 static int re_dline_match(
-  ReCompiled *pRe,    /* The regular expression to be matched */
-  DLine *aDLine,      /* First of N DLines to compare against */
-  int N               /* Number of DLines to check */
+  ReCompiled *pRe,      /* The regular expression to be matched */
+  const DLine *aDLine,  /* First of N DLines to compare against */
+  int N                 /* Number of DLines to check */
 ){
   while( N-- ){
     if( re_match(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
@@ -294,37 +303,19 @@ static int re_dline_match(
 static void appendDiffLine(
   Blob *pOut,         /* Where to write the line of output */
   char cPrefix,       /* One of " ", "+",  or "-" */
-  DLine *pLine,       /* The line to be output */
-  int html,           /* True if generating HTML.  False for plain text */
-  ReCompiled *pRe     /* Colorize only if line matches this Regex */
+  DLine *pLine        /* The line to be output */
 ){
-  blob_append(pOut, &cPrefix, 1);
-  if( html ){
-    if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
-      cPrefix = ' ';
-    }else if( cPrefix=='+' ){
-      blob_append(pOut, "<span class=\"diffadd\">", -1);
-    }else if( cPrefix=='-' ){
-      blob_append(pOut, "<span class=\"diffrm\">", -1);
-    }
-    htmlize_to_blob(pOut, pLine->z, pLine->n);
-    if( cPrefix!=' ' ){
-      blob_append(pOut, "</span>", -1);
-    }
-  }else{
-    blob_append(pOut, pLine->z, pLine->n);
-  }
-  blob_append(pOut, "\n", 1);
+  blob_append_char(pOut, cPrefix);
+  blob_append(pOut, pLine->z, pLine->n);
+  blob_append_char(pOut, '\n');
 }
 
 /*
 ** Add two line numbers to the beginning of an output line for a context
 ** diff.  One or the other of the two numbers might be zero, which means
-** to leave that number field blank.  The "html" parameter means to format
-** the output for HTML.
+** to leave that number field blank.
 */
-static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
-  if( html ) blob_append(pOut, "<span class=\"diffln\">", -1);
+static void appendDiffLineno(Blob *pOut, int lnA, int lnB){
   if( lnA>0 ){
     blob_appendf(pOut, "%6d ", lnA);
   }else{
@@ -335,17 +326,14 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
   }else{
     blob_append(pOut, "        ", 8);
   }
-  if( html ) blob_append(pOut, "</span>", -1);
 }
 
 /*
-** Given a raw diff p[] in which the p->aEdit[] array has been filled
-** in, compute a context diff into pOut.
+** Output a patch-style text diff.
 */
 static void contextDiff(
   DContext *p,      /* The difference */
   Blob *pOut,       /* Output a context diff to here */
-  ReCompiled *pRe,  /* Only show changes that match this regex */
   u64 diffFlags     /* Flags controlling the diff format */
 ){
   DLine *A;     /* Left side of the diff */
@@ -363,13 +351,10 @@ static void contextDiff(
   static int nChunk = 0;  /* Number of diff chunks seen so far */
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
-  int html;        /* Render as HTML */
   int showDivider = 0;  /* True to show the divider between diff blocks */
 
   nContext = diff_context_lines(diffFlags);
   showLn = (diffFlags & DIFF_LINENO)!=0;
-  html = (diffFlags & DIFF_HTML)!=0;
-  if( html ) blob_append(pOut, "<pre class=\"udiff\">\n", -1);
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -379,31 +364,6 @@ static void contextDiff(
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
-
-    /* If there is a regex, skip this block (generate no diff output)
-    ** if the regex matches or does not match both insert and delete.
-    ** Only display the block if one side matches but the other side does
-    ** not.
-    */
-    if( pRe ){
-      int hideBlock = 1;
-      int xa = a, xb = b;
-      for(i=0; hideBlock && i<nr; i++){
-        int c1, c2;
-        xa += R[r+i*3];
-        xb += R[r+i*3];
-        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
-        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
-        hideBlock = c1==c2;
-        xa += R[r+i*3+1];
-        xb += R[r+i*3+2];
-      }
-      if( hideBlock ){
-        a = xa;
-        b = xb;
-        continue;
-      }
-    }
 
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
@@ -440,14 +400,10 @@ static void contextDiff(
       if( !showDivider ){
         /* Do not show a top divider */
         showDivider = 1;
-      }else if( html ){
-        blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
       }else{
         blob_appendf(pOut, "%.80c\n", '.');
       }
-      if( html ) blob_appendf(pOut, "<span id=\"chunk%d\"></span>", nChunk);
     }else{
-      if( html ) blob_appendf(pOut, "<span class=\"diffln\">");
       /*
        * If the patch changes an empty file or results in an empty file,
        * the block header must use 0,0 as position indicator and not 1,0.
@@ -456,7 +412,6 @@ static void contextDiff(
       blob_appendf(pOut,"@@ -%d,%d +%d,%d @@",
         na ? a+skip+1 : a+skip, na,
         nb ? b+skip+1 : b+skip, nb);
-      if( html ) blob_appendf(pOut, "</span>");
       blob_append(pOut, "\n", 1);
     }
 
@@ -465,8 +420,8 @@ static void contextDiff(
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+      appendDiffLine(pOut, ' ', &A[a+j]);
     }
     a += m;
     b += m;
@@ -475,21 +430,21 @@ static void contextDiff(
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
-        if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
-        appendDiffLine(pOut, '-', &A[a+j], html, pRe);
+        if( showLn ) appendDiffLineno(pOut, a+j+1, 0);
+        appendDiffLine(pOut, '-', &A[a+j]);
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
-        if( showLn ) appendDiffLineno(pOut, 0, b+j+1, html);
-        appendDiffLine(pOut, '+', &B[b+j], html, pRe);
+        if( showLn ) appendDiffLineno(pOut, 0, b+j+1);
+        appendDiffLine(pOut, '+', &B[b+j]);
       }
       b += m;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-          appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+          if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+          appendDiffLine(pOut, ' ', &A[a+j]);
         }
         b += m;
         a += m;
@@ -501,177 +456,29 @@ static void contextDiff(
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1);
+      appendDiffLine(pOut, ' ', &A[a+j]);
     }
   }
-  if( html ) blob_append(pOut, "</pre>\n", -1);
 }
 
+#define MX_CSN  8  /* Maximum number of change spans across a change region */
+
 /*
-** Status of a single output line
+** A description of zero or more (up to MX_CSN) areas of difference
+** between two lines of text.
 */
-typedef struct SbsLine SbsLine;
-struct SbsLine {
-  Blob *apCols[5];         /* Array of pointers to output columns */
-  int width;               /* Maximum width of a column in the output */
-  unsigned char escHtml;   /* True to escape html characters */
-  int iStart;              /* Write zStart prior to character iStart */
-  const char *zStart;      /* A <span> tag */
-  int iEnd;                /* Write </span> prior to character iEnd */
-  int iStart2;             /* Write zStart2 prior to character iStart2 */
-  const char *zStart2;     /* A <span> tag */
-  int iEnd2;               /* Write </span> prior to character iEnd2 */
-  ReCompiled *pRe;         /* Only colorize matching lines, if not NULL */
+typedef struct LineChange LineChange;
+struct LineChange {
+  int n;            /* Number of change spans */
+  struct Span {
+    int iStart1;    /* Byte offset to start of a change on the left */
+    int iLen1;      /* Length of the left change in bytes */
+    int iStart2;    /* Byte offset to start of a change on the right */
+    int iLen2;      /* Length of the change on the right in bytes */
+    int isMin;      /* True if this change is known to have no useful subdivs */
+  } a[MX_CSN];     /* Array of change spans, sorted order */
 };
-
-/*
-** Column indices for SbsLine.apCols[]
-*/
-#define SBS_LNA  0     /* Left line number */
-#define SBS_TXTA 1     /* Left text */
-#define SBS_MKR  2     /* Middle separator column */
-#define SBS_LNB  3     /* Right line number */
-#define SBS_TXTB 4     /* Right text */
-
-/*
-** Append newlines to all columns.
-*/
-static void sbsWriteNewlines(SbsLine *p){
-  int i;
-  for( i=p->escHtml ? SBS_LNA : SBS_TXTB; i<=SBS_TXTB; i++ ){
-    blob_append(p->apCols[i], "\n", 1);
-  }
-}
-
-/*
-** Append n spaces to the column.
-*/
-static void sbsWriteSpace(SbsLine *p, int n, int col){
-  blob_appendf(p->apCols[col], "%*s", n, "");
-}
-
-/*
-** Write the text of pLine into column iCol of p.
-**
-** If outputting HTML, write the full line.  Otherwise, only write the
-** width characters.  Translate tabs into spaces.  Add newlines if col
-** is SBS_TXTB.  Translate HTML characters if escHtml is true.  Pad the
-** rendering to width bytes if col is SBS_TXTA and escHtml is false.
-**
-** This comment contains multibyte unicode characters (ü, Æ, ð) in order
-** to test the ability of the diff code to handle such characters.
-*/
-static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
-  Blob *pCol = p->apCols[col];
-  int n = pLine->n;
-  int i;   /* Number of input characters consumed */
-  int k;   /* Cursor position */
-  int needEndSpan = 0;
-  const char *zIn = pLine->z;
-  int w = p->width;
-  int colorize = p->escHtml;
-  if( colorize && p->pRe && re_dline_match(p->pRe, pLine, 1)==0 ){
-    colorize = 0;
-  }
-  for(i=k=0; (p->escHtml || k<w) && i<n; i++, k++){
-    char c = zIn[i];
-    if( colorize ){
-      if( i==p->iStart ){
-        int x = strlen(p->zStart);
-        blob_append(pCol, p->zStart, x);
-        needEndSpan = 1;
-        if( p->iStart2 ){
-          p->iStart = p->iStart2;
-          p->zStart = p->zStart2;
-          p->iStart2 = 0;
-        }
-      }else if( i==p->iEnd ){
-        blob_append(pCol, "</span>", 7);
-        needEndSpan = 0;
-        if( p->iEnd2 ){
-          p->iEnd = p->iEnd2;
-          p->iEnd2 = 0;
-        }
-      }
-    }
-    if( c=='\t' && !p->escHtml ){
-      blob_append(pCol, " ", 1);
-      while( (k&7)!=7 && (p->escHtml || k<w) ){
-        blob_append(pCol, " ", 1);
-        k++;
-      }
-    }else if( c=='\r' || c=='\f' ){
-      blob_append(pCol, " ", 1);
-    }else if( c=='<' && p->escHtml ){
-      blob_append(pCol, "&lt;", 4);
-    }else if( c=='&' && p->escHtml ){
-      blob_append(pCol, "&amp;", 5);
-    }else if( c=='>' && p->escHtml ){
-      blob_append(pCol, "&gt;", 4);
-    }else if( c=='"' && p->escHtml ){
-      blob_append(pCol, "&quot;", 6);
-    }else{
-      blob_append(pCol, &zIn[i], 1);
-      if( (c&0xc0)==0x80 ) k--;
-    }
-  }
-  if( needEndSpan ){
-    blob_append(pCol, "</span>", 7);
-  }
-  if( col==SBS_TXTB ){
-    sbsWriteNewlines(p);
-  }else if( !p->escHtml ){
-    sbsWriteSpace(p, w-k, SBS_TXTA);
-  }
-}
-
-/*
-** Append a column to the final output blob.
-*/
-static void sbsWriteColumn(Blob *pOut, Blob *pCol, int col){
-  blob_appendf(pOut,
-    "<td><div class=\"diff%scol\">\n"
-    "<pre>\n"
-    "%s"
-    "</pre>\n"
-    "</div></td>\n",
-    (col % 3) ? (col == SBS_MKR ? "mkr" : "txt") : "ln",
-    blob_str(pCol)
-  );
-}
-
-/*
-** Append a separator line to column iCol
-*/
-static void sbsWriteSep(SbsLine *p, int len, int col){
-  char ch = '.';
-  if( len<1 ){
-    len = 1;
-    ch = ' ';
-  }
-  blob_appendf(p->apCols[col], "<span class=\"diffhr\">%.*c</span>\n", len, ch);
-}
-
-/*
-** Append the appropriate marker into the center column of the diff.
-*/
-static void sbsWriteMarker(SbsLine *p, const char *zTxt, const char *zHtml){
-  blob_append(p->apCols[SBS_MKR], p->escHtml ? zHtml : zTxt, -1);
-}
-
-/*
-** Append a line number to the column.
-*/
-static void sbsWriteLineno(SbsLine *p, int ln, int col){
-  if( p->escHtml ){
-    blob_appendf(p->apCols[col], "%d", ln+1);
-  }else{
-    char zLn[7];
-    sqlite3_snprintf(7, zLn, "%5d ", ln+1);
-    blob_appendf(p->apCols[col], "%s ", zLn);
-  }
-}
 
 /*
 ** The two text segments zLeft and zRight are known to be different on
@@ -694,119 +501,173 @@ static int textLCS(
 ){
   const unsigned char *zA = (const unsigned char*)zLeft;    /* left string */
   const unsigned char *zB = (const unsigned char*)zRight;   /* right string */
-  int nt;                    /* Number of target points */
-  int ti[3];                 /* Index for start of each 4-byte target */
-  unsigned int target[3];    /* 4-byte alignment targets */
-  unsigned int probe;        /* probe to compare against target */
-  int iAS, iAE, iBS, iBE;    /* Range of common segment */
-  int i, j;                  /* Loop counters */
-  int rc = 0;                /* Result code.  1 for success */
+  int i, j, k;               /* Loop counters */
+  int lenBest = 0;           /* Match length to beat */
 
-  if( nA<6 || nB<6 ) return 0;
-  memset(aLCS, 0, sizeof(int)*4);
-  ti[0] = i = nB/2-2;
-  target[0] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-  probe = 0;
-  if( nB<16 ){
-    nt = 1;
-  }else{
-    ti[1] = i = nB/4-2;
-    target[1] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-    ti[2] = i = (nB*3)/4-2;
-    target[2] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
-    nt = 3;
-  }
-  probe = (zA[0]<<16) | (zA[1]<<8) | zA[2];
-  for(i=3; i<nA; i++){
-    probe = (probe<<8) | zA[i];
-    for(j=0; j<nt; j++){
-      if( probe==target[j] ){
-        iAS = i-3;
-        iAE = i+1;
-        iBS = ti[j];
-        iBE = ti[j]+4;
-        while( iAE<nA && iBE<nB && zA[iAE]==zB[iBE] ){ iAE++; iBE++; }
-        while( iAS>0 && iBS>0 && zA[iAS-1]==zB[iBS-1] ){ iAS--; iBS--; }
-        if( iAE-iAS > aLCS[1] - aLCS[0] ){
-          aLCS[0] = iAS;
-          aLCS[1] = iAE;
-          aLCS[2] = iBS;
-          aLCS[3] = iBE;
-          rc = 1;
+  for(i=0; i<nA-lenBest; i++){
+    unsigned char cA = zA[i];
+    if( (cA&0xc0)==0x80 ) continue;
+    for(j=0; j<nB-lenBest; j++ ){
+      if( zB[j]==cA ){
+        for(k=1; j+k<nB && i+k<nA && zB[j+k]==zA[i+k]; k++){}
+        while( (zB[j+k]&0xc0)==0x80 ){ k--; }
+        if( k>lenBest ){
+          lenBest = k;
+          aLCS[0] = i;
+          aLCS[1] = i+k;
+          aLCS[2] = j;
+          aLCS[3] = j+k;
         }
       }
     }
   }
-  return rc;
+  return lenBest>0;
 }
 
 /*
-** Try to shift iStart as far as possible to the left.
+** Find the smallest spans that are different between two text strings that
+** are known to be different on both ends.
 */
-static void sbsShiftLeft(SbsLine *p, const char *z){
-  int i, j;
-  while( (i=p->iStart)>0 && z[i-1]==z[i] ){
-    for(j=i+1; j<p->iEnd && z[j-1]==z[j]; j++){}
-    if( j<p->iEnd ) break;
-    p->iStart--;
-    p->iEnd--;
+static int textLineChanges(
+  const char *zLeft,  int nA,       /* String on the left */
+  const char *zRight,  int nB,      /* String on the right */
+  LineChange *p                     /* Write results here */
+){
+  p->n = 1;
+  p->a[0].iStart1 = 0;
+  p->a[0].iLen1 = nA;
+  p->a[0].iStart2 = 0;
+  p->a[0].iLen2 = nB;
+  p->a[0].isMin = 0;
+  while( p->n<MX_CSN-1 ){
+    int mxi = -1;
+    int mxLen = -1;
+    int x, i;
+    int aLCS[4];
+    struct Span *a, *b;
+    for(i=0; i<p->n; i++){
+      if( p->a[i].isMin ) continue;
+      x = p->a[i].iLen1;
+      if( p->a[i].iLen2<x ) x = p->a[i].iLen2;
+      if( x>mxLen ){
+        mxLen = x;
+        mxi = i;
+      }
+    }
+    if( mxLen<6 ) break;
+    x = textLCS(zLeft + p->a[mxi].iStart1, p->a[mxi].iLen1,
+                zRight + p->a[mxi].iStart2, p->a[mxi].iLen2, aLCS);
+    if( x==0 ){
+      p->a[mxi].isMin = 1;
+      continue;
+    }
+    a = p->a+mxi;
+    b = a+1;
+    if( mxi<p->n-1 ){
+      memmove(b+1, b, sizeof(*b)*(p->n-mxi-1));
+    }
+    p->n++;
+    b->iStart1 = a->iStart1 + aLCS[1];
+    b->iLen1 = a->iLen1 - aLCS[1];
+    a->iLen1 = aLCS[0];
+    b->iStart2 = a->iStart2 + aLCS[3];
+    b->iLen2 = a->iLen2 - aLCS[3];
+    a->iLen2 = aLCS[2];
+    b->isMin = 0;
   }
+  return p->n;
 }
 
 /*
-** Simplify iStart and iStart2:
+** Return true if the string starts with n spaces
+*/
+static int allSpaces(const char *z, int n){
+  int i;
+  for(i=0; i<n && fossil_isspace(z[i]); i++){}
+  return i==n;
+}
+
+/*
+** Try to improve the human-readability of the LineChange p.
 **
-**    *  If iStart is a null-change then move iStart2 into iStart
-**    *  Make sure any null-changes are in canonoical form.
-**    *  Make sure all changes are at character boundaries for
-**       multi-byte characters.
+** (1)  If the first change span shows a change of indentation, try to
+**      move that indentation change to the left margin.
+**
+** (2)  Try to shift changes so that they begin or end with a space.
 */
-static void sbsSimplifyLine(SbsLine *p, const char *z){
-  if( p->iStart2==p->iEnd2 ){
-    p->iStart2 = p->iEnd2 = 0;
-  }else if( p->iStart2 ){
-    while( p->iStart2>0 && (z[p->iStart2]&0xc0)==0x80 ) p->iStart2--;
-    while( (z[p->iEnd2]&0xc0)==0x80 ) p->iEnd2++;
+static void improveReadability(
+  const char *zA,  /* Left line of the change */
+  const char *zB,  /* Right line of the change */
+  LineChange *p    /* The LineChange to be adjusted */
+){
+  int j, n, len;
+  if( p->n<1 ) return;
+
+  /* (1) Attempt to move indentation changes to the left margin */
+  if( p->a[0].iLen1==0
+   && (len = p->a[0].iLen2)>0
+   && (j = p->a[0].iStart2)>0
+   && zB[0]==zB[j]
+   && allSpaces(zB, j)
+  ){
+    for(n=1; n<len && n<j && zB[j]==zB[j+n]; n++){}
+    if( n<len ){
+      memmove(&p->a[1], &p->a[0], sizeof(p->a[0])*p->n);
+      p->n++;
+      p->a[0] = p->a[1];
+      p->a[1].iStart2 += n;
+      p->a[1].iLen2 -= n;
+      p->a[0].iLen2 = n;
+    }
+    p->a[0].iStart1 = 0;
+    p->a[0].iStart2 = 0;
+  }else
+  if( p->a[0].iLen2==0
+   && (len = p->a[0].iLen1)>0
+   && (j = p->a[0].iStart1)>0
+   && zA[0]==zA[j]
+   && allSpaces(zA, j)
+  ){
+    for(n=1; n<len && n<j && zA[j]==zA[j+n]; n++){}
+    if( n<len ){
+      memmove(&p->a[1], &p->a[0], sizeof(p->a[0])*p->n);
+      p->n++;
+      p->a[0] = p->a[1];
+      p->a[1].iStart1 += n;
+      p->a[1].iLen1 -= n;
+      p->a[0].iLen1 = n;
+    }
+    p->a[0].iStart1 = 0;
+    p->a[0].iStart2 = 0;
   }
-  if( p->iStart==p->iEnd ){
-    p->iStart = p->iStart2;
-    p->iEnd = p->iEnd2;
-    p->zStart = p->zStart2;
-    p->iStart2 = 0;
-    p->iEnd2 = 0;
-  }
-  if( p->iStart==p->iEnd ){
-    p->iStart = p->iEnd = -1;
-  }else if( p->iStart>0 ){
-    while( p->iStart>0 && (z[p->iStart]&0xc0)==0x80 ) p->iStart--;
-    while( (z[p->iEnd]&0xc0)==0x80 ) p->iEnd++;
-  }
+
+  /* (2) Try to shift changes so that they begin or end with a
+  ** space.  (TBD) */
 }
 
+
 /*
-** Write out lines that have been edited.  Adjust the highlight to cover
-** only those parts of the line that actually changed.
+** Given two lines of text, pFrom and pTo, compute a set of changes
+** between those two lines, for enhanced display purposes.
+**
+** The result is written into the LineChange object given by the
+** third parameter.
 */
-static void sbsWriteLineChange(
-  SbsLine *p,          /* The SBS output line */
-  DLine *pLeft,        /* Left line of the change */
-  int lnLeft,          /* Line number for the left line */
-  DLine *pRight,       /* Right line of the change */
-  int lnRight          /* Line number of the right line */
+static void oneLineChange(
+  const DLine *pLeft,  /* Left line of the change */
+  const DLine *pRight, /* Right line of the change */
+  LineChange *p        /* OUTPUT: Write the results here */
 ){
   int nLeft;           /* Length of left line in bytes */
   int nRight;          /* Length of right line in bytes */
   int nShort;          /* Shortest of left and right */
   int nPrefix;         /* Length of common prefix */
   int nSuffix;         /* Length of common suffix */
+  int nCommon;         /* Total byte length of suffix and prefix */
   const char *zLeft;   /* Text of the left line */
   const char *zRight;  /* Text of the right line */
   int nLeftDiff;       /* nLeft - nPrefix - nSuffix */
   int nRightDiff;      /* nRight - nPrefix - nSuffix */
-  int aLCS[4];         /* Bounds of common middle segment */
-  static const char zClassRm[]   = "<span class=\"diffrm\">";
-  static const char zClassAdd[]  = "<span class=\"diffadd\">";
-  static const char zClassChng[] = "<span class=\"diffchng\">";
 
   nLeft = pLeft->n;
   zLeft = pLeft->z;
@@ -823,7 +684,8 @@ static void sbsWriteLineChange(
   }
   nSuffix = 0;
   if( nPrefix<nShort ){
-    while( nSuffix<nShort && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+    while( nSuffix<nShort
+           && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
       nSuffix++;
     }
     if( nSuffix<nShort ){
@@ -831,13 +693,14 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
+  nCommon = nPrefix + nSuffix;
 
   /* If the prefix and suffix overlap, that means that we are dealing with
   ** a pure insertion or deletion of text that can have multiple alignments.
   ** Try to find an alignment to begins and ends on whitespace, or on
   ** punctuation, rather than in the middle of a name or number.
   */
-  if( nPrefix+nSuffix > nShort ){
+  if( nCommon > nShort ){
     int iBest = -1;
     int iBestVal = -1;
     int i;
@@ -864,40 +727,28 @@ static void sbsWriteLineChange(
     }
     nPrefix = iBest;
     nSuffix = nShort - nPrefix;
+    nCommon = nPrefix + nSuffix;
   }
 
-  /* A single chunk of text inserted on the right */
-  if( nPrefix+nSuffix==nLeft ){
-    sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart2 = p->iEnd2 = 0;
-    p->iStart = p->iEnd = -1;
-    sbsWriteText(p, pLeft, SBS_TXTA);
-    if( nLeft==nRight && zLeft[nLeft]==zRight[nRight] ){
-      sbsWriteMarker(p, "   ", "");
-    }else{
-      sbsWriteMarker(p, " | ", "|");
-    }
-    sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = nPrefix;
-    p->iEnd = nRight - nSuffix;
-    p->zStart = zClassAdd;
-    sbsWriteText(p, pRight, SBS_TXTB);
+  /* A single chunk of text inserted */
+  if( nCommon==nLeft ){
+    p->n = 1;
+    p->a[0].iStart1 = nPrefix;
+    p->a[0].iLen1 = 0;
+    p->a[0].iStart2 = nPrefix;
+    p->a[0].iLen2 = nRight - nCommon;
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
-  /* A single chunk of text deleted from the left */
-  if( nPrefix+nSuffix==nRight ){
-    /* Text deleted from the left */
-    sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart2 = p->iEnd2 = 0;
-    p->iStart = nPrefix;
-    p->iEnd = nLeft - nSuffix;
-    p->zStart = zClassRm;
-    sbsWriteText(p, pLeft, SBS_TXTA);
-    sbsWriteMarker(p, " | ", "|");
-    sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = p->iEnd = -1;
-    sbsWriteText(p, pRight, SBS_TXTB);
+  /* A single chunk of text deleted */
+  if( nCommon==nRight ){
+    p->n = 1;
+    p->a[0].iStart1 = nPrefix;
+    p->a[0].iLen1 = nLeft - nCommon;
+    p->a[0].iStart2 = nPrefix;
+    p->a[0].iLen2 = 0;
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
@@ -905,56 +756,80 @@ static void sbsWriteLineChange(
   ** changed between the left and the right.  Check to see if there
   ** is a large unchanged section in the middle of that changed block.
   */
-  nLeftDiff = nLeft - nSuffix - nPrefix;
-  nRightDiff = nRight - nSuffix - nPrefix;
-  if( p->escHtml
-   && nLeftDiff >= 6
-   && nRightDiff >= 6
-   && textLCS(&zLeft[nPrefix], nLeftDiff, &zRight[nPrefix], nRightDiff, aLCS)
+  nLeftDiff = nLeft - nCommon;
+  nRightDiff = nRight - nCommon;
+  if( nLeftDiff >= 4
+   && nRightDiff >= 4
+   && textLineChanges(&zLeft[nPrefix], nLeftDiff,
+                      &zRight[nPrefix], nRightDiff, p)>1
   ){
-    sbsWriteLineno(p, lnLeft, SBS_LNA);
-    p->iStart = nPrefix;
-    p->iEnd = nPrefix + aLCS[0];
-    if( aLCS[2]==0 ){
-      sbsShiftLeft(p, pLeft->z);
-      p->zStart = zClassRm;
-    }else{
-      p->zStart = zClassChng;
+    int i;
+    for(i=0; i<p->n; i++){
+      p->a[i].iStart1 += nPrefix;
+      p->a[i].iStart2 += nPrefix;
     }
-    p->iStart2 = nPrefix + aLCS[1];
-    p->iEnd2 = nLeft - nSuffix;
-    p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    sbsSimplifyLine(p, zLeft);
-    sbsWriteText(p, pLeft, SBS_TXTA);
-    sbsWriteMarker(p, " | ", "|");
-    sbsWriteLineno(p, lnRight, SBS_LNB);
-    p->iStart = nPrefix;
-    p->iEnd = nPrefix + aLCS[2];
-    if( aLCS[0]==0 ){
-      sbsShiftLeft(p, pRight->z);
-      p->zStart = zClassAdd;
-    }else{
-      p->zStart = zClassChng;
-    }
-    p->iStart2 = nPrefix + aLCS[3];
-    p->iEnd2 = nRight - nSuffix;
-    p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    sbsSimplifyLine(p, zRight);
-    sbsWriteText(p, pRight, SBS_TXTB);
+    improveReadability(zLeft, zRight, p);
     return;
   }
 
   /* If all else fails, show a single big change between left and right */
-  sbsWriteLineno(p, lnLeft, SBS_LNA);
-  p->iStart2 = p->iEnd2 = 0;
-  p->iStart = nPrefix;
-  p->iEnd = nLeft - nSuffix;
-  p->zStart = zClassChng;
-  sbsWriteText(p, pLeft, SBS_TXTA);
-  sbsWriteMarker(p, " | ", "|");
-  sbsWriteLineno(p, lnRight, SBS_LNB);
-  p->iEnd = nRight - nSuffix;
-  sbsWriteText(p, pRight, SBS_TXTB);
+  p->n = 1;
+  p->a[0].iStart1 = nPrefix;
+  p->a[0].iLen1 = nLeft - nCommon;
+  p->a[0].iStart2 = nPrefix;
+  p->a[0].iLen2 = nRight - nCommon;
+  improveReadability(zLeft, zRight, p);
+}
+
+/*
+** COMMAND: test-line-diff
+** Usage: %fossil% test-line-diff STRING1 STRING2
+**
+** Show the differences between the two strings.  Used for testing
+** the oneLineChange() routine in the diff logic.
+*/
+void test_line_diff(void){
+  DLine a, b;
+  LineChange chng;
+  int i, j, x;
+  if( g.argc!=4 ) usage("STRING1 STRING2");
+  a.z = g.argv[2];
+  a.n = (int)strlen(a.z);
+  b.z = g.argv[3];
+  b.n = (int)strlen(b.z);
+  oneLineChange(&a, &b, &chng);
+  fossil_print("left:  [%s]\n", a.z);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
+    if( len ){
+      if( x==0 ){ fossil_print("%*s", 8, ""); }
+      while( ofst > x ){
+        if( (a.z[x]&0xc0)!=0x80 ) fossil_print(" ");
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (a.z[x]&0xc0)!=0x80 ) fossil_print("%d",i);
+      }
+    }
+  }
+  if( x ) fossil_print("\n");
+  fossil_print("right: [%s]\n", b.z);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
+    if( len ){
+      if( x==0 ){ fossil_print("%*s", 8, ""); }
+      while( ofst > x ){
+        if( (b.z[x]&0xc0)!=0x80 ) fossil_print(" ");
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (b.z[x]&0xc0)!=0x80 ) fossil_print("%d",i);
+      }
+    }
+  }
+  if( x ) fossil_print("\n");
 }
 
 /*
@@ -962,6 +837,817 @@ static void sbsWriteLineChange(
 */
 static int minInt(int a, int b){ return a<b ? a : b; }
 
+
+
+/*
+** This is an abstract superclass for an object that accepts difference
+** lines and formats them for display.  Subclasses of this object format
+** the diff output in different ways.
+**
+** To subclass, create an instance of the DiffBuilder object and fill
+** in appropriate method implementations.
+*/ 
+typedef struct DiffBuilder DiffBuilder;
+struct DiffBuilder {
+  void (*xSkip)(DiffBuilder*, unsigned int, int);
+  void (*xCommon)(DiffBuilder*,const DLine*);
+  void (*xInsert)(DiffBuilder*,const DLine*);
+  void (*xDelete)(DiffBuilder*,const DLine*);
+  void (*xReplace)(DiffBuilder*,const DLine*, const DLine*);
+  void (*xEdit)(DiffBuilder*,const DLine*,const DLine*);
+  void (*xEnd)(DiffBuilder*);
+  unsigned int lnLeft;              /* Lines seen on the left (delete) side */
+  unsigned int lnRight;             /* Lines seen on the right (insert) side */
+  unsigned int nPending;            /* Number of pending lines */
+  int eState;                       /* State of the output */
+  int width;                        /* Display width */
+  Blob *pOut;                       /* Output blob */
+  Blob aCol[5];                     /* Holding blobs */
+};
+
+/************************* DiffBuilderDebug ********************************/
+/* This version of DiffBuilder is used for debugging the diff and diff
+** diff formatter logic.  It is accessed using the (undocumented) --debug
+** option to the diff command.  The output is human-readable text that
+** describes the various method calls that are invoked agains the DiffBuilder
+** object.
+*/
+static void dfdebugSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  blob_appendf(p->pOut, "SKIP %d (%d..%d left and %d..%d right)%s\n",
+                n, p->lnLeft+1, p->lnLeft+n, p->lnRight+1, p->lnRight+n,
+                isFinal ? " FINAL" : "");
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfdebugCommon(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut, "COMMON  %8u %8u %.*s\n",
+      p->lnLeft, p->lnRight, (int)pLine->n, pLine->z);
+}
+static void dfdebugInsert(DiffBuilder *p, const DLine *pLine){
+  p->lnRight++;
+  blob_appendf(p->pOut, "INSERT           %8d %.*s\n",
+      p->lnRight, (int)pLine->n, pLine->z);
+}
+static void dfdebugDelete(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  blob_appendf(p->pOut, "DELETE   %8u          %.*s\n",
+      p->lnLeft, (int)pLine->n, pLine->z);
+}
+static void dfdebugReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut, "REPLACE %8u          %.*s\n",
+      p->lnLeft, (int)pX->n, pX->z);
+  blob_appendf(p->pOut, "            %8u %.*s\n",
+      p->lnRight, (int)pY->n, pY->z);
+}
+static void dfdebugEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i, j;
+  int x;
+  LineChange chng;
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut, "EDIT     %8u          %.*s\n",
+               p->lnLeft, (int)pX->n, pX->z);
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
+    if( len ){
+      if( x==0 ){ blob_appendf(p->pOut, "%*s", 25, ""); }
+      while( ofst > x ){
+        if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, ' ');
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (pX->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, '^');
+      }
+    }
+  }
+  if( x ) blob_append_char(p->pOut, '\n');
+  blob_appendf(p->pOut, "                %8u %.*s\n",
+               p->lnRight, (int)pY->n, pY->z);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
+    if( len ){
+      if( x==0 ){ blob_appendf(p->pOut, "%*s", 25, ""); }
+      while( ofst > x ){
+        if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, ' ');
+        x++;
+      }
+      for(j=0; j<len; j++, x++){
+        if( (pY->z[x]&0xc0)!=0x80 ) blob_append_char(p->pOut, '^');
+      }
+    }
+  }
+  if( x ) blob_append_char(p->pOut, '\n');
+}
+static void dfdebugEnd(DiffBuilder *p){
+  blob_appendf(p->pOut, "END with %u lines left and %u lines right\n",
+     p->lnLeft, p->lnRight);
+  fossil_free(p);
+}
+static DiffBuilder *dfdebugNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfdebugSkip;
+  p->xCommon = dfdebugCommon;
+  p->xInsert = dfdebugInsert;
+  p->xDelete = dfdebugDelete;
+  p->xReplace = dfdebugReplace;
+  p->xEdit = dfdebugEdit;
+  p->xEnd = dfdebugEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->pOut = pOut;
+  return p;
+}
+
+/************************* DiffBuilderTcl ********************************/
+/*
+** This formatter outputs a description of the diff formatted as TCL, for
+** use by the --tk option to "diff".   See also the "diff.tcl" file.  The
+** output can be viewed directly using the --tcl option.
+**
+** There is one line per method call:
+**
+**     SKIP n                      -- Skip "n" lines of input
+**     COM string                  -- "string" is an unchanged context line
+**     INS string                  -- "string" is in the right file only
+**     DEL string                  -- "string" is in the left file only
+**     EDIT string ....            -- Complex edit between left and right
+**
+** The EDIT verb will be followed by 3*N or 3*N+1 strings.  The triples
+** each show:
+**
+**     1.  Common text
+**     2.  Text from the left side
+**     3.  Text on the right that replaces (2) from the left
+**
+** For inserted text (2) will be an empty string.  For deleted text, (3)
+** will be an empty string.  (1) might be empty for the first triple if
+** the line begins with an edit.  After all triples, there might be one
+** additional string which is a common suffix.
+*/
+static void dftclSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  blob_appendf(p->pOut, "SKIP %u\n", n);
+}
+static void dftclCommon(DiffBuilder *p, const DLine *pLine){
+  blob_appendf(p->pOut, "COM ");
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclInsert(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "INS ", -1);
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclDelete(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "DEL ", -1);
+  blob_append_tcl_literal(p->pOut, pLine->z, pLine->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  blob_append(p->pOut, "EDIT \"\" ", -1);
+  blob_append_tcl_literal(p->pOut, pX->z, pX->n);
+  blob_append_char(p->pOut, ' ');
+  blob_append_tcl_literal(p->pOut, pY->z, pY->n);
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i, x;
+  LineChange chng;
+  blob_append(p->pOut, "EDIT", 4);
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iStart1 - x);
+    x = chng.a[i].iStart1;
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
+    x += chng.a[i].iLen1;
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_literal(p->pOut, 
+                         pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
+  }
+  if( x<pX->n ){
+    blob_append_char(p->pOut, ' ');
+    blob_append_tcl_literal(p->pOut, pX->z + x, pX->n - x);
+  }
+  blob_append_char(p->pOut, '\n');
+}
+static void dftclEnd(DiffBuilder *p){
+  fossil_free(p);
+}
+static DiffBuilder *dftclNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dftclSkip;
+  p->xCommon = dftclCommon;
+  p->xInsert = dftclInsert;
+  p->xDelete = dftclDelete;
+  p->xReplace = dftclReplace;
+  p->xEdit = dftclEdit;
+  p->xEnd = dftclEnd;
+  p->pOut = pOut;
+  return p;
+}
+
+/************************* DiffBuilderJson ********************************/
+/*
+** This formatter generates a JSON array that describes the difference.
+**
+** The Json array consists of integer opcodes with each opcode followed
+** by zero or more arguments:
+**
+**   Syntax        Mnemonic    Description
+**   -----------   --------    --------------------------
+**   0             END         This is the end of the diff
+**   1  INTEGER    SKIP        Skip N lines from both files
+**   2  STRING     COMMON      The line show by STRING is in both files
+**   3  STRING     INSERT      The line STRING is in only the right file
+**   4  STRING     DELETE      The STRING line is in only the left file
+**   5  SUBARRAY   EDIT        One line is different on left and right.
+**
+** The SUBARRAY is an array of 3*N+1 strings with N>=0.  The triples
+** represent common-text, left-text, and right-text.  The last string
+** in SUBARRAY is the common-suffix.  Any string can be empty if it does
+** not apply.
+*/
+static void dfjsonSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  blob_appendf(p->pOut, "1,%u,\n", n);
+}
+static void dfjsonCommon(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "2,",2);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
+}
+static void dfjsonInsert(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "3,",2);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
+}
+static void dfjsonDelete(DiffBuilder *p, const DLine *pLine){
+  blob_append(p->pOut, "4,",2);
+  blob_append_json_literal(p->pOut, pLine->z, (int)pLine->n);
+  blob_append(p->pOut, ",\n",2);
+}
+static void dfjsonReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  blob_append(p->pOut, "5,[\"\",",-1);
+  blob_append_json_literal(p->pOut, pX->z, (int)pX->n);
+  blob_append(p->pOut, ",",1);
+  blob_append_json_literal(p->pOut, pY->z, (int)pY->n);
+  blob_append(p->pOut, ",\"\"],\n",-1);
+}
+static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i, x;
+  LineChange chng;
+  blob_append(p->pOut, "5,[", 3);
+  oneLineChange(pX, pY, &chng);
+  for(i=x=0; i<chng.n; i++){
+    blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iStart1 - x);
+    x = chng.a[i].iStart1;
+    blob_append_char(p->pOut, ',');
+    blob_append_json_literal(p->pOut, pX->z + x, chng.a[i].iLen1);
+    x += chng.a[i].iLen1;
+    blob_append_char(p->pOut, ',');
+    blob_append_json_literal(p->pOut, 
+                         pY->z + chng.a[i].iStart2, chng.a[i].iLen2);
+  }
+  blob_append_char(p->pOut, ',');
+  blob_append_json_literal(p->pOut, pX->z + x, pX->n - x);
+  blob_append(p->pOut, "],\n",3);
+}
+static void dfjsonEnd(DiffBuilder *p){
+  blob_append(p->pOut, "0]", 2);
+  fossil_free(p);
+}
+static DiffBuilder *dfjsonNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfjsonSkip;
+  p->xCommon = dfjsonCommon;
+  p->xInsert = dfjsonInsert;
+  p->xDelete = dfjsonDelete;
+  p->xReplace = dfjsonReplace;
+  p->xEdit = dfjsonEdit;
+  p->xEnd = dfjsonEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->pOut = pOut;
+  blob_append_char(pOut, '[');
+  return p;
+}
+
+/************************* DiffBuilderUnified********************************/
+/* This formatter generates a unified diff for HTML.
+**
+** The result is a <table> with four columns.  The four columns hold:
+**
+**     1.   The line numbers for the first file.
+**     2.   The line numbers for the second file.
+**     3.   The "diff mark":  "+" or "-" or just a space
+**     4.   Text of the line
+**
+** Inserted lines are marked with <ins> and deleted lines are marked
+** with <del>.  The whole line is marked this way, not just the part that
+** changed.  The part that change has an additional nested <ins> or <del>.
+** The CSS needs to be set up such that a single <ins> or <del> gives a
+** light background and a nested <ins> or <del> gives a darker background.
+** Additional attributes (like bold font) might also be added to nested
+** <ins> and <del> since those are the characters that have actually
+** changed.
+**
+** Accumulator strategy:
+**
+**    *   Delete line numbers are output directly to p->pOut
+**    *   Insert line numbers accumulate in p->aCol[0].
+**    *   Separator marks accumulate in p->aCol[1].
+**    *   Change text accumulates in p->aCol[2].
+**    *   Pending insert line numbers go into p->aCol[3].
+**    *   Pending insert text goes into p->aCol[4].
+**
+** eState is 1 if text has an open <del>
+*/
+static void dfunifiedFinishDelete(DiffBuilder *p){
+  if( p->eState==0 ) return;
+  blob_append(p->pOut, "</del>", 6);
+  blob_append(&p->aCol[2], "</del>", 6);
+  p->eState = 0;
+}
+static void dfunifiedFinishInsert(DiffBuilder *p){
+  unsigned int i;
+  if( p->nPending==0 ) return;
+  dfunifiedFinishDelete(p);
+
+  /* Blank lines for delete line numbers for each inserted line */
+  for(i=0; i<p->nPending; i++) blob_append_char(p->pOut, '\n');
+
+  /* Insert line numbers */
+  blob_append(&p->aCol[0], "<ins>", 5);
+  blob_append_xfer(&p->aCol[0], &p->aCol[3]);
+  blob_append(&p->aCol[0], "</ins>", 6);
+
+  /* "+" marks for the separator on inserted lines */
+  for(i=0; i<p->nPending; i++) blob_append(&p->aCol[1], "+\n", 2);
+
+  /* Text of the inserted lines */
+  blob_append(&p->aCol[2], "<ins>", 5);
+  blob_append_xfer(&p->aCol[2], &p->aCol[4]);
+  blob_append(&p->aCol[2], "</ins>", 6);
+  
+  p->nPending = 0;
+}
+static void dfunifiedFinishRow(DiffBuilder *p){
+  dfunifiedFinishDelete(p);
+  dfunifiedFinishInsert(p);
+  if( blob_size(&p->aCol[0])==0 ) return;
+  blob_append(p->pOut, "</pre></td><td class=\"diffln difflnr\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[0]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffsep\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[1]);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtu\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[2]);
+  blob_append(p->pOut, "</pre></td></tr>\n", -1);
+}
+static void dfunifiedStartRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])>0 ) return;
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+                       "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
+  p->eState = 0;
+  p->nPending = 0;
+}
+static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  dfunifiedFinishRow(p);
+  blob_append(p->pOut, "<tr><td class=\"diffln difflne\">"
+                       "&#xfe19;</td><td></td><td></td></tr>\n", -1);
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfunifiedCommon(DiffBuilder *p, const DLine *pLine){
+  dfunifiedStartRow(p);
+  dfunifiedFinishDelete(p);
+  dfunifiedFinishInsert(p);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_appendf(&p->aCol[0],"%d\n",p->lnRight);
+  blob_append_char(&p->aCol[1], '\n');
+  htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
+  blob_append_char(&p->aCol[2], '\n');
+}
+static void dfunifiedInsert(DiffBuilder *p, const DLine *pLine){
+  dfunifiedStartRow(p);
+  p->lnRight++;
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
+  blob_append(&p->aCol[4], "<ins>", 5);
+  htmlize_to_blob(&p->aCol[4], pLine->z, (int)pLine->n);
+  blob_append(&p->aCol[4], "</ins>\n", 7);
+  p->nPending++;
+}
+static void dfunifiedDelete(DiffBuilder *p, const DLine *pLine){
+  dfunifiedStartRow(p);
+  dfunifiedFinishInsert(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
+  p->lnLeft++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0],'\n');
+  blob_append(&p->aCol[1],"-\n",2);
+  blob_append(&p->aCol[2], "<del>", 5);
+  htmlize_to_blob(&p->aCol[2], pLine->z, (int)pLine->n);
+  blob_append(&p->aCol[2], "</del>\n", 7);
+}
+static void dfunifiedReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  dfunifiedStartRow(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "-\n", 2);
+
+  htmlize_to_blob(&p->aCol[2], pX->z,  pX->n);
+  blob_append_char(&p->aCol[2], '\n');
+
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
+
+  htmlize_to_blob(&p->aCol[4], pY->z,  pY->n);
+  blob_append_char(&p->aCol[4], '\n');
+  p->nPending++;
+}
+static void dfunifiedEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i;
+  int x;
+  LineChange chng;
+  oneLineChange(pX, pY, &chng);
+  dfunifiedStartRow(p);
+  if( p->eState==0 ){
+    dfunifiedFinishInsert(p);
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[2], "<del>", 5);
+    p->eState = 1;
+  }
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "-\n", 2);
+
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
+    if( len ){
+      htmlize_to_blob(&p->aCol[2], pX->z+x, ofst - x);
+      x = ofst;
+      blob_append(&p->aCol[2], "<del>", 5);
+      htmlize_to_blob(&p->aCol[2], pX->z+x, len);
+      x += len;
+      blob_append(&p->aCol[2], "</del>", 6);
+    }
+  }
+  htmlize_to_blob(&p->aCol[2], pX->z+x,  pX->n - x);
+  blob_append_char(&p->aCol[2], '\n');
+
+  blob_appendf(&p->aCol[3],"%d\n", p->lnRight);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
+    if( len ){
+      htmlize_to_blob(&p->aCol[4], pY->z+x, ofst - x);
+      x = ofst;
+      blob_append(&p->aCol[4], "<ins>", 5);
+      htmlize_to_blob(&p->aCol[4], pY->z+x, len);
+      x += len;
+      blob_append(&p->aCol[4], "</ins>", 6);
+    }
+  }
+  htmlize_to_blob(&p->aCol[4], pY->z+x,  pY->n - x);
+  blob_append_char(&p->aCol[4], '\n');
+  p->nPending++;
+}
+static void dfunifiedEnd(DiffBuilder *p){
+  dfunifiedFinishRow(p);
+  blob_append(p->pOut, "</table>\n",-1);
+  fossil_free(p);
+}
+static DiffBuilder *dfunifiedNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfunifiedSkip;
+  p->xCommon = dfunifiedCommon;
+  p->xInsert = dfunifiedInsert;
+  p->xDelete = dfunifiedDelete;
+  p->xReplace = dfunifiedReplace;
+  p->xEdit = dfunifiedEdit;
+  p->xEnd = dfunifiedEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->eState = 0;
+  p->nPending = 0;
+  p->pOut = pOut;
+  blob_append(pOut, "<table class=\"diff udiff\">\n", -1);
+  blob_init(&p->aCol[0], 0, 0);
+  blob_init(&p->aCol[1], 0, 0);
+  blob_init(&p->aCol[2], 0, 0);
+  blob_init(&p->aCol[3], 0, 0);
+  blob_init(&p->aCol[4], 0, 0);
+  return p;
+}
+
+/************************* DiffBuilderSplit  ******************************/
+/* This formatter creates a side-by-side diff in HTML.  The output is a
+** <table> with 5 columns:
+**
+**    1.  Line numbers for the first file.
+**    2.  Text for the first file.
+**    3.  The difference mark.  "<", ">", "|" or blank
+**    4.  Line numbers for the second file.
+**    5.  Text for the second file.
+**
+** The <ins> and <del> strategy is the same as for unified diff above.
+** In fact, the same CSS can be used for both.
+**
+** Accumulator strategy:
+**
+**    *   Left line numbers are output directly to p->pOut
+**    *   Left text accumulates in p->aCol[0].
+**    *   Edit marks accumulates in p->aCol[1].
+**    *   Right line numbers accumulate in p->aCol[2].
+**    *   Right text accumulates in p->aCol[3].
+**
+** eState:
+**    0   In common block
+**    1   Have <del> on the left
+**    2   Have <ins> on the right
+**    3   Have <del> on left and <ins> on the right
+*/
+static void dfsplitChangeState(DiffBuilder *p, int newState){
+  if( p->eState == newState ) return;
+  if( (p->eState&1)==0 && (newState & 1)!=0 ){
+    blob_append(p->pOut, "<del>", 5);
+    blob_append(&p->aCol[0], "<del>", 5);
+    p->eState |= 1;
+  }else if( (p->eState&1)!=0 && (newState & 1)==0 ){
+    blob_append(p->pOut, "</del>", 6);
+    blob_append(&p->aCol[0], "</del>", 6);
+    p->eState &= ~1;
+  }
+  if( (p->eState&2)==0 && (newState & 2)!=0 ){
+    blob_append(&p->aCol[2], "<ins>", 5);
+    blob_append(&p->aCol[3], "<ins>", 5);
+    p->eState |= 2;
+  }else if( (p->eState&2)!=0 && (newState & 2)==0 ){
+    blob_append(&p->aCol[2], "</ins>", 6);
+    blob_append(&p->aCol[3], "</ins>", 6);
+    p->eState &= ~2;
+  }
+}
+static void dfsplitFinishRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])==0 ) return;
+  dfsplitChangeState(p, 0);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtl\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[0]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffsep\"><pre>\n", -1);
+  blob_append_xfer(p->pOut, &p->aCol[1]);
+  blob_append(p->pOut, "</pre></td><td class=\"diffln difflnr\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[2]);
+  blob_append(p->pOut, "</pre></td><td class=\"difftxt difftxtr\"><pre>\n",-1);
+  blob_append_xfer(p->pOut, &p->aCol[3]);
+  blob_append(p->pOut, "</pre></td></tr>\n", -1);
+}
+static void dfsplitStartRow(DiffBuilder *p){
+  if( blob_size(&p->aCol[0])>0 ) return;
+  blob_appendf(p->pOut,"<tr id=\"chunk%d\">"
+                       "<td class=\"diffln difflnl\"><pre>\n", ++nChunk);
+  p->eState = 0;
+}
+static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  dfsplitFinishRow(p);
+  blob_append(p->pOut, 
+     "<tr><td class=\"diffln difflnl difflne\">&#xfe19;</td>"
+     "<td></td><td></td>"
+     "<td class=\"diffln difflnr difflne\">&#xfe19;</td>"
+     "<td/td></tr>\n", -1);
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+static void dfsplitCommon(DiffBuilder *p, const DLine *pLine){
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 0);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  htmlize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n);
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append_char(&p->aCol[1], '\n');
+  blob_appendf(&p->aCol[2],"%d\n",p->lnRight);
+  htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
+  blob_append_char(&p->aCol[3], '\n');
+}
+static void dfsplitInsert(DiffBuilder *p, const DLine *pLine){
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 2);
+  p->lnRight++;
+  blob_append_char(p->pOut, '\n');
+  blob_append_char(&p->aCol[0], '\n');
+  blob_append(&p->aCol[1], "&gt;\n", -1);
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+  blob_append(&p->aCol[3], "<ins>", 5);
+  htmlize_to_blob(&p->aCol[3], pLine->z, (int)pLine->n);
+  blob_append(&p->aCol[3], "</ins>\n", 7);
+}
+static void dfsplitDelete(DiffBuilder *p, const DLine *pLine){
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 1);
+  p->lnLeft++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  blob_append(&p->aCol[0], "<del>", 5);
+  htmlize_to_blob(&p->aCol[0], pLine->z, (int)pLine->n);
+  blob_append(&p->aCol[0], "</del>\n", 7);
+  blob_append(&p->aCol[1], "&lt;\n", -1);
+  blob_append_char(&p->aCol[2],'\n');
+  blob_append_char(&p->aCol[3],'\n');
+}
+static void dfsplitReplace(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 3);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  htmlize_to_blob(&p->aCol[0], pX->z,  pX->n);
+  blob_append_char(&p->aCol[0], '\n');
+
+  blob_append(&p->aCol[1], "|\n", 2);
+
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+
+  htmlize_to_blob(&p->aCol[3], pY->z,  pY->n);
+  blob_append_char(&p->aCol[3], '\n');
+}
+static void dfsplitEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  int i;
+  int x;
+  LineChange chng;
+  oneLineChange(pX, pY, &chng);
+  dfsplitStartRow(p);
+  dfsplitChangeState(p, 3);
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%d\n", p->lnLeft);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart1;
+    int len = chng.a[i].iLen1;
+    if( len ){
+      htmlize_to_blob(&p->aCol[0], pX->z+x, ofst - x);
+      x = ofst;
+      if( chng.a[i].iLen2 ){
+        blob_append(&p->aCol[0], "<del class='edit'>", -1);
+      }else{
+        blob_append(&p->aCol[0], "<del>", 5);
+      }
+      htmlize_to_blob(&p->aCol[0], pX->z+x, len);
+      x += len;
+      blob_append(&p->aCol[0], "</del>", 6);
+    }
+  }
+  htmlize_to_blob(&p->aCol[0], pX->z+x,  pX->n - x);
+  blob_append_char(&p->aCol[0], '\n');
+
+  blob_append(&p->aCol[1], "|\n", 2);
+
+  blob_appendf(&p->aCol[2],"%d\n", p->lnRight);
+  for(i=x=0; i<chng.n; i++){
+    int ofst = chng.a[i].iStart2;
+    int len = chng.a[i].iLen2;
+    if( len ){
+      htmlize_to_blob(&p->aCol[3], pY->z+x, ofst - x);
+      x = ofst;
+      if( chng.a[i].iLen1 ){
+        blob_append(&p->aCol[3], "<ins class='edit'>", -1);
+      }else{
+        blob_append(&p->aCol[3], "<ins>", 5);
+      }
+      htmlize_to_blob(&p->aCol[3], pY->z+x, len);
+      x += len;
+      blob_append(&p->aCol[3], "</ins>", 6);
+    }
+  }
+  htmlize_to_blob(&p->aCol[3], pY->z+x,  pY->n - x);
+  blob_append_char(&p->aCol[3], '\n');
+}
+static void dfsplitEnd(DiffBuilder *p){
+  dfsplitFinishRow(p);
+  blob_append(p->pOut, "</table>\n",-1);
+  fossil_free(p);
+}
+static DiffBuilder *dfsplitNew(Blob *pOut){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfsplitSkip;
+  p->xCommon = dfsplitCommon;
+  p->xInsert = dfsplitInsert;
+  p->xDelete = dfsplitDelete;
+  p->xReplace = dfsplitReplace;
+  p->xEdit = dfsplitEdit;
+  p->xEnd = dfsplitEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->eState = 0;
+  p->pOut = pOut;
+  blob_append(pOut, "<table class=\"diff splitdiff\">\n", -1);
+  blob_init(&p->aCol[0], 0, 0);
+  blob_init(&p->aCol[1], 0, 0);
+  blob_init(&p->aCol[2], 0, 0);
+  blob_init(&p->aCol[3], 0, 0);
+  blob_init(&p->aCol[4], 0, 0);
+  return p;
+}
+
+/************************* DiffBuilderSbs  ******************************/
+/* This formatter creates a side-by-side diff in text.
+*/
+static void dfsbsSkip(DiffBuilder *p, unsigned int n, int isFinal){
+  if( (p->lnLeft || p->lnRight) && !isFinal ){
+    blob_appendf(p->pOut, "%.*c\n", p->width*2 + 16, '.');
+  }
+  p->lnLeft += n;
+  p->lnRight += n;
+}
+
+/*
+** Append at least iMin characters (not bytes) and at most iMax characters
+** from pX onto the into of p.
+**
+** This comment contains multibyte unicode characters (ü, Æ, ð) in order
+** to test the ability of the diff code to handle such characters.
+*/
+static void sbs_append_chars(Blob *p, int iMin, int iMax, const DLine *pX){
+  int i;
+  const char *z = pX->z;
+  for(i=0; i<iMax && i<pX->n; i++){
+    char c = z[i];
+    blob_append_char(p, c);
+    if( (c&0xc0)==0x80 ){ iMin++; iMax++; }
+  }
+  while( i<iMin ){
+    blob_append_char(p, ' ');
+    i++;
+  }
+}
+
+static void dfsbsCommon(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%6u ", p->lnLeft);
+  sbs_append_chars(p->pOut, p->width, p->width, pLine);
+  blob_appendf(p->pOut,"   %6u ", p->lnRight);
+  sbs_append_chars(p->pOut, 0, p->width, pLine);
+  blob_append_char(p->pOut, '\n');
+}
+static void dfsbsInsert(DiffBuilder *p, const DLine *pLine){
+  p->lnRight++;
+  blob_appendf(p->pOut,"%6s %*s > %6u ",
+     "", p->width, "", p->lnRight);
+  sbs_append_chars(p->pOut, 0, p->width, pLine);
+  blob_append_char(p->pOut, '\n');
+}
+static void dfsbsDelete(DiffBuilder *p, const DLine *pLine){
+  p->lnLeft++;
+  blob_appendf(p->pOut,"%6u ", p->lnLeft);
+  sbs_append_chars(p->pOut, p->width, p->width, pLine);
+  blob_append(p->pOut," <\n", 3);
+}
+static void dfsbsEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
+  p->lnLeft++;
+  p->lnRight++;
+  blob_appendf(p->pOut,"%6u ", p->lnLeft);
+  sbs_append_chars(p->pOut, p->width, p->width, pX);
+  blob_appendf(p->pOut, " | %6u ", p->lnRight);
+  sbs_append_chars(p->pOut, 0, p->width, pY);
+  blob_append_char(p->pOut, '\n');
+}
+static void dfsbsEnd(DiffBuilder *p){
+  fossil_free(p);
+}
+static DiffBuilder *dfsbsNew(Blob *pOut, u64 diffFlags){
+  DiffBuilder *p = fossil_malloc(sizeof(*p));
+  p->xSkip = dfsbsSkip;
+  p->xCommon = dfsbsCommon;
+  p->xInsert = dfsbsInsert;
+  p->xDelete = dfsbsDelete;
+  p->xReplace = dfsbsEdit;
+  p->xEdit = dfsbsEdit;
+  p->xEnd = dfsbsEnd;
+  p->lnLeft = p->lnRight = 0;
+  p->width = diff_width(diffFlags);
+  p->pOut = pOut;
+  return p;
+}
+/****************************************************************************/
 /*
 ** Return the number between 0 and 100 that is smaller the closer pA and
 ** pB match.  Return 0 for a perfect match.  Return 100 if pA and pB are
@@ -974,7 +1660,7 @@ static int minInt(int a, int b){ return a<b ? a : b; }
 ** (3) Find the length of the longest common subsequence
 ** (4) Longer common subsequences yield lower scores.
 */
-static int match_dline(DLine *pA, DLine *pB){
+static int match_dline(const DLine *pA, const DLine *pB){
   const char *zA;            /* Left string */
   const char *zB;            /* right string */
   int nA;                    /* Bytes in zA[] */
@@ -1028,6 +1714,28 @@ static int match_dline(DLine *pA, DLine *pB){
 }
 
 /*
+** COMMAND:  test-line-match
+** Usage: %fossil test-line-match STRING1 STRING2
+**
+** Return a score from 0 to 100 that is how similar STRING1 is to
+** STRING2.  Smaller numbers mean more similar.  0 is an exact match.
+**
+** This command is used to test to match_dline() function in the
+** internal Fossil diff logic.
+*/
+void test_dline_match(void){
+  DLine a, b;
+  int x;
+  if( g.argc!=4 ) usage("STRING1 STRING2");
+  a.z = g.argv[2];
+  a.n = (int)strlen(a.z);
+  b.z = g.argv[3];
+  b.n = (int)strlen(b.z);
+  x = match_dline(&a, &b);
+  fossil_print("%d\n", x);
+}
+
+/*
 ** There is a change block in which nLeft lines of text on the left are
 ** converted into nRight lines of text on the right.  This routine computes
 ** how the lines on the left line up with the lines on the right.
@@ -1041,10 +1749,9 @@ static int match_dline(DLine *pA, DLine *pB){
 **    3.  The next line of pLeft changes into the next line of pRight.
 **    4.  Delete one line from pLeft and add one line to pRight.
 **
-** Values larger than three indicate better matches.
-**
-** The length of the returned array will be just large enough to cause
-** all elements of pLeft and pRight to be consumed.
+** The length of the returned array will be at most nLeft+nRight bytes.
+** If the first bytes is 4,  that means we could not compute reasonable
+** alignment between the two blocks.
 **
 ** Algorithm:  Wagner's minimum edit-distance algorithm, modified by
 ** adding a cost to each match based on how well the two rows match
@@ -1052,46 +1759,99 @@ static int match_dline(DLine *pA, DLine *pB){
 ** are between 0 and 100 where 0 is a perfect match 100 is a complete
 ** mismatch.
 */
-static unsigned char *sbsAlignment(
-   DLine *aLeft, int nLeft,       /* Text on the left */
-   DLine *aRight, int nRight,     /* Text on the right */
-   u64 diffFlags                  /* Flags passed into the original diff */
+static unsigned char *diffBlockAlignment(
+  const DLine *aLeft, int nLeft,     /* Text on the left */
+  const DLine *aRight, int nRight,   /* Text on the right */
+  u64 diffFlags,                     /* Flags passed into the original diff */
+  int *pNResult                      /* OUTPUT: Bytes of result */
 ){
   int i, j, k;                 /* Loop counters */
   int *a;                      /* One row of the Wagner matrix */
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
   int nMatch, iMatch;          /* Number of matching lines and match score */
-  int mnLen;                   /* MIN(nLeft, nRight) */
+  int mnLen;                   /* minInt(nLeft, nRight) */
   int mxLen;                   /* MAX(nLeft, nRight) */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
-  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
   if( nLeft==0 ){
+    aM = fossil_malloc( nRight + 2 );
     memset(aM, 2, nRight);
+    *pNResult = nRight;
     return aM;
   }
   if( nRight==0 ){
+    aM = fossil_malloc( nLeft + 2 );
     memset(aM, 1, nLeft);
+    *pNResult = nLeft;
     return aM;
   }
 
-  /* This algorithm is O(N**2).  So if N is too big, bail out with a
-  ** simple (but stupid and ugly) result that doesn't take too long. */
+  /* For large alignments, use a divide and conquer algorithm that is
+  ** O(NlogN).  The result is not as precise, but this whole thing is an
+  ** approximation anyhow, and the faster response time is an acceptable
+  ** trade-off for reduced precision.
+  */
   mnLen = nLeft<nRight ? nLeft : nRight;
-  if( nLeft*nRight>100000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
-    memset(aM, 4, mnLen);
-    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
-    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
-    return aM;
+  if( nLeft*nRight>1000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
+    const DLine *aSmall;   /* The smaller of aLeft and aRight */
+    const DLine *aBig;     /* The larger of aLeft and aRight */
+    int nSmall, nBig;      /* Size of aSmall and aBig.  nSmall<=nBig */
+    int iDivSmall, iDivBig;  /* Divider point for aSmall and aBig */
+    int iDivLeft, iDivRight; /* Divider point for aLeft and aRight */
+    unsigned char *a1, *a2;  /* Results of the alignments on two halves */
+    int n1, n2;              /* Number of entries in a1 and a2 */
+    int score, bestScore;    /* Score and best score seen so far */
+    if( nLeft>nRight ){
+      aSmall = aRight;
+      nSmall = nRight;
+      aBig = aLeft;
+      nBig = nLeft;
+    }else{
+      aSmall = aLeft;
+      nSmall = nLeft;
+      aBig = aRight;
+      nBig = nRight;
+    }
+    iDivBig = nBig/2;
+    iDivSmall = nSmall/2;
+    bestScore = 10000;
+    for(i=0; i<nSmall; i++){
+      score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
+      if( score<bestScore ){
+        bestScore = score;
+        iDivSmall = i;
+      }
+    }
+    if( aSmall==aRight ){
+      iDivRight = iDivSmall;
+      iDivLeft = iDivBig;
+    }else{
+      iDivRight = iDivBig;
+      iDivLeft = iDivSmall;
+    }
+    a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,diffFlags,&n1);
+    a2 = diffBlockAlignment(aLeft+iDivLeft, nLeft-iDivLeft,
+                            aRight+iDivRight, nRight-iDivRight,
+                            diffFlags, &n2);
+    a1 = fossil_realloc(a1, n1+n2 );
+    memcpy(a1+n1,a2,n2);
+    fossil_free(a2);
+    *pNResult = n1+n2;
+    return a1;
   }
 
+  /* If we reach this point, we will be doing an O(N*N) Wagner minimum
+  ** edit distance to compute the alignment.
+  */
   if( nRight < count(aBuf)-1 ){
     pToFree = 0;
     a = aBuf;
   }else{
     a = pToFree = fossil_malloc( sizeof(a[0])*(nRight+1) );
   }
+  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
+
 
   /* Compute the best alignment */
   for(i=0; i<=nRight; i++){
@@ -1150,6 +1910,7 @@ static unsigned char *sbsAlignment(
   k++;
   i = (nRight+1)*(nLeft+1) - k;
   memmove(aM, &aM[k], i);
+  *pNResult = i;
 
   /* If:
   **   (1) the alignment is more than 25% longer than the longest side, and
@@ -1163,9 +1924,9 @@ static unsigned char *sbsAlignment(
   */
   mxLen = nLeft>nRight ? nLeft : nRight;
   if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
-    memset(aM, 4, mnLen);
-    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
-    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
+    memset(aM, 4, mnLen); *pNResult = mnLen;
+    if( nLeft>mnLen ){  memset(aM+mnLen, 1, nLeft-mnLen); *pNResult = nLeft;   }
+    if( nRight>mnLen ){ memset(aM+mnLen, 2, nRight-mnLen); *pNResult = nRight; }
   }
 
   /* Return the result */
@@ -1179,56 +1940,34 @@ static unsigned char *sbsAlignment(
 ** two differences is so small that they should be rendered as a single
 ** edit.
 */
-static int smallGap(int *R){
+static int smallGap(const int *R){
   return R[3]<=2 || R[3]<=(R[1]+R[2]+R[4]+R[5])/8;
 }
 
 /*
-** Given a diff context in which the aEdit[] array has been filled
-** in, compute a side-by-side diff into pOut.
+** Format a diff using a DiffBuilder object
 */
-static void sbsDiff(
-  DContext *p,       /* The computed diff */
-  Blob *pOut,        /* Write the results here */
-  ReCompiled *pRe,   /* Only show changes that match this regex */
-  u64 diffFlags      /* Flags controlling the diff */
+static void formatDiff(
+  DContext *p,           /* The computed diff */
+  ReCompiled *pRe,       /* Only show changes that match this regex */
+  u64 diffFlags,         /* Flags controlling the diff */
+  DiffBuilder *pBuilder  /* The formatter object */
 ){
-  DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */
-  int a = 0;    /* Index of next line in A[] */
-  int b = 0;    /* Index of next line in B[] */
-  int *R;       /* Array of COPY/DELETE/INSERT triples */
-  int r;        /* Index into R[] */
-  int nr;       /* Number of COPY/DELETE/INSERT triples to process */
-  int mxr;      /* Maximum value for r */
-  int na, nb;   /* Number of lines shown from A and B */
-  int i, j;     /* Loop counters */
-  int m, ma, mb;/* Number of lines to output */
-  int skip;     /* Number of lines to skip */
-  static int nChunk = 0; /* Number of chunks of diff output seen so far */
-  SbsLine s;    /* Output line buffer */
-  int nContext; /* Lines of context above and below each change */
-  int showDivider = 0;  /* True to show the divider */
-  Blob aCols[5]; /* Array of column blobs */
+  const DLine *A;        /* Left side of the diff */
+  const DLine *B;        /* Right side of the diff */
+  unsigned int a = 0;    /* Index of next line in A[] */
+  unsigned int b = 0;    /* Index of next line in B[] */
+  const int *R;          /* Array of COPY/DELETE/INSERT triples */
+  unsigned int r;        /* Index into R[] */
+  unsigned int nr;       /* Number of COPY/DELETE/INSERT triples to process */
+  unsigned int mxr;      /* Maximum value for r */
+  unsigned int na, nb;   /* Number of lines shown from A and B */
+  unsigned int i, j;     /* Loop counters */
+  unsigned int m, ma, mb;/* Number of lines to output */
+  signed int skip = 0;   /* Number of lines to skip */
+  unsigned int nContext; /* Lines of context above and below each change */
 
-  memset(&s, 0, sizeof(s));
-  s.width = diff_width(diffFlags);
   nContext = diff_context_lines(diffFlags);
-  s.escHtml = (diffFlags & DIFF_HTML)!=0;
-  if( s.escHtml ){
-    for(i=SBS_LNA; i<=SBS_TXTB; i++){
-      blob_zero(&aCols[i]);
-      s.apCols[i] = &aCols[i];
-    }
-  }else{
-    for(i=SBS_LNA; i<=SBS_TXTB; i++){
-      s.apCols[i] = pOut;
-    }
-  }
-  s.pRe = pRe;
-  s.iStart = -1;
-  s.iStart2 = 0;
-  s.iEnd = -1;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -1238,7 +1977,6 @@ static void sbsDiff(
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
-    /* printf("r=%d nr=%d\n", r, nr); */
 
     /* If there is a regex, skip this block (generate no diff output)
     ** if the regex matches or does not match both insert and delete.
@@ -1265,8 +2003,8 @@ static void sbsDiff(
       }
     }
 
-    /* For the current block comprising nr triples, figure out
-    ** how many lines of A and B are to be displayed
+    /* Figure out how many lines of A and B are to be displayed
+    ** for this change block.
     */
     if( R[r]>nContext ){
       na = nb = nContext;
@@ -1291,123 +2029,87 @@ static void sbsDiff(
       nb += R[r+i*3];
     }
 
-    /* Draw the separator between blocks */
-    if( showDivider ){
-      if( s.escHtml ){
-        char zLn[10];
-        sqlite3_snprintf(sizeof(zLn), zLn, "%d", a+skip+1);
-        sbsWriteSep(&s, strlen(zLn), SBS_LNA);
-        sbsWriteSep(&s, s.width, SBS_TXTA);
-        sbsWriteSep(&s, 0, SBS_MKR);
-        sqlite3_snprintf(sizeof(zLn), zLn, "%d", b+skip+1);
-        sbsWriteSep(&s, strlen(zLn), SBS_LNB);
-        sbsWriteSep(&s, s.width, SBS_TXTB);
-      }else{
-        blob_appendf(pOut, "%.*c\n", s.width*2+16, '.');
-      }
-    }
-    showDivider = 1;
-    nChunk++;
-    if( s.escHtml ){
-      blob_appendf(s.apCols[SBS_LNA], "<span id=\"chunk%d\"></span>", nChunk);
-    }
-
     /* Show the initial common area */
     a += skip;
     b += skip;
     m = R[r] - skip;
+    if( r ) skip -= nContext;
+    if( skip>0 ){
+      pBuilder->xSkip(pBuilder, skip, 0);
+    }
     for(j=0; j<m; j++){
-      sbsWriteLineno(&s, a+j, SBS_LNA);
-      s.iStart = s.iEnd = -1;
-      sbsWriteText(&s, &A[a+j], SBS_TXTA);
-      sbsWriteMarker(&s, "   ", "");
-      sbsWriteLineno(&s, b+j, SBS_LNB);
-      sbsWriteText(&s, &B[b+j], SBS_TXTB);
+      pBuilder->xCommon(pBuilder, &A[a+j]);
     }
     a += m;
     b += m;
 
     /* Show the differences */
     for(i=0; i<nr; i++){
+      int nAlign;
       unsigned char *alignment;
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
-      /* If the gap between the current diff and then next diff within the
-      ** same block is not too great, then render them as if they are a
-      ** single diff. */
-      while( i<nr-1 && smallGap(&R[r+i*3]) ){
+      /* Try to find an alignment for the lines within this one block */
+      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags, &nAlign);
+
+      /* If we could not get a good alignment, try merging the current
+      ** block with subsequent blocks, if the subsequent blocks are
+      ** nearby */
+      while( alignment[0]==4 && i<nr-1 && smallGap(&R[r+i*3]) ){
         i++;
         m = R[r+i*3];
         ma += R[r+i*3+1] + m;
         mb += R[r+i*3+2] + m;
+        fossil_free(alignment);
+        alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags,&nAlign);
       }
 
-      alignment = sbsAlignment(&A[a], ma, &B[b], mb, diffFlags);
       for(j=0; ma+mb>0; j++){
-        if( alignment[j]==1 ){
-          /* Delete one line from the left */
-          sbsWriteLineno(&s, a, SBS_LNA);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = LENGTH(&A[a]);
-          sbsWriteText(&s, &A[a], SBS_TXTA);
-          sbsWriteMarker(&s, " <", "&lt;");
-          sbsWriteNewlines(&s);
-          assert( ma>0 );
-          ma--;
-          a++;
-        }else if( alignment[j]==3 ){
-          /* The left line is changed into the right line */
-          sbsWriteLineChange(&s, &A[a], a, &B[b], b);
-          assert( ma>0 && mb>0 );
-          ma--;
-          mb--;
-          a++;
-          b++;
-        }else if( alignment[j]==2 ){
-          /* Insert one line on the right */
-          if( !s.escHtml ){
-            sbsWriteSpace(&s, s.width + 7, SBS_TXTA);
+        assert( j<nAlign );
+        switch( alignment[j] ){
+          case 1: {
+            /* Delete one line from the left */
+            pBuilder->xDelete(pBuilder, &A[a]);
+            ma--;
+            a++;
+            break;
           }
-          sbsWriteMarker(&s, " > ", "&gt;");
-          sbsWriteLineno(&s, b, SBS_LNB);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = LENGTH(&B[b]);
-          sbsWriteText(&s, &B[b], SBS_TXTB);
-          assert( mb>0 );
-          mb--;
-          b++;
-        }else{
-          /* Delete from the left and insert on the right */
-          sbsWriteLineno(&s, a, SBS_LNA);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = LENGTH(&A[a]);
-          sbsWriteText(&s, &A[a], SBS_TXTA);
-          sbsWriteMarker(&s, " | ", "|");
-          sbsWriteLineno(&s, b, SBS_LNB);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = LENGTH(&B[b]);
-          sbsWriteText(&s, &B[b], SBS_TXTB);
-          ma--;
-          mb--;
-          a++;
-          b++;
+          case 2: {
+            /* Insert one line on the right */
+            pBuilder->xInsert(pBuilder, &B[b]);
+            assert( mb>0 );
+            mb--;
+            b++;
+            break;
+          }
+          case 3: {
+            /* The left line is changed into the right line */
+            pBuilder->xEdit(pBuilder, &A[a], &B[b]);
+            assert( ma>0 && mb>0 );
+            ma--;
+            mb--;
+            a++;
+            b++;
+            break;
+          }
+          case 4: {
+            /* Delete from left then separately insert on the right */
+            pBuilder->xReplace(pBuilder, &A[a], &B[b]);
+            ma--;
+            a++;
+            mb--;
+            b++;
+            break;
+          }
         }
       }
+      assert( nAlign==j );
       fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          sbsWriteLineno(&s, a+j, SBS_LNA);
-          s.iStart = s.iEnd = -1;
-          sbsWriteText(&s, &A[a+j], SBS_TXTA);
-          sbsWriteMarker(&s, "   ", "");
-          sbsWriteLineno(&s, b+j, SBS_LNB);
-          sbsWriteText(&s, &B[b+j], SBS_TXTB);
+          pBuilder->xCommon(pBuilder, &A[a+j]);
         }
         b += m;
         a += m;
@@ -1418,25 +2120,16 @@ static void sbsDiff(
     assert( nr==i );
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
-    for(j=0; j<m; j++){
-      sbsWriteLineno(&s, a+j, SBS_LNA);
-      s.iStart = s.iEnd = -1;
-      sbsWriteText(&s, &A[a+j], SBS_TXTA);
-      sbsWriteMarker(&s, "   ", "");
-      sbsWriteLineno(&s, b+j, SBS_LNB);
-      sbsWriteText(&s, &B[b+j], SBS_TXTB);
+    for(j=0; j<m && j<nContext; j++){
+      pBuilder->xCommon(pBuilder, &A[a+j]);
     }
   }
-
-  if( s.escHtml && blob_size(s.apCols[SBS_LNA])>0 ){
-    blob_append(pOut, "<table class=\"sbsdiffcols\"><tr>\n", -1);
-    for(i=SBS_LNA; i<=SBS_TXTB; i++){
-      sbsWriteColumn(pOut, s.apCols[i], i);
-      blob_reset(s.apCols[i]);
-    }
-    blob_append(pOut, "</tr></table>\n", -1);
+  if( R[r]>nContext ){
+    pBuilder->xSkip(pBuilder, R[r] - nContext, 1);
   }
+  pBuilder->xEnd(pBuilder);
 }
+
 
 /*
 ** Compute the optimal longest common subsequence (LCS) using an
@@ -1511,7 +2204,7 @@ static void longestCommonSequence(
   int iSX, iSY, iEX, iEY;    /* Current match */
   int skew = 0;              /* How lopsided is the match */
   int dist = 0;              /* Distance of match from center */
-  int mid;                   /* Center of the span */
+  int mid;                   /* Center of the chng */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
   sqlite3_int64 bestScore;      /* Best score so far */
@@ -1880,14 +2573,22 @@ void diff_errmsg(Blob *pOut, const char *msg, int diffFlags){
 }
 
 /*
-** Generate a report of the differences between files pA and pB.
-** If pOut is not NULL then a unified diff is appended there.  It
-** is assumed that pOut has already been initialized.  If pOut is
-** NULL, then a pointer to an array of integers is returned.
-** The integers come in triples.  For each triple,
-** the elements are the number of lines copied, the number of
-** lines deleted, and the number of lines inserted.  The vector
-** is terminated by a triple of all zeros.
+** Generate a report of the differences between files pA_Blob and pB_Blob.
+**
+** If pOut!=NULL then append text to pOut that will be the difference,
+** formatted according to flags in diffFlags.  The pOut Blob must have
+** already been initialized.
+**
+** If pOut==NULL then no formatting occurs.  Instead, this routine
+** returns a pointer to an array of integers.  The integers come in
+** triples.  The elements of each triple are:
+**
+**   1.  The number of lines to copy
+**   2.  The number of lines to delete
+**   3.  The number of lines to insert
+**
+** The return vector is terminated bin a triple of all zeros.  The caller
+** should free the returned vector using fossil_free().
 **
 ** This diff utility does not work on binary files.  If a binary
 ** file is encountered, 0 is returned and pOut is written with
@@ -1971,10 +2672,36 @@ int *text_diff(
         g.diffCnt[0]++;
         blob_appendf(pOut, "%10d %10d", nIns, nDel);
       }
+    }else if( diffFlags & DIFF_RAW ){
+      const int *R = c.aEdit;
+      unsigned int r;
+      for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
+        blob_appendf(pOut, " copy %6d  delete %6d  insert %6d\n",
+                     R[r], R[r+1], R[r+2]);
+      }
+    }else if( diffFlags & DIFF_JSON ){
+      DiffBuilder *pBuilder = dfjsonNew(pOut);
+      formatDiff(&c, pRe, diffFlags, pBuilder);
+      blob_append_char(pOut, '\n');
+    }else if( diffFlags & DIFF_TCL ){
+      DiffBuilder *pBuilder = dftclNew(pOut);
+      formatDiff(&c, pRe, diffFlags, pBuilder);
     }else if( diffFlags & DIFF_SIDEBYSIDE ){
-      sbsDiff(&c, pOut, pRe, diffFlags);
+      DiffBuilder *pBuilder;
+      if( diffFlags & DIFF_HTML ){
+        pBuilder = dfsplitNew(pOut);
+      }else{
+        pBuilder = dfsbsNew(pOut, diffFlags);
+      }
+      formatDiff(&c, pRe, diffFlags, pBuilder);
+    }else if( diffFlags & DIFF_DEBUG ){
+      DiffBuilder *pBuilder = dfdebugNew(pOut);
+      formatDiff(&c, pRe, diffFlags, pBuilder);
+    }else if( diffFlags & DIFF_HTML ){
+      DiffBuilder *pBuilder = dfunifiedNew(pOut);
+      formatDiff(&c, pRe, diffFlags, pBuilder);
     }else{
-      contextDiff(&c, pOut, pRe, diffFlags);
+      contextDiff(&c, pOut, diffFlags);
     }
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
@@ -2051,44 +2778,36 @@ u64 diff_options(void){
     diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
                    |DIFF_SIDEBYSIDE;
   }
+  if( find_option("json",0,0)!=0 ){
+    diffFlags |= DIFF_JSON;
+  }
+  if( find_option("tcl",0,0)!=0 ){
+    diffFlags |= DIFF_TCL;
+  }
+
+  /* Undocumented and unsupported flags used for development
+  ** debugging and analysis: */
+  if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
+  if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   return diffFlags;
 }
 
 /*
-** COMMAND: test-rawdiff
-**
-** Usage: %fossil test-rawdiff FILE1 FILE2
-**
-** Show a minimal sequence of Copy/Delete/Insert operations needed to convert
-** FILE1 into FILE2.  This command is intended for use in testing and debugging
-** the built-in difference engine of Fossil.
-*/
-void test_rawdiff_cmd(void){
-  Blob a, b;
-  int r;
-  int i;
-  int *R;
-  u64 diffFlags = diff_options();
-  if( g.argc<4 ) usage("FILE1 FILE2 ...");
-  blob_read_from_file(&a, g.argv[2], ExtFILE);
-  for(i=3; i<g.argc; i++){
-    if( i>3 ) fossil_print("-------------------------------\n");
-    blob_read_from_file(&b, g.argv[i], ExtFILE);
-    R = text_diff(&a, &b, 0, 0, diffFlags);
-    for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
-      fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
-    }
-    /* free(R); */
-    blob_reset(&b);
-  }
-}
-
-/*
 ** COMMAND: test-diff
+** COMMAND: xdiff
 **
-** Usage: %fossil [options] FILE1 FILE2
+** Usage: %fossil xdiff [options] FILE1 FILE2
 **
-** Print the difference between two files.  The usual diff options apply.
+** This is the "external diff" feature.  By "external" here we mean a diff
+** applied to files that are not under version control.  See the "diff"
+** command for computing differences between files that are under control.
+**
+** This command prints the differences between the two files FILE1 and FILE2.
+** all of the usual diff command-line options apply.  See the "diff" command
+** for a full list of command-line options.
+**
+** This command used to be called "test-diff".  The older "test-diff" spelling
+** still works, for compatibility.
 */
 void test_diff_cmd(void){
   Blob a, b, out;

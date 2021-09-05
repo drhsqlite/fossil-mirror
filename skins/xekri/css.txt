@@ -267,21 +267,23 @@ table.label-value th {
  */
 
 /* Code Added */
-span.diffadd {
+td.diffln ins,
+td.difftxt ins > ins {
   background-color: #7f7;
   color: #000;
 }
-
-/* Code Changed */
-span.diffchng {
-  background-color: #77f;
-  color: #000;
+td.difftxt ins {
+  background-color: inherit;
 }
 
 /* Code Deleted */
-span.diffrm {
+td.diffln del,
+td.difftxt del > del {
   background-color: #f77;
   color: #000;
+}
+td.difftxt del {
+  background-color: inherit;
 }
 
 
@@ -290,46 +292,40 @@ span.diffrm {
  */
 
 /* display (column-based) */
-table.sbsdiffcols {
+table.splitdiff {
   border-spacing: 0;
   font-size: 0.85rem;
   width: 90%;
 }
 
-table.sbsdiffcols pre {
+table.splitdiff pre {
   border: 0;
-  margin: 0;
+  margin: 0 0.5em;
   padding: 0;
 }
 
-table.sbsdiffcols td {
+table.splitdiff td {
   padding: 0;
   vertical-align: top;
 }
 
 /* line number column */
-div.difflncol {
+td.diffln {
   color: #ee0;
   padding-right: 0.75em;
   text-align: right;
 }
 
 /* diff text column */
-div.difftxtcol {
+td.difftxt {
   background-color: #111;
   overflow-x: auto;
   width: 45em;
 }
 
-/* suppressed lines */
-span.diffhr {
-  display: inline-block;
-  margin-bottom: 0.75em;
-  color: #ff0;
-}
 
 /* diff marker column */
-div.diffmkrcol {
+td.diffsep {
   padding: 0 0.5em;
 }
 
@@ -338,14 +334,8 @@ div.diffmkrcol {
  * Diffs : Unified
  */
 
-pre.udiff {
+table.udiff pre {
   background-color: #111;
-}
-
-/* line numbers */
-span.diffln {
-  background-color: #222;
-  color: #ee0;
 }
 
 

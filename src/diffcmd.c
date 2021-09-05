@@ -116,7 +116,8 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
-  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|DIFF_WEBPAGE))==0 ){
+  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|DIFF_JSON|
+                    DIFF_WEBPAGE|DIFF_TCL))==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
     if( !diffBlob ){
       fossil_print("%s", z);
@@ -130,17 +131,43 @@ void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
 /*
 ** Print the +++/--- filename lines for a diff operation.
 */
-void diff_print_filenames(const char *zLeft, const char *zRight,
- u64 diffFlags, Blob *diffBlob){
+void diff_print_filenames(
+  const char *zLeft,
+  const char *zRight,
+  u64 diffFlags,
+  Blob *diffBlob
+){
   char *z = 0;
-  if( diffFlags & DIFF_BRIEF ){
+  if( diffFlags & (DIFF_BRIEF|DIFF_RAW|DIFF_JSON) ){
     /* no-op */
+  }else if( diffFlags & DIFF_DEBUG ){
+    fossil_print("FILE-LEFT   %s\nFILE-RIGHT  %s\n",
+       zLeft, zRight);
   }else if( diffFlags & DIFF_WEBPAGE ){
     if( fossil_strcmp(zLeft,zRight)==0 ){
       z = mprintf("<h1>%h</h1>\n", zLeft);
     }else{
       z = mprintf("<h1>%h &lrarr; %h</h1>\n", zLeft, zRight);
     }
+  }else if( diffFlags & DIFF_TCL ){
+    Blob *pOut;
+    Blob x;
+    if( diffBlob ){
+      pOut = diffBlob;
+    }else{
+      blob_init(&x, 0, 0);
+      pOut = &x;
+    }
+    blob_append(pOut, "FILE ", 5);
+    blob_append_tcl_literal(pOut, zLeft, (int)strlen(zLeft));
+    blob_append_char(pOut, ' ');
+    blob_append_tcl_literal(pOut, zRight, (int)strlen(zRight));
+    blob_append_char(pOut, '\n');
+    if( !diffBlob ){
+      fossil_print("%s", blob_str(pOut));
+      blob_reset(&x);
+    }
+    return;
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
@@ -170,37 +197,6 @@ void diff_print_filenames(const char *zLeft, const char *zRight,
   fossil_free(z);
 }
 
-/*
-** Extra CSS for side-by-side diffs
-*/
-static const char zSbsCss[] = 
-@ table.sbsdiffcols {
-@   width: 90%;
-@   border-spacing: 0;
-@   font-size: small;
-@ }
-@ table.sbsdiffcols td {
-@   padding: 0;
-@   vertical-align: top;
-@ }
-@ table.sbsdiffcols pre {
-@   margin: 0;
-@   padding: 0;
-@   border: 0;
-@ }
-@ div.difflncol {
-@   padding-right: 1em;
-@   text-align: right;
-@   color: #a0a0a0;
-@ }
-@ div.difftxtcol {
-@   width: 10em;
-@   overflow-x: auto;
-@ }
-@ div.diffmkrcol {
-@   padding: 0 1em;
-@ }
-;
 
 /*
 ** Default header text for diff with --webpage
@@ -211,26 +207,73 @@ static const char zWebpageHdr[] =
 @ <head>
 @ <meta charset="UTF-8">
 @ <style>
-@ %sspan.diffchng {
-@   background-color: #c0c0ff;
-@ }
-@ span.diffadd {
-@   background-color: #c0ffc0;
-@ }
-@ span.diffrm {
-@   background-color: #ffc8c8;
-@ }
-@ span.diffhr {
-@   display: inline-block;
-@   margin: .5em 0 1em;
-@   color: #0000ff;
-@ }
-@ span.diffln {
-@   color: #a0a0a0;
-@ }
 @ h1 {
-@   font-size: 150%%;
+@   font-size: 150%;
 @ }
+@
+@ table.diff {
+@   width: 98%;
+@   border-spacing: 0;
+@   border: 1px solid black;
+@ }
+@ table.diff td {
+@   vertical-align: top;
+@ }
+@ table.diff pre {
+@   margin: 0 0 0 0;
+@ }
+@ td.diffln {
+@   width: 1px;
+@   text-align: right;
+@   padding: 0 1em 0 0;
+@ }
+@ td.difflne {
+@   padding-bottom: 0.4em;
+@ }
+@ td.diffsep {
+@   width: 1px;
+@   padding: 0 0.3em 0 1em;
+@ }
+@ td.difftxt pre {
+@   overflow-x: auto;
+@ }
+@ td.diffln ins {
+@   background-color: #a0e4b2;
+@   text-decoration: none;
+@ }
+@ td.diffln del {
+@   background-color: #ffc0c0;
+@   text-decoration: none;
+@ }
+@ td.difftxt del {
+@   background-color: #ffe8e8;
+@   text-decoration: none;
+@ }
+@ td.difftxt del > del {
+@   background-color: #ffc0c0;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt del > del.edit {
+@   background-color: #c0c0ff;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt ins {
+@   background-color: #dafbe1;
+@   text-decoration: none;
+@ }
+@ td.difftxt ins > ins {
+@   background-color: #a0e4b2;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ td.difftxt ins > ins.edit {
+@   background-color: #c0c0ff;
+@   text-decoration: none;
+@   font-weight: bold;
+@ }
+@ 
 @ </style>
 @ </head>
 @ <body>
@@ -296,13 +339,7 @@ void diff_begin(u64 diffFlags){
 #endif
   }
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
-    const char *zExtra;
-    if( diffFlags & DIFF_SIDEBYSIDE ){
-      zExtra = zSbsCss;
-    }else{
-      zExtra = "";
-    }
-    fossil_print(zWebpageHdr/*works-like:"%s"*/, zExtra);
+    fossil_print("%s",zWebpageHdr);
     fflush(stdout);
   }
 }
@@ -320,7 +357,7 @@ void diff_begin(u64 diffFlags){
 void diff_end(u64 diffFlags, int nErr){
   if( (diffFlags & DIFF_WEBPAGE)!=0 ){
     if( diffFlags & DIFF_SIDEBYSIDE ){
-      const unsigned char *zJs = builtin_file("sbsdiff.js", 0);
+      const unsigned char *zJs = builtin_file("diff.js", 0);
       fossil_print("<script>\n%s</script>\n", zJs);
     }
     fossil_print("%s", zWebpageEnd);
@@ -584,8 +621,8 @@ void diff_against_disk(
   int asNewFile;            /* Treat non-existant files as empty files */
   int isNumStat;            /* True for --numstat */
 
-  asNewFile = (diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT))!=0;
-  isNumStat = (diffFlags & DIFF_NUMSTAT)!=0;
+  asNewFile = (diffFlags & (DIFF_VERBOSE|DIFF_NUMSTAT|DIFF_HTML))!=0;
+  isNumStat = (diffFlags & (DIFF_NUMSTAT|DIFF_TCL|DIFF_HTML))!=0;
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   blob_zero(&sql);
@@ -821,7 +858,7 @@ static void diff_two_versions(
     }
     if( cmp<0 ){
       if( file_dir_match(pFileDir, pFromFile->zName) ){
-        if( (diffFlags & DIFF_NUMSTAT)==0 ){
+        if( (diffFlags & (DIFF_NUMSTAT|DIFF_HTML))==0 ){
           fossil_print("DELETED %s\n", pFromFile->zName);
         }
         if( asNewFlag ){
@@ -832,7 +869,7 @@ static void diff_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
     }else if( cmp>0 ){
       if( file_dir_match(pFileDir, pToFile->zName) ){
-        if( (diffFlags & DIFF_NUMSTAT)==0 ){
+        if( (diffFlags & (DIFF_NUMSTAT|DIFF_HTML|DIFF_TCL|DIFF_JSON))==0 ){
           fossil_print("ADDED   %s\n", pToFile->zName);
         }
         if( asNewFlag ){
@@ -903,8 +940,9 @@ void diff_tk(const char *zSubCmd, int firstArg){
   char *zCmd;
   const char *zTclsh;
   blob_zero(&script);
-  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s -tcl -i -v",
                g.nameOfExe, zSubCmd);
+  find_option("tcl",0,0);
   find_option("html",0,0);
   find_option("side-by-side","y",0);
   find_option("internal","i",0);

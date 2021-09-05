@@ -531,52 +531,72 @@ ul.filelist {
 ul.filelist li {
   padding-top: 1px;
 }
-table.sbsdiffcols {
-  width: 90%;
+
+/* Rules governing diff layout and colors */
+table.diff {
+  width: 98%;
   border-spacing: 0;
-  font-size: xx-small;
+  border: 1px solid black;
 }
-table.sbsdiffcols td {
-  padding: 0;
+table.diff td {
   vertical-align: top;
 }
-table.sbsdiffcols pre {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-size: inherit;
-  background: inherit;
-  color: inherit;
+table.diff pre {
+  margin: 0 0 0 0;
 }
-div.difflncol {
-  padding-right: 1em;
+td.diffln {
+  width: 1px;
   text-align: right;
-  color: #a0a0a0;
+  padding: 0 1em 0 0;
 }
-div.difftxtcol {
-  width: 45em;
+td.difflne {
+  padding-bottom: 0.4em;
+}
+td.diffsep {
+  width: 1px;
+  padding: 0 0.3em 0 1em;
+}
+td.difftxt pre {
   overflow-x: auto;
 }
-div.diffmkrcol {
-  padding: 0 1em;
+td.diffln ins {
+  background-color: #a0e4b2;
+  text-decoration: none;
 }
-span.diffchng {
+td.diffln del {
+  background-color: #ffc0c0;
+  text-decoration: none;
+}
+td.difftxt del {
+  background-color: #ffe8e8;
+  text-decoration: none;
+}
+td.difftxt del > del {
+  background-color: #ffc0c0;
+  text-decoration: none;
+  font-weight: bold;
+}
+td.difftxt del > del.edit {
   background-color: #c0c0ff;
+  text-decoration: none;
+  font-weight: bold;
 }
-span.diffadd {
-  background-color: #c0ffc0;
+td.difftxt ins {
+  background-color: #dafbe1;
+  text-decoration: none;
 }
-span.diffrm {
-  background-color: #ffc8c8;
+td.difftxt ins > ins {
+  background-color: #a0e4b2;
+  text-decoration: none;
+  font-weight: bold;
 }
-span.diffhr {
-  display: inline-block;
-  margin: .5em 0 1em;
-  color: #0000ff;
+td.difftxt ins > ins.edit {
+  background-color: #c0c0ff;
+  text-decoration: none;
+  font-weight: bold;
 }
-span.diffln {
-  color: #a0a0a0;
-}
+
+
 span.modpending {
   color: #b03800;
   font-style: italic;
