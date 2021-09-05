@@ -1814,6 +1814,7 @@ static unsigned char *diffBlockAlignment(
       nBig = nRight;
     }
     iDivBig = nBig/2;
+    iDivSmall = nSmall/2;
     bestScore = 10000;
     for(i=0; i<nSmall; i++){
       score = match_dline(aBig+iDivBig, aSmall+i) + abs(i-nSmall/2)*2;
