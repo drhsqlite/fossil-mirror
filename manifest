@@ -1,5 +1,5 @@
-C Refactor\sthe\sdiff\slogic\sfor\simproved\smodularity\sand\sperformance.\s\sThis\s\ncheck-in\stransitions\sthe\sdiff\simprovement\sefforts\sfrom\sa\sbranch\sto\strunk.\nThe\seffort\sis\snot\syet\scomplete,\sbut\sit\sis\sstable\senough\sto\scontinue\sgoing\non\strunk.\sUser-visible\schanges\sinclude\s(1)\simproved\sdiff\sdisplay,\sespecially\nfor\sunified\sdiffs,\s(2)\sthe\snew\s"fossil\sxdiff"\scommand\s(promoting\sthe\nolder\s"test-diff"\scommand\sinto\sa\ssupported\scommand),\sand\simproved\sperformance.\nBehind\sthe\sscenes,\s(3)\sthe\sclass\snames\sDOM\smodule\sused\sfor\sfor\sHTML\sdiffs\nis\ssimplified\s-\swhich\smay\sbreak\scustom\sskins,\s(4)\sthe\sinternal\sprocessing\nof\sdiffs\sis\ssimplified\sin\smany\sways.
-D 2021-09-05T19:02:05.354
+C Add\sa\s#define\sfor\sthe\sdiff\sblock\salignment\salgorithm\sthreshold.
+D 2021-09-05T19:16:23.451
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,7 +465,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c 8affc45dd4170e2958b1312228cbd5e562838c1a15d9fb3527d2b68043939ff0
+F src/diff.c f7779de79deed6c8b3479b3af87094cf29a75dc4b78059088dff75a02b969655
 F src/diff.js 3fe31f5122109afdd64440529d983d0d2e29d9cc2973042447cdcabe2caa2c5c
 F src/diff.tcl 079028fb9cc2b88de3a89b2bb54455ccb0c04784a2832030d4803248a80b389c
 F src/diffcmd.c 5cc2ba3e3cc769e6c0fd8451f1a4078171b3d40ecd45a32ebb1bc39c84641010
@@ -998,8 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82b42943b191defacf4c4022a9e1ee22c9061a86d5608d559b563bc13ea510ea bcd3e80f200739e1f6cac670ba6bf82a3558e9d0365b966b9bfefdae6c6bff43
-R 9ba900320588abee546cb659aa107a89
-T +closed bcd3e80f200739e1f6cac670ba6bf82a3558e9d0365b966b9bfefdae6c6bff43
+P 9e330740ccfc62862b02b7bce69fb65631ac8771beaeec454bd0f4ebc1656416
+R 0e16a6b1f247f35271ba978ccc865358
 U drh
-Z 27e371b21142bc6033efc13b59d39f64
+Z e20a9af1a38aeb659a28d49e4db5e991

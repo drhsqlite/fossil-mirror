@@ -1736,6 +1736,13 @@ void test_dline_match(void){
 }
 
 /*
+** The threshold at which diffBlockAlignment transitions from the
+** O(N*N) Wagner minimum-edit-distance algorithm to a less process
+** O(NlogN) divide-and-conquer approach.
+*/
+#define DIFF_ALIGN_MX  1225
+
+/*
 ** There is a change block in which nLeft lines of text on the left are
 ** converted into nRight lines of text on the right.  This routine computes
 ** how the lines on the left line up with the lines on the right.
@@ -1793,7 +1800,7 @@ static unsigned char *diffBlockAlignment(
   ** trade-off for reduced precision.
   */
   mnLen = nLeft<nRight ? nLeft : nRight;
-  if( nLeft*nRight>1000 && (diffFlags & DIFF_SLOW_SBS)==0 ){
+  if( nLeft*nRight>DIFF_ALIGN_MX && (diffFlags & DIFF_SLOW_SBS)==0 ){
     const DLine *aSmall;   /* The smaller of aLeft and aRight */
     const DLine *aBig;     /* The larger of aLeft and aRight */
     int nSmall, nBig;      /* Size of aSmall and aBig.  nSmall<=nBig */
