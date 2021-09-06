@@ -1114,7 +1114,6 @@ void diff_cmd(void){
   const char *zBinGlob = 0;  /* Treat file names matching this as binary */
   int fIncludeBinary = 0;    /* Include binary files for external diff */
   int againstUndo = 0;       /* Diff against files in the undo buffer */
-  u64 diffFlags = 0;         /* Flags to control the DIFF */
   FileDirList *pFileDir = 0; /* Restrict the diff to these files */
   DiffConfig DCfg;           /* Diff configuration object */
 
@@ -1129,12 +1128,12 @@ void diff_cmd(void){
   zCheckin = find_option("checkin", 0, 1);
   zBranch = find_option("branch", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
-  diffFlags = diff_options(&DCfg);
+  diff_options(&DCfg, isGDiff);
   verboseFlag = find_option("verbose","v",0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
-  if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
+  if( verboseFlag ) DCfg.diffFlags |= DIFF_VERBOSE;
   if( againstUndo && ( zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){
     fossil_fatal("cannot use --undo together with --from, --to, --checkin,"
                  " or --branch");
@@ -1158,7 +1157,7 @@ void diff_cmd(void){
     db_find_and_open_repository(0, 0);
   }
   if( !isInternDiff
-   && (diffFlags & DIFF_HTML)==0 /* External diff can't generate HTML */
+   && (DCfg.diffFlags & DIFF_HTML)==0 /* External diff can't generate HTML */
   ){
     zDiffCmd = find_option("command", 0, 1);
     if( zDiffCmd==0 ) zDiffCmd = diff_command_external(isGDiff);
@@ -1196,20 +1195,20 @@ void diff_cmd(void){
       fossil_fatal("check-in %s has no parent", zTo);
     }
   }
-  diff_begin(diffFlags);
+  diff_begin(DCfg.diffFlags);
   if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
       fossil_print("No undo or redo is available\n");
       return;
     }
     diff_against_undo(zDiffCmd, zBinGlob, fIncludeBinary,
-                      diffFlags, pFileDir);
+                      DCfg.diffFlags, pFileDir);
   }else if( zTo==0 ){
     diff_against_disk(zFrom, zDiffCmd, zBinGlob, fIncludeBinary,
-                      diffFlags, pFileDir, 0);
+                      DCfg.diffFlags, pFileDir, 0);
   }else{
     diff_two_versions(zFrom, zTo, zDiffCmd, zBinGlob, fIncludeBinary,
-                      diffFlags, pFileDir);
+                      DCfg.diffFlags, pFileDir);
   }
   if( pFileDir ){
     int i;
@@ -1224,8 +1223,8 @@ void diff_cmd(void){
     }
     fossil_free(pFileDir);
   }
-  diff_end(diffFlags, 0);
-  if ( diffFlags & DIFF_NUMSTAT ){
+  diff_end(DCfg.diffFlags, 0);
+  if ( DCfg.diffFlags & DIFF_NUMSTAT ){
     fossil_print("%10d %10d TOTAL over %d changed files\n", 
                  g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);
   }

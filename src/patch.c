@@ -722,11 +722,11 @@ static void patch_diff(
   const char *zDiffCmd,    /* Command used for diffing */
   const char *zBinGlob,    /* GLOB pattern to determine binary files */
   int fIncludeBinary,      /* Do diffs against binary files */
-  u64 diffFlags            /* Other diff flags */
+  DiffConfig *pCfg         /* Diff options */
 ){
   int nErr = 0;
   Stmt q;
-  int bWebpage = (diffFlags & DIFF_WEBPAGE)!=0;
+  int bWebpage = (pCfg->diffFlags & DIFF_WEBPAGE)!=0;
   Blob empty;
   blob_zero(&empty);
 
@@ -766,7 +766,7 @@ static void patch_diff(
     }
   }
 
-  diff_begin(diffFlags);
+  diff_begin(pCfg->diffFlags);
   db_prepare(&q,
      "SELECT"
        " (SELECT blob.rid FROM blob WHERE blob.uuid=chng.hash),"
@@ -806,21 +806,21 @@ static void patch_diff(
 
     if( db_column_type(&q,3)==SQLITE_NULL ){
       if( !bWebpage ) fossil_print("DELETE %s\n", zName);
-      diff_print_index(zName, diffFlags, 0);
+      diff_print_index(zName, pCfg->diffFlags, 0);
       isBin2 = 0;
       content_get(rid, &a);
       isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
       diff_file_mem(&a, &empty, isBin1, isBin2, zName, zDiffCmd,
-                    zBinGlob, fIncludeBinary, diffFlags);
+                    zBinGlob, fIncludeBinary, pCfg->diffFlags);
     }else if( rid==0 ){
       db_ephemeral_blob(&q, 3, &a);
       blob_uncompress(&a, &a);
       if( !bWebpage ) fossil_print("ADDED %s\n", zName);
-      diff_print_index(zName, diffFlags, 0);
+      diff_print_index(zName, pCfg->diffFlags, 0);
       isBin1 = 0;
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
       diff_file_mem(&empty, &a, isBin1, isBin2, zName, zDiffCmd,
-                    zBinGlob, fIncludeBinary, diffFlags);
+                    zBinGlob, fIncludeBinary, pCfg->diffFlags);
       blob_reset(&a);
     }else if( db_column_bytes(&q, 3)>0 ){
       Blob delta;
@@ -831,14 +831,14 @@ static void patch_diff(
       isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
       diff_file_mem(&a, &b, isBin1, isBin2, zName,
-                    zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+                    zDiffCmd, zBinGlob, fIncludeBinary, pCfg->diffFlags);
       blob_reset(&a);
       blob_reset(&b);
       blob_reset(&delta);
     }
   }
   db_finalize(&q);
-  diff_end(diffFlags, nErr);
+  diff_end(pCfg->diffFlags, nErr);
   if( nErr ) fossil_fatal("abort due to prior errors");
 }
 
@@ -951,7 +951,6 @@ void patch_cmd(void){
     const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
-    u64 diffFlags;
     char *zIn;
     unsigned flags = 0;
     DiffConfig DCfg;
@@ -961,13 +960,13 @@ void patch_cmd(void){
       diff_tk("patch diff", 3);
       return;
     }
-    diffFlags = diff_options(&DCfg);
+    diff_options(&DCfg, zCmd[0]=='g');
     if( find_option("internal","i",0)==0
-     && (diffFlags & DIFF_HTML)==0
+     && (DCfg.diffFlags & DIFF_HTML)==0
     ){
       zDiffCmd = diff_command_external(zCmd[0]=='g');
     }
-    if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
+    if( find_option("verbose","v",0)!=0 ) DCfg.diffFlags |= DIFF_VERBOSE;
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();
       fIncludeBinary = diff_include_binary_files();
@@ -977,7 +976,7 @@ void patch_cmd(void){
     verify_all_options();
     zIn = patch_find_patch_filename("apply");
     patch_attach(zIn, stdin);
-    patch_diff(flags, zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+    patch_diff(flags, zDiffCmd, zBinGlob, fIncludeBinary, &DCfg);
     fossil_free(zIn);
   }else
   if( strncmp(zCmd, "pull", n)==0 ){

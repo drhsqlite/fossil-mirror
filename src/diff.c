@@ -74,7 +74,22 @@
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
 
 /*
-** Configuration options for a diff operation
+** An instance of this object describes the formatting and processing
+** details desired of a "diff" operation.
+**
+** Conceptually, this object is as an encoding of the command-line options
+** for the "fossil diff" command.  That is not a precise description, though,
+** because not all diff operations are started from the command-line.  But
+** the idea is sound.
+**
+** Information encoded by this object includes but is not limited to:
+**
+**    *   The desired output format (unified vs. side-by-side, 
+**        TCL, JSON, HTML vs. plain-text).
+**
+**    *   Number of lines of context surrounding each difference block
+**
+**    *   Width of output columns for text side-by-side diffop          
 */
 struct DiffConfig {
   u64 diffFlags;       /* Legacy diff flags */
@@ -2727,6 +2742,8 @@ int *text_diff(
 }
 
 /*
+** Initialize the DiffConfig object using command-line options.
+**
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
@@ -2744,13 +2761,12 @@ int *text_diff(
 **   -y|--side-by-side          Side-by-side diff.     DIFF_SIDEBYSIDE
 **   -Z|--ignore-trailing-space Ignore eol-whitespaces DIFF_IGNORE_EOLWS
 */
-u64 diff_options(DiffConfig *pCfg){
+void diff_options(DiffConfig *pCfg, int isGDiff){
   u64 diffFlags = 0;
   const char *z;
   int f;
-  if( pCfg ){
-    memset(pCfg, 0, sizeof(*pCfg));
-  }
+
+  memset(pCfg, 0, sizeof(*pCfg));
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     diffFlags = DIFF_IGNORE_EOLWS;
   }
@@ -2801,10 +2817,7 @@ u64 diff_options(DiffConfig *pCfg){
   ** debugging and analysis: */
   if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
   if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
-  if( pCfg ){
-    pCfg->diffFlags = diffFlags;
-  }
-  return diffFlags;
+  pCfg->diffFlags = diffFlags;
 }
 
 /*
@@ -2828,7 +2841,6 @@ u64 diff_options(DiffConfig *pCfg){
 */
 void test_diff_cmd(void){
   Blob a, b, out;
-  u64 diffFlag;
   const char *zRe;           /* Regex filter for diff output */
   ReCompiled *pRe = 0;       /* Regex filter for diff output */
   DiffConfig DCfg;
@@ -2844,17 +2856,17 @@ void test_diff_cmd(void){
     const char *zErr = re_compile(&pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
-  diffFlag = diff_options(&DCfg);
+  diff_options(&DCfg, 0);
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_zero(&out);
-  diff_begin(diffFlag);
-  diff_print_filenames(g.argv[2], g.argv[3], diffFlag, &out);
+  diff_begin(DCfg.diffFlags);
+  diff_print_filenames(g.argv[2], g.argv[3], DCfg.diffFlags, &out);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
   text_diff(&a, &b, &out, pRe, &DCfg);
   blob_write_to_file(&out, "-");
-  diff_end(diffFlag, 0);
+  diff_end(DCfg.diffFlags, 0);
   re_free(pRe);
 }
 
