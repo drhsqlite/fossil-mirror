@@ -1,5 +1,5 @@
-C The\sdiff\s--tk\soption\sshows\san\serror\smessage\son\sthe\sdisplay\sif\sit\sencounters\nan\sinput\sline\sthat\sit\sdoes\snot\sunderstand.\s\sThis\smeans\sthat\n"cannot\scompute\sdifference\sbetween\sbinary\sfiles"\serrors,\sand\ssimilar,\sare\ndealt\swith\scorrectly.
-D 2021-09-06T01:22:56.666
+C Improvement\sto\sthe\sticket\scustomization\sdocumentation\ssuggested\nby\s[forum:/forumpost/31e44444cda1a7821912|forum\spost\s31e44444cda1a7821912]
+D 2021-09-06T12:00:20.259
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -847,7 +847,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/css-tricks.md 4c9646386ffd98790c703503b08797d567687d3e8f07bcb03d5a54f44a2f6ffb
 F www/css/diff.md 407a00087efc09403870926bdc60d59b7c47894b6861315304ede002a9272bf3
 F www/css/index.md 4dae8164433148f45b636b2569ab8d693dcbecd4327a2e4cc63adc3f7a12f797
-F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
+F www/custom_ticket.wiki b74e5f0b26dc99bc352b289ee82517818039889697d8c61f76ef9bc51ed621eb
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md fee4be72cd5a131f2db2a1dc0ba5eb5fd1a7bab2a46b7c7253200b2916c64dc0
 F www/defcsp.md e86627fc1e8f55bbf1ed89c0870be35812554b10414bd5f8509d79b3456835ee
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99f93d9231c604434446f7b617c70b45ebb357cd2d26fdc2c6f79a4364c8fdde
-R 3df048916f1f9448b6692b83f5426894
+P 86f0722e0cb0978d4dabfbfa65f550ffced769c6a0c19a38e75004833acf3ca2
+R 341ac8b9639ed126a743b0fe4b09e773
 U drh
-Z 021b2be6fe44e7241c5b8a97ba6098b1
+Z 7278ab416ff7fbf08d69877d5be8eb14
