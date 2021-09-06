@@ -1026,29 +1026,34 @@ const char *diff_get_binary_glob(void){
 **
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked
-** out.  Or if the FILE arguments are omitted, show the unsaved changes
+** out.  Or if the FILE arguments are omitted, show all unsaved changes
 ** currently in the working check-out.
 **
-** If the "--from VERSION" or "-r VERSION" option is used it specifies
-** the source check-in for the diff operation.  If not specified, the
-** source check-in is the base check-in for the current check-out.
+** The default output format is a "unified patch" (the same as the
+** output of "diff -u" on most unix systems).  Many alternative formats
+** are available.  A few of the more useful alternatives:
 **
-** If the "--to VERSION" option appears, it specifies the check-in from
-** which the second version of the file or files is taken.  If there is
-** no "--to" option then the (possibly edited) files in the current check-out
-** are used.
+**    --tk              Pop up a TCL/TK-based GUI to show the diff
+**    --by              Show a side-by-side diff in the default web browser
+**    -b                Show a linear diff in the default web browser
+**    -y                Show a text side-by-side diff
+**    --webpage         Format output as HTML
+**    --webpage -y      HTML output in the side-by-side format
 **
-** The "--checkin VERSION" option shows the changes made by
-** check-in VERSION relative to its primary parent.
+** The "--from VERSION" option is used it specifies the source check-in
+** for the diff operation.  If not specified, the source check-in is the
+** base check-in for the current check-out. Similarly, the "--to VERSION"
+** option specifies the check-in from which the second version of the file
+** or files is taken.  If there is no "--to" option then the (possibly edited)
+** files in the current check-out are used.  The "--checkin VERSION" option
+** shows the changes made by check-in VERSION relative to its primary parent.
+** The "--branch BRANCHNAME" shows all then changes on the branch BRANCHNAME.
 **
-** The "-i" command-line option forces the use of the internal diff logic
-** rather than any external diff program that might be configured using
-** the "setting" command.  If no external diff program is configured, then
-** the "-i" option is a no-op.  The "-i" option converts "gdiff" into "diff".
-**
-** The "-v" or "--verbose" option causes the complete text of added or
-** deleted files to be displayed. -N and --new-file are aliases for
-** verbose mode.
+** The "-i" command-line option forces the use of Fossils own the internal
+** diff logic rather than any external diff program that might be configured
+** using the "setting" command.  If no external diff program is configured,
+** then the "-i" option is a no-op.  The "-i" option converts "gdiff" into
+** "diff".
 **
 ** The "--diff-binary" option enables or disables the inclusion of binary files
 ** when using an external diff program.
@@ -1056,6 +1061,9 @@ const char *diff_get_binary_glob(void){
 ** The "--binary" option causes files matching the glob PATTERN to be treated
 ** as binary when considering if they should be used with external diff program.
 ** This option overrides the "binary-glob" setting.
+**
+** These command show differences between managed files. Use the "fossil xdiff"
+** command to see differences in unmanaged files.
 **
 ** Options:
 **   --binary PATTERN            Treat files that match the glob PATTERN
@@ -1066,18 +1074,20 @@ const char *diff_get_binary_glob(void){
 **   --by                        Shorthand for "--browser -y"
 **   --checkin VERSION           Show diff of all changes in VERSION
 **   --command PROG              External diff program. Overrides "diff-command"
-**   -c|--context N              Use N lines of context
+**   -c|--context N              Show N lines of context around each change
 **   --diff-binary BOOL          Include binary files with external commands
 **   --exec-abs-paths            Force absolute path names on external commands
 **   --exec-rel-paths            Force relative path names on external commands
 **   -r|--from VERSION           Select VERSION as source for the diff
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -i|--internal               Use internal diff logic
+**   --json                      Output formatted as JSON
 **   -N|--new-file               Alias for --verbose
 **   --numstat                   Show only the number of lines delete and added
 **   -y|--side-by-side           Side-by-side diff
 **   --strip-trailing-cr         Strip trailing CR
-**   --tclsh PATH                Tcl/Tk used for --tk (default: "tclsh")
+**   --tcl                       TCL-formated output used internally by --tk
+**   --tclsh PATH                TCL/TK used for --tk (default: "tclsh")
 **   --tk                        Launch a Tcl/Tk GUI for display
 **   --to VERSION                Select VERSION as target for the diff
 **   --undo                      Diff against the "undo" buffer

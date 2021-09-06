@@ -2791,13 +2791,15 @@ u64 diff_options(void){
 **
 ** Usage: %fossil xdiff [options] FILE1 FILE2
 **
-** This is the "external diff" feature.  By "external" here we mean a diff
-** applied to files that are not under version control.  See the "diff"
-** command for computing differences between files that are under control.
+** Compute an "external diff" between two files. By "external diff" we mean
+** a diff between two disk files that are not necessarily under management.
+** In other words, this command provides a mechanism to use Fossil's file
+** difference engine on arbitrary disk files.  See the "diff" command for
+** computing differences between files that are* under management.
 **
 ** This command prints the differences between the two files FILE1 and FILE2.
-** all of the usual diff command-line options apply.  See the "diff" command
-** for a full list of command-line options.
+** all of the usual diff formatting options (--tk, --by, -c N, etc.) apply.
+** See the "diff" command for a full list of command-line options.
 **
 ** This command used to be called "test-diff".  The older "test-diff" spelling
 ** still works, for compatibility.
