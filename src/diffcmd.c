@@ -169,7 +169,8 @@ void diff_print_filenames(
     }
     return;
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
-    int w = diff_width(diffFlags);
+    DiffConfig DCfg;
+    int w = diff_width(diff_config_init(&DCfg,diffFlags));
     int n1 = strlen(zLeft);
     int n2 = strlen(zRight);
     int x;
@@ -424,11 +425,13 @@ void diff_file(
         fossil_print("CHANGED  %s\n", zName);
       }
     }else{
+      DiffConfig DCfg;
+      diff_config_init(&DCfg, diffFlags);
       blob_zero(&out);
       if( fSwapDiff ){
-        text_diff(&file2, pFile1, &out, 0, diffFlags);
+        text_diff(&file2, pFile1, &out, 0, &DCfg);
       }else{
-        text_diff(pFile1, &file2, &out, 0, diffFlags);
+        text_diff(pFile1, &file2, &out, 0, &DCfg);
       }
       if( blob_size(&out) ){
         if( diffFlags & DIFF_NUMSTAT ){
@@ -536,9 +539,11 @@ void diff_file_mem(
   if( diffFlags & DIFF_BRIEF ) return;
   if( zDiffCmd==0 ){
     Blob out;      /* Diff output text */
+    DiffConfig DCfg;
 
+    diff_config_init(&DCfg, diffFlags);
     blob_zero(&out);
-    text_diff(pFile1, pFile2, &out, 0, diffFlags);
+    text_diff(pFile1, pFile2, &out, 0, &DCfg);
     if( diffFlags & DIFF_NUMSTAT ){
       fossil_print("%s %s\n", blob_str(&out), zName);
     }else{
@@ -1111,6 +1116,7 @@ void diff_cmd(void){
   int againstUndo = 0;       /* Diff against files in the undo buffer */
   u64 diffFlags = 0;         /* Flags to control the DIFF */
   FileDirList *pFileDir = 0; /* Restrict the diff to these files */
+  DiffConfig DCfg;           /* Diff configuration object */
 
   if( find_option("tk",0,0)!=0 || has_option("tclsh") ){
     diff_tk("diff", 2);
@@ -1123,7 +1129,7 @@ void diff_cmd(void){
   zCheckin = find_option("checkin", 0, 1);
   zBranch = find_option("branch", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
-  diffFlags = diff_options();
+  diffFlags = diff_options(&DCfg);
   verboseFlag = find_option("verbose","v",0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */

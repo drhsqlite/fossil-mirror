@@ -154,8 +154,10 @@ void ajax_render_preview(Blob * pContent, const char *zName,
 */
 void ajax_render_diff(Blob * pOrig, Blob *pContent, u64 diffFlags){
   Blob out = empty_blob;
+  DiffConfig DCfg;
 
-  text_diff(pOrig, pContent, &out, 0, diffFlags);
+  diff_config_init(&DCfg, diffFlags);
+  text_diff(pOrig, pContent, &out, 0, &DCfg);
   if(blob_size(&out)==0){
     /* nothing to do */
   }else if(DIFF_SIDEBYSIDE & diffFlags){

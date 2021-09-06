@@ -954,13 +954,14 @@ void patch_cmd(void){
     u64 diffFlags;
     char *zIn;
     unsigned flags = 0;
+    DiffConfig DCfg;
 
     if( find_option("tk",0,0)!=0 ){
       db_close(0);
       diff_tk("patch diff", 3);
       return;
     }
-    diffFlags = diff_options();
+    diffFlags = diff_options(&DCfg);
     if( find_option("internal","i",0)==0
      && (diffFlags & DIFF_HTML)==0
     ){

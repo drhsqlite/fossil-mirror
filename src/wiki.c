@@ -1818,6 +1818,7 @@ void wdiff_page(void){
   int rid1, rid2, nextRid;
   Blob w1, w2, d;
   u64 diffFlags;
+  DiffConfig DCfg;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -1861,7 +1862,8 @@ void wdiff_page(void){
   style_header("Changes To %s", pW1->zWikiTitle);
   blob_zero(&d);
   diffFlags = construct_diff_flags(1);
-  text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
+  diff_config_init(&DCfg, diffFlags | DIFF_HTML | DIFF_LINENO);
+  text_diff(&w2, &w1, &d, 0, &DCfg);
   @ <pre class="udiff">
   @ %s(blob_str(&d))
   @ <pre>

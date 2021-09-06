@@ -747,6 +747,7 @@ void stash_cmd(void){
     int fIncludeBinary = 0;
     int fBaseline = 0;
     u64 diffFlags;
+    DiffConfig DCfg;
 
     if( strstr(zCmd,"show")!=0 || strstr(zCmd,"cat")!=0 ){
       fBaseline = 1;
@@ -756,7 +757,7 @@ void stash_cmd(void){
       diff_tk(fBaseline ? "stash show" : "stash diff", 3);
       return;
     }
-    diffFlags = diff_options();
+    diffFlags = diff_options(&DCfg);
     if( find_option("internal","i",0)==0
      && (diffFlags & DIFF_HTML)==0
     ){

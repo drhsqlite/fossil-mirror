@@ -338,6 +338,7 @@ static void append_diff(
   int fromid;
   int toid;
   Blob from, to;
+  DiffConfig DCfg;
   if( zFrom ){
     fromid = uuid_to_rid(zFrom, 0);
     content_get(fromid, &from);
@@ -355,7 +356,8 @@ static void append_diff(
   }else{
     diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
-  text_diff(&from, &to, cgi_output_blob(), pRe, diffFlags);
+  diff_config_init(&DCfg, diffFlags);
+  text_diff(&from, &to, cgi_output_blob(), pRe, &DCfg);
   blob_reset(&from);
   blob_reset(&to);
 }
@@ -1770,12 +1772,14 @@ void diff_page(void){
   if( verbose ) objdescFlags |= OBJDESC_DETAIL;
   if( isPatch ){
     Blob c1, c2, *pOut;
+    DiffConfig DCfg;
     pOut = cgi_output_blob();
     cgi_set_content_type("text/plain");
     diffFlags = 4;
     content_get(v1, &c1);
     content_get(v2, &c2);
-    text_diff(&c1, &c2, pOut, pRe, diffFlags);
+    diff_config_init(&DCfg, diffFlags);
+    text_diff(&c1, &c2, pOut, pRe, &DCfg);
     blob_reset(&c1);
     blob_reset(&c2);
     return;

@@ -871,16 +871,18 @@ void setup_skinedit(void){
   if( P("diff")!=0 || P("sbsdiff")!=0 ){
     u64 diffFlags = construct_diff_flags(1) | DIFF_STRIP_EOLCR;
     Blob from, to, out;
+    DiffConfig DCfg;
     if( P("sbsdiff")!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
     blob_init(&to, zContent, -1);
     blob_init(&from, skin_file_content(zBasis, zFile), -1);
     blob_zero(&out);
+    diff_config_init(&DCfg, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG); 
     if( diffFlags & DIFF_SIDEBYSIDE ){
-      text_diff(&from, &to, &out, 0, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
+      text_diff(&from, &to, &out, 0, &DCfg );
       @ %s(blob_str(&out))
     }else{
-      text_diff(&from, &to, &out, 0,
-             diffFlags | DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG);
+      DCfg.diffFlags |= DIFF_LINENO;
+      text_diff(&from, &to, &out, 0, &DCfg);
       @ <pre class="udiff">
       @ %s(blob_str(&out))
       @ </pre>
