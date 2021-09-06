@@ -164,7 +164,11 @@ proc readDiffs {fossilcmd} {
         }
       }
       default {
-        error "bad diff source line: $line"
+        .lnA insert end \n -
+        .txtA insert end $line\n err
+        .mkr insert end \n -
+        .lnB insert end \n -
+        .txtB insert end $line\n err
       }
     }
   }
