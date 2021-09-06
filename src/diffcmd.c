@@ -115,9 +115,11 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 /*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
-void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
-  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|DIFF_JSON|
-                    DIFF_WEBPAGE|DIFF_TCL))==0 ){
+void diff_print_index(const char *zFile, DiffConfig *pCfg, Blob *diffBlob){
+  if( (pCfg->diffFlags &
+          (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|DIFF_JSON|
+           DIFF_WEBPAGE|DIFF_TCL))==0
+  ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
     if( !diffBlob ){
       fossil_print("%s", z);
@@ -129,15 +131,17 @@ void diff_print_index(const char *zFile, u64 diffFlags, Blob *diffBlob){
 }
 
 /*
-** Print the +++/--- filename lines for a diff operation.
+** Print the +++/--- filename lines or whatever filename information
+** is appropriate for the output format.
 */
 void diff_print_filenames(
-  const char *zLeft,
-  const char *zRight,
-  u64 diffFlags,
-  Blob *diffBlob
+  const char *zLeft,      /* Name of the left file */
+  const char *zRight,     /* Name of the right file */
+  DiffConfig *pCfg,       /* Diff configuration */
+  Blob *diffBlob          /* Write to this blob, or stdout of this is NULL */
 ){
   char *z = 0;
+  u64 diffFlags = pCfg->diffFlags;
   if( diffFlags & (DIFF_BRIEF|DIFF_RAW|DIFF_JSON) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
@@ -169,8 +173,7 @@ void diff_print_filenames(
     }
     return;
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
-    DiffConfig DCfg;
-    int w = diff_width(diff_config_init(&DCfg,diffFlags));
+    int w = diff_width(pCfg);
     int n1 = strlen(zLeft);
     int n2 = strlen(zRight);
     int x;
@@ -285,7 +288,9 @@ const char zWebpageEnd[] =
 ;
 
 /*
-** State variables used by the --browser option for diff
+** State variables used by the --browser option for diff.  These must
+** be static variables, not elements of DiffConfig, since they are
+** used by the interrupt handler.
 */
 static char *tempDiffFilename;  /* File holding the diff HTML */
 static FILE *diffOut;           /* Open to write into tempDiffFilename */
@@ -324,8 +329,8 @@ static BOOL WINAPI diff_console_ctrl_handler(DWORD dwCtrlType){
 **
 ** For --browser and --webpage, output the HTML header.
 */
-void diff_begin(u64 diffFlags){
-  if( (diffFlags & DIFF_BROWSER)!=0 ){
+void diff_begin(DiffConfig *pCfg){
+  if( (pCfg->diffFlags & DIFF_BROWSER)!=0 ){
     tempDiffFilename = fossil_temp_filename();
     tempDiffFilename = sqlite3_mprintf("%z.html", tempDiffFilename);
     diffOut = fossil_freopen(tempDiffFilename,"wb",stdout);
@@ -339,7 +344,7 @@ void diff_begin(u64 diffFlags){
     SetConsoleCtrlHandler(diff_console_ctrl_handler, TRUE);
 #endif
   }
-  if( (diffFlags & DIFF_WEBPAGE)!=0 ){
+  if( (pCfg->diffFlags & DIFF_WEBPAGE)!=0 ){
     fossil_print("%s",zWebpageHdr);
     fflush(stdout);
   }
@@ -355,15 +360,15 @@ void diff_begin(u64 diffFlags){
 ** launch a web browser to view the file.  After a delay
 ** of FOSSIL_BROWSER_DIFF_DELAY milliseconds, delete the temp file.
 */
-void diff_end(u64 diffFlags, int nErr){
-  if( (diffFlags & DIFF_WEBPAGE)!=0 ){
-    if( diffFlags & DIFF_SIDEBYSIDE ){
+void diff_end(DiffConfig *pCfg, int nErr){
+  if( (pCfg->diffFlags & DIFF_WEBPAGE)!=0 ){
+    if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
       const unsigned char *zJs = builtin_file("diff.js", 0);
       fossil_print("<script>\n%s</script>\n", zJs);
     }
     fossil_print("%s", zWebpageEnd);
   }
-  if( (diffFlags & DIFF_BROWSER)!=0 && nErr==0 ){
+  if( (pCfg->diffFlags & DIFF_BROWSER)!=0 && nErr==0 ){
     char *zCmd = mprintf("%s %$", fossil_web_browser(), tempDiffFilename);
     fclose(diffOut);
     diffOut = fossil_freopen(NULL_DEVICE, "wb", stdout);
@@ -439,11 +444,10 @@ void diff_file(
             blob_appendf(diffBlob, "%s %s\n", blob_str(&out), zName);
           }
         }else{
+          diff_print_filenames(zName, zName2, pCfg, diffBlob);
           if( !diffBlob ){
-            diff_print_filenames(zName, zName2, pCfg->diffFlags, 0);
             fossil_print("%s\n", blob_str(&out));
           }else{
-            diff_print_filenames(zName, zName2, pCfg->diffFlags, diffBlob);
             blob_appendf(diffBlob, "%s\n", blob_str(&out));
           }
         }
@@ -543,7 +547,7 @@ void diff_file_mem(
     if( pCfg->diffFlags & DIFF_NUMSTAT ){
       fossil_print("%s %s\n", blob_str(&out), zName);
     }else{
-      diff_print_filenames(zName, zName, pCfg->diffFlags, 0);
+      diff_print_filenames(zName, zName, pCfg, 0);
       fossil_print("%s\n", blob_str(&out));
     }
 
@@ -709,8 +713,8 @@ void diff_against_disk(
       Blob content;
       int isBin;
       if( !isLink != !file_islink(zFullName) ){
-        diff_print_index(zPathname, pCfg->diffFlags, 0);
-        diff_print_filenames(zPathname, zPathname, pCfg->diffFlags, 0);
+        diff_print_index(zPathname, pCfg, 0);
+        diff_print_filenames(zPathname, zPathname, pCfg, 0);
         fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
         continue;
       }
@@ -720,7 +724,7 @@ void diff_against_disk(
         blob_zero(&content);
       }
       isBin = fIncludeBinary ? 0 : looks_like_binary(&content);
-      diff_print_index(zPathname, pCfg->diffFlags, diffBlob);
+      diff_print_index(zPathname, pCfg, diffBlob);
       diff_file(&content, isBin, zFullName, zPathname, zDiffCmd,
                 zBinGlob, fIncludeBinary, pCfg, 0, diffBlob);
       blob_reset(&content);
@@ -797,7 +801,7 @@ static void diff_manifest_entry(
     zName = DIFF_NO_NAME;
   }
   if( pCfg->diffFlags & DIFF_BRIEF ) return;
-  diff_print_index(zName, pCfg->diffFlags, 0);
+  diff_print_index(zName, pCfg, 0);
   if( pFrom ){
     rid = uuid_to_rid(pFrom->zUuid, 0);
     content_get(rid, &f1);
@@ -1192,7 +1196,7 @@ void diff_cmd(void){
       fossil_fatal("check-in %s has no parent", zTo);
     }
   }
-  diff_begin(DCfg.diffFlags);
+  diff_begin(&DCfg);
   if( againstUndo ){
     if( db_lget_int("undo_available",0)==0 ){
       fossil_print("No undo or redo is available\n");
@@ -1220,7 +1224,7 @@ void diff_cmd(void){
     }
     fossil_free(pFileDir);
   }
-  diff_end(DCfg.diffFlags, 0);
+  diff_end(&DCfg, 0);
   if ( DCfg.diffFlags & DIFF_NUMSTAT ){
     fossil_print("%10d %10d TOTAL over %d changed files\n", 
                  g.diffCnt[1], g.diffCnt[2], g.diffCnt[0]);

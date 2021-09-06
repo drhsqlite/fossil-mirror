@@ -2747,19 +2747,19 @@ int *text_diff(
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
-**   --brief                    Show filenames only    DIFF_BRIEF
-**   -c|--context N             N lines of context.    DIFF_CONTEXT_MASK
-**   --html                     Format for HTML        DIFF_HTML
-**   --invert                   Invert the diff        DIFF_INVERT
-**   -n|--linenum               Show line numbers      DIFF_LINENO
-**   --noopt                    Disable optimization   DIFF_NOOPT
-**   --numstat                  Show change counts     DIFF_NUMSTAT
-**   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
-**   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
-**   -w|--ignore-all-space      Ignore all whitespaces DIFF_IGNORE_ALLWS
-**   -W|--width N               N character lines.     DIFF_WIDTH_MASK
-**   -y|--side-by-side          Side-by-side diff.     DIFF_SIDEBYSIDE
-**   -Z|--ignore-trailing-space Ignore eol-whitespaces DIFF_IGNORE_EOLWS
+**   --brief                      Show filenames only        DIFF_BRIEF
+**   -c|--context N               N lines of context.        DIFF_CONTEXT_MASK
+**   --html                       Format for HTML            DIFF_HTML
+**   --invert                     Invert the diff            DIFF_INVERT
+**   -n|--linenum                 Show line numbers          DIFF_LINENO
+**   --noopt                      Disable optimization       DIFF_NOOPT
+**   --numstat                    Show change counts         DIFF_NUMSTAT
+**   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
+**   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
+**   -w|--ignore-all-space        Ignore all whitespaces     DIFF_IGNORE_ALLWS
+**   -W|--width N                 N character lines.         DIFF_WIDTH_MASK
+**   -y|--side-by-side            Side-by-side diff.         DIFF_SIDEBYSIDE
+**   -Z|--ignore-trailing-space   Ignore eol-whitespaces     DIFF_IGNORE_EOLWS
 */
 void diff_options(DiffConfig *pCfg, int isGDiff){
   u64 diffFlags = 0;
@@ -2839,14 +2839,14 @@ void diff_options(DiffConfig *pCfg, int isGDiff){
 ** This command used to be called "test-diff".  The older "test-diff" spelling
 ** still works, for compatibility.
 */
-void test_diff_cmd(void){
+void xdiff_cmd(void){
   Blob a, b, out;
   const char *zRe;           /* Regex filter for diff output */
   ReCompiled *pRe = 0;       /* Regex filter for diff output */
   DiffConfig DCfg;
 
   if( find_option("tk",0,0)!=0 ){
-    diff_tk("test-diff", 2);
+    diff_tk("xdiff", 2);
     return;
   }
   find_option("i",0,0);
@@ -2860,13 +2860,13 @@ void test_diff_cmd(void){
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_zero(&out);
-  diff_begin(DCfg.diffFlags);
-  diff_print_filenames(g.argv[2], g.argv[3], DCfg.diffFlags, &out);
+  diff_begin(&DCfg);
+  diff_print_filenames(g.argv[2], g.argv[3], &DCfg, &out);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
   text_diff(&a, &b, &out, pRe, &DCfg);
   blob_write_to_file(&out, "-");
-  diff_end(DCfg.diffFlags, 0);
+  diff_end(&DCfg, 0);
   re_free(pRe);
 }
 

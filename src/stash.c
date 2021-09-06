@@ -414,7 +414,7 @@ static void stash_diff(
   Blob empty;
   int bWebpage = (pCfg->diffFlags & DIFF_WEBPAGE)!=0;
   blob_zero(&empty);
-  diff_begin(pCfg->diffFlags);
+  diff_begin(pCfg);
   db_prepare(&q,
      "SELECT blob.rid, isRemoved, isExec, isLink, origname, newname, delta"
      "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash",
@@ -432,14 +432,14 @@ static void stash_diff(
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
       if( !bWebpage ) fossil_print("ADDED %s\n", zNew);
-      diff_print_index(zNew, pCfg->diffFlags, 0);
+      diff_print_index(zNew, pCfg, 0);
       isBin1 = 0;
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
       diff_file_mem(&empty, &a, isBin1, isBin2, zNew, zDiffCmd,
                     zBinGlob, fIncludeBinary, pCfg);
     }else if( isRemoved ){
       if( !bWebpage) fossil_print("DELETE %s\n", zOrig);
-      diff_print_index(zNew, pCfg->diffFlags, 0);
+      diff_print_index(zNew, pCfg, 0);
       isBin2 = 0;
       if( fBaseline ){
         content_get(rid, &a);
@@ -453,8 +453,8 @@ static void stash_diff(
       db_ephemeral_blob(&q, 6, &delta);
       if( !bWebpage ) fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
-        diff_print_index(zNew, pCfg->diffFlags, 0);
-        diff_print_filenames(zOrig, zNew, pCfg->diffFlags, 0);
+        diff_print_index(zNew, pCfg, 0);
+        diff_print_filenames(zOrig, zNew, pCfg, 0);
         printf(DIFF_CANNOT_COMPUTE_SYMLINK);
       }else{
         content_get(rid, &a);
@@ -477,7 +477,7 @@ static void stash_diff(
     }
   }
   db_finalize(&q);
-  diff_end(pCfg->diffFlags, 0);
+  diff_end(pCfg, 0);
 }
 
 /*
