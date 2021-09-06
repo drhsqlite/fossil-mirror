@@ -73,7 +73,42 @@
 #define LENGTH_MASK_SZ  15
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
 
+/*
+** An instance of this object describes the formatting and processing
+** details desired of a "diff" operation.
+**
+** Conceptually, this object is as an encoding of the command-line options
+** for the "fossil diff" command.  That is not a precise description, though,
+** because not all diff operations are started from the command-line.  But
+** the idea is sound.
+**
+** Information encoded by this object includes but is not limited to:
+**
+**    *   The desired output format (unified vs. side-by-side, 
+**        TCL, JSON, HTML vs. plain-text).
+**
+**    *   Number of lines of context surrounding each difference block
+**
+**    *   Width of output columns for text side-by-side diffop          
+*/
+struct DiffConfig {
+  u64 diffFlags;           /* Diff flags */
+  u32 nFile;               /* Number of files diffed so far */
+  const char *zDiffCmd;    /* External diff command to use instead of builtin */
+  const char *zBinGlob;    /* GLOB pattern for binary files */
+  ReCompiled *pRe;         /* Show only changes matching this pattern */
+};
+
 #endif /* INTERFACE */
+
+/*
+** Initialize memory for a DiffConfig based on just a diffFlags integer.
+*/
+DiffConfig *diff_config_init(DiffConfig *pCfg, u64 diffFlags){
+  memset(pCfg, 0, sizeof(*pCfg));
+  pCfg->diffFlags = diffFlags;
+  return pCfg;
+}
 
 /*
 ** Information about each line of a file being diffed.
@@ -334,7 +369,7 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB){
 static void contextDiff(
   DContext *p,      /* The difference */
   Blob *pOut,       /* Output a context diff to here */
-  u64 diffFlags     /* Flags controlling the diff format */
+  DiffConfig *pCfg  /* Configuration options */
 ){
   DLine *A;     /* Left side of the diff */
   DLine *B;     /* Right side of the diff */
@@ -353,8 +388,8 @@ static void contextDiff(
   int showLn;      /* Show line numbers */
   int showDivider = 0;  /* True to show the divider between diff blocks */
 
-  nContext = diff_context_lines(diffFlags);
-  showLn = (diffFlags & DIFF_LINENO)!=0;
+  nContext = diff_context_lines(pCfg);
+  showLn = (pCfg->diffFlags & DIFF_LINENO)!=0;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -1121,7 +1156,7 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append(p->pOut, "],\n",3);
 }
 static void dfjsonEnd(DiffBuilder *p){
-  blob_append(p->pOut, "0]", 2);
+  blob_append(p->pOut, "0]}", 3);
   fossil_free(p);
 }
 static DiffBuilder *dfjsonNew(Blob *pOut){
@@ -1633,7 +1668,7 @@ static void dfsbsEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
 static void dfsbsEnd(DiffBuilder *p){
   fossil_free(p);
 }
-static DiffBuilder *dfsbsNew(Blob *pOut, u64 diffFlags){
+static DiffBuilder *dfsbsNew(Blob *pOut, DiffConfig *pCfg){
   DiffBuilder *p = fossil_malloc(sizeof(*p));
   p->xSkip = dfsbsSkip;
   p->xCommon = dfsbsCommon;
@@ -1643,7 +1678,7 @@ static DiffBuilder *dfsbsNew(Blob *pOut, u64 diffFlags){
   p->xEdit = dfsbsEdit;
   p->xEnd = dfsbsEnd;
   p->lnLeft = p->lnRight = 0;
-  p->width = diff_width(diffFlags);
+  p->width = diff_width(pCfg);
   p->pOut = pOut;
   return p;
 }
@@ -1769,7 +1804,7 @@ void test_dline_match(void){
 static unsigned char *diffBlockAlignment(
   const DLine *aLeft, int nLeft,     /* Text on the left */
   const DLine *aRight, int nRight,   /* Text on the right */
-  u64 diffFlags,                     /* Flags passed into the original diff */
+  DiffConfig *pCfg,                  /* Configuration options */
   int *pNResult                      /* OUTPUT: Bytes of result */
 ){
   int i, j, k;                 /* Loop counters */
@@ -1797,7 +1832,7 @@ static unsigned char *diffBlockAlignment(
   ** approximation anyhow, and the faster response time is an acceptable
   ** trade-off for reduced precision.
   */
-  if( nLeft*nRight>DIFF_ALIGN_MX && (diffFlags & DIFF_SLOW_SBS)==0 ){
+  if( nLeft*nRight>DIFF_ALIGN_MX && (pCfg->diffFlags & DIFF_SLOW_SBS)==0 ){
     const DLine *aSmall;   /* The smaller of aLeft and aRight */
     const DLine *aBig;     /* The larger of aLeft and aRight */
     int nSmall, nBig;      /* Size of aSmall and aBig.  nSmall<=nBig */
@@ -1834,10 +1869,10 @@ static unsigned char *diffBlockAlignment(
       iDivRight = iDivBig;
       iDivLeft = iDivSmall;
     }
-    a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,diffFlags,&n1);
+    a1 = diffBlockAlignment(aLeft,iDivLeft,aRight,iDivRight,pCfg,&n1);
     a2 = diffBlockAlignment(aLeft+iDivLeft, nLeft-iDivLeft,
                             aRight+iDivRight, nRight-iDivRight,
-                            diffFlags, &n2);
+                            pCfg, &n2);
     a1 = fossil_realloc(a1, n1+n2 );
     memcpy(a1+n1,a2,n2);
     fossil_free(a2);
@@ -1940,8 +1975,7 @@ static int smallGap(const int *R, int ma, int mb){
 */
 static void formatDiff(
   DContext *p,           /* The computed diff */
-  ReCompiled *pRe,       /* Only show changes that match this regex */
-  u64 diffFlags,         /* Flags controlling the diff */
+  DiffConfig *pCfg,      /* Configuration options */
   DiffBuilder *pBuilder  /* The formatter object */
 ){
   const DLine *A;        /* Left side of the diff */
@@ -1958,7 +1992,7 @@ static void formatDiff(
   signed int skip = 0;   /* Number of lines to skip */
   unsigned int nContext; /* Lines of context above and below each change */
 
-  nContext = diff_context_lines(diffFlags);
+  nContext = diff_context_lines(pCfg);
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -1974,15 +2008,15 @@ static void formatDiff(
     ** Only display the block if one side matches but the other side does
     ** not.
     */
-    if( pRe ){
+    if( pCfg->pRe ){
       int hideBlock = 1;
       int xa = a, xb = b;
       for(i=0; hideBlock && i<nr; i++){
         int c1, c2;
         xa += R[r+i*3];
         xb += R[r+i*3];
-        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
-        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
+        c1 = re_dline_match(pCfg->pRe, &A[xa], R[r+i*3+1]);
+        c2 = re_dline_match(pCfg->pRe, &B[xb], R[r+i*3+2]);
         hideBlock = c1==c2;
         xa += R[r+i*3+1];
         xb += R[r+i*3+2];
@@ -2052,7 +2086,7 @@ static void formatDiff(
       }
 
       /* Try to find an alignment for the lines within this one block */
-      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, diffFlags, &nAlign);
+      alignment = diffBlockAlignment(&A[a], ma, &B[b], mb, pCfg, &nAlign);
 
       for(j=0; ma+mb>0; j++){
         assert( j<nAlign );
@@ -2513,9 +2547,9 @@ static void diff_optimize(DContext *p){
 ** Extract the number of lines of context from diffFlags.  Supply an
 ** appropriate default if no context width is specified.
 */
-int diff_context_lines(u64 diffFlags){
-  int n = diffFlags & DIFF_CONTEXT_MASK;
-  if( n==0 && (diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
+int diff_context_lines(DiffConfig *pCfg){
+  int n = pCfg->diffFlags & DIFF_CONTEXT_MASK;
+  if( n==0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
   return n;
 }
 
@@ -2529,8 +2563,8 @@ int diff_context_lines(u64 diffFlags){
 **
 **   text-width = (term-width - diff-marker - 1)/2 - lineno - lmargin - rmargin
 */
-int diff_width(u64 diffFlags){
-  int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
+int diff_width(DiffConfig *pCfg){
+  int w = (pCfg->diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
   if( w==0 ){
     static struct {
       unsigned int lineno, lmargin, text, rmargin, marker;
@@ -2591,37 +2625,36 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write diff here if not NULL */
-  ReCompiled *pRe, /* Only output changes where this Regexp matches */
-  u64 diffFlags    /* DIFF_* flags defined above */
+  DiffConfig *pCfg /* Configuration options */
 ){
   int ignoreWs; /* Ignore whitespace */
   DContext c;
 
-  if( diffFlags & DIFF_INVERT ){
+  if( pCfg->diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  ignoreWs = (diffFlags & DIFF_IGNORE_ALLWS)!=0;
+  ignoreWs = (pCfg->diffFlags & DIFF_IGNORE_ALLWS)!=0;
   blob_to_utf8_no_bom(pA_Blob, 0);
   blob_to_utf8_no_bom(pB_Blob, 0);
 
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
-  if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
+  if( (pCfg->diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
     c.xDiffer = compare_dline_ignore_allws;
   }else{
     c.xDiffer = compare_dline;
   }
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
-                             &c.nFrom, diffFlags);
+                             &c.nFrom, pCfg->diffFlags);
   c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
-                           &c.nTo, diffFlags);
+                           &c.nTo, pCfg->diffFlags);
   if( c.aFrom==0 || c.aTo==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
     if( pOut ){
-      diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, diffFlags);
+      diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, pCfg->diffFlags);
     }
     return 0;
   }
@@ -2632,10 +2665,10 @@ int *text_diff(
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
     fossil_free(c.aEdit);
-    if( pOut ) diff_errmsg(pOut, DIFF_WHITESPACE_ONLY, diffFlags);
+    if( pOut ) diff_errmsg(pOut, DIFF_WHITESPACE_ONLY, pCfg->diffFlags);
     return 0;
   }
-  if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
+  if( (pCfg->diffFlags & DIFF_NOTTOOBIG)!=0 ){
     int i, m, n;
     int *a = c.aEdit;
     int mx = c.nEdit;
@@ -2644,16 +2677,16 @@ int *text_diff(
       fossil_free(c.aFrom);
       fossil_free(c.aTo);
       fossil_free(c.aEdit);
-      if( pOut ) diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
+      if( pOut ) diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, pCfg->diffFlags);
       return 0;
     }
   }
-  if( (diffFlags & DIFF_NOOPT)==0 ){
+  if( (pCfg->diffFlags & DIFF_NOOPT)==0 ){
     diff_optimize(&c);
   }
 
   if( pOut ){
-    if( diffFlags & DIFF_NUMSTAT ){
+    if( pCfg->diffFlags & DIFF_NUMSTAT ){
       int nDel = 0, nIns = 0, i;
       for(i=0; c.aEdit[i] || c.aEdit[i+1] || c.aEdit[i+2]; i+=3){
         nDel += c.aEdit[i+1];
@@ -2665,36 +2698,36 @@ int *text_diff(
         g.diffCnt[0]++;
         blob_appendf(pOut, "%10d %10d", nIns, nDel);
       }
-    }else if( diffFlags & DIFF_RAW ){
+    }else if( pCfg->diffFlags & DIFF_RAW ){
       const int *R = c.aEdit;
       unsigned int r;
       for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
         blob_appendf(pOut, " copy %6d  delete %6d  insert %6d\n",
                      R[r], R[r+1], R[r+2]);
       }
-    }else if( diffFlags & DIFF_JSON ){
+    }else if( pCfg->diffFlags & DIFF_JSON ){
       DiffBuilder *pBuilder = dfjsonNew(pOut);
-      formatDiff(&c, pRe, diffFlags, pBuilder);
+      formatDiff(&c, pCfg, pBuilder);
       blob_append_char(pOut, '\n');
-    }else if( diffFlags & DIFF_TCL ){
+    }else if( pCfg->diffFlags & DIFF_TCL ){
       DiffBuilder *pBuilder = dftclNew(pOut);
-      formatDiff(&c, pRe, diffFlags, pBuilder);
-    }else if( diffFlags & DIFF_SIDEBYSIDE ){
+      formatDiff(&c, pCfg, pBuilder);
+    }else if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
       DiffBuilder *pBuilder;
-      if( diffFlags & DIFF_HTML ){
+      if( pCfg->diffFlags & DIFF_HTML ){
         pBuilder = dfsplitNew(pOut);
       }else{
-        pBuilder = dfsbsNew(pOut, diffFlags);
+        pBuilder = dfsbsNew(pOut, pCfg);
       }
-      formatDiff(&c, pRe, diffFlags, pBuilder);
-    }else if( diffFlags & DIFF_DEBUG ){
+      formatDiff(&c, pCfg, pBuilder);
+    }else if( pCfg->diffFlags & DIFF_DEBUG ){
       DiffBuilder *pBuilder = dfdebugNew(pOut);
-      formatDiff(&c, pRe, diffFlags, pBuilder);
-    }else if( diffFlags & DIFF_HTML ){
+      formatDiff(&c, pCfg, pBuilder);
+    }else if( pCfg->diffFlags & DIFF_HTML ){
       DiffBuilder *pBuilder = dfunifiedNew(pOut);
-      formatDiff(&c, pRe, diffFlags, pBuilder);
+      formatDiff(&c, pCfg, pBuilder);
     }else{
-      contextDiff(&c, pOut, diffFlags);
+      contextDiff(&c, pOut, pCfg);
     }
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
@@ -2711,27 +2744,31 @@ int *text_diff(
 }
 
 /*
+** Initialize the DiffConfig object using command-line options.
+**
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
-**   --brief                    Show filenames only    DIFF_BRIEF
-**   -c|--context N             N lines of context.    DIFF_CONTEXT_MASK
-**   --html                     Format for HTML        DIFF_HTML
-**   --invert                   Invert the diff        DIFF_INVERT
-**   -n|--linenum               Show line numbers      DIFF_LINENO
-**   --noopt                    Disable optimization   DIFF_NOOPT
-**   --numstat                  Show change counts     DIFF_NUMSTAT
-**   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
-**   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
-**   -w|--ignore-all-space      Ignore all whitespaces DIFF_IGNORE_ALLWS
-**   -W|--width N               N character lines.     DIFF_WIDTH_MASK
-**   -y|--side-by-side          Side-by-side diff.     DIFF_SIDEBYSIDE
-**   -Z|--ignore-trailing-space Ignore eol-whitespaces DIFF_IGNORE_EOLWS
+**   --brief                      Show filenames only        DIFF_BRIEF
+**   -c|--context N               N lines of context.        DIFF_CONTEXT_MASK
+**   --html                       Format for HTML            DIFF_HTML
+**   --invert                     Invert the diff            DIFF_INVERT
+**   -n|--linenum                 Show line numbers          DIFF_LINENO
+**   --noopt                      Disable optimization       DIFF_NOOPT
+**   --numstat                    Show change counts         DIFF_NUMSTAT
+**   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
+**   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
+**   -w|--ignore-all-space        Ignore all whitespaces     DIFF_IGNORE_ALLWS
+**   -W|--width N                 N character lines.         DIFF_WIDTH_MASK
+**   -y|--side-by-side            Side-by-side diff.         DIFF_SIDEBYSIDE
+**   -Z|--ignore-trailing-space   Ignore eol-whitespaces     DIFF_IGNORE_EOLWS
 */
-u64 diff_options(void){
+void diff_options(DiffConfig *pCfg, int isGDiff){
   u64 diffFlags = 0;
   const char *z;
   int f;
+
+  memset(pCfg, 0, sizeof(*pCfg));
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     diffFlags = DIFF_IGNORE_EOLWS;
   }
@@ -2782,7 +2819,7 @@ u64 diff_options(void){
   ** debugging and analysis: */
   if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
   if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
-  return diffFlags;
+  pCfg->diffFlags = diffFlags;
 }
 
 /*
@@ -2804,35 +2841,34 @@ u64 diff_options(void){
 ** This command used to be called "test-diff".  The older "test-diff" spelling
 ** still works, for compatibility.
 */
-void test_diff_cmd(void){
+void xdiff_cmd(void){
   Blob a, b, out;
-  u64 diffFlag;
   const char *zRe;           /* Regex filter for diff output */
-  ReCompiled *pRe = 0;       /* Regex filter for diff output */
+  DiffConfig DCfg;
 
   if( find_option("tk",0,0)!=0 ){
-    diff_tk("test-diff", 2);
+    diff_tk("xdiff", 2);
     return;
   }
   find_option("i",0,0);
   find_option("v",0,0);
+  diff_options(&DCfg, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
-    const char *zErr = re_compile(&pRe, zRe, 0);
+    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
-  diffFlag = diff_options();
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_zero(&out);
-  diff_begin(diffFlag);
-  diff_print_filenames(g.argv[2], g.argv[3], diffFlag, &out);
+  diff_begin(&DCfg);
+  diff_print_filenames(g.argv[2], g.argv[3], &DCfg, &out);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
-  text_diff(&a, &b, &out, pRe, diffFlag);
+  text_diff(&a, &b, &out, &DCfg);
   blob_write_to_file(&out, "-");
-  diff_end(diffFlag, 0);
-  re_free(pRe);
+  diff_end(&DCfg, 0);
+  re_free(DCfg.pRe);
 }
 
 /**************************************************************************

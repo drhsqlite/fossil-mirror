@@ -521,7 +521,7 @@ static cson_value * json_wiki_diff(){
   Manifest * pW1 = NULL, *pW2 = NULL;
   Blob w1 = empty_blob, w2 = empty_blob, d = empty_blob;
   char const * zErrTag = NULL;
-  u64 diffFlags;
+  DiffConfig DCfg;
   char * zUuid = NULL;
   if( !g.perm.Hyperlink ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -569,8 +569,8 @@ static cson_value * json_wiki_diff(){
   blob_zero(&w2);
   blob_init(&w2, pW2->zWiki, -1);
   blob_zero(&d);
-  diffFlags = DIFF_IGNORE_EOLWS | DIFF_STRIP_EOLCR;
-  text_diff(&w1, &w2, &d, 0, diffFlags);
+  diff_config_init(&DCfg, DIFF_IGNORE_EOLWS | DIFF_STRIP_EOLCR);
+  text_diff(&w1, &w2, &d, &DCfg);
   blob_reset(&w1);
   blob_reset(&w2);
 
