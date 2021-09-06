@@ -1156,7 +1156,7 @@ static void dfjsonEdit(DiffBuilder *p, const DLine *pX, const DLine *pY){
   blob_append(p->pOut, "],\n",3);
 }
 static void dfjsonEnd(DiffBuilder *p){
-  blob_append(p->pOut, "0]", 2);
+  blob_append(p->pOut, "0]}", 3);
   fossil_free(p);
 }
 static DiffBuilder *dfjsonNew(Blob *pOut){
@@ -2630,7 +2630,6 @@ int *text_diff(
   int ignoreWs; /* Ignore whitespace */
   DContext c;
 
-  pCfg->nFile++;
   if( pCfg->diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
     pA_Blob = pB_Blob;

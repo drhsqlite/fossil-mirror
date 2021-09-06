@@ -142,7 +142,7 @@ void diff_print_filenames(
 ){
   char *z = 0;
   u64 diffFlags = pCfg->diffFlags;
-  if( diffFlags & (DIFF_BRIEF|DIFF_RAW|DIFF_JSON) ){
+  if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
     fossil_print("FILE-LEFT   %s\nFILE-RIGHT  %s\n",
@@ -153,7 +153,7 @@ void diff_print_filenames(
     }else{
       z = mprintf("<h1>%h &lrarr; %h</h1>\n", zLeft, zRight);
     }
-  }else if( diffFlags & DIFF_TCL ){
+  }else if( diffFlags & (DIFF_TCL|DIFF_JSON) ){
     Blob *pOut;
     Blob x;
     if( diffBlob ){
@@ -162,11 +162,22 @@ void diff_print_filenames(
       blob_init(&x, 0, 0);
       pOut = &x;
     }
-    blob_append(pOut, "FILE ", 5);
-    blob_append_tcl_literal(pOut, zLeft, (int)strlen(zLeft));
-    blob_append_char(pOut, ' ');
-    blob_append_tcl_literal(pOut, zRight, (int)strlen(zRight));
-    blob_append_char(pOut, '\n');
+    if( diffFlags & DIFF_TCL ){
+      blob_append(pOut, "FILE ", 5);
+      blob_append_tcl_literal(pOut, zLeft, (int)strlen(zLeft));
+      blob_append_char(pOut, ' ');
+      blob_append_tcl_literal(pOut, zRight, (int)strlen(zRight));
+      blob_append_char(pOut, '\n');
+    }else{
+      blob_trim(pOut);
+      blob_append(pOut, (pCfg->nFile==0 ? "[{" : ",\n{"), -1);
+      pCfg->nFile++;
+      blob_append(pOut, "\n  \"leftname\":", -1);
+      blob_append_json_literal(pOut, zLeft, (int)strlen(zLeft));
+      blob_append(pOut, ",\n  \"rightname\":", -1);
+      blob_append_json_literal(pOut, zRight, (int)strlen(zRight));
+      blob_append(pOut, ",\n  \"diff\":\n", -1);
+    }
     if( !diffBlob ){
       fossil_print("%s", blob_str(pOut));
       blob_reset(&x);
@@ -379,6 +390,9 @@ void diff_end(DiffConfig *pCfg, int nErr){
     file_delete(tempDiffFilename);
     sqlite3_free(tempDiffFilename);
     tempDiffFilename = 0;
+  }
+  if( (pCfg->diffFlags & DIFF_JSON)!=0 && pCfg->nFile>0 ){
+    fossil_print("]\n");
   }
 }
 
