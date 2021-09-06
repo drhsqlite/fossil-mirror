@@ -436,7 +436,7 @@ static void stash_diff(
       isBin1 = 0;
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
       diff_file_mem(&empty, &a, isBin1, isBin2, zNew, zDiffCmd,
-                    zBinGlob, fIncludeBinary, pCfg->diffFlags);
+                    zBinGlob, fIncludeBinary, pCfg);
     }else if( isRemoved ){
       if( !bWebpage) fossil_print("DELETE %s\n", zOrig);
       diff_print_index(zNew, pCfg->diffFlags, 0);
@@ -445,7 +445,7 @@ static void stash_diff(
         content_get(rid, &a);
         isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
         diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
-                      zBinGlob, fIncludeBinary, pCfg->diffFlags);
+                      zBinGlob, fIncludeBinary, pCfg);
       }
     }else{
       Blob delta;
@@ -463,12 +463,12 @@ static void stash_diff(
         isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
         if( fBaseline ){
           diff_file_mem(&a, &b, isBin1, isBin2, zNew,
-                        zDiffCmd, zBinGlob, fIncludeBinary, pCfg->diffFlags);
+                        zDiffCmd, zBinGlob, fIncludeBinary, pCfg);
         }else{
           /*Diff with file on disk using fSwapDiff=1 to show the diff in the
             same direction as if fBaseline=1.*/
           diff_file(&b, isBin2, zOPath, zNew, zDiffCmd,
-              zBinGlob, fIncludeBinary, pCfg->diffFlags, 1, 0);
+              zBinGlob, fIncludeBinary, pCfg, 1, 0);
         }
         blob_reset(&a);
         blob_reset(&b);

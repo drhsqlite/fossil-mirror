@@ -1340,11 +1340,13 @@ static void prepare_commit_comment(
     );
   }
   if( p->verboseFlag ){
+    DiffConfig DCfg;
     blob_appendf(&prompt,
         "#\n%.78c\n"
         "# The following diff is excluded from the commit message:\n#\n",
         '#'
     );
+    diff_config_init(&DCfg, DIFF_VERBOSE);
     if( g.aCommitFile ){
       FileDirList *diffFiles;
       int i;
@@ -1362,7 +1364,7 @@ static void prepare_commit_comment(
       }
       diff_against_disk(0, 0, diff_get_binary_glob(),
                         db_get_boolean("diff-binary", 1),
-                        DIFF_VERBOSE, diffFiles, &prompt);
+                        &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
@@ -1370,7 +1372,7 @@ static void prepare_commit_comment(
     }else{
       diff_against_disk(0, 0, diff_get_binary_glob(),
                         db_get_boolean("diff-binary", 1),
-                        DIFF_VERBOSE, 0, &prompt);
+                        &DCfg, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);

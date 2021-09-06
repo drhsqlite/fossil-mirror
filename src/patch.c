@@ -811,7 +811,7 @@ static void patch_diff(
       content_get(rid, &a);
       isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
       diff_file_mem(&a, &empty, isBin1, isBin2, zName, zDiffCmd,
-                    zBinGlob, fIncludeBinary, pCfg->diffFlags);
+                    zBinGlob, fIncludeBinary, pCfg);
     }else if( rid==0 ){
       db_ephemeral_blob(&q, 3, &a);
       blob_uncompress(&a, &a);
@@ -820,7 +820,7 @@ static void patch_diff(
       isBin1 = 0;
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
       diff_file_mem(&empty, &a, isBin1, isBin2, zName, zDiffCmd,
-                    zBinGlob, fIncludeBinary, pCfg->diffFlags);
+                    zBinGlob, fIncludeBinary, pCfg);
       blob_reset(&a);
     }else if( db_column_bytes(&q, 3)>0 ){
       Blob delta;
@@ -831,7 +831,7 @@ static void patch_diff(
       isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
       isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
       diff_file_mem(&a, &b, isBin1, isBin2, zName,
-                    zDiffCmd, zBinGlob, fIncludeBinary, pCfg->diffFlags);
+                    zDiffCmd, zBinGlob, fIncludeBinary, pCfg);
       blob_reset(&a);
       blob_reset(&b);
       blob_reset(&delta);
