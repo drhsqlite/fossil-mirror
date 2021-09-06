@@ -92,7 +92,11 @@
 **    *   Width of output columns for text side-by-side diffop          
 */
 struct DiffConfig {
-  u64 diffFlags;       /* Legacy diff flags */
+  u64 diffFlags;           /* Diff flags */
+  u32 nFile;               /* Number of files diffed so far */
+  const char *zDiffCmd;    /* External diff command to use instead of builtin */
+  const char *zBinGlob;    /* GLOB pattern for binary files */
+  ReCompiled *pRe;         /* Show only changes matching this pattern */
 };
 
 #endif /* INTERFACE */
@@ -1971,7 +1975,6 @@ static int smallGap(const int *R, int ma, int mb){
 */
 static void formatDiff(
   DContext *p,           /* The computed diff */
-  ReCompiled *pRe,       /* Only show changes that match this regex */
   DiffConfig *pCfg,      /* Configuration options */
   DiffBuilder *pBuilder  /* The formatter object */
 ){
@@ -2005,15 +2008,15 @@ static void formatDiff(
     ** Only display the block if one side matches but the other side does
     ** not.
     */
-    if( pRe ){
+    if( pCfg->pRe ){
       int hideBlock = 1;
       int xa = a, xb = b;
       for(i=0; hideBlock && i<nr; i++){
         int c1, c2;
         xa += R[r+i*3];
         xb += R[r+i*3];
-        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
-        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
+        c1 = re_dline_match(pCfg->pRe, &A[xa], R[r+i*3+1]);
+        c2 = re_dline_match(pCfg->pRe, &B[xb], R[r+i*3+2]);
         hideBlock = c1==c2;
         xa += R[r+i*3+1];
         xb += R[r+i*3+2];
@@ -2622,12 +2625,12 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write diff here if not NULL */
-  ReCompiled *pRe, /* Only output changes where this Regexp matches */
   DiffConfig *pCfg /* Configuration options */
 ){
   int ignoreWs; /* Ignore whitespace */
   DContext c;
 
+  pCfg->nFile++;
   if( pCfg->diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
     pA_Blob = pB_Blob;
@@ -2705,11 +2708,11 @@ int *text_diff(
       }
     }else if( pCfg->diffFlags & DIFF_JSON ){
       DiffBuilder *pBuilder = dfjsonNew(pOut);
-      formatDiff(&c, pRe, pCfg, pBuilder);
+      formatDiff(&c, pCfg, pBuilder);
       blob_append_char(pOut, '\n');
     }else if( pCfg->diffFlags & DIFF_TCL ){
       DiffBuilder *pBuilder = dftclNew(pOut);
-      formatDiff(&c, pRe, pCfg, pBuilder);
+      formatDiff(&c, pCfg, pBuilder);
     }else if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
       DiffBuilder *pBuilder;
       if( pCfg->diffFlags & DIFF_HTML ){
@@ -2717,13 +2720,13 @@ int *text_diff(
       }else{
         pBuilder = dfsbsNew(pOut, pCfg);
       }
-      formatDiff(&c, pRe, pCfg, pBuilder);
+      formatDiff(&c, pCfg, pBuilder);
     }else if( pCfg->diffFlags & DIFF_DEBUG ){
       DiffBuilder *pBuilder = dfdebugNew(pOut);
-      formatDiff(&c, pRe, pCfg, pBuilder);
+      formatDiff(&c, pCfg, pBuilder);
     }else if( pCfg->diffFlags & DIFF_HTML ){
       DiffBuilder *pBuilder = dfunifiedNew(pOut);
-      formatDiff(&c, pRe, pCfg, pBuilder);
+      formatDiff(&c, pCfg, pBuilder);
     }else{
       contextDiff(&c, pOut, pCfg);
     }
@@ -2842,7 +2845,6 @@ void diff_options(DiffConfig *pCfg, int isGDiff){
 void xdiff_cmd(void){
   Blob a, b, out;
   const char *zRe;           /* Regex filter for diff output */
-  ReCompiled *pRe = 0;       /* Regex filter for diff output */
   DiffConfig DCfg;
 
   if( find_option("tk",0,0)!=0 ){
@@ -2851,12 +2853,12 @@ void xdiff_cmd(void){
   }
   find_option("i",0,0);
   find_option("v",0,0);
+  diff_options(&DCfg, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
-    const char *zErr = re_compile(&pRe, zRe, 0);
+    const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
     if( zErr ) fossil_fatal("regex error: %s", zErr);
   }
-  diff_options(&DCfg, 0);
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_zero(&out);
@@ -2864,10 +2866,10 @@ void xdiff_cmd(void){
   diff_print_filenames(g.argv[2], g.argv[3], &DCfg, &out);
   blob_read_from_file(&a, g.argv[2], ExtFILE);
   blob_read_from_file(&b, g.argv[3], ExtFILE);
-  text_diff(&a, &b, &out, pRe, &DCfg);
+  text_diff(&a, &b, &out, &DCfg);
   blob_write_to_file(&out, "-");
   diff_end(&DCfg, 0);
-  re_free(pRe);
+  re_free(DCfg.pRe);
 }
 
 /**************************************************************************

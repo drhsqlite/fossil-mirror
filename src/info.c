@@ -332,13 +332,11 @@ void render_checkin_context(int rid, int rid2, int parentsOnly, int mFlags){
 static void append_diff(
   const char *zFrom,    /* Diff from this artifact */
   const char *zTo,      /*  ... to this artifact */
-  u64 diffFlags,        /* Diff formatting flags */
-  ReCompiled *pRe       /* Only show change matching this regex */
+  DiffConfig *pCfg      /* The diff configuration */
 ){
   int fromid;
   int toid;
   Blob from, to;
-  DiffConfig DCfg;
   if( zFrom ){
     fromid = uuid_to_rid(zFrom, 0);
     content_get(fromid, &from);
@@ -351,13 +349,12 @@ static void append_diff(
   }else{
     blob_zero(&to);
   }
-  if( diffFlags & DIFF_SIDEBYSIDE ){
-    diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
+  if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
+    pCfg->diffFlags |= DIFF_HTML | DIFF_NOTTOOBIG;
   }else{
-    diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
+    pCfg->diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
-  diff_config_init(&DCfg, diffFlags);
-  text_diff(&from, &to, cgi_output_blob(), pRe, &DCfg);
+  text_diff(&from, &to, cgi_output_blob(), pCfg);
   blob_reset(&from);
   blob_reset(&to);
 }
@@ -372,8 +369,7 @@ static void append_file_change_line(
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
-  u64 diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
-  ReCompiled *pRe,      /* Only show diffs that match this regex, if not NULL */
+  DiffConfig *pCfg,     /* Flags for text_diff() or NULL to omit all */
   int mperm             /* executable or symlink permission for zNew */
 ){
   @ <p>
@@ -395,8 +391,8 @@ static void append_file_change_line(
     }else{
       @ Changes to %h(zName).
     }
-    if( diffFlags ){
-      append_diff(zOld, zNew, diffFlags, pRe);
+    if( pCfg ){
+      append_diff(zOld, zNew, pCfg);
     }
   }else{
     if( zOld && zNew ){
@@ -430,8 +426,8 @@ static void append_file_change_line(
       @ Added %z(href("%R/finfo?name=%T&m=%!S&ci=%!S",zName,zNew,zCkin))\
       @ %h(zName)</a> version %z(href("%R/artifact/%!S",zNew))[%S(zNew)]</a>.
     }
-    if( diffFlags ){
-      append_diff(zOld, zNew, diffFlags, pRe);
+    if( pCfg ){
+      append_diff(zOld, zNew, pCfg);
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a>
@@ -452,7 +448,7 @@ void append_diff_javascript(int sideBySide){
 ** Construct an appropriate diffFlag for text_diff() based on query
 ** parameters and the to boolean arguments.
 */
-u64 construct_diff_flags(int diffType){
+DiffConfig *construct_diff_flags(int diffType, DiffConfig *pCfg){
   u64 diffFlags = 0;  /* Zero means do not show any diff */
   if( diffType>0 ){
     int x;
@@ -476,8 +472,12 @@ u64 construct_diff_flags(int diffType){
     /* The "noopt" parameter disables diff optimization */
     if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
     diffFlags |= DIFF_STRIP_EOLCR;
+    diff_config_init(pCfg, diffFlags);
+    return pCfg;
+  }else{
+    diff_config_init(pCfg, 0);
+    return 0;
   }
-  return diffFlags;
 }
 
 /*
@@ -618,16 +618,16 @@ void ci_page(void){
   int rid;
   int isLeaf;
   int diffType;        /* 0: no diff,  1: unified,  2: side-by-side */
-  u64 diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the check-in to be displayed */
   const char *zUuid;   /* Hash of zName, found via blob.uuid */
   const char *zParent; /* Hash of the parent check-in (if any) */
   const char *zRe;     /* regex parameter */
   ReCompiled *pRe = 0; /* regex */
-  const char *zW;      /* URL param for ignoring whitespace */
+  const char *zW;               /* URL param for ignoring whitespace */
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zPageHide = "ci"; /* Page that hides diffs */
-  const char *zBrName; /* Branch name */
+  const char *zBrName;          /* Branch name */
+  DiffConfig DCfg,*pCfg;        /* Type of diff */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -882,8 +882,9 @@ void ci_page(void){
   render_checkin_context(rid, 0, 0, 0);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
-  diffFlags = construct_diff_flags(diffType);
-  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  pCfg = construct_diff_flags(diffType, &DCfg);
+  DCfg.pRe = pRe;  
+  zW = (DCfg.diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( diffType!=0 ){
     @ %z(chref("button","%R/%s/%T?diff=0",zPageHide,zName))\
     @ Hide&nbsp;Diffs</a>
@@ -937,10 +938,10 @@ void ci_page(void){
     const char *zNew = db_column_text(&q3,3);
     const char *zOldName = db_column_text(&q3, 4);
     append_file_change_line(zUuid, zName, zOld, zNew, zOldName, 
-                            diffFlags,pRe,mperm);
+                            pCfg,mperm);
   }
   db_finalize(&q3);
-  append_diff_javascript(diffType==2);
+  append_diff_javascript(diffType);
   builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }
@@ -1171,7 +1172,6 @@ static void checkin_description(int rid){
 void vdiff_page(void){
   int ridFrom, ridTo;
   int diffType = 0;        /* 0: none, 1: unified, 2: side-by-side */
-  u64 diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
   const char *zBranch;
@@ -1181,6 +1181,7 @@ void vdiff_page(void){
   const char *zGlob;
   char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
+  DiffConfig DCfg, *pCfg = 0;
   int graphFlags = 0;
   Blob qp;
   int bInvert = PB("inv");
@@ -1233,8 +1234,8 @@ void vdiff_page(void){
     graphFlags |= TIMELINE_NOCOLOR;
     blob_appendf(&qp, "&nc");
   }
-  diffFlags = construct_diff_flags(diffType);
-  if( diffFlags & DIFF_IGNORE_ALLWS ){
+  pCfg = construct_diff_flags(diffType, &DCfg);
+  if( DCfg.diffFlags & DIFF_IGNORE_ALLWS ){
     blob_appendf(&qp, "&w");
   }
   style_set_current_feature("vdiff");
@@ -1257,7 +1258,7 @@ void vdiff_page(void){
     style_submenu_element("Clear glob", "%R/vdiff?diff=%d&%b", diffType, &qp);
   }else{
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo,
-           (diffFlags & DIFF_IGNORE_ALLWS)?"&w":"");
+           (DCfg.diffFlags & DIFF_IGNORE_ALLWS)?"&w":"");
   }
   if( diffType!=0 ){
     style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
@@ -1305,6 +1306,7 @@ void vdiff_page(void){
   pFileFrom = manifest_file_next(pFrom, 0);
   manifest_file_rewind(pTo);
   pFileTo = manifest_file_next(pTo, 0);
+  DCfg.pRe = pRe;
   while( pFileFrom || pFileTo ){
     int cmp;
     if( pFileFrom==0 ){
@@ -1317,13 +1319,13 @@ void vdiff_page(void){
     if( cmp<0 ){
       if( !zGlob || sqlite3_strglob(zGlob, pFileFrom->zName)==0 ){
         append_file_change_line(zFrom, pFileFrom->zName,
-                                pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
+                                pFileFrom->zUuid, 0, 0, pCfg, 0);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       if( !zGlob || sqlite3_strglob(zGlob, pFileTo->zName)==0 ){
         append_file_change_line(zTo, pFileTo->zName,
-                                0, pFileTo->zUuid, 0, diffFlags, pRe,
+                                0, pFileTo->zUuid, 0, pCfg,
                                 manifest_file_mperm(pFileTo));
       }
       pFileTo = manifest_file_next(pTo, 0);
@@ -1335,7 +1337,7 @@ void vdiff_page(void){
                 || sqlite3_strglob(zGlob, pFileTo->zName)==0) ){
         append_file_change_line(zFrom, pFileFrom->zName,
                                 pFileFrom->zUuid,
-                                pFileTo->zUuid, 0, diffFlags, pRe,
+                                pFileTo->zUuid, 0, pCfg,
                                 manifest_file_mperm(pFileTo));
       }
       pFileFrom = manifest_file_next(pFrom, 0);
@@ -1726,6 +1728,7 @@ void diff_page(void){
   u64 diffFlags;
   u32 objdescFlags = 0;
   int verbose = PB("verbose");
+  DiffConfig DCfg;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -1779,7 +1782,8 @@ void diff_page(void){
     content_get(v1, &c1);
     content_get(v2, &c2);
     diff_config_init(&DCfg, diffFlags);
-    text_diff(&c1, &c2, pOut, pRe, &DCfg);
+    DCfg.pRe = pRe;
+    text_diff(&c1, &c2, pOut, &DCfg);
     blob_reset(&c1);
     blob_reset(&c2);
     return;
@@ -1787,7 +1791,8 @@ void diff_page(void){
 
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
-  diffFlags = construct_diff_flags(diffType) | DIFF_HTML;
+  construct_diff_flags(diffType, &DCfg);
+  DCfg.diffFlags |= DIFF_HTML;
 
   style_set_current_feature("fdiff");
   style_header("Diff");
@@ -1817,9 +1822,10 @@ void diff_page(void){
   if( pRe ){
     @ <b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b>
+    DCfg.pRe = pRe;
   }
   @ <hr />
-  append_diff(zV1, zV2, diffFlags, pRe);
+  append_diff(zV1, zV2, &DCfg);
   append_diff_javascript(diffType);
   style_finish_page();
 }

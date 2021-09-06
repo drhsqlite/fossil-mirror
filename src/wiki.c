@@ -1817,7 +1817,6 @@ void wdiff_page(void){
   Manifest *pW1, *pW2 = 0;
   int rid1, rid2, nextRid;
   Blob w1, w2, d;
-  u64 diffFlags;
   DiffConfig DCfg;
 
   login_check_credentials();
@@ -1861,9 +1860,9 @@ void wdiff_page(void){
   style_set_current_feature("wiki");
   style_header("Changes To %s", pW1->zWikiTitle);
   blob_zero(&d);
-  diffFlags = construct_diff_flags(1);
-  diff_config_init(&DCfg, diffFlags | DIFF_HTML | DIFF_LINENO);
-  text_diff(&w2, &w1, &d, 0, &DCfg);
+  construct_diff_flags(1, &DCfg);
+  DCfg.diffFlags |= DIFF_HTML | DIFF_LINENO;
+  text_diff(&w2, &w1, &d, &DCfg);
   @ <pre class="udiff">
   @ %s(blob_str(&d))
   @ <pre>

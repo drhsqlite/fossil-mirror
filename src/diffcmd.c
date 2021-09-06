@@ -432,9 +432,9 @@ void diff_file(
     }else{
       blob_zero(&out);
       if( fSwapDiff ){
-        text_diff(&file2, pFile1, &out, 0, pCfg);
+        text_diff(&file2, pFile1, &out, pCfg);
       }else{
-        text_diff(pFile1, &file2, &out, 0, pCfg);
+        text_diff(pFile1, &file2, &out, pCfg);
       }
       if( blob_size(&out) ){
         if( pCfg->diffFlags & DIFF_NUMSTAT ){
@@ -543,7 +543,7 @@ void diff_file_mem(
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
-    text_diff(pFile1, pFile2, &out, 0, pCfg);
+    text_diff(pFile1, pFile2, &out, pCfg);
     if( pCfg->diffFlags & DIFF_NUMSTAT ){
       fossil_print("%s %s\n", blob_str(&out), zName);
     }else{
