@@ -2,8 +2,11 @@
 
 <a name='v2_17'></a>
 <h2>Changes for version 2.17 (pending)</h2>
-  *  Added new options the various 
-     [/help?cmd=diff|diff commands]: -b/--browser, --by, and --webpage.
+  *  Added new options to the various 
+     [/help?cmd=diff|diff commands]: --by, -b, --webpage, --json, --tcl.
+  *  Performance and display improvements to the internal diff engine, including
+     partial-line matching for unified diffs and improved partial line matching for
+     side-by-side diffs.
   *  The --branchcolor option on [/help?cmd=commit|fossil commit] and
      [/help?cmd=amend|fossil amend] can now take the value "auto" to
      force Fossil to use its built-in automatic color choosing algorithm.
