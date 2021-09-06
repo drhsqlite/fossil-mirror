@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.37.0\salpha,\sfor\stesting.
-D 2021-09-06T13:06:26.550
+C Expand\sthe\s'fossil\swiki\sexport\s--technote'\sinterface\sto\ssupport\stechnote\nretrieval\svia\stag\sname\sas\sdiscussed\sin\sthe\schat.\sThe\squery\slooks\sto\smatch\nagainst\sboth\s'sym-TAG'\sand\s'TAG'\sas\stechnote\stags\sare\spresently\sprefixed\nwith\s'sym-'.\sThis\sidentifier\sshould\sbe\sreserved\sfor\sbranches,\showever,\sso\nmay\sbe\sremoved\sfrom\stechnotes,\sat\swhich\spoint\sthis\squery\sshould\sbe\schanged.
+D 2021-09-06T13:22:20.047
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -645,7 +645,7 @@ F src/utf8.c 5345d7486ee3415fb9d56acffc4e25d944db84ef5fb8799bd70b5618e73a3c6d
 F src/util.c 0db7e9c877c025b1fac85da5982348c7a6c5935c2cec3519d19c43e32e4c2289
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
-F src/wiki.c 48b35b189bbd52f9f183809263e4ae4da4e17089d9e26e859233a9016aa9e48b
+F src/wiki.c 5f93fa300b63dec6a210c83b312388eae790bd560fc0145d93f20e96403e4fc9
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
 F src/wikiformat.c 8149a84fe21e83b9fd7416c4084e5fa80e425a4e4c70bacf4568696e8246ef19
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
@@ -866,7 +866,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf63028e6bfe
 F www/env-opts.md bb63dff3391ff3da56f9a8d0236020a4a8a09ed920cc79d4e2021817e8045af9
-F www/event.wiki dcd29f441158f42028af484b38393be23aed1f8ef69a25686313050047897951
+F www/event.wiki 47e25a49343b456b664dd54f63f8a7f3e89f05c79291f666dd2e71400e14e360
 F www/faq.tcl 4f8e2899730d4203e177c52c3bc3ca0230eadb1e108fa79f4154cf46dce9ae06
 F www/faq.wiki a1b6ad89f5b12102c2a52c4bed5168ea5a932a10811c3c824b1ff048c996146d
 F www/fileedit-page.md 15412fa30b211b4d9bcf1b13cf9a293f46728dedbf8a9126f4d990170267bcb4
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3fcdfb0cd8f1dce1ca7bd67238b61a879b0bf40ec3bd16e44dd8945eac1d00a3
-R 8685626a25677f6beed9c05ff23475ca
-U drh
-Z ea3612bc85bb0707c79c29f30863b1a6
+P 04b725d9bf814faa24b0a35255eebfc13d7f25c3220553c18f68f07a04928542
+R c9a1e52b2a8c5cd16e2e80a786063d46
+U jamsek
+Z 721a32663ac8b48d3370e16b7f6d472a

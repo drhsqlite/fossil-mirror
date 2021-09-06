@@ -2050,8 +2050,8 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
 }
 
 /*
-** Determine the rid for a tech note given either its id or its
-** timestamp. Returns 0 if there is no such item and -1 if the details
+** Determine the rid for a tech note given either its id, its timestamp,
+** or its tag. Returns 0 if there is no such item and -1 if the details
 ** are ambiguous and could refer to multiple items.
 */
 int wiki_technote_to_rid(const char *zETime) {
@@ -2086,6 +2086,27 @@ int wiki_technote_to_rid(const char *zETime) {
                    zETime);
     }
   }
+  if( !rid ) {
+      /*
+      ** At present, technote tags are prefixed with 'sym-', which shouldn't
+      ** be the case, so we check for both with and without the prefix until
+      ** such time as tags have the errant prefix dropped.
+      */
+      rid = db_int(0, "SELECT e.objid"
+		      "  FROM event e, tag t, tagxref tx"
+		      " WHERE e.type='e'"
+		      "   AND e.tagid IS NOT NULL"
+		      "   AND e.objid IN"
+                      "       (SELECT rid FROM tagxref"
+                      "         WHERE tagid=(SELECT tagid FROM tag"
+                      "                       WHERE tagname GLOB '%q'))"
+		      "    OR e.objid IN"
+                      "       (SELECT rid FROM tagxref"
+                      "         WHERE tagid=(SELECT tagid FROM tag"
+                      "                       WHERE tagname GLOB 'sym-%q'))"
+		      "   ORDER BY e.mtime DESC LIMIT 1",
+		   zETime, zETime);
+  }
   return rid;
 }
 
@@ -2097,7 +2118,7 @@ int wiki_technote_to_rid(const char *zETime) {
 ** Run various subcommands to work with wiki entries or tech notes.
 **
 ** > fossil wiki export ?OPTIONS? PAGENAME ?FILE?
-** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
+** > fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID|TAG ?FILE?
 **
 **       Sends the latest version of either a wiki page or of a tech
 **       note to the given file or standard output.  A filename of "-"
@@ -2106,11 +2127,12 @@ int wiki_technote_to_rid(const char *zETime) {
 **       If PAGENAME is provided, the named wiki page will be output.
 **
 **       Options:
-**         -t|--technote DATETIME|TECHNOTE-ID
+**         -t|--technote DATETIME|TECHNOTE-ID|TAG
 **                    Specifies that a technote, rather than a wiki page,
 **                    will be exported. If DATETIME is used, the most
 **                    recently modified tech note with that DATETIME will
-**                    output.
+**                    output. If TAG is used, the most recently modified
+**                    tech note with that TAG will be output.
 **         -h|--html  The body (only) is rendered in HTML form, without
 **                    any page header/foot or HTML/BODY tag wrappers.
 **         -H|--HTML  Works like -h|-html but wraps the output in
