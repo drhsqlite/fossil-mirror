@@ -38,7 +38,7 @@ window.fossil.onPageLoad(function(){
 ** display, scrollbars are added.  The scrollbars are linked, so that
 ** both sides scroll together.  Left and right arrows also scroll.
 */
-(function(){
+window.fossil.onPageLoad(function(){
   var SCROLL_LEN = 25;
   function initDiff(diff){
     var txtCols = diff.querySelectorAll('td.difftxt');
@@ -70,29 +70,38 @@ window.fossil.onPageLoad(function(){
   for(i=0; i<diffs.length; i++){
     initDiff(diffs[i]);
   }
-  var lastWidth = 0;
-  function checkWidth(){
-    if( document.body.clientWidth!=lastWidth ){
-      lastWidth = document.body.clientWidth;
-      var w = lastWidth*0.5 - 100;
-      var allCols = document.querySelectorAll('td.difftxtl pre');
-      for(let i=0; i<allCols.length; i++){
-        allCols[i].style.width = w + "px";
-        allCols[i].style.maxWidth = w + "px";
+  const checkWidth = function f(){
+    if(undefined === f.lastWidth){
+      f.lastWidth = 0;
+    }
+    if( document.body.clientWidth!=f.lastWidth ){
+      f.lastWidth = document.body.clientWidth;
+      var w = f.lastWidth*0.5 - 100;
+      if(!f.colsL){
+        f.colsL = document.querySelectorAll('td.difftxtl pre');
       }
-      allCols = document.querySelectorAll('td.difftxtr pre');
-      for(let i=0; i<allCols.length; i++){
-        allCols[i].style.width = w + "px";
-        allCols[i].style.maxWidth = w + "px";
+      for(let i=0; i<f.colsL.length; i++){
+        f.colsL[i].style.width = w + "px";
+        f.colsL[i].style.maxWidth = w + "px";
       }
-      var allDiffs = document.querySelectorAll('table.diff');
-      w = lastWidth;
-      for(let i=0; i<allDiffs.length; i++){
-        allDiffs[i].style.width = '100%'; // setting to w causes unsightly horiz. scrollbar
-        allDiffs[i].style.maxWidth = w + "px";
+      if(!f.colsR){
+        f.colsR = document.querySelectorAll('td.difftxtr pre');
+      }
+      for(let i=0; i<f.colsR.length; i++){
+        f.colsR[i].style.width = w + "px";
+        f.colsR[i].style.maxWidth = w + "px";
+      }
+      if(!f.allDiffs){
+        f.allDiffs = document.querySelectorAll('table.diff');
+      }
+      w = f.lastWidth;
+      for(let i=0; i<f.allDiffs.length; i++){
+        f.allDiffs[i].style.width = '100%'; // setting to w causes unsightly horiz. scrollbar
+        f.allDiffs[i].style.maxWidth = w + "px";
       }
     }
-  }
+  };
   checkWidth();
   window.addEventListener('resize', checkWidth);
-})();
+}, false);
+
