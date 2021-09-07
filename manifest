@@ -1,5 +1,5 @@
-C On\sthe\s/jtext\spage,\sterminate\sthe\sJSON\sarray\searly\sif\sthere\sare\sinsufficient\nlines\sof\stext\sin\sthe\sfile\sto\scomplete\sthe\srequest.
-D 2021-09-07T19:15:13.008
+C json\sAPI:\sremoved\sreference\sto\srecently-removed\sDIFF_CONTEXT_MASK.
+D 2021-09-07T21:12:48.183
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -523,7 +523,7 @@ F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3b
 F src/json_branch.c ade71599eeb430bac4b055ceee73b06e7499f6a63a1bfb9bb5787dc213c0fac5
 F src/json_config.c a4beb095ae76706663a218a860a5064784fce96eff4e2866c27d92097c2891e9
 F src/json_detail.h 327749d70dbbe785dbcc03d63c6c7372db920d28382d8992a06b42aaa31399a9
-F src/json_diff.c d11783ff2554f738b9a673a51ee992833b78b42422db71035a405b5cf62ad5c3
+F src/json_diff.c a3af88f5a95dd3084b09c12c9cac280a7fb89583af4cdeb9034c75245c8f2de3
 F src/json_dir.c 749c78497a1ca3d29659e760a8ecb482bf1a090e9ce6dd01f4e55d6abf062295
 F src/json_finfo.c 3ef77397c22e0fcc8ea324224f3475916d6acdb6f4de6b338d8bc5f606708eca
 F src/json_login.c dc9dd643755a1c5676b7ef0a5fe4b2dd747b968baba48e110d9ad556d0f1f434
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5f7fcbabf01abf6fd4b7bc146e709c9d8d0fe9669abff8837aefdc0f7cb87eb9
-R 7eda8f1c923b615b26f3b64b1bde0fd1
-U drh
-Z 8bf4dda59d0ea0ebfcfd76a7db097756
+P 6f5dfd9d800e692f8d23afffd6cb1ecf07b22694160db13df6853b1eee155683
+R ac8b576b8928be8d92c94f4a2ee64a89
+U stephan
+Z e9f5fc4d7cb2bde345b5b3b835ae9073

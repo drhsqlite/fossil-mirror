@@ -43,8 +43,7 @@ cson_value * json_generate_diff(const char *zFrom, const char *zTo,
   DiffConfig DCfg;
   Blob from = empty_blob, to = empty_blob, out = empty_blob;
   cson_value * rc = NULL;
-  int flags = (DIFF_CONTEXT_MASK & nContext)
-    | (fSbs ? DIFF_SIDEBYSIDE : 0)
+  int flags = (fSbs ? DIFF_SIDEBYSIDE : 0)
     | (fHtml ? DIFF_HTML : 0);
   fromid = name_to_typed_rid(zFrom, "*");
   if(fromid<=0){
