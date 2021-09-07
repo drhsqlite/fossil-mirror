@@ -28,29 +28,27 @@
 ** Flag parameters to the text_diff() routine used to control the formatting
 ** of the diff output.
 */
-#define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
-#define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
-#define DIFF_IGNORE_ALLWS ((u64)0x03000000) /* Ignore all whitespace */
-#define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
-#define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
-#define DIFF_BRIEF        ((u64)0x10000000) /* Show filenames only */
-#define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
-#define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
-#define DIFF_NUMSTAT      ((u64)0x80000000) /* Show line count of changes */
-#define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
-#define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
-#define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
-#define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
-#define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
-#define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
-#define DIFF_WEBPAGE   (((u64)0x00040)<<32) /* Complete webpage */
-#define DIFF_BROWSER   (((u64)0x00080)<<32) /* The --browser option */
-#define DIFF_JSON      (((u64)0x00100)<<32) /* JSON output */
-#define DIFF_DEBUG     (((u64)0x00200)<<32) /* Debugging diff output */
-#define DIFF_RAW       (((u64)0x00400)<<32) /* Raw triples - for debugging */
-#define DIFF_TCL       (((u64)0x00800)<<32) /* For the --tk option */
-#define DIFF_INCBINARY (((u64)0x01000)<<32) /* The --diff-binary option */
+#define DIFF_IGNORE_EOLWS      0x00000001 /* Ignore end-of-line whitespace */
+#define DIFF_IGNORE_ALLWS      0x00000003 /* Ignore all whitespace */
+#define DIFF_SIDEBYSIDE        0x00000004 /* Generate a side-by-side diff */
+#define DIFF_VERBOSE           0x00000008 /* Missing shown as empty files */
+#define DIFF_BRIEF             0x00000010 /* Show filenames only */
+#define DIFF_HTML              0x00000020 /* Render for HTML */
+#define DIFF_LINENO            0x00000040 /* Show line numbers */
+#define DIFF_NUMSTAT           0x00000080 /* Show line count of changes */
+#define DIFF_NOOPT             0x00000100 /* Suppress optimizations (debug) */
+#define DIFF_INVERT            0x00000200 /* Invert the diff (debug) */
+#define DIFF_CONTEXT_EX        0x00000400 /* Use context even if zero */
+#define DIFF_NOTTOOBIG         0x00000800 /* Only display if not too big */
+#define DIFF_STRIP_EOLCR       0x00001000 /* Strip trailing CR */
+#define DIFF_SLOW_SBS          0x00002000 /* Better but slower side-by-side */
+#define DIFF_WEBPAGE           0x00004000 /* Complete webpage */
+#define DIFF_BROWSER           0x00008000 /* The --browser option */
+#define DIFF_JSON              0x00010000 /* JSON output */
+#define DIFF_DEBUG             0x00020000 /* Debugging diff output */
+#define DIFF_RAW               0x00040000 /* Raw triples - for debugging */
+#define DIFF_TCL               0x00080000 /* For the --tk option */
+#define DIFF_INCBINARY         0x00100000 /* The --diff-binary option */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -94,6 +92,8 @@
 */
 struct DiffConfig {
   u64 diffFlags;           /* Diff flags */
+  int nContext;            /* Number of lines of context */
+  int wColumn;             /* Column width in -y mode */
   u32 nFile;               /* Number of files diffed so far */
   const char *zDiffCmd;    /* External diff command to use instead of builtin */
   const char *zBinGlob;    /* GLOB pattern for binary files */
@@ -2549,8 +2549,8 @@ static void diff_optimize(DContext *p){
 ** appropriate default if no context width is specified.
 */
 int diff_context_lines(DiffConfig *pCfg){
-  int n = pCfg->diffFlags & DIFF_CONTEXT_MASK;
-  if( n==0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
+  int n = pCfg->nContext;
+  if( n<=0 && (pCfg->diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
   return n;
 }
 
@@ -2565,7 +2565,7 @@ int diff_context_lines(DiffConfig *pCfg){
 **   text-width = (term-width - diff-marker - 1)/2 - lineno - lmargin - rmargin
 */
 int diff_width(DiffConfig *pCfg){
-  int w = (pCfg->diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
+  int w = pCfg->wColumn;
   if( w==0 ){
     static struct {
       unsigned int lineno, lmargin, text, rmargin, marker;
@@ -2751,7 +2751,7 @@ int *text_diff(
 ** "diffFlags" integer.
 **
 **   --brief                      Show filenames only        DIFF_BRIEF
-**   -c|--context N               N lines of context.        DIFF_CONTEXT_MASK
+**   -c|--context N               N lines of context.        nContext
 **   --html                       Format for HTML            DIFF_HTML
 **   --invert                     Invert the diff            DIFF_INVERT
 **   -n|--linenum                 Show line numbers          DIFF_LINENO
@@ -2760,7 +2760,7 @@ int *text_diff(
 **   --strip-trailing-cr          Strip trailing CR          DIFF_STRIP_EOLCR
 **   --unified                    Unified diff.              ~DIFF_SIDEBYSIDE
 **   -w|--ignore-all-space        Ignore all whitespaces     DIFF_IGNORE_ALLWS
-**   -W|--width N                 N character lines.         DIFF_WIDTH_MASK
+**   -W|--width N                 N character lines.         wColumn
 **   -y|--side-by-side            Side-by-side diff.         DIFF_SIDEBYSIDE
 **   -Z|--ignore-trailing-space   Ignore eol-whitespaces     DIFF_IGNORE_EOLWS
 */
@@ -2809,13 +2809,11 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   }
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
-    if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f + DIFF_CONTEXT_EX;
+    pCfg->nContext = f;
+    diffFlags |= DIFF_CONTEXT_EX;
   }
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
-    f *= DIFF_CONTEXT_MASK+1;
-    if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f;
+    pCfg->wColumn = f;
   }
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;

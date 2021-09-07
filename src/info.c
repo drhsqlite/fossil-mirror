@@ -452,27 +452,17 @@ DiffConfig *construct_diff_flags(int diffType, DiffConfig *pCfg){
   u64 diffFlags = 0;  /* Zero means do not show any diff */
   if( diffType>0 ){
     int x;
-    if( diffType==2 ){
-      diffFlags = DIFF_SIDEBYSIDE;
-
-      /* "dw" query parameter determines width of each column */
-      x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
-      if( x<0 || x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
-      diffFlags += x;
-    }
-
-    if( P("w") ){
-      diffFlags |= DIFF_IGNORE_ALLWS;
-    }
-    /* "dc" query parameter determines lines of context */
-    x = atoi(PD("dc","7"));
-    if( x<0 || x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;
-    diffFlags += x;
-
-    /* The "noopt" parameter disables diff optimization */
+    if( diffType==2 ) diffFlags = DIFF_SIDEBYSIDE;
+    if( P("w") )      diffFlags |= DIFF_IGNORE_ALLWS;
     if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
     diffFlags |= DIFF_STRIP_EOLCR;
     diff_config_init(pCfg, diffFlags);
+
+    /* "dc" query parameter determines lines of context */
+    x = atoi(PD("dc","7"));
+    if( x>0 ) pCfg->nContext = x;
+
+    /* The "noopt" parameter disables diff optimization */
     return pCfg;
   }else{
     diff_config_init(pCfg, 0);
