@@ -59,7 +59,7 @@
       var allDiffs = document.querySelectorAll('table.diff');
       w = lastWidth;
       for(let i=0; i<allDiffs.length; i++){
-        allDiffs[i].style.width = '98%'; // setting to w causes unsightly horiz. scrollbar
+        allDiffs[i].style.width = '100%'; // setting to w causes unsightly horiz. scrollbar
         allDiffs[i].style.maxWidth = w + "px";
       }
     }
