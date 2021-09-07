@@ -98,6 +98,7 @@ struct DiffConfig {
   const char *zDiffCmd;    /* External diff command to use instead of builtin */
   const char *zBinGlob;    /* GLOB pattern for binary files */
   ReCompiled *pRe;         /* Show only changes matching this pattern */
+  const char *zLeftHash;   /* HASH-id of the left file */
 };
 
 #endif /* INTERFACE */
@@ -899,6 +900,7 @@ struct DiffBuilder {
   int width;                        /* Display width */
   Blob *pOut;                       /* Output blob */
   Blob aCol[5];                     /* Holding blobs */
+  DiffConfig *pCfg;                 /* Configuration information */
 };
 
 /************************* DiffBuilderDebug ********************************/
@@ -1253,7 +1255,16 @@ static void dfunifiedStartRow(DiffBuilder *p){
 }
 static void dfunifiedSkip(DiffBuilder *p, unsigned int n, int isFinal){
   dfunifiedFinishRow(p);
-  blob_append(p->pOut, "<tr><td class=\"diffln difflne\">"
+  if( p->pCfg && p->pCfg->zLeftHash ){
+    blob_appendf(p->pOut,
+       "<tr class=\"diffskip\" data-startln=\"%d\" data-endln=\"%d\""
+       " id=\"skip%xh%xi%x\">\n",
+       p->lnLeft+1, p->lnLeft+n,
+       nChunk, p->lnLeft, n);
+  }else{
+    blob_append(p->pOut, "<tr>", 4);
+  }
+  blob_append(p->pOut, "<td class=\"diffln difflne\">"
                        "&#xfe19;</td><td></td><td></td></tr>\n", -1);
   p->lnLeft += n;
   p->lnRight += n;
@@ -1374,7 +1385,7 @@ static void dfunifiedEnd(DiffBuilder *p){
   blob_append(p->pOut, "</table>\n",-1);
   fossil_free(p);
 }
-static DiffBuilder *dfunifiedNew(Blob *pOut){
+static DiffBuilder *dfunifiedNew(Blob *pOut, DiffConfig *pCfg){
   DiffBuilder *p = fossil_malloc(sizeof(*p));
   p->xSkip = dfunifiedSkip;
   p->xCommon = dfunifiedCommon;
@@ -1387,12 +1398,18 @@ static DiffBuilder *dfunifiedNew(Blob *pOut){
   p->eState = 0;
   p->nPending = 0;
   p->pOut = pOut;
-  blob_append(pOut, "<table class=\"diff udiff\">\n", -1);
+  if( pCfg->zLeftHash ){
+    blob_appendf(pOut, "<table class=\"diff udiff\" data-lefthash=\"%s\">\n",
+                pCfg->zLeftHash);
+  }else{
+    blob_append(pOut, "<table class=\"diff udiff\">\n", -1);
+  }
   blob_init(&p->aCol[0], 0, 0);
   blob_init(&p->aCol[1], 0, 0);
   blob_init(&p->aCol[2], 0, 0);
   blob_init(&p->aCol[3], 0, 0);
   blob_init(&p->aCol[4], 0, 0);
+  p->pCfg = pCfg;
   return p;
 }
 
@@ -1465,11 +1482,20 @@ static void dfsplitStartRow(DiffBuilder *p){
 }
 static void dfsplitSkip(DiffBuilder *p, unsigned int n, int isFinal){
   dfsplitFinishRow(p);
-  blob_append(p->pOut, 
-     "<tr><td class=\"diffln difflnl difflne\">&#xfe19;</td>"
-     "<td></td><td></td>"
-     "<td class=\"diffln difflnr difflne\">&#xfe19;</td>"
-     "<td/td></tr>\n", -1);
+  if( p->pCfg && p->pCfg->zLeftHash ){
+    blob_appendf(p->pOut,
+       "<tr class=\"diffskip\" data-startln=\"%d\" data-endln=\"%d\""
+       " id=\"skip%xh%xi%x\">\n",
+       p->lnLeft+1, p->lnLeft+n,
+       nChunk,p->lnLeft,n);
+  }else{
+    blob_append(p->pOut, "<tr>", 4);
+  }
+  blob_append(p->pOut,
+       "<td class=\"diffln difflnl difflne\">&#xfe19;</td>"
+       "<td></td><td></td>"
+       "<td class=\"diffln difflnr difflne\">&#xfe19;</td>"
+       "<td/td></tr>\n", -1);
   p->lnLeft += n;
   p->lnRight += n;
 }
@@ -1582,7 +1608,7 @@ static void dfsplitEnd(DiffBuilder *p){
   blob_append(p->pOut, "</table>\n",-1);
   fossil_free(p);
 }
-static DiffBuilder *dfsplitNew(Blob *pOut){
+static DiffBuilder *dfsplitNew(Blob *pOut, DiffConfig *pCfg){
   DiffBuilder *p = fossil_malloc(sizeof(*p));
   p->xSkip = dfsplitSkip;
   p->xCommon = dfsplitCommon;
@@ -1594,12 +1620,19 @@ static DiffBuilder *dfsplitNew(Blob *pOut){
   p->lnLeft = p->lnRight = 0;
   p->eState = 0;
   p->pOut = pOut;
-  blob_append(pOut, "<table class=\"diff splitdiff\">\n", -1);
+  if( pCfg->zLeftHash ){
+    blob_appendf(pOut,
+      "<table class=\"diff splitdiff\" data-lefthash=\"%s\">\n",
+      pCfg->zLeftHash);
+  }else{
+    blob_append(pOut, "<table class=\"diff splitdiff\">\n", -1);
+  }
   blob_init(&p->aCol[0], 0, 0);
   blob_init(&p->aCol[1], 0, 0);
   blob_init(&p->aCol[2], 0, 0);
   blob_init(&p->aCol[3], 0, 0);
   blob_init(&p->aCol[4], 0, 0);
+  p->pCfg = pCfg;
   return p;
 }
 
@@ -2716,7 +2749,7 @@ int *text_diff(
     }else if( pCfg->diffFlags & DIFF_SIDEBYSIDE ){
       DiffBuilder *pBuilder;
       if( pCfg->diffFlags & DIFF_HTML ){
-        pBuilder = dfsplitNew(pOut);
+        pBuilder = dfsplitNew(pOut, pCfg);
       }else{
         pBuilder = dfsbsNew(pOut, pCfg);
       }
@@ -2725,7 +2758,7 @@ int *text_diff(
       DiffBuilder *pBuilder = dfdebugNew(pOut);
       formatDiff(&c, pCfg, pBuilder);
     }else if( pCfg->diffFlags & DIFF_HTML ){
-      DiffBuilder *pBuilder = dfunifiedNew(pOut);
+      DiffBuilder *pBuilder = dfunifiedNew(pOut, pCfg);
       formatDiff(&c, pCfg, pBuilder);
     }else{
       contextDiff(&c, pOut, pCfg);

@@ -340,8 +340,10 @@ static void append_diff(
   if( zFrom ){
     fromid = uuid_to_rid(zFrom, 0);
     content_get(fromid, &from);
+    pCfg->zLeftHash = zFrom;
   }else{
     blob_zero(&from);
+    pCfg->zLeftHash = 0;
   }
   if( zTo ){
     toid = uuid_to_rid(zTo, 0);
@@ -355,6 +357,7 @@ static void append_diff(
     pCfg->diffFlags |= DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG;
   }
   text_diff(&from, &to, cgi_output_blob(), pCfg);
+  pCfg->zLeftHash = 0;
   blob_reset(&from);
   blob_reset(&to);
 }
