@@ -2109,7 +2109,7 @@ static void formatDiff(
           }
           case 3: {
             /* The left line is changed into the right line */
-            if( compare_dline(&A[a], &B[b])==0 ){
+            if( p->xDiffer(&A[a], &B[b])==0 ){
               pBuilder->xCommon(pBuilder, &A[a]);
             }else{
               pBuilder->xEdit(pBuilder, &A[a], &B[b]);
