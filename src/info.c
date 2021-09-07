@@ -1886,6 +1886,63 @@ void secure_rawartifact_page(void){
 
 
 /*
+** WEBPAGE: jtext
+** URL: /jtext/HASH?from=N&to=M
+**
+** Return lines of text from a file as a JSON array - one entry in the
+** array for each line of text.
+**
+** This page is intended to be used in an XHR from javascript on a diff
+** page, to return unseen context to fill in additional context when the
+** user clicks on the appropriate button.
+*/
+void jtext_page(void){
+  int rid = 0;
+  const char *zName = PD("name", "");
+  int iFrom = atoi(PD("from","0"));
+  int iTo = atoi(PD("to","0"));
+  int ln;
+  const char *zSep;
+  Blob content;
+  Blob line;
+  Blob *pOut;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
+  if( rid==0 ){
+    cgi_set_status(404, "Not Found");
+    @ Unknown artifact: "%h(zName)"
+    return;
+  }
+  if( iFrom<1 || iTo<iFrom ){
+    cgi_set_status(500, "Bad Request");
+    @ Invalid line range
+    return;
+  }
+  content_get(rid, &content);
+  g.isConst = 1;
+  cgi_set_content_type("text/json");
+  ln = 0;
+  zSep = "[\n";
+  while( ln<iFrom ){
+    blob_line(&content, &line);
+    ln++;
+  }
+  pOut = cgi_output_blob();
+  while( ln<=iTo ){
+    blob_append(pOut, zSep, 2);
+    blob_trim(&line);
+    blob_append_json_literal(pOut, blob_buffer(&line), blob_size(&line));
+    zSep = ",\n";
+    blob_line(&content, &line);
+    ln++;
+  }
+  blob_appendf(pOut,"]\n");
+  blob_reset(&content);
+}
+
+/*
 ** Generate a verbatim artifact as the result of an HTTP request.
 ** If zMime is not NULL, use it as the mimetype.  If zMime is
 ** NULL, guess at the mimetype based on the filename
