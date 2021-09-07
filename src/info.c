@@ -439,8 +439,8 @@ static void append_file_change_line(
 /*
 ** Generate javascript to enhance HTML diffs.
 */
-void append_diff_javascript(int sideBySide){
-  if( !sideBySide ) return;
+void append_diff_javascript(int diffType){
+  if( diffType==0 ) return;
   builtin_request_js("diff.js");
 }
 
@@ -1346,7 +1346,7 @@ void vdiff_page(void){
   }
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
-  append_diff_javascript(diffType==2);
+  append_diff_javascript(diffType);
   builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }

@@ -1,5 +1,5 @@
-C Move\smore\sdiff\sparameters\sinto\sthe\sDiffConfig\sobject.
-D 2021-09-07T00:18:25.972
+C Minor\sfix\sto\sadapt\sthe\s`append_diff_javascript()'\sfunction\sand\sits\scall\spoints\sto\sthe\snew\sdiff\slogic\s(already\spartially\sdone\swith\scheck-in\s[1347a1ddb9]).
+D 2021-09-07T10:42:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -516,7 +516,7 @@ F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4
 F src/http_ssl.c e414dce084c13bf35da951f45dc5ffdaed195f06ec6cfeb0fc22a83bee5bbbee
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
-F src/info.c 627ca02882a632d2f52414f33ee52975dd2225bdfa2a0cbc51ba9b47d1b5b701
+F src/info.c ad2f9d6b63d4ed429e611c4f3f1208da0a71d652c147b40184a1c84d6c511642
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -998,7 +998,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1347a1ddb9a565e93005f65cdfc6d773ab3b2e5292a38163972fe4c5c21c823a
-R 2aea1057d191462e1b15abc64c5bbb24
-U drh
-Z 3f5e45bd5df62baf57c69bdbc60c940f
+P 346de5d122a2c28c6d1a3896a5fdc076cb1787d7506bbe918f83112b1042373c
+R 1e2bbc9144cddea2efc5b4184a28fecf
+T +sym-diff-config *
+U florian
+Z bd132e4c91c497b99fe38442b6a8ce99
