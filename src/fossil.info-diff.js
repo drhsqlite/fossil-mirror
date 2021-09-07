@@ -1,3 +1,7 @@
+/**
+   Adds toggle checkboxes to each file entry in the diff views for
+   /info and similar pages.
+*/
 "use strict";
 window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom;
@@ -10,5 +14,5 @@ window.fossil.onPageLoad(function(){
       diffElem.classList.toggle('hidden');
     }, false);
   };
-  document.querySelectorAll('pre.udiff, table.sbsdiffcols').forEach(addToggle);
+  document.querySelectorAll('table.diff').forEach(addToggle);
 });
