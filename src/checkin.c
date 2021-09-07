@@ -1346,7 +1346,8 @@ static void prepare_commit_comment(
         "# The following diff is excluded from the commit message:\n#\n",
         '#'
     );
-    diff_config_init(&DCfg, DIFF_VERBOSE);
+    diff_options(&DCfg, 0, 1);
+    DCfg.diffFlags |= DIFF_VERBOSE;
     if( g.aCommitFile ){
       FileDirList *diffFiles;
       int i;
@@ -1362,17 +1363,13 @@ static void prepare_commit_comment(
         diffFiles[i].nName = strlen(diffFiles[i].zName);
         diffFiles[i].nUsed = 0;
       }
-      diff_against_disk(0, 0, diff_get_binary_glob(),
-                        db_get_boolean("diff-binary", 1),
-                        &DCfg, diffFiles, &prompt);
+       diff_against_disk(0, &DCfg, diffFiles, &prompt);
       for( i=0; diffFiles[i].zName; ++i ){
         fossil_free(diffFiles[i].zName);
       }
       fossil_free(diffFiles);
     }else{
-      diff_against_disk(0, 0, diff_get_binary_glob(),
-                        db_get_boolean("diff-binary", 1),
-                        &DCfg, 0, &prompt);
+      diff_against_disk(0, &DCfg, 0, &prompt);
     }
   }
   prompt_for_user_comment(pComment, &prompt);

@@ -414,17 +414,13 @@ void diff_end(DiffConfig *pCfg, int nErr){
 */
 void diff_file(
   Blob *pFile1,             /* In memory content to compare from */
-  int isBin1,               /* Does the 'from' content appear to be binary */
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
-  const char *zDiffCmd,     /* Command for comparison */
-  const char *zBinGlob,     /* Treat file names matching this as binary */
-  int fIncludeBinary,       /* Include binary files for external diff */
   DiffConfig *pCfg,         /* Flags to control the diff */
   int fSwapDiff,            /* Diff from Zfile2 to Pfile1 */
   Blob *diffBlob            /* Blob to store diff output */
 ){
-  if( zDiffCmd==0 ){
+  if( pCfg->zDiffCmd==0 ){
     Blob out;                 /* Diff output text */
     Blob file2;               /* Content of zFile2 */
     const char *zName2;       /* Name of zFile2 for display */
@@ -475,14 +471,14 @@ void diff_file(
     Blob nameFile1;    /* Name of temporary file to old pFile1 content */
     Blob cmd;          /* Text of command to run */
 
-    if( !fIncludeBinary ){
+    if( (pCfg->diffFlags & DIFF_INCBINARY)==0 ){
       Blob file2;
-      if( isBin1 ){
+      if( looks_like_binary(pFile1) ){
         fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
-      if( zBinGlob ){
-        Glob *pBinary = glob_create(zBinGlob);
+      if( pCfg->zBinGlob ){
+        Glob *pBinary = glob_create(pCfg->zBinGlob);
         if( glob_match(pBinary, zName) ){
           fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
           glob_free(pBinary);
@@ -509,7 +505,7 @@ void diff_file(
 
     /* Construct the external diff command */
     blob_zero(&cmd);
-    blob_append(&cmd, zDiffCmd, -1);
+    blob_append(&cmd, pCfg->zDiffCmd, -1);
     if( fSwapDiff ){
       blob_append_escaped_arg(&cmd, zFile2, 1);
       blob_append_escaped_arg(&cmd, blob_str(&nameFile1), 1);
@@ -544,16 +540,11 @@ void diff_file(
 void diff_file_mem(
   Blob *pFile1,             /* In memory content to compare from */
   Blob *pFile2,             /* In memory content to compare to */
-  int isBin1,               /* Does the 'from' content appear to be binary */
-  int isBin2,               /* Does the 'to' content appear to be binary */
   const char *zName,        /* Display name of the file */
-  const char *zDiffCmd,     /* Command for comparison */
-  const char *zBinGlob,     /* Treat file names matching this as binary */
-  int fIncludeBinary,       /* Include binary files for external diff */
   DiffConfig *pCfg          /* Diff flags */
 ){
   if( pCfg->diffFlags & DIFF_BRIEF ) return;
-  if( zDiffCmd==0 ){
+  if( pCfg->zDiffCmd==0 ){
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
@@ -572,13 +563,13 @@ void diff_file_mem(
     Blob temp1;
     Blob temp2;
 
-    if( !fIncludeBinary ){
-      if( isBin1 || isBin2 ){
+    if( (pCfg->diffFlags & DIFF_INCBINARY)==0 ){
+      if( looks_like_binary(pFile1) || looks_like_binary(pFile2) ){
         fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
-      if( zBinGlob ){
-        Glob *pBinary = glob_create(zBinGlob);
+      if( pCfg->zBinGlob ){
+        Glob *pBinary = glob_create(pCfg->zBinGlob);
         if( glob_match(pBinary, zName) ){
           fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
           glob_free(pBinary);
@@ -596,7 +587,7 @@ void diff_file_mem(
 
     /* Construct the external diff command */
     blob_zero(&cmd);
-    blob_append(&cmd, zDiffCmd, -1);
+    blob_append(&cmd, pCfg->zDiffCmd, -1);
     blob_append_escaped_arg(&cmd, blob_str(&temp1), 1);
     blob_append_escaped_arg(&cmd, blob_str(&temp2), 1);
 
@@ -627,9 +618,6 @@ void diff_file_mem(
 */
 void diff_against_disk(
   const char *zFrom,        /* Version to difference from */
-  const char *zDiffCmd,     /* Use this diff command.  NULL for built-in */
-  const char *zBinGlob,     /* Treat file names matching this as binary */
-  int fIncludeBinary,       /* Treat file names matching this as binary */
   DiffConfig *pCfg,         /* Flags controlling diff output */
   FileDirList *pFileDir,    /* Which files to diff */
   Blob *diffBlob            /* Blob to output diff instead of stdout */
@@ -725,7 +713,6 @@ void diff_against_disk(
     }
     if( showDiff ){
       Blob content;
-      int isBin;
       if( !isLink != !file_islink(zFullName) ){
         diff_print_index(zPathname, pCfg, 0);
         diff_print_filenames(zPathname, zPathname, pCfg, 0);
@@ -737,10 +724,8 @@ void diff_against_disk(
       }else{
         blob_zero(&content);
       }
-      isBin = fIncludeBinary ? 0 : looks_like_binary(&content);
       diff_print_index(zPathname, pCfg, diffBlob);
-      diff_file(&content, isBin, zFullName, zPathname, zDiffCmd,
-                zBinGlob, fIncludeBinary, pCfg, 0, diffBlob);
+      diff_file(&content, zFullName, zPathname, pCfg, 0, diffBlob);
       blob_reset(&content);
     }
     blob_reset(&fname);
@@ -760,9 +745,6 @@ void diff_against_disk(
 ** will be skipped in addition to files that may contain binary content.
 */
 static void diff_against_undo(
-  const char *zDiffCmd,     /* Use this diff command.  NULL for built-in */
-  const char *zBinGlob,     /* Treat file names matching this as binary */
-  int fIncludeBinary,       /* Treat file names matching this as binary */
   DiffConfig *pCfg,         /* Flags controlling diff output */
   FileDirList *pFileDir     /* List of files and directories to diff */
 ){
@@ -776,8 +758,7 @@ static void diff_against_undo(
     if( !file_dir_match(pFileDir, zFile) ) continue;
     zFullName = mprintf("%s%s", g.zLocalRoot, zFile);
     db_column_blob(&q, 1, &content);
-    diff_file(&content, 0, zFullName, zFile,
-              zDiffCmd, zBinGlob, fIncludeBinary, pCfg, 0, 0);
+    diff_file(&content, zFullName, zFile, pCfg, 0, 0);
     fossil_free(zFullName);
     blob_reset(&content);
   }
@@ -798,13 +779,9 @@ static void diff_against_undo(
 static void diff_manifest_entry(
   struct ManifestFile *pFrom,
   struct ManifestFile *pTo,
-  const char *zDiffCmd,
-  const char *zBinGlob,
-  int fIncludeBinary,
   DiffConfig *pCfg
 ){
   Blob f1, f2;
-  int isBin1, isBin2;
   int rid;
   const char *zName;
   if( pFrom ){
@@ -828,10 +805,7 @@ static void diff_manifest_entry(
   }else{
     blob_zero(&f2);
   }
-  isBin1 = fIncludeBinary ? 0 : looks_like_binary(&f1);
-  isBin2 = fIncludeBinary ? 0 : looks_like_binary(&f2);
-  diff_file_mem(&f1, &f2, isBin1, isBin2, zName, zDiffCmd,
-                zBinGlob, fIncludeBinary, pCfg);
+  diff_file_mem(&f1, &f2, zName, pCfg);
   blob_reset(&f1);
   blob_reset(&f2);
 }
@@ -849,9 +823,6 @@ static void diff_manifest_entry(
 static void diff_two_versions(
   const char *zFrom,
   const char *zTo,
-  const char *zDiffCmd,
-  const char *zBinGlob,
-  int fIncludeBinary,
   DiffConfig *pCfg,
   FileDirList *pFileDir
 ){
@@ -881,8 +852,7 @@ static void diff_two_versions(
           fossil_print("DELETED %s\n", pFromFile->zName);
         }
         if( asNewFlag ){
-          diff_manifest_entry(pFromFile, 0, zDiffCmd, zBinGlob,
-                              fIncludeBinary, pCfg);
+          diff_manifest_entry(pFromFile, 0, pCfg);
         }
       }
       pFromFile = manifest_file_next(pFrom,0);
@@ -893,8 +863,7 @@ static void diff_two_versions(
           fossil_print("ADDED   %s\n", pToFile->zName);
         }
         if( asNewFlag ){
-          diff_manifest_entry(0, pToFile, zDiffCmd, zBinGlob,
-                              fIncludeBinary, pCfg);
+          diff_manifest_entry(0, pToFile, pCfg);
         }
       }
       pToFile = manifest_file_next(pTo,0);
@@ -908,8 +877,7 @@ static void diff_two_versions(
         if( pCfg->diffFlags & DIFF_BRIEF ){
           fossil_print("CHANGED %s\n", pFromFile->zName);
         }else{
-          diff_manifest_entry(pFromFile, pToFile, zDiffCmd, zBinGlob,
-                              fIncludeBinary, pCfg);
+          diff_manifest_entry(pFromFile, pToFile, pCfg);
         }
       }
       pFromFile = manifest_file_next(pFrom,0);
@@ -1014,21 +982,6 @@ void diff_tk(const char *zSubCmd, int firstArg){
 }
 
 /*
-** Returns non-zero if files that may be binary should be used with external
-** diff programs.
-*/
-int diff_include_binary_files(void){
-  const char* zArgIncludeBinary = find_option("diff-binary", 0, 1);
-
-  /* Command line argument have priority on settings */
-  if( zArgIncludeBinary ){
-    return is_truth(zArgIncludeBinary);
-  }else{
-    return db_get_boolean("diff-binary", 1);
-  }
-}
-
-/*
 ** Returns the GLOB pattern for file names that should be treated as binary
 ** by the diff subsystem, if any.
 */
@@ -1119,15 +1072,10 @@ const char *diff_get_binary_glob(void){
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
-  int isInternDiff;          /* True for internal diff */
-  int verboseFlag;           /* True if -v or --verbose flag is used */
   const char *zFrom;         /* Source version number */
   const char *zTo;           /* Target version number */
   const char *zCheckin;      /* Check-in version number */
   const char *zBranch;       /* Branch to diff */
-  const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
-  const char *zBinGlob = 0;  /* Treat file names matching this as binary */
-  int fIncludeBinary = 0;    /* Include binary files for external diff */
   int againstUndo = 0;       /* Diff against files in the undo buffer */
   FileDirList *pFileDir = 0; /* Restrict the diff to these files */
   DiffConfig DCfg;           /* Diff configuration object */
@@ -1137,18 +1085,11 @@ void diff_cmd(void){
     return;
   }
   isGDiff = g.argv[1][0]=='g';
-  isInternDiff = find_option("internal","i",0)!=0;
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
   zCheckin = find_option("checkin", 0, 1);
   zBranch = find_option("branch", 0, 1);
   againstUndo = find_option("undo",0,0)!=0;
-  diff_options(&DCfg, isGDiff);
-  verboseFlag = find_option("verbose","v",0)!=0;
-  if( !verboseFlag ){
-    verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
-  }
-  if( verboseFlag ) DCfg.diffFlags |= DIFF_VERBOSE;
   if( againstUndo && ( zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){
     fossil_fatal("cannot use --undo together with --from, --to, --checkin,"
                  " or --branch");
@@ -1171,14 +1112,7 @@ void diff_cmd(void){
   }else{
     db_find_and_open_repository(0, 0);
   }
-  if( !isInternDiff
-   && (DCfg.diffFlags & DIFF_HTML)==0 /* External diff can't generate HTML */
-  ){
-    zDiffCmd = find_option("command", 0, 1);
-    if( zDiffCmd==0 ) zDiffCmd = diff_command_external(isGDiff);
-  }
-  zBinGlob = diff_get_binary_glob();
-  fIncludeBinary = diff_include_binary_files();
+  diff_options(&DCfg, isGDiff, 0);
   determine_exec_relative_option(1);
   verify_all_options();
   if( g.argc>=3 ){
@@ -1216,14 +1150,11 @@ void diff_cmd(void){
       fossil_print("No undo or redo is available\n");
       return;
     }
-    diff_against_undo(zDiffCmd, zBinGlob, fIncludeBinary,
-                      &DCfg, pFileDir);
+    diff_against_undo(&DCfg, pFileDir);
   }else if( zTo==0 ){
-    diff_against_disk(zFrom, zDiffCmd, zBinGlob, fIncludeBinary,
-                      &DCfg, pFileDir, 0);
+    diff_against_disk(zFrom, &DCfg, pFileDir, 0);
   }else{
-    diff_two_versions(zFrom, zTo, zDiffCmd, zBinGlob, fIncludeBinary,
-                      &DCfg, pFileDir);
+    diff_two_versions(zFrom, zTo, &DCfg, pFileDir);
   }
   if( pFileDir ){
     int i;
@@ -1261,5 +1192,5 @@ void vpatch_page(void){
 
   cgi_set_content_type("text/plain");
   diff_config_init(&DCfg, DIFF_VERBOSE);
-  diff_two_versions(zFrom, zTo, 0, 0, 0, &DCfg, 0);
+  diff_two_versions(zFrom, zTo, &DCfg, 0);
 }

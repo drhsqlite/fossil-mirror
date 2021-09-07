@@ -719,9 +719,6 @@ static FILE *patch_remote_command(
 */
 static void patch_diff(
   unsigned mFlags,         /* Patch flags.  only -f is allowed */
-  const char *zDiffCmd,    /* Command used for diffing */
-  const char *zBinGlob,    /* GLOB pattern to determine binary files */
-  int fIncludeBinary,      /* Do diffs against binary files */
   DiffConfig *pCfg         /* Diff options */
 ){
   int nErr = 0;
@@ -780,7 +777,6 @@ static void patch_diff(
   while( db_step(&q)==SQLITE_ROW ){
     int rid;
     const char *zName;
-    int isBin1, isBin2;
     Blob a, b;
  
     if( db_column_type(&q,0)!=SQLITE_INTEGER
@@ -807,20 +803,14 @@ static void patch_diff(
     if( db_column_type(&q,3)==SQLITE_NULL ){
       if( !bWebpage ) fossil_print("DELETE %s\n", zName);
       diff_print_index(zName, pCfg, 0);
-      isBin2 = 0;
       content_get(rid, &a);
-      isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      diff_file_mem(&a, &empty, isBin1, isBin2, zName, zDiffCmd,
-                    zBinGlob, fIncludeBinary, pCfg);
+      diff_file_mem(&a, &empty, zName, pCfg);
     }else if( rid==0 ){
       db_ephemeral_blob(&q, 3, &a);
       blob_uncompress(&a, &a);
       if( !bWebpage ) fossil_print("ADDED %s\n", zName);
       diff_print_index(zName, pCfg, 0);
-      isBin1 = 0;
-      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      diff_file_mem(&empty, &a, isBin1, isBin2, zName, zDiffCmd,
-                    zBinGlob, fIncludeBinary, pCfg);
+      diff_file_mem(&empty, &a, zName, pCfg);
       blob_reset(&a);
     }else if( db_column_bytes(&q, 3)>0 ){
       Blob delta;
@@ -828,10 +818,7 @@ static void patch_diff(
       blob_uncompress(&delta, &delta);
       content_get(rid, &a);
       blob_delta_apply(&a, &delta, &b);
-      isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
-      diff_file_mem(&a, &b, isBin1, isBin2, zName,
-                    zDiffCmd, zBinGlob, fIncludeBinary, pCfg);
+      diff_file_mem(&a, &b, zName, pCfg);
       blob_reset(&a);
       blob_reset(&b);
       blob_reset(&delta);
@@ -948,9 +935,6 @@ void patch_cmd(void){
     fossil_free(zOut);
   }else
   if( strncmp(zCmd, "diff", n)==0 ){
-    const char *zDiffCmd = 0;
-    const char *zBinGlob = 0;
-    int fIncludeBinary = 0;
     char *zIn;
     unsigned flags = 0;
     DiffConfig DCfg;
@@ -960,23 +944,13 @@ void patch_cmd(void){
       diff_tk("patch diff", 3);
       return;
     }
-    diff_options(&DCfg, zCmd[0]=='g');
-    if( find_option("internal","i",0)==0
-     && (DCfg.diffFlags & DIFF_HTML)==0
-    ){
-      zDiffCmd = diff_command_external(zCmd[0]=='g');
-    }
-    if( find_option("verbose","v",0)!=0 ) DCfg.diffFlags |= DIFF_VERBOSE;
-    if( zDiffCmd ){
-      zBinGlob = diff_get_binary_glob();
-      fIncludeBinary = diff_include_binary_files();
-    }
+    diff_options(&DCfg, zCmd[0]=='g', 0);
     db_find_and_open_repository(0, 0);
     if( find_option("force","f",0) )    flags |= PATCH_FORCE;
     verify_all_options();
     zIn = patch_find_patch_filename("apply");
     patch_attach(zIn, stdin);
-    patch_diff(flags, zDiffCmd, zBinGlob, fIncludeBinary, &DCfg);
+    patch_diff(flags, &DCfg);
     fossil_free(zIn);
   }else
   if( strncmp(zCmd, "pull", n)==0 ){

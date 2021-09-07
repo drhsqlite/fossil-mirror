@@ -50,6 +50,7 @@
 #define DIFF_DEBUG     (((u64)0x00200)<<32) /* Debugging diff output */
 #define DIFF_RAW       (((u64)0x00400)<<32) /* Raw triples - for debugging */
 #define DIFF_TCL       (((u64)0x00800)<<32) /* For the --tk option */
+#define DIFF_INCBINARY (((u64)0x01000)<<32) /* The --diff-binary option */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -2763,7 +2764,7 @@ int *text_diff(
 **   -y|--side-by-side            Side-by-side diff.         DIFF_SIDEBYSIDE
 **   -Z|--ignore-trailing-space   Ignore eol-whitespaces     DIFF_IGNORE_EOLWS
 */
-void diff_options(DiffConfig *pCfg, int isGDiff){
+void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
   u64 diffFlags = 0;
   const char *z;
   int f;
@@ -2778,11 +2779,35 @@ void diff_options(DiffConfig *pCfg, int isGDiff){
   if( find_option("strip-trailing-cr",0,0)!=0 ){
     diffFlags |= DIFF_STRIP_EOLCR;
   }
-  if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
-  if( find_option("yy",0,0)!=0 ){
-    diffFlags |= DIFF_SIDEBYSIDE | DIFF_SLOW_SBS;
+  if( !bUnifiedTextOnly ){
+    if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+    if( find_option("yy",0,0)!=0 ){
+      diffFlags |= DIFF_SIDEBYSIDE | DIFF_SLOW_SBS;
+    }
+    if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
+    if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
+    if( find_option("webpage",0,0)!=0 ){
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO;
+    }
+    if( find_option("browser","b",0)!=0 ){
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER;
+    }
+    if( find_option("by",0,0)!=0 ){
+      diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
+                     |DIFF_SIDEBYSIDE;
+    }
+    if( find_option("json",0,0)!=0 ){
+      diffFlags |= DIFF_JSON;
+    }
+    if( find_option("tcl",0,0)!=0 ){
+      diffFlags |= DIFF_TCL;
+    }
+
+    /* Undocumented and unsupported flags used for development
+    ** debugging and analysis: */
+    if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
+    if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   }
-  if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
     diffFlags |= f + DIFF_CONTEXT_EX;
@@ -2792,33 +2817,28 @@ void diff_options(DiffConfig *pCfg, int isGDiff){
     if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
     diffFlags |= f;
   }
-  if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("numstat",0,0)!=0 ) diffFlags |= DIFF_NUMSTAT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
-  if( find_option("webpage",0,0)!=0 ){
-    diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO;
+  if( find_option("internal","i",0)==0
+   && (diffFlags & (DIFF_HTML|DIFF_TCL|DIFF_DEBUG|DIFF_JSON))==0
+  ){
+    pCfg->zDiffCmd = diff_command_external(isGDiff);
+    if( pCfg->zDiffCmd ){
+      const char *zDiffBinary;
+      pCfg->zBinGlob = diff_get_binary_glob();
+      zDiffBinary = find_option("diff-binary", 0, 1);
+      if( zDiffBinary ){
+        if( is_truth(zDiffBinary) ) diffFlags |= DIFF_INCBINARY;
+      }else if( db_get_boolean("diff-binary", 1) ){
+        diffFlags |= DIFF_INCBINARY;
+      }
+    }
   }
-  if( find_option("browser","b",0)!=0 ){
-    diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER;
-  }
-  if( find_option("by",0,0)!=0 ){
-    diffFlags |= DIFF_HTML|DIFF_WEBPAGE|DIFF_LINENO|DIFF_BROWSER
-                   |DIFF_SIDEBYSIDE;
-  }
-  if( find_option("json",0,0)!=0 ){
-    diffFlags |= DIFF_JSON;
-  }
-  if( find_option("tcl",0,0)!=0 ){
-    diffFlags |= DIFF_TCL;
-  }
+  if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
 
-  /* Undocumented and unsupported flags used for development
-  ** debugging and analysis: */
-  if( find_option("debug",0,0)!=0 ) diffFlags |= DIFF_DEBUG;
-  if( find_option("raw",0,0)!=0 )   diffFlags |= DIFF_RAW;
   pCfg->diffFlags = diffFlags;
 }
 
@@ -2852,7 +2872,7 @@ void xdiff_cmd(void){
   }
   find_option("i",0,0);
   find_option("v",0,0);
-  diff_options(&DCfg, 0);
+  diff_options(&DCfg, 0, 0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
     const char *zErr = re_compile(&DCfg.pRe, zRe, 0);
