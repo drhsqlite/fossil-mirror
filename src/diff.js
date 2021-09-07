@@ -63,7 +63,7 @@
         allDiffs[i].style.maxWidth = w + "px";
       }
     }
-    setTimeout(checkWidth, 100)
   }
   checkWidth();
+  window.addEventListener('resize', checkWidth);
 })();
