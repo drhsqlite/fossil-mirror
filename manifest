@@ -1,5 +1,5 @@
-C Enhance\sthe\sblob_append(),\sblob_appendf(),\sblob_append_char(),\sand\ssimilar\ninterfaces\ssuch\sthat\sif\sthe\sBlob\spointer\sin\sthe\sfirst\sargument\sis\sNULL,\sthe\nresult\sis\swritten\sdirectly\sto\sstdout.
-D 2021-09-07T12:51:22.003
+C Take\sadvantage\sof\sthe\snew\spBlob==NULL\scapabilities\sin\sblob_appendf()\sto\nsimplify\ssome\sof\sthe\sdiff\slogic.
+D 2021-09-07T13:29:17.918
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -468,7 +468,7 @@ F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00
 F src/diff.c 5b3a0f20c43c2db565a469a6bd6492e0e069b42c829018c6cd65126cb9fe8b61
 F src/diff.js 3fe31f5122109afdd64440529d983d0d2e29d9cc2973042447cdcabe2caa2c5c
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
-F src/diffcmd.c 54200dbc1114d8a186d98d40153fa31ff38f76523d561a9739eb5fcd33a8339e
+F src/diffcmd.c 72bcccf71104c8ccca15ccea8f75946efabb9349782219a1d136af0e2f39b9ae
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db034a5a6c799031f5864f37e3f000c2fd0547ea6c319a93e850a5d4c9c8dd44
-R 9a4c1e1798905aa56872330bc392ebfb
+P 3a561322cafbc337742d50078fa49072d425afd8ba0879413316162260aac483
+R 478e9eb445fbf4a385526e271fa7bdfe
 U drh
-Z 1a434f1821925a0633351266c3885d20
+Z a0267c4ed6dd5730f03018d82b0df1de

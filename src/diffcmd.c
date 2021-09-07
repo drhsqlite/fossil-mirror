@@ -115,18 +115,12 @@ static int file_dir_match(FileDirList *p, const char *zFile){
 /*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
-void diff_print_index(const char *zFile, DiffConfig *pCfg, Blob *diffBlob){
+void diff_print_index(const char *zFile, DiffConfig *pCfg, Blob *pOut){
   if( (pCfg->diffFlags &
           (DIFF_SIDEBYSIDE|DIFF_BRIEF|DIFF_NUMSTAT|DIFF_JSON|
            DIFF_WEBPAGE|DIFF_TCL))==0
   ){
-    char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
-    if( !diffBlob ){
-      fossil_print("%s", z);
-    }else{
-      blob_appendf(diffBlob, "%s", z);
-    }
-    fossil_free(z);
+    blob_appendf(pOut, "Index: %s\n%.66c\n", zFile, '=');
   }
 }
 
@@ -138,30 +132,20 @@ void diff_print_filenames(
   const char *zLeft,      /* Name of the left file */
   const char *zRight,     /* Name of the right file */
   DiffConfig *pCfg,       /* Diff configuration */
-  Blob *diffBlob          /* Write to this blob, or stdout of this is NULL */
+  Blob *pOut              /* Write to this blob, or stdout of this is NULL */
 ){
-  char *z = 0;
   u64 diffFlags = pCfg->diffFlags;
   if( diffFlags & (DIFF_BRIEF|DIFF_RAW) ){
     /* no-op */
   }else if( diffFlags & DIFF_DEBUG ){
-    fossil_print("FILE-LEFT   %s\nFILE-RIGHT  %s\n",
-       zLeft, zRight);
+    blob_appendf(pOut, "FILE-LEFT   %s\nFILE-RIGHT  %s\n", zLeft, zRight);
   }else if( diffFlags & DIFF_WEBPAGE ){
     if( fossil_strcmp(zLeft,zRight)==0 ){
-      z = mprintf("<h1>%h</h1>\n", zLeft);
+      blob_appendf(pOut,"<h1>%h</h1>\n", zLeft);
     }else{
-      z = mprintf("<h1>%h &lrarr; %h</h1>\n", zLeft, zRight);
+      blob_appendf(pOut,"<h1>%h &lrarr; %h</h1>\n", zLeft, zRight);
     }
   }else if( diffFlags & (DIFF_TCL|DIFF_JSON) ){
-    Blob *pOut;
-    Blob x;
-    if( diffBlob ){
-      pOut = diffBlob;
-    }else{
-      blob_init(&x, 0, 0);
-      pOut = &x;
-    }
     if( diffFlags & DIFF_TCL ){
       blob_append(pOut, "FILE ", 5);
       blob_append_tcl_literal(pOut, zLeft, (int)strlen(zLeft));
@@ -169,7 +153,7 @@ void diff_print_filenames(
       blob_append_tcl_literal(pOut, zRight, (int)strlen(zRight));
       blob_append_char(pOut, '\n');
     }else{
-      blob_trim(pOut);
+      if( pOut ) blob_trim(pOut);
       blob_append(pOut, (pCfg->nFile==0 ? "[{" : ",\n{"), -1);
       pCfg->nFile++;
       blob_append(pOut, "\n  \"leftname\":", -1);
@@ -178,11 +162,6 @@ void diff_print_filenames(
       blob_append_json_literal(pOut, zRight, (int)strlen(zRight));
       blob_append(pOut, ",\n  \"diff\":\n", -1);
     }
-    if( !diffBlob ){
-      fossil_print("%s", blob_str(pOut));
-      blob_reset(&x);
-    }
-    return;
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
     int w = diff_width(pCfg);
     int n1 = strlen(zLeft);
@@ -191,25 +170,19 @@ void diff_print_filenames(
     if( n1==n2 && fossil_strcmp(zLeft,zRight)==0 ){
       if( n1>w*2 ) n1 = w*2;
       x = w*2+17 - (n1+2);
-      z = mprintf("%.*c %.*s %.*c\n",
-                 x/2, '=', n1, zLeft, (x+1)/2, '=');
+      blob_appendf(pOut, "%.*c %.*s %.*c\n",
+                   x/2, '=', n1, zLeft, (x+1)/2, '=');
     }else{
       if( w<20 ) w = 20;
       if( n1>w-10 ) n1 = w - 10;
       if( n2>w-10 ) n2 = w - 10;
-      z = mprintf("%.*c %.*s %.*c versus %.*c %.*s %.*c\n",
-                  (w-n1+10)/2, '=', n1, zLeft, (w-n1+1)/2, '=',
-                  (w-n2)/2, '=', n2, zRight, (w-n2+1)/2, '=');
+      blob_appendf(pOut, "%.*c %.*s %.*c versus %.*c %.*s %.*c\n",
+                         (w-n1+10)/2, '=', n1, zLeft, (w-n1+1)/2, '=',
+                         (w-n2)/2, '=', n2, zRight, (w-n2+1)/2, '=');
     }
   }else{
-    z = mprintf("--- %s\n+++ %s\n", zLeft, zRight);
+    blob_appendf(pOut, "--- %s\n+++ %s\n", zLeft, zRight);
   }
-  if( !diffBlob ){
-    fossil_print("%s", z);
-  }else{
-    blob_appendf(diffBlob, "%s", z);
-  }
-  fossil_free(z);
 }
 
 
@@ -407,7 +380,7 @@ void diff_file(
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
   DiffConfig *pCfg,         /* Flags to control the diff */
-  Blob *diffBlob            /* Blob to store diff output */
+  Blob *pOut            /* Blob to store diff output */
 ){
   if( pCfg->zDiffCmd==0 ){
     Blob out;                 /* Diff output text */
@@ -433,18 +406,10 @@ void diff_file(
       text_diff(pFile1, &file2, &out, pCfg);
       if( blob_size(&out) ){
         if( pCfg->diffFlags & DIFF_NUMSTAT ){
-          if( !diffBlob ){
-            fossil_print("%s %s\n", blob_str(&out), zName);
-          }else{
-            blob_appendf(diffBlob, "%s %s\n", blob_str(&out), zName);
-          }
+          blob_appendf(pOut, "%s %s\n", blob_str(&out), zName);
         }else{
-          diff_print_filenames(zName, zName2, pCfg, diffBlob);
-          if( !diffBlob ){
-            fossil_print("%s\n", blob_str(&out));
-          }else{
-            blob_appendf(diffBlob, "%s\n", blob_str(&out));
-          }
+          diff_print_filenames(zName, zName2, pCfg, pOut);
+          blob_appendf(pOut, "%s\n", blob_str(&out));
         }
       }
       blob_reset(&out);
@@ -605,7 +570,7 @@ void diff_against_disk(
   const char *zFrom,        /* Version to difference from */
   DiffConfig *pCfg,         /* Flags controlling diff output */
   FileDirList *pFileDir,    /* Which files to diff */
-  Blob *diffBlob            /* Blob to output diff instead of stdout */
+  Blob *pOut            /* Blob to output diff instead of stdout */
 ){
   int vid;
   Blob sql;
@@ -709,8 +674,8 @@ void diff_against_disk(
       }else{
         blob_zero(&content);
       }
-      diff_print_index(zPathname, pCfg, diffBlob);
-      diff_file(&content, zFullName, zPathname, pCfg, diffBlob);
+      diff_print_index(zPathname, pCfg, pOut);
+      diff_file(&content, zFullName, zPathname, pCfg, pOut);
       blob_reset(&content);
     }
     blob_reset(&fname);
