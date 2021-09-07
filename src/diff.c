@@ -2838,6 +2838,8 @@ void diff_options(DiffConfig *pCfg, int isGDiff, int bUnifiedTextOnly){
     }
   }
   if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
+  /* Deprecated, but retained for script compatibility. */
+  else if( find_option("new-file","N",0)!=0 ) diffFlags |= DIFF_VERBOSE;
 
   pCfg->diffFlags = diffFlags;
 }

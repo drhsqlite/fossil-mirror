@@ -1,5 +1,5 @@
-C Minor\sfix\sto\sadapt\sthe\s`append_diff_javascript()'\sfunction\sand\sits\scall\spoints\sto\sthe\snew\sdiff\slogic\s(already\spartially\sdone\swith\scheck-in\s[1347a1ddb9]).
-D 2021-09-07T10:42:00.000
+C Bring\sback\sthe\sdiff\scommand\soption\s`-N|--new-file'\sas\san\salias\sfor\s`-v|--verbose'\sfor\sscript\scompatibility.
+D 2021-09-07T11:40:00.000
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -465,7 +465,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00ed54
-F src/diff.c c4c57f0407aaaf9de98915fe1d1d6cfdc6c39dcf35a0a9a831c9dc6256776126
+F src/diff.c 5b3a0f20c43c2db565a469a6bd6492e0e069b42c829018c6cd65126cb9fe8b61
 F src/diff.js 3fe31f5122109afdd64440529d983d0d2e29d9cc2973042447cdcabe2caa2c5c
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
 F src/diffcmd.c 8e6a61709fa4661b1780a4a4ae62196079f1a4fd6cacfec8c01616855b8e0669
@@ -998,8 +998,8 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 346de5d122a2c28c6d1a3896a5fdc076cb1787d7506bbe918f83112b1042373c
-R 1e2bbc9144cddea2efc5b4184a28fecf
+P f9761abb6aeb92870dc6e1a2489101c922ced01dab55a06d4d833d6c1ed99d4f
+R 3aca6d1fbe351c2e56369aca53d7ed8a
 T +sym-diff-config *
 U florian
-Z bd132e4c91c497b99fe38442b6a8ce99
+Z 9ae8d01837a034e873267979aaa37a8e
