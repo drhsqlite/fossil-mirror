@@ -277,21 +277,26 @@ void blob_zero(Blob *pBlob){
 }
 
 /*
-** Append text or data to the end of a blob.
+** Append text or data to the end of a blob.  Or, if pBlob==NULL, send
+** the text to standard output.
 **
-** The blob_append_full() routine is a complete implementation.
-** The blob_append() routine only works for cases where nData>0 and
-** no resizing is required, and falls back to blob_append_full() if
-** either condition is not met, but runs faster in the common case
-** where all conditions are met.  The use of blob_append() is
-** recommended, unless it is known in advance that nData<0.
+** If nData<0 then output all of aData up to the first 0x00 byte.
+**
+** Use the blob_append() routine in all application code.  The blob_append()
+** routine is faster, but blob_append_full() handles all the corner cases.
+** The blob_append() routine automatically calls blob_append_full() if
+** necessary.
 */
-void blob_append_full(Blob *pBlob, const char *aData, int nData){
+static void blob_append_full(Blob *pBlob, const char *aData, int nData){
   sqlite3_int64 nNew;
-  assert( aData!=0 || nData==0 );
-  blob_is_init(pBlob);
+  /* assert( aData!=0 || nData==0 ); // omitted for speed */
+  /* blob_is_init(pBlob); // omitted for speed */
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;
+  if( pBlob==0 ){
+    fossil_puts(aData, 0, nData);
+    return;
+  }
   nNew = pBlob->nUsed;
   nNew += nData;
   if( nNew >= pBlob->nAlloc ){
@@ -311,9 +316,8 @@ void blob_append_full(Blob *pBlob, const char *aData, int nData){
 }
 void blob_append(Blob *pBlob, const char *aData, int nData){
   sqlite3_int64 nUsed;
-  assert( aData!=0 || nData==0 );
-  /* blob_is_init(pBlob); // omitted for speed */
-  if( nData<=0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
+  /* assert( aData!=0 || nData==0 ); // omitted for speed */
+  if( nData<=0 || pBlob==0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
     blob_append_full(pBlob, aData, nData);
     return;
   }
@@ -331,10 +335,11 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
 #endif
 
 /*
-** Append a single character to the blob
+** Append a single character to the blob.  If pBlob is zero then the
+** character is written directly to stdout.
 */
 void blob_append_char(Blob *pBlob, char c){
-  if( pBlob->nUsed+1 >= pBlob->nAlloc ){
+  if( pBlob==0 || pBlob->nUsed+1 >= pBlob->nAlloc ){
     blob_append_full(pBlob, &c, 1);
   }else{
     pBlob->aData[pBlob->nUsed++] = c;
@@ -342,7 +347,7 @@ void blob_append_char(Blob *pBlob, char c){
 }
 
 /*
-** Copy a blob
+** Copy a blob.  pTo is reinitialized to be a copy of pFrom.
 */
 void blob_copy(Blob *pTo, Blob *pFrom){
   blob_is_init(pFrom);
@@ -352,7 +357,8 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 
 /*
 ** Append the second blob onto the end of the first blob and reset the
-** second blob.
+** second blob.  If the first blob (pTo) is NULL, then the content
+** of the second blob is written to stdout.
 */
 void blob_append_xfer(Blob *pTo, Blob *pFrom){
   blob_append(pTo, blob_buffer(pFrom), blob_size(pFrom));
@@ -888,30 +894,27 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 }
 
 /*
-** Do printf-style string rendering and append the results to a blob.
+** Do printf-style string rendering and append the results to a blob.  Or
+** if pBlob==0, do printf-style string rendering directly to stdout.
 **
 ** The blob_appendf() version sets the BLOBFLAG_NotSQL bit in Blob.blobFlags
 ** whereas blob_append_sql() does not.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
-  if( pBlob ){
-    va_list ap;
-    va_start(ap, zFormat);
-    vxprintf(pBlob, zFormat, ap);
-    va_end(ap);
-    pBlob->blobFlags |= BLOBFLAG_NotSQL;
-  }
+  va_list ap;
+  va_start(ap, zFormat);
+  vxprintf(pBlob, zFormat, ap);
+  va_end(ap);
+  if( pBlob ) pBlob->blobFlags |= BLOBFLAG_NotSQL;
 }
 void blob_append_sql(Blob *pBlob, const char *zFormat, ...){
-  if( pBlob ){
-    va_list ap;
-    va_start(ap, zFormat);
-    vxprintf(pBlob, zFormat, ap);
-    va_end(ap);
-  }
+  va_list ap;
+  va_start(ap, zFormat);
+  vxprintf(pBlob, zFormat, ap);
+  va_end(ap);
 }
 void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
-  if( pBlob ) vxprintf(pBlob, zFormat, ap);
+  vxprintf(pBlob, zFormat, ap);
 }
 
 /*

@@ -1,5 +1,5 @@
-C Simplify\sthe\sinterface\sto\sthe\sinternal\sdiff_file()\sroutine.
-D 2021-09-07T12:18:08.190
+C Enhance\sthe\sblob_append(),\sblob_appendf(),\sblob_append_char(),\sand\ssimilar\ninterfaces\ssuch\sthat\sif\sthe\sBlob\spointer\sin\sthe\sfirst\sargument\sis\sNULL,\sthe\nresult\sis\swritten\sdirectly\sto\sstdout.
+D 2021-09-07T12:51:22.003
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c6
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
-F src/blob.c c4e56f968375b55df6f496c452504842043de4bff4a3ef1715451bd946f52ba8
+F src/blob.c 0d6da45338b19c7b5c4a5cf5f85325363f50364b8f84aabef04f87c2293d4870
 F src/branch.c a9f79af28fba52a5243d269205a888057ad51707853b3f2d72a3ab1df3f32a18
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
@@ -568,7 +568,7 @@ F src/pikchrshow.c acafe5f1b343ecb469226efc1380b571893d3677c22d0ac757418063763bf
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 4f8b95b4399bf26395a11e419ba66b20adfe1466215569680ce53bbc6fcb638e
+F src/printf.c 193a7fe4f5d50623ed6ef3e2e7e3d4b0df32dbeff26806e52733709ed98b2d2b
 F src/publish.c 9ec8bcbff98d69c2f42caba92396799e70f6e392240df4431718fc79eb573af6
 F src/purge.c cd771954d4fd348dea0296735535b154e38e9980c979e4591fb64513ab9fa07e
 F src/rebuild.c ae14b98bbb141cece2c09e9c604d2ae6f4698aff3519b42dba418f4889abdf78
@@ -647,7 +647,7 @@ F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 4656061034cdb4552f952bc7ec24a3542689cf814ab9390c5f3a84c987e111dc
 F src/wiki.c eb6d0afaf78c863aa3c1dfba335243ebbf055e7b41288e0449d122ef33c54cfe
 F src/wiki.wiki 42b1e32677d7164e8b74bd2c23f4fedb69cb86d7b98786edeeafe3c33d38a746
-F src/wikiformat.c 8149a84fe21e83b9fd7416c4084e5fa80e425a4e4c70bacf4568696e8246ef19
+F src/wikiformat.c 1cac1765ced40af1a519463df0913bc55bc1af0ce51d53dbdc44271254558dfd
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c 9703d2be8cb500839e5027626abdb0e6c7263deb264ba0a753ebd2ed2598c31b
 F src/xfer.c 0c1e7baf407a8040473f3d93f82d59de5b4cd5e394759484e4d66469feaad851
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ef3ba374cb07499ca040ad58b633da35ac558001336f36f2d76fb7a1cf5fd33
-R df555b89ef2db698594bec4ace9881b5
+P db034a5a6c799031f5864f37e3f000c2fd0547ea6c319a93e850a5d4c9c8dd44
+R 9a4c1e1798905aa56872330bc392ebfb
 U drh
-Z c45b0370da338b316a7923f0d6d9cfa2
+Z 1a434f1821925a0633351266c3885d20

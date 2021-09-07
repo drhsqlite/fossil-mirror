@@ -2362,7 +2362,7 @@ void test_html_tidy(void){
     blob_zero(&out);
     htmlTidy(blob_str(&in), &out);
     blob_reset(&in);
-    fossil_puts(blob_str(&out), 0);
+    fossil_puts(blob_buffer(&out), 0, blob_size(&out));
     blob_reset(&out);
   }
 }
@@ -2489,7 +2489,7 @@ void test_html_to_text(void){
     blob_zero(&out);
     html_to_plaintext(blob_str(&in), &out);
     blob_reset(&in);
-    fossil_puts(blob_str(&out), 0);
+    fossil_puts(blob_buffer(&out), 0, blob_size(&out));
     blob_reset(&out);
   }
 }
