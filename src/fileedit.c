@@ -2001,7 +2001,7 @@ void fileedit_page(void){
   ** the JS multiple times.
   */
   ajax_emit_js_preview_modes(1);
-  builtin_request_js("diff.js");
+  builtin_fossil_js_bundle_or("diff", NULL);
   builtin_request_js("fossil.page.fileedit.js");
   builtin_fulfill_js_requests();
   {

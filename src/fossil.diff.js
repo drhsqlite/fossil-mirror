@@ -1,3 +1,34 @@
+/**
+   diff-related JS APIs for fossil.
+*/
+"use strict";
+window.fossil.onPageLoad(function(){
+  /**
+     Adds toggle checkboxes to each file entry in the diff views for
+     /info and similar pages.
+  */
+  const D = window.fossil.dom;
+  const addToggle = function(diffElem){
+    const sib = diffElem.previousElementSibling,
+          btn = sib ? D.addClass(D.checkbox(true), 'diff-toggle') : 0;
+    if(!sib) return;
+    D.append(sib,btn);
+    btn.addEventListener('click', function(){
+      diffElem.classList.toggle('hidden');
+    }, false);
+  };
+  document.querySelectorAll('table.diff').forEach(addToggle);
+});
+
+window.fossil.onPageLoad(function(){
+  const F = window.fossil, D = F.dom;
+});
+
+/**
+   2021-09-07: refactoring the following for use in the higher-level
+   fossil.*.js framework is pending. For now it's a copy/paste copy
+   of diff.js.
+*/
 /* Refinements to the display of unified and side-by-side diffs.
 **
 ** In all cases, the table columns tagged with "difftxt" are expanded,
@@ -32,6 +63,9 @@
       return false;
     };
   }
+  window.fossil.page.tweakSbsDiffs = function(){
+    document.querySelectorAll('table.splitdiff').forEach(initDiff);
+  };
   var i, diffs = document.querySelectorAll('table.splitdiff')
   for(i=0; i<diffs.length; i++){
     initDiff(diffs[i]);

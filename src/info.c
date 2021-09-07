@@ -444,7 +444,7 @@ static void append_file_change_line(
 */
 void append_diff_javascript(int diffType){
   if( diffType==0 ) return;
-  builtin_request_js("diff.js");
+  builtin_fossil_js_bundle_or("diff", NULL);
 }
 
 /*
@@ -935,7 +935,6 @@ void ci_page(void){
   }
   db_finalize(&q3);
   append_diff_javascript(diffType);
-  builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }
 
@@ -1340,7 +1339,6 @@ void vdiff_page(void){
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
   append_diff_javascript(diffType);
-  builtin_fossil_js_bundle_or("info-diff",NULL);
   style_finish_page();
 }
 

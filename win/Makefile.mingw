@@ -635,9 +635,9 @@ EXTRA_FILES = \
   $(SRCDIR)/fossil.bootstrap.js \
   $(SRCDIR)/fossil.confirmer.js \
   $(SRCDIR)/fossil.copybutton.js \
+  $(SRCDIR)/fossil.diff.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
-  $(SRCDIR)/fossil.info-diff.js \
   $(SRCDIR)/fossil.numbered-lines.js \
   $(SRCDIR)/fossil.page.brlist.js \
   $(SRCDIR)/fossil.page.fileedit.js \

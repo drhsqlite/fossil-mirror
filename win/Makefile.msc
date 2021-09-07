@@ -577,9 +577,9 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\ardoise\css.txt" \
         "$(SRCDIR)\fossil.bootstrap.js" \
         "$(SRCDIR)\fossil.confirmer.js" \
         "$(SRCDIR)\fossil.copybutton.js" \
+        "$(SRCDIR)\fossil.diff.js" \
         "$(SRCDIR)\fossil.dom.js" \
         "$(SRCDIR)\fossil.fetch.js" \
-        "$(SRCDIR)\fossil.info-diff.js" \
         "$(SRCDIR)\fossil.numbered-lines.js" \
         "$(SRCDIR)\fossil.page.brlist.js" \
         "$(SRCDIR)\fossil.page.fileedit.js" \
@@ -1185,9 +1185,9 @@ realclean: clean
 	echo "$(SRCDIR)\fossil.bootstrap.js" >> $@
 	echo "$(SRCDIR)\fossil.confirmer.js" >> $@
 	echo "$(SRCDIR)\fossil.copybutton.js" >> $@
+	echo "$(SRCDIR)\fossil.diff.js" >> $@
 	echo "$(SRCDIR)\fossil.dom.js" >> $@
 	echo "$(SRCDIR)\fossil.fetch.js" >> $@
-	echo "$(SRCDIR)\fossil.info-diff.js" >> $@
 	echo "$(SRCDIR)\fossil.numbered-lines.js" >> $@
 	echo "$(SRCDIR)\fossil.page.brlist.js" >> $@
 	echo "$(SRCDIR)\fossil.page.fileedit.js" >> $@
