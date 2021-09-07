@@ -1902,6 +1902,7 @@ void jtext_page(void){
   int iFrom = atoi(PD("from","0"));
   int iTo = atoi(PD("to","0"));
   int ln;
+  int go = 1;
   const char *zSep;
   Blob content;
   Blob line;
@@ -1924,18 +1925,19 @@ void jtext_page(void){
   g.isConst = 1;
   cgi_set_content_type("text/json");
   ln = 0;
-  zSep = "[\n";
-  while( ln<iFrom ){
-    blob_line(&content, &line);
+  while( go && ln<iFrom ){
+    go = blob_line(&content, &line);
     ln++;
   }
   pOut = cgi_output_blob();
-  while( ln<=iTo ){
-    blob_append(pOut, zSep, 2);
+  blob_append(pOut, "[\n", 2);
+  zSep = 0;
+  while( go && ln<=iTo ){
+    if( zSep ) blob_append(pOut, zSep, 2);
     blob_trim(&line);
     blob_append_json_literal(pOut, blob_buffer(&line), blob_size(&line));
     zSep = ",\n";
-    blob_line(&content, &line);
+    go = blob_line(&content, &line);
     ln++;
   }
   blob_appendf(pOut,"]\n");

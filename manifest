@@ -1,5 +1,5 @@
-C Add\sthe\s/jtext\swebpage,\sintended\sfor\suse\sby\sXHR.
-D 2021-09-07T19:09:29.366
+C On\sthe\s/jtext\spage,\sterminate\sthe\sJSON\sarray\searly\sif\sthere\sare\sinsufficient\nlines\sof\stext\sin\sthe\sfile\sto\scomplete\sthe\srequest.
+D 2021-09-07T19:15:13.008
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -516,7 +516,7 @@ F src/http_socket.c f31b7e2341232239f96a830ee4791aa6b53e915b6f7f416ac4008793bca4
 F src/http_ssl.c e414dce084c13bf35da951f45dc5ffdaed195f06ec6cfeb0fc22a83bee5bbbee
 F src/http_transport.c e67bd9dcd38d30bf3934621426b9ba52a4e0a2c56c8f232cea8e6f80da595e71
 F src/import.c 99f89e77efd54a51ebd65b51b0c9b5d6d764e871ae60962d62469e7ab004e27a
-F src/info.c 0354ff8c8da9a9408ab20353e3325cbf1facf9983f71212ca3b05907ab9018a0
+F src/info.c ddb882df84fc6a90b62160dbc2f7cd1cf75728bba2f040fc19e3ee5e423401ec
 F src/interwiki.c 9dac69b7e238bff22fb4b39dbb88e087533e3cefbf5c4463132fc96383261eef
 F src/json.c e45172c315d0938b4691df092bd063b1ff06460e3fb4c06b74cd4fc38af72878
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c275a166b351d2b122ded0bbcfc0039c026f54db870faf19a7a08b3ca435d09b
-R f153d63761df88d738cb43b2325cd43d
+P 5f7fcbabf01abf6fd4b7bc146e709c9d8d0fe9669abff8837aefdc0f7cb87eb9
+R 7eda8f1c923b615b26f3b64b1bde0fd1
 U drh
-Z f7116517580878ebf215b8ae01b7ac25
+Z 8bf4dda59d0ea0ebfcfd76a7db097756
