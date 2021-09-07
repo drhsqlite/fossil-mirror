@@ -1,5 +1,5 @@
-C Bring\sback\sthe\sdiff\scommand\soption\s`-N|--new-file'\sas\san\salias\sfor\s`-v|--verbose'\sfor\sscript\scompatibility.
-D 2021-09-07T11:40:00.000
+C Simplify\sthe\sinterface\sto\sthe\sinternal\sdiff_file()\sroutine.
+D 2021-09-07T12:18:08.190
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -468,7 +468,7 @@ F src/descendants.c 71878ec3c42c3eb0b7e24b9a2279da7f692fefb85407e443d16f8bd3da00
 F src/diff.c 5b3a0f20c43c2db565a469a6bd6492e0e069b42c829018c6cd65126cb9fe8b61
 F src/diff.js 3fe31f5122109afdd64440529d983d0d2e29d9cc2973042447cdcabe2caa2c5c
 F src/diff.tcl 66a4d9db8e51bb608a8302ed2b3142857ae82da1c77b7bd97a215ab44e8f7f92
-F src/diffcmd.c 8e6a61709fa4661b1780a4a4ae62196079f1a4fd6cacfec8c01616855b8e0669
+F src/diffcmd.c 54200dbc1114d8a186d98d40153fa31ff38f76523d561a9739eb5fcd33a8339e
 F src/dispatch.c a091e4fe994c8bd3e91d64c5f4024d54d8175ec22a06f12b2a06efb8be44dc44
 F src/doc.c 02103a2d5d427cb82bd4d8c1f64cf0cba2f647b9bf94d68e75003c49e7c0c6d2
 F src/encode.c 2cebb291db3de650c36b6fcb4b4d4565e811970e9a5cd272d88d9fa4604f844c
@@ -613,7 +613,7 @@ F src/sqlcmd.c 98d38bc82a46ecdbdbd7f06438b32e0173da11859990ef71e06ea696f47b33ef
 F src/sqlcompattest.c b00e9877c7db1d53629476d863fb9860e18b838c34381b7f2246038ece801762
 F src/sqlite3.c 1148f55ec964c6c7c43625394978041366a5506d3474edd5ee4e407c4e121bf9
 F src/sqlite3.h bf2aebd54e53d2734e8ae4586ce5f986f9a853ae35359b84d05a394c4cfd96b6
-F src/stash.c eb13d5fa16d5c15c52792fbad8f9e7ecc78c0fb2e44b76330176967a71d3e457
+F src/stash.c 7f0b31cfa631787397dafa8041f41b0fd259efa93e13e9a3474dbd5b872af167
 F src/stat.c 3259c01cca4cc9bb96ca08d2dc5bd003adc95439af14d83ef5b1c989fdfbda7b
 F src/statrep.c bcb3869292bbedaf7946211fbce1e985f2972b63ce11965263b69c9b7941cac3
 F src/style.admin_log.css d2307c82512c8e58f4fc61594d4daff38d490505dfd9b21d793538bf7d450c51
@@ -998,8 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f9761abb6aeb92870dc6e1a2489101c922ced01dab55a06d4d833d6c1ed99d4f
-R 3aca6d1fbe351c2e56369aca53d7ed8a
-T +sym-diff-config *
-U florian
-Z 9ae8d01837a034e873267979aaa37a8e
+P 4ef3ba374cb07499ca040ad58b633da35ac558001336f36f2d76fb7a1cf5fd33
+R df555b89ef2db698594bec4ace9881b5
+U drh
+Z c45b0370da338b316a7923f0d6d9cfa2

@@ -452,9 +452,9 @@ static void stash_diff(
         if( fBaseline ){
           diff_file_mem(&a, &b, zNew, pCfg);
         }else{
-          /*Diff with file on disk using fSwapDiff=1 to show the diff in the
-            same direction as if fBaseline=1.*/
-          diff_file(&b, zOPath, zNew, pCfg, 1, 0);
+          pCfg->diffFlags ^= DIFF_INVERT;
+          diff_file(&b, zOPath, zNew, pCfg, 0);
+          pCfg->diffFlags ^= DIFF_INVERT;
         }
         blob_reset(&a);
         blob_reset(&b);

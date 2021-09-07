@@ -401,23 +401,12 @@ void diff_end(DiffConfig *pCfg, int nErr){
 **
 ** The difference is the set of edits needed to transform pFile1 into
 ** zFile2.  The content of pFile1 is in memory.  zFile2 exists on disk.
-**
-** If fSwapDiff is 1, show the set of edits to transform zFile2 into pFile1
-** instead of the opposite.
-**
-** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
-** command zDiffCmd to do the diffing.
-**
-** When using an external diff program, zBinGlob contains the GLOB patterns
-** for file names to treat as binary.  If fIncludeBinary is zero, these files
-** will be skipped in addition to files that may contain binary content.
 */
 void diff_file(
   Blob *pFile1,             /* In memory content to compare from */
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
   DiffConfig *pCfg,         /* Flags to control the diff */
-  int fSwapDiff,            /* Diff from Zfile2 to Pfile1 */
   Blob *diffBlob            /* Blob to store diff output */
 ){
   if( pCfg->zDiffCmd==0 ){
@@ -441,11 +430,7 @@ void diff_file(
       }
     }else{
       blob_zero(&out);
-      if( fSwapDiff ){
-        text_diff(&file2, pFile1, &out, pCfg);
-      }else{
-        text_diff(pFile1, &file2, &out, pCfg);
-      }
+      text_diff(pFile1, &file2, &out, pCfg);
       if( blob_size(&out) ){
         if( pCfg->diffFlags & DIFF_NUMSTAT ){
           if( !diffBlob ){
@@ -506,7 +491,7 @@ void diff_file(
     /* Construct the external diff command */
     blob_zero(&cmd);
     blob_append(&cmd, pCfg->zDiffCmd, -1);
-    if( fSwapDiff ){
+    if( pCfg->diffFlags & DIFF_INVERT ){
       blob_append_escaped_arg(&cmd, zFile2, 1);
       blob_append_escaped_arg(&cmd, blob_str(&nameFile1), 1);
     }else{
@@ -725,7 +710,7 @@ void diff_against_disk(
         blob_zero(&content);
       }
       diff_print_index(zPathname, pCfg, diffBlob);
-      diff_file(&content, zFullName, zPathname, pCfg, 0, diffBlob);
+      diff_file(&content, zFullName, zPathname, pCfg, diffBlob);
       blob_reset(&content);
     }
     blob_reset(&fname);
@@ -758,7 +743,7 @@ static void diff_against_undo(
     if( !file_dir_match(pFileDir, zFile) ) continue;
     zFullName = mprintf("%s%s", g.zLocalRoot, zFile);
     db_column_blob(&q, 1, &content);
-    diff_file(&content, zFullName, zFile, pCfg, 0, 0);
+    diff_file(&content, zFullName, zFile, pCfg, 0);
     fossil_free(zFullName);
     blob_reset(&content);
   }
