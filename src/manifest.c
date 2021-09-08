@@ -355,7 +355,9 @@ static int verify_z_card(const char *z, int n, Blob *pErr){
   if( memcmp(&z[n-33], zHash, 32)==0 ){
     return 1;
   }else{
-    blob_appendf(pErr, "incorrect Z-card cksum: expected %.32s", zHash);
+    if(pErr!=0){
+      blob_appendf(pErr, "incorrect Z-card cksum: expected %.32s", zHash);
+    }
     return 2;
   }
 }
@@ -490,7 +492,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   n = blob_size(pContent);
   if( n<=0 || z[n-1]!='\n' ){
     blob_reset(pContent);
-    blob_appendf(pErr, "%s", n ? "not terminated with \\n" : "zero-length");
+    if(pErr!=0){
+      blob_appendf(pErr, "%s", n ? "not terminated with \\n" : "zero-length");
+    }
     return 0;
   }
 
@@ -1126,14 +1130,18 @@ manifest_syntax_error:
   {
     char *zUuid = rid_to_uuid(rid);
     if( zUuid ){
-      blob_appendf(pErr, "artifact [%s] ", zUuid);
+      if(pErr!=0){
+        blob_appendf(pErr, "artifact [%s] ", zUuid);
+      }
       fossil_free(zUuid);
     }
   }
-  if( zErr ){
-    blob_appendf(pErr, "line %d: %s", lineNo, zErr);
-  }else{
-    blob_appendf(pErr, "unknown error on line %d", lineNo);
+  if(pErr!=0){
+    if( zErr ){
+      blob_appendf(pErr, "line %d: %s", lineNo, zErr);
+    }else{
+      blob_appendf(pErr, "unknown error on line %d", lineNo);
+    }
   }
   md5sum_init();
   manifest_destroy(p);
