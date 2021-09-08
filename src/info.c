@@ -1890,6 +1890,11 @@ void secure_rawartifact_page(void){
 ** Return lines of text from a file as a JSON array - one entry in the
 ** array for each line of text.
 **
+** **Warning:**  This is an internal-use-only interface that is subject to
+** change at any moment.  External application should not use this interface
+** since the application will break when this interface changes, and this
+** interface will undoubtedly change.
+**
 ** This page is intended to be used in an XHR from javascript on a diff
 ** page, to return unseen context to fill in additional context when the
 ** user clicks on the appropriate button.
