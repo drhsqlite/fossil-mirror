@@ -1884,8 +1884,8 @@ void secure_rawartifact_page(void){
 
 
 /*
-** WEBPAGE: jtext
-** URL: /jtext/HASH?from=N&to=M
+** WEBPAGE: jchunk hidden
+** URL: /jchunk/HASH?from=N&to=M
 **
 ** Return lines of text from a file as a JSON array - one entry in the
 ** array for each line of text.
@@ -1908,15 +1908,29 @@ void jtext_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+#if 0
+  /* Re-enable this block once this code is integrated somewhere into
+     the UI. */
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
   if( rid==0 ){
-    cgi_set_status(404, "Not Found");
-    @ Unknown artifact: "%h(zName)"
+    ajax_route_error(404, "Unknown artifact: %h", zName);
     return;
   }
+#else
+  /* This impl is only to simplify "manual" testing via the JS
+     console. */
+  rid = symbolic_name_to_rid(zName, "*");
+  if( rid==0 ){
+    ajax_route_error(404, "Unknown artifact: %h", zName);
+    return;
+  }else if( rid<0 ){
+    ajax_route_error(404, "Ambiguous artifact name: %h", zName);
+    return;
+  }
+#endif
   if( iFrom<1 || iTo<iFrom ){
-    cgi_set_status(500, "Bad Request");
-    @ Invalid line range
+    ajax_route_error(500, "Invalid line range from=%d, to=%d.",
+                     iFrom, iTo);
     return;
   }
   content_get(rid, &content);
