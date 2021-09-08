@@ -1,5 +1,5 @@
-C Caught\smore\sinstances\sof\sthe\sprevious\scommit's\sfix.
-D 2021-09-08T11:11:07.000
+C Add\sthe\s--test\soption\sto\sthe\stest-http\scommand\sto\smake\sit\susable\ninteractively\sover\san\sssh\slink.\s\sImprove\sthe\son-line\sdocumentation\sfor\nthe\stest-http\scommand.
+D 2021-09-08T12:21:45.372
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -541,7 +541,7 @@ F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee41528
 F src/login.c 378e8b4e3290a286531d2a07e5b0c389a68a1f1c53220be9f79c65b8e0988b04
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
-F src/main.c 077d574ff2f5d2ce2b051090b160f28c51f7bcbde4f179aa85c95d90ec1f55d7
+F src/main.c 3b0acec05b7fd5d0d2cd85a044e2aad71c61aab4f11450afc1a6d6bc3024470a
 F src/main.mk 2321f4035d7e165c4319c7e9e5d61b9f1496825685ca6c91ed5ee655600cd901
 F src/makeheaders.c 1230545d75ee21377c9c5a6ea2d0a62523ca35e847969ee360f86d5084d43467
 F src/makeheaders.html b10cfaab66b76f37741fdf522f0b064551afa0b26066771b05df9cd34d871f3b
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 65dbc19eaefefa98b6532986f45ed5f843d00d36e8ac92a5e281a0200826c2d9
-R b613044ceb4df3791f9955c724e4c17c
-U stephan
-Z 8fff59b628bf39532cd42795c0dd7995
+P 992b62fa8b85aa0882d74a5b5349e0a4015afc6cfb5b257541338f2a2c5a8aac
+R 9672b98716601293a10d2fd6552ff00e
+U drh
+Z c1ef4f231aa8b23491bea0882e658ab9
