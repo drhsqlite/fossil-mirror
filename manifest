@@ -1,5 +1,5 @@
-C Add\sthe\s--test\soption\sto\sthe\stest-http\scommand\sto\smake\sit\susable\ninteractively\sover\san\sssh\slink.\s\sImprove\sthe\son-line\sdocumentation\sfor\nthe\stest-http\scommand.
-D 2021-09-08T12:21:45.372
+C Fix\sUV\ssync\sso\sthat\sit\sworks\sover\sSSH.\n[forum:/forumpost/b121db582ee1ed2c|Forum\sthread\sb121db582ee1ed2c].\nSee\salso\sthe\searlier\sattempt\sto\sfix\sthis\sat\s[129e39587803da00].
+D 2021-09-08T13:41:32.056
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -538,7 +538,7 @@ F src/leaf.c d20a8cc81d2cc1c15fa2bc31e37beaec98372dee237748f37f9dfc2ae0d8e04f
 F src/linenoise.c 6424bedb7816544d6eb61ec1895b114a727c2a05a1bca3d84cbaf1f199962b06
 F src/linenoise.h fd137429d2d0255da02f0abceb772e9cc439c8c51c9a395a839e1c88a6a2bcf1
 F src/loadctrl.c 1de71c0be2119d764bec7fa622061271bd90c9f7fd10014e11b58305ee415281
-F src/login.c 378e8b4e3290a286531d2a07e5b0c389a68a1f1c53220be9f79c65b8e0988b04
+F src/login.c 5a39ed2deb413b38888cbb7e2789c35b740b86dbfe595329165df94054d413c0
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c f2f8c2e5afa0d838e353d24d60a529bf20e8a2518dd99701531b02b02b4c493e
 F src/main.c 3b0acec05b7fd5d0d2cd85a044e2aad71c61aab4f11450afc1a6d6bc3024470a
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 992b62fa8b85aa0882d74a5b5349e0a4015afc6cfb5b257541338f2a2c5a8aac
-R 9672b98716601293a10d2fd6552ff00e
+P 9834d4dc720b5b5ef3dfea3f55173738dc8f2e056e2ea10951964bd4e3a48676
+R ee5e0409b1b6b992f0c89973f39d2278
 U drh
-Z c1ef4f231aa8b23491bea0882e658ab9
+Z 668029f5b8fad3bb3b71657024f1fa2f
