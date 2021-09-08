@@ -25,33 +25,37 @@ window.fossil.onPageLoad(function(){
 
   /**
      Uses the /jchunk AJAX route to fetch specific lines of a given
-     artifact. The first argument must be an Object with a minimum of
-     these properties:
+     artifact. The first argument must be an Object with these
+     properties:
 
      {
        name: full hash of the target file,
-       from: first line number of the file to fetch (inclusive),
-       to: last line number of the file to fetch (inclusive)
+       from: first 1-based line number of the file to fetch (inclusive),
+       to: last 1-based line number of the file to fetch (inclusive)
      }
 
      onload and onerror are optional callback functions to be called
-     on success resp. error, as documented for fossil.fetch().  Note
-     that onload is ostensibly optional but this function is not of
-     much use without an onload handler. Conversely, the default
+     on success resp. error, as documented for window.fossil.fetch().
+     Note that onload is ostensibly optional but this function is not
+     of much use without an onload handler. Conversely, the default
      onerror handler is often customized on a per-page basis to send
      the error output somewhere where the user can see it.
+
+     The response, on success, will be an array of strings, each entry
+     being one line from the requested artifact. If the 'to' line is
+     greater than the length of the file, the array will be shorter
+     than (to-from) lines.
 
      The /jchunk route reports errors via JSON objects with
      an "error" string property describing the problem.
 
-     This is an async operation. Returns window.fossil.
+     This is an async operation. Returns this object.
   */
   F.fetchArtifactLines = function(urlParams, onload, onerror){
     const opt = {urlParams};
     if(onload) opt.onload = onload;
     if(onerror) opt.onerror = onerror;
-    F.fetch('jchunk', opt);
-    return F;
+    return this.fetch('jchunk', opt);
   };
 });
 

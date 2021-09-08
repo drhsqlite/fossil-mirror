@@ -1895,9 +1895,11 @@ void secure_rawartifact_page(void){
 ** since the application will break when this interface changes, and this
 ** interface will undoubtedly change.
 **
-** This page is intended to be used in an XHR from javascript on a diff
-** page, to return unseen context to fill in additional context when the
-** user clicks on the appropriate button.
+** This page is intended to be used in an XHR from javascript on a
+** diff page, to return unseen context to fill in additional context
+** when the user clicks on the appropriate button. The response is
+** always in JSON form and errors are reported as documented for
+** ajax_route_error().
 */
 void jtext_page(void){
   int rid = 0;
@@ -1912,7 +1914,10 @@ void jtext_page(void){
   Blob *pOut;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( !g.perm.Read ){
+    ajax_route_error(403, "Access requires Read permissions.");
+    return;
+  }
 #if 0
   /* Re-enable this block once this code is integrated somewhere into
      the UI. */
@@ -1929,7 +1934,7 @@ void jtext_page(void){
     ajax_route_error(404, "Unknown artifact: %h", zName);
     return;
   }else if( rid<0 ){
-    ajax_route_error(404, "Ambiguous artifact name: %h", zName);
+    ajax_route_error(418, "Ambiguous artifact name: %h", zName);
     return;
   }
 #endif
