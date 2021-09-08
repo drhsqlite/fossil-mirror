@@ -1,5 +1,5 @@
-C Made\sdiff\sview\stable\s100%\swide\sinstead\sof\s98%.\sThe\sunsightly\shorizontal\sscrollbars\sstill\sdon't\sappear\sat\sthat\swidth\sand\sthis\seliminates\san\sodd-looking\sgap\son\sthe\sright.
-D 2021-09-07T22:24:43.545
+C Fix\sthe\s/vpatch\swebpage\soutput,\sapparently\sbroken\sby\scheck-in\n[3a561322cafbc337].\s\s[forum:/forumpost/2a0e4c729e|Forum\spost\s2a0e4c729e].
+D 2021-09-08T01:01:23.699
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -432,7 +432,7 @@ F src/backlink.c 11aad83b11b355471f2f6bcd4b9b4e58acfa3d387f30b485fd4c5e0db6007c6
 F src/backoffice.c 35468c397ad53555ca44bd81e25db0dd03c982e6f7d29aeedec65a8de3f0fdcc
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 3e94f29b05e9bf3afdcaa71ed1d1562d35e3d16ce4ebaad73ef33957c4400949
-F src/blob.c 0d6da45338b19c7b5c4a5cf5f85325363f50364b8f84aabef04f87c2293d4870
+F src/blob.c a5923503ef2ce9a6b8c9bb99c533fb889b0fd7c31c1a20e953b37e811328a927
 F src/branch.c a9f79af28fba52a5243d269205a888057ad51707853b3f2d72a3ab1df3f32a18
 F src/browse.c 8cf3a682649156a0b146c1f0553fe852b0e7b1fb9dd632745f9903c7387c5810
 F src/builtin.c 7226d931b2cf3e33be77ccf494c85ace39b097963fd5289263ee7d1acc698583
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5f8e79990678c43234c8fdb82cb78e01fb9d8e9a1c008cf248a19571c98f64f
-R daab1cadf9ebf8744b010cd318c45b47
-U stephan
-Z db95bf18f940a8dd8284c342417e92a8
+P be9602d0dfca0047bb50d048b96b1a51eb0b5b90785e92f66b4a252ce13eb937
+R a62e3ee01e0d5410e2fb93cfebc62a36
+U drh
+Z 8ce9d459e8e8abb3065ae49b45e4dc6d
