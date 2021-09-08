@@ -40,31 +40,30 @@ window.addEventListener('load',function(){
     if(undefined === f.lastWidth){
       f.lastWidth = 0;
     }
-    if( document.body.clientWidth!=f.lastWidth ){
-      f.lastWidth = document.body.clientWidth;
-      var w = f.lastWidth*0.5 - 100;
-      if(!f.colsL){
-        f.colsL = document.querySelectorAll('td.difftxtl pre');
-      }
-      for(let i=0; i<f.colsL.length; i++){
-        f.colsL[i].style.width = w + "px";
-        f.colsL[i].style.maxWidth = w + "px";
-      }
-      if(!f.colsR){
-        f.colsR = document.querySelectorAll('td.difftxtr pre');
-      }
-      for(let i=0; i<f.colsR.length; i++){
-        f.colsR[i].style.width = w + "px";
-        f.colsR[i].style.maxWidth = w + "px";
-      }
-      if(!f.allDiffs){
-        f.allDiffs = document.querySelectorAll('table.diff');
-      }
-      w = f.lastWidth;
-      for(let i=0; i<f.allDiffs.length; i++){
-        f.allDiffs[i].style.width = '100%'; // setting to w causes unsightly horiz. scrollbar
-        f.allDiffs[i].style.maxWidth = w + "px";
-      }
+    if( document.body.clientWidth===f.lastWidth ) return;
+    f.lastWidth = document.body.clientWidth;
+    var w = f.lastWidth*0.5 - 100;
+    if(!f.colsL){
+      f.colsL = document.querySelectorAll('td.difftxtl pre');
+    }
+    for(let i=0; i<f.colsL.length; i++){
+      f.colsL[i].style.width = w + "px";
+      f.colsL[i].style.maxWidth = w + "px";
+    }
+    if(!f.colsR){
+      f.colsR = document.querySelectorAll('td.difftxtr pre');
+    }
+    for(let i=0; i<f.colsR.length; i++){
+      f.colsR[i].style.width = w + "px";
+      f.colsR[i].style.maxWidth = w + "px";
+    }
+    if(!f.allDiffs){
+      f.allDiffs = document.querySelectorAll('table.diff');
+    }
+    w = f.lastWidth;
+    for(let i=0; i<f.allDiffs.length; i++){
+      f.allDiffs[i].style.width = '100%'; // setting to w causes unsightly horiz. scrollbar
+      f.allDiffs[i].style.maxWidth = w + "px";
     }
   };
   checkWidth();

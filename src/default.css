@@ -534,7 +534,7 @@ ul.filelist li {
 
 /* Rules governing diff layout and colors */
 table.diff {
-  width: 98%;
+  width: 100%;
   border-spacing: 0;
   border: 1px solid black;
   padding: 0 0.5em;
