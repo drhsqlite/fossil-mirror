@@ -2743,13 +2743,31 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 }
 
 /*
-** Note that the following command is used by ssh:// processing.
-**
 ** COMMAND: test-http
 **
-** Works like the [[http]] command but gives setup permission to all users.
+** Works like the [[http]] command but gives setup permission to all users,
+** or whatever permission is described by "--usercap CAP".
+**
+** This command can used for interactive debugging of web pages.  For
+** example, one can put a simple HTTP request in a file like this:
+**
+**     echo 'GET /timeline' >request.txt
+**
+** Then run (in a debugger) a command like this:
+**
+**     fossil test-http --debug <request.txt
+**
+** This command is also used internally by the "ssh" sync protocol.  Some
+** special processing to support sync happens when this command is run
+** and the SSH_CONNECTION environment variable is set.  Use the --test
+** option on interactive sessions to avoid that special processing when
+** using this command interactively over SSH.  A better solution would be
+** to use a different command for "ssh" sync, but we cannot do that without
+** breaking legacy.
 **
 ** Options:
+**   --test              Do not do special "sync" processing when operating
+**                       over an SSH link.
 **   --th-trace          Trace TH1 execution (for debugging purposes)
 **   --usercap   CAP     User capability string (Default: "sxy")
 **
@@ -2757,6 +2775,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 void cmd_test_http(void){
   const char *zIpAddr;    /* IP address of remote client */
   const char *zUserCap;
+  int bTest = 0;
 
   Th_InitTraceLog();
   zUserCap = find_option("usercap",0,1);
@@ -2764,6 +2783,7 @@ void cmd_test_http(void){
     g.useLocalauth = 1;
     zUserCap = "sxy";
   }
+  bTest = find_option("test",0,0)!=0;
   login_set_capabilities(zUserCap, 0);
   g.httpIn = stdin;
   g.httpOut = stdout;
@@ -2775,7 +2795,7 @@ void cmd_test_http(void){
   g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
   g.sslNotAvailable = 1;  /* Avoid attempts to redirect */
-  zIpAddr = cgi_ssh_remote_addr(0);
+  zIpAddr = bTest ? 0 : cgi_ssh_remote_addr(0);
   if( zIpAddr && zIpAddr[0] ){
     g.fSshClient |= CGI_SSH_CLIENT;
     ssh_request_loop(zIpAddr, 0);

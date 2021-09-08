@@ -278,7 +278,8 @@ void blob_zero(Blob *pBlob){
 
 /*
 ** Append text or data to the end of a blob.  Or, if pBlob==NULL, send
-** the text to standard output.
+** the text to standard output in terminal mode, or to standard CGI output
+** in CGI mode.
 **
 ** If nData<0 then output all of aData up to the first 0x00 byte.
 **
@@ -294,8 +295,12 @@ static void blob_append_full(Blob *pBlob, const char *aData, int nData){
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;
   if( pBlob==0 ){
-    fossil_puts(aData, 0, nData);
-    return;
+    if( g.cgiOutput ){
+      pBlob = cgi_output_blob();
+    }else{
+      fossil_puts(aData, 0, nData);
+      return;
+    }
   }
   nNew = pBlob->nUsed;
   nNew += nData;
@@ -358,7 +363,8 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 /*
 ** Append the second blob onto the end of the first blob and reset the
 ** second blob.  If the first blob (pTo) is NULL, then the content
-** of the second blob is written to stdout.
+** of the second blob is written to stdout or to CGI depending on if the
+** Fossil is running in terminal or CGI mode.
 */
 void blob_append_xfer(Blob *pTo, Blob *pFrom){
   blob_append(pTo, blob_buffer(pFrom), blob_size(pFrom));

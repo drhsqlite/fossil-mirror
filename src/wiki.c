@@ -1191,7 +1191,7 @@ static void wiki_ajax_route_list(void){
 }
 
 /*
-** WEBPAGE: wikiajax
+** WEBPAGE: wikiajax hidden
 **
 ** An internal dispatcher for wiki AJAX operations. Not for direct
 ** client use. All routes defined by this interface are app-internal,
