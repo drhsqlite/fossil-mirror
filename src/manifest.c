@@ -503,7 +503,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   */
   if( n<10 || z[0]<'A' || z[0]>'Z' || z[1]!=' ' ){
     blob_reset(pContent);
-    blob_appendf(pErr, "line 1 not recognized");
+    if(pErr!=0){
+      blob_appendf(pErr, "line 1 not recognized");
+    }
     return 0;
   }
   /* Then verify the Z-card.
