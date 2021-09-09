@@ -578,16 +578,17 @@ tr.diffskip > td.chunkctrl > div > .button {
   border-radius: 0.5em;
 }
 tr.diffskip > td.chunkctrl > div > .button > span {
-  /* In order to increase the glyph size w/o increasing the button size,
-     we need an extra layer of DOM element for the glyph. */
+  /* In order to increase the glyph size w/o increasing the em-based
+     button size or border-radius, we need an extra layer of DOM
+     element for the glyph. */
   font-size: 150%;
 }
 tr.diffskip > td.chunkctrl > div > .button.up:not(.down){
-  /* Simulate an error pointing up */
+  /* Simulate an arrow pointing up */
   border-radius: 3em 3em 0.25em 0.25em;
 }
 tr.diffskip > td.chunkctrl > div > .button.down:not(.up){
-  /* Simulate an error pointing down */
+  /* Simulate an arrow pointing down */
   border-radius: 0.25em 0.25em 3em 3em;
 }
 tr.diffskip > td.chunkctrl > div > .button:hover {
