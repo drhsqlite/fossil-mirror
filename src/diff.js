@@ -30,7 +30,7 @@ window.addEventListener('load',function(){
       e = e || event;
       var len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
       if( !len ) return;
-      txtCols[0].scrollLeft += len;
+      txtPres[0].scrollLeft += len;
       return false;
     };
   }
