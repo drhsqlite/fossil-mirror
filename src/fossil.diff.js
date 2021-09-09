@@ -346,23 +346,24 @@ window.fossil.onPageLoad(function(){
        called this. See this code for details.
     */
     newTR: function(){
-      const tr = D.addClass(D.tr(),'fetched'), rc = {
+      const tr = D.tr(), rc = {
         tr,
         preLnL: D.pre(),
-        preLnR: D.pre()
+        preLnR: D.pre(),
+        preSep: D.pre()
       };
       if(this.isSplit){
         D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), rc.preLnL);
         rc.preTxtL = D.pre();
         D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtl' ), rc.preTxtL);
-        D.addClass( D.td(tr), 'diffsep' );
+        D.append(D.addClass( D.td(tr), 'diffsep' ), rc.preSep);
         D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), rc.preLnR);
         rc.preTxtR = D.pre();
         D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtr' ), rc.preTxtR);
       }else{
         D.append(D.addClass( D.td(tr), 'diffln', 'difflnl' ), rc.preLnL);
         D.append(D.addClass( D.td(tr), 'diffln', 'difflnr' ), rc.preLnR);
-        D.addClass( D.td(tr), 'diffsep' );
+        D.append(D.addClass( D.td(tr), 'diffsep' ), rc.preSep);
         rc.preTxtU = D.pre();
         D.append(D.addClass( D.td(tr), 'difftxt', 'difftxtu' ), rc.preTxtU);
       }
@@ -373,20 +374,61 @@ window.fossil.onPageLoad(function(){
                              urlParam/*from fetchChunk()*/,
                              lines/*response lines*/){
       console.debug("Loading line range ",urlParam.from,"-",urlParam.to);
-      const row = this.newTR();
-      const lineno = [];
-      let i;
-      for( i = urlParam.from; i <= urlParam.to; ++i ){
-        /* TODO: space-pad numbers, but we don't know the proper length from here. */
-        lineno.push(i);
+      const lineno = [],
+            trPrev = this.e.tr.previousElementSibling,
+            trNext = this.e.tr.nextElementSibling,
+            doAppend = !!trPrev /* true to append to previous TR, else prepend to NEXT TR */;
+      const tr = trPrev || trNext;
+      if(0!==direction){
+        console.error("this case is not yet handled",arguments);
+        return this;
       }
-      row.preLnL.innerText = lineno.join('\n')+'\n';
-      if(row.preTxtU){//unified diff
-        row.preTxtU.innerText = lines.join('\n')+'\n';
-      }else{//split diff
-        const code = lines.join('\n')+'\n';
-        row.preTxtL.innerText = code;
-        row.preTxtR.innerText = code;
+      const joinTr = (0===direction && trPrev && trNext);
+      let i, td;
+      if(1){ // LHS line numbers...
+        const selector = '.difflnl > pre';
+        td = tr.querySelector(selector);
+        for( i = urlParam.from; i <= urlParam.to; ++i ){
+          lineno.push(i);
+        }
+        const lineNoTxt = lineno.join('\n')+'\n';
+        const content = [];
+        if(doAppend) content.push(td.innerHTML, lineNoTxt);
+        else content.push(lineNoTxt, td.innerHTML);
+        if(joinTr){
+          content.push(trNext.querySelector(selector).innerHTML);
+        }
+        td.innerHTML = content.join('');
+      }
+
+      if(1){// code block...
+        const selector = '.difftxt > pre';
+        td = tr.querySelectorAll(selector);
+        const code = D.append(D.div(),lines.join('\n')+'\n').innerText;
+        let joinNdx = 0;
+        td.forEach(function(e){
+          const content = [];
+          if(doAppend) content.push(e.innerHTML, code);
+          else content.push(code, e.innerHTML);
+          if(joinTr){
+            content.push(trNext.querySelectorAll(selector)[joinNdx++].innerHTML)
+          }
+          e.innerHTML = content.join('');
+        });
+      }
+      if(1){
+        // Add blank lines in (.diffsep>pre)
+        const selector = '.diffsep > pre';
+        td = tr.querySelector(selector);
+        for(i = 0; i < lineno.length; ++i) lineno[i] = '';
+        const blanks = lineno.join('\n')+'\n';
+        const content = [];
+        if(doAppend) content.push(td.innerHTML, blanks);
+        else content.push(blanks, td.innerHTML);
+        if(joinTr){
+          content.push(trNext.querySelector(selector).innerHTML);
+        }
+        td.innerHTML = content.join('');
       }
       if(0===direction){
         /* Closing the whole gap between two chunks or a whole gap
@@ -400,9 +442,20 @@ window.fossil.onPageLoad(function(){
           /* TODO? space-pad numbers, but we don't know the proper length from here. */
           lineno.push(i);
         }
-        row.preLnR.innerText = lineno.join('\n')+'\n';
-        this.e.tr.parentNode.insertBefore(row.tr, this.e.tr);
-        Diff.initTableDiff(this.e.table/*fix scrolling*/).checkTableWidth(true);
+        const selector = '.difflnr > pre';
+        td = tr.querySelector(selector);
+        const lineNoTxt = lineno.join('\n')+'\n';
+        const content = [];
+        if(doAppend) content.push(td.innerHTML, lineNoTxt);
+        else content.push(lineNoTxt, td.innerHTML);
+        if(joinTr){
+          content.push(trNext.querySelector(selector).innerHTML);
+        }
+        td.innerHTML = content.join('');
+        if(joinTr){
+          D.remove(joinTr);
+        }
+        Diff.checkTableWidth(true);
         this.destroy();
         return this;
       }else{
@@ -411,7 +464,10 @@ window.fossil.onPageLoad(function(){
       }
     },
 
-    fetchChunk: function(direction/*-1=prev, 1=next, 0=both*/){
+    fetchChunk: function(direction/*-1=down from prev chunk,
+                                    1=up from next chunk,
+                                    0=full-gap filler for any neighoring
+                                    chunk(s)*/){
       /* Forewarning, this is a bit confusing: when fetching the
          previous lines, we're doing so on behalf of the *next* diff
          chunk (this.pos.next), and vice versa. */

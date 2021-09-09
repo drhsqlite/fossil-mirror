@@ -547,9 +547,6 @@ table.diff td {
 table.diff pre {
   margin: 0 0 0 0;
 }
-table.diff tr.fetched {
-  opacity: 0.7;
-}
 tr.diffskip.jchunk {
   /* jchunk gets added from JS to diffskip rows when they are
      plugged into the /jchunk route and removed after that data
