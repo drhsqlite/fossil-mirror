@@ -82,6 +82,30 @@ window.fossil.onPageLoad(function(){
     return F.fetch('jchunk', fetchOpt);
   };
 
+
+  /**
+     Extracts either the starting or ending line number from a
+     line-numer column in the given tr. isSplit must be true if tr
+     represents a split diff, else false. Expects its tr to be valid:
+     GIGO applies.  Returns the starting line number if getStart, else
+     the ending line number. Returns the line number from the LHS file
+     if getLHS is true, else the RHS.
+  */
+  const extractLineNo = function f(getLHS, getStart, tr, isSplit){
+    if(!f.rx){
+      f.rx = {
+        start: /^\s*(\d+)/,
+        end: /(\d+)\n?$/
+      }
+    }
+    const td = tr.querySelector('td:nth-child('+(
+      /* TD element with the line numbers */
+      getLHS ? 1 : (isSplit ? 4 : 2)
+    )+')');
+    const m = f.rx[getStart ? 'start' : 'end'].exec(td.innerText);
+    return m ? +m[1] : undefined/*"shouldn't happen"*/;
+  };
+
   /**
      Fetches /jchunk for the given TR element then replaces the TR's
      contents with data from the result of that request.
@@ -149,33 +173,14 @@ window.fossil.onPageLoad(function(){
           lineno.push(i);
         }
         preLines[0].append(lineno.join('\n')+'\n');
-        const code = result.join('\n')+'\n';
-        preCode.forEach((e)=>e.innerText = code);
+        if(1){
+          const code = result.join('\n')+'\n';
+          preCode.forEach((e)=>e.innerText = code);
+        }
         //console.debug("Updated TR",tr);
         Diff.initTableDiff(table).checkTableWidth(true);
         /*
-          At this point we need to:
-
-          - Read the previous TR, if any, to get the preceeding LHS/RHS
-          line numbers so that we know where to start counting.
-
-          - If there is no previous TR, we're at the top and we
-          instead need to get the LHS/RHS line numbers from the
-          following TR's children.
-
-          - D.clearElement(tr) and insert columns appropriate for the
-          parent table's diff type.
-
-          We can fish the line numbers out of the PRE columns with something
-          like this inefficient but effective hack:
-
-          theElement.innerText.split(/\n+/)
-
-          (need /\n+/ instead of '\n' b/c of INS/DEL elements)
-
-          Noting that the result array will end with an empty element
-          due to the trailing \n character, so a call to pop() will be
-          needed.
+          Reminders to self during development:
 
           SBS diff col layout:
             <td.diffln.difflnl><pre>...LHS line numbers...</pre></td>
@@ -194,17 +199,64 @@ window.fossil.onPageLoad(function(){
 
           - If we have that data readily available, it would be a big
           help (simplify our line calculations) if we stored the line
-          number ranges in the (td.diffln pre) elements as
-          data-startln and data-endln.
+          number ranges in all elements which have that state handy.
          */
       }
     });
   };
   
+  /**
+     Installs chunk-loading controls into TR element tr. isSplit is true
+     if the parent table is a split diff, else false.)
+   */
+  Diff.ChunkLoadControls = function(isSplit, tr){
+    this.isSplit = isSplit;
+    this.e = {/*DOM elements*/};
+    this.pos = {
+      start: +tr.dataset.startln,
+      end: +tr.dataset.endln
+    };
+    this.e.tr = tr;
+    D.clearElement(tr);
+    this.e.td = D.addClass(
+      D.attr(D.td(tr), 'colspan', isSplit ? 5 : 4),
+      'chunkctrl'
+    );
+    /**
+       Depending on various factors, we need one of:
+
+       - A single button to load all lines then remove this control
+
+       - A single button to load the initial chunk
+
+       - Two buttons: one to load upwards, one to load downwards
+    */
+    if(tr.nextElementSibling){
+      this.pos.next = {
+        startLhs: extractLineNo(true, true, tr.nextElementSibling, isSplit),
+        startRhs: extractLineNo(false, true, tr.nextElementSibling, isSplit)
+      };
+    }
+    if(tr.previousElementSibling){
+      this.pos.prev = {
+        endLhs: extractLineNo(true, false, tr.previousElementSibling, isSplit),
+        endRhs: extractLineNo(false, false, tr.previousElementSibling, isSplit)
+      };
+    }
+    D.append(this.e.td,"Controls pending: ",JSON.stringify(this.pos));
+  };
+
+  Diff.ChunkLoadControls.prototype = {
+    config: {
+      glyphUp: '&#uarr;',
+      glyphDown: '&#darr;'
+    }
+  };
+
   Diff.addDiffSkipHandlers = function(){
     const tables = document.querySelectorAll('table.diff[data-lefthash]');
     if(!tables.length) return F;
-    const addDiffSkipToTr = function f(tr){
+    const addDiffSkipToTr = function f(isSplit, tr){
       D.addClass(tr, 'jchunk');
       if(!f._handler){
         f._handler = function ff(event){
@@ -214,10 +266,29 @@ window.fossil.onPageLoad(function(){
           fetchTrChunk(e);
         };
       }
-      tr.addEventListener('click', f._handler, false);
+      /* TODO:
+
+         Depending on tr.dataset.{startln,endln}, install one or two
+         controls for loading the next diff chunk. For both types of
+         diff, put the control(s) into tr->td[0], delete tr->td[1],
+         give tr->td[0] a colspan of 2. Change the click handler to
+         address those controls, instead of the TR element, for
+         purposes of figuring out which lines to fetch. Use a helper
+         class to encapsulate the activation and updates of the
+         controls (e.g. removing controls which are no longer relevant
+         once a chunk is fully loaded).
+
+         Good example from github to use as a model:
+
+         https://github.com/msteveb/autosetup/commit/235925e914a52a542
+      */
+      //tr.addEventListener('click', f._handler, false);
+      new Diff.ChunkLoadControls(isSplit, tr);
     };
-    tables.forEach(function(t){
-      t.querySelectorAll('tr.diffskip[data-startln]').forEach(addDiffSkipToTr);
+    tables.forEach(function(table){
+      table.querySelectorAll('tr.diffskip[data-startln]').forEach(function(tr){
+        addDiffSkipToTr(table.classList.contains('splitdiff')/*else udiff*/, tr);
+      });
     });
   };
 
@@ -274,7 +345,7 @@ window.fossil.onPageLoad(function(){
     //console.debug("scrollLeft",this,event);
     const table = this.parentElement/*TD*/.parentElement/*TR*/.
       parentElement/*TBODY*/.parentElement/*TABLE*/;
-    table.$txtPres.forEach((e)=>e.scrollLeft = this.scrollLeft);
+    table.$txtPres.forEach((e)=>(e===this) ? 1 : (e.scrollLeft = this.scrollLeft));
     return false;
   };
   Diff.initTableDiff = function f(diff){
@@ -308,7 +379,7 @@ window.fossil.onPageLoad(function(){
         e = e || event;
         const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
         if( !len ) return;
-        diff.$txtCols[0].scrollLeft += len;
+        this.$txtPres[0].scrollLeft += len;
         return false;
       }, false);
     }

@@ -552,6 +552,20 @@ tr.diffskip.jchunk:hover {
   background-color: rgba(127,127,127,0.5);
   cursor: pointer;
 }
+tr.diffskip > td.chunkctrl {
+  text-align: left;
+  font-family: monospace;
+  /* Border is only for visibility during development. Remove it when done. */
+  border-width: 1px;
+  border-style: dotted;
+}
+tr.diffskip > td.chunkctrl > .button {
+  min-width: 1.5em;
+  min-height: 1.5em;
+  max-width: 1.5em;
+  max-height: 1.5em;
+  text-align: center;
+}
 td.diffln {
   width: 1px;
   text-align: right;
