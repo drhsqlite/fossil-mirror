@@ -1917,7 +1917,7 @@ void jchunk_page(void){
     ajax_route_error(400, "Just testing client-side error handling.");
     return;
   }
-  
+
   login_check_credentials();
   if( !g.perm.Read ){
     ajax_route_error(403, "Access requires Read permissions.");

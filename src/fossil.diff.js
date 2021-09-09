@@ -23,6 +23,7 @@ window.fossil.onPageLoad(function(){
 window.fossil.onPageLoad(function(){
   const F = window.fossil, D = F.dom;
   const Diff = F.diff = {
+    e:{/*certain cached DOM elements*/},
     config: {
       chunkLoadLines: 20,
       chunkFetch: {
@@ -111,12 +112,29 @@ window.fossil.onPageLoad(function(){
         );
       },
       onload: function(result){
-        console.debug("Chunk result: ",result);
+        //console.debug("Chunk result: ",result);
         D.clearElement(tr);
-        D.append(
-          D.attr(D.td(tr), 'colspan', isSbs ? 5 : 4),
-          "Fetched chunk of ",result.length," line(s). TODO: insert it here."
-        );
+        const cols = [], pre = [D.pre()];
+        if(isSbs){
+          cols.push(D.addClass(D.td(tr), 'diffln', 'difflnl'));
+          cols.push(D.addClass(D.td(tr), 'difftxt', 'difftxtl'));
+          cols.push(D.addClass(D.td(tr), 'diffsep'));
+          cols.push(D.addClass(D.td(tr), 'diffln', 'difflnr'));
+          cols.push(D.addClass(D.td(tr), 'difftxt', 'difftxtr'));
+          D.append(cols[1], pre[0]);
+          pre.push(D.pre());
+          D.append(cols[4], pre[1]);
+        }else{
+          cols.push(D.addClass(D.td(tr), 'diffln', 'difflnl'));
+          cols.push(D.addClass(D.td(tr), 'diffln', 'difflnr'));
+          cols.push(D.addClass(D.td(tr), 'diffsep'));
+          cols.push(D.addClass(D.td(tr), 'difftxt', 'difftxtu'));
+          D.append(cols[3], pre[0]);
+        }
+        const code = result.join('\n')+'\n';
+        pre.forEach((e)=>e.innerText = code);
+        //console.debug("Updated TR",tr);
+        Diff.initTableDiff(table).checkTableWidth(true);
         /*
           At this point we need to:
 
@@ -142,17 +160,24 @@ window.fossil.onPageLoad(function(){
           needed.
 
           SBS diff col layout:
-            <td><pre>...LHS line numbers...</pre></td>
-            <td>...code lines...</td>
-            <td></td> empty for this case.
-            <td><pre>...RHS line numbers...</pre></td>
-            <td>...dupe of col 2</td>
+            <td.diffln.difflnl><pre>...LHS line numbers...</pre></td>
+            <td.difftxt.difftxtl><pre>...code lines...</pre></td>
+            <td.diffsep>empty for this case (common lines)</td>
+            <td.diffln.difflnr><pre>...RHS line numbers...</pre></td>
+            <td.difftxt.difftxtr><pre>...dupe of col 2</pre></td>
 
           Unified diff col layout:
-            <td>LHS line numbers</td>
-            <td>RHS line numbers</td>
-            <td>blank in this case</td>
-            <td>code line</td>
+            <td.diffln.difflnl><pre>LHS line numbers</pre></td>
+            <td.diffln.difflnr><pre>RHS line numbers</pre></td>
+            <td.diffsep>empty in this case (common lines)</td>
+            <td.difftxt.difftxtu><pre>code line</pre></td>
+
+          C-side TODOs:
+
+          - If we have that data readily available, it would be a big
+          help (simplify our line calculations) if we stored the line
+          number ranges in the (td.diffln pre) elements as
+          data-startln and data-endln.
          */
       }
     });
@@ -172,7 +197,7 @@ window.fossil.onPageLoad(function(){
             return;
           }
           e.removeEventListener('click',ff);
-          D.removeClass(e, 'jchunk');
+          D.removeClass(e, 'jchunk', 'diffskip');
           //console.debug("addDiffSkipToTr() Event:",e, event);
           fetchTrChunk(e);
         };
@@ -184,7 +209,7 @@ window.fossil.onPageLoad(function(){
     });
   };
 
-  F.diff.addDiffSkipHandlers();
+  Diff.addDiffSkipHandlers();
 });
 
 /**
@@ -202,67 +227,85 @@ window.fossil.onPageLoad(function(){
 ** both sides scroll together.  Left and right arrows also scroll.
 */
 window.fossil.onPageLoad(function(){
-  var SCROLL_LEN = 25;
-  function initDiff(diff){
-    var txtCols = diff.querySelectorAll('td.difftxt');
-    var txtPres = diff.querySelectorAll('td.difftxt pre');
-    var width = 0;
-    if(txtPres.length>=2)Math.max(txtPres[0].scrollWidth, txtPres[1].scrollWidth);
-    var i;
-    for(i=0; i<txtCols.length; i++){
-      txtCols[i].style.width = width + 'px';
-      txtPres[i].style.maxWidth = width + 'px';
-      txtPres[i].style.width = width + 'px';
-      txtPres[i].onscroll = function(e){
-        for(var j=0; j<txtPres.length; j++) txtPres[j].scrollLeft = this.scrollLeft;
-      };
-    }
-    diff.tabIndex = 0;
-    diff.onkeydown = function(e){
-      e = e || event;
-      var len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
-      if( !len ) return;
-      txtCols[0].scrollLeft += len;
-      return false;
-    };
-  }
-  window.fossil.page.tweakSbsDiffs = function(){
-    document.querySelectorAll('table.splitdiff').forEach(initDiff);
-  };
-  var i, diffs = document.querySelectorAll('table.splitdiff')
-  for(i=0; i<diffs.length; i++){
-    initDiff(diffs[i]);
-  }
-  const checkWidth = function f(){
+  const SCROLL_LEN = 25;
+  const F = window.fossil, D = F.dom, Diff = F.diff;
+  Diff.checkTableWidth = function f(force){
     if(undefined === f.lastWidth){
       f.lastWidth = 0;
     }
-    if( document.body.clientWidth===f.lastWidth ) return;
+    if( !force && document.body.clientWidth===f.lastWidth ) return this;
     f.lastWidth = document.body.clientWidth;
-    var w = f.lastWidth*0.5 - 100;
-    if(!f.colsL){
+    let w = f.lastWidth*0.5 - 100;
+    if(force || !f.colsL){
       f.colsL = document.querySelectorAll('td.difftxtl pre');
     }
-    for(let i=0; i<f.colsL.length; i++){
-      f.colsL[i].style.width = w + "px";
-      f.colsL[i].style.maxWidth = w + "px";
-    }
-    if(!f.colsR){
+    f.colsL.forEach(function(e){
+      e.style.width = w + "px";
+      e.style.maxWidth = w + "px";
+    });
+    if(force || !f.colsR){
       f.colsR = document.querySelectorAll('td.difftxtr pre');
     }
-    for(let i=0; i<f.colsR.length; i++){
-      f.colsR[i].style.width = w + "px";
-      f.colsR[i].style.maxWidth = w + "px";
-    }
+    f.colsR.forEach(function(e){
+      e.style.width = w + "px";
+      e.style.maxWidth = w + "px";
+    });
     if(!f.allDiffs){
       f.allDiffs = document.querySelectorAll('table.diff');
     }
     w = f.lastWidth;
-    for(let i=0; i<f.allDiffs.length; i++){
-      f.allDiffs[i].style.maxWidth = w + "px";
-    }
+    f.allDiffs.forEach((e)=>e.style.maxWidth = w + "px");
+    return this;
   };
-  checkWidth();
-  window.addEventListener('resize', checkWidth);
+
+  const scrollLeft = function(event){
+    //console.debug("scrollLeft",this,event);
+    const table = this.parentElement/*TD*/.parentElement/*TR*/.
+      parentElement/*TBODY*/.parentElement/*TABLE*/;
+    table.$txtPres.forEach((e)=>e.scrollLeft = this.scrollLeft);
+    return false;
+  };
+  Diff.initTableDiff = function f(diff){
+    if(!diff){
+      let i, diffs = document.querySelectorAll('table.splitdiff');
+      for(i=0; i<diffs.length; ++i){
+        f.call(this, diffs[i]);
+      }
+      return this;
+    }
+    diff.$txtCols = diff.querySelectorAll('td.difftxt');
+    diff.$txtPres = diff.querySelectorAll('td.difftxt pre');
+    var width = 0;
+    diff.$txtPres.forEach(function(e){
+      if(width < e.scrollWidth) width = e.scrollWidth;
+    });
+    //console.debug("diff.$txtPres =",diff.$txtPres);
+    diff.$txtCols.forEach((e)=>e.style.width = width + 'px');
+    diff.$txtPres.forEach(function(e){
+      e.style.maxWidth = width + 'px';
+      e.style.width = width + 'px';
+      if(!e.classList.contains('scroller')){
+        D.addClass(e, 'scroller');
+        e.addEventListener('scroll', scrollLeft, false);
+      }
+    });
+    diff.tabIndex = 0;
+    if(!diff.classList.contains('scroller')){
+      D.addClass(diff, 'scroller');
+      diff.addEventListener('keydown', function(e){
+        e = e || event;
+        const len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
+        if( !len ) return;
+        diff.$txtCols[0].scrollLeft += len;
+        return false;
+      }, false);
+    }
+    return this;
+  }
+  window.fossil.page.tweakSbsDiffs = function(){
+    document.querySelectorAll('table.splitdiff').forEach((e)=>Diff.initTableDiff);
+  };
+  Diff.initTableDiff().checkTableWidth();
+  window.addEventListener('resize', ()=>Diff.checkTableWidth());
 }, false);
 
