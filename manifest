@@ -1,5 +1,5 @@
-C help:\sadded\soptional\s'hidden'\sflag\sto\sWEBPAGE/COMMAND/SETTING\sentries,\swhich\scauses\sthem\sto\sbe\selided\sfrom\smost\slistings.\sThey\scan\sstill\sbe\sinvoked\sby\sthe\shelp\ssystem\sif\stheir\sname\sis\sused,\sbut\sthey\swon't\sbe\slisted.\sThis\sis\sprimarily\sintended\sfor\sinternal-use\sajax\sroutes.
-D 2021-09-08T17:23:37.701
+C Edit\spass\son\sthe\sblockchain\sdoc:\smainly\sclarity\simprovements,\sbut\salso\nsome\stypo\sand\sgrammar\sfixes.
+D 2021-09-09T16:19:55.363
 F .dockerignore cd9c1b2de67ec60db244641291e2b5d8288e1d25fca4bf5a322592a98e3680d5
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob de2f79514803c25633f3d21103fd37a5b6cd428761c166dc0e92a302da66d919
@@ -813,7 +813,7 @@ F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3bfe15d881c295f776fc0e8c387d5153e0e45fe80cd55a1ab935039a08b67dc6
 F www/backup.md aad7d07b4e0b26bc56d2ca35ae6b8aa289c860037b2adb21035a2d06573222a1
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
-F www/blockchain.md b4df0227c9cd0c37a50a85002edae00d3fac29a0375bb6a0b3d9703dfe1be874
+F www/blockchain.md e35729693c1342f8ce29934749b78b12e0cba91e683954612fd78d6dafc5b5e2
 F www/branching.wiki 15224751f945ab01e9fdacec7e90268fd68eaa004c0c38c8c29f2ff851ee4630
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
@@ -998,7 +998,7 @@ F www/whyallinone.md 3000a72124518d34e2aab8aff749b5578aa16d152c026e8f0c803be13bb
 F www/whyusefossil.wiki 9a6fcdc78ce0c76c3ee7474c0c7cc86d7529ce5f975fa1aa9c26a713d976c84f
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b11359c4bffa1d9c835dd16c8616fcb13c4fa25c262193cc6e5200d9ff33a415
-R 86682c491e707a12eb24780ba0741c55
-U stephan
-Z 321950173bb6c1d14edd8bd15dfb7da8
+P 701c6dc284c2c4f5f47659f0a93b872e31757cb322ff650d22823f08a6692a5f
+R 26b93e6b90ebd009491ad2e06eb794aa
+U wyoung
+Z 1e9a163a31f64c15e2faf9f4ecec3f36
