@@ -190,15 +190,9 @@ window.fossil.onPageLoad(function(){
       D.addClass(tr, 'jchunk');
       if(!f._handler){
         f._handler = function ff(event){
-          var e = event.target;
-          while(e && 'TR' !== e.tagName) e = e.parentElement;
-          if(!e){
-            console.error("Internal event-handling error: didn't find TR target.");
-            return;
-          }
+          const e = this;
           e.removeEventListener('click',ff);
           D.removeClass(e, 'jchunk', 'diffskip');
-          //console.debug("addDiffSkipToTr() Event:",e, event);
           fetchTrChunk(e);
         };
       }
